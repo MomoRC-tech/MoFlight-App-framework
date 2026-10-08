@@ -7,7 +7,7 @@ Status: desk review complete; Supabase Cloud Free selected for initial trial, mo
 
 Current sequencing: [phone-local persistence first with early independent Supabase feasibility](local-first-implementation-plan.md), under ADR 0004. Cloud integration follows the initial local slice and cloud gates.
 
-Current proposal: Expo / React Native / strict TypeScript and pnpm remain subject to ADR 0002 approval. Manuel selected Supabase Cloud Free for the initial backend trial (ADR 0003), with possible later self-hosting. Account-scoped SQLite with bounded explicit sync remains proposed; defer PowerSync. Use retrieval-only text/vector search first and separately approve paid AI. Retain Python export as a later bounded worker, hosting undecided.
+Current proposal: Expo / React Native / strict TypeScript and pnpm remain subject to ADR 0002 approval. Manuel selected Supabase Cloud Free for the initial backend trial (ADR 0003), with possible later self-hosting. Account-scoped SQLite with bounded explicit sync remains proposed; defer PowerSync. Use retrieval-only text/vector search first and separately approve paid AI. Use an in-app writing-template view first; optional file exports and Python reuse/hosting remain later choices.
 
 Supabase Auth/RLS/Storage analysis below now informs the selected Cloud Free trial; PowerSync and paid price scenarios remain conditional alternatives. The complete comparison covers Auth/recovery, private files, AI/RAG, idle recovery, quotas and self-hosting, including the earlier Convex custom-token alternative and Supabase best-effort pause mitigation.
 
@@ -73,7 +73,7 @@ Keep shared demo knowledge separate from private progress/flights. AI requests g
 
 Test ingestion and retrieval before generation. Use the existing five-section self-authored corpus plan, ten synthetic quiz items and a separate predetermined evaluation set of at least twenty queries. Preserve README targets and denominators; check citation meaning as well as allowed IDs. No model quality or per-answer cost has been measured. A model/pricing selection and an agreed budget are required before paid calls. The historical token examples are not refreshed by this review.
 
-Vereinsflieger supported authentication, own-flight endpoints and commercial access remain #2. It must not determine MoFlight account identity. Python export code inspection and worker deployment remain #7; no extra worker infrastructure is needed for the first Auth/Sync experiment.
+Vereinsflieger supported authentication, own-flight endpoints and commercial access remain #2. It must not determine MoFlight account identity. Writing-template presentation is tracked in #7; Python export inspection/deployment applies only if optional reuse is selected. No export worker is required for the first local or Auth/Sync experiment.
 
 ## Cost review
 
@@ -101,11 +101,11 @@ The [revised priority plan](local-first-implementation-plan.md) controls sequenc
 | G0 / #6 | One platform-lab, locked toolchain, push-to-main CI | Clean install, native build preparation and actual device status |
 | L1 / #4/#7/#9 | Phone SQLite/local files with stable dataset/record IDs; synthetic imports/observations and one remembered decision/query | Offline restart, repeated-import identity, unknown values, deterministic result and account-ready boundaries without cloud login |
 | C1 / #1/#7, same early cycle | Independent Supabase Cloud Free two-user Auth/RLS/private-file/server-command lab | Recovery preserves ID; ordinary-user email delivery, forged owner/reference negatives, private bytes and unavailable-service behavior |
-| L2 / #7/#9 | Continued paper page, reusable decisions and exact aircraft/person results; backup/restore and export execution trial | Fixed synthetic expected records/totals; no false paper advancement, repeat questioning or data loss; no mobile Python assumption |
+| L2 / #7/#9 | Continued paper page, reusable decisions and exact aircraft/person results; backup/restore and exact in-app writing-template trial | Fixed synthetic expected records/totals; no false paper advancement, repeat questioning or data loss; no mobile Python assumption |
 | I1 / #2 and R1 / #3, independent | Supported own-flight trial and permitted corpus/retrieval harness | Actual live reference comparison and separate measured RAG evidence; blocked access remains blocked |
 | S1 / #1/#4/#7, later | Explicit local-to-account linking plus bounded command/delta/file sync | Preserve IDs/pending edits; second-device isolation/convergence, conflicts, retries, tombstones/reset and rollback |
 
-Do not defer C1 until the full local product. Local success is not cloud success; provider choice does not approve mobile/driver/sync details, paid execution or final production behavior. Native storage/encryption, actual source/photo/PDF execution and integrated device acceptance remain separate evidence gates.
+Do not defer C1 until the full local product. Local success is not cloud success; provider choice does not approve mobile/driver/sync details, paid execution or final production behavior. Native storage/encryption, actual source/photo execution and writing-template presentation and integrated device acceptance remain separate evidence gates.
 
 ## Evidence and current environment
 

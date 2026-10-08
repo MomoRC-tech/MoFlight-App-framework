@@ -117,7 +117,7 @@ Existing hardware can reduce cash spending, but its capacity, reachability and r
 
 ## Selection and next executable gates
 
-Supabase Cloud Free is selected for the first backend trial; mobile/workspace, exact sync, SMTP, monitoring and Python worker setup still require resolution. Keep existing #6/#1/#4/#3/#7/#2/#8 work rather than duplicate requirements. No paid plan, paid AI, production release or supported Vereinsflieger transport is approved implicitly.
+Supabase Cloud Free is selected for the first backend trial; mobile/workspace, exact sync, SMTP and monitoring still require resolution. The initial writing template is an in-app view; optional exports and any Python worker reuse/hosting are later choices. Keep existing #6/#1/#4/#3/#7/#2/#8 work rather than duplicate requirements. No paid plan, paid AI, production release or supported Vereinsflieger transport is approved implicitly.
 
 For Supabase, translate the identity boundary to tested Supabase Auth/RLS/server commands rather than the unselected Firebase verifier. Test file/job/stream authorization separately. Idle evidence now records actual probe health, owner restoration behavior and offline safety; it must not require or claim a nonexistent automatic wake-up guarantee.
 

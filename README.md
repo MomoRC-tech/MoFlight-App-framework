@@ -19,15 +19,16 @@ Changes go directly to `main` with traceable commits and Issues; no pull request
 - [ADR 0003: Low-usage backend and explicit offline sync](docs/adr/0003-low-usage-backend-proposal.md) — accepted for the Supabase Cloud Free first trial; detailed sync design remains proposed.
 - [ADR 0004: Phone-local persistence before cloud integration](docs/adr/0004-local-first-sequencing.md) — accepted sequencing, with early Supabase feasibility retained.
 - [Revised local-first implementation priorities](docs/architecture/local-first-implementation-plan.md).
+- [Writing-template format clarification and verification](docs/verification/2026-10-08-writing-template-format.md).
 - [Later Vereinsflieger information discovery and instructor-roster story](docs/product/vereinsflieger-information-discovery.md), tracked in [#10](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/10).
 - [Agent rules](AGENTS.md) and [ADR template](docs/adr/template.md).
 
-- [Flight-logbook user stories and complete photo-to-PDF workflow](docs/product/flight-logbook-user-stories.md).
+- [Flight-logbook user stories and complete continuation workflow](docs/product/flight-logbook-user-stories.md).
 - [Captured Flugbuch prototype sources and differences](docs/reference/flugbuch-prototype/README.md).
 
 ## Products and Phase 1 boundaries
 
-The SPL app will support versioned questions, offline learning, personal progress and an evidence-based AI tutor. The logbook app will support authorized own-flight retrieval from Vereinsflieger, CSV import, handwritten-page observations, user confirmation, deterministic reconciliation and PDF/XLSX exports.
+The SPL app will support versioned questions, offline learning, personal progress and an evidence-based AI tutor. The logbook app will support authorized own-flight retrieval from Vereinsflieger, CSV import, handwritten-page observations, user confirmation, deterministic reconciliation and a readable writing template showing exactly what to copy into the paper book. PDF and other file exports are optional.
 
 Phase 1 builds a technical test app first, then two product shells. It proves shared services with small synthetic examples. It does not deliver a complete exam mode/catalogue, shop, full historical logbook audit or production release. Digital-logbook acceptance/signatures and commercial release requirements remain later work.
 
@@ -63,7 +64,7 @@ Manuel selected **Supabase Cloud Free for the first trial on 2026-10-08**, with 
 | Local data | First implementation: SQLite/local files per dataset/profile; later verified account linking | Restart/offline persistence, source/decision state, migrations, private backup/restore and encryption capability |
 | Sync | Cloud sync follows local slice and early cloud gates; bounded explicit push/pull remains proposed | Stable IDs/revisions from day one; later outbox/cursor/retry/conflict/tombstone/account-linking tests; PowerSync deferred |
 | AI / RAG | Authenticated server function gateway; Postgres full text/pgvector candidate | Retrieval-only first; validated evidence, authorization and budget; paid provider execution separately approved |
-| Document export | Existing Python PDF/XLSX generator through a bounded worker | Inspect current source before reuse; private jobs, versioned snapshots and fixture regression |
+| Writing template | In-app row/field view from one resolved snapshot; optional file exports later | Exact values and paper placement, readable offline resume; inspect/test any prototype renderer before reuse |
 
 Use one selected SQLite driver/write path and one durable account-scoped outbox for explicit sync. If a sync SDK is adopted later, replace the queue strategy rather than add a competing outbox. Supabase RLS alone would not prove that a replication/sync stream is private; test its filters separately.
 
@@ -95,7 +96,7 @@ No empty package trees are created in advance. Use this repository, not the sour
 - File metadata, actual upload completion, analysis observations and user-confirmed values are separate states. A job can use only an owned, completed input.
 - Server-only usage/budget records and idempotency receipts prevent clients from modifying quotas. Retry identity includes an operation ID and payload check.
 - Flight/paper-anchor writes compare a base version. Conflicts preserve both variants for resolution; no blind overwrite.
-- Keep imports/source rows, observations, anchors, findings and versioned confirmed export snapshots traceable. Do not silently remove conflicting source rows.
+- Keep imports/source rows, observations, anchors, findings and versioned confirmed result snapshots traceable. Do not silently remove conflicting source rows.
 - Deletions need tombstones or equivalent confirmed state so old clients cannot restore deleted data.
 
 The draft's API names are proposed internal contracts, not deployed routes or claimed Vereinsflieger endpoints: `apply_mutations_v1`, upload create/complete, tutor answer, photo/export jobs, `fetch_own_flights_v1`, account export and account deletion. A common error includes code, message, retryability and request ID without secrets or foreign data. Write commands validate ownership, payload limits and schema versions.
@@ -104,7 +105,7 @@ Account switch stops the old sync, closes its database and selects account-scope
 
 ## Flight-logbook product workflow
 
-The [canonical user stories](docs/product/flight-logbook-user-stories.md) define photo upload, authorized flight retrieval, visible-row comparison, persisted findings and user responses, and a PDF from a resolved versioned snapshot. Store the complete session and remember last confirmed paper entries, latest successful source import and reusable scoped decisions. Opening/querying the app needs no new photo or export; confirm remembered status or update it with new evidence for continuation. Generating/downloading a PDF never proves that entries were copied. Source snapshots and prototype rule differences are linked from that specification. Detailed stories are proposed acceptance criteria; no end-to-end implementation is claimed.
+The [canonical user stories](docs/product/flight-logbook-user-stories.md) define photo upload, authorized flight retrieval, visible-row comparison, persisted findings and user responses, and a format-neutral writing template from a resolved versioned snapshot. The first output is an in-app view; PDF is an optional export. The [presentation contract](docs/product/writing-template-presentation.md) defines exact values, page/row/field placement and readable offline continuation. Store the complete session and remember last confirmed paper entries, latest successful source import and reusable scoped decisions. Opening/querying the app needs no new photo or export; confirm remembered status or update it with new evidence for continuation. Displaying, generating or downloading a template never proves that entries were copied. Source snapshots and prototype rule differences are linked from that specification. Detailed stories are proposed acceptance criteria; no end-to-end implementation is claimed.
 
 Persistent ignored/overridden findings and deterministic aircraft/person queries are specified in [remembered state and flight-history queries](docs/product/flight-logbook-state-and-queries.md). Counts/latest-flight answers show their data basis, coverage, freshness and supporting flights. Distinguish aircraft instances/models, person identities/roles and source/effective/paper views. Query implementation is tracked in [#9](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/9); no feature is implemented yet.
 
@@ -134,13 +135,13 @@ The [revised priority plan](docs/architecture/local-first-implementation-plan.md
 | 1 | Actual phone-local SQLite/files, synthetic import/photo observations, remembered state and decisions | #4/#7, not implemented |
 | 1, same early cycle | Independent Supabase Cloud Free Auth/recovery/RLS/private-file/server-command feasibility | #1/#5/#7, not tested; no integration prerequisite for local lab |
 | 1, independent | Supported authorized own-flight retrieval feasibility | #2, not tested; CSV is a fallback |
-| 2 | Local continuation/statistics and private backup/restore; validate PDF/handwriting execution separately | #7/#9 with #4, not tested; no paid AI implied |
+| 2 | Local continuation/statistics, readable in-app writing template and private backup/restore; validate handwriting separately | #7/#9 with #4, not tested; no paid AI implied |
 | 2, independent | SPL ingestion/retrieval/RAG evidence | #3, not tested; permitted corpus and budget gates retained |
 | 3 | Explicit account linking, cloud data/files and offline synchronization | #1/#4/#7, after local/early-cloud evidence; two-device/isolation tests retained |
 | 4 | Shared modules, two app shells and integrated Android/iOS acceptance/runbook | #8, not tested; full original framework requirements remain |
 | Later | Broader Vereinsflieger information/club queries, including instructor roster | #10, discovery backlog; no API/capability claim |
 
-No cloud login is required merely to start the initial local lab. A local dataset ID is not trusted cloud identity; later linking is explicit, ownership-checked and preserves data. Local storage needs backup/export and does not establish cross-device access. Supabase evaluation starts before broad local product implementation; do not postpone its risks until the end. Actual SQLite persistence, supported own-flight access, handwriting analysis and in-app PDF generation each need separate evidence.
+No cloud login is required merely to start the initial local lab. A local dataset ID is not trusted cloud identity; later linking is explicit, ownership-checked and preserves data. Local storage needs backup/export and does not establish cross-device access. Supabase evaluation starts before broad local product implementation; do not postpone its risks until the end. Actual SQLite persistence, supported own-flight access, handwriting analysis and writing-template presentation each need separate evidence; optional PDF execution is tested only if adopted.
 
 CSV/import fixtures do not prove live Vereinsflieger access. No stable supported flight or roster endpoint is claimed. Missing external access does not block independent local preparation.
 
@@ -160,7 +161,7 @@ The archived source contains an initial estimate of 18–28 person-days net, or 
 
 The [complete 2026-10-08 comparison](docs/architecture/low-usage-backend-comparison.md#quotas-and-charging-boundaries) verifies current official quotas and distinguishes free plans from $0-base metered plans. The independent early cloud trial uses Supabase Cloud Free, requiring separately verified free SMTP and monitoring arrangements; the first app dataset is local. It targets $0 infrastructure within quotas; it does not promise unlimited service, guaranteed pause prevention or free AI. Historical Supabase Pro + PowerSync Pro base fees of $74/month remain an alternative scenario, not our selected budget.
 
-No cloud resources, monitoring schedules, subscriptions or AI calls have been created. Paid AI, embeddings, handwriting analysis and Python worker hosting remain separately gated.
+No cloud resources, monitoring schedules, subscriptions or AI calls have been created. Paid AI, embeddings and handwriting analysis remain separately gated. An optional export worker is evaluated only if needed.
 
 ## Low-usage availability and approval choices
 

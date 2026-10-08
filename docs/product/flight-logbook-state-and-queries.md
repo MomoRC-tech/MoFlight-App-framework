@@ -8,12 +8,12 @@ The pilot opens the app and sees the remembered state without uploading a new ph
 
 - Last confirmed paper entries, page/row/number, carryovers and confirmation date/evidence.
 - Last successful Vereinsflieger export/retrieval, its coverage and source-data revision. Show a more recent failed attempt separately; it does not replace the usable snapshot.
-- Flights awaiting paper entry, prepared PDFs, incomplete comparisons and pending questions.
+- Flights awaiting paper entry, prepared writing templates, incomplete comparisons and pending questions.
 - Decisions previously made, including ignored findings and field overrides, with a way to review/reverse them.
 
 Persist across sessions/devices, with an account-scoped local copy for offline use. Show freshness, evidence and pending sync. The stored state is the **last known confirmed state**, not proof that the physical book has not changed since.
 
-A new photo can update that state but is not mandatory on every launch. The pilot may explicitly confirm that identified rows from a particular export revision were copied, or confirm/correct the remembered book state manually. Retain which entries/page rows were confirmed, by whom/when and whether the evidence is a photo or a user assertion. PDF generation/download alone never updates paper status. A later conflicting photo creates a finding rather than silently overwriting prior confirmation.
+A new photo can update that state but is not mandatory on every launch. The pilot may explicitly confirm that identified rows from a particular writing-snapshot revision were copied, or confirm/correct the remembered book state manually. Retain which entries/page rows were confirmed, by whom/when and whether the evidence is a photo or a user assertion. Template display/generation/download alone never updates paper status. A later conflicting photo creates a finding rather than silently overwriting prior confirmation.
 
 Continuation uses the remembered confirmed anchor if the pilot confirms it still represents the paper book. Request new evidence when it changed or is ambiguous. Preserve holes/missing entries individually: “last written number” does not automatically prove every earlier source flight was written. Unsupported historical coverage remains unknown.
 
@@ -80,7 +80,7 @@ Store original evidence plus revisioned decisions and materialize/read an effect
 
 - Restore last paper/source state, decisions and pending entries after restart, offline launch and second-device sync.
 - Reimport identical evidence: no repeated ignored question and no changed count. Change a relevant field: old decision becomes stale and prompts review.
-- Generate a PDF: paper status unchanged. Confirm only selected entries copied: exactly those entries advance; conflicting photo/manual edit retains both versions for review.
+- Prepare or display a writing template: paper status unchanged. Confirm only selected entries copied: exactly those entries advance; conflicting photo/manual edit retains both versions for review.
 - Revoke a field override: new queries/exports reflect the current view, while an old export remains reproducible.
 - With repeated import rows/crew links, two aircraft of the same model and two same-name people, counts and latest dates match explicit synthetic expected lists.
 - Query limited or stale/offline history and unknown/ambiguous fields: visible coverage and uncertainty, no unsupported lifetime or zero-match claims.

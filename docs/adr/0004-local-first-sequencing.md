@@ -23,7 +23,7 @@ After those gates pass, add account linking, remote persistence/files and explic
 - Local backup/export/restore is an early requirement; phone storage alone is not a backup. Local encryption and native behavior remain test gates.
 - Identity migration and conflicts must be designed before account linking; avoid treating a phone dataset ID as trusted backend identity.
 - Cloud Auth/RLS/storage/availability risks are still tested early and must not be hidden by local success.
-- Local storage does not supply live Vereinsflieger access, secure AI calls or a mobile Python runtime. Photo analysis and in-app PDF execution require separate evidence.
+- Local storage does not supply live Vereinsflieger access, secure AI calls or a mobile Python runtime. Photo analysis and exact in-app writing-template presentation require separate evidence. PDF/file exports are optional later work and do not gate the first local slice.
 - No implementation choice in ADR 0002, paid plan, AI budget or public deployment is implicitly approved by this order change.
 
 ## Verification

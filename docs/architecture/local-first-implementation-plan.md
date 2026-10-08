@@ -4,7 +4,7 @@ Date: 2026-10-08. Owner: Manuel Singer. Status: selected sequencing under [ADR 0
 
 ## Why change the order
 
-The first logbook workflow can be exercised against phone-local data without requiring remote account sessions, email configuration, private-bucket uploads or synchronization. This reduces dependencies while testing persistent paper/import state, matching, remembered decisions and statistics. It does not remove handwriting-analysis, source-access or PDF-renderer risks, and local success cannot prove cloud isolation/recovery.
+The first logbook workflow can be exercised against phone-local data without requiring remote account sessions, email configuration, private-bucket uploads or synchronization. This reduces dependencies while testing persistent paper/import state, matching, remembered decisions and statistics. It does not remove handwriting-analysis, source-access or exact-presentation risks, and local success cannot prove cloud isolation/recovery.
 
 Local SQLite was already planned. Build it as the initial persistence path behind a small storage boundary, not as a throwaway alternative database. Preserve stable flight/input/decision IDs, explicit dataset ownership, revisions, source references, time basis and tombstones from the beginning. Add only the abstractions needed by the first vertical slice; do not implement a general sync engine or parallel cloud/local application stacks.
 
@@ -16,8 +16,9 @@ Local SQLite was already planned. Build it as the initial persistence path behin
 | 1 | Local SQLite/files persistence, #4; session/decision model #7; query fixtures #9 | Import a synthetic CSV, retain a synthetic page observation, save one finding/response and paper state; restart/offline queries preserve results. No cloud account required to start the lab. |
 | 1, same early cycle | Independent Supabase Cloud Free feasibility, #1/#5 plus #7 privacy probe | Two synthetic cloud users; real confirmation/recovery, private DB reads/writes, negative RLS/reference tests, bounded private-file access, authenticated server boundary, actual quota/configuration and pause/restore runbook evidence. Does not persist the main app dataset yet. |
 | 1, independent | Supported own-flight retrieval feasibility, #2 | Check access/authorization and compare an authorized small retrieval to reference; CSV/local success does not pass this gate. |
-| 2 | Local logbook continuation and statistics, #7/#9 | Deterministic matching/roles/totals, remembered ignore/override/reversal, aircraft/person counts/latest records and supporting-flight list. Local backup/export and restore preserve data and assets. |
-| 2 | PDF and handwriting/source risks, #7 | Inspect existing generator/schema. Test export from a fixed synthetic snapshot; establish actual mobile/worker execution separately. Test actual photo analysis only under a separately approved budget. |
+| 2 | Local continuation, writing template and statistics, #7/#9 | Deterministic matching/roles/totals, remembered decisions, exact readable in-app page/row/field instructions and offline reopening, aircraft/person queries and supporting flights. Local backup/restore preserves data/assets/snapshots. |
+| 2, independent | Handwriting/source risks, #7/#2 | Test actual photo analysis only under a separately approved budget; prepared observations do not pass this gate. Live access remains separately verified. |
+| Later, optional | File output, #7 | Select useful PDF/HTML/image/other exports only if needed. Inspect reference code/schema before reuse; demonstrate actual runtime and parity with the in-app snapshot. |
 | 2, independent | SPL retrieval/RAG feasibility, #3 | Small permitted corpus and measured retrieval/citations; paid generation remains separately gated. |
 | 3, after early cloud gates | Account linking, Supabase persistence/upload and bounded sync, #1/#4/#7 | Explicit local-to-account migration, private upload, offline retry/conflict/deletion/version behavior, second-device convergence and no data loss. |
 | 4 | Shared modules/two shells and integrated device acceptance, #8 | Preserve all existing framework requirements; complete Android/iOS/cloud/live evidence rather than treating local-only success as full acceptance. |
@@ -45,11 +46,13 @@ When the cloud gates pass and integration is selected, the pilot explicitly choo
 
 Define identity mapping, transactions, conflict behavior and rollback before migration. Then implement one durable SQLite outbox and bounded push/pull, transactional cursor updates, change sequences, version checks, tombstones/stale reset and file lifecycles. A staged local-first milestone does not remove the original same-account/two-device/isolation requirements or adopt PowerSync.
 
-## AI and PDF boundary
+## Writing-template and AI boundaries
 
 Local persistence does not imply direct paid AI requests from the app or putting provider keys in a phone. AI calls remain behind an authenticated, budgeted server boundary when approved. The first local slice uses prepared observations; actual handwriting recognition is an independent risk trial.
 
-The existing Python renderer does not automatically run on Android/iOS. Inspect/test it as a reference first; development-side fixture generation can validate deterministic data/layout but not in-app export. Choose a tested mobile renderer or a bounded stateless export worker later, preserving required layout. A worker may process a snapshot without making Supabase the app's initial primary persistence path. Do not promise an entirely offline PDF or AI workflow until demonstrated.
+The initial output is a user-friendly in-app writing template, not necessarily a file. Persist one resolved snapshot and show exactly what belongs in each paper page/row/field, with existing context distinct from new writing. Verify readability and offline reopening on the device under the [presentation contract](../product/writing-template-presentation.md); showing the template never marks entries as copied.
+
+PDF or other downloadable formats are optional later work. Any renderer must consume the same fixed snapshot and pass content/placement parity checks. The existing Python renderer is reference material pending inspection; it does not automatically run on Android/iOS or an Edge Function. Test runtime/hosting only if reuse is adopted. No export worker is a prerequisite for the first local workflow.
 
 ## Current status
 

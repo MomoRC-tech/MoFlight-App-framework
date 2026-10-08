@@ -2,6 +2,8 @@
 
 - [Flight-logbook user stories and continuation workflow](flight-logbook-user-stories.md): product source, prototype provenance, acceptance criteria and Issue mapping.
 
+- [Writing-template presentation](writing-template-presentation.md): exact copy instructions, first in-app view, optional file exports and presentation acceptance.
+
 - [Remembered logbook state, decisions and flight-history queries](flight-logbook-state-and-queries.md): persistent paper/import status, cross-run decisions and exact aircraft/person statistics.
 
 - [Later Vereinsflieger information discovery](vereinsflieger-information-discovery.md): FL-17 roster example and supported-capability inventory (#10).
