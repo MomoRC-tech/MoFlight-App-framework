@@ -1,31 +1,34 @@
-# Arbeitsregeln für MoFlight
+# Agent rules for MoFlight
 
-## Projekt und Dokumentation
-- README.md ist die zentrale Projektdokumentation; relevante Ziele, Architektur, Status und Testergebnisse dort aktualisieren.
-- Vor Änderungen aktuellen Repository-Stand, README und betroffene ADRs lesen.
-- Kleine ausführbare PoCs vor umfangreicher Implementierung.
-- Android und iOS sowie lokale Speicherung und Offline-Betrieb berücksichtigen.
-- Module erst bei Bedarf anlegen; unnötige Infrastruktur vermeiden.
-- Manuel entscheidet über Produkt und verbindliche Technologieauswahl. Vorschläge mit Begründung als ADR dokumentieren; Status nicht ohne Freigabe auf angenommen ändern.
+## Project and documentation
+- README.md is the central project documentation. Update requirements, architecture, status and meaningful test evidence with code.
+- Read current repository state, README and relevant ADRs before changing them.
+- Communicate and maintain active documentation in English. Preserve historical source snapshots in their original language.
+- Prefer small executable PoCs before broad implementation; support Android/iOS and offline local data.
+- Add modules/infrastructure only when needed. Keep domain code free of vendor SDKs and the two domains independent.
+- Manuel owns product decisions and binding technology approval. An earlier recommendation is not approval; keep proposed ADRs proposed until an explicit decision.
 
 ## GitHub
-- Direkt auf main arbeiten und nachvollziehbare Commits erstellen. Keine PRs erforderlich oder erwünscht (Manuel, 2026-10-08).
-- Issues für Aufgaben und offene Entscheidungen verwenden; vorhandene Issues vor Neuerstellung prüfen.
-- Dokumentation gemeinsam mit Code ändern.
-- Bei fehlendem Schreibzugriff klar benennen, was nicht gespeichert wurde.
-- Keine anderen Änderungen überschreiben; Ref bei direktem API-Commit mit erwarteter Head-SHA aktualisieren.
+- Work directly on main with traceable commits; no PRs required or wanted (Manuel, 2026-10-08).
+- Use Issues for tasks and open decisions; check existing tasks before creating duplicates.
+- CI should support pushes to main.
+- Do not overwrite unrelated changes. Use an expected head SHA when updating refs through an API.
+- If write access fails, state which changes are not saved.
 
-## Daten und Secrets
-- Keine Zugangsdaten, API-Schlüssel, Passwörter, Tokens oder personenbezogenen Flugbuchdaten committen.
-- Synthetische Testdaten verwenden; echte Exporte, Fotos und lokale Datenbanken außerhalb des Repository halten.
-- KI-Schlüssel ausschließlich serverseitig; Beispielkonfiguration enthält nur Platzhalter.
-- Benutzerzugriff serverseitig durchsetzen und mit mindestens zwei Benutzern negativ testen.
-- Vereinsflieger-Anmeldung und MoFlight-Identität separat behandeln.
+## Data, AI and secrets
+- Never commit credentials, keys, passwords, tokens, personal flight exports, photos or databases. Use synthetic fixtures.
+- Provider/service-role secrets stay server-side; examples contain placeholders.
+- Enforce authorization for API, sync, private storage, jobs and referenced objects. Test with two users and forged IDs.
+- Keep MoFlight identity and Vereinsflieger authorization separate.
+- Scope local databases/files/queues per account; preserve and surface pending changes at logout/switch.
+- AI transcribes/explains; deterministic code computes flight minutes, roles and totals. Unreadable values remain unknown until confirmed.
+- Read current plugin/skill code before reusing export logic; preserve the existing plugin.
 
-## Verifikation
-- Für Codeänderungen passende aussagekräftige Tests und erforderliche Checks ausführen.
-- Reine Dokumentationsänderungen auf Links, Konsistenz und unbelegte Erfolgsaussagen prüfen.
-- Testergebnisse mit Umgebung, Commit und Grenzen dokumentieren; ungetestete Plattformen explizit benennen.
-- Bei Auth: fremde Benutzer-ID, abgelaufene Sitzung und Wiederherstellung prüfen.
-- Bei Sync: Offline-Neustart, Konflikt, Retry und Benutzerwechsel prüfen.
-- Bei RAG: Quellenbelege, unbeantwortbare Fragen, Zugriffstrennung und gemessene Kosten prüfen.
+## Verification
+- Run appropriate meaningful tests for code changes. For documentation, check links, traceability, consistency and unsupported success/approval claims.
+- Record commit, environment, actual checks and limits; mark unavailable devices/services as not tested or blocked.
+- Auth: registration/confirmation/recovery, preserved identity, foreign data, expired session and account switching.
+- Sync: real offline restart, retry/idempotency, conflicts, delete/reinitialization, migrations and independent stream filters.
+- RAG: retrieval, factual evidence, contextual source IDs, missing evidence, isolation, latency and measured cost.
+- CSV/mocks do not prove authorized live Vereinsflieger retrieval.
+- Verify current official compatibility/pricing before provider selection; never promote source estimates to measured results.

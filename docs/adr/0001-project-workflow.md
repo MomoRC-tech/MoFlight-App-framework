@@ -1,18 +1,18 @@
-# ADR 0001: Projektablage und direkter GitHub-Workflow
+# ADR 0001: Repository and direct commit workflow
 
-- Datum: 2026-10-08
-- Status: Angenommen – explizite Projektanweisungen und Benutzerentscheidung
-- Entscheider: Manuel Singer
+- Date: 2026-10-08
+- Status: Accepted — explicit project instructions and user decision
+- Decision owner: Manuel Singer
 
-## Kontext
-Zwei Apps sollen eine gemeinsame Plattform verwenden. Diskussionen in Chats allein bilden keine dauerhafte technische Projektbasis.
+## Context
+Two products share a reusable platform. Chats alone are not a durable technical project record.
 
-## Entscheidung
-GitHub-Repository MomoRC-tech/MoFlight-App-framework ist die verbindliche versionierte Quelle. README.md enthält die zentrale Projektdokumentation und verweist auf technische Nachweise und ADRs. Issues beschreiben Aufgaben und offene Entscheidungen.
+## Decision
+MomoRC-tech/MoFlight-App-framework is the authoritative versioned repository. README.md is the central documentation and links supporting evidence and ADRs. Issues track tasks and open decisions.
 
-Änderungen werden direkt auf main mit nachvollziehbaren Commits gespeichert. Manuel hat ausdrücklich auf Pull Requests verzichtet. Diese Vorgabe ersetzt die frühere Empfehlung von Feature-Branches und PRs.
+Changes go directly to main in traceable commits. Manuel explicitly waived PRs; this supersedes the earlier branch/PR recommendation.
 
-Die geplante Ablage verwendet ein Monorepo; Verzeichnisse werden erst bei konkretem Inhalt angelegt. Diese Entscheidung legt keine App-/Backend-Technologie fest.
+The target is a monorepo; directories appear only when needed. This decision does not approve any mobile/backend technology.
 
-## Konsequenzen
-Dokumentation und Code müssen gemeinsam gepflegt werden. Direkte Änderungen benötigen passende Prüfungen und dürfen fremde Änderungen nicht überschreiben. Zugangsdaten und personenbezogene Flugbuchdaten bleiben außerhalb der Versionsverwaltung. Produkt- und Architekturfreigaben verbleiben bei Manuel.
+## Consequences
+Update code and documentation together. Apply appropriate checks and avoid overwriting other work. Secrets and personal flight data remain outside version control. Manuel retains product and architecture approval.

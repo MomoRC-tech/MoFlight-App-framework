@@ -1,21 +1,21 @@
-# ADR NNNN: Titel
+# ADR NNNN: Title
 
-- Datum: YYYY-MM-DD
-- Status: Vorgeschlagen | Angenommen | Abgelehnt | Ersetzt
-- Entscheider:
-- Zugehöriges Issue:
+- Date: YYYY-MM-DD
+- Status: Proposed | Accepted | Rejected | Superseded
+- Decision owner:
+- Tracking issue:
 
-## Kontext
-Problem, Anforderungen und nachgewiesene Einschränkungen.
+## Context
+Problem, requirements and evidenced constraints.
 
-## Optionen
-Alternativen mit Aufwand, Kosten, Risiken und überprüfbaren Quellen.
+## Options
+Alternatives with effort, cost, risks and verifiable sources.
 
-## Entscheidung
-Konkreter Vorschlag; Freigabe und Datum erst nach tatsächlicher Entscheidung ergänzen.
+## Decision
+Concrete proposal; record actual approval and date only after the decision.
 
-## Konsequenzen
-Auswirkungen, Grenzen und Rückwechselmöglichkeiten.
+## Consequences
+Effects, limits and alternatives if the choice fails.
 
-## Validierung
-PoC, Tests, Ergebnisnachweise und offene Punkte.
+## Validation
+PoC, executed checks, result evidence and open items.
