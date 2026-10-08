@@ -1,17 +1,17 @@
 # Phase 1 technology review
 
 Date: 2026-10-08. Tracking: [#5](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/5).
-Status: desk review complete; Supabase Cloud Free selected for initial trial, mobile/workspace and detailed sync approvals pending. The backend/sync recommendation below was revised by the later [complete low-usage comparison](low-usage-backend-comparison.md) and [ADR 0003](../adr/0003-low-usage-backend-proposal.md). No runtime compatibility or integration test has passed.
+Status: desk review complete; Supabase Cloud Free selected for initial trial, mobile/workspace/expo-sqlite approved for the initial native lab (ADR 0002/0005); detailed sync remains proposed. The backend/sync recommendation below was revised by the later [complete low-usage comparison](low-usage-backend-comparison.md) and [ADR 0003](../adr/0003-low-usage-backend-proposal.md). This desk review alone established no runtime compatibility. Subsequent [native-lab evidence](../verification/2026-10-08-native-lab.md) records types/SQL/bundles/config and Android debug compilation; native device and hosted integration gates remain open.
 
 ## Recommendation and approval scope
 
 Current sequencing: [phone-local persistence first with early independent Supabase feasibility](local-first-implementation-plan.md), under ADR 0004. Cloud integration follows the initial local slice and cloud gates.
 
-Current proposal: Expo / React Native / strict TypeScript and pnpm remain subject to ADR 0002 approval. Manuel selected Supabase Cloud Free for the initial backend trial (ADR 0003), with possible later self-hosting. Account-scoped SQLite with bounded explicit sync remains proposed; defer PowerSync. Use retrieval-only text/vector search first and separately approve paid AI. Use an in-app writing-template view first; optional file exports and Python reuse/hosting remain later choices.
+Current initial-lab baseline: Expo / React Native / strict TypeScript / pnpm and expo-sqlite as the sole runtime writer are approved under ADR 0002/0005. Manuel selected Supabase Cloud Free for the initial backend trial (ADR 0003), with possible later self-hosting. Account-scoped SQLite with bounded explicit sync remains proposed; defer PowerSync. Use retrieval-only text/vector search first and separately approve paid AI. Use an in-app writing-template view first; optional file exports and Python reuse/hosting remain later choices.
 
 Supabase Auth/RLS/Storage analysis below now informs the selected Cloud Free trial; PowerSync and paid price scenarios remain conditional alternatives. The complete comparison covers Auth/recovery, private files, AI/RAG, idle recovery, quotas and self-hosting, including the earlier Convex custom-token alternative and Supabase best-effort pause mitigation.
 
-If approved, this proposal permits the minimum platform-lab and relevant free/local test setup. It does not authorize a subscription, paid API execution, production deployment, automatic reuse of copyrighted content, or a final Vereinsflieger transport. Exact dependency versions are selected and locked during setup after peer-dependency checks; documentation examples are not a tested dependency matrix.
+The recorded approval permits the minimum native platform-lab and relevant free/local test setup. It does not authorize a subscription, paid API execution, production deployment, automatic reuse of copyrighted content, or a final Vereinsflieger transport. Exact SDK57 dependencies are now pinned after official SDK/template/module checks, with a lockfile; older review examples below are not the current tested dependency matrix.
 
 ## Focused mobile comparison
 

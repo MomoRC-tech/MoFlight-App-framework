@@ -16,7 +16,7 @@ pnpm bundle
 pnpm --filter @moflight/platform-lab prebuild:check
 ```
 
-Dependencies are pinned to Expo 57.0.27, React Native 0.86.3 and React 19.2.3 with the official SDK 57 module mapping. Android/iOS Hermes bundles and generated native configuration pass locally; this is not native compilation/device evidence. SDK 57 supports Android 7+ and iOS 16.4+; the official SDK table requires Xcode 26.4+ for local iOS building. Android needs a configured SDK/JDK 17, accepted SDK licenses and a connected emulator/device. No EAS or paid cloud build is configured.
+Dependencies are pinned to Expo 57.0.27, React Native 0.86.3 and React 19.2.3 with the official SDK 57 module mapping. Android/iOS Hermes bundles and generated native configuration pass locally. Android debug compilation/APK upload also passed in [GitHub Actions run 37798595010](https://github.com/MomoRC-tech/MoFlight-App-framework/actions/runs/37798595010); iOS compilation and device execution remain untested. SDK 57 supports Android 7+ and iOS 16.4+; the official SDK table requires Xcode 26.4+ for local iOS building. Android needs a configured SDK/JDK 17, accepted SDK licenses and a connected emulator/device. No EAS or paid cloud build is configured.
 
 ```bash
 # Android with SDK and device/emulator:
@@ -28,6 +28,17 @@ pnpm lab
 ```
 
 Native project folders, database files and generated bundle output are ignored. App identifiers are `de.momorc.moflight.lab`; this lab is not the future independently released SPL/logbook apps. Android automatic backup is disabled so the explicit versioned backup is the lab transfer path. iOS platform backup policy/encryption is not established by this setting.
+
+## Bundled local builds for the offline gate
+
+Normal Debug development builds load JavaScript from Metro; the debug CI APK is compilation evidence and is not an offline-restart proof. Build a local Release-configuration lab binary with embedded JavaScript for the force-stop/airplane-mode sequence:
+
+```bash
+pnpm --filter @moflight/platform-lab android:offline
+pnpm --filter @moflight/platform-lab ios:offline
+```
+
+The installed Expo CLI help verifies the `--variant release`, `--configuration Release` and `--no-bundler` flags. Generated Android Gradle configuration uses Expo `export:embed` for non-debug variants; its default debug signing is for local lab testing only. These commands are prepared but **not executed here** because native toolchains/devices are absent. No production signing, store distribution or paid build service is selected. Verify the actual installed binary starts with Metro stopped before attempting airplane mode; do not infer this from bundle export alone.
 
 ## Device acceptance sequence — not yet executed
 

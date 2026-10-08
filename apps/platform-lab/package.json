@@ -7,6 +7,8 @@
     "start": "expo start --dev-client",
     "android": "expo run:android",
     "ios": "expo run:ios",
+    "android:offline": "expo run:android --variant release --no-bundler",
+    "ios:offline": "expo run:ios --configuration Release --no-bundler",
     "bundle": "expo export --platform android --platform ios --output-dir dist",
     "prebuild:check": "expo prebuild --no-install --platform all"
   },

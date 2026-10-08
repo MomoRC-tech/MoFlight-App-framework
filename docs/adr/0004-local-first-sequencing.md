@@ -1,7 +1,7 @@
 # ADR 0004: Phone-local persistence before cloud integration
 
 - Date: 2026-10-08
-- Status: Accepted for implementation sequencing; mobile/driver/sync/rendering details remain proposed
+- Status: Accepted for sequencing; initial native mobile/workspace/expo-sqlite lab later approved in ADR 0002/0005; detailed sync and optional rendering remain proposed
 - Decision owner: Manuel Singer
 - Tracking: #4/#5/#6; [revised plan](../architecture/local-first-implementation-plan.md)
 
@@ -29,3 +29,7 @@ After those gates pass, add account linking, remote persistence/files and explic
 ## Verification
 
 Current main and README/AGENTS/ADRs/technology review/product specifications/Issues read before revision. Documentation/traceability checks only; no provisioning, code implementation, cloud/local integration or device tests performed. Record actual results in the referenced Issues and README when executed.
+
+## Subsequent implementation checkpoint
+
+Manuel explicitly approved the initial native lab stack/writer in ADR 0002/0005 on 2026-10-08. [Current evidence](../verification/2026-10-08-native-lab.md) records 10 TypeScript/SQLite checks, 20 host checks, Android/iOS bundles/configuration and successful Android debug compilation. This does not change sequencing or pass device/cloud gates; independent Supabase, own-flight access and SPL retrieval trials remain early requirements. The verification paragraph above records the earlier documentation-stage work.

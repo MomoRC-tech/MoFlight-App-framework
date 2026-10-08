@@ -4,7 +4,7 @@ A reusable Android/iOS platform for two independent products: an SPL learning ap
 
 ## Status and source of truth
 
-As of 2026-10-08, Manuel has approved Expo/React Native, strict TypeScript, pnpm and expo-sqlite as the single database writer for the initial native lab. Phone-local persistence precedes cloud integration, with a separate early Supabase Cloud Free feasibility trial (ADR 0004). The Expo lab now implements synthetic remembered source/paper/decision state, exact aircraft/person queries, fixed in-app writing instructions and backup/restore. Ten TypeScript/real-disk-SQLite checks plus 20 host reference checks pass; Android/iOS Hermes bundles and native configurations generate. Native compilation CI is added and its result is recorded separately; device behavior has not passed. Supabase remains blocked without test-project/two-user access, and supported own-flight access remains unresolved. No paid services or AI calls are authorized.
+As of 2026-10-08, Manuel has approved Expo/React Native, strict TypeScript, pnpm and expo-sqlite as the single database writer for the initial native lab. Phone-local persistence precedes cloud integration, with a separate early Supabase Cloud Free feasibility trial (ADR 0004). The Expo lab now implements synthetic remembered source/paper/decision state, exact aircraft/person queries, fixed in-app writing instructions and backup/restore. Ten TypeScript/real-disk-SQLite checks plus 20 host reference checks pass; Android/iOS Hermes bundles and native configurations generate. Android debug compilation and APK upload pass in GitHub Actions; iOS compilation and Android/iOS device behavior remain untested. Supabase remains blocked without test-project/two-user access, and supported own-flight access remains unresolved. No paid services or AI calls are authorized.
 
 GitHub is the authoritative versioned project record. This README is the central documentation; supporting ADRs, source snapshots and evidence are linked here. Chats support discussion and do not replace this record. Documentation and communication use English; the original German source snapshot remains unchanged.
 
@@ -44,7 +44,7 @@ pnpm --filter @moflight/platform-lab android
 pnpm --filter @moflight/platform-lab ios
 ```
 
-Use Node 24 (tested 24.19.0) and Python 3.12. Expo SDK 57 / React Native 0.86.3 / React 19.2.3 are pinned with the matching Expo modules. Native folders are generated locally and ignored. No EAS subscription or cloud build service is needed for local builds. The app uses dataset-specific SQLite files and explicit selection, entry-level copying confirmation, and a versioned JSON backup restored into a new database. Backup is unencrypted; sharing cancellation does not prove an external backup. The bounded ten-row fixture requires a newly confirmed continuation page after paper advancement.
+For the airplane-mode force-stop check, use the runbook’s `android:offline` / `ios:offline` local Release-configuration commands to embed JavaScript; normal Debug builds depend on Metro. Neither offline command has been executed in this session. Use Node 24 (tested 24.19.0) and Python 3.12. Expo SDK 57 / React Native 0.86.3 / React 19.2.3 are pinned with the matching Expo modules. Native folders are generated locally and ignored. No EAS subscription or cloud build service is needed for local builds. The app uses dataset-specific SQLite files and explicit selection, entry-level copying confirmation, and a versioned JSON backup restored into a new database. Backup is unencrypted; sharing cancellation does not prove an external backup. The bounded ten-row fixture requires a newly confirmed continuation page after paper advancement.
 
 - [Native slice checks, versions and missing device evidence](docs/verification/2026-10-08-native-lab.md).
 - [Earlier 20-test host evidence](docs/verification/2026-10-08-host-local-slice.md) remains historical; its ZIP format is separate from native JSON backup.
@@ -158,7 +158,7 @@ The [revised priority plan](docs/architecture/local-first-implementation-plan.md
 
 | Priority | Work | Tracking / status |
 | --- | --- | --- |
-| 0 | Finalize necessary mobile tooling and minimal platform-lab/CI | #5/#6, approved/pinned workspace; push CI, Android/iOS bundles/config; native build/device evidence tracked separately |
+| 0 | Finalize necessary mobile tooling and minimal platform-lab/CI | #5/#6, approved/pinned workspace; push CI, Android debug APK, Android/iOS bundles/config; iOS compile/device gates open |
 | 1 | Actual phone-local SQLite/files, synthetic import/photo observations, remembered state and decisions | #4/#7, Expo SQLite/private-file implementation; real-disk rules tested; phone runtime pending |
 | 1, same early cycle | Independent Supabase Cloud Free Auth/recovery/RLS/private-file/server-command feasibility | #1/#5/#7, independent SQL/probe prepared; blocked on project/sessions; no hosted tests |
 | 1, independent | Supported authorized own-flight retrieval feasibility | #2, primary-document access unresolved; no live retrieval; normalized synthetic CSV only |
