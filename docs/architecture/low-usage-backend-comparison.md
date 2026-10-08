@@ -14,6 +14,8 @@ Cloud Free remains vulnerable to low-activity pause: independently monitored rea
 
 The tables below preserve the complete official-source comparison. Convex/Firebase remains an unselected candidate: it bundles data/files/functions/retrieval without metered file activation, but requires custom token verification and introduces a document backend. Workers/D1/Neon remain SQL alternatives with extra assembly and R2 billing activation for the compared storage path. These trade-offs no longer determine the first trial.
 
+Implementation priority later changed under [ADR 0004](../adr/0004-local-first-sequencing.md): phone-local persistence first, independent early Supabase feasibility, cloud integration afterward. Provider selection and comparison facts below are retained; a complete backend is not a prerequisite for the first local lab.
+
 ## Complete approaches
 
 All rows include an identity service, private data, files, an execution boundary and a retrieval path. Local databases and files remain per app/account. These are proposed compositions, not tested integrations.

@@ -14,6 +14,10 @@ The earlier evaluation recommended Convex Free plus Firebase Auth. A subsequent 
 
 Manuel then explicitly instructed on 2026-10-08: “i want the First Trial with supabase Cloud free, later we might move that to a local instance.” This selects the provider/hosting for the first trial and supersedes both earlier recommendations. It does not approve a production architecture, paid service, paid AI request or all pending mobile/sync details.
 
+## Later sequencing decision
+
+Manuel instructed on 2026-10-08 to prefer initial phone-local user storage if simpler while checking Supabase very early. [ADR 0004](0004-local-first-sequencing.md) records the selected order: local persistence first, independent cloud feasibility during the same early cycle, then cloud integration after evidence. Supabase Cloud Free remains the first cloud mode selected here; it is not the main app’s first required persistence dependency.
+
 ## Accepted provider/hosting decision
 
 Use **Supabase Cloud Free** for the first bounded backend trial: Supabase Auth, Postgres with tested RLS, private Storage and authenticated server functions. Shared backend identity supports both apps, with separate app sessions. Keep schema, grants, RLS and functions versioned in this repository.
@@ -50,7 +54,7 @@ The NUC shares capacity with Hermes; measure CPU/RAM/disk and operating readines
 
 Official pausing, SMTP and migration documents rechecked on 2026-10-08; source-linked alternatives remain in the comparison. Backend selection is recorded from Manuel's current instruction. No resources provisioned, monitoring configured, paid calls executed or app/integration/device tests passed.
 
-Existing gates remain: #1 Auth/recovery/RLS; #2 supported own-flight access; #4 offline persistence/retries/conflicts; #7 private files, reconciliation/feedback/export; #8 outage/quota/export-restore and integrated device evidence. #5 stays open for mobile/workspace, exact sync, SMTP/monitoring and worker-hosting choices. Record actual setup/tests separately; this provider selection is not a passed test.
+Existing gates remain: #1 Auth/recovery/RLS; #2 supported own-flight access; #4 offline persistence/retries/conflicts; #7 private files, reconciliation/feedback/export; #8 outage/quota/export-restore and integrated device evidence. #5 stays open for mobile/workspace, exact sync, SMTP/monitoring and worker-hosting choices. Initial local storage does not wait on #1; early cloud feasibility still begins before broad product implementation. Record actual setup/tests separately; this provider selection is not a passed test.
 
 ## Official sources
 

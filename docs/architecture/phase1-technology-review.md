@@ -5,6 +5,8 @@ Status: desk review complete; Supabase Cloud Free selected for initial trial, mo
 
 ## Recommendation and approval scope
 
+Current sequencing: [phone-local persistence first with early independent Supabase feasibility](local-first-implementation-plan.md), under ADR 0004. Cloud integration follows the initial local slice and cloud gates.
+
 Current proposal: Expo / React Native / strict TypeScript and pnpm remain subject to ADR 0002 approval. Manuel selected Supabase Cloud Free for the initial backend trial (ADR 0003), with possible later self-hosting. Account-scoped SQLite with bounded explicit sync remains proposed; defer PowerSync. Use retrieval-only text/vector search first and separately approve paid AI. Retain Python export as a later bounded worker, hosting undecided.
 
 Supabase Auth/RLS/Storage analysis below now informs the selected Cloud Free trial; PowerSync and paid price scenarios remain conditional alternatives. The complete comparison covers Auth/recovery, private files, AI/RAG, idle recovery, quotas and self-hosting, including the earlier Convex custom-token alternative and Supabase best-effort pause mitigation.
@@ -90,17 +92,20 @@ Derived planning scenarios: one Supabase Pro organization with one Micro project
 
 Free tiers are appropriate for a small trial; inactivity pauses need to be visible as an environment limitation. Do not buy paid tiers to make an idle PoC look reliable. Runtime code needs a server-enforced API budget, independent of supplier dashboard alerts.
 
-## First executable slice after approval
+## First executable slices after necessary mobile approval
+
+The [revised priority plan](local-first-implementation-plan.md) controls sequencing. This supersedes G1 cloud Auth as a prerequisite to actual local persistence.
 
 | Gate / Issues | Implementation | Required evidence |
 | --- | --- | --- |
-| G0 / #6 | One platform-lab, pnpm lockfile, exact tool versions, push-to-main CI | Clean install, type/lint checks and native build preparation |
-| G1 / #1 | Selected Supabase Cloud Free, Auth/RLS/private Storage/server-function boundary; two synthetic accounts, setting/event/flight | Recovery preserves ID; forged token/owner/reference rejected; B cannot read/change A; internal routes cannot bypass verification |
-| G2 / #1 and #4 | Account SQLite/outbox and authenticated command/delta protocol | Offline write, process restart, reconnect, duplicate retry, concurrent pagination, second session and account isolation |
-| G3 / #4 | Conflicting edit, permanent rejection, delete/stale-cursor reset and schema change | Both edits retained; queue advances; no resurrection/cross-account data; transactional cursor and migration preserve pending work |
-| G4 / #3 and #2 | Retrieval harness; authorized Vereinsflieger trial once access exists | RAG measured separately; live own-flights compared to reference; missing access recorded as blocked |
+| G0 / #6 | One platform-lab, locked toolchain, push-to-main CI | Clean install, native build preparation and actual device status |
+| L1 / #4/#7/#9 | Phone SQLite/local files with stable dataset/record IDs; synthetic imports/observations and one remembered decision/query | Offline restart, repeated-import identity, unknown values, deterministic result and account-ready boundaries without cloud login |
+| C1 / #1/#7, same early cycle | Independent Supabase Cloud Free two-user Auth/RLS/private-file/server-command lab | Recovery preserves ID; ordinary-user email delivery, forged owner/reference negatives, private bytes and unavailable-service behavior |
+| L2 / #7/#9 | Continued paper page, reusable decisions and exact aircraft/person results; backup/restore and export execution trial | Fixed synthetic expected records/totals; no false paper advancement, repeat questioning or data loss; no mobile Python assumption |
+| I1 / #2 and R1 / #3, independent | Supported own-flight trial and permitted corpus/retrieval harness | Actual live reference comparison and separate measured RAG evidence; blocked access remains blocked |
+| S1 / #1/#4/#7, later | Explicit local-to-account linking plus bounded command/delta/file sync | Preserve IDs/pending edits; second-device isolation/convergence, conflicts, retries, tombstones/reset and rollback |
 
-Backend provider choice is approved; mobile/workspace and exact sync gates still require decisions; complete private-file, multiweek idle, quota and export/restore gates are in ADR 0003's comparison. Prepare G2 immediately after G1; do not defer sync until full product shells. Hosted email, actual Android/iOS runtime and two-device acceptance remain separate checks. Shared packages emerge only when the slice needs them.
+Do not defer C1 until the full local product. Local success is not cloud success; provider choice does not approve mobile/driver/sync details, paid execution or final production behavior. Native storage/encryption, actual source/photo/PDF execution and integrated device acceptance remain separate evidence gates.
 
 ## Evidence and current environment
 

@@ -17,7 +17,7 @@ The archived Phase 1 draft and initial focused review proposed Expo/React Native
 3. SQLite per app/account and one durable outbox for narrow explicit synchronization. PowerSync adoption and its earlier preferred experiment are deferred.
 4. Authenticated server-side AI boundary; retrieval-only first using permitted self-authored content. Postgres full text/pgvector is the retrieval candidate for the selected Supabase trial. Paid generation/embeddings require separate budget approval.
 5. Preserve Python export as a later bounded worker after inspecting current code; hosting undecided.
-6. Build platform-lab first; add shells/packages only when needed. Domain code stays free of vendor SDKs and cross-domain imports.
+6. Build platform-lab first; implement phone-local storage/workflow before cloud integration, while an independent Supabase trial runs in the same early cycle ([ADR 0004](0004-local-first-sequencing.md)). Add shells/packages only when needed; domain code stays free of vendor SDKs and cross-domain imports.
 
 Mobile/workspace approval and backend approval are separately reviewable in #5. Approval authorizes only the agreed PoC implementation and necessary free setup at the relevant step. It does not authorize subscriptions, billing-enabled plans, paid AI, release, content reuse or a Vereinsflieger transport. It no longer implicitly authorizes a PowerSync experiment.
 

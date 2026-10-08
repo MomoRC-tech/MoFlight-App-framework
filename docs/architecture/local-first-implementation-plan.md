@@ -1,0 +1,64 @@
+# Local phone storage first, with early Supabase feasibility
+
+Date: 2026-10-08. Owner: Manuel Singer. Status: selected sequencing under [ADR 0004](../adr/0004-local-first-sequencing.md); mobile/workspace and exact driver/protocol choices remain proposed. Supabase Cloud Free remains the first cloud candidate selected in ADR 0003; later self-hosting remains optional.
+
+## Why change the order
+
+The first logbook workflow can be exercised against phone-local data without requiring remote account sessions, email configuration, private-bucket uploads or synchronization. This reduces dependencies while testing persistent paper/import state, matching, remembered decisions and statistics. It does not remove handwriting-analysis, source-access or PDF-renderer risks, and local success cannot prove cloud isolation/recovery.
+
+Local SQLite was already planned. Build it as the initial persistence path behind a small storage boundary, not as a throwaway alternative database. Preserve stable flight/input/decision IDs, explicit dataset ownership, revisions, source references, time basis and tombstones from the beginning. Add only the abstractions needed by the first vertical slice; do not implement a general sync engine or parallel cloud/local application stacks.
+
+## Revised priorities
+
+| Priority | Deliverable / existing Issues | Required evidence |
+| --- | --- | --- |
+| 0 | Minimal platform-lab and runner, #6; finalize necessary mobile choices in #5 | Locked tooling, install/build evidence and truthful per-device status. |
+| 1 | Local SQLite/files persistence, #4; session/decision model #7; query fixtures #9 | Import a synthetic CSV, retain a synthetic page observation, save one finding/response and paper state; restart/offline queries preserve results. No cloud account required to start the lab. |
+| 1, same early cycle | Independent Supabase Cloud Free feasibility, #1/#5 plus #7 privacy probe | Two synthetic cloud users; real confirmation/recovery, private DB reads/writes, negative RLS/reference tests, bounded private-file access, authenticated server boundary, actual quota/configuration and pause/restore runbook evidence. Does not persist the main app dataset yet. |
+| 1, independent | Supported own-flight retrieval feasibility, #2 | Check access/authorization and compare an authorized small retrieval to reference; CSV/local success does not pass this gate. |
+| 2 | Local logbook continuation and statistics, #7/#9 | Deterministic matching/roles/totals, remembered ignore/override/reversal, aircraft/person counts/latest records and supporting-flight list. Local backup/export and restore preserve data and assets. |
+| 2 | PDF and handwriting/source risks, #7 | Inspect existing generator/schema. Test export from a fixed synthetic snapshot; establish actual mobile/worker execution separately. Test actual photo analysis only under a separately approved budget. |
+| 2, independent | SPL retrieval/RAG feasibility, #3 | Small permitted corpus and measured retrieval/citations; paid generation remains separately gated. |
+| 3, after early cloud gates | Account linking, Supabase persistence/upload and bounded sync, #1/#4/#7 | Explicit local-to-account migration, private upload, offline retry/conflict/deletion/version behavior, second-device convergence and no data loss. |
+| 4 | Shared modules/two shells and integrated device acceptance, #8 | Preserve all existing framework requirements; complete Android/iOS/cloud/live evidence rather than treating local-only success as full acceptance. |
+| Later | Broader Vereinsflieger information discovery, #10; historical product expansion | Evidence-backed supported capabilities/permissions and scoped use cases; no roster/API claims before discovery. |
+
+“Same early cycle” means the cloud trial starts before a full local product or broad schema is built. This document cannot run agents concurrently; tasks may progress independently without making the main local workflow await all cloud setup. A failed Auth/private-file/availability gate triggers architectural review before substantial cloud-dependent implementation. Do not defer Supabase evaluation until the app is feature-complete.
+
+## First local slice
+
+Use one local profile/dataset identity and stable record IDs; the first lab need not require MoFlight cloud login. It still keeps profile/data/file boundaries so later account linking cannot mix users. Credentials or a local dataset ID are never accepted by the future backend as authenticated ownership.
+
+Use synthetic inputs: a CSV export, manually specified page observations, an ambiguous finding with one user response, a saved confirmed paper anchor and a small aircraft/person query fixture. Clearly label prepared observations as a substitution for handwriting recognition. Preserve source rows and relevant evidence; repeat identical import/decision processing without creating new flights or repeated questions. Restart the process in airplane mode and verify persistence with actual SQLite/files, not an in-memory mock.
+
+Add a private user-controlled backup/export package with schema/version, source snapshots, observations, decisions, paper state and required file bytes. Restore into a clean local profile and compare IDs/data/hashes. Device-local storage alone does not provide backup or cross-device access; deletion, app uninstall or device loss can lose data unless a backup exists. Avoid claiming encryption until driver/platform support is tested.
+
+## Early Supabase trial boundary
+
+Run a small separate lab/schema with synthetic accounts and records, using the selected Cloud Free mode. Verify actual email recovery and private row/file access, not only documentation or anonymous reads. Select/check a free SMTP arrangement for ordinary users; keep secrets off the device/repository. Prove an authenticated server command/function boundary without paid AI.
+
+Record commands/configuration, provider/version, expected/actual results, limits and blocked steps. Test client behavior during unavailable service and capture owner restoration/probe monitoring as appropriate; do not claim guaranteed pause prevention. No service is provisioned by this documentation change. Neither a passed cloud lab nor local-first sequencing authorizes paid plans or AI.
+
+## Later account linking and synchronization
+
+When the cloud gates pass and integration is selected, the pilot explicitly chooses which local dataset to link to the authenticated account. Use a validated migration mapping plus authenticated server checks; do not overwrite an existing account's data, silently reassign ownership or clear pending local work. Same-account retry preserves IDs/receipts; changing account preserves the original dataset and requires deliberate selection.
+
+Define identity mapping, transactions, conflict behavior and rollback before migration. Then implement one durable SQLite outbox and bounded push/pull, transactional cursor updates, change sequences, version checks, tombstones/stale reset and file lifecycles. A staged local-first milestone does not remove the original same-account/two-device/isolation requirements or adopt PowerSync.
+
+## AI and PDF boundary
+
+Local persistence does not imply direct paid AI requests from the app or putting provider keys in a phone. AI calls remain behind an authenticated, budgeted server boundary when approved. The first local slice uses prepared observations; actual handwriting recognition is an independent risk trial.
+
+The existing Python renderer does not automatically run on Android/iOS. Inspect/test it as a reference first; development-side fixture generation can validate deterministic data/layout but not in-app export. Choose a tested mobile renderer or a bounded stateless export worker later, preserving required layout. A worker may process a snapshot without making Supabase the app's initial primary persistence path. Do not promise an entirely offline PDF or AI workflow until demonstrated.
+
+## Current status
+
+Plan/priority change only: no app, SQLite schema, cloud setup, live retrieval, renderer execution or runtime/device test performed. Existing Issues are reordered and later discovery is tracked separately. Supabase Cloud Free stays selected; the first product dataset stays on the phone until integration gates pass.
+
+## Official reference checks
+
+Checked 2026-10-08. Expo remains a proposed mobile choice; this is capability evidence, not mobile approval or runtime validation.
+
+- [Expo SQLite](https://docs.expo.dev/versions/latest/sdk/sqlite/): documents Android/iOS SQLite access, persistence across app restarts and prepared queries. Native driver/encryption/build behavior must still be tested.
+- [Supabase React Native Auth guide](https://supabase.com/docs/guides/auth/quickstarts/react-native): reference for the separate early account/session trial.
+- [Supabase RLS](https://supabase.com/docs/guides/database/postgres/row-level-security): reference for independently tested authenticated ownership boundaries.

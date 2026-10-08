@@ -54,3 +54,7 @@ The next action is focused current-source validation of the technology proposal 
 ## Later product and backend checkpoint — 2026-10-08
 
 Manuel selected Supabase Cloud Free for the initial trial, with local Supabase as a possible later move. ADR 0003 records that limited decision; ADR 0002 remains proposed for mobile/workspace. [Flight-logbook user stories](../product/flight-logbook-user-stories.md) now capture the complete photo-to-PDF journey, persisted reconciliation/feedback and actual paper state. Current plugin/skill instructions and rulebooks were inspected and [captured](../reference/flugbuch-prototype/README.md); their rule differences are explicit. Generator code has not yet been inspected or reused. This checkpoint supersedes earlier pending-backend and uninspected-rule-document statements; it does not claim runtime success.
+
+## Later sequencing checkpoint — 2026-10-08
+
+Manuel authorized phone-local storage first if simpler while retaining very early Supabase concept checks. [ADR 0004](../adr/0004-local-first-sequencing.md) and the [revised priorities](local-first-implementation-plan.md) record this: local SQLite/files/workflow first, separate early Auth/RLS/files trial, then cloud linking/sync after gates. Existing final cross-device/account requirements are retained. FL-17/#10 captures later broader Vereinsflieger information discovery (instructor roster example), with no available-API claim. The earlier P1–P8 ordering is historical scope mapping, not current priority.

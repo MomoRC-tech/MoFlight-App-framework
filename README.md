@@ -4,7 +4,7 @@ A reusable Android/iOS platform for two independent products: an SPL learning ap
 
 ## Status and source of truth
 
-As of 2026-10-08, the initial repository documentation has been reconciled with the earlier Phase 1 architecture draft. Requirements, the focused technology review, the complete low-usage backend comparison and proposed test gates are documented; Supabase Cloud Free is selected for the initial backend trial, while mobile/workspace and detailed sync approvals remain pending. No app, live integration or device test has been implemented or passed.
+As of 2026-10-08, the initial repository documentation has been reconciled with the earlier Phase 1 architecture draft. Requirements, the focused technology review, the complete low-usage backend comparison and proposed test gates are documented; Supabase Cloud Free is selected for the initial backend trial, while mobile/workspace and detailed sync approvals remain pending. The selected implementation order is phone-local persistence first with a separate early Supabase feasibility trial (ADR 0004). No app, live integration or device test has been implemented or passed.
 
 GitHub is the authoritative versioned project record. This README is the central documentation; supporting ADRs, source snapshots and evidence are linked here. Chats support discussion and do not replace this record. Documentation and communication use English; the original German source snapshot remains unchanged.
 
@@ -17,6 +17,9 @@ Changes go directly to `main` with traceable commits and Issues; no pull request
 - [Technology comparison, current costs and executable test gates](docs/architecture/phase1-technology-review.md).
 - [Complete backend comparison for weeks of non-use and no subscription](docs/architecture/low-usage-backend-comparison.md) — official-source review, quotas, recovery, trade-offs and approval choices.
 - [ADR 0003: Low-usage backend and explicit offline sync](docs/adr/0003-low-usage-backend-proposal.md) — accepted for the Supabase Cloud Free first trial; detailed sync design remains proposed.
+- [ADR 0004: Phone-local persistence before cloud integration](docs/adr/0004-local-first-sequencing.md) — accepted sequencing, with early Supabase feasibility retained.
+- [Revised local-first implementation priorities](docs/architecture/local-first-implementation-plan.md).
+- [Later Vereinsflieger information discovery and instructor-roster story](docs/product/vereinsflieger-information-discovery.md), tracked in [#10](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/10).
 - [Agent rules](AGENTS.md) and [ADR template](docs/adr/template.md).
 
 - [Flight-logbook user stories and complete photo-to-PDF workflow](docs/product/flight-logbook-user-stories.md).
@@ -50,15 +53,15 @@ Offline covers downloaded permitted content, learning events, flights, settings 
 
 ## Current architecture proposal
 
-Manuel selected **Supabase Cloud Free for the first trial on 2026-10-08**, with a possible later move to self-hosted Supabase. This supersedes the earlier Convex/Firebase recommendation and the subsequent NUC-first suggestion. The [complete comparison](docs/architecture/low-usage-backend-comparison.md) retains alternatives and limitations. Mobile/workspace approval and exact offline-sync design remain open in [#5](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/5); PowerSync remains deferred.
+Manuel selected **Supabase Cloud Free for the first trial on 2026-10-08**, with a possible later move to self-hosted Supabase. This supersedes the earlier Convex/Firebase recommendation and the subsequent NUC-first suggestion. The [complete comparison](docs/architecture/low-usage-backend-comparison.md) retains alternatives and limitations. Phone-local SQLite/files now precede cloud integration, with a separate Supabase feasibility trial in the same early cycle (ADR 0004). Mobile/workspace approval and exact offline-sync design remain open in [#5](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/5); PowerSync remains deferred.
 
 | Area | Proposed baseline | Validation / decision gate |
 | --- | --- | --- |
 | Mobile | Expo, React Native, strict TypeScript | Native Android/iOS builds, deep links and SDK behavior; focused Flutter comparison |
 | Workspace | pnpm monorepo; no additional build orchestrator initially | Reproducible lockfile/setup and fast CI |
-| Backend | Supabase Cloud Free, shared by both apps per environment; selected initial trial | Auth/recovery, RLS, private Storage, server functions; external SMTP, quotas and best-effort pause monitoring |
-| Local data | SQLite per app and account; local UI reads/writes | Persistence, migrations, account isolation and actual encryption capability |
-| Sync | Bounded explicit push/pull sync through a narrow adapter | Durable SQLite outbox, transactional change sequence, retries, conflicts, tombstones/reset; PowerSync deferred |
+| Backend | Supabase Cloud Free selected first cloud mode; early independent feasibility, integration later | Auth/recovery, RLS, private Storage/server commands before broad cloud-dependent work; SMTP, quotas and pause monitoring |
+| Local data | First implementation: SQLite/local files per dataset/profile; later verified account linking | Restart/offline persistence, source/decision state, migrations, private backup/restore and encryption capability |
+| Sync | Cloud sync follows local slice and early cloud gates; bounded explicit push/pull remains proposed | Stable IDs/revisions from day one; later outbox/cursor/retry/conflict/tombstone/account-linking tests; PowerSync deferred |
 | AI / RAG | Authenticated server function gateway; Postgres full text/pgvector candidate | Retrieval-only first; validated evidence, authorization and budget; paid provider execution separately approved |
 | Document export | Existing Python PDF/XLSX generator through a bounded worker | Inspect current source before reuse; private jobs, versioned snapshots and fixture regression |
 
@@ -123,20 +126,23 @@ Regression inventory from the earlier draft: aircraft mismatch (its “flight 21
 
 ## Phase 1 execution plan and Issues
 
-| Source step | Work | Tracking / status |
+The [revised priority plan](docs/architecture/local-first-implementation-plan.md) supersedes the earlier Auth/cloud-first implementation order. Original P1–P8 requirements remain the scope reference, not a required chronological order.
+
+| Priority | Work | Tracking / status |
 | --- | --- | --- |
-| P1 | Reconcile architecture, requirements and trial contracts | Supabase Cloud Free trial selected; user stories captured; remaining mobile/sync decisions [#5](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/5) open |
-| P2 | Minimal workspace, platform-lab and fast CI | [#6](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/6), open |
-| P3 | Early auth, user data and sync-risk trial | [#1](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/1) with [#4](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/4), not tested |
-| P4 | Authorized live own-flight retrieval | [#2](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/2), not tested |
-| P5 | RAG ingestion/retrieval and AI gateway | [#3](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/3), not tested |
-| P6 | Expand shared modules, two shells and offline behavior | [#4](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/4) with shell acceptance in [#8](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/8), not tested |
-| P7 | Private files, bounded photo analysis and Python export | [#7](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/7), not tested |
-| P8 | Integrated device acceptance and runbook | [#8](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/8), not tested |
+| 0 | Finalize necessary mobile tooling and minimal platform-lab/CI | #5/#6, mobile choices pending; no app built |
+| 1 | Actual phone-local SQLite/files, synthetic import/photo observations, remembered state and decisions | #4/#7, not implemented |
+| 1, same early cycle | Independent Supabase Cloud Free Auth/recovery/RLS/private-file/server-command feasibility | #1/#5/#7, not tested; no integration prerequisite for local lab |
+| 1, independent | Supported authorized own-flight retrieval feasibility | #2, not tested; CSV is a fallback |
+| 2 | Local continuation/statistics and private backup/restore; validate PDF/handwriting execution separately | #7/#9 with #4, not tested; no paid AI implied |
+| 2, independent | SPL ingestion/retrieval/RAG evidence | #3, not tested; permitted corpus and budget gates retained |
+| 3 | Explicit account linking, cloud data/files and offline synchronization | #1/#4/#7, after local/early-cloud evidence; two-device/isolation tests retained |
+| 4 | Shared modules, two app shells and integrated Android/iOS acceptance/runbook | #8, not tested; full original framework requirements remain |
+| Later | Broader Vereinsflieger information/club queries, including instructor roster | #10, discovery backlog; no API/capability claim |
 
-Auth and sync risks are tested together early; broader abstraction follows the results. Provider-specific Issues are aligned with the selected Cloud Free trial; requirements and acceptance gates remain valid. Vereinsflieger research and synthetic RAG preparation can progress independently. A blocked external integration does not prevent unrelated preparation.
+No cloud login is required merely to start the initial local lab. A local dataset ID is not trusted cloud identity; later linking is explicit, ownership-checked and preserves data. Local storage needs backup/export and does not establish cross-device access. Supabase evaluation starts before broad local product implementation; do not postpone its risks until the end. Actual SQLite persistence, supported own-flight access, handwriting analysis and in-app PDF generation each need separate evidence.
 
-A CSV import or mock does not prove live Vereinsflieger access. Obtain supported documentation/access and an authorized test account before claiming success. The earlier draft's unofficial OpenAPI/AppKey research is a lead to verify, not an independently confirmed flight API here.
+CSV/import fixtures do not prove live Vereinsflieger access. No stable supported flight or roster endpoint is claimed. Missing external access does not block independent local preparation.
 
 ## Security, testing and operating limits
 
@@ -152,7 +158,7 @@ Per test record commit, date, environment/device, synthetic inputs, command, exp
 
 The archived source contains an initial estimate of 18–28 person-days net, or 24–37 with integration reserve. It also contains supplier tariff assumptions and token-cost examples. These are inherited planning estimates, not a delivery commitment, fresh price verification or measured usage.
 
-The [complete 2026-10-08 comparison](docs/architecture/low-usage-backend-comparison.md#quotas-and-charging-boundaries) verifies current official quotas and distinguishes free plans from $0-base metered plans. The selected first trial uses Supabase Cloud Free, requiring separately verified free SMTP and monitoring arrangements. It targets $0 infrastructure within quotas; it does not promise unlimited service, guaranteed pause prevention or free AI. Historical Supabase Pro + PowerSync Pro base fees of $74/month remain an alternative scenario, not our selected budget.
+The [complete 2026-10-08 comparison](docs/architecture/low-usage-backend-comparison.md#quotas-and-charging-boundaries) verifies current official quotas and distinguishes free plans from $0-base metered plans. The independent early cloud trial uses Supabase Cloud Free, requiring separately verified free SMTP and monitoring arrangements; the first app dataset is local. It targets $0 infrastructure within quotas; it does not promise unlimited service, guaranteed pause prevention or free AI. Historical Supabase Pro + PowerSync Pro base fees of $74/month remain an alternative scenario, not our selected budget.
 
 No cloud resources, monitoring schedules, subscriptions or AI calls have been created. Paid AI, embeddings, handwriting analysis and Python worker hosting remain separately gated.
 
@@ -174,7 +180,7 @@ PowerSync is optional and deferred from the recommended first trial: Free deacti
 
 ## Next action and unresolved decisions
 
-Next: use the selected Supabase Cloud Free backend for the small #1 trial; finalize the remaining mobile/workspace and sync choices in #5 before platform-lab setup (#6). Prove recovery/private data and early offline behavior (#4), then the synthetic persisted photo-to-PDF session (#7/#8). Live Vereinsflieger access and paid handwriting analysis require their separate evidence/budget. No paid-plan or paid-AI approval is implied.
+Next: finalize necessary mobile/workspace choices (#5), establish the lab (#6), then implement phone-local persistence and one synthetic logbook slice (#4/#7/#9). In the same early cycle, independently test Supabase Cloud Free Auth/private data/files (#1) and supported own-flight access (#2). Integrate cloud persistence/account linking/sync only after those gates. #10 remains later capability discovery. No paid-plan or paid-AI approval is implied.
 
 Open: mobile/workspace and detailed sync approval, idle-policy confirmation/multiweek trial, later PowerSync reconsideration, actual SDK versions, service configuration/test accounts, permitted Vereinsflieger transport and scope, content rights, API budget, document-worker hosting, available iOS/Android test environments, production privacy/deletion/backup and release requirements.
 
