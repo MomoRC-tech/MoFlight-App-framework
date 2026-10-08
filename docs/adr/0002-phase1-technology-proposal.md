@@ -1,48 +1,49 @@
 # ADR 0002: Phase 1 PoC stack
 
 - Date: 2026-10-08
-- Status: Proposed — official-source review complete; awaiting Manuel's explicit approval
+- Status: Proposed — revised after low-usage review; awaiting Manuel's explicit approval
 - Decision owner: Manuel Singer
 - Tracking: [#5](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/5)
-- Evidence: [Technology comparison, costs and test gates](../architecture/phase1-technology-review.md)
+- Evidence: [Technology review](../architecture/phase1-technology-review.md), [complete backend comparison](../architecture/low-usage-backend-comparison.md), [ADR 0003](0003-low-usage-backend-proposal.md)
 
 ## Context
 
-The archived Phase 1 draft recommends a shared mobile platform. The requirements reconciliation preserves that proposal. The focused review now supports testing it, but no dependency matrix, integration or native build has been demonstrated.
+The archived Phase 1 draft and initial focused review proposed Expo/React Native, Supabase and a PowerSync experiment. Manuel subsequently required low costs and normal operation after weeks of non-use. The comparison retains existing mobile/modularity requirements and revises the recommended backend trial. No proposal has been approved or tested.
 
 ## Proposed decision for the PoC
 
 1. Expo / React Native / strict TypeScript in a pnpm monorepo; native development builds for platform acceptance.
-2. One Supabase backend per environment, shared by both apps: Auth, Postgres, private Storage and server functions. Start with local synthetic tests; hosted resources are configured at the relevant test step.
-3. SQLite per app/account with one selected write path. Trial PowerSync's documented native OP-SQLite adapter and SDK queue; no parallel generic outbox.
-4. Authenticated server-side AI gateway and pgvector retrieval. Model choice and paid test budget remain separate.
-5. Preserve the existing Python export approach as a later bounded worker after inspecting current code. Worker hosting remains undecided.
-6. Build platform-lab first; add independent product shells and packages only as needed. Domain code stays free of vendor SDKs and cross-domain imports.
+2. Backend/offline choice follows ADR 0003: recommend a bounded Convex Free + Firebase Authentication Spark trial, with verified-token HTTP actions and private internal functions/files. Supabase remains an alternative.
+3. SQLite per app/account and one durable outbox for narrow explicit synchronization. PowerSync adoption and its earlier preferred experiment are deferred.
+4. Authenticated server-side AI boundary; retrieval-only first using permitted self-authored content. Convex text/vector search replaces pgvector in this proposed trial; pgvector remains part of SQL alternatives. Paid generation/embeddings require separate budget approval.
+5. Preserve Python export as a later bounded worker after inspecting current code; hosting undecided.
+6. Build platform-lab first; add shells/packages only when needed. Domain code stays free of vendor SDKs and cross-domain imports.
 
-Approval here authorizes the small PoC implementation and PowerSync experiment; it does not adopt PowerSync for production or authorize subscriptions, paid AI runs, production deployment, content reuse or a Vereinsflieger transport.
+Mobile/workspace approval and backend approval are separately reviewable in #5. Approval authorizes only the agreed PoC implementation and necessary free setup at the relevant step. It does not authorize subscriptions, billing-enabled plans, paid AI, release, content reuse or a Vereinsflieger transport. It no longer implicitly authorizes a PowerSync experiment.
 
 ## Alternatives and consequences
 
-Flutter supports the target platforms. Expo is preferred for this project's shared TypeScript tooling and existing proposal; no performance or agent-quality advantage has been measured. Revisit if native requirements fail.
+Flutter remains technically viable. Expo is preferred for shared TypeScript tooling and the carried-forward proposal; no performance or agent-quality advantage has been measured. Revisit if native requirements fail.
 
-PowerSync reduces synchronization plumbing while leaving write validation and conflicts to our backend. Its download filters require separate security tests from Supabase RLS. A limited explicit-sync implementation is the fallback if native compatibility, isolation, recovery or costs fail; it requires its own cursor, queue, conflict and deletion design. Supabase Realtime alone does not satisfy the offline contract.
+The backend comparison covers Supabase with monitored checks, Workers/D1, Neon, Convex, Firebase and separate self-hosting. ADR 0003 records the new recommendation and its limitations; do not infer guaranteed idle availability from a free plan.
 
-SecureStore is the proposed session storage boundary, with actual payload/lifecycle tests. SQLite encryption remains unresolved for the selected driver. SDK-managed schema projection does not eliminate semantic migration or pending-write recovery tests.
+Use a tested secure session storage boundary for the selected Auth SDK, one SQLite driver and real Android/iOS builds. SQLite encryption remains unverified. Convex/Firebase integration is our custom HTTP adapter proposal, not a tested native provider integration. Online realtime/optimistic queues alone do not prove durable offline writes.
 
-Checked public base fees: Supabase Pro $25/month plus PowerSync Pro from $49/month = $74/month; optional EAS Starter adds $19/month. Free tiers can support initial trials. These derived base-fee scenarios exclude AI and other operating costs; full source-linked limits are in the review.
+Earlier listed Supabase Pro + PowerSync Pro fees start at $74/month; that is a historical alternative scenario, not a selected operating budget. The current proposed trial avoids paid or metered plan activation and has hard free-tier constraints.
 
 ## Decision and test gates
 
-- Manuel explicitly approves the base PoC stack before binding implementation.
-- #6: locked compatible versions, reproducible workspace, push-to-main CI and actual native build evidence.
-- #1/#4: two-user API and stream isolation, offline restart/reconnect, idempotency, conflicts, queue rejection, deletion/reset and schema evolution before PowerSync adoption.
-- #2: supported own-flight retrieval and authorized live comparison before Vereinsflieger transport selection.
-- #3: retrieval/citation/gap/usage evaluation before RAG acceptance.
-- #7: current export code inspection and bounded private worker before reuse/deployment.
-- Separate service/budget approval before subscriptions or paid requests.
+- Manuel explicitly approves mobile/workspace here and backend/offline in ADR 0003 before binding implementation.
+- #6: locked compatible versions, reproducible workspace, push-to-main CI, actual native build evidence.
+- #1/#4: recovery preserves identity; two-user token/API/data isolation; real offline restart/reconnect, retry receipts, transactional delta pagination, conflicts, rejection, deletion/reset and schema evolution.
+- #3: retrieval/citation/gap/isolation evaluation; no paid generation in the initial test.
+- #7: private file lifecycle, current export-code inspection and bounded worker before reuse.
+- #2: supported own-flight retrieval and authorized live comparison before transport selection.
+- #8: quota refusal, multiweek idle return, private export/restore and integrated device evidence.
+- Separate approval before billing-enabled services or paid requests.
 
-The current Linux session has no docker, adb or xcodebuild on PATH. Local Supabase and native/device checks remain unavailable until a suitable runner is established; documentation review does not pass those gates.
+Earlier runner inventory lacked docker, adb and xcodebuild; no runtime/device checks were executed in this evaluation. #6 must establish a suitable runner. Provider-specific wording in existing implementation Issues is aligned after approval.
 
 ## Validation and approval record
 
-Official documentation/pricing and current repository requirements were reviewed on 2026-10-08. Details, sources, test sequence and limitations are recorded in the linked review. No runtime tests, paid calls or provisioning occurred. No approval has been recorded; keep this ADR Proposed until Manuel decides.
+Official-source backend comparison and repository baseline reviewed on 2026-10-08. Documentation consistency/link checks accompany this revision. No provisioning, monitoring, paid calls, runtime tests or user architecture approval occurred. Keep Proposed until Manuel decides.
