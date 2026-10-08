@@ -1,0 +1,24 @@
+# Secrets und lokale Konfiguration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+# Persönliche Daten und lokale Testartefakte
+private-data/
+local-data/
+*.csv
+*.igc
+*.sqlite
+*.sqlite3
+*.db
+# Generierte Dateien
+node_modules/
+dist/
+build/
+coverage/
+.expo/
+.dart_tool/
+__pycache__/
+*.pyc
+.DS_Store
