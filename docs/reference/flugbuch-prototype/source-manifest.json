@@ -1,0 +1,22 @@
+[
+  {
+    "file": "plugin-instructions.md",
+    "source_sha256": "053484cc58636e38875d25c05bb1197b7378a6b2bbe1edb5e4e50832e66caedc",
+    "snapshot_sha256": "053484cc58636e38875d25c05bb1197b7378a6b2bbe1edb5e4e50832e66caedc"
+  },
+  {
+    "file": "plugin-rulebook.md",
+    "source_sha256": "6dab15ee58547fe158d09f3e8b3cdc597ac2837a512cdc2eec33344429d5fba2",
+    "snapshot_sha256": "59daa40ba913344f6ecdf0cc13faeb6b29be4d9553a31dd920839c0bf9f070c0"
+  },
+  {
+    "file": "skill-instructions.md",
+    "source_sha256": "b6e97d63452e09a84bc91e796fa51ed4b69072098a64565006b99108795f7d67",
+    "snapshot_sha256": "b6e97d63452e09a84bc91e796fa51ed4b69072098a64565006b99108795f7d67"
+  },
+  {
+    "file": "skill-rulebook.md",
+    "source_sha256": "2cb630c6fb48879e6184a39bd60e100bd3eb744cae08de2c36acb495f17e385f",
+    "snapshot_sha256": "cc52ccac207f8362e7d7ee0721d5a5b454d8285cff4e200c4079841ad54b3630"
+  }
+]

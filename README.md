@@ -4,7 +4,7 @@ A reusable Android/iOS platform for two independent products: an SPL learning ap
 
 ## Status and source of truth
 
-As of 2026-10-08, the initial repository documentation has been reconciled with the earlier Phase 1 architecture draft. Requirements, the focused technology review, the complete low-usage backend comparison and proposed test gates are documented; mobile and backend PoC approvals are pending. No app, live integration or device test has been implemented or passed.
+As of 2026-10-08, the initial repository documentation has been reconciled with the earlier Phase 1 architecture draft. Requirements, the focused technology review, the complete low-usage backend comparison and proposed test gates are documented; Supabase Cloud Free is selected for the initial backend trial, while mobile/workspace and detailed sync approvals remain pending. No app, live integration or device test has been implemented or passed.
 
 GitHub is the authoritative versioned project record. This README is the central documentation; supporting ADRs, source snapshots and evidence are linked here. Chats support discussion and do not replace this record. Documentation and communication use English; the original German source snapshot remains unchanged.
 
@@ -16,8 +16,11 @@ Changes go directly to `main` with traceable commits and Issues; no pull request
 - [ADR 0002: Phase 1 PoC stack](docs/adr/0002-phase1-technology-proposal.md) — proposed, reviewed and awaiting explicit approval.
 - [Technology comparison, current costs and executable test gates](docs/architecture/phase1-technology-review.md).
 - [Complete backend comparison for weeks of non-use and no subscription](docs/architecture/low-usage-backend-comparison.md) — official-source review, quotas, recovery, trade-offs and approval choices.
-- [ADR 0003: Low-usage backend and explicit offline sync](docs/adr/0003-low-usage-backend-proposal.md) — proposed; Convex Free + Firebase Auth Spark trial.
+- [ADR 0003: Low-usage backend and explicit offline sync](docs/adr/0003-low-usage-backend-proposal.md) — accepted for the Supabase Cloud Free first trial; detailed sync design remains proposed.
 - [Agent rules](AGENTS.md) and [ADR template](docs/adr/template.md).
+
+- [Flight-logbook user stories and complete photo-to-PDF workflow](docs/product/flight-logbook-user-stories.md).
+- [Captured Flugbuch prototype sources and differences](docs/reference/flugbuch-prototype/README.md).
 
 ## Products and Phase 1 boundaries
 
@@ -47,16 +50,16 @@ Offline covers downloaded permitted content, learning events, flights, settings 
 
 ## Current architecture proposal
 
-The earlier draft's mobile/modularity requirements are retained. The new low-usage constraint changes the recommended backend trial, as explained in the [complete comparison](docs/architecture/low-usage-backend-comparison.md) and ADR 0003. Supabase and PowerSync remain alternatives, not approved dependencies. All choices require Manuel's explicit approval in [#5](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/5).
+Manuel selected **Supabase Cloud Free for the first trial on 2026-10-08**, with a possible later move to self-hosted Supabase. This supersedes the earlier Convex/Firebase recommendation and the subsequent NUC-first suggestion. The [complete comparison](docs/architecture/low-usage-backend-comparison.md) retains alternatives and limitations. Mobile/workspace approval and exact offline-sync design remain open in [#5](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/5); PowerSync remains deferred.
 
 | Area | Proposed baseline | Validation / decision gate |
 | --- | --- | --- |
 | Mobile | Expo, React Native, strict TypeScript | Native Android/iOS builds, deep links and SDK behavior; focused Flutter comparison |
 | Workspace | pnpm monorepo; no additional build orchestrator initially | Reproducible lockfile/setup and fast CI |
-| Backend | Convex Free + Firebase Authentication on Spark, shared by both apps per environment | Custom verified-token HTTP boundary, internal data/functions, private files; explicit free-plan quota and idle-policy gates |
+| Backend | Supabase Cloud Free, shared by both apps per environment; selected initial trial | Auth/recovery, RLS, private Storage, server functions; external SMTP, quotas and best-effort pause monitoring |
 | Local data | SQLite per app and account; local UI reads/writes | Persistence, migrations, account isolation and actual encryption capability |
 | Sync | Bounded explicit push/pull sync through a narrow adapter | Durable SQLite outbox, transactional change sequence, retries, conflicts, tombstones/reset; PowerSync deferred |
-| AI / RAG | Authenticated server action gateway; Convex text/vector retrieval candidate | Retrieval-only first; validated evidence, authorization and budget; paid provider execution separately approved |
+| AI / RAG | Authenticated server function gateway; Postgres full text/pgvector candidate | Retrieval-only first; validated evidence, authorization and budget; paid provider execution separately approved |
 | Document export | Existing Python PDF/XLSX generator through a bounded worker | Inspect current source before reuse; private jobs, versioned snapshots and fixture regression |
 
 Use one selected SQLite driver/write path and one durable account-scoped outbox for explicit sync. If a sync SDK is adopted later, replace the queue strategy rather than add a competing outbox. Supabase RLS alone would not prove that a replication/sync stream is private; test its filters separately.
@@ -71,9 +74,9 @@ Shared technical modules handle contracts, auth, data, sync, files, settings, pe
 | `apps/spl-learning/` | Independently released learning app |
 | `apps/flight-logbook/` | Independently released logbook; canonical spelling here, replacing draft's `glider-logbook` |
 | `packages/` | Contracts, auth, data, sync, files, AI client and pure domains, only as needed |
-| `backend/` | Technology-neutral backend boundary and proposed verified-token HTTP adapter |
-| `convex/` | Internal functions/schema and authenticated HTTP routes if ADR 0003 is approved |
-| `supabase/migrations/`, `supabase/functions/` | Alternative implementation paths only if Supabase is selected |
+| `backend/` | Technology-neutral backend contracts and authenticated command/job boundary |
+| `convex/` | Historical alternative only; no implementation planned for the first trial |
+| `supabase/migrations/`, `supabase/functions/` | Selected backend SQL/RLS migrations and server functions for the first trial |
 | `services/document-worker/` | Bounded Python export worker if generator reuse is adopted |
 | `pocs/`, `tests/fixtures/`, `tests/e2e/` | Small trials, synthetic fixtures and cross-platform acceptance |
 | `docs/adr/`, `docs/architecture/`, `docs/reference/` | Decisions, supporting reconciliation and source snapshot |
@@ -96,6 +99,10 @@ The draft's API names are proposed internal contracts, not deployed routes or cl
 
 Account switch stops the old sync, closes its database and selects account-scoped data/files/queues. Pending changes remain visible before logout/deletion and are never silently discarded or transferred. A permanently offline device can learn about remote deletion only on reconnection.
 
+## Flight-logbook product workflow
+
+The [canonical user stories](docs/product/flight-logbook-user-stories.md) define photo upload, authorized flight retrieval, visible-row comparison, persisted findings and user responses, and a PDF from a resolved versioned snapshot. Store the complete session, not just its PDF. The latest photographed paper row controls continuation numbering; generating/downloading a PDF never proves that entries were copied. Source snapshots and prototype rule differences are linked from that specification. Detailed stories are proposed acceptance criteria; no end-to-end implementation is claimed.
+
 ## AI, RAG and logbook behavior
 
 The shared AI gateway handles authentication, input/output validation, allowed tasks, context limits, timeouts, usage and atomic quota reservation. Tutor retrieval and photo prompts remain domain-specific. A tutor cannot silently change learning progress. Unknown provider timeout outcomes are reported rather than retried indefinitely; request idempotency does not guarantee exactly-once provider billing.
@@ -116,7 +123,7 @@ Regression inventory from the earlier draft: aircraft mismatch (its “flight 21
 
 | Source step | Work | Tracking / status |
 | --- | --- | --- |
-| P1 | Reconcile architecture, requirements and trial contracts | Reconciliation, technology review and complete backend comparison completed; approval [#5](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/5) open |
+| P1 | Reconcile architecture, requirements and trial contracts | Supabase Cloud Free trial selected; user stories captured; remaining mobile/sync decisions [#5](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/5) open |
 | P2 | Minimal workspace, platform-lab and fast CI | [#6](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/6), open |
 | P3 | Early auth, user data and sync-risk trial | [#1](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/1) with [#4](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/4), not tested |
 | P4 | Authorized live own-flight retrieval | [#2](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/2), not tested |
@@ -125,7 +132,7 @@ Regression inventory from the earlier draft: aircraft mismatch (its “flight 21
 | P7 | Private files, bounded photo analysis and Python export | [#7](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/7), not tested |
 | P8 | Integrated device acceptance and runbook | [#8](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/8), not tested |
 
-Auth and sync risks are tested together early; broader abstraction follows the results. Existing provider-specific Issue wording will be aligned when a stack is approved; requirements and acceptance gates remain valid. Vereinsflieger research and synthetic RAG preparation can progress independently. A blocked external integration does not prevent unrelated preparation.
+Auth and sync risks are tested together early; broader abstraction follows the results. Provider-specific Issues are aligned with the selected Cloud Free trial; requirements and acceptance gates remain valid. Vereinsflieger research and synthetic RAG preparation can progress independently. A blocked external integration does not prevent unrelated preparation.
 
 A CSV import or mock does not prove live Vereinsflieger access. Obtain supported documentation/access and an authorized test account before claiming success. The earlier draft's unofficial OpenAPI/AppKey research is a lead to verify, not an independently confirmed flight API here.
 
@@ -143,7 +150,7 @@ Per test record commit, date, environment/device, synthetic inputs, command, exp
 
 The archived source contains an initial estimate of 18–28 person-days net, or 24–37 with integration reserve. It also contains supplier tariff assumptions and token-cost examples. These are inherited planning estimates, not a delivery commitment, fresh price verification or measured usage.
 
-The [complete 2026-10-08 comparison](docs/architecture/low-usage-backend-comparison.md#quotas-and-charging-boundaries) verifies current official quotas and distinguishes free plans from $0-base metered plans. The recommended trial uses Convex Free and Firebase Auth Spark, avoiding billing-enabled Starter, Blaze and R2. It targets $0 infrastructure within free quotas; it does not promise unlimited service or free AI. Historical Supabase Pro + PowerSync Pro base fees of $74/month remain an alternative scenario, not our selected budget.
+The [complete 2026-10-08 comparison](docs/architecture/low-usage-backend-comparison.md#quotas-and-charging-boundaries) verifies current official quotas and distinguishes free plans from $0-base metered plans. The selected first trial uses Supabase Cloud Free, requiring separately verified free SMTP and monitoring arrangements. It targets $0 infrastructure within quotas; it does not promise unlimited service, guaranteed pause prevention or free AI. Historical Supabase Pro + PowerSync Pro base fees of $74/month remain an alternative scenario, not our selected budget.
 
 No cloud resources, monitoring schedules, subscriptions or AI calls have been created. Paid AI, embeddings, handwriting analysis and Python worker hosting remain separately gated.
 
@@ -153,10 +160,10 @@ The app may be unused for weeks. A routine automatic cold start is acceptable if
 
 | Choice | Idle / cost trade-off | Recommendation |
 | --- | --- | --- |
-| Convex Free + Firebase Auth Spark + explicit SQLite sync | Bundled data/files/search/functions; no weekly idle rule found in checked docs, but no contractual exemption. Custom auth verifier, document model and free quotas; confirm policy and test multiweek idle | Recommended bounded PoC; ADR 0003 remains Proposed |
+| Convex Free + Firebase Auth Spark + explicit SQLite sync | Bundled data/files/search/functions; custom auth verifier, document model and quotas; idle behavior unproven | Earlier recommendation; alternative, not selected |
 | Workers Free + D1 + Firebase Auth + private R2 | Request-driven serverless/SQL; more assembly and 10 ms Worker CPU gate; R2 requires metered subscription activation despite free allowance | Alternative if SQL and storage billing risk are acceptable |
 | Neon Free + Workers + Firebase Auth + R2 | Explicit automatic database wake; Postgres/pgvector portability; extra compute quota/provider and R2 billing gate | SQL alternative |
-| Supabase Free + SMTP + monitored real database checks | Most integrated SQL option; weekly pause still possible. Current guide requires owner Dashboard resume, within one year | Choose only with explicit acceptance of best-effort availability |
+| Supabase Free + SMTP + monitored real database checks | Integrated SQL option; weekly pause still possible and owner Dashboard resume may be required | Selected for initial trial; measure limitations rather than promise availability |
 | Self-hosted Supabase/PocketBase | No managed weekly idle rule; owner handles hardware, network, patching, mail and private backups | Separate operating decision; no deployment |
 
 Sources, complete component coverage and current quotas are in the comparison. A database ping can reduce Supabase's pause risk; it cannot guarantee an exemption or automatically restore a paused project. Convex preview deployments expire and must not be used as a durable backend. Absence of a documented idle rule for Convex/Firebase is an uncertainty to resolve before release, not an uptime promise.
@@ -165,8 +172,8 @@ PowerSync is optional and deferred from the recommended first trial: Free deacti
 
 ## Next action and unresolved decisions
 
-Next: Manuel reviews the complete comparison and approves or changes ADR 0003's backend/offline proposal and ADR 0002's mobile/workspace proposal in #5. Then build the minimal platform-lab (#6), prove Auth/recovery/private data (#1), and run the initial explicit offline-sync trial (#4). No paid-plan or paid-AI approval is implied.
+Next: use the selected Supabase Cloud Free backend for the small #1 trial; finalize the remaining mobile/workspace and sync choices in #5 before platform-lab setup (#6). Prove recovery/private data and early offline behavior (#4), then the synthetic persisted photo-to-PDF session (#7/#8). Live Vereinsflieger access and paid handwriting analysis require their separate evidence/budget. No paid-plan or paid-AI approval is implied.
 
-Open: technology approval, idle-policy confirmation/multiweek trial, PowerSync deferral or later adoption, actual SDK versions, service configuration/test accounts, permitted Vereinsflieger transport and scope, content rights, API budget, document-worker hosting, available iOS/Android test environments, production privacy/deletion/backup and release requirements.
+Open: mobile/workspace and detailed sync approval, idle-policy confirmation/multiweek trial, later PowerSync reconsideration, actual SDK versions, service configuration/test accounts, permitted Vereinsflieger transport and scope, content rights, API budget, document-worker hosting, available iOS/Android test environments, production privacy/deletion/backup and release requirements.
 
 Verification so far: current README/agent rules/ADR and Issues read; full earlier source draft (version 2) read; requirements and test plan reconciled; official-source mobile/sync/backend/pricing review and complete low-usage backend comparison completed. The current Linux session lacks docker, adb and xcodebuild on PATH; #6 must establish an appropriate runner. No runtime, cloud or device checks have been executed.

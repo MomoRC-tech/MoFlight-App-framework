@@ -50,3 +50,7 @@ P1 comparison is complete. Technology review/approval #5 remains open. P2 is #6;
 Read the complete source, checked the thirteen requirement rows and eight plan stages against the updated README/Issues, and reviewed relative links, status language and instruction precedence. No source proposal was marked approved; no live integration, pricing check, source-code reuse, cloud provisioning or device test was performed.
 
 The next action is focused current-source validation of the technology proposal in #5, then a small platform-lab implementation and early auth/sync experiment.
+
+## Later product and backend checkpoint — 2026-10-08
+
+Manuel selected Supabase Cloud Free for the initial trial, with local Supabase as a possible later move. ADR 0003 records that limited decision; ADR 0002 remains proposed for mobile/workspace. [Flight-logbook user stories](../product/flight-logbook-user-stories.md) now capture the complete photo-to-PDF journey, persisted reconciliation/feedback and actual paper state. Current plugin/skill instructions and rulebooks were inspected and [captured](../reference/flugbuch-prototype/README.md); their rule differences are explicit. Generator code has not yet been inspected or reused. This checkpoint supersedes earlier pending-backend and uninspected-rule-document statements; it does not claim runtime success.

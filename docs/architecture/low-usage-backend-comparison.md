@@ -1,22 +1,18 @@
 # Low-usage backend comparison
 
 Date: 2026-10-08. Owner: Manuel Singer. Tracking: [Issue #5](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/5).
-Status: official-source desk review; architecture approval pending. No resources provisioned, paid AI calls executed, app implemented or integration tests passed.
+Status: official-source desk review; Supabase Cloud Free selected for initial trial on 2026-10-08. Mobile/workspace and detailed sync choices remain pending. No resources provisioned, paid AI calls executed, app implemented or integration tests passed.
 Baseline: main commit 303d3d81c408aebe3cc5f488ce9677d832753bab; README, AGENTS.md, ADR 0002, technology review and Issue #5 read first.
 
-## Recommendation for approval
+## Selected first trial — Manuel's decision
 
-Trial **Convex Free + Firebase Authentication on Spark + account-scoped SQLite with bounded explicit synchronization**, without PowerSync. This is our architecture inference, not a vendor-provided turnkey combination.
+On 2026-10-08 Manuel selected **Supabase Cloud Free first**, with self-hosted Supabase as a possible later move. [ADR 0003](../adr/0003-low-usage-backend-proposal.md) records this limited provider/hosting decision. It supersedes the earlier Convex/Firebase recommendation and the later NUC-first suggestion; neither alternative is the current trial baseline.
 
-It covers database, private file storage, server-side execution and text/vector retrieval without activating a metered file-storage plan. Firebase supplies email/password, verification and password recovery without our own SMTP service or purchased domain. Use Convex's supplied HTTP endpoint; Firebase's default hosted email action handler is available [F1–F4, C1–C7]. Neither provider's checked documentation publishes a Supabase-style weekly inactivity-pause rule for these services. That absence is **not an explicit permanent exemption or an uptime guarantee**: confirm the policy and run a multiweek idle trial before release. This is a proposed PoC choice, not production acceptance.
+Use Supabase Auth/Postgres/RLS/private Storage/server functions. External SMTP is required for general-user verification/recovery. Account-scoped SQLite and bounded explicit synchronization remain proposed, with PowerSync deferred. Preserve domain boundaries, database migrations and file exports to support a tested migration later. The [logbook user stories](../product/flight-logbook-user-stories.md) drive persistent session/feedback/export requirements.
 
-The cost is a small but security-critical Firebase-token verifier at the HTTP boundary, our own narrow sync protocol, two provider accounts, and a less portable document database. Compared with Workers/D1, Convex bundles files, search and transactions and avoids R2 billing activation. Compared with Supabase, it avoids a documented weekly pause dependency. Clerk is a simpler documented Convex SDK integration, but its production setup requires an owned domain/DNS; do not silently assume an existing domain or call a new domain free [C8, K1–K3].
+Cloud Free remains vulnerable to low-activity pause: independently monitored real DB reads are best-effort mitigation, not an exemption or automatic restoration. Plan owner Dashboard resume and safe offline queuing. Choosing this first trial does not establish production availability, unlimited quotas or free AI. No cloud, monitoring, SMTP or paid service was provisioned.
 
-**Fallback if SQL portability matters more and metered storage activation is acceptable:** Firebase Auth + Cloudflare Workers Free + D1 + private R2 Standard, with Vectorize only when semantic retrieval is needed. No fixed monthly infrastructure fee within the free allowances, but R2 requires checkout/subscription activation and bills overages [W1–W6]. This falls short of a strict “no billing-enabled services” requirement.
-
-**Fallback if preserving the earlier stack matters more:** Supabase Free + free transactional SMTP + monitored database checks + the same explicit SQLite sync. It is the simplest integrated SQL backend, but requires explicit acceptance of best-effort pause avoidance. It cannot satisfy a firm requirement that weeks of non-use never require owner restoration [S1–S5].
-
-“No monthly subscription” and “no possibility of a bill” are different approval choices. Free infrastructure does not make commercial AI APIs free. Generation, embeddings, handwriting analysis and a hosted Python export worker remain separate cost/hosting decisions. Keep paid AI execution disabled during this trial.
+The tables below preserve the complete official-source comparison. Convex/Firebase remains an unselected candidate: it bundles data/files/functions/retrieval without metered file activation, but requires custom token verification and introduces a document backend. Workers/D1/Neon remain SQL alternatives with extra assembly and R2 billing activation for the compared storage path. These trade-offs no longer determine the first trial.
 
 ## Complete approaches
 
@@ -26,7 +22,7 @@ All rows include an identity service, private data, files, an execution boundary
 | --- | --- | --- | --- | --- | --- |
 | A: Supabase Free + transactional SMTP + monitored checks | Supabase email/password; external SMTP for user verification/recovery | Postgres RLS; private Storage policies; authenticated download or short-lived signed URL | SQLite outbox + authenticated command/delta API; Realtime only an optional online hint | Edge Functions gateway; Postgres full text/pgvector with visibility filters | Fewest SQL backend pieces; email and external monitoring still operated; weekly pause risk [S1–S6, E1] |
 | B: Workers Free + D1 + Firebase Auth Spark + R2 Standard | Firebase email/password and hosted recovery; Worker validates ID token | D1 behind Worker ownership checks; private R2 behind authorized Worker, no public bucket | Same explicit sync; no built-in mobile database replication | Worker proxies external AI; D1 FTS5 first, Vectorize for vectors | More assembly; 10 ms CPU gate; R2 billing-enabled even when bill is $0 [F1–F4, W1–W7] |
-| C: Convex Free + Firebase Auth Spark | Same Firebase lifecycle; verifier in Convex HTTP actions | Convex internal queries/mutations; owned file metadata; authenticated HTTP file serving | SQLite + explicit sync; do not rely on Convex's online client queue for restart durability | Internal actions call AI; text/vector indexes; prefilter visibility and recheck documents | Recommended complete unbilled trial; custom auth boundary, sync and document-model portability are trade-offs [C1–C7, F1–F4] |
+| C: Convex Free + Firebase Auth Spark | Same Firebase lifecycle; verifier in Convex HTTP actions | Convex internal queries/mutations; owned file metadata; authenticated HTTP file serving | SQLite + explicit sync; do not rely on Convex's online client queue for restart durability | Internal actions call AI; text/vector indexes; prefilter visibility and recheck documents | Unselected complete unbilled candidate; custom auth boundary, sync and document-model portability are trade-offs [C1–C7, F1–F4] |
 | D: Firebase Auth + Firestore + Storage + Functions on Blaze | Firebase lifecycle; one shared identity project | Firestore Security Rules, Storage Rules; privileged server SDK needs separate ownership checks | Native Firestore persistent offline cache; last-write-wins needs domain conflict rules; verify native RN integration | Functions server gateway; bounded corpus retrieval or separate vector service | Mature mobile stack, but Spark is incomplete: Storage and deployed Functions need billing-enabled Blaze [F4–F6] |
 | E: Neon Free Postgres + Workers Free + Firebase Auth + R2 | Firebase lifecycle; alternatively evaluate Neon's managed auth separately | Worker ownership checks/DB privileges; private R2 | Same explicit SQLite sync | Worker AI proxy; Neon full text/pgvector | Automatic DB wake, SQL portability; extra provider/compute quota and R2 billing gate [N1–N3, W1–W5] |
 
@@ -78,9 +74,9 @@ Checked 2026-10-08. USD before taxes; quotas can change. These are supplier limi
 
 Illustrative capacity only: 100 compressed photos at 1 MB consume about 100 MB; downloading each ten times consumes about 1 GB before other traffic and backups. Convex's file/egress limits, not its identity capacity, could be the first constraint. Preserve originals locally and use explicit retention/download limits; do not present this estimate as measured usage or silently remove required files.
 
-## Recommended architecture details and security gates
+## Historical Convex/Firebase candidate details and security gates
 
-This narrows implementation to the existing requirements rather than adding a universal sync platform.
+This section preserves the earlier unselected candidate for traceability. It does not describe the selected Supabase implementation. Existing requirements and security gates remain useful; Firebase/Convex-specific mechanisms are alternatives only.
 
 1. Both apps use the same Firebase Auth project per environment, separate native sessions, and a stable MoFlight user mapping keyed by verified issuer + UID. Start with email/password, verification and Firebase's default web recovery handler; returning to the app and preserved identity require device tests. No custom domain, Clerk account, Firebase Storage, Firestore or Firebase Functions is necessary for C [F1, F7].
 2. All client-facing data/file/sync/AI routes are Convex HTTP actions. Verify Firebase ID tokens with a maintained JWT library using the official signing certificates, cache keys according to provider headers, check signature, algorithm, key ID, issuer, audience, expiry and required claims. Derive identity from the verified token, never a payload owner. Convex documents Web Crypto support in its default runtime; select a compatible maintained verifier and prove certificate parsing/key rotation. This uses Firebase's documented third-party verification method and Convex's HTTP/internal-function boundary; **it is a custom adapter to prove**, not a claimed native Firebase integration [F2, C4, C5, C11].
@@ -117,30 +113,25 @@ Neon plus always-connected logical replication can keep compute awake, defeating
 
 Existing hardware can reduce cash spending, but its capacity, reachability and reliability have not been approved or measured. Do not assume the personal NUC is an available public backend. Free software does not supply free reliable hosting, offsite recovery or an operator. No self-hosted deployment performed.
 
-## Approval choices and next executable gates
+## Selection and next executable gates
 
-| Decision for Manuel | Consequence |
-| --- | --- |
-| Approve C for a bounded PoC (recommended) | Trial Convex Free + Firebase Auth Spark + explicit SQLite sync; tolerate free quotas and an uncontracted idle policy pending confirmation/test; accept document backend/custom auth boundary |
-| Prefer B / E and permit metered storage activation later | SQL and explicit serverless wake; accept R2 billing risk and extra assembly; E adds Neon SQL/pgvector and compute quota |
-| Prefer A and accept best-effort pause mitigation | Preserve integrated SQL stack; accept owner restoration risk and external SMTP/monitoring |
-| Require guaranteed no pauses and guaranteed $0 forever | No checked managed option establishes that promise; reconsider service guarantee, costs or operator responsibility |
+Supabase Cloud Free is selected for the first backend trial; mobile/workspace, exact sync, SMTP, monitoring and Python worker setup still require resolution. Keep existing #6/#1/#4/#3/#7/#2/#8 work rather than duplicate requirements. No paid plan, paid AI, production release or supported Vereinsflieger transport is approved implicitly.
 
-Approval of C would authorize only the small trial and necessary free resource setup at the relevant step; it would not authorize paid services, Starter/Blaze/R2 activation, paid AI, release or a final architecture. Exact mobile tooling approval remains ADR 0002; backend/offline proposal is [ADR 0003](../adr/0003-low-usage-backend-proposal.md).
-
-After approval, keep existing Issues: #6 minimal lab/CI; #1 identity/recovery/data isolation; #4 offline protocol; #3 retrieval-only RAG; #7 private files; #2 Vereinsflieger access. Adapt provider-specific implementation wording at setup; do not duplicate the requirements work.
+For Supabase, translate the identity boundary to tested Supabase Auth/RLS/server commands rather than the unselected Firebase verifier. Test file/job/stream authorization separately. Idle evidence now records actual probe health, owner restoration behavior and offline safety; it must not require or claim a nonexistent automatic wake-up guarantee.
 
 | Gate | Evidence required, not yet executed |
 | --- | --- |
 | Identity boundary (#1) | Two synthetic users; real confirmation/recovery preserves UID/data; forged issuer/audience/signature/owner/reference rejected; expiry/key rotation/revocation and no public RPC bypass |
 | Data/files (#1/#7) | A/B cross-user negatives for every endpoint; private bytes unavailable without authorization; interrupted upload retry, orphan handling, quota refusal |
 | Offline (#4) | Airplane mode + process restart + two sessions; duplicates, pagination races, conflicts, tombstones, stale-cursor reset and migrations |
-| Idle / recovery (#5/#8) | Regular production deployment with synthetic data; pause no keep-alives for at least three weeks; first returning sign-in/data/file request; verify no owner action; capture any cold start. Confirm provider idle policy separately |
+| Idle / recovery (#5/#8) | Selected Supabase trial with synthetic data; monitored DB probes and missed-run alerts, returning sign-in/data/file requests, simulated unavailable/paused client behavior and an owner-resume runbook. Record actual provider pause/restoration; automatic wake is not assumed |
 | Quotas / recovery (#8) | Local simulated exhaustion and safe queued-write preservation; provider usage measured during small free trials; no destructive quota-filling or paid upgrade |
 | RAG (#3) | Existing independent retrieval/citation/missing-evidence gates; meaningful embeddings only through approved free/local method; generation remains disabled |
 | Exit / operation (#8) | Private schema/data/file export and restore rehearsal; deletion/revocation across auth, cloud and local reconnect; verified alert delivery |
 
-## Verification record
+## Earlier comparison verification record
+
+The record below belongs to the earlier comparison commit; it does not assert that current ADR 0003 remains Proposed.
 
 Documentation change only. Current official pages and supplier-owned source files were inspected; the repository baseline and open approval status were checked. Validation: five changed documentation files; 20 relative links resolved against the existing repository tree plus staged additions, including linked anchors; Markdown table column counts and whitespace checked; both ADR statuses remain Proposed. Source references, changed recommendation consistency and preservation of existing requirements were reviewed. No live inactivity trial, SDK compatibility, account recovery, isolation, synchronization or cost measurement has passed. No monitoring job was installed.
 
@@ -193,3 +184,14 @@ All checked 2026-10-08. Product capabilities are documented facts; composition, 
 - P1: [PowerSync plans, source databases and deactivation](https://powersync.com/pricing).
 - H1: [Supabase self-hosting responsibility](https://supabase.com/docs/guides/self-hosting).
 - H2: [PocketBase features and pre-1.0 caution](https://pocketbase.io/docs/).
+
+## Existing hardware and possible later migration
+
+Manuel has a Home Assistant Raspberry Pi 4 and an Intel NUC running Hermes. Keep the Pi dedicated to home automation initially. The NUC is the preferred hardware candidate to assess if migration is later chosen, with separate service configuration/credentials and measured resource use. Previously recorded approximately 8 GB RAM and 41 GiB free root disk are historical observations, not current capacity evidence. Supabase's Docker guide lists 4 GB RAM/2 cores/40 GB SSD minimum and 8 GB+/4 cores+/80 GB+ SSD recommended [H3]. Hermes shares resources; a privileged host agent is not isolated from containers merely by Compose separation.
+
+Self-hosting removes Supabase Cloud's inactivity policy and hosted quotas; home power/network/disk, security updates, email and backup/restore become our responsibility. Default self-hosted Storage can use local disk without R2. Later migration requires database/Auth plus files, functions, secrets, URLs and recovery settings; preserve IDs and validate session/pending-offline behavior [H4]. No local deployment, public endpoint, tunnel or router change is selected now.
+
+Follow-up verification: current repository and prototype rule documents read; Supabase pausing, SMTP and migration pages rechecked; Cloud-first decision and full logbook user stories recorded. Documentation checks only; no host access, provisioning, live retrieval, recognition, PDF or device test performed.
+
+- H3: [Supabase Docker requirements, SMTP and local files](https://supabase.com/docs/guides/self-hosting/docker).
+- H4: [Managed-to-self-hosted restore](https://supabase.com/docs/guides/self-hosting/restore-from-platform).

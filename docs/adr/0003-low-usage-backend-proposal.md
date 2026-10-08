@@ -1,50 +1,64 @@
-# ADR 0003: Low-usage backend and explicit offline sync
+# ADR 0003: Low-usage backend trial and offline synchronization
 
 - Date: 2026-10-08
-- Status: Proposed — architecture approval pending
+- Status: Accepted for initial backend provider/hosting only; detailed sync implementation remains proposed
 - Decision owner: Manuel Singer
 - Tracking: [#5](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/5)
-- Evidence: [Complete backend comparison and official sources](../architecture/low-usage-backend-comparison.md)
+- Evidence: [Complete backend comparison](../architecture/low-usage-backend-comparison.md), [logbook user stories](../product/flight-logbook-user-stories.md)
 
-## Context
+## Context and decision record
 
-Few users and weeks without activity are expected. Avoid subscription costs and inactivity pauses requiring an owner to restore service. The Supabase/PowerSync proposal remains unapproved. Automatic request-driven wake-up is distinct from manual resumption. Free infrastructure is quota-bound and does not make AI usage free.
+Few users and weeks without activity are expected. Avoid subscription costs; preserve local data and queued edits through outages. Automatic database wake-up is distinct from a provider pause requiring operator restoration.
 
-## Options
+The earlier evaluation recommended Convex Free plus Firebase Auth. A subsequent hardware discussion suggested a private self-hosted Supabase trial on the existing NUC. That assessment was prepared in commit 12af7989a357bd1e3e6e01b3d7b1efb0168c59b8 but was not added to main; it is not the project baseline.
 
-- Supabase Free + external transactional SMTP + monitored real database reads: fewest integrated SQL components; mitigation is best effort, not a pause exemption. Paused projects require owner restoration.
-- Workers Free + D1 + Firebase Auth Spark + private R2, optionally Vectorize: request-driven SQL; custom authorization/sync; R2 requires metered subscription activation.
-- Neon Free + Workers + Firebase Auth + R2: Postgres/pgvector and documented automatic wake; extra provider and compute quota; R2 gate remains.
-- Convex Free + Firebase Auth Spark: data/files/functions/search bundled without billing-enabled storage; custom token-verification boundary and explicit mobile sync.
-- Firebase Blaze: native offline database and managed identity; files/functions require billing-enabled service.
-- Self-hosted Supabase or PocketBase: avoids managed idle rules; owner operates hardware, mail, security and private backup/restore. Appwrite Free fails the idle gate.
+Manuel then explicitly instructed on 2026-10-08: “i want the First Trial with supabase Cloud free, later we might move that to a local instance.” This selects the provider/hosting for the first trial and supersedes both earlier recommendations. It does not approve a production architecture, paid service, paid AI request or all pending mobile/sync details.
 
-The linked review contains full component coverage, quotas and current official evidence.
+## Accepted provider/hosting decision
 
-## Proposed decision
+Use **Supabase Cloud Free** for the first bounded backend trial: Supabase Auth, Postgres with tested RLS, private Storage and authenticated server functions. Shared backend identity supports both apps, with separate app sessions. Keep schema, grants, RLS and functions versioned in this repository.
 
-Trial **Convex Free + Firebase Authentication Spark + SQLite per app/account with bounded explicit sync**, without PowerSync. This is our proposed composition, not a vendor-certified integration or final production selection.
+Self-hosted Supabase is a possible later migration, preferably assessed on the NUC. Do not deploy on the NUC or Home Assistant Pi now. No Supabase Pro subscription, PowerSync deployment or Convex/Firebase implementation is selected for the first trial.
 
-Authenticate every client-facing Convex HTTP action using Firebase's documented ID-token verification. Keep corresponding data/search/job functions internal; derive ownership from verified issuer/UID. Firebase handles password verification/recovery through its default hosted email handler. No Clerk domain, R2 subscription, Firebase Storage/Functions, Starter or Blaze is required for this trial.
+Ordinary users' email verification/recovery needs external SMTP; the built-in sender is limited to project-team addresses and is not a general delivery service. Select/test a suitable free SMTP arrangement separately; preserve identity and data through recovery. No provider account, secret or mail service is configured by this ADR.
 
-Private file bytes use authenticated HTTP routes and bounded files; do not expose permanent bearer URLs. Use server-side actions for approved future AI. Start retrieval-only with permitted synthetic/self-authored content; no paid model calls or embeddings.
+## Proposed implementation details and preserved contracts
 
-One durable SQLite outbox and one transactional per-account server change sequence handle push/pull. Preserve receipts, conflicts, tombstones, stale-cursor reset and pending work across account switching. No automatic background-sync promise or broad CRDT design.
+- SQLite per app/account, local UI reads/writes and one durable outbox. Use bounded explicit command/delta synchronization on foreground/reconnect/refresh. PowerSync stays deferred; its operating benefit can be reconsidered after measurements.
+- Authenticated server commands derive user identity from verified sessions. Test RLS reads/writes, ownership changes/references, sync, files and jobs separately. No privileged service key in a client.
+- Immutable learning events, idempotent receipts, version-checked flight/anchor edits, per-account transactional change sequence, paged pull/high-water mark, deletion tombstones and stale-cursor reset. Preserve pending work through account switch, expiry and quota errors.
+- Postgres full text/pgvector is the retrieval candidate. Start with permitted self-authored content and retrieval-only tests. Server-side AI boundary reserves budget and records outcomes; paid generation/embeddings/photo analysis remain disabled until separately approved.
+- The logbook workflow persists inputs, observations, matches, findings, user decisions and resolved export snapshots. PDF generation does not advance actual paper state. Python worker hosting/code reuse is separately evaluated in #7.
 
-Keep provider-specific SDKs out of domains, maintain ordinary domain IDs and test data/file export/restore. Mobile/workspace choice remains separately proposed in [ADR 0002](0002-phase1-technology-proposal.md).
+These implementation details remain proposals, not capabilities claimed to work or an implicit approval of Expo/React Native/TypeScript. Mobile/workspace decision remains [ADR 0002](0002-phase1-technology-proposal.md).
 
-## Consequences
+## Availability and cost consequences
 
-The trial minimizes service assembly and avoids a documented weekly-pause dependency. Convex/Firebase's checked documents do not publish a weekly inactivity rule, but do not establish an unconditional exemption or SLA. Confirm policy and run a multiweek idle trial before release; do not claim availability already proven.
+Cloud Free may pause for low database activity over seven days. The first returning app request is not the documented restoration path; owner Dashboard resume may be necessary. Best-effort monitored real database reads can reduce risk but do not guarantee prevention. Provider choice is accepted for this trial with that disclosed limitation; it is not a promise of weeks-idle availability.
 
-We own the token verifier and offline protocol. Convex is a document backend with vendor-specific functions/search and modest shared free quotas; private file/backup egress may exhaust first. HTTP file responses have a 20 MiB cap; propose 5 MB lab files. Quota errors must preserve offline edits and fail closed.
+Propose a small independently scheduled real DB probe, minimal permissions, expected-response verification, missed-run/failure alerts and an owner-resume runbook. Select scheduler/alert delivery at setup; none is installed. Test paused/unavailable behavior without losing offline edits. Do not silently upgrade a plan to avoid a failed trial.
 
-Clerk has a simpler documented Convex/Expo integration but requires an owned production domain; do not assume one. Workers/D1 or Neon is the fallback if SQL portability is preferred and later metered file storage is accepted. Supabase is the fallback only with explicit acceptance of best-effort pause prevention.
+Use free quotas with explicit file/usage bounds and private backup exports, including file bytes. Hosting can target $0 within allowances; email/worker/AI, store distribution and backup costs are separate decisions. No paid requests or billing-enabled plans are authorized.
 
-PowerSync's free weekly deactivation and paid base fee do not presently justify another dependency. Reopen if measured synchronization complexity outweighs operating costs; do not assume D1/Convex source compatibility.
+## Possible later self-hosting
 
-## Validation and approval
+Keep app-domain IDs/contracts independent of managed endpoints and make environment URLs/configuration replaceable. Retain migrations, reproducible functions and schema/data/file export tooling. A later move must test Auth user IDs/password access/session changes, Storage bytes/policies, functions, SMTP/recovery redirects, secrets, local pending edits and restore behavior. It is not merely an endpoint change or guaranteed one-click migration.
 
-Approval requested: authorize this bounded unbilled trial and accept its document model/custom-auth/sync trade-offs, subject to existing #1/#4/#7 security and recovery gates plus idle/quotas/export tests in #8. Necessary free setup follows only after approval. No paid plans, billing-enabled services, paid AI or release are authorized by this proposal.
+The NUC shares capacity with Hermes; measure CPU/RAM/disk and operating readiness before selecting it. Keep Home Assistant's Pi dedicated initially. Public HTTPS, monitoring, upgrades, database/file backups and restoration become owner responsibilities when self-hosted.
 
-Desk review completed 2026-10-08; source links, repository consistency and traceability checked. No resources, tests, monitoring or user approval exist for the new composition. Keep Proposed. Record Manuel's choice and date here and in #5 before implementation.
+## Validation and remaining decisions
+
+Official pausing, SMTP and migration documents rechecked on 2026-10-08; source-linked alternatives remain in the comparison. Backend selection is recorded from Manuel's current instruction. No resources provisioned, monitoring configured, paid calls executed or app/integration/device tests passed.
+
+Existing gates remain: #1 Auth/recovery/RLS; #2 supported own-flight access; #4 offline persistence/retries/conflicts; #7 private files, reconciliation/feedback/export; #8 outage/quota/export-restore and integrated device evidence. #5 stays open for mobile/workspace, exact sync, SMTP/monitoring and worker-hosting choices. Record actual setup/tests separately; this provider selection is not a passed test.
+
+## Official sources
+
+Checked 2026-10-08:
+
+- [Supabase Cloud Free pausing and owner restoration](https://supabase.com/docs/guides/platform/free-project-pausing).
+- [Supabase SMTP requirements and default restrictions](https://supabase.com/docs/guides/auth/auth-smtp).
+- [Restore a managed project to self-hosted Supabase](https://supabase.com/docs/guides/self-hosting/restore-from-platform).
+- [Self-hosting responsibilities](https://supabase.com/docs/guides/self-hosting).
+
+Historical alternatives and quota/source details remain in the complete comparison; that review's earlier recommendation is superseded by this decision.

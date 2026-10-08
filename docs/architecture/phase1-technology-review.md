@@ -1,13 +1,13 @@
 # Phase 1 technology review
 
 Date: 2026-10-08. Tracking: [#5](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/5).
-Status: desk review complete; all technology approvals pending. The backend/sync recommendation below was revised by the later [complete low-usage comparison](low-usage-backend-comparison.md) and [ADR 0003](../adr/0003-low-usage-backend-proposal.md). No runtime compatibility or integration test has passed.
+Status: desk review complete; Supabase Cloud Free selected for initial trial, mobile/workspace and detailed sync approvals pending. The backend/sync recommendation below was revised by the later [complete low-usage comparison](low-usage-backend-comparison.md) and [ADR 0003](../adr/0003-low-usage-backend-proposal.md). No runtime compatibility or integration test has passed.
 
 ## Recommendation and approval scope
 
-Current proposal: Expo / React Native / strict TypeScript and pnpm remain subject to ADR 0002 approval. For the low-usage backend, trial Convex Free + Firebase Authentication Spark + account-scoped SQLite with bounded explicit sync (ADR 0003); defer PowerSync. Use retrieval-only text/vector search first and separately approve paid AI. Retain Python export as a later bounded worker, hosting undecided.
+Current proposal: Expo / React Native / strict TypeScript and pnpm remain subject to ADR 0002 approval. Manuel selected Supabase Cloud Free for the initial backend trial (ADR 0003), with possible later self-hosting. Account-scoped SQLite with bounded explicit sync remains proposed; defer PowerSync. Use retrieval-only text/vector search first and separately approve paid AI. Retain Python export as a later bounded worker, hosting undecided.
 
-The Supabase/PowerSync SDK analysis and price scenarios below are retained as conditional alternatives. They are not the current default implementation sequence. The complete comparison covers Auth/recovery, private files, AI/RAG, idle recovery, quotas and self-hosting, including the new recommendation's custom token boundary and unproven idle-policy assumption.
+Supabase Auth/RLS/Storage analysis below now informs the selected Cloud Free trial; PowerSync and paid price scenarios remain conditional alternatives. The complete comparison covers Auth/recovery, private files, AI/RAG, idle recovery, quotas and self-hosting, including the earlier Convex custom-token alternative and Supabase best-effort pause mitigation.
 
 If approved, this proposal permits the minimum platform-lab and relevant free/local test setup. It does not authorize a subscription, paid API execution, production deployment, automatic reuse of copyrighted content, or a final Vereinsflieger transport. Exact dependency versions are selected and locked during setup after peer-dependency checks; documentation examples are not a tested dependency matrix.
 
@@ -25,7 +25,7 @@ No claim is made that one framework produces more accurate agent-written code or
 
 Use development builds from the first native persistence trial. Expo Go is useful for quick UI feedback, but cannot prove our chosen native database, app-specific recovery links or release configuration. Local iOS compilation/simulation requires Xcode on macOS; EAS can compile iOS remotely, but a cloud artifact alone is not a device-test result [S1].
 
-## Supabase alternative and account lifecycle
+## Selected Supabase trial and account lifecycle
 
 One backend per environment provides the same account ID to both apps; each app maintains its own session. Use email/password with confirmation and recovery first, to exercise the original requirements without additional identity-provider setup.
 
@@ -63,7 +63,7 @@ Proposed command behavior:
 
 These are MoFlight design requirements, not features asserted to work automatically in a vendor SDK.
 
-## AI and RAG boundary for the Supabase alternative
+## AI and RAG boundary for the Supabase trial
 
 Use pgvector within the selected Postgres backend before adding a separate vector service. Supabase documents retrieval with permissions [S10]. Retrieval functions must preserve the caller's visibility; a privileged server connection must not accidentally expose all chunks.
 
@@ -75,7 +75,7 @@ Vereinsflieger supported authentication, own-flight endpoints and commercial acc
 
 ## Cost review
 
-These are conditional Supabase/PowerSync/EAS scenarios; current complete quotas and billing-activation gates are in the [backend comparison](low-usage-backend-comparison.md#quotas-and-charging-boundaries). They are not the recommended trial's operating budget.
+These are conditional Supabase/PowerSync/EAS scenarios; current complete quotas and billing-activation gates are in the [backend comparison](low-usage-backend-comparison.md#quotas-and-charging-boundaries). Paid scenarios are not the selected Free trial operating budget.
 
 Official public tariff pages were read on 2026-10-08 [S11–S13]. USD, before tax and currency conversion; these are listed plans, not invoices or fixed total-cost guarantees.
 
@@ -95,12 +95,12 @@ Free tiers are appropriate for a small trial; inactivity pauses need to be visib
 | Gate / Issues | Implementation | Required evidence |
 | --- | --- | --- |
 | G0 / #6 | One platform-lab, pnpm lockfile, exact tool versions, push-to-main CI | Clean install, type/lint checks and native build preparation |
-| G1 / #1 | Selected free/local backend; recommend Firebase Auth + Convex verified HTTP adapter; two synthetic accounts, setting/event/flight | Recovery preserves ID; forged token/owner/reference rejected; B cannot read/change A; internal routes cannot bypass verification |
+| G1 / #1 | Selected Supabase Cloud Free, Auth/RLS/private Storage/server-function boundary; two synthetic accounts, setting/event/flight | Recovery preserves ID; forged token/owner/reference rejected; B cannot read/change A; internal routes cannot bypass verification |
 | G2 / #1 and #4 | Account SQLite/outbox and authenticated command/delta protocol | Offline write, process restart, reconnect, duplicate retry, concurrent pagination, second session and account isolation |
 | G3 / #4 | Conflicting edit, permanent rejection, delete/stale-cursor reset and schema change | Both edits retained; queue advances; no resurrection/cross-account data; transactional cursor and migration preserve pending work |
 | G4 / #3 and #2 | Retrieval harness; authorized Vereinsflieger trial once access exists | RAG measured separately; live own-flights compared to reference; missing access recorded as blocked |
 
-Provider-specific gates require approval; complete private-file, multiweek idle, quota and export/restore gates are in ADR 0003's comparison. Prepare G2 immediately after G1; do not defer sync until full product shells. Hosted email, actual Android/iOS runtime and two-device acceptance remain separate checks. Shared packages emerge only when the slice needs them.
+Backend provider choice is approved; mobile/workspace and exact sync gates still require decisions; complete private-file, multiweek idle, quota and export/restore gates are in ADR 0003's comparison. Prepare G2 immediately after G1; do not defer sync until full product shells. Hosted email, actual Android/iOS runtime and two-device acceptance remain separate checks. Shared packages emerge only when the slice needs them.
 
 ## Evidence and current environment
 
