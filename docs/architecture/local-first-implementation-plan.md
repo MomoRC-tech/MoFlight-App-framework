@@ -1,6 +1,6 @@
 # Local phone storage first, with early Supabase feasibility
 
-Date: 2026-10-08. Owner: Manuel Singer. Status: selected sequencing under [ADR 0004](../adr/0004-local-first-sequencing.md); mobile/workspace and exact driver/protocol choices remain proposed. Supabase Cloud Free remains the first cloud candidate selected in ADR 0003; later self-hosting remains optional.
+Date: 2026-10-08. Owner: Manuel Singer. Status: selected sequencing under [ADR 0004](../adr/0004-local-first-sequencing.md); Expo/React Native/strict TypeScript/pnpm and expo-sqlite as the initial native-lab writer are now approved; detailed sync/protocol choices remain proposed. Supabase Cloud Free remains the first cloud candidate selected in ADR 0003; later self-hosting remains optional.
 
 ## Why change the order
 
@@ -56,11 +56,11 @@ PDF or other downloadable formats are optional later work. Any renderer must con
 
 ## Current status
 
-The first [synthetic host SQLite slice](../../apps/platform-lab/README.md) is executable with 20 passing checks: remembered source/paper/decision state, exact queries, fixed writing instructions, restart and backup/restore. This is host evidence only; no native app/phone runtime or cloud setup/live retrieval has passed. [Evidence and limits](../verification/2026-10-08-host-local-slice.md) distinguish prepared observations from handwriting and normalized CSV from retrieval. The independent [Supabase schema/probe](../../pocs/supabase-trial/README.md) is prepared but blocked without project/two-user access; [own-flight primary documentation](vereinsflieger-access-investigation.md) remains unresolved. Supabase Cloud Free stays selected; ADR 0002 mobile choices remain Proposed. [ADR 0005](../adr/0005-host-lab-before-mobile-approval.md) proposes the next native lab decision without adopting it.
+The [platform lab](../../apps/platform-lab/README.md) now includes the approved Expo app and pure TypeScript/SQLite slice, with exact synthetic queries, remembered decisions/paper state, fixed in-app row instructions and native backup/restore wiring. Ten TypeScript/real-disk-SQLite checks and the 20-test host reference pass; both native bundles/configurations generate. [Native evidence](../verification/2026-10-08-native-lab.md) separates these checks from untested device behavior and reports CI compilation separately. The independent [Supabase schema/probe](../../pocs/supabase-trial/README.md) remains blocked without project/two-user access; [own-flight primary documentation](vereinsflieger-access-investigation.md) remains unresolved. Supabase Cloud Free stays selected; ADR 0002/0005 record mobile approval without approving sync.
 
 ## Official reference checks
 
-Checked 2026-10-08. Expo remains a proposed mobile choice; this is capability evidence, not mobile approval or runtime validation.
+Checked 2026-10-08. Expo is approved for the initial lab. These documented capabilities remain separate from actual device/runtime validation.
 
 - [Expo SQLite](https://docs.expo.dev/versions/latest/sdk/sqlite/): documents Android/iOS SQLite access, persistence across app restarts and prepared queries. Native driver/encryption/build behavior must still be tested.
 - [Supabase React Native Auth guide](https://supabase.com/docs/guides/auth/quickstarts/react-native): reference for the separate early account/session trial.

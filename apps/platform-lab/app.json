@@ -1,0 +1,13 @@
+{
+  "expo": {
+    "name": "MoFlight Lab",
+    "slug": "moflight-platform-lab",
+    "version": "0.1.0",
+    "scheme": "moflight-lab",
+    "orientation": "default",
+    "platforms": ["android", "ios"],
+    "ios": { "bundleIdentifier": "de.momorc.moflight.lab", "supportsTablet": true },
+    "android": { "package": "de.momorc.moflight.lab", "allowBackup": false },
+    "plugins": ["expo-sqlite", "expo-document-picker", "expo-dev-client"]
+  }
+}

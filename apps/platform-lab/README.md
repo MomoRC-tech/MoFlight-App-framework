@@ -1,72 +1,64 @@
-# Platform lab — first executable host slice
+# MoFlight native platform lab
 
-Tracking: #6/#4/#7/#9. **Host runner only; no Expo app/native build yet.**
-The executable implementation is [the SQLite trial](../../pocs/local_logbook/lab.py).
-It uses Python's standard library to evaluate product invariants before the
-proposed mobile stack/driver is approved. It is not a Python mobile architecture.
-The SQL/fixture/result contracts can inform the later single mobile implementation.
+Tracking: #4/#5/#6/#7/#9. Manuel approved Expo/React Native/strict TypeScript/pnpm and expo-sqlite as the single runtime database writer on 2026-10-08 ([ADR 0002](../../docs/adr/0002-phase1-technology-proposal.md), [ADR 0005](../../docs/adr/0005-host-lab-before-mobile-approval.md)). This is a bounded synthetic development app, not either released product.
 
-From the repository root, Python 3.12:
+## Setup and local builds
+
+From the repository root, Node 24 (tested 24.19.0), pnpm 11.25.0 and Python 3.12:
+
+```bash
+npm install --global pnpm@11.25.0
+pnpm install --frozen-lockfile
+pnpm typecheck
+pnpm test
+pnpm fixtures:check
+pnpm bundle
+pnpm --filter @moflight/platform-lab prebuild:check
+```
+
+Dependencies are pinned to Expo 57.0.27, React Native 0.86.3 and React 19.2.3 with the official SDK 57 module mapping. Android/iOS Hermes bundles and generated native configuration pass locally; this is not native compilation/device evidence. SDK 57 supports Android 7+ and iOS 16.4+; the official SDK table requires Xcode 26.4+ for local iOS building. Android needs a configured SDK/JDK 17, accepted SDK licenses and a connected emulator/device. No EAS or paid cloud build is configured.
+
+```bash
+# Android with SDK and device/emulator:
+pnpm --filter @moflight/platform-lab android
+# macOS, compatible Xcode and simulator/signing:
+pnpm --filter @moflight/platform-lab ios
+# Subsequent Metro development session after installing a development build:
+pnpm lab
+```
+
+Native project folders, database files and generated bundle output are ignored. App identifiers are `de.momorc.moflight.lab`; this lab is not the future independently released SPL/logbook apps. Android automatic backup is disabled so the explicit versioned backup is the lab transfer path. iOS platform backup policy/encryption is not established by this setting.
+
+## Device acceptance sequence — not yet executed
+
+1. Open dataset A and explicitly import the prepared synthetic CSV/page. Nine paper rows, four distinct source flights from five original CSV rows and one model finding appear. A fresh install starts empty; reopening does not seed again.
+2. Compare exact D-EX01 (2 source/effective flights), ASK 21 (3 before override), and distinct same-name instructor p1/p2. Inspect supporting IDs/evidence, successful import/coverage and source/effective/paper bases. Override the finding with the paper model: ASK 21 becomes 4 only in effective history. Ignore/reverse do not rewrite source facts.
+3. Prepare a fixed snapshot. New entry 70 belongs on page 7 row 10; entry 71 on page 8 row 1. Page 7 totals: 1:50 / cumulative 11:50. Existing rows are context; partial-page total fields stay blank. Scroll/read each field at normal and large text sizes, both orientations, Android/iOS; record actual devices and observations.
+4. Force-stop in airplane mode, relaunch and reopen the same snapshot without importing. Confirm decisions, exact counts, original source/page evidence, pending entries and snapshot ID survive. This is the missing native offline-restart gate; a Node subprocess test is only host evidence.
+5. Explicitly confirm only entry 70. Entry 71 stays pending. Viewing/preparing never confirms copying. The old snapshot remains fixed; a fresh continuation after paper advancement requires a newly confirmed page and is deliberately refused by this bounded fixture.
+6. Save/share a native JSON backup to external device storage; verify the file actually exists there. Sharing cancellation alone does not prove this. Select that file through Restore: a new SQLite database retains original dataset ID, source/page bytes, all revisions, decisions, paper and snapshots. The existing database is preserved. Force-stop/reopen the restored selection. Corrupt JSON/checksum and oversized backups must fail without replacing existing work.
+7. Switch to empty dataset B and verify A's rows/decisions/templates/counts are absent. Switching preserves A. Restoring preserves original dataset identity and uses a new file; the restored selection persists across restart. These are synthetic dataset boundaries, not authenticated account isolation.
+
+The UI serializes user mutations. SQLite exclusive transactions execute on Expo's transaction connection; the sole native database adapter is `src/storage.ts`. Private selection/file operations and share/document picker require separate real-device checks. The UI has no cloud/network retrieval or AI execution path.
+
+## Data and backup limits
+
+`packages/flight-logbook` is pure TypeScript with deterministic integer counts/totals and scoped decision fingerprints. `packages/local-data` stores schema-v1 append-only record revisions, retained original CSV/page strings, per-flight source references, last successful import and immutable templates. `tests/mobile/sqlite-driver.ts` supplies real disk SQLite for tests only; it is not shipped as a second app writer. Python remains reference/test tooling.
+
+Native backup `moflight-native-lab-backup-v1` is a SHA-256 checked JSON envelope (2 MB synthetic limit) containing dataset identity, schema and all SQL record revisions including original evidence. Restore is transactional into a clean new database; checksum detects corruption, not malicious authenticity. Backups/SQLite are **unencrypted**. No production untrusted-import security, key management, schema upgrade, sync, account linking, deletion/reset or automatic continuation is claimed. The earlier host ZIP backup is a separate format and cannot be selected as a native restore.
+
+Canonical fixtures remain `tests/fixtures/local-logbook/flights.csv` and `page.json`. `scripts/mobile_fixtures.py` produces `mobile.json` with original strings preserved; `--check` detects drift. These are **synthetic prepared observations, no OCR**, and **synthetic CSV, no live Vereinsflieger retrieval**. Only known UTC solo/Dual ten-row layout behavior is exercised; unresolved time basis/chronology/carryovers block writing.
+
+## Reference runner and independent gates
+
+The earlier dependency-free Python lab remains runnable:
 
 ```bash
 python3 -m unittest discover -s tests -v
 python3 -m pocs.local_logbook.lab demo --data local-data/lab-a
-python3 -m pocs.local_logbook.lab query --data local-data/lab-a --registration D-EX01
-python3 -m pocs.local_logbook.lab query --data local-data/lab-a --person-id fixture:p1
 python3 -m pocs.local_logbook.lab serve --data local-data/lab-a
 ```
 
-Open `http://127.0.0.1:8765/` on the host running the lab. The read-only viewer
-groups exact fields by paper page/row, labels existing context and new copying,
-and displays carryovers/totals in h:mm. It binds to one stored snapshot and shows
-review status when relevant source/finding values change. Viewing performs no
-paper writes. Stop with Ctrl+C. This does not establish phone readability or
-native airplane-mode behavior. No PDF or file renderer is adopted.
+The read-only host viewer at `http://127.0.0.1:8765/` is not the native app. [Earlier host evidence](../../docs/verification/2026-10-08-host-local-slice.md) and [current native-slice evidence](../../docs/verification/2026-10-08-native-lab.md) keep those claims separate.
 
-`demo` prints its fixed snapshot ID. Explicit confirmation is separate:
-
-```bash
-python3 -m pocs.local_logbook.lab confirm --data local-data/lab-a --snapshot SNAPSHOT_ID --flight-id fixture:f70
-python3 -m pocs.local_logbook.lab template --data local-data/lab-a --snapshot SNAPSHOT_ID
-```
-
-Replace `SNAPSHOT_ID` with the ID printed by your own run. Only f70 advances;
-f71 stays pending. The original snapshot remains available. This bounded slice
-refuses a new continuation after paper advancement until a fresh confirmed page
-is provided; a general editable paper-continuation workflow is future work.
-
-Private host backup/restore, using a new archive and destination each time:
-
-```bash
-python3 -m pocs.local_logbook.lab backup --data local-data/lab-a --archive local-data/lab-a-backup.zip
-python3 -m pocs.local_logbook.lab restore --data local-data/restored-a --archive local-data/lab-a-backup.zip
-python3 -m pocs.local_logbook.lab query --data local-data/restored-a --registration D-EX01
-```
-
-Backup includes a SQLite consistent copy, record history, immutable templates,
-source CSV and prepared-observation bytes, version and SHA-256 manifest. Restore
-validates hashes, file paths, database version/identity/integrity and referenced
-bytes before installing into a new directory. Existing datasets are never replaced.
-Host directories/files use 0700/0600 when created. **Archives and SQLite are
-unencrypted**; hashing detects accidental corruption, not malicious authenticity.
-Use synthetic data only; native private storage/encryption/backup UI remain gates.
-
-## Boundaries and evidence
-
-| Trial | Current result |
-| --- | --- |
-| Host SQLite, query/decision/paper/template/restart/backup | 20 actual tests passed; [evidence](../../docs/verification/2026-10-08-host-local-slice.md) |
-| Read-only host HTTP field view | HTTP/field parity tested; native visual acceptance not tested |
-| Android / iOS | No app or native build; stack/driver approval and suitable runners needed |
-| Supabase Auth/RLS/files/server command | [Prepared independent probe](../../pocs/supabase-trial/README.md); blocked without project/sessions; SQL not executed |
-| Live own Vereinsflieger flights | [Access investigation](../../docs/architecture/vereinsflieger-access-investigation.md); blocked on supported documentation/permission |
-| Handwriting | Prepared observations only; no recognition or paid AI calls |
-| SPL retrieval / RAG | #3 remains planned; no retrieval/answer evaluation executed |
-| Sync / account linking / two apps | Later gates; not implemented |
-
-No dependency installer or third-party package is needed for this host runner.
-The local environment used Python 3.12.14 / SQLite 3.53.1; CI selects Python 3.12
-and reports its actual runtime. Expo/React Native/TypeScript/pnpm remains Proposed
-in ADR 0002. Recommend `expo-sqlite` as the first mobile driver candidate because
-it avoids adding a second SQLite writer; this requires approval/compatibility checks
-and separate native evidence, and has not been adopted here.
+Supabase #1: [schema/probe prepared](../../pocs/supabase-trial/README.md), blocked without disposable free project/two-user Auth setup. Own-flight #2: [supported-access investigation](../../docs/architecture/vereinsflieger-access-investigation.md), unresolved permission/docs; no guessed endpoint. SPL #3 remains retrieval-first with permitted content and no paid embeddings/generation. Instructor-roster discovery #10 stays separate. None is replaced by local fixture success.

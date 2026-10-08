@@ -7,6 +7,7 @@
 # Persönliche Daten und lokale Testartefakte
 private-data/
 local-data/
+!packages/local-data/
 *.csv
 !tests/fixtures/local-logbook/flights.csv
 *.igc
@@ -20,6 +21,8 @@ dist/
 build/
 coverage/
 .expo/
+apps/platform-lab/android/
+apps/platform-lab/ios/
 .dart_tool/
 __pycache__/
 *.pyc

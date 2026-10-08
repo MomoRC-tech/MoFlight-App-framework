@@ -1,25 +1,25 @@
 # ADR 0002: Phase 1 PoC stack
 
 - Date: 2026-10-08
-- Status: Proposed — revised after low-usage review; awaiting Manuel's explicit approval
+- Status: Accepted for initial mobile/workspace and expo-sqlite lab; detailed sync and other candidates remain Proposed
 - Decision owner: Manuel Singer
 - Tracking: [#5](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/5)
 - Evidence: [Technology review](../architecture/phase1-technology-review.md), [complete backend comparison](../architecture/low-usage-backend-comparison.md), [ADR 0003](0003-low-usage-backend-proposal.md)
 
 ## Context
 
-The archived Phase 1 draft and initial focused review proposed Expo/React Native, Supabase and a PowerSync experiment. Manuel subsequently required low costs and normal operation after weeks of non-use. The comparison retains existing mobile/modularity requirements and revises the recommended backend trial. Manuel selected Supabase Cloud Free for the first backend trial on 2026-10-08; mobile/workspace and detailed sync decisions remain proposed. No native mobile or hosted-cloud runtime test has passed. The later [host slice](../verification/2026-10-08-host-local-slice.md) has executable SQLite evidence, without accepting this mobile proposal. [ADR 0005](0005-host-lab-before-mobile-approval.md) makes the next expo-sqlite lab-driver candidate concrete; it remains subject to Manuel’s decision.
+The archived Phase 1 draft and initial focused review proposed Expo/React Native, Supabase and a PowerSync experiment. Manuel subsequently required low costs and normal operation after weeks of non-use. The comparison retains existing mobile/modularity requirements and revises the recommended backend trial. Manuel selected Supabase Cloud Free for the first backend trial on 2026-10-08; Manuel subsequently approved Expo/React Native, strict TypeScript, pnpm and expo-sqlite as the single database writer for the initial native lab on 2026-10-08. Detailed sync remains proposed. No device or hosted-cloud runtime acceptance has passed. The later [host slice](../verification/2026-10-08-host-local-slice.md) has executable SQLite evidence, without accepting this mobile proposal. [ADR 0005](0005-host-lab-before-mobile-approval.md) makes the next expo-sqlite lab-driver candidate concrete; its concrete initial native-lab recommendation is now accepted.
 
-## Proposed decision for the PoC
+## Accepted scope and remaining proposals
 
-1. Expo / React Native / strict TypeScript in a pnpm monorepo; native development builds for platform acceptance.
+1. **Accepted for the initial native lab:** Expo / React Native / strict TypeScript in a pnpm monorepo, with expo-sqlite as the sole runtime database writer; native development builds for platform acceptance. The experimental schema and backup format are lab contracts, not a general production schema commitment.
 2. Backend/offline choice follows ADR 0003: Supabase Cloud Free selected by Manuel for the first trial, using Supabase Auth, RLS-protected Postgres, private Storage and server functions. Self-hosting is a possible later migration, not the first deployment.
 3. SQLite per app/account and one durable outbox for narrow explicit synchronization. PowerSync adoption and its earlier preferred experiment are deferred.
 4. Authenticated server-side AI boundary; retrieval-only first using permitted self-authored content. Postgres full text/pgvector is the retrieval candidate for the selected Supabase trial. Paid generation/embeddings require separate budget approval.
 5. Present the writing template in-app from a fixed resolved snapshot. PDF/other exports are optional later work; inspect current Python code and test hosting only if reuse is selected.
 6. Build platform-lab first; implement phone-local storage/workflow before cloud integration, while an independent Supabase trial runs in the same early cycle ([ADR 0004](0004-local-first-sequencing.md)). Add shells/packages only when needed; domain code stays free of vendor SDKs and cross-domain imports.
 
-Mobile/workspace approval and backend approval are separately reviewable in #5. Approval authorizes only the agreed PoC implementation and necessary free setup at the relevant step. It does not authorize subscriptions, billing-enabled plans, paid AI, release, content reuse or a Vereinsflieger transport. It no longer implicitly authorizes a PowerSync experiment.
+Mobile/workspace approval and backend approval are recorded separately in #5; remaining sync choices are still reviewable. Approval authorizes only the agreed PoC implementation and necessary free setup at the relevant step. It does not authorize subscriptions, billing-enabled plans, paid AI, release, content reuse or a Vereinsflieger transport. It no longer implicitly authorizes a PowerSync experiment.
 
 ## Alternatives and consequences
 
@@ -33,7 +33,7 @@ Earlier listed Supabase Pro + PowerSync Pro fees start at $74/month; that is a h
 
 ## Decision and test gates
 
-- Supabase Cloud Free provider choice is recorded in ADR 0003. Manuel still approves mobile/workspace here and detailed offline implementation before binding implementation.
+- Supabase Cloud Free provider choice is recorded in ADR 0003. Initial mobile/workspace/driver approval is recorded here; detailed cloud synchronization still needs a concrete decision before adoption.
 - #6: locked compatible versions, reproducible workspace, push-to-main CI, actual native build evidence.
 - #1/#4: recovery preserves identity; two-user token/API/data isolation; real offline restart/reconnect, retry receipts, transactional delta pagination, conflicts, rejection, deletion/reset and schema evolution.
 - #3: retrieval/citation/gap/isolation evaluation; no paid generation in the initial test.
@@ -42,8 +42,8 @@ Earlier listed Supabase Pro + PowerSync Pro fees start at $74/month; that is a h
 - #8: quota refusal, multiweek idle return, private export/restore and integrated device evidence.
 - Separate approval before billing-enabled services or paid requests.
 
-Earlier runner inventory lacked docker, adb and xcodebuild; no runtime/device checks were executed in this evaluation. #6 must establish a suitable runner. Provider-specific wording in existing implementation Issues is aligned with the selected trial; mobile/workspace remains open.
+Earlier runner inventory lacked docker, adb and xcodebuild; no runtime/device checks were executed in this evaluation. #6 must establish a suitable runner. Provider-specific wording in existing implementation Issues is aligned with the selected trial; native device verification remains open.
 
 ## Validation and approval record
 
-Official-source backend comparison and repository baseline reviewed on 2026-10-08. Documentation consistency/link checks accompany this revision. Supabase Cloud Free first-trial choice recorded from Manuel on 2026-10-08. No provisioning, monitoring, paid calls or runtime tests occurred. This ADR remains Proposed for mobile/workspace and other unresolved choices.
+Official-source backend comparison and repository baseline reviewed on 2026-10-08. Documentation consistency/link checks accompany this revision. Supabase Cloud Free first-trial choice recorded from Manuel on 2026-10-08. The earlier review did not provision services or run native tests. Manuel’s subsequent response **“yes”** to “Do you approve Expo/React Native, strict TypeScript, pnpm and expo-sqlite as the single database writer for the initial native lab?” is the explicit binding approval, dated 2026-10-08. [Native-lab evidence](../verification/2026-10-08-native-lab.md) records the implementation checks; device, cloud and detailed sync gates remain open. No paid service, paid AI, release or Vereinsflieger transport is authorized by this approval.
