@@ -2,8 +2,9 @@
 
 Baseline main inspected: `f6bb6da01fcfe43abf6911b584d8d00b5fa17699`;
 no newer main existed at start. AGENTS/README/ADRs 0002–0004, requested product
-specifications and all ten open Issues read. Implementation/evidence are in the
-commit containing this file; publication follow-up records the published SHA.
+specifications and all ten open Issues read. Implementation published directly on main in
+[`bd0f2ac400181ba4d80dcdcf8b72ed1ff1adcd7f`](https://github.com/MomoRC-tech/MoFlight-App-framework/commit/bd0f2ac400181ba4d80dcdcf8b72ed1ff1adcd7f).
+This follow-up records the verified publication and remote CI outcome.
 
 ## Environment and commands actually run
 
@@ -73,3 +74,19 @@ The [platform-lab runbook](../../apps/platform-lab/README.md),
 [own-flight investigation](../architecture/vereinsflieger-access-investigation.md)
 provide reproducible next actions. Push-to-main CI is added; its remote outcome
 must be checked after publication and cannot be inferred from local success.
+
+## Publication and remote CI
+
+Main update used expected head f6bb6da with a fast-forward; bd0f2ac was then
+read back from the main branch. The new tree extends the existing base and
+preserves files outside the 22 changed/new paths. Issues #1/#2/#4/#5/#6/#7/#8/#9
+received progress comments linking to the implementation and evidence; all
+remain open because full native/cloud/live acceptance is outstanding.
+
+GitHub Actions [run 37769543106](https://github.com/MomoRC-tech/MoFlight-App-framework/actions/runs/37769543106),
+push event / main / bd0f2ac: **completed, success**. Job `host-sqlite`
+113285416017 and its test, compile and whitespace steps are each completed /
+success, as verified through the Actions API. Decoded job logs report CPython
+3.12.15 and `Ran 20 tests in 0.412s` / `OK`. This is actual remote host CI,
+not an Android/iOS build or hosted Supabase run. Initially no run was visible;
+a later query returned the completed result.
