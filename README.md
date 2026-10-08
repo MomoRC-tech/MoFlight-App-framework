@@ -101,7 +101,9 @@ Account switch stops the old sync, closes its database and selects account-scope
 
 ## Flight-logbook product workflow
 
-The [canonical user stories](docs/product/flight-logbook-user-stories.md) define photo upload, authorized flight retrieval, visible-row comparison, persisted findings and user responses, and a PDF from a resolved versioned snapshot. Store the complete session, not just its PDF. The latest photographed paper row controls continuation numbering; generating/downloading a PDF never proves that entries were copied. Source snapshots and prototype rule differences are linked from that specification. Detailed stories are proposed acceptance criteria; no end-to-end implementation is claimed.
+The [canonical user stories](docs/product/flight-logbook-user-stories.md) define photo upload, authorized flight retrieval, visible-row comparison, persisted findings and user responses, and a PDF from a resolved versioned snapshot. Store the complete session and remember last confirmed paper entries, latest successful source import and reusable scoped decisions. Opening/querying the app needs no new photo or export; confirm remembered status or update it with new evidence for continuation. Generating/downloading a PDF never proves that entries were copied. Source snapshots and prototype rule differences are linked from that specification. Detailed stories are proposed acceptance criteria; no end-to-end implementation is claimed.
+
+Persistent ignored/overridden findings and deterministic aircraft/person queries are specified in [remembered state and flight-history queries](docs/product/flight-logbook-state-and-queries.md). Counts/latest-flight answers show their data basis, coverage, freshness and supporting flights. Distinguish aircraft instances/models, person identities/roles and source/effective/paper views. Query implementation is tracked in [#9](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/9); no feature is implemented yet.
 
 ## AI, RAG and logbook behavior
 

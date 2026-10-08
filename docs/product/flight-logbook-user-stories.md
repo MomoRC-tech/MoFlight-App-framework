@@ -14,16 +14,20 @@ Sources captured on 2026-10-08:
 - [Prototype source snapshots and provenance](../reference/flugbuch-prototype/README.md): current plugin instructions/rulebook and separate Flugbuch-Assistent skill instructions/rulebook. These explain domain rules; they are not an already working mobile/backend implementation.
 - [Earlier Phase 1 source](../reference/Segelflug_Plattform_Architektur_Phase1.md) and [requirements reconciliation](../architecture/phase1-reconciliation.md).
 
+## Remembered state and additional user journey
+
+Manuel additionally requested on 2026-10-08 that the app remember confirmed paper entries, the last Vereinsflieger export and earlier ignored/overridden inconsistencies. On opening the app, the pilot can ask for counts in a specific glider or when/how often they flew with a person. [State, reusable decisions and flight-query semantics](flight-logbook-state-and-queries.md) define this extension. No new photo/import is required to open the app or query remembered history.
+
 ## Primary journey
 
-1. The signed-in pilot starts or resumes a logbook-update session, using continuation mode by default; optional historical review is separate.
-2. They photograph/upload the latest written double-page spread. If the whole spread requires multiple images, images belong to the same session. Capture paper page/row references and all visible written rows, carryovers and landing counts.
-3. The app retrieves authorized own-flight data from Vereinsflieger. It preserves a dated input snapshot with source identifiers and coverage. CSV import is a labeled fallback, not evidence that live access works.
+1. The signed-in pilot sees the last known confirmed paper/source status and can query history immediately, or start/resume an update session. Continuation mode is default; historical review is separate.
+2. For an update, they confirm the remembered paper status is still current or supply a new photo when changed/uncertain. Capture all visible written rows, page/row references and carryovers when a photo is provided; multiple images can represent one spread.
+3. The app can use the last successful Vereinsflieger snapshot or retrieve a new authorized own-flight snapshot. Display freshness/coverage and preserve versions. CSV import is a labeled fallback, not evidence that live access works; a failed/partial refresh does not replace usable history.
 4. Photo analysis proposes structured observations. The app identifies the last written paper row and compares every readable visible row with the corresponding flight. New flights are determined by identity and chronology after the anchor.
 5. The app saves the draft result and findings. It displays a concise overview and asks specific questions only for decisions that affect the continuation, new flights or required totals. Historical warnings remain visible without blocking routine continuation.
-6. User responses are saved, then the affected matching/totals are recomputed. The final export uses an immutable, resolved snapshot of that revision.
+6. Save responses and reapply past decisions whose scoped identity/relevant evidence remain unchanged; changed evidence requires targeted review. Recompute affected matching/totals and export one immutable resolved revision.
 7. The app produces and stores the private PDF, shows what is new and lets the pilot download/share it. The pilot transfers the entries manually into the paper book.
-8. Downloading or generating the PDF does not prove that the paper book was updated. The next session uses a fresh photo as evidence of actual paper state; a prior result is continuity context only.
+8. Downloading or generating the PDF does not prove that the paper book was updated. The pilot may explicitly confirm which entries were copied, or provide a later photo. Store evidence and date; reuse last confirmed state without claiming it reflects unobserved changes. A new conflicting photo creates a review finding.
 
 ## Stories and acceptance criteria
 
@@ -41,6 +45,10 @@ Sources captured on 2026-10-08:
 | FL-10 | I can retry without creating duplicate flights or contradictory exports. | Retry identity binds to input/revision and preserves the previous outcome. Regenerating an identical result does not create additional confirmed flights. A changed source or response creates a new revision; old PDF remains tied to its original snapshot. Multi-device edits use version checks and preserve conflicts. | #2, #4, #7 |
 | FL-11 | I can continue safely through interruptions. | Resume upload, retrieval and feedback after restart. Network failure, paused backend or quota refusal preserves pending local work and shows status. Failed partial retrieval never silently replaces a complete snapshot; failed export is retryable without restarting paid analysis. | #4, #7, #8 |
 | FL-12 | I can optionally check earlier paper pages. | Historical review requests the pages being checked, reports coverage and proposes corrections separately. It never automatically renumbers past entries or changes the current continuation anchor. Unseen pages are not called verified. | Later product scope; regression boundary in #7 |
+| FL-13 | I can resume from remembered paper and Vereinsflieger status. | Show last confirmed paper entries/anchor and evidence, last successful source snapshot/coverage, pending writing and decisions. Persist across launch/offline/devices. Explicit copied-entry confirmation or new photo updates paper state; generation alone does not. No compulsory new upload/import just to start or query. | #1, #2, #4, #7, #8 |
+| FL-14 | I can retain and review decisions from previous runs. | Ignore/accept/override/duplicate resolutions are scoped and auditable; reuse unchanged evidence without reasking. Relevant changed evidence marks a decision stale. Ignore does not alter flight facts; override changes only the effective view. Reverse decisions, preserve old exports and resolve concurrent edits. | #1, #4, #7, #8 |
+| FL-15 | I can ask how many flights I made in a glider. | Count distinct established own-flight IDs by selected aircraft instance or model/date range; disambiguate. Show basis, coverage/freshness, unknowns and contributing flights. Offline queries use account cache; repeated imports do not inflate counts. | #9 with #1, #2, #4 |
+| FL-16 | I can ask when/how often I flew with a person. | Resolve person identity and role, distinguish same-name people, and deterministically return latest recorded flight/count with supporting records. Available coverage and uncertain crew/date fields are visible. No unrestricted LLM SQL, guessed counts or cross-user aggregate access. | #9 with #1, #2, #4 |
 
 ## What “store the overall result” means
 
@@ -52,11 +60,12 @@ Store a versioned reconciliation session, not just the final PDF or an editable 
 | Input snapshot | Private photo objects and hashes; source flight data, source references, coverage, time basis and retrieval timestamp |
 | Analysis observations | Raw readable/unknown fields with image/page/row references, model/prompt/schema version where applicable |
 | Reconciliation revision | Paper anchor, matches/new-flight candidates, findings, derived minutes/roles/page layout, rules version |
-| User decision | Finding/field, evidence revision, response, author/time, chosen value/action and effect; stale decisions require revalidation |
+| User decision | Scoped flight/finding/field, relevant evidence fingerprint, reusable action/value/reason, author/time, applicability and reversal; changed relevant evidence requires revalidation |
+| Remembered logbook state | Last known confirmed paper entries/anchor/carryovers with evidence/date; latest successful source snapshot/coverage, pending entries and effective history |
 | Resolved export snapshot | Fixed confirmed data, allowed unresolved historical warnings, source/decision versions and calculation results |
 | Export artifact | Private PDF object/hash, snapshot ID, generator version, status and retry/error information; optional audit exports |
 
-Proposed session states: inputs pending, processing, needs feedback, ready to export, exporting, complete; failed/interrupted work resumes at the last successful step. Generating an export never marks flights as physically written in the paper book. Retention/deletion policy must cover input photos, source snapshots, revisions, files and backups; duration remains open.
+Proposed session states: inputs pending, processing, needs feedback, ready to export, exporting, complete; failed/interrupted work resumes at the last successful step. Generating an export never marks flights as physically written in the paper book; explicit entry-level confirmation/photo evidence does. Retention/deletion policy must cover input photos, source snapshots, revisions, files and backups; duration remains open.
 
 ## Business rules and prototype differences
 
@@ -88,12 +97,19 @@ All tests use synthetic inputs; these are required results, not passed tests.
 - E09 Backend/source outage: offline inputs remain available; source expiry or Supabase pause is shown; a partial fetch cannot produce a falsely complete final result.
 - E10 Time/roles: DST and solo/dual fixtures produce correct minute/role totals without guessed UTC labels.
 
+- E11 Remembered state: restart/open offline with saved paper anchor, import and pending flights; answer a supported history question without new photo/import. Failed refresh retains the prior successful snapshot and shows stale coverage.
+- E12 Reusable decisions: ignore a mismatch, repeat unchanged import and get no repeated question; change the affected field and mark the old decision stale. An unrelated source change does not invalidate it.
+- E13 Paper confirmation: generating PDF does not advance the book; explicitly confirm only selected copied entries. A conflicting later photo creates a finding; do not assume all older flights were written.
+- E14 Overrides/reversal: ignore a warning without changing aircraft counts; explicit aircraft override changes effective counts, preserves source-view counts and the old PDF. Reverse it and recompute.
+- E15 Aircraft queries: synthetic flights across two ASK 21 instances and repeated import rows produce exact distinct counts by instance/model/date; show uncertain duplicates separately.
+- E16 Person queries: two same-name people, multiple crew links, incomplete dates and stale cached data yield the expected selected-person count/latest record with visible coverage; another account receives no aggregate or supporting rows.
+
 ## Framework implications and first trial
 
-Supabase Cloud Free is the selected initial backend (ADR 0003). Auth, private Storage, RLS-protected session records, server jobs and a narrow sync API support this journey. The framework must persist job status/feedback, source references, immutable export snapshots and retry identity; a generic flights CRUD demo alone does not prove this workflow. Use migrations/configuration that can later be recreated on self-hosted Supabase; migration is separately tested.
+Supabase Cloud Free is the selected initial backend (ADR 0003). Auth, private Storage, RLS-protected session records, server jobs and a narrow sync API support this journey. The framework must persist remembered paper/source state, reusable decisions, normalized queryable history, job status/feedback, source references, immutable export snapshots and retry identity; a generic flights CRUD demo alone does not prove this workflow. Use migrations/configuration that can later be recreated on self-hosted Supabase; migration is separately tested.
 
-First evidence: two synthetic users, one synthetic page observation and flight-data snapshot, one inconsistency/response, persisted session and a PDF from the resolved snapshot. This can prove orchestration without paid AI or live Vereinsflieger access; mark both substitutions explicitly. Separately prove actual handwriting analysis under an approved budget and supported live retrieval in #2/#7 before claiming the full journey works. Worker hosting is unresolved; do not assume a Python renderer runs in an Edge Function.
+First evidence: two synthetic users, one synthetic page observation and flight-data snapshot, one inconsistency/response, persisted session and a PDF from the resolved snapshot. Extend it with remembered copied-entry status, an unchanged decision reused on a later run and deterministic aircraft/person queries from a small fixed flight fixture (#9). This can prove orchestration without paid AI or live Vereinsflieger access; mark both substitutions explicitly. Separately prove actual handwriting analysis under an approved budget and supported live retrieval in #2/#7 before claiming the full journey works. Worker hosting is unresolved; do not assume a Python renderer runs in an Edge Function.
 
 Open product decisions: default CSV/XLSX exports, retention duration, multiple paper books/layouts beyond the prototype, treatment of paper-only new flights, and export behavior when a user deliberately defers a blocking finding. None blocks documentation or the initial synthetic trial.
 
-Verification: current repository/Issues and four prototype source documents read; source snapshots captured with provenance, personal example identifiers replaced; stories mapped to existing Issues. No app, live retrieval, photo analysis or PDF/device test executed in this documentation change.
+Verification: current repository/Issues and four prototype source documents read; source snapshots captured with provenance, personal example identifiers replaced; stories mapped to existing Issues. No app, live retrieval, photo analysis or PDF/device test executed in this documentation change. The later state/query addition is sourced to Manuel’s feature request; see its separate documentation verification record.
