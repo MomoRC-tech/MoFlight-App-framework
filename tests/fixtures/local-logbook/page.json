@@ -1,0 +1,258 @@
+{
+  "id": "prepared-page",
+  "provenance": "synthetic-prepared-observations-no-OCR",
+  "page": 7,
+  "confirmed_at": "2026-06-02T12:01:00Z",
+  "carry": {
+    "minutes": 600,
+    "pic_minutes": 400,
+    "dual_minutes": 200,
+    "fi_minutes": 0,
+    "landings": 60
+  },
+  "rows": [
+    {
+      "row": 1,
+      "nr": 61,
+      "flight": {
+        "id": "fixture:paper1",
+        "date": "2026-06-01",
+        "start": "06:00",
+        "landing": "06:10",
+        "time_basis": "UTC",
+        "minutes": 10,
+        "registration": "D-EX01",
+        "aircraft_model": "ASK 21",
+        "pilot_role": "Dual",
+        "crew": [
+          {
+            "person_id": "fixture:p1",
+            "name": "Example Alex",
+            "role": "instructor"
+          }
+        ],
+        "launch": "winch",
+        "start_place": "EXAMPLE",
+        "landing_place": "EXAMPLE",
+        "landings": 1,
+        "remarks": ""
+      }
+    },
+    {
+      "row": 2,
+      "nr": 62,
+      "flight": {
+        "id": "fixture:paper2",
+        "date": "2026-06-01",
+        "start": "06:10",
+        "landing": "06:20",
+        "time_basis": "UTC",
+        "minutes": 10,
+        "registration": "D-EX01",
+        "aircraft_model": "ASK 21",
+        "pilot_role": "Dual",
+        "crew": [
+          {
+            "person_id": "fixture:p1",
+            "name": "Example Alex",
+            "role": "instructor"
+          }
+        ],
+        "launch": "winch",
+        "start_place": "EXAMPLE",
+        "landing_place": "EXAMPLE",
+        "landings": 1,
+        "remarks": ""
+      }
+    },
+    {
+      "row": 3,
+      "nr": 63,
+      "flight": {
+        "id": "fixture:paper3",
+        "date": "2026-06-01",
+        "start": "06:20",
+        "landing": "06:30",
+        "time_basis": "UTC",
+        "minutes": 10,
+        "registration": "D-EX01",
+        "aircraft_model": "ASK 21",
+        "pilot_role": "Dual",
+        "crew": [
+          {
+            "person_id": "fixture:p1",
+            "name": "Example Alex",
+            "role": "instructor"
+          }
+        ],
+        "launch": "winch",
+        "start_place": "EXAMPLE",
+        "landing_place": "EXAMPLE",
+        "landings": 1,
+        "remarks": ""
+      }
+    },
+    {
+      "row": 4,
+      "nr": 64,
+      "flight": {
+        "id": "fixture:paper4",
+        "date": "2026-06-01",
+        "start": "06:30",
+        "landing": "06:40",
+        "time_basis": "UTC",
+        "minutes": 10,
+        "registration": "D-EX01",
+        "aircraft_model": "ASK 21",
+        "pilot_role": "Dual",
+        "crew": [
+          {
+            "person_id": "fixture:p1",
+            "name": "Example Alex",
+            "role": "instructor"
+          }
+        ],
+        "launch": "winch",
+        "start_place": "EXAMPLE",
+        "landing_place": "EXAMPLE",
+        "landings": 1,
+        "remarks": ""
+      }
+    },
+    {
+      "row": 5,
+      "nr": 65,
+      "flight": {
+        "id": "fixture:paper5",
+        "date": "2026-06-01",
+        "start": "06:40",
+        "landing": "06:50",
+        "time_basis": "UTC",
+        "minutes": 10,
+        "registration": "D-EX01",
+        "aircraft_model": "ASK 21",
+        "pilot_role": "Dual",
+        "crew": [
+          {
+            "person_id": "fixture:p1",
+            "name": "Example Alex",
+            "role": "instructor"
+          }
+        ],
+        "launch": "winch",
+        "start_place": "EXAMPLE",
+        "landing_place": "EXAMPLE",
+        "landings": 1,
+        "remarks": ""
+      }
+    },
+    {
+      "row": 6,
+      "nr": 66,
+      "flight": {
+        "id": "fixture:paper6",
+        "date": "2026-06-01",
+        "start": "06:50",
+        "landing": "07:00",
+        "time_basis": "UTC",
+        "minutes": 10,
+        "registration": "D-EX01",
+        "aircraft_model": "ASK 21",
+        "pilot_role": "Dual",
+        "crew": [
+          {
+            "person_id": "fixture:p1",
+            "name": "Example Alex",
+            "role": "instructor"
+          }
+        ],
+        "launch": "winch",
+        "start_place": "EXAMPLE",
+        "landing_place": "EXAMPLE",
+        "landings": 1,
+        "remarks": ""
+      }
+    },
+    {
+      "row": 7,
+      "nr": 67,
+      "flight": {
+        "id": "fixture:paper7",
+        "date": "2026-06-01",
+        "start": "07:00",
+        "landing": "07:10",
+        "time_basis": "UTC",
+        "minutes": 10,
+        "registration": "D-EX01",
+        "aircraft_model": "ASK 21",
+        "pilot_role": "Dual",
+        "crew": [
+          {
+            "person_id": "fixture:p1",
+            "name": "Example Alex",
+            "role": "instructor"
+          }
+        ],
+        "launch": "winch",
+        "start_place": "EXAMPLE",
+        "landing_place": "EXAMPLE",
+        "landings": 1,
+        "remarks": ""
+      }
+    },
+    {
+      "row": 8,
+      "nr": 68,
+      "flight": {
+        "id": "fixture:paper8",
+        "date": "2026-06-01",
+        "start": "07:10",
+        "landing": "07:20",
+        "time_basis": "UTC",
+        "minutes": 10,
+        "registration": "D-EX01",
+        "aircraft_model": "ASK 21",
+        "pilot_role": "Dual",
+        "crew": [
+          {
+            "person_id": "fixture:p1",
+            "name": "Example Alex",
+            "role": "instructor"
+          }
+        ],
+        "launch": "winch",
+        "start_place": "EXAMPLE",
+        "landing_place": "EXAMPLE",
+        "landings": 1,
+        "remarks": ""
+      }
+    },
+    {
+      "row": 9,
+      "nr": 69,
+      "flight": {
+        "id": "fixture:f69",
+        "date": "2026-06-01",
+        "start": "09:00",
+        "landing": "09:10",
+        "time_basis": "UTC",
+        "minutes": 10,
+        "registration": "D-EX01",
+        "aircraft_model": "ASK 21",
+        "pilot_role": "Dual",
+        "crew": [
+          {
+            "person_id": "fixture:p1",
+            "name": "Example Alex",
+            "role": "instructor"
+          }
+        ],
+        "launch": "winch",
+        "start_place": "EXAMPLE",
+        "landing_place": "EXAMPLE",
+        "landings": 1,
+        "remarks": ""
+      }
+    }
+  ]
+}

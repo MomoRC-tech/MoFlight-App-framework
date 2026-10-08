@@ -4,7 +4,7 @@ A reusable Android/iOS platform for two independent products: an SPL learning ap
 
 ## Status and source of truth
 
-As of 2026-10-08, the initial repository documentation has been reconciled with the earlier Phase 1 architecture draft. Requirements, the focused technology review, the complete low-usage backend comparison and proposed test gates are documented; Supabase Cloud Free is selected for the initial backend trial, while mobile/workspace and detailed sync approvals remain pending. The selected implementation order is phone-local persistence first with a separate early Supabase feasibility trial (ADR 0004). No app, live integration or device test has been implemented or passed.
+As of 2026-10-08, the initial repository documentation has been reconciled with the earlier Phase 1 architecture draft. Requirements, the focused technology review, the complete low-usage backend comparison and proposed test gates are documented; Supabase Cloud Free is selected for the initial backend trial, while mobile/workspace and detailed sync approvals remain pending. The selected implementation order is phone-local persistence first with a separate early Supabase feasibility trial (ADR 0004). The first synthetic host SQLite slice is now implemented and tested (20/20 checks). No native app, live integration or device test has been implemented or passed. The independent Supabase probe/schema is prepared but blocked without test-project access; own-flight supported access remains unresolved.
 
 GitHub is the authoritative versioned project record. This README is the central documentation; supporting ADRs, source snapshots and evidence are linked here. Chats support discussion and do not replace this record. Documentation and communication use English; the original German source snapshot remains unchanged.
 
@@ -25,6 +25,25 @@ Changes go directly to `main` with traceable commits and Issues; no pull request
 
 - [Flight-logbook user stories and complete continuation workflow](docs/product/flight-logbook-user-stories.md).
 - [Captured Flugbuch prototype sources and differences](docs/reference/flugbuch-prototype/README.md).
+
+## Runnable first milestone
+
+[Platform-lab runbook](apps/platform-lab/README.md) provides a dependency-free Python 3.12 **host trial**, with real SQLite/files, prepared CSV/page observations, remembered findings/responses/paper state, exact aircraft/person queries, a read-only fixed-snapshot field view and versioned backup/restore. It is executable progress toward #4/#6/#7/#9, not phone-local or handwriting/live-access acceptance. Python is a verification harness; the mobile stack remains Proposed.
+
+```bash
+python3 -m unittest discover -s tests -v
+python3 -m pocs.local_logbook.lab demo --data local-data/lab-a
+python3 -m pocs.local_logbook.lab query --data local-data/lab-a --registration D-EX01
+python3 -m pocs.local_logbook.lab serve --data local-data/lab-a
+```
+
+Open the read-only view at `http://127.0.0.1:8765/` on that host. It shows exact destination fields; generating/viewing never confirms copying. The runbook covers selected-entry confirmation, reopening the same snapshot and private synthetic backup/restore. Host files/archives are unencrypted; native private storage and backup UI remain gates.
+
+- [Executed evidence, environment, 20 passed checks and limitations](docs/verification/2026-10-08-host-local-slice.md).
+- [Nonbinding host scope and concrete mobile-stack/driver proposal](docs/adr/0005-host-lab-before-mobile-approval.md).
+- [Independent early Supabase SQL and real two-user probe](pocs/supabase-trial/README.md): preflight blocked, SQL/hosted Auth/RLS/files not tested.
+- [Current supported own-flight access investigation](docs/architecture/vereinsflieger-access-investigation.md): official documentation/permission still needed; no selected transport.
+- [Explicit synthetic fixture expectations](tests/fixtures/local-logbook/README.md): prepared observations and normalized CSV, no OCR or live retrieval.
 
 ## Products and Phase 1 boundaries
 
@@ -107,7 +126,7 @@ Account switch stops the old sync, closes its database and selects account-scope
 
 The [canonical user stories](docs/product/flight-logbook-user-stories.md) define photo upload, authorized flight retrieval, visible-row comparison, persisted findings and user responses, and a format-neutral writing template from a resolved versioned snapshot. The first output is an in-app view; PDF is an optional export. The [presentation contract](docs/product/writing-template-presentation.md) defines exact values, page/row/field placement and readable offline continuation. Store the complete session and remember last confirmed paper entries, latest successful source import and reusable scoped decisions. Opening/querying the app needs no new photo or export; confirm remembered status or update it with new evidence for continuation. Displaying, generating or downloading a template never proves that entries were copied. Source snapshots and prototype rule differences are linked from that specification. Detailed stories are proposed acceptance criteria; no end-to-end implementation is claimed.
 
-Persistent ignored/overridden findings and deterministic aircraft/person queries are specified in [remembered state and flight-history queries](docs/product/flight-logbook-state-and-queries.md). Counts/latest-flight answers show their data basis, coverage, freshness and supporting flights. Distinguish aircraft instances/models, person identities/roles and source/effective/paper views. Query implementation is tracked in [#9](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/9); no feature is implemented yet.
+Persistent ignored/overridden findings and deterministic aircraft/person queries are specified in [remembered state and flight-history queries](docs/product/flight-logbook-state-and-queries.md). Counts/latest-flight answers show their data basis, coverage, freshness and supporting flights. Distinguish aircraft instances/models, person identities/roles and source/effective/paper views. Query implementation is tracked in [#9](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/9); the bounded host implementation now passes exact synthetic checks; native and cloud acceptance remain open.
 
 ## AI, RAG and logbook behavior
 
@@ -131,11 +150,11 @@ The [revised priority plan](docs/architecture/local-first-implementation-plan.md
 
 | Priority | Work | Tracking / status |
 | --- | --- | --- |
-| 0 | Finalize necessary mobile tooling and minimal platform-lab/CI | #5/#6, mobile choices pending; no app built |
-| 1 | Actual phone-local SQLite/files, synthetic import/photo observations, remembered state and decisions | #4/#7, not implemented |
-| 1, same early cycle | Independent Supabase Cloud Free Auth/recovery/RLS/private-file/server-command feasibility | #1/#5/#7, not tested; no integration prerequisite for local lab |
-| 1, independent | Supported authorized own-flight retrieval feasibility | #2, not tested; CSV is a fallback |
-| 2 | Local continuation/statistics, readable in-app writing template and private backup/restore; validate handwriting separately | #7/#9 with #4, not tested; no paid AI implied |
+| 0 | Finalize necessary mobile tooling and minimal platform-lab/CI | #5/#6, host runner and push CI added; mobile approval/builds pending |
+| 1 | Actual phone-local SQLite/files, synthetic import/photo observations, remembered state and decisions | #4/#7, host SQLite/remembered state tested; actual phone runtime pending |
+| 1, same early cycle | Independent Supabase Cloud Free Auth/recovery/RLS/private-file/server-command feasibility | #1/#5/#7, independent SQL/probe prepared; blocked on project/sessions; no hosted tests |
+| 1, independent | Supported authorized own-flight retrieval feasibility | #2, primary-document access unresolved; no live retrieval; normalized synthetic CSV only |
+| 2 | Local continuation/statistics, readable in-app writing template and private backup/restore; validate handwriting separately | #7/#9 with #4, 20 host checks pass; native view/restart/backup and actual handwriting pending |
 | 2, independent | SPL ingestion/retrieval/RAG evidence | #3, not tested; permitted corpus and budget gates retained |
 | 3 | Explicit account linking, cloud data/files and offline synchronization | #1/#4/#7, after local/early-cloud evidence; two-device/isolation tests retained |
 | 4 | Shared modules, two app shells and integrated Android/iOS acceptance/runbook | #8, not tested; full original framework requirements remain |
@@ -181,8 +200,8 @@ PowerSync is optional and deferred from the recommended first trial: Free deacti
 
 ## Next action and unresolved decisions
 
-Next: finalize necessary mobile/workspace choices (#5), establish the lab (#6), then implement phone-local persistence and one synthetic logbook slice (#4/#7/#9). In the same early cycle, independently test Supabase Cloud Free Auth/private data/files (#1) and supported own-flight access (#2). Integrate cloud persistence/account linking/sync only after those gates. #10 remains later capability discovery. No paid-plan or paid-AI approval is implied.
+Next: decide the concrete native lab proposal (#5): Expo/React Native/strict TypeScript/pnpm with expo-sqlite as the single writer, then port the verified fixture contracts and establish compatible pinned dependencies/native builds (#6/#4/#7/#9). [AGENTS.md](AGENTS.md) requires Manuel’s explicit binding technology decision; ADR 0002 remains Proposed. The completed host slice and current limitations are linked above. In the same early cycle, independently test Supabase Cloud Free Auth/private data/files (#1) and supported own-flight access (#2). Integrate cloud persistence/account linking/sync only after those gates. #10 remains later capability discovery. No paid-plan or paid-AI approval is implied.
 
 Open: mobile/workspace and detailed sync approval, idle-policy confirmation/multiweek trial, later PowerSync reconsideration, actual SDK versions, service configuration/test accounts, permitted Vereinsflieger transport and scope, content rights, API budget, document-worker hosting, available iOS/Android test environments, production privacy/deletion/backup and release requirements.
 
-Verification so far: current README/agent rules/ADR and Issues read; full earlier source draft (version 2) read; requirements and test plan reconciled; official-source mobile/sync/backend/pricing review and complete low-usage backend comparison completed. The current Linux session lacks docker, adb and xcodebuild on PATH; #6 must establish an appropriate runner. No runtime, cloud or device checks have been executed.
+Verification so far: current README/agent rules/ADR and Issues read; full earlier source draft (version 2) read; requirements and test plan reconciled; official-source mobile/sync/backend/pricing review and complete low-usage backend comparison completed. The current Linux session lacks docker, adb and xcodebuild on PATH; #6 must establish an appropriate runner. 20 host runtime tests, including real SQLite fresh-process reopening, selective confirmation, HTTP/field parity and backup/restore, now pass. Compile/whitespace checks pass. Supabase preflight is blocked without requests; SQL/hosted cloud, live retrieval, native device and RAG checks have not been executed. CI is configured on main pushes; remote execution is reported separately.

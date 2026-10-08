@@ -8,10 +8,12 @@
 private-data/
 local-data/
 *.csv
+!tests/fixtures/local-logbook/flights.csv
 *.igc
 *.sqlite
 *.sqlite3
 *.db
+*.zip
 # Generierte Dateien
 node_modules/
 dist/

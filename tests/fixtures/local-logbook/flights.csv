@@ -1,0 +1,6 @@
+id;date;start;landing;time_basis;minutes;registration;aircraft_model;pilot_role;crew;launch;start_place;landing_place;landings;remarks
+fixture:older;2026-01-01;09:00;09:10;UTC;10;D-EX99;ASK 21;Dual;"[{""person_id"":""fixture:p1"",""name"":""Example Alex"",""role"":""instructor""}]";winch;EXAMPLE;EXAMPLE;1;
+fixture:f69;2026-06-01;09:00;09:10;UTC;10;D-EX01;DG-1000 S;Dual;"[{""person_id"":""fixture:p1"",""name"":""Example Alex"",""role"":""instructor""},{""person_id"":""fixture:p1"",""name"":""Example Alex"",""role"":""instructor""}]";winch;EXAMPLE;EXAMPLE;1;
+fixture:f70;2026-06-01;10:00;10:20;UTC;20;D-EX01;ASK 21;PIC;[];winch;EXAMPLE;EXAMPLE;1;
+fixture:f70;2026-06-01;10:00;10:20;UTC;20;D-EX01;ASK 21;PIC;[];winch;EXAMPLE;EXAMPLE;1;
+fixture:f71;2026-06-01;11:00;11:30;UTC;30;D-EX02;ASK 21;Dual;"[{""person_id"":""fixture:p2"",""name"":""Example Alex"",""role"":""instructor""}]";winch;EXAMPLE;EXAMPLE;1;

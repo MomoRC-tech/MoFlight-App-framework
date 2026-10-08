@@ -1,5 +1,7 @@
 # Writing-template presentation
 
+Current implementation note: the [bounded synthetic host slice](../../apps/platform-lab/README.md) has [20 passing host checks](../verification/2026-10-08-host-local-slice.md). This does not pass native/cloud/live/handwriting acceptance; the requirements below remain the full target. Prepared observations and CSV are explicitly synthetic.
+
 Date: 2026-10-08. Product owner: Manuel Singer. Source: Manuel's clarification that the output need not be a PDF, provided it is user-friendly and represents exactly what to write in the paper Flugbuch. Canonical story: [FL-09](flight-logbook-user-stories.md); implementation and acceptance: #7/#8.
 
 ## Required outcome

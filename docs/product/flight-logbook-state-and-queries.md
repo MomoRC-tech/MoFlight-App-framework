@@ -1,5 +1,7 @@
 # Remembered logbook state, decisions and flight-history queries
 
+Current implementation note: the [bounded synthetic host slice](../../apps/platform-lab/README.md) has [20 passing host checks](../verification/2026-10-08-host-local-slice.md). This does not pass native/cloud/live/handwriting acceptance; the requirements below remain the full target. Prepared observations and CSV are explicitly synthetic.
+
 Date: 2026-10-08. Source: Manuel's feature addition in this conversation. Status: requested product behavior; data model, query contract and acceptance below are proposed and unimplemented. Extends [FL-13–FL-16](flight-logbook-user-stories.md). Tracking: #1/#2/#4/#7/#8 and [#9](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/9).
 
 ## Opening the app and continuing work

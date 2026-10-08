@@ -1,5 +1,7 @@
 # Flight logbook: user stories and continuation workflow
 
+Current implementation note: the [bounded synthetic host slice](../../apps/platform-lab/README.md) has [20 passing host checks](../verification/2026-10-08-host-local-slice.md). This does not pass native/cloud/live/handwriting acceptance; the requirements below remain the full target. Prepared observations and CSV are explicitly synthetic.
+
 Date: 2026-10-08. Product owner: Manuel Singer. Status: core workflow requested by Manuel; detailed acceptance and technical mapping are proposed, not implemented.
 
 ## Purpose and sources

@@ -8,7 +8,7 @@
 
 ## Context
 
-The archived Phase 1 draft and initial focused review proposed Expo/React Native, Supabase and a PowerSync experiment. Manuel subsequently required low costs and normal operation after weeks of non-use. The comparison retains existing mobile/modularity requirements and revises the recommended backend trial. Manuel selected Supabase Cloud Free for the first backend trial on 2026-10-08; mobile/workspace and detailed sync decisions remain proposed. No runtime test has passed.
+The archived Phase 1 draft and initial focused review proposed Expo/React Native, Supabase and a PowerSync experiment. Manuel subsequently required low costs and normal operation after weeks of non-use. The comparison retains existing mobile/modularity requirements and revises the recommended backend trial. Manuel selected Supabase Cloud Free for the first backend trial on 2026-10-08; mobile/workspace and detailed sync decisions remain proposed. No native mobile or hosted-cloud runtime test has passed. The later [host slice](../verification/2026-10-08-host-local-slice.md) has executable SQLite evidence, without accepting this mobile proposal. [ADR 0005](0005-host-lab-before-mobile-approval.md) makes the next expo-sqlite lab-driver candidate concrete; it remains subject to Manuel’s decision.
 
 ## Proposed decision for the PoC
 

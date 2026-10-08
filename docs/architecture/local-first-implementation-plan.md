@@ -56,7 +56,7 @@ PDF or other downloadable formats are optional later work. Any renderer must con
 
 ## Current status
 
-Plan/priority change only: no app, SQLite schema, cloud setup, live retrieval, renderer execution or runtime/device test performed. Existing Issues are reordered and later discovery is tracked separately. Supabase Cloud Free stays selected; the first product dataset stays on the phone until integration gates pass.
+The first [synthetic host SQLite slice](../../apps/platform-lab/README.md) is executable with 20 passing checks: remembered source/paper/decision state, exact queries, fixed writing instructions, restart and backup/restore. This is host evidence only; no native app/phone runtime or cloud setup/live retrieval has passed. [Evidence and limits](../verification/2026-10-08-host-local-slice.md) distinguish prepared observations from handwriting and normalized CSV from retrieval. The independent [Supabase schema/probe](../../pocs/supabase-trial/README.md) is prepared but blocked without project/two-user access; [own-flight primary documentation](vereinsflieger-access-investigation.md) remains unresolved. Supabase Cloud Free stays selected; ADR 0002 mobile choices remain Proposed. [ADR 0005](../adr/0005-host-lab-before-mobile-approval.md) proposes the next native lab decision without adopting it.
 
 ## Official reference checks
 
