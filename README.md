@@ -142,9 +142,17 @@ The archived source contains an initial estimate of 18–28 person-days net, or 
 
 The [2026-10-08 review](docs/architecture/phase1-technology-review.md#cost-review) checks official Supabase, PowerSync and EAS tariffs. Initial trials can use local/free tiers. Listed paid base fees for one Supabase Pro/Micro project plus PowerSync Pro start at $74/month; optional EAS Starter makes $93/month, before AI, overages and other services. AI rates and model quality were not refreshed or measured. No cloud resources, subscriptions or AI calls were created; agree a bounded budget before paid API runs.
 
+## Low-usage availability and cost constraint
+
+Manuel clarified on 2026-10-08: the app may have few users and long idle periods; avoid inactivity pausing and avoid subscription costs. This reopens the hosted-backend availability assessment in #5 before stack approval.
+
+[Supabase's pausing guide](https://supabase.com/docs/guides/platform/free-project-pausing), checked 2026-10-08, defines inactivity as insufficient database activity over seven days, not strictly zero use. It says a few daily database requests typically prevent pausing; paid plans are exempt. A scheduled real database health check is a possible best-effort approach, not a guaranteed exemption. No monitoring job has been configured.
+
+Compare this approach with a serverless free-tier alternative and self-hosting. Assess authentication, private files, RAG, offline sync, quota behavior and recovery together; a free database alone is not a replacement backend. Self-hosting avoids the managed plan's inactivity rule but adds infrastructure and maintenance responsibilities. No alternative or acceptance of best-effort availability has been approved.
+
 ## Next action and unresolved decisions
 
-Next: Manuel's explicit approval of the reviewed PoC stack in #5 / ADR 0002. Then build the minimal platform-lab (#6) and run the auth/user-data plus initial sync trial (#1/#4).
+Next: resolve the low-usage/no-subscription availability constraint in #5, then obtain Manuel's explicit approval of the PoC stack / ADR 0002. Then build the minimal platform-lab (#6) and run the auth/user-data plus initial sync trial (#1/#4).
 
 Open: technology approval, PowerSync adoption, actual SDK versions, service configuration/test accounts, permitted Vereinsflieger transport and scope, content rights, API budget, document-worker hosting, available iOS/Android test environments, production privacy/deletion/backup and release requirements.
 
