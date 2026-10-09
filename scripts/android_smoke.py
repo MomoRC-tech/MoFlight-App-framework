@@ -59,7 +59,24 @@ class Smoke:
     def find(self, text, *, exact=False, scroll=False, attempts=12):
         for _ in range(attempts):
             try:
-                for node in self.dump():
+                nodes = self.dump()
+                labels = [label for node in nodes for label in self.labels(node)]
+                system_anr = next((v for v in labels if v in {
+                    "Pixel Launcher isn't responding", "System UI isn't responding"}), None)
+                if system_anr:
+                    # A background emulator shell/launcher dialog may cover a
+                    # healthy app. Never dismiss a MoFlight/app error dialog.
+                    events = self.report.setdefault("emulator_dialogs", [])
+                    if len(events) >= 4:
+                        raise AssertionError('Repeated emulator system ANRs block this trial')
+                    close = next(n for n in nodes if n.get('resource-id') == 'android:id/aerr_close')
+                    x1, y1, x2, y2 = map(int, re.findall(r"\d+", close.get('bounds', '')))
+                    events.append({"dialog": system_anr, "action": "close background system app"})
+                    print(f"EMULATOR: {system_anr}; closing background system app", flush=True)
+                    self.shell('input', 'tap', str((x1 + x2) // 2), str((y1 + y2) // 2))
+                    time.sleep(.5)
+                    continue
+                for node in nodes:
                     if any(label == text if exact else text in label for label in self.labels(node)):
                         bounds = list(map(int, re.findall(r"\d+", node.get("bounds", ""))))
                         if len(bounds) == 4 and bounds[2] > bounds[0] and bounds[3] > bounds[1]:
@@ -119,6 +136,11 @@ class Smoke:
         self.report["display"] = {"size": self.shell("wm", "size"),
                                   "density": self.shell("wm", "density")}
         self.shell("logcat", "-c")
+        # The entire native fixture journey is offline, also avoiding Google
+        # background downloads during the first boot of this disposable image.
+        self.shell("cmd", "connectivity", "airplane-mode", "enable")
+        self.shell("svc", "wifi", "disable")
+        self.shell("svc", "data", "disable")
         self.adb("install", "-r", str(apk))
         assert self.shell("pm", "clear", PACKAGE) == "Success"
         self.launch()

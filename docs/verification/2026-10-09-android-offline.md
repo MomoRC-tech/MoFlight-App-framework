@@ -38,6 +38,12 @@ This correction reuses the successful binary from 6957ce2 after proving its app 
 
 The next harness retry uses API 35, current SwiftShader mode, disabled cameras/snapshots and a smaller recorded 480x800/160dpi software display with 2 GiB RAM. Target/compile SDK remains 36 and the APK/source is unchanged. Full launch logcat and a failure screenshot replace truncated failure evidence. No infrastructure error is ignored or counted as a native pass. These changes address emulator overhead; actual app startup/storage verification is still pending.
 
+### API 35 diagnostic result
+
+[Run 37995758653](https://github.com/MomoRC-tech/MoFlight-App-framework/actions/runs/37995758653), source 44fcdaa: plan/host/mobile checks passed and reused the same APK. The API 35 emulator booted in 55 seconds. Readiness failed again with zero formal checkpoints. This time [full evidence](https://github.com/MomoRC-tech/MoFlight-App-framework/actions/runs/37995758653/artifacts/11647048242) contains a **Pixel Launcher isn't responding** dialog. Its screenshot visibly shows the loaded MoFlight empty-state screen behind that dialog; logcat records React Native running main and native expo-sqlite loading successfully. No formal storage/restart pass is inferred from those observations.
+
+The next bounded harness correction disables network before installation and explicitly records/closes only those two exact background launcher/System UI ANR dialogs. It never dismisses a MoFlight error; more than four system dialogs fails the trial. Every app checkpoint still requires its normal visible UI assertion. This handles emulator interference rather than bypassing app startup or injecting state. Native outcomes remain pending until the retry completes.
+
 ## Remaining acceptance
 
 This bounded Android emulator sequence cannot pass physical-device/iOS acceptance, visual readability/large-text/orientation checks, entry-level copy confirmation or externally saved backup/document-picker restore. Backups remain unencrypted experimental lab files. No cloud sessions, Auth recovery/RLS/private files, account linking/sync, handwriting, live Vereinsflieger access or SPL retrieval evaluation is added. Supabase still requires a disposable free project/two synthetic sessions; own-flight access still requires supported documentation/permission. No paid AI calls occur.
