@@ -17,7 +17,7 @@ const choices: [string, Filters][] = [
   ['Example Alex · p2 · instructor', { person_id: 'fixture:p2', role: 'instructor' }],
 ];
 function Button({ title, onPress, disabled = false }: { title: string; onPress: () => void; disabled?: boolean }) {
-  return <Pressable accessibilityRole="button" accessibilityState={{ disabled }} disabled={disabled} onPress={onPress} style={[styles.button, disabled && styles.disabled]}><Text style={styles.buttonText}>{title}</Text></Pressable>;
+  return <Pressable accessibilityRole="button" accessibilityLabel={title} accessibilityState={{ disabled }} disabled={disabled} onPress={onPress} style={[styles.button, disabled && styles.disabled]}><Text style={styles.buttonText}>{title}</Text></Pressable>;
 }
 function Totals({ title, values }: { title: string; values: Counters | null }) {
   return <View style={styles.card}><Text style={styles.heading}>{title}</Text>{values ? counterKeys.map(k => <Text key={k} style={styles.body}>{k.replaceAll('_', ' ')}: {k === 'landings' ? values[k] : `${Math.floor(values[k] / 60)}:${String(values[k] % 60).padStart(2, '0')}`} {k === 'landings' ? '' : 'h:mm'}</Text>) : <Text style={styles.body}>Leave every total field blank — partial page.</Text>}</View>;

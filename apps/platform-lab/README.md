@@ -42,6 +42,23 @@ The installed Expo CLI help verifies the `--variant release`, `--configuration R
 
 ## Device acceptance sequence — not yet executed
 
+### Automated Android emulator subset
+
+The push workflow now builds a Release-configuration lab APK with embedded JavaScript for **arm64-v8a** phones and the **x86_64** emulator. This remains a synthetic, debug-key-signed lab build, not store distribution or a production release. The `moflight-synthetic-android-offline` artifact contains `app-release.apk`; unlike the previous debug artifact it is intended to start without a Metro server. CI checks the bundle/architectures before uploading it, then installs that same APK on an API 36 emulator. Current outcomes are in [Android offline evidence](../../docs/verification/2026-10-09-android-offline.md).
+
+`scripts/android_smoke.py` uses ordinary Android UI buttons and the actual expo-sqlite runtime. It checks fresh empty state, explicit synthetic import, remembered override and exact ASK 21 count, fixed snapshot identity across force-stop/airplane-mode restart, dataset B isolation, remembered selection and repeat-import behavior. Each passed checkpoint saves a screenshot; failure saves a JSON report, last UI XML and logcat in the `moflight-android-emulator-evidence` artifact. It refuses to clear a physical phone. The CI emulator is disposable and the script clears only `de.momorc.moflight.lab` there.
+
+For a separately started disposable emulator (no Metro needed):
+
+```bash
+python3 scripts/android_smoke.py --check-apk apps/platform-lab/android/app/build/outputs/apk/release/app-release.apk
+python3 scripts/android_smoke.py --apk apps/platform-lab/android/app/build/outputs/apk/release/app-release.apk --output local-data/android-smoke
+```
+
+The emulator subset does not establish physical-phone/iOS readability, entry-copy confirmation, an externally saved backup or document-picker restore. The full manual sequence below remains required. Emulator radio settings are enabled/read back with Wi-Fi and cellular data disabled; this does not measure network access to a live backend. No cloud endpoint exists in the app.
+
+### Full manual sequence
+
 1. Open dataset A and explicitly import the prepared synthetic CSV/page. Nine paper rows, four distinct source flights from five original CSV rows and one model finding appear. A fresh install starts empty; reopening does not seed again.
 2. Compare exact D-EX01 (2 source/effective flights), ASK 21 (3 before override), and distinct same-name instructor p1/p2. Inspect supporting IDs/evidence, successful import/coverage and source/effective/paper bases. Override the finding with the paper model: ASK 21 becomes 4 only in effective history. Ignore/reverse do not rewrite source facts.
 3. Prepare a fixed snapshot. New entry 70 belongs on page 7 row 10; entry 71 on page 8 row 1. Page 7 totals: 1:50 / cumulative 11:50. Existing rows are context; partial-page total fields stay blank. Scroll/read each field at normal and large text sizes, both orientations, Android/iOS; record actual devices and observations.
