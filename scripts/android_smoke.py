@@ -112,6 +112,13 @@ class Smoke:
         self.report.update(check_apk(apk))
         self.report["device"] = {k: self.shell("getprop", k) for k in
                                  ("ro.build.version.sdk", "ro.product.model", "ro.product.cpu.abi")}
+        # A smaller software-rendered emulator limits CI graphics overhead.
+        # Record its actual settings; this is not a Pixel/physical-screen claim.
+        self.shell("wm", "size", "480x800")
+        self.shell("wm", "density", "160")
+        self.report["display"] = {"size": self.shell("wm", "size"),
+                                  "density": self.shell("wm", "density")}
+        self.shell("logcat", "-c")
         self.adb("install", "-r", str(apk))
         assert self.shell("pm", "clear", PACKAGE) == "Success"
         self.launch()
@@ -173,7 +180,10 @@ class Smoke:
             self.report["error"] = str(error)
         (self.output / "report.json").write_text(json.dumps(self.report, indent=2) + "\n")
         try:
-            (self.output / "logcat.txt").write_text(self.shell("logcat", "-d", "-t", "2000"))
+            (self.output / "logcat.txt").write_text(self.shell("logcat", "-d"))
+            if error:
+                shot = self.adb("exec-out", "screencap", "-p", binary=True).stdout
+                (self.output / "failure.png").write_bytes(shot)
         finally:
             if self.emulator:
                 self.shell("cmd", "connectivity", "airplane-mode", "disable", check=False)

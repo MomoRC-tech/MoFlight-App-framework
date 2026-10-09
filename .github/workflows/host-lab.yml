@@ -110,12 +110,13 @@ jobs:
       - name: Run native offline persistence smoke test
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 36
+          api-level: 35
           arch: x86_64
           target: google_apis
           profile: pixel_2
           disable-animations: true
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot-save
+          ram-size: 2048M
+          emulator-options: -no-window -gpu swiftshader -noaudio -no-boot-anim -no-snapshot -camera-back none -camera-front none -skin 480x800
           script: python scripts/android_smoke.py --apk local-data/android-apk/app-release.apk --output local-data/android-smoke
       - name: Upload actual emulator evidence, including failures
         if: always()
