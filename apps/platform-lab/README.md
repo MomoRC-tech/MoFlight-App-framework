@@ -40,7 +40,7 @@ pnpm --filter @moflight/platform-lab ios:offline
 
 The installed Expo CLI help verifies the `--variant release`, `--configuration Release` and `--no-bundler` flags. Generated Android Gradle configuration uses Expo `export:embed` for non-debug variants; its default debug signing is for local lab testing only. These commands are prepared but **not executed here** because native toolchains/devices are absent. No production signing, store distribution or paid build service is selected. Verify the actual installed binary starts with Metro stopped before attempting airplane mode; do not infer this from bundle export alone.
 
-## Device acceptance sequence — not yet executed
+## Native acceptance: emulator subset passed, full manual sequence open
 
 ### Automated Android emulator subset
 

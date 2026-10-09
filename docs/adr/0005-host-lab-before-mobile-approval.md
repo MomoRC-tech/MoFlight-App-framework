@@ -48,3 +48,7 @@ generator code is reused or modified.
 ## Native implementation boundary
 
 `packages/flight-logbook` contains pure rules; `packages/local-data` contains the SQLite contract/repository; the app supplies expo-sqlite transactions and private file APIs. Python remains a test/reference harness only. Backups retain all revisions and original synthetic evidence bytes in a versioned JSON envelope; this native lab format is deliberately separate from the earlier host ZIP and is not cross-restorable. Neither format establishes production encryption, authenticity, migrations or sync. Android/iOS device gates remain explicit.
+
+## Subsequent native verification — 2026-10-09 UTC
+
+[Android offline evidence](../verification/2026-10-09-android-offline.md) now records a compiled bundled APK and seven actual emulator UI/expo-sqlite checkpoints, including unchanged snapshot identity across force-stop/airplane-mode restart. Host evidence remains separate. Physical-phone/iOS, full presentation/copy/backup and cloud gates remain open; no additional architecture, sync, paid-call or release approval is inferred.

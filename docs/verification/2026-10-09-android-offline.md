@@ -44,6 +44,28 @@ The next harness retry uses API 35, current SwiftShader mode, disabled cameras/s
 
 The next bounded harness correction disables network before installation and explicitly records/closes only those two exact background launcher/System UI ANR dialogs. It never dismisses a MoFlight error; more than four system dialogs fails the trial. Every app checkpoint still requires its normal visible UI assertion. This handles emulator interference rather than bypassing app startup or injecting state. Native outcomes remain pending until the retry completes.
 
+### Completed Android emulator result
+
+[Run 37996497749](https://github.com/MomoRC-tech/MoFlight-App-framework/actions/runs/37996497749), harness source [7cead104](https://github.com/MomoRC-tech/MoFlight-App-framework/commit/7cead1048922997e653c7023423d67d7a7acc8cc): **completed / success**. Host, mobile-contract, artifact-plan and Android-smoke jobs all passed; the compile job correctly skipped after proving app inputs unchanged from 6957ce2. This run tested the original compiled APK hash recorded above, not a newly claimed build.
+
+Actual device: Android SDK 35, `sdk_gphone64_x86_64`, x86_64; 480x800 display, density override 160. Emulator boot: 41 seconds. All fixture operations run without Metro and with airplane mode enabled/Wi-Fi/cellular disabled before installation. The report contains **no emulator-dialog events**, and completed logs contain no dialog-dismissal events: the successful run did not need that fallback.
+
+| Native UI checkpoint | Actual result |
+| --- | --- |
+| Fresh installation | Passed; no automatic fixture import, zero paper entries, no Metro |
+| Prepared import, decision and query | Passed; nine confirmed paper entries, aircraft override saved, exactly four effective ASK 21 flights |
+| Fixed writing snapshot | Passed; persisted snapshot `69ca7c230e7f0b21438569e9aa5458bfca442b8d508561b0e1bc8fff6a71d197` |
+| Force-stop/relaunch in airplane mode | Passed; retained paper/override/count and identical snapshot ID |
+| Dataset B | Passed; zero paper entries/flights and no successful import |
+| Restart selected B, reopen A | Passed; B selection remembered, original A state/snapshot preserved |
+| Repeat import | Passed; paper count remains nine, query four and snapshot unchanged |
+
+[Actual evidence artifact](https://github.com/MomoRC-tech/MoFlight-App-framework/actions/runs/37996497749/artifacts/11647153316): seven checkpoint PNGs, JSON report, final UI XML and full launch logcat; ZIP SHA-256 `fac594dcbe859b89b36ad97126f033d788369d50069e4c7870505db0e960f005`, expires 2026-10-16. The downloaded report was inspected: seven passed checks, matching APK hash, actual device/display fields and the unchanged snapshot ID. The archive hash matches; query and offline-snapshot screenshots were visually inspected and show the four supporting flights and retained fixed page/carryover/context view. This limited visual review is not complete T02 acceptance.
+
+Durable copies of the actual [checkpoint report](evidence/android-2026-10-09/report.json), [exact-query screenshot](evidence/android-2026-10-09/02-native-import-decision-exact-query.png) and [offline-snapshot screenshot](evidence/android-2026-10-09/04-airplane-mode-force-stop-reopen-same-state.png) are committed alongside this record. These are original CI bytes with synthetic data; full logs remain in CI, not Git.
+
+No physical phone/iOS, selective-copy button or external backup/picker gate is passed by this result. The earlier failures remain documented; infrastructure correction did not change the app binary. The final evidence-only commit does not repeat compilation or fabricate a run for its own SHA.
+
 ## Remaining acceptance
 
 This bounded Android emulator sequence cannot pass physical-device/iOS acceptance, visual readability/large-text/orientation checks, entry-level copy confirmation or externally saved backup/document-picker restore. Backups remain unencrypted experimental lab files. No cloud sessions, Auth recovery/RLS/private files, account linking/sync, handwriting, live Vereinsflieger access or SPL retrieval evaluation is added. Supabase still requires a disposable free project/two synthetic sessions; own-flight access still requires supported documentation/permission. No paid AI calls occur.
