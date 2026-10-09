@@ -18,6 +18,10 @@ Record categories only after checking official documentation/access and permitte
 | Club calendar/training events | Dates of planned activities | Unverified; field semantics, date scope, freshness and access unknown. |
 | Operational notices/status | Relevant published club information | Unverified; available categories and permission scope unknown. |
 
+### Official public-feature lead — 2026-10-09
+
+The [official personal-area page](https://vereinsflieger.de/MeinBereich) describes viewing assigned duties, offering a duty for exchange and calendar integration for open dates. This is primary evidence of a **member UI feature**, not a discovered API/feed contract or permission to retrieve all instructors' duties. The description does not establish that “Who is the instructor next weekend?” can be answered in the requesting member's scope. No private calendar URL, schedule, session or account was accessed; no calendar integration was implemented. Next discovery must resolve feed/API semantics, role visibility, club scope, dates and permitted caching before adopting a transport. [Own-flight investigation](../architecture/vereinsflieger-access-investigation.md) records the current documentation-access limitation.
+
 For each confirmed capability record: official source/document/version, authentication/authorization, supported transport, information fields, club/role restrictions, date/time meaning, update cadence, paging/limits, permitted caching and resulting user stories. Mark unavailable/unsupported access explicitly. Do not infer permission merely from a page being visible in a session or distribute application secrets.
 
 Start with read-only queries in the requesting member's permitted scope. Preserve source freshness and club context, minimize stored third-party personal data and use synthetic examples in Git. This backlog item does not authorize sending messages, booking activities, changing assignments or broad collection of other members' data.

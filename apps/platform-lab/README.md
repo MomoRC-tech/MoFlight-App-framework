@@ -57,6 +57,14 @@ python3 scripts/android_smoke.py --apk apps/platform-lab/android/app/build/outpu
 
 The emulator subset does not establish physical-phone/iOS readability, entry-copy confirmation, an externally saved backup or document-picker restore. The full manual sequence below remains required. Emulator radio settings are enabled/read back with Wi-Fi and cellular data disabled; this does not measure network access to a live backend. No cloud endpoint exists in the app.
 
+Compilation and emulator execution use separate runners to avoid compiler intermediates exhausting disk during system-image installation. CI may reuse an unexpired uploaded APK only if Git comparison with its recorded source commit proves all app inputs unchanged; only documentation/listed CI harness changes are exempt. Every other path change or failed cache verification compiles current source. The selected binary run/source is recorded; reuse is never presented as a new compilation.
+
+### Install the standalone lab on an Android phone
+
+After the APK-upload step passes, open the run linked in [Android offline evidence](../../docs/verification/2026-10-09-android-offline.md), download `moflight-synthetic-android-offline` from its Artifacts section and extract `app-release.apk`. On an arm64 Android phone, open the APK and grant the download/file app's installation permission if Android asks. Open **MoFlight Lab**. No SDK, Expo Go or Metro is needed on the phone or laptop for this already-built artifact. This experimental package contains only synthetic data and no cloud/AI execution path.
+
+First check: choose dataset A, tap **Import prepared synthetic CSV and page**, override the aircraft-model finding, choose **ASK 21**, then prepare a fixed writing snapshot. Record its full ID, enable airplane mode with Wi-Fi disabled, force-stop MoFlight Lab from Android app settings and reopen it. Re-select ASK 21: four effective flights, nine confirmed paper entries and the same writing snapshot must remain. Record the actual phone/Android version and observations before claiming this physical-device gate passed. Continue the full manual sequence for copying and backup/restore.
+
 ### Full manual sequence
 
 1. Open dataset A and explicitly import the prepared synthetic CSV/page. Nine paper rows, four distinct source flights from five original CSV rows and one model finding appear. A fresh install starts empty; reopening does not seed again.

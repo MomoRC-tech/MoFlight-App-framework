@@ -16,6 +16,19 @@ That result does not establish that the document is absent or that the API is
 unsupported; its current contents/version have **not been read** in this trial.
 The public search did not resolve current primary-source own-flight permissions.
 
+### Public-source recheck — 2026-10-09
+
+The official PDF URL was attempted again through the web lookup tool and returned “not accessible via this tool.” No PDF/version contents were obtained; this remains a retrieval limitation, not a finding that no supported API exists. Search leads from third-party API repositories are not treated as provider permission or current interface contracts.
+
+Two official public pages were successfully read:
+
+| Primary page | Publicly documented feature | What it does not establish |
+| --- | --- | --- |
+| [Personal area](https://vereinsflieger.de/MeinBereich) | List/filter/detail views of the member's own flights; assigned duties and calendar integration for open dates | Own-flight API, mobile application-key handling, general roster scope or permission to cache/scrape |
+| [Flight recording](https://vereinsflieger.de/mainpage/Flugerfassung) | Recorded flight dates, registration, launch, pilot/companion, times/places, landings, distance and engine time; Excel/PDF output | CSV column/identity/time semantics, API response format or third-party distribution rights |
+
+No member login, password, app key, private export/calendar URL or flight record was obtained. These product descriptions help identify the next questions; they do not unblock live retrieval. The later assigned-duty lead is recorded in [the broader discovery inventory](../product/vereinsflieger-information-discovery.md), with scope still unresolved.
+
 Do not implement guessed endpoints, distribute an application secret, reuse
 unofficial authentication code or request a member's password in chat. No vendor
 message was sent and no signed-in account/session was accessed. The previously

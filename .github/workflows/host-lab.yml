@@ -5,6 +5,7 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+  actions: read
 jobs:
   host-sqlite:
     runs-on: ubuntu-latest
@@ -38,7 +39,25 @@ jobs:
         env:
           EXPO_OFFLINE: '1'
       - run: git diff --check
+  android-plan:
+    runs-on: ubuntu-latest
+    outputs:
+      run-id: ${{ steps.plan.outputs.run_id }}
+      source-commit: ${{ steps.plan.outputs.source_commit }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - id: plan
+        run: python scripts/android_build_plan.py
+        env:
+          GH_TOKEN: ${{ github.token }}
   android-offline:
+    needs: android-plan
+    if: needs.android-plan.outputs.run-id == ''
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
@@ -67,6 +86,25 @@ jobs:
           name: moflight-synthetic-android-offline
           path: apps/platform-lab/android/app/build/outputs/apk/release/app-release.apk
           retention-days: 7
+  android-smoke:
+    needs: [android-plan, android-offline]
+    if: always() && needs.android-plan.result == 'success' && (needs.android-offline.result == 'success' || needs.android-offline.result == 'skipped')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Download matching compiled APK on a clean runner
+        uses: actions/download-artifact@v4
+        with:
+          name: moflight-synthetic-android-offline
+          path: local-data/android-apk
+          run-id: ${{ needs.android-plan.outputs.run-id || github.run_id }}
+          github-token: ${{ github.token }}
+      - name: Check downloaded APK bundle and architectures
+        run: python scripts/android_smoke.py --check-apk local-data/android-apk/app-release.apk
       - name: Enable emulator KVM
         run: sudo chmod 666 /dev/kvm
       - name: Run native offline persistence smoke test
@@ -78,7 +116,7 @@ jobs:
           profile: pixel_2
           disable-animations: true
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot-save
-          script: python scripts/android_smoke.py --apk apps/platform-lab/android/app/build/outputs/apk/release/app-release.apk --output local-data/android-smoke
+          script: python scripts/android_smoke.py --apk local-data/android-apk/app-release.apk --output local-data/android-smoke
       - name: Upload actual emulator evidence, including failures
         if: always()
         uses: actions/upload-artifact@v4

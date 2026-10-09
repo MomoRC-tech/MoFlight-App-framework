@@ -14,7 +14,23 @@ Checks: empty install without Metro; prepared synthetic import; effective aircra
 
 Local environment remains Linux / Node 24.19.0 / pnpm 11.25.0 / Python 3.12, without Android SDK/adb/Xcode. `pnpm typecheck` passed; `pnpm test` passed 10/10; `pnpm fixtures:check` passed; Python host tests passed 20/20; Python compilation of the new script and `git diff --check` passed. Preparing the workflow or inspecting source does not pass native acceptance.
 
-Remote execution: **pending** at this commit. No emulator, installation or standalone startup success is claimed yet. The workflow has a 40-minute bound and stores failure evidence where available.
+Published implementation: [6957ce2](https://github.com/MomoRC-tech/MoFlight-App-framework/commit/6957ce2a9529acc86d77b09cbccec4e01f3be0ff). Remote [run 37993298923](https://github.com/MomoRC-tech/MoFlight-App-framework/actions/runs/37993298923) completed with **failure**, despite successful compilation:
+
+| Step | Actual result |
+| --- | --- |
+| Host and mobile-contract jobs | Success: 20 host / 10 TypeScript tests, strict types, fixture parity, both bundles/configuration |
+| Android `assembleRelease` | Success: Gradle 11m 18s, 546 executed tasks |
+| Actual APK inspection | Success: embedded JavaScript, arm64-v8a/x86_64 libraries; APK 46,101,450 bytes, SHA-256 `69b113991096d1856917c7c027621cb5b4482ff76d18b06f843fc28d39251d59` |
+| Artifact upload | Success: [standalone APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/actions/runs/37993298923/artifacts/11646019019), 22,058,712 bytes; ZIP SHA-256 `af272a3d8f95d3ae88e0859f65888f5813365025acb2f0a310b9550d04f324d6`; expires 2026-10-16 |
+| Emulator setup / UI checks | Failed downloading the API 36 system image: **No space left on device**. Emulator never launched; zero app checkpoints ran and no emulator evidence artifact exists for this attempt. |
+
+The connector returned a ZIP file reference, but direct local materialization returned HTTP 403, so no independent local APK inspection or installation is claimed. The actual archive checks above were read from completed CI logs. Supabase preflight repeated: blocked / exit 2, no requests sent.
+
+### Runner correction and bounded artifact reuse
+
+APK compilation and emulator execution now use separate Ubuntu runners. The emulator runner downloads the actual uploaded APK; it does not retain the compiler's large intermediates. `android_build_plan.py` permits reuse only for an unexpired artifact whose recorded source commit differs from current main exclusively in documentation and listed CI/emulator harness paths. Every other changed path (including dependencies, fixtures, native app and domain/storage files) forces compilation; deleted/moved input files are not hidden by rename detection. Read/metadata/diff errors fall back to compilation. Read-only Actions access is used, and the selected run/source commit is printed.
+
+This correction reuses the successful binary from 6957ce2 after proving its app input tree unchanged. It does not claim a new binary build or device success for a CI-only edit. Native emulator execution on the clean runner remains **pending** at this correction commit; actual retry outcomes will be recorded after completion. Build and emulator jobs have independent 40/15-minute bounds.
 
 ## Remaining acceptance
 
