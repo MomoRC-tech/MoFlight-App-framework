@@ -36,6 +36,8 @@ Manuel authorized investigation, offered login access and confirmed the browser-
 
 ## Consequences
 
+The subsequent [verified retrieval/import contract proposal](../architecture/vereinsflieger-import-contract.md) includes a pure executable reconciliation planner. It demonstrates synthetic repeat/changed/partial/account checks but is not connected to canonical persistence. Export/mapping/source verification and binding architecture acceptance remain open; [investigation continuation](../verification/2026-10-10-vereinsflieger-retrieval-investigation.md) records the actual role/date controls and reauthentication handoff.
+
 The initial browser approach needs no Supabase or hosted headless browser and can cache retrieved flights locally for offline use. It may require occasional foreground re-login; unattended background sync is not promised. Password-manager/passkey behavior, cookie persistence, session backup exclusion and clearing must be proven per platform. WebView hosts technically can inspect page content, so privacy is an implementation invariant to test.
 
 Export or table changes must cause a visible error while retaining earlier imported history. Limited-period omissions are not deletions. Crew roles and unknown time basis remain explicit. General REST commercial restrictions and unresolved browser integration terms must stay visible in product planning.
