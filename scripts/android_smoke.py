@@ -90,7 +90,7 @@ class Smoke:
                 time.sleep(0.5)
         raise AssertionError(f"Visible UI did not contain {text!r}")
 
-    def swipe(self, *, up, duration=220):
+    def swipe(self, *, up, duration=700):
         size = self.shell("wm", "size")
         width, height = map(int, re.findall(r"(\d+)x(\d+)", size)[-1])
         start, end = (int(height * .8), int(height * .3))
@@ -199,6 +199,9 @@ class Smoke:
         print(f"PASS: {name}", flush=True)
 
     def snapshot_id(self):
+        # Dataset activation can resize the long ScrollView. Start from its
+        # visible heading and avoid a fast fling skipping the short ID label.
+        self.top()
         node = self.find("Fixed snapshot ", scroll=True, attempts=45)
         label = next(v for v in self.labels(node) if "Fixed snapshot " in v)
         found = re.search(r"Fixed snapshot ([^. ]+)", label)
