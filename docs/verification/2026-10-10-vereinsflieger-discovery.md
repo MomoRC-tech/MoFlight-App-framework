@@ -31,6 +31,8 @@ Paths below were observed under `https://vereinsflieger.de`. Parameter names des
 
 ## Primary manual sources
 
+The [manual workflow follow-up](2026-10-10-vereinsflieger-manual-workflows.md) adds the visually verified generic CSV export menu, club-defined flight types, curriculum validity/assessment scales, duty/reservation interactions and calendar subscription scope. Actual personal-flight export remains unresolved.
+
 All links were opened and read in the authenticated browser unless explicitly described as a public lead. Summaries describe the provider, not independently validated regulatory rules.
 
 | Manual page | Evidence relevant to MoFlight |

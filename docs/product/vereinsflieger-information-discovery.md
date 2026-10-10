@@ -39,7 +39,7 @@ The first three categories have manual and observed UI evidence in the [discover
 | Flight records and statistics | Future flight statistics and source-field coverage (#9) | Own list/detail and monthly report inspected; UTC, separate durations, classification and duplicates documented. Export and complete history remain open. |
 | Theory and practical training records (Ausbildungsstand) | Personal training progress | Own overview, practical and theory views inspected; dates/instructors/objectives documented. Stable versions, complete status mappings and sign-off evidence remain open. |
 | Instructor, Flugleiter and other duty assignments | Next-week/next-weekend planning | Personal/all-upcoming/club views inspected. Historical instructor/flight-leader assignments and pagination verified; upcoming emptiness explained by Manuel's seasonal cutoff. Timezone, identifiers and complete permission scope remain unresolved. |
-| Club calendar/training events | Dates of planned activities | Unverified; field semantics, date scope, freshness and access unknown. |
+| Club calendar/training events | Dates of planned activities | Manual documents timed/all-day events, scoped visibility and selected-category ICS/iCal subscriptions; live fields/feed, timezone and freshness remain unverified. See the [manual workflow follow-up](../verification/2026-10-10-vereinsflieger-manual-workflows.md). |
 | Operational notices/status | Relevant published club information | Unverified; available categories and permission scope unknown. |
 
 ### Official public-feature lead — 2026-10-09
