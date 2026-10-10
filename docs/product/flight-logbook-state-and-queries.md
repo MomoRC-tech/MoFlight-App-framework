@@ -1,5 +1,7 @@
 # Remembered logbook state, decisions and flight-history queries
 
+Scope clarification (Manuel, 2026-10-10): a pilot may own multiple independent logbooks. All paper state, photos, decisions, carryovers and writing snapshots identify the target book; queries display their book/combined scope. Shared provider evidence does not imply shared paper progress. See [multi-book requirements](moflight-feature-scope.md#multiple-logbooks-per-pilot--confirmed-2026-10-10) and [proposed ADR 0007](../adr/0007-multiple-logbooks-and-formats.md).
+
 Current implementation note: the [bounded synthetic host slice](../../apps/platform-lab/README.md) has [20 passing host checks](../verification/2026-10-08-host-local-slice.md). This does not pass native/cloud/live/handwriting acceptance; the requirements below remain the full target. Prepared observations and CSV are explicitly synthetic.
 
 Date: 2026-10-08. Source: Manuel's feature addition in this conversation. Status: requested product behavior; data model, query contract and acceptance below are proposed and unimplemented. Extends [FL-13–FL-16](flight-logbook-user-stories.md). Tracking: #1/#2/#4/#7/#8 and [#9](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/9).

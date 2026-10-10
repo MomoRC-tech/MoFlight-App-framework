@@ -96,6 +96,7 @@ Offline covers downloaded permitted content, learning events, flights, settings 
 | R12 | Own Vereinsflieger flights | Authorized live retrieval, source comparison, repeat retrieval and session expiry |
 | R13 | Measurable RAG | Ingestion, retrieval, citations, missing evidence, latency and cost evaluated separately |
 | R14 | Later ultralight and powered-aircraft logbooks | Verify class-specific fields/layouts and source mapping using synthetic examples before enabling each format |
+| R15 | Multiple independent logbooks per pilot, with extensible formats | Book selection, independent paper progress/totals and offline state; proposed boundaries and acceptance in ADR 0007 |
 
 ## Current architecture proposal
 
@@ -149,6 +150,8 @@ The draft's API names are proposed internal contracts, not deployed routes or cl
 Account switch stops the old sync, closes its database and selects account-scoped data/files/queues. Pending changes remain visible before logout/deletion and are never silently discarded or transferred. A permanently offline device can learn about remote deletion only on reconnection.
 
 ## Flight-logbook product workflow
+
+Confirmed 2026-10-10: one pilot account can own several books (gliding, ultralight, powered airplane, or multiple volumes of the same format). Book identity, format and pilot identity must be distinct; book-specific paper progress and decisions must remain isolated. Adding formats must not require rewriting shared account/provider/persistence services. [ADR 0007](docs/adr/0007-multiple-logbooks-and-formats.md) proposes the boundary and a small proof before production schema expansion; current lab dataset selection is not proof of this capability.
 
 The [canonical user stories](docs/product/flight-logbook-user-stories.md) define photo upload, authorized flight retrieval, visible-row comparison, persisted findings and user responses, and a format-neutral writing template from a resolved versioned snapshot. The first output is an in-app view; PDF is an optional export. The [presentation contract](docs/product/writing-template-presentation.md) defines exact values, page/row/field placement and readable offline continuation. Store the complete session and remember last confirmed paper entries, latest successful source import and reusable scoped decisions. Opening/querying the app needs no new photo or export; confirm remembered status or update it with new evidence for continuation. Displaying, generating or downloading a template never proves that entries were copied. Source snapshots and prototype rule differences are linked from that specification. Detailed stories are proposed acceptance criteria; no end-to-end implementation is claimed.
 

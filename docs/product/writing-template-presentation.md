@@ -1,5 +1,7 @@
 # Writing-template presentation
 
+Scope clarification (Manuel, 2026-10-10): a pilot may own multiple independent logbooks. All paper state, photos, decisions, carryovers and writing snapshots identify the target book; queries display their book/combined scope. Shared provider evidence does not imply shared paper progress. See [multi-book requirements](moflight-feature-scope.md#multiple-logbooks-per-pilot--confirmed-2026-10-10) and [proposed ADR 0007](../adr/0007-multiple-logbooks-and-formats.md).
+
 Current implementation note: the [bounded synthetic lab](../../apps/platform-lab/README.md) has 20 host/10 TypeScript checks plus [seven actual Android emulator checkpoints](../verification/2026-10-09-android-offline.md), including reopening the same fixed snapshot in airplane mode without paper advancement. [Expanded Android evidence](../verification/2026-10-10-android-copy-backup.md) passes selective confirmation of entry 70 while 71 stays pending, copy-state restart and actual external backup/picker restore with the same snapshot. Full T02 readability, new-evidence review, physical-phone copy/picker, iOS and cloud/live/handwriting acceptance remain open; the requirements below remain the full target. Prepared observations and CSV are explicitly synthetic.
 
 Date: 2026-10-08. Product owner: Manuel Singer. Source: Manuel's clarification that the output need not be a PDF, provided it is user-friendly and represents exactly what to write in the paper Flugbuch. Canonical story: [FL-09](flight-logbook-user-stories.md); implementation and acceptance: #7/#8.

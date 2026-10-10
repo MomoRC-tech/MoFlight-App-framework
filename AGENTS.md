@@ -20,6 +20,7 @@
 - Provider/service-role secrets stay server-side; examples contain placeholders.
 - Enforce authorization for API, sync, private storage, jobs and referenced objects. Test with two users and forged IDs.
 - Keep MoFlight identity and Vereinsflieger authorization separate.
+- One pilot may own multiple logbooks. Keep account identity, book identity and versioned format distinct; scope paper progress, totals, photos, decisions and writing snapshots to the book. Do not hard-code gliding layout rules into shared retrieval/account/persistence services. ADR 0007 is proposed; prove multi-book isolation and format extension before production schema expansion.
 - Scope local databases/files/queues per account; preserve and surface pending changes at logout/switch.
 - AI transcribes/explains; deterministic code computes flight minutes, roles and totals. Unreadable values remain unknown until confirmed.
 - Read current plugin/skill code before reusing export logic; preserve the existing plugin.
