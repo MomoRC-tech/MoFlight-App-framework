@@ -90,7 +90,7 @@ jobs:
     needs: [android-plan, android-offline]
     if: always() && needs.android-plan.result == 'success' && (needs.android-offline.result == 'success' || needs.android-offline.result == 'skipped')
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

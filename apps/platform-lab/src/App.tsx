@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { Directory, File, Paths } from 'expo-file-system';
+import { StorageAccessFramework } from 'expo-file-system/legacy';
 import * as DocumentPicker from 'expo-document-picker';
 import * as Sharing from 'expo-sharing';
 import * as Crypto from 'expo-crypto';
@@ -50,10 +51,10 @@ export default function App() {
     return () => { cancelled = true; void repo.current?.db.close(); };
   }, []);
   const operationLock = useRef(false);
-  async function act(work: () => Promise<void>) {
+  async function act(work: () => Promise<void | string>) {
     if (operationLock.current || busy) return;
     operationLock.current = true; setBusy(true);
-    try { await work(); if (repo.current) await refresh(); setMessage('Saved on this device.'); }
+    try { const outcome = await work(); if (repo.current) await refresh(); setMessage(outcome ?? 'Saved on this device.'); }
     catch (e) { setMessage(e instanceof Error ? e.message : String(e)); }
     finally { operationLock.current = false; setBusy(false); }
   }
@@ -72,10 +73,20 @@ export default function App() {
     const file = new File(folder, `backup-${Crypto.randomUUID()}.json`); file.create(); file.write(text);
     if (await Sharing.isAvailableAsync()) await Sharing.shareAsync(file.uri, { mimeType: 'application/json', dialogTitle: 'Save synthetic MoFlight backup' });
     // Private file remains available for repeat export; sharing cancellation is not proof of external backup.
+    return 'Backup prepared in app storage. Sharing does not confirm external saving.';
+  }
+  async function saveBackupToFolder() {
+    const permission = await StorageAccessFramework.requestDirectoryPermissionsAsync(StorageAccessFramework.getUriForDirectoryInRoot('Documents'));
+    if (!permission.granted) return 'Backup save cancelled. No external file created.';
+    const text = await repo.current!.backup();
+    const uri = await StorageAccessFramework.createFileAsync(permission.directoryUri, `moflight-backup-${Crypto.randomUUID()}`, 'application/json');
+    await StorageAccessFramework.writeAsStringAsync(uri, text);
+    if (await StorageAccessFramework.readAsStringAsync(uri) !== text) throw new Error('Backup verification failed. Save again before relying on this file.');
+    return 'Backup saved and verified in the selected device folder.';
   }
   async function restoreBackup() {
     const picked = await DocumentPicker.getDocumentAsync({ type: 'application/json', copyToCacheDirectory: true });
-    if (picked.canceled) return;
+    if (picked.canceled) return 'Backup restore cancelled. Current data unchanged.';
     const selectedFile = picked.assets[0]!;
     if (selectedFile.size && selectedFile.size > 2_000_000) throw new Error('Backup exceeds synthetic lab limit');
     const input = new File(selectedFile.uri); const text = await input.text();
@@ -87,6 +98,7 @@ export default function App() {
     catch (e) { await restored.db.close(); throw e; }
     const previous = repo.current; repo.current = restored; await previous?.db.close();
     setSelection(nextSelection); await refresh(restored);
+    return 'Backup restored into a new local database. Previous database preserved.';
   }
   return <SafeAreaProvider><SafeAreaView style={styles.screen}><ScrollView contentContainerStyle={styles.container}>
     <Text style={styles.title}>MoFlight Lab</Text>
@@ -124,6 +136,7 @@ export default function App() {
     <Text style={styles.heading}>Backup and restore</Text>
     <Text style={styles.body}>Synthetic lab backup includes original CSV/page bytes, history and snapshots. Unencrypted. Save outside this app for protection against uninstall/device loss. Sharing cancellation does not establish an external backup.</Text>
     <Button disabled={busy || !repo.current} title="Save / share versioned synthetic backup" onPress={() => void act(exportBackup)} />
+    {Platform.OS === 'android' && <Button disabled={busy || !repo.current} title="Save synthetic backup to a device folder" onPress={() => void act(saveBackupToFolder)} />}
     <Button disabled={busy} title="Restore a backup into a new local database" onPress={() => void act(restoreBackup)} />
     <Text style={styles.body}>Cloud Auth/RLS, live access, handwriting, SPL retrieval and native acceptance: not tested. No paid calls.</Text>
   </ScrollView></SafeAreaView></SafeAreaProvider>;

@@ -33,7 +33,8 @@ class Smoke:
         output.mkdir(parents=True, exist_ok=True)
         self.report = {"status": "running", "checks": [], "boundary":
                        "Android emulator only; synthetic prepared observations/CSV. "
-                       "No OCR, live retrieval, cloud Auth, physical phone, iOS or external backup test."}
+                       "Native UI and external synthetic backup/picker checks. "
+                       "No OCR, live retrieval, cloud Auth, physical phone or iOS."}
         self.screen = None
         self.emulator = False
 
@@ -89,20 +90,101 @@ class Smoke:
                 time.sleep(0.5)
         raise AssertionError(f"Visible UI did not contain {text!r}")
 
-    def swipe(self, *, up):
+    def swipe(self, *, up, duration=220):
         size = self.shell("wm", "size")
         width, height = map(int, re.findall(r"(\d+)x(\d+)", size)[-1])
         start, end = (int(height * .8), int(height * .3))
         if not up:
             start, end = end, start
-        self.shell("input", "swipe", str(width // 2), str(start), str(width // 2), str(end), "220")
+        self.shell("input", "swipe", str(width // 2), str(start), str(width // 2), str(end), str(duration))
 
     def tap(self, text, *, scroll=False):
-        node = self.find(text, exact=True, scroll=scroll, attempts=45 if scroll else 12)
+        node = self.find(text, exact=True, scroll=scroll, attempts=100 if scroll else 12)
+        self.tap_node(node)
+
+    def tap_node(self, node):
+        text = node.get('text') or node.get('content-desc') or node.get('resource-id')
         assert node.get("enabled") == "true", f"Disabled button: {text}"
         x1, y1, x2, y2 = map(int, re.findall(r"\d+", node.get("bounds", "")))
         self.shell("input", "tap", str((x1 + x2) // 2), str((y1 + y2) // 2))
         time.sleep(0.5)
+
+    def top(self):
+        for _ in range(25):
+            if any('MoFlight Lab' in self.labels(n) for n in self.dump()):
+                return
+            self.swipe(up=False, duration=60)
+        raise AssertionError('Could not scroll back to app status')
+
+    def resource(self, suffix):
+        for _ in range(15):
+            match = next((n for n in self.dump() if n.get('resource-id', '').endswith(suffix)), None)
+            if match is not None:
+                return match
+            time.sleep(.5)
+        raise AssertionError(f'Android UI resource absent: {suffix}')
+
+    def picker_ready(self):
+        for _ in range(20):
+            if any('documentsui' in n.get('package', '') for n in self.dump()):
+                return
+            time.sleep(.5)
+        raise AssertionError('Actual Android DocumentsUI picker did not open')
+
+    def choose_restore(self, filename):
+        self.launch()
+        self.tap('Restore a backup into a new local database', scroll=True)
+        self.picker_ready()
+        # Navigate the real storage provider; adb never supplies the chosen URI.
+        self.tap('Show roots')
+        self.tap('sdk_gphone64_x86_64')
+        self.tap('Documents')
+        self.tap('MoFlightSmoke')
+        self.tap(filename)
+        self.top()
+
+    def selected_database(self):
+        self.top()
+        node = self.find('Local dataset: synthetic-lab-')
+        return next(v for v in self.labels(node) if v.startswith('Local dataset:'))
+
+    def copy_state(self, snapshot, *, count=10, pending=True):
+        self.find(f'{count} individually confirmed paper entries.', scroll=True)
+        self.find('Source DG-1000 S / paper ASK 21 · override', scroll=True)
+        self.tap('ASK 21', scroll=True)
+        self.find('4 established flights', scroll=True)
+        assert self.snapshot_id() == snapshot
+        node = self.find('This entry is confirmed copied', exact=True, scroll=True, attempts=100)
+        assert node.get('enabled') == 'false', 'Entry 70 can be confirmed twice'
+        if pending:
+            node = self.find('I copied only entry 71 to page 8, row 1', exact=True, scroll=True, attempts=100)
+            assert node.get('enabled') == 'true', 'Entry 71 was unexpectedly confirmed or blocked'
+
+    def save_external(self):
+        self.launch()
+        self.tap('Save synthetic backup to a device folder', scroll=True)
+        self.picker_ready()
+        self.tap('MoFlightSmoke')
+        select = next((n for n in self.dump() if any(v.lower() == 'use this folder' for v in self.labels(n))), None)
+        assert select is not None, 'Folder picker has no selection action'
+        self.tap_node(select)
+        allow = self.resource('android:id/button1')
+        assert any(v.lower() == 'allow' for v in self.labels(allow)), 'Unexpected folder grant dialog'
+        self.tap_node(allow)
+        self.top()
+        self.find('Backup saved and verified in the selected device folder.')
+
+    def external_files(self):
+        return self.shell('ls', '/sdcard/Documents/MoFlightSmoke').splitlines()
+
+    def push_document(self, filename, text):
+        # Input files belong to the normal external document provider, never DB/app storage.
+        path = self.output / filename
+        path.write_text(text)
+        self.adb('push', str(path), f'/sdcard/Documents/MoFlightSmoke/{filename}')
+
+    def read_external(self, filename):
+        return self.shell('cat', f'/sdcard/Documents/MoFlightSmoke/{filename}')
 
     def launch(self):
         self.shell("am", "force-stop", PACKAGE)
@@ -195,6 +277,119 @@ class Smoke:
         self.find("4 established flights", scroll=True)
         assert self.snapshot_id() == snapshot
         self.record("repeated-import-does-not-duplicate-or-rewrite-snapshot")
+
+        self.tap('I copied only entry 70 to page 7, row 10', scroll=True)
+        node = self.find('This entry is confirmed copied', exact=True)
+        assert node.get('enabled') == 'false'
+        node = self.find('I copied only entry 71 to page 8, row 1', exact=True, scroll=True, attempts=100)
+        assert node.get('enabled') == 'true'
+        self.record('copy-only-entry-70-entry-71-still-pending')
+        self.launch()
+        self.copy_state(snapshot)
+        self.record('copied-state-survives-offline-restart')
+
+        self.shell('mkdir', '-p', '/sdcard/Documents/MoFlightSmoke')
+        assert not self.external_files(), 'External test folder must start empty'
+        for button, expected, name in [
+            ('Save synthetic backup to a device folder', 'Backup save cancelled. No external file created.', 'cancel-folder-save-preserves-data'),
+            ('Restore a backup into a new local database', 'Backup restore cancelled. Current data unchanged.', 'cancel-restore-preserves-data'),
+        ]:
+            self.launch()
+            before = self.selected_database()
+            self.tap(button, scroll=True)
+            self.picker_ready()
+            self.shell('input', 'keyevent', 'KEYCODE_BACK')
+            self.top()
+            self.find(expected)
+            assert self.selected_database() == before
+            self.find('10 individually confirmed paper entries.')
+            assert not self.external_files()
+            self.record(name)
+
+        self.launch()
+        self.tap('Save / share versioned synthetic backup', scroll=True)
+        for _ in range(20):
+            if any(n.get('package') in {'android', 'com.android.intentresolver'} for n in self.dump()):
+                break
+            time.sleep(.5)
+        else:
+            raise AssertionError('Native share sheet did not open')
+        self.shell('input', 'keyevent', 'KEYCODE_BACK')
+        self.top()
+        self.find('Backup prepared in app storage. Sharing does not confirm external saving.')
+        assert not self.external_files()
+        self.find('10 individually confirmed paper entries.')
+        self.record('share-cancellation-does-not-claim-external-backup')
+
+        self.save_external()
+        files = self.external_files()
+        assert len(files) == 1 and files[0].endswith('.json'), files
+        filename = files[0]
+        backup = self.read_external(filename)
+        envelope = json.loads(backup)
+        assert envelope['format'] == 'moflight-native-lab-backup-v1'
+        assert hashlib.sha256(envelope['payload'].encode()).hexdigest() == envelope['checksum']
+        payload = json.loads(envelope['payload'])
+        assert payload['dataset_id'] == 'synthetic-lab-a' and payload['schema'] == 1
+        rows = payload['records']
+        papers = {r['id'] for r in rows if r['kind'] == 'paper'}
+        assert len(papers) == 10 and 'fixture:f70' in papers and 'fixture:f71' not in papers
+        assert any(r['kind'] == 'template' and r['id'] == snapshot for r in rows)
+        assert any(r['kind'] == 'import' and json.loads(r['payload']).get('raw_csv') for r in rows)
+        assert any(r['kind'] == 'observation' and json.loads(r['payload']).get('raw_page') for r in rows)
+        self.report['external_backup'] = {'filename': filename, 'sha256': hashlib.sha256(backup.encode()).hexdigest(),
+                                          'record_revisions': len(rows), 'paper_entries': 10, 'checksum_verified': True}
+        self.record('external-folder-backup-original-bytes-history-and-checksum')
+
+        bad_checksum = dict(envelope, checksum='0' * 64)
+        for bad_name, text, error, checkpoint in [
+            ('invalid-checksum.json', json.dumps(bad_checksum), 'Backup integrity/format failure', 'checksum-rejection-preserves-current-database'),
+            ('oversized.json', ' ' * 2_000_001, 'Backup exceeds synthetic lab limit', 'oversize-rejection-preserves-current-database'),
+            ('malformed.json', '{broken-json', 'JSON', 'malformed-json-rejection-preserves-current-database'),
+        ]:
+            self.launch()
+            before = self.selected_database()
+            self.push_document(bad_name, text)
+            self.choose_restore(bad_name)
+            self.find(error)
+            assert self.selected_database() == before
+            self.find('10 individually confirmed paper entries.')
+            self.record(checkpoint)
+            self.launch()
+            self.copy_state(snapshot)
+
+        # Advance the original only after proving selective confirmation; the
+        # saved ten-entry backup must restore independently of this newer work.
+        self.tap('I copied only entry 71 to page 8, row 1')
+        self.launch()
+        self.find('11 individually confirmed paper entries.', scroll=True)
+        self.record('original-database-advanced-after-backup')
+        self.launch()
+        self.tap('Open dataset B')
+        self.find('0 individually confirmed paper entries.')
+        self.choose_restore(filename)
+        self.find('Backup restored into a new local database. Previous database preserved.')
+        restored = self.selected_database()
+        assert re.fullmatch(r'Local dataset: synthetic-lab-a · restore-[\w-]+\.sqlite', restored), restored
+        self.report['restored_selection'] = restored
+        self.copy_state(snapshot)
+        self.record('real-document-picker-restores-ten-entry-backup-into-new-database')
+        self.launch()
+        assert self.selected_database() == restored
+        self.copy_state(snapshot)
+        self.record('restored-selection-and-copy-state-survive-offline-restart')
+
+        existing = set(self.external_files())
+        self.save_external()
+        new_files = set(self.external_files()) - existing
+        assert len(new_files) == 1
+        assert self.read_external(new_files.pop()) == backup, 'Restore/re-export changed source bytes or revisions'
+        self.record('restored-reexport-preserves-entire-backup-byte-for-byte')
+        self.launch()
+        self.tap('Open dataset A')
+        self.find('Local dataset: synthetic-lab-a · lab-a.sqlite')
+        self.find('11 individually confirmed paper entries.')
+        self.record('restore-preserves-newer-original-database')
 
     def finish(self, status, error=None):
         self.report["status"] = status
