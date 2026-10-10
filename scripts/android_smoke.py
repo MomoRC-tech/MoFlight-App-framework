@@ -57,7 +57,7 @@ class Smoke:
     def labels(node):
         return [node.get("text", ""), node.get("content-desc", "")]
 
-    def find(self, text, *, exact=False, scroll=False, attempts=12):
+    def find(self, text, *, exact=False, scroll=False, attempts=12, up=True, enabled=None, resource=None):
         for _ in range(attempts):
             try:
                 nodes = self.dump()
@@ -78,6 +78,10 @@ class Smoke:
                     time.sleep(.5)
                     continue
                 for node in nodes:
+                    if enabled is not None and node.get('enabled') != str(enabled).lower():
+                        continue
+                    if resource is not None and not node.get('resource-id', '').endswith(resource):
+                        continue
                     if any(label == text if exact else text in label for label in self.labels(node)):
                         bounds = list(map(int, re.findall(r"\d+", node.get("bounds", ""))))
                         if len(bounds) == 4 and bounds[2] > bounds[0] and bounds[3] > bounds[1]:
@@ -85,7 +89,7 @@ class Smoke:
             except (ET.ParseError, subprocess.CalledProcessError):
                 pass
             if scroll:
-                self.swipe(up=True)
+                self.swipe(up=up)
             else:
                 time.sleep(0.5)
         raise AssertionError(f"Visible UI did not contain {text!r}")
@@ -99,12 +103,15 @@ class Smoke:
         self.shell("input", "swipe", str(width // 2), str(start), str(width // 2), str(end), str(duration))
 
     def tap(self, text, *, scroll=False):
+        if scroll and text.startswith('I copied only entry '):
+            self.tap_node(self.find_copy(text))
+            return
         if scroll and text in {'Save / share versioned synthetic backup',
                                'Save synthetic backup to a device folder',
                                'Restore a backup into a new local database'}:
             self.footer()
             scroll = False
-        node = self.find(text, exact=True, scroll=scroll, attempts=100 if scroll else 12)
+        node = self.find(text, exact=True, scroll=scroll, attempts=100 if scroll else 12, enabled=True)
         self.tap_node(node)
 
     def tap_node(self, node):
@@ -165,12 +172,26 @@ class Smoke:
         self.tap('Restore a backup into a new local database', scroll=True)
         self.picker_ready()
         # Navigate the real storage provider; adb never supplies the chosen URI.
+        # DocumentsUI usually remembers the granted backup folder. Select the
+        # actual file there before opening a drawer with duplicate breadcrumbs.
+        try:
+            node = self.find(filename, exact=True, scroll=True, attempts=8, enabled=True, resource='android:id/title')
+        except AssertionError:
+            node = None
+        if node is not None:
+            self.tap_node(node)
+            self.top()
+            return
         self.tap('Show roots')
-        self.tap('sdk_gphone64_x86_64')
+        self.tap_node(self.find('sdk_gphone64_x86_64', exact=True, enabled=True, resource='android:id/title'))
         self.tap('Documents')
         self.tap('MoFlightSmoke')
-        self.tap(filename)
+        self.tap_node(self.find(filename, exact=True, scroll=True, attempts=12, enabled=True, resource='android:id/title'))
         self.top()
+
+    def find_copy(self, text):
+        self.footer()
+        return self.find(text, exact=True, scroll=True, up=False, attempts=20)
 
     def selected_database(self):
         self.top()
@@ -183,10 +204,10 @@ class Smoke:
         self.tap('ASK 21', scroll=True)
         self.find('4 established flights', scroll=True)
         assert self.snapshot_id() == snapshot
-        node = self.find('This entry is confirmed copied', exact=True, scroll=True, attempts=100)
+        node = self.find_copy('This entry is confirmed copied')
         assert node.get('enabled') == 'false', 'Entry 70 can be confirmed twice'
         if pending:
-            node = self.find('I copied only entry 71 to page 8, row 1', exact=True, scroll=True, attempts=100)
+            node = self.find_copy('I copied only entry 71 to page 8, row 1')
             assert node.get('enabled') == 'true', 'Entry 71 was unexpectedly confirmed or blocked'
 
     def save_external(self):
@@ -386,13 +407,20 @@ class Smoke:
             self.find(error)
             assert self.selected_database() == before
             self.find('10 individually confirmed paper entries.')
+            shot = self.adb('exec-out', 'screencap', '-p', binary=True).stdout
+            (self.output / f'input-{bad_name}-rejected.png').write_bytes(shot)
+            prior_files = set(self.external_files())
+            self.save_external()
+            added = set(self.external_files()) - prior_files
+            assert len(added) == 1
+            assert self.read_external(added.pop()) == backup, 'Rejected input changed current revision history'
+            assert self.selected_database() == before
             self.record(checkpoint)
-            self.launch()
-            self.copy_state(snapshot)
 
         # Advance the original only after proving selective confirmation; the
         # saved ten-entry backup must restore independently of this newer work.
-        self.tap('I copied only entry 71 to page 8, row 1')
+        self.launch()
+        self.tap('I copied only entry 71 to page 8, row 1', scroll=True)
         self.launch()
         self.find('11 individually confirmed paper entries.', scroll=True)
         self.record('original-database-advanced-after-backup')
