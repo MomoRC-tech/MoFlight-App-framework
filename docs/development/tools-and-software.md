@@ -7,7 +7,7 @@ Updated: 2026-10-10. This inventory records tool roles and the desktop workflow.
 | Tool / software | Purpose in MoFlight | Current status |
 | --- | --- | --- |
 | ChatGPT project | Main conversational development interface: requirements, architecture, decisions, implementation coordination and review. | In use; conversations supplement the versioned repository. |
-| Local Codex in the ChatGPT desktop app | Edit the local checkout, execute builds/tests, investigate failures and maintain code/documentation through local tools. | Local Windows files/PowerShell and requested checkout verified on DESKTOP-MOMO; host/bundle checks pass. SDK/ADB and API 37 emulator verified; full native suite and local compilation running. |
+| Local Codex in the ChatGPT desktop app | Edit the local checkout, execute builds/tests, investigate failures and maintain code/documentation through local tools. | Local Windows files/PowerShell and requested checkout verified on DESKTOP-MOMO; host/bundle checks pass. SDK/ADB and API 37 emulator verified; 23 local native checks passed on the CI APK; local compilation path-length workaround pending. |
 | Computer Use | Operate accessible desktop windows and visually inspect emulator UI, layout and file-picker flows. | Windows app inventory and Android Studio screenshots verified; local Chrome inventory verified. User stopped GUI control with Escape in the initial turn. |
 | GitHub | Authoritative code, README, ADRs, Issues and verification evidence. Changes go directly to main through traceable commits, without PRs. | In use. |
 | Git | Local version history and synchronization with GitHub. | Required for the desktop checkout. |
@@ -24,7 +24,7 @@ Updated: 2026-10-10. This inventory records tool roles and the desktop workflow.
 | Metro | Serve JavaScript during normal development and support Fast Refresh. | Development builds depend on Metro; offline acceptance uses embedded JavaScript. |
 | Android Studio | SDK/device management, emulator access, Logcat and native Android diagnosis. | Rabbit 1 / 2026.2.1 installed locally; SDK/ADB/image and dedicated emulator now verified. |
 | Android SDK | Platform libraries and build tools needed to compile Android apps. | Used in CI; required for local Android compilation. |
-| Android Emulator | Disposable virtual Android devices for automated and visual checks. | Used in CI with API 35; local 37.2.12 reports usable WHPX acceleration; dedicated API 37 emulator boot and standalone lab launch verified; full suite running. |
+| Android Emulator | Disposable virtual Android devices for automated and visual checks. | Used in CI with API 35; local 37.2.12 reports usable WHPX acceleration; dedicated API 37 emulator boot and standalone lab launch verified; 23 local native checks passed; authenticated provider retrieval pending. |
 | ADB / Android SDK Platform Tools | Install/launch/stop the app, obtain logs/screenshots and drive the Android test harness. | Used by the existing harness; local device access must be verified. |
 | JDK 17 + Gradle | Execute native Android compilation and package APKs. | Used in CI; required by the current local runbook. Use the generated project's Gradle wrapper. |
 | Pixel 6a / Android 17 | Physical-device acceptance, including readability, offline restart and native file selection. | Bounded manual offline/query/snapshot pass reported; full physical-device acceptance remains open. |

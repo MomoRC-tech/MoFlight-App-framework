@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { WebView, type WebViewMessageEvent } from 'react-native-webview';
 import * as Crypto from 'expo-crypto';
-import { decodeProbe, flightUrl, FLIGHT_URL, LOGIN_URL, probeScript, providerUrl, type ProbeSnapshot } from './probe';
+import { bridgeSource, decodeProbe, flightUrl, FLIGHT_URL, LOGIN_URL, probeScript, providerUrl, type ProbeSnapshot } from './probe';
 import { latestCapture, saveCapture } from './storage';
 
 function Button({ title, press, disabled = false }: { title: string; press: () => void; disabled?: boolean }) {
@@ -11,6 +11,7 @@ function Button({ title, press, disabled = false }: { title: string; press: () =
 export function AccessProbe({ close }: { close: () => void }) {
   const web = useRef<WebView>(null), currentUrl = useRef(LOGIN_URL), pending = useRef<string | null>(null);
   const timeout = useRef<ReturnType<typeof setTimeout> | null>(null), reading = useRef(false);
+  const phase = useRef({ loaded: false, progress: 0, injections: 0 });
   const [source, setSource] = useState({ uri: LOGIN_URL }), [url, setUrl] = useState(LOGIN_URL);
   const [generation, setGeneration] = useState(0);
   const [visible, setVisible] = useState(false), [busy, setBusy] = useState(false), [loaded, setLoaded] = useState(false);
@@ -19,6 +20,7 @@ export function AccessProbe({ close }: { close: () => void }) {
   function finish(message: string) { pending.current = null; reading.current = false; if (timeout.current) clearTimeout(timeout.current); timeout.current = null; setBusy(false); setStatus(message); }
   function extract() {
     if (!pending.current || reading.current || !flightUrl(currentUrl.current)) return;
+    phase.current.injections++;
     web.current?.injectJavaScript(probeScript(pending.current));
   }
   // Commit the page-scoped bridge before executing the explicit table reader.
@@ -27,8 +29,9 @@ export function AccessProbe({ close }: { close: () => void }) {
   function retrieve() {
     if (pending.current) return;
     pending.current = Crypto.randomUUID(); setBusy(true); setVisible(true);
+    phase.current = { loaded: false, progress: 0, injections: 0 };
     setStatus('Opening your personal flightbook automatically. If asked, complete provider login, then tap Retrieve again.');
-    timeout.current = setTimeout(() => finish('Retrieval timed out. Previous captures are preserved. Sign in if needed, then retry.'), 20_000);
+    timeout.current = setTimeout(() => finish(`Retrieval timed out. Previous captures are preserved. Flight page: ${flightUrl(currentUrl.current) ? 'yes' : 'no'}; load completed: ${phase.current.loaded ? 'yes' : 'no'}; progress: ${Math.round(phase.current.progress * 100)}%; reader requests: ${phase.current.injections}.`), 20_000);
     // Every retrieval requests the page again, rather than recapturing stale DOM.
     // Remounting also installs the flight-scoped bridge before that page loads;
     // provider cookies stay in the same native browser store.
@@ -36,10 +39,10 @@ export function AccessProbe({ close }: { close: () => void }) {
   }
   async function receive(event: WebViewMessageEvent) {
     const nonce = pending.current;
-    if (!nonce || reading.current || !flightUrl(currentUrl.current) || !flightUrl(event.nativeEvent.url)) return;
+    if (!nonce || reading.current || !bridgeSource(event.nativeEvent.url, currentUrl.current)) return;
     reading.current = true;
     try {
-      const data = decodeProbe(event.nativeEvent.data, event.nativeEvent.url, nonce, new Date().toISOString());
+      const data = decodeProbe(event.nativeEvent.data, event.nativeEvent.url, nonce, new Date().toISOString(), currentUrl.current);
       if (timeout.current) clearTimeout(timeout.current);
       timeout.current = null;
       await saveCapture(data);
@@ -67,7 +70,8 @@ export function AccessProbe({ close }: { close: () => void }) {
         onOpenWindow={() => finish('New browser window blocked in this bounded PoC.')}
         onLoadStart={event => { currentUrl.current = event.nativeEvent.url; setUrl(event.nativeEvent.url); setLoaded(false); }}
         onNavigationStateChange={state => { currentUrl.current = state.url; setUrl(state.url); }}
-        onLoadEnd={event => { currentUrl.current = event.nativeEvent.url; setUrl(event.nativeEvent.url); setLoaded(true); if (pending.current && !flightUrl(event.nativeEvent.url)) finish('Complete provider login, then tap Retrieve flights again. Previous captures preserved.'); }}
+        onLoadProgress={event => { phase.current.progress = event.nativeEvent.progress; }}
+        onLoadEnd={event => { phase.current.loaded = true; currentUrl.current = event.nativeEvent.url; setUrl(event.nativeEvent.url); setLoaded(true); if (pending.current && !flightUrl(event.nativeEvent.url)) finish('Complete provider login, then tap Retrieve flights again. Previous captures preserved.'); }}
         onMessage={flightUrl(url) ? event => void receive(event) : undefined}
         onError={() => finish('Provider page failed to load. Previous captures preserved.')}
         onHttpError={() => finish('Provider returned an HTTP error. Previous captures preserved.')}

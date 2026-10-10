@@ -26,6 +26,14 @@ test('stale response, login page, origin mismatch, changed schema and excessive 
 test('empty, oversized or error results cannot become successful empty imports', () => {
   for (const override of [{ rows: [] }, { rows: Array.from({ length: 21 }, () => ({ values, sourceFlightId: null })) }, { error: 'table-missing' }]) assert.throws(() => decodeProbe(message(override), FLIGHT_URL, nonce, at));
 });
+test('Android origin-only bridge requires the independently observed flight page and matching origin/nonce', () => {
+  assert.equal(decodeProbe(message(), 'https://vereinsflieger.de', nonce, at, FLIGHT_URL).rows.length, 1);
+  assert.equal(decodeProbe(message(), LOGIN_URL, nonce, at, FLIGHT_URL).rows.length, 1);
+  for (const [sender, document] of [[LOGIN_URL, LOGIN_URL], [LOGIN_URL, 'https://vereinsflieger.de/member/other.php'], ['https://evil.test/', FLIGHT_URL], ['https://www.vereinsflieger.de/', FLIGHT_URL], [LOGIN_URL + '?page=flight', FLIGHT_URL], ['https://vereinsflieger.de/member/other.php', FLIGHT_URL]]) assert.throws(() => decodeProbe(message(), sender!, nonce, at, document!));
+  assert.throws(() => decodeProbe(message({ nonce: 'old' }), LOGIN_URL, nonce, at, FLIGHT_URL));
+  assert.throws(() => decodeProbe(message({ url: LOGIN_URL }), LOGIN_URL, nonce, at, FLIGHT_URL));
+  assert.throws(() => decodeProbe(message(), LOGIN_URL, nonce, at));
+});
 function runReader(url: string, changed = false, iframe = false) {
   const messages: string[] = []; let reads = 0;
   const cell = (s: string) => ({ innerText: s });

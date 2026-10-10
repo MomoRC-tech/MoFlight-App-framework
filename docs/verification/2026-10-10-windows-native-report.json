@@ -1,0 +1,132 @@
+{
+  "status": "passed",
+  "checks": [
+    {
+      "name": "fresh-install-empty-without-metro",
+      "status": "passed"
+    },
+    {
+      "name": "native-import-decision-exact-query",
+      "status": "passed"
+    },
+    {
+      "name": "fixed-writing-snapshot-prepared",
+      "status": "passed"
+    },
+    {
+      "name": "airplane-mode-force-stop-reopen-same-state",
+      "status": "passed"
+    },
+    {
+      "name": "empty-dataset-b-isolated",
+      "status": "passed"
+    },
+    {
+      "name": "selection-survives-restart-original-dataset-preserved",
+      "status": "passed"
+    },
+    {
+      "name": "repeated-import-does-not-duplicate-or-rewrite-snapshot",
+      "status": "passed"
+    },
+    {
+      "name": "copy-only-entry-70-entry-71-still-pending",
+      "status": "passed"
+    },
+    {
+      "name": "copied-state-survives-offline-restart",
+      "status": "passed"
+    },
+    {
+      "name": "cancel-folder-save-preserves-data",
+      "status": "passed"
+    },
+    {
+      "name": "cancel-restore-preserves-data",
+      "status": "passed"
+    },
+    {
+      "name": "share-cancellation-does-not-claim-external-backup",
+      "status": "passed"
+    },
+    {
+      "name": "external-folder-backup-original-bytes-history-and-checksum",
+      "status": "passed"
+    },
+    {
+      "name": "checksum-rejection-preserves-current-database",
+      "status": "passed"
+    },
+    {
+      "name": "oversize-rejection-preserves-current-database",
+      "status": "passed"
+    },
+    {
+      "name": "malformed-json-rejection-preserves-current-database",
+      "status": "passed"
+    },
+    {
+      "name": "original-database-advanced-after-backup",
+      "status": "passed"
+    },
+    {
+      "name": "real-document-picker-restores-ten-entry-backup-into-new-database",
+      "status": "passed"
+    },
+    {
+      "name": "restored-selection-and-copy-state-survive-offline-restart",
+      "status": "passed"
+    },
+    {
+      "name": "restored-reexport-preserves-entire-backup-byte-for-byte",
+      "status": "passed"
+    },
+    {
+      "name": "restore-preserves-newer-original-database",
+      "status": "passed"
+    },
+    {
+      "name": "isolated-vereinsflieger-probe-opens-without-provider-credentials",
+      "status": "passed"
+    },
+    {
+      "name": "closing-access-probe-preserves-synthetic-logbook",
+      "status": "passed"
+    }
+  ],
+  "boundary": "Android emulator only; synthetic prepared observations/CSV. Native UI and external synthetic backup/picker checks. No OCR, live retrieval, cloud Auth, physical phone or iOS.",
+  "apk_sha256": "a915bf100958c4cc06241d969326136e60d122775ccb52108af8b49e6ac347c8",
+  "apk_bytes": 46702203,
+  "embedded_javascript": true,
+  "architectures": [
+    "arm64-v8a",
+    "x86_64"
+  ],
+  "device": {
+    "ro.build.version.sdk": "37",
+    "ro.product.model": "sdk_gphone64_x86_64",
+    "ro.product.cpu.abi": "x86_64"
+  },
+  "display": {
+    "size": "Physical size: 1080x1920\nOverride size: 480x800",
+    "density": "Physical density: 420\nOverride density: 160"
+  },
+  "snapshot_id": "0e520b06f9b93ce23d27862ab1b64a1337e1099eef15f707ec07f7ae136723f4",
+  "airplane_mode": true,
+  "external_backup": {
+    "filename": "moflight-backup-f1c7db34-fd6d-4c88-a58c-e6b647124fe6.json",
+    "sha256": "efcc80f536991254d93750b10bc3538aeb4810334e6fc8537768e0a8263b7743",
+    "record_revisions": 25,
+    "paper_entries": 10,
+    "checksum_verified": true
+  },
+  "restored_selection": "Local dataset: synthetic-lab-a \u00b7 restore-5e1d2405-59d0-4e57-a841-11687a6d8507.sqlite",
+  "diagnostics": {
+    "status": "complete"
+  },
+  "execution_environment": "Local Windows 11 / DESKTOP-MOMO; API 37 x86_64 emulator",
+  "apk_source_commit": "2cb98b98d463cbc7ba92a6eddec8a5029ce62d34",
+  "checkpoint_flow_commit": "2cb98b98d463cbc7ba92a6eddec8a5029ce62d34",
+  "collector_commit": "da5fd52f5e6c1532db8e0bdd20fae1c9741d3971",
+  "harness_note": "Functional flow unchanged from 2cb98b9, run with local Windows UTF-8 changes before integrating 797afdd. Final diagnostic collection re-run successfully with published da5fd52 implementation."
+}

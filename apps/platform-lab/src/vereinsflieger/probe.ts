@@ -15,8 +15,16 @@ export function providerUrl(value: string): boolean {
 export function flightUrl(value: string): boolean {
   return providerUrl(value) && new URL(value).pathname === '/member/profile/flightlog.php';
 }
-export function decodeProbe(data: string, nativeUrl: string, nonce: string, retrievedAt: string): ProbeSnapshot {
-  if (!flightUrl(nativeUrl) || data.length > 200_000) throw new Error('Rejected source page or oversized response.');
+// Modern Android WebMessageListener supplies the sender origin, whereas the
+// fallback Android bridge and iOS supply a document URL. Keep the independently
+// observed top-level flight document mandatory in both cases.
+export function bridgeSource(source: string, documentUrl: string): boolean {
+  if (!flightUrl(documentUrl) || !providerUrl(source)) return false;
+  const sender = new URL(source), document = new URL(documentUrl);
+  return sender.origin === document.origin && (flightUrl(source) || (sender.pathname === '/' && !sender.search && !sender.hash));
+}
+export function decodeProbe(data: string, nativeUrl: string, nonce: string, retrievedAt: string, documentUrl = nativeUrl): ProbeSnapshot {
+  if (!bridgeSource(nativeUrl, documentUrl) || data.length > 200_000) throw new Error('Rejected source page or oversized response.');
   const v: unknown = JSON.parse(data);
   if (!v || typeof v !== 'object') throw new Error('Invalid flight response.');
   const m = v as Record<string, unknown>;
