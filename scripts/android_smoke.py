@@ -39,8 +39,9 @@ class Smoke:
         self.emulator = False
 
     def adb(self, *args, check=True, binary=False):
+        options = {} if binary else {"text": True, "encoding": "utf-8", "errors": "replace"}
         return subprocess.run(["adb", *args], check=check, capture_output=True,
-                              text=not binary, timeout=45)
+                              timeout=45, **options)
 
     def shell(self, *args, check=True):
         return self.adb("shell", *args, check=check).stdout.strip()
@@ -50,7 +51,7 @@ class Smoke:
         self.shell("uiautomator", "dump", "/sdcard/moflight-smoke.xml")
         xml = self.shell("cat", "/sdcard/moflight-smoke.xml")
         self.screen = ET.fromstring(xml)
-        (self.output / "last-screen.xml").write_text(xml)
+        (self.output / "last-screen.xml").write_text(xml, encoding="utf-8")
         return list(self.screen.iter("node"))
 
     @staticmethod
@@ -230,7 +231,7 @@ class Smoke:
     def push_document(self, filename, text):
         # Input files belong to the normal external document provider, never DB/app storage.
         path = self.output / filename
-        path.write_text(text)
+        path.write_text(text, encoding="utf-8")
         self.adb('push', str(path), f'/sdcard/Documents/MoFlightSmoke/{filename}')
 
     def read_external(self, filename):
@@ -245,7 +246,7 @@ class Smoke:
         self.report["checks"].append({"name": name, "status": "passed"})
         shot = self.adb("exec-out", "screencap", "-p", binary=True).stdout
         (self.output / f"{len(self.report['checks']):02d}-{name}.png").write_bytes(shot)
-        (self.output / "report.json").write_text(json.dumps(self.report, indent=2) + "\n")
+        (self.output / "report.json").write_text(json.dumps(self.report, indent=2) + "\n", encoding="utf-8")
         print(f"PASS: {name}", flush=True)
 
     def snapshot_id(self):
@@ -481,7 +482,7 @@ class Smoke:
                 self.report.setdefault("diagnostic_errors", []).append(issue)
 
         diagnostic("logcat", lambda: (self.output / "logcat.txt").write_text(
-            self.shell("logcat", "-d")))
+            self.shell("logcat", "-d", "-t", "2000"), encoding="utf-8"))
         if error:
             diagnostic("failure-screenshot", lambda: (self.output / "failure.png").write_bytes(
                 self.adb("exec-out", "screencap", "-p", binary=True).stdout))
@@ -489,7 +490,8 @@ class Smoke:
             for args in (("cmd", "connectivity", "airplane-mode", "disable"),
                          ("svc", "wifi", "enable"), ("svc", "data", "enable")):
                 diagnostic("cleanup-" + args[-2], lambda args=args: self.shell(*args))
-        (self.output / "report.json").write_text(json.dumps(self.report, indent=2) + "\n")
+        self.report["diagnostics"] = {"status": "incomplete" if self.report.get("diagnostic_errors") else "complete"}
+        (self.output / "report.json").write_text(json.dumps(self.report, indent=2) + "\n", encoding="utf-8")
 
 
 def main():

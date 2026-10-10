@@ -1,14 +1,14 @@
 # Development tools and software
 
-Updated: 2026-10-10. This inventory records the current tool roles and the recommended desktop workflow discussed with Manuel. It does not approve new services or claim that his local PC has been configured.
+Updated: 2026-10-10. This inventory records tool roles and the desktop workflow. [Actual Windows evidence](../verification/2026-10-10-windows-desktop.md) and the [Windows runbook](windows-local-setup.md) distinguish verified local tools/checks from still-installing SDK packages and pending native/live retrieval gates. No new service approval is implied.
 
 ## Development and project record
 
 | Tool / software | Purpose in MoFlight | Current status |
 | --- | --- | --- |
 | ChatGPT project | Main conversational development interface: requirements, architecture, decisions, implementation coordination and review. | In use; conversations supplement the versioned repository. |
-| Local Codex in the ChatGPT desktop app | Edit the local checkout, execute builds/tests, investigate failures and maintain code/documentation through local tools. | Recommended Windows workflow; actual local folder, shell and SDK access still need verification. |
-| Computer Use | Operate accessible desktop windows and visually inspect emulator UI, layout and file-picker flows. | Optional supplement; plugin availability, local permissions and accessible apps must be checked. Native desktop control is unavailable in the current cloud session. |
+| Local Codex in the ChatGPT desktop app | Edit the local checkout, execute builds/tests, investigate failures and maintain code/documentation through local tools. | Local Windows files/PowerShell and requested checkout verified on DESKTOP-MOMO; host/bundle checks pass. SDK/ADB and API 37 emulator verified; full native suite and local compilation running. |
+| Computer Use | Operate accessible desktop windows and visually inspect emulator UI, layout and file-picker flows. | Windows app inventory and Android Studio screenshots verified; local Chrome inventory verified. User stopped GUI control with Escape in the initial turn. |
 | GitHub | Authoritative code, README, ADRs, Issues and verification evidence. Changes go directly to main through traceable commits, without PRs. | In use. |
 | Git | Local version history and synchronization with GitHub. | Required for the desktop checkout. |
 | GitHub Actions | Automated checks, standalone Android APK compilation and emulator acceptance with retained reports/screenshots. | In use; see current verification evidence below. |
@@ -22,9 +22,9 @@ Updated: 2026-10-10. This inventory records the current tool roles and the recom
 | React + strict TypeScript | UI components, typed application logic and reusable pure domain modules. | In use; React 19.2.3. |
 | Node.js + pnpm | Execute development tools, install pinned dependencies and run monorepo commands. | In use; Node 24 (tested 24.19.0), pnpm 11.25.0. |
 | Metro | Serve JavaScript during normal development and support Fast Refresh. | Development builds depend on Metro; offline acceptance uses embedded JavaScript. |
-| Android Studio | SDK/device management, emulator access, Logcat and native Android diagnosis. | Recommended desktop setup; not verified on Manuel's PC. |
+| Android Studio | SDK/device management, emulator access, Logcat and native Android diagnosis. | Rabbit 1 / 2026.2.1 installed locally; SDK/ADB/image and dedicated emulator now verified. |
 | Android SDK | Platform libraries and build tools needed to compile Android apps. | Used in CI; required for local Android compilation. |
-| Android Emulator | Disposable virtual Android devices for automated and visual checks. | Used in CI with API 35; recommended locally. |
+| Android Emulator | Disposable virtual Android devices for automated and visual checks. | Used in CI with API 35; local 37.2.12 reports usable WHPX acceleration; dedicated API 37 emulator boot and standalone lab launch verified; full suite running. |
 | ADB / Android SDK Platform Tools | Install/launch/stop the app, obtain logs/screenshots and drive the Android test harness. | Used by the existing harness; local device access must be verified. |
 | JDK 17 + Gradle | Execute native Android compilation and package APKs. | Used in CI; required by the current local runbook. Use the generated project's Gradle wrapper. |
 | Pixel 6a / Android 17 | Physical-device acceptance, including readability, offline restart and native file selection. | Bounded manual offline/query/snapshot pass reported; full physical-device acceptance remains open. |

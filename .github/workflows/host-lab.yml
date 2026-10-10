@@ -7,6 +7,23 @@ permissions:
   contents: read
   actions: read
 jobs:
+  windows-contracts:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.19.0'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: npm install --global pnpm@11.25.0
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: python scripts/mobile_fixtures.py --check
+      - run: python -m unittest discover -s tests -v
+      - run: git diff --check
   host-sqlite:
     runs-on: ubuntu-latest
     steps:

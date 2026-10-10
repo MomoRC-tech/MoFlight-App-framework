@@ -4,6 +4,8 @@ Tracking: #4/#5/#6/#7/#9. Manuel approved Expo/React Native/strict TypeScript/pn
 
 ## Setup and local builds
 
+Windows desktop: use the [Windows session setup and quoted-path runbook](../../docs/development/windows-local-setup.md). [Desktop evidence](../../docs/verification/2026-10-10-windows-desktop.md) records passed host/bundle checks and SDK/native runtime blockers. Android Studio's Java is separate from the lab's JDK 17.
+
 From the repository root, Node 24 (tested 24.19.0), pnpm 11.25.0 and Python 3.12:
 
 ```bash
@@ -47,6 +49,8 @@ The installed Expo CLI help verifies the `--variant release`, `--configuration R
 The push workflow now builds a Release-configuration lab APK with embedded JavaScript for **arm64-v8a** phones and the **x86_64** emulator. This remains a synthetic, debug-key-signed lab build, not store distribution or a production release. The `moflight-synthetic-android-offline` artifact contains `app-release.apk`; unlike the previous debug artifact it is intended to start without a Metro server. CI checks the bundle/architectures before uploading it, then installs that same APK on an API 35 emulator (initial API 36 attempts are retained in the evidence record). Current outcomes are in [Android offline evidence](../../docs/verification/2026-10-09-android-offline.md).
 
 `scripts/android_smoke.py` uses ordinary Android UI buttons and the actual expo-sqlite runtime. It checks fresh empty state, explicit synthetic import, remembered override and exact ASK 21 count, fixed snapshot identity across force-stop/airplane-mode restart, dataset B isolation, remembered selection and repeat-import behavior. Each passed checkpoint saves a screenshot; failure saves a JSON report, last UI XML and logcat in the `moflight-android-emulator-evidence` artifact. It refuses to clear a physical phone. The CI emulator is disposable and the script clears only `de.momorc.moflight.lab` there.
+
+Diagnostic collection is bounded to the latest 2,000 Logcat lines. `report.json` records diagnostics as complete/incomplete with explicit errors; missing logs or cleanup failures preserve the actual checkpoint result. Inspect diagnostics alongside status. [Windows continuation evidence](../../docs/verification/2026-10-10-windows-desktop.md#existing-ci-failure-investigated) records a 23-check pass whose workflow subsequently failed collecting Logcat; it is not a completely successful workflow or live retrieval proof.
 
 For a separately started disposable emulator (no Metro needed):
 

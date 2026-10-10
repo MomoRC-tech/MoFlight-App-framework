@@ -1,10 +1,12 @@
 import csv
 import json
-import select
+import os
+import queue
 import socket
 import subprocess
 import sys
 import tempfile
+import threading
 import unittest
 import time
 import zipfile
@@ -267,8 +269,16 @@ l.close()
         before = self.lab.revision()
         process = subprocess.Popen([sys.executable, "-m", "pocs.local_logbook.lab", "serve", "--data", str(self.lab.directory), "--port", str(port)], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         try:
-            self.assertTrue(select.select([process.stdout], [], [], 5)[0], "viewer startup timeout")
-            self.assertIn("Read-only fixed host snapshot", process.stdout.readline())
+            # Windows select() accepts sockets only, not subprocess pipes.
+            startup = queue.Queue()
+            reader = threading.Thread(target=lambda: startup.put(process.stdout.readline()), daemon=True)
+            reader.start()
+            try:
+                line = startup.get(timeout=5)
+            except queue.Empty:
+                self.fail("viewer startup timeout")
+            self.assertIn("Read-only fixed host snapshot", line)
+            reader.join(timeout=1)
             for attempt in range(10):
                 try:
                     with urlopen(f"http://127.0.0.1:{port}/", timeout=2) as response:
@@ -294,7 +304,9 @@ l.close()
         t = self.lab.template()
         archive = self.root / "private-backup.zip"
         self.lab.backup(archive)
-        self.assertEqual(archive.stat().st_mode & 0o777, 0o600)
+        # POSIX mode bits do not establish Windows ACL privacy.
+        if os.name == "posix":
+            self.assertEqual(archive.stat().st_mode & 0o777, 0o600)
         restore(archive, self.root / "restored")
         other = Lab(self.root / "restored", self.lab.dataset_id)
         try:
