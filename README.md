@@ -26,6 +26,10 @@ Changes go directly to `main` with traceable commits and Issues; no pull request
 - [Flight-logbook user stories and complete continuation workflow](docs/product/flight-logbook-user-stories.md).
 - [Captured Flugbuch prototype sources and differences](docs/reference/flugbuch-prototype/README.md).
 
+## Development tools and environment
+
+[Tools and software overview](docs/development/tools-and-software.md) explains each tool's purpose, current adoption status and the recommended Windows desktop workflow: ChatGPT as the main interface, local Codex for implementation/builds/tests, Android Studio/SDK/ADB for Android execution, optional Computer Use for visual checks and optional VS Code for code review/editing. The local PC setup is not yet verified; planned cloud/AI services are distinguished from the implemented lab.
+
 ## Runnable first milestone
 
 [Platform-lab runbook](apps/platform-lab/README.md) covers the approved native development app and the independent Python reference harness. Only synthetic prepared observations/CSV are included: neither proves handwriting recognition or live retrieval. Opening the app loads remembered state without re-importing or silently confirming copying.
