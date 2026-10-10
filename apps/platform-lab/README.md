@@ -101,7 +101,7 @@ Supabase #1: [schema/probe prepared](../../pocs/supabase-trial/README.md), block
 
 ## Vereinsflieger access PoC
 
-Manuel selected this as the next essential PoC on 2026-10-10. Install a build containing this section's source changes; the previous synthetic-only APK has no access probe. The main screen's “Open Vereinsflieger access PoC” opens the isolated native screen.
+Manuel selected this as the next essential PoC on 2026-10-10. Use `MoFlight-Vereinsflieger-PoC-2cb98b9.apk` (source `2cb98b98d463cbc7ba92a6eddec8a5029ce62d34`, 46,702,203 bytes; SHA-256 `a915bf100958c4cc06241d969326136e60d122775ccb52108af8b49e6ac347c8`). All 23 synthetic native checkpoints passed; the final workflow failed afterward collecting optional logcat, now addressed by a locally tested harness fix. See the evidence for this distinction. The previous synthetic-only APK has no access probe. The main screen's “Open Vereinsflieger access PoC” opens the isolated native screen.
 
 1. With internet available, tap “Show provider login,” verify the displayed HTTPS provider identity and sign into the original Vereinsflieger page. The app does not read/store password fields. Complete provider verification if offered and verify that the visible account is yours.
 2. Tap “Retrieve flights.” The app navigates to the known personal flightbook automatically and reads the default bounded list, at most 20 rows. No date range or export navigation is required. If the provider asks for login, complete it and tap Retrieve again. Changed/missing columns produce an explicit error rather than a guessed import.

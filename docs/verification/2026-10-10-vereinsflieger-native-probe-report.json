@@ -1,0 +1,124 @@
+{
+  "status": "passed",
+  "checks": [
+    {
+      "name": "fresh-install-empty-without-metro",
+      "status": "passed"
+    },
+    {
+      "name": "native-import-decision-exact-query",
+      "status": "passed"
+    },
+    {
+      "name": "fixed-writing-snapshot-prepared",
+      "status": "passed"
+    },
+    {
+      "name": "airplane-mode-force-stop-reopen-same-state",
+      "status": "passed"
+    },
+    {
+      "name": "empty-dataset-b-isolated",
+      "status": "passed"
+    },
+    {
+      "name": "selection-survives-restart-original-dataset-preserved",
+      "status": "passed"
+    },
+    {
+      "name": "repeated-import-does-not-duplicate-or-rewrite-snapshot",
+      "status": "passed"
+    },
+    {
+      "name": "copy-only-entry-70-entry-71-still-pending",
+      "status": "passed"
+    },
+    {
+      "name": "copied-state-survives-offline-restart",
+      "status": "passed"
+    },
+    {
+      "name": "cancel-folder-save-preserves-data",
+      "status": "passed"
+    },
+    {
+      "name": "cancel-restore-preserves-data",
+      "status": "passed"
+    },
+    {
+      "name": "share-cancellation-does-not-claim-external-backup",
+      "status": "passed"
+    },
+    {
+      "name": "external-folder-backup-original-bytes-history-and-checksum",
+      "status": "passed"
+    },
+    {
+      "name": "checksum-rejection-preserves-current-database",
+      "status": "passed"
+    },
+    {
+      "name": "oversize-rejection-preserves-current-database",
+      "status": "passed"
+    },
+    {
+      "name": "malformed-json-rejection-preserves-current-database",
+      "status": "passed"
+    },
+    {
+      "name": "original-database-advanced-after-backup",
+      "status": "passed"
+    },
+    {
+      "name": "real-document-picker-restores-ten-entry-backup-into-new-database",
+      "status": "passed"
+    },
+    {
+      "name": "restored-selection-and-copy-state-survive-offline-restart",
+      "status": "passed"
+    },
+    {
+      "name": "restored-reexport-preserves-entire-backup-byte-for-byte",
+      "status": "passed"
+    },
+    {
+      "name": "restore-preserves-newer-original-database",
+      "status": "passed"
+    },
+    {
+      "name": "isolated-vereinsflieger-probe-opens-without-provider-credentials",
+      "status": "passed"
+    },
+    {
+      "name": "closing-access-probe-preserves-synthetic-logbook",
+      "status": "passed"
+    }
+  ],
+  "boundary": "Android emulator only; synthetic prepared observations/CSV. Native UI and external synthetic backup/picker checks. No OCR, live retrieval, cloud Auth, physical phone or iOS.",
+  "apk_sha256": "a915bf100958c4cc06241d969326136e60d122775ccb52108af8b49e6ac347c8",
+  "apk_bytes": 46702203,
+  "embedded_javascript": true,
+  "architectures": [
+    "arm64-v8a",
+    "x86_64"
+  ],
+  "device": {
+    "ro.build.version.sdk": "35",
+    "ro.product.model": "sdk_gphone64_x86_64",
+    "ro.product.cpu.abi": "x86_64"
+  },
+  "display": {
+    "size": "Physical size: 480x800",
+    "density": "Physical density: 420\nOverride density: 160"
+  },
+  "snapshot_id": "5a1f555d07a9e422d64192804eab1892c700fd706479b1398e2274f0c834dcec",
+  "airplane_mode": true,
+  "external_backup": {
+    "filename": "moflight-backup-470b4e5b-1973-4bc4-8025-b87927214e1b.json",
+    "sha256": "c5b97ba4275ca76f28748e133b37ceeeb175ec768944df751997b2282fd578b0",
+    "record_revisions": 25,
+    "paper_entries": 10,
+    "checksum_verified": true
+  },
+  "restored_selection": "Local dataset: synthetic-lab-a \u00b7 restore-f69b16c0-4052-4f49-b4a0-70ba01c4fe14.sqlite"
+}

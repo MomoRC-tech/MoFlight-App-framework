@@ -468,17 +468,28 @@ class Smoke:
         self.report["status"] = status
         if error:
             self.report["error"] = str(error)
+
+        def diagnostic(name, action):
+            try:
+                action()
+            except (subprocess.SubprocessError, OSError) as diagnostic_error:
+                # Optional diagnostics must not replace the functional verdict
+                # or obscure the original test error. Do not record raw output.
+                issue = {"action": name, "error_type": type(diagnostic_error).__name__}
+                if isinstance(diagnostic_error, subprocess.CalledProcessError):
+                    issue["returncode"] = diagnostic_error.returncode
+                self.report.setdefault("diagnostic_errors", []).append(issue)
+
+        diagnostic("logcat", lambda: (self.output / "logcat.txt").write_text(
+            self.shell("logcat", "-d")))
+        if error:
+            diagnostic("failure-screenshot", lambda: (self.output / "failure.png").write_bytes(
+                self.adb("exec-out", "screencap", "-p", binary=True).stdout))
+        if self.emulator:
+            for args in (("cmd", "connectivity", "airplane-mode", "disable"),
+                         ("svc", "wifi", "enable"), ("svc", "data", "enable")):
+                diagnostic("cleanup-" + args[-2], lambda args=args: self.shell(*args))
         (self.output / "report.json").write_text(json.dumps(self.report, indent=2) + "\n")
-        try:
-            (self.output / "logcat.txt").write_text(self.shell("logcat", "-d"))
-            if error:
-                shot = self.adb("exec-out", "screencap", "-p", binary=True).stdout
-                (self.output / "failure.png").write_bytes(shot)
-        finally:
-            if self.emulator:
-                self.shell("cmd", "connectivity", "airplane-mode", "disable", check=False)
-                self.shell("svc", "wifi", "enable", check=False)
-                self.shell("svc", "data", "enable", check=False)
 
 
 def main():

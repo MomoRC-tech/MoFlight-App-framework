@@ -1,6 +1,6 @@
 # Native Vereinsflieger access probe — 2026-10-10
 
-Tracking: [#2](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/2), FL-03/R12. Manuel selected this as the next essential PoC and clarified that the app, not the user, selects retrieval periods. Baseline main: `c8f6ca068dee613ec12e61d26f9eb97dcb312881`. Implementation is published in the commit adding this report; CI evidence will reference its exact source/run separately.
+Tracking: [#2](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/2), FL-03/R12. Manuel selected this as the next essential PoC and clarified that the app, not the user, selects retrieval periods. Baseline main: `c8f6ca068dee613ec12e61d26f9eb97dcb312881`. Initial implementation: `12ad93247bbda205f23287d4b352f4f17f0d04f5`; delivered APK source including fresh-page retrieval: `2cb98b98d463cbc7ba92a6eddec8a5029ce62d34`.
 
 ## Implemented slice
 
@@ -24,11 +24,20 @@ Environment: Linux scratch workspace, Node 24.19.0, pnpm 11.25.0, Python; no loc
 | `python -m unittest discover -s tests -v` | 20 passed | Existing host logbook regression checks |
 | Android/iOS Hermes export | Passed, approximately 1.8 MB each | Bundle compilation, no phone execution |
 | `prebuild:check` | Android/iOS native configurations generated | No local Gradle/Xcode compilation |
-| Python harness compilation | Passed | New emulator checkpoints have not yet run |
+| Python harness compilation | Passed | Runtime outcomes below |
 
 Initial partial-workspace test failed because the existing Python reference module had not been materialized locally; fetched the unchanged reference files and reran all 16 tests successfully. Fixture check then caught local CSV CRLF normalization during materialization; restored the original canonical bytes and reran successfully. No fixture/reference source change is published to address either local setup issue.
 
-The emulator harness adds two credential-free checkpoints: opening the isolated probe offline with no saved capture, then closing it and finding unchanged synthetic state. These checks, even when they pass, do not establish provider login/retrieval. GitHub CI rebuilds the changed app and runs the native synthetic suite; its outcome is pending at initial publication.
+The emulator harness adds two credential-free checkpoints: opening the isolated probe offline with no saved capture, then closing it and finding unchanged synthetic state. These checks, even when they pass, do not establish provider login/retrieval. Both published source revisions ran these checkpoints; outcomes and their limits are recorded below.
+
+## Android APK and actual runtime evidence
+
+- Initial source `12ad932`: [run 38038477661](https://github.com/MomoRC-tech/MoFlight-App-framework/actions/runs/38038477661) completed successfully, including 23 synthetic native checkpoints.
+- Delivered source `2cb98b9`: [run 38039006295](https://github.com/MomoRC-tech/MoFlight-App-framework/actions/runs/38039006295) compiled the APK and passed host/mobile checks and **all 23 functional Android emulator checkpoints**. The overall workflow failed afterward because the optional final `adb shell logcat -d` diagnostic collector returned exit 255. This is not an all-green workflow claim. The original artifact's [report.json](2026-10-10-vereinsflieger-native-probe-report.json) was written before that collector failure and records the functional verdict; do not infer collection success from its `status`.
+- The fresh-page fix unmounts the previous WebView before each automatic personal-page navigation and disables its page cache, preventing an immediate read of the previous rendered list.
+- APK: `MoFlight-Vereinsflieger-PoC-2cb98b9.apk`, **46,702,203 bytes**; SHA-256 `a915bf100958c4cc06241d969326136e60d122775ccb52108af8b49e6ac347c8`. Embedded JavaScript and both `arm64-v8a`/`x86_64` libraries verified. Runtime emulator: Android API 35, x86_64. No iOS runtime/build claim.
+- Follow-up collector fix preserves the functional verdict/original test error, records bounded diagnostic errors without raw process output, attempts remaining cleanup after a timeout, and writes the final report after collection. Three mocked-failure regression tests pass locally; **23 total Python tests** pass. This harness-only change does not alter the delivered APK. Its post-fix native CI outcome is pending publication; no additional runtime success is inferred.
+- Native screenshots were inspected: the isolated access screen opens offline, shows the provider-load error without erasing state, and closing it preserves the synthetic logbook. No credentials or real flight rows were supplied to CI.
 
 ## Open live acceptance
 
