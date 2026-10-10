@@ -1,6 +1,6 @@
 # Vereinsflieger: in-app connection and flight retrieval
 
-Date: 2026-10-10. Product owner: Manuel Singer. Tracking: [FL-03](flight-logbook-user-stories.md), [#2](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/2). Browser-based route and automatic range selection confirmed by Manuel; detailed retrieval implementation below is proposed. An isolated bounded native access probe is implemented; actual native retrieval and saved-login behavior are not yet verified. Full product integration remains open.
+Date: 2026-10-10. Product owner: Manuel Singer. Tracking: [FL-03](flight-logbook-user-stories.md), [#2](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/2). Browser-based route and automatic range selection confirmed by Manuel; detailed retrieval implementation below is proposed. An isolated bounded native access probe now verifies Android original-page login, session reuse, capture of 20 visible rows and offline reopening on the Windows API 37 emulator; see [desktop evidence](../verification/2026-10-10-windows-desktop.md#live-android-bounded-capture-and-restart). Long-lived saved-login behavior, verified identity/time basis and complete retrieval remain open. Full product integration remains open.
 
 ## User story
 

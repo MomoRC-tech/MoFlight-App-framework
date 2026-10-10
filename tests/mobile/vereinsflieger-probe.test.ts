@@ -34,20 +34,37 @@ test('Android origin-only bridge requires the independently observed flight page
   assert.throws(() => decodeProbe(message({ url: LOGIN_URL }), LOGIN_URL, nonce, at, FLIGHT_URL));
   assert.throws(() => decodeProbe(message(), LOGIN_URL, nonce, at));
 });
-function runReader(url: string, changed = false, iframe = false) {
+test('reader errors expose only allowlisted structural reasons and known missing column labels', () => {
+  assert.throws(() => decodeProbe(message({ error: 'header-mismatch', missing: ['PIC', 'private-value'] }), FLIGHT_URL, nonce, at), /header-mismatch; missing: PIC\)/);
+  assert.throws(() => decodeProbe(message({ error: 'private-value', missing: 'private-value' }), FLIGHT_URL, nonce, at), /unsupported-response\)/);
+});
+function runReader(url: string, changed = false, iframe = false, options: { hiddenHeader?: boolean; layout?: boolean; shortRow?: boolean; rowCount?: number } = {}) {
   const messages: string[] = []; let reads = 0;
   const cell = (s: string) => ({ innerText: s });
-  const header = { cells: (changed ? ['Changed'] : headers).map(cell), parentElement: { tagName: 'THEAD' }, querySelector: () => null };
-  const row = { cells: values.map(cell), parentElement: { tagName: 'TBODY' }, querySelector: () => ({}), querySelectorAll: () => [{ getAttribute: () => '/member/profile/detail.php?flid=12345' }] };
+  const header = { cells: (changed ? ['Changed'] : headers).map(s => ({ innerText: options.hiddenHeader ? '' : s, textContent: s })), parentElement: { tagName: 'THEAD' }, querySelector: () => null };
+  const row = { cells: (options.shortRow ? values.slice(1) : values).map(cell), parentElement: { tagName: 'TBODY' }, querySelector: () => ({}), querySelectorAll: () => [{ getAttribute: () => '/member/profile/detail.php?flid=12345' }] };
+  const layout = { cells: [{ innerText: 'Synthetic list layout', colSpan: 99 }], parentElement: { tagName: 'TBODY' }, querySelector: () => ({}) };
   const window: Record<string, unknown> = { ReactNativeWebView: { postMessage: (s: string) => messages.push(s) } }; window.top = iframe ? {} : window;
   const u = new URL(url);
-  const document = { getElementById: (id: string) => { reads++; assert.equal(id, 'tablelist_20'); return { rows: [header, row] }; } };
+  const document = { getElementById: (id: string) => { reads++; assert.equal(id, 'tablelist_20'); return { rows: [header, ...Array.from({ length: options.rowCount ?? 1 }, () => row), ...(options.layout ? [layout] : [])] }; } };
   runInNewContext(probeScript(nonce), { window, document, location: { href: url, hostname: u.hostname, pathname: u.pathname, protocol: u.protocol, origin: u.origin }, URL });
   return { messages, reads };
 }
 test('browser reader runs as standalone JavaScript and returns only bounded personal table values', () => {
   const r = runReader(FLIGHT_URL); assert.equal(r.reads, 1); assert.equal(r.messages.length, 1);
   const s = decodeProbe(r.messages[0]!, FLIGHT_URL, nonce, at); assert.deepEqual(s.rows[0]!.values, values);
+});
+test('full-width layout rows do not count as flights; malformed and oversized flight lists fail closed', () => {
+  const r = runReader(FLIGHT_URL, false, false, { layout: true, rowCount: 20 });
+  assert.equal(decodeProbe(r.messages[0]!, FLIGHT_URL, nonce, at).rows.length, 20);
+  for (const options of [{ shortRow: true }, { rowCount: 21, layout: true }]) {
+    const rejected = runReader(FLIGHT_URL, false, false, options);
+    assert.throws(() => decodeProbe(rejected.messages[0]!, FLIGHT_URL, nonce, at), /row-shape/);
+  }
+});
+test('hidden original heading retains exact labels without reading hidden body text', () => {
+  const r = runReader(FLIGHT_URL, false, false, { hiddenHeader: true });
+  assert.deepEqual(decodeProbe(r.messages[0]!, FLIGHT_URL, nonce, at).headers, headers);
 });
 test('reader never inspects login, unrelated document or iframe; changed columns produce explicit error', () => {
   for (const url of [LOGIN_URL, 'https://evil.test/member/profile/flightlog.php']) assert.deepEqual(runReader(url), { messages: [], reads: 0 });

@@ -29,7 +29,13 @@ export function decodeProbe(data: string, nativeUrl: string, nonce: string, retr
   if (!v || typeof v !== 'object') throw new Error('Invalid flight response.');
   const m = v as Record<string, unknown>;
   if (m.kind !== 'vf-probe-v1' || m.nonce !== nonce || typeof m.url !== 'string' || !flightUrl(m.url) || new URL(m.url).origin !== new URL(nativeUrl).origin) throw new Error('Rejected stale or unrelated response.');
-  if (m.error) throw new Error('The personal flight table could not be read. Previous captures are preserved; sign in and check the default personal-list columns.');
+  if (m.error) {
+    const reason = ['table-missing', 'header-mismatch', 'row-shape', 'field-limit'].includes(String(m.error)) ? String(m.error) : 'unsupported-response';
+    const suppliedMissing = m.missing;
+    const missing = Array.isArray(suppliedMissing) ? REQUIRED_HEADERS.filter(h => suppliedMissing.includes(h)) : [];
+    const shape = typeof m.shape === 'string' && /^[0-9a-z ,:;|=-]{1,300}$/.test(m.shape) ? '; ' + m.shape : '';
+    throw new Error(`The personal flight table could not be read (${reason}${missing.length ? '; missing: ' + missing.join(', ') : ''}${shape}). Previous captures are preserved.`);
+  }
   if (!Array.isArray(m.headers) || m.headers.length < REQUIRED_HEADERS.length || m.headers.length > 32 || !m.headers.every(h => typeof h === 'string' && h.length <= 80)) throw new Error('Unsupported flight table columns.');
   const headers = m.headers as string[];
   if (REQUIRED_HEADERS.some(h => !headers.includes(h)) || new Set(headers.filter(Boolean)).size !== headers.filter(Boolean).length) throw new Error('Required flight columns are missing or duplicated.');
@@ -56,11 +62,22 @@ const readerSource = String.raw`function(nonce, required, limit) {
   const table = document.getElementById('tablelist_20');
   if (!table || !table.rows) { send({ error: 'table-missing' }); return; }
   const text = cell => (cell.innerText ?? '').replace(/\s+/g, ' ').trim();
-  const headerRow = Array.from(table.rows).find(row => required.every(h => Array.from(row.cells).some(c => text(c) === h)));
-  if (!headerRow) { send({ error: 'header-mismatch' }); return; }
-  const headers = Array.from(headerRow.cells).map(text);
-  const body = Array.from(table.rows).filter(row => row !== headerRow && row.parentElement?.tagName !== 'THEAD' && row.parentElement?.tagName !== 'TFOOT' && row.querySelector('td'));
-  if (!body.length || body.length > limit || body.some(r => r.cells.length !== headers.length)) { send({ error: 'row-shape' }); return; }
+  const heading = cell => (cell.textContent ?? cell.innerText ?? '').replace(/\s+/g, ' ').trim();
+  const matches = row => required.every(h => Array.from(row.cells).some(c => heading(c) === h));
+  const headerRow = Array.from(table.rows).find(matches);
+  if (!headerRow) {
+    const cells = Array.from(table.rows).filter(r => r.parentElement?.tagName === 'THEAD').flatMap(r => Array.from(r.cells)).map(heading);
+    send({ error: 'header-mismatch', missing: required.filter(h => !cells.includes(h)) }); return;
+  }
+  const headers = Array.from(headerRow.cells).map(heading);
+  // The observed list has a one-cell, colspan=99 layout row. It cannot be a
+  // column-aligned flight row. All remaining rows still require exact widths.
+  const body = Array.from(table.rows).filter(row => row !== headerRow && row.parentElement?.tagName !== 'THEAD' && row.parentElement?.tagName !== 'TFOOT' && row.querySelector('td') && !(row.cells.length === 1 && row.cells[0].colSpan >= headers.length));
+  if (!body.length || body.length > limit || body.some(r => r.cells.length !== headers.length)) {
+    const widths = Array.from(new Set(body.map(r => r.cells.length))).join(',');
+    const spans = body.filter(r => Array.from(r.cells).some(c => c.colSpan > 1)).map(r => Array.from(r.cells).map(c => c.colSpan).join(',')).slice(0,3).join('|');
+    send({ error: 'row-shape', shape: 'columns=' + headers.length + '; rows=' + body.length + '; widths=' + widths + '; spans=' + spans }); return;
+  }
   const rows = body.map(row => {
     let sourceFlightId = null;
     for (const link of Array.from(row.querySelectorAll('a[href]'))) {

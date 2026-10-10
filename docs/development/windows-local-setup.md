@@ -62,6 +62,28 @@ Record its source commit and SHA-256. This is execution of a CI-built binary, no
 
 Normal Debug builds require Metro. Release-configuration lab builds embed JavaScript and need no Metro; verify force-stop/reopen in airplane mode using those builds. No production signing or store publication is involved.
 
+## Windows path-length workaround
+
+The long Documents checkout plus pnpm's nested dependency paths failed to launch Prefab; a drive alias alone retained physical junction paths and also caused mixed-drive codegen failures. A separate build checkout under the same coding parent successfully compiled with the **same frozen lockfile** using hoisted dependencies, consistent physical C: paths, shortened C++ staging and CMake object-path hashing. Keep the primary checkout's dependency layout unchanged. Use a new directory name if `mf-build` already exists:
+
+```powershell
+Set-Location -LiteralPath 'C:\Users\Momo\Documents\30_Coding\03_chatGPT work folder'
+git clone .\MoFlight-App-framework .\mf-build
+Set-Location .\mf-build
+. .\scripts\windows-android-env.ps1
+pnpm install --frozen-lockfile --node-linker=hoisted
+# Invoke Expo directly: a package-manager wrapper may restore the default layout.
+Set-Location apps/platform-lab
+node ..\..\node_modules\expo\bin\cli prebuild --no-install --platform android
+Set-Location ..\..
+. .\scripts\configure-windows-native-build.ps1
+Set-Location apps/platform-lab/android
+$env:NODE_ENV = 'production'
+.\gradlew.bat :app:assembleRelease '-PreactNativeArchitectures=arm64-v8a,x86_64' --no-daemon --max-workers=2
+```
+
+The helper changes only ignored generated `app/build.gradle`, placing the C++ cache under `%LOCALAPPDATA%/MoFlightBuild`. Re-run it after regenerating Android. The tested `mf-native` checkout initially had nested app dependencies from an earlier standard install: those were preserved in ignored local-data, and only its two `@moflight` workspace junctions were restored in app/node_modules. A fresh hoisted install should supply these links; check them if bundling cannot resolve workspace packages. This is a local build workaround, not a framework/SDK upgrade or a global Windows setting change. [Recorded build outcomes](../verification/2026-10-10-windows-desktop.md#local-release-compilation-investigation).
+
 ## Live Vereinsflieger gate
 
 Use the [native access-probe sequence](../../apps/platform-lab/README.md#vereinsflieger-access-poc). The user enters credentials directly into the provider interface. Verify native login, bounded retrieval and source comparison, local persistence after offline restart, repeat retrieval and actual session reuse/expiry separately. Inspect verified export/structured-response behavior before choosing a final transport; the current visible-table probe remains bounded and cannot prove full history or canonical import. No guessed endpoints or app-owned password storage.
