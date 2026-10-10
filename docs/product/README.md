@@ -8,7 +8,7 @@
 
 - [Remembered logbook state, decisions and flight-history queries](flight-logbook-state-and-queries.md): persistent paper/import status, cross-run decisions and exact aircraft/person statistics.
 
-- [Later Vereinsflieger information discovery](vereinsflieger-information-discovery.md): FL-17 roster example and supported-capability inventory (#10).
+- [Vereinsflieger website/manual discovery](vereinsflieger-information-discovery.md): next read-only investigation for flight statistics, Ausbildungsstand, duty schedules and visual conventions; later features tracked in #10/#9.
 - [Implementation priorities](../architecture/local-first-implementation-plan.md): local phone storage first, separate early Supabase feasibility, later integration.
 
 The SPL learning-app stories will be captured separately. Existing framework requirements remain in the central [README](../../README.md); this logbook specification does not define the full learning product.
