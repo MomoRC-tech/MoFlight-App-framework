@@ -75,3 +75,13 @@ This bounded Android emulator sequence cannot pass physical-device/iOS acceptanc
 - [Workflow](../../.github/workflows/host-lab.yml), [emulator script](../../scripts/android_smoke.py) and [runbook/manual gates](../../apps/platform-lab/README.md).
 - [Android emulator command-line reference](https://developer.android.com/studio/run/emulator-commandline).
 - [Emulator-runner maintained instructions](https://github.com/ReactiveCircus/android-emulator-runner), reviewed 2026-10-09 for API/architecture, headless launch, KVM and bounded custom scripts. A CI support action does not change the approved app architecture.
+
+## Pixel 6a manual follow-up — 2026-10-10
+
+Manuel reported **"works"** after the requested offline force-stop/reopen check: nine confirmed paper entries, the saved aircraft override, four effective ASK 21 flights and the same prepared writing snapshot ID. This is a **user-reported physical-device pass** for that bounded sequence, separate from the automated emulator evidence above.
+
+The first app screenshot shows "Remembered state loaded", dataset `synthetic-lab-a` / `lab-a.sqlite`, nine individually confirmed paper entries and the aircraft-model finding marked override. The Android settings screenshot identifies Android **17**, build **CP3A.260905.009**, security update **2026-09-05**, Google Play system update **2026-08-01**. Pixel 6a is the user's stated device. Wi-Fi was visibly enabled in the first screenshot; disabling it was explicitly requested before the user reported success. The final settings screenshot was taken after that check and does not independently establish network state during the restart.
+
+The supplied download was `MoFlight-Lab-6957ce2.apk` (source/hash documented above). The installed APK hash and exact before/after phone snapshot ID were not captured. Phone count/snapshot preservation is reported by the tester, rather than independently asserted from screenshots. No private phone screenshots are committed.
+
+Selective-copy UI (only entry 70), full readability/large-text/orientation, dataset switching on this phone, native external backup/document-picker restore and iOS remain untested. This update records observations only; app code and binary are unchanged.
