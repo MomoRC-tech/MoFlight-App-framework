@@ -48,3 +48,7 @@ Required small executable proof before production schema expansion:
 - Preserve prior format-version snapshots and existing lab backups; unsupported versions fail safely. Migration checks cover source identities and book associations.
 
 Executed in this change: code/document review, relative-file-link checks and whitespace diff checks. No multi-book runtime proof, schema migration or new format implementation has been executed. This ADR remains proposed.
+
+## Follow-up review material — 2026-10-10
+
+[Bounded proof and migration plan](../architecture/multiple-logbooks-proof-plan.md) defines the proposed synthetic slice, legacy identity/backup migration and acceptance. [Authenticated provider discovery](../verification/2026-10-10-vereinsflieger-discovery.md) establishes explicit aircraft classification and distinct source roles/durations/duplicate flags that the format boundary must preserve. This adds evidence and a concrete implementation proposal; status remains Proposed.
