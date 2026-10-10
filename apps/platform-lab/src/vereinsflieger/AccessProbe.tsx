@@ -29,7 +29,10 @@ export function AccessProbe({ close }: { close: () => void }) {
     pending.current = Crypto.randomUUID(); setBusy(true); setVisible(true);
     setStatus('Opening your personal flightbook automatically. If asked, complete provider login, then tap Retrieve again.');
     timeout.current = setTimeout(() => finish('Retrieval timed out. Previous captures are preserved. Sign in if needed, then retry.'), 20_000);
-    if (!flightUrl(currentUrl.current) || !loaded) navigate(FLIGHT_URL);
+    // Every retrieval requests the page again, rather than recapturing stale DOM.
+    // Remounting also installs the flight-scoped bridge before that page loads;
+    // provider cookies stay in the same native browser store.
+    navigate(FLIGHT_URL);
   }
   async function receive(event: WebViewMessageEvent) {
     const nonce = pending.current;
@@ -57,6 +60,7 @@ export function AccessProbe({ close }: { close: () => void }) {
           whitelist otherwise hands rejected URLs to the external OS browser. */}
       <WebView key={generation} ref={web} source={source} originWhitelist={['*']}
         incognito={false} thirdPartyCookiesEnabled={false} sharedCookiesEnabled={false} webviewDebuggingEnabled={false}
+        cacheEnabled={false} cacheMode="LOAD_NO_CACHE"
         allowFileAccess={false} allowFileAccessFromFileURLs={false} allowUniversalAccessFromFileURLs={false} mixedContentMode="never"
         javaScriptCanOpenWindowsAutomatically={false} setSupportMultipleWindows={true}
         onShouldStartLoadWithRequest={request => { const allowed = providerUrl(request.url); if (!allowed && request.isTopFrame !== false) finish('External navigation blocked. Previous captures preserved.'); return allowed; }}
