@@ -8,7 +8,7 @@ Manuel authorized this investigation and signed into Chrome directly. Inspection
 
 No flights, training records, assignments, bookings or messages were created/edited. No calendar subscription was created. No personal rows, member identifiers, flight identifiers, signed navigation URLs, private feed links or screenshots are included in this report. Counts and labels below describe structure; examples are synthetic. Previously stored native captures remain separate from the canonical logbook.
 
-Findings cover all three requested areas, but export bytes, complete history/paging, exact roster timezone and additional aircraft-class examples remain unresolved. Keep #10 open for those follow-ups; this report does not claim complete discovery or feature acceptance.
+Findings cover all three requested areas, but export bytes, complete history/paging, exact roster timezone and additional aircraft-class flight examples remain unresolved. The aircraft catalogue follow-up below verifies glider, powered, TMG and UL catalogue entries. Keep #10 open for those follow-ups; this report does not claim complete discovery or feature acceptance.
 
 ## Navigation and capability inventory
 
@@ -18,6 +18,7 @@ Paths below were observed under `https://vereinsflieger.de`. Parameter names des
 | --- | --- | --- |
 | Mein Profil → Mein Flugbuch | `/member/profile/flightlog.php` | Own-flight list; date and participation filters; configurable columns; summary and record count. |
 | Flight eye icon → details | `/member/profile/viewflight.php?flid=…` | `Eintrag` matched the selected list link's reference. Includes provenance/change metadata and detailed fields. Cross-account durability and export parity remain unproven. |
+| My club → Luftfahrzeuge | `/member/community/planes/list` | Explicit aircraft category separate from model, registration and ownership; glider, powered, TMG and UL entries observed. Visibility and historical coverage must not be assumed complete. |
 | Berichte & Statistiken → Meine Auswertungen | `/member/reports/?category=Meine Auswertungen` | Personal monthly/yearly flights, winch launches, UL/TMG flights, distance and gliding-time reports were listed. Report presence does not establish all formulae or class mappings. |
 | Meine Flüge pro Monat | `/member/reports/19` | Opened successfully; year filter and columns `Monat`, `Starts`, `Blockzeit`. Its duration measure is block time, not automatically airborne time. |
 | Mein Profil → Meine Ausbildung | `/member/profile/usereducation/` | Own training enrolment visible with syllabus, start/end, association reporting and practical/theory progress columns. |
@@ -52,6 +53,14 @@ All links were opened and read in the authenticated browser unless explicitly de
 | [Dienstpläne / Dienste, 12000](https://vereinsflieger.de/member/help/index.php?hid=12000) | Plan visibility/edit rights are independent. Special instructor plans may feed reservations. Plan export is described, but its availability to this member was not established. |
 
 ## Flight field dictionary and import implications
+
+### Aircraft catalogue follow-up
+
+Following Manuel's pointer, `My club → Luftfahrzeuge` was inspected on 2026-10-10 at `/member/community/planes/list`. The visible columns are `Lfz.`, `Wkz`, `Luftfahrzeugart`, `Musterbezeichnung`, `Eigentümer/Halter` and `Vereins-LFZ`. Aircraft links expose `viewplane.php?apid=…`, a candidate provider aircraft reference; cross-view identity matching and reference durability remain unverified. No registration, owner names or actual identifiers are retained here.
+
+The catalogue explicitly contained `Segelflugzeug`, `Motorflugzeug`, `Reisemotorsegler` and `Ultraleicht - Aerodynamisch`. This closes the earlier gap for **observed catalogue examples** of powered/TMG/UL categories, but does not verify flights or export mappings for those categories, nor the provider's complete category vocabulary. Model names and aircraft category are separate fields. A reservation-only placeholder was also present; catalogue membership alone does not prove a real aircraft or a flown record. Visibility is permission-scoped, as described by [Benutzerrollen](https://vereinsflieger.de/member/help/index.php?hid=17002), so this is not proof of coverage for every aircraft in a pilot's history.
+
+Recommended mapping: preserve any explicit category from the flight; use a verified aircraft-reference match to the catalogue as supplementary classification evidence. Where flights expose only registration, validate an unambiguous match and retain source/freshness; missing or conflicting matches remain unknown for review. Do not infer class solely from model text or silently overwrite a conflicting flight category. Aircraft category can inform statistics and proposed book routing, but does not identify a particular pilot logbook or its paper format. No connector code or automatic book routing was changed.
 
 In the inspected flight list, column headers are duplicated into fixed-layout presentation elements; some `th.innerText` values were empty while `textContent` contained the labels. Empty cells are meaningful and must retain their positions. Resolve headers explicitly and reject ambiguous mappings rather than relying on text order or nonempty cells.
 
