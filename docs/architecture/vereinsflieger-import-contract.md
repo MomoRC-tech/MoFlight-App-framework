@@ -14,7 +14,7 @@ Manuel authorized proceeding with export/history investigation and preparation o
 | --- | --- | --- |
 | Transport | Inspect actual Excel export first, then an observed structured response, then strict table/details if necessary | Excel/PDF named by help; bytes/structured response not yet inspected |
 | Source account and club | Obtain a stable scoped reference, verify signed-in context and confirm the selected dataset association once | Display labels observed privately; stable identity/binding open |
-| Own-flight scope | Establish pilot/companion participation and all relevant role-filter semantics | Native UI offers Pilot, Pilot or instructor, Instructor, Companion, Pilot or companion; inclusive semantics still need validation |
+| Own-flight scope | Establish pilot/companion participation and all relevant role-filter semantics | Native UI offers Pilot, Pilot or instructor, Instructor, Companion, Pilot or companion; inclusive selection and a 90-day request retained authentication after renewed login, but exact semantics still need validation |
 | Flight identity | Independently validate the candidate source reference through details/export and a repeat retrieval | Numeric `flid` remains a candidate, not a verified durable contract |
 | Time basis | Establish the actual flight-column time zone/meaning; never infer it from the dashboard clock | Unknown |
 | Coverage | Verify selected inclusive dates, every page/window and any provider cap; distinguish a verified empty period from login/error | Native UI has relative/month/year/custom-period controls; coverage not established |
@@ -33,7 +33,7 @@ The adapter must retain raw bounded evidence separately from normalized flights.
 7. Apply an approved plan, source evidence and coverage atomically through the single SQLite writer. This persistence step, schema/backup changes, coverage scheduling and the real adapter remain to be implemented after verification and architecture review.
 8. Report added/changed/unchanged/conflicting counts, last successful retrieval, verified periods and remaining gaps. Query imported history offline after force-stop/restart. A failed refresh is reported separately from usable saved history.
 
-Unknown crew/person IDs and roles remain unknown. Companion does not automatically mean instructor; a Pilot label does not establish PIC. The current canonical crew model cannot faithfully represent every raw provider distinction yet. Resolve this mapping before enabling imports, rather than dropping Pilot or forcing a role. Actual flight times must have an established basis before canonical promotion in this first proposal.
+Native range inspection found a record-count/flight-total discrepancy and visually marked rows. Preserve source flags and investigate their inclusion/duplicate/exclusion semantics before mapping countable canonical flights; do not silently count every table row. Unknown crew/person IDs and roles remain unknown. Companion does not automatically mean instructor; a Pilot label does not establish PIC. The current canonical crew model cannot faithfully represent every raw provider distinction yet. Resolve this mapping before enabling imports, rather than dropping Pilot or forcing a role. Actual flight times must have an established basis before canonical promotion in this first proposal.
 
 ## Acceptance and current implementation
 
@@ -48,3 +48,7 @@ Unknown crew/person IDs and roles remain unknown. Companion does not automatical
 | Offline imported history | Existing synthetic logbook and raw capture already tested separately | Canonical live import plus offline restart/query |
 
 Five new meaningful planner tests and all 20 existing mobile tests pass locally (25 total); strict TypeScript passes. These are synthetic contract checks, not live export/import acceptance. [Investigation evidence](../verification/2026-10-10-vereinsflieger-retrieval-investigation.md) records the actual provider observations and pending sign-in handoff.
+
+## Multiple-book boundary — subsequent requirement clarification
+
+[ADR 0007](../adr/0007-multiple-logbooks-and-formats.md) records the newly confirmed multiple-books/extensible-formats requirement. The executable planner’s dataset-scoped identity is a bounded lab contract, not the approved production source-flight identity or proof of book isolation. The proposed production direction shares provider/account/club source evidence across explicit book links and separates flight identity from book-entry identity; it requires a reviewed identity migration before enabling canonical live imports. Do not copy retrieval per aircraft class or treat dataset selection as complete account/book/format separation. Neither ADR 0007 nor the final import schema is accepted by this continuation.
