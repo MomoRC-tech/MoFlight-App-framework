@@ -99,6 +99,11 @@ class Smoke:
         self.shell("input", "swipe", str(width // 2), str(start), str(width // 2), str(end), str(duration))
 
     def tap(self, text, *, scroll=False):
+        if scroll and text in {'Save / share versioned synthetic backup',
+                               'Save synthetic backup to a device folder',
+                               'Restore a backup into a new local database'}:
+            self.footer()
+            scroll = False
         node = self.find(text, exact=True, scroll=scroll, attempts=100 if scroll else 12)
         self.tap_node(node)
 
@@ -115,6 +120,30 @@ class Smoke:
                 return
             self.swipe(up=False, duration=60)
         raise AssertionError('Could not scroll back to app status')
+
+    def footer(self):
+        # Fast ordinary swipes are safe for controls at the very end, unlike
+        # the short snapshot-ID heading in the middle. Still assert actual UI.
+        for _ in range(20):
+            try:
+                self.find('Restore a backup into a new local database', exact=True, attempts=1)
+                return
+            except AssertionError:
+                self.swipe(up=True, duration=60)
+        raise AssertionError('Could not reach backup controls')
+
+    def cancel_system_ui(self):
+        # DocumentsUI Back first goes to its parent directory. Keep backing
+        # through only the active picker/share UI until the app actually returns.
+        for _ in range(8):
+            nodes = self.dump()
+            if any(n.get('package') == PACKAGE for n in nodes):
+                return
+            assert any(n.get('package') in {'android', 'com.android.intentresolver'} or
+                       'documentsui' in n.get('package', '') for n in nodes), 'Unexpected foreground UI during cancellation'
+            self.shell('input', 'keyevent', 'KEYCODE_BACK')
+            time.sleep(.5)
+        raise AssertionError('System picker/share did not return to the app')
 
     def resource(self, suffix):
         for _ in range(15):
@@ -301,7 +330,7 @@ class Smoke:
             before = self.selected_database()
             self.tap(button, scroll=True)
             self.picker_ready()
-            self.shell('input', 'keyevent', 'KEYCODE_BACK')
+            self.cancel_system_ui()
             self.top()
             self.find(expected)
             assert self.selected_database() == before
@@ -317,7 +346,7 @@ class Smoke:
             time.sleep(.5)
         else:
             raise AssertionError('Native share sheet did not open')
-        self.shell('input', 'keyevent', 'KEYCODE_BACK')
+        self.cancel_system_ui()
         self.top()
         self.find('Backup prepared in app storage. Sharing does not confirm external saving.')
         assert not self.external_files()
