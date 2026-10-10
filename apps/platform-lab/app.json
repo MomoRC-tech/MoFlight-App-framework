@@ -8,6 +8,6 @@
     "platforms": ["android", "ios"],
     "ios": { "bundleIdentifier": "de.momorc.moflight.lab", "supportsTablet": true },
     "android": { "package": "de.momorc.moflight.lab", "allowBackup": false },
-    "plugins": ["expo-sqlite", "expo-document-picker", "expo-dev-client"]
+    "plugins": ["expo-sqlite", "expo-document-picker", "expo-dev-client", ["expo-secure-store", { "configureAndroidBackup": true, "faceIDPermission": false }]]
   }
 }
