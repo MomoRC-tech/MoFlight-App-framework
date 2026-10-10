@@ -52,3 +52,7 @@ generator code is reused or modified.
 ## Subsequent native verification — 2026-10-09 UTC
 
 [Android offline evidence](../verification/2026-10-09-android-offline.md) now records a compiled bundled APK and seven actual emulator UI/expo-sqlite checkpoints, including unchanged snapshot identity across force-stop/airplane-mode restart. Host evidence remains separate. Physical-phone/iOS, full presentation/copy/backup and cloud gates remain open; no additional architecture, sync, paid-call or release approval is inferred.
+
+## Subsequent bounded native verification — 2026-10-10 UTC
+
+[Expanded Android evidence](../verification/2026-10-10-android-copy-backup.md) records 21 actual emulator checks, including selective copying, cancellation, Android folder export, real document-picker restore/restart, invalid-file rejection without history changes, byte-for-byte re-export and preserved original database. Pixel 6a / Android 17 has a separate bounded user-reported offline pass. Physical-phone copy/picker, iOS, full presentation/new-evidence review and production/cloud gates remain open. No architecture/sync/paid-call/release approval is added.

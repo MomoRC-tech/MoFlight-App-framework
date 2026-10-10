@@ -85,3 +85,7 @@ The first app screenshot shows "Remembered state loaded", dataset `synthetic-lab
 The supplied download was `MoFlight-Lab-6957ce2.apk` (source/hash documented above). The installed APK hash and exact before/after phone snapshot ID were not captured. Phone count/snapshot preservation is reported by the tester, rather than independently asserted from screenshots. No private phone screenshots are committed.
 
 Selective-copy UI (only entry 70), full readability/large-text/orientation, dataset switching on this phone, native external backup/document-picker restore and iOS remain untested. This update records observations only; app code and binary are unchanged.
+
+## Extended emulator follow-up — 2026-10-10 UTC
+
+[Copy/backup evidence](2026-10-10-android-copy-backup.md) records the newer 596c110 APK and a completed 21-check native run, including selective copying, actual external folder export, real picker restore, invalid-input preservation and original-database retention. This follows the historical seven-check run above; it does not expand the user-reported Pixel evidence or claim iOS/full readability acceptance.

@@ -1,0 +1,84 @@
+{
+  "status": "failed",
+  "checks": [
+    {
+      "name": "fresh-install-empty-without-metro",
+      "status": "passed"
+    },
+    {
+      "name": "native-import-decision-exact-query",
+      "status": "passed"
+    },
+    {
+      "name": "fixed-writing-snapshot-prepared",
+      "status": "passed"
+    },
+    {
+      "name": "airplane-mode-force-stop-reopen-same-state",
+      "status": "passed"
+    },
+    {
+      "name": "empty-dataset-b-isolated",
+      "status": "passed"
+    },
+    {
+      "name": "selection-survives-restart-original-dataset-preserved",
+      "status": "passed"
+    },
+    {
+      "name": "repeated-import-does-not-duplicate-or-rewrite-snapshot",
+      "status": "passed"
+    },
+    {
+      "name": "copy-only-entry-70-entry-71-still-pending",
+      "status": "passed"
+    },
+    {
+      "name": "copied-state-survives-offline-restart",
+      "status": "passed"
+    },
+    {
+      "name": "cancel-folder-save-preserves-data",
+      "status": "passed"
+    },
+    {
+      "name": "cancel-restore-preserves-data",
+      "status": "passed"
+    },
+    {
+      "name": "share-cancellation-does-not-claim-external-backup",
+      "status": "passed"
+    },
+    {
+      "name": "external-folder-backup-original-bytes-history-and-checksum",
+      "status": "passed"
+    }
+  ],
+  "boundary": "Android emulator only; synthetic prepared observations/CSV. Native UI and external synthetic backup/picker checks. No OCR, live retrieval, cloud Auth, physical phone or iOS.",
+  "apk_sha256": "21876c50b24387d2cb54881f41a2e7b7a9ab8ae6af706f8895d2e45b4952fc60",
+  "apk_bytes": 46125122,
+  "embedded_javascript": true,
+  "architectures": [
+    "arm64-v8a",
+    "x86_64"
+  ],
+  "device": {
+    "ro.build.version.sdk": "35",
+    "ro.product.model": "sdk_gphone64_x86_64",
+    "ro.product.cpu.abi": "x86_64"
+  },
+  "display": {
+    "size": "Physical size: 480x800",
+    "density": "Physical density: 420\nOverride density: 160"
+  },
+  "snapshot_id": "0a531a3f48d223fa0525575cb08ec839232b147d9060096fbb077f4f1aca0ce8",
+  "airplane_mode": true,
+  "external_backup": {
+    "filename": "moflight-backup-d9c6d705-3a3c-4bd3-b687-d451d595a3a4.json",
+    "sha256": "491c0bea98aab13a533fb69a156c8c36000bd1abfa1da0faaffea0e2710f75eb",
+    "record_revisions": 25,
+    "paper_entries": 10,
+    "checksum_verified": true
+  },
+  "error": "Disabled button: sdk_gphone64_x86_64"
+}
