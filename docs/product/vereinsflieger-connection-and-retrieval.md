@@ -25,6 +25,19 @@ A successfully implemented journey stays inside MoFlight. It does not require a 
 
 “Connected” is not proof that authentication is still valid. Show “Last retrieved: …” and actual coverage; check the provider session before every online retrieval. Existing offline history does not depend on staying signed in.
 
+## Provider-page visibility — confirmed by Manuel, 2026-10-10
+
+The provider webpage may remain visible after login during the current engineering PoC. This is accepted temporary behavior; the user does not request a visibility change to the running probe yet.
+
+The later product flow is:
+
+1. The user connects and signs in through the original provider interface inside MoFlight, completing any provider verification there.
+2. After successful sign-in, return to MoFlight's own connection/retrieval screen. The provider's flightbook and navigation are hidden during ordinary retrieval.
+3. The user presses a MoFlight action such as **“Get my data from Vereinsflieger.de”**. This is a working label, not a final wording decision. Reuse the provider session and automatically navigate/retrieve the user's own flights without exposing provider filters, pages or export steps.
+4. Show MoFlight progress, errors and a retrieval summary, then the locally available data. If the session expires or provider interaction is required, show the provider interface again and return to MoFlight afterward.
+
+Hidden provider navigation means retrieval behind MoFlight's UI while the app is in use; it does not establish OS background execution or scheduled sync. The connector must retain its browser/session lifecycle while hidden. Page visibility is independent of password storage, final transport selection, verified coverage and canonical import. This flow is a confirmed product requirement; hidden retrieval has not been implemented or tested by this clarification.
+
 ## Automatic range selection — clarified by Manuel, 2026-10-10
 
 The user does not need to understand export periods, paging or provider filters. “Retrieve flights” is the normal action; the connector selects the appropriate dates and own-flight scope. Date selection is an optional advanced control only, never a prerequisite.
@@ -68,14 +81,14 @@ The goal is **enter credentials once during normal use**, not “never sign in a
 
 ## Native proof required next
 
-The desktop-browser login and personal list were actually observed. The following are still open for both Android and iOS:
+The local Android emulator now verifies original-page login, session reuse, bounded raw capture and offline reopening; [desktop evidence](../verification/2026-10-10-windows-desktop.md#live-android-bounded-capture-and-restart) records the precise limits. These results do not establish iOS or complete product acceptance. Remaining checks include:
 
-- Original-page login, provider verification if available, identity/club verification and first bounded retrieval.
+- iOS original-page login/retrieval, provider verification if available, and verified source identity/club binding on both platforms.
 - App close/force-stop/restart and device restart with a remembered session; measure expiry and the provider's stay-signed-in option.
 - Actual export/response/table mapping compared privately with a known reference, full requested coverage and repeated import.
 - Expired/revoked session, wrong password, challenge/2FA, canceled login and network interruption without history loss.
 - Disconnect/account switch and cookie clearing; browser/credential backup exclusion and optional autofill behavior.
-- Retrieved flights reopened and queried offline. Optional password storage adds real-device secure-storage/forget/biometric tests only if selected.
+- Canonical imported flights queried offline, iOS offline reopening, and the confirmed hidden-provider retrieval flow. Android raw-capture reopening already passes. Optional password storage adds real-device secure-storage/forget/biometric tests only if selected.
 
 A plausible architecture is not a passed phone test. [Investigation](../architecture/vereinsflieger-access-investigation.md), [ADR 0006](../adr/0006-vereinsflieger-connector-proposal.md) and [actual live evidence](../verification/2026-10-10-vereinsflieger-access.md) record the boundary.
 
