@@ -10,6 +10,7 @@ import { LocalLogbook } from '@moflight/local-data';
 import { findings, query, reviewRequired, literalFields, counterKeys, type Source, type Page, type History, type Template, type Filters, type Counters } from '@moflight/flight-logbook';
 import fixture from '../../../tests/fixtures/local-logbook/mobile.json';
 import { loadSelection, saveSelection, open, type Selection } from './storage';
+import { AccessProbe } from './vereinsflieger/AccessProbe';
 
 const empty: History = { source: null, lastAttempt: null, flights: [], paper: [], findings: [], decisions: [] };
 const choices: [string, Filters][] = [
@@ -24,6 +25,7 @@ function Totals({ title, values }: { title: string; values: Counters | null }) {
   return <View style={styles.card}><Text style={styles.heading}>{title}</Text>{values ? counterKeys.map(k => <Text key={k} style={styles.body}>{k.replaceAll('_', ' ')}: {k === 'landings' ? values[k] : `${Math.floor(values[k] / 60)}:${String(values[k] % 60).padStart(2, '0')}`} {k === 'landings' ? '' : 'h:mm'}</Text>) : <Text style={styles.body}>Leave every total field blank — partial page.</Text>}</View>;
 }
 export default function App() {
+  const [showAccessProbe, setShowAccessProbe] = useState(false);
   const repo = useRef<LocalLogbook | null>(null);
   const [selection, setSelection] = useState<Selection | null>(null);
   const [history, setHistory] = useState<History>(empty);
@@ -100,8 +102,10 @@ export default function App() {
     setSelection(nextSelection); await refresh(restored);
     return 'Backup restored into a new local database. Previous database preserved.';
   }
+  if (showAccessProbe) return <SafeAreaProvider><SafeAreaView style={styles.screen}><AccessProbe close={() => setShowAccessProbe(false)} /></SafeAreaView></SafeAreaProvider>;
   return <SafeAreaProvider><SafeAreaView style={styles.screen}><ScrollView contentContainerStyle={styles.container}>
     <Text style={styles.title}>MoFlight Lab</Text>
+    <Button title="Open Vereinsflieger access PoC" disabled={busy} onPress={() => setShowAccessProbe(true)} />
     <Text style={styles.banner}>SYNTHETIC DATA · Prepared observations and CSV. No handwriting recognition or live Vereinsflieger retrieval.</Text>
     <Text accessibilityLiveRegion="polite" style={styles.body}>{message}</Text>{busy && <ActivityIndicator />}
     <Text style={styles.body}>Local dataset: {selection?.datasetId ?? 'opening'} · {selection?.databaseName ?? ''}</Text>

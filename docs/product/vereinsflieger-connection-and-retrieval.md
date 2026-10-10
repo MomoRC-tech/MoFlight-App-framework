@@ -1,6 +1,6 @@
 # Vereinsflieger: in-app connection and flight retrieval
 
-Date: 2026-10-10. Product owner: Manuel Singer. Tracking: [FL-03](flight-logbook-user-stories.md), [#2](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/2). Browser-based route and automatic range selection confirmed by Manuel; detailed retrieval implementation below is proposed. Native retrieval and saved-login behavior are not yet implemented or verified.
+Date: 2026-10-10. Product owner: Manuel Singer. Tracking: [FL-03](flight-logbook-user-stories.md), [#2](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/2). Browser-based route and automatic range selection confirmed by Manuel; detailed retrieval implementation below is proposed. An isolated bounded native access probe is implemented; actual native retrieval and saved-login behavior are not yet verified. Full product integration remains open.
 
 ## User story
 
@@ -88,3 +88,7 @@ Checked 2026-10-10; documentation support does not substitute for native runtime
 - [Expo SecureStore](https://docs.expo.dev/versions/latest/sdk/securestore/): OS-protected local values, device-only Keychain accessibility, backup configuration, biometric and uninstall behavior.
 
 Documentation verification for this clarification: relative links and FL-03/#2/README consistency checked; no new native or live retrieval tests claimed. Automatic range selection is confirmed, while extraction and scheduling implementation remains open.
+
+## Current first PoC implementation
+
+Manuel selected in-app access as the next essential proof before broader feature expansion. The [native runbook](../../apps/platform-lab/README.md#vereinsflieger-access-poc) describes the implemented login/table-capture slice. It automatically opens the observed personal list and bounds extraction to at most 20 visible rows; it does not ask the user for dates. Identity, time basis and coverage are explicitly unverified; captures stay separate from canonical logbook records. The first PoC does not yet implement all-history scheduling, account-bound import or app-owned password saving. [Actual checks and limits](../verification/2026-10-10-vereinsflieger-native-probe.md).

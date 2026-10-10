@@ -451,6 +451,19 @@ class Smoke:
         self.find('11 individually confirmed paper entries.')
         self.record('restore-preserves-newer-original-database')
 
+        # No provider credentials in CI. Verify the isolated native probe opens
+        # offline and returns to the preserved synthetic dataset. This does not
+        # prove provider login, cookie persistence or live extraction.
+        self.launch()
+        self.tap('Open Vereinsflieger access PoC')
+        self.find('Vereinsflieger access PoC')
+        self.find('No live capture saved.')
+        self.record('isolated-vereinsflieger-probe-opens-without-provider-credentials')
+        self.tap('Close access PoC')
+        self.find('Local dataset: synthetic-lab-a · lab-a.sqlite')
+        self.find('11 individually confirmed paper entries.')
+        self.record('closing-access-probe-preserves-synthetic-logbook')
+
     def finish(self, status, error=None):
         self.report["status"] = status
         if error:

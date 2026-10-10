@@ -24,7 +24,7 @@ Manuel clarified on 2026-10-08 that the writing template need not be a PDF: any 
 
 ## In-app Vereinsflieger connection — 2026-10-10
 
-Manuel selected browser-based access; the official API remains only “might work in the future.” [Connection, repeat retrieval and local-login options](vereinsflieger-connection-and-retrieval.md) expand FL-03. Target: first connection uses the original provider login inside MoFlight; later foreground retrieval reuses the valid session and asks for reauthentication only when needed. Manuel clarified that MoFlight automatically selects the retrieval period and own-flight filters; normal use needs no date-range selection. Device-local password saving is technically feasible but remains a separate opt-in design proposal. No native connector is implemented or verified by this story.
+Manuel selected browser-based access; the official API remains only “might work in the future.” [Connection, repeat retrieval and local-login options](vereinsflieger-connection-and-retrieval.md) expand FL-03. Target: first connection uses the original provider login inside MoFlight; later foreground retrieval reuses the valid session and asks for reauthentication only when needed. Manuel clarified that MoFlight automatically selects the retrieval period and own-flight filters; normal use needs no date-range selection. Device-local password saving is technically feasible but remains a separate opt-in design proposal. A bounded isolated access probe is now implemented; [probe evidence](../verification/2026-10-10-vereinsflieger-native-probe.md) separates code/synthetic checks from still-open native live login/retrieval and full connector integration.
 
 ## Primary journey
 

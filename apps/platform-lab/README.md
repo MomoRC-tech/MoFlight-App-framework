@@ -98,3 +98,17 @@ python3 -m pocs.local_logbook.lab serve --data local-data/lab-a
 The read-only host viewer at `http://127.0.0.1:8765/` is not the native app. [Earlier host evidence](../../docs/verification/2026-10-08-host-local-slice.md) and [current native-slice evidence](../../docs/verification/2026-10-08-native-lab.md) keep those claims separate.
 
 Supabase #1: [schema/probe prepared](../../pocs/supabase-trial/README.md), blocked without disposable free project/two-user Auth setup. Own-flight #2: [supported-access investigation](../../docs/architecture/vereinsflieger-access-investigation.md), unresolved permission/docs; no guessed endpoint. SPL #3 remains retrieval-first with permitted content and no paid embeddings/generation. Instructor-roster discovery #10 stays separate. None is replaced by local fixture success.
+
+## Vereinsflieger access PoC
+
+Manuel selected this as the next essential PoC on 2026-10-10. Install a build containing this section's source changes; the previous synthetic-only APK has no access probe. The main screen's “Open Vereinsflieger access PoC” opens the isolated native screen.
+
+1. With internet available, tap “Show provider login,” verify the displayed HTTPS provider identity and sign into the original Vereinsflieger page. The app does not read/store password fields. Complete provider verification if offered and verify that the visible account is yours.
+2. Tap “Retrieve flights.” The app navigates to the known personal flightbook automatically and reads the default bounded list, at most 20 rows. No date range or export navigation is required. If the provider asks for login, complete it and tap Retrieve again. Changed/missing columns produce an explicit error rather than a guessed import.
+3. Compare the displayed raw date/aircraft/crew/times/duration fields privately with the provider list. The code preserves separate Pilot/PIC/Begleiter/FI columns and only labels `flid` values as candidate source IDs.
+4. Close/force-stop/reopen the app and access probe in airplane mode; check the last saved capture remains available. Restore internet, tap Retrieve and determine whether login is reused. Record the actual stay-signed-in/expiry result, rather than assuming cookies persist.
+5. Test a canceled or expired login and failed network request: the prior capture and synthetic logbook must remain intact. Account/club identity extraction, multi-account binding, actual provider logout/cookie clearing, canonical import, complete history/paging, export contract and iOS runtime remain later native gates.
+
+Captures use a separate private `vereinsflieger-access-probe.sqlite` database. Each successful capture has its own request ID; repeated reads are observations, not duplicated canonical flights. Source identity and time basis are explicitly unverified. Captures cannot change synthetic flights, decisions, writing snapshots or synthetic JSON backups. They contain private personal data and are not exported/logged or committed. Android's existing `allowBackup: false` remains set; iOS backup exclusion has not been verified. No app-owned password storage or cloud service was added.
+
+This first access proof deliberately uses the provider's visible bounded list; automatic all-history scheduling and validated logbook integration follow verified account/field/coverage contracts. Provider Excel/export and structured responses remain preferable candidates when their actual contract is observed. [Evidence and remaining acceptance](../../docs/verification/2026-10-10-vereinsflieger-native-probe.md).
