@@ -1,6 +1,6 @@
 # Vereinsflieger: in-app connection and flight retrieval
 
-Date: 2026-10-10. Product owner: Manuel Singer. Tracking: [FL-03](flight-logbook-user-stories.md), [#2](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/2). Browser-based route selected by Manuel; interaction and implementation details below are proposed. Native retrieval and saved-login behavior are not yet implemented or verified.
+Date: 2026-10-10. Product owner: Manuel Singer. Tracking: [FL-03](flight-logbook-user-stories.md), [#2](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/2). Browser-based route and automatic range selection confirmed by Manuel; detailed retrieval implementation below is proposed. Native retrieval and saved-login behavior are not yet implemented or verified.
 
 ## User story
 
@@ -13,8 +13,8 @@ The official API is unavailable for this project and remains only **“might wor
 | Situation | User action | App behavior |
 | --- | --- | --- |
 | First connection | Select the local dataset, tap “Connect Vereinsflieger,” sign into the original provider page inside MoFlight, and complete any provider verification | Show the real HTTPS provider identity. After login, verify source identity/club context and ask the user to confirm the dataset association once |
-| First retrieval | Choose the period/own-flight scope and tap “Retrieve flights”; the first trial uses a small period | Navigate to the personal flightbook, retrieve and validate the chosen range, save a scoped local snapshot and show coverage plus added/changed/excluded counts |
-| Later retrieval | Tap “Retrieve flights”; remembered scope is offered | Reuse the valid browser session. Perform navigation/retrieval/import automatically in the foreground; no password entry or redundant per-flight confirmation |
+| First retrieval | Tap “Retrieve flights”; no date-range or provider-filter selection required | Automatically select own-flight scope and retrieve accessible history in bounded windows, prioritizing the paper continuation where its anchor is known. Save verified coverage and show progress plus added/changed/excluded counts |
+| Later retrieval | Tap “Retrieve flights”; no date-range selection required | Reuse the valid session and automatically plan new coverage, an overlapping recent range and outstanding history gaps/rechecks. Navigate/retrieve/import in the foreground; no password entry or redundant per-flight confirmation |
 | Session expired | Complete the provider sign-in again; use available autofill and verification if offered | Show “Sign in again,” preserve existing history and resume the requested retrieval after successful account verification |
 | Offline | Open the app or query previously imported flights | Use the last successful snapshot; show its date/coverage. New retrieval waits for connectivity |
 | Relevant ambiguity | Answer a specific question about an account mismatch, duplicate or decisive missing field | Preserve both source evidence and existing decisions; do not silently guess or repeatedly ask already resolved questions |
@@ -25,12 +25,24 @@ A successfully implemented journey stays inside MoFlight. It does not require a 
 
 “Connected” is not proof that authentication is still valid. Show “Last retrieved: …” and actual coverage; check the provider session before every online retrieval. Existing offline history does not depend on staying signed in.
 
+## Automatic range selection — clarified by Manuel, 2026-10-10
+
+The user does not need to understand export periods, paging or provider filters. “Retrieve flights” is the normal action; the connector selects the appropriate dates and own-flight scope. Date selection is an optional advanced control only, never a prerequisite.
+
+- First connection: target all own-flight history accessible to this account, in bounded windows. If a confirmed paper anchor exists, prioritize that continuation period, then fill older history for statistics. Otherwise start with recent flights and extend backwards. Show incomplete/backfill status until actual coverage is verified; provider restrictions remain explicit.
+- Repeat retrieval: use the last successfully verified coverage, not merely the last button-press time. Include an overlap to catch late entries and edits; resume known gaps and reconcile older windows over subsequent foreground runs. Exact window sizes/overlap are adapter configuration to establish in native trials, not user decisions.
+- Do not claim an overlap detects every historical change. Report which periods were refreshed, and offer “Refresh full history” without requiring dates.
+- Interrupted/partial retrieval preserves verified chunks and prior history, records remaining gaps and never advances the complete-coverage marker over missing windows. Repeated source records are handled idempotently.
+- The first engineering proof uses a small automatically configured test window. That safety bound belongs to the test setup, not to the normal product's required user interaction.
+
+These are product requirements and proposed scheduling rules, not implemented or verified provider capabilities.
+
 ## What the app does to retrieve data
 
 1. Open or reuse a persistent native WebView on the exact Vereinsflieger HTTPS origin. The browser executes the provider's own login JavaScript and maintains its cookies.
 2. Verify the signed-in source identity and relevant club context before using the personal flightbook at the observed path `/member/profile/flightlog.php`. Do not infer success from a redirect or an empty list alone.
-3. Apply the requested own-flight filters/range and retrieve within the same browser session. Investigate actual Excel export first; provider help names Excel/PDF, not a verified CSV endpoint. If export is unsuitable, use a structured read response observed during normal browsing; otherwise use a strict table/detail adapter. Export bytes, JSON endpoints, paging and detail IDs remain unverified.
-4. Validate fields, source references, crew roles, time basis and actual coverage. Traverse necessary pages/range windows without assuming the observed last-20 view is all history.
+3. Apply the app-selected own-flight filters/range from the automatic retrieval plan and retrieve within the same browser session. Investigate actual Excel export first; provider help names Excel/PDF, not a verified CSV endpoint. If export is unsuitable, use a structured read response observed during normal browsing; otherwise use a strict table/detail adapter. Export bytes, JSON endpoints, paging and detail IDs remain unverified.
+4. Validate fields, source references, crew roles, time basis and actual coverage. The app traverses necessary pages/range windows without assuming the observed last-20 view is all history.
 5. Stage the complete bounded result, then apply it through the deterministic local importer. Repeat retrieval must preserve IDs and avoid duplicate imports. Schema errors or interrupted retrieval preserve the previous successful snapshot; missing rows in limited coverage never imply deletion.
 6. Show a concise result and ask only for unresolved decisions. Imported history remains available offline.
 
@@ -74,3 +86,5 @@ Checked 2026-10-10; documentation support does not substitute for native runtime
 - [Expo WebView, SDK 57](https://docs.expo.dev/versions/v57.0.0/sdk/webview/) and [React Native WebView reference](https://github.com/react-native-webview/react-native-webview/blob/master/docs/Reference.md): native embedded browser and configuration.
 - [Android CookieManager](https://developer.android.com/reference/android/webkit/CookieManager): cookie persistence/flush and removal. The provider determines whether a cookie remains valid.
 - [Expo SecureStore](https://docs.expo.dev/versions/latest/sdk/securestore/): OS-protected local values, device-only Keychain accessibility, backup configuration, biometric and uninstall behavior.
+
+Documentation verification for this clarification: relative links and FL-03/#2/README consistency checked; no new native or live retrieval tests claimed. Automatic range selection is confirmed, while extraction and scheduling implementation remains open.

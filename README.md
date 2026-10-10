@@ -57,7 +57,7 @@ For the airplane-mode force-stop check, use the runbook’s `android:offline` / 
 - [Independent early Supabase SQL and real two-user probe](pocs/supabase-trial/README.md): preflight blocked, SQL/hosted Auth/RLS/files not tested.
 - [Vereinsflieger access comparison and concrete connector workflow](docs/architecture/vereinsflieger-access-investigation.md): interactive browser login and own-flight UI verified; club-created AppKey, 500 calls/day/key and general commercial REST prohibition read in authenticated provider help. Native retrieval/specification/terms remain open.
 - [ADR 0006: Phone-local Vereinsflieger connector feasibility](docs/adr/0006-vereinsflieger-connector-proposal.md) — browser-route priority confirmed; original-page WebView implementation proposed; official API is future-only.
-- [Vereinsflieger connection, retrieval and local-login user journey](docs/product/vereinsflieger-connection-and-retrieval.md): first login, repeat retrieval, expiry, session reuse and optional device-local credential storage.
+- [Vereinsflieger connection, retrieval and local-login user journey](docs/product/vereinsflieger-connection-and-retrieval.md): first login, automatic range selection/paging, repeat retrieval, expiry, session reuse and optional device-local credential storage.
 - [Live Vereinsflieger browser checks and next native gates](docs/verification/2026-10-10-vereinsflieger-access.md): actual results, protected download limitation and untested devices/session behavior.
 - [Explicit synthetic fixture expectations](tests/fixtures/local-logbook/README.md): canonical prepared observations/CSV and generated mobile bundle, no OCR or live retrieval.
 
