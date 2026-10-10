@@ -1,6 +1,6 @@
 # MoFlight-App-framework
 
-A reusable Android/iOS platform for two independent products: an SPL learning app and a digital gliding logbook.
+A reusable Android/iOS platform for multiple flight-related features or sub-apps, starting with a logbook helper and potentially an SPL tutor and gliding weather forecasts.
 
 ## Status and source of truth
 
@@ -70,9 +70,11 @@ For the airplane-mode force-stop check, use the runbook’s `android:offline` / 
 
 ## Products and Phase 1 boundaries
 
+[Product scope clarification (Manuel, 2026-10-10)](docs/product/moflight-feature-scope.md): MoFlight will contain multiple flight-related features/sub-apps. The logbook helper starts with gliding and must allow later ultralight and powered-aircraft support with different logbook formats. SPL tutoring and gliding weather forecasts are possible additional features. The earlier two-separate-app model is a planning baseline; one app versus separate releases remains an open product decision. Vereinsflieger is intended as a common source, but uniform storage/schema across aircraft classes is an unverified user assumption.
+
 The SPL app will support versioned questions, offline learning, personal progress and an evidence-based AI tutor. The logbook app will support authorized own-flight retrieval from Vereinsflieger, CSV import, handwritten-page observations, user confirmation, deterministic reconciliation and a readable writing template showing exactly what to copy into the paper book. PDF and other file exports are optional.
 
-Phase 1 builds a technical test app first, then two product shells. It proves shared services with small synthetic examples. It does not deliver a complete exam mode/catalogue, shop, full historical logbook audit or production release. Digital-logbook acceptance/signatures and commercial release requirements remain later work.
+Phase 1 builds a technical test app first; the earlier two-product-shell plan remains provisional pending the clarified multi-feature packaging decision. It proves shared services with small synthetic examples. It does not deliver a complete exam mode/catalogue, shop, full historical logbook audit or production release. Digital-logbook acceptance/signatures and commercial release requirements remain later work.
 
 Offline covers downloaded permitted content, learning events, flights, settings and file selection. Initial sign-in, password recovery, live retrieval, AI answers/photo analysis and cloud processing require connectivity. An offline AI request can remain a draft; paid execution is explicitly triggered later. Continuous background synchronization is not promised.
 
@@ -81,8 +83,8 @@ Offline covers downloaded permitted content, learning events, flights, settings 
 | ID | Requirement | Phase 1 evidence |
 | --- | --- | --- |
 | R01 | Android and iOS from one codebase | Installable native development builds; results per platform |
-| R02 | Two independently released apps | Separate package/bundle IDs, builds, permissions and shell smoke tests |
-| R03 | Shared account identity | Same account in both apps with separate secure sessions; cross-app SSO is optional later |
+| R02 | Multiple flight-related features/sub-apps; release packaging open | Confirm one app versus separate releases before choosing package/bundle IDs and shell acceptance |
+| R03 | Shared account identity | Same identity across features; separate sessions and cross-app SSO depend on final release packaging |
 | R04 | Offline reads and writes | Airplane mode, restart and reconnect without data loss |
 | R05 | Cross-device data | Same account on two devices/sessions converges |
 | R06 | User isolation on every path | Negative API, sync, storage, job and local account-switch tests |
@@ -93,6 +95,7 @@ Offline covers downloaded permitted content, learning events, flights, settings 
 | R11 | Commercial extensibility | Export/deletion design, source-rights metadata, entitlement boundary and release plan |
 | R12 | Own Vereinsflieger flights | Authorized live retrieval, source comparison, repeat retrieval and session expiry |
 | R13 | Measurable RAG | Ingestion, retrieval, citations, missing evidence, latency and cost evaluated separately |
+| R14 | Later ultralight and powered-aircraft logbooks | Verify class-specific fields/layouts and source mapping using synthetic examples before enabling each format |
 
 ## Current architecture proposal
 

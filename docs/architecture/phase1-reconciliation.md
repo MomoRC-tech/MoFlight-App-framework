@@ -62,3 +62,8 @@ Manuel authorized phone-local storage first if simpler while retaining very earl
 ## Subsequent native-lab checkpoint — 2026-10-08
 
 The initial reconciliation above remains historical. Manuel has now explicitly approved Expo/React Native/strict TypeScript/pnpm and expo-sqlite for the initial lab. ADR 0002/0005 record the scope; [native evidence](../verification/2026-10-08-native-lab.md) records the implementation, passing host/TypeScript checks and Android debug compilation. Phone acceptance, iOS compilation, hosted cloud, live own-flight access and SPL retrieval remain open. PowerSync and detailed cloud sync remain deferred/proposed; no paid services or calls are authorized.
+
+
+## Product scope clarification — 2026-10-10
+
+Manuel clarified that MoFlight will have multiple flight-related features/sub-apps, starting with a logbook helper and potentially an SPL tutor and gliding weather forecasts. Later logbook support must cover ultralight and powered aircraft with distinct formats/designs. [The current product scope](../product/moflight-feature-scope.md) supersedes a fixed two-product limit; release packaging remains open. Existing two-shell ADR/draft references are historical planning context, not renewed packaging approval. Common Vereinsflieger source storage across classes is a user assumption awaiting validation. No schema migration, new architecture or implementation is approved by these notes.

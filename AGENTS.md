@@ -5,7 +5,7 @@
 - Read current repository state, README and relevant ADRs before changing them.
 - Communicate and maintain active documentation in English. Preserve historical source snapshots in their original language.
 - Prefer small executable PoCs before broad implementation; support Android/iOS and offline local data.
-- Add modules/infrastructure only when needed. Keep domain code free of vendor SDKs and the two domains independent.
+- Add modules/infrastructure only when needed. Keep domain code free of vendor SDKs and feature domains independent.
 - Manuel owns product decisions and binding technology approval. An earlier recommendation is not approval; keep proposed ADRs proposed until an explicit decision.
 
 ## GitHub

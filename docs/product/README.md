@@ -1,5 +1,7 @@
 # Product specifications
 
+- [MoFlight feature scope and later aircraft-class support](moflight-feature-scope.md): confirmed 2026-10-10 product direction, possible additional features, packaging decision and unverified provider-schema assumption.
+
 - [Flight-logbook user stories and continuation workflow](flight-logbook-user-stories.md): product source, prototype provenance, acceptance criteria and Issue mapping.
 
 - [Writing-template presentation](writing-template-presentation.md): exact copy instructions, first in-app view, optional file exports and presentation acceptance.

@@ -4,6 +4,10 @@ Current implementation note: the [bounded synthetic host slice](../../apps/platf
 
 Date: 2026-10-08. Product owner: Manuel Singer. Status: core workflow requested by Manuel; detailed acceptance and technical mapping are proposed, not implemented.
 
+## Scope clarification — 2026-10-10
+
+Gliding is the initial workflow below. Manuel requires later ultralight and powered-aircraft support, with different logbook formats/designs. Do not assume the gliding layout or rules apply to those classes. See [MoFlight feature scope](moflight-feature-scope.md) for the shared Vereinsflieger source intent, unverified uniform-schema assumption and future acceptance gates.
+
 ## Purpose and sources
 
 As a gliding pilot, I want to photograph my latest written paper-logbook page, retrieve my own Vereinsflieger flights, resolve relevant inconsistencies and receive a clear writing template showing exactly what to write, so that I can update my paper logbook without manually comparing and calculating everything.
