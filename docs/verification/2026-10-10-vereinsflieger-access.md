@@ -44,10 +44,16 @@ The default list is insufficient for all-history import. Native tests must inspe
 | N07 | Logout/switch stops retrieval, clears the tested provider session store and keeps previous dataset private; credentials/session material is excluded from logbook backup and diagnostics |
 | N08 | Previously imported flights reopen offline after force-stop. Android and iOS results are reported independently |
 | N09 | 2FA and any actual passkey method tested when available; no blanket claims from library APIs or a single account |
-| N10 | Current REST PDF/role/field contract plus provider/club terms assessed; browser technical access alone is not permission for distribution |
+| N10 | Browser/export field contract and applicable provider/club terms assessed; browser technical access alone is not permission for distribution. REST PDF/key work is future-only per Manuel's subsequent direction |
 
 No mobile connector tests are marked passed. Priority is the bounded own-flight trial rather than broad roster queries or a complete cloud-sync engine. [Investigation and references](../architecture/vereinsflieger-access-investigation.md) and [proposed ADR](../adr/0006-vereinsflieger-connector-proposal.md) define the concrete approach and remaining decision.
 
 ## Documentation verification
 
 Relative Markdown file links in the five changed/new documents were checked against the baseline GitHub tree plus the new files: passed. Status/approval assertions confirm ADR 0006 remains Proposed, no native connector checks are claimed passed, and the unverified logout limitation is explicit. Changes are documentation only, so no app rebuild or repeated native acceptance suite was needed. Publication uses the observed main head as the expected SHA to preserve concurrent work.
+
+## Subsequent route clarification and journey documentation — 2026-10-10
+
+Manuel stated that official API access is unavailable and must remain only “might work in the future.” Browser-based access is the confirmed current direction; API PDF/AppKey work is no longer a native acceptance prerequisite. Actual VF01–VF10 browser observations above are unchanged. [Connection and retrieval journey](../product/vereinsflieger-connection-and-retrieval.md) defines first login, repeat retrieval, expiry, offline reuse and optional local credentials. Session reuse is the initial recommendation; app-owned password saving remains an opt-in proposal, not implemented or approved.
+
+Seven documentation files were checked for relative links, FL-03/#2 traceability and consistent route/status claims. No native runtime, cookie persistence, password-manager or SecureStore tests were run for this documentation-only clarification. No native gate is newly marked passed. Commit publication uses a guarded main ref update; Issue #2 remains open.

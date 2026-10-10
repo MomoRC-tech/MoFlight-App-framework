@@ -1,0 +1,76 @@
+# Vereinsflieger: in-app connection and flight retrieval
+
+Date: 2026-10-10. Product owner: Manuel Singer. Tracking: [FL-03](flight-logbook-user-stories.md), [#2](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/2). Browser-based route selected by Manuel; interaction and implementation details below are proposed. Native retrieval and saved-login behavior are not yet implemented or verified.
+
+## User story
+
+As a pilot, I want to connect my Vereinsflieger account inside MoFlight, keep that connection on my phone and retrieve my own flights with one action, so that I do not repeatedly type credentials, navigate Vereinsflieger or export files manually.
+
+The official API is unavailable for this project and remains only **“might work in the future.”** AppKeys, API specifications and partner arrangements are not prerequisites for this workflow. Use the existing Expo/React Native app, with phone-local data and no required MoFlight cloud login.
+
+## Required interaction
+
+| Situation | User action | App behavior |
+| --- | --- | --- |
+| First connection | Select the local dataset, tap “Connect Vereinsflieger,” sign into the original provider page inside MoFlight, and complete any provider verification | Show the real HTTPS provider identity. After login, verify source identity/club context and ask the user to confirm the dataset association once |
+| First retrieval | Choose the period/own-flight scope and tap “Retrieve flights”; the first trial uses a small period | Navigate to the personal flightbook, retrieve and validate the chosen range, save a scoped local snapshot and show coverage plus added/changed/excluded counts |
+| Later retrieval | Tap “Retrieve flights”; remembered scope is offered | Reuse the valid browser session. Perform navigation/retrieval/import automatically in the foreground; no password entry or redundant per-flight confirmation |
+| Session expired | Complete the provider sign-in again; use available autofill and verification if offered | Show “Sign in again,” preserve existing history and resume the requested retrieval after successful account verification |
+| Offline | Open the app or query previously imported flights | Use the last successful snapshot; show its date/coverage. New retrieval waits for connectivity |
+| Relevant ambiguity | Answer a specific question about an account mismatch, duplicate or decisive missing field | Preserve both source evidence and existing decisions; do not silently guess or repeatedly ask already resolved questions |
+| Disconnect | Tap “Disconnect Vereinsflieger” | Stop retrieval and clear connector sessions and any optional saved credentials; imported flight history remains unless separately deleted |
+| Different provider account | Deliberately reconnect and select/create the appropriate dataset | Clear the old session and verify the new account. Never silently transfer or relabel another account's records |
+
+A successfully implemented journey stays inside MoFlight. It does not require a separate browser, the Vereinsflieger app or a manual file handoff. A provider export, if selected as the retrieval format, is handled privately by the connector. Manual CSV import remains a separately labeled fallback.
+
+“Connected” is not proof that authentication is still valid. Show “Last retrieved: …” and actual coverage; check the provider session before every online retrieval. Existing offline history does not depend on staying signed in.
+
+## What the app does to retrieve data
+
+1. Open or reuse a persistent native WebView on the exact Vereinsflieger HTTPS origin. The browser executes the provider's own login JavaScript and maintains its cookies.
+2. Verify the signed-in source identity and relevant club context before using the personal flightbook at the observed path `/member/profile/flightlog.php`. Do not infer success from a redirect or an empty list alone.
+3. Apply the requested own-flight filters/range and retrieve within the same browser session. Investigate actual Excel export first; provider help names Excel/PDF, not a verified CSV endpoint. If export is unsuitable, use a structured read response observed during normal browsing; otherwise use a strict table/detail adapter. Export bytes, JSON endpoints, paging and detail IDs remain unverified.
+4. Validate fields, source references, crew roles, time basis and actual coverage. Traverse necessary pages/range windows without assuming the observed last-20 view is all history.
+5. Stage the complete bounded result, then apply it through the deterministic local importer. Repeat retrieval must preserve IDs and avoid duplicate imports. Schema errors or interrupted retrieval preserve the previous successful snapshot; missing rows in limited coverage never imply deletion.
+6. Show a concise result and ask only for unresolved decisions. Imported history remains available offline.
+
+Use a narrow data bridge only on validated own-flight pages, with bounded typed messages. Login pages have no extraction script or flight-data bridge in the initial design. Keep cookies in the browser store; do not assume native `fetch` shares that store. Domain/path checks, redirects/new windows and account switching require explicit tests. A browser-like HTTP workflow is required; reproducing login with a separate raw HTTP client is deferred until an observed protocol demonstrates a benefit.
+
+## Can the phone remember the login?
+
+Yes, but remembering a session and saving a password are different features.
+
+| Option | What stays on the phone | Interaction later | Proposed place in delivery |
+| --- | --- | --- | --- |
+| Remember the session | Provider-issued cookies in the WebView's persistent browser store | No credential entry while the provider accepts the session | Initial approach; test restart and provider “Angemeldet bleiben” behavior |
+| System password-manager/autofill | Credentials managed by the user's chosen OS/password manager | Autofill and possibly device unlock on re-login | Useful enhancement; availability and WebView matching require device tests; sync behavior belongs to the chosen manager |
+| Optional “Save login on this phone” | Explicitly supplied username/password in OS-protected app storage, separate from flight data | Refill login after device authentication as configured; provider may still require verification | Technically feasible, separate opt-in proposal; not implemented or approved by a feasibility question |
+
+For the initial approach, users enter credentials only into the provider's original page. MoFlight deliberately does not read those fields. If the provider's “Angemeldet bleiben” option is offered, users may choose it; its actual lifetime and native restart behavior must be measured. Cache settings alone do not establish persisted authentication.
+
+If app-owned password saving is later selected, add a clearly explained credential-entry flow; do not silently scrape a website password field. `expo-secure-store` supports encrypted device-local values: Android uses Keystore-protected storage and iOS uses Keychain. Configure iOS device-only access and exclude credentials from backups/device migration; optional biometric protection must be tested on real devices. Never put credentials in SQLite flight records, JSON backups, telemetry, Git or a MoFlight server. Credentials are still sent over HTTPS to Vereinsflieger for sign-in.
+
+SecureStore does not manage WebView cookies. Test cookie persistence, clearing and backup exclusion separately. iOS Keychain items can survive uninstall; explicitly clear saved secrets on disconnect/forget and define fresh-install handling rather than promising uninstall wipes them. “Forget saved login” removes optional stored credentials without erasing imported flights.
+
+The goal is **enter credentials once during normal use**, not “never sign in again.” Provider expiry/revocation, password changes, account switching, verification and device changes can require interaction. Saving a password does not bypass 2FA; no OTP or authenticator seed is stored. Start with foreground retrieval, not an unattended background-login loop.
+
+## Native proof required next
+
+The desktop-browser login and personal list were actually observed. The following are still open for both Android and iOS:
+
+- Original-page login, provider verification if available, identity/club verification and first bounded retrieval.
+- App close/force-stop/restart and device restart with a remembered session; measure expiry and the provider's stay-signed-in option.
+- Actual export/response/table mapping compared privately with a known reference, full requested coverage and repeated import.
+- Expired/revoked session, wrong password, challenge/2FA, canceled login and network interruption without history loss.
+- Disconnect/account switch and cookie clearing; browser/credential backup exclusion and optional autofill behavior.
+- Retrieved flights reopened and queried offline. Optional password storage adds real-device secure-storage/forget/biometric tests only if selected.
+
+A plausible architecture is not a passed phone test. [Investigation](../architecture/vereinsflieger-access-investigation.md), [ADR 0006](../adr/0006-vereinsflieger-connector-proposal.md) and [actual live evidence](../verification/2026-10-10-vereinsflieger-access.md) record the boundary.
+
+## Primary technical references
+
+Checked 2026-10-10; documentation support does not substitute for native runtime checks.
+
+- [Expo WebView, SDK 57](https://docs.expo.dev/versions/v57.0.0/sdk/webview/) and [React Native WebView reference](https://github.com/react-native-webview/react-native-webview/blob/master/docs/Reference.md): native embedded browser and configuration.
+- [Android CookieManager](https://developer.android.com/reference/android/webkit/CookieManager): cookie persistence/flush and removal. The provider determines whether a cookie remains valid.
+- [Expo SecureStore](https://docs.expo.dev/versions/latest/sdk/securestore/): OS-protected local values, device-only Keychain accessibility, backup configuration, biometric and uninstall behavior.

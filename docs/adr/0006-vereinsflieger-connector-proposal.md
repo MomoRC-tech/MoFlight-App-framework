@@ -1,7 +1,7 @@
 # ADR 0006: Phone-local Vereinsflieger connector feasibility
 
 - Date: 2026-10-10
-- Status: Proposed
+- Status: Browser-route priority confirmed by Manuel on 2026-10-10; implementation details proposed
 - Decision owner: Manuel Singer
 - Tracking issue: [#2](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/2)
 - Evidence: [investigation](../architecture/vereinsflieger-access-investigation.md), [live checks](../verification/2026-10-10-vereinsflieger-access.md)
@@ -16,21 +16,21 @@ A secure interactive browser login and the personal flight-list UI have been ver
 
 | Option | Benefit | Constraint |
 | --- | --- | --- |
-| Supported REST/partner integration | Stable documented contract; preferred if obtainable | Club/key scope, mobile-safe auth, member rights, shared quota and commercial arrangement unresolved |
+| Supported REST/partner integration | Might work in the future | Unavailable for this project; parked, not a current prerequisite |
 | Phone-local WebView plus export/structured response | Original provider login and session; fits local-first; no hosted browser required | Must verify download/response, terms, account identity and Android/iOS behavior |
 | Phone-local WebView plus strict table adapter | Personal list and column metadata observed | Fragile presentation contract; complete coverage/details/schema validation required |
 | Native HTTP web-login recreation | Efficient after a verified protocol | App handles credentials and duplicates provider authentication behavior; full trace missing |
 | Hosted browser/B4Takeoff intermediate | Could serve other access scenarios | Extra credential/session custody, operational dependency or subscription; unnecessary for initial slice |
 
-## Proposed decision
+## Confirmed direction and proposed implementation
 
 Prepare a bounded connector trial in the existing native lab using original-page WebView login and the same browser session. Investigate a regular machine-readable own-flight export first, then an observed structured read response, then a strict list/detail adapter. These are candidates, not proven data endpoints. Do not add a second application framework or require MoFlight cloud login.
 
-Keep the official REST API as the preferred supported contract if key/auth/usage conditions can be resolved. Obtain current documentation and clarify a multi-club application arrangement before concluding the browser path is the only possibility. A confidential AppKey stays off the phone; do not implicitly adopt a credential-relaying backend as a solution.
+Manuel explicitly selected browser-based access as the current direction and stated that the official API is unavailable and is not the preferred route. Keep REST/partner integration only as “might work in the future”; API PDF/key/partner work does not gate the current trial. Detailed WebView extraction and persistence implementation remains proposed.
 
 Users type credentials into the provider page. The implementation deliberately does not inspect password fields or enable an extraction bridge on login pages. Data extraction returns validated flight records and source context only. Session validity and source account/club are separate from MoFlight dataset/account selection. CSV/manual import remains an independent fallback.
 
-Manuel authorized investigation and offered login access; this is not recorded as binding approval of a production connector, third-party terms, vendor outreach or paid use. No connector dependency/code was introduced by this ADR.
+Manuel authorized investigation, offered login access and confirmed the browser-route priority. This does not approve an untested production connector or app-owned password capture. The [user journey](../product/vereinsflieger-connection-and-retrieval.md) distinguishes session reuse from optional device-local password storage; the latter would require explicit credential handling beyond the initial original-page login. No connector dependency/code was introduced by this ADR.
 
 ## Consequences
 
@@ -40,4 +40,4 @@ Export or table changes must cause a visible error while retaining earlier impor
 
 ## Validation
 
-Completed browser/public checks are recorded in the evidence report; they do not pass native R12. The next native slice must demonstrate original-page login, source identity/club, bounded retrieval and preview, field/reference comparison, repeat import without duplicates, expired-session handling, logout/account-switch separation and offline reuse. Verify 2FA if an authorized test account actually offers it. Run Android and iOS separately; record blocked devices and network observation limitations honestly.
+Completed browser/public checks are recorded in the evidence report; they do not pass native R12. The next native slice must demonstrate original-page login, source identity/club, bounded retrieval and summary, restart/session reuse, field/reference comparison, repeat import without duplicates, expired-session handling, logout/account-switch separation and offline reuse. Verify 2FA if an authorized test account actually offers it. Run Android and iOS separately; record blocked devices and network observation limitations honestly.

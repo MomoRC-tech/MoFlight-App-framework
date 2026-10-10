@@ -1,15 +1,14 @@
 # Own-flight access investigation
 
-Tracking [#2](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/2), with later broader information inventory in #10. Updated 2026-10-10. **Interactive browser login and the personal flight-list UI are now verified. An authenticated provider help page resolves club-key creation, the daily API limit and the general commercial-use restriction. Native app retrieval, the REST flight contract and distribution terms remain unverified; no transport has been accepted.**
+Tracking [#2](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/2), with later broader information inventory in #10. Updated 2026-10-10. **Interactive browser login and the personal flight-list UI are now verified. An authenticated provider help page resolves club-key creation, the daily API limit and the general commercial-use restriction. Native app retrieval, the REST flight contract and distribution terms remain unverified; Manuel has selected browser-based access as the current direction; native implementation details remain proposed.**
 
 ## Current recommendation — 2026-10-10
 
-Investigate two routes without making the user obtain an individual API key:
+Manuel clarified on 2026-10-10 that the official API is unavailable for this project and must remain only **“might work in the future.”** Browser-based access is the primary direction. API documentation, AppKeys and partner arrangements are not prerequisites for the current connector trial.
 
-1. **Preferred supported interface, if access conditions can be met:** the official REST API. Its authenticated help now says a club administrator creates the key. Determine whether MoFlight can obtain an application/partner arrangement covering independent clubs, ordinary members and eventual commercial distribution. Do not assume such an arrangement exists.
-2. **Recommended immediate native feasibility trial:** a phone-local WebView connector. Users sign into the original Vereinsflieger HTTPS page; MoFlight deliberately does not read, log or store password fields. Keep retrieval in that same WebView session initially. Prefer a verified machine-readable export or structured response; use a strict table adapter if these are unavailable. A browser-session export can avoid fragile table parsing while preserving the ordinary member login.
+Use a phone-local WebView in the existing Expo/React Native app. Users sign into the original Vereinsflieger HTTPS page. Reuse that browser session for own-flight retrieval: first investigate a verified machine-readable export, then an observed structured response, then a strict table/detail adapter. The initial trial deliberately does not inspect or store password fields.
 
-This is the proposal in [ADR 0006](../adr/0006-vereinsflieger-connector-proposal.md), not accepted production architecture. The [live investigation evidence](../verification/2026-10-10-vereinsflieger-access.md) separates actual browser observations from untested mobile behavior. The existing Expo/React Native choice remains in place; the earlier ZIP's Kotlin suggestion is historical.
+The [connection and retrieval user journey](../product/vereinsflieger-connection-and-retrieval.md) specifies first connection, repeat retrieval, expired sessions and local credential options. [ADR 0006](../adr/0006-vereinsflieger-connector-proposal.md) records the confirmed route priority separately from proposed implementation details. The [live investigation evidence](../verification/2026-10-10-vereinsflieger-access.md) remains unchanged: desktop-browser results do not prove native phone behavior. The earlier ZIP's Kotlin suggestion is historical.
 
 ### What the live account test established
 
@@ -30,7 +29,7 @@ The API key is therefore **club-created according to current provider help**, ra
 
 | Route | Login/session handling | Suitability for MoFlight |
 | --- | --- | --- |
-| Official REST API | Documented provider auth still needs to be read; club AppKey confirmed | Best candidate for a stable data contract. Club coordination, quota sharing, distributed-key handling and commercial arrangement must be resolved. Users need not be asked for personal keys unless current docs actually require them. |
+| Official REST API | Documented provider auth still needs to be read; club AppKey confirmed | Might work in the future only (Manuel, 2026-10-10). Not available for the current project and not a dependency of the browser trial. Reconsider only if access conditions change. |
 | Original-page WebView plus export | User enters credentials on provider page; browser handles its cookies and login JS | First native trial recommendation: no cloud server or application key needed for the browser path. Verify actual Excel/CSV format, fields, download handling and terms. CSV availability is not established by the help, which names Excel/PDF. |
 | Original-page WebView plus structured response | After login, use only a read operation observed during normal own-flight use, within the same session/origin | Potentially clean data with no cookie transfer. No flight JSON endpoint is proven. Hidden XHR does not make an API supported or stable. |
 | Original-page WebView plus table adapter | Parse the confirmed personal list/detail UI and return bounded typed data | Technically plausible fallback with visible evidence. Column/preset/layout changes and paging require strict validation and explicit failure; not a permanent vendor contract. |
@@ -41,9 +40,9 @@ The API key is therefore **club-created according to current provider help**, ra
 
 ### Concrete phone-local workflow proposal
 
-User selects a local MoFlight dataset → taps “Connect Vereinsflieger” → original HTTPS login opens with the provider identity visible → user completes login/2FA as offered → app verifies source account and club → user requests a small own-flight period → connector validates coverage and fields → preview → deterministic import into that dataset → cached flights remain usable offline. Expired authentication leads to login again; it must never become a successful empty import.
+User selects a local MoFlight dataset → taps “Connect Vereinsflieger” → original HTTPS login opens with the provider identity visible → user completes login/2FA as offered → app verifies source account and club → user requests a small own-flight period → connector validates coverage and fields → first-connection source confirmation and retrieval summary → deterministic import into that dataset → cached flights remain usable offline. Expired authentication leads to login again; it must never become a successful empty import.
 
-- Start with an explicit foreground “Retrieve flights” action. Reuse the session while valid; no promise of unattended/background refresh or permanent login.
+- Start with an explicit foreground “Retrieve flights” action. Reuse the session while valid; no promise of unattended/background refresh or permanent login. Session reuse and optional password saving are distinct; see the detailed user journey. Ordinary repeat retrieval needs no redundant approval of already resolved data.
 - Keep browser cookies in their browser store. HttpOnly prevents JS from reading cookie values, but the browser can still send them for same-origin requests. Do not copy cookies into React Native `fetch` or a native client until platform sharing, domain/path rules and logout have been separately proven.
 - Login pages have no extraction script or enabled data bridge. A bridge, if required, is scoped to the inspected own-flight page and accepts only a small validated import message; it cannot perform arbitrary HTTP, files, SQL or commands. Validate the actual document origin/path and navigation, not only a URL claimed in a message.
 - Parse URL scheme and exact host, including initial load, redirects and new windows; a starts-with string is insufficient. React Native WebView's Android navigation callback is not called on the first load, and early script injection is documented as unreliable on Android. Do not base success on a global fetch/XHR hook.
@@ -53,9 +52,9 @@ User selects a local MoFlight dataset → taps “Connect Vereinsflieger” → 
 - Stage a whole bounded retrieval before commit; partial/failed/changed-schema refresh preserves existing history. Missing rows in last-20/limited coverage never imply deletion. Account/club change cannot silently relabel or combine datasets.
 - Sessions and password-equivalent values never enter logbook backups, telemetry or Git. Confirm Android/iOS browser-store clearing and backup exclusion rather than claiming that secure storage automatically covers WebView data. No unverified private export feed URL is stored as a public link.
 
-### API follow-up to make the better route reviewable
+### Future-only API questions
 
-Obtain the current PDF/provider wrapper and, if needed, prepare a provider inquiry addressing:
+These questions are parked. Do not obtain API documentation or arrange keys/partner access as a gate for the current browser workflow. If Manuel later reopens this route, investigate:
 
 1. Read-only own flights for ordinary members, role fields, source IDs, date/time semantics, paging/history range and changed/deleted-flight behavior.
 2. Whether one registered MoFlight/partner integration can serve unrelated users/clubs, or every club must explicitly enable it; documented key scopes and rate-limit scope.
