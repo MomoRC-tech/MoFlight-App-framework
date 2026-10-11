@@ -11,14 +11,14 @@ export interface ExportPage {
 }
 export interface ExportRun {
   request: ExportRequest; phase: ExportPhase; preset: string | null; accountLabel: string | null;
-  pages: ExportPage[]; steps: number; seenFlightIds: Set<string>; sizeChars: number;
+  pages: ExportPage[]; steps: number; commands: number; seenFlightIds: Set<string>; sizeChars: number;
 }
 function validDate(value: string): boolean {
   return /^\d{4}-\d{2}-\d{2}$/.test(value) && Number.isFinite(Date.parse(value)) && new Date(value).toISOString().slice(0, 10) === value;
 }
 export function beginExport(request: ExportRequest): ExportRun {
   if (!validDate(request.from) || !validDate(request.to) || request.from > request.to) throw new Error('Use valid inclusive dates in YYYY-MM-DD order.');
-  return { request: { ...request }, phase: 'preset', preset: null, accountLabel: null, pages: [], steps: 0, seenFlightIds: new Set(), sizeChars: 0 };
+  return { request: { ...request }, phase: 'preset', preset: null, accountLabel: null, pages: [], steps: 0, commands: 0, seenFlightIds: new Set(), sizeChars: 0 };
 }
 export function calendarYearRequest(now = new Date()): ExportRequest {
   const year = now.getFullYear(); return { from: `${year}-01-01`, to: `${year}-12-31` };

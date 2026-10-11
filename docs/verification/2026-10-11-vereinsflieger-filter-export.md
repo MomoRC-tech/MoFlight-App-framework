@@ -16,8 +16,9 @@ Date: 2026-10-11, Europe/Berlin. Baseline reviewed: `a91a3bc`, integrated with m
 
 - Strict TypeScript passed.
 - Full mobile/contract suite: 80 tests passed, including ten new export tests covering 48-column multipage assembly/costs, explicit dates, verified empty/error/session distinctions, gaps/repeats/count/schema/account/preset changes, foreign/extra-parameter page links, malformed/oversized rows, phase tokens/caps, standalone DOM reader/row-ID fallback, normal column/filter/preset/date actions and login/foreign/iframe exclusion. Fixtures are synthetic objects/data, not real provider HTML or flights.
-- Android/iOS Hermes bundle export passed (module counts recorded in local bundle output). Bundling is not native runtime execution.
+- Android/iOS Hermes bundle export passed (691 Android / 693 iOS modules). Bundling is not native runtime execution.
 - Integration preserves request ownership, cancellation, stale-generation/login diagnostics and legacy bounded/dated-window labs. Export persistence revalidates scope/rows, permits bounded larger snapshots, rejects conflicting capture identities and retains legacy validation. A synthetic 1,000-row snapshot above the former 200 KB ceiling reopens without loss.
+- Python reference/build-policy suite: 39 passed; synthetic fixture parity passed.
 - Documentation destinations and Git whitespace checked before publication.
 
 ## Limits and next native trial

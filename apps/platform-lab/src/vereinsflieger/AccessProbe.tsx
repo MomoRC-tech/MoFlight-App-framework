@@ -98,6 +98,7 @@ export function AccessProbe({ close }: { close: () => void }) {
   function extract() {
     const state = retrieval.current.state, active = run.current;
     if (state.phase !== 'loading' || !active || reading.current || !flightUrl(currentUrl.current)) return;
+    if (++active.commands > 4100) { finish('Export navigation limit reached. Narrow the period; previous captures preserved.', state.nonce); return; }
     reading.current = true; command.current = Crypto.randomUUID(); phase.current.injections++;
     armTimeout(state.nonce);
     setStatus(`Verifying export: ${active.phase}; ${active.pages.length} pages read.`);
