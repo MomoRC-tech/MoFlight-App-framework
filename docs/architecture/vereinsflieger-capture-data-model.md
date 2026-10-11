@@ -48,7 +48,7 @@ All source fields are optional observations; their presence is not a legal compl
 
 | Field | How it is stored/used |
 | --- | --- |
-| Registration | Original catalogue `Lfz.` value and a conservative comparison value; match in the relevant club scope. Do not infer category from its prefix. |
+| Registration | Original catalogue `Lfz.` value and a conservative comparison value; match in the relevant club scope. A valid German registration mark establishes its registration category under [LuftVZO Anlage 1](https://www.gesetze-im-internet.de/luftvzo/anlage_1.html), verified 2026-10-11. Store this evidence separately from catalogue classification: D plus digits = glider, D-K = motor glider, D-E = single-engine aeroplane up to 2,000 kg, D-M = motorized air-sports equipment, D-H = rotorcraft. It does not establish TMG, piston SEP, pilot licensing context or book membership. |
 | Model | Original `Musterbezeichnung`. A later standardized model is a separate derived value with mapping evidence; original text is retained. |
 | Type | Original `Luftfahrzeugart`, including the provider's glider/TMG/powered/UL distinctions where exposed. A later normalized taxonomy must distinguish categories and subtypes. |
 | Provider aircraft reference | Candidate `apid` if exposed; stability and flight join semantics remain unverified. |
