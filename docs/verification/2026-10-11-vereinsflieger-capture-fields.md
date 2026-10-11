@@ -33,3 +33,15 @@ Windows local checks on the working tree containing this change:
 No new APK compilation, Android/iOS execution or native storage/restart test is claimed. Desktop repeated reads do not exercise the native bridge. Complete history/paging, stable account/club binding, export bytes, aircraft joins and actual UL/powered-flight mappings remain open. Corrected-duration, overnight and multi-landing behavior above uses synthetic evidence where covered; it is not a newly observed live cross-class test.
 
 Next slice: establish a bounded explicit period/participation contract, page completion and scoped identity; then verify optional-field/detail/catalogue enrichment without changing saved user preferences. Show the concrete mapping and multi-book identity/migration proof before canonical live import. Output formats and final visual polish remain later work.
+
+## Flight detail comparison — subsequent investigation
+
+Manuel explicitly suggested scraping richer per-flight information, including costs. Two own-flight details were opened through observed links in the current personal list. Original recent-20/Pilot view was restored afterward; no flight or saved configuration was edited. Only non-personal structural findings are recorded.
+
+- Both views exposed `Eintrag`, `Erfasst`, `Datenquelle`, `Geändert`, `Verein`, `Kommentar`; flight-section labels included `CallSign`, `Pilot`, `Flugart`, `Flugmodus`, `Startart`, places, landings, date, `Startzeit`, `Landezeit`, reported `Flugzeit` and `Winde`.
+- Conditional rows differed: one had `Fluggenehmigung von`; the other had `Begleiter / FI`. Missing detail rows must not be interpreted as verified zero/absence of a role.
+- Both inspected details lacked dedicated PIC, model, aircraft-class and off/on-block rows. Details therefore enrich the list but do not replace all its optional fields or the aircraft catalogue.
+- The billing section exposed `Abrechnungsart`, `Abzurechnende Personen`, `Abgerechnet`, charge rows with descriptions/EUR amounts and `Summe`. These are financial observations, not flight-credit evidence. Actual amounts, party names and charge descriptions are not retained in this report. Personal expense attribution, credits, payment semantics and revision rules remain unverified.
+- Detail navigation showed `1/20` and `3/20`, corresponding to the list selection. The navigator is evidence of selection-scoped detail traversal, not discovery of all historical flights.
+
+Recommendation: [discover list references and enrich each from its detail](../architecture/vereinsflieger-import-contract.md#list-discovery-plus-per-flight-detail-enrichment--2026-10-11-proposal), preserving field-level provenance and independent list/detail completeness. This reduces dependence on user column configuration while retaining explicit date/participation/paging coverage. No bulk scrape, export-byte inspection, detail reader or native run was performed in this comparison. The earlier billing exclusion describes the mandatory capture slice; the user's subsequent cost interest is now retained as an optional separate proposal.
