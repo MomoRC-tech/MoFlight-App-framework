@@ -211,6 +211,8 @@ Separate environments, private files, short-lived download links and secure toke
 
 CI follows direct-main commits: type/lint checks, focused domain/protocol tests, real SQL/RLS and SQLite/sync tests where available. Native Android/iOS E2E and structural/visual export checks follow relevant implementation. App rollback does not reverse database migration.
 
+CI maintenance (2026-10-11, [#6](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/6)): the workflow uses Node 24 action runtimes via checkout/setup-node/setup-python v7, setup-java v6, upload-artifact v7 and download-artifact v8; android-emulator-runner v2 also declares Node 24. These versions address [GitHub's Node 20 removal](https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/). Application tooling remains Node 24.19.0, Python 3.12 and Java 17. Default zipped artifacts and existing APK names/paths are preserved. Multiple main pushes can overlap: APK reuse requires an already uploaded artifact with matching app inputs; an in-progress compilation cannot be reused. Recent successful full runs took roughly 22–24 minutes. Existing run annotations retain their original action versions; updated runtime behavior requires a new run. Local Windows validation: actionlint 1.7.12 (shellcheck disabled) and git diff --check passed; each referenced action's published action.yml was checked for node24. Hosted execution is tracked separately in #6.
+
 Per test record commit, date, environment/device, synthetic inputs, command, expected/actual result, failures, latency/cost and limitations. platform-lab reports not tested, blocked, passed or failed with evidence. Full acceptance is in #8.
 
 ## Cost and effort status

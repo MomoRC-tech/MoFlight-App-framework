@@ -10,11 +10,11 @@ jobs:
   windows-contracts:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: '24.19.0'
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
       - run: npm install --global pnpm@11.25.0
@@ -27,8 +27,8 @@ jobs:
   host-sqlite:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
       - run: python -m unittest discover -s tests -v
@@ -37,11 +37,11 @@ jobs:
   mobile-contracts:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: '24.19.0'
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
       - run: npm install --global pnpm@11.25.0
@@ -62,10 +62,10 @@ jobs:
       run-id: ${{ steps.plan.outputs.run_id }}
       source-commit: ${{ steps.plan.outputs.source_commit }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
       - id: plan
@@ -78,15 +78,15 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: '24.19.0'
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: '17'
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
       - run: npm install --global pnpm@11.25.0
@@ -98,7 +98,7 @@ jobs:
         working-directory: apps/platform-lab/android
       - name: Check embedded JavaScript and device architectures
         run: python scripts/android_smoke.py --check-apk apps/platform-lab/android/app/build/outputs/apk/release/app-release.apk
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: moflight-synthetic-android-offline
           path: apps/platform-lab/android/app/build/outputs/apk/release/app-release.apk
@@ -109,12 +109,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
       - name: Download matching compiled APK on a clean runner
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: moflight-synthetic-android-offline
           path: local-data/android-apk
@@ -137,7 +137,7 @@ jobs:
           script: python scripts/android_smoke.py --apk local-data/android-apk/app-release.apk --output local-data/android-smoke
       - name: Upload actual emulator evidence, including failures
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: moflight-android-emulator-evidence
           path: local-data/android-smoke/
