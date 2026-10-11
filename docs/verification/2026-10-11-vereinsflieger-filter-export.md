@@ -23,6 +23,8 @@ Date: 2026-10-11, Europe/Berlin. Baseline reviewed: `a91a3bc`, integrated with m
 
 ## Limits and next native trial
 
+Later continuation: [provider-view preservation evidence](2026-10-11-vereinsflieger-view-preservation.md) records the implemented named-backup/reset/recovery flow, new desktop checks, final-source APK compilation and separate acceptance limits. The paragraph below retains this report's original filter-only validation boundary.
+
 No new APK, emulator/phone/iOS execution or native restart/storage test is claimed for this workflow. Prior default-list native evidence remains historical. Desktop inspection did not execute the shipped injected driver or measure end-to-end latency. No export bytes were downloaded. Missing-preset creation, restrictive-filter clearing and actual expiry need live/native validation; synthetic tests do not replace these.
 
 Next device trial: original-provider login; narrow nonempty explicit period and private reference comparison; multipage repeat; verified empty period; force-stop/offline reopening; cancel/network/expiry with prior capture retained. Confirm preset/page-size behavior. Then validate powered/TMG values, monetary semantics, stable source identity/time basis and canonical multiple-book import. The new snapshot claims only complete requested-list coverage, not lifetime history, verified identity or legal totals. Personal data, screenshot, costs and signed URLs are excluded from Git.

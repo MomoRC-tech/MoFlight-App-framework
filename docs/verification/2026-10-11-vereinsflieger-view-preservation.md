@@ -20,6 +20,16 @@ Android/iOS Hermes export passed (693 modules each) before the final load-start 
 
 Earlier checkpoints [e206795](https://github.com/MomoRC-tech/MoFlight-App-framework/actions/runs/38153542242) and [e46d79b](https://github.com/MomoRC-tech/MoFlight-App-framework/actions/runs/38153657675) were rechecked: both completed successfully. They predate preservation and cannot accept this change.
 
+## Final committed-source build checkpoint
+
+Implementation source: `d179d6bc7402daf4048fd16bdd33b8863690b846`. Local helper completed at 19:03 Europe/Berlin with JDK 17.0.20.1, installed Windows Android SDK and clean isolated `C:\Users\Momo\mf-export-build` checkout; caches retained and native generation unchanged. Release build: 93.40 seconds overall / 92.59 seconds Gradle. APK: `C:\Users\Momo\mf-export-build\apps\platform-lab\android\app\build\outputs\apk\release\app-release.apk`, 47,138,667 bytes, SHA256 `1ac5d605eaba0fd587c4ead363689e59f389fca9282dd4d286e2e62c722515f7`; embedded JavaScript and arm64-v8a/x86_64 confirmed. No emulator reset/install/provider-session manipulation occurred. The earlier `6de2723` build is superseded for compilation only.
+
+Final-source Android/iOS Hermes exports were repeated after the ordering guard and passed (693 Android / 695 iOS modules). This still does not establish either platform's live runtime behavior.
+
+[Fast CI 38157941214](https://github.com/MomoRC-tech/MoFlight-App-framework/actions/runs/38157941214) passed for that exact source. Fresh manual [Android checkpoint 38157941293](https://github.com/MomoRC-tech/MoFlight-App-framework/actions/runs/38157941293) was dispatched and is in progress at this documentation checkpoint; its plan job passed and Android job is running. Do not infer native/live preservation acceptance from either compilation or the synthetic harness. Native CUA APIs are disabled in this session, so actual provider WebView interaction was not tested. No iOS/phone execution is claimed.
+
+Desktop-created `MoFlight App user view backup` has no ownership marker in a fresh native installation. The native collision guard will therefore stop rather than adopt/overwrite that configuration. Resolving such a collision remains an explicit user/provider action; no automatic deletion or name-only adoption is implemented.
+
 ## Remaining acceptance and limits
 
 Provider account identity remains display-context-only. Different observed labels stop restoration; identical labels are not proof of the same stable account. Ownership metadata is local and cannot prove that a user has not deleted/recreated a same-named provider configuration. No production account-isolation guarantee is claimed. Relative scope comparison uses provider labels, not stale hidden date defaults; date-relative result rows naturally change over time. Former preset label is not restored by replaying an older saved definition.
