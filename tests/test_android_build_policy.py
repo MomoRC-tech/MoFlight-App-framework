@@ -17,6 +17,27 @@ from scripts.android_smoke import Smoke
 ROOT = Path(__file__).resolve().parents[1]
 
 
+class EmulatorRunnerScriptTests(unittest.TestCase):
+    def test_each_runner_script_line_is_a_complete_shell_command(self):
+        # android-emulator-runner executes each nonempty line in a separate sh.
+        # A multiline if/then passes whole-script syntax but fails this contract.
+        shell = shutil.which('sh') if os.name != 'nt' else None
+        if not shell and os.name == 'nt' and shutil.which('git'):
+            candidate = Path(shutil.which('git')).parents[1] / 'bin/bash.exe'
+            if candidate.exists():
+                shell = str(candidate)
+        if not shell:
+            self.skipTest('POSIX shell unavailable')
+        workflow = (ROOT / '.github/workflows/android-checkpoint.yml').read_text(encoding='utf-8')
+        block = workflow.split('          script: |\n', 1)[1].split('      - name:', 1)[0]
+        commands = [line.strip() for line in block.splitlines() if line.strip()]
+        self.assertGreaterEqual(len(commands), 2)
+        for command in commands:
+            with self.subTest(command=command):
+                result = subprocess.run([shell, '-n', '-c', command], capture_output=True, text=True, timeout=10)
+                self.assertEqual(result.returncode, 0, result.stderr)
+
+
 class TriggerTests(unittest.TestCase):
     def test_checkpoint_scope(self):
         workflow = (ROOT / '.github/workflows/android-checkpoint.yml').read_text()
