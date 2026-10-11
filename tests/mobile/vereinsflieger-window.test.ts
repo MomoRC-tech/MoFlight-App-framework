@@ -10,7 +10,7 @@ import {CAPTURE_SCHEMA} from '../../apps/platform-lab/src/vereinsflieger/capture
 import {RUN_SCHEMA} from '../../apps/platform-lab/src/vereinsflieger/capture-run.ts';
 import type {ObservedContext} from '../../apps/platform-lab/src/vereinsflieger/context.ts';
 import {appendWindow,createWindow,dateKey,decodeWindow,latestWindow,persistWindow,resumeWindow,validateWindow,validateWindowPage,windowProgress,windowScript,WINDOW_SCHEMA,type WindowPage} from '../../apps/platform-lab/src/vereinsflieger/window.ts';
-import {WINDOW_SELECTION_SOURCE,validateSelection,submitWindowScript} from '../../apps/platform-lab/src/vereinsflieger/window-selection.ts';
+import {WINDOW_SELECTION_SOURCE,validateSelection,submitBatchScript,submitWindowScript} from '../../apps/platform-lab/src/vereinsflieger/window-selection.ts';
 const at='2026-10-11T10:00:00.000Z', later='2026-10-11T10:01:00.000Z', nonce='synthetic-window';
 const context:ObservedContext={accountNumber:'12345',clubLabel:'Synthetic club',clubIdentity:'display-label-only',verification:'observed-profile-number'};
 const scope={from:'2026-01-01',through:'2026-12-31',participation:'pilot-or-companion' as const};
@@ -112,4 +112,39 @@ test('automatic dates use the original form submit control without reading crede
   runInNewContext(submitWindowScript(scope,target,nonce),{window,document,location:new URL(FLIGHT_URL),URL,Event});
   assert.equal(clicks,1);assert.deepEqual(events,['change','input','change','input','change']);assert.equal(messages.length,0);
   runInNewContext(submitWindowScript(scope,FLIGHT_URL+'?_params=changed',nonce),{window,document,location:new URL(FLIGHT_URL),URL,Event});assert.equal(clicks,1);assert.equal(JSON.parse(messages[0]!).kind,'vf-window-submit-error');
+});
+
+test('optional small batches use only the original same-origin configuration form and apply control',()=>{
+  const target=FLIGHT_URL+'?_params=synthetic-configuration',events:string[]=[],messages:string[]=[];let clicks=0;
+  const window:any={ReactNativeWebView:{postMessage:(s:string)=>messages.push(s)}};window.top=window;
+  const size={value:'200',options:[{value:'5'},{value:'200'}],closest:()=>form,dispatchEvent:(e:{type:string})=>events.push(e.type)};
+  const otherPreference={value:'unchanged'};
+  const button={value:'save',type:'submit',textContent:'Anwenden',click:()=>{clicks++;assert.equal(size.value,'5');assert.equal(otherPreference.value,'unchanged');}};
+  const form={method:'post',getAttribute:()=>target,querySelectorAll:(s:string)=>{assert.equal(s,'button[value="save"]');return [button];}};
+  const document={readyState:'complete',querySelectorAll:(s:string)=>{
+    if(s==='#globalfilter2')return [{textContent:'Pilot oder Begleiter'}];
+    if(s==='select[name="frm_rowsperpage"]')return [size];
+    throw new Error('Unexpected private field read: '+s);
+  }};
+  const env={window,document,location:new URL(FLIGHT_URL),URL,Event:class {constructor(public type:string){}}};
+  const result=runInNewContext(`(${WINDOW_SELECTION_SOURCE})(5)`,env);
+  assert.deepEqual(validateSelection(result,FLIGHT_URL),{action:'batch-size',target});
+  runInNewContext(submitBatchScript(5,target,nonce),env);assert.equal(clicks,1);assert.deepEqual(events,['change']);assert.equal(messages.length,0);
+  runInNewContext(submitBatchScript(5,FLIGHT_URL+'?_params=changed',nonce),env);assert.equal(clicks,1);assert.equal(JSON.parse(messages[0]!).kind,'vf-window-submit-error');
+  form.method='get';runInNewContext(submitBatchScript(5,target,nonce),env);assert.equal(clicks,1);
+  assert.throws(()=>submitBatchScript(5,'https://evil.test/member/profile/flightlog.php',nonce));
+  assert.throws(()=>submitBatchScript(100 as 5,target,nonce));
+});
+
+test('ambiguous or missing original configuration controls fail before changing page size',()=>{
+  const window:any={};window.top=window;
+  const button={type:'submit',textContent:'Anwenden'};
+  const size={value:'200',options:[{value:'5'}],closest:()=>form};
+  let buttons=[button];const form={method:'post',querySelectorAll:()=>buttons};
+  const document={readyState:'complete',querySelectorAll:(s:string)=>s==='#globalfilter2'?[{textContent:'Pilot oder Begleiter'}]:[size]};
+  const read=()=>runInNewContext(`(${WINDOW_SELECTION_SOURCE})(5)`,{window,document,location:new URL(FLIGHT_URL),URL});
+  buttons=[button,button];assert.equal(read().error,'unsupported-controls');
+  buttons=[button];size.options=[];assert.equal(read().error,'unsupported-controls');
+  size.options=[{value:'5'}];form.method='get';assert.equal(read().error,'unsupported-controls');
+  assert.equal(size.value,'200');
 });
