@@ -49,6 +49,8 @@ Define identity mapping, transactions, conflict behavior and rollback before mig
 
 ## Writing-template and AI boundaries
 
+[ADR 0008](../adr/0008-logbook-ai-and-deterministic-boundary.md), accepted for boundaries/sequencing on 2026-10-11, specifies evidence-first capture and bounded AI proposals. Conventional code owns provider parsing, validated identity/matching, exact calculations and writing snapshots; AI can transcribe, interpret ambiguous text, propose matches and explain. Raw photo observations and provider facts stay separate. Whole-history LLM processing is an optional benchmark rather than the default pipeline.
+
 Local persistence does not imply direct paid AI requests from the app or putting provider keys in a phone. AI calls remain behind an authenticated, budgeted server boundary when approved. The first local slice uses prepared observations; actual handwriting recognition is an independent risk trial.
 
 The initial output is a user-friendly in-app writing template, not necessarily a file. Persist one resolved snapshot and show exactly what belongs in each paper page/row/field, with existing context distinct from new writing. Verify readability and offline reopening on the device under the [presentation contract](../product/writing-template-presentation.md); showing the template never marks entries as copied.
@@ -71,3 +73,9 @@ Checked 2026-10-08. Expo is approved for the initial lab. These documented capab
 ## Reviewed next sequence — 2026-10-10
 
 Proceed with #10 findings and unresolved export/roster checks, then review ADR 0007 and its bounded proof before enabling #2 canonical live imports. Finish one selected-book retrieval/review/writing/copy/backup journey before broad statistics, training, weather or tutor implementation. Early cloud/iOS risk checks remain independent. The present app is a development lab; final visual design follows functional validation, while book selection, confirmations and readability are validated throughout. No proposed ADR is accepted by this sequencing update.
+
+## Logbook AI scheduling decision — 2026-10-11
+
+Keep the current capture-first priority: verify relevant list/detail fields, source identity, missing states and coverage under #2; review/prove the #11 multi-book boundary before canonical import. Once the captured-field contract is stable, prepare synthetic photo/source cases and frozen expected results under #7 alongside canonical-import/reconciliation work. This preparation needs no API calls and can continue despite blocked live/cloud access.
+
+Before completing the real photo-to-writing journey, perform the bounded handwriting/targeted-interpretation evaluation in ADR 0008. Prerequisites are permitted inputs, an explicit API budget and an authenticated validated server gateway; full cloud sync and visual polish are not prerequisites. Compare optional whole-history processing within that budget, measure omissions/matches/field errors/corrections/cost and integrate only validated proposals. Paid execution remains unapproved. Broader conversational history/query features come after the first complete selected-book workflow; optional interpretation never replaces exact local queries. ADR 0007 and production schemas remain proposed.

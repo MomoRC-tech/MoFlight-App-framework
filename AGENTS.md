@@ -23,6 +23,7 @@
 - One pilot may own multiple logbooks. Keep account identity, book identity and versioned format distinct; scope paper progress, totals, photos, decisions and writing snapshots to the book. Do not hard-code gliding layout rules into shared retrieval/account/persistence services. ADR 0007 is proposed; prove multi-book isolation and format extension before production schema expansion.
 - Scope local databases/files/queues per account; preserve and surface pending changes at logout/switch.
 - AI transcribes/explains; deterministic code computes flight minutes, roles and totals. Unreadable values remain unknown until confirmed.
+- Follow accepted ADR 0008: preserve raw provider/photo evidence; AI interpretation and match proposals remain validated suggestions, with task-relevant context. Prepare synthetic evaluation after the capture contract stabilizes; run budget-approved handwriting evaluation before completing the real photo-to-writing journey. Whole-history LLM analysis is an optional benchmark, not the default importer or calculation engine.
 - Read current plugin/skill code before reusing export logic; preserve the existing plugin.
 
 ## Verification

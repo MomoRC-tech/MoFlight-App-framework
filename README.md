@@ -166,6 +166,8 @@ Persistent ignored/overridden findings and deterministic aircraft/person queries
 
 ## AI, RAG and logbook behavior
 
+[ADR 0008: Evidence-first logbook and bounded AI interpretation](docs/adr/0008-logbook-ai-and-deterministic-boundary.md) records Manuel's accepted responsibility boundary and sequence (2026-10-11). Capture and preserve relevant provider data with explicit coverage; use AI for handwriting, ambiguous text, candidate-match proposals and explanations. Validate proposals against evidence; conventional code owns identities, exact queries, calculations and writing snapshots. Whole-history LLM processing is an optional evaluation baseline, not the default importer. No model/provider or paid execution is approved by this decision.
+
 The shared AI gateway handles authentication, input/output validation, allowed tasks, context limits, timeouts, usage and atomic quota reservation. Tutor retrieval and photo prompts remain domain-specific. A tutor cannot silently change learning progress. Unknown provider timeout outcomes are reported rather than retried indefinitely; request idempotency does not guarantee exactly-once provider billing.
 
 RAG uses approved versioned sources, visibility-filtered retrieval and evidence-based answers. Source IDs must originate in the supplied context and citations must substantiate the answer. Demo content is five self-authored knowledge sections and ten synthetic quiz items; these are distinct from the evaluation set of at least 20 queries.
@@ -236,6 +238,8 @@ Sources, complete component coverage and current quotas are in the comparison. A
 PowerSync is optional and deferred from the recommended first trial: Free deactivates after a week idle, Pro starts at $49/month, and its listed source databases do not include D1/Convex. Our explicit-sync proposal retains all existing conflict, deletion and restart tests.
 
 ## Next action and unresolved decisions
+
+AI sequencing, accepted 2026-10-11: continue capture/detail/coverage work (#2) and the multi-book foundation proof (#11) first. Once the captured-field contract is stable, prepare synthetic AI evaluation cases alongside canonical-import/reconciliation work (#7). Run bounded handwriting and targeted-interpretation evaluation before completing the real photo-to-writing workflow, when permitted inputs, an authenticated gateway and a separately approved API budget are available; full cloud sync and visual polish need not precede it. Integrate only after evidence/validation gates pass. Conversational query polish and broad history narratives follow the first complete selected-book workflow. See [ADR 0008](docs/adr/0008-logbook-ai-and-deterministic-boundary.md); this does not accept ADR 0007 or authorize paid calls.
 
 Manuel authorized proceeding with the reviewed sequence on 2026-10-10: website/manual discovery (#10), then review of the multi-logbook foundation (#11), verified canonical import (#2), one complete local logbook workflow and later production visual design. This authorizes the investigation and documentation; it does not mark proposed ADRs accepted.
 
