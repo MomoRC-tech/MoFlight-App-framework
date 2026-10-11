@@ -84,8 +84,6 @@ $env:NODE_ENV = 'production'
 
 The helper changes only ignored generated `app/build.gradle`, placing the C++ cache under `%LOCALAPPDATA%/MoFlightBuild`. Re-run it after regenerating Android. The tested `mf-native` checkout initially had nested app dependencies from an earlier standard install: those were preserved in ignored local-data, and only its two `@moflight` workspace junctions were restored in app/node_modules. A fresh hoisted install should supply these links; check them if bundling cannot resolve workspace packages. This is a local build workaround, not a framework/SDK upgrade or a global Windows setting change. [Recorded build outcomes](../verification/2026-10-10-windows-desktop.md#local-release-compilation-investigation).
 
-## Live Vereinsflieger gate
-
 ## Repeatable local build command
 
 Run from a clean committed source checkout. The helper defaults to a separate `%USERPROFILE%\mf-build` checkout, validates its origin and refuses tracked/untracked changes before switching commits. It never resets or copies private source files. Use another `-BuildDirectory` if that location belongs to other work. Supply the installed JDK 17 explicitly; SDK defaults to Android Studio's standard location.
@@ -120,7 +118,7 @@ Fast platform checks run on every main push. **Android checkpoint** automaticall
 
 Only automatic runs on the same branch supersede each other. Manual runs have independent concurrency groups. A cancelled or untriggered Android run is not native acceptance. Private sessions, captures and credentials never enter hosted tests.
 
-## Live Vereinsflieger gate (continued)
+## Live Vereinsflieger gate
 
 Use the [native access-probe sequence](../../apps/platform-lab/README.md#vereinsflieger-access-poc). The user enters credentials directly into the provider interface. Verify native login, bounded retrieval and source comparison, local persistence after offline restart, repeat retrieval and actual session reuse/expiry separately. Inspect verified export/structured-response behavior before choosing a final transport; the current visible-table probe remains bounded and cannot prove full history or canonical import. No guessed endpoints. Optional device-local saved login was subsequently authorized for development and implemented with explicit app entry; see [saved-login evidence](../verification/2026-10-10-vereinsflieger-saved-login.md).
 

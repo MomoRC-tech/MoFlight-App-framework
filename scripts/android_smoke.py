@@ -479,6 +479,11 @@ class Smoke:
         self.report["status"] = status
         if error:
             self.report["error"] = str(error)
+        if self.expected_avd and not self.emulator:
+            # Rejected device selection must not collect a provider screenshot/log.
+            self.report["diagnostics"] = {"status": "not collected", "reason": "Device selection rejected"}
+            (self.output / "report.json").write_text(json.dumps(self.report, indent=2) + "\n", encoding="utf-8")
+            return
 
         def diagnostic(name, action):
             try:

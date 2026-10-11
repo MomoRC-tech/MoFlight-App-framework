@@ -90,8 +90,10 @@ class DeviceSelectionTests(unittest.TestCase):
                  patch.object(smoke, 'adb', return_value=SimpleNamespace(stdout='MoFlight_API37\nOK\n')) as adb:
                 with self.assertRaisesRegex(AssertionError, 'different emulator'):
                     smoke.execute(Path('unused.apk'))
+                smoke.finish('failed', AssertionError('Device selection rejected'))
                 shell.assert_called_once_with('getprop', 'ro.kernel.qemu')
                 adb.assert_called_once_with('emu', 'avd', 'name')
+                self.assertEqual(smoke.report['diagnostics']['status'], 'not collected')
 
     def test_explicit_serial_applies_to_all_adb_calls(self):
         with tempfile.TemporaryDirectory() as folder:
