@@ -209,6 +209,8 @@ CSV/import fixtures do not prove live Vereinsflieger access. No stable supported
 
 ## Security, testing and operating limits
 
+Android development now follows [accepted ADR 0009](docs/adr/0009-local-android-development-and-checkpoint-ci.md): local cached Windows builds and emulator testing are the primary feedback loop; [the local runbook](docs/development/windows-local-setup.md#repeatable-local-build-command) provides one build command and separate development/standalone modes. Fast GitHub checks run on every main push. The separate **Android checkpoint** workflow builds/tests automatically for native dependencies/configuration/build tooling and smoke-harness changes, or manually for a selected commit at feature completion/device handoff. Ordinary app logic/docs changes do not trigger full Android CI; a green fast workflow does not establish native acceptance. Automatic checkpoints supersede older automatic runs; manual checkpoints remain independent. [Rollout evidence](docs/verification/2026-10-11-local-android-workflow.md) records actual results and limits under #6.
+
 Never commit secrets, real flight exports, photos or personal databases. Use synthetic fixtures. Keep provider/service-role keys server-side; public project configuration alone cannot authorize private operations. Test API, sync, storage, jobs and local isolation individually, including forged references and owner changes.
 
 Separate environments, private files, short-lived download links and secure token storage are planned. Test actual token size/platform behavior, migrations and local encryption; do not assert encryption until verified. Source licensing and data processing across all chosen providers must be resolved before production.

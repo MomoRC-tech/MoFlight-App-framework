@@ -86,6 +86,42 @@ The helper changes only ignored generated `app/build.gradle`, placing the C++ ca
 
 ## Live Vereinsflieger gate
 
+## Repeatable local build command
+
+Run from a clean committed source checkout. The helper defaults to a separate `%USERPROFILE%\mf-build` checkout, validates its origin and refuses tracked/untracked changes before switching commits. It never resets or copies private source files. Use another `-BuildDirectory` if that location belongs to other work. Supply the installed JDK 17 explicitly; SDK defaults to Android Studio's standard location.
+
+```powershell
+$jdk = 'C:\Users\Momo\Documents\30_Coding\03_chatGPT work folder\dev-tools\jdk17\jdk-17.0.20.1+1'
+.\scripts\build-android-local.ps1 -JavaHome $jdk
+# Select an existing source commit; retain caches between builds.
+.\scripts\build-android-local.ps1 -JavaHome $jdk -SourceRef HEAD
+# Build/install a development client on a selected synthetic emulator.
+.\scripts\build-android-local.ps1 -JavaHome $jdk -Configuration Debug -InstallSerial emulator-5558
+.\scripts\build-android-local.ps1 -JavaHome $jdk -Configuration DevServer
+```
+
+The helper retains the hoisted install, generated native tree and Gradle/C++ caches. Native configuration is regenerated when committed package/lockfile/app config/plugin inputs change. SDK/Gradle compilation failures stop the command; successful builds write ignored `local-data/build-release.json` or `build-debug.json` with source SHA, APK checksum, configuration and measured durations. Release builds verify embedded JavaScript and both device architectures. Normal Debug builds need Metro; they cannot establish offline restart.
+
+For screen/logic iteration, edit in the dedicated build checkout while Metro runs, then commit those changes deliberately back to the authoritative repository before a standalone checkpoint. The helper refuses to overwrite dirty edits; do not run it to switch commits while editing. Keep versioned native configuration in Expo app config/plugins, because native files are generated. ADB reverse maps the emulator to Metro: `adb -s SERIAL reverse tcp:8081 tcp:8081`. Open the development client using its launcher or development URL. Rebuild Debug after native dependency/configuration changes.
+
+### Synthetic emulator isolation
+
+Create a dedicated AVD named exactly `MoFlight_Synthetic_API37` using the already installed API 37 x86_64 image. Keep `MoFlight_API37` for the provider-session trial. Start the synthetic AVD on an unused port, identify its serial with `adb devices`, and pass that serial explicitly:
+
+```powershell
+.\scripts\build-android-local.ps1 -JavaHome $jdk -SmokeSerial emulator-5558
+```
+
+The helper checks the AVD name before the smoke harness resets app data. The harness also refuses physical phones. Do not log into providers on the synthetic AVD. Evidence remains under the build checkout's ignored `local-data/android-smoke/`.
+
+### Hosted checkpoints
+
+Fast platform checks run on every main push. **Android checkpoint** automatically runs for dependency manifests/lockfile, app configuration/plugins, Android helpers/tests and checkpoint workflow changes. For ordinary app logic changes, run it manually at feature completion and before device handoff. In GitHub Actions select **Android checkpoint → Run workflow**; optionally supply a commit/ref and force fresh compilation. Omit the source ref to use the selected workflow ref. Its planner pins all jobs to the resolved source commit and records the compiled source separately when reusing an APK.
+
+Only automatic runs on the same branch supersede each other. Manual runs have independent concurrency groups. A cancelled or untriggered Android run is not native acceptance. Private sessions, captures and credentials never enter hosted tests.
+
+## Live Vereinsflieger gate (continued)
+
 Use the [native access-probe sequence](../../apps/platform-lab/README.md#vereinsflieger-access-poc). The user enters credentials directly into the provider interface. Verify native login, bounded retrieval and source comparison, local persistence after offline restart, repeat retrieval and actual session reuse/expiry separately. Inspect verified export/structured-response behavior before choosing a final transport; the current visible-table probe remains bounded and cannot prove full history or canonical import. No guessed endpoints. Optional device-local saved login was subsequently authorized for development and implemented with explicit app entry; see [saved-login evidence](../verification/2026-10-10-vereinsflieger-saved-login.md).
 
 Private captures, screenshots of personal flights, logs containing personal information, exports and databases stay outside Git. `local-data/` is ignored. Windows cannot establish iOS runtime acceptance.

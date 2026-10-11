@@ -18,6 +18,7 @@ def harness_only(path):
 
 
 def main():
+    checkout_commit = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
     repo = os.environ["GITHUB_REPOSITORY"]
     request = urllib.request.Request(
         f"https://api.github.com/repos/{repo}/actions/artifacts?per_page=30",
@@ -25,6 +26,8 @@ def main():
                  "Accept": "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28"})
     run_id = source_commit = ""
     try:
+        if os.environ.get("FORCE_FRESH", "").lower() == "true":
+            raise ValueError("Fresh compilation requested")
         with urllib.request.urlopen(request, timeout=30) as response:
             artifacts = json.load(response)["artifacts"]
         for artifact in artifacts:
@@ -44,6 +47,12 @@ def main():
         print(f"No verified reusable APK ({type(error).__name__}); compile current source.")
     with Path(os.environ["GITHUB_OUTPUT"]).open("a") as output:
         output.write(f"run_id={run_id}\nsource_commit={source_commit}\n")
+        output.write(f"checkout_commit={checkout_commit}\n")
+    if summary := os.environ.get("GITHUB_STEP_SUMMARY"):
+        with Path(summary).open("a") as output:
+            output.write(f"## Android checkpoint\nRequested source: `{checkout_commit}`\n\n")
+            output.write(f"Reuse APK from run {run_id}, compiled source `{source_commit}`.\n" if run_id
+                         else "Compile a new standalone APK.\n")
     print(f"Reuse compiled run {run_id}, source {source_commit}" if run_id else "Compile current source")
 
 

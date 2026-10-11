@@ -6,6 +6,7 @@ The release APK uses the same native SQLite adapter and buttons as the lab UI.
 import argparse
 import hashlib
 import json
+import os
 import re
 import subprocess
 import time
@@ -28,7 +29,7 @@ def check_apk(path):
 
 
 class Smoke:
-    def __init__(self, output):
+    def __init__(self, output, serial=None, expected_avd=None):
         self.output = output
         output.mkdir(parents=True, exist_ok=True)
         self.report = {"status": "running", "checks": [], "boundary":
@@ -37,10 +38,15 @@ class Smoke:
                        "No OCR, live retrieval, cloud Auth, physical phone or iOS."}
         self.screen = None
         self.emulator = False
+        self.serial = serial
+        self.expected_avd = expected_avd
+        self.report["source"] = {"validated_commit": os.environ.get("VALIDATED_SOURCE_COMMIT"),
+                                 "compiled_commit": os.environ.get("APK_SOURCE_COMMIT")}
 
     def adb(self, *args, check=True, binary=False):
         options = {} if binary else {"text": True, "encoding": "utf-8", "errors": "replace"}
-        return subprocess.run(["adb", *args], check=check, capture_output=True,
+        target = ["-s", self.serial] if self.serial else []
+        return subprocess.run(["adb", *target, *args], check=check, capture_output=True,
                               timeout=45, **options)
 
     def shell(self, *args, check=True):
@@ -261,6 +267,10 @@ class Smoke:
 
     def execute(self, apk):
         assert self.shell("getprop", "ro.kernel.qemu") == "1", "Refusing to reset a physical phone"
+        if self.expected_avd:
+            assert self.serial, "A named synthetic emulator requires an explicit serial"
+            actual_avd = self.adb("emu", "avd", "name").stdout.splitlines()[0].strip()
+            assert actual_avd == self.expected_avd, "Refusing to reset a different emulator"
         self.emulator = True
         self.report.update(check_apk(apk))
         self.report["device"] = {k: self.shell("getprop", k) for k in
@@ -500,11 +510,13 @@ def main():
     mode.add_argument("--check-apk", type=Path)
     mode.add_argument("--apk", type=Path)
     parser.add_argument("--output", type=Path, default=Path("local-data/android-smoke"))
+    parser.add_argument("--serial", help="Explicit adb device serial")
+    parser.add_argument("--expected-avd", help="Refuse any emulator with a different AVD name")
     args = parser.parse_args()
     if args.check_apk:
         print(json.dumps(check_apk(args.check_apk), indent=2))
         return
-    smoke = Smoke(args.output)
+    smoke = Smoke(args.output, args.serial, args.expected_avd)
     try:
         smoke.execute(args.apk)
     except Exception as error:

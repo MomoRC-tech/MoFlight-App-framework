@@ -1,4 +1,4 @@
-name: Synthetic platform lab
+name: Fast platform checks
 on:
   push:
     branches: [main]
@@ -24,6 +24,9 @@ jobs:
       - run: python scripts/mobile_fixtures.py --check
       - run: python -m unittest discover -s tests -v
       - run: git diff --check
+      - name: Android validation scope
+        shell: bash
+        run: echo 'Fast checks only. Android APK compilation/runtime acceptance is not run here; see the separate Android checkpoint workflow.' >> "$GITHUB_STEP_SUMMARY"
   host-sqlite:
     runs-on: ubuntu-latest
     steps:
@@ -56,90 +59,3 @@ jobs:
         env:
           EXPO_OFFLINE: '1'
       - run: git diff --check
-  android-plan:
-    runs-on: ubuntu-latest
-    outputs:
-      run-id: ${{ steps.plan.outputs.run_id }}
-      source-commit: ${{ steps.plan.outputs.source_commit }}
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-python@v7
-        with:
-          python-version: '3.12'
-      - id: plan
-        run: python scripts/android_build_plan.py
-        env:
-          GH_TOKEN: ${{ github.token }}
-  android-offline:
-    needs: android-plan
-    if: needs.android-plan.outputs.run-id == ''
-    runs-on: ubuntu-latest
-    timeout-minutes: 40
-    steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
-        with:
-          node-version: '24.19.0'
-      - uses: actions/setup-java@v6
-        with:
-          distribution: temurin
-          java-version: '17'
-      - uses: actions/setup-python@v7
-        with:
-          python-version: '3.12'
-      - run: npm install --global pnpm@11.25.0
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @moflight/platform-lab exec expo prebuild --no-install --platform android
-        env:
-          EXPO_OFFLINE: '1'
-      - run: ./gradlew :app:assembleRelease -PreactNativeArchitectures=arm64-v8a,x86_64 --no-daemon --max-workers=2
-        working-directory: apps/platform-lab/android
-      - name: Check embedded JavaScript and device architectures
-        run: python scripts/android_smoke.py --check-apk apps/platform-lab/android/app/build/outputs/apk/release/app-release.apk
-      - uses: actions/upload-artifact@v7
-        with:
-          name: moflight-synthetic-android-offline
-          path: apps/platform-lab/android/app/build/outputs/apk/release/app-release.apk
-          retention-days: 7
-  android-smoke:
-    needs: [android-plan, android-offline]
-    if: always() && needs.android-plan.result == 'success' && (needs.android-offline.result == 'success' || needs.android-offline.result == 'skipped')
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-python@v7
-        with:
-          python-version: '3.12'
-      - name: Download matching compiled APK on a clean runner
-        uses: actions/download-artifact@v8
-        with:
-          name: moflight-synthetic-android-offline
-          path: local-data/android-apk
-          run-id: ${{ needs.android-plan.outputs.run-id || github.run_id }}
-          github-token: ${{ github.token }}
-      - name: Check downloaded APK bundle and architectures
-        run: python scripts/android_smoke.py --check-apk local-data/android-apk/app-release.apk
-      - name: Enable emulator KVM
-        run: sudo chmod 666 /dev/kvm
-      - name: Run native offline persistence smoke test
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: 35
-          arch: x86_64
-          target: google_apis
-          profile: pixel_2
-          disable-animations: true
-          ram-size: 2048M
-          emulator-options: -no-window -gpu swiftshader -noaudio -no-boot-anim -no-snapshot -camera-back none -camera-front none -skin 480x800
-          script: python scripts/android_smoke.py --apk local-data/android-apk/app-release.apk --output local-data/android-smoke
-      - name: Upload actual emulator evidence, including failures
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: moflight-android-emulator-evidence
-          path: local-data/android-smoke/
-          if-no-files-found: warn
-          retention-days: 7
