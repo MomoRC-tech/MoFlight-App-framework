@@ -59,7 +59,7 @@ export function WindowCapture({close}:{close:()=>void}){
         if(page.scope.from!==expected.from||page.scope.through!==expected.through)throw new Error('Selected date window changed');
         pendingEvidence.current={page,at,resume:owner.kind==='resume'};request('profile',PROFILE_URL);
       }
-    }catch{if(alive.current&&pageEpoch===epoch.current)stop('Sign-in, page scope, provider controls or saved evidence could not be verified. Earlier committed pages are preserved.');}finally{receiving.current=false;}
+    }catch{if(alive.current&&pageEpoch===epoch.current)stop(`Sign-in, page scope, provider controls or saved evidence could not be verified during ${owner.kind}${owner.kind==='selection'&&batchAttempted.current?' after batch submission':''}. Earlier committed pages are preserved.`);}finally{receiving.current=false;}
   }
   function loaded(url:string){const owner=step.current;if(!owner)return;
     if((owner.formResult?!flightUrl(url):url!==owner.url)){stop('Provider opened another page. Sign in again, then resume the saved window.');return;}
