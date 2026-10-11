@@ -16,6 +16,9 @@ export interface WindowRun {
   sourceIdentity: 'unverified'; timeBasis: 'unknown'; updatedAt: string;
 }
 export const WINDOW_RECORD_LIMIT = 1000, WINDOW_PAGE_LIMIT = 100;
+// Positive flight-field allowlist: expanded user views may include billing.
+// Read their column labels/widths, but never access excluded body-cell text.
+export const WINDOW_CAPTURE_HEADERS=['','Datum','Lfz.-Muster','Lfz.','Pilot','PIC','Begleiter/FI','S-Art','S.-Art','Flugart','Startort','Landeort','Start','Landung','Flugzeit','Flugzeit in hh:mm','Blockzeit in Minuten','PIC-Time','Dual-Time','Km','Landungen','Verein','Bemerkung','Luftfahrzeugart','Blockzeit in hh:mm','Duplikat','FI-Time','M.-Ende','M.-Start','Motorzeit','Off-Block','On-Block','Schlepp-Lfz'];
 export function dateKey(text: string): string {
   const m = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(text);
   if (!m) throw new Error('Unsupported calendar date');
@@ -126,7 +129,7 @@ export async function latestWindow(db: Connection): Promise<WindowRun|null> {
 
 // DOM anchors observed on 2026-10-11. Preserve every displayed record, including
 // rows without links. A DOM row ID is evidence, not permission to visit a detail.
-export const WINDOW_READER_SOURCE=String.raw`() => {
+export const WINDOW_READER_SOURCE=String.raw`(allowed) => {
   const fail=()=>({error:'unsupported-window'});
   if(window.top!==window||document.readyState!=='complete'||location.protocol!=='https:'||!['vereinsflieger.de','www.vereinsflieger.de'].includes(location.hostname)||location.pathname!=='/member/profile/flightlog.php')return fail();
   const text=e=>(e?.innerText??'').replace(/\s+/g,' ').trim();
@@ -137,10 +140,12 @@ export const WINDOW_READER_SOURCE=String.raw`() => {
   const key=s=>s.slice(6)+'-'+s.slice(3,5)+'-'+s.slice(0,2);
   const table=tables[0], heads=Array.from(table.rows).filter(r=>Array.from(r.cells).some(c=>c.tagName==='TH'));
   if(heads.length!==1)return fail();
-  const headers=Array.from(heads[0].cells).map(c=>(c.textContent??'').replace(/\s+/g,' ').trim());
+  const sourceHeaders=Array.from(heads[0].cells).map(c=>(c.textContent??'').replace(/\s+/g,' ').trim());
+  if(sourceHeaders.length>64)return fail();
+  const indices=sourceHeaders.flatMap((h,i)=>allowed.includes(h)?[i]:[]),headers=indices.map(i=>sourceHeaders[i]);
   const body=Array.from(table.rows).filter(r=>r.classList.contains('selectable'));
-  if(body.length>200||body.some(r=>r.cells.length!==headers.length))return fail();
-  const rows=body.map(r=>{const links=Array.from(r.querySelectorAll('a[href]')).map(a=>new URL(a.getAttribute('href'),location.href)).filter(u=>u.origin===location.origin&&u.pathname==='/member/profile/viewflight.php'&&!u.hash&&Array.from(u.searchParams.keys()).length===1&&/^\d{1,20}$/.test(u.searchParams.get('flid')??''));return {domId:r.id,detailUrl:links.length===1?links[0].href:null,values:Array.from(r.cells).map(text),ambiguous:links.length>1};});
+  if(body.length>200||body.some(r=>r.cells.length!==sourceHeaders.length))return fail();
+  const rows=body.map(r=>{const links=Array.from(r.querySelectorAll('a[href]')).map(a=>new URL(a.getAttribute('href'),location.href)).filter(u=>u.origin===location.origin&&u.pathname==='/member/profile/viewflight.php'&&!u.hash&&Array.from(u.searchParams.keys()).length===1&&/^\d{1,20}$/.test(u.searchParams.get('flid')??''));return {domId:r.id,detailUrl:links.length===1?links[0].href:null,values:indices.map(i=>text(r.cells[i])),ambiguous:links.length>1};});
   if(rows.some(r=>r.ambiguous))return fail();
   const footer=text(footers[0]), pagers=document.querySelectorAll('.footer.f2 span.pagebrowser');
   let page=1,first=0,last=0,total=0,emptyEvidence=false,next=null;
@@ -151,4 +156,4 @@ export const WINDOW_READER_SOURCE=String.raw`() => {
   else return fail();
   return {page:{url:location.href,scope:{from:key(range[1]),through:key(range[2]),participation:'pilot-or-companion'},headers,rows:rows.map(({ambiguous,...r})=>r),page,first,last,total,next,emptyEvidence,filtersClear:true}};
 }`;
-export function windowScript(nonce: string) { return `window.ReactNativeWebView?.postMessage(JSON.stringify({kind:'vf-window-v1',nonce:${JSON.stringify(nonce)},url:location.href,...(${WINDOW_READER_SOURCE})()}));true;`; }
+export function windowScript(nonce: string) { return `window.ReactNativeWebView?.postMessage(JSON.stringify({kind:'vf-window-v1',nonce:${JSON.stringify(nonce)},url:location.href,...(${WINDOW_READER_SOURCE})(${JSON.stringify(WINDOW_CAPTURE_HEADERS)})}));true;`; }

@@ -51,10 +51,16 @@ test('origin-only Android bridge still requires exact current query, nonce and a
   assert.throws(()=>decodeWindow(message(first(),{error:'incomplete-page'}),FLIGHT_URL,FLIGHT_URL,nonce,at));
 });
 
-function reader(options:{empty?:boolean;ready?:string;role?:string;activeFilter?:boolean;rowCount?:number;footer?:string;iframe?:boolean;badLink?:boolean}={}){
+function reader(options:{empty?:boolean;ready?:string;role?:string;activeFilter?:boolean;rowCount?:number;footer?:string;iframe?:boolean;badLink?:boolean;expanded?:boolean}={}){
   const messages:string[]=[];const cell=(s:string,tag='TD')=>({innerText:s,textContent:s,tagName:tag});
   const heading={cells:headers.map(h=>cell(h,'TH')),classList:{contains:()=>false}};
   const body=(options.empty?[]:[row('11'),row('22',false)]).slice(0,options.rowCount??2).map(r=>({id:r.domId,cells:r.values.map(v=>cell(v)),classList:{contains:(s:string)=>s==='selectable'},querySelectorAll:()=>r.detailUrl?[{getAttribute:()=>options.badLink?'https://evil.test/member/profile/viewflight.php?flid=11':r.detailUrl}]:[]}));
+  if(options.expanded){
+    const excluded=['Eigene Kosten(Bezahlt)','Gast/Landegeb.',...Array.from({length:33},(_,i)=>'Unknown '+i)];
+    heading.cells.push(...excluded.map(h=>cell(h,'TH')));
+    const privateCell={get innerText():string{throw new Error('Excluded private body cell was read');},textContent:'',tagName:'TD'};
+    for(const r of body)r.cells.push(...excluded.map(()=>privateCell));
+  }
   const doc={readyState:options.ready??'complete',querySelectorAll:(s:string):unknown[]=>{
     if(s==='#tablelist_20')return [{rows:[heading,...body]}];
     if(s==='#globalfilter')return [cell('ab 01.01.2026 bis 31.12.2026')];
@@ -72,6 +78,10 @@ test('standalone DOM reader preserves linkless rows and explicitly declared empt
   const page=decodeWindow(reader(),FLIGHT_URL,FLIGHT_URL,nonce,at);assert.deepEqual(page,first());
   const empty=decodeWindow(reader({empty:true}),FLIGHT_URL,FLIGHT_URL,nonce,at);assert.equal(empty.total,0);assert.equal(empty.emptyEvidence,true);
   const foreign=decodeWindow(reader({badLink:true}),FLIGHT_URL,FLIGHT_URL,nonce,at);assert.equal(foreign.rows[0]!.detailUrl,null);
+});
+test('expanded list configurations exclude billing and unknown body cells before reading or crossing the native bridge',()=>{
+  const page=decodeWindow(reader({expanded:true}),FLIGHT_URL,FLIGHT_URL,nonce,at);
+  assert.deepEqual(page,first());assert.equal(page.headers.some(h=>h.includes('Kosten')),false);
 });
 test('partial rendering, filtered scopes, wrong participation and count disagreement cannot look empty/complete',()=>{
   for(const options of [{ready:'loading'},{role:'Pilot'},{activeFilter:true},{iframe:true},{rowCount:1},{empty:true,footer:'0 Datensätze'},{footer:'Es wurden keine passenden Daten gefunden!'}])assert.throws(()=>decodeWindow(reader(options),FLIGHT_URL,FLIGHT_URL,nonce,at));
