@@ -14,9 +14,20 @@ export const CONTEXT_READER_SOURCE = String.raw`() => {
   if (window.top !== window || location.protocol !== 'https:' || !['vereinsflieger.de','www.vereinsflieger.de'].includes(location.hostname) || location.pathname !== '/member/profile/viewprofile') return { error:'session-required' };
   const rows = Array.from(document.querySelectorAll('table.tablelist.alternative tr')).filter(r => r.cells[0]?.textContent.trim() === 'Benutzernummer');
   const clubs = Array.from(document.querySelectorAll('#topnavi a[href]')).filter(a => new URL(a.getAttribute('href'), location.href).pathname === '/member/community/main');
-  if (rows.length !== 1 || rows[0].cells.length !== 2 || clubs.length !== 1) return { error:'unsupported-context' };
+  if (rows.length !== 1 || rows[0].cells.length !== 2) return { error:'profile-number-unavailable' };
+  if (clubs.length !== 1 || !clubs[0].textContent.trim()) return { error:'profile-club-unavailable' };
   return { accountNumber:rows[0].cells[1].textContent.trim(), clubLabel:clubs[0].textContent.trim(), clubIdentity:'display-label-only', verification:'observed-profile-number' };
 }`;
+// Fixed messages only: never display a provider response or private profile value.
+export function contextFailure(value: unknown): string | null {
+  if (!value || typeof value !== 'object') return null;
+  switch ((value as {error?:unknown}).error) {
+    case 'session-required': return 'Provider sign-in is required. Close capture and use the saved-login control, then retry.';
+    case 'profile-number-unavailable': return 'The provider profile number could not be read from the supported layout. Saved pages are preserved.';
+    case 'profile-club-unavailable': return 'The provider club label could not be read from the supported layout. Saved pages are preserved.';
+    default: return null;
+  }
+}
 export function contextScript(nonce: string) { return `window.ReactNativeWebView?.postMessage(JSON.stringify({kind:'vf-context-v1',nonce:${JSON.stringify(nonce)},url:location.href,context:(${CONTEXT_READER_SOURCE})()}));true;`; }
 export function scopedBridge(source: string, document: string, expected: string) {
   if (!providerUrl(source) || !providerUrl(document) || !providerUrl(expected)) return false;

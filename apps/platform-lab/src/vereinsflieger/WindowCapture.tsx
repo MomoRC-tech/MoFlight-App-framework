@@ -2,7 +2,7 @@ import React,{useEffect,useRef,useState} from 'react';
 import {Pressable,Text,View,StyleSheet} from 'react-native';
 import {WebView,type WebViewMessageEvent} from 'react-native-webview';
 import * as Crypto from 'expo-crypto';
-import {PROFILE_URL,contextScript,scopedBridge,sameContext,validateContext,type ObservedContext} from './context';
+import {PROFILE_URL,contextScript,contextFailure,scopedBridge,sameContext,validateContext,type ObservedContext} from './context';
 import {FLIGHT_URL,LOGIN_URL,flightUrl,providerUrl} from './probe';
 import {createWindow,appendWindow,decodeWindow,resumeWindow,windowProgress,windowScript,type WindowRun,type WindowScope,type WindowPage} from './window';
 import {selectionScript,submitWindowScript,validateSelection} from './window-selection';
@@ -31,7 +31,7 @@ export function WindowCapture({close}:{close:()=>void}){
       if(!owner.formResult&&document!==owner.url)return;
       if(timer.current)clearTimeout(timer.current);
       if(owner.kind==='profile'){
-        if(message.kind!=='vf-context-v1')throw new Error('Wrong context response');const c=validateContext(message.context);
+        if(message.kind!=='vf-context-v1')throw new Error('Wrong context response');const failure=contextFailure(message.context);if(failure){stop(failure);return;}const c=validateContext(message.context);
         if(context.current&&!sameContext(context.current,c)||mode.current!=='new'&&run.current&&!sameContext(run.current.context,c))throw new Error('Provider context changed');
         context.current=c;
         if(pendingEvidence.current){

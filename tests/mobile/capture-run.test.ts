@@ -4,7 +4,7 @@ import {runInNewContext} from 'node:vm';
 import {mkdtemp,rm} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
-import {CONTEXT_READER_SOURCE,PROFILE_URL,scopedBridge,type ObservedContext} from '../../apps/platform-lab/src/vereinsflieger/context.ts';
+import {CONTEXT_READER_SOURCE,PROFILE_URL,contextFailure,scopedBridge,type ObservedContext} from '../../apps/platform-lab/src/vereinsflieger/context.ts';
 import {createRun,nextDetail,completeDetail,persistRun,latestRun,validateRun,RUN_SCHEMA} from '../../apps/platform-lab/src/vereinsflieger/capture-run.ts';
 import type {ProbeSnapshot} from '../../apps/platform-lab/src/vereinsflieger/probe.ts';
 import {nodeDriver} from './sqlite-driver.ts';
@@ -12,6 +12,13 @@ import {CAPTURE_SCHEMA,persistCapture,readLatestCapture} from '../../apps/platfo
 const context:ObservedContext={accountNumber:'12345',clubLabel:'Synthetic club',clubIdentity:'display-label-only',verification:'observed-profile-number'};
 const at='2026-10-11T10:00:00.000Z';
 const list:ProbeSnapshot={captureId:'synthetic-list',retrievedAt:at,headers:['Datum','Lfz.','Start','Landung','Flugzeit'],rows:['11','22','33'].map(sourceFlightId=>({sourceFlightId,values:['11.10.2026','D-1234','10:00','10:06','6']})),sourceIdentity:'unverified',coverage:'visible-personal-list-only',timeBasis:'unknown'};
+test('profile diagnostics accept fixed safe codes only and do not disclose provider response values',()=>{
+  for(const error of ['session-required','profile-number-unavailable','profile-club-unavailable'])assert.ok(contextFailure({error,privateField:'DO NOT DISPLAY'}));
+  assert.equal(contextFailure({error:'DO NOT DISPLAY'}),null);assert.equal(contextFailure('DO NOT DISPLAY'),null);
+  const window:any={};window.top=window;const location={protocol:'https:',hostname:'vereinsflieger.de',pathname:'/member/profile/viewprofile',href:PROFILE_URL};
+  const result=runInNewContext(`(${CONTEXT_READER_SOURCE})()`,{window,location,document:{querySelectorAll:()=>[]},URL});
+  assert.equal(result.error,'profile-number-unavailable');
+});
 function detail(id:string){return {url:`https://vereinsflieger.de/member/profile/viewflight.php?flid=${id}`,fields:[{section:'Allgemeine Daten',position:1,label:'Eintrag',raw:id},{section:'Flugdaten',position:3,label:'CallSign',raw:'D-1234'},{section:'Flugdaten',position:4,label:'Datum',raw:'11.10.2026'},{section:'Flugdaten',position:5,label:'Flugzeit',raw:'6'}]};}
 test('context reader only extracts observed user number and club label; bridge rejects wrong native document',()=>{
   const rows=[{cells:[{textContent:'Benutzernummer'},{textContent:'12345'}]},{cells:[{textContent:'IBAN'},{get textContent(){throw new Error('private field read');}}]}];
