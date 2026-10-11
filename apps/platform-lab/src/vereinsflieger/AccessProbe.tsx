@@ -9,6 +9,7 @@ import { readSavedLogin, writeSavedLogin, forgetSavedLogin } from './login-stora
 import { Retrieval } from './retrieval';
 import { CaptureRun } from './CaptureRun';
 import { WindowCapture } from './WindowCapture';
+import { scopedBridge } from './context';
 
 function Button({ title, press, disabled = false }: { title: string; press: () => void; disabled?: boolean }) {
   return <Pressable accessibilityRole="button" accessibilityLabel={title} disabled={disabled} onPress={press} style={[styles.button, disabled && { opacity: .45 }]}><Text style={styles.buttonText}>{title}</Text></Pressable>;
@@ -158,7 +159,7 @@ export function AccessProbe({ close }: { close: () => void }) {
         onLoadEnd={event => { if (generation === epoch.current) void loadedPage(event.nativeEvent.url); }}
         onMessage={event => {
           if (generation !== epoch.current) return;
-          if(loginAttempt.current==='submitted'&&loginPage(currentUrl.current)&&bridgeSource(event.nativeEvent.url,currentUrl.current)&&event.nativeEvent.data.length<2000){
+          if(loginAttempt.current==='submitted'&&loginPage(currentUrl.current)&&scopedBridge(event.nativeEvent.url,currentUrl.current,LOGIN_URL)&&event.nativeEvent.data.length<2000){
             try{const m=JSON.parse(event.nativeEvent.data);if(m.kind==='vf-login-result-v1'&&m.nonce===loginNonce.current&&m.url===LOGIN_URL&&['wrong-page','username-control','password-control','submit-control','form-binding','form-target'].includes(m.result)){endLogin(`Saved sign-in stopped: unsupported original ${m.result}. No credentials submitted. Use the original provider page.`);return;}}catch{/* Ignore unrelated bridge messages. */}
           }
           if(flightUrl(url))void receive(event);
