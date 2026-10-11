@@ -18,6 +18,7 @@ test('profile diagnostics accept fixed safe codes only and do not disclose provi
   const window:any={};window.top=window;const location={protocol:'https:',hostname:'vereinsflieger.de',pathname:'/member/profile/viewprofile',href:PROFILE_URL};
   const result=runInNewContext(`(${CONTEXT_READER_SOURCE})()`,{window,location,document:{querySelectorAll:()=>[]},URL});
   assert.equal(result.error,'profile-number-unavailable');
+  const signedOut=runInNewContext(`(${CONTEXT_READER_SOURCE})()`,{window,location,document:{querySelectorAll:(s:string)=>s.startsWith('input[')?[{}]:[]},URL});assert.equal(signedOut.error,'session-required');
 });
 function detail(id:string){return {url:`https://vereinsflieger.de/member/profile/viewflight.php?flid=${id}`,fields:[{section:'Allgemeine Daten',position:1,label:'Eintrag',raw:id},{section:'Flugdaten',position:3,label:'CallSign',raw:'D-1234'},{section:'Flugdaten',position:4,label:'Datum',raw:'11.10.2026'},{section:'Flugdaten',position:5,label:'Flugzeit',raw:'6'}]};}
 test('context reader only extracts observed user number and club label; bridge rejects wrong native document',()=>{

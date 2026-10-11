@@ -4,7 +4,7 @@ export const glidingFormat = {
   id:'user-eu-fcl-gliding-a6-photo-v1', name:'EU-FCL Flugbuch für Segelflieger',
   language:'de', size:'DIN A6', totalStarts:590, aircraftClasses:['glider'],
   excludes:['TMG'], edition:null, status:'draft-from-user-layout',
-  rowCapacity:null, // Total book capacity does not establish rows per spread.
+  rowCapacity:10, // Ten ruled entry rows counted on the supplied blank spread.
 } as const;
 export interface GlidingWritingEvidence {
   aircraftClass:'glider'; number:number; date:string|null;
@@ -37,4 +37,4 @@ export function glidingWritingCells(e:GlidingWritingEvidence):WritingCell[]{
   for(const [,text]of cells)if(text!==null&&(typeof text!=='string'||text.length>2000))throw new Error('Invalid writing evidence');
   return cells.map(([column,text])=>({column,text,status:text===null?'unknown':'resolved'}));
 }
-export function glidingWritingDraft(e:GlidingWritingEvidence){const cells=glidingWritingCells(e);return {format:glidingFormat.id,cells,missing:cells.filter(c=>c.status==='unknown').map(c=>c.column),activation:'blocked-unverified-edition-and-continuation' as const};}
+export function glidingWritingDraft(e:GlidingWritingEvidence){const cells=glidingWritingCells(e);return {format:glidingFormat.id,cells,missing:cells.filter(c=>c.status==='unknown').map(c=>c.column),activation:'blocked-unverified-mapping-and-continuation' as const};}
