@@ -30,6 +30,8 @@ if (Read-Git $source @('status', '--porcelain')) { throw 'Commit source changes 
 $commit = Read-Git $source @('rev-parse', "$SourceRef^{commit}")
 . (Join-Path $PSScriptRoot 'windows-android-env.ps1') -JavaHome $JavaHome -SdkRoot $SdkRoot
 foreach ($tool in @('node', 'pnpm', 'python', 'git')) { Get-Command $tool -ErrorAction Stop | Out-Null }
+if ((& node --version) -notmatch '^v24\.') { throw 'Use the repository Node 24 baseline.' }
+if ((& pnpm --version) -ne '11.25.0') { throw 'Use the pinned pnpm 11.25.0.' }
 if (-not (Test-Path -LiteralPath "$SdkRoot/platform-tools/adb.exe")) { throw 'Android Platform Tools are missing.' }
 if (Test-Path -LiteralPath $build) {
     if (-not (Test-Path -LiteralPath "$build/.git")) { throw 'Build target already exists and is not this build checkout.' }
@@ -48,7 +50,7 @@ try {
     $app = Join-Path $build 'apps/platform-lab'
     $android = Join-Path $app 'android'
     # Only regenerate native files when their inputs change; preserve native caches.
-    $nativeInputs = @('package.json', 'pnpm-lock.yaml', 'pnpm-workspace.yaml', '.npmrc', 'apps/platform-lab/package.json', 'apps/platform-lab/app.json')
+    $nativeInputs = @('package.json', 'pnpm-lock.yaml', 'pnpm-workspace.yaml', '.npmrc', 'apps/platform-lab/package.json', 'apps/platform-lab/app.json', 'scripts/configure-windows-native-build.ps1')
     $nativeInputs += @((Read-Git $build @('ls-files', '**/package.json', 'apps/platform-lab/app.config.*', 'apps/platform-lab/plugins')) -split "`n" | Where-Object { $_ })
     $fingerprint = Read-Git $build (@('ls-tree', '-r', 'HEAD', '--') + $nativeInputs)
     $stamp = Join-Path $build 'local-data/native-inputs.txt'

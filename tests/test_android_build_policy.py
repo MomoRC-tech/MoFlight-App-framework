@@ -4,6 +4,8 @@ import json
 import os
 import re
 import tempfile
+import shutil
+import subprocess
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
@@ -101,3 +103,20 @@ class DeviceSelectionTests(unittest.TestCase):
             with patch('scripts.android_smoke.subprocess.run') as run:
                 smoke.adb('shell', 'getprop', 'ro.kernel.qemu')
                 self.assertEqual(run.call_args.args[0][:3], ['adb', '-s', 'emulator-5558'])
+
+
+@unittest.skipUnless(os.name == 'nt' and shutil.which('pwsh'), 'Windows helper execution')
+class LocalCheckoutTests(unittest.TestCase):
+    def test_uncommitted_source_is_refused_without_creating_build_target(self):
+        with tempfile.TemporaryDirectory() as folder:
+            source = Path(folder) / 'source'
+            source.mkdir()
+            subprocess.run(['git', 'init', str(source)], check=True, capture_output=True)
+            (source / 'uncommitted.txt').write_text('synthetic draft')
+            build = Path(folder) / 'build'
+            result = subprocess.run(['pwsh', '-NoProfile', '-File', str(ROOT / 'scripts/build-android-local.ps1'),
+                                     '-SourceRepository', str(source), '-BuildDirectory', str(build),
+                                     '-JavaHome', 'unused'], capture_output=True, text=True, timeout=30)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn('Commit source changes first', result.stderr)
+            self.assertFalse(build.exists())
