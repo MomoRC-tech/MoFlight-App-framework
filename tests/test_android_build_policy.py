@@ -91,6 +91,10 @@ class PlannerTests(unittest.TestCase):
         output, _, _, _ = self.run_plan('apps/platform-lab/src/App.tsx\n')
         self.assertIn('run_id=\n', output)
 
+    def test_android_harness_regression_tests_do_not_invalidate_the_app_binary(self):
+        output, _, _, _ = self.run_plan('tests/test_android_build_policy.py\n')
+        self.assertIn('run_id=123\n', output)
+
     def test_forced_build_skips_artifact_lookup(self):
         output, _, requests, _ = self.run_plan(force=True)
         self.assertIn('run_id=\n', output)
