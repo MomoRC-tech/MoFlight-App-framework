@@ -2,6 +2,7 @@ import * as SQLite from 'expo-sqlite';
 import type { ProbeSnapshot } from './probe';
 import type { Connection } from '@moflight/local-data';
 import { CAPTURE_SCHEMA, persistCapture, readLatestCapture } from './capture-store';
+import { RUN_SCHEMA, persistRun, latestRun, type CaptureRun } from './capture-run';
 
 function connection(db: SQLite.SQLiteDatabase): Connection {
   return { exec: sql => db.execAsync(sql), run: async (sql, ...params) => { await db.runAsync(sql, ...params); },
@@ -11,7 +12,7 @@ function connection(db: SQLite.SQLiteDatabase): Connection {
 // Separate database: captures cannot change synthetic history, decisions or backups.
 async function database() {
   const db = await SQLite.openDatabaseAsync('vereinsflieger-access-probe.sqlite');
-  try { await db.execAsync(CAPTURE_SCHEMA); }
+  try { await db.execAsync(CAPTURE_SCHEMA + RUN_SCHEMA); }
   catch (e) { await db.closeAsync(); throw e; }
   return db;
 }
@@ -25,3 +26,5 @@ export async function latestCapture(): Promise<ProbeSnapshot | null> {
   try { return await readLatestCapture(connection(db)); }
   finally { await db.closeAsync(); }
 }
+export async function saveRun(run: CaptureRun) { const db=await database();try{await persistRun(connection(db),run);}finally{await db.closeAsync();} }
+export async function readRun() { const db=await database();try{return await latestRun(connection(db));}finally{await db.closeAsync();} }

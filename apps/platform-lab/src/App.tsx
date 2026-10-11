@@ -9,8 +9,10 @@ import * as Crypto from 'expo-crypto';
 import { LocalLogbook } from '@moflight/local-data';
 import { findings, query, reviewRequired, literalFields, counterKeys, type Source, type Page, type History, type Template, type Filters, type Counters } from '@moflight/flight-logbook';
 import fixture from '../../../tests/fixtures/local-logbook/mobile.json';
-import { loadSelection, saveSelection, open, type Selection } from './storage';
+import { loadSelections, saveSelection, open, type Selection } from './storage';
 import { AccessProbe } from './vereinsflieger/AccessProbe';
+import { BookLab } from './BookLab';
+import { activatePrepared } from './activation';
 
 const empty: History = { source: null, lastAttempt: null, flights: [], paper: [], findings: [], decisions: [] };
 const choices: [string, Filters][] = [
@@ -25,6 +27,7 @@ function Totals({ title, values }: { title: string; values: Counters | null }) {
   return <View style={styles.card}><Text style={styles.heading}>{title}</Text>{values ? counterKeys.map(k => <Text key={k} style={styles.body}>{k.replaceAll('_', ' ')}: {k === 'landings' ? values[k] : `${Math.floor(values[k] / 60)}:${String(values[k] % 60).padStart(2, '0')}`} {k === 'landings' ? '' : 'h:mm'}</Text>) : <Text style={styles.body}>Leave every total field blank — partial page.</Text>}</View>;
 }
 export default function App() {
+  const [showBooks, setShowBooks] = useState(false);
   const [showAccessProbe, setShowAccessProbe] = useState(false);
   const repo = useRef<LocalLogbook | null>(null);
   const [selection, setSelection] = useState<Selection | null>(null);
@@ -40,16 +43,32 @@ export default function App() {
     const ts = await next.list<Template>('template'); setTemplates(ts);
     setTemplateId(old => ts.some(t => t.id === old) ? old : ts.at(-1)?.id ?? null);
   }
-  async function activate(s: Selection) {
-    const next = await open(s);
-    try { saveSelection(s); }
-    catch (e) { await next.db.close(); throw e; }
-    const previous = repo.current; repo.current = next;
-    await previous?.db.close(); setSelection(s); await refresh(next);
+  async function install(next: LocalLogbook, s: Selection) {
+    // Stage every UI reader before committing the selection. No refresh after
+    // switching can invalidate the previous usable repository.
+    await activatePrepared(async () => {
+      const h = await next.history(), ts = await next.list<Template>('template');
+      findings(h); for (const basis of ['effective', 'source', 'paper'] as const) query(h, { basis });
+      for (const t of ts) { reviewRequired(t, h); for (const p of t.pages) for (const r of p.rows) literalFields(r); }
+      return { h, ts };
+    }, () => saveSelection(s), ({ h, ts }) => {
+      const previous = repo.current; repo.current = next;
+      setHistory(h); setTemplates(ts); setTemplateId(ts.at(-1)?.id ?? null); setSelection(s);
+      void previous?.db.close().catch(() => {});
+    }, () => next.db.close());
   }
+  async function activate(s: Selection) { await install(await open(s), s); }
   useEffect(() => {
     let cancelled = false;
-    void loadSelection().then(async s => { if (!cancelled) await activate(s); }).then(() => { if (!cancelled) { setBusy(false); setMessage('Remembered state loaded. Synthetic trial; device acceptance not yet recorded.'); } }).catch(e => { if (!cancelled) { setBusy(false); setMessage(String(e)); } });
+    void loadSelections().then(async choices => {
+      let failure: unknown;
+      for (const [index, s] of choices.entries()) {
+        if (cancelled) return;
+        try { await activate(s); if (!cancelled) { setBusy(false); setMessage(index ? 'Remembered state loaded. Recovered previous usable selection; newer database preserved for review.' : 'Remembered state loaded. Synthetic lab.'); } return; }
+        catch (e) { failure = e; }
+      }
+      throw failure;
+    }).catch(e => { if (!cancelled) { setBusy(false); setMessage(String(e)); } });
     return () => { cancelled = true; void repo.current?.db.close(); };
   }, []);
   const operationLock = useRef(false);
@@ -96,16 +115,17 @@ export default function App() {
     const outer = JSON.parse(text), payload = JSON.parse(outer.payload);
     const nextSelection: Selection = { datasetId: payload.dataset_id, databaseName: `restore-${Crypto.randomUUID()}.sqlite` };
     const restored = await open(nextSelection);
-    try { await restored.restore(text); saveSelection(nextSelection); }
+    try { await restored.restore(text); }
     catch (e) { await restored.db.close(); throw e; }
-    const previous = repo.current; repo.current = restored; await previous?.db.close();
-    setSelection(nextSelection); await refresh(restored);
+    await install(restored, nextSelection);
     return 'Backup restored into a new local database. Previous database preserved.';
   }
+  if (showBooks) return <SafeAreaProvider><SafeAreaView style={styles.screen}><BookLab close={() => setShowBooks(false)} /></SafeAreaView></SafeAreaProvider>;
   if (showAccessProbe) return <SafeAreaProvider><SafeAreaView style={styles.screen}><AccessProbe close={() => setShowAccessProbe(false)} /></SafeAreaView></SafeAreaProvider>;
   return <SafeAreaProvider><SafeAreaView style={styles.screen}><ScrollView contentContainerStyle={styles.container}>
     <Text style={styles.title}>MoFlight Lab</Text>
     <Button title="Open Vereinsflieger access PoC" disabled={busy} onPress={() => setShowAccessProbe(true)} />
+    <Button title="Open multiple-logbook lab" disabled={busy} onPress={() => setShowBooks(true)} />
     <Text style={styles.banner}>SYNTHETIC DATA · Prepared observations and CSV. No handwriting recognition or live Vereinsflieger retrieval.</Text>
     <Text accessibilityLiveRegion="polite" style={styles.body}>{message}</Text>{busy && <ActivityIndicator />}
     <Text style={styles.body}>Local dataset: {selection?.datasetId ?? 'opening'} · {selection?.databaseName ?? ''}</Text>

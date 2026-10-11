@@ -95,7 +95,7 @@ const readerSource = String.raw`function(nonce, required, limit) {
     for (const link of Array.from(row.querySelectorAll('a[href]'))) {
       const u = new URL(link.getAttribute('href'), location.href);
       const id = u.searchParams.get('flid');
-      if (u.origin === location.origin && id && /^\d{1,20}$/.test(id)) { sourceFlightId = id; break; }
+      if (u.origin === location.origin && u.pathname === '/member/profile/viewflight.php' && Array.from(u.searchParams.keys()).length === 1 && !u.hash && id && /^\d{1,20}$/.test(id)) { sourceFlightId = id; break; }
     }
     return { values: Array.from(row.cells).map(text), sourceFlightId };
   });

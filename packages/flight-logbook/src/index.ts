@@ -37,14 +37,17 @@ export function canonical(value: unknown): string {
   return result;
 }
 export function validateFlight(f: Flight): void {
-  if (!f.id || !Array.isArray(f.crew)) throw new Error('Stable flight and crew identities required');
+  if (!f || typeof f !== 'object' || typeof f.id !== 'string' || !f.id.trim() || !Array.isArray(f.crew)) throw new Error('Stable flight and crew identities required');
+  for (const k of ['date', 'start', 'landing', 'time_basis', 'registration', 'aircraft_model', 'launch', 'start_place', 'landing_place', 'remarks'] as const) {
+    if (f[k] !== null && typeof f[k] !== 'string') throw new Error('String or null flight field required');
+  }
   for (const k of ['minutes', 'landings'] as const) {
     if (f[k] !== null && (!Number.isInteger(f[k]) || f[k]! < 0)) throw new Error('Integer minutes/landings required');
   }
   if (f.date !== null && (!/^\d{4}-\d{2}-\d{2}$/.test(f.date) || new Date(f.date).toISOString().slice(0, 10) !== f.date)) throw new Error('Invalid date');
   for (const t of [f.start, f.landing]) if (t !== null && !/^([01]\d|2[0-3]):[0-5]\d$/.test(t)) throw new Error('Invalid time');
   if (![null, 'PIC', 'Dual', 'FI'].includes(f.pilot_role)) throw new Error('Unknown role');
-  if (f.crew.some(c => !c.person_id || !['PIC', 'instructor', 'companion'].includes(c.role))) throw new Error('Established crew role required');
+  if (f.crew.some(c => !c || typeof c.person_id !== 'string' || !c.person_id.trim() || typeof c.name !== 'string' || !['PIC', 'instructor', 'companion'].includes(c.role))) throw new Error('Established crew role required');
 }
 export function evidence(finding: Finding, flights: Flight[]): string {
   const f = flights.find(f => f.id === finding.flight_id);

@@ -7,11 +7,13 @@ import { latestCapture, saveCapture } from './storage';
 import { loginPage, savedLoginScript } from './login';
 import { readSavedLogin, writeSavedLogin, forgetSavedLogin } from './login-storage';
 import { Retrieval } from './retrieval';
+import { CaptureRun } from './CaptureRun';
 
 function Button({ title, press, disabled = false }: { title: string; press: () => void; disabled?: boolean }) {
   return <Pressable accessibilityRole="button" accessibilityLabel={title} disabled={disabled} onPress={press} style={[styles.button, disabled && { opacity: .45 }]}><Text style={styles.buttonText}>{title}</Text></Pressable>;
 }
 export function AccessProbe({ close }: { close: () => void }) {
+  const [showRun, setShowRun] = useState(false);
   const web = useRef<WebView>(null), currentUrl = useRef(LOGIN_URL);
   const retrieval = useRef(new Retrieval()), epoch = useRef(0), mounted = useRef(true);
   const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -122,11 +124,13 @@ export function AccessProbe({ close }: { close: () => void }) {
       finish(`Saved ${data.rows.length} visible personal-list rows locally. Bounded access capture; account identity and time basis still need verification.`, nonce);
     } catch { finish('Retrieval or local saving failed. Previous captures preserved. Sign in again if needed, then retry.', nonce); }
   }
+  if (showRun) return <CaptureRun close={() => setShowRun(false)} />;
   if (editingLogin) return <View style={styles.screen}><Text style={styles.title}>Save Vereinsflieger login</Text><ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.results}><View style={styles.row}><Text style={styles.body}>Optional login saved in protected device storage. Used only for Vereinsflieger sign-in; excluded from logbook backups. Forget it after development.</Text><TextInput accessibilityLabel="Saved login username" placeholder="Username or email" autoCapitalize="none" autoCorrect={false} autoComplete="username" value={username} onChangeText={setUsername} editable={!loginBusy} style={styles.input} /><TextInput accessibilityLabel="Saved login password" placeholder="Password" secureTextEntry autoCapitalize="none" autoCorrect={false} autoComplete="off" value={password} onChangeText={setPassword} editable={!loginBusy} style={styles.input} /><View style={styles.actions}><Button title="Save login" disabled={loginBusy} press={() => void saveLogin()} /><Button title="Cancel login entry" disabled={loginBusy} press={() => { setUsername(''); setPassword(''); setEditingLogin(false); }} /></View></View></ScrollView></View>;
   return <View style={styles.screen}>
     <Text style={styles.title}>Vereinsflieger access PoC</Text>
     <Text style={styles.body}>Read-only test of the default personal list, at most 20 rows. No full-history or verified-account claim. Captures stay separate from your logbook.</Text>
     <Text accessibilityLiveRegion="polite" style={styles.body}>{status}</Text>
+    <Button title="Open bounded capture and resume" disabled={busy || loginBusy} press={() => setShowRun(true)} />
     <View style={styles.actions}><Button title="Show provider login" disabled={busy || loginBusy} press={() => { setVisible(true); navigate(LOGIN_URL); }} /><Button title="Retrieve flights" disabled={busy || loginBusy} press={retrieve} /><Button title="Close access PoC" disabled={busy || loginBusy} press={close} /></View>
     <View style={styles.actions}><Button title={hasLogin ? 'Replace saved login' : 'Save login on this device'} disabled={busy || loginBusy} press={() => { setEditingLogin(true); setVisible(false); }} />{hasLogin && <><Button title="Use saved login" disabled={busy || loginBusy} press={useLogin} /><Button title="Forget saved login" disabled={busy || loginBusy} press={() => void forgetLogin()} /></>}</View>
     {busy && <ActivityIndicator />}

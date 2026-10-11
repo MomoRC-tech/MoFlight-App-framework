@@ -54,3 +54,7 @@ Executed in this change: code/document review, relative-file-link checks and whi
 ## Follow-up review material — 2026-10-10
 
 [Bounded proof and migration plan](../architecture/multiple-logbooks-proof-plan.md) defines the proposed synthetic slice, legacy identity/backup migration and acceptance. [Authenticated provider discovery](../verification/2026-10-10-vereinsflieger-discovery.md) establishes explicit aircraft classification and distinct source roles/durations/duplicate flags that the format boundary must preserve. This adds evidence and a concrete implementation proposal; status remains Proposed.
+
+## Authorized bounded implementation - 2026-10-11
+
+Manuel requested implementation of the recommended sequence and confirmed continuation. The [separate synthetic pilot-book proof](../verification/2026-10-11-recovery-books-and-capture.md) now implements source/book/entry separation, two typed formats, primary-credit/reference links, book-scoped state and explicit legacy preservation. Original schema-v1 datasets remain intact. This is authorization for the proof; production ADR status remains Proposed pending its native evidence, actual format mappings and review of the final live-import boundary. Earlier "no proof implemented" statements above describe their dated changes.

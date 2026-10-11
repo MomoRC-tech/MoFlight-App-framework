@@ -1,4 +1,5 @@
-import { canonical, evidence, findings, writing, validateFlight, effective, type History, type Page, type Source, type Flight, type Finding, type Decision, type Paper, type Template } from '@moflight/flight-logbook';
+import { validateBackupRecords } from './validation';
+import { canonical, evidence, findings, writing, validateFlight, effective, query, type History, type Page, type Source, type Flight, type Finding, type Decision, type Paper, type Template } from '@moflight/flight-logbook';
 
 export type Bind = string | number | null;
 export interface Connection {
@@ -138,21 +139,13 @@ export class LocalLogbook {
     if (envelope.format !== 'moflight-native-lab-backup-v1' || typeof envelope.payload !== 'string' || envelope.checksum !== await this.hash(envelope.payload)) throw new Error('Backup integrity/format failure');
     const body = JSON.parse(envelope.payload) as { dataset_id: string; schema: number; records: RecordRow[] };
     if (body.schema !== 1 || body.dataset_id !== this.datasetId || !Array.isArray(body.records)) throw new Error('Original dataset identity and supported version required');
-    let previous = 0;
-    const versions = new Map<string, number>();
-    for (const r of body.records) {
-      if (!Number.isSafeInteger(r.seq) || r.seq <= previous || !r.id || !['import', 'state', 'flight', 'flight_source', 'paper', 'finding', 'decision', 'page', 'observation', 'template'].includes(r.kind) || typeof r.payload !== 'string') throw new Error('Invalid backup record');
-      const key = r.kind + ':' + r.id;
-      if (r.revision !== (versions.get(key) ?? 0) + 1) throw new Error('Invalid revision history');
-      versions.set(key, r.revision); previous = r.seq;
-      const value = JSON.parse(r.payload);
-      if (r.kind === 'flight') validateFlight(value as Flight);
-      if (r.kind === 'import' && (value.transport !== 'synthetic-prepared-csv' || typeof value.raw_csv !== 'string')) throw new Error('Synthetic evidence bytes required');
-      if (r.kind === 'observation' && (typeof value.raw_page !== 'string' || value.provenance !== 'synthetic-prepared-observations-no-OCR')) throw new Error('Prepared evidence bytes required');
-    }
+    const records = await validateBackupRecords(body.records, this.datasetId, this.hash);
     await this.db.transaction(async tx => {
       if (await this.revision(tx) !== 0) throw new Error('Restore into clean dataset; existing work preserved');
-      for (const r of body.records) await tx.run('INSERT INTO records VALUES (?,?,?,?,?)', r.seq, r.kind, r.id, r.revision, r.payload);
+      for (const r of records) await tx.run('INSERT INTO records VALUES (?,?,?,?,?)', r.seq, r.kind, r.id, r.revision, r.payload);
+      const h = await this.history(tx);
+      findings(h);
+      for (const basis of ['effective', 'source', 'paper'] as const) query(h, { basis });
       const page = await this.get<Page>('page', 'prepared-page', tx);
       if (page && !(await this.get('observation', page.id, tx))) throw new Error('Missing prepared evidence');
       for (const t of await this.list<Template>('template', tx)) if (!(await this.get('import', t.source_id, tx))) throw new Error('Missing source evidence');
