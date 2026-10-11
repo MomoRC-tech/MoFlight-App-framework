@@ -68,6 +68,9 @@ try {
     }
     & (Join-Path $PSScriptRoot 'configure-windows-native-build.ps1') -AndroidDirectory $android
     if ($Configuration -eq 'DevServer') {
+        # Strict workspace TypeScript configuration/dependencies are already pinned.
+        # Avoid Expo generating a second config and dirtying the build checkout.
+        $env:EXPO_NO_TYPESCRIPT_SETUP = '1'
         Push-Location $app
         try { Invoke-Checked node @((Join-Path $build 'node_modules/expo/bin/cli'), 'start', '--dev-client', '--localhost') }
         finally { Pop-Location }
