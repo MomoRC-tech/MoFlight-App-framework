@@ -14,6 +14,7 @@ from pathlib import Path
 
 def harness_only(path):
     return (path.startswith("docs/") or path.startswith(".github/workflows/") or
+            path == "AGENTS.md" or path.endswith("/AGENTS.md") or
             path.startswith("pocs/project-audit/") or
             path in {"README.md", "apps/platform-lab/README.md",
                      "scripts/android_smoke.py", "scripts/android_build_plan.py"}
