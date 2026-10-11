@@ -34,6 +34,8 @@ Approval of this ADR and a reviewed migration plan precede changes to the produc
 
 ## Consequences
 
+Research refinement, 2026-10-11: the [requirements/routing comparison](../product/logbook-requirements-and-routing.md) supports a unique saved class-to-book assignment applied automatically after initial confirmation, including combined-category books and successor effective dates. Default to one primary credited book entry per source flight; shared evidence can support several reports without duplicate logged time. The earlier validation case allowing multiple book links must distinguish archival/reference links from credited entries and requires explicit policy before exceptional multiple-book credit. Add combined-book, TMG-context and backdated-routing proof cases. This refines the proposal without approving it.
+
 Additional formats should require a format implementation, fixtures and possibly a versioned field migration rather than copies of the whole app. This does not promise arbitrary formats without engineering work. Storage must model book ownership and revisioned state explicitly; account/provider identity and book-entry identity cannot be interchangeable. Existing synthetic backups must remain readable or fail safely with a documented upgrade path.
 
 ## Validation
@@ -42,7 +44,7 @@ Required small executable proof before production schema expansion:
 
 - One synthetic pilot owns gliding, ultralight and powered-airplane books plus a second gliding volume. Restart offline and switch books: restore each book's independent state.
 - A confirmation, override, photo, template or restore in book A cannot advance/change book B. Test overlapping entry numbers and page numbers.
-- Reimport mixed-class data: stable source deduplication, explicit book membership, ambiguous/unknown classification held for review and distinct paper status for any authorized multiple links.
+- Reimport mixed-class data: stable source deduplication, explicit primary book membership, ambiguous/unknown classification held for review and separately identified archival/reference links that do not create duplicate credited time.
 - Add a second synthetic format through the format contract without changing account access or provider transport; independently verify required fields, calculations and destinations. Synthetic formats do not validate actual legal/book requirements.
 - Reject another pilot's book ID on queries, writes, exports/restores and future sync. Combined queries must not double-count one flight linked to multiple books.
 - Preserve prior format-version snapshots and existing lab backups; unsupported versions fail safely. Migration checks cover source identities and book associations.

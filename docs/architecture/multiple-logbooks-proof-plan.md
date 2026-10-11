@@ -23,6 +23,10 @@ The [discovery findings](../verification/2026-10-10-vereinsflieger-discovery.md)
 
 ## Migration proposal
 
+### Routing proof additions from requirements research — 2026-10-11
+
+Use the [researched recording/routing requirements](../product/logbook-requirements-and-routing.md) to add a synthetic combined-category book, an explicit TMG assignment and dated successor volumes. Prove automatic routing with one saved match, review with competing/unknown matches, backdated-flight handling and independent category totals inside a combined book. Preserve one primary credited destination; additional evidence/report links must not duplicate logged time. Real format activation still requires a complete edition-specific mapping, correct time basis and endorsement handling. No legal compliance is inferred from synthetic layouts.
+
 1. Treat the current schema-v1 dataset and backup format as experimental, versioned inputs. Preserve the original database and backup bytes before any conversion.
 2. Inventory IDs/revisions, paper records, decisions and snapshots. Require explicit mapping of each legacy dataset to a target pilot and book; never equate a dataset ID with authenticated account identity.
 3. Import into a new versioned destination transactionally. Keep a legacy-ID mapping and provenance. Preserve existing snapshot content/version; unsupported format versions remain viewable as evidence where possible and unavailable for editing.
@@ -36,7 +40,7 @@ Final physical tables and backup version numbers belong to implementation review
 
 1. Define ownership/book/source types and the format interface; retain the existing gliding regression behavior behind the first format implementation.
 2. Add SQLite persistence and meaningful tests: restart offline, select each book, confirm an entry in A and prove B unchanged; repeat with the same page/entry numbers in both books. Include decisions, photos/references, snapshots, totals and pending work.
-3. Reimport mixed-class synthetic evidence: unchanged IDs stay idempotent, provider duplicates remain flagged, ambiguous book assignment requires review, and a shared flight has independent paper status in its linked books. Combined queries count it once; incompatible counters are displayed separately.
+3. Reimport mixed-class synthetic evidence: unchanged IDs stay idempotent, provider duplicates remain flagged, ambiguous book assignment requires review, and one primary credited book destination is preserved. Archival/reference links have distinct evidence status and cannot create duplicate credited time. Combined queries count the flight once; incompatible counters are displayed separately.
 4. Attempt foreign-pilot reads/writes/query/export/restore with forged book IDs and confirm rejection. Include missing/unsupported format versions and interrupted migration/restore.
 5. Run legacy backup migration against preserved fixtures and compare canonical contents, revisions and snapshots. Prove rollback to the untouched original selection.
 6. Add only the lab controls needed to select/create synthetic books and review routing. Verify the same state after native offline restart. Final product visual design remains later.

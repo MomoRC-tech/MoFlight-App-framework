@@ -24,6 +24,7 @@ Changes go directly to `main` with traceable commits and Issues; no pull request
 - [Writing-template format clarification and verification](docs/verification/2026-10-08-writing-template-format.md).
 - [Vereinsflieger website/manual discovery specification](docs/product/vereinsflieger-information-discovery.md) and [2026-10-10 authenticated findings](docs/verification/2026-10-10-vereinsflieger-discovery.md), tracked in [#10](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/10): flight fields/UTC/duplicates, training and duty views inspected; exports, complete coverage and roster semantics remain open.
 - [Agent rules](AGENTS.md) and [ADR template](docs/adr/template.md).
+- [German/EASA logbook requirements, printed formats and automatic routing](docs/product/logbook-requirements-and-routing.md): separate or combined books, distinct TMG evidence, three inspected layouts and remembered class-to-book assignments; production profiles remain unactivated.
 - [Vereinsflieger manual workflow follow-up](docs/verification/2026-10-10-vereinsflieger-manual-workflows.md): export menu illustration, club-defined flight types, curriculum assessment scales, duty/reservation interaction and calendar subscription scope; live export availability remains unresolved.
 
 - [Flight-logbook user stories and complete continuation workflow](docs/product/flight-logbook-user-stories.md).

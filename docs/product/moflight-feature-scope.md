@@ -28,6 +28,8 @@ Extensibility is a requirement from the first production data model: adding a fo
 
 [ADR 0007](../adr/0007-multiple-logbooks-and-formats.md) proposes the technical boundaries and required proof. The current synthetic lab is not yet a production implementation of multiple pilot-owned logbooks.
 
+Research follow-up, 2026-10-11: [German/EASA requirements and printed-format comparison](logbook-requirements-and-routing.md) supports remembered class-to-book assignments after initial setup, separate or combined books, distinct TMG evidence and explicit successor-volume routing. Published layouts are inspected candidates, not activated profiles. The pilot's actual format/edition and any ambiguous licence/book assignment must be resolved before automatic paper placement.
+
 ## Common Vereinsflieger source: intent and assumption
 
 Vereinsflieger.de is intended as the common data source for gliding, ultralight and powered-aircraft logbooks. Manuel believes the provider stores flight data similarly and may not differentiate aircraft classes in its storage. Record this as an unverified assumption, not an established provider contract.

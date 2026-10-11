@@ -1,5 +1,7 @@
 # Product specifications
 
+- [Logbook requirements and automatic routing](logbook-requirements-and-routing.md): German/EASA evidence, printed-format comparison, combined books, TMG context and remembered assignments.
+
 - [MoFlight feature scope and later aircraft-class support](moflight-feature-scope.md): confirmed 2026-10-10 product direction, possible additional features, packaging decision and unverified provider-schema assumption.
 
 - [Flight-logbook user stories and continuation workflow](flight-logbook-user-stories.md): product source, prototype provenance, acceptance criteria and Issue mapping.
