@@ -21,6 +21,7 @@ export function AccessProbe({ close }: { close: () => void }) {
   const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const phase = useRef({ loaded: false, progress: 0, injections: 0 });
   const loginAttempt = useRef<'waiting' | 'submitted' | null>(null);
+  const loginNonce = useRef('');
   const loginTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [hasLogin, setHasLogin] = useState(false), [editingLogin, setEditingLogin] = useState(false), [loginBusy, setLoginBusy] = useState(false);
   const [username, setUsername] = useState(''), [password, setPassword] = useState('');
@@ -48,6 +49,7 @@ export function AccessProbe({ close }: { close: () => void }) {
   function useLogin() {
     if (retrieval.current.state.phase !== 'idle' || busy || loginBusy || loginAttempt.current) return;
     loginAttempt.current = 'waiting'; setLoginBusy(true); setVisible(true); setEditingLogin(false);
+    loginNonce.current = Crypto.randomUUID();
     setStatus('Opening the original provider page for one saved-login attempt.');
     loginTimer.current = setTimeout(() => endLogin('Saved sign-in did not finish. Provider interaction may be required; no retry loop was started.'), 30_000);
     navigate(LOGIN_URL);
@@ -62,7 +64,7 @@ export function AccessProbe({ close }: { close: () => void }) {
         if (!mounted.current || pageEpoch !== epoch.current) return;
         if (!login || !loginPage(currentUrl.current) || loginAttempt.current !== 'waiting') { endLogin('Saved login unavailable or page changed. No credentials submitted.'); return; }
         loginAttempt.current = 'submitted';
-        web.current?.injectJavaScript(savedLoginScript(login));
+        web.current?.injectJavaScript(savedLoginScript(login,loginNonce.current));
         setStatus('Saved login attempted once on the original provider page. Complete verification there if requested.');
       } catch { if (mounted.current && pageEpoch === epoch.current) endLogin('Saved login could not be used. Existing captures preserved.'); }
       return;
@@ -154,7 +156,13 @@ export function AccessProbe({ close }: { close: () => void }) {
         onNavigationStateChange={state => { if (generation !== epoch.current) return; currentUrl.current = state.url; setUrl(state.url); }}
         onLoadProgress={event => { if (generation === epoch.current) phase.current.progress = event.nativeEvent.progress; }}
         onLoadEnd={event => { if (generation === epoch.current) void loadedPage(event.nativeEvent.url); }}
-        onMessage={flightUrl(url) ? event => { if (generation === epoch.current) void receive(event); } : undefined}
+        onMessage={event => {
+          if (generation !== epoch.current) return;
+          if(loginAttempt.current==='submitted'&&loginPage(currentUrl.current)&&bridgeSource(event.nativeEvent.url,currentUrl.current)&&event.nativeEvent.data.length<2000){
+            try{const m=JSON.parse(event.nativeEvent.data);if(m.kind==='vf-login-result-v1'&&m.nonce===loginNonce.current&&m.url===LOGIN_URL&&['wrong-page','username-control','password-control','submit-control','form-binding','form-target'].includes(m.result)){endLogin(`Saved sign-in stopped: unsupported original ${m.result}. No credentials submitted. Use the original provider page.`);return;}}catch{/* Ignore unrelated bridge messages. */}
+          }
+          if(flightUrl(url))void receive(event);
+        }}
         onError={() => { if (generation === epoch.current) loginAttempt.current ? endLogin('Provider login page failed to load. Saved login and captures preserved.') : finish('Provider page failed to load. Previous captures preserved.'); }}
         onHttpError={() => { if (generation === epoch.current) loginAttempt.current ? endLogin('Provider login returned an HTTP error. Saved login and captures preserved.') : finish('Provider returned an HTTP error. Previous captures preserved.'); }}
       />}

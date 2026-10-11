@@ -13,22 +13,25 @@ export function loginPage(url: string): boolean {
 // Write only explicitly supplied app credentials into the observed original form.
 // Never read its current credential values, cookies, dynamic salts or hidden fields.
 const source = String.raw`function(login) {
-  if (window.top !== window || location.href !== 'https://vereinsflieger.de/') return;
+  if (window.top !== window || location.href !== 'https://vereinsflieger.de/') return 'wrong-page';
   const users = document.querySelectorAll('input[name="user"]');
   const passwords = document.querySelectorAll('input[name="pwinput"]#pwinput');
   const buttons = document.querySelectorAll('button#submitbtn');
-  if (users.length !== 1 || passwords.length !== 1 || buttons.length !== 1) return;
+  if (users.length !== 1) return 'username-control';
+  if (passwords.length !== 1) return 'password-control';
+  if (buttons.length !== 1) return 'submit-control';
   const user = users[0], password = passwords[0], button = buttons[0], form = user.form;
-  if (!form || password.form !== form || button.form !== form || form.method.toLowerCase() !== 'post') return;
+  if (!form || password.form !== form || button.form !== form || form.method.toLowerCase() !== 'post') return 'form-binding';
   const action = new URL(form.getAttribute('action') || location.href, location.href);
-  if (action.href !== location.href || !['password','text'].includes(password.type) || user.type !== 'text') return;
+  if (action.href !== location.href || !['password','text'].includes(password.type) || user.type !== 'text') return 'form-target';
   user.value = login.username; password.value = login.password;
   for (const element of [user,password]) {
     element.dispatchEvent(new Event('input', { bubbles: true }));
     element.dispatchEvent(new Event('change', { bubbles: true }));
   }
   button.click();
+  return 'submitted';
 }`;
-export function savedLoginScript(input: SavedLogin): string {
-  return `(${source})(${JSON.stringify(validateLogin(input))});true;`;
+export function savedLoginScript(input: SavedLogin, nonce?: string): string {
+  return `(()=>{const result=(${source})(${JSON.stringify(validateLogin(input))});window.ReactNativeWebView?.postMessage(JSON.stringify({kind:'vf-login-result-v1',nonce:${JSON.stringify(nonce ?? '')},url:location.href,result}));})();true;`;
 }

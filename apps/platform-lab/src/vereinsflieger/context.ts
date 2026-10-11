@@ -12,6 +12,7 @@ export function sameContext(a: ObservedContext, b: ObservedContext) { return a.a
 // fields, forms, documents, contact information and financial information.
 export const CONTEXT_READER_SOURCE = String.raw`() => {
   if (window.top !== window || location.protocol !== 'https:' || !['vereinsflieger.de','www.vereinsflieger.de'].includes(location.hostname) || location.pathname !== '/member/profile/viewprofile') return { error:'session-required' };
+  if (document.querySelectorAll('input[name="user"]').length && document.querySelectorAll('input[name="pwinput"]#pwinput').length) return { error:'session-required' };
   const rows = Array.from(document.querySelectorAll('table.tablelist.alternative tr')).filter(r => r.cells[0]?.textContent.trim() === 'Benutzernummer');
   const clubs = Array.from(document.querySelectorAll('#topnavi a[href]')).filter(a => new URL(a.getAttribute('href'), location.href).pathname === '/member/community/main');
   if (rows.length !== 1 || rows[0].cells.length !== 2) return { error:'profile-number-unavailable' };

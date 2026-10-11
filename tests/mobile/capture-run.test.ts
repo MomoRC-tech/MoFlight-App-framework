@@ -23,7 +23,7 @@ function detail(id:string){return {url:`https://vereinsflieger.de/member/profile
 test('context reader only extracts observed user number and club label; bridge rejects wrong native document',()=>{
   const rows=[{cells:[{textContent:'Benutzernummer'},{textContent:'12345'}]},{cells:[{textContent:'IBAN'},{get textContent(){throw new Error('private field read');}}]}];
   const location={protocol:'https:',hostname:'vereinsflieger.de',pathname:'/member/profile/viewprofile',href:PROFILE_URL};const window:any={};window.top=window;
-  const document={querySelectorAll:(s:string)=>s==='table.tablelist.alternative tr'?rows:[{getAttribute:()=>'/member/community/main',textContent:'Synthetic club'}]};
+  const document={querySelectorAll:(s:string)=>s==='table.tablelist.alternative tr'?rows:s==='#topnavi a[href]'?[{getAttribute:()=>'/member/community/main',textContent:'Synthetic club'}]:[]};
   const observed=runInNewContext(`(${CONTEXT_READER_SOURCE})()`,{window,location,document,URL});assert.deepEqual(JSON.parse(JSON.stringify(observed)),context);
   assert.equal(scopedBridge('https://vereinsflieger.de/',PROFILE_URL,PROFILE_URL),true);assert.equal(scopedBridge('https://evil.test/',PROFILE_URL,PROFILE_URL),false);assert.equal(scopedBridge('https://vereinsflieger.de/',PROFILE_URL.replace('viewprofile','flightlog.php'),PROFILE_URL),false);
 });
