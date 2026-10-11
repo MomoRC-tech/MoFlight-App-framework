@@ -11,6 +11,10 @@ export class Retrieval {
     if (this.state.phase !== 'loading' || !this.owns(nonce)) return false;
     this.state = { phase: 'saving', nonce }; return true;
   }
+  resume(nonce: string): boolean {
+    if (this.state.phase !== 'saving' || !this.owns(nonce)) return false;
+    this.state = { phase: 'loading', nonce }; return true;
+  }
   finish(nonce: string): boolean {
     if (!this.owns(nonce)) return false;
     this.state = { phase: 'idle' }; return true;

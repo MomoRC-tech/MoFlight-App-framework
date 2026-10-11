@@ -119,6 +119,12 @@ const driver = String.raw`function(token, phase, request, wantedPreset) {
     if (!select || !accountLabel || !q('#tablelist_20')) throw new Error();
     if (phase === 'preset') {
       const found = options.find(o => o.text === preset);
+      if (!found && clean(select.selectedOptions[0]) !== 'Konfiguration laden') {
+        // Leave the verified user backup before changing any settings. The
+        // provider remembers filter/date/sort changes under the active preset.
+        const reset = options.find(o => o.value === '-1'); if (!reset) throw new Error();
+        safeForm(quick); select.selectedIndex = Array.from(select.options).indexOf(reset); select.dispatchEvent(new Event('change',{bubbles:true})); return;
+      }
       if (!found || clean(select.selectedOptions[0]) === preset) { next(); return; }
       safeForm(quick); select.value = found.value; select.dispatchEvent(new Event('change',{bubbles:true})); return;
     }

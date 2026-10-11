@@ -51,10 +51,11 @@ test('phase acknowledgements advance only matching commands, preserve source con
 });
 
 // Synthetic DOM contracts, never private provider HTML or real flight records.
-function driverFixture(phase: ExportRun['phase'], options: {missingPreset?:boolean;missingColumn?:boolean;filtered?:boolean;wrongPeriod?:boolean;foreignForm?:boolean;url?:string;iframe?:boolean;empty?:boolean;malformed?:boolean}={}) {
+function driverFixture(phase: ExportRun['phase'], options: {missingPreset?:boolean;activeBackup?:boolean;missingColumn?:boolean;filtered?:boolean;wrongPeriod?:boolean;foreignForm?:boolean;url?:string;iframe?:boolean;empty?:boolean;malformed?:boolean}={}) {
   const messages:string[]=[];const actions:string[]=[];
   const option={text:EXPORT_PRESET,value:EXPORT_PRESET,textContent:EXPORT_PRESET,disabled:false,hidden:false};
-  const select={options:options.missingPreset?[]:[option],selectedOptions:options.missingPreset?[]:[option],value:EXPORT_PRESET,dispatchEvent:()=>actions.push('preset-change')};
+  const reset={text:'Zurücksetzen',textContent:'Zurücksetzen',value:'-1',disabled:false,hidden:false};
+  const select={options:options.missingPreset?[reset]:[option,reset],selectedOptions:[options.activeBackup?{textContent:'MoFlight App user view backup'}:options.missingPreset?{textContent:'Konfiguration laden'}:option],selectedIndex:0,value:EXPORT_PRESET,dispatchEvent:()=>actions.push('preset-change')};
   const form={method:'post',getAttribute:()=>options.foreignForm?'https://evil.test/':FLIGHT_URL,querySelector:()=>({click:()=>actions.push('submit')})};
   const columns=headers.map((h,i)=>({textContent:h||'[leer]',getAttribute:()=>columnIds[i],click:()=>{actions.push('column-select');}}));
   const visible=options.missingColumn?columns.slice(0,-1):columns;
@@ -97,6 +98,12 @@ test('standalone driver repairs columns, clears restrictions, creates only absen
 });
 test('browser automation never runs on login/foreign documents or nested frames',()=>{
   for(const options of [{url:LOGIN_URL},{url:'https://evil.test/member/profile/flightlog.php'},{iframe:true}]) assert.deepEqual(driverFixture('read',options).messages,[]);
+});
+test('missing export preset leaves active user backup through reset before any column/filter mutation',()=>{
+  const f=driverFixture('preset',{missingPreset:true,activeBackup:true});
+  assert.deepEqual(f.actions,['preset-change']);assert.equal(f.messages.length,0);
+  assert.ok(driverFixture('preset',{missingPreset:true}).messages[0]?.includes('"status":"next"'));
+  const rejected=driverFixture('preset',{missingPreset:true,activeBackup:true,foreignForm:true});assert.deepEqual(rejected.actions,[]);
 });
 
 test('saved export revalidates scope, rows and identity; large and empty snapshots reopen safely', async () => {

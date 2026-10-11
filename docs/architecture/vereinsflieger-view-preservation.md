@@ -1,6 +1,6 @@
 # Preserve the user's provider view during export
 
-Date: 2026-10-11. User proposal under review, following the filter-first implementation. This is a design assessment, not acceptance of a completed restoration implementation.
+Date: 2026-10-11. Provider-managed backup/reset is now implemented in the bounded access lab following desktop contract checks. Native/live-driver acceptance remains open. The earlier assessment below is retained as dated design evidence; the implementation section controls current behavior.
 
 ## Live evidence
 
@@ -25,4 +25,20 @@ Keeping one reusable provider backup is simpler than creating a growing collecti
 
 ## Remaining proof
 
+The initial proposal's proof list below was partially executed in this continuation. [Current evidence and limits](../verification/2026-10-11-vereinsflieger-view-preservation.md) separate desktop provider observations, synthetic tests and native acceptance.
+
+Continuation checkpoint, 2026-10-11: local/remote `main` verified at `cd69e70`; unpublished replay files retained for adaptation. A fresh dedicated authenticated desktop tab created `MoFlight App user view backup`. Loading the older export definition and then the new backup restored the original 40-column order, explicit 2026 range and `Pilot oder Fluglehrer`. An app-created proof configuration round-tripped a restrictive aircraft-type text filter, a deselected launch-method checkbox, descending aircraft-type sorting and `Das letzte Jahr`. Saving the same proof name reports **aktualisiert** and updates its definition; automatic same-name saving therefore requires durable app ownership, never name-only ownership. One proof name was shortened by the provider; created names must be read back exactly.
+
+Reset from that proof cleared sorting/restrictions, selected `Pilot`, `Das letzte Jahr`, the `Konfiguration laden` placeholder and ordered columns `1,2,3,4,5,6,7,8,9,10,105,11,12,13,14,15`. This is one observed default signature, not a universal guarantee. Default detection must compare the complete observed settings and fail conservatively to backup. Rows-per-page were left unchanged (100 observed); no global page-size preference mutation was tested. Desktop observations are not native acceptance.
+
 Round-trip a newly saved backup with distinctive synthetic/authorized preferences: ordered columns, a restrictive text/checkbox filter, sorting, custom and relative periods, each participation scope and unchanged rows per page. Check existing-name save behavior and how the provider signals the genuine default state. Exercise reset only after a recoverable backup exists. Then implement and test the simpler verified backup/reset path, with durable cleanup ownership and no automatic restoration into a different account. The direct-setting replay draft remains unpublished; it is not the selected final design or native acceptance evidence.
+
+## Implemented lab workflow
+
+`view.ts` replaces the replay draft. It captures ordered columns, supported text/checkbox/operator states, sort indicators, displayed period/participation and account context. Default recognition requires the observed complete default signature, clear supported filters and no sort; an unnamed customized state uses backup. It does not replay unused hidden date defaults. `view-store.ts` persists an exact recovery payload before mutations and local ownership of the verified app-created backup. Pending recovery cannot be overwritten; old/invalid journal formats block exports.
+
+For custom settings, save under the app backup name only when absent or locally owned by the same observed account context. Reload that backup and verify actual settings before export; do not infer save success from its name. Provider same-name saving updates definitions. Settings changed while a preset is active also appeared to be remembered under it, so export must leave the backup first. When no export preset exists, use the normal reset control after verifying the backup, then build the export view. No automatic deletion of provider presets is performed.
+
+After capture saving, cancellation or error, load the backup or reset a verified default and compare full supported readback. A pre-mutation cancellation can verify the unchanged original. Only then clear the exact journal. Network/expiry/interruption or changed display context keeps visible recovery and blocks new exports. Captured data and restored preferences are separate outcomes. Recovery stays available after restart; cancellation is disabled during local writes/cleanup.
+
+Columns, filters/operators, sort and displayed date/participation are verified; global rows-per-page are not changed by this workflow. Former preset label may become the backup label. Account protection is still display-context continuity, not a stable verified identity; equal labels and deletion/recreation of an app-owned name remain limitations. Production user-safety and full native acceptance cannot be claimed from these checks. Run the evidence report's native cases before handoff.
