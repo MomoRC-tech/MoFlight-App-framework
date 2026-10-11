@@ -44,6 +44,24 @@ class TriggerTests(unittest.TestCase):
 
 
 class PlannerTests(unittest.TestCase):
+    def test_historical_source_without_planner_is_pinned_and_force_fresh_honored(self):
+        with tempfile.TemporaryDirectory() as folder:
+            repo = Path(folder) / 'historical'
+            subprocess.run(['git', 'init', str(repo)], check=True, capture_output=True)
+            subprocess.run(['git', '-C', str(repo), '-c', 'user.name=Synthetic Test',
+                            '-c', 'user.email=synthetic@example.invalid', 'commit', '--allow-empty', '-m', 'synthetic'],
+                           check=True, capture_output=True)
+            sha = subprocess.check_output(['git', '-C', str(repo), 'rev-parse', 'HEAD'], text=True).strip()
+            output = Path(folder) / 'output'
+            env = dict(os.environ, GITHUB_REPOSITORY='example/repo', GH_TOKEN='synthetic-token',
+                       GITHUB_OUTPUT=str(output), FORCE_FRESH='true')
+            env.pop('GITHUB_STEP_SUMMARY', None)
+            result = subprocess.run([shutil.which('python') or 'python', str(ROOT / 'scripts/android_build_plan.py')],
+                                    cwd=repo, env=env, capture_output=True, text=True, timeout=30)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertIn(f'checkout_commit={sha}\n', output.read_text())
+            self.assertIn('run_id=\n', output.read_text())
+
     def run_plan(self, changed='', force=False, expired=False):
         with tempfile.TemporaryDirectory() as folder:
             output = Path(folder) / 'output'

@@ -43,13 +43,18 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
+          path: ci-tooling
+      - uses: actions/checkout@v7
+        with:
           fetch-depth: 0
           ref: ${{ inputs.source_ref || github.sha }}
+          path: source
       - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
       - id: plan
-        run: python scripts/android_build_plan.py
+        run: python ../ci-tooling/scripts/android_build_plan.py
+        working-directory: source
         env:
           GH_TOKEN: ${{ github.token }}
           FORCE_FRESH: ${{ inputs.force_fresh }}
