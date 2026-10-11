@@ -42,6 +42,8 @@ iOS: Hermes bundle exported successfully. Windows cannot execute iOS native runt
 
 `prebuild:check` passes on Windows and generates Android configuration only; no iOS directory is generated on this host. CI status is linked in the tracking Issues after publication. Remaining device checks: slow load → cancel → immediate retrieve; stale page/load/error messages; session expiry/login return; repeated taps; force-stop during loading/saving; successful evidence after reopening; malformed capture handling. Account-switch protection cannot be claimed while provider identity remains unverified.
 
+Publication: [42f4ae5](https://github.com/MomoRC-tech/MoFlight-App-framework/commit/42f4ae55a7a54a7197f7a70810c4bc4092e0f034). [CI run 38117815881](https://github.com/MomoRC-tech/MoFlight-App-framework/actions/runs/38117815881) passed Linux host-SQLite and mobile-contract jobs (including both bundles/configurations); Windows contracts and Android compilation/emulator jobs were still pending/running at inspection. Follow-up keeps initial saved-capture hydration available even during retrieval, using the existing non-overwriting state update so a failed new request still has earlier evidence to display. Its typecheck/bundles and host tests are checked separately before publication.
+
 ## Remaining sequence
 
 1. Validated capture: verified account/club context, separate list/detail coverage and recoverable native checkpoints.
