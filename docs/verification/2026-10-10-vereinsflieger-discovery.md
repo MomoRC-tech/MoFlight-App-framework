@@ -69,7 +69,7 @@ In the inspected flight list, column headers are duplicated into fixed-layout pr
 | `Eintrag`, link `flid` | Same candidate reference in one list/detail comparison | Preserve provider-scoped reference; confirm repeat/export stability and account/club identity before production keys. |
 | `Datum` | Date shown as day.month.year | Preserve source date; verify cross-midnight and export date/time mapping. |
 | `Start`, `Landung` | Clock values; manual 5001 specifies UTC input | Documentation basis is now known; still verify each selected export/adapter representation. Do not infer timezone from page clock. |
-| `Flugzeit`, `Flugzeit in hh:mm` | Minutes and formatted airborne duration | Manual permits correction, so a duration differing from clock subtraction requires review, not silent overwrite. |
+| `Flugzeit`, `Flugzeit in hh:mm` | Reported flight duration in minutes and formatted form; physical measurement boundaries not independently verified | Manual permits correction, so a duration differing from clock subtraction requires review, not silent overwrite. Do not assume wheels-off/on semantics. |
 | `Blockzeit in Minuten` / `Blockzeit in hh:mm`, `Off-Block`, `On-Block` | Separate time measures; latter fields offered in configuration | Keep distinct from flight/engine time. Full native mapping remains open. |
 | `Pilot`, `PIC`, `Begleiter/FI` | Separate visible fields; pilot can be student, companion can be instructor or guest | Do not equate Pilot with PIC, or every companion with instructor. Stable person IDs remain unverified. |
 | `Begleiter 2`, `Begleiter 3`, `SIC`, `FI-Time` | Additional fields offered in configuration | Existing crew/role model must be reviewed; field presence alone does not settle semantics. |

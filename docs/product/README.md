@@ -1,5 +1,7 @@
 # Product specifications
 
+- [Vereinsflieger capture requirements and Gemini schema review](vereinsflieger-capture-requirements.md): capture-first field priorities, evidence/unknowns and bounded verification; output formats follow later.
+
 - [Logbook requirements and automatic routing](logbook-requirements-and-routing.md): German/EASA evidence, printed-format comparison, combined books, TMG context and remembered assignments.
 
 - [MoFlight feature scope and later aircraft-class support](moflight-feature-scope.md): confirmed 2026-10-10 product direction, possible additional features, packaging decision and unverified provider-schema assumption.
