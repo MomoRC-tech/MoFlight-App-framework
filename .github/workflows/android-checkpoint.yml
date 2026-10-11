@@ -95,7 +95,7 @@ jobs:
     needs: [android-plan, android-offline]
     if: ${{ !cancelled() && needs.android-plan.result == 'success' && (needs.android-offline.result == 'success' || needs.android-offline.result == 'skipped') }}
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v7
         with:
@@ -124,15 +124,22 @@ jobs:
           arch: x86_64
           target: google_apis
           profile: pixel_2
+          avd-name: MoFlight_Synthetic_API37
           disable-animations: true
           ram-size: 2048M
           emulator-options: -no-window -gpu swiftshader -noaudio -no-boot-anim -no-snapshot -camera-back none -camera-front none -skin 480x800
-          script: python scripts/android_smoke.py --apk local-data/android-apk/app-release.apk --output local-data/android-smoke
+          script: |
+            python scripts/android_smoke.py --apk local-data/android-apk/app-release.apk --serial emulator-${EMULATOR_PORT} --expected-avd MoFlight_Synthetic_API37 --output local-data/android-smoke
+            if [ -f scripts/android_book_smoke.py ]; then
+              python scripts/android_book_smoke.py --serial emulator-${EMULATOR_PORT} --expected-avd MoFlight_Synthetic_API37 --output local-data/android-books
+            fi
       - name: Upload actual emulator evidence, including failures
         if: always()
         uses: actions/upload-artifact@v7
         with:
           name: moflight-android-emulator-evidence
-          path: local-data/android-smoke/
+          path: |
+            local-data/android-smoke/
+            local-data/android-books/
           if-no-files-found: warn
           retention-days: 7
