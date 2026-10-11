@@ -35,7 +35,7 @@ export async function loadSelections(): Promise<Selection[]> {
       catch { if (!committed.length) throw new Error('Legacy selection is unreadable; preserved for recovery'); }
     }
     if (committed.length) {
-      const readablePaths=committed.filter(s=>new File(SQLite.defaultDatabaseDirectory,s.databaseName).exists);
+      const readablePaths=committed.filter(s=>new File(SQLite.defaultDatabaseDirectory.startsWith('file:') ? SQLite.defaultDatabaseDirectory : 'file://' + SQLite.defaultDatabaseDirectory,s.databaseName).exists);
       if(!readablePaths.length)throw new Error('Selected databases are missing; selection evidence preserved');
       return readablePaths;
     }

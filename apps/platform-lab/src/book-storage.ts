@@ -11,7 +11,7 @@ export async function loadBooks() {
   const db = await pointer(); let choices: string[];
   try { choices = (await db.all<{name: string}>('SELECT name FROM library_selection ORDER BY seq DESC')).map(r => r.name); } finally { await db.close(); }
   if (!choices.length) choices = ['pilot-synthetic-v1.sqlite'];
-  for (const name of [...new Set(choices)]) { let lib: PilotBooks | undefined; try { validName(name); if (name.startsWith('pilot-restore-') && !new File(SQLite.defaultDatabaseDirectory, name).exists) continue; lib = await openBooks(name); for (const b of await lib.books()) { await lib.history(b.id); await lib.snapshots(b.id); } return { lib, name }; } catch { await lib?.db.close(); } }
+  for (const name of [...new Set(choices)]) { let lib: PilotBooks | undefined; try { validName(name); if (name.startsWith('pilot-restore-') && !new File(SQLite.defaultDatabaseDirectory.startsWith('file:') ? SQLite.defaultDatabaseDirectory : 'file://' + SQLite.defaultDatabaseDirectory, name).exists) continue; lib = await openBooks(name); for (const b of await lib.books()) { await lib.history(b.id); await lib.snapshots(b.id); } return { lib, name }; } catch { await lib?.db.close(); } }
   throw new Error('No readable pilot library; databases preserved');
 }
 
