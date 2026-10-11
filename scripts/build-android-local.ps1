@@ -72,7 +72,7 @@ try {
     $env:NODE_ENV = if ($Configuration -eq 'Release') { 'production' } else { 'development' }
     Push-Location $android
     $gradleTimer = [Diagnostics.Stopwatch]::StartNew()
-    try { Invoke-Checked '.\gradlew.bat' @(':app:assemble' + $Configuration, '-PreactNativeArchitectures=arm64-v8a,x86_64', '--max-workers=2') }
+    try { Invoke-Checked '.\gradlew.bat' @((':app:assemble' + $Configuration), '-PreactNativeArchitectures=arm64-v8a,x86_64', '--max-workers=2') }
     finally { $gradleTimer.Stop(); Pop-Location }
     $apk = Join-Path $android "app/build/outputs/apk/$variant/app-$variant.apk"
     if (-not (Test-Path -LiteralPath $apk)) { throw 'Gradle did not produce the expected APK.' }
