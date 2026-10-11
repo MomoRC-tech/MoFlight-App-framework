@@ -65,6 +65,8 @@ Do not collect member contact records, medical documents, aircraft-owner identit
 
 The [2026-10-11 bounded follow-up](../verification/2026-10-11-vereinsflieger-capture-fields.md) records desktop repeat/default-column/empty-date observations and the executable raw-field inspection/default-view reader fix. Complete verified history and canonical import remain open.
 
+The [proposed capture/storage data model](../architecture/vereinsflieger-capture-data-model.md) is the consolidated presentation of what will be stored: source/coverage records, flight fields, aircraft lookup/revisions, optional costs and missing/conflict states. Source data is shared across books; paper progress/output remain separate.
+
 ## Review verification
 
 The supplied JSON was read in full. Reviewed against the recorded authenticated provider/manual findings, existing import contract, multi-book requirements and primary sources linked above. Documentation-only changes: local Markdown destinations and whitespace checked before publication. No new browser inspection, export retrieval, native test, schema implementation or architecture approval is claimed.

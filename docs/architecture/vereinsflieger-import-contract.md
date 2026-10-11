@@ -63,6 +63,8 @@ The [2026-10-11 capture inventory and Gemini review](../product/vereinsflieger-c
 
 ## List discovery plus per-flight detail enrichment — 2026-10-11 proposal
 
+The [capture/storage data model](vereinsflieger-capture-data-model.md) presents the concrete logical records, field inventory, aircraft association and optional costs for this approach. It is a reviewable proposal, not the implemented raw-capture payload or a production schema migration.
+
 Manuel suggested using each flight's richer detail page, including costs, rather than depending on configured list columns. A bounded desktop comparison supports using both views: the list discovers permitted flight references and coverage; details supply additional fields independently of visible list columns. Neither view is a verified complete superset. See the [detail comparison evidence](../verification/2026-10-11-vereinsflieger-capture-fields.md#flight-detail-comparison--subsequent-investigation).
 
 Proposed browser adapter sequence:
