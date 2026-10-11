@@ -104,6 +104,14 @@ def execute(smoke):
     smoke.launch()
     assert smoke.selected_database() == original
     smoke.record('checksum-valid-semantic-backup-rejected-with-original-selection-after-restart')
+    smoke.tap('Open Vereinsflieger access PoC')
+    smoke.tap('Open bounded capture and resume')
+    smoke.find('Bounded capture and resume')
+    smoke.find('Start bounded capture')
+    smoke.tap('Close capture and resume')
+    smoke.tap('Close access PoC')
+    smoke.find('11 individually confirmed paper entries.')
+    smoke.record('bounded-capture-controls-open-and-close-without-provider-credentials')
 
 
 def main():
