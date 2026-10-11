@@ -112,6 +112,14 @@ def execute(smoke):
     smoke.tap('Close access PoC')
     smoke.find('11 individually confirmed paper entries.')
     smoke.record('bounded-capture-controls-open-and-close-without-provider-credentials')
+    smoke.tap('Open Vereinsflieger access PoC')
+    smoke.tap('Open dated-window capture')
+    smoke.find('Dated-window capture')
+    smoke.find('Start dated-window capture')
+    smoke.tap('Close dated-window capture')
+    smoke.tap('Close access PoC')
+    smoke.find('11 individually confirmed paper entries.')
+    smoke.record('dated-window-controls-open-and-close-without-changing-logbook')
 
 
 def main():
