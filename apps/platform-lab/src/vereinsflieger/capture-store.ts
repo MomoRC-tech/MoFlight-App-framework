@@ -13,7 +13,7 @@ export async function persistCapture(db: Connection, input: unknown): Promise<vo
 export async function readLatestCapture(db: Connection): Promise<ProbeSnapshot | null> {
   const row = await db.first<{ id: string; retrieved_at: string; payload: string }>('SELECT id, retrieved_at, payload FROM captures ORDER BY retrieved_at DESC, rowid DESC LIMIT 1');
   if (!row) return null;
-  if (row.payload.length > 200_000) throw new Error('Oversized saved capture.');
+  if (row.payload.length > 20_000_000) throw new Error('Oversized saved capture.');
   const snapshot = validateCapture(JSON.parse(row.payload));
   if (snapshot.captureId !== row.id || snapshot.retrievedAt !== row.retrieved_at) throw new Error('Saved capture identity mismatch.');
   return snapshot;

@@ -8,7 +8,8 @@ export const MAX_ROWS = 20;
 export interface ProbeRow { values: string[]; sourceFlightId: string | null }
 export interface ProbeSnapshot {
   captureId: string; retrievedAt: string; headers: string[]; rows: ProbeRow[];
-  sourceIdentity: 'unverified'; coverage: 'visible-personal-list-only'; timeBasis: 'unknown';
+  sourceIdentity: 'unverified'; coverage: 'visible-personal-list-only' | 'complete-requested-list'; timeBasis: 'unknown';
+  exportContext?: { from: string; to: string; preset: string; participation: 'Pilot oder Fluglehrer'; accountLabel: string; recordCount: number; pageCount: number; columnIds: string[]; adapterVersion: 1 };
 }
 export function validateCapture(value: unknown): ProbeSnapshot {
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('Invalid saved capture.');
@@ -16,7 +17,33 @@ export function validateCapture(value: unknown): ProbeSnapshot {
   if (typeof s.captureId !== 'string' || !/^[a-zA-Z0-9-]{1,100}$/.test(s.captureId) ||
       typeof s.retrievedAt !== 'string' || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(s.retrievedAt) ||
       !Number.isFinite(Date.parse(s.retrievedAt)) || new Date(s.retrievedAt).toISOString() !== s.retrievedAt ||
-      s.sourceIdentity !== 'unverified' || s.coverage !== 'visible-personal-list-only' || s.timeBasis !== 'unknown') throw new Error('Unsupported saved capture metadata.');
+      s.sourceIdentity !== 'unverified' || !['visible-personal-list-only', 'complete-requested-list'].includes(String(s.coverage)) || s.timeBasis !== 'unknown') throw new Error('Unsupported saved capture metadata.');
+  if (s.coverage === 'complete-requested-list') {
+    const context = s.exportContext as ProbeSnapshot['exportContext'];
+    const validDate = (d: unknown): d is string => typeof d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d) && Number.isFinite(Date.parse(d)) && new Date(d).toISOString().slice(0, 10) === d;
+    if (!context || !validDate(context.from) || !validDate(context.to) || context.from > context.to ||
+        !['MoFlight App export filter', 'Flugbuch Export', 'Flugbuch export'].includes(context.preset) || context.participation !== 'Pilot oder Fluglehrer' ||
+        typeof context.accountLabel !== 'string' || !context.accountLabel.trim() || context.accountLabel.length > 200 || context.adapterVersion !== 1 ||
+        !Number.isSafeInteger(context.recordCount) || context.recordCount < 0 || context.recordCount > 20_000 ||
+        !Number.isSafeInteger(context.pageCount) || context.pageCount < Math.max(1, Math.ceil(context.recordCount / 1000)) || context.pageCount > Math.max(1, context.recordCount)) throw new Error('Invalid saved export scope.');
+    if (!Array.isArray(s.headers) || s.headers.length < 6 || s.headers.length > 128 || !s.headers.every(h => typeof h === 'string' && h.length <= 100)) throw new Error('Invalid saved export headers.');
+    const headers = s.headers as string[];
+    if (REQUIRED_HEADERS.some(h => !headers.includes(h)) || new Set(headers.filter(Boolean)).size !== headers.filter(Boolean).length ||
+        !Array.isArray(context.columnIds) || context.columnIds.length !== headers.length || !context.columnIds.every(id => typeof id === 'string' && /^\d{1,4}$/.test(id)) || new Set(context.columnIds).size !== context.columnIds.length ||
+        !Array.isArray(s.rows) || s.rows.length !== context.recordCount) throw new Error('Invalid saved export shape.');
+    const ids = new Set<string>();
+    const rows = s.rows.map(value => {
+      const row = value as ProbeRow;
+      if (!row || !Array.isArray(row.values) || row.values.length !== headers.length || !row.values.every(v => typeof v === 'string' && v.length <= 4096) || typeof row.sourceFlightId !== 'string' || !/^\d{1,20}$/.test(row.sourceFlightId) || ids.has(row.sourceFlightId)) throw new Error('Invalid saved export row.');
+      const rawDate = row.values[headers.indexOf('Datum')]!, match = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(rawDate);
+      const date = match ? `${match[3]}-${match[2]}-${match[1]}` : rawDate;
+      if (!validDate(date) || date < context.from || date > context.to) throw new Error('Invalid saved export date.');
+      ids.add(row.sourceFlightId); return { values: [...row.values], sourceFlightId: row.sourceFlightId };
+    });
+    const result: ProbeSnapshot = { captureId: s.captureId, retrievedAt: s.retrievedAt, headers: [...headers], rows, sourceIdentity: 'unverified', coverage: 'complete-requested-list', timeBasis: 'unknown', exportContext: { from: context.from, to: context.to, preset: context.preset, participation: context.participation, accountLabel: context.accountLabel, recordCount: context.recordCount, pageCount: context.pageCount, columnIds: [...context.columnIds], adapterVersion: 1 } };
+    if (JSON.stringify(result).length > 20_000_000) throw new Error('Oversized saved export.');
+    return result;
+  }
   // Reuse the live table contract; persisted JSON is also untrusted input.
   return decodeProbe(JSON.stringify({ kind: 'vf-probe-v1', nonce: s.captureId, url: FLIGHT_URL, headers: s.headers, rows: s.rows }), FLIGHT_URL, s.captureId, s.retrievedAt);
 }

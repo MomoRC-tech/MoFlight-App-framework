@@ -13,6 +13,9 @@ export const CAPTURE_FIELDS = {
   duplicate: ['Duplikat'], club: ['Verein'], remarks: ['Bemerkung'],
   engineStart: ['M.-Start'], engineEnd: ['M.-Ende'], engineDuration: ['Motorzeit'],
   trainingAssociation: ['Ausbildungsschritt zugeordnet'],
+  ownCostsPaid: ['Eigene Kosten (Bezahlt)', 'Eigene Kosten(Bezahlt)'], billingStatus: ['Abgerechnet'], billingCode: ['Abr.'],
+  guestLandingFees: ['Gast/Landegeb.'], checkIn: ['CheckIn'], checkOut: ['CheckOut'], dutyTime: ['Flugdienstzeit'],
+  towAircraft: ['Schlepp-Lfz'], towHeight: ['Schlepphöhe'], towTime: ['Schleppzeit'], winch: ['Winde'], flightPermission: ['Fluggenehmigung von'],
 } as const;
 
 export type CaptureField = keyof typeof CAPTURE_FIELDS;

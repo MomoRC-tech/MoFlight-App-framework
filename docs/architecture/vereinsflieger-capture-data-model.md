@@ -89,6 +89,8 @@ One source flight and its aircraft/cost evidence are shared across this pilot's 
 
 ## Implemented versus proposed
 
+Subsequent 2026-10-11 update: [filter-first capture](vereinsflieger-filter-export.md) adds complete-requested-list snapshots with dates/preset/participation, account display context, column IDs and record/page counts. The isolated capture table is unchanged; legacy snapshots remain readable. List cost/billing/tow/permission fields now have raw inspection. This supersedes mandatory detail traversal; production identity/revisions/cost parsing and canonical multiple-book records remain proposed. [Actual evidence](../verification/2026-10-11-vereinsflieger-filter-export.md).
+
 Implemented: isolated native raw snapshots (`headers`, aligned row strings, candidate flight reference, capture/retrieval identifiers) with unverified identity/time/full coverage; a default-view-compatible bounded reader and pure list-field inspection. These preserve raw evidence but do not implement the complete records above.
 
 Observed in desktop browser: current list fields, two own-flight detail patterns/cost-section structure, repeat bounded references, a date-specific empty view and catalogue classes. Detail bulk/native retrieval, verified account/club identity, complete paging/history, catalogue matching/cache, cost storage and canonical multi-book persistence remain unimplemented/unverified as specified in the linked reports. No production schema or ADR approval is claimed.

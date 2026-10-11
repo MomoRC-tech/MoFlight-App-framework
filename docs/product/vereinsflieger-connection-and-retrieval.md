@@ -1,5 +1,7 @@
 # Vereinsflieger: in-app connection and flight retrieval
 
+Current update, 2026-10-11: Manuel authorized [verified filter-first capture](../architecture/vereinsflieger-filter-export.md). The native lab repairs all personal-list data columns, creates an app-named preset when absent, sets explicit dates and `Pilot oder Fluglehrer`, then reads every page before saving. Dates default to the device's current calendar year and can be edited. Historical default-20-row/mandatory-detail descriptions below are superseded for the active UI. [Evidence/native limits](../verification/2026-10-11-vereinsflieger-filter-export.md). Hidden navigation, canonical import and lifetime-history scheduling remain open.
+
 Date: 2026-10-10. Product owner: Manuel Singer. Tracking: [FL-03](flight-logbook-user-stories.md), [#2](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/2). Browser-based route and automatic range selection confirmed by Manuel; detailed retrieval implementation below is proposed. An isolated bounded native access probe now verifies Android original-page login, session reuse, capture of 20 visible rows and offline reopening on the Windows API 37 emulator; see [desktop evidence](../verification/2026-10-10-windows-desktop.md#live-android-bounded-capture-and-restart). Long-lived saved-login behavior, verified identity/time basis and complete retrieval remain open. Full product integration remains open.
 
 ## User story

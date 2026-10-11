@@ -1,11 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, FlatList, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { WebView, type WebViewMessageEvent } from 'react-native-webview';
 import * as Crypto from 'expo-crypto';
-import { bridgeSource, decodeProbe, flightUrl, FLIGHT_URL, LOGIN_URL, probeScript, providerUrl, type ProbeSnapshot } from './probe';
+import { bridgeSource, flightUrl, FLIGHT_URL, LOGIN_URL, providerUrl, type ProbeSnapshot } from './probe';
 import { latestCapture, saveCapture } from './storage';
 import { loginPage, savedLoginScript } from './login';
 import { readSavedLogin, writeSavedLogin, forgetSavedLogin } from './login-storage';
+import { acceptExportMessage, beginExport, calendarYearRequest, exportScript, type ExportRun } from './export';
 import { Retrieval } from './retrieval';
 import { CaptureRun } from './CaptureRun';
 import { WindowCapture } from './WindowCapture';
@@ -19,6 +20,8 @@ export function AccessProbe({ close }: { close: () => void }) {
   const [showWindow, setShowWindow] = useState(false);
   const web = useRef<WebView>(null), currentUrl = useRef(LOGIN_URL);
   const retrieval = useRef(new Retrieval()), epoch = useRef(0), mounted = useRef(true);
+  const run = useRef<ExportRun | null>(null), command = useRef(''), reading = useRef(false);
+  const [from, setFrom] = useState(calendarYearRequest().from), [to, setTo] = useState(calendarYearRequest().to);
   const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const phase = useRef({ loaded: false, progress: 0, injections: 0 });
   const loginAttempt = useRef<'waiting' | 'submitted' | null>(null);
@@ -31,7 +34,7 @@ export function AccessProbe({ close }: { close: () => void }) {
   const [browserActive, setBrowserActive] = useState(true);
   const [visible, setVisible] = useState(false), [busy, setBusy] = useState(false), [loaded, setLoaded] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [snapshot, setSnapshot] = useState<ProbeSnapshot | null>(null), [status, setStatus] = useState('Sign in on the original provider page. No date selection is needed.');
+  const [snapshot, setSnapshot] = useState<ProbeSnapshot | null>(null), [status, setStatus] = useState('Sign in on the original provider page. Choose an inclusive period; configuration is verified before capture.');
   useEffect(() => { let active = true; mounted.current = true; void latestCapture().then(s => { if (active) setSnapshot(old => old ?? s); }).catch(() => { if (active && retrieval.current.state.phase === 'idle') setStatus('Saved capture could not be opened. Synthetic logbook remains separate.'); }); return () => { active = false; mounted.current = false; epoch.current++; if (timeout.current) clearTimeout(timeout.current); retrieval.current.dispose(); }; }, []);
   useEffect(() => { let active = true; void readSavedLogin().then(login => { if (active) setHasLogin(!!login); }).catch(() => { if (active) setStatus('Protected login storage could not be opened. Existing captures remain available.'); }); return () => { active = false; loginAttempt.current = null; if (loginTimer.current) clearTimeout(loginTimer.current); }; }, []);
   function endLogin(message: string) { loginAttempt.current = null; if (loginTimer.current) clearTimeout(loginTimer.current); loginTimer.current = null; setLoginBusy(false); setStatus(message); }
@@ -78,6 +81,7 @@ export function AccessProbe({ close }: { close: () => void }) {
     if (nonce ? !retrieval.current.finish(nonce) : state.phase === 'saving') return;
     if (!nonce && state.phase === 'loading') retrieval.current.finish(state.nonce);
     if (timeout.current) clearTimeout(timeout.current); timeout.current = null;
+    run.current = null; command.current = ''; reading.current = false;
     if (mounted.current) { setBusy(false); setSaving(false); setStatus(message); }
   }
   function cancelRetrieval() {
@@ -87,23 +91,32 @@ export function AccessProbe({ close }: { close: () => void }) {
     epoch.current++; setGeneration(epoch.current); setBrowserActive(false); setLoaded(false); setVisible(false);
     finish('Retrieval cancelled. Previous captures preserved.');
   }
+  function armTimeout(nonce: string) {
+    if (timeout.current) clearTimeout(timeout.current);
+    timeout.current = setTimeout(() => finish('Export step timed out. Previous captures preserved; retry after checking provider login.', nonce), 30_000);
+  }
   function extract() {
-    const state = retrieval.current.state;
-    if (state.phase !== 'loading' || !flightUrl(currentUrl.current)) return;
-    phase.current.injections++;
-    web.current?.injectJavaScript(probeScript(state.nonce));
+    const state = retrieval.current.state, active = run.current;
+    if (state.phase !== 'loading' || !active || reading.current || !flightUrl(currentUrl.current)) return;
+    reading.current = true; command.current = Crypto.randomUUID(); phase.current.injections++;
+    armTimeout(state.nonce);
+    setStatus(`Verifying export: ${active.phase}; ${active.pages.length} pages read.`);
+    web.current?.injectJavaScript(exportScript(command.current, active));
   }
   // Commit the page-scoped bridge before executing the explicit table reader.
   useEffect(() => { if (visible && loaded && busy && flightUrl(url)) extract(); }, [visible, loaded, busy, url]);
   function navigate(uri: string) { setBrowserActive(true); setLoaded(false); currentUrl.current = uri; setUrl(uri); setSource({ uri }); epoch.current++; setGeneration(epoch.current); }
   function retrieve() {
     if (loginAttempt.current || loginBusy) return;
+    let prepared: ExportRun;
+    try { prepared = beginExport({ from, to }); } catch { setStatus('Use valid inclusive dates in YYYY-MM-DD order.'); return; }
     const nonce = Crypto.randomUUID();
     if (!retrieval.current.start(nonce)) return;
+    run.current = prepared; reading.current = false;
     setBusy(true); setVisible(true);
     phase.current = { loaded: false, progress: 0, injections: 0 };
     setStatus('Opening your personal flightbook automatically. If asked, complete provider login, then tap Retrieve again.');
-    timeout.current = setTimeout(() => finish(`Retrieval timed out. Previous captures are preserved. Flight page: ${flightUrl(currentUrl.current) ? 'yes' : 'no'}; load completed: ${phase.current.loaded ? 'yes' : 'no'}; progress: ${Math.round(phase.current.progress * 100)}%; reader requests: ${phase.current.injections}.`, nonce), 20_000);
+    armTimeout(nonce);
     // Every retrieval requests the page again, rather than recapturing stale DOM.
     // Remounting also installs the flight-scoped bridge before that page loads;
     // provider cookies stay in the same native browser store.
@@ -114,11 +127,15 @@ export function AccessProbe({ close }: { close: () => void }) {
     if (state.phase !== 'loading' || !bridgeSource(event.nativeEvent.url, currentUrl.current)) return;
     const nonce = state.nonce;
     try {
-      // An old bridge message must not terminate the active request.
-      if (event.nativeEvent.data.length > 200_000) throw new Error('Oversized flight response. Previous captures preserved.');
+      if (event.nativeEvent.data.length > 2_000_000) throw new Error('Oversized response.');
       const message: unknown = JSON.parse(event.nativeEvent.data);
-      if (message && typeof message === 'object' && (message as Record<string, unknown>).nonce !== nonce) return;
-      const data = decodeProbe(event.nativeEvent.data, event.nativeEvent.url, nonce, new Date().toISOString(), currentUrl.current);
+      if (!message || typeof message !== 'object' || (message as Record<string, unknown>).token !== command.current) return;
+      if (!run.current || !reading.current) return;
+      const result = acceptExportMessage(run.current, event.nativeEvent.data, event.nativeEvent.url, currentUrl.current, command.current);
+      reading.current = false; command.current = '';
+      if (result.nextUrl) { armTimeout(nonce); navigate(result.nextUrl); return; }
+      if (!result.complete) { extract(); return; }
+      const data = result.complete;
       if (!retrieval.current.beginSave(nonce)) return;
       setSaving(true); setStatus('Saving validated capture locally…');
       if (timeout.current) clearTimeout(timeout.current);
@@ -126,7 +143,7 @@ export function AccessProbe({ close }: { close: () => void }) {
       await saveCapture(data);
       if (!mounted.current || !retrieval.current.owns(nonce)) return;
       setSnapshot(data); setVisible(false);
-      finish(`Saved ${data.rows.length} visible personal-list rows locally. Bounded access capture; account identity and time basis still need verification.`, nonce);
+      finish(`Saved ${data.rows.length} flights across ${data.exportContext?.pageCount} pages for the requested period. Account identity and time basis remain unverified.`, nonce);
     } catch { finish('Retrieval or local saving failed. Previous captures preserved. Sign in again if needed, then retry.', nonce); }
   }
   if (showRun) return <CaptureRun close={() => setShowRun(false)} />;
@@ -134,16 +151,17 @@ export function AccessProbe({ close }: { close: () => void }) {
   if (editingLogin) return <View style={styles.screen}><Text style={styles.title}>Save Vereinsflieger login</Text><ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.results}><View style={styles.row}><Text style={styles.body}>Optional login saved in protected device storage. Used only for Vereinsflieger sign-in; excluded from logbook backups. Forget it after development.</Text><TextInput accessibilityLabel="Saved login username" placeholder="Username or email" autoCapitalize="none" autoCorrect={false} autoComplete="username" value={username} onChangeText={setUsername} editable={!loginBusy} style={styles.input} /><TextInput accessibilityLabel="Saved login password" placeholder="Password" secureTextEntry autoCapitalize="none" autoCorrect={false} autoComplete="off" value={password} onChangeText={setPassword} editable={!loginBusy} style={styles.input} /><View style={styles.actions}><Button title="Save login" disabled={loginBusy} press={() => void saveLogin()} /><Button title="Cancel login entry" disabled={loginBusy} press={() => { setUsername(''); setPassword(''); setEditingLogin(false); }} /></View></View></ScrollView></View>;
   return <View style={styles.screen}>
     <Text style={styles.title}>Vereinsflieger access PoC</Text>
-    <Text style={styles.body}>Read-only test of the default personal list, at most 20 rows. No full-history or verified-account claim. Captures stay separate from your logbook.</Text>
+    <Text style={styles.body}>Configure all data columns, clear restrictions and select Pilot oder Fluglehrer before reading every page. Raw captures stay separate from your logbook.</Text>
     <Text accessibilityLiveRegion="polite" style={styles.body}>{status}</Text>
     <Button title="Open bounded capture and resume" disabled={busy || loginBusy} press={() => setShowRun(true)} />
     <Button title="Open dated-window capture" disabled={busy || loginBusy} press={() => setShowWindow(true)} />
+    <View style={styles.actions}><TextInput accessibilityLabel="Export start date" value={from} onChangeText={setFrom} editable={!busy} placeholder="YYYY-MM-DD" style={styles.input} /><TextInput accessibilityLabel="Export end date" value={to} onChangeText={setTo} editable={!busy} placeholder="YYYY-MM-DD" style={styles.input} /></View>
     <View style={styles.actions}><Button title="Show provider login" disabled={busy || loginBusy} press={() => { setVisible(true); navigate(LOGIN_URL); }} /><Button title="Retrieve flights" disabled={busy || loginBusy} press={retrieve} /><Button title="Close access PoC" disabled={busy || loginBusy} press={close} /></View>
     <View style={styles.actions}><Button title={hasLogin ? 'Replace saved login' : 'Save login on this device'} disabled={busy || loginBusy} press={() => { setEditingLogin(true); setVisible(false); }} />{hasLogin && <><Button title="Use saved login" disabled={busy || loginBusy} press={useLogin} /><Button title="Forget saved login" disabled={busy || loginBusy} press={() => void forgetLogin()} /></>}</View>
     {busy && <ActivityIndicator />}
     {busy && <Button title="Cancel retrieval" disabled={saving} press={cancelRetrieval} />}
     {visible && <Text style={styles.origin}>{providerUrl(url) ? new URL(url).origin : 'Navigation blocked'} · verify that the visible provider account is yours</Text>}
-    <View style={visible ? styles.browser : styles.hidden}>
+    <View pointerEvents={saving ? 'none' : 'auto'} style={visible ? styles.browser : styles.hidden}>
       {/* Route all navigation through our exact-URL validator; a narrow library
           whitelist otherwise hands rejected URLs to the external OS browser. */}
       {browserActive && <WebView key={generation} ref={web} source={source} originWhitelist={['*']}
@@ -153,7 +171,7 @@ export function AccessProbe({ close }: { close: () => void }) {
         javaScriptCanOpenWindowsAutomatically={false} setSupportMultipleWindows={true}
         onShouldStartLoadWithRequest={request => { if (generation !== epoch.current) return false; const allowed = providerUrl(request.url); if (!allowed && request.isTopFrame !== false) finish('External navigation blocked. Previous captures preserved.'); return allowed; }}
         onOpenWindow={() => { if (generation === epoch.current) finish('New browser window blocked in this bounded PoC.'); }}
-        onLoadStart={event => { if (generation !== epoch.current) return; currentUrl.current = event.nativeEvent.url; setUrl(event.nativeEvent.url); setLoaded(false); }}
+        onLoadStart={event => { if (generation !== epoch.current) return; if (retrieval.current.state.phase === 'loading') { reading.current = false; command.current = ''; } currentUrl.current = event.nativeEvent.url; setUrl(event.nativeEvent.url); setLoaded(false); }}
         onNavigationStateChange={state => { if (generation !== epoch.current) return; currentUrl.current = state.url; setUrl(state.url); }}
         onLoadProgress={event => { if (generation === epoch.current) phase.current.progress = event.nativeEvent.progress; }}
         onLoadEnd={event => { if (generation === epoch.current) void loadedPage(event.nativeEvent.url); }}
@@ -168,10 +186,11 @@ export function AccessProbe({ close }: { close: () => void }) {
         onHttpError={() => { if (generation === epoch.current) loginAttempt.current ? endLogin('Provider login returned an HTTP error. Saved login and captures preserved.') : finish('Provider returned an HTTP error. Previous captures preserved.'); }}
       />}
     </View>
-    {!visible && <ScrollView contentContainerStyle={styles.results}>
-      <Button title="Show provider page" press={() => { if (!browserActive) navigate(LOGIN_URL); setVisible(true); }} />
-      {snapshot ? <><Text style={styles.body}>Last saved capture: {snapshot.retrievedAt}. Coverage: visible list only; time basis unknown. Source identity unverified.</Text>{snapshot.rows.map((r, i) => <View style={styles.row} key={i}>{snapshot.headers.map((h, n) => h ? <Text selectable key={n} style={styles.body}>{h}: {r.values[n] || '(blank)'}</Text> : null)}<Text style={styles.body}>Candidate source flight ID: {r.sourceFlightId ?? 'not supplied'}</Text></View>)}</> : <Text style={styles.body}>No live capture saved. Login session reuse and real retrieval still require a device test.</Text>}
-    </ScrollView>}
+    {!visible && <FlatList contentContainerStyle={styles.results} data={snapshot?.rows ?? []} keyExtractor={(_, i) => String(i)}
+      ListHeaderComponent={<><Button title="Show provider page" disabled={busy || loginBusy} press={() => { if (!browserActive) navigate(LOGIN_URL); setVisible(true); }} />{snapshot && <Text style={styles.body}>Last saved capture: {snapshot.retrievedAt}. Coverage: {snapshot.coverage}. {snapshot.exportContext ? `${snapshot.exportContext.from} through ${snapshot.exportContext.to}; ${snapshot.exportContext.preset}; ${snapshot.exportContext.pageCount} pages.` : 'Legacy bounded capture.'} Source identity unverified; time basis unknown.</Text>}</>}
+      ListEmptyComponent={<Text style={styles.body}>{snapshot ? 'Verified requested list is empty.' : 'No live capture saved. Login session reuse and real retrieval still require a device test.'}</Text>}
+      renderItem={({ item: r }) => <View style={styles.row}>{snapshot?.headers.map((h, n) => h ? <Text selectable key={n} style={styles.body}>{h}: {r.values[n] || '(blank)'}</Text> : null)}<Text style={styles.body}>Candidate source flight ID: {r.sourceFlightId ?? 'not supplied'}</Text></View>} />}
+
   </View>;
 }
 const styles = StyleSheet.create({ input: { backgroundColor: 'white', borderWidth: 1, borderColor: '#b9cadb', padding: 10, borderRadius: 6, color: '#1f2937' }, screen: { flex: 1, padding: 12, gap: 8, backgroundColor: '#f5f7fb' }, title: { fontSize: 23, fontWeight: '700', color: '#173a57' }, body: { fontSize: 15, lineHeight: 21, color: '#1f2937' }, origin: { fontSize: 14, color: '#174c72' }, actions: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 }, button: { backgroundColor: '#174c72', padding: 10, borderRadius: 6 }, buttonText: { color: '#fff', fontSize: 14 }, browser: { flex: 1, minHeight: 180 }, hidden: { height: 0, overflow: 'hidden' }, results: { gap: 10, paddingBottom: 20 }, row: { backgroundColor: 'white', borderWidth: 1, borderColor: '#b9cadb', padding: 12, gap: 4 } });
