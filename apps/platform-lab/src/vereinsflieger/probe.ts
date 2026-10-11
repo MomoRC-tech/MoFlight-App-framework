@@ -1,7 +1,9 @@
 // Read-only access probe. Raw provider fields are not yet canonical logbook flights.
 export const LOGIN_URL = 'https://vereinsflieger.de/';
 export const FLIGHT_URL = 'https://vereinsflieger.de/member/profile/flightlog.php';
-export const REQUIRED_HEADERS = ['Datum', 'Lfz.-Muster', 'Lfz.', 'Pilot', 'PIC', 'Begleiter/FI', 'S.-Art', 'Flugart', 'Startort', 'Landeort', 'Start', 'Landung', 'Flugzeit'];
+// These anchors identify the bounded personal table, not a complete flight.
+// Optional model/PIC/class/role-time columns must not block the observed default view.
+export const REQUIRED_HEADERS = ['Datum', 'Lfz.', 'Start', 'Landung', 'Flugzeit'];
 export const MAX_ROWS = 20;
 export interface ProbeRow { values: string[]; sourceFlightId: string | null }
 export interface ProbeSnapshot {

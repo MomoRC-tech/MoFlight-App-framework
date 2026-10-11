@@ -59,4 +59,6 @@ The manual distinguishes flight minutes, off/on-block times and per-aircraft eng
 
 The [2026-10-11 capture inventory and Gemini review](../product/vereinsflieger-capture-requirements.md) prioritizes source fields and verification before output formats. Preserve raw evidence, missing states and distinct time/crew measures; do not adopt the supplied universal schema or infer licensing class from registration. This clarifies preparation for the adapter without enabling canonical imports.
 
+[Bounded capture follow-up](../verification/2026-10-11-vereinsflieger-capture-fields.md) verifies repeated desktop rows/references, current default columns and a date-specific empty UI. The reader now accepts missing optional model/PIC columns and a pure field inspection distinguishes not captured, blank and source text. No optional enrichment, native rerun, verified identity/complete coverage or canonical persistence is established by this change.
+
 The browser manual describes exports; no export action was exposed in the inspected list/configuration view even after Manuel's requested reset, and bytes remain unverified. The reset removed important optional fields; the default view cannot be assumed to contain a complete import schema. This evidence narrows the proposal but does not authorize canonical promotion or mark ADR 0007 accepted.
