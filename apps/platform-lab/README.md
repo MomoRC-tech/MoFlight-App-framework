@@ -1,5 +1,7 @@
 # MoFlight native platform lab
 
+The [2026-10-11 reliability review](../../docs/verification/2026-10-11-reliability-review.md) records current gaps and the first retrieval recovery slice. During default-list retrieval, Cancel is available until validated capture saving begins. Saving holds the request lock until SQLite returns. Failed/cancelled retrieval preserves earlier captures; identical same-ID storage retries are safe, conflicting evidence is rejected, and reopened captures are runtime-validated. These changes have host/bundle evidence; native cancellation/expiry/account-switch acceptance remains open.
+
 Tracking: #4/#5/#6/#7/#9. Manuel approved Expo/React Native/strict TypeScript/pnpm and expo-sqlite as the single runtime database writer on 2026-10-08 ([ADR 0002](../../docs/adr/0002-phase1-technology-proposal.md), [ADR 0005](../../docs/adr/0005-host-lab-before-mobile-approval.md)). This is a bounded synthetic development app, not either released product.
 
 ## Setup and local builds

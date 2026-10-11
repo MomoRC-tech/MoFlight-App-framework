@@ -10,6 +10,16 @@ export interface ProbeSnapshot {
   captureId: string; retrievedAt: string; headers: string[]; rows: ProbeRow[];
   sourceIdentity: 'unverified'; coverage: 'visible-personal-list-only'; timeBasis: 'unknown';
 }
+export function validateCapture(value: unknown): ProbeSnapshot {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('Invalid saved capture.');
+  const s = value as Record<string, unknown>;
+  if (typeof s.captureId !== 'string' || !/^[a-zA-Z0-9-]{1,100}$/.test(s.captureId) ||
+      typeof s.retrievedAt !== 'string' || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(s.retrievedAt) ||
+      !Number.isFinite(Date.parse(s.retrievedAt)) || new Date(s.retrievedAt).toISOString() !== s.retrievedAt ||
+      s.sourceIdentity !== 'unverified' || s.coverage !== 'visible-personal-list-only' || s.timeBasis !== 'unknown') throw new Error('Unsupported saved capture metadata.');
+  // Reuse the live table contract; persisted JSON is also untrusted input.
+  return decodeProbe(JSON.stringify({ kind: 'vf-probe-v1', nonce: s.captureId, url: FLIGHT_URL, headers: s.headers, rows: s.rows }), FLIGHT_URL, s.captureId, s.retrievedAt);
+}
 export function providerUrl(value: string): boolean {
   try { const u = new URL(value); return u.protocol === 'https:' && ['vereinsflieger.de', 'www.vereinsflieger.de'].includes(u.hostname) && !u.username && !u.password && !u.port; }
   catch { return false; }
