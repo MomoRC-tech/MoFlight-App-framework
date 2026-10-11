@@ -33,5 +33,5 @@ const source = String.raw`function(login) {
   return 'submitted';
 }`;
 export function savedLoginScript(input: SavedLogin, nonce?: string): string {
-  return `(()=>{const result=(${source})(${JSON.stringify(validateLogin(input))});window.ReactNativeWebView?.postMessage(JSON.stringify({kind:'vf-login-result-v1',nonce:${JSON.stringify(nonce ?? '')},url:location.href,result}));})();true;`;
+  return `(()=>{let result;try{result=(${source})(${JSON.stringify(validateLogin(input))});}catch{result='provider-script-error';}window.ReactNativeWebView?.postMessage(JSON.stringify({kind:'vf-login-result-v1',nonce:${JSON.stringify(nonce ?? '')},url:location.href,result}));})();true;`;
 }
