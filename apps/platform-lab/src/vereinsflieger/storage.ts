@@ -12,7 +12,7 @@ function connection(db: SQLite.SQLiteDatabase): Connection {
 // Separate database: captures cannot change synthetic history, decisions or backups.
 async function database() {
   const db = await SQLite.openDatabaseAsync('vereinsflieger-access-probe.sqlite');
-  try { await db.execAsync(CAPTURE_SCHEMA + RUN_SCHEMA); }
+  try { await db.execAsync(CAPTURE_SCHEMA + ';' + RUN_SCHEMA); }
   catch (e) { await db.closeAsync(); throw e; }
   return db;
 }
