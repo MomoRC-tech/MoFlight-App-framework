@@ -42,6 +42,12 @@ test('unowned name collision fails before mutations; owned same-account name can
 test('backup never saves modified export preferences or submits a foreign form',()=>{
  for(const options of [{changed:true},{foreign:true}]){const f=fixture(options);assert.equal(f.execute('backup').error,'view-contract-changed');assert.deepEqual(f.actions,[]);}
 });
+test('collision appearing after snapshot is rejected again immediately before backup save',()=>{
+ const f=fixture();assert.equal(f.execute('snapshot',null).view.accountLabel,original.accountLabel);
+ f.select.options.push({text:VIEW_BACKUP,textContent:VIEW_BACKUP,value:VIEW_BACKUP,disabled:false});
+ assert.equal(f.execute('backup').error,'view-contract-changed');assert.deepEqual(f.actions,[]);
+ const owned=fixture({collision:true,owner:original.accountLabel});assert.equal(owned.execute('backup').status,'saved-request');assert.deepEqual(owned.actions,['save']);
+});
 test('wrong-account restoration refuses every mutation; missing backup leaves visible recovery',()=>{
  const f=fixture({changed:true});assert.equal(f.execute('restore',{...original,accountLabel:'Other account'}).error,'view-contract-changed');assert.deepEqual(f.actions,[]);
  assert.equal(f.execute('restore').error,'view-contract-changed');

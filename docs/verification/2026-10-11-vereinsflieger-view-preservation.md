@@ -30,10 +30,18 @@ Final-source Android/iOS Hermes exports were repeated after the ordering guard a
 
 Desktop-created `MoFlight App user view backup` has no ownership marker in a fresh native installation. The native collision guard will therefore stop rather than adopt/overwrite that configuration. Resolving such a collision remains an explicit user/provider action; no automatic deletion or name-only adoption is implemented.
 
+## Recovery ordering review — 19:40 Europe/Berlin
+
+Rechecked clean local/remote main at `433602a`. Android checkpoint `38157941293` has passed its plan and APK build; the emulator smoke job remains running. No native/live-provider acceptance is inferred.
+
+Read-only host/driver/storage review found two gaps requiring correction before further acceptance: export driver account continuity was checked by the host only after a command could mutate the provider page, and backup-name collision ownership was checked at snapshot but not again after asynchronous journaling immediately before save. Add pre-mutation checks and synthetic regression cases for an account change and a collision appearing between snapshot and save. Journal-before-mutation, request-owned SQLite writes and exact-payload cleanup remain the intended order. No live session was changed during this review.
+
+Both gaps are corrected in this continuation: each export command compares the journaled display context before any provider controls are changed, and backup save repeats the collision/ownership check on the current document. Strict TypeScript and all 95 mobile tests pass, including new no-mutation cases across every export phase and a name collision introduced between snapshot and save. Review found no additional definite durable-store failure. Host save/cleanup ownership and native navigation ordering were reviewed, but their live WebView timing still requires device evidence. Existing APK/checkpoint source identities above predate these two corrections.
+
 ## Remaining acceptance and limits
 
 Provider account identity remains display-context-only. Different observed labels stop restoration; identical labels are not proof of the same stable account. Ownership metadata is local and cannot prove that a user has not deleted/recreated a same-named provider configuration. No production account-isolation guarantee is claimed. Relative scope comparison uses provider labels, not stale hidden date defaults; date-relative result rows naturally change over time. Former preset label is not restored by replaying an older saved definition.
 
-Native trial still required: actual login; ordinary capture/restore with custom and default views; restrictive filters/sorting; repeated owned-backup reuse; missing/colliding preset; force-stop/restart recovery; expired session/network loss/cancel with prior capture retained; stable account-switch protection; provider page-size behavior. The synthetic Android checkpoint validates the general lab, not this live contract. No iOS/physical-phone preservation execution is claimed. The old `6de2723` local APK remains historical until a final-source build is recorded.
+Native trial still required: actual login; ordinary capture/restore with custom and default views; restrictive filters/sorting; repeated owned-backup reuse; missing/colliding preset; force-stop/restart recovery; expired session/network loss/cancel with prior capture retained; stable account-switch protection; provider page-size behavior. The synthetic Android checkpoint validates the general lab, not this live contract. No iOS/physical-phone preservation execution is claimed. The old `6de2723` local APK remains historical.
 
 Next feature remains [chat discovery #13](../architecture/logbook-chat-discovery.md). Its documentation/tracking is complete for this stage; implementation and paid calls require separate authorization.

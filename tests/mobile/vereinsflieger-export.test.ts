@@ -51,7 +51,7 @@ test('phase acknowledgements advance only matching commands, preserve source con
 });
 
 // Synthetic DOM contracts, never private provider HTML or real flight records.
-function driverFixture(phase: ExportRun['phase'], options: {missingPreset?:boolean;activeBackup?:boolean;missingColumn?:boolean;filtered?:boolean;wrongPeriod?:boolean;foreignForm?:boolean;url?:string;iframe?:boolean;empty?:boolean;malformed?:boolean}={}) {
+function driverFixture(phase: ExportRun['phase'], options: {expectedAccount?:string;missingPreset?:boolean;activeBackup?:boolean;missingColumn?:boolean;filtered?:boolean;wrongPeriod?:boolean;foreignForm?:boolean;url?:string;iframe?:boolean;empty?:boolean;malformed?:boolean}={}) {
   const messages:string[]=[];const actions:string[]=[];
   const option={text:EXPORT_PRESET,value:EXPORT_PRESET,textContent:EXPORT_PRESET,disabled:false,hidden:false};
   const reset={text:'Zurücksetzen',textContent:'Zurücksetzen',value:'-1',disabled:false,hidden:false};
@@ -80,6 +80,7 @@ function driverFixture(phase: ExportRun['phase'], options: {missingPreset?:boole
   const document={querySelector:(s:string)=>fields[s]??null,querySelectorAll:(s:string)=>s==='#LST_VISIBLE > li'?visible:s==='#LST_AVAILABLE > li'?available:s==='td.footer.f1'?[{textContent:options.empty?'Datensatz 0 bis 0 von 0':'Datensatz 1 bis 1 von 1'}]:[]};
   const window:Record<string,unknown>={ReactNativeWebView:{postMessage:(s:string)=>messages.push(s)}};window.top=options.iframe?{}:window;
   const location=new URL(options.url??FLIGHT_URL);const run=beginExport(request);run.phase=phase;
+  run.accountLabel=options.expectedAccount??null;
   runInNewContext(exportScript(token,run),{window,document,location:{href:location.href,hostname:location.hostname,pathname:location.pathname,protocol:location.protocol,origin:location.origin},URL,Event:class { constructor(_name:string,_options:unknown){} }});
   return {messages,actions,boxes,fields};
 }
@@ -98,6 +99,14 @@ test('standalone driver repairs columns, clears restrictions, creates only absen
 });
 test('browser automation never runs on login/foreign documents or nested frames',()=>{
   for(const options of [{url:LOGIN_URL},{url:'https://evil.test/member/profile/flightlog.php'},{iframe:true}]) assert.deepEqual(driverFixture('read',options).messages,[]);
+});
+test('account switch is rejected before any export phase can change provider controls',()=>{
+ for(const phase of EXPORT_PHASES){
+  const f=driverFixture(phase,{expectedAccount:'Original account',missingPreset:true,activeBackup:true,missingColumn:true,filtered:true,wrongPeriod:true});
+  assert.deepEqual(f.actions,[]);assert.equal(JSON.parse(f.messages[0]!).error,'unsupported-provider-state');
+  assert.equal(f.boxes[1]!.checked,false);assert.equal((f.fields['#startdate'] as {value:string}).value,'');
+ }
+ assert.ok(driverFixture('clear',{expectedAccount:'Synthetic account',filtered:true}).actions.includes('submit'));
 });
 test('missing export preset leaves active user backup through reset before any column/filter mutation',()=>{
   const f=driverFixture('preset',{missingPreset:true,activeBackup:true});

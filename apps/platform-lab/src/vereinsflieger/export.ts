@@ -86,7 +86,7 @@ export function acceptExportMessage(run: ExportRun, data: string, sender: string
 
 // Standalone browser code: use the provider's observed DOM controls/submit handlers,
 // never its private runtime objects, cookies, passwords or signed endpoint templates.
-const driver = String.raw`function(token, phase, request, wantedPreset) {
+const driver = String.raw`function(token, phase, request, wantedPreset, expectedAccount) {
   if (window.top !== window || location.protocol !== 'https:' || !['vereinsflieger.de','www.vereinsflieger.de'].includes(location.hostname) || location.pathname !== '/member/profile/flightlog.php') return;
   const bridge = window.ReactNativeWebView; if (!bridge) return;
   const clean = e => (e?.textContent || '').replace(/\s+/g,' ').trim();
@@ -117,6 +117,8 @@ const driver = String.raw`function(token, phase, request, wantedPreset) {
   };
   try {
     if (!select || !accountLabel || !q('#tablelist_20')) throw new Error();
+    // Check continuity before controls can mutate another account's view.
+    if (expectedAccount !== null && accountLabel !== expectedAccount) throw new Error();
     if (phase === 'preset') {
       const found = options.find(o => o.text === preset);
       if (!found && clean(select.selectedOptions[0]) !== 'Konfiguration laden') {
@@ -200,5 +202,5 @@ const driver = String.raw`function(token, phase, request, wantedPreset) {
   } catch { fail(); }
 }`;
 export function exportScript(token: string, run: ExportRun): string {
-  return `(${driver})(${JSON.stringify(token)},${JSON.stringify(run.phase)},${JSON.stringify(run.request)},${JSON.stringify(run.preset)});true;`;
+  return `(${driver})(${JSON.stringify(token)},${JSON.stringify(run.phase)},${JSON.stringify(run.request)},${JSON.stringify(run.preset)},${JSON.stringify(run.accountLabel)});true;`;
 }

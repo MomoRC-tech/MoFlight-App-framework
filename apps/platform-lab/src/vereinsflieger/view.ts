@@ -81,6 +81,8 @@ const driver = String.raw`function(token, phase, original, owner, backupName, de
     if(phase==='backup'){
       if(original.reset){next();return;}
       if(!matches(current))throw new Error();
+      // A same-name configuration may appear while the journal is persisted.
+      if(options.some(o=>o.text===backupName||o.value===backupName)&&owner!==accountLabel)throw new Error();
       click(q('a[title="Liste konfigurieren"]'));click(q('#tableconfigtab_li_2'));
       const input=q('#userlist_name');formSafe(input?.form);input.value=backupName;input.dispatchEvent(new Event('keyup',{bubbles:true}));input.dispatchEvent(new Event('blur',{bubbles:true}));
       send({status:'saved-request'});click(q('#btn_userlist_add'));return;
