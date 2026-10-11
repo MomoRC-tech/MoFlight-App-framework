@@ -2,6 +2,8 @@
 
 Date: 2026-10-11, Europe/Berlin. User-authorized implementation; tracking [#2](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/2), discovery [#10](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/10). This replaces mandatory per-flight detail traversal in the native access lab. Canonical import, production identity/multiple-book schema and AI execution remain separate.
 
+Preservation correction under review: active provider settings persist across visits. The initial published filter slice does not yet restore the user's original view and must not be treated as the final user-safe retrieval flow. See the [provider backup/reset proposal and observed limitations](vereinsflieger-view-preservation.md). Restoration work is not yet published or natively accepted.
+
 ## Retrieval contract
 
 `src/vereinsflieger/export.ts` contains the native command/decoder and standalone DOM-driver contract. `AccessProbe.tsx` uses it instead of the old default-list reader. The historical reader remains for legacy regression checks, not the active Retrieve flights path.
