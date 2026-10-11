@@ -72,7 +72,7 @@ try {
         # Avoid Expo generating a second config and dirtying the build checkout.
         $env:EXPO_NO_TYPESCRIPT_SETUP = '1'
         Push-Location $app
-        try { Invoke-Checked node @((Join-Path $build 'node_modules/expo/bin/cli'), 'start', '--dev-client', '--localhost') }
+        try { Invoke-Checked node @('--dns-result-order=ipv4first', (Join-Path $build 'node_modules/expo/bin/cli'), 'start', '--dev-client', '--localhost') }
         finally { Pop-Location }
         return
     }
