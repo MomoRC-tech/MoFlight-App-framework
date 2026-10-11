@@ -1,6 +1,7 @@
 """Reuse an unexpired lab APK only when the complete app input tree is unchanged.
 
-Docs and the CI/emulator harness may differ; every other path forces compilation.
+Docs, CI/emulator/Windows tooling and the isolated project audit may differ;
+every other path forces compilation.
 GitHub artifact metadata supplies the actual compiled source commit/run, never
 an assumed current-main binary. Needs only read-only Actions/contents permission.
 """
@@ -13,6 +14,7 @@ from pathlib import Path
 
 def harness_only(path):
     return (path.startswith("docs/") or path.startswith(".github/workflows/") or
+            path.startswith("pocs/project-audit/") or
             path in {"README.md", "apps/platform-lab/README.md",
                      "scripts/android_smoke.py", "scripts/android_build_plan.py"}
             # These Windows-only helpers are never inputs to the hosted Linux APK.

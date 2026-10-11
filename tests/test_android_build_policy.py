@@ -99,6 +99,10 @@ class PlannerTests(unittest.TestCase):
         output, _, _, _ = self.run_plan('scripts/build-android-local.ps1\n')
         self.assertIn('run_id=123\n', output)
 
+    def test_isolated_project_audit_does_not_invalidate_android_binary(self):
+        output, _, _, _ = self.run_plan('pocs/project-audit/reproduce.ts\n')
+        self.assertIn('run_id=123\n', output)
+
     def test_forced_build_skips_artifact_lookup(self):
         output, _, requests, _ = self.run_plan(force=True)
         self.assertIn('run_id=\n', output)
