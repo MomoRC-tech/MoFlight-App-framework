@@ -1,0 +1,21 @@
+{
+  "status": "passed",
+  "compiled_source": "c6a5900d5ec9aaf226ec565261735bdad553c030",
+  "metro_source": "4b1d3da4e5ef6fd41846fa6f8f19692e2482cad4",
+  "emulator": "MoFlight_Synthetic_API37",
+  "serial": "emulator-5558",
+  "api": 37,
+  "host": "127.0.0.1",
+  "port": 8081,
+  "checks": [
+    "development-client-loaded-app-through-Metro",
+    "temporary-title-visible-without-native-rebuild",
+    "original-source-and-title-restored",
+    "build-checkout-clean"
+  ],
+  "title_before": "MoFlight Lab",
+  "title_changed": "MoFlight Local Reload Verified",
+  "title_restored": "MoFlight Lab",
+  "apk_sha256_before": "97b5a9e77a2d01f0ac5cce36ec1c14f1f442f243727066790d96339d3ac52776",
+  "apk_sha256_after": "97b5a9e77a2d01f0ac5cce36ec1c14f1f442f243727066790d96339d3ac52776"
+}

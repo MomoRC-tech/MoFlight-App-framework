@@ -111,6 +111,11 @@ For screen/logic iteration, edit in the dedicated build checkout while Metro run
 Create a dedicated AVD named exactly `MoFlight_Synthetic_API37` using the already installed API 37 x86_64 image. Keep `MoFlight_API37` for the provider-session trial. Start the synthetic AVD on an unused port, identify its serial with `adb devices`, and pass that serial explicitly:
 
 ```powershell
+# The rollout created this dedicated AVD; port 5558 must be unused.
+Start-Process "$env:LOCALAPPDATA\Android\Sdk\emulator\emulator.exe" -WindowStyle Hidden -ArgumentList '-avd MoFlight_Synthetic_API37 -port 5558 -no-window -no-audio -no-snapshot -gpu swiftshader -memory 2048'
+# Wait for boot completion and verify its name before selecting it.
+adb -s emulator-5558 shell getprop sys.boot_completed
+adb -s emulator-5558 emu avd name
 .\scripts\build-android-local.ps1 -JavaHome $jdk -SmokeSerial emulator-5558
 ```
 
