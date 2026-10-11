@@ -15,6 +15,9 @@ def harness_only(path):
     return (path.startswith("docs/") or path.startswith(".github/workflows/") or
             path in {"README.md", "apps/platform-lab/README.md",
                      "scripts/android_smoke.py", "scripts/android_build_plan.py"}
+            # These Windows-only helpers are never inputs to the hosted Linux APK.
+            or path in {"scripts/build-android-local.ps1", "scripts/windows-android-env.ps1",
+                        "scripts/configure-windows-native-build.ps1"}
             or path in {"tests/test_android_smoke.py", "tests/test_android_smoke_reporting.py",
                         "tests/test_android_build_policy.py"})
 

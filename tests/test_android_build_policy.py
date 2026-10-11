@@ -95,6 +95,10 @@ class PlannerTests(unittest.TestCase):
         output, _, _, _ = self.run_plan('tests/test_android_build_policy.py\n')
         self.assertIn('run_id=123\n', output)
 
+    def test_windows_only_helper_does_not_invalidate_hosted_linux_apk(self):
+        output, _, _, _ = self.run_plan('scripts/build-android-local.ps1\n')
+        self.assertIn('run_id=123\n', output)
+
     def test_forced_build_skips_artifact_lookup(self):
         output, _, requests, _ = self.run_plan(force=True)
         self.assertIn('run_id=\n', output)
@@ -129,6 +133,22 @@ class DeviceSelectionTests(unittest.TestCase):
 
 @unittest.skipUnless(os.name == 'nt' and shutil.which('pwsh'), 'Windows helper execution')
 class LocalCheckoutTests(unittest.TestCase):
+    def test_explicit_commit_does_not_require_discarding_source_drafts(self):
+        with tempfile.TemporaryDirectory() as folder:
+            source = Path(folder) / 'source'
+            subprocess.run(['git', 'init', str(source)], check=True, capture_output=True)
+            subprocess.run(['git', '-C', str(source), '-c', 'user.name=Synthetic Test',
+                            '-c', 'user.email=synthetic@example.invalid', 'commit', '--allow-empty', '-m', 'synthetic'],
+                           check=True, capture_output=True)
+            (source / 'draft.txt').write_text('synthetic draft')
+            result = subprocess.run(['pwsh', '-NoProfile', '-File', str(ROOT / 'scripts/build-android-local.ps1'),
+                                     '-SourceRepository', str(source), '-BuildDirectory', str(Path(folder) / 'build'),
+                                     '-SourceRef', 'HEAD', '-JavaHome', 'missing-synthetic-jdk'],
+                                    capture_output=True, text=True, timeout=30)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn('JDK 17 is missing', result.stderr)
+            self.assertNotIn('Commit source changes first', result.stderr)
+            self.assertEqual((source / 'draft.txt').read_text(), 'synthetic draft')
     def test_uncommitted_source_is_refused_without_creating_build_target(self):
         with tempfile.TemporaryDirectory() as folder:
             source = Path(folder) / 'source'

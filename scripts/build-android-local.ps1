@@ -26,7 +26,10 @@ $build = [IO.Path]::GetFullPath($BuildDirectory)
 if ($build -eq $source -or $build.StartsWith($source + [IO.Path]::DirectorySeparatorChar, [StringComparison]::OrdinalIgnoreCase)) {
     throw 'Use a separate build checkout outside the source repository.'
 }
-if (Read-Git $source @('status', '--porcelain')) { throw 'Commit source changes first; no private or untracked files are copied.' }
+if (Read-Git $source @('status', '--porcelain')) {
+    if (-not $PSBoundParameters.ContainsKey('SourceRef')) { throw 'Commit source changes first; no private or untracked files are copied.' }
+    Write-Warning 'Building only the explicitly selected commit; source drafts are preserved and excluded.'
+}
 $commit = Read-Git $source @('rev-parse', "$SourceRef^{commit}")
 . (Join-Path $PSScriptRoot 'windows-android-env.ps1') -JavaHome $JavaHome -SdkRoot $SdkRoot
 foreach ($tool in @('node', 'pnpm', 'python', 'git')) { Get-Command $tool -ErrorAction Stop | Out-Null }

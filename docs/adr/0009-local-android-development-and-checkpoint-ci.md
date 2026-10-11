@@ -10,7 +10,7 @@ The installed Windows SDK/emulator and local standalone builds already work, wit
 
 ## Decision
 
-Use local Windows builds/emulator testing as the primary Android development loop. Reuse the installed Android SDK and JDK 17; Android Studio remains available for SDK/emulator management and debugging. A dedicated short-path checkout uses frozen hoisted dependencies and generated-only CMake settings. It builds committed source, refuses dirty source/build checkouts, retains caches and records source/configuration/checksum/timing. Do not transfer ignored private files.
+Use local Windows builds/emulator testing as the primary Android development loop. Reuse the installed Android SDK and JDK 17; Android Studio remains available for SDK/emulator management and debugging. A dedicated short-path checkout uses frozen hoisted dependencies and generated-only CMake settings. It builds committed source, refuses dirty build checkouts, retains caches and records source/configuration/checksum/timing. Dirty source is refused by default; an explicit source ref permits a committed snapshot without copying or changing source drafts. Do not transfer ignored private files.
 
 Development-client/Metro builds support screen/logic iteration; standalone Release-configuration lab APKs establish offline acceptance. Only the named synthetic AVD may be reset by the local smoke command. Provider-session emulators remain separate.
 

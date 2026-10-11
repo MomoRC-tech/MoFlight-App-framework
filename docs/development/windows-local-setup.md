@@ -88,6 +88,8 @@ The helper changes only ignored generated `app/build.gradle`, placing the C++ ca
 
 Run from a clean committed source checkout. The helper defaults to a separate `%USERPROFILE%\mf-build` checkout, validates its origin and refuses tracked/untracked changes before switching commits. It never resets or copies private source files. Use another `-BuildDirectory` if that location belongs to other work. Supply the installed JDK 17 explicitly; SDK defaults to Android Studio's standard location.
 
+If another task has source drafts, explicitly pass `-SourceRef COMMIT_SHA` to build only that committed snapshot; drafts remain untouched and are excluded. Without an explicit source ref, a dirty source is rejected. A dirty build checkout is always rejected.
+
 ```powershell
 $jdk = 'C:\Users\Momo\Documents\30_Coding\03_chatGPT work folder\dev-tools\jdk17\jdk-17.0.20.1+1'
 .\scripts\build-android-local.ps1 -JavaHome $jdk
