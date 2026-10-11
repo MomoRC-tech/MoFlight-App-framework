@@ -23,8 +23,19 @@ Both canonical schema-v1 import and the new pilot library retain explicit synthe
 
 - Strict TypeScript and 52 TypeScript/real-SQLite tests pass, including every-kind malformed legacy backups, transaction/activation failures, multi-book overlap/isolation, source corrections/reversions, legacy preservation, foreign ownership, unsupported versions and durable detail expiry/context/resume.
 - 38 Python host tests and canonical fixture parity pass.
-- Android and iOS Hermes export passes for the intermediate implementation; final Android compilation/checkpoint and final exports are recorded below after execution.
-- Native synthetic emulator checks: pending at initial publication of this implementation report. No new live native provider, physical-phone or iOS result is asserted here.
+- Android and iOS Hermes export passes at final implementation commit `facb787ce9a9adb546b1b24fd77935ec03a0c559`, alongside strict TypeScript and all 52 TypeScript tests.
+- 33 local native synthetic emulator checks pass across the baseline and new book journey, with their exact source boundaries below. No new live native provider, physical-phone or iOS runtime result is asserted here.
+
+## Final local Android evidence
+
+Windows, JDK 17.0.20.1, Android API 37 x86_64, dedicated **MoFlight_Synthetic_API37**, explicit serial `emulator-5558`, embedded-JavaScript Release APK, no Metro. Only this disposable synthetic emulator was installed/reset; provider-session emulators were untouched.
+
+- The full 23-check baseline passes on compiled commit `91c75f2ba07325f2e9912add396ecae3b3e11106`, using unchanged baseline harness at `03535e7`. APK SHA-256: `89442e358faf05ea0a68379b4a69ece25fd696c2e0ada2b20edaea52a832e671`. Checks cover offline restart, dataset isolation, individual copy confirmation, real external folder save, cancellation, checksum/oversize/malformed rejection, real document-picker restore, restored restart, byte-identical re-export and preservation of the newer original database. Report: ignored `local-data/android-smoke/report.json`. Source metadata was filled after execution from the recorded build output and launch command.
+- The final APK was upgraded in place without clearing this baseline state. All 10 additional checks pass at `facb787`: four books, review/write/individual confirmation, second-format isolation, offline selected-book persistence, actual complete pilot backup and picker restore, restored-library restart, preservation of the original lab, checksum-valid semantic rejection preserving selection after restart, and credential-free opening/closing of bounded capture controls. Report and screenshots: ignored `local-data/android-books/`. The new book screen was visually inspected.
+- Final Release build takes 46.50 seconds with the warm local cache (Gradle 45.69 seconds, no native regeneration). APK SHA-256: `7564a238978ae1c3efa7b2bf395c351287e322157f7287d3ab6bae025ea0e58c`; 47,024,635 bytes; arm64-v8a and x86_64. This is a development artifact, not production packaging/signing acceptance.
+- The first native run exposed plain-path versus file-URI conversion in selection existence checks. Its failure evidence remains in ignored `local-data/android-smoke-first-path-failure/`; commit `58f0cdf` fixed it and the full baseline rerun passed. Commit `91c75f2` also separates raw-capture/checkpoint SQL statements; the real-SQLite capture test checks both schemas together. Commit `facb787` fixes a non-UTF-8 book-screen separator.
+- [Fast platform checks](https://github.com/MomoRC-tech/MoFlight-App-framework/actions/runs/38142289016) pass at `facb787`. The final [Android checkpoint](https://github.com/MomoRC-tech/MoFlight-App-framework/actions/runs/38142313394) was explicitly dispatched for that commit: planning and hosted Release compilation passed; hosted emulator smoke remains running at documentation publication. Earlier checkpoints were cancelled after their source was superseded. No hosted smoke success is inferred from compilation.
+- Documentation checks pass: 63 Markdown files, 394 local destinations, no missing files or heading warnings. `git diff --check` passes. The task-created synthetic emulator is stopped after collecting its reports.
 
 ## Reproduction
 
