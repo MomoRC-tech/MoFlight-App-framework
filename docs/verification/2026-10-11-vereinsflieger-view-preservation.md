@@ -58,6 +58,10 @@ Opening the provider page displayed its sign-in form. Retrieve flights then refu
 
 Continue with user-controlled sign-in/verification on the provider emulator, then determine the exact preflight blocker before any preservation trial. Computer-use policy prohibits automating authentication dialogs. No saved credentials were read or submitted by this trial.
 
+After user-controlled sign-in, native UI displayed the account dashboard. A second Retrieve attempt still refused during snapshot preflight and retained the earlier capture. The combined error cannot identify a name collision versus unsupported DOM/filter/header shape. Add bounded, fixed diagnostic reasons before asking for provider configuration changes; no raw provider exceptions, values, signed URLs or credentials may appear in the verdict.
+
+Implemented fixed preflight reasons for backup collision, missing controls, unsupported filters and header/column mismatch. Host source/token/phase validation precedes diagnostic decoding; unknown reason values collapse to a generic fixed message. Only snapshot errors use these no-mutation verdicts. Strict TypeScript and 96 mobile tests pass, including source rejection, reason filtering and zero-mutation diagnostic fixtures. This improves diagnosis without weakening collision, ownership or restoration guards.
+
 ## Remaining acceptance and limits
 
 Provider account identity remains display-context-only. Different observed labels stop restoration; identical labels are not proof of the same stable account. Ownership metadata is local and cannot prove that a user has not deleted/recreated a same-named provider configuration. No production account-isolation guarantee is claimed. Relative scope comparison uses provider labels, not stale hidden date defaults; date-relative result rows naturally change over time. Former preset label is not restored by replaying an older saved definition.

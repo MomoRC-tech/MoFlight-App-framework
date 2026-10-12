@@ -7,7 +7,7 @@ import { clearOriginalView, latestCapture, readOriginalView, saveCapture, saveOr
 import { loginPage, savedLoginScript } from './login';
 import { readSavedLogin, writeSavedLogin, forgetSavedLogin } from './login-storage';
 import { acceptExportMessage, beginExport, calendarYearRequest, exportScript, type ExportRun } from './export';
-import { decodeView, VIEW_PHASES, viewScript, type ViewPhase, type ViewPreferences } from './view';
+import { decodeView, VIEW_PHASES, viewScript, viewProtectionMessage, type ViewPhase, type ViewPreferences } from './view';
 import { Retrieval } from './retrieval';
 import { CaptureRun } from './CaptureRun';
 import { WindowCapture } from './WindowCapture';
@@ -219,7 +219,7 @@ export function AccessProbe({ close }: { close: () => void }) {
       if (!mounted.current || !retrieval.current.owns(nonce)) return;
       setSnapshot(data);
       finish(`Saved ${data.rows.length} flights across ${data.exportContext?.pageCount} pages for the requested period. Account identity and time basis remain unverified.`, nonce);
-    } catch { finish(viewPhase.current === 'snapshot' ? 'Original view could not be protected. Check for an existing MoFlight App user view backup configuration owned elsewhere or unsupported settings. No export settings changed.' : 'Retrieval or local saving failed. Previous captures preserved. Sign in again if needed, then retry.', nonce); }
+    } catch (error) { finish(viewPhase.current === 'snapshot' ? viewProtectionMessage(error) ?? 'Original view could not be protected. Check for an existing MoFlight App user view backup configuration owned elsewhere or unsupported settings. No export settings changed.' : 'Retrieval or local saving failed. Previous captures preserved. Sign in again if needed, then retry.', nonce); }
   }
   if (showRun) return <CaptureRun close={() => setShowRun(false)} />;
   if (showWindow) return <WindowCapture close={() => setShowWindow(false)} />;

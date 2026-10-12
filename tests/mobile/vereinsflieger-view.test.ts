@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { runInNewContext } from 'node:vm';
-import { decodeView, isDefaultView, sameView, validateView, viewScript, VIEW_BACKUP, type ViewPreferences, type ViewPhase } from '../../apps/platform-lab/src/vereinsflieger/view.ts';
+import { decodeView, isDefaultView, sameView, validateView, viewScript, viewProtectionMessage, VIEW_BACKUP, type ViewPreferences, type ViewPhase } from '../../apps/platform-lab/src/vereinsflieger/view.ts';
 import { rememberView, pendingView, forgetView, backupOwner, ownBackup } from '../../apps/platform-lab/src/vereinsflieger/view-store.ts';
 import { FLIGHT_URL, LOGIN_URL } from '../../apps/platform-lab/src/vereinsflieger/probe.ts';
 import { Retrieval } from '../../apps/platform-lab/src/vereinsflieger/retrieval.ts';
@@ -24,10 +24,23 @@ function fixture(options: {collision?:boolean; owner?:string; changed?:boolean; 
   const document={querySelector:(s:string)=>s==='#globalfilter'?{textContent:state.period}:s==='#globalfilter2'?{textContent:state.role}:mapping[s],querySelectorAll:(s:string)=>s==='#LST_VISIBLE > li'?state.columns.map(id=>({getAttribute:()=>id})):s==='#tablelist_20 thead th'?state.columns.map(id=>({querySelectorAll:()=>state.sort.filter(x=>x.column===id).map(x=>({classList:[x.icon]}))})):[]};
   const window:any={ReactNativeWebView:{postMessage:(m:string)=>messages.push(m)}};window.top=window;
   function execute(phase:ViewPhase,prefs:ViewPreferences|null=original){messages.length=0;runInNewContext(viewScript('current',phase,prefs,options.owner??null),{window,document,location:new URL(FLIGHT_URL),URL,Event:class{}});return messages.length?JSON.parse(messages[0]!):{};}
-  return {execute,actions,state,select,mapping};
+  return {execute,actions,state,select,mapping,document};
 }
 test('snapshot records actual unsaved preferences without date-form replay or mutations',()=>{
  const f=fixture();assert.deepEqual(validateView(f.execute('snapshot',null).view),original);assert.deepEqual(f.actions,[]);
+});
+test('preflight diagnostics distinguish collisions and unsupported controls without leaking provider text',()=>{
+ const collision=fixture({collision:true}), controls=fixture(), filters=fixture(), headers=fixture();
+ controls.mapping['#tablelist_20']=null;filters.state.filters[0]!.name='password';
+ const query=headers.document.querySelectorAll;headers.document.querySelectorAll=s=>s==='#tablelist_20 thead th'?[]:query(s);
+ for(const [f,reason] of [[collision,'backup-name-collision'],[controls,'view-controls'],[filters,'view-filter-controls'],[headers,'view-header-columns']] as const){
+  const m=f.execute('snapshot',null);assert.equal(m.reason,reason);assert.deepEqual(f.actions,[]);
+  try {decodeView(JSON.stringify(m),LOGIN_URL,FLIGHT_URL,'current','snapshot',null);assert.fail('Expected preflight failure');}catch(e){assert.ok(viewProtectionMessage(e));}
+ }
+ const m={...collision.execute('snapshot',null),reason:'private-provider-exception'};
+ try{decodeView(JSON.stringify(m),LOGIN_URL,FLIGHT_URL,'current','snapshot',null);assert.fail('Expected failure');}catch(e){assert.ok(!viewProtectionMessage(e)?.includes('private-provider-exception'));}
+ assert.equal(viewProtectionMessage(new Error('private-provider-exception')),null);
+ assert.throws(()=>decodeView(JSON.stringify({...m,token:'stale'}),LOGIN_URL,FLIGHT_URL,'current','snapshot',null),e=>viewProtectionMessage(e)===null);
 });
 test('backup save/load uses provider controls then verifies relative period, filters, order and sort',()=>{
  const f=fixture();assert.equal(f.execute('backup').status,'saved-request');f.execute('backup-load');assert.deepEqual(f.actions,['save','load']);

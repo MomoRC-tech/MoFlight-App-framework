@@ -1,5 +1,20 @@
 import { bridgeSource, flightUrl } from './probe';
 export const VIEW_BACKUP = 'MoFlight App user view backup';
+const viewReasons = ['backup-name-collision','view-controls','view-filter-controls','view-header-columns','view-contract-changed'] as const;
+export class ViewProtectionError extends Error {
+  constructor(readonly reason: typeof viewReasons[number]) { super('Provider view protection stopped.'); }
+}
+export function viewProtectionMessage(error: unknown): string | null {
+  if (!(error instanceof ViewProtectionError)) return null;
+  const messages = {
+    'backup-name-collision': 'A provider configuration named MoFlight App user view backup already exists without ownership on this device. It was not overwritten. No export settings changed.',
+    'view-controls': 'Original view could not be read: required provider account, configuration or list controls are unavailable. No export settings changed.',
+    'view-filter-controls': 'Original view could not be read: provider filter controls are unsupported. No export settings changed.',
+    'view-header-columns': 'Original view could not be read: provider table headers do not match configured columns. No export settings changed.',
+    'view-contract-changed': 'Original view could not be verified against the supported provider controls. No export settings changed.',
+  };
+  return messages[error.reason];
+}
 export const VIEW_PHASES = ['restore', 'verify'] as const;
 export type ViewPhase = 'snapshot' | 'backup' | 'backup-load' | 'backup-verify' | typeof VIEW_PHASES[number];
 export interface ViewPreferences {
@@ -36,7 +51,8 @@ export function sameView(a: ViewPreferences, b: ViewPreferences): boolean {
 export function decodeView(data: string, sender: string, document: string, token: string, phase: ViewPhase, original: ViewPreferences | null): ViewPreferences | null {
   if (!bridgeSource(sender, document) || data.length > 400_000) throw new Error('Rejected view response.');
   const m = JSON.parse(data);
-  if (!m || m.kind !== 'vf-view-v2' || m.token !== token || m.phase !== phase || !flightUrl(m.url) || new URL(m.url).origin !== new URL(document).origin || m.error) throw new Error('Original view could not be verified.');
+  if (!m || m.kind !== 'vf-view-v2' || m.token !== token || m.phase !== phase || !flightUrl(m.url) || new URL(m.url).origin !== new URL(document).origin) throw new Error('Original view could not be verified.');
+  if (m.error) throw new ViewProtectionError(viewReasons.includes(m.reason) ? m.reason : 'view-contract-changed');
   if (phase === 'snapshot') return validateView(m.view);
   if (!original || m.accountLabel !== original.accountLabel || (m.status !== 'next' && !(phase === 'backup' && m.status === 'saved-request') && !(phase === 'backup-load' && m.status === 'load-request'))) throw new Error('Provider account changed; original view retained for recovery.');
   if (phase === 'verify' || phase === 'backup-verify') {
@@ -56,15 +72,19 @@ const driver = String.raw`function(token, phase, original, owner, backupName, de
   const formSafe=f=>{if(!f || f.method.toLowerCase()!=='post')throw new Error();const u=new URL(f.getAttribute('action')||location.href,location.href);if(u.origin!==location.origin || u.pathname!==location.pathname)throw new Error();};
   const quick=q('form[name="frm_tablelist_quickconfig"]'), select=quick?.querySelector('select[name="lst_configavailable"]');
   const options=select?Array.from(select.options).filter(o=>!o.disabled&&!o.hidden):[];
+  let reason='view-contract-changed';
   const read=()=>{
+    reason='view-controls';
     if(!select||!accountLabel||!q('#tablelist_20'))throw new Error();
     const columns=all('#LST_VISIBLE > li').map(e=>e.getAttribute('value'));
     const f=q('#frmfilter');if(!f)throw new Error();
+    reason='view-filter-controls';
     const filters=Array.from(f.elements).filter(e=>['text','checkbox','select-one'].includes(e.type)).map(e=>{if(!/^((op_)?col\d{1,4}|col\d{1,4}_(all|\d{1,4}))$/.test(e.name))throw new Error();return {name:e.name,type:e.type,value:e.value,checked:!!e.checked};});
+    reason='view-header-columns';
     const headers=all('#tablelist_20 thead th');if(headers.length!==columns.length)throw new Error();
     const sort=headers.flatMap((h,i)=>Array.from(h.querySelectorAll('[class*="icon-sort-"]')).map(e=>({column:columns[i],icon:Array.from(e.classList).find(c=>c.startsWith('icon-sort-'))})));
     const v={version:2,accountLabel,preset:clean(select.selectedOptions[0]),columns,filters,sort,role:clean(q('#globalfilter2')),period:clean(q('#globalfilter')),reset:false};
-    v.reset=v.preset==='Konfiguration laden'&&JSON.stringify(columns)===JSON.stringify(defaultColumns)&&v.period==='Das letzte Jahr'&&v.role==='Pilot'&&!sort.length&&filters.length>0&&filters.every(f=>f.type==='checkbox'?f.checked:f.type==='text'?f.value==='':f.value===':F:eq');return v;
+    v.reset=v.preset==='Konfiguration laden'&&JSON.stringify(columns)===JSON.stringify(defaultColumns)&&v.period==='Das letzte Jahr'&&v.role==='Pilot'&&!sort.length&&filters.length>0&&filters.every(f=>f.type==='checkbox'?f.checked:f.type==='text'?f.value==='':f.value===':F:eq');reason='view-contract-changed';return v;
   };
   const matches=v=>v.accountLabel===original.accountLabel&&JSON.stringify(v.columns)===JSON.stringify(original.columns)&&JSON.stringify(v.filters)===JSON.stringify(original.filters)&&JSON.stringify(v.sort)===JSON.stringify(original.sort)&&v.role===original.role&&v.period===original.period;
   const load=()=>{
@@ -74,7 +94,7 @@ const driver = String.raw`function(token, phase, original, owner, backupName, de
   try {
     const current=read();
     if(phase==='snapshot'){
-      if(!current.reset&&options.some(o=>o.text===backupName||o.value===backupName)&&owner!==accountLabel)throw new Error();
+      if(!current.reset&&options.some(o=>o.text===backupName||o.value===backupName)&&owner!==accountLabel){reason='backup-name-collision';throw new Error();}
       send({view:current});return;
     }
     if(!original||original.accountLabel!==accountLabel)throw new Error();
@@ -98,7 +118,7 @@ const driver = String.raw`function(token, phase, original, owner, backupName, de
       next(current);return;
     }
     throw new Error();
-  }catch{send({error:'view-contract-changed'});}
+  }catch{send({error:'view-contract-changed',reason});}
 }`;
 export function viewScript(token: string, phase: ViewPhase, original: ViewPreferences | null, owner: string | null = null): string {
   return `(${driver})(${JSON.stringify(token)},${JSON.stringify(phase)},${JSON.stringify(original)},${JSON.stringify(owner)},${JSON.stringify(VIEW_BACKUP)},${JSON.stringify(defaultColumns)});true;`;
