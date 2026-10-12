@@ -39,7 +39,9 @@ export function AccessProbe({ close }: { close: () => void }) {
   const [visible, setVisible] = useState(false), [busy, setBusy] = useState(false), [loaded, setLoaded] = useState(false);
   const [saving, setSaving] = useState(false);
   const testPauseEnabled = useRef(false), testPaused = useRef(false);
+  const preBackupPauseEnabled = useRef(false);
   const [pauseEnabled, setPauseEnabled] = useState(false), [paused, setPaused] = useState<string | null>(null);
+  const [preBackupPause, setPreBackupPause] = useState(false);
   const [snapshot, setSnapshot] = useState<ProbeSnapshot | null>(null), [status, setStatus] = useState('Sign in on the original provider page. Choose an inclusive period; configuration is verified before capture.');
   useEffect(() => { let active = true; mounted.current = true; void latestCapture().then(s => { if (active) setSnapshot(old => old ?? s); }).catch(() => { if (active && retrieval.current.state.phase === 'idle') setStatus('Saved capture could not be opened. Synthetic logbook remains separate.'); }); return () => { active = false; mounted.current = false; epoch.current++; if (timeout.current) clearTimeout(timeout.current); retrieval.current.dispose(); }; }, []);
   useEffect(() => { let active = true; void readSavedLogin().then(login => { if (active) setHasLogin(!!login); }).catch(() => { if (active) setStatus('Protected login storage could not be opened. Existing captures remain available.'); }); return () => { active = false; loginAttempt.current = null; if (loginTimer.current) clearTimeout(loginTimer.current); }; }, []);
@@ -151,8 +153,15 @@ export function AccessProbe({ close }: { close: () => void }) {
     if (!viewReady || recovery || busy || loginBusy || loginAttempt.current || retrieval.current.state.phase !== 'idle') return;
     testPauseEnabled.current = !testPauseEnabled.current; setPauseEnabled(testPauseEnabled.current);
   }
+  function togglePreBackupPause() {
+    if (!viewReady || recovery || busy || loginBusy || loginAttempt.current || retrieval.current.state.phase !== 'idle') return;
+    preBackupPauseEnabled.current = !preBackupPauseEnabled.current; setPreBackupPause(preBackupPauseEnabled.current);
+  }
   function continueTestRetrieval(nonce: string) {
-    if (!testPaused.current || restoring.current || !retrieval.current.owns(nonce) || retrieval.current.state.phase !== 'loading' || run.current?.phase !== 'columns') return;
+    if (!testPaused.current || restoring.current || !retrieval.current.owns(nonce) || retrieval.current.state.phase !== 'loading') return;
+    const beforeBackup = viewPhase.current === 'backup' && run.current?.phase === 'reset';
+    const afterReset = !viewPhase.current && run.current?.phase === 'columns';
+    if (!beforeBackup && !afterReset) return;
     testPaused.current = false; setPaused(null); extract();
   }
   function retrieve() {
@@ -194,6 +203,13 @@ export function AccessProbe({ close }: { close: () => void }) {
           original.current = captured; setRecovery(true); setViewStrategy(captured.reset ? 'reset' : 'reserved backup'); retrieval.current.resume(nonce); setSaving(false);
           if(run.current) run.current.accountLabel = captured.accountLabel;
           viewPhase.current = 'backup';
+          if (preBackupPauseEnabled.current) {
+            reading.current = false; command.current = '';
+            testPaused.current = true; setPaused(nonce);
+            if (timeout.current) clearTimeout(timeout.current); timeout.current = null;
+            setStatus('Test checkpoint: original view journaled before backup changes. Continue or cancel.');
+            return;
+          }
         } else if (stage === 'backup') {
           viewPhase.current = 'backup-load';
           if ((message as Record<string, unknown>).status === 'saved-request') {
@@ -250,6 +266,7 @@ export function AccessProbe({ close }: { close: () => void }) {
     <Button title="Open bounded capture and resume" disabled={busy || loginBusy || !viewReady || recovery} press={() => openCaptureLab('run')} />
     <Button title="Open dated-window capture" disabled={busy || loginBusy || !viewReady || recovery} press={() => openCaptureLab('window')} />
     <Button title={pauseEnabled ? 'Disable interruption test pause' : 'Enable interruption test pause'} disabled={busy || loginBusy || !viewReady || recovery} press={toggleTestPause} />
+    <Button title={preBackupPause ? 'Disable pre-backup test pause' : 'Enable pre-backup test pause'} disabled={busy || loginBusy || !viewReady || recovery} press={togglePreBackupPause} />
     <View style={styles.actions}><TextInput accessibilityLabel="Export start date" value={from} onChangeText={setFrom} editable={!busy} placeholder="YYYY-MM-DD" style={styles.input} /><TextInput accessibilityLabel="Export end date" value={to} onChangeText={setTo} editable={!busy} placeholder="YYYY-MM-DD" style={styles.input} /></View>
     <View style={styles.actions}><Button title="Show provider login" disabled={busy || loginBusy} press={() => { setVisible(true); navigate(LOGIN_URL); }} /><Button title={busy ? 'Cancel retrieval' : 'Retrieve flights'} disabled={busy ? saving || restoring.current : loginBusy || !viewReady || recovery} press={busy ? cancelRetrieval : retrieve} /><Button title="Close access PoC" disabled={busy || loginBusy} press={close} /></View>
     <View style={styles.actions}><Button title={hasLogin ? 'Replace saved login' : 'Save login on this device'} disabled={busy || loginBusy} press={() => { setEditingLogin(true); setVisible(false); }} />{hasLogin && <><Button title="Use saved login" disabled={busy || loginBusy} press={useLogin} /><Button title="Forget saved login" disabled={busy || loginBusy} press={() => void forgetLogin()} /></>}</View>

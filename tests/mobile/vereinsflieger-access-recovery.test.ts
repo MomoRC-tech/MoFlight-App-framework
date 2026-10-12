@@ -431,3 +431,48 @@ test('startup recovery reports only the journaled restoration strategy without p
   const failed = fixture(); failed.render(); await failed.settle(new Error('Synthetic unreadable journal'));
   assert.equal(strategy(failed), undefined, 'Unknown recovery contents cannot establish a strategy');
 });
+
+test('pre-backup checkpoint pauses before any backup command and cancellation verifies the unchanged original', async () => {
+  const f = fixture({ priorCapture }); f.render(); await f.settle(null);
+  f.press(f.button(f.render(), 'Enable pre-backup test pause'));
+  f.press(f.button(f.render(), 'Retrieve flights')); await f.loadFlight();
+  await f.message({ kind: 'vf-view-v2', view: original });
+  const continueButton = f.button(f.render(), 'Continue test retrieval'), count = f.injections.length;
+  assert.equal(f.currentCommand().phase, 'snapshot', 'The durable journal must pause before the backup driver is injected');
+  assert.equal(strategy(f), 'Original view restoration strategy: reserved backup');
+  assert.deepEqual(f.pending(), original); assert.equal(f.savedCapture(), priorCapture);
+  assert.deepEqual(f.writes, ['journal-start', 'journal-saved']);
+  await f.loadFlight(); assert.equal(f.injections.length, count, 'Navigation cannot advance pre-backup pause');
+  f.press(f.button(f.render(), 'Cancel retrieval')); f.press(continueButton);
+  await restoredReadback(f);
+  await f.message({ kind: 'vf-view-v2', token: 'abandoned-snapshot-token', status: 'next', view: original });
+  assert.deepEqual(f.pending(), original);
+  await f.message({ kind: 'vf-view-v2', status: 'next', view: original });
+  assert.equal(f.pending(), null); assert.equal(f.savedCapture(), priorCapture);
+  assert.ok(!f.injections.some(script => /\}\)\("[^"]+","backup(?:-load|-verify)?"/.test(script)), 'Cancellation must never inject a backup save/load phase');
+  f.press(f.button(f.render(), 'Retrieve flights')); await f.loadFlight();
+  await f.message({ kind: 'vf-view-v2', view: original });
+  const secondCount = f.injections.length;
+  f.press(continueButton); assert.equal(f.injections.length, secondCount, 'An old Continue cannot release the new request');
+});
+
+test('pre-backup Continue owns the request and preserves the existing verified-backup and post-reset checkpoint flow', async () => {
+  const f = fixture({ priorCapture }); f.render(); await f.settle(null);
+  f.press(f.button(f.render(), 'Enable pre-backup test pause'));
+  f.press(f.button(f.render(), 'Enable interruption test pause'));
+  f.press(f.button(f.render(), 'Retrieve flights')); await f.loadFlight();
+  await f.message({ kind: 'vf-view-v2', view: original });
+  f.press(f.button(f.render(), 'Continue test retrieval')); assert.equal(f.currentCommand().phase, 'backup');
+  await f.message({ kind: 'vf-view-v2', status: 'saved-request' }); await f.loadFlight();
+  assert.equal(f.currentCommand().phase, 'backup-load');
+  await f.message({ kind: 'vf-view-v2', status: 'load-request' }); await f.loadFlight();
+  assert.equal(f.currentCommand().phase, 'backup-verify');
+  await f.message({ kind: 'vf-view-v2', status: 'next', view: restored });
+  assert.equal(f.currentCommand().phase, 'reset');
+  await f.message({ kind: 'vf-export-v1', status: 'next', preset: exporter.ACTIVE_EXPORT_VIEW });
+  const count = f.injections.length; await f.loadFlight(); assert.equal(f.injections.length, count);
+  f.press(f.button(f.render(), 'Continue test retrieval')); assert.equal(f.currentCommand().phase, 'columns');
+  assert.deepEqual(f.pending(), original); assert.equal(f.savedCapture(), priorCapture);
+  const restarted = fixture({ priorCapture }); restarted.render(); await restarted.settle(original);
+  assert.equal(restarted.button(restarted.render(), 'Enable pre-backup test pause').props.disabled, true, 'Test mode is transient and pending recovery takes priority');
+});
