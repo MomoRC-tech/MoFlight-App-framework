@@ -109,6 +109,10 @@ export function AccessProbe({ close }: { close: () => void }) {
     const nonce = Crypto.randomUUID(); if (!retrieval.current.start(nonce)) return;
     startRestoration('Earlier export recovery.', nonce);
   }
+  function openCaptureLab(kind: 'run' | 'window') {
+    if (!viewReady || recovery || original.current || busy || loginBusy || loginAttempt.current || retrieval.current.state.phase !== 'idle') return;
+    if (kind === 'run') setShowRun(true); else setShowWindow(true);
+  }
   function cancelRetrieval() {
     const state = retrieval.current.state;
     if (state.phase !== 'loading' || restoring.current) return;
@@ -214,21 +218,20 @@ export function AccessProbe({ close }: { close: () => void }) {
       finish(`Saved ${data.rows.length} flights across ${data.exportContext?.pageCount} pages for the requested period. Account identity and time basis remain unverified.`, nonce);
     } catch (error) { finish(viewPhase.current === 'snapshot' ? viewProtectionMessage(error) ?? 'Original view could not be protected because provider settings are unsupported. No export settings changed.' : 'Retrieval or local saving failed. Previous captures preserved. Sign in again if needed, then retry.', nonce); }
   }
-  if (showRun) return <CaptureRun close={() => setShowRun(false)} />;
-  if (showWindow) return <WindowCapture close={() => setShowWindow(false)} />;
+  if (showRun && viewReady && !recovery && !original.current) return <CaptureRun close={() => setShowRun(false)} />;
+  if (showWindow && viewReady && !recovery && !original.current) return <WindowCapture close={() => setShowWindow(false)} />;
   if (editingLogin) return <View style={styles.screen}><Text style={styles.title}>Save Vereinsflieger login</Text><ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.results}><View style={styles.row}><Text style={styles.body}>Optional login saved in protected device storage. Used only for Vereinsflieger sign-in; excluded from logbook backups. Forget it after development.</Text><TextInput accessibilityLabel="Saved login username" placeholder="Username or email" autoCapitalize="none" autoCorrect={false} autoComplete="username" value={username} onChangeText={setUsername} editable={!loginBusy} style={styles.input} /><TextInput accessibilityLabel="Saved login password" placeholder="Password" secureTextEntry autoCapitalize="none" autoCorrect={false} autoComplete="off" value={password} onChangeText={setPassword} editable={!loginBusy} style={styles.input} /><View style={styles.actions}><Button title="Save login" disabled={loginBusy} press={() => void saveLogin()} /><Button title="Cancel login entry" disabled={loginBusy} press={() => { setUsername(''); setPassword(''); setEditingLogin(false); }} /></View></View></ScrollView></View>;
   return <View style={styles.screen}>
     <Text style={styles.title}>Vereinsflieger access PoC</Text>
     <Text style={styles.body}>Configure all data columns, clear restrictions and select Pilot oder Fluglehrer before reading every page. Raw captures stay separate from your logbook.</Text>
-    <Text accessibilityLiveRegion="polite" style={styles.body}>{status}</Text>
-    <Button title="Open bounded capture and resume" disabled={busy || loginBusy || recovery} press={() => setShowRun(true)} />
-    <Button title="Open dated-window capture" disabled={busy || loginBusy || recovery} press={() => setShowWindow(true)} />
+    <Text accessibilityLiveRegion="polite" style={[styles.body, styles.status]}>{status}</Text>
+    <Button title="Open bounded capture and resume" disabled={busy || loginBusy || !viewReady || recovery} press={() => openCaptureLab('run')} />
+    <Button title="Open dated-window capture" disabled={busy || loginBusy || !viewReady || recovery} press={() => openCaptureLab('window')} />
     <View style={styles.actions}><TextInput accessibilityLabel="Export start date" value={from} onChangeText={setFrom} editable={!busy} placeholder="YYYY-MM-DD" style={styles.input} /><TextInput accessibilityLabel="Export end date" value={to} onChangeText={setTo} editable={!busy} placeholder="YYYY-MM-DD" style={styles.input} /></View>
-    <View style={styles.actions}><Button title="Show provider login" disabled={busy || loginBusy} press={() => { setVisible(true); navigate(LOGIN_URL); }} /><Button title="Retrieve flights" disabled={busy || loginBusy || !viewReady || recovery} press={retrieve} /><Button title="Close access PoC" disabled={busy || loginBusy} press={close} /></View>
+    <View style={styles.actions}><Button title="Show provider login" disabled={busy || loginBusy} press={() => { setVisible(true); navigate(LOGIN_URL); }} /><Button title={busy ? 'Cancel retrieval' : 'Retrieve flights'} disabled={busy ? saving || restoring.current : loginBusy || !viewReady || recovery} press={busy ? cancelRetrieval : retrieve} /><Button title="Close access PoC" disabled={busy || loginBusy} press={close} /></View>
     <View style={styles.actions}><Button title={hasLogin ? 'Replace saved login' : 'Save login on this device'} disabled={busy || loginBusy} press={() => { setEditingLogin(true); setVisible(false); }} />{hasLogin && <><Button title="Use saved login" disabled={busy || loginBusy} press={useLogin} /><Button title="Forget saved login" disabled={busy || loginBusy} press={() => void forgetLogin()} /></>}</View>
-    {recovery && <Button title="Restore original provider view" disabled={busy || loginBusy || !viewReady || !original.current} press={recoverView} />}
+    {recovery && !busy && <Button title="Restore original provider view" disabled={loginBusy || !viewReady || !original.current} press={recoverView} />}
     {busy && <ActivityIndicator />}
-    {busy && <Button title="Cancel retrieval" disabled={saving || restoring.current} press={cancelRetrieval} />}
     {visible && <Text style={styles.origin}>{providerUrl(url) ? new URL(url).origin : 'Navigation blocked'} · verify that the visible provider account is yours</Text>}
     <View pointerEvents={saving ? 'none' : 'auto'} style={visible ? styles.browser : styles.hidden}>
       {/* Route all navigation through our exact-URL validator; a narrow library
@@ -271,4 +274,4 @@ export function AccessProbe({ close }: { close: () => void }) {
 
   </View>;
 }
-const styles = StyleSheet.create({ input: { backgroundColor: 'white', borderWidth: 1, borderColor: '#b9cadb', padding: 10, borderRadius: 6, color: '#1f2937' }, screen: { flex: 1, padding: 12, gap: 8, backgroundColor: '#f5f7fb' }, title: { fontSize: 23, fontWeight: '700', color: '#173a57' }, body: { fontSize: 15, lineHeight: 21, color: '#1f2937' }, origin: { fontSize: 14, color: '#174c72' }, actions: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 }, button: { backgroundColor: '#174c72', padding: 10, borderRadius: 6 }, buttonText: { color: '#fff', fontSize: 14 }, browser: { flex: 1, minHeight: 180 }, hidden: { height: 0, overflow: 'hidden' }, results: { gap: 10, paddingBottom: 20 }, row: { backgroundColor: 'white', borderWidth: 1, borderColor: '#b9cadb', padding: 12, gap: 4 } });
+const styles = StyleSheet.create({ input: { backgroundColor: 'white', borderWidth: 1, borderColor: '#b9cadb', padding: 10, borderRadius: 6, color: '#1f2937' }, screen: { flex: 1, padding: 12, gap: 8, backgroundColor: '#f5f7fb' }, title: { fontSize: 23, fontWeight: '700', color: '#173a57' }, body: { fontSize: 15, lineHeight: 21, color: '#1f2937' }, status: { minHeight: 63 }, origin: { fontSize: 14, color: '#174c72' }, actions: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 }, button: { backgroundColor: '#174c72', padding: 10, borderRadius: 6 }, buttonText: { color: '#fff', fontSize: 14 }, browser: { flex: 1, minHeight: 180 }, hidden: { height: 0, overflow: 'hidden' }, results: { gap: 10, paddingBottom: 20 }, row: { backgroundColor: 'white', borderWidth: 1, borderColor: '#b9cadb', padding: 12, gap: 4 } });
