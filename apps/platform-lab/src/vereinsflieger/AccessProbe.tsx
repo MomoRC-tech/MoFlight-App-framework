@@ -24,6 +24,7 @@ export function AccessProbe({ close }: { close: () => void }) {
   const run = useRef<ExportRun | null>(null), command = useRef(''), reading = useRef(false);
   const original = useRef<ViewPreferences | null>(null), viewPhase = useRef<ViewPhase | null>(null), restoring = useRef(false), restoreSteps = useRef(0), outcome = useRef('');
   const [recovery, setRecovery] = useState(false), [viewReady, setViewReady] = useState(false);
+  const [viewStrategy, setViewStrategy] = useState<'reset' | 'reserved backup' | null>(null);
   const [from, setFrom] = useState(calendarYearRequest().from), [to, setTo] = useState(calendarYearRequest().to);
   const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const phase = useRef({ loaded: false, progress: 0, injections: 0 });
@@ -42,7 +43,7 @@ export function AccessProbe({ close }: { close: () => void }) {
   const [snapshot, setSnapshot] = useState<ProbeSnapshot | null>(null), [status, setStatus] = useState('Sign in on the original provider page. Choose an inclusive period; configuration is verified before capture.');
   useEffect(() => { let active = true; mounted.current = true; void latestCapture().then(s => { if (active) setSnapshot(old => old ?? s); }).catch(() => { if (active && retrieval.current.state.phase === 'idle') setStatus('Saved capture could not be opened. Synthetic logbook remains separate.'); }); return () => { active = false; mounted.current = false; epoch.current++; if (timeout.current) clearTimeout(timeout.current); retrieval.current.dispose(); }; }, []);
   useEffect(() => { let active = true; void readSavedLogin().then(login => { if (active) setHasLogin(!!login); }).catch(() => { if (active) setStatus('Protected login storage could not be opened. Existing captures remain available.'); }); return () => { active = false; loginAttempt.current = null; if (loginTimer.current) clearTimeout(loginTimer.current); }; }, []);
-  useEffect(() => { let active = true; void readOriginalView().then(v => { if (!active) return; original.current = v; setRecovery(!!v); setViewReady(true); if(v) setStatus('An earlier export left view restoration pending. Sign into the same provider account, then restore the original view before another export.'); }).catch(() => { if(active) { setRecovery(true); setStatus('Original view recovery could not be opened. Exports are blocked to preserve preferences.'); } }); return () => { active = false; }; }, []);
+  useEffect(() => { let active = true; void readOriginalView().then(v => { if (!active) return; original.current = v; setRecovery(!!v); setViewStrategy(v ? v.reset ? 'reset' : 'reserved backup' : null); setViewReady(true); if(v) setStatus('An earlier export left view restoration pending. Sign into the same provider account, then restore the original view before another export.'); }).catch(() => { if(active) { setRecovery(true); setStatus('Original view recovery could not be opened. Exports are blocked to preserve preferences.'); } }); return () => { active = false; }; }, []);
   function endLogin(message: string) { loginAttempt.current = null; if (loginTimer.current) clearTimeout(loginTimer.current); loginTimer.current = null; setLoginBusy(false); setStatus(message); }
   async function saveLogin() {
     setLoginBusy(true);
@@ -160,6 +161,7 @@ export function AccessProbe({ close }: { close: () => void }) {
     try { prepared = beginExport({ from, to }); } catch { setStatus('Use valid inclusive dates in YYYY-MM-DD order.'); return; }
     const nonce = Crypto.randomUUID();
     if (!retrieval.current.start(nonce)) return;
+    setViewStrategy(null);
     run.current = prepared; reading.current = false; viewPhase.current = 'snapshot'; restoreSteps.current = 0;
     testPaused.current = false; setPaused(null);
     setBusy(true); setVisible(true);
@@ -189,7 +191,7 @@ export function AccessProbe({ close }: { close: () => void }) {
           try { await saveOriginalView(captured); }
           catch { setRecovery(true); stop('Original view could not be journaled. No export settings changed; recovery must be checked before another export.', nonce); return; }
           if (!mounted.current || !retrieval.current.owns(nonce)) return;
-          original.current = captured; setRecovery(true); retrieval.current.resume(nonce); setSaving(false);
+          original.current = captured; setRecovery(true); setViewStrategy(captured.reset ? 'reset' : 'reserved backup'); retrieval.current.resume(nonce); setSaving(false);
           if(run.current) run.current.accountLabel = captured.accountLabel;
           viewPhase.current = 'backup';
         } else if (stage === 'backup') {
@@ -254,6 +256,7 @@ export function AccessProbe({ close }: { close: () => void }) {
     {recovery && !busy && <Button title="Restore original provider view" disabled={loginBusy || !viewReady || !original.current} press={recoverView} />}
     {paused && <Button title="Continue test retrieval" press={() => continueTestRetrieval(paused)} />}
     {busy && <ActivityIndicator />}
+    {viewStrategy && <Text style={styles.body}>{`Original view restoration strategy: ${viewStrategy}`}</Text>}
     {visible && <Text style={styles.origin}>{providerUrl(url) ? new URL(url).origin : 'Navigation blocked'} · verify that the visible provider account is yours</Text>}
     <View pointerEvents={saving ? 'none' : 'auto'} style={visible ? styles.browser : styles.hidden}>
       {/* Route all navigation through our exact-URL validator; a narrow library

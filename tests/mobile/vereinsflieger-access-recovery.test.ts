@@ -106,14 +106,15 @@ function fixture(options: { priorCapture?: probe.ProbeSnapshot; deferJournalSave
     await journal.catch(() => {}); await Promise.resolve(); await Promise.resolve();
   }
   async function flush() { await Promise.resolve(); await Promise.resolve(); await Promise.resolve(); return render(); }
-  async function loadFlight() {
+  async function loadPage(url: string) {
     const web = find(render(), element => element.type === 'WebView'); assert.ok(web);
-    const event = { nativeEvent: { url: FLIGHT_URL } };
+    const event = { nativeEvent: { url } };
     (web.props.onLoadStart as (event: unknown) => void)(event);
     render(); // Native start and end arrive in separate render cycles.
     (web.props.onLoadEnd as (event: unknown) => void)(event);
     return flush();
   }
+  const loadFlight = () => loadPage(FLIGHT_URL);
   function currentCommand() {
     const script = injections.at(-1); assert.ok(script, 'No native driver command was issued');
     const match = /\}\)\("([^"]+)","([^"]+)"/.exec(script); assert.ok(match, 'Cannot identify issued native command');
@@ -126,7 +127,7 @@ function fixture(options: { priorCapture?: probe.ProbeSnapshot; deferJournalSave
       data: JSON.stringify({ ...command, url: FLIGHT_URL, accountLabel: original.accountLabel, ...payload }) } });
     return flush();
   }
-  return { render, button, press, settle, find, flush, loadFlight, message, currentCommand, writes, injections,
+  return { render, button, press, settle, find, flush, loadPage, loadFlight, message, currentCommand, writes, injections,
     finishJournalSave, finishCaptureSave, pending: () => pending, savedCapture: () => savedCapture,
     isLab: (tree: Element) => tree.type === CaptureRun || tree.type === WindowCapture };
 }
@@ -177,6 +178,9 @@ async function restoredReadback(f: ReturnType<typeof fixture>) {
   assert.equal(f.currentCommand().phase, 'verify');
 }
 const restored = { ...original, preset: view.VIEW_BACKUP };
+function strategy(f: ReturnType<typeof fixture>) {
+  return f.find(f.render(), element => element.type === 'Text' && element.children.some(child => typeof child === 'string' && child.startsWith('Original view restoration strategy: ')))?.children[0];
+}
 async function backupVerified(f: ReturnType<typeof fixture>) {
   await f.message({ kind: 'vf-view-v2', view: original });
   await f.message({ kind: 'vf-view-v2', status: 'saved-request' });
@@ -244,9 +248,11 @@ test('journal write locks cancellation; cancelling afterward retains recovery un
   const f = fixture({ priorCapture, deferJournalSave: true }); await start(f);
   await f.message({ kind: 'vf-view-v2', view: original });
   assert.deepEqual(f.writes, ['journal-start']);
+  assert.equal(strategy(f), undefined, 'Uncommitted snapshot must not report a selected restoration strategy');
   const locked = f.button(f.render(), 'Cancel retrieval'); assert.equal(locked.props.disabled, true);
   f.press(locked); assert.equal(f.currentCommand().phase, 'snapshot');
   f.finishJournalSave(); await f.flush(); assert.equal(f.currentCommand().phase, 'backup');
+  assert.equal(strategy(f), 'Original view restoration strategy: reserved backup');
   assert.deepEqual(f.pending(), original);
   f.press(f.button(f.render(), 'Cancel retrieval'));
   assert.equal(f.button(f.render(), 'Cancel retrieval').props.disabled, true, 'Cleanup cannot be cancelled');
@@ -301,4 +307,127 @@ test('capture writing locks cancellation and commits its outcome separately from
   await f.message({ kind: 'vf-view-v2', status: 'next', view: restored });
   assert.equal(f.pending(), null);
   assert.ok(f.writes.indexOf('capture-saved') < f.writes.indexOf('journal-cleared'));
+  assert.equal(strategy(f), 'Original view restoration strategy: reserved backup', 'Successful cleanup retains the observed strategy');
+});
+
+test('login redirect during pending restoration retains recovery and prior capture until same-account retry', async () => {
+  const f = fixture({ priorCapture }); f.render(); await f.settle(original);
+  f.press(f.button(f.render(), 'Restore original provider view'));
+  await f.loadPage(probe.LOGIN_URL);
+  assert.deepEqual(f.pending(), original); assert.deepEqual(f.writes, []); assert.equal(f.savedCapture(), priorCapture);
+  assert.equal(f.button(f.render(), 'Retrieve flights').props.disabled, true);
+  for (const title of titles) assert.equal(f.button(f.render(), title).props.disabled, true);
+  assert.equal(f.button(f.render(), 'Restore original provider view').props.disabled, false);
+  // Opening the provider's login screen does not itself authorize journal cleanup.
+  f.press(f.button(f.render(), 'Show provider login')); await f.loadPage(probe.LOGIN_URL);
+  assert.deepEqual(f.pending(), original); assert.deepEqual(f.writes, []);
+  f.press(f.button(f.render(), 'Restore original provider view')); await restoredReadback(f);
+  await f.message({ kind: 'vf-view-v2', status: 'next', view: restored });
+  assert.equal(f.pending(), null); assert.deepEqual(f.writes, ['journal-cleared']);
+  assert.equal(f.savedCapture(), priorCapture); assert.equal(f.button(f.render(), 'Retrieve flights').props.disabled, false);
+});
+
+test('changed-account export and restoration callbacks retain evidence and block retrieval until same-account recovery', async () => {
+  const f = fixture({ priorCapture }); await start(f); await backupVerified(f);
+  await f.message({ kind: 'vf-export-v1', accountLabel: 'Synthetic other account', status: 'next', preset: exporter.ACTIVE_EXPORT_VIEW });
+  assert.deepEqual(f.pending(), original); assert.equal(f.savedCapture(), priorCapture);
+  await f.loadFlight(); assert.equal(f.currentCommand().phase, 'restore');
+  await f.message({ kind: 'vf-view-v2', accountLabel: 'Synthetic other account', status: 'next' });
+  assert.deepEqual(f.pending(), original); assert.ok(!f.writes.includes('capture-start')); assert.ok(!f.writes.includes('journal-cleared'));
+  assert.equal(f.button(f.render(), 'Retrieve flights').props.disabled, true);
+  const count = f.injections.length;
+  f.press(f.button(f.render(), 'Retrieve flights'));
+  assert.equal(f.injections.length, count, 'Even a direct blocked handler must not replace pending recovery');
+  for (const title of titles) assert.equal(f.button(f.render(), title).props.disabled, true);
+  f.press(f.button(f.render(), 'Restore original provider view')); await restoredReadback(f);
+  await f.message({ kind: 'vf-view-v2', status: 'next', view: restored });
+  assert.equal(f.pending(), null); assert.equal(f.savedCapture(), priorCapture);
+  assert.deepEqual(f.writes, ['journal-start', 'journal-saved', 'journal-cleared']);
+});
+
+// This synthetic supported-control signature exercises default branching. It is
+// not evidence that all controls/preferences on the live provider are complete.
+const defaultOriginal: ViewPreferences = {
+  ...original, preset: exporter.ACTIVE_EXPORT_VIEW,
+  columns: ['1','2','3','4','5','6','7','8','9','10','105','11','12','13','14','15'],
+  filters: [
+    ...['1','2','3','4','5','6','7','8','9','10','105','11','12','13','14','15'].flatMap(id => [
+      { name: `col${id}`, type: 'text' as const, value: '', checked: false },
+      { name: `op_col${id}`, type: 'select-one' as const, value: ':F:eq', checked: false },
+    ]),
+    { name: 'col11_0', type: 'checkbox', value: '1', checked: true },
+    { name: 'col11_all', type: 'checkbox', value: 'all', checked: true },
+  ], reset: true,
+};
+async function executeViewDriver(f: ReturnType<typeof fixture>, current: ViewPreferences, actions: string[]) {
+  const select = {
+    options: [{ textContent: current.preset, text: current.preset, value: current.preset, disabled: true },
+      { textContent: 'Zurücksetzen', text: 'Zurücksetzen', value: '-1', disabled: false }],
+    get selectedOptions() { return [this.options[0]]; }, selectedIndex: 0,
+    dispatchEvent() { actions.push('reset'); assert.equal(this.options[this.selectedIndex]?.value, '-1'); },
+  };
+  const quick = { method: 'post', getAttribute: () => FLIGHT_URL, querySelector: () => select };
+  const document = {
+    querySelector(selector: string) {
+      if (selector === 'form[name="frm_tablelist_quickconfig"]') return quick;
+      if (selector === '#divpageheadermenu') return { children: [{}, { textContent: current.accountLabel }] };
+      if (selector === '#tablelist_20') return {};
+      if (selector === '#frmfilter') return { elements: current.filters };
+      if (selector === '#globalfilter') return { textContent: current.period };
+      if (selector === '#globalfilter2') return { textContent: current.role };
+      assert.fail(`Unexpected default-path control: ${selector}`);
+    },
+    querySelectorAll(selector: string) {
+      if (selector === '#LST_VISIBLE > li') return current.columns.map(column => ({ getAttribute: () => column }));
+      if (selector === '#tablelist_20 thead th') return current.columns.map(column => ({ querySelectorAll: () => current.sort.filter(sort => sort.column === column).map(sort => ({ classList: [sort.icon] })) }));
+      assert.fail(`Unexpected default-path collection: ${selector}`);
+    },
+  };
+  const messages: Record<string, unknown>[] = [], window: { top?: unknown; ReactNativeWebView: { postMessage: (message: string) => void } } = {
+    ReactNativeWebView: { postMessage: message => messages.push(JSON.parse(message) as Record<string, unknown>) },
+  }; window.top = window;
+  runInNewContext(f.injections.at(-1)!, { window, document, location: new URL(FLIGHT_URL), URL, Event: class {} });
+  for (const message of messages) { assert.ok(!message.error, 'Default driver rejected synthetic supported controls'); await f.message(message); }
+}
+
+test('default-original lifecycle skips named backup controls and clears recovery only after verified reset restoration', async () => {
+  const f = fixture({ priorCapture }), actions: string[] = []; await start(f);
+  await executeViewDriver(f, defaultOriginal, actions); assert.equal(f.currentCommand().phase, 'backup');
+  assert.equal(strategy(f), 'Original view restoration strategy: reset');
+  await executeViewDriver(f, defaultOriginal, actions); assert.equal(f.currentCommand().phase, 'backup-load');
+  await executeViewDriver(f, defaultOriginal, actions); assert.equal(f.currentCommand().phase, 'backup-verify');
+  await executeViewDriver(f, defaultOriginal, actions); assert.equal(f.currentCommand().phase, 'reset');
+  assert.deepEqual(actions, [], 'Default backup phases must invoke no named save/load control');
+  assert.deepEqual(f.pending(), defaultOriginal);
+  for (const phase of exporter.EXPORT_PHASES.filter(phase => phase !== 'read')) {
+    assert.equal(f.currentCommand().phase, phase);
+    await f.message({ kind: 'vf-export-v1', status: 'next', preset: exporter.ACTIVE_EXPORT_VIEW });
+  }
+  await f.message({ kind: 'vf-export-v1', status: 'page', preset: exporter.ACTIVE_EXPORT_VIEW,
+    period: 'ab 01.01.2026 bis 31.12.2026', participation: exporter.PARTICIPATION, filtersClear: true, allColumns: true,
+    headers: ['Datum', 'Lfz.', 'Start', 'Landung', 'Flugzeit', 'Kosten'], columnIds: ['1', '2', '3', '4', '5', '6'],
+    first: 0, last: 0, total: 0, rows: [], nextUrl: null });
+  await f.loadFlight(); assert.equal(f.currentCommand().phase, 'restore');
+  await executeViewDriver(f, { ...defaultOriginal, period: 'ab 01.01.2026 bis 31.12.2026', role: 'Pilot oder Fluglehrer', reset: false }, actions);
+  assert.deepEqual(actions, ['reset']); assert.deepEqual(f.pending(), defaultOriginal);
+  await f.loadFlight(); await executeViewDriver(f, defaultOriginal, actions);
+  assert.equal(f.currentCommand().phase, 'verify'); assert.ok(!f.writes.includes('journal-cleared'));
+  await executeViewDriver(f, defaultOriginal, actions);
+  assert.equal(f.pending(), null); assert.deepEqual(actions, ['reset']);
+  assert.deepEqual(f.writes, ['journal-start', 'journal-saved', 'capture-start', 'capture-saved', 'journal-cleared']);
+  assert.equal(strategy(f), 'Original view restoration strategy: reset', 'Verified cleanup must leave branch evidence visible');
+  f.press(f.button(f.render(), 'Retrieve flights'));
+  assert.equal(strategy(f), undefined, 'A new request must not report the previous request strategy before its snapshot is journaled');
+});
+
+test('startup recovery reports only the journaled restoration strategy without private view values', async () => {
+  for (const journal of [original, defaultOriginal]) {
+    const f = fixture({ priorCapture }); f.render();
+    assert.equal(strategy(f), undefined);
+    await f.settle(journal);
+    assert.equal(strategy(f), `Original view restoration strategy: ${journal.reset ? 'reset' : 'reserved backup'}`);
+    assert.equal(f.button(f.render(), 'Retrieve flights').props.disabled, true);
+  }
+  const failed = fixture(); failed.render(); await failed.settle(new Error('Synthetic unreadable journal'));
+  assert.equal(strategy(failed), undefined, 'Unknown recovery contents cannot establish a strategy');
 });
