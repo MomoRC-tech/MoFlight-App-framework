@@ -62,6 +62,16 @@ After user-controlled sign-in, native UI displayed the account dashboard. A seco
 
 Implemented fixed preflight reasons for backup collision, missing controls, unsupported filters and header/column mismatch. Host source/token/phase validation precedes diagnostic decoding; unknown reason values collapse to a generic fixed message. Only snapshot errors use these no-mutation verdicts. Strict TypeScript and 96 mobile tests pass, including source rejection, reason filtering and zero-mutation diagnostic fixtures. This improves diagnosis without weakening collision, ownership or restoration guards.
 
+### Authenticated native diagnosis — 07:04 Europe/Berlin
+
+Diagnostic source `3b01b459ae63b33be4edc4011656bf558cae8f46` built locally at 07:03:39 Europe/Berlin: Release, 208.77 seconds overall / 207.59 seconds Gradle, native regeneration false. APK path unchanged, 47,141,191 bytes, SHA256 `a50e359bde36dbc7d1c3b97ada97b6459fb6486392e969c4bc03a27e58d87024`; embedded JavaScript and arm64-v8a/x86_64 verified. Updated the same provider AVD with `install -r`, preserving app data. Native startup/earlier capture survived the update.
+
+Authenticated Retrieve now specifically reports an existing `MoFlight App user view backup` without ownership on this device. The snapshot collision guard stops before journaling/export mutations; app returns to idle and retains the earlier capture. This establishes the native collision refusal path, not successful capture/restoration. No configuration was adopted, overwritten or deleted. Resolving this collision requires a reviewed explicit reuse flow or a separate unused backup name; do not bypass ownership by editing the private database.
+
+A separate new Chrome investigation tab inspected DOM structure read-only: 40 configured columns and 40 header cells, supported filter-control names/types and the existing backup name. No flight values were retained in Git or provider controls changed. This desktop evidence supports the native diagnosis without standing in for its runtime test.
+
+Fast workflows [38204867633](https://github.com/MomoRC-tech/MoFlight-App-framework/actions/runs/38204867633) (`889c44d`) and [38206072765](https://github.com/MomoRC-tech/MoFlight-App-framework/actions/runs/38206072765) (`3b01b45`) are infrastructure failures. Mobile/Windows check annotations confirm the same payment/spending-limit refusal before tests could start. Local TypeScript/test/build results are recorded separately; no hosted pass is claimed or billing changed. No additional doomed checkpoint was dispatched, and native acceptance remains gated by ADR 0009.
+
 ## Remaining acceptance and limits
 
 Provider account identity remains display-context-only. Different observed labels stop restoration; identical labels are not proof of the same stable account. Ownership metadata is local and cannot prove that a user has not deleted/recreated a same-named provider configuration. No production account-isolation guarantee is claimed. Relative scope comparison uses provider labels, not stale hidden date defaults; date-relative result rows naturally change over time. Former preset label is not restored by replaying an older saved definition.

@@ -4,7 +4,7 @@ A reusable Android/iOS platform for multiple flight-related features or sub-apps
 
 ## Status and source of truth
 
-2026-10-12 native preflight continuation: user-controlled sign-in succeeded, but the view snapshot still refuses safely. Fixed diagnostics now distinguish backup collisions, missing controls, unsupported filters and header/column mismatch; TypeScript and 96 mobile tests pass. The authenticated native cause still needs readback from the rebuilt APK. [Evidence](docs/verification/2026-10-11-vereinsflieger-view-preservation.md#local-native-trial--0641-europeberlin).
+2026-10-12 native preflight continuation: `3b01b45` confirms the blocker in the authenticated Android WebView: the existing provider backup has no ownership marker on this installation. Refusal retains the earlier capture and does not overwrite provider preferences. Fixed diagnostics, TypeScript, 96 mobile tests and a committed-source local Release build pass. Full restoration remains untested until the collision is resolved; new fast CI is also blocked by GitHub billing. [Evidence](docs/verification/2026-10-11-vereinsflieger-view-preservation.md#authenticated-native-diagnosis--0704-europeberlin).
 
 2026-10-12 checkpoint recheck: `ca93e3f` APK compilation passed, but GitHub refused to start the smoke job because of an account payment/spending-limit restriction; no emulator test steps ran. Hosted native acceptance remains blocked. Billing settings were not changed. [Result and remaining gates](docs/verification/2026-10-11-vereinsflieger-view-preservation.md#checkpoint-recheck--2026-10-12).
 
