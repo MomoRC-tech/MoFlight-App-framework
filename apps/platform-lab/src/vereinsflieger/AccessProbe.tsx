@@ -3,7 +3,7 @@ import { ActivityIndicator, FlatList, Pressable, ScrollView, StyleSheet, Text, T
 import { WebView, type WebViewMessageEvent } from 'react-native-webview';
 import * as Crypto from 'expo-crypto';
 import { bridgeSource, flightUrl, FLIGHT_URL, LOGIN_URL, providerUrl, type ProbeSnapshot } from './probe';
-import { clearOriginalView, latestCapture, readOriginalView, saveCapture, saveOriginalView, readBackupOwner, saveBackupOwner } from './storage';
+import { clearOriginalView, latestCapture, readOriginalView, saveCapture, saveOriginalView } from './storage';
 import { loginPage, savedLoginScript } from './login';
 import { readSavedLogin, writeSavedLogin, forgetSavedLogin } from './login-storage';
 import { acceptExportMessage, beginExport, calendarYearRequest, exportScript, type ExportRun } from './export';
@@ -24,7 +24,6 @@ export function AccessProbe({ close }: { close: () => void }) {
   const run = useRef<ExportRun | null>(null), command = useRef(''), reading = useRef(false);
   const original = useRef<ViewPreferences | null>(null), viewPhase = useRef<ViewPhase | null>(null), restoring = useRef(false), restoreSteps = useRef(0), outcome = useRef('');
   const [recovery, setRecovery] = useState(false), [viewReady, setViewReady] = useState(false);
-  const backupOwner = useRef<string | null>(null);
   const [from, setFrom] = useState(calendarYearRequest().from), [to, setTo] = useState(calendarYearRequest().to);
   const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const phase = useRef({ loaded: false, progress: 0, injections: 0 });
@@ -41,7 +40,7 @@ export function AccessProbe({ close }: { close: () => void }) {
   const [snapshot, setSnapshot] = useState<ProbeSnapshot | null>(null), [status, setStatus] = useState('Sign in on the original provider page. Choose an inclusive period; configuration is verified before capture.');
   useEffect(() => { let active = true; mounted.current = true; void latestCapture().then(s => { if (active) setSnapshot(old => old ?? s); }).catch(() => { if (active && retrieval.current.state.phase === 'idle') setStatus('Saved capture could not be opened. Synthetic logbook remains separate.'); }); return () => { active = false; mounted.current = false; epoch.current++; if (timeout.current) clearTimeout(timeout.current); retrieval.current.dispose(); }; }, []);
   useEffect(() => { let active = true; void readSavedLogin().then(login => { if (active) setHasLogin(!!login); }).catch(() => { if (active) setStatus('Protected login storage could not be opened. Existing captures remain available.'); }); return () => { active = false; loginAttempt.current = null; if (loginTimer.current) clearTimeout(loginTimer.current); }; }, []);
-  useEffect(() => { let active = true; void Promise.all([readOriginalView(), readBackupOwner()]).then(([v, owner]) => { if (!active) return; original.current = v; backupOwner.current = owner; setRecovery(!!v); setViewReady(true); if(v) setStatus('An earlier export left view restoration pending. Sign into the same provider account, then restore the original view before another export.'); }).catch(() => { if(active) { setRecovery(true); setStatus('Original view recovery could not be opened. Exports are blocked to preserve preferences.'); } }); return () => { active = false; }; }, []);
+  useEffect(() => { let active = true; void readOriginalView().then(v => { if (!active) return; original.current = v; setRecovery(!!v); setViewReady(true); if(v) setStatus('An earlier export left view restoration pending. Sign into the same provider account, then restore the original view before another export.'); }).catch(() => { if(active) { setRecovery(true); setStatus('Original view recovery could not be opened. Exports are blocked to preserve preferences.'); } }); return () => { active = false; }; }, []);
   function endLogin(message: string) { loginAttempt.current = null; if (loginTimer.current) clearTimeout(loginTimer.current); loginTimer.current = null; setLoginBusy(false); setStatus(message); }
   async function saveLogin() {
     setLoginBusy(true);
@@ -127,7 +126,7 @@ export function AccessProbe({ close }: { close: () => void }) {
       if (++restoreSteps.current > 30) { finish('View verification navigation limit reached.', state.nonce); return; }
       reading.current = true; command.current = Crypto.randomUUID(); armTimeout(state.nonce);
       setStatus(viewPhase.current === 'snapshot' ? 'Saving your original provider view before any export changes…' : `Restoring original provider view: ${viewPhase.current}…`);
-      web.current?.injectJavaScript(viewScript(command.current, viewPhase.current, original.current, backupOwner.current)); return;
+      web.current?.injectJavaScript(viewScript(command.current, viewPhase.current, original.current)); return;
     }
     if (!active) return;
     if (++active.commands > 4100) { finish('Export navigation limit reached. Narrow the period; previous captures preserved.', state.nonce); return; }
@@ -187,17 +186,11 @@ export function AccessProbe({ close }: { close: () => void }) {
           viewPhase.current = 'backup-verify';
           if ((message as Record<string, unknown>).status === 'load-request') { command.current = ''; return; }
         } else if (stage === 'backup-verify') {
-          if (!original.current || !retrieval.current.beginSave(nonce)) return;
-          setSaving(true); if(timeout.current) clearTimeout(timeout.current); timeout.current = null;
-          if (!original.current.reset) { await saveBackupOwner(original.current); backupOwner.current = original.current.accountLabel; }
-          if (!mounted.current || !retrieval.current.owns(nonce)) return;
-          retrieval.current.resume(nonce); setSaving(false); viewPhase.current = null;
+          if (!original.current) return;
+          viewPhase.current = null;
         } else if (stage === 'verify') {
           if (!original.current || !retrieval.current.beginSave(nonce)) return;
           setSaving(true); if(timeout.current) clearTimeout(timeout.current); timeout.current = null;
-          if (!original.current.reset && (message as {view?: ViewPreferences}).view?.preset === 'MoFlight App user view backup') {
-            await saveBackupOwner(original.current); backupOwner.current = original.current.accountLabel;
-          }
           await clearOriginalView(original.current);
           if (!mounted.current || !retrieval.current.owns(nonce)) return;
           original.current = null; setRecovery(false); restoring.current = false;
@@ -219,7 +212,7 @@ export function AccessProbe({ close }: { close: () => void }) {
       if (!mounted.current || !retrieval.current.owns(nonce)) return;
       setSnapshot(data);
       finish(`Saved ${data.rows.length} flights across ${data.exportContext?.pageCount} pages for the requested period. Account identity and time basis remain unverified.`, nonce);
-    } catch (error) { finish(viewPhase.current === 'snapshot' ? viewProtectionMessage(error) ?? 'Original view could not be protected. Check for an existing MoFlight App user view backup configuration owned elsewhere or unsupported settings. No export settings changed.' : 'Retrieval or local saving failed. Previous captures preserved. Sign in again if needed, then retry.', nonce); }
+    } catch (error) { finish(viewPhase.current === 'snapshot' ? viewProtectionMessage(error) ?? 'Original view could not be protected because provider settings are unsupported. No export settings changed.' : 'Retrieval or local saving failed. Previous captures preserved. Sign in again if needed, then retry.', nonce); }
   }
   if (showRun) return <CaptureRun close={() => setShowRun(false)} />;
   if (showWindow) return <WindowCapture close={() => setShowWindow(false)} />;

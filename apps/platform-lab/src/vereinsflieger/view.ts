@@ -1,13 +1,12 @@
 import { bridgeSource, flightUrl } from './probe';
 export const VIEW_BACKUP = 'MoFlight App user view backup';
-const viewReasons = ['backup-name-collision','view-controls','view-filter-controls','view-header-columns','view-contract-changed'] as const;
+const viewReasons = ['view-controls','view-filter-controls','view-header-columns','view-contract-changed'] as const;
 export class ViewProtectionError extends Error {
   constructor(readonly reason: typeof viewReasons[number]) { super('Provider view protection stopped.'); }
 }
 export function viewProtectionMessage(error: unknown): string | null {
   if (!(error instanceof ViewProtectionError)) return null;
   const messages = {
-    'backup-name-collision': 'A provider configuration named MoFlight App user view backup already exists without ownership on this device. It was not overwritten. No export settings changed.',
     'view-controls': 'Original view could not be read: required provider account, configuration or list controls are unavailable. No export settings changed.',
     'view-filter-controls': 'Original view could not be read: provider filter controls are unsupported. No export settings changed.',
     'view-header-columns': 'Original view could not be read: provider table headers do not match configured columns. No export settings changed.',
@@ -62,7 +61,7 @@ export function decodeView(data: string, sender: string, document: string, token
   return null;
 }
 // Relative scopes stay provider-managed; unused date-form defaults are not replayed.
-const driver = String.raw`function(token, phase, original, owner, backupName, defaultColumns) {
+const driver = String.raw`function(token, phase, original, backupName, defaultColumns) {
   if(window.top!==window || location.protocol!=='https:' || !['vereinsflieger.de','www.vereinsflieger.de'].includes(location.hostname) || location.pathname!=='/member/profile/flightlog.php') return;
   const q=s=>document.querySelector(s), all=s=>Array.from(document.querySelectorAll(s));
   const clean=e=>(e?.textContent||'').replace(/\s+/g,' ').trim();
@@ -94,15 +93,14 @@ const driver = String.raw`function(token, phase, original, owner, backupName, de
   try {
     const current=read();
     if(phase==='snapshot'){
-      if(!current.reset&&options.some(o=>o.text===backupName||o.value===backupName)&&owner!==accountLabel){reason='backup-name-collision';throw new Error();}
       send({view:current});return;
     }
     if(!original||original.accountLabel!==accountLabel)throw new Error();
     if(phase==='backup'){
       if(original.reset){next();return;}
       if(!matches(current))throw new Error();
-      // A same-name configuration may appear while the journal is persisted.
-      if(options.some(o=>o.text===backupName||o.value===backupName)&&owner!==accountLabel)throw new Error();
+      // The user reserves this one name for MoFlight; same-name replacement is
+      // authorized only after the host has journaled this actual original view.
       click(q('a[title="Liste konfigurieren"]'));click(q('#tableconfigtab_li_2'));
       const input=q('#userlist_name');formSafe(input?.form);input.value=backupName;input.dispatchEvent(new Event('keyup',{bubbles:true}));input.dispatchEvent(new Event('blur',{bubbles:true}));
       send({status:'saved-request'});click(q('#btn_userlist_add'));return;
@@ -120,6 +118,6 @@ const driver = String.raw`function(token, phase, original, owner, backupName, de
     throw new Error();
   }catch{send({error:'view-contract-changed',reason});}
 }`;
-export function viewScript(token: string, phase: ViewPhase, original: ViewPreferences | null, owner: string | null = null): string {
-  return `(${driver})(${JSON.stringify(token)},${JSON.stringify(phase)},${JSON.stringify(original)},${JSON.stringify(owner)},${JSON.stringify(VIEW_BACKUP)},${JSON.stringify(defaultColumns)});true;`;
+export function viewScript(token: string, phase: ViewPhase, original: ViewPreferences | null): string {
+  return `(${driver})(${JSON.stringify(token)},${JSON.stringify(phase)},${JSON.stringify(original)},${JSON.stringify(VIEW_BACKUP)},${JSON.stringify(defaultColumns)});true;`;
 }

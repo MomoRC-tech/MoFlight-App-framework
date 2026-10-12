@@ -1,8 +1,9 @@
 import { bridgeSource, flightUrl, REQUIRED_HEADERS, type ProbeRow, type ProbeSnapshot } from './probe';
 
-export const EXPORT_PRESET = 'MoFlight App export filter';
+// Temporary active settings are never saved as a named export configuration.
+export const ACTIVE_EXPORT_VIEW = 'Konfiguration laden';
 export const PARTICIPATION = 'Pilot oder Fluglehrer';
-export const EXPORT_PHASES = ['preset', 'columns', 'clear', 'save', 'participation', 'period', 'read'] as const;
+export const EXPORT_PHASES = ['reset', 'columns', 'clear', 'participation', 'period', 'read'] as const;
 export type ExportPhase = typeof EXPORT_PHASES[number];
 export interface ExportRequest { from: string; to: string }
 export interface ExportPage {
@@ -18,7 +19,7 @@ function validDate(value: string): boolean {
 }
 export function beginExport(request: ExportRequest): ExportRun {
   if (!validDate(request.from) || !validDate(request.to) || request.from > request.to) throw new Error('Use valid inclusive dates in YYYY-MM-DD order.');
-  return { request: { ...request }, phase: 'preset', preset: null, accountLabel: null, pages: [], steps: 0, commands: 0, seenFlightIds: new Set(), sizeChars: 0 };
+  return { request: { ...request }, phase: 'reset', preset: null, accountLabel: null, pages: [], steps: 0, commands: 0, seenFlightIds: new Set(), sizeChars: 0 };
 }
 export function calendarYearRequest(now = new Date()): ExportRequest {
   const year = now.getFullYear(); return { from: `${year}-01-01`, to: `${year}-12-31` };
@@ -46,8 +47,8 @@ export function acceptExportMessage(run: ExportRun, data: string, sender: string
   if (typeof m.accountLabel !== 'string' || !m.accountLabel.trim() || m.accountLabel.length > 200) throw new Error('Signed-in account context unavailable.');
   if (run.accountLabel !== null && run.accountLabel !== m.accountLabel) throw new Error('Provider account changed during retrieval.');
   run.accountLabel = m.accountLabel;
-  if (typeof m.preset !== 'string' || ![EXPORT_PRESET, 'Flugbuch Export', 'Flugbuch export'].includes(m.preset)) throw new Error('Export preset was not verified.');
-  if (run.preset !== null && run.preset !== m.preset) throw new Error('Export preset changed during retrieval.');
+  if (typeof m.preset !== 'string' || m.preset !== ACTIVE_EXPORT_VIEW) throw new Error('Temporary export configuration was not verified.');
+  if (run.preset !== null && run.preset !== m.preset) throw new Error('Temporary export configuration changed during retrieval.');
   run.preset = m.preset;
   if (++run.steps > 4100) throw new Error('Export navigation limit reached. Narrow the date period.');
   if (m.status === 'next' && run.phase !== 'read') {
@@ -81,12 +82,12 @@ export function acceptExportMessage(run: ExportRun, data: string, sender: string
   run.sizeChars += pageSize;
   run.pages.push(page);
   if (nextUrl) return { nextUrl };
-  return { complete: { captureId: token, retrievedAt: new Date().toISOString(), headers, rows: run.pages.flatMap(p => p.rows), coverage: 'complete-requested-list', sourceIdentity: 'unverified', timeBasis: 'unknown', exportContext: { ...run.request, preset: run.preset, participation: PARTICIPATION, accountLabel: run.accountLabel, recordCount: total, pageCount: run.pages.length, columnIds: page.columnIds, adapterVersion: 1 } } };
+  return { complete: { captureId: token, retrievedAt: new Date().toISOString(), headers, rows: run.pages.flatMap(p => p.rows), coverage: 'complete-requested-list', sourceIdentity: 'unverified', timeBasis: 'unknown', exportContext: { ...run.request, preset: run.preset, participation: PARTICIPATION, accountLabel: run.accountLabel, recordCount: total, pageCount: run.pages.length, columnIds: page.columnIds, adapterVersion: 2 } } };
 }
 
 // Standalone browser code: use the provider's observed DOM controls/submit handlers,
 // never its private runtime objects, cookies, passwords or signed endpoint templates.
-const driver = String.raw`function(token, phase, request, wantedPreset, expectedAccount) {
+const driver = String.raw`function(token, phase, request, expectedAccount) {
   if (window.top !== window || location.protocol !== 'https:' || !['vereinsflieger.de','www.vereinsflieger.de'].includes(location.hostname) || location.pathname !== '/member/profile/flightlog.php') return;
   const bridge = window.ReactNativeWebView; if (!bridge) return;
   const clean = e => (e?.textContent || '').replace(/\s+/g,' ').trim();
@@ -95,7 +96,7 @@ const driver = String.raw`function(token, phase, request, wantedPreset, expected
   const quick = q('form[name="frm_tablelist_quickconfig"]');
   const select = quick?.querySelector('select[name="lst_configavailable"]');
   const options = select ? Array.from(select.options).filter(o => !o.disabled && !o.hidden) : [];
-  const preset = wantedPreset || ['MoFlight App export filter','Flugbuch Export','Flugbuch export'].find(name => options.some(o => o.text === name)) || 'MoFlight App export filter';
+  const preset = 'Konfiguration laden';
   const account = q('#divpageheadermenu');
   const accountLabel = clean(account?.children[1]).replace(/^VEREINSFLIEGER\.DE\s*/, '').trim();
   const send = payload => bridge.postMessage(JSON.stringify({kind:'vf-export-v1',token,phase,url:location.href,preset,accountLabel,...payload}));
@@ -119,17 +120,14 @@ const driver = String.raw`function(token, phase, request, wantedPreset, expected
     if (!select || !accountLabel || !q('#tablelist_20')) throw new Error();
     // Check continuity before controls can mutate another account's view.
     if (expectedAccount !== null && accountLabel !== expectedAccount) throw new Error();
-    if (phase === 'preset') {
-      const found = options.find(o => o.text === preset);
-      if (!found && clean(select.selectedOptions[0]) !== 'Konfiguration laden') {
-        // Leave the verified user backup before changing any settings. The
-        // provider remembers filter/date/sort changes under the active preset.
-        const reset = options.find(o => o.value === '-1'); if (!reset) throw new Error();
-        safeForm(quick); select.selectedIndex = Array.from(select.options).indexOf(reset); select.dispatchEvent(new Event('change',{bubbles:true})); return;
-      }
-      if (!found || clean(select.selectedOptions[0]) === preset) { next(); return; }
-      safeForm(quick); select.value = found.value; select.dispatchEvent(new Event('change',{bubbles:true})); return;
+    if (phase === 'reset') {
+      if (clean(select.selectedOptions[0]) === preset) { next(); return; }
+      // Leave every saved preset, including the verified backup, before
+      // temporary export mutations. Existing export presets are never loaded.
+      const reset = options.find(o => o.value === '-1'); if (!reset) throw new Error();
+      safeForm(quick); select.selectedIndex = Array.from(select.options).indexOf(reset); select.dispatchEvent(new Event('change',{bubbles:true})); return;
     }
+    if (clean(select.selectedOptions[0]) !== preset) throw new Error();
     const lists = columnLists();
     if (!lists.visible.length || lists.visible.length + lists.available.length > 128) throw new Error();
     if (phase === 'columns') {
@@ -147,14 +145,6 @@ const driver = String.raw`function(token, phase, request, wantedPreset, expected
       for (const e of form.querySelectorAll('input[type="text"]')) e.value = '';
       for (const e of form.querySelectorAll('input[type="checkbox"]')) e.checked = true;
       click(form.querySelector('input[name="xsubmit"]')); return;
-    }
-    if (phase === 'save') {
-      if (options.some(o => o.text === preset)) { next(); return; }
-      if (preset !== 'MoFlight App export filter') throw new Error();
-      click(q('a[title="Liste konfigurieren"]')); click(q('#tableconfigtab_li_2'));
-      const input = q('#userlist_name'); const form = input?.form; safeForm(form);
-      input.value = preset; input.dispatchEvent(new Event('keyup',{bubbles:true})); input.dispatchEvent(new Event('blur',{bubbles:true}));
-      click(q('#btn_userlist_add')); return;
     }
     if (phase === 'participation') {
       if (clean(q('#globalfilter2')) === 'Pilot oder Fluglehrer') { next(); return; }
@@ -202,5 +192,5 @@ const driver = String.raw`function(token, phase, request, wantedPreset, expected
   } catch { fail(); }
 }`;
 export function exportScript(token: string, run: ExportRun): string {
-  return `(${driver})(${JSON.stringify(token)},${JSON.stringify(run.phase)},${JSON.stringify(run.request)},${JSON.stringify(run.preset)},${JSON.stringify(run.accountLabel)});true;`;
+  return `(${driver})(${JSON.stringify(token)},${JSON.stringify(run.phase)},${JSON.stringify(run.request)},${JSON.stringify(run.accountLabel)});true;`;
 }

@@ -4,6 +4,8 @@ A reusable Android/iOS platform for multiple flight-related features or sub-apps
 
 ## Status and source of truth
 
+2026-10-12 reserved-backup policy: Manuel authorizes refreshing the single saved configuration `MoFlight App user view backup`. Installation ownership is no longer required; pending recovery still blocks replacement. Export now uses temporary unnamed active settings and never selects/saves unrelated export presets. TypeScript and 97 mobile tests pass; old capture versions remain readable. [Current contract](docs/architecture/vereinsflieger-view-preservation.md#reserved-configuration-policy--2026-10-12), [checks and native gates](docs/verification/2026-10-12-reserved-view-backup.md). Native round-trip acceptance of this change remains pending.
+
 2026-10-12 native preflight continuation: `3b01b45` confirms the blocker in the authenticated Android WebView: the existing provider backup has no ownership marker on this installation. Refusal retains the earlier capture and does not overwrite provider preferences. Fixed diagnostics, TypeScript, 96 mobile tests and a committed-source local Release build pass. Full restoration remains untested until the collision is resolved; new fast CI is also blocked by GitHub billing. [Evidence](docs/verification/2026-10-11-vereinsflieger-view-preservation.md#authenticated-native-diagnosis--0704-europeberlin).
 
 2026-10-12 checkpoint recheck: `ca93e3f` APK compilation passed, but GitHub refused to start the smoke job because of an account payment/spending-limit restriction; no emulator test steps ran. Hosted native acceptance remains blocked. Billing settings were not changed. [Result and remaining gates](docs/verification/2026-10-11-vereinsflieger-view-preservation.md#checkpoint-recheck--2026-10-12).

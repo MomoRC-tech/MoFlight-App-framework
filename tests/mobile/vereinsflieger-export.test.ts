@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { runInNewContext } from 'node:vm';
-import { acceptExportMessage, beginExport, calendarYearRequest, EXPORT_PHASES, EXPORT_PRESET, exportScript, PARTICIPATION, type ExportRun } from '../../apps/platform-lab/src/vereinsflieger/export.ts';
+import { acceptExportMessage, beginExport, calendarYearRequest, EXPORT_PHASES, ACTIVE_EXPORT_VIEW, exportScript, PARTICIPATION, type ExportRun } from '../../apps/platform-lab/src/vereinsflieger/export.ts';
 import { FLIGHT_URL, LOGIN_URL, validateCapture } from '../../apps/platform-lab/src/vereinsflieger/probe.ts';
 import { persistCapture, readLatestCapture } from '../../apps/platform-lab/src/vereinsflieger/capture-store.ts';
 import { inspectFields } from '../../apps/platform-lab/src/vereinsflieger/fields.ts';
@@ -11,7 +11,7 @@ const headers = ['', 'Datum', 'Lfz.', 'Start', 'Landung', 'Flugzeit', 'Eigene Ko
 const columnIds = headers.map((_,i)=>String(i+1));
 const row = (id: string) => ({sourceFlightId:id,values:headers.map(h=>h==='Datum'?'11.10.2026':h==='Eigene Kosten(Bezahlt)'?'12,34':h==='Duplikat'?'Ja':'')});
 function reading(): ExportRun { const run=beginExport(request);run.phase='read';return run; }
-function payload(overrides: Record<string,unknown> = {}) { return JSON.stringify({kind:'vf-export-v1',token,phase:'read',url:FLIGHT_URL,status:'page',preset:EXPORT_PRESET,accountLabel:'Synthetic account',period:'ab 01.01.2026 bis 31.12.2026',participation:PARTICIPATION,filtersClear:true,allColumns:true,headers,columnIds,rows:[row('1')],first:1,last:1,total:1,nextUrl:null,...overrides}); }
+function payload(overrides: Record<string,unknown> = {}) { return JSON.stringify({kind:'vf-export-v1',token,phase:'read',url:FLIGHT_URL,status:'page',preset:ACTIVE_EXPORT_VIEW,accountLabel:'Synthetic account',period:'ab 01.01.2026 bis 31.12.2026',participation:PARTICIPATION,filtersClear:true,allColumns:true,headers,columnIds,rows:[row('1')],first:1,last:1,total:1,nextUrl:null,...overrides}); }
 const accept = (run:ExportRun, data=payload(), sender=LOGIN_URL, url=FLIGHT_URL) => acceptExportMessage(run,data,sender,url,token);
 
 test('explicit dates reject impossible/reversed periods; calendar default uses device year',()=>{
@@ -33,7 +33,7 @@ test('verified empty list succeeds but session/error/unverified scope never beco
   assert.throws(()=>accept(reading(),payload(),LOGIN_URL,LOGIN_URL));
 });
 test('page gaps, repeats, count/schema/account/preset changes and foreign pagination fail closed',()=>{
-  for(const o of [{first:2,last:2},{total:2},{total:0,first:0,last:0,rows:[] ,nextUrl:FLIGHT_URL+'?page=2'},{nextUrl:'https://evil.test/?page=2'},{total:2,nextUrl:FLIGHT_URL+'?page=3'},{total:2,nextUrl:FLIGHT_URL+'?page=2&_params=secret'},{token:'old'},{phase:'preset'},{url:LOGIN_URL},{rows:[row('1'),row('1')],last:2,total:2}]) assert.throws(()=>accept(reading(),payload(o)));
+  for(const o of [{first:2,last:2},{total:2},{total:0,first:0,last:0,rows:[] ,nextUrl:FLIGHT_URL+'?page=2'},{nextUrl:'https://evil.test/?page=2'},{total:2,nextUrl:FLIGHT_URL+'?page=3'},{total:2,nextUrl:FLIGHT_URL+'?page=2&_params=secret'},{token:'old'},{phase:'reset'},{url:LOGIN_URL},{rows:[row('1'),row('1')],last:2,total:2}]) assert.throws(()=>accept(reading(),payload(o)));
   for(const o of [{rows:[row('2')],first:3,last:3,total:3},{accountLabel:'Other account'},{preset:'Flugbuch Export'},{headers:[...headers].reverse(),rows:[row('2')]},{columnIds:[...columnIds].reverse()},{rows:[row('1')]}]) {
     const run=reading(); accept(run,payload({total:2,nextUrl:FLIGHT_URL+'?page=2'})); const before=JSON.stringify(run.pages);
     assert.throws(()=>accept(run,payload({first:2,last:2,total:2,rows:[row('2')],...o})));assert.equal(JSON.stringify(run.pages),before);
@@ -51,11 +51,12 @@ test('phase acknowledgements advance only matching commands, preserve source con
 });
 
 // Synthetic DOM contracts, never private provider HTML or real flight records.
-function driverFixture(phase: ExportRun['phase'], options: {expectedAccount?:string;missingPreset?:boolean;activeBackup?:boolean;missingColumn?:boolean;filtered?:boolean;wrongPeriod?:boolean;foreignForm?:boolean;url?:string;iframe?:boolean;empty?:boolean;malformed?:boolean}={}) {
+function driverFixture(phase: ExportRun['phase'], options: {expectedAccount?:string;missingPreset?:boolean;activeBackup?:boolean;activeExport?:boolean;activeUserExport?:boolean;missingColumn?:boolean;filtered?:boolean;wrongPeriod?:boolean;foreignForm?:boolean;url?:string;iframe?:boolean;empty?:boolean;malformed?:boolean}={}) {
   const messages:string[]=[];const actions:string[]=[];
-  const option={text:EXPORT_PRESET,value:EXPORT_PRESET,textContent:EXPORT_PRESET,disabled:false,hidden:false};
+  const option={text:'MoFlight App export filter',value:'export-id',textContent:'MoFlight App export filter',disabled:false,hidden:false};
+  const userExport={text:'Flugbuch Export',value:'user-export-id',textContent:'Flugbuch Export',disabled:false,hidden:false};
   const reset={text:'Zurücksetzen',textContent:'Zurücksetzen',value:'-1',disabled:false,hidden:false};
-  const select={options:options.missingPreset?[reset]:[option,reset],selectedOptions:[options.activeBackup?{textContent:'MoFlight App user view backup'}:options.missingPreset?{textContent:'Konfiguration laden'}:option],selectedIndex:0,value:EXPORT_PRESET,dispatchEvent:()=>actions.push('preset-change')};
+  const select={options:options.missingPreset?[reset]:[option,userExport,reset],selectedOptions:[options.activeBackup?{textContent:'MoFlight App user view backup'}:options.activeExport?option:options.activeUserExport?userExport:{textContent:ACTIVE_EXPORT_VIEW}],selectedIndex:0,value:ACTIVE_EXPORT_VIEW,dispatchEvent:()=>actions.push('preset-change')};
   const form={method:'post',getAttribute:()=>options.foreignForm?'https://evil.test/':FLIGHT_URL,querySelector:()=>({click:()=>actions.push('submit')})};
   const columns=headers.map((h,i)=>({textContent:h||'[leer]',getAttribute:()=>columnIds[i],click:()=>{actions.push('column-select');}}));
   const visible=options.missingColumn?columns.slice(0,-1):columns;
@@ -82,20 +83,18 @@ function driverFixture(phase: ExportRun['phase'], options: {expectedAccount?:str
   const location=new URL(options.url??FLIGHT_URL);const run=beginExport(request);run.phase=phase;
   run.accountLabel=options.expectedAccount??null;
   runInNewContext(exportScript(token,run),{window,document,location:{href:location.href,hostname:location.hostname,pathname:location.pathname,protocol:location.protocol,origin:location.origin},URL,Event:class { constructor(_name:string,_options:unknown){} }});
-  return {messages,actions,boxes,fields};
+  return {messages,actions,boxes,fields,select};
 }
 test('standalone export reader preserves row-ID fallback, skips layout, and proves 48-column scope',()=>{
   const fixture=driverFixture('read');assert.deepEqual(fixture.actions,[]);assert.equal(accept(reading(),fixture.messages[0]!).complete!.rows[0]!.sourceFlightId,'1');
   assert.equal(accept(reading(),driverFixture('read',{empty:true}).messages[0]!).complete!.rows.length,0);
   assert.throws(()=>accept(reading(),driverFixture('read',{malformed:true}).messages[0]!));
 });
-test('standalone driver repairs columns, clears restrictions, creates only absent presets and submits explicit dates',()=>{
+test('standalone driver repairs only active columns, clears restrictions and submits explicit dates without saving presets',()=>{
   assert.deepEqual(driverFixture('columns',{missingColumn:true}).actions,['open-config','column-tab','column-select','move-right','submit']);
   const filtered=driverFixture('clear',{filtered:true});assert.deepEqual(filtered.actions,['submit']);assert.ok(filtered.boxes.every(b=>b.checked));
-  assert.deepEqual(driverFixture('save').actions,[]);
-  assert.ok(driverFixture('save',{missingPreset:true}).actions.includes('save-preset'));
   const period=driverFixture('period',{wrongPeriod:true});assert.deepEqual(period.actions,['range-change','submit']);assert.equal((period.fields['#startdate'] as {value:string}).value,'01.01.2026');assert.equal((period.fields['#enddate'] as {value:string}).value,'31.12.2026');
-  for(const phase of ['columns','clear','save','period'] as const) {const rejected=driverFixture(phase,{missingColumn:true,filtered:true,missingPreset:true,wrongPeriod:true,foreignForm:true});assert.ok(rejected.messages[0]?.includes('unsupported-provider-state'));assert.ok(!rejected.actions.includes('submit'));}
+  for(const phase of ['columns','clear','period'] as const) {const rejected=driverFixture(phase,{missingColumn:true,filtered:true,missingPreset:true,wrongPeriod:true,foreignForm:true});assert.ok(rejected.messages[0]?.includes('unsupported-provider-state'));assert.ok(!rejected.actions.includes('submit'));}
 });
 test('browser automation never runs on login/foreign documents or nested frames',()=>{
   for(const options of [{url:LOGIN_URL},{url:'https://evil.test/member/profile/flightlog.php'},{iframe:true}]) assert.deepEqual(driverFixture('read',options).messages,[]);
@@ -108,11 +107,21 @@ test('account switch is rejected before any export phase can change provider con
  }
  assert.ok(driverFixture('clear',{expectedAccount:'Synthetic account',filtered:true}).actions.includes('submit'));
 });
-test('missing export preset leaves active user backup through reset before any column/filter mutation',()=>{
-  const f=driverFixture('preset',{missingPreset:true,activeBackup:true});
+test('reset leaves backup and existing named export presets without loading or saving any named definition',()=>{
+  const f=driverFixture('reset',{missingPreset:true,activeBackup:true});
   assert.deepEqual(f.actions,['preset-change']);assert.equal(f.messages.length,0);
-  assert.ok(driverFixture('preset',{missingPreset:true}).messages[0]?.includes('"status":"next"'));
-  const rejected=driverFixture('preset',{missingPreset:true,activeBackup:true,foreignForm:true});assert.deepEqual(rejected.actions,[]);
+  for(const active of [{activeExport:true},{activeUserExport:true},{activeBackup:true}]) {
+    const existing=driverFixture('reset',active);assert.deepEqual(existing.actions,['preset-change']);assert.equal(existing.messages.length,0);
+    assert.equal(existing.select.options[existing.select.selectedIndex]!.value,'-1');
+  }
+  for(const phase of EXPORT_PHASES.slice(1)) {
+    for(const active of [{activeBackup:true},{activeExport:true},{activeUserExport:true}]) {
+      const protectedView=driverFixture(phase,{...active,missingColumn:true,filtered:true,wrongPeriod:true});
+      assert.deepEqual(protectedView.actions,[]);assert.ok(protectedView.messages[0]?.includes('unsupported-provider-state'));
+    }
+  }
+  assert.ok(driverFixture('reset',{missingPreset:true}).messages[0]?.includes('"status":"next"'));
+  const rejected=driverFixture('reset',{missingPreset:true,activeBackup:true,foreignForm:true});assert.deepEqual(rejected.actions,[]);
 });
 
 test('saved export revalidates scope, rows and identity; large and empty snapshots reopen safely', async () => {
@@ -128,4 +137,16 @@ test('saved export revalidates scope, rows and identity; large and empty snapsho
   await persistCapture(db, large); assert.deepEqual(await readLatestCapture(db), large);
   await assert.rejects(persistCapture(db, {...large,rows:large.rows.map((r,i)=>i===0?{...r,values:r.values.map((v,n)=>n===6?'changed':v)}:r)}), /conflict/);
   assert.deepEqual(await readLatestCapture(db), large);
+});
+
+test('saved capture validates temporary v2 scope and retains historical v1 named exports',()=>{
+  const snapshot=accept(reading()).complete!;
+  assert.equal(snapshot.exportContext!.adapterVersion,2);
+  assert.equal(snapshot.exportContext!.preset,ACTIVE_EXPORT_VIEW);
+  for(const preset of ['MoFlight App export filter','Flugbuch Export','Flugbuch export']) {
+    const historical={...snapshot,exportContext:{...snapshot.exportContext!,adapterVersion:1,preset}};
+    assert.deepEqual(validateCapture(historical),historical);
+    assert.throws(()=>validateCapture({...historical,exportContext:{...historical.exportContext,adapterVersion:2}}));
+  }
+  for(const adapterVersion of [1,3,undefined]) assert.throws(()=>validateCapture({...snapshot,exportContext:{...snapshot.exportContext,adapterVersion}}));
 });

@@ -9,7 +9,7 @@ export interface ProbeRow { values: string[]; sourceFlightId: string | null }
 export interface ProbeSnapshot {
   captureId: string; retrievedAt: string; headers: string[]; rows: ProbeRow[];
   sourceIdentity: 'unverified'; coverage: 'visible-personal-list-only' | 'complete-requested-list'; timeBasis: 'unknown';
-  exportContext?: { from: string; to: string; preset: string; participation: 'Pilot oder Fluglehrer'; accountLabel: string; recordCount: number; pageCount: number; columnIds: string[]; adapterVersion: 1 };
+  exportContext?: { from: string; to: string; preset: string; participation: 'Pilot oder Fluglehrer'; accountLabel: string; recordCount: number; pageCount: number; columnIds: string[]; adapterVersion: 1 | 2 };
 }
 export function validateCapture(value: unknown): ProbeSnapshot {
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('Invalid saved capture.');
@@ -22,8 +22,8 @@ export function validateCapture(value: unknown): ProbeSnapshot {
     const context = s.exportContext as ProbeSnapshot['exportContext'];
     const validDate = (d: unknown): d is string => typeof d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d) && Number.isFinite(Date.parse(d)) && new Date(d).toISOString().slice(0, 10) === d;
     if (!context || !validDate(context.from) || !validDate(context.to) || context.from > context.to ||
-        !['MoFlight App export filter', 'Flugbuch Export', 'Flugbuch export'].includes(context.preset) || context.participation !== 'Pilot oder Fluglehrer' ||
-        typeof context.accountLabel !== 'string' || !context.accountLabel.trim() || context.accountLabel.length > 200 || context.adapterVersion !== 1 ||
+        !(context.adapterVersion === 1 ? ['MoFlight App export filter', 'Flugbuch Export', 'Flugbuch export'].includes(context.preset) : context.adapterVersion === 2 && context.preset === 'Konfiguration laden') || context.participation !== 'Pilot oder Fluglehrer' ||
+        typeof context.accountLabel !== 'string' || !context.accountLabel.trim() || context.accountLabel.length > 200 ||
         !Number.isSafeInteger(context.recordCount) || context.recordCount < 0 || context.recordCount > 20_000 ||
         !Number.isSafeInteger(context.pageCount) || context.pageCount < Math.max(1, Math.ceil(context.recordCount / 1000)) || context.pageCount > Math.max(1, context.recordCount)) throw new Error('Invalid saved export scope.');
     if (!Array.isArray(s.headers) || s.headers.length < 6 || s.headers.length > 128 || !s.headers.every(h => typeof h === 'string' && h.length <= 100)) throw new Error('Invalid saved export headers.');
@@ -40,7 +40,7 @@ export function validateCapture(value: unknown): ProbeSnapshot {
       if (!validDate(date) || date < context.from || date > context.to) throw new Error('Invalid saved export date.');
       ids.add(row.sourceFlightId); return { values: [...row.values], sourceFlightId: row.sourceFlightId };
     });
-    const result: ProbeSnapshot = { captureId: s.captureId, retrievedAt: s.retrievedAt, headers: [...headers], rows, sourceIdentity: 'unverified', coverage: 'complete-requested-list', timeBasis: 'unknown', exportContext: { from: context.from, to: context.to, preset: context.preset, participation: context.participation, accountLabel: context.accountLabel, recordCount: context.recordCount, pageCount: context.pageCount, columnIds: [...context.columnIds], adapterVersion: 1 } };
+    const result: ProbeSnapshot = { captureId: s.captureId, retrievedAt: s.retrievedAt, headers: [...headers], rows, sourceIdentity: 'unverified', coverage: 'complete-requested-list', timeBasis: 'unknown', exportContext: { from: context.from, to: context.to, preset: context.preset, participation: context.participation, accountLabel: context.accountLabel, recordCount: context.recordCount, pageCount: context.pageCount, columnIds: [...context.columnIds], adapterVersion: context.adapterVersion } };
     if (JSON.stringify(result).length > 20_000_000) throw new Error('Oversized saved export.');
     return result;
   }

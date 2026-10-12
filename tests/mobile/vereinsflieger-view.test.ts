@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { runInNewContext } from 'node:vm';
 import { decodeView, isDefaultView, sameView, validateView, viewScript, viewProtectionMessage, VIEW_BACKUP, type ViewPreferences, type ViewPhase } from '../../apps/platform-lab/src/vereinsflieger/view.ts';
-import { rememberView, pendingView, forgetView, backupOwner, ownBackup } from '../../apps/platform-lab/src/vereinsflieger/view-store.ts';
+import { rememberView, pendingView, forgetView } from '../../apps/platform-lab/src/vereinsflieger/view-store.ts';
 import { FLIGHT_URL, LOGIN_URL } from '../../apps/platform-lab/src/vereinsflieger/probe.ts';
 import { Retrieval } from '../../apps/platform-lab/src/vereinsflieger/retrieval.ts';
 import { mkdtemp, rm } from 'node:fs/promises';
@@ -11,7 +11,7 @@ import { join } from 'node:path';
 import { nodeDriver } from './sqlite-driver.ts';
 import { VIEW_SCHEMA } from '../../apps/platform-lab/src/vereinsflieger/view-store.ts';
 const original: ViewPreferences = {version:2,accountLabel:'Synthetic account',preset:'Old preset',columns:['1','2','3'],filters:[{name:'col3',type:'text',value:'ASK',checked:false},{name:'col11_0',type:'checkbox',value:'1',checked:false}],sort:[{column:'3',icon:'icon-sort-name-down'}],role:'Pilot oder Fluglehrer',period:'Das letzte Jahr',reset:false};
-function fixture(options: {collision?:boolean; owner?:string; changed?:boolean; foreign?:boolean} = {}) {
+function fixture(options: {collision?:boolean; changed?:boolean; foreign?:boolean} = {}) {
   const actions:string[]=[]; const messages:string[]=[];
   const state=structuredClone(original); if(options.changed) {state.period='ab 01.01.2026 bis 31.12.2026';state.filters[0]!.value='';state.sort=[];state.preset='MoFlight App export filter';}
   const opts:any[]=[{textContent:state.preset,text:state.preset,value:state.preset,disabled:true},{textContent:'Zurücksetzen',text:'Zurücksetzen',value:'-1',disabled:false}];
@@ -23,21 +23,21 @@ function fixture(options: {collision?:boolean; owner?:string; changed?:boolean; 
   const mapping:Record<string,any>={'#divpageheadermenu':{children:[{},{textContent:'VEREINSFLIEGER.DE '+state.accountLabel}]},'form[name="frm_tablelist_quickconfig"]':quick,'#tablelist_20':{},'#frmfilter':filters,'#userlist_name':input,'a[title="Liste konfigurieren"]':{click(){}},'#tableconfigtab_li_2':{click(){}},'#btn_userlist_add':{click(){actions.push('save');opts.push({text:input.value,textContent:input.value,value:input.value,disabled:false});}}};
   const document={querySelector:(s:string)=>s==='#globalfilter'?{textContent:state.period}:s==='#globalfilter2'?{textContent:state.role}:mapping[s],querySelectorAll:(s:string)=>s==='#LST_VISIBLE > li'?state.columns.map(id=>({getAttribute:()=>id})):s==='#tablelist_20 thead th'?state.columns.map(id=>({querySelectorAll:()=>state.sort.filter(x=>x.column===id).map(x=>({classList:[x.icon]}))})):[]};
   const window:any={ReactNativeWebView:{postMessage:(m:string)=>messages.push(m)}};window.top=window;
-  function execute(phase:ViewPhase,prefs:ViewPreferences|null=original){messages.length=0;runInNewContext(viewScript('current',phase,prefs,options.owner??null),{window,document,location:new URL(FLIGHT_URL),URL,Event:class{}});return messages.length?JSON.parse(messages[0]!):{};}
+  function execute(phase:ViewPhase,prefs:ViewPreferences|null=original){messages.length=0;runInNewContext(viewScript('current',phase,prefs),{window,document,location:new URL(FLIGHT_URL),URL,Event:class{}});return messages.length?JSON.parse(messages[0]!):{};}
   return {execute,actions,state,select,mapping,document};
 }
 test('snapshot records actual unsaved preferences without date-form replay or mutations',()=>{
  const f=fixture();assert.deepEqual(validateView(f.execute('snapshot',null).view),original);assert.deepEqual(f.actions,[]);
 });
-test('preflight diagnostics distinguish collisions and unsupported controls without leaking provider text',()=>{
- const collision=fixture({collision:true}), controls=fixture(), filters=fixture(), headers=fixture();
+test('preflight diagnostics distinguish unsupported controls without leaking provider text',()=>{
+ const controls=fixture(), filters=fixture(), headers=fixture();
  controls.mapping['#tablelist_20']=null;filters.state.filters[0]!.name='password';
  const query=headers.document.querySelectorAll;headers.document.querySelectorAll=s=>s==='#tablelist_20 thead th'?[]:query(s);
- for(const [f,reason] of [[collision,'backup-name-collision'],[controls,'view-controls'],[filters,'view-filter-controls'],[headers,'view-header-columns']] as const){
+ for(const [f,reason] of [[controls,'view-controls'],[filters,'view-filter-controls'],[headers,'view-header-columns']] as const){
   const m=f.execute('snapshot',null);assert.equal(m.reason,reason);assert.deepEqual(f.actions,[]);
   try {decodeView(JSON.stringify(m),LOGIN_URL,FLIGHT_URL,'current','snapshot',null);assert.fail('Expected preflight failure');}catch(e){assert.ok(viewProtectionMessage(e));}
  }
- const m={...collision.execute('snapshot',null),reason:'private-provider-exception'};
+ const m={...controls.execute('snapshot',null),reason:'private-provider-exception'};
  try{decodeView(JSON.stringify(m),LOGIN_URL,FLIGHT_URL,'current','snapshot',null);assert.fail('Expected failure');}catch(e){assert.ok(!viewProtectionMessage(e)?.includes('private-provider-exception'));}
  assert.equal(viewProtectionMessage(new Error('private-provider-exception')),null);
  assert.throws(()=>decodeView(JSON.stringify({...m,token:'stale'}),LOGIN_URL,FLIGHT_URL,'current','snapshot',null),e=>viewProtectionMessage(e)===null);
@@ -47,19 +47,21 @@ test('backup save/load uses provider controls then verifies relative period, fil
  const m=f.execute('backup-verify');assert.equal(decodeView(JSON.stringify(m),LOGIN_URL,FLIGHT_URL,'current','backup-verify',original),null);
  f.state.period='unexpected';assert.equal(f.execute('verify').error,'view-contract-changed');
 });
-test('unowned name collision fails before mutations; owned same-account name can be reused',()=>{
- const f=fixture({collision:true});assert.equal(f.execute('snapshot',null).error,'view-contract-changed');assert.deepEqual(f.actions,[]);
- assert.equal(fixture({collision:true,owner:original.accountLabel}).execute('snapshot',null).view.accountLabel,original.accountLabel);
- assert.equal(fixture({collision:true,owner:'Other account'}).execute('snapshot',null).error,'view-contract-changed');
+test('reserved backup is refreshed from actual view without requiring installation ownership',()=>{
+ const f=fixture({collision:true});assert.deepEqual(validateView(f.execute('snapshot',null).view),original);assert.deepEqual(f.actions,[]);
+ assert.equal(f.execute('backup').status,'saved-request');assert.deepEqual(f.actions,['save']);
+ assert.equal(f.mapping['#userlist_name'].value,VIEW_BACKUP);
+ const wrong=fixture({collision:true});assert.equal(wrong.execute('backup',{...original,accountLabel:'Other account'}).error,'view-contract-changed');assert.deepEqual(wrong.actions,[]);
 });
 test('backup never saves modified export preferences or submits a foreign form',()=>{
  for(const options of [{changed:true},{foreign:true}]){const f=fixture(options);assert.equal(f.execute('backup').error,'view-contract-changed');assert.deepEqual(f.actions,[]);}
 });
-test('collision appearing after snapshot is rejected again immediately before backup save',()=>{
+test('reserved name appearing after snapshot may be refreshed, but absent or changed original cannot be saved',()=>{
  const f=fixture();assert.equal(f.execute('snapshot',null).view.accountLabel,original.accountLabel);
  f.select.options.push({text:VIEW_BACKUP,textContent:VIEW_BACKUP,value:VIEW_BACKUP,disabled:false});
- assert.equal(f.execute('backup').error,'view-contract-changed');assert.deepEqual(f.actions,[]);
- const owned=fixture({collision:true,owner:original.accountLabel});assert.equal(owned.execute('backup').status,'saved-request');assert.deepEqual(owned.actions,['save']);
+ assert.equal(f.execute('backup').status,'saved-request');assert.deepEqual(f.actions,['save']);
+ const missing=fixture({collision:true});assert.equal(missing.execute('backup',null).error,'view-contract-changed');assert.deepEqual(missing.actions,[]);
+ const changed=fixture({collision:true,changed:true});assert.equal(changed.execute('backup').error,'view-contract-changed');assert.deepEqual(changed.actions,[]);
 });
 test('wrong-account restoration refuses every mutation; missing backup leaves visible recovery',()=>{
  const f=fixture({changed:true});assert.equal(f.execute('restore',{...original,accountLabel:'Other account'}).error,'view-contract-changed');assert.deepEqual(f.actions,[]);
@@ -83,21 +85,21 @@ test('host independently checks readback; stale tokens, account mismatch and for
  for(const change of [{token:'old'},{url:LOGIN_URL},{accountLabel:'Other'},{error:'x'},{status:'issued'},{view:{...m.view,period:'different'}}])assert.throws(()=>decodeView(JSON.stringify({...m,...change}),LOGIN_URL,FLIGHT_URL,'current','verify',original));
  assert.equal(sameView(original,m.view),true);assert.throws(()=>decodeView(JSON.stringify(m),'https://evil.test',FLIGHT_URL,'current','verify',original));
 });
-test('durable recovery survives restart, refuses replacement/wrong cleanup and records ownership only with journal',async()=>{
- let payload:string|null=null, owner:string|null=null;
- const db={async exec(){},async all<T>(){return [] as T[];},async first<T>(sql:string){return (sql.includes('backup_owner')?(owner?{account_label:owner}:null):(payload?{payload}:null)) as T|null;},async run(sql:string,...args:unknown[]){if(sql.includes('backup_owner'))owner=args[0] as string;else if(sql.startsWith('INSERT')&&!payload)payload=args[0] as string;else if(sql.startsWith('DELETE')&&payload===args[0])payload=null;}};
- await assert.rejects(ownBackup(db,original));await rememberView(db,original);await rememberView(db,original);assert.deepEqual(await pendingView(db),original);
- await assert.rejects(rememberView(db,{...original,preset:'Other'}));await assert.rejects(forgetView(db,{...original,preset:'Other'}));await assert.rejects(ownBackup(db,{...original,preset:'Other'}));
- await ownBackup(db,original);assert.equal(await backupOwner(db),original.accountLabel);await forgetView(db,original);assert.equal(await pendingView(db),null);assert.equal(await backupOwner(db),original.accountLabel);
+test('durable recovery refuses replacement and wrong cleanup even with reserved-name overwrite authorization',async()=>{
+ let payload:string|null=null;
+ const db={async exec(){},async all<T>(){return [] as T[];},async first<T>(){return (payload?{payload}:null) as T|null;},async run(sql:string,...args:unknown[]){if(sql.startsWith('INSERT')&&!payload)payload=args[0] as string;else if(sql.startsWith('DELETE')&&payload===args[0])payload=null;}};
+ await rememberView(db,original);await rememberView(db,original);assert.deepEqual(await pendingView(db),original);
+ await assert.rejects(rememberView(db,{...original,preset:'Other'}));await assert.rejects(forgetView(db,{...original,preset:'Other'}));
+ await forgetView(db,original);assert.equal(await pendingView(db),null);
 });
 test('journal/save lock resumes only its owner; cancellation stays disabled during SQLite writes',()=>{
  const r=new Retrieval();r.start('owner');r.beginSave('owner');assert.equal(r.cancel(),false);assert.equal(r.resume('other'),false);assert.equal(r.resume('owner'),true);assert.equal(r.cancel(),true);assert.equal(r.resume('owner'),false);
 });
-test('actual SQLite recovery reopens after interruption; ownership survives cleanup and stale cleanup retains evidence',async()=>{
+test('actual SQLite recovery reopens after interruption; stale cleanup retains evidence and legacy ownership is irrelevant',async()=>{
  const dir=await mkdtemp(join(tmpdir(),'moflight-view-')), path=join(dir,'view.sqlite');let db=nodeDriver(path);
- try {await db.exec(VIEW_SCHEMA);await rememberView(db,original);await ownBackup(db,original);await db.close();db=nodeDriver(path);
- assert.deepEqual(await pendingView(db),original);assert.equal(await backupOwner(db),original.accountLabel);
+ try {await db.exec(VIEW_SCHEMA);await db.exec('CREATE TABLE provider_view_backup_owner (id INTEGER PRIMARY KEY, account_label TEXT); INSERT INTO provider_view_backup_owner VALUES (1,NULL)');await rememberView(db,original);await db.close();db=nodeDriver(path);
+ assert.deepEqual(await pendingView(db),original);
  await assert.rejects(forgetView(db,{...original,period:'different'}));assert.deepEqual(await pendingView(db),original);
- await forgetView(db,original);await db.close();db=nodeDriver(path);assert.equal(await pendingView(db),null);assert.equal(await backupOwner(db),original.accountLabel);
+ await forgetView(db,original);await db.close();db=nodeDriver(path);assert.equal(await pendingView(db),null);assert.equal((await db.first<{account_label:null}>('SELECT account_label FROM provider_view_backup_owner WHERE id=1'))!.account_label,null);
  } finally {await db.close();await rm(dir,{recursive:true,force:true});}
 });

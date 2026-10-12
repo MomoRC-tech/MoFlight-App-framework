@@ -4,7 +4,7 @@ import type { Connection } from '@moflight/local-data';
 import { CAPTURE_SCHEMA, persistCapture, readLatestCapture } from './capture-store';
 import { RUN_SCHEMA, persistRun, latestRun, type CaptureRun } from './capture-run';
 import { WINDOW_SCHEMA, persistWindow, latestWindow, type WindowRun } from './window';
-import { VIEW_SCHEMA, rememberView, pendingView, forgetView, backupOwner, ownBackup } from './view-store';
+import { VIEW_SCHEMA, rememberView, pendingView, forgetView } from './view-store';
 import type { ViewPreferences } from './view';
 
 function connection(db: SQLite.SQLiteDatabase): Connection {
@@ -36,5 +36,3 @@ export async function readWindow() { const db=await database();try{return await 
 export async function saveOriginalView(view: ViewPreferences) { const db=await database();try{await rememberView(connection(db),view);}finally{await db.closeAsync();} }
 export async function readOriginalView() { const db=await database();try{return await pendingView(connection(db));}finally{await db.closeAsync();} }
 export async function clearOriginalView(view: ViewPreferences) { const db=await database();try{await forgetView(connection(db),view);}finally{await db.closeAsync();} }
-export async function readBackupOwner() { const db=await database();try{return await backupOwner(connection(db));}finally{await db.closeAsync();} }
-export async function saveBackupOwner(view: ViewPreferences) { const db=await database();try{await ownBackup(connection(db),view);}finally{await db.closeAsync();} }
