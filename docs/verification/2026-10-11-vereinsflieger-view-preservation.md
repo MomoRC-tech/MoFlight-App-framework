@@ -44,6 +44,20 @@ Local Release build of `ca93e3f` completed at 19:43:53 Europe/Berlin in the clea
 
 [Fast CI 38160753153](https://github.com/MomoRC-tech/MoFlight-App-framework/actions/runs/38160753153) passed for `ca93e3f`. At 19:44 Europe/Berlin the new Android checkpoint's plan passed and compilation is running. Documentation destinations/traceability and Git whitespace checks pass. No Python/domain calculation change occurred in this correction; the earlier 39-test Python evidence is retained without claiming a fresh execution.
 
+## Checkpoint recheck — 2026-10-12
+
+Local/remote main are clean and equal at `a8c42f2`. [Checkpoint 38160780860](https://github.com/MomoRC-tech/MoFlight-App-framework/actions/runs/38160780860) completed with conclusion **failure** for `ca93e3f`: plan and Android APK build passed, but smoke job `114535503977` was refused before runner allocation (runner ID 0, no steps, no job log). Its check annotation reports failed account payments or a spending-limit restriction. The job ended at 19:54:42 Europe/Berlin on 2026-10-11. This is hosted infrastructure blocking, not an executed emulator assertion failure; no hosted smoke pass for this source is claimed. Billing settings were not changed and the same blocked run was not blindly retried.
+
+Native computer-use initialization and app inventory succeeded today. Previous native-API unavailability describes the earlier session; current emulator/provider execution still needs fresh evidence. No provider-session action occurred during the checkpoint recheck.
+
+### Local native trial — 06:41 Europe/Berlin
+
+Started existing provider AVD `MoFlight_API37` without wipe/reset; ADB confirmed its name on `emulator-5554`. Verified the local APK against the committed `ca93e3f` manifest and SHA256 above; `adb install -r` succeeded without clearing app data. Native computer-use screenshots verify startup, remembered synthetic paper state and the earlier raw capture still visible. All provider interaction used native UI controls, not shell/network access to its session.
+
+Opening the provider page displayed its sign-in form. Retrieve flights then refused during original-view snapshot preflight and returned to idle with the earlier capture still displayed, without a new capture or pending-recovery action. The generic snapshot verdict lists a backup-name collision or unsupported settings; this observation does **not** distinguish expired authentication from collision/DOM-contract rejection. The sign-in form alone also does not prove authentication state for the flightbook URL. No successful export/restoration, full prior-capture byte comparison, account-switch trial or interruption recovery is claimed. Desktop-created unowned backup collision remains a known possible blocker. No provider settings/records were manually edited or private evidence committed.
+
+Continue with user-controlled sign-in/verification on the provider emulator, then determine the exact preflight blocker before any preservation trial. Computer-use policy prohibits automating authentication dialogs. No saved credentials were read or submitted by this trial.
+
 ## Remaining acceptance and limits
 
 Provider account identity remains display-context-only. Different observed labels stop restoration; identical labels are not proof of the same stable account. Ownership metadata is local and cannot prove that a user has not deleted/recreated a same-named provider configuration. No production account-isolation guarantee is claimed. Relative scope comparison uses provider labels, not stale hidden date defaults; date-relative result rows naturally change over time. Former preset label is not restored by replaying an older saved definition.
