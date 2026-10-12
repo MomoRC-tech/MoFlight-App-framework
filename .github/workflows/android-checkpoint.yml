@@ -1,22 +1,7 @@
 name: Android checkpoint
+# Optional hosted checks: manual only. Local verification remains required.
+# Dispatch only within free quota; this workflow does not authorize paid CI.
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'package.json'
-      - '**/package.json'
-      - 'pnpm-lock.yaml'
-      - 'pnpm-workspace.yaml'
-      - '.npmrc'
-      - 'apps/platform-lab/app.json'
-      - 'apps/platform-lab/app.config.*'
-      - 'apps/platform-lab/plugins/**'
-      - 'apps/platform-lab/android/**'
-      - 'scripts/*android*.py'
-      - 'scripts/*android*.ps1'
-      - 'scripts/configure-windows-native-build.ps1'
-      - 'tests/test_android*.py'
-      - '.github/workflows/android-checkpoint.yml'
   workflow_dispatch:
     inputs:
       source_ref:
@@ -31,8 +16,8 @@ permissions:
   contents: read
   actions: read
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event_name == 'push' && github.ref || github.run_id }}
-  cancel-in-progress: ${{ github.event_name == 'push' }}
+  group: ${{ github.workflow }}-${{ github.run_id }}
+  cancel-in-progress: false
 jobs:
   android-plan:
     runs-on: ubuntu-latest

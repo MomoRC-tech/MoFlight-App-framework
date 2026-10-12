@@ -1,7 +1,7 @@
 name: Fast platform checks
+# Optional hosted checks: manual only. Local verification remains required.
+# Dispatch only within free quota; this workflow does not authorize paid CI.
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 permissions:
   contents: read

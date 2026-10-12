@@ -12,8 +12,7 @@
 ## GitHub
 - Work directly on main with traceable commits; no PRs required or wanted (Manuel, 2026-10-08).
 - Use Issues for tasks and open decisions; check existing tasks before creating duplicates.
-- CI should support pushes to main.
-- Follow accepted ADR 0009: use the local Windows Android helper/emulator for ordinary development when available. Fast CI runs on every push; dispatch an Android checkpoint before device handoff or declaring native feature acceptance. Do not interpret a green fast workflow as Android runtime acceptance. Preserve dirty build checkouts and use only MoFlight_Synthetic_API37 for destructive local smoke tests; keep provider-session emulators separate.
+- Follow accepted ADR 0009 as amended by Manuel on 2026-10-12: documented local checks, committed-source Release builds and relevant native trials are required before scoped acceptance/device handoff. Hosted CI is optional and manual-only; unavailable hosted checks do not block acceptance supported by complete local evidence. No paid CI, spending-limit increases, billing changes or paid runner/storage usage are authorized. Do not dispatch hosted runs without confirmed free eligibility. Do not interpret a green host test/bundle as native runtime acceptance. Preserve dirty build checkouts and use only MoFlight_Synthetic_API37 for destructive local smoke tests; keep provider-session emulators separate.
 - Do not overwrite unrelated changes. Use an expected head SHA when updating refs through an API.
 - If write access fails, state which changes are not saved.
 

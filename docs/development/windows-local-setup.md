@@ -123,9 +123,9 @@ The helper checks the AVD name before the smoke harness resets app data. The har
 
 ### Hosted checkpoints
 
-Fast platform checks run on every main push. **Android checkpoint** automatically runs for dependency manifests/lockfile, app configuration/plugins, Android helpers/tests and checkpoint workflow changes. For ordinary app logic changes, run it manually at feature completion and before device handoff. In GitHub Actions select **Android checkpoint → Run workflow**; optionally supply a commit/ref and force fresh compilation. Omit the source ref to use the selected workflow ref. Its planner pins all jobs to the resolved source commit and records the compiled source separately when reusing an APK.
+Manuel approved optional hosted CI and no paid CI on 2026-10-12. Both hosted workflows are manual-only; normal pushes launch no runners. Complete the documented committed-source local checks/build and applicable native trials before scoped acceptance or device handoff under amended [ADR 0009](../adr/0009-local-android-development-and-checkpoint-ci.md). Hosted billing restrictions are not an acceptance gate when required local evidence is complete. Do not raise spending limits/change billing or dispatch a run without confirmed free eligibility.
 
-Only automatic runs on the same branch supersede each other. Manual runs have independent concurrency groups. A cancelled or untriggered Android run is not native acceptance. Private sessions, captures and credentials never enter hosted tests.
+If an optional free hosted checkpoint is desired, select **Android checkpoint → Run workflow** and optionally supply a commit/ref and force fresh compilation. Its planner pins the resolved source and records the compiled source when reusing an identical-input APK. Manual runs have independent concurrency groups. A cancelled/untriggered run is not a passing test; missing local feature/native evidence remains open. Private sessions, captures and credentials never enter hosted tests.
 
 ## Live Vereinsflieger gate
 

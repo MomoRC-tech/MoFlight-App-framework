@@ -1,5 +1,4 @@
 """Build provenance, cache isolation and checkpoint trigger regression checks."""
-import fnmatch
 import json
 import os
 import re
@@ -39,29 +38,30 @@ class EmulatorRunnerScriptTests(unittest.TestCase):
 
 
 class TriggerTests(unittest.TestCase):
-    def test_checkpoint_scope(self):
-        workflow = (ROOT / '.github/workflows/android-checkpoint.yml').read_text()
-        block = workflow.split('    paths:\n', 1)[1].split('  workflow_dispatch:', 1)[0]
-        patterns = re.findall(r"- '([^']+)'", block)
-        cases = {
-            'README.md': False, 'docs/product/example.md': False,
-            'apps/platform-lab/src/App.tsx': False,
-            'packages/local-data/src/repository.ts': False,
-            'package.json': True, 'apps/platform-lab/package.json': True,
-            'pnpm-lock.yaml': True, 'pnpm-workspace.yaml': True, '.npmrc': True,
-            'apps/platform-lab/app.config.ts': True, 'apps/platform-lab/app.json': True,
-            'apps/platform-lab/plugins/native.js': True,
-            'scripts/android_smoke.py': True, 'scripts/build-android-local.ps1': True,
-            'scripts/configure-windows-native-build.ps1': True,
-            'tests/test_android_build_policy.py': True,
-            '.github/workflows/android-checkpoint.yml': True,
-        }
-        for path, expected in cases.items():
-            with self.subTest(path=path):
-                self.assertEqual(any(fnmatch.fnmatchcase(path, p) for p in patterns), expected)
+    def test_hosted_workflows_are_manual_only(self):
+        # Cover every hosted workflow, including future additions: a normal
+        # push, PR, schedule or workflow dependency must not consume CI quota.
+        workflows = sorted((ROOT / '.github/workflows').glob('*.yml'))
+        workflows += sorted((ROOT / '.github/workflows').glob('*.yaml'))
+        self.assertGreaterEqual(len(workflows), 2)
+        for path in workflows:
+            with self.subTest(workflow=path.name):
+                workflow = path.read_text(encoding='utf-8')
+                event_block = workflow.split('on:\n', 1)[1].split('\npermissions:', 1)[0]
+                events = re.findall(r'^  ([a-z_]+):', event_block, flags=re.MULTILINE)
+                self.assertEqual(events, ['workflow_dispatch'])
         fast = (ROOT / '.github/workflows/host-lab.yml').read_text()
         self.assertNotIn('assembleRelease', fast)
         self.assertNotIn('android-smoke:', fast)
+
+    def test_manual_checkpoint_retains_source_selection_and_apk_reuse_controls(self):
+        workflow = (ROOT / '.github/workflows/android-checkpoint.yml').read_text()
+        self.assertIn('      source_ref:', workflow)
+        self.assertIn('      force_fresh:', workflow)
+        self.assertIn('ref: ${{ inputs.source_ref || github.sha }}', workflow)
+        self.assertIn('FORCE_FRESH: ${{ inputs.force_fresh }}', workflow)
+        self.assertIn('run-id: ${{ needs.android-plan.outputs.run-id || github.run_id }}', workflow)
+        self.assertIn('cancel-in-progress: false', workflow)
 
 
 class PlannerTests(unittest.TestCase):

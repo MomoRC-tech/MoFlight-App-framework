@@ -2,6 +2,7 @@
 
 - Date: 2026-10-11
 - Status: Accepted — Manuel approved implementation of the reviewed plan
+- Amendment: 2026-10-12 — Manuel approved required local validation, optional hosted CI and no paid CI
 - Tracking: #6
 
 ## Context
@@ -14,8 +15,12 @@ Use local Windows builds/emulator testing as the primary Android development loo
 
 Development-client/Metro builds support screen/logic iteration; standalone Release-configuration lab APKs establish offline acceptance. Only the named synthetic AVD may be reset by the local smoke command. Provider-session emulators remain separate.
 
-Fast Windows/Linux checks run on every main push. The separate Android checkpoint workflow runs automatically for package manifests/lockfiles, app native configuration/plugins, Android build scripts, smoke tests and its own workflow changes. Ordinary application logic and documentation changes require a manual checkpoint for hosted runtime evidence. Manual dispatch can select a source commit/ref and force new compilation. APK reuse requires identical application inputs. Superseded automatic runs may be cancelled; manual runs are independent. Cancellation/skipping is not passing acceptance.
+As amended on 2026-10-12, hosted workflows are optional and manual-only. Normal pushes do not dispatch runners. No paid CI, increased spending limits, billing changes or paid runner/storage usage are authorized. A hosted run may be considered only when its free eligibility is confirmed; an account restriction is not a reason to pay. Retain manual source selection, fresh compilation and identical-input APK reuse for optional independent evidence. Manual runs are independent. A skipped/unavailable hosted run is neither a test pass nor a blocker when the required local evidence is complete.
+
+Before scoped feature acceptance or device handoff, require documented local validation of committed source: strict TypeScript/mobile tests and relevant Python/fixture checks; the Android Release build's source identity, checksum, embedded JavaScript and architectures; the applicable synthetic emulator sequence and actual feature-specific native trials, including offline restart/recovery when relevant. Record source/configuration, actual environment, failures, outcomes and remaining gates. Reset only the named synthetic AVD; preserve provider sessions and unrelated build checkouts. Host mocks/bundles cannot substitute for live-provider or native acceptance, and Android evidence cannot substitute for iOS execution. Missing required feature/device evidence remains an acceptance blocker independently of hosted CI availability.
+
+The original 2026-10-11 automatic fast/checkpoint schedule and mandatory hosted completion gate are superseded by this amendment. Dated verification reports retain their original outcomes; they must not be read as a current requirement to resolve billing or buy CI.
 
 ## Consequences
 
-Run a full checkpoint before device handoff or declaring a feature accepted. Record local and hosted results separately, with compiled and validated source identities. Preserve Windows workaround failures and measured evidence. Windows does not establish iOS runtime acceptance. No new service, framework, global Java replacement or production signing is introduced.
+Complete the relevant local checkpoint before device handoff or declaring a scoped feature accepted. Record optional hosted evidence separately, with compiled and validated source identities. The tradeoff is reduced independent operating-system/clean-runner coverage; use reproducible isolated local builds and record that limitation. Preserve Windows workaround failures and measured evidence. Windows does not establish iOS runtime acceptance. No new service, framework, global Java replacement or production signing is introduced.
