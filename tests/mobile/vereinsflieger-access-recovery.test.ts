@@ -177,6 +177,47 @@ async function restoredReadback(f: ReturnType<typeof fixture>) {
   assert.equal(f.currentCommand().phase, 'verify');
 }
 const restored = { ...original, preset: view.VIEW_BACKUP };
+async function backupVerified(f: ReturnType<typeof fixture>) {
+  await f.message({ kind: 'vf-view-v2', view: original });
+  await f.message({ kind: 'vf-view-v2', status: 'saved-request' });
+  await f.loadFlight();
+  await f.message({ kind: 'vf-view-v2', status: 'load-request' });
+  await f.loadFlight();
+  await f.message({ kind: 'vf-view-v2', status: 'next', view: restored });
+  assert.equal(f.currentCommand().phase, 'reset');
+}
+
+test('opt-in interruption checkpoint holds after verified reset and ignores navigation and abandoned Continue callbacks', async () => {
+  const f = fixture({ priorCapture });
+  f.render(); await f.settle(null);
+  f.press(f.button(f.render(), 'Enable interruption test pause'));
+  f.press(f.button(f.render(), 'Retrieve flights')); await f.loadFlight(); await backupVerified(f);
+  await f.message({ kind: 'vf-export-v1', status: 'next', preset: exporter.ACTIVE_EXPORT_VIEW });
+  const continueButton = f.button(f.render(), 'Continue test retrieval');
+  assert.deepEqual(f.pending(), original); assert.equal(f.savedCapture(), priorCapture);
+  const count = f.injections.length;
+  await f.loadFlight(); assert.equal(f.injections.length, count, 'Navigation cannot advance a paused run');
+  f.press(f.button(f.render(), 'Cancel retrieval')); f.press(continueButton);
+  await restoredReadback(f);
+  await f.message({ kind: 'vf-view-v2', status: 'next', view: restored });
+  assert.equal(f.pending(), null); assert.equal(f.savedCapture(), priorCapture);
+  f.press(f.button(f.render(), 'Retrieve flights')); await f.loadFlight(); await backupVerified(f);
+  await f.message({ kind: 'vf-export-v1', status: 'next', preset: exporter.ACTIVE_EXPORT_VIEW });
+  const secondCount = f.injections.length;
+  f.press(continueButton); assert.equal(f.injections.length, secondCount, 'Prior request Continue cannot resume a new request');
+  f.press(f.button(f.render(), 'Continue test retrieval'));
+  assert.equal(f.currentCommand().phase, 'columns');
+});
+
+test('interruption test setting is transient; restarted pending journal blocks retrieval and exposes verified recovery', async () => {
+  const f = fixture({ priorCapture }); f.render(); await f.settle(original);
+  assert.equal(f.button(f.render(), 'Enable interruption test pause').props.disabled, true);
+  assert.equal(f.button(f.render(), 'Retrieve flights').props.disabled, true);
+  f.press(f.button(f.render(), 'Restore original provider view')); await restoredReadback(f);
+  await f.message({ kind: 'vf-view-v2', status: 'next', view: restored });
+  assert.equal(f.pending(), null); assert.equal(f.savedCapture(), priorCapture);
+  assert.equal(f.button(f.render(), 'Enable interruption test pause').props.disabled, false);
+});
 
 test('cancellation before journaling retains the prior capture and ignores the abandoned snapshot callback', async () => {
   const f = fixture({ priorCapture });

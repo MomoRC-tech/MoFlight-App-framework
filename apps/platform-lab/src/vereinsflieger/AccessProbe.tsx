@@ -37,6 +37,8 @@ export function AccessProbe({ close }: { close: () => void }) {
   const [browserActive, setBrowserActive] = useState(true);
   const [visible, setVisible] = useState(false), [busy, setBusy] = useState(false), [loaded, setLoaded] = useState(false);
   const [saving, setSaving] = useState(false);
+  const testPauseEnabled = useRef(false), testPaused = useRef(false);
+  const [pauseEnabled, setPauseEnabled] = useState(false), [paused, setPaused] = useState<string | null>(null);
   const [snapshot, setSnapshot] = useState<ProbeSnapshot | null>(null), [status, setStatus] = useState('Sign in on the original provider page. Choose an inclusive period; configuration is verified before capture.');
   useEffect(() => { let active = true; mounted.current = true; void latestCapture().then(s => { if (active) setSnapshot(old => old ?? s); }).catch(() => { if (active && retrieval.current.state.phase === 'idle') setStatus('Saved capture could not be opened. Synthetic logbook remains separate.'); }); return () => { active = false; mounted.current = false; epoch.current++; if (timeout.current) clearTimeout(timeout.current); retrieval.current.dispose(); }; }, []);
   useEffect(() => { let active = true; void readSavedLogin().then(login => { if (active) setHasLogin(!!login); }).catch(() => { if (active) setStatus('Protected login storage could not be opened. Existing captures remain available.'); }); return () => { active = false; loginAttempt.current = null; if (loginTimer.current) clearTimeout(loginTimer.current); }; }, []);
@@ -86,6 +88,7 @@ export function AccessProbe({ close }: { close: () => void }) {
     if (!nonce && state.phase === 'loading') retrieval.current.finish(state.nonce);
     if (timeout.current) clearTimeout(timeout.current); timeout.current = null;
     run.current = null; command.current = ''; reading.current = false; viewPhase.current = null; restoring.current = false;
+    testPaused.current = false; setPaused(null);
     epoch.current++; setGeneration(epoch.current); setBrowserActive(false); setLoaded(false); setVisible(false);
     if (mounted.current) { setBusy(false); setSaving(false); setStatus(message); }
   }
@@ -93,6 +96,7 @@ export function AccessProbe({ close }: { close: () => void }) {
     if (!original.current || !retrieval.current.owns(nonce)) return;
     if (retrieval.current.state.phase === 'saving') retrieval.current.resume(nonce);
     outcome.current = message; restoring.current = true; restoreSteps.current = 0; viewPhase.current = 'restore';
+    testPaused.current = false; setPaused(null);
     run.current = null; reading.current = false; command.current = ''; setSaving(false); setBusy(true); setVisible(true);
     web.current?.stopLoading(); armTimeout(nonce); navigate(FLIGHT_URL);
   }
@@ -125,7 +129,7 @@ export function AccessProbe({ close }: { close: () => void }) {
   }
   function extract() {
     const state = retrieval.current.state, active = run.current;
-    if (state.phase !== 'loading' || (!active && !viewPhase.current) || reading.current || !flightUrl(currentUrl.current)) return;
+    if (state.phase !== 'loading' || (!active && !viewPhase.current) || reading.current || testPaused.current || !flightUrl(currentUrl.current)) return;
     if (viewPhase.current) {
       if (++restoreSteps.current > 30) { finish('View verification navigation limit reached.', state.nonce); return; }
       reading.current = true; command.current = Crypto.randomUUID(); armTimeout(state.nonce);
@@ -142,6 +146,14 @@ export function AccessProbe({ close }: { close: () => void }) {
   // Commit the page-scoped bridge before executing the explicit table reader.
   useEffect(() => { if (visible && loaded && busy && flightUrl(url)) extract(); }, [visible, loaded, busy, url]);
   function navigate(uri: string) { setBrowserActive(true); setLoaded(false); currentUrl.current = uri; setUrl(uri); setSource({ uri }); epoch.current++; setGeneration(epoch.current); }
+  function toggleTestPause() {
+    if (!viewReady || recovery || busy || loginBusy || loginAttempt.current || retrieval.current.state.phase !== 'idle') return;
+    testPauseEnabled.current = !testPauseEnabled.current; setPauseEnabled(testPauseEnabled.current);
+  }
+  function continueTestRetrieval(nonce: string) {
+    if (!testPaused.current || restoring.current || !retrieval.current.owns(nonce) || retrieval.current.state.phase !== 'loading' || run.current?.phase !== 'columns') return;
+    testPaused.current = false; setPaused(null); extract();
+  }
   function retrieve() {
     if (loginAttempt.current || loginBusy || !viewReady || recovery) return;
     let prepared: ExportRun;
@@ -149,6 +161,7 @@ export function AccessProbe({ close }: { close: () => void }) {
     const nonce = Crypto.randomUUID();
     if (!retrieval.current.start(nonce)) return;
     run.current = prepared; reading.current = false; viewPhase.current = 'snapshot'; restoreSteps.current = 0;
+    testPaused.current = false; setPaused(null);
     setBusy(true); setVisible(true);
     phase.current = { loaded: false, progress: 0, injections: 0 };
     setStatus('Opening your personal flightbook automatically. If asked, complete provider login, then tap Retrieve again.');
@@ -203,8 +216,15 @@ export function AccessProbe({ close }: { close: () => void }) {
         reading.current = false; command.current = ''; extract(); return;
       }
       if (!run.current) return;
+      const completedPhase = run.current.phase;
       const result = acceptExportMessage(run.current, event.nativeEvent.data, event.nativeEvent.url, currentUrl.current, command.current);
       reading.current = false; command.current = '';
+      if (completedPhase === 'reset' && run.current.phase === 'columns' && testPauseEnabled.current) {
+        testPaused.current = true; setPaused(nonce);
+        if (timeout.current) clearTimeout(timeout.current); timeout.current = null;
+        setStatus('Test checkpoint: export reset verified; original view recovery is pending. Continue or cancel, or force-stop to test recovery.');
+        return;
+      }
       if (result.nextUrl) { armTimeout(nonce); navigate(result.nextUrl); return; }
       if (!result.complete) { extract(); return; }
       const data = result.complete;
@@ -227,10 +247,12 @@ export function AccessProbe({ close }: { close: () => void }) {
     <Text accessibilityLiveRegion="polite" style={[styles.body, styles.status]}>{status}</Text>
     <Button title="Open bounded capture and resume" disabled={busy || loginBusy || !viewReady || recovery} press={() => openCaptureLab('run')} />
     <Button title="Open dated-window capture" disabled={busy || loginBusy || !viewReady || recovery} press={() => openCaptureLab('window')} />
+    <Button title={pauseEnabled ? 'Disable interruption test pause' : 'Enable interruption test pause'} disabled={busy || loginBusy || !viewReady || recovery} press={toggleTestPause} />
     <View style={styles.actions}><TextInput accessibilityLabel="Export start date" value={from} onChangeText={setFrom} editable={!busy} placeholder="YYYY-MM-DD" style={styles.input} /><TextInput accessibilityLabel="Export end date" value={to} onChangeText={setTo} editable={!busy} placeholder="YYYY-MM-DD" style={styles.input} /></View>
     <View style={styles.actions}><Button title="Show provider login" disabled={busy || loginBusy} press={() => { setVisible(true); navigate(LOGIN_URL); }} /><Button title={busy ? 'Cancel retrieval' : 'Retrieve flights'} disabled={busy ? saving || restoring.current : loginBusy || !viewReady || recovery} press={busy ? cancelRetrieval : retrieve} /><Button title="Close access PoC" disabled={busy || loginBusy} press={close} /></View>
     <View style={styles.actions}><Button title={hasLogin ? 'Replace saved login' : 'Save login on this device'} disabled={busy || loginBusy} press={() => { setEditingLogin(true); setVisible(false); }} />{hasLogin && <><Button title="Use saved login" disabled={busy || loginBusy} press={useLogin} /><Button title="Forget saved login" disabled={busy || loginBusy} press={() => void forgetLogin()} /></>}</View>
     {recovery && !busy && <Button title="Restore original provider view" disabled={loginBusy || !viewReady || !original.current} press={recoverView} />}
+    {paused && <Button title="Continue test retrieval" press={() => continueTestRetrieval(paused)} />}
     {busy && <ActivityIndicator />}
     {visible && <Text style={styles.origin}>{providerUrl(url) ? new URL(url).origin : 'Navigation blocked'} · verify that the visible provider account is yours</Text>}
     <View pointerEvents={saving ? 'none' : 'auto'} style={visible ? styles.browser : styles.hidden}>
