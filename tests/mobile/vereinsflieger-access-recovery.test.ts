@@ -476,3 +476,64 @@ test('pre-backup Continue owns the request and preserves the existing verified-b
   const restarted = fixture({ priorCapture }); restarted.render(); await restarted.settle(original);
   assert.equal(restarted.button(restarted.render(), 'Enable pre-backup test pause').props.disabled, true, 'Test mode is transient and pending recovery takes priority');
 });
+
+function webViewPath(tree: Element): number[] | undefined {
+  if (tree.type === 'WebView') return [];
+  for (let i = 0; i < tree.children.length; i++) {
+    const child = tree.children[i];
+    if (child && typeof child === 'object' && !Array.isArray(child)) {
+      const path = webViewPath(child as Element); if (path) return [i, ...path];
+    }
+  }
+}
+function controlsHidden(f: ReturnType<typeof fixture>, tree: Element) {
+  const controls = f.find(tree, element => element.children?.some(child => (child as Element | null)?.children?.includes('Vereinsflieger access PoC')));
+  assert.ok(controls);
+  return (controls.props.style as unknown[]).some(style => (style as { display?: string } | null)?.display === 'none');
+}
+
+test('provider expansion retains native identity, command callbacks and pending recovery while only hiding lab controls', async () => {
+  const f = fixture({ priorCapture }); f.render(); await f.settle(null);
+  f.press(f.button(f.render(), 'Enable pre-backup test pause'));
+  f.press(f.button(f.render(), 'Retrieve flights')); await f.loadFlight();
+  const before = f.render(), native = f.find(before, element => element.type === 'WebView'); assert.ok(native);
+  const command = f.currentCommand(), count = f.injections.length;
+  assert.equal(controlsHidden(f, before), false);
+  f.press(f.button(before, 'Expand provider page'));
+  const expanded = f.render(), expandedNative = f.find(expanded, element => element.type === 'WebView'); assert.ok(expandedNative);
+  assert.equal(controlsHidden(f, expanded), true);
+  assert.deepEqual(webViewPath(expanded), webViewPath(before));
+  for (const property of ['key', 'source', 'ref']) assert.equal(expandedNative.props[property], native.props[property]);
+  assert.equal(f.injections.length, count); assert.deepEqual(f.writes, []); assert.equal(f.pending(), null);
+  // The callback obtained before the layout change still owns the same native
+  // generation and command, demonstrating that expansion has not navigated.
+  (native.props.onMessage as (event: unknown) => void)({ nativeEvent: { url: FLIGHT_URL,
+    data: JSON.stringify({ kind: 'vf-view-v2', ...command, url: FLIGHT_URL, view: original }) } });
+  await f.flush(); assert.deepEqual(f.pending(), original); assert.equal(f.injections.length, count);
+  for (const title of titles) assert.equal(f.button(f.render(), title).props.disabled, true);
+  const pausedNative = f.find(f.render(), element => element.type === 'WebView'); assert.ok(pausedNative);
+  f.press(f.button(f.render(), 'Back to lab'));
+  const collapsed = f.render(), collapsedNative = f.find(collapsed, element => element.type === 'WebView'); assert.ok(collapsedNative);
+  assert.equal(controlsHidden(f, collapsed), false); assert.deepEqual(webViewPath(collapsed), webViewPath(expanded));
+  for (const property of ['key', 'source', 'ref']) assert.equal(collapsedNative.props[property], pausedNative.props[property]);
+  assert.equal(f.injections.length, count); assert.equal(f.savedCapture(), priorCapture);
+  assert.equal(f.button(collapsed, 'Cancel retrieval').props.disabled, false);
+  f.press(f.button(collapsed, 'Cancel retrieval')); await restoredReadback(f);
+  await f.message({ kind: 'vf-view-v2', status: 'next', view: original });
+  assert.equal(f.pending(), null); assert.equal(f.savedCapture(), priorCapture);
+});
+
+test('Back to lab stays available during a journal write while expansion cannot bypass the saving guard', async () => {
+  const f = fixture({ priorCapture, deferJournalSave: true }); await start(f);
+  const staleExpand = f.button(f.render(), 'Expand provider page'); f.press(staleExpand);
+  await f.message({ kind: 'vf-view-v2', view: original });
+  const count = f.injections.length, back = f.button(f.render(), 'Back to lab');
+  assert.equal(back.props.disabled, false); f.press(back);
+  const collapsed = f.render(); assert.equal(controlsHidden(f, collapsed), false);
+  assert.equal(f.button(collapsed, 'Expand provider page').props.disabled, true);
+  assert.equal(f.button(collapsed, 'Cancel retrieval').props.disabled, true);
+  f.press(staleExpand); assert.equal(controlsHidden(f, f.render()), false, 'Old expansion handler must respect the current write lock');
+  assert.equal(f.injections.length, count); assert.deepEqual(f.writes, ['journal-start']);
+  f.finishJournalSave(); await f.flush(); assert.deepEqual(f.pending(), original);
+  assert.equal(f.button(f.render(), 'Expand provider page').props.disabled, false);
+});

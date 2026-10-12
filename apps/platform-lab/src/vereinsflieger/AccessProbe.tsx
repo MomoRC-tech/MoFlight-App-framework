@@ -36,6 +36,7 @@ export function AccessProbe({ close }: { close: () => void }) {
   const [source, setSource] = useState({ uri: LOGIN_URL }), [url, setUrl] = useState(LOGIN_URL);
   const [generation, setGeneration] = useState(0);
   const [browserActive, setBrowserActive] = useState(true);
+  const [providerExpanded, setProviderExpanded] = useState(false);
   const [visible, setVisible] = useState(false), [busy, setBusy] = useState(false), [loaded, setLoaded] = useState(false);
   const [saving, setSaving] = useState(false);
   const testPauseEnabled = useRef(false), testPaused = useRef(false);
@@ -164,6 +165,10 @@ export function AccessProbe({ close }: { close: () => void }) {
     if (!beforeBackup && !afterReset) return;
     testPaused.current = false; setPaused(null); extract();
   }
+  function toggleProviderPage() {
+    if (!visible || (!providerExpanded && retrieval.current.state.phase === 'saving')) return;
+    setProviderExpanded(expanded => !expanded);
+  }
   function retrieve() {
     if (loginAttempt.current || loginBusy || !viewReady || recovery) return;
     let prepared: ExportRun;
@@ -260,6 +265,7 @@ export function AccessProbe({ close }: { close: () => void }) {
   if (showWindow && viewReady && !recovery && !original.current) return <WindowCapture close={() => setShowWindow(false)} />;
   if (editingLogin) return <View style={styles.screen}><Text style={styles.title}>Save Vereinsflieger login</Text><ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.results}><View style={styles.row}><Text style={styles.body}>Optional login saved in protected device storage. Used only for Vereinsflieger sign-in; excluded from logbook backups. Forget it after development.</Text><TextInput accessibilityLabel="Saved login username" placeholder="Username or email" autoCapitalize="none" autoCorrect={false} autoComplete="username" value={username} onChangeText={setUsername} editable={!loginBusy} style={styles.input} /><TextInput accessibilityLabel="Saved login password" placeholder="Password" secureTextEntry autoCapitalize="none" autoCorrect={false} autoComplete="off" value={password} onChangeText={setPassword} editable={!loginBusy} style={styles.input} /><View style={styles.actions}><Button title="Save login" disabled={loginBusy} press={() => void saveLogin()} /><Button title="Cancel login entry" disabled={loginBusy} press={() => { setUsername(''); setPassword(''); setEditingLogin(false); }} /></View></View></ScrollView></View>;
   return <View style={styles.screen}>
+    <View style={[styles.controls, providerExpanded && visible && styles.controlsHidden]}>
     <Text style={styles.title}>Vereinsflieger access PoC</Text>
     <Text style={styles.body}>Configure all data columns, clear restrictions and select Pilot oder Fluglehrer before reading every page. Raw captures stay separate from your logbook.</Text>
     <Text accessibilityLiveRegion="polite" style={[styles.body, styles.status]}>{status}</Text>
@@ -275,6 +281,10 @@ export function AccessProbe({ close }: { close: () => void }) {
     {busy && <ActivityIndicator />}
     {viewStrategy && <Text style={styles.body}>{`Original view restoration strategy: ${viewStrategy}`}</Text>}
     {visible && <Text style={styles.origin}>{providerUrl(url) ? new URL(url).origin : 'Navigation blocked'} · verify that the visible provider account is yours</Text>}
+    </View>
+    <View style={visible ? styles.actions : styles.hidden}>
+      {visible && <Button title={providerExpanded ? 'Back to lab' : 'Expand provider page'} disabled={!providerExpanded && saving} press={toggleProviderPage} />}
+    </View>
     <View pointerEvents={saving ? 'none' : 'auto'} style={visible ? styles.browser : styles.hidden}>
       {/* Route all navigation through our exact-URL validator; a narrow library
           whitelist otherwise hands rejected URLs to the external OS browser. */}
@@ -316,4 +326,4 @@ export function AccessProbe({ close }: { close: () => void }) {
 
   </View>;
 }
-const styles = StyleSheet.create({ input: { backgroundColor: 'white', borderWidth: 1, borderColor: '#b9cadb', padding: 10, borderRadius: 6, color: '#1f2937' }, screen: { flex: 1, padding: 12, gap: 8, backgroundColor: '#f5f7fb' }, title: { fontSize: 23, fontWeight: '700', color: '#173a57' }, body: { fontSize: 15, lineHeight: 21, color: '#1f2937' }, status: { minHeight: 63 }, origin: { fontSize: 14, color: '#174c72' }, actions: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 }, button: { backgroundColor: '#174c72', padding: 10, borderRadius: 6 }, buttonText: { color: '#fff', fontSize: 14 }, browser: { flex: 1, minHeight: 180 }, hidden: { height: 0, overflow: 'hidden' }, results: { gap: 10, paddingBottom: 20 }, row: { backgroundColor: 'white', borderWidth: 1, borderColor: '#b9cadb', padding: 12, gap: 4 } });
+const styles = StyleSheet.create({ input: { backgroundColor: 'white', borderWidth: 1, borderColor: '#b9cadb', padding: 10, borderRadius: 6, color: '#1f2937' }, screen: { flex: 1, padding: 12, gap: 8, backgroundColor: '#f5f7fb' }, controls: { gap: 8 }, controlsHidden: { display: 'none' }, title: { fontSize: 23, fontWeight: '700', color: '#173a57' }, body: { fontSize: 15, lineHeight: 21, color: '#1f2937' }, status: { minHeight: 63 }, origin: { fontSize: 14, color: '#174c72' }, actions: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 }, button: { backgroundColor: '#174c72', padding: 10, borderRadius: 6 }, buttonText: { color: '#fff', fontSize: 14 }, browser: { flex: 1, minHeight: 180 }, hidden: { height: 0, overflow: 'hidden' }, results: { gap: 10, paddingBottom: 20 }, row: { backgroundColor: 'white', borderWidth: 1, borderColor: '#b9cadb', padding: 12, gap: 4 } });
