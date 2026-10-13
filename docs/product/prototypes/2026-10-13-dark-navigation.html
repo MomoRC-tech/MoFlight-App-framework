@@ -11,8 +11,11 @@
 #mf-preview .mf-page-heading, #mf-preview [data-view]>h2, #mf-preview [data-view]>.mf-row>h2 { display:none; }
 #mf-preview [data-view]>.mf-row:has(>h2):not(:has(>button)) { display:none; }
 #mf-preview [data-view]>.mf-row:has(>h2)>button { margin-left:auto; }
-#mf-preview .mf-nav { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:6px; padding:6px; position:absolute; left:16px; right:16px; bottom:calc(20px + env(safe-area-inset-bottom,0px)); z-index:5; box-shadow:0 10px 30px #0009; }
-#mf-preview .mf-nav .mf-tab { flex-direction:column; gap:4px; min-width:0; min-height:64px; padding:8px 4px; font-size:14px; line-height:20px; }
+#mf-preview .mf-nav { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:0; padding:0 0 env(safe-area-inset-bottom,0px); margin:0 -16px -16px; flex-shrink:0; border-radius:0; }
+#mf-preview .mf-nav .mf-tab { flex-direction:column; gap:4px; min-width:0; min-height:80px; padding:12px 0; font-size:12px; line-height:16px; background:transparent; border:0; border-radius:0; color:var(--mf-muted); }
+#mf-preview .mf-nav-icon { width:64px; height:32px; display:flex; align-items:center; justify-content:center; border-radius:16px; }
+#mf-preview .mf-nav .mf-tab.active { background:transparent; color:var(--mf-text); font-weight:500; }
+#mf-preview .mf-nav .mf-tab.active .mf-nav-icon { background:var(--mf-raised); color:var(--mf-accent); }
 #mf-preview .mf-nav .mf-tab svg { width:24px; height:24px; }
 #mf-preview .mf-tab { font-size:12px; line-height:16px; }
 #mf-preview .mf-header { flex-shrink:0; }
@@ -40,7 +43,7 @@
 #mf-preview .mf-header { gap:8px; flex-wrap:nowrap; }
 #mf-preview .mf-button:focus-visible, #mf-preview .mf-tab:focus-visible, #mf-preview summary:focus-visible, #mf-preview .mf-field:focus-visible { outline:2px solid var(--mf-accent); outline-offset:2px; }
 #mf-preview .mf-brand { display:flex; gap:10px; align-items:center; font-weight:500; }
-#mf-preview .mf-content { padding:16px 0 120px; flex:1; min-height:0; overflow-y:auto; scrollbar-width:thin; scrollbar-color:var(--mf-border) transparent; }
+#mf-preview .mf-content { padding:16px 0; flex:1; min-height:0; overflow-y:auto; scrollbar-width:thin; scrollbar-color:var(--mf-border) transparent; }
 #mf-preview.mf-guided .mf-content { padding-bottom:16px; }
 #mf-preview .mf-section { margin:0 0 16px; }
 #mf-preview .mf-stack { display:grid; gap:16px; }
@@ -140,10 +143,10 @@
     </footer>
     </main>
     <nav class="mf-nav" aria-label="Hauptnavigation">
-      <button class="mf-tab cursor-interaction active" type="button" data-route="start" aria-current="page"><i data-lucide="house" aria-hidden="true"></i>Start</button>
-      <button class="mf-tab cursor-interaction" type="button" data-route="flights"><i data-lucide="plane" aria-hidden="true"></i>Flüge</button>
-      <button class="mf-tab cursor-interaction" type="button" data-route="bookhome" aria-label="Papierbuch"><i data-lucide="book-open" aria-hidden="true"></i>Buch</button>
-      <button class="mf-tab cursor-interaction" type="button" data-route="club"><i data-lucide="users-round" aria-hidden="true"></i>Verein</button>
+      <button class="mf-tab cursor-interaction active" type="button" data-route="start" aria-current="page"><span class="mf-nav-icon"><i data-lucide="house" aria-hidden="true"></i></span><span>Start</span></button>
+      <button class="mf-tab cursor-interaction" type="button" data-route="flights"><span class="mf-nav-icon"><i data-lucide="plane" aria-hidden="true"></i></span><span>Flüge</span></button>
+      <button class="mf-tab cursor-interaction" type="button" data-route="bookhome" aria-label="Papierbuch"><span class="mf-nav-icon"><i data-lucide="book-open" aria-hidden="true"></i></span><span>Buch</span></button>
+      <button class="mf-tab cursor-interaction" type="button" data-route="club"><span class="mf-nav-icon"><i data-lucide="users-round" aria-hidden="true"></i></span><span>Verein</span></button>
     </nav>
     <div class="mf-overlay" id="mf-filter-overlay" role="dialog" aria-modal="true" aria-labelledby="mf-filter-title" hidden>
       <div class="mf-sheet">
