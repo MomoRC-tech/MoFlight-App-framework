@@ -6,7 +6,7 @@
 - Read current repository state, README and relevant ADRs before changing them.
 - Communicate and maintain active documentation in English. Preserve historical source snapshots in their original language.
 - Prefer small executable PoCs before broad implementation; support Android/iOS and offline local data.
-- Use subagents for suitable independent project tasks (Manuel, 2026-10-12). Prefer 6.1 Luna for easy delegated tasks when that model is available; if unavailable, state the limitation rather than silently substituting another Luna version. Coordinate shared files and preserve unrelated changes.
+- Use subagents for suitable independent project tasks (Manuel, 2026-10-12). For simpler tasks, prefer GPT-6 Luna (`gpt-6-luna`), explicitly requested by Manuel on 2026-10-13, replacing the earlier 6.1 Luna preference. If a requested model cannot be selected, report the actual limitation without silently substituting another Luna version. Coordinate shared files and preserve unrelated changes.
 - Add modules/infrastructure only when needed. Keep domain code free of vendor SDKs and feature domains independent.
 - Manuel owns product decisions and binding technology approval. An earlier recommendation is not approval; keep proposed ADRs proposed until an explicit decision.
 

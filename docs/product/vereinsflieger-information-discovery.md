@@ -15,6 +15,8 @@ Requested future uses:
 
 ## Investigation method and deliverables
 
+Continued product review on 2026-10-13 selected start-screen work-hour progress, own next duty (including the co-assigned same-day Putzdienst partner), open own tasks, new-news/document notices and upcoming club events/meetings excluding birthdays. Include current/upcoming Fluglehrer, Flugleiter and Windenfahrer assignments, with placement/horizon still open. Own reservations and license/training status belong in details; account balances in cost details. Runway, defect and maintenance information is excluded for now. The [journey/information map](2026-10-13-journey-information-map.md#shared-start-screen-and-detailed-information) records scope and required source verification. Visibility of these overview sections is not evidence of complete or supported automated retrieval. Guided billing inspection remains deferred.
+
 1. Read the online manual sections relevant to flights/statistics, theory/practical training and duty planning. Record actual section title, URL/location, document version or observed date and what each section establishes. If access is unavailable, mark that section blocked rather than infer its contents.
 2. Inspect corresponding pages within the signed-in member's authorized access. Record navigation path, observed URL, visible German labels, filters/ranges, sorting, paging, hidden/expanded details and any export options. Do not retain credentials, private feed links or personal screenshots/rows in Git.
 3. Build a field dictionary: provider label, precise meaning, units/timezone, identity/reference, source page/manual section, availability/permission, missing-value behavior and relevance to each future feature. Distinguish manual claims from observed UI behavior and unresolved interpretations.
@@ -52,7 +54,7 @@ Start with read-only queries in the requesting member's permitted scope. Preserv
 
 ## Deferred Activities live concept — 2026-10-13
 
-Manuel requests a future view of who flew today, with aircraft and flight duration, and (if feasible) who is currently airborne. He explicitly asks to preserve its interface/UI/layout relevance for later work, rather than implement it now. [Product intent and design boundaries](user-journey-ui-discovery.md#deferred-concept-activities-live--manuel-2026-10-13) record the decision; existing Issues #10 and #11 provide traceability.
+Manuel requests a future view of who flew today, with aircraft and flight duration, and (if feasible) who is currently airborne. He explicitly asks to preserve interface/UI/layout relevance for later work, rather than implement now. [Product intent](user-journey-ui-discovery.md#deferred-concept-activities-live--manuel-2026-10-13) records the decision; dedicated deferred [#14](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/14) tracks it alongside existing #10 provider discovery and #11 product scope.
 
 Read-only inspection of the signed-in overview on 2026-10-13 found the Hauptflugbuch section with dates, aircraft, pilot and start/end times. This is evidence of displayed recent flights, not complete today's history, live aircraft status or supported automated retrieval. Private source rows are not committed.
 

@@ -12,10 +12,12 @@ The official API is unavailable for this project and remains only **“might wor
 
 ## Required interaction
 
+Current product default, confirmed 2026-10-13: user taps “Flüge aktualisieren”; always show last successful update time. Suggest current and previous year for the first retrieval, and since the last successful update thereafter, both adjustable. This supersedes the earlier all-history first-retrieval default below. See the [consolidated journey](2026-10-13-journey-information-map.md#understand-my-flying). Adapter overlap, late edits, historical rechecks and gaps still need verification; a suggested date range is not proof of a complete change-detection algorithm. Older history may be needed for paper catch-up.
+
 | Situation | User action | App behavior |
 | --- | --- | --- |
 | First connection | Select the local dataset, tap “Connect Vereinsflieger,” sign into the original provider page inside MoFlight, and complete any provider verification | Show the real HTTPS provider identity. After login, verify source identity/club context and ask the user to confirm the dataset association once |
-| First retrieval | Tap “Retrieve flights”; no date-range or provider-filter selection required | Automatically select own-flight scope and retrieve accessible history in bounded windows, prioritizing the paper continuation where its anchor is known. Save verified coverage and show progress plus added/changed/excluded counts |
+| First retrieval | Tap “Flüge aktualisieren”; accept the suggested current/previous year or adjust it; no required provider-filter setup | Select own-flight scope and retrieve the selected period in bounded windows. Older history is an explicit additional scope where requested/needed for paper continuation. Save actual coverage and show progress plus added/changed/excluded counts |
 | Later retrieval | Tap “Retrieve flights”; no date-range selection required | Reuse the valid session and automatically plan new coverage, an overlapping recent range and outstanding history gaps/rechecks. Navigate/retrieve/import in the foreground; no password entry or redundant per-flight confirmation |
 | Session expired | Complete the provider sign-in again; use available autofill and verification if offered | Show “Sign in again,” preserve existing history and resume the requested retrieval after successful account verification |
 | Offline | Open the app or query previously imported flights | Use the last successful snapshot; show its date/coverage. New retrieval waits for connectivity |
@@ -44,7 +46,7 @@ Hidden provider navigation means retrieval behind MoFlight's UI while the app is
 
 The user does not need to understand export periods, paging or provider filters. “Retrieve flights” is the normal action; the connector selects the appropriate dates and own-flight scope. Date selection is an optional advanced control only, never a prerequisite.
 
-- First connection: target all own-flight history accessible to this account, in bounded windows. If a confirmed paper anchor exists, prioritize that continuation period, then fill older history for statistics. Otherwise start with recent flights and extend backwards. Show incomplete/backfill status until actual coverage is verified; provider restrictions remain explicit.
+- First connection: suggest current and previous year, with an adjustable period (2026-10-13 clarification). Retrieve bounded windows within the selected scope and expose actual coverage; do not automatically imply all-history backfill was selected. Offer older coverage where paper continuation needs it; provider restrictions remain explicit.
 - Repeat retrieval: use the last successfully verified coverage, not merely the last button-press time. Include an overlap to catch late entries and edits; resume known gaps and reconcile older windows over subsequent foreground runs. Exact window sizes/overlap are adapter configuration to establish in native trials, not user decisions.
 - Do not claim an overlap detects every historical change. Report which periods were refreshed, and offer “Refresh full history” without requiring dates.
 - Interrupted/partial retrieval preserves verified chunks and prior history, records remaining gaps and never advances the complete-coverage marker over missing windows. Repeated source records are handled idempotently.

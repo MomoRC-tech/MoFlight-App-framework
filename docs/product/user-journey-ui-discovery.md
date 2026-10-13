@@ -4,6 +4,8 @@ Date: 2026-10-13 (Europe/Berlin). Owner: Manuel Singer, guided by the engineer. 
 
 ## Agreed purpose
 
+Continued discovery decisions are consolidated in the [journey and information map](2026-10-13-journey-information-map.md). It records actual answers, supersedes the earlier post-writing completion-confirmation interaction, and separates content choices from unapproved layout/implementation. Review that map before further layout comparison. Ask one focused question at a time with clickable suggested answers/free text; wait for an actual answer.
+
 Explore which user situations matter, which features help and what is feasible before fixing detailed interfaces. Deliver a small set of user journeys, a feature-priority/feasibility map and rough screen concepts. Future ideas may be explored without scheduling implementation. Figma Design remains the main reviewed design workspace; Google Stitch is optional exploration.
 
 ## Guided process
@@ -29,7 +31,7 @@ Manuel selected “Understand my flying” and “Keep my logbook current” as 
 
 - Understand flying: desired questions include flight counts and hours by period, aircraft flown, flights with particular people and comparisons with previous years. Manuel also wants a flight-duration distribution chart, for example short/medium/long flights. Definitions, ranges and initial delivery scope require design review; these are desired capabilities, not accepted live analytics.
 - Keep the logbook current: identify missing paper entries and explore writing assistance, retaining existing writing/photo/book implementation gates.
-- Track costs documented in Vereinsflieger's “Meine Abrechnungen” section (source specified by Manuel). Explore separating flying costs from membership and all other charges. This covers costs recorded in that section; manually entered external expenses are not selected. The section has not been inspected in this discovery: available fields, charge/payment/credit meaning, period, currency, flight links and retrieval permission/support remain to be verified before defining totals or implementation. The proposed split and first-release inclusion remain open.
+- Track costs documented in Vereinsflieger's “Meine Abrechnungen”: confirmed desired entry point is this year's flying costs with membership/other charges separate, followed by total costs per aircraft. Account balances belong in details. A guided billing walkthrough remains deferred; incidental billing-preview visibility does not validate available history, attribution, currency, charge/payment/credit meaning or retrieval. Final definitions and first-release inclusion remain open; external manual expenses are not selected.
 - Shared start screen: explore general information useful across students, instructors and other pilots, without requiring a user-group-specific landing screen. Exact sections, personalization and navigation remain open.
 - Provider discovery: the actual Vereinsflieger main screen was inspected read-only during continued discovery on 2026-10-13; relevance review with Manuel is ongoing. The Hauptflugbuch observation supports the deferred Activities live concept below. Record selections and access/retrieval/freshness dependencies; visible fields do not establish extraction support. The billing walkthrough remains deferred.
 
@@ -41,17 +43,17 @@ Manuel reports that many pilots do not document flights immediately and later ha
 
 Confirmed desired outcome: help a pilot catch up efficiently on accumulated flights in the paper logbook using a writing template. Design discovery should give this journey prominence rather than assuming daily entry or treating writing assistance as a minor future concept.
 
-Proposed journey for review:
+Confirmed journey direction, refined during continued discovery (details in the linked map):
 
 1. Open MoFlight and see the last known logbook state and flights potentially awaiting entry; show uncertainty where the paper state or source coverage is unverified.
-2. Photograph/upload the actual last written logbook page to establish where the paper book stands. Use the layout to propose its type/format; ask for selection/confirmation when the type or extracted values are uncertain. Retain remembered confirmed state for later sessions; a new photo is not mandatory on every launch.
+2. Almost always begin catch-up by showing the remembered last entry's number/details and asking whether it is truly the last written entry. Reuse confirmed unchanged state; if the user cannot confirm, request a current photo. Use photo layout to propose book type, with uncertain format/values requiring clarification. Preserve confirmed evidence separately from assumed progress.
 3. Compare readable photographed entries with available provider evidence, present discrepancies separately from new entries, and obtain targeted clarification of relevant missing/ambiguous facts. Identify missing flights individually rather than assuming every flight before the last entry number was written.
-4. Prepare writing instructions suited to the chosen physical book, including required layout and deterministic totals/carryovers where supported.
-5. Copy entries in manageable batches and explicitly confirm which entries were written. Merely displaying or preparing a template does not mark entries as copied.
+4. Review proposed flights in a compact date/aircraft/duration/recorded-role list, with details when opened. Clarify missing required values before preparing instructions. Suggest a batch completing the next physical page, adjustable by the user, with deterministic layout/totals/carryovers.
+5. Prepare both phone and printable instructions from the same reviewed snapshot. Assume the identified prepared entries were written without a separate completion confirmation; keep this assumption distinct from verified paper evidence. At the next session, confirm the remembered last entry or reconcile a current photo. Exact preparation trigger, partial-writing recovery and idempotency are open contract work.
 
-Manuel's desired output is both a phone-side writing view and a printable sheet. Both should represent the same reviewed writing instructions and selected flights; viewing or printing alone does not confirm paper entry. Exact phone interaction, printable layout, export/printing mechanism and delivery scope remain to be designed and verified.
+Manuel's desired output is both a phone-side writing view and a printable sheet. Both represent the same reviewed writing instructions and selected flights. A prepared-template assumption does not establish confirmed paper entry; reopening/printing cannot create duplicate progress. Printable layout, export/printing mechanism and delivery scope remain to be designed and verified.
 
-Open UX choices include batch size, interruption/resume, recognition feedback and presentation of findings. The photo-based starting point is now confirmed product intent; automatic reading/format detection and live comparison remain unproven. The last-page photo supports checks of visible entries and available carryovers; it cannot establish that every unseen historical page is correct. Additional pages/evidence may be needed for a broader comparison.
+Open UX choices include interruption/resume, exact assumed-progress trigger, recognition feedback and presentation of findings. A current photo is requested when the remembered entry cannot be confirmed; automatic reading/format detection and live comparison remain unproven. The last-page photo supports visible entries/carryovers, not unseen historical pages. Additional evidence may be needed for broader comparison.
 
 ### Two results and a persistent exception register
 
@@ -68,6 +70,8 @@ This refines existing [user stories](flight-logbook-user-stories.md) and [rememb
 Roadmap implication: writing is currently scheduled in M5. Its immediate product value should inform a later review of the smallest useful release and delivery order after this journey is defined. No automatic reordering, production schema change or OCR/provider/budget authorization follows from this discovery input.
 
 ## Analytics journey: understand my flying
+
+Continued discovery selected a narrow-height swipeable “Mein Fliegen” section: this year's count/known time plus a small same-period previous-year comparison, aircraft flown most often, and duration distribution. Tapping expands the selected statistic and its contributing flights, carrying over period/filters. Initial filters: period, aircraft, person and own recorded role. Flight detail exposes recorded values, uncertainty and supporting source information. Manual retrieval suggests since the last successful update; first retrieval suggests current/previous year, both adjustable. Saved results survive failure with last-update time and retry. The [consolidated map](2026-10-13-journey-information-map.md#understand-my-flying) preserves source-correction and coverage limits.
 
 Manuel's response “i guess all of that” includes the proposed questions about flights/hours this year, aircraft flown, flights with particular people and changes versus previous years. He additionally requested a “how long are my flights” diagram, with short/medium/long groups as an example.
 
@@ -104,20 +108,20 @@ The walkthrough confirmed that the visible club Hauptflugbuch displays dated fli
 
 Future interface/design preparation should distinguish today's completed activity from an explicitly source-supported in-progress status; retain club/date/timezone, source update time, retrieval time, coverage and unknown values. A missing landing time alone must not establish that someone is airborne. Offline or stale information must not imply a live status. Placement, refresh cadence, supported permissions and retention of other members' information remain open.
 
-Before implementation, investigate the source's status semantics, complete-day coverage and freshness, permitted retrieval and account/club visibility. Keep this deferred under the [roadmap](../project-plan.md), using existing Issues #10 (provider discovery) and #11 (product scope); no milestone reordering or new service is selected. See the [provider discovery specification](vereinsflieger-information-discovery.md#deferred-activities-live-concept--2026-10-13).
+Before implementation, investigate source status, complete-day coverage/freshness, permitted retrieval and account/club visibility. Dedicated deferred [#14](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/14) now tracks this concept, coordinated with #10 provider discovery and #11 product scope. The [roadmap](../project-plan.md) retains its order/gates; no new service is selected. See the [provider discovery specification](vereinsflieger-information-discovery.md#deferred-activities-live-concept--2026-10-13).
 
 - Confirmed: journey/UI concept discovery comes first; explore relevance and feasibility, then refine detailed behavior/contracts.
 - Confirmed: rough concepts may include future ideas; inclusion does not authorize feature implementation.
 - Confirmed: the intended audience includes students, instructors and pilots across aircraft categories (Manuel's direct answer).
 - Confirmed UI language: German initially, with an English-switch option as a later feature; project documentation remains English.
 - Confirmed: first outcomes are understanding flying and keeping the logbook current; flight cost tracking and relevant provider main-screen information are desired. Initial main-screen inspection has now occurred; relevance review is ongoing and billing inspection remains deferred.
-- Confirmed direction: a shared start screen with general information across user groups; review provider main-screen relevance in a later walkthrough.
+- Confirmed direction: a shared start screen across user groups; selected provider content and detailed placement are recorded in the consolidated map after the main-screen walkthrough.
 - Confirmed cost source: Vereinsflieger “Meine Abrechnungen”; Manuel proposes a flying versus membership/other-cost split.
 - Confirmed logbook problem/value: accumulated flights need later paper entry; a writing template provides immediate benefit (Manuel's observation). Backlog catch-up is a primary design journey.
 - Desired writing outputs: both a phone-side view and a printable sheet (Manuel: “ideally both”); exact interaction and delivery scope remain open.
 - Confirmed photo journey: use the last written page to help establish paper state and book type, show discrepancies and new writing instructions, and retain user decisions to leave past entries unchanged in a browsable exception register.
 - Desired analytics: counts/hours by period, aircraft, person-based queries, comparisons with previous years and a flight-duration distribution chart; chart bands and measure definitions remain open.
-- Open: detailed journeys, billing-section fields/semantics, final cost categories and first-release inclusion, specific initial aircraft-category coverage, role-specific needs, start-screen content and preferred UI approach.
-- No interviews, completed wireframes, Figma files, user validation or live feature acceptance are claimed here.
+- Open: detailed operation/state contracts, billing semantics/final categories and first-release inclusion, initial aircraft-category coverage/role-specific needs, remaining provider sections, exact screen order/layout and preferred overall UI approach. Selected start/detail content is recorded in the consolidated map.
+- No interviews, finalized/reviewed application wireframes, Figma files or live feature acceptance are claimed here. Earlier in-chat interactive concepts were exploratory and unselected; the subsequent journey/content choices are recorded in the consolidated map.
 
 Record future answers as confirmed decisions or hypotheses with their source. For the feature map, keep user value, priority and technical feasibility separate. Do not infer lifetime completeness, known missing values or real-user demand from sample screens.

@@ -8,18 +8,20 @@ Date: 2026-10-08. Source: Manuel's feature addition in this conversation. Status
 
 ## Opening the app and continuing work
 
+Product revision (Manuel, 2026-10-13): the [consolidated catch-up journey](2026-10-13-journey-information-map.md#catch-up-on-the-paper-logbook) replaces mandatory completion confirmation with assumed progress after preparing a reviewed template, followed by the next-session last-entry check. Existing synthetic lab confirmation behavior predates this revision; no implementation is claimed.
+
 The pilot opens the app and sees the remembered state without uploading a new photo or retrieving flights first:
 
-- Last confirmed paper entries, page/row/number, carryovers and confirmation date/evidence.
+- Last confirmed paper entries, page/row/number, carryovers and date/evidence; separately identified assumed entries/position linked to a reviewed writing-snapshot revision.
 - Last successful Vereinsflieger export/retrieval, its coverage and source-data revision. Show a more recent failed attempt separately; it does not replace the usable snapshot.
 - Flights awaiting paper entry, prepared writing templates, incomplete comparisons and pending questions.
 - Decisions previously made, including ignored findings and field overrides, with a way to review/reverse them.
 
-Persist across sessions/devices, with an account-scoped local copy for offline use. Show freshness, evidence and pending sync. The stored state is the **last known confirmed state**, not proof that the physical book has not changed since.
+Persist across sessions/devices, with an account-scoped local copy for offline use. Show freshness, evidence and pending sync. Preserve **last known confirmed state** separately from **assumed written progress**; neither proves unobserved later changes to the physical book.
 
-A new photo can update that state but is not mandatory on every launch. The pilot may explicitly confirm that identified rows from a particular writing-snapshot revision were copied, or confirm/correct the remembered book state manually. Retain which entries/page rows were confirmed, by whom/when and whether the evidence is a photo or a user assertion. Template display/generation/download alone never updates paper status. A later conflicting photo creates a finding rather than silently overwriting prior confirmation.
+A new photo is not mandatory on every launch. Preparing reviewed instructions records their selected entries as assumed written, without a completion prompt; the exact preparation trigger remains contract work. Preserve the previous confirmed anchor/evidence. Reopening/downloading/printing a snapshot must not repeatedly advance assumptions. Almost always start catch-up by showing the remembered last entry with number/details for confirmation; if it cannot be confirmed, request a current photo. Retain which entries are actually supported by the assertion/photo, author/date and scope. A later conflicting photo preserves previous assumptions and confirmed evidence for review.
 
-Continuation uses the remembered confirmed anchor if the pilot confirms it still represents the paper book. Request new evidence when it changed or is ambiguous. Preserve holes/missing entries individually: “last written number” does not automatically prove every earlier source flight was written. Unsupported historical coverage remains unknown.
+Continuation uses a checked anchor; assumed position is a proposal for that check, not confirmed evidence. Request new evidence when it changed or is ambiguous. Preserve holes/missing entries individually: confirming the last entry does not automatically prove every earlier source flight was written. Unsupported historical coverage remains unknown.
 
 ## Persistent information
 
@@ -29,7 +31,7 @@ Conceptual records extend the session model; exact physical schema is not select
 | --- | --- |
 | Source history and snapshots | Original imported rows/IDs, normalized versions, successful coverage/time basis/retrieval time, excluded rows; unchanged import does not add duplicate flights. |
 | Flight identity | Stable account-scoped domain ID with namespaced external references and paper-row links; import row position is not a durable identity. |
-| Paper entries/status | Versioned page/row/number, actual written values, evidence/confirmation, carryovers, association to known flights and gaps; separate pending writing candidates. |
+| Paper entries/status | Versioned page/row/number, actual confirmed values/evidence, carryovers, known-flight links and gaps; separate revision-linked assumed entries/position and pending candidates. |
 | Reusable decisions | Finding/flight/field identity, action, chosen value, reason, scope, relevant evidence fingerprint, author/time, applicability, revocation/supersession. |
 | Effective flight history | Derived user-resolved view over preserved source versions and explicit overrides; provenance points to the source and applicable decisions. |
 | Aircraft and people references | Aircraft instance and model separately; namespaced person references/crew roles and explicit alias mappings; no global public directory of other users. |
@@ -50,6 +52,7 @@ Use narrow flight/field/finding-specific scope by default. Broad rules require a
 | Override a field | Store a user correction without rewriting the original source or pretending the paper was already corrected. Recompute affected totals, candidates and query results. |
 | Resolve a duplicate | Link variants or explicitly exclude a candidate from the effective count/export. Keep source rows; acknowledgment alone is not deduplication. |
 | Confirm entries were copied | Advance paper status only for specified entries/revision and record user confirmation. No inferred completion of other entries. |
+| Prepare reviewed writing instructions | Record selected entries/revision as assumed written; retain confirmed anchor and historical gaps. Later last-entry check/photo reconciles the assumption without requiring a post-writing completion prompt. |
 | Reverse a decision | Append revocation/supersession, restore the applicable view and reopen affected findings. Previous exports retain their original data/decision versions. |
 
 Reuse decisions across runs only when their flight/finding identity, scope and relevant evidence still match. A new retrieval timestamp alone does not invalidate an unchanged decision. Changed source values, changed photo evidence relevant to the decision, identity ambiguity or changed rule meaning require targeted review. Preserve the old decision, mark it stale, and never silently apply it to a changed flight. Unrelated findings need no repeated approval.
@@ -66,7 +69,7 @@ The pilot can ask in ordinary language or use equivalent filters. Initial suppor
 | “How many flights on an ASK 21 this year?” | Filter model across all matching aircraft and an explicit displayed calendar range/timezone; do not confuse model with one registration. |
 | “When did I last fly with Person A?” | Resolve the person identity, filter their crew participation, then select the latest known flight date/time. Show that flight and recorded role. |
 | “How often have I flown with Person A as instructor?” | Count distinct flights with the selected person/role; join multiplicity must not inflate counts. |
-| “Which of those flights are already in my paper book?” | Use recorded paper-entry links/confirmations, identifying unresolved or unverified entries separately. |
+| “Which of those flights are already in my paper book?” | Use recorded links/evidence; distinguish confirmed, assumed written and unresolved entries. An assumption never enters the confirmed-paper view as verified. |
 
 Use stable external person/aircraft IDs where supplied; otherwise use scoped references and user-resolved aliases. Names are display labels, not sufficient identity keys. Two people with the same name or two possible aircraft matches require selection. Do not infer that a named crew member was an instructor unless the role is established. Missing person/role/aircraft data stays unknown.
 
@@ -86,7 +89,7 @@ Store original evidence plus revisioned decisions and materialize/read an effect
 
 - Restore last paper/source state, decisions and pending entries after restart, offline launch and second-device sync.
 - Reimport identical evidence: no repeated ignored question and no changed count. Change a relevant field: old decision becomes stale and prompts review.
-- Prepare or display a writing template: paper status unchanged. Confirm only selected entries copied: exactly those entries advance; conflicting photo/manual edit retains both versions for review.
+- Prepare a reviewed template: create a revision-linked assumption for selected entries while confirmed evidence remains unchanged. Reopening/printing does not duplicate advancement. Next-session last-entry confirmation/photo corrects partial/unwritten batches while retaining prior versions and historical gaps. Test account/book isolation and cancellation/retry once the exact trigger is specified.
 - Revoke a field override: new queries/exports reflect the current view, while an old export remains reproducible.
 - With repeated import rows/crew links, two aircraft of the same model and two same-name people, counts and latest dates match explicit synthetic expected lists.
 - Query limited or stale/offline history and unknown/ambiguous fields: visible coverage and uncertainty, no unsupported lifetime or zero-match claims.

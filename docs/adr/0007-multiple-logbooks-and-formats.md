@@ -21,6 +21,8 @@ Repository review: `packages/local-data/src/index.ts` stores revisioned records 
 
 Propose option 2 without a new service or dynamic plugin infrastructure:
 
+Product clarification, 2026-10-13: book isolation must include separate assumed written progress linked to reviewed templates alongside confirmed evidence, following the [revised journey](../product/2026-10-13-journey-information-map.md#catch-up-on-the-paper-logbook). This updates required scope/validation, not this ADR's proposed status or an approved physical schema. Migration/restart/switch/restore proofs must preserve the distinction and prevent cross-book assumption leakage.
+
 - Separate account/pilot identity, stable logbook ID, aircraft classification and format ID/version. One pilot owns many books; multiple books may use one format. Names and aircraft classes are not book IDs.
 - Keep authorized source evidence and stable flight identities at pilot/provider/club scope, with explicit links to books. Separate source-flight identity from book-entry identity. Review migration from the experimental dataset-scoped provider ID; do not silently merge identities.
 - Scope pages, written-entry links, numbering, carryovers, confirmations, photos, book-specific decisions, snapshots and pending edits by book. Source corrections have explicit account/source scope; book-specific overrides do not leak to other books.

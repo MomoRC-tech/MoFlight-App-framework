@@ -10,7 +10,9 @@
 
 - [Flight-logbook user stories and continuation workflow](flight-logbook-user-stories.md): product source, prototype provenance, acceptance criteria and Issue mapping.
 
-- [Writing-template presentation](writing-template-presentation.md): exact copy instructions, first in-app view, optional file exports and presentation acceptance.
+- [Journey and information map, 2026-10-13](2026-10-13-journey-information-map.md): confirmed journeys/start-detail content, revised assumed-writing progress and remaining review/feasibility questions.
+
+- [Writing-template presentation](writing-template-presentation.md): exact phone/print instructions from one reviewed snapshot, separate assumed/confirmed paper state and presentation acceptance; concrete export technology undecided.
 
 - [Remembered logbook state, decisions and flight-history queries](flight-logbook-state-and-queries.md): persistent paper/import status, cross-run decisions and exact aircraft/person statistics.
 

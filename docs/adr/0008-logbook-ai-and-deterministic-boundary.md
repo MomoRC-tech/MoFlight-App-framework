@@ -19,6 +19,8 @@ Comprehensive source capture is useful independently of AI. A valid JSON respons
 
 ## Decision
 
+Product interaction clarification, Manuel, 2026-10-13: preparing reviewed writing instructions may record product-level **assumed written progress**, separately from confirmed paper evidence. Almost always check the remembered last entry at the next catch-up session, otherwise request a current photo. This [revised journey](../product/2026-10-13-journey-information-map.md#catch-up-on-the-paper-logbook) replaces mandatory post-writing confirmation; an AI proposal still cannot become a confirmed fact. Deterministic preparation, selected entries/revision and book scope must be auditable. No provider/budget/schema approval or implementation follows.
+
 - Retrieve relevant permitted flight lists/details using conventional browser automation and parsers. Work toward comprehensive history through verified paging/ranges; never label a bounded or partial scrape complete. Preserve original values, missing/blank states, source references, retrieval revisions and separate list/detail coverage.
 - Parse stable provider fields directly. Aircraft classification, time basis and crew-role mappings use evidenced rules; unknown mappings remain unresolved. Keep normalized facts separate from original evidence.
 - AI may transcribe handwritten pages, interpret ambiguous remarks/labels, propose candidate matches and explain discrepancies. Its output is a proposal with page/row/field or source-record references, task/model/prompt/schema versions and explicit unknowns.
