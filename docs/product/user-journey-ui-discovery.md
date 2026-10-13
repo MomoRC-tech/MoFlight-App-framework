@@ -8,12 +8,18 @@ Explore which user situations matter, which features help and what is feasible b
 
 ## Guided process
 
-1. Establish the initial users and choose two or three valuable situations. Start with Manuel's experience as a concrete example; whether it represents other pilots remains an open question.
+1. Explore the confirmed audience of students, instructors and pilots across aircraft categories, then choose two or three valuable situations. Manuel's experience is a concrete example, not evidence that all groups share his needs.
 2. Walk through each situation: trigger, current workflow/difficulty, desired outcome, information needed, steps, successful result and failure/offline alternatives. Use plain language and ask a small number of questions at a time.
 3. Map features to those needs; distinguish essential, useful and later ideas. Record Manuel's priorities and unresolved choices rather than treating suggestions as decisions.
 4. Assess feasibility from existing repository evidence, recording available capability, missing work and permission/data dependencies. Unproven behavior stays unproven; proposed future services require separate investigation when relevant.
 5. Sketch two or three navigation/layout approaches and walk through realistic examples, including missing data and retrieval failure. Review usefulness before visual polish.
 6. Refine selected concepts into reviewed wireframes, detailed operation states and application contracts, followed by separately scoped implementation under the roadmap.
+
+## Confirmed audience
+
+Manuel confirmed during guided discovery: “should include students, instructors, and pilots of different aircraft categories.” The concept should cover this broader audience rather than only Manuel and pilots with similar needs. Specific launch-category coverage and role-specific needs remain to be reviewed. A person may have overlapping roles; separate apps, accounts or navigation modes are not selected by this audience decision.
+
+Discovery should examine shared flight-history/logbook needs and differences by role/category. Student training progress, instructor workflows and category-specific information are hypotheses to explore, not approved features or evidence of available data. Instructor access to another person's records requires a separately defined permission/data boundary; this audience decision grants no such access.
 
 ## Starting situations — hypotheses for discussion
 
@@ -31,7 +37,8 @@ These are prompts, not selected journeys or evidence of wider user demand. The o
 
 - Confirmed: journey/UI concept discovery comes first; explore relevance and feasibility, then refine detailed behavior/contracts.
 - Confirmed: rough concepts may include future ideas; inclusion does not authorize feature implementation.
-- Open: initial audience, priority situations, essential information/actions and preferred UI approach.
+- Confirmed: the intended audience includes students, instructors and pilots across aircraft categories (Manuel's direct answer).
+- Open: priority situations, specific initial aircraft-category coverage, role-specific needs, essential information/actions and preferred UI approach.
 - No interviews, completed wireframes, Figma files, user validation or live feature acceptance are claimed here.
 
 Record future answers as confirmed decisions or hypotheses with their source. For the feature map, keep user value, priority and technical feasibility separate. Do not infer lifetime completeness, known missing values or real-user demand from sample screens.
