@@ -4,6 +4,8 @@ Date: 2026-10-13 (Europe/Berlin). Environment: Windows/PowerShell. Source baseli
 
 ## Result
 
+Follow-up requested by Manuel: the opening now explicitly lists Android/iOS App, Data privacy, Local-first, Offline access, Paper-logbook companion and In development with icons. These are labeled product priorities/target platforms; no privacy certification, encryption guarantee or completed iOS acceptance is claimed.
+
 The [README](../../README.md) now leads with MoFlight's intended benefits and an explicit early-development status. Eight closed-by-default chapters separate product journeys, roadmap/status, architecture, development setup, privacy/verification, requirement IDs, hosting/cost boundaries and further documentation. Features and complete product journeys are not presented as already delivered. Approved stack, current roadmap and unselected revised UI direction remain intact.
 
 The [provisional SVG logo](../assets/moflight-logo.svg) is an original wing/open-logbook mark. It has descriptive text, no embedded scripts and no external resources. Branding remains replaceable.

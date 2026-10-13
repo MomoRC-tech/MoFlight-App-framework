@@ -4,6 +4,13 @@
 
 # MoFlight
 
+<p align="center">
+  <strong>📱 Android / iOS App &nbsp; · &nbsp; 🔒 Data privacy &nbsp; · &nbsp; 🏡 Local-first</strong><br>
+  <strong>📴 Offline access &nbsp; · &nbsp; 📖 Paper-logbook companion &nbsp; · &nbsp; 🚧 In development</strong>
+</p>
+
+*Product priorities and target platforms; see the delivery status below.*
+
 ### More flying. Less paperwork. A clearer picture of your season.
 
 **MoFlight is a mobile app in development for pilots, students and instructors who want to understand their flying, catch up on their paper logbook and keep useful club information close at hand.**
