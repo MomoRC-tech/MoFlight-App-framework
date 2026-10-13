@@ -21,6 +21,18 @@ Manuel confirmed during guided discovery: “should include students, instructor
 
 Discovery should examine shared flight-history/logbook needs and differences by role/category. Student training progress, instructor workflows and category-specific information are hypotheses to explore, not approved features or evidence of available data. Instructor access to another person's records requires a separately defined permission/data boundary; this audience decision grants no such access.
 
+## Confirmed priorities and start-screen direction
+
+Manuel selected “Understand my flying” and “Keep my logbook current” as the first useful-version outcomes. He also wants flight cost tracking and relevant general information from the Vereinsflieger main screen. This confirms discovery priorities, not detailed measures or delivery acceptance.
+
+- Understand flying: review flights, totals and trends; choose exact measures during journey review.
+- Keep the logbook current: identify missing paper entries and explore writing assistance, retaining existing writing/photo/book implementation gates.
+- Track flight costs: desired feature; clarify personal attribution, currency, charged versus estimated amounts and missing-value meaning before contract/implementation. Broader expense scope and inclusion in the first analytics release remain open.
+- Shared start screen: explore general information useful across students, instructors and other pilots, without requiring a user-group-specific landing screen. Exact sections, personalization and navigation remain open.
+- Later provider discovery: walk through the actual Vereinsflieger main screen with Manuel, inventory its information and ask which items are relevant. Record selections and access/retrieval/freshness dependencies; do not assume fields or extraction support before inspecting them. No provider walkthrough was performed for this update.
+
+Proposed next discussion: clarify the intended cost-tracking question, then walk through a concrete review-flying/logbook journey. Review candidate start-screen sections using those needs, and perform the provider main-screen walkthrough when ready. These are facilitation steps, not additional implementation authorization.
+
 ## Starting situations — hypotheses for discussion
 
 | Situation | Possible outcome | Current feasibility boundary |
@@ -28,6 +40,7 @@ Discovery should examine shared flight-history/logbook needs and differences by 
 | After a flying day | See recent flights and spot missing or questionable records | Browser raw capture exists; saved live history/normalization remains M3 work |
 | Looking back over a season | Understand flights, known durations and aircraft breakdowns | Synthetic deterministic queries exist; measures need review and live history is gated |
 | Finding a particular flight | Find by date, aircraft or person and inspect supporting evidence | Synthetic queries exist; source identity, ambiguity and live integration remain open |
+| Reviewing flight costs | Understand what flying has cost the user | Raw provider cost fields are evidence only; personal attribution, semantics and canonical integration remain open |
 | Updating a paper logbook | Know which entries need writing and obtain clear instructions | Synthetic writing/book proofs exist; real photo-to-writing and production book integration remain deferred |
 | Preparing for a flying day | Obtain useful preparation information | Weather/tutor/training ideas remain discovery candidates with separate access and scope gates |
 
@@ -38,7 +51,9 @@ These are prompts, not selected journeys or evidence of wider user demand. The o
 - Confirmed: journey/UI concept discovery comes first; explore relevance and feasibility, then refine detailed behavior/contracts.
 - Confirmed: rough concepts may include future ideas; inclusion does not authorize feature implementation.
 - Confirmed: the intended audience includes students, instructors and pilots across aircraft categories (Manuel's direct answer).
-- Open: priority situations, specific initial aircraft-category coverage, role-specific needs, essential information/actions and preferred UI approach.
+- Confirmed: first outcomes are understanding flying and keeping the logbook current; flight cost tracking and relevant provider main-screen information are desired.
+- Confirmed direction: a shared start screen with general information across user groups; review provider main-screen relevance in a later walkthrough.
+- Open: detailed journeys, cost scope/semantics and first-release inclusion, specific initial aircraft-category coverage, role-specific needs, start-screen content and preferred UI approach.
 - No interviews, completed wireframes, Figma files, user validation or live feature acceptance are claimed here.
 
 Record future answers as confirmed decisions or hypotheses with their source. For the feature map, keep user value, priority and technical feasibility separate. Do not infer lifetime completeness, known missing values or real-user demand from sample screens.

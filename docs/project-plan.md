@@ -92,13 +92,13 @@ Documentation verification for M0: reconcile current repository/evidence and Iss
 
 ## 4. Decision register
 
-All entries are open. Defaults guide preparation; they are not approval of production architecture, services or spending.
+Detailed decisions below remain open. Confirmed discovery priorities and start-screen direction are recorded in the [discovery brief](product/user-journey-ui-discovery.md#confirmed-priorities-and-start-screen-direction). Defaults guide preparation; they are not approval of production architecture, services or spending.
 
 | Decision | Recommended default / current assumption | Owner | Needed by |
 | --- | --- | --- | --- |
 | REST permission and practical access | Keep browser path usable; prepare REST adapter only after permitted authentication, fields, pagination and limits are confirmed. Do not assume it offers identical evidence | Manuel obtains permission; engineer verifies feasibility | Expected Manuel follow-up **14 October 2026**; M2 route decision |
-| Basic UI and initial analytics | Overview, flights/detail, retrieval and settings; start with flight counts, durations and date/aircraft breakdowns. Retain existing person-query requirement; select its first UI scope in M1 | Manuel, with engineer proposal | M1 review before additional services |
-| Meaning of costs | Exclude from first totals until personal attribution, currency/units and missing/billing meanings are established; raw costs remain evidence | Manuel defines question; engineer verifies mapping | Before cost analytics contract/implementation |
+| Basic UI and initial analytics | Confirmed discovery priorities: understand flying and keep the logbook current; shared start screen with general information across user groups. Later walk through Vereinsflieger's main screen to select useful information and assess access. Exact layout and flight-count/duration/date/aircraft/person measures need M1 review; writing implementation retains its existing gates | Manuel, with engineer proposal | M1 review before additional services |
+| Meaning of costs | Flight cost tracking is desired. Clarify personal attribution, currency/units, charged/estimated amounts and missing/billing meanings; raw costs remain evidence. Inclusion in first analytics totals stays pending those definitions | Manuel defines question; engineer verifies mapping | Before cost analytics contract/implementation |
 | Verified source/account/club/flight identity and semantics | Display names are insufficient identity. Preserve raw time/role/class/duplicate facts; unresolved values stay unknown | Engineer investigates permitted sources; Manuel reviews semantics | M2 evidence contract and M3 import gate |
 | Production source-flight/book model and migration | Share account-scoped source evidence, separate book membership/paper progress; review ADR 0007 and migration before production schema expansion | Manuel approves; engineer proposes/proves | Before M3 canonical integration |
 | Chat's role | Standard navigation for initial wireframes; optional future entry point. Preserve chat specification, defer implementation | Manuel | M1 if it changes navigation; otherwise M5 |
