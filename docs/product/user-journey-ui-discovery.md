@@ -31,7 +31,25 @@ Manuel selected “Understand my flying” and “Keep my logbook current” as 
 - Shared start screen: explore general information useful across students, instructors and other pilots, without requiring a user-group-specific landing screen. Exact sections, personalization and navigation remain open.
 - Later provider discovery: walk through the actual Vereinsflieger main screen with Manuel, inventory its information and ask which items are relevant. Record selections and access/retrieval/freshness dependencies; do not assume fields or extraction support before inspecting them. No provider walkthrough was performed for this update.
 
-Proposed next discussion: clarify the intended cost-tracking question, then walk through a concrete review-flying/logbook journey. Review candidate start-screen sections using those needs, and perform the provider main-screen walkthrough when ready. These are facilitation steps, not additional implementation authorization.
+Proposed next discussion: develop the backlog-to-writing-template journey below and clarify how the user wants to use the template. Review candidate start-screen sections using those needs, and perform the provider main-screen/billing walkthrough when ready. These are facilitation steps, not additional implementation authorization.
+
+## Primary logbook journey: catch up on a backlog
+
+Manuel reports that many pilots do not document flights immediately and later have many flights to enter. He identifies the logbook writing template as an immediate benefit. This is product-owner input about the target problem, not an independently measured claim about how most pilots behave.
+
+Confirmed desired outcome: help a pilot catch up efficiently on accumulated flights in the paper logbook using a writing template. Design discovery should give this journey prominence rather than assuming daily entry or treating writing assistance as a minor future concept.
+
+Proposed journey for review:
+
+1. Open MoFlight and see the last known logbook state and flights potentially awaiting entry; show uncertainty where the paper state or source coverage is unverified.
+2. Confirm/update where the paper logbook stands, with missing entries handled individually rather than inferred solely from the last entry number.
+3. Review the backlog and resolve relevant missing or ambiguous facts.
+4. Prepare writing instructions suited to the chosen physical book, including required layout and deterministic totals/carryovers where supported.
+5. Copy entries in manageable batches and explicitly confirm which entries were written. Merely displaying or preparing a template does not mark entries as copied.
+
+Open UX choices include phone-side use versus print, batch size, interruption/resume and how to establish the paper anchor. These proposed steps retain existing evidence and confirmation boundaries; they are not a completed design or accepted live workflow.
+
+Roadmap implication: writing is currently scheduled in M5. Its immediate product value should inform a later review of the smallest useful release and delivery order after this journey is defined. No automatic reordering, production schema change or OCR/provider/budget authorization follows from this discovery input.
 
 ## Starting situations — hypotheses for discussion
 
@@ -54,6 +72,7 @@ These are prompts, not selected journeys or evidence of wider user demand. The o
 - Confirmed: first outcomes are understanding flying and keeping the logbook current; flight cost tracking and relevant provider main-screen information are desired.
 - Confirmed direction: a shared start screen with general information across user groups; review provider main-screen relevance in a later walkthrough.
 - Confirmed cost source: Vereinsflieger “Meine Abrechnungen”; Manuel proposes a flying versus membership/other-cost split.
+- Confirmed logbook problem/value: accumulated flights need later paper entry; a writing template provides immediate benefit (Manuel's observation). Backlog catch-up is a primary design journey.
 - Open: detailed journeys, billing-section fields/semantics, final cost categories and first-release inclusion, specific initial aircraft-category coverage, role-specific needs, start-screen content and preferred UI approach.
 - No interviews, completed wireframes, Figma files, user validation or live feature acceptance are claimed here.
 

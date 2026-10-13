@@ -53,6 +53,8 @@ Start with user situations, desired outcomes and current difficulties; identify 
 
 The first deliverable is a small set of user journeys, a feature-priority/feasibility map and rough screen concepts. Then refine selected journeys into detailed behavior and application contracts. This refines M1 preparation rather than changing M2–M5 order or their gates. The earlier overview → filtered flights → flight detail slice is a starting hypothesis, not a frozen navigation decision. [Discovery brief and guided questions](product/user-journey-ui-discovery.md) track the work; initial ideas are not validated user research.
 
+**Writing-value clarification:** Manuel identifies catching up on accumulated paper-logbook entries with a writing template as an immediate benefit. Treat [backlog catch-up](product/user-journey-ui-discovery.md#primary-logbook-journey-catch-up-on-a-backlog) as a primary design journey. Review its implications for the smallest useful release and delivery order once the journey/dependencies are defined; current M5 scheduling and existing writing/handwriting/schema gates are not automatically changed by this discovery input.
+
 ## 2. Feature register
 
 Implementation and acceptance are separate. “Synthetic proof” does not establish live-provider or production acceptance. All referenced Issues #1–#13 were checked on 2026-10-13 and are open; no new Issues are needed for this documentation task.
