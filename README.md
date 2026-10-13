@@ -4,10 +4,18 @@
 
 # MoFlight
 
-<p align="center">
-  <strong>📱 Android / iOS App &nbsp; · &nbsp; 🔒 Data privacy &nbsp; · &nbsp; 🏡 Local-first</strong><br>
-  <strong>📴 Offline access &nbsp; · &nbsp; 📖 Paper-logbook companion &nbsp; · &nbsp; 🚧 In development</strong>
-</p>
+<table width="100%">
+  <tr>
+    <td width="33%" align="center">📱<br><strong>Android / iOS App</strong><br><sub>Target platforms</sub></td>
+    <td width="33%" align="center">🔒<br><strong>Data privacy</strong><br><sub>Design priority</sub></td>
+    <td width="33%" align="center">🏡<br><strong>Local-first</strong><br><sub>Phone-local data</sub></td>
+  </tr>
+  <tr>
+    <td width="33%" align="center">📴<br><strong>Offline access</strong><br><sub>Saved information</sub></td>
+    <td width="33%" align="center">📖<br><strong>Paper logbook</strong><br><sub>Writing companion</sub></td>
+    <td width="33%" align="center">🚧<br><strong>In development</strong><br><sub>Not yet released</sub></td>
+  </tr>
+</table>
 
 *Product priorities and target platforms; see the delivery status below.*
 
@@ -261,5 +269,14 @@ Start with the [project plan](docs/project-plan.md) for order and the [reviewed 
 - [Issues](https://github.com/MomoRC-tech/MoFlight-App-framework/issues): actionable work, open decisions and deferred ideas.
 
 This entry point summarizes the project. Detailed specifications and dated verification reports carry the engineering evidence, so the front page can remain readable as the project grows.
+
+</details>
+
+<details>
+<summary><strong>💼 Ownership & commercial licensing</strong></summary>
+
+MoFlight's original code, documentation and artwork are **proprietary — all rights reserved**, as stated in [LICENSE](LICENSE). Manuel intends to retain control and market the app commercially; this repository does not grant public rights to reuse, modify or resell its original materials.
+
+The package declaration `UNLICENSED` means no open-source license is granted; it is not the public-domain **Unlicense**. Third-party components retain their own licenses. Distribution obligations and end-user terms for selling the finished app must be reviewed separately before release.
 
 </details>
