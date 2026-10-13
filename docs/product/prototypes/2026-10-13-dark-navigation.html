@@ -11,7 +11,7 @@
 #mf-preview .mf-page-heading, #mf-preview [data-view]>h2, #mf-preview [data-view]>.mf-row>h2 { display:none; }
 #mf-preview [data-view]>.mf-row:has(>h2):not(:has(>button)) { display:none; }
 #mf-preview [data-view]>.mf-row:has(>h2)>button { margin-left:auto; }
-#mf-preview .mf-nav { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; padding:6px; position:absolute; left:16px; right:16px; bottom:calc(20px + env(safe-area-inset-bottom,0px)); z-index:5; box-shadow:0 10px 30px #0009; }
+#mf-preview .mf-nav { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:6px; padding:6px; position:absolute; left:16px; right:16px; bottom:calc(20px + env(safe-area-inset-bottom,0px)); z-index:5; box-shadow:0 10px 30px #0009; }
 #mf-preview .mf-nav .mf-tab { flex-direction:column; gap:4px; min-width:0; min-height:64px; padding:8px 4px; font-size:14px; line-height:20px; }
 #mf-preview .mf-nav .mf-tab svg { width:24px; height:24px; }
 #mf-preview .mf-tab { font-size:12px; line-height:16px; }
@@ -129,6 +129,7 @@
     <nav class="mf-nav" aria-label="Hauptnavigation">
       <button class="mf-tab cursor-interaction active" type="button" data-route="start" aria-current="page"><i data-lucide="house" aria-hidden="true"></i>Start</button>
       <button class="mf-tab cursor-interaction" type="button" data-route="flights"><i data-lucide="plane" aria-hidden="true"></i>Flüge</button>
+      <button class="mf-tab cursor-interaction" type="button" data-route="book" aria-label="Papierbuch"><i data-lucide="book-open" aria-hidden="true"></i>Buch</button>
       <button class="mf-tab cursor-interaction" type="button" data-route="club"><i data-lucide="users-round" aria-hidden="true"></i>Verein</button>
     </nav>
   </div>
@@ -139,14 +140,14 @@
   const views = [...root.querySelectorAll('[data-view]')];
   const history = []; let route = 'start'; let summary = 0;
   const titles = {start:'Start',flights:'Meine Flüge',club:'Verein',book:'Papierbuch',review:'Einträge',photo:'Papierfoto',template:'Vorlage',flight:'Flugdetails',filters:'Filter',retrieve:'Abruf',offline:'Offline',profile:'Profil',costs:'Kosten'};
-  const sectionFor = {start:'start', flights:'flights', club:'club', flight:'flights', filters:'flights', retrieve:'flights', offline:'flights', book:'start', photo:'start', review:'start', template:'start', profile:null, costs:'start'};
+  const sectionFor = {start:'start', flights:'flights', club:'club', flight:'flights', filters:'flights', retrieve:'flights', offline:'flights', book:'book', photo:'book', review:'book', template:'book', profile:null, costs:'start'};
   function go(next, push = true) {
     if (!views.some(v => v.dataset.view === next)) return;
     if (push && route !== next) history.push(route);
     route = next;
     views.forEach(v => {v.hidden = v.dataset.view !== route;});
     root.querySelector('#mf-content').scrollTop = 0;
-    const mainDestination = ['start','flights','club'].includes(route);
+    const mainDestination = ['start','flights','book','club'].includes(route);
     root.querySelector('#mf-back').hidden = mainDestination;
     root.querySelector('#mf-header-brand').toggleAttribute('hidden', !mainDestination);
     root.querySelector('#mf-header-title').textContent = titles[route];
