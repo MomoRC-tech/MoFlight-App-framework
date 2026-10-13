@@ -53,6 +53,15 @@
 #mf-preview .mf-meta { color:var(--mf-muted); }
 #mf-preview .mf-highlight { color:var(--mf-accent); }
 #mf-preview .mf-footer { display:grid; gap:12px; }
+#mf-preview .mf-overlay { position:absolute; inset:0; z-index:20; background:#0009; display:flex; align-items:flex-end; }
+#mf-preview .mf-sheet { width:100%; max-height:90%; background:var(--mf-panel); border-radius:28px 28px 0 0; padding:12px 16px calc(16px + env(safe-area-inset-bottom,0px)); display:flex; flex-direction:column; gap:16px; animation:mf-sheet-rise 180ms ease-out; }
+#mf-preview .mf-sheet-handle { width:32px; height:4px; border-radius:4px; background:var(--mf-muted); align-self:center; }
+#mf-preview .mf-sheet-scroll { overflow-y:auto; min-height:0; display:grid; gap:12px; }
+#mf-preview .mf-sheet .mf-label { background:var(--mf-raised); border-radius:12px; padding:8px; gap:4px; font-size:14px; line-height:20px; }
+#mf-preview .mf-sheet .mf-field { font-size:16px; line-height:24px; }
+#mf-preview .mf-sheet h2 { font-size:22px; line-height:28px; }
+@keyframes mf-sheet-rise { from { transform:translateY(100%); } to { transform:translateY(0); } }
+@media(prefers-reduced-motion:reduce) { #mf-preview .mf-sheet { animation:none; } }
 #mf-preview [hidden] { display:none!important; }
 @media(max-width:360px) { #mf-preview .mf-app { padding:16px; } }
 </style>
@@ -122,7 +131,6 @@
       <section data-view="photo" hidden><h2>Papierfoto prüfen</h2><p>Beispiel: Nr. 190 ist sichtbar, die Dauer ist unklar.</p><p class="mf-meta">Unklare Werte vor der Vorlage klären. Frühere Entscheidungen bleiben erhalten.</p><button class="mf-button cursor-interaction" type="button" data-route="review">Beispiel: Angaben geklärt</button></section>
       <section data-view="template" hidden><h2>Schreibvorlage</h2><p class="mf-meta">Vorlage 7 · Segelflugbuch</p><div class="mf-list"><p>191 · D-TEST · 00:30 · Pilot</p><p>192 · D-DEMO · 00:18 · Pilot</p><p>193 · D-TEST · 00:24 · Fluglehrer</p></div><hr><p>Diese Einträge werden als geschrieben angenommen.</p><p class="mf-small mf-meta">Beim nächsten Mal wird Nr. 193 als letzter Eintrag geprüft. Frühere Papiernachweise bleiben separat. Handy und Druckblatt verwenden dieselbe Vorlage.</p></section>
       <section data-view="flight" hidden><h2>Flugdetails</h2><p class="mf-meta">12. Oktober 2026</p><section class="mf-section"><h3>D-TEST · ASK 21</h3><div class="mf-stats"><dl class="mf-fact"><dt>Flugdauer</dt><dd>00:42</dd></dl><dl class="mf-fact"><dt>Meine Rolle</dt><dd>Pilot</dd></dl></div></section><hr><div class="mf-list"><div class="mf-row"><span class="mf-meta">Start / Landung</span><span>14:10 / 14:52</span></div><div class="mf-row"><span class="mf-meta">Mitgeflogen</span><span>Alex Beispiel</span></div><div class="mf-row"><span class="mf-meta">Startart</span><span>Winde</span></div><div class="mf-row"><span class="mf-meta">Strecke</span><span>Unbekannt</span></div></div><details><summary>Quellenangaben</summary><p>Vereinsflieger · synthetischer Datensatz<br>Abgerufen: 12.10., 18:10<br>Original: Start 14:10 / Landung 14:52</p></details></section>
-      <section data-view="filters" hidden><h2>Flüge filtern</h2><div class="mf-stack"><label class="mf-label">Flugzeug<select class="mf-field"><option>D-TEST · einzelnes Flugzeug</option><option>Alle Flugzeuge</option></select></label><label class="mf-label">Modell<select class="mf-field"><option>ASK 21</option><option>Alle Modelle</option></select></label><label class="mf-label">Mitgeflogene Person<select class="mf-field"><option>Alex Beispiel</option><option>Alle Personen</option></select></label><label class="mf-label">Meine erfasste Rolle<select class="mf-field"><option>Pilot</option><option>Fluglehrer</option></select></label><button class="mf-button cursor-interaction mf-primary" type="button" id="mf-apply">Beispielfilter anwenden</button></div></section>
       <section data-view="retrieve" hidden><h2>Flüge aktualisieren</h2><p class="mf-meta">Letzter Erfolg: 12.10., 18:10</p><section class="mf-section"><h3>Abrufzeitraum</h3><div class="mf-stack"><label class="mf-label">Von<input class="mf-field" type="date" value="2026-10-12"></label><label class="mf-label">Bis<input class="mf-field" type="date" value="2026-10-13"></label></div><p class="mf-small mf-meta">Seit der letzten Aktualisierung vorgeschlagen. Ein anderer Zeitraum ist möglich.</p></section><button class="mf-button cursor-interaction mf-primary" type="button" data-route="offline">Demo: Abruf ohne Verbindung</button></section>
       <section data-view="offline" hidden><h2>Keine Verbindung</h2><p>Deine gespeicherten Flüge bleiben verfügbar.</p><p class="mf-meta">Letzter Erfolg: 12.10., 18:10<br>Neuere Flüge können fehlen.</p><div class="mf-stack"><button class="mf-button cursor-interaction mf-primary" type="button" data-route="retrieve">Erneut versuchen</button><button class="mf-button cursor-interaction" type="button" data-route="flights">Gespeicherte Flüge öffnen</button></div></section>
       <section data-view="profile" hidden><h2>Profil und Verbindung</h2><section class="mf-section"><h3>Vereinsflieger</h3><p>Verbindung: Beispieldaten</p><button class="mf-button cursor-interaction" type="button" data-route="retrieve">Flüge aktualisieren</button></section><hr><p>Sprache: Deutsch</p><p>Lokale Daten und Papierbücher</p><p class="mf-small mf-meta">Kein echter Kontozugriff in dieser Vorschau.</p></section>
@@ -137,6 +145,20 @@
       <button class="mf-tab cursor-interaction" type="button" data-route="bookhome" aria-label="Papierbuch"><i data-lucide="book-open" aria-hidden="true"></i>Buch</button>
       <button class="mf-tab cursor-interaction" type="button" data-route="club"><i data-lucide="users-round" aria-hidden="true"></i>Verein</button>
     </nav>
+    <div class="mf-overlay" id="mf-filter-overlay" role="dialog" aria-modal="true" aria-labelledby="mf-filter-title" hidden>
+      <div class="mf-sheet">
+        <div class="mf-sheet-handle" aria-hidden="true"></div>
+        <div class="mf-row"><h2 id="mf-filter-title">Flüge filtern</h2><button class="mf-button cursor-interaction mf-ghost mf-icon" type="button" id="mf-filter-close" aria-label="Filter schließen"><i data-lucide="x" aria-hidden="true"></i></button></div>
+        <div class="mf-sheet-scroll">
+          <label class="mf-label">Zeitraum<select class="mf-field" id="mf-filter-period"><option value="year">2026</option><option value="october">Oktober 2026</option></select></label>
+          <label class="mf-label">Flugzeug<select class="mf-field" id="mf-filter-aircraft"><option value="D-TEST">D-TEST · einzelnes Flugzeug</option><option value="all">Alle Flugzeuge</option></select></label>
+          <label class="mf-label">Modell<select class="mf-field" id="mf-filter-model"><option value="ASK 21">ASK 21</option><option value="all">Alle Modelle</option></select></label>
+          <label class="mf-label">Mitgeflogene Person<select class="mf-field" id="mf-filter-person"><option value="Alex Beispiel">Alex Beispiel</option><option value="all">Alle Personen</option></select></label>
+          <label class="mf-label">Meine erfasste Rolle<select class="mf-field" id="mf-filter-role"><option value="Pilot">Pilot</option><option value="Fluglehrer">Fluglehrer</option><option value="all">Alle Rollen</option></select></label>
+        </div>
+        <button class="mf-button cursor-interaction mf-primary" type="button" id="mf-apply">Beispielfilter anwenden</button>
+      </div>
+    </div>
   </div>
 </div>
 <script>
@@ -146,7 +168,16 @@
   const history = []; let route = 'start'; let summary = 0;
   const titles = {start:'Start',flights:'Meine Flüge',club:'Verein',bookhome:'Papierbuch',book:'Buchstand',review:'Einträge',photo:'Papierfoto',template:'Vorlage',flight:'Flugdetails',filters:'Filter',retrieve:'Abruf',offline:'Offline',profile:'Profil',costs:'Kosten'};
   const sectionFor = {start:'start', flights:'flights', club:'club', flight:'flights', filters:'flights', retrieve:'flights', offline:'flights', bookhome:'bookhome',book:'bookhome', photo:'bookhome', review:'bookhome', template:'bookhome', profile:null, costs:'start'};
+  const overlay=root.querySelector('#mf-filter-overlay'); let filterTrigger=null;
+  const filterFields=['period','aircraft','model','person','role'];
+  let appliedFilters={period:'year',aircraft:'D-TEST',model:'ASK 21',person:'Alex Beispiel',role:'Pilot'};let filteringActive=false;
+  function closeFilters(){overlay.hidden=true;root.querySelectorAll('header,main,nav').forEach(n=>n.inert=false);if(filterTrigger)filterTrigger.focus();}
+  function openFilters(){filterTrigger=document.activeElement;appliedFilters.period=root.querySelector('#mf-period').value;filterFields.forEach(k=>root.querySelector('#mf-filter-'+k).value=appliedFilters[k]);overlay.hidden=false;root.querySelectorAll('header,main,nav').forEach(n=>n.inert=true);root.querySelector('#mf-filter-close').focus();}
+  root.querySelector('#mf-filter-close').addEventListener('click',closeFilters);
+  overlay.addEventListener('click',e=>{if(e.target===overlay)closeFilters();});
+  overlay.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();closeFilters();}if(e.key==='Tab'){const items=[...overlay.querySelectorAll('button,select')],first=items[0],last=items[items.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}});
   function go(next, push = true) {
+    if(next==='filters'){openFilters();return;}
     if (!views.some(v => v.dataset.view === next)) return;
     if (push && route !== next) history.push(route);
     route = next;
@@ -183,7 +214,15 @@
   root.querySelector('#mf-next').addEventListener('click',()=>{summary=(summary+1)%3;summaryView();});
   root.querySelector('#mf-prev').addEventListener('click',()=>{summary=(summary+2)%3;summaryView();});
   const period=root.querySelector('#mf-period');
-  period.addEventListener('change',()=>{root.querySelector('#mf-count').textContent=period.value==='year'?'64':'3';root.querySelector('#mf-time').textContent=period.value==='year'?'28 h':'1 h 10 min';root.querySelector('#mf-coverage').textContent=period.value==='year'?'2 Flugzeiten fehlen · Zeitraum begrenzt':'2 bekannte Zeiten · 1 fehlt · Oktober-Beispiel';});
-  root.querySelector('#mf-apply').addEventListener('click',()=>{root.querySelector('#mf-count').textContent='3';root.querySelector('#mf-time').textContent='1 h 40 min';root.querySelector('#mf-coverage').textContent='Feste Filterdemo: 2026 · D-TEST · Alex Beispiel · Pilot';root.querySelector('#mf-flight-list').innerHTML='<div><div class="mf-row"><span>12.10. · D-TEST</span><span>00:42</span></div><div class="mf-row"><span class="mf-small mf-meta">ASK 21 · Pilot · Alex Beispiel</span><button class="mf-button cursor-interaction mf-ghost" data-route="flight" type="button">Details</button></div></div><div><div class="mf-row"><span>05.10. · D-TEST</span><span>00:28</span></div><p class="mf-small mf-meta">ASK 21 · Pilot · Alex Beispiel</p></div><div><div class="mf-row"><span>28.09. · D-TEST</span><span>00:30</span></div><p class="mf-small mf-meta">ASK 21 · Pilot · Alex Beispiel</p></div>';go('flights');});
+  period.addEventListener('change',()=>{if(filteringActive){appliedFilters.period=period.value;renderFilteredDemo();return;}root.querySelector('#mf-count').textContent=period.value==='year'?'64':'3';root.querySelector('#mf-time').textContent=period.value==='year'?'28 h':'1 h 10 min';root.querySelector('#mf-coverage').textContent=period.value==='year'?'2 Flugzeiten fehlen · Zeitraum begrenzt':'2 bekannte Zeiten · 1 fehlt · Oktober-Beispiel';});
+  function renderFilteredDemo(){
+    const sample=[{date:'12.10.',month:10,aircraft:'D-TEST',model:'ASK 21',person:'Alex Beispiel',role:'Pilot',minutes:42},{date:'05.10.',month:10,aircraft:'D-TEST',model:'ASK 21',person:'Alex Beispiel',role:'Pilot',minutes:28},{date:'28.09.',month:9,aircraft:'D-TEST',model:'ASK 21',person:'Alex Beispiel',role:'Pilot',minutes:30},{date:'11.10.',month:10,aircraft:'D-DEMO',model:'LS 4',person:'Toni Muster',role:'Pilot',minutes:null}];
+    const matches=sample.filter(f=>(appliedFilters.period!=='october'||f.month===10)&&['aircraft','model','person','role'].every(k=>appliedFilters[k]==='all'||f[k]===appliedFilters[k])).sort((a,b)=>b.month-a.month||Number(b.date.split('.')[0])-Number(a.date.split('.')[0]));
+    const sum=matches.reduce((s,f)=>s+(f.minutes??0),0),unknown=matches.filter(f=>f.minutes===null).length;
+    root.querySelector('#mf-count').textContent=String(matches.length);root.querySelector('#mf-time').textContent=matches.length&&unknown===matches.length?'Unbekannt':Math.floor(sum/60)+' h '+sum%60+' min';root.querySelector('#mf-period').value=appliedFilters.period;
+    root.querySelector('#mf-coverage').textContent='Filterdemo über 4 Beispieldatensätze · '+(unknown===0?'Alle Flugzeiten bekannt':unknown===1?'1 Flugzeit fehlt':unknown+' Flugzeiten fehlen');
+    root.querySelector('#mf-flight-list').innerHTML=matches.length?matches.map(f=>'<div><div class="mf-row"><span>'+f.date+' · '+f.aircraft+'</span><span>'+(f.minutes===null?'Dauer unbekannt':'00:'+String(f.minutes).padStart(2,'0'))+'</span></div><p class="mf-small mf-meta">'+f.model+' · '+f.role+' · '+f.person+'</p>'+(f.date==='12.10.'?'<button class="mf-button cursor-interaction mf-ghost" data-route="flight" type="button">Details</button>':'')+'</div>').join(''):'<p>Keine passenden Beispielflüge.</p>';
+  }
+  root.querySelector('#mf-apply').addEventListener('click',()=>{appliedFilters=Object.fromEntries(filterFields.map(k=>[k,root.querySelector('#mf-filter-'+k).value]));filteringActive=true;renderFilteredDemo();closeFilters();});
 })();
 </script>
