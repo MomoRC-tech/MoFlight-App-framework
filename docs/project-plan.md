@@ -7,6 +7,7 @@ Updated: 2026-10-13 (Europe/Berlin). Product/decision owner: Manuel Singer. This
 **Current focus: basic UI and application contract → reliable retrieval → saved live history → initial analytics. Writing-template expansion and other feature implementation follow later.**
 
 - Keep phone-local SQLite and offline access as the initial persistence path. Retain the approved Expo/React Native/strict TypeScript stack and one native database writer.
+- Initial UI language is German, including review wireframes/prototypes. An option to switch to English is a later feature. Keep display text separate from business logic; documentation remains English. No localization library or English-switch implementation is selected by this requirement.
 - Establish a clear boundary: **screens → application operations → domain/repositories → provider/platform adapters**. Screens consume typed results and status; SQL, provider markup and recovery sequencing belong below the UI boundary.
 - Extract browser orchestration from the access screen in a bounded refactor. Preserve working domain/persistence modules; add modules only when required. No rewrite, microservices or generic plugin framework.
 - Retain browser retrieval and plan a second REST path conditionally on permission and feasibility. Both adapters must feed one downstream evidence/normalization contract; the UI must not depend on provider transport details.

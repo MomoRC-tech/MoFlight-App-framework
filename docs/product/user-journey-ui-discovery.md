@@ -17,6 +17,8 @@ Explore which user situations matter, which features help and what is feasible b
 
 ## Confirmed audience
 
+**UI language (Manuel, 2026-10-13):** the initial app UI is German. Use German user-facing text in wireframes, prototypes and the initial implementation. Add an option to switch to English as a later feature; English language switching is not part of the initial UI scope. Keep user-facing text separable from application logic so later translation does not require changing business rules. Project documentation remains English under AGENTS.md. Exact localization implementation and locale-specific formatting are not selected here.
+
 Manuel confirmed during guided discovery: “should include students, instructors, and pilots of different aircraft categories.” The concept should cover this broader audience rather than only Manuel and pilots with similar needs. Specific launch-category coverage and role-specific needs remain to be reviewed. A person may have overlapping roles; separate apps, accounts or navigation modes are not selected by this audience decision.
 
 Discovery should examine shared flight-history/logbook needs and differences by role/category. Student training progress, instructor workflows and category-specific information are hypotheses to explore, not approved features or evidence of available data. Instructor access to another person's records requires a separately defined permission/data boundary; this audience decision grants no such access.
@@ -93,6 +95,7 @@ These are prompts, not selected journeys or evidence of wider user demand. The o
 - Confirmed: journey/UI concept discovery comes first; explore relevance and feasibility, then refine detailed behavior/contracts.
 - Confirmed: rough concepts may include future ideas; inclusion does not authorize feature implementation.
 - Confirmed: the intended audience includes students, instructors and pilots across aircraft categories (Manuel's direct answer).
+- Confirmed UI language: German initially, with an English-switch option as a later feature; project documentation remains English.
 - Confirmed: first outcomes are understanding flying and keeping the logbook current; flight cost tracking and relevant provider main-screen information are desired.
 - Confirmed direction: a shared start screen with general information across user groups; review provider main-screen relevance in a later walkthrough.
 - Confirmed cost source: Vereinsflieger “Meine Abrechnungen”; Manuel proposes a flying versus membership/other-cost split.
