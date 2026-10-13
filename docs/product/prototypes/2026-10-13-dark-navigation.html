@@ -1,21 +1,29 @@
 <style>
-#mf-preview { --mf-bg:#111419; --mf-text:#f2f3f5; --mf-panel:#1c222b; --mf-raised:#262e39; --mf-muted:#b7bec8; --mf-accent:#f1b65b; --mf-on-accent:#19140b; --mf-border:#39414c; color:var(--mf-text); font-family:system-ui,sans-serif; font-size:14px; line-height:1.5; }
+#mf-preview { --mf-bg:#111419; --mf-text:#f2f3f5; --mf-panel:#1c222b; --mf-raised:#262e39; --mf-muted:#b7bec8; --mf-accent:#f1b65b; --mf-on-accent:#19140b; --mf-border:#39414c; color:var(--mf-text); font-family:Roboto,system-ui,sans-serif; font-size:16px; line-height:24px; }
 #mf-preview * { box-sizing:border-box; }
 #mf-preview .mf-app { max-width:420px; height:760px; margin:auto; padding:16px; background:var(--mf-bg); position:relative; display:flex; flex-direction:column; overflow:hidden; border-radius:24px; }
-#mf-preview .mf-box, #mf-preview .mf-section, #mf-preview .mf-header, #mf-preview .mf-page-heading, #mf-preview .mf-nav, #mf-preview .mf-footer, #mf-preview .mf-costs, #mf-preview #mf-back-row, #mf-preview [data-view]:not([data-view="start"]) { background:var(--mf-panel); border:1px solid var(--mf-border); border-radius:16px; padding:20px; }
-#mf-preview .mf-header { padding:12px 16px; }
+#mf-preview .mf-box, #mf-preview .mf-section, #mf-preview .mf-header, #mf-preview .mf-page-heading, #mf-preview .mf-nav, #mf-preview .mf-footer, #mf-preview .mf-costs, #mf-preview [data-view]:not([data-view="start"]) { background:var(--mf-panel); border:1px solid var(--mf-border); border-radius:16px; padding:16px; }
+#mf-preview .mf-header { padding:8px; min-height:64px; }
+#mf-preview .mf-header-title { font-size:22px; line-height:28px; font-weight:400; margin:0; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+#mf-preview .mf-icon { width:48px; min-width:48px; padding:12px; }
+#mf-preview .mf-header-brand { width:24px; height:24px; margin-left:8px; flex-shrink:0; }
+#mf-preview .mf-page-heading, #mf-preview [data-view]>h2, #mf-preview [data-view]>.mf-row>h2 { display:none; }
+#mf-preview [data-view]>.mf-row:has(>h2):not(:has(>button)) { display:none; }
+#mf-preview [data-view]>.mf-row:has(>h2)>button { margin-left:auto; }
 #mf-preview .mf-nav { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; padding:6px; position:absolute; left:16px; right:16px; bottom:calc(20px + env(safe-area-inset-bottom,0px)); z-index:5; box-shadow:0 10px 30px #0009; }
-#mf-preview .mf-nav .mf-tab { flex-direction:column; gap:4px; min-width:0; min-height:64px; padding:8px 4px; }
-#mf-preview .mf-nav .mf-tab svg { width:20px; height:20px; }
+#mf-preview .mf-nav .mf-tab { flex-direction:column; gap:4px; min-width:0; min-height:64px; padding:8px 4px; font-size:14px; line-height:20px; }
+#mf-preview .mf-nav .mf-tab svg { width:24px; height:24px; }
+#mf-preview .mf-tab { font-size:12px; line-height:16px; }
 #mf-preview .mf-header { flex-shrink:0; }
 #mf-preview h2 { font-size:24px; line-height:1.25; font-weight:500; margin:0; }
-#mf-preview h3 { font-size:18px; line-height:1.4; font-weight:500; margin:0; }
+#mf-preview h3 { font-size:20px; line-height:28px; font-weight:500; margin:0; }
 #mf-preview p { margin:12px 0; }
-#mf-preview .mf-small { font-size:12px; }
-#mf-preview .mf-number { font-size:28px; line-height:1.3; font-weight:500; }
+#mf-preview .mf-small { font-size:14px; line-height:20px; }
+#mf-preview .mf-number { font-size:28px; line-height:36px; font-weight:400; }
 #mf-preview .mf-numerals { font-variant-numeric:tabular-nums; }
 #mf-preview .mf-button, #mf-preview .mf-tab { font:inherit; min-height:48px; border:1px solid var(--mf-border); background:var(--mf-raised); color:var(--mf-text); border-radius:10px; padding:10px 14px; display:inline-flex; align-items:center; justify-content:center; gap:8px; text-align:center; white-space:normal; }
-#mf-preview .mf-button svg { width:18px; height:18px; flex-shrink:0; }
+#mf-preview .mf-button { font-size:14px; line-height:20px; font-weight:500; min-width:48px; }
+#mf-preview .mf-button svg { width:24px; height:24px; flex-shrink:0; }
 #mf-preview .mf-button.mf-primary, #mf-preview .mf-tab.active { background:var(--mf-accent); border-color:var(--mf-accent); color:var(--mf-on-accent); }
 #mf-preview .mf-button.mf-ghost { background:var(--mf-raised); }
 #mf-preview .mf-inline, #mf-preview .mf-controls { display:flex; flex-wrap:wrap; align-items:center; gap:8px; }
@@ -26,18 +34,19 @@
 #mf-preview .mf-progress-fill { height:100%; background:var(--mf-accent); }
 #mf-preview hr { height:1px; border:0; background:var(--mf-border); margin:20px 0; }
 #mf-preview details { background:var(--mf-raised); border-radius:10px; padding:12px; }
-#mf-preview summary { min-height:32px; }
-#mf-preview #mf-back-row { margin-top:12px; padding:8px; }
+#mf-preview summary { min-height:48px; display:flex; align-items:center; }
 #mf-preview .mf-header, #mf-preview .mf-row { display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+#mf-preview .mf-header { gap:8px; flex-wrap:nowrap; }
+#mf-preview .mf-button:focus-visible, #mf-preview .mf-tab:focus-visible, #mf-preview summary:focus-visible, #mf-preview .mf-field:focus-visible { outline:2px solid var(--mf-accent); outline-offset:2px; }
 #mf-preview .mf-brand { display:flex; gap:10px; align-items:center; font-weight:500; }
 #mf-preview .mf-content { padding:16px 0 120px; flex:1; min-height:0; overflow-y:auto; scrollbar-width:thin; scrollbar-color:var(--mf-border) transparent; }
-#mf-preview .mf-section { margin:16px 0; }
+#mf-preview .mf-section { margin:0 0 16px; }
 #mf-preview .mf-stack { display:grid; gap:16px; }
 #mf-preview .mf-stats { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
 #mf-preview .mf-fact { margin:0; }
 #mf-preview .mf-fact dt { color:var(--mf-muted); }
 #mf-preview .mf-fact dd { margin:4px 0 0; font-weight:500; }
-#mf-preview .mf-list { display:grid; gap:20px; margin:20px 0; }
+#mf-preview .mf-list { display:grid; gap:16px; margin:16px 0; }
 #mf-preview .mf-list p { margin:4px 0; }
 #mf-preview .mf-meta { color:var(--mf-muted); }
 #mf-preview .mf-highlight { color:var(--mf-accent); }
@@ -48,10 +57,11 @@
 <div id="mf-preview">
   <div class="mf-app">
     <header class="mf-header">
-      <div class="mf-brand"><i data-lucide="plane" aria-hidden="true"></i><span>MoFlight</span></div>
-      <button type="button" class="mf-button cursor-interaction mf-ghost" data-route="profile" aria-label="Profil und Verbindung"><i data-lucide="circle-user-round" aria-hidden="true"></i> Profil</button>
+      <button type="button" class="mf-button cursor-interaction mf-ghost mf-icon" id="mf-back" aria-label="Zurück" hidden><i data-lucide="arrow-left" aria-hidden="true"></i></button>
+      <i class="mf-header-brand" id="mf-header-brand" data-lucide="plane" aria-label="MoFlight"></i>
+      <h1 class="mf-header-title" id="mf-header-title">Start</h1>
+      <button type="button" class="mf-button cursor-interaction mf-ghost mf-icon" data-route="profile" aria-label="Profil und Verbindung"><i data-lucide="circle-user-round" aria-hidden="true"></i></button>
     </header>
-    <div id="mf-back-row" hidden><button type="button" class="mf-button cursor-interaction mf-ghost" id="mf-back"><i data-lucide="arrow-left" aria-hidden="true"></i> Zurück</button></div>
     <main class="mf-content" id="mf-content" aria-live="polite">
       <section data-view="start">
         <div class="mf-row mf-page-heading"><h2>Dein Überblick</h2><span class="mf-small mf-meta">Di, 13. Oktober</span></div>
@@ -127,6 +137,7 @@
   const root = document.getElementById('mf-preview');
   const views = [...root.querySelectorAll('[data-view]')];
   const history = []; let route = 'start'; let summary = 0;
+  const titles = {start:'Start',flights:'Meine Flüge',club:'Verein',book:'Papierbuch',review:'Einträge',photo:'Papierfoto',template:'Vorlage',flight:'Flugdetails',filters:'Filter',retrieve:'Abruf',offline:'Offline',profile:'Profil',costs:'Kosten'};
   const sectionFor = {start:'start', flights:'flights', club:'club', flight:'flights', filters:'flights', retrieve:'flights', offline:'flights', book:'start', photo:'start', review:'start', template:'start', profile:null, costs:'start'};
   function go(next, push = true) {
     if (!views.some(v => v.dataset.view === next)) return;
@@ -134,7 +145,11 @@
     route = next;
     views.forEach(v => {v.hidden = v.dataset.view !== route;});
     root.querySelector('#mf-content').scrollTop = 0;
-    root.querySelector('#mf-back-row').hidden = ['start','flights','club'].includes(route);
+    const mainDestination = ['start','flights','club'].includes(route);
+    root.querySelector('#mf-back').hidden = mainDestination;
+    root.querySelector('#mf-header-brand').toggleAttribute('hidden', !mainDestination);
+    root.querySelector('#mf-header-title').textContent = titles[route];
+    root.querySelector('#mf-header-title').setAttribute('aria-label', titles[route]);
     root.querySelectorAll('nav [data-route]').forEach(b => {
       const selected = b.dataset.route === sectionFor[route]; b.classList.toggle('active',selected);
       if (selected) b.setAttribute('aria-current','page'); else b.removeAttribute('aria-current');
