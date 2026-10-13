@@ -47,7 +47,9 @@ Proposed journey for review:
 4. Prepare writing instructions suited to the chosen physical book, including required layout and deterministic totals/carryovers where supported.
 5. Copy entries in manageable batches and explicitly confirm which entries were written. Merely displaying or preparing a template does not mark entries as copied.
 
-Open UX choices include phone-side use versus print, batch size, interruption/resume and how to establish the paper anchor. These proposed steps retain existing evidence and confirmation boundaries; they are not a completed design or accepted live workflow.
+Manuel's desired output is both a phone-side writing view and a printable sheet. Both should represent the same reviewed writing instructions and selected flights; viewing or printing alone does not confirm paper entry. Exact phone interaction, printable layout, export/printing mechanism and delivery scope remain to be designed and verified.
+
+Open UX choices include batch size, interruption/resume and how to establish the paper anchor. These proposed steps retain existing evidence and confirmation boundaries; they are not a completed design or accepted live workflow.
 
 Roadmap implication: writing is currently scheduled in M5. Its immediate product value should inform a later review of the smallest useful release and delivery order after this journey is defined. No automatic reordering, production schema change or OCR/provider/budget authorization follows from this discovery input.
 
@@ -73,6 +75,7 @@ These are prompts, not selected journeys or evidence of wider user demand. The o
 - Confirmed direction: a shared start screen with general information across user groups; review provider main-screen relevance in a later walkthrough.
 - Confirmed cost source: Vereinsflieger “Meine Abrechnungen”; Manuel proposes a flying versus membership/other-cost split.
 - Confirmed logbook problem/value: accumulated flights need later paper entry; a writing template provides immediate benefit (Manuel's observation). Backlog catch-up is a primary design journey.
+- Desired writing outputs: both a phone-side view and a printable sheet (Manuel: “ideally both”); exact interaction and delivery scope remain open.
 - Open: detailed journeys, billing-section fields/semantics, final cost categories and first-release inclusion, specific initial aircraft-category coverage, role-specific needs, start-screen content and preferred UI approach.
 - No interviews, completed wireframes, Figma files, user validation or live feature acceptance are claimed here.
 
