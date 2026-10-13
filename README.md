@@ -1,5 +1,8 @@
 <p align="center">
-  <img src="docs/assets/moflight-logo.svg" alt="MoFlight — a soaring wing above an open logbook" width="112" height="112">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/branding/moflight-ai-logo-dark.png">
+    <img src="docs/assets/branding/moflight-ai-logo-light.png" alt="MoFlight AI — a glider in a thermal curve with AI sparkles" width="240" height="240">
+  </picture>
 </p>
 
 # MoFlight
@@ -37,7 +40,7 @@ The vision is simple: bring your flight history, next actions and flying-club es
 
 **Explore:** [Product journeys](docs/product/2026-10-13-journey-information-map.md) · [Roadmap](docs/project-plan.md) · [Design direction](docs/product/2026-10-13-dark-concept-review.md) · [Ideas & progress](https://github.com/MomoRC-tech/MoFlight-App-framework/issues)
 
-*The wing-and-logbook mark is a provisional concept, ready to be replaced as the visual identity develops.*
+*Manuel selected the thermal-curve identity with an explicit AI badge on 13 October 2026. [Light and dark logos and app-icon variants](docs/assets/branding/README.md) are available; the project name remains MoFlight.*
 
 ---
 
