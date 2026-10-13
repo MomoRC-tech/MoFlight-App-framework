@@ -40,7 +40,7 @@ The vision is simple: bring your flight history, next actions and flying-club es
 
 **Explore:** [Product journeys](docs/product/2026-10-13-journey-information-map.md) · [Roadmap](docs/project-plan.md) · [Design direction](docs/product/2026-10-13-dark-concept-review.md) · [Ideas & progress](https://github.com/MomoRC-tech/MoFlight-App-framework/issues)
 
-*Manuel selected the thermal-curve identity with an explicit AI badge on 13 October 2026. [Light and dark logo assets](docs/assets/branding/README.md) are available; the project name remains MoFlight.*
+*Manuel selected the thermal-curve identity with an explicit AI badge on 13 October 2026. [Light and dark logos and app-icon variants](docs/assets/branding/README.md) are available; the project name remains MoFlight.*
 
 ---
 
