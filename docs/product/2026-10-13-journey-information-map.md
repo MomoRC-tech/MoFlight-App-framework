@@ -60,7 +60,7 @@ These are content/placement choices, not a finalized screen order or navigation 
 | Work hours | Compact start summary of annual obligation and completed work | Preserve hours versus monetary credit; definitions/permission/freshness |
 | Own duties | Show next upcoming assignment when available | Source dates, interval/timezone and assignment identities |
 | Putzdienst partner | When own duty is Putzdienst, show the other member assigned alongside the user on the same day | Manuel reports two assignees; verify shared duty/day matching and multi-day intervals rather than infer a partner by name |
-| Flight-operation duties | Include all current/upcoming Fluglehrer, Flugleiter and Windenfahrer assignments | Placement and horizon open; verify precise role labels, permitted member scope and complete roster coverage |
+| Flight-operation duties | Compact start-screen summary of current/upcoming Fluglehrer, Flugleiter and Windenfahrer assignments; tap opens full duty overview | Summary period/horizon unanswered; verify role labels, permitted member scope and complete roster coverage |
 | Open assigned tasks | Compact start notice with details when opened | Own-task identity/status and retrieval; observed task section was empty |
 | Club news/documents | Compact notice when something is new, details when opened | Define “new”/read state, relevant metadata and document access; observed News section empty |
 | Club events/meetings | Upcoming items on start; exclude birthdays | Distinguish categories and event dates; only birthdays were visible in inspected overview |
@@ -83,6 +83,8 @@ The general club reservation roster and overview report links have not been sele
 | Activities live | Recent club-flight table visible | Today's complete coverage, explicit ongoing-flight status, latency/freshness, access/retention and refresh feasibility; deferred implementation |
 
 ## Next review and open decisions
+
+Deferred privacy task, explicitly requested by Manuel on 2026-10-13: [#15 member-data privacy and name-display policy](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/15). Review full/real names versus abbreviated names and other options for duty rosters, Putzdienst partners, person-related flight views and Activities live. Display/access/cache/retention/share policy remains unselected; abbreviation does not establish anonymity. Keep fictional names in concepts pending policy review. This task does not authorize new access or personal-data collection and does not relax existing ownership/privacy boundaries.
 
 1. Product review of the seven summarized areas is complete. Proceed to rough screen arrangement; ask only unresolved questions that materially affect it and do not re-ask confirmed choices.
 2. Discuss the smallest useful release and writing's immediate value without automatically reordering M2–M5.
