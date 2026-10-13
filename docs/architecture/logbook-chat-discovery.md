@@ -1,5 +1,7 @@
 # In-app logbook chat: next feature discovery
 
+**Current scheduling — 2026-10-13:** this discovery is retained but deferred under M5 of the [project plan](../project-plan.md). The title and original sequencing below describe the October 11 proposal; chat is no longer the next task. M1 basic UI/application-contract review and M2–M4 retrieval/history/analytics take priority. No implementation, provider or budget approval is inferred.
+
 Date: 2026-10-11, Europe/Berlin. Status: proposal/discovery only. No LLM implementation, API-key provisioning, private-data transfer, model selection, paid call or evaluation is authorized. Retrieval and provider-view preservation retain priority. This proposal remains the next investigation, not a cancelled feature.
 
 Tracking: [#13](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/13), created after reviewing all existing issues and finding no equivalent complete conversational scope.

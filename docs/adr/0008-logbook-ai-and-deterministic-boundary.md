@@ -30,6 +30,8 @@ Comprehensive source capture is useful independently of AI. A valid JSON respons
 
 ## Work sequence
 
+Scheduling update, authorized by Manuel on 2026-10-13: the [project plan](../project-plan.md) supersedes the timing below with basic UI/application-contract definition, retrieval, live history and initial analytics before writing/AI expansion. This ADR's accepted evidence/AI responsibility boundaries and approved-evaluation prerequisite before completing the real photo-to-writing journey remain applicable; provider/model/budget approval remains open.
+
 1. **Now / next #2 capture slices:** preserve raw list/detail evidence, stable references, explicit coverage and repeat/resume behavior. Do not divert this work into whole-history LLM processing. Complete the ADR 0007 review and bounded book-isolation/migration proof (#11) before canonical import; ADR 0007 remains proposed.
 2. **After the captured-field contract is stable, alongside canonical-import/reconciliation work:** prepare a small synthetic evaluation set under #7, including page images, source records, confirmed observations/matches and expected calculations. Harness/input preparation uses no paid calls and can proceed while live access or cloud prerequisites are blocked.
 3. **Before completing the real photo-to-writing journey:** run a bounded handwriting/targeted-interpretation PoC after explicit API budget and permitted-input approval and an authenticated server gateway are available. Keep this independent of full cloud sync and production visual design. Compare with a whole-history LLM baseline only within the same approved budget. Record failures and improve or narrow the AI role before integration.

@@ -1,5 +1,7 @@
 # Local phone storage first, with early Supabase feasibility
 
+**Sequencing superseded — 2026-10-13:** the [project plan](../project-plan.md) is authoritative for current priorities and next actions. M1 defines the basic UI/application contract before service expansion, then M2–M4 cover retrieval, live history and analytics; writing/chat/cloud integration/SPL feature implementation is deferred. The older priority table and October 10/11 sequences below preserve rationale and outstanding feasibility obligations, not active scheduling. Accepted local-first, ownership, deterministic/AI and validation boundaries remain applicable; proposed ADRs remain proposed.
+
 Date: 2026-10-08. Owner: Manuel Singer. Status: selected sequencing under [ADR 0004](../adr/0004-local-first-sequencing.md); Expo/React Native/strict TypeScript/pnpm and expo-sqlite as the initial native-lab writer are now approved; detailed sync/protocol choices remain proposed. Supabase Cloud Free remains the first cloud candidate selected in ADR 0003; later self-hosting remains optional.
 
 ## Why change the order
@@ -72,9 +74,13 @@ Checked 2026-10-08. Expo is approved for the initial lab. These documented capab
 
 ## Reviewed next sequence — 2026-10-10
 
+Historical sequence, superseded by [M1–M5](../project-plan.md): initial analytics now precedes writing expansion, and basic UI review precedes additional services. Later visual polish remains separate from this early layout/contract review.
+
 Proceed with #10 findings and unresolved export/roster checks, then review ADR 0007 and its bounded proof before enabling #2 canonical live imports. Finish one selected-book retrieval/review/writing/copy/backup journey before broad statistics, training, weather or tutor implementation. Early cloud/iOS risk checks remain independent. The present app is a development lab; final visual design follows functional validation, while book selection, confirmations and readability are validated throughout. No proposed ADR is accepted by this sequencing update.
 
 ## Logbook AI scheduling decision — 2026-10-11
+
+Historical timing, superseded by the [project plan](../project-plan.md). AI/photo work is deferred; ADR 0008's evidence boundaries and evaluation prerequisite before completing real photo-to-writing remain in force.
 
 Keep the current capture-first priority: verify relevant list/detail fields, source identity, missing states and coverage under #2; review/prove the #11 multi-book boundary before canonical import. Once the captured-field contract is stable, prepare synthetic photo/source cases and frozen expected results under #7 alongside canonical-import/reconciliation work. This preparation needs no API calls and can continue despite blocked live/cloud access.
 

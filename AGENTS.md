@@ -2,6 +2,7 @@
 
 ## Project and documentation
 - README.md is the central project documentation. Update requirements, architecture, status and meaningful test evidence with code.
+- docs/project-plan.md controls current priorities, milestones and next actions. Before implementation, identify the milestone, deliverable, dependencies and acceptance check; update the roadmap for material status/decision changes and keep detailed results in verification reports. Reuse existing Issues after checking their current state.
 - Read current repository state, README and relevant ADRs before changing them.
 - Communicate and maintain active documentation in English. Preserve historical source snapshots in their original language.
 - Prefer small executable PoCs before broad implementation; support Android/iOS and offline local data.

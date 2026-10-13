@@ -1,5 +1,7 @@
 # Multiple-logbook proof and migration plan
 
+**Current context — 2026-10-13:** the [project plan](../project-plan.md) controls scheduling. The bounded four-book/two-format synthetic lab has since been implemented ([evidence](../verification/2026-10-11-recovery-books-and-capture.md)); the original proposal below is retained. ADR 0007 and production identity/schema/migration remain proposed and require review before M3 canonical live import. M1 basic UI/layout and application-contract review now precedes further service expansion; this differs from later visual polish.
+
 Date: 2026-10-10. Status: proposed implementation plan for [ADR 0007](../adr/0007-multiple-logbooks-and-formats.md), tracked in [#11](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/11). Product requirements are confirmed; architecture approval remains Manuel's decision. This document makes the next implementation reviewable; no schema or data is changed.
 
 ## Smallest useful proof
