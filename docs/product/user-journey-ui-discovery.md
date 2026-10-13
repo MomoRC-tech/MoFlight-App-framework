@@ -31,9 +31,9 @@ Manuel selected “Understand my flying” and “Keep my logbook current” as 
 - Keep the logbook current: identify missing paper entries and explore writing assistance, retaining existing writing/photo/book implementation gates.
 - Track costs documented in Vereinsflieger's “Meine Abrechnungen” section (source specified by Manuel). Explore separating flying costs from membership and all other charges. This covers costs recorded in that section; manually entered external expenses are not selected. The section has not been inspected in this discovery: available fields, charge/payment/credit meaning, period, currency, flight links and retrieval permission/support remain to be verified before defining totals or implementation. The proposed split and first-release inclusion remain open.
 - Shared start screen: explore general information useful across students, instructors and other pilots, without requiring a user-group-specific landing screen. Exact sections, personalization and navigation remain open.
-- Later provider discovery: walk through the actual Vereinsflieger main screen with Manuel, inventory its information and ask which items are relevant. Record selections and access/retrieval/freshness dependencies; do not assume fields or extraction support before inspecting them. No provider walkthrough was performed for this update.
+- Provider discovery: the actual Vereinsflieger main screen was inspected read-only during continued discovery on 2026-10-13; relevance review with Manuel is ongoing. The Hauptflugbuch observation supports the deferred Activities live concept below. Record selections and access/retrieval/freshness dependencies; visible fields do not establish extraction support. The billing walkthrough remains deferred.
 
-Proposed next discussion: develop the backlog-to-writing-template journey below and clarify how the user wants to use the template. Review candidate start-screen sections using those needs, and perform the provider main-screen/billing walkthrough when ready. These are facilitation steps, not additional implementation authorization.
+Discovery continues with journey clarification and relevance review of the inspected provider main-screen sections; perform the separate billing walkthrough when ready. These are facilitation steps, not additional implementation authorization.
 
 ## Primary logbook journey: catch up on a backlog
 
@@ -92,11 +92,25 @@ These are prompts, not selected journeys or evidence of wider user demand. The o
 
 ## Decision and evidence record
 
+### Deferred concept: Activities live — Manuel, 2026-10-13
+
+During the actual Vereinsflieger overview walkthrough, Manuel requested an **Activities live** concept in place of simply reproducing the club's recent-flight list:
+
+- See who flew **today**, in which aircraft and for how long.
+- If feasible, also see who is **currently airborne**.
+- Preserve the concept for later work and consider its UI/navigation relevance and future application-interface needs now. This does not authorize application implementation, live polling or a production interface contract.
+
+The walkthrough confirmed that the visible club Hauptflugbuch displays dated flights with aircraft, pilot and start/end times. It did not establish complete today's coverage, update latency, in-progress-flight visibility, duration semantics, or an authorized automated retrieval path. No private rows, names, screenshots or exports are stored in this documentation.
+
+Future interface/design preparation should distinguish today's completed activity from an explicitly source-supported in-progress status; retain club/date/timezone, source update time, retrieval time, coverage and unknown values. A missing landing time alone must not establish that someone is airborne. Offline or stale information must not imply a live status. Placement, refresh cadence, supported permissions and retention of other members' information remain open.
+
+Before implementation, investigate the source's status semantics, complete-day coverage and freshness, permitted retrieval and account/club visibility. Keep this deferred under the [roadmap](../project-plan.md), using existing Issues #10 (provider discovery) and #11 (product scope); no milestone reordering or new service is selected. See the [provider discovery specification](vereinsflieger-information-discovery.md#deferred-activities-live-concept--2026-10-13).
+
 - Confirmed: journey/UI concept discovery comes first; explore relevance and feasibility, then refine detailed behavior/contracts.
 - Confirmed: rough concepts may include future ideas; inclusion does not authorize feature implementation.
 - Confirmed: the intended audience includes students, instructors and pilots across aircraft categories (Manuel's direct answer).
 - Confirmed UI language: German initially, with an English-switch option as a later feature; project documentation remains English.
-- Confirmed: first outcomes are understanding flying and keeping the logbook current; flight cost tracking and relevant provider main-screen information are desired.
+- Confirmed: first outcomes are understanding flying and keeping the logbook current; flight cost tracking and relevant provider main-screen information are desired. Initial main-screen inspection has now occurred; relevance review is ongoing and billing inspection remains deferred.
 - Confirmed direction: a shared start screen with general information across user groups; review provider main-screen relevance in a later walkthrough.
 - Confirmed cost source: Vereinsflieger “Meine Abrechnungen”; Manuel proposes a flying versus membership/other-cost split.
 - Confirmed logbook problem/value: accumulated flights need later paper entry; a writing template provides immediate benefit (Manuel's observation). Backlog catch-up is a primary design journey.

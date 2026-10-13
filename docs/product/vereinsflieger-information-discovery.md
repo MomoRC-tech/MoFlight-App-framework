@@ -50,6 +50,14 @@ For each confirmed capability record: official source/document/version, authenti
 
 Start with read-only queries in the requesting member's permitted scope. Preserve source freshness and club context, minimize stored third-party personal data and use synthetic examples in Git. This backlog item does not authorize sending messages, booking activities, changing assignments or broad collection of other members' data.
 
+## Deferred Activities live concept — 2026-10-13
+
+Manuel requests a future view of who flew today, with aircraft and flight duration, and (if feasible) who is currently airborne. He explicitly asks to preserve its interface/UI/layout relevance for later work, rather than implement it now. [Product intent and design boundaries](user-journey-ui-discovery.md#deferred-concept-activities-live--manuel-2026-10-13) record the decision; existing Issues #10 and #11 provide traceability.
+
+Read-only inspection of the signed-in overview on 2026-10-13 found the Hauptflugbuch section with dates, aircraft, pilot and start/end times. This is evidence of displayed recent flights, not complete today's history, live aircraft status or supported automated retrieval. Private source rows are not committed.
+
+Later feasibility work must establish permitted club/member scope, complete-day coverage, flight versus block duration meaning, explicit in-progress status, delayed/missing landing entries, freshness/update cadence and offline behavior. Do not infer airborne status merely from a missing end time. Any future operation should expose source/retrieval timestamps, selected club/local day, coverage and unknown status separately from completed flights. No source adapter, polling, background notification, production contract or implementation is authorized by this concept.
+
 ## Later acceptance gate E17
 
 Given a supported roster source and an authorized member, resolve a named club and explicit weekend dates, retrieve the permitted assignments and answer with source/freshness. Test multiple/no assignments, changed/outdated roster, missing access, wrong-club/role requests and offline cache. If supported access is not established, report the capability as unavailable rather than generate an inferred instructor answer.
