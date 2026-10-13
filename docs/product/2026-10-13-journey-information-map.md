@@ -4,7 +4,7 @@ Date: 2026-10-13 (Europe/Berlin). Product owner: Manuel Singer. Source: explicit
 
 ## How to read this record
 
-**Product review completed, 2026-10-13:** Manuel explicitly confirmed each of seven grouped summaries: paper catch-up, flying summaries/detail/filters, retrieval, costs, duties/partners, remaining start-screen club content, and details/excluded/deferred scope. The map matches his intended experience. This does not finalize layouts, detailed operation contracts, first-release scope, feasibility or application acceptance. Duty-overview placement and horizon remain open. Next: prepare and compare rough German screen arrangements grounded in this reviewed content.
+**Product review completed, 2026-10-13:** Manuel explicitly confirmed each of seven grouped summaries: paper catch-up, flying summaries/detail/filters, retrieval, costs, duties/partners, remaining start-screen club content, and details/excluded/deferred scope. The map matches his intended experience. This does not finalize layouts, detailed operation contracts, first-release scope, feasibility or application acceptance. Subsequent duty-placement and period decisions are recorded below; detailed layout and later-preview extent remain open. Next: prepare and compare rough German screen arrangements grounded in this reviewed content.
 
 The choices below are confirmed product intent. They do not establish provider capability or first-release inclusion. This record supersedes the earlier completion-confirmation requirement for the future writing journey and the earlier “only my own duties” choice. Existing synthetic lab behavior and dated verification reports remain historical evidence; no application code has changed.
 
@@ -58,9 +58,9 @@ These are content/placement choices, not a finalized screen order or navigation 
 | Own flying | Compact swipeable summaries described above | Definitions, detailed behavior and source/live-history gates |
 | Paper logbook | Next-action suggestion and remembered status | Revised assumption/confirmation contract, recognition and book-format gates |
 | Work hours | Compact start summary of annual obligation and completed work | Preserve hours versus monetary credit; definitions/permission/freshness |
-| Own duties | Show next upcoming assignment when available | Source dates, interval/timezone and assignment identities |
+| Own duties | Focus on all assignments from today through the following week's weekend, plus a preview of later duties | Compact arrangement and later-preview extent open; verify dates/timezone/assignment identities |
 | Putzdienst partner | When own duty is Putzdienst, show the other member assigned alongside the user on the same day | Manuel reports two assignees; verify shared duty/day matching and multi-day intervals rather than infer a partner by name |
-| Flight-operation duties | Compact start-screen summary of current/upcoming Fluglehrer, Flugleiter and Windenfahrer assignments; tap opens full duty overview | Summary period/horizon unanswered; verify role labels, permitted member scope and complete roster coverage |
+| Flight-operation duties | Compact start-screen summary; tap opens full overview. Include current/upcoming Fluglehrer, Flugleiter and Windenfahrer assignments from today through the following week's weekend | Verify role labels, permitted member scope, dates/timezone and complete roster coverage |
 | Open assigned tasks | Compact start notice with details when opened | Own-task identity/status and retrieval; observed task section was empty |
 | Club news/documents | Compact notice when something is new, details when opened | Define “new”/read state, relevant metadata and document access; observed News section empty |
 | Club events/meetings | Upcoming items on start; exclude birthdays | Distinguish categories and event dates; only birthdays were visible in inspected overview |
@@ -69,6 +69,8 @@ These are content/placement choices, not a finalized screen order or navigation 
 | Account balances | Detailed costs only | Balance semantics distinct from charge totals; billing walkthrough deferred |
 | Runway condition, defects, maintenance | Leave out for now | No implementation/integration selected |
 | Activities live | Deferred: who flew today, aircraft/duration; airborne status if reliably feasible | Future interface/layout relevance retained; placement open; separate deferred Issue |
+
+Duty-period clarification, Manuel, 2026-10-13: use today through the end of the following week's weekend for both the focused own-duty window and other members' flight-operation assignments. In the Tuesday 13 October example, this ends Sunday 25 October, not 18 October. Own duties additionally have a later preview; this refines the earlier “next own duty only” summary. Exact preview extent and week-boundary/date rules still need a contract. Displaying the explicit date range and making it adjustable in the full overview were engineer suggestions, not explicit user decisions. Name-display/privacy policy remains deferred in #15.
 
 The general club reservation roster and overview report links have not been selected or rejected. Empty sections in the current account do not prove that data cannot exist later. No automatic import of all overview content or access to other members' private records is authorized.
 
