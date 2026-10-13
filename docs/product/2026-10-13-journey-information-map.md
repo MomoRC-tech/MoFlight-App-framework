@@ -4,6 +4,8 @@ Date: 2026-10-13 (Europe/Berlin). Product owner: Manuel Singer. Source: explicit
 
 ## How to read this record
 
+**Product review completed, 2026-10-13:** Manuel explicitly confirmed each of seven grouped summaries: paper catch-up, flying summaries/detail/filters, retrieval, costs, duties/partners, remaining start-screen club content, and details/excluded/deferred scope. The map matches his intended experience. This does not finalize layouts, detailed operation contracts, first-release scope, feasibility or application acceptance. Duty-overview placement and horizon remain open. Next: prepare and compare rough German screen arrangements grounded in this reviewed content.
+
 The choices below are confirmed product intent. They do not establish provider capability or first-release inclusion. This record supersedes the earlier completion-confirmation requirement for the future writing journey and the earlier “only my own duties” choice. Existing synthetic lab behavior and dated verification reports remain historical evidence; no application code has changed.
 
 Manuel requested journeys and needed information before choosing overall layouts. The three earlier in-chat German concepts are exploratory and unselected; their explicit completion-checkbox flow is now outdated. Figma files and reviewed application wireframes have not been created. Keep UI text German, documentation/communication English. Ask one focused question at a time, offer clickable suggested answers and free text, and wait for an actual reply. A preselected option is not an answer. Confirm the preceding answer before opening the next question.
@@ -82,7 +84,7 @@ The general club reservation roster and overview report links have not been sele
 
 ## Next review and open decisions
 
-1. Review this journey/content map for omissions or corrections before comparing overall layouts. Do not re-ask confirmed choices.
+1. Product review of the seven summarized areas is complete. Proceed to rough screen arrangement; ask only unresolved questions that materially affect it and do not re-ask confirmed choices.
 2. Discuss the smallest useful release and writing's immediate value without automatically reordering M2–M5.
 3. Billing walkthrough remains deferred; review it when Manuel is ready.
 4. Resolve consequential carryover exceptions, assumed-writing trigger/recovery, time basis/duration bands/year comparability, club freshness/new-item semantics and duty horizon as affected journeys need them.
