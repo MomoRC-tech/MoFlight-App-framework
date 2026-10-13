@@ -25,7 +25,7 @@ Discovery should examine shared flight-history/logbook needs and differences by 
 
 Manuel selected “Understand my flying” and “Keep my logbook current” as the first useful-version outcomes. He also wants flight cost tracking and relevant general information from the Vereinsflieger main screen. This confirms discovery priorities, not detailed measures or delivery acceptance.
 
-- Understand flying: review flights, totals and trends; choose exact measures during journey review.
+- Understand flying: desired questions include flight counts and hours by period, aircraft flown, flights with particular people and comparisons with previous years. Manuel also wants a flight-duration distribution chart, for example short/medium/long flights. Definitions, ranges and initial delivery scope require design review; these are desired capabilities, not accepted live analytics.
 - Keep the logbook current: identify missing paper entries and explore writing assistance, retaining existing writing/photo/book implementation gates.
 - Track costs documented in Vereinsflieger's “Meine Abrechnungen” section (source specified by Manuel). Explore separating flying costs from membership and all other charges. This covers costs recorded in that section; manually entered external expenses are not selected. The section has not been inspected in this discovery: available fields, charge/payment/credit meaning, period, currency, flight links and retrieval permission/support remain to be verified before defining totals or implementation. The proposed split and first-release inclusion remain open.
 - Shared start screen: explore general information useful across students, instructors and other pilots, without requiring a user-group-specific landing screen. Exact sections, personalization and navigation remain open.
@@ -65,6 +65,16 @@ This refines existing [user stories](flight-logbook-user-stories.md) and [rememb
 
 Roadmap implication: writing is currently scheduled in M5. Its immediate product value should inform a later review of the smallest useful release and delivery order after this journey is defined. No automatic reordering, production schema change or OCR/provider/budget authorization follows from this discovery input.
 
+## Analytics journey: understand my flying
+
+Manuel's response “i guess all of that” includes the proposed questions about flights/hours this year, aircraft flown, flights with particular people and changes versus previous years. He additionally requested a “how long are my flights” diagram, with short/medium/long groups as an example.
+
+Proposed journey: choose a period and relevant aircraft/category/person filters, review deterministic summaries/charts, then select a result to inspect its contributing flights and evidence. Comparisons across years must show actual coverage; incomplete years/history cannot be presented as fully comparable without qualification. Registration and aircraft model, person identities and roles remain distinct.
+
+For duration distribution, explore a bar chart counting distinct flights in explicit duration ranges. Short/medium/long is a suggested presentation, not fixed thresholds. Finer minute/hour bands are another concept option. Display the range boundaries and the duration measure used; unknown durations are reported separately rather than treated as zero. Counts in each group must lead to their supporting flights. Thresholds, duration basis, treatment of uncertain records and whether ranges differ by aircraft context remain open.
+
+Screen examples must use labeled synthetic data. This discovery input expands the desired analytics concept; first-release measure selection and contract/fixture/live-history acceptance still follow M1/M3/M4 gates.
+
 ## Starting situations — hypotheses for discussion
 
 | Situation | Possible outcome | Current feasibility boundary |
@@ -89,6 +99,7 @@ These are prompts, not selected journeys or evidence of wider user demand. The o
 - Confirmed logbook problem/value: accumulated flights need later paper entry; a writing template provides immediate benefit (Manuel's observation). Backlog catch-up is a primary design journey.
 - Desired writing outputs: both a phone-side view and a printable sheet (Manuel: “ideally both”); exact interaction and delivery scope remain open.
 - Confirmed photo journey: use the last written page to help establish paper state and book type, show discrepancies and new writing instructions, and retain user decisions to leave past entries unchanged in a browsable exception register.
+- Desired analytics: counts/hours by period, aircraft, person-based queries, comparisons with previous years and a flight-duration distribution chart; chart bands and measure definitions remain open.
 - Open: detailed journeys, billing-section fields/semantics, final cost categories and first-release inclusion, specific initial aircraft-category coverage, role-specific needs, start-screen content and preferred UI approach.
 - No interviews, completed wireframes, Figma files, user validation or live feature acceptance are claimed here.
 
