@@ -93,7 +93,7 @@ See [product scope](docs/product/moflight-feature-scope.md), [writing presentati
 | Area | Where it stands |
 | --- | --- |
 | User journeys | Reviewed; detailed UI/application contracts remain open |
-| UI design | Initial Figma drafts rejected; a clean, dark revision is prepared but unselected |
+| UI design | Initial Figma drafts rejected; a clean, dark revision encloses all logical blocks in cards as requested; overall design remains unselected |
 | Native foundation | Expo/React Native lab with local SQLite, backup and bounded Android evidence |
 | Vereinsflieger access | Browser raw-capture and recovery proofs; complete canonical live history remains gated |
 | Statistics and books | Deterministic synthetic queries and multi-book proofs; live integration remains open |
