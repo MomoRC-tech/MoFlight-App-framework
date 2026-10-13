@@ -18,6 +18,33 @@ Documentation responsibilities: this plan controls order and completion criteria
 
 This authorized sequence supersedes conflicting writing-first, chat-next and early parallel feature-execution instructions in older planning documents, including the scheduling portions of ADR 0004/0008. Accepted local-first, evidence/AI, ownership and validation boundaries remain applicable. [ADR 0007](adr/0007-multiple-logbooks-and-formats.md) remains proposed; bounded synthetic implementation does not approve the production schema. [ADR 0008](adr/0008-logbook-ai-and-deterministic-boundary.md) still requires an approved, bounded handwriting evaluation before completing the real photo-to-writing journey. [ADR 0009](adr/0009-local-android-development-and-checkpoint-ci.md) requires relevant documented local checks/builds/native trials; hosted CI remains optional/manual-only, with no paid CI or AI authorized here.
 
+### 1.1 Agreed development workflow — 2026-10-13
+
+Manuel confirmed this way of proceeding on 2026-10-13: design the user journey and application interface together, then develop UI and underlying logic in small, testable steps. This records the working method and design-tool direction; it does not approve unfinished screen designs, analytics definitions, production architecture or automatic implementation of M1–M5.
+
+| Part | Responsibility | Example |
+| --- | --- | --- |
+| UI | Present information, accept actions and display operation states | Flight list, filters, retrieval button and progress |
+| Application logic | Perform operations and enforce retrieval, persistence, recovery and calculation rules | Retrieve flights, preserve history after failure, calculate deterministic totals |
+| Interface contract | Agree requests, results, scope and observable behavior between UI and application logic | Saved-flight query parameters/results; retrieval progress, cancellation and recovery states |
+
+The interface contract is an internal software agreement, not a requirement for a web API or server. UI and logic can develop separately behind that agreement: synthetic and real implementations must satisfy the same contract. Visual changes usually stay within the UI; new measures or changed behavior may require coordinated contract and logic changes. Existing lab separation is partial; M1 specifies the boundary and M2 extracts retrieval orchestration.
+
+For each bounded feature:
+
+1. Describe a real user journey and the information/actions it needs.
+2. Sketch screens and navigation with simple boxes and labels before visual polish.
+3. Define behavior and the operation/state matrix alongside the sketches: loading, empty results, cancellation, expired connection, failed refresh, offline/stale history, incomplete coverage and pending recovery. Specify inputs/results, account/book scope, evidence and unknown values.
+4. Review a clickable prototype with Manuel before scoped application implementation. Manuel judges usefulness, wording, navigation and ease of use; the engineer handles contracts and technical feasibility.
+5. Implement reusable React Native UI elements against clearly labeled synthetic results using the reviewed contract. Sample results demonstrate behavior, not live-provider or production acceptance.
+6. Connect real application operations one journey at a time as the relevant milestone dependencies are satisfied, then verify complete phone journeys including failure and offline states. Repeat and refine; do not require every future feature to be designed before starting a reviewed slice.
+
+**Tool direction:** use Figma Design as the main workspace for reviewed layouts, reusable components, states and clickable prototypes. Google Stitch is optional for quickly exploring visual directions; refine the chosen direction against MoFlight requirements. Translate reviewed designs into the existing Expo/React Native application and connect them through the contract. Generated screens/code require adaptation and verification; they do not establish native behavior or replace phone testing. Advanced design-to-code integrations can follow when useful. This choice does not authorize subscriptions, paid usage or a change of application stack.
+
+Capability references checked 2026-10-13: [Figma prototypes](https://help.figma.com/hc/en-us/articles/360040318013-Play-your-prototypes), [Figma Code Connect](https://developers.figma.com/docs/code-connect/) (including React Native support), [Google Stitch overview](https://blog.google/innovation-and-ai/models-and-research/google-labs/stitch-updates/). These inform the tool direction, not an acceptance claim or a promise of automatic native code generation.
+
+**First M1 review slice:** overview → filtered flight list → flight detail, with retrieval progress and failure examples. Use this representative journey to settle navigation and visual direction, retaining connection/retrieval and settings in the overall M1 wireframe scope. Counts, known durations, date/aircraft breakdowns and person/role/latest-flight queries remain proposals for review; costs remain gated on their definition. M1 remains next, not completed. REST permission informs M2 and need not delay M1 preparation; deferred writing, chat, cloud and other features retain their existing gates.
+
 ## 2. Feature register
 
 Implementation and acceptance are separate. “Synthetic proof” does not establish live-provider or production acceptance. All referenced Issues #1–#13 were checked on 2026-10-13 and are open; no new Issues are needed for this documentation task.
