@@ -17,3 +17,13 @@ Manuel requested: “ok, capture that as how we want to proceed.” This authori
 - Independent read-only review found no actionable roadmap/scope consistency issues. The reviewer lacked the later tooling discussion; the parent checked Figma/Stitch and the clickable-prototype checkpoint against the proposal Manuel accepted. Preferred 6.1 Luna is unavailable; the reviewer used the current model.
 
 Application tests/builds and native trials are not applicable to this documentation-only change. This report belongs to the same traceable direct-main documentation commit as the roadmap update.
+
+## Follow-up: guided journey and UI discovery
+
+Manuel subsequently confirmed user journeys and the overall UI concept as the next discovery step and requested: “ok, capture that, and lead me through this.” Base checkout: `main`, `a2ac7ae`, clean working tree.
+
+- Added [the guided discovery brief](../product/user-journey-ui-discovery.md), linked it from README and recorded the agreement in roadmap section 1.2.
+- Updated M1 to discovery started/application implementation not started. The immediate task now explores needs, feature relevance/feasibility and rough concepts before detailed contracts. M2–M5 sequencing and existing gates remain intact.
+- Candidate situations are hypotheses; initial audience and priorities remain open. No completed design files, broader user research or product acceptance are claimed.
+- Issues #1–#13 were freshly read and remain open; no Issue changes were made.
+- Documentation checker passed: 76 Markdown files, 486 local destinations, no missing files or heading warnings. Staged whitespace checks passed. Independent read-only review found no material scope/sequencing issues; its wording clarifications were applied. Application code, builds, native/provider workflows and paid services are outside this documentation change.
