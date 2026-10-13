@@ -4,6 +4,8 @@ A reusable Android/iOS platform for multiple flight-related features or sub-apps
 
 ## Status and source of truth
 
+**Rough UI review prepared (2026-10-13):** [German Figma wireframes and review guide](docs/product/2026-10-13-rough-figma-wireframes.md) compare two unselected start/navigation arrangements and connect representative flight, retrieval and future paper journeys. Editable structure, link destinations and composition were checked; presentation playback and Manuel's review remain pending. No application implementation, milestone acceptance or delivery-order change follows from this draft.
+
 **Next discovery step (2026-10-13):** explore user journeys, relevant features and feasibility, then compare rough UI concepts before fixing detailed contracts. [Guided discovery brief](docs/product/user-journey-ui-discovery.md) and [roadmap agreement](docs/project-plan.md#12-user-journeys-and-ui-concept-discovery--2026-10-13) distinguish proposed ideas from selected features and implementation scope.
 
 **Discovery consolidation (2026-10-13):** [journey and information map](docs/product/2026-10-13-journey-information-map.md) records confirmed paper catch-up, swipeable flight summaries/detail/filters, manual retrieval periods, costs and club content. Reviewed-template entries will be assumed written, separately from confirmed evidence, then checked against the remembered last entry/photo at the next session; this supersedes the earlier mandatory completion prompt for the future product, not historical lab results. Review the map before further overall layouts. Activities live and billing inspection remain deferred; milestone order and implementation gates are unchanged.

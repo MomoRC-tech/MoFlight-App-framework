@@ -48,6 +48,8 @@ Capability references checked 2026-10-13: [Figma prototypes](https://help.figma.
 
 ### 1.2 User journeys and UI concept discovery — 2026-10-13
 
+Rough design preparation: [Figma comparison and journey review guide](product/2026-10-13-rough-figma-wireframes.md) records two unselected arrangements and synthetic clickable states. Next, Manuel reviews the start/navigation comparison and representative journeys before visual polish, detailed contracts or implementation. Structural/visual checks are separate from pending playback/usability review; M1 status and M2–M5 order remain unchanged.
+
 Continued discovery is consolidated in the [journey and information map](product/2026-10-13-journey-information-map.md). Confirmed content choices now cover the paper catch-up workflow, compact swipeable flight summaries/detail/filters, manual retrieval defaults, cost outcomes and selected club information. The future paper workflow assumes prepared-template entries were written and verifies the remembered last entry at the next session; assumptions remain separate from confirmed evidence. Existing lab completion-confirmation behavior is historical, not acceptance of this revision. Activities live is deferred; billing inspection remains deferred. Review the map before returning to overall layout comparison. No application implementation or milestone reordering is authorized.
 
 Manuel confirmed that user journeys and the overall UI/design concept are the next discovery step, to explore which features matter to users and what is feasible before fixing detailed interfaces. The engineer leads the discussion in plain language and records confirmed needs separately from assumptions.

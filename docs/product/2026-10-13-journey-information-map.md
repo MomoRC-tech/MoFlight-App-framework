@@ -1,5 +1,7 @@
 # Journey and information map — discovery consolidation
 
+Subsequent design preparation: [rough German Figma wireframes](2026-10-13-rough-figma-wireframes.md) now exist for comparison. Both arrangements remain unselected; confirmed product choices and delivery boundaries continue to govern them. Statements below about no created wireframes describe the earlier map-review state.
+
 Date: 2026-10-13 (Europe/Berlin). Product owner: Manuel Singer. Source: explicit answers and corrections in guided discovery. This is a reviewable product record, not application implementation, final navigation, a production schema or acceptance evidence. The [roadmap](../project-plan.md) retains milestone order and gates.
 
 ## How to read this record
