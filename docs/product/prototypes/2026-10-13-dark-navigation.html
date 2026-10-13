@@ -1,0 +1,139 @@
+<style>
+#mf-preview { --background:#111419; --foreground:#f2f3f5; --card:#1c222b; --card-foreground:#f2f3f5; --muted:#252c35; --muted-foreground:#b7bec8; --primary:#f1b65b; --primary-foreground:#19140b; --secondary:#252c35; --secondary-foreground:#f2f3f5; --accent:#303844; --accent-foreground:#f2f3f5; --border:#39414c; --input:#39414c; --ring:#f1b65b; color:var(--foreground); }
+#mf-preview .mf-app { max-width:420px; margin:auto; padding:24px; background:var(--background); }
+#mf-preview .mf-header, #mf-preview .mf-row { display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+#mf-preview .mf-brand { display:flex; gap:10px; align-items:center; font-weight:500; }
+#mf-preview .mf-content { padding:12px 0 24px; }
+#mf-preview .mf-section { margin:24px 0; }
+#mf-preview .mf-stack { display:grid; gap:16px; }
+#mf-preview .mf-stats { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+#mf-preview .mf-fact { margin:0; }
+#mf-preview .mf-fact dt { color:var(--muted-foreground); }
+#mf-preview .mf-fact dd { margin:4px 0 0; font-weight:500; }
+#mf-preview .mf-list { display:grid; gap:20px; margin:20px 0; }
+#mf-preview .mf-list p { margin:4px 0; }
+#mf-preview .mf-meta { color:var(--muted-foreground); }
+#mf-preview .mf-highlight { color:var(--primary); }
+#mf-preview .mf-footer { display:grid; gap:12px; }
+#mf-preview [hidden] { display:none!important; }
+@media(max-width:360px) { #mf-preview .mf-app { padding:16px; } }
+</style>
+<div id="mf-preview">
+  <div class="mf-app">
+    <header class="mf-header">
+      <div class="mf-brand"><i data-lucide="plane" aria-hidden="true"></i><span>MoFlight</span></div>
+      <button type="button" class="btn btn-ghost" data-route="profile" aria-label="Profil und Verbindung"><i data-lucide="circle-user-round" aria-hidden="true"></i> Profil</button>
+    </header>
+    <hr>
+    <nav class="nav nav-pills nav-justified" aria-label="Hauptnavigation">
+      <button class="nav-link active" type="button" data-route="start" aria-current="page">Start</button>
+      <button class="nav-link" type="button" data-route="flights">Flüge</button>
+      <button class="nav-link" type="button" data-route="club">Verein</button>
+    </nav>
+    <div id="mf-back-row" hidden><button type="button" class="btn btn-ghost" id="mf-back"><i data-lucide="arrow-left" aria-hidden="true"></i> Zurück</button></div>
+    <main class="mf-content" id="mf-content" aria-live="polite">
+      <section data-view="start">
+        <div class="mf-row"><h2>Dein Überblick</h2><span class="text-small mf-meta">Di, 13. Oktober</span></div>
+        <section class="mf-section" aria-labelledby="mf-flying-title">
+          <div class="mf-row"><h3 id="mf-flying-title">Mein Fliegen</h3><button class="btn btn-ghost" type="button" data-route="flights" aria-label="Meine Flüge öffnen"><i data-lucide="arrow-up-right" aria-hidden="true"></i></button></div>
+          <div class="card" id="mf-summary">
+            <span class="text-small mf-meta" id="mf-summary-label">2026 · bis 13. Oktober</span>
+            <div class="mf-stats" id="mf-summary-values"><div><div class="viz-stat-value tabular-nums">64</div><span>Flüge</span></div><div><div class="viz-stat-value tabular-nums">28 h</div><span>bekannte Flugzeit</span></div></div>
+            <p class="text-small" id="mf-summary-context">Vorjahr im selben Zeitraum: 58 Flüge · 25 h<br>2 Flugzeiten fehlen · vergleichbare Beispieldaten</p>
+          </div>
+          <div class="mf-row"><span class="text-small mf-meta" id="mf-summary-position">Jahresübersicht · 1 von 3</span><div class="viz-row"><button class="btn btn-ghost" type="button" id="mf-prev" aria-label="Vorherige Zusammenfassung"><i data-lucide="chevron-left" aria-hidden="true"></i></button><button class="btn btn-ghost" type="button" id="mf-next" aria-label="Nächste Zusammenfassung"><i data-lucide="chevron-right" aria-hidden="true"></i></button></div></div>
+        </section>
+        <section class="mf-section" aria-labelledby="mf-paper-title">
+          <div class="mf-row"><h3 id="mf-paper-title">Papierbuch</h3><i data-lucide="book-open" aria-hidden="true"></i></div>
+          <p class="mf-highlight">Neue Flüge zum Nachtragen</p>
+          <p class="text-small mf-meta">Segelflugbuch · Nr. 190 als geschrieben angenommen<br>Letzter bestätigter Nachweis: Nr. 184</p>
+          <button class="btn btn-primary" type="button" data-route="book">Buchstand prüfen <i data-lucide="arrow-right" aria-hidden="true"></i></button>
+        </section>
+        <hr>
+        <section class="mf-section" aria-labelledby="mf-club-title">
+          <div class="mf-row"><h3 id="mf-club-title">Mein Verein</h3><button class="btn btn-ghost" type="button" data-route="club">Öffnen <i data-lucide="chevron-right" aria-hidden="true"></i></button></div>
+          <div class="mf-list">
+            <div><div class="mf-row"><span>Putzdienst · Sa, 17.10.</span><span class="text-small mf-meta">mit Alex Beispiel</span></div><p class="text-small mf-meta">Deine Dienste bis 25.10. · später: 07.11.</p></div>
+            <div class="mf-row"><span>Arbeitsstunden</span><span class="tabular-nums">18 / 25 h</span></div>
+            <div><span>Flugbetrieb · 13.–25.10.</span><p class="text-small mf-meta">Fluglehrer, Flugleiter und Winde · Besetzung ansehen</p></div>
+            <div><span>1 Aufgabe · 2 neue Dokumente</span><p class="text-small mf-meta">Nächster Termin: Vereinsabend am 22.10.</p></div>
+          </div>
+        </section>
+        <div class="mf-row"><span class="text-small mf-meta">Flugkosten 2026 · Konzept</span><button class="btn btn-ghost" type="button" data-route="costs">Kosten <i data-lucide="chevron-right" aria-hidden="true"></i></button></div>
+      </section>
+      <section data-view="flights" hidden>
+        <div class="mf-row"><h2>Meine Flüge</h2><button class="btn btn-ghost" data-route="retrieve" type="button" aria-label="Flüge aktualisieren"><i data-lucide="refresh-cw" aria-hidden="true"></i> Aktualisieren</button></div>
+        <p class="text-small mf-meta">Stand: 12.10., 18:10 · gespeicherte Beispieldaten</p>
+        <div class="viz-controls"><label class="form-label">Zeitraum<select class="form-select" id="mf-period"><option value="year">2026</option><option value="october">Oktober 2026</option></select></label><button class="btn" data-route="filters" type="button"><i data-lucide="sliders-horizontal" aria-hidden="true"></i> Filter</button></div>
+        <section class="mf-section"><div class="mf-stats"><dl class="mf-fact"><dt>Flüge</dt><dd id="mf-count">64</dd></dl><dl class="mf-fact"><dt>Bekannte Flugzeit</dt><dd id="mf-time">28 h</dd></dl></div><p class="text-small mf-meta" id="mf-coverage">2 Flugzeiten fehlen · Zeitraum begrenzt</p></section>
+        <hr><h3>Letzte Flüge</h3>
+        <div class="mf-list" id="mf-flight-list"><div><div class="mf-row"><span>12.10. · D-TEST</span><span>00:42</span></div><div class="mf-row"><span class="text-small mf-meta">ASK 21 · Pilot · Alex Beispiel</span><button class="btn btn-ghost" data-route="flight" type="button" aria-label="Flug vom 12. Oktober öffnen"><i data-lucide="chevron-right" aria-hidden="true"></i></button></div></div><div><div class="mf-row"><span>11.10. · D-DEMO</span><span>Dauer unbekannt</span></div><p class="text-small mf-meta">LS 4 · Pilot</p></div><div><div class="mf-row"><span>05.10. · D-TEST</span><span>00:28</span></div><p class="text-small mf-meta">ASK 21 · Pilot · Alex Beispiel</p></div></div>
+        <hr><details><summary>Lizenz und Ausbildung</summary><p>Quellenstatus später prüfen. MoFlight bescheinigt keine Qualifikation.</p></details>
+      </section>
+      <section data-view="club" hidden>
+        <h2>Mein Verein</h2><p class="text-small mf-meta">13.–25. Oktober · fiktive Besetzung</p>
+        <section class="mf-section"><h3>Meine Dienste</h3><div class="mf-list"><div><div class="mf-row"><span>Putzdienst</span><span>Sa, 17.10.</span></div><p class="mf-meta">Mit Alex Beispiel</p></div><div><span class="text-small mf-meta">Später</span><p>Sa, 07.11. · Putzdienst</p></div></div></section>
+        <hr><section class="mf-section"><h3>Flugbetrieb</h3><p>Samstag, 17. Oktober</p><div class="mf-list"><div class="mf-row"><span class="mf-meta">Fluglehrer</span><span>Robin Muster</span></div><div class="mf-row"><span class="mf-meta">Flugleiter</span><span>Kim Beispiel</span></div><div class="mf-row"><span class="mf-meta">Windenfahrer</span><span>Toni Muster</span></div></div></section>
+        <hr><section class="mf-section"><h3>Arbeitsstunden</h3><p>18 von 25 Jahresstunden erledigt</p><div class="progress" role="progressbar" aria-label="Arbeitsstunden" aria-valuemin="0" aria-valuemax="25" aria-valuenow="18"><div class="progress-bar" style="width:72%"></div></div><p class="text-small mf-meta">Geldgutschriften werden getrennt dargestellt.</p></section>
+        <div class="mf-stack"><details><summary>1 offene Aufgabe</summary><p>Materialliste prüfen · Beispielaufgabe</p></details><details><summary>2 neue Dokumente</summary><p>Vereinsinfo und Dienstplan · Lesestatus noch zu klären.</p></details><details><summary>Termine und Treffen</summary><p>22.10. · Vereinsabend</p></details><details><summary>Meine Reservierungen</summary><p>18.10. · D-TEST · 10:00–12:00</p></details></div>
+      </section>
+      <section data-view="book" hidden>
+        <h2>Buchstand prüfen</h2><p class="mf-meta">Segelflugbuch · Zukunftskonzept</p>
+        <section class="mf-section"><h3>Ist das dein letzter Eintrag?</h3><div class="card"><p>Nr. 190 · 12.10.2026</p><p>D-TEST · 00:42 · Pilot</p><p class="text-small">Als geschrieben angenommen.<br>Letzter bestätigter Nachweis: Nr. 184.</p></div></section>
+        <div class="mf-stack"><button class="btn btn-primary" type="button" data-route="review">Ja, das ist mein letzter Eintrag</button><button class="btn" type="button" data-route="photo">Nein / unsicher · Foto prüfen</button></div>
+      </section>
+      <section data-view="review" hidden><h2>Einträge vorbereiten</h2><p class="mf-meta">Segelflugbuch · nächste Seite</p><div class="mf-list"><div class="mf-row"><span>13.10. · D-TEST · Pilot</span><span>00:30</span></div><div class="mf-row"><span>13.10. · D-DEMO · Pilot</span><span>00:18</span></div><div class="mf-row"><span>13.10. · D-TEST · Fluglehrer</span><span>00:24</span></div></div><button class="btn btn-primary" type="button" data-route="template">Schreibvorlage ansehen</button></section>
+      <section data-view="photo" hidden><h2>Papierfoto prüfen</h2><p>Beispiel: Nr. 190 ist sichtbar, die Dauer ist unklar.</p><p class="mf-meta">Unklare Werte vor der Vorlage klären. Frühere Entscheidungen bleiben erhalten.</p><button class="btn" type="button" data-route="review">Beispiel: Angaben geklärt</button></section>
+      <section data-view="template" hidden><h2>Schreibvorlage</h2><p class="mf-meta">Vorlage 7 · Segelflugbuch</p><div class="mf-list"><p>191 · D-TEST · 00:30 · Pilot</p><p>192 · D-DEMO · 00:18 · Pilot</p><p>193 · D-TEST · 00:24 · Fluglehrer</p></div><hr><p>Diese Einträge werden als geschrieben angenommen.</p><p class="text-small mf-meta">Beim nächsten Mal wird Nr. 193 als letzter Eintrag geprüft. Frühere Papiernachweise bleiben separat. Handy und Druckblatt verwenden dieselbe Vorlage.</p></section>
+      <section data-view="flight" hidden><h2>Flugdetails</h2><p class="mf-meta">12. Oktober 2026</p><section class="mf-section"><h3>D-TEST · ASK 21</h3><div class="mf-stats"><dl class="mf-fact"><dt>Flugdauer</dt><dd>00:42</dd></dl><dl class="mf-fact"><dt>Meine Rolle</dt><dd>Pilot</dd></dl></div></section><hr><div class="mf-list"><div class="mf-row"><span class="mf-meta">Start / Landung</span><span>14:10 / 14:52</span></div><div class="mf-row"><span class="mf-meta">Mitgeflogen</span><span>Alex Beispiel</span></div><div class="mf-row"><span class="mf-meta">Startart</span><span>Winde</span></div><div class="mf-row"><span class="mf-meta">Strecke</span><span>Unbekannt</span></div></div><details><summary>Quellenangaben</summary><p>Vereinsflieger · synthetischer Datensatz<br>Abgerufen: 12.10., 18:10<br>Original: Start 14:10 / Landung 14:52</p></details></section>
+      <section data-view="filters" hidden><h2>Flüge filtern</h2><div class="mf-stack"><label class="form-label">Flugzeug<select class="form-select"><option>D-TEST · einzelnes Flugzeug</option><option>Alle Flugzeuge</option></select></label><label class="form-label">Modell<select class="form-select"><option>ASK 21</option><option>Alle Modelle</option></select></label><label class="form-label">Mitgeflogene Person<select class="form-select"><option>Alex Beispiel</option><option>Alle Personen</option></select></label><label class="form-label">Meine erfasste Rolle<select class="form-select"><option>Pilot</option><option>Fluglehrer</option></select></label><button class="btn btn-primary" type="button" id="mf-apply">Beispielfilter anwenden</button></div></section>
+      <section data-view="retrieve" hidden><h2>Flüge aktualisieren</h2><p class="mf-meta">Letzter Erfolg: 12.10., 18:10</p><section class="mf-section"><h3>Abrufzeitraum</h3><div class="mf-stack"><label class="form-label">Von<input class="form-control" type="date" value="2026-10-12"></label><label class="form-label">Bis<input class="form-control" type="date" value="2026-10-13"></label></div><p class="text-small mf-meta">Seit der letzten Aktualisierung vorgeschlagen. Ein anderer Zeitraum ist möglich.</p></section><button class="btn btn-primary" type="button" data-route="offline">Demo: Abruf ohne Verbindung</button></section>
+      <section data-view="offline" hidden><h2>Keine Verbindung</h2><p>Deine gespeicherten Flüge bleiben verfügbar.</p><p class="mf-meta">Letzter Erfolg: 12.10., 18:10<br>Neuere Flüge können fehlen.</p><div class="mf-stack"><button class="btn btn-primary" type="button" data-route="retrieve">Erneut versuchen</button><button class="btn" type="button" data-route="flights">Gespeicherte Flüge öffnen</button></div></section>
+      <section data-view="profile" hidden><h2>Profil und Verbindung</h2><section class="mf-section"><h3>Vereinsflieger</h3><p>Verbindung: Beispieldaten</p><button class="btn" type="button" data-route="retrieve">Flüge aktualisieren</button></section><hr><p>Sprache: Deutsch</p><p>Lokale Daten und Papierbücher</p><p class="text-small mf-meta">Kein echter Kontozugriff in dieser Vorschau.</p></section>
+      <section data-view="costs" hidden><h2>Meine Kosten</h2><p class="mf-meta">Konzept · Abrechnungsprüfung vertagt</p><div class="mf-list"><p>Flugkosten 2026</p><p>Mitgliedschaft und andere Kosten separat</p><p>Gesamte Flugkosten je Flugzeug</p><p>Kontostand nur in den Details</p></div><p>Keine Beträge, solange die Zuordnung ungeprüft ist.</p></section>
+    </main>
+    <footer class="mf-footer">
+      <hr>
+      <span class="text-small mf-meta">Entwurf · alle Daten und Namen erfunden</span>
+    </footer>
+  </div>
+</div>
+<script>
+(() => {
+  const root = document.getElementById('mf-preview');
+  const views = [...root.querySelectorAll('[data-view]')];
+  const history = []; let route = 'start'; let summary = 0;
+  const sectionFor = {start:'start', flights:'flights', club:'club', flight:'flights', filters:'flights', retrieve:'flights', offline:'flights', book:'start', photo:'start', review:'start', template:'start', profile:null, costs:'start'};
+  function go(next, push = true) {
+    if (!views.some(v => v.dataset.view === next)) return;
+    if (push && route !== next) history.push(route);
+    route = next;
+    views.forEach(v => {v.hidden = v.dataset.view !== route;});
+    root.querySelector('#mf-back-row').hidden = ['start','flights','club'].includes(route);
+    root.querySelectorAll('nav [data-route]').forEach(b => {
+      const selected = b.dataset.route === sectionFor[route]; b.classList.toggle('active',selected);
+      if (selected) b.setAttribute('aria-current','page'); else b.removeAttribute('aria-current');
+    });
+  }
+  root.addEventListener('click', e => {const b = e.target.closest('[data-route]'); if (b) go(b.dataset.route);});
+  root.querySelector('#mf-back').addEventListener('click', () => go(history.pop() || 'start',false));
+  function summaryView() {
+    const labels = ['2026 · bis 13. Oktober','2026 · meistgeflogenes Flugzeug','2026 · Flugdauer'];
+    const values = [
+      '<div><div class="viz-stat-value tabular-nums">64</div><span>Flüge</span></div><div><div class="viz-stat-value tabular-nums">28 h</div><span>bekannte Flugzeit</span></div>',
+      '<dl class="mf-fact"><dt>Flugzeug</dt><dd>D-TEST</dd></dl><dl class="mf-fact"><dt>Flüge</dt><dd>24 von 64</dd></dl>',
+      '<dl class="mf-fact"><dt>Bekannte Zeiten</dt><dd>62</dd></dl><dl class="mf-fact"><dt>Unbekannt</dt><dd>2</dd></dl>'
+    ];
+    const context = ['Vorjahr im selben Zeitraum: 58 Flüge · 25 h<br>2 Flugzeiten fehlen · vergleichbare Beispieldaten','ASK 21 · einzelnes Flugzeug<br>Modell und Kennzeichen bleiben getrennt.','Verteilung in der Detailansicht vorgesehen.<br>Zeitbasis und Gruppengrenzen noch zu prüfen.'];
+    root.querySelector('#mf-summary-label').textContent=labels[summary];
+    root.querySelector('#mf-summary-values').innerHTML=values[summary];
+    root.querySelector('#mf-summary-context').innerHTML=context[summary];
+    root.querySelector('#mf-summary-position').textContent=['Jahresübersicht','Flugzeuge','Flugdauer'][summary]+' · '+(summary+1)+' von 3';
+  }
+  root.querySelector('#mf-next').addEventListener('click',()=>{summary=(summary+1)%3;summaryView();});
+  root.querySelector('#mf-prev').addEventListener('click',()=>{summary=(summary+2)%3;summaryView();});
+  const period=root.querySelector('#mf-period');
+  period.addEventListener('change',()=>{root.querySelector('#mf-count').textContent=period.value==='year'?'64':'3';root.querySelector('#mf-time').textContent=period.value==='year'?'28 h':'1 h 10 min';root.querySelector('#mf-coverage').textContent=period.value==='year'?'2 Flugzeiten fehlen · Zeitraum begrenzt':'2 bekannte Zeiten · 1 fehlt · Oktober-Beispiel';});
+  root.querySelector('#mf-apply').addEventListener('click',()=>{root.querySelector('#mf-count').textContent='3';root.querySelector('#mf-time').textContent='1 h 40 min';root.querySelector('#mf-coverage').textContent='Feste Filterdemo: 2026 · D-TEST · Alex Beispiel · Pilot';root.querySelector('#mf-flight-list').innerHTML='<div><div class="mf-row"><span>12.10. · D-TEST</span><span>00:42</span></div><div class="mf-row"><span class="text-small mf-meta">ASK 21 · Pilot · Alex Beispiel</span><button class="btn btn-ghost" data-route="flight" type="button">Details</button></div></div><div><div class="mf-row"><span>05.10. · D-TEST</span><span>00:28</span></div><p class="text-small mf-meta">ASK 21 · Pilot · Alex Beispiel</p></div><div><div class="mf-row"><span>28.09. · D-TEST</span><span>00:30</span></div><p class="text-small mf-meta">ASK 21 · Pilot · Alex Beispiel</p></div>';go('flights');});
+})();
+</script>

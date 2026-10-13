@@ -1,6 +1,6 @@
 # Rough Figma journey review — 2026-10-13
 
-Status: prepared for Manuel's review; neither arrangement is selected. This is M1 discovery, not application implementation or milestone acceptance. Based on the [reviewed map](2026-10-13-journey-information-map.md) and [project plan](../project-plan.md).
+Status: both arrangements rejected by Manuel as crowded, lacking a concept and a real navigation header. Retain as historical drafts. [Dark concept revision](2026-10-13-dark-concept-review.md) records the supplied references and next review. This is M1 discovery, not application implementation or milestone acceptance. Based on the [reviewed map](2026-10-13-journey-information-map.md) and [project plan](../project-plan.md).
 
 ## Review artifact and comparison
 
