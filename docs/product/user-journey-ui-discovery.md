@@ -42,14 +42,24 @@ Confirmed desired outcome: help a pilot catch up efficiently on accumulated flig
 Proposed journey for review:
 
 1. Open MoFlight and see the last known logbook state and flights potentially awaiting entry; show uncertainty where the paper state or source coverage is unverified.
-2. Confirm/update where the paper logbook stands, with missing entries handled individually rather than inferred solely from the last entry number.
-3. Review the backlog and resolve relevant missing or ambiguous facts.
+2. Photograph/upload the actual last written logbook page to establish where the paper book stands. Use the layout to propose its type/format; ask for selection/confirmation when the type or extracted values are uncertain. Retain remembered confirmed state for later sessions; a new photo is not mandatory on every launch.
+3. Compare readable photographed entries with available provider evidence, present discrepancies separately from new entries, and obtain targeted clarification of relevant missing/ambiguous facts. Identify missing flights individually rather than assuming every flight before the last entry number was written.
 4. Prepare writing instructions suited to the chosen physical book, including required layout and deterministic totals/carryovers where supported.
 5. Copy entries in manageable batches and explicitly confirm which entries were written. Merely displaying or preparing a template does not mark entries as copied.
 
 Manuel's desired output is both a phone-side writing view and a printable sheet. Both should represent the same reviewed writing instructions and selected flights; viewing or printing alone does not confirm paper entry. Exact phone interaction, printable layout, export/printing mechanism and delivery scope remain to be designed and verified.
 
-Open UX choices include batch size, interruption/resume and how to establish the paper anchor. These proposed steps retain existing evidence and confirmation boundaries; they are not a completed design or accepted live workflow.
+Open UX choices include batch size, interruption/resume, recognition feedback and presentation of findings. The photo-based starting point is now confirmed product intent; automatic reading/format detection and live comparison remain unproven. The last-page photo supports checks of visible entries and available carryovers; it cannot establish that every unseen historical page is correct. Additional pages/evidence may be needed for a broader comparison.
+
+### Two results and a persistent exception register
+
+Manuel confirms two expected results: (a) inconsistencies in existing paper entries and (b) what the pilot now needs to write. Users may deliberately leave past entries unchanged because correction is unwanted or too difficult. Preserve that decision and offer a user-visible register of open and acknowledged exceptions; acknowledgment is not proof that a discrepancy was corrected.
+
+For concept exploration, propose finding states such as open, acknowledged/left unchanged, and confirmed resolved, with the affected book/page/entry/field, observed difference, supporting evidence and user's decision/date/reason. Users can look up past findings and revisit decisions. Reuse unchanged decisions without asking again; relevant changed evidence prompts targeted review while preserving the prior decision. A decision applies to the specific discrepancy, not all future discrepancies.
+
+Keep the source value, actual paper value and any explicit chosen/effective value distinct. Leaving a discrepancy unchanged must not silently rewrite data or mark the paper as corrected. New-entry continuation and carryover handling must disclose consequential differences; an unresolved required value needs clarification rather than a guessed total. Exact handling of consequential exceptions remains a design/acceptance question.
+
+This refines existing [user stories](flight-logbook-user-stories.md) and [remembered state/decision semantics](flight-logbook-state-and-queries.md#remembering-and-reusing-decisions), rather than adding an unrelated exception subsystem. These are intended product behaviors; no photo recognition, provider comparison or exception UI acceptance is claimed.
 
 Roadmap implication: writing is currently scheduled in M5. Its immediate product value should inform a later review of the smallest useful release and delivery order after this journey is defined. No automatic reordering, production schema change or OCR/provider/budget authorization follows from this discovery input.
 
@@ -76,6 +86,7 @@ These are prompts, not selected journeys or evidence of wider user demand. The o
 - Confirmed cost source: Vereinsflieger “Meine Abrechnungen”; Manuel proposes a flying versus membership/other-cost split.
 - Confirmed logbook problem/value: accumulated flights need later paper entry; a writing template provides immediate benefit (Manuel's observation). Backlog catch-up is a primary design journey.
 - Desired writing outputs: both a phone-side view and a printable sheet (Manuel: “ideally both”); exact interaction and delivery scope remain open.
+- Confirmed photo journey: use the last written page to help establish paper state and book type, show discrepancies and new writing instructions, and retain user decisions to leave past entries unchanged in a browsable exception register.
 - Open: detailed journeys, billing-section fields/semantics, final cost categories and first-release inclusion, specific initial aircraft-category coverage, role-specific needs, start-screen content and preferred UI approach.
 - No interviews, completed wireframes, Figma files, user validation or live feature acceptance are claimed here.
 

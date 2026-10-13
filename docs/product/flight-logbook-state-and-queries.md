@@ -39,6 +39,8 @@ Source data, effective resolved facts and confirmed paper entries are separate v
 
 ## Remembering and reusing decisions
 
+UI discovery clarification (Manuel, 2026-10-13): the photo-based catch-up journey should provide both discrepancies in existing written entries and instructions for pending entries. Users may choose to leave past discrepancies unchanged; provide a browsable list of open and acknowledged exceptions with their decisions. Acknowledgment does not mean correction. Recognition of book type from the last written page is desired behavior, with uncertainty surfaced; it is not proven photo-analysis capability. See the [journey and exception-register concept](user-journey-ui-discovery.md#two-results-and-a-persistent-exception-register).
+
 Use narrow flight/field/finding-specific scope by default. Broad rules require an explicit scope/preview; “ignore this mismatch” never becomes “ignore all future mismatches.”
 
 | Decision | Effect |
