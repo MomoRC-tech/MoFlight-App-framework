@@ -90,6 +90,13 @@ const driver = String.raw`function(token, phase, original, backupName, defaultCo
     const target=original.reset?options.find(o=>o.value==='-1'):options.find(o=>o.text===backupName&&o.value===backupName);
     if(!target)throw new Error();formSafe(quick);select.selectedIndex=Array.from(select.options).indexOf(target);select.dispatchEvent(new Event('change',{bubbles:true}));
   };
+  const menu=(selector,label)=>{
+    const links=all(selector).filter(e=>clean(e)===label);if(links.length!==1)throw new Error();
+    const href=links[0].getAttribute('href');if(typeof href!=='string'||!href.trim())throw new Error();
+    const u=new URL(href,location.href);
+    if(u.protocol!=='https:'||u.origin!==location.origin||u.pathname!==location.pathname||u.username||u.password)throw new Error();
+    click(links[0]);
+  };
   try {
     const current=read();
     if(phase==='snapshot'){
@@ -109,6 +116,13 @@ const driver = String.raw`function(token, phase, original, backupName, defaultCo
       if(phase==='backup-load'&&!original.reset){send({status:'load-request'});load();return;}
       const target=original.reset?'Konfiguration laden':backupName;
       if(matches(current)&&(current.preset===target||(phase==='restore'&&current.preset===original.preset))){next();return;}
+      // Reset restores the list structure but can retain the export's period
+      // and participation. Restore those scopes through the original menus,
+      // re-reading account/structure after every navigation before verification.
+      if(phase==='restore'&&original.reset&&current.preset===target&&matches({...current,role:original.role,period:original.period})){
+        if(current.role!==original.role){menu('#menu_globalfilter2 a',original.role);return;}
+        if(current.period!==original.period){menu('#menu_globalfilter a',original.period);return;}
+      }
       load();return;
     }
     if(phase==='backup-verify'||phase==='verify'){

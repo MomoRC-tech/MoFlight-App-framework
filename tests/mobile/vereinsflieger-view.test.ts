@@ -11,17 +11,28 @@ import { join } from 'node:path';
 import { nodeDriver } from './sqlite-driver.ts';
 import { VIEW_SCHEMA } from '../../apps/platform-lab/src/vereinsflieger/view-store.ts';
 const original: ViewPreferences = {version:2,accountLabel:'Synthetic account',preset:'Old preset',columns:['1','2','3'],filters:[{name:'col3',type:'text',value:'ASK',checked:false},{name:'col11_0',type:'checkbox',value:'1',checked:false}],sort:[{column:'3',icon:'icon-sort-name-down'}],role:'Pilot oder Fluglehrer',period:'Das letzte Jahr',reset:false};
-function fixture(options: {collision?:boolean; changed?:boolean; foreign?:boolean} = {}) {
+type MenuLink = {text:string;href?:string;disabled?:boolean};
+function fixture(options: {collision?:boolean; changed?:boolean; foreign?:boolean; initial?:ViewPreferences; resetView?:ViewPreferences; menus?:Record<string,MenuLink[]>} = {}) {
   const actions:string[]=[]; const messages:string[]=[];
-  const state=structuredClone(original); if(options.changed) {state.period='ab 01.01.2026 bis 31.12.2026';state.filters[0]!.value='';state.sort=[];state.preset='MoFlight App export filter';}
+  const initial=options.initial??original, state=structuredClone(initial); if(options.changed) {state.period='ab 01.01.2026 bis 31.12.2026';state.filters[0]!.value='';state.sort=[];state.preset='MoFlight App export filter';}
   const opts:any[]=[{textContent:state.preset,text:state.preset,value:state.preset,disabled:true},{textContent:'Zurücksetzen',text:'Zurücksetzen',value:'-1',disabled:false}];
   if(options.collision)opts.push({textContent:VIEW_BACKUP,text:VIEW_BACKUP,value:VIEW_BACKUP,disabled:false});
-  const select:any={options:opts,selectedOptions:[opts[0]],selectedIndex:0,dispatchEvent(){actions.push('load');state.preset=opts[this.selectedIndex].text;Object.assign(state,structuredClone(original),{preset:state.preset});this.selectedOptions=[opts[this.selectedIndex]];}};
+  const select:any={options:opts,selectedOptions:[opts[0]],selectedIndex:0,dispatchEvent(){
+    actions.push('load');
+    if(opts[this.selectedIndex].value==='-1'){
+      Object.assign(state,structuredClone(options.resetView??initial),{preset:'Konfiguration laden',period:state.period,role:state.role});
+      this.selectedOptions=[{textContent:state.preset}];
+    }else{state.preset=opts[this.selectedIndex].text;Object.assign(state,structuredClone(initial),{preset:state.preset});this.selectedOptions=[opts[this.selectedIndex]];}
+  }};
   const quick:any={method:'post',getAttribute:()=>FLIGHT_URL,querySelector:()=>select};
   const input:any={value:'',dispatchEvent(){},form:{method:'post',getAttribute:()=>options.foreign?'https://evil.test':FLIGHT_URL}};
   const filters:any={get elements(){return state.filters;}};
   const mapping:Record<string,any>={'#divpageheadermenu':{children:[{},{textContent:'VEREINSFLIEGER.DE '+state.accountLabel}]},'form[name="frm_tablelist_quickconfig"]':quick,'#tablelist_20':{},'#frmfilter':filters,'#userlist_name':input,'a[title="Liste konfigurieren"]':{click(){}},'#tableconfigtab_li_2':{click(){}},'#btn_userlist_add':{click(){actions.push('save');opts.push({text:input.value,textContent:input.value,value:input.value,disabled:false});}}};
-  const document={querySelector:(s:string)=>s==='#globalfilter'?{textContent:state.period}:s==='#globalfilter2'?{textContent:state.role}:mapping[s],querySelectorAll:(s:string)=>s==='#LST_VISIBLE > li'?state.columns.map(id=>({getAttribute:()=>id})):s==='#tablelist_20 thead th'?state.columns.map(id=>({querySelectorAll:()=>state.sort.filter(x=>x.column===id).map(x=>({classList:[x.icon]}))})):[]};
+  const menus:Record<string,MenuLink[]>={
+    '#menu_globalfilter2 a':[{text:'Pilot',href:FLIGHT_URL+'?_params=synthetic-role'}],
+    '#menu_globalfilter a':[{text:'Das letzte Jahr',href:FLIGHT_URL+'?_params=synthetic-period'}],...options.menus,
+  };
+  const document={querySelector:(s:string)=>s==='#globalfilter'?{textContent:state.period}:s==='#globalfilter2'?{textContent:state.role}:mapping[s],querySelectorAll:(s:string)=>s==='#LST_VISIBLE > li'?state.columns.map(id=>({getAttribute:()=>id})):s==='#tablelist_20 thead th'?state.columns.map(id=>({querySelectorAll:()=>state.sort.filter(x=>x.column===id).map(x=>({classList:[x.icon]}))})):menus[s]?.map(link=>({textContent:link.text,disabled:link.disabled,getAttribute:()=>link.href,click(){actions.push(s==='#menu_globalfilter2 a'?'role':'period');if(s==='#menu_globalfilter2 a')state.role=link.text;else state.period=link.text;}}))??[]};
   const window:any={ReactNativeWebView:{postMessage:(m:string)=>messages.push(m)}};window.top=window;
   function execute(phase:ViewPhase,prefs:ViewPreferences|null=original){messages.length=0;runInNewContext(viewScript('current',phase,prefs),{window,document,location:new URL(FLIGHT_URL),URL,Event:class{}});return messages.length?JSON.parse(messages[0]!):{};}
   return {execute,actions,state,select,mapping,document};
@@ -75,6 +86,43 @@ test('complete-default recognition rejects unnamed custom dates, participation, 
  const v:ViewPreferences={...original,preset:'Konfiguration laden',columns:['1','2','3','4','5','6','7','8','9','10','105','11','12','13','14','15'],filters:[{name:'col3',type:'text',value:'',checked:false}],sort:[],role:'Pilot',reset:true};
  assert.equal(isDefaultView(v),true);validateView(v);
  for(const change of [{period:'2026'},{role:'Pilot oder Fluglehrer'},{columns:[...v.columns].reverse()},{sort:[{column:'3',icon:'icon-sort-name-down'}]},{filters:original.filters},{preset:'Unnamed custom'}]) {assert.equal(isDefaultView({...v,...change}),false);assert.throws(()=>validateView({...v,...change}));}
+});
+
+const defaultView:ViewPreferences={...original,preset:'Konfiguration laden',columns:['1','2','3','4','5','6','7','8','9','10','105','11','12','13','14','15'],filters:[{name:'col3',type:'text',value:'',checked:false}],sort:[],role:'Pilot',reset:true};
+const retainedScope:ViewPreferences={...defaultView,period:'ab 01.01.2026 bis 31.12.2026',role:'Pilot oder Fluglehrer',reset:false};
+test('default cleanup resets structure then restores retained role and relative period through original menus',()=>{
+ const f=fixture({initial:{...retainedScope,columns:[...defaultView.columns].reverse(),sort:[{column:'3',icon:'icon-sort-name-down'}]},resetView:defaultView});
+ f.execute('restore',defaultView);assert.deepEqual(f.actions,['load']);assert.equal(f.state.period,retainedScope.period);assert.equal(f.state.role,retainedScope.role);
+ f.execute('restore',defaultView);assert.deepEqual(f.actions,['load','role']);assert.equal(f.state.period,retainedScope.period);
+ f.execute('restore',defaultView);assert.deepEqual(f.actions,['load','role','period']);
+ assert.equal(f.execute('restore',defaultView).status,'next');
+ const verified=f.execute('verify',defaultView);assert.equal(decodeView(JSON.stringify(verified),LOGIN_URL,FLIGHT_URL,'current','verify',defaultView),null);
+ assert.deepEqual(f.actions,['load','role','period']);assert.deepEqual(verified.view,defaultView);
+});
+
+test('default cleanup refuses missing, ambiguous, disabled and unsafe scope links before invoking controls',()=>{
+ for(const selector of ['#menu_globalfilter2 a','#menu_globalfilter a']){
+  const label=selector==='#menu_globalfilter2 a'?'Pilot':'Das letzte Jahr';
+  const current=selector==='#menu_globalfilter2 a'?retainedScope:{...retainedScope,role:'Pilot'};
+  const safe={text:label,href:FLIGHT_URL+'?_params=synthetic'};
+  const cases:MenuLink[][]=[[],[safe,safe],[{text:label}],[{...safe,disabled:true}],
+   [{text:label,href:'https://evil.test/member/profile/flightlog.php'}],
+   [{text:label,href:FLIGHT_URL.replace('https:','http:')}],
+   [{text:label,href:'https://vereinsflieger.de/member/profile/userprofile.php'}],
+   [{text:label,href:FLIGHT_URL.replace('https://','https://user:secret@')}],
+   [{text:label,href:'javascript:alert(1)'}]];
+  for(const links of cases){const f=fixture({initial:current,menus:{[selector]:links}});assert.equal(f.execute('restore',defaultView).error,'view-contract-changed');assert.deepEqual(f.actions,[]);}
+ }
+});
+
+test('default scope restoration rechecks account and complete structure on every navigation',()=>{
+ const f=fixture({initial:retainedScope});f.execute('restore',defaultView);assert.deepEqual(f.actions,['role']);
+ f.mapping['#divpageheadermenu'].children[1].textContent='Other account';
+ assert.equal(f.execute('restore',defaultView).error,'view-contract-changed');assert.deepEqual(f.actions,['role']);
+ const changed=fixture({initial:retainedScope});changed.execute('restore',defaultView);changed.state.filters[0]!.value='restriction';
+ changed.execute('restore',defaultView);assert.deepEqual(changed.actions,['role','load'],'Changed structure must reset instead of blindly applying scope');
+ const missingRole=fixture({initial:retainedScope,menus:{'#menu_globalfilter2 a':[]}});
+ assert.equal(missingRole.execute('verify',defaultView).error,'view-contract-changed');assert.deepEqual(missingRole.actions,[]);
 });
 test('preference validation excludes credentials, signed links, malformed shapes and old replay drafts',()=>{
  for(const v of [{...original,version:1},{...original,columns:['1','1']},{...original,filters:[{name:'password',type:'text',value:'secret',checked:false}]},{...original,sort:[{column:'999',icon:'icon-sort-name-down'}]}])assert.throws(()=>validateView(v));

@@ -364,7 +364,11 @@ async function executeViewDriver(f: ReturnType<typeof fixture>, current: ViewPre
     options: [{ textContent: current.preset, text: current.preset, value: current.preset, disabled: true },
       { textContent: 'Zurücksetzen', text: 'Zurücksetzen', value: '-1', disabled: false }],
     get selectedOptions() { return [this.options[0]]; }, selectedIndex: 0,
-    dispatchEvent() { actions.push('reset'); assert.equal(this.options[this.selectedIndex]?.value, '-1'); },
+    dispatchEvent() {
+      actions.push('reset'); assert.equal(this.options[this.selectedIndex]?.value, '-1');
+      // Actual provider reset retains the selected period/participation.
+      Object.assign(current, structuredClone(defaultOriginal), { period: current.period, role: current.role, reset: false });
+    },
   };
   const quick = { method: 'post', getAttribute: () => FLIGHT_URL, querySelector: () => select };
   const document = {
@@ -380,6 +384,8 @@ async function executeViewDriver(f: ReturnType<typeof fixture>, current: ViewPre
     querySelectorAll(selector: string) {
       if (selector === '#LST_VISIBLE > li') return current.columns.map(column => ({ getAttribute: () => column }));
       if (selector === '#tablelist_20 thead th') return current.columns.map(column => ({ querySelectorAll: () => current.sort.filter(sort => sort.column === column).map(sort => ({ classList: [sort.icon] })) }));
+      if (selector === '#menu_globalfilter2 a') return [{ textContent: 'Pilot', getAttribute: () => `${FLIGHT_URL}?_params=synthetic-role`, click() { actions.push('role'); current.role = 'Pilot'; } }];
+      if (selector === '#menu_globalfilter a') return [{ textContent: 'Das letzte Jahr', getAttribute: () => `${FLIGHT_URL}?_params=synthetic-period`, click() { actions.push('period'); current.period = 'Das letzte Jahr'; } }];
       assert.fail(`Unexpected default-path collection: ${selector}`);
     },
   };
@@ -408,12 +414,19 @@ test('default-original lifecycle skips named backup controls and clears recovery
     headers: ['Datum', 'Lfz.', 'Start', 'Landung', 'Flugzeit', 'Kosten'], columnIds: ['1', '2', '3', '4', '5', '6'],
     first: 0, last: 0, total: 0, rows: [], nextUrl: null });
   await f.loadFlight(); assert.equal(f.currentCommand().phase, 'restore');
-  await executeViewDriver(f, { ...defaultOriginal, period: 'ab 01.01.2026 bis 31.12.2026', role: 'Pilot oder Fluglehrer', reset: false }, actions);
+  const current = { ...structuredClone(defaultOriginal), columns: ['1'], filters: [original.filters[0]!],
+    period: 'ab 01.01.2026 bis 31.12.2026', role: 'Pilot oder Fluglehrer', reset: false };
+  await executeViewDriver(f, current, actions);
   assert.deepEqual(actions, ['reset']); assert.deepEqual(f.pending(), defaultOriginal);
-  await f.loadFlight(); await executeViewDriver(f, defaultOriginal, actions);
+  assert.equal(current.period, 'ab 01.01.2026 bis 31.12.2026'); assert.equal(current.role, 'Pilot oder Fluglehrer');
+  await f.loadFlight(); await executeViewDriver(f, current, actions);
+  assert.deepEqual(actions, ['reset', 'role']); assert.deepEqual(f.pending(), defaultOriginal);
+  await f.loadFlight(); await executeViewDriver(f, current, actions);
+  assert.deepEqual(actions, ['reset', 'role', 'period']); assert.deepEqual(f.pending(), defaultOriginal);
+  await f.loadFlight(); await executeViewDriver(f, current, actions);
   assert.equal(f.currentCommand().phase, 'verify'); assert.ok(!f.writes.includes('journal-cleared'));
-  await executeViewDriver(f, defaultOriginal, actions);
-  assert.equal(f.pending(), null); assert.deepEqual(actions, ['reset']);
+  await executeViewDriver(f, current, actions);
+  assert.equal(f.pending(), null); assert.deepEqual(actions, ['reset', 'role', 'period']);
   assert.deepEqual(f.writes, ['journal-start', 'journal-saved', 'capture-start', 'capture-saved', 'journal-cleared']);
   assert.equal(strategy(f), 'Original view restoration strategy: reset', 'Verified cleanup must leave branch evidence visible');
   f.press(f.button(f.render(), 'Retrieve flights'));
