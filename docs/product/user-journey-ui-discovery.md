@@ -27,7 +27,7 @@ Manuel selected “Understand my flying” and “Keep my logbook current” as 
 
 - Understand flying: review flights, totals and trends; choose exact measures during journey review.
 - Keep the logbook current: identify missing paper entries and explore writing assistance, retaining existing writing/photo/book implementation gates.
-- Track flight costs: desired feature; clarify personal attribution, currency, charged versus estimated amounts and missing-value meaning before contract/implementation. Broader expense scope and inclusion in the first analytics release remain open.
+- Track costs documented in Vereinsflieger's “Meine Abrechnungen” section (source specified by Manuel). Explore separating flying costs from membership and all other charges. This covers costs recorded in that section; manually entered external expenses are not selected. The section has not been inspected in this discovery: available fields, charge/payment/credit meaning, period, currency, flight links and retrieval permission/support remain to be verified before defining totals or implementation. The proposed split and first-release inclusion remain open.
 - Shared start screen: explore general information useful across students, instructors and other pilots, without requiring a user-group-specific landing screen. Exact sections, personalization and navigation remain open.
 - Later provider discovery: walk through the actual Vereinsflieger main screen with Manuel, inventory its information and ask which items are relevant. Record selections and access/retrieval/freshness dependencies; do not assume fields or extraction support before inspecting them. No provider walkthrough was performed for this update.
 
@@ -53,7 +53,8 @@ These are prompts, not selected journeys or evidence of wider user demand. The o
 - Confirmed: the intended audience includes students, instructors and pilots across aircraft categories (Manuel's direct answer).
 - Confirmed: first outcomes are understanding flying and keeping the logbook current; flight cost tracking and relevant provider main-screen information are desired.
 - Confirmed direction: a shared start screen with general information across user groups; review provider main-screen relevance in a later walkthrough.
-- Open: detailed journeys, cost scope/semantics and first-release inclusion, specific initial aircraft-category coverage, role-specific needs, start-screen content and preferred UI approach.
+- Confirmed cost source: Vereinsflieger “Meine Abrechnungen”; Manuel proposes a flying versus membership/other-cost split.
+- Open: detailed journeys, billing-section fields/semantics, final cost categories and first-release inclusion, specific initial aircraft-category coverage, role-specific needs, start-screen content and preferred UI approach.
 - No interviews, completed wireframes, Figma files, user validation or live feature acceptance are claimed here.
 
 Record future answers as confirmed decisions or hypotheses with their source. For the feature map, keep user value, priority and technical feasibility separate. Do not infer lifetime completeness, known missing values or real-user demand from sample screens.
