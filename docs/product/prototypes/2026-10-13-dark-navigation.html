@@ -1,10 +1,13 @@
 <style>
 #mf-preview { --mf-bg:#111419; --mf-text:#f2f3f5; --mf-panel:#1c222b; --mf-raised:#262e39; --mf-muted:#b7bec8; --mf-accent:#f1b65b; --mf-on-accent:#19140b; --mf-border:#39414c; color:var(--mf-text); font-family:system-ui,sans-serif; font-size:14px; line-height:1.5; }
 #mf-preview * { box-sizing:border-box; }
-#mf-preview .mf-app { max-width:420px; margin:auto; padding:16px; background:var(--mf-bg); }
+#mf-preview .mf-app { max-width:420px; height:760px; margin:auto; padding:16px; background:var(--mf-bg); position:relative; display:flex; flex-direction:column; overflow:hidden; border-radius:24px; }
 #mf-preview .mf-box, #mf-preview .mf-section, #mf-preview .mf-header, #mf-preview .mf-page-heading, #mf-preview .mf-nav, #mf-preview .mf-footer, #mf-preview .mf-costs, #mf-preview #mf-back-row, #mf-preview [data-view]:not([data-view="start"]) { background:var(--mf-panel); border:1px solid var(--mf-border); border-radius:16px; padding:20px; }
 #mf-preview .mf-header { padding:12px 16px; }
-#mf-preview .mf-nav { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; padding:6px; margin-top:12px; }
+#mf-preview .mf-nav { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; padding:6px; position:absolute; left:16px; right:16px; bottom:calc(20px + env(safe-area-inset-bottom,0px)); z-index:5; box-shadow:0 10px 30px #0009; }
+#mf-preview .mf-nav .mf-tab { flex-direction:column; gap:4px; min-width:0; min-height:64px; padding:8px 4px; }
+#mf-preview .mf-nav .mf-tab svg { width:20px; height:20px; }
+#mf-preview .mf-header { flex-shrink:0; }
 #mf-preview h2 { font-size:24px; line-height:1.25; font-weight:500; margin:0; }
 #mf-preview h3 { font-size:18px; line-height:1.4; font-weight:500; margin:0; }
 #mf-preview p { margin:12px 0; }
@@ -27,7 +30,7 @@
 #mf-preview #mf-back-row { margin-top:12px; padding:8px; }
 #mf-preview .mf-header, #mf-preview .mf-row { display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; }
 #mf-preview .mf-brand { display:flex; gap:10px; align-items:center; font-weight:500; }
-#mf-preview .mf-content { padding:16px 0; }
+#mf-preview .mf-content { padding:16px 0 120px; flex:1; min-height:0; overflow-y:auto; scrollbar-width:thin; scrollbar-color:var(--mf-border) transparent; }
 #mf-preview .mf-section { margin:16px 0; }
 #mf-preview .mf-stack { display:grid; gap:16px; }
 #mf-preview .mf-stats { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
@@ -48,11 +51,6 @@
       <div class="mf-brand"><i data-lucide="plane" aria-hidden="true"></i><span>MoFlight</span></div>
       <button type="button" class="mf-button cursor-interaction mf-ghost" data-route="profile" aria-label="Profil und Verbindung"><i data-lucide="circle-user-round" aria-hidden="true"></i> Profil</button>
     </header>
-    <nav class="mf-nav" aria-label="Hauptnavigation">
-      <button class="mf-tab cursor-interaction active" type="button" data-route="start" aria-current="page">Start</button>
-      <button class="mf-tab cursor-interaction" type="button" data-route="flights">Flüge</button>
-      <button class="mf-tab cursor-interaction" type="button" data-route="club">Verein</button>
-    </nav>
     <div id="mf-back-row" hidden><button type="button" class="mf-button cursor-interaction mf-ghost" id="mf-back"><i data-lucide="arrow-left" aria-hidden="true"></i> Zurück</button></div>
     <main class="mf-content" id="mf-content" aria-live="polite">
       <section data-view="start">
@@ -113,10 +111,15 @@
       <section data-view="offline" hidden><h2>Keine Verbindung</h2><p>Deine gespeicherten Flüge bleiben verfügbar.</p><p class="mf-meta">Letzter Erfolg: 12.10., 18:10<br>Neuere Flüge können fehlen.</p><div class="mf-stack"><button class="mf-button cursor-interaction mf-primary" type="button" data-route="retrieve">Erneut versuchen</button><button class="mf-button cursor-interaction" type="button" data-route="flights">Gespeicherte Flüge öffnen</button></div></section>
       <section data-view="profile" hidden><h2>Profil und Verbindung</h2><section class="mf-section"><h3>Vereinsflieger</h3><p>Verbindung: Beispieldaten</p><button class="mf-button cursor-interaction" type="button" data-route="retrieve">Flüge aktualisieren</button></section><hr><p>Sprache: Deutsch</p><p>Lokale Daten und Papierbücher</p><p class="mf-small mf-meta">Kein echter Kontozugriff in dieser Vorschau.</p></section>
       <section data-view="costs" hidden><h2>Meine Kosten</h2><p class="mf-meta">Konzept · Abrechnungsprüfung vertagt</p><div class="mf-list"><p>Flugkosten 2026</p><p>Mitgliedschaft und andere Kosten separat</p><p>Gesamte Flugkosten je Flugzeug</p><p>Kontostand nur in den Details</p></div><p>Keine Beträge, solange die Zuordnung ungeprüft ist.</p></section>
-    </main>
     <footer class="mf-footer">
       <span class="mf-small mf-meta">Entwurf · alle Daten und Namen erfunden</span>
     </footer>
+    </main>
+    <nav class="mf-nav" aria-label="Hauptnavigation">
+      <button class="mf-tab cursor-interaction active" type="button" data-route="start" aria-current="page"><i data-lucide="house" aria-hidden="true"></i>Start</button>
+      <button class="mf-tab cursor-interaction" type="button" data-route="flights"><i data-lucide="plane" aria-hidden="true"></i>Flüge</button>
+      <button class="mf-tab cursor-interaction" type="button" data-route="club"><i data-lucide="users-round" aria-hidden="true"></i>Verein</button>
+    </nav>
   </div>
 </div>
 <script>
@@ -130,6 +133,7 @@
     if (push && route !== next) history.push(route);
     route = next;
     views.forEach(v => {v.hidden = v.dataset.view !== route;});
+    root.querySelector('#mf-content').scrollTop = 0;
     root.querySelector('#mf-back-row').hidden = ['start','flights','club'].includes(route);
     root.querySelectorAll('nav [data-route]').forEach(b => {
       const selected = b.dataset.route === sectionFor[route]; b.classList.toggle('active',selected);
