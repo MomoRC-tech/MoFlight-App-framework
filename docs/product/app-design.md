@@ -2,7 +2,7 @@
 
 ## Native fidelity v0.33 — 16 October 2026
 
-Manuel requires near pixel-perfect layout reproduction of the existing approved composite, with MIN 360 dp, MAIN 390–411 dp and MAX 600+ dp verification. The [refinement brief](2026-10-16-ui-fidelity-refinement.md) preserves this target. Header/card/control geometry and colors follow that image; no alternative composition is selected. Tablet adaptation bounds the same card groups and uses columns; enlarged text returns to stacked layouts. [Native evidence](../verification/2026-10-16-ui-fidelity-width-matrix.md) records actual results and remaining photographic/data-state differences. Earlier versions below are retained history.
+Manuel requires near pixel-perfect layout reproduction of the existing approved composite, with MIN 360 dp, MAIN 390–412 dp and MAX 600+ dp verification. The [refinement brief](2026-10-16-ui-fidelity-refinement.md) preserves this target. Header/card/control geometry and colors follow that image; no alternative composition is selected. Tablet adaptation bounds the same card groups and uses columns; enlarged text returns to stacked layouts. [Native evidence](../verification/2026-10-16-ui-fidelity-width-matrix.md) records actual results and remaining photographic/data-state differences. Earlier versions below are retained history.
 
 ## Native target v0.32 — 16 October 2026
 

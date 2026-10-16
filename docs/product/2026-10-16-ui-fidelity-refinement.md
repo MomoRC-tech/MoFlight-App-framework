@@ -4,16 +4,22 @@ Manuel requested a near pixel-perfect reproduction of the approved four-screen i
 
 - Deliverable: denser reference-matched native header, hero, bento proportions, filters, list rows, assistant cards and navigation. Preserve data isolation, offline persistence, accessible controls and accurate unavailable states.
 - Dependencies: the [approved composite](design-sources/2026-10-16-four-screen/reference.png), existing native shell and local assets; no new service or dependency.
-- Acceptance: inspect actual screenshots at MIN 360 dp, MAIN 390 and 411 dp, MAX 600 and 840 dp. Check scrolling, overlap and keyboard at MIN, geometry/colors at MAIN, and bounded card widths/multi-column behavior at MAX. Include enlarged text as an additional stress check. Record source, Android Release build, local checks and remaining visual differences.
+- Acceptance: inspect actual screenshots at MIN 360 dp, MAIN 390 and 412 dp, MAX 600 and 840 dp. Check scrolling, overlap and keyboard at MIN, geometry/colors at MAIN, and bounded card widths/multi-column behavior at MAX. Include enlarged text as an additional stress check. Record source, Android Release build, local checks and remaining visual differences.
 
 ## Persistent screen-test matrix
 
 | Level | Logical width | Purpose |
 | --- | --- | --- |
 | MIN | 360 dp | Overlap, keyboard overlays, scrolling |
-| MAIN | 390–411 dp | Primary design-fidelity target |
+| MAIN | 390–412 dp | Primary design-fidelity target |
 | MAX | 600+ dp | Prevent stretched phone cards; use appropriate multi-column/tablet composition |
 
 The user's “80%+” describes prioritization, not measured MoFlight audience analytics. Screen widths are density-independent; screenshot pixel width alone is not proof of a dp width. Earlier 320/432 captures remain historical stress/evidence, not the new acceptance matrix.
 
 The composite contains illustrative populated data. Do not manufacture flights, weather, duties, maps, AI responses or trends to fill it. Reduce repetitive integration prose within compact primary cards; retain explanatory details in accessible status/details surfaces. Exact photographic compositions remain unavailable; retain local licensed assets and attribution.
+
+## Clarified practical policy
+
+Manuel clarified the standing requirement on 16 October 2026: design primarily for 390–412 dp, and use 360 dp to verify that content does not overlap or clip. At the 600 dp threshold, including landscape phones, tablets and foldables at 600–800+ dp, either center and cap the width of individual elements (especially forms and detail views) or switch to two columns/master-detail. A 480 dp cap or 80% width is an example, not a required React Native API or fixed dimension. The existing bounded layouts satisfy the first strategy; two-column adaptation may be used where appropriate.
+
+Prior native evidence remains unchanged: its MAIN captures were 390 and 411 dp. No 412 dp runtime pass is claimed by this policy update; subsequent acceptance runs should cover the revised upper boundary.

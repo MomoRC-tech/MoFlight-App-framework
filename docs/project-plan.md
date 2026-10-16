@@ -2,7 +2,7 @@
 
 ## UI fidelity and width-matrix follow-up — 16 October 2026
 
-Manuel requested close replication of the approved image’s boxes, buttons, colors and layout, and established MIN 360 / MAIN 390–411 / MAX 600+ dp. This remains an M1 native UI refinement; service/data gates and milestone order are unchanged. [Deliverable/dependencies/acceptance](product/2026-10-16-ui-fidelity-refinement.md) and [native evidence](verification/2026-10-16-ui-fidelity-width-matrix.md) record the density, tablet and keyboard checks. AGENTS.md now preserves this standing matrix. Existing Issue #5 remains open.
+Manuel requested close replication of the approved image’s boxes, buttons, colors and layout, and established MIN 360 / MAIN 390–412 / MAX 600+ dp. This remains an M1 native UI refinement; service/data gates and milestone order are unchanged. [Deliverable/dependencies/acceptance](product/2026-10-16-ui-fidelity-refinement.md) and [native evidence](verification/2026-10-16-ui-fidelity-width-matrix.md) record the density, tablet and keyboard checks. AGENTS.md now preserves this standing matrix. Existing Issue #5 remains open.
 
 ## Native four-screen checkpoint — 16 October 2026
 

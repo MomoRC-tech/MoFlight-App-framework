@@ -29,7 +29,7 @@
 - Read current plugin/skill code before reusing export logic; preserve the existing plugin.
 
 ## Verification
-- Screen-size matrix (Manuel, 2026-10-16): MIN 360 dp checks overlap, keyboard overlays and scrolling; MAIN 390–411 dp is the primary visual-fidelity target; MAX 600+ dp checks bounded card widths and tablet/multi-column adaptation. Record actual logical dp, density and font scale. Keep the approved four-screen image authoritative for layout, boxes, buttons, spacing and colors; do not treat earlier approximate captures as the target.
+- Screen-size matrix (Manuel, 2026-10-16): MIN 360 dp checks overlap, keyboard overlays and scrolling; MAIN 390–412 dp is the primary visual-fidelity target; At 600 dp and above (including landscape phones, tablets and foldables at 600–800+ dp), either center and cap individual forms/detail/card groups at a suitable maximum width or switch to a two-column/master-detail layout. Check that elements do not stretch excessively. These are alternative strategies; a particular 480 dp cap is illustrative, not mandatory. Record actual logical dp, density and font scale. Keep the approved four-screen image authoritative for layout, boxes, buttons, spacing and colors; do not treat earlier approximate captures as the target.
 - Run appropriate meaningful tests for code changes. For documentation, check links, traceability, consistency and unsupported success/approval claims.
 - Record commit, environment, actual checks and limits; mark unavailable devices/services as not tested or blocked.
 - Auth: registration/confirmation/recovery, preserved identity, foreign data, expired session and account switching.
