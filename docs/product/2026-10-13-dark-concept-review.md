@@ -1,5 +1,7 @@
 # Dark concept revision — 2026-10-13
 
+Visual-style update, 2026-10-16: Manuel selected keeping the supplied Stitch screen's navy/cyan style, glowing accents and outlined/nested cards closely. This supersedes the earlier filled-card/default-outline restriction below. Other confirmed navigation and journey decisions remain; the [versioned design description](app-design.md) records current review status. The overall layout and behavior are still under review.
+
 Status: prepared for review, unselected. Manuel rejected both initial [Figma arrangements](2026-10-13-rough-figma-wireframes.md): “crowded, no concept, no real navigation header on the page”. Do not refine A/B as selected designs. The [journey map](2026-10-13-journey-information-map.md) still governs content and delivery boundaries.
 
 ## User-supplied visual direction

@@ -16,3 +16,7 @@ Checks performed:
 - Independent GPT-6 Luna read-only review checked local destinations and consistency with prior decisions; clarified that club-summary placement remains open.
 
 Limits: no application source changes, native build/device trials, provider calls, prototype interaction tests or accessibility acceptance. The inspected PNG is supplied design evidence, not a native rendering. Open choices remain unconfirmed until Manuel answers.
+
+## Version 0.2 decision follow-up
+
+Manuel answered “1. keep” to the first question, selecting close retention of the Stitch look. Updated the active description and added a supersession notice to the earlier design review: navy/cyan, glowing accents and outlined/nested cards replace the earlier filled-card/default-outline restriction. Screen content, detailed tokens and behavior remain under review. Reviewed the diff for that scope and ran the staged whitespace check; no application tests are needed for this documentation-only decision. Unrelated product-index/research changes remain excluded.

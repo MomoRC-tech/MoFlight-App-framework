@@ -1,6 +1,6 @@
 # MoFlight app design
 
-Version: **0.1 — Stitch starting point, under review**. Updated: 2026-10-16 (Europe/Berlin). Product/design decisions: Manuel. This is a living design description; Git preserves revisions and the change log records meaningful decisions. A draft version is not approval of the entire design.
+Version: **0.2 — Stitch visual style selected; layout review continues**. Updated: 2026-10-16 (Europe/Berlin). Product/design decisions: Manuel. This is a living design description; Git preserves revisions and the change log records meaningful decisions. A draft version is not approval of the entire design.
 
 ## Purpose and task boundary
 
@@ -16,9 +16,9 @@ Use three explicit labels: **Confirmed** (Manuel's decision), **Proposed** (awai
 
 ## Confirmed foundation carried forward
 
-These choices were explicitly recorded in the earlier design review; the Stitch upload does not revoke them:
+These choices carry forward from the earlier design review, with the explicit visual-style revision recorded below:
 
-- Dark, clean, spacious, restrained color; logical content is boxed. Filled dark cards are the default, with outlines where separation needs them.
+- Dark, clean, spacious; logical content is boxed. On 2026-10-16 Manuel selected keeping the Stitch visual style closely: navy/cyan, glowing accents, outlined and nested cards. This supersedes the earlier preference for filled cards with outlines only where needed. Phone readability remains a review requirement.
 - Compact fixed header with current page title and contextual profile/back controls.
 - Four peer destinations: Start, Flüge, Papierbuch and Verein. Attached full-width bottom navigation with equal destinations and a selected indicator; the latest decision supersedes the earlier hovering dock.
 - Start leads with Mein Fliegen, followed by Papierbuch. Club information has a compact Start summary; its exact placement and density are open.
@@ -27,19 +27,19 @@ These choices were explicitly recorded in the earlier design review; the Stitch 
 - German app text; Android and iOS target platforms; offline access and clear data freshness/coverage. Keep unknown duration distinct from zero and assumed writing progress distinct from confirmed paper evidence.
 - Approved branding and Expo/React Native remain as recorded; this description selects no new technology or service.
 
-## Stitch starter: observed, not selected
+## Selected visual direction and remaining source observations
 
 ![Supplied Stitch Start screen](design-sources/2026-10-16-stitch/screen.png)
 
 The screen uses deep navy surfaces, cyan highlights, rounded nested cards, Inter text, icon-and-label bottom navigation and a compact brand/page header. It shows an all-time total ribbon, seasonal flight count/time, an unexplained partial ring, a stale-sync badge and missing-duration alert. The paper card shows a last entry and pending entries; the club card shows a duty and work-hour progress. Dates and values are example content, not verified provider results.
 
-The exported HTML contains placeholder destination links; it does not establish a working multi-screen journey. The generated style guide includes telemetry, cockpit and weather concepts outside our selected scope. Those do not become requirements. Exact colors, typography, glow, border treatment, metrics and labels remain proposed where they differ from confirmed requirements.
+The exported HTML contains placeholder destination links; it does not establish a working multi-screen journey. The generated style guide includes telemetry, cockpit and weather concepts outside our selected scope. Those do not become requirements. The screen's navy/cyan appearance, glowing accents and outlined/nested card treatment are selected as the visual reference. Exact implementation tokens, typography sizes, metrics, labels and behaviors still need review; selecting the look does not approve every source value or generated instruction.
 
 ## Review queue — one question at a time
 
 | Order | Choice to settle | Current status |
 | --- | --- | --- |
-| 1 | Overall appearance: retain Stitch closely, simplify its styling, or use it mainly for structure? | Open; engineer proposes retaining navy/cyan with calmer surfaces and fewer nested boxes |
+| 1 | Overall appearance: retain Stitch closely, simplify its styling, or use it mainly for structure? | Confirmed 2026-10-16: option 1, keep closely; navy/cyan, glowing accents, outlined and nested cards |
 | 2 | Start density: what should be visible immediately, and what belongs behind a tap? | Open; preserve confirmed flying-first/paper-second order |
 | 3 | Header content and action hierarchy, including retrieval access | Open within confirmed compact header behavior |
 | 4 | Flight-summary presentation: year/comparison, aircraft and duration views; treatment of all-time totals and ring | Open within confirmed journey content |
@@ -55,3 +55,4 @@ Review loading, empty, offline, stale, incomplete, unknown, error, cancel and re
 | Version | Date | Change and decision status |
 | --- | --- | --- |
 | 0.1 | 2026-10-16 | Created from the supplied Stitch starter and earlier confirmed decisions following Manuel's request for a versioned description and guided questions. No new appearance choice confirmed yet. |
+| 0.2 | 2026-10-16 | Manuel answered “1. keep” to the appearance question: retain the Stitch visual style closely. Earlier calmer-style recommendation is not selected; source content and behavior remain under review. |
