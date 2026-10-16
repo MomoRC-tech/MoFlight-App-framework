@@ -1,6 +1,6 @@
 # MoFlight app design
 
-Version: **0.10 — Persistent club symbols selected; layout review continues**. Updated: 2026-10-16 (Europe/Berlin). Product/design decisions: Manuel. This is a living design description; Git preserves revisions and the change log records meaningful decisions. A draft version is not approval of the entire design.
+Version: **0.11 — List-first Flüge destination selected; layout review continues**. Updated: 2026-10-16 (Europe/Berlin). Product/design decisions: Manuel. This is a living design description; Git preserves revisions and the change log records meaningful decisions. A draft version is not approval of the entire design.
 
 ## Purpose and task boundary
 
@@ -29,6 +29,7 @@ These choices carry forward from the earlier design review, with the explicit vi
 - Papierbuch on Start, confirmed 2026-10-16: show the book name, last entry, pending count and “Buchstand prüfen” action. This selects the more contextual of the two compact-card options. Scope status to the displayed book; distinguish confirmed paper evidence from assumed writing progress. Exact last-entry fields, pending-count semantics, unknown/empty presentation and book-switch interaction remain for review.
 - Additional club information on Start, confirmed 2026-10-16: a single compact summary row using symbols to indicate changes or upcoming items, rather than separate task/headline/event preview rows. This answers the question about tasks, news/documents and events alongside duties/work-hour progress; it does not remove the previously selected duty/work-hour content. Details remain in Verein. Numeric counts are not required by this answer. Symbols remain visible in stable positions: subdued when inactive, highlighted for relevant updates/upcoming items (option 1, confirmed 2026-10-16). Exact icon grouping, change/read semantics and upcoming horizon remain open; an unavailable or stale check must not imply that nothing is new or upcoming. Pair visual indicators with meaningful accessible labels; specific tap targets remain proposed for the next preview.
 - Flight filters open in a slide-up panel over the list.
+- Flüge tab default, confirmed 2026-10-16: flight list first, with compact statistics at the top followed by searchable/filterable flights (option 1). Tapping a Start chart still opens its corresponding metric details with comparison/filter context, rather than forcing the tab default. Exact list-row layout, initial period/order, searchable fields and query behavior remain for review. This selects presentation, not a new search implementation or provider capability.
 - German app text; Android and iOS target platforms; offline access and clear data freshness/coverage. Keep unknown duration distinct from zero and assumed writing progress distinct from confirmed paper evidence.
 - Approved branding and Expo/React Native remain as recorded; this description selects no new technology or service.
 
@@ -59,7 +60,7 @@ For the selected bars: label the same date interval for both years (example: 1 J
 | 4 | Flight-summary presentation: year/comparison, aircraft and duration views; treatment of all-time totals and ring | Totals strip retained on Start; paired comparison bars selected 2026-10-16 for flights/known time. Aircraft/duration views remain in confirmed journey scope; remaining detail is open |
 | 5 | Papierbuch overview and next action: active book, evidence/assumed progress, pending work | Start card confirmed 2026-10-16: book name, last entry, pending count and Buchstand prüfen (option 1). Detailed fields/states and destination behavior remain open within confirmed multi-book/guided-flow boundaries |
 | 6 | Compact club summary and paths to details | Confirmed 2026-10-16: one persistent symbol row; stable positions, subdued when inactive, highlighted for changes/upcoming items; details in Verein. Exact grouping and state semantics remain open |
-| 7 | Destination layouts, details, filters, back behavior and representative states | Open; start with Start → Flüge → flight detail and the Papierbuch entry flow |
+| 7 | Destination layouts, details, filters, back behavior and representative states | Flüge tab default confirmed 2026-10-16: compact statistics above searchable/filterable flight list. Start charts retain direct corresponding detail entry. List layout and remaining destination/state behavior open |
 | 8 | Reusable spacing, type, controls and phone-size review | Open; test narrow widths, larger text, scroll clearance and meaningful labels |
 
 Review loading, empty, offline, stale, incomplete, unknown, error, cancel and recovery examples before declaring a journey ready for detailed contracts. Preserve earlier saved information after a failed refresh. A visual example does not prove provider access or native behavior.
@@ -78,3 +79,4 @@ Review loading, empty, offline, stale, incomplete, unknown, error, cancel and re
 | 0.8 | 2026-10-16 | Manuel answered “1.” to the compact Papierbuch card: book name, last entry, pending count and Buchstand prüfen. Preserve book scope and confirmed/assumed distinction. |
 | 0.9 | 2026-10-16 | Manuel requested “just a summary row with symbols” indicating changes or upcoming items for additional club information. Separate preview rows are not selected; indicator details remain open. |
 | 0.10 | 2026-10-16 | Manuel answered “1.” to inactive symbols: always visible in stable positions, subdued when inactive and highlighted for relevant updates/upcoming items. Unknown/stale is distinct from checked inactive. |
+| 0.11 | 2026-10-16 | Manuel answered “1.” to Flüge tab default: compact statistics above the searchable/filterable flight list; Start chart taps still open corresponding details directly. |
