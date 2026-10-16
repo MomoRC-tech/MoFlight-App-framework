@@ -31,9 +31,9 @@ export function Section({ title, action, onPress }: { title: string; action?: st
 export function Empty({ title, children }: { title: string; children: React.ReactNode }) {
   return <View style={ui.empty}><Label style={{ fontWeight: '600' }}>{title}</Label><Label muted>{children}</Label></View>;
 }
-export function Photo({ source, children, style, tint, radius = 14 }: { source?: ImageSourcePropType; children?: React.ReactNode; style?: StyleProp<ViewStyle>; tint?: string; radius?: number }) {
+export function Photo({ source, children, style, contentStyle, tint, radius = 14 }: { source?: ImageSourcePropType; children?: React.ReactNode; style?: StyleProp<ViewStyle>; contentStyle?: StyleProp<ViewStyle>; tint?: string; radius?: number }) {
   if (!source) return <View style={[ui.photo, style]}>{children}</View>;
-  return <ImageBackground source={source} resizeMode="cover" style={[ui.photo, { borderRadius: radius }, style]} imageStyle={{ borderRadius: radius }}><View style={[ui.shade, tint ? { backgroundColor: tint } : undefined]}>{children}</View></ImageBackground>;
+  return <ImageBackground source={source} resizeMode="cover" style={[ui.photo, { borderRadius: radius }, style]} imageStyle={{ borderRadius: radius }}><View style={[ui.shade, tint ? { backgroundColor: tint } : undefined, contentStyle]}>{children}</View></ImageBackground>;
 }
 export const ui = StyleSheet.create({
   text: { color: colors.text, fontSize: 13, lineHeight: 18 }, muted: { color: colors.muted },

@@ -105,7 +105,7 @@ function Shell() {
     {library.busy && <ActivityIndicator color={colors.cyan} accessibilityLabel="Lokale Flüge laden" />}
     {library.error && <View accessibilityLiveRegion="polite"><Label style={{ color: '#ffbd9b' }}>{library.error}</Label><Action secondary onPress={() => void library.reload()}>Erneut versuchen</Action></View>}
   </View>;
-  const heading = (title: string, image = mountain, subtitle?: string, tint?: string) => <Photo source={image} radius={0} style={[s.header, title === 'Flüge' && s.flightHeader, title === 'Verein' && s.clubHeader, title.includes('MoFlight AI') && s.assistantHeader]} tint={tint}>
+  const heading = (title: string, image = mountain, subtitle?: string, tint?: string) => <Photo source={image} radius={0} contentStyle={{ paddingTop: title.includes('MoFlight AI') ? 32 : 16 }} style={[s.header, title === 'Flüge' && s.flightHeader, title === 'Verein' && s.clubHeader, title.includes('MoFlight AI') && s.assistantHeader]} tint={tint}>
     <View style={s.headerTop}><View style={[ui.row, { flex: 1, flexWrap: 'wrap', gap: 6 }]}><Text accessibilityRole="header" style={[ui.title, { flexShrink: 1 }]}>{title}</Text>{title === 'MoFlight' && <GliderMark large />}</View><Pressable accessibilityRole="button" accessibilityLabel="Entwicklungswerkzeuge öffnen" onPress={() => setSheet('tools')} style={s.toolButton}><Label style={{ fontSize: 18 }}>⚙</Label></Pressable></View>
     {title === 'MoFlight' && <Label style={{ fontWeight: '600', fontSize: 15 }}>Guten Tag!</Label>}
     {subtitle && <Label style={{ fontSize: 12 }}>{subtitle}</Label>}
@@ -163,7 +163,7 @@ function Shell() {
         </ScrollView>
       </KeyboardAvoidingView>
     </View>
-    {!aiKeyboard && <Label style={{ textAlign: 'center', color: '#8ba4bc', fontSize: 10, lineHeight: 16 }}>Entwicklung · synthetische lokale Bibliothek</Label>}
+    {!aiKeyboard && <Label style={{ alignSelf: 'center', color: '#8ba4bc', fontSize: 10, lineHeight: 16 }}>Entwicklung · synthetische lokale Bibliothek</Label>}
     <View style={[s.nav, wide && { maxWidth: 960 }, tablet && !wide && { maxWidth: 600 }, aiKeyboard && s.hidden]} accessibilityRole="tablist">{tabs.map(item => <Pressable key={item.id} accessibilityRole="tab" accessibilityLabel={item.title} accessibilityState={{ selected: tab === item.id }} onPress={() => setTab(item.id)} style={({ pressed }) => [s.navItem, pressed && ui.pressed]}>{item.id === 'flights' ? <GliderMark color={tab === item.id ? '#00c8ff' : colors.muted} /> : item.id === 'club' ? <ClubMark color={tab === item.id ? '#00c8ff' : colors.muted} /> : <Text style={[s.navIcon, tab === item.id && s.active]}>{item.icon}</Text>}<Text style={[s.navLabel, tab === item.id && s.active]}>{item.title}</Text></Pressable>)}</View>
     <Modal visible={sheet !== null || detail !== null} animationType="slide" onRequestClose={() => { setDetail(null); setSheet(null); }}>
       <SafeAreaView style={s.modal}><StatusBar barStyle="light-content" /><View style={s.modalBar}><Action secondary onPress={() => { setDetail(null); setSheet(null); }}>‹ Zurück</Action><Label style={{ flex: 1, fontWeight: '600' }}>{detail ? 'Flugdetails' : sheet === 'books' ? 'Papierflugbuch' : sheet === 'tools' ? 'Entwicklungswerkzeuge' : 'MoFlight'}</Label></View>
@@ -188,7 +188,7 @@ function Shell() {
 const s = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.background }, content: { flex: 1, alignSelf: 'center', width: '100%', maxWidth: 599 },
   page: { flex: 1 }, hidden: { display: 'none' }, canvas: { padding: 10, paddingTop: 0, gap: 8, paddingBottom: 20 }, flightCanvas: { padding: 10, paddingTop: 0, paddingBottom: 80 },
-  header: { marginHorizontal: -10, minHeight: 126, paddingTop: 4, justifyContent: 'flex-end' }, flightHeader: { minHeight: 78 }, clubHeader: { minHeight: 156 }, assistantHeader: { minHeight: 168, paddingTop: 20, justifyContent: 'center' },
+  header: { marginHorizontal: -10, minHeight: 126, justifyContent: 'flex-end' }, flightHeader: { minHeight: 78 }, clubHeader: { minHeight: 156 }, assistantHeader: { minHeight: 168, justifyContent: 'center' },
   headerTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 6 }, toolButton: { height: 48, width: 48, alignItems: 'center', justifyContent: 'center', borderRadius: 24 },
   headerBook: { minHeight: 24, justifyContent: 'center', alignSelf: 'flex-start' },
   stateBanner: { gap: 3, padding: 4, marginTop: 8 }, provenance: { fontSize: 10, lineHeight: 16, color: '#8ba4bc', letterSpacing: .6 },
