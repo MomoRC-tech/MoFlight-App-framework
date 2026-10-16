@@ -27,7 +27,7 @@ function FlightRow({ flight, onPress }: { flight: Flight; onPress: () => void })
     <Label style={s.flightDate}>{dateText(flight.date)}</Label>
     <View style={ui.row}>
       <View style={s.noTrack}><Text style={s.aircraftIcon}>✈</Text><Label muted style={{ fontSize: 10, textAlign: 'center' }}>Kein Track</Label></View>
-      <View style={ui.column}><View style={{ gap: 1 }}><Label style={{ fontWeight: '600', flexShrink: 1 }}>{flight.registration ?? 'Kennzeichen unbekannt'}</Label><Label muted>{flight.aircraft_model ?? 'Typ unbekannt'}</Label></View>
+      <View style={ui.column}><View style={[ui.row, { flexWrap: 'wrap', gap: 6 }]}><Label style={{ fontWeight: '600', flexShrink: 1 }}>{flight.registration ?? 'Kennzeichen unbekannt'}</Label><Label muted style={{ flexShrink: 1 }}>{flight.aircraft_model ?? 'Typ unbekannt'}</Label></View>
         <Label muted>{flight.start_place ?? '—'}  →  {flight.landing_place ?? '—'}</Label>
         <View style={ui.row}><Label>◷ {formatDuration(flight.minutes)} h</Label>{flight.pilot_role && <View style={s.badge}><Label style={{ color: colors.cyan, fontSize: 11 }}>{flight.pilot_role === 'Dual' ? 'Schulung' : flight.pilot_role}</Label></View>}</View>
       </View><Label muted>›</Label>

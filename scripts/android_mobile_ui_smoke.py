@@ -45,6 +45,8 @@ def execute(smoke):
     smoke.find('Synthetic pilot library loaded.', attempts=40)
     smoke.tap('Load four synthetic books')
     smoke.find('Four synthetic books and explicit routing loaded.', attempts=40)
+    if not any('Selected: Gliding volume A' in smoke.labels(n) for n in smoke.dump()):
+        smoke.tap('Open book: Gliding volume A')
     smoke.tap('Close multiple-logbook lab')
     smoke.tap('‹ Zurück')
     smoke.find('Papierflugbuch aktualisieren')
@@ -63,7 +65,7 @@ def execute(smoke):
     smoke.tap('Schulung')
     smoke.record('flights-training-filter')
     smoke.tap('Alle')
-    node = smoke.find('Flüge durchsuchen', exact=True)
+    node = smoke.find('Flüge durchsuchen')
     smoke.tap_node(node)
     smoke.shell('input', 'text', 'NO-SUCH-FLIGHT')
     smoke.shell('input', 'keyevent', 'KEYCODE_BACK')
