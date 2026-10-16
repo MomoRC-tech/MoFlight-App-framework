@@ -73,6 +73,8 @@ Manuel authorized the first clickable checkpoint on 2026-10-16. The [v0.19 layou
 
 Next review: Start density, flight-list/detail readability, multi-book selector/overview and navigation. After Manuel's review, refine unresolved states and the remaining paper/Verein journeys before detailed M1 contracts. No application implementation, native acceptance, paid calls or milestone completion is claimed.
 
+For Manuel's remote phone review, a [standalone HTML download](prototypes/exports/moflight-design-v0.19.html) packages the same draft with embedded logo/icon/runtime assets. [Export notes](prototypes/exports/README.md) describe generation and limits. This export changes no design decisions.
+
 | Order | Choice to settle | Current status |
 | --- | --- | --- |
 | 1 | Overall appearance: retain Stitch closely, simplify its styling, or use it mainly for structure? | Confirmed 2026-10-16: option 1, keep closely; navy/cyan, glowing accents, outlined and nested cards |

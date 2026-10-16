@@ -28,3 +28,9 @@ Independent GPT-6 Luna source review checked v0.19 alignment and fixture consist
 Documentation/source checks: 14 local file/image destinations in the design description, task brief and this report exist. Scoped whitespace checks passed. Final browser error-log snapshot was empty. The phone-width override was reset and the inspected draft returned to Start.
 
 Only relevant browser interaction/layout inspection and documentation/source review were performed. No app test suite, new automated tests, native build/emulator reset, hosted CI, paid service or live provider access. This does not establish production book/account isolation, persistence/restart, actual retrieval/recovery, accessibility conformance or Android/iOS acceptance. Filter/search fields, exact state semantics, some spacing and the bounded Verein/profile arrangements remain proposals. M1 and detailed application contracts remain open. Existing unrelated product-index and ecosystem-research edits remain outside this work.
+
+## Standalone export for remote phone review
+
+At Manuel's request, generated [one standalone HTML file](../product/prototypes/exports/moflight-design-v0.19.html) using the skill renderer and embedded its three pinned runtime scripts; original fragment unchanged. Size 965,720 bytes; zero external script tags remain. Logo is a data URL. Export has the renderer's local state fallback and no required backend/development server. Readme/helper record the asset provenance and regeneration steps.
+
+Opened the generated export through a temporary loopback server, observed Start and successfully clicked Papierbuch. No actual phone download, local file viewer, offline-device trial or app test suite was performed. File delivery through the remote chat client is separate from the verified export contents.
