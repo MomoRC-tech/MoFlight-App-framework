@@ -52,3 +52,7 @@ Manuel answered “1.” to Papierbuch summary content: book name, last entry, p
 ## Version 0.9 decision follow-up
 
 Manuel requested a symbol summary row indicating changes or upcoming items, in response to the additional-club-content presentation question. Recorded one compact row instead of separate preview rows without mandating numeric counts or removing previously selected duties/work-hour content. Kept exact icon grouping, inactive appearance, change/read semantics and horizon open. Preserved the distinction between checked-empty and unknown/stale information. Reviewed the documentation diff for scope and unsupported approval claims; staged whitespace check passed. No new links, application changes or native tests. Unrelated product-index/research edits remain excluded.
+
+## Version 0.10 decision follow-up
+
+Manuel answered “1.” to inactive symbols: retain all symbols in stable positions, subdued when inactive and highlighted for relevant changes/upcoming items. Updated the current description and review queue; retained open grouping/state semantics and distinguished unknown/stale information from a checked inactive result. Reviewed the diff against the offered option and ran the staged whitespace check. No new links, application changes or native tests. Unrelated product-index/research edits remain excluded.
