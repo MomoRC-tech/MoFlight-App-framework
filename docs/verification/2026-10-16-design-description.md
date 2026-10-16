@@ -64,3 +64,7 @@ Manuel answered “1.” to Flüge tab default: flight list first, compact stati
 ## Version 0.12 decision follow-up
 
 Manuel answered “1.” to flight-list layout: compact rows within boxed day groups, tap a row for flight details, retaining Stitch styling. Recorded the selection without fixing row fields, sorting or source date/time interpretation. Reviewed the diff against the offered option and ran the staged whitespace check. No new links, application changes or native tests. Unrelated product-index/research edits remain excluded.
+
+## Version 0.13 decision follow-up
+
+Manuel answered “ok for now” to proposed row fields. Recorded aircraft registration/model and duration as the main line, departure time/airfield/own role as secondary, and other-pilot information in details. Explicitly retained the provisional/revisitable character and open formatting/source semantics. Reviewed the diff against the proposal and ran the staged whitespace check. No new links, application changes or native tests. Unrelated product-index/research edits remain excluded.
