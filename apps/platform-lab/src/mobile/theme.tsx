@@ -1,7 +1,7 @@
 import React from 'react';
 import { ImageBackground, Pressable, StyleSheet, Text, View, type ImageSourcePropType, type StyleProp, type ViewStyle } from 'react-native';
 
-export const colors = { background: '#020f19', card: '#091f32', raised: '#102a43', border: '#254761', text: '#f5f7ff', muted: '#adbed5', blue: '#279bff', cyan: '#46ccff', purple: '#231e63', orange: '#ff772b', green: '#48dba5' };
+export const colors = { background: '#000d18', card: '#071929', raised: '#11263b', border: '#244760', text: '#f5f7ff', muted: '#adbed5', blue: '#3595fe', cyan: '#46ccff', purple: '#231e63', orange: '#fc6a2d', green: '#48dba5' };
 export function GliderMark({ color = colors.text, large = false }: { color?: string; large?: boolean }) {
   return <View accessible={false} style={{ width: large ? 68 : 28, height: 30, transform: [{ rotate: '-12deg' }] }}>
     <View style={{ position: 'absolute', width: large ? 66 : 28, height: 2, top: 11, backgroundColor: color, borderRadius: 2 }} />
@@ -23,7 +23,7 @@ export function Action({ children, onPress, secondary = false, disabled = false,
   return <Pressable accessibilityRole="button" accessibilityLabel={label} accessibilityState={{ disabled }} disabled={disabled} onPress={onPress} style={({ pressed }) => [ui.action, secondary && ui.secondary, disabled && { opacity: .5 }, pressed && ui.pressed]}><Text style={[ui.actionText, secondary && { color: colors.text }]}>{children}</Text></Pressable>;
 }
 export function Chip({ title, selected, onPress, disabled = false }: { title: string; selected?: boolean; onPress: () => void; disabled?: boolean }) {
-  return <Pressable accessibilityRole="button" accessibilityLabel={title} accessibilityState={{ selected: !!selected, disabled }} disabled={disabled} onPress={onPress} style={({ pressed }) => [ui.chip, selected && ui.chipSelected, disabled && { opacity: .45 }, pressed && ui.pressed]}><Text style={[ui.chipText, selected && { color: '#031326', fontWeight: '700' }]}>{title}</Text></Pressable>;
+  return <Pressable accessibilityRole="button" accessibilityLabel={title} accessibilityState={{ selected: !!selected, disabled }} disabled={disabled} onPress={onPress} style={({ pressed }) => [ui.chipTouch, disabled && { opacity: .45 }, pressed && ui.pressed]}><View style={[ui.chip, selected && ui.chipSelected]}><Text style={[ui.chipText, selected && { color: '#031326', fontWeight: '700' }]}>{title}</Text></View></Pressable>;
 }
 export function Section({ title, action, onPress }: { title: string; action?: string; onPress?: () => void }) {
   return <View style={ui.section}><Text accessibilityRole="header" style={ui.heading}>{title}</Text>{action && onPress && <Pressable accessibilityRole="button" onPress={onPress} style={ui.smallAction}><Label style={{ color: colors.cyan }}>{action}</Label></Pressable>}</View>;
@@ -31,26 +31,27 @@ export function Section({ title, action, onPress }: { title: string; action?: st
 export function Empty({ title, children }: { title: string; children: React.ReactNode }) {
   return <View style={ui.empty}><Label style={{ fontWeight: '600' }}>{title}</Label><Label muted>{children}</Label></View>;
 }
-export function Photo({ source, children, style, tint }: { source?: ImageSourcePropType; children?: React.ReactNode; style?: StyleProp<ViewStyle>; tint?: string }) {
+export function Photo({ source, children, style, tint, radius = 14 }: { source?: ImageSourcePropType; children?: React.ReactNode; style?: StyleProp<ViewStyle>; tint?: string; radius?: number }) {
   if (!source) return <View style={[ui.photo, style]}>{children}</View>;
-  return <ImageBackground source={source} resizeMode="cover" style={[ui.photo, style]} imageStyle={{ borderRadius: 16 }}><View style={[ui.shade, tint ? { backgroundColor: tint } : undefined]}>{children}</View></ImageBackground>;
+  return <ImageBackground source={source} resizeMode="cover" style={[ui.photo, { borderRadius: radius }, style]} imageStyle={{ borderRadius: radius }}><View style={[ui.shade, tint ? { backgroundColor: tint } : undefined]}>{children}</View></ImageBackground>;
 }
 export const ui = StyleSheet.create({
-  text: { color: colors.text, fontSize: 14, lineHeight: 21 }, muted: { color: colors.muted },
-  title: { color: colors.text, fontSize: 27, fontWeight: '700', letterSpacing: -.7 },
-  heading: { color: colors.text, fontSize: 16, lineHeight: 23, fontWeight: '600' },
-  card: { backgroundColor: colors.card, experimental_backgroundImage: 'linear-gradient(140deg, #102c46, #061824)', borderWidth: 1, borderColor: colors.border, borderRadius: 16, padding: 14, gap: 9, overflow: 'hidden' },
+  text: { color: colors.text, fontSize: 13, lineHeight: 18 }, muted: { color: colors.muted },
+  title: { color: colors.text, fontSize: 26, fontWeight: '700', letterSpacing: -.6 },
+  heading: { color: colors.text, fontSize: 15, lineHeight: 20, fontWeight: '600' },
+  card: { backgroundColor: colors.card, experimental_backgroundImage: 'linear-gradient(140deg, #0c2d4a, #04131e)', borderWidth: 1, borderColor: colors.border, borderRadius: 14, padding: 11, gap: 6, overflow: 'hidden' },
   row: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   grid: { flexDirection: 'row', gap: 8, alignItems: 'stretch' },
   column: { flex: 1, minWidth: 0, gap: 8 },
-  action: { minHeight: 48, borderRadius: 18, paddingHorizontal: 16, paddingVertical: 12, backgroundColor: colors.blue, alignItems: 'center', justifyContent: 'center' },
-  actionText: { color: '#031326', fontSize: 14, lineHeight: 21, fontWeight: '600' },
+  action: { minHeight: 48, borderRadius: 16, paddingHorizontal: 14, paddingVertical: 8, backgroundColor: colors.blue, alignItems: 'center', justifyContent: 'center' },
+  actionText: { color: '#031326', fontSize: 13, lineHeight: 18, fontWeight: '600' },
   secondary: { backgroundColor: colors.raised, borderWidth: 1, borderColor: colors.border },
-  chip: { minHeight: 48, borderWidth: 1, borderColor: colors.border, borderRadius: 24, paddingHorizontal: 15, paddingVertical: 12, justifyContent: 'center', alignItems: 'center', backgroundColor: '#071724' },
-  chipSelected: { backgroundColor: colors.blue, borderColor: '#5fbaff' }, chipText: { color: colors.text, fontSize: 13, lineHeight: 20 },
+  chipTouch: { minHeight: 48, justifyContent: 'center' },
+  chip: { minHeight: 34, minWidth: 66, borderWidth: 1, borderColor: colors.border, borderRadius: 20, paddingHorizontal: 13, paddingVertical: 6, justifyContent: 'center', alignItems: 'center', backgroundColor: '#061522' },
+  chipSelected: { backgroundColor: colors.blue, experimental_backgroundImage: 'linear-gradient(180deg, #46acff, #238bf5)', borderColor: '#68baff', boxShadow: '0 0 7px #1889ff55' }, chipText: { color: colors.text, fontSize: 13, lineHeight: 20 },
   section: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
   smallAction: { minHeight: 48, justifyContent: 'center', paddingHorizontal: 4 },
-  empty: { gap: 5, paddingVertical: 8 }, pressed: { opacity: .72 },
+  empty: { gap: 4, paddingVertical: 5 }, pressed: { opacity: .72 },
   photo: { backgroundColor: '#162a42', borderRadius: 16, overflow: 'hidden' },
-  shade: { backgroundColor: '#00102288', padding: 14, gap: 7, flex: 1 },
+  shade: { backgroundColor: '#00102277', padding: 12, gap: 6, flex: 1 },
 });

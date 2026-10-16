@@ -52,8 +52,29 @@ test('training answer counts only recorded Dual and FI roles, including unknown 
   assert.match(result, /^2 gespeicherte Flüge mit dokumentierter Rolle Dual oder FI/);
 });
 
+test('saved-flight count deduplicates records, uses year boundaries, and discloses unknown dates and coverage', () => {
+  const start = flight('start', { date: '2026-01-01' });
+  const end = flight('end', { date: '2026-12-31' });
+  const result = localInsight([flight('before', { date: '2025-12-31' }), start, start, end,
+    flight('after', { date: '2027-01-01' }), flight('undated', { date: null })], 4, 2026);
+  assert.match(result, /^2026: 2 gespeicherte Flüge im ausgewählten Flugbuch/);
+  assert.match(result, /1 Flüge mit unbekanntem Datum sind keinem Jahr zugeordnet/);
+  assert.match(result, /Abdeckung des Jahres ist nicht belegt/);
+});
+
+test('missing-duration list deduplicates rows, retains and counts unknown dates, and reports zero missing times', () => {
+  const undated = flight('undated', { date: null, registration: null, minutes: null });
+  const result = localInsight([undated, undated, flight('dated', { date: '2026-02-03', registration: 'D-ABC', minutes: null }),
+    flight('known', { minutes: 20 })], 5, 2026);
+  assert.match(result, /Datum unbekannt · Flugzeug unbekannt/);
+  assert.match(result, /03\. Feb\. 2026 · D-ABC/);
+  assert.match(result, /1 Flüge mit unbekanntem Datum sind in dieser Liste enthalten/);
+  assert.equal(result.split('\n').length, 3);
+  assert.equal(localInsight([flight('known', { minutes: 0 })], 5, 2026), 'Keine fehlenden Flugzeiten in den gespeicherten Flügen.');
+});
+
 test('all advertised questions handle empty data and unsupported query IDs have an accurate fallback', () => {
-  assert.equal(localQuestions.length, 4);
+  assert.equal(localQuestions.length, 6);
   for (let index = 0; index < localQuestions.length; index++) {
     assert.equal(localInsight([], index, 2026), 'Im ausgewählten Flugbuch sind noch keine Flüge gespeichert.');
   }

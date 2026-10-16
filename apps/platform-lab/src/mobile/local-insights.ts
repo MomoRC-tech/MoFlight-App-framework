@@ -6,6 +6,8 @@ export const localQuestions = [
   'Was waren meine längsten Flüge?',
   'Mit welchem Flugzeug bin ich am häufigsten geflogen?',
   'Welche Schulungsflüge sind gespeichert?',
+  'Wie viele Flüge habe ich dieses Jahr?',
+  'Welche Flugzeiten fehlen noch?',
 ];
 
 const dateText = (date: string | null) => date
@@ -39,6 +41,17 @@ export function localInsight(flights: readonly Flight[], index: number, year: nu
   if (index === 3) {
     const count = selectFlights(all, { year: null, search: '', category: 'training' }).length;
     return `${count} gespeicherte Flüge mit dokumentierter Rolle Dual oder FI. Unbekannte Rollen werden nicht als Schulung gewertet.`;
+  }
+  if (index === 4) {
+    const datedThisYear = all.filter(f => f.date !== null && Number(f.date.slice(0, 4)) === year);
+    const unknownDates = all.filter(f => f.date === null).length;
+    return `${year}: ${datedThisYear.length} gespeicherte Flüge im ausgewählten Flugbuch. ${unknownDates} Flüge mit unbekanntem Datum sind keinem Jahr zugeordnet. Die Abdeckung des Jahres ist nicht belegt.`;
+  }
+  if (index === 5) {
+    const missing = all.filter(f => f.minutes === null);
+    if (!missing.length) return 'Keine fehlenden Flugzeiten in den gespeicherten Flügen.';
+    return missing.map(f => `${dateText(f.date)} · ${f.registration ?? 'Flugzeug unbekannt'}`)
+      .join('\n') + `\n${missing.filter(f => f.date === null).length} Flüge mit unbekanntem Datum sind in dieser Liste enthalten.`;
   }
   return 'Diese lokale Auswertung ist nicht verfügbar.';
 }
