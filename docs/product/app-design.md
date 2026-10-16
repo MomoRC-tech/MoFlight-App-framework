@@ -1,5 +1,9 @@
 # MoFlight app design
 
+## Native fidelity v0.33 — 16 October 2026
+
+Manuel requires near pixel-perfect layout reproduction of the existing approved composite, with MIN 360 dp, MAIN 390–411 dp and MAX 600+ dp verification. The [refinement brief](2026-10-16-ui-fidelity-refinement.md) preserves this target. Header/card/control geometry and colors follow that image; no alternative composition is selected. Tablet adaptation bounds the same card groups and uses columns; enlarged text returns to stacked layouts. [Native evidence](../verification/2026-10-16-ui-fidelity-width-matrix.md) records actual results and remaining photographic/data-state differences. Earlier versions below are retained history.
+
 ## Native target v0.32 — 16 October 2026
 
 Manuel explicitly approved all four screens in the [supplied composite](design-sources/2026-10-16-four-screen/README.md) and requested native implementation: Übersicht, Flüge, Verein and AI. This is the authoritative visual target for the bounded [implementation](2026-10-16-four-screen-implementation.md), superseding prior five-tab and Start-alternative target declarations below. Those earlier review versions remain preserved history. Reference names, dates and metrics are illustrative; native components use selected-book saved facts and honest unavailable states. [Native verification](../verification/2026-10-16-four-screen-native-ui.md) records actual checks, photographic substitutions and outstanding service/runtime gaps. It does not approve a new provider, paid AI or production schema.

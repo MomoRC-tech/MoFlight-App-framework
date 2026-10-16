@@ -1,5 +1,9 @@
 # MoFlight project plan
 
+## UI fidelity and width-matrix follow-up — 16 October 2026
+
+Manuel requested close replication of the approved image’s boxes, buttons, colors and layout, and established MIN 360 / MAIN 390–411 / MAX 600+ dp. This remains an M1 native UI refinement; service/data gates and milestone order are unchanged. [Deliverable/dependencies/acceptance](product/2026-10-16-ui-fidelity-refinement.md) and [native evidence](verification/2026-10-16-ui-fidelity-width-matrix.md) record the density, tablet and keyboard checks. AGENTS.md now preserves this standing matrix. Existing Issue #5 remains open.
+
 ## Native four-screen checkpoint — 16 October 2026
 
 Manuel explicitly authorized implementing the [supplied approved composite](product/design-sources/2026-10-16-four-screen/README.md). This advances a bounded **M1 native UI/application-contract slice** beyond earlier design-only checkpoints below: four-tab shell, selected-book saved-flight queries/details, existing paper-workflow access and accurate unavailable states. Dependencies and acceptance checks are in the [implementation brief](product/2026-10-16-four-screen-implementation.md); current evidence and limitations are in the [verification report](verification/2026-10-16-four-screen-native-ui.md). Existing Issues #5 and #9 were checked open; no duplicate task or Issue closure.

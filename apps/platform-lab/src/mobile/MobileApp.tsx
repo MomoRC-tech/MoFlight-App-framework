@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, BackHandler, FlatList, KeyboardAvoidingView, Linking, Modal, Platform, Pressable, ScrollView, StatusBar, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, BackHandler, FlatList, Keyboard, KeyboardAvoidingView, Linking, Modal, Platform, Pressable, ScrollView, StatusBar, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import type { Flight } from '@moflight/flight-logbook';
 import LabApp from '../App';
@@ -49,9 +49,15 @@ function Shell() {
   const [aiError, setAiError] = useState(false);
   const [sending, setSending] = useState(false);
   const [localAnswer, setLocalAnswer] = useState<string | null>(null);
+  const [keyboardTop, setKeyboardTop] = useState<number | null>(null);
+  const aiScroll = useRef<ScrollView>(null);
+  const activeTab = useRef(tab);
+  activeTab.current = tab;
   const toolsOpen = sheet === 'books' || sheet === 'tools';
   const library = useLibrary(toolsOpen);
-  const { width, fontScale } = useWindowDimensions();
+  const { width, height, fontScale } = useWindowDimensions();
+  const aiKeyboard = tab === 'ai' && keyboardTop !== null;
+  const keyboardOverlap = Platform.OS === 'android' && aiKeyboard ? Math.max(0, height - keyboardTop!) : 0;
   const compact = fontScale > 1.3;
   const tablet = width >= 600 && !compact;
   const wide = width >= 840 && !compact;
@@ -62,6 +68,16 @@ function Shell() {
   const summary = summarizeFlights(flights);
   const currentYear = new Date().getFullYear();
   const book = library.books.find(b => b.id === library.bookId);
+  useEffect(() => {
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const show = Keyboard.addListener('keyboardDidShow', event => {
+      setKeyboardTop(event.endCoordinates.screenY);
+      if (activeTab.current === 'ai') timer = setTimeout(() => aiScroll.current?.scrollToEnd({ animated: true }), 120);
+    });
+    const hide = Keyboard.addListener('keyboardDidHide', () => { setKeyboardTop(null); clearTimeout(timer); });
+    return () => { show.remove(); hide.remove(); clearTimeout(timer); };
+  }, []);
+  useEffect(() => { Keyboard.dismiss(); }, [tab]);
   useEffect(() => { setDetail(null); setLocalAnswer(null); }, [library.bookId, library.flights]);
   useEffect(() => {
     const listener = BackHandler.addEventListener('hardwareBackPress', () => {
@@ -104,7 +120,7 @@ function Shell() {
     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.chips}><Chip title="Alle" selected={!training} onPress={() => setTraining(false)} /><Chip title="Strecke ⓘ" onPress={() => setSheet('unsupported')} /><Chip title="Platzrunden ⓘ" onPress={() => setSheet('unsupported')} /><Chip title="Schulung" selected={training} onPress={() => setTraining(true)} /></ScrollView>
   </View>;
 
-  return <SafeAreaView edges={['top', 'left', 'right', 'bottom']} style={s.root}>
+  return <SafeAreaView edges={['top', 'left', 'right', 'bottom']} style={[s.root, keyboardOverlap > 0 && { paddingBottom: keyboardOverlap }]}>
     <StatusBar barStyle="light-content" backgroundColor={colors.background} />
     <View style={[s.content, wide && { maxWidth: 960 }, tablet && !wide && { maxWidth: 600 }]}>
       <View style={[s.page, tab !== 'home' && s.hidden]} accessibilityElementsHidden={tab !== 'home'} importantForAccessibility={tab === 'home' ? 'auto' : 'no-hide-descendants'}>
@@ -131,8 +147,8 @@ function Shell() {
           <Pressable accessibilityRole="button" onPress={() => setSheet('status')} style={ui.smallAction}><Label muted>Verbindung & Datenstatus  ›</Label></Pressable>
         </ScrollView>
       </View>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={[s.page, tab !== 'ai' && s.hidden]} accessibilityElementsHidden={tab !== 'ai'} importantForAccessibility={tab === 'ai' ? 'auto' : 'no-hide-descendants'}>
-        <ScrollView contentContainerStyle={s.canvas} keyboardShouldPersistTaps="handled">
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={[s.page, tab !== 'ai' && s.hidden]} accessibilityElementsHidden={tab !== 'ai'} importantForAccessibility={tab === 'ai' ? 'auto' : 'no-hide-descendants'}>
+        <ScrollView ref={aiScroll} contentContainerStyle={s.canvas} keyboardShouldPersistTaps="handled" onContentSizeChange={() => { if (aiKeyboard) aiScroll.current?.scrollToEnd({ animated: false }); }}>
           {heading('✦ MoFlight AI', mountain, 'Dein persönlicher Segelflug-Assistent', '#21144a77')}
           <View style={[s.aiBody, tablet && { maxWidth: 720 }]}>
           <Card style={s.welcome}><View style={ui.row}><View style={s.aiBadge}><Text style={{ fontSize: 20, color: '#062d39' }}>✧</Text></View><Section title="Hallo!" /></View><Label>Fragen zu deinen Flugdaten, Auswertungen und Planungen – an einem Ort.</Label><Label muted>Lokale Fragen sind verfügbar. Der AI-Dienst ist noch nicht verbunden.</Label></Card>
@@ -147,8 +163,8 @@ function Shell() {
         </ScrollView>
       </KeyboardAvoidingView>
     </View>
-    <Label style={{ textAlign: 'center', color: '#8ba4bc', fontSize: 10, lineHeight: 16 }}>Entwicklung · synthetische lokale Bibliothek</Label>
-    <View style={[s.nav, wide && { maxWidth: 960 }, tablet && !wide && { maxWidth: 600 }]} accessibilityRole="tablist">{tabs.map(item => <Pressable key={item.id} accessibilityRole="tab" accessibilityLabel={item.title} accessibilityState={{ selected: tab === item.id }} onPress={() => setTab(item.id)} style={({ pressed }) => [s.navItem, pressed && ui.pressed]}>{item.id === 'flights' ? <GliderMark color={tab === item.id ? '#00c8ff' : colors.muted} /> : item.id === 'club' ? <ClubMark color={tab === item.id ? '#00c8ff' : colors.muted} /> : <Text style={[s.navIcon, tab === item.id && s.active]}>{item.icon}</Text>}<Text style={[s.navLabel, tab === item.id && s.active]}>{item.title}</Text>{tab === item.id && <View style={s.activeLine} />}</Pressable>)}</View>
+    {!aiKeyboard && <Label style={{ textAlign: 'center', color: '#8ba4bc', fontSize: 10, lineHeight: 16 }}>Entwicklung · synthetische lokale Bibliothek</Label>}
+    <View style={[s.nav, wide && { maxWidth: 960 }, tablet && !wide && { maxWidth: 600 }, aiKeyboard && s.hidden]} accessibilityRole="tablist">{tabs.map(item => <Pressable key={item.id} accessibilityRole="tab" accessibilityLabel={item.title} accessibilityState={{ selected: tab === item.id }} onPress={() => setTab(item.id)} style={({ pressed }) => [s.navItem, pressed && ui.pressed]}>{item.id === 'flights' ? <GliderMark color={tab === item.id ? '#00c8ff' : colors.muted} /> : item.id === 'club' ? <ClubMark color={tab === item.id ? '#00c8ff' : colors.muted} /> : <Text style={[s.navIcon, tab === item.id && s.active]}>{item.icon}</Text>}<Text style={[s.navLabel, tab === item.id && s.active]}>{item.title}</Text></Pressable>)}</View>
     <Modal visible={sheet !== null || detail !== null} animationType="slide" onRequestClose={() => { setDetail(null); setSheet(null); }}>
       <SafeAreaView style={s.modal}><StatusBar barStyle="light-content" /><View style={s.modalBar}><Action secondary onPress={() => { setDetail(null); setSheet(null); }}>‹ Zurück</Action><Label style={{ flex: 1, fontWeight: '600' }}>{detail ? 'Flugdetails' : sheet === 'books' ? 'Papierflugbuch' : sheet === 'tools' ? 'Entwicklungswerkzeuge' : 'MoFlight'}</Label></View>
         {sheet === 'tools' ? <LabApp /> : sheet === 'books' ? <View style={{ flex: 1, backgroundColor: '#f5f7fb' }}><BookLab close={() => setSheet(null)} /></View> : <ScrollView contentContainerStyle={s.canvas}>

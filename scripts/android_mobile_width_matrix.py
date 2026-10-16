@@ -88,6 +88,42 @@ def assert_navigation(smoke, selected, width, height):
     assert all(left[2] <= right[0] for left, right in zip(row, row[1:])), 'Navigation controls overlap or are reordered'
 
 
+def native_keyboard_top(window_dump, width, height):
+    """Read IME geometry only from WindowManager, never app layout bounds."""
+    rect = r'(?:\[(-?\d+),\s*(-?\d+)\]\[(-?\d+),\s*(-?\d+)\]|Rect\((-?\d+),\s*(-?\d+)\s*-\s*(-?\d+),\s*(-?\d+)\))'
+
+    def read_rect(text, key):
+        match = re.search(key + r'\s*=\s*' + rect, text)
+        return [int(value) for value in match.groups() if value is not None] if match else None
+
+    def valid(frame):
+        return frame is not None and 0 <= frame[0] < frame[2] <= width and 0 < frame[1] < frame[3] <= height and frame[2] - frame[0] >= width * .8
+
+    sources = []
+    for line in window_dump.splitlines():
+        if ('InsetsSource' in line and re.search(r'\b(?:mType|type)\s*=\s*ime\b', line, re.I)
+                and re.search(r'\b(?:mVisible|visible)\s*=\s*true\b', line)):
+            frame = read_rect(line, r'\b(?:mFrame|frame)')
+            if valid(frame):
+                sources.append(frame[1])
+    if sources:
+        return min(sources), 'WindowManager visible IME InsetsSource frame'
+    for section in re.split(r'(?m)^\s*Window #\d+ ', window_dump)[1:]:
+        if ('ty=INPUT_METHOD ' not in section or 'isVisible=true' not in section
+                or 'isOnScreen=true' not in section):
+            continue
+        frames = re.search(r'(?m)^\s*Frames:[^\n]*', section)
+        frame = read_rect(frames.group(0), r'\bframe') if frames else None
+        inset = read_rect(section, r'\bmGivenContentInsets')
+        if frame is not None and inset is not None:
+            # IME window can cover the full display with transparent content.
+            # mGivenContentInsets.top locates its actual keyboard surface.
+            content = [frame[0], frame[1] + inset[1], frame[2], frame[3]]
+            if valid(content):
+                return content[1], 'WindowManager visible InputMethod frame plus content inset'
+    raise AssertionError('Cannot establish native IME geometry from WindowManager')
+
+
 def keyboard_trial(smoke, viewport, name):
     smoke.tap_node(smoke.find('Nachricht an MoFlight AI', exact=True, scroll=True))
     smoke.shell('input', 'text', 'Width%stest')
@@ -98,6 +134,8 @@ def keyboard_trial(smoke, viewport, name):
     send = smoke.find('Nachricht senden', exact=True, scroll=True, attempts=8)
     assert send.get('enabled') == 'true', 'Composer send control disabled with a draft'
     nodes = smoke.dump()
+    window_dump = smoke.shell('dumpsys', 'window', 'windows')
+    (smoke.output / f'{name}-window-windows.txt').write_text(window_dump, encoding='utf-8')
     # Preserve the trial viewport even when an overlay assertion fails and the
     # outer finally subsequently restores the emulator's original display.
     (smoke.output / f'{name}-observed.xml').write_text(
@@ -111,11 +149,16 @@ def keyboard_trial(smoke, viewport, name):
                 or 'keyboard' in n.get('package', '').lower()) and n.get('bounds')]
     panels = [b for b in keyboard if b[1] > 0 and b[2] - b[0] >= width * .8
               and b[3] - b[1] >= height * .1]
-    assert panels, 'Cannot establish keyboard overlay bounds from native hierarchy'
-    keyboard_top = min(b[1] for b in panels)
+    if panels:
+        keyboard_top, keyboard_source = min(b[1] for b in panels), 'Native IME accessibility panel bounds'
+    else:
+        keyboard_top, keyboard_source = native_keyboard_top(window_dump, width, height)
     x1, y1, x2, y2 = bounds(send)
-    assert 0 <= x1 < x2 <= width and 0 <= y1 < y2 <= keyboard_top, 'Send button overlaps keyboard or viewport edge'
+    assert 0 <= x1 < x2 <= width and 0 <= y1 < y2 <= keyboard_top, (
+        f'Send bounds {[x1, y1, x2, y2]} overlap keyboard top {keyboard_top} '
+        f'or viewport edge ({keyboard_source})')
     capture(smoke, name, {**viewport, 'keyboard_top_px': keyboard_top,
+                         'keyboard_geometry_source': keyboard_source,
                          'send_bounds_px': [x1, y1, x2, y2]})
     # Dismiss without submitting or mutating persisted assistant history.
     smoke.shell('input', 'keyevent', 'KEYCODE_BACK')
