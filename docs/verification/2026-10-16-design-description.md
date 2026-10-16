@@ -20,3 +20,7 @@ Limits: no application source changes, native build/device trials, provider call
 ## Version 0.2 decision follow-up
 
 Manuel answered “1. keep” to the first question, selecting close retention of the Stitch look. Updated the active description and added a supersession notice to the earlier design review: navy/cyan, glowing accents and outlined/nested cards replace the earlier filled-card/default-outline restriction. Screen content, detailed tokens and behavior remain under review. Reviewed the diff for that scope and ran the staged whitespace check; no application tests are needed for this documentation-only decision. Unrelated product-index/research changes remain excluded.
+
+## Version 0.3 decision follow-up
+
+Manuel answered “2.” to Start density: compact flying, paper-book and club summaries with details available by tapping. Recorded the selection without assuming exact fields, fixed heights or a no-scroll requirement; preserved flying-first/paper-second order and access to full information. Reviewed the documentation diff against the offered option and ran the staged whitespace check. No new links or application changes; no native tests required. Unrelated product-index/research edits remain excluded.
