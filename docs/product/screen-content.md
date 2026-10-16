@@ -1,5 +1,7 @@
 # MoFlight screen content and placement
 
+> **Native target update — 16 October 2026:** the explicit [four-screen implementation request](2026-10-16-four-screen-implementation.md) selects Übersicht / Flüge / Verein / AI for the current native slice. Earlier inventories below preserve discovery placement history. Paper assistance opens from Übersicht; weather is an unavailable dashboard panel; AI includes supported deterministic local queries and an unavailable free-text service state. Actual selected-book facts replace reference examples. Club sections remain unavailable without a source. This does not complete canonical retrieval, weather, club or AI integration.
+
 Version **0.7**, 2026-10-16. Owner: Manuel. Working inventory for review, independent of visual styling. Git preserves revisions. Stable IDs let us change individual placements without describing an entire screen again.
 
 ## Purpose and authority

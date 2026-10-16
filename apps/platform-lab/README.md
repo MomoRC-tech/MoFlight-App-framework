@@ -161,3 +161,5 @@ After building and installing committed source on `MoFlight_Synthetic_API37`, ru
 
 See [scope and contracts](../../docs/product/2026-10-16-four-screen-implementation.md), [reference](../../docs/product/design-sources/2026-10-16-four-screen/README.md) and [photo licenses](assets/aviation/README.md). No dependency or schema migration was introduced.
 
+After the UI trial, `python scripts/android_mobile_scope_smoke.py --serial emulator-5554 --output local-data/android-mobile-scope` checks tab-filter retention, different book totals and remembered book selection after restart. [Recorded native evidence](../../docs/verification/2026-10-16-four-screen-native-ui.md) distinguishes passing local checks from missing live integrations and iOS runtime acceptance.
+

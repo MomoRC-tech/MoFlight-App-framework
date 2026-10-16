@@ -1,0 +1,21 @@
+{
+  "status": "passed",
+  "checks": [
+    {
+      "name": "narrow-enlarged-flight-rows",
+      "status": "passed"
+    },
+    {
+      "name": "ai-composer-with-keyboard",
+      "status": "passed"
+    }
+  ],
+  "boundary": "Android emulator only; synthetic prepared observations/CSV. Native UI and external synthetic backup/picker checks. No OCR, live retrieval, cloud Auth, physical phone or iOS.",
+  "source": {
+    "validated_commit": "4dad2c094abda9b4e00a6bf26f557a9b087cc00b",
+    "compiled_commit": "4dad2c094abda9b4e00a6bf26f557a9b087cc00b"
+  },
+  "diagnostics": {
+    "status": "complete"
+  }
+}

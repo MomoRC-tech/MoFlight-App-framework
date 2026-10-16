@@ -1,5 +1,9 @@
 # MoFlight app design
 
+## Native target v0.32 — 16 October 2026
+
+Manuel explicitly approved all four screens in the [supplied composite](design-sources/2026-10-16-four-screen/README.md) and requested native implementation: Übersicht, Flüge, Verein and AI. This is the authoritative visual target for the bounded [implementation](2026-10-16-four-screen-implementation.md), superseding prior five-tab and Start-alternative target declarations below. Those earlier review versions remain preserved history. Reference names, dates and metrics are illustrative; native components use selected-book saved facts and honest unavailable states. [Native verification](../verification/2026-10-16-four-screen-native-ui.md) records actual checks, photographic substitutions and outstanding service/runtime gaps. It does not approve a new provider, paid AI or production schema.
+
 Version: **0.30 — Popup, Back and medical indicator contrast**. Updated: 2026-10-16 (Europe/Berlin). Product/design decisions: Manuel. This is a living design description; Git preserves revisions and the change log records meaningful decisions. A draft version is not approval of the entire design. The v0.26 preview has bounded browser observations; v0.27 has bounded browser observations; v0.28 observations are in the [twin-ring report](../verification/2026-10-16-twin-ring-preview.md); v0.29 observations are in the [lighter-canvas report](../verification/2026-10-16-lighter-canvas-preview.md); v0.30 observations are in the [popup/back/medical report](../verification/2026-10-16-popup-back-med-preview.md). Manuel's visual review remains open.
 
 ## Purpose and task boundary

@@ -1,5 +1,11 @@
 # MoFlight project plan
 
+## Native four-screen checkpoint — 16 October 2026
+
+Manuel explicitly authorized implementing the [supplied approved composite](product/design-sources/2026-10-16-four-screen/README.md). This advances a bounded **M1 native UI/application-contract slice** beyond earlier design-only checkpoints below: four-tab shell, selected-book saved-flight queries/details, existing paper-workflow access and accurate unavailable states. Dependencies and acceptance checks are in the [implementation brief](product/2026-10-16-four-screen-implementation.md); current evidence and limitations are in the [verification report](verification/2026-10-16-four-screen-native-ui.md). Existing Issues #5 and #9 were checked open; no duplicate task or Issue closure.
+
+The native target for this slice is Übersicht / Flüge / Verein / AI. Older five-tab HTML drafts and Start alternatives remain historical design work. The shell uses the existing synthetic SQLite library, not a new production schema or canonical live history. **Full M1 acceptance and M2–M5 remain open.** Live provider normalization, club/weather/AI services, real photo-to-writing and iOS runtime retain their gates. Next: use the recorded native findings when specifying the reliable retrieval/canonical-history boundary; do not interpret a styled unavailable state as service integration. This dated checkpoint supersedes conflicting implementation-not-started/preview-target statements below only for this authorized slice.
+
 Updated: 2026-10-13 (Europe/Berlin). Product/decision owner: Manuel Singer. This roadmap was explicitly authorized by Manuel on this date. It is the authoritative source for current priorities, milestone status and next actions; it does not claim acceptance of unfinished features or proposed architecture.
 
 ## 1. Direction and constraints

@@ -133,11 +133,12 @@ def main():
     else:
         smoke.finish('passed')
     finally:
-        smoke.shell('wm', 'size', 'reset')
-        smoke.shell('wm', 'density', 'reset')
-        smoke.shell('settings', 'put', 'system', 'font_scale', '1.0')
-        smoke.shell('cmd', 'connectivity', 'airplane-mode', 'disable')
-        smoke.shell('svc', 'wifi', 'enable')
+        if smoke.emulator:
+            smoke.shell('wm', 'size', 'reset')
+            smoke.shell('wm', 'density', 'reset')
+            smoke.shell('settings', 'put', 'system', 'font_scale', '1.0')
+            smoke.shell('cmd', 'connectivity', 'airplane-mode', 'disable')
+            smoke.shell('svc', 'wifi', 'enable')
 
 
 if __name__ == '__main__':
