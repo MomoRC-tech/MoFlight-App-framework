@@ -68,3 +68,7 @@ Manuel answered “1.” to flight-list layout: compact rows within boxed day gr
 ## Version 0.13 decision follow-up
 
 Manuel answered “ok for now” to proposed row fields. Recorded aircraft registration/model and duration as the main line, departure time/airfield/own role as secondary, and other-pilot information in details. Explicitly retained the provisional/revisitable character and open formatting/source semantics. Reviewed the diff against the proposal and ran the staged whitespace check. No new links, application changes or native tests. Unrelated product-index/research edits remain excluded.
+
+## Version 0.14 decision follow-up
+
+Manuel answered “1.” to missing-data warnings: compact Start notice plus affected-row markers, with the notice opening those flights. Recorded the selection while keeping unknown durations unknown and issue/count/resolution semantics open. No provider-evidence editing or inferred missing values were approved. Reviewed the diff against the offered option and ran the staged whitespace check. No new links, application changes or native tests. Unrelated product-index/research edits remain excluded.
