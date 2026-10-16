@@ -120,6 +120,8 @@ Writing assistance has immediate product value; its place in the smallest useful
 
 ## Next action and unresolved decisions
 
+Review **what goes where** in the [screen-content and placement inventory](docs/product/screen-content.md), independently of visual design. Stable item IDs support adding or moving content screen by screen; confirmed needs, draft placements and prototype gaps are distinguished.
+
 Review the [v0.23 Micro Bento checkpoint](docs/product/prototypes/2026-10-16-clickable-v023.html) or its [standalone phone download](docs/product/prototypes/exports/moflight-design-v0.23.html) against the [versioned app design description](docs/product/app-design.md): selected Start arrangement, visible sync freshness, connected flight list/details and independent paper-book state/selection. The draft uses fictional data and makes no provider requests. [Browser observations and limits](docs/verification/2026-10-16-clickable-layout.md) cover the bounded check. Detailed operation/state contracts and native application implementation remain open.
 
 Latest decision: Manuel selected the whole [supplied Micro Bento Start arrangement](docs/product/design-sources/2026-10-16-micro-bento/README.md), including numeric comparisons and the larger paper card. Earlier drafts are retained; source placeholder popups are replaced with the reviewed destination flows, with multi-book/data boundaries preserved.

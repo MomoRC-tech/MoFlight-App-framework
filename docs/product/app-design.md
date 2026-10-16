@@ -4,6 +4,8 @@ Version: **0.23 — Full Micro Bento Start arrangement selected and connected**.
 
 ## Purpose and task boundary
 
+For the design-independent **what goes where** inventory, use [screen-content.md](screen-content.md). It separates information placement from this file's visual decisions and prototype history. New placement choices should be reviewed there, then reflected here and in the preview; extracting the inventory does not select new content or change earlier decisions.
+
 M1 discovery deliverable: a shared description of appearance, screen structure, navigation and representative states, starting from Manuel's supplied Stitch export. Dependencies: the [confirmed journey map](2026-10-13-journey-information-map.md), [earlier design decisions](2026-10-13-dark-concept-review.md), and [project plan](../project-plan.md). Existing Issues [#5](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/5), [#9](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/9), and [#11](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/11) were checked open on 2026-10-16; no new Issue is needed.
 
 Review acceptance: Manuel has reviewed the relevant design choices; the description identifies destinations, primary actions, supporting screens and data states; a subsequent clickable preview demonstrates the selected journeys. This document alone does not complete M1 or authorize application implementation. Detailed operations, native checks and feasibility gates remain in the roadmap.
