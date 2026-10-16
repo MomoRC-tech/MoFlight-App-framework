@@ -11,7 +11,7 @@ import time
 from pathlib import Path
 
 from android_smoke import Smoke
-from android_mobile_ui_smoke import launch, tab, top
+from android_mobile_ui_smoke import launch, tab
 
 
 AVD = 'MoFlight_Synthetic_API37'
@@ -49,6 +49,24 @@ def save_report(smoke):
         json.dumps(smoke.report, indent=2, ensure_ascii=False) + '\n', encoding='utf-8')
 
 
+def finish(smoke, status, error=None):
+    """Finalize locally: Smoke.finish also changes networking, so never call it."""
+    smoke.report['status'] = status
+    if error is not None:
+        smoke.report['error'] = str(error)
+    if not smoke.emulator:
+        smoke.report['diagnostics'] = {'status': 'not collected', 'reason': 'Device selection rejected'}
+    elif error is not None:
+        try:
+            # Display restoration already ran; identify this diagnostic honestly.
+            (smoke.output / 'failure-after-display-restoration.png').write_bytes(
+                smoke.adb('exec-out', 'screencap', '-p', binary=True).stdout)
+            smoke.report['diagnostics'] = {'status': 'complete', 'display': 'Original settings restored before capture'}
+        except Exception as diagnostic_error:
+            smoke.report['diagnostics'] = {'status': 'incomplete', 'error_type': type(diagnostic_error).__name__}
+    save_report(smoke)
+
+
 def assert_navigation(smoke, selected, width, height):
     nodes = smoke.dump()
     for title, _ in TABS:
@@ -57,6 +75,7 @@ def assert_navigation(smoke, selected, width, height):
         assert len(matches) == 1, f'Expected one visible navigation control: {title}'
         node = matches[0]
         assert node.get('selected') == str(title == selected).lower(), f'Incorrect selected tab: {title}'
+        assert node.get('enabled') == 'true', f'Disabled navigation control: {title}'
         x1, y1, x2, y2 = bounds(node)
         assert 0 <= x1 < x2 <= width and 0 <= y1 < y2 <= height, f'Navigation outside viewport: {title}'
 
@@ -71,6 +90,12 @@ def keyboard_trial(smoke, viewport, name):
     send = smoke.find('Nachricht senden', exact=True, scroll=True, attempts=8)
     assert send.get('enabled') == 'true', 'Composer send control disabled with a draft'
     nodes = smoke.dump()
+    # Preserve the trial viewport even when an overlay assertion fails and the
+    # outer finally subsequently restores the emulator's original display.
+    (smoke.output / f'{name}-observed.xml').write_text(
+        (smoke.output / 'last-screen.xml').read_text(encoding='utf-8'), encoding='utf-8')
+    (smoke.output / f'{name}-observed.png').write_bytes(
+        smoke.adb('exec-out', 'screencap', '-p', binary=True).stdout)
     width, height = viewport['width_dp'], viewport['height_dp']
     # Android's keyboard content container bounds provide an observable overlay
     # boundary. Exclude fullscreen IME accessibility wrappers starting at y=0.
@@ -119,7 +144,6 @@ def execute(smoke):
             prefix = f'w{width}-h{height}-font{font:g}'
             for title, slug in TABS:
                 tab(smoke, title)
-                top(smoke)
                 assert_navigation(smoke, title, width, height)
                 capture(smoke, f'{prefix}-{slug}', viewport)
             if width == 360:
@@ -165,10 +189,10 @@ def main():
     try:
         execute(smoke)
     except Exception as error:
-        smoke.finish('failed', error)
+        finish(smoke, 'failed', error)
         raise
     else:
-        smoke.finish('passed')
+        finish(smoke, 'passed')
 
 
 if __name__ == '__main__':

@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
   hero: { padding: 0, borderColor: '#995f3c', minHeight: 144 }, heroImage: { flex: 1, minHeight: 144 },
   paperIcon: { width: 38, height: 38, borderRadius: 15, backgroundColor: '#ff7929', alignItems: 'center', justifyContent: 'center' },
   eyebrow: { fontSize: 11, lineHeight: 16, fontWeight: '600' }, pending: { fontSize: 16, lineHeight: 22, fontWeight: '600' }, small: { fontSize: 11, lineHeight: 16 },
-  orangeButton: { backgroundColor: '#ff762b', experimental_backgroundImage: 'linear-gradient(180deg, #ff963e, #ff621f)', height: 36, borderRadius: 15, justifyContent: 'center', alignSelf: 'flex-start', paddingHorizontal: 18, marginTop: 2 },
+  orangeButton: { backgroundColor: '#ff762b', experimental_backgroundImage: 'linear-gradient(180deg, #ff963e, #ff621f)', minHeight: 36, paddingVertical: 7, borderRadius: 15, justifyContent: 'center', alignSelf: 'flex-start', paddingHorizontal: 18, marginTop: 2 },
   season: { flex: 1.38, minWidth: 0, minHeight: 194, gap: 5 }, yearBadge: { paddingHorizontal: 7, borderRadius: 12, backgroundColor: '#1b4269' },
   seasonMetrics: { flexDirection: 'row', gap: 5, justifyContent: 'space-between' }, metric: { flexShrink: 1 }, value: { color: colors.text, fontSize: 24, lineHeight: 29, fontWeight: '700' },
   rings: { flexDirection: 'row', justifyContent: 'space-between', gap: 6, flexWrap: 'wrap', marginTop: 2 }, ring: { width: 62, height: 62, borderRadius: 31, borderWidth: 6, borderColor: colors.cyan, alignItems: 'center', justifyContent: 'center', backgroundColor: '#061626' }, ringValue: { fontSize: 15, lineHeight: 19, fontWeight: '700' }, ringLabel: { fontSize: 9, lineHeight: 12 },
