@@ -1,6 +1,6 @@
 # MoFlight app design
 
-Version: **0.19 — Very compact paper-book indicators selected; layout review continues**. Updated: 2026-10-16 (Europe/Berlin). Product/design decisions: Manuel. This is a living design description; Git preserves revisions and the change log records meaningful decisions. A draft version is not approval of the entire design.
+Version: **0.20 — Clickable checkpoint of v0.19 ready for review**. Updated: 2026-10-16 (Europe/Berlin). Product/design decisions: Manuel. This is a living design description; Git preserves revisions and the change log records meaningful decisions. A draft version is not approval of the entire design.
 
 ## Purpose and task boundary
 
@@ -69,6 +69,10 @@ Keep refresh/check needs distinct from known correction/review cases. These are 
 
 ## Review queue — one question at a time
 
+Manuel authorized the first clickable checkpoint on 2026-10-16. The [v0.19 layout draft](prototypes/2026-10-16-clickable-v019.html) implements the selected choices with fictional data for visual review. Its [task brief](prototypes/2026-10-16-clickable-brief.md) records scope; [browser observations and limits](../verification/2026-10-16-clickable-layout.md) record evidence. The draft adds a bounded Verein overview, profile entry, filter sheet and first guided paper-check step so the core navigation is reviewable. These draft arrangements are proposals, not new feature acceptance. Start's two comparison measures sit beside each other to reduce height; the chosen paired current/prior bars remain. The displayed fixtures contain 6 current-year and 5 prior-year flights, with two unknown durations, and three independent books. Start has no book selector or last-entry details. A scripted refresh-error example makes no provider request; the paper journey stops before photo/review/template work and changes no book state.
+
+Next review: Start density, flight-list/detail readability, multi-book selector/overview and navigation. After Manuel's review, refine unresolved states and the remaining paper/Verein journeys before detailed M1 contracts. No application implementation, native acceptance, paid calls or milestone completion is claimed.
+
 | Order | Choice to settle | Current status |
 | --- | --- | --- |
 | 1 | Overall appearance: retain Stitch closely, simplify its styling, or use it mainly for structure? | Confirmed 2026-10-16: option 1, keep closely; navy/cyan, glowing accents, outlined and nested cards |
@@ -105,3 +109,4 @@ Review loading, empty, offline, stale, incomplete, unknown, error, cancel and re
 | 0.17 | 2026-10-16 | Manuel answered “1.” to multiple books on Start: one selected book's summary with a visible switcher; no separate summary card per book. |
 | 0.18 | 2026-10-16 | Manuel revised Start to overview only, with all details/book selector in Papierbuch. Supersedes selected-book card/switcher on Start; proposed a compact cross-book status card for review. No shared-selection answer was given or inferred. |
 | 0.19 | 2026-10-16 | Manuel accepted the overview direction but requested a very compact view, suggesting symbols with highlights for update needs and counts for things to correct. Replaced the multi-line proposal with a shallow indicator-row proposal. Requested no unnecessary tests. |
+| 0.20 | 2026-10-16 | At Manuel's request, prepared the first clickable layout checkpoint from v0.19. Recorded proposed presentation details and bounded browser observations; visual/user acceptance remains open. |

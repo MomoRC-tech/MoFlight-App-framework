@@ -96,7 +96,7 @@ See [product scope](docs/product/moflight-feature-scope.md), [writing presentati
 | Area | Where it stands |
 | --- | --- |
 | User journeys | Reviewed; detailed UI/application contracts remain open |
-| UI design | Initial Figma drafts rejected; dark revision uses filled cards and Material bottom navigation; Start leads with Mein Fliegen, then Papierbuch; overall design remains unselected |
+| UI design | Versioned Stitch-based navy/cyan direction with paired year-comparison bars, compact Start indicators and attached bottom navigation; first synthetic clickable checkpoint ready for review; overall screen acceptance and detailed contracts remain open |
 | Native foundation | Expo/React Native lab with local SQLite, backup and bounded Android evidence |
 | Vereinsflieger access | Browser raw-capture and recovery proofs; complete canonical live history remains gated |
 | Statistics and books | Deterministic synthetic queries and multi-book proofs; live integration remains open |
@@ -120,7 +120,7 @@ Writing assistance has immediate product value; its place in the smallest useful
 
 ## Next action and unresolved decisions
 
-Continue UI-concept and feature-feasibility review using the [versioned app design description](docs/product/app-design.md), starting from Manuel's Stitch export and preserving earlier confirmed choices. Review open choices one question at a time, then settle operation/state contracts for the chosen journeys. The overall screen design remains under review; approved branding and individually confirmed layout choices remain in force.
+Review the [first clickable layout checkpoint](docs/product/prototypes/2026-10-16-clickable-v019.html) against the [versioned app design description](docs/product/app-design.md): Start density, flight list/details and separate paper-book state/selection. The draft uses fictional data and makes no provider requests. [Browser observations and limits](docs/verification/2026-10-16-clickable-layout.md) cover the bounded check. Continue open choices one question at a time before detailed operation/state contracts; the overall screen design remains under review.
 
 Deferred ideas include [Activities live — #14](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/14), [in-app chat — #13](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/13), possible SPL tutoring and weather. Billing inspection is also deferred. No release date is promised.
 
