@@ -76,3 +76,7 @@ Manuel answered “1.” to missing-data warnings: compact Start notice plus aff
 ## Version 0.15 decision follow-up
 
 Manuel answered “1.” to flight-detail arrangement: a single scrollable page with boxed aircraft, times/route, people/roles and source sections, retaining header Back. Recorded the layout selection without fixing exact fields, evidence states or editing behavior. Reviewed the diff against the offered option and ran the staged whitespace check. No new links, application changes or native tests. Unrelated product-index/research edits remain excluded.
+
+## Version 0.16 decision follow-up
+
+Manuel selected the last-used book overview with a top book selector and reiterated multiple paper books per pilot/user. Recorded the navigation selection and existing independent-book boundary, including successive same-format volumes. Reviewed ADR 0007's proposed status; this product selection does not approve its production schema. Exact selector/fallback and switching during unfinished guided work remain open. Reviewed the diff against the user's clarification and ran the staged whitespace check. No new links, application changes or isolation/native tests. Unrelated product-index/research edits remain excluded.
