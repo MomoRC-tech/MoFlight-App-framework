@@ -5,6 +5,7 @@ These local JPEGs provide decorative aviation imagery for the approved four-tab 
 | Local file | Source / attribution | License | Preparation |
 | --- | --- | --- | --- |
 | `gliding-mountains.jpg` | **Sebastian Kawa, Tomasz Kawa — GrandPrixGlidingChile.JPG**, [Wikimedia Commons source](https://commons.wikimedia.org/wiki/File:GrandPrixGlidingChile.JPG) | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/) | Original 1,024 × 684 JPEG, 85,041 bytes, unchanged. |
+| `mountain-header-v2.jpg` | **L293D — Glider (sailplane).jpg**, [Wikimedia Commons source](https://commons.wikimedia.org/wiki/File:Glider_(sailplane).jpg) | [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) | Resized and recompressed from 3,264 × 1,832 (899,886 bytes) to 1,600 × 898 progressive JPEG (54,010 bytes, quality 84). |
 | `gliding-sunset.jpg` | **Dg-505 — Sunset**, [Wikimedia Commons source](https://commons.wikimedia.org/wiki/File:Sunset_-_panoramio_(312).jpg) | [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/) | Wikimedia 960 × 720 thumbnail, 76,044 bytes; resized from original. |
 | `windsock.jpg` | **Partonez — Windsock at Bolt Head Airfield**, [Wikimedia Commons source](https://commons.wikimedia.org/wiki/File:Windsock_at_Bolt_Head_Airfield.jpg) | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) | Wikimedia 960 × 720 thumbnail, 167,141 bytes; resized from original. |
 
@@ -15,10 +16,11 @@ Visual differences from the approved reference: these are licensed documentary p
 Download origins:
 
 - [Original gliding photograph](https://upload.wikimedia.org/wikipedia/commons/4/47/GrandPrixGlidingChile.JPG)
+- [Original mountain/glider photograph](https://upload.wikimedia.org/wikipedia/commons/5/5f/Glider_%28sailplane%29.jpg)
 - [Sunset thumbnail](https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Sunset_-_panoramio_%28312%29.jpg/960px-Sunset_-_panoramio_%28312%29.jpg)
 - [Windsock thumbnail](https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Windsock_at_Bolt_Head_Airfield.jpg/960px-Windsock_at_Bolt_Head_Airfield.jpg)
 
-Total bundled photography: 328,226 bytes (about 321 KiB). All three files were opened and visually inspected after download.
+Total bundled photography in the table above: 382,236 bytes (about 373 KiB). The original mountain/glider photograph was opened and visually inspected before resizing.
 
 ## Additional club header photograph
 
@@ -28,4 +30,6 @@ The unchanged 1,024 × 768 JPEG is 136,531 bytes and was opened and visually ins
 
 In-app credit: **Anne Burgess / Clubhouse at Dusk / Geograph, via Wikimedia Commons — CC BY-SA 2.0. Display cropped with a dark color overlay.** Make the source and license links accessible from the image credits. Adapted versions of this photograph retain the applicable ShareAlike license.
 
-Combined total for all four photographs: 464,757 bytes (about 454 KiB).
+Combined total for all five photographs: 518,767 bytes (about 507 KiB).
+
+In-app credit for `mountain-header-v2.jpg`: **L293D / Glider (sailplane).jpg / Wikimedia Commons — CC0 1.0. Resized and recompressed for app display.** The source depicts a sailplane against the French Alps in daylight; it provides the requested visible mountain skyline and glider, though it does not have sunset lighting.
