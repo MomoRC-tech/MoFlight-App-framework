@@ -24,3 +24,7 @@ Manuel answered “1. keep” to the first question, selecting close retention o
 ## Version 0.3 decision follow-up
 
 Manuel answered “2.” to Start density: compact flying, paper-book and club summaries with details available by tapping. Recorded the selection without assuming exact fields, fixed heights or a no-scroll requirement; preserved flying-first/paper-second order and access to full information. Reviewed the documentation diff against the offered option and ran the staged whitespace check. No new links or application changes; no native tests required. Unrelated product-index/research edits remain excluded.
+
+## Version 0.4 decision follow-up
+
+Manuel answered “1.” to header actions: Refresh retrieves Vereinsflieger data and Profile opens account/settings, replacing the starter's new-flight header action. Preserved current page title and contextual Back; detailed retrieval scope and guided-step behavior remain open. Reviewed this documentation-only decision against the offered option and ran the staged whitespace check. No new links, application changes or native tests. Unrelated product-index/research edits remain excluded.
