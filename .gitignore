@@ -27,3 +27,5 @@ apps/platform-lab/ios/
 __pycache__/
 *.pyc
 .DS_Store
+# Local chat attachment cache; reviewed design sources are archived under docs/.
+.codex-remote-attachments/
