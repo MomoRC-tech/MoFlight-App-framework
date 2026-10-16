@@ -10,7 +10,7 @@ def execute(smoke):
     assert smoke.adb('emu', 'avd', 'name').stdout.splitlines()[0].strip() == 'MoFlight_Synthetic_API37'
     smoke.emulator = True
     smoke.report['boundary'] = 'Existing opt-in synthetic fixture only. Book-scoped summary, remembered selection and tab filter state; no provider/auth/AI service acceptance.'
-    smoke.shell('wm', 'size', '432x960')
+    smoke.shell('wm', 'size', '390x900')
     smoke.shell('wm', 'density', '160')
     launch(smoke)
     tab(smoke, 'Flüge')

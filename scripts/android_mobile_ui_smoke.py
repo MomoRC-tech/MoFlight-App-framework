@@ -33,7 +33,7 @@ def execute(smoke):
     smoke.emulator = True
     smoke.report['boundary'] = 'Synthetic native four-tab UI. Existing fixture loaded by UI; no live provider, AI, weather, club backend, device or iOS acceptance.'
     smoke.report['device'] = {k: smoke.shell('getprop', k) for k in ['ro.build.version.sdk', 'ro.product.model', 'ro.product.cpu.abi']}
-    smoke.shell('wm', 'size', '432x960')
+    smoke.shell('wm', 'size', '390x900')
     smoke.shell('wm', 'density', '160')
     smoke.shell('settings', 'put', 'system', 'font_scale', '1.0')
     launch(smoke)
@@ -109,7 +109,7 @@ def execute(smoke):
     tab(smoke, 'Flüge')
     smoke.find('D-EX', scroll=True)
     smoke.record('offline-force-stop-local-library-survives')
-    smoke.shell('wm', 'size', '320x740')
+    smoke.shell('wm', 'size', '360x900')
     smoke.shell('settings', 'put', 'system', 'font_scale', '1.4')
     launch(smoke)
     smoke.record('home-narrow-enlarged-text')
