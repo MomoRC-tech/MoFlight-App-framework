@@ -28,3 +28,7 @@ Manuel answered “2.” to Start density: compact flying, paper-book and club s
 ## Version 0.4 decision follow-up
 
 Manuel answered “1.” to header actions: Refresh retrieves Vereinsflieger data and Profile opens account/settings, replacing the starter's new-flight header action. Preserved current page title and contextual Back; detailed retrieval scope and guided-step behavior remain open. Reviewed this documentation-only decision against the offered option and ran the staged whitespace check. No new links, application changes or native tests. Unrelated product-index/research edits remain excluded.
+
+## Version 0.5 decision follow-up
+
+Manuel answered “2.” to overall totals: keep the flight-count/known-time totals strip on Start above the yearly summary. Recorded the selection while preserving the stated available-history coverage requirement; exact labels and the separate circular-ring question remain open. Reviewed this documentation-only diff against the offered option and ran the staged whitespace check. No new links, application changes or native tests. Unrelated product-index/research edits remain excluded.
