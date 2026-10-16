@@ -120,7 +120,7 @@ Writing assistance has immediate product value; its place in the smallest useful
 
 ## Next action and unresolved decisions
 
-Continue UI-concept and feature-feasibility review, starting with the revised dark direction. Refine navigation and density, select initial analytics measures, and then settle operation/state contracts for the chosen journeys. The design should be readable and spacious, with obvious navigation and restrained color. Layouts, branding and component details remain proposals.
+Continue UI-concept and feature-feasibility review using the [versioned app design description](docs/product/app-design.md), starting from Manuel's Stitch export and preserving earlier confirmed choices. Review open choices one question at a time, then settle operation/state contracts for the chosen journeys. The overall screen design remains under review; approved branding and individually confirmed layout choices remain in force.
 
 Deferred ideas include [Activities live — #14](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/14), [in-app chat — #13](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/13), possible SPL tutoring and weather. Billing inspection is also deferred. No release date is promised.
 
