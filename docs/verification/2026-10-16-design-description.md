@@ -11,7 +11,7 @@ Checks performed:
 - Inspected the supplied ZIP contents, PNG, HTML and generated design text. The ZIP has one Start screen; links in the HTML do not provide connected destination screens.
 - Copied the three original source files unchanged; SHA-256 hashes matched each extracted original.
 - Checked all six local file/image links in the two new design/source documents: targets exist.
-- Ran `git diff --check`: passed for the tracked documentation changes. New Markdown was reviewed separately.
+- Ran `git diff --check`: passed for the tracked documentation changes. The subsequent staged check reported four pre-existing trailing spaces in the archived Stitch DESIGN.md; those were retained to preserve the original source. Authored documentation passed the scoped whitespace check.
 - Preserved the existing product-index change and untracked ecosystem-research document outside this task.
 - Independent GPT-6 Luna read-only review checked local destinations and consistency with prior decisions; clarified that club-summary placement remains open.
 
