@@ -246,6 +246,8 @@ class Smoke:
     def launch(self):
         self.shell("am", "force-stop", PACKAGE)
         self.shell("am", "start", "-W", "-n", f"{PACKAGE}/.MainActivity")
+        # The product shell retains the legacy lab behind its header tools action.
+        self.tap("Entwicklungswerkzeuge öffnen")
         self.find("Remembered state loaded.", attempts=40)
 
     def record(self, name):
