@@ -120,7 +120,7 @@ Writing assistance has immediate product value; its place in the smallest useful
 
 ## Next action and unresolved decisions
 
-Review the [first clickable layout checkpoint](docs/product/prototypes/2026-10-16-clickable-v019.html) against the [versioned app design description](docs/product/app-design.md): Start density, flight list/details and separate paper-book state/selection. The draft uses fictional data and makes no provider requests. [Browser observations and limits](docs/verification/2026-10-16-clickable-layout.md) cover the bounded check. Continue open choices one question at a time before detailed operation/state contracts; the overall screen design remains under review.
+Review the [v0.21 clickable layout checkpoint](docs/product/prototypes/2026-10-16-clickable-v021.html) or its [standalone phone download](docs/product/prototypes/exports/moflight-design-v0.21.html) against the [versioned app design description](docs/product/app-design.md): header sync/freshness, lighter card canvas, flight list/details and separate paper-book state/selection. The draft uses fictional data and makes no provider requests. [Browser observations and limits](docs/verification/2026-10-16-clickable-layout.md) cover the bounded check. Continue open choices one question at a time before detailed operation/state contracts; the overall screen design remains under review.
 
 Deferred ideas include [Activities live — #14](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/14), [in-app chat — #13](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/13), possible SPL tutoring and weather. Billing inspection is also deferred. No release date is promised.
 

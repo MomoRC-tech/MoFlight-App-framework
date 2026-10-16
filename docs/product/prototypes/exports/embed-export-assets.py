@@ -3,10 +3,11 @@
 import html
 from pathlib import Path
 import re
+import sys
 from urllib.request import urlopen
 
 
-target = Path(__file__).with_name("moflight-design-v0.19.html")
+target = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(__file__).with_name("moflight-design-v0.19.html")
 document = target.read_text(encoding="utf-8")
 frame_match = re.search(r'data-srcdoc="([^"]*)"', document)
 if frame_match is None:
