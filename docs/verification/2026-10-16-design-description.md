@@ -60,3 +60,7 @@ Manuel answered “1.” to inactive symbols: retain all symbols in stable posit
 ## Version 0.11 decision follow-up
 
 Manuel answered “1.” to Flüge tab default: flight list first, compact statistics above searchable/filterable flights. Recorded this presentation choice and preserved the offered direct metric-detail route from Start charts. Kept list layout, period/order and search/query semantics open; no search implementation or provider access is claimed. Reviewed the diff against the offered option and ran the staged whitespace check. No new links, application changes or native tests. Unrelated product-index/research edits remain excluded.
+
+## Version 0.12 decision follow-up
+
+Manuel answered “1.” to flight-list layout: compact rows within boxed day groups, tap a row for flight details, retaining Stitch styling. Recorded the selection without fixing row fields, sorting or source date/time interpretation. Reviewed the diff against the offered option and ran the staged whitespace check. No new links, application changes or native tests. Unrelated product-index/research edits remain excluded.
