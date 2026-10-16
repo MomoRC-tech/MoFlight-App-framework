@@ -1,6 +1,6 @@
 # MoFlight app design
 
-Version: **0.23 — Full Micro Bento Start arrangement selected and connected**. Updated: 2026-10-16 (Europe/Berlin). Product/design decisions: Manuel. This is a living design description; Git preserves revisions and the change log records meaningful decisions. A draft version is not approval of the entire design.
+Version: **0.24 — Season content revision and compact graphic proposal**. Updated: 2026-10-16 (Europe/Berlin). Product/design decisions: Manuel. This is a living design description; Git preserves revisions and the change log records meaningful decisions. A draft version is not approval of the entire design. The latest clickable preview remains v0.23 and predates this revision.
 
 ## Purpose and task boundary
 
@@ -19,6 +19,8 @@ Use three explicit labels: **Confirmed** (Manuel's decision), **Proposed** (awai
 ## Confirmed foundation carried forward
 
 These choices carry forward from the earlier design review, with the explicit visual-style revision recorded below:
+
+**Latest content revision, v0.24:** Manuel requested annual work hours within Meine Saison and an aircraft breakdown showing count and time with short labels, close to the overall yearly count/time. This supersedes the most-flown-aircraft-only season tile and work-hours placement in the club summary below. The retained v0.23 arrangement describes the existing preview; the following graphic proposal is awaiting review.
 
 - Latest Start visual decision, 2026-10-16: Manuel selected option 1, the whole supplied Micro Bento arrangement, including numeric comparisons and its larger paper card. Softer dark indigo, compact filled tiles and reduced nesting replace the earlier outlined/glowing Stitch treatment on Start. Section headings may sit outside tiles as in the reference, superseding the earlier all-elements-boxed preference there. v0.23 also carries the palette into existing detail screens for coherence; those layouts remain the previously reviewed ones. Adaptive light mode from the source CSS is not implemented/accepted by this dark preview. Phone readability remains a review requirement.
 - Compact fixed header with current page title and contextual Back. On 2026-10-16 Manuel selected Refresh + Profile in the top-right header: Refresh retrieves the latest Vereinsflieger data; Profile opens account/settings. This replaces the Stitch starter's new-flight header action. Exact retrieval scope, progress/cancellation and behavior during guided steps remain to be specified.
@@ -40,6 +42,39 @@ These choices carry forward from the earlier design review, with the explicit vi
 - Flight details, confirmed 2026-10-16: one scrollable page with boxed sections for aircraft, times/route, people/roles and source information (option 1). Back remains in the compact header. Internal Overview/People/Source tabs are not selected. Exact fields, section density and missing/conflicting-evidence presentation remain open; this selects layout rather than new provider capabilities or editing behavior.
 - German app text; Android and iOS target platforms; offline access and clear data freshness/coverage. Keep unknown duration distinct from zero and assumed writing progress distinct from confirmed paper evidence.
 - Approved branding and Expo/React Native remain as recorded; this description selects no new technology or service.
+
+## Season revision v0.24 — proposed compact composition
+
+M1 design deliverable: translate [S01–S04 and S08](screen-content.md) into a reviewable hierarchy. Content direction comes from Manuel's request; graphic choices below are proposals. Dependency: same-year count/known-time semantics, stable aircraft identity and missing-duration evidence. Acceptance check: total count/time and the aircraft breakdown can be read together with little repeated text; work hours belong visibly to the season; short labels remain unambiguous. No preview or application change is claimed.
+
+Propose one filled season panel instead of separate equal-weight aircraft tiles:
+
+1. Heading **Meine Saison · 2026**, followed by two strong figures: yearly flights and known flight time. Retain the quieter same-period prior-year count comparison; time comparison remains in details unless subsequently selected for Start.
+2. Immediately below, aligned aircraft rows with short names, exact flight counts and exact known times. Use small column headers once (**Flüge**, **Zeit**) rather than repeating labels in every row. A thin horizontal bar under each row encodes known flight time, with a shared zero baseline and scale across aircraft. Counts remain exact numbers; bar length has only one meaning. This permits quick comparison without mixing count and duration scales or relying on a color legend. Tap a row to open its contributing flights.
+3. A visually separated compact footer inside the season panel shows **Arbeitsstunden 18 / 25 h** and a thin obligation-progress track. Its explicit target distinguishes it from the aircraft comparison bars; do not clamp or hide an over-target value. Tap opens work-hour details in Verein.
+
+Use restrained row spacing and one accent for aircraft bars; labels identify the rows. Avoid full aircraft names/registrations in the default overview. Manuel selected separate aircraft with short distinguishing suffixes when model labels repeat; do not aggregate those rows by model. The exact suffix convention remains open. Flight details retain exact identity either way. A bounded initial row count with an expansion action may be needed for many aircraft, but its threshold/order is not selected; never hide flights from the season totals or show only a top aircraft without indicating omitted rows.
+
+Synthetic information sketch (graphic proposal, not a new fixture or accepted layout):
+
+```text
+Meine Saison                         2026
+24 Flüge                         18:40 h
+ +20 % zum Vorjahr
+
+                    Flüge          Zeit
+ASK21                  12        6:20 h
+━━━━━━
+DG1000                  8        8:40 h
+━━━━━━━━━
+Astir                   4        3:40 h
+━━━━
+
+Arbeitsstunden                 18 / 25 h
+━━━━━━━━━━━━━━░░░░░░
+```
+
+The comparison delta is illustrative and not calculated from provider data. Keep unknown durations visible with a compact count at the total and affected row; an all-unknown row has an unknown time, not a zero bar. Missing prior-year evidence is not zero. Keep the existing compact flight-review entry near these metrics; its exact integration remains open. The paper overview and club duties/notices follow the season panel. These proposals select no library, new technology or provider behavior.
 
 ## Selected visual direction and remaining source observations
 
@@ -82,7 +117,7 @@ Keep refresh/check needs distinct from known correction/review cases. These are 
 
 The [current v0.23 layout draft](prototypes/2026-10-16-clickable-v023.html) connects the selected Micro Bento Start to the existing flight/list/detail, book/selector, bounded club and first paper-check screens. Earlier [v0.21](prototypes/2026-10-16-clickable-v021.html) and [v0.19](prototypes/2026-10-16-clickable-v019.html) remain preserved. The [task brief](prototypes/2026-10-16-clickable-brief.md) records scope; [browser observations and limits](../verification/2026-10-16-clickable-layout.md) record evidence. The selected Start arrangement is now implemented as a prototype; exact spacing/copy and remaining screens still need review. Fixtures remain 6 current-year and 5 prior-year flights, two unknown durations and three independent books. Start has no book selector/last-entry details. Sync success/failure examples are scripted without provider access or an age policy; paper checking stops before photo/review/template and changes no book state.
 
-Next review: Start density, flight-list/detail readability, multi-book selector/overview and navigation. After Manuel's review, refine unresolved states and the remaining paper/Verein journeys before detailed M1 contracts. No application implementation, native acceptance, paid calls or milestone completion is claimed.
+Next review: v0.24 season hierarchy/aircraft graphic proposal and short-suffix convention; the existing v0.23 preview predates those changes. Then review flight-list/detail readability, multi-book selector/overview and navigation. After Manuel's review, refine unresolved states and the remaining paper/Verein journeys before detailed M1 contracts. No application implementation, native acceptance, paid calls or milestone completion is claimed.
 
 For Manuel's remote phone review, the [v0.23 standalone HTML download](prototypes/exports/moflight-design-v0.23.html) packages the current draft with embedded logo/icon/runtime assets; [v0.21](prototypes/exports/moflight-design-v0.21.html) and [v0.19](prototypes/exports/moflight-design-v0.19.html) remain available. [Export notes](prototypes/exports/README.md) describe generation and limits.
 
@@ -126,3 +161,4 @@ Review loading, empty, offline, stale, incomplete, unknown, error, cancel and re
 | 0.21 | 2026-10-16 | Manuel requested freshness at the sync button instead of a separate banner, current/update-suggested icon states, a distinct lighter scroll background and removal of the redundant Start comparison-period line. Revised source/export preserve earlier versions; exact icon/color implementation remains reviewable. |
 | 0.22 | 2026-10-16 | Manuel supplied Micro Bento and said “I like that more.” Archived the original unchanged and recorded it as the preferred Start visual/layout reference. Differences from earlier content/state choices await focused clarification; no blanket approval or app implementation inferred. |
 | 0.23 | 2026-10-16 | Manuel selected option 1: adopt the whole Micro Bento Start arrangement, including numeric comparisons and larger paper card. Created connected draft/export, preserving multi-book routes and visible sync freshness; no native app implementation. |
+| 0.24 | 2026-10-16 | Manuel requested work hours in Meine Saison and a compact short-label aircraft breakdown with count/time close to yearly totals. Proposed a unified season panel with aligned rows, known-time bars and separate work-progress footer. Manuel selected separate same-model aircraft with short suffixes; exact suffix convention and graphic approval remain open. v0.23 preview unchanged. |

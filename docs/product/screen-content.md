@@ -1,6 +1,6 @@
 # MoFlight screen content and placement
 
-Version **0.1**, 2026-10-16. Owner: Manuel. Working inventory for review, independent of visual styling. Git preserves revisions. Stable IDs let us change individual placements without describing an entire screen again.
+Version **0.2**, 2026-10-16. Owner: Manuel. Working inventory for review, independent of visual styling. Git preserves revisions. Stable IDs let us change individual placements without describing an entire screen again.
 
 ## Purpose and authority
 
@@ -25,22 +25,24 @@ No colors, icons, card shapes, typography, charts or pixel measurements are spec
 
 ## Start — overview and entry points
 
-Order: flying overview → paper-book overview → club overview. This reflects the selected Micro Bento arrangement without prescribing its visual treatment.
+Order: Meine Saison (flying totals, aircraft breakdown and annual work hours) → paper-book overview → club overview. Manuel requested the season-content revision after reviewing v0.23; the existing preview does not yet show it. Graphic treatment is proposed separately in app-design.md.
 
 | ID | Area / order | Information shown | Action / destination | Status |
 | --- | --- | --- | --- | --- |
-| S01 | Flying heading | Current season/year | Context for S02–S05 | Selected |
+| S01 | Season heading | Meine Saison and current year | Context for S02–S05 and S08 | Selected content direction |
 | S02 | Flying summary | This year's flight count; compact comparison with the same period last year | Count analysis and contributing flights in Flüge | Selected |
 | S03 | Flying summary | This year's known flight time; number of flights with unknown duration | Time analysis, prior-year comparison and contributing flights | Selected; prior-year time comparison is in details |
-| S04 | Flying summary | Most-flown aircraft; share/count of the selected period's flights | Aircraft analysis and contributing flights | Selected; exact aircraft/model grouping open |
+| S04 | Season, close to flying totals | Compact breakdown of this year's flights by individual aircraft: short label such as ASK21, DG1000 or Astir; flight count and known flight time for each; short distinguishing suffix for same-model aircraft | Aircraft-specific analysis and contributing flights | Requested content direction; replaces most-flown-aircraft-only summary. Separate aircraft with short suffix selected; exact suffix convention open |
 | S05 | Flying attention item | Number of flights needing review, such as missing duration | Flüge restricted to affected flights | Selected; issue eligibility/count scope open |
 | S06 | Paper-book overview | Entry-proposal count and book-review/correction-case count across the user's books | Open Papierbuch overview at last-used book, with selector there | Selected; production aggregation/unknown rules open |
 | S07 | Club overview, own duties | Next own duty: role, date and time; indication of further assignments through the following week's weekend | Full own-duty overview in Verein, including later-duty preview and relevant Putzdienst partner | Selected summary; completeness rules and later preview extent open |
-| S08 | Club overview, work | Annual work hours completed and obligation | Work-hour details in Verein | Selected; source meanings/freshness unverified |
+| S08 | Season metrics, alongside flying overview | Annual work hours completed and obligation | Work-hour details in Verein | Requested move from club overview; source meanings/freshness unverified |
 | S09 | Club notices | New news/documents, own assigned tasks, upcoming events; distinguish inactive from relevant/unknown | Corresponding Verein information | Selected summary; grouping/new-state/upcoming rules open |
 | S10 | Club overview, flight operation | Current/upcoming Fluglehrer, Flugleiter and Windenfahrer assignments through the following week's weekend | Full flight-operation overview in Verein | Required / placement open: compact Start information is in the journey map but absent from v0.23 |
 
 **Not directly on Start:** book selector, book names/last-entry details, flight-by-flight data, complete duty rosters, account balances, license/training details. Earlier saved-history totals are no longer on Start; obtain them from the all-years scope in Flüge. Book-specific progress remains separate even when S06 summarizes work across books.
+
+S02–S04 share the current-year scope; keep total count/time and aircraft breakdown close together with minimal repeated text. Manuel selected separate rows with short distinguishing suffixes when two aircraft share a model label; do not merge their identities or totals. Exact suffix convention remains open. Known-time totals and per-aircraft missing durations remain distinguishable from complete flight time. Moving S08 changes the Start entry point; full work-hour details remain in Verein. Exact graphics, row order and overflow behavior are proposals, not selected placements.
 
 ## Flüge — list entry
 
@@ -133,3 +135,4 @@ Use an ID and a plain request, for example: “Move S04 into Flüge,” “Add t
 | Version | Date | Change |
 | --- | --- | --- |
 | 0.1 | 2026-10-16 | Extracted current choices and unresolved needs into a design-independent screen-content inventory at Manuel's request. No new feature, field or placement approved by extraction |
+| 0.2 | 2026-10-16 | Recorded Manuel's requested season revision: move annual work hours into Meine Saison; retain yearly count/time and add close, compact per-aircraft count/time breakdown using short labels. Manuel selected separate aircraft with short suffixes when models repeat. Graphic treatment remains proposed; v0.23 preview unchanged |

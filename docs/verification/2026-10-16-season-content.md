@@ -1,0 +1,7 @@
+# Season content revision — 2026-10-16
+
+Scope: M1 documentation/design discovery, base commit `1120667`, Windows/PowerShell. Resulting commit is available through this file's Git history. Sources: Manuel's request, follow-up selecting separate same-model aircraft with short suffixes, current content inventory, design v0.23 and roadmap. Existing issue scope #9/#11 is reused; no new Issue or external message.
+
+Deliverable: content inventory v0.2 and design description v0.24. Work hours move from Start's club summary into Meine Saison; full details remain in Verein. Season totals are accompanied by count and known duration for each individual aircraft, with short display labels and distinguishing suffixes as needed. Aligned rows, time bars and work-progress footer are explicitly proposed graphics; the preview/export remain v0.23. No graphics approval, model aggregation, changed year-comparison requirement or delivered UI is claimed.
+
+Validation: reviewed current repository sources and request traceability; independent GPT-6 Luna read-only hierarchy/pitfall review informed the proposal. Checked changed-document relative file links and staged whitespace. Preserved unknown-time semantics, aircraft identity, independent count/time units and work hours versus monetary credit. No app tests, new tests, browser/native trials or provider calls were needed for documentation-only changes. Unrelated product-index/research/attachment changes remain outside this commit.
