@@ -131,7 +131,7 @@ def keyboard_trial(smoke, viewport, name):
     method = smoke.shell('dumpsys', 'input_method')
     assert re.search(r'(?:mInputShown|mIsInputViewShown|isInputViewShown)\s*[=:]\s*true', method), 'IME did not open'
     (smoke.output / f'{name}-input-method.txt').write_text(method, encoding='utf-8')
-    send = smoke.find('Nachricht senden', exact=True, scroll=True, attempts=8)
+    send = smoke.find('Nachricht senden', exact=True, scroll=False, attempts=8)
     assert send.get('enabled') == 'true', 'Composer send control disabled with a draft'
     nodes = smoke.dump()
     window_dump = smoke.shell('dumpsys', 'window', 'windows')

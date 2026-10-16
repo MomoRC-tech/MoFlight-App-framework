@@ -188,7 +188,7 @@ function Shell() {
 const s = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.background }, content: { flex: 1, alignSelf: 'center', width: '100%', maxWidth: 599 },
   page: { flex: 1 }, hidden: { display: 'none' }, canvas: { padding: 10, paddingTop: 0, gap: 8, paddingBottom: 20 }, flightCanvas: { padding: 10, paddingTop: 0, paddingBottom: 80 },
-  header: { marginHorizontal: -10, minHeight: 126, paddingTop: 4, justifyContent: 'flex-end' }, flightHeader: { minHeight: 78 }, clubHeader: { minHeight: 148 }, assistantHeader: { minHeight: 148, justifyContent: 'center' },
+  header: { marginHorizontal: -10, minHeight: 126, paddingTop: 4, justifyContent: 'flex-end' }, flightHeader: { minHeight: 78 }, clubHeader: { minHeight: 156 }, assistantHeader: { minHeight: 168, paddingTop: 20, justifyContent: 'center' },
   headerTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 6 }, toolButton: { height: 48, width: 48, alignItems: 'center', justifyContent: 'center', borderRadius: 24 },
   headerBook: { minHeight: 24, justifyContent: 'center', alignSelf: 'flex-start' },
   stateBanner: { gap: 3, padding: 4, marginTop: 8 }, provenance: { fontSize: 10, lineHeight: 16, color: '#8ba4bc', letterSpacing: .6 },
