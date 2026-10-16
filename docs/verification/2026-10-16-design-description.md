@@ -80,3 +80,7 @@ Manuel answered “1.” to flight-detail arrangement: a single scrollable page 
 ## Version 0.16 decision follow-up
 
 Manuel selected the last-used book overview with a top book selector and reiterated multiple paper books per pilot/user. Recorded the navigation selection and existing independent-book boundary, including successive same-format volumes. Reviewed ADR 0007's proposed status; this product selection does not approve its production schema. Exact selector/fallback and switching during unfinished guided work remain open. Reviewed the diff against the user's clarification and ran the staged whitespace check. No new links, application changes or isolation/native tests. Unrelated product-index/research edits remain excluded.
+
+## Version 0.17 decision follow-up
+
+Manuel answered “1.” to multiple books on Start: show one selected book's summary with a visible switcher. Preserved the previously selected summary fields and book isolation, without silently deciding cross-screen selection persistence. Reviewed the diff against the offered option and ran the staged whitespace check. No new links, application changes or isolation/native tests. Unrelated product-index/research edits remain excluded.
