@@ -32,3 +32,11 @@ Manuel answered “1.” to header actions: Refresh retrieves Vereinsflieger dat
 ## Version 0.5 decision follow-up
 
 Manuel answered “2.” to overall totals: keep the flight-count/known-time totals strip on Start above the yearly summary. Recorded the selection while preserving the stated available-history coverage requirement; exact labels and the separate circular-ring question remain open. Reviewed this documentation-only diff against the offered option and ran the staged whitespace check. No new links, application changes or native tests. Unrelated product-index/research edits remain excluded.
+
+## Version 0.6 comparison design
+
+Manuel clarified the diagram's meaning: actual current-year values prominent, prior-year values less prominent. Recorded this as confirmed while keeping ring/bar geometry proposed. Created an isolated two-variant preview in the selected navy/cyan style with synthetic 2026/2025 same-period counts and known durations. Preserved earlier navigation, compact Start and overall-totals choices.
+
+Independent GPT-6 Luna design review recommended bars for comparison accuracy and cautioned against interpreting rings as goals. Both variants label periods/values; rings also show scale ceilings. Preview arithmetic: 34 versus 28 flights gives +6 / +21% rounded; 42h18m versus 33h33m gives +8h45m / +26% rounded. Within each metric the two years share the same scale.
+
+Local browser preview: visually inspected both variants and used Next variant to verify switching. Initial inspection exposed carousel controls overlapping the taller bars footer; increased shared stage height and rechecked. Read back the fragment and checked its local documentation link and staged whitespace. Native gestures, real data, narrow viewport, larger text and screen readers are not accepted by this trial. No application code or provider calls; unrelated product-index/research edits remain excluded.

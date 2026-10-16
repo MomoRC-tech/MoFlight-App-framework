@@ -1,0 +1,86 @@
+<div id="mf-year-preview" class="viz-carousel viz-dotted-background" aria-label="MoFlight Jahresvergleich">
+  <section data-variant="Vergleichsringe" aria-label="Jahresvergleich mit Ringen">
+    <article class="mf-card">
+      <header><div><h2>Mein Fliegen</h2><p>01.01.–16.10. · Jahresvergleich</p></div><span class="mf-sample">Beispieldaten</span></header>
+      <div class="mf-legend"><span><i class="mf-current-dot"></i>2026</span><span class="mf-previous"><i class="mf-previous-dot"></i>2025 · gleicher Zeitraum</span></div>
+      <div class="mf-rings">
+        <div class="mf-metric">
+          <div class="mf-ring" role="img" aria-label="Flüge: 2026 34, 2025 28. Gemeinsame Skala 0 bis 40 Flüge; kein Zielwert.">
+            <svg viewBox="0 0 144 144" aria-hidden="true"><circle class="mf-track" cx="72" cy="72" r="57"/><circle class="mf-arc mf-arc-current" cx="72" cy="72" r="57" pathLength="100" stroke-dasharray="85 100"/><circle class="mf-track mf-track-inner" cx="72" cy="72" r="45"/><circle class="mf-arc mf-arc-previous" cx="72" cy="72" r="45" pathLength="100" stroke-dasharray="70 100"/></svg>
+            <div class="mf-centre"><span>Flüge</span><strong>34</strong><span>2026</span></div>
+          </div>
+          <p class="mf-previous">2025: 28 Flüge</p><p class="mf-delta">+6 · +21 %</p><p class="mf-scale">Skala: 0–40 Flüge</p>
+        </div>
+        <div class="mf-metric">
+          <div class="mf-ring" role="img" aria-label="Bekannte Flugzeit: 2026 42 Stunden 18 Minuten, 2025 33 Stunden 33 Minuten. Gemeinsame Skala 0 bis 50 Stunden; kein Zielwert.">
+            <svg viewBox="0 0 144 144" aria-hidden="true"><circle class="mf-track" cx="72" cy="72" r="57"/><circle class="mf-arc mf-arc-current" cx="72" cy="72" r="57" pathLength="100" stroke-dasharray="84.6 100"/><circle class="mf-track mf-track-inner" cx="72" cy="72" r="45"/><circle class="mf-arc mf-arc-previous" cx="72" cy="72" r="45" pathLength="100" stroke-dasharray="67.1 100"/></svg>
+            <div class="mf-centre"><span>Flugzeit</span><strong class="mf-time">42h 18m</strong><span>2026 · bekannt</span></div>
+          </div>
+          <p class="mf-previous">2025: 33h 33m</p><p class="mf-delta">+8h 45m · +26 %</p><p class="mf-scale">Skala: 0–50 h</p>
+        </div>
+      </div>
+      <footer><span>Gespeicherte Daten · Stand 16.10.</span><span>Details in Flüge →</span></footer>
+    </article>
+  </section>
+  <section data-variant="Vergleichsbalken" aria-label="Jahresvergleich mit Balken" hidden>
+    <article class="mf-card">
+      <header><div><h2>Mein Fliegen</h2><p>01.01.–16.10. · Jahresvergleich</p></div><span class="mf-sample">Beispieldaten</span></header>
+      <div class="mf-legend"><span><i class="mf-current-dot"></i>2026</span><span class="mf-previous"><i class="mf-previous-dot"></i>2025 · gleicher Zeitraum</span></div>
+      <div class="mf-bar-metric" role="img" aria-label="Flüge: 2026 34, 2025 28, Veränderung plus 6 oder 21 Prozent. Gemeinsame Skala 0 bis 40 Flüge.">
+        <div class="mf-bar-title"><h3>Flüge</h3><span class="mf-delta">+6 · +21 %</span></div>
+        <div class="mf-bar-label"><span>2026</span><strong>34 Flüge</strong></div><div class="mf-bar-track"><div class="mf-bar-current" style="width:85%"></div></div>
+        <div class="mf-bar-label mf-previous"><span>2025</span><span>28 Flüge</span></div><div class="mf-bar-track mf-thin"><div class="mf-bar-previous" style="width:70%"></div></div>
+      </div>
+      <div class="mf-bar-metric" role="img" aria-label="Bekannte Flugzeit: 2026 42 Stunden 18 Minuten, 2025 33 Stunden 33 Minuten, plus 8 Stunden 45 Minuten oder 26 Prozent. Gemeinsame Skala 0 bis 50 Stunden.">
+        <div class="mf-bar-title"><h3>Bekannte Flugzeit</h3><span class="mf-delta">+26 %</span></div>
+        <div class="mf-bar-label"><span>2026</span><strong>42h 18m</strong></div><div class="mf-bar-track"><div class="mf-bar-current" style="width:84.6%"></div></div>
+        <div class="mf-bar-label mf-previous"><span>2025</span><span>33h 33m</span></div><div class="mf-bar-track mf-thin"><div class="mf-bar-previous" style="width:67.1%"></div></div>
+      </div>
+      <footer><span>Gespeicherte Daten · Stand 16.10.</span><span>Details in Flüge →</span></footer>
+    </article>
+  </section>
+</div>
+<style>
+#mf-year-preview {padding:20px 8px 0;}
+#mf-year-preview > section {min-height:540px;display:flex;align-items:flex-start;justify-content:center;}
+#mf-year-preview > section[hidden] {display:none;}
+#mf-year-preview .mf-card {--mf-bg:#0c1c31;--mf-cyan:#00d2eb;--mf-text:#e0edff;--mf-muted:#aac0d8;--mf-line:#223d56;box-sizing:border-box;width:100%;max-width:430px;padding:20px;border-radius:22px;background:var(--mf-bg);color:var(--mf-text);border:1px solid var(--mf-line);box-shadow:0 4px 24px #000e2330;font-family:Inter,system-ui,sans-serif;font-size:14px;line-height:1.45;}
+#mf-year-preview .mf-card * {box-sizing:border-box;}
+#mf-year-preview .mf-card header {display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:8px;}
+#mf-year-preview .mf-card h2 {font-size:19px;line-height:1.3;font-weight:650;margin:0;}
+#mf-year-preview .mf-card h3 {font-size:14px;font-weight:550;margin:0;}
+#mf-year-preview .mf-card p {margin:3px 0 0;}
+#mf-year-preview .mf-card header p {font-size:12px;color:var(--mf-muted);}
+#mf-year-preview .mf-sample {font-size:11px;color:var(--mf-muted);border:1px solid var(--mf-line);border-radius:7px;padding:3px 6px;}
+#mf-year-preview .mf-legend {display:flex;flex-wrap:wrap;gap:8px 16px;margin:18px 0 8px;font-size:12px;}
+#mf-year-preview .mf-legend span {display:flex;gap:6px;align-items:center;}
+#mf-year-preview .mf-current-dot,#mf-year-preview .mf-previous-dot {width:8px;height:8px;display:inline-block;border-radius:50%;background:var(--mf-cyan);}
+#mf-year-preview .mf-previous-dot {background:#839bb7;}
+#mf-year-preview .mf-previous {color:var(--mf-muted);font-size:12px;}
+#mf-year-preview .mf-rings {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:14px;}
+#mf-year-preview .mf-metric {text-align:center;min-width:0;}
+#mf-year-preview .mf-ring {position:relative;max-width:154px;margin:auto;aspect-ratio:1;}
+#mf-year-preview .mf-ring svg {width:100%;height:100%;display:block;}
+#mf-year-preview .mf-track {fill:none;stroke:#1b3148;stroke-width:8;}
+#mf-year-preview .mf-track-inner {stroke-width:4;}
+#mf-year-preview .mf-arc {fill:none;transform:rotate(-90deg);transform-origin:72px 72px;stroke-linecap:round;}
+#mf-year-preview .mf-arc-current {stroke:var(--mf-cyan);stroke-width:8;filter:drop-shadow(0 0 3px #00d2eb40);}
+#mf-year-preview .mf-arc-previous {stroke:#839bb7;stroke-width:4;}
+#mf-year-preview .mf-centre {position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:2px;}
+#mf-year-preview .mf-centre span {font-size:11px;color:var(--mf-muted);}
+#mf-year-preview .mf-centre strong {font-size:30px;font-weight:650;letter-spacing:-1px;}
+#mf-year-preview .mf-centre .mf-time {font-size:19px;letter-spacing:-.7px;}
+#mf-year-preview .mf-delta {font-size:12px;color:var(--mf-cyan);font-variant-numeric:tabular-nums;}
+#mf-year-preview .mf-scale {font-size:11px;color:var(--mf-muted);margin-top:6px;}
+#mf-year-preview .mf-card footer {display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px;margin-top:20px;padding-top:12px;border-top:1px solid var(--mf-line);font-size:11px;color:var(--mf-muted);}
+#mf-year-preview .mf-card footer span:last-child {color:var(--mf-cyan);}
+#mf-year-preview .mf-bar-metric {padding:12px;margin-top:12px;background:#07172b;border:1px solid var(--mf-line);border-radius:12px;}
+#mf-year-preview .mf-bar-title,#mf-year-preview .mf-bar-label {display:flex;justify-content:space-between;align-items:center;gap:6px;}
+#mf-year-preview .mf-bar-label {font-size:12px;margin:8px 0 5px;}
+#mf-year-preview .mf-bar-label strong {font-size:20px;font-weight:650;font-variant-numeric:tabular-nums;}
+#mf-year-preview .mf-bar-track {height:8px;background:#1b3148;border-radius:8px;overflow:hidden;}
+#mf-year-preview .mf-thin {height:4px;}
+#mf-year-preview .mf-bar-current {height:100%;background:var(--mf-cyan);border-radius:inherit;}
+#mf-year-preview .mf-bar-previous {height:100%;background:#839bb7;border-radius:inherit;}
+@media(max-width:360px){#mf-year-preview .mf-card {padding:14px;}#mf-year-preview .mf-rings{gap:6px;}#mf-year-preview > section{min-height:580px;}#mf-year-preview .mf-centre .mf-time{font-size:17px;}}
+</style>
