@@ -48,3 +48,7 @@ Manuel answered “bars” after reviewing the two proposals. Recorded paired co
 ## Version 0.8 decision follow-up
 
 Manuel answered “1.” to Papierbuch summary content: book name, last entry, pending count and Buchstand prüfen. Recorded only that content selection; exact fields/count semantics, book switching and unknown/empty states remain open. Preserved the existing account/book scope and confirmed-versus-assumed progress boundary. Reviewed the documentation diff against the offered option and ran the staged whitespace check. No new links, application changes or native tests. Unrelated product-index/research edits remain excluded.
+
+## Version 0.9 decision follow-up
+
+Manuel requested a symbol summary row indicating changes or upcoming items, in response to the additional-club-content presentation question. Recorded one compact row instead of separate preview rows without mandating numeric counts or removing previously selected duties/work-hour content. Kept exact icon grouping, inactive appearance, change/read semantics and horizon open. Preserved the distinction between checked-empty and unknown/stale information. Reviewed the documentation diff for scope and unsupported approval claims; staged whitespace check passed. No new links, application changes or native tests. Unrelated product-index/research edits remain excluded.
