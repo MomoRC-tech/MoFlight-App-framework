@@ -32,7 +32,8 @@ def override(raw, pattern):
 
 
 def capture(smoke, name, viewport):
-    smoke.dump()
+    # The navigation/keyboard assertion immediately before this call already
+    # refreshed last-screen.xml; no intervening UI mutation needs another dump.
     smoke.record(name)
     prefix = f"{len(smoke.report['checks']):02d}-{name}"
     (smoke.output / f'{prefix}.xml').write_text(
@@ -85,7 +86,9 @@ def assert_navigation(smoke, selected, width, height):
         row.append((x1, y1, x2, y2))
     assert max(b[1] for b in row) - min(b[1] for b in row) <= 2, 'Tab controls do not share a navigation row'
     assert max(b[3] for b in row) - min(b[3] for b in row) <= 2, 'Tab controls have inconsistent navigation heights'
-    assert all(left[2] <= right[0] for left, right in zip(row, row[1:])), 'Navigation controls overlap or are reordered'
+    # Yoga's fractional quarter widths can round adjacent accessibility bounds
+    # outward by one pixel (e.g. a centered 599 dp bar inside 600 dp).
+    assert all(left[0] < right[0] and left[2] <= right[0] + 2 for left, right in zip(row, row[1:])), 'Navigation controls overlap or are reordered'
 
 
 def native_keyboard_top(window_dump, width, height):
