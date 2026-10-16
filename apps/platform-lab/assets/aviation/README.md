@@ -19,3 +19,13 @@ Download origins:
 - [Windsock thumbnail](https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Windsock_at_Bolt_Head_Airfield.jpg/960px-Windsock_at_Bolt_Head_Airfield.jpg)
 
 Total bundled photography: 328,226 bytes (about 321 KiB). All three files were opened and visually inspected after download.
+
+## Additional club header photograph
+
+`club-airfield.jpg`: **Anne Burgess — Clubhouse at Dusk**, [Wikimedia Commons source and license evidence](https://commons.wikimedia.org/wiki/File:Clubhouse_at_Dusk_-_geograph.org.uk_-_6960024.jpg), originally published on [Geograph, photograph 6960024](https://www.geograph.org.uk/photo/6960024). Licensed under [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/). Downloaded 2026-10-16 from the [original image URL](https://upload.wikimedia.org/wikipedia/commons/8/86/Clubhouse_at_Dusk_-_geograph.org.uk_-_6960024.jpg).
+
+The unchanged 1,024 × 768 JPEG is 136,531 bytes and was opened and visually inspected after downloading. It shows a gliding clubhouse, grass airfield and gliders at Aboyne. It is decorative and does not identify the user's club. Compared with the reference, it has overcast dusk light rather than a warm sunset and a closer clubhouse perspective.
+
+In-app credit: **Anne Burgess / Clubhouse at Dusk / Geograph, via Wikimedia Commons — CC BY-SA 2.0. Display cropped with a dark color overlay.** Make the source and license links accessible from the image credits. Adapted versions of this photograph retain the applicable ShareAlike license.
+
+Combined total for all four photographs: 464,757 bytes (about 454 KiB).

@@ -29,7 +29,7 @@ export const ui = StyleSheet.create({
   text: { color: colors.text, fontSize: 14, lineHeight: 21 }, muted: { color: colors.muted },
   title: { color: colors.text, fontSize: 27, fontWeight: '700', letterSpacing: -.7 },
   heading: { color: colors.text, fontSize: 16, lineHeight: 23, fontWeight: '600' },
-  card: { backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border, borderRadius: 16, padding: 14, gap: 9, overflow: 'hidden' },
+  card: { backgroundColor: colors.card, experimental_backgroundImage: 'linear-gradient(140deg, #102c46, #061824)', borderWidth: 1, borderColor: colors.border, borderRadius: 16, padding: 14, gap: 9, overflow: 'hidden' },
   row: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   grid: { flexDirection: 'row', gap: 8, alignItems: 'stretch' },
   column: { flex: 1, minWidth: 0, gap: 8 },

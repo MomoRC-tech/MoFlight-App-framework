@@ -7,10 +7,12 @@ import { BookLab } from '../BookLab';
 import { Action, Card, Chip, Empty, Label, Photo, Section, colors, ui } from './theme';
 import { useLibrary } from './use-library';
 import { flightYears, selectFlights, summarizeFlights, formatDuration } from './flight-model';
+import { localQuestions, localInsight } from './local-insights';
 
 const mountain = require('../../assets/aviation/gliding-mountains.jpg');
 const sunset = require('../../assets/aviation/gliding-sunset.jpg');
 const windsock = require('../../assets/aviation/windsock.jpg');
+const clubAirfield = require('../../assets/aviation/club-airfield.jpg');
 const tabs = [{ id: 'home', title: 'Übersicht', icon: '⌂' }, { id: 'flights', title: 'Flüge', icon: '✈' }, { id: 'club', title: 'Verein', icon: '♧' }, { id: 'ai', title: 'AI', icon: '✧' }] as const;
 type Tab = typeof tabs[number]['id'];
 type ClubSection = 'Übersicht' | 'Termine' | 'Dienste' | 'Mitteilungen';
@@ -72,24 +74,10 @@ function Shell() {
   }, [detail, sheet, tab]);
   const openBooks = () => setSheet('books');
   const ask = (question: string) => { setDraft(question); setAiError(false); setTab('ai'); };
-  const quickQuestions = ['Wie viele Flugstunden habe ich dieses Jahr?', 'Was waren meine längsten Flüge?', 'Mit welchem Flugzeug bin ich am häufigsten geflogen?', 'Welche Schulungsflüge sind gespeichert?'];
+  const quickQuestions = localQuestions;
   const localQuery = (index: number) => {
     setDraft(quickQuestions[index]!); setAiError(false);
-    const all = selectFlights(library.flights, { year: null, search: '', category: 'all' });
-    if (!all.length) { setLocalAnswer('Im ausgewählten Flugbuch sind noch keine Flüge gespeichert.'); return; }
-    if (index === 0) { setLocalAnswer(`${currentYear}: ${season.count} gespeicherte Flüge, ${formatDuration(season.knownMinutes)} bekannte Stunden. ${season.unknownDurationCount} Flugzeiten unbekannt. Die Abdeckung des Jahres ist nicht belegt.`); return; }
-    if (index === 1) {
-      const known = all.filter(f => f.minutes !== null).sort((a, b) => b.minutes! - a.minutes!).slice(0, 3);
-      setLocalAnswer(known.length ? known.map(f => `${dateText(f.date)} · ${f.registration ?? 'Flugzeug unbekannt'} · ${formatDuration(f.minutes)} h`).join('\n') + `\n${all.filter(f => f.minutes === null).length} unbekannte Flugzeiten nicht eingeordnet.` : 'Keine bekannten Flugzeiten gespeichert.'); return;
-    }
-    if (index === 2) {
-      const counts = new Map<string, number>();
-      for (const f of all) if (f.registration !== null) counts.set(f.registration, (counts.get(f.registration) ?? 0) + 1);
-      const max = Math.max(0, ...counts.values());
-      setLocalAnswer(counts.size ? [...counts].filter(([, count]) => count === max).map(([registration, count]) => `${registration}: ${count} Flüge`).join('\n') + `\n${all.filter(f => f.registration === null).length} unbekannte Kennzeichen nicht zugeordnet.` : 'Keine bekannten Kennzeichen gespeichert.'); return;
-    }
-    const count = selectFlights(all, { year: null, search: '', category: 'training' }).length;
-    setLocalAnswer(`${count} gespeicherte Flüge mit dokumentierter Rolle Dual oder FI. Unbekannte Rollen werden nicht als Schulung gewertet.`);
+    setLocalAnswer(localInsight(library.flights, index, currentYear));
   };
   const send = () => {
     if (!draft.trim() || sending) return;
@@ -129,7 +117,7 @@ function Shell() {
             <Card style={{ flex: 1.4 }} onPress={() => { setYear(currentYear); setTab('flights'); }} label={`Deine Saison ${currentYear}, Flüge öffnen`}>
               <Section title="Deine Saison" /><Label muted>{currentYear} · gespeicherte Flüge</Label>
               <View style={ui.grid}><Metric value={String(season.count)} label="Flüge" /><Metric value={formatDuration(season.knownMinutes)} label="bekannte Std." /></View>
-              <Label muted style={{ fontSize: 12 }}>Vorjahresvergleich: vollständige Abdeckung nicht belegt.</Label>
+              <Label muted style={{ fontSize: 12 }}>Abdeckung unbestätigt · kein Vorjahresvergleich</Label>
               {!compact && <View style={s.rings}><View style={s.ring}><Label style={{ fontSize: 19, fontWeight: '700' }}>{season.count}</Label><Label muted style={{ fontSize: 10 }}>Flüge</Label></View><View style={[s.ring, { borderColor: colors.green }]}><Label style={{ fontSize: 17, fontWeight: '700' }}>{formatDuration(season.knownMinutes)}</Label><Label muted style={{ fontSize: 10 }}>bekannte h</Label></View></View>}
               {season.unknownDurationCount > 0 && <Label muted>{season.unknownDurationCount} Zeiten unbekannt</Label>}
             </Card>
@@ -153,7 +141,7 @@ function Shell() {
       </View>
       <View style={[s.page, tab !== 'club' && s.hidden]} accessibilityElementsHidden={tab !== 'club'} importantForAccessibility={tab === 'club' ? 'auto' : 'no-hide-descendants'}>
         <ScrollView contentContainerStyle={s.canvas}>
-          {heading('Verein', sunset)}
+          {heading('Verein', clubAirfield)}
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.chips}>{(['Übersicht', 'Termine', 'Dienste', 'Mitteilungen'] as const).map(section => <Chip key={section} title={section} selected={clubSection === section} onPress={() => setClubSection(section)} />)}</ScrollView>
           {(clubSection === 'Übersicht' || clubSection === 'Dienste') && <Card style={{ padding: 0 }}><Photo source={windsock} style={{ minHeight: 205 }}><Section title="▣  Nächster Dienst" /><Empty title="Keine Dienste verfügbar">Eine berechtigte Vereinsquelle ist noch nicht verbunden. Datum, Uhrzeit und Startplatz sind unbekannt.</Empty><Action onPress={() => setSheet('tools')}>Verbindung ansehen  →</Action></Photo></Card>}
           {(clubSection === 'Übersicht' || clubSection === 'Termine') && <Card><Section title={clubSection === 'Termine' ? 'Termine' : '♧  Kommende Termine'} action={clubSection === 'Übersicht' ? 'Alle anzeigen' : undefined} onPress={() => setClubSection('Termine')} /><Empty title="Keine Termine verfügbar">Vereinskalender noch nicht verbunden. Es werden keine Beispieltermine angezeigt.</Empty></Card>}
@@ -174,10 +162,11 @@ function Shell() {
         </ScrollView>
       </KeyboardAvoidingView>
     </View>
+    <Label style={{ textAlign: 'center', color: '#8ba4bc', fontSize: 10, lineHeight: 16 }}>Entwicklung · synthetische lokale Bibliothek</Label>
     <View style={s.nav} accessibilityRole="tablist">{tabs.map(item => <Pressable key={item.id} accessibilityRole="tab" accessibilityLabel={item.title} accessibilityState={{ selected: tab === item.id }} onPress={() => setTab(item.id)} style={({ pressed }) => [s.navItem, pressed && ui.pressed]}><Text style={[s.navIcon, tab === item.id && s.active]}>{item.icon}</Text><Text style={[s.navLabel, tab === item.id && s.active]}>{item.title}</Text>{tab === item.id && <View style={s.activeLine} />}</Pressable>)}</View>
     <Modal visible={sheet !== null || detail !== null} animationType="slide" onRequestClose={() => { setDetail(null); setSheet(null); }}>
       <SafeAreaView style={s.modal}><StatusBar barStyle="light-content" /><View style={s.modalBar}><Action secondary onPress={() => { setDetail(null); setSheet(null); }}>‹ Zurück</Action><Label style={{ flex: 1, fontWeight: '600' }}>{detail ? 'Flugdetails' : sheet === 'books' ? 'Papierflugbuch' : sheet === 'tools' ? 'Entwicklungswerkzeuge' : 'MoFlight'}</Label></View>
-        {sheet === 'tools' ? <LabApp /> : sheet === 'books' ? <BookLab close={() => setSheet(null)} /> : <ScrollView contentContainerStyle={s.canvas}>
+        {sheet === 'tools' ? <LabApp /> : sheet === 'books' ? <View style={{ flex: 1, backgroundColor: '#f5f7fb' }}><BookLab close={() => setSheet(null)} /></View> : <ScrollView contentContainerStyle={s.canvas}>
           {detail && <><Section title={detail.registration ?? 'Flugzeug unbekannt'} />{[['Datum', dateText(detail.date)], ['Flugzeugtyp', detail.aircraft_model], ['Abflug', detail.start_place], ['Ankunft', detail.landing_place], ['Start', detail.start], ['Landung', detail.landing], ['Zeitbasis', detail.time_basis], ['Dauer', detail.minutes === null ? null : `${formatDuration(detail.minutes)} h`], ['Rolle', detail.pilot_role], ['Startart', detail.launch], ['Landungen', detail.landings?.toString()], ['Bemerkungen', detail.remarks]].map(([label, value]) => <Card key={label}><Label muted>{label}</Label><Label selectable>{value ?? 'Unbekannt'}</Label></Card>)}<Label muted>Quelle: gespeicherte synthetische Bibliothek · {book?.name}. Distanz und Flugtrack sind nicht verfügbar.</Label></>}
           {sheet === 'selectBook' && <><Section title="Flugbuch auswählen" />{library.books.map(b => <Action key={b.id} secondary onPress={() => { setSheet(null); void library.selectBook(b.id); }}>{b.id === library.bookId ? '✓ ' : ''}{b.name}</Action>)}{!library.books.length && <Empty title="Noch kein Flugbuch">Bestehende lokale Flugbuchwerkzeuge öffnen, um die Bibliothek einzusehen.</Empty>}<Action onPress={openBooks}>Flugbuchwerkzeuge öffnen</Action></>}
           {sheet === 'filters' && <><Section title="Flugfilter" /><Label muted>Jahr, Suche und Schulungsrolle werden gemeinsam auf die gespeicherten Flüge angewendet.</Label><Chip title="Alle Rollen" selected={!training} onPress={() => setTraining(false)} /><Chip title="Schulung · Dual / FI" selected={training} onPress={() => setTraining(true)} /><Action onPress={() => { setSearch(''); setTraining(false); setYear(null); setSheet(null); }}>Filter zurücksetzen</Action></>}
@@ -186,6 +175,7 @@ function Shell() {
             ['Sebastian Kawa, Tomasz Kawa · GrandPrixGlidingChile.JPG', 'CC BY-SA 3.0', 'https://commons.wikimedia.org/wiki/File:GrandPrixGlidingChile.JPG', 'https://creativecommons.org/licenses/by-sa/3.0/'],
             ['Dg-505 · Sunset', 'CC BY 3.0', 'https://commons.wikimedia.org/wiki/File:Sunset_-_panoramio_(312).jpg', 'https://creativecommons.org/licenses/by/3.0/'],
             ['Partonez · Windsock at Bolt Head Airfield', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Windsock_at_Bolt_Head_Airfield.jpg', 'https://creativecommons.org/licenses/by-sa/4.0/'],
+            ['Anne Burgess · Clubhouse at Dusk · Geograph, via Wikimedia Commons', 'CC BY-SA 2.0', 'https://commons.wikimedia.org/wiki/File:Clubhouse_at_Dusk_-_geograph.org.uk_-_6960024.jpg', 'https://creativecommons.org/licenses/by-sa/2.0/'],
           ].map(([author, license, source, licenseUrl]) => <Card key={author}><Label>{author}</Label><Action secondary onPress={() => { void Linking.openURL(source!); }}>Original & Urheber</Action><Action secondary onPress={() => { void Linking.openURL(licenseUrl!); }}>{license}</Action></Card>)}</>}
         </ScrollView>}
       </SafeAreaView>
@@ -198,7 +188,7 @@ const s = StyleSheet.create({
   header: { minHeight: 122 }, headerTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 }, toolButton: { minHeight: 48, minWidth: 48, alignItems: 'center', justifyContent: 'center', backgroundColor: '#07172599', borderRadius: 16 },
   stateBanner: { gap: 3, padding: 4 }, provenance: { fontSize: 10, lineHeight: 16, color: '#8ba4bc', letterSpacing: .6 },
   paper: { padding: 0, borderColor: '#b76a38', backgroundColor: '#5a3420' }, paperPhoto: { minHeight: 165 }, eyebrow: { fontSize: 12, lineHeight: 18, fontWeight: '600' }, orangeButton: { backgroundColor: colors.orange, minHeight: 48, borderRadius: 18, alignSelf: 'flex-start', justifyContent: 'center', paddingHorizontal: 18, marginTop: 4 },
-  stacked: { gap: 8 }, aiTeaser: { flex: 1, backgroundColor: '#201c5c', borderColor: '#6552af' }, sparkle: { fontSize: 32, color: '#c98dff' }, circleArrow: { fontSize: 26, color: '#cce6ff', marginTop: 8 },
+  stacked: { gap: 8 }, aiTeaser: { flex: 1, backgroundColor: '#201c5c', experimental_backgroundImage: 'linear-gradient(145deg, #282274, #141b41, #50205e)', borderColor: '#6552af' }, sparkle: { fontSize: 32, color: '#c98dff' }, circleArrow: { fontSize: 26, color: '#cce6ff', marginTop: 8 },
   metric: { flex: 1, minWidth: 0, alignItems: 'center', gap: 2 }, metricValue: { color: colors.cyan, fontSize: 21, fontWeight: '600' }, metricLabel: { fontSize: 11, textAlign: 'center', lineHeight: 17 },
   rings: { flexDirection: 'row', justifyContent: 'space-around', gap: 5, flexWrap: 'wrap' }, ring: { width: 72, height: 72, borderRadius: 36, borderWidth: 6, borderColor: colors.cyan, alignItems: 'center', justifyContent: 'center', backgroundColor: '#061626' },
   trackEmpty: { backgroundColor: '#122b35', borderRadius: 10, minHeight: 56, alignItems: 'center', justifyContent: 'center' },
