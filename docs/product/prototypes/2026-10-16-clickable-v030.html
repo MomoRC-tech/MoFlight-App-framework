@@ -1,0 +1,626 @@
+<div id="moflight-checkpoint" class="viz-dotted-background" lang="de">
+  <div class="mf-stage">
+    <div class="mf-demo">Klickentwurf · v0.30 · ausschließlich Beispieldaten</div>
+    <div class="mf-phone" aria-label="MoFlight Designentwurf">
+      <header class="mf-header">
+        <div class="mf-heading">
+          <button type="button" class="mf-icon" data-action="back" aria-label="Zurück" hidden><i data-lucide="arrow-left" aria-hidden="true"></i></button>
+          <img class="mf-logo" alt="MoFlight" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAIAAABt+uBvAAAj5klEQVR42qV9d3gc13XvOffOzBYAW9A72MAOUqwiJTaJqqQkm5Jsy7IU23H73BI58osd59l+dl5ix5IdO3aKXp71LJdYLrIUKZao9kxJFCmTYu8dIAGiA7uL7TNzz/tjtkxdgHn8+OEDdmdn7j333FN+53fuIluyAwDB/o9Mv2PxT+dlAETl9ytcTghA9htQ8WI0f9j5dNdReYzHuKxwT7R+EN0vtjzXPkTJ4xm2D3gNxfuJzukUXinKr3RLRPvAytJEl88iAhEAeg8KyytXuiFaV6X8C1qei3ZBSzOaMXnMxEsQ6HzRITayrZ+x7GhXz5IQjavRbcEIyoIz5mybOVpvSMVXiSxPROeACxpE5c+gVSjmiZaGO61C0YzVDc3PKj7Cts8KKuO4wHwdluRIZTHZ5u+6QwrCtSlRWY7MOh8Coko7qyQ+40ryNgo4w33pcZ3NaJTmabdRZFdaMumUU5MRAY27lW5IZUmRy/IyT/Giab/izKaJZN+VlRQHAbC8edE0OHJY8cLljg1IVrtGzp2FJt031hUtimNeCZs6IwKgVDB4TsdUEjBZN+3M9xS5GqOSGXb9LNrnZhkSeXsALOp+6U9jwbCsgIR2I4jFEdqGalIlVknDLVbJOiisbNTRPVoAk9yN/yXlRm+vhOT+FpY2KNm9B5LLyjhfLL2AnhaBTWNoidydlP0h5BhKRVvjZbvQTX3A8QR0hDgF5bItjFsM5by5pyMrCGjmLsd9VlThvQqOn8xTRUswYRYJuW0rskYJLguBLkGpxX4b16DDrtnvJ11bEOhmNdDkM1ykgx6SQtfA1eS2ySvIKH0c3TaRw9ijm4GjmaqF5B3aeQoHXTUBvU11KQJ2D0awvPKF/SrI4qQIOEPOEBGISBCRIFUHYVguRMYAATmzuEX7zkLHHKhszg2PZo6eCgEXSteWSFjdsXlZkJyBSUkE5GJKC3IhS1aBhLLEg37mV+TasFIXkaI1SrhKCgbQ70efwv0K8ykgSM9k84mp7Mhkrn843z+sTibUyQQIQs5R4oVJml0wehsBtC46omljALLFO9y2ALmLDa25TOUIDx2e1UtbywJCXh3gAR+vCpAQoOokBCICAMoSKjKv8ks11b7G2kBni7+rRW6u89VHSFDm6kjm4kDy8On44TO53qtC05ksOaxvKSbyCO7IGpcbEygLCJ0mpqKYpsmSwe4piCrKqGTziYQoabh96EJQMVNFxpX6cKCzpWblovDqpcH5nej3aRPxqWNnx199J7b3qJ5MW8RkLBiS+64nZxDjFBC5mmJ0u6CCpXVItrKBc8naaTojaPwgEgRCJ0G8Olg1v6vu1nXRTav9DVGRyydOXhj6zSuTbx4EXaDEPY2F01pbZ8OxcZHHxHC6oBCpbGArBgJOR2b4V9eoB6c1g8UfDBHRMDqk67mrI/E9h+P7jiLj/s6WYEdz9MbrAp0tqTO9WmyqYMJtq0LeSWzxT44Ni2aAQmHFdXd715ZeuadIaEkFLCkl2m+PprdK8UtRCxABOUfO1fH45O5D6UsDwXmdSjQUnNsRWbM0feFKbmAEJWZZdfQOQUzj5diw0EVZcCbAnXnsVstnepLQdNJ0AkBEC1hDplyhjAShWyZhlppLeIGKDzTdeBcZQ4aZi/3xfcer5nX6WuqkUHVk/fLU+cvZK0PIuTU6Bbdcv5KAXKUxk1ze40qizz9896qeeSNjsVg8SUIHxtCekaI3PIjWfe8SgSFn1dctyPUPIWOleaLEtdhUbP/x6oVzlOZ6HvCFVi5KHDyVH5tEzoq5q6sq2Mdx7QJCLyVyAYAJIJFM3Xfr+q9+5oEVi+eMTMb7h8cprxJDLO1BJ5DoEfhjOS8vvqELuTbUcPemxP6TNngMOdOSqakT5yPXL5Oqg1J1lb+rdfKtA5TXEJkdYLKjReUROG2QPY/Ga9Uns59EHB2LP//6voMnzm/fsuarn/7ATWt7NCEGhifSUykiAixKyt3clyUkiIgAWdHAEZEmSNNqN61uef+d8YMn8wPDULBdxadLkjoe02JT0Y0rSdf9bU1qfCp59BxKfKZGFdEkoOkCQzeRO7USbXsYGQOGl/tHfvnS7uNn+27fsOJzD9/1/jtubKiPjE7Eh8cmSdXIEBOYYNOCkSpITegiVB0I11SnMjlEBAK5tia0elHrQ/e03LeVV/kj65bLjVEioSWzlFeLLgKR80zv1WB3V3B2G+nC39Ey+dYBPZVFxEqhhsmEOzQIvTcYOiOaortB13y68BjDGQuAM2f7fv77N/sGhtctm7/jtvUfvXfrqqXz8po+MDyeS2YIAJnLdha63lQX/vajH144p23X3qOFawhQ4lyRAx3Ncm04de5yfP/J7OVBLZYEEmWPgUiqJpLpui2rAUCO1uSHx5PHzhUiI/MC20sahTccNmiG5ngmyDJi4amFqBhR4nlVO3jkzC9f3D08Nrl0/qx11y38wPaN2zevikZDw+Ox8fEY6bpJoYgIaoL+h7ZvfPfUxYlY8sTZPuQcEEkT+dHJqUMns0NjVcsWnPvvP5zad0xPZdAItNG0SRjLj8ci65f56iMAAIoy8fof0ZTclFceHRuGoLINcjXHbt4R0G5ELCMwRXiIKEnpbH7v/hNP73w7nkgvmNXWPat16/rlD9696brFc3OqNjQ2mU2mCQiQkaZv37zy3JXh+nCw9+rYwPAYMmboJjKGkqSnM7w6GHvrAEoSArDqIA/6RTpbdmoMRTYf6GqpWdotdMGC/view9rklIEB2CMjR6gxMw3C6ULrUhSDZpF5AmqGmKZSmTffOfrrV/dOJTPzOpqaG2p75nc9eNfmu7esaWqMTiZSQ6MTne2NDdGa13cfWji3Y9/RszldoDkgQiRN01UtP1gQXM3yBdH1y5OnLpriMiRNV2rDtZtWkaZL1cHEgVOZS/1FU42WApSjWOQmIMRKkjIHeGjLHkpWiSzxomUcaLbfKPH4VGrXniO/fe2dxFRqdntTJFTVWBfZsrbnoXu2rF4ypyEa2nP4bDhUhUw6d2mAlSI9E6CpjscNsCUwt73tg3dE16/IDU9kr46AEIW5CCHVhms3r0bGQOLJ05dSx88ZW9UFurK+6LbFyrM1ZYaeKoPlmoEF/TEV4y3iK1qsYsaADJHzeCK9a+/h37yyd2Q81tHcUB8NKYrcWBeROLsyMvHg9k1nLl29PDgq8ipxhmiF0nVh3EodmcwOjqYHx8Z3vo1CACs+XpBUH6m/eS1yDoynzvYm3z1pFVCxrlvErQwriBYBoYsGoQu+i/a0gMjiC8xSJtPPEuroEhkgMoacJ5Lpt/edeHrn2xf6rjbUhdOp7NrlCzesWtRUG/7sQ9tuXLkop+lXBkdzqQwBmkPngl9jTEvnsr0DoOahLEQEIXxN9fW3rEPOgfPkifOJd08g55aUFU2mxGTjOTYucimjonuQ4wZfkoULgNYqSgmdM286z3IwIkOUeCqTO3D4zG9f2fuhezZ1tjZeujzYPautKujv7mp9/50btm9eFQwGBkYnYxNxEgIYQzRtXlUlVTWlsggIoOuBeR11W9cBEHI2uedI8ujZIgZirbWSK9xBM3NhNhWzA+yuKaW55o2OQpuDp1AQIBJB9+zWr37mgQt9Qw//5Xf3Hb+gqlq4pipcHWyqj96+YcUHt23obGscnYxfHZkgVSXGsLQY5XS/+CxNhNcsjt6wgoQAxkef35XtHUBJciCk6IYHVXTzLtwdxDK6jCWYbjoDPy24ZCsladonH7hj05qlDz762N53Tx090/fbV/Y8vfPtvYdPpTK5cFWgo7Xh+uXzP3LvzauXzEtl81eGxtW0se/ctb7p3q1Vc9sBSEumh3/9shZzc/MWWRXZMXZMegYJlqX6jujBD7nmWpLIawAAnAFAdUDZ/9vvvbz70CPf+Ffm9xmrIjQBug4A9Q2RtT3dd25adduN182f1QYAR073PvnMK795ee/g4BggosxLhpyEkKOhxf/4ZaWpFhhPHDlz9ovfJSJ0KYqRpTzjTDVmhDCbsQJ3lUFLUWV6/SQg4JzdsXFFXTSUzOSyk/Hbtqy5Z8vaT3ztnxKZYshXNOTAWTqdO3ex/6U3Dvz0+Tde3XP46vDEvK7mD921+aM7ts7qaBqbjA+OxUU2RwwRGeXydbeuq791PekCOBv82e9TJy8wSbJVh8yEBPNeQbb4veBOjZsu1SCrOMiKzJdrTBXFVCiAgcTwrz5x3yMfvic+lXpj37El3bN+v2vf//j2kxCqYaVd47iNEAI0HYSQA74l8zpuWtuzbfOqWW1N53oHnvrdazv3HEtMpaRQ1fzvPhqc3Q6Mpc72nf3i4yKVgaLQrZMmJ5fQ1QahC5KEjgzLlmp4ZmQ2sBftVVgERBAEb7xz9NW9h7taG95/54aO1ob25npU5NMX+7OZLErM7HotETnjKHFd0NDI5DsHTv7shTefe/2Po2OT61ctjcUSfX1DbR/fEdm4gnQhVO3y93+euXAZZbk8KmduZJt5JRtUmgu51SVsqR25cT/IRg4xEXls+CkZVkYHTf3+Vz/ZPbuzLlK9YtHsE2f7/ttjT73+x6OFTTHNVkUAEkKALoAAdK3xvTd3/tmDxDhwdvXJ5wZ/9gKTJUsp2Kv2Xfxbmj5x99C9MivJaYbIrQBJaN13YMl6CvANq62t0wne94XvaKo2p7N5w8qFVVV+rASvWx+JyBgnAiBqeM/Wjk+9HyQZgIZ+uXP4ly8yc/3Hi6BnvTeyJfdWIoThf4X94QYie9XOTAVyJBLU1d7kl6TTF64A5yB00HVgvLjslcx84QVdkKYpjbWtD9/dsH0jKkp+PDbw1PNjL7wBQOXgu3LiWS7Pk1nfaFpU2FPRyB1wdZh8srNmSrTLYq7QNzBCuigsNZdAkqZZCyoisrpOQsh1kdotqxvvvaVqXodIZSffPHD1py+kz1xCWQJk9qgNrHQ6G3CBaKMBo0tk7F1Rm0aIzqpuCW+3hNQ2yhchGDwNEwRRTujMmk6kAwidiABAitQEZ7dFNqyIbljp72xRJxOjL+8Ze/GtqUOnSdNRUSwsFHMoiG7FMFPuKpW5WWj23FY+cTmrJ3twXbZqNA0xj0zwoo0U6EmdISAig04rgEgUQG5E5pOVpojSVFc1t616aXdgbqevpV6ks6mzfUO/eWXqwMnM5SHSdSZLKElurDITu9qzgG7hB5EVN7JB9kVB2KgdSNMnEWQrcZmsu5UeTYJI6EAAgpAz4Bw5oixL1QEeqpYj1UokJNdH5LZGf1uTryEqVQUwGBCJVK5/OLb7YPL4+fSlgdzwOOXyyDlKDLlcUD3yLhibuZ5u6Zhk3yaepASvIj+564Czh8OmToKABOkCEJlPQZ+shKrkhlq5LizVR30NUaU+ojTUyvURFvAjY4wzhqgnUtnhsezgWOroueyVwUzfkDqR0KeSIq8CY8gQGUOf4u5nyFEFM2tG2RhZSPSSO7vHzAB0ZYsjuZskAjdCSdGr6wKEIEHMr8jhGqW1PjirNdDVKrc1KW0NSl1YDgSYXwEiPZnRplK5wdHk4bO5obH8yHhueCI/NK5PJUUuL7J5EgKYwS1jyJApihtbA72rV+agDAtE2tJ2MVkSyWXhKydjBdWw1uPJjT1T5KiQrhu7RqmLBGa3VvV0V83vCsxqlaNhKehnsix0kZ+I54YnEhePZS5cyV6+mhscy4/GRC5Pmka6KNXXjHoFKhI6e0EIPcsK9kjeZgedNL3yZCQbGworM33sukYexq8Ykug688mBOR01y7pDKxcFuzuVhlomS0yWhC70VCZ5pi954sLUkTOZ3oHc4JjI5kriQIZUYLdIlnWztRmgjXPoNirLspMLocvbK0t2tiFOAwo5zI6dmk2CSNOYxP2zWsJrl0bWLQ/O65BC1YUiBICaTKfP9Mb3n5g6dDpzZUhPpoHIyNSLDMPCrdFZO7KvBJY7CtDkf93X0oxwmuj3SC63LsLqkj11pOlIUORUlaJodEG6JoeqQ6tX1G1dV93TLUdrQIAQAgCEJtKX+id3H0rsOZzpvSpyeWQMOCuw5MhUdZm+smKDbtGjJQ+tAwbXHj4Lc7qEBCJZvRi4RCeeCUfJd5pxB01TGmrrtl5ff9v64Jx2YExoup7XUJZJ02P7T4y/9Fb8wCk9ngTOmMSZ4WtKuxvRwaGcOY5HLqB6ySshTpcclJrRXPaa5L59Kteayeqr8hoPVTdt29B492Z/RzMRGaQp5BwYix84Mfz0y1OHTom8ihJnPtnlJmRKemkG/XlOroE72OAKjVujMDPKYUZajevInM27knudKmkVDqlazeol7Z+4t2bRHNKFyGuFB0myGktcfer58Z1v69kskySmyODC7rRaB7AyW22kbLoW5SJve2pbG/SM7gwNIute9UisnIEfEQnR9L5b2z92Lw/6KK+Ve2klKds/culb/5Y8do4pMpNld65IBefpOnqcDg+q2D/iQV5xo/WZ/pJmUMlAVwslVK3pvq2dn/kAEIi8VmbSIWrx5KW//3Hy6DnmVzzvTFApbKkMkbsDXdcAHXuzMEyxgkGldSQa5NLl5eguIl2v6u5s/8h7kICEQBM9DmVp/LW9ySOny+Zm2pJPhdYS51vkTUSjUqMoVcJ/vYp3JcNkeqgE7qQVcAEoyIJLRTetVKIhPauaaKuAgCBE+twV+xIhusByhTKL2S5YDWGFmHjmiBVMlxhUUCsyNdRRBbTM3LRVvINUFyF7DQOICBiTGyIgyAO3t82WLBkjkOeMyU1Zyv1AzniYZmTIndAVkZnxxCrqP7kflwAIiJnz/QRA1n5JBARdr7ttvdLaKFTVEpV4NUtVQnvJKouippboEpYFQid5ZRp5obOQUYLQCv9d+UHeVfkylI25wdHqlYv8TXWkiSK7AgkIBMnRUGB229ShM1o8WYYHK/Ohp2kjRztx14UtWdEMV8CeK9THLSxX8DZpLq2cTKSz6TO91T3zlfoICGEBlITwdzSH1yxRJ+LZ/iHKq8hMFGSXxgPHOqBtVWcQTDsjqcopC1l5BoAW1mIRG/AQEFagHhRoysiYOjIR339MjoQCXS3MJ5Mw6bEQcm04unl11YJZIp9Xxyf1TI6EKMjDTKwCtxqk2XKhd1eWU7+mCXOwIv5nuw8CAsfGRVaiL3rQhaw1VYMcxpkWT8X2HE6du8yCAaU+KgX9YPB1iEAQIgZmtUY3rQ6vX+5rbUBAPZMT2Rzl8gUrTibqN5HnqlDlChS6DRgtjthFFl53siCNyJfsKPpf68EdTrS/XH23XkkkVI0pUrC7K3z9svCaJf6OZilUVbavgogh40zPq7nhiczFK6nzl1PnrqhXR7RESk+mRU612trCUqGF9zjdLrP191ta/8m9f8/L05m6+5At2WENQx0BC7qckOEOM2saEfCAz9fRVDW3s3rRbP/sdrk+IkdDLOAzNIUxDpwRCaEJkc7kx2P58bg6PpkfHldHY+pEXI0n9UyWsnmRU0U+D5pGeV3oOggCImAIyMqQR+n8EBuJjZzVc6eakNsRNWgR63T8ILIUkmYcehk1PARAWZJqI3IkJNdHfE11cmNUrgtLNVVy0M/8Pub3cb+P+RWQJZS4gagSEeXyIpPTM3ktnRHpLGRylM2JdFZPZ9RMTktn9WRaT6b0REqdSqvxpD6VBiFciuvoctLCdHwcOwTmRn9x9pcCeOpUpfSxUMwBo4BRjOKRc6bITJZAkZgkAefImRlyNswSQXF7CgG6IE0jTRe6TqpGqlb20OYo1HPLXGPAbbpecq+ao+msEHLijaVd7YVJm5otGQIjIGaJV3Vd0zTImBbchhAb92HgbNhGMHV0kmuF7hoL6M6QylQNlbxMOQkBggAJGXcB5QhI142IFjl34AxmGImIgDTdXpUstSYwRroAQOAMgEDVgaGDMG6xF2RUkIiAMcaYqZTs7DzG6TWIXLOwwvglj4oEKQ1R5ldIUH54vNjwiGZkXmmqQ0UmTVPHYpbMy1bwIPQrvLW1Hhnaho4ImbwWS6Sa68KMs6HxhC7ETRsXn+8fPn1xgHFmP+Wn+E/mUltzSJaV2FR6LJaw41kIQhPG4jHzcQzXTFGxlJ6tLlLT2j91f+3aHhJi4Omdgz/7T6bIJX9BeTW8YcXsLzyMPjk7Mn7u0e9piWShHdQWmBAITV+6ZM5//NNXfIpEgkpbhAAY4t5Dp5/41UtP/t2fc84/8fV/WTqv4+ufe6Cvf+SGD3356vAE48y5QYQuWpvrXv63rzfURf7Xr1/50mP/xwzIGSzirvYGv6JMJdND4zE70dc9KUN7VwHaADOypNQkQAoG5HC1UPW2P7knc2UotutdpsiAQKoamNs+688fVBqiQKClsyaUEk1wTCl4IVmWGqJhSXY2r0NzU50/GKyrDQOAzyeHQ1UAEKoJ+mSpxJw2TvIwnTpGnLP62nAkXF1d5QdAolIYh4IooMi/+PtHFs3tfP4P+z761z8EKIauukDGmE+xo/C6ENl8sbfFXIAEIHPh0HZyCgkSRLrOFXnW5x88OzCcOX8FGJej4TmP/om/qV6oGnBGxc1FuiBN8ICCigQEIpcXOZUpknErXQgJ+LnegWdefpsXdI04l85euJzLZIw7KBL/+vd/dr5v6NjZS70DI4wzoWkgBPf7hC4op4LEARB0nQh0IQBAFwB5lTiXONNyeWIIXBK6Xhuuro3UhKoCoAlAAImRrvu7WqIbVgCXSNMEEEMkACKSZDnXPzTxxsFCJ575kDc0vJitql10EIUXdN3fVDfr0Q+f/fIP9Kl0x6feV9PTLXJawSEbLlnX5VB17e031N54ndxcT0LkrgyNv75v8s0DINRS8nXkdO9ffe2fwecra4Sm3/2em4zH6pq2bfPqnvkdc9sbj5+7PDEWm9XV8vH7b1nd053J5P7j/+5LpDLvufn6iVji3//zTV3oAMARdty16YHtG2tDVcfPXf7Rv784Hk/+7ec/2NJYR0QrF8956juPnL7Y/60nfqs01tbdesP4zt250ThDCMgsldM4g4AiZzRRe9Oa+q3Xj760G2WpqERUqs2XalLl/pxSyE8AyBnl1Zqe+e2fvD9/dbj+tvV6XkPOsJDBEwmh1Efm/PUnI6uXACIwBkDBrtbo9cuHe7p7v/8LQGYIuyboa57dyg0BASDC2HiSijGeJmDrDdd9/H23pTO5b//vZ5Yumv3sj74yr6vFePe9t66fmEzURkOT8eQLu/Ybi3ff7Td85kPbjAtuuXHF1huu+7Nv/vNH77slEPCToFntzbPamw+dOP+tH/2ypmf+1IETmb5BILHtluu//pkHtn/6b6v80j986WMf+st/GHl5b9tD26VQlZ7OAJgZ+CQ5yXcIIIwtzVDP5+MHTtatuw7yatOdNxrun5gU23e0el670lBr0CY7Pn5/dM0SoYrMwFD8nWPcJ0duXKnUhpree3Pi0oB+7rJx501re/Y/+4/ICigDY+yRbz0ZSyRL9jevqgCQyeb8PuXxL/3pvK4WInjt7YNHz/RtXrt0dU83AGRz+RL61lQfOXj8/B8Pnd6ybtmi7s6e+V1337zusR8/+7mH7qqN1JzvHdj51sFzfYMAyH1KejyGDBHlB+/a3NHSsG3Tyt2HTs+f28ElmbIpkUozv09LZdDKe5PckeviEJCxod+8rk1MNe+4WagqEaAsxfcd73/imQXf+rwB/fhaGyI3LCNBmf7hs1/5QfbyMJAI/WHf/G9+VoqEojet4YNjhh0N+H3tLT7zs+oiocl40uZbNV0snde+YeVCAPj1S7sf/uLjalaL1tW88MTXbly5yKjnGR7l8MkLt37saxNDE0uXL9j9878Lh6o6Wxvf94XH7r3thtpIzeHTvZ//xr8CMuS8ENdq+rzutmULZz/72h8/cOfGd4+dVTXNYAGUjKmptG0TENpOhTM+yEDoV/7lV4HZbTXL5yNRunew77tPkaob3cckhK+5Hn0KIcYOn872DRkEn+SxC5kLAzWrauTGOqmm2giULvUPvbhrfyG0Q5AYP3j0dDQatmXkQoj25gZZkgDguVffVrMqC/gmx2Iv7z5448pF5oRpz+EzExMJqApcuDw4NhkPh6qqAn6fohj+k3NEWTYanwEIGAddPLBtQ8CnNNbWLOnuWH/dIsa4MVeUuYnHaKAUCEiSXTRgPkaDjAYrfSp16fGfdH/nL+TqYN/3fprrH/F1NBW7B1FNTIEgAPI316HMKa+SLuTGqFQbIiJKZ0W2EAocOnnhc1/+ASiKObO9+44NjqAExybihp9as2zB08+9IdJZ7pNXLZ5rK33qgoymAkRzkKIX3tWJNM2YTn50Mji/K3Om90r/6ANfePzAkdP3b9us5rI//Mnz2XROaYhKVUEtkSr3MhYDa8krJSlSHAw947m+q33ffUoO1ySPnEGfXN6DnOUGxjIXB6p65oVXLOr6i4fHX30HFalpx1ZfWyMwljh4KhpPGgRlzjkE/KxgpAkARE61xBdGbMb58fNXTl3oX7lk7qc/uE3o+tHTvbdvWvWeW9bZKnUITiyNhF7YLkvmda5ePj+VzV/qH5k6cq5px82N99/y85PnOWOBngW/O9/LOBf9I1WrF4eWdY/velfkNeTMRJC38YOcIBljhR5sQFTkqYMngQBlmYxmWYbAEDkX6eyVHz8z728+5wvXNN29peH2GxERZRkYS529PPL0zlkdTZwzAGBoPaCGCAhYkdyNjBu/yzKfiE995fu/+NX3vhiuCX7x4/cZFyRT6eqqIBAg48YNiz1fxkoxAJAkScvmjpy+0LOga9G8jnd+9djA8MSGh75ypX945Lk/VC+ZE57VauA8ATSIt6Dn8iPP/SE/Olk+G4YscZBLoooAWiqXn5zSM1lS9QIIwSTAEumbtEQKfT4tngRGiQOnLnzjidaH76peOJsHfASgJVKx/cf7f/ysPjSuttSNjMX8fl9sKmmHZRCzOXV0Io6I6XQ6kcqMTSYmJqdkRXn5tb23fvjLj3z03uULZ+u6+N0r79RU+x/90x1CiHw+NzIR54wlkunS4o5OxEPVwYlYApD+5olnOloa1y2f7/Mp6UxO03VgjHQ9ceg06WRjNiECSBw588KDdrix+ECuixjmNj86SapawuqL1RAm14dRkoSmqaOTQEB5lQV8gVltSkOEBGUHRnJXhkgI5NynyC31Yc6lZCo9PB6HUnuT4doC/qbaGkQcHosF/L5QdUDTaeDq6Ed2bL5z8+qfPPuHV97YrxIGfdKLP/7mxlWLD5+6tOXDXw3XBBRZjiVSE/EpI1xtbaj1KVIqlR2eiAtdBALKgjntAcU3PD5xeXBcEM2opohoI5O4IYrG4A24o0jcLuNSJQxDF2W4o4RJaJrh0QvNb1DicQojPWXmMpmZ5WlEpERgJLR59Uf/87OffXDb1FT6udffGZtIbLl+6Yol8wDgS48/9Z0nngHjLECGJbhDCB0EFR5BIIhAF4VQRWJOdqmFZ0VWdNZUKJdc7HNBcgxcmSFYPtnIyWQxzoewo2+AyCXT8XMWJplxpkcR3UXgAABCll7YdWDbxpWzO5offu/NhVBb05985tUf/fxFlCXL8UOFSh0HVj6RnBViejcOlZ0uBJblt8Qcxil4aOfqeOogYsWaP1Xs2yDvs5Rcqg5CVVub6u7YuLKnuysY8A2OTryx/+Su/ccNRfQ8BRFxpgA0gEtDpI0wS4BsyQ5LMQDBfrq3F/GNyA76VfpOA6pIgyF7zx4iAAhNB1UDhsAY6DogoiKjS3sauWC+18RFA1fmEgCQVCLjmVh83uUku3TQ84AxMKPFjtZDpyqhkzQIjDPgSkExCj0pLmUBFxN7TTTQioAsIy95kscBx5aCuseZZ+Q45hkrKxa6nHhhqfbatJM8i9el+3jxmSvQfMh5fDBaGWb251mPS7D1CE+jXHaj7jjKyk3wzpOzkNxu4lbRR7tr8DCI3lVZdGGuSWArOtuoTa4nHAK4n/NpPqmDwP2kuZkN2aqP5EH/vCa+53+hs5QASwQq8ii/mZBgl7YfS0M4Wuho07XEzEg4ZKqyEU7Dw70mydMMZFckcbpZNfM3MpDbniD6/65dzuQqE86A1/LBmT+fphm41QaRs8m19B0jtnDRivXbmghxWnmRu7I4v//Aiw1FM2Ih4kwq5BWPuWRl1l+51uytFmj/Rh5rjxVa4aQKVhw9thMRUUUXY+Vt0ow4At6ys2qGWzcgu7bbu34XQclgk1WbrkmD7BtcWL+oyOwfaQYmjKZ9khvB32Ux/h+Fup1R6bNN1AAAAABJRU5ErkJggg==">
+          <div><span class="mf-eyebrow">MOFLIGHT</span><h1 id="mf-title">Start</h1></div>
+        </div>
+        <div class="mf-header-actions"><button type="button" class="mf-sync suggested" data-action="refresh" aria-label="Aktualisierung empfohlen; letzter erfolgreicher Abruf am 16.10.2026 um 18:00"><span class="mf-sync-symbol"><i data-lucide="refresh-cw" aria-hidden="true"></i></span><time datetime="2026-10-16T18:00:00+02:00"><span>16.10.</span><span>18:00</span></time></button><button type="button" class="mf-icon" data-action="profile" aria-label="Profil und Einstellungen"><i data-lucide="user-round" aria-hidden="true"></i></button></div>
+      </header>
+      <main class="mf-content" id="mf-content" aria-label="Seiteninhalt"></main>
+      <nav class="mf-nav" aria-label="Hauptnavigation">
+        <button type="button" data-destination="start" aria-current="page"><span><i data-lucide="layout-dashboard" aria-hidden="true"></i></span>Start</button>
+        <button type="button" data-destination="flights"><span><i data-lucide="plane" aria-hidden="true"></i></span>Flüge</button>
+        <button type="button" data-destination="books"><span><i data-lucide="book-open" aria-hidden="true"></i></span>Logbuch</button>
+        <button type="button" data-destination="club"><span><i data-lucide="users-round" aria-hidden="true"></i></span>Verein</button>
+        <button type="button" data-destination="weather"><span><i data-lucide="cloud-sun" aria-hidden="true"></i></span>Wetter</button>
+      </nav>
+      <div class="mf-overlay" id="mf-overlay" hidden>
+        <section class="mf-sheet" role="dialog" aria-modal="true" aria-labelledby="mf-sheet-title">
+          <div class="mf-sheet-heading"><h2 id="mf-sheet-title">Flüge filtern</h2><button type="button" class="mf-icon" data-action="close-filter" aria-label="Filter schließen"><i data-lucide="x" aria-hidden="true"></i></button></div>
+          <form id="mf-filter-form">
+            <label>Zeitraum<select name="year"><option value="2026">2026</option><option value="2025">2025</option><option value="all">Alle gespeicherten Jahre</option></select></label>
+            <label>Flugzeug<select name="aircraft"><option value="all">Alle Flugzeuge</option><option value="D-0412">D-0412 · LS4</option><option value="D-5821">D-5821 · ASK 21</option><option value="D-5822">D-5822 · ASK 21</option><option value="D-KMFX">D-KMFX · SF 25</option></select></label>
+            <label>Mitgeflogene Person<select name="person"><option value="all">Alle Personen</option><option value="solo">Allein geflogen</option><option value="Robin Beispiel">Robin Beispiel</option></select></label>
+            <label>Meine Rolle<select name="role"><option value="all">Alle Rollen</option><option value="PIC">PIC</option><option value="Ausbildung">Ausbildung</option><option value="unknown">Unbekannt</option></select></label>
+            <div class="mf-sheet-footer"><button type="button" class="mf-secondary" data-action="reset-filter">Zurücksetzen</button><button type="button" class="mf-primary" data-action="apply-filter">Anwenden</button></div>
+          </form>
+        </section>
+      </div>
+      <div class="mf-toast" role="status" aria-live="polite" id="mf-toast" hidden></div>
+    </div>
+  </div>
+</div>
+<style>
+#moflight-checkpoint{padding:12px 0;}
+#moflight-checkpoint .mf-stage{width:100%;max-width:420px;margin:auto;}
+#moflight-checkpoint .mf-demo{color:light-dark(#566477,#aab9ca);font:11px/1.5 system-ui,sans-serif;padding:0 8px 8px;}
+#moflight-checkpoint .mf-phone{--mf-bg:#041428;--mf-canvas:#1c3249;--mf-card:#0c1c31;--mf-raised:#15283e;--mf-inset:#07172b;--mf-line:#233e57;--mf-cyan:#00d2eb;--mf-text:#e3edff;--mf-muted:#a5bad3;--mf-amber:#ffd174;--mf-radius:18px;position:relative;display:grid;grid-template-rows:66px minmax(0,1fr) 76px;height:760px;width:100%;overflow:hidden;border:1px solid var(--mf-line);border-radius:26px;background:var(--mf-bg);color:var(--mf-text);font:14px/1.45 Inter,system-ui,sans-serif;box-shadow:0 12px 40px #000e2333;color-scheme:dark;}
+#moflight-checkpoint .mf-phone *{box-sizing:border-box;}
+#moflight-checkpoint .mf-phone [hidden]{display:none!important;}
+#moflight-checkpoint button,#moflight-checkpoint input,#moflight-checkpoint select{font:inherit;}
+#moflight-checkpoint button{color:inherit;cursor:var(--cursor-interaction,pointer);}
+#moflight-checkpoint button:focus-visible,#moflight-checkpoint select:focus-visible,#moflight-checkpoint input:focus-visible{outline:2px solid var(--mf-cyan);outline-offset:3px;}
+#moflight-checkpoint .mf-header{display:flex;justify-content:space-between;align-items:center;padding:8px 14px;border-bottom:1px solid var(--mf-line);gap:8px;}
+#moflight-checkpoint .mf-heading{display:flex;align-items:center;gap:9px;min-width:0;}
+#moflight-checkpoint .mf-heading>div{min-width:0;}
+#moflight-checkpoint .mf-header-actions{display:flex;gap:6px;flex-shrink:0;}
+#moflight-checkpoint .mf-sync{width:76px;min-height:44px;display:flex;align-items:center;justify-content:center;gap:6px;padding:4px 5px;border:1px solid #65583c;border-radius:12px;background:#292c29;color:var(--mf-amber);}
+#moflight-checkpoint .mf-sync.current{border-color:#236375;background:#0b303d;color:var(--mf-cyan);}
+#moflight-checkpoint .mf-sync-symbol{width:18px;height:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+#moflight-checkpoint .mf-sync-symbol svg{width:18px;height:18px;}
+#moflight-checkpoint .mf-sync time{display:flex;flex-direction:column;text-align:left;font-size:11px;line-height:1.25;font-variant-numeric:tabular-nums;color:var(--mf-text);}
+#moflight-checkpoint .mf-logo{width:36px;height:36px;object-fit:contain;border-radius:10px;}
+#moflight-checkpoint .mf-eyebrow{display:block;font-size:10px;letter-spacing:.16em;color:var(--mf-cyan);font-weight:650;}
+#moflight-checkpoint h1{margin:0;font-size:21px;line-height:1.15;font-weight:650;overflow-wrap:anywhere;}
+#moflight-checkpoint h2{font-size:17px;font-weight:650;margin:0;line-height:1.3;}
+#moflight-checkpoint h3{font-size:14px;font-weight:600;margin:0;}
+#moflight-checkpoint p{margin:0;}
+#moflight-checkpoint .mf-icon{width:42px;height:44px;flex-shrink:0;border-radius:12px;border:1px solid var(--mf-line);background:var(--mf-card);display:inline-flex;align-items:center;justify-content:center;}
+#moflight-checkpoint .mf-icon svg{width:19px;height:19px;}
+#moflight-checkpoint .mf-content{padding:14px;background:var(--mf-canvas);overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#55718e transparent;}
+#moflight-checkpoint .mf-content>*+*{margin-top:12px;}
+#moflight-checkpoint .mf-box{background:var(--mf-card);border:1px solid var(--mf-line);border-radius:var(--mf-radius);padding:16px;box-shadow:0 4px 16px #000e2326;}
+#moflight-checkpoint .mf-subbox{background:var(--mf-inset);border:1px solid var(--mf-line);border-radius:12px;padding:12px;}
+#moflight-checkpoint .mf-muted{color:var(--mf-muted);font-size:12px;}
+#moflight-checkpoint .mf-small{font-size:11px;}
+#moflight-checkpoint .mf-cyan{color:var(--mf-cyan);}
+#moflight-checkpoint .mf-amber{color:var(--mf-amber);}
+#moflight-checkpoint .mf-between{display:flex;justify-content:space-between;align-items:center;gap:10px;}
+#moflight-checkpoint .mf-wrap{flex-wrap:wrap;}
+#moflight-checkpoint .mf-card-title{display:flex;align-items:center;gap:9px;}
+#moflight-checkpoint .mf-card-title>svg{width:19px;height:19px;color:var(--mf-cyan);flex-shrink:0;}
+#moflight-checkpoint .mf-pill{padding:3px 7px;border:1px solid var(--mf-line);background:var(--mf-raised);border-radius:8px;font-size:11px;white-space:nowrap;}
+#moflight-checkpoint .mf-total{display:flex;align-items:center;justify-content:space-between;gap:8px;background:linear-gradient(110deg,#0c1c31,#112c40);padding:11px 13px;}
+#moflight-checkpoint .mf-total strong{font-size:14px;font-weight:600;}
+#moflight-checkpoint .mf-section-gap{margin-top:12px;}
+#moflight-checkpoint .mf-legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:11px;color:var(--mf-muted);margin:12px 0 8px;}
+#moflight-checkpoint .mf-legend span{display:flex;align-items:center;gap:5px;}
+#moflight-checkpoint .mf-dot{width:6px;height:6px;background:var(--mf-cyan);border-radius:50%;}
+#moflight-checkpoint .mf-dot-old{background:#819bb8;}
+#moflight-checkpoint .mf-compare{display:block;width:100%;text-align:left;border:1px solid var(--mf-line);border-radius:11px;padding:10px 11px;background:var(--mf-inset);}
+#moflight-checkpoint .mf-compare+.mf-compare{margin-top:8px;}
+#moflight-checkpoint .mf-comparison-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}
+#moflight-checkpoint .mf-comparison-grid .mf-compare{margin:0;padding:9px;}
+#moflight-checkpoint .mf-comparison-grid .mf-compare-head{display:block;}
+#moflight-checkpoint .mf-comparison-grid .mf-compare-head strong{display:block;font-size:22px;margin:2px 0 7px;}
+#moflight-checkpoint .mf-comparison-grid .mf-comparison-previous{display:block;}
+#moflight-checkpoint .mf-comparison-grid .mf-comparison-previous span{display:block;}
+#moflight-checkpoint #mf-flight-rows>*+*{margin-top:10px;}
+#moflight-checkpoint .mf-compare-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:6px;}
+#moflight-checkpoint .mf-compare-head strong{font-size:21px;font-weight:650;font-variant-numeric:tabular-nums;}
+#moflight-checkpoint .mf-comparison-previous{display:flex;justify-content:space-between;gap:6px;font-size:11px;color:var(--mf-muted);margin-top:6px;}
+#moflight-checkpoint .mf-track{height:7px;border-radius:8px;background:#1b3148;overflow:hidden;}
+#moflight-checkpoint .mf-track>span{display:block;height:100%;background:var(--mf-cyan);border-radius:inherit;}
+#moflight-checkpoint .mf-track-old{height:3px;margin-top:4px;}
+#moflight-checkpoint .mf-track-old>span{background:#819bb8;}
+#moflight-checkpoint .mf-notice{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;border:1px solid #6b5733;background:#322e23;color:var(--mf-amber);border-radius:10px;padding:10px 11px;text-align:left;font-size:12px;min-height:44px;}
+#moflight-checkpoint .mf-notice svg{width:16px;height:16px;flex-shrink:0;}
+#moflight-checkpoint .mf-text-action{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;border:1px solid var(--mf-line);border-radius:11px;background:var(--mf-raised);min-height:44px;font-size:13px;color:var(--mf-cyan);padding:9px 12px;}
+#moflight-checkpoint .mf-text-action svg{width:16px;height:16px;}
+#moflight-checkpoint .mf-paper-row{width:100%;min-height:62px;display:flex;justify-content:space-between;align-items:center;gap:10px;text-align:left;padding:12px 14px;}
+#moflight-checkpoint .mf-paper-row strong{font-size:15px;}
+#moflight-checkpoint .mf-symbols{display:flex;align-items:center;gap:7px;flex-shrink:0;}
+#moflight-checkpoint .mf-symbol{height:30px;min-width:30px;display:inline-flex;gap:4px;align-items:center;justify-content:center;background:var(--mf-raised);border-radius:8px;padding:4px 6px;color:var(--mf-muted);}
+#moflight-checkpoint .mf-symbol svg{width:16px;height:16px;}
+#moflight-checkpoint .mf-symbol.active{background:#103d49;color:var(--mf-cyan);box-shadow:0 0 10px #00d2eb12;}
+#moflight-checkpoint .mf-symbol.warning{background:#3c3425;color:var(--mf-amber);}
+#moflight-checkpoint .mf-chevron{width:15px;height:15px;color:var(--mf-muted);flex-shrink:0;}
+#moflight-checkpoint .mf-duty{display:flex;align-items:center;gap:10px;}
+#moflight-checkpoint button.mf-duty{border:0;background:transparent;padding:0;text-align:left;width:100%;min-height:44px;}
+#moflight-checkpoint .mf-duty svg{width:20px;height:20px;color:var(--mf-cyan);flex-shrink:0;}
+#moflight-checkpoint .mf-hours{padding:10px 0 0;margin-top:10px;border-top:1px solid var(--mf-line);}
+#moflight-checkpoint .mf-hours .mf-track{margin-top:7px;height:5px;}
+#moflight-checkpoint .mf-club-symbols{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:12px;}
+#moflight-checkpoint .mf-club-symbols button{min-height:44px;border:1px solid var(--mf-line);border-radius:9px;background:var(--mf-inset);display:flex;align-items:center;justify-content:center;gap:6px;font-size:11px;}
+#moflight-checkpoint .mf-club-symbols button.active{color:var(--mf-cyan);border-color:#235d6c;background:#0b2938;}
+#moflight-checkpoint .mf-club-symbols svg{width:16px;height:16px;}
+#moflight-checkpoint .mf-nav{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));border-top:1px solid #235060;background:#06172b;padding:7px 5px 10px;z-index:2;}
+#moflight-checkpoint .mf-nav button{display:flex;align-items:center;flex-direction:column;gap:3px;border:0;background:transparent;color:var(--mf-muted);font-size:11px;min-width:0;min-height:52px;}
+#moflight-checkpoint .mf-nav button>span{width:54px;max-width:100%;height:29px;border-radius:18px;display:flex;align-items:center;justify-content:center;}
+#moflight-checkpoint .mf-nav button svg{width:19px;height:19px;}
+#moflight-checkpoint .mf-nav button[aria-current="page"]{color:var(--mf-cyan);}
+#moflight-checkpoint .mf-nav button[aria-current="page"]>span{background:var(--mf-cyan);color:#002733;box-shadow:0 0 16px #00d2eb26;}
+#moflight-checkpoint .mf-phone.guided{grid-template-rows:66px minmax(0,1fr);}
+#moflight-checkpoint .mf-stats{display:flex;flex-wrap:wrap;gap:5px 14px;}
+#moflight-checkpoint .mf-stats strong{font-size:22px;font-weight:650;font-variant-numeric:tabular-nums;}
+#moflight-checkpoint .mf-search{display:flex;align-items:center;gap:8px;}
+#moflight-checkpoint .mf-search input{width:100%;min-width:0;min-height:44px;padding:10px 12px;background:var(--mf-inset);border:1px solid var(--mf-line);border-radius:11px;color:var(--mf-text);font-size:16px;}
+#moflight-checkpoint input::placeholder{color:var(--mf-muted);}
+#moflight-checkpoint .mf-filter-button{min-height:44px;display:flex;align-items:center;gap:5px;padding:9px 10px;border:1px solid var(--mf-line);border-radius:11px;background:var(--mf-raised);white-space:nowrap;}
+#moflight-checkpoint .mf-filter-button svg{width:16px;height:16px;}
+#moflight-checkpoint .mf-day{padding:0;overflow:hidden;}
+#moflight-checkpoint .mf-day h2{padding:10px 12px;background:var(--mf-raised);font-size:12px;font-weight:550;}
+#moflight-checkpoint .mf-flight{width:100%;display:block;border:0;border-top:1px solid var(--mf-line);padding:12px;background:transparent;text-align:left;min-height:70px;}
+#moflight-checkpoint .mf-flight:hover{background:#112a40;}
+#moflight-checkpoint .mf-flight-main{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+#moflight-checkpoint .mf-flight-main strong{font-size:14px;font-weight:600;}
+#moflight-checkpoint .mf-flight-time{font-size:15px;font-weight:650;white-space:nowrap;}
+#moflight-checkpoint .mf-flight-sub{font-size:11px;color:var(--mf-muted);display:flex;flex-wrap:wrap;gap:4px 8px;margin-top:4px;}
+#moflight-checkpoint .mf-row-warning{font-size:11px;color:var(--mf-amber);display:flex;align-items:center;gap:4px;margin-top:5px;}
+#moflight-checkpoint .mf-row-warning svg{width:12px;height:12px;}
+#moflight-checkpoint .mf-keyvalues{margin:10px 0 0;}
+#moflight-checkpoint .mf-keyvalues div{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-top:1px solid var(--mf-line);}
+#moflight-checkpoint .mf-keyvalues dt{font-size:12px;color:var(--mf-muted);}
+#moflight-checkpoint .mf-keyvalues dd{font-size:13px;text-align:right;margin:0;max-width:64%;overflow-wrap:anywhere;}
+#moflight-checkpoint label{display:block;font-size:12px;color:var(--mf-muted);}
+#moflight-checkpoint select{display:block;width:100%;min-height:44px;font-size:16px;color:var(--mf-text);padding:9px 11px;background:var(--mf-inset);border:1px solid var(--mf-line);border-radius:10px;margin-top:5px;}
+#moflight-checkpoint .mf-primary,#moflight-checkpoint .mf-secondary{border-radius:11px;min-height:46px;padding:10px 14px;border:1px solid var(--mf-line);font-size:13px;font-weight:600;}
+#moflight-checkpoint .mf-primary{background:var(--mf-cyan);color:#00232d;border-color:var(--mf-cyan);box-shadow:0 0 15px #00d2eb20;}
+#moflight-checkpoint .mf-secondary{background:var(--mf-raised);color:var(--mf-text);}
+#moflight-checkpoint .mf-full{width:100%;}
+#moflight-checkpoint .mf-book-status{display:flex;flex-wrap:wrap;gap:7px;margin:10px 0;}
+#moflight-checkpoint .mf-book-summary{font-size:30px;font-weight:650;letter-spacing:-.8px;}
+#moflight-checkpoint .mf-overlay{position:absolute;inset:0;background:#030916d9;backdrop-filter:blur(3px);z-index:4;display:flex;align-items:flex-end;padding:8px;}
+#moflight-checkpoint .mf-sheet{width:100%;max-height:94%;overflow:auto;border-radius:20px;background:#dce5f5;color:#17263d;border:2px solid #b8c4ff;padding:16px;box-shadow:0 -12px 40px #000b;}
+#moflight-checkpoint .mf-sheet label{color:#334660;}
+#moflight-checkpoint .mf-sheet .mf-sheet-heading .mf-icon{background:#b8c4ff;color:#172345;}
+#moflight-checkpoint .mf-sheet-heading{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;}
+#moflight-checkpoint .mf-sheet label+label{margin-top:12px;}
+#moflight-checkpoint .mf-sheet-footer{display:flex;justify-content:space-between;gap:10px;padding-top:18px;}
+#moflight-checkpoint .mf-toast{position:absolute;left:12px;right:12px;bottom:88px;border:1px solid #705c38;background:#302c23;color:var(--mf-amber);padding:12px;border-radius:12px;z-index:5;font-size:12px;box-shadow:0 4px 20px #0008;}
+#moflight-checkpoint .mf-empty{text-align:center;padding:24px 12px;}
+#moflight-checkpoint .mf-chart-tabs{display:flex;gap:5px;margin-top:12px;}
+#moflight-checkpoint .mf-chart-tabs button{min-height:36px;flex:1;min-width:0;border:1px solid var(--mf-line);border-radius:8px;background:var(--mf-inset);font-size:11px;}
+#moflight-checkpoint .mf-chart-tabs button[aria-pressed="true"]{background:#103e4b;color:var(--mf-cyan);border-color:#236375;}
+#moflight-checkpoint .mf-simplebar{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px;margin-top:11px;font-size:12px;}
+#moflight-checkpoint .mf-simplebar .mf-track{grid-column:1/-1;}
+#moflight-checkpoint .mf-screen-note{padding:11px 12px;background:var(--mf-inset);border:1px solid var(--mf-line);border-radius:11px;font-size:12px;color:var(--mf-muted);}
+#moflight-checkpoint .mf-phone{--mf-bg:#0d1627;--mf-canvas:#34445d;--mf-card:#19273b;--mf-raised:#223249;--mf-inset:#142134;--mf-line:#344259;--mf-cyan:#b0bcff;--mf-text:#eef4ff;--mf-muted:#b4c2d6;--mf-radius:17px;box-shadow:0 16px 50px #00152818;}
+#moflight-checkpoint .mf-box{border:0;box-shadow:none;}
+#moflight-checkpoint .mf-content{padding:16px 20px 20px;}
+#moflight-checkpoint .mf-header{border-bottom:0;padding-left:20px;padding-right:20px;}
+#moflight-checkpoint .mf-header.mf-on-start h1{font-size:18px;letter-spacing:-.4px;}
+#moflight-checkpoint .mf-header.mf-on-start .mf-eyebrow{display:none;}
+#moflight-checkpoint .mf-header.mf-on-start .mf-logo{width:30px;height:30px;}
+#moflight-checkpoint .mf-icon{border:0;border-radius:50%;background:var(--mf-card);}
+#moflight-checkpoint .mf-header [data-action="back"]{background:#b8c4ff;color:#172345;border:1px solid #d5ddff;border-radius:12px;box-shadow:0 2px 8px #0005;}
+#moflight-checkpoint .mf-header [data-action="back"] svg{width:24px;height:24px;stroke-width:2.5;}
+#moflight-checkpoint .mf-heading:has([data-action="back"]:not([hidden])) .mf-logo{display:none;}
+#moflight-checkpoint .mf-sync{border-color:transparent;border-radius:13px;}
+#moflight-checkpoint .mf-sync.current{background:#2a345a;border-color:transparent;}
+#moflight-checkpoint .mf-nav{background:var(--mf-card);border-top:1px solid var(--mf-line);}
+#moflight-checkpoint .mf-nav button[aria-current="page"]>span{background:#2a345a;color:var(--mf-cyan);box-shadow:none;}
+#moflight-checkpoint .mf-primary{background:#b8c4ff;color:#172345;box-shadow:none;border:0;}
+#moflight-checkpoint .mf-bento-start{display:flex;flex-direction:column;gap:20px;}
+#moflight-checkpoint .mf-content>.mf-bento-start{margin:0;}
+#moflight-checkpoint .mf-season-title{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:0 0 12px;}
+#moflight-checkpoint .mf-season-title h2{font-size:21px;font-weight:500;letter-spacing:-.6px;}
+#moflight-checkpoint .mf-season-title h2 span{border-bottom:2px solid #b0bcff88;border-radius:0 0 30% 20%;}
+#moflight-checkpoint .mf-season-title>span{font-size:12px;color:var(--mf-muted);font-variant-numeric:tabular-nums;}
+#moflight-checkpoint .mf-bento-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}
+#moflight-checkpoint .mf-bento-tile{background:var(--mf-card);border:0;border-radius:16px;padding:12px 14px;text-align:left;min-width:0;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:7px;min-height:112px;}
+#moflight-checkpoint .mf-bento-tile .mf-muted{font-size:11px;}
+#moflight-checkpoint .mf-bento-value{font-size:33px;line-height:1.1;letter-spacing:-1.3px;font-weight:500;font-variant-numeric:tabular-nums;white-space:nowrap;}
+#moflight-checkpoint .mf-bento-value small{font-size:14px;font-weight:400;letter-spacing:0;}
+#moflight-checkpoint .mf-bento-foot{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--mf-cyan);}
+#moflight-checkpoint .mf-bento-foot svg{height:13px;width:13px;}
+#moflight-checkpoint .mf-bento-tile.mf-bento-short{min-height:49px;flex-direction:row;align-items:center;justify-content:space-between;gap:6px;font-size:12px;padding:9px 12px;}
+#moflight-checkpoint .mf-bento-short>span{display:flex;align-items:center;gap:6px;}
+#moflight-checkpoint .mf-bento-short svg{width:17px;height:17px;}
+#moflight-checkpoint .mf-bento-short.mf-bento-alert{background:#362c1e;color:var(--mf-amber);justify-content:center;}
+#moflight-checkpoint .mf-share-ring{width:26px;height:26px;background:conic-gradient(var(--mf-cyan) 50%,var(--mf-line) 0);border-radius:50%;position:relative;flex-shrink:0;}
+#moflight-checkpoint .mf-share-ring:after{content:'';position:absolute;inset:4px;background:var(--mf-card);border-radius:50%;}
+#moflight-checkpoint .mf-bento-caption{font-size:11px;color:var(--mf-muted);margin:9px 2px 0;}
+#moflight-checkpoint .mf-bento-paper{background:#2a345a;border-radius:21px;padding:18px;}
+#moflight-checkpoint .mf-bento-paper-summary{display:flex;align-items:center;gap:13px;margin-bottom:14px;}
+#moflight-checkpoint .mf-bento-paper-summary>strong{font-size:39px;font-weight:500;line-height:1;letter-spacing:-1.8px;color:var(--mf-cyan);}
+#moflight-checkpoint .mf-bento-paper h2{font-size:16px;}
+#moflight-checkpoint .mf-bento-paper p{font-size:11px;color:var(--mf-muted);margin-top:4px;}
+#moflight-checkpoint .mf-bento-paper button{display:flex;align-items:center;justify-content:center;gap:8px;}
+#moflight-checkpoint .mf-bento-club-title{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;}
+#moflight-checkpoint .mf-bento-club-title h2{font-size:15px;font-weight:500;}
+#moflight-checkpoint .mf-bento-club-title span{font-size:11px;color:var(--mf-muted);}
+#moflight-checkpoint .mf-bento-duty{display:flex;width:100%;align-items:center;gap:12px;padding:9px 12px;background:var(--mf-card);border:0;border-radius:16px;text-align:left;}
+#moflight-checkpoint .mf-duty-date{display:flex;flex-direction:column;align-items:center;justify-content:center;width:43px;min-width:43px;height:47px;border-radius:10px;background:var(--mf-bg);font-size:11px;color:var(--mf-cyan);}
+#moflight-checkpoint .mf-duty-date strong{font-size:22px;line-height:1.15;font-weight:500;}
+#moflight-checkpoint .mf-bento-duty>span:nth-child(2){flex:1;min-width:0;}
+#moflight-checkpoint .mf-bento-duty>span:nth-child(2)>strong{font-size:14px;display:block;}
+#moflight-checkpoint .mf-bento-duty .mf-muted{font-size:11px;display:block;margin-top:2px;}
+#moflight-checkpoint .mf-bento-duty svg{height:17px;width:17px;}
+#moflight-checkpoint .mf-bento-hours{display:flex;align-items:center;gap:10px;width:100%;padding:9px 2px;border:0;background:transparent;min-height:48px;font-size:12px;}
+#moflight-checkpoint .mf-work-ring{width:27px;height:27px;border-radius:50%;background:conic-gradient(var(--mf-cyan) 72%,var(--mf-line) 0);position:relative;flex-shrink:0;}
+#moflight-checkpoint .mf-work-ring:after{content:'';position:absolute;inset:4px;background:var(--mf-bg);border-radius:50%;}
+#moflight-checkpoint .mf-bento-hours>strong{margin-left:auto;font-weight:500;font-size:13px;white-space:nowrap;}
+#moflight-checkpoint .mf-bento-hours small{font-size:11px;color:var(--mf-muted);}
+#moflight-checkpoint .mf-bento-club .mf-club-symbols{margin-top:0;border-top:1px solid var(--mf-line);padding-top:5px;}
+#moflight-checkpoint .mf-bento-club .mf-club-symbols button{border:0;background:transparent;gap:4px;}
+#moflight-checkpoint .mf-bento-club .mf-club-symbols button.active{background:transparent;}
+@media(max-width:360px){#moflight-checkpoint .mf-bento-tile{padding:11px;min-height:112px;}#moflight-checkpoint .mf-bento-value{font-size:30px;}#moflight-checkpoint .mf-bento-short.mf-bento-alert{font-size:11px;gap:4px;}#moflight-checkpoint .mf-bento-club-title{flex-wrap:wrap;gap:4px;}}
+@media(max-width:360px){#moflight-checkpoint .mf-header .mf-sync{width:72px;}#moflight-checkpoint .mf-header h1{font-size:18px;letter-spacing:-.4px;white-space:nowrap;overflow-wrap:normal;}}
+@media(max-width:360px){#moflight-checkpoint .mf-header{padding:8px 10px;}#moflight-checkpoint .mf-content{padding:10px;}#moflight-checkpoint .mf-box{padding:13px;}#moflight-checkpoint .mf-day{padding:0;}#moflight-checkpoint .mf-heading{gap:6px;}#moflight-checkpoint h1{font-size:19px;}#moflight-checkpoint .mf-logo{width:29px;height:29px;}#moflight-checkpoint .mf-header-actions{gap:4px;}#moflight-checkpoint .mf-icon{width:38px;}#moflight-checkpoint .mf-total{flex-wrap:wrap;}#moflight-checkpoint .mf-symbols{gap:4px;}#moflight-checkpoint .mf-paper-row{gap:7px;padding:11px;}#moflight-checkpoint .mf-paper-row strong{font-size:14px;}#moflight-checkpoint .mf-nav button{font-size:11px;}}
+@media(prefers-reduced-motion:reduce){#moflight-checkpoint *{scroll-behavior:auto!important;}}
+#moflight-checkpoint .mf-season-panel{background:var(--mf-card);border-radius:18px;overflow:hidden;}
+#moflight-checkpoint .mf-season-panel .mf-bento-grid{gap:0;padding:2px 2px 0;}
+#moflight-checkpoint .mf-season-panel .mf-bento-tile{border-radius:0;min-height:110px;padding:12px;}
+#moflight-checkpoint .mf-aircraft-breakdown{padding:0 14px 8px;}
+#moflight-checkpoint .mf-aircraft-head,#moflight-checkpoint .mf-aircraft-row{display:grid;grid-template-columns:minmax(0,1fr) 42px 78px;gap:0 6px;text-align:right;align-items:center;font-variant-numeric:tabular-nums;}
+#moflight-checkpoint .mf-aircraft-head{font-size:11px;color:var(--mf-muted);padding:8px 0;}
+#moflight-checkpoint .mf-aircraft-head>span:first-child,#moflight-checkpoint .mf-aircraft-row>span:first-child{text-align:left;}
+#moflight-checkpoint .mf-aircraft-row{background:transparent;border:0;width:100%;padding:7px 0;font-size:13px;min-height:49px;}
+#moflight-checkpoint .mf-aircraft-row strong{font-weight:500;}
+#moflight-checkpoint .mf-aircraft-row small{display:block;color:var(--mf-amber);font-size:11px;margin-top:2px;}
+#moflight-checkpoint .mf-aircraft-track{display:block;grid-column:1/-1;width:100%;height:3px;background:var(--mf-line);border-radius:3px;margin-top:7px;overflow:hidden;}
+#moflight-checkpoint .mf-aircraft-track>span{display:block;background:var(--mf-cyan);height:100%;border-radius:inherit;}
+#moflight-checkpoint .mf-month-toggle{display:flex;align-items:center;justify-content:space-between;width:100%;background:transparent;border:0;border-top:1px solid var(--mf-line);padding:10px 14px;min-height:44px;font-size:12px;}
+#moflight-checkpoint .mf-month-toggle>span{display:flex;gap:8px;align-items:center;}
+#moflight-checkpoint .mf-month-toggle svg{width:16px;height:16px;}
+#moflight-checkpoint .mf-monthly-panel{padding:0 12px 12px;}
+#moflight-checkpoint .mf-month-legend{display:flex;align-items:center;gap:14px;font-size:11px;color:var(--mf-muted);padding:6px 0;}
+#moflight-checkpoint .mf-month-legend span{display:flex;gap:5px;align-items:center;}
+#moflight-checkpoint .mf-month-legend i{display:block;width:7px;height:12px;border-radius:2px;background:var(--mf-cyan);}
+#moflight-checkpoint .mf-month-legend span:nth-child(2) i{background:var(--mf-muted);opacity:.55;}
+#moflight-checkpoint .mf-month-legend small{margin-left:auto;font-size:11px;}
+#moflight-checkpoint .mf-month-plot{display:flex;height:135px;gap:4px;margin-top:8px;}
+#moflight-checkpoint .mf-y-axis{display:flex;flex-direction:column;justify-content:space-between;width:12px;padding-bottom:26px;font-size:11px;color:var(--mf-muted);}
+#moflight-checkpoint .mf-month-columns{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));flex:1;min-width:0;border-bottom:1px solid var(--mf-line);}
+#moflight-checkpoint .mf-month-column{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:6px;padding:0 2px 6px;border:0;background:transparent;min-width:0;border-radius:4px;}
+#moflight-checkpoint .mf-month-column.selected{background:var(--mf-line);}
+#moflight-checkpoint .mf-month-bars{display:flex;gap:2px;align-items:flex-end;justify-content:center;width:100%;height:105px;}
+#moflight-checkpoint .mf-month-bar{display:flex;align-items:flex-end;justify-content:center;width:7px;max-width:45%;min-height:3px;border-radius:2px 2px 0 0;color:var(--mf-muted);font-size:11px;}
+#moflight-checkpoint .mf-month-bar.current{background:var(--mf-cyan);}
+#moflight-checkpoint .mf-month-bar.previous{background:var(--mf-muted);opacity:.55;}
+#moflight-checkpoint .mf-month-bar[style="height:0%"]{background:transparent;}
+#moflight-checkpoint .mf-month-label{font-size:11px;color:var(--mf-muted);white-space:nowrap;}
+#moflight-checkpoint .mf-month-label-short{display:none;}
+@media(max-width:360px){#moflight-checkpoint .mf-month-label-long{display:none;}#moflight-checkpoint .mf-month-label-short{display:inline;}}
+#moflight-checkpoint .mf-month-column.selected .mf-month-label{color:var(--mf-text);}
+#moflight-checkpoint .mf-month-selection{display:flex;flex-wrap:wrap;justify-content:space-between;gap:5px;font-size:12px;margin-top:10px;}
+#moflight-checkpoint .mf-month-note{font-size:11px;line-height:1.6;margin:6px 0 10px;}
+#moflight-checkpoint .mf-month-links{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+#moflight-checkpoint .mf-month-links button{font-size:11px;padding:9px 4px;min-height:44px;}
+#moflight-checkpoint .mf-month-links button:disabled{opacity:.4;}
+#moflight-checkpoint .mf-season-work{display:grid;grid-template-columns:1fr auto;width:100%;padding:12px 14px;background:transparent;border:0;border-top:1px solid var(--mf-line);font-size:12px;text-align:left;}
+#moflight-checkpoint .mf-season-work strong{font-weight:500;font-variant-numeric:tabular-nums;}
+#moflight-checkpoint .mf-season-work small{color:var(--mf-muted);font-size:11px;}
+#moflight-checkpoint .mf-season-review{display:flex;align-items:center;gap:7px;min-height:44px;width:100%;padding:10px 14px;border:0;background:transparent;color:var(--mf-amber);font-size:12px;}
+#moflight-checkpoint .mf-season-review svg{height:15px;width:15px;}
+#moflight-checkpoint .mf-season-review svg:last-child{margin-left:auto;}
+#moflight-checkpoint .mf-season-title{align-items:center;}
+#moflight-checkpoint .mf-season-title h2{font-size:20px;}
+#moflight-checkpoint .mf-season-year{font-size:11px;color:var(--mf-muted);margin-top:2px;}
+#moflight-checkpoint .mf-medical{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:104px;height:48px;min-height:48px;flex-shrink:0;background:transparent;border:0;padding:3px;font-variant-numeric:tabular-nums;}
+#moflight-checkpoint .mf-medical-symbol{display:flex;align-items:center;gap:4px;}
+#moflight-checkpoint .mf-medical-symbol svg{width:18px;height:18px;}
+#moflight-checkpoint .mf-medical-label{font-size:12px;font-weight:500;color:var(--mf-text);}
+#moflight-checkpoint .mf-medical-symbol strong{border-radius:8px;background:var(--mf-card);padding:0 4px;font-size:11px;font-weight:500;}
+#moflight-checkpoint .mf-medical-date{font-size:11px;color:var(--mf-text);}
+#moflight-checkpoint .mf-medical.due{color:var(--mf-amber);}
+#moflight-checkpoint .mf-medical.ok{color:#88d6b1;}
+#moflight-checkpoint .mf-medical.expired{color:#ff9d9d;}
+#moflight-checkpoint .mf-medical.unknown{color:var(--mf-muted);}
+#moflight-checkpoint .mf-goal-caption{font-size:11px;color:var(--mf-muted);}
+#moflight-checkpoint .mf-goal-meter{width:100%;height:3px;border-radius:3px;overflow:hidden;background:var(--mf-line);}
+#moflight-checkpoint .mf-goal-meter>span{display:block;height:100%;background:var(--mf-cyan);}
+#moflight-checkpoint .mf-goal-settings{display:flex;flex-direction:column;gap:14px;margin-top:14px;}
+#moflight-checkpoint .mf-goal-settings label{display:flex;flex-direction:column;gap:6px;font-size:12px;}
+#moflight-checkpoint .mf-goal-settings input{width:100%;min-height:44px;border:1px solid var(--mf-line);border-radius:10px;background:var(--mf-inset);color:var(--mf-text);padding:8px 10px;font-size:16px;}
+#moflight-checkpoint .mf-settings-entry{display:flex;align-items:center;justify-content:space-between;margin-top:8px;gap:8px;}
+#moflight-checkpoint .mf-settings-entry button{width:auto;}
+#moflight-checkpoint .mf-weather-symbol{display:flex;justify-content:center;color:var(--mf-muted);padding:24px;}
+#moflight-checkpoint .mf-weather-symbol svg{width:44px;height:44px;}
+#moflight-checkpoint .mf-twin-rings{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;padding:6px 8px;}
+#moflight-checkpoint .mf-mini-ring{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0;border:0;border-radius:12px;background:transparent;padding:4px 0;}
+#moflight-checkpoint .mf-mini-ring[aria-expanded="true"]{background:var(--mf-raised);}
+#moflight-checkpoint .mf-mini-ring-svg{display:block;width:108px;height:108px;max-width:100%;}
+#moflight-checkpoint .mf-mini-total{fill:var(--mf-text);font:500 23px Inter,system-ui,sans-serif;font-variant-numeric:tabular-nums;}
+#moflight-checkpoint .mf-mini-unit,#moflight-checkpoint .mf-mini-prior{fill:var(--mf-muted);font:400 11px Inter,system-ui,sans-serif;font-variant-numeric:tabular-nums;}
+#moflight-checkpoint .mf-mini-ring .mf-goal-meter{width:72%;}
+#moflight-checkpoint .mf-mini-missing{font-size:11px;color:var(--mf-amber);}
+#moflight-checkpoint .mf-aircraft-details{margin:0 8px 10px;padding:10px 10px 12px;background:#2c3d57;border:1px solid #7a8fb4;border-radius:12px;box-shadow:0 4px 12px #0004;}
+#moflight-checkpoint .mf-aircraft-detail-heading{display:flex;align-items:center;justify-content:space-between;gap:4px;}
+#moflight-checkpoint .mf-aircraft-detail-heading h3{font-size:13px;font-weight:500;margin:0;}
+#moflight-checkpoint .mf-aircraft-details>p{font-size:11px;margin:0 0 3px;}
+#moflight-checkpoint .mf-compact-aircraft{min-height:44px;padding:6px 0;}
+#moflight-checkpoint .mf-compact-aircraft strong{display:flex;align-items:center;gap:5px;}
+#moflight-checkpoint .mf-compact-aircraft i{width:6px;height:6px;border-radius:50%;display:inline-block;flex-shrink:0;}
+</style>
+<script>
+(() => {
+  const root = document.getElementById('moflight-checkpoint');
+  const content = root.querySelector('#mf-content');
+  const phone = root.querySelector('.mf-phone');
+  const title = root.querySelector('#mf-title');
+  const nav = root.querySelector('.mf-nav');
+  const overlay = root.querySelector('#mf-overlay');
+  const form = root.querySelector('#mf-filter-form');
+  const toast = root.querySelector('#mf-toast');
+  const flights = [
+    {id:'f1',date:'2026-10-16',time:'14:10',reg:'D-0412',model:'LS4',minutes:90,role:'PIC',person:'solo',launch:'Winde'},
+    {id:'f2',date:'2026-07-16',time:'11:20',reg:'D-5822',model:'ASK 21',minutes:null,role:'Ausbildung',person:'Robin Beispiel',launch:'Winde'},
+    {id:'f3',date:'2026-10-12',time:'15:05',reg:'D-0412',model:'LS4',minutes:48,role:'PIC',person:'solo',launch:'Winde'},
+    {id:'f4',date:'2026-10-04',time:'14:00',reg:'D-KMFX',model:'SF 25',minutes:110,role:'PIC',person:'Robin Beispiel',launch:'Eigenstart'},
+    {id:'f5',date:'2026-05-04',time:'10:15',reg:'D-5821',model:'ASK 21',minutes:24,role:'Ausbildung',person:'Robin Beispiel',launch:'Winde'},
+    {id:'f6',date:'2026-08-04',time:'09:00',reg:'D-0412',model:'LS4',minutes:null,role:'unknown',person:'solo',launch:'Winde'},
+    {id:'p1',date:'2025-10-12',time:'14:00',reg:'D-0412',model:'LS4',minutes:70,role:'PIC',person:'solo',launch:'Winde'},
+    {id:'p2',date:'2025-09-28',time:'12:00',reg:'D-5821',model:'ASK 21',minutes:40,role:'Ausbildung',person:'Robin Beispiel',launch:'Winde'},
+    {id:'p3',date:'2025-06-21',time:'13:00',reg:'D-0412',model:'LS4',minutes:60,role:'PIC',person:'solo',launch:'Winde'},
+    {id:'p4',date:'2025-05-14',time:'11:00',reg:'D-5821',model:'ASK 21',minutes:20,role:'Ausbildung',person:'Robin Beispiel',launch:'Winde'},
+    {id:'p5',date:'2025-04-07',time:'10:00',reg:'D-KMFX',model:'SF 25',minutes:50,role:'PIC',person:'solo',launch:'Eigenstart'}
+  ];
+  const books = {
+    gliding2:{name:'Segelflug · Band 2',format:'Segelflug · persönliches Flugbuch',anchor:'#142 · 12.10.2026',aircraft:'D-0412 · LS4',duration:'0 h 48 min',evidence:'Bestätigter Papierstand',pending:3,issues:2,assumed:null},
+    gliding1:{name:'Segelflug · Band 1',format:'Segelflug · persönliches Flugbuch',anchor:'#500 · 28.09.2025',aircraft:'D-5821 · ASK 21',duration:'0 h 40 min',evidence:'Bestätigter Papierstand',pending:0,issues:0,assumed:null,archived:true},
+    tmg:{name:'TMG · Band 1',format:'Motorsegler · Formatbeispiel',anchor:'#18 · 07.09.2025',aircraft:'D-KMFX · SF 25',duration:'0 h 50 min',evidence:'Bestätigter Papierstand',pending:0,issues:0,assumed:'#19 · 04.10.2026'}
+  };
+  const defaultFilters = () => ({year:'2026',aircraft:'all',person:'all',role:'all'});
+  const state = {page:'start',book:'gliding2',flight:'f1',chart:'year',metric:'count',filters:defaultFilters(),search:'',issues:false,clubSection:'overview',sync:'suggested',lastSync:'18:00',history:[],monthlyOpen:false,ringMetric:'count',aircraftOpen:false,month:9,monthFilter:null,goals:{year:2026,workHours:25,flights:30,minutes:1200}};
+  let toastTimer;
+  let filterReturn;
+  const icon = name => `<i data-lucide="${name}" aria-hidden="true"></i>`;
+  const escape = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const time = minutes => minutes == null ? 'Unbekannt' : `${Math.floor(minutes/60)} h ${String(minutes%60).padStart(2,'0')} min`;
+  const date = value => new Date(`${value}T12:00:00Z`).toLocaleDateString('de-DE',{day:'numeric',month:'long',year:'numeric',timeZone:'UTC'});
+  const listYear = year => flights.filter(f => f.date.startsWith(String(year)));
+  const stats = list => ({count:list.length,minutes:list.reduce((sum,f)=>sum+(f.minutes??0),0),known:list.filter(f=>f.minutes!=null).length,unknown:list.filter(f=>f.minutes==null).length});
+  const current = stats(listYear(2026)), previous = stats(listYear(2025)), total = stats(flights);
+  const kv = pairs => `<dl class="mf-keyvalues">${pairs.map(([k,v])=>`<div><dt>${escape(k)}</dt><dd>${escape(v)}</dd></div>`).join('')}</dl>`;
+  const heading = (name, symbol) => `<div class="mf-card-title">${icon(symbol)}<h2>${name}</h2></div>`;
+  const button = (action,label,cls='mf-text-action',extra='') => `<button type="button" class="${cls}" data-action="${action}" ${extra}>${label}</button>`;
+  function syncIcons(){if(globalThis.lucide)globalThis.lucide.createIcons({attrs:{width:18,height:18}});}
+  function remember(){
+    if(window.openai?.setWidgetState)window.openai.setWidgetState({modelContent:{designVersion:'0.28',page:state.page,book:state.book,chart:state.chart},privateContent:{filters:state.filters,search:state.search,issues:state.issues,flight:state.flight,metric:state.metric,clubSection:state.clubSection,sync:state.sync,lastSync:state.lastSync,monthlyOpen:state.monthlyOpen,month:state.month,monthFilter:state.monthFilter,goals:state.goals,ringMetric:state.ringMetric,aircraftOpen:state.aircraftOpen}}).catch(()=>{});
+  }
+  function restore(saved){
+    const model=saved?.modelContent, detail=saved?.privateContent;
+    if(!model||model.designVersion!=='0.28')return;
+    if(['start','flights','detail','books','anchor','club','profile','analytics','weather'].includes(model.page))state.page=model.page;
+    if(books[model.book])state.book=model.book;
+    if(['year','aircraft','duration'].includes(model.chart))state.chart=model.chart;
+    if(detail){
+      if(detail.filters&&['2026','2025','all'].includes(detail.filters.year))state.filters={...defaultFilters(),...detail.filters};
+      if(typeof detail.search==='string')state.search=detail.search.slice(0,120);
+      state.issues=!!detail.issues;
+      if(flights.some(f=>f.id===detail.flight))state.flight=detail.flight;
+      if(['count','time','aircraft','duration'].includes(detail.metric))state.metric=detail.metric;
+      if(['overview','news','tasks','events'].includes(detail.clubSection))state.clubSection=detail.clubSection;
+      if(['current','suggested','error'].includes(detail.sync))state.sync=detail.sync;
+      if(['18:00','18:05'].includes(detail.lastSync))state.lastSync=detail.lastSync;
+      if(detail.goals?.year===2026){
+        const valid=(v,min,max,integer=false)=>v===null||(typeof v==='number'&&Number.isFinite(v)&&v>=min&&v<=max&&(!integer||Number.isInteger(v)));
+        const g=detail.goals;
+        if(valid(g.workHours,0,10000)&&valid(g.flights,1,100000,true)&&valid(g.minutes,6,600000,true))state.goals={year:2026,workHours:g.workHours,flights:g.flights,minutes:g.minutes};
+      }
+      state.monthlyOpen=!!detail.monthlyOpen;
+      if(['count','time'].includes(detail.ringMetric))state.ringMetric=detail.ringMetric;
+      state.aircraftOpen=!!detail.aircraftOpen;
+      if(Number.isInteger(detail.month)&&detail.month>=0&&detail.month<12)state.month=detail.month;
+      if(Number.isInteger(detail.monthFilter)&&detail.monthFilter>=0&&detail.monthFilter<12)state.monthFilter=detail.monthFilter;
+    }
+  }
+  function comparison(metric){
+    const count=metric==='count', a=count?current.count:current.minutes,b=count?previous.count:previous.minutes;
+    const ceiling=Math.max(a,b,1)*1.15;
+    const main=count?`${a}`:`${Math.floor(a/60)}h ${String(a%60).padStart(2,'0')}m`, old=count?`${b} Flüge`:time(b);
+    return `<button type="button" class="mf-compare" data-action="metric" data-metric="${metric}" aria-label="${count?'Fluganzahl':'Bekannte Flugzeit'} im Jahresvergleich öffnen">
+      <div class="mf-compare-head"><span class="mf-muted">${count?'Flüge':'Bekannte Flugzeit'}</span><strong>${main}</strong></div>
+      <div class="mf-track"><span style="width:${a/ceiling*100}%"></span></div>
+      <div class="mf-comparison-previous"><span>2025 · ${old}</span><span>${count?'+1 · +20 %':'+32 min bekannt'}</span></div><div class="mf-track mf-track-old"><span style="width:${b/ceiling*100}%"></span></div>
+    </button>`;
+  }
+  function quickChart(){
+    let body;
+    if(state.chart==='year')body=`<div class="mf-legend"><span><i class="mf-dot"></i>2026</span><span><i class="mf-dot mf-dot-old"></i>2025 · gleicher Zeitraum</span></div><div class="mf-comparison-grid">${comparison('count')}${comparison('time')}</div>`;
+    if(state.chart==='aircraft'){
+      const counts=Object.entries(listYear(2026).reduce((a,f)=>(a[f.reg]=(a[f.reg]??0)+1,a),{}));
+      body=`<div class="mf-subbox mf-section-gap">${counts.map(([reg,n])=>`<div class="mf-simplebar"><span>${reg}</span><strong>${n} Flüge</strong><div class="mf-track"><span style="width:${n/6*100}%"></span></div></div>`).join('')}${button('metric','Flugzeuge im Detail →','mf-text-action mf-section-gap','data-metric="aircraft"')}</div>`;
+    }
+    if(state.chart==='duration')body=`<div class="mf-subbox mf-section-gap"><p class="mf-muted">Flüge nach bekannter Dauer</p>${[['Unter 30 min',1],['30–60 min',1],['Über 60 min',2]].map(([label,n])=>`<div class="mf-simplebar"><span>${label}</span><strong>${n}</strong><div class="mf-track"><span style="width:${n/4*100}%"></span></div></div>`).join('')}<p class="mf-muted mf-section-gap">2 weitere Flüge: Dauer unbekannt</p>${button('metric','Dauer im Detail →','mf-text-action mf-section-gap','data-metric="duration"')}</div>`;
+    return `${body}<div class="mf-chart-tabs" aria-label="Flugübersicht wählen">${[['year','Jahr'],['aircraft','Flugzeuge'],['duration','Flugdauer']].map(([key,label])=>`<button type="button" data-action="chart" data-chart="${key}" aria-pressed="${state.chart===key}">${label}</button>`).join('')}</div>`;
+  }
+  const monthNames=['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+  const clock = minutes => minutes==null?'—':`${Math.floor(minutes/60)}:${String(minutes%60).padStart(2,'0')} h`;
+  // Synthetic excerpt: empty months have unknown coverage, not a certified zero.
+  const monthlyFlights=(year,month)=>listYear(year).filter(f=>Number(f.date.slice(5,7))===month+1);
+  const aircraftColors={'D-0412':'#b9b3ff','D-5822':'#f0bc76','D-KMFX':'#77cfc2','D-5821':'#e69dbd'};
+  function aircraftGroups(){
+    const groups=[...new Set(listYear(2026).map(f=>f.reg))].map(reg=>{const list=listYear(2026).filter(f=>f.reg===reg);return {reg,model:list[0].model.replaceAll(' ',''),color:aircraftColors[reg]||'#a8b9ce',...stats(list)};});
+    return groups.map(g=>({...g,label:g.model+(groups.filter(x=>x.model===g.model).length>1?' · '+g.reg.slice(-2):'')}));
+  }
+  function aircraftRows(){
+    return `<div class="mf-aircraft-head"><span>Flugzeug</span><span>Flüge</span><span>Bekannt · h</span></div>${aircraftGroups().map(g=>`<button type="button" class="mf-aircraft-row mf-compact-aircraft" data-action="aircraft-flights" data-reg="${g.reg}" aria-label="${g.label}, ${g.reg}: ${g.count} Flüge, ${g.known?time(g.minutes):'Flugzeit unbekannt'}${g.unknown?', '+g.unknown+' Zeit fehlt':''}. Flüge öffnen"><span><strong><i style="background:${g.color}" aria-hidden="true"></i>${g.label}</strong>${g.unknown?`<small>${g.unknown} Zeit fehlt</small>`:''}</span><span>${g.count}</span><span>${g.known?clock(g.minutes):'—'}</span></button>`).join('')}`;
+  }
+  function miniAircraftRing(metric){
+    const isTime=metric==='time',sum=isTime?current.minutes:current.count,r=43,circ=2*Math.PI*r;
+    let offset=0;
+    const arcs=aircraftGroups().filter(g=>(isTime?g.minutes:g.count)>0).map(g=>{const value=isTime?g.minutes:g.count,length=value/sum*circ,gap=Math.min(2,length/4),start=offset;offset+=length;return `<circle cx="54" cy="54" r="${r}" fill="none" stroke="${g.color}" stroke-width="8" stroke-dasharray="${length-gap} ${circ-length+gap}" stroke-dashoffset="${-start}" transform="rotate(-90 54 54)"/>`;}).join('');
+    const value=isTime?(current.known?clock(current.minutes).replace(' h',''):'—'):current.count;
+    const old=isTime?(previous.known?clock(previous.minutes).replace(' h',''):'—'):previous.count;
+    const open=state.aircraftOpen&&state.ringMetric===metric;
+    return `<button type="button" class="mf-mini-ring" data-action="ring-details" data-metric="${metric}" aria-expanded="${open}" aria-controls="mf-aircraft-details" aria-label="${isTime?'Bekannte Flugzeit':'Flüge'} 2026: ${isTime?time(current.minutes):current.count+' Flüge'}; 2025 gleicher Zeitraum: ${isTime?time(previous.minutes):previous.count+' Flüge'}. Flugzeugdetails ${open?'schließen':'anzeigen'}"><svg class="mf-mini-ring-svg" viewBox="0 0 108 108" aria-hidden="true"><circle cx="54" cy="54" r="43" fill="none" stroke="var(--mf-line)" stroke-width="8"/>${arcs}<text class="mf-mini-total" x="54" y="48" text-anchor="middle">${value}</text><text class="mf-mini-unit" x="54" y="64" text-anchor="middle">${isTime?'bekannt · h':'Flüge'}</text><text class="mf-mini-prior" x="54" y="76" text-anchor="middle">2025: ${old}</text></svg>${goalCaption(isTime?'minutes':'flights',isTime?current.minutes:current.count)}${isTime?`<span class="mf-mini-missing">${current.unknown} Zeiten fehlen</span>`:''}</button>`;
+  }
+  function aircraftOverview(){
+    const isTime=state.ringMetric==='time';
+    return `<div class="mf-twin-rings" aria-label="Saisonübersicht: Ringe für Flugzeugdetails öffnen">${miniAircraftRing('count')}${miniAircraftRing('time')}</div><div id="mf-aircraft-details" class="mf-aircraft-details" ${state.aircraftOpen?'':'hidden'}><div class="mf-aircraft-detail-heading"><h3>${isTime?'Flugzeit nach Flugzeug':'Flüge nach Flugzeug'}</h3><button type="button" class="mf-icon" data-action="aircraft-close" aria-label="Flugzeugdetails schließen">${icon('x')}</button></div><p class="mf-muted">${isTime?'Nur bekannte Zeit · 2 Zeiten fehlen':'2026 · alle 6 gespeicherten Flüge'}</p><div id="mf-aircraft-list">${aircraftRows()}</div>${button('metric','Jahresvergleich '+icon('arrow-right'),'mf-text-action',`data-metric="${state.ringMetric}"`)}</div>`;
+  }
+  function monthly(){
+    const counts=monthNames.map((_,i)=>[monthlyFlights(2026,i).length,monthlyFlights(2025,i).length]);
+    const max=Math.max(...counts.flat(),1), selected=counts[state.month];
+    return `<div id="mf-monthly-panel" class="mf-monthly-panel" ${state.monthlyOpen?'':'hidden'}><div class="mf-month-legend"><span><i></i>2026</span><span><i></i>2025</span><small>Flüge</small></div><div class="mf-month-plot"><div class="mf-y-axis" aria-hidden="true"><span>${max}</span><span>0</span></div><div class="mf-month-columns" role="group" aria-label="Monate auswählen: links 2026, rechts 2025. Anzahl gespeicherter Flüge im Beispielauszug">${counts.map(([a,b],i)=>`<button type="button" class="mf-month-column ${i===state.month?'selected':''}" data-action="month-select" data-month="${i}" aria-pressed="${i===state.month}" aria-label="${monthNames[i]}: 2026 ${i>9?'zukünftig':a?a+' gespeicherte Flüge':'keine Daten'}, 2025 ${b?b+' gespeicherte Flüge':'keine Daten'}${i===9?'; 2026 laufender Monat':''}"><span class="mf-month-bars" aria-hidden="true"><span class="mf-month-bar current ${i>9?'future':''}" style="height:${a/max*100}%">${!a?(i>9?'':'·'):''}</span><span class="mf-month-bar previous" style="height:${b/max*100}%">${!b?'·':''}</span></span><span class="mf-month-label"><span class="mf-month-label-long">${monthNames[i].slice(0,3)}</span><span class="mf-month-label-short">${monthNames[i][0]}</span>${i===9?'*':''}</span></button>`).join('')}</div></div><div class="mf-month-selection" aria-live="polite"><strong>${monthNames[state.month]}${state.month===9?'*':''}</strong><span>2026: ${state.month>9?'zukünftig':selected[0]||'—'} · 2025: ${selected[1]||'—'}</span></div><p class="mf-muted mf-month-note">* Oktober 2026 bis 16.10. · 2025 voller Monat<br>Beispielauszug · — / · keine Daten, nicht 0</p><div class="mf-month-links">${[2026,2025].map(year=>button('month-flights',`${year} · Flüge öffnen`,'mf-secondary',`data-year="${year}" ${year===2026&&state.month>9?'disabled':''}`)).join('')}</div></div>`;
+  }
+  // Only fictional current entries; no personal provider data or calculated legal validity.
+  const medicals=[{id:'medical-class2',name:'Klasse 2',expiry:'2027-01-15'},{id:'medical-lapl',name:'LAPL',expiry:'2028-01-15'}];
+  function medicalSummary(records,todayISO){
+    const parse=value=>{if(typeof value!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(value))return null;const d=new Date(value+'T00:00:00Z');return Number.isFinite(d.getTime())&&d.toISOString().slice(0,10)===value?d:null;};
+    const today=parse(todayISO);if(!today)throw new Error('Invalid reference date');
+    const targetMonth=today.getUTCMonth()+6;
+    const lastDay=new Date(Date.UTC(today.getUTCFullYear(),targetMonth+1,0)).getUTCDate();
+    const warningEnd=new Date(Date.UTC(today.getUTCFullYear(),targetMonth,Math.min(today.getUTCDate(),lastDay)));
+    const dates=records.map(r=>parse(r.expiry)).filter(Boolean).sort((a,b)=>a-b);
+    const next=dates[0]||null;
+    const status=next&&next<today?'expired':!records.length||dates.length!==records.length?'unknown':next<=warningEnd?'due':'ok';
+    return {count:records.length,next:next?next.toISOString().slice(0,10):null,status,complete:dates.length===records.length&&records.length>0};
+  }
+  const medicalStatus=()=>medicalSummary(medicals,'2026-10-16');
+  const medicalStatusText=status=>({due:'Ablauf innerhalb der nächsten 6 Monate',ok:'Kein dokumentierter Ablauf innerhalb der nächsten 6 Monate',expired:'Dokumentierter Ablauf bereits überschritten',unknown:'Medical-Daten unvollständig oder nicht vorhanden'})[status];
+  const shortDate=iso=>iso?new Date(iso+'T12:00:00Z').toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric',timeZone:'UTC'}):'—';
+  function medicalControl(){
+    const m=medicalStatus(), label=`${m.count} dokumentierte Medicals. ${medicalStatusText(m.status)}. ${m.next?'Frühestes dokumentiertes Ablaufdatum '+shortDate(m.next):'Kein bekanntes Ablaufdatum'}. Details öffnen.`;
+    return `<button type="button" class="mf-medical ${m.status}" data-action="medical" aria-label="${label}" data-tooltip="${label}"><span class="mf-medical-symbol">${icon('heart-pulse')}<span class="mf-medical-label">Med</span><strong>${m.count}</strong>${icon(m.status==='due'?'clock':m.status==='ok'?'check':m.status==='expired'?'circle-alert':'circle-help')}</span><span class="mf-medical-date">${shortDate(m.next)}</span></button>`;
+  }
+  function goalCaption(kind,value){
+    const target=state.goals[kind];
+    if(target==null)return '<span class="mf-goal-caption">Ziel nicht gesetzt</span>';
+    return `<span class="mf-goal-caption">Ziel ${kind==='minutes'?clock(target):target}</span><span class="mf-goal-meter" aria-hidden="true"><span style="width:${target>0?Math.min(value/target*100,100):100}%"></span></span>`;
+  }
+  function workSummary(){
+    const goal=state.goals.workHours;
+    return `<button type="button" class="mf-season-work" data-action="club-item" data-section="overview" aria-label="Arbeitsstunden: 18 geleistet${goal==null?', kein persönliches Soll':', persönliches Soll '+goal+' Stunden'}. Details in Verein öffnen"><span>Arbeitsstunden</span><strong>18 <small>${goal==null?'h · kein Soll':'/ '+goal+' h'}</small></strong>${goal!=null?`<span class="mf-aircraft-track" aria-hidden="true"><span style="width:${goal>0?Math.min(18/goal*100,100):100}%"></span></span>`:''}</button>`;
+  }
+  function start(){
+    const proposals=Object.values(books).reduce((sum,b)=>sum+b.pending,0),cases=Object.values(books).reduce((sum,b)=>sum+b.issues,0);
+    return `<div class="mf-bento-start"><section aria-label="Meine Saison"><div class="mf-season-title"><div><h2>Meine <span>Saison</span></h2><div class="mf-season-year">2026</div></div>${medicalControl()}</div><div class="mf-season-panel">${aircraftOverview()}<button type="button" class="mf-month-toggle" data-action="monthly-toggle" aria-expanded="${state.monthlyOpen}" aria-controls="mf-monthly-panel"><span>${icon('chart-no-axes-column')}Monatsverteilung</span>${icon(state.monthlyOpen?'chevron-up':'chevron-down')}</button>${monthly()}${workSummary()}<button type="button" class="mf-season-review" data-action="issues">${icon('circle-alert')}2 Flüge prüfen${icon('chevron-right')}</button></div></section>
+      <section class="mf-bento-paper" aria-label="Papierbücher: Überblick über alle drei Beispielbücher"><div class="mf-bento-paper-summary"><strong>${proposals}</strong><div><h2>Für deine Papierbücher</h2><p>Eintragsvorschläge · ${cases} Klärfälle</p></div></div>${button('books','Papierbücher öffnen '+icon('arrow-right'),'mf-primary mf-full','aria-label="Papierbücher öffnen und Buch auswählen"')}</section>
+      <section class="mf-bento-club"><div class="mf-bento-club-title"><h2>Mein Verein</h2><span>2 Dienste bis 25.10.</span></div><button type="button" class="mf-bento-duty" data-action="club-item" data-section="overview" aria-label="Meine Dienste öffnen: Flugleiter am 18. Oktober, zwei Dienste bis 25. Oktober"><span class="mf-duty-date">SO<strong>18</strong></span><span><strong>Flugleiter</strong><span class="mf-muted">18.10. · 09:00–18:00</span></span>${icon('chevron-right')}</button>${clubSymbols()}</section></div>`;
+  }
+  function clubSymbols(){return `<div class="mf-club-symbols"><button type="button" data-action="club-item" data-section="news" class="active" aria-label="Verein: neue Nachricht">${icon('newspaper')}<span>Neu</span></button><button type="button" data-action="club-item" data-section="tasks" aria-label="Verein: keine offenen Aufgaben im Beispiel">${icon('list-checks')}<span>Aufgaben</span></button><button type="button" data-action="club-item" data-section="events" class="active" aria-label="Verein: nächster Termin am 24. Oktober">${icon('calendar-days')}<span>Termin</span></button></div>`;}
+  function filtered(){
+    const f=state.filters,q=state.search.trim().toLocaleLowerCase('de');
+    return flights.filter(x=>(state.monthFilter==null||Number(x.date.slice(5,7))===state.monthFilter+1)&&(f.year==='all'||x.date.startsWith(f.year))&&(f.aircraft==='all'||x.reg===f.aircraft)&&(f.person==='all'||x.person===f.person)&&(f.role==='all'||x.role===f.role)&&(!state.issues||x.minutes==null||x.role==='unknown')&&(!q||[x.reg,x.model,'Musterfeld',x.role==='unknown'?'Unbekannt':x.role].some(v=>v.toLocaleLowerCase('de').includes(q))));
+  }
+  function flightRows(list){
+    if(!list.length)return `<section class="mf-box mf-empty"><h2>Keine passenden Flüge</h2><p class="mf-muted mf-section-gap">Andere Suchbegriffe oder Filter wählen.</p>${button('clear-query','Alle Flüge 2026 anzeigen','mf-text-action mf-section-gap')}</section>`;
+    const days=[...new Set(list.map(f=>f.date))];
+    return days.map(day=>`<section class="mf-box mf-day"><h2>${date(day)}</h2>${list.filter(f=>f.date===day).map(f=>`<button type="button" class="mf-flight" data-action="detail" data-flight="${f.id}" aria-label="Flug ${f.reg}, ${date(f.date)}, ${f.time}, ${time(f.minutes)}"><span class="mf-flight-main"><strong>${f.reg} <span class="mf-muted">· ${f.model}</span></strong><span class="mf-flight-time ${f.minutes==null?'mf-amber':''}">${f.minutes==null?'—':time(f.minutes)}</span></span><span class="mf-flight-sub"><span>${f.time}</span><span>Musterfeld</span><span>${f.role==='unknown'?'Rolle unbekannt':f.role}</span></span>${f.minutes==null?`<span class="mf-row-warning">${icon('triangle-alert')}Flugzeit fehlt${f.role==='unknown'?' · Rolle offen':''}</span>`:''}</button>`).join('')}</section>`).join('');
+  }
+  function listSummary(list){const s=stats(list);return `<div class="mf-stats"><span><strong>${s.count}</strong> <span class="mf-muted">Flüge</span></span><span><strong>${s.known?time(s.minutes):'—'}</strong> <span class="mf-muted">${s.known?'bekannt':s.count?'Flugzeit unbekannt':'keine Flugzeit'}</span></span></div><p class="mf-muted mf-section-gap">${state.filters.year==='all'?'2025–2026':state.filters.year} · Beispieldaten / Auszug${s.unknown?` · ${s.unknown} ohne Flugzeit`:''}</p>`;}
+  function flightsView(){
+    return `${state.monthFilter!=null?`<section class="mf-box"><h2>${monthNames[state.monthFilter]} ${state.filters.year}</h2><p class="mf-muted mf-section-gap">Gespeicherte Flüge im Beispielauszug · keine Vollständigkeitszusage</p>${button('clear-month','Monatsfilter entfernen','mf-text-action mf-section-gap')}</section>`:''}<section class="mf-box" id="mf-list-summary">${listSummary(filtered())}</section><div class="mf-search"><input id="mf-search" aria-label="Flüge suchen" placeholder="Flugzeug, Platz, Rolle …" value="${escape(state.search)}"><button type="button" class="mf-filter-button" data-action="filter">${icon('sliders-horizontal')}Filter</button></div>
+    ${state.issues?`<div class="mf-subbox mf-between"><span class="mf-amber mf-small">Nur Flüge mit Klärbedarf</span>${button('clear-issues','Alle','mf-secondary')}</div>`:''}
+    <div id="mf-flight-rows">${flightRows(filtered())}</div>`;
+  }
+  function details(){
+    const f=flights.find(f=>f.id===state.flight);
+    return `<section class="mf-box"><span class="mf-pill">${date(f.date)}</span><div class="mf-between mf-section-gap"><h2>${f.reg} · ${f.model}</h2><strong class="${f.minutes==null?'mf-amber':'mf-cyan'}">${time(f.minutes)}</strong></div><p class="mf-muted">Flugdetails · Beispieldatensatz</p></section>
+      ${f.minutes==null?`<section class="mf-box"><p class="mf-amber">${icon('triangle-alert')} Flugzeit nicht erfasst</p><p class="mf-muted mf-section-gap">Der Wert bleibt unbekannt. Klärung und Korrektur sind im Entwurf noch offen.</p></section>`:''}
+      <section class="mf-box">${heading('Flugzeug','plane')}${kv([['Kennzeichen',f.reg],['Muster',f.model],['Startart',f.launch]])}</section>
+      <section class="mf-box">${heading('Zeiten & Strecke','route')}${kv([['Startzeit',`${f.time} · Ortszeit im Beispiel`],['Flugzeit',time(f.minutes)],['Startplatz','Musterfeld'],['Landeplatz','Musterfeld']])}</section>
+      <section class="mf-box">${heading('Personen & Rollen','users-round')}${kv([['Meine Rolle',f.role==='unknown'?'Unbekannt':f.role],['Mitgeflogen',f.person==='solo'?'Niemand · Alleinflug':f.person]])}</section>
+      <section class="mf-box">${heading('Quelle','database')}${kv([['Datengrundlage','Fiktiver Design-Datensatz'],['Quell-ID',f.id],['Abrufstand','16.10.2026 · Beispiel']])}<p class="mf-muted mf-section-gap">Kein Live-Abruf; kein Nachweis für einen Papierbucheintrag.</p></section>`;
+  }
+  function booksView(){
+    const b=books[state.book];
+    return `<section class="mf-box"><label for="mf-book-select">Dein Papierbuch</label><select id="mf-book-select" aria-label="Papierbuch auswählen">${Object.entries(books).map(([id,b])=>`<option value="${id}" ${id===state.book?'selected':''}>${b.name}${b.archived?' · abgeschlossen':''}</option>`).join('')}</select><p class="mf-muted mf-section-gap">${b.format}</p></section>
+      <section class="mf-box">${heading('Buchstand','book-open')}<div class="mf-book-status"><span class="mf-pill">${b.evidence}</span>${b.archived?'<span class="mf-pill">Abgeschlossener Band</span>':''}</div><p><strong>${b.anchor}</strong></p><p class="mf-muted">${b.aircraft} · ${b.duration}</p>
+      ${b.assumed?`<div class="mf-subbox mf-section-gap"><span class="mf-amber">Schreibfortschritt angenommen</span><p class="mf-muted mf-section-gap">Bis ${b.assumed} · noch nicht am Papier bestätigt</p></div>`:''}
+      <div class="mf-subbox mf-between mf-section-gap"><div><strong class="mf-book-summary">${b.pending}</strong><span class="mf-muted"> Einträge offen</span></div><span class="mf-pill ${b.issues?'mf-amber':''}">${b.issues} Klärfälle</span></div>
+      ${button('anchor','Buchstand prüfen','mf-primary mf-full mf-section-gap')}
+      <p class="mf-muted mf-section-gap">Nur dieser Band · bestätigter Stand und angenommener Fortschritt bleiben getrennt.</p></section>
+      <section class="mf-box"><h2>Deine Bücher</h2><p class="mf-muted mf-section-gap">3 eigenständige Bücher, darunter 2 Segelflug-Bände. Der Wechsel oben ändert nur den angezeigten Buchstand.</p></section>`;
+  }
+  function anchor(){
+    const b=books[state.book];
+    return `<section class="mf-box"><span class="mf-pill">${b.name}</span><h2 class="mf-section-gap">Ist das dein letzter Eintrag?</h2><p class="mf-muted mf-section-gap">Vergleiche mit deinem Papierbuch.</p><div class="mf-subbox mf-section-gap"><strong>${b.assumed||b.anchor}</strong><p class="mf-muted mf-section-gap">${b.assumed?'Angenommener Schreibfortschritt · bitte prüfen':`${b.aircraft} · ${b.duration}`}</p>${b.assumed?`<p class="mf-muted mf-section-gap">Zuletzt am Papier bestätigt: ${b.anchor}</p>`:''}</div>${button('anchor-confirm','Ja, stimmt','mf-primary mf-full mf-section-gap')}${button('anchor-photo','Nein, aktuellen Stand prüfen','mf-secondary mf-full mf-section-gap')}</section><section class="mf-screen-note">Vorschau endet an diesem Schritt. Fotoabgleich, Flugprüfung und Schreibvorlage folgen in einer späteren Designrunde. Hier wird kein Buchstand geändert.</section>`;
+  }
+  function analytics(){
+    let chart=state.metric==='count'||state.metric==='time'?`${comparison(state.metric)}<p class="mf-muted mf-section-gap">01.01.–16.10. in beiden Jahren · nur gespeicherte Beispieldaten. 2026: 2 Flugzeiten unbekannt.</p>`:quickChart();
+    return `<section class="mf-box"><h2>${({count:'Flüge im Jahresvergleich',time:'Bekannte Flugzeit',aircraft:'Geflogene Flugzeuge',duration:'Flugdauer'})[state.metric]}</h2><div class="mf-section-gap">${chart}</div></section><section class="mf-box"><h2>Flüge hinter der Auswertung</h2><label class="mf-section-gap">Jahr<select id="mf-analytics-year"><option value="2026" ${state.filters.year==='2026'?'selected':''}>2026</option><option value="2025" ${state.filters.year==='2025'?'selected':''}>2025</option></select></label><p class="mf-muted mf-section-gap">${state.filters.year==='2025'?previous.count:current.count} Flüge · Zeitraum bis 16.10.</p></section>${flightRows(listYear(state.filters.year==='2025'?2025:2026))}`;
+  }
+  function club(){
+    const section=state.clubSection;
+    return `<section class="mf-box">${heading('Flugverein Musterfeld','users-round')}<p class="mf-muted mf-section-gap">Fiktiver Verein · Stand 16.10.2026</p>${clubSymbols()}</section>
+      ${section==='news'?`<section class="mf-box"><span class="mf-pill mf-cyan">Neu</span><h2 class="mf-section-gap">Herbstbetrieb am Wochenende</h2><p class="mf-muted mf-section-gap">Beispiel einer Vereinsnachricht · 16.10.2026</p></section>`:''}
+      ${section==='tasks'?'<section class="mf-box"><h2>Meine Aufgaben</h2><p class="mf-muted mf-section-gap">Keine offenen Aufgaben im Beispieldatensatz.</p></section>':''}
+      ${section==='events'?'<section class="mf-box"><h2>Nächster Termin</h2><p class="mf-section-gap">Sa., 24.10. · Saisonabschluss</p><p class="mf-muted">14:00 · Vereinsheim Musterfeld</p></section>':''}
+      <section class="mf-box"><h2>Meine Dienste</h2>${kv([['18.10. · 09:00–18:00','Flugleiter'],['24.10. · 10:00–12:00','Putzdienst · mit Robin Beispiel']])}</section>
+      <section class="mf-box"><h2>Arbeitsstunden 2026</h2>${workSummary()}${kv([['Persönliches Soll',state.goals.workHours==null?'Nicht gesetzt':state.goals.workHours+' h'],['Vereinsvorgabe · Beispiel','25 h'],['Geleistet · Beispiel','18 h']])}${button('goal-settings','Jahresziele anpassen','mf-text-action mf-section-gap')}</section>
+      <section class="mf-box"><h2>Flugbetrieb · bis 25.10.</h2>${kv([['18.10. · Fluglehrer','Robin Beispiel'],['18.10. · Flugleiter','Alex Beispiel'],['18.10. · Windenfahrer','Sam Muster']])}<p class="mf-muted mf-section-gap">Bewusst kleiner Ausschnitt für die Layoutprüfung.</p></section>`;
+  }
+  function profile(){
+    const m=medicalStatus();
+    return `<section class="mf-box">${heading('Alex Beispiel','user-round')}<p class="mf-muted mf-section-gap">Fiktives Profil · alle Daten und Ziele sind Beispiele.</p></section><section class="mf-box" id="mf-goals"><h2>Jahresziele 2026</h2><form id="mf-goal-form" class="mf-goal-settings"><label>Soll-Arbeitsstunden (h)<input name="workHours" type="number" min="0" max="10000" step="0.1" inputmode="decimal" value="${state.goals.workHours??''}" placeholder="Kein persönliches Soll"></label><label>Flüge in der Saison<input name="flights" type="number" min="1" max="100000" step="1" inputmode="numeric" value="${state.goals.flights??''}" placeholder="Kein Ziel"></label><label>Flugzeit in der Saison (h)<input name="hours" type="number" min="0.1" max="10000" step="0.1" inputmode="decimal" value="${state.goals.minutes==null?'':state.goals.minutes/60}" placeholder="Kein Ziel"></label><p class="mf-muted">Leer lassen, um ein Ziel zu entfernen. Persönliches Soll und Vereinsvorgabe bleiben getrennt.</p>${button('save-goals','Ziele speichern','mf-primary mf-full')}<p id="mf-goal-result" role="status" aria-live="polite"></p></form><p class="mf-muted mf-section-gap">Beispielziele · nur in diesem Entwurf gespeichert.</p></section><section class="mf-box" id="mf-medical-details"><h2>Dokumentierte Medicals</h2><p class="mf-muted mf-section-gap">${medicalStatusText(m.status)}</p>${kv(medicals.map(r=>[r.name,shortDate(r.expiry)]))}<p class="mf-muted mf-section-gap">Vorgesehene Quelle: Vereinsflieger · Persönliche Daten (noch nicht angebunden).<br>Fiktiver Stand: 16.10.2026. Angezeigte Ablaufdaten, keine Beurteilung der Flugberechtigung.</p></section><section class="mf-box"><h2>Vereinsflieger</h2><p class="mf-muted mf-section-gap">Keine aktive Verbindung im Klickentwurf. Die gespeicherten Beispieldaten bleiben beim Abruf-Fehler erhalten.</p>${button('refresh-error','Abruf-Fehler ansehen','mf-secondary mf-full mf-section-gap')}</section><section class="mf-box"><h2>Darstellung</h2>${kv([['Sprache','Deutsch'],['Farbstil','Dunkel · Indigo']])}</section>`;
+  }
+  function weather(){return `<section class="mf-box"><div class="mf-weather-symbol">${icon('cloud-sun')}</div><h2>Wetter</h2><p class="mf-muted mf-section-gap">Hier entsteht deine Wetterübersicht.</p><p class="mf-muted mf-section-gap">Ort, Inhalte und Wetterquelle legen wir als Nächstes fest.</p></section>`;}
+  function saveGoals(){
+    const settings=root.querySelector('#mf-goal-form');if(!settings||!settings.reportValidity())return;
+    const number=name=>settings.elements.namedItem(name).value.trim()===''?null:Number(settings.elements.namedItem(name).value);
+    const workHours=number('workHours'),flightsGoal=number('flights'),hours=number('hours');
+    state.goals={year:2026,workHours,flights:flightsGoal,minutes:hours==null?null:Math.round(hours*60)};
+    remember();root.querySelector('#mf-goal-result').textContent='Ziele für 2026 gespeichert.';
+  }
+  function updateSyncHeader(){
+    const control=root.querySelector('[data-action="refresh"]');
+    const current=state.sync==='current';
+    const label=current?'Aktuell':state.sync==='error'?'Abruf fehlgeschlagen; Aktualisierung empfohlen':'Aktualisierung empfohlen';
+    const accessible=`Beispiel: ${label}; letzter erfolgreicher Abruf am 16.10.2026 um ${state.lastSync}. Daten aktualisieren`;
+    control.classList.toggle('current',current);control.classList.toggle('suggested',!current);
+    control.setAttribute('aria-label',accessible);control.setAttribute('data-tooltip',`${label} · 16.10.2026, ${state.lastSync}`);
+    control.innerHTML=`<span class="mf-sync-symbol">${icon(current?'circle-check':'refresh-cw')}</span><time datetime="2026-10-16T${state.lastSync}:00+02:00"><span>16.10.</span><span>${state.lastSync}</span></time>`;
+    syncIcons();
+  }
+  function render(){
+    const titles={start:'Start',flights:'Flüge',detail:'Flugdetails',books:'Papierbuch',anchor:'Buchstand',club:'Verein',profile:'Profil',analytics:'Auswertung',weather:'Wetter'};
+    title.textContent=state.page==='start'?'MoFlight':titles[state.page];
+    root.querySelector('.mf-header').classList.toggle('mf-on-start',state.page==='start');
+    const sub=['detail','anchor','profile','analytics'].includes(state.page);
+    root.querySelector('[data-action="back"]').hidden=!sub;
+    root.querySelector('.mf-logo').hidden=sub;
+    phone.classList.toggle('guided',state.page==='anchor');nav.hidden=state.page==='anchor';
+    const selected=['detail','analytics'].includes(state.page)?'flights':state.page==='anchor'?'books':state.page;
+    nav.querySelectorAll('button').forEach(b=>{if(b.dataset.destination===selected)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});
+    content.innerHTML=({start,flights:flightsView,detail:details,books:booksView,anchor,club,profile,analytics,weather})[state.page]();
+    content.scrollTop=0;updateSyncHeader();syncIcons();
+  }
+  function go(page){if(page!==state.page)state.history.push(state.page);state.page=page;closeFilter(false);render();remember();}
+  function closeFilter(focus=true){if(overlay.hidden)return;overlay.hidden=true;content.inert=false;nav.inert=false;root.querySelector('.mf-header').inert=false;if(focus&&filterReturn)filterReturn.focus();}
+  function openFilter(){filterReturn=root.querySelector('[data-action="filter"]');for(const [key,value]of Object.entries(state.filters))form.elements.namedItem(key).value=value;overlay.hidden=false;content.inert=true;nav.inert=true;root.querySelector('.mf-header').inert=true;form.elements.namedItem('year').focus();}
+  function applyFilter(){state.filters=Object.fromEntries(['year','aircraft','person','role'].map(key=>[key,form.elements.namedItem(key).value]));closeFilter(false);render();root.querySelector('[data-action="filter"]')?.focus();remember();}
+  function showToast(text){clearTimeout(toastTimer);toast.textContent=text;toast.hidden=false;toastTimer=setTimeout(()=>toast.hidden=true,6500);}
+  root.addEventListener('click',event=>{
+    const destination=event.target.closest('[data-destination]');
+    if(destination){state.history=[];state.page=destination.dataset.destination;state.issues=false;state.monthFilter=null;closeFilter(false);render();remember();return;}
+    const target=event.target.closest('[data-action]');if(!target)return;
+    const action=target.dataset.action;
+    if(action==='save-goals')saveGoals();
+    if(action==='ring-details'){const metric=target.dataset.metric;state.aircraftOpen=!(state.aircraftOpen&&state.ringMetric===metric);state.ringMetric=metric;const scroll=content.scrollTop;render();content.scrollTop=scroll;root.querySelector(`[data-action="ring-details"][data-metric="${metric}"]`).focus({preventScroll:true});remember();}
+    if(action==='aircraft-close'){state.aircraftOpen=false;const scroll=content.scrollTop;render();content.scrollTop=scroll;root.querySelector(`[data-action="ring-details"][data-metric="${state.ringMetric}"]`).focus({preventScroll:true});remember();}
+    if(action==='medical'){go('profile');root.querySelector('#mf-medical-details').scrollIntoView({block:'start'});}
+    if(action==='goal-settings'){go('profile');root.querySelector('#mf-goals').scrollIntoView({block:'start'});root.querySelector('[name="workHours"]').focus({preventScroll:true});}
+    if(action==='monthly-toggle'){state.monthlyOpen=!state.monthlyOpen;const scroll=content.scrollTop;render();content.scrollTop=scroll;root.querySelector('[data-action="monthly-toggle"]').focus({preventScroll:true});remember();}
+    if(action==='month-select'){state.month=Number(target.dataset.month);const scroll=content.scrollTop;render();content.scrollTop=scroll;root.querySelector(`[data-action="month-select"][data-month="${state.month}"]`).focus({preventScroll:true});remember();}
+    if(action==='month-flights'){state.monthFilter=state.month;state.filters={...defaultFilters(),year:target.dataset.year};state.issues=false;state.search='';go('flights');}
+    if(action==='aircraft-flights'){state.monthFilter=null;state.filters={...defaultFilters(),aircraft:target.dataset.reg};state.issues=false;state.search='';go('flights');}
+    if(action==='clear-month'){state.monthFilter=null;render();remember();}
+    if(action==='back'){state.page=state.history.pop()||({detail:'flights',analytics:'start',anchor:'books',profile:'start'}[state.page]||'start');render();remember();}
+    if(action==='profile')go('profile');
+    if(action==='refresh'){state.sync='current';state.lastSync='18:05';updateSyncHeader();remember();showToast('Beispielzustand: Abgleich erfolgreich. Es wurden keine echten Daten abgerufen.');}
+    if(action==='refresh-error'){state.sync='error';updateSyncHeader();remember();showToast('Beispielzustand: Abruf fehlgeschlagen. Letzter erfolgreicher Stand und gespeicherte Flüge bleiben erhalten.');}
+    if(action==='flights'){state.monthFilter=null;state.issues=false;state.filters=defaultFilters();state.search='';go('flights');}
+    if(action==='issues'){state.monthFilter=null;state.filters=defaultFilters();state.search='';state.issues=true;go('flights');}
+    if(action==='books')go('books');
+    if(action==='chart'){state.chart=target.dataset.chart;render();remember();}
+    if(action==='metric'){state.monthFilter=null;state.metric=target.dataset.metric;if(state.metric==='aircraft'||state.metric==='duration')state.chart=state.metric;state.filters=defaultFilters();go('analytics');}
+    if(action==='detail'){state.flight=target.dataset.flight;go('detail');}
+    if(action==='filter')openFilter();
+    if(action==='close-filter')closeFilter();
+    if(action==='apply-filter')applyFilter();
+    if(action==='reset-filter'){for(const[key,value]of Object.entries(defaultFilters()))form.elements.namedItem(key).value=value;}
+    if(action==='clear-issues'){state.issues=false;render();remember();}
+    if(action==='clear-query'){state.monthFilter=null;state.issues=false;state.filters=defaultFilters();state.search='';render();remember();}
+    if(action==='anchor')go('anchor');
+    if(action==='anchor-confirm'||action==='anchor-photo')showToast('Hier endet diese Vorschau. Der Buchstand wurde nicht geändert.');
+    if(action==='club-item'){state.clubSection=target.dataset.section;go('club');}
+  });
+  root.addEventListener('input',event=>{
+    if(event.target.id!=='mf-search')return;state.search=event.target.value;root.querySelector('#mf-list-summary').innerHTML=listSummary(filtered());root.querySelector('#mf-flight-rows').innerHTML=flightRows(filtered());syncIcons();remember();
+  });
+  root.addEventListener('change',event=>{
+    if(event.target.id==='mf-book-select'&&books[event.target.value]){state.book=event.target.value;render();remember();}
+    if(event.target.id==='mf-analytics-year'){state.filters.year=event.target.value;render();remember();}
+  });
+  form.addEventListener('submit',event=>{event.preventDefault();applyFilter();});
+  root.addEventListener('submit',event=>{if(event.target.id==='mf-goal-form'){event.preventDefault();saveGoals();}});
+  overlay.addEventListener('click',event=>{if(event.target===overlay)closeFilter();});
+  root.addEventListener('keydown',event=>{
+    if(overlay.hidden)return;
+    if(event.key==='Escape'){event.preventDefault();closeFilter();}
+    if(event.key==='Tab'){const targets=[...overlay.querySelectorAll('button,select')],first=targets[0],last=targets[targets.length-1];if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}}
+  });
+  restore(window.openai?.widgetState);render();
+  window.addEventListener('openai:set_globals',event=>{if(event.detail?.globals?.widgetState){const before=JSON.stringify(state);restore(event.detail.globals.widgetState);if(JSON.stringify(state)!==before)render();}});
+  if(globalThis.Tweak){const appearance={radius:18};const tweak=new Tweak({container:phone,onChange:()=>phone.style.setProperty('--mf-radius',`${appearance.radius}px`)});tweak.addSlider(appearance,'radius',{label:'Kartenrundung',min:12,max:24,unit:'px'});}
+})();
+</script>
