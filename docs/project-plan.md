@@ -1,5 +1,9 @@
 # MoFlight project plan
 
+## Immediate deliverable — phone demo and physical smoke test
+
+Manuel agreed on 16 October 2026 to package the existing M1 demo for a compatible Android phone and run a short physical-device check before expanding functionality. Dependencies: committed four-screen application, local ARM64 Release packaging, identified phone/Android version, and observed checklist results. Existing Issue #5 remains the tracking task. [Handoff and measured packaging](verification/2026-10-16-phone-demo-handoff.md); [acceptance checklist](verification/2026-10-16-physical-phone-checklist.md). Physical testing remains pending; emulator/build results do not close this gate. Subsequent retrieval/history/analytics priorities remain in order after this checkpoint.
+
 ## UI fidelity and width-matrix follow-up — 16 October 2026
 
 Manuel requested close replication of the approved image’s boxes, buttons, colors and layout, and established MIN 360 / MAIN 390–412 / MAX 600+ dp. This remains an M1 native UI refinement; service/data gates and milestone order are unchanged. [Deliverable/dependencies/acceptance](product/2026-10-16-ui-fidelity-refinement.md) and [native evidence](verification/2026-10-16-ui-fidelity-width-matrix.md) record the density, tablet and keyboard checks. AGENTS.md now preserves this standing matrix. Existing Issue #5 remains open.

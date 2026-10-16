@@ -1,0 +1,23 @@
+{
+  "source_commit": "2090f7942f6962d3fd32bc72c9b6ba0fa1616c97",
+  "configuration": "Release",
+  "architectures": [
+    "arm64-v8a"
+  ],
+  "apk_bytes": 29659054,
+  "apk_sha256": "ca2970dd34c99e7dd70722066cc1bb2762f8e2abd10e00ab4db2d3601c161e65",
+  "previous_apk_bytes": 47718199,
+  "reduction_percent": 37.8,
+  "embedded_javascript": true,
+  "javascript_identical_to_native_tested_demo": true,
+  "arm64_native_libraries_identical_to_native_tested_demo": true,
+  "zip_integrity": "passed",
+  "physical_phone_test": "pending; no phone connected",
+  "min_sdk": 24,
+  "target_sdk": 36,
+  "application_id": "de.momorc.moflight.lab",
+  "version_name": "0.1.0",
+  "version_code": 1,
+  "apk_signature": "v2 verified; same certificate as previous dual-ABI demo",
+  "signer_certificate_sha256": "fac61745dc0903786fb9ede62a962b399f7348f0bb6f899b8332667591033b9c"
+}
