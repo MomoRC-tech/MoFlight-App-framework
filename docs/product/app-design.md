@@ -1,6 +1,6 @@
 # MoFlight app design
 
-Version: **0.6 — Year-comparison requirement confirmed; chart proposals under review**. Updated: 2026-10-16 (Europe/Berlin). Product/design decisions: Manuel. This is a living design description; Git preserves revisions and the change log records meaningful decisions. A draft version is not approval of the entire design.
+Version: **0.7 — Year-comparison bars selected; layout review continues**. Updated: 2026-10-16 (Europe/Berlin). Product/design decisions: Manuel. This is a living design description; Git preserves revisions and the change log records meaningful decisions. A draft version is not approval of the entire design.
 
 ## Purpose and task boundary
 
@@ -24,6 +24,7 @@ These choices carry forward from the earlier design review, with the explicit vi
 - Start leads with Mein Fliegen, followed by Papierbuch. On 2026-10-16 Manuel selected a compact overview: smaller summaries for flying, paper-book and club information, with details available by tapping. This changes summary density, not the availability of the full information in its section. Exact summary fields, dimensions and club placement remain open; fitting everything without scrolling is not yet a requirement.
 - On 2026-10-16 Manuel selected keeping the overall flight-count/known-time totals strip on Start, above the yearly flying summary, as in Stitch. Totals describe available saved history with explicit coverage; they must not imply a complete lifetime record where history is incomplete. Exact wording and coverage presentation remain open.
 - Year diagram requirement, confirmed 2026-10-16: represent actual current-year values prominently and prior-year values less prominently for comparison. Manuel supplied this requirement instead of selecting removal or a decorative year badge; neither offered option is selected. The existing same-period prior-year comparison remains applicable.
+- Year diagram presentation, confirmed 2026-10-16: paired horizontal bars for flight count and known flight time; current year thicker/cyan, prior year thinner/muted, with exact values and same-period comparison. This replaces the starter's ring; the comparison-ring alternative is not selected.
 - Papierbuch overview retains navigation; guided checking/review/template steps hide it and use header Back.
 - Flight filters open in a slide-up panel over the list.
 - German app text; Android and iOS target platforms; offline access and clear data freshness/coverage. Keep unknown duration distinct from zero and assumed writing progress distinct from confirmed paper evidence.
@@ -37,14 +38,14 @@ The screen uses deep navy surfaces, cyan highlights, rounded nested cards, Inter
 
 The exported HTML contains placeholder destination links; it does not establish a working multi-screen journey. The generated style guide includes telemetry, cockpit and weather concepts outside our selected scope. Those do not become requirements. The screen's navy/cyan appearance, glowing accents and outlined/nested card treatment are selected as the visual reference. Exact implementation tokens, typography sizes, metrics, labels and behaviors still need review; selecting the look does not approve every source value or generated instruction.
 
-## Year-comparison proposals — under review
+## Selected year comparison and historical alternative
 
-The [comparison preview source](prototypes/2026-10-16-year-comparison.html) shows two alternatives in the selected Stitch style. This is an isolated conversation-preview fragment with synthetic values, not app code or an approved component.
+The [comparison preview source](prototypes/2026-10-16-year-comparison.html) preserves the two alternatives reviewed in the selected Stitch style. Manuel selected **Vergleichsbalken** on 2026-10-16; Vergleichsringe remains a historical unselected alternative. This is an isolated conversation-preview fragment with synthetic values, not application implementation or native acceptance.
 
-- **Comparison rings:** two metric groups, flights and known flight time. Each uses a thick cyan outer arc for the current year and a thinner muted inner arc for last year. Direct labels show both years' exact values and the change. Use a common angular scale for the two years within each metric; flight count and time have independent scales with explicit units. The arc endpoint is a scale ceiling, not a goal or progress target. This is the closest continuation of Stitch's circular treatment.
-- **Comparison bars:** the same two measures with paired horizontal bars. Current year is cyan and thicker, prior year muted and thinner, with direct values. Each pair shares a zero baseline and scale, making differences easier to compare. This is the engineer's readability recommendation; Manuel has not selected it.
+- **Comparison rings — not selected:** two metric groups, flights and known flight time, with current-year outer arcs and quieter prior-year inner arcs. Preserved only as a record of the comparison.
+- **Comparison bars — confirmed:** flights and known flight time with paired horizontal bars. Current year is cyan and thicker, prior year muted and thinner, with direct values. Each pair shares a zero baseline and scale, making differences easier to compare. Flight count and time use independent scales and explicit units.
 
-For either proposal: label the same date interval for both years (example: 1 January through 16 October), use available saved evidence, and keep incomplete coverage/missing durations visible. Do not call a partial known-time total complete flight time. Do not present missing prior-year evidence as zero; suppress percentage change when the prior baseline is zero or unknown. Choose a shared scale ceiling from both years' available values rather than capping at last year's total; the higher current/prior value must fit. Exact unknown-state layout and rounding remain for contract review. Tapping should retain the selected metric and comparison context in Flüge, consistent with the existing journey map.
+For the selected bars: label the same date interval for both years (example: 1 January through 16 October), use available saved evidence, and keep incomplete coverage/missing durations visible. Do not call a partial known-time total complete flight time. Do not present missing prior-year evidence as zero; suppress percentage change when the prior baseline is zero or unknown. Choose a shared scale ceiling from both years' available values rather than capping at last year's total; the higher current/prior value must fit. Exact unknown-state layout and rounding remain for contract review. Tapping should retain the selected metric and comparison context in Flüge, consistent with the existing journey map.
 
 ## Review queue — one question at a time
 
@@ -53,7 +54,7 @@ For either proposal: label the same date interval for both years (example: 1 Jan
 | 1 | Overall appearance: retain Stitch closely, simplify its styling, or use it mainly for structure? | Confirmed 2026-10-16: option 1, keep closely; navy/cyan, glowing accents, outlined and nested cards |
 | 2 | Start density: what should be visible immediately, and what belongs behind a tap? | Confirmed 2026-10-16: option 2, compact overview of all three areas; tap for details; preserve flying-first/paper-second order |
 | 3 | Header content and action hierarchy, including retrieval access | Confirmed 2026-10-16: option 1, Refresh + Profile; retain compact page title and contextual Back |
-| 4 | Flight-summary presentation: year/comparison, aircraft and duration views; treatment of all-time totals and ring | Totals strip retained on Start; question 5 clarification confirms prominent current-year diagram with quieter prior-year comparison. Ring/bar proposals open; aircraft/duration views remain in confirmed journey scope |
+| 4 | Flight-summary presentation: year/comparison, aircraft and duration views; treatment of all-time totals and ring | Totals strip retained on Start; paired comparison bars selected 2026-10-16 for flights/known time. Aircraft/duration views remain in confirmed journey scope; remaining detail is open |
 | 5 | Papierbuch overview and next action: active book, evidence/assumed progress, pending work | Open within confirmed multi-book and guided-flow boundaries |
 | 6 | Compact club summary and paths to details | Open within confirmed content; do not silently remove requirements |
 | 7 | Destination layouts, details, filters, back behavior and representative states | Open; start with Start → Flüge → flight detail and the Papierbuch entry flow |
@@ -71,3 +72,4 @@ Review loading, empty, offline, stale, incomplete, unknown, error, cancel and re
 | 0.4 | 2026-10-16 | Manuel answered “1.” to header actions: Refresh + Profile replace new flight + Profile; current page title and contextual Back remain. |
 | 0.5 | 2026-10-16 | Manuel answered “2.” to overall totals: keep flight-count/known-time totals on Start above the yearly summary, with available-history coverage rather than an unsupported lifetime-completeness claim. |
 | 0.6 | 2026-10-16 | Manuel clarified that the diagram should represent current-year values with a less prominent prior-year comparison. Prepared comparison-ring and comparison-bar proposals; geometry is not selected. |
+| 0.7 | 2026-10-16 | Manuel answered “bars”: selected paired horizontal comparison bars for flights and known flight time; rings retained only as a historical alternative. |

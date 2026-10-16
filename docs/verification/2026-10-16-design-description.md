@@ -40,3 +40,7 @@ Manuel clarified the diagram's meaning: actual current-year values prominent, pr
 Independent GPT-6 Luna design review recommended bars for comparison accuracy and cautioned against interpreting rings as goals. Both variants label periods/values; rings also show scale ceilings. Preview arithmetic: 34 versus 28 flights gives +6 / +21% rounded; 42h18m versus 33h33m gives +8h45m / +26% rounded. Within each metric the two years share the same scale.
 
 Local browser preview: visually inspected both variants and used Next variant to verify switching. Initial inspection exposed carousel controls overlapping the taller bars footer; increased shared stage height and rechecked. Read back the fragment and checked its local documentation link and staged whitespace. Native gestures, real data, narrow viewport, larger text and screen readers are not accepted by this trial. No application code or provider calls; unrelated product-index/research edits remain excluded.
+
+## Version 0.7 decision follow-up
+
+Manuel answered “bars” after reviewing the two proposals. Recorded paired comparison bars as selected and rings as the historical unselected alternative. Preserved current-year emphasis, quieter prior-year values, separate count/time scales and same-period comparison. Preview source remains unchanged as a record of the reviewed alternatives. Reviewed the documentation diff for contradictory selection claims and ran the staged whitespace check. No new links, application changes or native tests. Unrelated product-index/research edits remain excluded.
