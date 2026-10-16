@@ -17,7 +17,7 @@ from android_mobile_ui_smoke import launch, tab
 AVD = 'MoFlight_Synthetic_API37'
 TABS = [('Übersicht', 'home'), ('Flüge', 'flights'), ('Verein', 'club'), ('AI', 'ai')]
 VIEWPORTS = [(360, 900, 1.0), (390, 900, 1.0), (411, 900, 1.0),
-             (600, 1100, 1.0), (840, 1100, 1.0), (360, 900, 1.4)]
+             (600, 1100, 1.0), (840, 1100, 1.0), (360, 900, 1.4), (600, 1100, 1.4)]
 
 
 def bounds(node):
@@ -69,15 +69,23 @@ def finish(smoke, status, error=None):
 
 def assert_navigation(smoke, selected, width, height):
     nodes = smoke.dump()
+    row = []
     for title, _ in TABS:
         matches = [node for node in nodes if node.get('content-desc') == title
                    and node.get('clickable') == 'true']
-        assert len(matches) == 1, f'Expected one visible navigation control: {title}'
-        node = matches[0]
+        assert matches, f'Missing visible navigation control: {title}'
+        # Club's section selector also has an Übersicht button. Persistent tab
+        # controls occupy the bottommost shared row, below in-content selectors.
+        node = max(matches, key=lambda n: bounds(n)[3])
         assert node.get('selected') == str(title == selected).lower(), f'Incorrect selected tab: {title}'
         assert node.get('enabled') == 'true', f'Disabled navigation control: {title}'
         x1, y1, x2, y2 = bounds(node)
         assert 0 <= x1 < x2 <= width and 0 <= y1 < y2 <= height, f'Navigation outside viewport: {title}'
+        assert y1 >= height * .7, f'Navigation absent from lower viewport: {title}'
+        row.append((x1, y1, x2, y2))
+    assert max(b[1] for b in row) - min(b[1] for b in row) <= 2, 'Tab controls do not share a navigation row'
+    assert max(b[3] for b in row) - min(b[3] for b in row) <= 2, 'Tab controls have inconsistent navigation heights'
+    assert all(left[2] <= right[0] for left, right in zip(row, row[1:])), 'Navigation controls overlap or are reordered'
 
 
 def keyboard_trial(smoke, viewport, name):

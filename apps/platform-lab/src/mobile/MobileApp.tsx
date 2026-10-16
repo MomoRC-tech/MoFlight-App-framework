@@ -53,8 +53,8 @@ function Shell() {
   const library = useLibrary(toolsOpen);
   const { width, fontScale } = useWindowDimensions();
   const compact = fontScale > 1.3;
-  const tablet = width >= 600;
-  const wide = width >= 840;
+  const tablet = width >= 600 && !compact;
+  const wide = width >= 840 && !compact;
   const years = flightYears(library.flights);
   const selectedYear = year;
   const displayedYears = year !== null && !years.includes(year) ? [year, ...years].sort((a, b) => b - a) : years;
