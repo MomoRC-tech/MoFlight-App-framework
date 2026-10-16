@@ -27,7 +27,7 @@ function FlightRow({ flight, onPress, tablet }: { flight: Flight; onPress: () =>
   return <Card onPress={onPress} label={`${dateText(flight.date)}, ${flight.registration ?? 'Flugzeug unbekannt'}, Details öffnen`} style={[s.flightRow, tablet && { flex: 1, maxWidth: '50%' }]}>
     <Label style={s.flightDate}>{dateText(flight.date)}</Label>
     <View style={ui.row}>
-      <View style={[s.noTrack, !tablet && { width: 80, minHeight: 68 }]}><GliderMark color="#7299ab" /><Label muted style={{ fontSize: 10, textAlign: 'center' }}>Kein Track</Label></View>
+      <View style={[s.noTrack, !tablet && { width: 80, minHeight: 68 }]}><GliderMark color="#7299ab" /><Label muted style={{ fontSize: 10, textAlign: 'center', width: '100%' }}>Kein Track</Label></View>
       <View style={ui.column}><View style={[ui.row, { flexWrap: 'wrap', gap: 6 }]}><Label style={{ fontWeight: '600', flexShrink: 1 }}>{flight.registration ?? 'Kennzeichen unbekannt'}</Label><Label muted style={{ flexShrink: 1 }}>{flight.aircraft_model ?? 'Typ unbekannt'}</Label></View>
         <Label muted>{flight.start_place ?? '—'}  →  {flight.landing_place ?? '—'}</Label>
         <View style={ui.row}><Label>◷ {formatDuration(flight.minutes)} h</Label>{flight.pilot_role && <View style={s.badge}><Label style={{ color: colors.cyan, fontSize: 11 }}>{flight.pilot_role === 'Dual' ? 'Schulung' : flight.pilot_role}</Label></View>}</View>
@@ -163,7 +163,7 @@ function Shell() {
         </ScrollView>
       </KeyboardAvoidingView>
     </View>
-    {!aiKeyboard && <Label style={{ alignSelf: 'center', color: '#8ba4bc', fontSize: 10, lineHeight: 16 }}>Entwicklung · synthetische lokale Bibliothek</Label>}
+    {!aiKeyboard && <Label style={{ width: '100%', textAlign: 'center', color: '#8ba4bc', fontSize: 10, lineHeight: 16 }}>Entwicklung · synthetische lokale Bibliothek</Label>}
     <View style={[s.nav, wide && { maxWidth: 960 }, tablet && !wide && { maxWidth: 600 }, aiKeyboard && s.hidden]} accessibilityRole="tablist">{tabs.map(item => <Pressable key={item.id} accessibilityRole="tab" accessibilityLabel={item.title} accessibilityState={{ selected: tab === item.id }} onPress={() => setTab(item.id)} style={({ pressed }) => [s.navItem, pressed && ui.pressed]}>{item.id === 'flights' ? <GliderMark color={tab === item.id ? '#00c8ff' : colors.muted} /> : item.id === 'club' ? <ClubMark color={tab === item.id ? '#00c8ff' : colors.muted} /> : <Text style={[s.navIcon, tab === item.id && s.active]}>{item.icon}</Text>}<Text style={[s.navLabel, tab === item.id && s.active]}>{item.title}</Text></Pressable>)}</View>
     <Modal visible={sheet !== null || detail !== null} animationType="slide" onRequestClose={() => { setDetail(null); setSheet(null); }}>
       <SafeAreaView style={s.modal}><StatusBar barStyle="light-content" /><View style={s.modalBar}><Action secondary onPress={() => { setDetail(null); setSheet(null); }}>‹ Zurück</Action><Label style={{ flex: 1, fontWeight: '600' }}>{detail ? 'Flugdetails' : sheet === 'books' ? 'Papierflugbuch' : sheet === 'tools' ? 'Entwicklungswerkzeuge' : 'MoFlight'}</Label></View>
