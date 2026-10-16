@@ -1,6 +1,6 @@
 # MoFlight app design
 
-Version: **0.21 — Start header, freshness indicator and canvas revised**. Updated: 2026-10-16 (Europe/Berlin). Product/design decisions: Manuel. This is a living design description; Git preserves revisions and the change log records meaningful decisions. A draft version is not approval of the entire design.
+Version: **0.22 — Micro Bento preferred Start reference; content mapping under review**. Updated: 2026-10-16 (Europe/Berlin). Product/design decisions: Manuel. This is a living design description; Git preserves revisions and the change log records meaningful decisions. A draft version is not approval of the entire design.
 
 ## Purpose and task boundary
 
@@ -41,6 +41,10 @@ These choices carry forward from the earlier design review, with the explicit vi
 - Approved branding and Expo/React Native remain as recorded; this description selects no new technology or service.
 
 ## Selected visual direction and remaining source observations
+
+Latest preference, 2026-10-16: Manuel supplied the [Micro Bento reference](design-sources/2026-10-16-micro-bento/README.md) and said “I like that more.” Use it as the preferred Start visual/layout reference over the earlier Stitch-based draft. Its compact two-column metric tiles, softer indigo accents and reduced nesting are the observed direction for the next review. This records the comparative preference, not approval of every embedded feature or a wholesale replacement of previously selected behavior. The earlier Stitch snapshot and v0.19/v0.21 drafts remain historical references; no application code changes follow from this preference alone.
+
+Content differences to settle before adapting the clickable draft: the supplied Start omits the saved-history totals strip, uses numeric comparisons rather than the selected paired bars, promotes a larger paper-book card/action instead of the shallow indicator row, and places the sync timestamp inside a popup rather than beside the header symbol. Adaptive light/dark colors and unboxed section headings also differ from earlier styling decisions. Retain multi-book isolation, unknown-value handling, same-period comparison and the established navigation/journeys; source placeholder sheets are not substitutes for the reviewed list/detail/book flows. Exact choices to carry over remain under review. Next focused question: adopt the attached Start arrangement, including its changed content presentation, or apply only its visual feel while preserving earlier content choices?
 
 ![Supplied Stitch Start screen](design-sources/2026-10-16-stitch/screen.png)
 
@@ -115,3 +119,4 @@ Review loading, empty, offline, stale, incomplete, unknown, error, cancel and re
 | 0.19 | 2026-10-16 | Manuel accepted the overview direction but requested a very compact view, suggesting symbols with highlights for update needs and counts for things to correct. Replaced the multi-line proposal with a shallow indicator-row proposal. Requested no unnecessary tests. |
 | 0.20 | 2026-10-16 | At Manuel's request, prepared the first clickable layout checkpoint from v0.19. Recorded proposed presentation details and bounded browser observations; visual/user acceptance remains open. |
 | 0.21 | 2026-10-16 | Manuel requested freshness at the sync button instead of a separate banner, current/update-suggested icon states, a distinct lighter scroll background and removal of the redundant Start comparison-period line. Revised source/export preserve earlier versions; exact icon/color implementation remains reviewable. |
+| 0.22 | 2026-10-16 | Manuel supplied Micro Bento and said “I like that more.” Archived the original unchanged and recorded it as the preferred Start visual/layout reference. Differences from earlier content/state choices await focused clarification; no blanket approval or app implementation inferred. |
