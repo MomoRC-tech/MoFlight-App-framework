@@ -44,3 +44,7 @@ Local browser preview: visually inspected both variants and used Next variant to
 ## Version 0.7 decision follow-up
 
 Manuel answered “bars” after reviewing the two proposals. Recorded paired comparison bars as selected and rings as the historical unselected alternative. Preserved current-year emphasis, quieter prior-year values, separate count/time scales and same-period comparison. Preview source remains unchanged as a record of the reviewed alternatives. Reviewed the documentation diff for contradictory selection claims and ran the staged whitespace check. No new links, application changes or native tests. Unrelated product-index/research edits remain excluded.
+
+## Version 0.8 decision follow-up
+
+Manuel answered “1.” to Papierbuch summary content: book name, last entry, pending count and Buchstand prüfen. Recorded only that content selection; exact fields/count semantics, book switching and unknown/empty states remain open. Preserved the existing account/book scope and confirmed-versus-assumed progress boundary. Reviewed the documentation diff against the offered option and ran the staged whitespace check. No new links, application changes or native tests. Unrelated product-index/research edits remain excluded.

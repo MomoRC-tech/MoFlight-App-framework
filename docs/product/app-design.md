@@ -1,6 +1,6 @@
 # MoFlight app design
 
-Version: **0.7 — Year-comparison bars selected; layout review continues**. Updated: 2026-10-16 (Europe/Berlin). Product/design decisions: Manuel. This is a living design description; Git preserves revisions and the change log records meaningful decisions. A draft version is not approval of the entire design.
+Version: **0.8 — Compact Papierbuch card selected; layout review continues**. Updated: 2026-10-16 (Europe/Berlin). Product/design decisions: Manuel. This is a living design description; Git preserves revisions and the change log records meaningful decisions. A draft version is not approval of the entire design.
 
 ## Purpose and task boundary
 
@@ -26,6 +26,7 @@ These choices carry forward from the earlier design review, with the explicit vi
 - Year diagram requirement, confirmed 2026-10-16: represent actual current-year values prominently and prior-year values less prominently for comparison. Manuel supplied this requirement instead of selecting removal or a decorative year badge; neither offered option is selected. The existing same-period prior-year comparison remains applicable.
 - Year diagram presentation, confirmed 2026-10-16: paired horizontal bars for flight count and known flight time; current year thicker/cyan, prior year thinner/muted, with exact values and same-period comparison. This replaces the starter's ring; the comparison-ring alternative is not selected.
 - Papierbuch overview retains navigation; guided checking/review/template steps hide it and use header Back.
+- Papierbuch on Start, confirmed 2026-10-16: show the book name, last entry, pending count and “Buchstand prüfen” action. This selects the more contextual of the two compact-card options. Scope status to the displayed book; distinguish confirmed paper evidence from assumed writing progress. Exact last-entry fields, pending-count semantics, unknown/empty presentation and book-switch interaction remain for review.
 - Flight filters open in a slide-up panel over the list.
 - German app text; Android and iOS target platforms; offline access and clear data freshness/coverage. Keep unknown duration distinct from zero and assumed writing progress distinct from confirmed paper evidence.
 - Approved branding and Expo/React Native remain as recorded; this description selects no new technology or service.
@@ -55,7 +56,7 @@ For the selected bars: label the same date interval for both years (example: 1 J
 | 2 | Start density: what should be visible immediately, and what belongs behind a tap? | Confirmed 2026-10-16: option 2, compact overview of all three areas; tap for details; preserve flying-first/paper-second order |
 | 3 | Header content and action hierarchy, including retrieval access | Confirmed 2026-10-16: option 1, Refresh + Profile; retain compact page title and contextual Back |
 | 4 | Flight-summary presentation: year/comparison, aircraft and duration views; treatment of all-time totals and ring | Totals strip retained on Start; paired comparison bars selected 2026-10-16 for flights/known time. Aircraft/duration views remain in confirmed journey scope; remaining detail is open |
-| 5 | Papierbuch overview and next action: active book, evidence/assumed progress, pending work | Open within confirmed multi-book and guided-flow boundaries |
+| 5 | Papierbuch overview and next action: active book, evidence/assumed progress, pending work | Start card confirmed 2026-10-16: book name, last entry, pending count and Buchstand prüfen (option 1). Detailed fields/states and destination behavior remain open within confirmed multi-book/guided-flow boundaries |
 | 6 | Compact club summary and paths to details | Open within confirmed content; do not silently remove requirements |
 | 7 | Destination layouts, details, filters, back behavior and representative states | Open; start with Start → Flüge → flight detail and the Papierbuch entry flow |
 | 8 | Reusable spacing, type, controls and phone-size review | Open; test narrow widths, larger text, scroll clearance and meaningful labels |
@@ -73,3 +74,4 @@ Review loading, empty, offline, stale, incomplete, unknown, error, cancel and re
 | 0.5 | 2026-10-16 | Manuel answered “2.” to overall totals: keep flight-count/known-time totals on Start above the yearly summary, with available-history coverage rather than an unsupported lifetime-completeness claim. |
 | 0.6 | 2026-10-16 | Manuel clarified that the diagram should represent current-year values with a less prominent prior-year comparison. Prepared comparison-ring and comparison-bar proposals; geometry is not selected. |
 | 0.7 | 2026-10-16 | Manuel answered “bars”: selected paired horizontal comparison bars for flights and known flight time; rings retained only as a historical alternative. |
+| 0.8 | 2026-10-16 | Manuel answered “1.” to the compact Papierbuch card: book name, last entry, pending count and Buchstand prüfen. Preserve book scope and confirmed/assumed distinction. |
