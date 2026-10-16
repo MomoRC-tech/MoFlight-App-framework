@@ -4,7 +4,7 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import type { Flight } from '@moflight/flight-logbook';
 import LabApp from '../App';
 import { BookLab } from '../BookLab';
-import { Action, Card, Chip, Empty, Label, Photo, Section, colors, ui } from './theme';
+import { Action, Card, Chip, ClubMark, Empty, GliderMark, Label, Photo, Section, colors, ui } from './theme';
 import { useLibrary } from './use-library';
 import { flightYears, selectFlights, summarizeFlights, formatDuration } from './flight-model';
 import { localQuestions, localInsight } from './local-insights';
@@ -91,7 +91,7 @@ function Shell() {
     {library.error && <View accessibilityLiveRegion="polite"><Label style={{ color: '#ffbd9b' }}>{library.error}</Label><Action secondary onPress={() => void library.reload()}>Erneut versuchen</Action></View>}
   </View>;
   const heading = (title: string, image = mountain, subtitle?: string, tint?: string) => <Photo source={image} style={s.header} tint={tint}>
-    <View style={s.headerTop}><Text accessibilityRole="header" style={ui.title}>{title}</Text><Pressable accessibilityRole="button" accessibilityLabel="Entwicklungswerkzeuge öffnen" onPress={() => setSheet('tools')} style={s.toolButton}><Label style={{ fontSize: 20 }}>⚙</Label></Pressable></View>
+    <View style={s.headerTop}><View style={[ui.row, { flex: 1, flexWrap: 'wrap' }]}><Text accessibilityRole="header" style={[ui.title, { flexShrink: 1 }]}>{title}</Text>{title === 'MoFlight' && <GliderMark large />}</View><Pressable accessibilityRole="button" accessibilityLabel="Entwicklungswerkzeuge öffnen" onPress={() => setSheet('tools')} style={s.toolButton}><Label style={{ fontSize: 20 }}>⚙</Label></Pressable></View>
     {subtitle && <Label>{subtitle}</Label>}
   </Photo>;
   const flightHeader = <View style={{ gap: 10 }}>
@@ -109,7 +109,7 @@ function Shell() {
     <View style={s.content}>
       <View style={[s.page, tab !== 'home' && s.hidden]} accessibilityElementsHidden={tab !== 'home'} importantForAccessibility={tab === 'home' ? 'auto' : 'no-hide-descendants'}>
         <ScrollView contentContainerStyle={s.canvas} keyboardShouldPersistTaps="handled">
-          {heading('MoFlight ─✈', mountain, 'Guten Tag! Bereit für neue Horizonte?')}
+          {heading('MoFlight', mountain, 'Guten Tag! Bereit für neue Horizonte?')}
           <Card style={s.paper} onPress={openBooks} label="Papierflugbuch aktualisieren">
             <Photo source={sunset} style={s.paperPhoto} tint="#7a330a77"><Label style={s.eyebrow}>▱  PAPIERFLUGBUCH AKTUALISIEREN</Label><Label style={{ fontSize: 20, fontWeight: '700' }}>{library.pending === null ? 'Flugbuch auswählen' : `${library.pending} Einträge ohne Papiernachweis`}</Label><Label>Jetzt abgleichen und digitalisieren.</Label><View style={s.orangeButton}><Label style={{ color: '#211007', fontWeight: '700' }}>Flüge jetzt erfassen  →</Label></View></Photo>
           </Card>
@@ -163,7 +163,7 @@ function Shell() {
       </KeyboardAvoidingView>
     </View>
     <Label style={{ textAlign: 'center', color: '#8ba4bc', fontSize: 10, lineHeight: 16 }}>Entwicklung · synthetische lokale Bibliothek</Label>
-    <View style={s.nav} accessibilityRole="tablist">{tabs.map(item => <Pressable key={item.id} accessibilityRole="tab" accessibilityLabel={item.title} accessibilityState={{ selected: tab === item.id }} onPress={() => setTab(item.id)} style={({ pressed }) => [s.navItem, pressed && ui.pressed]}><Text style={[s.navIcon, tab === item.id && s.active]}>{item.icon}</Text><Text style={[s.navLabel, tab === item.id && s.active]}>{item.title}</Text>{tab === item.id && <View style={s.activeLine} />}</Pressable>)}</View>
+    <View style={s.nav} accessibilityRole="tablist">{tabs.map(item => <Pressable key={item.id} accessibilityRole="tab" accessibilityLabel={item.title} accessibilityState={{ selected: tab === item.id }} onPress={() => setTab(item.id)} style={({ pressed }) => [s.navItem, pressed && ui.pressed]}>{item.id === 'flights' ? <GliderMark color={tab === item.id ? '#00c8ff' : colors.muted} /> : item.id === 'club' ? <ClubMark color={tab === item.id ? '#00c8ff' : colors.muted} /> : <Text style={[s.navIcon, tab === item.id && s.active]}>{item.icon}</Text>}<Text style={[s.navLabel, tab === item.id && s.active]}>{item.title}</Text>{tab === item.id && <View style={s.activeLine} />}</Pressable>)}</View>
     <Modal visible={sheet !== null || detail !== null} animationType="slide" onRequestClose={() => { setDetail(null); setSheet(null); }}>
       <SafeAreaView style={s.modal}><StatusBar barStyle="light-content" /><View style={s.modalBar}><Action secondary onPress={() => { setDetail(null); setSheet(null); }}>‹ Zurück</Action><Label style={{ flex: 1, fontWeight: '600' }}>{detail ? 'Flugdetails' : sheet === 'books' ? 'Papierflugbuch' : sheet === 'tools' ? 'Entwicklungswerkzeuge' : 'MoFlight'}</Label></View>
         {sheet === 'tools' ? <LabApp /> : sheet === 'books' ? <View style={{ flex: 1, backgroundColor: '#f5f7fb' }}><BookLab close={() => setSheet(null)} /></View> : <ScrollView contentContainerStyle={s.canvas}>

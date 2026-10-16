@@ -2,6 +2,16 @@ import React from 'react';
 import { ImageBackground, Pressable, StyleSheet, Text, View, type ImageSourcePropType, type StyleProp, type ViewStyle } from 'react-native';
 
 export const colors = { background: '#020f19', card: '#091f32', raised: '#102a43', border: '#254761', text: '#f5f7ff', muted: '#adbed5', blue: '#279bff', cyan: '#46ccff', purple: '#231e63', orange: '#ff772b', green: '#48dba5' };
+export function GliderMark({ color = colors.text, large = false }: { color?: string; large?: boolean }) {
+  return <View accessible={false} style={{ width: large ? 68 : 28, height: 30, transform: [{ rotate: '-12deg' }] }}>
+    <View style={{ position: 'absolute', width: large ? 66 : 28, height: 2, top: 11, backgroundColor: color, borderRadius: 2 }} />
+    <View style={{ position: 'absolute', width: 2, height: 27, top: 0, left: large ? 33 : 13, backgroundColor: color, borderRadius: 2, transform: [{ rotate: '-22deg' }] }} />
+    <View style={{ position: 'absolute', width: large ? 18 : 10, height: 2, top: 24, left: large ? 29 : 10, backgroundColor: color, borderRadius: 2 }} />
+  </View>;
+}
+export function ClubMark({ color = colors.muted }: { color?: string }) {
+  return <View accessible={false} style={{ width: 28, height: 30 }}>{[2, 14].map((left, index) => <View key={left} style={{ position: 'absolute', left, top: index ? 3 : 0 }}><View style={{ width: 8, height: 8, borderWidth: 1.5, borderColor: color, borderRadius: 4, marginLeft: 2 }} /><View style={{ width: 12, height: 16, borderWidth: 1.5, borderColor: color, borderRadius: 4, marginTop: 2 }} /></View>)}</View>;
+}
 export function Label({ children, muted = false, style, selectable }: { children: React.ReactNode; muted?: boolean; style?: StyleProp<import('react-native').TextStyle>; selectable?: boolean }) {
   return <Text selectable={selectable} style={[ui.text, muted && ui.muted, style]}>{children}</Text>;
 }
