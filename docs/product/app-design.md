@@ -1,6 +1,6 @@
 # MoFlight app design
 
-Version: **0.18 — Start paper-book overview revised; summary proposal under review**. Updated: 2026-10-16 (Europe/Berlin). Product/design decisions: Manuel. This is a living design description; Git preserves revisions and the change log records meaningful decisions. A draft version is not approval of the entire design.
+Version: **0.19 — Very compact paper-book indicators selected; layout review continues**. Updated: 2026-10-16 (Europe/Berlin). Product/design decisions: Manuel. This is a living design description; Git preserves revisions and the change log records meaningful decisions. A draft version is not approval of the entire design.
 
 ## Purpose and task boundary
 
@@ -55,21 +55,17 @@ The [comparison preview source](prototypes/2026-10-16-year-comparison.html) pres
 
 For the selected bars: label the same date interval for both years (example: 1 January through 16 October), use available saved evidence, and keep incomplete coverage/missing durations visible. Do not call a partial known-time total complete flight time. Do not present missing prior-year evidence as zero; suppress percentage change when the prior baseline is zero or unknown. Choose a shared scale ceiling from both years' available values rather than capping at last year's total; the higher current/prior value must fit. Exact unknown-state layout and rounding remain for contract review. Tapping should retain the selected metric and comparison context in Flüge, consistent with the existing journey map.
 
-## Start paper-book overview — proposal under review
+## Start paper-book overview — very compact indicators
 
-Confirmed boundary: compact overview on Start; book selector, last-entry details, book-specific status and “Buchstand prüfen” stay inside Papierbuch.
+Confirmed boundary: overview on Start; book selector, last-entry details, book-specific status and “Buchstand prüfen” stay inside Papierbuch. On 2026-10-16 Manuel accepted the overview direction but requested a very compact presentation, suggesting symbols with highlights for update/check needs and counts for items requiring correction. This supersedes the multi-line text-card proposal from v0.18.
 
-Proposed boxed card, using fictional example values:
+Proposed rendering: one shallow boxed row, a book symbol and short Papierbücher label, then compact status symbols/badges. Illustrative text fallback (fictional values):
 
-> **Papierbücher · 3 Bücher**
->
-> **2 Bücher mit offenen Einträgen**
->
-> 12 Bucheinträge vorzubereiten
->
-> **Papierbücher öffnen →**
+> Papierbücher · [Prüfen ↻] · [Klärfälle ⚠ 2] · ›
 
-The primary action opens the Papierbuch destination; its previously selected last-used-book default and top selector remain. Overview measures and exact button copy are engineer proposals. Count book entries, not unique flights: a source flight linked to two books can require two independent entries. Do not sum incompatible format totals or treat one book's assumed progress as another's confirmed evidence. Unknown/pending-review book status must remain visible rather than producing a misleading zero or “all up to date”; partial known totals need an explicit qualification. Exact count eligibility, freshness, no-book and uncertain-state presentation remain for the detailed contract. Counts do not prove that handwritten books have been checked.
+Use a highlight for an update/check need and a small numeric badge for items needing review/correction. Symbols are suggested by Manuel; exact icon shapes, categories, labels and badge rules remain proposed. Omit explanatory paragraphs, book names, last entries, selector and a large separate action button from Start. The row opens Papierbuch, which retains its last-used-book default and top selector; it does not itself refresh data or confirm corrections. Provide meaningful accessible labels for icons and counts.
+
+Keep refresh/check needs distinct from known correction/review cases. These are book-scoped issues, not necessarily unique flights: a source flight linked to two books can require independent action in both. Exact counting/deduplication within a badge remains open. Do not sum incompatible format totals or treat one book's assumed progress as another's confirmed evidence. Unknown/pending-review book status must remain visible rather than producing a misleading zero or “all up to date”; partial known counts need qualification. Exact freshness, no-book and uncertain-state presentation remain for contract review. Counts do not prove that handwritten books have been checked.
 
 ## Review queue — one question at a time
 
@@ -79,7 +75,7 @@ The primary action opens the Papierbuch destination; its previously selected las
 | 2 | Start density: what should be visible immediately, and what belongs behind a tap? | Confirmed 2026-10-16: option 2, compact overview of all three areas; tap for details; preserve flying-first/paper-second order |
 | 3 | Header content and action hierarchy, including retrieval access | Confirmed 2026-10-16: option 1, Refresh + Profile; retain compact page title and contextual Back |
 | 4 | Flight-summary presentation: year/comparison, aircraft and duration views; treatment of all-time totals and ring | Totals strip retained on Start; paired comparison bars selected 2026-10-16 for flights/known time. Aircraft/duration views remain in confirmed journey scope; remaining detail is open |
-| 5 | Papierbuch overview and next action: active book, evidence/assumed progress, pending work | Revised: Start overview only; all details/selector inside Papierbuch, which retains last-used-book default. Cross-book summary counts/copy proposed, not selected. Preserve separate same-format volumes; detailed fields, selector/fallback and unfinished-work switching remain open |
+| 5 | Papierbuch overview and next action: active book, evidence/assumed progress, pending work | Start: very compact overview, suggested symbols/highlights for update/check needs and count badges for review/correction; exact icons/count semantics open. Details/selector inside Papierbuch retain last-used-book default. Preserve independent books; detailed fields, selector/fallback and unfinished-work switching remain open |
 | 6 | Compact club summary and paths to details | Confirmed 2026-10-16: one persistent symbol row; stable positions, subdued when inactive, highlighted for changes/upcoming items; details in Verein. Exact grouping and state semantics remain open |
 | 7 | Destination layouts, details, filters, back behavior and representative states | Flüge tab default: compact statistics above searchable/filterable flights; compact rows in boxed day groups, tap for details. Row fields accepted for now: aircraft/model + duration; departure time/airfield/own role beneath. Compact missing-data notice on Start opens affected flights; mark their rows. Flight details: one scrollable page of boxed aircraft, times/route, people/roles and source sections, with header Back. Start charts retain direct corresponding detail entry. Formatting and remaining destination/state behavior open |
 | 8 | Reusable spacing, type, controls and phone-size review | Open; test narrow widths, larger text, scroll clearance and meaningful labels |
@@ -108,3 +104,4 @@ Review loading, empty, offline, stale, incomplete, unknown, error, cancel and re
 | 0.16 | 2026-10-16 | Manuel selected last-used book overview with top selector and explicitly reiterated multiple paper books per pilot/user. Preserve separate book identity and progress, including same-format volumes; production architecture remains gated. |
 | 0.17 | 2026-10-16 | Manuel answered “1.” to multiple books on Start: one selected book's summary with a visible switcher; no separate summary card per book. |
 | 0.18 | 2026-10-16 | Manuel revised Start to overview only, with all details/book selector in Papierbuch. Supersedes selected-book card/switcher on Start; proposed a compact cross-book status card for review. No shared-selection answer was given or inferred. |
+| 0.19 | 2026-10-16 | Manuel accepted the overview direction but requested a very compact view, suggesting symbols with highlights for update needs and counts for things to correct. Replaced the multi-line proposal with a shallow indicator-row proposal. Requested no unnecessary tests. |
