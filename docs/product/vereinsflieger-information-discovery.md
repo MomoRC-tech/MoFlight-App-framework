@@ -43,6 +43,7 @@ The first three categories have manual and observed UI evidence in the [discover
 | Instructor, Flugleiter and other duty assignments | Next-week/next-weekend planning | Personal/all-upcoming/club views inspected. Historical instructor/flight-leader assignments and pagination verified; upcoming emptiness explained by Manuel's seasonal cutoff. Timezone, identifiers and complete permission scope remain unresolved. |
 | Club calendar/training events | Dates of planned activities | Manual documents timed/all-day events, scoped visibility and selected-category ICS/iCal subscriptions; live fields/feed, timezone and freshness remain unverified. See the [manual workflow follow-up](../verification/2026-10-10-vereinsflieger-manual-workflows.md). |
 | Operational notices/status | Relevant published club information | Unverified; available categories and permission scope unknown. |
+| Documented medical entries (intended source) | Compact personal reminder only; does not certify fitness or provider verification | Hard-coded fictional preview fixtures; Manuel reports Vereinsflieger personal data as the intended source location, but it is not verified or connected. No medical fields or source contract have been established in this discovery. Source availability, permission and semantics remain an explicit gap. Do not collect medical documents as part of flight capture. |
 
 ### Official public-feature lead — 2026-10-09
 

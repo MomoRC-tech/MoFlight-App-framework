@@ -1,10 +1,10 @@
 # MoFlight screen content and placement
 
-Version **0.3**, 2026-10-16. Owner: Manuel. Working inventory for review, independent of visual styling. Git preserves revisions. Stable IDs let us change individual placements without describing an entire screen again.
+Version **0.4**, 2026-10-16. Owner: Manuel. Working inventory for review, independent of visual styling. Git preserves revisions. Stable IDs let us change individual placements without describing an entire screen again.
 
 ## Purpose and authority
 
-M1 discovery deliverable: state **what information belongs on which screen, in which logical area, and where an action leads**. Dependencies: the [reviewed journeys/information needs](2026-10-13-journey-information-map.md), the latest explicit placement choices recorded in [app-design.md](app-design.md), and the [v0.25 preview](prototypes/2026-10-16-clickable-v025.html). Existing Issues #9 and #11 were checked open on this date; no new Issue is needed.
+M1 discovery deliverable: state **what information belongs on which screen, in which logical area, and where an action leads**. Dependencies: the [reviewed journeys/information needs](2026-10-13-journey-information-map.md), the latest explicit placement choices recorded in [app-design.md](app-design.md), and the [v0.26 preview](prototypes/2026-10-16-clickable-v026.html). Existing Issues #9 and #11 were checked open on this date; no new Issue is needed.
 
 This file is the working content-placement record; app-design.md covers appearance and its visual decision history. The journey map explains user goals and required behavior; the roadmap controls delivery. Review acceptance: Manuel can identify, add, move or remove information by ID; each selected item has a destination/scope, and unresolved placements are visible. Creating this inventory neither approves new placement proposals nor completes M1.
 
@@ -19,13 +19,13 @@ No colors, icons, card shapes, typography, charts or pixel measurements are spec
 | G01 | Header | Current destination or Start branding; contextual Back on subordinate screens | Selected |
 | G02 | Header, sync control | Source-data freshness state and last successful retrieval date/time; action requests refresh. Do not imply paper progress or cross-device sync is current | Selected; freshness policy/scope open |
 | G03 | Header, profile entry | Open profile/account/settings | Selected; settings content partly draft |
-| G04 | Main navigation | Start, Flüge, Papierbuch, Verein; retain destination context | Selected |
+| G04 | Main navigation | Start, Flüge, Logbuch, Verein and Wetter; retain destination context. Logbuch is a short tab label for the existing Papierbuch destination, whose page title and flows remain Papierbuch | v0.26 draft |
 | G05 | Guided paper-book steps | Book identity and Back; main navigation hidden while checking/reviewing/preparing | Selected |
 | G06 | Relevant data section | Missing/unknown values, incomplete coverage, stale/unavailable state and appropriate next action; failed refresh retains saved information | Required; exact presentation open |
 
 ## Start — overview and entry points
 
-Order: Meine Saison (flying totals, aircraft breakdown, monthly count chart and annual work hours) → paper-book overview → club overview. The v0.25 prototype presents Manuel's selected season-content and monthly-chart revision; bounded synthetic browser observations are recorded in the [preview report](../verification/2026-10-16-season-monthly-preview.md), while Manuel's visual review remains pending.
+Order: Meine Saison (flying totals, aircraft breakdown, monthly count chart, goals and medical indicator) → paper-book overview → club overview. The v0.26 prototype adds year-scoped user goals, a compact medical indicator, and Wetter placeholder; browser observations are recorded in the [v0.26 report](../verification/2026-10-16-weather-goals-medical-preview.md), while Manuel's visual review remains pending.
 
 | ID | Area / order | Information shown | Action / destination | Status |
 | --- | --- | --- | --- | --- |
@@ -40,10 +40,13 @@ Order: Meine Saison (flying totals, aircraft breakdown, monthly count chart and 
 | S09 | Club notices | New news/documents, own assigned tasks, upcoming events; distinguish inactive from relevant/unknown | Corresponding Verein information | Selected summary; grouping/new-state/upcoming rules open |
 | S10 | Club overview, flight operation | Current/upcoming Fluglehrer, Flugleiter and Windenfahrer assignments through the following week's weekend | Full flight-operation overview in Verein | Required / placement open: compact Start information is in the journey map but absent from v0.23 |
 | S11 | Season, expanded below aircraft breakdown | Monthly flight-count comparison for current year and prior year, month by month | Tap a month for exact counts and its contributing flights in Flüge | Selected for v0.25 prototype; empty/future/current-partial month states must not imply zero or complete coverage |
+| S12 | Season, around annual metrics | User's target for 2026 flight count and known flight time; annual Soll-Arbeitsstunden target is separate from completed hours shown as a Vereinsflieger example | Edit targets in Profile; inspect completed-hour example in Verein | v0.26 draft; synthetic values only, future year selector and live source mapping open |
+| S13 | Season heading | Compact pulse symbol with one badge showing total documented medical entries (example: 2) and only the earliest recorded expiry date | Open medical details in Profile; show Klasse 2/LAPL entry names and dates there | v0.26 draft; synthetic fixtures; intended source location reported by Manuel but unverified; date/state policy as described in app-design |
+| S14 | Wetter destination | Placeholder page only; no defined weather content, data source or provider | Destination stub | v0.26 placeholder; scope and provider open |
 
 **Not directly on Start:** book selector, book names/last-entry details, flight-by-flight data, complete duty rosters, account balances, license/training details. Earlier saved-history totals are no longer on Start; obtain them from the all-years scope in Flüge. Book-specific progress remains separate even when S06 summarizes work across books.
 
-S02–S04 and S11 use the selected current-year scope. Keep total count/time and per-aircraft breakdown close together with minimal repeated text. Manuel selected separate aircraft rows with short distinguishing suffixes when aircraft share a model label; do not merge their identities or totals. Exact suffix convention remains open. Known-time totals and per-aircraft missing durations remain distinguishable from complete flight time. S11 compares current-year and prior-year flight counts for each month. The current month is partial; future months are empty, not zero. Months with no fixture/coverage are unknown or unrepresented, not evidence of no flights. Tapping a month shows exact counts and contributing flights. The selected chart is count-only; a time-comparison toggle is a possible later proposal, not part of v0.25. Moving S08 changes the Start entry point; full work-hour details remain in Verein. Exact overflow behavior remains open.
+S02–S04 and S11 use the selected current-year scope. Keep total count/time and per-aircraft breakdown close together with minimal repeated text. Manuel selected separate aircraft rows with short distinguishing suffixes when aircraft share a model label; do not merge their identities or totals. Exact suffix convention remains open. Known-time totals and per-aircraft missing durations remain distinguishable from complete flight time. S11 compares current-year and prior-year flight counts for each month. The current month is partial; future months are empty, not zero. Months with no fixture/coverage are unknown or unrepresented, not evidence of no flights. Tapping a month shows exact counts and contributing flights. The selected chart is count-only; a time-comparison toggle is a possible later proposal, not part of v0.25. S12 goals are user-entered local preview settings fixed to 2026 in v0.26, not provider-reported results. Completed work hours and the user's annual Soll target are separate values; target editing is in Profile, detail inspection in Verein. S13 shows one total-entry badge and the earliest recorded expiry date, including expired dates; class names and dates appear in Profile details. Status thresholds and neutral unknown/empty presentation are preview rules, not provider or legal validation. Medical dates are synthetic; Manuel reported an intended source location but it is unverified and unconnected. Wetter remains a destination stub only. Exact overflow behavior remains open.
 
 ## Flüge — list entry
 
@@ -114,18 +117,21 @@ These information needs were reviewed earlier. The v0.23 club page is only a sma
 | P03 | Retrieval request | Last successful update and proposed adjustable period; first retrieval defaults to current and previous year, subsequent request suggests since last success | Required; request-panel placement open; not proof of safe delta retrieval |
 | P04 | Retrieval in progress/result | Progress, cancellation, completion/failure, retained saved data, retry and recovery when relevant | Required / placement open; prototype only has scripted status examples |
 | P05 | Preferences | App-language preference and relevant display choices | Draft: German UI first; English option later; exact settings not selected |
+| P06 | Profile, season targets | User-editable 2026 flight-count goal, known-flight-time goal and annual Soll-Arbeitsstunden; targets are scoped to the season/year and saved only in this synthetic preview | Edit local values; Start reflects 2026 goals | v0.26 draft; example defaults only, year switching and provider sync are not implemented |
+| P07 | Profile, medical details | Synthetic documented medical entries with class and recorded expiry date; show Klasse 2 and LAPL separately, including expired dates | Open from season pulse indicator; record details remain unverified | v0.26 draft; Manuel reported Vereinsflieger personal data as intended source location, but fields/authorization/validation are unverified |
 
 ## Placement backlog and deliberate omissions
 
 | ID | Information | Current decision / next placement work |
 | --- | --- | --- |
-| O01 | Costs | Desired outputs: yearly flying costs separate from membership/other charges, then total flying costs per aircraft. Exact entry point/destination open; billing inspection/semantics deferred. Do not add a fifth main destination by assumption |
+| O01 | Costs | Desired outputs: yearly flying costs separate from membership/other charges, then total flying costs per aircraft. Exact entry point/destination open; billing inspection/semantics deferred. Do not add an extra costs destination by assumption |
 | O02 | Account balances | Detailed costs only; not Start and not a flight-cost total |
 | O03 | License/training status | Detailed Flüge area only; exact access/position open and absent from v0.23. Do not infer that a provider indicator is qualification certification |
 | O04 | Duty placement gaps | S10 flight-operation Start summary and later-own-duty preview extent still need a placement review; prototype omissions do not delete confirmed needs |
-| O05 | Deferred concepts | Activities live, chat/AI, tutor and weather retain roadmap gates; no new Start item or implementation scheduled here |
+| O05 | Deferred concepts | Weather navigation placeholder is selected for v0.26; weather content/provider/integration remain deferred. Activities live, chat/AI and tutor retain their roadmap gates; no weather Start item or implementation is scheduled here |
 | O06 | Excluded for now | Runway condition, defects and maintenance; birthdays excluded from relevant club events |
 | O07 | Own reservations | User's reservations/resources and dates, details-only. Exact destination open; absent from the current prototype |
+| O08 | Medical-data source gap | Current prototype uses synthetic records; Manuel reported the intended source location as Vereinsflieger personal data, but no fields are connected or verified. Authorization, semantics and any independent validation path remain open; do not present the pulse as provider-verified status |
 
 ## How we review changes
 
@@ -138,3 +144,4 @@ Use an ID and a plain request, for example: “Move S04 into Flüge,” “Add t
 | 0.1 | 2026-10-16 | Extracted current choices and unresolved needs into a design-independent screen-content inventory at Manuel's request. No new feature, field or placement approved by extraction |
 | 0.2 | 2026-10-16 | Recorded Manuel's requested season revision: move annual work hours into Meine Saison; retain yearly count/time and add close, compact per-aircraft count/time breakdown using short labels. Manuel selected separate aircraft with short suffixes when models repeat. Graphic treatment remains proposed; v0.23 preview unchanged |
 | 0.3 | 2026-10-16 | Recorded the selected season graphic and expandable monthly count comparison for v0.25: paired current/prior counts by month below aircraft rows, month tap to exact counts/contributing flights, future months empty and current month partial. Optional time toggle remains a later proposal. Bounded browser observations are recorded separately; visual review remains pending |
+| 0.4 | 2026-10-16 | Added the v0.26 Wetter placeholder destination, Logbuch tab label for the existing Papierbuch flow, editable local 2026 goals distinct from reported club work hours, and a synthetic medical summary/details fixture with explicit neutral/unknown and expiry states. Manuel reported the intended source location; provider fields remain unverified; browser observations are recorded separately |
