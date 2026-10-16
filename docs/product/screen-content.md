@@ -1,10 +1,10 @@
 # MoFlight screen content and placement
 
-Version **0.2**, 2026-10-16. Owner: Manuel. Working inventory for review, independent of visual styling. Git preserves revisions. Stable IDs let us change individual placements without describing an entire screen again.
+Version **0.3**, 2026-10-16. Owner: Manuel. Working inventory for review, independent of visual styling. Git preserves revisions. Stable IDs let us change individual placements without describing an entire screen again.
 
 ## Purpose and authority
 
-M1 discovery deliverable: state **what information belongs on which screen, in which logical area, and where an action leads**. Dependencies: the [reviewed journeys/information needs](2026-10-13-journey-information-map.md), the latest explicit placement choices recorded in [app-design.md](app-design.md), and the [v0.23 preview](prototypes/2026-10-16-clickable-v023.html). Existing Issues #9 and #11 were checked open on this date; no new Issue is needed.
+M1 discovery deliverable: state **what information belongs on which screen, in which logical area, and where an action leads**. Dependencies: the [reviewed journeys/information needs](2026-10-13-journey-information-map.md), the latest explicit placement choices recorded in [app-design.md](app-design.md), and the [v0.25 preview](prototypes/2026-10-16-clickable-v025.html). Existing Issues #9 and #11 were checked open on this date; no new Issue is needed.
 
 This file is the working content-placement record; app-design.md covers appearance and its visual decision history. The journey map explains user goals and required behavior; the roadmap controls delivery. Review acceptance: Manuel can identify, add, move or remove information by ID; each selected item has a destination/scope, and unresolved placements are visible. Creating this inventory neither approves new placement proposals nor completes M1.
 
@@ -25,11 +25,11 @@ No colors, icons, card shapes, typography, charts or pixel measurements are spec
 
 ## Start — overview and entry points
 
-Order: Meine Saison (flying totals, aircraft breakdown and annual work hours) → paper-book overview → club overview. Manuel requested the season-content revision after reviewing v0.23; the existing preview does not yet show it. Graphic treatment is proposed separately in app-design.md.
+Order: Meine Saison (flying totals, aircraft breakdown, monthly count chart and annual work hours) → paper-book overview → club overview. The v0.25 prototype presents Manuel's selected season-content and monthly-chart revision; bounded synthetic browser observations are recorded in the [preview report](../verification/2026-10-16-season-monthly-preview.md), while Manuel's visual review remains pending.
 
 | ID | Area / order | Information shown | Action / destination | Status |
 | --- | --- | --- | --- | --- |
-| S01 | Season heading | Meine Saison and current year | Context for S02–S05 and S08 | Selected content direction |
+| S01 | Season heading | Meine Saison and current year | Context for S02–S05, S08 and S11 | Selected |
 | S02 | Flying summary | This year's flight count; compact comparison with the same period last year | Count analysis and contributing flights in Flüge | Selected |
 | S03 | Flying summary | This year's known flight time; number of flights with unknown duration | Time analysis, prior-year comparison and contributing flights | Selected; prior-year time comparison is in details |
 | S04 | Season, close to flying totals | Compact breakdown of this year's flights by individual aircraft: short label such as ASK21, DG1000 or Astir; flight count and known flight time for each; short distinguishing suffix for same-model aircraft | Aircraft-specific analysis and contributing flights | Requested content direction; replaces most-flown-aircraft-only summary. Separate aircraft with short suffix selected; exact suffix convention open |
@@ -39,10 +39,11 @@ Order: Meine Saison (flying totals, aircraft breakdown and annual work hours) �
 | S08 | Season metrics, alongside flying overview | Annual work hours completed and obligation | Work-hour details in Verein | Requested move from club overview; source meanings/freshness unverified |
 | S09 | Club notices | New news/documents, own assigned tasks, upcoming events; distinguish inactive from relevant/unknown | Corresponding Verein information | Selected summary; grouping/new-state/upcoming rules open |
 | S10 | Club overview, flight operation | Current/upcoming Fluglehrer, Flugleiter and Windenfahrer assignments through the following week's weekend | Full flight-operation overview in Verein | Required / placement open: compact Start information is in the journey map but absent from v0.23 |
+| S11 | Season, expanded below aircraft breakdown | Monthly flight-count comparison for current year and prior year, month by month | Tap a month for exact counts and its contributing flights in Flüge | Selected for v0.25 prototype; empty/future/current-partial month states must not imply zero or complete coverage |
 
 **Not directly on Start:** book selector, book names/last-entry details, flight-by-flight data, complete duty rosters, account balances, license/training details. Earlier saved-history totals are no longer on Start; obtain them from the all-years scope in Flüge. Book-specific progress remains separate even when S06 summarizes work across books.
 
-S02–S04 share the current-year scope; keep total count/time and aircraft breakdown close together with minimal repeated text. Manuel selected separate rows with short distinguishing suffixes when two aircraft share a model label; do not merge their identities or totals. Exact suffix convention remains open. Known-time totals and per-aircraft missing durations remain distinguishable from complete flight time. Moving S08 changes the Start entry point; full work-hour details remain in Verein. Exact graphics, row order and overflow behavior are proposals, not selected placements.
+S02–S04 and S11 use the selected current-year scope. Keep total count/time and per-aircraft breakdown close together with minimal repeated text. Manuel selected separate aircraft rows with short distinguishing suffixes when aircraft share a model label; do not merge their identities or totals. Exact suffix convention remains open. Known-time totals and per-aircraft missing durations remain distinguishable from complete flight time. S11 compares current-year and prior-year flight counts for each month. The current month is partial; future months are empty, not zero. Months with no fixture/coverage are unknown or unrepresented, not evidence of no flights. Tapping a month shows exact counts and contributing flights. The selected chart is count-only; a time-comparison toggle is a possible later proposal, not part of v0.25. Moving S08 changes the Start entry point; full work-hour details remain in Verein. Exact overflow behavior remains open.
 
 ## Flüge — list entry
 
@@ -136,3 +137,4 @@ Use an ID and a plain request, for example: “Move S04 into Flüge,” “Add t
 | --- | --- | --- |
 | 0.1 | 2026-10-16 | Extracted current choices and unresolved needs into a design-independent screen-content inventory at Manuel's request. No new feature, field or placement approved by extraction |
 | 0.2 | 2026-10-16 | Recorded Manuel's requested season revision: move annual work hours into Meine Saison; retain yearly count/time and add close, compact per-aircraft count/time breakdown using short labels. Manuel selected separate aircraft with short suffixes when models repeat. Graphic treatment remains proposed; v0.23 preview unchanged |
+| 0.3 | 2026-10-16 | Recorded the selected season graphic and expandable monthly count comparison for v0.25: paired current/prior counts by month below aircraft rows, month tap to exact counts/contributing flights, future months empty and current month partial. Optional time toggle remains a later proposal. Bounded browser observations are recorded separately; visual review remains pending |
