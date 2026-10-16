@@ -90,7 +90,7 @@ function Shell() {
     {library.busy && <ActivityIndicator color={colors.cyan} accessibilityLabel="Lokale Flüge laden" />}
     {library.error && <View accessibilityLiveRegion="polite"><Label style={{ color: '#ffbd9b' }}>{library.error}</Label><Action secondary onPress={() => void library.reload()}>Erneut versuchen</Action></View>}
   </View>;
-  const heading = (title: string, image = mountain, subtitle?: string) => <Photo source={image} style={s.header}>
+  const heading = (title: string, image = mountain, subtitle?: string, tint?: string) => <Photo source={image} style={s.header} tint={tint}>
     <View style={s.headerTop}><Text accessibilityRole="header" style={ui.title}>{title}</Text><Pressable accessibilityRole="button" accessibilityLabel="Entwicklungswerkzeuge öffnen" onPress={() => setSheet('tools')} style={s.toolButton}><Label style={{ fontSize: 20 }}>⚙</Label></Pressable></View>
     {subtitle && <Label>{subtitle}</Label>}
   </Photo>;
@@ -111,14 +111,14 @@ function Shell() {
         <ScrollView contentContainerStyle={s.canvas} keyboardShouldPersistTaps="handled">
           {heading('MoFlight ─✈', mountain, 'Guten Tag! Bereit für neue Horizonte?')}
           <Card style={s.paper} onPress={openBooks} label="Papierflugbuch aktualisieren">
-            <Photo source={sunset} style={s.paperPhoto}><Label style={s.eyebrow}>▱  PAPIERFLUGBUCH AKTUALISIEREN</Label><Label style={{ fontSize: 20, fontWeight: '700' }}>{library.pending === null ? 'Flugbuch auswählen' : `${library.pending} Einträge ohne Papiernachweis`}</Label><Label>Jetzt abgleichen und digitalisieren.</Label><View style={s.orangeButton}><Label style={{ color: '#211007', fontWeight: '700' }}>Flüge jetzt erfassen  →</Label></View></Photo>
+            <Photo source={sunset} style={s.paperPhoto} tint="#7a330a77"><Label style={s.eyebrow}>▱  PAPIERFLUGBUCH AKTUALISIEREN</Label><Label style={{ fontSize: 20, fontWeight: '700' }}>{library.pending === null ? 'Flugbuch auswählen' : `${library.pending} Einträge ohne Papiernachweis`}</Label><Label>Jetzt abgleichen und digitalisieren.</Label><View style={s.orangeButton}><Label style={{ color: '#211007', fontWeight: '700' }}>Flüge jetzt erfassen  →</Label></View></Photo>
           </Card>
           <View style={compact ? s.stacked : ui.grid}>
             <Card style={{ flex: 1.4 }} onPress={() => { setYear(currentYear); setTab('flights'); }} label={`Deine Saison ${currentYear}, Flüge öffnen`}>
               <Section title="Deine Saison" /><Label muted>{currentYear} · gespeicherte Flüge</Label>
               <View style={ui.grid}><Metric value={String(season.count)} label="Flüge" /><Metric value={formatDuration(season.knownMinutes)} label="bekannte Std." /></View>
               <Label muted style={{ fontSize: 12 }}>Abdeckung unbestätigt · kein Vorjahresvergleich</Label>
-              {!compact && <View style={s.rings}><View style={s.ring}><Label style={{ fontSize: 19, fontWeight: '700' }}>{season.count}</Label><Label muted style={{ fontSize: 10 }}>Flüge</Label></View><View style={[s.ring, { borderColor: colors.green }]}><Label style={{ fontSize: 17, fontWeight: '700' }}>{formatDuration(season.knownMinutes)}</Label><Label muted style={{ fontSize: 10 }}>bekannte h</Label></View></View>}
+              {!compact && season.count < 1000 && formatDuration(season.knownMinutes).length <= 5 && <View style={s.rings}><View style={s.ring}><Label style={{ fontSize: 19, fontWeight: '700' }}>{season.count}</Label><Label muted style={{ fontSize: 10 }}>Flüge</Label></View><View style={[s.ring, { borderColor: colors.green }]}><Label style={{ fontSize: 17, fontWeight: '700' }}>{formatDuration(season.knownMinutes)}</Label><Label muted style={{ fontSize: 10 }}>bekannte h</Label></View></View>}
               {season.unknownDurationCount > 0 && <Label muted>{season.unknownDurationCount} Zeiten unbekannt</Label>}
             </Card>
             <Card style={s.aiTeaser} onPress={() => ask('Mit welchem Flugzeug bin ich am häufigsten geflogen?')} label="MoFlight AI öffnen"><Text style={s.sparkle}>✦</Text><Section title="MoFlight AI" /><Label>Deine Flugdaten. Deine Fragen.</Label><Label muted>Assistent noch nicht verbunden.</Label><Text style={s.circleArrow}>→</Text></Card>
@@ -151,7 +151,7 @@ function Shell() {
       </View>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={[s.page, tab !== 'ai' && s.hidden]} accessibilityElementsHidden={tab !== 'ai'} importantForAccessibility={tab === 'ai' ? 'auto' : 'no-hide-descendants'}>
         <ScrollView contentContainerStyle={s.canvas} keyboardShouldPersistTaps="handled">
-          {heading('✦ MoFlight AI', mountain, 'Dein persönlicher Segelflug-Assistent')}
+          {heading('✦ MoFlight AI', mountain, 'Dein persönlicher Segelflug-Assistent', '#21144a77')}
           <Card style={s.welcome}><View style={ui.row}><View style={s.aiBadge}><Text style={{ fontSize: 20, color: '#062d39' }}>✧</Text></View><Section title="Hallo!" /></View><Label>Deine Fragen zu Flugdaten und Auswertungen an einem Ort.</Label><Label muted>Der sichere AI-Dienst ist noch nicht verbunden. Gespeicherte Flüge kannst du bereits im Flugbuch durchsuchen und auswerten.</Label><Action secondary onPress={() => setTab('flights')}>Gespeicherte Flüge ansehen  →</Action></Card>
           <Section title="Beispiel-Fragen" /><Label muted>Lokale Auswertung · ohne AI-Dienst</Label>
           <View style={s.questionGrid}>{quickQuestions.map((question, index) => <Pressable key={question} accessibilityRole="button" accessibilityLabel={`${question} Lokal auswerten`} onPress={() => localQuery(index)} style={({ pressed }) => [s.question, compact && { width: '100%' }, pressed && ui.pressed]}><Label style={{ fontSize: 13 }}>{question}</Label><Label style={{ color: colors.cyan, fontSize: 11 }}>Lokal auswerten  ›</Label></Pressable>)}</View>

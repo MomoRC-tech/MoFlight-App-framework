@@ -151,3 +151,13 @@ Use **Open multiple-logbook lab**, then **Load four synthetic books**, select a 
 In the access PoC, **Open bounded capture and resume** reads the observed profile number/current club label, asks for context confirmation, captures the recent own-list and up to three referenced details, and saves durable progress. Resume rechecks profile context and fresh own-list references. Club IDs, explicit period/paging/empty coverage and real canonical import remain gated. No credential field, contact field or billing section is captured.
 
 See [implementation and actual evidence](../../docs/verification/2026-10-11-recovery-books-and-capture.md) for checks and remaining gates.
+# Four-tab UI checkpoint — 16 October 2026
+
+The normal entry point now opens the approved Übersicht / Flüge / Verein / AI native shell. The header gear opens the original lab; the orange paper action opens the original multi-book workflow. Existing provider-session capture and backup tools remain available. No fixtures are loaded automatically.
+
+The shell reads the remembered **synthetic** SQLite pilot library and explicitly labels it. Select a book using its name on Übersicht or Flüge. Search, year, training-role filters, read-only details and deterministic local quick queries use that book's saved effective facts. Live canonical import, authenticated AI, weather and club services remain unconnected; the UI explains these gaps.
+
+After building and installing committed source on `MoFlight_Synthetic_API37`, run `python scripts/android_mobile_ui_smoke.py --serial emulator-5554 --output local-data/android-mobile-ui` from the repository root (with the SDK platform tools on PATH). Check the actual emulator serial first. The trial loads synthetic books through the existing visible lab action, captures screens, exercises tabs/filters/details/retry/offline restart and checks narrow/enlarged layouts. It never clears app data or targets another AVD. Existing `android_smoke.py` and `android_book_smoke.py` reach the original lab through the gear control.
+
+See [scope and contracts](../../docs/product/2026-10-16-four-screen-implementation.md), [reference](../../docs/product/design-sources/2026-10-16-four-screen/README.md) and [photo licenses](assets/aviation/README.md). No dependency or schema migration was introduced.
+

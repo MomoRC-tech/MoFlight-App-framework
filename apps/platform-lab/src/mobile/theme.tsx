@@ -21,9 +21,9 @@ export function Section({ title, action, onPress }: { title: string; action?: st
 export function Empty({ title, children }: { title: string; children: React.ReactNode }) {
   return <View style={ui.empty}><Label style={{ fontWeight: '600' }}>{title}</Label><Label muted>{children}</Label></View>;
 }
-export function Photo({ source, children, style }: { source?: ImageSourcePropType; children?: React.ReactNode; style?: StyleProp<ViewStyle> }) {
+export function Photo({ source, children, style, tint }: { source?: ImageSourcePropType; children?: React.ReactNode; style?: StyleProp<ViewStyle>; tint?: string }) {
   if (!source) return <View style={[ui.photo, style]}>{children}</View>;
-  return <ImageBackground source={source} resizeMode="cover" style={[ui.photo, style]} imageStyle={{ borderRadius: 16 }}><View style={ui.shade}>{children}</View></ImageBackground>;
+  return <ImageBackground source={source} resizeMode="cover" style={[ui.photo, style]} imageStyle={{ borderRadius: 16 }}><View style={[ui.shade, tint ? { backgroundColor: tint } : undefined]}>{children}</View></ImageBackground>;
 }
 export const ui = StyleSheet.create({
   text: { color: colors.text, fontSize: 14, lineHeight: 21 }, muted: { color: colors.muted },
