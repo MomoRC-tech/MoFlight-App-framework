@@ -96,7 +96,7 @@ See [product scope](docs/product/moflight-feature-scope.md), [writing presentati
 | Area | Where it stands |
 | --- | --- |
 | User journeys | Reviewed; detailed UI/application contracts remain open |
-| UI design | User-supplied Micro Bento is the preferred Start reference; mapping its compact tiles/style to earlier content choices is under review. Earlier v0.21 clickable checkpoint retained; overall screen acceptance and detailed contracts remain open |
+| UI design | Full Micro Bento Start arrangement selected: compact season tiles, numeric comparisons and larger paper-book overview/action card. Connected v0.23 draft available; detailed contracts and native acceptance remain open |
 | Native foundation | Expo/React Native lab with local SQLite, backup and bounded Android evidence |
 | Vereinsflieger access | Browser raw-capture and recovery proofs; complete canonical live history remains gated |
 | Statistics and books | Deterministic synthetic queries and multi-book proofs; live integration remains open |
@@ -120,9 +120,9 @@ Writing assistance has immediate product value; its place in the smallest useful
 
 ## Next action and unresolved decisions
 
-Review the [v0.21 clickable layout checkpoint](docs/product/prototypes/2026-10-16-clickable-v021.html) or its [standalone phone download](docs/product/prototypes/exports/moflight-design-v0.21.html) against the [versioned app design description](docs/product/app-design.md): header sync/freshness, lighter card canvas, flight list/details and separate paper-book state/selection. The draft uses fictional data and makes no provider requests. [Browser observations and limits](docs/verification/2026-10-16-clickable-layout.md) cover the bounded check. Continue open choices one question at a time before detailed operation/state contracts; the overall screen design remains under review.
+Review the [v0.23 Micro Bento checkpoint](docs/product/prototypes/2026-10-16-clickable-v023.html) or its [standalone phone download](docs/product/prototypes/exports/moflight-design-v0.23.html) against the [versioned app design description](docs/product/app-design.md): selected Start arrangement, visible sync freshness, connected flight list/details and independent paper-book state/selection. The draft uses fictional data and makes no provider requests. [Browser observations and limits](docs/verification/2026-10-16-clickable-layout.md) cover the bounded check. Detailed operation/state contracts and native application implementation remain open.
 
-Latest feedback: Manuel prefers the [supplied Micro Bento Start reference](docs/product/design-sources/2026-10-16-micro-bento/README.md). Design v0.22 records the preference; settle its content differences before adapting the clickable draft. The attachment is not blanket approval of its popup-only behavior or removal of earlier requirements.
+Latest decision: Manuel selected the whole [supplied Micro Bento Start arrangement](docs/product/design-sources/2026-10-16-micro-bento/README.md), including numeric comparisons and the larger paper card. Earlier drafts are retained; source placeholder popups are replaced with the reviewed destination flows, with multi-book/data boundaries preserved.
 
 Deferred ideas include [Activities live — #14](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/14), [in-app chat — #13](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/13), possible SPL tutoring and weather. Billing inspection is also deferred. No release date is promised.
 
