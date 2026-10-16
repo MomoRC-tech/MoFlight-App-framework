@@ -1,6 +1,6 @@
 # MoFlight app design
 
-Version: **0.17 — Single selected book on Start confirmed; layout review continues**. Updated: 2026-10-16 (Europe/Berlin). Product/design decisions: Manuel. This is a living design description; Git preserves revisions and the change log records meaningful decisions. A draft version is not approval of the entire design.
+Version: **0.18 — Start paper-book overview revised; summary proposal under review**. Updated: 2026-10-16 (Europe/Berlin). Product/design decisions: Manuel. This is a living design description; Git preserves revisions and the change log records meaningful decisions. A draft version is not approval of the entire design.
 
 ## Purpose and task boundary
 
@@ -27,8 +27,7 @@ These choices carry forward from the earlier design review, with the explicit vi
 - Year diagram presentation, confirmed 2026-10-16: paired horizontal bars for flight count and known flight time; current year thicker/cyan, prior year thinner/muted, with exact values and same-period comparison. This replaces the starter's ring; the comparison-ring alternative is not selected.
 - Papierbuch overview retains navigation; guided checking/review/template steps hide it and use header Back.
 - Papierbuch tab default, confirmed 2026-10-16: open the last-used book's overview, with its status and “Buchstand prüfen,” and a visible book selector at the top (option 1). Manuel explicitly reiterated that one pilot/user can own multiple paper books; never equate user identity with book identity. Support distinct books including successive volumes of the same format, consistent with the existing requirements. Switching books changes the displayed book's status: paper evidence, assumed writing progress, pending entries, photos, decisions and writing snapshots remain scoped to that book. Identify books by a stable book identity, not merely aircraft category/format. Exact selector presentation, first-book/no-book/removed-book fallback and switching during unfinished guided work remain open. This confirms product navigation and isolation requirements; ADR 0007 remains proposed and no production schema expansion is approved.
-- Papierbuch on Start, confirmed 2026-10-16: show the book name, last entry, pending count and “Buchstand prüfen” action. This selects the more contextual of the two compact-card options. Scope status to the displayed book; distinguish confirmed paper evidence from assumed writing progress. Exact last-entry fields, pending-count semantics, unknown/empty presentation and book-switch interaction remain for review.
-- Multiple books on Start, confirmed 2026-10-16: display one selected book's summary with a visible switcher (option 1), rather than a separate card for every book. Switching updates the name, last entry, pending count and action context together for that book; do not combine progress from other books. Selection persistence and coordination with the Papierbuch tab's last-used book remain to be specified.
+- Papierbuch on Start, revised by Manuel on 2026-10-16: show only an overview; all book details and the book selector belong in Papierbuch. This supersedes v0.8's per-book last-entry/action card and v0.17's selected-book switcher on Start. Do not introduce shared Start/Papierbuch selection: Start no longer selects a book. One user may still own multiple independent books; aggregate presentation must not merge their progress. Exact overview measures/copy are proposed below, not yet selected.
 - Additional club information on Start, confirmed 2026-10-16: a single compact summary row using symbols to indicate changes or upcoming items, rather than separate task/headline/event preview rows. This answers the question about tasks, news/documents and events alongside duties/work-hour progress; it does not remove the previously selected duty/work-hour content. Details remain in Verein. Numeric counts are not required by this answer. Symbols remain visible in stable positions: subdued when inactive, highlighted for relevant updates/upcoming items (option 1, confirmed 2026-10-16). Exact icon grouping, change/read semantics and upcoming horizon remain open; an unavailable or stale check must not imply that nothing is new or upcoming. Pair visual indicators with meaningful accessible labels; specific tap targets remain proposed for the next preview.
 - Flight filters open in a slide-up panel over the list.
 - Flüge tab default, confirmed 2026-10-16: flight list first, with compact statistics at the top followed by searchable/filterable flights (option 1). Tapping a Start chart still opens its corresponding metric details with comparison/filter context, rather than forcing the tab default. Exact list-row layout, initial period/order, searchable fields and query behavior remain for review. This selects presentation, not a new search implementation or provider capability.
@@ -56,6 +55,22 @@ The [comparison preview source](prototypes/2026-10-16-year-comparison.html) pres
 
 For the selected bars: label the same date interval for both years (example: 1 January through 16 October), use available saved evidence, and keep incomplete coverage/missing durations visible. Do not call a partial known-time total complete flight time. Do not present missing prior-year evidence as zero; suppress percentage change when the prior baseline is zero or unknown. Choose a shared scale ceiling from both years' available values rather than capping at last year's total; the higher current/prior value must fit. Exact unknown-state layout and rounding remain for contract review. Tapping should retain the selected metric and comparison context in Flüge, consistent with the existing journey map.
 
+## Start paper-book overview — proposal under review
+
+Confirmed boundary: compact overview on Start; book selector, last-entry details, book-specific status and “Buchstand prüfen” stay inside Papierbuch.
+
+Proposed boxed card, using fictional example values:
+
+> **Papierbücher · 3 Bücher**
+>
+> **2 Bücher mit offenen Einträgen**
+>
+> 12 Bucheinträge vorzubereiten
+>
+> **Papierbücher öffnen →**
+
+The primary action opens the Papierbuch destination; its previously selected last-used-book default and top selector remain. Overview measures and exact button copy are engineer proposals. Count book entries, not unique flights: a source flight linked to two books can require two independent entries. Do not sum incompatible format totals or treat one book's assumed progress as another's confirmed evidence. Unknown/pending-review book status must remain visible rather than producing a misleading zero or “all up to date”; partial known totals need an explicit qualification. Exact count eligibility, freshness, no-book and uncertain-state presentation remain for the detailed contract. Counts do not prove that handwritten books have been checked.
+
 ## Review queue — one question at a time
 
 | Order | Choice to settle | Current status |
@@ -64,7 +79,7 @@ For the selected bars: label the same date interval for both years (example: 1 J
 | 2 | Start density: what should be visible immediately, and what belongs behind a tap? | Confirmed 2026-10-16: option 2, compact overview of all three areas; tap for details; preserve flying-first/paper-second order |
 | 3 | Header content and action hierarchy, including retrieval access | Confirmed 2026-10-16: option 1, Refresh + Profile; retain compact page title and contextual Back |
 | 4 | Flight-summary presentation: year/comparison, aircraft and duration views; treatment of all-time totals and ring | Totals strip retained on Start; paired comparison bars selected 2026-10-16 for flights/known time. Aircraft/duration views remain in confirmed journey scope; remaining detail is open |
-| 5 | Papierbuch overview and next action: active book, evidence/assumed progress, pending work | Start shows one selected book's name, last entry, pending count and Buchstand prüfen, with a visible switcher. Papierbuch tab opens last-used book's overview with visible top selector. One user may own multiple books, including same-format volumes; preserve independent book state. Selection coordination, detailed fields, selector/fallback and unfinished-work switching remain open |
+| 5 | Papierbuch overview and next action: active book, evidence/assumed progress, pending work | Revised: Start overview only; all details/selector inside Papierbuch, which retains last-used-book default. Cross-book summary counts/copy proposed, not selected. Preserve separate same-format volumes; detailed fields, selector/fallback and unfinished-work switching remain open |
 | 6 | Compact club summary and paths to details | Confirmed 2026-10-16: one persistent symbol row; stable positions, subdued when inactive, highlighted for changes/upcoming items; details in Verein. Exact grouping and state semantics remain open |
 | 7 | Destination layouts, details, filters, back behavior and representative states | Flüge tab default: compact statistics above searchable/filterable flights; compact rows in boxed day groups, tap for details. Row fields accepted for now: aircraft/model + duration; departure time/airfield/own role beneath. Compact missing-data notice on Start opens affected flights; mark their rows. Flight details: one scrollable page of boxed aircraft, times/route, people/roles and source sections, with header Back. Start charts retain direct corresponding detail entry. Formatting and remaining destination/state behavior open |
 | 8 | Reusable spacing, type, controls and phone-size review | Open; test narrow widths, larger text, scroll clearance and meaningful labels |
@@ -92,3 +107,4 @@ Review loading, empty, offline, stale, incomplete, unknown, error, cancel and re
 | 0.15 | 2026-10-16 | Manuel answered “1.” to flight-detail arrangement: one scrollable page with boxed aircraft, times/route, people/roles and source sections; header Back retained. Internal detail tabs are not selected. |
 | 0.16 | 2026-10-16 | Manuel selected last-used book overview with top selector and explicitly reiterated multiple paper books per pilot/user. Preserve separate book identity and progress, including same-format volumes; production architecture remains gated. |
 | 0.17 | 2026-10-16 | Manuel answered “1.” to multiple books on Start: one selected book's summary with a visible switcher; no separate summary card per book. |
+| 0.18 | 2026-10-16 | Manuel revised Start to overview only, with all details/book selector in Papierbuch. Supersedes selected-book card/switcher on Start; proposed a compact cross-book status card for review. No shared-selection answer was given or inferred. |

@@ -84,3 +84,9 @@ Manuel selected the last-used book overview with a top book selector and reitera
 ## Version 0.17 decision follow-up
 
 Manuel answered “1.” to multiple books on Start: show one selected book's summary with a visible switcher. Preserved the previously selected summary fields and book isolation, without silently deciding cross-screen selection persistence. Reviewed the diff against the offered option and ran the staged whitespace check. No new links, application changes or isolation/native tests. Unrelated product-index/research edits remain excluded.
+
+## Version 0.18 Start overview revision
+
+Manuel reconsidered: Start should have only an overview; Papierbuch holds all details and the selector. Replaced the active v0.8/v0.17 Start-book requirements, keeping their historical change-log entries. No answer to shared-selection persistence was inferred. Last-used-book default inside Papierbuch and independent book progress remain.
+
+Proposed book count, books needing attention and pending book-entry count with one destination action; exact fields/copy remain under review. Independent GPT-6 Luna review confirmed the distinction between book-entry count and unique source flights and the need to expose unknown/stale status. Reviewed the diff for supersession, scope and unsupported approval claims; checked staged whitespace. No new file links or application changes; no native/data-isolation acceptance claimed. Unrelated product-index/research edits remain excluded.
