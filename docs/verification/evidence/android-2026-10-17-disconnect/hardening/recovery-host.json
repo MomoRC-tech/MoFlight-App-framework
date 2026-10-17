@@ -1,0 +1,33 @@
+{
+  "source_commit": "31a9aa66ccd7b83fa8db068575f626e814ab4c82",
+  "environment": "Windows / PowerShell; Node 24.18.0; pnpm 11.25.0; Python 3.12.10; JDK 17.0.20.1+1",
+  "checks": {
+    "android_export": {
+      "status": "passed"
+    },
+    "ios_export": {
+      "limit": "Not iOS runtime evidence",
+      "status": "passed"
+    },
+    "native_driver_syntax_and_help": {
+      "status": "passed"
+    },
+    "typescript": {
+      "status": "passed"
+    },
+    "mobile_tests": {
+      "count": 197,
+      "status": "passed"
+    }
+  },
+  "limits": [
+    "No host test proves native/provider restoration",
+    "Private payloads/fingerprints remain ignored",
+    "Production identity/schema/credential decisions and iOS/physical gates remain open"
+  ],
+  "private_logs": [
+    "local-data/recovery-tests-final.log",
+    "local-data/recovery-exports-final.log",
+    "local-data/recovery-controller-final.log"
+  ]
+}

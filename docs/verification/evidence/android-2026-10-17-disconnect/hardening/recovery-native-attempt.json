@@ -1,0 +1,34 @@
+{
+  "status": "failed",
+  "checks": [
+    {
+      "name": "named-avd-reverified",
+      "status": "passed"
+    },
+    {
+      "name": "pre-install-journal-matches-private-reviewed-fingerprint",
+      "status": "passed"
+    },
+    {
+      "name": "update-only-install",
+      "status": "passed"
+    },
+    {
+      "name": "post-install-journal-unchanged",
+      "status": "passed"
+    }
+  ],
+  "source_commit": "31a9aa66ccd7b83fa8db068575f626e814ab4c82",
+  "boundary": "Recovery-only checkpoint; no historical raw adoption, clearing, deletion or canonical import.",
+  "avd": "MoFlight_API37",
+  "apk": {
+    "apk_sha256": "846501f9c586cb648ab15fe8153deb500dc8b1ef499af5ab4e75bb22331f7803",
+    "apk_bytes": 48733723,
+    "embedded_javascript": true,
+    "architectures": [
+      "arm64-v8a",
+      "x86_64"
+    ]
+  },
+  "error": "Focused checkpoint failed; inspect ignored private hierarchy locally."
+}

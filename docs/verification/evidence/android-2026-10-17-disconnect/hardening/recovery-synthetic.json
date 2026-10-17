@@ -1,0 +1,41 @@
+{
+  "status": "passed",
+  "checks": [
+    {
+      "name": "named-avd-reverified",
+      "status": "passed"
+    },
+    {
+      "name": "update-only-install",
+      "status": "passed"
+    },
+    {
+      "name": "native-state-reader-ready-without-legacy-adoption",
+      "status": "passed"
+    },
+    {
+      "name": "native-restart-state-reader-ready",
+      "status": "passed"
+    }
+  ],
+  "source_commit": "31a9aa66ccd7b83fa8db068575f626e814ab4c82",
+  "boundary": "Recovery-only checkpoint; no historical raw adoption, clearing, deletion or canonical import.",
+  "avd": "MoFlight_Synthetic_API37",
+  "apk": {
+    "apk_sha256": "846501f9c586cb648ab15fe8153deb500dc8b1ef499af5ab4e75bb22331f7803",
+    "apk_bytes": 48733723,
+    "embedded_javascript": true,
+    "architectures": [
+      "arm64-v8a",
+      "x86_64"
+    ]
+  },
+  "viewport": {
+    "width_px": 1080,
+    "height_px": 1920,
+    "density_dpi": 420,
+    "width_dp": 411.42857142857144,
+    "height_dp": 731.4285714285714,
+    "font_scale": 1.0
+  }
+}
