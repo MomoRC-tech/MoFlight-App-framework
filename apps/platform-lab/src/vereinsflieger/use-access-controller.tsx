@@ -526,11 +526,12 @@ export function useAccessController(product = false, localOwner?: string) {
           setSaving(true); if(timeout.current) clearTimeout(timeout.current); timeout.current = null;
           if (legacyAttempt.current) {
             const attempt = legacyAttempt.current;
+            const safetyEpoch = epoch.current;
             try {
               await saveLegacySafety(requireScope(), attempt.copy.fingerprint, captured);
               if (!mounted.current || !retrieval.current.owns(nonce) || owner.current !== activeOwner.current) return;
               attempt.safety = captured; retrieval.current.resume(nonce); setSaving(false);
-              if (!foreground.current) { finish('Recovery interrupted before replay.', nonce); return; }
+              if (!foreground.current || epoch.current !== safetyEpoch || !session.current.state.confirmed) { finish('Recovery interrupted before replay.', nonce); return; }
               if (legacyViewNeedsChoice(attempt.copy.target, captured) && (!attempt.acceptedCurrent || canonical(attempt.acceptedCurrent) !== canonical(captured))) {
                 setLegacyChoice({ fingerprint: attempt.copy.fingerprint, target: attempt.copy.target, current: captured });
                 stop('Current provider view differs from the reviewed target. Safety evidence saved; choose privately before replay.', nonce); return;
@@ -601,7 +602,9 @@ export function useAccessController(product = false, localOwner?: string) {
     try {
       if (legacyAttempt.current) {
         const attempt = legacyAttempt.current;
-        if (!attempt.safety || !foreground.current || !session.current.state.confirmed || await legacyRecoveryFingerprint() !== attempt.copy.fingerprint) throw new Error('Recovery evidence changed.');
+        const verificationEpoch = epoch.current;
+        if (!attempt.safety || !foreground.current || !session.current.state.confirmed || await legacyRecoveryFingerprint() !== attempt.copy.fingerprint ||
+          !foreground.current || epoch.current !== verificationEpoch || !session.current.state.confirmed) throw new Error('Recovery evidence changed.');
         await finishScopedLegacy(requireScope(), attempt.copy.fingerprint, original.current, attempt.safety);
         if (!mounted.current || owner.current !== activeOwner.current || !retrieval.current.owns(active.nonce)) return;
         legacyPending.current = false; legacyAttempt.current = null; setLegacyChoice(null);

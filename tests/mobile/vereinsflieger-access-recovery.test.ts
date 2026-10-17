@@ -1238,11 +1238,12 @@ test('a differing private current view pauses without mutation and consent is bo
 });
 
 test('legacy safety failure or interruption cannot run a restore command or waive quarantine', async () => {
-  for (const mode of ['failure', 'background', 'owner'] as const) {
+  for (const mode of ['failure', 'background', 'background-return', 'owner'] as const) {
     const f = fixture({ product: true, failSafety: mode === 'failure', deferSafety: mode !== 'failure' });
     f.render(); await f.settle(original); await establishProductAssociation(f); await startReviewedRecovery(f);
     await f.message({ kind: 'vf-view-v2', view: original });
-    if (mode === 'background') f.appState('background');
+    if (mode === 'background' || mode === 'background-return') f.appState('background');
+    if (mode === 'background-return') f.appState('active');
     if (mode === 'owner') f.changeOwner('other-owner');
     f.finishSafety(); for(let i=0;i<5;i++) await f.flush();
     assert.equal(f.currentCommand().phase, 'snapshot');
