@@ -24,6 +24,9 @@ def top(smoke):
 def launch(smoke):
     smoke.shell('am', 'force-stop', PACKAGE)
     smoke.shell('am', 'start', '-W', '-n', f'{PACKAGE}/.MainActivity')
+    # am start -W precedes React Native readiness; discard a retained previous activity tree.
+    smoke.find('Papierflugbuch aktualisieren', attempts=40)
+    smoke.find('Übersicht', exact=True, attempts=40)
     smoke.find('Profil & Einstellungen öffnen', attempts=40)
 
 
