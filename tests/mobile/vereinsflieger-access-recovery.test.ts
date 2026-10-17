@@ -1209,6 +1209,7 @@ test('reviewed recovery saves current view before replay and requires full readb
   await f.loadPage(context.PROFILE_URL); await f.contextMessage(observedContext); for(let i=0;i<5;i++) await f.flush();
   assert.equal(f.writes.includes('legacy-receipt'), true);
   assert.equal(f.controller().recovery, false); assert.equal(f.controller().legacyRecovery, false);
+  assert.equal(f.controller().result, 'recovered');
   assert.deepEqual(f.pending(), original); // Immutable original untouched.
   assert.equal(f.writes.includes('cleared'), false);
   await f.controller().refreshRecovery(); assert.equal(f.controller().legacyRecovery, false);
@@ -1220,6 +1221,7 @@ test('a differing private current view pauses without mutation and consent is bo
   const current = { ...original, period: 'Die letzten 20 Flüge (max. 24 Monate)' };
   await f.message({ kind: 'vf-view-v2', view: current }); await f.flush();
   assert.equal(f.controller().busy, false); assert.equal(f.controller().legacyRecovery, true);
+  assert.equal(f.controller().result, 'review-required');
   assert.deepEqual(f.controller().legacyChoice?.current, current);
   assert.equal(f.currentCommand().phase, 'snapshot');
   const before = f.injections.length;

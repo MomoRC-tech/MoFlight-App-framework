@@ -100,6 +100,8 @@ export function ProviderConnection({ controller: c, open, close }: { controller:
             {c.result === 'captured' && <Label>Rohbelege gespeichert. {c.snapshot && `${c.snapshot.rows.length} Datensätze · ${c.snapshot.exportContext?.pageCount ?? '—'} Seite(n). `}Identität und Flugzeitzuordnung bleiben vorläufig.</Label>}
             {c.result === 'failed' && <Label>Abruf oder Seitenaufruf fehlgeschlagen. {retrievalFailureHint(c.status)}</Label>}
             {c.result === 'cancelled' && <Label>Abruf abgebrochen. Frühere Daten bleiben erhalten.</Label>}
+            {c.result === 'review-required' && <Label>Private Entscheidung zur abweichenden Ansicht erforderlich. Noch keine Wiederherstellung ausgeführt.</Label>}
+            {c.result === 'recovered' && <Label>Geprüfte Wiederherstellung abgeschlossen. Alter Beleg unverändert erhalten; keine alten Rohdaten übernommen.</Label>}
             {c.sessionProofAvailable && <><Action secondary disabled={locked || c.recovery} onPress={() => { void c.clearLocalSession(true); }}>Synthetischer Browserstore-Test</Action><Label muted>Entwicklungstest nur auf MoFlight_Synthetic_API37; auf anderen Geräten nativ gesperrt.</Label></>}
             {c.proofNotice !== 'none' && <Label>{c.proofNotice === 'passed' ? 'Synthetischer Store-Test bestanden: Cookies, Webspeicher und neues Dokument geprüft; SQLite und SecureStore erhalten.' : 'Synthetischer Store-Test nicht bestanden oder Gerät gesperrt.'}</Label>}
           </Card>

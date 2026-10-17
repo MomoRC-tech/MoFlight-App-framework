@@ -42,7 +42,7 @@ export function useAccessController(product = false, localOwner?: string) {
   const pendingCapture = useRef<ProbeSnapshot | null>(null);
   const afterConfirmation = useRef<'retrieve' | 'recover' | null>(null);
   const [lastSuccessfulCaptureAt, setLastSuccessfulCaptureAt] = useState<string | null>(null);
-  const [result, setResult] = useState<'none' | 'captured' | 'cancelled' | 'failed'>('none');
+  const [result, setResult] = useState<'none' | 'captured' | 'cancelled' | 'failed' | 'review-required' | 'recovered'>('none');
   const captureSaved = useRef(false), cancelled = useRef(false);
   const [showRun, setShowRun] = useState(false);
   const [showWindow, setShowWindow] = useState(false);
@@ -534,7 +534,7 @@ export function useAccessController(product = false, localOwner?: string) {
               if (!foreground.current || epoch.current !== safetyEpoch || !session.current.state.confirmed) { finish('Recovery interrupted before replay.', nonce); return; }
               if (legacyViewNeedsChoice(attempt.copy.target, captured) && (!attempt.acceptedCurrent || canonical(attempt.acceptedCurrent) !== canonical(captured))) {
                 setLegacyChoice({ fingerprint: attempt.copy.fingerprint, target: attempt.copy.target, current: captured });
-                stop('Current provider view differs from the reviewed target. Safety evidence saved; choose privately before replay.', nonce); return;
+                stop('Current provider view differs from the reviewed target. Safety evidence saved; choose privately before replay.', nonce); setResult('review-required'); return;
               }
               restoring.current = true; outcome.current = 'Reviewed legacy recovery.';
               viewPhase.current = 'restore'; reading.current = false; command.current = ''; extract(); return;
@@ -599,6 +599,7 @@ export function useAccessController(product = false, localOwner?: string) {
     const active = retrieval.current.state;
     if (active.phase !== 'loading' || !original.current || !retrieval.current.beginSave(active.nonce)) return;
     setSaving(true); if (timeout.current) clearTimeout(timeout.current); timeout.current = null;
+    const reviewedRecovery = !!legacyAttempt.current;
     try {
       if (legacyAttempt.current) {
         const attempt = legacyAttempt.current;
@@ -612,6 +613,7 @@ export function useAccessController(product = false, localOwner?: string) {
       if (!mounted.current || !retrieval.current.owns(active.nonce)) return;
       original.current = null; setRecovery(false); restoring.current = false;
       stop(`${outcome.current} Original provider view restored and verified.`, active.nonce);
+      if (reviewedRecovery) setResult('recovered');
     } catch { finish('Original view journal could not be cleared. Recovery retained.', active.nonce); }
   }
   async function persistCompletedCapture(data: ProbeSnapshot) {
