@@ -8,7 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type Controller = ReturnType<typeof useAccessController>;
 export function ConnectionIndicator({ controller: c, onPress }: { controller: Controller; onPress: () => void }) {
-  const pending = c.busy || c.loginBusy || c.disconnecting || c.connection.phase === 'checking';
+  const pending = c.clearing || c.binding || c.busy || c.loginBusy || c.disconnecting || c.connection.phase === 'checking';
   const tint = c.connection.phase === 'disconnected' ? colors.muted : '#ffc477';
   return <Pressable accessibilityRole="button" accessibilityLabel={`Vereinsflieger: ${pending ? 'Vorgang läuft' : connectionLabel(c.connection)}. Verbindungen öffnen`} onPress={onPress} style={styles.indicator}>
     {pending ? <ActivityIndicator color={colors.cyan} /> : <View accessible={false} style={{ width: 27, height: 25 }}>
@@ -23,7 +23,7 @@ export function ProviderConnection({ controller: c, open, close }: { controller:
   const insets = useSafeAreaInsets();
   const [barHeight, setBarHeight] = useState(68), [loginHeight, setLoginHeight] = useState(132);
   const checking = c.connection.phase === 'checking';
-  const operationLocked = c.busy || checking || c.saving || c.loginBusy || !c.viewReady;
+  const operationLocked = c.clearing || c.binding || c.busy || checking || c.saving || c.loginBusy || !c.viewReady;
   const locked = operationLocked || c.disconnecting;
   const login = open && c.visible;
   const label = connectionLabel(c.connection);
@@ -63,7 +63,7 @@ export function ProviderConnection({ controller: c, open, close }: { controller:
             <Section title="Vorläufige Zuordnung prüfen" />
             <Label>Benutzernummer: {c.connection.observed.accountNumber}</Label><Label>Verein: {c.connection.observed.clubLabel}</Label>
             <Label muted>Ist dies dein Anbieterkonto? Die Vereinsbezeichnung ist keine stabile Vereins-ID. Diese Zuordnung gilt nur für diesen Entwicklungslauf; Live-Import bleibt gesperrt.</Label>
-            <Action onPress={c.confirmConnection}>Konto für diesen Test bestätigen</Action>
+            <Action disabled={locked} onPress={() => { void c.confirmConnection(); }}>Konto für diesen Test bestätigen</Action>
           </Card>}
           {(c.connection.phase === 'mismatch' || c.connection.phase === 'error' || c.connection.phase === 'unknown' || c.connection.phase === 'login-required') && <Card>
             <Label>{c.connection.phase === 'mismatch' ? 'Konto oder Verein stimmt nicht mit der bestätigten Zuordnung überein. Kein Import.' : 'Sitzung oder Netzwerk nicht aktuell bestätigt. Gespeicherte Flüge bleiben verfügbar. Bei Bedarf auf der Originalseite erneut anmelden.'}</Label>
@@ -75,6 +75,11 @@ export function ProviderConnection({ controller: c, open, close }: { controller:
             {c.disconnectNotice === 'cancelled' && <Label>Abmeldeprüfung beendet. Der Sitzungszustand ist ungeprüft; eine Abmeldung wird nicht zugesagt.</Label>}
             {(c.busy || c.recovery) && <Label>Vor dem Trennen: Abruf beenden und die ursprüngliche Anbieteransicht wiederherstellen. Laufendes Speichern kann nicht abgebrochen werden.</Label>}
             {c.disconnectedAt && <Label>Letzte bestätigte Abmeldung: {new Date(c.disconnectedAt).toLocaleString('de-DE')}. Eine spätere Anmeldung erfordert eine neue Sitzungsprüfung.</Label>}
+            {c.sessionClearingAvailable ? <Action secondary disabled={locked || c.recovery} onPress={() => { void c.clearLocalSession(); }}>Lokale Anbietersitzung löschen</Action> : <Label muted>Lokales Browserstore-Löschen wird auf diesem Build/Gerät nicht unterstützt.</Label>}
+            {c.clearing && <Label>Lokaler Browserstore wird gelöscht. Dieser Schritt kann nicht abgebrochen werden.</Label>}
+            {c.clearNotice === 'cleared' && <Label>Cookies und Webspeicher dieses App-Browsers gelöscht; vorheriges Dokument verworfen. Anmeldung erneut prüfen. Keine globale Anbieterabmeldung.</Label>}
+            {c.clearNotice === 'failed' && <Label>Lokales Löschen nicht bestätigt. Der Sitzungszustand bleibt ungeprüft.</Label>}
+            <Label muted>Lokales Löschen betrifft den Android-WebView-Store dieser App. Lokale Flugdaten, Zuordnung und gespeicherte Zugangsdaten bleiben erhalten. Andere Apps und Geräte werden nicht abgemeldet.</Label>
             <Action secondary disabled={locked} onPress={c.forgetLogin}>Gespeicherte Zugangsdaten vergessen</Action>
             {c.credentialNotice === 'forgotten' && <Label>Von MoFlight gespeicherte Zugangsdaten entfernt. Dies ist keine Anbieterabmeldung.</Label>}
             {c.credentialNotice === 'error' && <Label>Zugangsdaten konnten nicht entfernt werden. Erneut versuchen.</Label>}
@@ -93,9 +98,11 @@ export function ProviderConnection({ controller: c, open, close }: { controller:
             {c.result === 'captured' && <Label>Rohbelege gespeichert. {c.snapshot && `${c.snapshot.rows.length} Datensätze · ${c.snapshot.exportContext?.pageCount ?? '—'} Seite(n). `}Identität und Flugzeitzuordnung bleiben vorläufig.</Label>}
             {c.result === 'failed' && <Label>Abruf oder Seitenaufruf fehlgeschlagen. {retrievalFailureHint(c.status)}</Label>}
             {c.result === 'cancelled' && <Label>Abruf abgebrochen. Frühere Daten bleiben erhalten.</Label>}
+            {c.sessionProofAvailable && <><Action secondary disabled={locked || c.recovery} onPress={() => { void c.clearLocalSession(true); }}>Synthetischer Browserstore-Test</Action><Label muted>Entwicklungstest nur auf MoFlight_Synthetic_API37; auf anderen Geräten nativ gesperrt.</Label></>}
+            {c.proofNotice !== 'none' && <Label>{c.proofNotice === 'passed' ? 'Synthetischer Store-Test bestanden: Cookies, Webspeicher und neues Dokument geprüft; SQLite und SecureStore erhalten.' : 'Synthetischer Store-Test nicht bestanden oder Gerät gesperrt.'}</Label>}
           </Card>
-          {c.recovery && <Card><Section title="Wiederherstellung ausstehend" /><Label>Vor einem weiteren Abruf muss die ursprüngliche Anbieteransicht im ursprünglichen Konto wiederhergestellt werden.</Label><Action secondary disabled={locked || !c.original.current} onPress={() => c.checkConnection('recover')}>Anbieteransicht wiederherstellen</Action></Card>}
-          <Label muted>Schließen blendet die Seite aus und meldet dich nicht beim Anbieter ab. Ein anderes Konto oder ein anderer Verein kann die bisherige Zuordnung in diesem Entwicklungslauf nicht ersetzen.</Label>
+          {c.recovery && <Card><Section title="Wiederherstellung ausstehend" /><Label>{c.legacyRecovery ? 'Eine ältere, nicht zugeordnete Wiederherstellung ist vorhanden. Keine automatische Übernahme: vor weiteren Abrufen manuell prüfen.' : 'Vor einem weiteren Abruf muss die ursprüngliche Anbieteransicht im ursprünglichen Konto wiederhergestellt werden.'}</Label><Action secondary disabled={locked || !c.original.current} onPress={() => c.checkConnection('recover')}>Anbieteransicht wiederherstellen</Action></Card>}
+          <Label muted>Schließen blendet die Seite aus und meldet dich nicht beim Anbieter ab. Ein anderes Konto oder ein anderer Verein kann die bisherige Zuordnung auch nach einem Neustart nicht ersetzen.</Label>
           <Label muted>Tabwechsel bleibt möglich. Bei App-Wechsel oder gesperrtem Telefon ist kein unterbrechungsfreier Abruf zugesagt; Rückkehr erfordert eine erneute Prüfung.</Label>
         </View>
       </ScrollView>

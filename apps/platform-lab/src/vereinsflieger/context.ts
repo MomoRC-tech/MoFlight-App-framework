@@ -47,5 +47,5 @@ export function loginRequiredScript(nonce: string) { return `window.ReactNativeW
 export function scopedBridge(source: string, document: string, expected: string) {
   if (!providerUrl(source) || !providerUrl(document) || !providerUrl(expected)) return false;
   const s = new URL(source), d = new URL(document), e = new URL(expected);
-  return s.origin === d.origin && d.origin === e.origin && d.pathname === e.pathname && d.search === e.search && (s.pathname === '/' && !s.search && !s.hash || s.pathname === d.pathname && s.search === d.search);
+  return !s.hash && !d.hash && !e.hash && s.origin === d.origin && d.origin === e.origin && d.pathname === e.pathname && d.search === e.search && (s.pathname === '/' && !s.search && !s.hash || s.pathname === d.pathname && s.search === d.search);
 }

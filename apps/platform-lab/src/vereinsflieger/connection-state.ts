@@ -19,6 +19,12 @@ export class ConnectionSession {
   private owner: string | null = null;
   private association: ObservedContext | null = null;
 
+  restoreAssociation(context: ObservedContext): void {
+    if (this.owner !== null || this.association && !sameContext(this.association, context)) throw new Error('Provider association is already owned.');
+    this.association = validateContext(context);
+    // Restored identity is not a live session observation.
+  }
+
   get state(): ConnectionState {
     return { ...this.value, observed: this.value.observed ? { ...this.value.observed } : null };
   }

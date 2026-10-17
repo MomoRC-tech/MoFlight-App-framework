@@ -11,6 +11,7 @@ import { localQuestions, localInsight } from './local-insights';
 import { Dashboard } from './Dashboard';
 import { PlaneIcon, ProfileIcon, BookIcon } from './ShellIcons';
 import { ProfileSettings } from './ProfileSettings';
+import { PILOT } from '../book-storage';
 import { useAccessController } from '../vereinsflieger/use-access-controller';
 import { ProviderConnection, ConnectionIndicator } from './ProviderConnection';
 
@@ -42,7 +43,7 @@ function FlightRow({ flight, onPress, tablet }: { flight: Flight; onPress: () =>
 
 export default function MobileApp() { return <SafeAreaProvider><Shell /></SafeAreaProvider>; }
 function Shell() {
-  const connection = useAccessController(true);
+  const connection = useAccessController(true, PILOT);
   const [connectionOpen, setConnectionOpen] = useState(false);
   const [tab, setTab] = useState<Tab>('home');
   const [sheet, setSheet] = useState<Sheet>(null);
@@ -190,7 +191,7 @@ function Shell() {
     <View style={[s.nav, wide && { maxWidth: 960 }, tablet && !wide && { maxWidth: 600 }, aiKeyboard && s.hidden]} accessibilityRole="tablist">{tabs.map(item => <Pressable key={item.id} accessibilityRole="tab" accessibilityLabel={item.title} accessibilityState={{ selected: tab === item.id }} onPress={() => setTab(item.id)} style={({ pressed }) => [s.navItem, pressed && ui.pressed]}>{item.id === 'flights' ? <PlaneIcon color={tab === item.id ? '#00c8ff' : colors.muted} /> : item.id === 'logbook' ? <BookIcon color={tab === item.id ? '#00c8ff' : colors.muted} /> : item.id === 'club' ? <ClubMark color={tab === item.id ? '#00c8ff' : colors.muted} /> : <Text style={[s.navIcon, tab === item.id && s.active]}>{item.icon}</Text>}<Text style={[s.navLabel, tab === item.id && s.active]}>{item.title}</Text></Pressable>)}</View>
     <Modal visible={sheet !== null || detail !== null} animationType="slide" onRequestClose={() => { setDetail(null); setSheet(null); }}>
       <SafeAreaView style={s.modal}><StatusBar barStyle="light-content" /><View style={s.modalBar}><Action secondary onPress={() => { setDetail(null); setSheet(null); }}>‹ Zurück</Action><Label style={{ flex: 1, fontWeight: '600' }}>{detail ? 'Flugdetails' : sheet === 'books' ? 'Papierflugbuch' : sheet === 'tools' ? 'Entwicklungswerkzeuge' : sheet === 'profile' ? 'Profil & Einstellungen' : 'MoFlight'}</Label></View>
-        {sheet === 'tools' ? <LabApp providerOwned={connection.browserActive || connection.busy || connection.recovery} /> : sheet === 'books' ? <View style={{ flex: 1, backgroundColor: '#f5f7fb' }}><BookLab close={() => setSheet(null)} /></View> : <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}><ScrollView contentContainerStyle={s.canvas} keyboardShouldPersistTaps="handled">
+        {sheet === 'tools' ? <LabApp providerOwned={true} /> : sheet === 'books' ? <View style={{ flex: 1, backgroundColor: '#f5f7fb' }}><BookLab close={() => setSheet(null)} /></View> : <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}><ScrollView contentContainerStyle={s.canvas} keyboardShouldPersistTaps="handled">
           {sheet === 'profile' && <ProfileSettings onConnections={() => { setSheet(null); setConnectionOpen(true); }} onTools={() => setSheet('tools')} onStatus={() => setSheet('status')} onCredits={() => setSheet('credits')} onBooks={() => setSheet('selectBook')} displayName={library.displayName} busy={library.busy} error={library.error} onSaveName={library.saveDisplayName} onRetry={() => void library.reload()} />}
           {detail && <><Section title={detail.registration ?? 'Flugzeug unbekannt'} />{[['Datum', dateText(detail.date)], ['Flugzeugtyp', detail.aircraft_model], ['Abflug', detail.start_place], ['Ankunft', detail.landing_place], ['Start', detail.start], ['Landung', detail.landing], ['Zeitbasis', detail.time_basis], ['Dauer', detail.minutes === null ? null : `${formatDuration(detail.minutes)} h`], ['Rolle', detail.pilot_role], ['Startart', detail.launch], ['Landungen', detail.landings?.toString()], ['Bemerkungen', detail.remarks]].map(([label, value]) => <Card key={label}><Label muted>{label}</Label><Label selectable>{value ?? 'Unbekannt'}</Label></Card>)}<Label muted>Quelle: gespeicherte synthetische Bibliothek · {book?.name}. Distanz und Flugtrack sind nicht verfügbar.</Label></>}
           {sheet === 'selectBook' && <><Section title="Flugbuch auswählen" />{library.books.map(b => <Action key={b.id} secondary onPress={() => { setSheet(null); void library.selectBook(b.id); }}>{b.id === library.bookId ? '✓ ' : ''}{b.name}</Action>)}{!library.books.length && <Empty title="Noch kein Flugbuch">Bestehende lokale Flugbuchwerkzeuge öffnen, um die Bibliothek einzusehen.</Empty>}<Action onPress={openBooks}>Flugbuchwerkzeuge öffnen</Action></>}

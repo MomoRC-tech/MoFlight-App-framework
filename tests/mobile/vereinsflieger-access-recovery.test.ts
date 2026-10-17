@@ -9,6 +9,7 @@ import * as view from '../../apps/platform-lab/src/vereinsflieger/view.ts';
 import * as exporter from '../../apps/platform-lab/src/vereinsflieger/export.ts';
 import * as context from '../../apps/platform-lab/src/vereinsflieger/context.ts';
 import * as login from '../../apps/platform-lab/src/vereinsflieger/login.ts';
+import type { ProviderScope } from '../../apps/platform-lab/src/vereinsflieger/scope-store.ts';
 import { ConnectionSession } from '../../apps/platform-lab/src/vereinsflieger/connection-state.ts';
 import type { useAccessController } from '../../apps/platform-lab/src/vereinsflieger/use-access-controller.tsx';
 import type { ViewPreferences } from '../../apps/platform-lab/src/vereinsflieger/view.ts';
@@ -31,7 +32,7 @@ const source = ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/
 const controllerSource = ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/vereinsflieger/use-access-controller.tsx', import.meta.url), 'utf8'), {
   compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.React, esModuleInterop: false },
 }).outputText;
-function fixture(options: { priorCapture?: probe.ProbeSnapshot; deferJournalSave?: boolean; deferCaptureSave?: boolean; product?: boolean; deferLoginRead?: boolean; failLoginRead?: boolean; savedLogin?: { username: string; password: string } | null; failLoginForget?: boolean; deferLoginForget?: boolean } = {}) {
+function fixture(options: { deferClear?: boolean; failClear?: boolean; persistedScope?: ProviderScope; scopedView?: ViewPreferences; deferBinding?: boolean; failBinding?: boolean; priorCapture?: probe.ProbeSnapshot; deferJournalSave?: boolean; deferCaptureSave?: boolean; product?: boolean; deferLoginRead?: boolean; failLoginRead?: boolean; savedLogin?: { username: string; password: string } | null; failLoginForget?: boolean; deferLoginForget?: boolean } = {}) {
   let resolveJournal!: (view: ViewPreferences | null) => void, rejectJournal!: (error: Error) => void;
   const journal = new Promise<ViewPreferences | null>((resolve, reject) => { resolveJournal = resolve; rejectJournal = reject; });
   const hooks: unknown[] = [], effects: (() => void)[] = [];
@@ -41,6 +42,12 @@ function fixture(options: { priorCapture?: probe.ProbeSnapshot; deferJournalSave
   const writes: string[] = [], injections: string[] = [], timers = new Map<number, () => void>();
   let appStateListener: ((state: string) => void) | undefined;
   let finishJournalSave!: () => void, finishCaptureSave!: () => void;
+  let clearCalls = 0;
+  let finishClear!: () => void;
+  const clearWrite = new Promise<void>(resolve => { finishClear = resolve; });
+  let scopeWrites = 0;
+  let finishBinding!: () => void;
+  const bindingWrite = new Promise<void>(resolve => { finishBinding = resolve; });
   let savedLoginReads = 0, savedLoginForgets = 0;
   let finishLoginRead!: (login: { username: string; password: string } | null) => void;
   let finishLoginForget!: () => void;
@@ -89,6 +96,15 @@ function fixture(options: { priorCapture?: probe.ProbeSnapshot; deferJournalSave
         savedCapture = value; writes.push('capture-saved');
       },
     },
+    './session-store': { sessionClearingAvailable: true, sessionProofAvailable: false, clearProviderStore: async () => { clearCalls++; if (options.deferClear) await clearWrite; if (options.failClear) throw new Error('Synthetic clear failure'); }, proveSyntheticStore: async () => false },
+    './scoped-storage': {
+      loadProviderScope: async () => options.persistedScope ?? null,
+      confirmProviderScope: async (owner: string, context: unknown) => { scopeWrites++; if (options.deferBinding) await bindingWrite; if (options.failBinding) throw new Error('Synthetic binding failure'); return { version: 1, owner, connectionId: 'synthetic-connection', context }; },
+      loadScopedView: async () => options.scopedView ?? null, loadScopedCapture: async () => savedCapture,
+      saveScopedView: (value: unknown, v: ViewPreferences) => (modules['./storage'] as any).saveOriginalView(v),
+      clearScopedView: (value: unknown, v: ViewPreferences) => (modules['./storage'] as any).clearOriginalView(v),
+      saveScopedCapture: (value: unknown, v: probe.ProbeSnapshot) => (modules['./storage'] as any).saveCapture(v),
+    },
     './login-storage': {
       readSavedLogin: async () => { savedLoginReads++; if (options.deferLoginRead) return loginRead; if (options.failLoginRead) throw new Error('Synthetic protected-storage read failure'); return options.savedLogin ?? null; },
       writeSavedLogin: async () => {},
@@ -110,7 +126,7 @@ function fixture(options: { priorCapture?: probe.ProbeSnapshot; deferJournalSave
   let controller: ReturnType<typeof useAccessController>;
   function render() {
     index = 0;
-    const tree = options.product ? (() => { controller = controllerExports.useAccessController(true); return { type: 'Host', props: {}, children: [controller.browser] }; })() : exported.AccessProbe({ close() {} });
+    const tree = options.product ? (() => { controller = controllerExports.useAccessController(true, 'synthetic-pilot'); return { type: 'Host', props: {}, children: [controller.browser] }; })() : exported.AccessProbe({ close() {} });
     effects.splice(0).forEach(effect => effect()); return tree;
   }
   function find(tree: Element, predicate: (element: Element) => boolean): Element | undefined {
@@ -177,7 +193,7 @@ function fixture(options: { priorCapture?: probe.ProbeSnapshot; deferJournalSave
     controller: () => { render(); return controller; },
     finishJournalSave, finishCaptureSave, pending: () => pending, savedCapture: () => savedCapture,
     loginStorage: () => ({ reads: savedLoginReads, forgets: savedLoginForgets }),
-    finishLoginRead, finishLoginForget,
+    finishClear, clearCalls: () => clearCalls, finishLoginRead, finishLoginForget, finishBinding, scopeWrites: () => scopeWrites,
     isLab: (tree: Element) => tree.type === CaptureRun || tree.type === WindowCapture };
 }
 
@@ -300,7 +316,7 @@ async function establishProductAssociation(f: ReturnType<typeof fixture>) {
   await f.flush(); // Allow the asynchronous startup recovery read to mark the empty journal as known.
   f.controller().connect(); await f.loadPage(probe.LOGIN_URL);
   f.controller().checkConnection(); await f.loadPage(context.PROFILE_URL);
-  await f.contextMessage(observedContext); f.controller().confirmConnection();
+  await f.contextMessage(observedContext); await f.controller().confirmConnection();
 }
 
 test('disconnect refuses startup, failed-read, recovery, and active-save states', async () => {
@@ -456,7 +472,7 @@ test('starting saved login invalidates confidence, clears pending confirmation, 
   await pending.contextMessage(observedContext);
   assert.equal(pending.controller().connection.confirmed, false);
   pending.controller().useLogin();
-  pending.controller().confirmConnection();
+  await pending.controller().confirmConnection();
   assert.equal(pending.controller().busy, false, 'A cleared after-confirmation action cannot start capture');
   assert.ok(!pending.injections.some(script => /\}\)\("[^"]+","snapshot"/.test(script)));
 });
@@ -520,7 +536,7 @@ test('assisted re-login into a different account remains blocked before any capt
   await f.loadPage(context.PROFILE_URL);
   f.controller().checkConnection('retrieve'); await f.loadPage(context.PROFILE_URL);
   await f.contextMessage({ ...observedContext, accountNumber: '456' });
-  f.controller().confirmConnection(); f.controller().retrieve();
+  await f.controller().confirmConnection(); f.controller().retrieve();
   assert.equal(f.controller().connection.phase, 'mismatch');
   assert.equal(f.controller().busy, false);
   assert.equal(f.savedCapture(), priorCapture);
@@ -533,7 +549,7 @@ test('cancelled login confirmation cannot launch a stale retrieval; reconnect re
   f.controller().checkConnection('retrieve'); await f.loadPage(context.PROFILE_URL);
   await f.contextMessage(observedContext);
   f.controller().dismissLogin();
-  f.controller().confirmConnection();
+  await f.controller().confirmConnection();
   assert.equal(f.controller().busy, false);
   assert.equal(f.controller().result, 'none');
   assert.ok(!f.injections.some(script => /\}\)\("[^"]+","snapshot"/.test(script)));
@@ -556,7 +572,7 @@ test('background interruption during durable journal write retains recovery with
   const f = fixture({ product: true, priorCapture, deferJournalSave: true }); f.render(); await f.settle(null);
   f.controller().connect(); await f.loadPage(probe.LOGIN_URL);
   f.controller().checkConnection('retrieve'); await f.loadPage(context.PROFILE_URL);
-  await f.contextMessage(observedContext); f.controller().confirmConnection(); await f.loadFlight();
+  await f.contextMessage(observedContext); await f.controller().confirmConnection(); await f.loadFlight();
   await f.message({ kind: 'vf-view-v2', view: original });
   assert.deepEqual(f.writes, ['journal-start']);
   f.appState('background');
@@ -615,7 +631,7 @@ test('product retrieval waits for observed confirmation and rejects changed acco
   await f.contextMessage(observedContext);
   assert.equal(f.controller().connection.confirmed, false);
   assert.equal(f.controller().busy, false);
-  f.controller().confirmConnection(); await f.loadFlight();
+  await f.controller().confirmConnection(); await f.loadFlight();
   assert.equal(f.controller().busy, true);
   assert.equal(f.currentCommand().phase, 'snapshot');
   f.controller().cancelRetrieval(); await f.flush();
@@ -650,7 +666,7 @@ test('product post-capture account mismatch preserves prior capture and recovery
   const f = fixture({ product: true, priorCapture }); f.render(); await f.settle(null);
   f.controller().connect(); await f.loadPage(probe.LOGIN_URL);
   f.controller().checkConnection('retrieve'); await f.loadPage(context.PROFILE_URL);
-  await f.contextMessage(observedContext); f.controller().confirmConnection(); await f.loadFlight();
+  await f.contextMessage(observedContext); await f.controller().confirmConnection(); await f.loadFlight();
   await backupVerified(f);
   for (const phase of exporter.EXPORT_PHASES.filter(phase => phase !== 'read')) {
     assert.equal(f.currentCommand().phase, phase);
@@ -680,7 +696,7 @@ test('hiding the product panel during post-capture checking keeps ownership thro
   const f = fixture({ product: true, priorCapture }); f.render(); await f.settle(null);
   f.controller().connect(); await f.loadPage(probe.LOGIN_URL);
   f.controller().checkConnection('retrieve'); await f.loadPage(context.PROFILE_URL);
-  await f.contextMessage(observedContext); f.controller().confirmConnection(); await f.loadFlight();
+  await f.contextMessage(observedContext); await f.controller().confirmConnection(); await f.loadFlight();
   await backupVerified(f);
   for (const phase of exporter.EXPORT_PHASES.filter(phase => phase !== 'read')) {
     assert.equal(f.currentCommand().phase, phase);
@@ -1129,7 +1145,7 @@ test('expiry redirect during a product export requires login and retains origina
   const f = fixture({ product: true, priorCapture }); f.render(); await f.settle(null);
   f.controller().connect(); await f.loadPage(probe.LOGIN_URL);
   f.controller().checkConnection('retrieve'); await f.loadPage(context.PROFILE_URL);
-  await f.contextMessage(observedContext); f.controller().confirmConnection(); await f.loadFlight();
+  await f.contextMessage(observedContext); await f.controller().confirmConnection(); await f.loadFlight();
   await backupVerified(f);
   const count = f.injections.length;
   await f.loadPage(probe.LOGIN_URL);
@@ -1141,4 +1157,84 @@ test('expiry redirect during a product export requires login and retains origina
   assert.deepEqual(f.pending(), original);
   assert.equal(f.savedCapture(), priorCapture);
   assert.equal(f.injections.length, count, 'Expired session cannot receive a restoration mutation');
+});
+
+
+test('legacy unassigned recovery blocks capture/disconnect without claiming its original view', async () => {
+  const f = fixture({ product: true }); f.render(); await f.settle(original); await f.flush();
+  assert.equal(f.controller().legacyRecovery, true); assert.equal(f.controller().recovery, true);
+  assert.equal(f.controller().original.current, null);
+  await establishProductAssociation(f);
+  f.controller().retrieve(); f.controller().recoverView(); f.controller().startDisconnect();
+  assert.equal(f.controller().busy, false); assert.equal(f.controller().disconnecting, false);
+  assert.deepEqual(f.writes, []); assert.deepEqual(f.pending(), original);
+});
+
+test('association persistence is serialized and a backgrounded confirmation cannot resume retrieval', async () => {
+  const f = fixture({ product: true, deferBinding: true }); f.render(); await f.settle(null); await f.flush();
+  f.controller().connect(); await f.loadPage(probe.LOGIN_URL);
+  f.controller().checkConnection('retrieve'); await f.loadPage(context.PROFILE_URL); await f.contextMessage(observedContext);
+  const saving = f.controller().confirmConnection();
+  assert.equal(f.controller().binding, true); await f.controller().confirmConnection();
+  f.controller().retrieve(); f.controller().startDisconnect(); f.controller().useLogin();
+  assert.equal(f.scopeWrites(), 1); assert.equal(f.controller().busy, false); assert.equal(f.controller().loginBusy, false);
+  f.appState('background'); f.finishBinding(); await saving; await f.flush();
+  assert.equal(f.controller().connection.confirmed, false); assert.equal(f.controller().busy, false);
+  f.appState('active'); assert.equal(f.controller().connection.confirmed, false);
+});
+
+test('failed association write does not confirm the session or save capture evidence', async () => {
+  const f = fixture({ product: true, failBinding: true }); f.render(); await f.settle(null); await f.flush();
+  f.controller().connect(); await f.loadPage(probe.LOGIN_URL);
+  f.controller().checkConnection('retrieve'); await f.loadPage(context.PROFILE_URL); await f.contextMessage(observedContext);
+  await f.controller().confirmConnection();
+  assert.equal(f.controller().connection.confirmed, false); f.controller().retrieve();
+  assert.equal(f.controller().busy, false); assert.deepEqual(f.writes, []);
+});
+
+test('reopened association rejects a different provider account before capture or recovery', async () => {
+  const f = fixture({ product: true, persistedScope: { version: 1, owner: 'synthetic-pilot', connectionId: 'prior', context: observedContext } });
+  f.render(); await f.settle(null); for (let i=0;i<4;i++) await f.flush();
+  assert.equal(f.controller().connection.confirmed, false);
+  f.controller().connect(); await f.loadPage(probe.LOGIN_URL);
+  f.controller().checkConnection(); await f.loadPage(context.PROFILE_URL);
+  await f.contextMessage({ ...observedContext, accountNumber: '456' });
+  assert.equal(f.controller().connection.phase, 'mismatch');
+  await f.controller().confirmConnection(); f.controller().retrieve();
+  assert.equal(f.scopeWrites(), 0); assert.equal(f.controller().busy, false); assert.deepEqual(f.writes, []);
+});
+
+
+test('local clearing is blocked for unknown or legacy-pending recovery and while a check owns the controller', async () => {
+  const f = fixture({ product: true }); f.render(); await f.controller().clearLocalSession();
+  assert.equal(f.clearCalls(), 0);
+  await f.settle(original); await f.flush(); await f.controller().clearLocalSession(); assert.equal(f.clearCalls(), 0);
+  const checking = fixture({ product: true }); checking.render(); await checking.settle(null); await establishProductAssociation(checking);
+  checking.controller().checkConnection(); await checking.controller().clearLocalSession(); assert.equal(checking.clearCalls(), 0);
+});
+
+test('local clearing detaches the document first, serializes mutation and stays unconfirmed after background completion', async () => {
+  const f = fixture({ product: true, deferClear: true }); f.render(); await f.settle(null); await establishProductAssociation(f);
+  const saved = f.savedCapture();
+  const clearing = f.controller().clearLocalSession();
+  assert.equal(f.clearCalls(), 0); assert.equal(f.controller().browserActive, false);
+  await f.flush(); assert.equal(f.clearCalls(), 1);
+  await f.controller().clearLocalSession(); f.controller().connect(); f.controller().useLogin();
+  f.controller().startDisconnect(); f.controller().retrieve(); await f.controller().forgetLogin();
+  assert.equal(f.clearCalls(), 1); assert.equal(f.controller().loginBusy, false); assert.equal(f.controller().busy, false);
+  assert.equal(f.loginStorage().forgets, 0); assert.deepEqual(f.writes, []);
+  f.appState('background'); f.finishClear(); await clearing; await f.flush();
+  assert.equal(f.controller().clearNotice, 'cleared'); assert.equal(f.controller().connection.confirmed, false);
+  assert.equal(f.controller().browserActive, false); assert.equal(f.savedCapture(), saved);
+  f.appState('active'); f.controller().connect(); await f.loadPage(probe.LOGIN_URL);
+  f.controller().checkConnection(); await f.loadPage(context.PROFILE_URL);
+  await f.contextMessage({ ...observedContext, accountNumber: '456' });
+  assert.equal(f.controller().connection.phase, 'mismatch');
+});
+
+test('a native clearing failure cannot claim local removal or provider sign-out', async () => {
+  const f = fixture({ product: true, failClear: true }); f.render(); await f.settle(null); await establishProductAssociation(f);
+  const clearing = f.controller().clearLocalSession(); await f.flush(); await clearing;
+  assert.equal(f.controller().clearNotice, 'failed'); assert.equal(f.controller().disconnectedAt, null);
+  assert.equal(f.controller().connection.confirmed, false); assert.equal(f.controller().browserActive, false);
 });

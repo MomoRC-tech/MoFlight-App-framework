@@ -54,7 +54,7 @@ try {
     $android = Join-Path $app 'android'
     # Only regenerate native files when their inputs change; preserve native caches.
     $nativeInputs = @('package.json', 'pnpm-lock.yaml', 'pnpm-workspace.yaml', '.npmrc', 'apps/platform-lab/package.json', 'apps/platform-lab/app.json', 'scripts/configure-windows-native-build.ps1')
-    $nativeInputs += @((Read-Git $build @('ls-files', '**/package.json', 'apps/platform-lab/app.config.*', 'apps/platform-lab/plugins')) -split "`n" | Where-Object { $_ })
+    $nativeInputs += @((Read-Git $build @('ls-files', '**/package.json', 'apps/platform-lab/app.config.*', 'apps/platform-lab/plugins', 'apps/platform-lab/modules')) -split "`n" | Where-Object { $_ })
     $fingerprint = Read-Git $build (@('ls-tree', '-r', 'HEAD', '--') + $nativeInputs)
     $stamp = Join-Path $build 'local-data/native-inputs.txt'
     $regenerate = -not (Test-Path -LiteralPath "$android/gradlew.bat") -or -not (Test-Path -LiteralPath $stamp)
