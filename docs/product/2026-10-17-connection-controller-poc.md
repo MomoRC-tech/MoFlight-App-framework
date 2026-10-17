@@ -1,5 +1,7 @@
 # Retained Vereinsflieger connection PoC — 17 October 2026
 
+Subsequent bounded update: [safe disconnect and explicit re-login states](2026-10-17-safe-disconnect.md) follow this delivered increment. [Evidence](../verification/2026-10-17-safe-disconnect.md) distinguishes functional sign-out from unverified cookie clearing and successful re-login; the historical outcomes below remain unchanged.
+
 ## Authorization and milestone
 
 Manuel selected connection as the next bounded increment and explicitly said **start** after reviewing the proposed scope. Track in existing [#2](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/2#issuecomment-6231189767) and [#5](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/5#issuecomment-6231190032). This advances an M1 interaction/M2 browser-boundary slice before the deferred Pixel retest. It does not accept M1/M2 as a whole or waive #8 physical/iOS acceptance.

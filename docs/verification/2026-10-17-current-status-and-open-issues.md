@@ -2,6 +2,8 @@
 
 Subsequent update: Manuel authorized the [bounded connection/controller PoC](../product/2026-10-17-connection-controller-poc.md) ahead of the deferred phone retest. Header/Profile entry and the retained controller have [local and bounded Android live evidence](2026-10-17-connection-controller-poc.md); wider hidden lifecycle/identity and full disconnect remain open. The index below records the earlier review boundary. Android 17 is now tester-reported; no additional physical outcomes are inferred.
 
+Latest bounded update: [safe disconnect and explicit re-login states](2026-10-17-safe-disconnect.md) are implemented on `81128d0`, with 162 tests, committed Release and source-specific native evidence. Functional provider logout/sign-in-required behavior is observed; successful real re-login, cookie-store removal and production binding remain open. A runtime density/readiness finding is tracked in [#5](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/5#issuecomment-6232248505). The provider AVD is left signed out, saved credentials preserved. No milestone/issue is closed.
+
 ## Review boundary
 
 All **15 open GitHub issues (#1–#15)** were read and mapped on 2026-10-17. This index covers every currently open issue; issue bodies retain detailed checklists and historical observations. It is not proof that every defect has been discovered, every unchecked historical audit finding is still reproducible, or every product wish is implemented. No issue was closed by this review. README is the entry point and [the roadmap](../project-plan.md) controls priorities.

@@ -1,0 +1,56 @@
+{
+  "boundary": "Sanitized primary-agent-inspected native observations only; no private screenshots, credentials, cookies, flight data or profile identifiers. Not an independent server/state comparison.",
+  "device": {
+    "avd": "MoFlight_API37",
+    "api": 37,
+    "abi": "x86_64",
+    "width_px": 480,
+    "height_px": 800,
+    "density_dpi": 160,
+    "width_dp": 480,
+    "height_dp": 800,
+    "font_scale": 1.0,
+    "settings_changed": false,
+    "install": "update-only; no reset/uninstall/data clear"
+  },
+  "observations": [
+    {
+      "source": "81171510c9b31cb2f721def78f391c8ded2c42b0",
+      "case": "Still-authenticated profile during sign-out check",
+      "outcome": "Rejected logout; no logout timestamp"
+    },
+    {
+      "source": "81171510c9b31cb2f721def78f391c8ded2c42b0",
+      "case": "Original provider menu -> visible Abmelden -> explicit protected-profile check",
+      "outcome": "App reported sign-out verified; initial helper without menu did not log out and is not a pass",
+      "limits": "Candidate-source functional same-browser evidence; no independent server revocation or cookie comparison"
+    },
+    {
+      "source": "689fc384a80fb8a88a1521f0b005b175a120c284",
+      "case": "One explicit existing saved-login attempt",
+      "outcome": "Not confirmed; successful re-login not established",
+      "limits": "No password validity, provider challenge cause, natural expiry, autofill or OTP result inferred"
+    },
+    {
+      "source": "81128d0bae4e8fe0f1d709ad12e4bd3bc1155352",
+      "case": "Fresh protected-profile request -> supported login-required result -> hide provider page",
+      "outcome": "Anmeldung erforderlich retained; no observed recovery warning"
+    },
+    {
+      "source": "81128d0bae4e8fe0f1d709ad12e4bd3bc1155352",
+      "case": "Verify already signed-out browser through fresh natively observed protected-profile navigation",
+      "outcome": "Nicht verbunden; separate sign-out verification timestamp",
+      "displayed_timestamp": "2026-10-17 11:20:57 Europe/Berlin"
+    }
+  ],
+  "final_provider_state": "Signed out; saved app-owned credentials preserved. Successful re-login remains open.",
+  "not_performed": [
+    "Fresh credential entry/autofill/OTP",
+    "Natural expiry",
+    "Second-account native isolation",
+    "Full cookie-store removal",
+    "Raw/canonical capture or import",
+    "Independent row/page/preference/database comparison",
+    "Physical phone or iOS trial"
+  ]
+}

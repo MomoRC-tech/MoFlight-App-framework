@@ -1,0 +1,54 @@
+{
+  "source": "81128d0bae4e8fe0f1d709ad12e4bd3bc1155352",
+  "environment": {
+    "os": "Windows / PowerShell",
+    "node": "24.18.0",
+    "pnpm": "11.25.0",
+    "python": "3.12.10",
+    "jdk": "17.0.20.1+1"
+  },
+  "checks": [
+    {
+      "command": "pnpm typecheck",
+      "status": "passed"
+    },
+    {
+      "command": "pnpm test",
+      "status": "passed",
+      "tests": 162,
+      "failed": 0,
+      "scope": "All original 149 plus 13 controller/reader cases; actual controller with native/storage stubs, not live authentication proof"
+    },
+    {
+      "command": "pnpm bundle",
+      "status": "passed",
+      "platforms": [
+        "android",
+        "ios"
+      ],
+      "runtime_acceptance": false
+    },
+    {
+      "command": "python -m py_compile scripts/android_connection_smoke.py",
+      "status": "passed"
+    },
+    {
+      "command": "scripts/build-android-local.ps1 -SourceRef 81128d0bae4e8fe0f1d709ad12e4bd3bc1155352 -Configuration Release (existing JDK/clean short-path checkout)",
+      "status": "passed",
+      "gradle_tasks": 585,
+      "includes": [
+        "assembleRelease",
+        "lintVitalRelease",
+        "embedded JavaScript",
+        "arm64-v8a",
+        "x86_64"
+      ]
+    }
+  ],
+  "apk": {
+    "bytes": 48714539,
+    "sha256": "82a140eb9fce2879ecc2a368ca8483e12d1a491d06d14787b6ca32b78cb50991"
+  },
+  "hosted_ci_dispatched": false,
+  "paid_service_used": false
+}

@@ -1,0 +1,83 @@
+[
+  {
+    "local_artifact_directory": "local-data/android-disconnect-2026-10-17",
+    "status": "failed",
+    "source": {
+      "validated_commit": "0254152aaa885c389c8f285f2789ccfc55d7b444",
+      "compiled_commit": "767c58c4075bbeb0d914de20c9ed4e1785beae06"
+    },
+    "passed_checkpoint_count": 12,
+    "error": "Visible UI did not contain 'Abruf oder Seitenaufruf fehlgeschlagen'",
+    "original": {
+      "size": "Physical size: 1080x1920",
+      "density": "Physical density: 420",
+      "font_scale": "1.0",
+      "airplane_mode_on": "0",
+      "wifi_on": "1",
+      "mobile_data": "1"
+    },
+    "reported_restored": {
+      "airplane_mode_on": "0",
+      "wifi_on": "1",
+      "mobile_data": "1",
+      "size": "Physical size: 1080x1920",
+      "density": "Physical density: 420",
+      "font_scale": "1.0"
+    },
+    "settings_timing_note": null
+  },
+  {
+    "local_artifact_directory": "local-data/android-disconnect-final-2026-10-17",
+    "status": "failed",
+    "source": {
+      "validated_commit": "689fc384a80fb8a88a1521f0b005b175a120c284",
+      "compiled_commit": "689fc384a80fb8a88a1521f0b005b175a120c284"
+    },
+    "passed_checkpoint_count": 0,
+    "error": "Original emulator settings were not restored exactly",
+    "original": {
+      "size": "Physical size: 1080x1920",
+      "density": "Physical density: 420",
+      "font_scale": "1.0",
+      "airplane_mode_on": "0",
+      "wifi_on": "1",
+      "mobile_data": "1"
+    },
+    "reported_restored": {
+      "airplane_mode_on": "0",
+      "wifi_on": "1",
+      "mobile_data": "0",
+      "size": "Physical size: 1080x1920",
+      "density": "Physical density: 420",
+      "font_scale": "1.0"
+    },
+    "settings_timing_note": "For the zero-check startup failure, immediate restored mobile_data was 0; subsequent read-only check returned original 1 before the next run. Harness now waits for convergence."
+  },
+  {
+    "local_artifact_directory": "local-data/android-disconnect-lifecycle-final-2026-10-17",
+    "status": "failed",
+    "source": {
+      "validated_commit": "81128d0bae4e8fe0f1d709ad12e4bd3bc1155352",
+      "compiled_commit": "81128d0bae4e8fe0f1d709ad12e4bd3bc1155352"
+    },
+    "passed_checkpoint_count": 1,
+    "error": "Visible UI did not contain 'Papierflugbuch aktualisieren'",
+    "original": {
+      "size": "Physical size: 1080x1920",
+      "density": "Physical density: 420",
+      "font_scale": "1.0",
+      "airplane_mode_on": "0",
+      "wifi_on": "1",
+      "mobile_data": "1"
+    },
+    "reported_restored": {
+      "airplane_mode_on": "0",
+      "wifi_on": "1",
+      "mobile_data": "1",
+      "size": "Physical size: 1080x1920",
+      "density": "Physical density: 420",
+      "font_scale": "1.0"
+    },
+    "scope_note": "Runtime density/readiness finding tracked in issue #5; targeted harness starts at one stable measured viewport; no home-layout product fix claimed."
+  }
+]

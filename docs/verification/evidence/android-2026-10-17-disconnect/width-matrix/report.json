@@ -1,0 +1,349 @@
+{
+  "status": "passed",
+  "checks": [
+    {
+      "name": "profile-opens-shared-connection-entry",
+      "status": "passed",
+      "viewport": {
+        "width_px": 1080,
+        "height_px": 1920,
+        "density_dpi": 420,
+        "width_dp": 411.42857142857144,
+        "height_dp": 731.4285714285714,
+        "font_scale": 1.0
+      },
+      "screenshot": "01-profile-opens-shared-connection-entry.png",
+      "hierarchy": "01-profile-opens-shared-connection-entry.xml",
+      "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+    },
+    {
+      "name": "connection-w360-h900-font1.0",
+      "status": "passed",
+      "viewport": {
+        "width_px": 360,
+        "height_px": 900,
+        "density_dpi": 160,
+        "width_dp": 360.0,
+        "height_dp": 900.0,
+        "font_scale": 1.0
+      },
+      "screenshot": "02-connection-w360-h900-font1.0.png",
+      "hierarchy": "02-connection-w360-h900-font1.0.xml",
+      "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+    },
+    {
+      "name": "connection-header-w390-font1.0",
+      "status": "passed",
+      "viewport": {
+        "width_px": 390,
+        "height_px": 900,
+        "density_dpi": 160,
+        "width_dp": 390.0,
+        "height_dp": 900.0,
+        "font_scale": 1.0
+      },
+      "screenshot": "03-connection-header-w390-font1.0.png",
+      "hierarchy": "03-connection-header-w390-font1.0.xml",
+      "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+    },
+    {
+      "name": "connection-w390-h900-font1.0",
+      "status": "passed",
+      "viewport": {
+        "width_px": 390,
+        "height_px": 900,
+        "density_dpi": 160,
+        "width_dp": 390.0,
+        "height_dp": 900.0,
+        "font_scale": 1.0
+      },
+      "screenshot": "04-connection-w390-h900-font1.0.png",
+      "hierarchy": "04-connection-w390-h900-font1.0.xml",
+      "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+    },
+    {
+      "name": "connection-w412-h900-font1.0",
+      "status": "passed",
+      "viewport": {
+        "width_px": 412,
+        "height_px": 900,
+        "density_dpi": 160,
+        "width_dp": 412.0,
+        "height_dp": 900.0,
+        "font_scale": 1.0
+      },
+      "screenshot": "05-connection-w412-h900-font1.0.png",
+      "hierarchy": "05-connection-w412-h900-font1.0.xml",
+      "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+    },
+    {
+      "name": "connection-w600-h1100-font1.0",
+      "status": "passed",
+      "viewport": {
+        "width_px": 600,
+        "height_px": 1100,
+        "density_dpi": 160,
+        "width_dp": 600.0,
+        "height_dp": 1100.0,
+        "font_scale": 1.0
+      },
+      "screenshot": "06-connection-w600-h1100-font1.0.png",
+      "hierarchy": "06-connection-w600-h1100-font1.0.xml",
+      "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+    },
+    {
+      "name": "connection-w840-h1100-font1.0",
+      "status": "passed",
+      "viewport": {
+        "width_px": 840,
+        "height_px": 1100,
+        "density_dpi": 160,
+        "width_dp": 840.0,
+        "height_dp": 1100.0,
+        "font_scale": 1.0
+      },
+      "screenshot": "07-connection-w840-h1100-font1.0.png",
+      "hierarchy": "07-connection-w840-h1100-font1.0.xml",
+      "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+    },
+    {
+      "name": "connection-header-w360-font1.4",
+      "status": "passed",
+      "viewport": {
+        "width_px": 360,
+        "height_px": 900,
+        "density_dpi": 160,
+        "width_dp": 360.0,
+        "height_dp": 900.0,
+        "font_scale": 1.4
+      },
+      "screenshot": "08-connection-header-w360-font1.4.png",
+      "hierarchy": "08-connection-header-w360-font1.4.xml",
+      "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+    },
+    {
+      "name": "connection-w360-h900-font1.4",
+      "status": "passed",
+      "viewport": {
+        "width_px": 360,
+        "height_px": 900,
+        "density_dpi": 160,
+        "width_dp": 360.0,
+        "height_dp": 900.0,
+        "font_scale": 1.4
+      },
+      "screenshot": "09-connection-w360-h900-font1.4.png",
+      "hierarchy": "09-connection-w360-h900-font1.4.xml",
+      "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+    },
+    {
+      "name": "connection-min-enlarged-keyboard",
+      "status": "passed",
+      "viewport": {
+        "width_px": 360,
+        "height_px": 900,
+        "density_dpi": 160,
+        "width_dp": 360.0,
+        "height_dp": 900.0,
+        "font_scale": 1.4
+      },
+      "screenshot": "10-connection-min-enlarged-keyboard.png",
+      "hierarchy": "10-connection-min-enlarged-keyboard.xml",
+      "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+    },
+    {
+      "name": "connection-w600-h1100-font1.4",
+      "status": "passed",
+      "viewport": {
+        "width_px": 600,
+        "height_px": 1100,
+        "density_dpi": 160,
+        "width_dp": 600.0,
+        "height_dp": 1100.0,
+        "font_scale": 1.4
+      },
+      "screenshot": "11-connection-w600-h1100-font1.4.png",
+      "hierarchy": "11-connection-w600-h1100-font1.4.xml",
+      "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+    },
+    {
+      "name": "connection-w840-h412-font1.0",
+      "status": "passed",
+      "viewport": {
+        "width_px": 840,
+        "height_px": 412,
+        "density_dpi": 160,
+        "width_dp": 840.0,
+        "height_dp": 412.0,
+        "font_scale": 1.0
+      },
+      "screenshot": "12-connection-w840-h412-font1.0.png",
+      "hierarchy": "12-connection-w840-h412-font1.0.xml",
+      "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+    },
+    {
+      "name": "offline-browser-error-preserves-unknown-state",
+      "status": "passed",
+      "viewport": {
+        "width_px": 390,
+        "height_px": 900,
+        "density_dpi": 160,
+        "width_dp": 390.0,
+        "height_dp": 900.0,
+        "font_scale": 1.0
+      },
+      "screenshot": "13-offline-browser-error-preserves-unknown-state.png",
+      "hierarchy": "13-offline-browser-error-preserves-unknown-state.xml",
+      "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+    },
+    {
+      "name": "offline-error-close-retains-local-flight-screen",
+      "status": "passed",
+      "viewport": {
+        "width_px": 390,
+        "height_px": 900,
+        "density_dpi": 160,
+        "width_dp": 390.0,
+        "height_dp": 900.0,
+        "font_scale": 1.0
+      },
+      "screenshot": "14-offline-error-close-retains-local-flight-screen.png",
+      "hierarchy": "14-offline-error-close-retains-local-flight-screen.xml",
+      "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+    },
+    {
+      "name": "offline-browser-explicit-retry",
+      "status": "passed",
+      "viewport": {
+        "width_px": 390,
+        "height_px": 900,
+        "density_dpi": 160,
+        "width_dp": 390.0,
+        "height_dp": 900.0,
+        "font_scale": 1.0
+      },
+      "screenshot": "15-offline-browser-explicit-retry.png",
+      "hierarchy": "15-offline-browser-explicit-retry.xml",
+      "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+    },
+    {
+      "name": "restart-does-not-infer-session-from-cookies",
+      "status": "passed",
+      "viewport": {
+        "width_px": 390,
+        "height_px": 900,
+        "density_dpi": 160,
+        "width_dp": 390.0,
+        "height_dp": 900.0,
+        "font_scale": 1.0
+      },
+      "screenshot": "16-restart-does-not-infer-session-from-cookies.png",
+      "hierarchy": "16-restart-does-not-infer-session-from-cookies.xml",
+      "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+    },
+    {
+      "name": "forget-credentials-does-not-claim-provider-logout",
+      "status": "passed",
+      "viewport": {
+        "width_px": 390,
+        "height_px": 900,
+        "density_dpi": 160,
+        "width_dp": 390.0,
+        "height_dp": 900.0,
+        "font_scale": 1.0
+      },
+      "screenshot": "17-forget-credentials-does-not-claim-provider-logout.png",
+      "hierarchy": "17-forget-credentials-does-not-claim-provider-logout.xml",
+      "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+    },
+    {
+      "name": "offline-disconnect-failure-is-unconfirmed",
+      "status": "passed",
+      "viewport": {
+        "width_px": 390,
+        "height_px": 900,
+        "density_dpi": 160,
+        "width_dp": 390.0,
+        "height_dp": 900.0,
+        "font_scale": 1.0
+      },
+      "screenshot": "18-offline-disconnect-failure-is-unconfirmed.png",
+      "hierarchy": "18-offline-disconnect-failure-is-unconfirmed.xml",
+      "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+    },
+    {
+      "name": "offline-disconnect-retry-is-unconfirmed",
+      "status": "passed",
+      "viewport": {
+        "width_px": 390,
+        "height_px": 900,
+        "density_dpi": 160,
+        "width_dp": 390.0,
+        "height_dp": 900.0,
+        "font_scale": 1.0
+      },
+      "screenshot": "19-offline-disconnect-retry-is-unconfirmed.png",
+      "hierarchy": "19-offline-disconnect-retry-is-unconfirmed.xml",
+      "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+    }
+  ],
+  "boundary": "Synthetic connection entry/layout/offline errors only. No live login, capture, provider preferences, canonical import, physical phone or iOS.",
+  "source": {
+    "validated_commit": "bb3cfd352c9aadd43befca894e8320a3a43b8c64",
+    "compiled_commit": "689fc384a80fb8a88a1521f0b005b175a120c284"
+  },
+  "original": {
+    "size": "Physical size: 1080x1920",
+    "density": "Physical density: 420",
+    "font_scale": "1.0",
+    "airplane_mode_on": "0",
+    "wifi_on": "1",
+    "mobile_data": "1"
+  },
+  "provider_access": "All radios disabled before browser creation; no provider network request could complete.",
+  "keyboard_geometry": {
+    "top_px": 601,
+    "source": "WindowManager visible InputMethod frame plus content inset",
+    "field_bounds": [
+      22,
+      190,
+      338,
+      238
+    ]
+  },
+  "native_browser_retention": {
+    "status": "passed",
+    "first_ids": [
+      "31bfd8f",
+      "d0a53a7"
+    ],
+    "second_ids": [
+      "31bfd8f",
+      "d0a53a7"
+    ]
+  },
+  "disconnect_offline_retry": {
+    "status": "passed",
+    "first_ids": [
+      "a9b17bb",
+      "c200b12"
+    ],
+    "retry_ids": [
+      "a9b17bb",
+      "c200b12"
+    ],
+    "after_retry_ids": [
+      "a9b17bb",
+      "c200b12"
+    ],
+    "reason": null
+  },
+  "restored": {
+    "airplane_mode_on": "0",
+    "wifi_on": "1",
+    "mobile_data": "1",
+    "size": "Physical size: 1080x1920",
+    "density": "Physical density: 420",
+    "font_scale": "1.0"
+  }
+}

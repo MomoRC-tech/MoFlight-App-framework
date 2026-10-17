@@ -1,0 +1,183 @@
+{
+  "status": "passed",
+  "checks": [
+    {
+      "name": "profile-opens-shared-connection-entry",
+      "status": "passed",
+      "viewport": {
+        "width_px": 390,
+        "height_px": 900,
+        "density_dpi": 160,
+        "width_dp": 390.0,
+        "height_dp": 900.0,
+        "font_scale": 1.0
+      },
+      "screenshot": "01-profile-opens-shared-connection-entry.png",
+      "hierarchy": "01-profile-opens-shared-connection-entry.xml",
+      "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+    },
+    {
+      "name": "offline-browser-error-preserves-unknown-state",
+      "status": "passed",
+      "viewport": {
+        "width_px": 390,
+        "height_px": 900,
+        "density_dpi": 160,
+        "width_dp": 390.0,
+        "height_dp": 900.0,
+        "font_scale": 1.0
+      },
+      "screenshot": "02-offline-browser-error-preserves-unknown-state.png",
+      "hierarchy": "02-offline-browser-error-preserves-unknown-state.xml",
+      "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+    },
+    {
+      "name": "offline-error-close-retains-local-flight-screen",
+      "status": "passed",
+      "viewport": {
+        "width_px": 390,
+        "height_px": 900,
+        "density_dpi": 160,
+        "width_dp": 390.0,
+        "height_dp": 900.0,
+        "font_scale": 1.0
+      },
+      "screenshot": "03-offline-error-close-retains-local-flight-screen.png",
+      "hierarchy": "03-offline-error-close-retains-local-flight-screen.xml",
+      "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+    },
+    {
+      "name": "offline-browser-explicit-retry",
+      "status": "passed",
+      "viewport": {
+        "width_px": 390,
+        "height_px": 900,
+        "density_dpi": 160,
+        "width_dp": 390.0,
+        "height_dp": 900.0,
+        "font_scale": 1.0
+      },
+      "screenshot": "04-offline-browser-explicit-retry.png",
+      "hierarchy": "04-offline-browser-explicit-retry.xml",
+      "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+    },
+    {
+      "name": "restart-does-not-infer-session-from-cookies",
+      "status": "passed",
+      "viewport": {
+        "width_px": 390,
+        "height_px": 900,
+        "density_dpi": 160,
+        "width_dp": 390.0,
+        "height_dp": 900.0,
+        "font_scale": 1.0
+      },
+      "screenshot": "05-restart-does-not-infer-session-from-cookies.png",
+      "hierarchy": "05-restart-does-not-infer-session-from-cookies.xml",
+      "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+    },
+    {
+      "name": "forget-credentials-does-not-claim-provider-logout",
+      "status": "passed",
+      "viewport": {
+        "width_px": 390,
+        "height_px": 900,
+        "density_dpi": 160,
+        "width_dp": 390.0,
+        "height_dp": 900.0,
+        "font_scale": 1.0
+      },
+      "screenshot": "06-forget-credentials-does-not-claim-provider-logout.png",
+      "hierarchy": "06-forget-credentials-does-not-claim-provider-logout.xml",
+      "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+    },
+    {
+      "name": "offline-disconnect-failure-is-unconfirmed",
+      "status": "passed",
+      "viewport": {
+        "width_px": 390,
+        "height_px": 900,
+        "density_dpi": 160,
+        "width_dp": 390.0,
+        "height_dp": 900.0,
+        "font_scale": 1.0
+      },
+      "screenshot": "07-offline-disconnect-failure-is-unconfirmed.png",
+      "hierarchy": "07-offline-disconnect-failure-is-unconfirmed.xml",
+      "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+    },
+    {
+      "name": "offline-disconnect-retry-is-unconfirmed",
+      "status": "passed",
+      "viewport": {
+        "width_px": 390,
+        "height_px": 900,
+        "density_dpi": 160,
+        "width_dp": 390.0,
+        "height_dp": 900.0,
+        "font_scale": 1.0
+      },
+      "screenshot": "08-offline-disconnect-retry-is-unconfirmed.png",
+      "hierarchy": "08-offline-disconnect-retry-is-unconfirmed.xml",
+      "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+    }
+  ],
+  "boundary": "Synthetic connection entry/layout/offline errors only. No live login, capture, provider preferences, canonical import, physical phone or iOS.",
+  "source": {
+    "validated_commit": "e9fdd637723095424bc38065a20b858c1ebd194c",
+    "compiled_commit": "81128d0bae4e8fe0f1d709ad12e4bd3bc1155352"
+  },
+  "original": {
+    "size": "Physical size: 1080x1920",
+    "density": "Physical density: 420",
+    "font_scale": "1.0",
+    "airplane_mode_on": "0",
+    "wifi_on": "1",
+    "mobile_data": "1"
+  },
+  "trial_mode": "targeted-lifecycle",
+  "provider_access": "All radios disabled before browser creation; no provider network request could complete.",
+  "targeted_viewport_before_launch": {
+    "width_px": 390,
+    "height_px": 900,
+    "density_dpi": 160,
+    "width_dp": 390.0,
+    "height_dp": 900.0,
+    "font_scale": 1.0
+  },
+  "native_browser_retention": {
+    "status": "passed",
+    "first_ids": [
+      "277b34f",
+      "2d0cd3"
+    ],
+    "second_ids": [
+      "277b34f",
+      "2d0cd3"
+    ]
+  },
+  "disconnect_offline_retry": {
+    "status": "passed",
+    "first_ids": [
+      "6394c4",
+      "826356b"
+    ],
+    "retry_ids": [
+      "6394c4",
+      "826356b"
+    ],
+    "after_retry_ids": [
+      "6394c4",
+      "826356b"
+    ],
+    "reason": null
+  },
+  "restored": {
+    "airplane_mode_on": "0",
+    "wifi_on": "1",
+    "mobile_data": "1",
+    "size": "Physical size: 1080x1920",
+    "density": "Physical density: 420",
+    "font_scale": "1.0"
+  }
+}
