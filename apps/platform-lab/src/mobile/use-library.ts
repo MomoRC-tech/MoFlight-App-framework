@@ -2,9 +2,10 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { effective, type Flight } from '@moflight/flight-logbook';
 import type { PilotBooks, Book } from '../../../../packages/local-data/src/books';
 import { loadBooks, rememberedBook, rememberBook } from '../book-storage';
+import { readLocalDisplayName, saveLocalDisplayName } from './local-profile';
 
-export interface LibraryView { books: Book[]; bookId: string | null; flights: Flight[]; pending: number | null }
-const empty: LibraryView = { books: [], bookId: null, flights: [], pending: null };
+export interface LibraryView { displayName: string; books: Book[]; bookId: string | null; flights: Flight[]; pending: number | null }
+const empty: LibraryView = { displayName: '', books: [], bookId: null, flights: [], pending: null };
 export function useLibrary(suspended: boolean) {
   const [data, setData] = useState<LibraryView>(empty);
   const [busy, setBusy] = useState(true);
@@ -20,14 +21,15 @@ export function useLibrary(suspended: boolean) {
     try { await repository?.db.close(); } catch { /* The persisted library remains untouched. */ }
   };
   const read = useCallback(async (repository: PilotBooks, preferred?: string) => {
+    const displayName = await readLocalDisplayName(repository.db, repository.owner);
     const books = await repository.books();
     const remembered = preferred ?? await rememberedBook(repository);
     const bookId = books.find(b => b.id === remembered)?.id ?? books[0]?.id ?? null;
-    if (!bookId) return { ...empty, books };
+    if (!bookId) return { ...empty, books, displayName };
     const history = await repository.history(bookId);
     const flights = effective(history);
     const written = new Set(history.paper.map(p => p.flight.id));
-    return { books, bookId, flights, pending: new Set(flights.filter(f => !written.has(f.id)).map(f => f.id)).size };
+    return { books, bookId, flights, displayName, pending: new Set(flights.filter(f => !written.has(f.id)).map(f => f.id)).size };
   }, []);
   const reload: () => Promise<void> = useCallback(async () => {
     if (!alive.current) return;
@@ -80,5 +82,26 @@ export function useLibrary(suspended: boolean) {
       }
     }
   };
-  return { ...data, busy, error, reload, selectBook };
+  const saveDisplayName = async (value: string): Promise<boolean> => {
+    if (!alive.current || lock.current || suspendedRef.current || !lib.current) return false;
+    const repository = lib.current;
+    lock.current = true; setBusy(true); setError(null);
+    try {
+      const displayName = await saveLocalDisplayName(repository.db, repository.owner, value);
+      if (!alive.current) return false;
+      setData(previous => ({ ...previous, displayName }));
+      return true;
+    } catch {
+      if (alive.current) setError('Profil konnte nicht gespeichert werden. Bitte höchstens 60 Zeichen verwenden und erneut versuchen.');
+      return false;
+    } finally {
+      if (!alive.current) { lib.current = null; await close(repository); }
+      lock.current = false;
+      if (alive.current) {
+        setBusy(false);
+        if (pendingReload.current && !suspendedRef.current) void reload();
+      }
+    }
+  };
+  return { ...data, busy, error, reload, selectBook, saveDisplayName };
 }

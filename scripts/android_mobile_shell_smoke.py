@@ -40,6 +40,8 @@ def open_profile(smoke):
 def display_name_field(smoke):
     for _ in range(12):
         nodes = smoke.dump()
+        errors = [node.get('text', '') for node in nodes if node.get('text', '').startswith(('Profil konnte', 'Lokale Bibliothek konnte'))]
+        assert not errors, 'Native profile error: ' + '; '.join(errors)
         fields = [node for node in nodes if node.get('class') == 'android.widget.EditText'
                   and node.get('content-desc') == 'Anzeigename' and node.get('enabled') == 'true']
         if fields:

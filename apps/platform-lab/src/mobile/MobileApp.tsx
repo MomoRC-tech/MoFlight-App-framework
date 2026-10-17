@@ -11,8 +11,6 @@ import { localQuestions, localInsight } from './local-insights';
 import { Dashboard } from './Dashboard';
 import { PlaneIcon, ProfileIcon, BookIcon } from './ShellIcons';
 import { ProfileSettings } from './ProfileSettings';
-import { loadBooks } from '../book-storage';
-import { readLocalDisplayName } from './local-profile';
 
 const mountain = require('../../assets/aviation/mountain-header-v2.jpg');
 const brandLogo = require('../../assets/branding/moflight-ai-logo-dark.png');
@@ -42,7 +40,6 @@ function FlightRow({ flight, onPress, tablet }: { flight: Flight; onPress: () =>
 
 export default function MobileApp() { return <SafeAreaProvider><Shell /></SafeAreaProvider>; }
 function Shell() {
-  const [displayName, setDisplayName] = useState('');
   const [tab, setTab] = useState<Tab>('home');
   const [sheet, setSheet] = useState<Sheet>(null);
   const [detail, setDetail] = useState<Flight | null>(null);
@@ -83,17 +80,6 @@ function Shell() {
     return () => { show.remove(); hide.remove(); clearTimeout(timer); };
   }, []);
   useEffect(() => { Keyboard.dismiss(); }, [tab]);
-  useEffect(() => {
-    if (toolsOpen) return;
-    let alive = true;
-    void (async () => {
-      let opened: Awaited<ReturnType<typeof loadBooks>> | undefined;
-      try { opened = await loadBooks(); const name = await readLocalDisplayName(opened.lib.db, opened.lib.owner); if (alive) setDisplayName(name); }
-      catch { if (alive) setDisplayName(''); }
-      finally { try { await opened?.lib.db.close(); } catch { /* Preserve saved data on cleanup failure. */ } }
-    })();
-    return () => { alive = false; };
-  }, [library.bookId, toolsOpen]);
   useEffect(() => { setDetail(null); setLocalAnswer(null); }, [library.bookId, library.flights]);
   useEffect(() => {
     const listener = BackHandler.addEventListener('hardwareBackPress', () => {
@@ -124,7 +110,7 @@ function Shell() {
   const pageTitle = tabs.find(item => item.id === tab)!.title;
   const header = <Photo source={tab === 'club' ? clubAirfield : mountain} radius={0} style={s.fixedHeader} contentStyle={s.fixedHeaderContent} tint={tab === 'ai' ? '#15123be8' : '#001022df'}>
     <Image source={brandLogo} accessibilityLabel="MoFlight Thermik Logo" style={s.brandLogo} resizeMode="contain" />
-    <View style={{ flex: 1, minWidth: 0 }}><Text accessibilityRole="header" style={s.pageTitle}>{tab === 'ai' ? 'MoFlight AI' : pageTitle}</Text><Label muted style={{ fontSize: 11, lineHeight: 16 }}>{tab === 'home' ? (displayName ? `Hallo, ${displayName}!` : 'Guten Tag!') : tab === 'ai' ? 'Dein Segelflug-Assistent' : 'MoFlight'}</Label></View>
+    <View style={{ flex: 1, minWidth: 0 }}><Text accessibilityRole="header" style={s.pageTitle}>{tab === 'ai' ? 'MoFlight AI' : pageTitle}</Text><Label muted style={{ fontSize: 11, lineHeight: 16 }}>{tab === 'home' ? (library.displayName ? `Hallo, ${library.displayName}!` : 'Guten Tag!') : tab === 'ai' ? 'Dein Segelflug-Assistent' : 'MoFlight'}</Label></View>
     <Pressable accessibilityRole="button" accessibilityLabel="Profil & Einstellungen öffnen" onPress={() => setSheet('profile')} style={s.profileButton}><ProfileIcon /></Pressable>
   </Photo>;
   const flightHeader = <View style={{ gap: 3 }}>
@@ -193,7 +179,7 @@ function Shell() {
     <Modal visible={sheet !== null || detail !== null} animationType="slide" onRequestClose={() => { setDetail(null); setSheet(null); }}>
       <SafeAreaView style={s.modal}><StatusBar barStyle="light-content" /><View style={s.modalBar}><Action secondary onPress={() => { setDetail(null); setSheet(null); }}>‹ Zurück</Action><Label style={{ flex: 1, fontWeight: '600' }}>{detail ? 'Flugdetails' : sheet === 'books' ? 'Papierflugbuch' : sheet === 'tools' ? 'Entwicklungswerkzeuge' : sheet === 'profile' ? 'Profil & Einstellungen' : 'MoFlight'}</Label></View>
         {sheet === 'tools' ? <LabApp /> : sheet === 'books' ? <View style={{ flex: 1, backgroundColor: '#f5f7fb' }}><BookLab close={() => setSheet(null)} /></View> : <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}><ScrollView contentContainerStyle={s.canvas} keyboardShouldPersistTaps="handled">
-          {sheet === 'profile' && <ProfileSettings onTools={() => setSheet('tools')} onStatus={() => setSheet('status')} onCredits={() => setSheet('credits')} onBooks={() => setSheet('selectBook')} onSaved={setDisplayName} />}
+          {sheet === 'profile' && <ProfileSettings onTools={() => setSheet('tools')} onStatus={() => setSheet('status')} onCredits={() => setSheet('credits')} onBooks={() => setSheet('selectBook')} displayName={library.displayName} busy={library.busy} error={library.error} onSaveName={library.saveDisplayName} onRetry={() => void library.reload()} />}
           {detail && <><Section title={detail.registration ?? 'Flugzeug unbekannt'} />{[['Datum', dateText(detail.date)], ['Flugzeugtyp', detail.aircraft_model], ['Abflug', detail.start_place], ['Ankunft', detail.landing_place], ['Start', detail.start], ['Landung', detail.landing], ['Zeitbasis', detail.time_basis], ['Dauer', detail.minutes === null ? null : `${formatDuration(detail.minutes)} h`], ['Rolle', detail.pilot_role], ['Startart', detail.launch], ['Landungen', detail.landings?.toString()], ['Bemerkungen', detail.remarks]].map(([label, value]) => <Card key={label}><Label muted>{label}</Label><Label selectable>{value ?? 'Unbekannt'}</Label></Card>)}<Label muted>Quelle: gespeicherte synthetische Bibliothek · {book?.name}. Distanz und Flugtrack sind nicht verfügbar.</Label></>}
           {sheet === 'selectBook' && <><Section title="Flugbuch auswählen" />{library.books.map(b => <Action key={b.id} secondary onPress={() => { setSheet(null); void library.selectBook(b.id); }}>{b.id === library.bookId ? '✓ ' : ''}{b.name}</Action>)}{!library.books.length && <Empty title="Noch kein Flugbuch">Bestehende lokale Flugbuchwerkzeuge öffnen, um die Bibliothek einzusehen.</Empty>}<Action onPress={openBooks}>Flugbuchwerkzeuge öffnen</Action></>}
           {sheet === 'filters' && <><Section title="Flugfilter" /><Label muted>Jahr, Suche und Schulungsrolle werden gemeinsam auf die gespeicherten Flüge angewendet.</Label><Chip title="Alle Rollen" selected={!training} onPress={() => setTraining(false)} /><Chip title="Schulung · Dual / FI" selected={training} onPress={() => setTraining(true)} /><Action onPress={() => { setSearch(''); setTraining(false); setYear(null); setSheet(null); }}>Filter zurücksetzen</Action></>}
