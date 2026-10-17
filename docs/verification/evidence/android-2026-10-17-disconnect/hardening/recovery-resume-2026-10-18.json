@@ -1,0 +1,28 @@
+{
+  "status": "failed",
+  "source_commit": "31a9aa66ccd7b83fa8db068575f626e814ab4c82",
+  "checks": [
+    {
+      "name": "named-provider-avd-reverified",
+      "status": "passed"
+    },
+    {
+      "name": "installed-committed-source-apk-verified-without-reinstall",
+      "status": "passed"
+    }
+  ],
+  "boundary": "Approved recovery-only continuation; no credential action, export, clearing, source deletion or raw adoption.",
+  "viewport": {
+    "width_px": 480,
+    "height_px": 800,
+    "density_dpi": 160,
+    "width_dp": 480.0,
+    "height_dp": 800.0,
+    "font_scale": 1.0
+  },
+  "error": "Recovery continuation stopped; inspect ignored private hierarchy locally.",
+  "client_date": "2026-10-18",
+  "continuation_status": "blocked-specific-provider-avd-authentication",
+  "synthetic_ui_observation": "App UI reports recognized confirmed provisional session; no independent fresh provider check performed.",
+  "preservation_constraint": "Preserve both AVDs; no destructive synthetic reset/store proof/clearing until personal-session/data disposition is resolved."
+}
