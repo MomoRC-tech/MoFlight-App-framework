@@ -1,0 +1,23 @@
+{
+  "status": "passed",
+  "source_commit": "31a9aa66ccd7b83fa8db068575f626e814ab4c82",
+  "checks": [
+    {
+      "name": "saved-scoped-raw-capture-summary-present",
+      "status": "passed"
+    },
+    {
+      "name": "exact-saved-capture-summary-reopened-after-process-restart",
+      "status": "passed"
+    },
+    {
+      "name": "fresh-matching-profile-and-resolved-recovery-after-restart",
+      "status": "passed"
+    }
+  ],
+  "boundary": "Focused existing scoped-capture restart proof; no new retrieval, clearing or legacy mutation.",
+  "limits": [
+    "Summary persistence only; no independent full-row database inspection",
+    "Independent field/reference comparison and repeat/cancel remain open"
+  ]
+}

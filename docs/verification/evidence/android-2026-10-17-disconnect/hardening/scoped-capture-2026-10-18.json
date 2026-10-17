@@ -1,0 +1,28 @@
+{
+  "status": "failed",
+  "source_commit": "31a9aa66ccd7b83fa8db068575f626e814ab4c82",
+  "checks": [
+    {
+      "name": "named-provider-avd-and-committed-source-installed-apk",
+      "status": "passed"
+    },
+    {
+      "name": "inclusive-bounded-request-inputs-verified",
+      "status": "passed"
+    },
+    {
+      "name": "explicit-scoped-raw-capture-started",
+      "status": "passed"
+    },
+    {
+      "name": "validated-scoped-raw-save-reported",
+      "status": "passed"
+    },
+    {
+      "name": "retrieval-reenabled-after-full-view-restoration-and-context-check",
+      "status": "passed"
+    }
+  ],
+  "boundary": "Bounded own-flight raw capture only; no canonical import, clearing, legacy mutation or historical adoption.",
+  "error": "Bounded capture stopped; inspect ignored private hierarchy. No automatic retry."
+}
