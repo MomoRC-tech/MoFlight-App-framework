@@ -44,3 +44,5 @@ Raw capture remains in the existing separate probe database. No second canonical
 - Physical Pixel retest remains deferred at Manuel's request; do not request more tests until he resumes.
 
 The [earlier interaction proposal](2026-10-17-vereinsflieger-connection-ui.md), [connection journey](vereinsflieger-connection-and-retrieval.md), [ADR 0006](../adr/0006-vereinsflieger-connector-proposal.md) and accepted [ADR 0009](../adr/0009-local-android-development-and-checkpoint-ci.md) retain wider requirements and native evidence gates.
+
+Completed local checkpoint: [149 tests, Release build, 16 synthetic native checks and bounded Android live observations](../verification/2026-10-17-connection-controller-poc.md). This supports the measured slice; remaining acceptance above stays open.

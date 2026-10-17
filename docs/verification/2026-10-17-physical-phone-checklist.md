@@ -47,6 +47,6 @@ Unknown display measurements may stay unknown; do not infer logical dp or font s
 
 ## Acceptance and preparation evidence
 
-Record actual observations under #8 and in a dated verification result; track reproducible regressions before adding services. Missing checks remain open. This bounded retest does not close the broader #8 auth/sync/live/iOS criteria or full M1 acceptance. Connector implementation remains after the phone gate.
+Record actual observations under #8 and in a dated verification result; track reproducible regressions. Missing checks remain open. This bounded retest does not close the broader #8 auth/sync/live/iOS criteria or full M1 acceptance. Subsequent authorization: Manuel explicitly selected the [bounded connection/controller PoC](../product/2026-10-17-connection-controller-poc.md) ahead of this deferred retest; that scheduling exception does not pass or waive physical acceptance.
 
 Preparation on Windows/PowerShell at repository `680871c`: read AGENTS.md, README, roadmap, provider proposal and current #2/#5/#8 bodies; independently reviewed acceptance evidence. Live remote main matched local main; working tree was clean. Recomputed the local APK's byte count and SHA-256 above. Application paths have no diff from tested `db15203`. Existing 136-test/71-checkpoint evidence was reviewed, not rerun. No phone, emulator or provider session was accessed. Documentation links and scoped whitespace are checked with this change; no new native or physical pass is claimed.

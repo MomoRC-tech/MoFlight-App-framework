@@ -7,7 +7,7 @@
 
 # MoFlight
 
-> **Connection increment — 17 October 2026:** Manuel authorized the bounded [Vereinsflieger connection/controller PoC](docs/product/2026-10-17-connection-controller-poc.md) next, ahead of the deferred physical retest. Header/Profile entry and retained original-page browser are implemented for local verification. Session observations remain provisional; raw capture stays separate from canonical flights. Live hidden retrieval, production binding, full disconnect and iOS runtime are not accepted.
+> **Connection increment — 17 October 2026:** Manuel authorized the bounded [Vereinsflieger connection/controller PoC](docs/product/2026-10-17-connection-controller-poc.md) next, ahead of the deferred physical retest. Header/Profile entry and retained original-page browser are implemented. [Verification](docs/verification/2026-10-17-connection-controller-poc.md) records 149 tests, 16 synthetic native checks and a bounded Android existing-session/hidden raw-capture/cancel trial. Session observations remain provisional; production binding, full disconnect, canonical import and iOS runtime remain open.
 
 > **Current status and open work — 17 October 2026:** [All 15 open issues and remaining gates](docs/verification/2026-10-17-current-status-and-open-issues.md). Manuel confirms Android 17 and defers further physical testing for now; the updated phone gate remains open. The [current five-tab checklist and reply template](docs/verification/2026-10-17-physical-phone-checklist.md) are ready for when testing resumes. [Vereinsflieger header status and login popup](docs/product/2026-10-17-vereinsflieger-connection-ui.md) now feed the bounded connection increment under #2.
 
@@ -110,7 +110,7 @@ See [product scope](docs/product/moflight-feature-scope.md), [writing presentati
 | User journeys | Reviewed; detailed UI/application contracts remain open |
 | UI design | Approved-reference native shell implemented with five tabs, fixed logo header, local profile and segmented rings; historical HTML alternatives remain separate. Full application contracts/service integration and updated physical retest are open |
 | Native foundation | Expo/React Native lab with local SQLite, backup and bounded Android evidence |
-| Vereinsflieger access | Browser raw-capture and recovery proofs; complete canonical live history remains gated |
+| Vereinsflieger access | Browser raw-capture/recovery proofs plus retained header/Profile connection PoC; live hidden retrieval, stable binding and canonical history remain gated |
 | Statistics and books | Deterministic synthetic queries and multi-book proofs; live integration remains open |
 | Photo-to-writing | Product journey and format work exist; real recognition and full phone/print acceptance remain open |
 | iOS | Intended platform; runtime acceptance remains open |
@@ -123,7 +123,7 @@ The connected Figma Starter tool-call limit currently blocks transferring/refini
 | --- | --- | --- |
 | M0 | Consolidate documentation | Complete for that scope |
 | M1 | Native UI and application contracts | Bounded native shell implemented and tested; full contracts/acceptance remain open |
-| M2 | Reliable retrieval boundary | Existing lab partial; refactor planned |
+| M2 | Reliable retrieval boundary | Retained connection/controller slice implemented and bounded Android flow verified; broader reliability/identity gates open |
 | M3 | Normalized, saved live history | Planned |
 | M4 | Reviewed initial analytics | Planned |
 | M5 | Writing expansion and further features | Deferred |
@@ -132,7 +132,7 @@ Writing assistance has immediate product value; its place in the smallest useful
 
 ## Next action and unresolved decisions
 
-Retest the updated ARM64 demo on Pixel 6a before expanding functionality. Then refine the connection/application contracts and reliable retrieval boundary. Use the [complete open-issue index](docs/verification/2026-10-17-current-status-and-open-issues.md); the prototype review paragraphs below are retained design history and do not supersede the implemented native shell.
+Continue the authorized bounded connection/controller increment and verify its native behavior under #2/#5. The updated Pixel 6a retest is deferred at Manuel's request; it remains an open gate. Canonical live import remains later scope. Use the [complete open-issue index](docs/verification/2026-10-17-current-status-and-open-issues.md); the prototype review paragraphs below are retained design history and do not supersede the implemented native shell.
 
 Review **what goes where** in the [screen-content and placement inventory](docs/product/screen-content.md), independently of visual design. Stable item IDs support adding or moving content screen by screen; confirmed needs, draft placements and prototype gaps are distinguished.
 

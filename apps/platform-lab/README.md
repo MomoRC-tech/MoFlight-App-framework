@@ -1,5 +1,15 @@
 # MoFlight native platform lab
 
+**Connection PoC — 2026-10-17:** the mobile header link icon and Profile → Connections → Vereinsflieger now use one retained browser/controller. Sign in on the original HTTPS page, tap **Anmeldung prüfen**, then confirm the provisional observed account before a bounded raw capture. Closing hides the browser; it is not logout. The raw capture does not update the synthetic dashboard or establish canonical live history. [Contract and open gates](../../docs/product/2026-10-17-connection-controller-poc.md). Existing provider tools remain available before the main browser owns the workflow; simultaneous provider controllers are blocked. The Pixel retest stays deferred at Manuel's request.
+
+Credential-free native UI checks, after installing the committed-source Release on **MoFlight_Synthetic_API37** only:
+
+```powershell
+python scripts/android_connection_smoke.py --serial emulator-5554 --output local-data/android-connection
+```
+
+Run from the repository root with ADB on PATH and the existing synthetic book selected. The script verifies the AVD before changes, disables all network radios before creating a provider view and restores original display/font/network flags in `finally`. It tests entries, layout, offline errors/retry and native browser retention where Activity dump IDs are available; it does not establish live sign-in or hidden retrieval.
+
 **Current work order — 2026-10-13:** follow the [project plan](../../docs/project-plan.md). Next is M1 basic UI/application-contract definition, then reliable retrieval, saved live history and initial analytics. Writing/chat and other feature implementation are deferred. Dated lab descriptions below preserve evidence and limitations rather than define priorities.
 
 For reproducible provider interruption checks, the access PoC has an opt-in **Enable interruption test pause** control. It pauses only after the original view is durably journaled, the reserved backup is verified and temporary export reset is verified. Continue resumes normal retrieval; Cancel restores the original view. Force-stop/reopen must expose pending restoration and block new exports. The toggle is transient and off by default. Do not infer process-interruption acceptance from host tests; record actual native outcomes in the [verification report](../../docs/verification/2026-10-12-reserved-view-backup.md).

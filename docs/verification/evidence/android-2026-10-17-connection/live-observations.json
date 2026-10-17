@@ -1,0 +1,56 @@
+{
+  "evidence_kind": "primary-agent-inspected-native-ui",
+  "date": "2026-10-17",
+  "timezone": "Europe/Berlin",
+  "application_source": "ac27723a45cdc67d85db1b9e31cc5d273177b578",
+  "apk_sha256": "4800299facedc469cb29542331fca2a0eec77d57cc28f93862095ea35b25328d",
+  "device": {
+    "avd": "MoFlight_API37",
+    "serial": "emulator-5556",
+    "api": 37,
+    "abi": "x86_64",
+    "width_px": 480,
+    "height_px": 800,
+    "density_dpi": 160,
+    "width_dp": 480,
+    "height_dp": 800,
+    "font_scale": 1.0
+  },
+  "setup": "Existing AVD cold-started with no snapshot load/save; update-only APK install; no uninstall/data reset or display/network changes.",
+  "period": {
+    "from": "2025-01-01",
+    "through": "2026-12-31"
+  },
+  "checks": [
+    {
+      "check": "existing-session-original-page-and-provisional-context",
+      "outcome": "passed; no credential entry required, explicit engineering-run association"
+    },
+    {
+      "check": "hidden-foreground-raw-capture-across-close-and-tab-switch",
+      "outcome": "passed; raw save 09:52:51, final context check 09:52:56, actions enabled and no recovery warning"
+    },
+    {
+      "check": "saving-lock-and-cancel",
+      "outcome": "passed; Cancel disabled during write, later enabled cancellation completed restoration; last successful raw save stayed 09:52:51; final context check 09:54:13"
+    },
+    {
+      "check": "close-idle-precheck",
+      "outcome": "passed; canceled check did not begin export, session became unverified"
+    },
+    {
+      "check": "explicit-recheck-and-retry",
+      "outcome": "passed; raw save 09:56:35, final context check 09:56:42, actions enabled and no recovery warning"
+    }
+  ],
+  "limitations": [
+    "No fresh login/autofill/OTP test",
+    "No independent external preference or raw-row comparison",
+    "No measured row or page count claimed",
+    "No natural expiry, second account, complete disconnect, renderer/process loss or iOS runtime trial",
+    "No canonical live import or production identity binding"
+  ],
+  "row_count": null,
+  "page_count": null,
+  "private_evidence": "Ignored local-data/provider-connection-private screenshots only; no screenshots, personal identifiers, rows, databases, credentials or signed URLs included here."
+}
