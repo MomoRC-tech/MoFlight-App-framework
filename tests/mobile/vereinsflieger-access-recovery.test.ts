@@ -215,12 +215,17 @@ test('fresh protected-profile redirect to the exact login root verifies sign-out
   normal.controller().checkConnection(); await normal.loadPage(context.PROFILE_URL); await normal.loadPage(probe.LOGIN_URL);
   await normal.contextMessage({ error: 'session-required' }, probe.LOGIN_URL, undefined, probe.LOGIN_URL, 'vf-login-required-v1');
   assert.equal(normal.controller().connection.phase, 'login-required', 'The same supported evidence during a normal check requests sign-in');
+  normal.controller().dismissLogin();
+  assert.equal(normal.controller().connection.phase, 'login-required', 'Hiding the provider view preserves known login-required evidence');
+  assert.equal(normal.controller().connection.confirmed, false);
 
   const unavailable = fixture({ product: true }); unavailable.render(); await unavailable.settle(null); await unavailable.flush();
   unavailable.controller().connect(); await unavailable.loadPage(probe.LOGIN_URL);
   unavailable.controller().checkConnection(); await unavailable.loadPage(context.PROFILE_URL); await unavailable.loadPage(probe.LOGIN_URL);
   await unavailable.contextMessage({ error: 'login-layout-unavailable' }, probe.LOGIN_URL, undefined, probe.LOGIN_URL, 'vf-login-required-v1');
   assert.equal(unavailable.controller().connection.phase, 'error', 'An unsupported login layout is not proof of sign-out');
+  unavailable.controller().dismissLogin();
+  assert.equal(unavailable.controller().connection.phase, 'error', 'Closing the panel preserves the known unsupported-layout outcome');
 });
 
 test('login-required reader checks form structure without reading credential values', () => {

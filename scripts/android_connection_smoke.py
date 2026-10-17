@@ -58,7 +58,7 @@ def native_browser_ids(smoke):
     return sorted(set(re.findall(r'(?:RNCWebView|RNCWebViewWrapper)\{([0-9a-f]+)', text)))
 
 
-def execute(smoke):
+def execute(smoke, lifecycle_only=False):
     assert smoke.serial, 'Explicit synthetic serial required'
     assert smoke.shell('getprop', 'ro.kernel.qemu') == '1', 'Physical device refused'
     assert smoke.adb('emu', 'avd', 'name').stdout.splitlines()[0].strip() == AVD, 'Wrong AVD refused'
@@ -68,7 +68,8 @@ def execute(smoke):
         'font_scale': smoke.shell('settings', 'get', 'system', 'font_scale'),
         **{key: smoke.shell('settings', 'get', 'global', key) for key in ['airplane_mode_on', 'wifi_on', 'mobile_data']},
     }
-    smoke.report.update(boundary='Synthetic connection entry/layout/offline errors only. No live login, capture, provider preferences, canonical import, physical phone or iOS.', original=original)
+    smoke.report.update(boundary='Synthetic connection entry/layout/offline errors only. No live login, capture, provider preferences, canonical import, physical phone or iOS.', original=original,
+                        trial_mode='targeted-lifecycle' if lifecycle_only else 'full-width-and-lifecycle')
     try:
         # Set all radios off before opening any provider view.
         smoke.shell('cmd', 'connectivity', 'airplane-mode', 'enable')
@@ -86,7 +87,8 @@ def execute(smoke):
         capture(smoke, 'profile-opens-shared-connection-entry', viewport(smoke))
         smoke.shell('input', 'keyevent', 'KEYCODE_BACK')
 
-        for width, height, font in [(360, 900, 1.0), (390, 900, 1.0), (412, 900, 1.0), (600, 1100, 1.0), (840, 1100, 1.0), (360, 900, 1.4), (600, 1100, 1.4), (840, 412, 1.0)]:
+        matrix = [] if lifecycle_only else [(360, 900, 1.0), (390, 900, 1.0), (412, 900, 1.0), (600, 1100, 1.0), (840, 1100, 1.0), (360, 900, 1.4), (600, 1100, 1.4), (840, 412, 1.0)]
+        for width, height, font in matrix:
             smoke.shell('wm', 'size', f'{width}x{height}')
             smoke.shell('wm', 'density', '160')
             smoke.shell('settings', 'put', 'system', 'font_scale', str(font))
@@ -233,10 +235,11 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--serial', required=True)
     parser.add_argument('--output', type=Path, default=Path('local-data/android-connection'))
+    parser.add_argument('--lifecycle-only', action='store_true', help='Targeted follow-up; skips the width/font/keyboard matrix and records that narrower scope.')
     args = parser.parse_args()
     smoke = Smoke(args.output, args.serial, AVD)
     try:
-        execute(smoke)
+        execute(smoke, lifecycle_only=args.lifecycle_only)
     except Exception as error:
         finish(smoke, 'failed', error)
         raise

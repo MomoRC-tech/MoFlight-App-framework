@@ -124,11 +124,14 @@ export function useAccessController(product = false) {
     setVisible(false);
     // Dismissing a presentation must not orphan an owned capture/restoration check.
     if (retrieval.current.state.phase !== 'idle') return;
+    const invalidate = !!contextRequest.current || disconnectMode.current || !!loginAttempt.current ||
+      session.current.state.phase === 'observed' || session.current.state.phase === 'checking';
     afterConfirmation.current = null; endDisconnect();
     clearContextRequest(); pendingNavigation.current = null; web.current?.stopLoading();
     epoch.current++; setGeneration(epoch.current);
     if (loginAttempt.current) endLogin('Sign-in presentation closed. No further saved-login attempt will run.', 'cancelled');
-    session.current.cancel(); syncConnection();
+    if (invalidate) session.current.cancel();
+    syncConnection();
   }
   function confirmConnection() {
     if (disconnectMode.current || !foreground.current || !session.current.confirm()) return;
