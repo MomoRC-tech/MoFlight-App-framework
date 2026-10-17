@@ -42,7 +42,7 @@ export function Dashboard({ flights, pending, width, fontScale, onPaper, onAi, o
       <Card style={[styles.season, { width: leftWidth }, largeText && styles.noFlex]} onPress={() => onFlights(year)} label={`Deine Saison ${year}. ${countDescription} ${timeDescription}`}>
         <View style={ui.section}><Section title="Deine Saison" /><View style={styles.yearBadge}><Label style={styles.small}>{year}</Label></View></View>
         <View style={styles.seasonMetrics}><View style={styles.metric}><Text style={styles.value}>{season.count}</Text><Label muted>Flüge</Label></View><View style={styles.metric}><Text style={styles.value}>{formatDuration(season.knownMinutes)}</Text><Label muted>bekannte Std.</Label></View></View>
-        <Label muted style={styles.small}>Gespeicherte Saison · Vergleich offen</Label>
+        <Label muted style={styles.small}>Flugzeuganteile · Vergleich offen</Label>
         {!largeText && season.count < 1000 && formatDuration(season.knownMinutes).length <= 5 && <View style={styles.rings}><SeasonRing slices={seasonRingSlices(aircraft, 'count')} value={String(season.count)} label="Flüge" description={countDescription} /><SeasonRing slices={seasonRingSlices(aircraft, 'knownMinutes')} value={formatDuration(season.knownMinutes)} label="bekannte h" description={timeDescription} /></View>}
         {season.unknownDurationCount > 0 && <Label muted style={styles.small}>{season.unknownDurationCount} Zeiten unbekannt</Label>}
       </Card>
