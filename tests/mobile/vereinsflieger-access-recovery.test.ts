@@ -8,6 +8,7 @@ import * as probe from '../../apps/platform-lab/src/vereinsflieger/probe.ts';
 import * as view from '../../apps/platform-lab/src/vereinsflieger/view.ts';
 import * as exporter from '../../apps/platform-lab/src/vereinsflieger/export.ts';
 import * as context from '../../apps/platform-lab/src/vereinsflieger/context.ts';
+import * as login from '../../apps/platform-lab/src/vereinsflieger/login.ts';
 import { ConnectionSession } from '../../apps/platform-lab/src/vereinsflieger/connection-state.ts';
 import type { useAccessController } from '../../apps/platform-lab/src/vereinsflieger/use-access-controller.tsx';
 import type { ViewPreferences } from '../../apps/platform-lab/src/vereinsflieger/view.ts';
@@ -85,7 +86,7 @@ function fixture(options: { priorCapture?: probe.ProbeSnapshot; deferJournalSave
     './login-storage': { readSavedLogin: async () => null },
     './export': { ...exporter, calendarYearRequest: () => ({ from: '2026-01-01', to: '2026-12-31' }) },
     './retrieval': { Retrieval }, './CaptureRun': { CaptureRun }, './WindowCapture': { WindowCapture },
-    './login': {}, './view': view, './context': context, './connection-state': { ConnectionSession },
+    './login': login, './view': view, './context': context, './connection-state': { ConnectionSession },
   };
   const runtime = { require: (name: string) => {
     assert.ok(name in modules, `Unexpected component dependency: ${name}`); return modules[name];
@@ -722,4 +723,23 @@ test('Back to lab stays available during a journal write while expansion cannot 
   assert.equal(f.injections.length, count); assert.deepEqual(f.writes, ['journal-start']);
   f.finishJournalSave(); await f.flush(); assert.deepEqual(f.pending(), original);
   assert.equal(f.button(f.render(), 'Expand provider page').props.disabled, false);
+});
+
+
+test('expiry redirect during a product export requires login and retains original-account recovery', async () => {
+  const f = fixture({ product: true, priorCapture }); f.render(); await f.settle(null);
+  f.controller().connect(); await f.loadPage(probe.LOGIN_URL);
+  f.controller().checkConnection('retrieve'); await f.loadPage(context.PROFILE_URL);
+  await f.contextMessage(observedContext); f.controller().confirmConnection(); await f.loadFlight();
+  await backupVerified(f);
+  const count = f.injections.length;
+  await f.loadPage(probe.LOGIN_URL);
+  assert.equal(f.controller().connection.phase, 'login-required');
+  assert.equal(f.controller().connection.confirmed, false);
+  assert.equal(f.controller().visible, true);
+  assert.equal(f.controller().busy, false);
+  assert.equal(f.controller().recovery, true);
+  assert.deepEqual(f.pending(), original);
+  assert.equal(f.savedCapture(), priorCapture);
+  assert.equal(f.injections.length, count, 'Expired session cannot receive a restoration mutation');
 });

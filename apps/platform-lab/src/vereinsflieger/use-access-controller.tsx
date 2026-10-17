@@ -187,7 +187,16 @@ export function useAccessController(product = false) {
       return;
     }
     if (loginAttempt.current === 'submitted') { endLogin('Provider response opened after the saved-login attempt. Verify the account, then retrieve flights; any provider verification remains on this page.'); return; }
-    if (retrieval.current.state.phase === 'loading' && !flightUrl(page)) finish('Complete provider login, then tap Retrieve flights again. Previous captures preserved.');
+    if (retrieval.current.state.phase === 'loading' && !flightUrl(page)) {
+      if (product) {
+        session.current.cancel();
+        const nonce = Crypto.randomUUID(); session.current.start(nonce);
+        session.current.fail(nonce, loginPage(page) ? 'login-required' : 'error'); syncConnection();
+        const active = retrieval.current.state;
+        stop('Provider left the expected flight document. Recovery retained.', active.nonce);
+        if (loginPage(page)) setVisible(true);
+      } else finish('Complete provider login, then tap Retrieve flights again. Previous captures preserved.');
+    }
   }
   function stop(message: string, nonce?: string) {
     const state = retrieval.current.state;
