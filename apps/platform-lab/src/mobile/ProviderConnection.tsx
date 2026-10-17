@@ -4,6 +4,7 @@ import { Action, Card, Label, Section, colors, ui } from './theme';
 import { connectionLabel } from '../vereinsflieger/connection-state';
 import type { useAccessController } from '../vereinsflieger/use-access-controller';
 import { providerUrl } from '../vereinsflieger/probe';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type Controller = ReturnType<typeof useAccessController>;
 export function ConnectionIndicator({ controller: c, onPress }: { controller: Controller; onPress: () => void }) {
@@ -19,14 +20,15 @@ export function ConnectionIndicator({ controller: c, onPress }: { controller: Co
 
 /** The browser keeps this exact native parent whether login, progress or tabs are visible. */
 export function ProviderConnection({ controller: c, open, close }: { controller: Controller; open: boolean; close: () => void }) {
+  const insets = useSafeAreaInsets();
   const [barHeight, setBarHeight] = useState(68), [loginHeight, setLoginHeight] = useState(132);
   const checking = c.connection.phase === 'checking';
   const locked = c.busy || checking || c.saving || c.loginBusy || !c.viewReady;
   const login = open && c.visible;
   const label = connectionLabel(c.connection);
   const dismiss = () => { if (c.visible || checking) c.dismissLogin(); close(); };
-  return <View pointerEvents={open ? 'auto' : 'none'} style={[StyleSheet.absoluteFill, { zIndex: open ? 20 : -1 }]} accessibilityElementsHidden={!open} importantForAccessibility={open ? 'auto' : 'no-hide-descendants'} accessibilityViewIsModal={open}>
-    <View pointerEvents={login ? 'auto' : 'none'} style={[styles.browserFrame, { top: barHeight + loginHeight }, !login && styles.coveredBrowser]} accessibilityElementsHidden={!login} importantForAccessibility={login ? 'auto' : 'no-hide-descendants'}>
+  return <View pointerEvents={open ? 'auto' : 'none'} style={[StyleSheet.absoluteFill, { zIndex: open ? 20 : -1, paddingTop: insets.top, paddingBottom: insets.bottom, backgroundColor: open ? colors.background : 'transparent' }]} accessibilityElementsHidden={!open} importantForAccessibility={open ? 'auto' : 'no-hide-descendants'} accessibilityViewIsModal={open}>
+    <View pointerEvents={login ? 'auto' : 'none'} style={[styles.browserFrame, { top: barHeight + loginHeight + insets.top, bottom: insets.bottom }, !login && styles.coveredBrowser]} accessibilityElementsHidden={!login} importantForAccessibility={login ? 'auto' : 'no-hide-descendants'}>
       {c.browser}
     </View>
     <View style={styles.bar} onLayout={event => setBarHeight(event.nativeEvent.layout.height)}>
