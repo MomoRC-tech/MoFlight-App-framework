@@ -1,0 +1,11 @@
+{
+  "source": "5aaf815f1303ec8261b3373e290de7b7cf6611d8",
+  "status": "passed",
+  "checks": [
+    "Unassigned legacy recovery visibly quarantined",
+    "Raw retrieval disabled including enabled Text descendants",
+    "Legacy automatic restoration disabled",
+    "Local session clearing disabled while legacy recovery pending"
+  ],
+  "limits": "Positive new scoped capture/restart/recovery/live clearing are BLOCKED by legacy ownership. No export or local clearing was initiated on the provider AVD; old raw capture was not adopted. Direct private SQLite inspection is unavailable."
+}

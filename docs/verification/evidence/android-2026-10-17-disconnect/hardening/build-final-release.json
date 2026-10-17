@@ -1,0 +1,10 @@
+{
+  "source_commit": "5aaf815f1303ec8261b3373e290de7b7cf6611d8",
+  "configuration": "Release",
+  "apk": "C:\\Users\\Momo\\mf-ui-build\\apps\\platform-lab\\android\\app\\build\\outputs\\apk\\release\\app-release.apk",
+  "apk_sha256": "ce0cb1b14866ec7a7c7bfc90ec660ff089cd3308c5ebb0a92f3444e7ee13df71",
+  "elapsed_seconds": 64.7725632,
+  "gradle_seconds": 63.7969868,
+  "native_regenerated": false,
+  "built_at_utc": "2026-10-17T14:25:25.3722299Z"
+}

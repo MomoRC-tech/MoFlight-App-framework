@@ -1,0 +1,38 @@
+{
+  "source": "5aaf815f1303ec8261b3373e290de7b7cf6611d8",
+  "checks": [
+    {
+      "name": "update-only-install-retained-session-freshly-confirmed-and-bound",
+      "status": "passed"
+    },
+    {
+      "name": "native-process-restart-restored-durable-association-with-fresh-profile-and-kept-legacy-unassigned",
+      "status": "passed"
+    }
+  ],
+  "boundary": "Preserved current Android provider account only. No second account, iOS, natural expiry, independent full capture/column/filter readback or production identity acceptance.",
+  "original_provider_view": {
+    "before": {
+      "source": "5aaf815",
+      "independent_original_page_period": "Die letzten 20 Flüge (max. 24 Monate)",
+      "independent_original_page_role": "Pilot",
+      "period_role_match_before_reference_inspection": true,
+      "boundary": "Visible period/participation readback only. Full column/filter/sort equivalence remains controller journal verification, not independent native DOM readback."
+    },
+    "after": {
+      "source": "5aaf815",
+      "independent_original_page_period": "Die letzten 20 Flüge (max. 24 Monate)",
+      "independent_original_page_role": "Pilot",
+      "period_role_match_before_reference_inspection": true,
+      "boundary": "Visible period/participation readback only. Full column/filter/sort equivalence remains controller journal verification, not independent native DOM readback."
+    }
+  },
+  "limits": "Current provider AVD is signed in, durable provisional association reopened and freshly checked, legacy recovery still quarantined, local Flights screen open. Raw/cancel/scoped-journal recovery/live local-clearing acceptance BLOCKED by unassigned legacy recovery. No export or clearing started; no earlier capture adopted. No native second account, iOS runtime, natural expiry, independent private SQLite/full preference inspection, global revocation or physical-device acceptance.",
+  "harness_notes": "An import-only driver error stopped before side effects. Two result scans found no result because the disabled parent action had not started an export. Corrected ancestor-aware selection independently proved the product block; no capture result inferred.",
+  "private_harness_sha256": {
+    "trial.py": "15c8bef3e8f2825840ee4f5338e4ee14d8f17795d28f15a569f38f7eaee63eff",
+    "legacy-guard.py": "6e44e2191af8d1fce30b60beec8b01a6fd45048d0f5a5a86b2e1c76950961950",
+    "binding-restart.py": "2fe341fea1bf9ed2a00bb20eb049166c758891dc183888f07d089d0959fbe7cd",
+    "reference.py": "7b17b45884a66eef794c5a807d99addbfda3282c8ab56198fe265f61d6a805c9"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "source": "5aaf815f1303ec8261b3373e290de7b7cf6611d8",
+  "tests": {
+    "passed": 182,
+    "failed": 0
+  },
+  "typescript": "passed",
+  "exports": {
+    "android": "passed",
+    "ios": "passed"
+  },
+  "environment": {
+    "node": "24.18.0",
+    "pnpm": "11.25.0",
+    "python": "3.12.10",
+    "jdk": "17.0.20.1+1"
+  },
+  "limits": "Exports are not iOS runtime acceptance; no hosted run or paid usage.",
+  "android_harness_regression": {
+    "passed": 1,
+    "failed": 0,
+    "reason": "Disabled Pressable ancestor overrides enabled Text descendant; no app code change.",
+    "source": "5ba3c61295736a305116d62d85bbc086cd26c56b"
+  }
+}

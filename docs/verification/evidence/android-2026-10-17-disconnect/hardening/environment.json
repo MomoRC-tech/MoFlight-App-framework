@@ -1,0 +1,24 @@
+{
+  "MoFlight_Synthetic_API37": {
+    "size": "Physical size: 1080x1920",
+    "density": "Physical density: 420",
+    "font_scale": "1.0",
+    "sdk": "37",
+    "network": {
+      "airplane_mode_on": "0",
+      "wifi_on": "1",
+      "mobile_data": "1"
+    }
+  },
+  "MoFlight_API37": {
+    "size": "Physical size: 1080x1920\nOverride size: 480x800",
+    "density": "Physical density: 420\nOverride density: 160",
+    "font_scale": "1.0",
+    "sdk": "37",
+    "network": {
+      "airplane_mode_on": "0",
+      "wifi_on": "1",
+      "mobile_data": "1"
+    }
+  }
+}

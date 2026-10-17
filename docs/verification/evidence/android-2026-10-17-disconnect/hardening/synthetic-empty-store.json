@@ -1,0 +1,44 @@
+{
+  "status": "passed",
+  "checks": [
+    {
+      "name": "explicit-clearing-of-already-empty-store-1",
+      "status": "passed"
+    },
+    {
+      "name": "explicit-clearing-of-already-empty-store-2",
+      "status": "passed"
+    },
+    {
+      "name": "local-library-reachable-after-store-clearing",
+      "status": "passed"
+    },
+    {
+      "name": "original-network-restored-exactly",
+      "status": "passed"
+    }
+  ],
+  "boundary": "Synthetic WebView cookie/local/session/IndexedDB removal, document recreation, SQLite/SecureStore sentinels. No live provider, server revocation, other apps, physical device or iOS.",
+  "source": {
+    "validated_commit": "5aaf815f1303ec8261b3373e290de7b7cf6611d8",
+    "compiled_commit": "5aaf815f1303ec8261b3373e290de7b7cf6611d8"
+  },
+  "original_network": {
+    "airplane_mode_on": "0",
+    "wifi_on": "1",
+    "mobile_data": "1"
+  },
+  "viewport": {
+    "width_px": 1080,
+    "height_px": 1920,
+    "density_dpi": 420,
+    "width_dp": 411.42857142857144,
+    "height_dp": 731.4285714285714,
+    "font_scale": 1.0
+  },
+  "restored_network": {
+    "airplane_mode_on": "0",
+    "wifi_on": "1",
+    "mobile_data": "1"
+  }
+}
