@@ -87,9 +87,9 @@ def execute(smoke):
                 # Scroll inside the visible form, never on the keyboard surface.
                 for _ in range(5):
                     fields = [n for n in smoke.dump() if n.get('content-desc') == 'Vereinsflieger Abruf bis']
-                    if fields and bounds(fields[0])[3] <= keyboard_top:
+                    if fields and 0 < bounds(fields[0])[1] < bounds(fields[0])[3] <= keyboard_top:
                         break
-                    smoke.shell('input', 'swipe', str(width // 2), str(int(keyboard_top - 40)), str(width // 2), '120', '300')
+                    smoke.shell('input', 'swipe', str(width // 2), str(int(keyboard_top - 100)), str(width // 2), '120', '300')
                 second = smoke.find('Vereinsflieger Abruf bis', exact=True, attempts=1)
                 assert 0 < bounds(second)[1] < bounds(second)[3] <= keyboard_top, 'Second date field cannot be reached above the keyboard'
                 smoke.report['keyboard_geometry'] = {'top_px': keyboard_top, 'source': method, 'field_bounds': bounds(second)}
