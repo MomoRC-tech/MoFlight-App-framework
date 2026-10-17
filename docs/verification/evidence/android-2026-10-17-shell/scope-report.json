@@ -1,0 +1,29 @@
+{
+  "status": "passed",
+  "checks": [
+    {
+      "name": "year-and-training-selection-preserved-across-tabs",
+      "status": "passed"
+    },
+    {
+      "name": "selected-book-B-has-independent-known-time",
+      "status": "passed"
+    },
+    {
+      "name": "selected-book-A-restores-own-known-time",
+      "status": "passed"
+    },
+    {
+      "name": "selected-book-and-summary-survive-restart",
+      "status": "passed"
+    }
+  ],
+  "boundary": "Existing opt-in synthetic fixture only. Book-scoped summary, remembered selection and tab filter state; no provider/auth/AI service acceptance.",
+  "source": {
+    "validated_commit": "db15203628abcc0bed5104b2fcb522dbf91d1968",
+    "compiled_commit": "db15203628abcc0bed5104b2fcb522dbf91d1968"
+  },
+  "diagnostics": {
+    "status": "complete"
+  }
+}

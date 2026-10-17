@@ -1,0 +1,82 @@
+{
+  "status": "passed",
+  "checks": [
+    {
+      "name": "home-native-initial",
+      "status": "passed"
+    },
+    {
+      "name": "home-selected-book-data",
+      "status": "passed"
+    },
+    {
+      "name": "flights-native-list",
+      "status": "passed"
+    },
+    {
+      "name": "saved-flight-details",
+      "status": "passed"
+    },
+    {
+      "name": "flights-training-filter",
+      "status": "passed"
+    },
+    {
+      "name": "search-empty-result",
+      "status": "passed"
+    },
+    {
+      "name": "club-native-overview",
+      "status": "passed"
+    },
+    {
+      "name": "club-events-unavailable",
+      "status": "passed"
+    },
+    {
+      "name": "ai-native-overview",
+      "status": "passed"
+    },
+    {
+      "name": "ai-local-query-without-generated-answer",
+      "status": "passed"
+    },
+    {
+      "name": "ai-unavailable-retry-preserves-draft",
+      "status": "passed"
+    },
+    {
+      "name": "paper-workflow-open",
+      "status": "passed"
+    },
+    {
+      "name": "offline-force-stop-local-library-survives",
+      "status": "passed"
+    },
+    {
+      "name": "home-narrow-enlarged-text",
+      "status": "passed"
+    },
+    {
+      "name": "flights-narrow-enlarged-text",
+      "status": "passed"
+    },
+    {
+      "name": "ai-narrow-enlarged-text",
+      "status": "passed"
+    }
+  ],
+  "boundary": "Synthetic native five-tab UI. Existing fixture loaded by UI; no live provider, AI, weather, club backend, device or iOS acceptance.",
+  "source": {
+    "validated_commit": "db15203628abcc0bed5104b2fcb522dbf91d1968",
+    "compiled_commit": "db15203628abcc0bed5104b2fcb522dbf91d1968"
+  },
+  "device": {
+    "ro.build.version.sdk": "37",
+    "ro.product.model": "sdk_gphone64_x86_64",
+    "ro.product.cpu.abi": "x86_64"
+  },
+  "diagnostics": {
+    "status": "complete"
+  }
+}

@@ -7,7 +7,7 @@
 
 # MoFlight
 
-> **Native shell corrections — 17 October 2026:** implementation now targets five tabs (Übersicht / Flüge / Flugbuch / Verein / AI), a compact fixed header with the approved logo, top-right profile/settings and real-data segmented season rings. [Scope and acceptance](docs/product/2026-10-17-native-shell-corrections.md). Manuel reports having tested the prior demo; detailed physical outcomes remain unrecorded. Earlier four-tab evidence is historical.
+> **Native shell corrections — 17 October 2026:** implementation now targets five tabs (Übersicht / Flüge / Flugbuch / Verein / AI), a compact fixed header with the approved logo, top-right profile/settings and real-data segmented season rings. [Scope and acceptance](docs/product/2026-10-17-native-shell-corrections.md). Manuel reports having tested the prior demo; detailed physical outcomes remain unrecorded. Earlier four-tab evidence is historical. [Verified corrections and screenshots](docs/verification/2026-10-17-native-shell-corrections.md): 136 mobile tests and 71 synthetic native checkpoints passed on source `db15203`; updated Pixel 6a retest remains pending.
 
 > **Phone demo next gate — 16 October 2026:** Manuel approved a phone-compatible demo APK and a short physical-device check before more functionality. See the [handoff record](docs/verification/2026-10-16-phone-demo-handoff.md) and [manual checklist](docs/verification/2026-10-16-physical-phone-checklist.md). Physical-device acceptance remains pending until actual observations are recorded.
 

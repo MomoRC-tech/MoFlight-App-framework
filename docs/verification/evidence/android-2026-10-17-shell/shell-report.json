@@ -1,0 +1,154 @@
+{
+  "status": "passed",
+  "checks": [
+    {
+      "name": "fixed-header-after-home-scroll",
+      "status": "passed",
+      "viewport": {
+        "width_px": 360,
+        "height_px": 900,
+        "density_dpi": 160,
+        "width_dp": 360.0,
+        "height_dp": 900.0,
+        "font_scale": 1.0
+      },
+      "screenshot": "01-fixed-header-after-home-scroll.png",
+      "hierarchy": "01-fixed-header-after-home-scroll.xml",
+      "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+    },
+    {
+      "name": "five-tab-home",
+      "status": "passed",
+      "viewport": {
+        "width_px": 360,
+        "height_px": 900,
+        "density_dpi": 160,
+        "width_dp": 360.0,
+        "height_dp": 900.0,
+        "font_scale": 1.0
+      },
+      "screenshot": "02-five-tab-home.png",
+      "hierarchy": "02-five-tab-home.xml",
+      "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+    },
+    {
+      "name": "five-tab-flights",
+      "status": "passed",
+      "viewport": {
+        "width_px": 360,
+        "height_px": 900,
+        "density_dpi": 160,
+        "width_dp": 360.0,
+        "height_dp": 900.0,
+        "font_scale": 1.0
+      },
+      "screenshot": "03-five-tab-flights.png",
+      "hierarchy": "03-five-tab-flights.xml",
+      "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+    },
+    {
+      "name": "five-tab-logbook",
+      "status": "passed",
+      "viewport": {
+        "width_px": 360,
+        "height_px": 900,
+        "density_dpi": 160,
+        "width_dp": 360.0,
+        "height_dp": 900.0,
+        "font_scale": 1.0
+      },
+      "screenshot": "04-five-tab-logbook.png",
+      "hierarchy": "04-five-tab-logbook.xml",
+      "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+    },
+    {
+      "name": "five-tab-club",
+      "status": "passed",
+      "viewport": {
+        "width_px": 360,
+        "height_px": 900,
+        "density_dpi": 160,
+        "width_dp": 360.0,
+        "height_dp": 900.0,
+        "font_scale": 1.0
+      },
+      "screenshot": "05-five-tab-club.png",
+      "hierarchy": "05-five-tab-club.xml",
+      "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+    },
+    {
+      "name": "five-tab-ai",
+      "status": "passed",
+      "viewport": {
+        "width_px": 360,
+        "height_px": 900,
+        "density_dpi": 160,
+        "width_dp": 360.0,
+        "height_dp": 900.0,
+        "font_scale": 1.0
+      },
+      "screenshot": "06-five-tab-ai.png",
+      "hierarchy": "06-five-tab-ai.xml",
+      "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+    },
+    {
+      "name": "logbook-opens-existing-paper-workflow",
+      "status": "passed",
+      "viewport": {
+        "width_px": 360,
+        "height_px": 900,
+        "density_dpi": 160,
+        "width_dp": 360.0,
+        "height_dp": 900.0,
+        "font_scale": 1.0
+      },
+      "screenshot": "07-logbook-opens-existing-paper-workflow.png",
+      "hierarchy": "07-logbook-opens-existing-paper-workflow.xml",
+      "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+    },
+    {
+      "name": "local-profile-saved",
+      "status": "passed",
+      "viewport": {
+        "width_px": 360,
+        "height_px": 900,
+        "density_dpi": 160,
+        "width_dp": 360.0,
+        "height_dp": 900.0,
+        "font_scale": 1.0
+      },
+      "screenshot": "08-local-profile-saved.png",
+      "hierarchy": "08-local-profile-saved.xml",
+      "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+    },
+    {
+      "name": "local-profile-survives-restart",
+      "status": "passed",
+      "viewport": {
+        "width_px": 360,
+        "height_px": 900,
+        "density_dpi": 160,
+        "width_dp": 360.0,
+        "height_dp": 900.0,
+        "font_scale": 1.0
+      },
+      "screenshot": "09-local-profile-survives-restart.png",
+      "hierarchy": "09-local-profile-survives-restart.xml",
+      "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+    }
+  ],
+  "boundary": "Synthetic local demo only; five tabs, fixed header, local profile persistence and existing paper workflow entry. No account authentication, live services, data resets, display/network changes or iOS acceptance.",
+  "source": {
+    "validated_commit": "db15203628abcc0bed5104b2fcb522dbf91d1968",
+    "compiled_commit": "db15203628abcc0bed5104b2fcb522dbf91d1968"
+  },
+  "viewport": {
+    "width_px": 360,
+    "height_px": 900,
+    "density_dpi": 160,
+    "width_dp": 360.0,
+    "height_dp": 900.0,
+    "font_scale": 1.0
+  },
+  "profile_restoration": "Original local demo name restored through UI"
+}

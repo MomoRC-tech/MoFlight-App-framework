@@ -2,7 +2,7 @@
 
 ## Current M1 correction — fixed header, profile and Flugbuch
 
-On 17 October 2026 Manuel reported testing the phone demo and authorized the agreed UI fixes. Implement the compact pinned approved-logo header, user/settings entry, recognizable aircraft icon, fifth Flugbuch destination and segmented real-data season rings before expanding services. [Deliverable, dependencies and acceptance](product/2026-10-17-native-shell-corrections.md). Reuse Issues #5/#1/#8/#12; preserve pending production/auth/live and physical-retest gates. User-reported testing does not establish specific device/pass evidence. This supersedes earlier four-tab current-target statements below.
+On 17 October 2026 Manuel reported testing the phone demo and authorized the agreed UI fixes. Implement the compact pinned approved-logo header, user/settings entry, recognizable aircraft icon, fifth Flugbuch destination and segmented real-data season rings before expanding services. [Deliverable, dependencies and acceptance](product/2026-10-17-native-shell-corrections.md). Reuse Issues #5/#1/#8/#12; preserve pending production/auth/live and physical-retest gates. User-reported testing does not establish specific device/pass evidence. This supersedes earlier four-tab current-target statements below. Implemented on `db15203`; [verification](verification/2026-10-17-native-shell-corrections.md) records 136 mobile tests, committed Release and 71 native checkpoints. The 30.6 MB ARM64 demo is ready; next action is the updated Pixel 6a physical retest before service expansion.
 
 ## Immediate deliverable — phone demo and physical smoke test
 

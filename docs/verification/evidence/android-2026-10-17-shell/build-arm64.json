@@ -1,0 +1,15 @@
+{
+  "source_commit": "db15203628abcc0bed5104b2fcb522dbf91d1968",
+  "configuration": "Release",
+  "apk_name": "MoFlight-demo-2026-10-17-arm64.apk",
+  "apk_bytes": 30623626,
+  "apk_sha256": "b5a9cfc41c949edb97a4634234fe83396183c10a79b367cbe799ecaebca1d4b7",
+  "architectures": [
+    "arm64-v8a"
+  ],
+  "zip_integrity": "passed",
+  "apk_v2_signature": "verified",
+  "signer_certificate_sha256": "fac61745dc0903786fb9ede62a962b399f7348f0bb6f899b8332667591033b9c",
+  "javascript_and_included_native_libraries_identical_to_dual_apk": true,
+  "physical_retest": "pending; prior user-reported quick test on Google Pixel 6a applies to previous APK"
+}

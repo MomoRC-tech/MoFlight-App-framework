@@ -1,0 +1,105 @@
+{
+  "status": "passed",
+  "checks": [
+    {
+      "name": "w840-h412-font1-home",
+      "status": "passed",
+      "viewport": {
+        "width_dp": 840,
+        "height_dp": 412,
+        "density_dpi": 160,
+        "font_scale": 1.0,
+        "actual_size": "Physical size: 1080x1920\nOverride size: 840x412",
+        "actual_density": "Physical density: 420\nOverride density: 160"
+      },
+      "screenshot": "01-w840-h412-font1-home.png",
+      "hierarchy": "01-w840-h412-font1-home.xml",
+      "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+    },
+    {
+      "name": "w840-h412-font1-flights",
+      "status": "passed",
+      "viewport": {
+        "width_dp": 840,
+        "height_dp": 412,
+        "density_dpi": 160,
+        "font_scale": 1.0,
+        "actual_size": "Physical size: 1080x1920\nOverride size: 840x412",
+        "actual_density": "Physical density: 420\nOverride density: 160"
+      },
+      "screenshot": "02-w840-h412-font1-flights.png",
+      "hierarchy": "02-w840-h412-font1-flights.xml",
+      "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+    },
+    {
+      "name": "w840-h412-font1-logbook",
+      "status": "passed",
+      "viewport": {
+        "width_dp": 840,
+        "height_dp": 412,
+        "density_dpi": 160,
+        "font_scale": 1.0,
+        "actual_size": "Physical size: 1080x1920\nOverride size: 840x412",
+        "actual_density": "Physical density: 420\nOverride density: 160"
+      },
+      "screenshot": "03-w840-h412-font1-logbook.png",
+      "hierarchy": "03-w840-h412-font1-logbook.xml",
+      "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+    },
+    {
+      "name": "w840-h412-font1-club",
+      "status": "passed",
+      "viewport": {
+        "width_dp": 840,
+        "height_dp": 412,
+        "density_dpi": 160,
+        "font_scale": 1.0,
+        "actual_size": "Physical size: 1080x1920\nOverride size: 840x412",
+        "actual_density": "Physical density: 420\nOverride density: 160"
+      },
+      "screenshot": "04-w840-h412-font1-club.png",
+      "hierarchy": "04-w840-h412-font1-club.xml",
+      "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+    },
+    {
+      "name": "w840-h412-font1-ai",
+      "status": "passed",
+      "viewport": {
+        "width_dp": 840,
+        "height_dp": 412,
+        "density_dpi": 160,
+        "font_scale": 1.0,
+        "actual_size": "Physical size: 1080x1920\nOverride size: 840x412",
+        "actual_density": "Physical density: 420\nOverride density: 160"
+      },
+      "screenshot": "05-w840-h412-font1-ai.png",
+      "hierarchy": "05-w840-h412-font1-ai.xml",
+      "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+    }
+  ],
+  "boundary": "Native synthetic book UI only. No data reset, fixture injection, network changes, live-service or iOS acceptance. Automated checks do not establish pixel fidelity or absence of all text clipping.",
+  "source": {
+    "validated_commit": "db15203628abcc0bed5104b2fcb522dbf91d1968",
+    "compiled_commit": "db15203628abcc0bed5104b2fcb522dbf91d1968"
+  },
+  "original_display": {
+    "size": "Physical size: 1080x1920",
+    "density": "Physical density: 420",
+    "font_scale": "1.0"
+  },
+  "device": {
+    "ro.build.version.sdk": "37",
+    "ro.product.model": "sdk_gphone64_x86_64",
+    "ro.product.cpu.abi": "x86_64"
+  },
+  "restoration": {
+    "status": "passed",
+    "errors": [],
+    "actual_display": {
+      "size": "Physical size: 1080x1920",
+      "density": "Physical density: 420",
+      "font_scale": "1.0"
+    },
+    "network": "Never changed by this script"
+  }
+}

@@ -19,3 +19,7 @@ Dependencies are the existing selected-book SQLite contracts, approved logo asse
 TypeScript/mobile and relevant persistence/calculation tests; Android/iOS exports; committed-source Android Release build; native five-tab/header/profile/book/filter/offline checks; screenshots at 360, 390 and 412 dp, plus bounded/tablet layouts at 600 and 840 dp and enlarged text/keyboard checks. Record actual source/build/device and failures. A fresh ARM64 demo may be handed off after checks, with physical retest pending. No iOS runtime or live-service claim.
 
 Documentation must reconcile current navigation and header/settings decisions with preserved historical snapshots. Existing Issues are reused; no duplicates or milestone/service closure is implied.
+
+## Implemented result
+
+Application source `db15203`: TypeScript, 136 mobile tests, Android/iOS exports and committed-source Android Release/lintVital passed; 71 synthetic native checkpoints passed including the width/font/keyboard/landscape matrix. A 30.6 MB ARM64 demo is ready; the updated Pixel 6a physical retest remains pending. See the [verification report and screenshots](../verification/2026-10-17-native-shell-corrections.md) for file changes, source/build identity, corrected failures and integration limits. Existing issues remain open for their broader gates.
