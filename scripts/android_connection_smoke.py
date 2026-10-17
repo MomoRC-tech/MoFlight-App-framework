@@ -80,6 +80,13 @@ def execute(smoke, lifecycle_only=False):
         assert smoke.shell('settings', 'get', 'global', 'wifi_on') in ['0', '3']
         assert smoke.shell('settings', 'get', 'global', 'mobile_data') == '0'
         smoke.report['provider_access'] = 'All radios disabled before browser creation; no provider network request could complete.'
+        if lifecycle_only:
+            # Start this narrow run at its sole viewport, rather than changing
+            # density between the first startup assertion and the next launch.
+            smoke.shell('wm', 'size', '390x900')
+            smoke.shell('wm', 'density', '160')
+            smoke.shell('settings', 'put', 'system', 'font_scale', '1.0')
+            smoke.report['targeted_viewport_before_launch'] = viewport(smoke)
         launch(smoke)
         smoke.tap(PROFILE)
         smoke.tap('Vereinsflieger', scroll=True)
