@@ -1,0 +1,44 @@
+{
+  "status": "failed",
+  "source_commit": "31a9aa66ccd7b83fa8db068575f626e814ab4c82",
+  "checks": [
+    {
+      "name": "named-provider-avd-reverified",
+      "status": "passed"
+    },
+    {
+      "name": "installed-committed-source-apk-verified-without-reinstall",
+      "status": "passed"
+    },
+    {
+      "name": "app-launched-after-user-requested-cold-boot",
+      "status": "passed"
+    }
+  ],
+  "boundary": "Approved recovery-only continuation; no credential action, export, clearing, source deletion or raw adoption.",
+  "viewport": {
+    "width_px": 480,
+    "height_px": 800,
+    "density_dpi": 160,
+    "width_dp": 480.0,
+    "height_dp": 800.0,
+    "font_scale": 1.0
+  },
+  "continuation_status": "sign-in-required-after-cold-boot",
+  "visible_login_controls": {
+    "Anmelden": true,
+    "Benutzer oder E-Mail": false,
+    "Passwort": true
+  },
+  "error": "Recovery continuation stopped; inspect ignored private hierarchy locally.",
+  "client_date": "2026-10-18",
+  "restart_status": "completed-cold-boot-without-snapshot-load",
+  "userdata_wipe": false,
+  "other_avd_restarted_or_modified": false,
+  "limits": [
+    "Cold boot/app launch succeeded; fresh profile still requires provider sign-in.",
+    "Provider Anmelden and password field became visible; no credentials read or entered by tools.",
+    "No recovery preparation, copy, replay, export, clearing, reinstall or journal deletion.",
+    "No post-restart full database or credential-value comparison claimed."
+  ]
+}
