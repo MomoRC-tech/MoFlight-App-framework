@@ -30,6 +30,20 @@ export function contextFailure(value: unknown): string | null {
   }
 }
 export function contextScript(nonce: string) { return `window.ReactNativeWebView?.postMessage(JSON.stringify({kind:'vf-context-v1',nonce:${JSON.stringify(nonce)},url:location.href,context:(${CONTEXT_READER_SOURCE})()}));true;`; }
+// Inspect structure only, never credential values or hidden fields. A root page
+// alone is not evidence: this reader is used only after a fresh protected-profile
+// request redirects to the exact original login document.
+export const LOGIN_REQUIRED_SOURCE = String.raw`() => {
+  if (window.top !== window || location.href !== 'https://vereinsflieger.de/') return { error:'login-layout-unavailable' };
+  const users = document.querySelectorAll('input[name="user"]');
+  const passwords = document.querySelectorAll('input[name="pwinput"]#pwinput');
+  const buttons = document.querySelectorAll('button#submitbtn');
+  if (users.length !== 1 || passwords.length !== 1 || buttons.length !== 1) return { error:'login-layout-unavailable' };
+  const form = users[0].form;
+  if (!form || passwords[0].form !== form || buttons[0].form !== form || form.method.toLowerCase() !== 'post' || new URL(form.getAttribute('action') || location.href, location.href).href !== location.href) return { error:'login-layout-unavailable' };
+  return { error:'session-required' };
+}`;
+export function loginRequiredScript(nonce: string) { return `window.ReactNativeWebView?.postMessage(JSON.stringify({kind:'vf-context-v1',nonce:${JSON.stringify(nonce)},url:location.href,context:(${LOGIN_REQUIRED_SOURCE})()}));true;`; }
 export function scopedBridge(source: string, document: string, expected: string) {
   if (!providerUrl(source) || !providerUrl(document) || !providerUrl(expected)) return false;
   const s = new URL(source), d = new URL(document), e = new URL(expected);

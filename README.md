@@ -7,6 +7,8 @@
 
 # MoFlight
 
+> **Approved next reliability slice — 17 October 2026:** Manuel authorized [safe disconnect and re-login](docs/product/2026-10-17-safe-disconnect.md). Implementation separates provider logout verification from credential forgetting and preserves recovery/account checks. [Verification status](docs/verification/2026-10-17-safe-disconnect.md); native acceptance remains pending until actual results are recorded. Full cookie clearing and production binding remain open.
+
 > **Connection increment — 17 October 2026:** Manuel authorized the bounded [Vereinsflieger connection/controller PoC](docs/product/2026-10-17-connection-controller-poc.md) next, ahead of the deferred physical retest. Header/Profile entry and retained original-page browser are implemented. [Verification](docs/verification/2026-10-17-connection-controller-poc.md) records 149 tests, 16 synthetic native checks and a bounded Android existing-session/hidden raw-capture/cancel trial. Session observations remain provisional; production binding, full disconnect, canonical import and iOS runtime remain open.
 
 > **Current status and open work — 17 October 2026:** [All 15 open issues and remaining gates](docs/verification/2026-10-17-current-status-and-open-issues.md). Manuel confirms Android 17 and defers further physical testing for now; the updated phone gate remains open. The [current five-tab checklist and reply template](docs/verification/2026-10-17-physical-phone-checklist.md) are ready for when testing resumes. [Vereinsflieger header status and login popup](docs/product/2026-10-17-vereinsflieger-connection-ui.md) now feed the bounded connection increment under #2.
@@ -132,7 +134,7 @@ Writing assistance has immediate product value; its place in the smallest useful
 
 ## Next action and unresolved decisions
 
-Continue the authorized bounded connection/controller increment and verify its native behavior under #2/#5. The updated Pixel 6a retest is deferred at Manuel's request; it remains an open gate. Canonical live import remains later scope. Use the [complete open-issue index](docs/verification/2026-10-17-current-status-and-open-issues.md); the prototype review paragraphs below are retained design history and do not supersede the implemented native shell.
+The connection/controller increment is delivered. Continue the explicitly authorized bounded safe-disconnect/re-login package under #2/#5; verify the actual native behavior before scoped acceptance. The updated Pixel 6a retest is deferred at Manuel's request; it remains an open gate. Canonical live import remains later scope. Use the [complete open-issue index](docs/verification/2026-10-17-current-status-and-open-issues.md); the prototype review paragraphs below are retained design history and do not supersede the implemented native shell.
 
 Review **what goes where** in the [screen-content and placement inventory](docs/product/screen-content.md), independently of visual design. Stable item IDs support adding or moving content screen by screen; confirmed needs, draft placements and prototype gaps are distinguished.
 

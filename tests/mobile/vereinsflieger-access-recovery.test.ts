@@ -31,7 +31,7 @@ const source = ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/
 const controllerSource = ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/vereinsflieger/use-access-controller.tsx', import.meta.url), 'utf8'), {
   compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.React, esModuleInterop: false },
 }).outputText;
-function fixture(options: { priorCapture?: probe.ProbeSnapshot; deferJournalSave?: boolean; deferCaptureSave?: boolean; product?: boolean } = {}) {
+function fixture(options: { priorCapture?: probe.ProbeSnapshot; deferJournalSave?: boolean; deferCaptureSave?: boolean; product?: boolean; deferLoginRead?: boolean; failLoginForget?: boolean; deferLoginForget?: boolean } = {}) {
   let resolveJournal!: (view: ViewPreferences | null) => void, rejectJournal!: (error: Error) => void;
   const journal = new Promise<ViewPreferences | null>((resolve, reject) => { resolveJournal = resolve; rejectJournal = reject; });
   const hooks: unknown[] = [], effects: (() => void)[] = [];
@@ -40,6 +40,11 @@ function fixture(options: { priorCapture?: probe.ProbeSnapshot; deferJournalSave
   const writes: string[] = [], injections: string[] = [], timers = new Map<number, () => void>();
   let appStateListener: ((state: string) => void) | undefined;
   let finishJournalSave!: () => void, finishCaptureSave!: () => void;
+  let savedLoginReads = 0, savedLoginForgets = 0;
+  let finishLoginRead!: (login: { username: string; password: string } | null) => void;
+  let finishLoginForget!: () => void;
+  const loginRead = new Promise<{ username: string; password: string } | null>(resolve => { finishLoginRead = resolve; });
+  const loginForget = new Promise<void>(resolve => { finishLoginForget = resolve; });
   const journalSave = new Promise<void>(resolve => { finishJournalSave = resolve; });
   const captureSave = new Promise<void>(resolve => { finishCaptureSave = resolve; });
   const nativeWeb = { injectJavaScript: (script: string) => injections.push(script), stopLoading() {} };
@@ -83,7 +88,11 @@ function fixture(options: { priorCapture?: probe.ProbeSnapshot; deferJournalSave
         savedCapture = value; writes.push('capture-saved');
       },
     },
-    './login-storage': { readSavedLogin: async () => null },
+    './login-storage': {
+      readSavedLogin: async () => { savedLoginReads++; return options.deferLoginRead ? loginRead : null; },
+      writeSavedLogin: async () => {},
+      forgetSavedLogin: async () => { savedLoginForgets++; if (options.deferLoginForget) await loginForget; if (options.failLoginForget) throw new Error('Synthetic protected-storage deletion failure'); },
+    },
     './export': { ...exporter, calendarYearRequest: () => ({ from: '2026-01-01', to: '2026-12-31' }) },
     './retrieval': { Retrieval }, './CaptureRun': { CaptureRun }, './WindowCapture': { WindowCapture },
     './login': login, './view': view, './context': context, './connection-state': { ConnectionSession },
@@ -144,10 +153,10 @@ function fixture(options: { priorCapture?: probe.ProbeSnapshot; deferJournalSave
       data: JSON.stringify({ ...command, url: FLIGHT_URL, accountLabel: original.accountLabel, ...payload }) } });
     return flush();
   }
-  async function contextMessage(observed: unknown, sender = context.PROFILE_URL, nonce?: string) {
+  async function contextMessage(observed: unknown, sender = context.PROFILE_URL, nonce?: string, documentUrl = context.PROFILE_URL) {
     const web = find(render(), element => element.type === 'WebView'); assert.ok(web);
     const token = nonce ?? /nonce:"([^"]+)"/.exec(injections.at(-1) ?? '')?.[1]; assert.ok(token, 'Missing issued context nonce');
-    (web.props.onMessage as (event: unknown) => void)({ nativeEvent: { url: sender, data: JSON.stringify({ kind: 'vf-context-v1', nonce: token, url: context.PROFILE_URL, context: observed }) } });
+    (web.props.onMessage as (event: unknown) => void)({ nativeEvent: { url: sender, data: JSON.stringify({ kind: 'vf-context-v1', nonce: token, url: documentUrl, context: observed }) } });
     return flush();
   }
   return { render, button, press, settle, find, flush, loadPage, loadFlight, message, currentCommand, writes, injections,
@@ -155,6 +164,8 @@ function fixture(options: { priorCapture?: probe.ProbeSnapshot; deferJournalSave
     appState: (state: string) => appStateListener?.(state),
     controller: () => { render(); return controller; },
     finishJournalSave, finishCaptureSave, pending: () => pending, savedCapture: () => savedCapture,
+    loginStorage: () => ({ reads: savedLoginReads, forgets: savedLoginForgets }),
+    finishLoginRead, finishLoginForget,
     isLab: (tree: Element) => tree.type === CaptureRun || tree.type === WindowCapture };
 }
 
@@ -169,6 +180,220 @@ test('supported session-required profile response reveals login without acceptin
   assert.equal(f.controller().visible, true);
   assert.equal(f.controller().connection.lastCheckedAt, null);
   assert.deepEqual(f.writes, []);
+});
+
+test('fresh protected-profile redirect to the exact login root verifies sign-out; invalid root evidence does not', async () => {
+  const f = fixture({ product: true }); f.render(); await f.settle(null); await establishProductAssociation(f);
+  f.controller().startDisconnect(); f.controller().checkDisconnection();
+  await f.loadPage(context.PROFILE_URL); await f.loadPage(probe.LOGIN_URL);
+  await f.contextMessage({ error: 'session-required' }, probe.LOGIN_URL, undefined, probe.LOGIN_URL);
+  assert.equal(f.controller().connection.phase, 'disconnected');
+  assert.ok(f.controller().disconnectedAt);
+
+  const foreign = fixture({ product: true }); foreign.render(); await foreign.settle(null); await establishProductAssociation(foreign);
+  foreign.controller().startDisconnect(); foreign.controller().checkDisconnection();
+  await foreign.loadPage(context.PROFILE_URL); await foreign.loadPage(probe.LOGIN_URL);
+  const nonce = /nonce:"([^\"]+)"/.exec(foreign.injections.at(-1)!)![1]!;
+  await foreign.contextMessage({ error: 'session-required' }, 'https://evil.example/', nonce, probe.LOGIN_URL);
+  await foreign.contextMessage({ error: 'session-required' }, probe.LOGIN_URL, 'stale-root-nonce', probe.LOGIN_URL);
+  await foreign.contextMessage({ unexpected: true }, probe.LOGIN_URL, nonce, probe.LOGIN_URL);
+  assert.notEqual(foreign.controller().connection.phase, 'disconnected');
+  assert.equal(foreign.controller().disconnectedAt, null);
+
+  const normal = fixture({ product: true }); normal.render(); await normal.settle(null); await normal.flush();
+  normal.controller().connect(); await normal.loadPage(probe.LOGIN_URL);
+  normal.controller().checkConnection(); await normal.loadPage(context.PROFILE_URL); await normal.loadPage(probe.LOGIN_URL);
+  await normal.contextMessage({ error: 'session-required' }, probe.LOGIN_URL, undefined, probe.LOGIN_URL);
+  assert.equal(normal.controller().connection.phase, 'login-required', 'The same supported evidence during a normal check requests sign-in');
+
+  const unavailable = fixture({ product: true }); unavailable.render(); await unavailable.settle(null); await unavailable.flush();
+  unavailable.controller().connect(); await unavailable.loadPage(probe.LOGIN_URL);
+  unavailable.controller().checkConnection(); await unavailable.loadPage(context.PROFILE_URL); await unavailable.loadPage(probe.LOGIN_URL);
+  await unavailable.contextMessage({ error: 'login-layout-unavailable' }, probe.LOGIN_URL, undefined, probe.LOGIN_URL);
+  assert.equal(unavailable.controller().connection.phase, 'error', 'An unsupported login layout is not proof of sign-out');
+});
+
+test('login-required reader checks form structure without reading credential values', () => {
+  const form = { method: 'post', getAttribute: (_name: string) => null };
+  const credential = { form, get value(): never { throw new Error('Credential value was read'); } };
+  const button = { form };
+  const evaluate = (users: unknown[], passwords: unknown[], buttons: unknown[], href = probe.LOGIN_URL) => {
+    const window: { top?: unknown } = {}; window.top = window;
+    return runInNewContext(`(${context.LOGIN_REQUIRED_SOURCE})()`, {
+    window, location: { href }, document: { querySelectorAll(selector: string) {
+      if (selector === 'input[name="user"]') return users;
+      if (selector === 'input[name="pwinput"]#pwinput') return passwords;
+      if (selector === 'button#submitbtn') return buttons;
+      throw new Error(`Unexpected selector ${selector}`);
+    } }, URL,
+  });
+  };
+  const win: { top?: unknown } = {}; win.top = win;
+  const valid = runInNewContext(`(${context.LOGIN_REQUIRED_SOURCE})()`, {
+    window: win, location: { href: probe.LOGIN_URL }, document: { querySelectorAll(selector: string) {
+      if (selector === 'input[name="user"]') return [credential];
+      if (selector === 'input[name="pwinput"]#pwinput') return [credential];
+      if (selector === 'button#submitbtn') return [button];
+      throw new Error(`Unexpected selector ${selector}`);
+    } }, URL,
+  });
+  assert.equal((valid as { error: string }).error, 'session-required');
+  assert.equal((evaluate([], [credential], [button]) as { error: string }).error, 'login-layout-unavailable');
+  assert.equal((evaluate([credential, credential], [credential], [button]) as { error: string }).error, 'login-layout-unavailable');
+  const externalForm = { method: 'post', getAttribute: (_name: string) => 'https://evil.example/' };
+  assert.equal((evaluate([{ form: externalForm }], [{ form: externalForm }], [{ form: externalForm }]) as { error: string }).error, 'login-layout-unavailable');
+});
+
+async function establishProductAssociation(f: ReturnType<typeof fixture>) {
+  await f.flush(); // Allow the asynchronous startup recovery read to mark the empty journal as known.
+  f.controller().connect(); await f.loadPage(probe.LOGIN_URL);
+  f.controller().checkConnection(); await f.loadPage(context.PROFILE_URL);
+  await f.contextMessage(observedContext); f.controller().confirmConnection();
+}
+
+test('disconnect refuses startup, failed-read, recovery, and active-save states', async () => {
+  const startup = fixture({ product: true }); startup.render();
+  startup.controller().startDisconnect();
+  assert.equal(startup.controller().disconnecting, false);
+  await startup.settle(null);
+
+  const failedRead = fixture({ product: true }); failedRead.render(); await failedRead.settle(new Error('Synthetic unreadable journal'));
+  failedRead.controller().startDisconnect();
+  assert.equal(failedRead.controller().disconnecting, false);
+
+  const recovery = fixture({ product: true }); recovery.render(); await recovery.settle(original);
+  recovery.controller().startDisconnect();
+  assert.equal(recovery.controller().disconnecting, false);
+
+  const saving = fixture({ product: true, deferJournalSave: true }); saving.render(); await saving.settle(null);
+  await establishProductAssociation(saving); saving.controller().retrieve(); await saving.loadFlight();
+  await saving.message({ kind: 'vf-view-v2', view: original });
+  assert.ok(saving.writes.includes('journal-start'));
+  saving.controller().startDisconnect();
+  assert.equal(saving.controller().disconnecting, false, 'Disconnect cannot interrupt an active durable save');
+  saving.finishJournalSave(); await saving.flush();
+});
+
+test('disconnect checks the retained provider session and recognizes logout only from protected-profile evidence', async () => {
+  const f = fixture({ product: true }); f.render(); await f.settle(null);
+  await establishProductAssociation(f);
+  const before = f.controller().connection;
+  f.controller().startDisconnect();
+  assert.equal(f.controller().disconnecting, true);
+  assert.equal(f.controller().visible, true);
+  assert.equal(f.controller().connection.confirmed, false);
+  assert.equal(f.controller().connection.observed?.accountNumber, before.observed?.accountNumber, 'Private prior association remains for reconnect validation');
+  f.controller().checkDisconnection(); await f.loadPage(context.PROFILE_URL);
+  await f.contextMessage(observedContext);
+  assert.equal(f.controller().connection.phase, 'unknown', 'A still-valid profile is not a logout');
+  assert.equal(f.controller().disconnecting, false);
+  assert.equal(f.controller().connection.confirmed, false);
+  assert.deepEqual(f.writes, []);
+
+  f.controller().startDisconnect(); f.controller().checkDisconnection(); await f.loadPage(context.PROFILE_URL);
+  await f.contextMessage({ error: 'session-required' });
+  assert.equal(f.controller().connection.phase, 'disconnected');
+  assert.equal(f.controller().disconnecting, false);
+  assert.equal(f.controller().visible, false);
+  assert.ok(f.controller().disconnectedAt);
+  assert.equal(f.controller().connection.observed, null);
+
+  f.controller().connect(); await f.loadPage(probe.LOGIN_URL);
+  f.controller().checkConnection(); await f.loadPage(context.PROFILE_URL);
+  await f.contextMessage(observedContext);
+  assert.equal(f.controller().connection.phase, 'observed', 'The previously associated account and club reconnect without reapproval');
+  assert.equal(f.controller().connection.confirmed, true);
+});
+
+test('cancelled, stale, backgrounded, and failed disconnect checks never claim logout', async () => {
+  const f = fixture({ product: true }); f.render(); await f.settle(null);
+  await establishProductAssociation(f);
+  f.controller().startDisconnect(); f.controller().checkDisconnection(); await f.loadPage(context.PROFILE_URL);
+  const abandoned = /nonce:"([^\"]+)"/.exec(f.injections.at(-1)!)![1]!;
+  f.controller().dismissLogin();
+  assert.equal(f.controller().disconnecting, false);
+  await f.contextMessage({ error: 'session-required' }, context.PROFILE_URL, abandoned);
+  assert.notEqual(f.controller().connection.phase, 'disconnected');
+
+  f.controller().startDisconnect(); f.controller().checkDisconnection(); await f.loadPage(context.PROFILE_URL);
+  f.appState('background');
+  assert.notEqual(f.controller().connection.phase, 'disconnected');
+  assert.equal(f.controller().disconnecting, false);
+
+  f.appState('active'); f.controller().startDisconnect(); f.controller().checkDisconnection(); await f.loadPage(context.PROFILE_URL);
+  await f.contextMessage({ unexpected: 'network failure' });
+  assert.notEqual(f.controller().connection.phase, 'disconnected');
+  assert.equal(f.controller().disconnecting, false);
+});
+
+test('forgetting saved login is independent from provider logout and guarded during active ownership', async () => {
+  const f = fixture({ product: true }); f.render(); await f.settle(null);
+  await establishProductAssociation(f);
+  f.controller().startDisconnect();
+  assert.equal(f.controller().disconnecting, true);
+  await f.controller().forgetLogin();
+  assert.equal(f.loginStorage().forgets, 0, 'Credential deletion is blocked while disconnect owns the browser');
+  f.controller().dismissLogin();
+  await f.controller().forgetLogin();
+  assert.equal(f.loginStorage().forgets, 1);
+  assert.notEqual(f.controller().connection.phase, 'disconnected');
+});
+
+test('forget-login storage failure preserves the provider session; deferred deletion stays single-owner', async () => {
+  const failed = fixture({ product: true, failLoginForget: true }); failed.render(); await failed.settle(null);
+  await establishProductAssociation(failed);
+  await failed.controller().forgetLogin();
+  assert.equal(failed.loginStorage().forgets, 1);
+  assert.equal(failed.controller().connection.confirmed, true);
+  assert.notEqual(failed.controller().connection.phase, 'disconnected');
+
+  const deferred = fixture({ product: true, deferLoginForget: true }); deferred.render(); await deferred.settle(null);
+  await establishProductAssociation(deferred);
+  const deleting = deferred.controller().forgetLogin();
+  assert.equal(deferred.loginStorage().forgets, 1);
+  await deferred.controller().forgetLogin();
+  assert.equal(deferred.loginStorage().forgets, 1, 'A pending secure-storage deletion cannot be duplicated');
+  deferred.finishLoginForget(); await deleting;
+  assert.equal(deferred.controller().connection.confirmed, true);
+});
+
+test('cancelling or backgrounding a deferred saved-login read prevents late credential injection', async () => {
+  for (const interrupt of ['dismiss', 'background'] as const) {
+    const f = fixture({ product: true, deferLoginRead: true }); f.render(); await f.settle(null); await f.flush();
+    f.controller().useLogin(); await f.loadPage(probe.LOGIN_URL);
+    const injectionCount = f.injections.length;
+    if (interrupt === 'dismiss') f.controller().dismissLogin(); else f.appState('background');
+    f.finishLoginRead({ username: 'synthetic-user', password: 'synthetic-password' });
+    await f.flush();
+    assert.equal(f.injections.length, injectionCount, `Late read after ${interrupt} must not submit credentials`);
+    assert.ok(!f.injections.join('\n').includes('synthetic-password'));
+    assert.equal(f.controller().disconnectedAt, null);
+  }
+});
+
+test('cancelled login confirmation cannot launch a stale retrieval; reconnect retains account and club checks', async () => {
+  const f = fixture({ product: true }); f.render(); await f.settle(null); await f.flush();
+  f.controller().connect(); await f.loadPage(probe.LOGIN_URL);
+  f.controller().checkConnection('retrieve'); await f.loadPage(context.PROFILE_URL);
+  await f.contextMessage(observedContext);
+  f.controller().dismissLogin();
+  f.controller().confirmConnection();
+  assert.equal(f.controller().busy, false);
+  assert.equal(f.controller().result, 'none');
+  assert.ok(!f.injections.some(script => /\}\)\("[^"]+","snapshot"/.test(script)));
+
+  const reconnect = fixture({ product: true }); reconnect.render(); await reconnect.settle(null);
+  await establishProductAssociation(reconnect);
+  reconnect.controller().startDisconnect(); reconnect.controller().checkDisconnection(); await reconnect.loadPage(context.PROFILE_URL);
+  await reconnect.contextMessage({ error: 'session-required' });
+  reconnect.controller().connect(); await reconnect.loadPage(probe.LOGIN_URL);
+  reconnect.controller().checkConnection(); await reconnect.loadPage(context.PROFILE_URL);
+  await reconnect.contextMessage({ ...observedContext, accountNumber: '456' });
+  assert.equal(reconnect.controller().connection.phase, 'mismatch');
+  reconnect.controller().connect(); await reconnect.loadPage(probe.LOGIN_URL);
+  reconnect.controller().checkConnection(); await reconnect.loadPage(context.PROFILE_URL);
+  await reconnect.contextMessage({ ...observedContext, clubLabel: 'Other Club' });
+  assert.equal(reconnect.controller().connection.phase, 'mismatch');
 });
 
 test('background interruption during durable journal write retains recovery without starting provider mutations', async () => {

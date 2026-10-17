@@ -9,14 +9,18 @@ import { readSavedLogin, writeSavedLogin, forgetSavedLogin } from './login-stora
 import { acceptExportMessage, beginExport, calendarYearRequest, exportScript, type ExportRun } from './export';
 import { decodeView, VIEW_PHASES, viewScript, viewProtectionMessage, type ViewPhase, type ViewPreferences } from './view';
 import { Retrieval } from './retrieval';
-import { PROFILE_URL, contextScript, scopedBridge } from './context';
+import { PROFILE_URL, contextScript, loginRequiredScript, scopedBridge } from './context';
 import { ConnectionSession } from './connection-state';
 
 export function useAccessController(product = false) {
   const foreground = useRef(AppState.currentState === undefined || AppState.currentState === 'active');
   const session = useRef(new ConnectionSession());
   const [connection, setConnection] = useState(session.current.state);
-  const contextRequest = useRef<{ nonce: string; action: 'check' | 'retrieve' | 'capture' | 'recover' | 'restored' } | null>(null);
+  const contextRequest = useRef<{ nonce: string; action: 'check' | 'retrieve' | 'capture' | 'recover' | 'restored' | 'disconnect' } | null>(null);
+  const disconnectMode = useRef(false), recoveryKnown = useRef(false);
+  const [disconnecting, setDisconnecting] = useState(false);
+  const [disconnectedAt, setDisconnectedAt] = useState<string | null>(null);
+  const [disconnectNotice, setDisconnectNotice] = useState<'none' | 'verified' | 'failed' | 'cancelled'>('none');
   const contextTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pendingCapture = useRef<ProbeSnapshot | null>(null);
   const afterConfirmation = useRef<'retrieve' | 'recover' | null>(null);
@@ -37,6 +41,8 @@ export function useAccessController(product = false) {
   const phase = useRef({ loaded: false, progress: 0, injections: 0 });
   const loginAttempt = useRef<'waiting' | 'submitted' | null>(null);
   const loginNonce = useRef('');
+  const loginStorageBusy = useRef(false);
+  const [credentialNotice, setCredentialNotice] = useState<'none' | 'forgotten' | 'error'>('none');
   const loginTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [hasLogin, setHasLogin] = useState(false), [editingLogin, setEditingLogin] = useState(false), [loginBusy, setLoginBusy] = useState(false);
   const [username, setUsername] = useState(''), [password, setPassword] = useState('');
@@ -53,18 +59,35 @@ export function useAccessController(product = false) {
   const [snapshot, setSnapshot] = useState<ProbeSnapshot | null>(null), [status, setStatus] = useState('Sign in on the original provider page. Choose an inclusive period; configuration is verified before capture.');
   useEffect(() => { let active = true; mounted.current = true; if (!product) void latestCapture().then(s => { if (active) setSnapshot(old => old ?? s); }).catch(() => { if (active && retrieval.current.state.phase === 'idle') setStatus('Saved capture could not be opened. Synthetic logbook remains separate.'); }); return () => { active = false; mounted.current = false; epoch.current++; if (timeout.current) clearTimeout(timeout.current); retrieval.current.dispose(); }; }, []);
   useEffect(() => { let active = true; if (!product) void readSavedLogin().then(login => { if (active) setHasLogin(!!login); }).catch(() => { if (active) setStatus('Protected login storage could not be opened. Existing captures remain available.'); }); return () => { active = false; loginAttempt.current = null; if (loginTimer.current) clearTimeout(loginTimer.current); }; }, []);
-  useEffect(() => { let active = true; void readOriginalView().then(v => { if (!active) return; original.current = v; setRecovery(!!v); setViewStrategy(v ? v.reset ? 'reset' : 'reserved backup' : null); setViewReady(true); if(v) setStatus('An earlier export left view restoration pending. Sign into the same provider account, then restore the original view before another export.'); }).catch(() => { if(active) { setRecovery(true); setStatus('Original view recovery could not be opened. Exports are blocked to preserve preferences.'); } }); return () => { active = false; }; }, []);
+  useEffect(() => { let active = true; void readOriginalView().then(v => { if (!active) return; original.current = v; recoveryKnown.current = true; setRecovery(!!v); setViewStrategy(v ? v.reset ? 'reset' : 'reserved backup' : null); setViewReady(true); if(v) setStatus('An earlier export left view restoration pending. Sign into the same provider account, then restore the original view before another export.'); }).catch(() => { if(active) { setRecovery(true); setStatus('Original view recovery could not be opened. Exports are blocked to preserve preferences.'); } }); return () => { active = false; }; }, []);
   function endLogin(message: string) { loginAttempt.current = null; if (loginTimer.current) clearTimeout(loginTimer.current); loginTimer.current = null; setLoginBusy(false); setStatus(message); }
   async function refreshRecovery() {
     if (!product || retrieval.current.state.phase !== 'idle' || contextRequest.current) return;
-    setViewReady(false);
+    recoveryKnown.current = false; setViewReady(false);
     try {
       const saved = await readOriginalView();
       if (!mounted.current) return;
-      original.current = saved; setRecovery(!!saved); setViewReady(true);
+      original.current = saved; recoveryKnown.current = true; setRecovery(!!saved); setViewReady(true);
     } catch { if (mounted.current) setRecovery(true); }
   }
   function syncConnection() { setConnection(session.current.state); }
+  function endDisconnect(verdict: 'verified' | 'failed' | 'cancelled' = 'cancelled') {
+    if (disconnectMode.current) setDisconnectNotice(verdict);
+    disconnectMode.current = false; setDisconnecting(false);
+  }
+  function startDisconnect() {
+    // Never end the provider session while its original view may still need it.
+    // A save is uncancellable; cancel/restore first, then explicitly retry here.
+    if (!product || !foreground.current || !recoveryKnown.current || !viewReady || recovery || original.current ||
+      retrieval.current.state.phase !== 'idle' || busy || saving || loginBusy || loginStorageBusy.current || loginAttempt.current || contextRequest.current || disconnectMode.current) return;
+    disconnectMode.current = true; setDisconnecting(true); setDisconnectNotice('none'); afterConfirmation.current = null;
+    pendingCapture.current = null; session.current.invalidate(); syncConnection(); setResult('none');
+    setStatus('Use Abmelden on the original provider page, then verify sign-out. Closing alone does not sign out.');
+    setVisible(true); navigate(PROFILE_URL);
+  }
+  function checkDisconnection() {
+    if (disconnectMode.current) checkConnection('disconnect');
+  }
   function clearContextRequest() {
     contextRequest.current = null;
     if (contextTimer.current) clearTimeout(contextTimer.current);
@@ -72,6 +95,7 @@ export function useAccessController(product = false) {
   }
   function contextFailed(loginRequired = false) {
     const request = contextRequest.current;
+    endDisconnect('failed'); afterConfirmation.current = null;
     if (request) session.current.fail(request.nonce, loginRequired ? 'login-required' : 'error');
     else session.current.invalidate();
     clearContextRequest(); pendingCapture.current = null; syncConnection();
@@ -79,8 +103,8 @@ export function useAccessController(product = false) {
     const active = retrieval.current.state;
     if (active.phase === 'loading') stop('Provider context unavailable. Earlier captures and recovery journal retained.', active.nonce);
   }
-  function checkConnection(action: 'check' | 'retrieve' | 'capture' | 'recover' | 'restored' = 'check') {
-    if (contextRequest.current || !viewReady || saving || busy && action !== 'capture' && action !== 'restored') return;
+  function checkConnection(action: 'check' | 'retrieve' | 'capture' | 'recover' | 'restored' | 'disconnect' = 'check') {
+    if (!foreground.current || loginBusy || loginStorageBusy.current || loginAttempt.current || disconnectMode.current !== (action === 'disconnect') || contextRequest.current || !viewReady || saving || busy && action !== 'capture' && action !== 'restored') return;
     const nonce = Crypto.randomUUID();
     if (!session.current.start(nonce)) return;
     contextRequest.current = { nonce, action }; syncConnection();
@@ -89,7 +113,8 @@ export function useAccessController(product = false) {
     navigate(PROFILE_URL);
   }
   function connect() {
-    if (busy || contextRequest.current || saving) return;
+    if (!foreground.current || disconnectMode.current || retrieval.current.state.phase !== 'idle' || loginBusy || loginStorageBusy.current || loginAttempt.current || busy || contextRequest.current || saving) return;
+    afterConfirmation.current = null;
     session.current.invalidate(); syncConnection(); setVisible(true); setResult('none');
     navigate(LOGIN_URL);
   }
@@ -97,10 +122,14 @@ export function useAccessController(product = false) {
     setVisible(false);
     // Dismissing a presentation must not orphan an owned capture/restoration check.
     if (retrieval.current.state.phase !== 'idle') return;
-    if (contextRequest.current) { clearContextRequest(); pendingNavigation.current = null; web.current?.stopLoading(); session.current.cancel(); syncConnection(); }
+    afterConfirmation.current = null; endDisconnect();
+    clearContextRequest(); pendingNavigation.current = null; web.current?.stopLoading();
+    epoch.current++; setGeneration(epoch.current);
+    if (loginAttempt.current) endLogin('Sign-in presentation closed. No further saved-login attempt will run.');
+    session.current.cancel(); syncConnection();
   }
   function confirmConnection() {
-    if (!session.current.confirm()) return;
+    if (disconnectMode.current || !foreground.current || !session.current.confirm()) return;
     syncConnection();
     const next = afterConfirmation.current; afterConfirmation.current = null;
     if (next === 'retrieve') retrieve();
@@ -108,10 +137,25 @@ export function useAccessController(product = false) {
   }
   async function receiveContext(event: WebViewMessageEvent) {
     const request = contextRequest.current;
-    if (!request || !session.current.owns(request.nonce) || currentUrl.current !== PROFILE_URL || !scopedBridge(event.nativeEvent.url, currentUrl.current, PROFILE_URL) || event.nativeEvent.data.length > 2000) return;
+    const expected = loginPage(currentUrl.current) ? LOGIN_URL : PROFILE_URL;
+    if (!request || !session.current.owns(request.nonce) || !scopedBridge(event.nativeEvent.url, currentUrl.current, expected) || event.nativeEvent.data.length > 2000) return;
     try {
       const message = JSON.parse(event.nativeEvent.data);
-      if (message.kind !== 'vf-context-v1' || message.nonce !== request.nonce || message.url !== PROFILE_URL) return;
+      if (message.kind !== 'vf-context-v1' || message.nonce !== request.nonce || message.url !== expected) return;
+      if (request.action === 'disconnect') {
+        clearContextRequest(); afterConfirmation.current = null;
+        if (message.context?.error === 'session-required') {
+          endDisconnect('verified');
+          session.current.disconnected(); setDisconnectedAt(new Date().toISOString()); setVisible(false);
+          setStatus('Provider sign-out verified by a fresh protected-profile request. Saved credentials and local data remain unchanged. Cookie clearing and other sessions are not verified.');
+        } else {
+          endDisconnect('failed');
+          session.current.invalidate();
+          setStatus('Provider sign-out could not be verified. Use Abmelden on the original provider page, then retry. Saved data and credentials are preserved.');
+        }
+        syncConnection(); return;
+      }
+      if (expected !== PROFILE_URL && message.context?.error !== 'session-required') { contextFailed(); return; }
       if (message.context?.error === 'session-required') { contextFailed(true); return; }
       const accepted = session.current.observe(request.nonce, message.context, new Date().toISOString());
       clearContextRequest(); syncConnection();
@@ -140,25 +184,29 @@ export function useAccessController(product = false) {
     const listener = AppState.addEventListener('change', state => {
       foreground.current = state === 'active';
       if (state === 'active') return;
-      clearContextRequest(); pendingCapture.current = null; session.current.invalidate(); syncConnection();
+      clearContextRequest(); pendingNavigation.current = null; pendingCapture.current = null; afterConfirmation.current = null; endDisconnect(); session.current.invalidate(); syncConnection();
+      web.current?.stopLoading(); epoch.current++; setGeneration(epoch.current);
+      if (loginAttempt.current) endLogin('App left the foreground. Sign-in stopped; retry explicitly.');
       if (retrieval.current.state.phase === 'loading') finish('App left the foreground. Recovery may be required.');
     });
     return () => { listener.remove(); clearContextRequest(); session.current.cancel(); };
   }, [product]);
   async function saveLogin() {
-    setLoginBusy(true);
+    if (loginStorageBusy.current || loginBusy || loginAttempt.current || contextRequest.current || disconnectMode.current || retrieval.current.state.phase !== 'idle') return;
+    loginStorageBusy.current = true; setCredentialNotice('none'); setLoginBusy(true);
     try { await writeSavedLogin({ username, password }); setUsername(''); setPassword(''); setEditingLogin(false); setHasLogin(true); setStatus('Login saved only on this device. Use saved login when the provider asks you to sign in.'); }
     catch { setStatus('Login could not be saved. Check the fields and try again.'); }
-    finally { setLoginBusy(false); }
+    finally { loginStorageBusy.current = false; setLoginBusy(false); }
   }
   async function forgetLogin() {
-    setLoginBusy(true);
-    try { await forgetSavedLogin(); setHasLogin(false); setUsername(''); setPassword(''); setStatus('Saved username and password forgotten. Existing browser session and captured flights are preserved.'); }
-    catch { setStatus('Saved login could not be removed. Try again.'); }
-    finally { setLoginBusy(false); }
+    if (loginStorageBusy.current || loginBusy || loginAttempt.current || contextRequest.current || disconnectMode.current || retrieval.current.state.phase !== 'idle' || busy || saving) return;
+    loginStorageBusy.current = true; setCredentialNotice('none'); setLoginBusy(true);
+    try { await forgetSavedLogin(); setCredentialNotice('forgotten'); setHasLogin(false); setUsername(''); setPassword(''); setStatus('Saved username and password forgotten. Existing browser session and captured flights are preserved.'); }
+    catch { setCredentialNotice('error'); setStatus('Saved login could not be removed. Try again.'); }
+    finally { loginStorageBusy.current = false; setLoginBusy(false); }
   }
   function useLogin() {
-    if (retrieval.current.state.phase !== 'idle' || busy || loginBusy || loginAttempt.current) return;
+    if (!foreground.current || disconnectMode.current || contextRequest.current || loginStorageBusy.current || retrieval.current.state.phase !== 'idle' || busy || loginBusy || loginAttempt.current) return;
     loginAttempt.current = 'waiting'; setLoginBusy(true); setVisible(true); setEditingLogin(false);
     loginNonce.current = Crypto.randomUUID();
     setStatus('Opening the original provider page for one saved-login attempt.');
@@ -171,7 +219,8 @@ export function useAccessController(product = false) {
     phase.current.loaded = true; currentUrl.current = page; setUrl(page); setLoaded(true);
     if (product && contextRequest.current) {
       if (page === PROFILE_URL) web.current?.injectJavaScript(contextScript(contextRequest.current.nonce));
-      else contextFailed(true);
+      else if (loginPage(page)) web.current?.injectJavaScript(loginRequiredScript(contextRequest.current.nonce));
+      else contextFailed();
       return;
     }
     if (loginAttempt.current === 'waiting') {
@@ -229,7 +278,7 @@ export function useAccessController(product = false) {
     stop(message, nonce);
   }
   function recoverView() {
-    if (!original.current || !viewReady || busy || loginBusy || loginAttempt.current) return;
+    if (disconnectMode.current || product && !session.current.state.confirmed || !original.current || !viewReady || busy || loginBusy || loginAttempt.current) return;
     const nonce = Crypto.randomUUID(); if (!retrieval.current.start(nonce)) return;
     startRestoration('Earlier export recovery.', nonce);
   }
@@ -300,7 +349,7 @@ export function useAccessController(product = false) {
     setProviderExpanded(expanded => !expanded);
   }
   function retrieve() {
-    if (loginAttempt.current || loginBusy || !viewReady || recovery || product && !session.current.state.confirmed) return;
+    if (disconnectMode.current || contextRequest.current || loginAttempt.current || loginBusy || !viewReady || recovery || product && !session.current.state.confirmed) return;
     let prepared: ExportRun;
     try { prepared = beginExport({ from, to }); } catch { setStatus('Use valid inclusive dates in YYYY-MM-DD order.'); if (product) setResult('failed'); return; }
     const nonce = Crypto.randomUUID();
@@ -438,10 +487,10 @@ export function useAccessController(product = false) {
           }
           if(flightUrl(url))void receive(event);
         }}
-        onError={() => { if (generation !== epoch.current) return; if (product && contextRequest.current) { contextFailed(); return; } if (product) { session.current.invalidate(); syncConnection(); } loginAttempt.current ? endLogin('Provider login page failed to load. Saved login and captures preserved.') : finish('Provider page failed to load. Previous captures preserved.'); }}
-        onHttpError={() => { if (generation !== epoch.current) return; if (product && contextRequest.current) { contextFailed(); return; } if (product) { session.current.invalidate(); syncConnection(); } loginAttempt.current ? endLogin('Provider login returned an HTTP error. Saved login and captures preserved.') : finish('Provider returned an HTTP error. Previous captures preserved.'); }}
+        onError={() => { if (generation !== epoch.current) return; if (product && contextRequest.current) { contextFailed(); return; } if (product) { endDisconnect('failed'); afterConfirmation.current = null; session.current.invalidate(); syncConnection(); } loginAttempt.current ? endLogin('Provider login page failed to load. Saved login and captures preserved.') : finish('Provider page failed to load. Previous captures preserved.'); }}
+        onHttpError={() => { if (generation !== epoch.current) return; if (product && contextRequest.current) { contextFailed(); return; } if (product) { endDisconnect('failed'); afterConfirmation.current = null; session.current.invalidate(); syncConnection(); } loginAttempt.current ? endLogin('Provider login returned an HTTP error. Saved login and captures preserved.') : finish('Provider returned an HTTP error. Previous captures preserved.'); }}
         onContentProcessDidTerminate={() => { if (product) contextFailed(); finish('Provider renderer stopped. Recovery journal retained.'); }}
         onRenderProcessGone={() => { if (product) contextFailed(); finish('Provider renderer stopped. Recovery journal retained.'); }}
       />;
-  return { refreshRecovery, connection, checkConnection, connect, dismissLogin, confirmConnection, lastSuccessfulCaptureAt, result, browser, showRun, setShowRun, showWindow, setShowWindow, viewReady, recovery, original, editingLogin, loginBusy, username, setUsername, password, setPassword, saveLogin, setEditingLogin, providerExpanded, visible, status, busy, openCaptureLab, pauseEnabled, toggleTestPause, preBackupPause, togglePreBackupPause, from, setFrom, to, setTo, saving, restoring, navigate, setVisible, cancelRetrieval, retrieve, hasLogin, useLogin, forgetLogin, recoverView, paused, continueTestRetrieval, viewStrategy, url, toggleProviderPage, browserActive, snapshot, setProviderExpanded, web, currentUrl, retrieval, loaded, source, generation, epoch };
+  return { disconnectNotice, credentialNotice, startDisconnect, checkDisconnection, disconnecting, disconnectedAt, refreshRecovery, connection, checkConnection, connect, dismissLogin, confirmConnection, lastSuccessfulCaptureAt, result, browser, showRun, setShowRun, showWindow, setShowWindow, viewReady, recovery, original, editingLogin, loginBusy, username, setUsername, password, setPassword, saveLogin, setEditingLogin, providerExpanded, visible, status, busy, openCaptureLab, pauseEnabled, toggleTestPause, preBackupPause, togglePreBackupPause, from, setFrom, to, setTo, saving, restoring, navigate, setVisible, cancelRetrieval, retrieve, hasLogin, useLogin, forgetLogin, recoverView, paused, continueTestRetrieval, viewStrategy, url, toggleProviderPage, browserActive, snapshot, setProviderExpanded, web, currentUrl, retrieval, loaded, source, generation, epoch };
 }

@@ -76,6 +76,13 @@ def execute(smoke):
             assert 0 <= x1 < x2 <= width and 0 <= y1 < y2 <= height
             if width >= 600:
                 assert x2 - x1 <= 520, 'Connection form stretched on a large display'
+            disconnect = smoke.find('Bei Vereinsflieger abmelden', exact=True, scroll=True, enabled=False)
+            dx1, dy1, dx2, dy2 = bounds(disconnect)
+            assert 0 <= dx1 < dx2 <= width and 0 <= dy1 < dy2 <= height, 'Disabled disconnect action has invalid bounds'
+            smoke.find('Gespeicherte Anmeldung verwenden', exact=True, scroll=True)
+            forget = smoke.find('Gespeicherte Zugangsdaten vergessen', exact=True, scroll=True, enabled=True)
+            fx1, fy1, fx2, fy2 = bounds(forget)
+            assert 0 <= fx1 < fx2 <= width and 0 <= fy1 < fy2 <= height, 'Forget-credentials action has invalid bounds'
             capture(smoke, f'connection-w{width}-h{height}-font{font}', viewport(smoke))
             if width == 360 and font == 1.4:
                 field = smoke.find('Vereinsflieger Abruf von', exact=True, scroll=True)
@@ -125,6 +132,58 @@ def execute(smoke):
         smoke.find('Nicht verbunden', exact=True)
         smoke.find('Letzte Sitzungsprüfung: noch nicht erfolgt', exact=True)
         capture(smoke, 'restart-does-not-infer-session-from-cookies', viewport(smoke))
+        smoke.find('Bei Vereinsflieger abmelden', exact=True, scroll=True, enabled=False)
+        smoke.find('Gespeicherte Anmeldung verwenden', exact=True, scroll=True)
+
+        # Creating the owned browser is required before app-initiated
+        # disconnect can be offered. This offline failure establishes only an
+        # unknown session state and gives the synthetic AVD a browser to reuse.
+        smoke.tap('Mit Vereinsflieger verbinden', scroll=True)
+        smoke.find('Abruf oder Seitenaufruf fehlgeschlagen', exact=False, scroll=True, attempts=20)
+        smoke.find('Sitzung aktuell ungeprüft', exact=True, scroll=True)
+
+        # Credential removal is an explicit MoFlight-only operation. On this
+        # clean synthetic AVD there is no saved login to touch; it must not
+        # change the provider session label or report provider logout.
+        smoke.tap('Gespeicherte Zugangsdaten vergessen', scroll=True)
+        smoke.find('Von MoFlight gespeicherte Zugangsdaten entfernt.', exact=False, scroll=True)
+        smoke.find('Sitzung aktuell ungeprüft', exact=True, scroll=True)
+        assert not any('Letzte bestätigte Abmeldung' in label for node in smoke.dump() for label in smoke.labels(node)), 'Forgetting absent synthetic credentials must not claim provider logout'
+        smoke.find('Von MoFlight gespeicherte Zugangsdaten entfernt.', exact=False, scroll=True)
+        capture(smoke, 'forget-credentials-does-not-claim-provider-logout', viewport(smoke))
+
+        # The browser has been created by the earlier offline connect attempts,
+        # so disconnect becomes available. Its first protected-profile request
+        # fails offline; that failure must return to the panel as unconfirmed.
+        smoke.tap('Bei Vereinsflieger abmelden', scroll=True)
+        # The offline navigation can fail before the transient instruction is
+        # readable. The controller returns to the connection panel; only its
+        # explicit failure notice is asserted below.
+        smoke.find('Abmeldung nicht bestätigt.', exact=False, scroll=True, attempts=20)
+        first_disconnect_ids = native_browser_ids(smoke)
+        assert not any('Letzte bestätigte Abmeldung' in label for node in smoke.dump() for label in smoke.labels(node)), 'Offline failure cannot claim provider logout'
+        smoke.find('Sitzung aktuell ungeprüft', exact=True, scroll=True)
+        after_failure_ids = native_browser_ids(smoke)
+        if first_disconnect_ids and after_failure_ids:
+            assert first_disconnect_ids == after_failure_ids, 'WebView instance changed after disconnect failure'
+        capture(smoke, 'offline-disconnect-failure-is-unconfirmed', viewport(smoke))
+
+        smoke.tap('Bei Vereinsflieger abmelden', scroll=True)
+        smoke.find('Abmeldung nicht bestätigt.', exact=False, scroll=True, attempts=20)
+        retry_disconnect_ids = native_browser_ids(smoke)
+        if first_disconnect_ids and retry_disconnect_ids:
+            assert first_disconnect_ids == retry_disconnect_ids, 'WebView instance changed on disconnect retry'
+        final_disconnect_ids = native_browser_ids(smoke)
+        if retry_disconnect_ids and final_disconnect_ids:
+            assert retry_disconnect_ids == final_disconnect_ids, 'WebView instance changed after disconnect retry failure'
+        assert not any('Letzte bestätigte Abmeldung' in label for node in smoke.dump() for label in smoke.labels(node)), 'Repeated offline failure cannot claim provider logout'
+        smoke.report['disconnect_offline_retry'] = {
+            'status': 'passed' if first_disconnect_ids and retry_disconnect_ids and final_disconnect_ids else 'not tested',
+            'first_ids': first_disconnect_ids, 'retry_ids': retry_disconnect_ids,
+            'after_retry_ids': final_disconnect_ids,
+            'reason': None if first_disconnect_ids and retry_disconnect_ids and final_disconnect_ids else 'Activity dump did not expose native browser instance IDs',
+        }
+        capture(smoke, 'offline-disconnect-retry-is-unconfirmed', viewport(smoke))
         smoke.shell('input', 'keyevent', 'KEYCODE_BACK')
     finally:
         for kind, pattern in [('size', r'Override size:\s*(\d+x\d+)'), ('density', r'Override density:\s*(\d+)')]:

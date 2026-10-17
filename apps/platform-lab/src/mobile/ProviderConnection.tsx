@@ -8,7 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type Controller = ReturnType<typeof useAccessController>;
 export function ConnectionIndicator({ controller: c, onPress }: { controller: Controller; onPress: () => void }) {
-  const pending = c.busy || c.connection.phase === 'checking';
+  const pending = c.busy || c.disconnecting || c.connection.phase === 'checking';
   const tint = c.connection.phase === 'disconnected' ? colors.muted : '#ffc477';
   return <Pressable accessibilityRole="button" accessibilityLabel={`Vereinsflieger: ${pending ? 'Vorgang läuft' : connectionLabel(c.connection)}. Verbindungen öffnen`} onPress={onPress} style={styles.indicator}>
     {pending ? <ActivityIndicator color={colors.cyan} /> : <View accessible={false} style={{ width: 27, height: 25 }}>
@@ -23,7 +23,8 @@ export function ProviderConnection({ controller: c, open, close }: { controller:
   const insets = useSafeAreaInsets();
   const [barHeight, setBarHeight] = useState(68), [loginHeight, setLoginHeight] = useState(132);
   const checking = c.connection.phase === 'checking';
-  const locked = c.busy || checking || c.saving || c.loginBusy || !c.viewReady;
+  const operationLocked = c.busy || checking || c.saving || c.loginBusy || !c.viewReady;
+  const locked = operationLocked || c.disconnecting;
   const login = open && c.visible;
   const label = connectionLabel(c.connection);
   const dismiss = () => { if (c.visible || checking) c.dismissLogin(); close(); };
@@ -33,12 +34,12 @@ export function ProviderConnection({ controller: c, open, close }: { controller:
     </View>
     <View style={styles.bar} onLayout={event => setBarHeight(event.nativeEvent.layout.height)}>
       <Action secondary onPress={dismiss}>‹ Zurück</Action>
-      <Label style={{ flex: 1, fontWeight: '600' }}>{login ? 'Mit Vereinsflieger verbinden' : 'Verbindungen'}</Label>
+      <Label style={{ flex: 1, fontWeight: '600' }}>{login ? c.disconnecting ? 'Bei Vereinsflieger abmelden' : 'Mit Vereinsflieger verbinden' : 'Verbindungen'}</Label>
     </View>
     {login ? <View style={styles.loginBar} onLayout={event => setLoginHeight(event.nativeEvent.layout.height)}>
       <Label style={{ fontWeight: '600' }}>{providerUrl(c.url) ? new URL(c.url).origin : 'Anbieteradresse nicht bestätigt'}</Label>
-      <Label muted>Originale Anmeldeseite · Zugangsdaten nur dort eingeben.</Label>
-      <Action disabled={locked} onPress={() => c.checkConnection()}>Anmeldung prüfen</Action>
+      <Label muted>{c.disconnecting ? 'Auf der Originalseite „Abmelden“ wählen, danach hier prüfen. Schließen allein meldet dich nicht ab.' : 'Originale Anmeldeseite · Zugangsdaten nur dort eingeben.'}</Label>
+      {c.disconnecting ? <Action disabled={operationLocked} onPress={c.checkDisconnection}>Abmeldung prüfen</Action> : <Action disabled={locked} onPress={() => c.checkConnection()}>Anmeldung prüfen</Action>}
     </View> : <KeyboardAvoidingView style={styles.panel} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <ScrollView contentContainerStyle={styles.canvas} keyboardShouldPersistTaps="handled">
         <View style={styles.group}>
@@ -48,6 +49,20 @@ export function ProviderConnection({ controller: c, open, close }: { controller:
             <Label muted>Letzter erfolgreicher Rohabruf in dieser App-Sitzung: {c.lastSuccessfulCaptureAt ? new Date(c.lastSuccessfulCaptureAt).toLocaleString('de-DE') : 'noch keiner'}</Label>
             <Action disabled={locked} onPress={c.connect}>Mit Vereinsflieger verbinden</Action>
             <Action secondary disabled={locked || !c.browserActive} onPress={() => c.checkConnection()}>Sitzung erneut prüfen</Action>
+            <Action secondary disabled={locked} onPress={c.useLogin}>Gespeicherte Anmeldung verwenden</Action>
+            <Label muted>Optionale Entwicklungshilfe: Verwendet einmalig die bereits von MoFlight auf diesem Gerät gespeicherte Anmeldung. Nur nach Antippen; eine Anbieterprüfung kann weiterhin nötig sein.</Label>
+          </Card>
+          <Card><Section title="Verbindung trennen" />
+            <Label muted>Trennen öffnet die Originalseite zum Abmelden. Erst eine neue Prüfung der geschützten Profilseite bestätigt die Abmeldung in diesem Browser. Andere Geräte und das Löschen aller Cookies sind nicht verifiziert.</Label>
+            <Action secondary disabled={locked || c.recovery || !c.browserActive} onPress={c.startDisconnect}>Bei Vereinsflieger abmelden</Action>
+            {c.disconnectNotice === 'failed' && <Label>Abmeldung nicht bestätigt. Auf der Originalseite „Abmelden“ wählen und erneut prüfen. Ein Seitenfehler beweist keine Abmeldung.</Label>}
+            {c.disconnectNotice === 'cancelled' && <Label>Abmeldeprüfung beendet. Der Sitzungszustand ist ungeprüft; eine Abmeldung wird nicht zugesagt.</Label>}
+            {(c.busy || c.recovery) && <Label>Vor dem Trennen: Abruf beenden und die ursprüngliche Anbieteransicht wiederherstellen. Laufendes Speichern kann nicht abgebrochen werden.</Label>}
+            {c.disconnectedAt && <Label>Letzte bestätigte Abmeldung: {new Date(c.disconnectedAt).toLocaleString('de-DE')}. Eine spätere Anmeldung erfordert eine neue Sitzungsprüfung.</Label>}
+            <Action secondary disabled={locked} onPress={c.forgetLogin}>Gespeicherte Zugangsdaten vergessen</Action>
+            {c.credentialNotice === 'forgotten' && <Label>Von MoFlight gespeicherte Zugangsdaten entfernt. Dies ist keine Anbieterabmeldung.</Label>}
+            {c.credentialNotice === 'error' && <Label>Zugangsdaten konnten nicht entfernt werden. Erneut versuchen.</Label>}
+            <Label muted>Entfernt nur die von MoFlight gespeicherten Zugangsdaten auf diesem Gerät. Die Anbietersitzung, System-Autofill und gespeicherte Flüge bleiben davon unabhängig.</Label>
           </Card>
           {c.connection.phase === 'observed' && !c.connection.confirmed && c.connection.observed && <Card>
             <Section title="Vorläufige Zuordnung prüfen" />
@@ -73,7 +88,7 @@ export function ProviderConnection({ controller: c, open, close }: { controller:
             {c.result === 'cancelled' && <Label>Abruf abgebrochen. Frühere Daten bleiben erhalten.</Label>}
           </Card>
           {c.recovery && <Card><Section title="Wiederherstellung ausstehend" /><Label>Vor einem weiteren Abruf muss die ursprüngliche Anbieteransicht im ursprünglichen Konto wiederhergestellt werden.</Label><Action secondary disabled={locked || !c.original.current} onPress={() => c.checkConnection('recover')}>Anbieteransicht wiederherstellen</Action></Card>}
-          <Label muted>Schließen blendet die Seite aus und meldet dich nicht beim Anbieter ab. Vollständiges Trennen ist noch nicht verifiziert.</Label>
+          <Label muted>Schließen blendet die Seite aus und meldet dich nicht beim Anbieter ab. Ein anderes Konto oder ein anderer Verein kann die bisherige Zuordnung in diesem Entwicklungslauf nicht ersetzen.</Label>
           <Label muted>Tabwechsel bleibt möglich. Bei App-Wechsel oder gesperrtem Telefon ist kein unterbrechungsfreier Abruf zugesagt; Rückkehr erfordert eine erneute Prüfung.</Label>
         </View>
       </ScrollView>

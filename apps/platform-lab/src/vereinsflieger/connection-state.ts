@@ -57,6 +57,12 @@ export class ConnectionSession {
     this.owner = null;
     this.value = { ...this.value, phase: 'unknown', confirmed: false };
   }
+  /** Verified sign-out affects this observation only; keep the prior association
+   * so reconnect cannot silently accept another account/club in this app run. */
+  disconnected(): void {
+    this.owner = null;
+    this.value = { ...this.value, phase: 'disconnected', observed: null, confirmed: false };
+  }
   cancel(): void {
     const disconnected = this.value.phase === 'disconnected';
     this.invalidate();
