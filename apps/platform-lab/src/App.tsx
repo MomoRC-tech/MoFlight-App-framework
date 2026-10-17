@@ -26,7 +26,7 @@ function Button({ title, onPress, disabled = false }: { title: string; onPress: 
 function Totals({ title, values }: { title: string; values: Counters | null }) {
   return <View style={styles.card}><Text style={styles.heading}>{title}</Text>{values ? counterKeys.map(k => <Text key={k} style={styles.body}>{k.replaceAll('_', ' ')}: {k === 'landings' ? values[k] : `${Math.floor(values[k] / 60)}:${String(values[k] % 60).padStart(2, '0')}`} {k === 'landings' ? '' : 'h:mm'}</Text>) : <Text style={styles.body}>Leave every total field blank — partial page.</Text>}</View>;
 }
-export default function App() {
+export default function App({ providerOwned = false }: { providerOwned?: boolean }) {
   const [showBooks, setShowBooks] = useState(false);
   const [showAccessProbe, setShowAccessProbe] = useState(false);
   const repo = useRef<LocalLogbook | null>(null);
@@ -124,8 +124,9 @@ export default function App() {
   if (showAccessProbe) return <SafeAreaProvider><SafeAreaView style={styles.screen}><AccessProbe close={() => setShowAccessProbe(false)} /></SafeAreaView></SafeAreaProvider>;
   return <SafeAreaProvider><SafeAreaView style={styles.screen}><ScrollView contentContainerStyle={styles.container}>
     <Text style={styles.title}>MoFlight Lab</Text>
-    <Button title="Open Vereinsflieger access PoC" disabled={busy} onPress={() => setShowAccessProbe(true)} />
+    <Button title="Open Vereinsflieger access PoC" disabled={busy || providerOwned} onPress={() => setShowAccessProbe(true)} />
     <Button title="Open multiple-logbook lab" disabled={busy} onPress={() => setShowBooks(true)} />
+    {providerOwned && <Text style={styles.body}>Vereinsflieger is owned by the main connection controller. Use the header connection entry; a second browser tool is blocked.</Text>}
     <Text style={styles.banner}>SYNTHETIC DATA · Prepared observations and CSV. No handwriting recognition or live Vereinsflieger retrieval.</Text>
     <Text accessibilityLiveRegion="polite" style={styles.body}>{message}</Text>{busy && <ActivityIndicator />}
     <Text style={styles.body}>Local dataset: {selection?.datasetId ?? 'opening'} · {selection?.databaseName ?? ''}</Text>

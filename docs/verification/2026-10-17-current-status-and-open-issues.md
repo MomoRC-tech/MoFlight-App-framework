@@ -1,5 +1,7 @@
 # Current implementation and open-issue index — 17 October 2026
 
+Subsequent update: Manuel authorized the [bounded connection/controller PoC](../product/2026-10-17-connection-controller-poc.md) ahead of the deferred phone retest. Header/Profile entry and the retained controller are implemented for local verification; live hidden retrieval/identity and full disconnect remain open. The index below records the earlier review boundary. Android 17 is now tester-reported; no additional physical outcomes are inferred.
+
 ## Review boundary
 
 All **15 open GitHub issues (#1–#15)** were read and mapped on 2026-10-17. This index covers every currently open issue; issue bodies retain detailed checklists and historical observations. It is not proof that every defect has been discovered, every unchecked historical audit finding is still reproducible, or every product wish is implemented. No issue was closed by this review. README is the entry point and [the roadmap](../project-plan.md) controls priorities.

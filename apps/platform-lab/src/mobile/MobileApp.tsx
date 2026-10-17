@@ -11,6 +11,8 @@ import { localQuestions, localInsight } from './local-insights';
 import { Dashboard } from './Dashboard';
 import { PlaneIcon, ProfileIcon, BookIcon } from './ShellIcons';
 import { ProfileSettings } from './ProfileSettings';
+import { useAccessController } from '../vereinsflieger/use-access-controller';
+import { ProviderConnection, ConnectionIndicator } from './ProviderConnection';
 
 const mountain = require('../../assets/aviation/mountain-header-v2.jpg');
 const brandLogo = require('../../assets/branding/moflight-ai-logo-dark.png');
@@ -40,6 +42,8 @@ function FlightRow({ flight, onPress, tablet }: { flight: Flight; onPress: () =>
 
 export default function MobileApp() { return <SafeAreaProvider><Shell /></SafeAreaProvider>; }
 function Shell() {
+  const connection = useAccessController(true);
+  const [connectionOpen, setConnectionOpen] = useState(false);
   const [tab, setTab] = useState<Tab>('home');
   const [sheet, setSheet] = useState<Sheet>(null);
   const [detail, setDetail] = useState<Flight | null>(null);
@@ -56,6 +60,11 @@ function Shell() {
   const activeTab = useRef(tab);
   activeTab.current = tab;
   const toolsOpen = sheet === 'books' || sheet === 'tools';
+  const previouslyToolsOpen = useRef(false);
+  useEffect(() => {
+    if (previouslyToolsOpen.current && !toolsOpen) void connection.refreshRecovery();
+    previouslyToolsOpen.current = toolsOpen;
+  }, [toolsOpen]);
   const library = useLibrary(toolsOpen);
   const { width, height, fontScale } = useWindowDimensions();
   const aiKeyboard = tab === 'ai' && keyboardTop !== null;
@@ -83,12 +92,13 @@ function Shell() {
   useEffect(() => { setDetail(null); setLocalAnswer(null); }, [library.bookId, library.flights]);
   useEffect(() => {
     const listener = BackHandler.addEventListener('hardwareBackPress', () => {
+      if (connectionOpen) { if (connection.visible || connection.connection.phase === 'checking') connection.dismissLogin(); setConnectionOpen(false); return true; }
       if (detail) { setDetail(null); return true; }
       if (sheet) { setSheet(null); return true; }
       if (tab !== 'home') { setTab('home'); return true; }
       return false;
     }); return () => listener.remove();
-  }, [detail, sheet, tab]);
+  }, [detail, sheet, tab, connectionOpen, connection.visible, connection.connection.phase]);
   const openBooks = () => setSheet('books');
   const ask = (question: string) => { setDraft(question); setAiError(false); setTab('ai'); };
   const quickQuestions = localQuestions;
@@ -111,6 +121,7 @@ function Shell() {
   const header = <Photo source={tab === 'club' ? clubAirfield : mountain} radius={0} style={s.fixedHeader} contentStyle={s.fixedHeaderContent} tint={tab === 'ai' ? '#15123be8' : '#001022df'}>
     <Image source={brandLogo} accessibilityLabel="MoFlight Thermik Logo" style={s.brandLogo} resizeMode="contain" />
     <View style={{ flex: 1, minWidth: 0 }}><Text accessibilityRole="header" style={s.pageTitle}>{tab === 'ai' ? 'MoFlight AI' : pageTitle}</Text><Label muted style={{ fontSize: 11, lineHeight: 16 }}>{tab === 'home' ? (library.displayName ? `Hallo, ${library.displayName}!` : 'Guten Tag!') : tab === 'ai' ? 'Dein Segelflug-Assistent' : 'MoFlight'}</Label></View>
+    <ConnectionIndicator controller={connection} onPress={() => setConnectionOpen(true)} />
     <Pressable accessibilityRole="button" accessibilityLabel="Profil & Einstellungen öffnen" onPress={() => setSheet('profile')} style={s.profileButton}><ProfileIcon /></Pressable>
   </Photo>;
   const flightHeader = <View style={{ gap: 3 }}>
@@ -123,6 +134,7 @@ function Shell() {
   </View>;
 
   return <SafeAreaView edges={['top', 'left', 'right', 'bottom']} style={[s.root, keyboardOverlap > 0 && { paddingBottom: keyboardOverlap }]}>
+    <View style={{ flex: 1 }} accessibilityElementsHidden={connectionOpen} importantForAccessibility={connectionOpen ? 'no-hide-descendants' : 'auto'}>
     <StatusBar barStyle="light-content" backgroundColor={colors.background} />
     {header}
     <View style={[s.content, wide && { maxWidth: 960 }, tablet && !wide && { maxWidth: 600 }]}>
@@ -178,8 +190,8 @@ function Shell() {
     <View style={[s.nav, wide && { maxWidth: 960 }, tablet && !wide && { maxWidth: 600 }, aiKeyboard && s.hidden]} accessibilityRole="tablist">{tabs.map(item => <Pressable key={item.id} accessibilityRole="tab" accessibilityLabel={item.title} accessibilityState={{ selected: tab === item.id }} onPress={() => setTab(item.id)} style={({ pressed }) => [s.navItem, pressed && ui.pressed]}>{item.id === 'flights' ? <PlaneIcon color={tab === item.id ? '#00c8ff' : colors.muted} /> : item.id === 'logbook' ? <BookIcon color={tab === item.id ? '#00c8ff' : colors.muted} /> : item.id === 'club' ? <ClubMark color={tab === item.id ? '#00c8ff' : colors.muted} /> : <Text style={[s.navIcon, tab === item.id && s.active]}>{item.icon}</Text>}<Text style={[s.navLabel, tab === item.id && s.active]}>{item.title}</Text></Pressable>)}</View>
     <Modal visible={sheet !== null || detail !== null} animationType="slide" onRequestClose={() => { setDetail(null); setSheet(null); }}>
       <SafeAreaView style={s.modal}><StatusBar barStyle="light-content" /><View style={s.modalBar}><Action secondary onPress={() => { setDetail(null); setSheet(null); }}>‹ Zurück</Action><Label style={{ flex: 1, fontWeight: '600' }}>{detail ? 'Flugdetails' : sheet === 'books' ? 'Papierflugbuch' : sheet === 'tools' ? 'Entwicklungswerkzeuge' : sheet === 'profile' ? 'Profil & Einstellungen' : 'MoFlight'}</Label></View>
-        {sheet === 'tools' ? <LabApp /> : sheet === 'books' ? <View style={{ flex: 1, backgroundColor: '#f5f7fb' }}><BookLab close={() => setSheet(null)} /></View> : <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}><ScrollView contentContainerStyle={s.canvas} keyboardShouldPersistTaps="handled">
-          {sheet === 'profile' && <ProfileSettings onTools={() => setSheet('tools')} onStatus={() => setSheet('status')} onCredits={() => setSheet('credits')} onBooks={() => setSheet('selectBook')} displayName={library.displayName} busy={library.busy} error={library.error} onSaveName={library.saveDisplayName} onRetry={() => void library.reload()} />}
+        {sheet === 'tools' ? <LabApp providerOwned={connection.browserActive || connection.busy || connection.recovery} /> : sheet === 'books' ? <View style={{ flex: 1, backgroundColor: '#f5f7fb' }}><BookLab close={() => setSheet(null)} /></View> : <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}><ScrollView contentContainerStyle={s.canvas} keyboardShouldPersistTaps="handled">
+          {sheet === 'profile' && <ProfileSettings onConnections={() => { setSheet(null); setConnectionOpen(true); }} onTools={() => setSheet('tools')} onStatus={() => setSheet('status')} onCredits={() => setSheet('credits')} onBooks={() => setSheet('selectBook')} displayName={library.displayName} busy={library.busy} error={library.error} onSaveName={library.saveDisplayName} onRetry={() => void library.reload()} />}
           {detail && <><Section title={detail.registration ?? 'Flugzeug unbekannt'} />{[['Datum', dateText(detail.date)], ['Flugzeugtyp', detail.aircraft_model], ['Abflug', detail.start_place], ['Ankunft', detail.landing_place], ['Start', detail.start], ['Landung', detail.landing], ['Zeitbasis', detail.time_basis], ['Dauer', detail.minutes === null ? null : `${formatDuration(detail.minutes)} h`], ['Rolle', detail.pilot_role], ['Startart', detail.launch], ['Landungen', detail.landings?.toString()], ['Bemerkungen', detail.remarks]].map(([label, value]) => <Card key={label}><Label muted>{label}</Label><Label selectable>{value ?? 'Unbekannt'}</Label></Card>)}<Label muted>Quelle: gespeicherte synthetische Bibliothek · {book?.name}. Distanz und Flugtrack sind nicht verfügbar.</Label></>}
           {sheet === 'selectBook' && <><Section title="Flugbuch auswählen" />{library.books.map(b => <Action key={b.id} secondary onPress={() => { setSheet(null); void library.selectBook(b.id); }}>{b.id === library.bookId ? '✓ ' : ''}{b.name}</Action>)}{!library.books.length && <Empty title="Noch kein Flugbuch">Bestehende lokale Flugbuchwerkzeuge öffnen, um die Bibliothek einzusehen.</Empty>}<Action onPress={openBooks}>Flugbuchwerkzeuge öffnen</Action></>}
           {sheet === 'filters' && <><Section title="Flugfilter" /><Label muted>Jahr, Suche und Schulungsrolle werden gemeinsam auf die gespeicherten Flüge angewendet.</Label><Chip title="Alle Rollen" selected={!training} onPress={() => setTraining(false)} /><Chip title="Schulung · Dual / FI" selected={training} onPress={() => setTraining(true)} /><Action onPress={() => { setSearch(''); setTraining(false); setYear(null); setSheet(null); }}>Filter zurücksetzen</Action></>}
@@ -195,6 +207,8 @@ function Shell() {
         </ScrollView></KeyboardAvoidingView>}
       </SafeAreaView>
     </Modal>
+    </View>
+    <ProviderConnection controller={connection} open={connectionOpen} close={() => setConnectionOpen(false)} />
   </SafeAreaView>;
 }
 const s = StyleSheet.create({

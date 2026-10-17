@@ -7,6 +7,9 @@ import { Retrieval } from '../../apps/platform-lab/src/vereinsflieger/retrieval.
 import * as probe from '../../apps/platform-lab/src/vereinsflieger/probe.ts';
 import * as view from '../../apps/platform-lab/src/vereinsflieger/view.ts';
 import * as exporter from '../../apps/platform-lab/src/vereinsflieger/export.ts';
+import * as context from '../../apps/platform-lab/src/vereinsflieger/context.ts';
+import { ConnectionSession } from '../../apps/platform-lab/src/vereinsflieger/connection-state.ts';
+import type { useAccessController } from '../../apps/platform-lab/src/vereinsflieger/use-access-controller.tsx';
 import type { ViewPreferences } from '../../apps/platform-lab/src/vereinsflieger/view.ts';
 const { FLIGHT_URL } = probe;
 
@@ -24,13 +27,17 @@ type Effect = { dependencies: unknown[] | undefined; cleanup?: () => void };
 const source = ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/vereinsflieger/AccessProbe.tsx', import.meta.url), 'utf8'), {
   compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.React, esModuleInterop: false },
 }).outputText;
-function fixture(options: { priorCapture?: probe.ProbeSnapshot; deferJournalSave?: boolean; deferCaptureSave?: boolean } = {}) {
+const controllerSource = ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/vereinsflieger/use-access-controller.tsx', import.meta.url), 'utf8'), {
+  compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.React, esModuleInterop: false },
+}).outputText;
+function fixture(options: { priorCapture?: probe.ProbeSnapshot; deferJournalSave?: boolean; deferCaptureSave?: boolean; product?: boolean } = {}) {
   let resolveJournal!: (view: ViewPreferences | null) => void, rejectJournal!: (error: Error) => void;
   const journal = new Promise<ViewPreferences | null>((resolve, reject) => { resolveJournal = resolve; rejectJournal = reject; });
   const hooks: unknown[] = [], effects: (() => void)[] = [];
   let index = 0, nextId = 0, timerId = 0, pending: ViewPreferences | null = null;
   let savedCapture = options.priorCapture ?? null;
   const writes: string[] = [], injections: string[] = [], timers = new Map<number, () => void>();
+  let appStateListener: ((state: string) => void) | undefined;
   let finishJournalSave!: () => void, finishCaptureSave!: () => void;
   const journalSave = new Promise<void>(resolve => { finishJournalSave = resolve; });
   const captureSave = new Promise<void>(resolve => { finishCaptureSave = resolve; });
@@ -58,7 +65,7 @@ function fixture(options: { priorCapture?: probe.ProbeSnapshot; deferJournalSave
   function WindowCapture() {}
   const modules: Record<string, unknown> = {
     react: { default: react, ...react },
-    'react-native': { StyleSheet: { create: (value: unknown) => value }, View: 'View', Text: 'Text', FlatList: 'FlatList' },
+    'react-native': { AppState: { currentState: 'active', addEventListener: (_: string, listener: (state: string) => void) => { appStateListener = listener; return { remove() { appStateListener = undefined; } }; } }, StyleSheet: { create: (value: unknown) => value }, View: 'View', Text: 'Text', FlatList: 'FlatList' },
     'react-native-webview': { WebView: 'WebView' }, 'expo-crypto': { randomUUID: () => `fixture-${++nextId}` },
     './probe': probe,
     './storage': {
@@ -78,14 +85,23 @@ function fixture(options: { priorCapture?: probe.ProbeSnapshot; deferJournalSave
     './login-storage': { readSavedLogin: async () => null },
     './export': { ...exporter, calendarYearRequest: () => ({ from: '2026-01-01', to: '2026-12-31' }) },
     './retrieval': { Retrieval }, './CaptureRun': { CaptureRun }, './WindowCapture': { WindowCapture },
-    './login': {}, './view': view, './context': {},
+    './login': {}, './view': view, './context': context, './connection-state': { ConnectionSession },
   };
-  const exported = {} as { AccessProbe: (props: { close: () => void }) => Element };
-  runInNewContext(source, { exports: exported, require: (name: string) => {
+  const runtime = { require: (name: string) => {
     assert.ok(name in modules, `Unexpected component dependency: ${name}`); return modules[name];
   }, setTimeout: (callback: () => void) => { const id = ++timerId; timers.set(id, callback); return id; },
-  clearTimeout: (id: number) => timers.delete(id), URL });
-  function render() { index = 0; const tree = exported.AccessProbe({ close() {} }); effects.splice(0).forEach(effect => effect()); return tree; }
+  clearTimeout: (id: number) => timers.delete(id), URL };
+  const controllerExports = {} as { useAccessController: typeof useAccessController };
+  runInNewContext(controllerSource, { exports: controllerExports, ...runtime });
+  modules['./use-access-controller'] = controllerExports;
+  const exported = {} as { AccessProbe: (props: { close: () => void }) => Element };
+  runInNewContext(source, { exports: exported, ...runtime });
+  let controller: ReturnType<typeof useAccessController>;
+  function render() {
+    index = 0;
+    const tree = options.product ? (() => { controller = controllerExports.useAccessController(true); return { type: 'Host', props: {}, children: [controller.browser] }; })() : exported.AccessProbe({ close() {} });
+    effects.splice(0).forEach(effect => effect()); return tree;
+  }
   function find(tree: Element, predicate: (element: Element) => boolean): Element | undefined {
     const walk = (node: unknown): Element | undefined => {
       if (Array.isArray(node)) { for (const child of node) { const found = walk(child); if (found) return found; } }
@@ -127,10 +143,167 @@ function fixture(options: { priorCapture?: probe.ProbeSnapshot; deferJournalSave
       data: JSON.stringify({ ...command, url: FLIGHT_URL, accountLabel: original.accountLabel, ...payload }) } });
     return flush();
   }
+  async function contextMessage(observed: unknown, sender = context.PROFILE_URL, nonce?: string) {
+    const web = find(render(), element => element.type === 'WebView'); assert.ok(web);
+    const token = nonce ?? /nonce:"([^"]+)"/.exec(injections.at(-1) ?? '')?.[1]; assert.ok(token, 'Missing issued context nonce');
+    (web.props.onMessage as (event: unknown) => void)({ nativeEvent: { url: sender, data: JSON.stringify({ kind: 'vf-context-v1', nonce: token, url: context.PROFILE_URL, context: observed }) } });
+    return flush();
+  }
   return { render, button, press, settle, find, flush, loadPage, loadFlight, message, currentCommand, writes, injections,
+    contextMessage,
+    appState: (state: string) => appStateListener?.(state),
+    controller: () => { render(); return controller; },
     finishJournalSave, finishCaptureSave, pending: () => pending, savedCapture: () => savedCapture,
     isLab: (tree: Element) => tree.type === CaptureRun || tree.type === WindowCapture };
 }
+
+const observedContext = { accountNumber: '123', clubLabel: 'Synthetic Club', clubIdentity: 'display-label-only', verification: 'observed-profile-number' } as const;
+
+test('supported session-required profile response reveals login without accepting account evidence', async () => {
+  const f = fixture({ product: true }); f.render(); await f.settle(null);
+  f.controller().connect(); await f.loadPage(probe.LOGIN_URL);
+  f.controller().checkConnection(); await f.loadPage(context.PROFILE_URL);
+  await f.contextMessage({ error: 'session-required' });
+  assert.equal(f.controller().connection.phase, 'login-required');
+  assert.equal(f.controller().visible, true);
+  assert.equal(f.controller().connection.lastCheckedAt, null);
+  assert.deepEqual(f.writes, []);
+});
+
+test('background interruption during durable journal write retains recovery without starting provider mutations', async () => {
+  const f = fixture({ product: true, priorCapture, deferJournalSave: true }); f.render(); await f.settle(null);
+  f.controller().connect(); await f.loadPage(probe.LOGIN_URL);
+  f.controller().checkConnection('retrieve'); await f.loadPage(context.PROFILE_URL);
+  await f.contextMessage(observedContext); f.controller().confirmConnection(); await f.loadFlight();
+  await f.message({ kind: 'vf-view-v2', view: original });
+  assert.deepEqual(f.writes, ['journal-start']);
+  f.appState('background');
+  const count = f.injections.length;
+  f.finishJournalSave(); await f.flush();
+  assert.equal(f.injections.length, count, 'No backup or export may begin after suspended journal write');
+  assert.deepEqual(f.writes, ['journal-start', 'journal-saved']);
+  assert.deepEqual(f.pending(), original);
+  assert.equal(f.savedCapture(), priorCapture);
+  assert.equal(f.controller().busy, false);
+  assert.equal(f.controller().recovery, true);
+  assert.equal(f.controller().connection.phase, 'unknown');
+  f.appState('active');
+  assert.equal(f.controller().connection.phase, 'unknown', 'Foreground return does not establish session validity');
+});
+
+test('product controller keeps native key/source/ref across login hiding and navigation without claiming connection', async () => {
+  const f = fixture({ product: true }); f.render(); await f.settle(null);
+  assert.equal(f.find(f.render(), element => element.type === 'WebView'), undefined);
+  f.controller().connect();
+  const initial = f.find(f.render(), element => element.type === 'WebView'); assert.ok(initial);
+  await f.loadPage(probe.LOGIN_URL);
+  assert.equal(f.controller().connection.phase, 'unknown', 'Cookie or login page load is not verification');
+  f.controller().dismissLogin();
+  const hidden = f.find(f.render(), element => element.type === 'WebView'); assert.ok(hidden);
+  for (const property of ['key', 'source', 'ref']) assert.equal(hidden.props[property], initial.props[property]);
+  f.controller().checkConnection();
+  const checking = f.find(f.render(), element => element.type === 'WebView'); assert.ok(checking);
+  for (const property of ['key', 'source', 'ref']) assert.equal(checking.props[property], initial.props[property]);
+  assert.match(f.injections.at(-1)!, /location.assign/);
+  assert.equal(f.controller().connection.phase, 'checking');
+});
+
+test('product context checks reject foreign origins, stale nonces and cancelled late responses', async () => {
+  const f = fixture({ product: true }); f.render(); await f.settle(null);
+  f.controller().connect(); await f.loadPage(probe.LOGIN_URL);
+  f.controller().checkConnection(); await f.loadPage(context.PROFILE_URL);
+  const abandoned = /nonce:"([^"]+)"/.exec(f.injections.at(-1)!)![1]!;
+  await f.contextMessage(observedContext, 'https://evil.example/', abandoned);
+  assert.equal(f.controller().connection.phase, 'checking');
+  await f.contextMessage(observedContext, context.PROFILE_URL, 'stale');
+  assert.equal(f.controller().connection.phase, 'checking');
+  f.controller().dismissLogin();
+  await f.contextMessage(observedContext, context.PROFILE_URL, abandoned);
+  assert.equal(f.controller().connection.phase, 'unknown');
+  assert.equal(f.controller().connection.confirmed, false);
+  assert.deepEqual(f.writes, []);
+});
+
+test('product retrieval waits for observed confirmation and rejects changed account before snapshot', async () => {
+  const f = fixture({ product: true }); f.render(); await f.settle(null);
+  f.controller().retrieve();
+  assert.equal(f.controller().busy, false);
+  f.controller().connect(); await f.loadPage(probe.LOGIN_URL);
+  f.controller().checkConnection('retrieve'); await f.loadPage(context.PROFILE_URL);
+  await f.contextMessage(observedContext);
+  assert.equal(f.controller().connection.confirmed, false);
+  assert.equal(f.controller().busy, false);
+  f.controller().confirmConnection(); await f.loadFlight();
+  assert.equal(f.controller().busy, true);
+  assert.equal(f.currentCommand().phase, 'snapshot');
+  f.controller().cancelRetrieval(); await f.flush();
+  assert.equal(f.controller().busy, false);
+  f.controller().checkConnection('retrieve'); await f.loadPage(context.PROFILE_URL);
+  await f.contextMessage({ ...observedContext, accountNumber: '456' });
+  assert.equal(f.controller().connection.phase, 'mismatch');
+  assert.equal(f.controller().busy, false);
+  assert.equal(f.controller().connection.confirmed, false);
+  assert.deepEqual(f.writes, []);
+});
+
+test('product post-capture account mismatch preserves prior capture and recovery without modifying another account', async () => {
+  const f = fixture({ product: true, priorCapture }); f.render(); await f.settle(null);
+  f.controller().connect(); await f.loadPage(probe.LOGIN_URL);
+  f.controller().checkConnection('retrieve'); await f.loadPage(context.PROFILE_URL);
+  await f.contextMessage(observedContext); f.controller().confirmConnection(); await f.loadFlight();
+  await backupVerified(f);
+  for (const phase of exporter.EXPORT_PHASES.filter(phase => phase !== 'read')) {
+    assert.equal(f.currentCommand().phase, phase);
+    await f.message({ kind: 'vf-export-v1', status: 'next', preset: exporter.ACTIVE_EXPORT_VIEW });
+  }
+  await f.message({ kind: 'vf-export-v1', status: 'page', preset: exporter.ACTIVE_EXPORT_VIEW,
+    period: 'ab 01.01.2026 bis 31.12.2026', participation: exporter.PARTICIPATION, filtersClear: true, allColumns: true,
+    headers: ['Datum', 'Lfz.', 'Start', 'Landung', 'Flugzeit', 'Kosten'], columnIds: ['1', '2', '3', '4', '5', '6'],
+    first: 0, last: 0, total: 0, rows: [], nextUrl: null });
+  assert.equal(f.controller().connection.phase, 'checking');
+  assert.ok(!f.writes.includes('capture-start'), 'Full list alone must not commit before post-check');
+  await f.loadPage(context.PROFILE_URL);
+  await f.contextMessage({ ...observedContext, accountNumber: '456' });
+  assert.equal(f.controller().connection.phase, 'mismatch');
+  assert.equal(f.savedCapture(), priorCapture);
+  assert.ok(!f.writes.includes('capture-start'));
+  assert.equal(f.controller().restoring.current, false);
+  assert.deepEqual(f.pending(), original);
+  assert.ok(!f.writes.includes('journal-cleared'));
+  assert.equal(f.controller().recovery, true);
+  assert.equal(f.controller().busy, false);
+  assert.equal(f.controller().lastSuccessfulCaptureAt, null);
+  assert.equal(f.savedCapture(), priorCapture);
+});
+
+test('hiding the product panel during post-capture checking keeps ownership through save and verified restoration', async () => {
+  const f = fixture({ product: true, priorCapture }); f.render(); await f.settle(null);
+  f.controller().connect(); await f.loadPage(probe.LOGIN_URL);
+  f.controller().checkConnection('retrieve'); await f.loadPage(context.PROFILE_URL);
+  await f.contextMessage(observedContext); f.controller().confirmConnection(); await f.loadFlight();
+  await backupVerified(f);
+  for (const phase of exporter.EXPORT_PHASES.filter(phase => phase !== 'read')) {
+    assert.equal(f.currentCommand().phase, phase);
+    await f.message({ kind: 'vf-export-v1', status: 'next', preset: exporter.ACTIVE_EXPORT_VIEW });
+  }
+  await f.message({ kind: 'vf-export-v1', status: 'page', preset: exporter.ACTIVE_EXPORT_VIEW,
+    period: 'ab 01.01.2026 bis 31.12.2026', participation: exporter.PARTICIPATION, filtersClear: true, allColumns: true,
+    headers: ['Datum', 'Lfz.', 'Start', 'Landung', 'Flugzeit', 'Kosten'], columnIds: ['1', '2', '3', '4', '5', '6'],
+    first: 0, last: 0, total: 0, rows: [], nextUrl: null });
+  f.controller().dismissLogin();
+  assert.equal(f.controller().connection.phase, 'checking', 'Presentation close must retain an active capture check');
+  await f.loadPage(context.PROFILE_URL); await f.contextMessage(observedContext);
+  assert.ok(f.writes.includes('capture-saved'));
+  assert.notEqual(f.savedCapture(), priorCapture);
+  await restoredReadback(f);
+  await f.message({ kind: 'vf-view-v2', status: 'next', view: restored });
+  assert.deepEqual(f.pending(), original, 'Restored view alone must wait for final account check');
+  await f.loadPage(context.PROFILE_URL); await f.contextMessage(observedContext);
+  assert.equal(f.pending(), null);
+  assert.equal(f.controller().busy, false);
+  assert.equal(f.controller().result, 'captured');
+  assert.equal(f.controller().lastSuccessfulCaptureAt, f.savedCapture()!.retrievedAt);
+});
 
 test('both legacy labs stay closed until the startup recovery journal has been read', () => {
   for (const title of titles) {

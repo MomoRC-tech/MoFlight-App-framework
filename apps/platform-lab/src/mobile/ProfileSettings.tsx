@@ -10,10 +10,11 @@ export interface ProfileSettingsProps {
   onRetry: () => void;
   onTools: () => void;
   onStatus: () => void;
+  onConnections: () => void;
   onCredits: () => void;
   onBooks: () => void;
 }
-export function ProfileSettings({ displayName, busy, error, onSaveName, onRetry, onTools, onStatus, onCredits, onBooks }: ProfileSettingsProps) {
+export function ProfileSettings({ displayName, busy, error, onSaveName, onRetry, onTools, onStatus, onCredits, onBooks, onConnections }: ProfileSettingsProps) {
   const [name, setName] = useState(displayName);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
@@ -49,8 +50,9 @@ export function ProfileSettings({ displayName, busy, error, onSaveName, onRetry,
     <Card>
       <Section title="Flugbücher & Daten" />
       <Action secondary onPress={onBooks}>Meine Flugbücher</Action>
-      <Action secondary onPress={onStatus}>Datenstatus & Verbindungen</Action>
+      <Action secondary onPress={onStatus}>Datenstatus</Action>
     </Card>
+    <Card><Section title="Verbindungen" /><Action secondary onPress={onConnections}>Vereinsflieger</Action></Card>
     <Card>
       <Section title="Darstellung" />
       <Label>Sprache: Deutsch</Label>

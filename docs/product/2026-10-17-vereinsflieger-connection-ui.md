@@ -1,5 +1,7 @@
 # Vereinsflieger connection UI — future implementation
 
+Subsequent authorization, 17 October: Manuel selected the bounded connection PoC next and said **start**, ahead of the deferred Pixel retest. The [implementation contract](2026-10-17-connection-controller-poc.md) supersedes the scheduling prerequisite below for that slice. This dated proposal remains the wider journey; production binding, full disconnect and canonical import are still open.
+
 Date: 2026-10-17. Tracking: existing [#2](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/2), coordinated with #5 (shell), #8 (device verification), #10 (source semantics) and #15 (privacy). No duplicate issue or implementation is required by this capture.
 
 ## Status and scope
