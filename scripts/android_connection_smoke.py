@@ -1,0 +1,148 @@
+"""Credential-free connection UI trial on MoFlight_Synthetic_API37 only.
+
+No seeding, resets, credentials or provider network access. Restores exact display
+overrides, font and network flags. Live hidden retrieval remains a separate gate.
+"""
+import argparse
+import json
+import re
+import time
+from pathlib import Path
+from android_smoke import Smoke
+from android_mobile_ui_smoke import launch, tab
+from android_mobile_shell_smoke import viewport, PROFILE, LOGO
+from android_mobile_width_matrix import AVD, bounds, capture, finish, override
+
+
+def connection(smoke):
+    return smoke.find('Verbindungen öffnen', exact=False)
+
+
+def panel(smoke):
+    smoke.tap_node(connection(smoke))
+    smoke.find('Letzte Sitzungsprüfung:', exact=False)
+
+
+def native_browser_ids(smoke):
+    # Native Activity dump includes Java instance IDs on some Android builds.
+    # Its absence is explicitly NOT TESTED rather than an inferred retention pass.
+    text = smoke.shell('dumpsys', 'activity', 'top')
+    return sorted(set(re.findall(r'(?:RNCWebView|RNCWebViewWrapper)\{([0-9a-f]+)', text)))
+
+
+def execute(smoke):
+    assert smoke.serial, 'Explicit synthetic serial required'
+    assert smoke.shell('getprop', 'ro.kernel.qemu') == '1', 'Physical device refused'
+    assert smoke.adb('emu', 'avd', 'name').stdout.splitlines()[0].strip() == AVD, 'Wrong AVD refused'
+    smoke.emulator = True
+    original = {
+        'size': smoke.shell('wm', 'size'), 'density': smoke.shell('wm', 'density'),
+        'font_scale': smoke.shell('settings', 'get', 'system', 'font_scale'),
+        **{key: smoke.shell('settings', 'get', 'global', key) for key in ['airplane_mode_on', 'wifi_on', 'mobile_data']},
+    }
+    smoke.report.update(boundary='Synthetic connection entry/layout/offline errors only. No live login, capture, provider preferences, canonical import, physical phone or iOS.', original=original)
+    try:
+        # Set all radios off before opening any provider view.
+        smoke.shell('cmd', 'connectivity', 'airplane-mode', 'enable')
+        smoke.shell('svc', 'wifi', 'disable')
+        smoke.shell('svc', 'data', 'disable')
+        assert smoke.shell('settings', 'get', 'global', 'airplane_mode_on') == '1'
+        assert smoke.shell('settings', 'get', 'global', 'wifi_on') in ['0', '3']
+        assert smoke.shell('settings', 'get', 'global', 'mobile_data') == '0'
+        smoke.report['provider_access'] = 'All radios disabled before browser creation; no provider network request could complete.'
+        launch(smoke)
+        smoke.tap(PROFILE)
+        smoke.tap('Vereinsflieger', scroll=True)
+        smoke.find('Letzte Sitzungsprüfung: noch nicht erfolgt', exact=True)
+        capture(smoke, 'profile-opens-shared-connection-entry', viewport(smoke))
+        smoke.shell('input', 'keyevent', 'KEYCODE_BACK')
+
+        for width, height, font in [(360, 900, 1.0), (390, 900, 1.0), (412, 900, 1.0), (600, 1100, 1.0), (840, 1100, 1.0), (360, 900, 1.4), (600, 1100, 1.4), (840, 412, 1.0)]:
+            smoke.shell('wm', 'size', f'{width}x{height}')
+            smoke.shell('wm', 'density', '160')
+            smoke.shell('settings', 'put', 'system', 'font_scale', str(font))
+            launch(smoke)
+            indicator = connection(smoke)
+            logo = smoke.find(LOGO, exact=True)
+            profile = smoke.find(PROFILE, exact=True)
+            a, b, c = bounds(logo), bounds(indicator), bounds(profile)
+            assert a[2] <= b[0] and b[2] <= c[0] and c[2] <= width, 'Header actions overlap'
+            panel(smoke)
+            smoke.find('Nicht verbunden', exact=True)
+            button = smoke.find('Mit Vereinsflieger verbinden', exact=True, scroll=True)
+            x1, y1, x2, y2 = bounds(button)
+            assert 0 <= x1 < x2 <= width and 0 <= y1 < y2 <= height
+            if width >= 600:
+                assert x2 - x1 <= 520, 'Connection form stretched on a large display'
+            capture(smoke, f'connection-w{width}-h{height}-font{font}', viewport(smoke))
+            if width == 360 and font == 1.4:
+                field = smoke.find('Vereinsflieger Abruf von', exact=True, scroll=True)
+                smoke.tap_node(field)
+                time.sleep(.5)
+                window = smoke.shell('dumpsys', 'input_method')
+                assert re.search(r'(?:mInputShown|mIsInputViewShown|isInputViewShown)\s*[=:]\s*true', window), 'Keyboard did not open'
+                capture(smoke, 'connection-min-enlarged-keyboard', viewport(smoke))
+                smoke.shell('input', 'keyevent', 'KEYCODE_BACK')
+            smoke.shell('input', 'keyevent', 'KEYCODE_BACK')
+
+        smoke.shell('wm', 'size', '390x900')
+        smoke.shell('settings', 'put', 'system', 'font_scale', '1.0')
+        launch(smoke)
+        panel(smoke)
+        smoke.tap('Mit Vereinsflieger verbinden', scroll=True)
+        smoke.find('Abruf oder Seitenaufruf fehlgeschlagen', exact=False, attempts=20)
+        first_ids = native_browser_ids(smoke)
+        capture(smoke, 'offline-browser-error-preserves-unknown-state', viewport(smoke))
+        smoke.shell('input', 'keyevent', 'KEYCODE_BACK')
+        tab(smoke, 'Flüge')
+        smoke.find('Flüge durchsuchen', exact=True)
+        capture(smoke, 'offline-error-close-retains-local-flight-screen', viewport(smoke))
+        panel(smoke)
+        smoke.tap('Mit Vereinsflieger verbinden', scroll=True)
+        smoke.find('Abruf oder Seitenaufruf fehlgeschlagen', exact=False, attempts=20)
+        second_ids = native_browser_ids(smoke)
+        if first_ids and second_ids:
+            assert first_ids == second_ids, 'Native WebView instance changed across close/tab/retry'
+            smoke.report['native_browser_retention'] = {'status': 'passed', 'first_ids': first_ids, 'second_ids': second_ids}
+        else:
+            smoke.report['native_browser_retention'] = {'status': 'not tested', 'reason': 'Activity dump did not expose native browser instance IDs', 'first_ids': first_ids, 'second_ids': second_ids}
+        capture(smoke, 'offline-browser-explicit-retry', viewport(smoke))
+        smoke.shell('input', 'keyevent', 'KEYCODE_BACK')
+        launch(smoke)
+        panel(smoke)
+        smoke.find('Nicht verbunden', exact=True)
+        smoke.find('Letzte Sitzungsprüfung: noch nicht erfolgt', exact=True)
+        capture(smoke, 'restart-does-not-infer-session-from-cookies', viewport(smoke))
+        smoke.shell('input', 'keyevent', 'KEYCODE_BACK')
+    finally:
+        for kind, pattern in [('size', r'Override size:\s*(\d+x\d+)'), ('density', r'Override density:\s*(\d+)')]:
+            smoke.shell('wm', kind, override(original[kind], pattern) or 'reset')
+        if original['font_scale'] == 'null':
+            smoke.shell('settings', 'delete', 'system', 'font_scale')
+        else:
+            smoke.shell('settings', 'put', 'system', 'font_scale', original['font_scale'])
+        smoke.shell('cmd', 'connectivity', 'airplane-mode', 'enable' if original['airplane_mode_on'] == '1' else 'disable')
+        smoke.shell('svc', 'wifi', 'enable' if original['wifi_on'] in ['1', '2'] else 'disable')
+        smoke.shell('svc', 'data', 'enable' if original['mobile_data'] == '1' else 'disable')
+        restored = {key: smoke.shell('settings', 'get', 'global', key) for key in ['airplane_mode_on', 'wifi_on', 'mobile_data']}
+        smoke.report['restored'] = {**restored, 'size': smoke.shell('wm', 'size'), 'density': smoke.shell('wm', 'density'), 'font_scale': smoke.shell('settings', 'get', 'system', 'font_scale')}
+        assert smoke.report['restored'] == original, 'Original emulator settings were not restored exactly'
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--serial', required=True)
+    parser.add_argument('--output', type=Path, default=Path('local-data/android-connection'))
+    args = parser.parse_args()
+    smoke = Smoke(args.output, args.serial, AVD)
+    try:
+        execute(smoke)
+    except Exception as error:
+        finish(smoke, 'failed', error)
+        raise
+    else:
+        finish(smoke, 'passed')
+
+
+if __name__ == '__main__':
+    main()

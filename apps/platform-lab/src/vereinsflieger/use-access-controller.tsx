@@ -26,6 +26,7 @@ export function useAccessController(product = false) {
   const [showRun, setShowRun] = useState(false);
   const [showWindow, setShowWindow] = useState(false);
   const web = useRef<WebView>(null), currentUrl = useRef(LOGIN_URL);
+  const pendingNavigation = useRef<string | null>(null);
   const retrieval = useRef(new Retrieval()), epoch = useRef(0), mounted = useRef(true);
   const run = useRef<ExportRun | null>(null), command = useRef(''), reading = useRef(false);
   const original = useRef<ViewPreferences | null>(null), viewPhase = useRef<ViewPhase | null>(null), restoring = useRef(false), restoreSteps = useRef(0), outcome = useRef('');
@@ -96,7 +97,7 @@ export function useAccessController(product = false) {
     setVisible(false);
     // Dismissing a presentation must not orphan an owned capture/restoration check.
     if (retrieval.current.state.phase !== 'idle') return;
-    if (contextRequest.current) { clearContextRequest(); web.current?.stopLoading(); session.current.cancel(); syncConnection(); }
+    if (contextRequest.current) { clearContextRequest(); pendingNavigation.current = null; web.current?.stopLoading(); session.current.cancel(); syncConnection(); }
   }
   function confirmConnection() {
     if (!session.current.confirm()) return;
@@ -193,6 +194,7 @@ export function useAccessController(product = false) {
     if (nonce ? !retrieval.current.finish(nonce) : state.phase === 'saving') return;
     if (!nonce && state.phase === 'loading') retrieval.current.finish(state.nonce);
     if (timeout.current) clearTimeout(timeout.current); timeout.current = null;
+    pendingNavigation.current = null;
     run.current = null; command.current = ''; reading.current = false; viewPhase.current = null; restoring.current = false;
     testPaused.current = false; setPaused(null);
     epoch.current++; setGeneration(epoch.current); if (!product) setBrowserActive(false); setLoaded(false); setVisible(false);
@@ -255,13 +257,18 @@ export function useAccessController(product = false) {
   }
   // Commit the page-scoped bridge before executing the explicit table reader.
   useEffect(() => { if ((product || visible) && loaded && busy && flightUrl(url)) extract(); }, [visible, loaded, busy, url]);
+  useEffect(() => {
+    const destination = pendingNavigation.current; pendingNavigation.current = null;
+    // Commit this generation's native event handlers before initiating navigation.
+    if (destination && product) web.current?.injectJavaScript(`window.location.assign(${JSON.stringify(destination)});true;`);
+  }, [generation]);
   function navigate(uri: string) {
     if (!providerUrl(uri)) return;
     setLoaded(false); currentUrl.current = uri; setUrl(uri); epoch.current++; setGeneration(epoch.current);
     if (product && browserActive) {
       // Navigate the existing document; changing a key would discard the controller's browser.
       web.current?.stopLoading();
-      web.current?.injectJavaScript(`window.location.assign(${JSON.stringify(uri)});true;`);
+      pendingNavigation.current = uri;
     } else { setBrowserActive(true); setSource({ uri }); }
   }
   function toggleTestPause() {
