@@ -93,11 +93,11 @@ def execute(smoke):
             assert 0 <= x1 < x2 <= width and 0 <= y1 < y2 <= height
             if width >= 600:
                 assert x2 - x1 <= 520, 'Connection form stretched on a large display'
-            panel_control(smoke, 'Gespeicherte Anmeldung verwenden')
-            disconnect = panel_control(smoke, 'Bei Vereinsflieger abmelden', enabled=False)
+            smoke.find('Gespeicherte Anmeldung verwenden', exact=True, scroll=True)
+            disconnect = smoke.find('Bei Vereinsflieger abmelden', exact=True, scroll=True, enabled=False)
             dx1, dy1, dx2, dy2 = bounds(disconnect)
             assert 0 <= dx1 < dx2 <= width and 0 <= dy1 < dy2 <= height, 'Disabled disconnect action has invalid bounds'
-            forget = panel_control(smoke, 'Gespeicherte Zugangsdaten vergessen', enabled=True)
+            forget = smoke.find('Gespeicherte Zugangsdaten vergessen', exact=True, scroll=True, enabled=True)
             fx1, fy1, fx2, fy2 = bounds(forget)
             assert 0 <= fx1 < fx2 <= width and 0 <= fy1 < fy2 <= height, 'Forget-credentials action has invalid bounds'
             capture(smoke, f'connection-w{width}-h{height}-font{font}', viewport(smoke))
@@ -126,7 +126,7 @@ def execute(smoke):
         launch(smoke)
         panel(smoke)
         panel_tap(smoke, 'Mit Vereinsflieger verbinden')
-        smoke.find('Abruf oder Seitenaufruf fehlgeschlagen', exact=False, attempts=20)
+        smoke.find('Abruf oder Seitenaufruf fehlgeschlagen', exact=False, scroll=True, attempts=20)
         first_ids = native_browser_ids(smoke)
         capture(smoke, 'offline-browser-error-preserves-unknown-state', viewport(smoke))
         smoke.shell('input', 'keyevent', 'KEYCODE_BACK')
@@ -135,7 +135,7 @@ def execute(smoke):
         capture(smoke, 'offline-error-close-retains-local-flight-screen', viewport(smoke))
         panel(smoke)
         panel_tap(smoke, 'Mit Vereinsflieger verbinden')
-        smoke.find('Abruf oder Seitenaufruf fehlgeschlagen', exact=False, attempts=20)
+        smoke.find('Abruf oder Seitenaufruf fehlgeschlagen', exact=False, scroll=True, attempts=20)
         second_ids = native_browser_ids(smoke)
         if first_ids and second_ids:
             assert first_ids == second_ids, 'Native WebView instance changed across close/tab/retry'
