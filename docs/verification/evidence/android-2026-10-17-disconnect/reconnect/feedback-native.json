@@ -1,0 +1,60 @@
+{
+  "status": "passed",
+  "checks": [
+    {
+      "name": "safe-German-page-failure-detail-visible-with-positive-bounds",
+      "status": "passed"
+    },
+    {
+      "name": "failure-close-preserves-local-flight-screen",
+      "status": "passed"
+    },
+    {
+      "name": "explicit-offline-retry-keeps-browser-and-unconfirmed-session",
+      "status": "passed"
+    },
+    {
+      "name": "original-display-font-network-restored-exactly",
+      "status": "passed"
+    }
+  ],
+  "boundary": "Affected failure feedback only; no provider login, capture, credentials, data reset, physical phone, iOS or full layout matrix.",
+  "source": {
+    "validated_commit": "cc0caf54f54176b597251624be83cc2e0facbaac",
+    "compiled_commit": "cc0caf54f54176b597251624be83cc2e0facbaac"
+  },
+  "original": {
+    "airplane_mode_on": "0",
+    "wifi_on": "1",
+    "mobile_data": "1",
+    "size": "Physical size: 1080x1920",
+    "density": "Physical density: 420",
+    "font_scale": "1.0"
+  },
+  "viewport": {
+    "width_px": 390,
+    "height_px": 900,
+    "density_dpi": 160,
+    "width_dp": 390.0,
+    "height_dp": 900.0,
+    "font_scale": 1.0
+  },
+  "browser_ids": {
+    "before": [
+      "31ee90a",
+      "abc3482"
+    ],
+    "after": [
+      "31ee90a",
+      "abc3482"
+    ]
+  },
+  "restored": {
+    "airplane_mode_on": "0",
+    "wifi_on": "1",
+    "mobile_data": "1",
+    "size": "Physical size: 1080x1920",
+    "density": "Physical density: 420",
+    "font_scale": "1.0"
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "date": "2026-10-17",
+  "boundary": "Bounded same-provider-account Android raw retrieval. No canonical import, stable production identity, natural expiry, second account, physical phone or iOS acceptance.",
+  "environment": {
+    "avd": "MoFlight_API37",
+    "serial": "emulator-5556",
+    "android_api": 37,
+    "abi": "x86_64",
+    "width_px": 480,
+    "height_px": 800,
+    "density_dpi": 160,
+    "width_dp": 480,
+    "height_dp": 800,
+    "font_scale": 1.0,
+    "configuration_changed": false
+  },
+  "assisted_relogin": {
+    "source": "81128d0bae4e8fe0f1d709ad12e4bd3bc1155352",
+    "explicit_saved_helper_result": "unconfirmed",
+    "original_Anmelden_tapped_once": true,
+    "authenticated_overview_observed": true,
+    "fresh_profile_context_observed": true,
+    "automatic_helper_failure_cause": "unknown",
+    "credential_values_inspected": false,
+    "credentials_changed_or_forgotten": false
+  },
+  "independent_reference": {
+    "source": "5bc622074d1e718e6b024c468eb4a26cd8ce1db6",
+    "from": "2026-10-01",
+    "through": "2026-10-17",
+    "participation": "Pilot oder Fluglehrer",
+    "visible_record_count": 5,
+    "visible_footer": "5 Datensätze",
+    "original_period_role_restored_before_final_retry": true,
+    "boundary": "Visible count/period/role only; no independent complete field or ID comparison."
+  },
+  "final_capture": {
+    "source": "abd8f68b4849d76dedda3c7d4ab2b5a34994fedf",
+    "result": "Rohbelege gespeichert. 5 Datensätze · 1 Seite(n). Identität und Flugzeitzuordnung bleiben vorläufig.",
+    "pending_recovery_visible": false,
+    "period": {
+      "from": "2026-10-01",
+      "to": "2026-10-17"
+    },
+    "retrieve_reenabled_after_cleanup": true
+  },
+  "final_cancellation": {
+    "source": "abd8f68b4849d76dedda3c7d4ab2b5a34994fedf",
+    "cancel_tapped_while_enabled": true,
+    "cancelled_result_observed": true,
+    "retrieve_reenabled_after_cleanup": true,
+    "last_successful_raw_timestamp_unchanged": true,
+    "last_successful_raw_timestamp": "Letzter erfolgreicher Rohabruf in dieser App-Sitzung: 17.10.2026, 15:30:47",
+    "boundary": "App-run UI timestamp preservation; not independent inspection of every prior stored capture."
+  },
+  "final_original_view": {
+    "source": "abd8f68b4849d76dedda3c7d4ab2b5a34994fedf",
+    "independent_original_page_period": "Die letzten 20 Flüge (max. 24 Monate)",
+    "independent_original_page_role": "Pilot",
+    "period_role_match_before_reference_inspection": true,
+    "boundary": "Visible period/participation readback only. Full column/filter/sort equivalence remains controller journal verification, not independent native DOM readback."
+  },
+  "final_state": {
+    "source": "abd8f68b4849d76dedda3c7d4ab2b5a34994fedf",
+    "fresh_same_context_recheck_passed": true,
+    "local_flight_screen_reachable": true,
+    "provider_left_signed_in": true,
+    "saved_credentials_preserved": true,
+    "no_recovery_warning_or_disabled_retrieval_after_cleanup": true
+  },
+  "limits": [
+    "Release private SQLite read was denied and adbd root was refused; no bypass or mutation followed.",
+    "Existing desktop reference tab timed out twice; native visible provider UI supplied the bounded reference instead.",
+    "A date-entry harness assertion stopped one attempt before any retrieval; corrected inputs were independently checked before submission.",
+    "Every prior persisted capture and every original column/filter/sort were not independently re-read; cleanup uses the controller journal verification.",
+    "No automatic saved-login success, cookie-store clearing, server-wide revocation, natural expiry, second account, durable production binding, canonical import, iOS runtime or physical retest."
+  ]
+}

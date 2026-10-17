@@ -1,0 +1,51 @@
+{
+  "source_commit": "abd8f68b4849d76dedda3c7d4ab2b5a34994fedf",
+  "environment": {
+    "os": "Windows / PowerShell",
+    "node": "24.18.0",
+    "pnpm": "11.25.0",
+    "python": "3.12.10",
+    "jdk": "17.0.20.1+1"
+  },
+  "checks": [
+    {
+      "command": "pnpm test",
+      "status": "passed",
+      "tests": 168,
+      "failures": 0
+    },
+    {
+      "command": "pnpm typecheck",
+      "status": "passed"
+    },
+    {
+      "command": "pnpm bundle",
+      "status": "passed",
+      "platforms": [
+        "android",
+        "ios"
+      ],
+      "boundary": "Exports only; not runtime acceptance."
+    }
+  ],
+  "provenance": "Final host checks ran on source_commit. Separate earlier source/build identities are preserved for scoped reuse of unchanged offline-feedback evidence; they are not one final-build native run.",
+  "previous_checkpoint": {
+    "source_commit": "cc0caf54f54176b597251624be83cc2e0facbaac",
+    "tests": 165,
+    "targeted_tests": 50,
+    "typecheck": "passed",
+    "exports": [
+      "android",
+      "ios"
+    ]
+  },
+  "intermediate_checkpoint": {
+    "source_commit": "5bc622074d1e718e6b024c468eb4a26cd8ce1db6",
+    "tests": 166,
+    "typecheck": "passed",
+    "exports": [
+      "android",
+      "ios"
+    ]
+  }
+}
