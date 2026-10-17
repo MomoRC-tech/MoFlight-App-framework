@@ -11,7 +11,7 @@ from pathlib import Path
 from android_smoke import Smoke
 from android_mobile_ui_smoke import launch, tab
 from android_mobile_shell_smoke import viewport, PROFILE, LOGO
-from android_mobile_width_matrix import AVD, bounds, capture, finish, override
+from android_mobile_width_matrix import AVD, bounds, capture, finish, override, native_keyboard_top
 
 
 def connection(smoke):
@@ -83,6 +83,16 @@ def execute(smoke):
                 time.sleep(.5)
                 window = smoke.shell('dumpsys', 'input_method')
                 assert re.search(r'(?:mInputShown|mIsInputViewShown|isInputViewShown)\s*[=:]\s*true', window), 'Keyboard did not open'
+                keyboard_top, method = native_keyboard_top(smoke.shell('dumpsys', 'window', 'windows'), width, height)
+                # Scroll inside the visible form, never on the keyboard surface.
+                for _ in range(5):
+                    fields = [n for n in smoke.dump() if n.get('content-desc') == 'Vereinsflieger Abruf bis']
+                    if fields and bounds(fields[0])[3] <= keyboard_top:
+                        break
+                    smoke.shell('input', 'swipe', str(width // 2), str(int(keyboard_top - 40)), str(width // 2), '120', '300')
+                second = smoke.find('Vereinsflieger Abruf bis', exact=True, attempts=1)
+                assert 0 < bounds(second)[1] < bounds(second)[3] <= keyboard_top, 'Second date field cannot be reached above the keyboard'
+                smoke.report['keyboard_geometry'] = {'top_px': keyboard_top, 'source': method, 'field_bounds': bounds(second)}
                 capture(smoke, 'connection-min-enlarged-keyboard', viewport(smoke))
                 smoke.shell('input', 'keyevent', 'KEYCODE_BACK')
             smoke.shell('input', 'keyevent', 'KEYCODE_BACK')
