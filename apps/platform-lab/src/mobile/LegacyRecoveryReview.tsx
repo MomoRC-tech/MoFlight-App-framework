@@ -3,8 +3,8 @@ import { Action, Label } from './theme';
 import { legacyReviewAvailable, reviewLegacyRecovery } from '../vereinsflieger/session-store';
 import type { LegacyReview } from '../vereinsflieger/legacy-review';
 
-/** Explicit lab review only. No adopt/restore/delete action exists here. */
-export function LegacyRecoveryReview({ locked }: { locked: boolean }) {
+/** Metadata review and a separate explicit recovery-only request. */
+export function LegacyRecoveryReview({ locked, recover }: { locked: boolean; recover?: (fingerprint: string) => void }) {
   const [review, setReview] = useState<LegacyReview | null>(null);
   const [reading, setReading] = useState(false), [failed, setFailed] = useState(false);
   if (!legacyReviewAvailable) return <Label muted>Metadatenprüfung auf diesem Build/Gerät nicht verfügbar.</Label>;
@@ -27,6 +27,7 @@ export function LegacyRecoveryReview({ locked }: { locked: boolean }) {
       <Label>Wiederherstellungsart: {review.reset ? 'Standardansicht' : 'Reservierte Sicherungsansicht'}</Label>
       <Label>Journal-Prüfsumme: {review.journalFingerprint}</Label>
       <Label muted>Alte Metadaten zur persönlichen Prüfung. Kontobezeichnungen beweisen keine Eigentümerschaft. Keine Übernahme oder Wiederherstellung erfolgt.</Label>
+      {recover && <><Label muted>Nur diesen geprüften Wiederherstellungseintrag zuordnen. Alte Rohdaten bleiben unzugeordnet und unverändert. Die aktuelle Ansicht wird vor einer Wiederherstellung gesichert; bei Abweichungen ist eine weitere Entscheidung erforderlich.</Label><Action secondary disabled={locked || reading} onPress={() => recover(review.journalFingerprint)}>Geprüfte Wiederherstellung vorbereiten</Action></>}
     </>}
   </>;
 }

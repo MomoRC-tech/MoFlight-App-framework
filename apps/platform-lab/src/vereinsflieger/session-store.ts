@@ -4,8 +4,11 @@ import * as Crypto from 'expo-crypto';
 import * as SecureStore from 'expo-secure-store';
 import { openDriver } from '../storage';
 import { parseLegacyReview, type LegacyReview } from './legacy-review';
+import { validateFingerprint, validateLegacyPayload } from './legacy-recovery-store';
 
 interface SessionModule {
+  legacyRecoveryStateAsync?(): Promise<unknown>;
+  readReviewedRecoveryAsync?(fingerprint: string): Promise<unknown>;
   reviewLegacyRecoveryAsync?(): Promise<unknown>;
   clearAsync(): Promise<{ cookiesEmpty: boolean; webStorageDeletionRequested: boolean }>;
   syntheticProofAsync(): Promise<{ passed: boolean; cookie: boolean; localStorage: boolean; sessionStorage: boolean; indexedDB: boolean; documentRecreated: boolean }>;
@@ -17,6 +20,19 @@ const ANDROID_CLEARING_PROVED = true;
 export const sessionClearingAvailable = !!native && ANDROID_CLEARING_PROVED;
 export const sessionProofAvailable = !!native;
 export const legacyReviewAvailable = typeof native?.reviewLegacyRecoveryAsync === 'function';
+export const legacyRecoveryAvailable = typeof native?.legacyRecoveryStateAsync === 'function' && typeof native?.readReviewedRecoveryAsync === 'function';
+export async function legacyRecoveryFingerprint(): Promise<string | null> {
+  if (!native?.legacyRecoveryStateAsync) throw new Error('Legacy recovery unavailable.');
+  const value = await native.legacyRecoveryStateAsync();
+  return value === null ? null : validateFingerprint(value as string);
+}
+export async function readReviewedRecovery(fingerprint: string) {
+  if (!native?.readReviewedRecoveryAsync) throw new Error('Legacy recovery unavailable.');
+  validateFingerprint(fingerprint);
+  const payload = await native.readReviewedRecoveryAsync(fingerprint);
+  if (typeof payload !== 'string') throw new Error('Legacy recovery unavailable.');
+  return validateLegacyPayload(payload, fingerprint, text => Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256, text));
+}
 export async function reviewLegacyRecovery(): Promise<LegacyReview> {
   if (!native?.reviewLegacyRecoveryAsync) throw new Error('Legacy review unavailable.');
   return parseLegacyReview(await native.reviewLegacyRecoveryAsync());

@@ -9,6 +9,7 @@ import ts from 'typescript';
 import * as scopeStore from '../../apps/platform-lab/src/vereinsflieger/scope-store.ts';
 import * as captureStore from '../../apps/platform-lab/src/vereinsflieger/capture-store.ts';
 import * as viewStore from '../../apps/platform-lab/src/vereinsflieger/view-store.ts';
+import * as legacyStore from '../../apps/platform-lab/src/vereinsflieger/legacy-recovery-store.ts';
 import type * as ScopedStorage from '../../apps/platform-lab/src/vereinsflieger/scoped-storage.ts';
 import { nodeDriver } from './sqlite-driver.ts';
 import { SCOPE_SCHEMA, bindScope, readScope, authorizeScope, type ProviderScope } from '../../apps/platform-lab/src/vereinsflieger/scope-store.ts';
@@ -60,7 +61,7 @@ test('native scoped adapter reopens separate owner journals and rejects forged f
   const modules: Record<string, unknown> = {
     'expo-crypto': { randomUUID: () => `opaque-${++id}` },
     '../storage': { openDriver: async (name: string) => { opened.push(name); return nodeDriver(join(dir, name)); } },
-    './scope-store': scopeStore, './capture-store': captureStore, './view-store': viewStore,
+    './scope-store': scopeStore, './capture-store': captureStore, './view-store': viewStore, './legacy-recovery-store': legacyStore,
   };
   const source = ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/vereinsflieger/scoped-storage.ts', import.meta.url), 'utf8'), {
     compilerOptions: { module: ts.ModuleKind.CommonJS },
@@ -84,6 +85,21 @@ test('native scoped adapter reopens separate owner journals and rejects forged f
     await storage.clearScopedView(a, view);
     assert.equal(await storage.loadScopedView(a), null);
     assert.equal((await storage.loadScopedView(b))?.accountLabel, 'Synthetic account B');
+    const fingerprint = 'ab'.repeat(32);
+    assert.equal(await storage.legacyQuarantined(a, fingerprint), true);
+    await storage.prepareScopedLegacy(a, fingerprint, view);
+    assert.equal(await storage.loadLegacyCopy(b), null);
+    assert.equal(await storage.legacyQuarantined(a, null), true); // missing source cannot waive an outstanding copy
+    await storage.saveLegacySafety(a, fingerprint, view);
+    await storage.finishScopedLegacy(a, fingerprint, view, view);
+    assert.equal(await storage.legacyQuarantined(a, fingerprint), false);
+    assert.equal(await storage.legacyQuarantined(a, 'cd'.repeat(32)), true);
+    assert.equal(await storage.legacyQuarantined(b, fingerprint), true);
+    assert.equal(await storage.legacyQuarantined(a, null), true);
+    const beforeForged = opened.filter(name => name.startsWith('vereinsflieger-owned-')).length;
+    await assert.rejects(storage.finishScopedLegacy({ ...a, connectionId: b.connectionId }, fingerprint, view, view));
+    await assert.rejects(storage.prepareScopedLegacy({ ...a, owner: b.owner }, fingerprint, view));
+    assert.equal(opened.filter(name => name.startsWith('vereinsflieger-owned-')).length, beforeForged);
     assert.ok(opened.every(name => !name.includes('access-probe') && !name.includes('123') && !name.includes('456')));
   } finally { await rm(dir, { recursive: true, force: true }); }
 });

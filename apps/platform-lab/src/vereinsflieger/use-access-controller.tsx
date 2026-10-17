@@ -8,11 +8,13 @@ import { loginPage, savedLoginScript } from './login';
 import { readSavedLogin, writeSavedLogin, forgetSavedLogin } from './login-storage';
 import { acceptExportMessage, beginExport, calendarYearRequest, exportScript, type ExportRun } from './export';
 import { decodeView, VIEW_PHASES, viewScript, viewProtectionMessage, type ViewPhase, type ViewPreferences } from './view';
+import { canonical } from '@moflight/flight-logbook';
+import { legacyViewNeedsChoice, type LegacyRecoveryCopy } from './legacy-recovery-store';
 import { Retrieval } from './retrieval';
 import { PROFILE_URL, contextScript, loginRequiredScript, scopedBridge } from './context';
 import { ConnectionSession } from './connection-state';
-import { loadProviderScope, confirmProviderScope, loadScopedCapture, loadScopedView, saveScopedCapture, saveScopedView, clearScopedView } from './scoped-storage';
-import { clearProviderStore, proveSyntheticStore, sessionClearingAvailable, sessionProofAvailable } from './session-store';
+import { loadProviderScope, confirmProviderScope, loadScopedCapture, loadScopedView, saveScopedCapture, saveScopedView, clearScopedView, prepareScopedLegacy, saveLegacySafety, legacyQuarantined, finishScopedLegacy } from './scoped-storage';
+import { clearProviderStore, proveSyntheticStore, sessionClearingAvailable, sessionProofAvailable, legacyRecoveryAvailable, legacyRecoveryFingerprint, readReviewedRecovery } from './session-store';
 import type { ProviderScope } from './scope-store';
 
 export function useAccessController(product = false, localOwner?: string) {
@@ -23,11 +25,15 @@ export function useAccessController(product = false, localOwner?: string) {
   const [proofNotice, setProofNotice] = useState<'none' | 'passed' | 'failed'>('none');
   const [documentId, setDocumentId] = useState(0);
   const bindingBusy = useRef(false), legacyPending = useRef(false);
+  const legacyFingerprint = useRef<string | null>(null);
+  const legacyRequest = useRef<{ fingerprint: string; acceptedCurrent: ViewPreferences | null } | null>(null);
+  const legacyAttempt = useRef<{ copy: LegacyRecoveryCopy; safety: ViewPreferences | null; acceptedCurrent: ViewPreferences | null } | null>(null);
+  const [legacyChoice, setLegacyChoice] = useState<{ fingerprint: string; target: ViewPreferences; current: ViewPreferences } | null>(null);
   const [binding, setBinding] = useState(false);
   const foreground = useRef(AppState.currentState === undefined || AppState.currentState === 'active');
   const session = useRef(new ConnectionSession());
   const [connection, setConnection] = useState(session.current.state);
-  const contextRequest = useRef<{ nonce: string; action: 'check' | 'retrieve' | 'capture' | 'recover' | 'restored' | 'disconnect'; navigationObserved: boolean } | null>(null);
+  const contextRequest = useRef<{ nonce: string; action: 'check' | 'retrieve' | 'capture' | 'recover' | 'restored' | 'disconnect' | 'legacy'; navigationObserved: boolean } | null>(null);
   const disconnectMode = useRef(false), recoveryKnown = useRef(false);
   const [disconnecting, setDisconnecting] = useState(false);
   const [disconnectedAt, setDisconnectedAt] = useState<string | null>(null);
@@ -73,15 +79,16 @@ export function useAccessController(product = false, localOwner?: string) {
   useEffect(() => { let active = true; if (!product) void readSavedLogin().then(login => { if (active) setHasLogin(!!login); }).catch(() => { if (active) setStatus('Protected login storage could not be opened. Existing captures remain available.'); }); return () => { active = false; loginAttempt.current = null; if (loginTimer.current) clearTimeout(loginTimer.current); }; }, []);
   useEffect(() => { let active = true; void (async () => {
     if (product && owner.current !== activeOwner.current) throw new Error('Owner changed; create a new controller.');
-    const legacy = await readOriginalView();
-    let v = legacy;
+    const fingerprint = product ? await legacyRecoveryFingerprint() : null;
+    let v = product ? null : await readOriginalView();
     if (product) {
       if (!owner.current) throw new Error('Explicit local owner required.');
       const saved = await loadProviderScope(owner.current);
       if (!active) return;
       scope.current = saved;
       if (saved) session.current.restoreAssociation(saved.context);
-      legacyPending.current = !!legacy;
+      legacyFingerprint.current = fingerprint;
+      legacyPending.current = await legacyQuarantined(saved, fingerprint);
       // Never infer ownership of the historical global journal or capture.
       v = saved ? await loadScopedView(saved) : null;
       if (saved) { const capture = await loadScopedCapture(saved); if (active) setSnapshot(capture); }
@@ -113,11 +120,12 @@ export function useAccessController(product = false, localOwner?: string) {
     if (owner.current !== activeOwner.current || clearingStore.current || bindingBusy.current || !product || retrieval.current.state.phase !== 'idle' || contextRequest.current) return;
     recoveryKnown.current = false; setViewReady(false);
     try {
-      const legacy = await readOriginalView();
+      const fingerprint = await legacyRecoveryFingerprint();
       const saved = scope.current ? await loadScopedView(scope.current) : null;
+      const unresolved = await legacyQuarantined(scope.current, fingerprint);
       if (!mounted.current || owner.current !== activeOwner.current) return;
-      legacyPending.current = !!legacy;
-      original.current = saved; recoveryKnown.current = true; setRecovery(!!saved || !!legacy); setViewReady(true);
+      legacyFingerprint.current = fingerprint; legacyPending.current = unresolved;
+      original.current = saved; recoveryKnown.current = true; setRecovery(!!saved || unresolved); setViewReady(true);
     } catch { if (mounted.current) setRecovery(true); }
   }
   function syncConnection() { setConnection(session.current.state); }
@@ -176,7 +184,7 @@ export function useAccessController(product = false, localOwner?: string) {
     const active = retrieval.current.state;
     if (active.phase === 'loading') stop('Provider context unavailable. Earlier captures and recovery journal retained.', active.nonce);
   }
-  function checkConnection(action: 'check' | 'retrieve' | 'capture' | 'recover' | 'restored' | 'disconnect' = 'check') {
+  function checkConnection(action: 'check' | 'retrieve' | 'capture' | 'recover' | 'restored' | 'disconnect' | 'legacy' = 'check') {
     if (owner.current !== activeOwner.current || clearingStore.current || bindingBusy.current || !foreground.current || loginBusy || loginStorageBusy.current || loginAttempt.current || disconnectMode.current !== (action === 'disconnect') || contextRequest.current || !viewReady || saving || busy && action !== 'capture' && action !== 'restored') return;
     const nonce = Crypto.randomUUID();
     if (!session.current.start(nonce)) return;
@@ -268,6 +276,9 @@ export function useAccessController(product = false, localOwner?: string) {
         await persistCompletedCapture(captured);
       } else if (request.action === 'restored') {
         await completeRestoration();
+      } else if (request.action === 'legacy') {
+        if (session.current.state.confirmed) await beginLegacyRecovery();
+        else { legacyRequest.current = null; setStatus('Confirm the provisional account, then explicitly retry recovery.'); }
       } else if (request.action === 'retrieve' || request.action === 'recover') {
         if (session.current.state.confirmed) { if (request.action === 'retrieve') retrieve(); else recoverView(); }
         else afterConfirmation.current = request.action;
@@ -353,6 +364,7 @@ export function useAccessController(product = false, localOwner?: string) {
     if (!nonce && state.phase === 'loading') retrieval.current.finish(state.nonce);
     if (timeout.current) clearTimeout(timeout.current); timeout.current = null;
     pendingNavigation.current = null;
+    if (legacyAttempt.current) { original.current = null; legacyAttempt.current = null; }
     run.current = null; command.current = ''; reading.current = false; viewPhase.current = null; restoring.current = false;
     testPaused.current = false; setPaused(null);
     epoch.current++; setGeneration(epoch.current); if (!product) setBrowserActive(false); setLoaded(false); setVisible(false);
@@ -370,6 +382,7 @@ export function useAccessController(product = false, localOwner?: string) {
     const state = retrieval.current.state;
     if (nonce && !retrieval.current.owns(nonce)) return;
     if (!nonce && state.phase === 'saving') return;
+    if (legacyAttempt.current) { setRecovery(true); stop('Reviewed recovery stopped. Legacy source and safety evidence retained; retry explicitly.', nonce ?? (state.phase === 'loading' ? state.nonce : undefined)); return; }
     if (product && !foreground.current && state.phase !== 'idle') {
       stop('App left foreground. Original view recovery retained when required.', nonce ?? state.nonce); return;
     }
@@ -381,6 +394,35 @@ export function useAccessController(product = false, localOwner?: string) {
     if (owner.current !== activeOwner.current || clearingStore.current || bindingBusy.current || legacyPending.current || disconnectMode.current || product && !session.current.state.confirmed || !original.current || !viewReady || busy || loginBusy || loginAttempt.current) return;
     const nonce = Crypto.randomUUID(); if (!retrieval.current.start(nonce)) return;
     startRestoration('Earlier export recovery.', nonce);
+  }
+  function requestLegacyRecovery(fingerprint: string, acceptedCurrent: ViewPreferences | null = null) {
+    if (!product || !legacyRecoveryAvailable || !legacyPending.current || fingerprint !== legacyFingerprint.current ||
+      owner.current !== activeOwner.current || !foreground.current || clearingStore.current || bindingBusy.current || !viewReady ||
+      contextRequest.current || disconnectMode.current || busy || saving || loginBusy || loginStorageBusy.current || loginAttempt.current ||
+      retrieval.current.state.phase !== 'idle' || original.current) return;
+    // An acceptance can only refer to the exact private difference already displayed.
+    if (acceptedCurrent && (!legacyChoice || legacyChoice.fingerprint !== fingerprint || canonical(legacyChoice.current) !== canonical(acceptedCurrent))) return;
+    legacyRequest.current = { fingerprint, acceptedCurrent };
+    checkConnection('legacy');
+  }
+  async function beginLegacyRecovery() {
+    const request = legacyRequest.current; legacyRequest.current = null;
+    if (!request || !legacyPending.current || !session.current.state.confirmed || !foreground.current) return;
+    const started = epoch.current, authorizedScope = requireScope();
+    bindingBusy.current = true; setBinding(true);
+    try {
+      const target = await readReviewedRecovery(request.fingerprint);
+      if (!mounted.current || owner.current !== activeOwner.current || epoch.current !== started || !foreground.current) return;
+      const copy = await prepareScopedLegacy(authorizedScope, request.fingerprint, target);
+      if (!mounted.current || owner.current !== activeOwner.current || epoch.current !== started || !foreground.current) return;
+      const nonce = Crypto.randomUUID(); if (!retrieval.current.start(nonce)) return;
+      legacyAttempt.current = { copy, safety: null, acceptedCurrent: request.acceptedCurrent };
+      original.current = copy.target; setLegacyChoice(null);
+      viewPhase.current = 'snapshot'; restoreSteps.current = 0; reading.current = false; command.current = '';
+      captureSaved.current = false; cancelled.current = false; setBusy(true); setResult('none');
+      armTimeout(nonce); navigate(FLIGHT_URL);
+    } catch { setStatus('Reviewed recovery could not be prepared. Quarantine retained.'); }
+    finally { bindingBusy.current = false; if (mounted.current) setBinding(false); }
   }
   function openCaptureLab(kind: 'run' | 'window') {
     if (owner.current !== activeOwner.current || clearingStore.current || bindingBusy.current || !viewReady || recovery || original.current || busy || loginBusy || loginAttempt.current || retrieval.current.state.phase !== 'idle') return;
@@ -482,6 +524,21 @@ export function useAccessController(product = false, localOwner?: string) {
         if (stage === 'snapshot') {
           if (!captured || !retrieval.current.beginSave(nonce)) return;
           setSaving(true); if(timeout.current) clearTimeout(timeout.current); timeout.current = null;
+          if (legacyAttempt.current) {
+            const attempt = legacyAttempt.current;
+            try {
+              await saveLegacySafety(requireScope(), attempt.copy.fingerprint, captured);
+              if (!mounted.current || !retrieval.current.owns(nonce) || owner.current !== activeOwner.current) return;
+              attempt.safety = captured; retrieval.current.resume(nonce); setSaving(false);
+              if (!foreground.current) { finish('Recovery interrupted before replay.', nonce); return; }
+              if (legacyViewNeedsChoice(attempt.copy.target, captured) && (!attempt.acceptedCurrent || canonical(attempt.acceptedCurrent) !== canonical(captured))) {
+                setLegacyChoice({ fingerprint: attempt.copy.fingerprint, target: attempt.copy.target, current: captured });
+                stop('Current provider view differs from the reviewed target. Safety evidence saved; choose privately before replay.', nonce); return;
+              }
+              restoring.current = true; outcome.current = 'Reviewed legacy recovery.';
+              viewPhase.current = 'restore'; reading.current = false; command.current = ''; extract(); return;
+            } catch { finish('Safety view could not be preserved. No replay started.', nonce); return; }
+          }
           try { await (product ? saveScopedView(requireScope(), captured) : saveOriginalView(captured)); }
           catch { setRecovery(true); stop('Original view could not be journaled. No export settings changed; recovery must be checked before another export.', nonce); return; }
           if (!mounted.current || !retrieval.current.owns(nonce)) return;
@@ -542,7 +599,13 @@ export function useAccessController(product = false, localOwner?: string) {
     if (active.phase !== 'loading' || !original.current || !retrieval.current.beginSave(active.nonce)) return;
     setSaving(true); if (timeout.current) clearTimeout(timeout.current); timeout.current = null;
     try {
-      await (product ? clearScopedView(requireScope(), original.current) : clearOriginalView(original.current));
+      if (legacyAttempt.current) {
+        const attempt = legacyAttempt.current;
+        if (!attempt.safety || !foreground.current || !session.current.state.confirmed || await legacyRecoveryFingerprint() !== attempt.copy.fingerprint) throw new Error('Recovery evidence changed.');
+        await finishScopedLegacy(requireScope(), attempt.copy.fingerprint, original.current, attempt.safety);
+        if (!mounted.current || owner.current !== activeOwner.current || !retrieval.current.owns(active.nonce)) return;
+        legacyPending.current = false; legacyAttempt.current = null; setLegacyChoice(null);
+      } else await (product ? clearScopedView(requireScope(), original.current) : clearOriginalView(original.current));
       if (!mounted.current || !retrieval.current.owns(active.nonce)) return;
       original.current = null; setRecovery(false); restoring.current = false;
       stop(`${outcome.current} Original provider view restored and verified.`, active.nonce);
@@ -596,5 +659,5 @@ export function useAccessController(product = false, localOwner?: string) {
         onContentProcessDidTerminate={() => { if (generation !== epoch.current) return; if (loginAttempt.current) endLogin('Provider renderer stopped. Saved sign-in cancelled.', 'cancelled'); if (product) contextFailed(); finish('Provider renderer stopped. Recovery journal retained.'); }}
         onRenderProcessGone={() => { if (generation !== epoch.current) return; if (loginAttempt.current) endLogin('Provider renderer stopped. Saved sign-in cancelled.', 'cancelled'); if (product) contextFailed(); finish('Provider renderer stopped. Recovery journal retained.'); }}
       />;
-  return { clearing, clearNotice, proofNotice, clearLocalSession, sessionClearingAvailable, sessionProofAvailable, binding, legacyRecovery: legacyPending.current, loginNotice, disconnectNotice, credentialNotice, startDisconnect, checkDisconnection, disconnecting, disconnectedAt, refreshRecovery, connection, checkConnection, connect, dismissLogin, confirmConnection, lastSuccessfulCaptureAt, result, browser, showRun, setShowRun, showWindow, setShowWindow, viewReady, recovery, original, editingLogin, loginBusy, username, setUsername, password, setPassword, saveLogin, setEditingLogin, providerExpanded, visible, status, busy, openCaptureLab, pauseEnabled, toggleTestPause, preBackupPause, togglePreBackupPause, from, setFrom, to, setTo, saving, restoring, navigate, setVisible, cancelRetrieval, retrieve, hasLogin, useLogin, forgetLogin, recoverView, paused, continueTestRetrieval, viewStrategy, url, toggleProviderPage, browserActive, snapshot, setProviderExpanded, web, currentUrl, retrieval, loaded, source, generation, epoch };
+  return { legacyChoice, requestLegacyRecovery, legacyRecoveryAvailable, clearing, clearNotice, proofNotice, clearLocalSession, sessionClearingAvailable, sessionProofAvailable, binding, legacyRecovery: legacyPending.current, loginNotice, disconnectNotice, credentialNotice, startDisconnect, checkDisconnection, disconnecting, disconnectedAt, refreshRecovery, connection, checkConnection, connect, dismissLogin, confirmConnection, lastSuccessfulCaptureAt, result, browser, showRun, setShowRun, showWindow, setShowWindow, viewReady, recovery, original, editingLogin, loginBusy, username, setUsername, password, setPassword, saveLogin, setEditingLogin, providerExpanded, visible, status, busy, openCaptureLab, pauseEnabled, toggleTestPause, preBackupPause, togglePreBackupPause, from, setFrom, to, setTo, saving, restoring, navigate, setVisible, cancelRetrieval, retrieve, hasLogin, useLogin, forgetLogin, recoverView, paused, continueTestRetrieval, viewStrategy, url, toggleProviderPage, browserActive, snapshot, setProviderExpanded, web, currentUrl, retrieval, loaded, source, generation, epoch };
 }

@@ -23,6 +23,20 @@ class ProviderSessionModule : Module() {
 
   override fun definition() = ModuleDefinition {
     Name("MoFlightProviderSession")
+    // State-only restart gate: no metadata or replay payload is returned.
+    AsyncFunction("legacyRecoveryStateAsync") { promise: Promise ->
+      try { val payload = readLegacyPayload(); promise.resolve(payload?.let { fingerprint(it) }) }
+      catch (_: Exception) { promise.reject("E_RECOVERY", "Legacy recovery unavailable", null) }
+    }.runOnQueue(Queues.MAIN)
+    // Explicit recovery-only read; caller must supply the already reviewed hash.
+    AsyncFunction("readReviewedRecoveryAsync") { expected: String, promise: Promise ->
+      try {
+        if (!expected.matches(Regex("[a-f0-9]{64}"))) throw IllegalStateException()
+        val payload = readLegacyPayload() ?: throw IllegalStateException()
+        if (fingerprint(payload) != expected) throw IllegalStateException()
+        promise.resolve(payload)
+      } catch (_: Exception) { promise.reject("E_RECOVERY", "Reviewed recovery unavailable", null) }
+    }.runOnQueue(Queues.MAIN)
     AsyncFunction("reviewLegacyRecoveryAsync") { promise: Promise ->
       val avd = try {
         ProcessBuilder("/system/bin/getprop", "ro.boot.qemu.avd_name").start().inputStream.bufferedReader().use { it.readText().trim() }
@@ -92,6 +106,29 @@ class ProviderSessionModule : Module() {
       else if (running) promise.reject("E_BUSY", "WebView store operation already active", null)
       else { running = true; syntheticProof(promise) }
     }.runOnQueue(Queues.MAIN)
+  }
+
+  private fun fingerprint(payload: String): String = MessageDigest.getInstance("SHA-256")
+    .digest(payload.toByteArray(Charsets.UTF_8)).joinToString("") { "%02x".format(it.toInt() and 0xff) }
+
+  private fun readLegacyPayload(): String? {
+    val avd = ProcessBuilder("/system/bin/getprop", "ro.boot.qemu.avd_name").start().inputStream.bufferedReader().use { it.readText().trim() }
+    if (avd !in setOf("MoFlight_API37", "MoFlight_Synthetic_API37") || running) throw IllegalStateException()
+    val context = appContext.reactContext ?: throw IllegalStateException()
+    val file = File(context.filesDir, "SQLite/vereinsflieger-access-probe.sqlite")
+    if (!file.isFile) return null
+    SQLiteDatabase.openDatabase(file.path, null, SQLiteDatabase.OPEN_READONLY or SQLiteDatabase.NO_LOCALIZED_COLLATORS).use { db ->
+      db.rawQuery("SELECT name FROM sqlite_master WHERE type='table' AND name='provider_view_recovery' LIMIT 1", null).use { cursor ->
+        if (!cursor.moveToFirst()) return null
+      }
+      db.rawQuery("SELECT CASE WHEN length(payload)<=400000 THEN payload ELSE NULL END FROM provider_view_recovery WHERE id=1 LIMIT 1", null).use { cursor ->
+        if (!cursor.moveToFirst()) return null
+        if (cursor.isNull(0)) throw IllegalStateException()
+        val payload = cursor.getString(0)
+        if (payload.length > 400000) throw IllegalStateException()
+        return payload
+      }
+    }
   }
 
   private fun clearStore(done: (Boolean) -> Unit) {

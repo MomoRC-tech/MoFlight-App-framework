@@ -16,7 +16,7 @@ The private driver and metadata/report are ignored under `local-data/provider-co
 
 ### Preservation-first journal handling (proposed)
 
-**Decision pending; no implementation or provider mutation authorized by the review response.** M2 reliability / M1 interaction, existing #16 coordinated with #2/#8. The proposed next package handles only the exact reviewed recovery journal, independently of historical raw captures and books:
+**Approved separately:** Manuel replied **yes** to this concrete proposal on 17 October 2026; [authorization in #16](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/16#issuecomment-6239631332). M2 reliability / M1 interaction, coordinated with #2/#8. The review response alone did not authorize mutations; this later decision authorizes the recovery-only package below, independently of historical raw captures and books. The heading retains its original anchor for existing links.
 
 1. Preserve the original legacy database and recovery row unchanged. Do not read/adopt/migrate historical capture rows, delete the journal, overwrite the reserved provider backup or waive quarantine to enable tests. Private journal contents and fingerprints stay local.
 2. After explicit approval, reverify the named AVD and freshly observed provider context against the durable provisional scope. Read the fixed legacy recovery row without writes; require the exact privately reviewed fingerprint and full existing version/size/field validation. A changed journal, ambiguous context, owner switch or unavailable backup blocks the operation and requires review; labels remain provisional identity evidence.
@@ -29,6 +29,14 @@ Dependencies: existing scope registry, strict view validator/recovery contract, 
 Acceptance does not include production identity/schema/credential decisions, canonical import, whole-history adoption, deletion, iOS runtime or deferred physical testing. If the preserved provider view differs from the reviewed target, surface that difference privately and obtain a scoped choice before replay. Keep #16/#2/#8 open until their individual gates are met.
 
 Documentation follow-up baseline: clean `main` and live remote both `08dd7ed59b0767cc36c2ad3ea3501a0d0fe4b5c1`, application still `20d2253`, verified on Windows/PowerShell on 17 October 2026. Checked instructions, current Issues #16/#2/#8, source recovery/scope contracts, links and status/authorization consistency. Private review file remains ignored. No application code, tests/builds, device actions or private data reads were needed for this documentation-only follow-up; earlier device identities are historical and must be reverified before any later action.
+
+#### Recovery-only implementation checkpoint
+
+Baseline `f10af04`, clean main. New native methods use only the fixed read-only legacy recovery row: state returns a fingerprint; explicit recovery requires an exact expected fingerprint before returning the bounded payload for independent SHA-256/full-view validation. No historical capture access. The scope-authorized working database keeps the immutable recovery copy, append-only safety snapshots and a separate exact resolution receipt. Copy/safety/receipt writes are transactional and idempotent; conflicting scoped recovery blocks them. Missing/changed source after a copy, foreign scope, malformed receipt and interrupted commit retain quarantine.
+
+The existing controller performs fresh profile checks before preparation and after complete supported restoration readback. Safety persistence precedes every replay. A differing current view is shown privately, and its choice applies only to that exact snapshot; another change requires a new choice. Recovery never executes the backup-saving stages, never rewrites/deletes the legacy source and never assigns historical raw captures. No automatic legacy replay on startup or after interruption.
+
+Windows/PowerShell host checks: **196 mobile tests and TypeScript passed**. New cases cover exact bytes/size/full validation, scope/owner/fingerprint isolation, real SQLite reopen, conflicting scoped journals, copy/receipt rollback, retry, safety failure/background/owner switch, private difference recheck, fresh final context and failed readback/receipt. Existing adapter fixtures were extended for the new imports; an assertion's TypeScript narrowing was corrected. Platform exports, committed-source Release and focused native verification remain pending at this checkpoint; no native recovery, provider mutation, iOS/physical or full #16 acceptance is claimed here.
 
 ## Provider ownership and local clearing hardening
 

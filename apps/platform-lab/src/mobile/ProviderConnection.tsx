@@ -103,7 +103,19 @@ export function ProviderConnection({ controller: c, open, close }: { controller:
             {c.sessionProofAvailable && <><Action secondary disabled={locked || c.recovery} onPress={() => { void c.clearLocalSession(true); }}>Synthetischer Browserstore-Test</Action><Label muted>Entwicklungstest nur auf MoFlight_Synthetic_API37; auf anderen Geräten nativ gesperrt.</Label></>}
             {c.proofNotice !== 'none' && <Label>{c.proofNotice === 'passed' ? 'Synthetischer Store-Test bestanden: Cookies, Webspeicher und neues Dokument geprüft; SQLite und SecureStore erhalten.' : 'Synthetischer Store-Test nicht bestanden oder Gerät gesperrt.'}</Label>}
           </Card>
-          {c.recovery && <Card><Section title="Wiederherstellung ausstehend" /><Label>{c.legacyRecovery ? 'Eine ältere, nicht zugeordnete Wiederherstellung ist vorhanden. Keine automatische Übernahme: vor weiteren Abrufen manuell prüfen.' : 'Vor einem weiteren Abruf muss die ursprüngliche Anbieteransicht im ursprünglichen Konto wiederhergestellt werden.'}</Label>{c.legacyRecovery && <LegacyRecoveryReview locked={locked} />}<Action secondary disabled={locked || !c.original.current} onPress={() => c.checkConnection('recover')}>Anbieteransicht wiederherstellen</Action></Card>}
+          {c.recovery && <Card><Section title="Wiederherstellung ausstehend" /><Label>{c.legacyRecovery ? 'Eine ältere Wiederherstellung ist gesperrt. Nur der ausdrücklich geprüfte Eintrag kann getrennt von alten Rohdaten behandelt werden.' : 'Vor einem weiteren Abruf muss die ursprüngliche Anbieteransicht im ursprünglichen Konto wiederhergestellt werden.'}</Label>{c.legacyRecovery && <LegacyRecoveryReview locked={locked} recover={c.legacyRecoveryAvailable ? c.requestLegacyRecovery : undefined} />}
+            {c.legacyChoice && <>
+              <Section title="Aktuelle Ansicht weicht ab" />
+              <Label>Die aktuelle Ansicht ist lokal gesichert. Noch keine Wiederherstellung ausgeführt. Vergleiche die privaten Einstellungen:</Label>
+              <Label>Aktuell: {c.legacyChoice.current.preset} · {c.legacyChoice.current.period} · {c.legacyChoice.current.role}</Label>
+              <Label>Ziel: {c.legacyChoice.target.preset} · {c.legacyChoice.target.period} · {c.legacyChoice.target.role}</Label>
+              <Label>Spalten aktuell: {c.legacyChoice.current.columns.join(', ')}. Ziel: {c.legacyChoice.target.columns.join(', ')}</Label>
+              <Label>Filter aktuell: {JSON.stringify(c.legacyChoice.current.filters)}. Ziel: {JSON.stringify(c.legacyChoice.target.filters)}</Label>
+              <Label>Sortierung aktuell: {JSON.stringify(c.legacyChoice.current.sort)}. Ziel: {JSON.stringify(c.legacyChoice.target.sort)}</Label>
+              <Action secondary disabled={locked} onPress={() => { const choice = c.legacyChoice; if (choice) c.requestLegacyRecovery(choice.fingerprint, choice.current); }}>Geprüfte Zielansicht jetzt wiederherstellen</Action>
+              <Label muted>Ohne diese Auswahl bleibt die aktuelle Anbieteransicht erhalten und der Abruf gesperrt. Jede neue Abweichung erfordert eine erneute Auswahl.</Label>
+            </>}
+            <Action secondary disabled={locked || c.legacyRecovery || !c.original.current} onPress={() => c.checkConnection('recover')}>Anbieteransicht wiederherstellen</Action></Card>}
           <Label muted>Schließen blendet die Seite aus und meldet dich nicht beim Anbieter ab. Ein anderes Konto oder ein anderer Verein kann die bisherige Zuordnung auch nach einem Neustart nicht ersetzen.</Label>
           <Label muted>Tabwechsel bleibt möglich. Bei App-Wechsel oder gesperrtem Telefon ist kein unterbrechungsfreier Abruf zugesagt; Rückkehr erfordert eine erneute Prüfung.</Label>
         </View>
