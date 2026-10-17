@@ -73,7 +73,7 @@ export function ProviderConnection({ controller: c, open, close }: { controller:
             {c.result === 'cancelled' && <Label>Abruf abgebrochen. Frühere Daten bleiben erhalten.</Label>}
           </Card>
           {c.recovery && <Card><Section title="Wiederherstellung ausstehend" /><Label>Vor einem weiteren Abruf muss die ursprüngliche Anbieteransicht im ursprünglichen Konto wiederhergestellt werden.</Label><Action secondary disabled={locked || !c.original.current} onPress={() => c.checkConnection('recover')}>Anbieteransicht wiederherstellen</Action></Card>}
-          <Label muted>Schließen blendet die Seite aus und meldet dich nicht beim Anbieter ab. Vollständiges Trennen ist noch nicht verifiziert. Gespeicherte Zugangsdaten können separat in den Entwicklungswerkzeugen vergessen werden.</Label>
+          <Label muted>Schließen blendet die Seite aus und meldet dich nicht beim Anbieter ab. Vollständiges Trennen ist noch nicht verifiziert.</Label>
           <Label muted>Tabwechsel bleibt möglich. Bei App-Wechsel oder gesperrtem Telefon ist kein unterbrechungsfreier Abruf zugesagt; Rückkehr erfordert eine erneute Prüfung.</Label>
         </View>
       </ScrollView>

@@ -67,6 +67,8 @@ def execute(smoke):
             profile = smoke.find(PROFILE, exact=True)
             a, b, c = bounds(logo), bounds(indicator), bounds(profile)
             assert a[2] <= b[0] and b[2] <= c[0] and c[2] <= width, 'Header actions overlap'
+            if (width == 390 and font == 1.0) or (width == 360 and font == 1.4):
+                capture(smoke, f'connection-header-w{width}-font{font}', viewport(smoke))
             panel(smoke)
             smoke.find('Nicht verbunden', exact=True)
             button = smoke.find('Mit Vereinsflieger verbinden', exact=True, scroll=True)
