@@ -26,7 +26,7 @@ export function Chip({ title, selected, onPress, disabled = false }: { title: st
   return <Pressable accessibilityRole="button" accessibilityLabel={title} accessibilityState={{ selected: !!selected, disabled }} disabled={disabled} onPress={onPress} style={({ pressed }) => [ui.chipTouch, disabled && { opacity: .45 }, pressed && ui.pressed]}><View style={[ui.chip, selected && ui.chipSelected]}><Text style={[ui.chipText, selected && { color: '#031326', fontWeight: '700' }]}>{title}</Text></View></Pressable>;
 }
 export function Section({ title, action, onPress }: { title: string; action?: string; onPress?: () => void }) {
-  return <View style={ui.section}><Text accessibilityRole="header" style={ui.heading}>{title}</Text>{action && onPress && <Pressable accessibilityRole="button" onPress={onPress} style={ui.smallAction}><Label style={{ color: colors.cyan }}>{action}</Label></Pressable>}</View>;
+  return <View style={ui.section}><Text accessibilityRole="header" style={[ui.heading, action && onPress ? { flex: 1, minWidth: 0 } : undefined]}>{title}</Text>{action && onPress && <Pressable accessibilityRole="button" onPress={onPress} style={[ui.smallAction, { width: '40%' }]}><Label style={{ color: colors.cyan, width: '100%', textAlign: 'right' }}>{action}</Label></Pressable>}</View>;
 }
 export function Empty({ title, children }: { title: string; children: React.ReactNode }) {
   return <View style={ui.empty}><Label style={{ fontWeight: '600' }}>{title}</Label><Label muted>{children}</Label></View>;
