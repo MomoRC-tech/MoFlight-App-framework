@@ -15,6 +15,8 @@ M1 discovery deliverable: state **what information belongs on which screen, in w
 
 This file is the working content-placement record; app-design.md covers appearance and its visual decision history. The journey map explains user goals and required behavior; the roadmap controls delivery. Review acceptance: Manuel can identify, add, move or remove information by ID; each selected item has a destination/scope, and unresolved placements are visible. Creating this inventory neither approves new placement proposals nor completes M1.
 
+The [two Start alternatives, design review v0.31](2026-10-16-start-alternatives.md), explore clearer presentations of this content. Neither is selected; this inventory remains v0.7. In particular, the numerical overview in Klarer Überblick is a proposed alternative to the selected rings, not an adopted content decision.
+
 No colors, icons, card shapes, typography, charts or pixel measurements are specified here. “Top,” “summary,” “list” and “details” describe information hierarchy rather than an exact visual composition. The current prototype is evidence of a presentation, not the source of new requirements. Documentation/UI language: English here, German labels in the app.
 
 **Status key:** **Selected** = explicit current placement choice; **Required / placement open** = information need already confirmed, exact placement unresolved or missing from the prototype; **Draft** = prototype arrangement or engineer proposal awaiting review. Status is about content/placement, never implementation or provider availability. Guided and later views below are intended content, not delivered app features.

@@ -1,5 +1,7 @@
 # Product specifications
 
+- [Two cleaner Start proposals, 2026-10-16](2026-10-16-start-alternatives.md): Klarer Überblick and Saison im Fokus, with Android guidance and two retained source fragments; comparison/export artifacts and browser evidence are unavailable. Neither is selected, and the native implementation target supersedes them.
+
 - [Vereinsflieger and WeGlide ecosystem research, 2026-10-13](2026-10-13-ecosystem-research.md): existing apps/GitHub projects, WeGlide product patterns and integration conditions, and proposed ideas for concept review; no feature or roadmap approval.
 
 - **[Current project plan](../project-plan.md):** authoritative priorities, feature/acceptance register, M0–M5 milestones and open decisions. Next: basic UI and application contract, followed by retrieval, saved live history and analytics.
