@@ -8,7 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type Controller = ReturnType<typeof useAccessController>;
 export function ConnectionIndicator({ controller: c, onPress }: { controller: Controller; onPress: () => void }) {
-  const pending = c.busy || c.disconnecting || c.connection.phase === 'checking';
+  const pending = c.busy || c.loginBusy || c.disconnecting || c.connection.phase === 'checking';
   const tint = c.connection.phase === 'disconnected' ? colors.muted : '#ffc477';
   return <Pressable accessibilityRole="button" accessibilityLabel={`Vereinsflieger: ${pending ? 'Vorgang läuft' : connectionLabel(c.connection)}. Verbindungen öffnen`} onPress={onPress} style={styles.indicator}>
     {pending ? <ActivityIndicator color={colors.cyan} /> : <View accessible={false} style={{ width: 27, height: 25 }}>
@@ -27,6 +27,11 @@ export function ProviderConnection({ controller: c, open, close }: { controller:
   const locked = operationLocked || c.disconnecting;
   const login = open && c.visible;
   const label = connectionLabel(c.connection);
+  const loginFeedback = c.loginBusy ? 'Gespeicherte Anmeldung wird einmalig versucht…' :
+    c.loginNotice === 'response' ? 'Anbieterantwort geöffnet. Anmeldung noch nicht bestätigt: Anbieterprüfung bei Bedarf abschließen, danach „Anmeldung prüfen“ wählen.' :
+    c.loginNotice === 'unavailable' ? 'Gespeicherte Anmeldung nicht verfügbar oder Seite geändert. Auf der Originalseite anmelden.' :
+    c.loginNotice === 'failed' ? 'Gespeicherte Anmeldung nicht bestätigt. Originalseite prüfen oder erneut anmelden; kein automatischer weiterer Versuch.' :
+    c.loginNotice === 'cancelled' ? 'Anmeldeversuch beendet. Sitzung erneut prüfen oder auf der Originalseite anmelden.' : null;
   const dismiss = () => { if (c.visible || checking) c.dismissLogin(); close(); };
   return <View pointerEvents={open ? 'auto' : 'none'} style={[StyleSheet.absoluteFill, { zIndex: open ? 20 : -1, opacity: open ? 1 : 0, paddingTop: insets.top, paddingBottom: insets.bottom, backgroundColor: colors.background }]} accessibilityElementsHidden={!open} importantForAccessibility={open ? 'auto' : 'no-hide-descendants'} accessibilityViewIsModal={open}>
     <View pointerEvents={login ? 'auto' : 'none'} style={[styles.browserFrame, { top: barHeight + loginHeight + insets.top, bottom: insets.bottom }, !login && styles.coveredBrowser]} accessibilityElementsHidden={!login} importantForAccessibility={login ? 'auto' : 'no-hide-descendants'}>
@@ -39,6 +44,7 @@ export function ProviderConnection({ controller: c, open, close }: { controller:
     {login ? <View style={styles.loginBar} onLayout={event => setLoginHeight(event.nativeEvent.layout.height)}>
       <Label style={{ fontWeight: '600' }}>{providerUrl(c.url) ? new URL(c.url).origin : 'Anbieteradresse nicht bestätigt'}</Label>
       <Label muted>{c.disconnecting ? 'Auf der Originalseite „Abmelden“ wählen, danach hier prüfen. Schließen allein meldet dich nicht ab.' : 'Originale Anmeldeseite · Zugangsdaten nur dort eingeben.'}</Label>
+      {loginFeedback && <Label>{loginFeedback}</Label>}
       {c.disconnecting ? <Action disabled={operationLocked} onPress={c.checkDisconnection}>Abmeldung prüfen</Action> : <Action disabled={locked} onPress={() => c.checkConnection()}>Anmeldung prüfen</Action>}
     </View> : <KeyboardAvoidingView style={styles.panel} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <ScrollView contentContainerStyle={styles.canvas} keyboardShouldPersistTaps="handled">
@@ -50,6 +56,7 @@ export function ProviderConnection({ controller: c, open, close }: { controller:
             <Action disabled={locked} onPress={c.connect}>Mit Vereinsflieger verbinden</Action>
             <Action secondary disabled={locked || !c.browserActive} onPress={() => c.checkConnection()}>Sitzung erneut prüfen</Action>
             <Action secondary disabled={locked} onPress={c.useLogin}>Gespeicherte Anmeldung verwenden</Action>
+            {loginFeedback && <Label>{loginFeedback}</Label>}
             <Label muted>Optionale Entwicklungshilfe: Verwendet einmalig die bereits von MoFlight auf diesem Gerät gespeicherte Anmeldung. Nur nach Antippen; eine Anbieterprüfung kann weiterhin nötig sein.</Label>
           </Card>
           {c.connection.phase === 'observed' && !c.connection.confirmed && c.connection.observed && <Card>

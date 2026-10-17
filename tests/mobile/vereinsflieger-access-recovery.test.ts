@@ -31,7 +31,7 @@ const source = ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/
 const controllerSource = ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/vereinsflieger/use-access-controller.tsx', import.meta.url), 'utf8'), {
   compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.React, esModuleInterop: false },
 }).outputText;
-function fixture(options: { priorCapture?: probe.ProbeSnapshot; deferJournalSave?: boolean; deferCaptureSave?: boolean; product?: boolean; deferLoginRead?: boolean; failLoginForget?: boolean; deferLoginForget?: boolean } = {}) {
+function fixture(options: { priorCapture?: probe.ProbeSnapshot; deferJournalSave?: boolean; deferCaptureSave?: boolean; product?: boolean; deferLoginRead?: boolean; failLoginRead?: boolean; savedLogin?: { username: string; password: string } | null; failLoginForget?: boolean; deferLoginForget?: boolean } = {}) {
   let resolveJournal!: (view: ViewPreferences | null) => void, rejectJournal!: (error: Error) => void;
   const journal = new Promise<ViewPreferences | null>((resolve, reject) => { resolveJournal = resolve; rejectJournal = reject; });
   const hooks: unknown[] = [], effects: (() => void)[] = [];
@@ -89,7 +89,7 @@ function fixture(options: { priorCapture?: probe.ProbeSnapshot; deferJournalSave
       },
     },
     './login-storage': {
-      readSavedLogin: async () => { savedLoginReads++; return options.deferLoginRead ? loginRead : null; },
+      readSavedLogin: async () => { savedLoginReads++; if (options.deferLoginRead) return loginRead; if (options.failLoginRead) throw new Error('Synthetic protected-storage read failure'); return options.savedLogin ?? null; },
       writeSavedLogin: async () => {},
       forgetSavedLogin: async () => { savedLoginForgets++; if (options.deferLoginForget) await loginForget; if (options.failLoginForget) throw new Error('Synthetic protected-storage deletion failure'); },
     },
@@ -378,7 +378,57 @@ test('cancelling or backgrounding a deferred saved-login read prevents late cred
     assert.equal(f.injections.length, injectionCount, `Late read after ${interrupt} must not submit credentials`);
     assert.ok(!f.injections.join('\n').includes('synthetic-password'));
     assert.equal(f.controller().disconnectedAt, null);
+    assert.equal(f.controller().loginNotice, 'cancelled');
   }
+});
+
+test('starting saved login invalidates confidence, clears pending confirmation, and makes no startup secret read', async () => {
+  const f = fixture({ product: true }); f.render(); await f.settle(null); await establishProductAssociation(f);
+  assert.equal(f.loginStorage().reads, 0, 'Product startup does not read a saved secret');
+  assert.equal(f.controller().connection.confirmed, true);
+  f.controller().useLogin();
+  assert.equal(f.controller().connection.phase, 'unknown');
+  assert.equal(f.controller().connection.confirmed, false);
+  assert.equal(f.controller().loginNotice, 'none');
+  await f.loadPage(probe.LOGIN_URL);
+  assert.equal(f.controller().busy, false);
+  assert.equal(f.controller().result, 'none');
+  assert.ok(!f.injections.some(script => /\}\)\("[^"]+","snapshot"/.test(script)));
+
+  const pending = fixture({ product: true }); pending.render(); await pending.settle(null); await pending.flush();
+  pending.controller().connect(); await pending.loadPage(probe.LOGIN_URL);
+  pending.controller().checkConnection('retrieve'); await pending.loadPage(context.PROFILE_URL);
+  await pending.contextMessage(observedContext);
+  assert.equal(pending.controller().connection.confirmed, false);
+  pending.controller().useLogin();
+  pending.controller().confirmConnection();
+  assert.equal(pending.controller().busy, false, 'A cleared after-confirmation action cannot start capture');
+  assert.ok(!pending.injections.some(script => /\}\)\("[^"]+","snapshot"/.test(script)));
+});
+
+test('saved-login absence and read failure produce explicit outcomes; an existing secret is attempted once', async () => {
+  const absent = fixture({ product: true }); absent.render(); await absent.settle(null); await absent.flush();
+  absent.controller().useLogin(); await absent.loadPage(probe.LOGIN_URL); await absent.flush();
+  assert.equal(absent.controller().loginNotice, 'unavailable');
+  assert.equal(absent.loginStorage().reads, 1);
+  assert.equal(absent.controller().loginBusy, false);
+  assert.equal(absent.injections.length, 0);
+
+  const failed = fixture({ product: true, failLoginRead: true }); failed.render(); await failed.settle(null); await failed.flush();
+  failed.controller().useLogin(); await failed.loadPage(probe.LOGIN_URL); await failed.flush();
+  assert.equal(failed.controller().loginNotice, 'failed');
+  assert.equal(failed.loginStorage().reads, 1);
+  assert.equal(failed.injections.length, 0);
+
+  const stored = fixture({ product: true, savedLogin: { username: 'synthetic-user', password: 'synthetic-password' } });
+  stored.render(); await stored.settle(null); await stored.flush();
+  stored.controller().useLogin(); await stored.loadPage(probe.LOGIN_URL); await stored.flush();
+  const submitted = [...stored.injections];
+  assert.equal(stored.loginStorage().reads, 1);
+  assert.equal(submitted.length, 1, 'The explicit user action starts one saved-login attempt');
+  await stored.loadPage(probe.LOGIN_URL); await stored.flush();
+  assert.equal(stored.loginStorage().reads, 1, 'A repeat page callback does not reread or retry');
+  assert.equal(stored.injections.length, submitted.length, 'No automatic credential retry is started');
 });
 
 test('cancelled login confirmation cannot launch a stale retrieval; reconnect retains account and club checks', async () => {

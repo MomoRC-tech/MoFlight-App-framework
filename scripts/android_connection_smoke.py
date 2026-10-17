@@ -20,7 +20,7 @@ def connection(smoke):
 
 def panel(smoke):
     smoke.tap_node(connection(smoke))
-    smoke.find('Letzte Sitzungsprüfung:', exact=False)
+    panel_control(smoke, 'Letzte Sitzungsprüfung:', exact=False)
 
 
 
