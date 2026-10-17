@@ -16,7 +16,7 @@ export function useAccessController(product = false) {
   const foreground = useRef(AppState.currentState === undefined || AppState.currentState === 'active');
   const session = useRef(new ConnectionSession());
   const [connection, setConnection] = useState(session.current.state);
-  const contextRequest = useRef<{ nonce: string; action: 'check' | 'retrieve' | 'capture' | 'recover' | 'restored' | 'disconnect' } | null>(null);
+  const contextRequest = useRef<{ nonce: string; action: 'check' | 'retrieve' | 'capture' | 'recover' | 'restored' | 'disconnect'; navigationObserved: boolean } | null>(null);
   const disconnectMode = useRef(false), recoveryKnown = useRef(false);
   const [disconnecting, setDisconnecting] = useState(false);
   const [disconnectedAt, setDisconnectedAt] = useState<string | null>(null);
@@ -109,7 +109,7 @@ export function useAccessController(product = false) {
     const nonce = Crypto.randomUUID();
     if (!session.current.start(nonce)) return;
     setLoginNotice('none');
-    contextRequest.current = { nonce, action }; syncConnection();
+    contextRequest.current = { nonce, action, navigationObserved: false }; syncConnection();
     if (timeout.current) clearTimeout(timeout.current); timeout.current = null;
     contextTimer.current = setTimeout(() => contextFailed(), 25_000);
     navigate(PROFILE_URL);
@@ -143,7 +143,7 @@ export function useAccessController(product = false) {
   async function receiveContext(event: WebViewMessageEvent) {
     const request = contextRequest.current;
     const expected = loginPage(currentUrl.current) ? LOGIN_URL : PROFILE_URL;
-    if (!request || !session.current.owns(request.nonce) || !scopedBridge(event.nativeEvent.url, currentUrl.current, expected) || event.nativeEvent.data.length > 2000) return;
+    if (!request || !request.navigationObserved || !session.current.owns(request.nonce) || !scopedBridge(event.nativeEvent.url, currentUrl.current, expected) || event.nativeEvent.data.length > 2000) return;
     try {
       const message = JSON.parse(event.nativeEvent.data);
       const expectedKind = expected === LOGIN_URL ? 'vf-login-required-v1' : 'vf-context-v1';
@@ -226,6 +226,7 @@ export function useAccessController(product = false) {
     const pageEpoch = epoch.current;
     phase.current.loaded = true; currentUrl.current = page; setUrl(page); setLoaded(true);
     if (product && contextRequest.current) {
+      if (!contextRequest.current.navigationObserved) { contextFailed(); return; }
       if (page === PROFILE_URL) web.current?.injectJavaScript(contextScript(contextRequest.current.nonce));
       else if (loginPage(page)) web.current?.injectJavaScript(loginRequiredScript(contextRequest.current.nonce));
       else contextFailed();
@@ -474,9 +475,9 @@ export function useAccessController(product = false) {
         cacheEnabled={false} cacheMode="LOAD_NO_CACHE"
         allowFileAccess={false} allowFileAccessFromFileURLs={false} allowUniversalAccessFromFileURLs={false} mixedContentMode="never"
         javaScriptCanOpenWindowsAutomatically={false} setSupportMultipleWindows={true}
-        onShouldStartLoadWithRequest={request => { if (generation !== epoch.current) return false; const allowed = providerUrl(request.url); if (!allowed && request.isTopFrame !== false) finish('External navigation blocked. Previous captures preserved.'); return allowed; }}
+        onShouldStartLoadWithRequest={request => { if (generation !== epoch.current) return false; const allowed = providerUrl(request.url); if (product && contextRequest.current && request.isTopFrame !== false && request.url === PROFILE_URL) contextRequest.current.navigationObserved = true; if (!allowed && request.isTopFrame !== false) finish('External navigation blocked. Previous captures preserved.'); return allowed; }}
         onOpenWindow={() => { if (generation === epoch.current) finish('New browser window blocked in this bounded PoC.'); }}
-        onLoadStart={event => { if (generation !== epoch.current) return; if (retrieval.current.state.phase === 'loading') {
+        onLoadStart={event => { if (generation !== epoch.current) return; if (product && contextRequest.current && event.nativeEvent.url === PROFILE_URL) contextRequest.current.navigationObserved = true; if (retrieval.current.state.phase === 'loading') {
           // Native load-start can beat the bridge acknowledgement. Advance only
           // a still-owned, outstanding save/load command; acknowledged commands
           // already cleared their token and must not advance a second time.

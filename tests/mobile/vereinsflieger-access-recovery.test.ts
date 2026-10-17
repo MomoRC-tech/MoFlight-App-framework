@@ -36,6 +36,7 @@ function fixture(options: { priorCapture?: probe.ProbeSnapshot; deferJournalSave
   const journal = new Promise<ViewPreferences | null>((resolve, reject) => { resolveJournal = resolve; rejectJournal = reject; });
   const hooks: unknown[] = [], effects: (() => void)[] = [];
   let index = 0, nextId = 0, timerId = 0, pending: ViewPreferences | null = null;
+  const issuedNonces: string[] = [];
   let savedCapture = options.priorCapture ?? null;
   const writes: string[] = [], injections: string[] = [], timers = new Map<number, () => void>();
   let appStateListener: ((state: string) => void) | undefined;
@@ -72,7 +73,7 @@ function fixture(options: { priorCapture?: probe.ProbeSnapshot; deferJournalSave
   const modules: Record<string, unknown> = {
     react: { default: react, ...react },
     'react-native': { AppState: { currentState: 'active', addEventListener: (_: string, listener: (state: string) => void) => { appStateListener = listener; return { remove() { appStateListener = undefined; } }; } }, StyleSheet: { create: (value: unknown) => value }, View: 'View', Text: 'Text', FlatList: 'FlatList' },
-    'react-native-webview': { WebView: 'WebView' }, 'expo-crypto': { randomUUID: () => `fixture-${++nextId}` },
+    'react-native-webview': { WebView: 'WebView' }, 'expo-crypto': { randomUUID: () => { const nonce = `fixture-${++nextId}`; issuedNonces.push(nonce); return nonce; } },
     './probe': probe,
     './storage': {
       readOriginalView: () => journal, latestCapture: async () => savedCapture,
@@ -140,6 +141,10 @@ function fixture(options: { priorCapture?: probe.ProbeSnapshot; deferJournalSave
     (web.props.onLoadEnd as (event: unknown) => void)(event);
     return flush();
   }
+  function allowNavigation(url: string) {
+    const web = find(render(), element => element.type === 'WebView'); assert.ok(web);
+    return (web.props.onShouldStartLoadWithRequest as (request: unknown) => boolean)({ url, isTopFrame: true });
+  }
   const loadFlight = () => loadPage(FLIGHT_URL);
   function currentCommand() {
     const script = injections.at(-1); assert.ok(script, 'No native driver command was issued');
@@ -161,6 +166,7 @@ function fixture(options: { priorCapture?: probe.ProbeSnapshot; deferJournalSave
   }
   return { render, button, press, settle, find, flush, loadPage, loadFlight, message, currentCommand, writes, injections,
     contextMessage,
+    allowNavigation, lastIssuedNonce: () => issuedNonces.at(-1),
     appState: (state: string) => appStateListener?.(state),
     controller: () => { render(); return controller; },
     finishJournalSave, finishCaptureSave, pending: () => pending, savedCapture: () => savedCapture,
@@ -185,6 +191,7 @@ test('supported session-required profile response reveals login without acceptin
 test('fresh protected-profile redirect to the exact login root verifies sign-out; invalid root evidence does not', async () => {
   const f = fixture({ product: true }); f.render(); await f.settle(null); await establishProductAssociation(f);
   f.controller().startDisconnect(); f.controller().checkDisconnection();
+  assert.equal(f.allowNavigation(context.PROFILE_URL), true);
   await f.loadPage(context.PROFILE_URL); await f.loadPage(probe.LOGIN_URL);
   await f.contextMessage({ error: 'session-required' }, probe.LOGIN_URL, undefined, probe.LOGIN_URL, 'vf-login-required-v1');
   assert.equal(f.controller().connection.phase, 'disconnected');
@@ -192,6 +199,7 @@ test('fresh protected-profile redirect to the exact login root verifies sign-out
 
   const foreign = fixture({ product: true }); foreign.render(); await foreign.settle(null); await establishProductAssociation(foreign);
   foreign.controller().startDisconnect(); foreign.controller().checkDisconnection();
+  assert.equal(foreign.allowNavigation(context.PROFILE_URL), true);
   await foreign.loadPage(context.PROFILE_URL); await foreign.loadPage(probe.LOGIN_URL);
   const nonce = /nonce:"([^\"]+)"/.exec(foreign.injections.at(-1)!)![1]!;
   await foreign.contextMessage({ error: 'session-required' }, 'https://evil.example/', nonce, probe.LOGIN_URL, 'vf-login-required-v1');
@@ -202,6 +210,7 @@ test('fresh protected-profile redirect to the exact login root verifies sign-out
 
   const raced = fixture({ product: true }); raced.render(); await raced.settle(null); await establishProductAssociation(raced);
   raced.controller().startDisconnect(); raced.controller().checkDisconnection();
+  assert.equal(raced.allowNavigation(context.PROFILE_URL), true);
   await raced.loadPage(context.PROFILE_URL); await raced.loadPage(probe.LOGIN_URL);
   const racedNonce = /nonce:"([^\"]+)"/.exec(raced.injections.at(-1)!)![1]!;
   // A profile-context response can race navigation and must never count as the root detector's proof.
@@ -212,7 +221,8 @@ test('fresh protected-profile redirect to the exact login root verifies sign-out
 
   const normal = fixture({ product: true }); normal.render(); await normal.settle(null); await normal.flush();
   normal.controller().connect(); await normal.loadPage(probe.LOGIN_URL);
-  normal.controller().checkConnection(); await normal.loadPage(context.PROFILE_URL); await normal.loadPage(probe.LOGIN_URL);
+  normal.controller().checkConnection(); assert.equal(normal.allowNavigation(context.PROFILE_URL), true);
+  await normal.loadPage(context.PROFILE_URL); await normal.loadPage(probe.LOGIN_URL);
   await normal.contextMessage({ error: 'session-required' }, probe.LOGIN_URL, undefined, probe.LOGIN_URL, 'vf-login-required-v1');
   assert.equal(normal.controller().connection.phase, 'login-required', 'The same supported evidence during a normal check requests sign-in');
   normal.controller().dismissLogin();
@@ -221,11 +231,32 @@ test('fresh protected-profile redirect to the exact login root verifies sign-out
 
   const unavailable = fixture({ product: true }); unavailable.render(); await unavailable.settle(null); await unavailable.flush();
   unavailable.controller().connect(); await unavailable.loadPage(probe.LOGIN_URL);
-  unavailable.controller().checkConnection(); await unavailable.loadPage(context.PROFILE_URL); await unavailable.loadPage(probe.LOGIN_URL);
+  unavailable.controller().checkConnection(); assert.equal(unavailable.allowNavigation(context.PROFILE_URL), true);
+  await unavailable.loadPage(context.PROFILE_URL); await unavailable.loadPage(probe.LOGIN_URL);
   await unavailable.contextMessage({ error: 'login-layout-unavailable' }, probe.LOGIN_URL, undefined, probe.LOGIN_URL, 'vf-login-required-v1');
   assert.equal(unavailable.controller().connection.phase, 'error', 'An unsupported login layout is not proof of sign-out');
   unavailable.controller().dismissLogin();
   assert.equal(unavailable.controller().connection.phase, 'error', 'Closing the panel preserves the known unsupported-layout outcome');
+});
+
+test('a queued root response without observed profile navigation cannot prove logout; a fresh observed request can', async () => {
+  const f = fixture({ product: true }); f.render(); await f.settle(null); await establishProductAssociation(f);
+  f.controller().startDisconnect(); f.controller().checkDisconnection();
+  const abandonedNonce = f.lastIssuedNonce(); assert.ok(abandonedNonce);
+  // Simulate an old root document completing while the requested protected-profile
+  // navigation is still queued and has not passed the native top-frame callback.
+  await f.loadPage(probe.LOGIN_URL);
+  assert.notEqual(f.controller().connection.phase, 'disconnected');
+  assert.equal(f.controller().disconnectedAt, null);
+  await f.contextMessage({ error: 'session-required' }, probe.LOGIN_URL, abandonedNonce, probe.LOGIN_URL, 'vf-login-required-v1');
+  assert.notEqual(f.controller().connection.phase, 'disconnected', 'Late bridge from the queued request is rejected');
+
+  f.controller().startDisconnect(); f.controller().checkDisconnection();
+  assert.equal(f.allowNavigation(context.PROFILE_URL), true);
+  await f.loadPage(context.PROFILE_URL); await f.loadPage(probe.LOGIN_URL);
+  await f.contextMessage({ error: 'session-required' }, probe.LOGIN_URL, undefined, probe.LOGIN_URL, 'vf-login-required-v1');
+  assert.equal(f.controller().connection.phase, 'disconnected');
+  assert.ok(f.controller().disconnectedAt);
 });
 
 test('login-required reader checks form structure without reading credential values', () => {

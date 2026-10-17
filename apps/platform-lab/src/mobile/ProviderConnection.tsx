@@ -45,7 +45,7 @@ export function ProviderConnection({ controller: c, open, close }: { controller:
       <Label style={{ fontWeight: '600' }}>{providerUrl(c.url) ? new URL(c.url).origin : 'Anbieteradresse nicht bestätigt'}</Label>
       <Label muted>{c.disconnecting ? 'Auf der Originalseite „Abmelden“ wählen, danach hier prüfen. Schließen allein meldet dich nicht ab.' : 'Originale Anmeldeseite · Zugangsdaten nur dort eingeben.'}</Label>
       {loginFeedback && <Label>{loginFeedback}</Label>}
-      {c.disconnecting ? <Action disabled={operationLocked} onPress={c.checkDisconnection}>Abmeldung prüfen</Action> : <Action disabled={locked} onPress={() => c.checkConnection()}>Anmeldung prüfen</Action>}
+      {c.disconnecting ? <Action disabled={operationLocked || !c.loaded} onPress={c.checkDisconnection}>Abmeldung prüfen</Action> : <Action disabled={locked || !c.loaded} onPress={() => c.checkConnection()}>Anmeldung prüfen</Action>}
     </View> : <KeyboardAvoidingView style={styles.panel} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <ScrollView contentContainerStyle={styles.canvas} keyboardShouldPersistTaps="handled">
         <View style={styles.group}>
