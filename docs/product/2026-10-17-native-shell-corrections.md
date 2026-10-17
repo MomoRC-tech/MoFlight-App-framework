@@ -1,6 +1,6 @@
 # Native shell corrections — 17 October 2026
 
-Manuel reported testing the phone demo and authorized implementation of the previously listed UI corrections. Phone model, Android version and individual test outcomes were not supplied; this is a user-reported test, not a recorded all-pass physical acceptance.
+Manuel reported testing the phone demo and authorized implementation of the previously listed UI corrections. Phone model was subsequently reported as Google Pixel 6a (quick test); Android version and individual checklist outcomes were not supplied; this is a user-reported test, not a recorded all-pass physical acceptance.
 
 This is an M1 UI/application-contract correction under existing Issues #5, #1, #8 and documentation reconciliation #12. It supersedes the earlier four-tab shell requirement for current native navigation while preserving the approved composite as the card/color reference. No alternate design selection or new service is required.
 
