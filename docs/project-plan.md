@@ -1,5 +1,9 @@
 # MoFlight project plan
 
+## Development workflow — approved 17 October 2026
+
+Manuel authorized persisting the [logic-first, risk-based workflow](development/verification-workflow.md) under [#6](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/6#issuecomment-6232382831). Routine logic work uses relevant tests and TypeScript; batch small commits into planned Release/native integration checkpoints. Visual checks target changed UI, with the full relevant size matrix reserved for substantial layout/navigation/typography changes. No routine subagents/screenshots/audits for small tasks; one concise package contract and verification summary. Documentation-only work needs links/consistency checks. This changes verification frequency, not milestone priorities or the remaining live/native/physical gates; the suggested connection-state refactor is not started or separately approved by this workflow authorization.
+
 ## Current increment — safe disconnect and re-login, authorized 17 October 2026
 
 Manuel explicitly said **do it** after the bounded proposal; [authorization in #2](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/2#issuecomment-6231895092). This M2 reliability/M1 interaction package follows the delivered retained-connection PoC. [Deliverable, dependencies, operation contract and acceptance](product/2026-10-17-safe-disconnect.md): separate original-provider sign-out verification from saved-credential forgetting; protect recovery/saves and require new context checks on reconnect without silent reassociation. Reuse existing controller/profile/SecureStore boundaries; no dependency or production policy change. [Verification](verification/2026-10-17-safe-disconnect.md) records 162 tests, final committed-source Release/lintVital, a 19-check width/lifecycle matrix and separate 8-check final-source lifecycle run, plus bounded live sign-out/sign-in-required observations. Successful real re-login and full cookie clearing remain acceptance gaps; the provider AVD is left signed out with saved credentials preserved. A runtime density/readiness finding is separately tracked in #5; no home-layout fix is claimed. Canonical import, stable binding, full cookie clearing, broader lifecycle, iOS and deferred physical gates remain open under #2/#5/#8.
@@ -65,7 +69,7 @@ Manuel confirmed this way of proceeding on 2026-10-13: design the user journey a
 
 The interface contract is an internal software agreement, not a requirement for a web API or server. UI and logic can develop separately behind that agreement: synthetic and real implementations must satisfy the same contract. Visual changes usually stay within the UI; new measures or changed behavior may require coordinated contract and logic changes. Existing lab separation is partial; M1 specifies the boundary and M2 extracts retrieval orchestration.
 
-For each bounded feature:
+For new or materially changed user-visible journeys, follow the steps below. Logic-only packages reuse approved UI/contracts and do not repeat sketches, prototypes or visual approval. The newer [verification workflow](development/verification-workflow.md) controls check frequency.
 
 1. Describe a real user journey and the information/actions it needs.
 2. Sketch screens and navigation with simple boxes and labels before visual polish.

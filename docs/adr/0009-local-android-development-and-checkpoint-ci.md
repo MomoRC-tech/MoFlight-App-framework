@@ -3,6 +3,7 @@
 - Date: 2026-10-11
 - Status: Accepted — Manuel approved implementation of the reviewed plan
 - Amendment: 2026-10-12 — Manuel approved required local validation, optional hosted CI and no paid CI
+- Amendment: 2026-10-17 — Manuel approved logic-first iteration and risk-based verification at integration checkpoints
 - Tracking: #6
 
 ## Context
@@ -22,5 +23,9 @@ Before scoped feature acceptance or device handoff, require documented local val
 The original 2026-10-11 automatic fast/checkpoint schedule and mandatory hosted completion gate are superseded by this amendment. Dated verification reports retain their original outcomes; they must not be read as a current requirement to resolve billing or buy CI.
 
 ## Consequences
+
+### 17 October 2026 amendment: verification frequency
+
+Follow the approved [development/verification workflow](../development/verification-workflow.md). Ordinary logic commits use relevant automated tests and TypeScript; batch commits before a planned integration acceptance checkpoint. Platform exports, committed-source Release and relevant native trials remain acceptance requirements, not per-commit requirements. Inspect only affected UI for small visual edits; use the screen-size matrix for substantial layout/navigation/typography changes. Logic-only and documentation changes do not trigger routine visual verification. Documentation-only work needs links/consistency checks, not app builds or devices. Repeat verification only for affected changes, failures or unresolved risks, with source-specific reuse of unaffected evidence. No routine subagents or duplicate evidence reports for small tasks. This amendment changes scheduling/effort, not the native/live/platform acceptance distinctions or safety/privacy/free-CI constraints above.
 
 Complete the relevant local checkpoint before device handoff or declaring a scoped feature accepted. Record optional hosted evidence separately, with compiled and validated source identities. The tradeoff is reduced independent operating-system/clean-runner coverage; use reproducible isolated local builds and record that limitation. Preserve Windows workaround failures and measured evidence. Windows does not establish iOS runtime acceptance. No new service, framework, global Java replacement or production signing is introduced.
