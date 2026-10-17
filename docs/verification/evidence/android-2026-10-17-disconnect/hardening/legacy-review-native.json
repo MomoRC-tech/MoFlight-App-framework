@@ -1,0 +1,12 @@
+{
+  "source": "20d2253",
+  "status": "passed",
+  "checks": [
+    "Explicit fixed-path native read-only metadata review completed",
+    "Second explicit review returned identical metadata and journal fingerprint",
+    "Raw retrieval, restoration and local clearing remain disabled"
+  ],
+  "private_metadata_published": false,
+  "ownership": "unresolved-awaiting-user-review",
+  "limits": "Metadata projection only; not full journal validation, identity proof or pre-install fingerprint comparison. No export, credential access, restoration, migration, deletion or clearing performed."
+}

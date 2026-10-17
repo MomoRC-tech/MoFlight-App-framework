@@ -1,0 +1,14 @@
+{
+  "source_commit": "20d225348983bc3d39fce9372c9d206f3ec93217",
+  "mobile_tests": {
+    "status": "passed",
+    "count": 185
+  },
+  "typescript": "passed",
+  "android_export": "passed",
+  "ios_export": "passed",
+  "environment": "Windows PowerShell, Node 24.18.0, pnpm 11.25.0, Python 3.12.10, JDK 17.0.20.1+1",
+  "initial_failure": "Existing session-store VM tests required the new pure import stub. Full corrected run passed.",
+  "private_logs": "Ignored local-data/legacy-review-tests.log, legacy-review-exports.log and legacy-review-build.log",
+  "limits": "Host tests and exports do not prove native read-only access or iOS runtime. Ownership is not asserted."
+}
