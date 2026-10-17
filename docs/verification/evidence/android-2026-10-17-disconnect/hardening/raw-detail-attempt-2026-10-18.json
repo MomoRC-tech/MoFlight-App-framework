@@ -1,0 +1,7 @@
+{
+  "status": "failed",
+  "source_commit": "dfb69cc71866aefdaaba37ece9558c67d7935748",
+  "checks": [],
+  "boundary": "Only observed own-flight read-only eye links; no guessed IDs, edit/pencil actions, setting changes, import or clearing.",
+  "error": "Independent detail review stopped; inspect ignored hierarchy. No edit action or guessed-ID fallback."
+}

@@ -1,0 +1,15 @@
+{
+  "source_commit": "dfb69cc71866aefdaaba37ece9558c67d7935748",
+  "checks": {
+    "mobile_tests": {
+      "status": "passed",
+      "count": 197
+    },
+    "typescript": "passed",
+    "android_export": "passed",
+    "ios_export": "passed",
+    "android_release_lint": "passed",
+    "gradle_tasks": 622
+  },
+  "boundary": "Bounded read-only scoped raw-review UI only; no storage/native/ingestion contract change. Exports do not prove iOS runtime. Native runs recorded separately."
+}

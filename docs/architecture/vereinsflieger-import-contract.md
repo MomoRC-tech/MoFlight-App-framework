@@ -85,3 +85,51 @@ The [bounded detail proof](../verification/2026-10-11-vereinsflieger-detail-proo
 Costs are a separate optional enrichment proposal following Manuel's explicit interest. Capture verified line items, charge descriptions, currency, charged-party association, total and billing status only if needed for a defined cost feature. `Abgerechnet` must not be relabeled as payment status without evidence. A displayed total need not equal the requesting pilot's personal expense; account-credit and other-party lines require verified attribution. The mandatory flight import must work when cost access fails or is absent. Never include actual amounts, parties or private observations in Git. No cost scraper/storage, full-history adapter or production mapping is implemented by this proposal.
 
 The browser manual describes exports; no export action was exposed in the inspected list/configuration view even after Manuel's requested reset, and bytes remain unverified. The reset removed important optional fields; the default view cannot be assumed to contain a complete import schema. This evidence narrows the proposal but does not authorize canonical promotion or mark ADR 0007 accepted.
+
+
+## Next bounded live-history mapping proposal — 18 October 2026
+
+Manuel authorized progressing the retrieval verification, header review and preparation of the source/book mapping contract. This section is the reviewable M3 proposal under #2/#18/#11/#4; it does not accept ADR 0007 or enable canonical writes. The current app still keeps real raw captures separate from its synthetic library.
+
+### Proposed first slice
+
+Use an explicitly confirmed local-owner/provider connection and one complete small requested window. Preserve its immutable raw capture, provider field names, source references, adapter/version and requested coverage. Derive a review plan in memory; show proposed added/changed/unchanged/ambiguous records and proposed primary book. Only an explicit confirmed plan can reach the single transactional writer after the identity/mapping/migration contract is approved. Reopening the app reads saved local history without a provider request. Manual fetch remains sufficient; #19 scheduling is independent.
+
+| Source evidence | Proposed normalized handling / unresolved gate |
+| --- | --- |
+| Candidate `flid` / detail `Eintrag` | Preserve as a string namespaced by authorized source scope; independently compare and repeat before treating it as a stable flight key. Registration/date/person strings are not a replacement key |
+| `Datum` | Validate the observed calendar format; retain raw text; do not infer timezone from the phone or dashboard |
+| `Start`, `Landung` | Separate raw clocks and explicit time basis. Keep unknown basis and overnight relationship unresolved unless evidenced; never fabricate timestamps |
+| `Flugzeit` / alternate duration fields | Preserve each reported measure and its units. Deterministic validated parsing only; do not overwrite a corrected duration using clock subtraction; retain null for unknown/ambiguous values |
+| Aircraft registration/model/category | Retain distinct source values and candidate aircraft identity. A registration pattern alone cannot establish aircraft class or licensing credit; catalogue joins require verified association |
+| `Pilot`, `PIC`, `Begleiter/FI`, other crew/role-time columns | Preserve distinct slots and raw roles. No PIC/student/instructor inference from position, name or aircraft; format-specific credit requires reviewed rules |
+| Duplicate marker and repeated source ID | Preserve explicit source duplicate facts; identical repeated IDs are idempotent, conflicting versions require review. Do not merge distinct flights because date/aircraft/time look similar |
+| Missing rows in a window | No deletion. Preserve prior usable history; retain partial/gap status instead of claiming complete lifetime coverage |
+| Costs/medical/club data | Outside this first slice. Their absence must not block basic flight evidence or become an invented zero/status |
+
+### Reviewable logbook assignment default
+
+1. Keep source records account-scoped and book-independent. Associate book entries separately; paper progress/photos/totals stay book-scoped.
+2. Preserve an existing explicit assignment on repeat retrieval unless relevant source facts change; flag such changes for review rather than silently reroute.
+3. For a new flight, rank eligible books using verified explicit aircraft category plus past user-confirmed aircraft-to-book choices. Use registration/type as a suggestion signal only. Restrict suggestions to this owner's books and eligible format versions.
+4. Multiple books of one format, volume transitions, TMG ambiguity, unknown aircraft, conflicting previous choices and no eligible book produce an unresolved suggestion with reasons. Start with deterministic rules; no AI or probability claim is required.
+5. Present new/unresolved records together after a successful fetch. Preselect a justified suggestion, label its reason and allow change or **später zuordnen**. Saving must be explicit; a preselection alone is not consent. Preserve unresolved source evidence without inventing credited book entries.
+6. Propose one primary credited book per flight, with separately identified reference links where useful. Exceptional multiple credited membership remains a product/format decision. Combined queries must not double-count shared source flights.
+
+This default implements the intent of #18 as a proposal; it does not silently select a production automatic-assignment policy. The placement of every new record versus only ambiguous ones is concretely proposed here as one review list containing new/unresolved records, while unchanged confirmed records stay out of it.
+
+### Acceptance before enabling the slice
+
+- Independent current provider field/reference comparison and repeat/cancel preservation for the scoped capture path; distinguish native evidence from summary-only checks.
+- Explicit source-account/club ownership evidence and the limitations of the existing provisional binding; no production identity claim based on display labels.
+- Synthetic same-source repeats, changed revisions, conflicting IDs, two owners/forged book IDs, multi-book ambiguity, unknown roles/durations and combined-query deduplication.
+- Transactional source revisions + reviewed memberships + coverage/decision provenance, with rollback/crash retry and expected-plan checks; failed or partial refresh cannot erase usable history.
+- Reviewed schema/backup migration from existing lab stores, preserving unassigned legacy raw evidence and recovery journals. No adoption by matching labels.
+- Offline restart/query, correction/reassignment and independent book progress; committed-source native checkpoint before scoped handoff. iOS/physical and broader production gates stay separately explicit.
+
+Implementation can proceed in small pure planner/fixture steps once the actual compared field/reference contract is recorded; the production writer/migration needs the final approved source/book boundary. Header/icon selection and automatic polling are not prerequisites for these deterministic tests.
+
+
+### Bounded native mapping evidence now available
+
+The [18 October native checkpoint](../verification/2026-10-17-safe-disconnect.md#scoped-row-review-reference-comparison-and-repeatcancel--18-october) independently compared five observed own-flight detail `Eintrag` values with captured source references, date/start/landing texts, and explicit reported flight minutes. The same-window repeat kept all five references and the first eight raw columns stable; cancellation preserved capture identity through restart. Six further list-field comparisons retained Pilot, PIC and companion as separate facts. These are sample-level evidence for the current browser adapter, not cross-account/club key durability, timezone/overnight or credit-role verification. In this sample the numeric `Flugzeit` field matched the detail's explicitly displayed minutes; block/motor/other duration units remain distinct. No canonical writer or production migration is enabled by this evidence.

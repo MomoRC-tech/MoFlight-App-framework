@@ -1,0 +1,32 @@
+{
+  "status": "passed",
+  "source_commit": "dfb69cc71866aefdaaba37ece9558c67d7935748",
+  "checks": [
+    {
+      "name": "same-inclusive-window-repeat-requested",
+      "status": "passed"
+    },
+    {
+      "name": "new-immutable-capture-identity-and-same-window-row-count",
+      "status": "passed"
+    },
+    {
+      "name": "all-source-flight-references-and-first-eight-raw-columns-stable-on-repeat",
+      "status": "passed"
+    },
+    {
+      "name": "enabled-cancellation-restores-view-and-retains-exact-last-capture-identity",
+      "status": "passed"
+    },
+    {
+      "name": "post-cancel-process-restart-and-fresh-context-retain-same-capture-identity",
+      "status": "passed"
+    }
+  ],
+  "boundary": "Same bounded own-flight raw window; no canonical import/deduplication claim, clearing or legacy writes.",
+  "limits": [
+    "Repeat compares source references and first eight columns, not all optional fields",
+    "No canonical flight import or deduplication acceptance",
+    "Independent provider comparison recorded separately"
+  ]
+}

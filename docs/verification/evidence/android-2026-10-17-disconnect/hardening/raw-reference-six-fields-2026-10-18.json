@@ -1,0 +1,25 @@
+{
+  "status": "passed",
+  "source_commit": "dfb69cc71866aefdaaba37ece9558c67d7935748",
+  "checks": [
+    {
+      "name": "five-saved-scoped-rows-match-original-provider-table-six-field-multiset",
+      "status": "passed"
+    }
+  ],
+  "compared_rows": 5,
+  "compared_fields": [
+    "Datum",
+    "Lfz.-Muster",
+    "Lfz.",
+    "Pilot",
+    "PIC",
+    "Begleiter/FI"
+  ],
+  "reference": "Original provider personal-list accessibility cells collected independently before update; default last-20/Pilot view. Saved scoped values read explicitly through bounded lab UI. Repeated matching rows counted with multiplicity.",
+  "limits": [
+    "Six fields only; remaining optional columns and clock/duration fields not independently compared",
+    "Does not prove source reference identity, whole-history coverage, role semantics or canonical mapping",
+    "No original-provider settings were changed for the reference observation"
+  ]
+}

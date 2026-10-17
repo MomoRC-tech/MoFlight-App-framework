@@ -1,0 +1,30 @@
+{
+  "status": "passed",
+  "source_commit": "dfb69cc71866aefdaaba37ece9558c67d7935748",
+  "checks": [
+    {
+      "name": "all-five-observed-detail-record-identifiers-match-captured-source-references",
+      "status": "passed"
+    },
+    {
+      "name": "all-five-detail-dates-start-and-landing-clock-text-match-saved-rows",
+      "status": "passed"
+    },
+    {
+      "name": "all-five-explicit-detail-minute-values-match-captured-flight-duration",
+      "status": "passed"
+    },
+    {
+      "name": "fresh-matching-profile-after-read-only-detail-review",
+      "status": "passed"
+    }
+  ],
+  "boundary": "Only observed own-flight read-only eye links; no guessed IDs, edit/pencil actions, setting changes, import or clearing.",
+  "compared_rows": 5,
+  "limits": [
+    "Bounded sample only; no timezone/overnight, role-credit or full-history claim",
+    "Does not verify cross-account/club reference durability or production identity",
+    "Other optional fields not independently verified",
+    "No canonical live import/deduplication or schema approval"
+  ]
+}

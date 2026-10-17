@@ -1,5 +1,7 @@
 # MoFlight app design
 
+
+18 October follow-up: [header/status and icon review proposal](2026-10-18-header-status-review.md), including the missing native Med group, persistent provider status and actual-size alternatives under #20. This is proposed review material; it does not replace the approved visual baseline or claim live Medical integration.
 ## Native correction v0.34 — 17 October 2026
 
 Manuel authorized the [native shell corrections](2026-10-17-native-shell-corrections.md): five tabs (Übersicht, Flüge, Flugbuch, Verein, AI); smaller fixed header with the approved Thermik logo and top-right profile/settings; recognizable aircraft icon; segmented aircraft-share season rings. The reference remains authoritative for cards/colors, with these explicit navigation/header changes taking precedence. Earlier four-tab targets and prototype approvals below are historical; no new cloud/auth/service acceptance is implied. [Implementation evidence and reviewed screenshots](../verification/2026-10-17-native-shell-corrections.md) record the final correction build; updated physical retest remains pending.
