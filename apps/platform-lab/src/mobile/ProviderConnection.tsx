@@ -52,6 +52,15 @@ export function ProviderConnection({ controller: c, open, close }: { controller:
             <Action secondary disabled={locked} onPress={c.useLogin}>Gespeicherte Anmeldung verwenden</Action>
             <Label muted>Optionale Entwicklungshilfe: Verwendet einmalig die bereits von MoFlight auf diesem Gerät gespeicherte Anmeldung. Nur nach Antippen; eine Anbieterprüfung kann weiterhin nötig sein.</Label>
           </Card>
+          {c.connection.phase === 'observed' && !c.connection.confirmed && c.connection.observed && <Card>
+            <Section title="Vorläufige Zuordnung prüfen" />
+            <Label>Benutzernummer: {c.connection.observed.accountNumber}</Label><Label>Verein: {c.connection.observed.clubLabel}</Label>
+            <Label muted>Ist dies dein Anbieterkonto? Die Vereinsbezeichnung ist keine stabile Vereins-ID. Diese Zuordnung gilt nur für diesen Entwicklungslauf; Live-Import bleibt gesperrt.</Label>
+            <Action onPress={c.confirmConnection}>Konto für diesen Test bestätigen</Action>
+          </Card>}
+          {(c.connection.phase === 'mismatch' || c.connection.phase === 'error' || c.connection.phase === 'unknown' || c.connection.phase === 'login-required') && <Card>
+            <Label>{c.connection.phase === 'mismatch' ? 'Konto oder Verein stimmt nicht mit der bestätigten Zuordnung überein. Kein Import.' : 'Sitzung oder Netzwerk nicht aktuell bestätigt. Gespeicherte Flüge bleiben verfügbar. Bei Bedarf auf der Originalseite erneut anmelden.'}</Label>
+          </Card>}
           <Card><Section title="Verbindung trennen" />
             <Label muted>Trennen öffnet die Originalseite zum Abmelden. Erst eine neue Prüfung der geschützten Profilseite bestätigt die Abmeldung in diesem Browser. Andere Geräte und das Löschen aller Cookies sind nicht verifiziert.</Label>
             <Action secondary disabled={locked || c.recovery || !c.browserActive} onPress={c.startDisconnect}>Bei Vereinsflieger abmelden</Action>
@@ -64,15 +73,6 @@ export function ProviderConnection({ controller: c, open, close }: { controller:
             {c.credentialNotice === 'error' && <Label>Zugangsdaten konnten nicht entfernt werden. Erneut versuchen.</Label>}
             <Label muted>Entfernt nur die von MoFlight gespeicherten Zugangsdaten auf diesem Gerät. Die Anbietersitzung, System-Autofill und gespeicherte Flüge bleiben davon unabhängig.</Label>
           </Card>
-          {c.connection.phase === 'observed' && !c.connection.confirmed && c.connection.observed && <Card>
-            <Section title="Vorläufige Zuordnung prüfen" />
-            <Label>Benutzernummer: {c.connection.observed.accountNumber}</Label><Label>Verein: {c.connection.observed.clubLabel}</Label>
-            <Label muted>Ist dies dein Anbieterkonto? Die Vereinsbezeichnung ist keine stabile Vereins-ID. Diese Zuordnung gilt nur für diesen Entwicklungslauf; Live-Import bleibt gesperrt.</Label>
-            <Action onPress={c.confirmConnection}>Konto für diesen Test bestätigen</Action>
-          </Card>}
-          {(c.connection.phase === 'mismatch' || c.connection.phase === 'error' || c.connection.phase === 'unknown' || c.connection.phase === 'login-required') && <Card>
-            <Label>{c.connection.phase === 'mismatch' ? 'Konto oder Verein stimmt nicht mit der bestätigten Zuordnung überein. Kein Import.' : 'Sitzung oder Netzwerk nicht aktuell bestätigt. Gespeicherte Flüge bleiben verfügbar. Bei Bedarf auf der Originalseite erneut anmelden.'}</Label>
-          </Card>}
           <Card><Section title="Begrenzter Rohabruf" />
             <Label muted>Entwicklungsnachweis: Der Abruf speichert rohe Anbieterbelege separat. Er ersetzt keine Flüge in der synthetischen Bibliothek und erzeugt keinen kanonischen Live-Import.</Label>
             <Label>Zeitraum einschließlich (JJJJ-MM-TT)</Label>

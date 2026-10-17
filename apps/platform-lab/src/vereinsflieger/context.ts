@@ -43,7 +43,7 @@ export const LOGIN_REQUIRED_SOURCE = String.raw`() => {
   if (!form || passwords[0].form !== form || buttons[0].form !== form || form.method.toLowerCase() !== 'post' || new URL(form.getAttribute('action') || location.href, location.href).href !== location.href) return { error:'login-layout-unavailable' };
   return { error:'session-required' };
 }`;
-export function loginRequiredScript(nonce: string) { return `window.ReactNativeWebView?.postMessage(JSON.stringify({kind:'vf-context-v1',nonce:${JSON.stringify(nonce)},url:location.href,context:(${LOGIN_REQUIRED_SOURCE})()}));true;`; }
+export function loginRequiredScript(nonce: string) { return `window.ReactNativeWebView?.postMessage(JSON.stringify({kind:'vf-login-required-v1',nonce:${JSON.stringify(nonce)},url:location.href,context:(${LOGIN_REQUIRED_SOURCE})()}));true;`; }
 export function scopedBridge(source: string, document: string, expected: string) {
   if (!providerUrl(source) || !providerUrl(document) || !providerUrl(expected)) return false;
   const s = new URL(source), d = new URL(document), e = new URL(expected);

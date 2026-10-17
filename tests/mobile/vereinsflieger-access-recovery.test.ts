@@ -153,10 +153,10 @@ function fixture(options: { priorCapture?: probe.ProbeSnapshot; deferJournalSave
       data: JSON.stringify({ ...command, url: FLIGHT_URL, accountLabel: original.accountLabel, ...payload }) } });
     return flush();
   }
-  async function contextMessage(observed: unknown, sender = context.PROFILE_URL, nonce?: string, documentUrl = context.PROFILE_URL) {
+  async function contextMessage(observed: unknown, sender = context.PROFILE_URL, nonce?: string, documentUrl = context.PROFILE_URL, kind = 'vf-context-v1') {
     const web = find(render(), element => element.type === 'WebView'); assert.ok(web);
     const token = nonce ?? /nonce:"([^"]+)"/.exec(injections.at(-1) ?? '')?.[1]; assert.ok(token, 'Missing issued context nonce');
-    (web.props.onMessage as (event: unknown) => void)({ nativeEvent: { url: sender, data: JSON.stringify({ kind: 'vf-context-v1', nonce: token, url: documentUrl, context: observed }) } });
+    (web.props.onMessage as (event: unknown) => void)({ nativeEvent: { url: sender, data: JSON.stringify({ kind, nonce: token, url: documentUrl, context: observed }) } });
     return flush();
   }
   return { render, button, press, settle, find, flush, loadPage, loadFlight, message, currentCommand, writes, injections,
@@ -186,7 +186,7 @@ test('fresh protected-profile redirect to the exact login root verifies sign-out
   const f = fixture({ product: true }); f.render(); await f.settle(null); await establishProductAssociation(f);
   f.controller().startDisconnect(); f.controller().checkDisconnection();
   await f.loadPage(context.PROFILE_URL); await f.loadPage(probe.LOGIN_URL);
-  await f.contextMessage({ error: 'session-required' }, probe.LOGIN_URL, undefined, probe.LOGIN_URL);
+  await f.contextMessage({ error: 'session-required' }, probe.LOGIN_URL, undefined, probe.LOGIN_URL, 'vf-login-required-v1');
   assert.equal(f.controller().connection.phase, 'disconnected');
   assert.ok(f.controller().disconnectedAt);
 
@@ -194,22 +194,32 @@ test('fresh protected-profile redirect to the exact login root verifies sign-out
   foreign.controller().startDisconnect(); foreign.controller().checkDisconnection();
   await foreign.loadPage(context.PROFILE_URL); await foreign.loadPage(probe.LOGIN_URL);
   const nonce = /nonce:"([^\"]+)"/.exec(foreign.injections.at(-1)!)![1]!;
-  await foreign.contextMessage({ error: 'session-required' }, 'https://evil.example/', nonce, probe.LOGIN_URL);
-  await foreign.contextMessage({ error: 'session-required' }, probe.LOGIN_URL, 'stale-root-nonce', probe.LOGIN_URL);
-  await foreign.contextMessage({ unexpected: true }, probe.LOGIN_URL, nonce, probe.LOGIN_URL);
+  await foreign.contextMessage({ error: 'session-required' }, 'https://evil.example/', nonce, probe.LOGIN_URL, 'vf-login-required-v1');
+  await foreign.contextMessage({ error: 'session-required' }, probe.LOGIN_URL, 'stale-root-nonce', probe.LOGIN_URL, 'vf-login-required-v1');
+  await foreign.contextMessage({ unexpected: true }, probe.LOGIN_URL, nonce, probe.LOGIN_URL, 'vf-login-required-v1');
   assert.notEqual(foreign.controller().connection.phase, 'disconnected');
   assert.equal(foreign.controller().disconnectedAt, null);
+
+  const raced = fixture({ product: true }); raced.render(); await raced.settle(null); await establishProductAssociation(raced);
+  raced.controller().startDisconnect(); raced.controller().checkDisconnection();
+  await raced.loadPage(context.PROFILE_URL); await raced.loadPage(probe.LOGIN_URL);
+  const racedNonce = /nonce:"([^\"]+)"/.exec(raced.injections.at(-1)!)![1]!;
+  // A profile-context response can race navigation and must never count as the root detector's proof.
+  await raced.contextMessage({ error: 'session-required' }, probe.LOGIN_URL, racedNonce, probe.LOGIN_URL, 'vf-context-v1');
+  assert.notEqual(raced.controller().connection.phase, 'disconnected');
+  await raced.contextMessage({ error: 'session-required' }, probe.LOGIN_URL, racedNonce, probe.LOGIN_URL, 'vf-login-required-v1');
+  assert.equal(raced.controller().connection.phase, 'disconnected');
 
   const normal = fixture({ product: true }); normal.render(); await normal.settle(null); await normal.flush();
   normal.controller().connect(); await normal.loadPage(probe.LOGIN_URL);
   normal.controller().checkConnection(); await normal.loadPage(context.PROFILE_URL); await normal.loadPage(probe.LOGIN_URL);
-  await normal.contextMessage({ error: 'session-required' }, probe.LOGIN_URL, undefined, probe.LOGIN_URL);
+  await normal.contextMessage({ error: 'session-required' }, probe.LOGIN_URL, undefined, probe.LOGIN_URL, 'vf-login-required-v1');
   assert.equal(normal.controller().connection.phase, 'login-required', 'The same supported evidence during a normal check requests sign-in');
 
   const unavailable = fixture({ product: true }); unavailable.render(); await unavailable.settle(null); await unavailable.flush();
   unavailable.controller().connect(); await unavailable.loadPage(probe.LOGIN_URL);
   unavailable.controller().checkConnection(); await unavailable.loadPage(context.PROFILE_URL); await unavailable.loadPage(probe.LOGIN_URL);
-  await unavailable.contextMessage({ error: 'login-layout-unavailable' }, probe.LOGIN_URL, undefined, probe.LOGIN_URL);
+  await unavailable.contextMessage({ error: 'login-layout-unavailable' }, probe.LOGIN_URL, undefined, probe.LOGIN_URL, 'vf-login-required-v1');
   assert.equal(unavailable.controller().connection.phase, 'error', 'An unsupported login layout is not proof of sign-out');
 });
 

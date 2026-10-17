@@ -141,7 +141,8 @@ export function useAccessController(product = false) {
     if (!request || !session.current.owns(request.nonce) || !scopedBridge(event.nativeEvent.url, currentUrl.current, expected) || event.nativeEvent.data.length > 2000) return;
     try {
       const message = JSON.parse(event.nativeEvent.data);
-      if (message.kind !== 'vf-context-v1' || message.nonce !== request.nonce || message.url !== expected) return;
+      const expectedKind = expected === LOGIN_URL ? 'vf-login-required-v1' : 'vf-context-v1';
+      if (message.kind !== expectedKind || message.nonce !== request.nonce || message.url !== expected) return;
       if (request.action === 'disconnect') {
         clearContextRequest(); afterConfirmation.current = null;
         if (message.context?.error === 'session-required') {
