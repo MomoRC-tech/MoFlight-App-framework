@@ -79,8 +79,10 @@ export function useAccessController(product = false, localOwner?: string) {
   useEffect(() => { let active = true; if (!product) void readSavedLogin().then(login => { if (active) setHasLogin(!!login); }).catch(() => { if (active) setStatus('Protected login storage could not be opened. Existing captures remain available.'); }); return () => { active = false; loginAttempt.current = null; if (loginTimer.current) clearTimeout(loginTimer.current); }; }, []);
   useEffect(() => { let active = true; void (async () => {
     if (product && owner.current !== activeOwner.current) throw new Error('Owner changed; create a new controller.');
-    const fingerprint = product ? await legacyRecoveryFingerprint() : null;
-    let v = product ? null : await readOriginalView();
+    const nativeLegacy = product && legacyRecoveryAvailable;
+    const fingerprint = nativeLegacy ? await legacyRecoveryFingerprint() : null;
+    const legacy = nativeLegacy ? null : await readOriginalView();
+    let v = product ? null : legacy;
     if (product) {
       if (!owner.current) throw new Error('Explicit local owner required.');
       const saved = await loadProviderScope(owner.current);
@@ -88,7 +90,7 @@ export function useAccessController(product = false, localOwner?: string) {
       scope.current = saved;
       if (saved) session.current.restoreAssociation(saved.context);
       legacyFingerprint.current = fingerprint;
-      legacyPending.current = await legacyQuarantined(saved, fingerprint);
+      legacyPending.current = nativeLegacy ? await legacyQuarantined(saved, fingerprint) : !!legacy;
       // Never infer ownership of the historical global journal or capture.
       v = saved ? await loadScopedView(saved) : null;
       if (saved) { const capture = await loadScopedCapture(saved); if (active) setSnapshot(capture); }
@@ -120,9 +122,10 @@ export function useAccessController(product = false, localOwner?: string) {
     if (owner.current !== activeOwner.current || clearingStore.current || bindingBusy.current || !product || retrieval.current.state.phase !== 'idle' || contextRequest.current) return;
     recoveryKnown.current = false; setViewReady(false);
     try {
-      const fingerprint = await legacyRecoveryFingerprint();
+      const fingerprint = legacyRecoveryAvailable ? await legacyRecoveryFingerprint() : null;
+      const fallbackPending = !legacyRecoveryAvailable && !!await readOriginalView();
       const saved = scope.current ? await loadScopedView(scope.current) : null;
-      const unresolved = await legacyQuarantined(scope.current, fingerprint);
+      const unresolved = fallbackPending || await legacyQuarantined(scope.current, fingerprint);
       if (!mounted.current || owner.current !== activeOwner.current) return;
       legacyFingerprint.current = fingerprint; legacyPending.current = unresolved;
       original.current = saved; recoveryKnown.current = true; setRecovery(!!saved || unresolved); setViewReady(true);

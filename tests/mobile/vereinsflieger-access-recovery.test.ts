@@ -34,7 +34,7 @@ const source = ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/
 const controllerSource = ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/vereinsflieger/use-access-controller.tsx', import.meta.url), 'utf8'), {
   compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.React, esModuleInterop: false },
 }).outputText;
-function fixture(options: { failLegacyRead?: boolean; failSafety?: boolean; deferSafety?: boolean; failReceipt?: boolean; deferClear?: boolean; failClear?: boolean; persistedScope?: ProviderScope; scopedView?: ViewPreferences; deferBinding?: boolean; failBinding?: boolean; priorCapture?: probe.ProbeSnapshot; deferJournalSave?: boolean; deferCaptureSave?: boolean; product?: boolean; deferLoginRead?: boolean; failLoginRead?: boolean; savedLogin?: { username: string; password: string } | null; failLoginForget?: boolean; deferLoginForget?: boolean } = {}) {
+function fixture(options: { noNativeRecovery?: boolean; failLegacyRead?: boolean; failSafety?: boolean; deferSafety?: boolean; failReceipt?: boolean; deferClear?: boolean; failClear?: boolean; persistedScope?: ProviderScope; scopedView?: ViewPreferences; deferBinding?: boolean; failBinding?: boolean; priorCapture?: probe.ProbeSnapshot; deferJournalSave?: boolean; deferCaptureSave?: boolean; product?: boolean; deferLoginRead?: boolean; failLoginRead?: boolean; savedLogin?: { username: string; password: string } | null; failLoginForget?: boolean; deferLoginForget?: boolean } = {}) {
   let resolveJournal!: (view: ViewPreferences | null) => void, rejectJournal!: (error: Error) => void;
   const journal = new Promise<ViewPreferences | null>((resolve, reject) => { resolveJournal = resolve; rejectJournal = reject; });
   const hooks: unknown[] = [], effects: (() => void)[] = [];
@@ -102,7 +102,7 @@ function fixture(options: { failLegacyRead?: boolean; failSafety?: boolean; defe
         savedCapture = value; writes.push('capture-saved');
       },
     },
-    './session-store': { legacyRecoveryAvailable: true, legacyRecoveryFingerprint: async () => await journal ? currentFingerprint : null,
+    './session-store': { legacyRecoveryAvailable: !options.noNativeRecovery, legacyRecoveryFingerprint: async () => { assert.equal(options.noNativeRecovery, undefined); return await journal ? currentFingerprint : null; },
       readReviewedRecovery: async () => { writes.push('legacy-read'); if (options.failLegacyRead) throw new Error('Synthetic legacy mismatch'); return original; },
       sessionClearingAvailable: true, sessionProofAvailable: false, clearProviderStore: async () => { clearCalls++; if (options.deferClear) await clearWrite; if (options.failClear) throw new Error('Synthetic clear failure'); }, proveSyntheticStore: async () => false },
     './scoped-storage': {
@@ -1276,6 +1276,16 @@ test('failed exact legacy read and foreign fresh provider context cannot create 
   foreign.controller().requestLegacyRecovery('ab'.repeat(32)); await foreign.loadPage(context.PROFILE_URL);
   await foreign.contextMessage({ ...observedContext, accountNumber: '456' });
   assert.deepEqual(foreign.writes, []); assert.equal(foreign.controller().connection.phase, 'mismatch');
+});
+
+test('platforms without recovery module retain ordinary startup and quarantine without gaining legacy replay', async () => {
+  for (const legacy of [null, original]) {
+    const f = fixture({ product: true, noNativeRecovery: true }); f.render(); await f.settle(legacy); for(let i=0;i<4;i++) await f.flush();
+    assert.equal(f.controller().viewReady, true); assert.equal(f.controller().recovery, !!legacy);
+    assert.equal(f.controller().legacyRecoveryAvailable, false);
+    await establishProductAssociation(f); f.controller().requestLegacyRecovery('ab'.repeat(32));
+    assert.equal(f.writes.length, 0); assert.equal(f.controller().busy, false);
+  }
 });
 
 test('association persistence is serialized and a backgrounded confirmation cannot resume retrieval', async () => {

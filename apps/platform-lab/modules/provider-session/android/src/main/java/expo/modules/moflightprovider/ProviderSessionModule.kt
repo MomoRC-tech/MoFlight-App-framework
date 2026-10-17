@@ -32,7 +32,7 @@ class ProviderSessionModule : Module() {
     AsyncFunction("readReviewedRecoveryAsync") { expected: String, promise: Promise ->
       try {
         if (!expected.matches(Regex("[a-f0-9]{64}"))) throw IllegalStateException()
-        val payload = readLegacyPayload() ?: throw IllegalStateException()
+        val payload = readLegacyPayload(requireLab = true) ?: throw IllegalStateException()
         if (fingerprint(payload) != expected) throw IllegalStateException()
         promise.resolve(payload)
       } catch (_: Exception) { promise.reject("E_RECOVERY", "Reviewed recovery unavailable", null) }
@@ -111,9 +111,14 @@ class ProviderSessionModule : Module() {
   private fun fingerprint(payload: String): String = MessageDigest.getInstance("SHA-256")
     .digest(payload.toByteArray(Charsets.UTF_8)).joinToString("") { "%02x".format(it.toInt() and 0xff) }
 
-  private fun readLegacyPayload(): String? {
-    val avd = ProcessBuilder("/system/bin/getprop", "ro.boot.qemu.avd_name").start().inputStream.bufferedReader().use { it.readText().trim() }
-    if (avd !in setOf("MoFlight_API37", "MoFlight_Synthetic_API37") || running) throw IllegalStateException()
+  private fun readLegacyPayload(requireLab: Boolean = false): String? {
+    if (running) throw IllegalStateException()
+    // The startup state gate replaces an existing all-device journal read with
+    // a read-only hash. Full recovery payload access remains lab-only.
+    if (requireLab) {
+      val avd = ProcessBuilder("/system/bin/getprop", "ro.boot.qemu.avd_name").start().inputStream.bufferedReader().use { it.readText().trim() }
+      if (avd !in setOf("MoFlight_API37", "MoFlight_Synthetic_API37")) throw IllegalStateException()
+    }
     val context = appContext.reactContext ?: throw IllegalStateException()
     val file = File(context.filesDir, "SQLite/vereinsflieger-access-probe.sqlite")
     if (!file.isFile) return null
