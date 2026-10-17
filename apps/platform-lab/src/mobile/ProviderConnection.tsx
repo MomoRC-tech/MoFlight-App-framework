@@ -6,6 +6,7 @@ import type { useAccessController } from '../vereinsflieger/use-access-controlle
 import { providerUrl } from '../vereinsflieger/probe';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LegacyRecoveryReview } from './LegacyRecoveryReview';
+import { RawCaptureReview } from './RawCaptureReview';
 
 type Controller = ReturnType<typeof useAccessController>;
 export function ConnectionIndicator({ controller: c, onPress }: { controller: Controller; onPress: () => void }) {
@@ -102,6 +103,7 @@ export function ProviderConnection({ controller: c, open, close }: { controller:
             {c.result === 'cancelled' && <Label>Abruf abgebrochen. Frühere Daten bleiben erhalten.</Label>}
             {c.result === 'review-required' && <Label>Private Entscheidung zur abweichenden Ansicht erforderlich. Noch keine Wiederherstellung ausgeführt.</Label>}
             {c.result === 'recovered' && <Label>Geprüfte Wiederherstellung abgeschlossen. Alter Beleg unverändert erhalten; keine alten Rohdaten übernommen.</Label>}
+            {open && !locked && !c.recovery && c.connection.phase === 'observed' && c.connection.confirmed && <RawCaptureReview key={c.snapshot?.captureId} snapshot={c.snapshot} />}
             {c.sessionProofAvailable && <><Action secondary disabled={locked || c.recovery} onPress={() => { void c.clearLocalSession(true); }}>Synthetischer Browserstore-Test</Action><Label muted>Entwicklungstest nur auf MoFlight_Synthetic_API37; auf anderen Geräten nativ gesperrt.</Label></>}
             {c.proofNotice !== 'none' && <Label>{c.proofNotice === 'passed' ? 'Synthetischer Store-Test bestanden: Cookies, Webspeicher und neues Dokument geprüft; SQLite und SecureStore erhalten.' : 'Synthetischer Store-Test nicht bestanden oder Gerät gesperrt.'}</Label>}
           </Card>
