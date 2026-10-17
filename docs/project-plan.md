@@ -1,5 +1,9 @@
 # MoFlight project plan
 
+## Current M1 correction — fixed header, profile and Flugbuch
+
+On 17 October 2026 Manuel reported testing the phone demo and authorized the agreed UI fixes. Implement the compact pinned approved-logo header, user/settings entry, recognizable aircraft icon, fifth Flugbuch destination and segmented real-data season rings before expanding services. [Deliverable, dependencies and acceptance](product/2026-10-17-native-shell-corrections.md). Reuse Issues #5/#1/#8/#12; preserve pending production/auth/live and physical-retest gates. User-reported testing does not establish specific device/pass evidence. This supersedes earlier four-tab current-target statements below.
+
 ## Immediate deliverable — phone demo and physical smoke test
 
 Manuel agreed on 16 October 2026 to package the existing M1 demo for a compatible Android phone and run a short physical-device check before expanding functionality. Dependencies: committed four-screen application, local ARM64 Release packaging, identified phone/Android version, and observed checklist results. Existing Issue #5 remains the tracking task. [Handoff and measured packaging](verification/2026-10-16-phone-demo-handoff.md); [acceptance checklist](verification/2026-10-16-physical-phone-checklist.md). Physical testing remains pending; emulator/build results do not close this gate. Subsequent retrieval/history/analytics priorities remain in order after this checkpoint.

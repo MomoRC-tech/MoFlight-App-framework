@@ -3,6 +3,8 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import type { Flight } from '@moflight/flight-logbook';
 import { Card, GliderMark, Label, Photo, Section, colors, ui } from './theme';
 import { formatDuration, selectFlights, summarizeFlights } from './flight-model';
+import { aircraftSeasonShares, seasonRingSlices } from './season-model';
+import { SeasonRing } from './SeasonRing';
 
 const sunset = require('../../assets/aviation/gliding-sunset.jpg');
 const windsock = require('../../assets/aviation/windsock.jpg');
@@ -13,7 +15,11 @@ interface Props {
 }
 export function Dashboard({ flights, pending, width, fontScale, onPaper, onAi, onFlights, onDetail, onClub, onStatus }: Props) {
   const year = new Date().getFullYear();
-  const season = summarizeFlights(selectFlights(flights, { year, search: '', category: 'all' }));
+  const seasonFlights = selectFlights(flights, { year, search: '', category: 'all' });
+  const season = summarizeFlights(seasonFlights);
+  const aircraft = aircraftSeasonShares(seasonFlights);
+  const countDescription = `${season.count} gespeicherte Flüge ${year}. Verteilung nach Kennzeichen: ${aircraft.map(share => `${share.aircraft}: ${share.count}`).join(', ') || 'keine Flüge'}. Saisonflüge öffnen.`;
+  const timeDescription = `${formatDuration(season.knownMinutes)} bekannte Flugstunden ${year}. Verteilung nach Kennzeichen: ${aircraft.map(share => `${share.aircraft}: ${formatDuration(share.knownMinutes)} Stunden${share.unknownDurationCount ? `, ${share.unknownDurationCount} Zeiten unbekannt` : ''}`).join(', ') || 'keine Flüge'}. Saisonflüge öffnen.`;
   const ordered = selectFlights(flights, { year: null, search: '', category: 'all' });
   const latest = ordered.find(f => f.date !== null);
   const day = latest ? ordered.filter(f => f.date === latest.date) : [];
@@ -33,11 +39,11 @@ export function Dashboard({ flights, pending, width, fontScale, onPaper, onAi, o
       </Photo>
     </Card>;
   const seasonCards = <View style={[groupStyle, pairStyle]}>
-      <Card style={[styles.season, { width: leftWidth }, largeText && styles.noFlex]} onPress={() => onFlights(year)} label={`Deine Saison ${year}, Flüge öffnen`}>
+      <Card style={[styles.season, { width: leftWidth }, largeText && styles.noFlex]} onPress={() => onFlights(year)} label={`Deine Saison ${year}. ${countDescription} ${timeDescription}`}>
         <View style={ui.section}><Section title="Deine Saison" /><View style={styles.yearBadge}><Label style={styles.small}>{year}</Label></View></View>
         <View style={styles.seasonMetrics}><View style={styles.metric}><Text style={styles.value}>{season.count}</Text><Label muted>Flüge</Label></View><View style={styles.metric}><Text style={styles.value}>{formatDuration(season.knownMinutes)}</Text><Label muted>bekannte Std.</Label></View></View>
         <Label muted style={styles.small}>Gespeicherte Saison · Vergleich offen</Label>
-        {!largeText && season.count < 1000 && formatDuration(season.knownMinutes).length <= 5 && <View style={styles.rings}><View style={styles.ring}><Label style={styles.ringValue}>{season.count}</Label><Label style={styles.ringLabel}>Flüge</Label></View><View style={[styles.ring, { borderColor: colors.green }]}><Label style={styles.ringValue}>{formatDuration(season.knownMinutes)}</Label><Label style={styles.ringLabel}>bekannte h</Label></View></View>}
+        {!largeText && season.count < 1000 && formatDuration(season.knownMinutes).length <= 5 && <View style={styles.rings}><SeasonRing slices={seasonRingSlices(aircraft, 'count')} value={String(season.count)} label="Flüge" description={countDescription} /><SeasonRing slices={seasonRingSlices(aircraft, 'knownMinutes')} value={formatDuration(season.knownMinutes)} label="bekannte h" description={timeDescription} /></View>}
         {season.unknownDurationCount > 0 && <Label muted style={styles.small}>{season.unknownDurationCount} Zeiten unbekannt</Label>}
       </Card>
       <Card style={[styles.ai, { width: rightWidth }, largeText && styles.noFlex]} onPress={onAi} label="MoFlight AI öffnen">
@@ -71,7 +77,7 @@ const styles = StyleSheet.create({
   orangeButton: { backgroundColor: '#ff762b', experimental_backgroundImage: 'linear-gradient(180deg, #ff963e, #ff621f)', minHeight: 36, paddingVertical: 7, borderRadius: 15, justifyContent: 'center', alignSelf: 'flex-start', paddingHorizontal: 18, marginTop: 2 },
   season: { minWidth: 0, minHeight: 194, gap: 5 }, yearBadge: { paddingHorizontal: 7, borderRadius: 12, backgroundColor: '#1b4269' },
   seasonMetrics: { flexDirection: 'row', gap: 5, justifyContent: 'space-between' }, metric: { flexShrink: 1 }, value: { color: colors.text, fontSize: 24, lineHeight: 29, fontWeight: '700' },
-  rings: { flexDirection: 'row', justifyContent: 'space-between', gap: 6, flexWrap: 'wrap', marginTop: 2 }, ring: { width: 62, height: 62, borderRadius: 31, borderWidth: 6, borderColor: colors.cyan, alignItems: 'center', justifyContent: 'center', backgroundColor: '#061626' }, ringValue: { fontSize: 15, lineHeight: 19, fontWeight: '700' }, ringLabel: { fontSize: 9, lineHeight: 12 },
+  rings: { flexDirection: 'row', justifyContent: 'space-between', gap: 6, flexWrap: 'wrap', marginTop: 2 },
   ai: { minWidth: 0, minHeight: 194, backgroundColor: '#181854', experimental_backgroundImage: 'linear-gradient(145deg, #292276, #101c45, #53165e)', borderColor: '#6853b5', justifyContent: 'space-between' },
   sparkle: { fontSize: 27, lineHeight: 32, color: '#d59bff' }, aiQuestion: { backgroundColor: '#181c5988', borderColor: '#3c4492', borderWidth: 1, borderRadius: 12, padding: 8 }, arrow: { width: 34, height: 34, borderRadius: 17, borderWidth: 1, borderColor: '#426cbe', backgroundColor: '#173a7a', alignItems: 'center', justifyContent: 'center' },
   flight: { minWidth: 0, minHeight: 166, gap: 3 }, club: { minWidth: 0, padding: 0, minHeight: 166 },

@@ -1,4 +1,4 @@
-"""Capture the four native tabs at MIN/MAIN/MAX widths on the synthetic AVD.
+"""Capture the five native tabs at MIN/MAIN/MAX widths on the synthetic AVD.
 
 Requires an installed APK and the already selected synthetic book. Never seeds,
 clears or injects data. Saves screenshot/XML evidence; visual fidelity still
@@ -15,8 +15,8 @@ from android_mobile_ui_smoke import launch, tab
 
 
 AVD = 'MoFlight_Synthetic_API37'
-TABS = [('Übersicht', 'home'), ('Flüge', 'flights'), ('Verein', 'club'), ('AI', 'ai')]
-VIEWPORTS = [(360, 900, 1.0), (390, 900, 1.0), (411, 900, 1.0),
+TABS = [('Übersicht', 'home'), ('Flüge', 'flights'), ('Flugbuch', 'logbook'), ('Verein', 'club'), ('AI', 'ai')]
+VIEWPORTS = [(360, 900, 1.0), (390, 900, 1.0), (412, 900, 1.0),
              (600, 1100, 1.0), (840, 1100, 1.0), (360, 900, 1.4), (600, 1100, 1.4)]
 
 

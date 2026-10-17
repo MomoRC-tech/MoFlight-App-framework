@@ -1,5 +1,9 @@
 # MoFlight app design
 
+## Native correction v0.34 — 17 October 2026
+
+Manuel authorized the [native shell corrections](2026-10-17-native-shell-corrections.md): five tabs (Übersicht, Flüge, Flugbuch, Verein, AI); smaller fixed header with the approved Thermik logo and top-right profile/settings; recognizable aircraft icon; segmented aircraft-share season rings. The reference remains authoritative for cards/colors, with these explicit navigation/header changes taking precedence. Earlier four-tab targets and prototype approvals below are historical; no new cloud/auth/service acceptance is implied.
+
 ## Native fidelity v0.33 — 16 October 2026
 
 Manuel requires near pixel-perfect layout reproduction of the existing approved composite, with MIN 360 dp, MAIN 390–412 dp and MAX 600+ dp verification. The [refinement brief](2026-10-16-ui-fidelity-refinement.md) preserves this target. Header/card/control geometry and colors follow that image; no alternative composition is selected. Tablet adaptation bounds the same card groups and uses columns; enlarged text returns to stacked layouts. [Native evidence](../verification/2026-10-16-ui-fidelity-width-matrix.md) records actual results and remaining photographic/data-state differences. Earlier versions below are retained history.
