@@ -10,6 +10,10 @@ On 17 October 2026 Manuel reported testing the phone demo and authorized the agr
 
 ## Immediate deliverable — phone demo and physical smoke test
 
+Current bounded package under #8/#5: use the [17 October five-tab retest checklist and reply template](verification/2026-10-17-physical-phone-checklist.md) for source `db15203` and the updated ARM64 APK. Preparation verifies the existing artifact; acceptance requires actual updated Pixel 6a observations and tracked reproducible regressions. The older checklist below remains historical. No updated physical acceptance or connector implementation is implied.
+
+Manuel's follow-up on 17 October confirms Android 17 and defers further physical testing for now. Keep the gate open without requesting more tests until he resumes; this deferral does not waive acceptance or authorize service expansion.
+
 Manuel agreed on 16 October 2026 to package the existing M1 demo for a compatible Android phone and run a short physical-device check before expanding functionality. Dependencies: committed four-screen application, local ARM64 Release packaging, identified phone/Android version, and observed checklist results. Existing Issue #5 remains the tracking task. [Handoff and measured packaging](verification/2026-10-16-phone-demo-handoff.md); [acceptance checklist](verification/2026-10-16-physical-phone-checklist.md). Physical testing remains pending; emulator/build results do not close this gate. Subsequent retrieval/history/analytics priorities remain in order after this checkpoint.
 
 ## UI fidelity and width-matrix follow-up — 16 October 2026
