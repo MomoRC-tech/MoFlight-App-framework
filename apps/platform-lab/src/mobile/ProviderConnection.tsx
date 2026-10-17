@@ -27,7 +27,7 @@ export function ProviderConnection({ controller: c, open, close }: { controller:
   const login = open && c.visible;
   const label = connectionLabel(c.connection);
   const dismiss = () => { if (c.visible || checking) c.dismissLogin(); close(); };
-  return <View pointerEvents={open ? 'auto' : 'none'} style={[StyleSheet.absoluteFill, { zIndex: open ? 20 : -1, paddingTop: insets.top, paddingBottom: insets.bottom, backgroundColor: open ? colors.background : 'transparent' }]} accessibilityElementsHidden={!open} importantForAccessibility={open ? 'auto' : 'no-hide-descendants'} accessibilityViewIsModal={open}>
+  return <View pointerEvents={open ? 'auto' : 'none'} style={[StyleSheet.absoluteFill, { zIndex: open ? 20 : -1, opacity: open ? 1 : 0, paddingTop: insets.top, paddingBottom: insets.bottom, backgroundColor: colors.background }]} accessibilityElementsHidden={!open} importantForAccessibility={open ? 'auto' : 'no-hide-descendants'} accessibilityViewIsModal={open}>
     <View pointerEvents={login ? 'auto' : 'none'} style={[styles.browserFrame, { top: barHeight + loginHeight + insets.top, bottom: insets.bottom }, !login && styles.coveredBrowser]} accessibilityElementsHidden={!login} importantForAccessibility={login ? 'auto' : 'no-hide-descendants'}>
       {c.browser}
     </View>
