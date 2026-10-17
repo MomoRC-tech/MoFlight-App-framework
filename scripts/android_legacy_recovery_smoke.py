@@ -18,6 +18,22 @@ def labels(smoke):
     return [label for node in smoke.dump() for label in smoke.labels(node) if label]
 
 
+def private_choice_visible(visible):
+    # A long settings comparison can push its heading outside the viewport.
+    # Both value labels exist only in the explicit legacy-choice state.
+    return ('Aktuelle Ansicht weicht ab' in visible or
+            (any(x.startswith('Aktuell:') for x in visible) and any(x.startswith('Ziel:') for x in visible)) or
+            any(x.startswith('Sortierung aktuell:') and 'Ziel:' in x for x in visible))
+
+
+def recovery_control(smoke, text, *, exact=True, enabled=None):
+    """Return from a long private comparison without a fixed eight-swipe limit."""
+    try:
+        return smoke.find(text, exact=exact, enabled=enabled, attempts=1)
+    except AssertionError:
+        return smoke.find(text, exact=exact, enabled=enabled, scroll=True, up=False, attempts=64)
+
+
 def review(smoke, expected):
     panel_tap(smoke, 'Alte Wiederherstellung prüfen')
     node = panel_control(smoke, 'Journal-Prüfsumme:', exact=False)
@@ -77,7 +93,7 @@ def execute(args):
             outcome = None
             for _ in range(18):
                 visible = labels(smoke)
-                if 'Aktuelle Ansicht weicht ab' in visible:
+                if private_choice_visible(visible):
                     outcome = 'private-choice-required'; break
                 if any('Rohbelege gespeichert.' in x for x in visible):
                     raise AssertionError('Unexpected capture result')
@@ -96,8 +112,8 @@ def execute(args):
                     '# Private recovery choice\n\nThe current view differs from the reviewed target. '
                     'Its supported settings were saved locally before replay. No replay was chosen.\n\n' +
                     '\n\n'.join(details) + '\n\nChoose whether to restore the reviewed target while retaining the current-view safety evidence.\n', encoding='utf-8')
-                panel_control(smoke, 'Rohdaten abrufen', enabled=False)
-                panel_control(smoke, 'Lokale Anbietersitzung löschen', enabled=False)
+                recovery_control(smoke, 'Rohdaten abrufen', enabled=False)
+                recovery_control(smoke, 'Lokale Anbietersitzung löschen', enabled=False)
                 passed('private-difference-pauses-before-replay-with-quarantine')
             else:
                 passed('full-supported-readback-and-resolution')

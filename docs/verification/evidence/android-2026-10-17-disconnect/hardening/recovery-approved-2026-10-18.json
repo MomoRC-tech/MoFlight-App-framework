@@ -1,0 +1,44 @@
+{
+  "status": "passed",
+  "source_commit": "31a9aa66ccd7b83fa8db068575f626e814ab4c82",
+  "checks": [
+    {
+      "name": "named-provider-avd-and-installed-committed-source-apk-reverified",
+      "status": "passed"
+    },
+    {
+      "name": "all-five-private-comparison-fields-match-exact-user-approved-state",
+      "status": "passed"
+    },
+    {
+      "name": "explicit-approved-replay-requested-with-app-fresh-context-and-recapture-guards",
+      "status": "passed"
+    },
+    {
+      "name": "native-full-supported-restoration-readback-and-durable-resolution-reported",
+      "status": "passed"
+    },
+    {
+      "name": "retrieval-enabled-after-resolution-without-invoking-it",
+      "status": "passed"
+    },
+    {
+      "name": "process-restart-preserves-app-data-without-automatic-replay",
+      "status": "passed"
+    },
+    {
+      "name": "restart-and-fresh-matching-profile-retain-resolved-quarantine",
+      "status": "passed"
+    }
+  ],
+  "authorization": "Exact privately compared target replay approved by Manuel; #16 issuecomment-6242319828.",
+  "boundary": "No raw retrieval, clearing, backup replacement, legacy writes or raw adoption.",
+  "viewport": {
+    "width_px": 480,
+    "height_px": 800,
+    "density_dpi": 160,
+    "width_dp": 480.0,
+    "height_dp": 800.0,
+    "font_scale": 1.0
+  }
+}

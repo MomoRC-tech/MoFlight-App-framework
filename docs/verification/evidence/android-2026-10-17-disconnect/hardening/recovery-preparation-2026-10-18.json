@@ -1,0 +1,37 @@
+{
+  "status": "failed",
+  "source_commit": "31a9aa66ccd7b83fa8db068575f626e814ab4c82",
+  "checks": [
+    {
+      "name": "named-provider-avd-reverified",
+      "status": "passed"
+    },
+    {
+      "name": "installed-committed-source-apk-verified-without-reinstall",
+      "status": "passed"
+    },
+    {
+      "name": "fresh-associated-profile-check-returned-with-retrieval-quarantined",
+      "status": "passed"
+    },
+    {
+      "name": "legacy-journal-matches-exact-private-review",
+      "status": "passed"
+    },
+    {
+      "name": "explicit-recovery-preparation-requested",
+      "status": "passed"
+    }
+  ],
+  "boundary": "Approved recovery-only continuation; no credential action, export, clearing, source deletion or raw adoption.",
+  "viewport": {
+    "width_px": 480,
+    "height_px": 800,
+    "density_dpi": 160,
+    "width_dp": 480.0,
+    "height_dp": 800.0,
+    "font_scale": 1.0
+  },
+  "outcome": "private-choice-required",
+  "error": "Recovery continuation stopped; inspect ignored private hierarchy locally."
+}
