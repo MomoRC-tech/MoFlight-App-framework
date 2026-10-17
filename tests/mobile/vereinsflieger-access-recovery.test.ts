@@ -1237,6 +1237,8 @@ test('a differing private current view pauses without mutation and consent is bo
   await f.message({ kind: 'vf-view-v2', view: newer }); await f.flush();
   assert.equal(f.currentCommand().phase, 'restore');
   assert.deepEqual(f.pending(), original);
+  f.changeOwner('other-owner'); await f.flush();
+  assert.equal(f.controller().legacyChoice, null); assert.equal(f.controller().original.current, null);
 });
 
 test('legacy safety failure or interruption cannot run a restore command or waive quarantine', async () => {

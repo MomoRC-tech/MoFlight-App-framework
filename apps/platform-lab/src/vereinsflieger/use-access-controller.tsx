@@ -107,6 +107,7 @@ export function useAccessController(product = false, localOwner?: string) {
     // A write already dispatched remains durable, but its late completion must
     // never publish old-account data or restore preferences in a new owner UI.
     retrieval.current.dispose(); epoch.current++; setGeneration(epoch.current);
+    legacyRequest.current = null; legacyAttempt.current = null; legacyFingerprint.current = null; setLegacyChoice(null);
     recoveryKnown.current = false; original.current = null; scope.current = null;
     setSnapshot(null); setLastSuccessfulCaptureAt(null); setBrowserActive(false); setVisible(false); setBusy(false); setRecovery(true); setViewReady(false);
     if (loginAttempt.current) endLogin('Local owner changed. Saved sign-in cancelled.', 'cancelled');
