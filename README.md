@@ -7,6 +7,8 @@
 
 # MoFlight
 
+> **Current status and open work — 17 October 2026:** [All 15 open issues and remaining gates](docs/verification/2026-10-17-current-status-and-open-issues.md). The updated phone retest remains next. [Vereinsflieger header status and login popup](docs/product/2026-10-17-vereinsflieger-connection-ui.md) are captured for later implementation under #2.
+
 > **Native shell corrections — 17 October 2026:** implementation now targets five tabs (Übersicht / Flüge / Flugbuch / Verein / AI), a compact fixed header with the approved logo, top-right profile/settings and real-data segmented season rings. [Scope and acceptance](docs/product/2026-10-17-native-shell-corrections.md). Manuel reports having tested the prior demo; detailed physical outcomes remain unrecorded. Earlier four-tab evidence is historical. [Verified corrections and screenshots](docs/verification/2026-10-17-native-shell-corrections.md): 136 mobile tests and 71 synthetic native checkpoints passed on source `db15203`; updated Pixel 6a retest remains pending.
 
 > **Phone demo next gate — 16 October 2026:** Manuel approved a phone-compatible demo APK and a short physical-device check before more functionality. See the [handoff record](docs/verification/2026-10-16-phone-demo-handoff.md) and [manual checklist](docs/verification/2026-10-16-physical-phone-checklist.md). Physical-device acceptance remains pending until actual observations are recorded.
@@ -104,7 +106,7 @@ See [product scope](docs/product/moflight-feature-scope.md), [writing presentati
 | Area | Where it stands |
 | --- | --- |
 | User journeys | Reviewed; detailed UI/application contracts remain open |
-| UI design | v0.30 increases popup and Back-button contrast and adds a compact visible Med label while preserving the header height. A 320 px browser review covered the popup, Back routes and aircraft disclosure; measured header/season/medical heights remained 66/48/48 px. The v0.28 twin-ring summary and v0.26 Wetter placeholder, goals and synthetic medical reminder carry forward. Manuel's visual review, detailed contracts and native acceptance remain open |
+| UI design | Approved-reference native shell implemented with five tabs, fixed logo header, local profile and segmented rings; historical HTML alternatives remain separate. Full application contracts/service integration and updated physical retest are open |
 | Native foundation | Expo/React Native lab with local SQLite, backup and bounded Android evidence |
 | Vereinsflieger access | Browser raw-capture and recovery proofs; complete canonical live history remains gated |
 | Statistics and books | Deterministic synthetic queries and multi-book proofs; live integration remains open |
@@ -118,7 +120,7 @@ The connected Figma Starter tool-call limit currently blocks transferring/refini
 | Milestone | Focus | Status |
 | --- | --- | --- |
 | M0 | Consolidate documentation | Complete for that scope |
-| M1 | Review UI and define application contracts | Discovery started; application implementation not started |
+| M1 | Native UI and application contracts | Bounded native shell implemented and tested; full contracts/acceptance remain open |
 | M2 | Reliable retrieval boundary | Existing lab partial; refactor planned |
 | M3 | Normalized, saved live history | Planned |
 | M4 | Reviewed initial analytics | Planned |
@@ -127,6 +129,8 @@ The connected Figma Starter tool-call limit currently blocks transferring/refini
 Writing assistance has immediate product value; its place in the smallest useful release needs an explicit review rather than automatic milestone reordering.
 
 ## Next action and unresolved decisions
+
+Retest the updated ARM64 demo on Pixel 6a before expanding functionality. Then refine the connection/application contracts and reliable retrieval boundary. Use the [complete open-issue index](docs/verification/2026-10-17-current-status-and-open-issues.md); the prototype review paragraphs below are retained design history and do not supersede the implemented native shell.
 
 Review **what goes where** in the [screen-content and placement inventory](docs/product/screen-content.md), independently of visual design. Stable item IDs support adding or moving content screen by screen; confirmed needs, draft placements and prototype gaps are distinguished.
 

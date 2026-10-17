@@ -4,6 +4,10 @@ Current update, 2026-10-11: Manuel authorized [verified filter-first capture](..
 
 Date: 2026-10-10. Product owner: Manuel Singer. Tracking: [FL-03](flight-logbook-user-stories.md), [#2](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/2). Browser-based route and automatic range selection confirmed by Manuel; detailed retrieval implementation below is proposed. An isolated bounded native access probe now verifies Android original-page login, session reuse, capture of 20 visible rows and offline reopening on the Windows API 37 emulator; see [desktop evidence](../verification/2026-10-10-windows-desktop.md#live-android-bounded-capture-and-restart). Long-lived saved-login behavior, verified identity/time basis and complete retrieval remain open. Full product integration remains open.
 
+## Current product UI follow-up — 17 October 2026
+
+The [header status/login popup proposal](2026-10-17-vereinsflieger-connection-ui.md) captures Manuel's new request under existing #2. It is future work; the shell currently has no provider indicator and the developer tool still displays the provider WebView. Latest capture/recovery evidence is [12 October native validation](../verification/2026-10-12-local-validation-and-provider-gates.md): 101 records/two pages, restored supported preferences and manual same-account recovery. Older 20-row/unverified-paging descriptions below are historical; production identity, natural expiry, second-account isolation, hidden lifecycle, canonical import and iOS gates remain open.
+
 ## User story
 
 As a pilot, I want to connect my Vereinsflieger account inside MoFlight, keep that connection on my phone and retrieve my own flights with one action, so that I do not repeatedly type credentials, navigate Vereinsflieger or export files manually.
