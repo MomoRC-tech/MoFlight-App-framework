@@ -12,10 +12,13 @@ test('retrieval failure feedback distinguishes protected-view failures without e
   assert.match(retrievalFailureHint(unsupported), /nicht geändert/);
   assert.match(retrievalFailureHint('Export step timed out. Previous captures preserved; retry after checking provider login.'), /zu lange/);
   assert.equal(retrievalFailureHint(unsupported + ' Original provider view restored and verified.'), retrievalFailureHint(unsupported));
+  assert.match(retrievalFailureHint('Retrieval validation failed at export-read. Previous captures preserved. Original provider view restored and verified.'), /Flugzeilen und Seitenabdeckung/);
+  assert.match(retrievalFailureHint('Retrieval validation failed at view-backup-verify. Previous captures preserved.'), /gesicherten Anbieteransicht/);
   assert.match(retrievalFailureHint('Synthetic failure. Original view restoration is pending. Sign into the original account and retry restoration.'), /noch nicht wiederhergestellt/);
   const fallback = retrievalFailureHint('unknown');
   for (const privateValue of ['PRIVATE ACCOUNT / password / https://example.test/?token=secret', '__proto__', 'constructor', 'toString']) {
     assert.equal(retrievalFailureHint(privateValue), fallback);
+    assert.equal(retrievalFailureHint(`Retrieval validation failed at ${privateValue}. Previous captures preserved.`), fallback);
   }
 });
 

@@ -628,6 +628,24 @@ test('product retrieval waits for observed confirmation and rejects changed acco
   assert.deepEqual(f.writes, []);
 });
 
+test('export failure keeps its owned stage through verified cleanup without publishing provider error content', async () => {
+  const f = fixture({ product: true, priorCapture }); f.render(); await f.settle(null);
+  await establishProductAssociation(f);
+  f.controller().retrieve(); await f.loadFlight(); await backupVerified(f);
+  await f.message({ kind: 'vf-export-v1', status: 'next', preset: exporter.ACTIVE_EXPORT_VIEW });
+  assert.equal(f.currentCommand().phase, 'columns');
+  await f.message({ kind: 'vf-export-v1', error: 'PRIVATE PROVIDER CONTENT' });
+  assert.equal(f.controller().restoring.current, true);
+  assert.equal(f.savedCapture(), priorCapture);
+  await restoredReadback(f);
+  await f.message({ kind: 'vf-view-v2', status: 'next', view: restored });
+  await f.loadPage(context.PROFILE_URL); await f.contextMessage(observedContext);
+  assert.equal(f.pending(), null);
+  assert.equal(f.controller().result, 'failed');
+  assert.equal(f.controller().status, 'Retrieval validation failed at export-columns. Previous captures preserved. Original provider view restored and verified.');
+  assert.equal(f.savedCapture(), priorCapture);
+});
+
 test('product post-capture account mismatch preserves prior capture and recovery without modifying another account', async () => {
   const f = fixture({ product: true, priorCapture }); f.render(); await f.settle(null);
   f.controller().connect(); await f.loadPage(probe.LOGIN_URL);

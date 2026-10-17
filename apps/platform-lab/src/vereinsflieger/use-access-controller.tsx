@@ -442,7 +442,11 @@ export function useAccessController(product = false) {
       const data = result.complete;
       if (product) { pendingCapture.current = data; checkConnection('capture'); return; }
       await persistCompletedCapture(data);
-    } catch (error) { finish(viewPhase.current === 'snapshot' ? viewProtectionMessage(error) ?? 'Original view could not be protected because provider settings are unsupported. No export settings changed.' : 'Retrieval or local saving failed. Previous captures preserved. Sign in again if needed, then retry.', nonce); }
+    } catch (error) {
+      // Report only our owned stage, never provider payloads or exception text.
+      const stage = viewPhase.current ? `view-${viewPhase.current}` : run.current ? `export-${run.current.phase}` : 'capture';
+      finish(viewPhase.current === 'snapshot' ? viewProtectionMessage(error) ?? 'Original view could not be protected because provider settings are unsupported. No export settings changed.' : `Retrieval validation failed at ${stage}. Previous captures preserved.`, nonce);
+    }
   }
   async function completeRestoration() {
     const active = retrieval.current.state;

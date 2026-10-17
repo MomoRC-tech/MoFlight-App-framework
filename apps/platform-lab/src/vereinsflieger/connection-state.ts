@@ -86,6 +86,22 @@ export function connectionLabel(state: ConnectionState): string {
 export function retrievalFailureHint(status: string): string {
   const restored = ' Original provider view restored and verified.';
   const message = status.endsWith(restored) ? status.slice(0, -restored.length) : status;
+  const stages: Record<string, string> = {
+    'view-backup': 'Sichern der ursprünglichen Anbieteransicht',
+    'view-backup-load': 'Laden der gesicherten Anbieteransicht',
+    'view-backup-verify': 'Prüfen der gesicherten Anbieteransicht',
+    'view-restore': 'Wiederherstellen der ursprünglichen Anbieteransicht',
+    'view-verify': 'Prüfen der wiederhergestellten Anbieteransicht',
+    'export-reset': 'Vorbereiten der Exportansicht',
+    'export-columns': 'Prüfen der Exportspalten',
+    'export-clear': 'Prüfen der Exportfilter',
+    'export-participation': 'Prüfen der Beteiligungsrolle',
+    'export-period': 'Prüfen des Abrufzeitraums',
+    'export-read': 'Prüfen der Flugzeilen und Seitenabdeckung',
+    capture: 'Verarbeiten der Rohbelege',
+  };
+  const stage = /^Retrieval validation failed at ([a-z-]+)\. Previous captures preserved\.$/.exec(message)?.[1];
+  if (stage && Object.hasOwn(stages, stage)) return `${stages[stage]} fehlgeschlagen. Frühere Belege bleiben erhalten.`;
   const hints: Record<string, string> = {
     'Use valid inclusive dates in YYYY-MM-DD order.': 'Bitte gültige Datumsgrenzen im Format JJJJ-MM-TT eingeben.',
     'Provider context unavailable. Earlier captures and recovery journal retained.': 'Die Anbieteranmeldung konnte nicht erneut geprüft werden.',
