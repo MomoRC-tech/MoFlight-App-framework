@@ -180,13 +180,22 @@ const driver = String.raw`function(token, phase, request, expectedAccount) {
       if (ids.size > 1 || (ids.size === 1 && !ids.has(rowId))) throw new Error();
       rows.push({sourceFlightId:rowId,values:Array.from(row.cells).map(c => (c.innerText || '').replace(/\s+/g,' ').trim())});
     }
-    const footer = all('td.footer.f1').map(clean).find(t => /^Datensatz /.test(t));
-    const match = /^Datensatz (\d+) bis (\d+) von (\d+)$/.exec(footer || '');
+    const footers = all('td.footer.f1').map(clean);
+    const ranges = footers.filter(t => /^Datensatz /.test(t));
+    const singles = footers.filter(t => /^\d+ Datensätze$/.test(t));
+    if (ranges.length > 1 || singles.length > 1 || (ranges.length && singles.length)) throw new Error();
+    const match = /^Datensatz (\d+) bis (\d+) von (\d+)$/.exec(ranges[0] || '');
+    const single = /^(\d+) Datensätze$/.exec(singles[0] || '');
     const empty = rows.length === 0 && /Es wurden keine Daten gefunden/.test(clean(table));
-    if (!match && !empty) throw new Error();
-    const first = match ? Number(match[1]) : 0, last = match ? Number(match[2]) : 0, total = match ? Number(match[3]) : 0;
     const page = Number(new URL(location.href).searchParams.get('page') || '1');
-    const nextLink = all('a.pagebrowser').find(e => clean(e) === String(page+1));
+    const pageLinks = all('a.pagebrowser');
+    const nextLink = pageLinks.find(e => clean(e) === String(page+1));
+    // Observed native single-page form: "5 Datensätze". Its explicit total
+    // must equal every decoded row; rows alone never establish completeness.
+    if (single && (page !== 1 || pageLinks.length || Number(single[1]) !== rows.length || (!rows.length && !empty))) throw new Error();
+    if (!match && !single && !empty) throw new Error();
+    const total = match ? Number(match[3]) : single ? Number(single[1]) : 0;
+    const first = match ? Number(match[1]) : total ? 1 : 0, last = match ? Number(match[2]) : total;
     const configured = columnLists();
     send({status:'page',headers,rows,first,last,total,period:clean(q('#globalfilter')),participation:clean(q('#globalfilter2')),filtersClear:filtersClear(),allColumns:configured.available.every(presentation) && !configured.visible.some(presentation) && configured.visible.length === headers.length && configured.visible.every((e,i) => (clean(e) === '[leer]' ? '' : clean(e).replace(/\s*\(Bezahlt\)/,'(Bezahlt)')) === headers[i].replace(/\s*\(Bezahlt\)/,'(Bezahlt)')),columnIds:configured.visible.map(e=>e.getAttribute('value')),nextUrl:last<total && nextLink ? new URL(nextLink.getAttribute('href'),location.href).href:null});
   } catch { fail(); }

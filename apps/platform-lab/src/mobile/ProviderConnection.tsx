@@ -90,7 +90,7 @@ export function ProviderConnection({ controller: c, open, close }: { controller:
               <Action secondary disabled={c.saving || c.restoring.current} onPress={c.cancelRetrieval}>Abruf abbrechen</Action>
               <Action secondary onPress={close}>Während des Abrufs zur App</Action>
             </>}
-            {c.result === 'captured' && <Label>Rohbelege gespeichert. Identität und Flugzeitzuordnung bleiben vorläufig.</Label>}
+            {c.result === 'captured' && <Label>Rohbelege gespeichert. {c.snapshot && `${c.snapshot.rows.length} Datensätze · ${c.snapshot.exportContext?.pageCount ?? '—'} Seite(n). `}Identität und Flugzeitzuordnung bleiben vorläufig.</Label>}
             {c.result === 'failed' && <Label>Abruf oder Seitenaufruf fehlgeschlagen. {retrievalFailureHint(c.status)}</Label>}
             {c.result === 'cancelled' && <Label>Abruf abgebrochen. Frühere Daten bleiben erhalten.</Label>}
           </Card>
