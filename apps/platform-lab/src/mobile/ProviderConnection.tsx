@@ -62,7 +62,7 @@ export function ProviderConnection({ controller: c, open, close }: { controller:
           {c.connection.phase === 'observed' && !c.connection.confirmed && c.connection.observed && <Card>
             <Section title="Vorläufige Zuordnung prüfen" />
             <Label>Benutzernummer: {c.connection.observed.accountNumber}</Label><Label>Verein: {c.connection.observed.clubLabel}</Label>
-            <Label muted>Ist dies dein Anbieterkonto? Die Vereinsbezeichnung ist keine stabile Vereins-ID. Diese Zuordnung gilt nur für diesen Entwicklungslauf; Live-Import bleibt gesperrt.</Label>
+            <Label muted>Ist dies dein Anbieterkonto? Die Vereinsbezeichnung ist keine stabile Vereins-ID. Diese vorläufige Zuordnung wird für dein lokales Demoprofil auf diesem Gerät gespeichert; Live-Import bleibt gesperrt.</Label>
             <Action disabled={locked} onPress={() => { void c.confirmConnection(); }}>Konto für diesen Test bestätigen</Action>
           </Card>}
           {(c.connection.phase === 'mismatch' || c.connection.phase === 'error' || c.connection.phase === 'unknown' || c.connection.phase === 'login-required') && <Card>
@@ -87,6 +87,7 @@ export function ProviderConnection({ controller: c, open, close }: { controller:
           </Card>
           <Card><Section title="Begrenzter Rohabruf" />
             <Label muted>Entwicklungsnachweis: Der Abruf speichert rohe Anbieterbelege separat. Er ersetzt keine Flüge in der synthetischen Bibliothek und erzeugt keinen kanonischen Live-Import.</Label>
+            <Label muted>Letzter lokal zugeordneter Rohbeleg: {c.snapshot ? `${new Date(c.snapshot.retrievedAt).toLocaleString('de-DE')} · ${c.snapshot.rows.length} Datensätze · ${c.snapshot.exportContext?.pageCount ?? '—'} Seite(n)` : 'noch keiner'}</Label>
             <Label>Zeitraum einschließlich (JJJJ-MM-TT)</Label>
             <TextInput accessibilityLabel="Vereinsflieger Abruf von" value={c.from} onChangeText={c.setFrom} editable={!locked} autoCorrect={false} style={styles.input} />
             <TextInput accessibilityLabel="Vereinsflieger Abruf bis" value={c.to} onChangeText={c.setTo} editable={!locked} autoCorrect={false} style={styles.input} />

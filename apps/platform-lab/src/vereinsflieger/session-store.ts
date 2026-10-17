@@ -10,7 +10,8 @@ interface SessionModule {
 }
 const native = Platform.OS === 'android' ? requireOptionalNativeModule<SessionModule>('MoFlightProviderSession') : null;
 // Enable only after the committed-source synthetic native proof is recorded.
-const ANDROID_CLEARING_PROVED = false;
+// API 37 synthetic native proof on c272380, 2026-10-17; see verification report.
+const ANDROID_CLEARING_PROVED = true;
 export const sessionClearingAvailable = !!native && ANDROID_CLEARING_PROVED;
 export const sessionProofAvailable = !!native;
 export async function clearProviderStore(): Promise<void> {

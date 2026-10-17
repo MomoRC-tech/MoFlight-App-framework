@@ -123,10 +123,11 @@ function fixture(options: { deferClear?: boolean; failClear?: boolean; persisted
   modules['./use-access-controller'] = controllerExports;
   const exported = {} as { AccessProbe: (props: { close: () => void }) => Element };
   runInNewContext(source, { exports: exported, ...runtime });
+  let localOwner = 'synthetic-pilot';
   let controller: ReturnType<typeof useAccessController>;
   function render() {
     index = 0;
-    const tree = options.product ? (() => { controller = controllerExports.useAccessController(true, 'synthetic-pilot'); return { type: 'Host', props: {}, children: [controller.browser] }; })() : exported.AccessProbe({ close() {} });
+    const tree = options.product ? (() => { controller = controllerExports.useAccessController(true, localOwner); return { type: 'Host', props: {}, children: [controller.browser] }; })() : exported.AccessProbe({ close() {} });
     effects.splice(0).forEach(effect => effect()); return tree;
   }
   function find(tree: Element, predicate: (element: Element) => boolean): Element | undefined {
@@ -190,6 +191,7 @@ function fixture(options: { deferClear?: boolean; failClear?: boolean; persisted
     contextMessage, loginMessage,
     allowNavigation, lastIssuedNonce: () => issuedNonces.at(-1),
     appState: (state: string) => appStateListener?.(state),
+    changeOwner: (value: string) => { localOwner = value; render(); },
     controller: () => { render(); return controller; },
     finishJournalSave, finishCaptureSave, pending: () => pending, savedCapture: () => savedCapture,
     loginStorage: () => ({ reads: savedLoginReads, forgets: savedLoginForgets }),
@@ -1237,4 +1239,26 @@ test('a native clearing failure cannot claim local removal or provider sign-out'
   const clearing = f.controller().clearLocalSession(); await f.flush(); await clearing;
   assert.equal(f.controller().clearNotice, 'failed'); assert.equal(f.controller().disconnectedAt, null);
   assert.equal(f.controller().connection.confirmed, false); assert.equal(f.controller().browserActive, false);
+});
+
+
+test('changing the explicit local owner quarantines the retained controller instead of reusing its association', async () => {
+  const f = fixture({ product: true }); f.render(); await f.settle(null); await establishProductAssociation(f);
+  f.changeOwner('another-local-owner'); await f.flush();
+  assert.equal(f.controller().connection.confirmed, false); assert.equal(f.controller().viewReady, false);
+  assert.equal(f.controller().snapshot, null); assert.equal(f.controller().browserActive, false);
+  f.controller().retrieve(); f.controller().useLogin(); f.controller().connect(); await f.controller().clearLocalSession();
+  assert.equal(f.controller().busy, false); assert.equal(f.clearCalls(), 0); assert.equal(f.controller().browserActive, false);
+});
+
+
+test('renderer termination cancels an outstanding secret read before its late resolution', async () => {
+  const f = fixture({ product: true, deferLoginRead: true }); f.render(); await f.settle(null); await f.flush();
+  f.controller().useLogin(); await f.loadPage(probe.LOGIN_URL);
+  assert.equal(f.loginStorage().reads, 1);
+  const web = f.find(f.render(), element => element.type === 'WebView')!;
+  (web.props.onRenderProcessGone as () => void)();
+  f.finishLoginRead({ username: 'synthetic', password: 'synthetic' }); await f.flush();
+  assert.equal(f.controller().loginBusy, false); assert.equal(f.controller().loginNotice, 'cancelled');
+  assert.ok(f.injections.every(script => !script.includes('login.username')));
 });
