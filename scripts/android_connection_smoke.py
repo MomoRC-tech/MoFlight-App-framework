@@ -40,6 +40,17 @@ def panel_tap(smoke, text):
     smoke.tap_node(panel_control(smoke, text, enabled=True))
 
 
+def wait_network_state(smoke, expected):
+    # svc requests are asynchronous; neither isolation nor exact restoration
+    # may be inferred from the command returning before settings settle.
+    for _ in range(24):
+        observed = {key: smoke.shell('settings', 'get', 'global', key) for key in expected}
+        if observed == expected:
+            return observed
+        time.sleep(.2)
+    raise AssertionError(f'Network settings did not settle: {observed}; expected {expected}')
+
+
 def native_browser_ids(smoke):
     # Native Activity dump includes Java instance IDs on some Android builds.
     # Its absence is explicitly NOT TESTED rather than an inferred retention pass.
@@ -63,6 +74,7 @@ def execute(smoke):
         smoke.shell('cmd', 'connectivity', 'airplane-mode', 'enable')
         smoke.shell('svc', 'wifi', 'disable')
         smoke.shell('svc', 'data', 'disable')
+        wait_network_state(smoke, {'airplane_mode_on': '1', 'wifi_on': '0', 'mobile_data': '0'})
         assert smoke.shell('settings', 'get', 'global', 'airplane_mode_on') == '1'
         assert smoke.shell('settings', 'get', 'global', 'wifi_on') in ['0', '3']
         assert smoke.shell('settings', 'get', 'global', 'mobile_data') == '0'
@@ -212,7 +224,7 @@ def execute(smoke):
         smoke.shell('cmd', 'connectivity', 'airplane-mode', 'enable' if original['airplane_mode_on'] == '1' else 'disable')
         smoke.shell('svc', 'wifi', 'enable' if original['wifi_on'] in ['1', '2'] else 'disable')
         smoke.shell('svc', 'data', 'enable' if original['mobile_data'] == '1' else 'disable')
-        restored = {key: smoke.shell('settings', 'get', 'global', key) for key in ['airplane_mode_on', 'wifi_on', 'mobile_data']}
+        restored = wait_network_state(smoke, {key: original[key] for key in ['airplane_mode_on', 'wifi_on', 'mobile_data']})
         smoke.report['restored'] = {**restored, 'size': smoke.shell('wm', 'size'), 'density': smoke.shell('wm', 'density'), 'font_scale': smoke.shell('settings', 'get', 'system', 'font_scale')}
         assert smoke.report['restored'] == original, 'Original emulator settings were not restored exactly'
 
