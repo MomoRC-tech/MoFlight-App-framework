@@ -1,10 +1,23 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { ConnectionSession, connectionLabel } from '../../apps/platform-lab/src/vereinsflieger/connection-state.ts';
+import { ConnectionSession, connectionLabel, retrievalFailureHint } from '../../apps/platform-lab/src/vereinsflieger/connection-state.ts';
 
 const context = { accountNumber: '123', clubLabel: 'Synthetic Club', clubIdentity: 'display-label-only', verification: 'observed-profile-number' } as const;
 const at = '2026-10-17T12:00:00.000Z';
 const later = '2026-10-17T12:10:00.000Z';
+
+test('retrieval failure feedback distinguishes protected-view failures without exposing arbitrary provider content', () => {
+  const unsupported = 'Original view could not be read: provider filter controls are unsupported. No export settings changed.';
+  assert.match(retrievalFailureHint(unsupported), /Filter/);
+  assert.match(retrievalFailureHint(unsupported), /nicht geändert/);
+  assert.match(retrievalFailureHint('Export step timed out. Previous captures preserved; retry after checking provider login.'), /zu lange/);
+  assert.equal(retrievalFailureHint(unsupported + ' Original provider view restored and verified.'), retrievalFailureHint(unsupported));
+  assert.match(retrievalFailureHint('Synthetic failure. Original view restoration is pending. Sign into the original account and retry restoration.'), /noch nicht wiederhergestellt/);
+  const fallback = retrievalFailureHint('unknown');
+  for (const privateValue of ['PRIVATE ACCOUNT / password / https://example.test/?token=secret', '__proto__', 'constructor', 'toString']) {
+    assert.equal(retrievalFailureHint(privateValue), fallback);
+  }
+});
 
 test('connection requires owned context observation and deliberate provisional association', () => {
   const session = new ConnectionSession();

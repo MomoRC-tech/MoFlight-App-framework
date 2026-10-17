@@ -81,3 +81,31 @@ export function connectionLabel(state: ConnectionState): string {
     case 'unknown': return 'Sitzung aktuell ungeprüft';
   }
 }
+
+/** Fixed user feedback only. Never echo provider errors, URLs or account data. */
+export function retrievalFailureHint(status: string): string {
+  const restored = ' Original provider view restored and verified.';
+  const message = status.endsWith(restored) ? status.slice(0, -restored.length) : status;
+  const hints: Record<string, string> = {
+    'Use valid inclusive dates in YYYY-MM-DD order.': 'Bitte gültige Datumsgrenzen im Format JJJJ-MM-TT eingeben.',
+    'Provider context unavailable. Earlier captures and recovery journal retained.': 'Die Anbieteranmeldung konnte nicht erneut geprüft werden.',
+    'Provider context mismatch. Capture rejected; original view recovery retained.': 'Konto oder Verein weicht ab. Der Rohabruf wurde verworfen; eine Wiederherstellung bleibt offen.',
+    'Provider association not confirmed. Capture rejected.': 'Die vorläufige Kontozuordnung wurde nicht bestätigt.',
+    'Provider left the expected flight document. Recovery retained.': 'Die erwartete Flugbuchseite wurde verlassen. Anmeldung und gegebenenfalls Wiederherstellung prüfen.',
+    'Export step timed out. Previous captures preserved; retry after checking provider login.': 'Ein Abrufschritt hat zu lange gedauert. Anbieteranmeldung prüfen und erneut versuchen.',
+    'Original view could not be read: required provider account, configuration or list controls are unavailable. No export settings changed.': 'Die ursprüngliche Anbieteransicht konnte nicht gelesen werden: Konto-, Ansichts- oder Listensteuerung fehlt. Exporteinstellungen wurden nicht geändert.',
+    'Original view could not be read: provider filter controls are unsupported. No export settings changed.': 'Die Filter der ursprünglichen Anbieteransicht werden nicht unterstützt. Exporteinstellungen wurden nicht geändert.',
+    'Original view could not be read: provider table headers do not match configured columns. No export settings changed.': 'Tabellenüberschriften und konfigurierte Spalten stimmen nicht überein. Exporteinstellungen wurden nicht geändert.',
+    'Original view could not be verified against the supported provider controls. No export settings changed.': 'Die ursprüngliche Anbieteransicht entspricht nicht den unterstützten Steuerelementen. Exporteinstellungen wurden nicht geändert.',
+    'Original view could not be protected because provider settings are unsupported. No export settings changed.': 'Die ursprüngliche Anbieteransicht konnte nicht sicher geschützt werden. Exporteinstellungen wurden nicht geändert.',
+    'Original view could not be journaled. No export settings changed; recovery must be checked before another export.': 'Die ursprüngliche Anbieteransicht konnte nicht lokal gesichert werden. Vor einem neuen Abruf die Wiederherstellung prüfen.',
+    'Retrieval or local saving failed. Previous captures preserved. Sign in again if needed, then retry.': 'Anbieteransicht, Rohdatenprüfung oder lokale Speicherung ist fehlgeschlagen. Frühere Belege bleiben erhalten.',
+    'Local saving failed. Earlier captures retained.': 'Die neuen Rohbelege konnten nicht lokal gespeichert werden. Frühere Belege bleiben erhalten.',
+    'Provider page failed to load. Previous captures preserved.': 'Die Anbieterseite konnte nicht geladen werden.',
+    'Provider returned an HTTP error. Previous captures preserved.': 'Die Anbieterseite hat einen HTTP-Fehler gemeldet.',
+  };
+  if (status.endsWith(' Original view restoration is pending. Sign into the original account and retry restoration.')) {
+    return 'Die ursprüngliche Anbieteransicht ist noch nicht wiederhergestellt. Im ursprünglichen Konto anmelden und die Wiederherstellung erneut versuchen.';
+  }
+  return Object.hasOwn(hints, message) ? hints[message]! : 'Abruf nicht abgeschlossen. Frühere Daten bleiben erhalten; Anmeldung und Wiederherstellung prüfen.';
+}

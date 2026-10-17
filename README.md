@@ -7,6 +7,8 @@
 
 # MoFlight
 
+> **Reconnect/retrieval follow-up — 17 October 2026:** Manuel authorized the next bounded #2 package. Original-page assisted re-login and a fresh provisional context check succeeded; the first small raw retrieval failed. Safe German failure detail and continuity/isolation regressions are being verified. [Results and remaining gates](docs/verification/2026-10-17-safe-disconnect.md#bounded-reconnectretrieval-follow-up); canonical live import remains disabled.
+
 > **Safe disconnect slice — 17 October 2026:** [Guarded provider logout verification and explicit saved-login states](docs/product/2026-10-17-safe-disconnect.md) are implemented. [Evidence](docs/verification/2026-10-17-safe-disconnect.md): 162 tests, committed-source Release, separate 19-check width/lifecycle and 8-check final-source native runs, plus bounded live sign-out/sign-in-required observations. Successful real re-login, complete cookie clearing and production binding remain open; the provider emulator is left signed out with saved credentials preserved.
 
 > **Connection increment — 17 October 2026:** Manuel authorized the bounded [Vereinsflieger connection/controller PoC](docs/product/2026-10-17-connection-controller-poc.md) next, ahead of the deferred physical retest. Header/Profile entry and retained original-page browser are implemented. [Verification](docs/verification/2026-10-17-connection-controller-poc.md) records 149 tests, 16 synthetic native checks and a bounded Android existing-session/hidden raw-capture/cancel trial. Session observations remain provisional; production binding, full disconnect, canonical import and iOS runtime remain open.

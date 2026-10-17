@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { Action, Card, Label, Section, colors, ui } from './theme';
-import { connectionLabel } from '../vereinsflieger/connection-state';
+import { connectionLabel, retrievalFailureHint } from '../vereinsflieger/connection-state';
 import type { useAccessController } from '../vereinsflieger/use-access-controller';
 import { providerUrl } from '../vereinsflieger/probe';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -91,7 +91,7 @@ export function ProviderConnection({ controller: c, open, close }: { controller:
               <Action secondary onPress={close}>Während des Abrufs zur App</Action>
             </>}
             {c.result === 'captured' && <Label>Rohbelege gespeichert. Identität und Flugzeitzuordnung bleiben vorläufig.</Label>}
-            {c.result === 'failed' && <Label>Abruf oder Seitenaufruf fehlgeschlagen. Frühere Daten bleiben erhalten; Anmeldung, Zeitraum und Verbindung prüfen und erneut versuchen.</Label>}
+            {c.result === 'failed' && <Label>Abruf oder Seitenaufruf fehlgeschlagen. {retrievalFailureHint(c.status)}</Label>}
             {c.result === 'cancelled' && <Label>Abruf abgebrochen. Frühere Daten bleiben erhalten.</Label>}
           </Card>
           {c.recovery && <Card><Section title="Wiederherstellung ausstehend" /><Label>Vor einem weiteren Abruf muss die ursprüngliche Anbieteransicht im ursprünglichen Konto wiederhergestellt werden.</Label><Action secondary disabled={locked || !c.original.current} onPress={() => c.checkConnection('recover')}>Anbieteransicht wiederherstellen</Action></Card>}

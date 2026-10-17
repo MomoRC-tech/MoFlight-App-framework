@@ -1,5 +1,17 @@
 # Safe disconnect verification — 17 October 2026
 
+## Bounded reconnect/retrieval follow-up
+
+Manuel authorized this next package with **go** after the project review. [Issue contract](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/2#issuecomment-6234200621) records scope/exclusions/acceptance; [live findings and diagnostic change](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/2#issuecomment-6234267523). Baseline main `4a09ee9` was clean. The preserved provider AVD still runs application `81128d0` at this initial boundary; subsequent source/build evidence will be recorded separately below.
+
+- One explicit existing saved-login action remained unconfirmed. One tap on the visible original provider **Anmelden** then opened the authenticated overview; a new protected-profile check returned observed account/club context and was provisionally confirmed. No credential value was inspected, replaced or forgotten. The helper-failure cause is unknown; automatic saved-login success is not established.
+- Verified the raw-request inputs independently through the native date fields: **2026-10-01 through 2026-10-17**, inclusive. Retrieval reported failure, retained the observed provisional connection, showed no successful app-run capture timestamp and no pending-recovery warning. This is not successful retrieval or independent proof of unchanged persisted captures/preferences.
+- Direct read-only SQLite inspection was refused by the Release sandbox; this production-image emulator also refused `adbd root`. No bypass, file mutation, app reset or credential/cookie inspection followed. The existing desktop reference tab timed out twice. Independent row/reference/preference comparison therefore remains unavailable at this boundary.
+- The existing development lab correctly blocks a second provider controller while the shell owns the connection. No alternative controller was started. Private screenshots stay ignored under `local-data/provider-connection-private/reconnect`; no private exports, identifiers or screenshots are published.
+- A small feedback change maps known controller failures to fixed German text in the existing development raw-retrieval card. Unknown/provider-supplied text is never echoed. New regressions cover failed-helper → original-page navigation → fresh same-account check → retrieval, rejected foreign account, stale/foreign helper messages, no automatic credential retry and safe failure feedback.
+
+Initial local checks: **50 targeted tests passed**, TypeScript passed. Full regression/export, committed-source Release and focused native retry are pending at this commit. MIN/MAIN/MAX layout is unchanged apart from the affected failure paragraph; no full visual matrix is scheduled. Existing independent/native/physical/iOS limits remain open. Further outcomes belong in this section, not a duplicate report.
+
 ## Scope and sources
 
 Manuel explicitly authorized the [bounded package](../product/2026-10-17-safe-disconnect.md) with **do it**; [start record in #2](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/2#issuecomment-6231895092), coordinated with #5/#8. Baseline main was clean at `85d9fd0c43eb3dd5312296d98954a47f45278c71`, matching origin/main and live remote. No unrelated changes were overwritten. No new dependency/transport, canonical import, production binding/schema/credential policy, paid service, hosted run or physical-phone test.

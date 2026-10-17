@@ -164,8 +164,14 @@ function fixture(options: { priorCapture?: probe.ProbeSnapshot; deferJournalSave
     (web.props.onMessage as (event: unknown) => void)({ nativeEvent: { url: sender, data: JSON.stringify({ kind, nonce: token, url: documentUrl, context: observed }) } });
     return flush();
   }
+  async function loginMessage(result: string, nonce = issuedNonces.at(-1), sender = probe.LOGIN_URL) {
+    const web = find(render(), element => element.type === 'WebView'); assert.ok(web);
+    (web.props.onMessage as (event: unknown) => void)({ nativeEvent: { url: sender,
+      data: JSON.stringify({ kind: 'vf-login-result-v1', nonce, url: probe.LOGIN_URL, result }) } });
+    return flush();
+  }
   return { render, button, press, settle, find, flush, loadPage, loadFlight, message, currentCommand, writes, injections,
-    contextMessage,
+    contextMessage, loginMessage,
     allowNavigation, lastIssuedNonce: () => issuedNonces.at(-1),
     appState: (state: string) => appStateListener?.(state),
     controller: () => { render(); return controller; },
@@ -478,6 +484,47 @@ test('saved-login absence and read failure produce explicit outcomes; an existin
   await stored.loadPage(probe.LOGIN_URL); await stored.flush();
   assert.equal(stored.loginStorage().reads, 1, 'A repeat page callback does not reread or retry');
   assert.equal(stored.injections.length, submitted.length, 'No automatic credential retry is started');
+});
+
+test('original-page assisted re-login after helper failure requires fresh same-account evidence before retrieval', async () => {
+  const f = fixture({ product: true, priorCapture, savedLogin: { username: 'synthetic-user', password: 'synthetic-password' } });
+  f.render(); await f.settle(null); await establishProductAssociation(f);
+  f.controller().startDisconnect(); f.controller().checkDisconnection(); await f.loadPage(context.PROFILE_URL);
+  await f.contextMessage({ error: 'session-required' });
+  f.controller().useLogin(); await f.loadPage(probe.LOGIN_URL);
+  const nonce = f.lastIssuedNonce();
+  await f.loginMessage('provider-script-error', 'stale-attempt');
+  await f.loginMessage('provider-script-error', nonce, 'https://example.test/');
+  assert.equal(f.controller().loginBusy, true, 'Unowned messages cannot end the active login');
+  await f.loginMessage('provider-script-error', nonce);
+  assert.equal(f.controller().loginNotice, 'failed');
+  assert.equal(f.controller().connection.confirmed, false);
+  assert.equal(f.loginStorage().reads, 1);
+  const attempts = f.injections.filter(script => script.includes('synthetic-password')).length;
+  await f.loadPage(context.PROFILE_URL); // Native navigation after the original provider submit action.
+  assert.equal(f.controller().connection.confirmed, false, 'A successful page load alone is not account evidence');
+  assert.equal(f.injections.filter(script => script.includes('synthetic-password')).length, attempts, 'Manual continuation never retries credentials');
+  f.controller().checkConnection(); await f.loadPage(context.PROFILE_URL); await f.contextMessage(observedContext);
+  assert.equal(f.controller().connection.confirmed, true);
+  f.controller().checkConnection('retrieve'); await f.loadPage(context.PROFILE_URL); await f.contextMessage(observedContext);
+  await f.loadFlight();
+  assert.equal(f.currentCommand().phase, 'snapshot');
+  assert.equal(f.savedCapture(), priorCapture);
+  assert.deepEqual(f.writes, [], 'Prior evidence stays unchanged until the original view is journaled');
+});
+
+test('assisted re-login into a different account remains blocked before any capture or preference write', async () => {
+  const f = fixture({ product: true, priorCapture, savedLogin: { username: 'synthetic-user', password: 'synthetic-password' } });
+  f.render(); await f.settle(null); await establishProductAssociation(f);
+  f.controller().useLogin(); await f.loadPage(probe.LOGIN_URL); await f.loginMessage('provider-script-error');
+  await f.loadPage(context.PROFILE_URL);
+  f.controller().checkConnection('retrieve'); await f.loadPage(context.PROFILE_URL);
+  await f.contextMessage({ ...observedContext, accountNumber: '456' });
+  f.controller().confirmConnection(); f.controller().retrieve();
+  assert.equal(f.controller().connection.phase, 'mismatch');
+  assert.equal(f.controller().busy, false);
+  assert.equal(f.savedCapture(), priorCapture);
+  assert.deepEqual(f.writes, []);
 });
 
 test('cancelled login confirmation cannot launch a stale retrieval; reconnect retains account and club checks', async () => {
