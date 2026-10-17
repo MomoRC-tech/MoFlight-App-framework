@@ -382,6 +382,19 @@ test('cancelling or backgrounding a deferred saved-login read prevents late cred
   }
 });
 
+test('duplicate login-page load callbacks cannot overlap deferred storage reads or submit twice', async () => {
+  const f = fixture({ product: true, deferLoginRead: true }); f.render(); await f.settle(null); await f.flush();
+  f.controller().useLogin(); await f.loadPage(probe.LOGIN_URL);
+  assert.equal(f.loginStorage().reads, 1);
+  await f.loadPage(probe.LOGIN_URL);
+  assert.equal(f.loginStorage().reads, 1, 'A second load-end while the first secure read is pending must not start another read');
+  f.finishLoginRead({ username: 'synthetic-user', password: 'synthetic-password' });
+  await f.flush();
+  assert.equal(f.injections.length, 1);
+  assert.ok(f.injections[0]!.includes('synthetic-password'));
+  assert.equal(f.controller().loginNotice, 'none', 'Submission remains pending provider response');
+});
+
 test('starting saved login invalidates confidence, clears pending confirmation, and makes no startup secret read', async () => {
   const f = fixture({ product: true }); f.render(); await f.settle(null); await establishProductAssociation(f);
   assert.equal(f.loginStorage().reads, 0, 'Product startup does not read a saved secret');

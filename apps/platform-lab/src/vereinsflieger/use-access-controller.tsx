@@ -39,7 +39,7 @@ export function useAccessController(product = false) {
   const [from, setFrom] = useState(calendarYearRequest().from), [to, setTo] = useState(calendarYearRequest().to);
   const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const phase = useRef({ loaded: false, progress: 0, injections: 0 });
-  const loginAttempt = useRef<'waiting' | 'submitted' | null>(null);
+  const loginAttempt = useRef<'waiting' | 'reading' | 'submitted' | null>(null);
   const loginNonce = useRef('');
   const loginStorageBusy = useRef(false);
   const [loginNotice, setLoginNotice] = useState<'none' | 'response' | 'unavailable' | 'failed' | 'cancelled'>('none');
@@ -230,10 +230,12 @@ export function useAccessController(product = false) {
     }
     if (loginAttempt.current === 'waiting') {
       if (!loginPage(page)) { endLogin('Provider session page opened. Verify the account and retrieve flights.', 'response'); return; }
+      // Duplicate native load-end events must not start a second secret read.
+      loginAttempt.current = 'reading';
       try {
         const login = await readSavedLogin();
         if (!mounted.current || pageEpoch !== epoch.current) return;
-        if (!login || !loginPage(currentUrl.current) || loginAttempt.current !== 'waiting') { endLogin('Saved login unavailable or page changed. No credentials submitted.', 'unavailable'); return; }
+        if (!login || !loginPage(currentUrl.current) || loginAttempt.current !== 'reading') { endLogin('Saved login unavailable or page changed. No credentials submitted.', 'unavailable'); return; }
         loginAttempt.current = 'submitted';
         web.current?.injectJavaScript(savedLoginScript(login,loginNonce.current));
         setStatus('Saved login attempted once on the original provider page. Complete verification there if requested.');

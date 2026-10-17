@@ -28,7 +28,7 @@ export function ProviderConnection({ controller: c, open, close }: { controller:
   const login = open && c.visible;
   const label = connectionLabel(c.connection);
   const loginFeedback = c.loginBusy ? 'Gespeicherte Anmeldung wird einmalig versucht…' :
-    c.loginNotice === 'response' ? 'Anbieterantwort geöffnet. Anmeldung noch nicht bestätigt: Anbieterprüfung bei Bedarf abschließen, danach „Anmeldung prüfen“ wählen.' :
+    c.loginNotice === 'response' ? 'Anbieterseite geöffnet. Anmeldung noch nicht bestätigt: Anbieterprüfung bei Bedarf abschließen, danach „Anmeldung prüfen“ wählen.' :
     c.loginNotice === 'unavailable' ? 'Gespeicherte Anmeldung nicht verfügbar oder Seite geändert. Auf der Originalseite anmelden.' :
     c.loginNotice === 'failed' ? 'Gespeicherte Anmeldung nicht bestätigt. Originalseite prüfen oder erneut anmelden; kein automatischer weiterer Versuch.' :
     c.loginNotice === 'cancelled' ? 'Anmeldeversuch beendet. Sitzung erneut prüfen oder auf der Originalseite anmelden.' : null;
