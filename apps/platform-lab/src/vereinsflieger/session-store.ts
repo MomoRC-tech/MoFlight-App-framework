@@ -3,8 +3,10 @@ import { requireOptionalNativeModule } from 'expo';
 import * as Crypto from 'expo-crypto';
 import * as SecureStore from 'expo-secure-store';
 import { openDriver } from '../storage';
+import { parseLegacyReview, type LegacyReview } from './legacy-review';
 
 interface SessionModule {
+  reviewLegacyRecoveryAsync?(): Promise<unknown>;
   clearAsync(): Promise<{ cookiesEmpty: boolean; webStorageDeletionRequested: boolean }>;
   syntheticProofAsync(): Promise<{ passed: boolean; cookie: boolean; localStorage: boolean; sessionStorage: boolean; indexedDB: boolean; documentRecreated: boolean }>;
 }
@@ -14,6 +16,11 @@ const native = Platform.OS === 'android' ? requireOptionalNativeModule<SessionMo
 const ANDROID_CLEARING_PROVED = true;
 export const sessionClearingAvailable = !!native && ANDROID_CLEARING_PROVED;
 export const sessionProofAvailable = !!native;
+export const legacyReviewAvailable = typeof native?.reviewLegacyRecoveryAsync === 'function';
+export async function reviewLegacyRecovery(): Promise<LegacyReview> {
+  if (!native?.reviewLegacyRecoveryAsync) throw new Error('Legacy review unavailable.');
+  return parseLegacyReview(await native.reviewLegacyRecoveryAsync());
+}
 export async function clearProviderStore(): Promise<void> {
   if (!native || !ANDROID_CLEARING_PROVED) throw new Error('Local WebView clearing unsupported.');
   const result = await native.clearAsync();

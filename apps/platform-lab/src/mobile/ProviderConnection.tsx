@@ -5,6 +5,7 @@ import { connectionLabel, retrievalFailureHint } from '../vereinsflieger/connect
 import type { useAccessController } from '../vereinsflieger/use-access-controller';
 import { providerUrl } from '../vereinsflieger/probe';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { LegacyRecoveryReview } from './LegacyRecoveryReview';
 
 type Controller = ReturnType<typeof useAccessController>;
 export function ConnectionIndicator({ controller: c, onPress }: { controller: Controller; onPress: () => void }) {
@@ -102,7 +103,7 @@ export function ProviderConnection({ controller: c, open, close }: { controller:
             {c.sessionProofAvailable && <><Action secondary disabled={locked || c.recovery} onPress={() => { void c.clearLocalSession(true); }}>Synthetischer Browserstore-Test</Action><Label muted>Entwicklungstest nur auf MoFlight_Synthetic_API37; auf anderen Geräten nativ gesperrt.</Label></>}
             {c.proofNotice !== 'none' && <Label>{c.proofNotice === 'passed' ? 'Synthetischer Store-Test bestanden: Cookies, Webspeicher und neues Dokument geprüft; SQLite und SecureStore erhalten.' : 'Synthetischer Store-Test nicht bestanden oder Gerät gesperrt.'}</Label>}
           </Card>
-          {c.recovery && <Card><Section title="Wiederherstellung ausstehend" /><Label>{c.legacyRecovery ? 'Eine ältere, nicht zugeordnete Wiederherstellung ist vorhanden. Keine automatische Übernahme: vor weiteren Abrufen manuell prüfen.' : 'Vor einem weiteren Abruf muss die ursprüngliche Anbieteransicht im ursprünglichen Konto wiederhergestellt werden.'}</Label><Action secondary disabled={locked || !c.original.current} onPress={() => c.checkConnection('recover')}>Anbieteransicht wiederherstellen</Action></Card>}
+          {c.recovery && <Card><Section title="Wiederherstellung ausstehend" /><Label>{c.legacyRecovery ? 'Eine ältere, nicht zugeordnete Wiederherstellung ist vorhanden. Keine automatische Übernahme: vor weiteren Abrufen manuell prüfen.' : 'Vor einem weiteren Abruf muss die ursprüngliche Anbieteransicht im ursprünglichen Konto wiederhergestellt werden.'}</Label>{c.legacyRecovery && <LegacyRecoveryReview locked={locked} />}<Action secondary disabled={locked || !c.original.current} onPress={() => c.checkConnection('recover')}>Anbieteransicht wiederherstellen</Action></Card>}
           <Label muted>Schließen blendet die Seite aus und meldet dich nicht beim Anbieter ab. Ein anderes Konto oder ein anderer Verein kann die bisherige Zuordnung auch nach einem Neustart nicht ersetzen.</Label>
           <Label muted>Tabwechsel bleibt möglich. Bei App-Wechsel oder gesperrtem Telefon ist kein unterbrechungsfreier Abruf zugesagt; Rückkehr erfordert eine erneute Prüfung.</Label>
         </View>

@@ -2,6 +2,7 @@ package expo.modules.moflightprovider
 
 import android.os.Handler
 import android.os.Looper
+import android.database.sqlite.SQLiteDatabase
 import android.view.ViewGroup
 import android.webkit.CookieManager
 import android.webkit.WebStorage
@@ -11,14 +12,66 @@ import expo.modules.kotlin.Promise
 import expo.modules.kotlin.functions.Queues
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
+import java.io.File
+import java.security.MessageDigest
+import org.json.JSONObject
 
-/** App WebView store only. Never reads cookies, credentials or provider DOM. */
+/** App WebView store and explicit legacy-journal review. Never reads credentials or provider DOM. */
 class ProviderSessionModule : Module() {
   private var running = false
   private val main = Handler(Looper.getMainLooper())
 
   override fun definition() = ModuleDefinition {
     Name("MoFlightProviderSession")
+    AsyncFunction("reviewLegacyRecoveryAsync") { promise: Promise ->
+      val avd = try {
+        ProcessBuilder("/system/bin/getprop", "ro.boot.qemu.avd_name").start().inputStream.bufferedReader().use { it.readText().trim() }
+      } catch (_: Exception) { "" }
+      if (avd !in setOf("MoFlight_API37", "MoFlight_Synthetic_API37")) {
+        promise.reject("E_REVIEW_DEVICE", "Named lab emulator required", null)
+      } else if (running) {
+        promise.reject("E_BUSY", "Store operation already active", null)
+      } else {
+        try {
+          val context = appContext.reactContext ?: throw IllegalStateException()
+          // Fixed app-private Expo SQLite path, no caller-controlled paths or SQL.
+          // OPEN_READONLY neither creates the file nor initializes/migrates schemas.
+          val file = File(context.filesDir, "SQLite/vereinsflieger-access-probe.sqlite")
+          if (!file.isFile) promise.resolve(mapOf("status" to "absent"))
+          else SQLiteDatabase.openDatabase(file.path, null, SQLiteDatabase.OPEN_READONLY or SQLiteDatabase.NO_LOCALIZED_COLLATORS).use { db ->
+            db.rawQuery("SELECT CASE WHEN length(payload)<=400000 THEN payload ELSE NULL END FROM provider_view_recovery WHERE id=1 LIMIT 1", null).use { cursor ->
+              if (!cursor.moveToFirst()) promise.resolve(mapOf("status" to "absent"))
+              else {
+                if (cursor.isNull(0)) throw IllegalStateException()
+                val payload = cursor.getString(0)
+                if (payload.length > 400000) throw IllegalStateException()
+                val value = JSONObject(payload)
+                fun text(key: String, limit: Int): String {
+                  val result = value.get(key) as? String ?: throw IllegalStateException()
+                  if (result.isBlank() || result.length > limit || result.any { it.isISOControl() }) throw IllegalStateException()
+                  return result
+                }
+                if (value.get("version") != 2 || value.get("reset") !is Boolean) throw IllegalStateException()
+                val role = text("role", 100)
+                if (role !in setOf("Pilot", "Pilot oder Fluglehrer", "Fluglehrer", "Begleiter", "Pilot oder Begleiter")) throw IllegalStateException()
+                // Project only review metadata. Filter values, flight tables and
+                // secrets never cross this diagnostic's native bridge.
+                promise.resolve(mapOf(
+                  "status" to "present", "version" to 2,
+                  "accountLabel" to text("accountLabel", 200),
+                  "preset" to text("preset", 100), "period" to text("period", 100),
+                  "role" to role, "reset" to value.getBoolean("reset"),
+                  "journalFingerprint" to MessageDigest.getInstance("SHA-256").digest(payload.toByteArray(Charsets.UTF_8)).joinToString("") { "%02x".format(it.toInt() and 0xff) }
+                ))
+              }
+            }
+          }
+        } catch (_: Exception) {
+          // Do not forward SQLite/JSON errors, paths or record contents.
+          promise.reject("E_REVIEW", "Legacy recovery review unavailable", null)
+        }
+      }
+    }.runOnQueue(Queues.MAIN)
     AsyncFunction("clearAsync") { promise: Promise ->
       if (running) promise.reject("E_BUSY", "WebView store operation already active", null)
       else {
