@@ -17,6 +17,20 @@ from pathlib import Path
 PACKAGE = "de.momorc.moflight.lab"
 
 
+def effective_enabled(root):
+    """Android Text children can report enabled=true inside disabled buttons."""
+    result = {}
+
+    def visit(node, parent_enabled=True):
+        active = parent_enabled and node.get('enabled', 'true') != 'false'
+        result[node] = active
+        for child in node:
+            visit(child, active)
+
+    visit(root)
+    return result
+
+
 def check_apk(path):
     with zipfile.ZipFile(path) as apk:
         names = apk.namelist()
@@ -68,6 +82,7 @@ class Smoke:
         for _ in range(attempts):
             try:
                 nodes = self.dump()
+                enabled_states = effective_enabled(self.screen)
                 labels = [label for node in nodes for label in self.labels(node)]
                 system_anr = next((v for v in labels if v in {
                     "Pixel Launcher isn't responding", "System UI isn't responding"}), None)
@@ -85,7 +100,7 @@ class Smoke:
                     time.sleep(.5)
                     continue
                 for node in nodes:
-                    if enabled is not None and node.get('enabled') != str(enabled).lower():
+                    if enabled is not None and enabled_states.get(node, False) != enabled:
                         continue
                     if resource is not None and not node.get('resource-id', '').endswith(resource):
                         continue
