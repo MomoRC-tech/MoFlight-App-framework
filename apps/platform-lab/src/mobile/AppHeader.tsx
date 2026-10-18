@@ -1,6 +1,6 @@
 import React from 'react';
-import { Image, StyleSheet, Text, View, useWindowDimensions, type ImageSourcePropType } from 'react-native';
-import { Action, Photo, colors } from './theme';
+import { Image, Pressable, StyleSheet, Text, View, useWindowDimensions, type ImageSourcePropType } from 'react-native';
+import { Photo, colors } from './theme';
 
 const brandLogo = require('../../assets/branding/moflight-ai-logo-dark.png');
 
@@ -14,7 +14,7 @@ export function AppHeader({ title, subtitle, source, back, children }: {
   const controls = <View style={styles.controls}>{children}</View>;
   return <Photo source={source} radius={0} style={styles.header} contentStyle={styles.content} tint="#001022df">
     <View style={styles.row}>
-      {back ? <View style={styles.back}><Action secondary label="Zur vorherigen App-Ansicht" onPress={back}>‹</Action></View>
+      {back ? <Pressable accessibilityRole="button" accessibilityLabel="Zur vorherigen App-Ansicht" onPress={back} style={styles.back}><View accessible={false} style={styles.backArrow} /></Pressable>
         : <Image source={brandLogo} accessibilityLabel="MoFlight Thermik Logo" style={styles.logo} resizeMode="contain" />}
       <View style={styles.titleGroup}><Text accessibilityRole="header" numberOfLines={1} style={styles.title}>{title}</Text>
         {subtitle && width >= 412 && !secondRow && <Text style={styles.subtitle} numberOfLines={1}>{subtitle}</Text>}
@@ -33,5 +33,7 @@ const styles = StyleSheet.create({
   titleGroup: { flex: 1, minWidth: 0 },
   title: { color: colors.text, fontSize: 18, lineHeight: 24, fontWeight: '700' },
   subtitle: { color: colors.muted, fontSize: 11, lineHeight: 16 },
-  logo: { width: 52, height: 52, borderRadius: 8 }, back: { width: 48 },
+  logo: { width: 52, height: 52, borderRadius: 8 },
+  back: { width: 48, height: 48, borderRadius: 16, backgroundColor: '#a4adff', borderWidth: 1, borderColor: '#d0d5ff', alignItems: 'center', justifyContent: 'center' },
+  backArrow: { width: 12, height: 12, borderLeftWidth: 3, borderBottomWidth: 3, borderColor: '#101a3c', transform: [{ rotate: '45deg' }], marginLeft: 5 },
 });

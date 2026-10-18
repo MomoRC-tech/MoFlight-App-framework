@@ -73,6 +73,13 @@ def execute(smoke):
         smoke.shell('wm', 'size', '390x900')
         smoke.shell('settings', 'put', 'system', 'font_scale', '1.0')
         launch(smoke)
+        before_scroll = bounds(control(smoke, 'Lokale Daten aktualisieren'))
+        smoke.tap(PROFILE)
+        smoke.find('Lokales Demoprofil', exact=True)
+        smoke.tap(BACK)
+        assert bounds(smoke.find('Lokale Daten aktualisieren', exact=True)) == before_scroll, 'Main scroll changed after overlay return'
+        capture(smoke, 'main-scroll-preserved', viewport(smoke))
+        launch(smoke)
         tab(smoke, 'Flüge')
         smoke.tap('Flugfilter öffnen')
         smoke.find('Flugfilter', exact=True)
