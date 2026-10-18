@@ -12,13 +12,13 @@ Set-Location -LiteralPath 'C:\Users\Momo\Documents\30_Coding\03_chatGPT work fol
 # For a different existing JDK/SDK:
 # . .\scripts\windows-android-env.ps1 -JavaHome 'C:\path to\jdk17' -SdkRoot 'C:\path to\Sdk'
 pnpm install --frozen-lockfile
-pnpm typecheck
-pnpm test
-python scripts/mobile_fixtures.py --check
-python -m unittest discover -s tests -v
+pnpm check
+# At a platform integration checkpoint:
 pnpm bundle
 pnpm --filter @moflight/platform-lab prebuild:check
 ```
+
+`pnpm check` needs the installed Node/pnpm/Python runtimes, not Android tooling. It reports all four host checks concisely and saves diagnostics in ignored `build/host-checks/`; use focused commands for smaller edits as described in the [workflow](verification-workflow.md#local-checks-without-model-calls).
 
 The environment script changes only the current terminal session. Its default portable JDK location is the checkout's sibling `dev-tools\jdk17\jdk-17.0.20.1+1`; pass `-JavaHome` for another JDK 17 installation. It checks the Java major version and warns if ADB is absent. SDK default is `%LOCALAPPDATA%\Android\Sdk`. Pinned fixture bytes include their original line endings; `.gitattributes` disables Git text conversion for these fixtures. Do not regenerate fixtures to compensate for checkout conversion.
 

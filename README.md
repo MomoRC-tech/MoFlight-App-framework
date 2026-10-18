@@ -225,11 +225,11 @@ This repository is for development, not an app-store installation. Use Node 24 a
 ```bash
 npm install --global pnpm@11.25.0
 pnpm install --frozen-lockfile
-pnpm typecheck
-pnpm test
-pnpm fixtures:check
+pnpm check
 pnpm lab
 ```
+
+`pnpm check` runs types, TypeScript/SQLite tests, Python tests and fixture parity without model calls. It prints a compact summary and saves full logs under ignored `build/host-checks/`; see the [workflow](docs/development/verification-workflow.md#local-checks-without-model-calls). Individual and focused checks remain available.
 
 The [platform-lab runbook](apps/platform-lab/README.md) is the source for native launch/build commands, fixtures, backup/restore and provider trials. Development builds normally need Metro; offline restart verification uses an appropriate standalone build with embedded JavaScript. Do not assume a successful bundle proves native behavior.
 

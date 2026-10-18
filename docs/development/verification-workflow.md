@@ -14,6 +14,16 @@ Approved by Manuel on 17 October 2026 after requesting lower token use and autho
 
 The approved visual reference and existing screen-size requirements remain authoritative when visual checks apply. A logic-only change does not trigger the matrix. Prefer nonvisual native assertions for behavioral questions. Do not inspect every screenshot produced by an existing harness automatically; inspect images only for a specific visual acceptance question or failure.
 
+## Local checks without model calls
+
+Run `pnpm check` from the repository root for a complete host check: TypeScript, the TypeScript unit/controller/SQLite suite, standard Python unittest discovery and read-only fixture parity. It uses the installed runtimes and synthetic fixtures without model calls, credentials, package installation, hosted CI or devices. Some integration tests use a loopback HTTP server. Individual commands and focused tests remain available for smaller changes; documentation-only changes still use documentation checks.
+
+The command prints one result and duration per check, continues through independent failures and returns nonzero if any check fails, cannot start or exceeds 180 seconds. Each run gets a new ignored `build/host-checks/<run>/` directory with full numbered logs and `report.json` containing commands, exit codes, timings, Python version and the starting Git commit/dirty-tree state. `python scripts/verify_host.py --output <new-directory>` selects a different location; existing directories are refused to preserve evidence.
+
+Read the compact summary first. Passing checks normally need no further log inspection; failures print the last 12 log lines, with full diagnostics retained for focused investigation. Add regression assertions for repeatable behavior when a bug exposes a coverage gap. Keep actual layout/native/provider acceptance at its applicable checkpoint. Reuse existing node:test, unittest and native harness assertions rather than asking a model to repeatedly judge deterministic results.
+
+Launching or reviewing checks through an assistant still uses conversation tokens; the test processes themselves perform no LLM inference. Future AI-response validation should use frozen synthetic responses for ordinary contract tests. Actual handwriting/model-quality evaluation stays separate, requires permitted inputs and approved execution budget, and cannot be established by mocked responses. No token-saving percentage has been measured.
+
 ## Work in bounded packages
 
 1. Read current authorization and relevant source/evidence. Reuse the matching GitHub Issue; capture distinct work before implementing it.

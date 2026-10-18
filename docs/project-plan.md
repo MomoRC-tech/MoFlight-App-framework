@@ -95,6 +95,8 @@ Delivered on application `abd8f68`: assisted original-page re-login, fixed Germa
 
 ## Development workflow — approved 17 October 2026
 
+**18 October host-check follow-up, authorized under [#6](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/6#issuecomment-6246754534):** delivered `pnpm check` with compact host results and separate local logs; Python discovery and selector coverage are fixed. All four checks passed: **203 TypeScript tests, 48 Python tests, types and fixture parity**. [Evidence and limits](verification/2026-10-13-development-workflow.md#18-october-2026-local-host-check-runner). This reduces repeated model-led inspection without changing native/live/iOS/physical acceptance or milestone order.
+
 Manuel authorized persisting the [logic-first, risk-based workflow](development/verification-workflow.md) under [#6](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/6#issuecomment-6232382831). Routine logic work uses relevant tests and TypeScript; batch small commits into planned Release/native integration checkpoints. Visual checks target changed UI, with the full relevant size matrix reserved for substantial layout/navigation/typography changes. No routine subagents/screenshots/audits for small tasks; one concise package contract and verification summary. Documentation-only work needs links/consistency checks. This changes verification frequency, not milestone priorities or the remaining live/native/physical gates; the suggested connection-state refactor is not started or separately approved by this workflow authorization.
 
 ## Current increment — safe disconnect and re-login, authorized 17 October 2026

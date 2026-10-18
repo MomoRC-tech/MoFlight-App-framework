@@ -40,6 +40,7 @@
 ## Development and verification
 
 - Follow the [development/verification workflow](docs/development/verification-workflow.md) for check selection, integration checkpoints and evidence reuse. Default to logic-first development: relevant automated tests and TypeScript; no routine screenshots, image analysis, visual audits or native rebuilds for logic-only edits.
+- Use `pnpm check` for a complete local host check (types, TypeScript/SQLite tests, Python tests and fixture parity). Read its compact summary first; inspect detailed logs for failures or a specific unresolved question. The runner makes no model calls. Keep focused checks for smaller edits and documentation checks for documentation-only work.
 - Use Node 24 and the pinned pnpm in [package.json](package.json). See the [Windows setup](docs/development/windows-local-setup.md) and [lab runbook](apps/platform-lab/README.md) for environment/native commands. Select checks for the affected behavior, not as an unconditional checklist:
 
 | Change | Relevant commands/checks |

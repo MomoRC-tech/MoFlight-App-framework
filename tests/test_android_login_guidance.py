@@ -3,10 +3,12 @@ import sys
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
-import android_login_guidance_smoke as trial
+# Native helpers use sibling imports when launched as scripts. Keep that import
+# support local so later unittest discovery cannot resolve tests from scripts/.
+with patch.object(sys, 'path', [*sys.path, str(Path(__file__).resolve().parents[1] / 'scripts')]):
+    import android_login_guidance_smoke as trial
 
 
 class LoginTrialSafetyTests(unittest.TestCase):
