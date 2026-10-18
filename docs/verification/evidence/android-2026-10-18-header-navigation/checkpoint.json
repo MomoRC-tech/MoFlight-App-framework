@@ -1,0 +1,522 @@
+{
+  "application_source": "0beb58ed44df80a3e01b54eda210c4fdfd1b48e9",
+  "environment": {
+    "node": "24.18.0",
+    "pnpm": "11.25.0",
+    "python": "3.12.10",
+    "android": "17 / API 37 / x86_64",
+    "avd": "MoFlight_LoginUX_API37"
+  },
+  "host": {
+    "baseline_runner_report": "build/host-checks/20261018T070518Z-6e6933f7/report.json",
+    "runner_checks_passed": 4,
+    "mobile_tests": 211,
+    "python_tests": 48,
+    "new_harness_safety_tests": 2,
+    "final_focused_navigation_tests": 4,
+    "final_typescript": "passed",
+    "final_android_ios_exports": "passed",
+    "evidence_reuse": "Baseline implementation tests plus focused checks for subsequent native-view and Back appearance changes."
+  },
+  "release": {
+    "source_commit": "0beb58ed44df80a3e01b54eda210c4fdfd1b48e9",
+    "configuration": "Release",
+    "apk_sha256": "438543260902e984bbf3c28e4696ef540d2b9964dda504c01eb1acb26f77159b",
+    "elapsed_seconds": 51.529015,
+    "gradle_seconds": 50.6413093,
+    "native_regenerated": false,
+    "built_at_utc": "2026-10-18T07:20:25.6763929Z"
+  },
+  "apk_bytes": 48741987,
+  "native": {
+    "valid_checks": 21,
+    "runs": [
+      {
+        "local_run": "local-data\\header-navigation-2026-10-18\\native-5b72fd7",
+        "reported_status": "failed",
+        "source": {
+          "validated_commit": "5b72fd75005324c3def2a86c41fa9fb3a9acb7d6",
+          "compiled_commit": "5b72fd75005324c3def2a86c41fa9fb3a9acb7d6"
+        },
+        "note": "Matrix and return checks; stopped afterward on unsupported harness argument.",
+        "checks": [
+          {
+            "name": "header-360-900-font-1.0",
+            "status": "passed",
+            "viewport": {
+              "width_px": 360,
+              "height_px": 900,
+              "density_dpi": 160,
+              "width_dp": 360.0,
+              "height_dp": 900.0,
+              "font_scale": 1.0
+            },
+            "screenshot": "01-header-360-900-font-1.0.png",
+            "hierarchy": "01-header-360-900-font-1.0.xml",
+            "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+          },
+          {
+            "name": "profile-360-900-font-1.0",
+            "status": "passed",
+            "viewport": {
+              "width_px": 360,
+              "height_px": 900,
+              "density_dpi": 160,
+              "width_dp": 360.0,
+              "height_dp": 900.0,
+              "font_scale": 1.0
+            },
+            "screenshot": "02-profile-360-900-font-1.0.png",
+            "hierarchy": "02-profile-360-900-font-1.0.xml",
+            "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+          },
+          {
+            "name": "header-390-900-font-1.0",
+            "status": "passed",
+            "viewport": {
+              "width_px": 390,
+              "height_px": 900,
+              "density_dpi": 160,
+              "width_dp": 390.0,
+              "height_dp": 900.0,
+              "font_scale": 1.0
+            },
+            "screenshot": "03-header-390-900-font-1.0.png",
+            "hierarchy": "03-header-390-900-font-1.0.xml",
+            "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+          },
+          {
+            "name": "profile-390-900-font-1.0",
+            "status": "passed",
+            "viewport": {
+              "width_px": 390,
+              "height_px": 900,
+              "density_dpi": 160,
+              "width_dp": 390.0,
+              "height_dp": 900.0,
+              "font_scale": 1.0
+            },
+            "screenshot": "04-profile-390-900-font-1.0.png",
+            "hierarchy": "04-profile-390-900-font-1.0.xml",
+            "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+          },
+          {
+            "name": "header-412-900-font-1.0",
+            "status": "passed",
+            "viewport": {
+              "width_px": 412,
+              "height_px": 900,
+              "density_dpi": 160,
+              "width_dp": 412.0,
+              "height_dp": 900.0,
+              "font_scale": 1.0
+            },
+            "screenshot": "05-header-412-900-font-1.0.png",
+            "hierarchy": "05-header-412-900-font-1.0.xml",
+            "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+          },
+          {
+            "name": "profile-412-900-font-1.0",
+            "status": "passed",
+            "viewport": {
+              "width_px": 412,
+              "height_px": 900,
+              "density_dpi": 160,
+              "width_dp": 412.0,
+              "height_dp": 900.0,
+              "font_scale": 1.0
+            },
+            "screenshot": "06-profile-412-900-font-1.0.png",
+            "hierarchy": "06-profile-412-900-font-1.0.xml",
+            "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+          },
+          {
+            "name": "header-600-1100-font-1.0",
+            "status": "passed",
+            "viewport": {
+              "width_px": 600,
+              "height_px": 1100,
+              "density_dpi": 160,
+              "width_dp": 600.0,
+              "height_dp": 1100.0,
+              "font_scale": 1.0
+            },
+            "screenshot": "07-header-600-1100-font-1.0.png",
+            "hierarchy": "07-header-600-1100-font-1.0.xml",
+            "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+          },
+          {
+            "name": "profile-600-1100-font-1.0",
+            "status": "passed",
+            "viewport": {
+              "width_px": 600,
+              "height_px": 1100,
+              "density_dpi": 160,
+              "width_dp": 600.0,
+              "height_dp": 1100.0,
+              "font_scale": 1.0
+            },
+            "screenshot": "08-profile-600-1100-font-1.0.png",
+            "hierarchy": "08-profile-600-1100-font-1.0.xml",
+            "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+          },
+          {
+            "name": "header-360-900-font-1.4",
+            "status": "passed",
+            "viewport": {
+              "width_px": 360,
+              "height_px": 900,
+              "density_dpi": 160,
+              "width_dp": 360.0,
+              "height_dp": 900.0,
+              "font_scale": 1.4
+            },
+            "screenshot": "09-header-360-900-font-1.4.png",
+            "hierarchy": "09-header-360-900-font-1.4.xml",
+            "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+          },
+          {
+            "name": "profile-360-900-font-1.4",
+            "status": "passed",
+            "viewport": {
+              "width_px": 360,
+              "height_px": 900,
+              "density_dpi": 160,
+              "width_dp": 360.0,
+              "height_dp": 900.0,
+              "font_scale": 1.4
+            },
+            "screenshot": "10-profile-360-900-font-1.4.png",
+            "hierarchy": "10-profile-360-900-font-1.4.xml",
+            "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+          },
+          {
+            "name": "header-840-412-font-1.0",
+            "status": "passed",
+            "viewport": {
+              "width_px": 840,
+              "height_px": 412,
+              "density_dpi": 160,
+              "width_dp": 840.0,
+              "height_dp": 412.0,
+              "font_scale": 1.0
+            },
+            "screenshot": "11-header-840-412-font-1.0.png",
+            "hierarchy": "11-header-840-412-font-1.0.xml",
+            "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+          },
+          {
+            "name": "profile-840-412-font-1.0",
+            "status": "passed",
+            "viewport": {
+              "width_px": 840,
+              "height_px": 412,
+              "density_dpi": 160,
+              "width_dp": 840.0,
+              "height_dp": 412.0,
+              "font_scale": 1.0
+            },
+            "screenshot": "12-profile-840-412-font-1.0.png",
+            "hierarchy": "12-profile-840-412-font-1.0.xml",
+            "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+          },
+          {
+            "name": "main-scroll-preserved",
+            "status": "passed",
+            "viewport": {
+              "width_px": 390,
+              "height_px": 900,
+              "density_dpi": 160,
+              "width_dp": 390.0,
+              "height_dp": 900.0,
+              "font_scale": 1.0
+            },
+            "screenshot": "13-main-scroll-preserved.png",
+            "hierarchy": "13-main-scroll-preserved.xml",
+            "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+          },
+          {
+            "name": "nested-overlay-return",
+            "status": "passed",
+            "viewport": {
+              "width_px": 390,
+              "height_px": 900,
+              "density_dpi": 160,
+              "width_dp": 390.0,
+              "height_dp": 900.0,
+              "font_scale": 1.0
+            },
+            "screenshot": "14-nested-overlay-return.png",
+            "hierarchy": "14-nested-overlay-return.xml",
+            "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+          }
+        ],
+        "keyboard": null,
+        "final": {
+          "display": {
+            "width_px": 1080,
+            "height_px": 2400,
+            "density_dpi": 420,
+            "width_dp": 411.42857142857144,
+            "height_dp": 914.2857142857143,
+            "font_scale": 1.0
+          },
+          "app": "stopped",
+          "radios": "off"
+        },
+        "public_provider_origin": null,
+        "public_history_back_enabled": null
+      },
+      {
+        "local_run": "local-data\\header-navigation-2026-10-18\\continuation-0beb58e-v2",
+        "reported_status": "failed",
+        "source": {
+          "validated_commit": "0beb58ed44df80a3e01b54eda210c4fdfd1b48e9",
+          "compiled_commit": "0beb58ed44df80a3e01b54eda210c4fdfd1b48e9"
+        },
+        "note": "One valid keyboard check; offline load immediately hid the provider frame, as existing controller behavior requires.",
+        "checks": [
+          {
+            "name": "profile-keyboard",
+            "status": "passed",
+            "viewport": {
+              "width_px": 390,
+              "height_px": 900,
+              "density_dpi": 160,
+              "width_dp": 390.0,
+              "height_dp": 900.0,
+              "font_scale": 1.0
+            },
+            "screenshot": "01-profile-keyboard.png",
+            "hierarchy": "01-profile-keyboard.xml",
+            "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+          }
+        ],
+        "keyboard": {
+          "top": 601,
+          "source": "WindowManager visible IME InsetsSource frame"
+        },
+        "final": {
+          "display": {
+            "width_px": 1080,
+            "height_px": 2400,
+            "density_dpi": 420,
+            "width_dp": 411.42857142857144,
+            "height_dp": 914.2857142857143,
+            "font_scale": 1.0
+          },
+          "app": "stopped",
+          "radios": "off"
+        },
+        "public_provider_origin": null,
+        "public_history_back_enabled": null
+      },
+      {
+        "local_run": "local-data\\header-navigation-2026-10-18\\back-0beb58e",
+        "reported_status": "passed",
+        "source": {
+          "validated_commit": "0beb58ed44df80a3e01b54eda210c4fdfd1b48e9",
+          "compiled_commit": "0beb58ed44df80a3e01b54eda210c4fdfd1b48e9"
+        },
+        "note": "Final Back appearance follow-up.",
+        "checks": [
+          {
+            "name": "header-360-900-font-1.0",
+            "status": "passed",
+            "viewport": {
+              "width_px": 360,
+              "height_px": 900,
+              "density_dpi": 160,
+              "width_dp": 360.0,
+              "height_dp": 900.0,
+              "font_scale": 1.0
+            },
+            "screenshot": "01-header-360-900-font-1.0.png",
+            "hierarchy": "01-header-360-900-font-1.0.xml",
+            "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+          },
+          {
+            "name": "profile-360-900-font-1.0",
+            "status": "passed",
+            "viewport": {
+              "width_px": 360,
+              "height_px": 900,
+              "density_dpi": 160,
+              "width_dp": 360.0,
+              "height_dp": 900.0,
+              "font_scale": 1.0
+            },
+            "screenshot": "02-profile-360-900-font-1.0.png",
+            "hierarchy": "02-profile-360-900-font-1.0.xml",
+            "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+          },
+          {
+            "name": "header-360-900-font-1.4",
+            "status": "passed",
+            "viewport": {
+              "width_px": 360,
+              "height_px": 900,
+              "density_dpi": 160,
+              "width_dp": 360.0,
+              "height_dp": 900.0,
+              "font_scale": 1.4
+            },
+            "screenshot": "03-header-360-900-font-1.4.png",
+            "hierarchy": "03-header-360-900-font-1.4.xml",
+            "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+          },
+          {
+            "name": "profile-360-900-font-1.4",
+            "status": "passed",
+            "viewport": {
+              "width_px": 360,
+              "height_px": 900,
+              "density_dpi": 160,
+              "width_dp": 360.0,
+              "height_dp": 900.0,
+              "font_scale": 1.4
+            },
+            "screenshot": "04-profile-360-900-font-1.4.png",
+            "hierarchy": "04-profile-360-900-font-1.4.xml",
+            "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+          }
+        ],
+        "keyboard": null,
+        "final": {
+          "display": {
+            "width_px": 1080,
+            "height_px": 2400,
+            "density_dpi": 420,
+            "width_dp": 411.42857142857144,
+            "height_dp": 914.2857142857143,
+            "font_scale": 1.0
+          },
+          "app": "stopped",
+          "radios": "off"
+        },
+        "public_provider_origin": null,
+        "public_history_back_enabled": null
+      },
+      {
+        "local_run": "local-data\\header-navigation-2026-10-18\\public-0beb58e-v3",
+        "reported_status": "passed",
+        "source": {
+          "validated_commit": "0beb58ed44df80a3e01b54eda210c4fdfd1b48e9",
+          "compiled_commit": "0beb58ed44df80a3e01b54eda210c4fdfd1b48e9"
+        },
+        "note": "Anonymous public login toolbar and Close; no sign-in or retrieval.",
+        "checks": [
+          {
+            "name": "public-provider-toolbar",
+            "status": "passed",
+            "viewport": {
+              "width_px": 390,
+              "height_px": 900,
+              "density_dpi": 160,
+              "width_dp": 390.0,
+              "height_dp": 900.0,
+              "font_scale": 1.0
+            },
+            "screenshot": "01-public-provider-toolbar.png",
+            "hierarchy": "01-public-provider-toolbar.xml",
+            "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+          },
+          {
+            "name": "public-provider-close-returns-to-flights",
+            "status": "passed",
+            "viewport": {
+              "width_px": 390,
+              "height_px": 900,
+              "density_dpi": 160,
+              "width_dp": 390.0,
+              "height_dp": 900.0,
+              "font_scale": 1.0
+            },
+            "screenshot": "02-public-provider-close-returns-to-flights.png",
+            "hierarchy": "02-public-provider-close-returns-to-flights.xml",
+            "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+          }
+        ],
+        "keyboard": null,
+        "final": {
+          "display": {
+            "width_px": 1080,
+            "height_px": 2400,
+            "density_dpi": 420,
+            "width_dp": 411.42857142857144,
+            "height_dp": 914.2857142857143,
+            "font_scale": 1.0
+          },
+          "app": "stopped",
+          "radios": "off"
+        },
+        "public_provider_origin": "https://vereinsflieger.de",
+        "public_history_back_enabled": false
+      }
+    ],
+    "earlier_failures": [
+      {
+        "local_run": "local-data\\header-navigation-2026-10-18\\native-5425126",
+        "status": "failed",
+        "error": "Expected one reachable active status group",
+        "checks_not_reused": 1
+      },
+      {
+        "local_run": "local-data\\header-navigation-2026-10-18\\native-62794a3",
+        "status": "failed",
+        "error": "Expected one reachable active status group",
+        "checks_not_reused": 1
+      },
+      {
+        "local_run": "local-data\\header-navigation-2026-10-18\\continuation-0beb58e",
+        "status": "failed",
+        "error": "Visible UI did not contain 'Anzeigename'",
+        "checks_not_reused": 0
+      },
+      {
+        "local_run": "local-data\\header-navigation-2026-10-18\\public-0beb58e",
+        "status": "failed",
+        "error": "",
+        "checks_not_reused": 0
+      },
+      {
+        "local_run": "local-data\\header-navigation-2026-10-18\\public-0beb58e-v2",
+        "status": "failed",
+        "error": "Visible UI did not contain 'https://www.vereinsflieger.de'",
+        "checks_not_reused": 0
+      }
+    ],
+    "wide_profile_action": {
+      "viewport_dp": [
+        600,
+        1100
+      ],
+      "bounds_dp": [
+        72,
+        298,
+        528,
+        346
+      ],
+      "width_dp": 456,
+      "centered": true
+    }
+  },
+  "final_observed_state": {
+    "airplane_mode_on": "1",
+    "wifi_on": "0",
+    "mobile_data": "0",
+    "display_px": [
+      1080,
+      2400
+    ],
+    "density_dpi": 420,
+    "font_scale": 1.0,
+    "app": "stopped"
+  },
+  "limits": [
+    "Med/header-group revision pending",
+    "No provider credentials, sign-in or retrieval",
+    "Positive provider-history navigation guarded by host tests; native public page had no prior history",
+    "Spoken TalkBack/focus restoration, original-provider keyboard, iOS and physical phone not tested"
+  ]
+}

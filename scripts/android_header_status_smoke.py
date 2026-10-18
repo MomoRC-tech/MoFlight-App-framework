@@ -1,7 +1,8 @@
-"""Non-destructive offline header/navigation trial on the dedicated LoginUX AVD.
+"""Non-destructive header/navigation trial on the dedicated LoginUX AVD.
 
 No app reset, provider sign-in, credentials, captures, database reads or seeding.
 The two AVDs that may hold personal sessions are rejected before any mutation.
+Offline by default; --public-toolbar loads only the public login page online.
 """
 import argparse
 import time
@@ -38,13 +39,59 @@ def active_header(smoke, width, height, *, back=False):
     return connection[0]
 
 
-def execute(smoke):
+def profile_input(smoke):
+    return next(n for n in smoke.dump() if n.get('class') == 'android.widget.EditText'
+                and n.get('content-desc') == 'Anzeigename')
+
+
+def public_toolbar(smoke):
+    smoke.shell('wm', 'size', '390x900')
+    smoke.shell('wm', 'density', '160')
+    smoke.shell('settings', 'put', 'system', 'font_scale', '1.0')
+    launch(smoke)
+    tab(smoke, 'Flüge')
+    smoke.tap_node(active_header(smoke, 390, 900))
+    smoke.shell('cmd', 'connectivity', 'airplane-mode', 'disable')
+    smoke.shell('svc', 'data', 'disable')
+    smoke.shell('cmd', 'wifi', 'set-wifi-enabled', 'enabled')
+    for _ in range(40):
+        if smoke.shell('settings', 'get', 'global', 'wifi_on') == '1':
+            break
+        time.sleep(.25)
+    assert smoke.shell('settings', 'get', 'global', 'wifi_on') == '1'
+    for _ in range(40):
+        if 'Supplicant state: COMPLETED' in smoke.shell('cmd', 'wifi', 'status'):
+            break
+        time.sleep(.25)
+    else:
+        raise AssertionError('Public toolbar trial requires connected Wi-Fi')
+    smoke.report['public_provider_network'] = 'Wi-Fi enabled only for anonymous public-login toolbar inspection; no credentials or retrieval'
+    # A fresh process on this previously offline-only AVD has no active browser.
+    smoke.tap_node(smoke.find('Bei Vereinsflieger anmelden', exact=True))
+    smoke.find('Zugangsdaten nur auf der Originalseite eingeben.', exact=True, attempts=30)
+    smoke.find('Anmeldung prüfen', exact=True, enabled=True, attempts=30)
+    origins = [n.get('text') for n in smoke.dump()
+               if n.get('text') in ('https://vereinsflieger.de', 'https://www.vereinsflieger.de')]
+    assert len(origins) == 1, 'Expected the exact allowed HTTPS provider origin'
+    smoke.report['public_provider_origin'] = origins[0]
+    previous = smoke.find('Auf der Vereinsflieger-Seite zurück', exact=True)
+    smoke.report['public_history_back_enabled'] = previous.get('enabled') == 'true'
+    smoke.find(CLOSE, exact=True)
+    assert not any(n.get('content-desc') == PROFILE for n in smoke.dump())
+    capture(smoke, 'public-provider-toolbar', viewport(smoke))
+    smoke.tap(CLOSE)
+    smoke.find('Flüge durchsuchen', exact=True)
+    active_header(smoke, 390, 900)
+    capture(smoke, 'public-provider-close-returns-to-flights', viewport(smoke))
+
+
+def execute(smoke, *, back_only=False, continuation=False, public_only=False):
     assert smoke.shell('getprop', 'ro.kernel.qemu') == '1', 'Emulator required'
     assert smoke.adb('emu', 'avd', 'name').stdout.splitlines()[0].strip() == AVD, 'Dedicated LoginUX AVD required'
     smoke.emulator = True
     original = viewport(smoke)
     smoke.report.update(avd=AVD, original=original,
-                        boundary='Offline header/navigation only; no Medical, live provider, credentials, captures, resets, data seeding, private reads, physical phone or iOS.')
+                        boundary='Header/navigation only; offline except optional anonymous public login page. No Medical, sign-in, credentials, captures, resets, data seeding, private reads, physical phone or iOS.')
     try:
         smoke.shell('cmd', 'connectivity', 'airplane-mode', 'enable')
         smoke.shell('svc', 'wifi', 'disable')
@@ -56,8 +103,15 @@ def execute(smoke):
             time.sleep(.25)
         assert network == {'airplane_mode_on': '1', 'wifi_on': '0', 'mobile_data': '0'}
         smoke.report['network'] = network
-        for width, height, font in [(360, 900, 1.0), (390, 900, 1.0), (412, 900, 1.0),
-                                    (600, 1100, 1.0), (360, 900, 1.4), (840, 412, 1.0)]:
+        if public_only:
+            smoke.report['scope'] = 'Anonymous public-provider toolbar'
+            public_toolbar(smoke)
+            return
+        viewports = [] if continuation else [(360, 900, 1.0), (360, 900, 1.4)] if back_only else [
+            (360, 900, 1.0), (390, 900, 1.0), (412, 900, 1.0),
+            (600, 1100, 1.0), (360, 900, 1.4), (840, 412, 1.0)]
+        smoke.report['scope'] = 'Keyboard/provider continuation' if continuation else 'Back appearance follow-up' if back_only else 'Header/navigation matrix and return paths'
+        for width, height, font in viewports:
             smoke.shell('wm', 'size', f'{width}x{height}')
             smoke.shell('wm', 'density', '160')
             smoke.shell('settings', 'put', 'system', 'font_scale', str(font))
@@ -69,38 +123,45 @@ def execute(smoke):
             active_header(smoke, width, height, back=True)
             capture(smoke, f'profile-{width}-{height}-font-{font}', viewport(smoke))
 
+        if back_only:
+            return
+
         # Check the new overlay layering and return path on a normal phone.
         smoke.shell('wm', 'size', '390x900')
+        smoke.shell('wm', 'density', '160')
         smoke.shell('settings', 'put', 'system', 'font_scale', '1.0')
+        assert viewport(smoke)['width_dp'] == 390
         launch(smoke)
-        before_scroll = bounds(control(smoke, 'Lokale Daten aktualisieren'))
-        smoke.tap(PROFILE)
-        smoke.find('Lokales Demoprofil', exact=True)
-        smoke.tap(BACK)
-        assert bounds(smoke.find('Lokale Daten aktualisieren', exact=True)) == before_scroll, 'Main scroll changed after overlay return'
-        capture(smoke, 'main-scroll-preserved', viewport(smoke))
-        launch(smoke)
-        tab(smoke, 'Flüge')
-        smoke.tap('Flugfilter öffnen')
-        smoke.find('Flugfilter', exact=True)
-        active_header(smoke, 390, 900, back=True)
-        smoke.tap(PROFILE)
-        smoke.find('Lokales Demoprofil', exact=True)
-        smoke.tap_node(active_header(smoke, 390, 900, back=True))
-        smoke.find('Sitzung ungeprüft', exact=True)
-        assert not any(n.get('content-desc') == PROFILE for n in smoke.dump())
-        smoke.tap(CLOSE)
-        smoke.find('Lokales Demoprofil', exact=True)
-        smoke.tap(BACK)
-        smoke.find('Flugfilter', exact=True)
-        active_header(smoke, 390, 900, back=True)
-        smoke.tap(BACK)
-        smoke.find('Flüge durchsuchen', exact=True)
-        capture(smoke, 'nested-overlay-return', viewport(smoke))
+        if not continuation:
+            before_scroll = bounds(control(smoke, 'Lokale Daten aktualisieren'))
+            smoke.tap(PROFILE)
+            smoke.find('Lokales Demoprofil', exact=True)
+            smoke.tap(BACK)
+            assert bounds(smoke.find('Lokale Daten aktualisieren', exact=True)) == before_scroll, 'Main scroll changed after overlay return'
+            capture(smoke, 'main-scroll-preserved', viewport(smoke))
+            launch(smoke)
+            tab(smoke, 'Flüge')
+            smoke.tap('Flugfilter öffnen')
+            smoke.find('Flugfilter', exact=True)
+            active_header(smoke, 390, 900, back=True)
+            smoke.tap(PROFILE)
+            smoke.find('Lokales Demoprofil', exact=True)
+            smoke.tap_node(active_header(smoke, 390, 900, back=True))
+            smoke.find('Sitzung ungeprüft', exact=True)
+            assert not any(n.get('content-desc') == PROFILE for n in smoke.dump())
+            smoke.tap(CLOSE)
+            smoke.find('Lokales Demoprofil', exact=True)
+            smoke.tap(BACK)
+            smoke.find('Flugfilter', exact=True)
+            active_header(smoke, 390, 900, back=True)
+            smoke.tap(BACK)
+            smoke.find('Flüge durchsuchen', exact=True)
+            capture(smoke, 'nested-overlay-return', viewport(smoke))
 
         # Keyboard uses an existing field, without changing or saving its value.
+        tab(smoke, 'Flüge')
         smoke.tap(PROFILE)
-        smoke.tap('Anzeigename', exact=True)
+        smoke.tap_node(profile_input(smoke))
         for _ in range(12):
             try:
                 keyboard, keyboard_source = native_keyboard_top(smoke.shell('dumpsys', 'window'), 390, 900)
@@ -110,26 +171,27 @@ def execute(smoke):
         else:
             raise AssertionError('Native keyboard geometry unavailable')
         active_header(smoke, 390, 900, back=True)
-        assert bounds(smoke.find('Anzeigename', exact=True))[3] <= keyboard + 2
+        assert bounds(profile_input(smoke))[3] <= keyboard + 2
         smoke.report['keyboard'] = {'top': keyboard, 'source': keyboard_source}
         capture(smoke, 'profile-keyboard', viewport(smoke))
         smoke.shell('input', 'keyevent', 'KEYCODE_BACK')
         smoke.tap(BACK)
 
-        # The original page remains offline. Positive history is a host check;
-        # this native check covers the separate disabled Back, Close and origin.
+        # Existing load-error behavior hides the browser frame immediately.
+        # Test the resulting panel/Close, not transient toolbar provenance.
         smoke.tap_node(active_header(smoke, 390, 900))
-        smoke.tap('Bei Vereinsflieger anmelden', exact=True)
-        control(smoke, 'Zugangsdaten nur auf der Originalseite eingeben.')
-        smoke.find('Auf der Vereinsflieger-Seite zurück', exact=True, enabled=False)
+        smoke.tap_node(smoke.find('Bei Vereinsflieger anmelden', exact=True))
+        control(smoke, 'Die Anbieterseite konnte nicht geladen werden.')
         smoke.find(CLOSE, exact=True)
-        smoke.find('https://www.vereinsflieger.de', exact=False)
-        capture(smoke, 'offline-provider-toolbar', viewport(smoke))
+        capture(smoke, 'offline-provider-page-error', viewport(smoke))
         smoke.tap(CLOSE)
         smoke.find('Flüge durchsuchen', exact=True)
         active_header(smoke, 390, 900)
         capture(smoke, 'provider-close-returns-to-flights', viewport(smoke))
     finally:
+        smoke.shell('svc', 'wifi', 'disable')
+        smoke.shell('svc', 'data', 'disable')
+        smoke.shell('cmd', 'connectivity', 'airplane-mode', 'enable')
         smoke.shell('am', 'force-stop', PACKAGE)
         smoke.shell('wm', 'size', f"{original['width_px']}x{original['height_px']}")
         smoke.shell('wm', 'density', str(original['density_dpi']))
@@ -141,10 +203,14 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--serial', required=True)
     parser.add_argument('--output', type=Path, required=True)
+    phases = parser.add_mutually_exclusive_group()
+    phases.add_argument('--back-only', action='store_true', help='Repeat only narrow normal/large-text headers after a Back-appearance change')
+    phases.add_argument('--continuation', action='store_true', help='Resume keyboard/provider checks after completed matrix/return checks')
+    phases.add_argument('--public-toolbar', action='store_true', help='Inspect only the anonymous original public login toolbar; Wi-Fi is switched off afterward')
     args = parser.parse_args()
     smoke = Smoke(args.output, serial=args.serial, expected_avd=AVD)
     try:
-        execute(smoke)
+        execute(smoke, back_only=args.back_only, continuation=args.continuation, public_only=args.public_toolbar)
     except Exception as error:
         finish(smoke, 'failed', error)
         raise
