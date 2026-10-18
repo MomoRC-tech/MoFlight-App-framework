@@ -1,0 +1,348 @@
+{
+  "application_source": "8b51f5ab3fe1883e9c5e54ac2d3a30b822e2ab46",
+  "environment": {
+    "node": "24.18.0",
+    "pnpm": "11.25.0",
+    "python": "3.12.10",
+    "android_api": 37,
+    "abi": "x86_64",
+    "avd": "MoFlight_LoginUX_API37"
+  },
+  "host": {
+    "report": "build\\host-checks\\20261018T081955Z-74c4aa9b\\report.json",
+    "all_checks_passed": 5,
+    "mobile_tests": 215,
+    "python_tests": 58,
+    "focused_component_navigation_tests": 8,
+    "focused_harness_safety_tests": 2
+  },
+  "exports": {
+    "android": "passed",
+    "ios": "passed",
+    "source": "8b51f5ab3fe1883e9c5e54ac2d3a30b822e2ab46"
+  },
+  "release": {
+    "source_commit": "8b51f5ab3fe1883e9c5e54ac2d3a30b822e2ab46",
+    "configuration": "Release",
+    "apk_sha256": "198705d1e7eee3c00647f5c643982d6b671b7c5298d676429f7668c8a47c4330",
+    "elapsed_seconds": 100.0858489,
+    "gradle_seconds": 99.174768,
+    "native_regenerated": false,
+    "built_at_utc": "2026-10-18T08:23:35.712674+00:00",
+    "total_seconds": 102.891,
+    "toolchain": {
+      "javaMajor": "17",
+      "sdkPackages": [
+        "platform-tools",
+        "platforms;android-36",
+        "build-tools;36.0.0",
+        "ndk;27.1.12297006",
+        "cmake;3.22.1"
+      ],
+      "architectures": "arm64-v8a,x86_64",
+      "emulatorApi": 35,
+      "emulatorTarget": "google_apis",
+      "syntheticAvd": "MoFlight_Synthetic_API37",
+      "maestroVersion": "2.11.0",
+      "maestroSha256": "5384593cb4e7a106489e75a821d157dd43f4e438df6bc308b72e82c685e1283a"
+    },
+    "node": "v24.18.0",
+    "pnpm": "11.25.0",
+    "java": "openjdk version \"17.0.20.1\" 2026-08-18\nOpenJDK Runtime Environment Temurin-17.0.20.1+1 (build 17.0.20.1+1)\nOpenJDK 64-Bit Server VM Temurin-17.0.20.1+1 (build 17.0.20.1+1, mixed mode, sharing)",
+    "platform": "win32",
+    "metro_required": false
+  },
+  "native": {
+    "status": "passed",
+    "checks": [
+      {
+        "name": "med-header-360-900-font-1.0",
+        "status": "passed",
+        "viewport": {
+          "width_px": 360,
+          "height_px": 900,
+          "density_dpi": 160,
+          "width_dp": 360.0,
+          "height_dp": 900.0,
+          "font_scale": 1.0
+        },
+        "screenshot": "01-med-header-360-900-font-1.0.png",
+        "hierarchy": "01-med-header-360-900-font-1.0.xml",
+        "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+      },
+      {
+        "name": "med-sheet-360-900-font-1.0",
+        "status": "passed",
+        "viewport": {
+          "width_px": 360,
+          "height_px": 900,
+          "density_dpi": 160,
+          "width_dp": 360.0,
+          "height_dp": 900.0,
+          "font_scale": 1.0
+        },
+        "screenshot": "02-med-sheet-360-900-font-1.0.png",
+        "hierarchy": "02-med-sheet-360-900-font-1.0.xml",
+        "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+      },
+      {
+        "name": "med-header-390-900-font-1.0",
+        "status": "passed",
+        "viewport": {
+          "width_px": 390,
+          "height_px": 900,
+          "density_dpi": 160,
+          "width_dp": 390.0,
+          "height_dp": 900.0,
+          "font_scale": 1.0
+        },
+        "screenshot": "03-med-header-390-900-font-1.0.png",
+        "hierarchy": "03-med-header-390-900-font-1.0.xml",
+        "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+      },
+      {
+        "name": "med-sheet-390-900-font-1.0",
+        "status": "passed",
+        "viewport": {
+          "width_px": 390,
+          "height_px": 900,
+          "density_dpi": 160,
+          "width_dp": 390.0,
+          "height_dp": 900.0,
+          "font_scale": 1.0
+        },
+        "screenshot": "04-med-sheet-390-900-font-1.0.png",
+        "hierarchy": "04-med-sheet-390-900-font-1.0.xml",
+        "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+      },
+      {
+        "name": "med-header-412-900-font-1.0",
+        "status": "passed",
+        "viewport": {
+          "width_px": 412,
+          "height_px": 900,
+          "density_dpi": 160,
+          "width_dp": 412.0,
+          "height_dp": 900.0,
+          "font_scale": 1.0
+        },
+        "screenshot": "05-med-header-412-900-font-1.0.png",
+        "hierarchy": "05-med-header-412-900-font-1.0.xml",
+        "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+      },
+      {
+        "name": "med-sheet-412-900-font-1.0",
+        "status": "passed",
+        "viewport": {
+          "width_px": 412,
+          "height_px": 900,
+          "density_dpi": 160,
+          "width_dp": 412.0,
+          "height_dp": 900.0,
+          "font_scale": 1.0
+        },
+        "screenshot": "06-med-sheet-412-900-font-1.0.png",
+        "hierarchy": "06-med-sheet-412-900-font-1.0.xml",
+        "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+      },
+      {
+        "name": "med-header-600-1100-font-1.0",
+        "status": "passed",
+        "viewport": {
+          "width_px": 600,
+          "height_px": 1100,
+          "density_dpi": 160,
+          "width_dp": 600.0,
+          "height_dp": 1100.0,
+          "font_scale": 1.0
+        },
+        "screenshot": "07-med-header-600-1100-font-1.0.png",
+        "hierarchy": "07-med-header-600-1100-font-1.0.xml",
+        "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+      },
+      {
+        "name": "med-sheet-600-1100-font-1.0",
+        "status": "passed",
+        "viewport": {
+          "width_px": 600,
+          "height_px": 1100,
+          "density_dpi": 160,
+          "width_dp": 600.0,
+          "height_dp": 1100.0,
+          "font_scale": 1.0
+        },
+        "screenshot": "08-med-sheet-600-1100-font-1.0.png",
+        "hierarchy": "08-med-sheet-600-1100-font-1.0.xml",
+        "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+      },
+      {
+        "name": "med-header-360-900-font-1.4",
+        "status": "passed",
+        "viewport": {
+          "width_px": 360,
+          "height_px": 900,
+          "density_dpi": 160,
+          "width_dp": 360.0,
+          "height_dp": 900.0,
+          "font_scale": 1.4
+        },
+        "screenshot": "09-med-header-360-900-font-1.4.png",
+        "hierarchy": "09-med-header-360-900-font-1.4.xml",
+        "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+      },
+      {
+        "name": "med-sheet-360-900-font-1.4",
+        "status": "passed",
+        "viewport": {
+          "width_px": 360,
+          "height_px": 900,
+          "density_dpi": 160,
+          "width_dp": 360.0,
+          "height_dp": 900.0,
+          "font_scale": 1.4
+        },
+        "screenshot": "10-med-sheet-360-900-font-1.4.png",
+        "hierarchy": "10-med-sheet-360-900-font-1.4.xml",
+        "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+      },
+      {
+        "name": "med-header-840-412-font-1.0",
+        "status": "passed",
+        "viewport": {
+          "width_px": 840,
+          "height_px": 412,
+          "density_dpi": 160,
+          "width_dp": 840.0,
+          "height_dp": 412.0,
+          "font_scale": 1.0
+        },
+        "screenshot": "11-med-header-840-412-font-1.0.png",
+        "hierarchy": "11-med-header-840-412-font-1.0.xml",
+        "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+      },
+      {
+        "name": "med-sheet-840-412-font-1.0",
+        "status": "passed",
+        "viewport": {
+          "width_px": 840,
+          "height_px": 412,
+          "density_dpi": 160,
+          "width_dp": 840.0,
+          "height_dp": 412.0,
+          "font_scale": 1.0
+        },
+        "screenshot": "12-med-sheet-840-412-font-1.0.png",
+        "hierarchy": "12-med-sheet-840-412-font-1.0.xml",
+        "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+      },
+      {
+        "name": "medical-nested-return",
+        "status": "passed",
+        "viewport": {
+          "width_px": 390,
+          "height_px": 900,
+          "density_dpi": 160,
+          "width_dp": 390.0,
+          "height_dp": 900.0,
+          "font_scale": 1.0
+        },
+        "screenshot": "13-medical-nested-return.png",
+        "hierarchy": "13-medical-nested-return.xml",
+        "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+      }
+    ],
+    "boundary": "Header/navigation only; offline except optional anonymous public login page. No Medical, sign-in, credentials, captures, resets, data seeding, private reads, physical phone or iOS.",
+    "source": {
+      "validated_commit": "8b51f5ab3fe1883e9c5e54ac2d3a30b822e2ab46",
+      "compiled_commit": "8b51f5ab3fe1883e9c5e54ac2d3a30b822e2ab46"
+    },
+    "avd": "MoFlight_LoginUX_API37",
+    "original": {
+      "width_px": 1080,
+      "height_px": 2400,
+      "density_dpi": 420,
+      "width_dp": 411.42857142857144,
+      "height_dp": 914.2857142857143,
+      "font_scale": 1.0
+    },
+    "network": {
+      "airplane_mode_on": "1",
+      "wifi_on": "0",
+      "mobile_data": "0"
+    },
+    "scope": "Connection → Med → Profile, read-only unknown sheet and nested return; offline only",
+    "final": {
+      "display": {
+        "width_px": 1080,
+        "height_px": 2400,
+        "density_dpi": 420,
+        "width_dp": 411.42857142857144,
+        "height_dp": 914.2857142857143,
+        "font_scale": 1.0
+      },
+      "app": "stopped",
+      "radios": "off"
+    }
+  },
+  "measured_medical_controls": [
+    {
+      "hierarchy": "02-med-sheet-360-900-font-1.0.xml",
+      "medical_bounds_dp": [
+        226,
+        49,
+        298,
+        97
+      ],
+      "width_dp": 72,
+      "height_dp": 48,
+      "selected": "true"
+    },
+    {
+      "hierarchy": "08-med-sheet-600-1100-font-1.0.xml",
+      "medical_bounds_dp": [
+        466,
+        66,
+        538,
+        114
+      ],
+      "width_dp": 72,
+      "height_dp": 48,
+      "selected": "true"
+    },
+    {
+      "hierarchy": "10-med-sheet-360-900-font-1.4.xml",
+      "medical_bounds_dp": [
+        211,
+        101,
+        298,
+        150
+      ],
+      "width_dp": 87,
+      "height_dp": 49,
+      "selected": "true"
+    }
+  ],
+  "preservation": {
+    "private_session_avds": "stopped and untouched",
+    "credentials_retrieval_clear_or_seeding": "none",
+    "network": "off throughout",
+    "final_observed": {
+      "airplane_mode_on": "1",
+      "wifi_on": "0",
+      "mobile_data": "0",
+      "display_px": [
+        1080,
+        2400
+      ],
+      "density_dpi": 420,
+      "font_scale": 1.0,
+      "app": "stopped",
+      "avd": "shutdown verified; adb devices list empty"
+    }
+  },
+  "limits": [
+    "No Medical source/input/persistence or eligibility assessment",
+    "No live-provider trial repeated",
+    "Spoken TalkBack/focus, iOS runtime and physical-device acceptance remain open"
+  ]
+}
