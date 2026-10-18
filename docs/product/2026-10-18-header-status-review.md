@@ -90,7 +90,7 @@ The [v0.30 Med treatment](../verification/2026-10-16-popup-back-med-preview.md) 
 | Earlier Medical symbol/text group | Missing in native; restore as an explicit group, with unknown state rather than a fabricated date |
 | Book selector, chips, small actions | Some source styles have 36 dp minimum height; assess actual effective hit bounds, spacing and any hitSlop before claiming a touch-target failure |
 
-The [actual-size synthetic preview](prototypes/2026-10-18-header-icons-review.html) retains the original top-view glider and side-view aircraft candidates, width controls and connection-state examples. Manuel subsequently selected side-view B for the shared Flüge destination. Preview syntax/link checks remain historical prototype evidence; the separate implementation report above records bounded native checks and their limits.
+The historical actual-size synthetic preview contained the original top-view glider and side-view aircraft candidates, width controls and connection-state examples. It was removed after the later default duotone-family decision; the original checkpoint remains recoverable through Git history. Manuel subsequently selected side-view B for the shared Flüge destination. Preview syntax/link checks remain historical prototype evidence; the separate implementation report above records bounded native checks and their limits.
 
 Use one coherent authored vector/asset set or an explicitly reviewed licensed set; no icon runtime dependency is needed to prepare candidates. The approved logo is not an icon-replacement candidate. Do not silently turn this review into a broad Material redesign.
 

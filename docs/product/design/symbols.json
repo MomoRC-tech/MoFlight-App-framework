@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "inspected_application_commit": "8b51f5ab3fe1883e9c5e54ac2d3a30b822e2ab46",
+  "inspected_application_commit": "63c6d7e01c6f0f1cf216ee2af23450140ee91fc4",
   "groups": [
     {
       "title": "Main navigation",
@@ -17,7 +17,7 @@
           "behavior": "Tap switches to Übersicht.",
           "states": "Selected / inactive. This is navigation, not an indicator that all data is current.",
           "file": "apps/platform-lab/src/mobile/SymbolIcon.tsx",
-          "locator": "duotone-assets.ts; icon-options/option-2/glyphs.svg #home"
+          "locator": "duotone-assets.ts; symbols/glyphs.svg #home"
         },
         {
           "id": "N02",
@@ -30,7 +30,7 @@
           "behavior": "Tap switches to Flüge; existing year/search/training state is retained.",
           "states": "Selected / inactive using independent cyan/slate and muted duotone assets. Supplied folded paper plane selected on 18 October 2026, superseding side-view B.",
           "file": "apps/platform-lab/src/mobile/SymbolIcon.tsx",
-          "locator": "duotone-assets.ts; icon-options/option-2/glyphs.svg #flight-paper-plane"
+          "locator": "duotone-assets.ts; symbols/glyphs.svg #flight-paper-plane"
         },
         {
           "id": "N03",
@@ -43,7 +43,7 @@
           "behavior": "Tap switches to Flugbuch.",
           "states": "Selected / inactive. Distinguish the destination from the orange paper-work action D01.",
           "file": "apps/platform-lab/src/mobile/SymbolIcon.tsx",
-          "locator": "duotone-assets.ts; icon-options/option-2/glyphs.svg #book"
+          "locator": "duotone-assets.ts; symbols/glyphs.svg #book"
         },
         {
           "id": "N04",
@@ -56,7 +56,7 @@
           "behavior": "Tap switches to Verein.",
           "states": "Selected / inactive. The sections currently show missing-source states; no live club feed is implied.",
           "file": "apps/platform-lab/src/mobile/SymbolIcon.tsx",
-          "locator": "duotone-assets.ts; icon-options/option-2/glyphs.svg #club"
+          "locator": "duotone-assets.ts; symbols/glyphs.svg #club"
         },
         {
           "id": "N05",
@@ -69,7 +69,7 @@
           "behavior": "Tab tap opens AI. The welcome-card sparkle is decorative.",
           "states": "Selected / inactive tab. A sparkle does not mean the external AI service is connected.",
           "file": "apps/platform-lab/src/mobile/SymbolIcon.tsx",
-          "locator": "duotone-assets.ts; icon-options/option-2/glyphs.svg #sparkle"
+          "locator": "duotone-assets.ts; symbols/glyphs.svg #sparkle"
         }
       ]
     },
@@ -101,7 +101,7 @@
           "behavior": "Returns to the prior app overlay or page, preserving its state. Choosing a different book clears old flight-detail history.",
           "states": "Shown on app overlays. This is separate from provider webpage history A12.",
           "file": "apps/platform-lab/src/mobile/SymbolIcon.tsx",
-          "locator": "duotone-assets.ts; icon-options/option-2/glyphs.svg #back"
+          "locator": "duotone-assets.ts; symbols/glyphs.svg #back"
         },
         {
           "id": "H03",
@@ -114,7 +114,7 @@
           "behavior": "In the app header, opens Verbindungen. In the provider panel it is informational; during visible login, tapping it dismisses the login page back to the connection panel.",
           "states": "See S01–S05. Saved-flight freshness, MoFlight identity and provider-session status are separate.",
           "file": "apps/platform-lab/src/mobile/SymbolIcon.tsx",
-          "locator": "duotone-assets.ts; icon-options/option-2/glyphs.svg #chain"
+          "locator": "duotone-assets.ts; symbols/glyphs.svg #chain"
         },
         {
           "id": "H04",
@@ -127,7 +127,7 @@
           "behavior": "Tap opens the read-only Medical explanation sheet.",
           "states": "Current state is unknown only. No input, expiry date, reminder or fit-to-fly judgment is implemented. The selected accessibility state follows the open sheet.",
           "file": "apps/platform-lab/src/mobile/SymbolIcon.tsx",
-          "locator": "duotone-assets.ts; icon-options/option-2/glyphs.svg #medical-card"
+          "locator": "duotone-assets.ts; symbols/glyphs.svg #medical-card"
         },
         {
           "id": "H05",
@@ -140,7 +140,7 @@
           "behavior": "Opens Profil & Einstellungen: local display name, books/data, connections, appearance information and credits/tools.",
           "states": "No avatar, provider identity or authenticated MoFlight-account status is conveyed.",
           "file": "apps/platform-lab/src/mobile/SymbolIcon.tsx",
-          "locator": "duotone-assets.ts; icon-options/option-2/glyphs.svg #profile"
+          "locator": "duotone-assets.ts; symbols/glyphs.svg #profile"
         },
         {
           "id": "S01",
@@ -153,7 +153,7 @@
           "behavior": "The containing connection button opens details; this badge has no independent action.",
           "states": "Includes unknown/disconnected and incomplete observations. An old cookie or failure to inspect a page is not proof of login or logout.",
           "file": "apps/platform-lab/src/mobile/SymbolIcon.tsx",
-          "locator": "duotone-assets.ts; icon-options/option-2/glyphs.svg #chain"
+          "locator": "duotone-assets.ts; symbols/glyphs.svg #chain"
         },
         {
           "id": "S02",
@@ -166,7 +166,7 @@
           "behavior": "Open details to read the last-check time and available next action.",
           "states": "Requires observed + confirmed + observed identity + lastCheckedAt. No automatic expiry threshold is implemented; a tick does not promise continuous login or fresh imported flights.",
           "file": "apps/platform-lab/src/mobile/SymbolIcon.tsx",
-          "locator": "duotone-assets.ts; icon-options/option-2/glyphs.svg #chain"
+          "locator": "duotone-assets.ts; symbols/glyphs.svg #chain"
         },
         {
           "id": "S03",
@@ -179,7 +179,7 @@
           "behavior": "Open Verbindungen and use the sign-in action. The badge itself does not submit credentials.",
           "states": "Login-required state. Keep distinct from the same arrow used for route direction or forward navigation.",
           "file": "apps/platform-lab/src/mobile/SymbolIcon.tsx",
-          "locator": "duotone-assets.ts; icon-options/option-2/glyphs.svg #chain"
+          "locator": "duotone-assets.ts; symbols/glyphs.svg #chain"
         },
         {
           "id": "S04",
@@ -192,7 +192,7 @@
           "behavior": "Open details to understand the specific reason and next action.",
           "states": "Recovery forces the ! badge. Several causes share the shape, so accompanying accessible wording/details must distinguish them. A session error does not prove logout.",
           "file": "apps/platform-lab/src/mobile/SymbolIcon.tsx",
-          "locator": "duotone-assets.ts; icon-options/option-2/glyphs.svg #chain"
+          "locator": "duotone-assets.ts; symbols/glyphs.svg #chain"
         },
         {
           "id": "S05",
@@ -224,7 +224,7 @@
           "behavior": "Tap the hero or next-action row to open the existing paper-logbook tools.",
           "states": "Smaller/larger instances share the same meaning. Pending count may be unknown or zero; the glyph alone is not proof that an entry has been copied.",
           "file": "apps/platform-lab/src/mobile/SymbolIcon.tsx",
-          "locator": "duotone-assets.ts; icon-options/option-2/glyphs.svg #logbook"
+          "locator": "duotone-assets.ts; symbols/glyphs.svg #logbook"
         },
         {
           "id": "D02",
@@ -237,7 +237,7 @@
           "behavior": "Tap the card to open AI and prefill the most-frequently-flown-aircraft question; it does not automatically send it.",
           "states": "Same semantic family as N05, with a different current glyph. External AI service remains unconnected.",
           "file": "apps/platform-lab/src/mobile/SymbolIcon.tsx",
-          "locator": "duotone-assets.ts; icon-options/option-2/glyphs.svg #sparkle"
+          "locator": "duotone-assets.ts; symbols/glyphs.svg #sparkle"
         },
         {
           "id": "D03",
@@ -250,7 +250,7 @@
           "behavior": "No independent action. The latest-flight card or flight row opens flight details.",
           "states": "Not a GPS route, map, live aircraft position or additional flight category.",
           "file": "apps/platform-lab/src/mobile/SymbolIcon.tsx",
-          "locator": "duotone-assets.ts; icon-options/option-2/glyphs.svg #glider"
+          "locator": "duotone-assets.ts; symbols/glyphs.svg #glider"
         },
         {
           "id": "D04",
@@ -263,7 +263,7 @@
           "behavior": "Read-only field marker; any navigation belongs to the surrounding card.",
           "states": "May sit beside an unknown value (—). A clock does not mean the data is live or the duration is complete.",
           "file": "apps/platform-lab/src/mobile/SymbolIcon.tsx",
-          "locator": "duotone-assets.ts; icon-options/option-2/glyphs.svg #clock"
+          "locator": "duotone-assets.ts; symbols/glyphs.svg #clock"
         },
         {
           "id": "D05",
@@ -276,7 +276,7 @@
           "behavior": "Read-only field marker; card actions navigate separately.",
           "states": "Currently paired with an unknown value. No current GPS location or location permission is implied.",
           "file": "apps/platform-lab/src/mobile/SymbolIcon.tsx",
-          "locator": "duotone-assets.ts; icon-options/option-2/glyphs.svg #location"
+          "locator": "duotone-assets.ts; symbols/glyphs.svg #location"
         },
         {
           "id": "D06",
@@ -289,7 +289,7 @@
           "behavior": "Tap the card to view the status explanation.",
           "states": "Currently Kein Wetterbericht / no dated source. The cloud is a placeholder category icon, not a measured cloudy-weather report.",
           "file": "apps/platform-lab/src/mobile/SymbolIcon.tsx",
-          "locator": "duotone-assets.ts; icon-options/option-2/glyphs.svg #weather"
+          "locator": "duotone-assets.ts; symbols/glyphs.svg #weather"
         },
         {
           "id": "D07",
@@ -328,7 +328,7 @@
           "behavior": "The symbol is decorative; Details anzeigen opens the status sheet in the current implementation.",
           "states": "No duty assignment is currently available. Avoid interpreting this generic square as a checkbox or confirmed duty.",
           "file": "apps/platform-lab/src/mobile/SymbolIcon.tsx",
-          "locator": "duotone-assets.ts; icon-options/option-2/glyphs.svg #duty"
+          "locator": "duotone-assets.ts; symbols/glyphs.svg #duty"
         },
         {
           "id": "K02",
@@ -341,7 +341,7 @@
           "behavior": "The symbol is decorative. Alle anzeigen switches the club subsection to Termine.",
           "states": "No calendar source is connected. This glyph is not the current two-person Verein navigation icon.",
           "file": "apps/platform-lab/src/mobile/SymbolIcon.tsx",
-          "locator": "duotone-assets.ts; icon-options/option-2/glyphs.svg #calendar-neutral"
+          "locator": "duotone-assets.ts; symbols/glyphs.svg #calendar-neutral"
         },
         {
           "id": "K03",
@@ -354,7 +354,7 @@
           "behavior": "The symbol is decorative. Alle anzeigen switches to Mitteilungen.",
           "states": "No notice/document source is connected; no unread count is implied.",
           "file": "apps/platform-lab/src/mobile/SymbolIcon.tsx",
-          "locator": "duotone-assets.ts; icon-options/option-2/glyphs.svg #messages"
+          "locator": "duotone-assets.ts; symbols/glyphs.svg #messages"
         }
       ]
     },
@@ -373,7 +373,7 @@
           "behavior": "The glyph is decorative; editing the field filters local flights alongside year and training-role selections.",
           "states": "Search is scoped to the selected book. No provider lookup is triggered.",
           "file": "apps/platform-lab/src/mobile/SymbolIcon.tsx",
-          "locator": "duotone-assets.ts; icon-options/option-2/glyphs.svg #search"
+          "locator": "duotone-assets.ts; symbols/glyphs.svg #search"
         },
         {
           "id": "A02",
@@ -386,7 +386,7 @@
           "behavior": "Tap opens Flugfilter; existing year, search and training filters work together.",
           "states": "The current glyph has no active-filter dot/count. Do not invent support for additional flight classifications.",
           "file": "apps/platform-lab/src/mobile/SymbolIcon.tsx",
-          "locator": "duotone-assets.ts; icon-options/option-2/glyphs.svg #filter"
+          "locator": "duotone-assets.ts; symbols/glyphs.svg #filter"
         },
         {
           "id": "A03",
@@ -399,7 +399,7 @@
           "behavior": "Tap the containing button opens Flugbuch auswählen.",
           "states": "Current selection is shown by name and tick A10. Selection respects the book boundary and clears old flight-detail navigation.",
           "file": "apps/platform-lab/src/mobile/SymbolIcon.tsx",
-          "locator": "duotone-assets.ts; icon-options/option-2/glyphs.svg #down"
+          "locator": "duotone-assets.ts; symbols/glyphs.svg #down"
         },
         {
           "id": "A04",
@@ -412,7 +412,7 @@
           "behavior": "Tap calls library.reload().",
           "states": "Disabled while the library is busy. This control does not retrieve provider flights or imply cloud synchronization.",
           "file": "apps/platform-lab/src/mobile/SymbolIcon.tsx",
-          "locator": "duotone-assets.ts; icon-options/option-2/glyphs.svg #refresh"
+          "locator": "duotone-assets.ts; symbols/glyphs.svg #refresh"
         },
         {
           "id": "A05",
@@ -425,7 +425,7 @@
           "behavior": "Tap opens Klassifikation nicht verfügbar and preserves the active filter.",
           "states": "Informational, not a working route/circuit filter. It does not mean the displayed flight was classified with low confidence.",
           "file": "apps/platform-lab/src/mobile/SymbolIcon.tsx",
-          "locator": "duotone-assets.ts; icon-options/option-2/glyphs.svg #info"
+          "locator": "duotone-assets.ts; symbols/glyphs.svg #info"
         },
         {
           "id": "A06",
@@ -438,7 +438,7 @@
           "behavior": "Flight row opens details; AI question runs a supported local calculation and fills the draft; status/club links open their named destination.",
           "states": "No separate control inside the row. Preserve the surrounding accessible action label.",
           "file": "apps/platform-lab/src/mobile/SymbolIcon.tsx",
-          "locator": "duotone-assets.ts; icon-options/option-2/glyphs.svg #right"
+          "locator": "duotone-assets.ts; symbols/glyphs.svg #right"
         },
         {
           "id": "A07",
@@ -451,7 +451,7 @@
           "behavior": "Invokes the surrounding card/button: paper tools, AI draft, current status sheet or saved-flight list.",
           "states": "No automatic completion, upload or import is implied. Same character as A08 and S03, with different semantics.",
           "file": "apps/platform-lab/src/mobile/SymbolIcon.tsx",
-          "locator": "duotone-assets.ts; icon-options/option-2/glyphs.svg #arrow"
+          "locator": "duotone-assets.ts; symbols/glyphs.svg #arrow"
         },
         {
           "id": "A08",
@@ -464,7 +464,7 @@
           "behavior": "Read-only separator inside flight information; no independent navigation.",
           "states": "Either endpoint may be unknown. It does not represent a measured route, distance or flight track.",
           "file": "apps/platform-lab/src/mobile/SymbolIcon.tsx",
-          "locator": "duotone-assets.ts; icon-options/option-2/glyphs.svg #arrow"
+          "locator": "duotone-assets.ts; symbols/glyphs.svg #arrow"
         },
         {
           "id": "A09",
@@ -477,7 +477,7 @@
           "behavior": "Current handler reports that the AI service is unavailable and retains the draft; no message is sent.",
           "states": "Disabled for blank input or while sending; dimmed when blank. Preserve a distinct send-button role and accessible Nachricht senden label.",
           "file": "apps/platform-lab/src/mobile/SymbolIcon.tsx",
-          "locator": "duotone-assets.ts; icon-options/option-2/glyphs.svg #send"
+          "locator": "duotone-assets.ts; symbols/glyphs.svg #send"
         },
         {
           "id": "A10",
@@ -490,7 +490,7 @@
           "behavior": "Tap a book row selects it and closes the sheet. The tick itself is not a separate button.",
           "states": "Selection marker, not provider-session confirmation, paper-entry completion or successful import.",
           "file": "apps/platform-lab/src/mobile/SymbolIcon.tsx",
-          "locator": "duotone-assets.ts; icon-options/option-2/glyphs.svg #check"
+          "locator": "duotone-assets.ts; symbols/glyphs.svg #check"
         },
         {
           "id": "A11",
@@ -503,7 +503,7 @@
           "behavior": "Tap toggles the corresponding disclosure and accessible expanded state.",
           "states": "No creation, addition, deletion or subtraction of user data. Collapses when the connection panel closes.",
           "file": "apps/platform-lab/src/mobile/SymbolIcon.tsx",
-          "locator": "duotone-assets.ts; icon-options/option-2/glyphs.svg #plus"
+          "locator": "duotone-assets.ts; symbols/glyphs.svg #plus"
         },
         {
           "id": "A12",
@@ -516,7 +516,7 @@
           "behavior": "Tap calls backWithinProvider().",
           "states": "Disabled while operations are locked or provider history cannot go back. Different scope from MoFlight Back H02. Schließen is a separate text-only action and does not sign out.",
           "file": "apps/platform-lab/src/mobile/SymbolIcon.tsx",
-          "locator": "duotone-assets.ts; icon-options/option-2/glyphs.svg #back"
+          "locator": "duotone-assets.ts; symbols/glyphs.svg #back"
         }
       ]
     },
@@ -605,52 +605,7 @@
       ]
     },
     {
-      "title": "Retained source assets and fallback literals",
-      "intro": "These entries prevent an AI from treating every source literal or archived asset as the current visible navigation artwork.",
-      "entries": [
-        {
-          "id": "X01",
-          "title": "Previous top-view aircraft silhouette",
-          "status": "Retained, not current native navigation",
-          "sample": "<img src=\"asset:apps/platform-lab/assets/icons/aircraft.png\" alt=\"Retained previous top-view aircraft silhouette\">",
-          "appearance": "Filled top-view aircraft silhouette.",
-          "where": "Retained assets/icons/aircraft.svg and aircraft.png.",
-          "meaning": "Previous aircraft-navigation artwork; current Flüge uses the selected folded paper plane.",
-          "behavior": "No current mobile render uses this bitmap.",
-          "states": "Retained source asset, superseded for the navigation destination.",
-          "file": "apps/platform-lab/assets/icons/aircraft.svg",
-          "locator": "Retained SVG master and PNG"
-        },
-        {
-          "id": "X02",
-          "title": "Fallback tab literals",
-          "status": "Historical fallback vocabulary; removed from current tabs",
-          "sample": "<span class=\"glyph\" aria-hidden=\"true\">✈  ▤  ♧</span>",
-          "appearance": "✈ (U+2708), ▤ (U+25A4), ♧ (U+2667) in the tabs array.",
-          "where": "Preserved catalogue history; no current tab fallback.",
-          "meaning": "Literal placeholders for Flights, Logbook and Club.",
-          "behavior": "Rendering branches replace them with PlaneIcon, BookIcon and ClubMark respectively.",
-          "states": "Not the currently rendered tab artwork. ♧ is separately visible in the events heading K02.",
-          "file": "apps/platform-lab/src/mobile/MobileApp.tsx",
-          "locator": "Historical fallback literals retained here; current tabs render SymbolIcon."
-        },
-        {
-          "id": "X03",
-          "title": "Unselected top-view glider candidate A",
-          "status": "Historical unselected candidate",
-          "sample": "<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 2v18m0-12L2 11v2l10-1 10 1v-2L12 8M12 17l-4 3v1l4-1 4 1v-1z\"/></svg>",
-          "appearance": "Outlined top-view glider candidate from the 18 October comparison.",
-          "where": "Earlier header/icon review prototype.",
-          "meaning": "Alternative aviation metaphor considered before side-view B, subsequently superseded by the folded paper plane.",
-          "behavior": "No current app action; historical comparison only.",
-          "states": "Not selected. Keep distinct from the filled previous silhouette X01 and no-track glider D03.",
-          "file": "docs/product/prototypes/2026-10-18-header-icons-review.html",
-          "locator": "symbol#glider; candidate A"
-        }
-      ]
-    },
-    {
-      "title": "Other approved and historical branding",
+      "title": "Other approved branding",
       "intro": "Brand assets are included for completeness and are outside the requested UI-symbol redesign. Original opaque PNG bytes are embedded unchanged. They are not production platform icon exports.",
       "entries": [
         {
@@ -691,63 +646,8 @@
           "states": "Recreated approved variant, not a byte-identical copy of an older preview. Not configured as the current native launcher icon.",
           "file": "docs/assets/branding/moflight-app-icon-ai.png",
           "locator": "docs/assets/branding/README.md; app.json"
-        },
-        {
-          "id": "B04",
-          "title": "Historical provisional MoFlight mark",
-          "status": "Historical provisional asset",
-          "sample": "<img src=\"asset:docs/assets/moflight-logo.svg\" alt=\"Historical provisional MoFlight book-and-wing mark\">",
-          "appearance": "Open book and soaring wing forming an M on a rounded navy square.",
-          "where": "Historical docs/assets SVG.",
-          "meaning": "Early combination of flight and logbook identity.",
-          "behavior": "No current app control.",
-          "states": "Superseded by the approved Thermik branding; retained as history.",
-          "file": "docs/assets/moflight-logo.svg",
-          "locator": "SVG title/desc; branding README"
         }
       ]
-    }
-  ],
-  "historical": [
-    {
-      "names": "arrow-left; chevron-right; arrow-right; x",
-      "meaning": "Back, open/continue and close controls in the prototype; native equivalents are H02, A06/A07 and the text-only provider Close."
-    },
-    {
-      "names": "refresh-cw",
-      "meaning": "Prototype provider-flight refresh with last-success time and suggested/busy/error states. Different operation from native local reload A04."
-    },
-    {
-      "names": "user-round; layout-dashboard; plane; book-open; users-round",
-      "meaning": "Prototype profile, Start, Flights, Logbook and Club/crew metaphors. Current native equivalents are H05 and N01–N04."
-    },
-    {
-      "names": "cloud-sun",
-      "meaning": "Historical Wetter destination placeholder; current native weather entry is the dashboard cloud D06."
-    },
-    {
-      "names": "heart-pulse",
-      "meaning": "Prototype Medical with synthetic record count, earliest expiry and state. Current native H04 uses a stethoscope and unknown only."
-    },
-    {
-      "names": "chart-no-axes-column; chevron-up; chevron-down",
-      "meaning": "Prototype monthly distribution and expand/collapse control; no corresponding monthly chart control in current native UI."
-    },
-    {
-      "names": "circle-alert; triangle-alert",
-      "meaning": "Prototype flights requiring clarification and missing-time/unknown-role warnings. Current native code uses explanatory text and unknown-value notation."
-    },
-    {
-      "names": "newspaper; list-checks; calendar-days",
-      "meaning": "Prototype club news, tasks and events shortcuts. Source-backed live club data remains unconnected."
-    },
-    {
-      "names": "sliders-horizontal",
-      "meaning": "Prototype flight-filter control; current native A02 uses ☷."
-    },
-    {
-      "names": "route; database",
-      "meaning": "Prototype detail-section markers for times/route and source provenance. Current native detail fields are text cards."
     }
   ]
 }

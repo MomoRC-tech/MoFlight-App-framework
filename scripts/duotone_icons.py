@@ -17,7 +17,7 @@ import xml.etree.ElementTree as ET
 import zlib
 
 ROOT = Path(__file__).resolve().parents[1]
-MASTER = Path('docs/product/design/icon-options/option-2/glyphs.svg')
+MASTER = Path('docs/product/design/symbols/glyphs.svg')
 DEST = Path('apps/platform-lab/assets/icons/duotone')
 REGISTRY = Path('apps/platform-lab/src/mobile/duotone-assets.ts')
 GLYPHS = ['home', 'flight-paper-plane', 'book', 'club', 'sparkle', 'back', 'chain',

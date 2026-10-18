@@ -11,8 +11,8 @@ This is the current starting point for MoFlight's visual design. Use it when enh
 | [Foundations](foundations.md) | Color roles/pairings, typography, spacing, geometry, effects, photography and branding. |
 | [Components and shapes](components.md) | Cards, controls, headers, navigation, sheets, badges and charts, with relevant states and source locations. |
 | [Layout and presentation patterns](patterns.md) | Composition, responsive widths, navigation, keyboard, accessibility and honest data presentation. |
-| [Symbols and icons](../symbol-reference.html) | Existing 51-entry visual catalogue: appearance, meaning, action, states and editable asset paths. |
-| [Style Option 2: Modern Duotone](icon-options/option-2/index.html) | Selected duotone family, original/vector comparison, compact specimens and mapping for all 51 IDs. M2 Medical card + supplied paper plane are the current choices. [Medical / aircraft alternatives](icon-options/option-2/alternatives.html) · [Source notes](icon-options/option-2/README.md). App integration is implemented; native evidence and remaining limits are recorded separately. |
+| [Symbols and icons](../symbol-reference.html) | Current 47-entry catalogue: appearance, meaning, action, states and editable asset paths. |
+| [Default symbol family: Modern Duotone](symbols/index.html) | The 29 current glyphs, compact specimens and current ID mapping. M2 Medical card + supplied paper plane are the defaults. Superseded icon designs and comparison pages have been removed. [Source notes](symbols/README.md); app integration and native evidence are recorded separately. |
 | [Implementation inventory](implementation-inventory.md) | Generated complete literal-color map, gradients, typography/geometry declarations and source fingerprints, including retained lab/adapter exceptions. |
 | [Decisions, history and known gaps](history.md) | Authority, overrides, superseded prototypes, unresolved differences and platform evidence. |
 | [Complete standalone HTML guide](design-guide.html) | All chapters, schematic component examples, approved reference and the same catalogue, with full text copy/download for another AI chat. Download/open the HTML to use its controls. |
@@ -29,7 +29,7 @@ Keep German labels beside important navigation/status symbols. Show saved facts 
 1. The [approved four-screen image](../design-sources/2026-10-16-four-screen/reference.png) controls baseline layout, cards, colors, buttons and spacing. Its sample data is illustrative; see its [source record](../design-sources/2026-10-16-four-screen/README.md).
 2. The [17 October shell corrections](../2026-10-17-native-shell-corrections.md) amend that baseline with Übersicht, Flüge, Flugbuch, Verein and AI; the compact fixed branded/profile header; and aircraft-share rings.
 3. The [18 October header decisions](../2026-10-18-header-status-review.md#package-1b-decision-checkpoint) amend their scope with aircraft B, contextual app Back, separate provider-history Back/Close and Connection → Med → Profile. Med reads unbekannt and opens a read-only explanation.
-4. Manuel's 18 October symbol selection adopts the duotone family, **M2 Medical card** and the **supplied folded paper plane** for navigation/header/dashboard/action symbols, superseding aircraft B and the stethoscope artwork only. Labels, status meanings, branding and data notation remain. See [selected family](icon-options/option-2/README.md).
+4. Manuel's 18 October symbol selection adopts **Modern Duotone as the default family**, including **M2 Medical card** and the **supplied folded paper plane**, for navigation/header/dashboard/action symbols. His subsequent instruction removes the old icon designs and comparison pages. Labels, status meanings, approved branding and data notation remain. See [default family](symbols/README.md).
 5. This handbook consolidates those decisions. Earlier prototype choices apply only where explicitly carried forward. Code values record implementation and cannot approve an unresolved visual difference.
 
 Manuel owns design decisions. Priorities, journeys and account/book behavior remain in the [project plan](../../project-plan.md), [journey map](../2026-10-13-journey-information-map.md) and feature contracts. Link those contracts rather than duplicating them here.
@@ -206,17 +206,17 @@ Sources: [theme](../../../apps/platform-lab/src/mobile/theme.tsx), [MobileApp](.
 
 ## Symbol ownership
 
-The [51-entry catalogue](../symbol-reference.html) is the detailed meaning/function reference. [symbols.json](symbols.json) is its maintained source; both the compatibility catalogue and combined guide are generated from it. Keep N/H/S/D/K/A/T/X/B identifiers stable during redesigns.
+The [47-entry catalogue](../symbol-reference.html) is the current meaning/function reference. [symbols.json](symbols.json) is its maintained source; both the compatibility catalogue and combined guide are generated from it. Keep current N/H/S/D/K/A/T/B identifiers stable. Retired X01–X03 and B04 are not reused.
 
 Separate semantic roles even when characters repeat: a right arrow can mean route direction, continue or login required; a tick can mean selected book or previous session confirmation. Assess artwork size, optical balance, stroke and effective touch area separately.
 
-Manuel selected the Modern Duotone & Soft-Filled Glyphs family on 18 October 2026, with **M2 Medical card** for H04 and his supplied **folded paper plane** for N02. This supersedes side-view aircraft B and the stethoscope artwork. The original assets and comparison proposals remain preserved as history. Thermik branding, dynamic aircraft-share rings, data notation and status meanings retain their identity.
+Manuel made Modern Duotone & Soft-Filled Glyphs the default family on 18 October 2026, with **M2 Medical card** for H04 and his supplied **folded paper plane** for N02. Superseded aircraft/stethoscope designs and comparison proposals are removed from the maintained library and remain recoverable through Git history. Original supplied references, Thermik branding, dynamic aircraft-share rings, data notation and status meanings retain their identity.
 
-[Selected family and ID mapping](icon-options/option-2/index.html) use the same editable SVG masters as the app. The native renderer uses 145 checked local RGBA PNGs (29 glyphs × default/muted/paper/assistant/contrast variants), with static Metro requires and no new icon runtime. Artwork sizes are context-specific; navigation art is 28 in a 36-unit soft tile with radius 12, header controls retain 48-unit targets with radius 14, and M2 is 20 inside the existing growing Medical control. The original large reference tiles are illustrations, not new app card dimensions.
+[Selected family and ID mapping](symbols/index.html) use the same editable SVG masters as the app. The native renderer uses 145 checked local RGBA PNGs (29 glyphs × default/muted/paper/assistant/contrast variants), with static Metro requires and no new icon runtime. Artwork sizes are context-specific; navigation art is 28 in a 36-unit soft tile with radius 12, header controls retain 48-unit targets with radius 14, and M2 is 20 inside the existing growing Medical control. The original large reference tiles are illustrations, not new app card dimensions.
 
 Images are decorative and excluded from accessibility announcements; their labelled parent owns navigation/action/status semantics. Native busy indicators remain animated ActivityIndicators; a drawn spinner is never substituted for actual progress. Calendar category artwork uses neutral date cells, not the reference's illustrative 26. The separate send arrow remains distinct from the folded plane used for Flüge.
 
-[Source notes, regeneration and fidelity limits](icon-options/option-2/README.md) and [one verification report](../../verification/2026-10-18-icon-option-2.md) distinguish selected intent, implemented artwork and source-specific native acceptance.
+[Source notes, regeneration and fidelity limits](symbols/README.md) and [one verification report](../../verification/2026-10-18-icon-option-2.md) distinguish selected intent, implemented artwork and source-specific native acceptance.
 
 ## Schematic examples
 
@@ -1022,8 +1022,8 @@ Retained app-owned lab/adapter surface; document its existing appearance as an e
 | 17 Oct 2026 / Manuel | Approved five tabs, compact header/profile, aircraft and aircraft-share rings | [Shell report](../../verification/2026-10-17-native-shell-corrections.md) records Android checks and remaining iOS/physical limits. |
 | 18 Oct 2026 / Manuel | Approved B, contextual Back/provider Close, one active header, Connection → Med → Profile unknown | Medical follow-up in application `8b51f5a`. [Decision](../2026-10-18-header-status-review.md#package-1b-decision-checkpoint), [evidence](../../verification/2026-10-18-header-navigation.md). |
 | 18 Oct 2026 / Manuel | Authorized this handbook/export consolidation under #23 | Documentation implementation; no new appearance, code-token refactor or runtime acceptance. |
-| 18 Oct 2026 / Manuel | Selected duotone symbol family, M2 Medical card and supplied folded paper plane; authorized guide and app integration | Supersedes aircraft B and stethoscope artwork. [Selected assets](icon-options/option-2/README.md), [source-specific verification](../../verification/2026-10-18-icon-option-2.md). Navigation/unknown meanings and branding are preserved. |
-| 18 Oct 2026 / Manuel | Requested creation of Style Option 2, Modern Duotone & Soft-Filled Glyphs, from his supplied JPEG | [Review and SVG family](icon-options/option-2/index.html), [source notes](icon-options/option-2/README.md), [verification](../../verification/2026-10-18-icon-option-2.md). Initial comparison checkpoint, superseded by the later explicit M2 / folded-plane family selection and integration under #20. |
+| 18 Oct 2026 / Manuel | Selected duotone symbol family, M2 Medical card and supplied folded paper plane; authorized guide and app integration | Supersedes aircraft B and stethoscope artwork. [Selected assets](symbols/README.md), [source-specific verification](../../verification/2026-10-18-icon-option-2.md). Navigation/unknown meanings and branding are preserved. |
+| 18 Oct 2026 / Manuel | Made Modern Duotone the default and requested removal of old icon designs | [Default library](symbols/index.html) contains only the 29 current masters. Old aircraft assets, unselected proposals and icon comparison pages are removed; retired X01–X03/B04 no longer appear in the active catalogue. Original references and dated evidence remain. [Authorization](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/20#issuecomment-6250110588). |
 
 ## Preserved history
 
@@ -1034,8 +1034,8 @@ Retained app-owned lab/adapter surface; document its existing appearance as an e
 | [Stitch archive](../design-sources/2026-10-16-stitch/README.md) / [DESIGN.md](../design-sources/2026-10-16-stitch/DESIGN.md) | Generated third-party source with typography/extra concepts not adopted wholesale. |
 | [Micro Bento](../design-sources/2026-10-16-micro-bento/README.md) | Earlier prototype context; later four-screen native reference controls fidelity. |
 | [Start alternatives](../2026-10-16-start-alternatives.md) | Two unselected compositions. |
-| [v0.30](../prototypes/2026-10-16-clickable-v030.html) | Historical interaction/icon vocabulary with synthetic states; catalogue appendix preserves it separately. |
-| [Header comparison](../prototypes/2026-10-18-header-icons-review.html) | A/B review history; B was subsequently selected. |
+| [v0.30](../prototypes/2026-10-16-clickable-v030.html) | Preserved historical interaction snapshot with synthetic states; its icon vocabulary is excluded from the current catalogue. |
+| Retired icon comparisons | A/B and later six-candidate reviews were superseded by the selected M2 / folded-plane family. Removed comparison files remain recoverable through Git history. |
 | [Dark-concept review](../2026-10-13-dark-concept-review.md) | Earlier rationale and revisions, not a competing current guide. |
 
 ## Known differences and open choices
@@ -1053,13 +1053,13 @@ The later selected duotone symbols supersede earlier artwork choices in their sc
 
 ## Maintenance and evidence
 
-- 18 Oct 2026: 51-entry symbol catalogue and README index introduced. IDs/assets are preserved in this consolidation.
+- 18 Oct 2026: 51-entry symbol catalogue and README index introduced; the later default-family cleanup retires four obsolete entries, leaving 47 current IDs.
 - 18 Oct 2026: chapters, complete source-literal inventory, component shape examples and portable/copyable views assembled under #23. Application UI and original assets are unchanged.
 
 Regenerate with `python scripts/design_handbook.py`; validate freshness/links/coverage with `python scripts/design_handbook.py --check`. Focused tooling checks: `python -m unittest discover -s tests -p test_design_handbook.py -v`. The command normalizes source line endings before hashing and performs no network/app operations. [Package verification](../../verification/2026-10-18-design-handbook.md) records actual results and limits.
 
 SYMBOLS, ICONS AND STATE MARKS
-Preserve stable IDs, semantic meaning, current action and relevant states when proposing replacements. Preserve approved Thermik branding and the selected M2 Medical card / folded paper plane; earlier aircraft B remains historical. Samples are schematic except unchanged source images.
+Modern Duotone is the default symbol family, including M2 Medical card and the folded paper plane. Preserve current stable IDs, labels, meanings, actions, states and approved Thermik branding. Retired icon designs have been removed. Samples are schematic except unchanged source images.
 
 Main navigation
 Five persistent destinations. Selected icons use cyan/slate duotone; inactive ones use the muted duotone variant. Labels retain #00c8ff / #adbed5. The tab label and accessible selected state carry meaning too.
@@ -1072,7 +1072,7 @@ Meaning: The dashboard: paper-logbook work, season summary, latest flight, AI en
 Function / action: Tap switches to Übersicht.
 States / limits: Selected / inactive. This is navigation, not an indicator that all data is current.
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
-duotone-assets.ts; icon-options/option-2/glyphs.svg #home
+duotone-assets.ts; symbols/glyphs.svg #home
 
 N02 · Current native UI · selected duotone
 Flights / Flüge
@@ -1082,7 +1082,7 @@ Meaning: Saved searchable flight history for the selected book.
 Function / action: Tap switches to Flüge; existing year/search/training state is retained.
 States / limits: Selected / inactive using independent cyan/slate and muted duotone assets. Supplied folded paper plane selected on 18 October 2026, superseding side-view B.
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
-duotone-assets.ts; icon-options/option-2/glyphs.svg #flight-paper-plane
+duotone-assets.ts; symbols/glyphs.svg #flight-paper-plane
 
 N03 · Current native UI · selected duotone
 Logbook / Flugbuch
@@ -1092,7 +1092,7 @@ Meaning: Selected book, paper-entry status, reconciliation and writing-template 
 Function / action: Tap switches to Flugbuch.
 States / limits: Selected / inactive. Distinguish the destination from the orange paper-work action D01.
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
-duotone-assets.ts; icon-options/option-2/glyphs.svg #book
+duotone-assets.ts; symbols/glyphs.svg #book
 
 N04 · Current native UI · selected duotone
 Club / Verein
@@ -1102,7 +1102,7 @@ Meaning: Club overview, duties, appointments and notices.
 Function / action: Tap switches to Verein.
 States / limits: Selected / inactive. The sections currently show missing-source states; no live club feed is implied.
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
-duotone-assets.ts; icon-options/option-2/glyphs.svg #club
+duotone-assets.ts; symbols/glyphs.svg #club
 
 N05 · Current native UI · selected duotone
 AI assistant / AI
@@ -1112,7 +1112,7 @@ Meaning: Entry to MoFlight AI and available deterministic local flight questions
 Function / action: Tab tap opens AI. The welcome-card sparkle is decorative.
 States / limits: Selected / inactive tab. A sparkle does not mean the external AI service is connected.
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
-duotone-assets.ts; icon-options/option-2/glyphs.svg #sparkle
+duotone-assets.ts; symbols/glyphs.svg #sparkle
 
 Header and provider-session states
 The current app header order is Connection → Med → Profile. App overlays keep one active accessible header. The provider panel has its own Close, provider-history Back and connection indicator; it does not show the entire three-control group.
@@ -1135,7 +1135,7 @@ Meaning: Return through MoFlight navigation history.
 Function / action: Returns to the prior app overlay or page, preserving its state. Choosing a different book clears old flight-detail history.
 States / limits: Shown on app overlays. This is separate from provider webpage history A12.
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
-duotone-assets.ts; icon-options/option-2/glyphs.svg #back
+duotone-assets.ts; symbols/glyphs.svg #back
 
 H03 · Current native UI · selected duotone
 Provider connection
@@ -1145,7 +1145,7 @@ Meaning: Evidence about the Vereinsflieger session and provisional account assoc
 Function / action: In the app header, opens Verbindungen. In the provider panel it is informational; during visible login, tapping it dismisses the login page back to the connection panel.
 States / limits: See S01–S05. Saved-flight freshness, MoFlight identity and provider-session status are separate.
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
-duotone-assets.ts; icon-options/option-2/glyphs.svg #chain
+duotone-assets.ts; symbols/glyphs.svg #chain
 
 H04 · Current native UI · selected duotone
 Medical / Med
@@ -1155,7 +1155,7 @@ Meaning: Medical-record status. Current source, class and expiry are unknown.
 Function / action: Tap opens the read-only Medical explanation sheet.
 States / limits: Current state is unknown only. No input, expiry date, reminder or fit-to-fly judgment is implemented. The selected accessibility state follows the open sheet.
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
-duotone-assets.ts; icon-options/option-2/glyphs.svg #medical-card
+duotone-assets.ts; symbols/glyphs.svg #medical-card
 
 H05 · Current native UI · selected duotone
 Profile and settings
@@ -1165,7 +1165,7 @@ Meaning: Local demo profile and app settings/tools.
 Function / action: Opens Profil & Einstellungen: local display name, books/data, connections, appearance information and credits/tools.
 States / limits: No avatar, provider identity or authenticated MoFlight-account status is conveyed.
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
-duotone-assets.ts; icon-options/option-2/glyphs.svg #profile
+duotone-assets.ts; symbols/glyphs.svg #profile
 
 S01 · Current native UI · selected duotone
 Session unverified / unknown
@@ -1175,7 +1175,7 @@ Meaning: Current session is not established by the available evidence.
 Function / action: The containing connection button opens details; this badge has no independent action.
 States / limits: Includes unknown/disconnected and incomplete observations. An old cookie or failure to inspect a page is not proof of login or logout.
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
-duotone-assets.ts; icon-options/option-2/glyphs.svg #chain
+duotone-assets.ts; symbols/glyphs.svg #chain
 
 S02 · Current native UI · selected duotone
 Last confirmed session check
@@ -1185,7 +1185,7 @@ Meaning: A previous session check matched the provisional account association.
 Function / action: Open details to read the last-check time and available next action.
 States / limits: Requires observed + confirmed + observed identity + lastCheckedAt. No automatic expiry threshold is implemented; a tick does not promise continuous login or fresh imported flights.
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
-duotone-assets.ts; icon-options/option-2/glyphs.svg #chain
+duotone-assets.ts; symbols/glyphs.svg #chain
 
 S03 · Current native UI · selected duotone
 Provider login required
@@ -1195,7 +1195,7 @@ Meaning: Login on the original Vereinsflieger page is required.
 Function / action: Open Verbindungen and use the sign-in action. The badge itself does not submit credentials.
 States / limits: Login-required state. Keep distinct from the same arrow used for route direction or forward navigation.
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
-duotone-assets.ts; icon-options/option-2/glyphs.svg #chain
+duotone-assets.ts; symbols/glyphs.svg #chain
 
 S04 · Current native UI · selected duotone
 Connection attention / blocked
@@ -1205,7 +1205,7 @@ Meaning: Something needs review: account/club mismatch, failed checking, associa
 Function / action: Open details to understand the specific reason and next action.
 States / limits: Recovery forces the ! badge. Several causes share the shape, so accompanying accessible wording/details must distinguish them. A session error does not prove logout.
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
-duotone-assets.ts; icon-options/option-2/glyphs.svg #chain
+duotone-assets.ts; symbols/glyphs.svg #chain
 
 S05 · Current native UI
 Busy / checking / saving
@@ -1228,7 +1228,7 @@ Meaning: Review outstanding paper entries and reconcile the selected logbook.
 Function / action: Tap the hero or next-action row to open the existing paper-logbook tools.
 States / limits: Smaller/larger instances share the same meaning. Pending count may be unknown or zero; the glyph alone is not proof that an entry has been copied.
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
-duotone-assets.ts; icon-options/option-2/glyphs.svg #logbook
+duotone-assets.ts; symbols/glyphs.svg #logbook
 
 D02 · Current native UI · selected duotone
 AI suggestion
@@ -1238,7 +1238,7 @@ Meaning: Shortcut to a sample flight-history question.
 Function / action: Tap the card to open AI and prefill the most-frequently-flown-aircraft question; it does not automatically send it.
 States / limits: Same semantic family as N05, with a different current glyph. External AI service remains unconnected.
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
-duotone-assets.ts; icon-options/option-2/glyphs.svg #sparkle
+duotone-assets.ts; symbols/glyphs.svg #sparkle
 
 D03 · Current native UI · selected duotone
 Glider / no flight track
@@ -1248,7 +1248,7 @@ Meaning: Aviation marker and placeholder when no flight track is available.
 Function / action: No independent action. The latest-flight card or flight row opens flight details.
 States / limits: Not a GPS route, map, live aircraft position or additional flight category.
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
-duotone-assets.ts; icon-options/option-2/glyphs.svg #glider
+duotone-assets.ts; symbols/glyphs.svg #glider
 
 D04 · Current native UI · selected duotone
 Time / duration
@@ -1258,7 +1258,7 @@ Meaning: Flight duration in flight contexts; scheduled time in duty context.
 Function / action: Read-only field marker; any navigation belongs to the surrounding card.
 States / limits: May sit beside an unknown value (—). A clock does not mean the data is live or the duration is complete.
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
-duotone-assets.ts; icon-options/option-2/glyphs.svg #clock
+duotone-assets.ts; symbols/glyphs.svg #clock
 
 D05 · Current native UI · selected duotone
 Location / start field
@@ -1268,7 +1268,7 @@ Meaning: The start-field/location field of the club item.
 Function / action: Read-only field marker; card actions navigate separately.
 States / limits: Currently paired with an unknown value. No current GPS location or location permission is implied.
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
-duotone-assets.ts; icon-options/option-2/glyphs.svg #location
+duotone-assets.ts; symbols/glyphs.svg #location
 
 D06 · Current native UI · selected duotone
 Weather
@@ -1278,7 +1278,7 @@ Meaning: Weather information category.
 Function / action: Tap the card to view the status explanation.
 States / limits: Currently Kein Wetterbericht / no dated source. The cloud is a placeholder category icon, not a measured cloudy-weather report.
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
-duotone-assets.ts; icon-options/option-2/glyphs.svg #weather
+duotone-assets.ts; symbols/glyphs.svg #weather
 
 D07 · Current native UI
 Season flight-count ring
@@ -1308,7 +1308,7 @@ Meaning: Duty/assignment section marker.
 Function / action: The symbol is decorative; Details anzeigen opens the status sheet in the current implementation.
 States / limits: No duty assignment is currently available. Avoid interpreting this generic square as a checkbox or confirmed duty.
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
-duotone-assets.ts; icon-options/option-2/glyphs.svg #duty
+duotone-assets.ts; symbols/glyphs.svg #duty
 
 K02 · Current native UI · selected duotone
 Upcoming club appointments
@@ -1318,7 +1318,7 @@ Meaning: Club events/calendar category.
 Function / action: The symbol is decorative. Alle anzeigen switches the club subsection to Termine.
 States / limits: No calendar source is connected. This glyph is not the current two-person Verein navigation icon.
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
-duotone-assets.ts; icon-options/option-2/glyphs.svg #calendar-neutral
+duotone-assets.ts; symbols/glyphs.svg #calendar-neutral
 
 K03 · Current native UI · selected duotone
 Club notices
@@ -1328,7 +1328,7 @@ Meaning: Club notices, news or documents category.
 Function / action: The symbol is decorative. Alle anzeigen switches to Mitteilungen.
 States / limits: No notice/document source is connected; no unread count is implied.
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
-duotone-assets.ts; icon-options/option-2/glyphs.svg #messages
+duotone-assets.ts; symbols/glyphs.svg #messages
 
 Actions and navigation cues
 Several repeated characters have different meanings by context. Redesign each semantic role, while keeping related navigation controls visually consistent.
@@ -1341,7 +1341,7 @@ Meaning: Search saved flights.
 Function / action: The glyph is decorative; editing the field filters local flights alongside year and training-role selections.
 States / limits: Search is scoped to the selected book. No provider lookup is triggered.
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
-duotone-assets.ts; icon-options/option-2/glyphs.svg #search
+duotone-assets.ts; symbols/glyphs.svg #search
 
 A02 · Current native UI · selected duotone
 Open flight filters
@@ -1351,7 +1351,7 @@ Meaning: Additional controls for filtering saved flights.
 Function / action: Tap opens Flugfilter; existing year, search and training filters work together.
 States / limits: The current glyph has no active-filter dot/count. Do not invent support for additional flight classifications.
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
-duotone-assets.ts; icon-options/option-2/glyphs.svg #filter
+duotone-assets.ts; symbols/glyphs.svg #filter
 
 A03 · Current native UI · selected duotone
 Choose logbook
@@ -1361,7 +1361,7 @@ Meaning: An expandable choice of local logbooks.
 Function / action: Tap the containing button opens Flugbuch auswählen.
 States / limits: Current selection is shown by name and tick A10. Selection respects the book boundary and clears old flight-detail navigation.
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
-duotone-assets.ts; icon-options/option-2/glyphs.svg #down
+duotone-assets.ts; symbols/glyphs.svg #down
 
 A04 · Current native UI · selected duotone
 Reload local data
@@ -1371,7 +1371,7 @@ Meaning: Reload the saved local library into the UI.
 Function / action: Tap calls library.reload().
 States / limits: Disabled while the library is busy. This control does not retrieve provider flights or imply cloud synchronization.
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
-duotone-assets.ts; icon-options/option-2/glyphs.svg #refresh
+duotone-assets.ts; symbols/glyphs.svg #refresh
 
 A05 · Current native UI · selected duotone
 Unavailable classification information
@@ -1381,7 +1381,7 @@ Meaning: This classification is not supported by the stored flight contract.
 Function / action: Tap opens Klassifikation nicht verfügbar and preserves the active filter.
 States / limits: Informational, not a working route/circuit filter. It does not mean the displayed flight was classified with low confidence.
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
-duotone-assets.ts; icon-options/option-2/glyphs.svg #info
+duotone-assets.ts; symbols/glyphs.svg #info
 
 A06 · Current native UI · selected duotone
 Open row / supporting destination
@@ -1391,7 +1391,7 @@ Meaning: The containing row leads to details or another destination.
 Function / action: Flight row opens details; AI question runs a supported local calculation and fills the draft; status/club links open their named destination.
 States / limits: No separate control inside the row. Preserve the surrounding accessible action label.
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
-duotone-assets.ts; icon-options/option-2/glyphs.svg #right
+duotone-assets.ts; symbols/glyphs.svg #right
 
 A07 · Current native UI · selected duotone
 Forward / continue action
@@ -1401,7 +1401,7 @@ Meaning: Continue to the action/destination named by the adjacent text.
 Function / action: Invokes the surrounding card/button: paper tools, AI draft, current status sheet or saved-flight list.
 States / limits: No automatic completion, upload or import is implied. Same character as A08 and S03, with different semantics.
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
-duotone-assets.ts; icon-options/option-2/glyphs.svg #arrow
+duotone-assets.ts; symbols/glyphs.svg #arrow
 
 A08 · Current native UI · selected duotone
 Departure to arrival
@@ -1411,7 +1411,7 @@ Meaning: Direction of the recorded departure-to-arrival relationship.
 Function / action: Read-only separator inside flight information; no independent navigation.
 States / limits: Either endpoint may be unknown. It does not represent a measured route, distance or flight track.
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
-duotone-assets.ts; icon-options/option-2/glyphs.svg #arrow
+duotone-assets.ts; symbols/glyphs.svg #arrow
 
 A09 · Current native UI · selected duotone
 Send AI message
@@ -1421,7 +1421,7 @@ Meaning: Submit the typed question to the AI interaction.
 Function / action: Current handler reports that the AI service is unavailable and retains the draft; no message is sent.
 States / limits: Disabled for blank input or while sending; dimmed when blank. Preserve a distinct send-button role and accessible Nachricht senden label.
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
-duotone-assets.ts; icon-options/option-2/glyphs.svg #send
+duotone-assets.ts; symbols/glyphs.svg #send
 
 A10 · Current native UI · selected duotone
 Selected logbook
@@ -1431,7 +1431,7 @@ Meaning: This book is the active local selection.
 Function / action: Tap a book row selects it and closes the sheet. The tick itself is not a separate button.
 States / limits: Selection marker, not provider-session confirmation, paper-entry completion or successful import.
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
-duotone-assets.ts; icon-options/option-2/glyphs.svg #check
+duotone-assets.ts; symbols/glyphs.svg #check
 
 A11 · Current native UI · selected duotone
 Expand / collapse details
@@ -1441,7 +1441,7 @@ Meaning: Show or hide optional detail/tool sections.
 Function / action: Tap toggles the corresponding disclosure and accessible expanded state.
 States / limits: No creation, addition, deletion or subtraction of user data. Collapses when the connection panel closes.
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
-duotone-assets.ts; icon-options/option-2/glyphs.svg #plus
+duotone-assets.ts; symbols/glyphs.svg #plus
 
 A12 · Current native UI · selected duotone
 Back inside provider webpage
@@ -1451,7 +1451,7 @@ Meaning: Move backward in the embedded Vereinsflieger webpage history.
 Function / action: Tap calls backWithinProvider().
 States / limits: Disabled while operations are locked or provider history cannot go back. Different scope from MoFlight Back H02. Schließen is a separate text-only action and does not sign out.
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
-duotone-assets.ts; icon-options/option-2/glyphs.svg #back
+duotone-assets.ts; symbols/glyphs.svg #back
 
 Data notation and visual state markers
 These are part of the symbol language too, even where replacing them with pictograms would be unnecessary.
@@ -1516,40 +1516,7 @@ States / limits: It is not a three-dot options button. Busy operations use expli
 Source: apps/platform-lab/src/mobile/MobileApp.tsx
 search/composer placeholders; connection-guidance working text
 
-Retained source assets and fallback literals
-These entries prevent an AI from treating every source literal or archived asset as the current visible navigation artwork.
-
-X01 · Retained, not current native navigation
-Previous top-view aircraft silhouette
-Appearance: Filled top-view aircraft silhouette.
-Where: Retained assets/icons/aircraft.svg and aircraft.png.
-Meaning: Previous aircraft-navigation artwork; current Flüge uses the selected folded paper plane.
-Function / action: No current mobile render uses this bitmap.
-States / limits: Retained source asset, superseded for the navigation destination.
-Source: apps/platform-lab/assets/icons/aircraft.svg
-Retained SVG master and PNG
-
-X02 · Historical fallback vocabulary; removed from current tabs
-Fallback tab literals
-Appearance: ✈ (U+2708), ▤ (U+25A4), ♧ (U+2667) in the tabs array.
-Where: Preserved catalogue history; no current tab fallback.
-Meaning: Literal placeholders for Flights, Logbook and Club.
-Function / action: Rendering branches replace them with PlaneIcon, BookIcon and ClubMark respectively.
-States / limits: Not the currently rendered tab artwork. ♧ is separately visible in the events heading K02.
-Source: apps/platform-lab/src/mobile/MobileApp.tsx
-Historical fallback literals retained here; current tabs render SymbolIcon.
-
-X03 · Historical unselected candidate
-Unselected top-view glider candidate A
-Appearance: Outlined top-view glider candidate from the 18 October comparison.
-Where: Earlier header/icon review prototype.
-Meaning: Alternative aviation metaphor considered before side-view B, subsequently superseded by the folded paper plane.
-Function / action: No current app action; historical comparison only.
-States / limits: Not selected. Keep distinct from the filled previous silhouette X01 and no-track glider D03.
-Source: docs/product/prototypes/2026-10-18-header-icons-review.html
-symbol#glider; candidate A
-
-Other approved and historical branding
+Other approved branding
 Brand assets are included for completeness and are outside the requested UI-symbol redesign. Original opaque PNG bytes are embedded unchanged. They are not production platform icon exports.
 
 B01 · Approved brand asset
@@ -1581,35 +1548,3 @@ Function / action: No current app control.
 States / limits: Recreated approved variant, not a byte-identical copy of an older preview. Not configured as the current native launcher icon.
 Source: docs/assets/branding/moflight-app-icon-ai.png
 docs/assets/branding/README.md; app.json
-
-B04 · Historical provisional asset
-Historical provisional MoFlight mark
-Appearance: Open book and soaring wing forming an M on a rounded navy square.
-Where: Historical docs/assets SVG.
-Meaning: Early combination of flight and logbook identity.
-Function / action: No current app control.
-States / limits: Superseded by the approved Thermik branding; retained as history.
-Source: docs/assets/moflight-logo.svg
-SVG title/desc; branding README
-
-HISTORICAL v0.30 VOCABULARY — not current native UI
-
-arrow-left; chevron-right; arrow-right; x: Back, open/continue and close controls in the prototype; native equivalents are H02, A06/A07 and the text-only provider Close.
-
-refresh-cw: Prototype provider-flight refresh with last-success time and suggested/busy/error states. Different operation from native local reload A04.
-
-user-round; layout-dashboard; plane; book-open; users-round: Prototype profile, Start, Flights, Logbook and Club/crew metaphors. Current native equivalents are H05 and N01–N04.
-
-cloud-sun: Historical Wetter destination placeholder; current native weather entry is the dashboard cloud D06.
-
-heart-pulse: Prototype Medical with synthetic record count, earliest expiry and state. Current native H04 uses a stethoscope and unknown only.
-
-chart-no-axes-column; chevron-up; chevron-down: Prototype monthly distribution and expand/collapse control; no corresponding monthly chart control in current native UI.
-
-circle-alert; triangle-alert: Prototype flights requiring clarification and missing-time/unknown-role warnings. Current native code uses explanatory text and unknown-value notation.
-
-newspaper; list-checks; calendar-days: Prototype club news, tasks and events shortcuts. Source-backed live club data remains unconnected.
-
-sliders-horizontal: Prototype flight-filter control; current native A02 uses ☷.
-
-route; database: Prototype detail-section markers for times/route and source provenance. Current native detail fields are text cards.

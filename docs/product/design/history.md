@@ -11,8 +11,8 @@
 | 17 Oct 2026 / Manuel | Approved five tabs, compact header/profile, aircraft and aircraft-share rings | [Shell report](../../verification/2026-10-17-native-shell-corrections.md) records Android checks and remaining iOS/physical limits. |
 | 18 Oct 2026 / Manuel | Approved B, contextual Back/provider Close, one active header, Connection → Med → Profile unknown | Medical follow-up in application `8b51f5a`. [Decision](../2026-10-18-header-status-review.md#package-1b-decision-checkpoint), [evidence](../../verification/2026-10-18-header-navigation.md). |
 | 18 Oct 2026 / Manuel | Authorized this handbook/export consolidation under #23 | Documentation implementation; no new appearance, code-token refactor or runtime acceptance. |
-| 18 Oct 2026 / Manuel | Selected duotone symbol family, M2 Medical card and supplied folded paper plane; authorized guide and app integration | Supersedes aircraft B and stethoscope artwork. [Selected assets](icon-options/option-2/README.md), [source-specific verification](../../verification/2026-10-18-icon-option-2.md). Navigation/unknown meanings and branding are preserved. |
-| 18 Oct 2026 / Manuel | Requested creation of Style Option 2, Modern Duotone & Soft-Filled Glyphs, from his supplied JPEG | [Review and SVG family](icon-options/option-2/index.html), [source notes](icon-options/option-2/README.md), [verification](../../verification/2026-10-18-icon-option-2.md). Initial comparison checkpoint, superseded by the later explicit M2 / folded-plane family selection and integration under #20. |
+| 18 Oct 2026 / Manuel | Selected duotone symbol family, M2 Medical card and supplied folded paper plane; authorized guide and app integration | Supersedes aircraft B and stethoscope artwork. [Selected assets](symbols/README.md), [source-specific verification](../../verification/2026-10-18-icon-option-2.md). Navigation/unknown meanings and branding are preserved. |
+| 18 Oct 2026 / Manuel | Made Modern Duotone the default and requested removal of old icon designs | [Default library](symbols/index.html) contains only the 29 current masters. Old aircraft assets, unselected proposals and icon comparison pages are removed; retired X01–X03/B04 no longer appear in the active catalogue. Original references and dated evidence remain. [Authorization](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/20#issuecomment-6250110588). |
 
 ## Preserved history
 
@@ -23,8 +23,8 @@
 | [Stitch archive](../design-sources/2026-10-16-stitch/README.md) / [DESIGN.md](../design-sources/2026-10-16-stitch/DESIGN.md) | Generated third-party source with typography/extra concepts not adopted wholesale. |
 | [Micro Bento](../design-sources/2026-10-16-micro-bento/README.md) | Earlier prototype context; later four-screen native reference controls fidelity. |
 | [Start alternatives](../2026-10-16-start-alternatives.md) | Two unselected compositions. |
-| [v0.30](../prototypes/2026-10-16-clickable-v030.html) | Historical interaction/icon vocabulary with synthetic states; catalogue appendix preserves it separately. |
-| [Header comparison](../prototypes/2026-10-18-header-icons-review.html) | A/B review history; B was subsequently selected. |
+| [v0.30](../prototypes/2026-10-16-clickable-v030.html) | Preserved historical interaction snapshot with synthetic states; its icon vocabulary is excluded from the current catalogue. |
+| Retired icon comparisons | A/B and later six-candidate reviews were superseded by the selected M2 / folded-plane family. Removed comparison files remain recoverable through Git history. |
 | [Dark-concept review](../2026-10-13-dark-concept-review.md) | Earlier rationale and revisions, not a competing current guide. |
 
 ## Known differences and open choices
@@ -42,7 +42,7 @@ The later selected duotone symbols supersede earlier artwork choices in their sc
 
 ## Maintenance and evidence
 
-- 18 Oct 2026: 51-entry symbol catalogue and README index introduced. IDs/assets are preserved in this consolidation.
+- 18 Oct 2026: 51-entry symbol catalogue and README index introduced; the later default-family cleanup retires four obsolete entries, leaving 47 current IDs.
 - 18 Oct 2026: chapters, complete source-literal inventory, component shape examples and portable/copyable views assembled under #23. Application UI and original assets are unchanged.
 
 Regenerate with `python scripts/design_handbook.py`; validate freshness/links/coverage with `python scripts/design_handbook.py --check`. Focused tooling checks: `python -m unittest discover -s tests -p test_design_handbook.py -v`. The command normalizes source line endings before hashing and performs no network/app operations. [Package verification](../../verification/2026-10-18-design-handbook.md) records actual results and limits.

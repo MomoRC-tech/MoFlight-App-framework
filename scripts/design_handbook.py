@@ -296,7 +296,7 @@ def load_catalogue(root: Path = ROOT) -> dict:
 
 def render_catalogue(data: dict, output: Path, root: Path = ROOT) -> tuple[str,str]:
     html=['<section id="symbol-catalogue"><h2>Symbols, icons and state marks</h2><p>Maintained source: symbols.json. Original assets are embedded unchanged. Native View marks are schematic SVG redraws, enlarged on neutral tiles; glyph rendering depends on fonts. Browser samples do not establish native acceptance.</p>']
-    brief=['SYMBOLS, ICONS AND STATE MARKS\nPreserve stable IDs, semantic meaning, current action and relevant states when proposing replacements. Preserve approved Thermik branding and the selected M2 Medical card / folded paper plane; earlier aircraft B remains historical. Samples are schematic except unchanged source images.']
+    brief=['SYMBOLS, ICONS AND STATE MARKS\nModern Duotone is the default symbol family, including M2 Medical card and the folded paper plane. Preserve current stable IDs, labels, meanings, actions, states and approved Thermik branding. Retired icon designs have been removed. Samples are schematic except unchanged source images.']
     for group in data['groups']:
         html += [f'<h3>{escape(group["title"])}</h3><p>{escape(group["intro"])}</p><div class="entries">']
         brief += [group['title']+'\n'+group['intro']]
@@ -311,11 +311,7 @@ def render_catalogue(data: dict, output: Path, root: Path = ROOT) -> tuple[str,s
             html.append(f'<dt>Source</dt><dd><a href="{escape(href,quote=True)}">{escape(e["file"])}</a><br>{escape(e["locator"])}</dd></dl></article>')
             lines.append('Source: '+e['file']+'\n'+e['locator']);brief.append('\n'.join(lines))
         html.append('</div>')
-    html.append('<h3 id="historical-symbols">Historical v0.30 vocabulary</h3><p>Historical named Lucide concepts only; no library or associated feature is selected. See the preserved prototype through the handbook history.</p><table><thead><tr><th>Names</th><th>Historical meaning</th></tr></thead><tbody>')
-    brief.append('HISTORICAL v0.30 VOCABULARY — not current native UI')
-    for row in data['historical']:
-        html.append(f'<tr><td>{escape(row["names"])}</td><td>{escape(row["meaning"])}</td></tr>');brief.append(row['names']+': '+row['meaning'])
-    html.append('</tbody></table></section>')
+    html.append('</section>')
     return '\n'.join(html),'\n\n'.join(brief)
 
 
@@ -416,8 +412,9 @@ def build(root: Path = ROOT) -> tuple[dict[Path,str],dict]:
     outputs[DESIGN/'design-brief.txt']=full_brief
     compat=Path('docs/product/symbol-reference.html')
     cat_html,cat_brief=render_catalogue(catalogue,compat,root)
-    context='MOFLIGHT — SYMBOL INVENTORY AND AI REDESIGN BRIEF\n\nUse stable IDs to propose a coherent replacement family while preserving each label, meaning, function and state. The approved Thermik logo remains preserved. No app behavior, provider integration, new medical/AI/weather evidence or runtime icon dependency is selected. Read the current handbook for complete direction, colors, geometry and change authority.\n\n'
-    outputs[compat]=fill_template(template,{**common,'TITLE':'MoFlight symbols and AI redesign brief','LEAD':'The same maintained 51-entry symbol catalogue used by the complete UI design handbook.','NAV':'<a href="design/design-guide.html">Complete handbook</a> <a href="#symbol-catalogue">Catalogue</a> <a href="#copy-area">Copy text</a>','BODY':cat_html,'BRIEF':escape(context+cat_brief+'\n'),'DOWNLOAD':'moflight-symbol-redesign-brief.txt','HOME':'design/README.md'})
+    context='MOFLIGHT — CURRENT SYMBOL CATALOGUE\n\nModern Duotone is the default app family, including M2 Medical card and the folded paper plane. Preserve each current ID, label, meaning, function, state and approved Thermik branding. Superseded icon designs have been removed. This artwork establishes no medical/AI/weather evidence or provider integration. Read the current handbook for complete direction, colors, geometry and change authority.\n\n'
+    count=sum(len(g['entries']) for g in catalogue['groups'])
+    outputs[compat]=fill_template(template,{**common,'TITLE':'MoFlight symbol catalogue','LEAD':f'The same maintained {count}-entry symbol catalogue used by the complete UI design handbook.','NAV':'<a href="design/design-guide.html">Complete handbook</a> <a href="#symbol-catalogue">Catalogue</a> <a href="#copy-area">Copy text</a>','BODY':cat_html,'BRIEF':escape(context+cat_brief+'\n'),'DOWNLOAD':'moflight-symbol-brief.txt','HOME':'design/README.md'})
     virtual={DESIGN/name:text for name,text in chapters.items()};virtual.update(outputs)
     links=sum(validate_links(text,DESIGN/name,virtual,root) for name,text in chapters.items())
     report={'symbols':sum(len(g['entries']) for g in catalogue['groups']),'ui_source_files':len(fingerprints),'distinct_hex_colors':len(colors),'local_markdown_links':links,'input_sha256':source_hash,'generated_files':len(outputs)}

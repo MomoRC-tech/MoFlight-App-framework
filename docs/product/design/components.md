@@ -39,17 +39,17 @@ Sources: [theme](../../../apps/platform-lab/src/mobile/theme.tsx), [MobileApp](.
 
 ## Symbol ownership
 
-The [51-entry catalogue](../symbol-reference.html) is the detailed meaning/function reference. [symbols.json](symbols.json) is its maintained source; both the compatibility catalogue and combined guide are generated from it. Keep N/H/S/D/K/A/T/X/B identifiers stable during redesigns.
+The [47-entry catalogue](../symbol-reference.html) is the current meaning/function reference. [symbols.json](symbols.json) is its maintained source; both the compatibility catalogue and combined guide are generated from it. Keep current N/H/S/D/K/A/T/B identifiers stable. Retired X01–X03 and B04 are not reused.
 
 Separate semantic roles even when characters repeat: a right arrow can mean route direction, continue or login required; a tick can mean selected book or previous session confirmation. Assess artwork size, optical balance, stroke and effective touch area separately.
 
-Manuel selected the Modern Duotone & Soft-Filled Glyphs family on 18 October 2026, with **M2 Medical card** for H04 and his supplied **folded paper plane** for N02. This supersedes side-view aircraft B and the stethoscope artwork. The original assets and comparison proposals remain preserved as history. Thermik branding, dynamic aircraft-share rings, data notation and status meanings retain their identity.
+Manuel made Modern Duotone & Soft-Filled Glyphs the default family on 18 October 2026, with **M2 Medical card** for H04 and his supplied **folded paper plane** for N02. Superseded aircraft/stethoscope designs and comparison proposals are removed from the maintained library and remain recoverable through Git history. Original supplied references, Thermik branding, dynamic aircraft-share rings, data notation and status meanings retain their identity.
 
-[Selected family and ID mapping](icon-options/option-2/index.html) use the same editable SVG masters as the app. The native renderer uses 145 checked local RGBA PNGs (29 glyphs × default/muted/paper/assistant/contrast variants), with static Metro requires and no new icon runtime. Artwork sizes are context-specific; navigation art is 28 in a 36-unit soft tile with radius 12, header controls retain 48-unit targets with radius 14, and M2 is 20 inside the existing growing Medical control. The original large reference tiles are illustrations, not new app card dimensions.
+[Selected family and ID mapping](symbols/index.html) use the same editable SVG masters as the app. The native renderer uses 145 checked local RGBA PNGs (29 glyphs × default/muted/paper/assistant/contrast variants), with static Metro requires and no new icon runtime. Artwork sizes are context-specific; navigation art is 28 in a 36-unit soft tile with radius 12, header controls retain 48-unit targets with radius 14, and M2 is 20 inside the existing growing Medical control. The original large reference tiles are illustrations, not new app card dimensions.
 
 Images are decorative and excluded from accessibility announcements; their labelled parent owns navigation/action/status semantics. Native busy indicators remain animated ActivityIndicators; a drawn spinner is never substituted for actual progress. Calendar category artwork uses neutral date cells, not the reference's illustrative 26. The separate send arrow remains distinct from the folded plane used for Flüge.
 
-[Source notes, regeneration and fidelity limits](icon-options/option-2/README.md) and [one verification report](../../verification/2026-10-18-icon-option-2.md) distinguish selected intent, implemented artwork and source-specific native acceptance.
+[Source notes, regeneration and fidelity limits](symbols/README.md) and [one verification report](../../verification/2026-10-18-icon-option-2.md) distinguish selected intent, implemented artwork and source-specific native acceptance.
 
 ## Schematic examples
 
