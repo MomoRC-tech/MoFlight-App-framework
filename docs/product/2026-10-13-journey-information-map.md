@@ -81,6 +81,10 @@ Suggested German wording (copy proposal): **„Ist Flug Nr. {number} ({date}, {a
 
 Retain the exception register: open, left unchanged/acknowledged and confirmed resolved remain distinct. Preserve original source/paper values and explicit choices, reuse unchanged decisions without repeated questions, and allow reversal. Changed relevant evidence prompts targeted review. No acknowledgment silently corrects a paper entry.
 
+### Flight clock times — UTC requirement
+
+Manuel confirmed **UTC** on 18 October 2026 ([#7](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/7), source verification in [#2](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/2)). Save normalized flight takeoff/landing clock times in UTC and show/document them as UTC in flight details and phone/print writing instructions, without seasonal clock shifts. Preserve original provider/photo values and their known or unknown time basis separately. Convert only from an established source time zone; never label an unresolved raw clock as UTC or invent a date/overnight relationship. This selects the product time basis, not proof of provider semantics, duration precedence or completed implementation. Flight-date assignment and year/period comparison rules remain separate decisions.
+
 ## Understand my flying
 
 | Surface/action | Confirmed information and behavior |
@@ -94,7 +98,7 @@ Retain the exception register: open, left unchanged/acknowledged and confirmed r
 | Retrieve newer flights | User taps “Flüge aktualisieren”; always show last update time. Suggest since the last successful update, with an adjustable period. This is a user-facing default, not proof of a safe delta algorithm; older-source corrections require a verified reconciliation strategy. |
 | First retrieval | Suggest current and previous year, with an adjustable period. Older history may be needed for paper catch-up; neither default implies lifetime completeness. |
 
-Counts and time use deterministic computations over sufficiently established identities and semantics. Compare years only with visible comparable coverage; exact time basis, treatment of incomplete periods and initial release measures remain to be reviewed.
+Counts and time use deterministic computations over sufficiently established identities and semantics. Compare years only with visible comparable coverage; UTC is selected for flight clock times; flight-date/period assignment, treatment of incomplete periods and initial release measures remain to be reviewed.
 
 ## Understand costs
 
@@ -144,7 +148,7 @@ Deferred privacy task, explicitly requested by Manuel on 2026-10-13: [#15 member
 1. Product review of the seven summarized areas is complete. Proceed to rough screen arrangement; ask only unresolved questions that materially affect it and do not re-ask confirmed choices.
 2. Discuss the smallest useful release and writing's immediate value without automatically reordering M2–M5.
 3. Billing walkthrough remains deferred; review it when Manuel is ready.
-4. Resolve consequential carryover exceptions, assumed-writing cancellation/retry/recovery, time basis/duration bands/year comparability, club freshness/new-item semantics and duty horizon as affected journeys need them. The assumed-writing trigger was selected on 18 October above.
+4. Resolve consequential carryover exceptions, assumed-writing cancellation/retry/recovery, source-zone verification/flight-date assignment/duration bands/year comparability, club freshness/new-item semantics and duty horizon as affected journeys need them. The assumed-writing trigger was selected on 18 October above.
 5. Prepare German low-fidelity concepts from this map, then review detailed operation/state contracts before separately scoped application implementation. No subscriptions, paid AI, cloud integration, production schema expansion or additional services are authorized here.
 
 Traceability: existing Issues #2 retrieval, #5 UI/application boundary, #7 paper/photos/writing, #9 queries/analytics, #10 provider information and #11 product/book scope. Dedicated deferred [#14 Activities live](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/14) tracks future concept/feasibility work. [Discovery brief](user-journey-ui-discovery.md), [state semantics](flight-logbook-state-and-queries.md), [writing presentation](writing-template-presentation.md) and [provider discovery](vereinsflieger-information-discovery.md) retain detailed boundaries.

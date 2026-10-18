@@ -8,6 +8,10 @@ The existing native probe captures at most 20 visible raw rows in its separate S
 
 Manuel authorized proceeding with export/history investigation and preparation of import checks after reviewing the requirements. Existing approvals cover original-page browser login, own flights, automatically selected periods, phone-local data and the current Expo stack. Architecture details remain proposed until the verified method and mapping can be presented concretely. No app-owned password storage or backend is introduced.
 
+## Product time basis — UTC
+
+Manuel confirmed on 18 October 2026 that normalized flight takeoff/landing clock times must be saved and shown/documented in **UTC**; see the [journey requirement](../product/2026-10-13-journey-information-map.md#flight-clock-times--utc-requirement) and [#7](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/7). Preserve original source values/time basis. This requirement does not verify a raw provider clock's zone: #2 still needs source-specific evidence before conversion or UTC labelling. Unknown basis, flight-date assignment and landing-day relationship remain unresolved unless established; do not infer them from device time, dashboard time or clock order. Duration precedence is a separate decision. No adapter, canonical import or migration is implemented/approved by this documentation update.
+
 ## Adapter evidence required before import
 
 | Contract | Evidence required | Current result |
