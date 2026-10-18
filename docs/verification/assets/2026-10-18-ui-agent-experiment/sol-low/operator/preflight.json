@@ -1,0 +1,516 @@
+{
+  "run_id": "20261018T154504Z-sol-low-01",
+  "setup_started_utc": "2026-10-18T15:45:04Z",
+  "preflight_started_utc": "2026-10-18T15:45:36.809762+00:00",
+  "model": "gpt-6.1-sol",
+  "reasoning_effort": "low",
+  "fork_turns": "none",
+  "serial": "emulator-5562",
+  "events": [
+    {
+      "utc": "2026-10-18T15:45:38.180072+00:00",
+      "args": [
+        "emu",
+        "avd",
+        "name"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:45:38.207615+00:00",
+      "args": [
+        "shell",
+        "getprop",
+        "sys.boot_completed"
+      ],
+      "returncode": 1
+    },
+    {
+      "utc": "2026-10-18T15:45:40.232950+00:00",
+      "args": [
+        "emu",
+        "avd",
+        "name"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:45:40.257479+00:00",
+      "args": [
+        "shell",
+        "getprop",
+        "sys.boot_completed"
+      ],
+      "returncode": 1
+    },
+    {
+      "utc": "2026-10-18T15:45:42.281626+00:00",
+      "args": [
+        "emu",
+        "avd",
+        "name"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:45:42.304940+00:00",
+      "args": [
+        "shell",
+        "getprop",
+        "sys.boot_completed"
+      ],
+      "returncode": 1
+    },
+    {
+      "utc": "2026-10-18T15:45:44.331566+00:00",
+      "args": [
+        "emu",
+        "avd",
+        "name"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:45:44.357599+00:00",
+      "args": [
+        "shell",
+        "getprop",
+        "sys.boot_completed"
+      ],
+      "returncode": 1
+    },
+    {
+      "utc": "2026-10-18T15:45:46.383993+00:00",
+      "args": [
+        "emu",
+        "avd",
+        "name"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:45:46.409561+00:00",
+      "args": [
+        "shell",
+        "getprop",
+        "sys.boot_completed"
+      ],
+      "returncode": 1
+    },
+    {
+      "utc": "2026-10-18T15:45:48.437492+00:00",
+      "args": [
+        "emu",
+        "avd",
+        "name"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:45:48.463526+00:00",
+      "args": [
+        "shell",
+        "getprop",
+        "sys.boot_completed"
+      ],
+      "returncode": 1
+    },
+    {
+      "utc": "2026-10-18T15:45:50.492882+00:00",
+      "args": [
+        "emu",
+        "avd",
+        "name"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:45:50.568354+00:00",
+      "args": [
+        "shell",
+        "getprop",
+        "sys.boot_completed"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:45:52.603901+00:00",
+      "args": [
+        "emu",
+        "avd",
+        "name"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:45:52.683545+00:00",
+      "args": [
+        "shell",
+        "getprop",
+        "sys.boot_completed"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:45:54.714586+00:00",
+      "args": [
+        "emu",
+        "avd",
+        "name"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:45:54.795802+00:00",
+      "args": [
+        "shell",
+        "getprop",
+        "sys.boot_completed"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:45:56.825979+00:00",
+      "args": [
+        "emu",
+        "avd",
+        "name"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:45:56.896962+00:00",
+      "args": [
+        "shell",
+        "getprop",
+        "sys.boot_completed"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:45:58.928889+00:00",
+      "args": [
+        "emu",
+        "avd",
+        "name"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:45:59.021102+00:00",
+      "args": [
+        "shell",
+        "getprop",
+        "sys.boot_completed"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:46:01.057304+00:00",
+      "args": [
+        "emu",
+        "avd",
+        "name"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:46:01.155012+00:00",
+      "args": [
+        "shell",
+        "getprop",
+        "sys.boot_completed"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:46:03.227576+00:00",
+      "args": [
+        "emu",
+        "avd",
+        "name"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:46:03.319854+00:00",
+      "args": [
+        "shell",
+        "getprop",
+        "sys.boot_completed"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:46:05.354469+00:00",
+      "args": [
+        "emu",
+        "avd",
+        "name"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:46:05.473458+00:00",
+      "args": [
+        "shell",
+        "getprop",
+        "sys.boot_completed"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:46:05.728162+00:00",
+      "args": [
+        "shell",
+        "settings",
+        "get",
+        "global",
+        "airplane_mode_on"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:46:05.918588+00:00",
+      "args": [
+        "shell",
+        "settings",
+        "get",
+        "global",
+        "wifi_on"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:46:06.055172+00:00",
+      "args": [
+        "shell",
+        "settings",
+        "get",
+        "global",
+        "mobile_data"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:46:06.303879+00:00",
+      "args": [
+        "shell",
+        "wm",
+        "size"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:46:06.923159+00:00",
+      "args": [
+        "shell",
+        "wm",
+        "density"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:46:07.156817+00:00",
+      "args": [
+        "shell",
+        "settings",
+        "get",
+        "system",
+        "font_scale"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:46:07.316924+00:00",
+      "args": [
+        "shell",
+        "getprop",
+        "ro.build.version.sdk"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:46:07.410938+00:00",
+      "args": [
+        "shell",
+        "getprop",
+        "ro.build.version.release"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:46:07.551360+00:00",
+      "args": [
+        "shell",
+        "getprop",
+        "ro.product.cpu.abi"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:46:07.761663+00:00",
+      "args": [
+        "shell",
+        "pm",
+        "path",
+        "de.momorc.moflight.lab"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:46:09.975670+00:00",
+      "args": [
+        "pull",
+        "/data/app/~~zJDqCalnA1lespKsTXYDHA==/de.momorc.moflight.lab-lw2vSeaNyAOMC8I3fRUO_g==/base.apk",
+        "C:\\Users\\Momo\\Documents\\30_Coding\\03_chatGPT work folder\\MoFlight-App-framework\\build\\ui-agent-experiment\\20261018T154504Z-sol-low-01\\operator\\installed-base.apk"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:46:10.737963+00:00",
+      "args": [
+        "shell",
+        "dumpsys",
+        "package",
+        "de.momorc.moflight.lab"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:46:13.120464+00:00",
+      "args": [
+        "shell",
+        "am",
+        "start",
+        "-W",
+        "-n",
+        "de.momorc.moflight.lab/.MainActivity"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:46:19.443313+00:00",
+      "args": [
+        "shell",
+        "uiautomator",
+        "dump",
+        "/sdcard/moflight-experiment-preflight.xml"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:46:19.536636+00:00",
+      "args": [
+        "shell",
+        "cat",
+        "/sdcard/moflight-experiment-preflight.xml"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:46:19.683766+00:00",
+      "args": [
+        "shell",
+        "input",
+        "tap",
+        "324",
+        "1777"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:46:23.141885+00:00",
+      "args": [
+        "shell",
+        "uiautomator",
+        "dump",
+        "/sdcard/moflight-experiment-preflight.xml"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:46:23.198980+00:00",
+      "args": [
+        "shell",
+        "cat",
+        "/sdcard/moflight-experiment-preflight.xml"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:46:23.403468+00:00",
+      "args": [
+        "shell",
+        "am",
+        "force-stop",
+        "de.momorc.moflight.lab"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:46:24.415959+00:00",
+      "args": [
+        "shell",
+        "am",
+        "start",
+        "-W",
+        "-n",
+        "de.momorc.moflight.lab/.MainActivity"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:46:29.269015+00:00",
+      "args": [
+        "shell",
+        "uiautomator",
+        "dump",
+        "/sdcard/moflight-experiment-preflight.xml"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:46:29.314553+00:00",
+      "args": [
+        "shell",
+        "cat",
+        "/sdcard/moflight-experiment-preflight.xml"
+      ],
+      "returncode": 0
+    }
+  ],
+  "status": "passed",
+  "repository_head": "4ce693fa5c869696717d28a72830e7b6bcda6935",
+  "repository_status": "M apps/platform-lab/src/mobile/DevelopmentHub.tsx\n M apps/platform-lab/src/mobile/MobileApp.tsx\n M apps/platform-lab/src/vereinsflieger/reconciliation.ts\n M docs/product/design/design-brief.txt\n M docs/product/design/design-guide.html\n M docs/product/design/implementation-inventory.md\n M docs/product/symbol-reference.html\n M tests/mobile/mobile-header-navigation.test.ts\n?? apps/platform-lab/src/import-preview-fixture.ts\n?? apps/platform-lab/src/import-preview.ts\n?? apps/platform-lab/src/mobile/ImportPreview.tsx\n?? tests/mobile/import-preview-screen.test.ts\n?? tests/mobile/import-preview.test.ts",
+  "adb_version": "Android Debug Bridge version 1.0.41\nVersion 37.0.1-15733141\nInstalled as C:\\Users\\Momo\\AppData\\Local\\Android\\Sdk\\platform-tools\\adb.exe\nRunning on Windows 10.0.26200",
+  "python": "Python 3.12.10",
+  "local_apk_sha256": "c3a7d17cec26cd4211f2d88c6cbc325ac768e45883b5cb2a72f60d6a1c51ab73",
+  "avd": "MoFlight_Synthetic_API37",
+  "network": {
+    "airplane_mode_on": "1",
+    "wifi_on": "0",
+    "mobile_data": "0"
+  },
+  "original_display": {
+    "size": "Physical size: 1080x1920",
+    "density": "Physical density: 420",
+    "font_scale": "1.0"
+  },
+  "device": {
+    "ro.build.version.sdk": "37",
+    "ro.build.version.release": "17",
+    "ro.product.cpu.abi": "x86_64"
+  },
+  "installed_apk_sha256": "c3a7d17cec26cd4211f2d88c6cbc325ac768e45883b5cb2a72f60d6a1c51ab73",
+  "installation_identity": [
+    "lastUpdateTime=2026-10-18 16:45:17",
+    "firstInstallTime=2026-10-11 08:41:18"
+  ],
+  "library_baseline": {
+    "book": "Gliding volume A",
+    "flight_count": 4,
+    "known_time": "1:10"
+  },
+  "preflight_finished_utc": "2026-10-18T15:46:29.318565+00:00"
+}

@@ -35,7 +35,7 @@ Launching or reviewing checks through an assistant still uses conversation token
 
 No routine subagents for small tasks. Use independent parallel work only when it warrants the added cost; justified simpler delegation retains `gpt-6-luna`. Avoid repeated full repository audits and verbose progress narration.
 
-The [first UI-agent experiment](ui-agent-experiment.md) was separately authorized and executed under #6 on 18 October 2026: the fresh-context Luna/Max worker supplied seven supported checks but left MIN/keyboard incomplete and exceeded the call ceiling. [One report](../verification/2026-10-18-ui-agent-experiment.md) records evidence, preserved state and measurement limits. Savings and a standing delegation rule are not established; Sol 6.1/Low remains an unexecuted fallback.
+The separately authorized [UI-agent experiment](ui-agent-experiment.md) under #6 compared one fresh Luna/Max attempt (7/8 checks, 721.50 s) with Sol 6.1/Low (8/8, 257.73 s). [One report](../verification/2026-10-18-ui-agent-experiment.md#sol-61--low-comparison--18-october-2026) records Sol's shorter measured worker time, both attempts' operating-limit qualifications and preserved state. Token savings, repeatability and a standing delegation rule remain unestablished; no routine UI delegation follows.
 
 ## Assess and implement useful tests
 

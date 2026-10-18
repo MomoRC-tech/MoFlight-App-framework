@@ -1,0 +1,284 @@
+{
+  "run_id": "20261018T154504Z-sol-low-01",
+  "model_launch": {
+    "model": "gpt-6.1-sol",
+    "reasoning_effort": "low",
+    "fork_turns": "none",
+    "accepted": true
+  },
+  "outcome": "eight scoped UI checks supported; strict operating contract not fully met (45 conservative tool calls, incomplete continuous display guard)",
+  "same_worker_task_text_as_luna": true,
+  "application_commit": "3ec05260999ccd8e1a9a2269d018226fad7b15ab",
+  "apk_sha256": "c3a7d17cec26cd4211f2d88c6cbc325ac768e45883b5cb2a72f60d6a1c51ab73",
+  "operator_repository_head": "4ce693fa5c869696717d28a72830e7b6bcda6935",
+  "timing_seconds": {
+    "setup": 99.121019,
+    "worker": 257.733383,
+    "review_and_native_cleanup": 91.477724,
+    "total_through_native_cleanup": 448.332126,
+    "documentation_and_evidence_after_native_cleanup": 223.5789,
+    "total_through_report_checkpoint": 671.911026
+  },
+  "worker_comparison": {
+    "luna_seconds": 721.503342,
+    "sol_seconds": 257.733383,
+    "sol_worker_time_reduction_percent": 64.27828285790531,
+    "luna_worker_time_divided_by_sol": 2.7994174972669335,
+    "scope": "One run per configuration, worker task unchanged, no causal/token/general speed guarantee"
+  },
+  "counts_verified_from_files": {
+    "png_captures": 8,
+    "xml_files": 17,
+    "action_records": 39
+  },
+  "counts_worker_self_reported": {
+    "inspected_distinct_pngs": 6,
+    "captured_pngs": 8,
+    "purpose_built_tool_invocations_including_this_write": 26,
+    "functions_exec_orchestration_calls_including_this_write": 19,
+    "conservative_total_including_orchestration": 45,
+    "budget_note": "40-call ceiling exceeded if orchestration wrappers are counted in addition to their nested tool calls. No further UI work performed."
+  },
+  "telemetry": {
+    "parent_tokens": "unavailable",
+    "child_tokens": "unavailable",
+    "token_savings": "unmeasured",
+    "call_count_basis": "Sol gives 19 orchestration wrappers + 26 nested tools =45 conservative; Luna roughly99 top-level with nested total unavailable. Do not calculate tool-count saving across different bases."
+  },
+  "source_and_fairness_limits": "Same pinned installed APK and synthetic library/offline/display/start route, fresh context, unchanged task and no previous findings. Repository has unrelated concurrent dirty app/design work, not built/installed by trial. Fixed Luna-then-Sol order, one sample each, variable startup/operator reuse, no seeded visual defect challenge; replication pending.",
+  "artifact_scope": "All worker XML and structured records/raw reports, restoration source, operator provenance/review, four relevant PNGs. Full keyboard-state.txt (1,030,537 bytes) remains ignored; relevant flags extracted with source SHA in operator review. No private data.",
+  "files": [
+    {
+      "path": "operator/cleanup.json",
+      "bytes": 242,
+      "sha256": "ce7bc89e2064d83e9e2962ae8592331fca52ca6a030640aa0ee4b801d8c378df"
+    },
+    {
+      "path": "operator/keyboard-state-extract.txt",
+      "bytes": 163,
+      "sha256": "f6fda1f76be3d76124c55d1c3bf4f8c7834ebd6942fe3272438b0d1c97bf7a8b"
+    },
+    {
+      "path": "operator/launch.json",
+      "bytes": 505,
+      "sha256": "314cc1e72864bcace656b7cd54e6beda4f7f2278fa6074fc71a0d3da1ab8af8a"
+    },
+    {
+      "path": "operator/postflight.xml",
+      "bytes": 128768,
+      "sha256": "ad7f647b76ea6872e13cc2dc777963076d1d80203c9f03daa2075129722e5e01"
+    },
+    {
+      "path": "operator/preflight.json",
+      "bytes": 11731,
+      "sha256": "f95e5e8051363d8d26e4bf46f566f33bb7ab2ee286b98eb60f9efec3f0eac909"
+    },
+    {
+      "path": "operator/review.json",
+      "bytes": 2174,
+      "sha256": "2b0d43f36143608d51b5143e3803336e0b2cc50f2becff4905d72b75e4daaaf8"
+    },
+    {
+      "path": "operator/start.json",
+      "bytes": 233,
+      "sha256": "3d242418abba5c4a9dc22cf0661f6718ad60bbc2eb5adf4928768d5cad578459"
+    },
+    {
+      "path": "operator/supplied-prompt.txt",
+      "bytes": 2162,
+      "sha256": "0be7c4388fdb285f27897ec911eb226c41bd1b9ac3163e79138e5603b5c875e8"
+    },
+    {
+      "path": "operator/task-sha256.txt",
+      "bytes": 66,
+      "sha256": "2363a1715b3406df2eacdfb7ccba5d4d1b9dc9883a98a184d4d8ecbb055aca4c"
+    },
+    {
+      "path": "worker/01-overview.xml",
+      "bytes": 132034,
+      "sha256": "4127f0547dc2c85931ebae544a1a71a20d83bd28c5759ce463dbe200824f6bbf"
+    },
+    {
+      "path": "worker/02-flights.xml",
+      "bytes": 54411,
+      "sha256": "d4f867a8e97d24444ee3b0e47ab530de066d6a0ceb321c11850e6b000b34457f"
+    },
+    {
+      "path": "worker/03-detail.xml",
+      "bytes": 21988,
+      "sha256": "7cdf3d955716dd3754e2681b531b3f9ad53a9a70833194d44c6ca31e100180fb"
+    },
+    {
+      "path": "worker/04-development.png",
+      "bytes": 151643,
+      "sha256": "03f99d37340e435ab713a10e8b2fac583ec086f2be8364965204b57decfce6ea"
+    },
+    {
+      "path": "worker/04-development.xml",
+      "bytes": 20479,
+      "sha256": "ae9c25503dea0ee7a647ed4af39c70b9a21a46916250c9a6a288cd5d30d28b2d"
+    },
+    {
+      "path": "worker/05-return-detail.xml",
+      "bytes": 21988,
+      "sha256": "7cdf3d955716dd3754e2681b531b3f9ad53a9a70833194d44c6ca31e100180fb"
+    },
+    {
+      "path": "worker/06-logbook.xml",
+      "bytes": 27972,
+      "sha256": "4235fd7078db1d03d47e320d351bcee3f4a3334550472a08a3b71ef56626e7e7"
+    },
+    {
+      "path": "worker/07-paper.png",
+      "bytes": 104761,
+      "sha256": "13cfefcf82505cf3bb9841e9d0f3aa4dda5365c39a7d89b9548363ff465d5589"
+    },
+    {
+      "path": "worker/07-paper.xml",
+      "bytes": 17944,
+      "sha256": "7f51304d02514b23653a437124ca7af479dbc0f1d82c5285fca3baa4fb1ea349"
+    },
+    {
+      "path": "worker/08-club.xml",
+      "bytes": 34762,
+      "sha256": "660e56a5cdfa3395a59a55312cc07d75da41721e0c658329d93131722d2ebf3c"
+    },
+    {
+      "path": "worker/09-ai.xml",
+      "bytes": 31762,
+      "sha256": "29a71b6c38b57f7b383d23ccea2e8234451987a34fbee67ad0323cbacbe235fe"
+    },
+    {
+      "path": "worker/10-min-keyboard.xml",
+      "bytes": 18153,
+      "sha256": "a0d19784e9d48b79336f794a75af8821c87e86ed1b96fcb2a54e94f355f3d2ce"
+    },
+    {
+      "path": "worker/11-min-scrolled-keyboard.xml",
+      "bytes": 20757,
+      "sha256": "169c2b70ab63d67513073a3e08c9209a4ec9b234eafac7c3d7d54094d1d8c886"
+    },
+    {
+      "path": "worker/12-min-keyboard-settled.png",
+      "bytes": 125779,
+      "sha256": "c1f731df2f9a70030e5bd7d7b41c57e60b812e3c84df3ac895b0ca6642ef2329"
+    },
+    {
+      "path": "worker/12-min-keyboard-settled.xml",
+      "bytes": 18153,
+      "sha256": "6897ff829ff43b1431661cf75b3e325599d734a2b7c0c210f28204ee6066183a"
+    },
+    {
+      "path": "worker/13-min-development-entry.png",
+      "bytes": 127069,
+      "sha256": "562badd63fc4d330d10fd88f880bdcadd1037c3fc4348697e1d20486bfd82a28"
+    },
+    {
+      "path": "worker/13-min-development-entry.xml",
+      "bytes": 19900,
+      "sha256": "83903b96da6639afcf5a5bb87b8d58aa55c7c0d7f79f5d4ff3df169fd911d327"
+    },
+    {
+      "path": "worker/14-restored-overview.xml",
+      "bytes": 128771,
+      "sha256": "8d01d6878bb129f4f68891c03fad8c6eecada17b7bcfff3768ad07ed9aa45cf5"
+    },
+    {
+      "path": "worker/15-restored-flights.xml",
+      "bytes": 49257,
+      "sha256": "0761727614f1f435c717e693cdd7bc8975800608736b69062814523f8675bbaa"
+    },
+    {
+      "path": "worker/16-final-overview.xml",
+      "bytes": 128768,
+      "sha256": "ad7f647b76ea6872e13cc2dc777963076d1d80203c9f03daa2075129722e5e01"
+    },
+    {
+      "path": "worker/actions.jsonl",
+      "bytes": 3245,
+      "sha256": "ae343f2dfc4f13a1cbea3a2fdf896c1947c80123b2a32c4825169074ea11f9a4"
+    },
+    {
+      "path": "worker/after.json",
+      "bytes": 10485,
+      "sha256": "1b1695f7389a4c0f538a52fad2be27e20b03bd01810b37de2f4254211a70c1a0"
+    },
+    {
+      "path": "worker/before.json",
+      "bytes": 10485,
+      "sha256": "e3f8349ff181354d3cacad140d8440cc910b87c626ce2fad2688793000d28cf5"
+    },
+    {
+      "path": "worker/latest.xml",
+      "bytes": 128768,
+      "sha256": "ad7f647b76ea6872e13cc2dc777963076d1d80203c9f03daa2075129722e5e01"
+    },
+    {
+      "path": "worker/main-environment.json",
+      "bytes": 138,
+      "sha256": "36da2480f0935495a15e4849e6937843d3b734619a2e29f03246074f47b5a3c2"
+    },
+    {
+      "path": "worker/min-environment.json",
+      "bytes": 138,
+      "sha256": "b163ded2f5baa8d114a62eefaef21125ed83b09989a9e6088fbad4cbfed0b025"
+    },
+    {
+      "path": "worker/restore.py",
+      "bytes": 1283,
+      "sha256": "9eddf6977c42e4f2e1854e794e20064361c7a72dd0d73713586dc8d245e6e4b5"
+    },
+    {
+      "path": "worker/result.json",
+      "bytes": 11394,
+      "sha256": "b4c5a3bfa218794e2916e77db118f2f213245b404231ce587259a41e5eda1909"
+    },
+    {
+      "path": "worker/result.md",
+      "bytes": 4025,
+      "sha256": "e5a153e04ddd268312310c54feaaffb9850e507bbe2f6fbc0c1e311aef26d5ec"
+    }
+  ],
+  "report_checkpoint_utc": "2026-10-18T15:56:15.911026+00:00",
+  "timing_limit": "Subsequent commit/Issue publication/final reply excluded from this report checkpoint; no general time/cost-saving claim.",
+  "validation": {
+    "documents": 6,
+    "local_destinations": 320,
+    "missing": 0,
+    "valid_json_files_including_manifest": 11,
+    "valid_xml_files": 18,
+    "jsonl_records_parse": 39,
+    "pngs": [
+      {
+        "path": "worker/04-development.png",
+        "size": [
+          390,
+          900
+        ]
+      },
+      {
+        "path": "worker/07-paper.png",
+        "size": [
+          390,
+          900
+        ]
+      },
+      {
+        "path": "worker/12-min-keyboard-settled.png",
+        "size": [
+          360,
+          900
+        ]
+      },
+      {
+        "path": "worker/13-min-development-entry.png",
+        "size": [
+          360,
+          900
+        ]
+      }
+    ],
+    "original_artifact_hashes_match": true,
+    "comparison_anchor_checked": true
+  }
+}

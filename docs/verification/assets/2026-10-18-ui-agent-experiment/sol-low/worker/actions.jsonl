@@ -1,0 +1,39 @@
+{"utc": "2026-10-18T15:47:27.582800+00:00", "action": "capture 01-overview"}
+{"utc": "2026-10-18T15:47:40.486361+00:00", "action": "tap Fl\u00fcge"}
+{"utc": "2026-10-18T15:47:43.541537+00:00", "action": "capture 02-flights"}
+{"utc": "2026-10-18T15:47:49.369792+00:00", "action": "tap 01. Juni 2026, D-EX02, Details \u00f6ffnen"}
+{"utc": "2026-10-18T15:47:52.343230+00:00", "action": "tap Profil & Einstellungen \u00f6ffnen"}
+{"utc": "2026-10-18T15:47:59.424479+00:00", "action": "scroll Settings"}
+{"utc": "2026-10-18T15:48:08.443702+00:00", "action": "tap Entwicklung \u00f6ffnen"}
+{"utc": "2026-10-18T15:48:11.363257+00:00", "action": "capture 04-development"}
+{"utc": "2026-10-18T15:48:11.607776+00:00", "action": "tap Zur vorherigen App-Ansicht"}
+{"utc": "2026-10-18T15:48:14.560770+00:00", "action": "tap Zur vorherigen App-Ansicht"}
+{"utc": "2026-10-18T15:48:17.507814+00:00", "action": "tap Zur vorherigen App-Ansicht"}
+{"utc": "2026-10-18T15:48:20.570237+00:00", "action": "tap Flugbuch"}
+{"utc": "2026-10-18T15:48:23.483208+00:00", "action": "capture 06-logbook"}
+{"utc": "2026-10-18T15:48:29.329176+00:00", "action": "tap Papierstand ansehen"}
+{"utc": "2026-10-18T15:48:32.214952+00:00", "action": "capture 07-paper"}
+{"utc": "2026-10-18T15:48:32.314788+00:00", "action": "tap Zur vorherigen App-Ansicht"}
+{"utc": "2026-10-18T15:48:35.256693+00:00", "action": "tap Verein"}
+{"utc": "2026-10-18T15:48:38.278135+00:00", "action": "tap AI"}
+{"utc": "2026-10-18T15:48:48.953130+00:00", "action": "tap Profil & Einstellungen \u00f6ffnen"}
+{"utc": "2026-10-18T15:49:02.152754+00:00", "action": "tap Profil & Einstellungen \u00f6ffnen"}
+{"utc": "2026-10-18T15:49:05.246057+00:00", "action": "tap Dein Name (optional)"}
+{"utc": "2026-10-18T15:49:08.274871+00:00", "action": "capture 10-min-keyboard"}
+{"utc": "2026-10-18T15:49:15.470784+00:00", "action": "scroll Settings with keyboard"}
+{"utc": "2026-10-18T15:49:17.847703+00:00", "action": "dismiss keyboard Back"}
+{"utc": "2026-10-18T15:49:18.367077+00:00", "action": "scroll Settings after keyboard"}
+{"utc": "2026-10-18T15:49:26.987925+00:00", "action": "scroll Settings top"}
+{"utc": "2026-10-18T15:49:29.735796+00:00", "action": "tap Dein Name (optional)"}
+{"utc": "2026-10-18T15:49:33.627675+00:00", "action": "capture 12-min-keyboard-settled"}
+{"utc": "2026-10-18T15:49:39.193360+00:00", "action": "dismiss keyboard Back"}
+{"utc": "2026-10-18T15:49:41.138488+00:00", "action": "scroll Settings to Development"}
+{"utc": "2026-10-18T15:49:43.932725+00:00", "action": "capture 13-min-development-entry"}
+{"utc": "2026-10-18T15:49:56.286694+00:00", "action": "U08 marker visible in Development viewport: False"}
+{"utc": "2026-10-18T15:49:56.371339+00:00", "action": "restore size reset"}
+{"utc": "2026-10-18T15:49:56.526972+00:00", "action": "restore density reset"}
+{"utc": "2026-10-18T15:49:56.636623+00:00", "action": "restore font 1.0"}
+{"utc": "2026-10-18T15:49:57.739554+00:00", "action": "force-stop only lab app"}
+{"utc": "2026-10-18T15:49:58.377624+00:00", "action": "relaunch only lab app"}
+{"utc": "2026-10-18T15:50:02.744202+00:00", "action": "tap Fl\u00fcge"}
+{"utc": "2026-10-18T15:50:05.772740+00:00", "action": "tap \u00dcbersicht"}

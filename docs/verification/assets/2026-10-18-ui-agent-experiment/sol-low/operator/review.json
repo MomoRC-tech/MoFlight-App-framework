@@ -1,0 +1,58 @@
+{
+  "review_started_utc": "2026-10-18T15:51:20Z",
+  "images_independently_opened": [
+    "04-development.png",
+    "07-paper.png",
+    "12-min-keyboard-settled.png",
+    "13-min-development-entry.png"
+  ],
+  "parent_interventions": 0,
+  "worker_report_supported_checks": 8,
+  "bounded_capability_result": "does not fully satisfy operating contract: conservative wrapper-inclusive call count 45 > 40 and initial display changes lacked continuous finally guard",
+  "visual_observations": "MAIN Development/paper match reported readable dark German surfaces without observed overlap/clipping. MIN keyboard actually visible, empty profile field fully above keyboard; Development entry visible after dismissal/scroll. No app defect established.",
+  "json_artifact_errors": [],
+  "postflight_display": {
+    "size": "Physical size: 1080x1920",
+    "density": "Physical density: 420",
+    "font_scale": "1.0"
+  },
+  "display_matches_preflight": true,
+  "postflight_network": {
+    "airplane_mode_on": "1",
+    "wifi_on": "0",
+    "mobile_data": "0"
+  },
+  "network_matches_preflight": true,
+  "postflight_installation_identity": [
+    "lastUpdateTime=2026-10-18 16:45:17",
+    "firstInstallTime=2026-10-11 08:41:18"
+  ],
+  "installation_matches_preflight": true,
+  "installed_apk_after_sha256": "c3a7d17cec26cd4211f2d88c6cbc325ac768e45883b5cb2a72f60d6a1c51ab73",
+  "apk_matches_preflight": true,
+  "facts_xml": {
+    "02-flights.xml": {
+      "book": true,
+      "count": true,
+      "known_time": true
+    },
+    "15-restored-flights.xml": {
+      "book": true,
+      "count": true,
+      "known_time": true
+    }
+  },
+  "same_detail_returned": true,
+  "all_five_tabs_recorded": true,
+  "scoped_marker_absent": true,
+  "paper_no_proof_actions": true,
+  "keyboard_state_extract": [
+    "mInputShown=true",
+    "mIsInputViewShown=true mStatusIcon=0"
+  ],
+  "native_keyboard_shown": true,
+  "keyboard_original_sha256": "18c95e7aeaffeadca2f0205c5624ab909079bbdadbbe1f60d6e2f654cc3d17be",
+  "development_reachable_after_keyboard": true,
+  "final_overview_selected": true,
+  "finished_utc": "2026-10-18T15:52:32.241040+00:00"
+}

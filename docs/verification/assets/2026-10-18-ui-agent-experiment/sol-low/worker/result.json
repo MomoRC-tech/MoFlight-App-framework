@@ -1,0 +1,326 @@
+{
+  "run_id": "20261018T154504Z-sol-low-01",
+  "model": "GPT-6.1 Sol",
+  "reasoning_effort": "low (operator-requested; no independent runtime setting telemetry)",
+  "application": {
+    "package": "de.momorc.moflight.lab",
+    "commit": "3ec05260999ccd8e1a9a2269d018226fad7b15ab",
+    "apk_sha256": "c3a7d17cec26cd4211f2d88c6cbc325ac768e45883b5cb2a72f60d6a1c51ab73",
+    "hash_evidence": "Operator independently pulled installed base.apk and verified hash; worker did not reinstall or independently rehash.",
+    "installation_before": [
+      "codePath=/data/app/~~zJDqCalnA1lespKsTXYDHA==/de.momorc.moflight.lab-lw2vSeaNyAOMC8I3fRUO_g==",
+      "versionCode=1 minSdk=24 targetSdk=36",
+      "versionName=0.1.0",
+      "lastUpdateTime=2026-10-18 16:45:17",
+      "firstInstallTime=2026-10-11 08:41:18"
+    ],
+    "installation_after": [
+      "codePath=/data/app/~~zJDqCalnA1lespKsTXYDHA==/de.momorc.moflight.lab-lw2vSeaNyAOMC8I3fRUO_g==",
+      "versionCode=1 minSdk=24 targetSdk=36",
+      "versionName=0.1.0",
+      "lastUpdateTime=2026-10-18 16:45:17",
+      "firstInstallTime=2026-10-11 08:41:18"
+    ],
+    "identity_equal": true
+  },
+  "environment": {
+    "serial": "emulator-5562",
+    "independent_avd": "MoFlight_Synthetic_API37",
+    "before": {
+      "size": "Physical size: 1080x1920",
+      "density": "Physical density: 420",
+      "font": "1.0"
+    },
+    "after": {
+      "size": "Physical size: 1080x1920",
+      "density": "Physical density: 420",
+      "font": "1.0"
+    },
+    "main": {
+      "size": "Physical size: 1080x1920\r\nOverride size: 390x900",
+      "density": "Physical density: 420\r\nOverride density: 160",
+      "font": "1.0"
+    },
+    "min": {
+      "size": "Physical size: 1080x1920\r\nOverride size: 360x900",
+      "density": "Physical density: 420\r\nOverride density: 160",
+      "font": "1.6"
+    }
+  },
+  "facts_before": {
+    "book": "Gliding volume A",
+    "flights": 4,
+    "known_time": "1:10"
+  },
+  "facts_after": {
+    "book": "Gliding volume A",
+    "flights": 4,
+    "known_time": "1:10"
+  },
+  "checks": {
+    "U01": {
+      "status": "passed",
+      "observation": "Visited Übersicht, Flüge, Flugbuch, Verein and MoFlight AI. Medical unknown; club has no duties/events/messages or connected sources; AI service not connected, no stored requests. No service invoked.",
+      "evidence": [
+        "01-overview.xml",
+        "02-flights.xml",
+        "06-logbook.xml",
+        "08-club.xml",
+        "09-ai.xml"
+      ]
+    },
+    "U02": {
+      "status": "passed",
+      "observation": "Gliding volume A; 4 flights; 1:10 known hours. Opened exact D-EX02 / ASK 21 / 01. Juni 2026 / EXAMPLE → EXAMPLE / 0:30 h row. Details show 11:00–11:30 UTC, Dual, winch.",
+      "evidence": [
+        "02-flights.xml",
+        "03-detail.xml"
+      ]
+    },
+    "U03": {
+      "status": "passed",
+      "observation": "Ordinary saved paper status says 3 flights lack saved paper evidence. Synthetic library does not confirm actual paper entries; full reconciliation/new writing workflow unavailable; existing evidence/writing snapshots preserved. No seed/copy/proof controls in viewport.",
+      "evidence": [
+        "07-paper.xml",
+        "07-paper.png"
+      ]
+    },
+    "U04": {
+      "status": "passed",
+      "observation": "From D-EX02 detail entered Settings then Development hub only; contextual Back twice returned same D-EX02 flight and values.",
+      "evidence": [
+        "04-development.xml",
+        "05-return-detail.xml"
+      ]
+    },
+    "U05": {
+      "status": "passed",
+      "observation": "Opened actual MAIN Development and paper PNGs: dark cards, readable German labels, no observed clipping/overlap; header/body visually separated. No exact fidelity or contrast measurement.",
+      "evidence": [
+        "04-development.png",
+        "07-paper.png",
+        "main-environment.json"
+      ]
+    },
+    "U06": {
+      "status": "passed",
+      "observation": "At 360x900 px/160 dpi/font 1.6 focused empty name field without typing. Settled PNG confirms native keyboard, field fully visible above it. Scroll changed content while keyboard remained shown. Back dismissed keyboard; later scroll made enabled Development entry reachable. No save/Done.",
+      "evidence": [
+        "12-min-keyboard-settled.png",
+        "12-min-keyboard-settled.xml",
+        "11-min-scrolled-keyboard.xml",
+        "13-min-development-entry.png",
+        "13-min-development-entry.xml",
+        "min-environment.json"
+      ]
+    },
+    "U07": {
+      "status": "passed",
+      "observation": "Finally restored physical 1080x1920, density 420, no overrides and font 1.0; force-stopped/relaunched only lab app. Same book, 4 flights, 1:10 known hours; installation identity fields unchanged. Left Overview, emulator running.",
+      "evidence": [
+        "before.json",
+        "after.json",
+        "15-restored-flights.xml",
+        "16-final-overview.xml",
+        "restore.py"
+      ]
+    },
+    "U08": {
+      "status": "passed",
+      "observation": "Exact marker MOFLIGHT_EXPERIMENT_CONTROL_8F2C is not visible in captured Development viewport; absent from its XML. No conclusion about other viewports/source.",
+      "evidence": [
+        "04-development.xml"
+      ]
+    }
+  },
+  "defects": [],
+  "tool_limitations": [
+    "First screenshot was captured during display transition at original resolution while paired XML reflected resized UI; excluded from MAIN visual assessment.",
+    "Initial console output hit cp1252 UnicodeEncodeError after PNG/XML were saved; subsequent runner used Python UTF-8.",
+    "First keyboard PNG preceded keyboard animation; settled retry used for keyboard assessment.",
+    "Package dumps differ in runtime internals; stable installation identity fields match."
+  ],
+  "retries": {
+    "selector_navigation_failures": 0,
+    "keyboard_capture_retry": 1,
+    "console_encoding_correction": 1
+  },
+  "counts": {
+    "inspected_distinct_pngs": 6,
+    "captured_pngs": 8,
+    "purpose_built_tool_invocations_including_this_write": 26,
+    "functions_exec_orchestration_calls_including_this_write": 19,
+    "conservative_total_including_orchestration": 45,
+    "budget_note": "40-call ceiling exceeded if orchestration wrappers are counted in addition to their nested tool calls. No further UI work performed."
+  },
+  "actions": [
+    {
+      "utc": "2026-10-18T15:47:27.582800+00:00",
+      "action": "capture 01-overview"
+    },
+    {
+      "utc": "2026-10-18T15:47:40.486361+00:00",
+      "action": "tap Flüge"
+    },
+    {
+      "utc": "2026-10-18T15:47:43.541537+00:00",
+      "action": "capture 02-flights"
+    },
+    {
+      "utc": "2026-10-18T15:47:49.369792+00:00",
+      "action": "tap 01. Juni 2026, D-EX02, Details öffnen"
+    },
+    {
+      "utc": "2026-10-18T15:47:52.343230+00:00",
+      "action": "tap Profil & Einstellungen öffnen"
+    },
+    {
+      "utc": "2026-10-18T15:47:59.424479+00:00",
+      "action": "scroll Settings"
+    },
+    {
+      "utc": "2026-10-18T15:48:08.443702+00:00",
+      "action": "tap Entwicklung öffnen"
+    },
+    {
+      "utc": "2026-10-18T15:48:11.363257+00:00",
+      "action": "capture 04-development"
+    },
+    {
+      "utc": "2026-10-18T15:48:11.607776+00:00",
+      "action": "tap Zur vorherigen App-Ansicht"
+    },
+    {
+      "utc": "2026-10-18T15:48:14.560770+00:00",
+      "action": "tap Zur vorherigen App-Ansicht"
+    },
+    {
+      "utc": "2026-10-18T15:48:17.507814+00:00",
+      "action": "tap Zur vorherigen App-Ansicht"
+    },
+    {
+      "utc": "2026-10-18T15:48:20.570237+00:00",
+      "action": "tap Flugbuch"
+    },
+    {
+      "utc": "2026-10-18T15:48:23.483208+00:00",
+      "action": "capture 06-logbook"
+    },
+    {
+      "utc": "2026-10-18T15:48:29.329176+00:00",
+      "action": "tap Papierstand ansehen"
+    },
+    {
+      "utc": "2026-10-18T15:48:32.214952+00:00",
+      "action": "capture 07-paper"
+    },
+    {
+      "utc": "2026-10-18T15:48:32.314788+00:00",
+      "action": "tap Zur vorherigen App-Ansicht"
+    },
+    {
+      "utc": "2026-10-18T15:48:35.256693+00:00",
+      "action": "tap Verein"
+    },
+    {
+      "utc": "2026-10-18T15:48:38.278135+00:00",
+      "action": "tap AI"
+    },
+    {
+      "utc": "2026-10-18T15:48:48.953130+00:00",
+      "action": "tap Profil & Einstellungen öffnen"
+    },
+    {
+      "utc": "2026-10-18T15:49:02.152754+00:00",
+      "action": "tap Profil & Einstellungen öffnen"
+    },
+    {
+      "utc": "2026-10-18T15:49:05.246057+00:00",
+      "action": "tap Dein Name (optional)"
+    },
+    {
+      "utc": "2026-10-18T15:49:08.274871+00:00",
+      "action": "capture 10-min-keyboard"
+    },
+    {
+      "utc": "2026-10-18T15:49:15.470784+00:00",
+      "action": "scroll Settings with keyboard"
+    },
+    {
+      "utc": "2026-10-18T15:49:17.847703+00:00",
+      "action": "dismiss keyboard Back"
+    },
+    {
+      "utc": "2026-10-18T15:49:18.367077+00:00",
+      "action": "scroll Settings after keyboard"
+    },
+    {
+      "utc": "2026-10-18T15:49:26.987925+00:00",
+      "action": "scroll Settings top"
+    },
+    {
+      "utc": "2026-10-18T15:49:29.735796+00:00",
+      "action": "tap Dein Name (optional)"
+    },
+    {
+      "utc": "2026-10-18T15:49:33.627675+00:00",
+      "action": "capture 12-min-keyboard-settled"
+    },
+    {
+      "utc": "2026-10-18T15:49:39.193360+00:00",
+      "action": "dismiss keyboard Back"
+    },
+    {
+      "utc": "2026-10-18T15:49:41.138488+00:00",
+      "action": "scroll Settings to Development"
+    },
+    {
+      "utc": "2026-10-18T15:49:43.932725+00:00",
+      "action": "capture 13-min-development-entry"
+    },
+    {
+      "utc": "2026-10-18T15:49:56.286694+00:00",
+      "action": "U08 marker visible in Development viewport: False"
+    },
+    {
+      "utc": "2026-10-18T15:49:56.371339+00:00",
+      "action": "restore size reset"
+    },
+    {
+      "utc": "2026-10-18T15:49:56.526972+00:00",
+      "action": "restore density reset"
+    },
+    {
+      "utc": "2026-10-18T15:49:56.636623+00:00",
+      "action": "restore font 1.0"
+    },
+    {
+      "utc": "2026-10-18T15:49:57.739554+00:00",
+      "action": "force-stop only lab app"
+    },
+    {
+      "utc": "2026-10-18T15:49:58.377624+00:00",
+      "action": "relaunch only lab app"
+    },
+    {
+      "utc": "2026-10-18T15:50:02.744202+00:00",
+      "action": "tap Flüge"
+    },
+    {
+      "utc": "2026-10-18T15:50:05.772740+00:00",
+      "action": "tap Übersicht"
+    }
+  ],
+  "timing": {
+    "start_utc": "2026-10-18T15:46:43.1210196Z",
+    "end_utc": "2026-10-18T15:51:00.854402+00:00",
+    "deadline_utc": "2026-10-18T15:58:43.1210196Z"
+  },
+  "tokens": "unavailable: runtime provides no actual per-run token telemetry",
+  "preservation": "No data/profile/network/provider changes. Display restored in finally; no emulator shutdown.",
+  "limitations": [
+    "Android emulator only; no iOS/live provider/model-quality acceptance.",
+    "Visual judgment limited to inspected viewports.",
+    "Initial display mutations were not enclosed in a long-lived try/finally; final restoration script used finally and verified exact restoration."
+  ]
+}

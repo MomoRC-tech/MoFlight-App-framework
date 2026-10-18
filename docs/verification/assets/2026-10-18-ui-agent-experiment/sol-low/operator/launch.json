@@ -1,0 +1,11 @@
+{
+  "fork_turns": "none",
+  "deadline_utc": "2026-10-18T15:58:43.1210196Z",
+  "start_utc": "2026-10-18T15:46:43.1210196Z",
+  "model": "gpt-6.1-sol",
+  "installed_apk_evidence": "Operator pulled installed base.apk; SHA-256 c3a7d17cec26cd4211f2d88c6cbc325ac768e45883b5cb2a72f60d6a1c51ab73 matched pinned Release",
+  "token_telemetry": "not exposed by current collaboration tool responses",
+  "started_avd_for_trial": true,
+  "run_id": "20261018T154504Z-sol-low-01",
+  "reasoning_effort": "low"
+}
