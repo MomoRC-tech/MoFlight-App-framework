@@ -3,11 +3,21 @@
     "name": "MoFlight Lab",
     "slug": "moflight-platform-lab",
     "version": "0.1.0",
+    "icon": "./assets/branding/launcher/icon.png",
     "scheme": "moflight-lab",
     "orientation": "default",
     "platforms": ["android", "ios"],
-    "ios": { "bundleIdentifier": "de.momorc.moflight.lab", "supportsTablet": true },
-    "android": { "package": "de.momorc.moflight.lab", "allowBackup": false },
+    "ios": { "bundleIdentifier": "de.momorc.moflight.lab", "supportsTablet": true, "icon": "./assets/branding/launcher/icon.png" },
+    "android": {
+      "package": "de.momorc.moflight.lab",
+      "allowBackup": false,
+      "icon": "./assets/branding/launcher/icon.png",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/branding/launcher/adaptive-foreground.png",
+        "monochromeImage": "./assets/branding/launcher/adaptive-foreground.png",
+        "backgroundColor": "#009bad"
+      }
+    },
     "plugins": ["expo-sqlite", "expo-document-picker", "expo-dev-client", ["expo-secure-store", { "configureAndroidBackup": true, "faceIDPermission": false }]]
   }
 }

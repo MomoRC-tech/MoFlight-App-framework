@@ -1,0 +1,9 @@
+{
+  "source": "docs/assets/branding/moflight-app-icon-ai.png",
+  "source_sha256": "49bdc51f3df70f455ebff7cd13a430207f1032731af94a3bd82099e40fb5982c",
+  "method": "Lanczos resize; white silhouette by red-channel key 32..240; centered 62dp circle on 108dp canvas",
+  "assets": {
+    "icon.png": "d9d67ad3ebed8d0205a5958993b8f5670c110c24f45081cae9c00cf119e99e17",
+    "adaptive-foreground.png": "be91893ea63ebf2682488b56d2a1c968005f3d21e4d068641820399f91f9628e"
+  }
+}
