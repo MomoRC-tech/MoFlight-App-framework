@@ -1,6 +1,6 @@
 {
   "config": {
-    "master_sha256": "e34b29a13398fbfaa1ca76c3f9e6d70d508f9a5ad0d0b2ebd56823e376e48348",
+    "master_sha256": "42baf689562ad3bfe195430b58ebcc34923b110bcf8e03a3ae1dba0f12b5d419",
     "glyphs": [
       "home",
       "flight-paper-plane",
@@ -104,23 +104,23 @@
       "size_px": 192
     },
     "flight-paper-plane-default.png": {
-      "sha256": "fc58970cc9718d903deda807c59354ad8eb9706535b68094c0a68548e5cdf662",
+      "sha256": "497ea24d3974ee1e2c3f31fc55e5f878e3ec1deeb462937065759e520c6438a2",
       "size_px": 192
     },
     "flight-paper-plane-muted.png": {
-      "sha256": "2eccbb49810aa78cfb3623c109e162c91b26b5d583473ece9a0fcaed030b5d10",
+      "sha256": "ced6530f4ad51efdd0e6474a7c0a83100906974b981a34988f6b885e456cd3c0",
       "size_px": 192
     },
     "flight-paper-plane-paper.png": {
-      "sha256": "d10c62214548e7490afe230a03291123554e60905df0f3434ba2e8bec0a493e2",
+      "sha256": "8828e5acd67d536f1733d54e4b77956866cf351eea43ac725b346cddb59fcedc",
       "size_px": 192
     },
     "flight-paper-plane-assistant.png": {
-      "sha256": "a01d43e28d2fa51a4d1e7ed82a95c16b8028b52da0a407386cbc0b51bb91ef96",
+      "sha256": "e3811152ab0f277dfb54b7d9c7193dd47b34074832b06cc98639cb721634fd6f",
       "size_px": 192
     },
     "flight-paper-plane-contrast.png": {
-      "sha256": "10000c202e3fe4204d310ec71e7171bf9be838e063895015ffdc58e75163b734",
+      "sha256": "fbe5148352ab589dd3a9584689a5d2722f41efb986c145e7f067b3ddd36a464b",
       "size_px": 192
     },
     "book-default.png": {
