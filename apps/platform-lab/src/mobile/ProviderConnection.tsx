@@ -57,7 +57,7 @@ export function ProviderConnection({ controller: c, open, close, development = f
       {loginFeedback && <Label>{loginFeedback}</Label>}
       {c.disconnecting ? <Action disabled={operationLocked || !c.loaded} onPress={c.checkDisconnection}>Abmeldung prüfen</Action> : <Action disabled={locked || !c.loaded} onPress={() => c.checkConnection()}>Anmeldung prüfen</Action>}
     </View> : <KeyboardAvoidingView style={styles.panel} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-      <ScrollView contentContainerStyle={styles.canvas} keyboardShouldPersistTaps="handled">
+      <ScrollView removeClippedSubviews={false} contentContainerStyle={styles.canvas} keyboardShouldPersistTaps="handled">
         <View style={styles.group}>
           <Card><Section title="Vereinsflieger" /><View accessible accessibilityLabel={guidance.title} accessibilityLiveRegion="polite"><Label selectable={false} style={{ fontWeight: '600' }}>{guidance.title}</Label></View>
             <Label muted>{guidance.hint}</Label>
