@@ -1,0 +1,22 @@
+{
+  "source": "3ec05260999ccd8e1a9a2269d018226fad7b15ab",
+  "baseline": {
+    "appId": "10235",
+    "firstInstallTime": "2026-10-11 08:41:18",
+    "lastUpdateTime": "2026-10-18 15:51:17"
+  },
+  "updated": {
+    "appId": "10235",
+    "firstInstallTime": "2026-10-11 08:41:18",
+    "lastUpdateTime": "2026-10-18 16:45:17"
+  },
+  "network_during_trial": {
+    "airplane_mode_on": "1",
+    "wifi_on": "0",
+    "mobile_data": "0"
+  },
+  "install": "adb install -r: Success",
+  "signature_sha256": "fac61745dc0903786fb9ede62a962b399f7348f0bb6f899b8332667591033b9c",
+  "private_session_avds": "Not started or accessed",
+  "data_limits": "Visible library facts and installation identity only; no private database-byte inspection."
+}

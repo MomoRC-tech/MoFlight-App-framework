@@ -147,7 +147,7 @@
 <tr><td>C08</td><td>Overlay / provider panel</td><td>Current dark full app overlay with one active header; provider has its own toolbar/history</td><td>Different from pale v0.30 prototype sheets. MobileApp / ProviderConnection.</td></tr>
 <tr><td>C09</td><td>Flight row</td><td>Padding 7, radius 13; no-track tile, route/time/role and detail chevron</td><td>Whole row opens saved facts. MobileApp FlightRow.</td></tr>
 <tr><td>C10</td><td>AI question / composer</td><td>Question radius 12; composer radius 20; send face 42 × 42; input max height 150</td><td>Local questions calculate deterministically; free-text service unavailable. MobileApp.</td></tr>
-<tr><td>C11</td><td>Paper hero / action face</td><td>Orange-accent photo card, minimum height 144; normal hero height 154; CTA radius 15</td><td>Opens reconciliation/writing tools, not automatic import or copied-entry confirmation. Dashboard.</td></tr>
+<tr><td>C11</td><td>Paper hero / action face</td><td>Orange-accent photo card, minimum height 144; normal hero height 154; CTA radius 15</td><td>Papierstand ansehen opens the read-only saved paper status. Full reconciliation/writing remains M5; viewing never confirms copying. Dashboard / PaperStatus.</td></tr>
 <tr><td>C12</td><td>Season ring</td><td>Diameter 62, thickness 6, aircraft segments, central value/label</td><td>Whole season card opens current-year flights. SeasonRing / season-model.</td></tr>
 <tr><td>C13</td><td>Badges / disclosures</td><td>Role pill radius 12; session badge minimum 16; details + / −</td><td>Role, session evidence and expansion remain separate meanings. MobileApp / ProviderConnection.</td></tr>
 </tbody></table></div>
@@ -196,15 +196,19 @@
 <div class="table-wrap"><table><thead><tr><th>Destination</th><th>Current presentation</th></tr></thead><tbody>
 <tr><td>Übersicht</td><td>Photo paper hero; asymmetric season/AI and flight/club pairs; weather and next actions. Use selected-book saved facts with details on tap.</td></tr>
 <tr><td>Flüge</td><td>Book selector, search/filter, year chips, summary, training/classification chips and saved rows. Missing tracks/distances/classifications remain unavailable.</td></tr>
-<tr><td>Flugbuch</td><td>Selected-book status, paper progress and existing reconciliation/writing tools; book identity differs from account/format.</td></tr>
+<tr><td>Flugbuch</td><td>Selected-book saved paper status and ordinary library backup/restore. Full reconciliation/writing remains M5; book identity differs from account/format.</td></tr>
 <tr><td>Verein</td><td>Overview/Dienste/Termine/Mitteilungen scopes with bounded sections and honest missing-source states.</td></tr>
 <tr><td>AI</td><td>Welcome, supported local questions/results, composer and unavailable free-text state. Sparkles identify the category.</td></tr>
 </tbody></table></div>
 <p>The <a href="../design-sources/2026-10-16-four-screen/reference.png">approved reference</a> establishes card/layout/color fidelity. Later five-tab changes add Flugbuch and retain AI. Older Wetter-tab, goals, monthly-chart and synthetic Medical-expiry prototypes remain historical.</p>
-<p>Development surfaces are explicit visual exceptions: <a href="../../../apps/platform-lab/src/App.tsx">App.tsx</a>, <a href="../../../apps/platform-lab/src/BookLab.tsx">BookLab.tsx</a> and the older <a href="../../../apps/platform-lab/src/vereinsflieger">provider trial views</a> retain their functional lab styling, including light backgrounds and different type/button sizes. Their values are included in the generated inventory. This handbook does not silently restyle these tools or select their appearance for product screens. The original provider webpage and OS-owned dialogs remain external visual surfaces.</p>
+<p>Development surfaces are explicit visual exceptions: <a href="../../../apps/platform-lab/src/App.tsx">App.tsx</a> and <a href="../../../apps/platform-lab/src/BookLab.tsx">BookLab.tsx</a> retain their functional English proof styling, including light backgrounds and different type/button sizes, behind <strong>Settings → Development</strong>. Their body groups are capped at 720 dp. They are not ordinary product paper/import screens. The older <a href="../../../apps/platform-lab/src/vereinsflieger">provider trial views</a> remain historical proofs; the embedded lab cannot mount a duplicate provider browser. Their values are included in the generated inventory. The original provider webpage and OS-owned dialogs remain external visual surfaces.</p>
+<h3 id="chapter-patterns-settings-development-and-library-maintenance">Settings, Development and library maintenance</h3>
+<p>Settings exposes <strong>Sicherung &amp; Wiederherstellung</strong> beside ordinary book/data actions and a separate <strong>Entwicklung öffnen</strong> entry. <a href="../../../apps/platform-lab/src/mobile/DevelopmentHub.tsx">DevelopmentHub</a> groups the dataset/flight proof, book/paper proof and provider diagnostics. Entry alone runs no fixture or provider operation. The experimental lab Release retains these explicit tools for offline testing; this is no security boundary or approval for a future production build. Synthetic operations and old copy-confirmation semantics remain labelled.</p>
+<p>Product maintenance uses current dark C01/C02 cards/actions and selected Modern Duotone symbols. <a href="../../../apps/platform-lab/src/mobile/LibraryBackup.tsx">LibraryBackup</a> explains whole-library scope, unencrypted lab format/2 MB restore limit, exclusions, picker cancellation and the difference between sharing and verified external saving. Restore validates a new library and its selected book before activating it; previous stores stay retained. <a href="../../../apps/platform-lab/src/mobile/PaperStatus.tsx">PaperStatus</a> shows saved synthetic facts/unknowns and the unfinished M5 boundary, with book/history/backup navigation. These groups are capped and centered at 520 dp. No ordinary floating plus, book selector or data-status action launches a proof.</p>
+<p>Provider login, recovery, session controls and <strong>Rohbelege &amp; begrenzter Abruf</strong> stay in the ordinary connection dialog. Extra browserstore test controls require the explicit Development route on the same retained controller, with existing native AVD/operation/recovery guards. No source capture becomes an imported flight by moving its controls.</p>
 <h3 id="chapter-patterns-header-overlays-and-navigation">Header, overlays and navigation</h3>
 <p>Keep header/navigation outside the scrolling canvas. Header order is logo/title, Connection → Med → Profile. Truncate title before shrinking controls. Current font scale above 1.3 places controls on a second wrapping row; subtitle renders only at width at least 412 with normal text.</p>
-<p>App overlays/details replace logo with contextual Back and expose one active accessible header. Return through nested overlays to prior page/filter/scroll state. A different book invalidates old flight-detail history. Medical opens a read-only unknown-record explanation.</p>
+<p>App overlays/details replace logo with contextual Back and expose one active accessible header. Return through nested overlays to prior page/filter/scroll state and unsaved local profile-name draft. Identical library reloads preserve the return path; changed book/flight facts invalidate stale details. An active backup/proof operation disables app Back, Profile and Medical until completion; provider Close/history remain separate. Medical opens a read-only unknown-record explanation.</p>
 <p>Provider Close, connection status and origin belong to its app-owned toolbar. Provider-history Back affects the original embedded webpage; Close returns to MoFlight without promising logout. Preserve retained browser parent, busy/recovery guards and provenance. OS-owned full-screen surfaces keep their own controls. See <a href="../2026-10-18-header-status-review.md#package-1b-decision-checkpoint">header decisions</a>.</p>
 <p>Bottom navigation has five equal icon/label destinations and semantic selected state. Current code hides it with the AI keyboard and app/provider overlays. Do not reintroduce an old floating dock or add a destination through documentation cleanup.</p>
 <h3 id="chapter-patterns-responsive-layout-and-text">Responsive layout and text</h3>
@@ -230,73 +234,78 @@
 <p>Follow the <a href="../../development/verification-workflow.md">verification workflow</a>: this consolidation adds no native acceptance. Substantial UI changes need their relevant committed-source Release/native matrix; logic-only changes do not trigger unrelated visual audits.</p></section>
 <section class="chapter" id="chapter-implementation-inventory"><h2 id="chapter-implementation-inventory-platform-lab-ui-implementation-inventory">Platform-lab UI implementation inventory</h2>
 <p><a href="#chapter-overview">Handbook entry point</a>. Generated by <code>python scripts/design_handbook.py</code>; do not hand-edit.</p>
-<p>Scope: 25 product mobile TypeScript/model and app-owned TSX UI/adapter files; 88 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.</p>
+<p>Scope: 28 product mobile TypeScript/model and app-owned TSX UI/adapter files; 86 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.</p>
 <h3 id="chapter-implementation-inventory-apptsx">App.tsx</h3>
-<p>Retained app-owned lab/adapter surface; document its existing appearance as an exception. Source: <a href="../../../apps/platform-lab/src/App.tsx">apps/platform-lab/src/App.tsx</a>; normalized SHA-256 <code>d88f021b45e33da05b3b65d0eeffb0202187716cc833e10f0fb53c7f6bea9e39</code>.</p>
+<p>Retained app-owned lab/adapter surface; document its existing appearance as an exception. Source: <a href="../../../apps/platform-lab/src/App.tsx">apps/platform-lab/src/App.tsx</a>; normalized SHA-256 <code>00e90dbdf13115e9cffa98b6123f015dc87f095cdd8736daa20f73edab02e7e6</code>.</p>
 <h4 id="chapter-implementation-inventory-literal-colors">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><i class="swatch" style="background:#173a57" aria-hidden="true"></i><code>#173a57</code></td><td>170, 171</td></tr>
-<tr><td><i class="swatch" style="background:#174c72" aria-hidden="true"></i><code>#174c72</code></td><td>174</td></tr>
-<tr><td><i class="swatch" style="background:#1f2937" aria-hidden="true"></i><code>#1f2937</code></td><td>171</td></tr>
-<tr><td><i class="swatch" style="background:#34465c" aria-hidden="true"></i><code>#34465c</code></td><td>172</td></tr>
-<tr><td><i class="swatch" style="background:#583e00" aria-hidden="true"></i><code>#583e00</code></td><td>172</td></tr>
-<tr><td><i class="swatch" style="background:#b9cadb" aria-hidden="true"></i><code>#b9cadb</code></td><td>173</td></tr>
-<tr><td><i class="swatch" style="background:#f5f7fb" aria-hidden="true"></i><code>#f5f7fb</code></td><td>170</td></tr>
-<tr><td><i class="swatch" style="background:#fff" aria-hidden="true"></i><code>#fff</code></td><td>173, 174</td></tr>
-<tr><td><i class="swatch" style="background:#fff0cd" aria-hidden="true"></i><code>#fff0cd</code></td><td>172</td></tr>
+<tr><td><i class="swatch" style="background:#173a57" aria-hidden="true"></i><code>#173a57</code></td><td>173, 174</td></tr>
+<tr><td><i class="swatch" style="background:#174c72" aria-hidden="true"></i><code>#174c72</code></td><td>177</td></tr>
+<tr><td><i class="swatch" style="background:#1f2937" aria-hidden="true"></i><code>#1f2937</code></td><td>174</td></tr>
+<tr><td><i class="swatch" style="background:#34465c" aria-hidden="true"></i><code>#34465c</code></td><td>175</td></tr>
+<tr><td><i class="swatch" style="background:#583e00" aria-hidden="true"></i><code>#583e00</code></td><td>175</td></tr>
+<tr><td><i class="swatch" style="background:#b9cadb" aria-hidden="true"></i><code>#b9cadb</code></td><td>176</td></tr>
+<tr><td><i class="swatch" style="background:#f5f7fb" aria-hidden="true"></i><code>#f5f7fb</code></td><td>173</td></tr>
+<tr><td><i class="swatch" style="background:#fff" aria-hidden="true"></i><code>#fff</code></td><td>176, 177</td></tr>
+<tr><td><i class="swatch" style="background:#fff0cd" aria-hidden="true"></i><code>#fff0cd</code></td><td>175</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-typography-declarations">Typography declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>fontSize: 16</code></td><td>172, 174</td></tr>
-<tr><td><code>fontSize: 17</code></td><td>171</td></tr>
-<tr><td><code>fontSize: 20</code></td><td>171</td></tr>
-<tr><td><code>fontSize: 30</code></td><td>170</td></tr>
-<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>174</td></tr>
-<tr><td><code>fontWeight: &#x27;700&#x27;</code></td><td>170, 171, 172</td></tr>
-<tr><td><code>lineHeight: 23</code></td><td>174</td></tr>
-<tr><td><code>lineHeight: 24</code></td><td>172</td></tr>
-<tr><td><code>lineHeight: 25</code></td><td>171</td></tr>
+<tr><td><code>fontSize: 16</code></td><td>175, 177</td></tr>
+<tr><td><code>fontSize: 17</code></td><td>174</td></tr>
+<tr><td><code>fontSize: 20</code></td><td>174</td></tr>
+<tr><td><code>fontSize: 30</code></td><td>173</td></tr>
+<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>177</td></tr>
+<tr><td><code>fontWeight: &#x27;700&#x27;</code></td><td>173, 174, 175</td></tr>
+<tr><td><code>lineHeight: 23</code></td><td>177</td></tr>
+<tr><td><code>lineHeight: 24</code></td><td>175</td></tr>
+<tr><td><code>lineHeight: 25</code></td><td>174</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-geometry--opacity-declarations">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>borderRadius: 10</code></td><td>173</td></tr>
-<tr><td><code>borderRadius: 8</code></td><td>174</td></tr>
-<tr><td><code>borderWidth: 1</code></td><td>173</td></tr>
-<tr><td><code>gap: 12</code></td><td>170, 173</td></tr>
-<tr><td><code>gap: 3</code></td><td>173</td></tr>
-<tr><td><code>gap: 8</code></td><td>175</td></tr>
-<tr><td><code>minHeight: 48</code></td><td>174</td></tr>
-<tr><td><code>opacity: .45</code></td><td>175</td></tr>
-<tr><td><code>padding: 14</code></td><td>172, 174</td></tr>
-<tr><td><code>padding: 16</code></td><td>173</td></tr>
-<tr><td><code>padding: 18</code></td><td>170</td></tr>
+<tr><td><code>borderRadius: 10</code></td><td>176</td></tr>
+<tr><td><code>borderRadius: 8</code></td><td>177</td></tr>
+<tr><td><code>borderWidth: 1</code></td><td>176</td></tr>
+<tr><td><code>gap: 12</code></td><td>173, 176</td></tr>
+<tr><td><code>gap: 3</code></td><td>176</td></tr>
+<tr><td><code>gap: 8</code></td><td>178</td></tr>
+<tr><td><code>maxWidth: 720</code></td><td>173</td></tr>
+<tr><td><code>minHeight: 48</code></td><td>177</td></tr>
+<tr><td><code>opacity: .45</code></td><td>178</td></tr>
+<tr><td><code>padding: 14</code></td><td>175, 177</td></tr>
+<tr><td><code>padding: 16</code></td><td>176</td></tr>
+<tr><td><code>padding: 18</code></td><td>173</td></tr>
+<tr><td><code>width: &#x27;100%&#x27;</code></td><td>173</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-booklabtsx">BookLab.tsx</h3>
-<p>Retained app-owned lab/adapter surface; document its existing appearance as an exception. Source: <a href="../../../apps/platform-lab/src/BookLab.tsx">apps/platform-lab/src/BookLab.tsx</a>; normalized SHA-256 <code>fc3b8bb6ac8422bc77b8d76b094dbb96bc6811b97246fc426b4d4a21f2a52207</code>.</p>
+<p>Retained app-owned lab/adapter surface; document its existing appearance as an exception. Source: <a href="../../../apps/platform-lab/src/BookLab.tsx">apps/platform-lab/src/BookLab.tsx</a>; normalized SHA-256 <code>139c44920a750818c8c3c4c0cfe42a10807687b81fcaa47b598dc5d2639eff2f</code>.</p>
 <h4 id="chapter-implementation-inventory-literal-colors-1">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><i class="swatch" style="background:#174c72" aria-hidden="true"></i><code>#174c72</code></td><td>48</td></tr>
-<tr><td><i class="swatch" style="background:#b9cadb" aria-hidden="true"></i><code>#b9cadb</code></td><td>48</td></tr>
-<tr><td><code>white</code></td><td>48</td></tr>
+<tr><td><i class="swatch" style="background:#174c72" aria-hidden="true"></i><code>#174c72</code></td><td>56</td></tr>
+<tr><td><i class="swatch" style="background:#b9cadb" aria-hidden="true"></i><code>#b9cadb</code></td><td>56</td></tr>
+<tr><td><i class="swatch" style="background:#f5f7fb" aria-hidden="true"></i><code>#f5f7fb</code></td><td>56</td></tr>
+<tr><td><code>white</code></td><td>56</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-typography-declarations-1">Typography declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>fontSize: 16</code></td><td>48</td></tr>
-<tr><td><code>fontSize: 26</code></td><td>48</td></tr>
-<tr><td><code>fontWeight: &#x27;700&#x27;</code></td><td>48</td></tr>
+<tr><td><code>fontSize: 16</code></td><td>56</td></tr>
+<tr><td><code>fontSize: 26</code></td><td>56</td></tr>
+<tr><td><code>fontWeight: &#x27;700&#x27;</code></td><td>56</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-geometry--opacity-declarations-1">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>borderRadius: 8</code></td><td>48</td></tr>
-<tr><td><code>borderWidth: 1</code></td><td>48</td></tr>
-<tr><td><code>gap: 12</code></td><td>48</td></tr>
-<tr><td><code>gap: 8</code></td><td>48</td></tr>
-<tr><td><code>padding: 12</code></td><td>48</td></tr>
-<tr><td><code>padding: 14</code></td><td>48</td></tr>
-<tr><td><code>padding: 18</code></td><td>48</td></tr>
+<tr><td><code>borderRadius: 8</code></td><td>56</td></tr>
+<tr><td><code>borderWidth: 1</code></td><td>56</td></tr>
+<tr><td><code>gap: 12</code></td><td>56</td></tr>
+<tr><td><code>gap: 8</code></td><td>56</td></tr>
+<tr><td><code>maxWidth: 720</code></td><td>56</td></tr>
+<tr><td><code>padding: 12</code></td><td>56</td></tr>
+<tr><td><code>padding: 14</code></td><td>56</td></tr>
+<tr><td><code>padding: 18</code></td><td>56</td></tr>
+<tr><td><code>width: &#x27;100%&#x27;</code></td><td>56</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-appheadertsx">AppHeader.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/AppHeader.tsx">apps/platform-lab/src/mobile/AppHeader.tsx</a>; normalized SHA-256 <code>1d3c93a292bae997757cb2d530e7ab3db0c451857a5c99cfbc63f2d1838e28ca</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/AppHeader.tsx">apps/platform-lab/src/mobile/AppHeader.tsx</a>; normalized SHA-256 <code>b83d536b266ba5279005e39d8b49b5b52321aa847a0be95eb6bd16d084409c45</code>.</p>
 <h4 id="chapter-implementation-inventory-literal-colors-2">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><i class="swatch" style="background:#001022df" aria-hidden="true"></i><code>#001022df</code></td><td>16</td></tr>
@@ -323,6 +332,7 @@
 <tr><td><code>maxWidth: 960</code></td><td>30</td></tr>
 <tr><td><code>minHeight: 64</code></td><td>31</td></tr>
 <tr><td><code>minWidth: 0</code></td><td>35</td></tr>
+<tr><td><code>opacity: .5</code></td><td>18</td></tr>
 <tr><td><code>paddingHorizontal: 10</code></td><td>31</td></tr>
 <tr><td><code>paddingVertical: 5</code></td><td>31</td></tr>
 <tr><td><code>width: &#x27;100%&#x27;</code></td><td>30, 34</td></tr>
@@ -339,7 +349,7 @@
 <tr><td><i class="swatch" style="background:#ffc477" aria-hidden="true"></i><code>#ffc477</code></td><td>6</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-dashboardtsx">Dashboard.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/Dashboard.tsx">apps/platform-lab/src/mobile/Dashboard.tsx</a>; normalized SHA-256 <code>695f94b746d9bc1c97d4a485758bee7e1121110945e23d5866b99ef155433855</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/Dashboard.tsx">apps/platform-lab/src/mobile/Dashboard.tsx</a>; normalized SHA-256 <code>75674ed4838e634e76eeed160a7005be1768af2e941736e7daf3ea2442f645be</code>.</p>
 <h4 id="chapter-implementation-inventory-literal-colors-4">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><i class="swatch" style="background:#00112688" aria-hidden="true"></i><code>#00112688</code></td><td>62</td></tr>
@@ -422,8 +432,26 @@
 <tr><td><code>width: 34</code></td><td>83</td></tr>
 <tr><td><code>width: 38</code></td><td>76</td></tr>
 </tbody></table></div>
+<h3 id="chapter-implementation-inventory-developmenthubtsx">DevelopmentHub.tsx</h3>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/DevelopmentHub.tsx">apps/platform-lab/src/mobile/DevelopmentHub.tsx</a>; normalized SHA-256 <code>3a147d36d4d393197e41cb1842c7776e99d5c7307dd7c8586a74425cb480f77f</code>.</p>
+<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-4">Geometry / opacity declarations</h4>
+<div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
+<tr><td><code>gap: 10</code></td><td>6</td></tr>
+<tr><td><code>maxWidth: 520</code></td><td>6</td></tr>
+<tr><td><code>maxWidth: 720</code></td><td>27</td></tr>
+<tr><td><code>padding: 10</code></td><td>27</td></tr>
+<tr><td><code>width: &#x27;100%&#x27;</code></td><td>6, 27</td></tr>
+</tbody></table></div>
+<h3 id="chapter-implementation-inventory-librarybackuptsx">LibraryBackup.tsx</h3>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/LibraryBackup.tsx">apps/platform-lab/src/mobile/LibraryBackup.tsx</a>; normalized SHA-256 <code>509c280cd2dc0650bdad08853731a94e1a0bcfa5ad50de65173409556212dcc6</code>.</p>
+<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-5">Geometry / opacity declarations</h4>
+<div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
+<tr><td><code>gap: 10</code></td><td>42</td></tr>
+<tr><td><code>maxWidth: 520</code></td><td>42</td></tr>
+<tr><td><code>width: &#x27;100%&#x27;</code></td><td>42</td></tr>
+</tbody></table></div>
 <h3 id="chapter-implementation-inventory-medicalstatustsx">MedicalStatus.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/MedicalStatus.tsx">apps/platform-lab/src/mobile/MedicalStatus.tsx</a>; normalized SHA-256 <code>0aa35a1c27301a4ee7e83df38ea48d88c61e0796d0641dbf92f491c4b9468b97</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/MedicalStatus.tsx">apps/platform-lab/src/mobile/MedicalStatus.tsx</a>; normalized SHA-256 <code>40ec041acbba2681480a8d52b9d68fed4597832ba80b6ad66cf52938c2a84e12</code>.</p>
 <h4 id="chapter-implementation-inventory-literal-colors-5">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><i class="swatch" style="background:#102d47aa" aria-hidden="true"></i><code>#102d47aa</code></td><td>24</td></tr>
@@ -436,164 +464,167 @@
 <tr><td><code>lineHeight: 15</code></td><td>27</td></tr>
 <tr><td><code>lineHeight: 16</code></td><td>26</td></tr>
 </tbody></table></div>
-<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-4">Geometry / opacity declarations</h4>
+<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-6">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>borderRadius: 12</code></td><td>24</td></tr>
 <tr><td><code>gap: 3</code></td><td>25</td></tr>
 <tr><td><code>maxWidth: 480</code></td><td>28</td></tr>
 <tr><td><code>minHeight: 48</code></td><td>24</td></tr>
 <tr><td><code>minWidth: 72</code></td><td>24</td></tr>
+<tr><td><code>opacity: .5</code></td><td>8</td></tr>
 <tr><td><code>paddingHorizontal: 6</code></td><td>24</td></tr>
 <tr><td><code>paddingVertical: 3</code></td><td>24</td></tr>
 <tr><td><code>width: &#x27;100%&#x27;</code></td><td>28</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-mobileapptsx">MobileApp.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/MobileApp.tsx">apps/platform-lab/src/mobile/MobileApp.tsx</a>; normalized SHA-256 <code>3d158b5e1bf25277c3bef7ae5bcb0915469ac22df1fbbaae3aa1c7a3672c7b39</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/MobileApp.tsx">apps/platform-lab/src/mobile/MobileApp.tsx</a>; normalized SHA-256 <code>507ded0cee2f5c461582522b1e65652604643ae15ca352ff5ea34174ca7b2d4e</code>.</p>
 <h4 id="chapter-implementation-inventory-literal-colors-6">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><i class="swatch" style="background:#00c8ff" aria-hidden="true"></i><code>#00c8ff</code></td><td>209, 248</td></tr>
-<tr><td><i class="swatch" style="background:#020e17" aria-hidden="true"></i><code>#020e17</code></td><td>248</td></tr>
-<tr><td><i class="swatch" style="background:#031326" aria-hidden="true"></i><code>#031326</code></td><td>186</td></tr>
-<tr><td><i class="swatch" style="background:#064240" aria-hidden="true"></i><code>#064240</code></td><td>242</td></tr>
-<tr><td><i class="swatch" style="background:#10233d" aria-hidden="true"></i><code>#10233d</code></td><td>245</td></tr>
-<tr><td><i class="swatch" style="background:#10263e" aria-hidden="true"></i><code>#10263e</code></td><td>247</td></tr>
-<tr><td><i class="swatch" style="background:#10282d" aria-hidden="true"></i><code>#10282d</code></td><td>242</td></tr>
-<tr><td><i class="swatch" style="background:#102d47aa" aria-hidden="true"></i><code>#102d47aa</code></td><td>237</td></tr>
-<tr><td><i class="swatch" style="background:#11263a" aria-hidden="true"></i><code>#11263a</code></td><td>241</td></tr>
-<tr><td><i class="swatch" style="background:#152d42" aria-hidden="true"></i><code>#152d42</code></td><td>244</td></tr>
-<tr><td><i class="swatch" style="background:#1b344a" aria-hidden="true"></i><code>#1b344a</code></td><td>247</td></tr>
-<tr><td><i class="swatch" style="background:#1c3449" aria-hidden="true"></i><code>#1c3449</code></td><td>248</td></tr>
-<tr><td><i class="swatch" style="background:#227f87" aria-hidden="true"></i><code>#227f87</code></td><td>242</td></tr>
-<tr><td><i class="swatch" style="background:#285bff" aria-hidden="true"></i><code>#285bff</code></td><td>243</td></tr>
-<tr><td><i class="swatch" style="background:#315fff" aria-hidden="true"></i><code>#315fff</code></td><td>243</td></tr>
-<tr><td><i class="swatch" style="background:#354d74" aria-hidden="true"></i><code>#354d74</code></td><td>245</td></tr>
-<tr><td><i class="swatch" style="background:#3a5a8b" aria-hidden="true"></i><code>#3a5a8b</code></td><td>247</td></tr>
-<tr><td><i class="swatch" style="background:#7299ab" aria-hidden="true"></i><code>#7299ab</code></td><td>37</td></tr>
-<tr><td><i class="swatch" style="background:#78efdc" aria-hidden="true"></i><code>#78efdc</code></td><td>245</td></tr>
-<tr><td><i class="swatch" style="background:#8ba4bc" aria-hidden="true"></i><code>#8ba4bc</code></td><td>208, 239</td></tr>
-<tr><td><i class="swatch" style="background:#f5f7fb" aria-hidden="true"></i><code>#f5f7fb</code></td><td>213</td></tr>
-<tr><td><i class="swatch" style="background:#ffbd9b" aria-hidden="true"></i><code>#ffbd9b</code></td><td>135</td></tr>
+<tr><td><i class="swatch" style="background:#00c8ff" aria-hidden="true"></i><code>#00c8ff</code></td><td>228, 269</td></tr>
+<tr><td><i class="swatch" style="background:#020e17" aria-hidden="true"></i><code>#020e17</code></td><td>269</td></tr>
+<tr><td><i class="swatch" style="background:#031326" aria-hidden="true"></i><code>#031326</code></td><td>205</td></tr>
+<tr><td><i class="swatch" style="background:#064240" aria-hidden="true"></i><code>#064240</code></td><td>264</td></tr>
+<tr><td><i class="swatch" style="background:#10233d" aria-hidden="true"></i><code>#10233d</code></td><td>266</td></tr>
+<tr><td><i class="swatch" style="background:#10263e" aria-hidden="true"></i><code>#10263e</code></td><td>268</td></tr>
+<tr><td><i class="swatch" style="background:#10282d" aria-hidden="true"></i><code>#10282d</code></td><td>264</td></tr>
+<tr><td><i class="swatch" style="background:#102d47aa" aria-hidden="true"></i><code>#102d47aa</code></td><td>259</td></tr>
+<tr><td><i class="swatch" style="background:#11263a" aria-hidden="true"></i><code>#11263a</code></td><td>263</td></tr>
+<tr><td><i class="swatch" style="background:#152d42" aria-hidden="true"></i><code>#152d42</code></td><td>265</td></tr>
+<tr><td><i class="swatch" style="background:#1b344a" aria-hidden="true"></i><code>#1b344a</code></td><td>268</td></tr>
+<tr><td><i class="swatch" style="background:#1c3449" aria-hidden="true"></i><code>#1c3449</code></td><td>269</td></tr>
+<tr><td><i class="swatch" style="background:#227f87" aria-hidden="true"></i><code>#227f87</code></td><td>264</td></tr>
+<tr><td><i class="swatch" style="background:#354d74" aria-hidden="true"></i><code>#354d74</code></td><td>266</td></tr>
+<tr><td><i class="swatch" style="background:#3a5a8b" aria-hidden="true"></i><code>#3a5a8b</code></td><td>268</td></tr>
+<tr><td><i class="swatch" style="background:#7299ab" aria-hidden="true"></i><code>#7299ab</code></td><td>40</td></tr>
+<tr><td><i class="swatch" style="background:#78efdc" aria-hidden="true"></i><code>#78efdc</code></td><td>266</td></tr>
+<tr><td><i class="swatch" style="background:#8ba4bc" aria-hidden="true"></i><code>#8ba4bc</code></td><td>227, 261</td></tr>
+<tr><td><i class="swatch" style="background:#ffbd9b" aria-hidden="true"></i><code>#ffbd9b</code></td><td>155</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-typography-declarations-5">Typography declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>fontSize: 10</code></td><td>37, 197, 208, 239</td></tr>
-<tr><td><code>fontSize: 11</code></td><td>40, 202, 240, 248</td></tr>
-<tr><td><code>fontSize: 12</code></td><td>242</td></tr>
-<tr><td><code>fontSize: 13</code></td><td>198, 241, 247</td></tr>
-<tr><td><code>fontSize: 18</code></td><td>174</td></tr>
-<tr><td><code>fontSize: 20</code></td><td>186, 240</td></tr>
-<tr><td><code>fontSize: 23</code></td><td>246</td></tr>
-<tr><td><code>fontSize: 25</code></td><td>248</td></tr>
-<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>38, 174, 186, 240, 242</td></tr>
-<tr><td><code>letterSpacing: .6</code></td><td>239</td></tr>
-<tr><td><code>lineHeight: 16</code></td><td>208, 239, 240, 248</td></tr>
-<tr><td><code>lineHeight: 17</code></td><td>242</td></tr>
-<tr><td><code>lineHeight: 25</code></td><td>240</td></tr>
-<tr><td><code>lineHeight: 29</code></td><td>248</td></tr>
+<tr><td><code>fontSize: 10</code></td><td>40, 216, 227, 261</td></tr>
+<tr><td><code>fontSize: 11</code></td><td>43, 221, 262, 269</td></tr>
+<tr><td><code>fontSize: 12</code></td><td>264</td></tr>
+<tr><td><code>fontSize: 13</code></td><td>217, 263, 268</td></tr>
+<tr><td><code>fontSize: 18</code></td><td>193</td></tr>
+<tr><td><code>fontSize: 20</code></td><td>205, 262</td></tr>
+<tr><td><code>fontSize: 23</code></td><td>267</td></tr>
+<tr><td><code>fontSize: 25</code></td><td>269</td></tr>
+<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>41, 193, 205, 262, 264</td></tr>
+<tr><td><code>letterSpacing: .6</code></td><td>261</td></tr>
+<tr><td><code>lineHeight: 16</code></td><td>227, 261, 262, 269</td></tr>
+<tr><td><code>lineHeight: 17</code></td><td>264</td></tr>
+<tr><td><code>lineHeight: 25</code></td><td>262</td></tr>
+<tr><td><code>lineHeight: 29</code></td><td>269</td></tr>
 </tbody></table></div>
-<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-5">Geometry / opacity declarations</h4>
+<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-7">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>borderRadius: 12</code></td><td>242, 246</td></tr>
-<tr><td><code>borderRadius: 13</code></td><td>242</td></tr>
-<tr><td><code>borderRadius: 14</code></td><td>237</td></tr>
-<tr><td><code>borderRadius: 15</code></td><td>245</td></tr>
-<tr><td><code>borderRadius: 17</code></td><td>244</td></tr>
-<tr><td><code>borderRadius: 2</code></td><td>248</td></tr>
-<tr><td><code>borderRadius: 20</code></td><td>247</td></tr>
-<tr><td><code>borderRadius: 21</code></td><td>247</td></tr>
-<tr><td><code>borderRadius: 22</code></td><td>241</td></tr>
-<tr><td><code>borderRadius: 24</code></td><td>241</td></tr>
-<tr><td><code>borderRadius: 29</code></td><td>243</td></tr>
-<tr><td><code>borderRadius: 9</code></td><td>242</td></tr>
-<tr><td><code>borderWidth: 1</code></td><td>241, 242, 246, 247</td></tr>
-<tr><td><code>gap: 1</code></td><td>240, 248</td></tr>
-<tr><td><code>gap: 10</code></td><td>173, 245</td></tr>
-<tr><td><code>gap: 3</code></td><td>145, 239, 242</td></tr>
-<tr><td><code>gap: 4</code></td><td>39</td></tr>
-<tr><td><code>gap: 5</code></td><td>241</td></tr>
-<tr><td><code>gap: 6</code></td><td>38, 246, 247</td></tr>
-<tr><td><code>gap: 7</code></td><td>241, 245</td></tr>
-<tr><td><code>gap: 8</code></td><td>168, 236, 244, 247</td></tr>
-<tr><td><code>height: 2</code></td><td>248</td></tr>
-<tr><td><code>height: 30</code></td><td>245</td></tr>
-<tr><td><code>height: 42</code></td><td>247</td></tr>
-<tr><td><code>height: 48</code></td><td>237</td></tr>
-<tr><td><code>height: 58</code></td><td>243</td></tr>
-<tr><td><code>height: 7</code></td><td>168</td></tr>
-<tr><td><code>maxHeight: 150</code></td><td>247</td></tr>
-<tr><td><code>maxWidth: &#x27;50%&#x27;</code></td><td>34</td></tr>
-<tr><td><code>maxWidth: 430</code></td><td>245</td></tr>
-<tr><td><code>maxWidth: 480</code></td><td>173</td></tr>
-<tr><td><code>maxWidth: 599</code></td><td>235, 248</td></tr>
-<tr><td><code>maxWidth: 600</code></td><td>159, 209</td></tr>
-<tr><td><code>maxWidth: 720</code></td><td>195</td></tr>
-<tr><td><code>maxWidth: 960</code></td><td>159, 209</td></tr>
-<tr><td><code>minHeight: 126</code></td><td>245</td></tr>
-<tr><td><code>minHeight: 174</code></td><td>186</td></tr>
-<tr><td><code>minHeight: 34</code></td><td>244</td></tr>
-<tr><td><code>minHeight: 36</code></td><td>238</td></tr>
-<tr><td><code>minHeight: 40</code></td><td>241, 247</td></tr>
-<tr><td><code>minHeight: 48</code></td><td>241, 244</td></tr>
-<tr><td><code>minHeight: 60</code></td><td>248</td></tr>
-<tr><td><code>minHeight: 64</code></td><td>242</td></tr>
-<tr><td><code>minHeight: 66</code></td><td>242</td></tr>
-<tr><td><code>minHeight: 68</code></td><td>37</td></tr>
-<tr><td><code>minHeight: 70</code></td><td>246</td></tr>
-<tr><td><code>minWidth: 0</code></td><td>240, 241</td></tr>
-<tr><td><code>opacity: .45</code></td><td>200</td></tr>
-<tr><td><code>padding: 0</code></td><td>244</td></tr>
-<tr><td><code>padding: 10</code></td><td>236, 246</td></tr>
-<tr><td><code>padding: 4</code></td><td>239, 247</td></tr>
-<tr><td><code>padding: 7</code></td><td>242</td></tr>
-<tr><td><code>paddingHorizontal: 12</code></td><td>241</td></tr>
-<tr><td><code>paddingHorizontal: 16</code></td><td>244</td></tr>
-<tr><td><code>paddingHorizontal: 6</code></td><td>242</td></tr>
-<tr><td><code>paddingHorizontal: 7</code></td><td>242</td></tr>
-<tr><td><code>paddingHorizontal: 8</code></td><td>247</td></tr>
-<tr><td><code>paddingVertical: 10</code></td><td>242</td></tr>
-<tr><td><code>paddingVertical: 4</code></td><td>241, 248</td></tr>
-<tr><td><code>shadowOpacity: .5</code></td><td>243</td></tr>
-<tr><td><code>width: &#x27;100%&#x27;</code></td><td>37, 173, 188, 208, 235, 244, 245, 248</td></tr>
-<tr><td><code>width: &#x27;49.2%&#x27;</code></td><td>244</td></tr>
-<tr><td><code>width: 24</code></td><td>248</td></tr>
-<tr><td><code>width: 30</code></td><td>245</td></tr>
-<tr><td><code>width: 42</code></td><td>241, 247</td></tr>
-<tr><td><code>width: 48</code></td><td>237</td></tr>
-<tr><td><code>width: 58</code></td><td>243</td></tr>
-<tr><td><code>width: 64</code></td><td>242</td></tr>
-<tr><td><code>width: 80</code></td><td>37</td></tr>
+<tr><td><code>borderRadius: 12</code></td><td>264, 267</td></tr>
+<tr><td><code>borderRadius: 13</code></td><td>264</td></tr>
+<tr><td><code>borderRadius: 14</code></td><td>259</td></tr>
+<tr><td><code>borderRadius: 15</code></td><td>266</td></tr>
+<tr><td><code>borderRadius: 17</code></td><td>265</td></tr>
+<tr><td><code>borderRadius: 2</code></td><td>269</td></tr>
+<tr><td><code>borderRadius: 20</code></td><td>268</td></tr>
+<tr><td><code>borderRadius: 21</code></td><td>268</td></tr>
+<tr><td><code>borderRadius: 22</code></td><td>263</td></tr>
+<tr><td><code>borderRadius: 24</code></td><td>263</td></tr>
+<tr><td><code>borderRadius: 9</code></td><td>264</td></tr>
+<tr><td><code>borderWidth: 1</code></td><td>263, 264, 267, 268</td></tr>
+<tr><td><code>gap: 1</code></td><td>262, 269</td></tr>
+<tr><td><code>gap: 10</code></td><td>192, 266</td></tr>
+<tr><td><code>gap: 3</code></td><td>165, 261, 264</td></tr>
+<tr><td><code>gap: 4</code></td><td>42</td></tr>
+<tr><td><code>gap: 5</code></td><td>263</td></tr>
+<tr><td><code>gap: 6</code></td><td>41, 267, 268</td></tr>
+<tr><td><code>gap: 7</code></td><td>263, 266</td></tr>
+<tr><td><code>gap: 8</code></td><td>188, 239, 242, 258, 265, 268</td></tr>
+<tr><td><code>height: 2</code></td><td>269</td></tr>
+<tr><td><code>height: 30</code></td><td>266</td></tr>
+<tr><td><code>height: 42</code></td><td>268</td></tr>
+<tr><td><code>height: 48</code></td><td>259</td></tr>
+<tr><td><code>height: 7</code></td><td>188</td></tr>
+<tr><td><code>maxHeight: 150</code></td><td>268</td></tr>
+<tr><td><code>maxWidth: &#x27;50%&#x27;</code></td><td>37</td></tr>
+<tr><td><code>maxWidth: 430</code></td><td>266</td></tr>
+<tr><td><code>maxWidth: 480</code></td><td>192</td></tr>
+<tr><td><code>maxWidth: 520</code></td><td>239, 242</td></tr>
+<tr><td><code>maxWidth: 599</code></td><td>257, 269</td></tr>
+<tr><td><code>maxWidth: 600</code></td><td>179, 228</td></tr>
+<tr><td><code>maxWidth: 720</code></td><td>214</td></tr>
+<tr><td><code>maxWidth: 960</code></td><td>179, 228</td></tr>
+<tr><td><code>minHeight: 126</code></td><td>266</td></tr>
+<tr><td><code>minHeight: 174</code></td><td>205</td></tr>
+<tr><td><code>minHeight: 34</code></td><td>265</td></tr>
+<tr><td><code>minHeight: 36</code></td><td>260</td></tr>
+<tr><td><code>minHeight: 40</code></td><td>263, 268</td></tr>
+<tr><td><code>minHeight: 48</code></td><td>263, 265</td></tr>
+<tr><td><code>minHeight: 60</code></td><td>269</td></tr>
+<tr><td><code>minHeight: 64</code></td><td>264</td></tr>
+<tr><td><code>minHeight: 66</code></td><td>264</td></tr>
+<tr><td><code>minHeight: 68</code></td><td>40</td></tr>
+<tr><td><code>minHeight: 70</code></td><td>267</td></tr>
+<tr><td><code>minWidth: 0</code></td><td>262, 263</td></tr>
+<tr><td><code>opacity: .45</code></td><td>219</td></tr>
+<tr><td><code>padding: 0</code></td><td>265</td></tr>
+<tr><td><code>padding: 10</code></td><td>258, 267</td></tr>
+<tr><td><code>padding: 4</code></td><td>261, 268</td></tr>
+<tr><td><code>padding: 7</code></td><td>264</td></tr>
+<tr><td><code>paddingHorizontal: 12</code></td><td>263</td></tr>
+<tr><td><code>paddingHorizontal: 16</code></td><td>265</td></tr>
+<tr><td><code>paddingHorizontal: 6</code></td><td>264</td></tr>
+<tr><td><code>paddingHorizontal: 7</code></td><td>264</td></tr>
+<tr><td><code>paddingHorizontal: 8</code></td><td>268</td></tr>
+<tr><td><code>paddingVertical: 10</code></td><td>264</td></tr>
+<tr><td><code>paddingVertical: 4</code></td><td>263, 269</td></tr>
+<tr><td><code>width: &#x27;100%&#x27;</code></td><td>40, 192, 207, 227, 239, 242, 257, 265, 266, 269</td></tr>
+<tr><td><code>width: &#x27;49.2%&#x27;</code></td><td>265</td></tr>
+<tr><td><code>width: 24</code></td><td>269</td></tr>
+<tr><td><code>width: 30</code></td><td>266</td></tr>
+<tr><td><code>width: 42</code></td><td>263, 268</td></tr>
+<tr><td><code>width: 48</code></td><td>259</td></tr>
+<tr><td><code>width: 64</code></td><td>264</td></tr>
+<tr><td><code>width: 80</code></td><td>40</td></tr>
+</tbody></table></div>
+<h3 id="chapter-implementation-inventory-paperstatustsx">PaperStatus.tsx</h3>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/PaperStatus.tsx">apps/platform-lab/src/mobile/PaperStatus.tsx</a>; normalized SHA-256 <code>d030bb2911e9f988f450f9ae521677534c839dba425b0b4b24c7791015d14aa9</code>.</p>
+<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-8">Geometry / opacity declarations</h4>
+<div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
+<tr><td><code>gap: 10</code></td><td>8</td></tr>
+<tr><td><code>maxWidth: 520</code></td><td>8</td></tr>
+<tr><td><code>width: &#x27;100%&#x27;</code></td><td>8</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-profilesettingstsx">ProfileSettings.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/ProfileSettings.tsx">apps/platform-lab/src/mobile/ProfileSettings.tsx</a>; normalized SHA-256 <code>957f24175c84ca28def1668043ea44fd4971f8703edbf6aad749dba96c097b13</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/ProfileSettings.tsx">apps/platform-lab/src/mobile/ProfileSettings.tsx</a>; normalized SHA-256 <code>03decf56f9632ac87c71832d5723351cc0a288155551ad4a88838e3230ebe11d</code>.</p>
 <h4 id="chapter-implementation-inventory-literal-colors-7">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><i class="swatch" style="background:#ffba9b" aria-hidden="true"></i><code>#ffba9b</code></td><td>44</td></tr>
+<tr><td><i class="swatch" style="background:#ffba9b" aria-hidden="true"></i><code>#ffba9b</code></td><td>46</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-typography-declarations-6">Typography declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>fontSize: 13</code></td><td>45</td></tr>
-<tr><td><code>fontSize: 16</code></td><td>72</td></tr>
-<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>71</td></tr>
-<tr><td><code>lineHeight: 18</code></td><td>45</td></tr>
+<tr><td><code>fontSize: 13</code></td><td>47</td></tr>
+<tr><td><code>fontSize: 16</code></td><td>78</td></tr>
+<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>77</td></tr>
+<tr><td><code>lineHeight: 18</code></td><td>47</td></tr>
 </tbody></table></div>
-<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-6">Geometry / opacity declarations</h4>
+<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-9">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>borderRadius: 12</code></td><td>72</td></tr>
-<tr><td><code>borderWidth: 1</code></td><td>72</td></tr>
-<tr><td><code>gap: 12</code></td><td>70</td></tr>
-<tr><td><code>maxWidth: 480</code></td><td>70</td></tr>
-<tr><td><code>minHeight: 48</code></td><td>72</td></tr>
-<tr><td><code>paddingHorizontal: 12</code></td><td>72</td></tr>
-<tr><td><code>paddingVertical: 10</code></td><td>72</td></tr>
-<tr><td><code>width: &#x27;100%&#x27;</code></td><td>70</td></tr>
+<tr><td><code>borderRadius: 12</code></td><td>78</td></tr>
+<tr><td><code>borderWidth: 1</code></td><td>78</td></tr>
+<tr><td><code>gap: 12</code></td><td>76</td></tr>
+<tr><td><code>maxWidth: 480</code></td><td>76</td></tr>
+<tr><td><code>minHeight: 48</code></td><td>78</td></tr>
+<tr><td><code>paddingHorizontal: 12</code></td><td>78</td></tr>
+<tr><td><code>paddingVertical: 10</code></td><td>78</td></tr>
+<tr><td><code>width: &#x27;100%&#x27;</code></td><td>76</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-providerconnectiontsx">ProviderConnection.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/ProviderConnection.tsx">apps/platform-lab/src/mobile/ProviderConnection.tsx</a>; normalized SHA-256 <code>9f2fed5c7737e47e5c702dc5cd6f725872d2b2d9ab9817eea50ba37b7d043345</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/ProviderConnection.tsx">apps/platform-lab/src/mobile/ProviderConnection.tsx</a>; normalized SHA-256 <code>9f91bbc8a6cca27d5cf06cc22bd621e9d7ed48461a1f317733516ceabee24445</code>.</p>
 <h4 id="chapter-implementation-inventory-literal-colors-8">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><i class="swatch" style="background:#102d47aa" aria-hidden="true"></i><code>#102d47aa</code></td><td>144</td></tr>
+<tr><td><i class="swatch" style="background:#102d47aa" aria-hidden="true"></i><code>#102d47aa</code></td><td>148</td></tr>
 <tr><td><i class="swatch" style="background:#ffb39e" aria-hidden="true"></i><code>#ffb39e</code></td><td>22</td></tr>
-<tr><td><code>white</code></td><td>147</td></tr>
+<tr><td><code>white</code></td><td>151</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-typography-declarations-7">Typography declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
@@ -602,36 +633,36 @@
 <tr><td><code>fontWeight: &#x27;700&#x27;</code></td><td>22</td></tr>
 <tr><td><code>lineHeight: 15</code></td><td>22</td></tr>
 </tbody></table></div>
-<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-7">Geometry / opacity declarations</h4>
+<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-10">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>borderRadius: 10</code></td><td>154</td></tr>
-<tr><td><code>borderRadius: 14</code></td><td>144</td></tr>
-<tr><td><code>borderRadius: 7</code></td><td>146</td></tr>
-<tr><td><code>borderRadius: 8</code></td><td>145</td></tr>
-<tr><td><code>borderWidth: 1</code></td><td>154</td></tr>
-<tr><td><code>borderWidth: 2</code></td><td>146</td></tr>
-<tr><td><code>gap: 10</code></td><td>153</td></tr>
-<tr><td><code>gap: 12</code></td><td>149</td></tr>
-<tr><td><code>gap: 6</code></td><td>150</td></tr>
-<tr><td><code>height: 12</code></td><td>146</td></tr>
-<tr><td><code>height: 16</code></td><td>145</td></tr>
-<tr><td><code>height: 48</code></td><td>144</td></tr>
-<tr><td><code>maxWidth: 520</code></td><td>153</td></tr>
-<tr><td><code>maxWidth: 800</code></td><td>147</td></tr>
-<tr><td><code>minHeight: 48</code></td><td>152, 154</td></tr>
-<tr><td><code>minHeight: 68</code></td><td>149</td></tr>
-<tr><td><code>minWidth: 16</code></td><td>145</td></tr>
-<tr><td><code>opacity: 0</code></td><td>148</td></tr>
-<tr><td><code>padding: 10</code></td><td>149, 150, 153, 154</td></tr>
-<tr><td><code>paddingHorizontal: 8</code></td><td>152</td></tr>
-<tr><td><code>paddingVertical: 10</code></td><td>152</td></tr>
-<tr><td><code>width: &#x27;100%&#x27;</code></td><td>147, 153</td></tr>
-<tr><td><code>width: 18</code></td><td>146</td></tr>
-<tr><td><code>width: 48</code></td><td>144</td></tr>
+<tr><td><code>borderRadius: 10</code></td><td>158</td></tr>
+<tr><td><code>borderRadius: 14</code></td><td>148</td></tr>
+<tr><td><code>borderRadius: 7</code></td><td>150</td></tr>
+<tr><td><code>borderRadius: 8</code></td><td>149</td></tr>
+<tr><td><code>borderWidth: 1</code></td><td>158</td></tr>
+<tr><td><code>borderWidth: 2</code></td><td>150</td></tr>
+<tr><td><code>gap: 10</code></td><td>157</td></tr>
+<tr><td><code>gap: 12</code></td><td>153</td></tr>
+<tr><td><code>gap: 6</code></td><td>154</td></tr>
+<tr><td><code>height: 12</code></td><td>150</td></tr>
+<tr><td><code>height: 16</code></td><td>149</td></tr>
+<tr><td><code>height: 48</code></td><td>148</td></tr>
+<tr><td><code>maxWidth: 520</code></td><td>157</td></tr>
+<tr><td><code>maxWidth: 800</code></td><td>151</td></tr>
+<tr><td><code>minHeight: 48</code></td><td>156, 158</td></tr>
+<tr><td><code>minHeight: 68</code></td><td>153</td></tr>
+<tr><td><code>minWidth: 16</code></td><td>149</td></tr>
+<tr><td><code>opacity: 0</code></td><td>152</td></tr>
+<tr><td><code>padding: 10</code></td><td>153, 154, 157, 158</td></tr>
+<tr><td><code>paddingHorizontal: 8</code></td><td>156</td></tr>
+<tr><td><code>paddingVertical: 10</code></td><td>156</td></tr>
+<tr><td><code>width: &#x27;100%&#x27;</code></td><td>151, 157</td></tr>
+<tr><td><code>width: 18</code></td><td>150</td></tr>
+<tr><td><code>width: 48</code></td><td>148</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-rawcapturereviewtsx">RawCaptureReview.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/RawCaptureReview.tsx">apps/platform-lab/src/mobile/RawCaptureReview.tsx</a>; normalized SHA-256 <code>0d897511ac3fa00409c597a5d6fa2f8fd8b0f90551aac3ef8decd195646262e4</code>.</p>
-<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-8">Geometry / opacity declarations</h4>
+<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-11">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>gap: 8</code></td><td>19</td></tr>
 </tbody></table></div>
@@ -677,7 +708,7 @@
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>linear-gradient(140deg, #b9dcf52b, #7497bf12)</code></td><td>23</td></tr>
 </tbody></table></div>
-<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-9">Geometry / opacity declarations</h4>
+<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-12">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>borderRadius: 12</code></td><td>22</td></tr>
 <tr><td><code>borderWidth: 1</code></td><td>22</td></tr>
@@ -724,7 +755,7 @@
 <tr><td><code>lineHeight: 18</code></td><td>41, 49</td></tr>
 <tr><td><code>lineHeight: 20</code></td><td>43, 54</td></tr>
 </tbody></table></div>
-<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-10">Geometry / opacity declarations</h4>
+<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-13">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>borderRadius: 14</code></td><td>44</td></tr>
 <tr><td><code>borderRadius: 16</code></td><td>48, 58</td></tr>
@@ -773,7 +804,7 @@
 <tr><td><code>fontWeight: &#x27;700&#x27;</code></td><td>50</td></tr>
 <tr><td><code>lineHeight: 21</code></td><td>50</td></tr>
 </tbody></table></div>
-<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-11">Geometry / opacity declarations</h4>
+<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-14">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>borderRadius: 6</code></td><td>50</td></tr>
 <tr><td><code>borderWidth: 1</code></td><td>50</td></tr>
@@ -800,7 +831,7 @@
 <tr><td><code>fontSize: 22</code></td><td>52</td></tr>
 <tr><td><code>fontWeight: &#x27;700&#x27;</code></td><td>52</td></tr>
 </tbody></table></div>
-<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-12">Geometry / opacity declarations</h4>
+<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-15">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>borderRadius: 6</code></td><td>52</td></tr>
 <tr><td><code>gap: 10</code></td><td>52</td></tr>
@@ -821,7 +852,7 @@
 <tr><td><code>fontSize: 22</code></td><td>80</td></tr>
 <tr><td><code>fontWeight: &#x27;700&#x27;</code></td><td>80</td></tr>
 </tbody></table></div>
-<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-13">Geometry / opacity declarations</h4>
+<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-16">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>borderRadius: 6</code></td><td>80</td></tr>
 <tr><td><code>gap: 10</code></td><td>80</td></tr>
@@ -841,6 +872,7 @@
 <tr><td>18 Oct 2026 / Manuel</td><td>Selected duotone symbol family, M2 Medical card and supplied folded paper plane; authorized guide and app integration</td><td>Supersedes aircraft B and stethoscope artwork. <a href="symbols/README.md">Selected assets</a>, <a href="../../verification/2026-10-18-icon-option-2.md">source-specific verification</a>. Navigation/unknown meanings and branding are preserved.</td></tr>
 <tr><td>18 Oct 2026 / Manuel</td><td>Made Modern Duotone the default and requested removal of old icon designs</td><td><a href="symbols/index.html">Default library</a> contains only the 29 current masters. Old aircraft assets, unselected proposals and icon comparison pages are removed; retired X01–X03/B04 no longer appear in the active catalogue. Original references and dated evidence remain. <a href="https://github.com/MomoRC-tech/MoFlight-App-framework/issues/20#issuecomment-6250110588">Authorization</a>.</td></tr>
 <tr><td>18 Oct 2026 / Manuel</td><td>Authorized starting the urgent #25 launcher package using the existing approved Thermik logo</td><td>Square AI icon adapted for legacy/iOS and padded adaptive/themed exports; no new brand design. <a href="https://github.com/MomoRC-tech/MoFlight-App-framework/issues/25#issuecomment-6250575222">Execution contract</a>, <a href="../../verification/2026-10-18-launcher-icon.md">installed Release evidence and platform limits</a>.</td></tr>
+<tr><td>18 Oct 2026 / Manuel</td><td>Continued with #26/#27 route/tool cleanup</td><td>Existing functions classified before implementation. Ordinary paper entry becomes read-only status; backup stays an ordinary product control, and synthetic proofs move behind Settings → Development. Current cards/symbols are reused; full paper redesign remains M5. <a href="../../verification/2026-10-18-development-navigation.md">Scope, disposition and source-specific evidence</a>.</td></tr>
 </tbody></table></div>
 <h3 id="chapter-history-preserved-history">Preserved history</h3>
 <div class="table-wrap"><table><thead><tr><th>Source</th><th>Current use</th></tr></thead><tbody>
@@ -889,7 +921,7 @@
 <article class="entry" id="N03"><div class="entry-head"><div class="sample" role="img" aria-label="Logbook / Flugbuch sample"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAYAAABS3GwHAAAABmJLR0QA/wD/AP+gvaeTAAAgAElEQVR4nO2de5Bk1X3fv+d290y/Z2Z357ks7LLaZTE4pSqDhRBILCLCioMtlwW2/6FM4tiR8nBJTmRX6Y+MU5EtET0SRbFTLkckVKFUIKlIYFsxsUCRFeREIIEA7YoVQmh3puexO69+znT3/eWP24/7OOfec2+f29PDnm/VTN973ufcz+887hPQ0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0hqe2H4XIEiLjz8+lqwfnmbJ9jQoMU8m8iYzMwBLAwAjyoHQIoPtEpmbILZHYFWw9gr2aHnxN35uY7/rcJB1zcXtQ+Op9gIxc84k5JjBxkBsCswcJ5MlGTOrbQAAa8BkdQZWYe1WqUXG+sTO4fVXb2J7+1wFX42EASw+/mw+uYebGaPTRHTKADtlgk4BdALAFAggW3giwO5i3yV7SGuzDuASMbrITDpnkvEyGXglQalXFx86uxVrxQ6Ijm9uTib26CYYuJkIP82IbiTgGIBrAGQcbQ90DwC87vC4A9gA8GMTdAHELoDhAhh7bc9ov7I+M1OJp0byGroBLD7ybDqTwttbhnmrQewWAt1CwBkAhrMB+zuh4fccCOoeM3c6rxPom4wZ3yCwv/5XD73vwsAVPAC6fm3tlIHEnQx4N4HuILCTXT/y9B+27XDgC/067m0APyCG5xnh221iz2eaOy/++MSJRtR6RVHsBrD47LPJsVL7VoOMswDuJobbiZCxfG39NQd+L7Qu8B3xQsPPS2eFYH4VYE/tpoynP/3gvVXJao60/tbKSq6RTL6PwO4jE+8HMAfwOpbONlzbAeD7+QW7OxioE/AcQM8QEs+uHT30bTDWCq5hdMViAA8//uyc2Wb3gdF9ZNJdAAqAu9F84Hf1+gAHfkE6znih4HcYEQENBjxDYP9jLFH/b4sP/dKBmi4d39ycHGuZ9xPwAQB3EyHd9RtB8L3hrY0yEb5ODE8ZTfPJtetnV6FYygzgDx/7q+tZInEfTPxdMNwFoiS/EbzwOdDmNUZo+EXpuPJ3HEj+lAtEIGAXwP8ixh7daE9/+U9+65YmtxH2W0SJ01eunAUZDxLolwFkhYCHBD84jqy7X4flm5YJhu+ijT8D8NTl66ZfgAIpM4BP/pdn+/Vydbt+8Dma2g2ti1JnPOfRiGpE/vlz67HKGD1imuYff+q37vsJRkDXb2xcm2yZHyLGHgIwC/jAOizwOxuhwOf4idyvXDuthF3lBuAHPzkcFcDP611cLeufjl/+gfUwmYm/gEH/9pP/4Oe/BsbcxzR2nVlf/xkTid8m0K8BSAKD9NJe+MP17HLgy8UJdt8YRQPwQGOrhRB+Xm8Q/2IXwimPK3/JerxIRJ/MrbzwxOLiook4RWScXt+4Hwy/R8DbvWV8a4PfPc6b182MlgH84ZeecdZXFfyCdMgZiZOOIydX/iL4yQtSuHr8iDF8KlvKfXFx8azasxdExg3rG79MDL9PwI19Z1d5OWWXahufOGHBDx9HHvyuRtYAhD2Lu5F4FY15sesoUYARRa2HlRS9DsIn3jxSf/SJBx5oYxARJU6tbzzIGH1c/ny9170f52CD3/XbUmQAhopEuhLCR3YXDrTU/edOx0I/vBGFg59k4JesR2cEOwmGL157JfPKR//oz+4HUaSDdfry5XtOX974Dhi+2IXfyqNfzm7+vSbkwdcrFwnjSLsL2kImDlEI946H29Dtx1SFlI0Af/ClZ6hbOjuw/Z/Of7c1u2rkht+bTscnVDrOHTf8jnRs//zqwTVicT3+hpn0u5/5x7/4DUjo9OXLP8sID5tg73Gm7yiOJx+Pn9uIuWWTdPf4iToZb5xQ7qKOzRVn+/iITYH+4LFnyBcaV6UAJ3zeeNHg90vHL/9+Oo5YkkYsVQ9iwBME85999h994CI4OnnlyrEE4TNEuN9bJl75+X6qwOf7DQg+OO1n85CJQwB2FBmAwimQgsVur+d1QutoICXwkyd/6TNWQfCL68FM4AGCcf6j//4ri4uPPNu7MvszRKkb1q78tmHi1S78oqmOnx/1yhNiqgOvOz+OK12/tIjj7iq3Mw45pqGiOO4yqpCyEeATj33NzklHXvi7FXbu9/f4PYgonX5kUU/lgV/RYldBPV5njD7y579yR52IfR6dMzvOdLzgc91tnvy6cdz9/DjtyK+PhLtvHPke3+1ePqFmBEiqSASAFHwjemXXGWt49Thpmniyuz7W4Pe8QrkPKnUGAFfDuUophs8GjefAhJ3ydP7zDvAIXaH2pBEz+H5+qsCXizMY+G4/FVJmAHb4PA1zEBe7MdXDkYZtTbP/4DtqMdLgu/0GkcIRQBIaAXzkjMRJpx9ZHv6Br+wqrQeRvZwckAcA389PFfjctHzjhAdfmJYjjjoLULoGEB20/n5/j994XvjIFdl7AAXwj85it1Mc6hYL//Wx/9j3eOyLvc3ck/9pZMAPTIsTJyz4Umk54ng7xkGleArU2XYdIWdDOls0Knx+8I/YYtcBv1/vRfZfDvg2Z4+fcvA5fsGwckZcTrn9/GTAV2kEShfBgB98/vBHne870/GH35uO7b9P/lHr4agDb7LvEtdQuflLunc2RODLxRkMfLmePQT4KumH6rNAerHLT0NyBAh9SvMtC74TfVFdVUjdFEjFItEVWR7+A7DYJV5EV97ubQXgh48THny5OIOB746jSuqnQL1/1obwwPAayg2/G1hPOghlRMH5h4Wfkw6nt7fDH3QQNfj+4Ks8BQrEcSGs1+DOlo8Knx/8I7/YpX58qREgIvju+sUBfvg44cGXj6NOas8CScA/eotdUTry9RAtdnnw+x08Db58WqoUw71A6uF3V/wgLXY98AeM4SKI+X5qwXf6qbtfhxwO7vVScBxxWoNL6ZVgYcPuw2LXrxeziuSCPzAdTj2kentbmTlXuJ214+TpKp8HfE6csL20M87og6+Q/xguhAXAx4Wfc3AjGZGngUT5h4Wfk05gby82CKGEbaUOfHEctXdoCs/ljwj4XcV0O7S1xe1lRn2xK2NEkotdcseXGQF86qPB96Y7qGK4Hdra0otdV/wA+L1lcv+HLV34usvFiesOTbVzfMexcAdWoBjuBdKLXeo4eGALMgJy5c91v9rA76TMiaNCai+EhZinW5si+N8qi90II4Ak+I59l58q8IVpOeIMBr5/HD74Ko1A4Rog7CLVC79pmjj3owu4tFqCaRImC0VMThQxmZ/AVHECY6mUoCG98Hd7XG95rA1ZIxpkseuBnxw5eyTqEA4E+PaAzSaM0iqSl5aRWCohWVoFDIbdm86gfuftQCLhiRMKfIUWEM/t0IAQPhH8AHDuRz/Ejy71X7h8eWsDl7f6n/jKZTKYLE5gqjCJiUIRhXzeeqrfA62zRM78nS0bCv6wwNu3A+DntYejfD5GwYdVfKOa3JRGHnxWqSO1XIJxaQnJpRISa+sg01vX8RdeAsBQu+uOyOArZB9ALLdDAy7MJeCzYLu0uuSbdrVeR7Vex9LqCgAgkUhgMl/ERLGIycIEpgoTSCadVZKFP47Fbj+ufQHnNwJwtkcQfGNzC8ZSqdfDGxtbjrh+kI69+n3U3nPHvoPfleLboQEZ+J2V8S6a5TIDWq02Lm9t4vLWZs85l8lgoli0Rol8AflcAcyVv6N8HvjJsz3QYjfMCADxQR8EfHEcCfBNE2ztMpLLy0hcWoZxqQSjWvMve4B6HUQU8BVbgsLboQEH/I6GlYP/6OxRvHHpTYnMxO3QHSWWV62v6SQTCRTzRUwWC5jIFTFRnEAqmeoV2j0K9dMP09uHmP74HEBbVk43P3fF4GOvCaO0gsTFZRhLJSRKK2B7/h/ECcPk7k/91EiA35Xah+LRP4guF2+lOIuzM8dPAmTi0moJzZbg7eIhh8NWu42N7U1sbPdHiWw6jYmCNW0q5ovI5/I9IkIvdiWAdx5wcem5UEqCLxfHmwer1pBcsubviaUSjNXLgCn3iYMwx4HGxrB78xlU77jN18g96fIyUWgMMd4O7dzh9rSueIbBcOPJ0zhz8jSq1Sq2y2Vslrewsb2FSq3mMZqopaw26qg26lhet0aJhJFAIZtHIZ/HZL5orSVSqU5Z+xWI0ttTL27wCODw9gE//CjRB59VqlbPvrQM49KyBXzIOahMaDOTQXt+Fq2FeewdnUNrdhZIJDxxvcz4ZEIij+ga8u3QYvjtfSMjIJ/NIZfNYWF2FgDQbLawXSljc2cL25Uytra3sdcK+6064jZyu93GVnkbW+VtXIS1EB9LpTBRmMBEoYhiJod8rgjDABd+0WLXYRAyI0AvvKeIPY9Q4BOBXd60QF8qIXlpCdgpuxOWll8Uc6KI5sI8Wkfn0Tq6gPahKRADl4HevqhP8AusWLHeDu1GXfbiVv+nf9CTySQOT07h8OQUui9SrVTK2OoaRXkH1Xrdt4CBPYxNe80m1jcuY23jMgAglUhg7sgMThw9AYN1yx9h+uOTr3hKIziXLwK/3Ubq6/8HyZfPge3tBQMWIE9wg6E9M23BvnAUraPzaGcztvA+HaDAnevAA1+xHSieAg0Ov1+PB/R7WwYg3znLc83sAgDCXquJrZ1tbJd3sFUuY7uyg3a77czDkXdQfXqZotlq4eLKMogYTh47Hgr+rrG4aiuVb9CUhuc+9vXnkHrhJZDLLzL4Yyk05+bQPjqP1jULaM3PgjonEpzlOzjgd6VwCiSAP/QV4n4i3njk2nfmnkqmMD11BEemjvRcK5UKtis72CxvYydwlHDlx7HA1SurOHnNddK9fagRoLcx2P06yVfPDQS+mctavfrRBTSPLqA9fRgwDB+ISeinHPxRHgE80ErM952NwzeiQa7s5nN55HN5HJ1ZAIHQbDWxtbOD7co2dsplbFfLnVHCVU4hrPKLXb5B+GhA8AMBE8g8NNmbu7cW5mFOTUpCrBJ8l0fM4HcV36sR3fC7eutunP4PucIJ0nHEE8MvuriVTCRxZOoQjkweAnVSqFQr2KmUsdUxitpuXdjgs4dmYZ/yeAyCBzzZauhzxoVcv+7gIne3X/OmG5F6/kV+Jrb5e/uaoxbwuUwgxM7NfQZfoTHEfju0sxGDF7uONEPfzMbJ3+/Kbscrn80hl8lhfnoOIGstsVMpY6eyg52OcRgGw+yhaRxfuNZ3BOiVTgC/37EbFPyu3+673wmAkHr1PMgktOdmO8AvoD0/C0rZ5u8ETxteDeB3pfheIBH89j4ergZXCP9AV3b7bqlkEocmpnBoYsqZZtjFbsgRwO3trBsHOE+cTqkSCTTO3on6XXfyw9scvO0uyMNh4HJpxQe+OkuI5c1wgAB+T0N54XdDIgc/Jx2fK7vh7+3hA98rkdCtXxdP2hzZ7NXRINLge9xDgC/wU3bbArk8ZEDnJayOfQAx3A0KOOF3Gz25drwHjg+/7HzfDqvUrQz2+IHwhzGIXmZ9w3MWnCspkEXg2wKK3P38ribwu4rpdmggCP64F7tyryjkwx/6yq4beGFc/6NoK4rHzel+FYOv2BBiuRXCF35enYaw2PUDvg9r1OlPLzO+m8uARFIFvm9agjhXG/hdKb4VwtYDdjYcaKuCX7DYlevtwxhERODt2x74/Y8kH3wn+lc9+AqNYQi3Q3e2iHdARAfV2ZC+6YzyYpcDv98syGaLNjdRB+FnLK7tiOC7/d5K4HcVy5vh+j92mGxhXY3GhZ9jROLFLnHc+hmTO/6Ai10e8PY8vcDLjQAa/KjpRJfyWyH6P3YobEF8Frtt08SFN3+I5bVVmESYyBcxUSh0fou9J7mULHYFwNthHXSxKzYIsdwnSoPXBYOB7xdHCnzOLttrIrm6itRSCalSCanVVYAZaJy5AZXb3wkkjOigB3QiYRXfl+J5xh0w37/w5ut4c7n/YLz1JNdGL1gunUGxYL0mpZgvIJfNWc/7hu7tQ17c4sLPcfMFPhz84QEXudvr5M6PH4fr4AO+UbPeCpFaXkaqVEJy7TJApiedzIsvAQAqd7xLIi+J/BUollshosAPAMtrJU+K9nS6z/uW1jpPciUSKOYKmCgUUMwVUMwXkUomR2axS6703O3AUxzgy8bhOnDAS2xudYC3evjE5hY8ElQzff583wCigK/YBpTfCuGGX2q+7wzS2+E4OdRut7G5s4XNnf4ByIynUSxYD8AXcnnkMjlHYfx6+16ZpAzCmR4f/pAjQCjARe6KwTdNJNevIFVatqY0yyUYNf5bIfgJS4QRgu9XYDWK9UvxYRe789Pz+EnpYiD4PiVAbbeOWqOOlfU1AP1RopDLoZAroJgt9N8dFPNilwe/3wgwCPjOvKODz/aaSK6sIrW0bPXwKytgTYlHTyWPU+OGM/5xZMBXaAyKX4ti33eBb9sQ9VKnrrseAGF5bQXNdis0/B4LhHiUKOTylmFk88hksmCRevsgg3CNJEFDQD+6rU5ed+fmYOD35u9LS0gtryC5vi79Vgh+woJgY2No3HgGlXfeNhLgdxXPvUARr+wyxnD6+Ntw6vjbUK1WsVMtdx5v3EKlXvdamSNp+dap7TZQ221g9cplAISEkUA2k0Uhm0UhW0QxX0AqkeyX2G0QEXr7/tkqnxFgCOAb5Wpn7r5sAb+2HqrtOAXhysxk0JqdRXN+Ds25eTRnZwAj4ZNOCPBHcQToKjz85NoHQIRcNotsJou5IzMAgGarhXKljK3yduce/R3stVruxILL5yoTALTNNsrVMsrVMgBrgZ1KpjpTpzxy6Sxy6RwMg0Xo7eWmP45i9ZuB6+d7Lt/uToTkxiaSSxbsY0tLMLpvhYgqQRXaE0UL9Pk5tObn0ZqaAhgTx3OD7xsmOP+oiuXNcL0t95Sn4+YHv+i8fjKRwGRxEpPFCYAAE0C1VsZOpYKtyg7KlR3UGg3/MroL5qNmq4kr2xu4vL0BdPKfnjyMY7PXgPVfC+G72BVfr/BXJPA7GwQA7Tby33wO6VfPge3uBWcoI3uGhoHW9BGrd59fQHN+HmY2w2/WEQW/K+W3QvS23PB7DpzzrIgT+H5g0ZVdBkIuk0cuk8f8kVkQLGitp7gswyhXy2h35rNh4HeWyVKr3UbpyioAhmvnjkac/vjnL57SSILfUf6b30LmOy/51k1aBNBYCs3ZOTTn59HsvOSq+1aIXkGCIFYFfpTpmo/i+URSaPj9YZG9sptMJHFo4hAOFaesY0JAtVZBuVbBdmeKUw8YJXq5kscFALC+tY5jc0c98AfXgUMwJ+NBwO+6pb9/zieTYJmZLJoL89bf/AJa04et6UwkYDkeIwB+V0O5HZpcIbnw+/T2XODt/oKLWwAh13ned/bwDEDWWmKnuoNyrYJytYpKrT9KeOvh2XEEkl3shhoBEB38qGpPTvaBn5tHe3LSmbC7h99v8BXagvJbIcTwk+fA7cdtzMlEAoeKU5gqTgJkrSVqtSoq9Sp2amVUqhXUd3fdlerpyMQRW9oBC2CBUYubUA34jRtvROa7grdCMAOtmSPWdGbBb/7OyewtBH5X8bwZztqJDD8P+KDenn8hy+vWK2dnlxEhl7HOOM1MHQEBaLVaKNfKqNSq1l+9CsYYjkxM4ej0guQI4K1XAP/eNnJtEHiebjdC5V23ASCkz/0AME00Z2ct4K+ZR2um/1aIXhx3wqMO/iiOAHEtdqV7e6GbE3iZK7vJRAKT+UlM5ifQL27wxS1ZoxaJXL9hwe/JSKBy5x2o3HmHON5B7fEVjwIx3g5tbcWx2JUFvpOCEH5Zg3DAH2KxKzZqsewshwZfFhh3wqFAHzB/VYanSLG9Gc7RW2OQ3t4JcL/DkejtefCHBD4Y/vBGLZLwRBEXEJII4+d2QMFXbAhDuR1a6WJXAHwntBd4nxHAXg4e/IMudsVGHdSGAgcNviBwdA3hdmge/D69ow3Wfp0HX+zypz+dULbGJaGbDXhhvbz1CTMC9BPn7R908AFbo0ZMh/hhBpDSK8H7ttiVAN6epxf+oBFABv6QRs1TLOD3CjVAOj7gHVDwu4rlduihfGo0BPzhDUIe+EhGHSQ3eK5N7j43zFsUfIWGEN/doKHBCDIIPvy8uPZySAMf2NsrNmpu43k2NPhB6QwoxR/KlgADJHQzTcIbl97A6sY6TJNQyOWtv2wBxVwOyUT3td7duHIjgL0c/vCrXuwKDELcgtxN7j43zBDB98mftZpIrq31nihLra8ChoHGqdOo3Np5K4SK/BVI+duhnWCIYeGB8calH+OS7cH47pcbu9Ez6fHeY435bBbZdK7/FXgB/Dzg7UYY52LXYxC2NhE3pISbJwxJhPFLZzDDM2o1C/SVZaRWVpC8zPn0KgGZl18GwFC57XZ+/pHqPphiGQHC95RW3NWNVW+atn/1RgP1RgNrV9YBWN/3zWdzKGRzyGcLKGRzSCb6b4UIPwIEwB/BqAeCf0TBT2xvWcCXlpFaXUFia5sTmJ9O+rXzqLzjdqfnPoDfVXwjADiQBC52bek5Nvi1b5ttbFd2sF3ZAVACAciMjSOfzaOQzSOfziKTyfaBt6U3jMUuLy53muLWKIFPnbdCrJSsv9IKjLrPWyH8yuP2jAq+TBtKSvEIAASDIT7dOXN4BktrJSn4PXl3/tV3d1Hf3cX6pvV934SRQD6TQy6TtX6zOSSNzvO+/YJEn/5EOYPlWwmf/SGAz1qdt7qVLNhTa6tyb4XwK4/Ns3HqzEiA35X6RyLD9pS28MfnrwMRYe3KOpqd7/tK5d3753AB0BklqjvYru703NJj48hmcihkcsiOZ5BJZztvmIva2wcZhH0EkK2QyyEm8I1q3TZ/L1nzdzMCaAHg09gYGqfPoHLLOyTLbHej4DARFcOFMCcsYcBgBnD90eM4fvQ6NBp1lKvWPfo7lR3UdhvcHsAPfpG6o8SVrQ0AgGEYyI6nke08/O5eS3jhlzfq3nZv16d8QwDfqFY78/eSeMEaRoKoZjqD1syMdSv2zBya07POsz/7DH5XMY0A1naYebEdHEZAZjyD9Hga01OHQQDarZb10ErVuk+/XKug2WrZSxBcRkEw02yjUrfu+wesBXYqkUQuk0MunUN2PI3MeBaMMWcdJYzaccpWrpiwNaJ/9YLAp85bITqwj5WWYZQrMgWQKqJd7WLRem54Zg6tuTm0JicHeIySEygG+IG43gwXZV7M6ylt6SUSCRTzRRRzBRAsQ6rXayh3n+SqVdDoPcnFKZ2wAfkezXYLm+VtbJatMxxJI4FDxUnMHpqDwVhoo5YaAXjg84ooDNPxaJvIf+tbSJ8/D7an6K0QdjGG1pEjaM7NoTm3gObMHMxMxlkwcpVTFfiKDUH9rRASi13/nrKfmGPb5cYAZNJZZNIZTE8dAQhotZsoVyu93rxSr8I0TQH8/i3pjtMy21jbugIihoXDswMZtTjTkPs9Nyd4+W/9DTLf+55PRuFEqRSa07O9N0O0Zmast0I4RhzBCDei4HcV07tBI8yLA0aATjSbQfRC9SBIGElMFiYxUZjopVer11Bt1FCuVVCtV9HY24Nva/oyStgob2D+sO1r8RJ1pL6D3HGMCH5X6dcUvBVibs76m51H6/Bha4Fmz8snf/8y2/cjgq/QGGIcASABRpBB9BOWu5DlvLILArLpLDLjGRyZOAzAendQpV5FtWMY1YY1StiiiGroqOwgRi2TBXffVnffMCHVnpyweve5eTRn59CemJQozyA9PsdxyOB3pfiRSN682AVtZzt6bx/GIGzl6GwnE0lM5CYwkSsCBJggNHat7w5UGhXU6jU0mu55cz+Nqfzk4EYd2I5+bgLwbG6N0zci8z3Bi7Hc8/fZ7vzdJ/+RAl+2EeWk8JFINYvdThBHel63TkwbFFGv7DIA6bEM0mNpHO68UKvdbqJSr6G2W0OtUUe1UQNjBqbyRcweCpj+SBo1vw393ILB76rys7cBREi/9gOACM3pGauHX+DN333yfwuD35XiF2NFXex6e+zBevvBruwaRhLFXBHFbCEeo5ZRBPB7+wkDldvfhcrt7/IaHPnE4+7HDH7U/BUphhFABowwI0AvlA/8/sDbyyR7ZXfwM1j+Ri1uR9dGaGD6ZY0WL6b8VYGv2BCUvxoxvsWuiulPrxBig4jc24cw6qBGdOy7/QPcNPihFMsIYIc1em8fZBD8Xta+LQW83ZiGdgZL2IiOH7ezr9vVBL5CYxjKCGDtBsHvYxC2g+Tf23vdosAf9xksoTT44dJRIMUvxuL1lLCB4e2x/XtKRYvdAOCHfwYrQBr88OWJKLXvBvWAEQaWXigf+A/eYpdn1D6NGOx21YOvkH4MYQSwdjngCIFXt9gNOt0pC7yzDmqMOlAafNe+WvC7inkEgAQYQQbB72XtsI7uYpdv1AEN6dofIvj7nX9UwxtAyj+QcTUudqMYNVfuHjNyb+nyiJTOWxv8rpRfCba2xbD0f66GxS7fqP2lwZfPa3ApvQ4AhO0pO9shgZfr7cMYBB/+eI1a3Ib9fV4Y0f5BB9/lETP4Xan/RJIbEiEYV8dil2fUgRoq+BzH0OlQyDL75B81nYhS/14ga4cDRsSe0gar+sVuxOmPIqP2NqKEmxu8wDB+6Vy94He1jyOAc1vV11dGbbErPf1xS4PvE0adJcQ2AvR/DvpiV61RB+qtAP6w8x9A6r8UHzgvHmy+74U/jEFEBN6+PYBRB0oIhAB83zh2twDwAtMZUcNTIOXvBeIC73Fzbh/8xW6E+b6fNPj9HZm8BpDaN8MB0XtKG6yj+v3gqEYtLQ1+fydm8Lsawgjg3I5tsSsA3l6mkVzsOqTBHxb4XcUwAnS2fcHYv8UuwZX2fi12edLgB8dTLOUPxPTB0IvdgaTBH4rieyRyAPh5wNthle3tO6lJGgSnDp76KF7s8nS1gFeQP5MAAAUeSURBVC8bL2bFOALwe0on8C5o7f5he3uh2yC9fUyLXZFIsN1z4ziGgk8AnnQ6QzS8IUnx7dB6satEHkA0+HEpngdi/Ba7oXt7J8D+I4ALeC78HLcIvX0s8Gvwh64hjwC9gHqx66cDD37HYYTB7yqGTyTJw69qsRu8AO5l6kxbCP8Q5vs82drI6eaz73HjgBcqHZII45fOwQC/K+WvR9eL3UHkA58GPxbF8qHs0VzshjEIfh2GIg3+UBXDh7Kj9vZOgP1HABfwXPg5bhF6+32Df5jgh4oXMv8RV0wjABDc2wcZRG97D4R1Aq2DUAJDBcyso80aJgAGqoIhScA4QFMEjJFJOcYwR8ACiA7Zy8Ht7e0jicuA9kW+MJJEGL90QoO/AcIygBWAVcFoD0SbMNkuDGoByAEATKQBlgEoD2AewHTnb4xTspFRDCMA4IZfYrFbYcArBPM1k3ABMC4ArQu7CeONP//khzcHKdf9H/lspt5OXGOSeYwRbgTw02B0MxFuAmhy/+b7HO0f+FsAXgWxVwB6GQzn0E5cRB6XcPuxenDBffQ/Lx4C2sfB6BRApwB2CsBpgN3cMZZ9VSwjQMD0p0FELzJmfJtM83lm4Pmbx1fOLy4umirL0tUTn/toHcCFzt8zdr/3/5OHT6KVvIOY+W4Q7gRwat/gtyt28OkCiP01QN8AS3wT77329chlDdLPHdsAsAHgOw73xymB/E9ugNG+BYZxK4huAfB2AOnYysLRMEaAFiP2bRPmswajZ9r12nMdKHt6QlUhQuqr/+5jrwN4HcB/BoC/8+GH59pg7yfCfWB4H6gzvA9L8YFfBeFpgJ6Cga/i7ImVgcqpQg+wNoDvd/4eBQA8dzGDink7zPbdYOwswG4FSO137FxSPAIAnYZfAdhTxPBUo2l8/cmH/35ZZT5x6S/+6GMrAB4B8Mhdv76YTo1n7zYYfomIfRAMk8MphTLwt2D1LV8Go2dw94mGsiLGJWu69bXOH/CV8wWkx+4CjPsA+gUAs6qzZKoS+rWP/+l5Yvgya7Ov3DB+8f/GNaXZD93164vp8XTuF0zCg4zhXgzYcbz03W9w3Vf/9RcGBb8F4C8B9iiY+STOHgDoZbVIBt7x5juQoF8E4QO498QZFckqM4CrRe/9jX8zm0juPQSwDwG4NkoaQgN4+Av9nXDg/wREfwyiR3DP9atRynS1ShtARC0uLhrPlXI/D4Z/CuC9CNGWgQYgNQoQALwAsM+DXfslnGUt2fy1+tIGoEB/+8MPv52R8Xsguh+AERReaACf+oLTgQ++CbAnwMxP4uyJFyMUV8smbQAKdc+HPne9YTZ/F4z9PfisEwINQAQ+w3+HgX+B9xw/p6C4WtAGEIve/5sPn2wx9nHG8CCAhF/Yp3/1gf4OH/w2gEdBxidiPV9/lUobQIx6329++gwz8C8J9EEI2vrpX33AZ8FLfwXT/B3cc/334izn1SxtAEPQPR/6zG0GmZ8C8G6339O/8oDTwTKG/weYH8PdJ/73MMp3NUsbwNBE7N5/+On7Cfg0gGNd154BWOBfBOF38N7r9uvi+FWnwDMWWqrE6C//wz9/fNysngHw+wCsi1QEgKgJmJ/HWP0mDf9wpUeAfdK9H/7s28g0P/f0/R8EjMRHcPbYD/e7TFpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWqOh/w8lC6J8v01kRAAAAABJRU5ErkJggg==" alt="Selected duotone book"></div><div><p class="eyebrow">N03 · Current native UI · selected duotone</p><h4>Logbook / Flugbuch</h4></div></div><dl>
 <dt>Appearance</dt><dd>Selected soft-filled cyan/slate duotone book silhouette; local RGBA PNG from the editable SVG master. default palette in this context.</dd>
 <dt>Where</dt><dd>Bottom navigation, Flugbuch.</dd>
-<dt>Meaning</dt><dd>Selected book, paper-entry status, reconciliation and writing-template tools.</dd>
+<dt>Meaning</dt><dd>Selected book, saved synthetic paper status and ordinary library backup/restore. Full writing remains M5.</dd>
 <dt>Function / action</dt><dd>Tap switches to Flugbuch.</dd>
 <dt>States / limits</dt><dd>Selected / inactive. Distinguish the destination from the orange paper-work action D01.</dd>
 <dt>Source</dt><dd><a href="../../../apps/platform-lab/src/mobile/SymbolIcon.tsx">apps/platform-lab/src/mobile/SymbolIcon.tsx</a><br>duotone-assets.ts; symbols/glyphs.svg #book</dd></dl></article>
@@ -921,7 +953,7 @@
 <dt>Where</dt><dd>Leading side of app-sheet and flight-detail headers.</dd>
 <dt>Meaning</dt><dd>Return through MoFlight navigation history.</dd>
 <dt>Function / action</dt><dd>Returns to the prior app overlay or page, preserving its state. Choosing a different book clears old flight-detail history.</dd>
-<dt>States / limits</dt><dd>Shown on app overlays. This is separate from provider webpage history A12.</dd>
+<dt>States / limits</dt><dd>Shown on app overlays; disabled during active backup/proof work. Separate from provider webpage history A12.</dd>
 <dt>Source</dt><dd><a href="../../../apps/platform-lab/src/mobile/SymbolIcon.tsx">apps/platform-lab/src/mobile/SymbolIcon.tsx</a><br>duotone-assets.ts; symbols/glyphs.svg #back</dd></dl></article>
 <article class="entry" id="H03"><div class="entry-head"><div class="sample" role="img" aria-label="Provider connection sample"><span class="connection"><img src="data:image/png;base64,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" alt="Selected duotone chain"><b>?</b></span></div><div><p class="eyebrow">H03 · Current native UI · selected duotone</p><h4>Provider connection</h4></div></div><dl>
 <dt>Appearance</dt><dd>Selected soft-filled cyan/slate duotone chain silhouette; local RGBA PNG from the editable SVG master. default palette in this context.</dd>
@@ -941,7 +973,7 @@
 <dt>Appearance</dt><dd>Selected soft-filled cyan/slate duotone profile silhouette; local RGBA PNG from the editable SVG master. default palette in this context.</dd>
 <dt>Where</dt><dd>Far-right app-header action.</dd>
 <dt>Meaning</dt><dd>Local demo profile and app settings/tools.</dd>
-<dt>Function / action</dt><dd>Opens Profil &amp; Einstellungen: local display name, books/data, connections, appearance information and credits/tools.</dd>
+<dt>Function / action</dt><dd>Opens Profil &amp; Einstellungen: local display-name draft, books/data and backup, connections, appearance/credits and the separate Development hub.</dd>
 <dt>States / limits</dt><dd>No avatar, provider identity or authenticated MoFlight-account status is conveyed.</dd>
 <dt>Source</dt><dd><a href="../../../apps/platform-lab/src/mobile/SymbolIcon.tsx">apps/platform-lab/src/mobile/SymbolIcon.tsx</a><br>duotone-assets.ts; symbols/glyphs.svg #profile</dd></dl></article>
 <article class="entry" id="S01"><div class="entry-head"><div class="sample" role="img" aria-label="Session unverified / unknown sample"><span class="connection"><img src="data:image/png;base64,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" alt="Selected duotone chain"><b>?</b></span></div><div><p class="eyebrow">S01 · Current native UI · selected duotone</p><h4>Session unverified / unknown</h4></div></div><dl>
@@ -983,9 +1015,9 @@
 <h3>Dashboard, flight information and club headings</h3><p>Samples reproduce text glyphs and existing image assets. Native View-based marks and chart examples are schematic browser redraws, not screenshots. Chart values below are synthetic examples.</p><div class="entries">
 <article class="entry" id="D01"><div class="entry-head"><div class="sample" role="img" aria-label="Paper logbook work sample"><img src="data:image/png;base64,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" alt="Selected duotone logbook"></div><div><p class="eyebrow">D01 · Current native UI · selected duotone</p><h4>Paper logbook work</h4></div></div><dl>
 <dt>Appearance</dt><dd>Selected soft-filled cyan/slate duotone logbook silhouette; local RGBA PNG from the editable SVG master. paper palette in this context.</dd>
-<dt>Where</dt><dd>Papierflugbuch aktualisieren hero; Als Nächstes paper-review item.</dd>
-<dt>Meaning</dt><dd>Review outstanding paper entries and reconcile the selected logbook.</dd>
-<dt>Function / action</dt><dd>Tap the hero or next-action row to open the existing paper-logbook tools.</dd>
+<dt>Where</dt><dd>Papierstand ansehen hero; Als Nächstes paper-status item.</dd>
+<dt>Meaning</dt><dd>Read-only saved paper evidence/status for the selected synthetic logbook.</dd>
+<dt>Function / action</dt><dd>Opens PaperStatus; no fixture creation, writing preparation or copied-entry confirmation. The complete paper journey remains M5.</dd>
 <dt>States / limits</dt><dd>Smaller/larger instances share the same meaning. Pending count may be unknown or zero; the glyph alone is not proof that an entry has been copied.</dd>
 <dt>Source</dt><dd><a href="../../../apps/platform-lab/src/mobile/SymbolIcon.tsx">apps/platform-lab/src/mobile/SymbolIcon.tsx</a><br>duotone-assets.ts; symbols/glyphs.svg #logbook</dd></dl></article>
 <article class="entry" id="D02"><div class="entry-head"><div class="sample" role="img" aria-label="AI suggestion sample"><img src="data:image/png;base64,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" alt="Selected duotone sparkle"></div><div><p class="eyebrow">D02 · Current native UI · selected duotone</p><h4>AI suggestion</h4></div></div><dl>
@@ -1106,7 +1138,7 @@
 <dt>Appearance</dt><dd>Selected soft-filled cyan/slate duotone arrow silhouette; local RGBA PNG from the editable SVG master. default palette in this context.</dd>
 <dt>Where</dt><dd>Paper CTA, AI dashboard shortcut, duty Details anzeigen, saved-flights links.</dd>
 <dt>Meaning</dt><dd>Continue to the action/destination named by the adjacent text.</dd>
-<dt>Function / action</dt><dd>Invokes the surrounding card/button: paper tools, AI draft, current status sheet or saved-flight list.</dd>
+<dt>Function / action</dt><dd>Invokes the named destination: saved paper status, AI draft, current data status or saved-flight list.</dd>
 <dt>States / limits</dt><dd>No automatic completion, upload or import is implied. Same character as A08 and S03, with different semantics.</dd>
 <dt>Source</dt><dd><a href="../../../apps/platform-lab/src/mobile/SymbolIcon.tsx">apps/platform-lab/src/mobile/SymbolIcon.tsx</a><br>duotone-assets.ts; symbols/glyphs.svg #arrow</dd></dl></article>
 <article class="entry" id="A08"><div class="entry-head"><div class="sample" role="img" aria-label="Departure to arrival sample"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAYAAABS3GwHAAAABmJLR0QA/wD/AP+gvaeTAAAOR0lEQVR4nO3de3BU1R0H8O/ZDUQDkoICSWTzAMJDjXasnc5AhYYkPAfrVGqtzji2VahWnRH/oP90Smf6h8wojA5VKNax06lYrR0qg5SSQKFl1CnjOE3xUQwkIkkgL4PySMzeX//YvHb3PnbvY+/e3e8HNkPOOffsueH3u/fu3bMnABERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERpUf5PQCyZ0Fvb00IWA9BnQAVw8VtSqFJA3770bRpzb4OMCCYAAEzV6RwQk/fNihsABACAJGkZpoCdn7VN/WJT6rVQKbHGCRMgACZK1JY0NO3H0BtYp2M+zpaJjg6FFZ3nJo2rT8jAwygkN8DoNSFe/q2ClArACTxjwhEEP8AloSi0nhjf/80v8eerXgGCIgFvb01osn7EISSr3gSj/3DZWOFzVEZajg9c+Y5zwYYUDwDBIQ2hA0yHPy6j8Sjv8TV14RUwZG5PT2z/NuD7MQECAhRUptisI8+EN92vjaEoxWdn1f5tAtZiQkQECKoMgv2FBOjKqSix8o7em70bUeyDBMgIIbj2TDYYZkYIy+UpVQpOVR1rvdmv/YlmzABAkIErVaXPDrBHntAEtvNiIp2KNLedZtvO5QlmAABIVCH467tkXKwJ50xhk8n10KpxvKzvYt92aEswQQICCXYKSJausFuccYo1pR24PrO7mV+7ZffmAABcapkWrMo7Eg32GHddhI07Lu+o2uNLzvmMyZAgEy40LcRgiOWR3a9QDdve5Vo6i+l7T13+bVvfuE7wQFT1t5eFMbEPaLQAGDsMD9MdLYRnUrRaSFAFCIPds6a8bIrgw0AngECpr2s7FLhxb61EOyx956Azp+xF8dhgXqp5Gz3o/7tYWbxDBBQ3xCZ0N7R84oC1qVwZE9qoHemGF+tgCfPzZq+zZXBZjEmQJCJhMvae14UyAOjRXH1OmXJ1SZtZUtXZMbPHY4yqzEBgk5ElbT3PAuRxwAnwa5fpnI8CZgAuUBElZztflqAjUlBnUawj0yn0Gn5fE9k+qNQyii/AosJkEOmn+nepCBPOQn25DIZ/iu7+spn/BRKaS4M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" alt="Selected duotone arrow"></div><div><p class="eyebrow">A08 · Current native UI · selected duotone</p><h4>Departure to arrival</h4></div></div><dl>
@@ -1132,7 +1164,7 @@
 <dt>Source</dt><dd><a href="../../../apps/platform-lab/src/mobile/SymbolIcon.tsx">apps/platform-lab/src/mobile/SymbolIcon.tsx</a><br>duotone-assets.ts; symbols/glyphs.svg #check</dd></dl></article>
 <article class="entry" id="A11"><div class="entry-head"><div class="sample" role="img" aria-label="Expand / collapse details sample"><img src="data:image/png;base64,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" alt="Selected duotone plus"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAYAAABS3GwHAAAABmJLR0QA/wD/AP+gvaeTAAACAElEQVR4nO3bsW4TQRQF0Lt2RZEyAgXRxkrvCkOZKp+QLh9Gl0+gogxORY/imiAiShdU7FI4hRVQKOLVvFjnfMGV3t6dWe1MAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADsWNc6wH+t7k4z5DwZFkleJ3nROhKP+pXkNumW6XKZ45efWgd6TN0CfP15nMnvD0kWraPwJMv004ucHK5aB/mXmgW4+f4+mXxMctA6CjuxTvqzzI6uWgd5qF4BNm/+L/Hw75t1+um82kowaR3gL5ttj4d//xzcz7aUWgVY3Z3Gnn+fLe5nXEatAgw5bx2BkRWbca0CdMPb1hEYWbEZ1yrAkDetIzCyYjOuVYBkaB2AkQ3pW0fYVqsAXb61jsDIJrltHWFbrQIM3XXrCIys2IxrFaDLZesIjKzYjOv9Cb758Tn+BeyrZWav3rUOsa3WCpAk/fQiybp1DHZufT/bUuoV4ORwlfRnUYJ9sjkMV+wcUFKxAEkyO7pKP50nWbaOwpMt00/nFU+CJhW/AR5yIea5eVYXYgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAnfsDu5BUSW0hFkgAAAAASUVORK5CYII=" alt="Collapse details"></div><div><p class="eyebrow">A11 · Current native UI · selected duotone</p><h4>Expand / collapse details</h4></div></div><dl>
 <dt>Appearance</dt><dd>Selected soft-filled cyan/slate duotone plus silhouette; local RGBA PNG from the editable SVG master. default palette in this context.</dd>
-<dt>Where</dt><dd>Verbindungen: Sitzungsdetails &amp; weitere Optionen; Entwicklungswerkzeuge · Rohbelege.</dd>
+<dt>Where</dt><dd>Verbindungen: Sitzungsdetails &amp; weitere Optionen; Rohbelege &amp; begrenzter Abruf.</dd>
 <dt>Meaning</dt><dd>Show or hide optional detail/tool sections.</dd>
 <dt>Function / action</dt><dd>Tap toggles the corresponding disclosure and accessible expanded state.</dd>
 <dt>States / limits</dt><dd>No creation, addition, deletion or subtraction of user data. Collapses when the connection panel closes.</dd>
@@ -1398,7 +1430,7 @@ The HTML guide embeds original reference and symbol/brand images unchanged. Comp
 | C08 | Overlay / provider panel | Current dark full app overlay with one active header; provider has its own toolbar/history | Different from pale v0.30 prototype sheets. MobileApp / ProviderConnection. |
 | C09 | Flight row | Padding 7, radius 13; no-track tile, route/time/role and detail chevron | Whole row opens saved facts. MobileApp FlightRow. |
 | C10 | AI question / composer | Question radius 12; composer radius 20; send face 42 × 42; input max height 150 | Local questions calculate deterministically; free-text service unavailable. MobileApp. |
-| C11 | Paper hero / action face | Orange-accent photo card, minimum height 144; normal hero height 154; CTA radius 15 | Opens reconciliation/writing tools, not automatic import or copied-entry confirmation. Dashboard. |
+| C11 | Paper hero / action face | Orange-accent photo card, minimum height 144; normal hero height 154; CTA radius 15 | Papierstand ansehen opens the read-only saved paper status. Full reconciliation/writing remains M5; viewing never confirms copying. Dashboard / PaperStatus. |
 | C12 | Season ring | Diameter 62, thickness 6, aircraft segments, central value/label | Whole season card opens current-year flights. SeasonRing / season-model. |
 | C13 | Badges / disclosures | Role pill radius 12; session badge minimum 16; details + / − | Role, session evidence and expansion remain separate meanings. MobileApp / ProviderConnection. |
 
@@ -1447,19 +1479,27 @@ The combined HTML presents C01–C13 shapes/states alongside these rules: neutra
 | --- | --- |
 | Übersicht | Photo paper hero; asymmetric season/AI and flight/club pairs; weather and next actions. Use selected-book saved facts with details on tap. |
 | Flüge | Book selector, search/filter, year chips, summary, training/classification chips and saved rows. Missing tracks/distances/classifications remain unavailable. |
-| Flugbuch | Selected-book status, paper progress and existing reconciliation/writing tools; book identity differs from account/format. |
+| Flugbuch | Selected-book saved paper status and ordinary library backup/restore. Full reconciliation/writing remains M5; book identity differs from account/format. |
 | Verein | Overview/Dienste/Termine/Mitteilungen scopes with bounded sections and honest missing-source states. |
 | AI | Welcome, supported local questions/results, composer and unavailable free-text state. Sparkles identify the category. |
 
 The [approved reference](../design-sources/2026-10-16-four-screen/reference.png) establishes card/layout/color fidelity. Later five-tab changes add Flugbuch and retain AI. Older Wetter-tab, goals, monthly-chart and synthetic Medical-expiry prototypes remain historical.
 
-Development surfaces are explicit visual exceptions: [App.tsx](../../../apps/platform-lab/src/App.tsx), [BookLab.tsx](../../../apps/platform-lab/src/BookLab.tsx) and the older [provider trial views](../../../apps/platform-lab/src/vereinsflieger/) retain their functional lab styling, including light backgrounds and different type/button sizes. Their values are included in the generated inventory. This handbook does not silently restyle these tools or select their appearance for product screens. The original provider webpage and OS-owned dialogs remain external visual surfaces.
+Development surfaces are explicit visual exceptions: [App.tsx](../../../apps/platform-lab/src/App.tsx) and [BookLab.tsx](../../../apps/platform-lab/src/BookLab.tsx) retain their functional English proof styling, including light backgrounds and different type/button sizes, behind **Settings → Development**. Their body groups are capped at 720 dp. They are not ordinary product paper/import screens. The older [provider trial views](../../../apps/platform-lab/src/vereinsflieger/) remain historical proofs; the embedded lab cannot mount a duplicate provider browser. Their values are included in the generated inventory. The original provider webpage and OS-owned dialogs remain external visual surfaces.
+
+## Settings, Development and library maintenance
+
+Settings exposes **Sicherung &amp; Wiederherstellung** beside ordinary book/data actions and a separate **Entwicklung öffnen** entry. [DevelopmentHub](../../../apps/platform-lab/src/mobile/DevelopmentHub.tsx) groups the dataset/flight proof, book/paper proof and provider diagnostics. Entry alone runs no fixture or provider operation. The experimental lab Release retains these explicit tools for offline testing; this is no security boundary or approval for a future production build. Synthetic operations and old copy-confirmation semantics remain labelled.
+
+Product maintenance uses current dark C01/C02 cards/actions and selected Modern Duotone symbols. [LibraryBackup](../../../apps/platform-lab/src/mobile/LibraryBackup.tsx) explains whole-library scope, unencrypted lab format/2 MB restore limit, exclusions, picker cancellation and the difference between sharing and verified external saving. Restore validates a new library and its selected book before activating it; previous stores stay retained. [PaperStatus](../../../apps/platform-lab/src/mobile/PaperStatus.tsx) shows saved synthetic facts/unknowns and the unfinished M5 boundary, with book/history/backup navigation. These groups are capped and centered at 520 dp. No ordinary floating plus, book selector or data-status action launches a proof.
+
+Provider login, recovery, session controls and **Rohbelege &amp; begrenzter Abruf** stay in the ordinary connection dialog. Extra browserstore test controls require the explicit Development route on the same retained controller, with existing native AVD/operation/recovery guards. No source capture becomes an imported flight by moving its controls.
 
 ## Header, overlays and navigation
 
 Keep header/navigation outside the scrolling canvas. Header order is logo/title, Connection → Med → Profile. Truncate title before shrinking controls. Current font scale above 1.3 places controls on a second wrapping row; subtitle renders only at width at least 412 with normal text.
 
-App overlays/details replace logo with contextual Back and expose one active accessible header. Return through nested overlays to prior page/filter/scroll state. A different book invalidates old flight-detail history. Medical opens a read-only unknown-record explanation.
+App overlays/details replace logo with contextual Back and expose one active accessible header. Return through nested overlays to prior page/filter/scroll state and unsaved local profile-name draft. Identical library reloads preserve the return path; changed book/flight facts invalidate stale details. An active backup/proof operation disables app Back, Profile and Medical until completion; provider Close/history remain separate. Medical opens a read-only unknown-record explanation.
 
 Provider Close, connection status and origin belong to its app-owned toolbar. Provider-history Back affects the original embedded webpage; Close returns to MoFlight without promising logout. Preserve retained browser parent, busy/recovery guards and provenance. OS-owned full-screen surfaces keep their own controls. See [header decisions](../2026-10-18-header-status-review.md#package-1b-decision-checkpoint).
 
@@ -1498,91 +1538,96 @@ Follow the [verification workflow](../../development/verification-workflow.md): 
 
 [Handbook entry point](README.md). Generated by `python scripts/design_handbook.py`; do not hand-edit.
 
-Scope: 25 product mobile TypeScript/model and app-owned TSX UI/adapter files; 88 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.
+Scope: 28 product mobile TypeScript/model and app-owned TSX UI/adapter files; 86 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.
 
 ## App.tsx
 
-Retained app-owned lab/adapter surface; document its existing appearance as an exception. Source: [apps/platform-lab/src/App.tsx](../../../apps/platform-lab/src/App.tsx); normalized SHA-256 `d88f021b45e33da05b3b65d0eeffb0202187716cc833e10f0fb53c7f6bea9e39`.
+Retained app-owned lab/adapter surface; document its existing appearance as an exception. Source: [apps/platform-lab/src/App.tsx](../../../apps/platform-lab/src/App.tsx); normalized SHA-256 `00e90dbdf13115e9cffa98b6123f015dc87f095cdd8736daa20f73edab02e7e6`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#173a57` | 170, 171 |
-| `#174c72` | 174 |
-| `#1f2937` | 171 |
-| `#34465c` | 172 |
-| `#583e00` | 172 |
-| `#b9cadb` | 173 |
-| `#f5f7fb` | 170 |
-| `#fff` | 173, 174 |
-| `#fff0cd` | 172 |
+| `#173a57` | 173, 174 |
+| `#174c72` | 177 |
+| `#1f2937` | 174 |
+| `#34465c` | 175 |
+| `#583e00` | 175 |
+| `#b9cadb` | 176 |
+| `#f5f7fb` | 173 |
+| `#fff` | 176, 177 |
+| `#fff0cd` | 175 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 16` | 172, 174 |
-| `fontSize: 17` | 171 |
-| `fontSize: 20` | 171 |
-| `fontSize: 30` | 170 |
-| `fontWeight: &#x27;600&#x27;` | 174 |
-| `fontWeight: &#x27;700&#x27;` | 170, 171, 172 |
-| `lineHeight: 23` | 174 |
-| `lineHeight: 24` | 172 |
-| `lineHeight: 25` | 171 |
+| `fontSize: 16` | 175, 177 |
+| `fontSize: 17` | 174 |
+| `fontSize: 20` | 174 |
+| `fontSize: 30` | 173 |
+| `fontWeight: &#x27;600&#x27;` | 177 |
+| `fontWeight: &#x27;700&#x27;` | 173, 174, 175 |
+| `lineHeight: 23` | 177 |
+| `lineHeight: 24` | 175 |
+| `lineHeight: 25` | 174 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 10` | 173 |
-| `borderRadius: 8` | 174 |
-| `borderWidth: 1` | 173 |
-| `gap: 12` | 170, 173 |
-| `gap: 3` | 173 |
-| `gap: 8` | 175 |
-| `minHeight: 48` | 174 |
-| `opacity: .45` | 175 |
-| `padding: 14` | 172, 174 |
-| `padding: 16` | 173 |
-| `padding: 18` | 170 |
+| `borderRadius: 10` | 176 |
+| `borderRadius: 8` | 177 |
+| `borderWidth: 1` | 176 |
+| `gap: 12` | 173, 176 |
+| `gap: 3` | 176 |
+| `gap: 8` | 178 |
+| `maxWidth: 720` | 173 |
+| `minHeight: 48` | 177 |
+| `opacity: .45` | 178 |
+| `padding: 14` | 175, 177 |
+| `padding: 16` | 176 |
+| `padding: 18` | 173 |
+| `width: &#x27;100%&#x27;` | 173 |
 
 ## BookLab.tsx
 
-Retained app-owned lab/adapter surface; document its existing appearance as an exception. Source: [apps/platform-lab/src/BookLab.tsx](../../../apps/platform-lab/src/BookLab.tsx); normalized SHA-256 `fc3b8bb6ac8422bc77b8d76b094dbb96bc6811b97246fc426b4d4a21f2a52207`.
+Retained app-owned lab/adapter surface; document its existing appearance as an exception. Source: [apps/platform-lab/src/BookLab.tsx](../../../apps/platform-lab/src/BookLab.tsx); normalized SHA-256 `139c44920a750818c8c3c4c0cfe42a10807687b81fcaa47b598dc5d2639eff2f`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#174c72` | 48 |
-| `#b9cadb` | 48 |
-| `white` | 48 |
+| `#174c72` | 56 |
+| `#b9cadb` | 56 |
+| `#f5f7fb` | 56 |
+| `white` | 56 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 16` | 48 |
-| `fontSize: 26` | 48 |
-| `fontWeight: &#x27;700&#x27;` | 48 |
+| `fontSize: 16` | 56 |
+| `fontSize: 26` | 56 |
+| `fontWeight: &#x27;700&#x27;` | 56 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 8` | 48 |
-| `borderWidth: 1` | 48 |
-| `gap: 12` | 48 |
-| `gap: 8` | 48 |
-| `padding: 12` | 48 |
-| `padding: 14` | 48 |
-| `padding: 18` | 48 |
+| `borderRadius: 8` | 56 |
+| `borderWidth: 1` | 56 |
+| `gap: 12` | 56 |
+| `gap: 8` | 56 |
+| `maxWidth: 720` | 56 |
+| `padding: 12` | 56 |
+| `padding: 14` | 56 |
+| `padding: 18` | 56 |
+| `width: &#x27;100%&#x27;` | 56 |
 
 ## AppHeader.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/AppHeader.tsx](../../../apps/platform-lab/src/mobile/AppHeader.tsx); normalized SHA-256 `1d3c93a292bae997757cb2d530e7ab3db0c451857a5c99cfbc63f2d1838e28ca`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/AppHeader.tsx](../../../apps/platform-lab/src/mobile/AppHeader.tsx); normalized SHA-256 `b83d536b266ba5279005e39d8b49b5b52321aa847a0be95eb6bd16d084409c45`.
 
 ### Literal colors
 
@@ -1616,6 +1661,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/AppHeader.tsx](..
 | `maxWidth: 960` | 30 |
 | `minHeight: 64` | 31 |
 | `minWidth: 0` | 35 |
+| `opacity: .5` | 18 |
 | `paddingHorizontal: 10` | 31 |
 | `paddingVertical: 5` | 31 |
 | `width: &#x27;100%&#x27;` | 30, 34 |
@@ -1637,7 +1683,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/connection-guidan
 
 ## Dashboard.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](../../../apps/platform-lab/src/mobile/Dashboard.tsx); normalized SHA-256 `695f94b746d9bc1c97d4a485758bee7e1121110945e23d5866b99ef155433855`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](../../../apps/platform-lab/src/mobile/Dashboard.tsx); normalized SHA-256 `75674ed4838e634e76eeed160a7005be1768af2e941736e7daf3ea2442f645be`.
 
 ### Literal colors
 
@@ -1729,9 +1775,35 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](..
 | `width: 34` | 83 |
 | `width: 38` | 76 |
 
+## DevelopmentHub.tsx
+
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DevelopmentHub.tsx](../../../apps/platform-lab/src/mobile/DevelopmentHub.tsx); normalized SHA-256 `3a147d36d4d393197e41cb1842c7776e99d5c7307dd7c8586a74425cb480f77f`.
+
+### Geometry / opacity declarations
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `gap: 10` | 6 |
+| `maxWidth: 520` | 6 |
+| `maxWidth: 720` | 27 |
+| `padding: 10` | 27 |
+| `width: &#x27;100%&#x27;` | 6, 27 |
+
+## LibraryBackup.tsx
+
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/LibraryBackup.tsx](../../../apps/platform-lab/src/mobile/LibraryBackup.tsx); normalized SHA-256 `509c280cd2dc0650bdad08853731a94e1a0bcfa5ad50de65173409556212dcc6`.
+
+### Geometry / opacity declarations
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `gap: 10` | 42 |
+| `maxWidth: 520` | 42 |
+| `width: &#x27;100%&#x27;` | 42 |
+
 ## MedicalStatus.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MedicalStatus.tsx](../../../apps/platform-lab/src/mobile/MedicalStatus.tsx); normalized SHA-256 `0aa35a1c27301a4ee7e83df38ea48d88c61e0796d0641dbf92f491c4b9468b97`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MedicalStatus.tsx](../../../apps/platform-lab/src/mobile/MedicalStatus.tsx); normalized SHA-256 `40ec041acbba2681480a8d52b9d68fed4597832ba80b6ad66cf52938c2a84e12`.
 
 ### Literal colors
 
@@ -1758,177 +1830,184 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MedicalStatus.tsx
 | `maxWidth: 480` | 28 |
 | `minHeight: 48` | 24 |
 | `minWidth: 72` | 24 |
+| `opacity: .5` | 8 |
 | `paddingHorizontal: 6` | 24 |
 | `paddingVertical: 3` | 24 |
 | `width: &#x27;100%&#x27;` | 28 |
 
 ## MobileApp.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `3d158b5e1bf25277c3bef7ae5bcb0915469ac22df1fbbaae3aa1c7a3672c7b39`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `507ded0cee2f5c461582522b1e65652604643ae15ca352ff5ea34174ca7b2d4e`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#00c8ff` | 209, 248 |
-| `#020e17` | 248 |
-| `#031326` | 186 |
-| `#064240` | 242 |
-| `#10233d` | 245 |
-| `#10263e` | 247 |
-| `#10282d` | 242 |
-| `#102d47aa` | 237 |
-| `#11263a` | 241 |
-| `#152d42` | 244 |
-| `#1b344a` | 247 |
-| `#1c3449` | 248 |
-| `#227f87` | 242 |
-| `#285bff` | 243 |
-| `#315fff` | 243 |
-| `#354d74` | 245 |
-| `#3a5a8b` | 247 |
-| `#7299ab` | 37 |
-| `#78efdc` | 245 |
-| `#8ba4bc` | 208, 239 |
-| `#f5f7fb` | 213 |
-| `#ffbd9b` | 135 |
+| `#00c8ff` | 228, 269 |
+| `#020e17` | 269 |
+| `#031326` | 205 |
+| `#064240` | 264 |
+| `#10233d` | 266 |
+| `#10263e` | 268 |
+| `#10282d` | 264 |
+| `#102d47aa` | 259 |
+| `#11263a` | 263 |
+| `#152d42` | 265 |
+| `#1b344a` | 268 |
+| `#1c3449` | 269 |
+| `#227f87` | 264 |
+| `#354d74` | 266 |
+| `#3a5a8b` | 268 |
+| `#7299ab` | 40 |
+| `#78efdc` | 266 |
+| `#8ba4bc` | 227, 261 |
+| `#ffbd9b` | 155 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 10` | 37, 197, 208, 239 |
-| `fontSize: 11` | 40, 202, 240, 248 |
-| `fontSize: 12` | 242 |
-| `fontSize: 13` | 198, 241, 247 |
-| `fontSize: 18` | 174 |
-| `fontSize: 20` | 186, 240 |
-| `fontSize: 23` | 246 |
-| `fontSize: 25` | 248 |
-| `fontWeight: &#x27;600&#x27;` | 38, 174, 186, 240, 242 |
-| `letterSpacing: .6` | 239 |
-| `lineHeight: 16` | 208, 239, 240, 248 |
-| `lineHeight: 17` | 242 |
-| `lineHeight: 25` | 240 |
-| `lineHeight: 29` | 248 |
+| `fontSize: 10` | 40, 216, 227, 261 |
+| `fontSize: 11` | 43, 221, 262, 269 |
+| `fontSize: 12` | 264 |
+| `fontSize: 13` | 217, 263, 268 |
+| `fontSize: 18` | 193 |
+| `fontSize: 20` | 205, 262 |
+| `fontSize: 23` | 267 |
+| `fontSize: 25` | 269 |
+| `fontWeight: &#x27;600&#x27;` | 41, 193, 205, 262, 264 |
+| `letterSpacing: .6` | 261 |
+| `lineHeight: 16` | 227, 261, 262, 269 |
+| `lineHeight: 17` | 264 |
+| `lineHeight: 25` | 262 |
+| `lineHeight: 29` | 269 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 242, 246 |
-| `borderRadius: 13` | 242 |
-| `borderRadius: 14` | 237 |
-| `borderRadius: 15` | 245 |
-| `borderRadius: 17` | 244 |
-| `borderRadius: 2` | 248 |
-| `borderRadius: 20` | 247 |
-| `borderRadius: 21` | 247 |
-| `borderRadius: 22` | 241 |
-| `borderRadius: 24` | 241 |
-| `borderRadius: 29` | 243 |
-| `borderRadius: 9` | 242 |
-| `borderWidth: 1` | 241, 242, 246, 247 |
-| `gap: 1` | 240, 248 |
-| `gap: 10` | 173, 245 |
-| `gap: 3` | 145, 239, 242 |
-| `gap: 4` | 39 |
-| `gap: 5` | 241 |
-| `gap: 6` | 38, 246, 247 |
-| `gap: 7` | 241, 245 |
-| `gap: 8` | 168, 236, 244, 247 |
-| `height: 2` | 248 |
-| `height: 30` | 245 |
-| `height: 42` | 247 |
-| `height: 48` | 237 |
-| `height: 58` | 243 |
-| `height: 7` | 168 |
-| `maxHeight: 150` | 247 |
-| `maxWidth: &#x27;50%&#x27;` | 34 |
-| `maxWidth: 430` | 245 |
-| `maxWidth: 480` | 173 |
-| `maxWidth: 599` | 235, 248 |
-| `maxWidth: 600` | 159, 209 |
-| `maxWidth: 720` | 195 |
-| `maxWidth: 960` | 159, 209 |
-| `minHeight: 126` | 245 |
-| `minHeight: 174` | 186 |
-| `minHeight: 34` | 244 |
-| `minHeight: 36` | 238 |
-| `minHeight: 40` | 241, 247 |
-| `minHeight: 48` | 241, 244 |
-| `minHeight: 60` | 248 |
-| `minHeight: 64` | 242 |
-| `minHeight: 66` | 242 |
-| `minHeight: 68` | 37 |
-| `minHeight: 70` | 246 |
-| `minWidth: 0` | 240, 241 |
-| `opacity: .45` | 200 |
-| `padding: 0` | 244 |
-| `padding: 10` | 236, 246 |
-| `padding: 4` | 239, 247 |
-| `padding: 7` | 242 |
-| `paddingHorizontal: 12` | 241 |
-| `paddingHorizontal: 16` | 244 |
-| `paddingHorizontal: 6` | 242 |
-| `paddingHorizontal: 7` | 242 |
-| `paddingHorizontal: 8` | 247 |
-| `paddingVertical: 10` | 242 |
-| `paddingVertical: 4` | 241, 248 |
-| `shadowOpacity: .5` | 243 |
-| `width: &#x27;100%&#x27;` | 37, 173, 188, 208, 235, 244, 245, 248 |
-| `width: &#x27;49.2%&#x27;` | 244 |
-| `width: 24` | 248 |
-| `width: 30` | 245 |
-| `width: 42` | 241, 247 |
-| `width: 48` | 237 |
-| `width: 58` | 243 |
-| `width: 64` | 242 |
-| `width: 80` | 37 |
+| `borderRadius: 12` | 264, 267 |
+| `borderRadius: 13` | 264 |
+| `borderRadius: 14` | 259 |
+| `borderRadius: 15` | 266 |
+| `borderRadius: 17` | 265 |
+| `borderRadius: 2` | 269 |
+| `borderRadius: 20` | 268 |
+| `borderRadius: 21` | 268 |
+| `borderRadius: 22` | 263 |
+| `borderRadius: 24` | 263 |
+| `borderRadius: 9` | 264 |
+| `borderWidth: 1` | 263, 264, 267, 268 |
+| `gap: 1` | 262, 269 |
+| `gap: 10` | 192, 266 |
+| `gap: 3` | 165, 261, 264 |
+| `gap: 4` | 42 |
+| `gap: 5` | 263 |
+| `gap: 6` | 41, 267, 268 |
+| `gap: 7` | 263, 266 |
+| `gap: 8` | 188, 239, 242, 258, 265, 268 |
+| `height: 2` | 269 |
+| `height: 30` | 266 |
+| `height: 42` | 268 |
+| `height: 48` | 259 |
+| `height: 7` | 188 |
+| `maxHeight: 150` | 268 |
+| `maxWidth: &#x27;50%&#x27;` | 37 |
+| `maxWidth: 430` | 266 |
+| `maxWidth: 480` | 192 |
+| `maxWidth: 520` | 239, 242 |
+| `maxWidth: 599` | 257, 269 |
+| `maxWidth: 600` | 179, 228 |
+| `maxWidth: 720` | 214 |
+| `maxWidth: 960` | 179, 228 |
+| `minHeight: 126` | 266 |
+| `minHeight: 174` | 205 |
+| `minHeight: 34` | 265 |
+| `minHeight: 36` | 260 |
+| `minHeight: 40` | 263, 268 |
+| `minHeight: 48` | 263, 265 |
+| `minHeight: 60` | 269 |
+| `minHeight: 64` | 264 |
+| `minHeight: 66` | 264 |
+| `minHeight: 68` | 40 |
+| `minHeight: 70` | 267 |
+| `minWidth: 0` | 262, 263 |
+| `opacity: .45` | 219 |
+| `padding: 0` | 265 |
+| `padding: 10` | 258, 267 |
+| `padding: 4` | 261, 268 |
+| `padding: 7` | 264 |
+| `paddingHorizontal: 12` | 263 |
+| `paddingHorizontal: 16` | 265 |
+| `paddingHorizontal: 6` | 264 |
+| `paddingHorizontal: 7` | 264 |
+| `paddingHorizontal: 8` | 268 |
+| `paddingVertical: 10` | 264 |
+| `paddingVertical: 4` | 263, 269 |
+| `width: &#x27;100%&#x27;` | 40, 192, 207, 227, 239, 242, 257, 265, 266, 269 |
+| `width: &#x27;49.2%&#x27;` | 265 |
+| `width: 24` | 269 |
+| `width: 30` | 266 |
+| `width: 42` | 263, 268 |
+| `width: 48` | 259 |
+| `width: 64` | 264 |
+| `width: 80` | 40 |
+
+## PaperStatus.tsx
+
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/PaperStatus.tsx](../../../apps/platform-lab/src/mobile/PaperStatus.tsx); normalized SHA-256 `d030bb2911e9f988f450f9ae521677534c839dba425b0b4b24c7791015d14aa9`.
+
+### Geometry / opacity declarations
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `gap: 10` | 8 |
+| `maxWidth: 520` | 8 |
+| `width: &#x27;100%&#x27;` | 8 |
 
 ## ProfileSettings.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProfileSettings.tsx](../../../apps/platform-lab/src/mobile/ProfileSettings.tsx); normalized SHA-256 `957f24175c84ca28def1668043ea44fd4971f8703edbf6aad749dba96c097b13`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProfileSettings.tsx](../../../apps/platform-lab/src/mobile/ProfileSettings.tsx); normalized SHA-256 `03decf56f9632ac87c71832d5723351cc0a288155551ad4a88838e3230ebe11d`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#ffba9b` | 44 |
+| `#ffba9b` | 46 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 13` | 45 |
-| `fontSize: 16` | 72 |
-| `fontWeight: &#x27;600&#x27;` | 71 |
-| `lineHeight: 18` | 45 |
+| `fontSize: 13` | 47 |
+| `fontSize: 16` | 78 |
+| `fontWeight: &#x27;600&#x27;` | 77 |
+| `lineHeight: 18` | 47 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 72 |
-| `borderWidth: 1` | 72 |
-| `gap: 12` | 70 |
-| `maxWidth: 480` | 70 |
-| `minHeight: 48` | 72 |
-| `paddingHorizontal: 12` | 72 |
-| `paddingVertical: 10` | 72 |
-| `width: &#x27;100%&#x27;` | 70 |
+| `borderRadius: 12` | 78 |
+| `borderWidth: 1` | 78 |
+| `gap: 12` | 76 |
+| `maxWidth: 480` | 76 |
+| `minHeight: 48` | 78 |
+| `paddingHorizontal: 12` | 78 |
+| `paddingVertical: 10` | 78 |
+| `width: &#x27;100%&#x27;` | 76 |
 
 ## ProviderConnection.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProviderConnection.tsx](../../../apps/platform-lab/src/mobile/ProviderConnection.tsx); normalized SHA-256 `9f2fed5c7737e47e5c702dc5cd6f725872d2b2d9ab9817eea50ba37b7d043345`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProviderConnection.tsx](../../../apps/platform-lab/src/mobile/ProviderConnection.tsx); normalized SHA-256 `9f91bbc8a6cca27d5cf06cc22bd621e9d7ed48461a1f317733516ceabee24445`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#102d47aa` | 144 |
+| `#102d47aa` | 148 |
 | `#ffb39e` | 22 |
-| `white` | 147 |
+| `white` | 151 |
 
 ### Typography declarations
 
@@ -1943,30 +2022,30 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProviderConnectio
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 10` | 154 |
-| `borderRadius: 14` | 144 |
-| `borderRadius: 7` | 146 |
-| `borderRadius: 8` | 145 |
-| `borderWidth: 1` | 154 |
-| `borderWidth: 2` | 146 |
-| `gap: 10` | 153 |
-| `gap: 12` | 149 |
-| `gap: 6` | 150 |
-| `height: 12` | 146 |
-| `height: 16` | 145 |
-| `height: 48` | 144 |
-| `maxWidth: 520` | 153 |
-| `maxWidth: 800` | 147 |
-| `minHeight: 48` | 152, 154 |
-| `minHeight: 68` | 149 |
-| `minWidth: 16` | 145 |
-| `opacity: 0` | 148 |
-| `padding: 10` | 149, 150, 153, 154 |
-| `paddingHorizontal: 8` | 152 |
-| `paddingVertical: 10` | 152 |
-| `width: &#x27;100%&#x27;` | 147, 153 |
-| `width: 18` | 146 |
-| `width: 48` | 144 |
+| `borderRadius: 10` | 158 |
+| `borderRadius: 14` | 148 |
+| `borderRadius: 7` | 150 |
+| `borderRadius: 8` | 149 |
+| `borderWidth: 1` | 158 |
+| `borderWidth: 2` | 150 |
+| `gap: 10` | 157 |
+| `gap: 12` | 153 |
+| `gap: 6` | 154 |
+| `height: 12` | 150 |
+| `height: 16` | 149 |
+| `height: 48` | 148 |
+| `maxWidth: 520` | 157 |
+| `maxWidth: 800` | 151 |
+| `minHeight: 48` | 156, 158 |
+| `minHeight: 68` | 153 |
+| `minWidth: 16` | 149 |
+| `opacity: 0` | 152 |
+| `padding: 10` | 153, 154, 157, 158 |
+| `paddingHorizontal: 8` | 156 |
+| `paddingVertical: 10` | 156 |
+| `width: &#x27;100%&#x27;` | 151, 157 |
+| `width: 18` | 150 |
+| `width: 48` | 148 |
 
 ## RawCaptureReview.tsx
 
@@ -2240,6 +2319,7 @@ Retained app-owned lab/adapter surface; document its existing appearance as an e
 | 18 Oct 2026 / Manuel | Selected duotone symbol family, M2 Medical card and supplied folded paper plane; authorized guide and app integration | Supersedes aircraft B and stethoscope artwork. [Selected assets](symbols/README.md), [source-specific verification](../../verification/2026-10-18-icon-option-2.md). Navigation/unknown meanings and branding are preserved. |
 | 18 Oct 2026 / Manuel | Made Modern Duotone the default and requested removal of old icon designs | [Default library](symbols/index.html) contains only the 29 current masters. Old aircraft assets, unselected proposals and icon comparison pages are removed; retired X01–X03/B04 no longer appear in the active catalogue. Original references and dated evidence remain. [Authorization](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/20#issuecomment-6250110588). |
 | 18 Oct 2026 / Manuel | Authorized starting the urgent #25 launcher package using the existing approved Thermik logo | Square AI icon adapted for legacy/iOS and padded adaptive/themed exports; no new brand design. [Execution contract](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/25#issuecomment-6250575222), [installed Release evidence and platform limits](../../verification/2026-10-18-launcher-icon.md). |
+| 18 Oct 2026 / Manuel | Continued with #26/#27 route/tool cleanup | Existing functions classified before implementation. Ordinary paper entry becomes read-only status; backup stays an ordinary product control, and synthetic proofs move behind Settings → Development. Current cards/symbols are reused; full paper redesign remains M5. [Scope, disposition and source-specific evidence](../../verification/2026-10-18-development-navigation.md). |
 
 ## Preserved history
 
@@ -2305,7 +2385,7 @@ N03 · Current native UI · selected duotone
 Logbook / Flugbuch
 Appearance: Selected soft-filled cyan/slate duotone book silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
 Where: Bottom navigation, Flugbuch.
-Meaning: Selected book, paper-entry status, reconciliation and writing-template tools.
+Meaning: Selected book, saved synthetic paper status and ordinary library backup/restore. Full writing remains M5.
 Function / action: Tap switches to Flugbuch.
 States / limits: Selected / inactive. Distinguish the destination from the orange paper-work action D01.
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
@@ -2350,7 +2430,7 @@ Appearance: Selected soft-filled cyan/slate duotone back silhouette; local RGBA 
 Where: Leading side of app-sheet and flight-detail headers.
 Meaning: Return through MoFlight navigation history.
 Function / action: Returns to the prior app overlay or page, preserving its state. Choosing a different book clears old flight-detail history.
-States / limits: Shown on app overlays. This is separate from provider webpage history A12.
+States / limits: Shown on app overlays; disabled during active backup/proof work. Separate from provider webpage history A12.
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
 duotone-assets.ts; symbols/glyphs.svg #back
 
@@ -2379,7 +2459,7 @@ Profile and settings
 Appearance: Selected soft-filled cyan/slate duotone profile silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
 Where: Far-right app-header action.
 Meaning: Local demo profile and app settings/tools.
-Function / action: Opens Profil &amp; Einstellungen: local display name, books/data, connections, appearance information and credits/tools.
+Function / action: Opens Profil &amp; Einstellungen: local display-name draft, books/data and backup, connections, appearance/credits and the separate Development hub.
 States / limits: No avatar, provider identity or authenticated MoFlight-account status is conveyed.
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
 duotone-assets.ts; symbols/glyphs.svg #profile
@@ -2440,9 +2520,9 @@ Samples reproduce text glyphs and existing image assets. Native View-based marks
 D01 · Current native UI · selected duotone
 Paper logbook work
 Appearance: Selected soft-filled cyan/slate duotone logbook silhouette; local RGBA PNG from the editable SVG master. paper palette in this context.
-Where: Papierflugbuch aktualisieren hero; Als Nächstes paper-review item.
-Meaning: Review outstanding paper entries and reconcile the selected logbook.
-Function / action: Tap the hero or next-action row to open the existing paper-logbook tools.
+Where: Papierstand ansehen hero; Als Nächstes paper-status item.
+Meaning: Read-only saved paper evidence/status for the selected synthetic logbook.
+Function / action: Opens PaperStatus; no fixture creation, writing preparation or copied-entry confirmation. The complete paper journey remains M5.
 States / limits: Smaller/larger instances share the same meaning. Pending count may be unknown or zero; the glyph alone is not proof that an entry has been copied.
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
 duotone-assets.ts; symbols/glyphs.svg #logbook
@@ -2615,7 +2695,7 @@ Forward / continue action
 Appearance: Selected soft-filled cyan/slate duotone arrow silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
 Where: Paper CTA, AI dashboard shortcut, duty Details anzeigen, saved-flights links.
 Meaning: Continue to the action/destination named by the adjacent text.
-Function / action: Invokes the surrounding card/button: paper tools, AI draft, current status sheet or saved-flight list.
+Function / action: Invokes the named destination: saved paper status, AI draft, current data status or saved-flight list.
 States / limits: No automatic completion, upload or import is implied. Same character as A08 and S03, with different semantics.
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
 duotone-assets.ts; symbols/glyphs.svg #arrow
@@ -2653,7 +2733,7 @@ duotone-assets.ts; symbols/glyphs.svg #check
 A11 · Current native UI · selected duotone
 Expand / collapse details
 Appearance: Selected soft-filled cyan/slate duotone plus silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
-Where: Verbindungen: Sitzungsdetails &amp; weitere Optionen; Entwicklungswerkzeuge · Rohbelege.
+Where: Verbindungen: Sitzungsdetails &amp; weitere Optionen; Rohbelege &amp; begrenzter Abruf.
 Meaning: Show or hide optional detail/tool sections.
 Function / action: Tap toggles the corresponding disclosure and accessible expanded state.
 States / limits: No creation, addition, deletion or subtraction of user data. Collapses when the connection panel closes.
@@ -2766,7 +2846,7 @@ States / limits: Recreated approved variant, not a byte-identical copy of an old
 Source: docs/assets/branding/moflight-app-icon-ai.png
 docs/assets/branding/README.md; app.json
 </textarea></section>
-<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: 07f53322c6dc9e75d6be227796d99cc144f8614136ec0a00ae1252bc6c8c009f. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
+<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: fe519d9aae4dc0ee929d5b1abf29297052eb6c4154909db246af160e658f1794. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
 </main><script>
 'use strict';
 const brief = document.querySelector('#brief');

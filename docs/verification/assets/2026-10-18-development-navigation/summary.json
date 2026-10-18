@@ -1,0 +1,254 @@
+{
+  "application_source": "3ec05260999ccd8e1a9a2269d018226fad7b15ab",
+  "status": "passed within scoped Android lab acceptance",
+  "selected_checks": 29,
+  "runs": {
+    "native-02-report.json": "First nine functional checks passed; later layout harness selected a heading, failed; source app unchanged.",
+    "native-03-report.json": "Reuse first six MAIN layout/capture/reach checks; later MIN harness tapped off-screen clipped bounds and failed; source app unchanged.",
+    "native-04-report.json": "All fourteen remaining MIN/MAX, keyboard and final offline-library checks passed; display restored.",
+    "native-01-report.json": "Initial harness selected Medical instead of flight details; not counted as passed."
+  },
+  "checks": [
+    {
+      "run": "native-02-report.json",
+      "name": "selected-library-four-flights-known-time-1h10",
+      "status": "passed"
+    },
+    {
+      "run": "native-02-report.json",
+      "name": "book-proof-exit-retains-detail-and-nested-profile-path",
+      "status": "passed"
+    },
+    {
+      "run": "native-02-report.json",
+      "name": "dataset-proof-has-one-owner-no-duplicate-provider-entry",
+      "status": "passed"
+    },
+    {
+      "run": "native-02-report.json",
+      "name": "native-cancel-Sicherung auswählen",
+      "status": "passed"
+    },
+    {
+      "run": "native-02-report.json",
+      "name": "native-cancel-In Geräteordner sichern",
+      "status": "passed"
+    },
+    {
+      "run": "native-02-report.json",
+      "name": "native-cancel-Sicherung teilen",
+      "status": "passed"
+    },
+    {
+      "run": "native-02-report.json",
+      "name": "normal-source-and-recovery-entry-without-development-diagnostic",
+      "status": "passed"
+    },
+    {
+      "run": "native-02-report.json",
+      "name": "normal-paper-read-only-no-proof-actions",
+      "status": "passed"
+    },
+    {
+      "run": "native-02-report.json",
+      "name": "selected-library-four-flights-known-time-1h10",
+      "status": "passed"
+    },
+    {
+      "run": "native-03-report.json",
+      "name": "390-font1.0-hub",
+      "status": "passed",
+      "viewport": {
+        "width_dp": 390,
+        "height_dp": 900,
+        "density_dpi": 160,
+        "font_scale": 1.0
+      },
+      "screenshot": "390-font1.0-hub.png",
+      "hierarchy": "390-font1.0-hub.xml",
+      "assertion_scope": "Target action inside viewport, at least 48dp high; 48dp Back; body/action capped and centered at wide width. Remaining actions checked separately. Visual review still required.",
+      "original_run_screenshot": "01-390-font1.0-hub.png"
+    },
+    {
+      "run": "native-03-report.json",
+      "name": "390-font1.0-hub-actions-reachable",
+      "status": "passed"
+    },
+    {
+      "run": "native-03-report.json",
+      "name": "390-font1.0-backup",
+      "status": "passed",
+      "viewport": {
+        "width_dp": 390,
+        "height_dp": 900,
+        "density_dpi": 160,
+        "font_scale": 1.0
+      },
+      "screenshot": "390-font1.0-backup.png",
+      "hierarchy": "390-font1.0-backup.xml",
+      "assertion_scope": "Target action inside viewport, at least 48dp high; 48dp Back; body/action capped and centered at wide width. Remaining actions checked separately. Visual review still required.",
+      "original_run_screenshot": "03-390-font1.0-backup.png"
+    },
+    {
+      "run": "native-03-report.json",
+      "name": "390-font1.0-backup-actions-reachable",
+      "status": "passed"
+    },
+    {
+      "run": "native-03-report.json",
+      "name": "390-font1.0-paper",
+      "status": "passed",
+      "viewport": {
+        "width_dp": 390,
+        "height_dp": 900,
+        "density_dpi": 160,
+        "font_scale": 1.0
+      },
+      "screenshot": "390-font1.0-paper.png",
+      "hierarchy": "390-font1.0-paper.xml",
+      "assertion_scope": "Target action inside viewport, at least 48dp high; 48dp Back; body/action capped and centered at wide width. Remaining actions checked separately. Visual review still required.",
+      "original_run_screenshot": "05-390-font1.0-paper.png"
+    },
+    {
+      "run": "native-03-report.json",
+      "name": "390-font1.0-paper-actions-reachable",
+      "status": "passed"
+    },
+    {
+      "run": "native-04-report.json",
+      "name": "360-font1.6-hub",
+      "status": "passed",
+      "viewport": {
+        "width_dp": 360,
+        "height_dp": 900,
+        "density_dpi": 160,
+        "font_scale": 1.6
+      },
+      "screenshot": "360-font1.6-hub.png",
+      "hierarchy": "360-font1.6-hub.xml",
+      "assertion_scope": "Target action inside viewport, at least 48dp high; 48dp Back; body/action capped and centered at wide width. Remaining actions checked separately. Visual review still required.",
+      "original_run_screenshot": "01-360-font1.6-hub.png"
+    },
+    {
+      "run": "native-04-report.json",
+      "name": "360-font1.6-hub-actions-reachable",
+      "status": "passed"
+    },
+    {
+      "run": "native-04-report.json",
+      "name": "360-font1.6-backup",
+      "status": "passed",
+      "viewport": {
+        "width_dp": 360,
+        "height_dp": 900,
+        "density_dpi": 160,
+        "font_scale": 1.6
+      },
+      "screenshot": "360-font1.6-backup.png",
+      "hierarchy": "360-font1.6-backup.xml",
+      "assertion_scope": "Target action inside viewport, at least 48dp high; 48dp Back; body/action capped and centered at wide width. Remaining actions checked separately. Visual review still required.",
+      "original_run_screenshot": "03-360-font1.6-backup.png"
+    },
+    {
+      "run": "native-04-report.json",
+      "name": "360-font1.6-backup-actions-reachable",
+      "status": "passed"
+    },
+    {
+      "run": "native-04-report.json",
+      "name": "360-font1.6-paper",
+      "status": "passed",
+      "viewport": {
+        "width_dp": 360,
+        "height_dp": 900,
+        "density_dpi": 160,
+        "font_scale": 1.6
+      },
+      "screenshot": "360-font1.6-paper.png",
+      "hierarchy": "360-font1.6-paper.xml",
+      "assertion_scope": "Target action inside viewport, at least 48dp high; 48dp Back; body/action capped and centered at wide width. Remaining actions checked separately. Visual review still required.",
+      "original_run_screenshot": "05-360-font1.6-paper.png"
+    },
+    {
+      "run": "native-04-report.json",
+      "name": "360-font1.6-paper-actions-reachable",
+      "status": "passed"
+    },
+    {
+      "run": "native-04-report.json",
+      "name": "narrow-enlarged-profile-keyboard-unsaved-draft-survives-hub",
+      "status": "passed"
+    },
+    {
+      "run": "native-04-report.json",
+      "name": "800-font1.0-hub",
+      "status": "passed",
+      "viewport": {
+        "width_dp": 800,
+        "height_dp": 600,
+        "density_dpi": 160,
+        "font_scale": 1.0
+      },
+      "screenshot": "800-font1.0-hub.png",
+      "hierarchy": "800-font1.0-hub.xml",
+      "assertion_scope": "Target action inside viewport, at least 48dp high; 48dp Back; body/action capped and centered at wide width. Remaining actions checked separately. Visual review still required.",
+      "original_run_screenshot": "08-800-font1.0-hub.png"
+    },
+    {
+      "run": "native-04-report.json",
+      "name": "800-font1.0-hub-actions-reachable",
+      "status": "passed"
+    },
+    {
+      "run": "native-04-report.json",
+      "name": "800-font1.0-backup",
+      "status": "passed",
+      "viewport": {
+        "width_dp": 800,
+        "height_dp": 600,
+        "density_dpi": 160,
+        "font_scale": 1.0
+      },
+      "screenshot": "800-font1.0-backup.png",
+      "hierarchy": "800-font1.0-backup.xml",
+      "assertion_scope": "Target action inside viewport, at least 48dp high; 48dp Back; body/action capped and centered at wide width. Remaining actions checked separately. Visual review still required.",
+      "original_run_screenshot": "10-800-font1.0-backup.png"
+    },
+    {
+      "run": "native-04-report.json",
+      "name": "800-font1.0-backup-actions-reachable",
+      "status": "passed"
+    },
+    {
+      "run": "native-04-report.json",
+      "name": "800-font1.0-paper",
+      "status": "passed",
+      "viewport": {
+        "width_dp": 800,
+        "height_dp": 600,
+        "density_dpi": 160,
+        "font_scale": 1.0
+      },
+      "screenshot": "800-font1.0-paper.png",
+      "hierarchy": "800-font1.0-paper.xml",
+      "assertion_scope": "Target action inside viewport, at least 48dp high; 48dp Back; body/action capped and centered at wide width. Remaining actions checked separately. Visual review still required.",
+      "original_run_screenshot": "12-800-font1.0-paper.png"
+    },
+    {
+      "run": "native-04-report.json",
+      "name": "800-font1.0-paper-actions-reachable",
+      "status": "passed"
+    },
+    {
+      "run": "native-04-report.json",
+      "name": "selected-library-four-flights-known-time-1h10",
+      "status": "passed"
+    }
+  ],
+  "visual_review": {
+    "states": 9,
+    "result": "Reviewed native screenshots for readable dark cards/German labels, wrapping, spacing, header separation, centered <=520dp groups at wide width; lower actions verified by scrolling. No app layout correction required.",
+    "limit": "No spoken TalkBack/focus, iOS, physical-device or full product acceptance."
+  },
+  "positive_backup": "This source: picker/share cancellation and host real-SQLite staged restore/failure cases. Positive external save/restore retained only as source-specific older native evidence."
+}

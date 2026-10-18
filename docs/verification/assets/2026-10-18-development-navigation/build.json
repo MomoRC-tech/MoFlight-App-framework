@@ -1,0 +1,32 @@
+{
+  "source_commit": "3ec05260999ccd8e1a9a2269d018226fad7b15ab",
+  "configuration": "Release",
+  "apk": "app-release.apk",
+  "apk_sha256": "c3a7d17cec26cd4211f2d88c6cbc325ac768e45883b5cb2a72f60d6a1c51ab73",
+  "elapsed_seconds": 104.6136178,
+  "gradle_seconds": 103.7259327,
+  "native_regenerated": false,
+  "built_at_utc": "2026-10-18T14:44:38.097365+00:00",
+  "total_seconds": 108.891,
+  "toolchain": {
+    "javaMajor": "17",
+    "sdkPackages": [
+      "platform-tools",
+      "platforms;android-36",
+      "build-tools;36.0.0",
+      "ndk;27.1.12297006",
+      "cmake;3.22.1"
+    ],
+    "architectures": "arm64-v8a,x86_64",
+    "emulatorApi": 35,
+    "emulatorTarget": "google_apis",
+    "syntheticAvd": "MoFlight_Synthetic_API37",
+    "maestroVersion": "2.11.0",
+    "maestroSha256": "5384593cb4e7a106489e75a821d157dd43f4e438df6bc308b72e82c685e1283a"
+  },
+  "node": "v24.18.0",
+  "pnpm": "11.25.0",
+  "java": "openjdk version \"17.0.20.1\" 2026-08-18\nOpenJDK Runtime Environment Temurin-17.0.20.1+1 (build 17.0.20.1+1)\nOpenJDK 64-Bit Server VM Temurin-17.0.20.1+1 (build 17.0.20.1+1, mixed mode, sharing)",
+  "platform": "win32",
+  "metro_required": false
+}

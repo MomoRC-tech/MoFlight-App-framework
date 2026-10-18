@@ -61,7 +61,7 @@ def execute(smoke):
     smoke.find('D-EX', scroll=True)
     top(smoke)
     smoke.record('flights-native-list')
-    row = next(n for n in smoke.dump() if n.get('content-desc', '').endswith('Details öffnen') and n.get('clickable') == 'true')
+    row = next(n for n in smoke.dump() if ', D-EX' in n.get('content-desc', '') and n.get('content-desc', '').endswith('Details öffnen') and n.get('clickable') == 'true')
     smoke.tap_node(row)
     smoke.find('Flugdetails')
     smoke.record('saved-flight-details')

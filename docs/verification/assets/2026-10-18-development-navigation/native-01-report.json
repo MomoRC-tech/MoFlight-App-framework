@@ -1,0 +1,34 @@
+{
+  "status": "failed",
+  "checks": [
+    {
+      "name": "selected-library-four-flights-known-time-1h10",
+      "status": "passed"
+    }
+  ],
+  "boundary": "Existing synthetic library; no data clearing/seeding/restoring or provider actions. Picker/share cancellation only. No physical/iOS/live-provider acceptance.",
+  "source": {
+    "validated_commit": "3ec05260999ccd8e1a9a2269d018226fad7b15ab",
+    "compiled_commit": "3ec05260999ccd8e1a9a2269d018226fad7b15ab"
+  },
+  "original_display": {
+    "size": "Physical size: 1080x1920",
+    "density": "Physical density: 420",
+    "font_scale": "1.0"
+  },
+  "device": {
+    "ro.build.version.sdk": "37",
+    "ro.product.model": "sdk_gphone64_x86_64",
+    "ro.product.cpu.abi": "x86_64"
+  },
+  "restored_display": {
+    "size": "Physical size: 1080x1920",
+    "density": "Physical density: 420",
+    "font_scale": "1.0"
+  },
+  "error": "Visible UI did not contain 'Flugdetails'",
+  "diagnostics": {
+    "status": "complete",
+    "display": "Original settings restored before capture"
+  }
+}

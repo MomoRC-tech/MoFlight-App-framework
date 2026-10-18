@@ -1,0 +1,135 @@
+{
+  "status": "passed",
+  "checks": [
+    {
+      "name": "360-font1.6-hub",
+      "status": "passed",
+      "viewport": {
+        "width_dp": 360,
+        "height_dp": 900,
+        "density_dpi": 160,
+        "font_scale": 1.6
+      },
+      "screenshot": "01-360-font1.6-hub.png",
+      "hierarchy": "01-360-font1.6-hub.xml",
+      "assertion_scope": "Target action inside viewport, at least 48dp high; 48dp Back; body/action capped and centered at wide width. Remaining actions checked separately. Visual review still required."
+    },
+    {
+      "name": "360-font1.6-hub-actions-reachable",
+      "status": "passed"
+    },
+    {
+      "name": "360-font1.6-backup",
+      "status": "passed",
+      "viewport": {
+        "width_dp": 360,
+        "height_dp": 900,
+        "density_dpi": 160,
+        "font_scale": 1.6
+      },
+      "screenshot": "03-360-font1.6-backup.png",
+      "hierarchy": "03-360-font1.6-backup.xml",
+      "assertion_scope": "Target action inside viewport, at least 48dp high; 48dp Back; body/action capped and centered at wide width. Remaining actions checked separately. Visual review still required."
+    },
+    {
+      "name": "360-font1.6-backup-actions-reachable",
+      "status": "passed"
+    },
+    {
+      "name": "360-font1.6-paper",
+      "status": "passed",
+      "viewport": {
+        "width_dp": 360,
+        "height_dp": 900,
+        "density_dpi": 160,
+        "font_scale": 1.6
+      },
+      "screenshot": "05-360-font1.6-paper.png",
+      "hierarchy": "05-360-font1.6-paper.xml",
+      "assertion_scope": "Target action inside viewport, at least 48dp high; 48dp Back; body/action capped and centered at wide width. Remaining actions checked separately. Visual review still required."
+    },
+    {
+      "name": "360-font1.6-paper-actions-reachable",
+      "status": "passed"
+    },
+    {
+      "name": "narrow-enlarged-profile-keyboard-unsaved-draft-survives-hub",
+      "status": "passed"
+    },
+    {
+      "name": "800-font1.0-hub",
+      "status": "passed",
+      "viewport": {
+        "width_dp": 800,
+        "height_dp": 600,
+        "density_dpi": 160,
+        "font_scale": 1.0
+      },
+      "screenshot": "08-800-font1.0-hub.png",
+      "hierarchy": "08-800-font1.0-hub.xml",
+      "assertion_scope": "Target action inside viewport, at least 48dp high; 48dp Back; body/action capped and centered at wide width. Remaining actions checked separately. Visual review still required."
+    },
+    {
+      "name": "800-font1.0-hub-actions-reachable",
+      "status": "passed"
+    },
+    {
+      "name": "800-font1.0-backup",
+      "status": "passed",
+      "viewport": {
+        "width_dp": 800,
+        "height_dp": 600,
+        "density_dpi": 160,
+        "font_scale": 1.0
+      },
+      "screenshot": "10-800-font1.0-backup.png",
+      "hierarchy": "10-800-font1.0-backup.xml",
+      "assertion_scope": "Target action inside viewport, at least 48dp high; 48dp Back; body/action capped and centered at wide width. Remaining actions checked separately. Visual review still required."
+    },
+    {
+      "name": "800-font1.0-backup-actions-reachable",
+      "status": "passed"
+    },
+    {
+      "name": "800-font1.0-paper",
+      "status": "passed",
+      "viewport": {
+        "width_dp": 800,
+        "height_dp": 600,
+        "density_dpi": 160,
+        "font_scale": 1.0
+      },
+      "screenshot": "12-800-font1.0-paper.png",
+      "hierarchy": "12-800-font1.0-paper.xml",
+      "assertion_scope": "Target action inside viewport, at least 48dp high; 48dp Back; body/action capped and centered at wide width. Remaining actions checked separately. Visual review still required."
+    },
+    {
+      "name": "800-font1.0-paper-actions-reachable",
+      "status": "passed"
+    },
+    {
+      "name": "selected-library-four-flights-known-time-1h10",
+      "status": "passed"
+    }
+  ],
+  "boundary": "Existing synthetic library; no data clearing/seeding/restoring or provider actions. Picker/share cancellation only. No physical/iOS/live-provider acceptance.",
+  "source": {
+    "validated_commit": "3ec05260999ccd8e1a9a2269d018226fad7b15ab",
+    "compiled_commit": "3ec05260999ccd8e1a9a2269d018226fad7b15ab"
+  },
+  "original_display": {
+    "size": "Physical size: 1080x1920",
+    "density": "Physical density: 420",
+    "font_scale": "1.0"
+  },
+  "device": {
+    "ro.build.version.sdk": "37",
+    "ro.product.model": "sdk_gphone64_x86_64",
+    "ro.product.cpu.abi": "x86_64"
+  },
+  "restored_display": {
+    "size": "Physical size: 1080x1920",
+    "density": "Physical density: 420",
+    "font_scale": "1.0"
+  }
+}

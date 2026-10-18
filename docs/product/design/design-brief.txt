@@ -183,7 +183,7 @@ The HTML guide embeds original reference and symbol/brand images unchanged. Comp
 | C08 | Overlay / provider panel | Current dark full app overlay with one active header; provider has its own toolbar/history | Different from pale v0.30 prototype sheets. MobileApp / ProviderConnection. |
 | C09 | Flight row | Padding 7, radius 13; no-track tile, route/time/role and detail chevron | Whole row opens saved facts. MobileApp FlightRow. |
 | C10 | AI question / composer | Question radius 12; composer radius 20; send face 42 × 42; input max height 150 | Local questions calculate deterministically; free-text service unavailable. MobileApp. |
-| C11 | Paper hero / action face | Orange-accent photo card, minimum height 144; normal hero height 154; CTA radius 15 | Opens reconciliation/writing tools, not automatic import or copied-entry confirmation. Dashboard. |
+| C11 | Paper hero / action face | Orange-accent photo card, minimum height 144; normal hero height 154; CTA radius 15 | Papierstand ansehen opens the read-only saved paper status. Full reconciliation/writing remains M5; viewing never confirms copying. Dashboard / PaperStatus. |
 | C12 | Season ring | Diameter 62, thickness 6, aircraft segments, central value/label | Whole season card opens current-year flights. SeasonRing / season-model. |
 | C13 | Badges / disclosures | Role pill radius 12; session badge minimum 16; details + / − | Role, session evidence and expansion remain separate meanings. MobileApp / ProviderConnection. |
 
@@ -232,19 +232,27 @@ The combined HTML presents C01–C13 shapes/states alongside these rules: neutra
 | --- | --- |
 | Übersicht | Photo paper hero; asymmetric season/AI and flight/club pairs; weather and next actions. Use selected-book saved facts with details on tap. |
 | Flüge | Book selector, search/filter, year chips, summary, training/classification chips and saved rows. Missing tracks/distances/classifications remain unavailable. |
-| Flugbuch | Selected-book status, paper progress and existing reconciliation/writing tools; book identity differs from account/format. |
+| Flugbuch | Selected-book saved paper status and ordinary library backup/restore. Full reconciliation/writing remains M5; book identity differs from account/format. |
 | Verein | Overview/Dienste/Termine/Mitteilungen scopes with bounded sections and honest missing-source states. |
 | AI | Welcome, supported local questions/results, composer and unavailable free-text state. Sparkles identify the category. |
 
 The [approved reference](../design-sources/2026-10-16-four-screen/reference.png) establishes card/layout/color fidelity. Later five-tab changes add Flugbuch and retain AI. Older Wetter-tab, goals, monthly-chart and synthetic Medical-expiry prototypes remain historical.
 
-Development surfaces are explicit visual exceptions: [App.tsx](../../../apps/platform-lab/src/App.tsx), [BookLab.tsx](../../../apps/platform-lab/src/BookLab.tsx) and the older [provider trial views](../../../apps/platform-lab/src/vereinsflieger/) retain their functional lab styling, including light backgrounds and different type/button sizes. Their values are included in the generated inventory. This handbook does not silently restyle these tools or select their appearance for product screens. The original provider webpage and OS-owned dialogs remain external visual surfaces.
+Development surfaces are explicit visual exceptions: [App.tsx](../../../apps/platform-lab/src/App.tsx) and [BookLab.tsx](../../../apps/platform-lab/src/BookLab.tsx) retain their functional English proof styling, including light backgrounds and different type/button sizes, behind **Settings → Development**. Their body groups are capped at 720 dp. They are not ordinary product paper/import screens. The older [provider trial views](../../../apps/platform-lab/src/vereinsflieger/) remain historical proofs; the embedded lab cannot mount a duplicate provider browser. Their values are included in the generated inventory. The original provider webpage and OS-owned dialogs remain external visual surfaces.
+
+## Settings, Development and library maintenance
+
+Settings exposes **Sicherung & Wiederherstellung** beside ordinary book/data actions and a separate **Entwicklung öffnen** entry. [DevelopmentHub](../../../apps/platform-lab/src/mobile/DevelopmentHub.tsx) groups the dataset/flight proof, book/paper proof and provider diagnostics. Entry alone runs no fixture or provider operation. The experimental lab Release retains these explicit tools for offline testing; this is no security boundary or approval for a future production build. Synthetic operations and old copy-confirmation semantics remain labelled.
+
+Product maintenance uses current dark C01/C02 cards/actions and selected Modern Duotone symbols. [LibraryBackup](../../../apps/platform-lab/src/mobile/LibraryBackup.tsx) explains whole-library scope, unencrypted lab format/2 MB restore limit, exclusions, picker cancellation and the difference between sharing and verified external saving. Restore validates a new library and its selected book before activating it; previous stores stay retained. [PaperStatus](../../../apps/platform-lab/src/mobile/PaperStatus.tsx) shows saved synthetic facts/unknowns and the unfinished M5 boundary, with book/history/backup navigation. These groups are capped and centered at 520 dp. No ordinary floating plus, book selector or data-status action launches a proof.
+
+Provider login, recovery, session controls and **Rohbelege & begrenzter Abruf** stay in the ordinary connection dialog. Extra browserstore test controls require the explicit Development route on the same retained controller, with existing native AVD/operation/recovery guards. No source capture becomes an imported flight by moving its controls.
 
 ## Header, overlays and navigation
 
 Keep header/navigation outside the scrolling canvas. Header order is logo/title, Connection → Med → Profile. Truncate title before shrinking controls. Current font scale above 1.3 places controls on a second wrapping row; subtitle renders only at width at least 412 with normal text.
 
-App overlays/details replace logo with contextual Back and expose one active accessible header. Return through nested overlays to prior page/filter/scroll state. A different book invalidates old flight-detail history. Medical opens a read-only unknown-record explanation.
+App overlays/details replace logo with contextual Back and expose one active accessible header. Return through nested overlays to prior page/filter/scroll state and unsaved local profile-name draft. Identical library reloads preserve the return path; changed book/flight facts invalidate stale details. An active backup/proof operation disables app Back, Profile and Medical until completion; provider Close/history remain separate. Medical opens a read-only unknown-record explanation.
 
 Provider Close, connection status and origin belong to its app-owned toolbar. Provider-history Back affects the original embedded webpage; Close returns to MoFlight without promising logout. Preserve retained browser parent, busy/recovery guards and provenance. OS-owned full-screen surfaces keep their own controls. See [header decisions](../2026-10-18-header-status-review.md#package-1b-decision-checkpoint).
 
@@ -283,91 +291,96 @@ Follow the [verification workflow](../../development/verification-workflow.md): 
 
 [Handbook entry point](README.md). Generated by `python scripts/design_handbook.py`; do not hand-edit.
 
-Scope: 25 product mobile TypeScript/model and app-owned TSX UI/adapter files; 88 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.
+Scope: 28 product mobile TypeScript/model and app-owned TSX UI/adapter files; 86 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.
 
 ## App.tsx
 
-Retained app-owned lab/adapter surface; document its existing appearance as an exception. Source: [apps/platform-lab/src/App.tsx](../../../apps/platform-lab/src/App.tsx); normalized SHA-256 `d88f021b45e33da05b3b65d0eeffb0202187716cc833e10f0fb53c7f6bea9e39`.
+Retained app-owned lab/adapter surface; document its existing appearance as an exception. Source: [apps/platform-lab/src/App.tsx](../../../apps/platform-lab/src/App.tsx); normalized SHA-256 `00e90dbdf13115e9cffa98b6123f015dc87f095cdd8736daa20f73edab02e7e6`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#173a57` | 170, 171 |
-| `#174c72` | 174 |
-| `#1f2937` | 171 |
-| `#34465c` | 172 |
-| `#583e00` | 172 |
-| `#b9cadb` | 173 |
-| `#f5f7fb` | 170 |
-| `#fff` | 173, 174 |
-| `#fff0cd` | 172 |
+| `#173a57` | 173, 174 |
+| `#174c72` | 177 |
+| `#1f2937` | 174 |
+| `#34465c` | 175 |
+| `#583e00` | 175 |
+| `#b9cadb` | 176 |
+| `#f5f7fb` | 173 |
+| `#fff` | 176, 177 |
+| `#fff0cd` | 175 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 16` | 172, 174 |
-| `fontSize: 17` | 171 |
-| `fontSize: 20` | 171 |
-| `fontSize: 30` | 170 |
-| `fontWeight: '600'` | 174 |
-| `fontWeight: '700'` | 170, 171, 172 |
-| `lineHeight: 23` | 174 |
-| `lineHeight: 24` | 172 |
-| `lineHeight: 25` | 171 |
+| `fontSize: 16` | 175, 177 |
+| `fontSize: 17` | 174 |
+| `fontSize: 20` | 174 |
+| `fontSize: 30` | 173 |
+| `fontWeight: '600'` | 177 |
+| `fontWeight: '700'` | 173, 174, 175 |
+| `lineHeight: 23` | 177 |
+| `lineHeight: 24` | 175 |
+| `lineHeight: 25` | 174 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 10` | 173 |
-| `borderRadius: 8` | 174 |
-| `borderWidth: 1` | 173 |
-| `gap: 12` | 170, 173 |
-| `gap: 3` | 173 |
-| `gap: 8` | 175 |
-| `minHeight: 48` | 174 |
-| `opacity: .45` | 175 |
-| `padding: 14` | 172, 174 |
-| `padding: 16` | 173 |
-| `padding: 18` | 170 |
+| `borderRadius: 10` | 176 |
+| `borderRadius: 8` | 177 |
+| `borderWidth: 1` | 176 |
+| `gap: 12` | 173, 176 |
+| `gap: 3` | 176 |
+| `gap: 8` | 178 |
+| `maxWidth: 720` | 173 |
+| `minHeight: 48` | 177 |
+| `opacity: .45` | 178 |
+| `padding: 14` | 175, 177 |
+| `padding: 16` | 176 |
+| `padding: 18` | 173 |
+| `width: '100%'` | 173 |
 
 ## BookLab.tsx
 
-Retained app-owned lab/adapter surface; document its existing appearance as an exception. Source: [apps/platform-lab/src/BookLab.tsx](../../../apps/platform-lab/src/BookLab.tsx); normalized SHA-256 `fc3b8bb6ac8422bc77b8d76b094dbb96bc6811b97246fc426b4d4a21f2a52207`.
+Retained app-owned lab/adapter surface; document its existing appearance as an exception. Source: [apps/platform-lab/src/BookLab.tsx](../../../apps/platform-lab/src/BookLab.tsx); normalized SHA-256 `139c44920a750818c8c3c4c0cfe42a10807687b81fcaa47b598dc5d2639eff2f`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#174c72` | 48 |
-| `#b9cadb` | 48 |
-| `white` | 48 |
+| `#174c72` | 56 |
+| `#b9cadb` | 56 |
+| `#f5f7fb` | 56 |
+| `white` | 56 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 16` | 48 |
-| `fontSize: 26` | 48 |
-| `fontWeight: '700'` | 48 |
+| `fontSize: 16` | 56 |
+| `fontSize: 26` | 56 |
+| `fontWeight: '700'` | 56 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 8` | 48 |
-| `borderWidth: 1` | 48 |
-| `gap: 12` | 48 |
-| `gap: 8` | 48 |
-| `padding: 12` | 48 |
-| `padding: 14` | 48 |
-| `padding: 18` | 48 |
+| `borderRadius: 8` | 56 |
+| `borderWidth: 1` | 56 |
+| `gap: 12` | 56 |
+| `gap: 8` | 56 |
+| `maxWidth: 720` | 56 |
+| `padding: 12` | 56 |
+| `padding: 14` | 56 |
+| `padding: 18` | 56 |
+| `width: '100%'` | 56 |
 
 ## AppHeader.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/AppHeader.tsx](../../../apps/platform-lab/src/mobile/AppHeader.tsx); normalized SHA-256 `1d3c93a292bae997757cb2d530e7ab3db0c451857a5c99cfbc63f2d1838e28ca`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/AppHeader.tsx](../../../apps/platform-lab/src/mobile/AppHeader.tsx); normalized SHA-256 `b83d536b266ba5279005e39d8b49b5b52321aa847a0be95eb6bd16d084409c45`.
 
 ### Literal colors
 
@@ -401,6 +414,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/AppHeader.tsx](..
 | `maxWidth: 960` | 30 |
 | `minHeight: 64` | 31 |
 | `minWidth: 0` | 35 |
+| `opacity: .5` | 18 |
 | `paddingHorizontal: 10` | 31 |
 | `paddingVertical: 5` | 31 |
 | `width: '100%'` | 30, 34 |
@@ -422,7 +436,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/connection-guidan
 
 ## Dashboard.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](../../../apps/platform-lab/src/mobile/Dashboard.tsx); normalized SHA-256 `695f94b746d9bc1c97d4a485758bee7e1121110945e23d5866b99ef155433855`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](../../../apps/platform-lab/src/mobile/Dashboard.tsx); normalized SHA-256 `75674ed4838e634e76eeed160a7005be1768af2e941736e7daf3ea2442f645be`.
 
 ### Literal colors
 
@@ -514,9 +528,35 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](..
 | `width: 34` | 83 |
 | `width: 38` | 76 |
 
+## DevelopmentHub.tsx
+
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DevelopmentHub.tsx](../../../apps/platform-lab/src/mobile/DevelopmentHub.tsx); normalized SHA-256 `3a147d36d4d393197e41cb1842c7776e99d5c7307dd7c8586a74425cb480f77f`.
+
+### Geometry / opacity declarations
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `gap: 10` | 6 |
+| `maxWidth: 520` | 6 |
+| `maxWidth: 720` | 27 |
+| `padding: 10` | 27 |
+| `width: '100%'` | 6, 27 |
+
+## LibraryBackup.tsx
+
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/LibraryBackup.tsx](../../../apps/platform-lab/src/mobile/LibraryBackup.tsx); normalized SHA-256 `509c280cd2dc0650bdad08853731a94e1a0bcfa5ad50de65173409556212dcc6`.
+
+### Geometry / opacity declarations
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `gap: 10` | 42 |
+| `maxWidth: 520` | 42 |
+| `width: '100%'` | 42 |
+
 ## MedicalStatus.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MedicalStatus.tsx](../../../apps/platform-lab/src/mobile/MedicalStatus.tsx); normalized SHA-256 `0aa35a1c27301a4ee7e83df38ea48d88c61e0796d0641dbf92f491c4b9468b97`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MedicalStatus.tsx](../../../apps/platform-lab/src/mobile/MedicalStatus.tsx); normalized SHA-256 `40ec041acbba2681480a8d52b9d68fed4597832ba80b6ad66cf52938c2a84e12`.
 
 ### Literal colors
 
@@ -543,177 +583,184 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MedicalStatus.tsx
 | `maxWidth: 480` | 28 |
 | `minHeight: 48` | 24 |
 | `minWidth: 72` | 24 |
+| `opacity: .5` | 8 |
 | `paddingHorizontal: 6` | 24 |
 | `paddingVertical: 3` | 24 |
 | `width: '100%'` | 28 |
 
 ## MobileApp.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `3d158b5e1bf25277c3bef7ae5bcb0915469ac22df1fbbaae3aa1c7a3672c7b39`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `507ded0cee2f5c461582522b1e65652604643ae15ca352ff5ea34174ca7b2d4e`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#00c8ff` | 209, 248 |
-| `#020e17` | 248 |
-| `#031326` | 186 |
-| `#064240` | 242 |
-| `#10233d` | 245 |
-| `#10263e` | 247 |
-| `#10282d` | 242 |
-| `#102d47aa` | 237 |
-| `#11263a` | 241 |
-| `#152d42` | 244 |
-| `#1b344a` | 247 |
-| `#1c3449` | 248 |
-| `#227f87` | 242 |
-| `#285bff` | 243 |
-| `#315fff` | 243 |
-| `#354d74` | 245 |
-| `#3a5a8b` | 247 |
-| `#7299ab` | 37 |
-| `#78efdc` | 245 |
-| `#8ba4bc` | 208, 239 |
-| `#f5f7fb` | 213 |
-| `#ffbd9b` | 135 |
+| `#00c8ff` | 228, 269 |
+| `#020e17` | 269 |
+| `#031326` | 205 |
+| `#064240` | 264 |
+| `#10233d` | 266 |
+| `#10263e` | 268 |
+| `#10282d` | 264 |
+| `#102d47aa` | 259 |
+| `#11263a` | 263 |
+| `#152d42` | 265 |
+| `#1b344a` | 268 |
+| `#1c3449` | 269 |
+| `#227f87` | 264 |
+| `#354d74` | 266 |
+| `#3a5a8b` | 268 |
+| `#7299ab` | 40 |
+| `#78efdc` | 266 |
+| `#8ba4bc` | 227, 261 |
+| `#ffbd9b` | 155 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 10` | 37, 197, 208, 239 |
-| `fontSize: 11` | 40, 202, 240, 248 |
-| `fontSize: 12` | 242 |
-| `fontSize: 13` | 198, 241, 247 |
-| `fontSize: 18` | 174 |
-| `fontSize: 20` | 186, 240 |
-| `fontSize: 23` | 246 |
-| `fontSize: 25` | 248 |
-| `fontWeight: '600'` | 38, 174, 186, 240, 242 |
-| `letterSpacing: .6` | 239 |
-| `lineHeight: 16` | 208, 239, 240, 248 |
-| `lineHeight: 17` | 242 |
-| `lineHeight: 25` | 240 |
-| `lineHeight: 29` | 248 |
+| `fontSize: 10` | 40, 216, 227, 261 |
+| `fontSize: 11` | 43, 221, 262, 269 |
+| `fontSize: 12` | 264 |
+| `fontSize: 13` | 217, 263, 268 |
+| `fontSize: 18` | 193 |
+| `fontSize: 20` | 205, 262 |
+| `fontSize: 23` | 267 |
+| `fontSize: 25` | 269 |
+| `fontWeight: '600'` | 41, 193, 205, 262, 264 |
+| `letterSpacing: .6` | 261 |
+| `lineHeight: 16` | 227, 261, 262, 269 |
+| `lineHeight: 17` | 264 |
+| `lineHeight: 25` | 262 |
+| `lineHeight: 29` | 269 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 242, 246 |
-| `borderRadius: 13` | 242 |
-| `borderRadius: 14` | 237 |
-| `borderRadius: 15` | 245 |
-| `borderRadius: 17` | 244 |
-| `borderRadius: 2` | 248 |
-| `borderRadius: 20` | 247 |
-| `borderRadius: 21` | 247 |
-| `borderRadius: 22` | 241 |
-| `borderRadius: 24` | 241 |
-| `borderRadius: 29` | 243 |
-| `borderRadius: 9` | 242 |
-| `borderWidth: 1` | 241, 242, 246, 247 |
-| `gap: 1` | 240, 248 |
-| `gap: 10` | 173, 245 |
-| `gap: 3` | 145, 239, 242 |
-| `gap: 4` | 39 |
-| `gap: 5` | 241 |
-| `gap: 6` | 38, 246, 247 |
-| `gap: 7` | 241, 245 |
-| `gap: 8` | 168, 236, 244, 247 |
-| `height: 2` | 248 |
-| `height: 30` | 245 |
-| `height: 42` | 247 |
-| `height: 48` | 237 |
-| `height: 58` | 243 |
-| `height: 7` | 168 |
-| `maxHeight: 150` | 247 |
-| `maxWidth: '50%'` | 34 |
-| `maxWidth: 430` | 245 |
-| `maxWidth: 480` | 173 |
-| `maxWidth: 599` | 235, 248 |
-| `maxWidth: 600` | 159, 209 |
-| `maxWidth: 720` | 195 |
-| `maxWidth: 960` | 159, 209 |
-| `minHeight: 126` | 245 |
-| `minHeight: 174` | 186 |
-| `minHeight: 34` | 244 |
-| `minHeight: 36` | 238 |
-| `minHeight: 40` | 241, 247 |
-| `minHeight: 48` | 241, 244 |
-| `minHeight: 60` | 248 |
-| `minHeight: 64` | 242 |
-| `minHeight: 66` | 242 |
-| `minHeight: 68` | 37 |
-| `minHeight: 70` | 246 |
-| `minWidth: 0` | 240, 241 |
-| `opacity: .45` | 200 |
-| `padding: 0` | 244 |
-| `padding: 10` | 236, 246 |
-| `padding: 4` | 239, 247 |
-| `padding: 7` | 242 |
-| `paddingHorizontal: 12` | 241 |
-| `paddingHorizontal: 16` | 244 |
-| `paddingHorizontal: 6` | 242 |
-| `paddingHorizontal: 7` | 242 |
-| `paddingHorizontal: 8` | 247 |
-| `paddingVertical: 10` | 242 |
-| `paddingVertical: 4` | 241, 248 |
-| `shadowOpacity: .5` | 243 |
-| `width: '100%'` | 37, 173, 188, 208, 235, 244, 245, 248 |
-| `width: '49.2%'` | 244 |
-| `width: 24` | 248 |
-| `width: 30` | 245 |
-| `width: 42` | 241, 247 |
-| `width: 48` | 237 |
-| `width: 58` | 243 |
-| `width: 64` | 242 |
-| `width: 80` | 37 |
+| `borderRadius: 12` | 264, 267 |
+| `borderRadius: 13` | 264 |
+| `borderRadius: 14` | 259 |
+| `borderRadius: 15` | 266 |
+| `borderRadius: 17` | 265 |
+| `borderRadius: 2` | 269 |
+| `borderRadius: 20` | 268 |
+| `borderRadius: 21` | 268 |
+| `borderRadius: 22` | 263 |
+| `borderRadius: 24` | 263 |
+| `borderRadius: 9` | 264 |
+| `borderWidth: 1` | 263, 264, 267, 268 |
+| `gap: 1` | 262, 269 |
+| `gap: 10` | 192, 266 |
+| `gap: 3` | 165, 261, 264 |
+| `gap: 4` | 42 |
+| `gap: 5` | 263 |
+| `gap: 6` | 41, 267, 268 |
+| `gap: 7` | 263, 266 |
+| `gap: 8` | 188, 239, 242, 258, 265, 268 |
+| `height: 2` | 269 |
+| `height: 30` | 266 |
+| `height: 42` | 268 |
+| `height: 48` | 259 |
+| `height: 7` | 188 |
+| `maxHeight: 150` | 268 |
+| `maxWidth: '50%'` | 37 |
+| `maxWidth: 430` | 266 |
+| `maxWidth: 480` | 192 |
+| `maxWidth: 520` | 239, 242 |
+| `maxWidth: 599` | 257, 269 |
+| `maxWidth: 600` | 179, 228 |
+| `maxWidth: 720` | 214 |
+| `maxWidth: 960` | 179, 228 |
+| `minHeight: 126` | 266 |
+| `minHeight: 174` | 205 |
+| `minHeight: 34` | 265 |
+| `minHeight: 36` | 260 |
+| `minHeight: 40` | 263, 268 |
+| `minHeight: 48` | 263, 265 |
+| `minHeight: 60` | 269 |
+| `minHeight: 64` | 264 |
+| `minHeight: 66` | 264 |
+| `minHeight: 68` | 40 |
+| `minHeight: 70` | 267 |
+| `minWidth: 0` | 262, 263 |
+| `opacity: .45` | 219 |
+| `padding: 0` | 265 |
+| `padding: 10` | 258, 267 |
+| `padding: 4` | 261, 268 |
+| `padding: 7` | 264 |
+| `paddingHorizontal: 12` | 263 |
+| `paddingHorizontal: 16` | 265 |
+| `paddingHorizontal: 6` | 264 |
+| `paddingHorizontal: 7` | 264 |
+| `paddingHorizontal: 8` | 268 |
+| `paddingVertical: 10` | 264 |
+| `paddingVertical: 4` | 263, 269 |
+| `width: '100%'` | 40, 192, 207, 227, 239, 242, 257, 265, 266, 269 |
+| `width: '49.2%'` | 265 |
+| `width: 24` | 269 |
+| `width: 30` | 266 |
+| `width: 42` | 263, 268 |
+| `width: 48` | 259 |
+| `width: 64` | 264 |
+| `width: 80` | 40 |
+
+## PaperStatus.tsx
+
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/PaperStatus.tsx](../../../apps/platform-lab/src/mobile/PaperStatus.tsx); normalized SHA-256 `d030bb2911e9f988f450f9ae521677534c839dba425b0b4b24c7791015d14aa9`.
+
+### Geometry / opacity declarations
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `gap: 10` | 8 |
+| `maxWidth: 520` | 8 |
+| `width: '100%'` | 8 |
 
 ## ProfileSettings.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProfileSettings.tsx](../../../apps/platform-lab/src/mobile/ProfileSettings.tsx); normalized SHA-256 `957f24175c84ca28def1668043ea44fd4971f8703edbf6aad749dba96c097b13`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProfileSettings.tsx](../../../apps/platform-lab/src/mobile/ProfileSettings.tsx); normalized SHA-256 `03decf56f9632ac87c71832d5723351cc0a288155551ad4a88838e3230ebe11d`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#ffba9b` | 44 |
+| `#ffba9b` | 46 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 13` | 45 |
-| `fontSize: 16` | 72 |
-| `fontWeight: '600'` | 71 |
-| `lineHeight: 18` | 45 |
+| `fontSize: 13` | 47 |
+| `fontSize: 16` | 78 |
+| `fontWeight: '600'` | 77 |
+| `lineHeight: 18` | 47 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 72 |
-| `borderWidth: 1` | 72 |
-| `gap: 12` | 70 |
-| `maxWidth: 480` | 70 |
-| `minHeight: 48` | 72 |
-| `paddingHorizontal: 12` | 72 |
-| `paddingVertical: 10` | 72 |
-| `width: '100%'` | 70 |
+| `borderRadius: 12` | 78 |
+| `borderWidth: 1` | 78 |
+| `gap: 12` | 76 |
+| `maxWidth: 480` | 76 |
+| `minHeight: 48` | 78 |
+| `paddingHorizontal: 12` | 78 |
+| `paddingVertical: 10` | 78 |
+| `width: '100%'` | 76 |
 
 ## ProviderConnection.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProviderConnection.tsx](../../../apps/platform-lab/src/mobile/ProviderConnection.tsx); normalized SHA-256 `9f2fed5c7737e47e5c702dc5cd6f725872d2b2d9ab9817eea50ba37b7d043345`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProviderConnection.tsx](../../../apps/platform-lab/src/mobile/ProviderConnection.tsx); normalized SHA-256 `9f91bbc8a6cca27d5cf06cc22bd621e9d7ed48461a1f317733516ceabee24445`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#102d47aa` | 144 |
+| `#102d47aa` | 148 |
 | `#ffb39e` | 22 |
-| `white` | 147 |
+| `white` | 151 |
 
 ### Typography declarations
 
@@ -728,30 +775,30 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProviderConnectio
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 10` | 154 |
-| `borderRadius: 14` | 144 |
-| `borderRadius: 7` | 146 |
-| `borderRadius: 8` | 145 |
-| `borderWidth: 1` | 154 |
-| `borderWidth: 2` | 146 |
-| `gap: 10` | 153 |
-| `gap: 12` | 149 |
-| `gap: 6` | 150 |
-| `height: 12` | 146 |
-| `height: 16` | 145 |
-| `height: 48` | 144 |
-| `maxWidth: 520` | 153 |
-| `maxWidth: 800` | 147 |
-| `minHeight: 48` | 152, 154 |
-| `minHeight: 68` | 149 |
-| `minWidth: 16` | 145 |
-| `opacity: 0` | 148 |
-| `padding: 10` | 149, 150, 153, 154 |
-| `paddingHorizontal: 8` | 152 |
-| `paddingVertical: 10` | 152 |
-| `width: '100%'` | 147, 153 |
-| `width: 18` | 146 |
-| `width: 48` | 144 |
+| `borderRadius: 10` | 158 |
+| `borderRadius: 14` | 148 |
+| `borderRadius: 7` | 150 |
+| `borderRadius: 8` | 149 |
+| `borderWidth: 1` | 158 |
+| `borderWidth: 2` | 150 |
+| `gap: 10` | 157 |
+| `gap: 12` | 153 |
+| `gap: 6` | 154 |
+| `height: 12` | 150 |
+| `height: 16` | 149 |
+| `height: 48` | 148 |
+| `maxWidth: 520` | 157 |
+| `maxWidth: 800` | 151 |
+| `minHeight: 48` | 156, 158 |
+| `minHeight: 68` | 153 |
+| `minWidth: 16` | 149 |
+| `opacity: 0` | 152 |
+| `padding: 10` | 153, 154, 157, 158 |
+| `paddingHorizontal: 8` | 156 |
+| `paddingVertical: 10` | 156 |
+| `width: '100%'` | 151, 157 |
+| `width: 18` | 150 |
+| `width: 48` | 148 |
 
 ## RawCaptureReview.tsx
 
@@ -1025,6 +1072,7 @@ Retained app-owned lab/adapter surface; document its existing appearance as an e
 | 18 Oct 2026 / Manuel | Selected duotone symbol family, M2 Medical card and supplied folded paper plane; authorized guide and app integration | Supersedes aircraft B and stethoscope artwork. [Selected assets](symbols/README.md), [source-specific verification](../../verification/2026-10-18-icon-option-2.md). Navigation/unknown meanings and branding are preserved. |
 | 18 Oct 2026 / Manuel | Made Modern Duotone the default and requested removal of old icon designs | [Default library](symbols/index.html) contains only the 29 current masters. Old aircraft assets, unselected proposals and icon comparison pages are removed; retired X01–X03/B04 no longer appear in the active catalogue. Original references and dated evidence remain. [Authorization](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/20#issuecomment-6250110588). |
 | 18 Oct 2026 / Manuel | Authorized starting the urgent #25 launcher package using the existing approved Thermik logo | Square AI icon adapted for legacy/iOS and padded adaptive/themed exports; no new brand design. [Execution contract](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/25#issuecomment-6250575222), [installed Release evidence and platform limits](../../verification/2026-10-18-launcher-icon.md). |
+| 18 Oct 2026 / Manuel | Continued with #26/#27 route/tool cleanup | Existing functions classified before implementation. Ordinary paper entry becomes read-only status; backup stays an ordinary product control, and synthetic proofs move behind Settings → Development. Current cards/symbols are reused; full paper redesign remains M5. [Scope, disposition and source-specific evidence](../../verification/2026-10-18-development-navigation.md). |
 
 ## Preserved history
 
@@ -1090,7 +1138,7 @@ N03 · Current native UI · selected duotone
 Logbook / Flugbuch
 Appearance: Selected soft-filled cyan/slate duotone book silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
 Where: Bottom navigation, Flugbuch.
-Meaning: Selected book, paper-entry status, reconciliation and writing-template tools.
+Meaning: Selected book, saved synthetic paper status and ordinary library backup/restore. Full writing remains M5.
 Function / action: Tap switches to Flugbuch.
 States / limits: Selected / inactive. Distinguish the destination from the orange paper-work action D01.
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
@@ -1135,7 +1183,7 @@ Appearance: Selected soft-filled cyan/slate duotone back silhouette; local RGBA 
 Where: Leading side of app-sheet and flight-detail headers.
 Meaning: Return through MoFlight navigation history.
 Function / action: Returns to the prior app overlay or page, preserving its state. Choosing a different book clears old flight-detail history.
-States / limits: Shown on app overlays. This is separate from provider webpage history A12.
+States / limits: Shown on app overlays; disabled during active backup/proof work. Separate from provider webpage history A12.
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
 duotone-assets.ts; symbols/glyphs.svg #back
 
@@ -1164,7 +1212,7 @@ Profile and settings
 Appearance: Selected soft-filled cyan/slate duotone profile silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
 Where: Far-right app-header action.
 Meaning: Local demo profile and app settings/tools.
-Function / action: Opens Profil & Einstellungen: local display name, books/data, connections, appearance information and credits/tools.
+Function / action: Opens Profil & Einstellungen: local display-name draft, books/data and backup, connections, appearance/credits and the separate Development hub.
 States / limits: No avatar, provider identity or authenticated MoFlight-account status is conveyed.
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
 duotone-assets.ts; symbols/glyphs.svg #profile
@@ -1225,9 +1273,9 @@ Samples reproduce text glyphs and existing image assets. Native View-based marks
 D01 · Current native UI · selected duotone
 Paper logbook work
 Appearance: Selected soft-filled cyan/slate duotone logbook silhouette; local RGBA PNG from the editable SVG master. paper palette in this context.
-Where: Papierflugbuch aktualisieren hero; Als Nächstes paper-review item.
-Meaning: Review outstanding paper entries and reconcile the selected logbook.
-Function / action: Tap the hero or next-action row to open the existing paper-logbook tools.
+Where: Papierstand ansehen hero; Als Nächstes paper-status item.
+Meaning: Read-only saved paper evidence/status for the selected synthetic logbook.
+Function / action: Opens PaperStatus; no fixture creation, writing preparation or copied-entry confirmation. The complete paper journey remains M5.
 States / limits: Smaller/larger instances share the same meaning. Pending count may be unknown or zero; the glyph alone is not proof that an entry has been copied.
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
 duotone-assets.ts; symbols/glyphs.svg #logbook
@@ -1400,7 +1448,7 @@ Forward / continue action
 Appearance: Selected soft-filled cyan/slate duotone arrow silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
 Where: Paper CTA, AI dashboard shortcut, duty Details anzeigen, saved-flights links.
 Meaning: Continue to the action/destination named by the adjacent text.
-Function / action: Invokes the surrounding card/button: paper tools, AI draft, current status sheet or saved-flight list.
+Function / action: Invokes the named destination: saved paper status, AI draft, current data status or saved-flight list.
 States / limits: No automatic completion, upload or import is implied. Same character as A08 and S03, with different semantics.
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
 duotone-assets.ts; symbols/glyphs.svg #arrow
@@ -1438,7 +1486,7 @@ duotone-assets.ts; symbols/glyphs.svg #check
 A11 · Current native UI · selected duotone
 Expand / collapse details
 Appearance: Selected soft-filled cyan/slate duotone plus silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
-Where: Verbindungen: Sitzungsdetails & weitere Optionen; Entwicklungswerkzeuge · Rohbelege.
+Where: Verbindungen: Sitzungsdetails & weitere Optionen; Rohbelege & begrenzter Abruf.
 Meaning: Show or hide optional detail/tool sections.
 Function / action: Tap toggles the corresponding disclosure and accessible expanded state.
 States / limits: No creation, addition, deletion or subtraction of user data. Collapses when the connection panel closes.

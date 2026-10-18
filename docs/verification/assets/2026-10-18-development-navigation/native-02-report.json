@@ -1,0 +1,84 @@
+{
+  "status": "failed",
+  "checks": [
+    {
+      "name": "selected-library-four-flights-known-time-1h10",
+      "status": "passed"
+    },
+    {
+      "name": "book-proof-exit-retains-detail-and-nested-profile-path",
+      "status": "passed"
+    },
+    {
+      "name": "dataset-proof-has-one-owner-no-duplicate-provider-entry",
+      "status": "passed"
+    },
+    {
+      "name": "native-cancel-Sicherung auswählen",
+      "status": "passed"
+    },
+    {
+      "name": "native-cancel-In Geräteordner sichern",
+      "status": "passed"
+    },
+    {
+      "name": "native-cancel-Sicherung teilen",
+      "status": "passed"
+    },
+    {
+      "name": "normal-source-and-recovery-entry-without-development-diagnostic",
+      "status": "passed"
+    },
+    {
+      "name": "normal-paper-read-only-no-proof-actions",
+      "status": "passed"
+    },
+    {
+      "name": "selected-library-four-flights-known-time-1h10",
+      "status": "passed"
+    },
+    {
+      "name": "390-font1.0-hub",
+      "status": "passed",
+      "viewport": {
+        "width_dp": 390,
+        "height_dp": 900,
+        "density_dpi": 160,
+        "font_scale": 1.0
+      },
+      "screenshot": "10-390-font1.0-hub.png",
+      "hierarchy": "10-390-font1.0-hub.xml",
+      "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+    },
+    {
+      "name": "390-font1.0-hub-actions-reachable",
+      "status": "passed"
+    }
+  ],
+  "boundary": "Existing synthetic library; no data clearing/seeding/restoring or provider actions. Picker/share cancellation only. No physical/iOS/live-provider acceptance.",
+  "source": {
+    "validated_commit": "3ec05260999ccd8e1a9a2269d018226fad7b15ab",
+    "compiled_commit": "3ec05260999ccd8e1a9a2269d018226fad7b15ab"
+  },
+  "original_display": {
+    "size": "Physical size: 1080x1920",
+    "density": "Physical density: 420",
+    "font_scale": "1.0"
+  },
+  "device": {
+    "ro.build.version.sdk": "37",
+    "ro.product.model": "sdk_gphone64_x86_64",
+    "ro.product.cpu.abi": "x86_64"
+  },
+  "preservation": "Same selected synthetic book, four flights and known time 1:10 after force-stop/reopen. No seed, clear, restore, provider action or network change.",
+  "restored_display": {
+    "size": "Physical size: 1080x1920",
+    "density": "Physical density: 420",
+    "font_scale": "1.0"
+  },
+  "error": "Visible UI did not contain 'Lokale synthetische Bibliothek · 4 Flugbücher'",
+  "diagnostics": {
+    "status": "complete",
+    "display": "Original settings restored before capture"
+  }
+}
