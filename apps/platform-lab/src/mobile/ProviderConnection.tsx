@@ -95,7 +95,7 @@ export function ProviderConnection({ controller: c, open, close }: { controller:
           <Pressable accessibilityRole="button" accessibilityLabel="Sitzungsdetails und weitere Optionen" accessibilityState={{ expanded: details }} onPress={() => setDetails(!details)} style={styles.disclosure}><Label style={{ color: colors.cyan }}>{details ? '−' : '+'} Sitzungsdetails & weitere Optionen</Label></Pressable>
           {details && <Card><Section title="Sitzungsdetails" />
             <Label muted>Die Anbieteranmeldung ist unabhängig von deinem lokalen Demoprofil und deinen Flugbüchern.</Label>
-            <Label muted>Letzte erfolgreiche Sitzungsprüfung: {c.connection.lastCheckedAt ? new Date(c.connection.lastCheckedAt).toLocaleString('de-DE') : 'noch nicht erfolgt'}</Label>
+            <Label muted>Letzte Profilbeobachtung: {c.connection.lastCheckedAt ? new Date(c.connection.lastCheckedAt).toLocaleString('de-DE') : 'noch nicht erfolgt'}</Label>
             <Label muted>Eine frühere Prüfung ist keine dauerhafte Login-Garantie. Ein anderes Konto oder ein anderer Verein ersetzt deine bisherige Zuordnung nicht.</Label>
             <Action secondary disabled={locked} onPress={c.connect}>Auf der Originalseite anmelden</Action>
             <Action secondary disabled={locked || !c.browserActive} onPress={() => c.checkConnection()}>Sitzung erneut prüfen</Action>
