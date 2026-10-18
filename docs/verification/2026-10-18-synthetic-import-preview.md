@@ -50,6 +50,12 @@ Original/restored display exactly matches **1080×1920 px / 420 dpi ≈ 411.4×7
 
 Detailed local native logs: `build/import-preview/native-01.log` through `native-05.log`; each matching directory retains its full original evidence. Interrupted runs remain failed and are not relabelled as complete passes.
 
+## User-observed walkthrough
+
+On 18 October, Manuel supplied screenshots during the guided preview walkthrough after the APK handoff. The changed flight 1002 and conflicting flight 1003 were confirmed; a subsequent list showed both assigned to **Test-Segelflugbuch A**, with **0 choices needing renewed review**. After simulated acceptance and **Vergleich erneut prüfen**, the final screenshot showed **0 new, 0 changed, 7 unchanged, 1 conflicting**, the retained-choice message and still **0 choices needing renewed review**. The remaining conflict represents differing source variants; confirming an interpretation does not erase that source conflict.
+
+This records user-observed confirmation and repeat behavior only. Device/platform and installed build identity were not independently verified from the supplied screenshots. It does not establish restart behavior, complete physical-device/iOS acceptance or live import acceptance. Original user images remain private attachments and are not copied into repository evidence.
+
 ## Traceability and remaining gates
 
 Supports bounded **R01/R04/R12/R15**, **FL-03/FL-10/FL-11** and **E05/E07/E09/E11** aspects: review/deduplication, preserved unknowns and choices, owner/book separation, retry, offline test-session navigation and explicit restart semantics. Paper/photo end-to-end scenarios are not exercised. Unit/component passes accept no complete product journey.
