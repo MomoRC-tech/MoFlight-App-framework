@@ -16,6 +16,15 @@ export function ProfileIcon({ color = '#f5f7ff' }: IconProps) {
   </View>;
 }
 
+export function MedicalIcon({ color = '#adbed5' }: IconProps) {
+  return <View accessible={false} style={styles.medicalCanvas}>
+    <View style={[styles.stethoscope, { borderColor: color }]} />
+    <View style={[styles.medicalTube, { borderColor: color }]} />
+    <View style={[styles.medicalChest, { borderColor: color }]} />
+    {[1, 9].map(left => <View key={left} style={{ position: 'absolute', left, top: 0, width: 3, height: 2, borderRadius: 1, backgroundColor: color }} />)}
+  </View>;
+}
+
 export function BookIcon({ color = '#adbed5' }: IconProps) {
   return <View accessible={false} style={styles.canvas}>
     <View style={[styles.page, styles.leftPage, { borderColor: color }]} />
@@ -29,6 +38,10 @@ export function BookIcon({ color = '#adbed5' }: IconProps) {
 
 const styles = StyleSheet.create({
   canvas: { width: 28, height: 28 },
+  medicalCanvas: { width: 18, height: 18 },
+  stethoscope: { position: 'absolute', left: 2, top: 1, width: 10, height: 9, borderLeftWidth: 1.5, borderRightWidth: 1.5, borderBottomWidth: 1.5, borderBottomLeftRadius: 5, borderBottomRightRadius: 5 },
+  medicalTube: { position: 'absolute', left: 6, top: 9, width: 9, height: 8, borderLeftWidth: 1.5, borderRightWidth: 1.5, borderBottomWidth: 1.5, borderBottomLeftRadius: 4, borderBottomRightRadius: 4 },
+  medicalChest: { position: 'absolute', left: 12, top: 6, width: 5, height: 5, borderWidth: 1.5, borderRadius: 3 },
   head: { position: 'absolute', width: 9, height: 9, left: 9.5, top: 2, borderWidth: 1.8, borderRadius: 5 },
   shoulders: { position: 'absolute', width: 22, height: 12, left: 3, top: 14, borderWidth: 1.8, borderTopLeftRadius: 11, borderTopRightRadius: 11, borderBottomLeftRadius: 3, borderBottomRightRadius: 3 },
   page: { position: 'absolute', top: 5, width: 12, height: 20, borderWidth: 1.6, borderRadius: 2 },

@@ -26,6 +26,8 @@ function fixture() {
   const flight = { id: 'synthetic-flight', registration: 'D-SYN', date: '2026-10-18', minutes: 30 };
   const library = { flights: [flight], books: [{ id: 'synthetic-book', name: 'Synthetic book' }], bookId: 'synthetic-book', pending: 0 };
   const controller = { visible: false, connection: { phase: 'unknown' }, refreshRecovery() {}, dismissLogin() {}, backWithinProvider: () => false };
+  const calls: string[] = [];
+  Object.assign(controller, { connect: () => calls.push('connect'), checkConnection: () => calls.push('check'), retrieve: () => calls.push('retrieve') });
   let hardwareBack: () => boolean;
   const leaves = (names: string[]) => Object.fromEntries(names.map(name => [name, name]));
   const modules: Record<string, unknown> = {
@@ -46,6 +48,7 @@ function fixture() {
     './ProfileSettings': { ProfileSettings: 'ProfileSettings' }, '../book-storage': { PILOT: 'synthetic-pilot' },
     '../vereinsflieger/use-access-controller': { useAccessController: () => controller },
     './ProviderConnection': leaves(['ProviderConnection', 'ConnectionIndicator']), './AppHeader': { AppHeader: 'AppHeader' },
+    './MedicalStatus': leaves(['MedicalIndicator', 'MedicalDetails']),
   };
   const exports = {} as { Shell: () => Element };
   runInNewContext(source + '\nexports.Shell = Shell;', { exports, require: (name: string) => {
@@ -56,7 +59,7 @@ function fixture() {
   function render() { index = 0; tree = exports.Shell(); effects.splice(0).forEach(effect => effect()); return tree; }
   function nodes() {
     const found: Element[] = [];
-    const visit = (value: unknown) => { if (value && typeof value === 'object' && 'children' in value) { const node = value as Element; found.push(node); node.children.forEach(visit); } };
+    const visit = (value: unknown) => { if (value && typeof value === 'object' && 'children' in value) { const node = value as Element; found.push(node); node.children.forEach(visit); if (node.type === 'FlatList') visit(node.props.ListHeaderComponent); } };
     visit(tree); return found;
   }
   function find(type: string, label?: string) {
@@ -66,8 +69,36 @@ function fixture() {
   function parent(node: Element) { return nodes().find(n => n.children.includes(node))!; }
   function press(type: string, label?: string) { find(type, label).props.onPress(); render(); }
   render(); render();
-  return { render, nodes, find, headers, parent, press, flight, library, controller, hardwareBack: () => hardwareBack!() };
+  return { render, nodes, find, headers, parent, press, flight, library, controller, calls, hardwareBack: () => hardwareBack!() };
 }
+
+test('app headers order connection, Medical and profile on every tab', () => {
+  const f = fixture();
+  for (const title of ['Übersicht', 'Flüge', 'Flugbuch', 'Verein', 'AI']) {
+    f.press('Pressable', title);
+    const controls = f.nodes().filter(n => n.type === 'ConnectionIndicator' || n.type === 'MedicalIndicator' || n.props.accessibilityLabel === 'Profil & Einstellungen öffnen');
+    assert.deepEqual(controls.map(n => n.type), ['ConnectionIndicator', 'MedicalIndicator', 'Pressable']);
+  }
+  assert.deepEqual(f.calls, []);
+});
+
+test('Medical opens without provider work and returns through nested overlays', () => {
+  const f = fixture();
+  f.press('Pressable', 'Flüge');
+  f.press('Pressable', 'Flugfilter öffnen');
+  f.press('MedicalIndicator');
+  assert.equal(f.headers().at(-1)!.props.title, 'Medical');
+  assert.ok(f.find('MedicalDetails'));
+  assert.equal(f.nodes().filter(n => n.type === 'MedicalIndicator').at(-1)!.props.active, true);
+  f.press('ConnectionIndicator');
+  f.find('ProviderConnection').props.close(); f.render();
+  assert.equal(f.headers().at(-1)!.props.title, 'Medical');
+  f.headers().at(-1)!.props.back(); f.render();
+  assert.equal(f.headers().at(-1)!.props.title, 'MoFlight');
+  f.headers().at(-1)!.props.back(); f.render();
+  assert.equal(f.headers()[0]!.props.title, 'Flüge');
+  assert.deepEqual(f.calls, []);
+});
 
 test('details and sheets retain one active header; profile Back restores details and tab state', () => {
   const f = fixture();

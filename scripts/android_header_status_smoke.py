@@ -16,6 +16,7 @@ from android_login_guidance_smoke import control
 
 AVD = 'MoFlight_LoginUX_API37'
 PROFILE = 'Profil & Einstellungen öffnen'
+MEDICAL = 'Medical unbekannt. Details öffnen'
 BACK = 'Zur vorherigen App-Ansicht'
 CLOSE = 'Verbindungen schließen und zur App zurückkehren'
 
@@ -25,8 +26,9 @@ def active_header(smoke, width, height, *, back=False):
     connection = [n for n in nodes if n.get('clickable') == 'true'
                   and 'Verbindungen öffnen' in n.get('content-desc', '')]
     profile = [n for n in nodes if n.get('content-desc') == PROFILE]
-    assert len(connection) == len(profile) == 1, 'Expected one reachable active status group'
-    controls = [connection[0], profile[0]]
+    medical = [n for n in nodes if n.get('content-desc') == MEDICAL]
+    assert len(connection) == len(medical) == len(profile) == 1, 'Expected one reachable active status group'
+    controls = [connection[0], medical[0], profile[0]]
     if back:
         previous = [n for n in nodes if n.get('content-desc') == BACK]
         assert len(previous) == 1, 'Expected one contextual Back'
@@ -35,7 +37,7 @@ def active_header(smoke, width, height, *, back=False):
         x1, y1, x2, y2 = bounds(node)
         assert 0 <= x1 < x2 <= width and 0 <= y1 < y2 <= height
         assert x2 - x1 >= 48 and y2 - y1 >= 48, 'Header control below 48 dp'
-    assert bounds(connection[0])[2] <= bounds(profile[0])[0], 'Status controls overlap'
+    assert bounds(connection[0])[2] <= bounds(medical[0])[0] and bounds(medical[0])[2] <= bounds(profile[0])[0], 'Status controls overlap or reorder'
     return connection[0]
 
 
@@ -85,7 +87,50 @@ def public_toolbar(smoke):
     capture(smoke, 'public-provider-close-returns-to-flights', viewport(smoke))
 
 
-def execute(smoke, *, back_only=False, continuation=False, public_only=False):
+def medical_group(smoke):
+    for width, height, font in [(360, 900, 1.0), (390, 900, 1.0), (412, 900, 1.0),
+                                (600, 1100, 1.0), (360, 900, 1.4), (840, 412, 1.0)]:
+        smoke.shell('wm', 'size', f'{width}x{height}')
+        smoke.shell('wm', 'density', '160')
+        smoke.shell('settings', 'put', 'system', 'font_scale', str(font))
+        launch(smoke)
+        active_header(smoke, width, height)
+        capture(smoke, f'med-header-{width}-{height}-font-{font}', viewport(smoke))
+        smoke.tap(MEDICAL)
+        smoke.find('Status unbekannt', exact=True)
+        active_header(smoke, width, height, back=True)
+        nodes = smoke.dump()
+        assert not any(n.get('class') == 'android.widget.EditText' for n in nodes), 'Medical must be read-only'
+        allowed = {BACK, MEDICAL, PROFILE}
+        assert all(n.get('content-desc') in allowed or 'Verbindungen öffnen' in n.get('content-desc', '')
+                   for n in nodes if n.get('package') == PACKAGE and n.get('clickable') == 'true'), 'Unexpected Medical data action'
+        medical = next(n for n in nodes if n.get('content-desc') == MEDICAL)
+        if font > 1.3:
+            back = next(n for n in nodes if n.get('content-desc') == BACK)
+            assert bounds(medical)[1] >= bounds(back)[3], 'Large-text status group must use the second row'
+        capture(smoke, f'med-sheet-{width}-{height}-font-{font}', viewport(smoke))
+
+    smoke.shell('wm', 'size', '390x900')
+    smoke.shell('settings', 'put', 'system', 'font_scale', '1.0')
+    launch(smoke)
+    tab(smoke, 'Flüge')
+    smoke.tap('Flugfilter öffnen')
+    smoke.tap(MEDICAL)
+    smoke.find('Status unbekannt', exact=True)
+    smoke.tap_node(active_header(smoke, 390, 900, back=True))
+    smoke.find('Sitzung ungeprüft', exact=True)
+    assert not any(n.get('content-desc') == MEDICAL for n in smoke.dump()), 'Inactive Medical control remains reachable'
+    smoke.tap(CLOSE)
+    smoke.find('Status unbekannt', exact=True)
+    smoke.tap(BACK)
+    smoke.find('Flugfilter', exact=True)
+    smoke.tap(BACK)
+    smoke.find('Flüge durchsuchen', exact=True)
+    active_header(smoke, 390, 900)
+    capture(smoke, 'medical-nested-return', viewport(smoke))
+
+
+def execute(smoke, *, back_only=False, continuation=False, public_only=False, medical_only=False):
     assert smoke.shell('getprop', 'ro.kernel.qemu') == '1', 'Emulator required'
     assert smoke.adb('emu', 'avd', 'name').stdout.splitlines()[0].strip() == AVD, 'Dedicated LoginUX AVD required'
     smoke.emulator = True
@@ -103,6 +148,10 @@ def execute(smoke, *, back_only=False, continuation=False, public_only=False):
             time.sleep(.25)
         assert network == {'airplane_mode_on': '1', 'wifi_on': '0', 'mobile_data': '0'}
         smoke.report['network'] = network
+        if medical_only:
+            smoke.report['scope'] = 'Connection → Med → Profile, read-only unknown sheet and nested return; offline only'
+            medical_group(smoke)
+            return
         if public_only:
             smoke.report['scope'] = 'Anonymous public-provider toolbar'
             public_toolbar(smoke)
@@ -207,10 +256,11 @@ if __name__ == '__main__':
     phases.add_argument('--back-only', action='store_true', help='Repeat only narrow normal/large-text headers after a Back-appearance change')
     phases.add_argument('--continuation', action='store_true', help='Resume keyboard/provider checks after completed matrix/return checks')
     phases.add_argument('--public-toolbar', action='store_true', help='Inspect only the anonymous original public login toolbar; Wi-Fi is switched off afterward')
+    phases.add_argument('--medical', action='store_true', help='Check only the selected Medical group and read-only sheet offline')
     args = parser.parse_args()
     smoke = Smoke(args.output, serial=args.serial, expected_avd=AVD)
     try:
-        execute(smoke, back_only=args.back_only, continuation=args.continuation, public_only=args.public_toolbar)
+        execute(smoke, back_only=args.back_only, continuation=args.continuation, public_only=args.public_toolbar, medical_only=args.medical)
     except Exception as error:
         finish(smoke, 'failed', error)
         raise

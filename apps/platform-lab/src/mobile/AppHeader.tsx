@@ -11,7 +11,7 @@ export function AppHeader({ title, subtitle, source, back, children }: {
 }) {
   const { width, fontScale } = useWindowDimensions();
   const secondRow = fontScale > 1.3;
-  const controls = <View style={styles.controls}>{children}</View>;
+  const controls = <View style={[styles.controls, secondRow && styles.controlsSecondRow]}>{children}</View>;
   return <Photo source={source} radius={0} style={styles.header} contentStyle={styles.content} tint="#001022df">
     <View style={styles.row}>
       {back ? <Pressable accessibilityRole="button" accessibilityLabel="Zur vorherigen App-Ansicht" onPress={back} style={styles.back}><View accessible={false} style={styles.backArrow} /></Pressable>
@@ -30,6 +30,7 @@ const styles = StyleSheet.create({
   content: { flex: 0, paddingHorizontal: 10, paddingVertical: 5, gap: 4, minHeight: 64 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   controls: { flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', gap: 4, flexShrink: 0 },
+  controlsSecondRow: { width: '100%', flexWrap: 'wrap' },
   titleGroup: { flex: 1, minWidth: 0 },
   title: { color: colors.text, fontSize: 18, lineHeight: 24, fontWeight: '700' },
   subtitle: { color: colors.muted, fontSize: 11, lineHeight: 16 },
