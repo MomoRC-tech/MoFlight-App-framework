@@ -18,7 +18,7 @@ pnpm bundle
 pnpm --filter @moflight/platform-lab prebuild:check
 ```
 
-`pnpm check` needs the installed Node/pnpm/Python runtimes, not Android tooling. It reports all four host checks concisely and saves diagnostics in ignored `build/host-checks/`; use focused commands for smaller edits as described in the [workflow](verification-workflow.md#local-checks-without-model-calls).
+`pnpm check` needs the installed Node/pnpm/Python runtimes, not Android tooling. It reports all five host checks concisely and saves diagnostics in ignored `build/host-checks/`; use focused commands for smaller edits as described in the [workflow](verification-workflow.md#local-checks-without-model-calls).
 
 The environment script changes only the current terminal session. Its default portable JDK location is the checkout's sibling `dev-tools\jdk17\jdk-17.0.20.1+1`; pass `-JavaHome` for another JDK 17 installation. It checks the Java major version and warns if ADB is absent. SDK default is `%LOCALAPPDATA%\Android\Sdk`. Pinned fixture bytes include their original line endings; `.gitattributes` disables Git text conversion for these fixtures. Do not regenerate fixtures to compensate for checkout conversion.
 
@@ -125,7 +125,7 @@ The helper checks the AVD name before the smoke harness resets app data. The har
 
 ### Hosted checkpoints
 
-Manuel approved optional hosted CI and no paid CI on 2026-10-12. Both hosted workflows are manual-only; normal pushes launch no runners. Complete the documented committed-source local checks/build and applicable native trials before scoped acceptance or device handoff under amended [ADR 0009](../adr/0009-local-android-development-and-checkpoint-ci.md). Hosted billing restrictions are not an acceptance gate when required local evidence is complete. Do not raise spending limits/change billing or dispatch a run without confirmed free eligibility.
+Manuel approved optional hosted CI and no paid CI on 2026-10-12. The 18 October handover supersedes manual-only fast validation: main pushes/PRs run one fast Ubuntu job; Android builds and UI checks remain manual. The [portable CI runbook](portable-ci.md) documents all local equivalents and rollback. Complete the documented committed-source local checks/build and applicable native trials before scoped acceptance or device handoff under amended [ADR 0009](../adr/0009-local-android-development-and-checkpoint-ci.md). Hosted billing restrictions are not an acceptance gate when required local evidence is complete. Do not raise spending limits/change billing or dispatch a run without confirmed free eligibility.
 
 If an optional free hosted checkpoint is desired, select **Android checkpoint → Run workflow** and optionally supply a commit/ref and force fresh compilation. Its planner pins the resolved source and records the compiled source when reusing an identical-input APK. Manual runs have independent concurrency groups. A cancelled/untriggered run is not a passing test; missing local feature/native evidence remains open. Private sessions, captures and credentials never enter hosted tests.
 

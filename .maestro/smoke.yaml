@@ -1,0 +1,40 @@
+appId: de.momorc.moflight.lab
+name: Offline synthetic navigation and flight history
+---
+# scripts/maestro_smoke.py validates the AVD and resets/isolates the app first.
+- launchApp
+- assertVisible:
+    id: tab-home
+- tapOn:
+    id: tab-flights
+- assertVisible: Noch keine gespeicherten Flüge
+- tapOn:
+    id: tab-club
+- assertVisible: Keine Dienste verfügbar
+- tapOn:
+    id: tab-ai
+- assertVisible: Hallo!
+- tapOn:
+    id: tab-logbook
+- tapOn:
+    id: paper-assistant-entry
+- assertVisible: Multiple-logbook lab
+- tapOn:
+    id: synthetic-books-load
+- extendedWaitUntil:
+    visible: Four synthetic books and explicit routing loaded.*
+    timeout: 30000
+- tapOn:
+    id: synthetic-books-close
+- tapOn:
+    id: tab-flights
+- assertVisible: Gliding volume A.*
+- assertNotVisible: Noch keine gespeicherten Flüge
+- assertVisible: ASK 21.*
+# Standalone restart: the fixture library/selected book survives process death.
+- stopApp
+- launchApp
+- tapOn:
+    id: tab-flights
+- assertVisible: Gliding volume A.*
+- assertVisible: ASK 21.*

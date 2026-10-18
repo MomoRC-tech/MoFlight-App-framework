@@ -4,6 +4,7 @@
 - Status: Accepted — Manuel approved implementation of the reviewed plan
 - Amendment: 2026-10-12 — Manuel approved required local validation, optional hosted CI and no paid CI
 - Amendment: 2026-10-17 — Manuel approved logic-first iteration and risk-based verification at integration checkpoints
+- Amendment: 2026-10-18 — Manuel authorized portable CI/testing implementation, automatic fast checks and manual Android/Maestro; no paid usage
 - Tracking: #6
 
 ## Context
@@ -16,7 +17,7 @@ Use local Windows builds/emulator testing as the primary Android development loo
 
 Development-client/Metro builds support screen/logic iteration; standalone Release-configuration lab APKs establish offline acceptance. Only the named synthetic AVD may be reset by the local smoke command. Provider-session emulators remain separate.
 
-As amended on 2026-10-12, hosted workflows are optional and manual-only. Normal pushes do not dispatch runners. No paid CI, increased spending limits, billing changes or paid runner/storage usage are authorized. A hosted run may be considered only when its free eligibility is confirmed; an account restriction is not a reason to pay. Retain manual source selection, fresh compilation and identical-input APK reuse for optional independent evidence. Manual runs are independent. A skipped/unavailable hosted run is neither a test pass nor a blocker when the required local evidence is complete.
+The 2026-10-12 amendment originally made all hosted workflows optional/manual-only. Manuel’s 18 October 2026 implementation handover supersedes that scheduling rule for fast validation: one standard Ubuntu job on main push/PR/manual. Android APK, Maestro and the extended checkpoint remain manual. See the [portable CI runbook](../development/portable-ci.md). Local independence and the no-paid-usage rule remain binding. No paid CI, increased spending limits, billing changes or paid runner/storage usage are authorized. A hosted run may be considered only when its free eligibility is confirmed; an account restriction is not a reason to pay. Retain manual source selection, fresh compilation and identical-input APK reuse for optional independent evidence. Manual runs are independent. A skipped/unavailable hosted run is neither a test pass nor a blocker when the required local evidence is complete.
 
 Before scoped feature acceptance or device handoff, require documented local validation of committed source: strict TypeScript/mobile tests and relevant Python/fixture checks; the Android Release build's source identity, checksum, embedded JavaScript and architectures; the applicable synthetic emulator sequence and actual feature-specific native trials, including offline restart/recovery when relevant. Record source/configuration, actual environment, failures, outcomes and remaining gates. Reset only the named synthetic AVD; preserve provider sessions and unrelated build checkouts. Host mocks/bundles cannot substitute for live-provider or native acceptance, and Android evidence cannot substitute for iOS execution. Missing required feature/device evidence remains an acceptance blocker independently of hosted CI availability.
 

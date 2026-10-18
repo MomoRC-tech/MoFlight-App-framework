@@ -1,5 +1,7 @@
 # MoFlight project plan
 
+**Platform infrastructure package, authorized 18 October 2026:** [#6 contract](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/6#issuecomment-6247224733) adds portable lint/host checks, automatic fast CI, manual APK/Maestro and local rollback under M1 platform readiness. Existing synthetic startup/history/club/AI/paper-entry plus offline-restart checks support R01/E11 only for this lab scope; live/iOS/physical acceptance remains separate. [Runbook](development/portable-ci.md) · [source-specific evidence/hosted blocker](verification/2026-10-18-portable-ci.md). Product M1–M5 order/status is unchanged.
+
 ## Proposed delivery packages and release boundaries — 18 October 2026
 
 Manuel requested a repository/documentation review and a rough plan through app completion. This is a **planning proposal, not implementation approval, a priority change or a release commitment**. The authorized M1 → M2 → M3 → M4 → M5 sequence remains in force. Each package still needs its matching Issue contract and applicable approval. [All 20 open Issues, source checks and review limits](verification/2026-10-17-current-status-and-open-issues.md#18-october-review--20-open-issues).

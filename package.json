@@ -9,6 +9,10 @@
   "scripts": {
     "check": "python scripts/verify_host.py",
     "typecheck": "tsc --noEmit",
+    "lint": "eslint . --max-warnings 0",
+    "android:build": "python scripts/android_build.py",
+    "test:e2e": "python scripts/maestro_smoke.py",
+    "maestro:install": "python scripts/install_maestro.py",
     "test": "node --import tsx --test tests/mobile/*.test.ts",
     "lab": "pnpm --filter @moflight/platform-lab start",
     "bundle": "pnpm --filter @moflight/platform-lab bundle",
@@ -17,6 +21,8 @@
   "devDependencies": {
     "@types/node": "24.10.0",
     "@types/react": "19.2.2",
+    "@typescript-eslint/parser": "8.71.2",
+    "eslint": "10.13.0",
     "tsx": "4.23.15",
     "typescript": "6.0.3"
   },

@@ -7,6 +7,8 @@
 
 # MoFlight
 
+> **Portable testing infrastructure — 18 October 2026:** [Local/hosted commands, manual standalone APK and guarded Maestro smoke, GitHub Free estimates and rollback](docs/development/portable-ci.md). Fast checks are automatic on main pushes/PRs; expensive checks remain manual. [Actual results and hosted account restriction](docs/verification/2026-10-18-portable-ci.md). No paid usage or product acceptance is inferred.
+
 > **Planning review — 18 October 2026:** [all 20 open Issues and current source gaps](docs/verification/2026-10-17-current-status-and-open-issues.md#18-october-review--20-open-issues) are reconciled with a [proposed package sequence through a real-flight beta and complete gliding release](docs/project-plan.md#proposed-delivery-packages-and-release-boundaries--18-october-2026). The main unfinished connection is reviewed live captures → saved flight library. Header/login, source/book mapping, persistence, analytics and later paper/photos are separate packages. This is a planning proposal; no new application implementation, release scope, production schema or paid work is approved.
 
 > **Selected header/navigation slice — 18 October 2026:** Manuel selected aircraft B and approved the bounded persistent-header/overlay/provider Back/Close behavior under #20. Implemented on `0beb58e`; host checks, both exports, committed-source Android Release/lint and 21 scoped native checks across recorded runs, including anonymous original-login toolbar inspection. [Evidence, screenshots, corrected failures and limits](docs/verification/2026-10-18-header-navigation.md). The Med/header-group revision still needs his specific change; no Medical control/data was added. Both private-session AVDs stayed stopped and untouched.
@@ -260,7 +262,7 @@ The [18 October GDPR/DSGVO readiness review](docs/verification/2026-10-18-gdpr-r
 
 Manuel's [approved privacy evaluation guideline](docs/verification/2026-10-18-gdpr-readiness-review.md#approved-evaluation-method) applies proportionate effort to each requirement's actual risk and benefit. He may accept a specific documented remaining risk when further mitigation is disproportionate; legal compliance, practical risk and owner acceptance stay distinct. No individual gap is accepted by this guideline.
 
-Use documented local checks, committed-source builds and relevant native trials for scoped acceptance. Hosted CI is optional and manual-only; normal pushes do not start hosted runners. No paid CI, billing changes or spending-limit increases are authorized. See [ADR 0009](docs/adr/0009-local-android-development-and-checkpoint-ci.md).
+Use documented local checks, committed-source builds and relevant native trials for scoped acceptance. Hosted execution is optional. The authorized 18 October handover enables automatic fast checks on main pushes/PRs; Android builds and UI checks remain manual. No paid CI, billing changes or spending-limit increases are authorized. See [ADR 0009](docs/adr/0009-local-android-development-and-checkpoint-ci.md) and the [portable CI runbook](docs/development/portable-ci.md).
 
 **Evidence is scoped, not a blanket guarantee:** Android proofs, synthetic calculations, live raw capture and complete product journeys are separate achievements. iOS, full live import, real handwriting, costs and club-information integration still have open gates.
 

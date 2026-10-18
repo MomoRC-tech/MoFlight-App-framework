@@ -18,6 +18,7 @@ def default_checks():
     pnpm = shutil.which('pnpm') or 'pnpm'
     return [
         ('typecheck', [pnpm, 'typecheck']),
+        ('lint', [pnpm, 'lint']),
         ('mobile-tests', [pnpm, 'test']),
         ('python-tests', [sys.executable, '-m', 'unittest', 'discover', '-s', 'tests', '-v']),
         ('fixtures', [sys.executable, 'scripts/mobile_fixtures.py', '--check']),

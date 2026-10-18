@@ -38,9 +38,9 @@ class EmulatorRunnerScriptTests(unittest.TestCase):
 
 
 class TriggerTests(unittest.TestCase):
-    def test_hosted_workflows_are_manual_only(self):
-        # Cover every hosted workflow, including future additions: a normal
-        # push, PR, schedule or workflow dependency must not consume CI quota.
+    def test_only_fast_ci_is_automatic_and_expensive_checks_stay_manual(self):
+        # Manuel's 18 October handover supersedes manual-only FAST checks.
+        # Cover every workflow so later additions cannot silently start builds.
         workflows = sorted((ROOT / '.github/workflows').glob('*.yml'))
         workflows += sorted((ROOT / '.github/workflows').glob('*.yaml'))
         self.assertGreaterEqual(len(workflows), 2)
@@ -49,10 +49,18 @@ class TriggerTests(unittest.TestCase):
                 workflow = path.read_text(encoding='utf-8')
                 event_block = workflow.split('on:\n', 1)[1].split('\npermissions:', 1)[0]
                 events = re.findall(r'^  ([a-z_]+):', event_block, flags=re.MULTILINE)
-                self.assertEqual(events, ['workflow_dispatch'])
-        fast = (ROOT / '.github/workflows/host-lab.yml').read_text()
+                self.assertEqual(events, ['push', 'pull_request', 'workflow_dispatch']
+                                 if path.name == 'ci.yml' else ['workflow_dispatch'])
+                self.assertIn('github.event.repository.private == false', workflow)
+                self.assertNotIn('pull_request_target:', workflow)
+                for action in re.findall(r'uses: (\S+)', workflow):
+                    self.assertRegex(action, r'@[0-9a-f]{40}$')
+        fast = (ROOT / '.github/workflows/ci.yml').read_text()
         self.assertNotIn('assembleRelease', fast)
         self.assertNotIn('android-smoke:', fast)
+        self.assertIn('branches: [main]', fast)
+        self.assertIn('cancel-in-progress: true', fast)
+        self.assertIn('pnpm check', fast)
 
     def test_manual_checkpoint_retains_source_selection_and_apk_reuse_controls(self):
         workflow = (ROOT / '.github/workflows/android-checkpoint.yml').read_text()

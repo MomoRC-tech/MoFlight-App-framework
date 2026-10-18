@@ -20,23 +20,25 @@ concurrency:
   cancel-in-progress: false
 jobs:
   android-plan:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    if: github.event.repository.private == false
     outputs:
       run-id: ${{ steps.plan.outputs.run_id }}
       source-commit: ${{ steps.plan.outputs.source_commit }}
       checkout-commit: ${{ steps.plan.outputs.checkout_commit }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           path: ci-tooling
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           fetch-depth: 0
           ref: ${{ inputs.source_ref || github.sha }}
           path: source
-      - uses: actions/setup-python@v7
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
         with:
-          python-version: '3.12'
+          python-version: '3.12.10'
       - id: plan
         run: python ../ci-tooling/scripts/android_build_plan.py
         working-directory: source
@@ -46,22 +48,22 @@ jobs:
   android-offline:
     needs: android-plan
     if: needs.android-plan.outputs.run-id == ''
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 40
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           ref: ${{ needs.android-plan.outputs.checkout-commit }}
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
-          node-version: '24.19.0'
-      - uses: actions/setup-java@v6
+          node-version: '24.18.0'
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6
         with:
           distribution: temurin
           java-version: '17'
-      - uses: actions/setup-python@v7
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
         with:
-          python-version: '3.12'
+          python-version: '3.12.10'
       - run: npm install --global pnpm@11.25.0
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter @moflight/platform-lab exec expo prebuild --no-install --platform android
@@ -71,25 +73,25 @@ jobs:
         working-directory: apps/platform-lab/android
       - name: Check embedded JavaScript and device architectures
         run: python scripts/android_smoke.py --check-apk apps/platform-lab/android/app/build/outputs/apk/release/app-release.apk
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: moflight-synthetic-android-offline
           path: apps/platform-lab/android/app/build/outputs/apk/release/app-release.apk
-          retention-days: 7
+          retention-days: 3
   android-smoke:
     needs: [android-plan, android-offline]
     if: ${{ !cancelled() && needs.android-plan.result == 'success' && (needs.android-offline.result == 'success' || needs.android-offline.result == 'skipped') }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 45
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           ref: ${{ needs.android-plan.outputs.checkout-commit }}
-      - uses: actions/setup-python@v7
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
         with:
-          python-version: '3.12'
+          python-version: '3.12.10'
       - name: Download matching compiled APK on a clean runner
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           name: moflight-synthetic-android-offline
           path: local-data/android-apk
@@ -100,7 +102,7 @@ jobs:
       - name: Enable emulator KVM
         run: sudo chmod 666 /dev/kvm
       - name: Run native offline persistence smoke test
-        uses: reactivecircus/android-emulator-runner@v2
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2
         env:
           VALIDATED_SOURCE_COMMIT: ${{ needs.android-plan.outputs.checkout-commit }}
           APK_SOURCE_COMMIT: ${{ needs.android-plan.outputs.source-commit || needs.android-plan.outputs.checkout-commit }}
@@ -118,11 +120,11 @@ jobs:
             if [ -f scripts/android_book_smoke.py ]; then python scripts/android_book_smoke.py --serial emulator-${EMULATOR_PORT} --expected-avd MoFlight_Synthetic_API37 --output local-data/android-books; fi
       - name: Upload actual emulator evidence, including failures
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: moflight-android-emulator-evidence
           path: |
             local-data/android-smoke/
             local-data/android-books/
           if-no-files-found: warn
-          retention-days: 7
+          retention-days: 3

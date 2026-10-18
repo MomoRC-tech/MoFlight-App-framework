@@ -19,8 +19,8 @@ export function Card({ children, style, onPress, label }: { children: React.Reac
   if (onPress) return <Pressable accessibilityRole="button" accessibilityLabel={label} onPress={onPress} style={({ pressed }) => [ui.card, style, pressed && ui.pressed]}>{children}</Pressable>;
   return <View style={[ui.card, style]}>{children}</View>;
 }
-export function Action({ children, onPress, secondary = false, disabled = false, label }: { children: React.ReactNode; onPress: () => void; secondary?: boolean; disabled?: boolean; label?: string }) {
-  return <Pressable accessibilityRole="button" accessibilityLabel={label} accessibilityState={{ disabled }} disabled={disabled} onPress={onPress} style={({ pressed }) => [ui.action, secondary && ui.secondary, disabled && { opacity: .5 }, pressed && ui.pressed]}><Text style={[ui.actionText, secondary && { color: colors.text }]}>{children}</Text></Pressable>;
+export function Action({ children, onPress, secondary = false, disabled = false, label, testID }: { children: React.ReactNode; onPress: () => void; secondary?: boolean; disabled?: boolean; label?: string; testID?: string }) {
+  return <Pressable testID={testID} accessibilityRole="button" accessibilityLabel={label} accessibilityState={{ disabled }} disabled={disabled} onPress={onPress} style={({ pressed }) => [ui.action, secondary && ui.secondary, disabled && { opacity: .5 }, pressed && ui.pressed]}><Text style={[ui.actionText, secondary && { color: colors.text }]}>{children}</Text></Pressable>;
 }
 export function Chip({ title, selected, onPress, disabled = false }: { title: string; selected?: boolean; onPress: () => void; disabled?: boolean }) {
   return <Pressable accessibilityRole="button" accessibilityLabel={title} accessibilityState={{ selected: !!selected, disabled }} disabled={disabled} onPress={onPress} style={({ pressed }) => [ui.chipTouch, disabled && { opacity: .45 }, pressed && ui.pressed]}><View style={[ui.chip, selected && ui.chipSelected]}><Text style={[ui.chipText, selected && { color: '#031326', fontWeight: '700' }]}>{title}</Text></View></Pressable>;
