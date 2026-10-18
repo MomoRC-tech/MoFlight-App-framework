@@ -54,7 +54,7 @@ Actual native viewports: **360×900**, **390×900**, **412×900**, **600×1100**
 
 The run stayed offline and made no provider call, credential entry, data read, seeding or clearing. Only identity-checked **MoFlight_LoginUX_API37**, Android **API37/x86_64**, was installed. Final state was independently read back: **1080×2400 px / 420 dpi / font 1.0**, airplane mode **1**, Wi-Fi **0**, mobile data **0**, app stopped; only this AVD was shut down. Private-session AVDs remained stopped/untouched.
 
-The follow-up reuses unchanged aircraft, provider-controller, public-page and keyboard evidence above. Only affected header/Medical states were repeated. The checkout began clean and synchronized at `c62b467`; earlier package publication was completed by subsequent CI/documentation work. This follow-up is saved in local commits; no hosted run is dispatched under the supplied manual-only CI instruction. Live Medical, spoken TalkBack/focus, iOS runtime, physical-device and user-review gates remain explicit.
+The follow-up reuses unchanged aircraft, provider-controller, public-page and keyboard evidence above. Only affected header/Medical states were repeated. The checkout began clean and synchronized at `c62b467`; earlier package publication was completed by subsequent CI/documentation work. Manuel subsequently requested publication and a clean worktree. The current workflow runs authorized Fast CI automatically on public main pushes; no manual Android workflow was dispatched. Hosted results remain separate from the local evidence above. Live Medical, spoken TalkBack/focus, iOS runtime, physical-device and user-review gates remain explicit.
 
 ## Preservation and remaining acceptance
 
