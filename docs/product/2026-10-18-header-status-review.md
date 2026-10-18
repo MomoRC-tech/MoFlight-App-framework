@@ -2,6 +2,39 @@
 
 18 October 2026 · #20, coordinated with #17/#19/#16/#5/#8. Manuel authorized preparation of this proposal; the appearance, header exceptions and production data policies below remain proposed. This is source review, not a completed Android visual/accessibility audit.
 
+## Smallest next package — 1a login guidance
+
+**Status:** defined for review under [#17](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/17); application implementation is not authorized. Manuel's “that's a good plan” endorses the overall delivery direction recorded in the handover. It does not select artwork, header behavior, production policies or release inclusion. This first slice narrows package 1 without changing the M1–M5 order; the persistent-header/icon work remains package 1b under #20.
+
+**Deliverable:** simplify the existing connection panel and app-owned login instructions: a short German status, one safe primary next action for the current state, and optional details. Keep provider origin, provisional-account confirmation, mismatch/recovery blockers and the consequences of destructive actions visible where the user acts. Put explanatory diagnostics, optional saved-login help and the bounded raw-capture lab behind clearly named disclosures; a disclosure must never hide a required decision or start an operation.
+
+Reuse [ProviderConnection](../../apps/platform-lab/src/mobile/ProviderConnection.tsx), [connection state](../../apps/platform-lab/src/vereinsflieger/connection-state.ts) and the [existing controller](../../apps/platform-lab/src/vereinsflieger/use-access-controller.tsx). Change presentation and fixed wording only. Preserve the browser's native parent, controller transitions, disabled-action guards, explicit saved-login trigger, capture/recovery serialization and association checks. No provider-page modification, credential-policy change, new persistence, retrieval or adoption is included.
+
+| Existing evidence/state | Proposed visible wording / next action |
+| --- | --- |
+| Initial state or invalidated observation | **Sitzung ungeprüft** · `Sitzung prüfen` when an existing browser is available; otherwise `Bei Vereinsflieger anmelden` |
+| Checking | **Sitzung wird geprüft…** · no duplicate check; retain existing dismissal semantics |
+| Login required / original login page | **Bitte bei Vereinsflieger anmelden** · `Bei Vereinsflieger anmelden`; above the loaded original page use `Anmeldung prüfen`, with origin and “Zugangsdaten nur auf der Originalseite eingeben.” |
+| Observed, unconfirmed association | **Konto prüfen** · show the observed account/club and provisional-binding explanation beside the existing explicit confirmation |
+| Observed, confirmed provisional association | **Zuletzt bestätigt: [time]** · `Sitzung erneut prüfen`; explain that this is the last matching observation, not production identity or a continuing login guarantee |
+| Account/club mismatch | **Anderes Konto oder anderer Verein** · explain that retrieval stays blocked and the prior association/data are preserved; offer original-page sign-in, never silent rebinding |
+| Check error | **Sitzung konnte nicht geprüft werden** · `Erneut prüfen` when available; keep original-page sign-in as a secondary option. Do not infer logout or offline status |
+| Verified sign-out / confirmed local clear | **Abmeldung bestätigt: [time]** / **Lokale Browserdaten gelöscht** from the separate operation evidence; offer sign-in and retain the existing scope/consequence notice |
+| Recovery pending | **Abruf gesperrt · Wiederherstellung nötig** · keep existing account, comparison and recovery prerequisites/actions visible; do not replace them with an unconditional restore button |
+
+The initial `disconnected` phase alone does **not** prove sign-out: use `disconnectedAt` or the confirmed clear result for those operation messages. Historical operation evidence must not override a later or invalidated session observation. Keep session-check time separate from **Gespeicherter Rohbeleg: [time/count]**, using only the available scoped snapshot. Explain that raw evidence is separate from the saved flight library. Do not call a raw capture an up-to-date imported library or infer complete coverage. A close action still hides the panel; it does not log out.
+
+**Exclusions / dependencies:** no artwork replacement, persistent-header restructuring, Medical group, new status-age threshold, automatic polling/routing, import writer, schema/migration or private-data reads. #20 appearance choices and #19 scheduling do not block this slice. Recovery and ownership safeguards from #16 remain binding; #5/#8 cover UI/platform acceptance. The synthetic import/book planner remains the smallest proposed host-only alternative under #18; neither proposal is implementation approval.
+
+**Acceptance after separate implementation authorization:**
+
+- Review the German states/primary actions with Manuel; expose no provider payloads or account values in diagnostics/logs.
+- Check the affected state/guard paths with existing connection/login/recovery tests and TypeScript. Add focused cases only for changed presentation decisions; do not repeat live retrieval evidence without a new reason.
+- At the integration checkpoint, verify committed-source Release and affected panel/login states: narrow/normal/wide layout as relevant, large text, keyboard, scrolling, origin, disabled controls and accessible labels/focus. Existing Android evidence does not accept the changed UI; iOS and physical acceptance remain separate.
+- Preserve both existing AVDs and private sessions. Use synthetic presentation fixtures in a verified safe environment; suspend destructive tests. If suitable native evidence is unavailable, leave that acceptance pending.
+
+**Material decisions still open:** authorize this login-only implementation scope when ready. Before package 1b, select the aircraft artwork (recommended side-view B versus top-view A) and confirm or revise the proposed Med → connection → profile group, overlay/provider toolbar and full-screen exceptions below. Minor wording/layout details can be resolved within the reviewed slice. Production identity/schema, credential policy, automatic scheduling, paid AI and release inclusion are outside this decision.
+
 ## Concrete recommendation
 
 Retain one compact app header on native destinations and nested details. Preserve the approved Thermik asset. Group the right-side controls as **Med → Vereinsflieger → Profile**, with contextual Back/title on the left. Keep the connection control present in the provider flow as well, alongside clearly separate original-provider origin and Close/Back controls. Do not inject the app header into the provider website or reparent its retained browser.
