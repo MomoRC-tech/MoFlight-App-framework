@@ -107,6 +107,7 @@ Manuel confirmed **UTC** on 18 October 2026 ([#7](https://github.com/MomoRC-tech
 | --- | --- |
 | Compact “Mein Fliegen” section | Narrow-height, swipeable quick summaries. Initial view: this year's flight count and known flight time, with a small comparison to the same period last year in that same view. |
 | Other swipe views | Aircraft flown most often; flight-duration distribution. Exact measures, thresholds and visual forms remain open. |
+| Incomplete prior-year comparison | Show available current/prior-year totals with an explicit incomplete-data warning, and hide the percentage comparison (Manuel, 18 October 2026). Keep intended comparison dates and actual coverage visible; missing history is not zero. |
 | Tap summary | Open that statistic in detailed “Meine Flüge”, with expanded information/chart and contributing flights; carry over period and filters. |
 | Filters | Period, aircraft, person flown with and the user's recorded role. Aircraft instance/model and person identity/role must stay distinct. Additional category filter is not selected as an initial requirement. |
 | Open flight | Show recorded details, missing/uncertain values and access to supporting source information. |
@@ -114,7 +115,7 @@ Manuel confirmed **UTC** on 18 October 2026 ([#7](https://github.com/MomoRC-tech
 | Retrieve newer flights | User taps “Flüge aktualisieren”; always show last update time. Suggest since the last successful update, with an adjustable period. This is a user-facing default, not proof of a safe delta algorithm; older-source corrections require a verified reconciliation strategy. |
 | First retrieval | Suggest current and previous year, with an adjustable period. Older history may be needed for paper catch-up; neither default implies lifetime completeness. |
 
-Counts and time use deterministic computations over sufficiently established identities and semantics. Compare years only with visible comparable coverage; UTC is selected for flight clock times; flight-date/period assignment, treatment of incomplete periods and initial release measures remain to be reviewed.
+Counts and time use deterministic computations over sufficiently established identities and semantics. Compare years only with visible comparable coverage; UTC is selected for flight clock times; flight-date/period assignment and initial release measures remain to be reviewed. The incomplete prior-year display rule was selected on 18 October above; source coverage must still be verified before claiming completeness.
 
 ### Authoritative provider data and changed-flight indication
 

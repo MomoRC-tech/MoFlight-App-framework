@@ -80,6 +80,8 @@ Proposed default query view: **effective reconciled own-flight history**, with o
 
 Count distinct sufficiently established flight identities, not import rows, pages, landings or crew records. Unresolved duplicate identity or fields that affect membership are reported as pending/unknown rather than included in a falsely exact count. Ignoring an aircraft warning leaves the data unchanged; a paper-observation correction cannot change the authoritative provider aircraft or its flight count. Latest means the maximum established flight date/time, not the last imported row. With incomplete dates/coverage, describe “latest recorded matching flight in available data.” Zero matches does not imply the person/aircraft was never flown.
 
+Year-comparison display selected by Manuel, 18 October 2026: if prior-year history is incomplete, show available totals with an incomplete-data warning and hide the percentage comparison. Keep requested period and actual coverage visible; unknown/missing history is not zero. Provider-based statistics remain independent of paper-total adjustments; incomplete duration values still need the existing known-time/unknown-count distinction. Source coverage/completeness must be established rather than inferred from existing rows ([#9](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/9)).
+
 The query response includes the resolved entity/filter, dataset revision/basis, count or latest recorded flight, contributing records, data-through/coverage, unresolved/excluded counts and freshness. The pilot can inspect the supporting list and change filters or data basis.
 
 ## Technical boundary

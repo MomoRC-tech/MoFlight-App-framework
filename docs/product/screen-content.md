@@ -77,7 +77,7 @@ S02–S04 and S11 use the selected current-year scope. v0.28 shows flight count 
 | ID | Screen / area | Information shown | Action / destination | Status |
 | --- | --- | --- | --- | --- |
 | A01 | Analysis context | Selected measure, period, filters, comparable coverage, last update and unknowns | Preserve context from the summary that opened it | Selected behavior; exact hierarchy draft |
-| A02 | Count/time analysis | Current-year value, same-period prior-year value and difference; known time qualified when durations are missing | Inspect contributing flights; select comparable period/year | Selected information; exact calculations/state rules open |
+| A02 | Count/time analysis | Current-year value, same-period prior-year value and difference; known time qualified when durations are missing. If prior-year history is incomplete: available totals + incomplete-data warning; hide percentage comparison (18 October selection) | Inspect contributing flights; select comparable period/year | Selected information; exact calculations/state rules open |
 | A03 | Aircraft analysis | Aircraft distribution and supporting flights; distinguish instance from model | Inspect aircraft-specific flights | Selected information; grouping presentation open |
 | A04 | Duration analysis | Distribution of known flight durations; unknown-duration count separately | Inspect contributing flights | Required information; duration bands/entry route open. Earlier Start summary need is absent from v0.23; decide its placement explicitly |
 | A05 | Analysis, below summary | Flights behind the selected result | Flight details | Selected |
