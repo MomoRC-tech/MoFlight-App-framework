@@ -85,6 +85,7 @@ S02–S04 and S11 use the selected current-year scope. v0.28 shows flight count 
 | D03 | Flight detail, times/route | Departure/arrival information where recorded, duration, start/landing places and time basis | Read supporting detail | Selected section; availability/source semantics open |
 | D04 | Flight detail, people/roles | User's recorded role and other pilot/person information | Read supporting detail | Selected section; identity/privacy policy open |
 | D05 | Flight detail, evidence | Supporting source identification, retrieval context and uncertainty | Inspect evidence relevant to the flight | Selected section; source-field selection draft |
+| D06 | Flight detail, source changes | Each changed field with its previous → current value from retained provider revisions | Inspect changes; explicit acknowledgement remains separate | Selected 18 October 2026 in [#30](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/30); layout and baseline across multiple unacknowledged updates remain open |
 
 Flight details use one page with logically grouped information. This inventory specifies groups, not a visual layout. Unknown values stay unknown; no chart or AI suggestion silently establishes a recorded fact.
 
