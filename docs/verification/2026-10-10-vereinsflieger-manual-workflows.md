@@ -52,3 +52,20 @@ The [REST manual entry](https://vereinsflieger.de/member/help/index.php?hid=2110
 4. Retain the proposed multi-book proof (#11/ADR 0007) before canonical imports; this research neither approves that ADR nor changes the agreed development-GUI sequencing.
 
 Validation: linked manual chapters read directly, export illustration visually inspected, live toolbar compared without changing provider settings. Documentation links and whitespace checked; no runtime code changed, so app tests were not rerun. No personal records, screenshots or private identifiers included.
+
+
+## 18 October 2026 duty-name follow-up
+
+Manuel changed duty review item 4 to include **all duties in the timeframe**, because clubs can define their own names. He requested research into standard Vereinsflieger proposals as possible identification aids. This bounded follow-up is read-only research and requirements documentation, not an adapter, retrieval, classification or UI implementation.
+
+| Source/evidence | Finding | Limit |
+| --- | --- | --- |
+| [Official members description, Dienste](https://vereinsflieger.de/Mitglieder), read 18 October 2026 | Gives Betriebsleiter, Windenfahrer and Fluglehrer as examples | Does not establish a mandatory/default duty catalogue or stable type codes |
+| [Official calendar description](https://vereinsflieger.de/Termine), read 18 October 2026 | Gives Windendienst and Betriebsleiterdienst as examples | Example labels are not proof of universal semantics or default configuration |
+| [Duty manual 12000](https://vereinsflieger.de/member/help/index.php?hid=12000), current browser attempt 18 October 2026 | Rendered the public login page; no authenticated help session was connected in the available browser | Current standard proposals/configuration could not be inspected; no credentials entered or provider settings changed |
+| Existing [10 October authenticated discovery](2026-10-10-vereinsflieger-discovery.md#duty-semantics-and-availability) and duty-manual section above | A plan can contain several duty labels; specially configured instructor-plan behavior is not established by its name | Earlier bounded evidence, not a fresh authenticated/default-catalogue check or proof for all clubs |
+| [Official demo access](https://vereinsflieger.de/Demozugang), read 18 October 2026 | Demo provision requires contacting the provider for an individually created platform | No request/contact/account was made |
+
+Result: public material confirms examples; a universal default/proposal list, stable identifiers and an automatic semantic mapping are **not verified**. An authenticated read-only check of documented duty configuration/proposals remains tracked in #10. If standard metadata is available, it may support a reviewed club-scoped identification mapping; retain the source label, separate plan from assignment, and leave unknown/custom names included. Do not infer a role or restrict inclusion from an unverified label dictionary. Calendar-day, permissions, coverage/freshness and #15 privacy/name-display gates remain open.
+
+Documentation verification: current journey/provider inventory/screen inventory/README/roadmap checked for agreement and unsupported default/success claims; source links and local anchors checked; `git diff --check` passed. No app/provider integration/device tests, new private data capture, settings changes, messages or paid execution. Temporary browser help tab closed; existing provider sessions/emulators untouched.
