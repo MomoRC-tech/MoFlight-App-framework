@@ -7,7 +7,7 @@
 
 # MoFlight
 
-**M2 duration-validation prerequisite — 18 October 2026:** [#2](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/2) now has a pure list-duration inspector preserving raw evidence, explicit zero, missing/invalid/conflicting values and separate flight/block measures. **26 focused tests**, TypeScript and focused lint passed. [Evidence and limits](docs/verification/2026-10-18-source-duration-validation.md). It is unconnected to application flows or storage; production source semantics and live import remain gated.
+**M2 source-assessment prerequisite — 18 October 2026:** [#2](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/2) now composes raw fields, validated calendar dates/clocks and reported flight/block durations into a pure per-row assessment with evidence and unresolved findings. Crew slots, unknown timing and conflicting values stay explicit. **36 focused tests**, TypeScript and focused lint passed on `0594999`. [Evidence and limits](docs/verification/2026-10-18-source-duration-validation.md#source-flight-assessment-follow-up). It is unconnected to application flows or storage; production source semantics and live import remain gated.
 
 **UI design:** [Design handbook](docs/product/design/README.md) · [Complete visual guide / copyable AI brief](docs/product/design/design-guide.html). Current direction, color map, typography, component shapes, layout rules and symbols are maintained together.
 

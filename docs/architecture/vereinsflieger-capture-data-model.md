@@ -79,7 +79,7 @@ Each stored/selected field needs a state, not just a nullable number:
 - **Unresolved/invalid:** parsing or semantic verification failed; retain source text and a safe reason rather than invent a value.
 - **Conflict:** competing observations or interpretations exist; link each and retain the review decision separately.
 
-Parsed values retain type, unit, mapping version and verification status. Zero is a value. A person name is not a verified person ID. The current lab [field inspector](../../apps/platform-lab/src/vereinsflieger/fields.ts) implements the first three raw states only; unresolved/conflict/parsed facts are proposed extensions, not existing behavior.
+Parsed values retain type, unit, mapping version and verification status. Zero is a value. A person name is not a verified person ID. The lab [field inspector](../../apps/platform-lab/src/vereinsflieger/fields.ts) implements the first three raw states. The subsequent bounded [source assessment](vereinsflieger-import-contract.md#source-flight-assessment--18-october-2026) derives date/clock/duration validation and unresolved/conflict findings in memory; it preserves the selected raw row and remains unconnected to application/storage flows. Persisted interpreted records, versioned mappings and the full production model above remain proposed.
 
 ## Retrieval completeness and multiple books
 
