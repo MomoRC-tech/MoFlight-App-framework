@@ -46,7 +46,7 @@ Order: Meine Saison (flying totals, aircraft breakdown, monthly count chart, goa
 | S04 | Season aircraft breakdown, inline below both rings | For the selected ring: aircraft short names/colors, count and known time; unknown-only time remains explicitly unknown. Selected aircraft contributes its count, known time and flight list | Tap a ring to open its compact breakdown; close it with its close button. Tap a row to open that aircraft's flights; yearly comparison opens in Flüge | v0.28 selected preview interaction; exact suffix convention remains open |
 | S05 | Flying attention item | Number of flights needing review, such as missing duration | Flüge restricted to affected flights | Selected; issue eligibility/count scope open |
 | S06 | Paper-book overview | Entry-proposal count and book-review/correction-case count across the user's books | Open Papierbuch overview at last-used book, with selector there | Selected; production aggregation/unknown rules open |
-| S07 | Club overview, own duties | Next own duty: role, date and time; indication of further assignments through the following week's weekend | Full own-duty overview in Verein, including later-duty preview and relevant Putzdienst partner | Selected summary; completeness rules and later preview extent open |
+| S07 | Club overview, own duties | Next own duty: role, date and time; indication of further assignments through the following week's weekend | Full own-duty overview in Verein, including the next three own duties after the focused window and relevant Putzdienst partner | Later-preview extent selected 18 October 2026; completeness rules and arrangement open |
 | S08 | Season metrics, alongside flying overview | Annual work hours completed and obligation | Work-hour details in Verein | Requested move from club overview; source meanings/freshness unverified |
 | S09 | Club notices | New news/documents, own assigned tasks, upcoming events; distinguish inactive from relevant/unknown | Corresponding Verein information | Selected summary; grouping/new-state/upcoming rules open |
 | S10 | Club overview, flight operation | Current/upcoming Fluglehrer, Flugleiter and Windenfahrer assignments through the following week's weekend | Full flight-operation overview in Verein | Required / placement open: compact Start information is in the journey map but absent from v0.23 |
@@ -116,7 +116,7 @@ These information needs were reviewed earlier. The v0.23 club page is only a sma
 | ID | Area | Information shown | Action / scope | Status |
 | --- | --- | --- | --- | --- |
 | V01 | Club context | Relevant club identity and freshness/coverage | Context for club information | Draft grouping; identity/access rules open |
-| V02 | Own duties | All own assignments in the focused window, with role/date/time and later preview | Inspect duty; include the same-day Putzdienst co-assignee when applicable | Required; summary route selected, full arrangement open |
+| V02 | Own duties | All own assignments in the focused window, with role/date/time and a preview of the next three later own duties | Inspect duty; include the same-day Putzdienst co-assignee when applicable | Required; summary route selected, full arrangement open |
 | V03 | Flight-operation duties | Fluglehrer, Flugleiter, Windenfahrer assignments through the following week's weekend | Inspect relevant duty roster | Required; source/access/coverage unverified |
 | V04 | Work hours | Annual obligation, completed work and remainder; preserve hours versus monetary credit | Inspect work details | Required; definitions and detailed fields open |
 | V05 | Own tasks | Assigned tasks and their status | Inspect a task | Required; detail arrangement open |
@@ -142,7 +142,7 @@ These information needs were reviewed earlier. The v0.23 club page is only a sma
 | O01 | Costs | Desired outputs: yearly flying costs separate from membership/other charges, then total flying costs per aircraft. Exact entry point/destination open; billing inspection/semantics deferred. Do not add an extra costs destination by assumption |
 | O02 | Account balances | Detailed costs only; not Start and not a flight-cost total |
 | O03 | License/training status | Detailed Flüge area only; exact access/position open and absent from v0.23. Do not infer that a provider indicator is qualification certification |
-| O04 | Duty placement gaps | S10 flight-operation Start summary and later-own-duty preview extent still need a placement review; prototype omissions do not delete confirmed needs |
+| O04 | Duty placement gaps | S10 flight-operation Start summary and placement of the selected next-three-later-own-duty preview still need review; prototype omissions do not delete confirmed needs |
 | O05 | Deferred concepts | Weather navigation placeholder is selected for v0.26; weather content/provider/integration remain deferred. Activities live, chat/AI and tutor retain their roadmap gates; no weather Start item or implementation is scheduled here |
 | O06 | Excluded for now | Runway condition, defects and maintenance; birthdays excluded from relevant club events |
 | O07 | Own reservations | User's reservations/resources and dates, details-only. Exact destination open; absent from the current prototype |
