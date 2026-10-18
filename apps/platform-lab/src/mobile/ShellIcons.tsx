@@ -3,10 +3,10 @@ import { Image, StyleSheet, View } from 'react-native';
 
 type IconProps = { color?: string };
 
-// Authored silhouette with a distinct fuselage, swept wings and tailplane.
-// The 4x local alpha bitmap avoids adding a vector runtime dependency.
+// Selected authored side-view B; the adjacent SVG is the editable source.
+// Its 4x local alpha bitmap avoids adding a vector runtime dependency.
 export function PlaneIcon({ color = '#adbed5' }: IconProps) {
-  return <Image accessible={false} source={require('../../assets/icons/aircraft.png')} style={{ width: 28, height: 28, tintColor: color }} />;
+  return <Image accessible={false} source={require('../../assets/icons/aircraft-side.png')} style={{ width: 28, height: 28, tintColor: color }} />;
 }
 
 export function ProfileIcon({ color = '#f5f7ff' }: IconProps) {

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { Action, Card, Label, Section, colors, ui } from './theme';
 import { retrievalFailureHint } from '../vereinsflieger/connection-state';
-import { connectionGuidance } from './connection-guidance';
+import { connectionGuidance, connectionSymbol } from './connection-guidance';
 import type { useAccessController } from '../vereinsflieger/use-access-controller';
 import { providerUrl } from '../vereinsflieger/probe';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -10,15 +10,19 @@ import { LegacyRecoveryReview } from './LegacyRecoveryReview';
 import { RawCaptureReview } from './RawCaptureReview';
 
 type Controller = ReturnType<typeof useAccessController>;
-export function ConnectionIndicator({ controller: c, onPress }: { controller: Controller; onPress: () => void }) {
+export function ConnectionIndicator({ controller: c, onPress }: { controller: Controller; onPress?: () => void }) {
   const pending = c.clearing || c.binding || c.busy || c.loginBusy || c.disconnecting || c.connection.phase === 'checking';
-  const tint = c.connection.phase === 'disconnected' ? colors.muted : '#ffc477';
-  return <Pressable accessibilityRole="button" accessibilityLabel={`Vereinsflieger: ${pending ? 'Vorgang läuft' : connectionGuidance(c.connection, c.browserActive).title}. Verbindungen öffnen`} onPress={onPress} style={styles.indicator}>
+  const { mark, color: tint } = connectionSymbol(c.connection);
+  const operation = c.clearing ? 'Browserdaten werden gelöscht' : c.binding ? 'Kontozuordnung wird gespeichert' : c.saving ? 'Belege werden gespeichert' : c.busy ? c.restoring.current ? 'Anbieteransicht wird wiederhergestellt' : 'Rohabruf läuft' : c.loginBusy ? 'Anmeldung wird versucht' : c.disconnecting ? 'Abmeldung wird geprüft' : 'Sitzung wird geprüft';
+  const status = `Vereinsflieger: ${pending ? operation : c.recovery ? 'Abruf gesperrt · Wiederherstellung nötig' : connectionGuidance(c.connection, c.browserActive).title}`;
+  const Control = onPress ? Pressable : View;
+  return <Control accessible accessibilityRole={onPress ? 'button' : 'text'} accessibilityLabel={`${status}${onPress ? '. Verbindungen öffnen' : ''}`} accessibilityState={{ busy: pending }} onPress={onPress} style={styles.indicator}>
     {pending ? <ActivityIndicator color={colors.cyan} /> : <View accessible={false} style={{ width: 27, height: 25 }}>
       <View style={[styles.link, { left: 0, top: 2, borderColor: tint }]} /><View style={[styles.link, { right: 0, bottom: 2, borderColor: tint }]} />
       <View style={{ position: 'absolute', left: 12, top: 8, width: 2, height: 10, backgroundColor: tint, transform: [{ rotate: '45deg' }] }} />
     </View>}
-  </Pressable>;
+    {!pending && <View accessible={false} style={styles.mark}><Label style={{ color: c.recovery ? '#ffb39e' : tint, fontWeight: '700', fontSize: 12, lineHeight: 15 }}>{c.recovery ? '!' : mark}</Label></View>}
+  </Control>;
 }
 
 /** The browser keeps this exact native parent whether login, progress or tabs are visible. */
@@ -43,10 +47,12 @@ export function ProviderConnection({ controller: c, open, close }: { controller:
       {c.browser}
     </View>
     <View style={styles.bar} onLayout={event => setBarHeight(event.nativeEvent.layout.height)}>
-      <Action secondary onPress={dismiss}>‹ Zurück</Action>
+      <Action secondary label="Verbindungen schließen und zur App zurückkehren" onPress={dismiss}>Schließen</Action>
       <Label style={{ flex: 1, fontWeight: '600' }}>{login ? c.disconnecting ? 'Bei Vereinsflieger abmelden' : 'Bei Vereinsflieger anmelden' : 'Verbindungen'}</Label>
+      <ConnectionIndicator controller={c} onPress={login ? c.dismissLogin : undefined} />
     </View>
     {login ? <View style={styles.loginBar} onLayout={event => setLoginHeight(event.nativeEvent.layout.height)}>
+      <Action secondary label="Auf der Vereinsflieger-Seite zurück" disabled={locked || !c.canGoBack} onPress={c.backWithinProvider}>‹ Anbieterseite zurück</Action>
       <Label style={{ fontWeight: '600' }}>{providerUrl(c.url) ? new URL(c.url).origin : 'Anbieteradresse nicht bestätigt'}</Label>
       <Label muted>{c.disconnecting ? 'Auf der Originalseite „Abmelden“ wählen, danach hier prüfen. Schließen allein meldet dich nicht ab.' : 'Zugangsdaten nur auf der Originalseite eingeben.'}</Label>
       {loginFeedback && <Label>{loginFeedback}</Label>}
@@ -138,6 +144,7 @@ export function ProviderConnection({ controller: c, open, close }: { controller:
 }
 const styles = StyleSheet.create({
   indicator: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center', borderRadius: 24, backgroundColor: '#102d47aa' },
+  mark: { position: 'absolute', right: 0, bottom: 1, minWidth: 16, height: 16, borderRadius: 8, backgroundColor: colors.background, alignItems: 'center', justifyContent: 'center' },
   link: { position: 'absolute', width: 18, height: 12, borderWidth: 2, borderRadius: 7, transform: [{ rotate: '-45deg' }] },
   browserFrame: { position: 'absolute', width: '100%', maxWidth: 800, alignSelf: 'center', bottom: 0, backgroundColor: 'white' },
   coveredBrowser: { opacity: 0 },

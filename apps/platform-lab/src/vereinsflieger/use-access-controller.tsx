@@ -67,6 +67,7 @@ export function useAccessController(product = false, localOwner?: string) {
   const [source, setSource] = useState({ uri: LOGIN_URL }), [url, setUrl] = useState(LOGIN_URL);
   const [generation, setGeneration] = useState(0);
   const [browserActive, setBrowserActive] = useState(!product);
+  const [canGoBack, setCanGoBack] = useState(false);
   const [providerExpanded, setProviderExpanded] = useState(false);
   const [visible, setVisible] = useState(false), [busy, setBusy] = useState(false), [loaded, setLoaded] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -109,7 +110,7 @@ export function useAccessController(product = false, localOwner?: string) {
     retrieval.current.dispose(); epoch.current++; setGeneration(epoch.current);
     legacyRequest.current = null; legacyAttempt.current = null; legacyFingerprint.current = null; setLegacyChoice(null);
     recoveryKnown.current = false; original.current = null; scope.current = null;
-    setSnapshot(null); setLastSuccessfulCaptureAt(null); setBrowserActive(false); setVisible(false); setBusy(false); setRecovery(true); setViewReady(false);
+    setSnapshot(null); setLastSuccessfulCaptureAt(null); setBrowserActive(false); setCanGoBack(false); setVisible(false); setBusy(false); setRecovery(true); setViewReady(false);
     if (loginAttempt.current) endLogin('Local owner changed. Saved sign-in cancelled.', 'cancelled');
   }, [localOwner]);
   useEffect(() => { if (!browserActive && clearing) { documentDetached.current?.(); documentDetached.current = null; } }, [browserActive, clearing]);
@@ -146,7 +147,7 @@ export function useAccessController(product = false, localOwner?: string) {
     session.current.invalidate(); syncConnection(); web.current?.stopLoading();
     pendingNavigation.current = null; epoch.current++; setGeneration(epoch.current);
     // Unmount the old document before touching the process-wide WebView store.
-    setBrowserActive(false); setVisible(false); setLoaded(false);
+    setBrowserActive(false); setCanGoBack(false); setVisible(false); setLoaded(false);
     try {
       // Let React commit the unmount before native deletion; a stale renderer
       // must never write cookies/storage back after the clearing callback.
@@ -203,6 +204,14 @@ export function useAccessController(product = false, localOwner?: string) {
     afterConfirmation.current = null; setLoginNotice('none');
     session.current.invalidate(); syncConnection(); setVisible(true); setResult('none');
     navigate(LOGIN_URL);
+  }
+  function backWithinProvider() {
+    // Browser history is an explicit navigation action, never an interrupt for
+    // a session check, saved-login submission, capture, save or restoration.
+    if (generation !== epoch.current || owner.current !== activeOwner.current || clearingStore.current || bindingBusy.current || !foreground.current ||
+      !visible || !browserActive || !canGoBack || !viewReady || disconnectMode.current ||
+      retrieval.current.state.phase !== 'idle' || busy || saving || loginBusy || loginStorageBusy.current || loginAttempt.current || contextRequest.current || !web.current) return false;
+    session.current.invalidate(); syncConnection(); web.current.goBack(); return true;
   }
   function dismissLogin() {
     if (clearingStore.current) { setVisible(false); return; }
@@ -652,7 +661,7 @@ export function useAccessController(product = false, localOwner?: string) {
           }
           reading.current = false; command.current = '';
         } currentUrl.current = event.nativeEvent.url; setUrl(event.nativeEvent.url); setLoaded(false); }}
-        onNavigationStateChange={state => { if (generation !== epoch.current) return; currentUrl.current = state.url; setUrl(state.url); }}
+        onNavigationStateChange={state => { if (generation !== epoch.current) return; currentUrl.current = state.url; setUrl(state.url); setCanGoBack(state.canGoBack); }}
         onLoadProgress={event => { if (generation === epoch.current) phase.current.progress = event.nativeEvent.progress; }}
         onLoadEnd={event => { if (generation === epoch.current) void loadedPage(event.nativeEvent.url); }}
         onMessage={event => {
@@ -668,5 +677,5 @@ export function useAccessController(product = false, localOwner?: string) {
         onContentProcessDidTerminate={() => { if (generation !== epoch.current) return; if (loginAttempt.current) endLogin('Provider renderer stopped. Saved sign-in cancelled.', 'cancelled'); if (product) contextFailed(); finish('Provider renderer stopped. Recovery journal retained.'); }}
         onRenderProcessGone={() => { if (generation !== epoch.current) return; if (loginAttempt.current) endLogin('Provider renderer stopped. Saved sign-in cancelled.', 'cancelled'); if (product) contextFailed(); finish('Provider renderer stopped. Recovery journal retained.'); }}
       />;
-  return { legacyChoice, requestLegacyRecovery, legacyRecoveryAvailable, clearing, clearNotice, proofNotice, clearLocalSession, sessionClearingAvailable, sessionProofAvailable, binding, legacyRecovery: legacyPending.current, loginNotice, disconnectNotice, credentialNotice, startDisconnect, checkDisconnection, disconnecting, disconnectedAt, refreshRecovery, connection, checkConnection, connect, dismissLogin, confirmConnection, lastSuccessfulCaptureAt, result, browser, showRun, setShowRun, showWindow, setShowWindow, viewReady, recovery, original, editingLogin, loginBusy, username, setUsername, password, setPassword, saveLogin, setEditingLogin, providerExpanded, visible, status, busy, openCaptureLab, pauseEnabled, toggleTestPause, preBackupPause, togglePreBackupPause, from, setFrom, to, setTo, saving, restoring, navigate, setVisible, cancelRetrieval, retrieve, hasLogin, useLogin, forgetLogin, recoverView, paused, continueTestRetrieval, viewStrategy, url, toggleProviderPage, browserActive, snapshot, setProviderExpanded, web, currentUrl, retrieval, loaded, source, generation, epoch };
+  return { canGoBack, backWithinProvider, legacyChoice, requestLegacyRecovery, legacyRecoveryAvailable, clearing, clearNotice, proofNotice, clearLocalSession, sessionClearingAvailable, sessionProofAvailable, binding, legacyRecovery: legacyPending.current, loginNotice, disconnectNotice, credentialNotice, startDisconnect, checkDisconnection, disconnecting, disconnectedAt, refreshRecovery, connection, checkConnection, connect, dismissLogin, confirmConnection, lastSuccessfulCaptureAt, result, browser, showRun, setShowRun, showWindow, setShowWindow, viewReady, recovery, original, editingLogin, loginBusy, username, setUsername, password, setPassword, saveLogin, setEditingLogin, providerExpanded, visible, status, busy, openCaptureLab, pauseEnabled, toggleTestPause, preBackupPause, togglePreBackupPause, from, setFrom, to, setTo, saving, restoring, navigate, setVisible, cancelRetrieval, retrieve, hasLogin, useLogin, forgetLogin, recoverView, paused, continueTestRetrieval, viewStrategy, url, toggleProviderPage, browserActive, snapshot, setProviderExpanded, web, currentUrl, retrieval, loaded, source, generation, epoch };
 }

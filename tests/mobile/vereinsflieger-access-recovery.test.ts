@@ -45,6 +45,7 @@ function fixture(options: { noNativeRecovery?: boolean; failLegacyRead?: boolean
   let appStateListener: ((state: string) => void) | undefined;
   let finishJournalSave!: () => void, finishCaptureSave!: () => void;
   let clearCalls = 0;
+  let historyBacks = 0;
   let currentFingerprint = 'ab'.repeat(32);
   let finishSafety!: () => void;
   const safetyWrite = new Promise<void>(resolve => { finishSafety = resolve; });
@@ -60,7 +61,7 @@ function fixture(options: { noNativeRecovery?: boolean; failLegacyRead?: boolean
   const loginForget = new Promise<void>(resolve => { finishLoginForget = resolve; });
   const journalSave = new Promise<void>(resolve => { finishJournalSave = resolve; });
   const captureSave = new Promise<void>(resolve => { finishCaptureSave = resolve; });
-  const nativeWeb = { injectJavaScript: (script: string) => injections.push(script), stopLoading() {} };
+  const nativeWeb = { injectJavaScript: (script: string) => injections.push(script), stopLoading() {}, goBack() { historyBacks++; } };
   const react = {
     createElement: (type: unknown, props: Record<string, unknown> | null, ...children: unknown[]): Element => {
       if (type === 'WebView' && props?.ref) (props.ref as { current: unknown }).current = nativeWeb;
@@ -174,6 +175,11 @@ function fixture(options: { noNativeRecovery?: boolean; failLegacyRead?: boolean
     const web = find(render(), element => element.type === 'WebView'); assert.ok(web);
     return (web.props.onShouldStartLoadWithRequest as (request: unknown) => boolean)({ url, isTopFrame: true });
   }
+  function history(canGoBack: boolean) {
+    const web = find(render(), element => element.type === 'WebView'); assert.ok(web);
+    (web.props.onNavigationStateChange as (state: unknown) => void)({ url: probe.LOGIN_URL, canGoBack });
+    render();
+  }
   const loadFlight = () => loadPage(FLIGHT_URL);
   function currentCommand() {
     const script = injections.at(-1); assert.ok(script, 'No native driver command was issued');
@@ -200,7 +206,7 @@ function fixture(options: { noNativeRecovery?: boolean; failLegacyRead?: boolean
     return flush();
   }
   return { render, button, press, settle, find, flush, loadPage, loadFlight, message, currentCommand, writes, injections,
-    contextMessage, loginMessage,
+    contextMessage, loginMessage, history, historyBacks: () => historyBacks,
     allowNavigation, lastIssuedNonce: () => issuedNonces.at(-1),
     appState: (state: string) => appStateListener?.(state),
     changeOwner: (value: string) => { localOwner = value; render(); },
@@ -213,6 +219,37 @@ function fixture(options: { noNativeRecovery?: boolean; failLegacyRead?: boolean
 }
 
 const observedContext = { accountNumber: '123', clubLabel: 'Synthetic Club', clubIdentity: 'display-label-only', verification: 'observed-profile-number' } as const;
+
+test('provider Back uses retained native history only on an idle visible owned page', async () => {
+  const f = fixture({ product: true }); f.render(); await f.settle(null);
+  f.controller().connect(); await f.loadPage(probe.LOGIN_URL);
+  f.controller().backWithinProvider(); assert.equal(f.historyBacks(), 0);
+  f.history(true);
+  const browserKey = (f.controller().browser as any).props.key;
+  f.controller().backWithinProvider(); assert.equal(f.historyBacks(), 1);
+  assert.equal((f.controller().browser as any).props.key, browserKey);
+  assert.equal(f.controller().connection.phase, 'unknown');
+  assert.deepEqual(f.writes, []);
+  f.controller().checkConnection();
+  f.controller().backWithinProvider(); assert.equal(f.historyBacks(), 1, 'Cannot interrupt owned session check');
+  f.controller().dismissLogin();
+  f.controller().backWithinProvider(); assert.equal(f.historyBacks(), 1, 'Closed provider presentation cannot navigate');
+  f.controller().connect(); f.history(true); f.appState('background');
+  f.controller().backWithinProvider(); assert.equal(f.historyBacks(), 1, 'Background action is refused');
+  f.appState('active'); f.changeOwner('other-synthetic-pilot');
+  f.controller().backWithinProvider(); assert.equal(f.historyBacks(), 1, 'A changed owner cannot navigate the prior browser');
+});
+
+test('provider Back cannot interrupt saved-login reading or submission', async () => {
+  const f = fixture({ product: true, deferLoginRead: true }); f.render(); await f.settle(null); await f.flush();
+  f.controller().connect(); await f.loadPage(probe.LOGIN_URL); f.history(true);
+  const login = f.controller().useLogin(); await f.flush();
+  f.controller().backWithinProvider(); assert.equal(f.historyBacks(), 0);
+  f.finishLoginRead({ username: 'synthetic-user', password: 'synthetic-password' }); await login; await f.flush();
+  await f.loadPage(probe.LOGIN_URL); f.history(true);
+  f.controller().backWithinProvider(); assert.equal(f.historyBacks(), 0);
+  assert.deepEqual(f.writes, []);
+});
 
 test('supported session-required profile response reveals login without accepting account evidence', async () => {
   const f = fixture({ product: true }); f.render(); await f.settle(null);

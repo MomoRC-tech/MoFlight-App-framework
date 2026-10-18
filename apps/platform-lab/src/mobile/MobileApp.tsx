@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, BackHandler, FlatList, Image, Keyboard, KeyboardAvoidingView, Linking, Modal, Platform, Pressable, ScrollView, StatusBar, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
+import { ActivityIndicator, BackHandler, FlatList, Keyboard, KeyboardAvoidingView, Linking, Platform, Pressable, ScrollView, StatusBar, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import type { Flight } from '@moflight/flight-logbook';
 import LabApp from '../App';
@@ -14,9 +14,9 @@ import { ProfileSettings } from './ProfileSettings';
 import { PILOT } from '../book-storage';
 import { useAccessController } from '../vereinsflieger/use-access-controller';
 import { ProviderConnection, ConnectionIndicator } from './ProviderConnection';
+import { AppHeader } from './AppHeader';
 
 const mountain = require('../../assets/aviation/mountain-header-v2.jpg');
-const brandLogo = require('../../assets/branding/moflight-ai-logo-dark.png');
 const windsock = require('../../assets/aviation/windsock.jpg');
 const clubAirfield = require('../../assets/aviation/club-airfield.jpg');
 const tabs = [{ id: 'home', title: 'Übersicht', icon: '⌂' }, { id: 'flights', title: 'Flüge', icon: '✈' }, { id: 'logbook', title: 'Flugbuch', icon: '▤' }, { id: 'club', title: 'Verein', icon: '♧' }, { id: 'ai', title: 'AI', icon: '✧' }] as const;
@@ -48,6 +48,17 @@ function Shell() {
   const [tab, setTab] = useState<Tab>('home');
   const [sheet, setSheet] = useState<Sheet>(null);
   const [detail, setDetail] = useState<Flight | null>(null);
+  const overlayHistory = useRef<{ sheet: Sheet; detail: Flight | null }[]>([]);
+  const overlayOpen = sheet !== null || detail !== null;
+  const openHeaderSheet = (next: Sheet) => {
+    if (sheet === next && !detail) return;
+    if (overlayOpen) overlayHistory.current.push({ sheet, detail });
+    setDetail(null); setSheet(next);
+  };
+  const closeOverlay = () => {
+    const previous = overlayHistory.current.pop();
+    setDetail(previous?.detail ?? null); setSheet(previous?.sheet ?? null);
+  };
   const [clubSection, setClubSection] = useState<ClubSection>('Übersicht');
   const [search, setSearch] = useState('');
   const [year, setYear] = useState<number | null>(null);
@@ -68,7 +79,7 @@ function Shell() {
   }, [toolsOpen]);
   const library = useLibrary(toolsOpen);
   const { width, height, fontScale } = useWindowDimensions();
-  const aiKeyboard = tab === 'ai' && keyboardTop !== null;
+  const aiKeyboard = tab === 'ai' && !overlayOpen && !connectionOpen && keyboardTop !== null;
   const keyboardOverlap = Platform.OS === 'android' && aiKeyboard ? Math.max(0, height - keyboardTop!) : 0;
   const compact = fontScale > 1.3;
   const tablet = width >= 600 && !compact;
@@ -90,16 +101,19 @@ function Shell() {
     return () => { show.remove(); hide.remove(); clearTimeout(timer); };
   }, []);
   useEffect(() => { Keyboard.dismiss(); }, [tab]);
-  useEffect(() => { setDetail(null); setLocalAnswer(null); }, [library.bookId, library.flights]);
+  useEffect(() => { overlayHistory.current = []; setDetail(null); setLocalAnswer(null); }, [library.bookId, library.flights]);
   useEffect(() => {
     const listener = BackHandler.addEventListener('hardwareBackPress', () => {
-      if (connectionOpen) { if (connection.visible || connection.connection.phase === 'checking') connection.dismissLogin(); setConnectionOpen(false); return true; }
-      if (detail) { setDetail(null); return true; }
-      if (sheet) { setSheet(null); return true; }
+      if (connectionOpen) {
+        if (connection.visible && connection.backWithinProvider()) return true;
+        if (connection.visible || connection.connection.phase === 'checking') connection.dismissLogin();
+        setConnectionOpen(false); return true;
+      }
+      if (detail || sheet) { closeOverlay(); return true; }
       if (tab !== 'home') { setTab('home'); return true; }
       return false;
     }); return () => listener.remove();
-  }, [detail, sheet, tab, connectionOpen, connection.visible, connection.connection.phase]);
+  }, [detail, sheet, tab, connectionOpen, connection]);
   const openBooks = () => setSheet('books');
   const ask = (question: string) => { setDraft(question); setAiError(false); setTab('ai'); };
   const quickQuestions = localQuestions;
@@ -119,12 +133,12 @@ function Shell() {
     {library.error && <View accessibilityLiveRegion="polite"><Label style={{ color: '#ffbd9b' }}>{library.error}</Label><Action secondary onPress={() => void library.reload()}>Erneut versuchen</Action></View>}
   </View>;
   const pageTitle = tabs.find(item => item.id === tab)!.title;
-  const header = <Photo source={tab === 'club' ? clubAirfield : mountain} radius={0} style={s.fixedHeader} contentStyle={s.fixedHeaderContent} tint={tab === 'ai' ? '#15123be8' : '#001022df'}>
-    <Image source={brandLogo} accessibilityLabel="MoFlight Thermik Logo" style={s.brandLogo} resizeMode="contain" />
-    <View style={{ flex: 1, minWidth: 0 }}><Text accessibilityRole="header" style={s.pageTitle}>{tab === 'ai' ? 'MoFlight AI' : pageTitle}</Text><Label muted style={{ fontSize: 11, lineHeight: 16 }}>{tab === 'home' ? (library.displayName ? `Hallo, ${library.displayName}!` : 'Guten Tag!') : tab === 'ai' ? 'Dein Segelflug-Assistent' : 'MoFlight'}</Label></View>
+  const statusControls = <>
     <ConnectionIndicator controller={connection} onPress={() => setConnectionOpen(true)} />
-    <Pressable accessibilityRole="button" accessibilityLabel="Profil & Einstellungen öffnen" onPress={() => setSheet('profile')} style={s.profileButton}><ProfileIcon /></Pressable>
-  </Photo>;
+    <Pressable accessibilityRole="button" accessibilityLabel="Profil & Einstellungen öffnen" onPress={() => openHeaderSheet('profile')} style={s.profileButton}><ProfileIcon /></Pressable>
+  </>;
+  const header = <AppHeader source={tab === 'club' ? clubAirfield : mountain} title={tab === 'ai' ? 'MoFlight AI' : pageTitle}
+    subtitle={tab === 'home' ? (library.displayName ? `Hallo, ${library.displayName}!` : 'Guten Tag!') : tab === 'ai' ? 'Dein Segelflug-Assistent' : 'MoFlight'}>{statusControls}</AppHeader>;
   const flightHeader = <View style={{ gap: 3 }}>
     <Pressable accessibilityRole="button" accessibilityLabel="Flugbuch auswählen" onPress={() => setSheet('selectBook')} style={s.headerBook}><Label muted>{book?.name ?? 'Flugbuch auswählen'} ⌄</Label></Pressable>
     <View style={ui.row}><View style={s.searchBox}><Label muted>⌕</Label><TextInput accessibilityLabel="Flüge durchsuchen" hitSlop={4} placeholder="Flüge durchsuchen …" placeholderTextColor={colors.muted} value={search} onChangeText={setSearch} style={s.search} autoCorrect={false} returnKeyType="search" /></View><Pressable accessibilityRole="button" accessibilityLabel="Flugfilter öffnen" hitSlop={4} onPress={() => setSheet('filters')} style={s.filterButton}><Label>☷</Label></Pressable></View>
@@ -136,6 +150,7 @@ function Shell() {
 
   return <SafeAreaView edges={['top', 'left', 'right', 'bottom']} style={[s.root, keyboardOverlap > 0 && { paddingBottom: keyboardOverlap }]}>
     <View style={{ flex: 1 }} accessibilityElementsHidden={connectionOpen} importantForAccessibility={connectionOpen ? 'no-hide-descendants' : 'auto'}>
+    <View style={{ flex: 1 }} accessibilityElementsHidden={overlayOpen} importantForAccessibility={overlayOpen ? 'no-hide-descendants' : 'auto'}>
     <StatusBar barStyle="light-content" backgroundColor={colors.background} />
     {header}
     <View style={[s.content, wide && { maxWidth: 960 }, tablet && !wide && { maxWidth: 600 }]}>
@@ -189,12 +204,13 @@ function Shell() {
     </View>
     {!aiKeyboard && <Label style={{ width: '100%', textAlign: 'center', color: '#8ba4bc', fontSize: 10, lineHeight: 16 }}>Entwicklung · synthetische lokale Bibliothek</Label>}
     <View style={[s.nav, wide && { maxWidth: 960 }, tablet && !wide && { maxWidth: 600 }, aiKeyboard && s.hidden]} accessibilityRole="tablist">{tabs.map(item => <Pressable key={item.id} accessibilityRole="tab" accessibilityLabel={item.title} accessibilityState={{ selected: tab === item.id }} onPress={() => setTab(item.id)} style={({ pressed }) => [s.navItem, pressed && ui.pressed]}>{item.id === 'flights' ? <PlaneIcon color={tab === item.id ? '#00c8ff' : colors.muted} /> : item.id === 'logbook' ? <BookIcon color={tab === item.id ? '#00c8ff' : colors.muted} /> : item.id === 'club' ? <ClubMark color={tab === item.id ? '#00c8ff' : colors.muted} /> : <Text style={[s.navIcon, tab === item.id && s.active]}>{item.icon}</Text>}<Text style={[s.navLabel, tab === item.id && s.active]}>{item.title}</Text></Pressable>)}</View>
-    <Modal visible={sheet !== null || detail !== null} animationType="slide" onRequestClose={() => { setDetail(null); setSheet(null); }}>
-      <SafeAreaView style={s.modal}><StatusBar barStyle="light-content" /><View style={s.modalBar}><Action secondary onPress={() => { setDetail(null); setSheet(null); }}>‹ Zurück</Action><Label style={{ flex: 1, fontWeight: '600' }}>{detail ? 'Flugdetails' : sheet === 'books' ? 'Papierflugbuch' : sheet === 'tools' ? 'Entwicklungswerkzeuge' : sheet === 'profile' ? 'Profil & Einstellungen' : 'MoFlight'}</Label></View>
-        {sheet === 'tools' ? <LabApp providerOwned={true} /> : sheet === 'books' ? <View style={{ flex: 1, backgroundColor: '#f5f7fb' }}><BookLab close={() => setSheet(null)} /></View> : <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}><ScrollView contentContainerStyle={s.canvas} keyboardShouldPersistTaps="handled">
-          {sheet === 'profile' && <ProfileSettings onConnections={() => { setSheet(null); setConnectionOpen(true); }} onTools={() => setSheet('tools')} onStatus={() => setSheet('status')} onCredits={() => setSheet('credits')} onBooks={() => setSheet('selectBook')} displayName={library.displayName} busy={library.busy} error={library.error} onSaveName={library.saveDisplayName} onRetry={() => void library.reload()} />}
+    </View>
+    {overlayOpen && <View style={[StyleSheet.absoluteFill, s.modal]} accessibilityViewIsModal>
+      <AppHeader source={mountain} back={closeOverlay} title={detail ? 'Flugdetails' : sheet === 'books' ? 'Papierflugbuch' : sheet === 'tools' ? 'Entwicklungswerkzeuge' : sheet === 'profile' ? 'Profil & Einstellungen' : 'MoFlight'}>{statusControls}</AppHeader>
+        {sheet === 'tools' ? <LabApp providerOwned={true} /> : sheet === 'books' ? <View style={{ flex: 1, backgroundColor: '#f5f7fb' }}><BookLab close={closeOverlay} /></View> : <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}><ScrollView contentContainerStyle={s.canvas} keyboardShouldPersistTaps="handled">
+          {sheet === 'profile' && <ProfileSettings onConnections={() => setConnectionOpen(true)} onTools={() => openHeaderSheet('tools')} onStatus={() => openHeaderSheet('status')} onCredits={() => openHeaderSheet('credits')} onBooks={() => openHeaderSheet('selectBook')} displayName={library.displayName} busy={library.busy} error={library.error} onSaveName={library.saveDisplayName} onRetry={() => void library.reload()} />}
           {detail && <><Section title={detail.registration ?? 'Flugzeug unbekannt'} />{[['Datum', dateText(detail.date)], ['Flugzeugtyp', detail.aircraft_model], ['Abflug', detail.start_place], ['Ankunft', detail.landing_place], ['Start', detail.start], ['Landung', detail.landing], ['Zeitbasis', detail.time_basis], ['Dauer', detail.minutes === null ? null : `${formatDuration(detail.minutes)} h`], ['Rolle', detail.pilot_role], ['Startart', detail.launch], ['Landungen', detail.landings?.toString()], ['Bemerkungen', detail.remarks]].map(([label, value]) => <Card key={label}><Label muted>{label}</Label><Label selectable>{value ?? 'Unbekannt'}</Label></Card>)}<Label muted>Quelle: gespeicherte synthetische Bibliothek · {book?.name}. Distanz und Flugtrack sind nicht verfügbar.</Label></>}
-          {sheet === 'selectBook' && <><Section title="Flugbuch auswählen" />{library.books.map(b => <Action key={b.id} secondary onPress={() => { setSheet(null); void library.selectBook(b.id); }}>{b.id === library.bookId ? '✓ ' : ''}{b.name}</Action>)}{!library.books.length && <Empty title="Noch kein Flugbuch">Bestehende lokale Flugbuchwerkzeuge öffnen, um die Bibliothek einzusehen.</Empty>}<Action onPress={openBooks}>Flugbuchwerkzeuge öffnen</Action></>}
+          {sheet === 'selectBook' && <><Section title="Flugbuch auswählen" />{library.books.map(b => <Action key={b.id} secondary onPress={() => { overlayHistory.current = []; setDetail(null); setSheet(null); void library.selectBook(b.id); }}>{b.id === library.bookId ? '✓ ' : ''}{b.name}</Action>)}{!library.books.length && <Empty title="Noch kein Flugbuch">Bestehende lokale Flugbuchwerkzeuge öffnen, um die Bibliothek einzusehen.</Empty>}<Action onPress={openBooks}>Flugbuchwerkzeuge öffnen</Action></>}
           {sheet === 'filters' && <><Section title="Flugfilter" /><Label muted>Jahr, Suche und Schulungsrolle werden gemeinsam auf die gespeicherten Flüge angewendet.</Label><Chip title="Alle Rollen" selected={!training} onPress={() => setTraining(false)} /><Chip title="Schulung · Dual / FI" selected={training} onPress={() => setTraining(true)} /><Action onPress={() => { setSearch(''); setTraining(false); setYear(null); setSheet(null); }}>Filter zurücksetzen</Action></>}
           {sheet === 'unsupported' && <Empty title="Klassifikation nicht verfügbar">Der gespeicherte Flugvertrag enthält keine Strecken- oder Platzrundenkennzeichnung. Flugzeit, Start-/Zielfeld und Rolle werden dafür nicht als Ersatz interpretiert. Der aktive Filter bleibt erhalten.</Empty>}
           {sheet === 'status' && <><Section title="Verbindung & Datenstatus" /><Label>Die lokale Bibliothek enthält ausdrücklich synthetische, gespeicherte Daten. Der Papierstand zählt nur Einträge ohne gespeicherten Papiernachweis.</Label><Label muted>Wetter, Vereinskalender, Dienste, Mitteilungen und der authentifizierte AI-Dienst sind noch nicht verbunden. Flugtracks und Distanzen sind im gespeicherten Vertrag nicht vorhanden. Die vollständige Saisonabdeckung und damit ein belastbarer Vorjahresvergleich sind nicht belegt.</Label><Action secondary onPress={() => setSheet('tools')}>Bestehende Verbindungswerkzeuge</Action></>}
@@ -206,8 +222,7 @@ function Shell() {
             ['Anne Burgess · Clubhouse at Dusk · Geograph, via Wikimedia Commons', 'CC BY-SA 2.0', 'https://commons.wikimedia.org/wiki/File:Clubhouse_at_Dusk_-_geograph.org.uk_-_6960024.jpg', 'https://creativecommons.org/licenses/by-sa/2.0/'],
           ].map(([author, license, source, licenseUrl]) => <Card key={author}><Label>{author}</Label><Action secondary onPress={() => { void Linking.openURL(source!); }}>Original & Urheber</Action><Action secondary onPress={() => { void Linking.openURL(licenseUrl!); }}>{license}</Action></Card>)}</>}
         </ScrollView></KeyboardAvoidingView>}
-      </SafeAreaView>
-    </Modal>
+    </View>}
     </View>
     <ProviderConnection controller={connection} open={connectionOpen} close={() => setConnectionOpen(false)} />
   </SafeAreaView>;
@@ -215,9 +230,6 @@ function Shell() {
 const s = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.background }, content: { flex: 1, alignSelf: 'center', width: '100%', maxWidth: 599 },
   page: { flex: 1 }, hidden: { display: 'none' }, canvas: { padding: 10, paddingTop: 10, gap: 8, paddingBottom: 20 }, flightCanvas: { padding: 10, paddingTop: 0, paddingBottom: 80 },
-  fixedHeader: { width: '100%', maxWidth: 960, alignSelf: 'center', borderBottomWidth: 1, borderBottomColor: colors.border },
-  fixedHeaderContent: { paddingHorizontal: 10, paddingVertical: 5, flexDirection: 'row', alignItems: 'center', gap: 10, flex: 0, minHeight: 64 },
-  brandLogo: { width: 52, height: 52, borderRadius: 8 }, pageTitle: { color: colors.text, fontSize: 18, lineHeight: 24, fontWeight: '700', flexShrink: 1 },
   profileButton: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center', borderRadius: 24, backgroundColor: '#102d47aa' },
   headerBook: { minHeight: 36, justifyContent: 'center', alignSelf: 'flex-start' },
   stateBanner: { gap: 3, padding: 4, marginTop: 8 }, provenance: { fontSize: 10, lineHeight: 16, color: '#8ba4bc', letterSpacing: .6 },
@@ -230,5 +242,5 @@ const s = StyleSheet.create({
   questionGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 }, question: { minHeight: 70, borderWidth: 1, borderColor: colors.border, borderRadius: 12, padding: 10, paddingRight: 23, backgroundColor: colors.card, justifyContent: 'center' }, questionArrow: { position: 'absolute', right: 8, top: '40%', color: colors.muted, fontSize: 23 },
   composer: { borderWidth: 1, borderColor: '#3a5a8b', backgroundColor: '#10263e', borderRadius: 20, padding: 4, flexDirection: 'row', alignItems: 'center', gap: 6 }, messageInput: { flex: 1, minHeight: 40, maxHeight: 150, color: colors.text, fontSize: 13, paddingHorizontal: 8 }, send: { width: 42, height: 42, borderRadius: 21, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.blue }, recent: { borderTopWidth: 1, borderTopColor: '#1b344a', paddingTop: 10, gap: 8 },
   nav: { flexDirection: 'row', borderTopWidth: 1, borderTopColor: '#1c3449', backgroundColor: '#020e17', alignSelf: 'center', width: '100%', maxWidth: 599 }, navItem: { flex: 1, minHeight: 60, justifyContent: 'center', alignItems: 'center', paddingVertical: 4, gap: 1 }, navIcon: { fontSize: 25, lineHeight: 29, color: colors.muted }, navLabel: { fontSize: 11, textAlign: 'center', width: '100%', lineHeight: 16, color: colors.muted }, active: { color: '#00c8ff' }, activeLine: { height: 2, width: 24, backgroundColor: colors.cyan, position: 'absolute', top: 0, borderRadius: 2 },
-  modal: { flex: 1, backgroundColor: colors.background }, modalBar: { padding: 12, flexDirection: 'row', gap: 16, alignItems: 'center', borderBottomWidth: 1, borderBottomColor: colors.border },
+  modal: { backgroundColor: colors.background },
 });

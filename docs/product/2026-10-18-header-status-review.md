@@ -1,6 +1,12 @@
 # Header, icons and connection status — review proposal
 
-18 October 2026 · #20, coordinated with #17/#19/#16/#5/#8. Manuel authorized preparation of this proposal; the appearance, header exceptions and production data policies below remain proposed. This is source review, not a completed Android visual/accessibility audit.
+18 October 2026 · #20, coordinated with #17/#19/#16/#5/#8. The proposal below is retained with the subsequent bounded decisions distinguished from unselected items. This source review alone is not Android visual/accessibility acceptance.
+
+## Package 1b decision checkpoint
+
+In the continuation chat on 18 October, Manuel **selected side-view aircraft B** and **approved the proposed navigation behavior**: fixed app status headers on destinations/details, one accessible active header in app sheets, separate provider-history Back and Close with visible origin/status, OS-owned full-screen exceptions and existing busy/recovery guards. The **Med → connection → profile group requires revision**; clarification remains pending. Do not implement that group's revision or infer a Medical selection from the approved navigation behavior.
+
+The [bounded contract in #20](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/20) authorizes the independent aircraft/navigation slice first. Preserve the approved logo, retained provider-browser parent and controller ownership/recovery rules. Live Medical/input/reminders, production identity/schema/migration, automatic retrieval/polling, broader icon replacement, credential changes, paid work and release inclusion remain excluded. Implementation/verification of the independent slice is in progress; native/live-provider/TalkBack/iOS/physical acceptance must be reported separately.
 
 ## Smallest next package — 1a login guidance
 
@@ -33,7 +39,7 @@ The initial `disconnected` phase alone does **not** prove sign-out: use `disconn
 - At the integration checkpoint, verify committed-source Release and affected panel/login states: narrow/normal/wide layout as relevant, large text, keyboard, scrolling, origin, disabled controls and accessible labels/focus. Existing Android evidence does not accept the changed UI; iOS and physical acceptance remain separate.
 - Preserve both existing AVDs and private sessions. Use synthetic presentation fixtures in a verified safe environment; suspend destructive tests. If suitable native evidence is unavailable, leave that acceptance pending.
 
-**Material decisions still open:** user acceptance of the implemented login wording/states. Before package 1b, select the aircraft artwork (recommended side-view B versus top-view A) and confirm or revise the proposed Med → connection → profile group, overlay/provider toolbar and full-screen exceptions below. Minor wording/layout details can be resolved within the authorized slice. Production identity/schema, credential policy, automatic scheduling, paid AI and release inclusion are outside this decision.
+**Material decisions still open:** user acceptance of the implemented login wording/states and the requested revision of the Med/connection/profile group. Aircraft B and the navigation behavior are selected as recorded above. Minor wording/layout details can be resolved within the authorized slice. Production identity/schema, credential policy, automatic scheduling, paid AI and release inclusion are outside this decision.
 
 ## Concrete recommendation
 

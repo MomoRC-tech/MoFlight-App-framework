@@ -1,5 +1,13 @@
 import type { ConnectionState } from '../vereinsflieger/connection-state';
 
+/** Non-color cues describe session evidence, never saved-flight freshness. */
+export function connectionSymbol(state: ConnectionState) {
+  if (state.phase === 'observed' && state.confirmed && state.observed && state.lastCheckedAt) return { mark: '✓', color: '#74dfba' };
+  if (state.phase === 'login-required') return { mark: '→', color: '#ffc477' };
+  if (state.phase === 'mismatch' || state.phase === 'error' || state.phase === 'observed' && state.observed && !state.confirmed) return { mark: '!', color: '#ffb39e' };
+  return { mark: '?', color: '#adbed5' };
+}
+
 /** Presentation only: never starts work, changes association or infers logout. */
 export function connectionGuidance(state: ConnectionState, browserActive: boolean) {
   const check = { action: 'check', actionLabel: 'Sitzung prüfen' } as const;

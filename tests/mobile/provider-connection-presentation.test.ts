@@ -5,7 +5,7 @@ import { runInNewContext } from 'node:vm';
 import ts from 'typescript';
 import { ConnectionSession } from '../../apps/platform-lab/src/vereinsflieger/connection-state.ts';
 import { retrievalFailureHint } from '../../apps/platform-lab/src/vereinsflieger/connection-state.ts';
-import { connectionGuidance } from '../../apps/platform-lab/src/mobile/connection-guidance.ts';
+import { connectionGuidance, connectionSymbol } from '../../apps/platform-lab/src/mobile/connection-guidance.ts';
 import { providerUrl } from '../../apps/platform-lab/src/vereinsflieger/probe.ts';
 import type { useAccessController } from '../../apps/platform-lab/src/vereinsflieger/use-access-controller.tsx';
 
@@ -39,7 +39,7 @@ function fixture(overrides: Partial<Controller> = {}) {
     'react-native': { ...Object.fromEntries(['ActivityIndicator', 'KeyboardAvoidingView', 'Pressable', 'ScrollView', 'TextInput', 'View'].map(name => [name, name])),
       Platform: { OS: 'android' }, StyleSheet: { create: (value: unknown) => value, absoluteFill: {} } },
     './theme': { ...Object.fromEntries(['Action', 'Card', 'Label', 'Section'].map(name => [name, name])), colors: {}, ui: { text: {} } },
-    './connection-guidance': { connectionGuidance }, '../vereinsflieger/connection-state': { retrievalFailureHint },
+    './connection-guidance': { connectionGuidance, connectionSymbol }, '../vereinsflieger/connection-state': { retrievalFailureHint },
     '../vereinsflieger/probe': { providerUrl },
     'react-native-safe-area-context': { useSafeAreaInsets: () => ({ top: 0, bottom: 0 }) },
     './LegacyRecoveryReview': { LegacyRecoveryReview: 'LegacyRecoveryReview' }, './RawCaptureReview': { RawCaptureReview: 'RawCaptureReview' },
@@ -53,6 +53,7 @@ function fixture(overrides: Partial<Controller> = {}) {
     disconnectNotice: 'none', clearNotice: 'none', credentialNotice: 'none', proofNotice: 'none',
     connect: () => calls.push('connect'), checkConnection: (action = 'check') => calls.push(action),
     dismissLogin: () => calls.push('dismiss'), useLogin: () => calls.push('saved-login'),
+    backWithinProvider: () => calls.push('provider-back'), canGoBack: false,
     confirmConnection: () => calls.push('confirm'), clearLocalSession: () => calls.push('clear'),
     startDisconnect: () => calls.push('logout'), forgetLogin: () => calls.push('forget'),
     requestLegacyRecovery: () => calls.push('legacy'), cancelRetrieval: () => calls.push('cancel'),
@@ -155,9 +156,38 @@ test('original-page provenance and loading guard survive login presentation and 
   assert.match(f.text(), /Zugangsdaten nur auf der Originalseite eingeben/);
   assert.equal(f.button('Anmeldung prüfen').props.disabled, true);
   f.controller.loaded = true; f.render(); f.button('Anmeldung prüfen').props.onPress();
-  f.button('‹ Zurück').props.onPress();
+  f.button('Schließen').props.onPress();
   assert.deepEqual(f.calls, ['check', 'dismiss', 'close']);
   const failed = fixture({ result: 'failed', status: 'Provider page failed to load. Previous captures preserved.' });
   assert.match(failed.text(), /Die Anbieterseite konnte nicht geladen werden/);
   assert.doesNotMatch(failed.text(), /Abruf nicht abgeschlossen/);
+});
+
+test('provider history and app close are separate; history stays disabled during owned operations', () => {
+  const f = fixture({ visible: true, loaded: true, url: 'https://www.vereinsflieger.de/' });
+  assert.equal(f.button('‹ Anbieterseite zurück').props.disabled, true);
+  f.controller.canGoBack = true; f.render();
+  f.button('‹ Anbieterseite zurück').props.onPress();
+  assert.deepEqual(f.calls, ['provider-back']);
+  for (const field of ['busy', 'saving', 'clearing', 'binding', 'loginBusy', 'disconnecting'] as const) {
+    f.controller[field] = true; f.render();
+    assert.equal(f.button('‹ Anbieterseite zurück').props.disabled, true, field);
+    f.controller[field] = false;
+  }
+  f.controller.connection = { ...f.controller.connection, phase: 'checking' }; f.render();
+  assert.equal(f.button('‹ Anbieterseite zurück').props.disabled, true);
+  assert.equal(f.nodes().filter(n => n.type === 'retained-browser').length, 1);
+});
+
+test('connection marks distinguish unknown, login, unconfirmed, verified and mismatched evidence', () => {
+  const session = new ConnectionSession();
+  assert.equal(connectionSymbol(session.state).mark, '?');
+  session.start('a'); session.fail('a', 'login-required');
+  assert.equal(connectionSymbol(session.state).mark, '→');
+  session.start('b'); session.observe('b', observed, at);
+  assert.equal(connectionSymbol(session.state).mark, '!');
+  session.confirm(); assert.equal(connectionSymbol(session.state).mark, '✓');
+  session.invalidate(); assert.equal(connectionSymbol(session.state).mark, '?');
+  session.start('c'); session.observe('c', { ...observed, accountNumber: '999' }, at);
+  assert.equal(connectionSymbol(session.state).mark, '!');
 });
