@@ -111,7 +111,7 @@ Unknown durations stay unknown. Incomplete history is shown as incomplete; a par
 
 ## Flight-logbook product workflow
 
-The intended catch-up journey starts with the remembered last written entry. Confirm it, or supply a current photo if it no longer matches your paper book. Review proposed flights and resolve required missing information before preparing an adjustable page-sized batch.
+The intended catch-up journey starts with the remembered last written entry. Confirm it for the named book, or enter the running number of your actual last written flight. Provide details/a current photo when that number or required continuation information cannot be resolved. Review proposed flights and resolve required missing information before preparing an adjustable page-sized batch.
 
 ```mermaid
 flowchart LR
@@ -124,7 +124,7 @@ flowchart LR
 
 *Intended journey; real photo recognition and end-to-end writing remain future work.*
 
-Assumed writing progress stays separate from confirmed paper evidence. The next session checks the remembered entry or a new photo; there is no mandatory post-writing completion prompt. Existing lab confirmation tests predate this revised requirement. Historical gaps and decisions to leave discrepancies unchanged remain visible and revisitable.
+Assumed writing progress stays separate from confirmed paper evidence. The next session checks the remembered entry, accepts the actual last written book number or uses a photo when clarification is needed; there is no mandatory post-writing completion prompt. Existing lab confirmation tests predate this revised requirement. Historical gaps and decisions to leave discrepancies unchanged remain visible and revisitable.
 
 ### Club information and costs
 
