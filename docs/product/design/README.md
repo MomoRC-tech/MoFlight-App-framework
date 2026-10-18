@@ -1,6 +1,6 @@
 # MoFlight UI design handbook
 
-This is the current starting point for MoFlight's visual design. Use it when enhancing screens, reviewing symbols or proposing a change to the overall appearance. Manuel authorized this consolidation on 18 October 2026 under [#23](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/23). It records existing decisions and implementation; it selects no replacement design.
+This is the current starting point for MoFlight's visual design. Use it when enhancing screens, reviewing symbols or proposing a change to the overall appearance. Manuel authorized this consolidation on 18 October 2026 under [#23](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/23). The later selected duotone symbol family, M2 Medical card and supplied folded paper plane were approved for guide/app integration on 18 October 2026 under #20. Other layout and data decisions retain their scope.
 
 ## Read or share the guide
 
@@ -10,7 +10,7 @@ This is the current starting point for MoFlight's visual design. Use it when enh
 | [Components and shapes](components.md) | Cards, controls, headers, navigation, sheets, badges and charts, with relevant states and source locations. |
 | [Layout and presentation patterns](patterns.md) | Composition, responsive widths, navigation, keyboard, accessibility and honest data presentation. |
 | [Symbols and icons](../symbol-reference.html) | Existing 51-entry visual catalogue: appearance, meaning, action, states and editable asset paths. |
-| [Style Option 2: Modern Duotone](icon-options/option-2/index.html) | Proposed reference-based SVG family, original/vector comparison, compact specimens and mapping for all 51 IDs. [Medical / aircraft alternatives](icon-options/option-2/alternatives.html) · [Source notes](icon-options/option-2/README.md). App adoption remains open. |
+| [Style Option 2: Modern Duotone](icon-options/option-2/index.html) | Selected duotone family, original/vector comparison, compact specimens and mapping for all 51 IDs. M2 Medical card + supplied paper plane are the current choices. [Medical / aircraft alternatives](icon-options/option-2/alternatives.html) · [Source notes](icon-options/option-2/README.md). App integration is implemented; native evidence and remaining limits are recorded separately. |
 | [Implementation inventory](implementation-inventory.md) | Generated complete literal-color map, gradients, typography/geometry declarations and source fingerprints, including retained lab/adapter exceptions. |
 | [Decisions, history and known gaps](history.md) | Authority, overrides, superseded prototypes, unresolved differences and platform evidence. |
 | [Complete standalone HTML guide](design-guide.html) | All chapters, schematic component examples, approved reference and the same catalogue, with full text copy/download for another AI chat. Download/open the HTML to use its controls. |
@@ -27,7 +27,8 @@ Keep German labels beside important navigation/status symbols. Show saved facts 
 1. The [approved four-screen image](../design-sources/2026-10-16-four-screen/reference.png) controls baseline layout, cards, colors, buttons and spacing. Its sample data is illustrative; see its [source record](../design-sources/2026-10-16-four-screen/README.md).
 2. The [17 October shell corrections](../2026-10-17-native-shell-corrections.md) amend that baseline with Übersicht, Flüge, Flugbuch, Verein and AI; the compact fixed branded/profile header; and aircraft-share rings.
 3. The [18 October header decisions](../2026-10-18-header-status-review.md#package-1b-decision-checkpoint) amend their scope with aircraft B, contextual app Back, separate provider-history Back/Close and Connection → Med → Profile. Med reads unbekannt and opens a read-only explanation.
-4. This handbook consolidates those decisions. Earlier prototype choices apply only where explicitly carried forward. Code values record implementation and cannot approve an unresolved visual difference.
+4. Manuel's 18 October symbol selection adopts the duotone family, **M2 Medical card** and the **supplied folded paper plane** for navigation/header/dashboard/action symbols, superseding aircraft B and the stethoscope artwork only. Labels, status meanings, branding and data notation remain. See [selected family](icon-options/option-2/README.md).
+5. This handbook consolidates those decisions. Earlier prototype choices apply only where explicitly carried forward. Code values record implementation and cannot approve an unresolved visual difference.
 
 Manuel owns design decisions. Priorities, journeys and account/book behavior remain in the [project plan](../../project-plan.md), [journey map](../2026-10-13-journey-information-map.md) and feature contracts. Link those contracts rather than duplicating them here.
 

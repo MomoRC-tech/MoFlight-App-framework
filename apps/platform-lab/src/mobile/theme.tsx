@@ -1,16 +1,18 @@
 import React from 'react';
 import { ImageBackground, Pressable, StyleSheet, Text, View, type ImageSourcePropType, type StyleProp, type ViewStyle } from 'react-native';
+import { SymbolIcon, legacyIconTone, type SymbolName, type SymbolTone } from './SymbolIcon';
 
 export const colors = { background: '#000d18', card: '#071929', raised: '#11263b', border: '#244760', text: '#f5f7ff', muted: '#adbed5', blue: '#3595fe', cyan: '#46ccff', purple: '#231e63', orange: '#fc6a2d', green: '#48dba5' };
 export function GliderMark({ color = colors.text, large = false }: { color?: string; large?: boolean }) {
-  return <View accessible={false} style={{ width: large ? 68 : 28, height: 30, transform: [{ rotate: '-12deg' }] }}>
-    <View style={{ position: 'absolute', width: large ? 66 : 28, height: 2, top: 11, backgroundColor: color, borderRadius: 2 }} />
-    <View style={{ position: 'absolute', width: 2, height: 27, top: 0, left: large ? 33 : 13, backgroundColor: color, borderRadius: 2, transform: [{ rotate: '-22deg' }] }} />
-    <View style={{ position: 'absolute', width: large ? 18 : 10, height: 2, top: 24, left: large ? 29 : 10, backgroundColor: color, borderRadius: 2 }} />
-  </View>;
+  return <SymbolIcon name="glider" size={large ? 68 : 28} tone={legacyIconTone(color)} />;
 }
 export function ClubMark({ color = colors.muted }: { color?: string }) {
-  return <View accessible={false} style={{ width: 28, height: 30 }}>{[2, 14].map((left, index) => <View key={left} style={{ position: 'absolute', left, top: index ? 3 : 0 }}><View style={{ width: 8, height: 8, borderWidth: 1.5, borderColor: color, borderRadius: 4, marginLeft: 2 }} /><View style={{ width: 12, height: 16, borderWidth: 1.5, borderColor: color, borderRadius: 4, marginTop: 2 }} /></View>)}</View>;
+  return <SymbolIcon name="club" size={28} tone={legacyIconTone(color)} tile />;
+}
+export function IconLabel({ name, children, size = 18, tone = 'default', muted = false, style }: {
+  name: SymbolName; children: React.ReactNode; size?: number; tone?: SymbolTone; muted?: boolean; style?: StyleProp<import('react-native').TextStyle>;
+}) {
+  return <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}><SymbolIcon name={name} size={size} tone={tone} /><Label muted={muted} style={[{ flexShrink: 1 }, style]}>{children}</Label></View>;
 }
 export function Label({ children, muted = false, style, selectable }: { children: React.ReactNode; muted?: boolean; style?: StyleProp<import('react-native').TextStyle>; selectable?: boolean }) {
   return <Text selectable={selectable} style={[ui.text, muted && ui.muted, style]}>{children}</Text>;
@@ -19,14 +21,14 @@ export function Card({ children, style, onPress, label }: { children: React.Reac
   if (onPress) return <Pressable accessibilityRole="button" accessibilityLabel={label} onPress={onPress} style={({ pressed }) => [ui.card, style, pressed && ui.pressed]}>{children}</Pressable>;
   return <View style={[ui.card, style]}>{children}</View>;
 }
-export function Action({ children, onPress, secondary = false, disabled = false, label, testID }: { children: React.ReactNode; onPress: () => void; secondary?: boolean; disabled?: boolean; label?: string; testID?: string }) {
-  return <Pressable testID={testID} accessibilityRole="button" accessibilityLabel={label} accessibilityState={{ disabled }} disabled={disabled} onPress={onPress} style={({ pressed }) => [ui.action, secondary && ui.secondary, disabled && { opacity: .5 }, pressed && ui.pressed]}><Text style={[ui.actionText, secondary && { color: colors.text }]}>{children}</Text></Pressable>;
+export function Action({ children, onPress, secondary = false, disabled = false, label, testID, icon }: { children: React.ReactNode; onPress: () => void; secondary?: boolean; disabled?: boolean; label?: string; testID?: string; icon?: SymbolName }) {
+  return <Pressable testID={testID} accessibilityRole="button" accessibilityLabel={label} accessibilityState={{ disabled }} disabled={disabled} onPress={onPress} style={({ pressed }) => [ui.action, secondary && ui.secondary, disabled && { opacity: .5 }, pressed && ui.pressed]}><View style={ui.actionContent}>{icon && <SymbolIcon name={icon} size={20} tone={secondary ? 'default' : 'contrast'} />}<Text style={[ui.actionText, { flexShrink: 1 }, secondary && { color: colors.text }]}>{children}</Text></View></Pressable>;
 }
-export function Chip({ title, selected, onPress, disabled = false }: { title: string; selected?: boolean; onPress: () => void; disabled?: boolean }) {
-  return <Pressable accessibilityRole="button" accessibilityLabel={title} accessibilityState={{ selected: !!selected, disabled }} disabled={disabled} onPress={onPress} style={({ pressed }) => [ui.chipTouch, disabled && { opacity: .45 }, pressed && ui.pressed]}><View style={[ui.chip, selected && ui.chipSelected]}><Text style={[ui.chipText, selected && { color: '#031326', fontWeight: '700' }]}>{title}</Text></View></Pressable>;
+export function Chip({ title, selected, onPress, disabled = false, icon }: { title: string; selected?: boolean; onPress: () => void; disabled?: boolean; icon?: SymbolName }) {
+  return <Pressable accessibilityRole="button" accessibilityLabel={title} accessibilityState={{ selected: !!selected, disabled }} disabled={disabled} onPress={onPress} style={({ pressed }) => [ui.chipTouch, disabled && { opacity: .45 }, pressed && ui.pressed]}><View style={[ui.chip, selected && ui.chipSelected, ui.actionContent]}><Text style={[ui.chipText, selected && { color: '#031326', fontWeight: '700' }]}>{title}</Text>{icon && <SymbolIcon name={icon} size={16} tone={selected ? 'contrast' : 'muted'} />}</View></Pressable>;
 }
-export function Section({ title, action, onPress }: { title: string; action?: string; onPress?: () => void }) {
-  return <View style={ui.section}><Text accessibilityRole="header" style={[ui.heading, action && onPress ? { flex: 1, minWidth: 0 } : undefined]}>{title}</Text>{action && onPress && <Pressable accessibilityRole="button" onPress={onPress} style={[ui.smallAction, { width: '40%' }]}><Label style={{ color: colors.cyan, width: '100%', textAlign: 'right' }}>{action}</Label></Pressable>}</View>;
+export function Section({ title, action, onPress, icon }: { title: string; action?: string; onPress?: () => void; icon?: SymbolName }) {
+  return <View style={ui.section}>{icon && <SymbolIcon name={icon} size={20} />}<Text accessibilityRole="header" style={[ui.heading, (icon || action && onPress) ? { flex: 1, minWidth: 0 } : undefined]}>{title}</Text>{action && onPress && <Pressable accessibilityRole="button" onPress={onPress} style={[ui.smallAction, { width: '40%' }]}><Label style={{ color: colors.cyan, width: '100%', textAlign: 'right' }}>{action}</Label></Pressable>}</View>;
 }
 export function Empty({ title, children }: { title: string; children: React.ReactNode }) {
   return <View style={ui.empty}><Label style={{ fontWeight: '600' }}>{title}</Label><Label muted>{children}</Label></View>;
@@ -45,6 +47,7 @@ export const ui = StyleSheet.create({
   column: { flex: 1, minWidth: 0, gap: 8 },
   action: { minHeight: 48, borderRadius: 16, paddingHorizontal: 14, paddingVertical: 8, backgroundColor: colors.blue, alignItems: 'center', justifyContent: 'center' },
   actionText: { color: '#031326', fontSize: 13, lineHeight: 18, fontWeight: '600' },
+  actionContent: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6 },
   secondary: { backgroundColor: colors.raised, borderWidth: 1, borderColor: colors.border },
   chipTouch: { minHeight: 48, justifyContent: 'center' },
   chip: { minHeight: 34, minWidth: 66, borderWidth: 1, borderColor: colors.border, borderRadius: 20, paddingHorizontal: 13, paddingVertical: 6, justifyContent: 'center', alignItems: 'center', backgroundColor: '#061522' },

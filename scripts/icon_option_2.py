@@ -17,12 +17,12 @@ SVG = 'http://www.w3.org/2000/svg'
 ET.register_namespace('', SVG)
 # None means intentionally retain current artwork/text, not an omitted redesign.
 MAPPING = {
-    'N01': 'home', 'N02': None, 'N03': 'book', 'N04': 'club', 'N05': 'sparkle',
-    'H01': None, 'H02': 'back', 'H03': 'chain', 'H04': 'medical', 'H05': 'profile',
-    'S01': 'chain', 'S02': 'chain', 'S03': 'chain', 'S04': 'chain', 'S05': 'spinner',
+    'N01': 'home', 'N02': 'flight-paper-plane', 'N03': 'book', 'N04': 'club', 'N05': 'sparkle',
+    'H01': None, 'H02': 'back', 'H03': 'chain', 'H04': 'medical-card', 'H05': 'profile',
+    'S01': 'chain', 'S02': 'chain', 'S03': 'chain', 'S04': 'chain', 'S05': None,
     'D01': 'logbook', 'D02': 'sparkle', 'D03': 'glider', 'D04': 'clock',
     'D05': 'location', 'D06': 'weather', 'D07': None, 'D08': None,
-    'K01': 'duty', 'K02': 'calendar', 'K03': 'messages',
+    'K01': 'duty', 'K02': 'calendar-neutral', 'K03': 'messages',
     'A01': 'search', 'A02': 'filter', 'A03': 'down', 'A04': 'refresh',
     'A05': 'info', 'A06': 'right', 'A07': 'arrow', 'A08': 'arrow',
     'A09': 'send', 'A10': 'check', 'A11': 'plus', 'A12': 'back',
@@ -133,24 +133,24 @@ def build(root: Path = ROOT) -> tuple[dict[Path, str], dict]:
         for e in group['entries']:
             ident = e['id']
             name = MAPPING[ident]
-            why = 'Retained · ' + ('data graphic' if ident in {'D07', 'D08'} else 'approved aircraft B' if ident == 'N02' else 'text / state semantics' if ident.startswith('T') else 'historical only' if ident.startswith('X') or ident == 'B04' else 'original brand artwork')
+            why = 'Retained · ' + ('data graphic' if ident in {'D07', 'D08'} else 'approved aircraft B' if ident == 'N02' else 'text / state semantics' if ident.startswith('T') else 'historical only' if ident.startswith('X') or ident == 'B04' else 'native busy indicator' if ident == 'S05' else 'original brand artwork')
             href = f'assets/{name}.svg' if name else '../../../symbol-reference.html#' + ident
-            mapping_rows.append(f'<article class="catalogue-item" id="{ident}"><div class="sample">{sample(e)}</div><p class="eyebrow">{ident} / {"PROPOSED" if name else "PRESERVED"}</p><h4>{escape(e["title"])}</h4><p>{escape(e["meaning"])}</p><details><summary>Meaning, action &amp; states</summary><p>{escape(e["behavior"])}</p><p>{escape(e["states"])}</p></details><a class="asset-link" href="{href}">{"SVG master ↗" if name else escape(why) + " ↗"}</a></article>')
+            mapping_rows.append(f'<article class="catalogue-item" id="{ident}"><div class="sample">{sample(e)}</div><p class="eyebrow">{ident} / {"SELECTED" if name else "PRESERVED"}</p><h4>{escape(e["title"])}</h4><p>{escape(e["meaning"])}</p><details><summary>Meaning, action &amp; states</summary><p>{escape(e["behavior"])}</p><p>{escape(e["states"])}</p></details><a class="asset-link" href="{href}">{"SVG master ↗" if name else escape(why) + " ↗"}</a></article>')
         mapping_rows.append('</div>')
     manifest = {
-        'status': 'Proposed alternative; not selected for application integration',
+        'status': 'Selected by Manuel on 18 October 2026; app integration implemented, native verification recorded separately',
         'source_sha256': hashlib.sha256((root / BASE / 'reference.jpg').read_bytes()).hexdigest(),
         'grid': 96, 'reference_board': [1280, 698],
         'tile': {'reference_px': [150, 147], 'reference_radius_px': 24, 'ui_sizes_px': [40, 48, 56], 'ui_radius_px': [12, 14, 16]},
         'palette': {'canvas': '#041328', 'cyan': ['#32f1ef', '#00d9e8', '#00b9df'], 'slate': ['#8caac1', '#7094b1', '#46688b']},
-        'mapping': {e['id']: {'glyph': MAPPING[e['id']], 'title': e['title'], 'status': 'proposed' if MAPPING[e['id']] else 'preserved'} for e in entries},
+        'mapping': {e['id']: {'glyph': MAPPING[e['id']], 'title': e['title'], 'status': 'selected' if MAPPING[e['id']] else 'preserved'} for e in entries},
         'assets': sorted(f'assets/{name}.svg' for name in symbols),
         'alternatives': {'status': 'Proposals only; no candidate selected', 'review': 'alternatives.html', 'candidates': ALTERNATIVES},
     }
     outputs[BASE / 'manifest.json'] = json.dumps(manifest, ensure_ascii=False, indent=2) + '\n'
     template = (root / BASE / '_review.html').read_text(encoding='utf-8')
     lookup = {e['id']: e for e in entries}
-    compact = ''.join(f'<div class="size-row"><span>{size} px</span>' + ''.join(vector(n, size) for n in ['home', 'book', 'club', 'search', 'weather', 'medical', 'settings']) + '</div>' for size in [24, 28, 32])
+    compact = ''.join(f'<div class="size-row"><span>{size} px</span>' + ''.join(vector(n, size) for n in ['home', 'book', 'club', 'search', 'weather', 'medical-card', 'settings']) + '</div>' for size in [24, 28, 32])
     compact += '<div class="tile-specimens">' + ''.join(f'<div><span class="soft-tile" style="width:{size}px;height:{size}px;border-radius:{radius}px">{vector("home", int(size*.6))}</span><small>{size}px / r{radius}</small></div>' for size, radius in [(40, 12), (48, 14), (56, 16)]) + '</div>'
     nav = ''.join(f'<div class="nav-item {"active" if ident == "N01" else ""}">{sample(lookup[ident],28)}<span>{label}</span></div>' for ident, label in [('N01', 'Übersicht'), ('N02', 'Flüge'), ('N03', 'Flugbuch'), ('N04', 'Verein'), ('N05', 'AI')])
     header = f'<div class="context-header"><b>MoFlight</b><div class="header-controls"><span class="header-action" aria-label="Verbindung unbekannt">{sample(lookup["H03"],24)}</span><span class="header-med">{sample(lookup["H04"],20)}</span><span class="header-action" aria-label="Profil">{vector("profile",26)}</span></div></div>'
@@ -192,7 +192,7 @@ def build(root: Path = ROOT) -> tuple[dict[Path, str], dict]:
         for j, size in enumerate(sizes):
             center = x + 77 + j * 81
             comparison.append(f'<use href="#o2-{candidate["glyph"]}" x="{center-size/2}" y="{y+199+(32-size)/2}" width="{size}" height="{size}"/><text x="{center}" y="{y+253}" text-anchor="middle" fill="#a1b4c9" font-family="Arial,sans-serif" font-size="10">{size}px</text>')
-    comparison.append('<text x="32" y="720" fill="#a1b4c9" font-family="Arial,sans-serif" font-size="12">Category symbols only. Med remains unknown. Current app artwork is unchanged.</text></svg>')
+    comparison.append('<text x="32" y="720" fill="#a1b4c9" font-family="Arial,sans-serif" font-size="12">Historical comparison. M2 + the supplied folded plane were subsequently selected. Med remains unknown.</text></svg>')
     outputs[BASE / 'alternatives-board.svg'] = ''.join(comparison) + '\n'
     # Parse every generated SVG, check references, and keep review coverage honest.
     for path, value in outputs.items():
@@ -204,7 +204,7 @@ def build(root: Path = ROOT) -> tuple[dict[Path, str], dict]:
             refs = re.findall(r'(?:url\(#|href="#)([^)" ]+)', value)
             if set(refs) - set(ids):
                 raise ValueError('Missing SVG reference: ' + str(path))
-    return outputs, {'glyphs': len(symbols), 'catalogue_ids': len(MAPPING), 'proposed_ids': sum(bool(n) for n in MAPPING.values()), 'preserved_ids': sum(n is None for n in MAPPING.values()), 'reference_compositions': len(BOARD), 'generated_files': len(outputs)}
+    return outputs, {'glyphs': len(symbols), 'catalogue_ids': len(MAPPING), 'selected_ids': sum(bool(n) for n in MAPPING.values()), 'preserved_ids': sum(n is None for n in MAPPING.values()), 'reference_compositions': len(BOARD), 'generated_files': len(outputs)}
 
 
 def main() -> int:

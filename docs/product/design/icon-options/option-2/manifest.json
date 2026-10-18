@@ -1,5 +1,5 @@
 {
-  "status": "Proposed alternative; not selected for application integration",
+  "status": "Selected by Manuel on 18 October 2026; app integration implemented, native verification recorded separately",
   "source_sha256": "1a29491d2964fccd9a71763409848bf7a734e59b9d978efd87c5de5f044308d7",
   "grid": 96,
   "reference_board": [
@@ -40,27 +40,27 @@
     "N01": {
       "glyph": "home",
       "title": "Home / Übersicht",
-      "status": "proposed"
+      "status": "selected"
     },
     "N02": {
-      "glyph": null,
+      "glyph": "flight-paper-plane",
       "title": "Flights / Flüge",
-      "status": "preserved"
+      "status": "selected"
     },
     "N03": {
       "glyph": "book",
       "title": "Logbook / Flugbuch",
-      "status": "proposed"
+      "status": "selected"
     },
     "N04": {
       "glyph": "club",
       "title": "Club / Verein",
-      "status": "proposed"
+      "status": "selected"
     },
     "N05": {
       "glyph": "sparkle",
       "title": "AI assistant / AI",
-      "status": "proposed"
+      "status": "selected"
     },
     "H01": {
       "glyph": null,
@@ -70,77 +70,77 @@
     "H02": {
       "glyph": "back",
       "title": "App Back",
-      "status": "proposed"
+      "status": "selected"
     },
     "H03": {
       "glyph": "chain",
       "title": "Provider connection",
-      "status": "proposed"
+      "status": "selected"
     },
     "H04": {
-      "glyph": "medical",
+      "glyph": "medical-card",
       "title": "Medical / Med",
-      "status": "proposed"
+      "status": "selected"
     },
     "H05": {
       "glyph": "profile",
       "title": "Profile and settings",
-      "status": "proposed"
+      "status": "selected"
     },
     "S01": {
       "glyph": "chain",
       "title": "Session unverified / unknown",
-      "status": "proposed"
+      "status": "selected"
     },
     "S02": {
       "glyph": "chain",
       "title": "Last confirmed session check",
-      "status": "proposed"
+      "status": "selected"
     },
     "S03": {
       "glyph": "chain",
       "title": "Provider login required",
-      "status": "proposed"
+      "status": "selected"
     },
     "S04": {
       "glyph": "chain",
       "title": "Connection attention / blocked",
-      "status": "proposed"
+      "status": "selected"
     },
     "S05": {
-      "glyph": "spinner",
+      "glyph": null,
       "title": "Busy / checking / saving",
-      "status": "proposed"
+      "status": "preserved"
     },
     "D01": {
       "glyph": "logbook",
       "title": "Paper logbook work",
-      "status": "proposed"
+      "status": "selected"
     },
     "D02": {
       "glyph": "sparkle",
       "title": "AI suggestion",
-      "status": "proposed"
+      "status": "selected"
     },
     "D03": {
       "glyph": "glider",
       "title": "Glider / no flight track",
-      "status": "proposed"
+      "status": "selected"
     },
     "D04": {
       "glyph": "clock",
       "title": "Time / duration",
-      "status": "proposed"
+      "status": "selected"
     },
     "D05": {
       "glyph": "location",
       "title": "Location / start field",
-      "status": "proposed"
+      "status": "selected"
     },
     "D06": {
       "glyph": "weather",
       "title": "Weather",
-      "status": "proposed"
+      "status": "selected"
     },
     "D07": {
       "glyph": null,
@@ -155,77 +155,77 @@
     "K01": {
       "glyph": "duty",
       "title": "Next club duty",
-      "status": "proposed"
+      "status": "selected"
     },
     "K02": {
-      "glyph": "calendar",
+      "glyph": "calendar-neutral",
       "title": "Upcoming club appointments",
-      "status": "proposed"
+      "status": "selected"
     },
     "K03": {
       "glyph": "messages",
       "title": "Club notices",
-      "status": "proposed"
+      "status": "selected"
     },
     "A01": {
       "glyph": "search",
       "title": "Search flights",
-      "status": "proposed"
+      "status": "selected"
     },
     "A02": {
       "glyph": "filter",
       "title": "Open flight filters",
-      "status": "proposed"
+      "status": "selected"
     },
     "A03": {
       "glyph": "down",
       "title": "Choose logbook",
-      "status": "proposed"
+      "status": "selected"
     },
     "A04": {
       "glyph": "refresh",
       "title": "Reload local data",
-      "status": "proposed"
+      "status": "selected"
     },
     "A05": {
       "glyph": "info",
       "title": "Unavailable classification information",
-      "status": "proposed"
+      "status": "selected"
     },
     "A06": {
       "glyph": "right",
       "title": "Open row / supporting destination",
-      "status": "proposed"
+      "status": "selected"
     },
     "A07": {
       "glyph": "arrow",
       "title": "Forward / continue action",
-      "status": "proposed"
+      "status": "selected"
     },
     "A08": {
       "glyph": "arrow",
       "title": "Departure to arrival",
-      "status": "proposed"
+      "status": "selected"
     },
     "A09": {
       "glyph": "send",
       "title": "Send AI message",
-      "status": "proposed"
+      "status": "selected"
     },
     "A10": {
       "glyph": "check",
       "title": "Selected logbook",
-      "status": "proposed"
+      "status": "selected"
     },
     "A11": {
       "glyph": "plus",
       "title": "Expand / collapse details",
-      "status": "proposed"
+      "status": "selected"
     },
     "A12": {
       "glyph": "back",
       "title": "Back inside provider webpage",
-      "status": "proposed"
+      "status": "selected"
     },
     "T01": {
       "glyph": null,
@@ -301,6 +301,7 @@
     "assets/back.svg",
     "assets/bell.svg",
     "assets/book.svg",
+    "assets/calendar-neutral.svg",
     "assets/calendar.svg",
     "assets/chain.svg",
     "assets/check.svg",
@@ -314,6 +315,7 @@
     "assets/explore.svg",
     "assets/filter.svg",
     "assets/flight-light-plane.svg",
+    "assets/flight-paper-plane.svg",
     "assets/flight-plan.svg",
     "assets/flight-sailplane.svg",
     "assets/flight-side-profile.svg",

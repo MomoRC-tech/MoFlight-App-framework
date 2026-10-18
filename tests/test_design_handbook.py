@@ -13,11 +13,12 @@ class HandbookGenerationTests(unittest.TestCase):
         outputs,report=guide.build()
         self.assertEqual(report['symbols'],51)
         self.assertEqual(report['html_pages'],2)
-        self.assertEqual(report['embedded_images'][str(guide.DESIGN/'design-guide.html').replace('\\','/')],8)
+        self.assertIn(guide.asset_uri(Path('apps/platform-lab/assets/icons/duotone/medical-card-default.png')),outputs[guide.DESIGN/'design-guide.html'])
+        self.assertIn(guide.asset_uri(Path('apps/platform-lab/assets/icons/duotone/flight-paper-plane-default.png')),outputs[guide.DESIGN/'design-guide.html'])
         text=outputs[guide.DESIGN/'design-brief.txt']
         for ident in ['N01','N05','H04','S02','A12','T06','X03','B04']:
             self.assertIn(ident+' · ',text)
-        self.assertIn('No new visual choice is needed',text)
+        self.assertIn('Selected',text)
         self.assertNotIn('base64,',text)
 
     def test_rendered_export_cannot_omit_a_symbol_or_copyable_entry(self):

@@ -38,7 +38,8 @@ function fixture(overrides: Partial<Controller> = {}) {
     react: { default: react, ...react },
     'react-native': { ...Object.fromEntries(['ActivityIndicator', 'KeyboardAvoidingView', 'Pressable', 'ScrollView', 'TextInput', 'View'].map(name => [name, name])),
       Platform: { OS: 'android' }, StyleSheet: { create: (value: unknown) => value, absoluteFill: {} } },
-    './theme': { ...Object.fromEntries(['Action', 'Card', 'Label', 'Section'].map(name => [name, name])), colors: {}, ui: { text: {} } },
+    './theme': { ...Object.fromEntries(['Action', 'Card', 'IconLabel', 'Label', 'Section'].map(name => [name, name])), colors: {}, ui: { text: {} } },
+    './SymbolIcon': { SymbolIcon: 'SymbolIcon' },
     './connection-guidance': { connectionGuidance, connectionSymbol }, '../vereinsflieger/connection-state': { retrievalFailureHint },
     '../vereinsflieger/probe': { providerUrl },
     'react-native-safe-area-context': { useSafeAreaInsets: () => ({ top: 0, bottom: 0 }) },
@@ -165,17 +166,17 @@ test('original-page provenance and loading guard survive login presentation and 
 
 test('provider history and app close are separate; history stays disabled during owned operations', () => {
   const f = fixture({ visible: true, loaded: true, url: 'https://www.vereinsflieger.de/' });
-  assert.equal(f.button('‹ Anbieterseite zurück').props.disabled, true);
+  assert.equal(f.button('Anbieterseite zurück').props.disabled, true);
   f.controller.canGoBack = true; f.render();
-  f.button('‹ Anbieterseite zurück').props.onPress();
+  f.button('Anbieterseite zurück').props.onPress();
   assert.deepEqual(f.calls, ['provider-back']);
   for (const field of ['busy', 'saving', 'clearing', 'binding', 'loginBusy', 'disconnecting'] as const) {
     f.controller[field] = true; f.render();
-    assert.equal(f.button('‹ Anbieterseite zurück').props.disabled, true, field);
+    assert.equal(f.button('Anbieterseite zurück').props.disabled, true, field);
     f.controller[field] = false;
   }
   f.controller.connection = { ...f.controller.connection, phase: 'checking' }; f.render();
-  assert.equal(f.button('‹ Anbieterseite zurück').props.disabled, true);
+  assert.equal(f.button('Anbieterseite zurück').props.disabled, true);
   assert.equal(f.nodes().filter(n => n.type === 'retained-browser').length, 1);
 });
 

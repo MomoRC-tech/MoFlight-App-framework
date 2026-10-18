@@ -78,7 +78,7 @@ def execute(smoke):
     top(smoke)
     smoke.tap('Flugfilter öffnen')
     smoke.tap('Filter zurücksetzen')
-    smoke.tap('Strecke ⓘ')
+    smoke.tap('Strecke')
     smoke.find('Klassifikation nicht verfügbar')
     smoke.tap('‹ Zurück')
     tab(smoke, 'Verein')

@@ -36,8 +36,8 @@ class IconOptionTests(unittest.TestCase):
     def test_every_semantic_id_is_explicit_and_selected_artwork_stays_preserved(self):
         manifest = json.loads(self.outputs[option.BASE / 'manifest.json'])
         self.assertEqual(len(manifest['mapping']), 51)
-        self.assertEqual(manifest['mapping']['H04']['glyph'], 'medical')
-        for ident in ['N02', 'H01', 'D07', 'D08', 'T01', 'T03', 'T04', 'B01', 'B02', 'B03']:
+        self.assertEqual(manifest['mapping']['H04']['glyph'], 'medical-card')
+        for ident in ['H01', 'D07', 'D08', 'T01', 'T03', 'T04', 'B01', 'B02', 'B03']:
             self.assertIsNone(manifest['mapping'][ident]['glyph'])
         self.assertEqual(self.report['reference_compositions'], 18)
 
@@ -67,8 +67,8 @@ class IconOptionTests(unittest.TestCase):
         candidates = manifest['alternatives']['candidates']
         self.assertEqual({c['id'] for c in candidates}, {'M1', 'M2', 'M3', 'F1', 'F2', 'F3'})
         self.assertEqual({c['target'] for c in candidates}, {'H04', 'N02'})
-        self.assertIsNone(manifest['mapping']['N02']['glyph'])
-        self.assertEqual(manifest['mapping']['H04']['glyph'], 'medical')
+        self.assertEqual(manifest['mapping']['N02']['glyph'], 'flight-paper-plane')
+        self.assertEqual(manifest['mapping']['H04']['glyph'], 'medical-card')
         for candidate in candidates:
             self.assertIn(option.BASE / 'assets' / (candidate['glyph'] + '.svg'), self.outputs)
         page = self.outputs[option.BASE / 'alternatives.html']

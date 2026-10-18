@@ -90,7 +90,7 @@ def contrast_table(values: dict[str, str]) -> str:
              ('Muted text / card fallback', values['muted'], values['card']),
              ('Action label / blue fallback', '#031326', values['blue']),
              ('General cyan / canvas', values['cyan'], values['background']),
-             ('Back arrow / opaque Back face', '#101a3c', '#a4adff')]
+             ('Brightest Back arrow gradient stop / opaque Back face', '#123a50', '#a4adff')]
     return '\n'.join(['| Opaque pair | Foreground | Background | Calculated ratio |', '| --- | --- | --- | --- |'] +
                      [f'| {name} | `{fg}` | `{bg}` | {contrast(fg,bg):.2f}:1 |' for name,fg,bg in pairs])
 
@@ -296,7 +296,7 @@ def load_catalogue(root: Path = ROOT) -> dict:
 
 def render_catalogue(data: dict, output: Path, root: Path = ROOT) -> tuple[str,str]:
     html=['<section id="symbol-catalogue"><h2>Symbols, icons and state marks</h2><p>Maintained source: symbols.json. Original assets are embedded unchanged. Native View marks are schematic SVG redraws, enlarged on neutral tiles; glyph rendering depends on fonts. Browser samples do not establish native acceptance.</p>']
-    brief=['SYMBOLS, ICONS AND STATE MARKS\nPreserve stable IDs, semantic meaning, current action and relevant states when proposing replacements. Preserve approved Thermik branding and selected aircraft B until a replacement is explicitly selected. Samples are schematic except unchanged source images.']
+    brief=['SYMBOLS, ICONS AND STATE MARKS\nPreserve stable IDs, semantic meaning, current action and relevant states when proposing replacements. Preserve approved Thermik branding and the selected M2 Medical card / folded paper plane; earlier aircraft B remains historical. Samples are schematic except unchanged source images.']
     for group in data['groups']:
         html += [f'<h3>{escape(group["title"])}</h3><p>{escape(group["intro"])}</p><div class="entries">']
         brief += [group['title']+'\n'+group['intro']]
@@ -382,8 +382,11 @@ def build(root: Path = ROOT) -> tuple[dict[Path,str],dict]:
     foundations=replace_generated(foundations,'contrast',contrast_table(values))
     chapters={name:read(root/DESIGN/name) for name in CHAPTERS if name not in {'foundations.md','implementation-inventory.md'}}
     chapters.update({'foundations.md':foundations,'implementation-inventory.md':inventory})
+    native_palettes=json.loads(read(root/Path('apps/platform-lab/assets/icons/duotone/manifest.json')))['config']['tones']
+    asset_colors={value.lower() for palette in native_palettes.values() for value in palette}
     for value in HEX.findall(foundations):
-        if value.lower() not in colors: raise ValueError(f'Foundation color absent from implementation: {value}')
+        if value.lower() not in colors and value.lower() not in asset_colors:
+            raise ValueError(f'Foundation color absent from implementation: {value}')
     catalogue=load_catalogue(root)
     # Scope is source glyph coverage, not inferred native rendering acceptance.
     glyphs=set()
@@ -393,6 +396,7 @@ def build(root: Path = ROOT) -> tuple[dict[Path,str],dict]:
     if glyphs-set(catalogue_text): raise ValueError('Mobile source has symbols absent from the catalogue')
     template=read(root/DESIGN/'_template.html')
     examples=read(root/DESIGN/'_examples.html')
+    examples=re.sub(r'src="asset:([^"]+)"',lambda m:'src="'+asset_uri(Path(m[1]),root)+'"',examples)
     source_hash=digest(json.dumps({'chapters':chapters,'catalogue':catalogue,'source':fingerprints,'template':template,'examples':examples},ensure_ascii=False,sort_keys=True))
     outputs={DESIGN/'foundations.md':foundations,DESIGN/'implementation-inventory.md':inventory}
     full=DESIGN/'design-guide.html'

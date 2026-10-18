@@ -11,7 +11,8 @@
 | 17 Oct 2026 / Manuel | Approved five tabs, compact header/profile, aircraft and aircraft-share rings | [Shell report](../../verification/2026-10-17-native-shell-corrections.md) records Android checks and remaining iOS/physical limits. |
 | 18 Oct 2026 / Manuel | Approved B, contextual Back/provider Close, one active header, Connection → Med → Profile unknown | Medical follow-up in application `8b51f5a`. [Decision](../2026-10-18-header-status-review.md#package-1b-decision-checkpoint), [evidence](../../verification/2026-10-18-header-navigation.md). |
 | 18 Oct 2026 / Manuel | Authorized this handbook/export consolidation under #23 | Documentation implementation; no new appearance, code-token refactor or runtime acceptance. |
-| 18 Oct 2026 / Manuel | Requested creation of Style Option 2, Modern Duotone & Soft-Filled Glyphs, from his supplied JPEG | [Review and SVG family](icon-options/option-2/index.html), [source notes](icon-options/option-2/README.md), [verification](../../verification/2026-10-18-icon-option-2.md). Alternative prepared; app selection/integration remains open under #20. |
+| 18 Oct 2026 / Manuel | Selected duotone symbol family, M2 Medical card and supplied folded paper plane; authorized guide and app integration | Supersedes aircraft B and stethoscope artwork. [Selected assets](icon-options/option-2/README.md), [source-specific verification](../../verification/2026-10-18-icon-option-2.md). Navigation/unknown meanings and branding are preserved. |
+| 18 Oct 2026 / Manuel | Requested creation of Style Option 2, Modern Duotone & Soft-Filled Glyphs, from his supplied JPEG | [Review and SVG family](icon-options/option-2/index.html), [source notes](icon-options/option-2/README.md), [verification](../../verification/2026-10-18-icon-option-2.md). Initial comparison checkpoint, superseded by the later explicit M2 / folded-plane family selection and integration under #20. |
 
 ## Preserved history
 
@@ -37,7 +38,7 @@
 | Connected data | Medical/AI/weather/club presentation retains unknown/unavailable states. This guide establishes no evidence source/integration. | Existing #20/#7/#10/#13 scopes |
 | Runtime limits | Existing Android checks are source-specific. Spoken TalkBack, iOS, physical-device and positive provider-history/original-page keyboard remain separate. | #20/#8 and linked reports |
 
-No new visual choice is needed to finish consolidation: explicit amendments resolve the chronology; unresolved appearance changes remain for later review.
+The later selected duotone symbols supersede earlier artwork choices in their scope. Other unresolved appearance changes remain for later review.
 
 ## Maintenance and evidence
 

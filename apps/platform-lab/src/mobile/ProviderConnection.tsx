@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
-import { Action, Card, Label, Section, colors, ui } from './theme';
+import { Action, Card, IconLabel, Label, Section, colors, ui } from './theme';
+import { SymbolIcon } from './SymbolIcon';
 import { retrievalFailureHint } from '../vereinsflieger/connection-state';
 import { connectionGuidance, connectionSymbol } from './connection-guidance';
 import type { useAccessController } from '../vereinsflieger/use-access-controller';
@@ -17,10 +18,7 @@ export function ConnectionIndicator({ controller: c, onPress }: { controller: Co
   const status = `Vereinsflieger: ${pending ? operation : c.recovery ? 'Abruf gesperrt · Wiederherstellung nötig' : connectionGuidance(c.connection, c.browserActive).title}`;
   const Control = onPress ? Pressable : View;
   return <Control accessible accessibilityRole={onPress ? 'button' : 'text'} accessibilityLabel={`${status}${onPress ? '. Verbindungen öffnen' : ''}`} accessibilityState={{ busy: pending }} onPress={onPress} style={styles.indicator}>
-    {pending ? <ActivityIndicator color={colors.cyan} /> : <View accessible={false} style={{ width: 27, height: 25 }}>
-      <View style={[styles.link, { left: 0, top: 2, borderColor: tint }]} /><View style={[styles.link, { right: 0, bottom: 2, borderColor: tint }]} />
-      <View style={{ position: 'absolute', left: 12, top: 8, width: 2, height: 10, backgroundColor: tint, transform: [{ rotate: '45deg' }] }} />
-    </View>}
+    {pending ? <ActivityIndicator color={colors.cyan} /> : <SymbolIcon name="chain" size={28} tone={mark === '?' ? 'muted' : 'default'} />}
     {!pending && <View accessible={false} style={styles.mark}><Label style={{ color: c.recovery ? '#ffb39e' : tint, fontWeight: '700', fontSize: 12, lineHeight: 15 }}>{c.recovery ? '!' : mark}</Label></View>}
   </Control>;
 }
@@ -47,12 +45,12 @@ export function ProviderConnection({ controller: c, open, close }: { controller:
       {c.browser}
     </View>
     <View style={styles.bar} onLayout={event => setBarHeight(event.nativeEvent.layout.height)}>
-      <Action secondary label="Verbindungen schließen und zur App zurückkehren" onPress={dismiss}>Schließen</Action>
+      <Action secondary icon="close" label="Verbindungen schließen und zur App zurückkehren" onPress={dismiss}>Schließen</Action>
       <Label style={{ flex: 1, fontWeight: '600' }}>{login ? c.disconnecting ? 'Bei Vereinsflieger abmelden' : 'Bei Vereinsflieger anmelden' : 'Verbindungen'}</Label>
       <ConnectionIndicator controller={c} onPress={login ? c.dismissLogin : undefined} />
     </View>
     {login ? <View style={styles.loginBar} onLayout={event => setLoginHeight(event.nativeEvent.layout.height)}>
-      <Action secondary label="Auf der Vereinsflieger-Seite zurück" disabled={locked || !c.canGoBack} onPress={c.backWithinProvider}>‹ Anbieterseite zurück</Action>
+      <Action secondary icon="back" label="Auf der Vereinsflieger-Seite zurück" disabled={locked || !c.canGoBack} onPress={c.backWithinProvider}>Anbieterseite zurück</Action>
       <Label style={{ fontWeight: '600' }}>{providerUrl(c.url) ? new URL(c.url).origin : 'Anbieteradresse nicht bestätigt'}</Label>
       <Label muted>{c.disconnecting ? 'Auf der Originalseite „Abmelden“ wählen, danach hier prüfen. Schließen allein meldet dich nicht ab.' : 'Zugangsdaten nur auf der Originalseite eingeben.'}</Label>
       {loginFeedback && <Label>{loginFeedback}</Label>}
@@ -98,7 +96,7 @@ export function ProviderConnection({ controller: c, open, close }: { controller:
             </>}
             <Action secondary disabled={locked || c.legacyRecovery || !c.original.current} onPress={() => c.checkConnection('recover')}>Anbieteransicht wiederherstellen</Action></Card>}
           <Label muted>Schließen meldet dich nicht ab. Gespeicherte Rohbelege sind von deiner Flugbibliothek getrennt.</Label>
-          <Pressable accessibilityRole="button" accessibilityLabel="Sitzungsdetails und weitere Optionen" accessibilityState={{ expanded: details }} onPress={() => setDetails(!details)} style={styles.disclosure}><Label style={{ color: colors.cyan }}>{details ? '−' : '+'} Sitzungsdetails & weitere Optionen</Label></Pressable>
+          <Pressable accessibilityRole="button" accessibilityLabel="Sitzungsdetails und weitere Optionen" accessibilityState={{ expanded: details }} onPress={() => setDetails(!details)} style={styles.disclosure}><IconLabel name={details ? 'minus' : 'plus'} size={18} style={{ color: colors.cyan }}>Sitzungsdetails & weitere Optionen</IconLabel></Pressable>
           {details && <Card><Section title="Sitzungsdetails" />
             <Label muted>Die Anbieteranmeldung ist unabhängig von deinem lokalen Demoprofil und deinen Flugbüchern.</Label>
             <Label muted>Letzte Profilbeobachtung: {c.connection.lastCheckedAt ? new Date(c.connection.lastCheckedAt).toLocaleString('de-DE') : 'noch nicht erfolgt'}</Label>
@@ -124,7 +122,7 @@ export function ProviderConnection({ controller: c, open, close }: { controller:
             {c.credentialNotice === 'error' && <Label>Zugangsdaten konnten nicht entfernt werden. Erneut versuchen.</Label>}
             <Label muted>Entfernt nur die von MoFlight gespeicherten Zugangsdaten auf diesem Gerät. Die Anbietersitzung, System-Autofill und gespeicherte Flüge bleiben davon unabhängig.</Label>
           </Card>}
-          <Pressable accessibilityRole="button" accessibilityLabel="Entwicklungswerkzeuge für Rohbelege" accessibilityState={{ expanded: lab }} onPress={() => setLab(!lab)} style={styles.disclosure}><Label style={{ color: colors.cyan }}>{lab ? '−' : '+'} Entwicklungswerkzeuge · Rohbelege</Label></Pressable>
+          <Pressable accessibilityRole="button" accessibilityLabel="Entwicklungswerkzeuge für Rohbelege" accessibilityState={{ expanded: lab }} onPress={() => setLab(!lab)} style={styles.disclosure}><IconLabel name={lab ? 'minus' : 'plus'} size={18} style={{ color: colors.cyan }}>Entwicklungswerkzeuge · Rohbelege</IconLabel></Pressable>
           {lab && <Card><Section title="Begrenzter Rohabruf" />
             <Label muted>Entwicklungsnachweis: Der Abruf speichert rohe Anbieterbelege separat. Er ersetzt keine Flüge in der synthetischen Bibliothek und erzeugt keinen kanonischen Live-Import.</Label>
             <Label muted>Letzter lokal zugeordneter Rohbeleg: {c.snapshot ? `${new Date(c.snapshot.retrievedAt).toLocaleString('de-DE')} · ${c.snapshot.rows.length} Datensätze · ${c.snapshot.exportContext?.pageCount ?? '—'} Seite(n)` : 'noch keiner'}</Label>
@@ -143,7 +141,7 @@ export function ProviderConnection({ controller: c, open, close }: { controller:
   </View>;
 }
 const styles = StyleSheet.create({
-  indicator: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center', borderRadius: 24, backgroundColor: '#102d47aa' },
+  indicator: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center', borderRadius: 14, backgroundColor: '#102d47aa' },
   mark: { position: 'absolute', right: 0, bottom: 1, minWidth: 16, height: 16, borderRadius: 8, backgroundColor: colors.background, alignItems: 'center', justifyContent: 'center' },
   link: { position: 'absolute', width: 18, height: 12, borderWidth: 2, borderRadius: 7, transform: [{ rotate: '-45deg' }] },
   browserFrame: { position: 'absolute', width: '100%', maxWidth: 800, alignSelf: 'center', bottom: 0, backgroundColor: 'white' },

@@ -1,0 +1,667 @@
+{
+  "config": {
+    "master_sha256": "e34b29a13398fbfaa1ca76c3f9e6d70d508f9a5ad0d0b2ebd56823e376e48348",
+    "glyphs": [
+      "home",
+      "flight-paper-plane",
+      "book",
+      "club",
+      "sparkle",
+      "back",
+      "chain",
+      "medical-card",
+      "profile",
+      "logbook",
+      "glider",
+      "clock",
+      "location",
+      "weather",
+      "duty",
+      "calendar-neutral",
+      "messages",
+      "search",
+      "filter",
+      "down",
+      "refresh",
+      "info",
+      "right",
+      "arrow",
+      "send",
+      "check",
+      "plus",
+      "minus",
+      "close"
+    ],
+    "tones": {
+      "default": [
+        "#32f1ef",
+        "#00d9e8",
+        "#00b9df",
+        "#8caac1",
+        "#7094b1",
+        "#46688b"
+      ],
+      "muted": [
+        "#b6c8d8",
+        "#99b0c6",
+        "#7d98af",
+        "#839fb7",
+        "#67859f",
+        "#46627b"
+      ],
+      "paper": [
+        "#ffe0b4",
+        "#ffa34e",
+        "#ff772d",
+        "#bd926f",
+        "#a27658",
+        "#715543"
+      ],
+      "assistant": [
+        "#ecd6ff",
+        "#d39bff",
+        "#ad75f5",
+        "#b7a5d6",
+        "#9483b9",
+        "#6d5c91"
+      ],
+      "contrast": [
+        "#123a50",
+        "#0d2e44",
+        "#082238",
+        "#45657a",
+        "#294b63",
+        "#19394f"
+      ]
+    },
+    "size_px": 192,
+    "glider_size_px": 288,
+    "selection": {
+      "H04": "medical-card",
+      "N02": "flight-paper-plane"
+    }
+  },
+  "renderer": "CairoSVG 2.8.2",
+  "assets": {
+    "home-default.png": {
+      "sha256": "73678dd3b96b122f40fc3b37995211b272b814517dd9c3c1537bcf4f5fdc8f1e",
+      "size_px": 192
+    },
+    "home-muted.png": {
+      "sha256": "4dd50294a296b13b27897b9c4aa7d33393ce7eff52597c034391c0e06c76f982",
+      "size_px": 192
+    },
+    "home-paper.png": {
+      "sha256": "67e12cf57b4b963b9be556f40a367675c0ca5be299930bd95c1822245160d77b",
+      "size_px": 192
+    },
+    "home-assistant.png": {
+      "sha256": "ac75777ea0854de7bc3682963a1d34bf1b9c43bf006091db74607eed4545522f",
+      "size_px": 192
+    },
+    "home-contrast.png": {
+      "sha256": "6898c30baeadea616f2b35547bfd8043ecd205c90ab26a51c5871788db9b4f47",
+      "size_px": 192
+    },
+    "flight-paper-plane-default.png": {
+      "sha256": "fc58970cc9718d903deda807c59354ad8eb9706535b68094c0a68548e5cdf662",
+      "size_px": 192
+    },
+    "flight-paper-plane-muted.png": {
+      "sha256": "2eccbb49810aa78cfb3623c109e162c91b26b5d583473ece9a0fcaed030b5d10",
+      "size_px": 192
+    },
+    "flight-paper-plane-paper.png": {
+      "sha256": "d10c62214548e7490afe230a03291123554e60905df0f3434ba2e8bec0a493e2",
+      "size_px": 192
+    },
+    "flight-paper-plane-assistant.png": {
+      "sha256": "a01d43e28d2fa51a4d1e7ed82a95c16b8028b52da0a407386cbc0b51bb91ef96",
+      "size_px": 192
+    },
+    "flight-paper-plane-contrast.png": {
+      "sha256": "10000c202e3fe4204d310ec71e7171bf9be838e063895015ffdc58e75163b734",
+      "size_px": 192
+    },
+    "book-default.png": {
+      "sha256": "2d571bcc7ef03a19ad6c1f7a562961dec24a526f67927d4d97c123aa45005a21",
+      "size_px": 192
+    },
+    "book-muted.png": {
+      "sha256": "76bec90764008f1387bd53f98ce71ddd1be02f994675541a18b2d9d0b193083c",
+      "size_px": 192
+    },
+    "book-paper.png": {
+      "sha256": "9bb5393df7dd0e35a2696389deb2787083d70760a1371867bdc2f7743751cbd0",
+      "size_px": 192
+    },
+    "book-assistant.png": {
+      "sha256": "cf53de3d2ae3949dcb6928590ab09e1f7aaeeac2977c8d455a5dcc672c718570",
+      "size_px": 192
+    },
+    "book-contrast.png": {
+      "sha256": "8917068e19e70a5e8cf4911917a1f6e7595cc9145229e9df12b2a76bf7f6eb4c",
+      "size_px": 192
+    },
+    "club-default.png": {
+      "sha256": "37b4056f13ebab9c47465032e2fb3c10281c226c6530ed56bfbd26002f6675ec",
+      "size_px": 192
+    },
+    "club-muted.png": {
+      "sha256": "d176ac6dd44ccb5be4da4e150a15a721ea950631a8e9136a98249d8f8d16a749",
+      "size_px": 192
+    },
+    "club-paper.png": {
+      "sha256": "dee7bb9bc01bb0ee9a6f078b442814cfb007d03c89af9e101092b7c3e8323728",
+      "size_px": 192
+    },
+    "club-assistant.png": {
+      "sha256": "23147c95d9a7f374bfcdcade69d44996876d5dcb33027a08a5a3873f6c255ca6",
+      "size_px": 192
+    },
+    "club-contrast.png": {
+      "sha256": "77d24c35b29563e06e2eba7a01ce2e98595a8b36de85ff96c52e6a31e01b10a1",
+      "size_px": 192
+    },
+    "sparkle-default.png": {
+      "sha256": "8997e7ec77b3feadca9eb9ef2bb36f72c4d7e4880335733dddf4a449506aa918",
+      "size_px": 192
+    },
+    "sparkle-muted.png": {
+      "sha256": "b009c30abc2a6bb204ee5a56af857d2202d05d1674aa14c1d373be7dc313dc59",
+      "size_px": 192
+    },
+    "sparkle-paper.png": {
+      "sha256": "a1bcbf4a821d83f3754daf35c3141afc9dda2b86033c4053539c23f66846b8b6",
+      "size_px": 192
+    },
+    "sparkle-assistant.png": {
+      "sha256": "097c9f8218ea1821a0b116a09da2e79cd07dbbdce7c5a435db134507cbb22eaf",
+      "size_px": 192
+    },
+    "sparkle-contrast.png": {
+      "sha256": "fecb825e15b3e4432d2802146f2d1811230bc6aeb3779f6e7619d9730f2f5dfe",
+      "size_px": 192
+    },
+    "back-default.png": {
+      "sha256": "7c9953bd5ca8ae4409e2530e866a9420e0feee2e4f4f63a2a038974951c6bd8f",
+      "size_px": 192
+    },
+    "back-muted.png": {
+      "sha256": "0f4ee5bc6fa826262dd09adaa3763b7c8e461cfcd9618d9013e687ad32f1562d",
+      "size_px": 192
+    },
+    "back-paper.png": {
+      "sha256": "935034a42700cdca11ce6aa08a31b0ee4dc805d326e0f28cddbeae2ac984a64c",
+      "size_px": 192
+    },
+    "back-assistant.png": {
+      "sha256": "0778cc4a291dc8a5ba88fe3176d55d5c9fe935163877ad8a0e1263989e9814db",
+      "size_px": 192
+    },
+    "back-contrast.png": {
+      "sha256": "884cc7774eafcdab39c6a189780b95011bf694948442b282c238b2ed7c208a6e",
+      "size_px": 192
+    },
+    "chain-default.png": {
+      "sha256": "1a72f91bf9084504fcadfb5d994e2055361c318d7ecc32ba14cefae157bcd53e",
+      "size_px": 192
+    },
+    "chain-muted.png": {
+      "sha256": "64ca1f1f70088ad806081d541912853cb038d83f008385449442bf274842f4a0",
+      "size_px": 192
+    },
+    "chain-paper.png": {
+      "sha256": "c10614500a77e567b63d904da27bbec16c0a67002bbeee89ba6872853639ab27",
+      "size_px": 192
+    },
+    "chain-assistant.png": {
+      "sha256": "a09c9c45ad92b7e27ff457ffdab916407b37fa13aaabf926774c4ec849d58a0d",
+      "size_px": 192
+    },
+    "chain-contrast.png": {
+      "sha256": "18703884815f6279cb901d1074c5da0e95f4e38bab5824ca570eb788df205362",
+      "size_px": 192
+    },
+    "medical-card-default.png": {
+      "sha256": "6797b0ded7fd37da32c42c6ca039c3f6243b052bd20bbe439b6e7d31b7102eb6",
+      "size_px": 192
+    },
+    "medical-card-muted.png": {
+      "sha256": "b9834481902d2cf078bde2006a4ad05e0342d66720b185b375455fc5685dbea9",
+      "size_px": 192
+    },
+    "medical-card-paper.png": {
+      "sha256": "078a76127f33362815af90f782244a6eb43a677bc96671b66c52f915599508e3",
+      "size_px": 192
+    },
+    "medical-card-assistant.png": {
+      "sha256": "7edc1f9478134dff7f831a5f3ec46877d3f221fd714dc2849345e070a7cf8878",
+      "size_px": 192
+    },
+    "medical-card-contrast.png": {
+      "sha256": "d07afc86368411b4273caf9093fd093004f646c994a4bd74ba7a8b9d71ceb728",
+      "size_px": 192
+    },
+    "profile-default.png": {
+      "sha256": "f11081a642673a97784f106b053a994e6cd5df872b1406620c488c37e1d94adf",
+      "size_px": 192
+    },
+    "profile-muted.png": {
+      "sha256": "e5e9c29a401d9bf9a46e45cc19d7bb2cb38aa6f7980c79d73b7098bf1ba21f75",
+      "size_px": 192
+    },
+    "profile-paper.png": {
+      "sha256": "4ebc1a6d9ba833bcc35d72d4f47ffc608dd739004be738b4bc7bd7e0ad2667b9",
+      "size_px": 192
+    },
+    "profile-assistant.png": {
+      "sha256": "bf3271c464b5a3c8d0085515d0720e96e104f92a8f8cf80149397ce764f7ab45",
+      "size_px": 192
+    },
+    "profile-contrast.png": {
+      "sha256": "cd9743c856e4031f08e589acc19497a23c9db1ce756c9a40a314d53bcc8b858c",
+      "size_px": 192
+    },
+    "logbook-default.png": {
+      "sha256": "fc4237098184a3202e322d51c94965e9cfcaa781507ce7b1974ccc41d5f77d7c",
+      "size_px": 192
+    },
+    "logbook-muted.png": {
+      "sha256": "46f70df69e685b6fdd90ac77ba7ad2801b83c307effde77bda407b284e7d71a6",
+      "size_px": 192
+    },
+    "logbook-paper.png": {
+      "sha256": "04bcc3443337ee13e7c0edc57c05e38aed8dc7c0a9fab44bfec5d6654e26241d",
+      "size_px": 192
+    },
+    "logbook-assistant.png": {
+      "sha256": "2fae6bce4810dd1929c99b112ca83af1112c2ddc6c6ac1801454bb84d5688314",
+      "size_px": 192
+    },
+    "logbook-contrast.png": {
+      "sha256": "7df04eaab4873ffe13362b7560a14d29788c15124047c46bc9772c9df437e3d3",
+      "size_px": 192
+    },
+    "glider-default.png": {
+      "sha256": "ef3745364f9aaf183d74d520b88e47c140efa6166431f4eaf190009c5dd24a2d",
+      "size_px": 288
+    },
+    "glider-muted.png": {
+      "sha256": "5e325bdd3939c837353cc0c2804b2795ba6d8496877733dfd46b71955ae93b23",
+      "size_px": 288
+    },
+    "glider-paper.png": {
+      "sha256": "9edabd06d6bff181f0d262bd87f544fbffc550254cc276cfa19acff2d6ddd82a",
+      "size_px": 288
+    },
+    "glider-assistant.png": {
+      "sha256": "c4931cc1a388c4146809d40f3fa85aaf0c2f11760316c150392a46fc84e1a0ea",
+      "size_px": 288
+    },
+    "glider-contrast.png": {
+      "sha256": "e2375a7e19fbb2ef85933d885aab19b2fcade991c18364dd80b85b8cbaa96827",
+      "size_px": 288
+    },
+    "clock-default.png": {
+      "sha256": "326d0985a9e1175fd60b235c23a6b7ae4b395ae8f1a207e4c12e5f2704e90abf",
+      "size_px": 192
+    },
+    "clock-muted.png": {
+      "sha256": "926d9155909cd6a35edf96a5322985797bd4f5826f010ebfad352f8061f6b343",
+      "size_px": 192
+    },
+    "clock-paper.png": {
+      "sha256": "97b17e894bc11069881bf41e1bf1124c997bbbce9f1aac85cb9438ebfe2a8028",
+      "size_px": 192
+    },
+    "clock-assistant.png": {
+      "sha256": "996412b4a003103992623b4791600e34e283b99d6e2faa2b2fb4171cd0bc624f",
+      "size_px": 192
+    },
+    "clock-contrast.png": {
+      "sha256": "09b1c8da193815db20858543656d46e3a86fe4cda061517a4305de8fe0ca3b78",
+      "size_px": 192
+    },
+    "location-default.png": {
+      "sha256": "369bd3480353759bab391e92f106060ba87dadb9c493427a9b32b6dff2bc4838",
+      "size_px": 192
+    },
+    "location-muted.png": {
+      "sha256": "b66ebfba7bd110136a070dfc52891351d07ea70319587c0317fcc289013c4709",
+      "size_px": 192
+    },
+    "location-paper.png": {
+      "sha256": "6dd9c91883dd7b175e89f4966b186049ce652152eadf0df5accd5f9c5d417bbe",
+      "size_px": 192
+    },
+    "location-assistant.png": {
+      "sha256": "3ece115d3c2614e9820f71f416e0f2dd5e411972104434ec4ffd14e8247d6ebd",
+      "size_px": 192
+    },
+    "location-contrast.png": {
+      "sha256": "50803b1f9c6efe1eea940f0f4b1e7f921aa7216011e2c8ea7d99859c3ec2577a",
+      "size_px": 192
+    },
+    "weather-default.png": {
+      "sha256": "c673ff30704eae121d91a726b2091f0691aace8965cac92a114433bc7fdeaa60",
+      "size_px": 192
+    },
+    "weather-muted.png": {
+      "sha256": "497ce84524c15bdcc74daca26ff9632daa1adbb0ac50321986a4ed025bb9d540",
+      "size_px": 192
+    },
+    "weather-paper.png": {
+      "sha256": "7f4b066384ad8fc745a61d8a4ba36813c5d006370bc6c8dea7414d66a8f4f5cd",
+      "size_px": 192
+    },
+    "weather-assistant.png": {
+      "sha256": "dc4b5117e55d39fed9469c59117e12cd11a3b545b72c0c3d50af5ec092e08936",
+      "size_px": 192
+    },
+    "weather-contrast.png": {
+      "sha256": "8c1d36e6ac1d33c57d7316c665d002a50f7674cc9f0b5a6461155867598211df",
+      "size_px": 192
+    },
+    "duty-default.png": {
+      "sha256": "19a569f80a4e2c7659a9e559f4d7d42783983e3bfaf82c206b885ecc812fea91",
+      "size_px": 192
+    },
+    "duty-muted.png": {
+      "sha256": "35afb36348fc9baa2ea48463253e3cb8e1f50db61b71f90fd279894c8adfe909",
+      "size_px": 192
+    },
+    "duty-paper.png": {
+      "sha256": "db8a7fe577261fb2d4ea742700e9f2ff99f6c5abc78c1a9ac53b1619d3e88c73",
+      "size_px": 192
+    },
+    "duty-assistant.png": {
+      "sha256": "d5d25f84c0b5b1c0eafd16b5d0a8bbb3a31d24f28a5b86d782be3c459a2f43f9",
+      "size_px": 192
+    },
+    "duty-contrast.png": {
+      "sha256": "0d342518aeda1bdfda03f0c6e85753bfeeace5494280ca8ad26cfa01a4487389",
+      "size_px": 192
+    },
+    "calendar-neutral-default.png": {
+      "sha256": "501b445f97114cac7f3d265bcd78d3bfb21142bb79c6be792f0758e3334f636f",
+      "size_px": 192
+    },
+    "calendar-neutral-muted.png": {
+      "sha256": "6d0e4b0c8e733b06762ef7adefb61d5a959f2e46c0d76b04cd7ac991df9ca85e",
+      "size_px": 192
+    },
+    "calendar-neutral-paper.png": {
+      "sha256": "ea1e9d66f34a66863c17857ef430d3eb5d152ed82441b4eab73b43299d068f95",
+      "size_px": 192
+    },
+    "calendar-neutral-assistant.png": {
+      "sha256": "ee2ff9c8a520fd7acdd1df0f3340060f8894dded856d3b97b801da626c3b41b8",
+      "size_px": 192
+    },
+    "calendar-neutral-contrast.png": {
+      "sha256": "6c1e3929eb0a4f2d6f19d840161e02914cdbde24ca1b8603c6866161d24c3c6c",
+      "size_px": 192
+    },
+    "messages-default.png": {
+      "sha256": "46a6ab19802a052fce6991e33d3adcf651163a0b20820abe9052af16a6d00440",
+      "size_px": 192
+    },
+    "messages-muted.png": {
+      "sha256": "307448e45f92e12b1f83d1d007069b938af49824b1d05781f37a885cd2d8005b",
+      "size_px": 192
+    },
+    "messages-paper.png": {
+      "sha256": "58e4e9da0c4b762aaa79e97c3688a1f9e2901ed35cf07bdb5e4f16ebcabeebac",
+      "size_px": 192
+    },
+    "messages-assistant.png": {
+      "sha256": "f11a8b8c93bce867cab2c6ad309fc64cc6394907de4be1eae180c30abfceb7d6",
+      "size_px": 192
+    },
+    "messages-contrast.png": {
+      "sha256": "a037531fd28317135ac69c70487934cf48c672c93d01fec5e711ec7e163ddd9d",
+      "size_px": 192
+    },
+    "search-default.png": {
+      "sha256": "9e0f4bd49e4d38e68aab74bd0a86dc5c5b708550f370f06434803b162f6641a2",
+      "size_px": 192
+    },
+    "search-muted.png": {
+      "sha256": "b170980b3ae4d1b2a767ece56ec93fe9c05b6c3c7cdc456f3395f633420d715a",
+      "size_px": 192
+    },
+    "search-paper.png": {
+      "sha256": "e34bbe5dc10cce976bdfca863c4c2560ab78abfd518727b58fa789e1b8c3f1b5",
+      "size_px": 192
+    },
+    "search-assistant.png": {
+      "sha256": "987110f464bcb733f3c6e99523454bcf7f664ff80ede6d43c160661862c1754f",
+      "size_px": 192
+    },
+    "search-contrast.png": {
+      "sha256": "c4590f8f6a5db439a3010611082ae05c0085dce82a41bd69ae3c167feec436b7",
+      "size_px": 192
+    },
+    "filter-default.png": {
+      "sha256": "b3656706bb31e2f2acb722f9925457d77dabeebe13168d5160fdb23775d01416",
+      "size_px": 192
+    },
+    "filter-muted.png": {
+      "sha256": "63b5c4df79ca564be5c45be247c18c222396d158e535bb78255958cad4c3d888",
+      "size_px": 192
+    },
+    "filter-paper.png": {
+      "sha256": "2486e95a019a694192e164b7788b4afb8786050aa457d804d5896bc9110b10c8",
+      "size_px": 192
+    },
+    "filter-assistant.png": {
+      "sha256": "dc82de3442e2bfeb40cf7ece42404857389e8bd888d3dd616a2b015b7af3c456",
+      "size_px": 192
+    },
+    "filter-contrast.png": {
+      "sha256": "d3549725104110ee79ffc8607bbf9328cf68fc9e453ad252c94314b1d26ecc13",
+      "size_px": 192
+    },
+    "down-default.png": {
+      "sha256": "642d95d20540c757df3da8bf13db5f2f6008dac8f937c8bcdccd009a6a875e2f",
+      "size_px": 192
+    },
+    "down-muted.png": {
+      "sha256": "616d0c28c809d389a74244dc91ef11488c9c4669d04733f5aaa1fafbc98de47c",
+      "size_px": 192
+    },
+    "down-paper.png": {
+      "sha256": "0e96fbcb3f785e43cc40733336a5a57d729a6bda2a1f2c401a12ab917132c122",
+      "size_px": 192
+    },
+    "down-assistant.png": {
+      "sha256": "7c6ff3e25912fcc49c057088d04be5f6fee556a816a762e77e0af070fba77f34",
+      "size_px": 192
+    },
+    "down-contrast.png": {
+      "sha256": "1d99b5b607d4b2aac85b0bb15918b3ec755da82da702e1c5bb45f9a25ad70140",
+      "size_px": 192
+    },
+    "refresh-default.png": {
+      "sha256": "5e28dfff2dd4a9fb9fac1531cc22cb82a9d8198b4bce0fe0993810a5ffe9f5a1",
+      "size_px": 192
+    },
+    "refresh-muted.png": {
+      "sha256": "d29fcd709625672fd18361a4c8b8f7d5989f974dd01972e6c45eb9143cd79691",
+      "size_px": 192
+    },
+    "refresh-paper.png": {
+      "sha256": "b721692416e5d6629f0edddf9c0ddc5b40572162bdd17abd2739f84597d6d7b3",
+      "size_px": 192
+    },
+    "refresh-assistant.png": {
+      "sha256": "41ec5512c504aa01eb6d7704b2e0ddf5d21ab11e23cd0eda84c12b4e5a239e52",
+      "size_px": 192
+    },
+    "refresh-contrast.png": {
+      "sha256": "8e3fb209069892e315727e7fe9ae0591b3d998f922fafde9ba2e157e09780e48",
+      "size_px": 192
+    },
+    "info-default.png": {
+      "sha256": "cb9c4ba5da8774a0fc121701a3d3b0eea6cc91c77d9139089c9985aee61a415e",
+      "size_px": 192
+    },
+    "info-muted.png": {
+      "sha256": "2b501948dcb0d95fb48437cb6a1c0ffde8c1f613cf3238e2a7cee3d7ab5b2cda",
+      "size_px": 192
+    },
+    "info-paper.png": {
+      "sha256": "b1a02613b364dad013ec52c86ca32f71e7b8a5849e69e554c163e03721c4209c",
+      "size_px": 192
+    },
+    "info-assistant.png": {
+      "sha256": "edd8bcdb446c6bfac274108faa3617feb71b9ec3ab2c8990d79efbfeea565c26",
+      "size_px": 192
+    },
+    "info-contrast.png": {
+      "sha256": "cf7d3405b1836fb43d8046f88a60b5a4b8fcd645cc75c6b5221cae0535970029",
+      "size_px": 192
+    },
+    "right-default.png": {
+      "sha256": "3a652b6c52d3f0cc94c590939c248995d8e3c8301277f264f474bfb5982b88f5",
+      "size_px": 192
+    },
+    "right-muted.png": {
+      "sha256": "83cf769d11612390c0d46275dbb2aa050663973d9f34d51d3b13bfc0fc7133d3",
+      "size_px": 192
+    },
+    "right-paper.png": {
+      "sha256": "49cac9f82cabee517f343f718e7c5aaa4a25cb89f6b377a99650a9a836bf2e79",
+      "size_px": 192
+    },
+    "right-assistant.png": {
+      "sha256": "dbf9a63e97ca7beeed09ae928e41e3c89e26ea61ed1093db81cd8608230e6518",
+      "size_px": 192
+    },
+    "right-contrast.png": {
+      "sha256": "351e3367c29f0110f2f25e7c6fae1bb06722c114ad747b938c1530a6ebec7502",
+      "size_px": 192
+    },
+    "arrow-default.png": {
+      "sha256": "193be0db72a8c13b7c78eb7c5e838707ec17e5583c2f631d757266d2ccd9c224",
+      "size_px": 192
+    },
+    "arrow-muted.png": {
+      "sha256": "27a4646569a13e517c8361cba0808e2e48f3b1d9c9fc931b241118cc16991795",
+      "size_px": 192
+    },
+    "arrow-paper.png": {
+      "sha256": "403dc3606bca0c227ae0131bcd1fb7d2e7002f65faae52d7729c425a1e69ee2e",
+      "size_px": 192
+    },
+    "arrow-assistant.png": {
+      "sha256": "e456f3a8e19b9152647119c56cac6f26788698a536fb619b42e44bc467897023",
+      "size_px": 192
+    },
+    "arrow-contrast.png": {
+      "sha256": "489b99b4f0b16a5365faeedb6145c2d55a437bcbbe1721659227547ebf7ca68f",
+      "size_px": 192
+    },
+    "send-default.png": {
+      "sha256": "e5e0fb9ef7d27ea531e6248bfd2c363c858fd05cbd5da029b494ec98e065fa03",
+      "size_px": 192
+    },
+    "send-muted.png": {
+      "sha256": "418a169527011891726675261dffedc8646f2fd30d151dd16f45add22e78e293",
+      "size_px": 192
+    },
+    "send-paper.png": {
+      "sha256": "dd515b0e4eb1fda81d1f5f2e233bad756819f6041a2909d65a50eb3559fa79ca",
+      "size_px": 192
+    },
+    "send-assistant.png": {
+      "sha256": "3664436c4faa15d0ae687efad716f0bf28d84eb99f93e361afef3df7e27058ab",
+      "size_px": 192
+    },
+    "send-contrast.png": {
+      "sha256": "105846a9428fc05f25c8848255d1156fb55e1ef7fd055f1d1322732ebc604dab",
+      "size_px": 192
+    },
+    "check-default.png": {
+      "sha256": "8ecd2094184bbe1abeff8efad24e45c566788c44307ae33bfb239e1578500b4b",
+      "size_px": 192
+    },
+    "check-muted.png": {
+      "sha256": "e97d16f3fcff9b779b9ec75b06dec7c377dccf35d32f1ef00c733900ed73e2a7",
+      "size_px": 192
+    },
+    "check-paper.png": {
+      "sha256": "db52bb69443aa6aa7b9e22e9a3570c78a0774960df65a2b7966dd0efe1b630ca",
+      "size_px": 192
+    },
+    "check-assistant.png": {
+      "sha256": "ff86a15d4701a7bd36944cfa2e7a0fa22ef15c4a0cca4f854e7c542cf75e2c97",
+      "size_px": 192
+    },
+    "check-contrast.png": {
+      "sha256": "9cb6abda2db3e054860c4688899aa92393f90c2b7aae801e5e8e7316e403872e",
+      "size_px": 192
+    },
+    "plus-default.png": {
+      "sha256": "a61be7b624d5e25758dd03d38fb21ad1d64586d3adbe3b831ace0b92fcc09f0f",
+      "size_px": 192
+    },
+    "plus-muted.png": {
+      "sha256": "cc7a5567540b4009bedc3e1616bac2babd6112ddae75100dff097ad6e2c79e7a",
+      "size_px": 192
+    },
+    "plus-paper.png": {
+      "sha256": "9035bb0e9406adf9bedb4b46d41b46364b59f5582364a3198c7ebe5e551b492d",
+      "size_px": 192
+    },
+    "plus-assistant.png": {
+      "sha256": "22edf7da471fbdaa30f629555a73d6bcc4defdcda704836137fe69a4aee4aae0",
+      "size_px": 192
+    },
+    "plus-contrast.png": {
+      "sha256": "6b4b6528fecbeef7b007155af093cbc55ce308a9168e5714fed4b82f50c9dc2b",
+      "size_px": 192
+    },
+    "minus-default.png": {
+      "sha256": "45ae1231c625834e890e0f30084fa945db322fad56f4b4f44e424f33989dc0de",
+      "size_px": 192
+    },
+    "minus-muted.png": {
+      "sha256": "45ae1231c625834e890e0f30084fa945db322fad56f4b4f44e424f33989dc0de",
+      "size_px": 192
+    },
+    "minus-paper.png": {
+      "sha256": "45ae1231c625834e890e0f30084fa945db322fad56f4b4f44e424f33989dc0de",
+      "size_px": 192
+    },
+    "minus-assistant.png": {
+      "sha256": "45ae1231c625834e890e0f30084fa945db322fad56f4b4f44e424f33989dc0de",
+      "size_px": 192
+    },
+    "minus-contrast.png": {
+      "sha256": "45ae1231c625834e890e0f30084fa945db322fad56f4b4f44e424f33989dc0de",
+      "size_px": 192
+    },
+    "close-default.png": {
+      "sha256": "923a49f95363f4fcf83b696185b6fbf165370306718a8c0bdd9c41ba01d83387",
+      "size_px": 192
+    },
+    "close-muted.png": {
+      "sha256": "eccf48f4b53e8fa12feeaf28d0a6407191260652e193eeafd2d6b754c0429efc",
+      "size_px": 192
+    },
+    "close-paper.png": {
+      "sha256": "afd6742b176f82589b695b03fb9ccb2e214aa6ba92cdd8b2015f3405efeb6769",
+      "size_px": 192
+    },
+    "close-assistant.png": {
+      "sha256": "d60ae6c1b862bbbfd558d13180f45b5e8430356ee3bf0addff0ae0f38091dc21",
+      "size_px": 192
+    },
+    "close-contrast.png": {
+      "sha256": "cfd144e922c4d3a71299c85169060860fc2bd880b0b88c9c9f7bea68cd5a432f",
+      "size_px": 192
+    }
+  }
+}

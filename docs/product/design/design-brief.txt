@@ -2,7 +2,7 @@ MOFLIGHT — CURRENT UI DESIGN HANDBOOK AND AI HANDOFF
 
 # MoFlight UI design handbook
 
-This is the current starting point for MoFlight's visual design. Use it when enhancing screens, reviewing symbols or proposing a change to the overall appearance. Manuel authorized this consolidation on 18 October 2026 under [#23](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/23). It records existing decisions and implementation; it selects no replacement design.
+This is the current starting point for MoFlight's visual design. Use it when enhancing screens, reviewing symbols or proposing a change to the overall appearance. Manuel authorized this consolidation on 18 October 2026 under [#23](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/23). The later selected duotone symbol family, M2 Medical card and supplied folded paper plane were approved for guide/app integration on 18 October 2026 under #20. Other layout and data decisions retain their scope.
 
 ## Read or share the guide
 
@@ -12,7 +12,7 @@ This is the current starting point for MoFlight's visual design. Use it when enh
 | [Components and shapes](components.md) | Cards, controls, headers, navigation, sheets, badges and charts, with relevant states and source locations. |
 | [Layout and presentation patterns](patterns.md) | Composition, responsive widths, navigation, keyboard, accessibility and honest data presentation. |
 | [Symbols and icons](../symbol-reference.html) | Existing 51-entry visual catalogue: appearance, meaning, action, states and editable asset paths. |
-| [Style Option 2: Modern Duotone](icon-options/option-2/index.html) | Proposed reference-based SVG family, original/vector comparison, compact specimens and mapping for all 51 IDs. [Medical / aircraft alternatives](icon-options/option-2/alternatives.html) · [Source notes](icon-options/option-2/README.md). App adoption remains open. |
+| [Style Option 2: Modern Duotone](icon-options/option-2/index.html) | Selected duotone family, original/vector comparison, compact specimens and mapping for all 51 IDs. M2 Medical card + supplied paper plane are the current choices. [Medical / aircraft alternatives](icon-options/option-2/alternatives.html) · [Source notes](icon-options/option-2/README.md). App integration is implemented; native evidence and remaining limits are recorded separately. |
 | [Implementation inventory](implementation-inventory.md) | Generated complete literal-color map, gradients, typography/geometry declarations and source fingerprints, including retained lab/adapter exceptions. |
 | [Decisions, history and known gaps](history.md) | Authority, overrides, superseded prototypes, unresolved differences and platform evidence. |
 | [Complete standalone HTML guide](design-guide.html) | All chapters, schematic component examples, approved reference and the same catalogue, with full text copy/download for another AI chat. Download/open the HTML to use its controls. |
@@ -29,7 +29,8 @@ Keep German labels beside important navigation/status symbols. Show saved facts 
 1. The [approved four-screen image](../design-sources/2026-10-16-four-screen/reference.png) controls baseline layout, cards, colors, buttons and spacing. Its sample data is illustrative; see its [source record](../design-sources/2026-10-16-four-screen/README.md).
 2. The [17 October shell corrections](../2026-10-17-native-shell-corrections.md) amend that baseline with Übersicht, Flüge, Flugbuch, Verein and AI; the compact fixed branded/profile header; and aircraft-share rings.
 3. The [18 October header decisions](../2026-10-18-header-status-review.md#package-1b-decision-checkpoint) amend their scope with aircraft B, contextual app Back, separate provider-history Back/Close and Connection → Med → Profile. Med reads unbekannt and opens a read-only explanation.
-4. This handbook consolidates those decisions. Earlier prototype choices apply only where explicitly carried forward. Code values record implementation and cannot approve an unresolved visual difference.
+4. Manuel's 18 October symbol selection adopts the duotone family, **M2 Medical card** and the **supplied folded paper plane** for navigation/header/dashboard/action symbols, superseding aircraft B and the stethoscope artwork only. Labels, status meanings, branding and data notation remain. See [selected family](icon-options/option-2/README.md).
+5. This handbook consolidates those decisions. Earlier prototype choices apply only where explicitly carried forward. Code values record implementation and cannot approve an unresolved visual difference.
 
 Manuel owns design decisions. Priorities, journeys and account/book behavior remain in the [project plan](../../project-plan.md), [journey map](../2026-10-13-journey-information-map.md) and feature contracts. Link those contracts rather than duplicating them here.
 
@@ -83,9 +84,9 @@ The purple/orange exports describe accent families; actual dashboard cards use l
 | Login required | `#ffc477` | Original-provider sign-in required, →; dark badge. Same source, S03. |
 | Attention / recovery | `#ffb39e` | Error/mismatch/unconfirmed association/recovery; ! and a specific explanation. Same source and [ProviderConnection](../../../apps/platform-lab/src/mobile/ProviderConnection.tsx), S04. |
 | Unknown / header control | `#adbed5`; background `#102d47aa` | Neutral ?, or Med / unbekannt. The photo/overlay affects the translucent control's actual background. ProviderConnection / [MedicalStatus](../../../apps/platform-lab/src/mobile/MedicalStatus.tsx). |
-| App Back | Fill `#a4adff`, border `#d0d5ff`, arrow `#101a3c` | Contextual return, distinct from the dark header. [AppHeader](../../../apps/platform-lab/src/mobile/AppHeader.tsx). |
+| App Back | Fill `#a4adff`, border `#d0d5ff`, dark contrast duotone arrow (brightest stop `#123a50`) | Contextual return, distinct from the dark header. [AppHeader](../../../apps/platform-lab/src/mobile/AppHeader.tsx). |
 | Recorded role pill | Fill `#064240`, border `#227f87`, general cyan text | Recorded role, not qualification/completion. MobileApp badge. |
-| AI welcome badge | Fill `#78efdc`, symbol `#062d39` | Category decoration, not AI availability. MobileApp aiBadge. |
+| AI welcome badge | Fill `#78efdc`, dark contrast duotone sparkle | Category decoration, not AI availability. MobileApp aiBadge. |
 
 No automatic stale-time threshold is selected for the connection mark. Session evidence, saved-flight freshness, provisional association and MoFlight identity are separate. See catalogue H03/S01–S05.
 
@@ -123,7 +124,7 @@ The native shell uses the platform default family; it does not configure Inter. 
 | Medical label / status | 12 / 16 and 11 / 15 | Med is 600; status quieter. |
 | Ring value / label | 15 / 19 and 9 / 12 | Native rings hide at enlarged text or when values cannot fit. |
 
-Sources: theme, AppHeader, Dashboard, MobileApp, [ProfileSettings](../../../apps/platform-lab/src/mobile/ProfileSettings.tsx), MedicalStatus and [SeasonRing](../../../apps/platform-lab/src/mobile/SeasonRing.tsx). Icon-glyph font sizes describe artwork, not body hierarchy. The generated inventory lists literal typography declarations.
+Sources: theme, AppHeader, Dashboard, MobileApp, [ProfileSettings](../../../apps/platform-lab/src/mobile/ProfileSettings.tsx), MedicalStatus and [SeasonRing](../../../apps/platform-lab/src/mobile/SeasonRing.tsx). Icon-glyph font sizes describe artwork, not body hierarchy. The generated inventory lists literal typography declarations. Selected icon raster palettes are recorded separately in the [native asset manifest](../../../apps/platform-lab/assets/icons/duotone/manifest.json); body/text color tokens are unchanged.
 
 ## Spacing, geometry and target size
 
@@ -134,10 +135,10 @@ Use the documented component context. Common implementation values include 8 dp 
 | Shared card | Radius 14; border 1; padding 11; gap 6 | Most cards; flight rows override radius/padding. |
 | Shared action | Radius 16; minimum height 48; padding 14 horizontal / 8 vertical | Secondary adds border 1. |
 | Chip face / target | Radius 20; face minimum 66 × 34; target minimum height 48 | Year/training/club scope. |
-| Header icon / Back | Icons 48 × 48, radius 24; Back 48 × 48, radius 16 | Artwork size and target differ. |
+| Header icon / Back | Controls 48 × 48, radius 14; Back 48 × 48, radius 16 | Artwork size and target differ. |
 | Medical group | Minimum 72 × 48, radius 12; grows with text | Icon + Med above unbekannt. |
 | Field / composer | Profile radius 12, minimum height 48; provider radius 10; composer radius 20 | Context-specific forms. |
-| Tab / artwork | Tab minimum height 60; artwork about 28; label 11 | Five equal destinations. |
+| Tab / artwork | Tab minimum height 60; artwork 28 in soft tile 36 / radius 12; label 11 | Five equal destinations. |
 | Ring | Diameter 62; thickness 6 | Aircraft distribution. |
 
 Smaller faces, such as the 42 dp send face, 40 dp search input and 36 dp paper CTA face, do not independently prove adequate effective touch regions. [Known gaps](history.md) require actual hit-region review when affected controls change.
@@ -153,7 +154,7 @@ Generated ratios use standard sRGB relative luminance on fully opaque pairs. The
 | Muted text / card fallback | `#adbed5` | `#071929` | 9.41:1 |
 | Action label / blue fallback | `#031326` | `#3595fe` | 6.12:1 |
 | General cyan / canvas | `#46ccff` | `#000d18` | 10.59:1 |
-| Back arrow / opaque Back face | `#101a3c` | `#a4adff` | 8.10:1 |
+| Brightest Back arrow gradient stop / opaque Back face | `#123a50` | `#a4adff` | 5.72:1 |
 <!-- generated:contrast:end -->
 
 ## Branding and photography
@@ -177,7 +178,7 @@ The HTML guide embeds original reference and symbol/brand images unchanged. Comp
 | C03 | Scope chip | Radius 20; face minimum 66 × 34 in a minimum-48-height target | Selected blue gradient; selected/disabled semantics. theme Chip. |
 | C04 | Search / input | Search radius 22; profile radius 12 and font 16; provider radius 10 | Operate on named scope. MobileApp / ProfileSettings / ProviderConnection. |
 | C05 | Shared header | Fixed photo/shade, logo 52, title 18/24, controls 48; content minimum height 64 and padding 10/5 | Header can grow; minimum is not universal actual height. AppHeader. |
-| C06 | Header status group | Connection circle, growing Med, profile circle; gap 4 | Back replaces logo on app overlays. AppHeader / MedicalStatus / ShellIcons. |
+| C06 | Header status group | Connection soft tile, growing Med, profile soft tile; gap 4 | Back replaces logo on app overlays. AppHeader / MedicalStatus / ShellIcons. |
 | C07 | Bottom navigation | Attached dark bar, five equal targets, minimum height 60 | Icon above German label; cyan selected state. MobileApp. |
 | C08 | Overlay / provider panel | Current dark full app overlay with one active header; provider has its own toolbar/history | Different from pale v0.30 prototype sheets. MobileApp / ProviderConnection. |
 | C09 | Flight row | Padding 7, radius 13; no-track tile, route/time/role and detail chevron | Whole row opens saved facts. MobileApp FlightRow. |
@@ -209,9 +210,13 @@ The [51-entry catalogue](../symbol-reference.html) is the detailed meaning/funct
 
 Separate semantic roles even when characters repeat: a right arrow can mean route direction, continue or login required; a tick can mean selected book or previous session confirmation. Assess artwork size, optical balance, stroke and effective touch area separately.
 
-Preserve approved side-view aircraft B and Thermik branding until a replacement is explicitly selected. Editable masters stay beside original assets; the app retains its current aircraft bitmap. No icon runtime/library is introduced.
+Manuel selected the Modern Duotone & Soft-Filled Glyphs family on 18 October 2026, with **M2 Medical card** for H04 and his supplied **folded paper plane** for N02. This supersedes side-view aircraft B and the stethoscope artwork. The original assets and comparison proposals remain preserved as history. Thermik branding, dynamic aircraft-share rings, data notation and status meanings retain their identity.
 
-[Style Option 2: Modern Duotone & Soft-Filled Glyphs](icon-options/option-2/index.html) is an authorized alternate design for review, with 46 editable vector masters (including six [Medical/aircraft proposals](icon-options/option-2/alternatives.html)) and an explicit mapping of all 51 IDs. It preserves the selected aircraft, branding, data/text semantics and current app implementation. [Source notes and fidelity limits](icon-options/option-2/README.md) distinguish reference interpretation from pixel identity and application selection.
+[Selected family and ID mapping](icon-options/option-2/index.html) use the same editable SVG masters as the app. The native renderer uses 145 checked local RGBA PNGs (29 glyphs × default/muted/paper/assistant/contrast variants), with static Metro requires and no new icon runtime. Artwork sizes are context-specific; navigation art is 28 in a 36-unit soft tile with radius 12, header controls retain 48-unit targets with radius 14, and M2 is 20 inside the existing growing Medical control. The original large reference tiles are illustrations, not new app card dimensions.
+
+Images are decorative and excluded from accessibility announcements; their labelled parent owns navigation/action/status semantics. Native busy indicators remain animated ActivityIndicators; a drawn spinner is never substituted for actual progress. Calendar category artwork uses neutral date cells, not the reference's illustrative 26. The separate send arrow remains distinct from the folded plane used for Flüge.
+
+[Source notes, regeneration and fidelity limits](icon-options/option-2/README.md) and [one verification report](../../verification/2026-10-18-icon-option-2.md) distinguish selected intent, implemented artwork and source-specific native acceptance.
 
 ## Schematic examples
 
@@ -278,7 +283,7 @@ Follow the [verification workflow](../../development/verification-workflow.md): 
 
 [Handbook entry point](README.md). Generated by `python scripts/design_handbook.py`; do not hand-edit.
 
-Scope: 23 product mobile TypeScript/model and app-owned TSX UI/adapter files; 86 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.
+Scope: 25 product mobile TypeScript/model and app-owned TSX UI/adapter files; 88 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.
 
 ## App.tsx
 
@@ -362,48 +367,45 @@ Retained app-owned lab/adapter surface; document its existing appearance as an e
 
 ## AppHeader.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/AppHeader.tsx](../../../apps/platform-lab/src/mobile/AppHeader.tsx); normalized SHA-256 `8c2ea5008e5928135c31d8b069fd3fa5f7e31534ab680cf4a4ba3eedc53e3797`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/AppHeader.tsx](../../../apps/platform-lab/src/mobile/AppHeader.tsx); normalized SHA-256 `1d3c93a292bae997757cb2d530e7ab3db0c451857a5c99cfbc63f2d1838e28ca`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#001022df` | 15 |
-| `#101a3c` | 39 |
-| `#a4adff` | 38 |
-| `#d0d5ff` | 38 |
+| `#001022df` | 16 |
+| `#a4adff` | 39 |
+| `#d0d5ff` | 39 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 11` | 36 |
-| `fontSize: 18` | 35 |
-| `fontWeight: '700'` | 35 |
-| `lineHeight: 16` | 36 |
-| `lineHeight: 24` | 35 |
+| `fontSize: 11` | 37 |
+| `fontSize: 18` | 36 |
+| `fontWeight: '700'` | 36 |
+| `lineHeight: 16` | 37 |
+| `lineHeight: 24` | 36 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 16` | 38 |
-| `borderRadius: 8` | 37 |
-| `borderWidth: 1` | 38 |
-| `gap: 4` | 30, 32 |
-| `gap: 8` | 31 |
-| `height: 12` | 39 |
-| `height: 48` | 38 |
-| `height: 52` | 37 |
-| `maxWidth: 960` | 29 |
-| `minHeight: 64` | 30 |
-| `minWidth: 0` | 34 |
-| `paddingHorizontal: 10` | 30 |
-| `paddingVertical: 5` | 30 |
-| `width: '100%'` | 29, 33 |
-| `width: 12` | 39 |
-| `width: 48` | 38 |
-| `width: 52` | 37 |
+| `borderRadius: 16` | 39 |
+| `borderRadius: 8` | 38 |
+| `borderWidth: 1` | 39 |
+| `gap: 4` | 31, 33 |
+| `gap: 8` | 32 |
+| `height: 48` | 39 |
+| `height: 52` | 38 |
+| `maxWidth: 960` | 30 |
+| `minHeight: 64` | 31 |
+| `minWidth: 0` | 35 |
+| `paddingHorizontal: 10` | 31 |
+| `paddingVertical: 5` | 31 |
+| `width: '100%'` | 30, 34 |
+| `width: 48` | 39 |
+| `width: 52` | 38 |
 
 ## connection-guidance.ts
 
@@ -420,101 +422,97 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/connection-guidan
 
 ## Dashboard.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](../../../apps/platform-lab/src/mobile/Dashboard.tsx); normalized SHA-256 `c89c487aff05d5a05428f5bbfcef7ae22282c6d2e3b0695abe401471d3ff1ea3`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](../../../apps/platform-lab/src/mobile/Dashboard.tsx); normalized SHA-256 `695f94b746d9bc1c97d4a485758bee7e1121110945e23d5866b99ef155433855`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#00112688` | 61 |
-| `#101c45` | 81 |
-| `#102c35` | 84 |
-| `#173a7a` | 82 |
-| `#181854` | 81 |
-| `#181c5988` | 82 |
-| `#1b4269` | 78 |
-| `#281004` | 38 |
-| `#292276` | 81 |
-| `#3c4492` | 82 |
-| `#426cbe` | 82 |
-| `#53165e` | 81 |
-| `#598596` | 59 |
-| `#6853b5` | 81 |
-| `#913e1266` | 36 |
-| `#995f3c` | 74 |
-| `#d59bff` | 82 |
-| `#f97425` | 85 |
-| `#ff621f` | 77 |
-| `#ff762b` | 77 |
-| `#ff7929` | 75 |
-| `#ff963e` | 77 |
-| `white` | 37 |
+| `#00112688` | 62 |
+| `#101c45` | 82 |
+| `#102c35` | 85 |
+| `#173a7a` | 83 |
+| `#181854` | 82 |
+| `#181c5988` | 83 |
+| `#1b4269` | 79 |
+| `#281004` | 39 |
+| `#292276` | 82 |
+| `#3c4492` | 83 |
+| `#426cbe` | 83 |
+| `#53165e` | 82 |
+| `#598596` | 60 |
+| `#6853b5` | 82 |
+| `#913e1266` | 37 |
+| `#995f3c` | 75 |
+| `#d59bff` | 83 |
+| `#ff621f` | 78 |
+| `#ff762b` | 78 |
+| `#ff963e` | 78 |
+| `#ffb76c33` | 76, 86 |
+| `#ffc38f66` | 76 |
 
 ### Gradients
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `linear-gradient(145deg, #292276, #101c45, #53165e)` | 81 |
-| `linear-gradient(180deg, #ff963e, #ff621f)` | 77 |
+| `linear-gradient(145deg, #292276, #101c45, #53165e)` | 82 |
+| `linear-gradient(180deg, #ff963e, #ff621f)` | 78 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 11` | 65, 76 |
-| `fontSize: 12` | 51 |
-| `fontSize: 16` | 76 |
-| `fontSize: 22` | 52 |
-| `fontSize: 24` | 79 |
-| `fontSize: 25` | 37 |
-| `fontSize: 27` | 82 |
-| `fontSize: 28` | 64 |
-| `fontWeight: '600'` | 50, 61, 76 |
-| `fontWeight: '700'` | 38, 79 |
-| `lineHeight: 16` | 76 |
-| `lineHeight: 17` | 51 |
-| `lineHeight: 22` | 76 |
-| `lineHeight: 29` | 79 |
-| `lineHeight: 32` | 82 |
+| `fontSize: 11` | 66, 77 |
+| `fontSize: 12` | 52 |
+| `fontSize: 16` | 77 |
+| `fontSize: 24` | 80 |
+| `fontSize: 27` | 83 |
+| `fontWeight: '600'` | 51, 62, 77 |
+| `fontWeight: '700'` | 39, 80 |
+| `lineHeight: 16` | 77 |
+| `lineHeight: 17` | 52 |
+| `lineHeight: 22` | 77 |
+| `lineHeight: 29` | 80 |
+| `lineHeight: 32` | 83 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 78, 82 |
-| `borderRadius: 15` | 75, 77 |
-| `borderRadius: 17` | 82 |
-| `borderRadius: 8` | 85 |
-| `borderRadius: 9` | 84 |
-| `borderWidth: 1` | 82 |
-| `gap: 3` | 83, 85 |
-| `gap: 5` | 50, 78, 79, 84 |
-| `gap: 6` | 80 |
-| `gap: 8` | 72, 73 |
-| `height: 154` | 35 |
-| `height: 25` | 85 |
-| `height: 34` | 82 |
-| `height: 38` | 75 |
-| `maxWidth: 430` | 72 |
-| `maxWidth: 920` | 72 |
-| `minHeight: 140` | 85 |
-| `minHeight: 144` | 74 |
-| `minHeight: 166` | 83 |
-| `minHeight: 194` | 78, 81 |
-| `minHeight: 36` | 77 |
-| `minHeight: 48` | 84 |
-| `minWidth: 0` | 72, 78, 81, 83, 85 |
-| `padding: 0` | 74, 83 |
-| `padding: 8` | 82 |
-| `paddingHorizontal: 18` | 77 |
-| `paddingHorizontal: 7` | 78 |
-| `paddingVertical: 4` | 64 |
-| `paddingVertical: 7` | 77 |
-| `width: '100%'` | 72, 73 |
-| `width: '49.5%'` | 73 |
-| `width: 25` | 85 |
-| `width: 34` | 82 |
-| `width: 38` | 75 |
+| `borderRadius: 12` | 79, 83 |
+| `borderRadius: 15` | 76, 78 |
+| `borderRadius: 17` | 83 |
+| `borderRadius: 8` | 86 |
+| `borderRadius: 9` | 85 |
+| `borderWidth: 1` | 76, 83 |
+| `gap: 3` | 84, 86 |
+| `gap: 5` | 51, 79, 80, 85 |
+| `gap: 6` | 81 |
+| `gap: 8` | 73, 74 |
+| `height: 154` | 36 |
+| `height: 25` | 86 |
+| `height: 34` | 83 |
+| `height: 38` | 76 |
+| `maxWidth: 430` | 73 |
+| `maxWidth: 920` | 73 |
+| `minHeight: 140` | 86 |
+| `minHeight: 144` | 75 |
+| `minHeight: 166` | 84 |
+| `minHeight: 194` | 79, 82 |
+| `minHeight: 36` | 78 |
+| `minHeight: 48` | 85 |
+| `minWidth: 0` | 73, 79, 82, 84, 86 |
+| `padding: 0` | 75, 84 |
+| `padding: 8` | 83 |
+| `paddingHorizontal: 18` | 78 |
+| `paddingHorizontal: 7` | 79 |
+| `paddingVertical: 4` | 65 |
+| `paddingVertical: 7` | 78 |
+| `width: '100%'` | 73, 74 |
+| `width: '49.5%'` | 74 |
+| `width: 25` | 86 |
+| `width: 34` | 83 |
+| `width: 38` | 76 |
 
 ## MedicalStatus.tsx
 
@@ -551,130 +549,127 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MedicalStatus.tsx
 
 ## MobileApp.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `33f1608601ba9bfe86705be975eb3124742076dea84cebfdf02d36e4cb945abc`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `3d158b5e1bf25277c3bef7ae5bcb0915469ac22df1fbbaae3aa1c7a3672c7b39`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#00c8ff` | 208, 247 |
-| `#020e17` | 247 |
-| `#031326` | 185 |
-| `#062d39` | 195 |
-| `#064240` | 241 |
-| `#10233d` | 244 |
-| `#10263e` | 246 |
-| `#10282d` | 241 |
-| `#102d47aa` | 236 |
-| `#11263a` | 240 |
-| `#152d42` | 243 |
-| `#1b344a` | 246 |
-| `#1c3449` | 247 |
-| `#227f87` | 241 |
-| `#285bff` | 242 |
-| `#315fff` | 242 |
-| `#354d74` | 244 |
-| `#3a5a8b` | 246 |
-| `#7299ab` | 36 |
-| `#78efdc` | 244 |
-| `#8ba4bc` | 207, 238 |
-| `#f5f7fb` | 212 |
-| `#ffbd9b` | 134 |
-| `white` | 168, 199 |
+| `#00c8ff` | 209, 248 |
+| `#020e17` | 248 |
+| `#031326` | 186 |
+| `#064240` | 242 |
+| `#10233d` | 245 |
+| `#10263e` | 247 |
+| `#10282d` | 242 |
+| `#102d47aa` | 237 |
+| `#11263a` | 241 |
+| `#152d42` | 244 |
+| `#1b344a` | 247 |
+| `#1c3449` | 248 |
+| `#227f87` | 242 |
+| `#285bff` | 243 |
+| `#315fff` | 243 |
+| `#354d74` | 245 |
+| `#3a5a8b` | 247 |
+| `#7299ab` | 37 |
+| `#78efdc` | 245 |
+| `#8ba4bc` | 208, 239 |
+| `#f5f7fb` | 213 |
+| `#ffbd9b` | 135 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 10` | 36, 196, 207, 238 |
-| `fontSize: 11` | 39, 201, 239, 247 |
-| `fontSize: 12` | 241 |
-| `fontSize: 13` | 197, 240, 246 |
-| `fontSize: 18` | 173 |
-| `fontSize: 20` | 185, 195, 239 |
-| `fontSize: 23` | 245 |
-| `fontSize: 24` | 199 |
-| `fontSize: 25` | 247 |
-| `fontSize: 36` | 168 |
-| `fontWeight: '600'` | 37, 173, 185, 239, 241 |
-| `letterSpacing: .6` | 238 |
-| `lineHeight: 16` | 207, 238, 239, 247 |
-| `lineHeight: 17` | 241 |
-| `lineHeight: 25` | 239 |
-| `lineHeight: 29` | 247 |
-| `lineHeight: 42` | 168 |
+| `fontSize: 10` | 37, 197, 208, 239 |
+| `fontSize: 11` | 40, 202, 240, 248 |
+| `fontSize: 12` | 242 |
+| `fontSize: 13` | 198, 241, 247 |
+| `fontSize: 18` | 174 |
+| `fontSize: 20` | 186, 240 |
+| `fontSize: 23` | 246 |
+| `fontSize: 25` | 248 |
+| `fontWeight: '600'` | 38, 174, 186, 240, 242 |
+| `letterSpacing: .6` | 239 |
+| `lineHeight: 16` | 208, 239, 240, 248 |
+| `lineHeight: 17` | 242 |
+| `lineHeight: 25` | 240 |
+| `lineHeight: 29` | 248 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 241, 245 |
-| `borderRadius: 13` | 241 |
-| `borderRadius: 15` | 244 |
-| `borderRadius: 17` | 243 |
-| `borderRadius: 2` | 247 |
-| `borderRadius: 20` | 246 |
-| `borderRadius: 21` | 246 |
-| `borderRadius: 22` | 240 |
-| `borderRadius: 24` | 236, 240 |
-| `borderRadius: 29` | 242 |
-| `borderRadius: 9` | 241 |
-| `borderWidth: 1` | 240, 241, 245, 246 |
-| `gap: 1` | 239, 247 |
-| `gap: 10` | 172, 244 |
-| `gap: 3` | 144, 238, 241 |
-| `gap: 5` | 240 |
-| `gap: 6` | 37, 245, 246 |
-| `gap: 7` | 240, 244 |
-| `gap: 8` | 167, 235, 243, 246 |
-| `height: 2` | 247 |
-| `height: 30` | 244 |
-| `height: 42` | 246 |
-| `height: 48` | 236 |
-| `height: 58` | 242 |
-| `height: 7` | 167 |
-| `maxHeight: 150` | 246 |
-| `maxWidth: '50%'` | 33 |
-| `maxWidth: 430` | 244 |
-| `maxWidth: 480` | 172 |
-| `maxWidth: 599` | 234, 247 |
-| `maxWidth: 600` | 158, 208 |
-| `maxWidth: 720` | 194 |
-| `maxWidth: 960` | 158, 208 |
-| `minHeight: 126` | 244 |
-| `minHeight: 174` | 185 |
-| `minHeight: 34` | 243 |
-| `minHeight: 36` | 237 |
-| `minHeight: 40` | 240, 246 |
-| `minHeight: 48` | 240, 243 |
-| `minHeight: 60` | 247 |
-| `minHeight: 64` | 241 |
-| `minHeight: 66` | 241 |
-| `minHeight: 68` | 36 |
-| `minHeight: 70` | 245 |
-| `minWidth: 0` | 239, 240 |
-| `opacity: .45` | 199 |
-| `padding: 0` | 243 |
-| `padding: 10` | 235, 245 |
-| `padding: 4` | 238, 246 |
-| `padding: 7` | 241 |
-| `paddingHorizontal: 12` | 240 |
-| `paddingHorizontal: 16` | 243 |
-| `paddingHorizontal: 6` | 241 |
-| `paddingHorizontal: 7` | 241 |
-| `paddingHorizontal: 8` | 246 |
-| `paddingVertical: 10` | 241 |
-| `paddingVertical: 4` | 240, 247 |
-| `shadowOpacity: .5` | 242 |
-| `width: '100%'` | 36, 172, 187, 207, 234, 243, 244, 247 |
-| `width: '49.2%'` | 243 |
-| `width: 24` | 247 |
-| `width: 30` | 244 |
-| `width: 42` | 240, 246 |
-| `width: 48` | 236 |
-| `width: 58` | 242 |
-| `width: 64` | 241 |
-| `width: 80` | 36 |
+| `borderRadius: 12` | 242, 246 |
+| `borderRadius: 13` | 242 |
+| `borderRadius: 14` | 237 |
+| `borderRadius: 15` | 245 |
+| `borderRadius: 17` | 244 |
+| `borderRadius: 2` | 248 |
+| `borderRadius: 20` | 247 |
+| `borderRadius: 21` | 247 |
+| `borderRadius: 22` | 241 |
+| `borderRadius: 24` | 241 |
+| `borderRadius: 29` | 243 |
+| `borderRadius: 9` | 242 |
+| `borderWidth: 1` | 241, 242, 246, 247 |
+| `gap: 1` | 240, 248 |
+| `gap: 10` | 173, 245 |
+| `gap: 3` | 145, 239, 242 |
+| `gap: 4` | 39 |
+| `gap: 5` | 241 |
+| `gap: 6` | 38, 246, 247 |
+| `gap: 7` | 241, 245 |
+| `gap: 8` | 168, 236, 244, 247 |
+| `height: 2` | 248 |
+| `height: 30` | 245 |
+| `height: 42` | 247 |
+| `height: 48` | 237 |
+| `height: 58` | 243 |
+| `height: 7` | 168 |
+| `maxHeight: 150` | 247 |
+| `maxWidth: '50%'` | 34 |
+| `maxWidth: 430` | 245 |
+| `maxWidth: 480` | 173 |
+| `maxWidth: 599` | 235, 248 |
+| `maxWidth: 600` | 159, 209 |
+| `maxWidth: 720` | 195 |
+| `maxWidth: 960` | 159, 209 |
+| `minHeight: 126` | 245 |
+| `minHeight: 174` | 186 |
+| `minHeight: 34` | 244 |
+| `minHeight: 36` | 238 |
+| `minHeight: 40` | 241, 247 |
+| `minHeight: 48` | 241, 244 |
+| `minHeight: 60` | 248 |
+| `minHeight: 64` | 242 |
+| `minHeight: 66` | 242 |
+| `minHeight: 68` | 37 |
+| `minHeight: 70` | 246 |
+| `minWidth: 0` | 240, 241 |
+| `opacity: .45` | 200 |
+| `padding: 0` | 244 |
+| `padding: 10` | 236, 246 |
+| `padding: 4` | 239, 247 |
+| `padding: 7` | 242 |
+| `paddingHorizontal: 12` | 241 |
+| `paddingHorizontal: 16` | 244 |
+| `paddingHorizontal: 6` | 242 |
+| `paddingHorizontal: 7` | 242 |
+| `paddingHorizontal: 8` | 247 |
+| `paddingVertical: 10` | 242 |
+| `paddingVertical: 4` | 241, 248 |
+| `shadowOpacity: .5` | 243 |
+| `width: '100%'` | 37, 173, 188, 208, 235, 244, 245, 248 |
+| `width: '49.2%'` | 244 |
+| `width: 24` | 248 |
+| `width: 30` | 245 |
+| `width: 42` | 241, 247 |
+| `width: 48` | 237 |
+| `width: 58` | 243 |
+| `width: 64` | 242 |
+| `width: 80` | 37 |
 
 ## ProfileSettings.tsx
 
@@ -710,57 +705,53 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProfileSettings.t
 
 ## ProviderConnection.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProviderConnection.tsx](../../../apps/platform-lab/src/mobile/ProviderConnection.tsx); normalized SHA-256 `b53ba168363f191fb51661c2421b9ac7739516d29451483cfa8e32bca4b9c2c6`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProviderConnection.tsx](../../../apps/platform-lab/src/mobile/ProviderConnection.tsx); normalized SHA-256 `9f2fed5c7737e47e5c702dc5cd6f725872d2b2d9ab9817eea50ba37b7d043345`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#102d47aa` | 146 |
-| `#ffb39e` | 24 |
-| `white` | 149 |
+| `#102d47aa` | 144 |
+| `#ffb39e` | 22 |
+| `white` | 147 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 12` | 24 |
-| `fontWeight: '600'` | 51, 56, 63 |
-| `fontWeight: '700'` | 24 |
-| `lineHeight: 15` | 24 |
+| `fontSize: 12` | 22 |
+| `fontWeight: '600'` | 49, 54, 61 |
+| `fontWeight: '700'` | 22 |
+| `lineHeight: 15` | 22 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 10` | 156 |
-| `borderRadius: 24` | 146 |
-| `borderRadius: 7` | 148 |
-| `borderRadius: 8` | 147 |
-| `borderWidth: 1` | 156 |
-| `borderWidth: 2` | 148 |
-| `gap: 10` | 155 |
-| `gap: 12` | 151 |
-| `gap: 6` | 152 |
-| `height: 10` | 22 |
-| `height: 12` | 148 |
-| `height: 16` | 147 |
-| `height: 25` | 20 |
-| `height: 48` | 146 |
-| `maxWidth: 520` | 155 |
-| `maxWidth: 800` | 149 |
-| `minHeight: 48` | 154, 156 |
-| `minHeight: 68` | 151 |
-| `minWidth: 16` | 147 |
-| `opacity: 0` | 150 |
-| `padding: 10` | 151, 152, 155, 156 |
-| `paddingHorizontal: 8` | 154 |
-| `paddingVertical: 10` | 154 |
-| `width: '100%'` | 149, 155 |
-| `width: 18` | 148 |
-| `width: 2` | 22 |
-| `width: 27` | 20 |
-| `width: 48` | 146 |
+| `borderRadius: 10` | 154 |
+| `borderRadius: 14` | 144 |
+| `borderRadius: 7` | 146 |
+| `borderRadius: 8` | 145 |
+| `borderWidth: 1` | 154 |
+| `borderWidth: 2` | 146 |
+| `gap: 10` | 153 |
+| `gap: 12` | 149 |
+| `gap: 6` | 150 |
+| `height: 12` | 146 |
+| `height: 16` | 145 |
+| `height: 48` | 144 |
+| `maxWidth: 520` | 153 |
+| `maxWidth: 800` | 147 |
+| `minHeight: 48` | 152, 154 |
+| `minHeight: 68` | 149 |
+| `minWidth: 16` | 145 |
+| `opacity: 0` | 148 |
+| `padding: 10` | 149, 150, 153, 154 |
+| `paddingHorizontal: 8` | 152 |
+| `paddingVertical: 10` | 152 |
+| `width: '100%'` | 147, 153 |
+| `width: 18` | 146 |
+| `width: 48` | 144 |
 
 ## RawCaptureReview.tsx
 
@@ -808,137 +799,115 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/SeasonRing.tsx](.
 | `lineHeight: 12` | 47 |
 | `lineHeight: 19` | 47 |
 
-## ShellIcons.tsx
+## SymbolIcon.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ShellIcons.tsx](../../../apps/platform-lab/src/mobile/ShellIcons.tsx); normalized SHA-256 `b9c7a6da2b9db858c6b03d40dc54c5001c28bf52003651c7a743255ae33223f2`.
-
-### Literal colors
-
-| Value / declaration | Source line(s) |
-| --- | --- |
-| `#adbed5` | 8, 19, 28 |
-| `#f5f7ff` | 12 |
-
-### Geometry / opacity declarations
-
-| Value / declaration | Source line(s) |
-| --- | --- |
-| `borderRadius: 1` | 24, 50 |
-| `borderRadius: 2` | 47 |
-| `borderRadius: 3` | 44 |
-| `borderRadius: 5` | 45 |
-| `borderWidth: 1.5` | 44 |
-| `borderWidth: 1.6` | 47 |
-| `borderWidth: 1.8` | 45, 46 |
-| `height: 1.2` | 50 |
-| `height: 12` | 46 |
-| `height: 18` | 41 |
-| `height: 2` | 24 |
-| `height: 20` | 47 |
-| `height: 28` | 9, 40 |
-| `height: 5` | 44 |
-| `height: 8` | 43 |
-| `height: 9` | 42, 45 |
-| `width: 10` | 42 |
-| `width: 12` | 47 |
-| `width: 18` | 41 |
-| `width: 22` | 46 |
-| `width: 28` | 9, 40 |
-| `width: 3` | 24 |
-| `width: 5` | 44, 50 |
-| `width: 9` | 43, 45 |
-
-## theme.tsx
-
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/theme.tsx](../../../apps/platform-lab/src/mobile/theme.tsx); normalized SHA-256 `61f3c781e749cfd9f94d3fb5263452d3d94cc150a66ab32a26f8d8aabcd8330a`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/SymbolIcon.tsx](../../../apps/platform-lab/src/mobile/SymbolIcon.tsx); normalized SHA-256 `ea58c5840dae11c5c33dc537cb028990672dd9c3083ac8d0278345febca6dcc6`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#000d18` | 4 |
-| `#00102277` | 56 |
-| `#031326` | 26, 47 |
-| `#04131e` | 42 |
-| `#061522` | 50 |
-| `#071929` | 4 |
-| `#0c2d4a` | 42 |
-| `#11263b` | 4 |
-| `#162a42` | 55 |
-| `#1889ff55` | 51 |
-| `#231e63` | 4 |
-| `#238bf5` | 51 |
-| `#244760` | 4 |
-| `#3595fe` | 4 |
-| `#46acff` | 51 |
-| `#46ccff` | 4 |
-| `#48dba5` | 4 |
-| `#68baff` | 51 |
-| `#adbed5` | 4 |
-| `#f5f7ff` | 4 |
-| `#fc6a2d` | 4 |
+| `#00c8ff` | 18 |
+| `#46ccff` | 18 |
+| `#7497bf12` | 23 |
+| `#8ba9c01a` | 22 |
+| `#9ab8d333` | 22 |
+| `#b9dcf52b` | 23 |
+| `#f5f7ff` | 18 |
 
 ### Gradients
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `linear-gradient(140deg, #0c2d4a, #04131e)` | 42 |
-| `linear-gradient(180deg, #46acff, #238bf5)` | 51 |
-
-### Typography declarations
-
-| Value / declaration | Source line(s) |
-| --- | --- |
-| `fontSize: 13` | 39, 47, 51 |
-| `fontSize: 15` | 41 |
-| `fontSize: 26` | 40 |
-| `fontWeight: '600'` | 32, 41, 47 |
-| `fontWeight: '700'` | 26, 40 |
-| `letterSpacing: -.6` | 40 |
-| `lineHeight: 18` | 39, 47 |
-| `lineHeight: 20` | 41, 51 |
+| `linear-gradient(140deg, #b9dcf52b, #7497bf12)` | 23 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 14` | 42 |
-| `borderRadius: 16` | 46, 55 |
-| `borderRadius: 2` | 7, 8, 9 |
-| `borderRadius: 20` | 50 |
-| `borderRadius: 4` | 13 |
-| `borderWidth: 1` | 42, 48, 50 |
-| `borderWidth: 1.5` | 13 |
-| `gap: 10` | 43 |
-| `gap: 4` | 54 |
-| `gap: 6` | 42, 56 |
-| `gap: 8` | 44, 45, 52 |
-| `height: 16` | 13 |
-| `height: 2` | 7, 9 |
-| `height: 27` | 8 |
-| `height: 30` | 6, 13 |
-| `height: 8` | 13 |
-| `minHeight: 34` | 50 |
-| `minHeight: 48` | 46, 49, 53 |
-| `minWidth: 0` | 29, 45 |
-| `minWidth: 66` | 50 |
-| `opacity: .45` | 26 |
-| `opacity: .5` | 23 |
-| `opacity: .72` | 54 |
-| `padding: 11` | 42 |
-| `padding: 12` | 56 |
-| `paddingHorizontal: 13` | 50 |
-| `paddingHorizontal: 14` | 46 |
-| `paddingHorizontal: 4` | 53 |
-| `paddingVertical: 5` | 54 |
-| `paddingVertical: 6` | 50 |
-| `paddingVertical: 8` | 46 |
-| `width: '100%'` | 29 |
-| `width: '40%'` | 29 |
-| `width: 12` | 13 |
-| `width: 2` | 8 |
-| `width: 28` | 13 |
-| `width: 8` | 13 |
+| `borderRadius: 12` | 22 |
+| `borderWidth: 1` | 22 |
+
+## theme.tsx
+
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/theme.tsx](../../../apps/platform-lab/src/mobile/theme.tsx); normalized SHA-256 `7e96e6ca4bd9ded02ec4fb3d5ba91dc0091ecd348d3f563d11d2b7f6dfa2c8e2`.
+
+### Literal colors
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `#000d18` | 5 |
+| `#00102277` | 59 |
+| `#031326` | 28, 49 |
+| `#04131e` | 44 |
+| `#061522` | 53 |
+| `#071929` | 5 |
+| `#0c2d4a` | 44 |
+| `#11263b` | 5 |
+| `#162a42` | 58 |
+| `#1889ff55` | 54 |
+| `#231e63` | 5 |
+| `#238bf5` | 54 |
+| `#244760` | 5 |
+| `#3595fe` | 5 |
+| `#46acff` | 54 |
+| `#46ccff` | 5 |
+| `#48dba5` | 5 |
+| `#68baff` | 54 |
+| `#adbed5` | 5 |
+| `#f5f7ff` | 5 |
+| `#fc6a2d` | 5 |
+
+### Gradients
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `linear-gradient(140deg, #0c2d4a, #04131e)` | 44 |
+| `linear-gradient(180deg, #46acff, #238bf5)` | 54 |
+
+### Typography declarations
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `fontSize: 13` | 41, 49, 54 |
+| `fontSize: 15` | 43 |
+| `fontSize: 26` | 42 |
+| `fontWeight: '600'` | 34, 43, 49 |
+| `fontWeight: '700'` | 28, 42 |
+| `letterSpacing: -.6` | 42 |
+| `lineHeight: 18` | 41, 49 |
+| `lineHeight: 20` | 43, 54 |
+
+### Geometry / opacity declarations
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `borderRadius: 14` | 44 |
+| `borderRadius: 16` | 48, 58 |
+| `borderRadius: 20` | 53 |
+| `borderWidth: 1` | 44, 51, 53 |
+| `gap: 10` | 45 |
+| `gap: 4` | 57 |
+| `gap: 5` | 15 |
+| `gap: 6` | 44, 50, 59 |
+| `gap: 8` | 46, 47, 55 |
+| `minHeight: 34` | 53 |
+| `minHeight: 48` | 48, 52, 56 |
+| `minWidth: 0` | 31, 47 |
+| `minWidth: 66` | 53 |
+| `opacity: .45` | 28 |
+| `opacity: .5` | 25 |
+| `opacity: .72` | 57 |
+| `padding: 11` | 44 |
+| `padding: 12` | 59 |
+| `paddingHorizontal: 13` | 53 |
+| `paddingHorizontal: 14` | 48 |
+| `paddingHorizontal: 4` | 56 |
+| `paddingVertical: 5` | 57 |
+| `paddingVertical: 6` | 53 |
+| `paddingVertical: 8` | 48 |
+| `width: '100%'` | 31 |
+| `width: '40%'` | 31 |
 
 ## AccessProbe.tsx
 
@@ -1053,7 +1022,8 @@ Retained app-owned lab/adapter surface; document its existing appearance as an e
 | 17 Oct 2026 / Manuel | Approved five tabs, compact header/profile, aircraft and aircraft-share rings | [Shell report](../../verification/2026-10-17-native-shell-corrections.md) records Android checks and remaining iOS/physical limits. |
 | 18 Oct 2026 / Manuel | Approved B, contextual Back/provider Close, one active header, Connection → Med → Profile unknown | Medical follow-up in application `8b51f5a`. [Decision](../2026-10-18-header-status-review.md#package-1b-decision-checkpoint), [evidence](../../verification/2026-10-18-header-navigation.md). |
 | 18 Oct 2026 / Manuel | Authorized this handbook/export consolidation under #23 | Documentation implementation; no new appearance, code-token refactor or runtime acceptance. |
-| 18 Oct 2026 / Manuel | Requested creation of Style Option 2, Modern Duotone & Soft-Filled Glyphs, from his supplied JPEG | [Review and SVG family](icon-options/option-2/index.html), [source notes](icon-options/option-2/README.md), [verification](../../verification/2026-10-18-icon-option-2.md). Alternative prepared; app selection/integration remains open under #20. |
+| 18 Oct 2026 / Manuel | Selected duotone symbol family, M2 Medical card and supplied folded paper plane; authorized guide and app integration | Supersedes aircraft B and stethoscope artwork. [Selected assets](icon-options/option-2/README.md), [source-specific verification](../../verification/2026-10-18-icon-option-2.md). Navigation/unknown meanings and branding are preserved. |
+| 18 Oct 2026 / Manuel | Requested creation of Style Option 2, Modern Duotone & Soft-Filled Glyphs, from his supplied JPEG | [Review and SVG family](icon-options/option-2/index.html), [source notes](icon-options/option-2/README.md), [verification](../../verification/2026-10-18-icon-option-2.md). Initial comparison checkpoint, superseded by the later explicit M2 / folded-plane family selection and integration under #20. |
 
 ## Preserved history
 
@@ -1079,7 +1049,7 @@ Retained app-owned lab/adapter surface; document its existing appearance as an e
 | Connected data | Medical/AI/weather/club presentation retains unknown/unavailable states. This guide establishes no evidence source/integration. | Existing #20/#7/#10/#13 scopes |
 | Runtime limits | Existing Android checks are source-specific. Spoken TalkBack, iOS, physical-device and positive provider-history/original-page keyboard remain separate. | #20/#8 and linked reports |
 
-No new visual choice is needed to finish consolidation: explicit amendments resolve the chronology; unresolved appearance changes remain for later review.
+The later selected duotone symbols supersede earlier artwork choices in their scope. Other unresolved appearance changes remain for later review.
 
 ## Maintenance and evidence
 
@@ -1089,60 +1059,60 @@ No new visual choice is needed to finish consolidation: explicit amendments reso
 Regenerate with `python scripts/design_handbook.py`; validate freshness/links/coverage with `python scripts/design_handbook.py --check`. Focused tooling checks: `python -m unittest discover -s tests -p test_design_handbook.py -v`. The command normalizes source line endings before hashing and performs no network/app operations. [Package verification](../../verification/2026-10-18-design-handbook.md) records actual results and limits.
 
 SYMBOLS, ICONS AND STATE MARKS
-Preserve stable IDs, semantic meaning, current action and relevant states when proposing replacements. Preserve approved Thermik branding and selected aircraft B until a replacement is explicitly selected. Samples are schematic except unchanged source images.
+Preserve stable IDs, semantic meaning, current action and relevant states when proposing replacements. Preserve approved Thermik branding and the selected M2 Medical card / folded paper plane; earlier aircraft B remains historical. Samples are schematic except unchanged source images.
 
 Main navigation
-Five persistent destinations. Selected icons and labels use #00c8ff; inactive ones use #adbed5. The tab label and accessible selected state carry meaning too.
+Five persistent destinations. Selected icons use cyan/slate duotone; inactive ones use the muted duotone variant. Labels retain #00c8ff / #adbed5. The tab label and accessible selected state carry meaning too.
 
-N01 · Current native UI
+N01 · Current native UI · selected duotone
 Home / Übersicht
-Appearance: ⌂ (U+2302): house-shaped text glyph.
+Appearance: Selected soft-filled cyan/slate duotone home silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
 Where: Bottom navigation, Übersicht.
 Meaning: The dashboard: paper-logbook work, season summary, latest flight, AI entry, club and weather panels.
 Function / action: Tap switches to Übersicht.
 States / limits: Selected / inactive. This is navigation, not an indicator that all data is current.
-Source: apps/platform-lab/src/mobile/MobileApp.tsx
-tabs; bottom tablist
+Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
+duotone-assets.ts; icon-options/option-2/glyphs.svg #home
 
-N02 · Current native UI
+N02 · Current native UI · selected duotone
 Flights / Flüge
-Appearance: Authored side-view aircraft B, shown as a tinted transparent bitmap.
+Appearance: Selected soft-filled cyan/slate duotone flight-paper-plane silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
 Where: Bottom navigation, Flüge.
 Meaning: Saved searchable flight history for the selected book.
 Function / action: Tap switches to Flüge; existing year/search/training state is retained.
-States / limits: Selected / inactive. Candidate B was selected on 18 October 2026.
-Source: apps/platform-lab/src/mobile/ShellIcons.tsx
-PlaneIcon; assets/icons/aircraft-side.svg is the editable master
+States / limits: Selected / inactive using independent cyan/slate and muted duotone assets. Supplied folded paper plane selected on 18 October 2026, superseding side-view B.
+Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
+duotone-assets.ts; icon-options/option-2/glyphs.svg #flight-paper-plane
 
-N03 · Current native UI
+N03 · Current native UI · selected duotone
 Logbook / Flugbuch
-Appearance: Custom outline of an open book, with a central fold and ruled pages.
+Appearance: Selected soft-filled cyan/slate duotone book silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
 Where: Bottom navigation, Flugbuch.
 Meaning: Selected book, paper-entry status, reconciliation and writing-template tools.
 Function / action: Tap switches to Flugbuch.
 States / limits: Selected / inactive. Distinguish the destination from the orange paper-work action D01.
-Source: apps/platform-lab/src/mobile/ShellIcons.tsx
-BookIcon; MobileApp bottom tablist
+Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
+duotone-assets.ts; icon-options/option-2/glyphs.svg #book
 
-N04 · Current native UI
+N04 · Current native UI · selected duotone
 Club / Verein
-Appearance: Two outlined people, slightly offset.
+Appearance: Selected soft-filled cyan/slate duotone club silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
 Where: Bottom navigation, Verein.
 Meaning: Club overview, duties, appointments and notices.
 Function / action: Tap switches to Verein.
 States / limits: Selected / inactive. The sections currently show missing-source states; no live club feed is implied.
-Source: apps/platform-lab/src/mobile/theme.tsx
-ClubMark; MobileApp bottom tablist
+Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
+duotone-assets.ts; icon-options/option-2/glyphs.svg #club
 
-N05 · Current native UI
+N05 · Current native UI · selected duotone
 AI assistant / AI
-Appearance: ✧ (U+2727): outlined four-point sparkle.
+Appearance: Selected soft-filled cyan/slate duotone sparkle silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
 Where: Bottom navigation; AI welcome card.
 Meaning: Entry to MoFlight AI and available deterministic local flight questions.
 Function / action: Tab tap opens AI. The welcome-card sparkle is decorative.
 States / limits: Selected / inactive tab. A sparkle does not mean the external AI service is connected.
-Source: apps/platform-lab/src/mobile/MobileApp.tsx
-tabs; AI welcome card
+Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
+duotone-assets.ts; icon-options/option-2/glyphs.svg #sparkle
 
 Header and provider-session states
 The current app header order is Connection → Med → Profile. App overlays keep one active accessible header. The provider panel has its own Close, provider-history Back and connection indicator; it does not show the entire three-control group.
@@ -1157,85 +1127,85 @@ States / limits: Approved existing artwork. Preserve it in this symbol-redesign 
 Source: apps/platform-lab/src/mobile/AppHeader.tsx
 brandLogo; header Image
 
-H02 · Current native UI
+H02 · Current native UI · selected duotone
 App Back
-Appearance: Custom left chevron inside a lavender rounded square.
+Appearance: Selected soft-filled cyan/slate duotone back silhouette; local RGBA PNG from the editable SVG master. contrast palette in this context.
 Where: Leading side of app-sheet and flight-detail headers.
 Meaning: Return through MoFlight navigation history.
 Function / action: Returns to the prior app overlay or page, preserving its state. Choosing a different book clears old flight-detail history.
 States / limits: Shown on app overlays. This is separate from provider webpage history A12.
-Source: apps/platform-lab/src/mobile/AppHeader.tsx
-back; styles.backArrow; MobileApp.closeOverlay
+Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
+duotone-assets.ts; icon-options/option-2/glyphs.svg #back
 
-H03 · Current native UI
+H03 · Current native UI · selected duotone
 Provider connection
-Appearance: Two diagonal chain links plus a small state badge; a spinner replaces them during work.
+Appearance: Selected soft-filled cyan/slate duotone chain silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
 Where: App-header connection button; provider panel/toolbar.
 Meaning: Evidence about the Vereinsflieger session and provisional account association.
 Function / action: In the app header, opens Verbindungen. In the provider panel it is informational; during visible login, tapping it dismisses the login page back to the connection panel.
 States / limits: See S01–S05. Saved-flight freshness, MoFlight identity and provider-session status are separate.
-Source: apps/platform-lab/src/mobile/ProviderConnection.tsx
-ConnectionIndicator; connection-guidance.ts
+Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
+duotone-assets.ts; icon-options/option-2/glyphs.svg #chain
 
-H04 · Current native UI
+H04 · Current native UI · selected duotone
 Medical / Med
-Appearance: Small stethoscope beside Med; second line says unbekannt.
+Appearance: Selected M2 Medical card: rounded credential card, cyan top band and medical cross, slate document fields. Med / unbekannt remains explicit.
 Where: App header, between Connection and Profile.
 Meaning: Medical-record status. Current source, class and expiry are unknown.
 Function / action: Tap opens the read-only Medical explanation sheet.
 States / limits: Current state is unknown only. No input, expiry date, reminder or fit-to-fly judgment is implemented. The selected accessibility state follows the open sheet.
-Source: apps/platform-lab/src/mobile/MedicalStatus.tsx
-MedicalIndicator; MedicalDetails; ShellIcons.MedicalIcon
+Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
+duotone-assets.ts; icon-options/option-2/glyphs.svg #medical-card
 
-H05 · Current native UI
+H05 · Current native UI · selected duotone
 Profile and settings
-Appearance: Outline of one person: circular head and shoulders.
+Appearance: Selected soft-filled cyan/slate duotone profile silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
 Where: Far-right app-header action.
 Meaning: Local demo profile and app settings/tools.
 Function / action: Opens Profil & Einstellungen: local display name, books/data, connections, appearance information and credits/tools.
 States / limits: No avatar, provider identity or authenticated MoFlight-account status is conveyed.
-Source: apps/platform-lab/src/mobile/ShellIcons.tsx
-ProfileIcon; MobileApp.statusControls
+Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
+duotone-assets.ts; icon-options/option-2/glyphs.svg #profile
 
-S01 · Current native UI
+S01 · Current native UI · selected duotone
 Session unverified / unknown
-Appearance: ? (U+003F) badge; muted gray-blue chain.
+Appearance: Selected soft-filled cyan/slate duotone chain silhouette; local RGBA PNG from the editable SVG master. muted palette in this context.
 Where: Connection indicator when no stronger usable observation exists.
 Meaning: Current session is not established by the available evidence.
 Function / action: The containing connection button opens details; this badge has no independent action.
 States / limits: Includes unknown/disconnected and incomplete observations. An old cookie or failure to inspect a page is not proof of login or logout.
-Source: apps/platform-lab/src/mobile/connection-guidance.ts
-connectionSymbol default; connectionGuidance
+Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
+duotone-assets.ts; icon-options/option-2/glyphs.svg #chain
 
-S02 · Current native UI
+S02 · Current native UI · selected duotone
 Last confirmed session check
-Appearance: ✓ (U+2713) badge; mint-green chain.
+Appearance: Selected soft-filled cyan/slate duotone chain silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
 Where: Connection indicator after a confirmed matching profile observation with a check time.
 Meaning: A previous session check matched the provisional account association.
 Function / action: Open details to read the last-check time and available next action.
 States / limits: Requires observed + confirmed + observed identity + lastCheckedAt. No automatic expiry threshold is implemented; a tick does not promise continuous login or fresh imported flights.
-Source: apps/platform-lab/src/mobile/connection-guidance.ts
-connectionSymbol confirmed branch
+Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
+duotone-assets.ts; icon-options/option-2/glyphs.svg #chain
 
-S03 · Current native UI
+S03 · Current native UI · selected duotone
 Provider login required
-Appearance: → (U+2192) badge; amber chain.
+Appearance: Selected soft-filled cyan/slate duotone chain silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
 Where: Connection indicator for login-required.
 Meaning: Login on the original Vereinsflieger page is required.
 Function / action: Open Verbindungen and use the sign-in action. The badge itself does not submit credentials.
 States / limits: Login-required state. Keep distinct from the same arrow used for route direction or forward navigation.
-Source: apps/platform-lab/src/mobile/connection-guidance.ts
-connectionSymbol login-required branch
+Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
+duotone-assets.ts; icon-options/option-2/glyphs.svg #chain
 
-S04 · Current native UI
+S04 · Current native UI · selected duotone
 Connection attention / blocked
-Appearance: ! (U+0021) badge; salmon attention color.
+Appearance: Selected soft-filled cyan/slate duotone chain silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
 Where: Connection indicator for mismatch, error, unconfirmed observed identity, or pending recovery.
 Meaning: Something needs review: account/club mismatch, failed checking, association confirmation, or recovery blocking retrieval.
 Function / action: Open details to understand the specific reason and next action.
 States / limits: Recovery forces the ! badge. Several causes share the shape, so accompanying accessible wording/details must distinguish them. A session error does not prove logout.
-Source: apps/platform-lab/src/mobile/ProviderConnection.tsx
-ConnectionIndicator recovery override; connectionSymbol attention branch
+Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
+duotone-assets.ts; icon-options/option-2/glyphs.svg #chain
 
 S05 · Current native UI
 Busy / checking / saving
@@ -1250,65 +1220,65 @@ ConnectionIndicator.pending/operation; MobileApp; ProfileSettings
 Dashboard, flight information and club headings
 Samples reproduce text glyphs and existing image assets. Native View-based marks and chart examples are schematic browser redraws, not screenshots. Chart values below are synthetic examples.
 
-D01 · Current native UI
+D01 · Current native UI · selected duotone
 Paper logbook work
-Appearance: ▱ (U+25B1): slanted outlined parallelogram in an orange rounded tile.
+Appearance: Selected soft-filled cyan/slate duotone logbook silhouette; local RGBA PNG from the editable SVG master. paper palette in this context.
 Where: Papierflugbuch aktualisieren hero; Als Nächstes paper-review item.
 Meaning: Review outstanding paper entries and reconcile the selected logbook.
 Function / action: Tap the hero or next-action row to open the existing paper-logbook tools.
 States / limits: Smaller/larger instances share the same meaning. Pending count may be unknown or zero; the glyph alone is not proof that an entry has been copied.
-Source: apps/platform-lab/src/mobile/Dashboard.tsx
-hero; styles.paperIcon; styles.smallPaperIcon
+Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
+duotone-assets.ts; icon-options/option-2/glyphs.svg #logbook
 
-D02 · Current native UI
+D02 · Current native UI · selected duotone
 AI suggestion
-Appearance: ✦ (U+2726): filled four-point sparkle, currently purple.
+Appearance: Selected soft-filled cyan/slate duotone sparkle silhouette; local RGBA PNG from the editable SVG master. assistant palette in this context.
 Where: Dashboard MoFlight AI card.
 Meaning: Shortcut to a sample flight-history question.
 Function / action: Tap the card to open AI and prefill the most-frequently-flown-aircraft question; it does not automatically send it.
 States / limits: Same semantic family as N05, with a different current glyph. External AI service remains unconnected.
-Source: apps/platform-lab/src/mobile/Dashboard.tsx
-styles.sparkle; onAi; MobileApp.ask
+Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
+duotone-assets.ts; icon-options/option-2/glyphs.svg #sparkle
 
-D03 · Current native UI
+D03 · Current native UI · selected duotone
 Glider / no flight track
-Appearance: Thin, slightly tilted glider drawn from three native line shapes.
+Appearance: Selected soft-filled cyan/slate duotone glider silhouette; local RGBA PNG from the editable SVG master. muted palette in this context.
 Where: Latest-flight dashboard tile; flight-list thumbnail beside Kein Track.
 Meaning: Aviation marker and placeholder when no flight track is available.
 Function / action: No independent action. The latest-flight card or flight row opens flight details.
 States / limits: Not a GPS route, map, live aircraft position or additional flight category.
-Source: apps/platform-lab/src/mobile/theme.tsx
-GliderMark; Dashboard latest; MobileApp.FlightRow
+Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
+duotone-assets.ts; icon-options/option-2/glyphs.svg #glider
 
-D04 · Current native UI
+D04 · Current native UI · selected duotone
 Time / duration
-Appearance: ◷ (U+25F7): circle with a quarter/time-like shape.
+Appearance: Selected soft-filled cyan/slate duotone clock silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
 Where: Flight rows/latest flight; club duty card before Zeit.
 Meaning: Flight duration in flight contexts; scheduled time in duty context.
 Function / action: Read-only field marker; any navigation belongs to the surrounding card.
 States / limits: May sit beside an unknown value (—). A clock does not mean the data is live or the duration is complete.
-Source: apps/platform-lab/src/mobile/MobileApp.tsx
-FlightRow; club duty card; Dashboard latest
+Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
+duotone-assets.ts; icon-options/option-2/glyphs.svg #clock
 
-D05 · Current native UI
+D05 · Current native UI · selected duotone
 Location / start field
-Appearance: ⌖ (U+2316): target/crosshair-style position glyph.
+Appearance: Selected soft-filled cyan/slate duotone location silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
 Where: Dashboard club tile and club duty card before Startplatz.
 Meaning: The start-field/location field of the club item.
 Function / action: Read-only field marker; card actions navigate separately.
 States / limits: Currently paired with an unknown value. No current GPS location or location permission is implied.
-Source: apps/platform-lab/src/mobile/Dashboard.tsx
-club tile; MobileApp club duty card
+Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
+duotone-assets.ts; icon-options/option-2/glyphs.svg #location
 
-D06 · Current native UI
+D06 · Current native UI · selected duotone
 Weather
-Appearance: ☁ (U+2601): cloud.
+Appearance: Selected soft-filled cyan/slate duotone weather silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
 Where: Dashboard Wetter & Platz card.
 Meaning: Weather information category.
 Function / action: Tap the card to view the status explanation.
 States / limits: Currently Kein Wetterbericht / no dated source. The cloud is a placeholder category icon, not a measured cloudy-weather report.
-Source: apps/platform-lab/src/mobile/Dashboard.tsx
-Wetter & Platz card; onStatus
+Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
+duotone-assets.ts; icon-options/option-2/glyphs.svg #weather
 
 D07 · Current native UI
 Season flight-count ring
@@ -1330,158 +1300,158 @@ States / limits: Unknown duration stays unknown and is disclosed separately; it 
 Source: apps/platform-lab/src/mobile/SeasonRing.tsx
 Dashboard.seasonCards; season-model.seasonRingSlices(knownMinutes)
 
-K01 · Current native UI
+K01 · Current native UI · selected duotone
 Next club duty
-Appearance: ▣ (U+25A3): square containing a smaller filled square.
+Appearance: Selected soft-filled cyan/slate duotone duty silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
 Where: Verein card heading Nächster Dienst.
 Meaning: Duty/assignment section marker.
 Function / action: The symbol is decorative; Details anzeigen opens the status sheet in the current implementation.
 States / limits: No duty assignment is currently available. Avoid interpreting this generic square as a checkbox or confirmed duty.
-Source: apps/platform-lab/src/mobile/MobileApp.tsx
-club section Nächster Dienst
+Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
+duotone-assets.ts; icon-options/option-2/glyphs.svg #duty
 
-K02 · Current native UI
+K02 · Current native UI · selected duotone
 Upcoming club appointments
-Appearance: ♧ (U+2667): outlined club-suit/trefoil glyph.
+Appearance: Selected soft-filled cyan/slate duotone calendar-neutral silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
 Where: Verein overview heading Kommende Termine.
 Meaning: Club events/calendar category.
 Function / action: The symbol is decorative. Alle anzeigen switches the club subsection to Termine.
 States / limits: No calendar source is connected. This glyph is not the current two-person Verein navigation icon.
-Source: apps/platform-lab/src/mobile/MobileApp.tsx
-club section Kommende Termine
+Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
+duotone-assets.ts; icon-options/option-2/glyphs.svg #calendar-neutral
 
-K03 · Current native UI
+K03 · Current native UI · selected duotone
 Club notices
-Appearance: ▧ (U+25A7): diagonally hatched square.
+Appearance: Selected soft-filled cyan/slate duotone messages silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
 Where: Verein heading Aktuelle Mitteilungen.
 Meaning: Club notices, news or documents category.
 Function / action: The symbol is decorative. Alle anzeigen switches to Mitteilungen.
 States / limits: No notice/document source is connected; no unread count is implied.
-Source: apps/platform-lab/src/mobile/MobileApp.tsx
-club section Aktuelle Mitteilungen
+Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
+duotone-assets.ts; icon-options/option-2/glyphs.svg #messages
 
 Actions and navigation cues
 Several repeated characters have different meanings by context. Redesign each semantic role, while keeping related navigation controls visually consistent.
 
-A01 · Current native UI
+A01 · Current native UI · selected duotone
 Search flights
-Appearance: ⌕ (U+2315): search-like text glyph.
+Appearance: Selected soft-filled cyan/slate duotone search silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
 Where: Inside the Flüge search field.
 Meaning: Search saved flights.
 Function / action: The glyph is decorative; editing the field filters local flights alongside year and training-role selections.
 States / limits: Search is scoped to the selected book. No provider lookup is triggered.
-Source: apps/platform-lab/src/mobile/MobileApp.tsx
-flightHeader; searchBox
+Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
+duotone-assets.ts; icon-options/option-2/glyphs.svg #search
 
-A02 · Current native UI
+A02 · Current native UI · selected duotone
 Open flight filters
-Appearance: ☷ (U+2637): stacked/broken-line trigram used as a filter symbol.
+Appearance: Selected soft-filled cyan/slate duotone filter silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
 Where: Button beside flight search.
 Meaning: Additional controls for filtering saved flights.
 Function / action: Tap opens Flugfilter; existing year, search and training filters work together.
 States / limits: The current glyph has no active-filter dot/count. Do not invent support for additional flight classifications.
-Source: apps/platform-lab/src/mobile/MobileApp.tsx
-flightHeader; filterButton; filters sheet
+Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
+duotone-assets.ts; icon-options/option-2/glyphs.svg #filter
 
-A03 · Current native UI
+A03 · Current native UI · selected duotone
 Choose logbook
-Appearance: ⌄ (U+2304): downward arrowhead/chevron.
+Appearance: Selected soft-filled cyan/slate duotone down silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
 Where: Selected-book label in the flight header and synthetic-library banner.
 Meaning: An expandable choice of local logbooks.
 Function / action: Tap the containing button opens Flugbuch auswählen.
 States / limits: Current selection is shown by name and tick A10. Selection respects the book boundary and clears old flight-detail navigation.
-Source: apps/platform-lab/src/mobile/MobileApp.tsx
-stateBanner; headerBook; selectBook sheet
+Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
+duotone-assets.ts; icon-options/option-2/glyphs.svg #down
 
-A04 · Current native UI
+A04 · Current native UI · selected duotone
 Reload local data
-Appearance: ↻ (U+21BB): clockwise open circular arrow.
+Appearance: Selected soft-filled cyan/slate duotone refresh silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
 Where: Synthetic-library banner next to Aktualisieren.
 Meaning: Reload the saved local library into the UI.
 Function / action: Tap calls library.reload().
 States / limits: Disabled while the library is busy. This control does not retrieve provider flights or imply cloud synchronization.
-Source: apps/platform-lab/src/mobile/MobileApp.tsx
-stateBanner; Lokale Daten aktualisieren
+Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
+duotone-assets.ts; icon-options/option-2/glyphs.svg #refresh
 
-A05 · Current native UI
+A05 · Current native UI · selected duotone
 Unavailable classification information
-Appearance: ⓘ (U+24D8): circled lowercase i.
+Appearance: Selected soft-filled cyan/slate duotone info silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
 Where: Strecke and Platzrunden chips in Flüge.
 Meaning: This classification is not supported by the stored flight contract.
 Function / action: Tap opens Klassifikation nicht verfügbar and preserves the active filter.
 States / limits: Informational, not a working route/circuit filter. It does not mean the displayed flight was classified with low confidence.
-Source: apps/platform-lab/src/mobile/MobileApp.tsx
-flightHeader chips; unsupported sheet
+Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
+duotone-assets.ts; icon-options/option-2/glyphs.svg #info
 
-A06 · Current native UI
+A06 · Current native UI · selected duotone
 Open row / supporting destination
-Appearance: › (U+203A): right-pointing chevron.
+Appearance: Selected soft-filled cyan/slate duotone right silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
 Where: Flight rows, AI example questions and supporting club/status links.
 Meaning: The containing row leads to details or another destination.
 Function / action: Flight row opens details; AI question runs a supported local calculation and fills the draft; status/club links open their named destination.
 States / limits: No separate control inside the row. Preserve the surrounding accessible action label.
-Source: apps/platform-lab/src/mobile/MobileApp.tsx
-FlightRow; questionGrid; supporting status link; Dashboard next actions
+Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
+duotone-assets.ts; icon-options/option-2/glyphs.svg #right
 
-A07 · Current native UI
+A07 · Current native UI · selected duotone
 Forward / continue action
-Appearance: → (U+2192): right arrow.
+Appearance: Selected soft-filled cyan/slate duotone arrow silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
 Where: Paper CTA, AI dashboard shortcut, duty Details anzeigen, saved-flights links.
 Meaning: Continue to the action/destination named by the adjacent text.
 Function / action: Invokes the surrounding card/button: paper tools, AI draft, current status sheet or saved-flight list.
 States / limits: No automatic completion, upload or import is implied. Same character as A08 and S03, with different semantics.
-Source: apps/platform-lab/src/mobile/Dashboard.tsx
-hero CTA; AI card; MobileApp duty and saved-flights links
+Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
+duotone-assets.ts; icon-options/option-2/glyphs.svg #arrow
 
-A08 · Current native UI
+A08 · Current native UI · selected duotone
 Departure to arrival
-Appearance: → (U+2192) placed between start and landing field names.
+Appearance: Selected soft-filled cyan/slate duotone arrow silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
 Where: Latest-flight tile; flight rows.
 Meaning: Direction of the recorded departure-to-arrival relationship.
 Function / action: Read-only separator inside flight information; no independent navigation.
 States / limits: Either endpoint may be unknown. It does not represent a measured route, distance or flight track.
-Source: apps/platform-lab/src/mobile/MobileApp.tsx
-FlightRow; Dashboard latest
+Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
+duotone-assets.ts; icon-options/option-2/glyphs.svg #arrow
 
-A09 · Current native UI
+A09 · Current native UI · selected duotone
 Send AI message
-Appearance: ➤ (U+27A4): filled right-pointing arrowhead.
+Appearance: Selected soft-filled cyan/slate duotone send silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
 Where: AI composer send button.
 Meaning: Submit the typed question to the AI interaction.
 Function / action: Current handler reports that the AI service is unavailable and retains the draft; no message is sent.
 States / limits: Disabled for blank input or while sending; dimmed when blank. Preserve a distinct send-button role and accessible Nachricht senden label.
-Source: apps/platform-lab/src/mobile/MobileApp.tsx
-composer; send handler
+Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
+duotone-assets.ts; icon-options/option-2/glyphs.svg #send
 
-A10 · Current native UI
+A10 · Current native UI · selected duotone
 Selected logbook
-Appearance: ✓ (U+2713) before the selected book name.
+Appearance: Selected soft-filled cyan/slate duotone check silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
 Where: Flugbuch auswählen sheet.
 Meaning: This book is the active local selection.
 Function / action: Tap a book row selects it and closes the sheet. The tick itself is not a separate button.
 States / limits: Selection marker, not provider-session confirmation, paper-entry completion or successful import.
-Source: apps/platform-lab/src/mobile/MobileApp.tsx
-selectBook sheet
+Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
+duotone-assets.ts; icon-options/option-2/glyphs.svg #check
 
-A11 · Current native UI
+A11 · Current native UI · selected duotone
 Expand / collapse details
-Appearance: + (U+002B) when collapsed; − (U+2212) when expanded.
+Appearance: Selected soft-filled cyan/slate duotone plus silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
 Where: Verbindungen: Sitzungsdetails & weitere Optionen; Entwicklungswerkzeuge · Rohbelege.
 Meaning: Show or hide optional detail/tool sections.
 Function / action: Tap toggles the corresponding disclosure and accessible expanded state.
 States / limits: No creation, addition, deletion or subtraction of user data. Collapses when the connection panel closes.
-Source: apps/platform-lab/src/mobile/ProviderConnection.tsx
-details/lab disclosure Pressables
+Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
+duotone-assets.ts; icon-options/option-2/glyphs.svg #plus
 
-A12 · Current native UI
+A12 · Current native UI · selected duotone
 Back inside provider webpage
-Appearance: ‹ (U+2039) before Anbieterseite zurück.
+Appearance: Selected soft-filled cyan/slate duotone back silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
 Where: Original-provider login toolbar.
 Meaning: Move backward in the embedded Vereinsflieger webpage history.
 Function / action: Tap calls backWithinProvider().
 States / limits: Disabled while operations are locked or provider history cannot go back. Different scope from MoFlight Back H02. Schließen is a separate text-only action and does not sign out.
-Source: apps/platform-lab/src/mobile/ProviderConnection.tsx
-loginBar; backWithinProvider
+Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
+duotone-assets.ts; icon-options/option-2/glyphs.svg #back
 
 Data notation and visual state markers
 These are part of the symbol language too, even where replacing them with pictograms would be unnecessary.
@@ -1553,27 +1523,27 @@ X01 · Retained, not current native navigation
 Previous top-view aircraft silhouette
 Appearance: Filled top-view aircraft silhouette.
 Where: Retained assets/icons/aircraft.svg and aircraft.png.
-Meaning: Previous aircraft-navigation artwork; current Flüge uses side-view B.
+Meaning: Previous aircraft-navigation artwork; current Flüge uses the selected folded paper plane.
 Function / action: No current mobile render uses this bitmap.
 States / limits: Retained source asset, superseded for the navigation destination.
 Source: apps/platform-lab/assets/icons/aircraft.svg
 Retained SVG master and PNG
 
-X02 · Source literals, overridden in current tabs
+X02 · Historical fallback vocabulary; removed from current tabs
 Fallback tab literals
 Appearance: ✈ (U+2708), ▤ (U+25A4), ♧ (U+2667) in the tabs array.
-Where: MobileApp tabs metadata.
+Where: Preserved catalogue history; no current tab fallback.
 Meaning: Literal placeholders for Flights, Logbook and Club.
 Function / action: Rendering branches replace them with PlaneIcon, BookIcon and ClubMark respectively.
 States / limits: Not the currently rendered tab artwork. ♧ is separately visible in the events heading K02.
 Source: apps/platform-lab/src/mobile/MobileApp.tsx
-tabs array versus bottom tablist conditional rendering
+Historical fallback literals retained here; current tabs render SymbolIcon.
 
 X03 · Historical unselected candidate
 Unselected top-view glider candidate A
 Appearance: Outlined top-view glider candidate from the 18 October comparison.
 Where: Earlier header/icon review prototype.
-Meaning: Alternative aviation metaphor considered before side-view B was selected.
+Meaning: Alternative aviation metaphor considered before side-view B, subsequently superseded by the folded paper plane.
 Function / action: No current app action; historical comparison only.
 States / limits: Not selected. Keep distinct from the filled previous silhouette X01 and no-track glider D03.
 Source: docs/product/prototypes/2026-10-18-header-icons-review.html

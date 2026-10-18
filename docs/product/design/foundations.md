@@ -33,9 +33,9 @@ The purple/orange exports describe accent families; actual dashboard cards use l
 | Login required | `#ffc477` | Original-provider sign-in required, →; dark badge. Same source, S03. |
 | Attention / recovery | `#ffb39e` | Error/mismatch/unconfirmed association/recovery; ! and a specific explanation. Same source and [ProviderConnection](../../../apps/platform-lab/src/mobile/ProviderConnection.tsx), S04. |
 | Unknown / header control | `#adbed5`; background `#102d47aa` | Neutral ?, or Med / unbekannt. The photo/overlay affects the translucent control's actual background. ProviderConnection / [MedicalStatus](../../../apps/platform-lab/src/mobile/MedicalStatus.tsx). |
-| App Back | Fill `#a4adff`, border `#d0d5ff`, arrow `#101a3c` | Contextual return, distinct from the dark header. [AppHeader](../../../apps/platform-lab/src/mobile/AppHeader.tsx). |
+| App Back | Fill `#a4adff`, border `#d0d5ff`, dark contrast duotone arrow (brightest stop `#123a50`) | Contextual return, distinct from the dark header. [AppHeader](../../../apps/platform-lab/src/mobile/AppHeader.tsx). |
 | Recorded role pill | Fill `#064240`, border `#227f87`, general cyan text | Recorded role, not qualification/completion. MobileApp badge. |
-| AI welcome badge | Fill `#78efdc`, symbol `#062d39` | Category decoration, not AI availability. MobileApp aiBadge. |
+| AI welcome badge | Fill `#78efdc`, dark contrast duotone sparkle | Category decoration, not AI availability. MobileApp aiBadge. |
 
 No automatic stale-time threshold is selected for the connection mark. Session evidence, saved-flight freshness, provisional association and MoFlight identity are separate. See catalogue H03/S01–S05.
 
@@ -73,7 +73,7 @@ The native shell uses the platform default family; it does not configure Inter. 
 | Medical label / status | 12 / 16 and 11 / 15 | Med is 600; status quieter. |
 | Ring value / label | 15 / 19 and 9 / 12 | Native rings hide at enlarged text or when values cannot fit. |
 
-Sources: theme, AppHeader, Dashboard, MobileApp, [ProfileSettings](../../../apps/platform-lab/src/mobile/ProfileSettings.tsx), MedicalStatus and [SeasonRing](../../../apps/platform-lab/src/mobile/SeasonRing.tsx). Icon-glyph font sizes describe artwork, not body hierarchy. The generated inventory lists literal typography declarations.
+Sources: theme, AppHeader, Dashboard, MobileApp, [ProfileSettings](../../../apps/platform-lab/src/mobile/ProfileSettings.tsx), MedicalStatus and [SeasonRing](../../../apps/platform-lab/src/mobile/SeasonRing.tsx). Icon-glyph font sizes describe artwork, not body hierarchy. The generated inventory lists literal typography declarations. Selected icon raster palettes are recorded separately in the [native asset manifest](../../../apps/platform-lab/assets/icons/duotone/manifest.json); body/text color tokens are unchanged.
 
 ## Spacing, geometry and target size
 
@@ -84,10 +84,10 @@ Use the documented component context. Common implementation values include 8 dp 
 | Shared card | Radius 14; border 1; padding 11; gap 6 | Most cards; flight rows override radius/padding. |
 | Shared action | Radius 16; minimum height 48; padding 14 horizontal / 8 vertical | Secondary adds border 1. |
 | Chip face / target | Radius 20; face minimum 66 × 34; target minimum height 48 | Year/training/club scope. |
-| Header icon / Back | Icons 48 × 48, radius 24; Back 48 × 48, radius 16 | Artwork size and target differ. |
+| Header icon / Back | Controls 48 × 48, radius 14; Back 48 × 48, radius 16 | Artwork size and target differ. |
 | Medical group | Minimum 72 × 48, radius 12; grows with text | Icon + Med above unbekannt. |
 | Field / composer | Profile radius 12, minimum height 48; provider radius 10; composer radius 20 | Context-specific forms. |
-| Tab / artwork | Tab minimum height 60; artwork about 28; label 11 | Five equal destinations. |
+| Tab / artwork | Tab minimum height 60; artwork 28 in soft tile 36 / radius 12; label 11 | Five equal destinations. |
 | Ring | Diameter 62; thickness 6 | Aircraft distribution. |
 
 Smaller faces, such as the 42 dp send face, 40 dp search input and 36 dp paper CTA face, do not independently prove adequate effective touch regions. [Known gaps](history.md) require actual hit-region review when affected controls change.
@@ -103,7 +103,7 @@ Generated ratios use standard sRGB relative luminance on fully opaque pairs. The
 | Muted text / card fallback | `#adbed5` | `#071929` | 9.41:1 |
 | Action label / blue fallback | `#031326` | `#3595fe` | 6.12:1 |
 | General cyan / canvas | `#46ccff` | `#000d18` | 10.59:1 |
-| Back arrow / opaque Back face | `#101a3c` | `#a4adff` | 8.10:1 |
+| Brightest Back arrow gradient stop / opaque Back face | `#123a50` | `#a4adff` | 5.72:1 |
 <!-- generated:contrast:end -->
 
 ## Branding and photography

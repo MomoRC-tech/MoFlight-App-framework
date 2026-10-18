@@ -8,4 +8,4 @@
     <filter id="o2-lift" x="-35%" y="-25%" width="170%" height="180%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="3" stdDeviation="2.2" flood-color="#000b19" flood-opacity="0.5" /></filter>
   </defs>
   <g><path d="M43 48 30 15h10l26 34M21 52 8 28h8l23 23" fill="url(#o2-slate)" /><path d="M8 50h21l17-8h23l15 7q8 4 5 7c-2 3-9 4-16 4H24L8 56z" fill="url(#o2-cyan)" /><path d="M46 54 31 80h11l24-26" fill="url(#o2-slate)" /><path d="m55 43 11 0 9 5H52z" fill="#b2f3f4" opacity=".8" /></g>
-</svg>
+  </svg>

@@ -11,7 +11,7 @@
 | C03 | Scope chip | Radius 20; face minimum 66 × 34 in a minimum-48-height target | Selected blue gradient; selected/disabled semantics. theme Chip. |
 | C04 | Search / input | Search radius 22; profile radius 12 and font 16; provider radius 10 | Operate on named scope. MobileApp / ProfileSettings / ProviderConnection. |
 | C05 | Shared header | Fixed photo/shade, logo 52, title 18/24, controls 48; content minimum height 64 and padding 10/5 | Header can grow; minimum is not universal actual height. AppHeader. |
-| C06 | Header status group | Connection circle, growing Med, profile circle; gap 4 | Back replaces logo on app overlays. AppHeader / MedicalStatus / ShellIcons. |
+| C06 | Header status group | Connection soft tile, growing Med, profile soft tile; gap 4 | Back replaces logo on app overlays. AppHeader / MedicalStatus / ShellIcons. |
 | C07 | Bottom navigation | Attached dark bar, five equal targets, minimum height 60 | Icon above German label; cyan selected state. MobileApp. |
 | C08 | Overlay / provider panel | Current dark full app overlay with one active header; provider has its own toolbar/history | Different from pale v0.30 prototype sheets. MobileApp / ProviderConnection. |
 | C09 | Flight row | Padding 7, radius 13; no-track tile, route/time/role and detail chevron | Whole row opens saved facts. MobileApp FlightRow. |
@@ -43,9 +43,13 @@ The [51-entry catalogue](../symbol-reference.html) is the detailed meaning/funct
 
 Separate semantic roles even when characters repeat: a right arrow can mean route direction, continue or login required; a tick can mean selected book or previous session confirmation. Assess artwork size, optical balance, stroke and effective touch area separately.
 
-Preserve approved side-view aircraft B and Thermik branding until a replacement is explicitly selected. Editable masters stay beside original assets; the app retains its current aircraft bitmap. No icon runtime/library is introduced.
+Manuel selected the Modern Duotone & Soft-Filled Glyphs family on 18 October 2026, with **M2 Medical card** for H04 and his supplied **folded paper plane** for N02. This supersedes side-view aircraft B and the stethoscope artwork. The original assets and comparison proposals remain preserved as history. Thermik branding, dynamic aircraft-share rings, data notation and status meanings retain their identity.
 
-[Style Option 2: Modern Duotone & Soft-Filled Glyphs](icon-options/option-2/index.html) is an authorized alternate design for review, with 46 editable vector masters (including six [Medical/aircraft proposals](icon-options/option-2/alternatives.html)) and an explicit mapping of all 51 IDs. It preserves the selected aircraft, branding, data/text semantics and current app implementation. [Source notes and fidelity limits](icon-options/option-2/README.md) distinguish reference interpretation from pixel identity and application selection.
+[Selected family and ID mapping](icon-options/option-2/index.html) use the same editable SVG masters as the app. The native renderer uses 145 checked local RGBA PNGs (29 glyphs × default/muted/paper/assistant/contrast variants), with static Metro requires and no new icon runtime. Artwork sizes are context-specific; navigation art is 28 in a 36-unit soft tile with radius 12, header controls retain 48-unit targets with radius 14, and M2 is 20 inside the existing growing Medical control. The original large reference tiles are illustrations, not new app card dimensions.
+
+Images are decorative and excluded from accessibility announcements; their labelled parent owns navigation/action/status semantics. Native busy indicators remain animated ActivityIndicators; a drawn spinner is never substituted for actual progress. Calendar category artwork uses neutral date cells, not the reference's illustrative 26. The separate send arrow remains distinct from the folded plane used for Flüge.
+
+[Source notes, regeneration and fidelity limits](icon-options/option-2/README.md) and [one verification report](../../verification/2026-10-18-icon-option-2.md) distinguish selected intent, implemented artwork and source-specific native acceptance.
 
 ## Schematic examples
 
