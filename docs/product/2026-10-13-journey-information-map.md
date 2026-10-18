@@ -159,6 +159,8 @@ Duty-period clarification, Manuel, 2026-10-13: use today through the end of the 
 
 **Duty requirements re-review requested, Manuel, 18 October 2026 ([#10](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/10)):** review each captured duty requirement one at a time using the select-answer box, explicitly recording confirm/change/remove responses. The next-three-duty preview is selected; the requested re-review does not itself reconfirm every existing rule or approve implementation. Review own-duty inclusion/window, Putzdienst partner, operational roles/window and overview placement separately. Name-display/access/cache/retention policy remains an open #15 dependency, not a previously approved policy.
 
+Re-review answer 1, Manuel, 18 October 2026: **confirmed** — include all duty assignments belonging to the pilot, including non-flight duties such as Putzdienst. Other review items await individual answers.
+
 The general club reservation roster and overview report links have not been selected or rejected. Empty sections in the current account do not prove that data cannot exist later. No automatic import of all overview content or access to other members' private records is authorized.
 
 ## Feasibility and delivery map
