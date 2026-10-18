@@ -1,0 +1,595 @@
+{
+  "status": "passed",
+  "source_commit": "63c6d7e",
+  "matched_rgba_assets": 145,
+  "method": "Decoded RGBA pixel hash equality using existing Pillow; includes all palette variants",
+  "apk_sha256": "5639822a47f3cac9d8b32503722894654844d470285b6900e994e0ef9ae522a0",
+  "apk_bytes": 49693500,
+  "embedded_javascript": true,
+  "architectures": [
+    "arm64-v8a",
+    "x86_64"
+  ],
+  "assets": {
+    "arrow-assistant.png": {
+      "rgba_sha256": "217dd6f15a13be63655e41c8453ba3351740c9c5e1f964692a02a2ec81ba5db8",
+      "apk_resource": "res/7s.png"
+    },
+    "arrow-contrast.png": {
+      "rgba_sha256": "9e0f0247e112f29515189270442c71cecc147db1ba7b16074fdae32285f18ad0",
+      "apk_resource": "res/_R.png"
+    },
+    "arrow-default.png": {
+      "rgba_sha256": "6eb45fb165f44de45f38fbbf17a20790231ca972ea9dcb76ee40c351f9fbc1f6",
+      "apk_resource": "res/Kv.png"
+    },
+    "arrow-muted.png": {
+      "rgba_sha256": "f83531e8281441776ba096a8cb21029b66cc074557e171a89c5496643fad07e1",
+      "apk_resource": "res/xE.png"
+    },
+    "arrow-paper.png": {
+      "rgba_sha256": "eac3ad43073e4bfcf1d8949ab0fc38ae5d68a347cff0c230e71b0388a8aa871a",
+      "apk_resource": "res/VE.png"
+    },
+    "back-assistant.png": {
+      "rgba_sha256": "e4c91bc8aae811e2e371439ca3b822873a45c256e333bb466d4fe1feab74b96c",
+      "apk_resource": "res/O6.png"
+    },
+    "back-contrast.png": {
+      "rgba_sha256": "e3de8c492c65ff990df731b12c8d68290eb82baa9f07f35dcb6da694713e263a",
+      "apk_resource": "res/wJ.png"
+    },
+    "back-default.png": {
+      "rgba_sha256": "c4bf063db26bebe675fe2e990736a44794e942bca7816891c85caf05f02b1749",
+      "apk_resource": "res/xm.png"
+    },
+    "back-muted.png": {
+      "rgba_sha256": "b16241b91076fb5fa1962e325f40dae8fc9629ff51bc629f5c723b219b59a51e",
+      "apk_resource": "res/Ur.png"
+    },
+    "back-paper.png": {
+      "rgba_sha256": "f16a05197abf811e0a34370d652575a0c47a2f2acd45497229d85f9d412799a0",
+      "apk_resource": "res/7F.png"
+    },
+    "book-assistant.png": {
+      "rgba_sha256": "ebd3370fe10f3ae7101193e332f29c1c55943023acbb546b53241889d0c886bb",
+      "apk_resource": "res/7K.png"
+    },
+    "book-contrast.png": {
+      "rgba_sha256": "4d5a7eeb0323ddce974402c490709f0c00d42cb7f82ef911a2b30665d5481479",
+      "apk_resource": "res/mO.png"
+    },
+    "book-default.png": {
+      "rgba_sha256": "d4511ee8db4d8a4c3faec861efe692640242d706323c81178a1a11e98a4059f5",
+      "apk_resource": "res/hL.png"
+    },
+    "book-muted.png": {
+      "rgba_sha256": "7b2a875ff2d2759c60f8084e5aadb75bb42ec3f9b6326d66e6d7d72aab0e4381",
+      "apk_resource": "res/b1.png"
+    },
+    "book-paper.png": {
+      "rgba_sha256": "3e845e72c776145f63b510e5f809e00e71ab5f33bf63ad641dd5c45d9b518d6c",
+      "apk_resource": "res/fi.png"
+    },
+    "calendar-neutral-assistant.png": {
+      "rgba_sha256": "c008b34b3170819fe04ff8fdd1ced0349a103a62c69e64d6e4ffdca287954702",
+      "apk_resource": "res/Xp.png"
+    },
+    "calendar-neutral-contrast.png": {
+      "rgba_sha256": "1e27632a43a576cb62e985abfcd787eb2186b803a60e2df5bf61e4c718f3b19e",
+      "apk_resource": "res/9n.png"
+    },
+    "calendar-neutral-default.png": {
+      "rgba_sha256": "2777bf3831b9c65e8e87809ea3653b5686b0234006e0ee705f425620ed860070",
+      "apk_resource": "res/6A.png"
+    },
+    "calendar-neutral-muted.png": {
+      "rgba_sha256": "1c226f98253724aea5e7e42cc744fcb1201899a60d7235295c92c312c2c847f3",
+      "apk_resource": "res/io.png"
+    },
+    "calendar-neutral-paper.png": {
+      "rgba_sha256": "f7ae8dc62b24c4400867bcdeccf9f6450d99de27c5549ee95bf681e9a824ad16",
+      "apk_resource": "res/4C.png"
+    },
+    "chain-assistant.png": {
+      "rgba_sha256": "1615fd41c7d8d033a32a5520bcbfcb35e9ab931bd3f961d33b37a9eda22f6dc5",
+      "apk_resource": "res/u8.png"
+    },
+    "chain-contrast.png": {
+      "rgba_sha256": "efc7efcf7080d737cbf6cf3aadd6edea8d7f291e3b36b527358b3eff845689ef",
+      "apk_resource": "res/fP.png"
+    },
+    "chain-default.png": {
+      "rgba_sha256": "cf4a779d65ec8afde869e91eba7ce9f347dfe78654a353fb6ac08c79426e5801",
+      "apk_resource": "res/fy.png"
+    },
+    "chain-muted.png": {
+      "rgba_sha256": "7c7945974172b5427a616e1ccfa99d57f9ab99adb3af24f43fbbd5b3bedaebc4",
+      "apk_resource": "res/zf.png"
+    },
+    "chain-paper.png": {
+      "rgba_sha256": "d85397d8a4eed2412db493c39ce71db728dc6dc9ca6606265f84adc4729ce1e4",
+      "apk_resource": "res/G5.png"
+    },
+    "check-assistant.png": {
+      "rgba_sha256": "8ce45a9f2f6d06cd367a1958536b849f3d8da0a1f0d30d5c1362f24136a1d4b3",
+      "apk_resource": "res/NI.png"
+    },
+    "check-contrast.png": {
+      "rgba_sha256": "2b1e17b552f81b9323591d11fc5ea87323a709f84d05463c9c4a825fab4795b3",
+      "apk_resource": "res/Du.png"
+    },
+    "check-default.png": {
+      "rgba_sha256": "678c0197f295a09e49f20053d27c61ab9bb8d9cf5856a03668c57bfc8c9605b7",
+      "apk_resource": "res/Ul.png"
+    },
+    "check-muted.png": {
+      "rgba_sha256": "dff263ac20efdbdc518088b60b913e5fb1a7813e6fd51de4e549956013166460",
+      "apk_resource": "res/NS.png"
+    },
+    "check-paper.png": {
+      "rgba_sha256": "3f068370c7326f0031379446ccb46bf00295b0e2f20b1d741259de8c076f4a09",
+      "apk_resource": "res/8f.png"
+    },
+    "clock-assistant.png": {
+      "rgba_sha256": "dbac771cbfbdeb0146bac105650e485a08a74ca244dafd085053ed40e889233d",
+      "apk_resource": "res/F-1.png"
+    },
+    "clock-contrast.png": {
+      "rgba_sha256": "f916ba20f01241f2cb35b573c5d3669af4f2817b61e3047667ba2b15a977f508",
+      "apk_resource": "res/oW.png"
+    },
+    "clock-default.png": {
+      "rgba_sha256": "3a9bbfec0b025c1f99774f93ef1f093729736d50e2607a41a957a433871356d7",
+      "apk_resource": "res/RW.png"
+    },
+    "clock-muted.png": {
+      "rgba_sha256": "be4409dadca75f49d76d3e48d736b240bbef3d1b5bcda36cf508f03b501c7b88",
+      "apk_resource": "res/0w.png"
+    },
+    "clock-paper.png": {
+      "rgba_sha256": "190549f43671d8c367eece7003206f1c84891bc65bbcfdbe464dff8c0534d911",
+      "apk_resource": "res/GB.png"
+    },
+    "close-assistant.png": {
+      "rgba_sha256": "40bf18fa238cd0dca06182fee926202335fdd87a7a8eba2c5f892025de836e45",
+      "apk_resource": "res/Cj.png"
+    },
+    "close-contrast.png": {
+      "rgba_sha256": "ef641c547cb0911011188c66d38316ab7b6ab35f62a9f94c4cad058ccdc5a111",
+      "apk_resource": "res/qN.png"
+    },
+    "close-default.png": {
+      "rgba_sha256": "441600556c8554674874ac4192d44aa06e9366d2dc55212ad9f0ebfd43561ced",
+      "apk_resource": "res/xw.png"
+    },
+    "close-muted.png": {
+      "rgba_sha256": "fd3735b809969f62461c386cd452c2b4ca7d366c5bbd099c21906dbc3a150ec4",
+      "apk_resource": "res/dk.png"
+    },
+    "close-paper.png": {
+      "rgba_sha256": "050edd5111a8393e1f1200959473d016c6d6b4d56bbc3a4b33368c1c387bea3d",
+      "apk_resource": "res/q9.png"
+    },
+    "club-assistant.png": {
+      "rgba_sha256": "6065fbb3c22576bc57a3dfce1731da4cff0460375c9ffad2386a9a0c2b393bff",
+      "apk_resource": "res/qv.png"
+    },
+    "club-contrast.png": {
+      "rgba_sha256": "565db0e5594d23a2b0d368575e73b9fdc3f7a69de4a1db6aa5704762d0cbcd1a",
+      "apk_resource": "res/Sw.png"
+    },
+    "club-default.png": {
+      "rgba_sha256": "cac5380c25c5988eb2efda7e0fecb3c69fe77d99359f56c9eed1475477422b3a",
+      "apk_resource": "res/2s.png"
+    },
+    "club-muted.png": {
+      "rgba_sha256": "0295cbdbab77e2fd99bb799a21ed67fcba72c69a3bff458e978b6208d4a02ed9",
+      "apk_resource": "res/2Z.png"
+    },
+    "club-paper.png": {
+      "rgba_sha256": "902a4f18cedbcdfd7c0436e0c50b257d231bfca9bb30626e815f8f7ec9df3b98",
+      "apk_resource": "res/LL.png"
+    },
+    "down-assistant.png": {
+      "rgba_sha256": "465b69396e29e70008de0bcbed39c09ed6b3d559e9b28ef618bc5b5770c065fd",
+      "apk_resource": "res/FI.png"
+    },
+    "down-contrast.png": {
+      "rgba_sha256": "cfddfbbcee10dc828f813ddbde8123febadd6db59ba1ead43912e47af234b5b0",
+      "apk_resource": "res/t5.png"
+    },
+    "down-default.png": {
+      "rgba_sha256": "260f34379f50816538d51a1853a9d2bf5d376bbb08c044280dc266e530d4357c",
+      "apk_resource": "res/CB.png"
+    },
+    "down-muted.png": {
+      "rgba_sha256": "11c679469209feebc975f3914461b5507540c1cfeed89e5b5e8b54cc80ebd2a7",
+      "apk_resource": "res/ET.png"
+    },
+    "down-paper.png": {
+      "rgba_sha256": "87040e738c12bb147ba8bd51cdde21096bec56ba0627c7ff36a483dbf9a1c55b",
+      "apk_resource": "res/Qf.png"
+    },
+    "duty-assistant.png": {
+      "rgba_sha256": "cbd8d977485966a2a8ad946abfb57d7c9d4adb8a98ec2d6460ca739d334200c7",
+      "apk_resource": "res/29.png"
+    },
+    "duty-contrast.png": {
+      "rgba_sha256": "97b74816d2eba09b17f44f9bd2e43d4c92d1beb8496d7585a516a1c77388c1f0",
+      "apk_resource": "res/8y.png"
+    },
+    "duty-default.png": {
+      "rgba_sha256": "708ef1b2684ca89232c527812e975564293ba2e671bd61a1dc0910efe67de512",
+      "apk_resource": "res/F-.png"
+    },
+    "duty-muted.png": {
+      "rgba_sha256": "093beb1f5d1b06cf359d07c23fbfcc6229531ba612ebf0e7d5bef9eff7aca0d7",
+      "apk_resource": "res/N3.png"
+    },
+    "duty-paper.png": {
+      "rgba_sha256": "f36447ba5387465ae074d5484617adaf605899877c4f7e3d00137f6bbdd84cbf",
+      "apk_resource": "res/_7.png"
+    },
+    "filter-assistant.png": {
+      "rgba_sha256": "8136a92f10d429d5f110eb88c8823e431ca2a1ad7b2443fa0cf24f0983e19d0f",
+      "apk_resource": "res/Ah.png"
+    },
+    "filter-contrast.png": {
+      "rgba_sha256": "b0ccd1f90bf813b924a34711531b64cab644f86a5269bdd1cc6245d580164a3b",
+      "apk_resource": "res/8K.png"
+    },
+    "filter-default.png": {
+      "rgba_sha256": "e326424e8eb4920b472b9d81fd727b1cffb056852486326b0623fc766e1b7f6f",
+      "apk_resource": "res/Au.png"
+    },
+    "filter-muted.png": {
+      "rgba_sha256": "72bb00a0623e5eee4285d0a6de651f773956d2388b2cab3afa6b4628ba845623",
+      "apk_resource": "res/j7.png"
+    },
+    "filter-paper.png": {
+      "rgba_sha256": "52a33ad765203f2ff7e8032f8db568a4608e3224631f359bcd12da234416b048",
+      "apk_resource": "res/As.png"
+    },
+    "flight-paper-plane-assistant.png": {
+      "rgba_sha256": "46c4a32b455c9e16501da7693b32d44c962850c29802e5e45161087633b545c0",
+      "apk_resource": "res/X6.png"
+    },
+    "flight-paper-plane-contrast.png": {
+      "rgba_sha256": "2533e27a799ffe7dff0357f8b163c4847063a0ccdad94d77b9154b96af7a8cbe",
+      "apk_resource": "res/Ad.png"
+    },
+    "flight-paper-plane-default.png": {
+      "rgba_sha256": "12ad64a5a62ea0d208230f5920bec4f9ea95d5532a308dfc0d164ac9ba6c1e33",
+      "apk_resource": "res/Yr.png"
+    },
+    "flight-paper-plane-muted.png": {
+      "rgba_sha256": "7f933b3807c8cbbf19aa04aab227c2504f5b7a389a9dcee42611b629e1e7be3a",
+      "apk_resource": "res/Ia.png"
+    },
+    "flight-paper-plane-paper.png": {
+      "rgba_sha256": "cc08e651ad87290e4b7535ca4536d514b45b08505c1f775d34b8631db1e924fc",
+      "apk_resource": "res/u5.png"
+    },
+    "glider-assistant.png": {
+      "rgba_sha256": "3f338709597c928c30656bee13242e16b859b4792674f7c63a342dc8234a2e7c",
+      "apk_resource": "res/WJ.png"
+    },
+    "glider-contrast.png": {
+      "rgba_sha256": "1696a211279897a875273da578ff987aa5ad875cc5e457139209553ebfa21913",
+      "apk_resource": "res/YB.png"
+    },
+    "glider-default.png": {
+      "rgba_sha256": "9869e3a3f76fd9b5c0f4dd1733ac2ea882ca0d29006db0d742f8e0777803f6b0",
+      "apk_resource": "res/6k.png"
+    },
+    "glider-muted.png": {
+      "rgba_sha256": "ceeacdef0e574ed52dcdbeea580940756abeccda8d710d3df0cea3dc9d223df0",
+      "apk_resource": "res/rL.png"
+    },
+    "glider-paper.png": {
+      "rgba_sha256": "92e3574a9f6d7652f520dc0df1f204b0826f524a3ccbcc0da11e9c0913f31f3e",
+      "apk_resource": "res/jK.png"
+    },
+    "home-assistant.png": {
+      "rgba_sha256": "c0056ea74a8e15df326e6b62497af54354c19caa8114bc74cb48f56935839f59",
+      "apk_resource": "res/rF.png"
+    },
+    "home-contrast.png": {
+      "rgba_sha256": "c85daf538e9879bc9d28538bc511c23897985bbbaddd34510ab48782432d97d5",
+      "apk_resource": "res/6f.png"
+    },
+    "home-default.png": {
+      "rgba_sha256": "26cdc1632ff060bb30749b0fa7eb5e2eae3f5459430deda88f96c79728809709",
+      "apk_resource": "res/Lp.png"
+    },
+    "home-muted.png": {
+      "rgba_sha256": "2c79dd6a923b67a9ae1088996c3d191f95db34bb0b9de46d416a3187e93c07bd",
+      "apk_resource": "res/Gs.png"
+    },
+    "home-paper.png": {
+      "rgba_sha256": "71313d237da0ef16efffc9688ea226c527720bf61568bb2994ba7ff68963101d",
+      "apk_resource": "res/2x.png"
+    },
+    "info-assistant.png": {
+      "rgba_sha256": "3ddef7f601b89a3ac3aa9ae0831a26dc981601617c4b270abb354c64bcbfd6db",
+      "apk_resource": "res/a5.png"
+    },
+    "info-contrast.png": {
+      "rgba_sha256": "57b21de6ce178013596a15565c250a2986108e833a922d23adf12bd706d26f8a",
+      "apk_resource": "res/rU.png"
+    },
+    "info-default.png": {
+      "rgba_sha256": "f860dbce56addd6580a13c7c282ca398443b08d8b7c51b032c06a03f85656cab",
+      "apk_resource": "res/q6.png"
+    },
+    "info-muted.png": {
+      "rgba_sha256": "09b5c66213eb17f9cb968b371dd23a4ed353f02da4341ff897163523163ede5f",
+      "apk_resource": "res/vK.png"
+    },
+    "info-paper.png": {
+      "rgba_sha256": "3db7d5d506119b056f6fc01aa1b9d1e3940dc3c6f02ecdee83443100a29cc0fa",
+      "apk_resource": "res/vd.png"
+    },
+    "location-assistant.png": {
+      "rgba_sha256": "3b4d925f63788d4fcf502eb91cc48bbe387fc9277ed9e94b9474b10ce48e2824",
+      "apk_resource": "res/6l.png"
+    },
+    "location-contrast.png": {
+      "rgba_sha256": "8cef615ddbca07b599e2aec47f713f3d24d690f5d32d58f4707687263e4f8aec",
+      "apk_resource": "res/bx.png"
+    },
+    "location-default.png": {
+      "rgba_sha256": "dfab43b59cacfb6f1e61f670493a21cf4f1797d283b11752eb51b1a29fbff5cc",
+      "apk_resource": "res/QC.png"
+    },
+    "location-muted.png": {
+      "rgba_sha256": "a01057284b6f3d8008f3fae936692dbb832f594e7070af1d081b203e28faab6c",
+      "apk_resource": "res/ds.png"
+    },
+    "location-paper.png": {
+      "rgba_sha256": "29b4b44340154c6fdc159a3522d2ae4cfa63cb7951ebaef7c2582b04e5a60861",
+      "apk_resource": "res/9j.png"
+    },
+    "logbook-assistant.png": {
+      "rgba_sha256": "6e4396b26d36c0d56494d5dd036ac159af27c3c7de7c47281f96b12db56e5fc1",
+      "apk_resource": "res/LZ.png"
+    },
+    "logbook-contrast.png": {
+      "rgba_sha256": "c279040f73c1e60913bb490aa59175322d522b1c7d1fe5ed9db260a7c5d1a65b",
+      "apk_resource": "res/8C.png"
+    },
+    "logbook-default.png": {
+      "rgba_sha256": "0834d22b6d99542b68187b998a9cedb9b7e8e8268603d6a78df182f58c038a76",
+      "apk_resource": "res/7b.png"
+    },
+    "logbook-muted.png": {
+      "rgba_sha256": "ba9fe8a04bcc38977ecf57cbe2b978a81d9d54942675b68498dcdc5a716539d4",
+      "apk_resource": "res/U8.png"
+    },
+    "logbook-paper.png": {
+      "rgba_sha256": "2f16558107eae3c14536929f3f2c410c1958c11bb82f99703b8b2ccb743c45a9",
+      "apk_resource": "res/GI.png"
+    },
+    "medical-card-assistant.png": {
+      "rgba_sha256": "bc8b310dc03b90cdbdf5531504f053fa825c3d7104acb38e3ac433d7962f6cec",
+      "apk_resource": "res/jD.png"
+    },
+    "medical-card-contrast.png": {
+      "rgba_sha256": "f72c87a8f9fc87504d236dfeac33c0d4bca2305374d30f6c9100178b09f4ee0d",
+      "apk_resource": "res/mY.png"
+    },
+    "medical-card-default.png": {
+      "rgba_sha256": "db17e07cde0e64f2a3b2edc7ef54e2404e636041f526ffcbca14139a83207d38",
+      "apk_resource": "res/ad.png"
+    },
+    "medical-card-muted.png": {
+      "rgba_sha256": "361c3c72030ff4a73af477d43054e5285800c096afaba51115dd723d12a46fa3",
+      "apk_resource": "res/Fs.png"
+    },
+    "medical-card-paper.png": {
+      "rgba_sha256": "6e781c260c1c0cb24241e876334cd3bdffd21a5b81d919a506e940a7da7b8180",
+      "apk_resource": "res/6s.png"
+    },
+    "messages-assistant.png": {
+      "rgba_sha256": "a325159b7096dbc359b645bffea4bd875f78b423dcb809499c3a143780ec4740",
+      "apk_resource": "res/3o.png"
+    },
+    "messages-contrast.png": {
+      "rgba_sha256": "320d67d563db9e900291159e8d828195d93757e6972d6221f5964c7dbce00b50",
+      "apk_resource": "res/ov.png"
+    },
+    "messages-default.png": {
+      "rgba_sha256": "c8565e0440b8956cd89b250f638b5aa73eb80c78200c919273d0aea71a75a1b0",
+      "apk_resource": "res/1_.png"
+    },
+    "messages-muted.png": {
+      "rgba_sha256": "6c0b5365c6a30c019e6583b43bc19539600626b60fe8a3e11befc46a08ebae0e",
+      "apk_resource": "res/rf.png"
+    },
+    "messages-paper.png": {
+      "rgba_sha256": "120cf575a86083f4acdc0ea79578e6c8734ade6749c83180ac500ae6f250f345",
+      "apk_resource": "res/5p.png"
+    },
+    "minus-assistant.png": {
+      "rgba_sha256": "735506889e8c64341a44f4055d5a290b35122ba827940f544b1a3e5065699c5a",
+      "apk_resource": "res/CI.png"
+    },
+    "minus-contrast.png": {
+      "rgba_sha256": "7141125d63ab070d9774e7309c0df25d3c46b05896f1008cc156e1c366f0e816",
+      "apk_resource": "res/12.png"
+    },
+    "minus-default.png": {
+      "rgba_sha256": "655b5df620d1c1574f762d798d34793f704d1950c77efedee2aa3d0aa7729a77",
+      "apk_resource": "res/9u.png"
+    },
+    "minus-muted.png": {
+      "rgba_sha256": "ed7c992ae796dbcc8891cc5afeba14e3db55ef6aff4b608ee964f3c3d5e9bc47",
+      "apk_resource": "res/5D.png"
+    },
+    "minus-paper.png": {
+      "rgba_sha256": "beba60e97a693afb71c28d3fc8180d8d17fa243d39463729b5816e57e35dac2e",
+      "apk_resource": "res/k1.png"
+    },
+    "plus-assistant.png": {
+      "rgba_sha256": "e685bc5b92769d293438a966fe6016192dc70402552df1896536241ac75fae85",
+      "apk_resource": "res/jO.png"
+    },
+    "plus-contrast.png": {
+      "rgba_sha256": "bbaed1d4210c9fb720dbbfb7fe81e2300ada50748b88e15a2635aa57db651756",
+      "apk_resource": "res/25.png"
+    },
+    "plus-default.png": {
+      "rgba_sha256": "b6bf2f59eb1db5c104da53024897e95c8989348fcc508dc89af6b28dbbcdb846",
+      "apk_resource": "res/cc.png"
+    },
+    "plus-muted.png": {
+      "rgba_sha256": "40b0529e9bc503be9eada298ba50d4ec20693009fe9ee54447e79eec24771372",
+      "apk_resource": "res/we.png"
+    },
+    "plus-paper.png": {
+      "rgba_sha256": "732159bbbcf94b0fc68b67875324c7b29fa1b2619e99d40da3eff303b4d36b1d",
+      "apk_resource": "res/Ek.png"
+    },
+    "profile-assistant.png": {
+      "rgba_sha256": "d106fbac193b2b3da4f5673ea42daf2fbbc2bdf39accd36ce7846bf0443e4337",
+      "apk_resource": "res/iC.png"
+    },
+    "profile-contrast.png": {
+      "rgba_sha256": "79a448a0971580876f941f5fef2694c2421bd145e572598ab3c0b212c43dc38b",
+      "apk_resource": "res/Zn.png"
+    },
+    "profile-default.png": {
+      "rgba_sha256": "4aceef31db55c7145b6ef2dc708d6618de78d7909edee34216158e72968538af",
+      "apk_resource": "res/JP.png"
+    },
+    "profile-muted.png": {
+      "rgba_sha256": "a7e0c8cce94b35c5d5d0caf5a2f9ecb2749544ace60cbeb1d769eca38443601a",
+      "apk_resource": "res/Vl.png"
+    },
+    "profile-paper.png": {
+      "rgba_sha256": "8545204cea7493b62c1102376efdbb645cdcba0001e2f21338df54e730ecdab6",
+      "apk_resource": "res/0z.png"
+    },
+    "refresh-assistant.png": {
+      "rgba_sha256": "02c4f4be02b8c56bb160ced375fa90ec32982c858ef1f5c1c7f5de77b43ae0af",
+      "apk_resource": "res/Lo.png"
+    },
+    "refresh-contrast.png": {
+      "rgba_sha256": "75f31738c0d0e9024bcea3ebbae79987b2243152fcfcdd39f322675a556dc3e9",
+      "apk_resource": "res/3v.png"
+    },
+    "refresh-default.png": {
+      "rgba_sha256": "1b1a21390aa52713c49aaa4be81a10f042a4e719e5972b197198fe60cb6c29f1",
+      "apk_resource": "res/px.png"
+    },
+    "refresh-muted.png": {
+      "rgba_sha256": "f6450cda7d3d3fb97ba748ff282bfcf552d69c045d92ebc101e6cf2adbaaeb1e",
+      "apk_resource": "res/Gb.png"
+    },
+    "refresh-paper.png": {
+      "rgba_sha256": "166ac375972609ded369760a91ce7179f78ad79054e835db8583ad4b7778e64b",
+      "apk_resource": "res/dF.png"
+    },
+    "right-assistant.png": {
+      "rgba_sha256": "153951b58c32ef4285d5c13faf9efb90a6433bf101bb1e4487ec93ecd04f1753",
+      "apk_resource": "res/EV.png"
+    },
+    "right-contrast.png": {
+      "rgba_sha256": "5c2d9f25af767b41e4ffa07cfe84c3b55699f25e97502789c53aa9640c2d5c7f",
+      "apk_resource": "res/BX.png"
+    },
+    "right-default.png": {
+      "rgba_sha256": "89fcfe445d5027239c46dc2ed2f3dc96396906fd2c838b508f05cb8991259ca5",
+      "apk_resource": "res/DQ.png"
+    },
+    "right-muted.png": {
+      "rgba_sha256": "7a3d1ca5ec2735870f73263ae1a449ca46677275171c41e90c8fcb64f099fc64",
+      "apk_resource": "res/DY.png"
+    },
+    "right-paper.png": {
+      "rgba_sha256": "848f5f74bf8d6306b0c21140db7c5c2795b123f0ee18f5ec8588e1c8be49fd79",
+      "apk_resource": "res/ju.png"
+    },
+    "search-assistant.png": {
+      "rgba_sha256": "bc8e94dd5d1e5f686ff38c93fcc1fd6867311125b5637b4961bda364adb0204f",
+      "apk_resource": "res/Xe.png"
+    },
+    "search-contrast.png": {
+      "rgba_sha256": "a9e5da3a6afb7eac5b085a39a9207240d785e2230338f49130c1dd1f4e8ac35b",
+      "apk_resource": "res/2X.png"
+    },
+    "search-default.png": {
+      "rgba_sha256": "a9772f26c0bad856b32012360bea2212509f97f8e1b0200e8193ecec7daade20",
+      "apk_resource": "res/PY.png"
+    },
+    "search-muted.png": {
+      "rgba_sha256": "c66332dbc8d36a72635dfb1d3ba7ee68e2d1e15381eb89c730f47badd9681f97",
+      "apk_resource": "res/Mu.png"
+    },
+    "search-paper.png": {
+      "rgba_sha256": "2db554aca34acb4afe787609d5be61a4f4c7623c846cfbf5780bcee0ca3cab72",
+      "apk_resource": "res/Tz.png"
+    },
+    "send-assistant.png": {
+      "rgba_sha256": "6856303ffe8d60933b4b3084cd261a3f304842b8490dfb917b6ee38f7aa70c89",
+      "apk_resource": "res/DH.png"
+    },
+    "send-contrast.png": {
+      "rgba_sha256": "d9325f65c06422ae067504f4545dc0178056c014ae54dc227e93cbbe6dcced8a",
+      "apk_resource": "res/eh.png"
+    },
+    "send-default.png": {
+      "rgba_sha256": "a0795b1dabaef43a88333bbbc786cee5facaedf74de0693086b82c8e9cf16a6f",
+      "apk_resource": "res/JQ.png"
+    },
+    "send-muted.png": {
+      "rgba_sha256": "9e207ddf68813c329dc5045c750094a01be1f78fce98a87f8b3e8d302b982d95",
+      "apk_resource": "res/Lc.png"
+    },
+    "send-paper.png": {
+      "rgba_sha256": "f29365b734cd6c426906e8728e273107d7952e1db1c025eaa1e65226d1d504ea",
+      "apk_resource": "res/Nd.png"
+    },
+    "sparkle-assistant.png": {
+      "rgba_sha256": "2b493e55ab9b279c344a060095d42a40435aa793effd38e75b786b72e38bbec6",
+      "apk_resource": "res/Ot.png"
+    },
+    "sparkle-contrast.png": {
+      "rgba_sha256": "2a756071eb1be22f833174019c741af67f6fd197477191c4fa903057a001d59d",
+      "apk_resource": "res/4b.png"
+    },
+    "sparkle-default.png": {
+      "rgba_sha256": "27f41715c24a789267e87fc0f19e53308f365d235f4041396f8275798cba0dd8",
+      "apk_resource": "res/7y.png"
+    },
+    "sparkle-muted.png": {
+      "rgba_sha256": "400bf0aed5a37a61f36037770f252d69cb7018a80f46e67bfcd8bb6879ae6630",
+      "apk_resource": "res/V3.png"
+    },
+    "sparkle-paper.png": {
+      "rgba_sha256": "78664e8dcdde9944a1d14a750a2c7b45c5f77cd53e0e5021f287d4aaf5abaf6a",
+      "apk_resource": "res/fq.png"
+    },
+    "weather-assistant.png": {
+      "rgba_sha256": "419abc6619bd369fb3a181b472671fa5a06a63e2c9b434f5b635469f880a3e0c",
+      "apk_resource": "res/wp.png"
+    },
+    "weather-contrast.png": {
+      "rgba_sha256": "ae56f94b6e9a6b1059fc8a9eb4fedf100a27f3df4587a46e87777c36afed3e19",
+      "apk_resource": "res/t1.png"
+    },
+    "weather-default.png": {
+      "rgba_sha256": "61ef584b73fe585bc95b36bd26aee71d14ba2ebb163a49e0f08fb1863204c175",
+      "apk_resource": "res/EJ.png"
+    },
+    "weather-muted.png": {
+      "rgba_sha256": "298bf9e91606a79e8811c58d8b133382441cda5e5e1f67a54ee9e56b583d3d62",
+      "apk_resource": "res/U5.png"
+    },
+    "weather-paper.png": {
+      "rgba_sha256": "c124ca934ddfbe18c24d2d2c5e8ec616b8e36061f87889fa58992f37241676b0",
+      "apk_resource": "res/YO.png"
+    }
+  }
+}

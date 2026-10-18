@@ -1,0 +1,800 @@
+{
+  "status": "passed",
+  "selected": {
+    "H04": "M2 medical-card",
+    "N02": "supplied folded paper plane in cyan/slate"
+  },
+  "release": {
+    "status": "passed",
+    "source_commit": "63c6d7e",
+    "matched_rgba_assets": 145,
+    "method": "Decoded RGBA pixel hash equality using existing Pillow; includes all palette variants",
+    "apk_sha256": "5639822a47f3cac9d8b32503722894654844d470285b6900e994e0ef9ae522a0",
+    "apk_bytes": 49693500,
+    "embedded_javascript": true,
+    "architectures": [
+      "arm64-v8a",
+      "x86_64"
+    ]
+  },
+  "runs": [
+    {
+      "application_source": "2764e83",
+      "harness_source": "b1c1750",
+      "status": "passed",
+      "device": {
+        "ro.build.version.sdk": "37",
+        "ro.product.model": "sdk_gphone64_x86_64",
+        "ro.product.cpu.abi": "x86_64"
+      },
+      "checks": [
+        {
+          "name": "w360-h900-font1-home",
+          "viewport": {
+            "width_dp": 360,
+            "height_dp": 900,
+            "density_dpi": 160,
+            "font_scale": 1.0,
+            "actual_size": "Physical size: 1080x1920\nOverride size: 360x900",
+            "actual_density": "Physical density: 420\nOverride density: 160"
+          },
+          "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+        },
+        {
+          "name": "w360-h900-font1-flights",
+          "viewport": {
+            "width_dp": 360,
+            "height_dp": 900,
+            "density_dpi": 160,
+            "font_scale": 1.0,
+            "actual_size": "Physical size: 1080x1920\nOverride size: 360x900",
+            "actual_density": "Physical density: 420\nOverride density: 160"
+          },
+          "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+        },
+        {
+          "name": "w360-h900-font1-logbook",
+          "viewport": {
+            "width_dp": 360,
+            "height_dp": 900,
+            "density_dpi": 160,
+            "font_scale": 1.0,
+            "actual_size": "Physical size: 1080x1920\nOverride size: 360x900",
+            "actual_density": "Physical density: 420\nOverride density: 160"
+          },
+          "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+        },
+        {
+          "name": "w360-h900-font1-club",
+          "viewport": {
+            "width_dp": 360,
+            "height_dp": 900,
+            "density_dpi": 160,
+            "font_scale": 1.0,
+            "actual_size": "Physical size: 1080x1920\nOverride size: 360x900",
+            "actual_density": "Physical density: 420\nOverride density: 160"
+          },
+          "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+        },
+        {
+          "name": "w360-h900-font1-ai",
+          "viewport": {
+            "width_dp": 360,
+            "height_dp": 900,
+            "density_dpi": 160,
+            "font_scale": 1.0,
+            "actual_size": "Physical size: 1080x1920\nOverride size: 360x900",
+            "actual_density": "Physical density: 420\nOverride density: 160"
+          },
+          "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+        },
+        {
+          "name": "w360-h900-font1-ai-keyboard",
+          "viewport": {
+            "width_dp": 360,
+            "height_dp": 900,
+            "density_dpi": 160,
+            "font_scale": 1.0,
+            "actual_size": "Physical size: 1080x1920\nOverride size: 360x900",
+            "actual_density": "Physical density: 420\nOverride density: 160",
+            "keyboard_top_px": 601,
+            "keyboard_geometry_source": "WindowManager visible InputMethod frame plus content inset",
+            "send_bounds_px": [
+              303,
+              359,
+              345,
+              401
+            ]
+          },
+          "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+        },
+        {
+          "name": "w390-h900-font1-home",
+          "viewport": {
+            "width_dp": 390,
+            "height_dp": 900,
+            "density_dpi": 160,
+            "font_scale": 1.0,
+            "actual_size": "Physical size: 1080x1920\nOverride size: 390x900",
+            "actual_density": "Physical density: 420\nOverride density: 160"
+          },
+          "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+        },
+        {
+          "name": "selected-m2-medical-details",
+          "viewport": {
+            "width_dp": 390,
+            "height_dp": 900,
+            "density_dpi": 160,
+            "font_scale": 1.0,
+            "actual_size": "Physical size: 1080x1920\nOverride size: 390x900",
+            "actual_density": "Physical density: 420\nOverride density: 160"
+          },
+          "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+        },
+        {
+          "name": "selected-duotone-connection-panel-offline",
+          "viewport": {
+            "width_dp": 390,
+            "height_dp": 900,
+            "density_dpi": 160,
+            "font_scale": 1.0,
+            "actual_size": "Physical size: 1080x1920\nOverride size: 390x900",
+            "actual_density": "Physical density: 420\nOverride density: 160"
+          },
+          "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+        },
+        {
+          "name": "selected-symbol-nested-return",
+          "viewport": {
+            "width_dp": 390,
+            "height_dp": 900,
+            "density_dpi": 160,
+            "font_scale": 1.0,
+            "actual_size": "Physical size: 1080x1920\nOverride size: 390x900",
+            "actual_density": "Physical density: 420\nOverride density: 160"
+          },
+          "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+        },
+        {
+          "name": "w390-h900-font1-flights",
+          "viewport": {
+            "width_dp": 390,
+            "height_dp": 900,
+            "density_dpi": 160,
+            "font_scale": 1.0,
+            "actual_size": "Physical size: 1080x1920\nOverride size: 390x900",
+            "actual_density": "Physical density: 420\nOverride density: 160"
+          },
+          "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+        },
+        {
+          "name": "w390-h900-font1-logbook",
+          "viewport": {
+            "width_dp": 390,
+            "height_dp": 900,
+            "density_dpi": 160,
+            "font_scale": 1.0,
+            "actual_size": "Physical size: 1080x1920\nOverride size: 390x900",
+            "actual_density": "Physical density: 420\nOverride density: 160"
+          },
+          "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+        },
+        {
+          "name": "w390-h900-font1-club",
+          "viewport": {
+            "width_dp": 390,
+            "height_dp": 900,
+            "density_dpi": 160,
+            "font_scale": 1.0,
+            "actual_size": "Physical size: 1080x1920\nOverride size: 390x900",
+            "actual_density": "Physical density: 420\nOverride density: 160"
+          },
+          "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+        },
+        {
+          "name": "w390-h900-font1-ai",
+          "viewport": {
+            "width_dp": 390,
+            "height_dp": 900,
+            "density_dpi": 160,
+            "font_scale": 1.0,
+            "actual_size": "Physical size: 1080x1920\nOverride size: 390x900",
+            "actual_density": "Physical density: 420\nOverride density: 160"
+          },
+          "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+        },
+        {
+          "name": "w412-h900-font1-home",
+          "viewport": {
+            "width_dp": 412,
+            "height_dp": 900,
+            "density_dpi": 160,
+            "font_scale": 1.0,
+            "actual_size": "Physical size: 1080x1920\nOverride size: 412x900",
+            "actual_density": "Physical density: 420\nOverride density: 160"
+          },
+          "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+        },
+        {
+          "name": "w412-h900-font1-flights",
+          "viewport": {
+            "width_dp": 412,
+            "height_dp": 900,
+            "density_dpi": 160,
+            "font_scale": 1.0,
+            "actual_size": "Physical size: 1080x1920\nOverride size: 412x900",
+            "actual_density": "Physical density: 420\nOverride density: 160"
+          },
+          "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+        },
+        {
+          "name": "w412-h900-font1-logbook",
+          "viewport": {
+            "width_dp": 412,
+            "height_dp": 900,
+            "density_dpi": 160,
+            "font_scale": 1.0,
+            "actual_size": "Physical size: 1080x1920\nOverride size: 412x900",
+            "actual_density": "Physical density: 420\nOverride density: 160"
+          },
+          "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+        },
+        {
+          "name": "w412-h900-font1-club",
+          "viewport": {
+            "width_dp": 412,
+            "height_dp": 900,
+            "density_dpi": 160,
+            "font_scale": 1.0,
+            "actual_size": "Physical size: 1080x1920\nOverride size: 412x900",
+            "actual_density": "Physical density: 420\nOverride density: 160"
+          },
+          "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+        },
+        {
+          "name": "w412-h900-font1-ai",
+          "viewport": {
+            "width_dp": 412,
+            "height_dp": 900,
+            "density_dpi": 160,
+            "font_scale": 1.0,
+            "actual_size": "Physical size: 1080x1920\nOverride size: 412x900",
+            "actual_density": "Physical density: 420\nOverride density: 160"
+          },
+          "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+        },
+        {
+          "name": "w600-h1100-font1-home",
+          "viewport": {
+            "width_dp": 600,
+            "height_dp": 1100,
+            "density_dpi": 160,
+            "font_scale": 1.0,
+            "actual_size": "Physical size: 1080x1920\nOverride size: 600x1100",
+            "actual_density": "Physical density: 420\nOverride density: 160"
+          },
+          "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+        },
+        {
+          "name": "w600-h1100-font1-flights",
+          "viewport": {
+            "width_dp": 600,
+            "height_dp": 1100,
+            "density_dpi": 160,
+            "font_scale": 1.0,
+            "actual_size": "Physical size: 1080x1920\nOverride size: 600x1100",
+            "actual_density": "Physical density: 420\nOverride density: 160"
+          },
+          "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+        },
+        {
+          "name": "w600-h1100-font1-logbook",
+          "viewport": {
+            "width_dp": 600,
+            "height_dp": 1100,
+            "density_dpi": 160,
+            "font_scale": 1.0,
+            "actual_size": "Physical size: 1080x1920\nOverride size: 600x1100",
+            "actual_density": "Physical density: 420\nOverride density: 160"
+          },
+          "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+        },
+        {
+          "name": "w600-h1100-font1-club",
+          "viewport": {
+            "width_dp": 600,
+            "height_dp": 1100,
+            "density_dpi": 160,
+            "font_scale": 1.0,
+            "actual_size": "Physical size: 1080x1920\nOverride size: 600x1100",
+            "actual_density": "Physical density: 420\nOverride density: 160"
+          },
+          "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+        },
+        {
+          "name": "w600-h1100-font1-ai",
+          "viewport": {
+            "width_dp": 600,
+            "height_dp": 1100,
+            "density_dpi": 160,
+            "font_scale": 1.0,
+            "actual_size": "Physical size: 1080x1920\nOverride size: 600x1100",
+            "actual_density": "Physical density: 420\nOverride density: 160"
+          },
+          "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+        },
+        {
+          "name": "w840-h1100-font1-home",
+          "viewport": {
+            "width_dp": 840,
+            "height_dp": 1100,
+            "density_dpi": 160,
+            "font_scale": 1.0,
+            "actual_size": "Physical size: 1080x1920\nOverride size: 840x1100",
+            "actual_density": "Physical density: 420\nOverride density: 160"
+          },
+          "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+        },
+        {
+          "name": "w840-h1100-font1-flights",
+          "viewport": {
+            "width_dp": 840,
+            "height_dp": 1100,
+            "density_dpi": 160,
+            "font_scale": 1.0,
+            "actual_size": "Physical size: 1080x1920\nOverride size: 840x1100",
+            "actual_density": "Physical density: 420\nOverride density: 160"
+          },
+          "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+        },
+        {
+          "name": "w840-h1100-font1-logbook",
+          "viewport": {
+            "width_dp": 840,
+            "height_dp": 1100,
+            "density_dpi": 160,
+            "font_scale": 1.0,
+            "actual_size": "Physical size: 1080x1920\nOverride size: 840x1100",
+            "actual_density": "Physical density: 420\nOverride density: 160"
+          },
+          "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+        },
+        {
+          "name": "w840-h1100-font1-club",
+          "viewport": {
+            "width_dp": 840,
+            "height_dp": 1100,
+            "density_dpi": 160,
+            "font_scale": 1.0,
+            "actual_size": "Physical size: 1080x1920\nOverride size: 840x1100",
+            "actual_density": "Physical density: 420\nOverride density: 160"
+          },
+          "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+        },
+        {
+          "name": "w840-h1100-font1-ai",
+          "viewport": {
+            "width_dp": 840,
+            "height_dp": 1100,
+            "density_dpi": 160,
+            "font_scale": 1.0,
+            "actual_size": "Physical size: 1080x1920\nOverride size: 840x1100",
+            "actual_density": "Physical density: 420\nOverride density: 160"
+          },
+          "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+        },
+        {
+          "name": "w360-h900-font1.4-home",
+          "viewport": {
+            "width_dp": 360,
+            "height_dp": 900,
+            "density_dpi": 160,
+            "font_scale": 1.4,
+            "actual_size": "Physical size: 1080x1920\nOverride size: 360x900",
+            "actual_density": "Physical density: 420\nOverride density: 160"
+          },
+          "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+        },
+        {
+          "name": "w360-h900-font1.4-flights",
+          "viewport": {
+            "width_dp": 360,
+            "height_dp": 900,
+            "density_dpi": 160,
+            "font_scale": 1.4,
+            "actual_size": "Physical size: 1080x1920\nOverride size: 360x900",
+            "actual_density": "Physical density: 420\nOverride density: 160"
+          },
+          "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+        },
+        {
+          "name": "w360-h900-font1.4-logbook",
+          "viewport": {
+            "width_dp": 360,
+            "height_dp": 900,
+            "density_dpi": 160,
+            "font_scale": 1.4,
+            "actual_size": "Physical size: 1080x1920\nOverride size: 360x900",
+            "actual_density": "Physical density: 420\nOverride density: 160"
+          },
+          "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+        },
+        {
+          "name": "w360-h900-font1.4-club",
+          "viewport": {
+            "width_dp": 360,
+            "height_dp": 900,
+            "density_dpi": 160,
+            "font_scale": 1.4,
+            "actual_size": "Physical size: 1080x1920\nOverride size: 360x900",
+            "actual_density": "Physical density: 420\nOverride density: 160"
+          },
+          "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+        },
+        {
+          "name": "w360-h900-font1.4-ai",
+          "viewport": {
+            "width_dp": 360,
+            "height_dp": 900,
+            "density_dpi": 160,
+            "font_scale": 1.4,
+            "actual_size": "Physical size: 1080x1920\nOverride size: 360x900",
+            "actual_density": "Physical density: 420\nOverride density: 160"
+          },
+          "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+        },
+        {
+          "name": "w360-h900-font1.4-ai-keyboard",
+          "viewport": {
+            "width_dp": 360,
+            "height_dp": 900,
+            "density_dpi": 160,
+            "font_scale": 1.4,
+            "actual_size": "Physical size: 1080x1920\nOverride size: 360x900",
+            "actual_density": "Physical density: 420\nOverride density: 160",
+            "keyboard_top_px": 601,
+            "keyboard_geometry_source": "WindowManager visible InputMethod frame plus content inset",
+            "send_bounds_px": [
+              303,
+              318,
+              345,
+              360
+            ]
+          },
+          "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+        },
+        {
+          "name": "w600-h1100-font1.4-home",
+          "viewport": {
+            "width_dp": 600,
+            "height_dp": 1100,
+            "density_dpi": 160,
+            "font_scale": 1.4,
+            "actual_size": "Physical size: 1080x1920\nOverride size: 600x1100",
+            "actual_density": "Physical density: 420\nOverride density: 160"
+          },
+          "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+        },
+        {
+          "name": "w600-h1100-font1.4-flights",
+          "viewport": {
+            "width_dp": 600,
+            "height_dp": 1100,
+            "density_dpi": 160,
+            "font_scale": 1.4,
+            "actual_size": "Physical size: 1080x1920\nOverride size: 600x1100",
+            "actual_density": "Physical density: 420\nOverride density: 160"
+          },
+          "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+        },
+        {
+          "name": "w600-h1100-font1.4-logbook",
+          "viewport": {
+            "width_dp": 600,
+            "height_dp": 1100,
+            "density_dpi": 160,
+            "font_scale": 1.4,
+            "actual_size": "Physical size: 1080x1920\nOverride size: 600x1100",
+            "actual_density": "Physical density: 420\nOverride density: 160"
+          },
+          "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+        },
+        {
+          "name": "w600-h1100-font1.4-club",
+          "viewport": {
+            "width_dp": 600,
+            "height_dp": 1100,
+            "density_dpi": 160,
+            "font_scale": 1.4,
+            "actual_size": "Physical size: 1080x1920\nOverride size: 600x1100",
+            "actual_density": "Physical density: 420\nOverride density: 160"
+          },
+          "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+        },
+        {
+          "name": "w600-h1100-font1.4-ai",
+          "viewport": {
+            "width_dp": 600,
+            "height_dp": 1100,
+            "density_dpi": 160,
+            "font_scale": 1.4,
+            "actual_size": "Physical size: 1080x1920\nOverride size: 600x1100",
+            "actual_density": "Physical density: 420\nOverride density: 160"
+          },
+          "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+        }
+      ],
+      "restoration": {
+        "status": "passed",
+        "errors": [],
+        "actual_display": {
+          "size": "Physical size: 1080x1920",
+          "density": "Physical density: 420",
+          "font_scale": "1.0"
+        },
+        "network": "Never changed by this script"
+      }
+    },
+    {
+      "application_source": "63c6d7e",
+      "harness_source": "e4a8efc",
+      "status": "passed",
+      "device": {
+        "ro.build.version.sdk": "37",
+        "ro.product.model": "sdk_gphone64_x86_64",
+        "ro.product.cpu.abi": "x86_64"
+      },
+      "checks": [
+        {
+          "name": "w360-h900-font1-home",
+          "viewport": {
+            "width_dp": 360,
+            "height_dp": 900,
+            "density_dpi": 160,
+            "font_scale": 1.0,
+            "actual_size": "Physical size: 1080x1920\nOverride size: 360x900",
+            "actual_density": "Physical density: 420\nOverride density: 160"
+          },
+          "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+        },
+        {
+          "name": "w360-h900-font1-flights",
+          "viewport": {
+            "width_dp": 360,
+            "height_dp": 900,
+            "density_dpi": 160,
+            "font_scale": 1.0,
+            "actual_size": "Physical size: 1080x1920\nOverride size: 360x900",
+            "actual_density": "Physical density: 420\nOverride density: 160"
+          },
+          "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+        },
+        {
+          "name": "w360-h900-font1-logbook",
+          "viewport": {
+            "width_dp": 360,
+            "height_dp": 900,
+            "density_dpi": 160,
+            "font_scale": 1.0,
+            "actual_size": "Physical size: 1080x1920\nOverride size: 360x900",
+            "actual_density": "Physical density: 420\nOverride density: 160"
+          },
+          "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+        },
+        {
+          "name": "w360-h900-font1-club",
+          "viewport": {
+            "width_dp": 360,
+            "height_dp": 900,
+            "density_dpi": 160,
+            "font_scale": 1.0,
+            "actual_size": "Physical size: 1080x1920\nOverride size: 360x900",
+            "actual_density": "Physical density: 420\nOverride density: 160"
+          },
+          "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+        },
+        {
+          "name": "w360-h900-font1-ai",
+          "viewport": {
+            "width_dp": 360,
+            "height_dp": 900,
+            "density_dpi": 160,
+            "font_scale": 1.0,
+            "actual_size": "Physical size: 1080x1920\nOverride size: 360x900",
+            "actual_density": "Physical density: 420\nOverride density: 160"
+          },
+          "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+        },
+        {
+          "name": "w390-h900-font1-home",
+          "viewport": {
+            "width_dp": 390,
+            "height_dp": 900,
+            "density_dpi": 160,
+            "font_scale": 1.0,
+            "actual_size": "Physical size: 1080x1920\nOverride size: 390x900",
+            "actual_density": "Physical density: 420\nOverride density: 160"
+          },
+          "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+        },
+        {
+          "name": "selected-m2-medical-details",
+          "viewport": {
+            "width_dp": 390,
+            "height_dp": 900,
+            "density_dpi": 160,
+            "font_scale": 1.0,
+            "actual_size": "Physical size: 1080x1920\nOverride size: 390x900",
+            "actual_density": "Physical density: 420\nOverride density: 160"
+          },
+          "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+        },
+        {
+          "name": "selected-duotone-connection-panel-offline",
+          "viewport": {
+            "width_dp": 390,
+            "height_dp": 900,
+            "density_dpi": 160,
+            "font_scale": 1.0,
+            "actual_size": "Physical size: 1080x1920\nOverride size: 390x900",
+            "actual_density": "Physical density: 420\nOverride density: 160"
+          },
+          "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+        },
+        {
+          "name": "selected-duotone-expanded-minus-glyph",
+          "viewport": {
+            "width_dp": 390,
+            "height_dp": 900,
+            "density_dpi": 160,
+            "font_scale": 1.0,
+            "actual_size": "Physical size: 1080x1920\nOverride size: 390x900",
+            "actual_density": "Physical density: 420\nOverride density: 160"
+          },
+          "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+        },
+        {
+          "name": "selected-symbol-nested-return",
+          "viewport": {
+            "width_dp": 390,
+            "height_dp": 900,
+            "density_dpi": 160,
+            "font_scale": 1.0,
+            "actual_size": "Physical size: 1080x1920\nOverride size: 390x900",
+            "actual_density": "Physical density: 420\nOverride density: 160"
+          },
+          "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+        },
+        {
+          "name": "w390-h900-font1-flights",
+          "viewport": {
+            "width_dp": 390,
+            "height_dp": 900,
+            "density_dpi": 160,
+            "font_scale": 1.0,
+            "actual_size": "Physical size: 1080x1920\nOverride size: 390x900",
+            "actual_density": "Physical density: 420\nOverride density: 160"
+          },
+          "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+        },
+        {
+          "name": "w390-h900-font1-logbook",
+          "viewport": {
+            "width_dp": 390,
+            "height_dp": 900,
+            "density_dpi": 160,
+            "font_scale": 1.0,
+            "actual_size": "Physical size: 1080x1920\nOverride size: 390x900",
+            "actual_density": "Physical density: 420\nOverride density: 160"
+          },
+          "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+        },
+        {
+          "name": "w390-h900-font1-club",
+          "viewport": {
+            "width_dp": 390,
+            "height_dp": 900,
+            "density_dpi": 160,
+            "font_scale": 1.0,
+            "actual_size": "Physical size: 1080x1920\nOverride size: 390x900",
+            "actual_density": "Physical density: 420\nOverride density: 160"
+          },
+          "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+        },
+        {
+          "name": "w390-h900-font1-ai",
+          "viewport": {
+            "width_dp": 390,
+            "height_dp": 900,
+            "density_dpi": 160,
+            "font_scale": 1.0,
+            "actual_size": "Physical size: 1080x1920\nOverride size: 390x900",
+            "actual_density": "Physical density: 420\nOverride density: 160"
+          },
+          "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+        }
+      ],
+      "restoration": {
+        "status": "passed",
+        "errors": [],
+        "actual_display": {
+          "size": "Physical size: 1080x1920",
+          "density": "Physical density: 420",
+          "font_scale": "1.0"
+        },
+        "network": "Never changed by this script"
+      }
+    }
+  ],
+  "total_scoped_checks": 54,
+  "header_geometry": [
+    {
+      "viewport": {
+        "width_dp": 360,
+        "height_dp": 900,
+        "density_dpi": 160,
+        "font_scale": 1.0,
+        "actual_size": "Physical size: 1080x1920\nOverride size: 360x900",
+        "actual_density": "Physical density: 420\nOverride density: 160"
+      },
+      "header_controls_px": {
+        "Vereinsflieger: Sitzung ungepr\u00fcft. Verbindungen \u00f6ffnen": [
+          174,
+          31,
+          222,
+          79
+        ],
+        "Medical unbekannt. Details \u00f6ffnen": [
+          226,
+          31,
+          298,
+          79
+        ],
+        "Profil & Einstellungen \u00f6ffnen": [
+          302,
+          31,
+          350,
+          79
+        ]
+      }
+    },
+    {
+      "viewport": {
+        "width_dp": 390,
+        "height_dp": 900,
+        "density_dpi": 160,
+        "font_scale": 1.0,
+        "actual_size": "Physical size: 1080x1920\nOverride size: 390x900",
+        "actual_density": "Physical density: 420\nOverride density: 160"
+      },
+      "header_controls_px": {
+        "Vereinsflieger: Sitzung ungepr\u00fcft. Verbindungen \u00f6ffnen": [
+          204,
+          31,
+          252,
+          79
+        ],
+        "Medical unbekannt. Details \u00f6ffnen": [
+          256,
+          31,
+          328,
+          79
+        ],
+        "Profil & Einstellungen \u00f6ffnen": [
+          332,
+          31,
+          380,
+          79
+        ]
+      }
+    }
+  ],
+  "evidence_reuse": "The later application changes only plane/info/minus PNGs and the manifest; React Native layout/state code is unchanged from 2764e83. The final 14 checks recheck all five tabs at 360/390 dp and Medical/connection/expanded-minus/return; 600/840 dp, font 1.4 and keyboard evidence is reused explicitly from the 40-check run.",
+  "limits": [
+    "Not full product acceptance",
+    "No iOS runtime or physical device",
+    "No spoken TalkBack or live provider interaction"
+  ],
+  "asset_only_cache_followup": "https://github.com/MomoRC-tech/MoFlight-App-framework/issues/6#issuecomment-6249847811"
+}

@@ -1,0 +1,18 @@
+{
+  "source_commit": "63c6d7e",
+  "configuration": "Release",
+  "apk": "app-release.apk",
+  "apk_sha256": "5639822a47f3cac9d8b32503722894654844d470285b6900e994e0ef9ae522a0",
+  "apk_bytes": 49693500,
+  "embedded_javascript": true,
+  "architectures": [
+    "arm64-v8a",
+    "x86_64"
+  ],
+  "forced_asset_rebundle": true,
+  "forced_gradle_seconds": 58,
+  "matched_rgba_assets": 145,
+  "build_log": "build/icon-native/release-final-visible-glyphs.log",
+  "built_at_utc": "2026-10-18T12:31:00.004530+00:00",
+  "rejected_asset_only_incremental_build": "Tracked in issue 6; stale images were not accepted for the later source"
+}

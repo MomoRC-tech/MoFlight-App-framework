@@ -9,7 +9,7 @@
 
 **UI design:** [Design handbook](docs/product/design/README.md) · [Complete visual guide / copyable AI brief](docs/product/design/design-guide.html). Current direction, color map, typography, component shapes, layout rules and symbols are maintained together.
 
-**Selected symbol family:** [Style Option 2 — Modern Duotone & Soft-Filled Glyphs](docs/product/design/icon-options/option-2/index.html): editable SVGs, supplied-reference comparison and all 51 symbol mappings, selected for guide/app integration, including M2 Medical card and Manuel's folded paper plane. Source-specific runtime verification remains separate. [Evidence and limits](docs/verification/2026-10-18-icon-option-2.md).
+**Selected symbol family:** [Style Option 2 — Modern Duotone & Soft-Filled Glyphs](docs/product/design/icon-options/option-2/index.html): editable SVGs, supplied-reference comparison and all 51 symbol mappings, selected for guide/app integration, including M2 Medical card and Manuel's folded paper plane. Android Release/offline verification passed; iOS runtime and physical-device acceptance remain separate. [Evidence and limits](docs/verification/2026-10-18-icon-option-2.md).
 
 > **Portable testing infrastructure — 18 October 2026:** [Local/hosted commands, manual standalone APK and guarded Maestro smoke, GitHub Free estimates and rollback](docs/development/portable-ci.md). Fast checks are automatic on main pushes/PRs; expensive checks remain manual. Local types/lint/211 mobile/58 Python tests, committed-source Windows Release and offline Maestro passed; hosted Fast CI, APK and Maestro passed. [Actual results, source identities and limitations](docs/verification/2026-10-18-portable-ci.md). No paid usage or product acceptance is inferred.
 
