@@ -1,0 +1,22 @@
+{
+  "utc": "2026-10-18T15:35:05.580Z",
+  "package": "de.momorc.moflight.lab",
+  "apk_path": "/data/app/~~zJDqCalnA1lespKsTXYDHA==/de.momorc.moflight.lab-lw2vSeaNyAOMC8I3fRUO_g==/base.apk",
+  "apk_sha256": "c3a7d17cec26cd4211f2d88c6cbc325ac768e45883b5cb2a72f60d6a1c51ab73",
+  "version_name": "0.1.0",
+  "version_code": "1",
+  "code_path": "/data/app/~~zJDqCalnA1lespKsTXYDHA==/de.momorc.moflight.lab-lw2vSeaNyAOMC8I3fRUO_g==",
+  "first_install_time": "2026-10-11 08:41:18",
+  "last_update_time": "2026-10-18 16:45:17",
+  "matches_before": {
+    "package": true,
+    "apk_path": true,
+    "apk_sha256": true,
+    "version_name": true,
+    "version_code": true,
+    "code_path": true,
+    "first_install_time": true,
+    "last_update_time": true
+  },
+  "all_identity_fields_match": true
+}\n

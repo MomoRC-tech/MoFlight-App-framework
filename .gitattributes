@@ -1,3 +1,6 @@
 # Original fixture bytes are retained in mobile bundles and backup evidence.
 # Windows core.autocrlf must not change those bytes during checkout.
 tests/fixtures/local-logbook/* -text
+
+# Keep this trial's source-specific evidence and recorded hashes byte-exact.
+docs/verification/assets/2026-10-18-ui-agent-experiment/** -text whitespace=cr-at-eol

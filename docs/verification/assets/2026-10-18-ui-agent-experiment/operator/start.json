@@ -1,0 +1,9 @@
+{
+  "model": "gpt-6-luna",
+  "run_id": "20261018T152237Z-luna-01",
+  "pid": 31528,
+  "serial": "emulator-5562",
+  "reasoning_effort": "max",
+  "started_utc": "2026-10-18T15:23:15.1787300Z",
+  "started_for_trial": true
+}

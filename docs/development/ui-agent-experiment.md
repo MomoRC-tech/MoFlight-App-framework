@@ -1,6 +1,6 @@
 # UI-agent experiment 1: Luna on the Android emulator
 
-**Status: prepared, not executed.** Manuel authorized preparation on 18 October 2026. [M1 platform package contract, #6](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/6#issuecomment-6251570686). Execution, comparison and adoption are separate steps. No agent, emulator, build or hosted job was run for this preparation.
+**Status: first Luna/Max execution completed, bounded capability criteria failed.** Manuel separately authorized preparation and then execution on 18 October 2026. [M1 platform package contract, #6](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/6#issuecomment-6251570686). [One execution report](../verification/2026-10-18-ui-agent-experiment.md): seven checks supported, MIN/keyboard incomplete, call ceiling exceeded, original state preserved; savings unmeasured. Comparison and adoption remain separate. The preparation record below is historical; current measured readiness/results belong to that report.
 
 ## Question and bounded deliverable
 

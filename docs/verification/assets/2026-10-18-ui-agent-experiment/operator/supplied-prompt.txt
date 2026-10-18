@@ -1,0 +1,13 @@
+Execute the independent emulator UI experiment using the complete worker instructions in docs/development/ui-agent-experiment-task.md. Read that task and applicable AGENTS.md; do not read the sibling operator directory, operator experiment plan, historical reports or other agents' results. This run was explicitly authorized by Manuel. You are the only agent controlling the emulator during this run. Do not spawn any other agents. Use model GPT-6 Luna with Max reasoning; never silently change settings.
+
+Fill the worker-task placeholders with these exact values:
+run_id: 20261018T152237Z-luna-01
+absolute_workspace: C:/Users/Momo/Documents/30_Coding/03_chatGPT work folder/MoFlight-App-framework
+adb_path: C:/Users/Momo/AppData/Local/Android/Sdk/platform-tools/adb.exe
+serial: emulator-5562
+installed_apk_evidence: Operator pulled installed base.apk and verified SHA-256 c3a7d17cec26cd4211f2d88c6cbc325ac768e45883b5cb2a72f60d6a1c51ab73 against the pinned Release. No installation/update occurred.
+absolute_output_directory: C:/Users/Momo/Documents/30_Coding/03_chatGPT work folder/MoFlight-App-framework/build/ui-agent-experiment/20261018T152237Z-luna-01/worker
+start_utc: 2026-10-18T15:24:45.6366586Z
+deadline_utc: 2026-10-18T15:36:45.6366586Z
+
+Operator preflight confirmed the named synthetic AVD, offline radio state, populated synthetic library and overview starting screen. It cold-booted the AVD for this trial; there is no unrelated unsaved work. Do not assume the visible book/count/time values; independently observe and record them. The worker output directory does not exist yet: create it without overwriting other evidence. Shell and local image inspection tools are available; verify image access by opening your actual captured PNGs. Current collaboration responses expose no per-agent token telemetry: report unavailable if not provided to you. Follow the task's eight checks, limits, preservation/restore rules, and produce result.md/result.json plus PNG/XML/action evidence. Stop on blockers, no rescue/fixes/reseeding/provider actions. Do not shut down the emulator. Return a compact result with the evidence directory.

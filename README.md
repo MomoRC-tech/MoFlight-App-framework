@@ -253,6 +253,8 @@ Changes go directly to `main` with traceable commits and existing Issues, follow
 
 **Development default, approved 17 October 2026:** [logic-first, risk-based verification](docs/development/verification-workflow.md). Use relevant tests and TypeScript during iteration; batch committed-source Release/native checks at integration acceptance. No routine visual verification for logic-only work; inspect affected UI for small visual changes and use the size matrix for substantial layout/navigation/typography changes. No routine subagents for small tasks; keep one concise package/evidence summary. Documentation changes need links/consistency checks only.
 
+The separately authorized [18 October Luna/Max UI experiment](docs/verification/2026-10-18-ui-agent-experiment.md) demonstrated seven bounded Android checks but missed MIN/keyboard and exceeded its call budget. State was preserved; token/time savings and routine UI delegation are not established. Sol 6.1/Low remains an unexecuted fallback under #6.
+
 </details>
 
 <details>

@@ -1,0 +1,282 @@
+{
+  "run_id": "20261018T152237Z-luna-01",
+  "setup_started_utc": "2026-10-18T15:22:37Z",
+  "preflight_started_utc": "2026-10-18T15:24:15.427443+00:00",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "max",
+  "fork_turns": "none",
+  "serial": "emulator-5562",
+  "events": [
+    {
+      "utc": "2026-10-18T15:24:15.606106+00:00",
+      "args": [
+        "emu",
+        "avd",
+        "name"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:24:15.647969+00:00",
+      "args": [
+        "shell",
+        "getprop",
+        "sys.boot_completed"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:24:15.703530+00:00",
+      "args": [
+        "shell",
+        "settings",
+        "get",
+        "global",
+        "airplane_mode_on"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:24:15.752227+00:00",
+      "args": [
+        "shell",
+        "settings",
+        "get",
+        "global",
+        "wifi_on"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:24:15.803783+00:00",
+      "args": [
+        "shell",
+        "settings",
+        "get",
+        "global",
+        "mobile_data"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:24:15.854562+00:00",
+      "args": [
+        "shell",
+        "wm",
+        "size"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:24:15.903703+00:00",
+      "args": [
+        "shell",
+        "wm",
+        "density"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:24:15.952608+00:00",
+      "args": [
+        "shell",
+        "settings",
+        "get",
+        "system",
+        "font_scale"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:24:15.992383+00:00",
+      "args": [
+        "shell",
+        "getprop",
+        "ro.build.version.sdk"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:24:16.030944+00:00",
+      "args": [
+        "shell",
+        "getprop",
+        "ro.build.version.release"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:24:16.072264+00:00",
+      "args": [
+        "shell",
+        "getprop",
+        "ro.product.cpu.abi"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:24:16.121804+00:00",
+      "args": [
+        "shell",
+        "pm",
+        "path",
+        "de.momorc.moflight.lab"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:24:16.838372+00:00",
+      "args": [
+        "pull",
+        "/data/app/~~zJDqCalnA1lespKsTXYDHA==/de.momorc.moflight.lab-lw2vSeaNyAOMC8I3fRUO_g==/base.apk",
+        "C:\\Users\\Momo\\Documents\\30_Coding\\03_chatGPT work folder\\MoFlight-App-framework\\build\\ui-agent-experiment\\20261018T152237Z-luna-01\\operator\\installed-base.apk"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:24:17.043220+00:00",
+      "args": [
+        "shell",
+        "dumpsys",
+        "package",
+        "de.momorc.moflight.lab"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:24:17.586468+00:00",
+      "args": [
+        "shell",
+        "am",
+        "start",
+        "-W",
+        "-n",
+        "de.momorc.moflight.lab/.MainActivity"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:24:21.323143+00:00",
+      "args": [
+        "shell",
+        "uiautomator",
+        "dump",
+        "/sdcard/moflight-experiment-preflight.xml"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:24:21.372572+00:00",
+      "args": [
+        "shell",
+        "cat",
+        "/sdcard/moflight-experiment-preflight.xml"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:24:21.437646+00:00",
+      "args": [
+        "shell",
+        "input",
+        "tap",
+        "324",
+        "1777"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:24:24.337607+00:00",
+      "args": [
+        "shell",
+        "uiautomator",
+        "dump",
+        "/sdcard/moflight-experiment-preflight.xml"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:24:24.376744+00:00",
+      "args": [
+        "shell",
+        "cat",
+        "/sdcard/moflight-experiment-preflight.xml"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:24:24.455855+00:00",
+      "args": [
+        "shell",
+        "am",
+        "force-stop",
+        "de.momorc.moflight.lab"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:24:24.952074+00:00",
+      "args": [
+        "shell",
+        "am",
+        "start",
+        "-W",
+        "-n",
+        "de.momorc.moflight.lab/.MainActivity"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:24:28.620061+00:00",
+      "args": [
+        "shell",
+        "uiautomator",
+        "dump",
+        "/sdcard/moflight-experiment-preflight.xml"
+      ],
+      "returncode": 0
+    },
+    {
+      "utc": "2026-10-18T15:24:28.662126+00:00",
+      "args": [
+        "shell",
+        "cat",
+        "/sdcard/moflight-experiment-preflight.xml"
+      ],
+      "returncode": 0
+    }
+  ],
+  "status": "passed",
+  "repository_head": "43aed5db8eb9367aa22eb6564d1e77f270ee4150",
+  "repository_status": "",
+  "adb_version": "Android Debug Bridge version 1.0.41\nVersion 37.0.1-15733141\nInstalled as C:\\Users\\Momo\\AppData\\Local\\Android\\Sdk\\platform-tools\\adb.exe\nRunning on Windows 10.0.26200",
+  "python": "Python 3.12.10",
+  "local_apk_sha256": "c3a7d17cec26cd4211f2d88c6cbc325ac768e45883b5cb2a72f60d6a1c51ab73",
+  "avd": "MoFlight_Synthetic_API37",
+  "network": {
+    "airplane_mode_on": "1",
+    "wifi_on": "0",
+    "mobile_data": "0"
+  },
+  "original_display": {
+    "size": "Physical size: 1080x1920",
+    "density": "Physical density: 420",
+    "font_scale": "1.0"
+  },
+  "device": {
+    "ro.build.version.sdk": "37",
+    "ro.build.version.release": "17",
+    "ro.product.cpu.abi": "x86_64"
+  },
+  "installed_apk_sha256": "c3a7d17cec26cd4211f2d88c6cbc325ac768e45883b5cb2a72f60d6a1c51ab73",
+  "installation_identity": [
+    "lastUpdateTime=2026-10-18 16:45:17",
+    "firstInstallTime=2026-10-11 08:41:18"
+  ],
+  "library_baseline": {
+    "book": "Gliding volume A",
+    "flight_count": 4,
+    "known_time": "1:10"
+  },
+  "preflight_finished_utc": "2026-10-18T15:24:28.666140+00:00"
+}

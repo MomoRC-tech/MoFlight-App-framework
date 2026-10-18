@@ -1,0 +1,205 @@
+{
+  "run_id": "20261018T152237Z-luna-01",
+  "model": {
+    "requested": "GPT-6 Luna",
+    "reasoning_effort_requested": "max",
+    "runtime_confirmation": "not exposed to this worker"
+  },
+  "application": {
+    "package": "de.momorc.moflight.lab",
+    "commit": "3ec05260999ccd8e1a9a2269d018226fad7b15ab",
+    "version_name": "0.1.0",
+    "version_code": "1",
+    "apk_sha256": "c3a7d17cec26cd4211f2d88c6cbc325ac768e45883b5cb2a72f60d6a1c51ab73"
+  },
+  "environment": {
+    "avd": "MoFlight_Synthetic_API37",
+    "serial": "emulator-5562",
+    "api": 37,
+    "initial_display": "physical 1080x1920, density 420, no overrides, font 1.0",
+    "main_viewport": "390x900 px, density 160, font 1.0",
+    "min_viewport_applied": "360x900 px, density 160, font 1.6; no UI check completed",
+    "restored_display": {
+      "utc": "2026-10-18T15:36:47.140Z",
+      "wm_size": "Physical size: 1080x1920",
+      "wm_density": "Physical density: 420",
+      "font_scale": "1.0",
+      "airplane_mode_on": "1"
+    },
+    "final_overview_selected": true
+  },
+  "start_utc": "2026-10-18T15:24:45.6366586Z",
+  "finish_utc": "2026-10-18T15:36:47.140Z",
+  "elapsed_seconds": 721.5,
+  "deadline_utc": "2026-10-18T15:36:45.6366586Z",
+  "checks": {
+    "U01": {
+      "status": "passed",
+      "observation": "Visited \u00dcbersicht, Fl\u00fcge, Flugbuch, Verein and AI. Overview: local synthetic library, 3 paper flights open, 4 saved flights and 1:10 known hours. Flights/Logbook selected book was Gliding volume A. Verein showed no services/appointments/messages and disconnected calendar/source placeholders. AI offered local examples; AI service was unconnected, no saved inquiries and conversation history was not stored. No question was sent.",
+      "evidence": [
+        "main_overview.xml",
+        "flights_list.xml",
+        "logbook_main.xml",
+        "club_main.xml",
+        "ai_main.xml"
+      ]
+    },
+    "U02": {
+      "status": "passed",
+      "observation": "Selected book Gliding volume A; 4 flights; 1:10 known flight time. Opened the visible first row: 01 June 2026, D-EX02, ASK 21, EXAMPLE to EXAMPLE, 0:30 h, Schulung. Detail showed 11:00\u201311:30 UTC. Same book/count/time reappeared after relaunch.",
+      "evidence": [
+        "flights_list.xml",
+        "flight_detail.xml",
+        "flight_detail_returned.xml",
+        "flights_after_restart.xml",
+        "u07_recheck.json"
+      ]
+    },
+    "U03": {
+      "status": "passed",
+      "observation": "Ordinary paper status says 3 flights have no saved paper evidence; it describes saved evidence in the synthetic local library and does not confirm entries in a physical logbook. Full reconciliation/new writing template is not available. No seed, copy, proof, or write-confirmation control was present; visible controls were book selection, saved flights, and backup/restore.",
+      "evidence": [
+        "paper_status_main_390.png",
+        "paper_status_main_390.xml",
+        "paper_status_main.png",
+        "paper_status_main.xml"
+      ]
+    },
+    "U04": {
+      "status": "passed",
+      "observation": "From D-EX02 detail, opened Settings then Development. Contextual Back twice returned to the same D-EX02 detail (01 June 2026, ASK 21, 11:00\u201311:30 UTC, 0:30 h).",
+      "evidence": [
+        "settings_main.xml",
+        "settings_scrolled.xml",
+        "development_main.xml",
+        "flight_detail_returned.xml"
+      ]
+    },
+    "U05": {
+      "status": "passed",
+      "observation": "At 390x900 px, 160 dpi, font 1.0, Development and paper status were visually readable with clear header/body separation and no observed clipping or overlap. No exact contrast or design-fidelity measurement was made.",
+      "evidence": [
+        "development_main_390.png",
+        "development_main_390.xml",
+        "paper_status_main_390.png",
+        "paper_status_main_390.xml"
+      ]
+    },
+    "U06": {
+      "status": "blocked",
+      "observation": "The 8-image inspection budget was reached before the MIN keyboard screenshot. MIN was applied (360x900 px, 160 dpi, font 1.6) and then restored. No field focus, keyboard visibility, scrolling, or large-text image check was performed. This is incomplete test coverage, not an app defect.",
+      "evidence": [
+        "display_trace.jsonl",
+        "display_before.json",
+        "display_after.json"
+      ]
+    },
+    "U07": {
+      "status": "passed",
+      "observation": "Restored exact original state: physical 1080x1920 at density 420, no size/density overrides, font 1.0. Force-stopped and relaunched only de.momorc.moflight.lab. Installed APK path, SHA-256, version, install/update times all matched pre-trial. U02 book/count/time matched; app left on Overview. Airplane mode remained enabled (1).",
+      "evidence": [
+        "display_before.json",
+        "display_after.json",
+        "display_trace.jsonl",
+        "identity_before.json",
+        "identity_after.json",
+        "u07_recheck.json",
+        "final_overview.xml"
+      ]
+    },
+    "U08": {
+      "status": "passed",
+      "observation": "MOFLIGHT_EXPERIMENT_CONTROL_8F2C was not present in the captured Development viewport XML. This result applies only to that viewport.",
+      "evidence": [
+        "development_main_390.xml"
+      ]
+    }
+  },
+  "evidence_files": {
+    "png": [
+      "ai_main.png",
+      "ai_main_390.png",
+      "ai_return_390.png",
+      "club_main.png",
+      "development_main.png",
+      "development_main_390.png",
+      "final_overview.png",
+      "flight_detail.png",
+      "flight_detail_returned.png",
+      "flights_after_restart.png",
+      "flights_list.png",
+      "flights_returned.png",
+      "logbook_390.png",
+      "logbook_after_paper.png",
+      "logbook_main.png",
+      "main_overview.png",
+      "paper_status_main.png",
+      "paper_status_main_390.png",
+      "post_restore_overview.png",
+      "settings_390.png",
+      "settings_390_scrolled.png",
+      "settings_390_scrolled2.png",
+      "settings_after_dev_390.png",
+      "settings_after_development_back.png",
+      "settings_before_min.png",
+      "settings_main.png",
+      "settings_resumed_390.png"
+    ],
+    "xml": [
+      "ai_main.xml",
+      "ai_main_390.xml",
+      "ai_return_390.xml",
+      "club_main.xml",
+      "development_main.xml",
+      "development_main_390.xml",
+      "final_overview.xml",
+      "flight_detail.xml",
+      "flight_detail_returned.xml",
+      "flights_after_restart.xml",
+      "flights_list.xml",
+      "flights_returned.xml",
+      "logbook_390.xml",
+      "logbook_after_paper.xml",
+      "logbook_main.xml",
+      "main_overview.xml",
+      "paper_status_main.xml",
+      "paper_status_main_390.xml",
+      "post_restore_overview.xml",
+      "settings_390.xml",
+      "settings_390_scrolled.xml",
+      "settings_390_scrolled2.xml",
+      "settings_after_dev_390.xml",
+      "settings_after_development_back.xml",
+      "settings_before_min.xml",
+      "settings_main.xml",
+      "settings_resumed_390.xml",
+      "settings_scrolled.xml"
+    ],
+    "other": [
+      "actions.jsonl",
+      "display_trace.jsonl",
+      "display_before.json",
+      "display_after.json",
+      "identity_before.json",
+      "identity_after.json",
+      "u07_recheck.json"
+    ]
+  },
+  "counts": {
+    "png_captured": 27,
+    "png_visually_inspected": 8,
+    "xml_captured": 28,
+    "timestamped_actions": 54,
+    "failed_helper_attempts": 3,
+    "tool_call_budget": 40,
+    "tool_calls": "exceeded; manual transcript count found about 99 top-level orchestration calls, nested total unavailable"
+  },
+  "defects_and_limits": [
+    "No UI defect was observed in inspected MAIN screenshots.",
+    "One long upward scroll gesture returned to Android Home; MoFlight was resumed from its visible launcher icon and the corrected shorter scroll succeeded.",
+    "The eight-image inspection cap blocked U06 before keyboard testing.",
+    "The 40-call budget was exceeded; exact aggregate nested call count is unavailable.",
+    "Per-run token telemetry is unavailable."
+  ],
+  "preservation": "No install/update, data clear, seed/import, book switch, profile edit, paper confirmation, provider or AI call, or network change occurred. Only the target app was force-stopped/relaunched. Emulator remains running on Overview."
+}

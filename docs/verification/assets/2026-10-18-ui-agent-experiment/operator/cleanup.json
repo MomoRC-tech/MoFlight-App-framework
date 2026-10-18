@@ -1,0 +1,7 @@
+{
+  "started_for_trial": true,
+  "unrelated_dirty_file": "apps/platform-lab/src/vereinsflieger/reconciliation.ts appeared during trial, preserved untouched",
+  "finished_utc": "2026-10-18T15:38:48.4241380Z",
+  "outcome": "Graceful emulator shutdown requested after independent preservation checks; restores initially stopped lifecycle",
+  "target_avd": "MoFlight_Synthetic_API37"
+}

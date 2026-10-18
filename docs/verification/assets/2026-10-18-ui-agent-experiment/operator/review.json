@@ -1,0 +1,83 @@
+{
+  "started_utc": "2026-10-18T15:36:58Z",
+  "status": "failed bounded capability criteria",
+  "images_independently_opened": [
+    "development_main_390.png",
+    "paper_status_main_390.png"
+  ],
+  "visual_review": "MAIN Development and paper status show readable German labels, dark cards, clear header/body separation and no observed clipping/overlap in these two viewports. No keyboard/MIN evidence exists.",
+  "token_telemetry": "unavailable",
+  "token_savings": "unmeasured",
+  "parent_intervention": "one administrative deadline reminder at approximately 15:36:05 UTC; no navigation rescue or cleanup intervention",
+  "json_artifact_errors": [
+    {
+      "file": "identity_after.json",
+      "error": "Extra data: line 22 column 2 (char 785)",
+      "raw_preserved": true
+    },
+    {
+      "file": "u07_recheck.json",
+      "error": "Extra data: line 35 column 2 (char 664)",
+      "raw_preserved": true
+    }
+  ],
+  "before_after_facts_from_xml": {
+    "flights_list.xml": {
+      "book": true,
+      "count": true,
+      "known_time": true
+    },
+    "flights_after_restart.xml": {
+      "book": true,
+      "count": true,
+      "known_time": true
+    }
+  },
+  "detail_return": {
+    "flight_detail.xml": true,
+    "flight_detail_returned.xml": true
+  },
+  "ordinary_tabs_evidence": true,
+  "marker_absent_scoped": true,
+  "paper_no_mutation_actions": true,
+  "postflight_display": {
+    "size": "Physical size: 1080x1920",
+    "density": "Physical density: 420",
+    "font_scale": "1.0"
+  },
+  "display_matches_preflight": true,
+  "postflight_network": {
+    "airplane_mode_on": "1",
+    "wifi_on": "0",
+    "mobile_data": "0"
+  },
+  "network_matches_preflight": true,
+  "postflight_installation_identity": [
+    "lastUpdateTime=2026-10-18 16:45:17",
+    "firstInstallTime=2026-10-11 08:41:18"
+  ],
+  "installation_matches_preflight": true,
+  "final_overview_selected": true,
+  "worker_counts_self_reported": {
+    "png_captured": 27,
+    "png_visually_inspected": 8,
+    "xml_captured": 28,
+    "timestamped_actions": 54,
+    "failed_helper_attempts": 3,
+    "tool_call_budget": 40,
+    "tool_calls": "exceeded; manual transcript count found about 99 top-level orchestration calls, nested total unavailable"
+  },
+  "worker_elapsed_seconds": 721.5,
+  "worker_checks_self_reported": {
+    "U01": "passed",
+    "U02": "passed",
+    "U03": "passed",
+    "U04": "passed",
+    "U05": "passed",
+    "U06": "blocked",
+    "U07": "passed",
+    "U08": "passed"
+  },
+  "capability_result": "failed: required U06 incomplete, 40-call ceiling exceeded, approximately two-second reporting overrun; MAIN UI evidence/preservation supported",
+  "finished_utc": "2026-10-18T15:38:05.389862+00:00"
+}

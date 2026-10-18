@@ -1,0 +1,35 @@
+{
+  "utc": "2026-10-18T15:35:05.580Z",
+  "book": "Gliding volume A",
+  "metric_nodes": [
+    {
+      "text": "Fl\u00fcge",
+      "bounds": "[184,113][571,176]"
+    },
+    {
+      "text": "Gliding volume A",
+      "bounds": "[81,257][347,305]"
+    },
+    {
+      "text": "4",
+      "bounds": "[149,633][180,699]"
+    },
+    {
+      "text": "1:10",
+      "bounds": "[361,633][467,699]"
+    },
+    {
+      "text": "Fl\u00fcge",
+      "bounds": "[129,701][199,743]"
+    },
+    {
+      "text": "bekannte Std.",
+      "bounds": "[327,701][502,743]"
+    },
+    {
+      "text": "Fl\u00fcge",
+      "bounds": "[216,1804][432,1846]"
+    }
+  ],
+  "identity_all_match": true
+}\n

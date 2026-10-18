@@ -1,0 +1,312 @@
+{
+  "run_id": "20261018T152237Z-luna-01",
+  "outcome": "failed bounded capability criteria; seven supported checks, U06 incomplete and operating ceilings exceeded",
+  "application_commit": "3ec05260999ccd8e1a9a2269d018226fad7b15ab",
+  "apk_sha256": "c3a7d17cec26cd4211f2d88c6cbc325ac768e45883b5cb2a72f60d6a1c51ab73",
+  "operator_repository_head": "43aed5db8eb9367aa22eb6564d1e77f270ee4150",
+  "model_launch": {
+    "model": "gpt-6-luna",
+    "reasoning_effort": "max",
+    "fork_turns": "none",
+    "launch_accepted": true,
+    "child_backend_introspection": "unavailable"
+  },
+  "timing_seconds": {
+    "setup": 128.636658,
+    "worker": 721.503342,
+    "review_and_native_cleanup": 121.284138,
+    "total_through_native_cleanup": 971.424138,
+    "documentation_and_evidence_after_native_cleanup": 154.054897,
+    "total_through_report_checkpoint": 1125.479035
+  },
+  "report_checkpoint_utc": "2026-10-18T15:41:22.479035+00:00",
+  "timing_limit": "commit and GitHub posting after this checkpoint excluded; no comparator/time-saving claim",
+  "telemetry": {
+    "parent_tokens": "unavailable",
+    "child_tokens": "unavailable",
+    "token_savings": "unmeasured",
+    "tool_call_count": "worker self-reported approximately 99 top-level calls; nested total unavailable; 40-call ceiling exceeded",
+    "image_inspections": "worker self-reported 8; parent independently opened 2 relevant MAIN images"
+  },
+  "verified_filesystem_counts": {
+    "worker_pngs": 27,
+    "worker_xmls": 28,
+    "worker_action_records": 54
+  },
+  "validation": {
+    "documents": 5,
+    "local_destinations": 280,
+    "missing_destinations": 0,
+    "valid_json_files": 9,
+    "valid_xml_files": 31,
+    "preserved_invalid_json": [
+      {
+        "file": "worker/identity_after.json",
+        "error": "Extra data: line 22 column 2 (char 785)",
+        "retained_unmodified": true
+      },
+      {
+        "file": "worker/u07_recheck.json",
+        "error": "Extra data: line 35 column 2 (char 664)",
+        "retained_unmodified": true
+      }
+    ],
+    "png_signatures_and_dimensions": [
+      {
+        "file": "worker/development_main_390.png",
+        "width": 390,
+        "height": 900
+      },
+      {
+        "file": "worker/paper_status_main_390.png",
+        "width": 390,
+        "height": 900
+      }
+    ],
+    "jsonl_lines_parse": true
+  },
+  "artifact_scope": "Retained all worker XML and structured traces/raw reports, operator provenance/review and only two relevant MAIN PNGs. Other worker PNGs and disposable helpers remain in ignored run directory. Raw reports retain original relative evidence names. Invalid sidecars intentionally unmodified. No private AVD/data captured.",
+  "unrelated_edit": "apps/platform-lab/src/vereinsflieger/reconciliation.ts appeared during run; preserved unstaged; pinned APK unaffected",
+  "files": [
+    {
+      "path": "operator/cleanup.json",
+      "bytes": 389,
+      "sha256": "1be62a4c35247a6dbe854416be9bd72fbe37c669bfe1dc4797d16bce1d8b25dd"
+    },
+    {
+      "path": "operator/launch.json",
+      "bytes": 499,
+      "sha256": "a78283477e449885aa804a200417deebbb4e8343eb569d498b9c8ea1744392f5"
+    },
+    {
+      "path": "operator/library-before.xml",
+      "bytes": 49257,
+      "sha256": "0761727614f1f435c717e693cdd7bc8975800608736b69062814523f8675bbaa"
+    },
+    {
+      "path": "operator/postflight.xml",
+      "bytes": 128768,
+      "sha256": "ad7f647b76ea6872e13cc2dc777963076d1d80203c9f03daa2075129722e5e01"
+    },
+    {
+      "path": "operator/preflight.json",
+      "bytes": 6613,
+      "sha256": "9f4844dfa01bc8aadb5019c888c38c249c709d8b916c46ceea4ba739f697f6c5"
+    },
+    {
+      "path": "operator/review.json",
+      "bytes": 2776,
+      "sha256": "35c59adafa36ac8582bd2f3bbe0555032229148784de2a13150eaf0090a3bb2f"
+    },
+    {
+      "path": "operator/start.json",
+      "bytes": 229,
+      "sha256": "a7bff55575f31deb18f67ffe72f171d0520b58b1de3b7d0aee86be1561df303a"
+    },
+    {
+      "path": "operator/supplied-prompt.txt",
+      "bytes": 2143,
+      "sha256": "77208df62974d4474fa6f73095f60563e01d559b807dde4a45dc3c83fd8058a8"
+    },
+    {
+      "path": "operator/worker-start.xml",
+      "bytes": 128771,
+      "sha256": "8d01d6878bb129f4f68891c03fad8c6eecada17b7bcfff3768ad07ed9aa45cf5"
+    },
+    {
+      "path": "worker/actions.jsonl",
+      "bytes": 12319,
+      "sha256": "c0db76b668b40a2dfe0e4df938327dd88ced520f102c220eb73f39b761110895"
+    },
+    {
+      "path": "worker/ai_main.xml",
+      "bytes": 17668,
+      "sha256": "fdd101eee7c973af37e925f492a7547f5deeaca108cf72f74e3a9fe0d6c40bfe"
+    },
+    {
+      "path": "worker/ai_main_390.xml",
+      "bytes": 27418,
+      "sha256": "0f7d619bfcf5cb7fdb46b10048b701596f3b524f4f22f4d0c4e2dd34c707a23a"
+    },
+    {
+      "path": "worker/ai_return_390.xml",
+      "bytes": 27418,
+      "sha256": "0f7d619bfcf5cb7fdb46b10048b701596f3b524f4f22f4d0c4e2dd34c707a23a"
+    },
+    {
+      "path": "worker/club_main.xml",
+      "bytes": 18574,
+      "sha256": "eac341117e459f9d5b72c822fb7ea4fc62507c644d79dde63c1bee0e5d18b3c3"
+    },
+    {
+      "path": "worker/development_main.xml",
+      "bytes": 9438,
+      "sha256": "533e65503a3524d4a1541b8d2d4e1651c12b95de4b0e32d726da578bbabbe47a"
+    },
+    {
+      "path": "worker/development_main_390.png",
+      "bytes": 151700,
+      "sha256": "dd193783b7c9cc34ff1e294863add9391a104644386f79b0dae06c93b3e07317"
+    },
+    {
+      "path": "worker/development_main_390.xml",
+      "bytes": 10165,
+      "sha256": "3515080a58360dde24946ef79103594064f9afc2fd958fac0a0bfef718095b06"
+    },
+    {
+      "path": "worker/display_after.json",
+      "bytes": 179,
+      "sha256": "cd6fcc2913b24659d507415e03ebc57703f929e0c021ee5bbed4b0fb8fc34b4f"
+    },
+    {
+      "path": "worker/display_before.json",
+      "bytes": 269,
+      "sha256": "e663bb296559fee90209533ef6f9ec0141e4394b3f87e32ff1d0c7eaa65cd92d"
+    },
+    {
+      "path": "worker/display_trace.jsonl",
+      "bytes": 836,
+      "sha256": "aa8a0170f83a783ac9f9183e3c2159071d5c21242d597caf0cea750b1c121185"
+    },
+    {
+      "path": "worker/final_overview.xml",
+      "bytes": 24533,
+      "sha256": "eea5d17f28e1c518c90a28a6c744ecf938f1e6e190512c18c1d106e1dffc0645"
+    },
+    {
+      "path": "worker/flight_detail.xml",
+      "bytes": 9923,
+      "sha256": "283a459c56d20eb18237f1e5062a3713daf94aca15fffc4420a409ee6f030dce"
+    },
+    {
+      "path": "worker/flight_detail_returned.xml",
+      "bytes": 9923,
+      "sha256": "283a459c56d20eb18237f1e5062a3713daf94aca15fffc4420a409ee6f030dce"
+    },
+    {
+      "path": "worker/flights_after_restart.xml",
+      "bytes": 27529,
+      "sha256": "eea5488dd7b00ee1a16e5e09230b4b3e8fe1f5fb83359240771c239e360ba2b6"
+    },
+    {
+      "path": "worker/flights_list.xml",
+      "bytes": 27529,
+      "sha256": "eea5488dd7b00ee1a16e5e09230b4b3e8fe1f5fb83359240771c239e360ba2b6"
+    },
+    {
+      "path": "worker/flights_returned.xml",
+      "bytes": 27529,
+      "sha256": "eea5488dd7b00ee1a16e5e09230b4b3e8fe1f5fb83359240771c239e360ba2b6"
+    },
+    {
+      "path": "worker/identity_after.json",
+      "bytes": 808,
+      "sha256": "c5280f53486536a59e652ddeb9d352766d62a9c4f4452d0a8be2949987524704"
+    },
+    {
+      "path": "worker/identity_before.json",
+      "bytes": 619,
+      "sha256": "7a2677339a3740652d2076642be342114a92963068b246bcf853d10ce52304b0"
+    },
+    {
+      "path": "worker/logbook_390.xml",
+      "bytes": 16261,
+      "sha256": "7840c1b586e07d9bac689569c3a9e3d1621526044763d074c6ba036897cbfe85"
+    },
+    {
+      "path": "worker/logbook_after_paper.xml",
+      "bytes": 16349,
+      "sha256": "242e7e7200e6d944c0517761a60887d9e945af237e838046f78a5f6442b5c9fa"
+    },
+    {
+      "path": "worker/logbook_main.xml",
+      "bytes": 16349,
+      "sha256": "242e7e7200e6d944c0517761a60887d9e945af237e838046f78a5f6442b5c9fa"
+    },
+    {
+      "path": "worker/main_overview.xml",
+      "bytes": 24534,
+      "sha256": "6b2538e15b612d48d23dc068dca611c69a4f7a1bce8f12929455ec5e8d33530d"
+    },
+    {
+      "path": "worker/paper_status_main.xml",
+      "bytes": 9086,
+      "sha256": "ee1332e9c5c341703bdf0822035998774570b11345781f497cb545ae5c0271c5"
+    },
+    {
+      "path": "worker/paper_status_main_390.png",
+      "bytes": 104616,
+      "sha256": "e6271df7456e465469ffe5fda98d14c3afea4c2e69954aa1893899eaff7f07b4"
+    },
+    {
+      "path": "worker/paper_status_main_390.xml",
+      "bytes": 9044,
+      "sha256": "21cf27bab53d74e78fcd81f45547a313e31700f003dcd5da65cd29ac23606930"
+    },
+    {
+      "path": "worker/post_restore_overview.xml",
+      "bytes": 24534,
+      "sha256": "6b2538e15b612d48d23dc068dca611c69a4f7a1bce8f12929455ec5e8d33530d"
+    },
+    {
+      "path": "worker/result.json",
+      "bytes": 8457,
+      "sha256": "a8fb712b92f2c0f1728106234794a8934f20cb65461d29af052e7d6d30ee6393"
+    },
+    {
+      "path": "worker/result.md",
+      "bytes": 2933,
+      "sha256": "a20f81bc06b2f9c9454edfd2ef086b17daec894c306531b3c7ef178feaa327da"
+    },
+    {
+      "path": "worker/settings_390.xml",
+      "bytes": 12568,
+      "sha256": "1bb6ecb0d921b5814c5fd9a6189dc3a697ab1a79b8f81d51efda8e06dacea443"
+    },
+    {
+      "path": "worker/settings_390_scrolled.xml",
+      "bytes": 10533,
+      "sha256": "626541f9ad7053c024bb8c1da5bc7dc069659e1d99fa4800e7fc37e3d30ac1d1"
+    },
+    {
+      "path": "worker/settings_390_scrolled2.xml",
+      "bytes": 12972,
+      "sha256": "95070f0792fe1fe7ec0f358598952e9201e769113a9b3bb5e78c889d00508281"
+    },
+    {
+      "path": "worker/settings_after_dev_390.xml",
+      "bytes": 12974,
+      "sha256": "c91112fa4dfee7d4b8d53d66c554290aa5f27a98a1b8fdc1bae98d97f3faf14c"
+    },
+    {
+      "path": "worker/settings_after_development_back.xml",
+      "bytes": 11410,
+      "sha256": "e437774b8426afe7be27c51552d6562085a285e5490e816a7d9188409084483a"
+    },
+    {
+      "path": "worker/settings_before_min.xml",
+      "bytes": 12974,
+      "sha256": "c91112fa4dfee7d4b8d53d66c554290aa5f27a98a1b8fdc1bae98d97f3faf14c"
+    },
+    {
+      "path": "worker/settings_main.xml",
+      "bytes": 10707,
+      "sha256": "bf5c9f7c9a9a2ebbe86aba1ae0e394c9787378b1e764ae670ac6d4430ca15aab"
+    },
+    {
+      "path": "worker/settings_resumed_390.xml",
+      "bytes": 12568,
+      "sha256": "1bb6ecb0d921b5814c5fd9a6189dc3a697ab1a79b8f81d51efda8e06dacea443"
+    },
+    {
+      "path": "worker/settings_scrolled.xml",
+      "bytes": 11410,
+      "sha256": "e437774b8426afe7be27c51552d6562085a285e5490e816a7d9188409084483a"
+    },
+    {
+      "path": "worker/u07_recheck.json",
+      "bytes": 700,
+      "sha256": "52c99607256274d85355452f5f641dd9137c2ef45dc4aff0cfc36dfa0c0d44f3"
+    }
+  ]
+}
