@@ -1,6 +1,6 @@
 # Product specifications
 
-- **[UI design — current references and handbook proposal](design/README.md):** central entry point for the approved visual baseline/amendments, colors/styles, branding, symbol catalogue and proposed unified documentation structure under #23.
+- **[UI design handbook](design/README.md):** current visual direction, authority, color map, typography/geometry, component shapes/states, layout patterns and symbol catalogue. [Complete standalone visual guide and AI brief](design/design-guide.html); generated from maintained sources under #23.
 
 - [Symbol inventory and copyable AI redesign brief](symbol-reference.html): standalone offline HTML with current symbol samples, meanings, actions, states and source references, plus retained assets and historical prototype vocabulary. Includes copy/download controls for another AI chat; documentation only under #20.
 

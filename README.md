@@ -7,7 +7,7 @@
 
 # MoFlight
 
-**UI design:** [Current visual references and proposed design handbook](docs/product/design/README.md), including colors/styles, approved imagery and the symbol catalogue.
+**UI design:** [Design handbook](docs/product/design/README.md) · [Complete visual guide / copyable AI brief](docs/product/design/design-guide.html). Current direction, color map, typography, component shapes, layout rules and symbols are maintained together.
 
 > **Portable testing infrastructure — 18 October 2026:** [Local/hosted commands, manual standalone APK and guarded Maestro smoke, GitHub Free estimates and rollback](docs/development/portable-ci.md). Fast checks are automatic on main pushes/PRs; expensive checks remain manual. Local types/lint/211 mobile/58 Python tests, committed-source Windows Release and offline Maestro passed; hosted Fast CI, APK and Maestro passed. [Actual results, source identities and limitations](docs/verification/2026-10-18-portable-ci.md). No paid usage or product acceptance is inferred.
 

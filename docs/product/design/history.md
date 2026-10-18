@@ -1,0 +1,46 @@
+# Decisions, history and known gaps
+
+[Handbook entry point](README.md). Current guidance is in this handbook. Dated sources stay at existing paths; historical selected/confirmed/latest wording describes its original checkpoint unless explicitly carried forward.
+
+## Decision register
+
+| Date / owner | Scope / status | Implementation / evidence |
+| --- | --- | --- |
+| 13 Oct 2026 / Manuel | Approved Thermik dark/light logos and icon artwork | Dark header logo implemented; custom launcher-icon integration absent. [Brand record](../../assets/branding/README.md). |
+| 16 Oct 2026 / Manuel | Approved four-screen composition and reference fidelity | Native UI exists with documented photo/data-state differences. [Scope](../2026-10-16-four-screen-implementation.md), [refinement](../2026-10-16-ui-fidelity-refinement.md), [evidence](../../verification/2026-10-16-ui-fidelity-width-matrix.md). |
+| 17 Oct 2026 / Manuel | Approved five tabs, compact header/profile, aircraft and aircraft-share rings | [Shell report](../../verification/2026-10-17-native-shell-corrections.md) records Android checks and remaining iOS/physical limits. |
+| 18 Oct 2026 / Manuel | Approved B, contextual Back/provider Close, one active header, Connection → Med → Profile unknown | Medical follow-up in application `8b51f5a`. [Decision](../2026-10-18-header-status-review.md#package-1b-decision-checkpoint), [evidence](../../verification/2026-10-18-header-navigation.md). |
+| 18 Oct 2026 / Manuel | Authorized this handbook/export consolidation under #23 | Documentation implementation; no new appearance, code-token refactor or runtime acceptance. |
+
+## Preserved history
+
+| Source | Current use |
+| --- | --- |
+| [App design chronology](../app-design.md) | Original prototype choices/provenance; older refresh header, palettes, Medical expiry, goals and navigation do not override later decisions. |
+| [Screen content](../screen-content.md) | Content-placement history/requirements; apply current amendments and feature contracts. |
+| [Stitch archive](../design-sources/2026-10-16-stitch/README.md) / [DESIGN.md](../design-sources/2026-10-16-stitch/DESIGN.md) | Generated third-party source with typography/extra concepts not adopted wholesale. |
+| [Micro Bento](../design-sources/2026-10-16-micro-bento/README.md) | Earlier prototype context; later four-screen native reference controls fidelity. |
+| [Start alternatives](../2026-10-16-start-alternatives.md) | Two unselected compositions. |
+| [v0.30](../prototypes/2026-10-16-clickable-v030.html) | Historical interaction/icon vocabulary with synthetic states; catalogue appendix preserves it separately. |
+| [Header comparison](../prototypes/2026-10-18-header-icons-review.html) | A/B review history; B was subsequently selected. |
+| [Dark-concept review](../2026-10-13-dark-concept-review.md) | Earlier rationale and revisions, not a competing current guide. |
+
+## Known differences and open choices
+
+| Item | Current facts / disposition | Tracking |
+| --- | --- | --- |
+| Local styling literals | Shared theme plus local colors/gradients/geometry, including retained/unused declarations. Preserve appearance; semantic code cleanup is separate. | [Proposed follow-up #24](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/24), #5 |
+| Prototype popup/canvas/fonts | Pale v0.30 sheets, lighter canvas and Inter differ from current dark overlays/system fonts. Preserve current implementation and approved image/amendments; remaining fidelity disputes need concrete comparison/choice. | [#20](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/20) |
+| Photos / launcher icon | Licensed scenes substitute for exact reference scenes; approved icon PNGs are archived, not configured as native launcher icons. No replacement here. | #20 / [branding](../../assets/branding/README.md) |
+| Icon coherence / targets / focus | Mixed native shapes/Unicode and small inner faces remain. Review actual touch areas and keyboard/screen-reader focus; no universal authored focus treatment or new accessibility acceptance. | #20 / [#8](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/8) |
+| Connected data | Medical/AI/weather/club presentation retains unknown/unavailable states. This guide establishes no evidence source/integration. | Existing #20/#7/#10/#13 scopes |
+| Runtime limits | Existing Android checks are source-specific. Spoken TalkBack, iOS, physical-device and positive provider-history/original-page keyboard remain separate. | #20/#8 and linked reports |
+
+No new visual choice is needed to finish consolidation: explicit amendments resolve the chronology; unresolved appearance changes remain for later review.
+
+## Maintenance and evidence
+
+- 18 Oct 2026: 51-entry symbol catalogue and README index introduced. IDs/assets are preserved in this consolidation.
+- 18 Oct 2026: chapters, complete source-literal inventory, component shape examples and portable/copyable views assembled under #23. Application UI and original assets are unchanged.
+
+Regenerate with `python scripts/design_handbook.py`; validate freshness/links/coverage with `python scripts/design_handbook.py --check`. Focused tooling checks: `python -m unittest discover -s tests -p test_design_handbook.py -v`. The command normalizes source line endings before hashing and performs no network/app operations. [Package verification](../../verification/2026-10-18-design-handbook.md) records actual results and limits.

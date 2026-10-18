@@ -1,0 +1,57 @@
+{
+  "background": [
+    "surface.canvas",
+    "Primary dark canvas",
+    "text / muted"
+  ],
+  "card": [
+    "surface.card",
+    "Card fallback; actual shared card adds a gradient",
+    "text / muted"
+  ],
+  "raised": [
+    "surface.raised",
+    "Raised / secondary action surface",
+    "text"
+  ],
+  "border": [
+    "stroke.default",
+    "Shared card/control outlines",
+    "dark surfaces"
+  ],
+  "text": [
+    "text.primary",
+    "Primary readable text",
+    "background / card / raised"
+  ],
+  "muted": [
+    "text.secondary",
+    "Supporting text and inactive symbols",
+    "dark surfaces"
+  ],
+  "blue": [
+    "action.primary",
+    "Shared filled action and selected-chip base",
+    "#031326 action text"
+  ],
+  "cyan": [
+    "accent.general",
+    "General links, metrics and accents; tab selection has its own literal",
+    "dark surfaces"
+  ],
+  "purple": [
+    "accent.assistant.family",
+    "Exported assistant-family token; dashboard uses local variants",
+    "light text; check displayed panel"
+  ],
+  "orange": [
+    "accent.paper.family",
+    "Exported paper-family token; hero uses local orange variants",
+    "dark action text in context"
+  ],
+  "green": [
+    "feedback.saved",
+    "Local profile saved text; also a chart-palette color",
+    "dark surfaces; meaning needs text"
+  ]
+}

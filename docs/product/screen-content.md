@@ -1,5 +1,7 @@
 # MoFlight screen content and placement
 
+For current visual directives, colors, typography, shapes and navigation presentation, use the [UI design handbook](design/README.md). This file retains content-placement requirements and their history; historical prototype descriptions do not establish current implementation status.
+
 ## Native shell update — 17 October 2026
 
 Current native navigation is Übersicht / Flüge / Flugbuch / Verein / AI. A compact shared header stays fixed, shows the approved Thermik logo and opens Profil & Einstellungen from its far-right user control. Flüge remains saved searchable history; Flugbuch contains selected-book/paper status and access to existing reconciliation/writing tools. Local profile display name persists per synthetic library; cloud account, goals/medical and language switching remain unconnected. Season rings represent actual aircraft shares of flight count and known minutes. See [scope and acceptance](2026-10-17-native-shell-corrections.md). Historical screen specifications below retain their original statuses. [Verified native result](../verification/2026-10-17-native-shell-corrections.md): fixed header, five tabs, local profile and segmented rings implemented; physical retest and cloud integrations remain open.

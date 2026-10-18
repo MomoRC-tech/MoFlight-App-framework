@@ -1,0 +1,753 @@
+{
+  "schema": 1,
+  "inspected_application_commit": "8b51f5ab3fe1883e9c5e54ac2d3a30b822e2ab46",
+  "groups": [
+    {
+      "title": "Main navigation",
+      "intro": "Five persistent destinations. Selected icons and labels use #00c8ff; inactive ones use #adbed5. The tab label and accessible selected state carry meaning too.",
+      "entries": [
+        {
+          "id": "N01",
+          "title": "Home / Übersicht",
+          "status": "Current native UI",
+          "sample": "<span class=\"glyph\" aria-hidden=\"true\">⌂</span>",
+          "appearance": "⌂ (U+2302): house-shaped text glyph.",
+          "where": "Bottom navigation, Übersicht.",
+          "meaning": "The dashboard: paper-logbook work, season summary, latest flight, AI entry, club and weather panels.",
+          "behavior": "Tap switches to Übersicht.",
+          "states": "Selected / inactive. This is navigation, not an indicator that all data is current.",
+          "file": "apps/platform-lab/src/mobile/MobileApp.tsx",
+          "locator": "tabs; bottom tablist"
+        },
+        {
+          "id": "N02",
+          "title": "Flights / Flüge",
+          "status": "Current native UI",
+          "sample": "<img src=\"asset:apps/platform-lab/assets/icons/aircraft-side.png\" alt=\"Current side-view aircraft B\">",
+          "appearance": "Authored side-view aircraft B, shown as a tinted transparent bitmap.",
+          "where": "Bottom navigation, Flüge.",
+          "meaning": "Saved searchable flight history for the selected book.",
+          "behavior": "Tap switches to Flüge; existing year/search/training state is retained.",
+          "states": "Selected / inactive. Candidate B was selected on 18 October 2026.",
+          "file": "apps/platform-lab/src/mobile/ShellIcons.tsx",
+          "locator": "PlaneIcon; assets/icons/aircraft-side.svg is the editable master"
+        },
+        {
+          "id": "N03",
+          "title": "Logbook / Flugbuch",
+          "status": "Current native UI",
+          "sample": "<svg viewBox=\"0 0 28 28\" aria-hidden=\"true\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M2 5l12 2v20L2 25zM14 7l12-2v20l-12 2M6 11h5m-5 4h5m-5 4h5m6-8h5m-5 4h5m-5 4h5\"/></svg>",
+          "appearance": "Custom outline of an open book, with a central fold and ruled pages.",
+          "where": "Bottom navigation, Flugbuch.",
+          "meaning": "Selected book, paper-entry status, reconciliation and writing-template tools.",
+          "behavior": "Tap switches to Flugbuch.",
+          "states": "Selected / inactive. Distinguish the destination from the orange paper-work action D01.",
+          "file": "apps/platform-lab/src/mobile/ShellIcons.tsx",
+          "locator": "BookIcon; MobileApp bottom tablist"
+        },
+        {
+          "id": "N04",
+          "title": "Club / Verein",
+          "status": "Current native UI",
+          "sample": "<svg viewBox=\"0 0 28 30\" aria-hidden=\"true\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"8\" cy=\"4\" r=\"4\"/><rect x=\"2\" y=\"10\" width=\"12\" height=\"16\" rx=\"4\"/><circle cx=\"20\" cy=\"7\" r=\"4\"/><rect x=\"14\" y=\"13\" width=\"12\" height=\"16\" rx=\"4\"/></svg>",
+          "appearance": "Two outlined people, slightly offset.",
+          "where": "Bottom navigation, Verein.",
+          "meaning": "Club overview, duties, appointments and notices.",
+          "behavior": "Tap switches to Verein.",
+          "states": "Selected / inactive. The sections currently show missing-source states; no live club feed is implied.",
+          "file": "apps/platform-lab/src/mobile/theme.tsx",
+          "locator": "ClubMark; MobileApp bottom tablist"
+        },
+        {
+          "id": "N05",
+          "title": "AI assistant / AI",
+          "status": "Current native UI",
+          "sample": "<span class=\"glyph\" aria-hidden=\"true\">✧</span>",
+          "appearance": "✧ (U+2727): outlined four-point sparkle.",
+          "where": "Bottom navigation; AI welcome card.",
+          "meaning": "Entry to MoFlight AI and available deterministic local flight questions.",
+          "behavior": "Tab tap opens AI. The welcome-card sparkle is decorative.",
+          "states": "Selected / inactive tab. A sparkle does not mean the external AI service is connected.",
+          "file": "apps/platform-lab/src/mobile/MobileApp.tsx",
+          "locator": "tabs; AI welcome card"
+        }
+      ]
+    },
+    {
+      "title": "Header and provider-session states",
+      "intro": "The current app header order is Connection → Med → Profile. App overlays keep one active accessible header. The provider panel has its own Close, provider-history Back and connection indicator; it does not show the entire three-control group.",
+      "entries": [
+        {
+          "id": "H01",
+          "title": "MoFlight Thermik brand",
+          "status": "Current native UI",
+          "sample": "<img src=\"asset:docs/assets/branding/moflight-ai-logo-dark.png\" alt=\"Approved dark MoFlight Thermik logo\">",
+          "appearance": "Square navy logo: glider, rising thermal curve, sparkles, MoFlight wordmark and AI badge.",
+          "where": "Leading side of the main app header.",
+          "meaning": "Project identity, gliding and planned AI-assisted functionality.",
+          "behavior": "Decorative brand image with an accessibility label; no tap action. A contextual Back control takes its place on app overlays.",
+          "states": "Approved existing artwork. Preserve it in this symbol-redesign brief. It is not an AI-availability badge.",
+          "file": "apps/platform-lab/src/mobile/AppHeader.tsx",
+          "locator": "brandLogo; header Image"
+        },
+        {
+          "id": "H02",
+          "title": "App Back",
+          "status": "Current native UI",
+          "sample": "<svg viewBox=\"0 0 28 28\" aria-hidden=\"true\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M18 5L8 14l10 9\" stroke-width=\"3\"/></svg>",
+          "appearance": "Custom left chevron inside a lavender rounded square.",
+          "where": "Leading side of app-sheet and flight-detail headers.",
+          "meaning": "Return through MoFlight navigation history.",
+          "behavior": "Returns to the prior app overlay or page, preserving its state. Choosing a different book clears old flight-detail history.",
+          "states": "Shown on app overlays. This is separate from provider webpage history A12.",
+          "file": "apps/platform-lab/src/mobile/AppHeader.tsx",
+          "locator": "back; styles.backArrow; MobileApp.closeOverlay"
+        },
+        {
+          "id": "H03",
+          "title": "Provider connection",
+          "status": "Current native UI",
+          "sample": "<span class=\"connection\" style=\"color:#adbed5\"><svg viewBox=\"0 0 27 25\" aria-hidden=\"true\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><g transform=\"rotate(-45 13.5 12.5)\"><rect x=\"3\" y=\"1\" width=\"12\" height=\"18\" rx=\"6\"/><rect x=\"12\" y=\"6\" width=\"12\" height=\"18\" rx=\"6\"/><path d=\"M13.5 9v7\"/></g></svg><b>?</b></span>",
+          "appearance": "Two diagonal chain links plus a small state badge; a spinner replaces them during work.",
+          "where": "App-header connection button; provider panel/toolbar.",
+          "meaning": "Evidence about the Vereinsflieger session and provisional account association.",
+          "behavior": "In the app header, opens Verbindungen. In the provider panel it is informational; during visible login, tapping it dismisses the login page back to the connection panel.",
+          "states": "See S01–S05. Saved-flight freshness, MoFlight identity and provider-session status are separate.",
+          "file": "apps/platform-lab/src/mobile/ProviderConnection.tsx",
+          "locator": "ConnectionIndicator; connection-guidance.ts"
+        },
+        {
+          "id": "H04",
+          "title": "Medical / Med",
+          "status": "Current native UI",
+          "sample": "<svg viewBox=\"0 0 18 18\" aria-hidden=\"true\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M2 1v4a5 5 0 0 0 10 0V1M1 1h3m5 0h3M6 9v3a4.5 4 0 0 0 9 0v-1\"/><circle cx=\"14.5\" cy=\"8.5\" r=\"2.5\"/></svg><span class=\"mini-label\">Med<br>unbekannt</span>",
+          "appearance": "Small stethoscope beside Med; second line says unbekannt.",
+          "where": "App header, between Connection and Profile.",
+          "meaning": "Medical-record status. Current source, class and expiry are unknown.",
+          "behavior": "Tap opens the read-only Medical explanation sheet.",
+          "states": "Current state is unknown only. No input, expiry date, reminder or fit-to-fly judgment is implemented. The selected accessibility state follows the open sheet.",
+          "file": "apps/platform-lab/src/mobile/MedicalStatus.tsx",
+          "locator": "MedicalIndicator; MedicalDetails; ShellIcons.MedicalIcon"
+        },
+        {
+          "id": "H05",
+          "title": "Profile and settings",
+          "status": "Current native UI",
+          "sample": "<svg viewBox=\"0 0 28 28\" aria-hidden=\"true\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"14\" cy=\"6.5\" r=\"4.5\"/><path d=\"M3 26v-3a11 9 0 0 1 22 0v3z\"/></svg>",
+          "appearance": "Outline of one person: circular head and shoulders.",
+          "where": "Far-right app-header action.",
+          "meaning": "Local demo profile and app settings/tools.",
+          "behavior": "Opens Profil & Einstellungen: local display name, books/data, connections, appearance information and credits/tools.",
+          "states": "No avatar, provider identity or authenticated MoFlight-account status is conveyed.",
+          "file": "apps/platform-lab/src/mobile/ShellIcons.tsx",
+          "locator": "ProfileIcon; MobileApp.statusControls"
+        },
+        {
+          "id": "S01",
+          "title": "Session unverified / unknown",
+          "status": "Current native UI",
+          "sample": "<span class=\"connection\" style=\"color:#adbed5\"><svg viewBox=\"0 0 27 25\" aria-hidden=\"true\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><g transform=\"rotate(-45 13.5 12.5)\"><rect x=\"3\" y=\"1\" width=\"12\" height=\"18\" rx=\"6\"/><rect x=\"12\" y=\"6\" width=\"12\" height=\"18\" rx=\"6\"/><path d=\"M13.5 9v7\"/></g></svg><b>?</b></span>",
+          "appearance": "? (U+003F) badge; muted gray-blue chain.",
+          "where": "Connection indicator when no stronger usable observation exists.",
+          "meaning": "Current session is not established by the available evidence.",
+          "behavior": "The containing connection button opens details; this badge has no independent action.",
+          "states": "Includes unknown/disconnected and incomplete observations. An old cookie or failure to inspect a page is not proof of login or logout.",
+          "file": "apps/platform-lab/src/mobile/connection-guidance.ts",
+          "locator": "connectionSymbol default; connectionGuidance"
+        },
+        {
+          "id": "S02",
+          "title": "Last confirmed session check",
+          "status": "Current native UI",
+          "sample": "<span class=\"connection\" style=\"color:#74dfba\"><svg viewBox=\"0 0 27 25\" aria-hidden=\"true\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><g transform=\"rotate(-45 13.5 12.5)\"><rect x=\"3\" y=\"1\" width=\"12\" height=\"18\" rx=\"6\"/><rect x=\"12\" y=\"6\" width=\"12\" height=\"18\" rx=\"6\"/><path d=\"M13.5 9v7\"/></g></svg><b>✓</b></span>",
+          "appearance": "✓ (U+2713) badge; mint-green chain.",
+          "where": "Connection indicator after a confirmed matching profile observation with a check time.",
+          "meaning": "A previous session check matched the provisional account association.",
+          "behavior": "Open details to read the last-check time and available next action.",
+          "states": "Requires observed + confirmed + observed identity + lastCheckedAt. No automatic expiry threshold is implemented; a tick does not promise continuous login or fresh imported flights.",
+          "file": "apps/platform-lab/src/mobile/connection-guidance.ts",
+          "locator": "connectionSymbol confirmed branch"
+        },
+        {
+          "id": "S03",
+          "title": "Provider login required",
+          "status": "Current native UI",
+          "sample": "<span class=\"connection\" style=\"color:#ffc477\"><svg viewBox=\"0 0 27 25\" aria-hidden=\"true\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><g transform=\"rotate(-45 13.5 12.5)\"><rect x=\"3\" y=\"1\" width=\"12\" height=\"18\" rx=\"6\"/><rect x=\"12\" y=\"6\" width=\"12\" height=\"18\" rx=\"6\"/><path d=\"M13.5 9v7\"/></g></svg><b>→</b></span>",
+          "appearance": "→ (U+2192) badge; amber chain.",
+          "where": "Connection indicator for login-required.",
+          "meaning": "Login on the original Vereinsflieger page is required.",
+          "behavior": "Open Verbindungen and use the sign-in action. The badge itself does not submit credentials.",
+          "states": "Login-required state. Keep distinct from the same arrow used for route direction or forward navigation.",
+          "file": "apps/platform-lab/src/mobile/connection-guidance.ts",
+          "locator": "connectionSymbol login-required branch"
+        },
+        {
+          "id": "S04",
+          "title": "Connection attention / blocked",
+          "status": "Current native UI",
+          "sample": "<span class=\"connection\" style=\"color:#ffb39e\"><svg viewBox=\"0 0 27 25\" aria-hidden=\"true\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><g transform=\"rotate(-45 13.5 12.5)\"><rect x=\"3\" y=\"1\" width=\"12\" height=\"18\" rx=\"6\"/><rect x=\"12\" y=\"6\" width=\"12\" height=\"18\" rx=\"6\"/><path d=\"M13.5 9v7\"/></g></svg><b>!</b></span>",
+          "appearance": "! (U+0021) badge; salmon attention color.",
+          "where": "Connection indicator for mismatch, error, unconfirmed observed identity, or pending recovery.",
+          "meaning": "Something needs review: account/club mismatch, failed checking, association confirmation, or recovery blocking retrieval.",
+          "behavior": "Open details to understand the specific reason and next action.",
+          "states": "Recovery forces the ! badge. Several causes share the shape, so accompanying accessible wording/details must distinguish them. A session error does not prove logout.",
+          "file": "apps/platform-lab/src/mobile/ProviderConnection.tsx",
+          "locator": "ConnectionIndicator recovery override; connectionSymbol attention branch"
+        },
+        {
+          "id": "S05",
+          "title": "Busy / checking / saving",
+          "status": "Current native UI",
+          "sample": "<span class=\"spinner\" aria-hidden=\"true\"></span>",
+          "appearance": "Native ActivityIndicator: indeterminate spinner. The sample here is a schematic still.",
+          "where": "Connection indicator and operation panels; local-library/profile loading.",
+          "meaning": "Work is in progress; the result is not known yet.",
+          "behavior": "No separate action on the spinner. The containing control and explicit operation buttons define available actions.",
+          "states": "Connection pending covers clearing, binding, busy retrieval/restoring/saving, login attempt, disconnect checking and session checking. Local/profile spinners mean their own named operation. This is not percentage progress.",
+          "file": "apps/platform-lab/src/mobile/ProviderConnection.tsx",
+          "locator": "ConnectionIndicator.pending/operation; MobileApp; ProfileSettings"
+        }
+      ]
+    },
+    {
+      "title": "Dashboard, flight information and club headings",
+      "intro": "Samples reproduce text glyphs and existing image assets. Native View-based marks and chart examples are schematic browser redraws, not screenshots. Chart values below are synthetic examples.",
+      "entries": [
+        {
+          "id": "D01",
+          "title": "Paper logbook work",
+          "status": "Current native UI",
+          "sample": "<span class=\"glyph\" aria-hidden=\"true\">▱</span>",
+          "appearance": "▱ (U+25B1): slanted outlined parallelogram in an orange rounded tile.",
+          "where": "Papierflugbuch aktualisieren hero; Als Nächstes paper-review item.",
+          "meaning": "Review outstanding paper entries and reconcile the selected logbook.",
+          "behavior": "Tap the hero or next-action row to open the existing paper-logbook tools.",
+          "states": "Smaller/larger instances share the same meaning. Pending count may be unknown or zero; the glyph alone is not proof that an entry has been copied.",
+          "file": "apps/platform-lab/src/mobile/Dashboard.tsx",
+          "locator": "hero; styles.paperIcon; styles.smallPaperIcon"
+        },
+        {
+          "id": "D02",
+          "title": "AI suggestion",
+          "status": "Current native UI",
+          "sample": "<span class=\"glyph\" aria-hidden=\"true\">✦</span>",
+          "appearance": "✦ (U+2726): filled four-point sparkle, currently purple.",
+          "where": "Dashboard MoFlight AI card.",
+          "meaning": "Shortcut to a sample flight-history question.",
+          "behavior": "Tap the card to open AI and prefill the most-frequently-flown-aircraft question; it does not automatically send it.",
+          "states": "Same semantic family as N05, with a different current glyph. External AI service remains unconnected.",
+          "file": "apps/platform-lab/src/mobile/Dashboard.tsx",
+          "locator": "styles.sparkle; onAi; MobileApp.ask"
+        },
+        {
+          "id": "D03",
+          "title": "Glider / no flight track",
+          "status": "Current native UI",
+          "sample": "<svg viewBox=\"0 0 28 30\" aria-hidden=\"true\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><g transform=\"rotate(-12 14 15)\"><path d=\"M0 12h28M14 1l-1 27m-3-3h10\" stroke-width=\"2\"/></g></svg>",
+          "appearance": "Thin, slightly tilted glider drawn from three native line shapes.",
+          "where": "Latest-flight dashboard tile; flight-list thumbnail beside Kein Track.",
+          "meaning": "Aviation marker and placeholder when no flight track is available.",
+          "behavior": "No independent action. The latest-flight card or flight row opens flight details.",
+          "states": "Not a GPS route, map, live aircraft position or additional flight category.",
+          "file": "apps/platform-lab/src/mobile/theme.tsx",
+          "locator": "GliderMark; Dashboard latest; MobileApp.FlightRow"
+        },
+        {
+          "id": "D04",
+          "title": "Time / duration",
+          "status": "Current native UI",
+          "sample": "<span class=\"glyph\" aria-hidden=\"true\">◷</span>",
+          "appearance": "◷ (U+25F7): circle with a quarter/time-like shape.",
+          "where": "Flight rows/latest flight; club duty card before Zeit.",
+          "meaning": "Flight duration in flight contexts; scheduled time in duty context.",
+          "behavior": "Read-only field marker; any navigation belongs to the surrounding card.",
+          "states": "May sit beside an unknown value (—). A clock does not mean the data is live or the duration is complete.",
+          "file": "apps/platform-lab/src/mobile/MobileApp.tsx",
+          "locator": "FlightRow; club duty card; Dashboard latest"
+        },
+        {
+          "id": "D05",
+          "title": "Location / start field",
+          "status": "Current native UI",
+          "sample": "<span class=\"glyph\" aria-hidden=\"true\">⌖</span>",
+          "appearance": "⌖ (U+2316): target/crosshair-style position glyph.",
+          "where": "Dashboard club tile and club duty card before Startplatz.",
+          "meaning": "The start-field/location field of the club item.",
+          "behavior": "Read-only field marker; card actions navigate separately.",
+          "states": "Currently paired with an unknown value. No current GPS location or location permission is implied.",
+          "file": "apps/platform-lab/src/mobile/Dashboard.tsx",
+          "locator": "club tile; MobileApp club duty card"
+        },
+        {
+          "id": "D06",
+          "title": "Weather",
+          "status": "Current native UI",
+          "sample": "<span class=\"glyph\" aria-hidden=\"true\">☁</span>",
+          "appearance": "☁ (U+2601): cloud.",
+          "where": "Dashboard Wetter & Platz card.",
+          "meaning": "Weather information category.",
+          "behavior": "Tap the card to view the status explanation.",
+          "states": "Currently Kein Wetterbericht / no dated source. The cloud is a placeholder category icon, not a measured cloudy-weather report.",
+          "file": "apps/platform-lab/src/mobile/Dashboard.tsx",
+          "locator": "Wetter & Platz card; onStatus"
+        },
+        {
+          "id": "D07",
+          "title": "Season flight-count ring",
+          "status": "Current native UI",
+          "sample": "<span class=\"ring\"><strong>12</strong><small>Flüge</small></span>",
+          "appearance": "Segmented donut with count in the center. Example shown: 12.",
+          "where": "Dashboard Deine Saison, first ring.",
+          "meaning": "Aircraft-registration shares of the current season flight count in the selected book.",
+          "behavior": "The season card opens the current-year flight list; rings have no independent expand/breakdown action in native code.",
+          "states": "Colors are stable by registration and can repeat; they are not unique identifiers. Empty data has no colored arc. This is a distribution, not progress toward a goal.",
+          "file": "apps/platform-lab/src/mobile/SeasonRing.tsx",
+          "locator": "Dashboard.seasonCards; season-model.seasonRingSlices(count)"
+        },
+        {
+          "id": "D08",
+          "title": "Season known-time ring",
+          "status": "Current native UI",
+          "sample": "<span class=\"ring\"><strong>4:30</strong><small>bekannte h</small></span>",
+          "appearance": "Segmented donut with known flight time in the center. Example shown: 4:30.",
+          "where": "Dashboard Deine Saison, second ring.",
+          "meaning": "Aircraft shares of known flight minutes for the same selected book/year.",
+          "behavior": "The season card opens the current-year flight list.",
+          "states": "Unknown duration stays unknown and is disclosed separately; it is excluded from known-time shares. Rings are hidden at enlarged text or when values do not fit. No prior-year comparison or target attainment is claimed.",
+          "file": "apps/platform-lab/src/mobile/SeasonRing.tsx",
+          "locator": "Dashboard.seasonCards; season-model.seasonRingSlices(knownMinutes)"
+        },
+        {
+          "id": "K01",
+          "title": "Next club duty",
+          "status": "Current native UI",
+          "sample": "<span class=\"glyph\" aria-hidden=\"true\">▣</span>",
+          "appearance": "▣ (U+25A3): square containing a smaller filled square.",
+          "where": "Verein card heading Nächster Dienst.",
+          "meaning": "Duty/assignment section marker.",
+          "behavior": "The symbol is decorative; Details anzeigen opens the status sheet in the current implementation.",
+          "states": "No duty assignment is currently available. Avoid interpreting this generic square as a checkbox or confirmed duty.",
+          "file": "apps/platform-lab/src/mobile/MobileApp.tsx",
+          "locator": "club section Nächster Dienst"
+        },
+        {
+          "id": "K02",
+          "title": "Upcoming club appointments",
+          "status": "Current native UI",
+          "sample": "<span class=\"glyph\" aria-hidden=\"true\">♧</span>",
+          "appearance": "♧ (U+2667): outlined club-suit/trefoil glyph.",
+          "where": "Verein overview heading Kommende Termine.",
+          "meaning": "Club events/calendar category.",
+          "behavior": "The symbol is decorative. Alle anzeigen switches the club subsection to Termine.",
+          "states": "No calendar source is connected. This glyph is not the current two-person Verein navigation icon.",
+          "file": "apps/platform-lab/src/mobile/MobileApp.tsx",
+          "locator": "club section Kommende Termine"
+        },
+        {
+          "id": "K03",
+          "title": "Club notices",
+          "status": "Current native UI",
+          "sample": "<span class=\"glyph\" aria-hidden=\"true\">▧</span>",
+          "appearance": "▧ (U+25A7): diagonally hatched square.",
+          "where": "Verein heading Aktuelle Mitteilungen.",
+          "meaning": "Club notices, news or documents category.",
+          "behavior": "The symbol is decorative. Alle anzeigen switches to Mitteilungen.",
+          "states": "No notice/document source is connected; no unread count is implied.",
+          "file": "apps/platform-lab/src/mobile/MobileApp.tsx",
+          "locator": "club section Aktuelle Mitteilungen"
+        }
+      ]
+    },
+    {
+      "title": "Actions and navigation cues",
+      "intro": "Several repeated characters have different meanings by context. Redesign each semantic role, while keeping related navigation controls visually consistent.",
+      "entries": [
+        {
+          "id": "A01",
+          "title": "Search flights",
+          "status": "Current native UI",
+          "sample": "<span class=\"glyph\" aria-hidden=\"true\">⌕</span>",
+          "appearance": "⌕ (U+2315): search-like text glyph.",
+          "where": "Inside the Flüge search field.",
+          "meaning": "Search saved flights.",
+          "behavior": "The glyph is decorative; editing the field filters local flights alongside year and training-role selections.",
+          "states": "Search is scoped to the selected book. No provider lookup is triggered.",
+          "file": "apps/platform-lab/src/mobile/MobileApp.tsx",
+          "locator": "flightHeader; searchBox"
+        },
+        {
+          "id": "A02",
+          "title": "Open flight filters",
+          "status": "Current native UI",
+          "sample": "<span class=\"glyph\" aria-hidden=\"true\">☷</span>",
+          "appearance": "☷ (U+2637): stacked/broken-line trigram used as a filter symbol.",
+          "where": "Button beside flight search.",
+          "meaning": "Additional controls for filtering saved flights.",
+          "behavior": "Tap opens Flugfilter; existing year, search and training filters work together.",
+          "states": "The current glyph has no active-filter dot/count. Do not invent support for additional flight classifications.",
+          "file": "apps/platform-lab/src/mobile/MobileApp.tsx",
+          "locator": "flightHeader; filterButton; filters sheet"
+        },
+        {
+          "id": "A03",
+          "title": "Choose logbook",
+          "status": "Current native UI",
+          "sample": "<span class=\"glyph\" aria-hidden=\"true\">⌄</span>",
+          "appearance": "⌄ (U+2304): downward arrowhead/chevron.",
+          "where": "Selected-book label in the flight header and synthetic-library banner.",
+          "meaning": "An expandable choice of local logbooks.",
+          "behavior": "Tap the containing button opens Flugbuch auswählen.",
+          "states": "Current selection is shown by name and tick A10. Selection respects the book boundary and clears old flight-detail navigation.",
+          "file": "apps/platform-lab/src/mobile/MobileApp.tsx",
+          "locator": "stateBanner; headerBook; selectBook sheet"
+        },
+        {
+          "id": "A04",
+          "title": "Reload local data",
+          "status": "Current native UI",
+          "sample": "<span class=\"glyph\" aria-hidden=\"true\">↻</span>",
+          "appearance": "↻ (U+21BB): clockwise open circular arrow.",
+          "where": "Synthetic-library banner next to Aktualisieren.",
+          "meaning": "Reload the saved local library into the UI.",
+          "behavior": "Tap calls library.reload().",
+          "states": "Disabled while the library is busy. This control does not retrieve provider flights or imply cloud synchronization.",
+          "file": "apps/platform-lab/src/mobile/MobileApp.tsx",
+          "locator": "stateBanner; Lokale Daten aktualisieren"
+        },
+        {
+          "id": "A05",
+          "title": "Unavailable classification information",
+          "status": "Current native UI",
+          "sample": "<span class=\"glyph\" aria-hidden=\"true\">ⓘ</span>",
+          "appearance": "ⓘ (U+24D8): circled lowercase i.",
+          "where": "Strecke and Platzrunden chips in Flüge.",
+          "meaning": "This classification is not supported by the stored flight contract.",
+          "behavior": "Tap opens Klassifikation nicht verfügbar and preserves the active filter.",
+          "states": "Informational, not a working route/circuit filter. It does not mean the displayed flight was classified with low confidence.",
+          "file": "apps/platform-lab/src/mobile/MobileApp.tsx",
+          "locator": "flightHeader chips; unsupported sheet"
+        },
+        {
+          "id": "A06",
+          "title": "Open row / supporting destination",
+          "status": "Current native UI",
+          "sample": "<span class=\"glyph\" aria-hidden=\"true\">›</span>",
+          "appearance": "› (U+203A): right-pointing chevron.",
+          "where": "Flight rows, AI example questions and supporting club/status links.",
+          "meaning": "The containing row leads to details or another destination.",
+          "behavior": "Flight row opens details; AI question runs a supported local calculation and fills the draft; status/club links open their named destination.",
+          "states": "No separate control inside the row. Preserve the surrounding accessible action label.",
+          "file": "apps/platform-lab/src/mobile/MobileApp.tsx",
+          "locator": "FlightRow; questionGrid; supporting status link; Dashboard next actions"
+        },
+        {
+          "id": "A07",
+          "title": "Forward / continue action",
+          "status": "Current native UI",
+          "sample": "<span class=\"glyph\" aria-hidden=\"true\">→</span>",
+          "appearance": "→ (U+2192): right arrow.",
+          "where": "Paper CTA, AI dashboard shortcut, duty Details anzeigen, saved-flights links.",
+          "meaning": "Continue to the action/destination named by the adjacent text.",
+          "behavior": "Invokes the surrounding card/button: paper tools, AI draft, current status sheet or saved-flight list.",
+          "states": "No automatic completion, upload or import is implied. Same character as A08 and S03, with different semantics.",
+          "file": "apps/platform-lab/src/mobile/Dashboard.tsx",
+          "locator": "hero CTA; AI card; MobileApp duty and saved-flights links"
+        },
+        {
+          "id": "A08",
+          "title": "Departure to arrival",
+          "status": "Current native UI",
+          "sample": "<span class=\"glyph\" aria-hidden=\"true\">→</span>",
+          "appearance": "→ (U+2192) placed between start and landing field names.",
+          "where": "Latest-flight tile; flight rows.",
+          "meaning": "Direction of the recorded departure-to-arrival relationship.",
+          "behavior": "Read-only separator inside flight information; no independent navigation.",
+          "states": "Either endpoint may be unknown. It does not represent a measured route, distance or flight track.",
+          "file": "apps/platform-lab/src/mobile/MobileApp.tsx",
+          "locator": "FlightRow; Dashboard latest"
+        },
+        {
+          "id": "A09",
+          "title": "Send AI message",
+          "status": "Current native UI",
+          "sample": "<span class=\"glyph\" aria-hidden=\"true\">➤</span>",
+          "appearance": "➤ (U+27A4): filled right-pointing arrowhead.",
+          "where": "AI composer send button.",
+          "meaning": "Submit the typed question to the AI interaction.",
+          "behavior": "Current handler reports that the AI service is unavailable and retains the draft; no message is sent.",
+          "states": "Disabled for blank input or while sending; dimmed when blank. Preserve a distinct send-button role and accessible Nachricht senden label.",
+          "file": "apps/platform-lab/src/mobile/MobileApp.tsx",
+          "locator": "composer; send handler"
+        },
+        {
+          "id": "A10",
+          "title": "Selected logbook",
+          "status": "Current native UI",
+          "sample": "<span class=\"glyph\" aria-hidden=\"true\">✓</span>",
+          "appearance": "✓ (U+2713) before the selected book name.",
+          "where": "Flugbuch auswählen sheet.",
+          "meaning": "This book is the active local selection.",
+          "behavior": "Tap a book row selects it and closes the sheet. The tick itself is not a separate button.",
+          "states": "Selection marker, not provider-session confirmation, paper-entry completion or successful import.",
+          "file": "apps/platform-lab/src/mobile/MobileApp.tsx",
+          "locator": "selectBook sheet"
+        },
+        {
+          "id": "A11",
+          "title": "Expand / collapse details",
+          "status": "Current native UI",
+          "sample": "<span class=\"glyph\" aria-hidden=\"true\">+  −</span>",
+          "appearance": "+ (U+002B) when collapsed; − (U+2212) when expanded.",
+          "where": "Verbindungen: Sitzungsdetails & weitere Optionen; Entwicklungswerkzeuge · Rohbelege.",
+          "meaning": "Show or hide optional detail/tool sections.",
+          "behavior": "Tap toggles the corresponding disclosure and accessible expanded state.",
+          "states": "No creation, addition, deletion or subtraction of user data. Collapses when the connection panel closes.",
+          "file": "apps/platform-lab/src/mobile/ProviderConnection.tsx",
+          "locator": "details/lab disclosure Pressables"
+        },
+        {
+          "id": "A12",
+          "title": "Back inside provider webpage",
+          "status": "Current native UI",
+          "sample": "<span class=\"glyph\" aria-hidden=\"true\">‹</span>",
+          "appearance": "‹ (U+2039) before Anbieterseite zurück.",
+          "where": "Original-provider login toolbar.",
+          "meaning": "Move backward in the embedded Vereinsflieger webpage history.",
+          "behavior": "Tap calls backWithinProvider().",
+          "states": "Disabled while operations are locked or provider history cannot go back. Different scope from MoFlight Back H02. Schließen is a separate text-only action and does not sign out.",
+          "file": "apps/platform-lab/src/mobile/ProviderConnection.tsx",
+          "locator": "loginBar; backWithinProvider"
+        }
+      ]
+    },
+    {
+      "title": "Data notation and visual state markers",
+      "intro": "These are part of the symbol language too, even where replacing them with pictograms would be unnecessary.",
+      "entries": [
+        {
+          "id": "T01",
+          "title": "Unknown / unavailable value",
+          "status": "Current native UI",
+          "sample": "<span class=\"glyph\" aria-hidden=\"true\">—</span>",
+          "appearance": "— (U+2014): em dash in a value field.",
+          "where": "Missing places/times, distance/weather placeholders and unavailable summaries.",
+          "meaning": "The value is not available in that context.",
+          "behavior": "Read-only notation. Explanatory text supplies the reason where known.",
+          "states": "Never turn unknown into zero, a negative result or an invented measurement. An actually known numeric zero keeps its own meaning.",
+          "file": "apps/platform-lab/src/mobile/Dashboard.tsx",
+          "locator": "weather/latest/club placeholders; MobileApp metrics and fields"
+        },
+        {
+          "id": "T02",
+          "title": "Average per flight",
+          "status": "Current native UI",
+          "sample": "<span class=\"glyph\" aria-hidden=\"true\">Ø</span>",
+          "appearance": "Ø (U+00D8) in Ø pro Flug.",
+          "where": "Flüge summary strip.",
+          "meaning": "Average flight duration.",
+          "behavior": "Read-only statistic label; calculations remain deterministic.",
+          "states": "A missing duration makes the overall average incomplete; the existing missing-time notice must remain clear.",
+          "file": "apps/platform-lab/src/mobile/MobileApp.tsx",
+          "locator": "flightHeader statsStrip; flight-model.summarizeFlights"
+        },
+        {
+          "id": "T03",
+          "title": "Recorded pilot-role badge",
+          "status": "Current native UI",
+          "sample": "<span class=\"role-badge\">Schulung</span>",
+          "appearance": "Rounded text pill, commonly Schulung or a recorded role such as PIC/FI.",
+          "where": "Flight row beside duration.",
+          "meaning": "The saved role for this flight; Dual is displayed as Schulung.",
+          "behavior": "Read-only badge inside the row; the surrounding row opens details.",
+          "states": "Rendered only when a role exists. A role badge is not an inferred qualification or permission.",
+          "file": "apps/platform-lab/src/mobile/MobileApp.tsx",
+          "locator": "FlightRow badge"
+        },
+        {
+          "id": "T04",
+          "title": "Selected scope / tab / chip",
+          "status": "Current native UI",
+          "sample": "<span class=\"selected-chip\">Schulung</span>",
+          "appearance": "Blue filled chip and/or cyan selected navigation label/icon.",
+          "where": "Year, training and club-section chips; main tabs.",
+          "meaning": "Which query scope or destination is active.",
+          "behavior": "Tap changes the named scope or destination.",
+          "states": "Selection must remain available through text and accessibility state. It does not mean successful synchronization or completed work.",
+          "file": "apps/platform-lab/src/mobile/theme.tsx",
+          "locator": "Chip; MobileApp tablist"
+        },
+        {
+          "id": "T05",
+          "title": "Inline separator",
+          "status": "Current native UI",
+          "sample": "<span class=\"glyph\" aria-hidden=\"true\">·</span>",
+          "appearance": "· (U+00B7): middle dot.",
+          "where": "Aircraft metadata, source status and multi-part descriptions.",
+          "meaning": "Separates adjacent pieces of text.",
+          "behavior": "No action.",
+          "states": "Typographic separator, not an unread notification dot or status light.",
+          "file": "apps/platform-lab/src/mobile/MobileApp.tsx",
+          "locator": "metadata/status labels; Dashboard; ProviderConnection"
+        },
+        {
+          "id": "T06",
+          "title": "Prompt / working-text ellipsis",
+          "status": "Current native UI",
+          "sample": "<span class=\"glyph\" aria-hidden=\"true\">…</span>",
+          "appearance": "… (U+2026): ellipsis.",
+          "where": "Search/AI prompts and working messages.",
+          "meaning": "A continuing text prompt or in-progress operation, depending on wording.",
+          "behavior": "No independent overflow-menu action.",
+          "states": "It is not a three-dot options button. Busy operations use explicit text/spinner S05.",
+          "file": "apps/platform-lab/src/mobile/MobileApp.tsx",
+          "locator": "search/composer placeholders; connection-guidance working text"
+        }
+      ]
+    },
+    {
+      "title": "Retained source assets and fallback literals",
+      "intro": "These entries prevent an AI from treating every source literal or archived asset as the current visible navigation artwork.",
+      "entries": [
+        {
+          "id": "X01",
+          "title": "Previous top-view aircraft silhouette",
+          "status": "Retained, not current native navigation",
+          "sample": "<img src=\"asset:apps/platform-lab/assets/icons/aircraft.png\" alt=\"Retained previous top-view aircraft silhouette\">",
+          "appearance": "Filled top-view aircraft silhouette.",
+          "where": "Retained assets/icons/aircraft.svg and aircraft.png.",
+          "meaning": "Previous aircraft-navigation artwork; current Flüge uses side-view B.",
+          "behavior": "No current mobile render uses this bitmap.",
+          "states": "Retained source asset, superseded for the navigation destination.",
+          "file": "apps/platform-lab/assets/icons/aircraft.svg",
+          "locator": "Retained SVG master and PNG"
+        },
+        {
+          "id": "X02",
+          "title": "Fallback tab literals",
+          "status": "Source literals, overridden in current tabs",
+          "sample": "<span class=\"glyph\" aria-hidden=\"true\">✈  ▤  ♧</span>",
+          "appearance": "✈ (U+2708), ▤ (U+25A4), ♧ (U+2667) in the tabs array.",
+          "where": "MobileApp tabs metadata.",
+          "meaning": "Literal placeholders for Flights, Logbook and Club.",
+          "behavior": "Rendering branches replace them with PlaneIcon, BookIcon and ClubMark respectively.",
+          "states": "Not the currently rendered tab artwork. ♧ is separately visible in the events heading K02.",
+          "file": "apps/platform-lab/src/mobile/MobileApp.tsx",
+          "locator": "tabs array versus bottom tablist conditional rendering"
+        },
+        {
+          "id": "X03",
+          "title": "Unselected top-view glider candidate A",
+          "status": "Historical unselected candidate",
+          "sample": "<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 2v18m0-12L2 11v2l10-1 10 1v-2L12 8M12 17l-4 3v1l4-1 4 1v-1z\"/></svg>",
+          "appearance": "Outlined top-view glider candidate from the 18 October comparison.",
+          "where": "Earlier header/icon review prototype.",
+          "meaning": "Alternative aviation metaphor considered before side-view B was selected.",
+          "behavior": "No current app action; historical comparison only.",
+          "states": "Not selected. Keep distinct from the filled previous silhouette X01 and no-track glider D03.",
+          "file": "docs/product/prototypes/2026-10-18-header-icons-review.html",
+          "locator": "symbol#glider; candidate A"
+        }
+      ]
+    },
+    {
+      "title": "Other approved and historical branding",
+      "intro": "Brand assets are included for completeness and are outside the requested UI-symbol redesign. Original opaque PNG bytes are embedded unchanged. They are not production platform icon exports.",
+      "entries": [
+        {
+          "id": "B01",
+          "title": "Approved light Thermik logo",
+          "status": "Approved brand asset",
+          "sample": "<img src=\"asset:docs/assets/branding/moflight-ai-logo-light.png\" alt=\"Approved light MoFlight Thermik logo\">",
+          "appearance": "White-background companion to H01, with dark glider/Flight lettering.",
+          "where": "Repository README in light color schemes; branding archive.",
+          "meaning": "Same project identity, thermal flight and planned AI assistance as H01.",
+          "behavior": "Brand presentation, not an application action.",
+          "states": "Approved 13 October 2026. Preserve the existing artwork.",
+          "file": "docs/assets/branding/moflight-ai-logo-light.png",
+          "locator": "docs/assets/branding/README.md"
+        },
+        {
+          "id": "B02",
+          "title": "Original app-icon artwork",
+          "status": "Approved archived artwork",
+          "sample": "<img src=\"asset:docs/assets/branding/moflight-app-icon-original.png\" alt=\"Original glider and thermal app icon\">",
+          "appearance": "White glider and rising thermal curve on teal, without AI sparkles.",
+          "where": "Branding archive.",
+          "meaning": "Gliding/thermal-flight identity in square icon form.",
+          "behavior": "No current app control.",
+          "states": "Approved archived original. Platform icon sizing/masks/native app integration remain future work.",
+          "file": "docs/assets/branding/moflight-app-icon-original.png",
+          "locator": "docs/assets/branding/README.md; app.json has no custom icon"
+        },
+        {
+          "id": "B03",
+          "title": "AI app-icon artwork",
+          "status": "Approved archived artwork",
+          "sample": "<img src=\"asset:docs/assets/branding/moflight-app-icon-ai.png\" alt=\"App icon with AI sparkles\">",
+          "appearance": "Square teal glider/thermal icon with two white sparkles.",
+          "where": "Branding archive.",
+          "meaning": "Gliding identity plus planned AI-assisted functionality.",
+          "behavior": "No current app control.",
+          "states": "Recreated approved variant, not a byte-identical copy of an older preview. Not configured as the current native launcher icon.",
+          "file": "docs/assets/branding/moflight-app-icon-ai.png",
+          "locator": "docs/assets/branding/README.md; app.json"
+        },
+        {
+          "id": "B04",
+          "title": "Historical provisional MoFlight mark",
+          "status": "Historical provisional asset",
+          "sample": "<img src=\"asset:docs/assets/moflight-logo.svg\" alt=\"Historical provisional MoFlight book-and-wing mark\">",
+          "appearance": "Open book and soaring wing forming an M on a rounded navy square.",
+          "where": "Historical docs/assets SVG.",
+          "meaning": "Early combination of flight and logbook identity.",
+          "behavior": "No current app control.",
+          "states": "Superseded by the approved Thermik branding; retained as history.",
+          "file": "docs/assets/moflight-logo.svg",
+          "locator": "SVG title/desc; branding README"
+        }
+      ]
+    }
+  ],
+  "historical": [
+    {
+      "names": "arrow-left; chevron-right; arrow-right; x",
+      "meaning": "Back, open/continue and close controls in the prototype; native equivalents are H02, A06/A07 and the text-only provider Close."
+    },
+    {
+      "names": "refresh-cw",
+      "meaning": "Prototype provider-flight refresh with last-success time and suggested/busy/error states. Different operation from native local reload A04."
+    },
+    {
+      "names": "user-round; layout-dashboard; plane; book-open; users-round",
+      "meaning": "Prototype profile, Start, Flights, Logbook and Club/crew metaphors. Current native equivalents are H05 and N01–N04."
+    },
+    {
+      "names": "cloud-sun",
+      "meaning": "Historical Wetter destination placeholder; current native weather entry is the dashboard cloud D06."
+    },
+    {
+      "names": "heart-pulse",
+      "meaning": "Prototype Medical with synthetic record count, earliest expiry and state. Current native H04 uses a stethoscope and unknown only."
+    },
+    {
+      "names": "chart-no-axes-column; chevron-up; chevron-down",
+      "meaning": "Prototype monthly distribution and expand/collapse control; no corresponding monthly chart control in current native UI."
+    },
+    {
+      "names": "circle-alert; triangle-alert",
+      "meaning": "Prototype flights requiring clarification and missing-time/unknown-role warnings. Current native code uses explanatory text and unknown-value notation."
+    },
+    {
+      "names": "newspaper; list-checks; calendar-days",
+      "meaning": "Prototype club news, tasks and events shortcuts. Source-backed live club data remains unconnected."
+    },
+    {
+      "names": "sliders-horizontal",
+      "meaning": "Prototype flight-filter control; current native A02 uses ☷."
+    },
+    {
+      "names": "route; database",
+      "meaning": "Prototype detail-section markers for times/route and source provenance. Current native detail fields are text cards."
+    }
+  ]
+}

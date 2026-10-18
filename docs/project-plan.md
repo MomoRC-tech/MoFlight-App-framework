@@ -1,5 +1,7 @@
 # MoFlight project plan
 
+**UI design documentation — 18 October 2026:** authorized [handbook consolidation](product/design/README.md) under [#23](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/23) provides one current visual guide, source-backed color/type/geometry map, component patterns and a shared symbol catalogue, with a [portable AI handoff](product/design/design-guide.html). [Documentation evidence and limits](verification/2026-10-18-design-handbook.md). Application appearance, M1–M5 order and existing native/provider acceptance gates are unchanged.
+
 **Platform infrastructure package, delivered 18 October 2026:** [#6 contract](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/6#issuecomment-6247224733) adds portable lint/host checks, automatic fast CI, manual APK/Maestro and local rollback under M1 platform readiness. Local Windows host/Release/Maestro and hosted Fast CI/APK/Maestro passed. Synthetic startup/history/club/AI/paper-entry plus offline-restart checks support R01/E11 only for this lab scope; live/iOS/physical acceptance remains separate. [Runbook](development/portable-ci.md) · [source-specific evidence and limitations](verification/2026-10-18-portable-ci.md). Product M1–M5 order/status is unchanged.
 
 ## Proposed delivery packages and release boundaries — 18 October 2026
