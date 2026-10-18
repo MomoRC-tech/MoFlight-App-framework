@@ -78,7 +78,7 @@ The vision is simple: bring your flight history, next actions and flying-club es
 
 | 📊 Understand your flying | 📖 Keep your logbook moving | 🧭 Stay connected to your club |
 | --- | --- | --- |
-| Explore your season, aircraft and flight durations. Open a statistic to see the flights behind it. | Check where your paper book stops, review missing entries and prepare clear phone-side or printable writing instructions. | See relevant duties, your Putzdienst partner, work-hour progress, upcoming events and new club information. |
+| Explore your season, aircraft and flight durations. Open a statistic to see the flights behind it. | Check where your paper book stops, review missing entries and prepare clear phone-side or printable writing instructions. | See relevant duties, others assigned to the same duties, work-hour progress, upcoming events and new club information. |
 
 💶 **Make costs understandable:** the planned costs view separates flying from membership and other charges, with aircraft totals and account balances in details.
 
@@ -134,7 +134,7 @@ Assumed writing progress stays separate from confirmed paper evidence. The next 
 
 ### Club information and costs
 
-- **Duties:** own assignments and Fluglehrer, Flugleiter and Windenfahrer duties through the following week's weekend; own duties also have a later preview. When your duty is Putzdienst, include the other assigned member.
+- **Duties:** own assignments and Fluglehrer, Flugleiter and Windenfahrer duties through the following week's weekend; own duties also have a later preview. For each own assignment, show all other people assigned to the same duty name in the same club on that day, supporting club-specific names and multiple people.
 - **Club essentials:** work-hour progress, own tasks, upcoming events excluding birthdays, and notices for new news/documents. Own reservations and license/training information belong in details.
 - **Costs:** yearly flying costs separately from membership/other charges, then totals per aircraft. Billing interpretation and retrieval still need investigation; account balances are distinct from costs.
 
