@@ -1,0 +1,72 @@
+{
+  "started_at_utc": "2026-10-18T15:45:05.501209+00:00",
+  "source": {
+    "commit": "4ce693fa5c869696717d28a72830e7b6bcda6935",
+    "working_tree_dirty": true
+  },
+  "python": "3.12.10",
+  "status": "passed",
+  "checks": [
+    {
+      "name": "typecheck",
+      "command": [
+        "C:\\Users\\Momo\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\bin\\fallback\\pnpm.CMD",
+        "typecheck"
+      ],
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 3.471,
+      "log": "01.log"
+    },
+    {
+      "name": "lint",
+      "command": [
+        "C:\\Users\\Momo\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\bin\\fallback\\pnpm.CMD",
+        "lint"
+      ],
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 2.752,
+      "log": "02.log"
+    },
+    {
+      "name": "mobile-tests",
+      "command": [
+        "C:\\Users\\Momo\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\bin\\fallback\\pnpm.CMD",
+        "test"
+      ],
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 2.832,
+      "log": "03.log"
+    },
+    {
+      "name": "python-tests",
+      "command": [
+        "C:\\Users\\Momo\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-v"
+      ],
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 9.342,
+      "log": "04.log"
+    },
+    {
+      "name": "fixtures",
+      "command": [
+        "C:\\Users\\Momo\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "scripts/mobile_fixtures.py",
+        "--check"
+      ],
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.1,
+      "log": "05.log"
+    }
+  ]
+}
