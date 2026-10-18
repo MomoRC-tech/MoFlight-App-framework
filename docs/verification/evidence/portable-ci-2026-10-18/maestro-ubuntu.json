@@ -1,0 +1,11 @@
+{
+  "status": "passed",
+  "serial": "emulator-5554",
+  "avd": "MoFlight_Synthetic_API37",
+  "maestro": "2.11.0",
+  "apk": "build/android/app-release.apk",
+  "diagnostic_errors": [],
+  "source_commit": "3ae0e650981612ad5b2e374a790a59112f22b7f8",
+  "apk_sha256": "ca09f36ba92aa767a4e11ccd0164edc2f5ed5f2188b3daedcf3659373ae4a145",
+  "evidence_note": "Source/checksum paired from the downloaded successful APK artifact; original report is retained in build/cloud-maestro/."
+}

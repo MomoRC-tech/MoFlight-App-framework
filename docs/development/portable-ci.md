@@ -68,7 +68,7 @@ Native Windows Maestro is supported; WSL, Docker and a Maestro Cloud account are
 
 `scripts/maestro_smoke.py` verifies emulator identity **before any installation, reset or diagnostic capture**, refusing physical devices and every other AVD. It clears only `de.momorc.moflight.lab` on that verified synthetic AVD, disables network radios, runs `.maestro/smoke.yaml` and restores the prior network flags. No app-side test API or database injection exists. The flow checks startup, empty flight history, club and AI placeholders, paper assistant entry, explicit fixture creation through the existing lab, populated flight history and persistence through process restart. It does not log in, retrieve provider data or call an AI service. Tabs/entry actions have stable test IDs; visible state assertions also check actual content. Existing deeper Python/ADB suites remain available for focused acceptance.
 
-Exit codes preserve test failures. Logs, JUnit, Maestro command output and bounded synthetic logcat are saved; failure screenshots are captured. Diagnostic/cleanup failures fail the wrapper too. Existing evidence directories are refused. Preflight failures report a clear nonzero error before a run, including missing tooling/APK or rejected device; there are no silent skips. Do not bypass the wrapper by running a clearing flow against a private-session emulator. No production secrets/environment variables are required.
+Exit codes preserve test failures. Logs, JUnit, Maestro command output and bounded synthetic logcat are saved; failure screenshots are captured. Diagnostic/cleanup failures fail the wrapper too. Existing evidence directories are refused. Preflight failures report a clear nonzero error before a run, including missing tooling/APK or rejected device; there are no silent skips. Do not bypass the wrapper by running a clearing flow against a private-session emulator. No production secrets/environment variables are required. [Local Android 17/API37 execution passed](../verification/2026-10-18-portable-ci.md); that does not establish another OS/image's execution.
 
 ## Hosted execution and Codex responsibilities
 
@@ -87,20 +87,20 @@ All actions are SHA-pinned, tokens are read-only, new checkouts do not persist c
 
 ## GitHub Free resources
 
-On 18 October 2026 the repository API reported **PUBLIC**, with standard Actions enabled. [GitHub's current billing documentation](https://docs.github.com/en/billing/concepts/product-billing/github-actions) says standard hosted execution for public repositories is free. GitHub Free private allowances are **2,000 runner minutes/month**, **500 MB artifact storage** and a separate **10 GB cache allowance per repository**. Artifact storage accrues over time; cache storage and runner minutes are separate resources. These allowances do not establish this account's remaining capacity or remove account restrictions. Do not increase cache limits, budgets or billing. Current runs are blocked by GitHub's account payment/spending restriction; no paid remediation is authorized.
+On 18 October 2026 the repository API reported **PUBLIC**, with standard Actions enabled. [GitHub's current billing documentation](https://docs.github.com/en/billing/concepts/product-billing/github-actions) says standard hosted execution for public repositories is free. GitHub Free private allowances are **2,000 runner minutes/month**, **500 MB artifact storage** (shared with Packages) and a separate **10 GB cache allowance per repository**. Artifact storage accrues over time; cache storage and runner minutes are separate resources. These allowances do not establish this account's remaining capacity or remove account restrictions. Do not increase cache limits, budgets or billing. Older runs were rejected by a payment/spending restriction; the new fast run passed without any account/billing changes by this task.
 
-These are planning estimates, **not hosted measurements of this implementation**:
+These are planning ranges with headroom. The first actual fast job took **46s**, hosted APK **8m16s**, and hosted emulator/Maestro **3m09s**. Windows APK compilation took **4m45s**, and its Maestro flow **36s** (excluding setup). Local times are distinct from hosted measurements:
 
 | Run | Estimated Ubuntu minutes | Example monthly workload |
 | --- | --- | --- |
-| Fast CI | 2–5 | 60 runs: 120–300 |
-| Android APK | 10–25 cold; lower with warm caches | 4 builds: 40–100 |
-| Maestro with reused APK | 5–12 | 4 runs: 20–48 |
-| Total example | — | **180–448 minutes/month** |
+| Fast CI | 1–3 | 60 runs: 60–180 |
+| Android APK | 8–20 cold; lower with warm caches | 4 builds: 32–80 |
+| Maestro with reused APK | 3–8 | 4 runs: 12–32 |
+| Total example | — | **104–292 minutes/month** |
 
 Private usage would be account-wide, shared with other repositories; the example alone would be below 2,000, but no remaining quota was verified. Expensive workflows stay manual, no schedules/larger/Windows/macOS runners are introduced, and automatic superseded checks cancel. Jobs skip on private repositories until the owner deliberately reviews free eligibility; this is a visible skipped result, not a pass. Recheck visibility/pricing/quota before changing that guard.
 
-The existing APK is about 49 MB before adding this infrastructure. A 50–80 MB APK and 5–30 MB diagnostic run retained for three days use about 5.5–11 MB averaged over a 30-day month per build/test pair; four evenly spaced pairs about 22–44 MB average, with larger instantaneous peaks. Actual artifact compression and failure logs vary. Inspect account storage and delete expired/unneeded artifacts rather than raising limits. Dependency/Gradle caches can reach several GB and are evictable; no AVD/image or duplicate APK cache is added. Hosting account restrictions are recorded as blockers, never worked around with paid runners.
+The actual APK is 48.7 MB, compressed to **24.0 MB** in its artifact; successful hosted diagnostics were **0.165 MB**. Four such pairs, each retained for three days in a 30-day month, average about **9.7 MB** storage, with larger instantaneous peaks. Budgeting 50–80 MB APK artifacts plus 5–30 MB failure diagnostics instead gives about **22–44 MB** average for four pairs. Compression/failure sizes vary, and other repositories/Packages can share the account allowance. Inspect account storage and delete expired/unneeded artifacts rather than raising limits. The first cache inventory after building was **1.77 GB** across two caches; caches are evictable and no AVD/image or duplicate APK cache is added. Hosting account restrictions are recorded as blockers, never worked around with paid runners.
 
 ## Disable hosting / rollback
 
@@ -108,4 +108,4 @@ The existing APK is about 49 MB before adding this infrastructure. A 50–80 MB 
 2. If the owner later makes `Fast CI / quality` required, remove that required check from Settings → Rules → Rulesets or Branches → branch protection **before** disabling it. No such requirement was added here. Do not disable security protections unrelated to CI.
 3. Run `pnpm install --frozen-lockfile`, then `npm run check` locally. Build/install with the Windows commands above and execute the guarded Maestro command on the synthetic AVD. No GitHub credentials are needed for any of those commands.
 4. Keep `.node-version`, `eslint.config.js`, `scripts/`, `.maestro/`, the pnpm lockfile and package scripts: they contain the portable functionality. `scripts/find_android_artifact.py` and the older artifact planner are optional hosted adapters. Removing workflow YAML cannot disable local builds/tests.
-5. Restore the YAML from Git and re-enable workflows when desired, after reviewing free eligibility/account restrictions. Avoid wholesale resets/reverts that discard other feature work, private sessions or generated caches.
+5. Restore the YAML from Git and re-enable workflows when desired, after reviewing free eligibility/account restrictions. Workflow-policy checks explicitly report themselves skipped/inapplicable when their YAML has been removed; the application and portable tool checks continue. A regression verifies this local-only case. Avoid wholesale resets/reverts that discard other feature work, private sessions or generated caches.

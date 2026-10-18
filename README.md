@@ -7,7 +7,7 @@
 
 # MoFlight
 
-> **Portable testing infrastructure — 18 October 2026:** [Local/hosted commands, manual standalone APK and guarded Maestro smoke, GitHub Free estimates and rollback](docs/development/portable-ci.md). Fast checks are automatic on main pushes/PRs; expensive checks remain manual. [Actual results and hosted account restriction](docs/verification/2026-10-18-portable-ci.md). No paid usage or product acceptance is inferred.
+> **Portable testing infrastructure — 18 October 2026:** [Local/hosted commands, manual standalone APK and guarded Maestro smoke, GitHub Free estimates and rollback](docs/development/portable-ci.md). Fast checks are automatic on main pushes/PRs; expensive checks remain manual. Local types/lint/211 mobile/58 Python tests, committed-source Windows Release and offline Maestro passed; hosted Fast CI, APK and Maestro passed. [Actual results, source identities and limitations](docs/verification/2026-10-18-portable-ci.md). No paid usage or product acceptance is inferred.
 
 > **Planning review — 18 October 2026:** [all 20 open Issues and current source gaps](docs/verification/2026-10-17-current-status-and-open-issues.md#18-october-review--20-open-issues) are reconciled with a [proposed package sequence through a real-flight beta and complete gliding release](docs/project-plan.md#proposed-delivery-packages-and-release-boundaries--18-october-2026). The main unfinished connection is reviewed live captures → saved flight library. Header/login, source/book mapping, persistence, analytics and later paper/photos are separate packages. This is a planning proposal; no new application implementation, release scope, production schema or paid work is approved.
 

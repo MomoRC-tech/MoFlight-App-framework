@@ -1,0 +1,22 @@
+{
+  "status": "passed",
+  "serial": "emulator-5562",
+  "avd": "MoFlight_Synthetic_API37",
+  "maestro": "2.11.0",
+  "apk": "build/android/app-release.apk",
+  "diagnostic_errors": [],
+  "source_commit": "3ae0e650981612ad5b2e374a790a59112f22b7f8",
+  "apk_sha256": "c4d7bd3cc93b25db89e136893bd1654ba050b4282c99cc756d012bcce6e1bff1",
+  "viewport": {
+    "size_px": [
+      1080,
+      1920
+    ],
+    "density_dpi": 420,
+    "width_dp": 411.42857142857144,
+    "font_scale": 1.0,
+    "android_api": 37,
+    "android_release": "17"
+  },
+  "evidence_note": "Source/checksum from paired build.json; viewport read separately via ADB. Full unmodified diagnostics remain in build/e2e/20261018T075235Z-b0b85433/."
+}

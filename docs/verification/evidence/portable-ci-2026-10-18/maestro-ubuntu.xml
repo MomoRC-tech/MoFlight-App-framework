@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testsuites>
+  <testsuite name="Test Suite" device="MoFlight_Synthetic_API37" tests="1" failures="0" time="36.612" timestamp="2026-10-18T08:00:12">
+    <testcase id="Offline synthetic navigation and flight history" name="Offline synthetic navigation and flight history" classname="Offline synthetic navigation and flight history" file=".maestro/smoke.yaml" time="36.589" timestamp="2026-10-18T08:00:12" status="SUCCESS"/>
+  </testsuite>
+</testsuites>

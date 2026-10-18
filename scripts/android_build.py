@@ -72,8 +72,8 @@ def main(argv=None):
         if args.install_sdk:
             manager = Path(sdk) / 'cmdline-tools/latest/bin/sdkmanager'
             run([manager, *TOOLCHAIN['sdkPackages']])
-        pnpm = shutil.which('pnpm') or 'pnpm'
-        run([pnpm, '--filter', '@moflight/platform-lab', 'exec', 'expo', 'prebuild', '--no-install', '--platform', 'android'])
+        pnpm_executable = shutil.which('pnpm') or 'pnpm'
+        run([pnpm_executable, '--filter', '@moflight/platform-lab', 'exec', 'expo', 'prebuild', '--no-install', '--platform', 'android'])
         android = ROOT / 'apps/platform-lab/android'
         gradle = android / 'gradlew'
         gradle.chmod(0o755)

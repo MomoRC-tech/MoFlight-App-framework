@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 import subprocess
 import tempfile
+from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 
@@ -47,6 +48,31 @@ class DeviceSafetyTests(unittest.TestCase):
 
 
 class BuildAndArtifactTests(unittest.TestCase):
+    def test_linux_build_records_version_rather_than_pnpm_executable(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            (root / '.node-version').write_text('24.18.0\n')
+            android = root / 'apps/platform-lab/android'
+            apk = android / 'app/build/outputs/apk/release/app-release.apk'
+            apk.parent.mkdir(parents=True)
+            apk.write_bytes(b'synthetic packaging result')
+            (android / 'gradlew').write_text('synthetic gradle placeholder')
+            sdk = root / 'sdk'
+            sdk.mkdir()
+            def result(command, **kwargs):
+                value = {'node': 'v24.18.0', '/tool/pnpm': '11.25.0', 'java': 'openjdk version "17.0.20.1"'}
+                return subprocess.CompletedProcess(command, 0, value.get(command[0], ''))
+            with patch.object(android_build, 'ROOT', root), \
+                 patch.object(android_build, 'os', SimpleNamespace(name='posix', environ={'ANDROID_HOME': str(sdk)})), \
+                 patch.object(android_build.shutil, 'which', return_value='/tool/pnpm'), \
+                 patch.object(android_build, 'identity', return_value='synthetic-source'), \
+                 patch.object(android_build, 'run', side_effect=result):
+                self.assertEqual(android_build.main(['--output', str(root / 'output')]), 0)
+            manifest = json.loads((root / 'output/build.json').read_text())
+            self.assertEqual(manifest['pnpm'], '11.25.0')
+            self.assertEqual(manifest['source_commit'], 'synthetic-source')
+            self.assertFalse(manifest['metro_required'])
+
     def test_dirty_linux_checkout_refused_before_prebuild(self):
         with patch.object(android_build, 'run', side_effect=[subprocess.CompletedProcess([], 0, 'sha'),
                                                             subprocess.CompletedProcess([], 0, ' M app.ts')]) as run:

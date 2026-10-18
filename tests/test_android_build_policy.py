@@ -18,6 +18,9 @@ ROOT = Path(__file__).resolve().parents[1]
 
 class EmulatorRunnerScriptTests(unittest.TestCase):
     def test_each_runner_script_line_is_a_complete_shell_command(self):
+        checkpoint = ROOT / '.github/workflows/android-checkpoint.yml'
+        if not checkpoint.exists():
+            self.skipTest('Hosted checkpoint removed for documented local-only operation')
         # android-emulator-runner executes each nonempty line in a separate sh.
         # A multiline if/then passes whole-script syntax but fails this contract.
         shell = shutil.which('sh') if os.name != 'nt' else None
@@ -27,7 +30,7 @@ class EmulatorRunnerScriptTests(unittest.TestCase):
                 shell = str(candidate)
         if not shell:
             self.skipTest('POSIX shell unavailable')
-        workflow = (ROOT / '.github/workflows/android-checkpoint.yml').read_text(encoding='utf-8')
+        workflow = checkpoint.read_text(encoding='utf-8')
         block = workflow.split('          script: |\n', 1)[1].split('      - name:', 1)[0]
         commands = [line.strip() for line in block.splitlines() if line.strip()]
         self.assertGreaterEqual(len(commands), 2)
@@ -43,7 +46,8 @@ class TriggerTests(unittest.TestCase):
         # Cover every workflow so later additions cannot silently start builds.
         workflows = sorted((ROOT / '.github/workflows').glob('*.yml'))
         workflows += sorted((ROOT / '.github/workflows').glob('*.yaml'))
-        self.assertGreaterEqual(len(workflows), 2)
+        if not workflows:
+            self.skipTest('Hosted workflows removed for documented local-only operation')
         for path in workflows:
             with self.subTest(workflow=path.name):
                 workflow = path.read_text(encoding='utf-8')
@@ -55,7 +59,10 @@ class TriggerTests(unittest.TestCase):
                 self.assertNotIn('pull_request_target:', workflow)
                 for action in re.findall(r'uses: (\S+)', workflow):
                     self.assertRegex(action, r'@[0-9a-f]{40}$')
-        fast = (ROOT / '.github/workflows/ci.yml').read_text()
+        fast_path = ROOT / '.github/workflows/ci.yml'
+        if not fast_path.exists():
+            return  # Remaining manual workflows are still checked above.
+        fast = fast_path.read_text()
         self.assertNotIn('assembleRelease', fast)
         self.assertNotIn('android-smoke:', fast)
         self.assertIn('branches: [main]', fast)
@@ -63,13 +70,31 @@ class TriggerTests(unittest.TestCase):
         self.assertIn('pnpm check', fast)
 
     def test_manual_checkpoint_retains_source_selection_and_apk_reuse_controls(self):
-        workflow = (ROOT / '.github/workflows/android-checkpoint.yml').read_text()
+        checkpoint = ROOT / '.github/workflows/android-checkpoint.yml'
+        if not checkpoint.exists():
+            self.skipTest('Hosted checkpoint removed for documented local-only operation')
+        workflow = checkpoint.read_text()
         self.assertIn('      source_ref:', workflow)
         self.assertIn('      force_fresh:', workflow)
         self.assertIn('ref: ${{ inputs.source_ref || github.sha }}', workflow)
         self.assertIn('FORCE_FRESH: ${{ inputs.force_fresh }}', workflow)
         self.assertIn('run-id: ${{ needs.android-plan.outputs.run-id || github.run_id }}', workflow)
         self.assertIn('cancel-in-progress: false', workflow)
+
+
+class RollbackTests(unittest.TestCase):
+    def test_removing_workflow_yaml_does_not_break_local_validation(self):
+        with tempfile.TemporaryDirectory() as folder, patch(__name__ + '.ROOT', Path(folder)):
+            suite = unittest.TestSuite([
+                EmulatorRunnerScriptTests('test_each_runner_script_line_is_a_complete_shell_command'),
+                TriggerTests('test_only_fast_ci_is_automatic_and_expensive_checks_stay_manual'),
+                TriggerTests('test_manual_checkpoint_retains_source_selection_and_apk_reuse_controls'),
+            ])
+            result = unittest.TestResult()
+            suite.run(result)
+            self.assertEqual(result.errors, [])
+            self.assertEqual(result.failures, [])
+            self.assertEqual(len(result.skipped), 3)
 
 
 class PlannerTests(unittest.TestCase):
