@@ -30,7 +30,7 @@ def control(smoke, label, *, exact=True, enabled=None):
         raise AssertionError(f'Missing connection control: {label}')
 
 
-def execute(smoke):
+def execute(smoke, *, continuation=False):
     assert smoke.shell('getprop', 'ro.kernel.qemu') == '1', 'Emulator required'
     assert smoke.adb('emu', 'avd', 'name').stdout.splitlines()[0].strip() == AVD, 'Fresh dedicated AVD required'
     smoke.emulator = True
@@ -48,7 +48,8 @@ def execute(smoke):
             time.sleep(.25)
         assert network == {'airplane_mode_on': '1', 'wifi_on': '0', 'mobile_data': '0'}
         smoke.report['network'] = network
-        for width, height, font in [(360, 900, 1.0), (390, 900, 1.0), (600, 1100, 1.0), (360, 900, 1.4), (840, 412, 1.0)]:
+        viewports = [(840, 412, 1.0)] if continuation else [(360, 900, 1.0), (390, 900, 1.0), (600, 1100, 1.0), (360, 900, 1.4), (840, 412, 1.0)]
+        for width, height, font in viewports:
             smoke.shell('wm', 'size', f'{width}x{height}')
             smoke.shell('wm', 'density', '160')
             smoke.shell('settings', 'put', 'system', 'font_scale', str(font))
@@ -62,7 +63,15 @@ def execute(smoke):
                 x1, y1, x2, y2 = bounds(node)
                 assert 0 <= x1 < x2 <= width and 0 <= y1 < y2 <= height
                 assert y2 - y1 >= 48
-            assert bounds(main)[3] <= bounds(control(smoke, DETAILS))[1], 'Main action overlaps details'
+            # Scrolling to a lower control can move the earlier main action.
+            # Compare only controls from one current accessibility snapshot.
+            visible = smoke.dump()
+            def current(label):
+                return next((node for node in visible if node.get('clickable') == 'true' and label in Smoke.labels(node)
+                             and bounds(node)[2] > bounds(node)[0] and bounds(node)[3] > bounds(node)[1]), None)
+            current_main, current_details = current('Bei Vereinsflieger anmelden'), current(DETAILS)
+            if current_main is not None and current_details is not None:
+                assert bounds(current_main)[3] <= bounds(current_details)[1], 'Main action overlaps details'
             capture(smoke, f'collapsed-{width}-{height}-font-{font}', viewport(smoke))
 
         # Optional controls remain reachable without starting them.
@@ -121,10 +130,11 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--serial', required=True)
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--continuation', action='store_true', help='Resume landscape and remaining controls; retain earlier viewport evidence separately')
     args = parser.parse_args()
     smoke = Smoke(args.output, serial=args.serial, expected_avd=AVD)
     try:
-        execute(smoke)
+        execute(smoke, continuation=args.continuation)
     except Exception as error:
         finish(smoke, 'failed', error)
         raise
