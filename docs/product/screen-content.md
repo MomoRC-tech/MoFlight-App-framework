@@ -69,7 +69,7 @@ S02–S04 and S11 use the selected current-year scope. v0.28 shows flight count 
 | F04 | Flight row, main information | Aircraft registration/model and duration | Open that flight's detail view | Accepted for now; can revisit after layout review |
 | F05 | Flight row, supporting information | Departure time, airfield, own recorded role | Same flight detail | Accepted for now |
 | F06 | Affected flight row | Missing/uncertain-data marker and short reason | Review details; do not infer missing facts | Selected; resolution/editing behavior open |
-| F07 | Changed saved flight | Orange label or small dot when a later verified Vereinsflieger update changes its data | Identify updated app data; paper progress is independent | Selected 18 October 2026; exact form/placement and acknowledgement lifecycle open in [#30](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/30) |
+| F07 | Changed saved flight | Orange label or small dot when a later verified Vereinsflieger update changes its data | Explicitly acknowledge the change; opening alone does not clear it; paper progress is independent | Selected 18 October 2026; exact form/placement and revision/concurrent-update details open in [#30](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/30) |
 
 ## Flüge — analyses and flight details
 
