@@ -40,6 +40,45 @@ def open_preview(smoke):
     smoke.find('Fiktive Flüge vergleichen')
 
 
+def retained_choice(smoke):
+    # The earlier-choice explanation contains the same book name. Assert the
+    # actual selectable control, without tapping/reselecting it to manufacture a pass.
+    for _ in range(12):
+        node = next((n for n in smoke.dump() if n.get('clickable') == 'true'
+                     and n.get('content-desc') == 'Test-Segelflugbuch A'), None)
+        if node is not None and bounds(node)[3] - bounds(node)[1] >= 48:
+            assert node.get('selected') == 'true', 'Confirmed book choice was not retained'
+            break
+        smoke.swipe(up=True)
+    else:
+        raise AssertionError('Missing visible selected-book control')
+    action(smoke, 'Bearbeitung verwerfen')
+    check(smoke, 'accepted-repeat-and-nested-return-preserve-manual-choice')
+
+
+def repeat_only(smoke):
+    # Restoring display overrides can recreate the activity and discard this
+    # disposable React session. Recreate only the repeat/return acceptance case.
+    launch(smoke)
+    open_preview(smoke)
+    action(smoke, 'Synthetischen Vergleich starten')
+    editor(smoke, '1002')
+    action(smoke, 'Test-Segelflugbuch A')
+    confirm(smoke)
+    editor(smoke, '1003')
+    action(smoke, 'Variante 2 wählen')
+    action(smoke, 'Test-Segelflugbuch B')
+    confirm(smoke)
+    action(smoke, 'Teststand übernehmen')
+    smoke.find('0 neu · 0 geändert · 7 unverändert · 1 widersprüchlich', scroll=True, up=False)
+    action(smoke, 'Vergleich erneut prüfen')
+    back(smoke)
+    action(smoke, 'Importvorschau öffnen')
+    smoke.find('0 neu · 0 geändert · 7 unverändert · 1 widersprüchlich')
+    editor(smoke, '1002')
+    retained_choice(smoke)
+
+
 def behavior(smoke):
     launch(smoke)
     library_facts(smoke)
@@ -74,10 +113,7 @@ def behavior(smoke):
     action(smoke, 'Importvorschau öffnen')
     smoke.find('0 neu · 0 geändert · 7 unverändert · 1 widersprüchlich')
     editor(smoke, '1002')
-    node = smoke.find('Test-Segelflugbuch A', scroll=True)
-    assert node.get('selected') == 'true'
-    action(smoke, 'Bearbeitung verwerfen')
-    check(smoke, 'accepted-repeat-and-nested-return-preserve-manual-choice')
+    retained_choice(smoke)
 
 
 def matrix(smoke):
@@ -106,7 +142,7 @@ def matrix(smoke):
         check(smoke, f'{width}-font{font}-choice-actions-reachable')
 
 
-def execute(smoke, expected_hash, matrix_only=False):
+def execute(smoke, expected_hash, matrix_only=False, repeat_checks_only=False):
     assert smoke.shell('getprop', 'ro.kernel.qemu') == '1'
     assert smoke.adb('emu', 'avd', 'name').stdout.splitlines()[0].strip() == AVD
     smoke.emulator = True
@@ -128,7 +164,9 @@ def execute(smoke, expected_hash, matrix_only=False):
         smoke.shell('wm', 'size', '390x900')
         smoke.shell('wm', 'density', '160')
         smoke.shell('settings', 'put', 'system', 'font_scale', '1.0')
-        if not matrix_only:
+        if repeat_checks_only:
+            repeat_only(smoke)
+        elif not matrix_only:
             behavior(smoke)
         matrix(smoke)
         launch(smoke)
@@ -158,11 +196,13 @@ def main():
     parser.add_argument('--expected-apk-sha256', required=True)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--matrix-only', action='store_true', help='Reuse applicable behavior evidence after a harness correction')
+    parser.add_argument('--repeat-only', action='store_true', help='Recreate only the repeat/return case; reuse prior independent behavior evidence')
     args = parser.parse_args()
     assert not args.output.exists(), 'Use a new evidence directory'
+    assert not (args.matrix_only and args.repeat_only), 'Choose one resume mode'
     smoke = Smoke(args.output, args.serial, AVD)
     try:
-        execute(smoke, args.expected_apk_sha256, args.matrix_only)
+        execute(smoke, args.expected_apk_sha256, args.matrix_only, args.repeat_only)
     except Exception as error:
         finish(smoke, 'failed', error)
         raise
