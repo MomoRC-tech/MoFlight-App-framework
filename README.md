@@ -134,7 +134,7 @@ Assumed writing progress stays separate from confirmed paper evidence. The next 
 
 ### Club information and costs
 
-- **Duties:** own assignments and all permitted club duty types through the following week's weekend, preserving club-defined names; own duties also have a later preview. For each own assignment, show all other people assigned to the same duty name in the same club on that day, supporting club-specific names and multiple people.
+- **Duties:** own assignments and all permitted club duty types through the following week's weekend, preserving club-defined names and including multi-day duties whose periods overlap that window. Show each assignment once with its full period; own duties also have a later preview of the next three assignments. For each own assignment, show all other people assigned to the same duty name in the same club on that day, supporting club-specific names and multiple people.
 - **Club essentials:** work-hour progress, own tasks, upcoming events excluding birthdays, and notices for new news/documents. Own reservations and license/training information belong in details.
 - **Costs:** yearly flying costs separately from membership/other charges, then totals per aircraft. Billing interpretation and retrieval still need investigation; account balances are distinct from costs.
 
