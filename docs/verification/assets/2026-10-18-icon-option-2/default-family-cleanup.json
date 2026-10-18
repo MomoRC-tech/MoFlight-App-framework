@@ -62,5 +62,7 @@
       "600": 521
     }
   },
-  "limits": "No new app runtime, native build or device trial; prior source-specific Android evidence reused. iOS, physical device and spoken accessibility remain untested."
+  "limits": "No new app runtime, native build or device trial; prior source-specific Android evidence reused. iOS, physical device and spoken accessibility remain untested.",
+  "implementation_commit": "10cbe992b78fa916d2e485b435d60915efedba56",
+  "final_git_whitespace_exit_code": 0
 }
