@@ -6,7 +6,7 @@ import { bridgeSource, flightUrl, FLIGHT_URL, LOGIN_URL, providerUrl, type Probe
 import { clearOriginalView, latestCapture, readOriginalView, saveCapture, saveOriginalView } from './storage';
 import { loginPage, savedLoginScript } from './login';
 import { readSavedLogin, writeSavedLogin, forgetSavedLogin } from './login-storage';
-import { acceptExportMessage, beginExport, calendarYearRequest, exportScript, type ExportRun } from './export';
+import { acceptExportMessage, beginExport, calendarYearRequest, recentCaptureRequest, exportScript, type ExportRun } from './export';
 import { decodeView, VIEW_PHASES, viewScript, viewProtectionMessage, type ViewPhase, type ViewPreferences } from './view';
 import { canonical } from '@moflight/flight-logbook';
 import { legacyViewNeedsChoice, type LegacyRecoveryCopy } from './legacy-recovery-store';
@@ -53,7 +53,8 @@ export function useAccessController(product = false, localOwner?: string) {
   const original = useRef<ViewPreferences | null>(null), viewPhase = useRef<ViewPhase | null>(null), restoring = useRef(false), restoreSteps = useRef(0), outcome = useRef('');
   const [recovery, setRecovery] = useState(false), [viewReady, setViewReady] = useState(false);
   const [viewStrategy, setViewStrategy] = useState<'reset' | 'reserved backup' | null>(null);
-  const [from, setFrom] = useState(calendarYearRequest().from), [to, setTo] = useState(calendarYearRequest().to);
+  const [captureRequest] = useState(() => product ? recentCaptureRequest() : calendarYearRequest());
+  const [from, setFrom] = useState(captureRequest.from), [to, setTo] = useState(captureRequest.to);
   const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const phase = useRef({ loaded: false, progress: 0, injections: 0 });
   const loginAttempt = useRef<'waiting' | 'reading' | 'submitted' | null>(null);
@@ -76,31 +77,42 @@ export function useAccessController(product = false, localOwner?: string) {
   const [pauseEnabled, setPauseEnabled] = useState(false), [paused, setPaused] = useState<string | null>(null);
   const [preBackupPause, setPreBackupPause] = useState(false);
   const [snapshot, setSnapshot] = useState<ProbeSnapshot | null>(null), [status, setStatus] = useState('Sign in on the original provider page. Choose an inclusive period; configuration is verified before capture.');
+  const [captureLoadState, setCaptureLoadState] = useState<'loading' | 'ready' | 'failed'>('loading');
   useEffect(() => { let active = true; mounted.current = true; if (!product) void latestCapture().then(s => { if (active) setSnapshot(old => old ?? s); }).catch(() => { if (active && retrieval.current.state.phase === 'idle') setStatus('Saved capture could not be opened. Synthetic logbook remains separate.'); }); return () => { active = false; mounted.current = false; epoch.current++; if (timeout.current) clearTimeout(timeout.current); retrieval.current.dispose(); }; }, []);
   useEffect(() => { let active = true; if (!product) void readSavedLogin().then(login => { if (active) setHasLogin(!!login); }).catch(() => { if (active) setStatus('Protected login storage could not be opened. Existing captures remain available.'); }); return () => { active = false; loginAttempt.current = null; if (loginTimer.current) clearTimeout(loginTimer.current); }; }, []);
   useEffect(() => { let active = true; void (async () => {
     if (product && owner.current !== activeOwner.current) throw new Error('Owner changed; create a new controller.');
+    if (product && !owner.current) throw new Error('Explicit local owner required.');
+    // Saved review needs no provider session or successful recovery diagnostic.
+    // Authorize its local scope before opening any capture file.
+    const saved = product ? await loadProviderScope(owner.current!) : null;
+    if (!active) return;
+    if (product) {
+      scope.current = saved;
+      if (saved) session.current.restoreAssociation(saved.context);
+      try {
+        const capture = saved ? await loadScopedCapture(saved) : null;
+        if (!active) return;
+        setSnapshot(capture); setCaptureLoadState('ready');
+      } catch { if (active) setCaptureLoadState('failed'); }
+    }
     const nativeLegacy = product && legacyRecoveryAvailable;
     const fingerprint = nativeLegacy ? await legacyRecoveryFingerprint() : null;
     const legacy = nativeLegacy ? null : await readOriginalView();
     let v = product ? null : legacy;
     if (product) {
       if (!owner.current) throw new Error('Explicit local owner required.');
-      const saved = await loadProviderScope(owner.current);
       if (!active) return;
-      scope.current = saved;
-      if (saved) session.current.restoreAssociation(saved.context);
       legacyFingerprint.current = fingerprint;
       legacyPending.current = nativeLegacy ? await legacyQuarantined(saved, fingerprint) : !!legacy;
       // Never infer ownership of the historical global journal or capture.
       v = saved ? await loadScopedView(saved) : null;
-      if (saved) { const capture = await loadScopedCapture(saved); if (active) setSnapshot(capture); }
     }
     if (!active) return;
     original.current = v; recoveryKnown.current = true; setRecovery(!!v || legacyPending.current);
     setViewStrategy(v ? v.reset ? 'reset' : 'reserved backup' : null); setViewReady(true);
     if (v || legacyPending.current) setStatus('An earlier export left view restoration pending. Sign into the same provider account, then restore the original view before another export.');
-  })().catch(() => { if(active) { setRecovery(true); setStatus('Original view recovery could not be opened. Exports are blocked to preserve preferences.'); } }); return () => { active = false; }; }, [localOwner]);
+  })().catch(() => { if(active) { setCaptureLoadState(state => state === 'ready' ? state : 'failed'); setRecovery(true); setStatus('Original view recovery could not be opened. Exports are blocked to preserve preferences.'); } }); return () => { active = false; }; }, [localOwner]);
   useEffect(() => {
     if (!product || localOwner === owner.current) return;
     clearContextRequest(); afterConfirmation.current = null; pendingCapture.current = null; pendingNavigation.current = null;
@@ -638,7 +650,7 @@ export function useAccessController(product = false, localOwner?: string) {
     try {
       await (product ? saveScopedCapture(requireScope(), data) : saveCapture(data));
       if (!mounted.current || !retrieval.current.owns(nonce)) return;
-      setSnapshot(data); captureSaved.current = true;
+      setSnapshot(data); setCaptureLoadState('ready'); captureSaved.current = true;
       if (product) setLastSuccessfulCaptureAt(data.retrievedAt);
       finish(`Saved ${data.rows.length} flights across ${data.exportContext?.pageCount} pages for the requested period. Account identity and time basis remain unverified.`, nonce);
     } catch { finish('Local saving failed. Earlier captures retained.', nonce); }
@@ -677,5 +689,5 @@ export function useAccessController(product = false, localOwner?: string) {
         onContentProcessDidTerminate={() => { if (generation !== epoch.current) return; if (loginAttempt.current) endLogin('Provider renderer stopped. Saved sign-in cancelled.', 'cancelled'); if (product) contextFailed(); finish('Provider renderer stopped. Recovery journal retained.'); }}
         onRenderProcessGone={() => { if (generation !== epoch.current) return; if (loginAttempt.current) endLogin('Provider renderer stopped. Saved sign-in cancelled.', 'cancelled'); if (product) contextFailed(); finish('Provider renderer stopped. Recovery journal retained.'); }}
       />;
-  return { canGoBack, backWithinProvider, legacyChoice, requestLegacyRecovery, legacyRecoveryAvailable, clearing, clearNotice, proofNotice, clearLocalSession, sessionClearingAvailable, sessionProofAvailable, binding, legacyRecovery: legacyPending.current, loginNotice, disconnectNotice, credentialNotice, startDisconnect, checkDisconnection, disconnecting, disconnectedAt, refreshRecovery, connection, checkConnection, connect, dismissLogin, confirmConnection, lastSuccessfulCaptureAt, result, browser, showRun, setShowRun, showWindow, setShowWindow, viewReady, recovery, original, editingLogin, loginBusy, username, setUsername, password, setPassword, saveLogin, setEditingLogin, providerExpanded, visible, status, busy, openCaptureLab, pauseEnabled, toggleTestPause, preBackupPause, togglePreBackupPause, from, setFrom, to, setTo, saving, restoring, navigate, setVisible, cancelRetrieval, retrieve, hasLogin, useLogin, forgetLogin, recoverView, paused, continueTestRetrieval, viewStrategy, url, toggleProviderPage, browserActive, snapshot, setProviderExpanded, web, currentUrl, retrieval, loaded, source, generation, epoch };
+  return { captureLoadState, canGoBack, backWithinProvider, legacyChoice, requestLegacyRecovery, legacyRecoveryAvailable, clearing, clearNotice, proofNotice, clearLocalSession, sessionClearingAvailable, sessionProofAvailable, binding, legacyRecovery: legacyPending.current, loginNotice, disconnectNotice, credentialNotice, startDisconnect, checkDisconnection, disconnecting, disconnectedAt, refreshRecovery, connection, checkConnection, connect, dismissLogin, confirmConnection, lastSuccessfulCaptureAt, result, browser, showRun, setShowRun, showWindow, setShowWindow, viewReady, recovery, original, editingLogin, loginBusy, username, setUsername, password, setPassword, saveLogin, setEditingLogin, providerExpanded, visible, status, busy, openCaptureLab, pauseEnabled, toggleTestPause, preBackupPause, togglePreBackupPause, from, setFrom, to, setTo, saving, restoring, navigate, setVisible, cancelRetrieval, retrieve, hasLogin, useLogin, forgetLogin, recoverView, paused, continueTestRetrieval, viewStrategy, url, toggleProviderPage, browserActive, snapshot: product && owner.current !== localOwner ? null : snapshot, setProviderExpanded, web, currentUrl, retrieval, loaded, source, generation, epoch };
 }

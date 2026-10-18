@@ -14,6 +14,8 @@ import type * as ScopedStorage from '../../apps/platform-lab/src/vereinsflieger/
 import { nodeDriver } from './sqlite-driver.ts';
 import { SCOPE_SCHEMA, bindScope, readScope, authorizeScope, type ProviderScope } from '../../apps/platform-lab/src/vereinsflieger/scope-store.ts';
 import { ConnectionSession } from '../../apps/platform-lab/src/vereinsflieger/connection-state.ts';
+import { captureFixture } from './capture-review-fixture.ts';
+import { captureReviewPage, openCaptureReview } from '../../apps/platform-lab/src/vereinsflieger/capture-review.ts';
 
 const context = { accountNumber: '123', clubLabel: 'Synthetic Club', clubIdentity: 'display-label-only', verification: 'observed-profile-number' } as const;
 const scope: ProviderScope = { version: 1, owner: 'pilot-a', connectionId: 'random-connection-a', context };
@@ -78,6 +80,22 @@ test('native scoped adapter reopens separate owner journals and rejects forged f
     assert.equal((await storage.loadScopedView(a))?.accountLabel, view.accountLabel);
     assert.equal((await storage.loadScopedView(b))?.accountLabel, 'Synthetic account B');
     assert.deepEqual(await storage.loadProviderScope('pilot-a'), a);
+    const capture = captureFixture(6);
+    assert.equal(await storage.loadScopedCapture(a), null);
+    await storage.saveScopedCapture(a, capture);
+    assert.equal(await storage.loadScopedCapture(b), null);
+    const reopened = openCaptureReview(await storage.loadScopedCapture(a));
+    assert.deepEqual(reopened, capture);
+    assert.equal(captureReviewPage(reopened, 1).flights[0]?.observation.row.sourceFlightId, '1005');
+    // Every adapter call closes/reopens SQLite. Retrying a capture is idempotent;
+    // a rejected correction cannot replace the prior offline review.
+    await storage.saveScopedCapture(a, capture);
+    const changed = structuredClone(capture); changed.rows[0]!.values[4] = '99';
+    await assert.rejects(storage.saveScopedCapture(a, changed), /identity conflict/);
+    assert.deepEqual(openCaptureReview(await storage.loadScopedCapture(a)), capture);
+    await assert.rejects(storage.loadScopedCapture({ ...a, connectionId: b.connectionId }));
+    await assert.rejects(storage.saveScopedCapture({ ...a, owner: b.owner }, capture));
+    assert.equal(await storage.loadScopedCapture(b), null);
     const count = opened.filter(name => name.startsWith('vereinsflieger-owned-')).length;
     await assert.rejects(storage.loadScopedView({ ...a, connectionId: b.connectionId }));
     await assert.rejects(storage.clearScopedView({ ...a, owner: b.owner }, view));

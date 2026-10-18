@@ -9,6 +9,7 @@ import { providerUrl } from '../vereinsflieger/probe';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LegacyRecoveryReview } from './LegacyRecoveryReview';
 import { RawCaptureReview } from './RawCaptureReview';
+import { CapturedFlights } from './CapturedFlights';
 
 type Controller = ReturnType<typeof useAccessController>;
 export function ConnectionIndicator({ controller: c, onPress }: { controller: Controller; onPress?: () => void }) {
@@ -82,6 +83,13 @@ export function ProviderConnection({ controller: c, open, close, development = f
           {c.result === 'cancelled' && <Label>Abruf abgebrochen. Frühere Daten bleiben erhalten.</Label>}
           {c.result === 'review-required' && <Label>Die Anbieteransicht weicht ab. Bitte die Wiederherstellung unten prüfen. Noch keine Wiederherstellung ausgeführt.</Label>}
           {c.result === 'recovered' && <Label>Geprüfte Ansicht wiederhergestellt. Alte Rohbelege bleiben unverändert und unzugeordnet.</Label>}
+          <Card><Section title="Flugdaten erfassen" icon="refresh" />
+            <Label>Zeitraum: {c.from} bis {c.to} einschließlich</Label>
+            <Label muted>Beim ersten Öffnen sind die letzten 30 Kalendertage gewählt. Den Zeitraum kannst du unter „Rohbelege & begrenzter Abruf“ ändern. Vor jedem Abruf werden Konto und Anbieteransicht geprüft.</Label>
+            <Action disabled={locked || c.recovery || c.connection.phase !== 'observed' || !c.connection.confirmed} onPress={() => c.checkConnection('retrieve')}>Flugdaten jetzt abrufen</Action>
+            <Label muted>Frühere Belege bleiben bei Fehler oder Abbruch erhalten. Ein neuer Abruf ergänzt noch keine Flugbuchstatistik.</Label>
+          </Card>
+          {open && <CapturedFlights key={c.snapshot?.captureId ?? 'no-capture'} snapshot={c.snapshot} loadState={c.captureLoadState} />}
           {c.recovery && <Card><Section title="Abruf gesperrt · Wiederherstellung nötig" /><Label>{c.legacyRecovery ? 'Ein älterer Eintrag muss zuerst geprüft werden. Alte Rohbelege werden dabei nicht übernommen.' : 'Vor dem nächsten Abruf muss die ursprüngliche Anbieteransicht im bisherigen Konto wiederhergestellt werden.'}</Label>{c.legacyRecovery && c.viewReady && <LegacyRecoveryReview locked={locked} recover={c.legacyRecoveryAvailable ? c.requestLegacyRecovery : undefined} />}
             {c.legacyChoice && <>
               <Section title="Aktuelle Ansicht weicht ab" />
@@ -130,7 +138,7 @@ export function ProviderConnection({ controller: c, open, close, development = f
             <TextInput accessibilityLabel="Vereinsflieger Abruf von" value={c.from} onChangeText={c.setFrom} editable={!locked} autoCorrect={false} style={styles.input} />
             <TextInput accessibilityLabel="Vereinsflieger Abruf bis" value={c.to} onChangeText={c.setTo} editable={!locked} autoCorrect={false} style={styles.input} />
             <Action disabled={locked || c.recovery || c.connection.phase !== 'observed' || !c.connection.confirmed} onPress={() => c.checkConnection('retrieve')}>Rohdaten abrufen</Action>
-            {open && !locked && !c.recovery && c.connection.phase === 'observed' && c.connection.confirmed && <RawCaptureReview key={c.snapshot?.captureId} snapshot={c.snapshot} />}
+            {open && <RawCaptureReview key={c.snapshot?.captureId} snapshot={c.snapshot} />}
           </Card>}
           {development && <Card><Section title="Entwicklung · Browserstore-Diagnose" icon="info" />
             <Label muted>Nur über Einstellungen → Entwicklung. Öffnen startet keinen Test. Der gleiche Anbieter-Controller bleibt zuständig; diese Seite ist keine Zugriffssperre.</Label>

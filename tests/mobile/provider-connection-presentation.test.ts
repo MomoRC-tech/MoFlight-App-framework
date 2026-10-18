@@ -8,6 +8,7 @@ import { retrievalFailureHint } from '../../apps/platform-lab/src/vereinsflieger
 import { connectionGuidance, connectionSymbol } from '../../apps/platform-lab/src/mobile/connection-guidance.ts';
 import { providerUrl } from '../../apps/platform-lab/src/vereinsflieger/probe.ts';
 import type { useAccessController } from '../../apps/platform-lab/src/vereinsflieger/use-access-controller.tsx';
+import { captureFixture } from './capture-review-fixture.ts';
 
 type Controller = ReturnType<typeof useAccessController>;
 interface Element { type: unknown; props: Record<string, any>; children: unknown[] }
@@ -44,6 +45,7 @@ function fixture(overrides: Partial<Controller> = {}, development = false) {
     '../vereinsflieger/probe': { providerUrl },
     'react-native-safe-area-context': { useSafeAreaInsets: () => ({ top: 0, bottom: 0 }) },
     './LegacyRecoveryReview': { LegacyRecoveryReview: 'LegacyRecoveryReview' }, './RawCaptureReview': { RawCaptureReview: 'RawCaptureReview' },
+    './CapturedFlights': { CapturedFlights: 'CapturedFlights' },
   };
   const exports: { ProviderConnection?: (props: unknown) => Element } = {};
   runInNewContext(source, { exports, URL, require: (name: string) => { assert.ok(name in modules, name); return modules[name]; } });
@@ -97,6 +99,20 @@ test('initial and invalidated observations never promise logout or a currently v
   const f = fixture({ connection: session.state, disconnectedAt: at, clearNotice: 'cleared' });
   assert.match(f.text(), /Sitzung ungeprüft/);
   assert.doesNotMatch(f.text(), /Abmeldung bestätigt|Browserdaten gelöscht/);
+});
+
+test('saved review stays available without a confirmed provider session, during recovery and after failed/cancelled retrieval', () => {
+  const snapshot = captureFixture();
+  const f = fixture({ snapshot, captureLoadState: 'ready', recovery: true, viewReady: false, status: '' });
+  for (const result of ['none', 'failed', 'cancelled'] as const) {
+    f.controller.result = result; f.render();
+    const review = f.nodes().find(n => n.type === 'CapturedFlights'); assert.ok(review);
+    assert.equal(review.props.snapshot, snapshot); assert.equal(review.props.loadState, 'ready');
+    assert.equal(f.button('Flugdaten jetzt abrufen').props.disabled, true);
+    assert.equal(f.nodes().filter(n => n.type === 'retained-browser').length, 1);
+  }
+  assert.deepEqual(f.calls, []);
+  f.render(false); assert.equal(f.nodes().some(n => n.type === 'CapturedFlights'), false);
 });
 
 test('disclosures start no work, retain the browser parent and reset when the panel closes', () => {

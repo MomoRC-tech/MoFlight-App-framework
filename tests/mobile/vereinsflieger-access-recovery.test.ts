@@ -15,6 +15,7 @@ import type { ProviderScope } from '../../apps/platform-lab/src/vereinsflieger/s
 import { ConnectionSession } from '../../apps/platform-lab/src/vereinsflieger/connection-state.ts';
 import type { useAccessController } from '../../apps/platform-lab/src/vereinsflieger/use-access-controller.tsx';
 import type { ViewPreferences } from '../../apps/platform-lab/src/vereinsflieger/view.ts';
+import { captureFixture } from './capture-review-fixture.ts';
 const { FLIGHT_URL } = probe;
 
 const original: ViewPreferences = {
@@ -123,7 +124,7 @@ function fixture(options: { noNativeRecovery?: boolean; failLegacyRead?: boolean
       writeSavedLogin: async () => {},
       forgetSavedLogin: async () => { savedLoginForgets++; if (options.deferLoginForget) await loginForget; if (options.failLoginForget) throw new Error('Synthetic protected-storage deletion failure'); },
     },
-    './export': { ...exporter, calendarYearRequest: () => ({ from: '2026-01-01', to: '2026-12-31' }) },
+    './export': { ...exporter, calendarYearRequest: () => ({ from: '2026-01-01', to: '2026-12-31' }), recentCaptureRequest: () => ({ from: '2026-01-01', to: '2026-12-31' }) },
     './retrieval': { Retrieval }, './CaptureRun': { CaptureRun }, './WindowCapture': { WindowCapture },
     './login': login, './view': view, './context': context, './connection-state': { ConnectionSession },
   };
@@ -1359,6 +1360,38 @@ test('reopened association rejects a different provider account before capture o
   assert.equal(f.controller().connection.phase, 'mismatch');
   await f.controller().confirmConnection(); f.controller().retrieve();
   assert.equal(f.scopeWrites(), 0); assert.equal(f.controller().busy, false); assert.deepEqual(f.writes, []);
+});
+
+test('saved owner-scoped review loads offline before recovery is ready and survives recovery-read failure', async () => {
+  const capture = captureFixture();
+  const f = fixture({ product: true, priorCapture: capture, persistedScope: { version: 1, owner: 'synthetic-pilot', connectionId: 'prior', context: observedContext } });
+  f.render(); for (let i = 0; i < 4; i++) await f.flush();
+  assert.equal(f.controller().snapshot, capture);
+  assert.equal(f.controller().captureLoadState, 'ready');
+  assert.equal(f.controller().viewReady, false);
+  assert.equal(f.controller().browserActive, false); assert.equal(f.controller().connection.confirmed, false);
+  await f.settle(new Error('Synthetic failed legacy diagnostic'));
+  for (let i = 0; i < 4; i++) await f.flush();
+  assert.equal(f.controller().snapshot, capture); assert.equal(f.controller().captureLoadState, 'ready');
+  assert.equal(f.controller().recovery, true); assert.deepEqual(f.writes, []);
+  f.changeOwner('other-owner');
+  assert.equal(f.controller().snapshot, null, 'Old owner capture is hidden on the first changed-owner render');
+});
+
+test('cancelled and failed live attempts retain the previously reopened readable capture', async () => {
+  for (const outcome of ['cancel', 'failure'] as const) {
+    const capture = captureFixture();
+    const f = fixture({ product: true, priorCapture: capture, persistedScope: { version: 1, owner: 'synthetic-pilot', connectionId: 'prior', context: observedContext } });
+    f.render(); await f.settle(null); for (let i = 0; i < 4; i++) await f.flush();
+    await establishProductAssociation(f);
+    f.controller().retrieve(); await f.loadFlight();
+    if (outcome === 'cancel') f.controller().cancelRetrieval();
+    else (f.find(f.render(), element => element.type === 'WebView')!.props.onError as () => void)();
+    await f.flush();
+    assert.equal(f.controller().snapshot, capture); assert.equal(f.savedCapture(), capture);
+    assert.equal(f.controller().captureLoadState, 'ready');
+    assert.ok(!f.writes.includes('capture-start'));
+  }
 });
 
 

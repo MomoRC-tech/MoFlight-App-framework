@@ -24,6 +24,14 @@ export function beginExport(request: ExportRequest): ExportRun {
 export function calendarYearRequest(now = new Date()): ExportRequest {
   const year = now.getFullYear(); return { from: `${year}-01-01`, to: `${year}-12-31` };
 }
+// A small initial live-review window, using calendar days on this device.
+// These dates select provider rows; they establish no flight-clock timezone.
+export function recentCaptureRequest(now = new Date()): ExportRequest {
+  const end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 12);
+  const start = new Date(end); start.setDate(start.getDate() - 29);
+  const date = (value: Date) => `${value.getFullYear()}-${String(value.getMonth() + 1).padStart(2, '0')}-${String(value.getDate()).padStart(2, '0')}`;
+  return { from: date(start), to: date(end) };
+}
 export function providerDate(iso: string): string { const [year, month, day] = iso.split('-'); return `${day}.${month}.${year}`; }
 function dateFromProvider(value: string): string {
   const match = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(value);
