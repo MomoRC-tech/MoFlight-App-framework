@@ -154,6 +154,26 @@ class ControllerTests(unittest.TestCase):
         self.assertEqual(self.session.report['status'], 'cleanup_failed')
         self.assertTrue(any('network changed' in item for item in self.session.report['cleanup_errors']))
 
+    def test_provenance_mismatch_is_rejected_before_any_ui_mutation(self):
+        build = ui.read(self.root / 'build.json')
+        for update in [{'configuration': 'Debug'}, {'apk_sha256': '0' * 64}]:
+            ui.write(self.root / 'build.json', {**build, **update})
+            device = FakeDevice()
+            session = ui.Session(self.root, device, self.options)
+            with self.assertRaises(ValueError):
+                session.open()
+            self.assertIsNone(session.original)
+            self.assertFalse(any(args[:1] in [('input',), ('am',)] for args in device.calls))
+        ui.write(self.root / 'build.json', build)
+        device = FakeDevice()
+        original_run = device.run
+        def mismatch(*args, **kwargs):
+            return b'different installed APK' if args[:2] == ('exec-out', 'cat') else original_run(*args, **kwargs)
+        device.run = mismatch
+        with self.assertRaisesRegex(ValueError, 'Installed APK differs'):
+            ui.Session(self.root, device, self.options).open()
+        self.assertFalse(any(args[:1] in [('input',), ('am',)] for args in device.calls))
+
     def http(self):
         server = HTTPServer(('127.0.0.1', 0), ui.Handler)
         server.session, server.token = self.session, 'synthetic-token'
@@ -241,6 +261,24 @@ class ControllerTests(unittest.TestCase):
         self.assertFalse(lock.exists())
         self.assertEqual(self.device.current, self.session.original)
         self.assertEqual(ui.read(self.root / 'report.json')['status'], 'recovered')
+
+    def test_controller_cleanup_failure_retains_lock_for_explicit_recovery(self):
+        options = {**self.options, 'adb': 'synthetic', 'serial': 'emulator-5562',
+                   'scope': 'synthetic cleanup failure', 'seconds': .4}
+        ui.write(self.root / 'options.json', options)
+        with patch.object(ui, 'RUNS', self.root), patch.object(ui, 'Device', return_value=self.device):
+            thread = threading.Thread(target=ui.serve, args=(self.root,), daemon=True)
+            thread.start()
+            until = time.monotonic() + 3
+            while not (self.root / 'task.md').exists():
+                if time.monotonic() > until:
+                    self.fail('Controller did not become ready')
+                time.sleep(.01)
+            self.device.network = lambda: {'airplane_mode_on': '0'}
+            thread.join(3)
+            self.assertFalse(thread.is_alive())
+        self.assertEqual(ui.read(self.root / 'report.json')['status'], 'cleanup_failed')
+        self.assertTrue((self.root / 'synthetic.lock').exists())
 
     def test_failed_recovery_keeps_lock_and_records_error(self):
         options = {**self.options, 'adb': 'synthetic', 'serial': 'emulator-5562'}
