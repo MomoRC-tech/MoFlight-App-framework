@@ -48,6 +48,8 @@ Package 1a is the separately authorized smallest next visible improvement; packa
 
 **Privacy review — 18 October 2026:** [#21](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/21) tracks the cross-cutting [GDPR/DSGVO readiness review and proposed release checks](verification/2026-10-18-gdpr-readiness-review.md). Current findings include accumulating raw captures, unencrypted lab exports and unverified production erasure/storage protection. Operator/legal bases, third-party transparency and optional Medical/cloud/AI gates need decisions and evidence. #15 retains member-display policy. This records review findings without approving implementation, changing priorities or accepting release compliance.
 
+**Approved privacy evaluation guideline — 18 October 2026:** apply the [per-requirement risk/effort method](verification/2026-10-18-gdpr-readiness-review.md#approved-evaluation-method). Aim for the strongest practical compliance; Manuel may accept a specific documented residual risk when further mitigation is disproportionate. Keep legal compliance, practical risk and owner acceptance distinct. No individual gap is accepted by this guideline, and imperfect compliance alone does not automatically block release. #21 records dispositions; implementation priorities remain unchanged.
+
 No calendar or percentage-complete estimate is supported yet: source semantics/identity, migration, actual handwriting quality, iOS access and selected release scope affect the work. Re-estimate after the real refresh-to-library checkpoint. Open Issues differ greatly in size; their count is not a remaining-package estimate. M5 scope is selected package by package, not an automatic commitment to every candidate.
 
 ## Current continuation — 18 October 2026

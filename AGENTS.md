@@ -22,6 +22,11 @@
 - Keep one short package contract in the matching Issue: scope, exclusions, status, dependencies/open questions and acceptance criteria. Link specifications, commits and evidence; maintain checklists and close only when scoped acceptance is met, with remaining work tracked. Issue creation does not approve implementation or change priority.
 - If GitHub is unavailable, record the unsaved backlog item locally, tell Manuel and reconcile when access returns.
 
+## Privacy evaluation guideline
+
+- Manuel approved proportionate, risk-based GDPR/DSGVO evaluation on 18 October 2026: aim for the strongest practical compliance and meaningful protection of people; prioritize measures by their benefit relative to effort. Assess each requirement's applicability/legal position, affected people, plausible harm/likelihood, existing safeguards, residual risk, effort and simpler effective alternatives. Recommend fix, mitigate, defer with explicit risk acceptance, or exclude the feature; imperfect compliance alone does not automatically make every gap a release blocker.
+- Manuel may accept a specific remaining risk, including a known compliance gap, when he considers the risk acceptable and further mitigation disproportionate. Record scope, rationale, safeguards, owner/date and revisit trigger in the matching Issue. Keep legal compliance, practical risk and owner acceptance separate; acceptance does not make a legal gap compliant or waive applicable duties. This guideline accepts no individual gap and authorizes no implementation, processing or spending. See [the review's evaluation method](docs/verification/2026-10-18-gdpr-readiness-review.md#approved-evaluation-method) and [#21](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/21).
+
 ## Architecture and data invariants
 
 - Add modules/infrastructure only when needed. Keep domain code free of vendor SDKs and feature domains independent.

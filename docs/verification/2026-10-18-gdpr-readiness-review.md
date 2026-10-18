@@ -4,6 +4,20 @@ Review requested by Manuel. Tracking: [#21](https://github.com/MomoRC-tech/MoFli
 
 **Assessment:** the local-first direction reduces exposure, but the reviewed implementation and planning do not establish release readiness under GDPR. This is a source/documentation review and proposed acceptance gate, not legal acceptance or implementation approval. Priorities and enabled features are unchanged.
 
+## Approved evaluation method
+
+Manuel approved this guiding line on 18 October 2026: aim for the strongest practical GDPR/DSGVO compliance and meaningful protection of people, with proportionate effort. Evaluate requirements individually; imperfect compliance alone does not automatically make every gap a release blocker. The findings below identify questions and candidate controls, not an instruction to implement every possible measure regardless of benefit.
+
+For each applicable requirement, record in the matching Issue:
+
+- Applicability and legal position, distinguishing an established gap from uncertainty or an optional improvement.
+- Affected people/data, plausible harm and likelihood, existing safeguards and residual risk.
+- Remediation effort, expected risk reduction and simpler effective alternatives; distinguish estimates from measured evidence.
+- A recommendation to fix, mitigate, defer with explicit risk acceptance, or exclude the feature. Explain any proposed release blocker in terms of the concrete requirement and consequences.
+- For a specific risk Manuel accepts: scope, rationale, safeguards, owner/date and a revisit trigger, such as broader distribution, changed data/recipients or new evidence.
+
+Manuel may accept a remaining risk, including a known compliance gap, when he considers it acceptable and further mitigation disproportionate. Keep legal compliance, practical risk and his acceptance separate: acceptance does not make a legal gap compliant or waive applicable duties. This guiding line accepts no individual finding, changes no implementation priority and authorizes no implementation, new processing or spending. Individual findings below have not yet received this assessment or a risk-acceptance decision. Tracking: [#21](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/21); standing agent instruction: [AGENTS.md](../../AGENTS.md#privacy-evaluation-guideline).
+
 ## Scope and observed state
 
 Reviewed application source **653ce024e0c9db87ed32b064f0806fe2adb28407**, relevant roadmap/architecture and open Issues on Windows. No private datasets, provider sessions or emulators were opened. No application tests, builds, native trials, live network capture or cloud/AI calls were run.
@@ -39,10 +53,12 @@ Reviewed application source **653ce024e0c9db87ed32b064f0806fe2adb28407**, releva
 
 ## Proposed acceptance sequence
 
-Before distributing a real-data beta: settle audience/operator, inventory and lawful bases; verify permitted provider/member scope, retention/deletion, storage/export/session protection and notices/rights handling. These remain needed even for a small beta.
+Before distributing a real-data beta: assess audience/operator, inventory and lawful bases, permitted provider/member scope, retention/deletion, storage/export/session protection and notices/rights handling under the approved evaluation method. Record each applicable requirement's disposition, evidence and any specific risk decision; unresolved material risks need mitigation, an explicit owner decision or exclusion/blocking of the affected feature.
 
 Before enabling Medical, external photo/AI or cloud flows: complete their additional legal/processor/transfer and native/isolation gates. A lower-exposure first release could remain local, with user-triggered retrieval and no external processing; that is a recommendation for Manuel to select.
 
-Obtain a targeted German privacy-law review of the operator model, other members' data, Medical and youth scope before release. No compliance claim, retention period or legal basis is adopted by this review.
+Recommend targeted German privacy-law advice where unresolved operator/member/Medical/youth questions materially affect a decision and advice is proportionate to the risk. This is not an automatic paid engagement or blanket prerequisite for every finding. No compliance claim, retention period or legal basis is adopted by this review.
 
 **Verification:** documentation/source consistency and referenced local paths checked; official legal/regulator sources consulted on 18 October 2026. No runtime security, vendor contract, deletion, network traffic or legal acceptance was tested. #21 remains open; implementation belongs in bounded approved packages.
+
+**Guideline follow-up — 18 October 2026:** recorded Manuel's approved evaluation method in AGENTS.md and this report, aligned README/roadmap and #21, and checked documentation references and status consistency. No individual finding was re-evaluated or accepted; no application tests/builds/devices were needed for this documentation-only package.
