@@ -1,0 +1,338 @@
+{
+  "status": "Proposed alternative; not selected for application integration",
+  "source_sha256": "1a29491d2964fccd9a71763409848bf7a734e59b9d978efd87c5de5f044308d7",
+  "grid": 96,
+  "reference_board": [
+    1280,
+    698
+  ],
+  "tile": {
+    "reference_px": [
+      150,
+      147
+    ],
+    "reference_radius_px": 24,
+    "ui_sizes_px": [
+      40,
+      48,
+      56
+    ],
+    "ui_radius_px": [
+      12,
+      14,
+      16
+    ]
+  },
+  "palette": {
+    "canvas": "#041328",
+    "cyan": [
+      "#32f1ef",
+      "#00d9e8",
+      "#00b9df"
+    ],
+    "slate": [
+      "#8caac1",
+      "#7094b1",
+      "#46688b"
+    ]
+  },
+  "mapping": {
+    "N01": {
+      "glyph": "home",
+      "title": "Home / Übersicht",
+      "status": "proposed"
+    },
+    "N02": {
+      "glyph": null,
+      "title": "Flights / Flüge",
+      "status": "preserved"
+    },
+    "N03": {
+      "glyph": "book",
+      "title": "Logbook / Flugbuch",
+      "status": "proposed"
+    },
+    "N04": {
+      "glyph": "club",
+      "title": "Club / Verein",
+      "status": "proposed"
+    },
+    "N05": {
+      "glyph": "sparkle",
+      "title": "AI assistant / AI",
+      "status": "proposed"
+    },
+    "H01": {
+      "glyph": null,
+      "title": "MoFlight Thermik brand",
+      "status": "preserved"
+    },
+    "H02": {
+      "glyph": "back",
+      "title": "App Back",
+      "status": "proposed"
+    },
+    "H03": {
+      "glyph": "chain",
+      "title": "Provider connection",
+      "status": "proposed"
+    },
+    "H04": {
+      "glyph": "medical",
+      "title": "Medical / Med",
+      "status": "proposed"
+    },
+    "H05": {
+      "glyph": "profile",
+      "title": "Profile and settings",
+      "status": "proposed"
+    },
+    "S01": {
+      "glyph": "chain",
+      "title": "Session unverified / unknown",
+      "status": "proposed"
+    },
+    "S02": {
+      "glyph": "chain",
+      "title": "Last confirmed session check",
+      "status": "proposed"
+    },
+    "S03": {
+      "glyph": "chain",
+      "title": "Provider login required",
+      "status": "proposed"
+    },
+    "S04": {
+      "glyph": "chain",
+      "title": "Connection attention / blocked",
+      "status": "proposed"
+    },
+    "S05": {
+      "glyph": "spinner",
+      "title": "Busy / checking / saving",
+      "status": "proposed"
+    },
+    "D01": {
+      "glyph": "logbook",
+      "title": "Paper logbook work",
+      "status": "proposed"
+    },
+    "D02": {
+      "glyph": "sparkle",
+      "title": "AI suggestion",
+      "status": "proposed"
+    },
+    "D03": {
+      "glyph": "glider",
+      "title": "Glider / no flight track",
+      "status": "proposed"
+    },
+    "D04": {
+      "glyph": "clock",
+      "title": "Time / duration",
+      "status": "proposed"
+    },
+    "D05": {
+      "glyph": "location",
+      "title": "Location / start field",
+      "status": "proposed"
+    },
+    "D06": {
+      "glyph": "weather",
+      "title": "Weather",
+      "status": "proposed"
+    },
+    "D07": {
+      "glyph": null,
+      "title": "Season flight-count ring",
+      "status": "preserved"
+    },
+    "D08": {
+      "glyph": null,
+      "title": "Season known-time ring",
+      "status": "preserved"
+    },
+    "K01": {
+      "glyph": "duty",
+      "title": "Next club duty",
+      "status": "proposed"
+    },
+    "K02": {
+      "glyph": "calendar",
+      "title": "Upcoming club appointments",
+      "status": "proposed"
+    },
+    "K03": {
+      "glyph": "messages",
+      "title": "Club notices",
+      "status": "proposed"
+    },
+    "A01": {
+      "glyph": "search",
+      "title": "Search flights",
+      "status": "proposed"
+    },
+    "A02": {
+      "glyph": "filter",
+      "title": "Open flight filters",
+      "status": "proposed"
+    },
+    "A03": {
+      "glyph": "down",
+      "title": "Choose logbook",
+      "status": "proposed"
+    },
+    "A04": {
+      "glyph": "refresh",
+      "title": "Reload local data",
+      "status": "proposed"
+    },
+    "A05": {
+      "glyph": "info",
+      "title": "Unavailable classification information",
+      "status": "proposed"
+    },
+    "A06": {
+      "glyph": "right",
+      "title": "Open row / supporting destination",
+      "status": "proposed"
+    },
+    "A07": {
+      "glyph": "arrow",
+      "title": "Forward / continue action",
+      "status": "proposed"
+    },
+    "A08": {
+      "glyph": "arrow",
+      "title": "Departure to arrival",
+      "status": "proposed"
+    },
+    "A09": {
+      "glyph": "send",
+      "title": "Send AI message",
+      "status": "proposed"
+    },
+    "A10": {
+      "glyph": "check",
+      "title": "Selected logbook",
+      "status": "proposed"
+    },
+    "A11": {
+      "glyph": "plus",
+      "title": "Expand / collapse details",
+      "status": "proposed"
+    },
+    "A12": {
+      "glyph": "back",
+      "title": "Back inside provider webpage",
+      "status": "proposed"
+    },
+    "T01": {
+      "glyph": null,
+      "title": "Unknown / unavailable value",
+      "status": "preserved"
+    },
+    "T02": {
+      "glyph": null,
+      "title": "Average per flight",
+      "status": "preserved"
+    },
+    "T03": {
+      "glyph": null,
+      "title": "Recorded pilot-role badge",
+      "status": "preserved"
+    },
+    "T04": {
+      "glyph": null,
+      "title": "Selected scope / tab / chip",
+      "status": "preserved"
+    },
+    "T05": {
+      "glyph": null,
+      "title": "Inline separator",
+      "status": "preserved"
+    },
+    "T06": {
+      "glyph": null,
+      "title": "Prompt / working-text ellipsis",
+      "status": "preserved"
+    },
+    "X01": {
+      "glyph": null,
+      "title": "Previous top-view aircraft silhouette",
+      "status": "preserved"
+    },
+    "X02": {
+      "glyph": null,
+      "title": "Fallback tab literals",
+      "status": "preserved"
+    },
+    "X03": {
+      "glyph": null,
+      "title": "Unselected top-view glider candidate A",
+      "status": "preserved"
+    },
+    "B01": {
+      "glyph": null,
+      "title": "Approved light Thermik logo",
+      "status": "preserved"
+    },
+    "B02": {
+      "glyph": null,
+      "title": "Original app-icon artwork",
+      "status": "preserved"
+    },
+    "B03": {
+      "glyph": null,
+      "title": "AI app-icon artwork",
+      "status": "preserved"
+    },
+    "B04": {
+      "glyph": null,
+      "title": "Historical provisional MoFlight mark",
+      "status": "preserved"
+    }
+  },
+  "assets": [
+    "assets/aircraft-side.svg",
+    "assets/aircraft.svg",
+    "assets/analytics.svg",
+    "assets/arrow.svg",
+    "assets/back.svg",
+    "assets/bell.svg",
+    "assets/book.svg",
+    "assets/calendar.svg",
+    "assets/chain.svg",
+    "assets/check.svg",
+    "assets/clock.svg",
+    "assets/close.svg",
+    "assets/club.svg",
+    "assets/compass.svg",
+    "assets/dashboard.svg",
+    "assets/down.svg",
+    "assets/duty.svg",
+    "assets/explore.svg",
+    "assets/filter.svg",
+    "assets/flight-plan.svg",
+    "assets/glider.svg",
+    "assets/home.svg",
+    "assets/info.svg",
+    "assets/location.svg",
+    "assets/logbook.svg",
+    "assets/medical.svg",
+    "assets/messages.svg",
+    "assets/minus.svg",
+    "assets/person.svg",
+    "assets/plus.svg",
+    "assets/profile-cyan.svg",
+    "assets/profile.svg",
+    "assets/refresh.svg",
+    "assets/right.svg",
+    "assets/search.svg",
+    "assets/send.svg",
+    "assets/settings.svg",
+    "assets/sparkle.svg",
+    "assets/spinner.svg",
+    "assets/weather.svg"
+  ]
+}

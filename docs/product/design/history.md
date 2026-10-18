@@ -11,6 +11,7 @@
 | 17 Oct 2026 / Manuel | Approved five tabs, compact header/profile, aircraft and aircraft-share rings | [Shell report](../../verification/2026-10-17-native-shell-corrections.md) records Android checks and remaining iOS/physical limits. |
 | 18 Oct 2026 / Manuel | Approved B, contextual Back/provider Close, one active header, Connection → Med → Profile unknown | Medical follow-up in application `8b51f5a`. [Decision](../2026-10-18-header-status-review.md#package-1b-decision-checkpoint), [evidence](../../verification/2026-10-18-header-navigation.md). |
 | 18 Oct 2026 / Manuel | Authorized this handbook/export consolidation under #23 | Documentation implementation; no new appearance, code-token refactor or runtime acceptance. |
+| 18 Oct 2026 / Manuel | Requested creation of Style Option 2, Modern Duotone & Soft-Filled Glyphs, from his supplied JPEG | [Review and SVG family](icon-options/option-2/index.html), [source notes](icon-options/option-2/README.md), [verification](../../verification/2026-10-18-icon-option-2.md). Alternative prepared; app selection/integration remains open under #20. |
 
 ## Preserved history
 

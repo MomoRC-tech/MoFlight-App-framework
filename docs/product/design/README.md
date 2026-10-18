@@ -10,6 +10,7 @@ This is the current starting point for MoFlight's visual design. Use it when enh
 | [Components and shapes](components.md) | Cards, controls, headers, navigation, sheets, badges and charts, with relevant states and source locations. |
 | [Layout and presentation patterns](patterns.md) | Composition, responsive widths, navigation, keyboard, accessibility and honest data presentation. |
 | [Symbols and icons](../symbol-reference.html) | Existing 51-entry visual catalogue: appearance, meaning, action, states and editable asset paths. |
+| [Style Option 2: Modern Duotone](icon-options/option-2/index.html) | Proposed reference-based SVG family, original/vector comparison, compact specimens and mapping for all 51 IDs. [Source notes](icon-options/option-2/README.md). App adoption remains open. |
 | [Implementation inventory](implementation-inventory.md) | Generated complete literal-color map, gradients, typography/geometry declarations and source fingerprints, including retained lab/adapter exceptions. |
 | [Decisions, history and known gaps](history.md) | Authority, overrides, superseded prototypes, unresolved differences and platform evidence. |
 | [Complete standalone HTML guide](design-guide.html) | All chapters, schematic component examples, approved reference and the same catalogue, with full text copy/download for another AI chat. Download/open the HTML to use its controls. |

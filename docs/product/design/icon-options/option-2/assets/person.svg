@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-labelledby="title"><title id="title">MoFlight Option 2: person</title><defs xmlns="http://www.w3.org/2000/svg">
+    <linearGradient id="o2-cyan" x1="0" y1="0" x2="0.28" y2="1" gradientUnits="objectBoundingBox"><stop stop-color="#32f1ef" /><stop offset="0.52" stop-color="#00d9e8" /><stop offset="1" stop-color="#00b9df" /></linearGradient>
+    <linearGradient id="o2-slate" x1="0" y1="0" x2="0.45" y2="1"><stop stop-color="#8caac1" /><stop offset="0.48" stop-color="#7094b1" /><stop offset="1" stop-color="#46688b" /></linearGradient>
+    <linearGradient id="o2-slate-dark" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#6b8aa8" /><stop offset="1" stop-color="#395574" /></linearGradient>
+    <linearGradient id="o2-glass" x1="0" y1="0" x2="0.8" y2="1"><stop stop-color="#c5deed" stop-opacity="0.29" /><stop offset="0.45" stop-color="#8ca8c8" stop-opacity="0.17" /><stop offset="1" stop-color="#6d88ae" stop-opacity="0.22" /></linearGradient>
+    <linearGradient id="o2-edge" x1="0" y1="0" x2="0.75" y2="1"><stop stop-color="#d4e6f5" stop-opacity="0.53" /><stop offset="0.5" stop-color="#bdd7f1" stop-opacity="0.14" /><stop offset="1" stop-color="#91b0cf" stop-opacity="0.18" /></linearGradient>
+    <radialGradient id="o2-sheen" cx="0.28" cy="0" r="0.95"><stop stop-color="#d4efff" stop-opacity="0.22" /><stop offset="0.7" stop-color="#bddfff" stop-opacity="0" /></radialGradient>
+    <filter id="o2-lift" x="-35%" y="-25%" width="170%" height="180%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="3" stdDeviation="2.2" flood-color="#000b19" flood-opacity="0.5" /></filter>
+  </defs>
+  <g><ellipse cx="48" cy="31" rx="14" ry="16" fill="url(#o2-cyan)" /><path d="M19 77c0-19 12-29 29-29s29 10 29 29a58 58 0 0 1-58 0" fill="url(#o2-slate)" /><path d="M37 49q11 7 22 0" fill="none" stroke="#19d5e7" stroke-width="2" /></g>
+  </svg>
