@@ -1,0 +1,174 @@
+{
+  "status": "passed",
+  "checks": [
+    {
+      "name": "accepted-repeat-and-nested-return-preserve-manual-choice",
+      "status": "passed"
+    },
+    {
+      "name": "390-font1.0-comparison",
+      "status": "passed",
+      "viewport": {
+        "width_dp": 390,
+        "height_dp": 900,
+        "density_dpi": 160,
+        "font_scale": 1.0
+      },
+      "screenshot": "02-390-font1.0-comparison.png",
+      "hierarchy": "02-390-font1.0-comparison.xml",
+      "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+    },
+    {
+      "name": "390-font1.0-evidence",
+      "status": "passed",
+      "viewport": {
+        "width_dp": 390,
+        "height_dp": 900,
+        "density_dpi": 160,
+        "font_scale": 1.0
+      },
+      "screenshot": "03-390-font1.0-evidence.png",
+      "hierarchy": "03-390-font1.0-evidence.xml",
+      "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+    },
+    {
+      "name": "390-font1.0-choices",
+      "status": "passed",
+      "viewport": {
+        "width_dp": 390,
+        "height_dp": 900,
+        "density_dpi": 160,
+        "font_scale": 1.0
+      },
+      "screenshot": "04-390-font1.0-choices.png",
+      "hierarchy": "04-390-font1.0-choices.xml",
+      "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+    },
+    {
+      "name": "390-font1.0-choice-actions-reachable",
+      "status": "passed"
+    },
+    {
+      "name": "360-font1.6-comparison",
+      "status": "passed",
+      "viewport": {
+        "width_dp": 360,
+        "height_dp": 900,
+        "density_dpi": 160,
+        "font_scale": 1.6
+      },
+      "screenshot": "06-360-font1.6-comparison.png",
+      "hierarchy": "06-360-font1.6-comparison.xml",
+      "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+    },
+    {
+      "name": "360-font1.6-evidence",
+      "status": "passed",
+      "viewport": {
+        "width_dp": 360,
+        "height_dp": 900,
+        "density_dpi": 160,
+        "font_scale": 1.6
+      },
+      "screenshot": "07-360-font1.6-evidence.png",
+      "hierarchy": "07-360-font1.6-evidence.xml",
+      "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+    },
+    {
+      "name": "360-font1.6-choices",
+      "status": "passed",
+      "viewport": {
+        "width_dp": 360,
+        "height_dp": 900,
+        "density_dpi": 160,
+        "font_scale": 1.6
+      },
+      "screenshot": "08-360-font1.6-choices.png",
+      "hierarchy": "08-360-font1.6-choices.xml",
+      "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+    },
+    {
+      "name": "360-font1.6-choice-actions-reachable",
+      "status": "passed"
+    },
+    {
+      "name": "800-font1.0-comparison",
+      "status": "passed",
+      "viewport": {
+        "width_dp": 800,
+        "height_dp": 600,
+        "density_dpi": 160,
+        "font_scale": 1.0
+      },
+      "screenshot": "10-800-font1.0-comparison.png",
+      "hierarchy": "10-800-font1.0-comparison.xml",
+      "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+    },
+    {
+      "name": "800-font1.0-evidence",
+      "status": "passed",
+      "viewport": {
+        "width_dp": 800,
+        "height_dp": 600,
+        "density_dpi": 160,
+        "font_scale": 1.0
+      },
+      "screenshot": "11-800-font1.0-evidence.png",
+      "hierarchy": "11-800-font1.0-evidence.xml",
+      "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+    },
+    {
+      "name": "800-font1.0-choices",
+      "status": "passed",
+      "viewport": {
+        "width_dp": 800,
+        "height_dp": 600,
+        "density_dpi": 160,
+        "font_scale": 1.0
+      },
+      "screenshot": "12-800-font1.0-choices.png",
+      "hierarchy": "12-800-font1.0-choices.xml",
+      "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+    },
+    {
+      "name": "800-font1.0-choice-actions-reachable",
+      "status": "passed"
+    },
+    {
+      "name": "offline-restart-discards-only-preview-preserves-library",
+      "status": "passed"
+    }
+  ],
+  "boundary": "Disposable synthetic preview only. No saved-library write, seed, clear, restore or provider operation.",
+  "source": {
+    "validated_commit": "cfad5b9f19b71f4ced96aa92c4977b72436ccdec",
+    "compiled_commit": "6b5c5ea64555fc18c8d78f2afd7b15caebe99b28"
+  },
+  "original_display": {
+    "size": "Physical size: 1080x1920",
+    "density": "Physical density: 420",
+    "font_scale": "1.0"
+  },
+  "device": {
+    "ro.build.version.sdk": "37",
+    "ro.product.model": "sdk_gphone64_x86_64",
+    "ro.product.cpu.abi": "x86_64"
+  },
+  "network_before": {
+    "airplane_mode_on": "1",
+    "wifi_on": "0",
+    "mobile_data": "0"
+  },
+  "installed_apk_sha256": "cad6e71c5dd1df902562ebd5029e04000161f55fe754c5101563e6dc55190f7a",
+  "installation_before": "Activity Resolver Table:\n  Schemes:\n      exp+moflight-platform-lab:\n        3f6a00 de.momorc.moflight.lab/.MainActivity filter 7a2907e\n          Action: \"android.intent.action.VIEW\"\n          Category: \"android.intent.category.DEFAULT\"\n          Category: \"android.intent.category.BROWSABLE\"\n          Scheme: \"moflight-lab\"\n          Scheme: \"exp+moflight-platform-lab\"\n      moflight-lab:\n        3f6a00 de.momorc.moflight.lab/.MainActivity filter 7a2907e\n          Action: \"android.intent.action.VIEW\"\n          Category: \"android.intent.category.DEFAULT\"\n          Category: \"android.intent.category.BROWSABLE\"\n          Scheme: \"moflight-lab\"\n          Scheme: \"exp+moflight-platform-lab\"\n\n  Non-Data Actions:\n      android.intent.action.MAIN:\n        3f6a00 de.momorc.moflight.lab/.MainActivity filter 94c5239\n          Action: \"android.intent.action.MAIN\"\n          Category: \"android.intent.category.LAUNCHER\"\n\nReceiver Resolver Table:\n  Non-Data Actions:\n      androidx.profileinstaller.action.SAVE_PROFILE:\n        7b219df de.momorc.moflight.lab/androidx.profileinstaller.ProfileInstallReceiver filter 4d3368a\n          Action: \"androidx.profileinstaller.action.SAVE_PROFILE\"\n      androidx.profileinstaller.action.INSTALL_PROFILE:\n        7b219df de.momorc.moflight.lab/androidx.profileinstaller.ProfileInstallReceiver filter c31262c\n          Action: \"androidx.profileinstaller.action.INSTALL_PROFILE\"\n      androidx.profileinstaller.action.SKIP_FILE:\n        7b219df de.momorc.moflight.lab/androidx.profileinstaller.ProfileInstallReceiver filter c96d8f5\n          Action: \"androidx.profileinstaller.action.SKIP_FILE\"\n      androidx.profileinstaller.action.BENCHMARK_OPERATION:\n        7b219df de.momorc.moflight.lab/androidx.profileinstaller.ProfileInstallReceiver filter 14874fb\n          Action: \"androidx.profileinstaller.action.BENCHMARK_OPERATION\"\n\nDomain verification status:\n\nPermissions:\n  Permission [de.momorc.moflight.lab.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION] (1483f90):\n    sourcePackage=de.momorc.moflight.lab\n    uid=10235 gids=[] type=0 prot=signature\n    perm=PermissionInfo{715a436 de.momorc.moflight.lab.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION}\n    flags=0x0\n\nRegistered ContentProviders:\n  de.momorc.moflight.lab/expo.modules.filesystem.FileSystemFileProvider:\n    Provider{4038f37 de.momorc.moflight.lab/expo.modules.filesystem.FileSystemFileProvider}\n  de.momorc.moflight.lab/androidx.startup.InitializationProvider:\n    Provider{6b0eca4 de.momorc.moflight.lab/androidx.startup.InitializationProvider}\n  de.momorc.moflight.lab/com.reactnativecommunity.webview.RNCWebViewFileProvider:\n    Provider{c46ea0d de.momorc.moflight.lab/com.reactnativecommunity.webview.RNCWebViewFileProvider}\n  de.momorc.moflight.lab/expo.modules.sharing.SharingFileProvider:\n    Provider{88fcdc2 de.momorc.moflight.lab/expo.modules.sharing.SharingFileProvider}\n\nContentProvider Authorities:\n  [de.momorc.moflight.lab.androidx-startup]:\n    Provider{6b0eca4 de.momorc.moflight.lab/androidx.startup.InitializationProvider}\n      applicationInfo=ApplicationInfo{8812089 de.momorc.moflight.lab}\n  [de.momorc.moflight.lab.SharingFileProvider]:\n    Provider{88fcdc2 de.momorc.moflight.lab/expo.modules.sharing.SharingFileProvider}\n      applicationInfo=ApplicationInfo{9dac88e de.momorc.moflight.lab}\n  [de.momorc.moflight.lab.FileSystemFileProvider]:\n    Provider{4038f37 de.momorc.moflight.lab/expo.modules.filesystem.FileSystemFileProvider}\n      applicationInfo=ApplicationInfo{716d8af de.momorc.moflight.lab}\n  [de.momorc.moflight.lab.fileprovider]:\n    Provider{c46ea0d de.momorc.moflight.lab/com.reactnativecommunity.webview.RNCWebViewFileProvider}\n      applicationInfo=ApplicationInfo{119c4bc de.momorc.moflight.lab}\n\nKey Set Manager:\n  [de.momorc.moflight.lab]\n      Signing KeySets: 70\n\nPackages:\n  Package [de.momorc.moflight.lab] (b767f5d):\n    appId=10235\n    pccId=-1\n    pkg=Package{6cf2e2f de.momorc.moflight.lab}\n    codePath=/data/app/~~m8B04YBgtc4rgoOQdu9CJg==/de.momorc.moflight.lab-wd5yu0O7Oj1BMtFsbmfIqg==\n    resourcePath=/data/app/~~m8B04YBgtc4rgoOQdu9CJg==/de.momorc.moflight.lab-wd5yu0O7Oj1BMtFsbmfIqg==\n    legacyNativeLibraryDir=/data/app/~~m8B04YBgtc4rgoOQdu9CJg==/de.momorc.moflight.lab-wd5yu0O7Oj1BMtFsbmfIqg==/lib\n    extractNativeLibs=false\n    primaryCpuAbi=x86_64\n    secondaryCpuAbi=null\n    cpuAbiOverride=null\n    versionCode=1 minSdk=24 targetSdk=36\n    minExtensionVersions=[]\n    versionName=0.1.0\n    hiddenApiEnforcementPolicy=2\n    usesNonSdkApi=false\n    splits=[base]\n    apkSigningVersion=2\n    flags=[ HAS_CODE ALLOW_CLEAR_USER_DATA ]\n    privateFlags=[ PRIVATE_FLAG_ACTIVITIES_RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION ALLOW_AUDIO_PLAYBACK_CAPTURE PRIVATE_FLAG_ALLOW_NATIVE_HEAP_POINTER_TAGGING ]\n    forceQueryable=false\n    pageSizeCompat=0\n    queriesIntents=[Intent { act=android.intent.action.VIEW cat=[android.intent.category.BROWSABLE] dat=https:/... }, Intent { act=org.chromium.intent.action.PAY }, Intent { act=org.chromium.intent.action.IS_READY_TO_PAY }, Intent { act=org.chromium.intent.action.UPDATE_PAYMENT_DETAILS }, Intent { act=android.intent.action.OPEN_DOCUMENT_TREE }, Intent { act=android.intent.action.SEND dat=content://*/... typ=*/* }, Intent { act=android.intent.action.OPEN_DOCUMENT cat=[android.intent.category.DEFAULT,android.intent.category.OPENABLE] dat=content://*/... typ=*/* }]\n    scannedAsStoppedSystemApp=false\n    supportsScreens=[small, medium, large, xlarge, resizeable, anyDensity]\n    usesOptionalLibraries:\n      androidx.window.extensions\n      androidx.window.sidecar\n    usesLibraryFiles:\n      /system_ext/framework/androidx.window.extensions.jar\n      /system_ext/framework/androidx.window.sidecar.jar\n    timeStamp=2026-10-18 17:58:19\n    lastUpdateTime=2026-10-18 17:58:21\n    installerPackageName=null\n    installerPackageUid=-1\n    initiatingPackageName=com.android.shell\n    originatingPackageName=null\n    packageSource=1\n    appMetadataFilePath=null\n    appMetadataSource=0\n    signatures=PackageSignatures{7fcfbbd version:2, signatures:[51ed3f60], past signatures:[]}\n    installPermissionsFixed=false\n    pkgFlags=[ HAS_CODE ALLOW_CLEAR_USER_DATA ]\n    privatePkgFlags=[ PRIVATE_FLAG_ACTIVITIES_RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION ALLOW_AUDIO_PLAYBACK_CAPTURE PRIVATE_FLAG_ALLOW_NATIVE_HEAP_POINTER_TAGGING ]\n    apexModuleName=null\n    declared permissions:\n      de.momorc.moflight.lab.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION: prot=signature\n    requested permissions:\n      android.permission.ACCESS_LOCAL_NETWORK\n      android.permission.SYSTEM_ALERT_WINDOW\n      android.permission.INTERNET\n      de.momorc.moflight.lab.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION\n      android.permission.USE_FINGERPRINT\n      android.permission.VIBRATE\n      android.permission.USE_BIOMETRIC\n    install permissions:\n      android.permission.SYSTEM_ALERT_WINDOW: granted=true\n      android.permission.INTERNET: granted=true\n      de.momorc.moflight.lab.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION: granted=true\n      android.permission.USE_FINGERPRINT: granted=true\n      android.permission.VIBRATE: granted=true\n      android.permission.USE_BIOMETRIC: granted=true\n    User 0: ceDataInode=557620 deDataInode=401918 pccCeDataInode=0 pccDeDataInode=0 installed=true hidden=false suspended=false appLockEnabled=false distractionFlags=0 stopped=false notLaunched=false enabled=0 instant=false virtual=false quarantined=false\n      installReason=0\n      dataDir=/data/user/0/de.momorc.moflight.lab\n      firstInstallTime=2026-10-11 08:41:18\n      uninstallReason=0\n      overlay paths:\n        /product/overlay/NavigationBarModeGestural/NavigationBarModeGesturalOverlay.apk\n        /data/resource-cache/com.android.systemui-neutral-c9hH.frro\n        /data/resource-cache/com.android.systemui-accent-lXXO.frro\n        /data/resource-cache/com.android.systemui-dynamic-xN4b.frro\n      legacy overlay paths:\n        /product/overlay/NavigationBarModeGestural/NavigationBarModeGesturalOverlay.apk\n      gids=[3003]\n      runtime permissions:\n        android.permission.ACCESS_LOCAL_NETWORK: granted=true, flags=[ REVOKE_WHEN_REQUESTED|USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED]\n\nQueries:\n  system apps queryable: false\n  queries via forceQueryable:\n  queries via package name:\n  queries via component:\n    com.google.android.as.oss:\n      de.momorc.moflight.lab\n    com.google.android.as:\n      de.momorc.moflight.lab\n    com.google.android.apps.messaging:\n      de.momorc.moflight.lab\n    com.google.android.settings.intelligence:\n      de.momorc.moflight.lab\n    com.google.android.glasses.companion:\n      de.momorc.moflight.lab\n    com.google.android.apps.accessibility.voiceaccess:\n      de.momorc.moflight.lab\n    de.momorc.moflight.lab:\n      com.google.android.bluetooth\n      com.google.android.documentsui\n      com.google.android.apps.bard\n      com.google.android.apps.messaging\n      com.google.android.googlequicksearchbox\n      com.android.chrome\n      com.google.android.apps.docs\n      com.google.android.apps.maps\n      com.google.android.apps.photos\n      com.google.android.gm\n      com.google.android.youtube\n  queryable via interaction:\n    User 0:\n      [com.android.DeviceAsWebcam,android,com.android.providers.settings,com.android.location.fused,com.android.dynsystem,com.android.emulator.multidisplay,com.android.inputdevices,com.android.keychain,com.android.server.telecom,com.android.localtransport,com.android.settings]:\n        de.momorc.moflight.lab\n      com.google.android.inputmethod.latin:\n        de.momorc.moflight.lab\n      com.google.android.gms:\n        de.momorc.moflight.lab\n  queryable via uses-library:\n\nDexopt state:\n  [de.momorc.moflight.lab]\n    path: /data/app/~~m8B04YBgtc4rgoOQdu9CJg==/de.momorc.moflight.lab-wd5yu0O7Oj1BMtFsbmfIqg==/base.apk\n      x86_64: [status=verify] [reason=install] [primary-abi]\n        [location is /data/app/~~m8B04YBgtc4rgoOQdu9CJg==/de.momorc.moflight.lab-wd5yu0O7Oj1BMtFsbmfIqg==/oat/x86_64/base.odex]",
+  "restored_display": {
+    "size": "Physical size: 1080x1920",
+    "density": "Physical density: 420",
+    "font_scale": "1.0"
+  },
+  "network_after": {
+    "airplane_mode_on": "1",
+    "wifi_on": "0",
+    "mobile_data": "0"
+  }
+}

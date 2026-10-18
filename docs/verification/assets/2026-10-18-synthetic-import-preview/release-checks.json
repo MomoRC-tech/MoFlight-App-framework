@@ -1,0 +1,9 @@
+{
+  "source_commit": "85e40875ce56abd4e10f867c214db127f200b228",
+  "lintVitalRelease": "passed",
+  "lint_seconds": 143,
+  "log": "build/import-preview/lint-final-aliases.log",
+  "failed_attempts_retained": true,
+  "apk_sha256": "c728cf02feb45ca089cf6a04015a81c8e5207884687df100623b12e22b298a20",
+  "zip_sha256": "0d01807abc92cb51c8a42d860a84d79bbdf9e73e5301ec600986dea4b2a05fa1"
+}

@@ -1,0 +1,6 @@
+{
+  "recorded_at_utc": "2026-10-18T15:59:10.700792+00:00",
+  "authorization": "User replied go after asked to confirm exclusive synthetic emulator use, install, native checks and APK handoff.",
+  "initial_lifecycle": "stopped; no ADB devices before starting named synthetic AVD",
+  "scope": "#18 synthetic preview native checkpoint; preserve unrelated work and all saved library/provider evidence"
+}

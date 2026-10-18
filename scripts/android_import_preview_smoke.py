@@ -116,8 +116,10 @@ def behavior(smoke):
     retained_choice(smoke)
 
 
-def matrix(smoke):
+def matrix(smoke, widths=None):
     for width, height, font in [(390, 900, 1.0), (360, 900, 1.6), (800, 600, 1.0)]:
+        if widths and width not in widths:
+            continue
         smoke.shell('wm', 'size', f'{width}x{height}')
         smoke.shell('wm', 'density', '160')
         smoke.shell('settings', 'put', 'system', 'font_scale', str(font))
@@ -142,7 +144,7 @@ def matrix(smoke):
         check(smoke, f'{width}-font{font}-choice-actions-reachable')
 
 
-def execute(smoke, expected_hash, matrix_only=False, repeat_checks_only=False):
+def execute(smoke, expected_hash, matrix_only=False, repeat_checks_only=False, widths=None):
     assert smoke.shell('getprop', 'ro.kernel.qemu') == '1'
     assert smoke.adb('emu', 'avd', 'name').stdout.splitlines()[0].strip() == AVD
     smoke.emulator = True
@@ -168,7 +170,7 @@ def execute(smoke, expected_hash, matrix_only=False, repeat_checks_only=False):
             repeat_only(smoke)
         elif not matrix_only:
             behavior(smoke)
-        matrix(smoke)
+        matrix(smoke, widths)
         launch(smoke)
         library_facts(smoke)
         open_preview(smoke)
@@ -197,12 +199,13 @@ def main():
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--matrix-only', action='store_true', help='Reuse applicable behavior evidence after a harness correction')
     parser.add_argument('--repeat-only', action='store_true', help='Recreate only the repeat/return case; reuse prior independent behavior evidence')
+    parser.add_argument('--widths', nargs='+', type=int, choices=[360, 390, 800], help='Run only affected widths; preserve earlier source-specific evidence')
     args = parser.parse_args()
     assert not args.output.exists(), 'Use a new evidence directory'
     assert not (args.matrix_only and args.repeat_only), 'Choose one resume mode'
     smoke = Smoke(args.output, args.serial, AVD)
     try:
-        execute(smoke, args.expected_apk_sha256, args.matrix_only, args.repeat_only)
+        execute(smoke, args.expected_apk_sha256, args.matrix_only, args.repeat_only, args.widths)
     except Exception as error:
         finish(smoke, 'failed', error)
         raise

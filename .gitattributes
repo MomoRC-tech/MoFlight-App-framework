@@ -4,3 +4,6 @@ tests/fixtures/local-logbook/* -text
 
 # Keep this trial's source-specific evidence and recorded hashes byte-exact.
 docs/verification/assets/2026-10-18-ui-agent-experiment/** -text whitespace=cr-at-eol
+
+# Preserve native preview evidence and the source-specific manifest hashes.
+docs/verification/assets/2026-10-18-synthetic-import-preview/** -text whitespace=cr-at-eol

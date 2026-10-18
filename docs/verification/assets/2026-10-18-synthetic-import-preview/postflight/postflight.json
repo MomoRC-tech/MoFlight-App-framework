@@ -1,0 +1,38 @@
+{
+  "checked_at_utc": "2026-10-18T16:19:55.528786+00:00",
+  "avd": "MoFlight_Synthetic_API37",
+  "serial": "emulator-5558",
+  "display": {
+    "size": "Physical size: 1080x1920",
+    "density": "Physical density: 420",
+    "font_scale": "1.0"
+  },
+  "network": {
+    "airplane_mode_on": "1",
+    "wifi_on": "0",
+    "mobile_data": "0"
+  },
+  "package_uid": "package:de.momorc.moflight.lab uid:10235",
+  "installation": [
+    "versionCode=1 minSdk=24 targetSdk=36",
+    "versionName=0.1.0",
+    "lastUpdateTime=2026-10-18 18:13:49",
+    "firstInstallTime=2026-10-11 08:41:18"
+  ],
+  "library": {
+    "book": "Gliding volume A",
+    "count": 4,
+    "known_time": "1:10"
+  },
+  "visible_flight_rows_before": [
+    "01. Juni 2026, D-EX01, Details öffnen",
+    "01. Juni 2026, D-EX01, Details öffnen",
+    "01. Juni 2026, D-EX02, Details öffnen"
+  ],
+  "visible_flight_rows_after": [
+    "01. Juni 2026, D-EX01, Details öffnen",
+    "01. Juni 2026, D-EX01, Details öffnen",
+    "01. Juni 2026, D-EX02, Details öffnen"
+  ],
+  "preservation_limit": "UI facts/installation identity only; no full database-byte comparison in Release sandbox"
+}

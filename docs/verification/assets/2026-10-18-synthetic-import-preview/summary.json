@@ -1,0 +1,321 @@
+{
+  "application_source": "85e40875ce56abd4e10f867c214db127f200b228",
+  "apk_sha256": "c728cf02feb45ca089cf6a04015a81c8e5207884687df100623b12e22b298a20",
+  "final_native_checks": 14,
+  "visual_states_reviewed": [
+    {
+      "screenshot": "native-04/01-360-font1.6-comparison.png",
+      "hierarchy": "native-04/01-360-font1.6-comparison.xml",
+      "viewport": {
+        "width_dp": 360,
+        "height_dp": 900,
+        "density_dpi": 160,
+        "font_scale": 1.6
+      },
+      "visual_review": "passed: readable full labels and previous/current evidence; no overlap; scrolling/capped wide groups and reachable choice actions"
+    },
+    {
+      "screenshot": "native-04/02-360-font1.6-evidence.png",
+      "hierarchy": "native-04/02-360-font1.6-evidence.xml",
+      "viewport": {
+        "width_dp": 360,
+        "height_dp": 900,
+        "density_dpi": 160,
+        "font_scale": 1.6
+      },
+      "visual_review": "passed: readable full labels and previous/current evidence; no overlap; scrolling/capped wide groups and reachable choice actions"
+    },
+    {
+      "screenshot": "native-04/03-360-font1.6-choices.png",
+      "hierarchy": "native-04/03-360-font1.6-choices.xml",
+      "viewport": {
+        "width_dp": 360,
+        "height_dp": 900,
+        "density_dpi": 160,
+        "font_scale": 1.6
+      },
+      "visual_review": "passed: readable full labels and previous/current evidence; no overlap; scrolling/capped wide groups and reachable choice actions"
+    },
+    {
+      "screenshot": "native-05/01-390-font1.0-comparison.png",
+      "hierarchy": "native-05/01-390-font1.0-comparison.xml",
+      "viewport": {
+        "width_dp": 390,
+        "height_dp": 900,
+        "density_dpi": 160,
+        "font_scale": 1.0
+      },
+      "visual_review": "passed: readable full labels and previous/current evidence; no overlap; scrolling/capped wide groups and reachable choice actions"
+    },
+    {
+      "screenshot": "native-05/02-390-font1.0-evidence.png",
+      "hierarchy": "native-05/02-390-font1.0-evidence.xml",
+      "viewport": {
+        "width_dp": 390,
+        "height_dp": 900,
+        "density_dpi": 160,
+        "font_scale": 1.0
+      },
+      "visual_review": "passed: readable full labels and previous/current evidence; no overlap; scrolling/capped wide groups and reachable choice actions"
+    },
+    {
+      "screenshot": "native-05/03-390-font1.0-choices.png",
+      "hierarchy": "native-05/03-390-font1.0-choices.xml",
+      "viewport": {
+        "width_dp": 390,
+        "height_dp": 900,
+        "density_dpi": 160,
+        "font_scale": 1.0
+      },
+      "visual_review": "passed: readable full labels and previous/current evidence; no overlap; scrolling/capped wide groups and reachable choice actions"
+    },
+    {
+      "screenshot": "native-05/05-800-font1.0-comparison.png",
+      "hierarchy": "native-05/05-800-font1.0-comparison.xml",
+      "viewport": {
+        "width_dp": 800,
+        "height_dp": 600,
+        "density_dpi": 160,
+        "font_scale": 1.0
+      },
+      "visual_review": "passed: readable full labels and previous/current evidence; no overlap; scrolling/capped wide groups and reachable choice actions"
+    },
+    {
+      "screenshot": "native-05/06-800-font1.0-evidence.png",
+      "hierarchy": "native-05/06-800-font1.0-evidence.xml",
+      "viewport": {
+        "width_dp": 800,
+        "height_dp": 600,
+        "density_dpi": 160,
+        "font_scale": 1.0
+      },
+      "visual_review": "passed: readable full labels and previous/current evidence; no overlap; scrolling/capped wide groups and reachable choice actions"
+    },
+    {
+      "screenshot": "native-05/07-800-font1.0-choices.png",
+      "hierarchy": "native-05/07-800-font1.0-choices.xml",
+      "viewport": {
+        "width_dp": 800,
+        "height_dp": 600,
+        "density_dpi": 160,
+        "font_scale": 1.0
+      },
+      "visual_review": "passed: readable full labels and previous/current evidence; no overlap; scrolling/capped wide groups and reachable choice actions"
+    }
+  ],
+  "earlier_functional_evidence": {
+    "application_source": "6b5c5ea64555fc18c8d78f2afd7b15caebe99b28",
+    "runs": [
+      "native-01/report.json",
+      "native-03/report.json"
+    ],
+    "scope": "inert entry, incomplete retry, correction, conflict choice, unknown/defer and accepted repeat/nested return; final patch only remounts selected Text label"
+  },
+  "failed_runs": {
+    "native-01": "selector matched explanatory text; four prior checks passed",
+    "native-02": "resume assumed transient editor survived display restoration; no pass",
+    "native-03_visual": "native assertions completed; selected suffix missing at MIN/font1.6; repaired and retested at final source"
+  },
+  "preservation": "postflight/postflight.json",
+  "cleanup": "postflight/cleanup.json",
+  "unverified": [
+    "iOS runtime",
+    "physical Android",
+    "spoken accessibility",
+    "empty first-use native",
+    "live provider/source identity",
+    "production persistence/migration"
+  ],
+  "retained_evidence": [
+    {
+      "path": "build-fixed.json",
+      "bytes": 1193,
+      "sha256": "973e94f3b0ebed573a77be7efaec276de688a09678c6cb33d3c58f3a879698e3"
+    },
+    {
+      "path": "build.json",
+      "bytes": 1195,
+      "sha256": "5f3977c53ffa967c99d5ea9a7b9fdd2ce6ca9020884a37808212e09c1eb879e0"
+    },
+    {
+      "path": "host-check-fixed.json",
+      "bytes": 1825,
+      "sha256": "7dca6a8b4ee1b92a94d735943851e5520a4361df19819ac7158981a34ed656a8"
+    },
+    {
+      "path": "host-check.json",
+      "bytes": 1821,
+      "sha256": "6d0aaf09a21c5cb809e3a34873d54f1a9f57a434e93effb64f79c9ae59a8283e"
+    },
+    {
+      "path": "native-01/report.json",
+      "bytes": 11840,
+      "sha256": "1a644816fa850f2c3fb32a49eef89bd8a9d7f9d9186850f57164ad14c76b1545"
+    },
+    {
+      "path": "native-02/report.json",
+      "bytes": 11453,
+      "sha256": "b65f8f3cf0246d0cea14cffcc426c06be351f888e6c59d0f4c44163c57ee238a"
+    },
+    {
+      "path": "native-03/08-360-font1.6-choices.png",
+      "bytes": 130510,
+      "sha256": "9c30e62483b9653d01ff85f2865ef25190b2ba0a3c95ddb8abf791ef055085bd"
+    },
+    {
+      "path": "native-03/08-360-font1.6-choices.xml",
+      "bytes": 21356,
+      "sha256": "f552db025a637610503ba65a81630a0c0ed578f29ffcf2e7127c36145f4c7941"
+    },
+    {
+      "path": "native-03/report.json",
+      "bytes": 15672,
+      "sha256": "75c076f539b4b9094aeb4d755b0a28269720b3c1ac3967d6153c3f6ea7a8cbff"
+    },
+    {
+      "path": "native-04/01-360-font1.6-comparison.png",
+      "bytes": 172741,
+      "sha256": "d209570a2cce10aecd76b496f04ed92b5ab6711eec575d29bec529aa55ee2393"
+    },
+    {
+      "path": "native-04/01-360-font1.6-comparison.xml",
+      "bytes": 15064,
+      "sha256": "62158d91e74e894283e0ccbc70f6bbc15299799933656d8d3957357936fad845"
+    },
+    {
+      "path": "native-04/02-360-font1.6-evidence.png",
+      "bytes": 151398,
+      "sha256": "dca303407b7a78a3ff149b0c655dad37185b2f0afdd2936e22fcb8ffc57ba9fd"
+    },
+    {
+      "path": "native-04/02-360-font1.6-evidence.xml",
+      "bytes": 17977,
+      "sha256": "96ea5993ab4b2ba27d822e0cf419045409831f5ed6825f588c94457109b6a55e"
+    },
+    {
+      "path": "native-04/03-360-font1.6-choices.png",
+      "bytes": 130373,
+      "sha256": "c393e694109d0aefa0754923e2c7ef3d1b54153bee4f828fd531f45585d56bcb"
+    },
+    {
+      "path": "native-04/03-360-font1.6-choices.xml",
+      "bytes": 21356,
+      "sha256": "f552db025a637610503ba65a81630a0c0ed578f29ffcf2e7127c36145f4c7941"
+    },
+    {
+      "path": "native-04/report.json",
+      "bytes": 12758,
+      "sha256": "55682c42168c7a0d978ec2395b58df6f49056c283cca27b8c3bae26047d83cd5"
+    },
+    {
+      "path": "native-05/01-390-font1.0-comparison.png",
+      "bytes": 148807,
+      "sha256": "1575aa12c99bf7dc35a8a620be368d8c8e7e511125eba80d7cf6c01ce78a15c0"
+    },
+    {
+      "path": "native-05/01-390-font1.0-comparison.xml",
+      "bytes": 21173,
+      "sha256": "3fae5c0dafe6faa35852d0f465d633a531196ff5a861a65276d09ef166891b52"
+    },
+    {
+      "path": "native-05/02-390-font1.0-evidence.png",
+      "bytes": 163221,
+      "sha256": "2ef223e323aea6bf42d989e155c6870ca619bf0e9a2b000bfd53dc63f0614cfc"
+    },
+    {
+      "path": "native-05/02-390-font1.0-evidence.xml",
+      "bytes": 22248,
+      "sha256": "4eaa8eb2ad780f0629e3bb8f7e6113ae084f2d68a049845575fb3ff16acb24cf"
+    },
+    {
+      "path": "native-05/03-390-font1.0-choices.png",
+      "bytes": 122667,
+      "sha256": "0ab46f9753c9821ab280bc02d0ea6a2d5ab05e0b64b15e52c7d8cf92a93462eb"
+    },
+    {
+      "path": "native-05/03-390-font1.0-choices.xml",
+      "bytes": 25252,
+      "sha256": "696664cf161b3d67bb3ca955e67c6a56482d29629af0d7c8a6d090752b5726de"
+    },
+    {
+      "path": "native-05/05-800-font1.0-comparison.png",
+      "bytes": 119979,
+      "sha256": "1c6c814c8af7a66d241463998826347074ea23a3a64d4b8407f0673b5ed5ca27"
+    },
+    {
+      "path": "native-05/05-800-font1.0-comparison.xml",
+      "bytes": 17736,
+      "sha256": "104a1af900abddacc519c4df8ac960e8dd909ba6abe1c9f5b183fc9b68989ab4"
+    },
+    {
+      "path": "native-05/06-800-font1.0-evidence.png",
+      "bytes": 99603,
+      "sha256": "a27990f91cfe94e33ce4a81788772008b64c618839812ee199c99d0fb288a96b"
+    },
+    {
+      "path": "native-05/06-800-font1.0-evidence.xml",
+      "bytes": 20520,
+      "sha256": "94211023b0c0cfd69ad64c01fc6acab986f8bc778f28642ad54d8be2d14067f4"
+    },
+    {
+      "path": "native-05/07-800-font1.0-choices.png",
+      "bytes": 83708,
+      "sha256": "b9c8f5eb0edf11b3e04da8b0918d10407c5749aee03b1112ab573fa55286d684"
+    },
+    {
+      "path": "native-05/07-800-font1.0-choices.xml",
+      "bytes": 20598,
+      "sha256": "f0b6ccacf4bdc7f4b1296ba9f265cdec5fbcd51870b5790ee5801ba77f434a73"
+    },
+    {
+      "path": "native-05/report.json",
+      "bytes": 14175,
+      "sha256": "3bea0af7f4e09071c21bd3317df434574df2d8acc78184423475efbb6e71fcad"
+    },
+    {
+      "path": "postflight/cleanup.json",
+      "bytes": 246,
+      "sha256": "034058006c012337d5ca45faf0df9b001950336ab6a4e963a96361ccf5d5123b"
+    },
+    {
+      "path": "postflight/library-after.xml",
+      "bytes": 49257,
+      "sha256": "0761727614f1f435c717e693cdd7bc8975800608736b69062814523f8675bbaa"
+    },
+    {
+      "path": "postflight/postflight.json",
+      "bytes": 1179,
+      "sha256": "eca243205b189914f62587be7fb93bdbd60225a205567608095fb50c2d831cb9"
+    },
+    {
+      "path": "postflight/retained-library.png",
+      "bytes": 366283,
+      "sha256": "88de6c0f7e543135fe3783352325c7b68902c056000e19c4e8d45c44ee920288"
+    },
+    {
+      "path": "preflight/authorization.json",
+      "bytes": 406,
+      "sha256": "374a3a67592c762e3eb512cf69602d23b9e882180dd16aaa2533ee7683b3a33f"
+    },
+    {
+      "path": "preflight/library-before.xml",
+      "bytes": 49257,
+      "sha256": "0761727614f1f435c717e693cdd7bc8975800608736b69062814523f8675bbaa"
+    },
+    {
+      "path": "preflight/package-uid-before.txt",
+      "bytes": 42,
+      "sha256": "bdf6bfc22a4b09a4c11ec973ddbe0f3e12b96fcf6bb390cda24197bb410b3b38"
+    },
+    {
+      "path": "preflight/preflight.json",
+      "bytes": 582,
+      "sha256": "06b0a4ae5a5338c5a2af028c46d4522cede990985503c7d7441ff2a070efd62b"
+    },
+    {
+      "path": "release-checks.json",
+      "bytes": 390,
+      "sha256": "7055ef284a5e1cf6c8ef0b9d24ea667d5ff59913c525773a2cc27f7ab976b358"
+    }
+  ]
+}
