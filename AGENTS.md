@@ -20,6 +20,21 @@
 - Before implementation, identify the milestone, deliverable, dependencies and acceptance check. Prefer small executable PoCs before broad implementation; support Android/iOS and offline local data.
 - Manuel owns product decisions and binding technology approval. Recommendations and recorded ideas are not approval; proposed ADRs remain proposed until an explicit decision.
 - GitHub Issues are the authoritative backlog for every planned change, improvement, bug, deferred idea and open decision. Capture work before implementation; do not leave it only in chat, handovers or local TODOs. Check current Issues and extend a matching task; create an Issue for distinct work.
+- Classify every Issue when creating or updating it. Start its title with exactly one `[Category]` prefix (at most eight letters inside the brackets) and apply the matching primary category label from the table below. Choose the primary deliverable; UI and cloud work have explicit categories. Preserve descriptive title text and unrelated labels; replace an old category/prefix when scope changes instead of stacking them. Category does not imply approval, priority, completion or release inclusion; a requested enhancement is not automatically a bug.
+
+| Title prefix | GitHub label | Primary purpose |
+| --- | --- | --- |
+| `[Feature]` | `enhancement` | User-facing capability or improvement |
+| `[Bug]` | `bug` | Existing behavior violates its intended contract |
+| `[Platform]` | `platform` | Shared/local foundations, builds, CI and technical maintenance |
+| `[UI]` | `ui` | Interface, design, navigation, interaction and accessibility |
+| `[Cloud]` | `cloud` | Cloud Auth/data, account integration and synchronization |
+| `[Research]` | `research` | Discovery, investigation and feasibility proof |
+| `[Decision]` | `decision` | Product, architecture or commercial choice |
+| `[Quality]` | `quality` | Verification, acceptance, audits and traceability |
+| `[Privacy]` | `privacy` | Data protection, privacy policies and readiness |
+| `[Docs]` | `documentation` | Documentation and maintained references |
+
 - Keep one short package contract in the matching Issue: scope, exclusions, status, dependencies/open questions and acceptance criteria. Link specifications, commits and evidence; maintain checklists and close only when scoped acceptance is met, with remaining work tracked. Issue creation does not approve implementation or change priority.
 - If GitHub is unavailable, record the unsaved backlog item locally, tell Manuel and reconcile when access returns.
 
