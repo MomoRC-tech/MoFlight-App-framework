@@ -106,7 +106,7 @@ Manuel confirmed **UTC** on 18 October 2026 ([#7](https://github.com/MomoRC-tech
 | Surface/action | Confirmed information and behavior |
 | --- | --- |
 | Compact “Mein Fliegen” section | Narrow-height, swipeable quick summaries. Initial view: this year's flight count and known flight time, with a small comparison to the same period last year in that same view. |
-| Other swipe views | Aircraft flown most often; flight-duration distribution. Exact measures, thresholds and visual forms remain open. |
+| Other swipe views | Aircraft flown most often; flight-duration distribution. Duration measure/ranges selected 18 October 2026: count flights with known provider durations in **<15, 15–29, 30–59, 60–119, 120–179, 180+ minutes**; unknown-duration flights stay separate. Exact visual forms/entry route remain open. |
 | Incomplete prior-year comparison | Show available current/prior-year totals with an explicit incomplete-data warning, and hide the percentage comparison (Manuel, 18 October 2026). Keep intended comparison dates and actual coverage visible; missing history is not zero. |
 | Tap summary | Open that statistic in detailed “Meine Flüge”, with expanded information/chart and contributing flights; carry over period and filters. |
 | Filters | Period, aircraft, person flown with and the user's recorded role. Aircraft instance/model and person identity/role must stay distinct. Additional category filter is not selected as an initial requirement. |
@@ -183,7 +183,7 @@ Deferred privacy task, explicitly requested by Manuel on 2026-10-13: [#15 member
 1. Product review of the seven summarized areas is complete. Proceed to rough screen arrangement; ask only unresolved questions that materially affect it and do not re-ask confirmed choices.
 2. Discuss the smallest useful release and writing's immediate value without automatically reordering M2–M5.
 3. Billing walkthrough remains deferred; review it when Manuel is ready.
-4. Resolve consequential carryover exceptions, assumed-writing cancellation/retry/recovery, source-zone verification/flight-date assignment/duration bands/year comparability, club freshness/new-item semantics and duty horizon as affected journeys need them. The assumed-writing trigger was selected on 18 October above.
+4. Resolve consequential carryover exceptions, assumed-writing cancellation/retry/recovery, source-zone verification/flight-date assignment/year comparability, club freshness/new-item semantics and duty horizon as affected journeys need them. The assumed-writing trigger was selected on 18 October above.
 5. Prepare German low-fidelity concepts from this map, then review detailed operation/state contracts before separately scoped application implementation. No subscriptions, paid AI, cloud integration, production schema expansion or additional services are authorized here.
 
 Traceability: existing Issues #2 retrieval, #5 UI/application boundary, #7 paper/photos/writing, #9 queries/analytics, #10 provider information and #11 product/book scope. Dedicated deferred [#14 Activities live](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/14) tracks future concept/feasibility work. [Discovery brief](user-journey-ui-discovery.md), [state semantics](flight-logbook-state-and-queries.md), [writing presentation](writing-template-presentation.md) and [provider discovery](vereinsflieger-information-discovery.md) retain detailed boundaries.

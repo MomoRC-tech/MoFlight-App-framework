@@ -82,6 +82,8 @@ Count distinct sufficiently established flight identities, not import rows, page
 
 Year-comparison display selected by Manuel, 18 October 2026: if prior-year history is incomplete, show available totals with an incomplete-data warning and hide the percentage comparison. Keep requested period and actual coverage visible; unknown/missing history is not zero. Provider-based statistics remain independent of paper-total adjustments; incomplete duration values still need the existing known-time/unknown-count distinction. Source coverage/completeness must be established rather than inferred from existing rows ([#9](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/9)).
 
+Flight-duration distribution selected by Manuel, 18 October 2026: count distinct sufficiently established flights by authoritative recorded provider duration in integer-minute ranges <15, 15–29, 30–59, 60–119, 120–179 and 180+ minutes. Each known duration belongs to exactly one range; unknown durations are a separate count, not zero or an estimated range. Preserve period/filter scope and contributing-flight drill-down. Paper adjustments and takeoff/landing subtraction do not replace the provider duration. Required future checks include 14/15, 29/30, 59/60, 119/120 and 179/180-minute boundaries, explicit zero versus unknown, duplicates and period/identity isolation; these are not executed application tests.
+
 The query response includes the resolved entity/filter, dataset revision/basis, count or latest recorded flight, contributing records, data-through/coverage, unresolved/excluded counts and freshness. The pilot can inspect the supporting list and change filters or data basis.
 
 ## Technical boundary
