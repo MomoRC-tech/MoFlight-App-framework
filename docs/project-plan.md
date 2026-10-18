@@ -8,6 +8,8 @@ The continuation handover records Manuel's “that's a good plan” as endorseme
 
 ### Starting point
 
+**First-use journey captured — 18 October 2026:** [#22](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/22) tracks the [extension to the existing journey map](product/2026-10-13-journey-information-map.md#first-use--guided-start-and-trust): first opening, contextual guidance, trust information before login, suggested explicit retrieval, truthful Start-tile highlights and explanations on first entry. M1 journey/UI discovery with M2–M4 dependencies; documentation is authorized, detailed design/application implementation and release inclusion remain open. Reuse #17 login guidance, #16 safeguards and #21 evidence-backed privacy wording; #19 scheduling remains separate. Tile updates require usable saved data, not raw capture alone. No package/milestone reorder; the completed journey must be included in the relevant release acceptance if selected.
+
 The five-tab shell, synthetic SQLite book library, deterministic queries, backup/restore and bounded Android provider connection/capture/recovery work exist. Application `dfb69cc` has the recorded 197-test/TypeScript/export/Release checkpoint and five-flight reference/repeat/cancel evidence. **Real provider captures still do not feed the app's saved flight library.** The existing pure reconciliation planner and multi-book proof are reusable foundations, not a production importer. Photos, live club/Medical/cost data, cloud Auth/sync and conversational AI are unconnected. iOS runtime and the deferred updated physical-phone gate remain open.
 
 ### Next implementation packages

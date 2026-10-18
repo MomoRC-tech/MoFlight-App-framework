@@ -1,12 +1,14 @@
 # User journeys and UI concept discovery
 
-Date: 2026-10-13 (Europe/Berlin). Owner: Manuel Singer, guided by the engineer. M1 discovery has started; M1 application implementation has not started. [Project roadmap](../project-plan.md) controls sequencing and acceptance. Existing task references: #5, #9 and #11; documentation traceability: #12.
+Discovery baseline: 2026-10-13 (Europe/Berlin). Owner: Manuel Singer, guided by the engineer. The [project roadmap](../project-plan.md) tracks current M1 implementation, sequencing and acceptance; discovery statements below retain their dated scope. Existing task references: #5, #9 and #11; documentation traceability: #12.
 
 ## Agreed purpose
 
 Continued discovery decisions are consolidated in the [journey and information map](2026-10-13-journey-information-map.md). It records actual answers, supersedes the earlier post-writing completion-confirmation interaction, and separates content choices from unapproved layout/implementation. Review that map before further layout comparison. Ask one focused question at a time with clickable suggested answers/free text; wait for an actual answer.
 
 Explore which user situations matter, which features help and what is feasible before fixing detailed interfaces. Deliver a small set of user journeys, a feature-priority/feasibility map and rough screen concepts. Future ideas may be explored without scheduling implementation. Figma Design remains the main reviewed design workspace; Google Stitch is optional exploration.
+
+**First-use extension, 18 October 2026:** Manuel requested guidance from first app opening through trustworthy provider login, suggested retrieval, relevant Start-tile updates and first-open feature explanations. The [revised journey](2026-10-13-journey-information-map.md#first-use--guided-start-and-trust) complements the existing map under [#22](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/22). A brief welcome and skippable contextual help are proposed refinements; detailed design and application implementation remain open. Reuse #17 login guidance and preserve session/privacy/import gates.
 
 ## Guided process
 
