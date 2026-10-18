@@ -35,6 +35,8 @@ Launching or reviewing checks through an assistant still uses conversation token
 
 No routine subagents for small tasks. Use independent parallel work only when it warrants the added cost; justified simpler delegation retains `gpt-6-luna`. Avoid repeated full repository audits and verbose progress narration.
 
+The [first UI-agent experiment](ui-agent-experiment.md) is prepared under #6 at Manuel's request on 18 October 2026: a bounded fresh-context Luna/Max worker, with Sol 6.1/Low as a prepared fallback. It has not been executed and establishes no savings or standing delegation rule. Execution and adoption remain separate from preparation.
+
 ## Assess and implement useful tests
 
 Manuel approved this standing rule on 18 October 2026 under [#12](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/12#issuecomment-6247020382), coordinated with #6. For every implementation or bug fix, identify the changed observable behavior, plausible failure and existing protection before coding. Assess whether unit tests or a contract/storage/component test would catch a useful regression. When beneficial, implement or update those tests in the same package and run the relevant checks before completion; for a reproducible defect, show the new regression fails without the fix when practical.

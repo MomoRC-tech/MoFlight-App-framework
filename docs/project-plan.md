@@ -8,6 +8,8 @@
 
 ## Immediate follow-up — launcher icon, tools and import preview
 
+**Verification-efficiency experiment, prepared only — 18 October 2026:** [#6 preparation contract](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/6#issuecomment-6251570686) and [operator/worker plan](development/ui-agent-experiment.md) define a bounded Luna/Max emulator trial, with Sol 6.1/Low as a possible fallback. No agent/device trial, model-quality acceptance, token/time saving or standing policy is claimed. This M1 tooling preparation does not reorder product packages.
+
 Manuel reports the installed app works and requested this continuation handover on 18 October 2026. He explicitly marks the missing launcher icon urgent, requests review of older logbook/tool screens, and asks for test-only controls in dedicated Development screens through Settings if appropriate. He clarified “set up and isdue” as **set up an Issue for each item**; it is not another setup/onboarding feature. The handover captured the backlog and plan. Manuel subsequently authorized starting #25 and continued with #26/#27; both bounded M1 packages are implemented within the source-specific verification below. #18 remains the next functional recommendation. No broader device acceptance or production decision is inferred.
 
 | Placement | Deliverable / next action | Tracking / acceptance boundary |
