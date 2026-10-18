@@ -14,7 +14,7 @@ class SymbolSmokeGuardTests(unittest.TestCase):
         callback = Mock()
         smoke = SimpleNamespace(serial='emulator-5562', shell=Mock(return_value='0'))
         with self.assertRaisesRegex(AssertionError, 'physical'):
-            execute(smoke, on_screen=callback)
+            execute(smoke, on_screen=callback, viewports=[(390, 900, 1.0)], keyboard=False)
         callback.assert_not_called()
         smoke.shell.assert_called_once_with('getprop', 'ro.kernel.qemu')
 

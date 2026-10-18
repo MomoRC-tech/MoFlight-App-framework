@@ -167,7 +167,7 @@ def keyboard_trial(smoke, viewport, name):
     smoke.shell('input', 'keyevent', 'KEYCODE_BACK')
 
 
-def execute(smoke, on_screen=None):
+def execute(smoke, on_screen=None, *, viewports=None, keyboard=True):
     # No emulator/display/app mutation is allowed before both safety checks pass.
     assert smoke.serial, 'An explicit emulator serial is required'
     assert smoke.shell('getprop', 'ro.kernel.qemu') == '1', 'Refusing a physical device'
@@ -185,7 +185,7 @@ def execute(smoke, on_screen=None):
                                 'network changes, live-service or iOS acceptance. Automated checks '
                                 'do not establish pixel fidelity or absence of all text clipping.')
     try:
-        for width, height, font in VIEWPORTS:
+        for width, height, font in VIEWPORTS if viewports is None else viewports:
             smoke.shell('wm', 'size', f'{width}x{height}')
             smoke.shell('wm', 'density', '160')
             smoke.shell('settings', 'put', 'system', 'font_scale', str(font))
@@ -202,7 +202,7 @@ def execute(smoke, on_screen=None):
                 if on_screen:
                     on_screen(smoke, title, viewport)
                 capture(smoke, f'{prefix}-{slug}', viewport)
-            if width == 360:
+            if width == 360 and keyboard:
                 keyboard_trial(smoke, viewport, f'{prefix}-ai-keyboard')
     finally:
         # Restore actual pre-existing overrides, including an absent font setting.

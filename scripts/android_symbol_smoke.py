@@ -37,12 +37,15 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--serial', required=True)
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--image-only', action='store_true', help='360/390 dp normal-text recheck; reuse the earlier full matrix/keyboard evidence for unchanged layout code.')
     args = parser.parse_args()
     if args.output.exists():
         raise RuntimeError('Use a fresh evidence directory')
     smoke = Smoke(args.output, args.serial, 'MoFlight_Synthetic_API37')
     try:
-        execute(smoke, on_screen=symbol_screen)
+        execute(smoke, on_screen=symbol_screen,
+                viewports=[(360, 900, 1.0), (390, 900, 1.0)] if args.image_only else None,
+                keyboard=not args.image_only)
     except Exception as exc:
         finish(smoke, 'failed', exc)
         raise
