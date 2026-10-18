@@ -61,6 +61,8 @@ Documentation verification, 18 October 2026: local Windows/Python/Git checks pas
 
 ## Catch up on the paper logbook
 
+**Priority clarified by Manuel, 18 October 2026:** the writing template's primary benefit is **adding new paper-logbook entries**. Establish the last written entry and required carryovers, resolve only consequential missing information, then prepare the new entries. Checking older already-written entries is secondary/optional and must not turn catch-up into a mandatory historical audit. Retain detected discrepancies and accepted adjustments without forcing correction/review of every old entry. Interrupt continuation only for unresolved information needed to place or calculate new instructions; use the approved paper-total adjustment path where applicable. Existing milestone order and implementation gates remain unchanged.
+
 | Step | Confirmed behavior and needed information |
 | --- | --- |
 | Notice | Offer a next-action suggestion whenever available flights extend beyond the remembered last written entry. Indicator/animation and exact wording remain open; a flashing dot was an example, not a selected design. |
