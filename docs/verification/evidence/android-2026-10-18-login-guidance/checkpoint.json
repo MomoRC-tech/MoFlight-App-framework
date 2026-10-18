@@ -1,0 +1,263 @@
+{
+  "application_source": "dcce6e253c96a0ee20db5377ad22086221488e35",
+  "application_src_tree": "1ab524338c80319bf153fc91642efae9b7fd80b1",
+  "environment": {
+    "node": "24.18.0",
+    "pnpm": "11.25.0",
+    "python": "3.12",
+    "android": "17 / API 37 / x86_64",
+    "avd": "MoFlight_LoginUX_API37"
+  },
+  "host": {
+    "mobile_tests": {
+      "command": "pnpm test",
+      "passed": 203,
+      "failed": 0,
+      "log": "host-tests.txt"
+    },
+    "typescript": "passed",
+    "android_ios_exports": "passed",
+    "python_target_guard_tests": 2
+  },
+  "release": {
+    "source_commit": "dcce6e253c96a0ee20db5377ad22086221488e35",
+    "configuration": "Release",
+    "apk_sha256": "f2293ba83d06013412c2d57ccef62f0a3753d15f8ce8e5268978430f8ad4eee9",
+    "elapsed_seconds": 52.5449011,
+    "gradle_seconds": 51.7110329,
+    "native_regenerated": false,
+    "built_at_utc": "2026-10-18T06:38:36.2425085Z"
+  },
+  "apk_bytes": 48738899,
+  "embedded_javascript": true,
+  "architectures": [
+    "arm64-v8a",
+    "x86_64"
+  ],
+  "native": {
+    "covered_checks": 10,
+    "runs": [
+      {
+        "local_run": "local-data\\login-guidance-2026-10-18\\final-native",
+        "harness_commit": "dcce6e2",
+        "reported_status": "failed",
+        "note": "Four viewport passes retained; stopped on stale coordinates from different scroll positions.",
+        "checks": [
+          {
+            "name": "collapsed-360-900-font-1.0",
+            "status": "passed",
+            "viewport": {
+              "width_px": 360,
+              "height_px": 900,
+              "density_dpi": 160,
+              "width_dp": 360.0,
+              "height_dp": 900.0,
+              "font_scale": 1.0
+            }
+          },
+          {
+            "name": "collapsed-390-900-font-1.0",
+            "status": "passed",
+            "viewport": {
+              "width_px": 390,
+              "height_px": 900,
+              "density_dpi": 160,
+              "width_dp": 390.0,
+              "height_dp": 900.0,
+              "font_scale": 1.0
+            }
+          },
+          {
+            "name": "collapsed-600-1100-font-1.0",
+            "status": "passed",
+            "viewport": {
+              "width_px": 600,
+              "height_px": 1100,
+              "density_dpi": 160,
+              "width_dp": 600.0,
+              "height_dp": 1100.0,
+              "font_scale": 1.0
+            }
+          },
+          {
+            "name": "collapsed-360-900-font-1.4",
+            "status": "passed",
+            "viewport": {
+              "width_px": 360,
+              "height_px": 900,
+              "density_dpi": 160,
+              "width_dp": 360.0,
+              "height_dp": 900.0,
+              "font_scale": 1.4
+            }
+          }
+        ],
+        "error": "Main action overlaps details",
+        "final": {
+          "display": {
+            "width_px": 1080,
+            "height_px": 2400,
+            "density_dpi": 420,
+            "width_dp": 411.42857142857144,
+            "height_dp": 914.2857142857143,
+            "font_scale": 1.0
+          },
+          "app": "stopped",
+          "radios": "off"
+        }
+      },
+      {
+        "local_run": "local-data\\login-guidance-2026-10-18\\native-continuation",
+        "harness_commit": "bbe82f6",
+        "reported_status": "failed",
+        "note": "Landscape and optional-control passes retained; stopped when a whole-screen swipe hit the keyboard.",
+        "checks": [
+          {
+            "name": "collapsed-840-412-font-1.0",
+            "status": "passed",
+            "viewport": {
+              "width_px": 840,
+              "height_px": 412,
+              "density_dpi": 160,
+              "width_dp": 840.0,
+              "height_dp": 412.0,
+              "font_scale": 1.0
+            }
+          },
+          {
+            "name": "optional-controls-reachable",
+            "status": "passed",
+            "viewport": {
+              "width_px": 390,
+              "height_px": 900,
+              "density_dpi": 160,
+              "width_dp": 390.0,
+              "height_dp": 900.0,
+              "font_scale": 1.0
+            }
+          },
+          {
+            "name": "close-reopens-collapsed",
+            "status": "passed",
+            "viewport": {
+              "width_px": 390,
+              "height_px": 900,
+              "density_dpi": 160,
+              "width_dp": 390.0,
+              "height_dp": 900.0,
+              "font_scale": 1.0
+            }
+          }
+        ],
+        "error": "Visible UI did not contain 'Rohdaten abrufen'",
+        "final": {
+          "display": {
+            "width_px": 1080,
+            "height_px": 2400,
+            "density_dpi": 420,
+            "width_dp": 411.42857142857144,
+            "height_dp": 914.2857142857143,
+            "font_scale": 1.0
+          },
+          "app": "stopped",
+          "radios": "off"
+        }
+      },
+      {
+        "local_run": "local-data\\login-guidance-2026-10-18\\native-keyboard-errors",
+        "harness_commit": "9da9b17",
+        "reported_status": "passed",
+        "note": "Corrected app-surface keyboard scrolling and remaining error checks passed.",
+        "checks": [
+          {
+            "name": "raw-lab-keyboard-no-retrieval",
+            "status": "passed",
+            "viewport": {
+              "width_px": 390,
+              "height_px": 900,
+              "density_dpi": 160,
+              "width_dp": 390.0,
+              "height_dp": 900.0,
+              "font_scale": 1.0
+            }
+          },
+          {
+            "name": "offline-page-failure",
+            "status": "passed",
+            "viewport": {
+              "width_px": 390,
+              "height_px": 900,
+              "density_dpi": 160,
+              "width_dp": 390.0,
+              "height_dp": 900.0,
+              "font_scale": 1.0
+            }
+          },
+          {
+            "name": "offline-error-next-action",
+            "status": "passed",
+            "viewport": {
+              "width_px": 390,
+              "height_px": 900,
+              "density_dpi": 160,
+              "width_dp": 390.0,
+              "height_dp": 900.0,
+              "font_scale": 1.0
+            }
+          }
+        ],
+        "keyboard": {
+          "top": 601,
+          "source": "WindowManager visible IME InsetsSource frame",
+          "focused_input_bounds": [
+            22,
+            553,
+            368,
+            601
+          ],
+          "second_input_bounds": [
+            22,
+            367,
+            368,
+            415
+          ]
+        },
+        "final": {
+          "display": {
+            "width_px": 1080,
+            "height_px": 2400,
+            "density_dpi": 420,
+            "width_dp": 411.42857142857144,
+            "height_dp": 914.2857142857143,
+            "font_scale": 1.0
+          },
+          "app": "stopped",
+          "radios": "off"
+        }
+      }
+    ],
+    "large_layout": {
+      "width_dp": 600,
+      "density_dpi": 160,
+      "font_scale": 1.0,
+      "primary_action_bounds": [
+        52,
+        249,
+        548,
+        297
+      ],
+      "primary_action_width_dp": 496,
+      "centered": true
+    },
+    "selected_visual": "panel-360-large-text.png",
+    "visual_review": "Final-source 360 dp/font 1.4 panel and keyboard screenshot inspected for fit/overlap.",
+    "limits": [
+      "No live provider login/capture",
+      "No spoken TalkBack traversal",
+      "No iOS runtime or physical device",
+      "Account/recovery states covered by host components, not private native sessions"
+    ]
+  },
+  "preservation": "Existing AVDs/private sessions remained off and untouched. Fresh AVD only; no app clear, credentials, database reads or live retrieval. App stopped, display restored and radios off; the fresh emulator was then shut down. Final adb devices listing was empty.",
+  "artifacts": "Full synthetic native screenshots/hierarchies/build/export logs remain in the ignored local run folders. This is a curated public checkpoint, not one combined APK/run."
+}
