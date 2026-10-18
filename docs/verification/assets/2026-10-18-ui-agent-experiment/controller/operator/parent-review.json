@@ -1,0 +1,38 @@
+{
+  "reviewed_utc": "2026-10-18T16:29:09Z",
+  "independent_final_state": {
+    "display": {
+      "size": "Physical size: 1080x1920",
+      "density": "Physical density: 420",
+      "font": "1.0"
+    },
+    "network": {
+      "airplane_mode_on": "1",
+      "wifi_on": "0",
+      "mobile_data": "0"
+    },
+    "identity": [
+      "codePath=/data/app/~~pGP_ouuV7f5F3Ojhx47_jg==/de.momorc.moflight.lab-C6p0tVvm7FLfHdvlCTm_jA==",
+      "versionCode=1 minSdk=24 targetSdk=36",
+      "versionName=0.1.0",
+      "lastUpdateTime=2026-10-18 18:13:49",
+      "firstInstallTime=2026-10-11 08:41:18"
+    ]
+  },
+  "matches_before": true,
+  "selected_overview": true,
+  "book_restart_and_marker_checked": true,
+  "inspected_pngs": [
+    "development-main.png",
+    "paper-main.png",
+    "settings-min-keyboard.png",
+    "settings-min-development.png"
+  ],
+  "visual_result": "MAIN cards readable without observed overlap; real MIN keyboard visible with focused field and save control above; Development entry readable/reachable after dismissal. Below-viewport continuation expected.",
+  "accepted_scope": "Eight non-mutating synthetic Android scenarios, reviewed by observation rather than exact worker check-ID mapping.",
+  "limits": [
+    "No contrast/pixel precision, wide/iOS/physical/live/AI quality or defect sensitivity validation.",
+    "Keyboard intermediate scroll has no screenshot; post-dismiss reachability is evidenced.",
+    "Token telemetry unavailable."
+  ]
+}

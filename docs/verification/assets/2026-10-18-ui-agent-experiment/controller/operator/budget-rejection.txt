@@ -1,0 +1,1 @@
+UI session failed: {"error": "ValueError: UI-action limit reached; original settings restored."}

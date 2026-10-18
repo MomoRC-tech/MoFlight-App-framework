@@ -1,0 +1,38 @@
+{
+  "application_build": "C:\\Users\\Momo\\Documents\\30_Coding\\03_chatGPT work folder\\MoFlight-App-framework\\build\\import-preview\\android-fixed\\build.json",
+  "results": [
+    {
+      "probe": "idle",
+      "status": "timed_out",
+      "actions_used": 1,
+      "restored_and_preserved": true,
+      "report": "C:\\Users\\Momo\\Documents\\30_Coding\\03_chatGPT work folder\\MoFlight-App-framework\\build\\ui-agent\\acceptance-20261018\\idle\\report.json"
+    },
+    {
+      "probe": "budget",
+      "status": "action_limit",
+      "actions_used": 1,
+      "restored_and_preserved": true,
+      "report": "C:\\Users\\Momo\\Documents\\30_Coding\\03_chatGPT work folder\\MoFlight-App-framework\\build\\ui-agent\\acceptance-20261018\\budget\\report.json"
+    }
+  ],
+  "original_state": {
+    "display": {
+      "size": "Physical size: 1080x1920",
+      "density": "Physical density: 420",
+      "font": "1.0"
+    },
+    "network": {
+      "airplane_mode_on": "1",
+      "wifi_on": "0",
+      "mobile_data": "0"
+    },
+    "identity": [
+      "codePath=/data/app/~~pGP_ouuV7f5F3Ojhx47_jg==/de.momorc.moflight.lab-C6p0tVvm7FLfHdvlCTm_jA==",
+      "versionCode=1 minSdk=24 targetSdk=36",
+      "versionName=0.1.0",
+      "lastUpdateTime=2026-10-18 18:13:49",
+      "firstInstallTime=2026-10-11 08:41:18"
+    ]
+  }
+}

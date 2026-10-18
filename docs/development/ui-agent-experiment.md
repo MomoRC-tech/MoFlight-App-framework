@@ -2,6 +2,8 @@
 
 **Status: Luna/Max and separately authorized Sol 6.1/Low attempts compared.** [M1 package, #6](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/6#issuecomment-6251570686). [One report](../verification/2026-10-18-ui-agent-experiment.md#sol-61--low-comparison--18-october-2026): Luna supported 7/8 checks in 721.50 s, Sol 8/8 in 257.73 s; both have operating-limit qualifications, original state preserved. This one pair favors Sol/Low for further evaluation; token savings and routine adoption remain unestablished. Preparation/fallback instructions below are historical protocol, not a request for another automatic run.
 
+**Subsequent implementation:** Manuel approved the [guarded Sol Low workflow](ui-agent.md); its [separate tool acceptance](../verification/2026-10-18-ui-agent-experiment.md#implemented-guarded-sol-low-workflow--18-october-2026) extends the same report. The protocol below preserves the original unguarded comparison.
+
 ## Question and bounded deliverable
 
 Can a fresh-context **GPT-6 Luna / Max** subagent navigate the existing synthetic Android app, inspect a few relevant screenshots and return trustworthy evidence with little supervision? First establish this capability. A single successful run does not establish general defect detection or token/time savings.

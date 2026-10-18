@@ -1,0 +1,61 @@
+{
+  "status": "action_limit",
+  "created_utc": "2026-10-18T16:22:24.607417+00:00",
+  "expected_worker_model": "gpt-6.1-sol",
+  "expected_worker_reasoning_effort": "low",
+  "actions_used": 1,
+  "captures_used": 0,
+  "limits": {
+    "seconds": 60,
+    "actions": 1,
+    "captures": 8
+  },
+  "counter_scope": "Each attempted controller UI action, including each batch item. Status/finish/automatic cleanup and external LLM tools are excluded.",
+  "action_errors": [],
+  "cleanup_errors": [],
+  "original_display": {
+    "size": "Physical size: 1080x1920",
+    "density": "Physical density: 420",
+    "font": "1.0"
+  },
+  "original_network": {
+    "airplane_mode_on": "1",
+    "wifi_on": "0",
+    "mobile_data": "0"
+  },
+  "original_identity": [
+    "codePath=/data/app/~~pGP_ouuV7f5F3Ojhx47_jg==/de.momorc.moflight.lab-C6p0tVvm7FLfHdvlCTm_jA==",
+    "versionCode=1 minSdk=24 targetSdk=36",
+    "versionName=0.1.0",
+    "lastUpdateTime=2026-10-18 18:13:49",
+    "firstInstallTime=2026-10-11 08:41:18"
+  ],
+  "application_commit": "85e40875ce56abd4e10f867c214db127f200b228",
+  "apk_sha256": "c728cf02feb45ca089cf6a04015a81c8e5207884687df100623b12e22b298a20",
+  "avd": "MoFlight_Synthetic_API37",
+  "serial": "emulator-5558",
+  "android_api": "37",
+  "controller_repository_head": "7777ac0e28b556062cf507e648bcd96a40714d8f",
+  "controller_source_sha256": "6a68ddaa33dafcbd7e8b22cef537e63d2161a4036806f25ab691ed6c2f803758",
+  "active_started_utc": "2026-10-18T16:22:29.329191+00:00",
+  "close_reason": "action_limit",
+  "restored_display": {
+    "size": "Physical size: 1080x1920",
+    "density": "Physical density: 420",
+    "font": "1.0"
+  },
+  "final_network": {
+    "airplane_mode_on": "1",
+    "wifi_on": "0",
+    "mobile_data": "0"
+  },
+  "final_identity": [
+    "codePath=/data/app/~~pGP_ouuV7f5F3Ojhx47_jg==/de.momorc.moflight.lab-C6p0tVvm7FLfHdvlCTm_jA==",
+    "versionCode=1 minSdk=24 targetSdk=36",
+    "versionName=0.1.0",
+    "lastUpdateTime=2026-10-18 18:13:49",
+    "firstInstallTime=2026-10-11 08:41:18"
+  ],
+  "finished_utc": "2026-10-18T16:22:32.664792+00:00",
+  "active_elapsed_seconds": 3.3280000000013388
+}

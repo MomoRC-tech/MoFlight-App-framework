@@ -1,0 +1,39 @@
+{"utc": "2026-10-18T16:23:49.911438+00:00", "number": 1, "command": {"op": "launch"}, "status": "completed"}
+{"utc": "2026-10-18T16:23:56.968239+00:00", "number": 2, "command": {"op": "dump", "name": "home"}, "status": "completed"}
+{"utc": "2026-10-18T16:24:04.654733+00:00", "number": 3, "command": {"op": "viewport", "name": "main"}, "status": "completed"}
+{"utc": "2026-10-18T16:24:05.604272+00:00", "number": 4, "command": {"op": "tap", "by": "id", "value": "tab-club"}, "status": "completed"}
+{"utc": "2026-10-18T16:24:08.580949+00:00", "number": 5, "command": {"op": "dump", "name": "club"}, "status": "completed"}
+{"utc": "2026-10-18T16:24:11.069591+00:00", "number": 6, "command": {"op": "tap", "by": "id", "value": "tab-ai"}, "status": "completed"}
+{"utc": "2026-10-18T16:24:13.387145+00:00", "number": 7, "command": {"op": "dump", "name": "ai"}, "status": "completed"}
+{"utc": "2026-10-18T16:24:15.676720+00:00", "number": 8, "command": {"op": "tap", "by": "id", "value": "tab-logbook"}, "status": "completed"}
+{"utc": "2026-10-18T16:24:17.974375+00:00", "number": 9, "command": {"op": "dump", "name": "logbook"}, "status": "completed"}
+{"utc": "2026-10-18T16:24:20.205417+00:00", "number": 10, "command": {"op": "tap", "by": "id", "value": "tab-flights"}, "status": "completed"}
+{"utc": "2026-10-18T16:24:22.475179+00:00", "number": 11, "command": {"op": "dump", "name": "flights"}, "status": "completed"}
+{"utc": "2026-10-18T16:24:32.237596+00:00", "number": 12, "command": {"op": "tap", "by": "label", "value": "01. Juni 2026, D-EX02, Details öffnen"}, "status": "completed"}
+{"utc": "2026-10-18T16:24:34.596923+00:00", "number": 13, "command": {"op": "dump", "name": "detail"}, "status": "completed"}
+{"utc": "2026-10-18T16:24:36.806991+00:00", "number": 14, "command": {"op": "tap", "by": "label", "value": "Profil & Einstellungen öffnen"}, "status": "completed"}
+{"utc": "2026-10-18T16:24:39.076761+00:00", "number": 15, "command": {"op": "dump", "name": "settings"}, "status": "completed"}
+{"utc": "2026-10-18T16:24:45.972545+00:00", "number": 16, "command": {"op": "swipe", "direction": "up"}, "status": "completed"}
+{"utc": "2026-10-18T16:24:46.545419+00:00", "number": 17, "command": {"op": "tap", "by": "label", "value": "Entwicklung öffnen"}, "status": "completed"}
+{"utc": "2026-10-18T16:24:48.890647+00:00", "number": 18, "command": {"op": "capture", "name": "development-main"}, "status": "completed"}
+{"utc": "2026-10-18T16:24:56.876641+00:00", "number": 19, "command": {"op": "tap", "by": "label", "value": "Zur vorherigen App-Ansicht"}, "status": "completed"}
+{"utc": "2026-10-18T16:24:59.150464+00:00", "number": 20, "command": {"op": "tap", "by": "label", "value": "Zur vorherigen App-Ansicht"}, "status": "completed"}
+{"utc": "2026-10-18T16:25:01.492967+00:00", "number": 21, "command": {"op": "dump", "name": "detail-return"}, "status": "completed"}
+{"utc": "2026-10-18T16:25:10.108260+00:00", "number": 22, "command": {"op": "tap", "by": "label", "value": "Zur vorherigen App-Ansicht"}, "status": "completed"}
+{"utc": "2026-10-18T16:25:12.421161+00:00", "number": 23, "command": {"op": "tap", "by": "id", "value": "tab-logbook"}, "status": "completed"}
+{"utc": "2026-10-18T16:25:14.795314+00:00", "number": 24, "command": {"op": "tap", "by": "label", "value": "Papierstand ansehen"}, "status": "completed"}
+{"utc": "2026-10-18T16:25:17.233775+00:00", "number": 25, "command": {"op": "capture", "name": "paper-main"}, "status": "completed"}
+{"utc": "2026-10-18T16:25:28.162882+00:00", "number": 26, "command": {"op": "viewport", "name": "min"}, "status": "completed"}
+{"utc": "2026-10-18T16:25:29.070557+00:00", "number": 27, "command": {"op": "tap", "by": "label", "value": "Profil & Einstellungen öffnen"}, "status": "completed"}
+{"utc": "2026-10-18T16:25:31.731005+00:00", "number": 28, "command": {"op": "tap", "by": "class", "value": "android.widget.EditText"}, "status": "completed"}
+{"utc": "2026-10-18T16:25:34.063356+00:00", "number": 29, "command": {"op": "keyboard"}, "status": "completed"}
+{"utc": "2026-10-18T16:25:34.494718+00:00", "number": 30, "command": {"op": "capture", "name": "settings-min-keyboard"}, "status": "completed"}
+{"utc": "2026-10-18T16:25:44.242127+00:00", "number": 31, "command": {"op": "swipe", "direction": "up"}, "status": "completed"}
+{"utc": "2026-10-18T16:25:44.828774+00:00", "number": 32, "command": {"op": "back"}, "status": "completed"}
+{"utc": "2026-10-18T16:25:44.979173+00:00", "number": 33, "command": {"op": "swipe", "direction": "up"}, "status": "completed"}
+{"utc": "2026-10-18T16:25:45.593331+00:00", "number": 34, "command": {"op": "capture", "name": "settings-min-development"}, "status": "completed"}
+{"utc": "2026-10-18T16:25:56.254167+00:00", "number": 35, "command": {"op": "restart"}, "status": "completed"}
+{"utc": "2026-10-18T16:25:56.816468+00:00", "number": 36, "command": {"op": "tap", "by": "id", "value": "tab-flights"}, "status": "completed"}
+{"utc": "2026-10-18T16:25:59.997760+00:00", "number": 37, "command": {"op": "dump", "name": "flights-restart"}, "status": "completed"}
+{"utc": "2026-10-18T16:26:02.498504+00:00", "number": 38, "command": {"op": "tap", "by": "id", "value": "tab-home"}, "status": "completed"}
+{"utc": "2026-10-18T16:26:04.773205+00:00", "number": 39, "command": {"op": "dump", "name": "home-final"}, "status": "completed"}

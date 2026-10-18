@@ -1,0 +1,6 @@
+{
+  "avd": "MoFlight_Synthetic_API37",
+  "serial": "emulator-5558",
+  "owned_lifecycle_restored": "Stopped our initially stopped AVD after review; no app clear.",
+  "response": "OK: killing emulator, bye bye\r\r\nOK"
+}
