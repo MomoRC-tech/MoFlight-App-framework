@@ -4,7 +4,7 @@
 
 ## Smallest next package — 1a login guidance
 
-**Status:** defined for review under [#17](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/17); application implementation is not authorized. Manuel's “that's a good plan” endorses the overall delivery direction recorded in the handover. It does not select artwork, header behavior, production policies or release inclusion. This first slice narrows package 1 without changing the M1–M5 order; the persistent-header/icon work remains package 1b under #20.
+**Status:** Manuel's **“go”** in the continuation separately authorizes implementation of this bounded slice under [#17](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/17). Implementation/checks are in progress; user/native acceptance remains separate. His earlier “that's a good plan” endorsed the overall direction. Neither selects artwork, persistent-header behavior, production policies or release inclusion. This first slice narrows package 1 without changing the M1–M5 order; the persistent-header/icon work remains proposed package 1b under #20.
 
 **Deliverable:** simplify the existing connection panel and app-owned login instructions: a short German status, one safe primary next action for the current state, and optional details. Keep provider origin, provisional-account confirmation, mismatch/recovery blockers and the consequences of destructive actions visible where the user acts. Put explanatory diagnostics, optional saved-login help and the bounded raw-capture lab behind clearly named disclosures; a disclosure must never hide a required decision or start an operation.
 
@@ -24,16 +24,16 @@ Reuse [ProviderConnection](../../apps/platform-lab/src/mobile/ProviderConnection
 
 The initial `disconnected` phase alone does **not** prove sign-out: use `disconnectedAt` or the confirmed clear result for those operation messages. Historical operation evidence must not override a later or invalidated session observation. Keep session-check time separate from **Gespeicherter Rohbeleg: [time/count]**, using only the available scoped snapshot. Explain that raw evidence is separate from the saved flight library. Do not call a raw capture an up-to-date imported library or infer complete coverage. A close action still hides the panel; it does not log out.
 
-**Exclusions / dependencies:** no artwork replacement, persistent-header restructuring, Medical group, new status-age threshold, automatic polling/routing, import writer, schema/migration or private-data reads. #20 appearance choices and #19 scheduling do not block this slice. Recovery and ownership safeguards from #16 remain binding; #5/#8 cover UI/platform acceptance. The synthetic import/book planner remains the smallest proposed host-only alternative under #18; neither proposal is implementation approval.
+**Exclusions / dependencies:** no artwork replacement, persistent-header restructuring, Medical group, new status-age threshold, automatic polling/routing, import writer, schema/migration or private-data reads. #20 appearance choices and #19 scheduling do not block this slice. Recovery and ownership safeguards from #16 remain binding; #5/#8 cover UI/platform acceptance. The synthetic import/book planner remains the smallest proposed host-only alternative under #18; its implementation is not authorized by this slice.
 
-**Acceptance after separate implementation authorization:**
+**Acceptance for the authorized slice:**
 
 - Review the German states/primary actions with Manuel; expose no provider payloads or account values in diagnostics/logs.
 - Check the affected state/guard paths with existing connection/login/recovery tests and TypeScript. Add focused cases only for changed presentation decisions; do not repeat live retrieval evidence without a new reason.
 - At the integration checkpoint, verify committed-source Release and affected panel/login states: narrow/normal/wide layout as relevant, large text, keyboard, scrolling, origin, disabled controls and accessible labels/focus. Existing Android evidence does not accept the changed UI; iOS and physical acceptance remain separate.
 - Preserve both existing AVDs and private sessions. Use synthetic presentation fixtures in a verified safe environment; suspend destructive tests. If suitable native evidence is unavailable, leave that acceptance pending.
 
-**Material decisions still open:** authorize this login-only implementation scope when ready. Before package 1b, select the aircraft artwork (recommended side-view B versus top-view A) and confirm or revise the proposed Med → connection → profile group, overlay/provider toolbar and full-screen exceptions below. Minor wording/layout details can be resolved within the reviewed slice. Production identity/schema, credential policy, automatic scheduling, paid AI and release inclusion are outside this decision.
+**Material decisions still open:** user acceptance of the implemented login wording/states. Before package 1b, select the aircraft artwork (recommended side-view B versus top-view A) and confirm or revise the proposed Med → connection → profile group, overlay/provider toolbar and full-screen exceptions below. Minor wording/layout details can be resolved within the authorized slice. Production identity/schema, credential policy, automatic scheduling, paid AI and release inclusion are outside this decision.
 
 ## Concrete recommendation
 
