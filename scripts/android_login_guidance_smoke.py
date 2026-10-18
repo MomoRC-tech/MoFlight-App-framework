@@ -14,7 +14,7 @@ from android_mobile_width_matrix import bounds, capture, finish, native_keyboard
 
 AVD = 'MoFlight_LoginUX_API37'
 DETAILS = 'Sitzungsdetails und weitere Optionen'
-LAB = 'Entwicklungswerkzeuge für Rohbelege'
+LAB = 'Rohbelege und begrenzter Abruf'
 
 
 def control(smoke, label, *, exact=True, enabled=None):

@@ -24,7 +24,7 @@ export function ConnectionIndicator({ controller: c, onPress }: { controller: Co
 }
 
 /** The browser keeps this exact native parent whether login, progress or tabs are visible. */
-export function ProviderConnection({ controller: c, open, close }: { controller: Controller; open: boolean; close: () => void }) {
+export function ProviderConnection({ controller: c, open, close, development = false }: { controller: Controller; open: boolean; close: () => void; development?: boolean }) {
   const insets = useSafeAreaInsets();
   const [barHeight, setBarHeight] = useState(68), [loginHeight, setLoginHeight] = useState(132);
   const [details, setDetails] = useState(false), [lab, setLab] = useState(false);
@@ -122,7 +122,7 @@ export function ProviderConnection({ controller: c, open, close }: { controller:
             {c.credentialNotice === 'error' && <Label>Zugangsdaten konnten nicht entfernt werden. Erneut versuchen.</Label>}
             <Label muted>Entfernt nur die von MoFlight gespeicherten Zugangsdaten auf diesem Gerät. Die Anbietersitzung, System-Autofill und gespeicherte Flüge bleiben davon unabhängig.</Label>
           </Card>}
-          <Pressable accessibilityRole="button" accessibilityLabel="Entwicklungswerkzeuge für Rohbelege" accessibilityState={{ expanded: lab }} onPress={() => setLab(!lab)} style={styles.disclosure}><IconLabel name={lab ? 'minus' : 'plus'} size={18} style={{ color: colors.cyan }}>Entwicklungswerkzeuge · Rohbelege</IconLabel></Pressable>
+          <Pressable accessibilityRole="button" accessibilityLabel="Rohbelege und begrenzter Abruf" accessibilityState={{ expanded: lab }} onPress={() => setLab(!lab)} style={styles.disclosure}><IconLabel name={lab ? 'minus' : 'plus'} size={18} style={{ color: colors.cyan }}>Rohbelege & begrenzter Abruf</IconLabel></Pressable>
           {lab && <Card><Section title="Begrenzter Rohabruf" />
             <Label muted>Entwicklungsnachweis: Der Abruf speichert rohe Anbieterbelege separat. Er ersetzt keine Flüge in der synthetischen Bibliothek und erzeugt keinen kanonischen Live-Import.</Label>
             <Label muted>Letzter lokal zugeordneter Rohbeleg: {c.snapshot ? `${new Date(c.snapshot.retrievedAt).toLocaleString('de-DE')} · ${c.snapshot.rows.length} Datensätze · ${c.snapshot.exportContext?.pageCount ?? '—'} Seite(n)` : 'noch keiner'}</Label>
@@ -131,7 +131,11 @@ export function ProviderConnection({ controller: c, open, close }: { controller:
             <TextInput accessibilityLabel="Vereinsflieger Abruf bis" value={c.to} onChangeText={c.setTo} editable={!locked} autoCorrect={false} style={styles.input} />
             <Action disabled={locked || c.recovery || c.connection.phase !== 'observed' || !c.connection.confirmed} onPress={() => c.checkConnection('retrieve')}>Rohdaten abrufen</Action>
             {open && !locked && !c.recovery && c.connection.phase === 'observed' && c.connection.confirmed && <RawCaptureReview key={c.snapshot?.captureId} snapshot={c.snapshot} />}
-            {c.sessionProofAvailable && <><Action secondary disabled={locked || c.recovery} onPress={() => { void c.clearLocalSession(true); }}>Synthetischer Browserstore-Test</Action><Label muted>Entwicklungstest nur auf MoFlight_Synthetic_API37; auf anderen Geräten nativ gesperrt.</Label></>}
+          </Card>}
+          {development && <Card><Section title="Entwicklung · Browserstore-Diagnose" icon="info" />
+            <Label muted>Nur über Einstellungen → Entwicklung. Öffnen startet keinen Test. Der gleiche Anbieter-Controller bleibt zuständig; diese Seite ist keine Zugriffssperre.</Label>
+            <Label>Store-Test: {c.sessionProofAvailable ? 'auf diesem Testgerät verfügbar' : 'auf diesem Gerät nicht verfügbar'}</Label>
+            {c.sessionProofAvailable && <><Action secondary disabled={locked || c.recovery} onPress={() => { void c.clearLocalSession(true); }}>Synthetischer Browserstore-Test</Action><Label muted>Expliziter Entwicklungstest nur auf MoFlight_Synthetic_API37; auf anderen Geräten nativ gesperrt. Verändert dessen synthetischen Browserstore.</Label></>}
             {c.proofNotice !== 'none' && <Label>{c.proofNotice === 'passed' ? 'Synthetischer Store-Test bestanden: Cookies, Webspeicher und neues Dokument geprüft; SQLite und SecureStore erhalten.' : 'Synthetischer Store-Test nicht bestanden oder Gerät gesperrt.'}</Label>}
           </Card>}
           {c.busy && <Label muted>Tabwechsel bleibt möglich. Bei App-Wechsel oder gesperrtem Telefon kann der Abruf unterbrochen werden; danach die Sitzung erneut prüfen.</Label>}

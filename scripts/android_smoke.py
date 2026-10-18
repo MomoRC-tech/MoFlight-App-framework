@@ -258,12 +258,14 @@ class Smoke:
     def read_external(self, filename):
         return self.shell('cat', f'/sdcard/Documents/MoFlightSmoke/{filename}')
 
-    def launch(self):
+    def launch(self, tool='flight'):
+        assert tool in {'flight', 'books'}
         self.shell("am", "force-stop", PACKAGE)
         self.shell("am", "start", "-W", "-n", f"{PACKAGE}/.MainActivity")
-        # The product shell retains the legacy lab behind its header tools action.
-        self.tap("Entwicklungswerkzeuge öffnen")
-        self.find("Remembered state loaded.", attempts=40)
+        self.tap('Profil & Einstellungen öffnen')
+        self.tap('Entwicklung öffnen', scroll=True)
+        self.tap('Flugbuchtest öffnen' if tool == 'books' else 'Datensatztest öffnen')
+        self.find('Synthetic pilot library loaded.' if tool == 'books' else 'Remembered state loaded.', attempts=40)
 
     def record(self, name):
         self.report["checks"].append({"name": name, "status": "passed"})

@@ -19,7 +19,7 @@ const source = ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/
 
 // Run the real component/handlers; native rendering and leaf controls are the
 // only replacements. Disclosure tests make no provider/storage implementation.
-function fixture(overrides: Partial<Controller> = {}) {
+function fixture(overrides: Partial<Controller> = {}, development = false) {
   let index = 0;
   const hooks: unknown[] = [], effects: (() => void)[] = [], calls: string[] = [];
   const react = {
@@ -55,7 +55,7 @@ function fixture(overrides: Partial<Controller> = {}) {
     connect: () => calls.push('connect'), checkConnection: (action = 'check') => calls.push(action),
     dismissLogin: () => calls.push('dismiss'), useLogin: () => calls.push('saved-login'),
     backWithinProvider: () => calls.push('provider-back'), canGoBack: false,
-    confirmConnection: () => calls.push('confirm'), clearLocalSession: () => calls.push('clear'),
+    confirmConnection: () => calls.push('confirm'), clearLocalSession: (proof?: boolean) => calls.push(proof ? 'proof' : 'clear'),
     startDisconnect: () => calls.push('logout'), forgetLogin: () => calls.push('forget'),
     requestLegacyRecovery: () => calls.push('legacy'), cancelRetrieval: () => calls.push('cancel'),
     ...overrides,
@@ -63,7 +63,7 @@ function fixture(overrides: Partial<Controller> = {}) {
   let tree: Element;
   function render(open = true) {
     index = 0;
-    tree = exports.ProviderConnection!({ controller, open, close: () => calls.push('close') });
+    tree = exports.ProviderConnection!({ controller, open, development, close: () => calls.push('close') });
     while (effects.length) effects.shift()!();
     return tree;
   }
@@ -105,7 +105,7 @@ test('disclosures start no work, retain the browser parent and reset when the pa
   assert.equal(parent().type, 'View');
   assert.equal(f.nodes().some(n => n.type === 'TextInput'), false);
   f.button('Sitzungsdetails und weitere Optionen').props.onPress(); f.render();
-  f.button('Entwicklungswerkzeuge für Rohbelege').props.onPress(); f.render();
+  f.button('Rohbelege und begrenzter Abruf').props.onPress(); f.render();
   assert.deepEqual(f.calls, []);
   assert.equal(parent().type, 'View');
   assert.equal(f.nodes().filter(n => n.type === 'retained-browser').length, 1);
@@ -115,6 +115,23 @@ test('disclosures start no work, retain the browser parent and reset when the pa
   assert.equal(f.button('Sitzungsdetails und weitere Optionen').props.accessibilityState.expanded, false);
   assert.equal(f.nodes().some(n => n.type === 'TextInput'), false);
   assert.deepEqual(f.calls, []);
+});
+
+test('synthetic store proof requires the explicit Development route and retains busy/recovery guards', () => {
+  const normal = fixture({ sessionProofAvailable: true, proofNotice: 'passed' });
+  normal.button('Rohbelege und begrenzter Abruf').props.onPress(); normal.render();
+  assert.doesNotMatch(normal.text(), /Synthetischer Browserstore-Test|Synthetischer Store-Test bestanden/);
+  assert.deepEqual(normal.calls, []);
+  const dev = fixture({ sessionProofAvailable: true, busy: true }, true);
+  assert.equal(dev.button('Synthetischer Browserstore-Test').props.disabled, true);
+  assert.deepEqual(dev.calls, []);
+  dev.controller.busy = false; dev.controller.recovery = true; dev.render();
+  assert.equal(dev.button('Synthetischer Browserstore-Test').props.disabled, true);
+  dev.controller.recovery = false; dev.render();
+  assert.equal(dev.button('Synthetischer Browserstore-Test').props.disabled, false);
+  dev.button('Synthetischer Browserstore-Test').props.onPress();
+  assert.deepEqual(dev.calls, ['proof']);
+  assert.equal(dev.nodes().filter(n => n.type === 'retained-browser').length, 1);
 });
 
 test('unconfirmed account and recovery decisions remain outside optional details', () => {

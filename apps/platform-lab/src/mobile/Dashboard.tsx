@@ -33,10 +33,10 @@ export function Dashboard({ flights, pending, width, fontScale, onPaper, onAi, o
   const rightWidth = pairWidth - 8 - leftWidth;
   const pairStyle = largeText ? styles.stack : ui.grid;
   const groupStyle = styles.group;
-  const hero = <Card style={[styles.hero, !largeText && { height: 154 }]} onPress={onPaper} label="Papierflugbuch aktualisieren">
+  const hero = <Card style={[styles.hero, !largeText && { height: 154 }]} onPress={onPaper} label="Papierstand ansehen">
       <Photo source={sunset} tint="#913e1266" style={styles.heroImage}>
-        <View style={[ui.row, { alignItems: 'flex-start' }]}><View style={styles.paperIcon}><SymbolIcon name="logbook" size={28} tone="paper" /></View><View style={ui.column}><Label style={styles.eyebrow}>PAPIERFLUGBUCH AKTUALISIEREN</Label><Label style={styles.pending}>{pending === null ? 'Flugbuch auswählen' : `${pending} Flüge offen`}</Label><Label style={styles.small}>Jetzt abgleichen und digitalisieren.</Label></View></View>
-        <View style={styles.orangeButton}><IconLabel name="arrow" size={18} tone="contrast" style={{ color: '#281004', fontWeight: '700' }}>Flüge jetzt erfassen</IconLabel></View>
+        <View style={[ui.row, { alignItems: 'flex-start' }]}><View style={styles.paperIcon}><SymbolIcon name="logbook" size={28} tone="paper" /></View><View style={ui.column}><Label style={styles.eyebrow}>PAPIERFLUGBUCH</Label><Label style={styles.pending}>{pending === null ? 'Flugbuch auswählen' : `${pending} Flüge offen`}</Label><Label style={styles.small}>Gespeicherte Nachweise ansehen.</Label></View></View>
+        <View style={styles.orangeButton}><IconLabel name="arrow" size={18} tone="contrast" style={{ color: '#281004', fontWeight: '700' }}>Papierstand ansehen</IconLabel></View>
       </Photo>
     </Card>;
   const seasonCards = <View style={[groupStyle, pairStyle]}>

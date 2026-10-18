@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { runInNewContext } from 'node:vm';
 import ts from 'typescript';
+import { canonical } from '../../packages/flight-logbook/src/index.ts';
 
 interface Element { type: unknown; props: Record<string, any>; children: unknown[] }
 const source = ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/mobile/MobileApp.tsx', import.meta.url), 'utf8'), {
@@ -24,9 +25,10 @@ function fixture() {
     },
   };
   const flight = { id: 'synthetic-flight', registration: 'D-SYN', date: '2026-10-18', minutes: 30 };
-  const library = { flights: [flight], books: [{ id: 'synthetic-book', name: 'Synthetic book' }], bookId: 'synthetic-book', pending: 0 };
-  const controller = { visible: false, connection: { phase: 'unknown' }, refreshRecovery() {}, dismissLogin() {}, backWithinProvider: () => false };
+  const library = { flights: [flight], books: [{ id: 'synthetic-book', name: 'Synthetic book' }], bookId: 'synthetic-book', pending: 0, displayName: 'Synthetic pilot' };
+  const controller = { visible: false, connection: { phase: 'unknown' }, refreshRecovery: () => calls.push('refresh-recovery'), dismissLogin() {}, backWithinProvider: () => false };
   const calls: string[] = [];
+  let suspended = false;
   Object.assign(controller, { connect: () => calls.push('connect'), checkConnection: () => calls.push('check'), retrieve: () => calls.push('retrieve') });
   let hardwareBack: () => boolean;
   const leaves = (names: string[]) => Object.fromEntries(names.map(name => [name, name]));
@@ -40,9 +42,10 @@ function fixture() {
     },
     'react-native-safe-area-context': leaves(['SafeAreaProvider', 'SafeAreaView']),
     '../App': { default: 'LabApp' }, '../BookLab': { BookLab: 'BookLab' },
+    '@moflight/flight-logbook': { canonical },
     './theme': { ...leaves(['Action', 'Card', 'Chip', 'ClubMark', 'Empty', 'GliderMark', 'IconLabel', 'Label', 'Photo', 'Section']), colors: {}, ui: {} },
     './SymbolIcon': { SymbolIcon: 'SymbolIcon' },
-    './use-library': { useLibrary: () => library },
+    './use-library': { useLibrary: (value: boolean) => { suspended = value; return library; } },
     './flight-model': { flightYears: () => [2026], selectFlights: () => library.flights, summarizeFlights: () => ({ count: 1, knownMinutes: 30 }), formatDuration: () => '0:30' },
     './local-insights': { localQuestions: [], localInsight: () => '' },
     './Dashboard': { Dashboard: 'Dashboard' }, './ShellIcons': leaves(['PlaneIcon', 'ProfileIcon', 'BookIcon']),
@@ -50,6 +53,8 @@ function fixture() {
     '../vereinsflieger/use-access-controller': { useAccessController: () => controller },
     './ProviderConnection': leaves(['ProviderConnection', 'ConnectionIndicator']), './AppHeader': { AppHeader: 'AppHeader' },
     './MedicalStatus': leaves(['MedicalIndicator', 'MedicalDetails']),
+    './DevelopmentHub': leaves(['DevelopmentHub', 'DevelopmentNotice']),
+    './LibraryBackup': leaves(['LibraryBackup']), './PaperStatus': leaves(['PaperStatus']),
   };
   const exports = {} as { Shell: () => Element };
   runInNewContext(source + '\nexports.Shell = Shell;', { exports, require: (name: string) => {
@@ -70,7 +75,7 @@ function fixture() {
   function parent(node: Element) { return nodes().find(n => n.children.includes(node))!; }
   function press(type: string, label?: string) { find(type, label).props.onPress(); render(); }
   render(); render();
-  return { render, nodes, find, headers, parent, press, flight, library, controller, calls, hardwareBack: () => hardwareBack!() };
+  return { render, nodes, find, headers, parent, press, flight, library, controller, calls, suspended: () => suspended, hardwareBack: () => hardwareBack!() };
 }
 
 test('app headers order connection, Medical and profile on every tab', () => {
@@ -152,4 +157,88 @@ test('hardware Back prefers guarded provider history and then returns to the sam
   assert.equal(f.hardwareBack(), true); f.render();
   assert.equal(f.find('ProviderConnection').props.open, false);
   assert.equal(f.headers().at(-1)!.props.title, 'Profil & Einstellungen');
+});
+
+test('normal paper, backup and book/status paths expose no synthetic experiment launcher', () => {
+  const f = fixture();
+  assert.equal(f.nodes().some(n => n.props.accessibilityLabel === 'Flugworkflow öffnen'), false);
+  f.find('Dashboard').props.onPaper(); f.render();
+  assert.ok(f.find('PaperStatus'));
+  assert.equal(f.nodes().some(n => n.type === 'BookLab' || n.type === 'LabApp'), false);
+  f.find('PaperStatus').props.onBackup(); f.render();
+  assert.ok(f.find('LibraryBackup')); assert.equal(f.suspended(), true);
+  f.headers().at(-1)!.props.back(); f.render();
+  assert.ok(f.find('PaperStatus')); assert.equal(f.suspended(), false);
+  f.headers().at(-1)!.props.back(); f.render();
+  f.press('Pressable', 'Profil & Einstellungen öffnen');
+  f.find('ProfileSettings').props.onBooks(); f.render();
+  assert.equal(f.nodes().some(n => n.type === 'BookLab' || n.type === 'LabApp'), false);
+  assert.deepEqual(f.calls, []);
+});
+
+test('Development is read-only on entry; proof work guards Back and a reload preserves prior details/filter', () => {
+  const f = fixture();
+  f.press('Pressable', 'Flüge');
+  f.find('TextInput', 'Flüge durchsuchen').props.onChangeText('ASK'); f.render();
+  f.find('FlatList').props.renderItem({ item: f.flight }).props.onPress(); f.render();
+  f.press('Pressable', 'Profil & Einstellungen öffnen');
+  f.find('ProfileSettings').props.onTools(); f.render();
+  assert.ok(f.find('DevelopmentHub')); assert.equal(f.suspended(), false);
+  assert.equal(f.nodes().some(n => n.type === 'LabApp' || n.type === 'BookLab'), false);
+  assert.deepEqual(f.calls, []);
+  f.find('DevelopmentHub').props.onFlights(); f.render();
+  const lab = f.find('LabApp');
+  assert.equal(lab.props.providerOwned, true); assert.equal(lab.props.embedded, true);
+  assert.equal(f.suspended(), true);
+  lab.props.onBusyChange(true); f.render();
+  assert.equal(f.headers().at(-1)!.props.backDisabled, true);
+  assert.equal(f.hardwareBack(), true); f.render();
+  assert.ok(f.find('LabApp'));
+  f.press('Pressable', 'Profil & Einstellungen öffnen');
+  assert.ok(f.find('LabApp'));
+  lab.props.onBusyChange(false); f.render();
+  f.headers().at(-1)!.props.back(); f.render();
+  assert.ok(f.find('DevelopmentHub')); assert.deepEqual(f.calls, ['refresh-recovery']);
+  f.library.flights = [...f.library.flights]; f.render(); f.render();
+  f.headers().at(-1)!.props.back(); f.render();
+  assert.ok(f.find('ProfileSettings'));
+  f.headers().at(-1)!.props.back(); f.render();
+  assert.equal(f.headers().at(-1)!.props.title, 'Flugdetails');
+  f.headers().at(-1)!.props.back(); f.render();
+  assert.equal(f.find('TextInput', 'Flüge durchsuchen').props.value, 'ASK');
+});
+
+test('provider diagnostics reuses the retained controller and normal entry removes test controls', () => {
+  const f = fixture();
+  const controller = f.find('ProviderConnection').props.controller;
+  f.press('Pressable', 'Profil & Einstellungen öffnen');
+  f.find('ProfileSettings').props.onTools(); f.render();
+  f.find('DevelopmentHub').props.onProvider(); f.render();
+  assert.equal(f.find('ProviderConnection').props.controller, controller);
+  assert.equal(f.find('ProviderConnection').props.development, true);
+  assert.equal(f.find('ProviderConnection').props.open, true);
+  f.find('ProviderConnection').props.close(); f.render();
+  assert.ok(f.find('DevelopmentHub'));
+  f.press('ConnectionIndicator');
+  assert.equal(f.find('ProviderConnection').props.development, false);
+  assert.equal(f.nodes().filter(n => n.type === 'ProviderConnection').length, 1);
+  assert.deepEqual(f.calls, []);
+});
+
+test('nested settings preserve the unsaved profile draft and each sheet scroll offset', () => {
+  const f = fixture();
+  f.press('Pressable', 'Profil & Einstellungen öffnen');
+  f.find('ProfileSettings').props.onNameDraftChange('Unsaved synthetic draft'); f.render();
+  const scroll = () => f.nodes().find(n => n.type === 'ScrollView' && n.props.onScroll)!;
+  scroll().props.onScroll({ nativeEvent: { contentOffset: { y: 320 } } });
+  f.find('ProfileSettings').props.onTools(); f.render();
+  assert.equal(scroll().props.contentOffset.y, 0);
+  scroll().props.onScroll({ nativeEvent: { contentOffset: { y: 80 } } });
+  f.headers().at(-1)!.props.back(); f.render();
+  assert.equal(scroll().props.contentOffset.y, 320);
+  assert.equal(f.find('ProfileSettings').props.nameDraft, 'Unsaved synthetic draft');
+  assert.equal(f.library.displayName, 'Synthetic pilot');
+  f.find('ProfileSettings').props.onTools(); f.render();
+  assert.equal(scroll().props.contentOffset.y, 80);
+  assert.deepEqual(f.calls, []);
 });

@@ -1,23 +1,31 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Pressable, ScrollView, Text, View, StyleSheet, Platform } from 'react-native';
-import { File, Paths } from 'expo-file-system';
-import * as Crypto from 'expo-crypto';
-import * as Sharing from 'expo-sharing';
-import { StorageAccessFramework } from 'expo-file-system/legacy';
-import * as DocumentPicker from 'expo-document-picker';
 import { PilotBooks, formats, sourceId, type Book, type BookSnapshot, type SourceFlight } from '../../../packages/local-data/src/books';
 import { type Page, type Source, type FindingStatus, findings, canonical } from '@moflight/flight-logbook';
 import fixture from '../../../tests/fixtures/local-logbook/mobile.json';
-import { loadBooks, openBooks, rememberLibrary, rememberedBook, rememberBook, PILOT } from './book-storage';
+import { loadBooks, rememberedBook, rememberBook, PILOT } from './book-storage';
+import { restorePilotBackup, savePilotBackupToFolder, sharePilotBackup } from './pilot-backup';
 import { glidingFormat, glidingWritingDraft } from '../../../packages/flight-logbook/src/gliding-format';
 function Button({title, press, disabled, testID}: {title: string; press: () => void; disabled?: boolean; testID?: string}) { return <Pressable testID={testID} accessibilityRole="button" accessibilityLabel={title} disabled={disabled} onPress={press} style={styles.button}><Text style={styles.white}>{title}</Text></Pressable>; }
-export function BookLab({ close }: {close: () => void}) {
+export function BookLab({ close, onBusyChange }: {close: () => void; onBusyChange?: (busy: boolean) => void}) {
   const [showFormat,setShowFormat]=useState(false);
   const lib = useRef<PilotBooks | null>(null), lock = useRef(false);
   const [busy,setBusy] = useState(true), [books,setBooks] = useState<Book[]>([]), [selected,setSelected] = useState('gliding-a'), [snapshot,setSnapshot] = useState<BookSnapshot | null>(null), [copied,setCopied] = useState<string[]>([]), [sources,setSources] = useState<SourceFlight[]>([]), [review,setReview] = useState<FindingStatus[]>([]), [status,setStatus] = useState('Opening remembered synthetic books…');
+  useEffect(() => { onBusyChange?.(busy); }, [busy, onBusyChange]);
   async function refresh(bookId = selected) { const l = lib.current!; setBooks(await l.books()); setSources(await l.sources()); if ((await l.books()).some(b=>b.id===bookId)) { setReview(findings(await l.history(bookId))); setSnapshot((await l.snapshots(bookId)).at(-1) ?? null); setCopied((await l.entries(bookId)).map(e=>e.flightId)); } else { setReview([]); setSnapshot(null); setCopied([]); } }
-  useEffect(()=>{let active=true; void loadBooks().then(async x=>{if(!active){await x.lib.db.close();return;}lib.current=x.lib; const selectedBook=await rememberedBook(x.lib);setSelected(selectedBook);await refresh(selectedBook); setBusy(false);setStatus('Synthetic pilot library loaded. Live captures remain separate.');}).catch(()=>{if(active){setBusy(false);setStatus('Library could not be opened; original databases preserved.');}});return()=>{active=false;void lib.current?.db.close();};},[]);
-  async function act(work:()=>Promise<string|void>, bookId = selected) { if(lock.current||busy)return;lock.current=true;setBusy(true);try{const message=await work();await refresh(bookId);if((await lib.current!.books()).some(b=>b.id===bookId))await rememberBook(lib.current!,bookId);setStatus(message??'Saved in the selected synthetic book.');}catch(e){setStatus(e instanceof Error?e.message:'Operation failed; original evidence retained.');}finally{lock.current=false;setBusy(false);} }
+  useEffect(()=>{let active=true; void loadBooks().then(async x=>{if(!active){await x.lib.db.close();return;}lib.current=x.lib; const selectedBook=await rememberedBook(x.lib);setSelected(selectedBook);await refresh(selectedBook); setBusy(false);setStatus('Synthetic pilot library loaded. Live captures remain separate.');}).catch(()=>{if(active){setBusy(false);setStatus('Library could not be opened; original databases preserved.');}});return()=>{active=false;onBusyChange?.(false);void lib.current?.db.close();};},[]);
+  async function act(work:()=>Promise<string|void>, bookId = selected) {
+    if(lock.current||busy)return;
+    lock.current=true;setBusy(true);
+    try {
+      const message=await work(), available=await lib.current!.books();
+      const target=available.find(b=>b.id===bookId)?.id??available[0]?.id??bookId;
+      setSelected(target);await refresh(target);
+      if(available.some(b=>b.id===target))await rememberBook(lib.current!,target);
+      setStatus(message??'Saved in the selected synthetic book.');
+    } catch(e) { setStatus(e instanceof Error?e.message:'Operation failed; original evidence retained.'); }
+    finally { lock.current=false;setBusy(false); }
+  }
   async function seed() {
     const l=lib.current!, current=await l.books();
     const definitions: Book[]=[{id:'gliding-a',owner:PILOT,name:'Gliding volume A',format:'synthetic-ten-row-v1',classes:['glider'],from:'2020-01-01',through:null},{id:'gliding-b',owner:PILOT,name:'Gliding volume B',format:'synthetic-powered-five-row-v1',classes:['glider'],from:'2020-01-01',through:null},{id:'ultralight',owner:PILOT,name:'Synthetic ultralight',format:'synthetic-powered-five-row-v1',classes:['ultralight'],from:'2020-01-01',through:null},{id:'powered',owner:PILOT,name:'Synthetic powered',format:'synthetic-powered-five-row-v1',classes:['powered','TMG'],from:'2020-01-01',through:null}];
@@ -30,10 +38,10 @@ export function BookLab({ close }: {close: () => void}) {
     if(!await l.state('gliding-a','page')){const p=fixture.page as Page;await l.saveState('gliding-a','page',{...p,rows:p.rows.map(r=>({...r,flight:{...r.flight,id:mapping[r.flight.id]??sourceId(PILOT,'prepared-paper',r.flight.id)}}))});}
     return 'Four synthetic books and explicit routing loaded. Shared reference links add no credited time.';
   }
-  async function backup(){const text=await lib.current!.backup(), file=new File(Paths.document,`pilot-backup-${Crypto.randomUUID()}.json`);file.create();file.write(text);if(await Sharing.isAvailableAsync())await Sharing.shareAsync(file.uri,{mimeType:'application/json'});return 'Pilot backup prepared. Sharing cancellation does not confirm external saving.';}
-  async function saveExternal(){const permission=await StorageAccessFramework.requestDirectoryPermissionsAsync(StorageAccessFramework.getUriForDirectoryInRoot('Documents'));if(!permission.granted)return 'Pilot backup save cancelled.';const text=await lib.current!.backup(),uri=await StorageAccessFramework.createFileAsync(permission.directoryUri,`moflight-pilot-backup-${Crypto.randomUUID()}`,'application/json');await StorageAccessFramework.writeAsStringAsync(uri,text);if(await StorageAccessFramework.readAsStringAsync(uri)!==text)throw new Error('External pilot backup verification failed');return 'Pilot backup saved and verified in the selected device folder.';}
-  async function restore(){const picked=await DocumentPicker.getDocumentAsync({type:'application/json',copyToCacheDirectory:true});if(picked.canceled)return 'Restore cancelled; current library retained.';if((picked.assets[0]!.size??0)>2_000_000)throw new Error('Pilot backup too large');const text=await new File(picked.assets[0]!.uri).text(), name=`pilot-restore-${Crypto.randomUUID()}.sqlite`, next=await openBooks(name);try{await next.restore(text);for(const b of await next.books()){await next.history(b.id);await next.snapshots(b.id);}await rememberLibrary(name);}catch(e){await next.db.close();throw e;}const previous=lib.current;lib.current=next;void previous?.db.close().catch(()=>{});return 'Pilot backup restored to a new database; previous library preserved.';}
-  return <ScrollView contentContainerStyle={styles.container}><Text style={styles.title}>Multiple-logbook lab</Text><Text>Synthetic formats and evidence. Real book rules and live imports remain gated.</Text><Text accessibilityLiveRegion="polite">{status}</Text><Button testID="synthetic-books-close" title="Close multiple-logbook lab" disabled={busy} press={close}/><Button testID="synthetic-books-load" title="Load four synthetic books" disabled={busy||!lib.current} press={()=>void act(seed)}/>
+  async function backup(){await sharePilotBackup(lib.current!);return 'Pilot backup prepared. Sharing cancellation does not confirm external saving.';}
+  async function saveExternal(){return await savePilotBackupToFolder(lib.current!)==='saved'?'Pilot backup saved and verified in the selected device folder.':'Pilot backup save cancelled.';}
+  async function restore(){const result=await restorePilotBackup(lib.current!);if(result.state==='cancelled')return 'Restore cancelled; current library retained.';const previous=lib.current;lib.current=result.library;setSelected(result.bookId??'gliding-a');void previous?.db.close().catch(()=>{});return 'Pilot backup restored to a new database; previous library preserved.';}
+  return <ScrollView style={styles.screen} contentContainerStyle={styles.container}><Text style={styles.title}>Multiple-logbook lab</Text><Text>Synthetic formats and evidence. Real book rules and live imports remain gated.</Text><Text accessibilityLiveRegion="polite">{status}</Text><Button testID="synthetic-books-close" title="Close multiple-logbook lab" disabled={busy} press={close}/><Button testID="synthetic-books-load" title="Load four synthetic books" disabled={busy||!lib.current} press={()=>void act(seed)}/>
     <Button title="Preview supplied EU-FCL gliding-book layout" disabled={busy} press={()=>setShowFormat(v=>!v)}/>
     {showFormat&&<View style={styles.card}><Text>{glidingFormat.name} · DIN A6 · 590 starts · 10 rows per spread · German · excludes TMG.</Text><Text>Draft from your blank spread. Synthetic example only. Source mapping and continuation position remain unresolved. Unknown values require review; no copied-entry confirmation is available.</Text>{glidingWritingDraft({aircraftClass:'glider',number:1,date:'2026-10-11',model:'Synthetic glider',registration:'D-0000',pic:'Synthetic pilot',companion:'',launch:'W',departure:'Synthetic field',arrival:'Synthetic field',start:'10:00',landing:'10:25',timeBasis:'UTC',minutes:25,picMinutes:25,dualMinutes:0,fiMinutes:null,feMinutes:null,winchStarts:1,towStarts:0,selfStarts:0,distanceKm:null,remarks:''}).cells.map(c=><Text key={c.column} selectable>{c.column}: {c.text===null?'UNKNOWN — REVIEW REQUIRED':c.text||'(blank)'}</Text>)}</View>}
     {books.map(b=><Button key={b.id} title={`${selected===b.id?'Selected: ':'Open book: '}${b.name}`} disabled={busy} press={()=>{setSelected(b.id);void act(async()=>{await refresh(b.id);return `Selected ${b.name}`;}, b.id);}}/>)}
@@ -45,4 +53,4 @@ export function BookLab({ close }: {close: () => void}) {
     <Button title="Save / share complete pilot backup" disabled={busy||!lib.current} press={()=>void act(backup)}/><Button title="Restore pilot backup into new library" disabled={busy||!lib.current} press={()=>void act(restore)}/>
   </ScrollView>;
 }
-const styles=StyleSheet.create({container:{padding:18,gap:12},title:{fontSize:26,fontWeight:'700'},button:{backgroundColor:'#174c72',padding:14,borderRadius:8},white:{color:'white',fontSize:16},card:{backgroundColor:'white',padding:12,gap:8,borderWidth:1,borderColor:'#b9cadb'}});
+const styles=StyleSheet.create({screen:{flex:1,backgroundColor:'#f5f7fb'},container:{padding:18,gap:12,width:'100%',maxWidth:720,alignSelf:'center'},title:{fontSize:26,fontWeight:'700'},button:{backgroundColor:'#174c72',padding:14,borderRadius:8},white:{color:'white',fontSize:16},card:{backgroundColor:'white',padding:12,gap:8,borderWidth:1,borderColor:'#b9cadb'}});

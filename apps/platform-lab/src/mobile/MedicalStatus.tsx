@@ -4,8 +4,8 @@ import { MedicalIcon } from './ShellIcons';
 import { Card, Label, Section, colors } from './theme';
 
 /** Presentation only: no medical source, record, date or eligibility is inferred. */
-export function MedicalIndicator({ onPress, active = false }: { onPress: () => void; active?: boolean }) {
-  return <Pressable accessibilityRole="button" accessibilityLabel="Medical unbekannt. Details öffnen" accessibilityState={{ selected: active }} onPress={onPress} style={styles.control}>
+export function MedicalIndicator({ onPress, active = false, disabled = false }: { onPress: () => void; active?: boolean; disabled?: boolean }) {
+  return <Pressable accessibilityRole="button" accessibilityLabel="Medical unbekannt. Details öffnen" accessibilityState={{ selected: active, disabled }} disabled={disabled} onPress={onPress} style={[styles.control, disabled && { opacity: .5 }]}>
     <View accessible={false} style={styles.title}><MedicalIcon /><Text style={styles.label}>Med</Text></View>
     <Text style={styles.status}>unbekannt</Text>
   </Pressable>;

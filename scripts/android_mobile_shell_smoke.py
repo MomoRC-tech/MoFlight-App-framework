@@ -82,11 +82,11 @@ def execute(smoke):
     smoke.report['viewport'] = dimensions
     launch(smoke)
     original_header = header_bounds(smoke)
-    hero_before = bounds(smoke.find('Papierflugbuch aktualisieren', exact=True))
+    hero_before = bounds(smoke.find('Papierstand ansehen', exact=True))
     for _ in range(3):
         smoke.swipe(up=True, duration=250)
     assert header_bounds(smoke) == original_header, 'Header moved while home content scrolled'
-    heroes = [node for node in smoke.dump() if node.get('content-desc') == 'Papierflugbuch aktualisieren']
+    heroes = [node for node in smoke.dump() if node.get('content-desc') == 'Papierstand ansehen']
     assert not heroes or all(bounds(node) != hero_before for node in heroes), 'Home content did not move during scroll'
     capture(smoke, 'fixed-header-after-home-scroll', dimensions)
     for title, slug in TABS:
@@ -96,10 +96,10 @@ def execute(smoke):
         capture(smoke, f'five-tab-{slug}', dimensions)
     tab(smoke, 'Flugbuch')
     smoke.find('Flüge ohne gespeicherten Papiernachweis')
-    smoke.tap('Papierabgleich öffnen', scroll=True)
-    smoke.find('Multiple-logbook lab')
-    capture(smoke, 'logbook-opens-existing-paper-workflow', dimensions)
-    smoke.tap('Close multiple-logbook lab')
+    smoke.tap('Papierstand ansehen', scroll=True)
+    smoke.find('Gespeicherter Papierstand')
+    capture(smoke, 'logbook-opens-read-only-paper-status', dimensions)
+    smoke.tap('Zur vorherigen App-Ansicht')
     smoke.find(PROFILE, exact=True)
     open_profile(smoke)
     original = field_value(display_name_field(smoke))
@@ -119,7 +119,7 @@ def execute(smoke):
             open_profile(smoke)
             save_name(smoke, original)
             smoke.report['profile_restoration'] = 'Original local demo name restored through UI'
-    smoke.tap('‹ Zurück')
+    smoke.tap('Zur vorherigen App-Ansicht')
 
 
 def main():

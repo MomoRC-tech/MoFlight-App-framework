@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, BackHandler, FlatList, Keyboard, KeyboardAvoidingView, Linking, Platform, Pressable, ScrollView, StatusBar, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-import type { Flight } from '@moflight/flight-logbook';
+import { canonical, type Flight } from '@moflight/flight-logbook';
 import LabApp from '../App';
 import { BookLab } from '../BookLab';
 import { Action, Card, Chip, ClubMark, Empty, GliderMark, IconLabel, Label, Photo, Section, colors, ui } from './theme';
@@ -17,6 +17,9 @@ import { useAccessController } from '../vereinsflieger/use-access-controller';
 import { ProviderConnection, ConnectionIndicator } from './ProviderConnection';
 import { AppHeader } from './AppHeader';
 import { MedicalDetails, MedicalIndicator } from './MedicalStatus';
+import { DevelopmentHub, DevelopmentNotice } from './DevelopmentHub';
+import { LibraryBackup } from './LibraryBackup';
+import { PaperStatus } from './PaperStatus';
 
 const mountain = require('../../assets/aviation/mountain-header-v2.jpg');
 const windsock = require('../../assets/aviation/windsock.jpg');
@@ -24,7 +27,7 @@ const clubAirfield = require('../../assets/aviation/club-airfield.jpg');
 const tabs = [{ id: 'home', title: 'Übersicht' }, { id: 'flights', title: 'Flüge' }, { id: 'logbook', title: 'Flugbuch' }, { id: 'club', title: 'Verein' }, { id: 'ai', title: 'AI' }] as const;
 type Tab = typeof tabs[number]['id'];
 type ClubSection = 'Übersicht' | 'Termine' | 'Dienste' | 'Mitteilungen';
-type Sheet = 'books' | 'tools' | 'selectBook' | 'filters' | 'unsupported' | 'credits' | 'status' | 'profile' | 'medical' | null;
+type Sheet = 'paper' | 'development' | 'flightLab' | 'bookLab' | 'backup' | 'selectBook' | 'filters' | 'unsupported' | 'credits' | 'status' | 'profile' | 'medical' | null;
 const dateText = (date: string | null) => date ? new Date(date + 'T12:00:00Z').toLocaleDateString('de-DE', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' }) : 'Datum unbekannt';
 
 function Metric({ value, label }: { value: string; label: string }) {
@@ -47,17 +50,26 @@ export default function MobileApp() { return <SafeAreaProvider><Shell /></SafeAr
 function Shell() {
   const connection = useAccessController(true, PILOT);
   const [connectionOpen, setConnectionOpen] = useState(false);
+  const [connectionDevelopment, setConnectionDevelopment] = useState(false);
   const [tab, setTab] = useState<Tab>('home');
   const [sheet, setSheet] = useState<Sheet>(null);
   const [detail, setDetail] = useState<Flight | null>(null);
+  const [screenBusy, setScreenBusy] = useState(false);
+  const [profileNameDraft, setProfileNameDraft] = useState('');
   const overlayHistory = useRef<{ sheet: Sheet; detail: Flight | null }[]>([]);
+  const overlayOffsets = useRef<Record<string, number>>({});
+  const overlayKey = detail ? `detail:${detail.id}` : sheet ?? 'none';
   const overlayOpen = sheet !== null || detail !== null;
   const openHeaderSheet = (next: Sheet) => {
+    if (screenBusy) return;
     if (sheet === next && !detail) return;
+    Keyboard.dismiss();
     if (overlayOpen) overlayHistory.current.push({ sheet, detail });
     setDetail(null); setSheet(next);
   };
   const closeOverlay = () => {
+    if (screenBusy) return;
+    Keyboard.dismiss();
     const previous = overlayHistory.current.pop();
     setDetail(previous?.detail ?? null); setSheet(previous?.sheet ?? null);
   };
@@ -73,13 +85,15 @@ function Shell() {
   const aiScroll = useRef<ScrollView>(null);
   const activeTab = useRef(tab);
   activeTab.current = tab;
-  const toolsOpen = sheet === 'books' || sheet === 'tools';
+  const toolsOpen = sheet === 'bookLab' || sheet === 'flightLab';
   const previouslyToolsOpen = useRef(false);
   useEffect(() => {
     if (previouslyToolsOpen.current && !toolsOpen) void connection.refreshRecovery();
     previouslyToolsOpen.current = toolsOpen;
   }, [toolsOpen]);
-  const library = useLibrary(toolsOpen);
+  const library = useLibrary(toolsOpen || sheet === 'backup');
+  const libraryRevision = canonical([library.bookId, library.flights]);
+  useEffect(() => { setProfileNameDraft(library.displayName); }, [library.displayName]);
   const { width, height, fontScale } = useWindowDimensions();
   const aiKeyboard = tab === 'ai' && !overlayOpen && !connectionOpen && keyboardTop !== null;
   const keyboardOverlap = Platform.OS === 'android' && aiKeyboard ? Math.max(0, height - keyboardTop!) : 0;
@@ -103,7 +117,12 @@ function Shell() {
     return () => { show.remove(); hide.remove(); clearTimeout(timer); };
   }, []);
   useEffect(() => { Keyboard.dismiss(); }, [tab]);
-  useEffect(() => { overlayHistory.current = []; setDetail(null); setLocalAnswer(null); }, [library.bookId, library.flights]);
+  useEffect(() => {
+    // A reload with identical saved facts must not erase the return path. When
+    // facts/book do change, discard stale details but retain named tool/settings paths.
+    overlayHistory.current = overlayHistory.current.filter(previous => !previous.detail);
+    setDetail(null); setLocalAnswer(null);
+  }, [libraryRevision]);
   useEffect(() => {
     const listener = BackHandler.addEventListener('hardwareBackPress', () => {
       if (connectionOpen) {
@@ -115,8 +134,9 @@ function Shell() {
       if (tab !== 'home') { setTab('home'); return true; }
       return false;
     }); return () => listener.remove();
-  }, [detail, sheet, tab, connectionOpen, connection]);
-  const openBooks = () => setSheet('books');
+  }, [detail, sheet, tab, connectionOpen, connection, screenBusy]);
+  const openBooks = () => openHeaderSheet('paper');
+  const openConnection = (development = false) => { setConnectionDevelopment(development); setConnectionOpen(true); };
   const ask = (question: string) => { setDraft(question); setAiError(false); setTab('ai'); };
   const quickQuestions = localQuestions;
   const localQuery = (index: number) => {
@@ -136,9 +156,9 @@ function Shell() {
   </View>;
   const pageTitle = tabs.find(item => item.id === tab)!.title;
   const statusControls = <>
-    <ConnectionIndicator controller={connection} onPress={() => setConnectionOpen(true)} />
-    <MedicalIndicator active={sheet === 'medical'} onPress={() => openHeaderSheet('medical')} />
-    <Pressable accessibilityRole="button" accessibilityLabel="Profil & Einstellungen öffnen" onPress={() => openHeaderSheet('profile')} style={s.profileButton}><ProfileIcon /></Pressable>
+    <ConnectionIndicator controller={connection} onPress={() => openConnection()} />
+    <MedicalIndicator active={sheet === 'medical'} disabled={screenBusy} onPress={() => openHeaderSheet('medical')} />
+    <Pressable accessibilityRole="button" accessibilityLabel="Profil & Einstellungen öffnen" accessibilityState={{ disabled: screenBusy }} disabled={screenBusy} onPress={() => openHeaderSheet('profile')} style={s.profileButton}><ProfileIcon /></Pressable>
   </>;
   const header = <AppHeader source={tab === 'club' ? clubAirfield : mountain} title={tab === 'ai' ? 'MoFlight AI' : pageTitle}
     subtitle={tab === 'home' ? (library.displayName ? `Hallo, ${library.displayName}!` : 'Guten Tag!') : tab === 'ai' ? 'Dein Segelflug-Assistent' : 'MoFlight'}>{statusControls}</AppHeader>;
@@ -165,15 +185,14 @@ function Shell() {
         </ScrollView>
       </View>
       <View style={[s.page, tab !== 'flights' && s.hidden]} accessibilityElementsHidden={tab !== 'flights'} importantForAccessibility={tab === 'flights' ? 'auto' : 'no-hide-descendants'}>
-        <FlatList key={tablet ? 'tablet' : 'phone'} numColumns={tablet ? 2 : 1} columnWrapperStyle={tablet ? { gap: 8 } : undefined} data={flights} keyExtractor={f => f.id} renderItem={({ item }) => <FlightRow tablet={tablet} flight={item} onPress={() => setDetail(item)} />} ListHeaderComponent={flightHeader} ListHeaderComponentStyle={{ marginBottom: 5 }} ListFooterComponent={stateBanner} contentContainerStyle={s.flightCanvas} ItemSeparatorComponent={() => <View style={{ height: 7 }} />} initialNumToRender={10} maxToRenderPerBatch={10} windowSize={7} keyboardShouldPersistTaps="handled" ListEmptyComponent={<Card><Empty title={search || training || selectedYear !== null ? 'Keine passenden Flüge' : 'Noch keine gespeicherten Flüge'}>{search || training || selectedYear !== null ? 'Suchbegriff oder Filter ändern.' : 'Flugquellen und lokale Werkzeuge über + öffnen. Live-Import ist noch nicht verbunden.'}</Empty></Card>} />
-        <Pressable accessibilityRole="button" accessibilityLabel="Flugworkflow öffnen" onPress={() => setSheet('tools')} style={({ pressed }) => [s.fab, pressed && ui.pressed]}><SymbolIcon name="plus" size={32} tone="contrast" /></Pressable>
+        <FlatList key={tablet ? 'tablet' : 'phone'} numColumns={tablet ? 2 : 1} columnWrapperStyle={tablet ? { gap: 8 } : undefined} data={flights} keyExtractor={f => f.id} renderItem={({ item }) => <FlightRow tablet={tablet} flight={item} onPress={() => setDetail(item)} />} ListHeaderComponent={flightHeader} ListHeaderComponentStyle={{ marginBottom: 5 }} ListFooterComponent={stateBanner} contentContainerStyle={s.flightCanvas} ItemSeparatorComponent={() => <View style={{ height: 7 }} />} initialNumToRender={10} maxToRenderPerBatch={10} windowSize={7} keyboardShouldPersistTaps="handled" ListEmptyComponent={<Card><Empty title={search || training || selectedYear !== null ? 'Keine passenden Flüge' : 'Noch keine gespeicherten Flüge'}>{search || training || selectedYear !== null ? 'Suchbegriff oder Filter ändern.' : 'Live-Import ist noch nicht verbunden. Verbindung und Sicherung sind in den Einstellungen verfügbar.'}</Empty></Card>} />
       </View>
       <View style={[s.page, tab !== 'logbook' && s.hidden]} accessibilityElementsHidden={tab !== 'logbook'} importantForAccessibility={tab === 'logbook' ? 'auto' : 'no-hide-descendants'}>
         <ScrollView contentContainerStyle={[s.canvas, { paddingTop: 10 }]}>
           <View style={{ width: '100%', maxWidth: 480, alignSelf: 'center', gap: 10 }}>
             <Card><Section title="Mein Flugbuch" /><Label style={{ fontSize: 18, fontWeight: '600' }}>{book?.name ?? 'Noch kein Flugbuch ausgewählt'}</Label><Label muted>{book ? `${library.flights.length} gespeicherte Flüge · eigenes Papierprotokoll` : 'Ein bestehendes lokales Flugbuch auswählen.'}</Label><Action secondary onPress={() => setSheet('selectBook')}>Flugbuch auswählen</Action></Card>
-            <Card><Section title="Papierflugbuch" /><Label>{library.pending === null ? 'Papierstand unbekannt' : `${library.pending} Flüge ohne gespeicherten Papiernachweis`}</Label><Label muted>Einträge abgleichen, Entscheidungen prüfen und die bestehende Schreibvorlage öffnen.</Label><Action testID="paper-assistant-entry" onPress={openBooks}>Papierabgleich öffnen</Action></Card>
-            <Card><Section title="Schreibvorlage & Buchverwaltung" /><Label muted>Verwende die vorhandenen lokalen Flugbuchwerkzeuge. Papiernachweise und Schreibstände bleiben dem ausgewählten Buch zugeordnet.</Label><Action secondary onPress={openBooks}>Flugbuchwerkzeuge öffnen</Action></Card>
+            <Card><Section title="Papierflugbuch" /><Label>{library.pending === null ? 'Papierstand unbekannt' : `${library.pending} Flüge ohne gespeicherten Papiernachweis`}</Label><Label muted>Gespeicherten Papierstand ansehen. Der vollständige Abgleich und neue Schreibvorlagen werden noch vorbereitet.</Label><Action testID="paper-assistant-entry" onPress={openBooks}>Papierstand ansehen</Action></Card>
+            <Card><Section title="Sicherung & Wiederherstellung" /><Label muted>Alle Flugbücher dieser synthetischen Bibliothek sichern oder eine vorhandene Sicherung in einer neuen Bibliothek öffnen.</Label><Action secondary icon="book" onPress={() => openHeaderSheet('backup')}>Sicherung & Wiederherstellung</Action></Card>
             <Action secondary onPress={() => setTab('flights')}>Gespeicherte Flüge ansehen</Action>
             {stateBanner}
           </View>
@@ -209,15 +228,18 @@ function Shell() {
     <View style={[s.nav, wide && { maxWidth: 960 }, tablet && !wide && { maxWidth: 600 }, aiKeyboard && s.hidden]} accessibilityRole="tablist">{tabs.map(item => <Pressable key={item.id} testID={`tab-${item.id}`} accessibilityRole="tab" accessibilityLabel={item.title} accessibilityState={{ selected: tab === item.id }} onPress={() => setTab(item.id)} style={({ pressed }) => [s.navItem, pressed && ui.pressed]}>{item.id === 'flights' ? <PlaneIcon color={tab === item.id ? '#00c8ff' : colors.muted} /> : item.id === 'logbook' ? <BookIcon color={tab === item.id ? '#00c8ff' : colors.muted} /> : item.id === 'club' ? <ClubMark color={tab === item.id ? '#00c8ff' : colors.muted} /> : <SymbolIcon name={item.id === 'home' ? 'home' : 'sparkle'} size={28} tone={tab === item.id ? 'default' : 'muted'} tile />}<Text style={[s.navLabel, tab === item.id && s.active]}>{item.title}</Text></Pressable>)}</View>
     </View>
     {overlayOpen && <View style={[StyleSheet.absoluteFill, s.modal]} accessibilityViewIsModal>
-      <AppHeader source={mountain} back={closeOverlay} title={detail ? 'Flugdetails' : sheet === 'books' ? 'Papierflugbuch' : sheet === 'tools' ? 'Entwicklungswerkzeuge' : sheet === 'profile' ? 'Profil & Einstellungen' : sheet === 'medical' ? 'Medical' : 'MoFlight'}>{statusControls}</AppHeader>
-        {sheet === 'tools' ? <LabApp providerOwned={true} /> : sheet === 'books' ? <View style={{ flex: 1, backgroundColor: '#f5f7fb' }}><BookLab close={closeOverlay} /></View> : <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}><ScrollView contentContainerStyle={s.canvas} keyboardShouldPersistTaps="handled">
-          {sheet === 'profile' && <ProfileSettings onConnections={() => setConnectionOpen(true)} onTools={() => openHeaderSheet('tools')} onStatus={() => openHeaderSheet('status')} onCredits={() => openHeaderSheet('credits')} onBooks={() => openHeaderSheet('selectBook')} displayName={library.displayName} busy={library.busy} error={library.error} onSaveName={library.saveDisplayName} onRetry={() => void library.reload()} />}
+      <AppHeader source={mountain} back={closeOverlay} backDisabled={screenBusy} title={detail ? 'Flugdetails' : sheet === 'paper' ? 'Papierflugbuch' : sheet === 'development' ? 'Entwicklung' : sheet === 'flightLab' ? 'Datensatztest' : sheet === 'bookLab' ? 'Flugbuchtest' : sheet === 'backup' ? 'Sicherung' : sheet === 'profile' ? 'Profil & Einstellungen' : sheet === 'medical' ? 'Medical' : 'MoFlight'}>{statusControls}</AppHeader>
+        {sheet === 'flightLab' ? <><DevelopmentNotice /><LabApp providerOwned={true} embedded onBusyChange={setScreenBusy} /></> : sheet === 'bookLab' ? <><DevelopmentNotice /><BookLab close={closeOverlay} onBusyChange={setScreenBusy} /></> : <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}><ScrollView key={overlayKey} contentOffset={{ x: 0, y: overlayOffsets.current[overlayKey] ?? 0 }} onScroll={event => { overlayOffsets.current[overlayKey] = event.nativeEvent.contentOffset.y; }} scrollEventThrottle={32} contentContainerStyle={s.canvas} keyboardShouldPersistTaps="handled">
+          {sheet === 'profile' && <ProfileSettings onConnections={() => openConnection()} onTools={() => openHeaderSheet('development')} onBackup={() => openHeaderSheet('backup')} onStatus={() => openHeaderSheet('status')} onCredits={() => openHeaderSheet('credits')} onBooks={() => openHeaderSheet('selectBook')} displayName={library.displayName} nameDraft={profileNameDraft} onNameDraftChange={setProfileNameDraft} busy={library.busy} error={library.error} onSaveName={library.saveDisplayName} onRetry={() => void library.reload()} />}
+          {sheet === 'development' && <DevelopmentHub onFlights={() => openHeaderSheet('flightLab')} onBooks={() => openHeaderSheet('bookLab')} onProvider={() => openConnection(true)} />}
+          {sheet === 'backup' && <LibraryBackup onBusyChange={setScreenBusy} />}
+          {sheet === 'paper' && <PaperStatus bookName={book?.name ?? null} pending={library.pending} onBooks={() => openHeaderSheet('selectBook')} onBackup={() => openHeaderSheet('backup')} onFlights={() => { overlayHistory.current = []; setDetail(null); setSheet(null); setTab('flights'); }} />}
           {sheet === 'medical' && <MedicalDetails />}
           {detail && <><Section title={detail.registration ?? 'Flugzeug unbekannt'} />{[['Datum', dateText(detail.date)], ['Flugzeugtyp', detail.aircraft_model], ['Abflug', detail.start_place], ['Ankunft', detail.landing_place], ['Start', detail.start], ['Landung', detail.landing], ['Zeitbasis', detail.time_basis], ['Dauer', detail.minutes === null ? null : `${formatDuration(detail.minutes)} h`], ['Rolle', detail.pilot_role], ['Startart', detail.launch], ['Landungen', detail.landings?.toString()], ['Bemerkungen', detail.remarks]].map(([label, value]) => <Card key={label}><Label muted>{label}</Label><Label selectable>{value ?? 'Unbekannt'}</Label></Card>)}<Label muted>Quelle: gespeicherte synthetische Bibliothek · {book?.name}. Distanz und Flugtrack sind nicht verfügbar.</Label></>}
-          {sheet === 'selectBook' && <><Section title="Flugbuch auswählen" />{library.books.map(b => <Action key={b.id} secondary icon={b.id === library.bookId ? 'check' : undefined} onPress={() => { overlayHistory.current = []; setDetail(null); setSheet(null); void library.selectBook(b.id); }}>{b.name}</Action>)}{!library.books.length && <Empty title="Noch kein Flugbuch">Bestehende lokale Flugbuchwerkzeuge öffnen, um die Bibliothek einzusehen.</Empty>}<Action onPress={openBooks}>Flugbuchwerkzeuge öffnen</Action></>}
+          {sheet === 'selectBook' && <View style={{ width: '100%', maxWidth: 520, alignSelf: 'center', gap: 8 }}><Section title="Flugbuch auswählen" />{library.books.map(b => <Action key={b.id} secondary icon={b.id === library.bookId ? 'check' : undefined} onPress={() => { overlayHistory.current = []; setDetail(null); setSheet(null); void library.selectBook(b.id); }}>{b.name}</Action>)}{!library.books.length && <Empty title="Noch kein Flugbuch">Eine vorhandene Sicherung kann in einer neuen lokalen Bibliothek geöffnet werden. Live-Import und neue Produkt-Flugbücher sind noch nicht verfügbar.</Empty>}<Label muted>Gespeicherte synthetische Bibliothek · keine automatische Zuordnung.</Label><Action secondary onPress={() => openHeaderSheet('backup')}>Sicherung & Wiederherstellung</Action></View>}
           {sheet === 'filters' && <><Section title="Flugfilter" /><Label muted>Jahr, Suche und Schulungsrolle werden gemeinsam auf die gespeicherten Flüge angewendet.</Label><Chip title="Alle Rollen" selected={!training} onPress={() => setTraining(false)} /><Chip title="Schulung · Dual / FI" selected={training} onPress={() => setTraining(true)} /><Action onPress={() => { setSearch(''); setTraining(false); setYear(null); setSheet(null); }}>Filter zurücksetzen</Action></>}
           {sheet === 'unsupported' && <Empty title="Klassifikation nicht verfügbar">Der gespeicherte Flugvertrag enthält keine Strecken- oder Platzrundenkennzeichnung. Flugzeit, Start-/Zielfeld und Rolle werden dafür nicht als Ersatz interpretiert. Der aktive Filter bleibt erhalten.</Empty>}
-          {sheet === 'status' && <><Section title="Verbindung & Datenstatus" /><Label>Die lokale Bibliothek enthält ausdrücklich synthetische, gespeicherte Daten. Der Papierstand zählt nur Einträge ohne gespeicherten Papiernachweis.</Label><Label muted>Wetter, Vereinskalender, Dienste, Mitteilungen und der authentifizierte AI-Dienst sind noch nicht verbunden. Flugtracks und Distanzen sind im gespeicherten Vertrag nicht vorhanden. Die vollständige Saisonabdeckung und damit ein belastbarer Vorjahresvergleich sind nicht belegt.</Label><Action secondary onPress={() => setSheet('tools')}>Bestehende Verbindungswerkzeuge</Action></>}
+          {sheet === 'status' && <View style={{ width: '100%', maxWidth: 520, alignSelf: 'center', gap: 8 }}><Section title="Verbindung & Datenstatus" /><Label>Die lokale Bibliothek enthält ausdrücklich synthetische, gespeicherte Daten. Der Papierstand zählt nur Einträge ohne gespeicherten Papiernachweis.</Label><Label muted>Wetter, Vereinskalender, Dienste, Mitteilungen und der authentifizierte AI-Dienst sind noch nicht verbunden. Flugtracks und Distanzen sind im gespeicherten Vertrag nicht vorhanden. Die vollständige Saisonabdeckung und damit ein belastbarer Vorjahresvergleich sind nicht belegt.</Label><Action secondary icon="chain" onPress={() => openConnection()}>Vereinsflieger öffnen</Action><Action secondary icon="book" onPress={() => openHeaderSheet('backup')}>Sicherung & Wiederherstellung</Action></View>}
           {sheet === 'credits' && <><Section title="Bildnachweise" /><Label muted>Dekorative Bilder, keine Flug-, Wetter- oder Vereinsdaten. Darstellung mit Ausschnitt und dunkler Farbüberlagerung. Bildlizenzen gelten unabhängig vom Anwendungscode.</Label>{[
             ['Sebastian Kawa, Tomasz Kawa · GrandPrixGlidingChile.JPG', 'CC BY-SA 3.0', 'https://commons.wikimedia.org/wiki/File:GrandPrixGlidingChile.JPG', 'https://creativecommons.org/licenses/by-sa/3.0/'],
             ['Dg-505 · Sunset', 'CC BY 3.0', 'https://commons.wikimedia.org/wiki/File:Sunset_-_panoramio_(312).jpg', 'https://creativecommons.org/licenses/by/3.0/'],
@@ -228,19 +250,18 @@ function Shell() {
         </ScrollView></KeyboardAvoidingView>}
     </View>}
     </View>
-    <ProviderConnection controller={connection} open={connectionOpen} close={() => setConnectionOpen(false)} />
+    <ProviderConnection controller={connection} open={connectionOpen} development={connectionDevelopment} close={() => setConnectionOpen(false)} />
   </SafeAreaView>;
 }
 const s = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.background }, content: { flex: 1, alignSelf: 'center', width: '100%', maxWidth: 599 },
-  page: { flex: 1 }, hidden: { display: 'none' }, canvas: { padding: 10, paddingTop: 10, gap: 8, paddingBottom: 20 }, flightCanvas: { padding: 10, paddingTop: 0, paddingBottom: 80 },
+  page: { flex: 1 }, hidden: { display: 'none' }, canvas: { padding: 10, paddingTop: 10, gap: 8, paddingBottom: 20 }, flightCanvas: { padding: 10, paddingTop: 0, paddingBottom: 20 },
   profileButton: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center', borderRadius: 14, backgroundColor: '#102d47aa' },
   headerBook: { minHeight: 36, justifyContent: 'center', alignSelf: 'flex-start' },
   stateBanner: { gap: 3, padding: 4, marginTop: 8 }, provenance: { fontSize: 10, lineHeight: 16, color: '#8ba4bc', letterSpacing: .6 },
   metric: { flex: 1, minWidth: 0, alignItems: 'center', gap: 1 }, metricValue: { color: colors.cyan, fontSize: 20, lineHeight: 25, fontWeight: '600' }, metricLabel: { fontSize: 11, textAlign: 'center', lineHeight: 16 },
   chips: { gap: 5 }, searchBox: { flex: 1, minWidth: 0, flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: colors.border, borderRadius: 22, backgroundColor: '#11263a', paddingHorizontal: 12, gap: 7 }, search: { flex: 1, minHeight: 40, color: colors.text, fontSize: 13, paddingVertical: 4 }, filterButton: { width: 42, minHeight: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center' },
   statsStrip: { flexDirection: 'row', paddingHorizontal: 6, paddingVertical: 10, gap: 3, minHeight: 66 }, flightRow: { padding: 7, borderRadius: 13, gap: 3 }, flightDate: { fontSize: 12, lineHeight: 17, fontWeight: '600' }, noTrack: { width: 64, minHeight: 64, backgroundColor: '#10282d', borderRadius: 9, justifyContent: 'center', alignItems: 'center' }, badge: { borderRadius: 12, borderWidth: 1, borderColor: '#227f87', paddingHorizontal: 7, backgroundColor: '#064240' },
-  fab: { position: 'absolute', right: 16, bottom: 16, width: 58, height: 58, borderRadius: 29, backgroundColor: '#315fff', alignItems: 'center', justifyContent: 'center', elevation: 8, shadowColor: '#285bff', shadowOpacity: .5, shadowRadius: 14 },
   clubBody: { gap: 8 }, clubBodyWide: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-start' }, clubHalf: { width: '49.2%' }, duty: { padding: 0 }, clubSectionCard: { width: '100%', backgroundColor: colors.background, experimental_backgroundImage: 'none', borderColor: '#152d42' }, dutyAction: { minHeight: 48, justifyContent: 'center', alignSelf: 'flex-start' }, dutyActionFace: { minHeight: 34, borderRadius: 17, backgroundColor: colors.blue, justifyContent: 'center', paddingHorizontal: 16 },
   aiBody: { width: '100%', maxWidth: 430, alignSelf: 'center', gap: 10 }, welcome: { backgroundColor: '#10233d', borderColor: '#354d74', minHeight: 126, gap: 7 }, aiBadge: { width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center', backgroundColor: '#78efdc' },
   questionGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 }, question: { minHeight: 70, borderWidth: 1, borderColor: colors.border, borderRadius: 12, padding: 10, paddingRight: 23, backgroundColor: colors.card, justifyContent: 'center' }, questionArrow: { position: 'absolute', right: 8, top: '40%', color: colors.muted, fontSize: 23 },

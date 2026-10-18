@@ -18,6 +18,19 @@ name: Offline synthetic navigation and flight history
     id: tab-logbook
 - tapOn:
     id: paper-assistant-entry
+- assertVisible: Gespeicherter Papierstand
+- assertNotVisible:
+    id: synthetic-books-load
+- back
+- tapOn: Profil & Einstellungen öffnen
+- scrollUntilVisible:
+    element:
+      id: development-entry
+    direction: DOWN
+- tapOn:
+    id: development-entry
+- tapOn:
+    id: development-book-lab
 - assertVisible: Multiple-logbook lab
 - tapOn:
     id: synthetic-books-load
@@ -26,6 +39,8 @@ name: Offline synthetic navigation and flight history
     timeout: 30000
 - tapOn:
     id: synthetic-books-close
+- back
+- back
 - tapOn:
     id: tab-flights
 - assertVisible: Gliding volume A.*

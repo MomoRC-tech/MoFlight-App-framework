@@ -4,6 +4,8 @@ import { Action, Card, Label, Section, colors } from './theme';
 
 export interface ProfileSettingsProps {
   displayName: string;
+  nameDraft: string;
+  onNameDraftChange: (value: string) => void;
   busy: boolean;
   error: string | null;
   onSaveName: (value: string) => Promise<boolean>;
@@ -13,9 +15,9 @@ export interface ProfileSettingsProps {
   onConnections: () => void;
   onCredits: () => void;
   onBooks: () => void;
+  onBackup: () => void;
 }
-export function ProfileSettings({ displayName, busy, error, onSaveName, onRetry, onTools, onStatus, onCredits, onBooks, onConnections }: ProfileSettingsProps) {
-  const [name, setName] = useState(displayName);
+export function ProfileSettings({ displayName, nameDraft: name, onNameDraftChange, busy, error, onSaveName, onRetry, onTools, onStatus, onCredits, onBooks, onBackup, onConnections }: ProfileSettingsProps) {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const alive = useRef(false);
@@ -24,7 +26,7 @@ export function ProfileSettings({ displayName, busy, error, onSaveName, onRetry,
     alive.current = true;
     return () => { alive.current = false; };
   }, []);
-  useEffect(() => { setName(displayName); setSaveError(null); }, [displayName]);
+  useEffect(() => { setSaveError(null); setSaved(false); }, [displayName]);
   const save = async () => {
     if (busy || saving.current) return;
     saving.current = true; setSaveError(null); setSaved(false);
@@ -39,7 +41,7 @@ export function ProfileSettings({ displayName, busy, error, onSaveName, onRetry,
       <Section title="Lokales Demoprofil" />
       <Label muted>Dein Anzeigename wird nur in dieser lokalen Demobibliothek gespeichert. Ein MoFlight-Konto ist noch nicht verbunden.</Label>
       <Label style={styles.fieldLabel}>Anzeigename</Label>
-      <TextInput accessibilityLabel="Anzeigename" value={name} onChangeText={value => { setName(value); setSaved(false); setSaveError(null); }} editable={!busy && !error} maxLength={60} autoCapitalize="words" autoCorrect={false} returnKeyType="done" onSubmitEditing={() => void save()} placeholder="Dein Name (optional)" placeholderTextColor={colors.muted} style={styles.input} />
+      <TextInput accessibilityLabel="Anzeigename" value={name} onChangeText={value => { onNameDraftChange(value); setSaved(false); setSaveError(null); }} editable={!busy && !error} maxLength={60} autoCapitalize="words" autoCorrect={false} returnKeyType="done" onSubmitEditing={() => void save()} placeholder="Dein Name (optional)" placeholderTextColor={colors.muted} style={styles.input} />
       {busy && <ActivityIndicator color={colors.cyan} accessibilityLabel="Profil wird verarbeitet" />}
       {(error || saveError) && <Label style={{ color: '#ffba9b' }}>{error ?? saveError}</Label>}
       {saved && <Text style={{ color: colors.green, fontSize: 13, lineHeight: 18 }} accessibilityLiveRegion="polite">Anzeigename gespeichert.</Text>}
@@ -50,6 +52,7 @@ export function ProfileSettings({ displayName, busy, error, onSaveName, onRetry,
     <Card>
       <Section title="Flugbücher & Daten" />
       <Action secondary onPress={onBooks}>Meine Flugbücher</Action>
+      <Action secondary icon="book" onPress={onBackup}>Sicherung & Wiederherstellung</Action>
       <Action secondary onPress={onStatus}>Datenstatus</Action>
     </Card>
     <Card><Section title="Verbindungen" /><Action secondary onPress={onConnections}>Vereinsflieger</Action></Card>
@@ -61,7 +64,10 @@ export function ProfileSettings({ displayName, busy, error, onSaveName, onRetry,
     <Card>
       <Section title="Über MoFlight" />
       <Action secondary onPress={onCredits}>Bildnachweise & Lizenzen</Action>
-      <Action secondary onPress={onTools}>Entwicklungswerkzeuge öffnen</Action>
+    </Card>
+    <Card>
+      <Section title="Entwicklung" />
+      <Action testID="development-entry" secondary icon="info" onPress={onTools}>Entwicklung öffnen</Action>
       <Label muted>Die Werkzeuge enthalten synthetische Testabläufe. Die Anmeldung bei Vereinsflieger ist separat; sie erstellt kein MoFlight-Konto.</Label>
     </Card>
   </View>;

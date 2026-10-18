@@ -19,8 +19,7 @@ def book_top(smoke):
 
 
 def open_books(smoke):
-    smoke.launch()
-    smoke.tap('Open multiple-logbook lab')
+    smoke.launch('books')
     smoke.find('Synthetic pilot library loaded.', attempts=40)
 
 
@@ -84,6 +83,8 @@ def execute(smoke):
     smoke.record('restored-pilot-library-selection-survives-offline-restart')
     book_top(smoke)
     smoke.tap('Close multiple-logbook lab')
+    smoke.tap('Datensatztest öffnen', scroll=True)
+    smoke.find('Remembered state loaded.', attempts=40)
     smoke.find('11 individually confirmed paper entries.', scroll=True)
     smoke.record('multi-book-proof-preserves-original-schema-v1-lab')
     original = smoke.selected_database()

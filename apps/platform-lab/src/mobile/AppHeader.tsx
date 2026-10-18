@@ -6,16 +6,16 @@ import { SymbolIcon } from './SymbolIcon';
 const brandLogo = require('../../assets/branding/moflight-ai-logo-dark.png');
 
 /** One app-owned active header; controls never enter the provider document. */
-export function AppHeader({ title, subtitle, source, back, children }: {
+export function AppHeader({ title, subtitle, source, back, backDisabled = false, children }: {
   title: string; subtitle?: string; source?: ImageSourcePropType;
-  back?: () => void; children: React.ReactNode;
+  back?: () => void; backDisabled?: boolean; children: React.ReactNode;
 }) {
   const { width, fontScale } = useWindowDimensions();
   const secondRow = fontScale > 1.3;
   const controls = <View style={[styles.controls, secondRow && styles.controlsSecondRow]}>{children}</View>;
   return <Photo source={source} radius={0} style={styles.header} contentStyle={styles.content} tint="#001022df">
     <View style={styles.row}>
-      {back ? <Pressable accessibilityRole="button" accessibilityLabel="Zur vorherigen App-Ansicht" onPress={back} style={styles.back}><SymbolIcon name="back" size={28} tone="contrast" /></Pressable>
+      {back ? <Pressable accessibilityRole="button" accessibilityLabel="Zur vorherigen App-Ansicht" accessibilityState={{ disabled: backDisabled }} disabled={backDisabled} onPress={back} style={[styles.back, backDisabled && { opacity: .5 }]}><SymbolIcon name="back" size={28} tone="contrast" /></Pressable>
         : <Image source={brandLogo} accessibilityLabel="MoFlight Thermik Logo" style={styles.logo} resizeMode="contain" />}
       <View style={styles.titleGroup}><Text accessibilityRole="header" numberOfLines={1} style={styles.title}>{title}</Text>
         {subtitle && width >= 412 && !secondRow && <Text style={styles.subtitle} numberOfLines={1}>{subtitle}</Text>}
