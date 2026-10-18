@@ -1,0 +1,99 @@
+{
+  "status": "passed",
+  "avd": "MoFlight_Synthetic_API37",
+  "source_commit": "f63bb3c0628b2f921060eab42d834450422f52f3",
+  "install": "adb install -r; Success; no uninstall or clear",
+  "before": {
+    "appId": "10235",
+    "firstInstallTime": "2026-10-11 08:41:18",
+    "lastUpdateTime": "2026-10-18 14:32:07"
+  },
+  "after": {
+    "appId": "10235",
+    "firstInstallTime": "2026-10-11 08:41:18",
+    "lastUpdateTime": "2026-10-18 15:51:17"
+  },
+  "matching_signer_sha256": "fac61745dc0903786fb9ede62a962b399f7348f0bb6f899b8332667591033b9c",
+  "retained": {
+    "book": "Gliding volume A",
+    "flights": 4,
+    "known_time": "1:10",
+    "visible_registrations": [
+      "D-EX02",
+      "D-EX01"
+    ]
+  },
+  "labels_equal_after_offline_restart": true,
+  "flight_labels": [
+    "Fl\u00fcge",
+    "?",
+    "Med",
+    "unbekannt",
+    "Gliding volume A",
+    "Fl\u00fcge durchsuchen \u2026",
+    "Alle Jahre",
+    "2026",
+    "4",
+    "1:10",
+    "\u2014",
+    "0:18",
+    "Fl\u00fcge",
+    "bekannte Std.",
+    "Kilometer",
+    "\u00d8 pro Flug",
+    "Alle",
+    "Strecke",
+    "Platzrunden",
+    "Schulung",
+    "01. Juni 2026",
+    "D-EX02",
+    "ASK 21",
+    "Kein Track",
+    "EXAMPLE",
+    "EXAMPLE",
+    "0:30 h",
+    "Schulung",
+    "01. Juni 2026",
+    "D-EX01",
+    "Kein Track",
+    "ASK 21",
+    "EXAMPLE",
+    "EXAMPLE",
+    "0:20 h",
+    "PIC",
+    "01. Juni 2026",
+    "D-EX01",
+    "DG-1000 S",
+    "Kein Track",
+    "EXAMPLE",
+    "EXAMPLE",
+    "0:10 h",
+    "Schulung",
+    "Entwicklung \u00b7 synthetische lokale Bibliothek",
+    "\u00dcbersicht",
+    "Fl\u00fcge",
+    "Flugbuch",
+    "Verein",
+    "AI"
+  ],
+  "network": {
+    "airplane_mode_on": "1",
+    "wifi_on": "0",
+    "mobile_data": "0"
+  },
+  "device": {
+    "ro.build.version.sdk": "37",
+    "ro.product.model": "sdk_gphone64_x86_64",
+    "ro.product.cpu.abi": "x86_64"
+  },
+  "display": {
+    "size": "Physical size: 1080x1920",
+    "density": "Physical density: 420",
+    "font_scale": "1.0"
+  },
+  "limits": [
+    "No Release sandbox byte comparison",
+    "No private/provider-session update trial",
+    "No physical/iOS runtime"
+  ]
+}

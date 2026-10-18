@@ -6,13 +6,14 @@
 
 | Date / owner | Scope / status | Implementation / evidence |
 | --- | --- | --- |
-| 13 Oct 2026 / Manuel | Approved Thermik dark/light logos and icon artwork | Dark header logo implemented; custom launcher-icon integration absent. [Brand record](../../assets/branding/README.md). |
+| 13 Oct 2026 / Manuel | Approved Thermik dark/light logos and icon artwork | Dark header logo implemented; the later #25 package integrates the approved square AI icon. [Brand record](../../assets/branding/README.md). |
 | 16 Oct 2026 / Manuel | Approved four-screen composition and reference fidelity | Native UI exists with documented photo/data-state differences. [Scope](../2026-10-16-four-screen-implementation.md), [refinement](../2026-10-16-ui-fidelity-refinement.md), [evidence](../../verification/2026-10-16-ui-fidelity-width-matrix.md). |
 | 17 Oct 2026 / Manuel | Approved five tabs, compact header/profile, aircraft and aircraft-share rings | [Shell report](../../verification/2026-10-17-native-shell-corrections.md) records Android checks and remaining iOS/physical limits. |
 | 18 Oct 2026 / Manuel | Approved B, contextual Back/provider Close, one active header, Connection → Med → Profile unknown | Medical follow-up in application `8b51f5a`. [Decision](../2026-10-18-header-status-review.md#package-1b-decision-checkpoint), [evidence](../../verification/2026-10-18-header-navigation.md). |
 | 18 Oct 2026 / Manuel | Authorized this handbook/export consolidation under #23 | Documentation implementation; no new appearance, code-token refactor or runtime acceptance. |
 | 18 Oct 2026 / Manuel | Selected duotone symbol family, M2 Medical card and supplied folded paper plane; authorized guide and app integration | Supersedes aircraft B and stethoscope artwork. [Selected assets](symbols/README.md), [source-specific verification](../../verification/2026-10-18-icon-option-2.md). Navigation/unknown meanings and branding are preserved. |
 | 18 Oct 2026 / Manuel | Made Modern Duotone the default and requested removal of old icon designs | [Default library](symbols/index.html) contains only the 29 current masters. Old aircraft assets, unselected proposals and icon comparison pages are removed; retired X01–X03/B04 no longer appear in the active catalogue. Original references and dated evidence remain. [Authorization](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/20#issuecomment-6250110588). |
+| 18 Oct 2026 / Manuel | Authorized starting the urgent #25 launcher package using the existing approved Thermik logo | Square AI icon adapted for legacy/iOS and padded adaptive/themed exports; no new brand design. [Execution contract](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/25#issuecomment-6250575222), [installed Release evidence and platform limits](../../verification/2026-10-18-launcher-icon.md). |
 
 ## Preserved history
 
@@ -33,7 +34,8 @@
 | --- | --- | --- |
 | Local styling literals | Shared theme plus local colors/gradients/geometry, including retained/unused declarations. Preserve appearance; semantic code cleanup is separate. | [Proposed follow-up #24](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/24), #5 |
 | Prototype popup/canvas/fonts | Pale v0.30 sheets, lighter canvas and Inter differ from current dark overlays/system fonts. Preserve current implementation and approved image/amendments; remaining fidelity disputes need concrete comparison/choice. | [#20](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/20) |
-| Photos / launcher icon | Licensed scenes substitute for exact reference scenes; approved icon PNGs are archived, not configured as native launcher icons. No replacement here. | #20 / [branding](../../assets/branding/README.md) |
+| Photos | Licensed scenes substitute for exact reference scenes. No replacement here. | #20 / [branding](../../assets/branding/README.md) |
+| Launcher icon | Approved square Thermik AI artwork is configured through deterministic iOS/legacy/adaptive/themed exports; original branding is preserved. Acceptance and platform limits are source-specific. | [#25](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/25), [verification](../../verification/2026-10-18-launcher-icon.md) |
 | Icon coherence / targets / focus | Selected duotone artwork is shared across product screens; text/data notation and native busy indicators are intentionally retained. Scoped Android geometry is checked separately; spoken focus/accessibility and affected small targets retain their explicit acceptance limits. | #20 / [#8](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/8) |
 | Connected data | Medical/AI/weather/club presentation retains unknown/unavailable states. This guide establishes no evidence source/integration. | Existing #20/#7/#10/#13 scopes |
 | Runtime limits | Existing Android checks are source-specific. Spoken TalkBack, iOS, physical-device and positive provider-history/original-page keyboard remain separate. | #20/#8 and linked reports |

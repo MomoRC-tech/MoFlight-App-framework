@@ -630,20 +630,20 @@
           "where": "Branding archive.",
           "meaning": "Gliding/thermal-flight identity in square icon form.",
           "behavior": "No current app control.",
-          "states": "Approved archived original. Platform icon sizing/masks/native app integration remain future work.",
+          "states": "Approved archived original; the AI variant B03 supplies current launcher exports.",
           "file": "docs/assets/branding/moflight-app-icon-original.png",
-          "locator": "docs/assets/branding/README.md; app.json has no custom icon"
+          "locator": "docs/assets/branding/README.md; B03 is configured in app.json"
         },
         {
           "id": "B03",
           "title": "AI app-icon artwork",
-          "status": "Approved archived artwork",
+          "status": "Approved artwork; platform exports configured",
           "sample": "<img src=\"asset:docs/assets/branding/moflight-app-icon-ai.png\" alt=\"App icon with AI sparkles\">",
           "appearance": "Square teal glider/thermal icon with two white sparkles.",
-          "where": "Branding archive.",
+          "where": "Branding archive; derived Android launcher/adaptive/themed and iOS icon assets.",
           "meaning": "Gliding identity plus planned AI-assisted functionality.",
-          "behavior": "No current app control.",
-          "states": "Recreated approved variant, not a byte-identical copy of an older preview. Not configured as the current native launcher icon.",
+          "behavior": "OS-owned launcher entry opens MoFlight; sparkles do not establish a connected AI service.",
+          "states": "Recreated approved variant, not a byte-identical copy of an older preview. Original preserved; platform exports and source-specific acceptance are recorded in docs/verification/2026-10-18-launcher-icon.md.",
           "file": "docs/assets/branding/moflight-app-icon-ai.png",
           "locator": "docs/assets/branding/README.md; app.json"
         }

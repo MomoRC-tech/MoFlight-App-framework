@@ -1,0 +1,198 @@
+{
+  "source_commit": "f63bb3c0628b2f921060eab42d834450422f52f3",
+  "apk_sha256": "97d496913ddc52e2e067ac834b4a11ccbd19ef9c63fde359ca94d817ad712361",
+  "resources": [
+    {
+      "resource": "res/d2.webp",
+      "size": [
+        48,
+        48
+      ],
+      "generated_pixels_equal": true,
+      "sha256": "74231b1bb75a6bd93ebe7d5769196fe530ccbcd784415485ab5f4d2119cad71d"
+    },
+    {
+      "resource": "res/yw.webp",
+      "size": [
+        48,
+        48
+      ],
+      "generated_pixels_equal": true,
+      "sha256": "fac0ced3a1acc62e58e0cbe9b13de8cd6815b5a851658925d94c5f6e1503bcf5"
+    },
+    {
+      "resource": "res/Nt.webp",
+      "size": [
+        108,
+        108
+      ],
+      "generated_pixels_equal": true,
+      "sha256": "172b0e927969d31ea3e44327341427627743f54542f932b7f90dd666fad56714",
+      "furthest_visible_radius_dp": 30.927
+    },
+    {
+      "resource": "res/_l.webp",
+      "size": [
+        108,
+        108
+      ],
+      "generated_pixels_equal": true,
+      "sha256": "172b0e927969d31ea3e44327341427627743f54542f932b7f90dd666fad56714",
+      "furthest_visible_radius_dp": 30.927
+    },
+    {
+      "resource": "res/MO.webp",
+      "size": [
+        72,
+        72
+      ],
+      "generated_pixels_equal": true,
+      "sha256": "7bffba484c80e47de491f94d238a14b8885b74cbfb22e87f67bb7f1868457e77"
+    },
+    {
+      "resource": "res/fq.webp",
+      "size": [
+        72,
+        72
+      ],
+      "generated_pixels_equal": true,
+      "sha256": "30cb720fb4cf2b1cb3191245c7ee0281249f28a16e6df2120899eb1f13fded94"
+    },
+    {
+      "resource": "res/13.webp",
+      "size": [
+        162,
+        162
+      ],
+      "generated_pixels_equal": true,
+      "sha256": "75c1296b4848cc3c17ae58df439c0166b4b9f5eea4227163c97154b87b1c8e6c",
+      "furthest_visible_radius_dp": 31.002
+    },
+    {
+      "resource": "res/mJ.webp",
+      "size": [
+        162,
+        162
+      ],
+      "generated_pixels_equal": true,
+      "sha256": "75c1296b4848cc3c17ae58df439c0166b4b9f5eea4227163c97154b87b1c8e6c",
+      "furthest_visible_radius_dp": 31.002
+    },
+    {
+      "resource": "res/qs.webp",
+      "size": [
+        96,
+        96
+      ],
+      "generated_pixels_equal": true,
+      "sha256": "2860b55f1dd69f406dbf9dd1046c5cbb57db4af90b30d1f21502cc603b302d58"
+    },
+    {
+      "resource": "res/u5.webp",
+      "size": [
+        96,
+        96
+      ],
+      "generated_pixels_equal": true,
+      "sha256": "6dddf66240c6bd138a10ec289ae0de5f3834543d2746c64d1e1ca32aa458be8b"
+    },
+    {
+      "resource": "res/9Q.webp",
+      "size": [
+        216,
+        216
+      ],
+      "generated_pixels_equal": true,
+      "sha256": "a8708eb55956caa14fa4529abc1c890eae539f06d6f92ba2b7e99c27dfc14a31",
+      "furthest_visible_radius_dp": 30.994
+    },
+    {
+      "resource": "res/Yu.webp",
+      "size": [
+        216,
+        216
+      ],
+      "generated_pixels_equal": true,
+      "sha256": "a8708eb55956caa14fa4529abc1c890eae539f06d6f92ba2b7e99c27dfc14a31",
+      "furthest_visible_radius_dp": 30.994
+    },
+    {
+      "resource": "res/Sn.webp",
+      "size": [
+        144,
+        144
+      ],
+      "generated_pixels_equal": true,
+      "sha256": "274d9a5f958358ef09c827e4f31dae0803c067f4399822f7195318895ccf2f91"
+    },
+    {
+      "resource": "res/j_.webp",
+      "size": [
+        144,
+        144
+      ],
+      "generated_pixels_equal": true,
+      "sha256": "e6e0b8e78ee1ef2e280facb749df07a6397e2d6c1d8e6ad13f253265fb7c1471"
+    },
+    {
+      "resource": "res/iE.webp",
+      "size": [
+        324,
+        324
+      ],
+      "generated_pixels_equal": true,
+      "sha256": "4afa6a4276adc2039b9446fad51518d929cc91aead2fb6e120a056d6e7cdc3cf",
+      "furthest_visible_radius_dp": 30.927
+    },
+    {
+      "resource": "res/ae.webp",
+      "size": [
+        324,
+        324
+      ],
+      "generated_pixels_equal": true,
+      "sha256": "4afa6a4276adc2039b9446fad51518d929cc91aead2fb6e120a056d6e7cdc3cf",
+      "furthest_visible_radius_dp": 30.927
+    },
+    {
+      "resource": "res/sK.webp",
+      "size": [
+        192,
+        192
+      ],
+      "generated_pixels_equal": true,
+      "sha256": "9df07487ebd594d1b69856e2a1a4e6811bf355e12fdfa9a3d107798c45cd823b"
+    },
+    {
+      "resource": "res/-6.webp",
+      "size": [
+        192,
+        192
+      ],
+      "generated_pixels_equal": true,
+      "sha256": "c8a20baea375956602315cd1a2b6b35deb7d836811283764a5f6d0c952c20db8"
+    },
+    {
+      "resource": "res/5c.webp",
+      "size": [
+        432,
+        432
+      ],
+      "generated_pixels_equal": true,
+      "sha256": "ce51bc80f1326dfb1a9b04d902e865891d7213842f745762c11ecadccac7f252",
+      "furthest_visible_radius_dp": 30.891
+    },
+    {
+      "resource": "res/IG.webp",
+      "size": [
+        432,
+        432
+      ],
+      "generated_pixels_equal": true,
+      "sha256": "ce51bc80f1326dfb1a9b04d902e865891d7213842f745762c11ecadccac7f252",
+      "furthest_visible_radius_dp": 30.891
+    }
+  ],
+  "adaptive_xml": 2,
+  "ios_generator": "opaque 1024px RGB, decoded pixels equal source; full Windows prebuild unavailable"
+}
