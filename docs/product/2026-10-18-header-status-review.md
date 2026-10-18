@@ -1,5 +1,7 @@
 # Header, icons and connection status — review proposal
 
+Symbol handoff, 18 October 2026: the [standalone visual inventory and copyable AI redesign brief](symbol-reference.html) documents current source symbols, actions and state semantics, with retained assets and historical vocabulary distinguished. This documentation prepares external design work; it does not select or implement replacement artwork.
+
 18 October 2026 · #20, coordinated with #17/#19/#16/#5/#8. The proposal below is retained with the subsequent bounded decisions distinguished from unselected items. This source review alone is not Android visual/accessibility acceptance.
 
 ## Package 1b decision checkpoint

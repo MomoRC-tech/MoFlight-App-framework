@@ -1,5 +1,7 @@
 # MoFlight app design
 
+Current symbol reference: [visual inventory and copyable AI redesign brief](symbol-reference.html), inspected against source on 18 October 2026. Covers meanings, functions, states and asset provenance; it authorizes no replacement artwork or application changes. The approved Thermik branding is preserved.
+
 
 18 October follow-up: [header/status and icon review proposal](2026-10-18-header-status-review.md), including the missing native Med group, persistent provider status and actual-size alternatives under #20. This is proposed review material; it does not replace the approved visual baseline or claim live Medical integration.
 ## Native correction v0.34 — 17 October 2026
