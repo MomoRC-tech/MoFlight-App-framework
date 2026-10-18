@@ -30,7 +30,7 @@ def control(smoke, label, *, exact=True, enabled=None):
         raise AssertionError(f'Missing connection control: {label}')
 
 
-def execute(smoke, *, continuation=False):
+def execute(smoke, *, continuation=False, keyboard_only=False):
     assert smoke.shell('getprop', 'ro.kernel.qemu') == '1', 'Emulator required'
     assert smoke.adb('emu', 'avd', 'name').stdout.splitlines()[0].strip() == AVD, 'Fresh dedicated AVD required'
     smoke.emulator = True
@@ -48,7 +48,7 @@ def execute(smoke, *, continuation=False):
             time.sleep(.25)
         assert network == {'airplane_mode_on': '1', 'wifi_on': '0', 'mobile_data': '0'}
         smoke.report['network'] = network
-        viewports = [(840, 412, 1.0)] if continuation else [(360, 900, 1.0), (390, 900, 1.0), (600, 1100, 1.0), (360, 900, 1.4), (840, 412, 1.0)]
+        viewports = [] if keyboard_only else [(840, 412, 1.0)] if continuation else [(360, 900, 1.0), (390, 900, 1.0), (600, 1100, 1.0), (360, 900, 1.4), (840, 412, 1.0)]
         for width, height, font in viewports:
             smoke.shell('wm', 'size', f'{width}x{height}')
             smoke.shell('wm', 'density', '160')
@@ -76,17 +76,20 @@ def execute(smoke, *, continuation=False):
 
         # Optional controls remain reachable without starting them.
         smoke.shell('wm', 'size', '390x900')
+        smoke.shell('wm', 'density', '160')
+        smoke.shell('settings', 'put', 'system', 'font_scale', '1.0')
         launch(smoke)
         smoke.tap_node(smoke.find('Verbindungen öffnen'))
-        smoke.tap_node(control(smoke, DETAILS))
-        control(smoke, 'Gespeicherte Anmeldung verwenden')
-        control(smoke, 'Lokale Anbietersitzung löschen')
-        control(smoke, 'Gespeicherte Zugangsdaten vergessen')
-        capture(smoke, 'optional-controls-reachable', viewport(smoke))
-        smoke.shell('input', 'keyevent', 'KEYCODE_BACK')
-        smoke.tap_node(smoke.find('Verbindungen öffnen'))
-        assert not any('Gespeicherte Anmeldung verwenden' in Smoke.labels(node) for node in smoke.dump())
-        capture(smoke, 'close-reopens-collapsed', viewport(smoke))
+        if not keyboard_only:
+            smoke.tap_node(control(smoke, DETAILS))
+            control(smoke, 'Gespeicherte Anmeldung verwenden')
+            control(smoke, 'Lokale Anbietersitzung löschen')
+            control(smoke, 'Gespeicherte Zugangsdaten vergessen')
+            capture(smoke, 'optional-controls-reachable', viewport(smoke))
+            smoke.shell('input', 'keyevent', 'KEYCODE_BACK')
+            smoke.tap_node(smoke.find('Verbindungen öffnen'))
+            assert not any('Gespeicherte Anmeldung verwenden' in Smoke.labels(node) for node in smoke.dump())
+            capture(smoke, 'close-reopens-collapsed', viewport(smoke))
 
         # Existing date input exercises keyboard/scrolling without retrieval.
         smoke.tap_node(control(smoke, LAB))
@@ -102,10 +105,20 @@ def execute(smoke, *, continuation=False):
             raise AssertionError('Keyboard geometry not observed')
         entry = control(smoke, 'Vereinsflieger Abruf von')
         assert bounds(entry)[3] <= keyboard, 'Focused date input covered by keyboard'
-        smoke.find('Rohdaten abrufen', enabled=False, scroll=True, attempts=8)
-        smoke.report['keyboard'] = {'top': keyboard, 'source': source}
+        first_bounds = bounds(entry)
+        # Swipe inside the remaining app surface, never over the IME itself.
+        for _ in range(8):
+            second = next((node for node in smoke.dump() if 'Vereinsflieger Abruf bis' in Smoke.labels(node)
+                           and 0 < bounds(node)[1] < bounds(node)[3] <= keyboard), None)
+            if second is not None:
+                break
+            smoke.shell('input', 'swipe', '195', str(keyboard - 80), '195', '130', '300')
+        else:
+            raise AssertionError('Second date input not reachable above the keyboard')
+        smoke.report['keyboard'] = {'top': keyboard, 'source': source, 'focused_input_bounds': first_bounds, 'second_input_bounds': bounds(second)}
         capture(smoke, 'raw-lab-keyboard-no-retrieval', viewport(smoke))
         smoke.shell('input', 'keyevent', 'KEYCODE_BACK')
+        control(smoke, 'Rohdaten abrufen', enabled=False)
 
         # Offline page loading fails quickly and hides the original-page frame.
         # Provenance/loading guard is host-tested; do not claim live-page proof.
@@ -130,11 +143,13 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--serial', required=True)
     parser.add_argument('--output', type=Path, required=True)
-    parser.add_argument('--continuation', action='store_true', help='Resume landscape and remaining controls; retain earlier viewport evidence separately')
+    phases = parser.add_mutually_exclusive_group()
+    phases.add_argument('--continuation', action='store_true', help='Resume landscape and remaining controls; retain earlier viewport evidence separately')
+    phases.add_argument('--keyboard-only', action='store_true', help='Resume keyboard and errors after completed layout/disclosure checks')
     args = parser.parse_args()
     smoke = Smoke(args.output, serial=args.serial, expected_avd=AVD)
     try:
-        execute(smoke, continuation=args.continuation)
+        execute(smoke, continuation=args.continuation, keyboard_only=args.keyboard_only)
     except Exception as error:
         finish(smoke, 'failed', error)
         raise
