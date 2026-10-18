@@ -116,7 +116,7 @@ These information needs were reviewed earlier. The v0.23 club page is only a sma
 | ID | Area | Information shown | Action / scope | Status |
 | --- | --- | --- | --- | --- |
 | V01 | Club context | Relevant club identity and freshness/coverage | Context for club information | Draft grouping; identity/access rules open |
-| V02 | Own duties | All own assignments in the focused window, with role/date/time and a preview of the next three later own duties | Inspect duty; show all other same-name/day/club assignees for each own assignment, with source assignment times when available (18 October revision) | Required; summary route selected, full arrangement open |
+| V02 | Own duties | All own assignments in the focused window, with duty name and full start/end period (multi-day/week-long supported), plus a preview of the next three later own duties | Inspect duty; show all other same-name/day/club assignees for each own assignment, with source assignment times when available (18 October revision) | Required; summary route selected, full arrangement open |
 | V03 | Flight-operation duties | All permitted duty types/assignments in the timeframe, including club-defined names (18 October revision); recorded window through the following week's weekend | Inspect duty roster; unclassified/custom names stay included | Required; source/access/coverage unverified |
 | V04 | Work hours | Annual obligation, completed work and remainder; preserve hours versus monetary credit | Inspect work details | Required; definitions and detailed fields open |
 | V05 | Own tasks | Assigned tasks and their status | Inspect a task | Required; detail arrangement open |
