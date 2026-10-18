@@ -46,4 +46,3 @@ Before enabling Medical, external photo/AI or cloud flows: complete their additi
 Obtain a targeted German privacy-law review of the operator model, other members' data, Medical and youth scope before release. No compliance claim, retention period or legal basis is adopted by this review.
 
 **Verification:** documentation/source consistency and referenced local paths checked; official legal/regulator sources consulted on 18 October 2026. No runtime security, vendor contract, deletion, network traffic or legal acceptance was tested. #21 remains open; implementation belongs in bounded approved packages.
-
