@@ -1,4 +1,48 @@
-# Current implementation and open-issue index — 17 October 2026
+# Implementation and open-issue reviews — 17–18 October 2026
+
+## 18 October review — 20 open Issues
+
+Manuel requested a repository/documentation review and a rough plan through app completion. Tracking: [#12 package contract](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/12#issuecomment-6246407175). Baseline **`8a831e160181b2e4dc501d532de447c2e7d56722`**, clean `main`, matching remote when checked in this session. All 20 open Issue bodies were read; relevant follow-ups separate delivered work from historical findings. No Issue was closed or application implementation authorized. [Proposed packages and release boundaries](../project-plan.md#proposed-delivery-packages-and-release-boundaries--18-october-2026) retain the authorized M1–M5 order and ADR statuses.
+
+### Current open-work inventory
+
+| Issue | Working pieces / evidence | Remaining work |
+| --- | --- | --- |
+| [#1](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/1) — Accounts | Local demo profile; prepared cloud trial | Test project/two users, Auth/confirmation/recovery, API/files/references/session isolation, later linking/two-device evidence |
+| [#2](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/2) — Provider/import | Scoped capture, five-flight independent details, repeat/cancel/restart | Durable identities, time/role/class/coverage semantics, broader lifecycle and canonical live import |
+| [#3](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/3) — SPL/RAG | Proposal | Selected scope, licensed corpus, approved service/budget and retrieval/answer/isolation/cost evaluation |
+| [#4](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/4) — Persistence/sync | SQLite, backup/restore, semantic validation, staged activation and book proof | Production migration, later account linking, retry/conflicts/delete/reset/two-device sync |
+| [#5](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/5) — Architecture/UI | Approved native lab, five-tab shell | Full application contracts, production/sync/security decisions, packaging/platform acceptance |
+| [#6](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/6) — Builds | Local checks and Android Release workflow | Maintain reproducibility/source evidence and platform readiness; hosted CI optional/manual-only |
+| [#7](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/7) — Paper/photos | Synthetic snapshots/tools, real gliding-layout draft | Assumed/confirmed state, actual format/continuation, phone/print parity, real recognition/budgeted evaluation |
+| [#8](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/8) — Acceptance | Source-specific host/build/Android evidence | Deferred updated Pixel test, iOS runtime and integrated selected-release journeys |
+| [#9](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/9) — Analytics | Synthetic queries, search/details, rings | Live history, full person/role filters, comparable coverage/measures and separate cost mapping |
+| [#10](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/10) — Provider information | Read-only discovery, selected club needs | Verified duties/training/work hours/news/events extraction and freshness; deferred billing walkthrough |
+| [#11](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/11) — Product/books | Requirements, synthetic four-book/two-format proof | Release scope/packaging, approved source/book migration, real formats; ADR 0007 Proposed |
+| [#12](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/12) — Traceability | Audit register and reconciliations | Keep current evidence/decisions linked; broad F01–F08 acceptance stays open |
+| [#13](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/13) — Conversation | Local deterministic quick questions, proposal | Chat/photo lifecycle, authenticated tools/gateway, privacy/budget/evaluation |
+| [#14](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/14) — Activities live | Deferred requirement | Permitted member/day scope, complete coverage, explicit airborne/freshness evidence |
+| [#15](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/15) — Member privacy | Deferred review | Necessary fields, names/abbreviations, permission, cache/retention/sharing policy |
+| [#16](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/16) — Hardening | Provisional scoped ownership, restoration and current-account capture checks | Production binding/credentials, clean-profile clearing/re-login, real second account, wider lifecycle/iOS |
+| [#17](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/17) — Login UX | Controller and proposal | Concise German actions, diagnostics disclosure, user validation, preserved safety |
+| [#18](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/18) — Assignment | Concrete proposal, synthetic contracts | Reviewed suggestion/save/correction/volume policy, planner and approved persistence/integrated review |
+| [#19](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/19) — Fetch timing | Explicit/manual retrieval | Decide automatic timing/lifecycle/retry/concurrency/prompts; no polling selected |
+| [#20](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/20) — Header/Medical | Inventory, status contract and synthetic alternatives | Artwork/behavior selection, implementation/native accessibility; live Medical source separate |
+
+### Findings and source checks
+
+- The main unfinished connection is raw capture → reviewed canonical history → real app library. [Book storage](../../apps/platform-lab/src/book-storage.ts) still uses `synthetic-pilot`; [source records](../../packages/local-data/src/books.ts) enforce `synthetic-proof`. [Reconciliation](../../apps/platform-lab/src/vereinsflieger/reconciliation.ts) is pure/unconnected and requires verified binding/source/time/coverage. Reuse the proofs rather than remove their synthetic gates to claim live integration.
+- [Library operations](../../apps/platform-lab/src/mobile/use-library.ts) read the selected local book; [native UI](../../apps/platform-lab/src/mobile/MobileApp.tsx) reports unconnected live import/club/AI. [Gliding format](../../packages/flight-logbook/src/gliding-format.ts) remains a draft without activated provider/OCR/credit mapping. [Cloud trial](../../pocs/supabase-trial/README.md) remains prepared without live acceptance.
+- The older index covered 15 Issues at its dated checkpoint, not today's 20. README's M2 summary grouped successful re-login with still-open broader checks. Historical F01/F02 findings have later [validation/activation implementation and evidence](2026-10-11-recovery-books-and-capture.md); do not schedule those fixes from the original finding alone. No fresh reproduction or broad audit closure is claimed.
+- M5 needs separate packages for paper core, real handwriting, cloud, club/costs, conversation and formats. Real-flight beta and complete gliding journey are proposed checkpoints; release inclusion remains Manuel's decision. SPL/weather/Activities live are not automatically required to finish that selected release.
+
+### Verification and limits
+
+Reviewed Issue bodies/current states, relevant follow-ups, rules, README/roadmap, product journey/scope, ADR status, relevant storage/reconciliation/mobile source and dated evidence. Existing `dfb69cc` evidence is reused with its original provenance: 197 tests, TypeScript, both exports, committed-source Android Release/lint and separate bounded native checks. It was **not rerun**, and it does not prove full native/iOS/live-import acceptance.
+
+Documentation checks passed: all 20 Issue IDs occur exactly once in the current table; 18 changed local-link occurrences and 9 heading anchors resolve; source/status/approval consistency was reviewed and `git diff --check` passed. No application tests/builds, device/provider actions, private evidence/database reads, cloud provisioning, external product research, paid calls or hosted runs were needed. Both AVDs and legacy/safety evidence remain preserved. Earlier dated sections below are historical; their old counts/blockers/device state do not override the current checkpoint or handover.
+
+## Historical 17 October checkpoint
 
 Latest reconnect follow-up: application `abd8f68` fixes an observed single-page footer mismatch. Original-page assisted re-login and fresh provisional context were observed; final native small-period raw capture saved five records/one page matching the provider reference. Cancellation retained the successful-save time, and visible original period/role were checked afterward. [Source-specific 168-test/Release/native evidence and remaining limits](2026-10-17-safe-disconnect.md#bounded-reconnectretrieval-follow-up). The provider AVD is now signed in with saved credentials preserved; earlier signed-out snapshots below are historical. Automatic helper login, full independent preference/storage comparison, stable production binding and M1/M2/M3 gates remain open.
 
