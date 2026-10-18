@@ -46,3 +46,14 @@ Added `pnpm check` using existing runtimes/standard libraries, compact results, 
 [Archived generated command/exit/timing summary](evidence/host-checks-2026-10-18.json). Its numbered log filenames refer to the original ignored local run directory `build/host-checks/20261018T065312Z-a63b063a/`; full synthetic logs remain there and are not committed. An earlier direct standard-discovery run also passed after the import/selector repair; the table records the final aggregate run, including the stronger subprocess exit test.
 
 No inference/API calls, credentials, package installation, hosted dispatch, native rebuild, emulator/provider action or visual inspection was needed. Cross-platform execution was not performed; native/live/iOS/physical acceptance is unchanged. The runner's timeout is per check. No token-saving percentage is claimed.
+
+## 18 October 2026: standing test assessment and acceptance traceability
+
+Manuel authorized recording the testing/requirements/journey review as project practice and assessing every implementation for beneficial tests, implementing them when useful, preferably without LLM calls. Contract: #12 comment `6247020382`, coordinated with #6. Documentation verification used `main` at `62794a3` plus this package's edits; the final package commit is recorded in the #12 completion comment.
+
+- AGENTS and the workflow now require a behavior/risk/coverage assessment for every implementation or bug fix, useful tests in the same package and a short rationale when existing coverage or nonautomated checks suffice. Deterministic local regression execution is preferred; real model-quality and native/live acceptance remain separate.
+- The authoritative roadmap contains six bounded acceptance rows linking R/FL/E aspects, actual test files, dated evidence, gaps and existing owner Issues. It is an initial selected map, not full requirement coverage or a new product implementation approval. Journey variants are refined with the affected package, including already specified partial/no-writing recovery.
+- README links the rule/map. Two older product-spec introductions now separate their 8 October baseline from current roadmap status; historical evidence and newer user decisions are preserved.
+- Verification: documentation checker passed 124 Markdown files and 1058 local destinations with no missing files or heading warnings; whitespace and source/status/approval consistency checked. Linked tests/evidence were reviewed for their stated scope and reused with their original limitations.
+
+This is documentation-only: no new unit tests, application checks/builds, model calls, hosted CI, devices or provider/private-data access. The test assessment is that documentation links, traceability and consistency checks cover the change; new application tests would not exercise changed runtime behavior. Existing unrelated edits were preserved. No remaining product, device, live-provider or AI-quality gap is declared closed.

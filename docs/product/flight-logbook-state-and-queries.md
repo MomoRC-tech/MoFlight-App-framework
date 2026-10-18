@@ -2,9 +2,9 @@
 
 Scope clarification (Manuel, 2026-10-10): a pilot may own multiple independent logbooks. All paper state, photos, decisions, carryovers and writing snapshots identify the target book; queries display their book/combined scope. Shared provider evidence does not imply shared paper progress. See [multi-book requirements](moflight-feature-scope.md#multiple-logbooks-per-pilot--confirmed-2026-10-10) and [proposed ADR 0007](../adr/0007-multiple-logbooks-and-formats.md).
 
-Current implementation note: the [bounded synthetic host slice](../../apps/platform-lab/README.md) has [20 passing host checks](../verification/2026-10-08-host-local-slice.md). This does not pass native/cloud/live/handwriting acceptance; the requirements below remain the full target. Prepared observations and CSV are explicitly synthetic.
+Current implementation/acceptance status is maintained in the [roadmap feature register](../project-plan.md#2-feature-register) and [selected requirement/scenario acceptance map](../project-plan.md#21-acceptance-traceability). Historical baseline: the [8 October synthetic host slice](../verification/2026-10-08-host-local-slice.md) passed 20 host checks. That dated result does not describe today's full implementation or prove native/cloud/live/handwriting acceptance; prepared observations and CSV remain synthetic.
 
-Date: 2026-10-08. Source: Manuel's feature addition in this conversation. Status: requested product behavior; data model, query contract and acceptance below are proposed and unimplemented. Extends [FL-13–FL-16](flight-logbook-user-stories.md). Tracking: #1/#2/#4/#7/#8 and [#9](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/9).
+Date: 2026-10-08, with subsequent user revisions recorded below. Source: Manuel's feature addition in this conversation. Status: requested behavior with bounded synthetic implementations; the conceptual contract below does not claim production integration or completed acceptance. Extends [FL-13–FL-16](flight-logbook-user-stories.md). Tracking: #1/#2/#4/#7/#8 and [#9](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/9).
 
 ## Opening the app and continuing work
 

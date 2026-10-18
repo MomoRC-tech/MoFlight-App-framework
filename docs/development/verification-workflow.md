@@ -27,13 +27,29 @@ Launching or reviewing checks through an assistant still uses conversation token
 ## Work in bounded packages
 
 1. Read current authorization and relevant source/evidence. Reuse the matching GitHub Issue; capture distinct work before implementing it.
-2. Record a short contract in that Issue: **scope / exclusions / acceptance**, including milestone and dependencies. Add a separate specification only when the contract or decision needs it.
-3. Implement several small, traceable commits with affected tests and TypeScript. Keep logic behind application contracts; use existing development-client/Metro tooling when interactive iteration helps. Do not rebuild a standalone APK for each commit.
+2. Record a short contract in that Issue: **scope / exclusions / acceptance**, including milestone, dependencies, affected requirement/story/scenario IDs and the test assessment below. Add a separate specification only when the contract or decision needs it.
+3. Implement several small, traceable commits with useful affected tests and TypeScript. Keep logic behind application contracts; use existing development-client/Metro tooling when interactive iteration helps. Do not rebuild a standalone APK for each commit.
 4. At the planned integration checkpoint, run the required broader checks/exports, build committed source and perform focused native checks. Record any unverified native/live/iOS/physical gates; code committed to main is not automatically accepted. A concrete platform uncertainty can justify an earlier small native PoC without a full visual audit.
 5. Repeat only checks affected by a change, failure or unresolved risk. If native testing exposes a code defect, rebuild the corrected committed source and retest the affected behavior. Reuse unaffected evidence with explicit source provenance; never present different builds/runs as one result.
 6. Publish one concise package verification summary with source, environment, checks, results, limits and links to logs. Extend the existing report for follow-ups instead of creating a report/specification for every edit. Update README/roadmap only for meaningful status/decision changes.
 
 No routine subagents for small tasks. Use independent parallel work only when it warrants the added cost; justified simpler delegation retains `gpt-6-luna`. Avoid repeated full repository audits and verbose progress narration.
+
+## Assess and implement useful tests
+
+Manuel approved this standing rule on 18 October 2026 under [#12](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/12#issuecomment-6247020382), coordinated with #6. For every implementation or bug fix, identify the changed observable behavior, plausible failure and existing protection before coding. Assess whether unit tests or a contract/storage/component test would catch a useful regression. When beneficial, implement or update those tests in the same package and run the relevant checks before completion; for a reproducible defect, show the new regression fails without the fix when practical.
+
+Prefer the smallest suitable existing harness. Pure rules use node:test/unittest and independently specified synthetic expectations; persistence and boundary behavior can use temporary real SQLite, mocked adapters and fixed provider responses. Exercise relevant success, missing/ambiguous values, failure/retry, cancellation, restart/offline and foreign account/book cases. Tests should assert user-visible results or contracts, not duplicate internal algorithms or freeze incidental wording/layout. Existing tests may suffice; record one short rationale when new automation would add little value, including reversible presentation-only changes better checked visually. Documentation-only work needs documentation checks, not new application tests.
+
+Ordinary regression execution should make no LLM calls. Use frozen synthetic AI responses to test validation, references, unknowns and deterministic calculations. Actual handwriting/model-quality tests remain separate and require permitted inputs and approved execution budget. A model may help author tests, and an assistant may launch them; neither makes the deterministic test process depend on inference. Reuse existing coverage and inspect summaries first to limit repeated model-led work.
+
+## Acceptance traceability and journey variants
+
+Maintain affected rows of the [roadmap acceptance map](../project-plan.md#21-acceptance-traceability), linked to the matching Issue: **requirement/story → journey/scenario → executable check → source/platform evidence → remaining gate**. The map is a bounded current index, not a second requirements specification or a coverage percentage. Reuse R/FL/E IDs and existing journey sources; add finer criteria only where an implementation needs them. A passing test covers its stated aspect, not the whole parent requirement. Update only the affected scope rather than auditing every requirement for each change.
+
+For the selected journey, make first use and return/resume explicit. Add relevant offline/stale/empty/error, interruption/retry/cancel, identity/book switching and backup/restore variants. The paper journey already specifies partial/no-writing recovery in E08/E13; refine the assumed-progress event and idempotency contract before implementing it. Source-to-library acceptance must exercise the integrated review/save/reopen path. Extend student/instructor or later-feature journeys when scheduled rather than inventing unapproved features. Pending implementation, missing automated coverage, unexecuted device/provider checks and unresolved decisions remain distinct statuses.
+
+Use the current roadmap/feature map for status, the confirmed journey map for user intent and dated verification reports for actual results. Preserve historical baselines, clearly label them, and point older specification introductions to current status. Keep one package verification summary with provenance and limitations; no new acceptance is inferred from documentation or a test count.
 
 ## Preserved gates
 
