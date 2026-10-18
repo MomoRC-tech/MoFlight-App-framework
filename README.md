@@ -7,6 +7,8 @@
 
 # MoFlight
 
+**M2 duration-validation prerequisite — 18 October 2026:** [#2](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/2) now has a pure list-duration inspector preserving raw evidence, explicit zero, missing/invalid/conflicting values and separate flight/block measures. **26 focused tests**, TypeScript and focused lint passed. [Evidence and limits](docs/verification/2026-10-18-source-duration-validation.md). It is unconnected to application flows or storage; production source semantics and live import remain gated.
+
 **UI design:** [Design handbook](docs/product/design/README.md) · [Complete visual guide / copyable AI brief](docs/product/design/design-guide.html). Current direction, color map, typography, component shapes, layout rules and symbols are maintained together.
 
 **Synthetic import preview — 18 October 2026:** authorized [#18](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/18#issuecomment-6251766157) adds **Settings → Development → Importvorschau**: fictional new/changed/unchanged/conflicting flights, explained book suggestions, explicit correction/deferral and retained manual test choices. Application `85e4087`: **236 mobile / 85 Python tests**, types/lint/fixtures, both exports, committed-source Android Release/lint and 14 final-source native checks passed. [Development APK / ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/tag/lab-2026-10-18-import-preview). iOS/physical acceptance remains open. The separate test stand lasts for the app session and changes no saved library/provider evidence. [Package evidence and remaining gates](docs/verification/2026-10-18-synthetic-import-preview.md). Real capture → saved flights, production identity/schema/migration and M5 remain separate.
