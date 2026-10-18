@@ -95,5 +95,11 @@
     "No Release sandbox byte comparison",
     "No private/provider-session update trial",
     "No physical/iOS runtime"
-  ]
+  ],
+  "previous_published_apk": {
+    "sha256": "5639822a47f3cac9d8b32503722894654844d470285b6900e994e0ef9ae522a0",
+    "matching_signer": true,
+    "scope": "downloaded previous public prerelease APK; package-signing comparison, not physical-device testing"
+  },
+  "published_assets_digest_verified": true
 }
