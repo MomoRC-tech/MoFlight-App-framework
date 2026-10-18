@@ -1,0 +1,25 @@
+{
+  "release": "https://github.com/MomoRC-tech/MoFlight-App-framework/releases/tag/lab-2026-10-18-development",
+  "source_commit": "3ec05260999ccd8e1a9a2269d018226fad7b15ab",
+  "assets": [
+    {
+      "name": "MoFlight-Android-development.zip",
+      "size": 24569032,
+      "digest": "sha256:e63b2a6467fe3b4789b35c06bf9e06330e3c51e6fc2fb9d6ccc1ebed1bf58fbd",
+      "url": "https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/lab-2026-10-18-development/MoFlight-Android-development.zip"
+    },
+    {
+      "name": "MoFlight-Lab-development-3ec0526.apk",
+      "size": 49852914,
+      "digest": "sha256:c3a7d17cec26cd4211f2d88c6cbc325ac768e45883b5cb2a72f60d6a1c51ab73",
+      "url": "https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/lab-2026-10-18-development/MoFlight-Lab-development-3ec0526.apk"
+    },
+    {
+      "name": "SHA256SUMS.txt",
+      "size": 204,
+      "digest": "sha256:0ed5bd0a8d0a350178260ab096e0c091187daa1ee3f846771dd963d6300ce6e7",
+      "url": "https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/lab-2026-10-18-development/SHA256SUMS.txt"
+    }
+  ],
+  "verification": "Published sizes/SHA-256 equal local files; ZIP contains the identical APK. Previous releases preserved."
+}
