@@ -46,16 +46,34 @@ class IconOptionTests(unittest.TestCase):
             option.build()
 
     def test_combined_page_has_unique_ids_and_resolves_all_local_assets(self):
-        audit = Audit()
-        audit.feed(self.page)
-        self.assertEqual(len(audit.ids), len(set(audit.ids)))
-        self.assertFalse(set(audit.uses) - set(audit.ids))
-        self.assertTrue(set(option.MAPPING).issubset(audit.ids))
-        for href in audit.links:
-            path = href.split('#')[0]
-            if path:
-                target = option.BASE / path
-                self.assertTrue(target in self.outputs or (option.ROOT / target).is_file(), href)
+        for page_path, page in self.outputs.items():
+            if page_path.suffix != '.html':
+                continue
+            audit = Audit()
+            audit.feed(page)
+            self.assertEqual(len(audit.ids), len(set(audit.ids)), page_path)
+            self.assertFalse(set(audit.uses) - set(audit.ids), page_path)
+            for href in audit.links:
+                path = href.split('#')[0]
+                if path:
+                    target = option.BASE / path
+                    self.assertTrue(target in self.outputs or (option.ROOT / target).is_file(), href)
+        catalogue_audit = Audit()
+        catalogue_audit.feed(self.page)
+        self.assertTrue(set(option.MAPPING).issubset(catalogue_audit.ids))
+
+    def test_medical_and_flight_proposals_export_without_selecting_a_replacement(self):
+        manifest = json.loads(self.outputs[option.BASE / 'manifest.json'])
+        candidates = manifest['alternatives']['candidates']
+        self.assertEqual({c['id'] for c in candidates}, {'M1', 'M2', 'M3', 'F1', 'F2', 'F3'})
+        self.assertEqual({c['target'] for c in candidates}, {'H04', 'N02'})
+        self.assertIsNone(manifest['mapping']['N02']['glyph'])
+        self.assertEqual(manifest['mapping']['H04']['glyph'], 'medical')
+        for candidate in candidates:
+            self.assertIn(option.BASE / 'assets' / (candidate['glyph'] + '.svg'), self.outputs)
+        page = self.outputs[option.BASE / 'alternatives.html']
+        self.assertIn('Med<small>unbekannt', page)
+        self.assertEqual({c['id'] for c in candidates if c['recommended']}, {'M1', 'F1'})
 
     def test_original_comparison_pixels_are_embedded_unchanged(self):
         encoded = re.search(r'<img class="reference-layer" src="data:image/jpeg;base64,([^"]+)"', self.page)

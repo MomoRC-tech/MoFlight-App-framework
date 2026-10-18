@@ -45,7 +45,7 @@ Separate semantic roles even when characters repeat: a right arrow can mean rout
 
 Preserve approved side-view aircraft B and Thermik branding until a replacement is explicitly selected. Editable masters stay beside original assets; the app retains its current aircraft bitmap. No icon runtime/library is introduced.
 
-[Style Option 2: Modern Duotone & Soft-Filled Glyphs](icon-options/option-2/index.html) is an authorized alternate design for review, with 40 editable vector masters and an explicit mapping of all 51 IDs. It preserves the selected aircraft, branding, data/text semantics and current app implementation. [Source notes and fidelity limits](icon-options/option-2/README.md) distinguish reference interpretation from pixel identity and application selection.
+[Style Option 2: Modern Duotone & Soft-Filled Glyphs](icon-options/option-2/index.html) is an authorized alternate design for review, with 46 editable vector masters (including six [Medical/aircraft proposals](icon-options/option-2/alternatives.html)) and an explicit mapping of all 51 IDs. It preserves the selected aircraft, branding, data/text semantics and current app implementation. [Source notes and fidelity limits](icon-options/option-2/README.md) distinguish reference interpretation from pixel identity and application selection.
 
 ## Schematic examples
 

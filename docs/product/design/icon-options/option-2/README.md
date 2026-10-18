@@ -2,6 +2,8 @@
 
 [Open the visual review](index.html) · [SVG board](reference-board.svg) · [Editable masters](glyphs.svg) · [Asset/ID manifest](manifest.json) · [Current handbook](../../README.md)
 
+[Medical / aircraft proposals](alternatives.html): three alternatives each, with actual-size specimens and a combination preview. Recommended: **M1 Medical certificate + F1 Banking sailplane**. These remain proposals; the original H04/N02 mappings and current app artwork are preserved. [Six-candidate board](alternatives-board.svg). Requested follow-up: [#20](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/20#issuecomment-6249512215).
+
 Manuel requested this alternative on 18 October 2026 under [#20](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/20#issuecomment-6249270927). **Creation is authorized; application selection/integration remains open.** This is an M1 design deliverable, with no application code changes. The existing 51-entry catalogue remains the semantic source of truth.
 
 ## Reference and fidelity
@@ -12,7 +14,7 @@ The review includes original/vector views and an adjustable comparison split. Th
 
 ## Family and use
 
-- 40 authored 96-unit SVG masters; 18 reference compositions. Each master also has a standalone transparent SVG in `assets/`.
+- 46 authored 96-unit SVG masters (the original 40 plus six Medical/aircraft proposals); 18 reference compositions. Each master also has a standalone transparent SVG in `assets/`.
 - 34 proposed catalogue replacements; 17 explicitly preserved entries. All 51 stable IDs retain their meaning, action and state contract in the review. Original branding, selected aircraft B, data-driven rings, text notation and historical entries are preserved.
 - Cyan gradient: `#32f1ef` → `#00d9e8` → `#00b9df`. Slate: `#8caac1` → `#7094b1` → `#46688b`. Board canvas: `#041328`. These are proposed option-specific colors, not new approved application tokens.
 - The enlarged reference tile has a 24 px corner; compact specimens pair 40/48/56 px tiles with 12/14/16 px corners to fit MoFlight's card geometry. Artwork is shown at actual 24/28/32 CSS px. Artwork bounds never define the effective touch target.
@@ -23,7 +25,7 @@ The review includes original/vector views and an adjustable comparison split. Th
 
 ## Maintenance
 
-Maintained sources are `glyphs.svg`, `_review.html`, the mapping/board composition in [icon_option_2.py](../../../../../scripts/icon_option_2.py), the preserved reference, and the existing [symbols.json](../../symbols.json). `assets/*.svg`, `reference-board.svg`, `manifest.json` and `index.html` are generated; do not hand-edit them. The standalone review embeds all display assets and works without an external font, icon service or runtime dependency; links/downloads to sibling files require the folder when shared.
+Maintained sources are `glyphs.svg`, `_review.html`, `_alternatives.html`, the mapping/board/candidate composition in [icon_option_2.py](../../../../../scripts/icon_option_2.py), the preserved reference, and the existing [symbols.json](../../symbols.json). `assets/*.svg`, both SVG boards, `manifest.json`, `index.html` and `alternatives.html` are generated; do not hand-edit them. The standalone reviews embed all display assets and work without an external font, icon service or runtime dependency; links/downloads to sibling files require the folder when shared. Buttons on the alternatives page change its preview only; they record no product decision.
 
 ```text
 python scripts/icon_option_2.py

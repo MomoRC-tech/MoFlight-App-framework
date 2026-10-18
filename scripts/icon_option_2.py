@@ -38,6 +38,14 @@ BOARD = [
     ('home', 'HOME'), ('explore', 'EXPLORE'), ('profile-cyan', 'PROFILE'),
     ('flight-plan', 'FLIGHT PLAN'), ('weather', 'WEATHER'), ('analytics', 'ANALYTICS'),
 ]
+ALTERNATIVES = [
+    {'id': 'M1', 'target': 'H04', 'glyph': 'medical-certificate', 'title': 'Medical certificate', 'note': 'A medical cross on a folded document. Closest to the pilot Medical record.', 'recommended': True},
+    {'id': 'M2', 'target': 'H04', 'glyph': 'medical-card', 'title': 'Medical card', 'note': 'A wide credential card with a clear cross. Familiar and compact.', 'recommended': False},
+    {'id': 'M3', 'target': 'H04', 'glyph': 'medical-heart', 'title': 'Heart + cross', 'note': 'The clearest general health symbol; less specific to a certificate.', 'recommended': False},
+    {'id': 'F1', 'target': 'N02', 'glyph': 'flight-sailplane', 'title': 'Banking sailplane', 'note': 'Long tapered wings and a slim fuselage. Most distinctive for MoFlight.', 'recommended': True},
+    {'id': 'F2', 'target': 'N02', 'glyph': 'flight-light-plane', 'title': 'Light aircraft', 'note': 'A broader, compact aircraft silhouette for general aviation.', 'recommended': False},
+    {'id': 'F3', 'target': 'N02', 'glyph': 'flight-side-profile', 'title': 'Clean side profile', 'note': 'A familiar side-view plane, redrawn with stronger filled geometry.', 'recommended': False},
+]
 
 
 def data_uri(path: Path) -> str:
@@ -59,7 +67,7 @@ def build(root: Path = ROOT) -> tuple[dict[Path, str], dict]:
     entries = [e for group in catalogue['groups'] for e in group['entries']]
     if set(MAPPING) != {e['id'] for e in entries}:
         raise ValueError('Every stable catalogue ID needs an explicit mapping')
-    used = {n for n in MAPPING.values() if n} | {n for n, _ in BOARD}
+    used = {n for n in MAPPING.values() if n} | {n for n, _ in BOARD} | {a['glyph'] for a in ALTERNATIVES}
     if used - symbols.keys():
         raise ValueError('Missing master: ' + ', '.join(sorted(used - symbols.keys())))
     # Prefix all SVG identifiers so embedded current examples cannot collide.
@@ -137,6 +145,7 @@ def build(root: Path = ROOT) -> tuple[dict[Path, str], dict]:
         'palette': {'canvas': '#041328', 'cyan': ['#32f1ef', '#00d9e8', '#00b9df'], 'slate': ['#8caac1', '#7094b1', '#46688b']},
         'mapping': {e['id']: {'glyph': MAPPING[e['id']], 'title': e['title'], 'status': 'proposed' if MAPPING[e['id']] else 'preserved'} for e in entries},
         'assets': sorted(f'assets/{name}.svg' for name in symbols),
+        'alternatives': {'status': 'Proposals only; no candidate selected', 'review': 'alternatives.html', 'candidates': ALTERNATIVES},
     }
     outputs[BASE / 'manifest.json'] = json.dumps(manifest, ensure_ascii=False, indent=2) + '\n'
     template = (root / BASE / '_review.html').read_text(encoding='utf-8')
@@ -151,6 +160,40 @@ def build(root: Path = ROOT) -> tuple[dict[Path, str], dict]:
     if re.search(r'\{\{[A-Z_]+\}\}', template):
         raise ValueError('Unresolved template value')
     outputs[BASE / 'index.html'] = template
+    alternatives_template = (root / BASE / '_alternatives.html').read_text(encoding='utf-8')
+    candidate_html = []
+    for candidate in ALTERNATIVES:
+        ident, glyph = candidate['id'], candidate['glyph']
+        sizes = [20, 24, 28] if candidate['target'] == 'H04' else [24, 28, 32]
+        candidate_html.append(
+            f'<article class="candidate {"recommended" if candidate["recommended"] else ""}" id="{ident}">'
+            f'<div class="candidate-top"><span>{ident} / {candidate["target"]}</span><span>{"RECOMMENDED" if candidate["recommended"] else "ALTERNATIVE"}</span></div>'
+            f'<div class="candidate-art"><span class="art-tile">{vector(glyph,72)}</span></div>'
+            f'<h3>{escape(candidate["title"])}</h3><p>{escape(candidate["note"])}</p>'
+            '<div class="candidate-sizes">' + ''.join(f'<span>{vector(glyph,size)}<small>{size}px</small></span>' for size in sizes) + '</div>'
+            f'<div class="candidate-actions"><button type="button" data-choice="{ident}" data-glyph="{glyph}" data-target="{candidate["target"]}" aria-pressed="{str(candidate["recommended"]).lower()}">Preview {ident}</button><a href="assets/{glyph}.svg" download>SVG ↓</a></div></article>'
+        )
+    alt_fields = {'SPRITE': sprite, 'MEDICAL': ''.join(candidate_html[:3]), 'FLIGHT': ''.join(candidate_html[3:])}
+    for key, value in alt_fields.items():
+        alternatives_template = alternatives_template.replace('{{' + key + '}}', value)
+    if re.search(r'\{\{[A-Z_]+\}\}', alternatives_template):
+        raise ValueError('Unresolved alternative template value')
+    outputs[BASE / 'alternatives.html'] = alternatives_template
+    comparison = [f'<svg xmlns="{SVG}" viewBox="0 0 1080 740" role="img" aria-labelledby="alternatives-title"><title id="alternatives-title">Medical and aircraft alternatives — M1 and F1 recommended</title>', defs, symbol_text,
+                  '<rect width="1080" height="740" fill="#061224"/><text x="32" y="41" fill="#eef5fc" font-family="Arial,sans-serif" font-size="23">MoFlight / Medical &amp; Flight alternatives</text><text x="32" y="67" fill="#a1b4c9" font-family="Arial,sans-serif" font-size="12">Style Option 2 · proposed artwork · recommendation: M1 + F1</text>']
+    for i, candidate in enumerate(ALTERNATIVES):
+        x, y = 32 + (i % 3) * 350, 94 + (i // 3) * 310
+        edge = '#2aabb9' if candidate['recommended'] else '#283e55'
+        comparison.append(f'<rect x="{x}" y="{y}" width="316" height="284" rx="16" fill="#0e2035" stroke="{edge}"/><text x="{x+20}" y="{y+27}" fill="#a1b4c9" font-family="Arial,sans-serif" font-size="11">{candidate["id"]} / {candidate["target"]}</text>')
+        if candidate['recommended']:
+            comparison.append(f'<text x="{x+296}" y="{y+27}" text-anchor="end" fill="#32e4eb" font-family="Arial,sans-serif" font-size="10">RECOMMENDED</text>')
+        comparison.append(f'<rect x="{x+107}" y="{y+48}" width="102" height="102" rx="22" fill="url(#o2-glass)" stroke="url(#o2-edge)"/><use href="#o2-{candidate["glyph"]}" x="{x+121}" y="{y+62}" width="74" height="74" filter="url(#o2-lift)"/><text x="{x+158}" y="{y+181}" text-anchor="middle" fill="#eef5fc" font-family="Arial,sans-serif" font-size="17">{escape(candidate["title"])}</text>')
+        sizes = [20, 24, 28] if candidate['target'] == 'H04' else [24, 28, 32]
+        for j, size in enumerate(sizes):
+            center = x + 77 + j * 81
+            comparison.append(f'<use href="#o2-{candidate["glyph"]}" x="{center-size/2}" y="{y+199+(32-size)/2}" width="{size}" height="{size}"/><text x="{center}" y="{y+253}" text-anchor="middle" fill="#a1b4c9" font-family="Arial,sans-serif" font-size="10">{size}px</text>')
+    comparison.append('<text x="32" y="720" fill="#a1b4c9" font-family="Arial,sans-serif" font-size="12">Category symbols only. Med remains unknown. Current app artwork is unchanged.</text></svg>')
+    outputs[BASE / 'alternatives-board.svg'] = ''.join(comparison) + '\n'
     # Parse every generated SVG, check references, and keep review coverage honest.
     for path, value in outputs.items():
         if path.suffix == '.svg':

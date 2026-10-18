@@ -8,4 +8,4 @@
     <filter id="o2-lift" x="-35%" y="-25%" width="170%" height="180%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="3" stdDeviation="2.2" flood-color="#000b19" flood-opacity="0.5" /></filter>
   </defs>
   <g><circle cx="48" cy="48" r="32" fill="none" stroke="url(#o2-slate)" stroke-width="8" opacity=".4" /><path d="M48 16a32 32 0 0 1 32 32" fill="none" stroke="url(#o2-cyan)" stroke-width="8" stroke-linecap="round" /></g>
-</svg>
+  </svg>

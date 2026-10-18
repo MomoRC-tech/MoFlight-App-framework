@@ -313,12 +313,18 @@
     "assets/duty.svg",
     "assets/explore.svg",
     "assets/filter.svg",
+    "assets/flight-light-plane.svg",
     "assets/flight-plan.svg",
+    "assets/flight-sailplane.svg",
+    "assets/flight-side-profile.svg",
     "assets/glider.svg",
     "assets/home.svg",
     "assets/info.svg",
     "assets/location.svg",
     "assets/logbook.svg",
+    "assets/medical-card.svg",
+    "assets/medical-certificate.svg",
+    "assets/medical-heart.svg",
     "assets/medical.svg",
     "assets/messages.svg",
     "assets/minus.svg",
@@ -334,5 +340,59 @@
     "assets/sparkle.svg",
     "assets/spinner.svg",
     "assets/weather.svg"
-  ]
+  ],
+  "alternatives": {
+    "status": "Proposals only; no candidate selected",
+    "review": "alternatives.html",
+    "candidates": [
+      {
+        "id": "M1",
+        "target": "H04",
+        "glyph": "medical-certificate",
+        "title": "Medical certificate",
+        "note": "A medical cross on a folded document. Closest to the pilot Medical record.",
+        "recommended": true
+      },
+      {
+        "id": "M2",
+        "target": "H04",
+        "glyph": "medical-card",
+        "title": "Medical card",
+        "note": "A wide credential card with a clear cross. Familiar and compact.",
+        "recommended": false
+      },
+      {
+        "id": "M3",
+        "target": "H04",
+        "glyph": "medical-heart",
+        "title": "Heart + cross",
+        "note": "The clearest general health symbol; less specific to a certificate.",
+        "recommended": false
+      },
+      {
+        "id": "F1",
+        "target": "N02",
+        "glyph": "flight-sailplane",
+        "title": "Banking sailplane",
+        "note": "Long tapered wings and a slim fuselage. Most distinctive for MoFlight.",
+        "recommended": true
+      },
+      {
+        "id": "F2",
+        "target": "N02",
+        "glyph": "flight-light-plane",
+        "title": "Light aircraft",
+        "note": "A broader, compact aircraft silhouette for general aviation.",
+        "recommended": false
+      },
+      {
+        "id": "F3",
+        "target": "N02",
+        "glyph": "flight-side-profile",
+        "title": "Clean side profile",
+        "note": "A familiar side-view plane, redrawn with stronger filled geometry.",
+        "recommended": false
+      }
+    ]
+  }
 }
