@@ -83,7 +83,7 @@ Retain the exception register: open, left unchanged/acknowledged and confirmed r
 
 ### Flight clock times — UTC requirement
 
-Manuel confirmed **UTC** on 18 October 2026 ([#7](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/7), source verification in [#2](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/2)). Save normalized flight takeoff/landing clock times in UTC and show/document them as UTC in flight details and phone/print writing instructions, without seasonal clock shifts. Preserve original provider/photo values and their known or unknown time basis separately. Convert only from an established source time zone; never label an unresolved raw clock as UTC or invent a date/overnight relationship. This selects the product time basis, not proof of provider semantics, duration precedence or completed implementation. Flight-date assignment and year/period comparison rules remain separate decisions.
+Manuel confirmed **UTC** on 18 October 2026 ([#7](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/7), source verification in [#2](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/2)). Save normalized flight takeoff/landing clock times in UTC and show/document them as UTC in flight details and phone/print writing instructions, without seasonal clock shifts. Preserve original provider/photo values and their known or unknown time basis separately. Convert only from an established source time zone; never label an unresolved raw clock as UTC or invent a date/overnight relationship. This selects the product time basis, not proof of provider semantics or completed implementation. Flight-date assignment and year/period comparison rules remain separate decisions.
 
 ## Understand my flying
 
@@ -99,6 +99,14 @@ Manuel confirmed **UTC** on 18 October 2026 ([#7](https://github.com/MomoRC-tech
 | First retrieval | Suggest current and previous year, with an adjustable period. Older history may be needed for paper catch-up; neither default implies lifetime completeness. |
 
 Counts and time use deterministic computations over sufficiently established identities and semantics. Compare years only with visible comparable coverage; UTC is selected for flight clock times; flight-date/period assignment, treatment of incomplete periods and initial release measures remain to be reviewed.
+
+### Authoritative provider data and changed-flight indication
+
+Manuel confirmed on 18 October 2026: **Vereinsflieger is authoritative for provider-backed flight facts.** Use its recorded flight duration even when subtraction of the takeoff/landing clocks differs; do not ask the user to choose a different duration merely because of that difference. Apply later verified source corrections to the saved app flight and affected deterministic results. Preserve source revisions; malformed/unknown values or conflicting source observations still require validation, not invented facts.
+
+When a later retrieval changes an existing saved flight, show an **orange label or small dot on that flight** ([#30](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/30); source/import dependency [#2](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/2)). An identical refresh does not create a new change indication. First import and changed-existing entries remain distinct. Exact marker form/placement, non-color explanation and acknowledgement/restart/repeated-change lifecycle remain open. This marker means app data changed; it does not confirm a paper correction or paper-writing progress. Preserve physical-paper observations and frozen writing snapshots; changed relevant evidence requires review before preparing new instructions, without silently rewriting an old snapshot.
+
+This supersedes choosing paper/local override values over verified provider facts. Paper remains authoritative for what is physically written and the continuation position; retain discrepancies and user decisions to leave old paper entries unchanged. It does not authorize editing Vereinsflieger, automatic polling, canonical import or UI implementation. Provider source verification, deletion semantics, refresh coverage and release gates remain separate.
 
 ## Understand costs
 
