@@ -55,6 +55,7 @@ function fixture() {
     './MedicalStatus': leaves(['MedicalIndicator', 'MedicalDetails']),
     './DevelopmentHub': leaves(['DevelopmentHub', 'DevelopmentNotice']),
     './LibraryBackup': leaves(['LibraryBackup']), './PaperStatus': leaves(['PaperStatus']),
+    './ImportPreview': leaves(['ImportPreview']),
   };
   const exports = {} as { Shell: () => Element };
   runInNewContext(source + '\nexports.Shell = Shell;', { exports, require: (name: string) => {
@@ -85,6 +86,28 @@ test('app headers order connection, Medical and profile on every tab', () => {
     const controls = f.nodes().filter(n => n.type === 'ConnectionIndicator' || n.type === 'MedicalIndicator' || n.props.accessibilityLabel === 'Profil & Einstellungen öffnen');
     assert.deepEqual(controls.map(n => n.type), ['ConnectionIndicator', 'MedicalIndicator', 'Pressable']);
   }
+  assert.deepEqual(f.calls, []);
+});
+
+test('synthetic import preview opens without seeding or provider work, retains its session and returns to the same detail', () => {
+  const f = fixture();
+  f.press('Pressable', 'Flüge');
+  f.find('FlatList').props.renderItem({ item: f.flight }).props.onPress(); f.render();
+  f.press('Pressable', 'Profil & Einstellungen öffnen');
+  f.find('ProfileSettings').props.onTools(); f.render();
+  f.find('DevelopmentHub').props.onImportPreview(); f.render();
+  assert.equal(f.find('ImportPreview').props.session, null);
+  assert.equal(f.suspended(), false);
+  assert.equal(f.headers().at(-1)!.props.title, 'Importvorschau');
+  const session = { synthetic: 'confirmed preview only' };
+  f.find('ImportPreview').props.onChange(session); f.render();
+  f.headers().at(-1)!.props.back(); f.render();
+  f.find('DevelopmentHub').props.onImportPreview(); f.render();
+  assert.deepEqual(f.find('ImportPreview').props.session, session);
+  f.headers().at(-1)!.props.back(); f.render();
+  f.headers().at(-1)!.props.back(); f.render();
+  f.headers().at(-1)!.props.back(); f.render();
+  assert.equal(f.headers().at(-1)!.props.title, 'Flugdetails');
   assert.deepEqual(f.calls, []);
 });
 

@@ -2,11 +2,15 @@ import React from 'react';
 import { View } from 'react-native';
 import { Action, Card, Label, Section } from './theme';
 
-export function DevelopmentHub({ onFlights, onBooks, onProvider }: { onFlights: () => void; onBooks: () => void; onProvider: () => void }) {
+export function DevelopmentHub({ onFlights, onBooks, onProvider, onImportPreview }: { onFlights: () => void; onBooks: () => void; onProvider: () => void; onImportPreview: () => void }) {
   return <View style={{ width: '100%', maxWidth: 520, alignSelf: 'center', gap: 10 }}>
     <Card><Section title="Entwicklung" icon="info" />
       <Label>Testwerkzeuge dieses experimentellen Lab-Builds</Label>
       <Label muted>Hier sind synthetische Testdaten und ältere Funktionsnachweise gebündelt. Öffnen allein lädt keine Fixtures und startet keinen Anbieterabruf. Diese Seite ist keine Zugriffssperre und keine Freigabe für eine spätere Produktversion.</Label>
+    </Card>
+    <Card><Section title="Synthetische Importvorschau" icon="flight-paper-plane" />
+      <Label muted>Neue, geänderte und widersprüchliche Testflüge vergleichen und Buchvorschläge korrigieren. Getrennter Teststand ohne Änderungen an deiner Bibliothek.</Label>
+      <Action testID="development-import-preview" secondary icon="flight-paper-plane" onPress={onImportPreview}>Importvorschau öffnen</Action>
     </Card>
     <Card><Section title="Datensätze & Flugworkflow" icon="flight-paper-plane" />
       <Label muted>Getrennte Datensätze A/B, vorbereitete CSV- und Papierdaten, Abgleich, Abfragen und ältere Schreibnachweise. Englische Lab-Oberfläche; keine Live-Importvorschau.</Label>

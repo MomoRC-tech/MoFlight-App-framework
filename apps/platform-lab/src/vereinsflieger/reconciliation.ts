@@ -19,6 +19,11 @@ export interface ReconciliationPlan {
   unchanged: number; repeatedRows: number;
   coverage: RetrievalBatch['coverage'];
 }
+export interface ReconciliationReview {
+  rows: { id: string; previous: Flight | null; variants: Flight[]; status: 'added' | 'changed' | 'unchanged' | 'conflict' }[];
+  repeatedRows: number;
+  coverage: RetrievalBatch['coverage'];
+}
 function copy<T>(value: T): T { return JSON.parse(canonical(value)) as T; }
 function date(value: string): void {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value) || !Number.isFinite(Date.parse(value)) || new Date(value).toISOString().slice(0, 10) !== value) throw new Error('Invalid coverage date.');
@@ -32,7 +37,7 @@ export function sourceIdentity(b: SourceBinding, sourceFlightId: string): string
   // Tuple encoding avoids delimiter collisions and never uses mutable row values.
   return 'vereinsflieger:' + JSON.stringify([b.datasetId, b.accountRef, b.clubRef, sourceFlightId]);
 }
-export function planReconciliation(state: ImportState, batch: RetrievalBatch): ReconciliationPlan {
+export function reviewReconciliation(state: ImportState, batch: RetrievalBatch): ReconciliationReview {
   binding(state.binding); binding(batch.binding);
   if (canonical(state.binding) !== canonical(batch.binding)) throw new Error('Source binding mismatch; preserve existing history.');
   if (batch.identityVerified !== true || batch.sourceIdsVerified !== true || batch.timeBasisVerified !== true || batch.scope !== 'own-pilot-or-companion') throw new Error('Source verification incomplete; canonical import unavailable.');
@@ -49,26 +54,32 @@ export function planReconciliation(state: ImportState, batch: RetrievalBatch): R
     if (previous.has(flight.id)) throw new Error('Existing identity conflict requires review.');
     previous.set(flight.id, flight);
   }
-  const staged = new Map<string, Flight>(); let repeatedRows = 0;
+  const staged = new Map<string, Flight[]>(); let repeatedRows = 0;
   for (const record of batch.records) {
     const flight: Flight = { ...record.flight, id: sourceIdentity(batch.binding, record.sourceFlightId) };
     validateFlight(flight);
     if (!flight.date || flight.date < batch.coverage.from || flight.date > batch.coverage.through || !flight.time_basis?.trim()) throw new Error('Flight outside verified coverage or missing time basis.');
-    const old = staged.get(flight.id);
-    if (old) {
-      if (canonical(old) !== canonical(flight)) throw new Error('Conflicting source rows require review.');
-      repeatedRows++; continue;
-    }
-    staged.set(flight.id, flight);
+    const variants = staged.get(flight.id) ?? [];
+    if (variants.some(old => canonical(old) === canonical(flight))) repeatedRows++;
+    else variants.push(flight);
+    staged.set(flight.id, variants);
   }
+  const rows: ReconciliationReview['rows'] = [...staged].map(([id, variants]) => {
+    const old = previous.get(id) ?? null;
+    return { id, previous: copy(old), variants: copy(variants), status: variants.length > 1 ? 'conflict' : !old ? 'added' : canonical(old) === canonical(variants[0]) ? 'unchanged' : 'changed' };
+  });
+  return { rows, repeatedRows, coverage: { ...batch.coverage } };
+}
+export function planReconciliation(state: ImportState, batch: RetrievalBatch): ReconciliationPlan {
+  const review = reviewReconciliation(state, batch);
+  if (review.rows.some(row => row.status === 'conflict')) throw new Error('Conflicting source rows require review.');
   const added: Flight[] = [], changed: ReconciliationPlan['changed'] = []; let unchanged = 0;
-  for (const flight of staged.values()) {
-    const old = previous.get(flight.id);
-    if (!old) added.push(flight);
-    else if (canonical(old) !== canonical(flight)) changed.push({ previous: copy(old), next: copy(flight) });
+  for (const row of review.rows) {
+    if (row.status === 'added') added.push(row.variants[0]!);
+    else if (row.status === 'changed') changed.push({ previous: row.previous!, next: row.variants[0]! });
     else unchanged++;
   }
   // No deletion operation: omissions cannot establish source deletion, even in
   // a complete bounded window. Persistence/decision invalidation remains separate.
-  return { added: copy(added), changed, unchanged, repeatedRows, coverage: { ...batch.coverage } };
+  return { added, changed, unchanged, repeatedRows: review.repeatedRows, coverage: review.coverage };
 }
