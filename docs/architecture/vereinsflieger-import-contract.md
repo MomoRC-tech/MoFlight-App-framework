@@ -1,5 +1,7 @@
 # Vereinsflieger verified retrieval and local import contract
 
+**18 October live-review increment:** Manuel authorized wiring the delivered source assessment into readable review of the active owner's saved capture. Connections now presents bounded explicit retrieval and offline flight rows/details with untruncated original fields; [implementation, source-specific verification and remaining gates](../verification/2026-10-18-live-capture-review.md). Existing capture schema/scope authority and raw invariants remain; historical unassigned captures are not adopted. This supersedes earlier “unconnected to UI” statements only for evidence presentation. No canonical writer, book assignment, source-semantic attestation or production migration is enabled.
+
 Date: 2026-10-10. Tracking: [FL-03](../product/flight-logbook-user-stories.md), [#2](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/2). Status: concrete proposal with an executable pure reconciliation prototype; final transport/mapping and canonical database integration are not approved or implemented. Extends [ADR 0006](../adr/0006-vereinsflieger-connector-proposal.md).
 
 ## Current boundary

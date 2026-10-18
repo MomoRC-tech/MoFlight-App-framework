@@ -32,7 +32,7 @@ function reconcile(evidence: DurationEvidence[]): ReportedDuration {
   return { state: 'known', minutes: first.minutes, evidence };
 }
 
-// Pure derived list evidence, deliberately unconnected to UI/canonical import.
+// Pure derived list evidence; canonical import remains gated.
 // "known" means supported reported duration, not verified identity, time basis,
 // flight boundaries or legal credit. Never derive a duration from raw clocks.
 export function inspectListDurations(snapshot: Pick<ProbeSnapshot, 'headers'>, row: ProbeRow): { flight: ReportedDuration; block: ReportedDuration } {

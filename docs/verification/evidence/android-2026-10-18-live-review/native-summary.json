@@ -1,0 +1,199 @@
+{
+  "synthetic": {
+    "status": "passed",
+    "source": {
+      "validated_commit": "3c352d6b32a839824bfea816a85aba6408cdba0f",
+      "compiled_commit": "3c352d6b32a839824bfea816a85aba6408cdba0f"
+    },
+    "original_display": {
+      "size": "Physical size: 1080x1920",
+      "density": "Physical density: 420",
+      "font": "1.0"
+    },
+    "restored_display": {
+      "size": "Physical size: 1080x1920",
+      "density": "Physical density: 420",
+      "font": "1.0"
+    },
+    "network_before": {
+      "airplane_mode_on": "1",
+      "wifi_on": "0",
+      "mobile_data": "0"
+    },
+    "network_after": {
+      "airplane_mode_on": "1",
+      "wifi_on": "0",
+      "mobile_data": "0"
+    },
+    "device": {
+      "sdk": "37",
+      "avd": "MoFlight_Synthetic_API37"
+    },
+    "checks": [
+      {
+        "name": "390-font1.0-empty-review",
+        "status": "passed",
+        "viewport": {
+          "width_dp": 390,
+          "height_dp": 900,
+          "density_dpi": 160,
+          "font_scale": 1.0
+        }
+      },
+      {
+        "name": "390-font1.0-dates-scroll-and-disabled-fetch",
+        "status": "passed"
+      },
+      {
+        "name": "360-font1.6-empty-review",
+        "status": "passed",
+        "viewport": {
+          "width_dp": 360,
+          "height_dp": 900,
+          "density_dpi": 160,
+          "font_scale": 1.6
+        }
+      },
+      {
+        "name": "360-font1.6-dates-scroll-and-disabled-fetch",
+        "status": "passed"
+      },
+      {
+        "name": "800-font1.0-empty-review",
+        "status": "passed",
+        "viewport": {
+          "width_dp": 800,
+          "height_dp": 600,
+          "density_dpi": 160,
+          "font_scale": 1.0
+        }
+      },
+      {
+        "name": "800-font1.0-dates-scroll-and-disabled-fetch",
+        "status": "passed"
+      },
+      {
+        "name": "offline-process-restart-opens-same-review-state",
+        "status": "passed"
+      }
+    ]
+  },
+  "saved_final": {
+    "status": "passed",
+    "source": {
+      "validated_commit": "7849318c6e6fab40e87418cb0ebc3bc9d03327a5",
+      "compiled_commit": "7849318c6e6fab40e87418cb0ebc3bc9d03327a5"
+    },
+    "original_display": {
+      "size": "Physical size: 1080x1920\nOverride size: 480x800",
+      "density": "Physical density: 420\nOverride density: 160",
+      "font": "1.0"
+    },
+    "restored_display": {
+      "size": "Physical size: 1080x1920\nOverride size: 480x800",
+      "density": "Physical density: 420\nOverride density: 160",
+      "font": "1.0"
+    },
+    "network_before": {
+      "airplane_mode_on": "0",
+      "wifi_on": "1",
+      "mobile_data": "1"
+    },
+    "network_after": {
+      "airplane_mode_on": "0",
+      "wifi_on": "1",
+      "mobile_data": "1"
+    },
+    "device": {
+      "sdk": "37",
+      "avd": "MoFlight_API37"
+    },
+    "checks": [
+      {
+        "name": "390-font1.0-saved-list",
+        "status": "passed",
+        "viewport": {
+          "width_dp": 390,
+          "height_dp": 900,
+          "density_dpi": 160,
+          "font_scale": 1.0
+        }
+      },
+      {
+        "name": "390-font1.0-saved-detail",
+        "status": "passed",
+        "viewport": {
+          "width_dp": 390,
+          "height_dp": 900,
+          "density_dpi": 160,
+          "font_scale": 1.0
+        }
+      },
+      {
+        "name": "390-font1.0-crew-and-original-fields-offline",
+        "status": "passed"
+      },
+      {
+        "name": "360-font1.6-saved-list",
+        "status": "passed",
+        "viewport": {
+          "width_dp": 360,
+          "height_dp": 900,
+          "density_dpi": 160,
+          "font_scale": 1.6
+        }
+      },
+      {
+        "name": "360-font1.6-saved-detail",
+        "status": "passed",
+        "viewport": {
+          "width_dp": 360,
+          "height_dp": 900,
+          "density_dpi": 160,
+          "font_scale": 1.6
+        }
+      },
+      {
+        "name": "360-font1.6-crew-and-original-fields-offline",
+        "status": "passed"
+      },
+      {
+        "name": "800-font1.0-saved-list",
+        "status": "passed",
+        "viewport": {
+          "width_dp": 800,
+          "height_dp": 600,
+          "density_dpi": 160,
+          "font_scale": 1.0
+        }
+      },
+      {
+        "name": "800-font1.0-saved-detail",
+        "status": "passed",
+        "viewport": {
+          "width_dp": 800,
+          "height_dp": 600,
+          "density_dpi": 160,
+          "font_scale": 1.0
+        }
+      },
+      {
+        "name": "800-font1.0-crew-and-original-fields-offline",
+        "status": "passed"
+      },
+      {
+        "name": "offline-process-restart-opens-same-review-state",
+        "status": "passed"
+      }
+    ]
+  },
+  "fresh_capture": {
+    "source_commit": "7849318c6e6fab40e87418cb0ebc3bc9d03327a5",
+    "status": "blocked-sign-in-required",
+    "new_capture_started": false,
+    "saved_login_attempts": 1,
+    "verified_fresh_profile": false,
+    "new_capture_cancel_restart": "not tested",
+    "next_action": "Manual original-provider sign-in/available verification"
+  }
+}
