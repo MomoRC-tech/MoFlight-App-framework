@@ -98,13 +98,12 @@ def execute(smoke):
         capture(smoke, 'raw-lab-keyboard-no-retrieval', viewport(smoke))
         smoke.shell('input', 'keyevent', 'KEYCODE_BACK')
 
-        # Open only the offline original-page frame; never submit credentials.
+        # Offline page loading fails quickly and hides the original-page frame.
+        # Provenance/loading guard is host-tested; do not claim live-page proof.
         smoke.tap_node(control(smoke, 'Bei Vereinsflieger anmelden'))
-        smoke.find('https://', exact=False)
-        smoke.find('Zugangsdaten nur auf der Originalseite eingeben.', exact=True)
-        smoke.find('Anmeldung prüfen', exact=True)
-        capture(smoke, 'offline-original-page-provenance', viewport(smoke))
-        smoke.tap('‹ Zurück')
+        control(smoke, 'Die Anbieterseite konnte nicht geladen werden.')
+        capture(smoke, 'offline-page-failure', viewport(smoke))
+        smoke.tap_node(control(smoke, 'Sitzung prüfen', enabled=True))
         control(smoke, 'Sitzung konnte nicht geprüft werden')
         control(smoke, 'Erneut prüfen')
         capture(smoke, 'offline-error-next-action', viewport(smoke))

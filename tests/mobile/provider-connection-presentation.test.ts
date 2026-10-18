@@ -157,4 +157,7 @@ test('original-page provenance and loading guard survive login presentation and 
   f.controller.loaded = true; f.render(); f.button('Anmeldung prüfen').props.onPress();
   f.button('‹ Zurück').props.onPress();
   assert.deepEqual(f.calls, ['check', 'dismiss', 'close']);
+  const failed = fixture({ result: 'failed', status: 'Provider page failed to load. Previous captures preserved.' });
+  assert.match(failed.text(), /Die Anbieterseite konnte nicht geladen werden/);
+  assert.doesNotMatch(failed.text(), /Abruf nicht abgeschlossen/);
 });

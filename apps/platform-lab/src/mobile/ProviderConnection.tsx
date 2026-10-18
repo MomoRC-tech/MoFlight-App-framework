@@ -54,7 +54,7 @@ export function ProviderConnection({ controller: c, open, close }: { controller:
     </View> : <KeyboardAvoidingView style={styles.panel} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <ScrollView contentContainerStyle={styles.canvas} keyboardShouldPersistTaps="handled">
         <View style={styles.group}>
-          <Card><Section title="Vereinsflieger" /><Label selectable={false} style={{ fontWeight: '600' }}>{guidance.title}</Label>
+          <Card><Section title="Vereinsflieger" /><View accessible accessibilityLabel={guidance.title} accessibilityLiveRegion="polite"><Label selectable={false} style={{ fontWeight: '600' }}>{guidance.title}</Label></View>
             <Label muted>{guidance.hint}</Label>
             <Label muted>Gespeicherter Rohbeleg: {c.snapshot ? `${new Date(c.snapshot.retrievedAt).toLocaleString('de-DE')} · ${c.snapshot.rows.length} Datensätze` : 'noch keiner'}</Label>
             {guidance.action && <Action disabled={locked || guidance.action === 'check' && !c.browserActive} onPress={guidance.action === 'connect' ? c.connect : () => c.checkConnection()}>{guidance.actionLabel}</Action>}
@@ -74,7 +74,7 @@ export function ProviderConnection({ controller: c, open, close }: { controller:
             <Action secondary onPress={close}>Während des Abrufs zur App</Action>
           </Card>}
           {c.result === 'captured' && <Label>Rohbelege gespeichert. Sie sind noch keine importierten Flüge.</Label>}
-          {c.result === 'failed' && <Label>Abruf nicht abgeschlossen. {retrievalFailureHint(c.status)}</Label>}
+          {c.result === 'failed' && <Label>{retrievalFailureHint(c.status)}</Label>}
           {c.result === 'cancelled' && <Label>Abruf abgebrochen. Frühere Daten bleiben erhalten.</Label>}
           {c.result === 'review-required' && <Label>Die Anbieteransicht weicht ab. Bitte die Wiederherstellung unten prüfen. Noch keine Wiederherstellung ausgeführt.</Label>}
           {c.result === 'recovered' && <Label>Geprüfte Ansicht wiederhergestellt. Alte Rohbelege bleiben unverändert und unzugeordnet.</Label>}
