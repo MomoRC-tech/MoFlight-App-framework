@@ -1,5 +1,7 @@
 # Product specifications
 
+- **[UI design — current references and handbook proposal](design/README.md):** central entry point for the approved visual baseline/amendments, colors/styles, branding, symbol catalogue and proposed unified documentation structure under #23.
+
 - [Symbol inventory and copyable AI redesign brief](symbol-reference.html): standalone offline HTML with current symbol samples, meanings, actions, states and source references, plus retained assets and historical prototype vocabulary. Includes copy/download controls for another AI chat; documentation only under #20.
 
 - [Two cleaner Start proposals, 2026-10-16](2026-10-16-start-alternatives.md): Klarer Überblick and Saison im Fokus, with Android guidance and two retained source fragments; comparison/export artifacts and browser evidence are unavailable. Neither is selected, and the native implementation target supersedes them.

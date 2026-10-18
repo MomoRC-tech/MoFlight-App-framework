@@ -1,5 +1,7 @@
 # MoFlight app design
 
+[UI design entry point and handbook proposal](design/README.md): current source/reference map, symbol catalogue and proposed consolidation. This document retains its design history; the index does not select new visual rules.
+
 Current symbol reference: [visual inventory and copyable AI redesign brief](symbol-reference.html), inspected against source on 18 October 2026. Covers meanings, functions, states and asset provenance; it authorizes no replacement artwork or application changes. The approved Thermik branding is preserved.
 
 
