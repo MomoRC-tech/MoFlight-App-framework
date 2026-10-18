@@ -94,7 +94,7 @@ Flight details use one page with logically grouped information. This inventory s
 | B01 | Overview, top | Selected book name and book selector; distinguish successive volumes of the same format | Switch the displayed book; entry defaults to last used | Selected; no-book/removed-book fallback open |
 | B02 | Selected-book identity | Book format and volume/status where relevant | Context for every following book item | Book identity required; exact supporting fields draft |
 | B03 | Selected-book status | Last confirmed paper entry, with number/date and identifying flight information | Open starting-point check | Selected information; exact entry fields open |
-| B04 | Selected-book status, separately | Assumed writing progress and the template/batch it came from, when present | Verify at next use; never label it confirmed paper evidence | Required; exact presentation/trigger contract open |
+| B04 | Selected-book status, separately | Assumed writing progress and the template/batch it came from, when present | Verify at next use; never label it confirmed paper evidence | Required; trigger selected 18 October 2026; presentation/recovery open |
 | B05 | Selected-book pending work | Entries proposed for this book; review/correction cases | Review this book's work | Selected; eligibility/count/exception semantics open |
 | B06 | Primary next action | “Buchstand prüfen” for the selected book | Begin guided starting-point check | Selected |
 | B07 | Guided check | Current book, remembered last entry, confirmed-versus-assumed basis; ask whether it matches paper | Confirm unchanged entry, or obtain current photo | Selected journey; real recognition not delivered |
@@ -103,7 +103,7 @@ Flight details use one page with logically grouped information. This inventory s
 | B10 | Writing preparation | Proposed entries for an adjustable page-sized batch; numbering/carryovers/totals appropriate to that book's format | Prepare phone-side and printable writing instructions from one snapshot | Selected journey; detailed presentation/format gates open |
 | B11 | Exception/history access | Open, left unchanged/acknowledged and resolved discrepancies; prior decisions remain revisitable | Review/reverse decisions when relevant | Required / placement open |
 
-All B-items are scoped to the selected book. One pilot may own multiple books, including same-format volumes. Changing books must not mix paper evidence, assumed progress, proposals, photos, decisions or writing snapshots. Remembering a prepared batch as assumed written is the selected journey; exact trigger, cancellation/reopening and partial-writing recovery remain open. No mandatory separate “finished writing” prompt is selected.
+All B-items are scoped to the selected book. One pilot may own multiple books, including same-format volumes. Changing books must not mix paper evidence, assumed progress, proposals, photos, decisions or writing snapshots. Assumed writing starts on opening final instructions or successfully saving/sharing the printable sheet; preview/adjustment leaves progress unchanged (Manuel, 18 October 2026; [contract](writing-template-presentation.md#content-and-interaction-contract)). Reopening the same snapshot cannot duplicate advancement. Cancellation/retry and partial-writing recovery details remain open. No mandatory separate “finished writing” prompt is selected.
 
 ## Verein — full club information
 
