@@ -14,6 +14,7 @@ import re
 import struct
 import sys
 import xml.etree.ElementTree as ET
+import zlib
 
 ROOT = Path(__file__).resolve().parents[1]
 MASTER = Path('docs/product/design/icon-options/option-2/glyphs.svg')
@@ -35,6 +36,27 @@ TONES = {
 
 def sha(value: bytes) -> str:
     return hashlib.sha256(value).hexdigest()
+
+
+def has_visible_alpha(blob: bytes, size: int) -> bool:
+    """Zero alpha stays zero through every PNG filter (channels are independent).
+
+    At least one nonzero filtered alpha is necessary and sufficient for any
+    visible pixel in a noninterlaced 8-bit RGBA PNG. No image library is needed.
+    """
+    if blob[24] != 8 or blob[28] != 0:
+        raise ValueError('Expected noninterlaced 8-bit native icon')
+    position, chunks = 8, []
+    while position < len(blob):
+        length = struct.unpack('>I', blob[position:position + 4])[0]
+        if blob[position + 4:position + 8] == b'IDAT':
+            chunks.append(blob[position + 8:position + 8 + length])
+        position += length + 12
+    raw = zlib.decompress(b''.join(chunks))
+    stride = size * 4
+    if len(raw) != size * (stride + 1):
+        raise ValueError('Unexpected RGBA pixel length')
+    return any(any(raw[row + 4:row + stride + 1:4]) for row in range(0, len(raw), stride + 1))
 
 
 def svg_assets(root: Path = ROOT) -> tuple[dict[str, bytes], dict]:
@@ -85,6 +107,8 @@ def check(root: Path = ROOT) -> dict:
         size = 288 if filename.startswith('glider-') else 192
         if blob[:8] != b'\x89PNG\r\n\x1a\n' or struct.unpack('>II', blob[16:24]) != (size, size) or blob[25] != 6:
             raise ValueError('Expected sized RGBA PNG: ' + filename)
+        if not has_visible_alpha(blob, size):
+            raise ValueError('Empty native icon: ' + filename)
         if sha(blob) != record['sha256']:
             raise ValueError('Native icon bytes changed: ' + filename)
     return {'assets': len(expected), 'tones': len(TONES), 'glyphs': len(GLYPHS), 'status': 'fresh'}

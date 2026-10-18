@@ -4,11 +4,23 @@ from pathlib import Path
 import shutil
 import tempfile
 import unittest
+import struct
+import zlib
 
 from scripts import duotone_icons as icons
 
 
 class DuotoneAssetTests(unittest.TestCase):
+    def test_visibility_requires_alpha_instead_of_nonzero_invisible_color(self):
+        def png(alpha):
+            def chunk(name, data):
+                return struct.pack('>I', len(data)) + name + data + struct.pack('>I', zlib.crc32(name + data))
+            header = struct.pack('>IIBBBBB', 2, 2, 8, 6, 0, 0, 0)
+            raw = (b'\0' + bytes([255, 32, 4, alpha]) * 2) * 2
+            return b'\x89PNG\r\n\x1a\n' + chunk(b'IHDR', header) + chunk(b'IDAT', zlib.compress(raw)) + chunk(b'IEND', b'')
+        self.assertFalse(icons.has_visible_alpha(png(0), 2))
+        self.assertTrue(icons.has_visible_alpha(png(128), 2))
+
     def test_complete_native_family_matches_sources_registry_and_rgba_assets(self):
         self.assertEqual(icons.check()['assets'], len(icons.GLYPHS) * len(icons.TONES))
         manifest = json.loads((icons.ROOT / icons.DEST / 'manifest.json').read_text())
