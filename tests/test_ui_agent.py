@@ -138,6 +138,17 @@ class ControllerTests(unittest.TestCase):
         self.assertEqual(result['tap'], [25, 45])
         self.assertIn(('input', 'tap', '25', '45'), self.device.calls)
 
+    def test_disabled_parent_clipped_or_ambiguous_targets_are_not_tapped(self):
+        node = '<node content-desc="Flüge" enabled="true" clickable="true" bounds="{}" />'
+        cases = ['<hierarchy><node enabled="false">' + node.format('[0,20][50,70]') + '</node></hierarchy>',
+                 '<hierarchy>' + node.format('[0,100][50,70]') + '</hierarchy>',
+                 '<hierarchy>' + node.format('[0,20][50,70]') * 2 + '</hierarchy>']
+        for xml in cases:
+            self.device.tree = lambda remote: ET.fromstring(xml)
+            with self.assertRaisesRegex(ValueError, 'exactly one'):
+                self.session.action({'op': 'tap', 'by': 'label', 'value': 'Flüge'})
+        self.assertFalse(any(args[:2] == ('input', 'tap') for args in self.device.calls))
+
     def test_original_overrides_and_null_font_restored_even_after_another_restore_failure(self):
         original = {'size': 'Physical size: 1080x1920\nOverride size: 800x600',
                     'density': 'Physical density: 420\nOverride density: 160', 'font': 'null'}

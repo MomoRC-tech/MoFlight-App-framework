@@ -279,10 +279,12 @@ class Session:
                 (target.with_suffix('.png')).write_bytes(raw)
                 if len(raw) < 24 or struct.unpack('>II', raw[16:24]) != self.dimensions():
                     raise ValueError('Screenshot still transitioning to viewport; captured bytes retained, retry with a new name.')
+            enabled = effective_enabled(tree)
             return {'hierarchy': str(target), 'image': str(target.with_suffix('.png')) if op == 'capture' else None,
                     'nodes': [{'text': n.get('text'), 'label': n.get('content-desc'),
                                'id': n.get('resource-id'), 'class': n.get('class'),
-                               'bounds': n.get('bounds'), 'clickable': n.get('clickable')}
+                               'bounds': n.get('bounds'), 'clickable': n.get('clickable'),
+                               'enabled': enabled[n]}
                               for n in tree.iter('node') if n.get('text') or n.get('content-desc')][:100]}
         raise ValueError('Unknown operation; raw shell, text input, network and data commands are refused.')
 
