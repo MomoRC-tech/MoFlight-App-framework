@@ -581,7 +581,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ImportPreview.tsx
 
 ## InformationReview.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/InformationReview.tsx](../../../apps/platform-lab/src/mobile/InformationReview.tsx); normalized SHA-256 `5660ea2851b25550f1d083cf8730005c2b6cc48c67c2eb3cf3fba48f13ef9b82`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/InformationReview.tsx](../../../apps/platform-lab/src/mobile/InformationReview.tsx); normalized SHA-256 `4e78ed1ba24e107a782b9759e289e9bb127915252de4c248286bf29bfcc2eb76`.
 
 ### Geometry / opacity declarations
 

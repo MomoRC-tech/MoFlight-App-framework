@@ -41,3 +41,14 @@ test('blank extracted text stays unknown while explicit zero remains visible', (
   f.button('Ansehen: Arbeitsstunden · 1 Zeilen').props.onPress();
   assert.match(f.text(f.render()), /Kein unterstützter Textwert erfasst/); assert.match(f.text(f.render()), /Stunden: 0.00/);
 });
+test('truncation labels follow the selected snapshot rather than applying a new limit to older evidence', () => {
+  const f = fixture();
+  const latest = information.validateInformationCapture({ ...capture('practical', ''), path: '/member/profile/usereducation/editelidp', columns: [{ key: 'number', label: 'No', index: 0 }, { key: 'status', label: 'Status', index: 1 }, { key: 'objective', label: 'Lernziel', index: 2 }, { key: 'landings', label: 'Landungen', index: 3 }, { key: 'block', label: 'Blockzeit', index: 4 }], rows: Array.from({ length: 100 }, (_, i) => ({ position: i, values: [String(i), '', 'Synthetic objective', '0', '0:00'] })), coverage: { kind: 'visible-page', truncated: true, pagination: 'unverified' } });
+  const older = { ...latest, id: 'older-practical', rows: latest.rows.slice(0, 20) };
+  f.props.captures = [latest]; f.props.onHistory = (category, index) => { f.props.history = { category, index, total: 2, capture: index ? older : latest }; };
+  f.button('Ansehen: Praktische Ausbildung · 100 Zeilen').props.onPress();
+  assert.match(f.text(f.render()), /auf 100 Zeilen begrenzt/);
+  f.button('Älteren Quellenbeleg ansehen').props.onPress();
+  assert.match(f.text(f.render()), /auf 20 Zeilen begrenzt/); assert.ok(!f.text(f.render()).includes('auf 100 Zeilen begrenzt'));
+  assert.ok(f.button('Ansehen: Praktische Ausbildung · 100 Zeilen'));
+});

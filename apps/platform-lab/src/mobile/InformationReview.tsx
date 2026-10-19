@@ -24,7 +24,7 @@ export function InformationReview({ captures, notice, onOpen, disabled, history,
       {selectedHistory && selectedHistory.index + 1 < selectedHistory.total && <Action secondary disabled={historyBusy} onPress={() => { setPage(0); onHistory(capture.category, selectedHistory.index + 1); }}>Älteren Quellenbeleg ansehen</Action>}
       <Label>Erfasst: {new Date(capture.retrievedAt).toLocaleString('de-DE')}</Label>
       <Label muted>Zeilen in diesem Beleg: {capture.rows.length}</Label>
-      <Label muted>Nur sichtbare Seite · Seitenabdeckung ungeprüft{capture.coverage.truncated ? ' · auf 20 Zeilen begrenzt' : ''}. {capture.filters.join(' · ') || 'Zeitraum/Filter nicht erkannt.'}</Label>
+      <Label muted>Nur sichtbare Seite · Seitenabdeckung ungeprüft{capture.coverage.truncated ? ` · auf ${capture.rows.length} Zeilen begrenzt` : ''}. {capture.filters.join(' · ') || 'Zeitraum/Filter nicht erkannt.'}</Label>
       <Label muted>Originalwerte; keine Berechnung oder Bestätigung von Berechtigungen, Kosten oder Vollständigkeit.</Label>
       {dateOnlyNotice && <Label>Dieser Beleg enthält Datumstext ohne bestätigten Dokumenttitel. Der Textauszug ist unvollständig.</Label>}
       {capture.empty && <Label>Quelle meldet keine passenden Daten auf dieser Seite. Keine Aussage über andere Zeiträume.</Label>}

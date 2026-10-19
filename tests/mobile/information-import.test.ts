@@ -23,7 +23,7 @@ const header = ['', 'Datum', 'Tätigkeit', 'Stunden', 'Kategorie', 'Status', 'Pr
 const entries = [['', '01.10.2026', 'Synthetic work', '0.00', 'Custom', 'Akzeptiert', 'Do not collect']];
 function read(category: InformationCategory, rows = [row(header), ...entries.map(row)], tables?: { rows: typeof rows }[], taskFilter = 'Meine nicht beendeten Aufgaben', taskAnchor = 'globalfiltertime') {
   const window = {}; const document = { getElementById: (id: string) => id === taskAnchor ? ({ innerText: category === 'tasks' ? taskFilter : '' }) : null, querySelector: () => null, querySelectorAll: (s: string) => s === 'table' ? tables ?? [{ rows }] : s === 'select' ? category === 'tasks' ? [] : [{ selectedOptions: [{ textContent: '2026' }] }, { selectedOptions: [{ textContent: 'Private person filter' }] }] : [] };
-  return JSON.parse(JSON.stringify(runInNewContext(`(${INFORMATION_READER_SOURCE})(category, config)`, { document, location: { href: category === 'tasks' ? tasksUrl : category === 'ledger' ? ledgerUrl : category === 'medical' || category === 'work-summary' || category === 'own-profile' || category === 'licence-metadata' ? PROFILE_URL : category === 'duties' ? 'https://vereinsflieger.de/member/profile/myservices.php' : url }, window: Object.assign(window, { top: window }), URL, category, config: INFORMATION_TYPES[category] })));
+  return JSON.parse(JSON.stringify(runInNewContext(`(${INFORMATION_READER_SOURCE})(category, config)`, { document, location: { href: category === 'tasks' ? tasksUrl : category === 'ledger' ? ledgerUrl : category === 'medical' || category === 'work-summary' || category === 'own-profile' || category === 'licence-metadata' ? PROFILE_URL : category === 'duties' ? 'https://vereinsflieger.de/member/profile/myservices.php' : category === 'practical' || category === 'theory' ? 'https://vereinsflieger.de/member/profile/usereducation/editelid' + (category === 'practical' ? 'p' : 't') + '?ueid=synthetic' : url }, window: Object.assign(window, { top: window }), URL, category, config: INFORMATION_TYPES[category] })));
 }
 const page = () => validateInformationPage(read('work-hours'));
 test('bounded local route diagnostic excludes query values and numeric path identities', () => {
@@ -41,6 +41,48 @@ test('allowlisted work rows retain exact zero/raw evidence and exclude private c
 test('visible-page cap preserves partial coverage and never calls twenty rows complete', () => {
   const p = validateInformationPage(read('work-hours', [row(header), ...Array.from({ length: 21 }, () => row(entries[0]!))]));
   assert.equal(p.rows.length, 20); assert.equal(p.coverage.truncated, true); assert.equal(p.coverage.kind, 'visible-page');
+});
+const practicalHeader = ['No', 'Status', 'Lernziel', 'Fluglehrer (Begonnen)', 'Begonnen am', 'Fluglehrer (Beendet)', 'Beendet am', 'Landungen', 'Blockzeit', 'Unselected field'];
+const practicalRows = (count: number) => [row(practicalHeader), ...Array.from({ length: count }, (_, i) => row([i === 0 ? '1' : String(i) + '.1', '', i === 0 ? 'Synthetic section' : 'Synthetic objective ' + i, 'Synthetic instructor', '', '', '', '0', '0:00', 'Do not collect']))];
+test('practical training retains the evidenced longer loaded page while other source bounds stay unchanged', () => {
+  const p = validateInformationPage(read('practical', practicalRows(62)));
+  assert.equal(p.rows.length, 62); assert.equal(p.rows[61]!.values[2], 'Synthetic objective 61');
+  assert.equal(p.rows[0]!.values[0], '1'); assert.equal(p.rows[0]!.values[2], 'Synthetic section');
+  assert.equal(p.rows[61]!.values[1], ''); assert.equal(p.rows[61]!.values[7], '0');
+  assert.equal(p.coverage.truncated, false); assert.equal(p.coverage.pagination, 'unverified');
+  assert.ok(!JSON.stringify(p).includes('Do not collect'));
+  const theory = validateInformationPage(read('theory', [row(['No', 'Status', 'Lernziel']), ...Array.from({ length: 62 }, (_, i) => row([String(i), '', 'Synthetic theory']))]));
+  assert.equal(theory.rows.length, 20); assert.equal(theory.coverage.truncated, true);
+});
+test('practical finite bound and malformed later rows stay guarded after the original twenty-row boundary', () => {
+  const exact = validateInformationPage(read('practical', practicalRows(100)));
+  assert.equal(exact.rows.length, 100); assert.equal(exact.coverage.truncated, false);
+  const overflow = validateInformationPage(read('practical', practicalRows(101)));
+  assert.equal(overflow.rows.length, 100); assert.equal(overflow.coverage.truncated, true);
+  assert.throws(() => validateInformationPage({ ...overflow, rows: [...overflow.rows, { ...overflow.rows[0]!, position: 101 }] }));
+  const malformed = practicalRows(62); malformed[26]!.cells[2]!.colSpan = 2;
+  assert.throws(() => validateInformationPage(read('practical', malformed)));
+});
+test('extended practical context-verified capture reopens alongside its original partial snapshot without rewriting it', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'moflight-practical-')); const file = join(dir, 'capture.sqlite'); let db = nodeDriver(file);
+  try {
+    const p = validateInformationPage(read('practical', practicalRows(62)));
+    let store = new InformationStore(db, scope, async () => {}); await store.initialize();
+    const old = validateInformationCapture({ ...capture('old-practical'), ...p, rows: p.rows.slice(0, 20), coverage: { ...p.coverage, truncated: true } });
+    await store.save(old); await store.save(capture('unrelated-work'));
+    const before = await db.all('SELECT * FROM information_captures ORDER BY rowid');
+    const source = 'https://vereinsflieger.de/member/profile/usereducation/editelidp?ueid=synthetic';
+    const run = new InformationRun(scope, 'practical', source, 'extended-practical');
+    run.observeNavigation(PROFILE_URL); run.accept(PROFILE_URL, PROFILE_URL, contextMessage(run));
+    run.observeNavigation(source); run.accept(source, source, { kind: 'vf-information-v1', nonce: run.messageNonce, url: source, page: p });
+    assert.throws(() => run.capture(at));
+    run.observeNavigation(PROFILE_URL); assert.equal(run.accept(PROFILE_URL, PROFILE_URL, contextMessage(run)), 'save');
+    await store.save(run.capture(at)); await db.close(); db = nodeDriver(file); store = new InformationStore(db, scope, async () => {}); await store.initialize(false);
+    assert.equal((await store.history('practical', 0)).capture!.rows.length, 62);
+    assert.deepEqual((await store.history('practical', 1)).capture, old);
+    assert.deepEqual(await db.all('SELECT * FROM information_captures WHERE id<>? ORDER BY rowid', 'extended-practical'), before);
+    assert.equal((await store.latest()).find(c => c.category === 'work-hours')!.id, 'unrelated-work');
+  } finally { await db.close(); await rm(dir, { recursive: true, force: true }); }
 });
 test('verified source empty marker is distinct from missing rows, login/unknown and contradictory empty data', () => {
   const empty = validateInformationPage(read('work-hours', [row(header), row(['Es wurden keine passenden Daten gefunden!'])]));

@@ -21,6 +21,8 @@ export const INFORMATION_TYPES = {
 } as const;
 export type InformationCategory = keyof typeof INFORMATION_TYPES;
 export const informationCategories = Object.keys(INFORMATION_TYPES) as InformationCategory[];
+/** Loaded-page bounds; neither a provider-page count nor a completeness claim. */
+export const informationRowLimit = (category: InformationCategory) => category === 'practical' ? 100 : 20;
 export const eventViews = ['1 Tag', '1 Woche', '2 Wochen', '3 Wochen', '4 Wochen', '3 Monate', '6 Monate', '1 Jahr'] as const;
 function sourceDate(value: string) {
   if (!/^\d{2}\.\d{2}\.(?:19|20|21)\d{2}$/.test(value)) return false;
@@ -114,7 +116,7 @@ export function validateInformationPage(input: unknown): InformationPage {
     if (typeof c.key !== 'string' || !Object.hasOwn(fields, c.key) || keys.has(c.key) || typeof c.label !== 'string' || c.label.length > 256 || !fields[c.key]!.includes(normalizedLabel(c.label)) || typeof c.index !== 'number' || !Number.isSafeInteger(c.index) || c.index <= lastIndex || c.index > 127) throw new Error('Invalid information column');
     keys.add(c.key); lastIndex = c.index; return { key: c.key, label: c.label, index: c.index };
   });
-  if (config.required.some(k => !keys.has(k)) || !Array.isArray(p.rows) || p.rows.length > 20 || typeof p.empty !== 'boolean' || p.empty !== !p.rows.length) throw new Error('Missing information anchors');
+  if (config.required.some(k => !keys.has(k)) || !Array.isArray(p.rows) || p.rows.length > informationRowLimit(category) || typeof p.empty !== 'boolean' || p.empty !== !p.rows.length) throw new Error('Missing information anchors');
   if ((category === 'news' || category === 'own-reservations') && !p.empty || category === 'document-notices' && p.empty) throw new Error('Unsupported overview state');
   if (category === 'events' && p.empty) throw new Error('Unverified empty event source');
   let lastPosition = -1;
@@ -170,6 +172,7 @@ export function informationSelectionScript(nonce: string) {
 // cookies, storage, full-page HTML/text or unknown columns. Limits are page bounds.
 export const INFORMATION_READER_SOURCE = String.raw`(category, config) => {
   const norm = s => String(s || '').replace(/\s+/g,' ').trim();
+  const rowLimit = category === 'practical' ? ${informationRowLimit('practical')} : ${informationRowLimit('work-hours')};
   const u = new URL(location.href);
   if (window.top !== window || u.protocol !== 'https:' || !['vereinsflieger.de','www.vereinsflieger.de'].includes(u.hostname) || !u.pathname.startsWith('/member/') || u.username || u.password || u.port || u.hash || document.querySelector('input[name="pwinput"]')) return {error:'source-unavailable'};
   // Native source diagnostic identified the selected-filter label exactly.
@@ -333,7 +336,7 @@ export const INFORMATION_READER_SOURCE = String.raw`(category, config) => {
       // Explicit totals stay out of source records; never count them as hours/costs.
       if(cells.some(c=>/^Gesamt\b/.test(norm(c.textContent)))) continue;
       if(cells.length!==t.width || cells.some(c=>(c.colSpan || 1)!==1 || (c.rowSpan || 1)!==1)) return {error:'row-shape'};
-      if(rows.length===20) {truncated=true;break;}
+      if(rows.length===rowLimit) {truncated=true;break;}
       rows.push({position:i,values:columns.map(c=>cells[c.index].innerText ?? cells[c.index].textContent ?? '')});
     }
     if(category==='tasks' && !rows.length && !empty && t.header===0 && t.all.length===1) {
