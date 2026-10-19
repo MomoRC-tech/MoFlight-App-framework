@@ -1,5 +1,7 @@
 # Vereinsflieger website/manual discovery and future features
 
+**Local information-read retry — 19 October:** application `4853de3` adds **Gespeicherte Informationen neu laden**: an explicit read-only local reload, independent of provider login. Failed reads preserve the current review; stale/foreign/late results cannot replace it. No new capture or source retrieval. [Verification and limits](../verification/2026-10-10-vereinsflieger-discovery.md#local-information-read-retry--19-october-2026).
+
 **Explicit training-summary capture — 19 October:** application `d9aa05f` adds seven source-labelled practical/theory count/time fields, preserving explicit zeros and blank time as unknown. All seven field tuples matched independent native references and reopened after actual offline restart. Latest captures: **17 types / 125 rows**; previous categories and 62/62/20 practical snapshots preserved. Host checks, exports and committed Android Release/lint passed. Per-objective graphical status remains unknown. [Source contract, evidence and limits](../verification/2026-10-10-vereinsflieger-discovery.md#explicit-training-summary-capture--19-october-2026).
 
 **Training-status source gap — 19 October:** all 62 practical Status cells have no supported text, tooltip or accessibility label; their graphical meanings remain unknown. No application status mapping was added. Literal text/unknown/unsupported-state regressions protect this boundary. [Source findings and verification](../verification/2026-10-10-vereinsflieger-discovery.md#practical-training-status-source-gap--19-october-2026).
@@ -88,6 +90,12 @@ The [bounded source package](https://github.com/MomoRC-tech/MoFlight-App-framewo
 
 Retain `status` as original visible source text only. Blank means **no supported text captured / unknown**, never not-started, begun, completed or qualified. Unknown literal text and explicit zero stay literal text; no enum or qualification is inferred. Keep dates/instructors/objectives independent; do not derive status from them, serialize CSS/IDs/handlers, sum hierarchy sections or rewrite older snapshots. Tooltip, accessibility-only, color/class, aggregate-progress and normalized-status mappings require separately evidenced contracts. This is a precise unsupported source result, not completed semantic training import. Reader/schema/payload and practical 100 / other 20 bounds remain unchanged; C/production/ADR 0007 remain gated.
 
+
+### Local information-read retry — 19 October 2026
+
+The [bounded #10 package](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/10#issuecomment-6277397128) implements **Gespeicherte Informationen neu laden** using the existing authorized read-only native store opener. It neither starts a provider capture/session nor creates/repairs a missing or unsupported store. Valid initial absence is distinct from an unexplained empty result after captures are already known. Read errors or foreign/incomplete results preserve the current captures and selected history; success refreshes the latest review, preserving a newer history choice made while it loaded, and keeps original retrieval times. A post-commit readback failure can be recovered by reading the saved capture, without another save.
+
+Initial and manual reads share supersession authority; owner changes, background/unmount and capture start/success invalidate old publication. Scope authorization is checked around reading; failed/revoked/stale results cannot publish. The control has explicit loading/unavailable state and uses existing C01/C02 presentation. Failure/race checks are synthetic; [native offline evidence and remaining gates](../verification/2026-10-10-vereinsflieger-discovery.md#local-information-read-retry--19-october-2026) control platform acceptance. No source-field/schema/identity/backup/migration/C/ADR 0007 expansion or automatic retry/polling.
 
 ### Explicit training-summary representation — 19 October 2026
 
