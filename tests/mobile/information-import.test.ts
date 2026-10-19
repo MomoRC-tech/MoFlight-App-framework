@@ -20,7 +20,7 @@ const header = ['', 'Datum', 'Tätigkeit', 'Stunden', 'Kategorie', 'Status', 'Pr
 const entries = [['', '01.10.2026', 'Synthetic work', '0.00', 'Custom', 'Akzeptiert', 'Do not collect']];
 function read(category: InformationCategory, rows = [row(header), ...entries.map(row)], tables?: { rows: typeof rows }[]) {
   const window = {}; const document = { querySelector: () => null, querySelectorAll: (s: string) => s === 'table' ? tables ?? [{ rows }] : s === 'select' ? [{ selectedOptions: [{ textContent: '2026' }] }, { selectedOptions: [{ textContent: 'Private person filter' }] }] : [] };
-  return JSON.parse(JSON.stringify(runInNewContext(`(${INFORMATION_READER_SOURCE})(category, config)`, { document, location: { href: url }, window: Object.assign(window, { top: window }), URL, category, config: INFORMATION_TYPES[category] })));
+  return JSON.parse(JSON.stringify(runInNewContext(`(${INFORMATION_READER_SOURCE})(category, config)`, { document, location: { href: category === 'medical' || category === 'work-summary' ? PROFILE_URL : category === 'duties' ? 'https://vereinsflieger.de/member/profile/myservices.php' : url }, window: Object.assign(window, { top: window }), URL, category, config: INFORMATION_TYPES[category] })));
 }
 const page = () => validateInformationPage(read('work-hours'));
 const capture = (id = 'capture-a') => validateInformationCapture({ ...page(), version: 1, id, retrievedAt: at, owner: scope.owner, connectionId: scope.connectionId, sourceIdentity: 'provisional-observed-profile' });
@@ -66,10 +66,10 @@ test('decoder rejects unknown fields, unsafe source, forged coverage and malform
   assert.throws(() => validateInformationCapture({ ...capture(), retrievedAt: '2026-02-30T12:00:00.000Z' }));
   for (const bad of [url.replace('https:', 'http:'), url + '#secret', url + '&token=secret', 'https://evil.test/member/profile/viewprofile', 'https://vereinsflieger.de/member/download/document']) assert.equal(informationUrl(bad), false);
 });
-function contextMessage(run: InformationRun, changed = false) { return { kind: 'vf-context-v1', nonce: run.nonce, url: PROFILE_URL, context: { ...scope.context, accountNumber: changed ? '9999' : '1001' } }; }
+function contextMessage(run: InformationRun, changed = false) { return { kind: 'vf-context-v1', nonce: run.messageNonce, url: PROFILE_URL, context: { ...scope.context, accountNumber: changed ? '9999' : '1001' } }; }
 function advance(run: InformationRun) {
   run.observeNavigation(PROFILE_URL); assert.equal(run.accept(PROFILE_URL, PROFILE_URL, contextMessage(run)), 'navigate');
-  run.observeNavigation(url); assert.equal(run.accept(url, url, { kind: 'vf-information-v1', nonce: run.nonce, url, page: page() }), 'navigate');
+  run.observeNavigation(url); assert.equal(run.accept(url, url, { kind: 'vf-information-v1', nonce: run.messageNonce, url, page: page() }), 'navigate');
   run.observeNavigation(PROFILE_URL); assert.equal(run.accept(PROFILE_URL, PROFILE_URL, contextMessage(run)), 'save');
 }
 test('capture requires fresh before/after matching context and exact source/nonce, cancellation stays terminal', () => {
@@ -84,9 +84,18 @@ test('capture requires fresh before/after matching context and exact source/nonc
 test('wrong account before or after extraction cannot create a capture; wrong category/page rejects', () => {
   for (const after of [false, true]) {
     const run = new InformationRun(scope, 'work-hours', url, 'capture-a'); run.observeNavigation(PROFILE_URL);
-    if (after) { run.accept(PROFILE_URL, PROFILE_URL, contextMessage(run)); run.observeNavigation(url); run.accept(url, url, { kind: 'vf-information-v1', nonce: run.nonce, url, page: page() }); run.observeNavigation(PROFILE_URL); }
+    if (after) { run.accept(PROFILE_URL, PROFILE_URL, contextMessage(run)); run.observeNavigation(url); run.accept(url, url, { kind: 'vf-information-v1', nonce: run.messageNonce, url, page: page() }); run.observeNavigation(PROFILE_URL); }
     assert.throws(() => run.accept(PROFILE_URL, PROFILE_URL, contextMessage(run, true))); assert.throws(() => run.capture(at));
   }
+});
+test('a replayed before-profile message cannot replace the required after-profile observation', () => {
+  const run = new InformationRun(scope, 'work-hours', url, 'capture-a');
+  const before = contextMessage(run); run.observeNavigation(PROFILE_URL);
+  run.accept(PROFILE_URL, PROFILE_URL, before); run.observeNavigation(url);
+  run.accept(url, url, { kind: 'vf-information-v1', nonce: run.messageNonce, url, page: page() });
+  run.observeNavigation(PROFILE_URL);
+  assert.equal(run.accept(PROFILE_URL, PROFILE_URL, before), 'ignored');
+  assert.throws(() => run.capture(at));
 });
 test('real SQLite immutable retries, scoped isolation, corruption and close/reopen preserve source facts', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'moflight-information-synthetic-')); const file = join(dir, 'capture.sqlite');

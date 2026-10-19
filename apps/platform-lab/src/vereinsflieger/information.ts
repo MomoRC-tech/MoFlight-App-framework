@@ -33,7 +33,17 @@ export function informationUrl(value: string): boolean {
   return !u.hash && u.pathname.startsWith('/member/') &&
     !/(?:logout|password|download|print|delete|remove|save|upload|config)/i.test(u.pathname) &&
     (!/\/edit/i.test(u.pathname) || /^\/member\/profile\/usereducation\/editelid[pt]$/.test(u.pathname)) &&
-    ![...u.searchParams.keys()].some(k => /token|secret|session|password|csrf|action|delete|save/i.test(k));
+    [...u.searchParams.keys()].every(k => /^(?:year|y|page|p|start|offset|limit|sort|dir|period|filter|view|ueid|id|status|type|plan|from|to)$/.test(k));
+}
+export function informationCategoryUrl(category: InformationCategory, url: string) {
+  if (!informationUrl(url)) return false;
+  const path = new URL(url).pathname.replace(/\/$/, '');
+  const known: Partial<Record<InformationCategory, readonly string[]>> = {
+    medical: ['/member/profile/viewprofile'], 'work-summary': ['/member/profile/viewprofile'],
+    duties: ['/member/profile/myservices.php', '/member/profile/allservicelist.php', '/member/community/serviceshedulelist.php'],
+    enrolments: ['/member/profile/usereducation'], practical: ['/member/profile/usereducation/editelidp'], theory: ['/member/profile/usereducation/editelidt'],
+  };
+  return !known[category] || known[category]!.includes(path);
 }
 function object(v: unknown): Record<string, unknown> {
   if (!v || typeof v !== 'object' || Array.isArray(v)) throw new Error('Invalid information object');
@@ -46,7 +56,7 @@ export function validateInformationPage(input: unknown): InformationPage {
   const p = object(input); exact(p, ['category', 'path', 'columns', 'rows', 'filters', 'empty', 'coverage']);
   if (typeof p.category !== 'string' || !Object.hasOwn(INFORMATION_TYPES, p.category)) throw new Error('Unsupported information category');
   const category = p.category as InformationCategory, config = INFORMATION_TYPES[category];
-  if (typeof p.path !== 'string' || p.path.includes('?') || !informationUrl('https://vereinsflieger.de' + p.path) || !Array.isArray(p.columns) || !p.columns.length || p.columns.length > 16) throw new Error('Invalid information source');
+  if (typeof p.path !== 'string' || p.path.includes('?') || !informationCategoryUrl(category, 'https://vereinsflieger.de' + p.path) || !Array.isArray(p.columns) || !p.columns.length || p.columns.length > 16) throw new Error('Invalid information source');
   const fields = config.fields as Record<string, readonly string[]>;
   const keys = new Set<string>(); let lastIndex = -1;
   const columns = p.columns.map(value => {

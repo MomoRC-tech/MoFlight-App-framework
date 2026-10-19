@@ -418,7 +418,7 @@ export function useAccessController(product = false, localOwner?: string) {
       const run = informationRun.current;
       if (page !== run.url) { stopInformation('Quellseite oder Anmeldung nicht verfügbar. Gespeicherte Informationen bleiben erhalten.'); return; }
       run.observeNavigation(page);
-      web.current?.injectJavaScript(run.stage === 'read' ? informationScript(run.category, run.nonce) : contextScript(run.nonce));
+      web.current?.injectJavaScript(run.stage === 'read' ? informationScript(run.category, run.messageNonce) : contextScript(run.messageNonce));
       return;
     }
     if (product && contextRequest.current) {

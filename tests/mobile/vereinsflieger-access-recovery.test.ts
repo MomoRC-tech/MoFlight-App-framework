@@ -1470,7 +1470,7 @@ async function startInformationFixture() {
 }
 async function informationMessage(f: ReturnType<typeof fixture>) {
   const web = f.find(f.render(), e => e.type === 'WebView')!;
-  (web.props.onMessage as (event: unknown) => void)({ nativeEvent: { url: informationSource, data: JSON.stringify({ kind: 'vf-information-v1', nonce: f.lastIssuedNonce(), url: informationSource, page: informationPage }) } });
+  (web.props.onMessage as (event: unknown) => void)({ nativeEvent: { url: informationSource, data: JSON.stringify({ kind: 'vf-information-v1', nonce: f.lastIssuedNonce() + '-read', url: informationSource, page: informationPage }) } });
   await f.flush();
 }
 test('information capture saves only after matching protected profiles before and after the selected source', async () => {
@@ -1494,6 +1494,6 @@ test('background cancellation prevents late information callbacks from saving or
   const f = await startInformationFixture(); await f.loadPage(context.PROFILE_URL); await f.contextMessage(observedContext);
   await f.loadPage(informationSource); const web = f.find(f.render(), e => e.type === 'WebView')!;
   f.appState('background'); await f.flush();
-  (web.props.onMessage as (event: unknown) => void)({ nativeEvent: { url: informationSource, data: JSON.stringify({ kind: 'vf-information-v1', nonce: f.lastIssuedNonce(), url: informationSource, page: informationPage }) } });
+  (web.props.onMessage as (event: unknown) => void)({ nativeEvent: { url: informationSource, data: JSON.stringify({ kind: 'vf-information-v1', nonce: f.lastIssuedNonce() + '-read', url: informationSource, page: informationPage }) } });
   await f.flush(); assert.equal(f.controller().informationBusy, false); assert.ok(!f.writes.includes('information-saved'));
 });
