@@ -34,7 +34,7 @@ export function ProviderConnection({ controller: c, open, close, development = f
   const [informationTools, setInformationTools] = useState(false);
   useEffect(() => { if (!open) { setDetails(false); setLab(false); setInformationTools(false); } }, [open]);
   const checking = c.connection.phase === 'checking';
-  const operationLocked = c.clearing || c.binding || c.busy || checking || c.saving || c.loginBusy || !c.viewReady;
+  const operationLocked = c.clearing || c.binding || c.busy || checking || c.saving || c.loginBusy || c.informationHistoryBusy || !c.viewReady;
   const locked = operationLocked || c.disconnecting;
   const login = open && c.visible;
   const guidance = connectionGuidance(c.connection, c.browserActive);
@@ -101,7 +101,7 @@ export function ProviderConnection({ controller: c, open, close, development = f
             <Label muted>Frühere Belege bleiben bei Fehler oder Abbruch erhalten. Ein neuer Abruf ergänzt noch keine Flugbuchstatistik.</Label>
           </Card>
           {open && <CapturedFlights key={c.snapshot?.captureId ?? 'no-capture'} snapshot={c.snapshot} loadState={c.captureLoadState} />}
-          {open && <InformationReview captures={c.informationCaptures} notice={c.informationNotice} disabled={locked || c.recovery} onOpen={() => c.browserActive ? c.setVisible(true) : c.connect()} />}
+          {open && <InformationReview captures={c.informationCaptures} notice={c.informationNotice} disabled={locked || c.recovery} history={c.informationHistory} historyBusy={c.informationHistoryBusy} historyNotice={c.informationHistoryNotice} onHistory={(category, index) => { void c.loadInformationHistory(category, index); }} onOpen={() => c.browserActive ? c.setVisible(true) : c.connect()} />}
           {c.recovery && <Card><Section title="Abruf gesperrt · Wiederherstellung nötig" /><Label>{c.legacyRecovery ? 'Ein älterer Eintrag muss zuerst geprüft werden. Alte Rohbelege werden dabei nicht übernommen.' : 'Vor dem nächsten Abruf muss die ursprüngliche Anbieteransicht im bisherigen Konto wiederhergestellt werden.'}</Label>{c.legacyRecovery && c.viewReady && <LegacyRecoveryReview locked={locked} recover={c.legacyRecoveryAvailable ? c.requestLegacyRecovery : undefined} />}
             {c.legacyChoice && <>
               <Section title="Aktuelle Ansicht weicht ab" />

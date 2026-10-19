@@ -49,6 +49,9 @@ export interface InformationCapture extends InformationPage {
   version: 1; id: string; retrievedAt: string; owner: string; connectionId: string;
   sourceIdentity: 'provisional-observed-profile';
 }
+export interface InformationHistory {
+  category: InformationCategory; index: number; total: number; capture: InformationCapture | null;
+}
 export const normalizedLabel = (s: string) => s.replace(/\s+/g, ' ').trim();
 /** Bounded local development evidence for unsupported source selection. */
 export function informationRouteShape(value: string) {

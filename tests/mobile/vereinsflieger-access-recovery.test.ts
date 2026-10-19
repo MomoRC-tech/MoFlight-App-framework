@@ -49,6 +49,7 @@ function fixture(options: { noNativeRecovery?: boolean; failLegacyRead?: boolean
   let finishJournalSave!: () => void, finishCaptureSave!: () => void;
   let clearCalls = 0;
   let historyBacks = 0;
+  let informationHistoryReader = async (_scope: ProviderScope, category: information.InformationCategory, position: number, gate: () => void): Promise<information.InformationHistory> => { gate(); return { category, index: position, total: 0, capture: null }; };
   let currentFingerprint = 'ab'.repeat(32);
   let finishSafety!: () => void;
   const safetyWrite = new Promise<void>(resolve => { finishSafety = resolve; });
@@ -130,7 +131,7 @@ function fixture(options: { noNativeRecovery?: boolean; failLegacyRead?: boolean
     './retrieval': { Retrieval }, './CaptureRun': { CaptureRun }, './WindowCapture': { WindowCapture },
     './login': login, './view': view, './context': context, './connection-state': { ConnectionSession },
     './information': information, './information-run': { InformationRun },
-    './information-native': { loadInformation: async () => [], saveInformation: async (_scope: unknown, value: unknown, gate: () => void) => { gate(); information.validateInformationCapture(value); writes.push('information-saved'); } },
+    './information-native': { loadInformation: async () => [], readInformationHistory: (scope: ProviderScope, category: information.InformationCategory, position: number, gate: () => void) => informationHistoryReader(scope, category, position, gate), saveInformation: async (_scope: unknown, value: unknown, gate: () => void) => { gate(); information.validateInformationCapture(value); writes.push('information-saved'); } },
   };
   const runtime = { require: (name: string) => {
     assert.ok(name in modules, `Unexpected component dependency: ${name}`); return modules[name];
@@ -211,6 +212,7 @@ function fixture(options: { noNativeRecovery?: boolean; failLegacyRead?: boolean
     return flush();
   }
   return { render, button, press, settle, find, flush, loadPage, loadFlight, message, currentCommand, writes, injections,
+    setInformationHistoryReader: (reader: typeof informationHistoryReader) => { informationHistoryReader = reader; },
     contextMessage, loginMessage, history, historyBacks: () => historyBacks,
     allowNavigation, lastIssuedNonce: () => issuedNonces.at(-1),
     appState: (state: string) => appStateListener?.(state),
@@ -1525,4 +1527,46 @@ test('native event capture probes the still-selected page first and saves only w
     assert.equal(f.writes.filter(w => w === 'information-saved').length, changed ? 0 : 1);
     assert.ok(!f.writes.includes('capture-saved')); assert.equal(f.loginStorage().reads, 0);
   }
+});
+
+const informationHistoryScope: ProviderScope = { version: 1, owner: 'synthetic-pilot', connectionId: 'synthetic-history', context: observedContext };
+function historyValue(position = 0): information.InformationHistory {
+  return { category: 'work-hours', index: position, total: 2, capture: information.validateInformationCapture({ ...informationPage, version: 1, id: 'synthetic-history-' + position, retrievedAt: '2026-10-19T12:00:00.000Z', owner: informationHistoryScope.owner, connectionId: informationHistoryScope.connectionId, sourceIdentity: 'provisional-observed-profile' }) };
+}
+test('local information history needs no provider session and a failed read preserves its prior snapshot', async () => {
+  const f = fixture({ product: true, persistedScope: informationHistoryScope }); f.render(); await f.settle(null); await f.flush();
+  f.setInformationHistoryReader(async (_scope, _category, position, gate) => { gate(); return historyValue(position); });
+  await f.controller().loadInformationHistory('work-hours', 1); await f.flush();
+  assert.equal(f.controller().informationHistory!.index, 1); assert.equal(f.controller().browserActive, false);
+  f.setInformationHistoryReader(async () => { throw new Error('Synthetic disk read failure'); });
+  await f.controller().loadInformationHistory('work-hours', 0); await f.flush();
+  assert.equal(f.controller().informationHistory!.index, 1); assert.match(f.controller().informationHistoryNotice, /bleiben erhalten/);
+  assert.equal(f.controller().informationHistoryBusy, false); assert.equal(f.injections.length, 0); assert.equal(f.loginStorage().reads, 0);
+  assert.ok(!f.writes.includes('information-saved'));
+});
+
+test('late local history cannot publish after owner change or backgrounding', async () => {
+  for (const boundary of ['owner', 'background', 'background-resume']) {
+    const f = fixture({ product: true, persistedScope: informationHistoryScope }); f.render(); await f.settle(null); await f.flush();
+    let finish!: (value: information.InformationHistory) => void;
+    const delayed = new Promise<information.InformationHistory>(resolve => { finish = resolve; });
+    f.setInformationHistoryReader(async (_scope, _category, _position, gate) => { gate(); return delayed; });
+    const pending = f.controller().loadInformationHistory('work-hours', 0); assert.equal(f.controller().informationHistoryBusy, true);
+    if (boundary === 'owner') f.changeOwner('another-owner'); else f.appState('background');
+    if (boundary === 'background-resume') f.appState('active');
+    await f.flush(); finish(historyValue()); await pending; await f.flush();
+    assert.equal(f.controller().informationHistory, null); assert.equal(f.controller().informationHistoryBusy, false);
+    assert.ok(!f.writes.includes('information-saved')); assert.equal(f.loginStorage().reads, 0);
+  }
+});
+
+test('newer local history requests supersede delayed results without overwriting their chosen snapshot or notice', async () => {
+  const f = fixture({ product: true, persistedScope: informationHistoryScope }); f.render(); await f.settle(null); await f.flush();
+  let finish!: (value: information.InformationHistory) => void;
+  const delayed = new Promise<information.InformationHistory>(resolve => { finish = resolve; });
+  f.setInformationHistoryReader(async (_scope, _category, position, gate) => { gate(); return position ? delayed : historyValue(); });
+  const old = f.controller().loadInformationHistory('work-hours', 1);
+  await f.controller().loadInformationHistory('work-hours', 0); finish(historyValue(1)); await old; await f.flush();
+  assert.equal(f.controller().informationHistory!.index, 0); assert.equal(f.controller().informationHistoryNotice, '');
+  assert.equal(f.controller().informationHistoryBusy, false);
 });

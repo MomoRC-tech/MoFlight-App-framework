@@ -188,6 +188,7 @@ The HTML guide embeds original reference and symbol/brand images unchanged. Comp
 | C13 | Badges / disclosures | Role pill radius 12; session badge minimum 16; details + / − | Role, session evidence and expansion remain separate meanings. MobileApp / ProviderConnection. |
 | C14 | Synthetic import review | Shared C01/C02/C03 cards/actions/choice chips, centered group capped at 520 dp | Development-only comparison, source variants and explicit book choice; [ImportPreview](../../../apps/platform-lab/src/mobile/ImportPreview.tsx). No saved-library import. |
 | C15 | Captured flight review | Shared cards/actions in the connection panel's centered 520 dp group; five records per page, eight original fields per detail page | [CapturedFlights](../../../apps/platform-lab/src/mobile/CapturedFlights.tsx) reads owner-scoped saved evidence without requiring provider login. Dates/clocks, reported duration, aircraft and separate crew fields retain unknown/invalid/conflict states; original field text is selectable and untruncated. No book membership or canonical import. |
+| C16 | Information source review | Shared C01/C02 controls in the connection panel's centered 520 dp group; five raw rows per page, one immutable snapshot at a time | [InformationReview](../../../apps/platform-lab/src/mobile/InformationReview.tsx) shows retrieval time and recorded coverage, with older/newer controls available offline. Category counts use the latest snapshot. Blank extracted text stays unknown; known date-only document snapshots are marked incomplete. No canonical history or cross-snapshot aggregation. |
 
 Sources: [theme](../../../apps/platform-lab/src/mobile/theme.tsx), [MobileApp](../../../apps/platform-lab/src/mobile/MobileApp.tsx), [Dashboard](../../../apps/platform-lab/src/mobile/Dashboard.tsx), [AppHeader](../../../apps/platform-lab/src/mobile/AppHeader.tsx), [ProviderConnection](../../../apps/platform-lab/src/mobile/ProviderConnection.tsx), [MedicalStatus](../../../apps/platform-lab/src/mobile/MedicalStatus.tsx), [ProfileSettings](../../../apps/platform-lab/src/mobile/ProfileSettings.tsx) and [SeasonRing](../../../apps/platform-lab/src/mobile/SeasonRing.tsx).
 
@@ -580,14 +581,14 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ImportPreview.tsx
 
 ## InformationReview.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/InformationReview.tsx](../../../apps/platform-lab/src/mobile/InformationReview.tsx); normalized SHA-256 `167503a2a01d92fc7c0419688e2e3d0d6f8d8b8ddeafb2e505c93ce88781f5a2`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/InformationReview.tsx](../../../apps/platform-lab/src/mobile/InformationReview.tsx); normalized SHA-256 `5660ea2851b25550f1d083cf8730005c2b6cc48c67c2eb3cf3fba48f13ef9b82`.
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `gap: 4` | 21 |
-| `gap: 8` | 15 |
+| `gap: 4` | 31 |
+| `gap: 8` | 20 |
 
 ## LibraryBackup.tsx
 
@@ -799,7 +800,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProfileSettings.t
 
 ## ProviderConnection.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProviderConnection.tsx](../../../apps/platform-lab/src/mobile/ProviderConnection.tsx); normalized SHA-256 `9d202b99864316061b9b2d8a0d087b0e52350a768d5807f4b614e312fc529cdf`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProviderConnection.tsx](../../../apps/platform-lab/src/mobile/ProviderConnection.tsx); normalized SHA-256 `83082d0d2091d754ec9389911b93f01e7cda2cb1b204774270904ec9de70718e`.
 
 ### Literal colors
 

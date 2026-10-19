@@ -274,3 +274,54 @@ test('all enabled categories including an explicit empty own-task capture surviv
     assert.equal(tasks.empty, true); assert.deepEqual(tasks.filters, ['Meine nicht beendeten Aufgaben']);
   } finally { await db.close(); await rm(dir, { recursive: true, force: true }); }
 });
+
+test('stored history orders retrieval time then insertion ties, reopens unchanged and distinguishes no snapshot from source empty', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'moflight-information-history-')); const file = join(dir, 'capture.sqlite');
+  let db = nodeDriver(file);
+  try {
+    let store = new InformationStore(db, scope, async () => {}); await store.initialize();
+    const a = capture('first'), b = capture('second'), older = { ...capture('older'), retrievedAt: '2026-10-18T12:00:00.000Z' };
+    await store.save(a); await store.save(b); await store.save(older);
+    const before = await db.all('SELECT * FROM information_captures ORDER BY rowid');
+    assert.deepEqual((await store.history('work-hours', 0)).capture, b);
+    assert.deepEqual((await store.history('work-hours', 1)).capture, a);
+    assert.deepEqual((await store.history('work-hours', 2)).capture, older);
+    assert.deepEqual(await store.history('news', 0), { category: 'news', index: 0, total: 0, capture: null });
+    for (const index of [-1, 0.5, 3, Number.NaN]) await assert.rejects(store.history('work-hours', index));
+    await assert.rejects(store.history('unknown' as InformationCategory, 0));
+    await db.close(); db = nodeDriver(file); store = new InformationStore(db, scope, async () => {}); await store.initialize();
+    assert.equal((await store.history('work-hours', 2)).total, 3);
+    assert.deepEqual(await db.all('SELECT * FROM information_captures ORDER BY rowid'), before);
+    assert.equal((await store.latest()).find(c => c.category === 'work-hours')!.id, b.id);
+  } finally { await db.close(); await rm(dir, { recursive: true, force: true }); }
+});
+
+test('read-only opening refuses an uninitialized store without adding schema or rows', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'moflight-information-uninitialized-')); const file = join(dir, 'capture.sqlite');
+  const db = nodeDriver(file);
+  try {
+    const store = new InformationStore(db, scope, async () => {});
+    await assert.rejects(store.initialize(false), /Uninitialized/);
+    assert.deepEqual(await db.all('SELECT name FROM sqlite_master'), []);
+    assert.equal((await db.first<{user_version:number}>('PRAGMA user_version'))!.user_version, 0);
+  } finally { await db.close(); await rm(dir, { recursive: true, force: true }); }
+});
+
+test('history cannot publish revoked, foreign or mismatched stored evidence and never repairs or deletes it', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'moflight-information-history-boundary-')); const file = join(dir, 'capture.sqlite');
+  const db = nodeDriver(file); let calls = 0, revoke = false;
+  const store = new InformationStore(db, scope, async () => { if (revoke && ++calls >= 3) throw new Error('Revoked history lease'); });
+  try {
+    await store.initialize(); await store.save(capture()); calls = 0; revoke = true;
+    await assert.rejects(store.history('work-hours', 0), /Revoked/); revoke = false;
+    const foreign = { ...capture('foreign-history'), owner: 'another-owner' };
+    await db.run('INSERT INTO information_captures VALUES (?,?,?,?)', foreign.id, foreign.category, foreign.retrievedAt, JSON.stringify(foreign));
+    await assert.rejects(store.history('work-hours', 0), /Foreign/);
+    await db.run('INSERT INTO information_captures VALUES (?,?,?,?)', 'mismatched', 'work-hours', at, JSON.stringify(capture('different-id')));
+    await assert.rejects(store.history('work-hours', 0), /identity mismatch/);
+    await db.run('INSERT INTO information_captures VALUES (?,?,?,?)', 'malformed', 'work-hours', at, '{');
+    await assert.rejects(store.history('work-hours', 0));
+    assert.equal((await db.first<{n:number}>('SELECT count(*) n FROM information_captures'))!.n, 4);
+    assert.equal((await store.history('work-hours', 3)).capture!.id, 'capture-a');
+  } finally { await db.close(); await rm(dir, { recursive: true, force: true }); }
+});

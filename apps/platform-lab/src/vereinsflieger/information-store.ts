@@ -1,7 +1,9 @@
 import { canonical } from '@moflight/flight-logbook';
 import type { Driver } from '@moflight/local-data';
 import { validateScope, type ProviderScope } from './scope-store';
-import { informationCategories, validateInformationCapture, type InformationCapture } from './information';
+import { informationCategories, validateInformationCapture, type InformationCapture, type InformationCategory, type InformationHistory } from './information';
+
+type SavedInformation = { id: string; category: string; retrieved_at: string; payload: string };
 
 export const INFORMATION_SCHEMA = `
 CREATE TABLE information_manifest(singleton INTEGER PRIMARY KEY CHECK(singleton=1),family TEXT NOT NULL,version INTEGER NOT NULL,scope TEXT NOT NULL);
@@ -16,11 +18,12 @@ export class InformationStore {
   readonly scope: ProviderScope;
   constructor(readonly db: Driver, scope: ProviderScope, readonly authorize: () => Promise<void>) { this.scope = validateScope(scope); }
   private async allowed() { await this.authorize(); }
-  async initialize() {
+  async initialize(create = true) {
     await this.allowed();
     await this.db.transaction(async tx => {
       const v = await tx.first<{user_version:number}>('PRAGMA user_version');
       if (v?.user_version === 0) {
+        if (!create) throw new Error('Uninitialized information store');
         if ((await tx.all('SELECT name FROM sqlite_master WHERE type=\'table\' AND name NOT LIKE \'sqlite_%\'')).length) throw new Error('Unexpected existing information store');
         await tx.exec(INFORMATION_SCHEMA);
         await tx.run('INSERT INTO information_manifest VALUES (1,?,?,?)', 'moflight-information-capture', 1, canonical(this.scope));
@@ -33,6 +36,12 @@ export class InformationStore {
   private validate(input: unknown) {
     const value = validateInformationCapture(input);
     if (value.owner !== this.scope.owner || value.connectionId !== this.scope.connectionId) throw new Error('Foreign information capture');
+    return value;
+  }
+  private decode(row: SavedInformation) {
+    if (row.payload.length > 1_000_000) throw new Error('Oversized saved information');
+    const value = this.validate(JSON.parse(row.payload));
+    if (value.id !== row.id || value.category !== row.category || value.retrievedAt !== row.retrieved_at) throw new Error('Saved information identity mismatch');
     return value;
   }
   async save(input: unknown): Promise<InformationCapture> {
@@ -52,12 +61,27 @@ export class InformationStore {
     await this.allowed();
     const rows = await this.db.all<{id:string;category:string;retrieved_at:string;payload:string}>('SELECT * FROM information_captures r WHERE rowid=(SELECT rowid FROM information_captures WHERE category=r.category ORDER BY retrieved_at DESC,rowid DESC LIMIT 1) ORDER BY category');
     if (rows.length > informationCategories.length) throw new Error('Unsupported information category count');
-    const result = rows.map(r => {
-      if (r.payload.length > 1_000_000) throw new Error('Oversized saved information');
-      const value = this.validate(JSON.parse(r.payload));
-      if (value.id !== r.id || value.category !== r.category || value.retrievedAt !== r.retrieved_at) throw new Error('Saved information identity mismatch');
-      return value;
-    });
+    const result = rows.map(r => this.decode(r));
     await this.allowed(); return result;
+  }
+  /** One immutable snapshot at a time; local retrieval order, never source revisions. */
+  async history(category: InformationCategory, index = 0): Promise<InformationHistory> {
+    if (!informationCategories.includes(category) || !Number.isSafeInteger(index) || index < 0) throw new Error('Invalid information history request');
+    await this.allowed();
+    let result: InformationHistory | undefined;
+    await this.db.transaction(async tx => {
+      await this.allowed();
+      const count = await tx.first<{total:number}>('SELECT count(*) total FROM information_captures WHERE category=?', category);
+      const total = count?.total;
+      if (typeof total !== 'number' || !Number.isSafeInteger(total) || total < 0 || index >= total && (total !== 0 || index !== 0)) throw new Error('Saved information position unavailable');
+      const row = total ? await tx.first<SavedInformation>('SELECT * FROM information_captures WHERE category=? ORDER BY retrieved_at DESC,rowid DESC LIMIT 1 OFFSET ?', category, index) : null;
+      if (total && !row) throw new Error('Saved information missing');
+      const capture = row ? this.decode(row) : null;
+      await this.allowed();
+      result = { category, index, total, capture };
+    });
+    await this.allowed();
+    if (!result) throw new Error('Saved information unavailable');
+    return result;
   }
 }
