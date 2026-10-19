@@ -7,6 +7,8 @@
 
 # MoFlight
 
+**Training-status source gap — 19 October:** all 62 practical Status cells have no supported text, tooltip or accessibility label; their graphical meanings remain unknown. No application status mapping was added. Literal text/unknown/unsupported-state regressions protect this boundary. [Source findings and verification](docs/verification/2026-10-10-vereinsflieger-discovery.md#practical-training-status-source-gap--19-october-2026).
+
 **Practical-training coverage — 19 October:** application `2587bca` saves all **62 source rows on the selected loaded page**, matching its displayed count, and reopens them offline. The older 20-row snapshot remains intact. Practical has a finite 100-row bound; other types keep 20. Hierarchy numbers/text remain raw; graphical statuses, other pages/enrolments and full history remain unverified. [Source/tail-field/native preservation evidence](docs/verification/2026-10-10-vereinsflieger-discovery.md#extended-practical-training-capture--19-october-2026).
 
 **Stored-capture review — 19 October 2026:** older immutable information snapshots can now be opened offline with timestamps, recorded coverage and older/newer controls. At that checkpoint, latest counts were **16 source types / 76 rows**. Date-only notice snapshots are marked incomplete and blank extracted text stays unknown. `81442a1`: 365 mobile / 107 Python tests, both exports, Android Release/lint and actual offline restart passed. [Evidence and remaining gates](docs/verification/2026-10-10-vereinsflieger-discovery.md#stored-source-capture-history-review--19-october-2026).
