@@ -26,9 +26,10 @@ export class InformationRun {
     const p = input as Record<string, unknown>;
     if (p.nonce !== this.messageNonce || p.url !== this.url || p.kind !== (this.stage === 'read' ? 'vf-information-v1' : 'vf-context-v1')) return 'ignored';
     if (this.stage === 'read') {
-      const pageValue = p.page as { error?: unknown; shape?: unknown } | null;
+      const pageValue = p.page as { error?: unknown; shape?: unknown; anchor?: unknown } | null;
       if (pageValue && typeof pageValue === 'object' && typeof pageValue.error === 'string') {
         if (pageValue.error === 'source-table-unverified' && typeof pageValue.shape === 'string' && /^[\d,;]{1,240}$/.test(pageValue.shape)) console.info('MoFlight information table dimensions', pageValue.shape);
+        if (pageValue.error === 'task-scope-unverified' && typeof pageValue.anchor === 'string' && /^[a-z:#_;-]{1,240}$/i.test(pageValue.anchor)) console.info('MoFlight own-task filter anchor', pageValue.anchor);
         const messages: Record<string, string> = {
           'source-table-unverified': 'Keine eindeutige Tabelle für den ausgewählten Quelltyp.',
           'task-scope-unverified': 'Die Quelle ist nicht als eigene offene Aufgaben bestätigt.',

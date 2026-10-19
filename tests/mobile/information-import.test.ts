@@ -98,7 +98,7 @@ test('own-task empty source needs exact owned filter and explicit marker; other 
   const rows = [row(['Titel', 'Zu erledigen bis', 'Status']), row(['Es wurden keine passenden Daten gefunden!'])];
   const p = validateInformationPage(read('tasks', rows)); assert.equal(p.empty, true);
   for (const filter of ['', 'Alle Aufgaben', 'Alle nicht beendeten Aufgaben']) {
-    assert.deepEqual(read('tasks', rows, undefined, filter), { error: 'task-scope-unverified' });
+    assert.equal(read('tasks', rows, undefined, filter).error, 'task-scope-unverified');
     assert.throws(() => validateInformationPage({ ...p, filters: filter ? [filter] : [] }));
   }
   assert.throws(() => validateInformationPage(read('tasks', [rows[0]!]))) ;

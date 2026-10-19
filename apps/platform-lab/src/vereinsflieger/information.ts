@@ -107,7 +107,7 @@ export const INFORMATION_READER_SOURCE = String.raw`(category, config) => {
   const u = new URL(location.href);
   if (window.top !== window || u.protocol !== 'https:' || !['vereinsflieger.de','www.vereinsflieger.de'].includes(u.hostname) || !u.pathname.startsWith('/member/') || u.username || u.password || u.port || u.hash || document.querySelector('input[name="pwinput"]')) return {error:'source-unavailable'};
   const taskFilter = category === 'tasks' ? norm(document.getElementById?.('globalfilter')?.innerText) : '';
-  if (category === 'tasks' && taskFilter !== 'Meine nicht beendeten Aufgaben') return {error:'task-scope-unverified'};
+  if (category === 'tasks' && taskFilter !== 'Meine nicht beendeten Aufgaben') return {error:'task-scope-unverified',anchor:Array.from(document.querySelectorAll('span,div,a,button,select')).slice(0,500).filter(e=>norm(e.innerText)==='Meine nicht beendeten Aufgaben').slice(0,8).map(e=>e.tagName+':'+String(e.id || '').replace(/\d+/g,'#').replace(/[^a-z#_-]/gi,'')).join(';')};
   const columnsFor = cells => {
     const cols = []; const seen = new Set();
     for (let index=0;index<cells.length;index++) {
