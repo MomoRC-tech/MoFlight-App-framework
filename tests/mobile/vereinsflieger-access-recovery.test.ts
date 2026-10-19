@@ -1678,3 +1678,15 @@ test('explicit local reload recovers a committed capture after failed readback w
   assert.equal(f.writes.filter(w => w === 'information-saved').length, 1); assert.equal(f.injections.length, injections);
   assert.match(f.controller().informationNotice, /lokal neu geladen/);
 });
+
+
+test('a history choice made after local reload starts is preserved when the reload completes', async () => {
+  const f = fixture({ product: true, persistedScope: informationHistoryScope }); f.render(); await f.settle(null); await f.flush();
+  let finish!: (value: information.InformationCapture[]) => void;
+  const delayed = new Promise<information.InformationCapture[]>(resolve => { finish = resolve; });
+  f.setInformationReader(async () => delayed); const pending = f.controller().reloadInformation();
+  f.setInformationHistoryReader(async () => historyValue(1)); await f.controller().loadInformationHistory('work-hours', 1);
+  finish([historyValue().capture!]); await pending; await f.flush();
+  assert.equal(f.controller().informationHistory!.index, 1); assert.deepEqual(f.controller().informationHistory!.capture, historyValue(1).capture);
+  assert.deepEqual(f.controller().informationCaptures, [historyValue().capture!]);
+});

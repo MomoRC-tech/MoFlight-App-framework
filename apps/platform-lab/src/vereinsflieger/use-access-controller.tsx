@@ -159,7 +159,7 @@ export function useAccessController(product = false, localOwner?: string) {
     if (!product || !mounted.current || !foreground.current || owner.current !== activeOwner.current || informationRun.current || clearingStore.current || bindingBusy.current) return;
     const request = ++informationLoadRequest.current;
     try {
-      const selectedScope = requireScope(), selectedKey = canonical(selectedScope);
+      const selectedScope = requireScope(), selectedKey = canonical(selectedScope), selectedHistoryRequest = historyRequest.current;
       const gate = () => {
         if (!mounted.current || !foreground.current || request !== informationLoadRequest.current || canonical(requireScope()) !== selectedKey) throw new Error('Expired information reload');
       };
@@ -168,7 +168,7 @@ export function useAccessController(product = false, localOwner?: string) {
       gate();
       if ((!records.length && informationCaptures.length) || records.some(record => record.owner !== selectedScope.owner || record.connectionId !== selectedScope.connectionId)) throw new Error('Saved information scope or completeness changed');
       setInformationCaptures(records);
-      historyRequest.current++; setInformationHistory(null); setInformationHistoryBusy(false); setInformationHistoryNotice('');
+      if (historyRequest.current === selectedHistoryRequest) { historyRequest.current++; setInformationHistory(null); setInformationHistoryBusy(false); setInformationHistoryNotice(''); }
       setInformationNotice('Gespeicherte Informationen lokal neu geladen.');
     } catch {
       if (mounted.current && foreground.current && request === informationLoadRequest.current && owner.current === activeOwner.current) setInformationNotice('Gespeicherte Informationen konnten nicht neu geladen werden. Vorhandene Belege bleiben erhalten.');
