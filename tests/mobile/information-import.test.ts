@@ -110,6 +110,25 @@ test('task selection key is confined to its evidenced route; mutation, duplicate
   assert.equal(informationCategoryUrl('tasks', url), false);
   assert.equal(informationCategoryUrl('tasks', ledgerUrl), false);
 });
+test('native task empty footer must be the exact paired sibling of the own-list header', () => {
+  const fixture = () => {
+    const h = { tagName: 'TABLE', id: 'tablelist_1', rows: [row(['Titel', 'Zu erledigen bis', 'Status'])], parentElement: null as any, nextElementSibling: null as any };
+    const f = { tagName: 'TABLE', rows: [row(['Es wurden keine passenden Daten gefunden!', ''])] };
+    h.parentElement = { tagName: 'DIV', id: 'div1', children: [h, f] }; h.nextElementSibling = f;
+    return { h, f };
+  };
+  const native = fixture(); assert.equal(validateInformationPage(read('tasks', [], [native.h, native.f])).empty, true);
+  for (const change of [
+    ({ h }: ReturnType<typeof fixture>) => { h.parentElement.id = 'unrelated'; },
+    ({ h }: ReturnType<typeof fixture>) => { h.parentElement.children = [h]; },
+    ({ h }: ReturnType<typeof fixture>) => { h.id = 'other'; },
+    ({ f }: ReturnType<typeof fixture>) => { f.rows[0]!.cells[1]!.innerText = 'Unrelated source content'; },
+    ({ f }: ReturnType<typeof fixture>) => { f.rows[0]!.cells[0]!.colSpan = 2; },
+    ({ f }: ReturnType<typeof fixture>) => { f.rows.push(row(['Unverified extra row', ''])); },
+  ]) {
+    const bad = fixture(); change(bad); assert.throws(() => validateInformationPage(read('tasks', [], [bad.h, bad.f])));
+  }
+});
 test('Medical reader selects class/expiry only inside Medical section and excludes document/private rows', () => {
   const p = validateInformationPage(read('medical', [row(['Allgemeine Daten']), row(['Name', 'Private name']), row(['Medical']), row(['Klasse 2', 'Gültig bis 01.10.2027 - synthetic-ref']), row(['LAPL', '']), row(['Dokumente']), row(['Private document', 'Do not collect'])]));
   assert.equal(p.rows.length, 2); assert.deepEqual(p.rows[1]!.values, ['LAPL', '']); assert.ok(!JSON.stringify(p).includes('Private'));

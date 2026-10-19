@@ -146,7 +146,7 @@ export const INFORMATION_READER_SOURCE = String.raw`(category, config) => {
         const cells=Array.from(all[i].cells);
         if(cells.some(c=>c.querySelector('table'))) continue;
         let cols; try { cols=columnsFor(cells); } catch { return {error:'duplicate-column'}; }
-        if(cols) candidates.push({all,header:i,width:cells.length,cols});
+        if(cols) candidates.push({table,all,header:i,width:cells.length,cols});
       }
     }
     if(candidates.length!==1) return {error:'source-table-unverified',shape:Array.from(document.querySelectorAll('table')).slice(0,12).map(t=>Array.from(t.rows || []).slice(0,6).map(r=>r.cells.length).join(',')).join(';').slice(0,240)};
@@ -166,10 +166,14 @@ export const INFORMATION_READER_SOURCE = String.raw`(category, config) => {
       if(rows.length===20) {truncated=true;break;}
       rows.push({position:i,values:columns.map(c=>cells[c.index].innerText ?? cells[c.index].textContent ?? '')});
     }
-    if(!rows.length && !empty) {
-      const ident=e=>e ? e.tagName+'#'+String(e.id || '').replace(/\d+/g,'#').replace(/[^a-z#_-]/gi,'') : '';
-      return {error:'empty-scope-unverified',layout:category==='tasks' ? Array.from(document.querySelectorAll('table')).slice(0,12).map(t=>ident(t)+'@'+ident(t.parentElement)+'>'+Array.from(t.rows || []).slice(0,6).map(r=>r.cells.length).join(',')+'~'+ident(t.nextElementSibling)).join(';').slice(0,800) : ''};
+    if(category==='tasks' && !rows.length && !empty && t.header===0 && t.all.length===1) {
+      // Observed 19 October: this list's empty message is in its paired footer,
+      // outside the header table. A marker elsewhere never establishes empty.
+      const parent=t.table.parentElement, footer=t.table.nextElementSibling;
+      const cells=Array.from(footer?.rows?.[0]?.cells || []);
+      if(/^tablelist_\d+$/.test(t.table.id || '') && parent?.tagName==='DIV' && /^div\d+$/.test(parent.id || '') && parent.children.length===2 && parent.children[0]===t.table && parent.children[1]===footer && footer?.tagName==='TABLE' && footer.rows.length===1 && cells.length===2 && norm(cells[0].innerText)==='Es wurden keine passenden Daten gefunden!' && !norm(cells[1].innerText) && cells.every(c=>(c.colSpan || 1)===1 && (c.rowSpan || 1)===1 && !c.querySelector('table,input,button,select'))) empty=true;
     }
+    if(!rows.length && !empty) return {error:'empty-scope-unverified'};
     if(rows.length && empty) return {error:'conflicting-empty-state'};
   }
   const filters=taskFilter ? [taskFilter] : [];
