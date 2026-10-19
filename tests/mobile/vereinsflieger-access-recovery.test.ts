@@ -1517,7 +1517,7 @@ test('native event capture probes the still-selected page first and saves only w
     await f.loadPage(context.PROFILE_URL); await f.contextMessage(observedContext);
     await f.loadPage(selected);
     await send('vf-information-v1', 'read', { page: {
-      category: 'events', path: '/member/community/appointment/', columns: [{ key: 'date', label: 'Datum', index: 2 }, { key: 'time', label: 'Zeit', index: 3 }, { key: 'kind', label: 'Kategorie', index: 4 }, { key: 'info', label: 'Info', index: 5 }],
+      category: 'events', path: '/member/community/appointment/', columns: [{ key: 'date', label: 'Datum', index: 2 }, { key: 'time', label: 'Zeit', index: 3 }, { key: 'kind', label: 'Kategorie', index: 4 }, { key: 'info', label: 'Info · Titel/Ort', index: 5 }],
       rows: [{ position: 3, values: ['26.07.2026', 'Ganztägig', 'Termine', 'Synthetic event'] }], filters: ['Quellkategorie: Termine', 'Ab ' + (changed ? '20.07.2026' : '19.07.2026'), 'Ansicht: 3 Monate'], empty: false, coverage: { kind: 'visible-page', truncated: false, pagination: 'unverified' },
     } });
     if (changed) assert.match(f.controller().informationNotice, /Kalenderansicht.*geändert/);

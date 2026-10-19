@@ -37,7 +37,7 @@ test('events reject unconfirmed selection, ambiguous tables and zero selected ro
   assert.equal(capped.rows.length, 20); assert.equal(capped.coverage.truncated, true); assert.equal(capped.coverage.pagination, 'unverified');
   const bad = validateInformationPage(fixture().read()); bad.rows[0]!.values[2] = 'Geburtstage'; assert.throws(() => validateInformationPage(bad));
   const extra = [header(), row(['', 'So', '26.07.2026', 'Ganztägig', 'Termine', 'Synthetic event\nAttendees: do not collect'])];
-  assert.throws(() => validateInformationPage(fixture({ rows: extra }).read()));
+  assert.equal(validateInformationPage(fixture({ rows: extra }).read()).rows[0]!.values[3], 'Synthetic event');
 });
 
 test('event selection reads its known date/view only; exact route rejects unrelated keys and aliases', () => {
@@ -47,6 +47,14 @@ test('event selection reads its known date/view only; exact route rejects unrela
   assert.equal(informationCategoryUrl('events', url), true);
   assert.equal(informationCategoryUrl('events', url.replace('weekCount=', 'date=')), true);
   for (const value of [url + '&weekCount=other', url + '&date=synthetic-date', url.replace('weekCount=', 'date=') + '&date=other', url + '&id=foreign', url + '#other', url.replace('/?', '?'), PROFILE_URL]) assert.equal(informationCategoryUrl('events', value), false, value);
+});
+
+test('selected event Info projects title and immediate Ort only, excluding all later source text', () => {
+  const text = 'Synthetic title\nOrt: Synthetic place\nUnselected description\nPrivate attendee\nContact\nOther line\nAnother line\nNotes\nLast line';
+  const p = validateInformationPage(fixture({ rows: [header(), row(['', 'So', '26.07.2026', 'Ganztägig', 'Termine', text])] }).read());
+  assert.equal(p.rows[0]!.values[3], 'Synthetic title\nOrt: Synthetic place');
+  assert.equal(p.columns[3]!.label, 'Info · Titel/Ort');
+  assert.ok(!JSON.stringify(p).includes('Private attendee'));
 });
 
 test('event operation binds initial date/view before profile navigation and refuses changed selection without saving', () => {

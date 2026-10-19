@@ -11,7 +11,7 @@ export const INFORMATION_TYPES = {
   'document-notices': { title: 'Dokumentenhinweise', required: ['notice'], fields: { notice: ['Hinweis · Originaltext'] } },
   news: { title: 'News · Übersicht', required: ['notice'], fields: { notice: ['Hinweis · Originaltext'] } },
   'own-reservations': { title: 'Eigene Reservierungen · Übersicht', required: ['notice'], fields: { notice: ['Hinweis · Originaltext'] } },
-  events: { title: 'Termine · Quellenliste', required: ['date', 'time', 'kind', 'info'], fields: { date: ['Datum'], time: ['Zeit'], kind: ['Kategorie'], info: ['Info'] } },
+  events: { title: 'Termine · Quellenliste', required: ['date', 'time', 'kind', 'info'], fields: { date: ['Datum'], time: ['Zeit'], kind: ['Kategorie'], info: ['Info · Titel/Ort'] } },
   'own-profile': { title: 'Profil · Grunddaten', required: ['field', 'value'], fields: { field: ['Profilfeld'], value: ['Originaltext'] } },
   'licence-metadata': { title: 'Lizenzen · Quellenangaben', required: ['kind', 'field', 'value'], fields: { kind: ['Lizenzgruppe'], field: ['Quellenfeld'], value: ['Originaltext'] } },
   medical: { title: 'Medical · Quellenangaben', required: ['kind', 'expiry'], fields: { kind: ['Medical-Art'], expiry: ['Gültig bis · Originaltext'] } },
@@ -30,7 +30,7 @@ function sourceDate(value: string) {
 }
 function eventInfo(value: string) {
   const lines = value.split(/\r?\n/).map(normalizedLabel).filter(Boolean);
-  return lines.length >= 1 && lines.length <= 2 && lines[0]!.length <= 1024 && (lines.length === 1 || /^Ort:\s+\S/.test(lines[1]!) && lines[1]!.length <= 512);
+  return lines.length >= 1 && lines.length <= 2 && !/^Ort:/.test(lines[0]!) && lines[0]!.length <= 1024 && (lines.length === 1 || /^Ort:\s+\S/.test(lines[1]!) && lines[1]!.length <= 512);
 }
 export function eventSelectionFilters(input: unknown): string[] {
   const p = object(input); exact(p, ['date', 'view']);
@@ -193,7 +193,7 @@ export const INFORMATION_READER_SOURCE = String.raw`(category, config) => {
     if(tables.length!==1 || !/^tablelist_\d+$/.test(tables[0].id || '')) return unsupported(1,tables.length);
     const all=Array.from(tables[0].rows || []), header=Array.from(all[0]?.cells || []);
     if(!all.length || all.length>10000 || header.length!==6 || header.map(c=>norm(c.innerText)).join('|')!=='|Tag|Datum|Zeit|Kategorie|Info') return unsupported(2,all.length,header.length);
-    columns=[{key:'date',label:'Datum',index:2},{key:'time',label:'Zeit',index:3},{key:'kind',label:'Kategorie',index:4},{key:'info',label:'Info',index:5}];
+    columns=[{key:'date',label:'Datum',index:2},{key:'time',label:'Zeit',index:3},{key:'kind',label:'Kategorie',index:4},{key:'info',label:'Info · Titel/Ort',index:5}];
     let date='';
     for(let i=1;i<all.length;i++) {
       const cells=Array.from(all[i].cells);
@@ -206,9 +206,12 @@ export const INFORMATION_READER_SOURCE = String.raw`(category, config) => {
       if(!date || [cells[3],cells[4],cells[5]].some(c=>c.querySelector('table,input,button,select,textarea,iframe,object,embed'))) return unsupported(4,date?1:0);
       if(rows.length===20) {truncated=true;break;}
       const time=cells[3].innerText || '', info=cells[5].innerText || '';
-      const lines=info.split(/\r?\n/).map(norm).filter(Boolean);
-      if(!norm(time) || !lines.length || lines.length>2 || lines[0].length>1024 || lines.length===2 && (!/^Ort:\s+\S/.test(lines[1]) || lines[1].length>512)) return unsupported(5,norm(time)?1:0,lines.length,lines[1]&&/^Ort:\s+\S/.test(lines[1])?1:0);
-      rows.push({position:i,values:[date,time,cells[4].innerText,info]});
+      const lines=info.split(/\r?\n/).filter(s=>norm(s));
+      const hasLocation=lines.length>1 && /^Ort:\s+\S/.test(norm(lines[1]));
+      if(!norm(time) || !lines.length || /^Ort:/.test(norm(lines[0])) || norm(lines[0]).length>1024 || hasLocation && norm(lines[1]).length>512) return unsupported(5,norm(time)?1:0,lines.length,hasLocation?1:0);
+      // Info also contains descriptions/other uncontracted text. Project only
+      // the evidenced title and immediate optional Ort line, never later text.
+      rows.push({position:i,values:[date,time,cells[4].innerText,lines.slice(0,hasLocation?2:1).join('\n')]});
     }
     if(!rows.length) return {error:'empty-scope-unverified'};
   } else if (category === 'document-notices' || category === 'news' || category === 'own-reservations') {
