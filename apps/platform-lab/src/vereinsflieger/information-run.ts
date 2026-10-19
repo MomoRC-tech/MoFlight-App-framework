@@ -41,6 +41,7 @@ export class InformationRun {
           'source-table-unverified': 'Keine eindeutige Tabelle für den ausgewählten Quelltyp.',
           'task-scope-unverified': 'Die Quelle ist nicht als eigene offene Aufgaben bestätigt.',
           'notice-source-unverified': 'Diese Übersicht wird in dieser Form noch nicht unterstützt.',
+          'training-summary-unverified': 'Die ausgewählte Ausbildungsübersicht wird in dieser Form noch nicht unterstützt.',
           'medical-source-unverified': 'Medical-Abschnitt nicht eindeutig erkannt.',
           'profile-source-unverified': 'Die ausgewählten eigenen Profilfelder sind nicht eindeutig erkannt.',
           'licence-source-unverified': 'Die Struktur der ausgewählten Lizenzangaben ist nicht bestätigt.',

@@ -15,6 +15,7 @@ export const INFORMATION_TYPES = {
   'own-profile': { title: 'Profil · Grunddaten', required: ['field', 'value'], fields: { field: ['Profilfeld'], value: ['Originaltext'] } },
   'licence-metadata': { title: 'Lizenzen · Quellenangaben', required: ['kind', 'field', 'value'], fields: { kind: ['Lizenzgruppe'], field: ['Quellenfeld'], value: ['Originaltext'] } },
   medical: { title: 'Medical · Quellenangaben', required: ['kind', 'expiry'], fields: { kind: ['Medical-Art'], expiry: ['Gültig bis · Originaltext'] } },
+  'training-summary': { title: 'Ausbildungsstand · Zusammenfassung', required: ['group', 'field', 'unit', 'value'], fields: { group: ['Ausbildungsbereich'], field: ['Quellenfeld'], unit: ['Quelleneinheit'], value: ['Originaltext'] } },
   enrolments: { title: 'Ausbildung · Übersicht', required: ['syllabus', 'begun', 'ended'], fields: { syllabus: ['Lehrplan'], begun: ['Begonnen am'], ended: ['Beendet am'], reported: ['Gemeldet Verband', 'Gemeldet an Verband'], practical: ['Fortschritt (Praxis)'], theory: ['Fortschritt (Theorie)'] } },
   practical: { title: 'Praktische Ausbildung', required: ['number', 'status', 'objective', 'landings', 'block'], fields: { number: ['No', 'No.'], status: ['Status'], objective: ['Lernziel'], instructorBegun: ['Fluglehrer (Begonnen)'], begun: ['Begonnen am'], instructorEnded: ['Fluglehrer (Beendet)'], ended: ['Beendet am'], landings: ['Landungen'], block: ['Blockzeit'] } },
   theory: { title: 'Theoretische Ausbildung', required: ['number', 'status', 'objective'], fields: { number: ['No', 'No.'], status: ['Status'], objective: ['Lernziel'], instructorBegun: ['Fluglehrer (Begonnen)'], begun: ['Begonnen am'], instructorEnded: ['Fluglehrer (Beendet)'], ended: ['Beendet am'], duration: ['Dauer', 'Zeit'] } },
@@ -23,6 +24,8 @@ export type InformationCategory = keyof typeof INFORMATION_TYPES;
 export const informationCategories = Object.keys(INFORMATION_TYPES) as InformationCategory[];
 /** Loaded-page bounds; neither a provider-page count nor a completeness claim. */
 export const informationRowLimit = (category: InformationCategory) => category === 'practical' ? 100 : 20;
+const trainingGroups = ['Praktische Ausbildung', 'Theoretische Ausbildung'] as const;
+const trainingCountFields = ['Lernziele beendet', 'Lernziele begonnen', 'Lernziele nicht begonnen'] as const;
 export const eventViews = ['1 Tag', '1 Woche', '2 Wochen', '3 Wochen', '4 Wochen', '3 Monate', '6 Monate', '1 Jahr'] as const;
 function sourceDate(value: string) {
   if (!/^\d{2}\.\d{2}\.(?:19|20|21)\d{2}$/.test(value)) return false;
@@ -71,6 +74,8 @@ export function informationUrl(value: string): boolean {
     (!u.search || u.searchParams.size === 1 && u.searchParams.has('caid'));
   if (u.pathname === '/member/community/tasklist/tasklist') return !u.hash &&
     (!u.search || u.searchParams.size === 1 && u.searchParams.has('gselect'));
+  if (u.pathname === '/member/profile/usereducation/summaryueid') return !u.hash &&
+    (!u.search || u.searchParams.size === 1 && u.searchParams.has('ueid'));
   if (u.pathname === '/member/overview/overview') return !u.hash && !u.search;
   if (u.pathname === '/member/community/appointment/') return !u.hash &&
     (!u.search || u.searchParams.size === 1 && (u.searchParams.has('weekCount') || u.searchParams.has('date')));
@@ -83,8 +88,9 @@ export function informationCategoryUrl(category: InformationCategory, url: strin
   if (!informationUrl(url)) return false;
   if (['own-profile', 'licence-metadata'].includes(category) && new URL(url).search) return false;
   const rawPath = new URL(url).pathname;
-  const path = ['ledger', 'tasks', 'document-notices', 'news', 'own-reservations', 'own-profile', 'licence-metadata', 'events'].includes(category) ? rawPath : rawPath.replace(/\/$/, '');
+  const path = ['ledger', 'tasks', 'document-notices', 'news', 'own-reservations', 'own-profile', 'licence-metadata', 'events', 'training-summary'].includes(category) ? rawPath : rawPath.replace(/\/$/, '');
   const known: Partial<Record<InformationCategory, readonly string[]>> = {
+    'training-summary': ['/member/profile/usereducation/summaryueid'],
     ledger: ['/member/profile/account.php'],
     tasks: ['/member/community/tasklist/tasklist'],
     events: ['/member/community/appointment/'],
@@ -137,10 +143,23 @@ export function validateInformationPage(input: unknown): InformationPage {
     }
     if ([...groups.values()].some(fields => fields.size !== 2)) throw new Error('Incomplete licence group');
   }
+  if (category === 'training-summary') {
+    if (columns.map(c => c.key).join(',') !== 'group,field,unit,value' || rows.length !== 7) throw new Error('Unsupported training summary fields');
+    const seen = new Set<string>();
+    for (const r of rows) {
+      const [group, field, unit] = r.values.map(normalizedLabel);
+      const count = (trainingCountFields as readonly string[]).includes(field!);
+      if (!(trainingGroups as readonly string[]).includes(group!) || !(count && unit === 'Anzahl' || group === trainingGroups[1] && field === 'Theoriestunden' && unit === 'Zeit')) throw new Error('Unsupported training summary field');
+      const key = group + ':' + field;
+      if (seen.has(key)) throw new Error('Duplicate training summary field');
+      seen.add(key);
+    }
+  }
   if (category === 'events') {
     if (columns.map(c => c.key).join(',') !== 'date,time,kind,info' || rows.some(r => !sourceDate(r.values[0]!) || normalizedLabel(r.values[2]!) !== 'Termine' || !normalizedLabel(r.values[1]!) || !eventInfo(r.values[3]!)) || !Array.isArray(p.filters) || p.filters.length !== 3 || typeof p.filters[1] !== 'string' || typeof p.filters[2] !== 'string' || p.filters[0] !== 'Quellkategorie: Termine' || !p.filters[1].startsWith('Ab ') || !p.filters[2].startsWith('Ansicht: ')) throw new Error('Unverified event scope');
     eventSelectionFilters({ date: p.filters[1].slice(3), view: p.filters[2].slice(9) });
   } else if (!Array.isArray(p.filters) || p.filters.length > 8 || p.filters.some(s => typeof s !== 'string' || !/^(?:\d{4}|Jahr \d{4}|Aktuelle und anstehende Dienste|Alle Dienste|Alle anstehenden Dienste|Meine nicht beendeten Aufgaben)$/.test(s))) throw new Error('Invalid information filter');
+  if (category === 'training-summary' && p.filters.length) throw new Error('Unsupported training summary filter');
   if (category === 'tasks' && (p.filters.length !== 1 || p.filters[0] !== 'Meine nicht beendeten Aufgaben')) throw new Error('Unverified own task scope');
   const c = object(p.coverage); exact(c, ['kind', 'truncated', 'pagination']);
   if (c.kind !== 'visible-page' || typeof c.truncated !== 'boolean' || c.pagination !== 'unverified') throw new Error('Unsupported information coverage');
@@ -190,7 +209,34 @@ export const INFORMATION_READER_SOURCE = String.raw`(category, config) => {
     return config.required.every(k=>seen.has(k)) ? cols : null;
   };
   let columns, rows=[], empty=false, truncated=false, eventFilters=[];
-  if(category==='events') {
+  if(category==='training-summary') {
+    if(u.pathname!=='/member/profile/usereducation/summaryueid' || u.search && !(u.searchParams.size===1 && u.searchParams.has('ueid'))) return {error:'source-unavailable'};
+    const unsupported=()=>({error:'training-summary-unverified'});
+    const labels=${JSON.stringify(trainingCountFields)};
+    const plain=(cells,width)=>cells.length===width && cells.every(c=>c.tagName==='TD' && (c.colSpan || 1)===1 && (c.rowSpan || 1)===1 && c.children.length===0);
+    for(const [id,caption] of [['practise',${JSON.stringify(trainingGroups[0])}],['theory',${JSON.stringify(trainingGroups[1])}]]) {
+      // Establish exact owned sections before touching their text. Person,
+      // progresschecks, flights and unrelated private sections are never read.
+      const section=document.getElementById?.(id),content=document.getElementById?.(id+'_content'),head=section?.children?.[0];
+      if(document.querySelectorAll('#'+id).length!==1 || document.querySelectorAll('#'+id+'_content').length!==1 || section?.tagName!=='DIV' || section.children.length!==2 || head?.tagName!=='DIV' || !head.classList.contains('box-header') || norm(head.querySelector('span')?.innerText)!==caption || content?.tagName!=='DIV' || content.parentElement!==section || section.children[1]!==content || content.children.length!==1 || content.children[0].tagName!=='TABLE' || content.querySelectorAll('table').length!==1) return unsupported();
+      const all=Array.from(content.children[0].rows || []),cells=all.map(r=>Array.from(r.cells));
+      if(all.length!==(id==='practise'?5:7) || !plain(cells[0],2) || norm(cells[0][0].innerText) || norm(cells[0][1].innerText)!=='Anzahl') return unsupported();
+      for(let i=1;i<=3;i++) {
+        const c=cells[i];
+        if(!plain(c,2) || norm(c[0].innerText)!==labels[i-1]) return unsupported();
+        rows.push({position:rows.length,values:[head.querySelector('span').innerText,c[0].innerText,cells[0][1].innerText,c[1].innerText]});
+      }
+      const graphic=cells[4];
+      // Validate the observed blank graphic boundary, without reading any
+      // style/class/attribute or translating its appearance into a status.
+      if(graphic.length!==1 || graphic[0].colSpan!==2 || (graphic[0].rowSpan || 1)!==1 || norm(graphic[0].innerText) || graphic[0].children.length!==1 || graphic[0].children[0].tagName!=='DIV' || graphic[0].querySelector('a,table,input,button,select,textarea,iframe,object,embed')) return unsupported();
+      if(id==='theory') {
+        if(!plain(cells[5],2) || norm(cells[5][0].innerText) || norm(cells[5][1].innerText)!=='Zeit' || !plain(cells[6],2) || norm(cells[6][0].innerText)!=='Theoriestunden') return unsupported();
+        rows.push({position:rows.length,values:[head.querySelector('span').innerText,cells[6][0].innerText,cells[5][1].innerText,cells[6][1].innerText]});
+      }
+    }
+    columns=[{key:'group',label:'Ausbildungsbereich',index:0},{key:'field',label:'Quellenfeld',index:1},{key:'unit',label:'Quelleneinheit',index:2},{key:'value',label:'Originaltext',index:3}];
+  } else if(category==='events') {
     const unsupported=(...shape)=>({error:'event-source-unverified',shape:shape.join(',')});
     const selection=(${EVENT_SELECTION_READER_SOURCE})();
     if(!selection) return {error:'event-selection-unverified'};
@@ -350,11 +396,11 @@ export const INFORMATION_READER_SOURCE = String.raw`(category, config) => {
     if(rows.length && empty) return {error:'conflicting-empty-state'};
   }
   const filters=category==='events' ? eventFilters : taskFilter ? [taskFilter] : [];
-  for(const s of ['own-profile','licence-metadata','events'].includes(category) ? [] : document.querySelectorAll('select')) {
+  for(const s of ['own-profile','licence-metadata','events','training-summary'].includes(category) ? [] : document.querySelectorAll('select')) {
     const text=norm(s.selectedOptions?.[0]?.textContent);
     if(/^(?:\d{4}|Jahr \d{4}|Aktuelle und anstehende Dienste|Alle Dienste|Alle anstehenden Dienste)$/.test(text) && !filters.includes(text)) filters.push(text);
   }
-  const displayedFilter=['own-profile','licence-metadata','events'].includes(category) ? '' : norm(document.getElementById?.('globalfilter')?.innerText);
+  const displayedFilter=['own-profile','licence-metadata','events','training-summary'].includes(category) ? '' : norm(document.getElementById?.('globalfilter')?.innerText);
   if(/^(?:\d{4}|Jahr \d{4}|Aktuelle und anstehende Dienste|Alle Dienste|Alle anstehenden Dienste)$/.test(displayedFilter) && !filters.includes(displayedFilter)) filters.push(displayedFilter);
   return {category,path:u.pathname,columns,rows,filters,empty:!rows.length,coverage:{kind:'visible-page',truncated,pagination:'unverified'}};
 }`;
