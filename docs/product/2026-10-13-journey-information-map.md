@@ -135,7 +135,7 @@ This supersedes choosing paper/local override values over verified provider fact
 
 Desired entry point: this year's flying costs, with membership and other charges separate. Next: **total flying costs per aircraft**. Average cost per flight/hour was not selected. Account balances belong in detailed costs only.
 
-Source remains Vereinsflieger “Meine Abrechnungen”. A guided billing walkthrough was explicitly deferred. The existing browser tab initially displayed an account's billing preview incidentally; that does not establish evaluated billing semantics, complete yearly charges or integration feasibility. Define charge/payment/credit meaning, currency, period, allocations, flight/aircraft links and retrieval permission before calculating totals. No manually entered external-expense feature is selected.
+Source remains Vereinsflieger “Meine Abrechnungen”. The guided billing walkthrough was originally deferred; on **19 October 2026 Manuel explicitly selected billing discovery** alongside other selected non-flight areas in the [basic retrieval checkpoint](vereinsflieger-information-discovery.md#basic-retrieval-and-import-checkpoint--19-october-2026). The existing browser tab initially displayed an account's billing preview incidentally; that does not establish evaluated billing semantics, complete yearly charges or integration feasibility. Define charge/payment/credit meaning, currency, period, allocations, flight/aircraft links and retrieval permission before calculating totals. No manually entered external-expense feature or cost-calculation implementation is selected by this discovery decision.
 
 ## Shared start screen and detailed information
 
@@ -154,7 +154,7 @@ These are content/placement choices, not a finalized screen order or navigation 
 | Club events/meetings | Upcoming items on start; exclude birthdays | Distinguish categories and event dates; only birthdays were visible in inspected overview |
 | Own reservations | Details only | Bookings/resources, dates and access; own section empty when inspected |
 | License/training status | Detailed “Meine Flüge” only | Provider status/periods and semantics; observed indicator is not MoFlight qualification certification |
-| Account balances | Detailed costs only | Balance semantics distinct from charge totals; billing walkthrough deferred |
+| Account balances | Detailed costs only | Balance semantics distinct from charge totals; billing discovery included in the 19 October retrieval checkpoint |
 | Runway condition, defects, maintenance | Leave out for now | No implementation/integration selected |
 | Activities live | Deferred: who flew today, aircraft/duration; airborne status if reliably feasible | Future interface/layout relevance retained; placement open; separate deferred Issue |
 
@@ -184,7 +184,7 @@ Deferred privacy task, explicitly requested by Manuel on 2026-10-13: [#15 member
 
 1. Product review of the seven summarized areas is complete. Proceed to rough screen arrangement; ask only unresolved questions that materially affect it and do not re-ask confirmed choices.
 2. Discuss the smallest useful release and writing's immediate value without automatically reordering M2–M5.
-3. Billing walkthrough remains deferred; review it when Manuel is ready.
+3. Billing discovery is selected as of 19 October for the basic retrieval checkpoint; establish source semantics/permission/coverage before cost calculations.
 4. Resolve consequential carryover exceptions, assumed-writing cancellation/retry/recovery, source-zone/date-semantics verification/comparable-year coverage, club freshness/new-item semantics and duty horizon as affected journeys need them. The assumed-writing trigger was selected on 18 October above.
 5. Prepare German low-fidelity concepts from this map, then review detailed operation/state contracts before separately scoped application implementation. No subscriptions, paid AI, cloud integration, production schema expansion or additional services are authorized here.
 
