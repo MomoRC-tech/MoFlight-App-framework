@@ -165,9 +165,12 @@ export const INFORMATION_READER_SOURCE = String.raw`(category, config) => {
         if(cells.length!==1 || (c.colSpan || 1)!==1 || (c.rowSpan || 1)!==1) return {error:'row-shape'};
         const nodes=Array.from(c.childNodes || []), elements=nodes.filter(n=>n.nodeType===1);
         if(elements.length!==1 || elements[0].tagName!=='A' || !elements[0].classList.contains('icon-download') || nodes.some(n=>![1,3].includes(n.nodeType))) return {error:'notice-source-unverified'};
-        // Only the displayed title/date text node; never link/action metadata.
-        const value=nodes.filter(n=>n.nodeType===3).map(n=>n.textContent || '').join('');
-        if(!/\d{2}\.\d{2}\.\d{4}/.test(value)) return {error:'notice-source-unverified'};
+        // The visible title is the link label; the date is a separate text
+        // suffix. Read display text only, never URLs/actions or document data.
+        const title=elements[0].innerText ?? elements[0].textContent ?? '';
+        const suffix=nodes.filter(n=>n.nodeType===3).map(n=>n.textContent || '').join('');
+        if(!norm(title) || !/\d{2}\.\d{2}\.\d{4}/.test(suffix)) return {error:'notice-source-unverified'};
+        const value=nodes.map(n=>n.nodeType===3 ? n.textContent || '' : title).join('');
         if(rows.length===20) {truncated=true;break;}
         rows.push({position:i,values:[value]});
       }

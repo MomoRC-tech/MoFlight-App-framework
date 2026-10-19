@@ -130,11 +130,11 @@ test('native task empty footer must be the exact paired sibling of the own-list 
     const bad = fixture(); change(bad); assert.throws(() => validateInformationPage(read('tasks', [], [bad.h, bad.f])));
   }
 });
-function readNotice(category: 'document-notices' | 'news' | 'own-reservations', options: { rows?: ReturnType<typeof row>[]; duplicate?: boolean; wrongParent?: boolean; caption?: string; copies?: number } = {}) {
+function readNotice(category: 'document-notices' | 'news' | 'own-reservations', options: { rows?: ReturnType<typeof row>[]; duplicate?: boolean; wrongParent?: boolean; caption?: string; copies?: number; linkedTitle?: string; dateSuffix?: string } = {}) {
   const id = category === 'news' ? 'news' : category === 'own-reservations' ? 'my_reservation' : 'docs';
-  const anchor = { nodeType: 1, tagName: 'A', classList: { contains: (s: string) => s === 'icon-download' }, get href(): never { throw new Error('Download link must not be read'); } };
+  const anchor = { nodeType: 1, tagName: 'A', innerText: options.linkedTitle ?? 'Synthetic notice', classList: { contains: (s: string) => s === 'icon-download' }, get href(): never { throw new Error('Download link must not be read'); } };
   const documentRow = row(['Synthetic notice 01.10.2026']);
-  (documentRow.cells[0] as any).childNodes = [anchor, { nodeType: 3, textContent: 'Synthetic notice 01.10.2026' }];
+  (documentRow.cells[0] as any).childNodes = [anchor, { nodeType: 3, textContent: options.dateSuffix ?? ' 01.10.2026' }];
   const table = { rows: options.rows ?? (category !== 'document-notices' ? [row(['', 'Es wurden keine Daten gefunden!'])] : Array.from({ length: options.copies ?? 1 }, () => documentRow)) };
   const head = { tagName: 'DIV', classList: { contains: (s: string) => s === 'box-header' }, querySelector: () => ({ innerText: options.caption ?? (category === 'news' ? 'News' : category === 'own-reservations' ? 'Meine Reservierungen' : 'Dokumente') }) };
   const content = { tagName: 'DIV', parentElement: null as any, querySelectorAll: () => [table] };
@@ -154,6 +154,12 @@ test('News supports only the evidenced empty overview; positive content is unsup
   const p = validateInformationPage(readNotice('news')); assert.equal(p.empty, true); assert.deepEqual(p.rows, []);
   assert.throws(() => validateInformationPage({ ...p, empty: false, rows: [{ position: 0, values: ['Forged positive news'] }] }));
   for (const rows of [[row(['', 'Synthetic positive news'])], [row(['Es wurden keine Daten gefunden!'])], [row(['', 'Es wurden keine Daten gefunden!']), row(['', 'Another row'])]]) assert.throws(() => validateInformationPage(readNotice('news', { rows })));
+});
+test('linked document title is retained with its separate date suffix; either missing part stays unsupported', () => {
+  const p = validateInformationPage(readNotice('document-notices', { linkedTitle: 'Synthetic linked title', dateSuffix: ' - 01.10.2026' }));
+  assert.equal(p.rows[0]!.values[0], 'Synthetic linked title - 01.10.2026');
+  assert.throws(() => validateInformationPage(readNotice('document-notices', { linkedTitle: '' })));
+  assert.throws(() => validateInformationPage(readNotice('document-notices', { linkedTitle: '01.10.2026 in a filename', dateSuffix: '' })));
 });
 test('own-reservation overview requires its own caption and explicit empty, never a general roster or positive booking', () => {
   const p = validateInformationPage(readNotice('own-reservations')); assert.equal(p.empty, true);
