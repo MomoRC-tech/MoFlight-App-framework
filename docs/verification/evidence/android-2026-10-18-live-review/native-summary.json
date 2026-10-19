@@ -194,6 +194,132 @@
     "saved_login_attempts": 1,
     "verified_fresh_profile": false,
     "new_capture_cancel_restart": "not tested",
-    "next_action": "Manual original-provider sign-in/available verification"
+    "next_action": "Manual original-provider sign-in/available verification",
+    "attempt_date": "2026-10-18"
+  },
+  "fresh_capture_2026_10_19": {
+    "status": "passed",
+    "source_commit": "7849318c6e6fab40e87418cb0ebc3bc9d03327a5",
+    "installed_apk_sha256": "f6677039ff7bc28af920a929eb7bd811ebc44150157100bee06d35fc2dfac79f",
+    "serial": "emulator-5554",
+    "avd": "MoFlight_API37",
+    "initial_lifecycle": "running",
+    "checks": [
+      {
+        "name": "fresh-profile-matched-retained-provisional-association",
+        "status": "passed"
+      },
+      {
+        "name": "fresh-last-thirty-calendar-days-capture-saved-and-controller-restoration-complete",
+        "status": "passed"
+      },
+      {
+        "name": "fresh-capture-opens-readable-first-flight-detail",
+        "status": "passed"
+      },
+      {
+        "name": "readable-sample-has-separate-crew-source-reference-and-reported-duration",
+        "status": "passed"
+      },
+      {
+        "name": "original-provider-page-opened-for-read-only-independent-sample",
+        "status": "passed"
+      },
+      {
+        "name": "independent-provider-sample-opened-through-observed-read-only-eye-link",
+        "status": "passed"
+      },
+      {
+        "name": "readable-sample-matches-original-provider-reference-date-aircraft-three-crew-fields-clocks-and-explicit-minutes",
+        "status": "passed"
+      },
+      {
+        "name": "fresh-matching-profile-after-read-only-provider-comparison",
+        "status": "passed"
+      },
+      {
+        "name": "enabled-cancellation-restores-view-and-retains-exact-successful-capture",
+        "status": "passed"
+      },
+      {
+        "name": "offline-force-stop-restart-retains-exact-new-capture-and-compared-readable-facts",
+        "status": "passed"
+      },
+      {
+        "name": "original-network-and-display-restored-running-provider-avd-preserved",
+        "status": "passed"
+      }
+    ],
+    "boundary": "Authorized bounded capture, read-only sample comparison, cancellation and offline restart; no canonical import, credential helper or clearing.",
+    "network_before": {
+      "airplane_mode_on": "0",
+      "wifi_on": "1",
+      "mobile_data": "1"
+    },
+    "display_before": {
+      "size": "Physical size: 1080x1920\nOverride size: 480x800",
+      "density": "Physical density: 420\nOverride density: 160",
+      "font": "1.0"
+    },
+    "capture_summary": {
+      "rows": 9,
+      "columns": 48,
+      "from": "2026-09-20",
+      "to": "2026-10-19",
+      "coverage": "complete-requested-list"
+    },
+    "sample_comparison": {
+      "rows": 1,
+      "list_fields": [
+        "date",
+        "model",
+        "registration",
+        "pilot",
+        "PIC",
+        "companion/FI"
+      ],
+      "detail_fields": [
+        "source reference",
+        "date",
+        "start clock",
+        "landing clock",
+        "reported flight minutes"
+      ],
+      "provider_view": "Unchanged original last-20/Pilot list; one observed read-only eye link. No preference edit."
+    },
+    "offline_verified": {
+      "airplane_mode_on": "1",
+      "wifi_on": "0",
+      "mobile_data": "0"
+    },
+    "network_after": {
+      "airplane_mode_on": "0",
+      "wifi_on": "1",
+      "mobile_data": "1"
+    },
+    "display_after": {
+      "size": "Physical size: 1080x1920\nOverride size: 480x800",
+      "density": "Physical density: 420\nOverride density: 160",
+      "font": "1.0"
+    },
+    "initially_running_avd_preserved": true,
+    "limits": [
+      "One-row independent reference sample, not every saved row/optional field.",
+      "No canonical library, book or statistics writes; no production identity/schema acceptance.",
+      "No credential helper, session clearing, legacy adoption or private publication.",
+      "No second-account, iOS, physical-device or spoken-accessibility acceptance."
+    ],
+    "date": "2026-10-19",
+    "visual_review": [
+      "fresh-readable-detail.png",
+      "independent-provider-detail.png",
+      "offline-restarted-readable-detail.png"
+    ],
+    "harness_stops_before_corrected_comparison": [
+      "Original table exposed an additional accessibility grid; first selection assertion stopped.",
+      "Windows default decoding corrupted the local presentation sample; explicit UTF-8 and local sample correction required.",
+      "Action-cell icon text was not a unique row index; stopped before tap and switched to full observed facts plus visible eye bounds.",
+      "A remaining local UTF-8 sample-label mismatch stopped detail comparison; corrected before independent assertions passed."
+    ]
   }
 }
