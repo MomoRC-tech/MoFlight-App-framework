@@ -49,7 +49,7 @@ function fixture(options: { noNativeRecovery?: boolean; failLegacyRead?: boolean
   let finishJournalSave!: () => void, finishCaptureSave!: () => void;
   let clearCalls = 0;
   let historyBacks = 0;
-  let informationReads = 0;
+  let informationReads = 0, savedInformation: information.InformationCapture | null = null;
   let informationReader = async (_scope: ProviderScope, gate: () => void): Promise<information.InformationCapture[]> => { gate(); return []; };
   let informationHistoryReader = async (_scope: ProviderScope, category: information.InformationCategory, position: number, gate: () => void): Promise<information.InformationHistory> => { gate(); return { category, index: position, total: 0, capture: null }; };
   let currentFingerprint = 'ab'.repeat(32);
@@ -133,7 +133,7 @@ function fixture(options: { noNativeRecovery?: boolean; failLegacyRead?: boolean
     './retrieval': { Retrieval }, './CaptureRun': { CaptureRun }, './WindowCapture': { WindowCapture },
     './login': login, './view': view, './context': context, './connection-state': { ConnectionSession },
     './information': information, './information-run': { InformationRun },
-    './information-native': { loadInformation: (scope: ProviderScope, gate: () => void) => { informationReads++; return informationReader(scope, gate); }, readInformationHistory: (scope: ProviderScope, category: information.InformationCategory, position: number, gate: () => void) => informationHistoryReader(scope, category, position, gate), saveInformation: async (_scope: unknown, value: unknown, gate: () => void) => { gate(); information.validateInformationCapture(value); writes.push('information-saved'); } },
+    './information-native': { loadInformation: (scope: ProviderScope, gate: () => void) => { informationReads++; return informationReader(scope, gate); }, readInformationHistory: (scope: ProviderScope, category: information.InformationCategory, position: number, gate: () => void) => informationHistoryReader(scope, category, position, gate), saveInformation: async (_scope: unknown, value: unknown, gate: () => void) => { gate(); savedInformation = information.validateInformationCapture(value); writes.push('information-saved'); } },
   };
   const runtime = { require: (name: string) => {
     assert.ok(name in modules, `Unexpected component dependency: ${name}`); return modules[name];
@@ -214,7 +214,7 @@ function fixture(options: { noNativeRecovery?: boolean; failLegacyRead?: boolean
     return flush();
   }
   return { render, button, press, settle, find, flush, loadPage, loadFlight, message, currentCommand, writes, injections,
-    setInformationReader: (reader: typeof informationReader) => { informationReader = reader; }, informationReads: () => informationReads,
+    setInformationReader: (reader: typeof informationReader) => { informationReader = reader; }, informationReads: () => informationReads, savedInformation: () => savedInformation,
     setInformationHistoryReader: (reader: typeof informationHistoryReader) => { informationHistoryReader = reader; },
     contextMessage, loginMessage, history, historyBacks: () => historyBacks,
     allowNavigation, lastIssuedNonce: () => issuedNonces.at(-1),
@@ -1660,4 +1660,21 @@ test('new information capture invalidates pending local reload publication and r
   finish([historyValue().capture!]); await pending; await f.flush();
   assert.deepEqual(Array.from(f.controller().informationCaptures), [historyValue(1).capture!]);
   assert.equal(f.writes.filter(w => w === 'information-saved').length, 1); assert.equal(f.controller().informationLoading, false);
+});
+
+
+test('explicit local reload recovers a committed capture after failed readback without saving another capture', async () => {
+  const f = await startInformationFixture();
+  f.setInformationReader(async () => { throw new Error('Synthetic post-commit readback failure'); });
+  await f.loadPage(context.PROFILE_URL); await f.contextMessage(observedContext);
+  await f.loadPage(informationSource); await informationMessage(f);
+  await f.loadPage(context.PROFILE_URL); await f.contextMessage(observedContext); await f.flush(); await f.flush();
+  assert.equal(f.writes.filter(w => w === 'information-saved').length, 1);
+  assert.match(f.controller().informationNotice, /nicht bestätigt/); assert.equal(f.controller().informationBusy, false);
+  const saved = f.savedInformation(); assert.ok(saved);
+  const injections = f.injections.length;
+  f.setInformationReader(async (_scope, gate) => { gate(); return [saved]; }); await f.controller().reloadInformation();
+  assert.deepEqual(f.controller().informationCaptures, [saved]);
+  assert.equal(f.writes.filter(w => w === 'information-saved').length, 1); assert.equal(f.injections.length, injections);
+  assert.match(f.controller().informationNotice, /lokal neu geladen/);
 });
