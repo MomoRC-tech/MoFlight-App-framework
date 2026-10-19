@@ -1,5 +1,7 @@
 # Implementation and open-issue reviews — 17–19 October 2026
 
+**19 October bounded source continuation:** Manuel's **continue** resumed the prepared #2/#10 pass on clean `d0cba88`, using the already-running provider AVD/session. [One source-specific report with category observations, limits and cleanup](2026-10-10-vereinsflieger-discovery.md#bounded-existing-session-source-pass--19-october-2026) supersedes earlier Medical-source-unlocated/billing-not-inspected wording only for the newly observed metadata. No category extractor/save/offline, stable production identity, SQL/migration/C or broader acceptance is established. Earlier preparation below remains dated evidence of its documentation-only scope.
+
 ## 19 October follow-up — platform closure and real retrieval checkpoint
 
 **Authorization/source:** Manuel agreed to the proposed small backlog cleanup and preparation of C's real-import contract. He emphasized finalizing real import and checking the selected non-flight information to establish the basic mechanism, then explicitly selected **Include billing discovery too**. Baseline clean main **`160a17ab3fee9e374355b388018ccb9b9a4499be`**; no unrelated changes. This sets next priority/research coverage and authorizes the documented backlog transfer. It does not establish integration success or approve unspecified production SQL/migration/activation, C implementation or every later club/cost feature.
