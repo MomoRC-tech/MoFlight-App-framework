@@ -54,6 +54,48 @@ test('practical training retains the evidenced longer loaded page while other so
   const theory = validateInformationPage(read('theory', [row(['No', 'Status', 'Lernziel']), ...Array.from({ length: 62 }, (_, i) => row([String(i), '', 'Synthetic theory']))]));
   assert.equal(theory.rows.length, 20); assert.equal(theory.coverage.truncated, true);
 });
+test('practical status preserves literal source text without normalizing completion or qualification', () => {
+  const rows = practicalRows(3);
+  for (const [i, text] of ['  Synthetic explicit status  ', 'Unrecognized source state', '0'].entries()) {
+    rows[i + 1]!.cells[1] = cell(text);
+  }
+  const p = validateInformationPage(read('practical', rows));
+  assert.deepEqual(p.rows.map(r => r.values[1]), ['  Synthetic explicit status  ', 'Unrecognized source state', '0']);
+});
+
+test('blank graphical practical statuses remain unknown regardless of color and undocumented class', () => {
+  const rows = practicalRows(4);
+  for (const [i, color] of ['green', 'yellow', 'red', 'transparent'].entries()) {
+    rows[i + 1]!.cells[1] = cell('', {
+      className: 'synthetic-completed-' + i, id: 'private-source-' + i,
+      style: { backgroundColor: color },
+      getAttribute: () => { throw new Error('Uncontracted status attribute read'); },
+    });
+    // Dates/instructor text must not silently turn the missing status into a
+    // completion/qualification claim; these remain independent raw columns.
+    rows[i + 1]!.cells[6] = cell('01.10.2026');
+  }
+  const p = validateInformationPage(read('practical', rows));
+  assert.deepEqual(p.rows.map(r => r.values[1]), ['', '', '', '']);
+  assert.ok(p.rows.every(r => r.values[6] === '01.10.2026'));
+  assert.ok(!JSON.stringify(p).includes('private-source-'));
+  assert.ok(!JSON.stringify(p).includes('synthetic-completed-'));
+});
+
+test('unsupported tooltip or accessibility-only practical status is not adopted without a source contract', () => {
+  const rows = practicalRows(1);
+  rows[1]!.cells[1] = cell('', {
+    title: 'Synthetic completion', ariaLabel: 'Synthetic qualification',
+    children: [{ textContent: '', title: 'Unverified icon meaning' }],
+    getAttribute: () => { throw new Error('Uncontracted status attribute read'); },
+  });
+  const p = validateInformationPage(read('practical', rows));
+  assert.equal(p.rows[0]!.values[1], '');
+  assert.ok(!JSON.stringify(p).includes('Synthetic completion'));
+  assert.ok(!JSON.stringify(p).includes('Synthetic qualification'));
+  assert.throws(() => validateInformationPage({ ...p, rows: [{ ...p.rows[0]!, status: 'completed' }] }));
+});
+
 test('practical finite bound and malformed later rows stay guarded after the original twenty-row boundary', () => {
   const exact = validateInformationPage(read('practical', practicalRows(100)));
   assert.equal(exact.rows.length, 100); assert.equal(exact.coverage.truncated, false);
