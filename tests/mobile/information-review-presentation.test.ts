@@ -16,12 +16,13 @@ function fixture() {
   runInNewContext(source, { exports: exported, require: (name: keyof typeof modules) => modules[name] });
   const latest = capture('document-notices', 'Synthetic complete title 16.10.2026');
   const older = { ...capture('document-notices', ' - 16.10.2026'), id: 'synthetic-older', retrievedAt: '2026-10-18T12:00:00.000Z' };
-  const props = { captures: [latest], notice: '', onOpen() {}, disabled: false, history: null as information.InformationHistory | null, historyBusy: false, historyNotice: '', onHistory: (_c: information.InformationCategory, i: number) => { props.history = { category: 'document-notices', index: i, total: 2, capture: i ? older : latest }; } };
+  let reloads = 0;
+  const props = { onReload() { reloads++; }, reloading: false, canReload: true, captures: [latest], notice: '', onOpen() {}, disabled: false, history: null as information.InformationHistory | null, historyBusy: false, historyNotice: '', onHistory: (_c: information.InformationCategory, i: number) => { props.history = { category: 'document-notices', index: i, total: 2, capture: i ? older : latest }; } };
   const nodes = (value: any): Element[] => !value || typeof value !== 'object' ? [] : [value, ...value.children.flatMap(nodes)];
   const text = (value: any): string => typeof value === 'string' || typeof value === 'number' ? String(value) : value?.children?.map(text).join('') ?? '';
   const render = () => { index = 0; return exported.InformationReview(props); };
   const button = (label: string) => { const n = nodes(render()).find(n => n.type === 'Action' && text(n) === label); assert.ok(n, label); return n; };
-  return { props, render, text, button };
+  return { props, render, text, button, reloads: () => reloads };
 }
 test('source review opens old partial notice evidence and returns to latest without changing category counts', () => {
   const f = fixture(); f.button('Ansehen: Dokumentenhinweise · 1 Zeilen').props.onPress();
@@ -51,4 +52,16 @@ test('truncation labels follow the selected snapshot rather than applying a new 
   f.button('Älteren Quellenbeleg ansehen').props.onPress();
   assert.match(f.text(f.render()), /auf 20 Zeilen begrenzt/); assert.ok(!f.text(f.render()).includes('auf 100 Zeilen begrenzt'));
   assert.ok(f.button('Ansehen: Praktische Ausbildung · 100 Zeilen'));
+});
+
+
+test('local information reload is an explicit independent action with busy/unavailable state and preserved review', () => {
+  const f = fixture(); f.button('Ansehen: Dokumentenhinweise · 1 Zeilen').props.onPress();
+  f.props.disabled = true;
+  const reload = f.button('Gespeicherte Informationen neu laden'); assert.equal(reload.props.disabled, false);
+  reload.props.onPress(); assert.equal(f.reloads(), 1); assert.match(f.text(f.render()), /Synthetic complete title/);
+  f.props.reloading = true; assert.equal(f.button('Gespeicherte Informationen neu laden').props.disabled, true);
+  assert.match(f.text(f.render()), /werden neu geladen/); assert.match(f.text(f.render()), /Synthetic complete title/);
+  f.props.reloading = false; f.props.canReload = false;
+  assert.equal(f.button('Gespeicherte Informationen neu laden').props.disabled, true);
 });

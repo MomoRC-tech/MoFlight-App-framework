@@ -225,6 +225,8 @@ Images are decorative and excluded from accessibility announcements; their label
 
 The combined HTML presents C01–C13 shapes/states alongside these rules: neutral Medical/session status, selected chips, disabled action, no-track/empty placeholder and illustrative distribution ring. These examples execute no app/provider operation and establish no native acceptance. Use a concrete example to discuss a proposed change, then verify the implemented control in context.
 
+C16 also offers an explicit secondary **Gespeicherte Informationen neu laden** action. It reads existing local captures without requiring a provider session; loading/unavailable state disables it, and read failure keeps the previous review visible. Successful reload returns category review to the latest saved snapshot; source timestamps remain the retrieval timestamps. Shared C01/C02 styling and layout bounds are unchanged.
+
 # Layout and presentation patterns
 
 [Handbook entry point](README.md). These patterns consolidate approved visual/navigation decisions and current boundaries. Behavior remains governed by journey/provider/book contracts.
@@ -581,14 +583,14 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ImportPreview.tsx
 
 ## InformationReview.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/InformationReview.tsx](../../../apps/platform-lab/src/mobile/InformationReview.tsx); normalized SHA-256 `4e78ed1ba24e107a782b9759e289e9bb127915252de4c248286bf29bfcc2eb76`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/InformationReview.tsx](../../../apps/platform-lab/src/mobile/InformationReview.tsx); normalized SHA-256 `ccc0c2236cbef12628a688bdaab2c7691d4d647d046f376dfc5ec9b0075c3e6e`.
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `gap: 4` | 31 |
-| `gap: 8` | 20 |
+| `gap: 4` | 33 |
+| `gap: 8` | 22 |
 
 ## LibraryBackup.tsx
 
@@ -800,7 +802,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProfileSettings.t
 
 ## ProviderConnection.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProviderConnection.tsx](../../../apps/platform-lab/src/mobile/ProviderConnection.tsx); normalized SHA-256 `83082d0d2091d754ec9389911b93f01e7cda2cb1b204774270904ec9de70718e`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProviderConnection.tsx](../../../apps/platform-lab/src/mobile/ProviderConnection.tsx); normalized SHA-256 `3e9cae595903ac207e8e92c18dc6b91de2f914079588566890227a136fac9bc3`.
 
 ### Literal colors
 

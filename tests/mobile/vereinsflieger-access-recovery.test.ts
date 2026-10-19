@@ -49,6 +49,8 @@ function fixture(options: { noNativeRecovery?: boolean; failLegacyRead?: boolean
   let finishJournalSave!: () => void, finishCaptureSave!: () => void;
   let clearCalls = 0;
   let historyBacks = 0;
+  let informationReads = 0;
+  let informationReader = async (_scope: ProviderScope, gate: () => void): Promise<information.InformationCapture[]> => { gate(); return []; };
   let informationHistoryReader = async (_scope: ProviderScope, category: information.InformationCategory, position: number, gate: () => void): Promise<information.InformationHistory> => { gate(); return { category, index: position, total: 0, capture: null }; };
   let currentFingerprint = 'ab'.repeat(32);
   let finishSafety!: () => void;
@@ -131,7 +133,7 @@ function fixture(options: { noNativeRecovery?: boolean; failLegacyRead?: boolean
     './retrieval': { Retrieval }, './CaptureRun': { CaptureRun }, './WindowCapture': { WindowCapture },
     './login': login, './view': view, './context': context, './connection-state': { ConnectionSession },
     './information': information, './information-run': { InformationRun },
-    './information-native': { loadInformation: async () => [], readInformationHistory: (scope: ProviderScope, category: information.InformationCategory, position: number, gate: () => void) => informationHistoryReader(scope, category, position, gate), saveInformation: async (_scope: unknown, value: unknown, gate: () => void) => { gate(); information.validateInformationCapture(value); writes.push('information-saved'); } },
+    './information-native': { loadInformation: (scope: ProviderScope, gate: () => void) => { informationReads++; return informationReader(scope, gate); }, readInformationHistory: (scope: ProviderScope, category: information.InformationCategory, position: number, gate: () => void) => informationHistoryReader(scope, category, position, gate), saveInformation: async (_scope: unknown, value: unknown, gate: () => void) => { gate(); information.validateInformationCapture(value); writes.push('information-saved'); } },
   };
   const runtime = { require: (name: string) => {
     assert.ok(name in modules, `Unexpected component dependency: ${name}`); return modules[name];
@@ -212,9 +214,11 @@ function fixture(options: { noNativeRecovery?: boolean; failLegacyRead?: boolean
     return flush();
   }
   return { render, button, press, settle, find, flush, loadPage, loadFlight, message, currentCommand, writes, injections,
+    setInformationReader: (reader: typeof informationReader) => { informationReader = reader; }, informationReads: () => informationReads,
     setInformationHistoryReader: (reader: typeof informationHistoryReader) => { informationHistoryReader = reader; },
     contextMessage, loginMessage, history, historyBacks: () => historyBacks,
     allowNavigation, lastIssuedNonce: () => issuedNonces.at(-1),
+    unmount: () => { for (const hook of hooks) if (hook && typeof hook === 'object' && 'cleanup' in hook && typeof hook.cleanup === 'function') hook.cleanup(); },
     appState: (state: string) => appStateListener?.(state),
     changeOwner: (value: string) => { localOwner = value; render(); },
     controller: () => { render(); return controller; },
@@ -1569,4 +1573,91 @@ test('newer local history requests supersede delayed results without overwriting
   await f.controller().loadInformationHistory('work-hours', 0); finish(historyValue(1)); await old; await f.flush();
   assert.equal(f.controller().informationHistory!.index, 0); assert.equal(f.controller().informationHistoryNotice, '');
   assert.equal(f.controller().informationHistoryBusy, false);
+});
+
+
+test('failed startup information read can be explicitly retried offline without provider work or new captures', async () => {
+  const f = fixture({ product: true, persistedScope: informationHistoryScope });
+  f.setInformationReader(async () => { throw new Error('Synthetic disk failure'); });
+  f.render(); await f.settle(null); await f.flush(); await f.flush();
+  assert.match(f.controller().informationNotice, /konnten nicht geöffnet/);
+  assert.equal(f.controller().informationCanReload, true);
+  f.setInformationReader(async (_scope, gate) => { gate(); return [historyValue().capture!]; });
+  await f.controller().reloadInformation(); await f.flush();
+  assert.deepEqual(f.controller().informationCaptures, [historyValue().capture!]);
+  assert.equal(f.controller().informationLoading, false); assert.match(f.controller().informationNotice, /lokal neu geladen/);
+  assert.equal(f.controller().browserActive, false); assert.equal(f.injections.length, 0); assert.equal(f.loginStorage().reads, 0);
+  assert.ok(!f.writes.includes('information-saved'));
+});
+
+test('failed, unexpectedly empty or foreign local reload keeps the prior captures and selected history', async () => {
+  const f = fixture({ product: true, persistedScope: informationHistoryScope }); f.render(); await f.settle(null); await f.flush();
+  f.setInformationReader(async (_scope, gate) => { gate(); return [historyValue().capture!]; });
+  await f.controller().reloadInformation();
+  f.setInformationHistoryReader(async () => historyValue(1)); await f.controller().loadInformationHistory('work-hours', 1);
+  for (const reader of [
+    async () => { throw new Error('Synthetic read failure'); },
+    async () => [],
+    async () => [{ ...historyValue().capture!, owner: 'foreign-owner' }],
+    async () => [{ ...historyValue().capture!, connectionId: 'foreign-connection' }],
+  ]) {
+    f.setInformationReader(reader); await f.controller().reloadInformation(); await f.flush();
+    assert.deepEqual(f.controller().informationCaptures, [historyValue().capture!]);
+    assert.equal(f.controller().informationHistory!.index, 1);
+    assert.match(f.controller().informationNotice, /bleiben erhalten/); assert.equal(f.controller().informationLoading, false);
+  }
+  f.setInformationReader(async () => [historyValue().capture!]); await f.controller().reloadInformation();
+  assert.equal(f.controller().informationHistory, null); assert.equal(f.injections.length, 0);
+});
+
+test('a newer local reload supersedes an older startup read and keeps valid initial empty distinct', async () => {
+  const f = fixture({ product: true, persistedScope: informationHistoryScope });
+  let finish!: (value: information.InformationCapture[]) => void;
+  const delayed = new Promise<information.InformationCapture[]>(resolve => { finish = resolve; });
+  f.setInformationReader(async () => delayed); f.render(); await f.settle(null); await f.flush();
+  assert.equal(f.informationReads(), 1);
+  f.setInformationReader(async () => [historyValue().capture!]); await f.controller().reloadInformation();
+  finish([]); await f.flush(); await f.flush();
+  assert.deepEqual(f.controller().informationCaptures, [historyValue().capture!]);
+  assert.match(f.controller().informationNotice, /lokal neu geladen/); assert.equal(f.controller().informationLoading, false);
+  const empty = fixture({ product: true, persistedScope: informationHistoryScope }); empty.render(); await empty.settle(null); await empty.flush();
+  await empty.controller().reloadInformation(); assert.deepEqual(empty.controller().informationCaptures, []);
+  assert.match(empty.controller().informationNotice, /lokal neu geladen/);
+});
+
+test('late or revoked information reload results cannot publish after supersession, background or owner switch', async () => {
+  for (const boundary of ['newer-read', 'background', 'owner', 'revoked', 'unmount'] as const) {
+    const f = fixture({ product: true, persistedScope: informationHistoryScope }); f.render(); await f.settle(null); await f.flush();
+    let finish!: (value: information.InformationCapture[]) => void;
+    const delayed = new Promise<information.InformationCapture[]>(resolve => { finish = resolve; });
+    f.setInformationReader(async (_scope, gate) => { gate(); const result = await delayed; if (boundary === 'revoked') throw new Error('Synthetic revoked authority'); gate(); return result; });
+    const pending = f.controller().reloadInformation();
+    if (boundary === 'newer-read') { f.setInformationReader(async () => [historyValue(1).capture!]); await f.controller().reloadInformation(); }
+    if (boundary === 'background') { f.appState('background'); f.appState('active'); }
+    if (boundary === 'owner') f.changeOwner('foreign-owner');
+    if (boundary === 'unmount') f.unmount();
+    finish([historyValue().capture!]); await pending; await f.flush();
+    assert.deepEqual(Array.from(f.controller().informationCaptures), boundary === 'newer-read' ? [historyValue(1).capture!] : []);
+    if (boundary !== 'unmount') assert.equal(f.controller().informationLoading, false);
+    assert.equal(f.injections.length, 0);
+  }
+});
+
+test('new information capture invalidates pending local reload publication and reload cannot run during capture', async () => {
+  const f = fixture({ product: true, persistedScope: informationHistoryScope }); f.render(); await f.settle(null); await f.flush();
+  for (let i = 0; i < 8 && !f.controller().viewReady; i++) await f.flush();
+  assert.equal(f.controller().viewReady, true);
+  let finish!: (value: information.InformationCapture[]) => void;
+  const delayed = new Promise<information.InformationCapture[]>(resolve => { finish = resolve; });
+  f.setInformationReader(async () => delayed); const pending = f.controller().reloadInformation();
+  f.controller().setVisible(true); f.controller().navigate(informationSource); await f.loadPage(informationSource); f.controller().startInformation(); await f.flush();
+  assert.equal(f.controller().informationBusy, true, 'Capture must be active before testing reload exclusion');
+  const reads = f.informationReads(); await f.controller().reloadInformation(); assert.equal(f.informationReads(), reads);
+  f.setInformationReader(async (_scope, gate) => { gate(); return [historyValue(1).capture!]; });
+  await f.loadPage(context.PROFILE_URL); await f.contextMessage(observedContext);
+  await f.loadPage(informationSource); await informationMessage(f);
+  await f.loadPage(context.PROFILE_URL); await f.contextMessage(observedContext); await f.flush(); await f.flush();
+  finish([historyValue().capture!]); await pending; await f.flush();
+  assert.deepEqual(Array.from(f.controller().informationCaptures), [historyValue(1).capture!]);
+  assert.equal(f.writes.filter(w => w === 'information-saved').length, 1); assert.equal(f.controller().informationLoading, false);
 });

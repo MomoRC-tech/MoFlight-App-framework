@@ -285,14 +285,14 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ImportPreview.tsx
 
 ## InformationReview.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/InformationReview.tsx](../../../apps/platform-lab/src/mobile/InformationReview.tsx); normalized SHA-256 `4e78ed1ba24e107a782b9759e289e9bb127915252de4c248286bf29bfcc2eb76`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/InformationReview.tsx](../../../apps/platform-lab/src/mobile/InformationReview.tsx); normalized SHA-256 `ccc0c2236cbef12628a688bdaab2c7691d4d647d046f376dfc5ec9b0075c3e6e`.
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `gap: 4` | 31 |
-| `gap: 8` | 20 |
+| `gap: 4` | 33 |
+| `gap: 8` | 22 |
 
 ## LibraryBackup.tsx
 
@@ -504,7 +504,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProfileSettings.t
 
 ## ProviderConnection.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProviderConnection.tsx](../../../apps/platform-lab/src/mobile/ProviderConnection.tsx); normalized SHA-256 `83082d0d2091d754ec9389911b93f01e7cda2cb1b204774270904ec9de70718e`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProviderConnection.tsx](../../../apps/platform-lab/src/mobile/ProviderConnection.tsx); normalized SHA-256 `3e9cae595903ac207e8e92c18dc6b91de2f914079588566890227a136fac9bc3`.
 
 ### Literal colors
 

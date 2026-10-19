@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { Action, Card, Label, Section } from './theme';
 import { INFORMATION_TYPES, type InformationCapture, type InformationCategory, type InformationHistory } from '../vereinsflieger/information';
 
-export function InformationReview({ captures, notice, onOpen, disabled, history, historyBusy, historyNotice, onHistory }: { captures: InformationCapture[]; notice: string; onOpen: () => void; disabled: boolean; history: InformationHistory | null; historyBusy: boolean; historyNotice: string; onHistory: (category: InformationCategory, index: number) => void }) {
+export function InformationReview({ captures, notice, onOpen, disabled, history, historyBusy, historyNotice, onHistory, onReload, reloading, canReload }: { onReload: () => void; reloading: boolean; canReload: boolean; captures: InformationCapture[]; notice: string; onOpen: () => void; disabled: boolean; history: InformationHistory | null; historyBusy: boolean; historyNotice: string; onHistory: (category: InformationCategory, index: number) => void }) {
   const [category, setCategory] = useState<InformationCategory | null>(null), [page, setPage] = useState(0);
   const selectedHistory = history?.category === category ? history : null;
   const capture = selectedHistory ? selectedHistory.capture : captures.find(c => c.category === category);
@@ -11,6 +11,8 @@ export function InformationReview({ captures, notice, onOpen, disabled, history,
   return <Card><Section title="Gespeicherte Informationen" icon="info" />
     <Label muted>Quellenbelege getrennt von Flügen und Papierflugbuch. Offline lesbar; vorläufige Kontozuordnung. Die bisherige Bibliothek-Sicherung enthält diese Belege nicht.</Label>
     <Action secondary disabled={disabled} onPress={onOpen}>Weitere Informationen erfassen</Action>
+    <Action secondary disabled={reloading || !canReload} onPress={onReload}>Gespeicherte Informationen neu laden</Action>
+    {reloading && <View accessibilityLiveRegion="polite"><Label>Gespeicherte Informationen werden neu geladen…</Label></View>}
     {!!notice && <View accessibilityLiveRegion="polite"><Label>{notice}</Label></View>}
     {!captures.length && <Label>Noch keine Informationsseite gespeichert.</Label>}
     {captures.map(c => <Action key={c.category} secondary onPress={() => { setCategory(c.category); setPage(0); onHistory(c.category, 0); }}>Ansehen: {INFORMATION_TYPES[c.category].title} · {c.rows.length} Zeilen</Action>)}

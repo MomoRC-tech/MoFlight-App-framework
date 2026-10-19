@@ -57,3 +57,5 @@ Images are decorative and excluded from accessibility announcements; their label
 ## Schematic examples
 
 The combined HTML presents C01–C13 shapes/states alongside these rules: neutral Medical/session status, selected chips, disabled action, no-track/empty placeholder and illustrative distribution ring. These examples execute no app/provider operation and establish no native acceptance. Use a concrete example to discuss a proposed change, then verify the implemented control in context.
+
+C16 also offers an explicit secondary **Gespeicherte Informationen neu laden** action. It reads existing local captures without requiring a provider session; loading/unavailable state disables it, and read failure keeps the previous review visible. Successful reload returns category review to the latest saved snapshot; source timestamps remain the retrieval timestamps. Shared C01/C02 styling and layout bounds are unchanged.
