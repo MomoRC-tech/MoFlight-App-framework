@@ -137,7 +137,9 @@ export const INFORMATION_READER_SOURCE = String.raw`(category, config) => {
       const first=norm(cells[0]?.textContent);
       if(cells.length===1 && /^(?:Es wurden keine (?:passenden )?Daten gefunden!)$/.test(first)) {empty=true;continue;}
       if(cells.some(c=>c.querySelector('th')) || t.all[i].querySelector('th')) continue;
-      if(cells.some(c=>c.querySelector('table'))) return {error:'nested-source-row'};
+      // The observed duty Person(en) cell contains a nested assignee table.
+      // Keep that allowlisted cell as one raw value; never flatten its rows.
+      if(columns.some(c=>cells[c.index]?.querySelector('table') && !(category==='duties' && c.key==='people'))) return {error:'nested-source-row'};
       // Explicit totals stay out of source records; never count them as hours/costs.
       if(cells.some(c=>/^Gesamt\b/.test(norm(c.textContent)))) continue;
       if(cells.length!==t.width || cells.some(c=>(c.colSpan || 1)!==1 || (c.rowSpan || 1)!==1)) return {error:'row-shape'};
@@ -152,6 +154,8 @@ export const INFORMATION_READER_SOURCE = String.raw`(category, config) => {
     const text=norm(s.selectedOptions?.[0]?.textContent);
     if(/^(?:\d{4}|Jahr \d{4}|Aktuelle und anstehende Dienste|Alle Dienste|Alle anstehenden Dienste)$/.test(text) && !filters.includes(text)) filters.push(text);
   }
+  const displayedFilter=norm(document.getElementById?.('globalfilter')?.innerText);
+  if(/^(?:\d{4}|Jahr \d{4}|Aktuelle und anstehende Dienste|Alle Dienste|Alle anstehenden Dienste)$/.test(displayedFilter) && !filters.includes(displayedFilter)) filters.push(displayedFilter);
   return {category,path:u.pathname,columns,rows,filters,empty:!rows.length,coverage:{kind:'visible-page',truncated,pagination:'unverified'}};
 }`;
 export function informationScript(category: InformationCategory, nonce: string) {

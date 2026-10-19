@@ -49,7 +49,9 @@ test('duplicate anchors/tables, malformed/spanning/nested rows reject rather tha
   assert.throws(() => validateInformationPage(read('work-hours', [row(header), spanning])));
 });
 test('historical multi-person duty period remains one source row with raw end/people; no availability inference', () => {
-  const p = validateInformationPage(read('duties', [row(['Dienst', 'Zeitraum', 'Person(en)']), row(['Custom duty', '01.09.2026 -\n07.09.2026 23:59', 'Synthetic A\nSynthetic B'])]));
+  const assignment = row(['Custom duty', '01.09.2026 -\n07.09.2026 23:59', 'Synthetic A\nSynthetic B']);
+  assignment.cells[2]!.querySelector = ((selector: string) => selector === 'table' ? {} : null) as any;
+  const p = validateInformationPage(read('duties', [row(['Dienst', 'Zeitraum', 'Person(en)']), assignment]));
   assert.equal(p.rows.length, 1); assert.equal(p.rows[0]!.values[1], '01.09.2026 -\n07.09.2026 23:59'); assert.equal(p.rows[0]!.values[2], 'Synthetic A\nSynthetic B');
 });
 test('ledger charges/credits/opening balance stay signed raw observations, never computed cost totals', () => {
