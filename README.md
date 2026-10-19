@@ -7,6 +7,8 @@
 
 # MoFlight
 
+**App-update requirement — 19 October 2026:** before the first beta, in-place updates must preserve all local user data and newer releases must read or safely migrate supported older data/backup formats, including offline and failed/interrupted-update recovery. [Contract and acceptance gate](docs/architecture/local-first-implementation-plan.md#app-updates-and-backward-compatibility--required-before-first-beta), [#34](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/34). Requirement selected; implementation and native upgrade verification remain pending. Binary downgrade support still needs an explicit policy.
+
 **Training-status source gap — 19 October:** all 62 practical Status cells have no supported text, tooltip or accessibility label; their graphical meanings remain unknown. No application status mapping was added. Literal text/unknown/unsupported-state regressions protect this boundary. [Source findings and verification](docs/verification/2026-10-10-vereinsflieger-discovery.md#practical-training-status-source-gap--19-october-2026).
 
 **Practical-training coverage — 19 October:** application `2587bca` saves all **62 source rows on the selected loaded page**, matching its displayed count, and reopens them offline. The older 20-row snapshot remains intact. Practical has a finite 100-row bound; other types keep 20. Hierarchy numbers/text remain raw; graphical statuses, other pages/enrolments and full history remain unverified. [Source/tail-field/native preservation evidence](docs/verification/2026-10-10-vereinsflieger-discovery.md#extended-practical-training-capture--19-october-2026).
