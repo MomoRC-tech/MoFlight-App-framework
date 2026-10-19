@@ -16,10 +16,20 @@ import { ConnectionSession } from './connection-state';
 import { loadProviderScope, confirmProviderScope, loadScopedCapture, loadScopedView, saveScopedCapture, saveScopedView, clearScopedView, prepareScopedLegacy, saveLegacySafety, legacyQuarantined, finishScopedLegacy } from './scoped-storage';
 import { clearProviderStore, proveSyntheticStore, sessionClearingAvailable, sessionProofAvailable, legacyRecoveryAvailable, legacyRecoveryFingerprint, readReviewedRecovery } from './session-store';
 import type { ProviderScope } from './scope-store';
+import { INFORMATION_TYPES, informationCategories, informationScript, type InformationCategory, type InformationCapture } from './information';
+import { InformationRun } from './information-run';
+import { loadInformation, saveInformation } from './information-native';
 
 export function useAccessController(product = false, localOwner?: string) {
   const activeOwner = useRef(localOwner); activeOwner.current = localOwner;
   const owner = useRef(localOwner), scope = useRef<ProviderScope | null>(null);
+  const informationRun = useRef<InformationRun | null>(null);
+  const informationTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [informationCategory, setInformationCategory] = useState<InformationCategory>('work-hours');
+  const [informationCaptures, setInformationCaptures] = useState<InformationCapture[]>([]);
+  const [informationNotice, setInformationNotice] = useState('');
+  const [informationBusy, setInformationBusy] = useState(false);
+  const [informationSaving, setInformationSaving] = useState(false);
   const clearingStore = useRef(false), documentDetached = useRef<(() => void) | null>(null);
   const [clearing, setClearing] = useState(false), [clearNotice, setClearNotice] = useState<'none' | 'cleared' | 'failed'>('none');
   const [proofNotice, setProofNotice] = useState<'none' | 'passed' | 'failed'>('none');
@@ -95,6 +105,10 @@ export function useAccessController(product = false, localOwner?: string) {
         if (!active) return;
         setSnapshot(capture); setCaptureLoadState('ready');
       } catch { if (active) setCaptureLoadState('failed'); }
+      try {
+        const records = saved ? await loadInformation(saved, () => { if (!active || owner.current !== activeOwner.current) throw new Error('Owner changed'); }) : [];
+        if (active) setInformationCaptures(records);
+      } catch { if (active) setInformationNotice('Gespeicherte Informationen konnten nicht geöffnet werden. Vorhandene Daten bleiben erhalten.'); }
     }
     const nativeLegacy = product && legacyRecoveryAvailable;
     const fingerprint = nativeLegacy ? await legacyRecoveryFingerprint() : null;
@@ -132,6 +146,54 @@ export function useAccessController(product = false, localOwner?: string) {
     return scope.current;
   }
   function endLogin(message: string, verdict: 'response' | 'unavailable' | 'failed' | 'cancelled' = 'failed') { setLoginNotice(verdict); loginAttempt.current = null; if (loginTimer.current) clearTimeout(loginTimer.current); loginTimer.current = null; setLoginBusy(false); setStatus(message); }
+  function stopInformation(message = 'Informationsabruf abgebrochen. Gespeicherte Belege bleiben erhalten.') {
+    const run = informationRun.current;
+    if (run?.stage === 'saving') return;
+    run?.cancel(); informationRun.current = null;
+    if (informationTimer.current) clearTimeout(informationTimer.current);
+    informationTimer.current = null;
+    if (mounted.current) { setInformationBusy(false); setInformationSaving(false); setBusy(false); setInformationNotice(message); }
+  }
+  function startInformation() {
+    if (!product || !visible || !loaded || !foreground.current || busy || saving || loginBusy || contextRequest.current || recovery || !viewReady || disconnectMode.current || informationRun.current) return;
+    try {
+      const run = new InformationRun(requireScope(), informationCategory, currentUrl.current, Crypto.randomUUID());
+      informationRun.current = run; setInformationBusy(true); setBusy(true); setInformationNotice('Konto wird vor und nach der Erfassung geprüft…');
+      informationTimer.current = setTimeout(() => stopInformation('Informationsabruf hat das Zeitlimit erreicht. Gespeicherte Belege bleiben erhalten.'), 90_000);
+      navigate(run.url);
+    } catch { setInformationNotice('Diese Quellseite kann nicht erfasst werden. Erst auf der Originalseite zum ausgewählten Bereich wechseln.'); }
+  }
+  async function receiveInformation(event: WebViewMessageEvent) {
+    const run = informationRun.current;
+    if (!run || event.nativeEvent.data.length > 1_000_000) return;
+    const gate = () => {
+      if (!mounted.current || !foreground.current || informationRun.current !== run) throw new Error('Expired information request');
+      run.assertScope(requireScope());
+    };
+    try {
+      gate(); const action = run.accept(event.nativeEvent.url, currentUrl.current, JSON.parse(event.nativeEvent.data));
+      if (action === 'navigate') { navigate(run.url); return; }
+      if (action !== 'save') return;
+      if (informationTimer.current) clearTimeout(informationTimer.current);
+      informationTimer.current = null; setInformationSaving(true);
+      await saveInformation(run.scope, run.capture(new Date().toISOString()), gate);
+      const records = await loadInformation(run.scope, gate); gate();
+      setInformationCaptures(records); run.stage = 'done'; informationRun.current = null;
+      setInformationBusy(false); setInformationSaving(false); setBusy(false); setVisible(false);
+      setInformationNotice(`${INFORMATION_TYPES[run.category].title}: lokal gespeichert. Nur die sichtbare Quellseite, keine vollständige Historie.`);
+      navigate(run.sourceUrl);
+    } catch {
+      // A commit may precede readback/lease failure. Do not claim rollback or publish old-owner rows.
+      if (informationRun.current === run) {
+        run.stage = 'cancelled'; informationRun.current = null;
+        if (informationTimer.current) clearTimeout(informationTimer.current);
+        informationTimer.current = null; setInformationBusy(false); setInformationSaving(false); setBusy(false);
+        setInformationNotice('Erfassung nicht bestätigt: Quelle, Spalten oder Konto nicht unterstützt. Eine eventuell bereits gespeicherte Erfassung bleibt erhalten.');
+      }
+    }
+  }
+  function nextInformationCategory() { if (!informationRun.current) setInformationCategory(old => informationCategories[(informationCategories.indexOf(old) + 1) % informationCategories.length]!); }
+  useEffect(() => () => { informationRun.current?.cancel(); informationRun.current = null; if (informationTimer.current) clearTimeout(informationTimer.current); }, []);
   async function refreshRecovery() {
     if (owner.current !== activeOwner.current || clearingStore.current || bindingBusy.current || !product || retrieval.current.state.phase !== 'idle' || contextRequest.current) return;
     recoveryKnown.current = false; setViewReady(false);
@@ -226,6 +288,7 @@ export function useAccessController(product = false, localOwner?: string) {
     session.current.invalidate(); syncConnection(); web.current.goBack(); return true;
   }
   function dismissLogin() {
+    if (informationRun.current) { if (informationRun.current.stage === 'saving') return; stopInformation(); }
     if (clearingStore.current) { setVisible(false); return; }
     setVisible(false);
     // Dismissing a presentation must not orphan an owned capture/restoration check.
@@ -315,6 +378,7 @@ export function useAccessController(product = false, localOwner?: string) {
     const listener = AppState.addEventListener('change', state => {
       foreground.current = state === 'active';
       if (state === 'active') return;
+      if (informationRun.current) stopInformation('App im Hintergrund. Informationsabruf beendet; gespeicherte Belege bleiben erhalten.');
       clearContextRequest(); pendingNavigation.current = null; pendingCapture.current = null; afterConfirmation.current = null; endDisconnect(); session.current.invalidate(); syncConnection();
       web.current?.stopLoading(); epoch.current++; setGeneration(epoch.current);
       if (loginAttempt.current) endLogin('App left the foreground. Sign-in stopped; retry explicitly.', 'cancelled');
@@ -350,6 +414,13 @@ export function useAccessController(product = false, localOwner?: string) {
     if (product && page !== currentUrl.current) return;
     const pageEpoch = epoch.current;
     phase.current.loaded = true; currentUrl.current = page; setUrl(page); setLoaded(true);
+    if (informationRun.current) {
+      const run = informationRun.current;
+      if (page !== run.url) { stopInformation('Quellseite oder Anmeldung nicht verfügbar. Gespeicherte Informationen bleiben erhalten.'); return; }
+      run.observeNavigation(page);
+      web.current?.injectJavaScript(run.stage === 'read' ? informationScript(run.category, run.nonce) : contextScript(run.nonce));
+      return;
+    }
     if (product && contextRequest.current) {
       if (!contextRequest.current.navigationObserved) { contextFailed(); return; }
       if (page === PROFILE_URL) web.current?.injectJavaScript(contextScript(contextRequest.current.nonce));
@@ -678,16 +749,17 @@ export function useAccessController(product = false, localOwner?: string) {
         onLoadEnd={event => { if (generation === epoch.current) void loadedPage(event.nativeEvent.url); }}
         onMessage={event => {
           if (generation !== epoch.current) return;
+          if (informationRun.current) { void receiveInformation(event); return; }
           if (product && contextRequest.current) { void receiveContext(event); return; }
           if(loginAttempt.current==='submitted'&&loginPage(currentUrl.current)&&scopedBridge(event.nativeEvent.url,currentUrl.current,LOGIN_URL)&&event.nativeEvent.data.length<2000){
             try{const m=JSON.parse(event.nativeEvent.data);if(m.kind==='vf-login-result-v1'&&m.nonce===loginNonce.current&&m.url===LOGIN_URL){if(m.result==='submitted'){setStatus('Original provider submit control invoked once. Waiting for its response; sign-in is not yet verified.');return;}if(m.result==='provider-script-error'){endLogin('Saved sign-in stopped because the original provider form raised an error. Submission was not confirmed. Complete sign-in on the original page.');return;}if(['wrong-page','username-control','password-control','submit-control','form-binding','form-target'].includes(m.result)){endLogin(`Saved sign-in stopped: unsupported original ${m.result}. No credentials submitted. Use the original provider page.`);return;}}}catch{/* Ignore unrelated bridge messages. */}
           }
           if(flightUrl(url))void receive(event);
         }}
-        onError={() => { if (generation !== epoch.current) return; if (product && contextRequest.current) { contextFailed(); return; } if (product) { endDisconnect('failed'); afterConfirmation.current = null; session.current.invalidate(); syncConnection(); } loginAttempt.current ? endLogin('Provider login page failed to load. Saved login and captures preserved.') : finish('Provider page failed to load. Previous captures preserved.'); }}
-        onHttpError={() => { if (generation !== epoch.current) return; if (product && contextRequest.current) { contextFailed(); return; } if (product) { endDisconnect('failed'); afterConfirmation.current = null; session.current.invalidate(); syncConnection(); } loginAttempt.current ? endLogin('Provider login returned an HTTP error. Saved login and captures preserved.') : finish('Provider returned an HTTP error. Previous captures preserved.'); }}
-        onContentProcessDidTerminate={() => { if (generation !== epoch.current) return; if (loginAttempt.current) endLogin('Provider renderer stopped. Saved sign-in cancelled.', 'cancelled'); if (product) contextFailed(); finish('Provider renderer stopped. Recovery journal retained.'); }}
-        onRenderProcessGone={() => { if (generation !== epoch.current) return; if (loginAttempt.current) endLogin('Provider renderer stopped. Saved sign-in cancelled.', 'cancelled'); if (product) contextFailed(); finish('Provider renderer stopped. Recovery journal retained.'); }}
+        onError={() => { if (generation !== epoch.current) return; if (informationRun.current) { stopInformation('Informationsquelle nicht verfügbar. Gespeicherte Belege bleiben erhalten.'); return; } if (product && contextRequest.current) { contextFailed(); return; } if (product) { endDisconnect('failed'); afterConfirmation.current = null; session.current.invalidate(); syncConnection(); } loginAttempt.current ? endLogin('Provider login page failed to load. Saved login and captures preserved.') : finish('Provider page failed to load. Previous captures preserved.'); }}
+        onHttpError={() => { if (generation !== epoch.current) return; if (informationRun.current) { stopInformation('Informationsquelle nicht verfügbar. Gespeicherte Belege bleiben erhalten.'); return; } if (product && contextRequest.current) { contextFailed(); return; } if (product) { endDisconnect('failed'); afterConfirmation.current = null; session.current.invalidate(); syncConnection(); } loginAttempt.current ? endLogin('Provider login returned an HTTP error. Saved login and captures preserved.') : finish('Provider returned an HTTP error. Previous captures preserved.'); }}
+        onContentProcessDidTerminate={() => { if (generation !== epoch.current) return; if (informationRun.current) { stopInformation('Informationsquelle nicht verfügbar. Gespeicherte Belege bleiben erhalten.'); return; } if (loginAttempt.current) endLogin('Provider renderer stopped. Saved sign-in cancelled.', 'cancelled'); if (product) contextFailed(); finish('Provider renderer stopped. Recovery journal retained.'); }}
+        onRenderProcessGone={() => { if (generation !== epoch.current) return; if (informationRun.current) { stopInformation('Informationsquelle nicht verfügbar. Gespeicherte Belege bleiben erhalten.'); return; } if (loginAttempt.current) endLogin('Provider renderer stopped. Saved sign-in cancelled.', 'cancelled'); if (product) contextFailed(); finish('Provider renderer stopped. Recovery journal retained.'); }}
       />;
-  return { captureLoadState, canGoBack, backWithinProvider, legacyChoice, requestLegacyRecovery, legacyRecoveryAvailable, clearing, clearNotice, proofNotice, clearLocalSession, sessionClearingAvailable, sessionProofAvailable, binding, legacyRecovery: legacyPending.current, loginNotice, disconnectNotice, credentialNotice, startDisconnect, checkDisconnection, disconnecting, disconnectedAt, refreshRecovery, connection, checkConnection, connect, dismissLogin, confirmConnection, lastSuccessfulCaptureAt, result, browser, showRun, setShowRun, showWindow, setShowWindow, viewReady, recovery, original, editingLogin, loginBusy, username, setUsername, password, setPassword, saveLogin, setEditingLogin, providerExpanded, visible, status, busy, openCaptureLab, pauseEnabled, toggleTestPause, preBackupPause, togglePreBackupPause, from, setFrom, to, setTo, saving, restoring, navigate, setVisible, cancelRetrieval, retrieve, hasLogin, useLogin, forgetLogin, recoverView, paused, continueTestRetrieval, viewStrategy, url, toggleProviderPage, browserActive, snapshot: product && owner.current !== localOwner ? null : snapshot, setProviderExpanded, web, currentUrl, retrieval, loaded, source, generation, epoch };
+  return { informationCategory, informationCaptures: owner.current === localOwner ? informationCaptures : [], informationNotice, informationBusy, informationSaving, startInformation, stopInformation, nextInformationCategory, captureLoadState, canGoBack, backWithinProvider, legacyChoice, requestLegacyRecovery, legacyRecoveryAvailable, clearing, clearNotice, proofNotice, clearLocalSession, sessionClearingAvailable, sessionProofAvailable, binding, legacyRecovery: legacyPending.current, loginNotice, disconnectNotice, credentialNotice, startDisconnect, checkDisconnection, disconnecting, disconnectedAt, refreshRecovery, connection, checkConnection, connect, dismissLogin, confirmConnection, lastSuccessfulCaptureAt, result, browser, showRun, setShowRun, showWindow, setShowWindow, viewReady, recovery, original, editingLogin, loginBusy, username, setUsername, password, setPassword, saveLogin, setEditingLogin, providerExpanded, visible, status, busy, openCaptureLab, pauseEnabled, toggleTestPause, preBackupPause, togglePreBackupPause, from, setFrom, to, setTo, saving, restoring, navigate, setVisible, cancelRetrieval, retrieve, hasLogin, useLogin, forgetLogin, recoverView, paused, continueTestRetrieval, viewStrategy, url, toggleProviderPage, browserActive, snapshot: product && owner.current !== localOwner ? null : snapshot, setProviderExpanded, web, currentUrl, retrieval, loaded, source, generation, epoch };
 }

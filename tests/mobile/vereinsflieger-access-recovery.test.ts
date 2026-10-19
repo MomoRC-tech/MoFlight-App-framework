@@ -16,6 +16,8 @@ import { ConnectionSession } from '../../apps/platform-lab/src/vereinsflieger/co
 import type { useAccessController } from '../../apps/platform-lab/src/vereinsflieger/use-access-controller.tsx';
 import type { ViewPreferences } from '../../apps/platform-lab/src/vereinsflieger/view.ts';
 import { captureFixture } from './capture-review-fixture.ts';
+import * as information from '../../apps/platform-lab/src/vereinsflieger/information.ts';
+import { InformationRun } from '../../apps/platform-lab/src/vereinsflieger/information-run.ts';
 const { FLIGHT_URL } = probe;
 
 const original: ViewPreferences = {
@@ -127,6 +129,8 @@ function fixture(options: { noNativeRecovery?: boolean; failLegacyRead?: boolean
     './export': { ...exporter, calendarYearRequest: () => ({ from: '2026-01-01', to: '2026-12-31' }), recentCaptureRequest: () => ({ from: '2026-01-01', to: '2026-12-31' }) },
     './retrieval': { Retrieval }, './CaptureRun': { CaptureRun }, './WindowCapture': { WindowCapture },
     './login': login, './view': view, './context': context, './connection-state': { ConnectionSession },
+    './information': information, './information-run': { InformationRun },
+    './information-native': { loadInformation: async () => [], saveInformation: async (_scope: unknown, value: unknown, gate: () => void) => { gate(); information.validateInformationCapture(value); writes.push('information-saved'); } },
   };
   const runtime = { require: (name: string) => {
     assert.ok(name in modules, `Unexpected component dependency: ${name}`); return modules[name];
@@ -1449,4 +1453,47 @@ test('renderer termination cancels an outstanding secret read before its late re
   f.finishLoginRead({ username: 'synthetic', password: 'synthetic' }); await f.flush();
   assert.equal(f.controller().loginBusy, false); assert.equal(f.controller().loginNotice, 'cancelled');
   assert.ok(f.injections.every(script => !script.includes('login.username')));
+});
+
+const informationSource = 'https://vereinsflieger.de/member/profile/synthetic-hours?year=2026';
+const informationPage = {
+  category: 'work-hours', path: '/member/profile/synthetic-hours',
+  columns: [{ key: 'date', label: 'Datum', index: 0 }, { key: 'activity', label: 'Tätigkeit', index: 1 }, { key: 'hours', label: 'Stunden', index: 2 }, { key: 'status', label: 'Status', index: 3 }],
+  rows: [{ position: 1, values: ['01.10.2026', 'Synthetic activity', '2.00', 'Akzeptiert'] }], filters: ['2026'], empty: false,
+  coverage: { kind: 'visible-page', truncated: false, pagination: 'unverified' },
+};
+async function startInformationFixture() {
+  const f = fixture({ product: true }); f.render(); await f.settle(null); await establishProductAssociation(f);
+  f.controller().setVisible(true); f.controller().navigate(informationSource); await f.loadPage(informationSource);
+  f.controller().startInformation(); await f.flush();
+  return f;
+}
+async function informationMessage(f: ReturnType<typeof fixture>) {
+  const web = f.find(f.render(), e => e.type === 'WebView')!;
+  (web.props.onMessage as (event: unknown) => void)({ nativeEvent: { url: informationSource, data: JSON.stringify({ kind: 'vf-information-v1', nonce: f.lastIssuedNonce(), url: informationSource, page: informationPage }) } });
+  await f.flush();
+}
+test('information capture saves only after matching protected profiles before and after the selected source', async () => {
+  const f = await startInformationFixture(); assert.equal(f.controller().informationBusy, true);
+  await f.loadPage(context.PROFILE_URL); await f.contextMessage(observedContext);
+  await f.loadPage(informationSource); await informationMessage(f);
+  assert.ok(!f.writes.includes('information-saved'));
+  await f.loadPage(context.PROFILE_URL); await f.contextMessage(observedContext); await f.flush(); await f.flush();
+  assert.equal(f.writes.filter(w => w === 'information-saved').length, 1);
+  assert.equal(f.controller().informationBusy, false); assert.match(f.controller().informationNotice, /lokal gespeichert/);
+  assert.ok(!f.writes.includes('capture-saved')); assert.equal(f.loginStorage().reads, 0);
+});
+test('information context mismatch after extraction preserves old flight capture and performs no save', async () => {
+  const f = await startInformationFixture(); await f.loadPage(context.PROFILE_URL); await f.contextMessage(observedContext);
+  await f.loadPage(informationSource); await informationMessage(f); await f.loadPage(context.PROFILE_URL);
+  await f.contextMessage({ ...observedContext, accountNumber: '999' });
+  assert.ok(!f.writes.includes('information-saved')); assert.equal(f.controller().informationBusy, false);
+  assert.match(f.controller().informationNotice, /nicht bestätigt/); assert.ok(!f.writes.includes('capture-saved'));
+});
+test('background cancellation prevents late information callbacks from saving or publishing', async () => {
+  const f = await startInformationFixture(); await f.loadPage(context.PROFILE_URL); await f.contextMessage(observedContext);
+  await f.loadPage(informationSource); const web = f.find(f.render(), e => e.type === 'WebView')!;
+  f.appState('background'); await f.flush();
+  (web.props.onMessage as (event: unknown) => void)({ nativeEvent: { url: informationSource, data: JSON.stringify({ kind: 'vf-information-v1', nonce: f.lastIssuedNonce(), url: informationSource, page: informationPage }) } });
+  await f.flush(); assert.equal(f.controller().informationBusy, false); assert.ok(!f.writes.includes('information-saved'));
 });

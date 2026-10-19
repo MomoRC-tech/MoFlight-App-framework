@@ -10,6 +10,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LegacyRecoveryReview } from './LegacyRecoveryReview';
 import { RawCaptureReview } from './RawCaptureReview';
 import { CapturedFlights } from './CapturedFlights';
+import { InformationReview } from './InformationReview';
+import { INFORMATION_TYPES } from '../vereinsflieger/information';
 
 type Controller = ReturnType<typeof useAccessController>;
 export function ConnectionIndicator({ controller: c, onPress }: { controller: Controller; onPress?: () => void }) {
@@ -56,6 +58,10 @@ export function ProviderConnection({ controller: c, open, close, development = f
       <Label muted>{c.disconnecting ? 'Auf der Originalseite „Abmelden“ wählen, danach hier prüfen. Schließen allein meldet dich nicht ab.' : 'Zugangsdaten nur auf der Originalseite eingeben.'}</Label>
       {loginFeedback && <Label>{loginFeedback}</Label>}
       {c.disconnecting ? <Action disabled={operationLocked || !c.loaded} onPress={c.checkDisconnection}>Abmeldung prüfen</Action> : <Action disabled={locked || !c.loaded} onPress={() => c.checkConnection()}>Anmeldung prüfen</Action>}
+      {!c.disconnecting && <>
+        <Action secondary disabled={locked} onPress={c.nextInformationCategory}>Quelltyp: {INFORMATION_TYPES[c.informationCategory].title}</Action>
+        {c.informationBusy ? <Action secondary disabled={c.informationSaving} onPress={() => c.stopInformation()}>Informationsabruf abbrechen</Action> : <Action disabled={locked || c.recovery || !c.loaded} onPress={c.startInformation}>Informationen dieser Seite speichern</Action>}
+      </>}
     </View> : <KeyboardAvoidingView style={styles.panel} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <ScrollView removeClippedSubviews={false} contentContainerStyle={styles.canvas} keyboardShouldPersistTaps="handled">
         <View style={styles.group}>
@@ -90,6 +96,7 @@ export function ProviderConnection({ controller: c, open, close, development = f
             <Label muted>Frühere Belege bleiben bei Fehler oder Abbruch erhalten. Ein neuer Abruf ergänzt noch keine Flugbuchstatistik.</Label>
           </Card>
           {open && <CapturedFlights key={c.snapshot?.captureId ?? 'no-capture'} snapshot={c.snapshot} loadState={c.captureLoadState} />}
+          {open && <InformationReview captures={c.informationCaptures} notice={c.informationNotice} />}
           {c.recovery && <Card><Section title="Abruf gesperrt · Wiederherstellung nötig" /><Label>{c.legacyRecovery ? 'Ein älterer Eintrag muss zuerst geprüft werden. Alte Rohbelege werden dabei nicht übernommen.' : 'Vor dem nächsten Abruf muss die ursprüngliche Anbieteransicht im bisherigen Konto wiederhergestellt werden.'}</Label>{c.legacyRecovery && c.viewReady && <LegacyRecoveryReview locked={locked} recover={c.legacyRecoveryAvailable ? c.requestLegacyRecovery : undefined} />}
             {c.legacyChoice && <>
               <Section title="Aktuelle Ansicht weicht ab" />

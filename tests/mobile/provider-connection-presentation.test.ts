@@ -9,6 +9,7 @@ import { connectionGuidance, connectionSymbol } from '../../apps/platform-lab/sr
 import { providerUrl } from '../../apps/platform-lab/src/vereinsflieger/probe.ts';
 import type { useAccessController } from '../../apps/platform-lab/src/vereinsflieger/use-access-controller.tsx';
 import { captureFixture } from './capture-review-fixture.ts';
+import { INFORMATION_TYPES } from '../../apps/platform-lab/src/vereinsflieger/information.ts';
 
 type Controller = ReturnType<typeof useAccessController>;
 interface Element { type: unknown; props: Record<string, any>; children: unknown[] }
@@ -46,12 +47,15 @@ function fixture(overrides: Partial<Controller> = {}, development = false) {
     'react-native-safe-area-context': { useSafeAreaInsets: () => ({ top: 0, bottom: 0 }) },
     './LegacyRecoveryReview': { LegacyRecoveryReview: 'LegacyRecoveryReview' }, './RawCaptureReview': { RawCaptureReview: 'RawCaptureReview' },
     './CapturedFlights': { CapturedFlights: 'CapturedFlights' },
+    './InformationReview': { InformationReview: 'InformationReview' }, '../vereinsflieger/information': { INFORMATION_TYPES },
   };
   const exports: { ProviderConnection?: (props: unknown) => Element } = {};
   runInNewContext(source, { exports, URL, require: (name: string) => { assert.ok(name in modules, name); return modules[name]; } });
   const browser: Element = { type: 'retained-browser', props: {}, children: [] };
   const controller = {
     connection: new ConnectionSession().state, browser, browserActive: false, viewReady: true,
+    informationCategory: 'work-hours', informationCaptures: [], informationNotice: '', informationBusy: false, informationSaving: false,
+    nextInformationCategory: () => calls.push('information-category'), startInformation: () => calls.push('information-start'), stopInformation: () => calls.push('information-stop'),
     original: { current: null }, restoring: { current: false }, result: 'none', loginNotice: 'none',
     disconnectNotice: 'none', clearNotice: 'none', credentialNotice: 'none', proofNotice: 'none',
     connect: () => calls.push('connect'), checkConnection: (action = 'check') => calls.push(action),
@@ -87,6 +91,20 @@ function fixture(overrides: Partial<Controller> = {}, development = false) {
   render();
   return { controller, calls, browser, render, nodes, text, button };
 }
+
+test('information page capture is explicit, respects recovery/loading and cannot cancel an atomic save', () => {
+  const f = fixture({ visible: true, loaded: true, browserActive: true });
+  assert.deepEqual(f.calls, []); assert.equal(f.button('Informationen dieser Seite speichern').props.disabled, false);
+  f.button('Informationen dieser Seite speichern').props.onPress(); assert.deepEqual(f.calls, ['information-start']);
+  for (const overrides of [{ recovery: true }, { loaded: false }, { busy: true }]) {
+    const blocked = fixture({ visible: true, loaded: true, browserActive: true, ...overrides });
+    assert.equal(blocked.button('Informationen dieser Seite speichern').props.disabled, true);
+  }
+  const active = fixture({ visible: true, loaded: true, informationBusy: true, busy: true });
+  assert.equal(active.button('Informationsabruf abbrechen').props.disabled, false);
+  active.button('Informationsabruf abbrechen').props.onPress(); assert.deepEqual(active.calls, ['information-stop']);
+  assert.equal(fixture({ visible: true, loaded: true, informationBusy: true, informationSaving: true, busy: true }).button('Informationsabruf abbrechen').props.disabled, true);
+});
 
 test('initial and invalidated observations never promise logout or a currently valid session', () => {
   const session = new ConnectionSession();
