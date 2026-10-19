@@ -1,7 +1,7 @@
 import { canonical } from '@moflight/flight-logbook';
 import type { Driver } from '@moflight/local-data';
 import { validateScope, type ProviderScope } from './scope-store';
-import { validateInformationCapture, type InformationCapture } from './information';
+import { informationCategories, validateInformationCapture, type InformationCapture } from './information';
 
 export const INFORMATION_SCHEMA = `
 CREATE TABLE information_manifest(singleton INTEGER PRIMARY KEY CHECK(singleton=1),family TEXT NOT NULL,version INTEGER NOT NULL,scope TEXT NOT NULL);
@@ -51,7 +51,7 @@ export class InformationStore {
   async latest(): Promise<InformationCapture[]> {
     await this.allowed();
     const rows = await this.db.all<{id:string;category:string;retrieved_at:string;payload:string}>('SELECT * FROM information_captures r WHERE rowid=(SELECT rowid FROM information_captures WHERE category=r.category ORDER BY retrieved_at DESC,rowid DESC LIMIT 1) ORDER BY category');
-    if (rows.length > 9) throw new Error('Unsupported information category count');
+    if (rows.length > informationCategories.length) throw new Error('Unsupported information category count');
     const result = rows.map(r => {
       if (r.payload.length > 1_000_000) throw new Error('Oversized saved information');
       const value = this.validate(JSON.parse(r.payload));

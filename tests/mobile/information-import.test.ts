@@ -20,8 +20,8 @@ function cell(text: string, extra: Record<string, unknown> = {}) { return { text
 function row(texts: string[]) { return { cells: texts.map(t => cell(t)), querySelector: () => null }; }
 const header = ['', 'Datum', 'Tätigkeit', 'Stunden', 'Kategorie', 'Status', 'Private contact'];
 const entries = [['', '01.10.2026', 'Synthetic work', '0.00', 'Custom', 'Akzeptiert', 'Do not collect']];
-function read(category: InformationCategory, rows = [row(header), ...entries.map(row)], tables?: { rows: typeof rows }[], taskFilter = 'Meine nicht beendeten Aufgaben') {
-  const window = {}; const document = { getElementById: () => ({ innerText: category === 'tasks' ? taskFilter : '' }), querySelector: () => null, querySelectorAll: (s: string) => s === 'table' ? tables ?? [{ rows }] : s === 'select' ? category === 'tasks' ? [] : [{ selectedOptions: [{ textContent: '2026' }] }, { selectedOptions: [{ textContent: 'Private person filter' }] }] : [] };
+function read(category: InformationCategory, rows = [row(header), ...entries.map(row)], tables?: { rows: typeof rows }[], taskFilter = 'Meine nicht beendeten Aufgaben', taskAnchor = 'globalfiltertime') {
+  const window = {}; const document = { getElementById: (id: string) => id === taskAnchor ? ({ innerText: category === 'tasks' ? taskFilter : '' }) : null, querySelector: () => null, querySelectorAll: (s: string) => s === 'table' ? tables ?? [{ rows }] : s === 'select' ? category === 'tasks' ? [] : [{ selectedOptions: [{ textContent: '2026' }] }, { selectedOptions: [{ textContent: 'Private person filter' }] }] : [] };
   return JSON.parse(JSON.stringify(runInNewContext(`(${INFORMATION_READER_SOURCE})(category, config)`, { document, location: { href: category === 'tasks' ? tasksUrl : category === 'ledger' ? ledgerUrl : category === 'medical' || category === 'work-summary' ? PROFILE_URL : category === 'duties' ? 'https://vereinsflieger.de/member/profile/myservices.php' : url }, window: Object.assign(window, { top: window }), URL, category, config: INFORMATION_TYPES[category] })));
 }
 const page = () => validateInformationPage(read('work-hours'));
@@ -97,6 +97,7 @@ test('own open task reader retains raw due/status/zero evidence while excluding 
 test('own-task empty source needs exact owned filter and explicit marker; other scopes stay unavailable', () => {
   const rows = [row(['Titel', 'Zu erledigen bis', 'Status']), row(['Es wurden keine passenden Daten gefunden!'])];
   const p = validateInformationPage(read('tasks', rows)); assert.equal(p.empty, true);
+  assert.equal(read('tasks', rows, undefined, 'Meine nicht beendeten Aufgaben', 'globalfilter').error, 'task-scope-unverified');
   for (const filter of ['', 'Alle Aufgaben', 'Alle nicht beendeten Aufgaben']) {
     assert.equal(read('tasks', rows, undefined, filter).error, 'task-scope-unverified');
     assert.throws(() => validateInformationPage({ ...p, filters: filter ? [filter] : [] }));
@@ -164,5 +165,24 @@ test('real SQLite immutable retries, scoped isolation, corruption and close/reop
     await assert.rejects(new InformationStore(db, { ...scope, connectionId: 'other' }, gate).initialize());
     permitted = false; await assert.rejects(store.latest()); await assert.rejects(store.save(capture('new'))); permitted = true;
     assert.deepEqual(await store.latest(), [capture()]);
+  } finally { await db.close(); await rm(dir, { recursive: true, force: true }); }
+});
+test('all enabled categories including an explicit empty own-task capture survive SQLite reopening together', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'moflight-information-catalogue-')); const file = join(dir, 'capture.sqlite');
+  let db = nodeDriver(file);
+  const paths: Partial<Record<InformationCategory, string>> = { ledger: new URL(ledgerUrl).pathname, tasks: new URL(tasksUrl).pathname, medical: new URL(PROFILE_URL).pathname, 'work-summary': new URL(PROFILE_URL).pathname, duties: '/member/profile/myservices.php', enrolments: '/member/profile/usereducation', practical: '/member/profile/usereducation/editelidp', theory: '/member/profile/usereducation/editelidt' };
+  const values = Object.entries(INFORMATION_TYPES).map(([category, config]) => validateInformationCapture({
+    version: 1, id: 'synthetic-' + category, retrievedAt: at, owner: scope.owner, connectionId: scope.connectionId, sourceIdentity: 'provisional-observed-profile', category, path: paths[category as InformationCategory] ?? new URL(url).pathname,
+    columns: Object.entries(config.fields).map(([key, names], index) => ({ key, label: names[0], index })),
+    rows: category === 'tasks' ? [] : [{ position: 1, values: Object.keys(config.fields).map(() => 'Synthetic raw value') }],
+    empty: category === 'tasks', filters: category === 'tasks' ? ['Meine nicht beendeten Aufgaben'] : [], coverage: { kind: 'visible-page', truncated: false, pagination: 'unverified' },
+  })).sort((a, b) => a.category.localeCompare(b.category));
+  try {
+    let store = new InformationStore(db, scope, async () => {}); await store.initialize();
+    for (const value of values) await store.save(value);
+    await db.close(); db = nodeDriver(file); store = new InformationStore(db, scope, async () => {}); await store.initialize();
+    assert.deepEqual(await store.latest(), values);
+    const tasks = (await store.latest()).find(v => v.category === 'tasks')!;
+    assert.equal(tasks.empty, true); assert.deepEqual(tasks.filters, ['Meine nicht beendeten Aufgaben']);
   } finally { await db.close(); await rm(dir, { recursive: true, force: true }); }
 });
