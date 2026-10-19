@@ -4,7 +4,7 @@ import { runInNewContext } from 'node:vm';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { INFORMATION_READER_SOURCE, INFORMATION_TYPES, validateInformationPage, validateInformationCapture, informationCategoryUrl, informationUrl, type InformationCategory } from '../../apps/platform-lab/src/vereinsflieger/information.ts';
+import { INFORMATION_READER_SOURCE, INFORMATION_TYPES, validateInformationPage, validateInformationCapture, informationRouteShape, informationCategoryUrl, informationUrl, type InformationCategory } from '../../apps/platform-lab/src/vereinsflieger/information.ts';
 import { InformationStore } from '../../apps/platform-lab/src/vereinsflieger/information-store.ts';
 import { InformationRun } from '../../apps/platform-lab/src/vereinsflieger/information-run.ts';
 import { PROFILE_URL } from '../../apps/platform-lab/src/vereinsflieger/context.ts';
@@ -24,6 +24,11 @@ function read(category: InformationCategory, rows = [row(header), ...entries.map
   return JSON.parse(JSON.stringify(runInNewContext(`(${INFORMATION_READER_SOURCE})(category, config)`, { document, location: { href: category === 'ledger' ? ledgerUrl : category === 'medical' || category === 'work-summary' ? PROFILE_URL : category === 'duties' ? 'https://vereinsflieger.de/member/profile/myservices.php' : url }, window: Object.assign(window, { top: window }), URL, category, config: INFORMATION_TYPES[category] })));
 }
 const page = () => validateInformationPage(read('work-hours'));
+test('bounded local route diagnostic excludes query values and numeric path identities', () => {
+  const shape = informationRouteShape('https://vereinsflieger.de/member/profile/example/123?year=2026&private=secret&private=another&bad123=hidden');
+  assert.deepEqual(shape, { path: '/member/profile/example/#', queryKeys: ['year', 'private', '(other)'] });
+  assert.equal(informationRouteShape('https://evil.test/member/profile/example'), null);
+});
 const capture = (id = 'capture-a') => validateInformationCapture({ ...page(), version: 1, id, retrievedAt: at, owner: scope.owner, connectionId: scope.connectionId, sourceIdentity: 'provisional-observed-profile' });
 
 test('allowlisted work rows retain exact zero/raw evidence and exclude private columns/filter values', () => {
