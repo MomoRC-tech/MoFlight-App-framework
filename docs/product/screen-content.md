@@ -1,5 +1,7 @@
 # MoFlight screen content and placement
 
+**19 October source-capture boundary:** Connections now exposes selected original-page capture and offline raw information review. The [category checklist](vereinsflieger-information-discovery.md#selected-coverage-and-present-evidence) records actual supported/saved versus missing categories. Medical metadata captures do not yet drive S13/header validity; work/duty/training/billing source rows do not activate dashboard aggregates, qualification or costs.
+
 For current visual directives, colors, typography, shapes and navigation presentation, use the [UI design handbook](design/README.md). This file retains content-placement requirements and their history; historical prototype descriptions do not establish current implementation status.
 
 ## Native shell update — 17 October 2026
