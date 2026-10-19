@@ -32,7 +32,7 @@ export class InformationRun {
         const messages: Record<string, string> = {
           'source-table-unverified': 'Keine eindeutige Tabelle für den ausgewählten Quelltyp.',
           'task-scope-unverified': 'Die Quelle ist nicht als eigene offene Aufgaben bestätigt.',
-          'notice-source-unverified': 'Die Quellenstruktur der Hinweise ist nicht bestätigt. Neue News-Inhalte werden noch nicht unterstützt.',
+          'notice-source-unverified': 'Diese Übersicht wird in dieser Form noch nicht unterstützt.',
           'medical-source-unverified': 'Medical-Abschnitt nicht eindeutig erkannt.',
           'row-shape': 'Die Struktur der Quellzeilen wird noch nicht unterstützt.',
           'nested-source-row': 'Eine verschachtelte Quellzeile wird noch nicht unterstützt.',

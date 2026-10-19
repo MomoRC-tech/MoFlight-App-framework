@@ -130,13 +130,13 @@ test('native task empty footer must be the exact paired sibling of the own-list 
     const bad = fixture(); change(bad); assert.throws(() => validateInformationPage(read('tasks', [], [bad.h, bad.f])));
   }
 });
-function readNotice(category: 'document-notices' | 'news', options: { rows?: ReturnType<typeof row>[]; duplicate?: boolean; wrongParent?: boolean; caption?: string; copies?: number } = {}) {
-  const id = category === 'news' ? 'news' : 'docs';
+function readNotice(category: 'document-notices' | 'news' | 'own-reservations', options: { rows?: ReturnType<typeof row>[]; duplicate?: boolean; wrongParent?: boolean; caption?: string; copies?: number } = {}) {
+  const id = category === 'news' ? 'news' : category === 'own-reservations' ? 'my_reservation' : 'docs';
   const anchor = { nodeType: 1, tagName: 'A', classList: { contains: (s: string) => s === 'icon-download' }, get href(): never { throw new Error('Download link must not be read'); } };
   const documentRow = row(['Synthetic notice 01.10.2026']);
   (documentRow.cells[0] as any).childNodes = [anchor, { nodeType: 3, textContent: 'Synthetic notice 01.10.2026' }];
-  const table = { rows: options.rows ?? (category === 'news' ? [row(['', 'Es wurden keine Daten gefunden!'])] : Array.from({ length: options.copies ?? 1 }, () => documentRow)) };
-  const head = { tagName: 'DIV', classList: { contains: (s: string) => s === 'box-header' }, querySelector: () => ({ innerText: options.caption ?? (category === 'news' ? 'News' : 'Dokumente') }) };
+  const table = { rows: options.rows ?? (category !== 'document-notices' ? [row(['', 'Es wurden keine Daten gefunden!'])] : Array.from({ length: options.copies ?? 1 }, () => documentRow)) };
+  const head = { tagName: 'DIV', classList: { contains: (s: string) => s === 'box-header' }, querySelector: () => ({ innerText: options.caption ?? (category === 'news' ? 'News' : category === 'own-reservations' ? 'Meine Reservierungen' : 'Dokumente') }) };
   const content = { tagName: 'DIV', parentElement: null as any, querySelectorAll: () => [table] };
   const section = { tagName: 'DIV', children: [head, content] }; content.parentElement = options.wrongParent ? {} : section;
   const document = { querySelector: () => null, getElementById: (s: string) => s === id ? section : s === id + '_content' ? content : null, querySelectorAll: (s: string) => s === '#' + id || s === '#' + id + '_content' ? options.duplicate ? [section, section] : [section] : [] };
@@ -152,10 +152,16 @@ test('document notice reader takes only direct title/date text and never reads d
 });
 test('News supports only the evidenced empty overview; positive content is unsupported without opening or marking read', () => {
   const p = validateInformationPage(readNotice('news')); assert.equal(p.empty, true); assert.deepEqual(p.rows, []);
+  assert.throws(() => validateInformationPage({ ...p, empty: false, rows: [{ position: 0, values: ['Forged positive news'] }] }));
   for (const rows of [[row(['', 'Synthetic positive news'])], [row(['Es wurden keine Daten gefunden!'])], [row(['', 'Es wurden keine Daten gefunden!']), row(['', 'Another row'])]]) assert.throws(() => validateInformationPage(readNotice('news', { rows })));
 });
+test('own-reservation overview requires its own caption and explicit empty, never a general roster or positive booking', () => {
+  const p = validateInformationPage(readNotice('own-reservations')); assert.equal(p.empty, true);
+  assert.throws(() => validateInformationPage({ ...p, empty: false, rows: [{ position: 0, values: ['Forged booking'] }] }));
+  for (const options of [{ caption: 'Reservierungen' }, { wrongParent: true }, { duplicate: true }, { rows: [row(['', 'Synthetic booking'])] }]) assert.throws(() => validateInformationPage(readNotice('own-reservations', options)));
+});
 test('notice sources require the exact query-free overview route and preserve strict ledger/task paths', () => {
-  for (const category of ['document-notices', 'news'] as const) {
+  for (const category of ['document-notices', 'news', 'own-reservations'] as const) {
     assert.equal(informationCategoryUrl(category, overviewUrl), true);
     for (const bad of [overviewUrl + '?view=all', overviewUrl + '/', url, ledgerUrl]) assert.equal(informationCategoryUrl(category, bad), false);
   }
@@ -222,12 +228,12 @@ test('real SQLite immutable retries, scoped isolation, corruption and close/reop
 test('all enabled categories including an explicit empty own-task capture survive SQLite reopening together', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'moflight-information-catalogue-')); const file = join(dir, 'capture.sqlite');
   let db = nodeDriver(file);
-  const paths: Partial<Record<InformationCategory, string>> = { ledger: new URL(ledgerUrl).pathname, tasks: new URL(tasksUrl).pathname, 'document-notices': new URL(overviewUrl).pathname, news: new URL(overviewUrl).pathname, medical: new URL(PROFILE_URL).pathname, 'work-summary': new URL(PROFILE_URL).pathname, duties: '/member/profile/myservices.php', enrolments: '/member/profile/usereducation', practical: '/member/profile/usereducation/editelidp', theory: '/member/profile/usereducation/editelidt' };
+  const paths: Partial<Record<InformationCategory, string>> = { ledger: new URL(ledgerUrl).pathname, tasks: new URL(tasksUrl).pathname, 'document-notices': new URL(overviewUrl).pathname, news: new URL(overviewUrl).pathname, 'own-reservations': new URL(overviewUrl).pathname, medical: new URL(PROFILE_URL).pathname, 'work-summary': new URL(PROFILE_URL).pathname, duties: '/member/profile/myservices.php', enrolments: '/member/profile/usereducation', practical: '/member/profile/usereducation/editelidp', theory: '/member/profile/usereducation/editelidt' };
   const values = Object.entries(INFORMATION_TYPES).map(([category, config]) => validateInformationCapture({
     version: 1, id: 'synthetic-' + category, retrievedAt: at, owner: scope.owner, connectionId: scope.connectionId, sourceIdentity: 'provisional-observed-profile', category, path: paths[category as InformationCategory] ?? new URL(url).pathname,
     columns: Object.entries(config.fields).map(([key, names], index) => ({ key, label: names[0], index })),
-    rows: category === 'tasks' ? [] : [{ position: 1, values: Object.keys(config.fields).map(() => 'Synthetic raw value') }],
-    empty: category === 'tasks', filters: category === 'tasks' ? ['Meine nicht beendeten Aufgaben'] : [], coverage: { kind: 'visible-page', truncated: false, pagination: 'unverified' },
+    rows: ['tasks', 'news', 'own-reservations'].includes(category) ? [] : [{ position: 1, values: Object.keys(config.fields).map(() => 'Synthetic raw value') }],
+    empty: ['tasks', 'news', 'own-reservations'].includes(category), filters: category === 'tasks' ? ['Meine nicht beendeten Aufgaben'] : [], coverage: { kind: 'visible-page', truncated: false, pagination: 'unverified' },
   })).sort((a, b) => a.category.localeCompare(b.category));
   try {
     let store = new InformationStore(db, scope, async () => {}); await store.initialize();

@@ -10,6 +10,7 @@ export const INFORMATION_TYPES = {
   tasks: { title: 'Eigene offene Aufgaben', required: ['title', 'due', 'status'], fields: { title: ['Titel'], due: ['Zu erledigen bis'], days: ['Anzahl Tage'], status: ['Status'], priority: ['Priorität'] } },
   'document-notices': { title: 'Dokumentenhinweise', required: ['notice'], fields: { notice: ['Hinweis · Originaltext'] } },
   news: { title: 'News · Übersicht', required: ['notice'], fields: { notice: ['Hinweis · Originaltext'] } },
+  'own-reservations': { title: 'Eigene Reservierungen · Übersicht', required: ['notice'], fields: { notice: ['Hinweis · Originaltext'] } },
   medical: { title: 'Medical · Quellenangaben', required: ['kind', 'expiry'], fields: { kind: ['Medical-Art'], expiry: ['Gültig bis · Originaltext'] } },
   enrolments: { title: 'Ausbildung · Übersicht', required: ['syllabus', 'begun', 'ended'], fields: { syllabus: ['Lehrplan'], begun: ['Begonnen am'], ended: ['Beendet am'], reported: ['Gemeldet Verband', 'Gemeldet an Verband'], practical: ['Fortschritt (Praxis)'], theory: ['Fortschritt (Theorie)'] } },
   practical: { title: 'Praktische Ausbildung', required: ['number', 'status', 'objective', 'landings', 'block'], fields: { number: ['No', 'No.'], status: ['Status'], objective: ['Lernziel'], instructorBegun: ['Fluglehrer (Begonnen)'], begun: ['Begonnen am'], instructorEnded: ['Fluglehrer (Beendet)'], ended: ['Beendet am'], landings: ['Landungen'], block: ['Blockzeit'] } },
@@ -55,11 +56,11 @@ export function informationUrl(value: string): boolean {
 export function informationCategoryUrl(category: InformationCategory, url: string) {
   if (!informationUrl(url)) return false;
   const rawPath = new URL(url).pathname;
-  const path = ['ledger', 'tasks', 'document-notices', 'news'].includes(category) ? rawPath : rawPath.replace(/\/$/, '');
+  const path = ['ledger', 'tasks', 'document-notices', 'news', 'own-reservations'].includes(category) ? rawPath : rawPath.replace(/\/$/, '');
   const known: Partial<Record<InformationCategory, readonly string[]>> = {
     ledger: ['/member/profile/account.php'],
     tasks: ['/member/community/tasklist/tasklist'],
-    'document-notices': ['/member/overview/overview'], news: ['/member/overview/overview'],
+    'document-notices': ['/member/overview/overview'], news: ['/member/overview/overview'], 'own-reservations': ['/member/overview/overview'],
     medical: ['/member/profile/viewprofile'], 'work-summary': ['/member/profile/viewprofile'],
     duties: ['/member/profile/myservices.php', '/member/profile/allservicelist.php', '/member/community/serviceshedulelist.php'],
     enrolments: ['/member/profile/usereducation'], practical: ['/member/profile/usereducation/editelidp'], theory: ['/member/profile/usereducation/editelidt'],
@@ -86,6 +87,7 @@ export function validateInformationPage(input: unknown): InformationPage {
     keys.add(c.key); lastIndex = c.index; return { key: c.key, label: c.label, index: c.index };
   });
   if (config.required.some(k => !keys.has(k)) || !Array.isArray(p.rows) || p.rows.length > 20 || typeof p.empty !== 'boolean' || p.empty !== !p.rows.length) throw new Error('Missing information anchors');
+  if ((category === 'news' || category === 'own-reservations') && !p.empty || category === 'document-notices' && p.empty) throw new Error('Unsupported overview state');
   let lastPosition = -1;
   const rows = p.rows.map(value => {
     const r = object(value); exact(r, ['position', 'values']);
@@ -126,8 +128,8 @@ export const INFORMATION_READER_SOURCE = String.raw`(category, config) => {
     return config.required.every(k=>seen.has(k)) ? cols : null;
   };
   let columns, rows=[], empty=false, truncated=false;
-  if (category === 'document-notices' || category === 'news') {
-    const id=category==='news' ? 'news' : 'docs', caption=category==='news' ? 'News' : 'Dokumente';
+  if (category === 'document-notices' || category === 'news' || category === 'own-reservations') {
+    const id=category==='news' ? 'news' : category==='own-reservations' ? 'my_reservation' : 'docs', caption=category==='news' ? 'News' : category==='own-reservations' ? 'Meine Reservierungen' : 'Dokumente';
     const section=document.getElementById?.(id), content=document.getElementById?.(id+'_content');
     const head=section?.children?.[0];
     if(document.querySelectorAll('#'+id).length!==1 || document.querySelectorAll('#'+id+'_content').length!==1 || section?.tagName!=='DIV' || section.children.length!==2 || head?.tagName!=='DIV' || !head.classList.contains('box-header') || norm(head.querySelector('span')?.innerText)!==caption || content?.tagName!=='DIV' || content.parentElement!==section || section.children[1]!==content) return {error:'notice-source-unverified'};
@@ -135,7 +137,7 @@ export const INFORMATION_READER_SOURCE = String.raw`(category, config) => {
     if(tables.length!==1) return {error:'notice-source-unverified'};
     const all=Array.from(tables[0].rows || []);
     columns=[{key:'notice',label:'Hinweis · Originaltext',index:0}];
-    if(category==='news') {
+    if(category!=='document-notices') {
       const cells=Array.from(all[0]?.cells || []);
       if(all.length!==1 || cells.length!==2 || norm(cells[0].innerText) || norm(cells[1].innerText)!=='Es wurden keine Daten gefunden!' || cells.some(c=>(c.colSpan || 1)!==1 || (c.rowSpan || 1)!==1 || c.querySelector('table,input,button,select,textarea,iframe,object,embed'))) return {error:'notice-source-unverified'};
       empty=true;
