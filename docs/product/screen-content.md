@@ -1,6 +1,6 @@
 # MoFlight screen content and placement
 
-**19 October source-capture boundary:** Connections now exposes selected original-page capture and offline raw information review. The [category checklist](vereinsflieger-information-discovery.md#selected-coverage-and-present-evidence) records actual supported/saved versus missing categories. Minimum profile/licence/document-notice snapshots and three explicit empty views are source evidence only: they do not replace local profile identity, drive S13/header validity, change unread/booking state or activate dashboard, qualification or cost calculations.
+**19 October source-capture boundary:** Connections now exposes selected original-page capture and offline raw information review. The [category checklist](vereinsflieger-information-discovery.md#selected-coverage-and-present-evidence) records actual supported/saved versus missing categories. Minimum profile/licence/document-notice snapshots, selected historical event title/Ort rows and three explicit empty views are source evidence only: they do not replace local profile identity, drive S13/header validity, change unread/booking state or activate dashboard, qualification or cost calculations.
 
 For current visual directives, colors, typography, shapes and navigation presentation, use the [UI design handbook](design/README.md). This file retains content-placement requirements and their history; historical prototype descriptions do not establish current implementation status.
 
