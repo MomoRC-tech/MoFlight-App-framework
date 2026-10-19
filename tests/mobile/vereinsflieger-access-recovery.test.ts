@@ -1497,3 +1497,32 @@ test('background cancellation prevents late information callbacks from saving or
   (web.props.onMessage as (event: unknown) => void)({ nativeEvent: { url: informationSource, data: JSON.stringify({ kind: 'vf-information-v1', nonce: f.lastIssuedNonce() + '-read', url: informationSource, page: informationPage }) } });
   await f.flush(); assert.equal(f.controller().informationBusy, false); assert.ok(!f.writes.includes('information-saved'));
 });
+
+test('native event capture probes the still-selected page first and saves only when its date/view survives context navigation', async () => {
+  const selected = 'https://vereinsflieger.de/member/community/appointment/?weekCount=synthetic-period';
+  for (const changed of [false, true]) {
+    const f = fixture({ product: true }); f.render(); await f.settle(null); await establishProductAssociation(f);
+    for (let i = 0; i < 16 && f.controller().informationCategory !== 'events'; i++) f.controller().nextInformationCategory();
+    assert.equal(f.controller().informationCategory, 'events');
+    f.controller().setVisible(true); f.controller().navigate(selected); await f.loadPage(selected);
+    f.controller().startInformation(); await f.flush();
+    assert.match(f.injections.at(-1)!, /vf-information-selection-v1/);
+    assert.ok(!f.writes.includes('information-saved'));
+    async function send(kind: string, stage: string, payload: Record<string, unknown>) {
+      const web = f.find(f.render(), e => e.type === 'WebView')!;
+      (web.props.onMessage as (event: unknown) => void)({ nativeEvent: { url: selected, data: JSON.stringify({ kind, nonce: f.lastIssuedNonce() + '-' + stage, url: selected, ...payload }) } });
+      await f.flush();
+    }
+    await send('vf-information-selection-v1', 'selection', { selection: { date: '19.07.2026', view: '3 Monate' } });
+    await f.loadPage(context.PROFILE_URL); await f.contextMessage(observedContext);
+    await f.loadPage(selected);
+    await send('vf-information-v1', 'read', { page: {
+      category: 'events', path: '/member/community/appointment/', columns: [{ key: 'date', label: 'Datum', index: 2 }, { key: 'time', label: 'Zeit', index: 3 }, { key: 'kind', label: 'Kategorie', index: 4 }, { key: 'info', label: 'Info', index: 5 }],
+      rows: [{ position: 3, values: ['26.07.2026', 'Ganztägig', 'Termine', 'Synthetic event'] }], filters: ['Quellkategorie: Termine', 'Ab ' + (changed ? '20.07.2026' : '19.07.2026'), 'Ansicht: 3 Monate'], empty: false, coverage: { kind: 'visible-page', truncated: false, pagination: 'unverified' },
+    } });
+    if (changed) assert.match(f.controller().informationNotice, /Kalenderansicht.*geändert/);
+    else { await f.loadPage(context.PROFILE_URL); await f.contextMessage(observedContext); await f.flush(); }
+    assert.equal(f.writes.filter(w => w === 'information-saved').length, changed ? 0 : 1);
+    assert.ok(!f.writes.includes('capture-saved')); assert.equal(f.loginStorage().reads, 0);
+  }
+});

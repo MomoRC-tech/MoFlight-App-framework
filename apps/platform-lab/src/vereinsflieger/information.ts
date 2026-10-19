@@ -11,6 +11,7 @@ export const INFORMATION_TYPES = {
   'document-notices': { title: 'Dokumentenhinweise', required: ['notice'], fields: { notice: ['Hinweis · Originaltext'] } },
   news: { title: 'News · Übersicht', required: ['notice'], fields: { notice: ['Hinweis · Originaltext'] } },
   'own-reservations': { title: 'Eigene Reservierungen · Übersicht', required: ['notice'], fields: { notice: ['Hinweis · Originaltext'] } },
+  events: { title: 'Termine · Quellenliste', required: ['date', 'time', 'kind', 'info'], fields: { date: ['Datum'], time: ['Zeit'], kind: ['Kategorie'], info: ['Info'] } },
   'own-profile': { title: 'Profil · Grunddaten', required: ['field', 'value'], fields: { field: ['Profilfeld'], value: ['Originaltext'] } },
   'licence-metadata': { title: 'Lizenzen · Quellenangaben', required: ['kind', 'field', 'value'], fields: { kind: ['Lizenzgruppe'], field: ['Quellenfeld'], value: ['Originaltext'] } },
   medical: { title: 'Medical · Quellenangaben', required: ['kind', 'expiry'], fields: { kind: ['Medical-Art'], expiry: ['Gültig bis · Originaltext'] } },
@@ -20,6 +21,22 @@ export const INFORMATION_TYPES = {
 } as const;
 export type InformationCategory = keyof typeof INFORMATION_TYPES;
 export const informationCategories = Object.keys(INFORMATION_TYPES) as InformationCategory[];
+export const eventViews = ['1 Tag', '1 Woche', '2 Wochen', '3 Wochen', '4 Wochen', '3 Monate', '6 Monate', '1 Jahr'] as const;
+function sourceDate(value: string) {
+  if (!/^\d{2}\.\d{2}\.(?:19|20|21)\d{2}$/.test(value)) return false;
+  const [day, month, year] = value.split('.').map(Number);
+  const d = new Date(Date.UTC(year!, month! - 1, day));
+  return d.getUTCFullYear() === year && d.getUTCMonth() === month! - 1 && d.getUTCDate() === day;
+}
+function eventInfo(value: string) {
+  const lines = value.split(/\r?\n/).map(normalizedLabel).filter(Boolean);
+  return lines.length >= 1 && lines.length <= 2 && lines[0]!.length <= 1024 && (lines.length === 1 || /^Ort:\s+\S/.test(lines[1]!) && lines[1]!.length <= 512);
+}
+export function eventSelectionFilters(input: unknown): string[] {
+  const p = object(input); exact(p, ['date', 'view']);
+  if (typeof p.date !== 'string' || !sourceDate(p.date) || typeof p.view !== 'string' || !(eventViews as readonly string[]).includes(p.view)) throw new Error('Unverified event selection');
+  return ['Quellkategorie: Termine', 'Ab ' + p.date, 'Ansicht: ' + p.view];
+}
 export interface InformationPage {
   category: InformationCategory; path: string;
   columns: { key: string; label: string; index: number }[];
@@ -50,6 +67,8 @@ export function informationUrl(value: string): boolean {
   if (u.pathname === '/member/community/tasklist/tasklist') return !u.hash &&
     (!u.search || u.searchParams.size === 1 && u.searchParams.has('gselect'));
   if (u.pathname === '/member/overview/overview') return !u.hash && !u.search;
+  if (u.pathname === '/member/community/appointment/') return !u.hash &&
+    (!u.search || u.searchParams.size === 1 && u.searchParams.has('weekCount'));
   return !u.hash && u.pathname.startsWith('/member/') &&
     !/(?:logout|password|download|print|delete|remove|save|upload|config)/i.test(u.pathname) &&
     (!/\/edit/i.test(u.pathname) || /^\/member\/profile\/usereducation\/editelid[pt]$/.test(u.pathname)) &&
@@ -59,10 +78,11 @@ export function informationCategoryUrl(category: InformationCategory, url: strin
   if (!informationUrl(url)) return false;
   if (['own-profile', 'licence-metadata'].includes(category) && new URL(url).search) return false;
   const rawPath = new URL(url).pathname;
-  const path = ['ledger', 'tasks', 'document-notices', 'news', 'own-reservations', 'own-profile', 'licence-metadata'].includes(category) ? rawPath : rawPath.replace(/\/$/, '');
+  const path = ['ledger', 'tasks', 'document-notices', 'news', 'own-reservations', 'own-profile', 'licence-metadata', 'events'].includes(category) ? rawPath : rawPath.replace(/\/$/, '');
   const known: Partial<Record<InformationCategory, readonly string[]>> = {
     ledger: ['/member/profile/account.php'],
     tasks: ['/member/community/tasklist/tasklist'],
+    events: ['/member/community/appointment/'],
     'document-notices': ['/member/overview/overview'], news: ['/member/overview/overview'], 'own-reservations': ['/member/overview/overview'],
     medical: ['/member/profile/viewprofile'], 'work-summary': ['/member/profile/viewprofile'],
     'own-profile': ['/member/profile/viewprofile'],
@@ -93,6 +113,7 @@ export function validateInformationPage(input: unknown): InformationPage {
   });
   if (config.required.some(k => !keys.has(k)) || !Array.isArray(p.rows) || p.rows.length > 20 || typeof p.empty !== 'boolean' || p.empty !== !p.rows.length) throw new Error('Missing information anchors');
   if ((category === 'news' || category === 'own-reservations') && !p.empty || category === 'document-notices' && p.empty) throw new Error('Unsupported overview state');
+  if (category === 'events' && p.empty) throw new Error('Unverified empty event source');
   let lastPosition = -1;
   const rows = p.rows.map(value => {
     const r = object(value); exact(r, ['position', 'values']);
@@ -111,7 +132,10 @@ export function validateInformationPage(input: unknown): InformationPage {
     }
     if ([...groups.values()].some(fields => fields.size !== 2)) throw new Error('Incomplete licence group');
   }
-  if (!Array.isArray(p.filters) || p.filters.length > 8 || p.filters.some(s => typeof s !== 'string' || !/^(?:\d{4}|Jahr \d{4}|Aktuelle und anstehende Dienste|Alle Dienste|Alle anstehenden Dienste|Meine nicht beendeten Aufgaben)$/.test(s))) throw new Error('Invalid information filter');
+  if (category === 'events') {
+    if (columns.map(c => c.key).join(',') !== 'date,time,kind,info' || rows.some(r => !sourceDate(r.values[0]!) || normalizedLabel(r.values[2]!) !== 'Termine' || !normalizedLabel(r.values[1]!) || !eventInfo(r.values[3]!)) || !Array.isArray(p.filters) || p.filters.length !== 3 || typeof p.filters[1] !== 'string' || typeof p.filters[2] !== 'string' || p.filters[0] !== 'Quellkategorie: Termine' || !p.filters[1].startsWith('Ab ') || !p.filters[2].startsWith('Ansicht: ')) throw new Error('Unverified event scope');
+    eventSelectionFilters({ date: p.filters[1].slice(3), view: p.filters[2].slice(9) });
+  } else if (!Array.isArray(p.filters) || p.filters.length > 8 || p.filters.some(s => typeof s !== 'string' || !/^(?:\d{4}|Jahr \d{4}|Aktuelle und anstehende Dienste|Alle Dienste|Alle anstehenden Dienste|Meine nicht beendeten Aufgaben)$/.test(s))) throw new Error('Invalid information filter');
   if (category === 'tasks' && (p.filters.length !== 1 || p.filters[0] !== 'Meine nicht beendeten Aufgaben')) throw new Error('Unverified own task scope');
   const c = object(p.coverage); exact(c, ['kind', 'truncated', 'pagination']);
   if (c.kind !== 'visible-page' || typeof c.truncated !== 'boolean' || c.pagination !== 'unverified') throw new Error('Unsupported information coverage');
@@ -124,7 +148,22 @@ export function validateInformationCapture(input: unknown): InformationCapture {
   return { ...validateInformationPage(page), version: 1, id: p.id as string, retrievedAt: p.retrievedAt, owner: p.owner as string, connectionId: p.connectionId as string, sourceIdentity: 'provisional-observed-profile' };
 }
 
-// Explicit read only: no requests, navigation, form values, document downloads,
+/** The sole form-value exception: the evidenced calendar date control only. */
+export const EVENT_SELECTION_READER_SOURCE = String.raw`() => {
+  const u=new URL(location.href), norm=s=>String(s || '').replace(/\s+/g,' ').trim();
+  if(window.top!==window || u.protocol!=='https:' || !['vereinsflieger.de','www.vereinsflieger.de'].includes(u.hostname) || u.pathname!=='/member/community/appointment/' || u.username || u.password || u.port || u.hash || document.querySelector('input[name="pwinput"]')) return null;
+  const date=document.getElementById?.('frm_datefrom'), selects=Array.from(document.querySelectorAll('select'));
+  if(document.querySelectorAll('#frm_datefrom').length!==1 || date?.tagName!=='INPUT' || date.type!=='text' || !/^\d{2}\.\d{2}\.\d{4}$/.test(date.value) || selects.length!==1) return null;
+  const s=selects[0], labels=Array.from(s.options || []).map(o=>norm(o.textContent));
+  if(labels.join('|')!=='1 Tag|1 Woche|2 Wochen|3 Wochen|4 Wochen|3 Monate|6 Monate|1 Jahr' || s.selectedOptions?.length!==1) return null;
+  const view=norm(s.selectedOptions[0].textContent);
+  return labels.includes(view) ? {date:date.value,view} : null;
+}`;
+export function informationSelectionScript(nonce: string) {
+  return `try { window.ReactNativeWebView?.postMessage(JSON.stringify({kind:'vf-information-selection-v1',nonce:${JSON.stringify(nonce)},url:location.href,selection:(${EVENT_SELECTION_READER_SOURCE})()})); } catch { window.ReactNativeWebView?.postMessage(JSON.stringify({kind:'vf-information-selection-v1',nonce:${JSON.stringify(nonce)},url:location.href,selection:null})); } true;`;
+}
+
+// Explicit read only: no requests, navigation, other form values, document downloads,
 // cookies, storage, full-page HTML/text or unknown columns. Limits are page bounds.
 export const INFORMATION_READER_SOURCE = String.raw`(category, config) => {
   const norm = s => String(s || '').replace(/\s+/g,' ').trim();
@@ -144,8 +183,34 @@ export const INFORMATION_READER_SOURCE = String.raw`(category, config) => {
     }
     return config.required.every(k=>seen.has(k)) ? cols : null;
   };
-  let columns, rows=[], empty=false, truncated=false;
-  if (category === 'document-notices' || category === 'news' || category === 'own-reservations') {
+  let columns, rows=[], empty=false, truncated=false, eventFilters=[];
+  if(category==='events') {
+    const selection=(${EVENT_SELECTION_READER_SOURCE})();
+    if(!selection) return {error:'event-selection-unverified'};
+    eventFilters=['Quellkategorie: Termine','Ab '+selection.date,'Ansicht: '+selection.view];
+    const tables=Array.from(document.querySelectorAll('table[id^="tablelist_"]'));
+    if(tables.length!==1 || !/^tablelist_\d+$/.test(tables[0].id || '')) return {error:'event-source-unverified'};
+    const all=Array.from(tables[0].rows || []), header=Array.from(all[0]?.cells || []);
+    if(!all.length || all.length>10000 || header.length!==6 || header.map(c=>norm(c.innerText)).join('|')!=='|Tag|Datum|Zeit|Kategorie|Info') return {error:'event-source-unverified'};
+    columns=[{key:'date',label:'Datum',index:2},{key:'time',label:'Zeit',index:3},{key:'kind',label:'Kategorie',index:4},{key:'info',label:'Info',index:5}];
+    let date='';
+    for(let i=1;i<all.length;i++) {
+      const cells=Array.from(all[i].cells);
+      if(cells.length!==6 || cells.some(c=>(c.colSpan || 1)!==1 || (c.rowSpan || 1)!==1)) return {error:'row-shape'};
+      const shownDate=norm(cells[2].innerText);
+      if(shownDate) {if(!/^\d{2}\.\d{2}\.\d{4}$/.test(shownDate)) return {error:'event-source-unverified'};date=shownDate;}
+      // Establish category BEFORE reading Info or time. Other calendar kinds
+      // can contain third-party names, reservations and aircraft lock notes.
+      if(norm(cells[4].innerText)!=='Termine') continue;
+      if(!date || [cells[3],cells[4],cells[5]].some(c=>c.querySelector('table,input,button,select,textarea,iframe,object,embed'))) return {error:'event-source-unverified'};
+      if(rows.length===20) {truncated=true;break;}
+      const time=cells[3].innerText || '', info=cells[5].innerText || '';
+      const lines=info.split(/\r?\n/).map(norm).filter(Boolean);
+      if(!norm(time) || !lines.length || lines.length>2 || lines[0].length>1024 || lines.length===2 && (!/^Ort:\s+\S/.test(lines[1]) || lines[1].length>512)) return {error:'event-source-unverified'};
+      rows.push({position:i,values:[date,time,cells[4].innerText,info]});
+    }
+    if(!rows.length) return {error:'empty-scope-unverified'};
+  } else if (category === 'document-notices' || category === 'news' || category === 'own-reservations') {
     const id=category==='news' ? 'news' : category==='own-reservations' ? 'my_reservation' : 'docs', caption=category==='news' ? 'News' : category==='own-reservations' ? 'Meine Reservierungen' : 'Dokumente';
     const section=document.getElementById?.(id), content=document.getElementById?.(id+'_content');
     const head=section?.children?.[0];
@@ -274,12 +339,12 @@ export const INFORMATION_READER_SOURCE = String.raw`(category, config) => {
     if(!rows.length && !empty) return {error:'empty-scope-unverified'};
     if(rows.length && empty) return {error:'conflicting-empty-state'};
   }
-  const filters=taskFilter ? [taskFilter] : [];
-  for(const s of ['own-profile','licence-metadata'].includes(category) ? [] : document.querySelectorAll('select')) {
+  const filters=category==='events' ? eventFilters : taskFilter ? [taskFilter] : [];
+  for(const s of ['own-profile','licence-metadata','events'].includes(category) ? [] : document.querySelectorAll('select')) {
     const text=norm(s.selectedOptions?.[0]?.textContent);
     if(/^(?:\d{4}|Jahr \d{4}|Aktuelle und anstehende Dienste|Alle Dienste|Alle anstehenden Dienste)$/.test(text) && !filters.includes(text)) filters.push(text);
   }
-  const displayedFilter=['own-profile','licence-metadata'].includes(category) ? '' : norm(document.getElementById?.('globalfilter')?.innerText);
+  const displayedFilter=['own-profile','licence-metadata','events'].includes(category) ? '' : norm(document.getElementById?.('globalfilter')?.innerText);
   if(/^(?:\d{4}|Jahr \d{4}|Aktuelle und anstehende Dienste|Alle Dienste|Alle anstehenden Dienste)$/.test(displayedFilter) && !filters.includes(displayedFilter)) filters.push(displayedFilter);
   return {category,path:u.pathname,columns,rows,filters,empty:!rows.length,coverage:{kind:'visible-page',truncated,pagination:'unverified'}};
 }`;

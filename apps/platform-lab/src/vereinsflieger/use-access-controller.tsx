@@ -16,7 +16,7 @@ import { ConnectionSession } from './connection-state';
 import { loadProviderScope, confirmProviderScope, loadScopedCapture, loadScopedView, saveScopedCapture, saveScopedView, clearScopedView, prepareScopedLegacy, saveLegacySafety, legacyQuarantined, finishScopedLegacy } from './scoped-storage';
 import { clearProviderStore, proveSyntheticStore, sessionClearingAvailable, sessionProofAvailable, legacyRecoveryAvailable, legacyRecoveryFingerprint, readReviewedRecovery } from './session-store';
 import type { ProviderScope } from './scope-store';
-import { INFORMATION_TYPES, informationCategories, informationRouteShape, informationScript, type InformationCategory, type InformationCapture } from './information';
+import { INFORMATION_TYPES, informationCategories, informationRouteShape, informationScript, informationSelectionScript, type InformationCategory, type InformationCapture } from './information';
 import { InformationRun } from './information-run';
 import { loadInformation, saveInformation } from './information-native';
 
@@ -160,7 +160,8 @@ export function useAccessController(product = false, localOwner?: string) {
       const run = new InformationRun(requireScope(), informationCategory, currentUrl.current, Crypto.randomUUID());
       informationRun.current = run; setInformationBusy(true); setBusy(true); setInformationNotice('Konto wird vor und nach der Erfassung geprüft…');
       informationTimer.current = setTimeout(() => stopInformation('Informationsabruf hat das Zeitlimit erreicht. Gespeicherte Belege bleiben erhalten.'), 90_000);
-      navigate(run.url);
+      if (run.stage === 'selection') void loadedPage(run.url);
+      else navigate(run.url);
     } catch {
       console.info('MoFlight information route shape', JSON.stringify(informationRouteShape(currentUrl.current)));
       setInformationNotice('Diese Quellseite kann nicht erfasst werden. Erst auf der Originalseite zum ausgewählten Bereich wechseln.');
@@ -421,7 +422,7 @@ export function useAccessController(product = false, localOwner?: string) {
       const run = informationRun.current;
       if (page !== run.url) { stopInformation('Quellseite oder Anmeldung nicht verfügbar. Gespeicherte Informationen bleiben erhalten.'); return; }
       run.observeNavigation(page);
-      web.current?.injectJavaScript(run.stage === 'read' ? informationScript(run.category, run.messageNonce) : contextScript(run.messageNonce));
+      web.current?.injectJavaScript(run.stage === 'selection' ? informationSelectionScript(run.messageNonce) : run.stage === 'read' ? informationScript(run.category, run.messageNonce) : contextScript(run.messageNonce));
       return;
     }
     if (product && contextRequest.current) {
