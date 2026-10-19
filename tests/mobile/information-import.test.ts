@@ -13,15 +13,16 @@ import type { ProviderScope } from '../../apps/platform-lab/src/vereinsflieger/s
 
 const url = 'https://vereinsflieger.de/member/profile/synthetic-working-hours?year=2026';
 const ledgerUrl = 'https://vereinsflieger.de/member/profile/account.php?caid=synthetic-account';
+const tasksUrl = 'https://vereinsflieger.de/member/community/tasklist/tasklist?gselect=synthetic-own';
 const at = '2026-10-19T12:00:00.000Z';
 const scope: ProviderScope = { version: 1, owner: 'synthetic-owner', connectionId: 'synthetic-scope', context: { accountNumber: '1001', clubLabel: 'Synthetic club', clubIdentity: 'display-label-only', verification: 'observed-profile-number' } };
 function cell(text: string, extra: Record<string, unknown> = {}) { return { textContent: text, innerText: text, colSpan: 1, rowSpan: 1, querySelector: () => null, ...extra }; }
 function row(texts: string[]) { return { cells: texts.map(t => cell(t)), querySelector: () => null }; }
 const header = ['', 'Datum', 'Tätigkeit', 'Stunden', 'Kategorie', 'Status', 'Private contact'];
 const entries = [['', '01.10.2026', 'Synthetic work', '0.00', 'Custom', 'Akzeptiert', 'Do not collect']];
-function read(category: InformationCategory, rows = [row(header), ...entries.map(row)], tables?: { rows: typeof rows }[]) {
-  const window = {}; const document = { querySelector: () => null, querySelectorAll: (s: string) => s === 'table' ? tables ?? [{ rows }] : s === 'select' ? [{ selectedOptions: [{ textContent: '2026' }] }, { selectedOptions: [{ textContent: 'Private person filter' }] }] : [] };
-  return JSON.parse(JSON.stringify(runInNewContext(`(${INFORMATION_READER_SOURCE})(category, config)`, { document, location: { href: category === 'ledger' ? ledgerUrl : category === 'medical' || category === 'work-summary' ? PROFILE_URL : category === 'duties' ? 'https://vereinsflieger.de/member/profile/myservices.php' : url }, window: Object.assign(window, { top: window }), URL, category, config: INFORMATION_TYPES[category] })));
+function read(category: InformationCategory, rows = [row(header), ...entries.map(row)], tables?: { rows: typeof rows }[], taskFilter = 'Meine nicht beendeten Aufgaben') {
+  const window = {}; const document = { getElementById: () => ({ innerText: category === 'tasks' ? taskFilter : '' }), querySelector: () => null, querySelectorAll: (s: string) => s === 'table' ? tables ?? [{ rows }] : s === 'select' ? category === 'tasks' ? [] : [{ selectedOptions: [{ textContent: '2026' }] }, { selectedOptions: [{ textContent: 'Private person filter' }] }] : [] };
+  return JSON.parse(JSON.stringify(runInNewContext(`(${INFORMATION_READER_SOURCE})(category, config)`, { document, location: { href: category === 'tasks' ? tasksUrl : category === 'ledger' ? ledgerUrl : category === 'medical' || category === 'work-summary' ? PROFILE_URL : category === 'duties' ? 'https://vereinsflieger.de/member/profile/myservices.php' : url }, window: Object.assign(window, { top: window }), URL, category, config: INFORMATION_TYPES[category] })));
 }
 const page = () => validateInformationPage(read('work-hours'));
 test('bounded local route diagnostic excludes query values and numeric path identities', () => {
@@ -85,6 +86,28 @@ test('ledger native message must match the selected account query and fresh cont
   run.observeNavigation(PROFILE_URL); assert.equal(run.accept(PROFILE_URL, PROFILE_URL, contextMessage(run)), 'save');
   assert.deepEqual(run.capture(at).rows, p.rows);
   assert.ok(!JSON.stringify(run.capture(at)).includes('synthetic-account')); // query values are not stored
+});
+test('own open task reader retains raw due/status/zero evidence while excluding contact and delegation names', () => {
+  const p = validateInformationPage(read('tasks', [row(['Titel', 'Ansprechpartner', 'Delegiert an', 'Zu erledigen bis', 'Anzahl Tage', 'Status', 'Priorität']), row(['Synthetic own task', 'Private contact', 'Private delegate', '', '0', 'Offen', 'Hoch'])]));
+  assert.deepEqual(p.rows[0]!.values, ['Synthetic own task', '', '0', 'Offen', 'Hoch']);
+  assert.deepEqual(p.filters, ['Meine nicht beendeten Aufgaben']);
+  assert.ok(!JSON.stringify(p).includes('Private'));
+  assert.deepEqual(validateInformationCapture({ ...p, version: 1, id: 'tasks-a', retrievedAt: at, owner: scope.owner, connectionId: scope.connectionId, sourceIdentity: 'provisional-observed-profile' }).rows, p.rows);
+});
+test('own-task empty source needs exact owned filter and explicit marker; other scopes stay unavailable', () => {
+  const rows = [row(['Titel', 'Zu erledigen bis', 'Status']), row(['Es wurden keine passenden Daten gefunden!'])];
+  const p = validateInformationPage(read('tasks', rows)); assert.equal(p.empty, true);
+  for (const filter of ['', 'Alle Aufgaben', 'Alle nicht beendeten Aufgaben']) {
+    assert.deepEqual(read('tasks', rows, undefined, filter), { error: 'task-scope-unverified' });
+    assert.throws(() => validateInformationPage({ ...p, filters: filter ? [filter] : [] }));
+  }
+  assert.throws(() => validateInformationPage(read('tasks', [rows[0]!]))) ;
+});
+test('task selection key is confined to its evidenced route; mutation, duplicate and cross-category routes reject', () => {
+  assert.equal(informationCategoryUrl('tasks', tasksUrl), true);
+  for (const bad of [tasksUrl + '&action=delete', tasksUrl + '&gselect=other', tasksUrl.replace('tasklist/tasklist', 'tasklist/edit'), tasksUrl.replace('tasklist/tasklist', 'elsewhere')]) assert.equal(informationUrl(bad), false);
+  assert.equal(informationCategoryUrl('tasks', url), false);
+  assert.equal(informationCategoryUrl('tasks', ledgerUrl), false);
 });
 test('Medical reader selects class/expiry only inside Medical section and excludes document/private rows', () => {
   const p = validateInformationPage(read('medical', [row(['Allgemeine Daten']), row(['Name', 'Private name']), row(['Medical']), row(['Klasse 2', 'Gültig bis 01.10.2027 - synthetic-ref']), row(['LAPL', '']), row(['Dokumente']), row(['Private document', 'Do not collect'])]));

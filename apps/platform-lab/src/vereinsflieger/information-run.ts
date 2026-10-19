@@ -26,10 +26,12 @@ export class InformationRun {
     const p = input as Record<string, unknown>;
     if (p.nonce !== this.messageNonce || p.url !== this.url || p.kind !== (this.stage === 'read' ? 'vf-information-v1' : 'vf-context-v1')) return 'ignored';
     if (this.stage === 'read') {
-      const pageValue = p.page as { error?: unknown } | null;
+      const pageValue = p.page as { error?: unknown; shape?: unknown } | null;
       if (pageValue && typeof pageValue === 'object' && typeof pageValue.error === 'string') {
+        if (pageValue.error === 'source-table-unverified' && typeof pageValue.shape === 'string' && /^[\d,;]{1,240}$/.test(pageValue.shape)) console.info('MoFlight information table dimensions', pageValue.shape);
         const messages: Record<string, string> = {
           'source-table-unverified': 'Keine eindeutige Tabelle für den ausgewählten Quelltyp.',
+          'task-scope-unverified': 'Die Quelle ist nicht als eigene offene Aufgaben bestätigt.',
           'medical-source-unverified': 'Medical-Abschnitt nicht eindeutig erkannt.',
           'row-shape': 'Die Struktur der Quellzeilen wird noch nicht unterstützt.',
           'nested-source-row': 'Eine verschachtelte Quellzeile wird noch nicht unterstützt.',

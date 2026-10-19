@@ -7,6 +7,7 @@ export const INFORMATION_TYPES = {
   duties: { title: 'Dienste', required: ['duty', 'period', 'people'], fields: { duty: ['Dienst'], exchange: ['Diensttausch'], period: ['Zeitraum'], people: ['Person(en)'], plan: ['Dienstplan von'] } },
   invoices: { title: 'Abrechnungen', required: ['number', 'date', 'title', 'amount'], fields: { number: ['Nr.'], date: ['Rechnungsdatum'], title: ['Titel'], delivery: ['Versendeart', 'Versandart'], sent: ['Versendet'], amount: ['Betrag (EUR)'], directDebit: ['Lastschrift'] } },
   ledger: { title: 'Mitgliedskonto', required: ['date', 'booking', 'information', 'value', 'balance'], fields: { date: ['Datum'], booking: ['BuchungsNr.', 'Buchungsnr.'], invoice: ['Abrechnung'], information: ['Informationen'], value: ['Wert (EUR)'], balance: ['Saldo (EUR)'] } },
+  tasks: { title: 'Eigene offene Aufgaben', required: ['title', 'due', 'status'], fields: { title: ['Titel'], due: ['Zu erledigen bis'], days: ['Anzahl Tage'], status: ['Status'], priority: ['Priorität'] } },
   medical: { title: 'Medical · Quellenangaben', required: ['kind', 'expiry'], fields: { kind: ['Medical-Art'], expiry: ['Gültig bis · Originaltext'] } },
   enrolments: { title: 'Ausbildung · Übersicht', required: ['syllabus', 'begun', 'ended'], fields: { syllabus: ['Lehrplan'], begun: ['Begonnen am'], ended: ['Beendet am'], reported: ['Gemeldet Verband', 'Gemeldet an Verband'], practical: ['Fortschritt (Praxis)'], theory: ['Fortschritt (Theorie)'] } },
   practical: { title: 'Praktische Ausbildung', required: ['number', 'status', 'objective', 'landings', 'block'], fields: { number: ['No', 'No.'], status: ['Status'], objective: ['Lernziel'], instructorBegun: ['Fluglehrer (Begonnen)'], begun: ['Begonnen am'], instructorEnded: ['Fluglehrer (Beendet)'], ended: ['Beendet am'], landings: ['Landungen'], block: ['Blockzeit'] } },
@@ -41,6 +42,8 @@ export function informationUrl(value: string): boolean {
   // Path-only is needed to validate persisted captures, which omit query values.
   if (u.pathname === '/member/profile/account.php') return !u.hash &&
     (!u.search || u.searchParams.size === 1 && u.searchParams.has('caid'));
+  if (u.pathname === '/member/community/tasklist/tasklist') return !u.hash &&
+    (!u.search || u.searchParams.size === 1 && u.searchParams.has('gselect'));
   return !u.hash && u.pathname.startsWith('/member/') &&
     !/(?:logout|password|download|print|delete|remove|save|upload|config)/i.test(u.pathname) &&
     (!/\/edit/i.test(u.pathname) || /^\/member\/profile\/usereducation\/editelid[pt]$/.test(u.pathname)) &&
@@ -51,6 +54,7 @@ export function informationCategoryUrl(category: InformationCategory, url: strin
   const path = new URL(url).pathname.replace(/\/$/, '');
   const known: Partial<Record<InformationCategory, readonly string[]>> = {
     ledger: ['/member/profile/account.php'],
+    tasks: ['/member/community/tasklist/tasklist'],
     medical: ['/member/profile/viewprofile'], 'work-summary': ['/member/profile/viewprofile'],
     duties: ['/member/profile/myservices.php', '/member/profile/allservicelist.php', '/member/community/serviceshedulelist.php'],
     enrolments: ['/member/profile/usereducation'], practical: ['/member/profile/usereducation/editelidp'], theory: ['/member/profile/usereducation/editelidt'],
@@ -83,7 +87,8 @@ export function validateInformationPage(input: unknown): InformationPage {
     if (typeof r.position !== 'number' || !Number.isSafeInteger(r.position) || r.position <= lastPosition || r.position > 100_000 || !Array.isArray(r.values) || r.values.length !== columns.length || r.values.some(s => typeof s !== 'string' || s.length > 8192)) throw new Error('Invalid information row');
     lastPosition = r.position; return { position: r.position, values: [...r.values] as string[] };
   });
-  if (!Array.isArray(p.filters) || p.filters.length > 8 || p.filters.some(s => typeof s !== 'string' || !/^(?:\d{4}|Jahr \d{4}|Aktuelle und anstehende Dienste|Alle Dienste|Alle anstehenden Dienste)$/.test(s))) throw new Error('Invalid information filter');
+  if (!Array.isArray(p.filters) || p.filters.length > 8 || p.filters.some(s => typeof s !== 'string' || !/^(?:\d{4}|Jahr \d{4}|Aktuelle und anstehende Dienste|Alle Dienste|Alle anstehenden Dienste|Meine nicht beendeten Aufgaben)$/.test(s))) throw new Error('Invalid information filter');
+  if (category === 'tasks' && (p.filters.length !== 1 || p.filters[0] !== 'Meine nicht beendeten Aufgaben')) throw new Error('Unverified own task scope');
   const c = object(p.coverage); exact(c, ['kind', 'truncated', 'pagination']);
   if (c.kind !== 'visible-page' || typeof c.truncated !== 'boolean' || c.pagination !== 'unverified') throw new Error('Unsupported information coverage');
   return { category, path: p.path, columns, rows, filters: [...p.filters] as string[], empty: p.empty, coverage: { kind: 'visible-page', truncated: c.truncated, pagination: 'unverified' } };
@@ -101,6 +106,8 @@ export const INFORMATION_READER_SOURCE = String.raw`(category, config) => {
   const norm = s => String(s || '').replace(/\s+/g,' ').trim();
   const u = new URL(location.href);
   if (window.top !== window || u.protocol !== 'https:' || !['vereinsflieger.de','www.vereinsflieger.de'].includes(u.hostname) || !u.pathname.startsWith('/member/') || u.username || u.password || u.port || u.hash || document.querySelector('input[name="pwinput"]')) return {error:'source-unavailable'};
+  const taskFilter = category === 'tasks' ? norm(document.getElementById?.('globalfilter')?.innerText) : '';
+  if (category === 'tasks' && taskFilter !== 'Meine nicht beendeten Aufgaben') return {error:'task-scope-unverified'};
   const columnsFor = cells => {
     const cols = []; const seen = new Set();
     for (let index=0;index<cells.length;index++) {
@@ -141,7 +148,7 @@ export const INFORMATION_READER_SOURCE = String.raw`(category, config) => {
         if(cols) candidates.push({all,header:i,width:cells.length,cols});
       }
     }
-    if(candidates.length!==1) return {error:'source-table-unverified'};
+    if(candidates.length!==1) return {error:'source-table-unverified',shape:Array.from(document.querySelectorAll('table')).slice(0,12).map(t=>Array.from(t.rows || []).slice(0,6).map(r=>r.cells.length).join(',')).join(';').slice(0,240)};
     const t=candidates[0]; columns=t.cols;
     if(t.all.length>10000) return {error:'source-limit'};
     for(let i=t.header+1;i<t.all.length;i++) {
@@ -161,7 +168,7 @@ export const INFORMATION_READER_SOURCE = String.raw`(category, config) => {
     if(!rows.length && !empty) return {error:'empty-scope-unverified'};
     if(rows.length && empty) return {error:'conflicting-empty-state'};
   }
-  const filters=[];
+  const filters=taskFilter ? [taskFilter] : [];
   for(const s of document.querySelectorAll('select')) {
     const text=norm(s.selectedOptions?.[0]?.textContent);
     if(/^(?:\d{4}|Jahr \d{4}|Aktuelle und anstehende Dienste|Alle Dienste|Alle anstehenden Dienste)$/.test(text) && !filters.includes(text)) filters.push(text);
