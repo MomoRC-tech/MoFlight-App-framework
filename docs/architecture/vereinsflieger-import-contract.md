@@ -235,6 +235,8 @@ These are **required future checks, not results of this documentation package**.
 
 No package starts automatically from completion of another. Preparation approval alone selected no implementation; the subsequent approval selected D1–D3 and package A only. Packages B/C, actual SQL/backup/migration, live adoption, ADR 0007 acceptance, automatic polling, cloud linking, costs/Medical enrichment, analytics implementation and paper writing remain outside that authorization.
 
+Package B has a [concrete storage/transition review draft](#package-b-storage-review-draft--19-october-2026). Its SQL, versions and failure cases are proposals awaiting separate implementation approval.
+
 ### Preparation verification
 
 Preparation-only evidence published in `8295aa1`: source/contract review at `e3b713d`, **334 local file links**, the proposal anchor, D1–D3/A1–A9 consistency, preserved strict/synthetic guards, approval/evidence boundaries and `git diff --check` passed. Detailed local check summary: ignored `local-data/import-contract-proposal-2026-10-19/document-checks.json`. Application/tests/ADRs were unchanged during that preparation; no app test, build, device/provider action or private capture read was run. This verifies proposal preparation, not the subsequent implementation or source semantics.
@@ -248,3 +250,137 @@ The [history planner](../../apps/platform-lab/src/vereinsflieger/history-plan.ts
 Plans distinguish source-validation blockers, missing explicit book choice, a confirmed eligible primary book and confirmed deferral. Empty/partial/unverified windows retain root-level blockers; omissions retain earlier IDs. Identical repeats are counted once, same-ID conflicting variants remain pending with previous facts intact, and different IDs remain distinct. Only explicitly confirmed eligible historical aircraft/book evidence can suggest a book; ambiguous history never auto-confirms. Choices bind the source evidence and book definition, with conservative renewed review on any raw-field change; narrower field-dependency invalidation remains later #18 refinement. The canonical comparison token binds the full workspace/capture/fixture/generation; it is not a cryptographic hash or authorization receipt. Confirmation returns an independent in-memory workspace. There is no save/accept, DB, network or UI path.
 
 [17 new deterministic regressions](../../tests/mobile/vereinsflieger-history-plan.test.ts), TypeScript/lint and the full **281 mobile / 107 Python** host check passed on `042a7b1`. [One existing report, source-specific follow-up](../verification/2026-10-18-source-duration-validation.md#history-facts-adapter-and-planner--19-october-2026) records logs, initial fixture corrections, actual coverage and unavailable production/native acceptance. Package A covers A1–A4/A6 planning aspects only; storage/receipt/activation/backup/native checks A5/A7–A9 and actual identity/UTC/role/class evidence remain unpassed gates. D3's physical storage is not implemented.
+
+### Package B storage review draft — 19 October 2026
+
+**Status: prepared for review; SQL unexecuted, implementation unapproved.** Continuation baseline `f574a12` was clean and matched remote main. D1–D3 and package A remain the recorded authorization. This draft makes the recommended next review concrete; it neither accepts ADR 0007 nor authorizes a writer, migration, private capture read or production version. Decision owner [#11](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/11), storage dependency [#4](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/4), coordinated with #2/#18/#16.
+
+**Proposed package contract:** M2 evidence/M3 preparation; host-only synthetic storage/transition proof after separate approval. Implement a separate repository using the existing [Driver transaction interface](../../packages/local-data/src/index.ts), hash/canonical helpers and Package A validation/planning. Do not weaken `PilotBooks` or strict reconciliation, change `loadBooks`, connect navigation or open existing lab/provider files. Tests create new temporary stores and fictional owner/scope/book/capture data only. No new dependency, provider/model call, UI, device, cloud, paid CI, legacy adoption, production account linking or paper/acknowledgement command is included. Actual production SQL and the native adapter remain later review/integration gates.
+
+#### Proposed manifest and SQL
+
+Use a distinct family **`moflight-history-proof` / schema 1 / payload 1**, with SQLite `user_version=1`. The family and required mode **`synthetic-only`**, not the integer alone, identify this proof. Existing dataset schema 1 and `moflight-pilot-proof-v1` are incompatible families. New files have generated `history-proof-<uuid>.sqlite` names in an isolated test directory; never derive a path from a provider label, backup path or raw owner ID. Production history needs its own reviewed family/mode and authorization; changing a fixture flag is not an upgrade path.
+
+Prefer the existing append-only record pattern over introducing a second domain model or changing the old schema. The proposed DDL below is complete for the proof's core tables. On every connection, configure and verify foreign keys and `synchronous=FULL` before transactions. Creation requires a new exclusively reserved candidate file; an existing, nonempty, unversioned or unsupported file is preserved and rejected. DDL plus the one manifest row are created in one transaction. Do not use `IF NOT EXISTS` to turn an unknown file into a supported store.
+
+```sql
+PRAGMA foreign_keys=ON;
+PRAGMA synchronous=FULL;
+CREATE TABLE history_manifest(
+  singleton INTEGER PRIMARY KEY CHECK(singleton=1),
+  family TEXT NOT NULL CHECK(family='moflight-history-proof'),
+  schema_version INTEGER NOT NULL CHECK(schema_version=1),
+  payload_version INTEGER NOT NULL CHECK(payload_version=1),
+  mode TEXT NOT NULL CHECK(mode='synthetic-only'),
+  store_id TEXT NOT NULL UNIQUE,
+  owner_id TEXT NOT NULL UNIQUE,
+  created_at TEXT NOT NULL
+);
+CREATE TABLE history_receipts(
+  command_id TEXT PRIMARY KEY NOT NULL,
+  owner_id TEXT NOT NULL REFERENCES history_manifest(owner_id),
+  kind TEXT NOT NULL CHECK(kind IN ('catalogue','import')),
+  base_generation INTEGER NOT NULL CHECK(base_generation>=0),
+  generation INTEGER NOT NULL UNIQUE CHECK(generation=base_generation+1),
+  request_json TEXT NOT NULL CHECK(json_valid(request_json)),
+  request_sha256 TEXT NOT NULL,
+  result_json TEXT NOT NULL CHECK(json_valid(result_json)),
+  committed_at TEXT NOT NULL
+);
+CREATE TABLE history_records(
+  seq INTEGER PRIMARY KEY,
+  owner_id TEXT NOT NULL REFERENCES history_manifest(owner_id),
+  kind TEXT NOT NULL CHECK(kind IN
+    ('scope','capture','flight','facts','book','choice','coverage','pending')),
+  id TEXT NOT NULL,
+  revision INTEGER NOT NULL CHECK(revision>0),
+  generation INTEGER NOT NULL REFERENCES history_receipts(generation),
+  payload TEXT NOT NULL CHECK(json_valid(payload)),
+  payload_sha256 TEXT NOT NULL,
+  UNIQUE(kind,id,revision)
+);
+CREATE INDEX history_record_latest ON history_records(kind,id,revision DESC);
+CREATE TRIGGER history_manifest_no_update BEFORE UPDATE ON history_manifest
+BEGIN SELECT RAISE(ABORT,'Immutable manifest'); END;
+CREATE TRIGGER history_manifest_no_delete BEFORE DELETE ON history_manifest
+BEGIN SELECT RAISE(ABORT,'Preserve manifest'); END;
+CREATE TRIGGER history_records_no_update BEFORE UPDATE ON history_records
+BEGIN SELECT RAISE(ABORT,'Append records only'); END;
+CREATE TRIGGER history_records_no_delete BEFORE DELETE ON history_records
+BEGIN SELECT RAISE(ABORT,'Preserve records'); END;
+CREATE TRIGGER history_receipts_no_update BEFORE UPDATE ON history_receipts
+BEGIN SELECT RAISE(ABORT,'Immutable receipt'); END;
+CREATE TRIGGER history_receipts_no_delete BEFORE DELETE ON history_receipts
+BEGIN SELECT RAISE(ABORT,'Preserve receipts'); END;
+PRAGMA user_version=1;
+```
+
+The manifest is immutable; library generation is `coalesce(max(history_receipts.generation),0)`, independent of record `seq` and activation sequence. Validate exact expected columns/indexes/triggers and version on reopen; SQLite integrity/foreign-key checks alone do not establish semantic validity. IDs are nonblank bounded strings, generations/revisions are safe nonnegative/positive integers as applicable, hashes are lowercase 64-character SHA-256 and timestamps are validated UTC ISO instants. Reject unsupported fields/versions instead of silently dropping them. Hashes detect corruption, not ownership or authenticity.
+
+SQL does **not** enforce the JSON graph, revision continuity or scoped source uniqueness. The repository must validate the complete candidate result inside its serialized write transaction and the complete restored graph before activation. This is a required part of the proof, not optional postprocessing. Records start at revision 1 with no gaps, receipts start at generation 1 with no gaps, each record belongs to its receipt's owner/generation, and receipt mutation lists/counts must exactly describe the added records. No direct SQL write API is exposed to callers.
+
+| Kind / record identity | Required payload and semantic validation |
+| --- | --- |
+| `scope`, opaque scope ID | Immutable revision 1; exact owner/scope and fictional provider/account/club references. Fixture-established identity is explicitly marked synthetic; ambiguous/expired/wrong-owner context blocks a command before capture access. No label-based production identity |
+| `capture`, capture ID | Immutable revision 1; scope, capture format, exact original payload string and SHA-256, retrieval time, requested inclusive dates and complete page/count evidence. Same ID/different bytes or metadata rejects. Keep original text separately from canonical derived payload; no credential/session material |
+| `flight`, opaque flight ID | Immutable revision 1; scope and exact provider reference. Enforce unique `(owner,scope,providerReference)` across all flight IDs. Never use candidate keys without resolving that tuple; never merge across scopes |
+| `facts`, flight ID | Append-only reviewed usable revisions; capture ID/row index, complete Package A facts, mapping version, predecessor revision and reason (`source-change` or `reinterpretation`). Rebuild facts from imported raw evidence and verify its key. Unknown/blank/invalid/conflicting field states survive. Identical evidence under the same mapping creates no extra facts revision; interpretation changes are not provider edits |
+| `book`, book ID | Versioned descriptor: owner, format ID/version, category/date eligibility. Synthetic fixture formats only; unsupported format disables assignment/editing and preserves existing evidence. No automatic real-format activation |
+| `choice`, flight ID | Append-only confirmed primary book or explicit deferral, reviewed facts revision/evidence key, exact book revision/key or null, eligibility evidence, predecessor and confirmation time. One latest choice per flight; no implicit suggestion acceptance. A changed source/book keeps the prior choice as stale until renewed confirmation; it grants no fresh eligible credit |
+| `coverage`, scope ID | Append-only bounded successful retrieval references. Latest row is not a claim of whole-history completeness; retain every window, including verified empty results. Omissions never delete a flight |
+| `pending`, capture ID | Immutable revision 1; all unresolved source rows/variants and reasons with exact row references, including missing IDs. Preserve prior usable facts without promoting a conflicting/invalid-date row. Pending rows are not counted current flights |
+
+Reference-only memberships, acknowledgement and paper artifacts have no writer in B. Real prior stores already containing such records are unsupported and must not be restored through this proof. A later schema must define their validation/backup rules before accepting them. The proof preserves all independent book descriptors/choices and leaves all existing paper state/snapshots in their original files. Opening, import, reassignment and restore cannot acknowledge changes or advance paper progress.
+
+#### Proposed transaction and receipt rules
+
+1. Require an explicit proof owner and registered test-store handle before reading any file. Resolve owner/scope/capture from that context; reject caller paths and foreign IDs. Rebuild Package A facts/plans and compare exact canonical input, not caller-supplied readiness/verification booleans. Recheck authorization on each command and immediately before publishing its result.
+2. Define canonical request version 1 over store/owner/scope, command kind/ID, original capture bytes/checksum/metadata, mapping version, full base workspace/generation, fixture assumptions, displayed plan token and every explicit choice/book revision. Persist the exact canonical request plus its SHA-256. Package A's fingerprint is a comparison token, not this digest or authorization. Bound and validate input before hashing; proof limits retain Package A's row/book/observation caps, with an additional proposed 64 MiB UTF-8 command cap.
+3. In one exclusive history transaction, look up command ID **before** rejecting a stale base generation. If exact owner/store/request bytes match an existing receipt, validate its result and return that original result without writes. Same ID with any different request rejects. A retry must reuse the original request; a newly computed plan is a new command. A later library generation does not invalidate an exact committed receipt, and an old receipt is not presented as the latest library state.
+4. For a new command, require base generation equal to current generation and recompute the plan against the transaction's state. Reject root blockers (identity/incomplete coverage), missing explicit choices and foreign/stale references before mutation. Valid complete captures may retain pending rows while promoting only rows explicitly classified ready or deferred; counts distinguish promoted, deferred, pending and unchanged. A valid complete empty capture changes evidence/coverage only. Partial retrieval/cancellation never calls the history writer; the separate raw capture remains intact.
+5. Insert the receipt and all new records within that transaction, assigning generation `base+1`. `result_json` binds capture/plan digest, ordered `(kind,id,revision,seq,hash)` mutations, counts and retained IDs. Validate the resulting graph before commit; throw on any mismatch. Store an imported capture once; a different command over identical evidence may record new coverage/receipt but cannot duplicate flights, facts or choices. A catalogue command registers fictional scopes/books through the same generation/receipt rules and cannot import flights.
+6. After commit, validate readback before reporting saved success. If commit outcome or readback is uncertain, report an indeterminate result with command ID, keep the plan for that owner and resolve by reopening/receipt lookup; do not report rollback or issue a new command ID. Before-commit failure leaves prior generation; commit-before-response interruption yields one complete generation and receipt. Cancelling an already committed command cannot undo it.
+
+#### Proposed backup, activation and rollback
+
+Backup envelope **`moflight-history-proof-backup-v1`** contains `format`, exact canonical `payload` string and SHA-256 of that UTF-8 string. Payload has backup version 1, manifest, library generation, ordered receipt rows and ordered record rows. It includes imported original capture text, all fact/choice predecessors, pending/coverage evidence and book descriptors. Exclude credentials, provider sessions, registry paths, selection journal and unrelated lab/raw/recovery files. Export from one consistent read transaction; compare round-trip equality before claiming a valid backup. Proposed proof cap: 128 MiB UTF-8 for export and import, checked before full parse where the file API permits and again before restore. It is a bounded trial limit, not measured real-history capacity; oversize fails explicitly without truncation. Do not reuse the existing 2 MB pilot-proof picker path.
+
+Restore has no merge, owner reassignment or implicit migration. Require the same explicit owner/store identity; reject a foreign owner/store even if checksums are valid. A fresh physical candidate file retains logical store ID and record/receipt IDs, so exact committed retries remain resolvable. Creating a different logical store from a backup requires a separately designed migration. Schema/payload/family mismatch, unknown kinds, bad hashes, unsafe integers, gaps, duplicate scoped source references, forged facts, invalid book choices or broken receipt relations reject before selection. Reconstruct only the specified schema into a fresh candidate; never execute SQL or trust paths/triggers supplied by a backup.
+
+Use a separate **proof-only** selection journal with `user_version=1` and this proposed table; reuse the append-only selection approach without writing either existing lab journal:
+
+```sql
+CREATE TABLE history_selection(
+  seq INTEGER PRIMARY KEY AUTOINCREMENT,
+  owner_id TEXT NOT NULL,
+  store_id TEXT NOT NULL,
+  candidate_name TEXT NOT NULL,
+  manifest_sha256 TEXT NOT NULL,
+  validated_generation INTEGER NOT NULL CHECK(validated_generation>=0),
+  activation_id TEXT NOT NULL UNIQUE,
+  previous_seq INTEGER REFERENCES history_selection(seq),
+  activated_at TEXT NOT NULL
+);
+```
+
+The wrapper also verifies `foreign_keys=ON` and `synchronous=FULL`, refuses updates/deletes and validates rows at runtime. Candidate names must be generated basenames resolving inside the proof directory; reject missing files without auto-creating them. `previous_seq` belongs to the same owner/logical store; initial activation has null predecessor. Before appending, close/reopen the candidate and validate manifest, complete graph, all intended readers and selected book/deferral. Append selection only after these pass. Activation ID plus exact row content makes retry idempotent; reused ID/different content rejects. The manifest hash binds immutable identity; `validated_generation` is a lower bound because subsequent valid commits may advance the store.
+
+Keep activation sequence, library generation and book/fact revisions distinct. On restart inspect only the authorized owner's entries, newest activation first, and choose a fully validated readable candidate for the explicitly selected logical store. Never fall through to another owner's or the synthetic lab's data. A missing/corrupt newest candidate falls back to a validated predecessor **with a visible recovery warning**; retain the failed candidate and report any later generations as unresolved rather than claiming no data loss. If none is usable, report unavailable/recovery required without seeding/resetting. After journal commit but before response, reopen resolves activation ID; there is no cross-file transaction with the raw capture or candidate DB. A runtime owner switch invalidates current handles/results immediately.
+
+Rollback appends a new validated selection entry pointing to a retained prior candidate; it never truncates history, rewrites a journal or deletes either file. Fallback/rollback stays read-only while a retained later candidate may contain committed or indeterminate commands absent from the selected file: never replay those commands against older history or claim their receipts were rolled back. B must detect/report that recovery-required state; reconciling divergent candidates is outside this proof. Candidate creation/restore/validation failure leaves selection unchanged. A failed/uncertain activation resolves its activation ID before retry. No automatic cleanup/compaction is included; tests remove only their own temporary directory after evidence collection. B exposes this mechanism only through host tests. Native file reservation, power-loss durability, filesystem permissions/encryption and real route switching are untested later integration concerns.
+
+#### Proposed failure-test and acceptance contract
+
+These are **future required tests, none executed by this draft**. Use temporary real SQLite with the existing deterministic harness; host process restart is not native power-loss evidence. Implementation should extend suitable existing suites or add a focused storage suite, then run TypeScript, lint and the complete host check. No application build/device/provider trial is part of this proposed host-only increment.
+
+| Case | Required observation / matrix link |
+| --- | --- |
+| B1 first use / return | Empty new manifest; explicit fictional scope/book setup; reviewed incomplete facts, unknown measures and deferral survive backup/reopen offline without login. Owner history and per-book views distinguish known values/unknown counts; unsupported paper projection stays unavailable. A1/A2/A4 |
+| B2 repeat / correction | New capture of same flight adds evidence/coverage but no duplicate facts/credit; corrected facts retain predecessors and stale choices; conflicting variants retain usable prior facts and pending reasons. Similar different IDs stay separate; empty/omitted windows never delete. A3/A4/A6 |
+| B3 authorization / stale state | Two owners/scopes and multiple same-format books; forged foreign capture/book/store IDs, expired context and owner switch reject before access/publication. Stale generation, changed book/format/evidence/token and fabricated facts cannot commit. A1/A4 |
+| B4 transaction / retry | Inject before receipt, after receipt, after evidence/facts/choice/coverage and before commit: reopen shows old generation only. Exit a child process after commit-before-response; exact original request returns one original receipt after later unrelated commits too. Reused ID/different input and competing stale writers reject. Readback failure reports indeterminate and resolves without duplicates. A5 |
+| B5 backup / graph validation | Full exact round-trip, original raw text and per-book choices; checksum-valid semantic corruption for every kind and receipt, unsupported versions/kinds/oversize, gaps, foreign/missing refs and duplicate source tuple all reject. Original active candidate survives every failed restore. A2/A7 |
+| B6 activation / rollback | Failure during candidate creation/restore/reopen/readers, journal insertion and response loss; missing/corrupt newest file, wrong-owner/path and no usable predecessor. Resolve activation retry, warn on fallback, preserve later work, append rollback and verify both files remain. Unresolved later commands block writes/replay on an older candidate. A5/A7 |
+| B7 preservation / boundaries | Hash synthetic sentinel lab/raw/journal/old-backup files before/after; import and reassignment never change paper/ack state. No real files/sessions or production writers accessed. Partial/cancelled retrieval does not reach history commit. A6/A7/A8 isolation only; acknowledgement behavior remains #30 |
+
+Acceptance needs one source-specific extension of the [existing report](../verification/2026-10-18-source-duration-validation.md), tests/logs and the roadmap acceptance row. Completion would establish only the synthetic host storage/transition proof. Production identity/semantics/real formats, actual native storage/backup/route behavior, A8 acknowledgement rules, A9 integrated real review/save/list/offline and iOS/physical acceptance stay open. Separate approval of this proposed B scope is required before implementing or executing it; C/live adoption never follows automatically.
