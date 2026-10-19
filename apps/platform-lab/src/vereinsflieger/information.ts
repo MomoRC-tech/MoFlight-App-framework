@@ -12,6 +12,7 @@ export const INFORMATION_TYPES = {
   news: { title: 'News · Übersicht', required: ['notice'], fields: { notice: ['Hinweis · Originaltext'] } },
   'own-reservations': { title: 'Eigene Reservierungen · Übersicht', required: ['notice'], fields: { notice: ['Hinweis · Originaltext'] } },
   'own-profile': { title: 'Profil · Grunddaten', required: ['field', 'value'], fields: { field: ['Profilfeld'], value: ['Originaltext'] } },
+  'licence-metadata': { title: 'Lizenzen · Quellenangaben', required: ['kind', 'field', 'value'], fields: { kind: ['Lizenzgruppe'], field: ['Quellenfeld'], value: ['Originaltext'] } },
   medical: { title: 'Medical · Quellenangaben', required: ['kind', 'expiry'], fields: { kind: ['Medical-Art'], expiry: ['Gültig bis · Originaltext'] } },
   enrolments: { title: 'Ausbildung · Übersicht', required: ['syllabus', 'begun', 'ended'], fields: { syllabus: ['Lehrplan'], begun: ['Begonnen am'], ended: ['Beendet am'], reported: ['Gemeldet Verband', 'Gemeldet an Verband'], practical: ['Fortschritt (Praxis)'], theory: ['Fortschritt (Theorie)'] } },
   practical: { title: 'Praktische Ausbildung', required: ['number', 'status', 'objective', 'landings', 'block'], fields: { number: ['No', 'No.'], status: ['Status'], objective: ['Lernziel'], instructorBegun: ['Fluglehrer (Begonnen)'], begun: ['Begonnen am'], instructorEnded: ['Fluglehrer (Beendet)'], ended: ['Beendet am'], landings: ['Landungen'], block: ['Blockzeit'] } },
@@ -56,15 +57,16 @@ export function informationUrl(value: string): boolean {
 }
 export function informationCategoryUrl(category: InformationCategory, url: string) {
   if (!informationUrl(url)) return false;
-  if (category === 'own-profile' && new URL(url).search) return false;
+  if (['own-profile', 'licence-metadata'].includes(category) && new URL(url).search) return false;
   const rawPath = new URL(url).pathname;
-  const path = ['ledger', 'tasks', 'document-notices', 'news', 'own-reservations', 'own-profile'].includes(category) ? rawPath : rawPath.replace(/\/$/, '');
+  const path = ['ledger', 'tasks', 'document-notices', 'news', 'own-reservations', 'own-profile', 'licence-metadata'].includes(category) ? rawPath : rawPath.replace(/\/$/, '');
   const known: Partial<Record<InformationCategory, readonly string[]>> = {
     ledger: ['/member/profile/account.php'],
     tasks: ['/member/community/tasklist/tasklist'],
     'document-notices': ['/member/overview/overview'], news: ['/member/overview/overview'], 'own-reservations': ['/member/overview/overview'],
     medical: ['/member/profile/viewprofile'], 'work-summary': ['/member/profile/viewprofile'],
     'own-profile': ['/member/profile/viewprofile'],
+    'licence-metadata': ['/member/profile/viewprofile'],
     duties: ['/member/profile/myservices.php', '/member/profile/allservicelist.php', '/member/community/serviceshedulelist.php'],
     enrolments: ['/member/profile/usereducation'], practical: ['/member/profile/usereducation/editelidp'], theory: ['/member/profile/usereducation/editelidt'],
   };
@@ -98,6 +100,17 @@ export function validateInformationPage(input: unknown): InformationPage {
     lastPosition = r.position; return { position: r.position, values: [...r.values] as string[] };
   });
   if (category === 'own-profile' && (columns[0]?.key !== 'field' || columns[1]?.key !== 'value' || rows.length !== 3 || new Set(rows.map(r => normalizedLabel(r.values[0]!))).size !== 3 || rows.some(r => !['Vorname', 'Nachname', 'Benutzernummer'].includes(normalizedLabel(r.values[0]!))))) throw new Error('Unsupported profile fields');
+  if (category === 'licence-metadata') {
+    if (columns.map(c => c.key).join(',') !== 'kind,field,value' || !rows.length) throw new Error('Unsupported licence fields');
+    const groups = new Map<string, Set<string>>();
+    for (const r of rows) {
+      const kind = normalizedLabel(r.values[0]!), field = normalizedLabel(r.values[1]!);
+      if (!kind || kind.length > 200 || !['Lizenz', 'Klassenberechtigung (Segelflugzeuge)'].includes(field)) throw new Error('Unsupported licence field');
+      const fields = groups.get(kind) ?? new Set<string>();
+      if (fields.has(field)) throw new Error('Duplicate licence field'); fields.add(field); groups.set(kind, fields);
+    }
+    if ([...groups.values()].some(fields => fields.size !== 2)) throw new Error('Incomplete licence group');
+  }
   if (!Array.isArray(p.filters) || p.filters.length > 8 || p.filters.some(s => typeof s !== 'string' || !/^(?:\d{4}|Jahr \d{4}|Aktuelle und anstehende Dienste|Alle Dienste|Alle anstehenden Dienste|Meine nicht beendeten Aufgaben)$/.test(s))) throw new Error('Invalid information filter');
   if (category === 'tasks' && (p.filters.length !== 1 || p.filters[0] !== 'Meine nicht beendeten Aufgaben')) throw new Error('Unverified own task scope');
   const c = object(p.coverage); exact(c, ['kind', 'truncated', 'pagination']);
@@ -159,6 +172,31 @@ export const INFORMATION_READER_SOURCE = String.raw`(category, config) => {
         rows.push({position:i,values:[value]});
       }
     }
+  } else if (category === 'licence-metadata') {
+    const candidates=[];
+    for(const table of document.querySelectorAll('table')) {
+      const all=Array.from(table.rows || []);if(all.length>2000) return {error:'source-limit'};
+      let active=false, finished=false, kind='';const selected=[];
+      for(let i=0;i<all.length;i++) {
+        const cells=Array.from(all[i].cells);
+        if(cells.some(c=>c.querySelector('table'))) {if(active) return {error:'licence-source-unverified'};continue;}
+        const label=norm(cells[0]?.textContent);
+        if(/^Lizenzen\s*\/\s*Berechtigungen$/.test(label) && cells.length===1 && cells[0].colSpan===3) {if(active) return {error:'licence-source-unverified'};active=true;continue;}
+        if(!active) continue;
+        if(label==='Medical' && cells.length===1 && cells[0].colSpan===3) {finished=true;break;}
+        if(cells.length===1 && cells[0].colSpan===3) {
+          if(!label) continue;
+          if(!cells[0].querySelector('b')) return {error:'licence-source-unverified'};
+          kind=cells[0].textContent || '';continue;
+        }
+        if(!kind || cells.length!==2 || cells[0].colSpan!==1 || cells[1].colSpan!==2 || cells.some(c=>(c.rowSpan || 1)!==1 || c.querySelector('a,input,button,select,textarea,table,iframe,object,embed')) || !['Lizenz','Klassenberechtigung (Segelflugzeuge)'].includes(label)) return {error:'licence-source-unverified'};
+        if(selected.length===20) return {error:'source-limit'};
+        selected.push({position:i,values:[kind,cells[0].textContent || '',cells[1].innerText ?? cells[1].textContent ?? '']});
+      }
+      if(active) {if(!finished || !selected.length) return {error:'licence-source-unverified'};candidates.push(selected);}
+    }
+    if(candidates.length!==1) return {error:'licence-source-unverified'};
+    rows=candidates[0];columns=[{key:'kind',label:'Lizenzgruppe',index:0},{key:'field',label:'Quellenfeld',index:1},{key:'value',label:'Originaltext',index:2}];
   } else if (category === 'own-profile') {
     const candidates=[];
     for(const table of document.querySelectorAll('table')) {
@@ -168,7 +206,7 @@ export const INFORMATION_READER_SOURCE = String.raw`(category, config) => {
         const cells=Array.from(all[i].cells);
         if(cells.some(c=>c.querySelector('table'))) {active=false;continue;}
         const label=norm(cells[0]?.textContent);
-        if(cells.length===1 && cells[0].colSpan===2) {active=label==='Allgemeine Daten';continue;}
+        if(cells.length===1 && (cells[0].colSpan || 1)>1) {active=label==='Allgemeine Daten' && cells[0].colSpan===2;continue;}
         if(active && ['Vorname','Nachname','Benutzernummer'].includes(label)) {
           if(cells.length!==2 || cells.some(c=>(c.colSpan || 1)!==1 || (c.rowSpan || 1)!==1)) return {error:'row-shape'};
           selected.push({position:i,values:[cells[0].textContent || '',cells[1].innerText ?? cells[1].textContent ?? '']});
@@ -234,11 +272,11 @@ export const INFORMATION_READER_SOURCE = String.raw`(category, config) => {
     if(rows.length && empty) return {error:'conflicting-empty-state'};
   }
   const filters=taskFilter ? [taskFilter] : [];
-  for(const s of category==='own-profile' ? [] : document.querySelectorAll('select')) {
+  for(const s of ['own-profile','licence-metadata'].includes(category) ? [] : document.querySelectorAll('select')) {
     const text=norm(s.selectedOptions?.[0]?.textContent);
     if(/^(?:\d{4}|Jahr \d{4}|Aktuelle und anstehende Dienste|Alle Dienste|Alle anstehenden Dienste)$/.test(text) && !filters.includes(text)) filters.push(text);
   }
-  const displayedFilter=category==='own-profile' ? '' : norm(document.getElementById?.('globalfilter')?.innerText);
+  const displayedFilter=['own-profile','licence-metadata'].includes(category) ? '' : norm(document.getElementById?.('globalfilter')?.innerText);
   if(/^(?:\d{4}|Jahr \d{4}|Aktuelle und anstehende Dienste|Alle Dienste|Alle anstehenden Dienste)$/.test(displayedFilter) && !filters.includes(displayedFilter)) filters.push(displayedFilter);
   return {category,path:u.pathname,columns,rows,filters,empty:!rows.length,coverage:{kind:'visible-page',truncated,pagination:'unverified'}};
 }`;

@@ -23,7 +23,7 @@ const header = ['', 'Datum', 'Tätigkeit', 'Stunden', 'Kategorie', 'Status', 'Pr
 const entries = [['', '01.10.2026', 'Synthetic work', '0.00', 'Custom', 'Akzeptiert', 'Do not collect']];
 function read(category: InformationCategory, rows = [row(header), ...entries.map(row)], tables?: { rows: typeof rows }[], taskFilter = 'Meine nicht beendeten Aufgaben', taskAnchor = 'globalfiltertime') {
   const window = {}; const document = { getElementById: (id: string) => id === taskAnchor ? ({ innerText: category === 'tasks' ? taskFilter : '' }) : null, querySelector: () => null, querySelectorAll: (s: string) => s === 'table' ? tables ?? [{ rows }] : s === 'select' ? category === 'tasks' ? [] : [{ selectedOptions: [{ textContent: '2026' }] }, { selectedOptions: [{ textContent: 'Private person filter' }] }] : [] };
-  return JSON.parse(JSON.stringify(runInNewContext(`(${INFORMATION_READER_SOURCE})(category, config)`, { document, location: { href: category === 'tasks' ? tasksUrl : category === 'ledger' ? ledgerUrl : category === 'medical' || category === 'work-summary' || category === 'own-profile' ? PROFILE_URL : category === 'duties' ? 'https://vereinsflieger.de/member/profile/myservices.php' : url }, window: Object.assign(window, { top: window }), URL, category, config: INFORMATION_TYPES[category] })));
+  return JSON.parse(JSON.stringify(runInNewContext(`(${INFORMATION_READER_SOURCE})(category, config)`, { document, location: { href: category === 'tasks' ? tasksUrl : category === 'ledger' ? ledgerUrl : category === 'medical' || category === 'work-summary' || category === 'own-profile' || category === 'licence-metadata' ? PROFILE_URL : category === 'duties' ? 'https://vereinsflieger.de/member/profile/myservices.php' : url }, window: Object.assign(window, { top: window }), URL, category, config: INFORMATION_TYPES[category] })));
 }
 const page = () => validateInformationPage(read('work-hours'));
 test('bounded local route diagnostic excludes query values and numeric path identities', () => {
@@ -174,7 +174,7 @@ test('Medical reader selects class/expiry only inside Medical section and exclud
 });
 test('minimum own profile reads only three required fields inside General Data, preserving raw names/reference', () => {
   const heading = row(['Allgemeine Daten']); heading.cells[0]!.colSpan = 2;
-  const boundary = row(['Medical']); boundary.cells[0]!.colSpan = 2;
+  const boundary = row(['Medical']); boundary.cells[0]!.colSpan = 3;
   const privateRow = row(['Mailadresse', 'Do not read contact']); Object.defineProperty(privateRow.cells[1], 'innerText', { get() { throw new Error('Excluded contact read'); } });
   const rows = [heading, row(['Vorname', 'Synthetic first']), row(['Nachname', 'Synthetic last']), privateRow, row(['Benutzernummer', '1001']), boundary, row(['Vorname', 'Do not collect outside section'])];
   const p = validateInformationPage(read('own-profile', rows));
@@ -184,6 +184,17 @@ test('minimum own profile reads only three required fields inside General Data, 
   assert.throws(() => validateInformationPage(read('own-profile', [heading, ...rows.slice(1, 5), row(['Vorname', 'duplicate'])])));
   assert.throws(() => validateInformationPage({ ...p, rows: p.rows.map((r, i) => i === 0 ? { ...r, values: ['Mailadresse', 'Forbidden'] } : r) }));
   for (const url of [PROFILE_URL + '?id=foreign', PROFILE_URL + '/', ledgerUrl]) assert.equal(informationCategoryUrl('own-profile', url), false);
+});
+test('licence source metadata preserves paired original values and stops before Medical/documents without inferring qualification', () => {
+  const heading = (text: string) => { const r = row([text]); r.cells[0]!.colSpan = 3; r.cells[0]!.querySelector = ((s: string) => s === 'b' ? {} : null) as any; return r; };
+  const field = (label: string, value: string) => { const r = row([label, value]); r.cells[1]!.colSpan = 2; return r; };
+  const after = field('Lizenz', 'Do not collect Medical/private value'); Object.defineProperty(after.cells[1], 'innerText', { get() { throw new Error('Read beyond licence boundary'); } });
+  const rows = [heading('Lizenzen / Berechtigungen'), heading('Synthetic group'), field('Lizenz', ''), field('Klassenberechtigung (Segelflugzeuge)', 'Synthetic original rating'), heading(''), heading('Medical'), after];
+  const p = validateInformationPage(read('licence-metadata', rows));
+  assert.deepEqual(p.rows.map(r => r.values), [['Synthetic group', 'Lizenz', ''], ['Synthetic group', 'Klassenberechtigung (Segelflugzeuge)', 'Synthetic original rating']]);
+  assert.deepEqual(p.filters, []); assert.ok(!JSON.stringify(p).includes('Do not collect'));
+  for (const bad of [rows.slice(0, 4), [rows[0]!, rows[1]!, rows[2]!, rows[5]!], [rows[0]!, rows[1]!, field('Unknown field', 'Unsupported'), rows[3]!, rows[5]!], [...rows.slice(0, 4), rows[2]!, rows[5]!]]) assert.throws(() => validateInformationPage(read('licence-metadata', bad)));
+  assert.equal(informationCategoryUrl('licence-metadata', PROFILE_URL + '?id=foreign'), false);
 });
 test('decoder rejects unknown fields, unsafe source, forged coverage and malformed/oversize metadata', () => {
   const p = page();
@@ -241,11 +252,11 @@ test('real SQLite immutable retries, scoped isolation, corruption and close/reop
 test('all enabled categories including an explicit empty own-task capture survive SQLite reopening together', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'moflight-information-catalogue-')); const file = join(dir, 'capture.sqlite');
   let db = nodeDriver(file);
-  const paths: Partial<Record<InformationCategory, string>> = { ledger: new URL(ledgerUrl).pathname, tasks: new URL(tasksUrl).pathname, 'document-notices': new URL(overviewUrl).pathname, news: new URL(overviewUrl).pathname, 'own-reservations': new URL(overviewUrl).pathname, 'own-profile': new URL(PROFILE_URL).pathname, medical: new URL(PROFILE_URL).pathname, 'work-summary': new URL(PROFILE_URL).pathname, duties: '/member/profile/myservices.php', enrolments: '/member/profile/usereducation', practical: '/member/profile/usereducation/editelidp', theory: '/member/profile/usereducation/editelidt' };
+  const paths: Partial<Record<InformationCategory, string>> = { ledger: new URL(ledgerUrl).pathname, tasks: new URL(tasksUrl).pathname, 'document-notices': new URL(overviewUrl).pathname, news: new URL(overviewUrl).pathname, 'own-reservations': new URL(overviewUrl).pathname, 'own-profile': new URL(PROFILE_URL).pathname, 'licence-metadata': new URL(PROFILE_URL).pathname, medical: new URL(PROFILE_URL).pathname, 'work-summary': new URL(PROFILE_URL).pathname, duties: '/member/profile/myservices.php', enrolments: '/member/profile/usereducation', practical: '/member/profile/usereducation/editelidp', theory: '/member/profile/usereducation/editelidt' };
   const values = Object.entries(INFORMATION_TYPES).map(([category, config]) => validateInformationCapture({
     version: 1, id: 'synthetic-' + category, retrievedAt: at, owner: scope.owner, connectionId: scope.connectionId, sourceIdentity: 'provisional-observed-profile', category, path: paths[category as InformationCategory] ?? new URL(url).pathname,
     columns: Object.entries(config.fields).map(([key, names], index) => ({ key, label: names[0], index })),
-    rows: category === 'own-profile' ? ['Vorname', 'Nachname', 'Benutzernummer'].map((label, i) => ({ position: i, values: [label, 'Synthetic raw value'] })) : ['tasks', 'news', 'own-reservations'].includes(category) ? [] : [{ position: 1, values: Object.keys(config.fields).map(() => 'Synthetic raw value') }],
+    rows: category === 'licence-metadata' ? ['Lizenz', 'Klassenberechtigung (Segelflugzeuge)'].map((label, i) => ({ position: i, values: ['Synthetic group', label, ''] })) : category === 'own-profile' ? ['Vorname', 'Nachname', 'Benutzernummer'].map((label, i) => ({ position: i, values: [label, 'Synthetic raw value'] })) : ['tasks', 'news', 'own-reservations'].includes(category) ? [] : [{ position: 1, values: Object.keys(config.fields).map(() => 'Synthetic raw value') }],
     empty: ['tasks', 'news', 'own-reservations'].includes(category), filters: category === 'tasks' ? ['Meine nicht beendeten Aufgaben'] : [], coverage: { kind: 'visible-page', truncated: false, pagination: 'unverified' },
   })).sort((a, b) => a.category.localeCompare(b.category));
   try {
