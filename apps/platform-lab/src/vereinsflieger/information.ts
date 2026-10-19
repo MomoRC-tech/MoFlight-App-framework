@@ -27,18 +27,14 @@ export interface InformationCapture extends InformationPage {
   sourceIdentity: 'provisional-observed-profile';
 }
 export const normalizedLabel = (s: string) => s.replace(/\s+/g, ' ').trim();
-/** Local development diagnostic: bounded route shape, never private query values. */
-export function informationRouteShape(value: string) {
-  if (!providerUrl(value)) return null;
-  const u = new URL(value);
-  return {
-    path: u.pathname.slice(0, 160).replace(/\d+/g, '#'),
-    queryKeys: [...new Set(u.searchParams.keys())].slice(0, 24).map(k => /^[a-z_]{1,40}$/i.test(k) ? k : '(other)'),
-  };
-}
 export function informationUrl(value: string): boolean {
   if (!providerUrl(value)) return false;
   const u = new URL(value);
+  // Observed own-account navigation, 19 October 2026. caid remains an opaque
+  // source selector, not an attested owner ID. Never allow it on another route.
+  // Path-only is needed to validate persisted captures, which omit query values.
+  if (u.pathname === '/member/profile/account.php') return !u.hash &&
+    (!u.search || u.searchParams.size === 1 && u.searchParams.has('caid'));
   return !u.hash && u.pathname.startsWith('/member/') &&
     !/(?:logout|password|download|print|delete|remove|save|upload|config)/i.test(u.pathname) &&
     (!/\/edit/i.test(u.pathname) || /^\/member\/profile\/usereducation\/editelid[pt]$/.test(u.pathname)) &&
@@ -48,6 +44,7 @@ export function informationCategoryUrl(category: InformationCategory, url: strin
   if (!informationUrl(url)) return false;
   const path = new URL(url).pathname.replace(/\/$/, '');
   const known: Partial<Record<InformationCategory, readonly string[]>> = {
+    ledger: ['/member/profile/account.php'],
     medical: ['/member/profile/viewprofile'], 'work-summary': ['/member/profile/viewprofile'],
     duties: ['/member/profile/myservices.php', '/member/profile/allservicelist.php', '/member/community/serviceshedulelist.php'],
     enrolments: ['/member/profile/usereducation'], practical: ['/member/profile/usereducation/editelidp'], theory: ['/member/profile/usereducation/editelidt'],

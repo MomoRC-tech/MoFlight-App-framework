@@ -16,7 +16,7 @@ import { ConnectionSession } from './connection-state';
 import { loadProviderScope, confirmProviderScope, loadScopedCapture, loadScopedView, saveScopedCapture, saveScopedView, clearScopedView, prepareScopedLegacy, saveLegacySafety, legacyQuarantined, finishScopedLegacy } from './scoped-storage';
 import { clearProviderStore, proveSyntheticStore, sessionClearingAvailable, sessionProofAvailable, legacyRecoveryAvailable, legacyRecoveryFingerprint, readReviewedRecovery } from './session-store';
 import type { ProviderScope } from './scope-store';
-import { INFORMATION_TYPES, informationCategories, informationRouteShape, informationScript, type InformationCategory, type InformationCapture } from './information';
+import { INFORMATION_TYPES, informationCategories, informationScript, type InformationCategory, type InformationCapture } from './information';
 import { InformationRun } from './information-run';
 import { loadInformation, saveInformation } from './information-native';
 
@@ -161,10 +161,7 @@ export function useAccessController(product = false, localOwner?: string) {
       informationRun.current = run; setInformationBusy(true); setBusy(true); setInformationNotice('Konto wird vor und nach der Erfassung geprüft…');
       informationTimer.current = setTimeout(() => stopInformation('Informationsabruf hat das Zeitlimit erreicht. Gespeicherte Belege bleiben erhalten.'), 90_000);
       navigate(run.url);
-    } catch {
-      console.info('MoFlight information route shape', JSON.stringify(informationRouteShape(currentUrl.current)));
-      setInformationNotice('Diese Quellseite kann nicht erfasst werden. Erst auf der Originalseite zum ausgewählten Bereich wechseln.');
-    }
+    } catch { setInformationNotice('Diese Quellseite kann nicht erfasst werden. Erst auf der Originalseite zum ausgewählten Bereich wechseln.'); }
   }
   async function receiveInformation(event: WebViewMessageEvent) {
     const run = informationRun.current;

@@ -4,7 +4,7 @@ import { runInNewContext } from 'node:vm';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { INFORMATION_READER_SOURCE, INFORMATION_TYPES, validateInformationPage, validateInformationCapture, informationRouteShape, informationUrl, type InformationCategory } from '../../apps/platform-lab/src/vereinsflieger/information.ts';
+import { INFORMATION_READER_SOURCE, INFORMATION_TYPES, validateInformationPage, validateInformationCapture, informationCategoryUrl, informationUrl, type InformationCategory } from '../../apps/platform-lab/src/vereinsflieger/information.ts';
 import { InformationStore } from '../../apps/platform-lab/src/vereinsflieger/information-store.ts';
 import { InformationRun } from '../../apps/platform-lab/src/vereinsflieger/information-run.ts';
 import { PROFILE_URL } from '../../apps/platform-lab/src/vereinsflieger/context.ts';
@@ -12,6 +12,7 @@ import { nodeDriver } from './sqlite-driver.ts';
 import type { ProviderScope } from '../../apps/platform-lab/src/vereinsflieger/scope-store.ts';
 
 const url = 'https://vereinsflieger.de/member/profile/synthetic-working-hours?year=2026';
+const ledgerUrl = 'https://vereinsflieger.de/member/profile/account.php?caid=synthetic-account';
 const at = '2026-10-19T12:00:00.000Z';
 const scope: ProviderScope = { version: 1, owner: 'synthetic-owner', connectionId: 'synthetic-scope', context: { accountNumber: '1001', clubLabel: 'Synthetic club', clubIdentity: 'display-label-only', verification: 'observed-profile-number' } };
 function cell(text: string, extra: Record<string, unknown> = {}) { return { textContent: text, innerText: text, colSpan: 1, rowSpan: 1, querySelector: () => null, ...extra }; }
@@ -20,14 +21,9 @@ const header = ['', 'Datum', 'Tätigkeit', 'Stunden', 'Kategorie', 'Status', 'Pr
 const entries = [['', '01.10.2026', 'Synthetic work', '0.00', 'Custom', 'Akzeptiert', 'Do not collect']];
 function read(category: InformationCategory, rows = [row(header), ...entries.map(row)], tables?: { rows: typeof rows }[]) {
   const window = {}; const document = { querySelector: () => null, querySelectorAll: (s: string) => s === 'table' ? tables ?? [{ rows }] : s === 'select' ? [{ selectedOptions: [{ textContent: '2026' }] }, { selectedOptions: [{ textContent: 'Private person filter' }] }] : [] };
-  return JSON.parse(JSON.stringify(runInNewContext(`(${INFORMATION_READER_SOURCE})(category, config)`, { document, location: { href: category === 'medical' || category === 'work-summary' ? PROFILE_URL : category === 'duties' ? 'https://vereinsflieger.de/member/profile/myservices.php' : url }, window: Object.assign(window, { top: window }), URL, category, config: INFORMATION_TYPES[category] })));
+  return JSON.parse(JSON.stringify(runInNewContext(`(${INFORMATION_READER_SOURCE})(category, config)`, { document, location: { href: category === 'ledger' ? ledgerUrl : category === 'medical' || category === 'work-summary' ? PROFILE_URL : category === 'duties' ? 'https://vereinsflieger.de/member/profile/myservices.php' : url }, window: Object.assign(window, { top: window }), URL, category, config: INFORMATION_TYPES[category] })));
 }
 const page = () => validateInformationPage(read('work-hours'));
-test('bounded local route diagnostic excludes query values and numeric path identities', () => {
-  const shape = informationRouteShape('https://vereinsflieger.de/member/profile/example/123?year=2026&private=secret&private=another&bad123=hidden');
-  assert.deepEqual(shape, { path: '/member/profile/example/#', queryKeys: ['year', 'private', '(other)'] });
-  assert.equal(informationRouteShape('https://evil.test/member/profile/example'), null);
-});
 const capture = (id = 'capture-a') => validateInformationCapture({ ...page(), version: 1, id, retrievedAt: at, owner: scope.owner, connectionId: scope.connectionId, sourceIdentity: 'provisional-observed-profile' });
 
 test('allowlisted work rows retain exact zero/raw evidence and exclude private columns/filter values', () => {
@@ -62,6 +58,28 @@ test('historical multi-person duty period remains one source row with raw end/pe
 test('ledger charges/credits/opening balance stay signed raw observations, never computed cost totals', () => {
   const p = validateInformationPage(read('ledger', [row(['Datum', 'BuchungsNr.', 'Abrechnung', 'Informationen', 'Wert (EUR)', 'Saldo (EUR)']), row(['01.01.2026', '', '', 'Anfangsbestand', '', '0,00']), row(['02.01.2026', '123', '456', 'Synthetic charge', '-12,50', '-12,50']), row(['03.01.2026', '124', '', 'Kontoausgleich', '12,50', '0,00'])]));
   assert.equal(p.rows.length, 3); assert.equal(p.rows[1]!.values[4], '-12,50'); assert.equal(p.rows[2]!.values[4], '12,50');
+});
+test('observed ledger route permits only its own query-key shape; other routes retain their guard', () => {
+  assert.equal(informationCategoryUrl('ledger', ledgerUrl), true);
+  assert.equal(informationCategoryUrl('ledger', 'https://vereinsflieger.de/member/profile/account.php'), true); // persisted pathname
+  for (const bad of [ledgerUrl + '&action=delete', ledgerUrl + '&year=2026', ledgerUrl + '&caid=other', ledgerUrl + '#fragment', ledgerUrl.replace('account.php', 'synthetic-working-hours'), ledgerUrl.replace('https:', 'http:'), ledgerUrl.replace('vereinsflieger.de', 'evil.test'), ledgerUrl.replace('account.php', 'account.php/extra')]) assert.equal(informationUrl(bad), false, bad);
+  assert.equal(informationCategoryUrl('ledger', url), false);
+  assert.throws(() => validateInformationPage({ ...page(), category: 'ledger' }));
+});
+test('ledger native message must match the selected account query and fresh context before saving', () => {
+  const p = validateInformationPage(read('ledger', [row(['Datum', 'BuchungsNr.', 'Informationen', 'Wert (EUR)', 'Saldo (EUR)']), row(['01.01.2026', '', 'Anfangsbestand', '', '0,00'])]));
+  const run = new InformationRun(scope, 'ledger', ledgerUrl, 'ledger-a');
+  run.observeNavigation(PROFILE_URL); run.accept(PROFILE_URL, PROFILE_URL, contextMessage(run));
+  const other = ledgerUrl.replace('synthetic-account', 'other');
+  run.observeNavigation(other);
+  assert.equal(run.accept(other, other, { kind: 'vf-information-v1', nonce: run.messageNonce, url: other, page: p }), 'ignored');
+  assert.throws(() => run.capture(at));
+  run.observeNavigation(ledgerUrl);
+  assert.equal(run.accept(ledgerUrl, ledgerUrl, { kind: 'vf-information-v1', nonce: run.messageNonce, url: ledgerUrl, page: p }), 'navigate');
+  assert.throws(() => run.capture(at));
+  run.observeNavigation(PROFILE_URL); assert.equal(run.accept(PROFILE_URL, PROFILE_URL, contextMessage(run)), 'save');
+  assert.deepEqual(run.capture(at).rows, p.rows);
+  assert.ok(!JSON.stringify(run.capture(at)).includes('synthetic-account')); // query values are not stored
 });
 test('Medical reader selects class/expiry only inside Medical section and excludes document/private rows', () => {
   const p = validateInformationPage(read('medical', [row(['Allgemeine Daten']), row(['Name', 'Private name']), row(['Medical']), row(['Klasse 2', 'Gültig bis 01.10.2027 - synthetic-ref']), row(['LAPL', '']), row(['Dokumente']), row(['Private document', 'Do not collect'])]));
