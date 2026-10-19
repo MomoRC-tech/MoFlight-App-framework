@@ -31,7 +31,8 @@ export function ProviderConnection({ controller: c, open, close, development = f
   const insets = useSafeAreaInsets();
   const [barHeight, setBarHeight] = useState(68), [loginHeight, setLoginHeight] = useState(132);
   const [details, setDetails] = useState(false), [lab, setLab] = useState(false);
-  useEffect(() => { if (!open) { setDetails(false); setLab(false); } }, [open]);
+  const [informationTools, setInformationTools] = useState(false);
+  useEffect(() => { if (!open) { setDetails(false); setLab(false); setInformationTools(false); } }, [open]);
   const checking = c.connection.phase === 'checking';
   const operationLocked = c.clearing || c.binding || c.busy || checking || c.saving || c.loginBusy || !c.viewReady;
   const locked = operationLocked || c.disconnecting;
@@ -57,8 +58,11 @@ export function ProviderConnection({ controller: c, open, close, development = f
       <Label style={{ fontWeight: '600' }}>{providerUrl(c.url) ? new URL(c.url).origin : 'Anbieteradresse nicht bestätigt'}</Label>
       <Label muted>{c.disconnecting ? 'Auf der Originalseite „Abmelden“ wählen, danach hier prüfen. Schließen allein meldet dich nicht ab.' : 'Zugangsdaten nur auf der Originalseite eingeben.'}</Label>
       {loginFeedback && <Label>{loginFeedback}</Label>}
-      {c.disconnecting ? <Action disabled={operationLocked || !c.loaded} onPress={c.checkDisconnection}>Abmeldung prüfen</Action> : <Action disabled={locked || !c.loaded} onPress={() => c.checkConnection()}>Anmeldung prüfen</Action>}
-      {!c.disconnecting && <>
+      {c.disconnecting ? <Action disabled={operationLocked || !c.loaded} onPress={c.checkDisconnection}>Abmeldung prüfen</Action> : <View style={{ flexDirection: 'row', gap: 6 }}>
+        <View style={{ flex: 1 }}><Action disabled={locked || !c.loaded} onPress={() => c.checkConnection()}>Anmeldung prüfen</Action></View>
+        <View style={{ flex: 1 }}><Action secondary disabled={locked} onPress={() => setInformationTools(!informationTools)}>{informationTools ? 'Import zuklappen' : 'Informationsimport'}</Action></View>
+      </View>}
+      {!c.disconnecting && (informationTools || c.informationBusy) && <>
         <Action secondary disabled={locked} onPress={c.nextInformationCategory}>Quelltyp: {INFORMATION_TYPES[c.informationCategory].title}</Action>
         {c.informationBusy ? <Action secondary disabled={c.informationSaving} onPress={() => c.stopInformation()}>Informationsabruf abbrechen</Action> : <Action disabled={locked || c.recovery || !c.loaded} onPress={c.startInformation}>Informationen dieser Seite speichern</Action>}
       </>}

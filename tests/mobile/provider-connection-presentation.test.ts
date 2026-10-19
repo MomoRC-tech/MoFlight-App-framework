@@ -94,10 +94,12 @@ function fixture(overrides: Partial<Controller> = {}, development = false) {
 
 test('information page capture is explicit, respects recovery/loading and cannot cancel an atomic save', () => {
   const f = fixture({ visible: true, loaded: true, browserActive: true });
+  f.button('Informationsimport').props.onPress(); f.render();
   assert.deepEqual(f.calls, []); assert.equal(f.button('Informationen dieser Seite speichern').props.disabled, false);
   f.button('Informationen dieser Seite speichern').props.onPress(); assert.deepEqual(f.calls, ['information-start']);
   for (const overrides of [{ recovery: true }, { loaded: false }, { busy: true }]) {
-    const blocked = fixture({ visible: true, loaded: true, browserActive: true, ...overrides });
+    const blocked = fixture({ visible: true, loaded: true, browserActive: true });
+    blocked.button('Informationsimport').props.onPress(); Object.assign(blocked.controller, overrides); blocked.render();
     assert.equal(blocked.button('Informationen dieser Seite speichern').props.disabled, true);
   }
   const active = fixture({ visible: true, loaded: true, informationBusy: true, busy: true });
