@@ -188,7 +188,7 @@ export function useAccessController(product = false, localOwner?: string) {
         run.stage = 'cancelled'; informationRun.current = null;
         if (informationTimer.current) clearTimeout(informationTimer.current);
         informationTimer.current = null; setInformationBusy(false); setInformationSaving(false); setBusy(false);
-        setInformationNotice('Erfassung nicht bestätigt: Quelle, Spalten oder Konto nicht unterstützt. Eine eventuell bereits gespeicherte Erfassung bleibt erhalten.');
+        setInformationNotice('Erfassung nicht bestätigt. ' + (run.failureMessage ?? 'Quelle, Spalten oder Konto nicht unterstützt.') + ' Eine eventuell bereits gespeicherte Erfassung bleibt erhalten.');
       }
     }
   }

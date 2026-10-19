@@ -3,11 +3,12 @@ import { View } from 'react-native';
 import { Action, Card, Label, Section } from './theme';
 import { INFORMATION_TYPES, type InformationCapture, type InformationCategory } from '../vereinsflieger/information';
 
-export function InformationReview({ captures, notice }: { captures: InformationCapture[]; notice: string }) {
+export function InformationReview({ captures, notice, onOpen, disabled }: { captures: InformationCapture[]; notice: string; onOpen: () => void; disabled: boolean }) {
   const [category, setCategory] = useState<InformationCategory | null>(null), [page, setPage] = useState(0);
   const capture = captures.find(c => c.category === category);
   return <Card><Section title="Gespeicherte Informationen" icon="info" />
     <Label muted>Quellenbelege getrennt von Flügen und Papierflugbuch. Offline lesbar; vorläufige Kontozuordnung. Die bisherige Bibliothek-Sicherung enthält diese Belege nicht.</Label>
+    <Action secondary disabled={disabled} onPress={onOpen}>Weitere Informationen erfassen</Action>
     {!!notice && <View accessibilityLiveRegion="polite"><Label>{notice}</Label></View>}
     {!captures.length && <Label>Noch keine Informationsseite gespeichert.</Label>}
     {captures.map(c => <Action key={c.category} secondary onPress={() => { setCategory(c.category); setPage(0); }}>Ansehen: {INFORMATION_TYPES[c.category].title} · {c.rows.length} Zeilen</Action>)}

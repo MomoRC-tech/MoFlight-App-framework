@@ -56,6 +56,7 @@ function fixture(overrides: Partial<Controller> = {}, development = false) {
     connection: new ConnectionSession().state, browser, browserActive: false, viewReady: true,
     informationCategory: 'work-hours', informationCaptures: [], informationNotice: '', informationBusy: false, informationSaving: false,
     nextInformationCategory: () => calls.push('information-category'), startInformation: () => calls.push('information-start'), stopInformation: () => calls.push('information-stop'),
+    setVisible: () => calls.push('provider-visible'),
     original: { current: null }, restoring: { current: false }, result: 'none', loginNotice: 'none',
     disconnectNotice: 'none', clearNotice: 'none', credentialNotice: 'none', proofNotice: 'none',
     connect: () => calls.push('connect'), checkConnection: (action = 'check') => calls.push(action),
@@ -106,6 +107,10 @@ test('information page capture is explicit, respects recovery/loading and cannot
   assert.equal(active.button('Informationsabruf abbrechen').props.disabled, false);
   active.button('Informationsabruf abbrechen').props.onPress(); assert.deepEqual(active.calls, ['information-stop']);
   assert.equal(fixture({ visible: true, loaded: true, informationBusy: true, informationSaving: true, busy: true }).button('Informationsabruf abbrechen').props.disabled, true);
+  const failed = fixture({ visible: true, loaded: true, informationNotice: 'Erfassung nicht bestätigt. Quelle nicht unterstützt.' });
+  failed.button('Informationsimport').props.onPress(); failed.render(); assert.match(failed.text(), /Erfassung nicht bestätigt/);
+  const saved = fixture({ browserActive: true });
+  saved.nodes().find(n => n.type === 'InformationReview')!.props.onOpen(); assert.deepEqual(saved.calls, ['provider-visible']);
 });
 
 test('initial and invalidated observations never promise logout or a currently valid session', () => {

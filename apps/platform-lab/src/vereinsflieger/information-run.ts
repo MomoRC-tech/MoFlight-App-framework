@@ -10,6 +10,7 @@ export class InformationRun {
   stage: 'before' | 'read' | 'after' | 'saving' | 'done' | 'cancelled' = 'before';
   private page: ReturnType<typeof validateInformationPage> | null = null;
   private navigationObserved = false;
+  failureMessage: string | null = null;
   readonly scope: ProviderScope;
   constructor(scope: ProviderScope, readonly category: InformationCategory, readonly sourceUrl: string, readonly nonce: string) {
     this.scope = validateScope(scope);
@@ -25,6 +26,20 @@ export class InformationRun {
     const p = input as Record<string, unknown>;
     if (p.nonce !== this.messageNonce || p.url !== this.url || p.kind !== (this.stage === 'read' ? 'vf-information-v1' : 'vf-context-v1')) return 'ignored';
     if (this.stage === 'read') {
+      const pageValue = p.page as { error?: unknown } | null;
+      if (pageValue && typeof pageValue === 'object' && typeof pageValue.error === 'string') {
+        const messages: Record<string, string> = {
+          'source-table-unverified': 'Keine eindeutige Tabelle für den ausgewählten Quelltyp.',
+          'medical-source-unverified': 'Medical-Abschnitt nicht eindeutig erkannt.',
+          'row-shape': 'Die Struktur der Quellzeilen wird noch nicht unterstützt.',
+          'nested-source-row': 'Eine verschachtelte Quellzeile wird noch nicht unterstützt.',
+          'duplicate-column': 'Die Quellspalten sind mehrdeutig.',
+          'empty-scope-unverified': 'Eine leere Quelle ist nicht bestätigt.',
+          'source-unavailable': 'Die angemeldete Quellseite ist nicht verfügbar.',
+        };
+        this.failureMessage = messages[pageValue.error] ?? 'Diese Quellseite wird noch nicht unterstützt.';
+        throw new Error('Unsupported information source');
+      }
       const page = validateInformationPage(p.page);
       if (page.category !== this.category || page.path !== new URL(this.sourceUrl).pathname) throw new Error('Information source changed');
       this.page = page; this.stage = 'after'; this.navigationObserved = false; return 'navigate';

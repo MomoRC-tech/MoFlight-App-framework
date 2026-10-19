@@ -285,14 +285,14 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ImportPreview.tsx
 
 ## InformationReview.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/InformationReview.tsx](../../../apps/platform-lab/src/mobile/InformationReview.tsx); normalized SHA-256 `8c7783cd834c689d1e2147070f33cb2a942be12245272c6e2b67770dd6105544`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/InformationReview.tsx](../../../apps/platform-lab/src/mobile/InformationReview.tsx); normalized SHA-256 `167503a2a01d92fc7c0419688e2e3d0d6f8d8b8ddeafb2e505c93ce88781f5a2`.
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `gap: 4` | 20 |
-| `gap: 8` | 14 |
+| `gap: 4` | 21 |
+| `gap: 8` | 15 |
 
 ## LibraryBackup.tsx
 
@@ -504,22 +504,22 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProfileSettings.t
 
 ## ProviderConnection.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProviderConnection.tsx](../../../apps/platform-lab/src/mobile/ProviderConnection.tsx); normalized SHA-256 `181a029c8418ba67a9c2f03433925b99fa80093094b3fb01826cd02af05fa6cd`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProviderConnection.tsx](../../../apps/platform-lab/src/mobile/ProviderConnection.tsx); normalized SHA-256 `9d202b99864316061b9b2d8a0d087b0e52350a768d5807f4b614e312fc529cdf`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#102d47aa` | 167 |
+| `#102d47aa` | 168 |
 | `#ffb39e` | 25 |
-| `white` | 170 |
+| `white` | 171 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
 | `fontSize: 12` | 25 |
-| `fontWeight: '600'` | 53, 58, 72 |
+| `fontWeight: '600'` | 53, 58, 73 |
 | `fontWeight: '700'` | 25 |
 | `lineHeight: 15` | 25 |
 
@@ -527,30 +527,30 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProviderConnectio
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 10` | 177 |
-| `borderRadius: 14` | 167 |
-| `borderRadius: 7` | 169 |
-| `borderRadius: 8` | 168 |
-| `borderWidth: 1` | 177 |
-| `borderWidth: 2` | 169 |
-| `gap: 10` | 176 |
-| `gap: 12` | 172 |
-| `gap: 6` | 61, 173 |
-| `height: 12` | 169 |
-| `height: 16` | 168 |
-| `height: 48` | 167 |
-| `maxWidth: 520` | 176 |
-| `maxWidth: 800` | 170 |
-| `minHeight: 48` | 175, 177 |
-| `minHeight: 68` | 172 |
-| `minWidth: 16` | 168 |
-| `opacity: 0` | 171 |
-| `padding: 10` | 172, 173, 176, 177 |
-| `paddingHorizontal: 8` | 175 |
-| `paddingVertical: 10` | 175 |
-| `width: '100%'` | 170, 176 |
-| `width: 18` | 169 |
-| `width: 48` | 167 |
+| `borderRadius: 10` | 178 |
+| `borderRadius: 14` | 168 |
+| `borderRadius: 7` | 170 |
+| `borderRadius: 8` | 169 |
+| `borderWidth: 1` | 178 |
+| `borderWidth: 2` | 170 |
+| `gap: 10` | 177 |
+| `gap: 12` | 173 |
+| `gap: 6` | 61, 174 |
+| `height: 12` | 170 |
+| `height: 16` | 169 |
+| `height: 48` | 168 |
+| `maxWidth: 520` | 177 |
+| `maxWidth: 800` | 171 |
+| `minHeight: 48` | 176, 178 |
+| `minHeight: 68` | 173 |
+| `minWidth: 16` | 169 |
+| `opacity: 0` | 172 |
+| `padding: 10` | 173, 174, 177, 178 |
+| `paddingHorizontal: 8` | 176 |
+| `paddingVertical: 10` | 176 |
+| `width: '100%'` | 171, 177 |
+| `width: 18` | 170 |
+| `width: 48` | 168 |
 
 ## RawCaptureReview.tsx
 

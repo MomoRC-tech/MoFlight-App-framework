@@ -65,6 +65,7 @@ export function ProviderConnection({ controller: c, open, close, development = f
       {!c.disconnecting && (informationTools || c.informationBusy) && <>
         <Action secondary disabled={locked} onPress={c.nextInformationCategory}>Quelltyp: {INFORMATION_TYPES[c.informationCategory].title}</Action>
         {c.informationBusy ? <Action secondary disabled={c.informationSaving} onPress={() => c.stopInformation()}>Informationsabruf abbrechen</Action> : <Action disabled={locked || c.recovery || !c.loaded} onPress={c.startInformation}>Informationen dieser Seite speichern</Action>}
+        {!!c.informationNotice && <View accessibilityLiveRegion="polite"><Label muted>{c.informationNotice}</Label></View>}
       </>}
     </View> : <KeyboardAvoidingView style={styles.panel} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <ScrollView removeClippedSubviews={false} contentContainerStyle={styles.canvas} keyboardShouldPersistTaps="handled">
@@ -100,7 +101,7 @@ export function ProviderConnection({ controller: c, open, close, development = f
             <Label muted>Frühere Belege bleiben bei Fehler oder Abbruch erhalten. Ein neuer Abruf ergänzt noch keine Flugbuchstatistik.</Label>
           </Card>
           {open && <CapturedFlights key={c.snapshot?.captureId ?? 'no-capture'} snapshot={c.snapshot} loadState={c.captureLoadState} />}
-          {open && <InformationReview captures={c.informationCaptures} notice={c.informationNotice} />}
+          {open && <InformationReview captures={c.informationCaptures} notice={c.informationNotice} disabled={locked || c.recovery} onOpen={() => c.browserActive ? c.setVisible(true) : c.connect()} />}
           {c.recovery && <Card><Section title="Abruf gesperrt · Wiederherstellung nötig" /><Label>{c.legacyRecovery ? 'Ein älterer Eintrag muss zuerst geprüft werden. Alte Rohbelege werden dabei nicht übernommen.' : 'Vor dem nächsten Abruf muss die ursprüngliche Anbieteransicht im bisherigen Konto wiederhergestellt werden.'}</Label>{c.legacyRecovery && c.viewReady && <LegacyRecoveryReview locked={locked} recover={c.legacyRecoveryAvailable ? c.requestLegacyRecovery : undefined} />}
             {c.legacyChoice && <>
               <Section title="Aktuelle Ansicht weicht ab" />
