@@ -6,6 +6,12 @@
 
 Date: 2026-10-10. Tracking: [FL-03](../product/flight-logbook-user-stories.md), [#2](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/2). Status: concrete proposal with an executable pure reconciliation prototype; final transport/mapping and canonical database integration are not approved or implemented. Extends [ADR 0006](../adr/0006-vereinsflieger-connector-proposal.md).
 
+## Standing private-flight-data authorization — 19 October 2026
+
+Manuel explicitly stated: **“I fully authorize from now on to work with my private flight data to develop the app.”** This is ongoing authorization to read, inspect, process, compare and use his private flight data for necessary app-development and verification work, including scoped local development saves/experiments. Do not request permission again solely because the flight data is private. Earlier package exclusions record what was not authorized/performed at their date; they do not prohibit this subsequently authorized data use.
+
+Preserve original evidence, existing stores and sessions; keep private inputs/results in ignored local storage and use synthetic/sanitized material in Git/Issues. This statement grants data-use permission, not acceptance of unreviewed production identity/schema/migration/activation, automatic historical adoption, ADR 0007, paid services or disclosure to third parties. Medical, billing and other members' data retain their separately recorded scopes. Existing credential/helper, source authorization and preservation safeguards remain. #2 tracks this authorization; no implementation or acceptance result follows from recording it.
+
 ## Current boundary
 
 The legacy visible-list probe captures at most 20 rows. The current retained controller also supports bounded paginated requested-list captures in separate owner-scoped SQLite storage, with a 20,000-record/20-million-character ceiling; it does not establish production identity, time basis or full-history coverage. The existing canonical `LocalLogbook.importSource` deliberately accepts only `synthetic-prepared-csv`; that restriction remains intact. The [reconciliation planner](../../apps/platform-lab/src/vereinsflieger/reconciliation.ts) remains pure and experimental. Its review helper is now used by the explicitly started [synthetic import preview](../verification/2026-10-18-synthetic-import-preview.md); the strict planner and canonical writer remain unconnected to real captures. No real capture is promoted by this work.
