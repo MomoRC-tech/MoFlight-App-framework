@@ -68,7 +68,7 @@ export function informationUrl(value: string): boolean {
     (!u.search || u.searchParams.size === 1 && u.searchParams.has('gselect'));
   if (u.pathname === '/member/overview/overview') return !u.hash && !u.search;
   if (u.pathname === '/member/community/appointment/') return !u.hash &&
-    (!u.search || u.searchParams.size === 1 && u.searchParams.has('weekCount'));
+    (!u.search || u.searchParams.size === 1 && (u.searchParams.has('weekCount') || u.searchParams.has('date')));
   return !u.hash && u.pathname.startsWith('/member/') &&
     !/(?:logout|password|download|print|delete|remove|save|upload|config)/i.test(u.pathname) &&
     (!/\/edit/i.test(u.pathname) || /^\/member\/profile\/usereducation\/editelid[pt]$/.test(u.pathname)) &&

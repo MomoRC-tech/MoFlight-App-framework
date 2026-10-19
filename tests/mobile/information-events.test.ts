@@ -45,7 +45,8 @@ test('event selection reads its known date/view only; exact route rejects unrela
   assert.equal(fixture({ foreignUrl: 'https://evil.test/member/community/appointment/' }).selection(), null);
   for (const date of ['00.07.2026', '31.02.2026', '19.13.2026', '19.07.0000']) assert.throws(() => eventSelectionFilters({ date, view: '3 Monate' }));
   assert.equal(informationCategoryUrl('events', url), true);
-  for (const value of [url + '&weekCount=other', url + '&id=foreign', url + '#other', url.replace('/?', '?'), url.replace('weekCount=', 'date='), PROFILE_URL]) assert.equal(informationCategoryUrl('events', value), false, value);
+  assert.equal(informationCategoryUrl('events', url.replace('weekCount=', 'date=')), true);
+  for (const value of [url + '&weekCount=other', url + '&date=synthetic-date', url.replace('weekCount=', 'date=') + '&date=other', url + '&id=foreign', url + '#other', url.replace('/?', '?'), PROFILE_URL]) assert.equal(informationCategoryUrl('events', value), false, value);
 });
 
 test('event operation binds initial date/view before profile navigation and refuses changed selection without saving', () => {
