@@ -27,6 +27,15 @@ export interface InformationCapture extends InformationPage {
   sourceIdentity: 'provisional-observed-profile';
 }
 export const normalizedLabel = (s: string) => s.replace(/\s+/g, ' ').trim();
+/** Local development diagnostic: bounded route shape, never private query values. */
+export function informationRouteShape(value: string) {
+  if (!providerUrl(value)) return null;
+  const u = new URL(value);
+  return {
+    path: u.pathname.slice(0, 160).replace(/\d+/g, '#'),
+    queryKeys: [...new Set(u.searchParams.keys())].slice(0, 24).map(k => /^[a-z_]{1,40}$/i.test(k) ? k : '(other)'),
+  };
+}
 export function informationUrl(value: string): boolean {
   if (!providerUrl(value)) return false;
   const u = new URL(value);
