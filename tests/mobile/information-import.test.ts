@@ -14,6 +14,7 @@ import type { ProviderScope } from '../../apps/platform-lab/src/vereinsflieger/s
 const url = 'https://vereinsflieger.de/member/profile/synthetic-working-hours?year=2026';
 const ledgerUrl = 'https://vereinsflieger.de/member/profile/account.php?caid=synthetic-account';
 const tasksUrl = 'https://vereinsflieger.de/member/community/tasklist/tasklist?gselect=synthetic-own';
+const overviewUrl = 'https://vereinsflieger.de/member/overview/overview';
 const at = '2026-10-19T12:00:00.000Z';
 const scope: ProviderScope = { version: 1, owner: 'synthetic-owner', connectionId: 'synthetic-scope', context: { accountNumber: '1001', clubLabel: 'Synthetic club', clubIdentity: 'display-label-only', verification: 'observed-profile-number' } };
 function cell(text: string, extra: Record<string, unknown> = {}) { return { textContent: text, innerText: text, colSpan: 1, rowSpan: 1, querySelector: () => null, ...extra }; }
@@ -129,6 +130,38 @@ test('native task empty footer must be the exact paired sibling of the own-list 
     const bad = fixture(); change(bad); assert.throws(() => validateInformationPage(read('tasks', [], [bad.h, bad.f])));
   }
 });
+function readNotice(category: 'document-notices' | 'news', options: { rows?: ReturnType<typeof row>[]; duplicate?: boolean; wrongParent?: boolean; caption?: string; copies?: number } = {}) {
+  const id = category === 'news' ? 'news' : 'docs';
+  const anchor = { nodeType: 1, tagName: 'A', classList: { contains: (s: string) => s === 'icon-download' }, get href(): never { throw new Error('Download link must not be read'); } };
+  const documentRow = row(['Synthetic notice 01.10.2026']);
+  (documentRow.cells[0] as any).childNodes = [anchor, { nodeType: 3, textContent: 'Synthetic notice 01.10.2026' }];
+  const table = { rows: options.rows ?? (category === 'news' ? [row(['', 'Es wurden keine Daten gefunden!'])] : Array.from({ length: options.copies ?? 1 }, () => documentRow)) };
+  const head = { tagName: 'DIV', classList: { contains: (s: string) => s === 'box-header' }, querySelector: () => ({ innerText: options.caption ?? (category === 'news' ? 'News' : 'Dokumente') }) };
+  const content = { tagName: 'DIV', parentElement: null as any, querySelectorAll: () => [table] };
+  const section = { tagName: 'DIV', children: [head, content] }; content.parentElement = options.wrongParent ? {} : section;
+  const document = { querySelector: () => null, getElementById: (s: string) => s === id ? section : s === id + '_content' ? content : null, querySelectorAll: (s: string) => s === '#' + id || s === '#' + id + '_content' ? options.duplicate ? [section, section] : [section] : [] };
+  const window = {}; Object.assign(window, { top: window });
+  return JSON.parse(JSON.stringify(runInNewContext(`(${INFORMATION_READER_SOURCE})(category, config)`, { document, window, location: { href: overviewUrl }, URL, category, config: INFORMATION_TYPES[category] })));
+}
+test('document notice reader takes only direct title/date text and never reads download links or action metadata', () => {
+  const p = validateInformationPage(readNotice('document-notices'));
+  assert.deepEqual(p.rows, [{ position: 0, values: ['Synthetic notice 01.10.2026'] }]);
+  assert.deepEqual(p.columns, [{ key: 'notice', label: 'Hinweis · Originaltext', index: 0 }]);
+  const capped = validateInformationPage(readNotice('document-notices', { copies: 21 })); assert.equal(capped.rows.length, 20); assert.equal(capped.coverage.truncated, true);
+  for (const options of [{ duplicate: true }, { wrongParent: true }, { caption: 'Other section' }, { rows: [] }, { rows: [row(['Unexpected body'])] }]) assert.throws(() => validateInformationPage(readNotice('document-notices', options)));
+});
+test('News supports only the evidenced empty overview; positive content is unsupported without opening or marking read', () => {
+  const p = validateInformationPage(readNotice('news')); assert.equal(p.empty, true); assert.deepEqual(p.rows, []);
+  for (const rows of [[row(['', 'Synthetic positive news'])], [row(['Es wurden keine Daten gefunden!'])], [row(['', 'Es wurden keine Daten gefunden!']), row(['', 'Another row'])]]) assert.throws(() => validateInformationPage(readNotice('news', { rows })));
+});
+test('notice sources require the exact query-free overview route and preserve strict ledger/task paths', () => {
+  for (const category of ['document-notices', 'news'] as const) {
+    assert.equal(informationCategoryUrl(category, overviewUrl), true);
+    for (const bad of [overviewUrl + '?view=all', overviewUrl + '/', url, ledgerUrl]) assert.equal(informationCategoryUrl(category, bad), false);
+  }
+  assert.equal(informationCategoryUrl('ledger', 'https://vereinsflieger.de/member/profile/account.php/'), false);
+  assert.equal(informationCategoryUrl('tasks', 'https://vereinsflieger.de/member/community/tasklist/tasklist/'), false);
+});
 test('Medical reader selects class/expiry only inside Medical section and excludes document/private rows', () => {
   const p = validateInformationPage(read('medical', [row(['Allgemeine Daten']), row(['Name', 'Private name']), row(['Medical']), row(['Klasse 2', 'Gültig bis 01.10.2027 - synthetic-ref']), row(['LAPL', '']), row(['Dokumente']), row(['Private document', 'Do not collect'])]));
   assert.equal(p.rows.length, 2); assert.deepEqual(p.rows[1]!.values, ['LAPL', '']); assert.ok(!JSON.stringify(p).includes('Private'));
@@ -189,7 +222,7 @@ test('real SQLite immutable retries, scoped isolation, corruption and close/reop
 test('all enabled categories including an explicit empty own-task capture survive SQLite reopening together', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'moflight-information-catalogue-')); const file = join(dir, 'capture.sqlite');
   let db = nodeDriver(file);
-  const paths: Partial<Record<InformationCategory, string>> = { ledger: new URL(ledgerUrl).pathname, tasks: new URL(tasksUrl).pathname, medical: new URL(PROFILE_URL).pathname, 'work-summary': new URL(PROFILE_URL).pathname, duties: '/member/profile/myservices.php', enrolments: '/member/profile/usereducation', practical: '/member/profile/usereducation/editelidp', theory: '/member/profile/usereducation/editelidt' };
+  const paths: Partial<Record<InformationCategory, string>> = { ledger: new URL(ledgerUrl).pathname, tasks: new URL(tasksUrl).pathname, 'document-notices': new URL(overviewUrl).pathname, news: new URL(overviewUrl).pathname, medical: new URL(PROFILE_URL).pathname, 'work-summary': new URL(PROFILE_URL).pathname, duties: '/member/profile/myservices.php', enrolments: '/member/profile/usereducation', practical: '/member/profile/usereducation/editelidp', theory: '/member/profile/usereducation/editelidt' };
   const values = Object.entries(INFORMATION_TYPES).map(([category, config]) => validateInformationCapture({
     version: 1, id: 'synthetic-' + category, retrievedAt: at, owner: scope.owner, connectionId: scope.connectionId, sourceIdentity: 'provisional-observed-profile', category, path: paths[category as InformationCategory] ?? new URL(url).pathname,
     columns: Object.entries(config.fields).map(([key, names], index) => ({ key, label: names[0], index })),

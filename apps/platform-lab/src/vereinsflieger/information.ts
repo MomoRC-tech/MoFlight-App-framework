@@ -8,6 +8,8 @@ export const INFORMATION_TYPES = {
   invoices: { title: 'Abrechnungen', required: ['number', 'date', 'title', 'amount'], fields: { number: ['Nr.'], date: ['Rechnungsdatum'], title: ['Titel'], delivery: ['Versendeart', 'Versandart'], sent: ['Versendet'], amount: ['Betrag (EUR)'], directDebit: ['Lastschrift'] } },
   ledger: { title: 'Mitgliedskonto', required: ['date', 'booking', 'information', 'value', 'balance'], fields: { date: ['Datum'], booking: ['BuchungsNr.', 'Buchungsnr.'], invoice: ['Abrechnung'], information: ['Informationen'], value: ['Wert (EUR)'], balance: ['Saldo (EUR)'] } },
   tasks: { title: 'Eigene offene Aufgaben', required: ['title', 'due', 'status'], fields: { title: ['Titel'], due: ['Zu erledigen bis'], days: ['Anzahl Tage'], status: ['Status'], priority: ['Priorität'] } },
+  'document-notices': { title: 'Dokumentenhinweise', required: ['notice'], fields: { notice: ['Hinweis · Originaltext'] } },
+  news: { title: 'News · Übersicht', required: ['notice'], fields: { notice: ['Hinweis · Originaltext'] } },
   medical: { title: 'Medical · Quellenangaben', required: ['kind', 'expiry'], fields: { kind: ['Medical-Art'], expiry: ['Gültig bis · Originaltext'] } },
   enrolments: { title: 'Ausbildung · Übersicht', required: ['syllabus', 'begun', 'ended'], fields: { syllabus: ['Lehrplan'], begun: ['Begonnen am'], ended: ['Beendet am'], reported: ['Gemeldet Verband', 'Gemeldet an Verband'], practical: ['Fortschritt (Praxis)'], theory: ['Fortschritt (Theorie)'] } },
   practical: { title: 'Praktische Ausbildung', required: ['number', 'status', 'objective', 'landings', 'block'], fields: { number: ['No', 'No.'], status: ['Status'], objective: ['Lernziel'], instructorBegun: ['Fluglehrer (Begonnen)'], begun: ['Begonnen am'], instructorEnded: ['Fluglehrer (Beendet)'], ended: ['Beendet am'], landings: ['Landungen'], block: ['Blockzeit'] } },
@@ -44,6 +46,7 @@ export function informationUrl(value: string): boolean {
     (!u.search || u.searchParams.size === 1 && u.searchParams.has('caid'));
   if (u.pathname === '/member/community/tasklist/tasklist') return !u.hash &&
     (!u.search || u.searchParams.size === 1 && u.searchParams.has('gselect'));
+  if (u.pathname === '/member/overview/overview') return !u.hash && !u.search;
   return !u.hash && u.pathname.startsWith('/member/') &&
     !/(?:logout|password|download|print|delete|remove|save|upload|config)/i.test(u.pathname) &&
     (!/\/edit/i.test(u.pathname) || /^\/member\/profile\/usereducation\/editelid[pt]$/.test(u.pathname)) &&
@@ -51,10 +54,12 @@ export function informationUrl(value: string): boolean {
 }
 export function informationCategoryUrl(category: InformationCategory, url: string) {
   if (!informationUrl(url)) return false;
-  const path = new URL(url).pathname.replace(/\/$/, '');
+  const rawPath = new URL(url).pathname;
+  const path = ['ledger', 'tasks', 'document-notices', 'news'].includes(category) ? rawPath : rawPath.replace(/\/$/, '');
   const known: Partial<Record<InformationCategory, readonly string[]>> = {
     ledger: ['/member/profile/account.php'],
     tasks: ['/member/community/tasklist/tasklist'],
+    'document-notices': ['/member/overview/overview'], news: ['/member/overview/overview'],
     medical: ['/member/profile/viewprofile'], 'work-summary': ['/member/profile/viewprofile'],
     duties: ['/member/profile/myservices.php', '/member/profile/allservicelist.php', '/member/community/serviceshedulelist.php'],
     enrolments: ['/member/profile/usereducation'], practical: ['/member/profile/usereducation/editelidp'], theory: ['/member/profile/usereducation/editelidt'],
@@ -121,7 +126,34 @@ export const INFORMATION_READER_SOURCE = String.raw`(category, config) => {
     return config.required.every(k=>seen.has(k)) ? cols : null;
   };
   let columns, rows=[], empty=false, truncated=false;
-  if (category === 'medical') {
+  if (category === 'document-notices' || category === 'news') {
+    const id=category==='news' ? 'news' : 'docs', caption=category==='news' ? 'News' : 'Dokumente';
+    const section=document.getElementById?.(id), content=document.getElementById?.(id+'_content');
+    const head=section?.children?.[0];
+    if(document.querySelectorAll('#'+id).length!==1 || document.querySelectorAll('#'+id+'_content').length!==1 || section?.tagName!=='DIV' || section.children.length!==2 || head?.tagName!=='DIV' || !head.classList.contains('box-header') || norm(head.querySelector('span')?.innerText)!==caption || content?.tagName!=='DIV' || content.parentElement!==section || section.children[1]!==content) return {error:'notice-source-unverified'};
+    const tables=Array.from(content.querySelectorAll('table'));
+    if(tables.length!==1) return {error:'notice-source-unverified'};
+    const all=Array.from(tables[0].rows || []);
+    columns=[{key:'notice',label:'Hinweis · Originaltext',index:0}];
+    if(category==='news') {
+      const cells=Array.from(all[0]?.cells || []);
+      if(all.length!==1 || cells.length!==2 || norm(cells[0].innerText) || norm(cells[1].innerText)!=='Es wurden keine Daten gefunden!' || cells.some(c=>(c.colSpan || 1)!==1 || (c.rowSpan || 1)!==1 || c.querySelector('table,input,button,select,textarea,iframe,object,embed'))) return {error:'notice-source-unverified'};
+      empty=true;
+    } else {
+      if(!all.length || all.length>10000) return {error:'notice-source-unverified'};
+      for(let i=0;i<all.length;i++) {
+        const cells=Array.from(all[i].cells), c=cells[0];
+        if(cells.length!==1 || (c.colSpan || 1)!==1 || (c.rowSpan || 1)!==1) return {error:'row-shape'};
+        const nodes=Array.from(c.childNodes || []), elements=nodes.filter(n=>n.nodeType===1);
+        if(elements.length!==1 || elements[0].tagName!=='A' || !elements[0].classList.contains('icon-download') || nodes.some(n=>![1,3].includes(n.nodeType))) return {error:'notice-source-unverified'};
+        // Only the displayed title/date text node; never link/action metadata.
+        const value=nodes.filter(n=>n.nodeType===3).map(n=>n.textContent || '').join('');
+        if(!/\d{2}\.\d{2}\.\d{4}/.test(value)) return {error:'notice-source-unverified'};
+        if(rows.length===20) {truncated=true;break;}
+        rows.push({position:i,values:[value]});
+      }
+    }
+  } else if (category === 'medical') {
     const candidates=[];
     for (const table of document.querySelectorAll('table')) {
       let active=false; const selected=[];
