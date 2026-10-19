@@ -23,7 +23,7 @@ const header = ['', 'Datum', 'Tätigkeit', 'Stunden', 'Kategorie', 'Status', 'Pr
 const entries = [['', '01.10.2026', 'Synthetic work', '0.00', 'Custom', 'Akzeptiert', 'Do not collect']];
 function read(category: InformationCategory, rows = [row(header), ...entries.map(row)], tables?: { rows: typeof rows }[], taskFilter = 'Meine nicht beendeten Aufgaben', taskAnchor = 'globalfiltertime') {
   const window = {}; const document = { getElementById: (id: string) => id === taskAnchor ? ({ innerText: category === 'tasks' ? taskFilter : '' }) : null, querySelector: () => null, querySelectorAll: (s: string) => s === 'table' ? tables ?? [{ rows }] : s === 'select' ? category === 'tasks' ? [] : [{ selectedOptions: [{ textContent: '2026' }] }, { selectedOptions: [{ textContent: 'Private person filter' }] }] : [] };
-  return JSON.parse(JSON.stringify(runInNewContext(`(${INFORMATION_READER_SOURCE})(category, config)`, { document, location: { href: category === 'tasks' ? tasksUrl : category === 'ledger' ? ledgerUrl : category === 'medical' || category === 'work-summary' ? PROFILE_URL : category === 'duties' ? 'https://vereinsflieger.de/member/profile/myservices.php' : url }, window: Object.assign(window, { top: window }), URL, category, config: INFORMATION_TYPES[category] })));
+  return JSON.parse(JSON.stringify(runInNewContext(`(${INFORMATION_READER_SOURCE})(category, config)`, { document, location: { href: category === 'tasks' ? tasksUrl : category === 'ledger' ? ledgerUrl : category === 'medical' || category === 'work-summary' || category === 'own-profile' ? PROFILE_URL : category === 'duties' ? 'https://vereinsflieger.de/member/profile/myservices.php' : url }, window: Object.assign(window, { top: window }), URL, category, config: INFORMATION_TYPES[category] })));
 }
 const page = () => validateInformationPage(read('work-hours'));
 test('bounded local route diagnostic excludes query values and numeric path identities', () => {
@@ -172,6 +172,19 @@ test('Medical reader selects class/expiry only inside Medical section and exclud
   const p = validateInformationPage(read('medical', [row(['Allgemeine Daten']), row(['Name', 'Private name']), row(['Medical']), row(['Klasse 2', 'Gültig bis 01.10.2027 - synthetic-ref']), row(['LAPL', '']), row(['Dokumente']), row(['Private document', 'Do not collect'])]));
   assert.equal(p.rows.length, 2); assert.deepEqual(p.rows[1]!.values, ['LAPL', '']); assert.ok(!JSON.stringify(p).includes('Private'));
 });
+test('minimum own profile reads only three required fields inside General Data, preserving raw names/reference', () => {
+  const heading = row(['Allgemeine Daten']); heading.cells[0]!.colSpan = 2;
+  const boundary = row(['Medical']); boundary.cells[0]!.colSpan = 2;
+  const privateRow = row(['Mailadresse', 'Do not read contact']); Object.defineProperty(privateRow.cells[1], 'innerText', { get() { throw new Error('Excluded contact read'); } });
+  const rows = [heading, row(['Vorname', 'Synthetic first']), row(['Nachname', 'Synthetic last']), privateRow, row(['Benutzernummer', '1001']), boundary, row(['Vorname', 'Do not collect outside section'])];
+  const p = validateInformationPage(read('own-profile', rows));
+  assert.deepEqual(p.rows.map(r => r.values), [['Vorname', 'Synthetic first'], ['Nachname', 'Synthetic last'], ['Benutzernummer', '1001']]);
+  assert.deepEqual(p.filters, []); assert.ok(!JSON.stringify(p).includes('Do not'));
+  assert.throws(() => validateInformationPage(read('own-profile', rows.filter(r => r !== rows[2]))));
+  assert.throws(() => validateInformationPage(read('own-profile', [heading, ...rows.slice(1, 5), row(['Vorname', 'duplicate'])])));
+  assert.throws(() => validateInformationPage({ ...p, rows: p.rows.map((r, i) => i === 0 ? { ...r, values: ['Mailadresse', 'Forbidden'] } : r) }));
+  for (const url of [PROFILE_URL + '?id=foreign', PROFILE_URL + '/', ledgerUrl]) assert.equal(informationCategoryUrl('own-profile', url), false);
+});
 test('decoder rejects unknown fields, unsafe source, forged coverage and malformed/oversize metadata', () => {
   const p = page();
   for (const bad of [{ ...p, extra: true }, { ...p, path: '/member/delete-record' }, { ...p, empty: true }, { ...p, coverage: { ...p.coverage, kind: 'complete' } }, { ...p, rows: [{ position: 1, values: ['x'.repeat(8193), 'a', 'b', 'c', 'd'] }] }, { ...p, columns: p.columns.map(c => ({ ...c, key: '__proto__' })) }]) assert.throws(() => validateInformationPage(bad));
@@ -228,11 +241,11 @@ test('real SQLite immutable retries, scoped isolation, corruption and close/reop
 test('all enabled categories including an explicit empty own-task capture survive SQLite reopening together', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'moflight-information-catalogue-')); const file = join(dir, 'capture.sqlite');
   let db = nodeDriver(file);
-  const paths: Partial<Record<InformationCategory, string>> = { ledger: new URL(ledgerUrl).pathname, tasks: new URL(tasksUrl).pathname, 'document-notices': new URL(overviewUrl).pathname, news: new URL(overviewUrl).pathname, 'own-reservations': new URL(overviewUrl).pathname, medical: new URL(PROFILE_URL).pathname, 'work-summary': new URL(PROFILE_URL).pathname, duties: '/member/profile/myservices.php', enrolments: '/member/profile/usereducation', practical: '/member/profile/usereducation/editelidp', theory: '/member/profile/usereducation/editelidt' };
+  const paths: Partial<Record<InformationCategory, string>> = { ledger: new URL(ledgerUrl).pathname, tasks: new URL(tasksUrl).pathname, 'document-notices': new URL(overviewUrl).pathname, news: new URL(overviewUrl).pathname, 'own-reservations': new URL(overviewUrl).pathname, 'own-profile': new URL(PROFILE_URL).pathname, medical: new URL(PROFILE_URL).pathname, 'work-summary': new URL(PROFILE_URL).pathname, duties: '/member/profile/myservices.php', enrolments: '/member/profile/usereducation', practical: '/member/profile/usereducation/editelidp', theory: '/member/profile/usereducation/editelidt' };
   const values = Object.entries(INFORMATION_TYPES).map(([category, config]) => validateInformationCapture({
     version: 1, id: 'synthetic-' + category, retrievedAt: at, owner: scope.owner, connectionId: scope.connectionId, sourceIdentity: 'provisional-observed-profile', category, path: paths[category as InformationCategory] ?? new URL(url).pathname,
     columns: Object.entries(config.fields).map(([key, names], index) => ({ key, label: names[0], index })),
-    rows: ['tasks', 'news', 'own-reservations'].includes(category) ? [] : [{ position: 1, values: Object.keys(config.fields).map(() => 'Synthetic raw value') }],
+    rows: category === 'own-profile' ? ['Vorname', 'Nachname', 'Benutzernummer'].map((label, i) => ({ position: i, values: [label, 'Synthetic raw value'] })) : ['tasks', 'news', 'own-reservations'].includes(category) ? [] : [{ position: 1, values: Object.keys(config.fields).map(() => 'Synthetic raw value') }],
     empty: ['tasks', 'news', 'own-reservations'].includes(category), filters: category === 'tasks' ? ['Meine nicht beendeten Aufgaben'] : [], coverage: { kind: 'visible-page', truncated: false, pagination: 'unverified' },
   })).sort((a, b) => a.category.localeCompare(b.category));
   try {

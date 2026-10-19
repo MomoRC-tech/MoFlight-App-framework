@@ -34,6 +34,7 @@ export class InformationRun {
           'task-scope-unverified': 'Die Quelle ist nicht als eigene offene Aufgaben bestätigt.',
           'notice-source-unverified': 'Diese Übersicht wird in dieser Form noch nicht unterstützt.',
           'medical-source-unverified': 'Medical-Abschnitt nicht eindeutig erkannt.',
+          'profile-source-unverified': 'Die ausgewählten eigenen Profilfelder sind nicht eindeutig erkannt.',
           'row-shape': 'Die Struktur der Quellzeilen wird noch nicht unterstützt.',
           'nested-source-row': 'Eine verschachtelte Quellzeile wird noch nicht unterstützt.',
           'duplicate-column': 'Die Quellspalten sind mehrdeutig.',
