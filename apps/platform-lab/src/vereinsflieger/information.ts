@@ -166,7 +166,10 @@ export const INFORMATION_READER_SOURCE = String.raw`(category, config) => {
       if(rows.length===20) {truncated=true;break;}
       rows.push({position:i,values:columns.map(c=>cells[c.index].innerText ?? cells[c.index].textContent ?? '')});
     }
-    if(!rows.length && !empty) return {error:'empty-scope-unverified'};
+    if(!rows.length && !empty) {
+      const ident=e=>e ? e.tagName+'#'+String(e.id || '').replace(/\d+/g,'#').replace(/[^a-z#_-]/gi,'') : '';
+      return {error:'empty-scope-unverified',layout:category==='tasks' ? Array.from(document.querySelectorAll('table')).slice(0,12).map(t=>ident(t)+'@'+ident(t.parentElement)+'>'+Array.from(t.rows || []).slice(0,6).map(r=>r.cells.length).join(',')+'~'+ident(t.nextElementSibling)).join(';').slice(0,800) : ''};
+    }
     if(rows.length && empty) return {error:'conflicting-empty-state'};
   }
   const filters=taskFilter ? [taskFilter] : [];
