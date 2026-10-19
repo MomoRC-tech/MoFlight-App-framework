@@ -185,28 +185,29 @@ export const INFORMATION_READER_SOURCE = String.raw`(category, config) => {
   };
   let columns, rows=[], empty=false, truncated=false, eventFilters=[];
   if(category==='events') {
+    const unsupported=(...shape)=>({error:'event-source-unverified',shape:shape.join(',')});
     const selection=(${EVENT_SELECTION_READER_SOURCE})();
     if(!selection) return {error:'event-selection-unverified'};
     eventFilters=['Quellkategorie: Termine','Ab '+selection.date,'Ansicht: '+selection.view];
     const tables=Array.from(document.querySelectorAll('table[id^="tablelist_"]'));
-    if(tables.length!==1 || !/^tablelist_\d+$/.test(tables[0].id || '')) return {error:'event-source-unverified'};
+    if(tables.length!==1 || !/^tablelist_\d+$/.test(tables[0].id || '')) return unsupported(1,tables.length);
     const all=Array.from(tables[0].rows || []), header=Array.from(all[0]?.cells || []);
-    if(!all.length || all.length>10000 || header.length!==6 || header.map(c=>norm(c.innerText)).join('|')!=='|Tag|Datum|Zeit|Kategorie|Info') return {error:'event-source-unverified'};
+    if(!all.length || all.length>10000 || header.length!==6 || header.map(c=>norm(c.innerText)).join('|')!=='|Tag|Datum|Zeit|Kategorie|Info') return unsupported(2,all.length,header.length);
     columns=[{key:'date',label:'Datum',index:2},{key:'time',label:'Zeit',index:3},{key:'kind',label:'Kategorie',index:4},{key:'info',label:'Info',index:5}];
     let date='';
     for(let i=1;i<all.length;i++) {
       const cells=Array.from(all[i].cells);
       if(cells.length!==6 || cells.some(c=>(c.colSpan || 1)!==1 || (c.rowSpan || 1)!==1)) return {error:'row-shape'};
       const shownDate=norm(cells[2].innerText);
-      if(shownDate) {if(!/^\d{2}\.\d{2}\.\d{4}$/.test(shownDate)) return {error:'event-source-unverified'};date=shownDate;}
+      if(shownDate) {if(!/^\d{2}\.\d{2}\.\d{4}$/.test(shownDate)) return unsupported(3,shownDate.length);date=shownDate;}
       // Establish category BEFORE reading Info or time. Other calendar kinds
       // can contain third-party names, reservations and aircraft lock notes.
       if(norm(cells[4].innerText)!=='Termine') continue;
-      if(!date || [cells[3],cells[4],cells[5]].some(c=>c.querySelector('table,input,button,select,textarea,iframe,object,embed'))) return {error:'event-source-unverified'};
+      if(!date || [cells[3],cells[4],cells[5]].some(c=>c.querySelector('table,input,button,select,textarea,iframe,object,embed'))) return unsupported(4,date?1:0);
       if(rows.length===20) {truncated=true;break;}
       const time=cells[3].innerText || '', info=cells[5].innerText || '';
       const lines=info.split(/\r?\n/).map(norm).filter(Boolean);
-      if(!norm(time) || !lines.length || lines.length>2 || lines[0].length>1024 || lines.length===2 && (!/^Ort:\s+\S/.test(lines[1]) || lines[1].length>512)) return {error:'event-source-unverified'};
+      if(!norm(time) || !lines.length || lines.length>2 || lines[0].length>1024 || lines.length===2 && (!/^Ort:\s+\S/.test(lines[1]) || lines[1].length>512)) return unsupported(5,norm(time)?1:0,lines.length,lines[1]&&/^Ort:\s+\S/.test(lines[1])?1:0);
       rows.push({position:i,values:[date,time,cells[4].innerText,info]});
     }
     if(!rows.length) return {error:'empty-scope-unverified'};

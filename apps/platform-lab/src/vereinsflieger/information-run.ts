@@ -36,6 +36,7 @@ export class InformationRun {
       const pageValue = p.page as { error?: unknown; shape?: unknown } | null;
       if (pageValue && typeof pageValue === 'object' && typeof pageValue.error === 'string') {
         if (pageValue.error === 'source-table-unverified' && typeof pageValue.shape === 'string' && /^[\d,;]{1,240}$/.test(pageValue.shape)) console.info('MoFlight information table dimensions', pageValue.shape);
+        if (pageValue.error === 'event-source-unverified' && typeof pageValue.shape === 'string' && /^[\d,]{1,80}$/.test(pageValue.shape)) console.info('MoFlight information event structure', pageValue.shape);
         const messages: Record<string, string> = {
           'source-table-unverified': 'Keine eindeutige Tabelle für den ausgewählten Quelltyp.',
           'task-scope-unverified': 'Die Quelle ist nicht als eigene offene Aufgaben bestätigt.',
