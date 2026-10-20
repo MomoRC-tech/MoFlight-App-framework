@@ -1,0 +1,21 @@
+# Ordinary saved Flüge integration — 20 October 2026
+
+Tracking: [#2 package contract](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/2#issuecomment-6296437241), coordinated with #19 and #8. Manuel’s “push and proceed” authorizes this M3/P4 increment after the separately recorded #36 risk decision and bounded #19 acceptance. Statistics follows this package; books/paper, iOS, training and new invoice retrieval remain deferred.
+
+## Scope and implementation
+
+The ordinary Flüge destination reads the selected real account library locally without creating, migrating, recovering a command, contacting the provider or mixing synthetic book flights. A short-lived read session checks the current owner before and after the coherent stored projection or selected detail, and always releases handles. Details reject a changed owner/store/account/flight/reference/revision. Background, tab departure and unmount invalidate late results. Filters and list offset survive details and same-owner reloads; a different owner/store resets them.
+
+The view displays parsed source dates, reported durations, exact source aircraft labels, separate crew fields and eight-field raw pages. Missing/blank/invalid/conflicting values remain explicit. No roles, credit, class, UTC/landing day, track, distance or book membership is inferred. Text/year/recorded-registration filters combine; unknown registration can be selected. Coverage, gaps and successful-retrieval freshness are separate from provider session status and lifetime completeness.
+
+Explicit setup/update/recovery reuses CoreFlightFoundation and its existing selection, review, save and interruption guards after safe suspension of the shell provider browser. Returning reloads locally. Missing, empty, loading and unreadable states offer appropriate setup/local retry. Existing synthetic dashboard/book/AI tools remain separate. Historical changed-field acknowledgment UI (#30), statistics, source-window expansion and any new storage/schema/write behavior are outside this package.
+
+## Verification checkpoint
+
+Working-tree host checkpoint: `pnpm check` passed **576 mobile / 109 Python tests**, TypeScript, lint and fixture parity; logs: ignored `build/host-checks/20261020T170949Z-d44cdcd1/`. An earlier run found a test callback lint defect and stopped while printing a diagnostic under the Windows console encoding; its logs are retained at `20261020T170807Z-77b5dab3`, excluded from acceptance. The callback was corrected and the complete runner repeated with UTF-8. Committed-source Android Release and affected native matrix/offline acceptance remain pending. No completion or new risk acceptance is claimed by this record.
+
+The regression package covers combined filters/unknowns/evidence immutability, two ownership checks and handle cleanup, foreign projections, changed revisions, failure/retry, background/foreground late-result rejection, detail Back cancellation, unmount cleanup and shell navigation/guarded explicit updates. Existing service/native/storage tests protect the reused write flow; no new writer or provider adapter is introduced. Full host checks and exports will be recorded at the integration checkpoint.
+
+## Preservation and limits
+
+Keep ignored private evidence, failed attempts, original APKs, stores, pending commands and provider sessions. Destructive smoke is restricted to MoFlight_Synthetic_API37. Device evidence must name its actual source, dimensions/density/font scale and network/process boundaries. #36’s initiating ANR cause remains unproven and its accepted risk is unchanged. The never-saved live-first retrieval/save remains untested under the accepted #19 decision. Android does not establish iOS, physical-device, live second-account, system cloud backup/transfer (#37), or broader release acceptance.

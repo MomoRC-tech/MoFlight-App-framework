@@ -14,7 +14,7 @@
 | C06 | Header status group | Connection soft tile, growing Med, profile soft tile; gap 4 | Back replaces logo on app overlays. AppHeader / MedicalStatus / ShellIcons. |
 | C07 | Bottom navigation | Attached dark bar, five equal targets, minimum height 60 | Icon above German label; cyan selected state. MobileApp. |
 | C08 | Overlay / provider panel | Current dark full app overlay with one active header; provider has its own toolbar/history | Different from pale v0.30 prototype sheets. MobileApp / ProviderConnection. |
-| C09 | Flight row | Padding 7, radius 13; no-track tile, route/time/role and detail chevron | Whole row opens saved facts. MobileApp FlightRow. |
+| C09 | Flight row | Padding 7, radius 13; no-track tile, route/reported duration and detail chevron | Whole row opens selected-account saved source facts, reference and revision. [OwnFlights](../../../apps/platform-lab/src/mobile/OwnFlights.tsx); no inferred role or book assignment. |
 | C10 | AI question / composer | Question radius 12; composer radius 20; send face 42 × 42; input max height 150 | Local questions calculate deterministically; free-text service unavailable. MobileApp. |
 | C11 | Paper hero / action face | Orange-accent photo card, minimum height 144; normal hero height 154; CTA radius 15 | Papierstand ansehen opens the read-only saved paper status. Full reconciliation/writing remains M5; viewing never confirms copying. Dashboard / PaperStatus. |
 | C12 | Season ring | Diameter 62, thickness 6, aircraft segments, central value/label | Whole season card opens current-year flights. SeasonRing / season-model. |

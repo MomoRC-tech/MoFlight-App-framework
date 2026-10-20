@@ -1,12 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, BackHandler, FlatList, Keyboard, KeyboardAvoidingView, Linking, Platform, Pressable, ScrollView, StatusBar, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
+import { ActivityIndicator, BackHandler, Keyboard, KeyboardAvoidingView, Linking, Platform, Pressable, ScrollView, StatusBar, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { canonical, type Flight } from '@moflight/flight-logbook';
 import LabApp from '../App';
 import { BookLab } from '../BookLab';
-import { Action, Card, Chip, ClubMark, Empty, GliderMark, IconLabel, Label, Photo, Section, colors, ui } from './theme';
+import { Action, Card, Chip, ClubMark, Empty, IconLabel, Label, Photo, Section, colors, ui } from './theme';
 import { useLibrary } from './use-library';
-import { flightYears, selectFlights, summarizeFlights, formatDuration } from './flight-model';
+import { formatDuration } from './flight-model';
 import { localQuestions, localInsight } from './local-insights';
 import { Dashboard } from './Dashboard';
 import { PlaneIcon, ProfileIcon, BookIcon } from './ShellIcons';
@@ -25,6 +25,7 @@ import type { PreviewSession } from '../import-preview';
 import { CoreFlightFoundation } from './CoreFlightFoundation';
 import { ConnectionSummary } from './ConnectionSummary';
 import { medicalSource } from './medical-source';
+import { OwnFlights, type OwnFlightHeader } from './OwnFlights';
 
 const mountain = require('../../assets/aviation/mountain-header-v2.jpg');
 const windsock = require('../../assets/aviation/windsock.jpg');
@@ -32,33 +33,18 @@ const clubAirfield = require('../../assets/aviation/club-airfield.jpg');
 const tabs = [{ id: 'home', title: 'Übersicht' }, { id: 'flights', title: 'Flüge' }, { id: 'logbook', title: 'Flugbuch' }, { id: 'club', title: 'Verein' }, { id: 'ai', title: 'AI' }] as const;
 type Tab = typeof tabs[number]['id'];
 type ClubSection = 'Übersicht' | 'Termine' | 'Dienste' | 'Mitteilungen';
-type Sheet = 'paper' | 'development' | 'importPreview' | 'flightLab' | 'bookLab' | 'backup' | 'selectBook' | 'filters' | 'unsupported' | 'credits' | 'status' | 'profile' | 'medical' | null;
+type Sheet = 'paper' | 'development' | 'importPreview' | 'flightLab' | 'bookLab' | 'backup' | 'selectBook' | 'unsupported' | 'credits' | 'status' | 'profile' | 'medical' | null;
 const dateText = (date: string | null) => date ? new Date(date + 'T12:00:00Z').toLocaleDateString('de-DE', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' }) : 'Datum unbekannt';
-
-function Metric({ value, label }: { value: string; label: string }) {
-  return <View style={s.metric}><Text style={s.metricValue}>{value}</Text><Label muted style={s.metricLabel}>{label}</Label></View>;
-}
-function FlightRow({ flight, onPress, tablet }: { flight: Flight; onPress: () => void; tablet?: boolean }) {
-  return <Card onPress={onPress} label={`${dateText(flight.date)}, ${flight.registration ?? 'Flugzeug unbekannt'}, Details öffnen`} style={[s.flightRow, tablet && { flex: 1, maxWidth: '50%' }]}>
-    <Label style={s.flightDate}>{dateText(flight.date)}</Label>
-    <View style={ui.row}>
-      <View style={[s.noTrack, !tablet && { width: 80, minHeight: 68 }]}><GliderMark color="#7299ab" /><Label muted style={{ fontSize: 10, textAlign: 'center', width: '100%' }}>Kein Track</Label></View>
-      <View style={ui.column}><View style={[ui.row, { flexWrap: 'wrap', gap: 6 }]}><Label style={{ fontWeight: '600', flexShrink: 1 }}>{flight.registration ?? 'Kennzeichen unbekannt'}</Label><Label muted style={{ flexShrink: 1 }}>{flight.aircraft_model ?? 'Typ unbekannt'}</Label></View>
-        <View style={[ui.row, { gap: 4, flexWrap: 'wrap' }]}><Label muted>{flight.start_place ?? '—'}</Label><SymbolIcon name="arrow" size={14} tone="muted" /><Label muted>{flight.landing_place ?? '—'}</Label></View>
-        <View style={ui.row}><IconLabel name="clock" size={16}>{formatDuration(flight.minutes)} h</IconLabel>{flight.pilot_role && <View style={s.badge}><Label style={{ color: colors.cyan, fontSize: 11 }}>{flight.pilot_role === 'Dual' ? 'Schulung' : flight.pilot_role}</Label></View>}</View>
-      </View><SymbolIcon name="right" size={16} tone="muted" />
-    </View>
-  </Card>;
-}
 
 export default function MobileApp() {
   const [coreFlights,setCoreFlights]=useState(false);
+  const [flightReload,setFlightReload]=useState(0);
   return <SafeAreaProvider><View style={{flex:1}}>
-    <View style={{flex:1,display:coreFlights?'none':'flex'}} accessibilityElementsHidden={coreFlights} importantForAccessibility={coreFlights?'no-hide-descendants':'auto'}><Shell onCoreFlights={()=>setCoreFlights(true)}/></View>
-    {coreFlights&&<CoreFlightFoundation close={()=>setCoreFlights(false)}/>}
+    <View style={{flex:1,display:coreFlights?'none':'flex'}} accessibilityElementsHidden={coreFlights} importantForAccessibility={coreFlights?'no-hide-descendants':'auto'}><Shell coreFlightsOpen={coreFlights} flightReload={flightReload} onCoreFlights={()=>setCoreFlights(true)}/></View>
+    {coreFlights&&<CoreFlightFoundation close={()=>{setCoreFlights(false);setFlightReload(value=>value+1);}}/>}
   </View></SafeAreaProvider>;
 }
-function Shell({onCoreFlights=()=>{}}:{onCoreFlights?:()=>void}={}) {
+function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0}:{onCoreFlights?:()=>void;coreFlightsOpen?:boolean;flightReload?:number}={}) {
   const connection = useAccessController(true, PILOT);
   const medical = medicalSource(connection.informationCaptures, PILOT);
   const [connectionOpen, setConnectionOpen] = useState(false);
@@ -88,9 +74,7 @@ function Shell({onCoreFlights=()=>{}}:{onCoreFlights?:()=>void}={}) {
     setDetail(previous?.detail ?? null); setSheet(previous?.sheet ?? null);
   };
   const [clubSection, setClubSection] = useState<ClubSection>('Übersicht');
-  const [search, setSearch] = useState('');
-  const [year, setYear] = useState<number | null>(null);
-  const [training, setTraining] = useState(false);
+  const [flightHeader, setFlightHeader] = useState<OwnFlightHeader>({title:'Flüge'});
   const [draft, setDraft] = useState('');
   const [aiError, setAiError] = useState(false);
   const [sending, setSending] = useState(false);
@@ -114,11 +98,6 @@ function Shell({onCoreFlights=()=>{}}:{onCoreFlights?:()=>void}={}) {
   const compact = fontScale > 1.3;
   const tablet = width >= 600 && !compact;
   const wide = width >= 840 && !compact;
-  const years = flightYears(library.flights);
-  const selectedYear = year;
-  const displayedYears = year !== null && !years.includes(year) ? [year, ...years].sort((a, b) => b - a) : years;
-  const flights = selectFlights(library.flights, { year: selectedYear, search, category: training ? 'training' : 'all' });
-  const summary = summarizeFlights(flights);
   const currentYear = new Date().getFullYear();
   const book = library.books.find(b => b.id === library.bookId);
   useEffect(() => {
@@ -145,10 +124,11 @@ function Shell({onCoreFlights=()=>{}}:{onCoreFlights?:()=>void}={}) {
         setConnectionOpen(false); return true;
       }
       if (detail || sheet) { closeOverlay(); return true; }
+      if (tab === 'flights' && flightHeader.back) { flightHeader.back(); return true; }
       if (tab !== 'home') { setTab('home'); return true; }
       return false;
     }); return () => listener.remove();
-  }, [detail, sheet, tab, connectionOpen, connection, screenBusy]);
+  }, [detail, sheet, tab, connectionOpen, connection, screenBusy, flightHeader]);
   const openBooks = () => openHeaderSheet('paper');
   const openConnection = (development = false) => { setConnectionDevelopment(development); setConnectionOpen(true); };
   const ask = (question: string) => { setDraft(question); setAiError(false); setTab('ai'); };
@@ -174,17 +154,8 @@ function Shell({onCoreFlights=()=>{}}:{onCoreFlights?:()=>void}={}) {
     <MedicalIndicator capture={medical} active={sheet === 'medical'} disabled={screenBusy} onPress={() => openHeaderSheet('medical')} />
     <Pressable accessibilityRole="button" accessibilityLabel="Profil & Einstellungen öffnen" accessibilityState={{ disabled: screenBusy }} disabled={screenBusy} onPress={() => openHeaderSheet('profile')} style={s.profileButton}><ProfileIcon /></Pressable>
   </>;
-  const header = <AppHeader source={tab === 'club' ? clubAirfield : mountain} title={tab === 'ai' ? 'MoFlight AI' : pageTitle}
+  const header = <AppHeader source={tab === 'club' ? clubAirfield : mountain} title={tab === 'ai' ? 'MoFlight AI' : tab === 'flights' ? flightHeader.title : pageTitle} back={tab === 'flights' ? flightHeader.back : undefined}
     subtitle={tab === 'home' ? (library.displayName ? `Hallo, ${library.displayName}!` : 'Guten Tag!') : tab === 'ai' ? 'Dein Segelflug-Assistent' : 'MoFlight'}>{statusControls}</AppHeader>;
-  const flightHeader = <View style={{ gap: 3 }}>
-    <Pressable accessibilityRole="button" accessibilityLabel="Flugbuch auswählen" onPress={() => setSheet('selectBook')} style={s.headerBook}><IconLabel name="down" size={16} muted>{book?.name ?? 'Flugbuch auswählen'}</IconLabel></Pressable>
-    <View style={ui.row}><View style={s.searchBox}><SymbolIcon name="search" size={20} tone="muted" /><TextInput accessibilityLabel="Flüge durchsuchen" hitSlop={4} placeholder="Flüge durchsuchen …" placeholderTextColor={colors.muted} value={search} onChangeText={setSearch} style={s.search} autoCorrect={false} returnKeyType="search" /></View><Pressable accessibilityRole="button" accessibilityLabel="Flugfilter öffnen" hitSlop={4} onPress={() => setSheet('filters')} style={s.filterButton}><SymbolIcon name="filter" size={24} /></Pressable></View>
-    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.chips}><Chip title="Alle Jahre" selected={selectedYear === null} onPress={() => setYear(null)} />{displayedYears.map(y => <Chip key={y} title={String(y)} selected={selectedYear === y} onPress={() => setYear(y)} />)}</ScrollView>
-    <Card style={[s.statsStrip, compact && { flexDirection: 'column' }]}><Metric value={String(summary.count)} label="Flüge" /><Metric value={formatDuration(summary.knownMinutes)} label="bekannte Std." /><Metric value="—" label="Kilometer" /><Metric value={formatDuration(summary.averageMinutes)} label="Ø pro Flug" /></Card>
-    {summary.unknownDurationCount > 0 && <Label muted>{summary.unknownDurationCount} Flugzeiten unbekannt · kein vollständiger Durchschnitt.</Label>}
-    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.chips}><Chip title="Alle" selected={!training} onPress={() => setTraining(false)} /><Chip title="Strecke" icon="info" onPress={() => setSheet('unsupported')} /><Chip title="Platzrunden" icon="info" onPress={() => setSheet('unsupported')} /><Chip title="Schulung" selected={training} onPress={() => setTraining(true)} /></ScrollView>
-  </View>;
-
   return <SafeAreaView edges={['top', 'left', 'right', 'bottom']} style={[s.root, keyboardOverlap > 0 && { paddingBottom: keyboardOverlap }]}>
     <View collapsable={false} style={[{ flex: 1 }, connectionOpen && s.hidden]} aria-hidden={connectionOpen} accessibilityElementsHidden={connectionOpen} importantForAccessibility={connectionOpen ? 'no-hide-descendants' : 'auto'}>
     <View collapsable={false} style={[{ flex: 1 }, overlayOpen && s.hidden]} aria-hidden={overlayOpen} accessibilityElementsHidden={overlayOpen} importantForAccessibility={overlayOpen ? 'no-hide-descendants' : 'auto'}>
@@ -194,13 +165,14 @@ function Shell({onCoreFlights=()=>{}}:{onCoreFlights?:()=>void}={}) {
       <View style={[s.page, tab !== 'home' && s.hidden]} accessibilityElementsHidden={tab !== 'home'} importantForAccessibility={tab === 'home' ? 'auto' : 'no-hide-descendants'}>
         <ScrollView contentContainerStyle={s.canvas} keyboardShouldPersistTaps="handled">
           <ConnectionSummary controller={connection} onOpen={() => openConnection()} />
-          <Dashboard flights={library.flights} pending={library.pending} width={width} fontScale={fontScale} onPaper={openBooks} onAi={() => ask('Mit welchem Flugzeug bin ich am häufigsten geflogen?')} onFlights={value => { setYear(value ?? null); setTab('flights'); }} onDetail={setDetail} onClub={() => { setClubSection('Dienste'); setTab('club'); }} onStatus={() => setSheet('status')} />
+          <Dashboard flights={library.flights} pending={library.pending} width={width} fontScale={fontScale} onPaper={openBooks} onAi={() => ask('Mit welchem Flugzeug bin ich am häufigsten geflogen?')} onFlights={() => setTab('flights')} onDetail={setDetail} onClub={() => { setClubSection('Dienste'); setTab('club'); }} onStatus={() => setSheet('status')} />
           {stateBanner}
           <Pressable accessibilityRole="button" onPress={() => setSheet('credits')} style={ui.smallAction}><Label muted>Bildnachweise & Lizenzen</Label></Pressable>
         </ScrollView>
       </View>
       <View style={[s.page, tab !== 'flights' && s.hidden]} accessibilityElementsHidden={tab !== 'flights'} importantForAccessibility={tab === 'flights' ? 'auto' : 'no-hide-descendants'}>
-        <FlatList key={tablet ? 'tablet' : 'phone'} numColumns={tablet ? 2 : 1} columnWrapperStyle={tablet ? { gap: 8 } : undefined} data={flights} keyExtractor={f => f.id} renderItem={({ item }) => <FlightRow tablet={tablet} flight={item} onPress={() => setDetail(item)} />} ListHeaderComponent={flightHeader} ListHeaderComponentStyle={{ marginBottom: 5 }} ListFooterComponent={stateBanner} contentContainerStyle={s.flightCanvas} ItemSeparatorComponent={() => <View style={{ height: 7 }} />} initialNumToRender={10} maxToRenderPerBatch={10} windowSize={7} keyboardShouldPersistTaps="handled" ListEmptyComponent={<Card><Empty title={search || training || selectedYear !== null ? 'Keine passenden Flüge' : 'Noch keine gespeicherten Flüge'}>{search || training || selectedYear !== null ? 'Suchbegriff oder Filter ändern.' : 'Live-Import ist noch nicht verbunden. Verbindung und Sicherung sind in den Einstellungen verfügbar.'}</Empty></Card>} />
+        <OwnFlights active={tab === 'flights' && !coreFlightsOpen} reloadKey={flightReload} onHeaderChange={setFlightHeader}
+          onUpdate={()=>{if(!connection.suspendBrowserForOwnerSwitch())return false;onCoreFlights();return true;}} />
       </View>
       <View style={[s.page, tab !== 'logbook' && s.hidden]} accessibilityElementsHidden={tab !== 'logbook'} importantForAccessibility={tab === 'logbook' ? 'auto' : 'no-hide-descendants'}>
         <ScrollView contentContainerStyle={[s.canvas, { paddingTop: 10 }]}>
@@ -253,7 +225,6 @@ function Shell({onCoreFlights=()=>{}}:{onCoreFlights?:()=>void}={}) {
           {sheet === 'medical' && <MedicalDetails capture={medical} loading={connection.informationLoading} needsReload={connection.informationNeedsReload} />}
           {detail && <><Section title={detail.registration ?? 'Flugzeug unbekannt'} />{[['Datum', dateText(detail.date)], ['Flugzeugtyp', detail.aircraft_model], ['Abflug', detail.start_place], ['Ankunft', detail.landing_place], ['Start', detail.start], ['Landung', detail.landing], ['Zeitbasis', detail.time_basis], ['Dauer', detail.minutes === null ? null : `${formatDuration(detail.minutes)} h`], ['Rolle', detail.pilot_role], ['Startart', detail.launch], ['Landungen', detail.landings?.toString()], ['Bemerkungen', detail.remarks]].map(([label, value]) => <Card key={label}><Label muted>{label}</Label><Label selectable>{value ?? 'Unbekannt'}</Label></Card>)}<Label muted>Quelle: gespeicherte synthetische Bibliothek · {book?.name}. Distanz und Flugtrack sind nicht verfügbar.</Label></>}
           {sheet === 'selectBook' && <View style={{ width: '100%', maxWidth: 520, alignSelf: 'center', gap: 8 }}><Section title="Flugbuch auswählen" />{library.books.map(b => <Action key={b.id} secondary icon={b.id === library.bookId ? 'check' : undefined} onPress={() => { overlayHistory.current = []; setDetail(null); setSheet(null); void library.selectBook(b.id); }}>{b.name}</Action>)}{!library.books.length && <Empty title="Noch kein Flugbuch">Eine vorhandene Sicherung kann in einer neuen lokalen Bibliothek geöffnet werden. Live-Import und neue Produkt-Flugbücher sind noch nicht verfügbar.</Empty>}<Label muted>Gespeicherte synthetische Bibliothek · keine automatische Zuordnung.</Label><Action secondary onPress={() => openHeaderSheet('backup')}>Sicherung & Wiederherstellung</Action></View>}
-          {sheet === 'filters' && <><Section title="Flugfilter" /><Label muted>Jahr, Suche und Schulungsrolle werden gemeinsam auf die gespeicherten Flüge angewendet.</Label><Chip title="Alle Rollen" selected={!training} onPress={() => setTraining(false)} /><Chip title="Schulung · Dual / FI" selected={training} onPress={() => setTraining(true)} /><Action onPress={() => { setSearch(''); setTraining(false); setYear(null); setSheet(null); }}>Filter zurücksetzen</Action></>}
           {sheet === 'unsupported' && <Empty title="Klassifikation nicht verfügbar">Der gespeicherte Flugvertrag enthält keine Strecken- oder Platzrundenkennzeichnung. Flugzeit, Start-/Zielfeld und Rolle werden dafür nicht als Ersatz interpretiert. Der aktive Filter bleibt erhalten.</Empty>}
           {sheet === 'status' && <View style={{ width: '100%', maxWidth: 520, alignSelf: 'center', gap: 8 }}><Section title="Verbindung & Datenstatus" /><Label>Die lokale Bibliothek enthält ausdrücklich synthetische, gespeicherte Daten. Der Papierstand zählt nur Einträge ohne gespeicherten Papiernachweis.</Label><Label muted>Wetter, Vereinskalender, Dienste, Mitteilungen und der authentifizierte AI-Dienst sind noch nicht verbunden. Flugtracks und Distanzen sind im gespeicherten Vertrag nicht vorhanden. Die vollständige Saisonabdeckung und damit ein belastbarer Vorjahresvergleich sind nicht belegt.</Label><Action secondary icon="chain" onPress={() => openConnection()}>Vereinsflieger öffnen</Action><Action secondary icon="book" onPress={() => openHeaderSheet('backup')}>Sicherung & Wiederherstellung</Action></View>}
           {sheet === 'credits' && <><Section title="Bildnachweise" /><Label muted>Dekorative Bilder, keine Flug-, Wetter- oder Vereinsdaten. Darstellung mit Ausschnitt und dunkler Farbüberlagerung. Bildlizenzen gelten unabhängig vom Anwendungscode.</Label>{[

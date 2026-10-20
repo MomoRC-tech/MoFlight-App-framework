@@ -181,7 +181,7 @@ The HTML guide embeds original reference and symbol/brand images unchanged. Comp
 | C06 | Header status group | Connection soft tile, growing Med, profile soft tile; gap 4 | Back replaces logo on app overlays. AppHeader / MedicalStatus / ShellIcons. |
 | C07 | Bottom navigation | Attached dark bar, five equal targets, minimum height 60 | Icon above German label; cyan selected state. MobileApp. |
 | C08 | Overlay / provider panel | Current dark full app overlay with one active header; provider has its own toolbar/history | Different from pale v0.30 prototype sheets. MobileApp / ProviderConnection. |
-| C09 | Flight row | Padding 7, radius 13; no-track tile, route/time/role and detail chevron | Whole row opens saved facts. MobileApp FlightRow. |
+| C09 | Flight row | Padding 7, radius 13; no-track tile, route/reported duration and detail chevron | Whole row opens selected-account saved source facts, reference and revision. [OwnFlights](../../../apps/platform-lab/src/mobile/OwnFlights.tsx); no inferred role or book assignment. |
 | C10 | AI question / composer | Question radius 12; composer radius 20; send face 42 × 42; input max height 150 | Local questions calculate deterministically; free-text service unavailable. MobileApp. |
 | C11 | Paper hero / action face | Orange-accent photo card, minimum height 144; normal hero height 154; CTA radius 15 | Papierstand ansehen opens the read-only saved paper status. Full reconciliation/writing remains M5; viewing never confirms copying. Dashboard / PaperStatus. |
 | C12 | Season ring | Diameter 62, thickness 6, aircraft segments, central value/label | Whole season card opens current-year flights. SeasonRing / season-model. |
@@ -240,7 +240,7 @@ The provider's information-import controls guide the selected own training summa
 | Destination | Current presentation |
 | --- | --- |
 | Übersicht | Photo paper hero; asymmetric season/AI and flight/club pairs; weather and next actions. Use selected-book saved facts with details on tap. |
-| Flüge | Book selector, search/filter, year chips, summary, training/classification chips and saved rows. Missing tracks/distances/classifications remain unavailable. |
+| Flüge | Selected real account’s locally saved flights without a required book: source-date/year, text and exact recorded-registration filters; source-specific details and eight-field original-value pages. Collapsible coverage/freshness and explicit update entry. Missing tracks/distances/classifications stay unavailable; no training or book inference. |
 | Flugbuch | Selected-book saved paper status and ordinary library backup/restore. Full reconciliation/writing remains M5; book identity differs from account/format. |
 | Verein | Overview/Dienste/Termine/Mitteilungen scopes with bounded sections and honest missing-source states. |
 | AI | Welcome, supported local questions/results, composer and unavailable free-text state. Sparkles identify the category. |
@@ -261,7 +261,9 @@ The authorized live-review increment under #2 exposes **Flugdaten erfassen** and
 
 The explicitly started [synthetic import preview](../../../apps/platform-lab/src/mobile/ImportPreview.tsx) under Development reuses dark cards, labelled actions and selected chips in a centered 520 dp group. It compares fictional new/changed/unchanged/conflicting records, shows previous/current evidence, explains book suggestions and requires explicit confirmation of a book or deferral. Returning preserves the separate test stand for the current app session; app restart discards it. Opening does not create fixtures in the saved library or contact a provider. This M3 preparation under #18 does not enable normal live import or accept production identity/schema/assignment rules. Source-specific verification is recorded separately.
 
-The [own-flight foundation](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx) is a separate Development entry for the authorized core integration checkpoint. It creates a fresh local owner only after the named action, preserves old stores, and uses the original provider interface for explicit account confirmation and bounded retrieval. That confirmation applies to the selected fresh library; users review original rows and counts before explicitly saving flights without book assignment. Saved source facts, revisions and unknown values remain readable offline. Recovery states preserve pending commands/files and disable writes; backup/restore uses its own real-history family and explicit file/folder pickers. Reuse the centered 520 dp C01/C02 groups. The ordinary shell's draft/scroll state stays mounted; a guarded suspension detaches its provider browser before the new owner controller mounts. This is core-foundation wiring, not downstream Flüge/statistics/book/paper integration or a native acceptance claim.
+The [own-flight foundation](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx) is a separate Development entry for the authorized core integration checkpoint. It creates a fresh local owner only after the named action, preserves old stores, and uses the original provider interface for explicit account confirmation and bounded retrieval. That confirmation applies to the selected fresh library; users review original rows and counts before explicitly saving flights without book assignment. Saved source facts, revisions and unknown values remain readable offline. Recovery states preserve pending commands/files and disable writes; backup/restore uses its own real-history family and explicit file/folder pickers. Reuse the centered 520 dp C01/C02 groups. The ordinary shell's draft/scroll state stays mounted; a guarded suspension detaches its provider browser before the new owner controller mounts. The ordinary Flüge update action now reuses this guarded retrieval/review/save/recovery flow; entry alone performs no retrieval. Returning reloads the read-only list. Statistics/book/paper remain separate. This describes wiring, not a native acceptance claim.
+
+The [ordinary own-flight view](../../../apps/platform-lab/src/mobile/OwnFlights.tsx) reads the selected real library locally, with loading, missing setup, empty result and failure/retry states. It keeps filters and list position across details; a changed owner/store resets them, while a changed flight revision requires a fresh read. Profile and connection overlays retain the underlying detail route. The list uses C09 in two columns from 600 dp at ordinary text size; filter/detail groups cap at 520 dp. Provider text remains selectable and untruncated. Separate source crew slots establish no confirmed identity, role credit, UTC conversion or landing day. Detailed evidence and pending platform gates are in the [package report](../../verification/2026-10-20-ordinary-flights.md).
 
 ## Header, overlays and navigation
 
@@ -306,7 +308,7 @@ Follow the [verification workflow](../../development/verification-workflow.md): 
 
 [Handbook entry point](README.md). Generated by `python scripts/design_handbook.py`; do not hand-edit.
 
-Scope: 37 product mobile TypeScript/model and app-owned TSX UI/adapter files; 86 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.
+Scope: 43 product mobile TypeScript/model and app-owned TSX UI/adapter files; 86 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.
 
 ## App.tsx
 
@@ -395,14 +397,14 @@ Retained app-owned lab/adapter surface; document its existing appearance as an e
 
 ## android-core-recovery-poc.tsx
 
-Retained app-owned lab/adapter surface; document its existing appearance as an exception. Source: [apps/platform-lab/src/development/android-core-recovery-poc.tsx](../../../apps/platform-lab/src/development/android-core-recovery-poc.tsx); normalized SHA-256 `c34c09998c7a910da079639461e7a38b9aab2247e714d94d085e5bbbbb2c4742`.
+Retained app-owned lab/adapter surface; document its existing appearance as an exception. Source: [apps/platform-lab/src/development/android-core-recovery-poc.tsx](../../../apps/platform-lab/src/development/android-core-recovery-poc.tsx); normalized SHA-256 `a4e5811c94c4f9e6aa81e8134afe87bd693c69385ed912cf4e2919cf066ea6f7`.
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `gap: 20` | 181 |
-| `padding: 24` | 181 |
+| `gap: 20` | 184 |
+| `padding: 24` | 184 |
 
 ## AppHeader.tsx
 
@@ -473,17 +475,17 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/connection-guidan
 
 ## CoreFlightFoundation.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `27166413dfde18e129741bbfa6ae8fd3abfad941ac672f8e621b410a14d5dd28`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `8f3d82cc107469cf59bcb7813012ebc0b4a226ac86672ba3ae3c576f4eee42ee`.
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `gap: 10` | 84, 85, 266 |
-| `gap: 8` | 277, 301, 311 |
-| `maxWidth: 520` | 85, 266 |
-| `padding: 12` | 84, 266 |
-| `width: '100%'` | 85, 266 |
+| `gap: 10` | 96, 97, 284 |
+| `gap: 8` | 301, 326, 336 |
+| `maxWidth: 520` | 97, 284 |
+| `padding: 12` | 96, 284 |
+| `width: '100%'` | 97, 284 |
 
 ## Dashboard.tsx
 
@@ -672,121 +674,163 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MedicalStatus.tsx
 
 ## MobileApp.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `c99b6e980623afcf91e5263a805826976bc57288ff12bb99e34df5bafa7af120`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `40635cdb1b34ea5effa23c9b17907d624716e84aef734a83e94c0749f3ed1b1c`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#00c8ff` | 243, 285 |
-| `#020e17` | 285 |
-| `#031326` | 220 |
-| `#064240` | 280 |
-| `#10233d` | 282 |
-| `#10263e` | 284 |
-| `#10282d` | 280 |
-| `#102d47aa` | 275 |
-| `#11263a` | 279 |
-| `#152d42` | 281 |
-| `#1b344a` | 284 |
-| `#1c3449` | 285 |
-| `#227f87` | 280 |
-| `#354d74` | 282 |
-| `#3a5a8b` | 284 |
-| `#7299ab` | 45 |
-| `#78efdc` | 282 |
-| `#8ba4bc` | 242, 277 |
-| `#ffbd9b` | 169 |
+| `#00c8ff` | 215, 256 |
+| `#020e17` | 256 |
+| `#031326` | 192 |
+| `#064240` | 251 |
+| `#10233d` | 253 |
+| `#10263e` | 255 |
+| `#10282d` | 251 |
+| `#102d47aa` | 246 |
+| `#11263a` | 250 |
+| `#152d42` | 252 |
+| `#1b344a` | 255 |
+| `#1c3449` | 256 |
+| `#227f87` | 251 |
+| `#354d74` | 253 |
+| `#3a5a8b` | 255 |
+| `#78efdc` | 253 |
+| `#8ba4bc` | 214, 248 |
+| `#ffbd9b` | 149 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 10` | 45, 231, 242, 277 |
-| `fontSize: 11` | 48, 236, 278, 285 |
-| `fontSize: 12` | 280 |
-| `fontSize: 13` | 232, 279, 284 |
-| `fontSize: 18` | 208 |
-| `fontSize: 20` | 220, 278 |
-| `fontSize: 23` | 283 |
-| `fontSize: 25` | 285 |
-| `fontWeight: '600'` | 46, 208, 220, 278, 280 |
-| `letterSpacing: .6` | 277 |
-| `lineHeight: 16` | 242, 277, 278, 285 |
-| `lineHeight: 17` | 280 |
-| `lineHeight: 25` | 278 |
-| `lineHeight: 29` | 285 |
+| `fontSize: 10` | 203, 214, 248 |
+| `fontSize: 11` | 208, 249, 256 |
+| `fontSize: 12` | 251 |
+| `fontSize: 13` | 204, 250, 255 |
+| `fontSize: 18` | 180 |
+| `fontSize: 20` | 192, 249 |
+| `fontSize: 23` | 254 |
+| `fontSize: 25` | 256 |
+| `fontWeight: '600'` | 180, 192, 249, 251 |
+| `letterSpacing: .6` | 248 |
+| `lineHeight: 16` | 214, 248, 249, 256 |
+| `lineHeight: 17` | 251 |
+| `lineHeight: 25` | 249 |
+| `lineHeight: 29` | 256 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 280, 283 |
-| `borderRadius: 13` | 280 |
-| `borderRadius: 14` | 275 |
-| `borderRadius: 15` | 282 |
-| `borderRadius: 17` | 281 |
-| `borderRadius: 2` | 285 |
-| `borderRadius: 20` | 284 |
-| `borderRadius: 21` | 284 |
-| `borderRadius: 22` | 279 |
-| `borderRadius: 24` | 279 |
-| `borderRadius: 9` | 280 |
-| `borderWidth: 1` | 279, 280, 283, 284 |
-| `gap: 1` | 278, 285 |
-| `gap: 10` | 207, 282 |
-| `gap: 3` | 179, 277, 280 |
-| `gap: 4` | 47 |
-| `gap: 5` | 279 |
-| `gap: 6` | 46, 283, 284 |
-| `gap: 7` | 279, 282 |
-| `gap: 8` | 203, 255, 258, 274, 281, 284 |
-| `height: 2` | 285 |
-| `height: 30` | 282 |
-| `height: 42` | 284 |
-| `height: 48` | 275 |
-| `height: 7` | 203 |
-| `maxHeight: 150` | 284 |
-| `maxWidth: '50%'` | 42 |
-| `maxWidth: 430` | 282 |
-| `maxWidth: 480` | 207 |
-| `maxWidth: 520` | 255, 258 |
-| `maxWidth: 599` | 273, 285 |
-| `maxWidth: 600` | 193, 243 |
-| `maxWidth: 720` | 229 |
-| `maxWidth: 960` | 193, 243 |
-| `minHeight: 126` | 282 |
-| `minHeight: 174` | 220 |
-| `minHeight: 34` | 281 |
-| `minHeight: 36` | 276 |
-| `minHeight: 40` | 279, 284 |
-| `minHeight: 48` | 279, 281 |
-| `minHeight: 60` | 285 |
-| `minHeight: 64` | 280 |
-| `minHeight: 66` | 280 |
-| `minHeight: 68` | 45 |
-| `minHeight: 70` | 283 |
-| `minWidth: 0` | 278, 279 |
-| `opacity: .45` | 234 |
-| `padding: 0` | 281 |
-| `padding: 10` | 274, 283 |
-| `padding: 4` | 277, 284 |
-| `padding: 7` | 280 |
-| `paddingHorizontal: 12` | 279 |
-| `paddingHorizontal: 16` | 281 |
-| `paddingHorizontal: 6` | 280 |
-| `paddingHorizontal: 7` | 280 |
-| `paddingHorizontal: 8` | 284 |
-| `paddingVertical: 10` | 280 |
-| `paddingVertical: 4` | 279, 285 |
-| `width: '100%'` | 45, 207, 222, 242, 255, 258, 273, 281, 282, 285 |
-| `width: '49.2%'` | 281 |
-| `width: 24` | 285 |
-| `width: 30` | 282 |
-| `width: 42` | 279, 284 |
-| `width: 48` | 275 |
-| `width: 64` | 280 |
-| `width: 80` | 45 |
+| `borderRadius: 12` | 251, 254 |
+| `borderRadius: 13` | 251 |
+| `borderRadius: 14` | 246 |
+| `borderRadius: 15` | 253 |
+| `borderRadius: 17` | 252 |
+| `borderRadius: 2` | 256 |
+| `borderRadius: 20` | 255 |
+| `borderRadius: 21` | 255 |
+| `borderRadius: 22` | 250 |
+| `borderRadius: 24` | 250 |
+| `borderRadius: 9` | 251 |
+| `borderWidth: 1` | 250, 251, 254, 255 |
+| `gap: 1` | 249, 256 |
+| `gap: 10` | 179, 253 |
+| `gap: 3` | 248, 251 |
+| `gap: 5` | 250 |
+| `gap: 6` | 254, 255 |
+| `gap: 7` | 250, 253 |
+| `gap: 8` | 227, 229, 245, 252, 255 |
+| `height: 2` | 256 |
+| `height: 30` | 253 |
+| `height: 42` | 255 |
+| `height: 48` | 246 |
+| `maxHeight: 150` | 255 |
+| `maxWidth: 430` | 253 |
+| `maxWidth: 480` | 179 |
+| `maxWidth: 520` | 227, 229 |
+| `maxWidth: 599` | 244, 256 |
+| `maxWidth: 600` | 164, 215 |
+| `maxWidth: 720` | 201 |
+| `maxWidth: 960` | 164, 215 |
+| `minHeight: 126` | 253 |
+| `minHeight: 174` | 192 |
+| `minHeight: 34` | 252 |
+| `minHeight: 36` | 247 |
+| `minHeight: 40` | 250, 255 |
+| `minHeight: 48` | 250, 252 |
+| `minHeight: 60` | 256 |
+| `minHeight: 64` | 251 |
+| `minHeight: 66` | 251 |
+| `minHeight: 70` | 254 |
+| `minWidth: 0` | 249, 250 |
+| `opacity: .45` | 206 |
+| `padding: 0` | 252 |
+| `padding: 10` | 245, 254 |
+| `padding: 4` | 248, 255 |
+| `padding: 7` | 251 |
+| `paddingHorizontal: 12` | 250 |
+| `paddingHorizontal: 16` | 252 |
+| `paddingHorizontal: 6` | 251 |
+| `paddingHorizontal: 7` | 251 |
+| `paddingHorizontal: 8` | 255 |
+| `paddingVertical: 10` | 251 |
+| `paddingVertical: 4` | 250, 256 |
+| `width: '100%'` | 179, 194, 214, 227, 229, 244, 252, 253, 256 |
+| `width: '49.2%'` | 252 |
+| `width: 24` | 256 |
+| `width: 30` | 253 |
+| `width: 42` | 250, 255 |
+| `width: 48` | 246 |
+| `width: 64` | 251 |
+
+## OwnFlights.tsx
+
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OwnFlights.tsx](../../../apps/platform-lab/src/mobile/OwnFlights.tsx); normalized SHA-256 `85cd503177fa1e7fa0221d6a1b9344dd6035336cfa10edf8547907ad5766b697`.
+
+### Literal colors
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `#10282d` | 120 |
+| `#11263a` | 121 |
+| `#7299ab` | 73 |
+
+### Typography declarations
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `fontSize: 10` | 73 |
+| `fontSize: 13` | 122 |
+| `fontWeight: '600'` | 72 |
+
+### Geometry / opacity declarations
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `borderRadius: 13` | 120 |
+| `borderRadius: 22` | 121 |
+| `borderRadius: 24` | 122 |
+| `borderRadius: 9` | 120 |
+| `borderWidth: 1` | 121 |
+| `gap: 2` | 110 |
+| `gap: 3` | 120 |
+| `gap: 5` | 60 |
+| `gap: 7` | 121 |
+| `gap: 8` | 41, 68, 119 |
+| `height: 7` | 81 |
+| `maxWidth: '50%'` | 71 |
+| `maxWidth: 520` | 119 |
+| `minHeight: 48` | 122 |
+| `minHeight: 64` | 120 |
+| `minWidth: 0` | 121 |
+| `padding: 10` | 119 |
+| `padding: 7` | 120 |
+| `paddingHorizontal: 12` | 121 |
+| `paddingVertical: 4` | 122 |
+| `width: '100%'` | 119 |
+| `width: 48` | 122 |
+| `width: 64` | 120 |
 
 ## PaperStatus.tsx
 

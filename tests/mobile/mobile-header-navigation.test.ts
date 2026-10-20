@@ -58,6 +58,7 @@ function fixture() {
     './LibraryBackup': leaves(['LibraryBackup']), './PaperStatus': leaves(['PaperStatus']),
     './ImportPreview': leaves(['ImportPreview']),
     './CoreFlightFoundation': leaves(['CoreFlightFoundation']),
+    './OwnFlights': leaves(['OwnFlights']),
     './ConnectionSummary': leaves(['ConnectionSummary']), './medical-source': { medicalSource },
   };
   const exports = {} as { Shell: () => Element };
@@ -111,7 +112,7 @@ test('Start and profile data shortcuts reuse the existing connection without aut
 test('synthetic import preview opens without seeding or provider work, retains its session and returns to the same detail', () => {
   const f = fixture();
   f.press('Pressable', 'Flüge');
-  f.find('FlatList').props.renderItem({ item: f.flight }).props.onPress(); f.render();
+  f.find('Dashboard').props.onDetail(f.flight); f.render();
   f.press('Pressable', 'Profil & Einstellungen öffnen');
   f.find('ProfileSettings').props.onTools(); f.render();
   f.find('DevelopmentHub').props.onImportPreview(); f.render();
@@ -133,7 +134,7 @@ test('synthetic import preview opens without seeding or provider work, retains i
 test('Medical opens without provider work and returns through nested overlays', () => {
   const f = fixture();
   f.press('Pressable', 'Flüge');
-  f.press('Pressable', 'Flugfilter öffnen');
+  f.find('OwnFlights').props.onHeaderChange({title:'Flugfilter',back:()=>{}}); f.render();
   f.press('MedicalIndicator');
   assert.equal(f.headers().at(-1)!.props.title, 'Medical');
   assert.ok(f.find('MedicalDetails'));
@@ -142,16 +143,14 @@ test('Medical opens without provider work and returns through nested overlays', 
   f.find('ProviderConnection').props.close(); f.render();
   assert.equal(f.headers().at(-1)!.props.title, 'Medical');
   f.headers().at(-1)!.props.back(); f.render();
-  assert.equal(f.headers().at(-1)!.props.title, 'MoFlight');
-  f.headers().at(-1)!.props.back(); f.render();
-  assert.equal(f.headers()[0]!.props.title, 'Flüge');
+  assert.equal(f.headers()[0]!.props.title, 'Flugfilter');
   assert.deepEqual(f.calls, []);
 });
 
 test('details and sheets retain one active header; profile Back restores details and tab state', () => {
   const f = fixture();
   f.press('Pressable', 'Flüge');
-  f.find('FlatList').props.renderItem({ item: f.flight }).props.onPress(); f.render();
+  f.find('Dashboard').props.onDetail(f.flight); f.render();
   assert.equal(f.headers().at(-1)!.props.title, 'Flugdetails');
   assert.equal(f.parent(f.headers()[0]!).props.accessibilityElementsHidden, true);
   f.press('Pressable', 'Profil & Einstellungen öffnen');
@@ -180,7 +179,7 @@ test('connection overlay preserves the underlying sheet and browser layer parent
 test('book changes discard nested flight history before a later Back', () => {
   const f = fixture();
   f.press('Pressable', 'Flüge');
-  f.find('FlatList').props.renderItem({ item: f.flight }).props.onPress(); f.render();
+  f.find('Dashboard').props.onDetail(f.flight); f.render();
   f.press('Pressable', 'Profil & Einstellungen öffnen');
   f.library.bookId = 'different-synthetic-book'; f.render(); f.render();
   f.headers().at(-1)!.props.back(); f.render();
@@ -221,8 +220,8 @@ test('normal paper, backup and book/status paths expose no synthetic experiment 
 test('Development is read-only on entry; proof work guards Back and a reload preserves prior details/filter', () => {
   const f = fixture();
   f.press('Pressable', 'Flüge');
-  f.find('TextInput', 'Flüge durchsuchen').props.onChangeText('ASK'); f.render();
-  f.find('FlatList').props.renderItem({ item: f.flight }).props.onPress(); f.render();
+  const ownFlights = f.find('OwnFlights');
+  f.find('Dashboard').props.onDetail(f.flight); f.render();
   f.press('Pressable', 'Profil & Einstellungen öffnen');
   f.find('ProfileSettings').props.onTools(); f.render();
   assert.ok(f.find('DevelopmentHub')); assert.equal(f.suspended(), false);
@@ -247,7 +246,7 @@ test('Development is read-only on entry; proof work guards Back and a reload pre
   f.headers().at(-1)!.props.back(); f.render();
   assert.equal(f.headers().at(-1)!.props.title, 'Flugdetails');
   f.headers().at(-1)!.props.back(); f.render();
-  assert.equal(f.find('TextInput', 'Flüge durchsuchen').props.value, 'ASK');
+  assert.equal(f.find('OwnFlights').type, ownFlights.type);
 });
 
 test('provider diagnostics reuses the retained controller and normal entry removes test controls', () => {
@@ -292,3 +291,16 @@ test('nested settings preserve the unsaved profile draft and each sheet scroll o
   assert.equal(scroll().props.contentOffset.y, 80);
   assert.deepEqual(f.calls, []);
 });
+
+ test('ordinary flights uses its own reader, routes explicit updates safely and handles nested Back', () => {
+  const f=fixture();f.press('Pressable','Flüge');
+  assert.equal(f.find('OwnFlights').props.active,true);
+  assert.equal(f.nodes().some(n=>n.type==='FlatList'),false);
+  f.controller.suspendBrowserForOwnerSwitch=()=>false;
+  assert.equal(f.find('OwnFlights').props.onUpdate(),false);assert.deepEqual(f.calls,[]);
+  f.controller.suspendBrowserForOwnerSwitch=()=>true;
+  assert.equal(f.find('OwnFlights').props.onUpdate(),true);assert.deepEqual(f.calls,['core-library-route']);
+  let back=0;f.find('OwnFlights').props.onHeaderChange({title:'Flugdetails',back:()=>back++});f.render();
+  assert.equal(f.headers()[0]!.props.title,'Flugdetails');f.hardwareBack();assert.equal(back,1);
+  f.press('Pressable','Verein');assert.equal(f.find('OwnFlights').props.active,false);
+ });
