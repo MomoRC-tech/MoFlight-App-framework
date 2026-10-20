@@ -20,6 +20,8 @@ import { INFORMATION_TYPES, informationCategories, informationRouteShape, inform
 import { InformationRun } from './information-run';
 import { loadInformation, readInformationCapture, readInformationHistory, saveInformation } from './information-native';
 
+type InformationRetryTarget = { category: InformationCategory; sourceUrl: string; scopeKey: string };
+
 export function useAccessController(product = false, localOwner?: string) {
   const activeOwner = useRef(localOwner); activeOwner.current = localOwner;
   const owner = useRef(localOwner), scope = useRef<ProviderScope | null>(null);
@@ -30,7 +32,9 @@ export function useAccessController(product = false, localOwner?: string) {
   const [informationNotice, setInformationNotice] = useState('');
   const [informationBusy, setInformationBusy] = useState(false);
   const [informationSaving, setInformationSaving] = useState(false);
-  const informationRetry = useRef<{ category: InformationCategory; sourceUrl: string; scopeKey: string } | null>(null);
+  const informationRetry = useRef<InformationRetryTarget | null>(null);
+  const informationFailedProfile = useRef<{ target: InformationRetryTarget; epoch: number } | null>(null);
+  const informationNavigation = useRef<{ run: InformationRun; nonce: string } | null>(null);
   const [informationRetryReady, setInformationRetryReady] = useState(false);
   const informationUncertain = useRef<string | null>(null);
   const [informationNeedsReload, setInformationNeedsReload] = useState(false);
@@ -67,7 +71,7 @@ export function useAccessController(product = false, localOwner?: string) {
   const [showRun, setShowRun] = useState(false);
   const [showWindow, setShowWindow] = useState(false);
   const web = useRef<WebView>(null), currentUrl = useRef(LOGIN_URL);
-  const pendingNavigation = useRef<string | null>(null);
+  const pendingNavigation = useRef<{ url: string; nativeReload?: boolean } | null>(null);
   const retrieval = useRef(new Retrieval()), epoch = useRef(0), mounted = useRef(true);
   const run = useRef<ExportRun | null>(null), command = useRef(''), reading = useRef(false);
   const original = useRef<ViewPreferences | null>(null), viewPhase = useRef<ViewPhase | null>(null), restoring = useRef(false), restoreSteps = useRef(0), outcome = useRef('');
@@ -222,13 +226,17 @@ export function useAccessController(product = false, localOwner?: string) {
     try {
       const selectedScope = requireScope(), target = retry ? informationRetry.current : null;
       if (retry && (!informationRetryReady || !target || target.category !== informationCategory || target.scopeKey !== canonical(selectedScope))) return;
+      const reloadFailedProfile = !!(retry && target && informationFailedProfile.current?.target === target && informationFailedProfile.current.epoch === epoch.current && currentUrl.current === PROFILE_URL);
       const run = new InformationRun(selectedScope, informationCategory, target?.sourceUrl ?? currentUrl.current, Crypto.randomUUID());
       informationRetry.current = { category: run.category, sourceUrl: run.sourceUrl, scopeKey: canonical(run.scope) }; setInformationRetryReady(false);
       informationLoadRequest.current++; setInformationLoading(false);
       informationRun.current = run; setInformationBusy(true); setBusy(true); setInformationNotice('Konto wird vor und nach der Erfassung geprüft…');
       informationTimer.current = setTimeout(() => stopInformation('Informationsabruf hat das Zeitlimit erreicht. Gespeicherte Belege bleiben erhalten. Quelle und Anmeldung prüfen und erneut versuchen.', true), 90_000);
       if (run.stage === 'selection') void loadedPage(run.url);
-      else navigate(run.url);
+      else {
+        navigate(run.url);
+        if (reloadFailedProfile && pendingNavigation.current?.url === PROFILE_URL) pendingNavigation.current.nativeReload = true;
+      }
     } catch {
       console.info('MoFlight information route shape', JSON.stringify(informationRouteShape(currentUrl.current)));
       setInformationNotice('Diese Quellseite kann nicht erfasst werden. Erst auf der Originalseite zum ausgewählten Bereich wechseln.');
@@ -498,6 +506,9 @@ export function useAccessController(product = false, localOwner?: string) {
     if (informationRun.current) {
       const run = informationRun.current;
       if (page !== run.url) { stopInformation('Quellseite oder Anmeldung nicht verfügbar. Gespeicherte Informationen bleiben erhalten.', true); return; }
+      // A failed previous request can report load-end for this same URL after
+      // the new run starts. Require this leg's native load-start before reading.
+      if (run.stage !== 'selection' && (informationNavigation.current?.run !== run || informationNavigation.current.nonce !== run.messageNonce)) return;
       run.observeNavigation(page);
       web.current?.injectJavaScript(run.stage === 'selection' ? informationSelectionScript(run.messageNonce) : run.stage === 'read' ? informationScript(run.category, run.messageNonce) : contextScript(run.messageNonce));
       return;
@@ -637,15 +648,19 @@ export function useAccessController(product = false, localOwner?: string) {
   useEffect(() => {
     const destination = pendingNavigation.current; pendingNavigation.current = null;
     // Commit this generation's native event handlers before initiating navigation.
-    if (destination && product) web.current?.injectJavaScript(`window.location.assign(${JSON.stringify(destination)});true;`);
+    if (destination && product) {
+      if (destination.nativeReload && destination.url === PROFILE_URL) web.current?.reload();
+      else web.current?.injectJavaScript(`window.location.assign(${JSON.stringify(destination.url)});true;`);
+    }
   }, [generation]);
   function navigate(uri: string) {
     if (!providerUrl(uri)) return;
+    informationFailedProfile.current = null;
     setLoaded(false); currentUrl.current = uri; setUrl(uri); epoch.current++; setGeneration(epoch.current);
     if (product && browserActive) {
       // Navigate the existing document; changing a key would discard the controller's browser.
       web.current?.stopLoading();
-      pendingNavigation.current = uri;
+      pendingNavigation.current = { url: uri };
     } else { setBrowserActive(true); setSource({ uri }); }
   }
   function toggleTestPause() {
@@ -815,7 +830,7 @@ export function useAccessController(product = false, localOwner?: string) {
         javaScriptCanOpenWindowsAutomatically={false} setSupportMultipleWindows={true}
         onShouldStartLoadWithRequest={request => { if (generation !== epoch.current) return false; const allowed = providerUrl(request.url); if (product && contextRequest.current && request.isTopFrame !== false && request.url === PROFILE_URL) contextRequest.current.navigationObserved = true; if (!allowed && request.isTopFrame !== false) finish('External navigation blocked. Previous captures preserved.'); return allowed; }}
         onOpenWindow={() => { if (generation === epoch.current) finish('New browser window blocked in this bounded PoC.'); }}
-        onLoadStart={event => { if (generation !== epoch.current) return; if (product && contextRequest.current && event.nativeEvent.url === PROFILE_URL) contextRequest.current.navigationObserved = true; if (retrieval.current.state.phase === 'loading') {
+        onLoadStart={event => { if (generation !== epoch.current) return; informationFailedProfile.current = null; if (informationRun.current && event.nativeEvent.url === informationRun.current.url) informationNavigation.current = { run: informationRun.current, nonce: informationRun.current.messageNonce }; if (product && contextRequest.current && event.nativeEvent.url === PROFILE_URL) contextRequest.current.navigationObserved = true; if (retrieval.current.state.phase === 'loading') {
           // Native load-start can beat the bridge acknowledgement. Advance only
           // a still-owned, outstanding save/load command; acknowledged commands
           // already cleared their token and must not advance a second time.
@@ -825,7 +840,7 @@ export function useAccessController(product = false, localOwner?: string) {
           }
           reading.current = false; command.current = '';
         } currentUrl.current = event.nativeEvent.url; setUrl(event.nativeEvent.url); setLoaded(false); }}
-        onNavigationStateChange={state => { if (generation !== epoch.current) return; currentUrl.current = state.url; setUrl(state.url); setCanGoBack(state.canGoBack); }}
+        onNavigationStateChange={state => { if (generation !== epoch.current) return; if (state.url !== PROFILE_URL) informationFailedProfile.current = null; currentUrl.current = state.url; setUrl(state.url); setCanGoBack(state.canGoBack); }}
         onLoadProgress={event => { if (generation === epoch.current) phase.current.progress = event.nativeEvent.progress; }}
         onLoadEnd={event => { if (generation === epoch.current) void loadedPage(event.nativeEvent.url); }}
         onMessage={event => {
@@ -837,7 +852,7 @@ export function useAccessController(product = false, localOwner?: string) {
           }
           if(flightUrl(url))void receive(event);
         }}
-        onError={() => { if (generation !== epoch.current) return; if (informationRun.current) { stopInformation('Informationsquelle nicht verfügbar. Gespeicherte Belege bleiben erhalten.', true); return; } if (product && contextRequest.current) { contextFailed(); return; } if (product) { endDisconnect('failed'); afterConfirmation.current = null; session.current.invalidate(); syncConnection(); } loginAttempt.current ? endLogin('Provider login page failed to load. Saved login and captures preserved.') : finish('Provider page failed to load. Previous captures preserved.'); }}
+        onError={event => { if (generation !== epoch.current) return; if (informationRun.current) { if (event?.nativeEvent.url === PROFILE_URL && currentUrl.current === PROFILE_URL && informationRetry.current && ['before', 'after'].includes(informationRun.current.stage)) informationFailedProfile.current = { target: informationRetry.current, epoch: epoch.current }; stopInformation('Informationsquelle nicht verfügbar. Gespeicherte Belege bleiben erhalten.', true); return; } if (product && contextRequest.current) { contextFailed(); return; } if (product) { endDisconnect('failed'); afterConfirmation.current = null; session.current.invalidate(); syncConnection(); } loginAttempt.current ? endLogin('Provider login page failed to load. Saved login and captures preserved.') : finish('Provider page failed to load. Previous captures preserved.'); }}
         onHttpError={() => { if (generation !== epoch.current) return; if (informationRun.current) { stopInformation('Informationsquelle nicht verfügbar. Gespeicherte Belege bleiben erhalten.', true); return; } if (product && contextRequest.current) { contextFailed(); return; } if (product) { endDisconnect('failed'); afterConfirmation.current = null; session.current.invalidate(); syncConnection(); } loginAttempt.current ? endLogin('Provider login returned an HTTP error. Saved login and captures preserved.') : finish('Provider returned an HTTP error. Previous captures preserved.'); }}
         onContentProcessDidTerminate={() => { if (generation !== epoch.current) return; if (informationRun.current) { stopInformation('Informationsquelle nicht verfügbar. Gespeicherte Belege bleiben erhalten.', true); return; } if (loginAttempt.current) endLogin('Provider renderer stopped. Saved sign-in cancelled.', 'cancelled'); if (product) contextFailed(); finish('Provider renderer stopped. Recovery journal retained.'); }}
         onRenderProcessGone={() => { if (generation !== epoch.current) return; if (informationRun.current) { stopInformation('Informationsquelle nicht verfügbar. Gespeicherte Belege bleiben erhalten.', true); return; } if (loginAttempt.current) endLogin('Provider renderer stopped. Saved sign-in cancelled.', 'cancelled'); if (product) contextFailed(); finish('Provider renderer stopped. Recovery journal retained.'); }}

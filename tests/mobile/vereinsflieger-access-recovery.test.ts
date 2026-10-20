@@ -49,6 +49,7 @@ function fixture(options: { noNativeRecovery?: boolean; failLegacyRead?: boolean
   let finishJournalSave!: () => void, finishCaptureSave!: () => void;
   let clearCalls = 0;
   let historyBacks = 0;
+  let nativeReloads = 0;
   let informationReads = 0, savedInformation: information.InformationCapture | null = null;
   let informationReader = async (_scope: ProviderScope, gate: () => void): Promise<information.InformationCapture[]> => { gate(); return savedInformation ? [savedInformation] : []; };
   let informationCaptureReader = async (_scope: ProviderScope, id: string, gate: () => void): Promise<information.InformationCapture | null> => { gate(); return savedInformation?.id === id ? savedInformation : null; };
@@ -68,7 +69,7 @@ function fixture(options: { noNativeRecovery?: boolean; failLegacyRead?: boolean
   const loginForget = new Promise<void>(resolve => { finishLoginForget = resolve; });
   const journalSave = new Promise<void>(resolve => { finishJournalSave = resolve; });
   const captureSave = new Promise<void>(resolve => { finishCaptureSave = resolve; });
-  const nativeWeb = { injectJavaScript: (script: string) => injections.push(script), stopLoading() {}, goBack() { historyBacks++; } };
+  const nativeWeb = { injectJavaScript: (script: string) => injections.push(script), reload() { nativeReloads++; }, stopLoading() {}, goBack() { historyBacks++; } };
   const react = {
     createElement: (type: unknown, props: Record<string, unknown> | null, ...children: unknown[]): Element => {
       if (type === 'WebView' && props?.ref) (props.ref as { current: unknown }).current = nativeWeb;
@@ -218,7 +219,7 @@ function fixture(options: { noNativeRecovery?: boolean; failLegacyRead?: boolean
     setInformationReader: (reader: typeof informationReader) => { informationReader = reader; }, informationReads: () => informationReads, savedInformation: () => savedInformation,
     setInformationCaptureReader: (reader: typeof informationCaptureReader) => { informationCaptureReader = reader; },
     setInformationHistoryReader: (reader: typeof informationHistoryReader) => { informationHistoryReader = reader; },
-    contextMessage, loginMessage, history, historyBacks: () => historyBacks,
+    contextMessage, loginMessage, history, historyBacks: () => historyBacks, nativeReloads: () => nativeReloads,
     allowNavigation, lastIssuedNonce: () => issuedNonces.at(-1),
     unmount: () => { for (const hook of hooks) if (hook && typeof hook === 'object' && 'cleanup' in hook && typeof hook.cleanup === 'function') hook.cleanup(); },
     appState: (state: string) => appStateListener?.(state),
@@ -1515,12 +1516,12 @@ const trainingSummaryPage = {
     ...(g ? [{ position: 6, values: [group, 'Theoriestunden', 'Zeit', ''] }] : []),
   ]), filters: [], empty: false, coverage: { kind: 'visible-page', truncated: false, pagination: 'unverified' },
 };
-async function trainingSummaryFixture() {
+async function trainingSummaryFixture(read = true) {
   const f = fixture({ product: true }); f.render(); await f.settle(null); await establishProductAssociation(f);
   for (let i = 0; i < information.informationCategories.length && f.controller().informationCategory !== 'training-summary'; i++) f.controller().nextInformationCategory();
   f.controller().setVisible(true); f.controller().navigate(trainingSummarySource); await f.loadPage(trainingSummarySource);
   f.controller().startInformation(); await f.flush();
-  await f.loadPage(context.PROFILE_URL); await f.contextMessage(observedContext); await f.loadPage(trainingSummarySource);
+  if (read) { await f.loadPage(context.PROFILE_URL); await f.contextMessage(observedContext); await f.loadPage(trainingSummarySource); }
   return f;
 }
 async function summaryMessage(f: ReturnType<typeof fixture>, page: unknown, nonce = f.lastIssuedNonce()) {
@@ -1601,6 +1602,65 @@ test('explicit source retry recovers a native load-start/error without load-end 
   assert.equal(f.writes.filter(w => w === 'information-saved').length, 1);
   assert.equal(canonical(f.controller().informationCaptures[0]!.rows), canonical(trainingSummaryPage.rows));
   assert.equal(f.loginStorage().reads, 0);
+});
+
+async function failedProfileFixture() {
+  const f = await trainingSummaryFixture(false);
+  const web = f.find(f.render(), e => e.type === 'WebView')!;
+  (web.props.onLoadStart as (event: unknown) => void)({ nativeEvent: { url: context.PROFILE_URL } }); await f.flush();
+  const failed = f.find(f.render(), e => e.type === 'WebView')!;
+  (failed.props.onError as (event: unknown) => void)({ nativeEvent: { url: context.PROFILE_URL } }); await f.flush();
+  assert.equal(f.controller().loaded, false); assert.equal(f.controller().informationRetryReady, true);
+  return f;
+}
+
+test('exact failed-profile retry uses one native reload and ignores old same-URL load-end until a fresh native start', async () => {
+  const f = await failedProfileFixture(), failedNonce = f.lastIssuedNonce(), injectionCount = f.injections.length;
+  f.controller().retryInformation(); await f.flush();
+  assert.equal(f.nativeReloads(), 1); assert.equal(f.injections.length, injectionCount, 'Do not evaluate location.assign in the failed profile document');
+  assert.notEqual(f.lastIssuedNonce(), failedNonce);
+  const web = f.find(f.render(), e => e.type === 'WebView')!;
+  (web.props.onLoadEnd as (event: unknown) => void)({ nativeEvent: { url: context.PROFILE_URL } }); await f.flush();
+  assert.equal(f.injections.length, injectionCount, 'Stale load-end cannot inject a fresh context nonce into the old error DOM');
+  await f.loadPage(context.PROFILE_URL);
+  await f.contextMessage(observedContext, context.PROFILE_URL, failedNonce + '-before');
+  assert.equal(f.controller().currentUrl.current, context.PROFILE_URL, 'Old nonce cannot advance the native-reloaded request');
+  await f.contextMessage(observedContext); assert.equal(f.controller().currentUrl.current, trainingSummarySource);
+  await f.loadPage(trainingSummarySource); await summaryMessage(f, trainingSummaryPage);
+  assert.ok(!f.writes.includes('information-saved'));
+  await f.loadPage(context.PROFILE_URL); await f.contextMessage(observedContext); await f.flush();
+  assert.equal(f.writes.filter(w => w === 'information-saved').length, 1); assert.equal(f.nativeReloads(), 1);
+});
+
+test('unproven error URLs, source failures and intervening navigation cannot select native profile reload', async () => {
+  for (const boundary of ['unknown', 'foreign', 'source', 'intervening'] as const) {
+    const f = boundary === 'intervening' ? await failedProfileFixture() : await trainingSummaryFixture(boundary === 'source');
+    if (boundary === 'intervening') { f.controller().navigate(context.PROFILE_URL); await f.flush(); }
+    else {
+      const web = f.find(f.render(), e => e.type === 'WebView')!;
+      const error = boundary === 'unknown' ? undefined : { nativeEvent: { url: boundary === 'foreign' ? 'https://evil.test/' : trainingSummarySource } };
+      (web.props.onError as (event: unknown) => void)(error); await f.flush();
+    }
+    const before = f.injections.length; f.controller().retryInformation(); await f.flush();
+    assert.equal(f.nativeReloads(), 0, boundary);
+    assert.ok(f.injections.slice(before).some(script => script.includes('window.location.assign')), boundary);
+    assert.ok(!f.writes.includes('information-saved'));
+  }
+});
+
+test('native profile reload cannot accept a wrong destination or changed account and remains cancelled across lifecycle boundaries', async () => {
+  for (const boundary of ['destination', 'account', 'club', 'background', 'owner', 'cancel'] as const) {
+    const f = await failedProfileFixture(); f.controller().retryInformation(); await f.flush(); assert.equal(f.nativeReloads(), 1);
+    if (boundary === 'destination') { f.controller().currentUrl.current = trainingSummarySource; await f.loadPage(trainingSummarySource); }
+    else if (boundary === 'background') { f.appState('background'); f.appState('active'); }
+    else if (boundary === 'owner') f.changeOwner('foreign-owner');
+    else if (boundary === 'cancel') f.controller().stopInformation();
+    else {
+      await f.loadPage(context.PROFILE_URL);
+      await f.contextMessage({ ...observedContext, ...(boundary === 'account' ? { accountNumber: '999' } : { clubLabel: 'Another club' }) });
+    }
+    await f.flush(); assert.equal(f.controller().informationBusy, false, boundary); assert.ok(!f.writes.includes('information-saved'), boundary);
+  }
 });
 
 test('native event capture probes the still-selected page first and saves only when its date/view survives context navigation', async () => {
