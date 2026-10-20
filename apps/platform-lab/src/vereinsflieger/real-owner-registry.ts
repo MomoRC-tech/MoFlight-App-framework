@@ -116,30 +116,56 @@ async function hasObjects(db: Connection): Promise<boolean> {
   return !!(await db.first('SELECT name FROM sqlite_master WHERE name NOT LIKE ?', 'sqlite_%'));
 }
 
-async function checkSchema(db: Connection): Promise<void> {
-  if (await version(db) !== 1) throw new Error('Unsupported real owner registry version; preserved.');
-  const actual = await db.all<{ name: string; sql: string }>(
-    "SELECT name,sql FROM sqlite_master WHERE sql IS NOT NULL AND name NOT LIKE 'sqlite_%' ORDER BY name");
+interface RegistryEvidenceRow {
+  kind:string; a:string|null; b:string|null; c:string|null; d:string|null; e:string|null;
+  n:number|null; m:number|null;
+}
+// One statement returns all the same evidence as the former individual reads.
+// PRAGMAs execute on the transaction connection; no evidence/lease is cached.
+const registryEvidenceSql = `
+SELECT 'version' AS kind,NULL AS a,NULL AS b,NULL AS c,NULL AS d,NULL AS e,user_version AS n,NULL AS m FROM pragma_user_version
+UNION ALL SELECT 'foreign_keys',NULL,NULL,NULL,NULL,NULL,foreign_keys,NULL FROM pragma_foreign_keys
+UNION ALL SELECT 'foreign_key_error',NULL,NULL,NULL,NULL,NULL,NULL,NULL FROM pragma_foreign_key_check
+UNION ALL SELECT 'integrity',integrity_check,NULL,NULL,NULL,NULL,NULL,NULL FROM pragma_integrity_check
+UNION ALL SELECT 'schema',name,sql,NULL,NULL,NULL,NULL,NULL FROM sqlite_master WHERE sql IS NOT NULL AND name NOT LIKE 'sqlite_%'
+UNION ALL SELECT 'manifest',family,created_at,NULL,NULL,NULL,singleton,schema_version FROM real_owner_manifest
+UNION ALL SELECT 'owner',owner_id,store_id,candidate_name,created_at,NULL,NULL,NULL FROM real_owner_records
+UNION ALL SELECT 'selection',owner_id,store_id,candidate_name,selected_at,selection_id,seq,previous_seq FROM real_owner_selections`;
+
+function checkSchema(rows:RegistryEvidenceRow[]):void {
+  const versions=rows.filter(row=>row.kind==='version');
+  if (versions.length!==1 || versions[0]!.n !== 1) throw new Error('Unsupported real owner registry version; preserved.');
+  const actual = rows.filter(row=>row.kind==='schema').map(row=>({name:row.a!,sql:row.b!})).sort((a,b)=>a.name.localeCompare(b.name));
   const expected = [...schemaObjects].sort((a, b) => a.name.localeCompare(b.name));
   if (canonical(actual.map(row => ({ name: row.name, sql: normalizeSql(row.sql) }))) !==
       canonical(expected.map(row => ({ name: row.name, sql: normalizeSql(row.sql) })))) {
     throw new Error('Unsupported real owner registry schema; preserved.');
   }
-  const foreignKeys = await db.first<{ foreign_keys: number }>('PRAGMA foreign_keys');
-  if (foreignKeys?.foreign_keys !== 1) throw new Error('Foreign keys are not enabled for real owner registry.');
-  if ((await db.all('PRAGMA foreign_key_check')).length !== 0) throw new Error('Broken real owner registry references.');
-  const integrity = await db.all<{ integrity_check: string }>('PRAGMA integrity_check');
-  if (integrity.length !== 1 || integrity[0]!.integrity_check !== 'ok') throw new Error('Unreadable real owner registry.');
+  const foreignKeys=rows.filter(row=>row.kind==='foreign_keys');
+  if (foreignKeys.length!==1 || foreignKeys[0]!.n !== 1) throw new Error('Foreign keys are not enabled for real owner registry.');
+  if (rows.some(row=>row.kind==='foreign_key_error')) throw new Error('Broken real owner registry references.');
+  const integrity=rows.filter(row=>row.kind==='integrity');
+  if (integrity.length !== 1 || integrity[0]!.a !== 'ok') throw new Error('Unreadable real owner registry.');
 }
 
 async function readValidatedState(db: Connection): Promise<{ manifest: RealOwnerRegistryManifest; owners: RealOwnerRecord[]; selections: SelectionRow[] }> {
-  await checkSchema(db);
-  const manifestRows = await db.all<Record<string, unknown>>('SELECT * FROM real_owner_manifest');
+  let evidence:RegistryEvidenceRow[];
+  try{evidence=await db.all<RegistryEvidenceRow>(registryEvidenceSql);}
+  catch(error){
+    // Unknown/partial schemas may not prepare the combined query. Preserve
+    // the existing fail-closed classification without repairing any file.
+    if(await version(db)!==1)throw new Error('Unsupported real owner registry version; preserved.',{cause:error});
+    throw new Error('Unsupported real owner registry schema; preserved.',{cause:error});
+  }
+  checkSchema(evidence);
+  const manifestRows = evidence.filter(row=>row.kind==='manifest').map(row=>({singleton:row.n,family:row.a,schema_version:row.m,created_at:row.b}));
   if (manifestRows.length !== 1) throw new Error('Missing or duplicate real owner registry manifest.');
   const manifest = validateManifest(manifestRows[0]);
-  const owners = (await db.all<OwnerRow>('SELECT owner_id,store_id,candidate_name,created_at FROM real_owner_records ORDER BY created_at,owner_id')).map(ownerRecord);
+  const owners = evidence.filter(row=>row.kind==='owner').map(row=>ownerRecord({owner_id:row.a,store_id:row.b,candidate_name:row.c,created_at:row.d} as OwnerRow))
+    .sort((a,b)=>a.createdAt<b.createdAt?-1:a.createdAt>b.createdAt?1:a.ownerId<b.ownerId?-1:a.ownerId>b.ownerId?1:0);
   const ownerById = new Map(owners.map(owner => [owner.ownerId, owner]));
-  const selections = await db.all<SelectionRow>('SELECT * FROM real_owner_selections ORDER BY seq');
+  const selections = evidence.filter(row=>row.kind==='selection').map(row=>({seq:row.n,owner_id:row.a,store_id:row.b,candidate_name:row.c,
+    selected_at:row.d,selection_id:row.e,previous_seq:row.m} as SelectionRow)).sort((a,b)=>a.seq-b.seq);
   if (selections.some((row, index) => {
     const owner = ownerById.get(row.owner_id);
     try {
@@ -206,8 +232,12 @@ export class RealOwnerRegistry {
   }
 
   private async assertCurrentIn(db: Connection, lease: RealOwnerLease, ownerId?: string, storeId?: string): Promise<void> {
-    const issued = this.requireIssuedLease(lease, ownerId, storeId);
     const latest = await db.first<SelectionRow>('SELECT * FROM real_owner_selections ORDER BY seq DESC LIMIT 1');
+    this.assertHead(lease,latest,ownerId,storeId);
+  }
+
+  private assertHead(lease:RealOwnerLease,latest:SelectionRow|null|undefined,ownerId?:string,storeId?:string):void {
+    const issued = this.requireIssuedLease(lease, ownerId, storeId);
     if (!latest || latest.seq !== issued.selectionSeq || latest.owner_id !== issued.ownerId ||
         latest.store_id !== issued.storeId || latest.candidate_name !== issued.candidateName) {
       this.issuedLeases.delete(lease.leaseId);
@@ -339,8 +369,8 @@ export class RealOwnerRegistry {
   async assertCurrent(lease: RealOwnerLease, ownerId?: string, storeId?: string): Promise<void> {
     this.ensureOpen();
     await this.db.transaction(async tx => {
-      await readValidatedState(tx);
-      await this.assertCurrentIn(tx, lease, ownerId, storeId);
+      const state=await readValidatedState(tx);
+      this.assertHead(lease,state.selections.at(-1),ownerId,storeId);
     });
   }
 

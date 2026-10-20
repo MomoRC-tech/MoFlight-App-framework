@@ -3,12 +3,51 @@ import assert from 'node:assert/strict';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import type { Driver } from '../../packages/local-data/src/index.ts';
+import type { Bind, Driver } from '../../packages/local-data/src/index.ts';
 import { REAL_OWNER_REGISTRY_FAMILY, REAL_OWNER_REGISTRY_SCHEMA, RealOwnerRegistry } from '../../apps/platform-lab/src/vereinsflieger/real-owner-registry.ts';
 import { nodeDriver } from './sqlite-driver.ts';
 
 const at = '2026-10-20T10:00:00.000Z';
 const later = '2026-10-20T10:01:00.000Z';
+
+test('current-owner guard reads fresh complete evidence in one query and detects another handle switching owner',async()=>{
+  const dir=await mkdtemp(join(tmpdir(),'moflight-owner-batch-')),path=join(dir,'registry.sqlite');
+  const db=nodeDriver(path),transaction=db.transaction.bind(db);let reads=0;
+  db.transaction=work=>transaction(tx=>work({...tx,
+    all:<T>(sql:string,...params:Bind[])=>{reads++;return tx.all<T>(sql,...params);},
+    first:<T>(sql:string,...params:Bind[])=>{reads++;return tx.first<T>(sql,...params);},
+  }));
+  const registry=await RealOwnerRegistry.create(db,uuidSource(),at);let other:RealOwnerRegistry|null=null;
+  try {
+    const first=await registry.createFreshOwner(at);reads=0;
+    await registry.assertCurrent(first);assert.equal(reads,1,'one fresh evidence round trip per guard');
+    reads=0;await registry.assertCurrent(first);assert.equal(reads,1,'no cached authorization on repeat');
+    other=await RealOwnerRegistry.open(nodeDriver(path),uuidSource(100));
+    const second=await other.createFreshOwner(later);
+    await assert.rejects(registry.assertCurrent(first),/selection changed/);
+    const current=(await registry.currentOwner())!;assert.equal(current.ownerId,second.ownerId);
+    await registry.assertCurrent(current);
+    await assert.rejects(registry.assertCurrent({...current,leaseId:first.leaseId}),/Expired or forged/);
+  }finally{await other?.close();await registry.close();await rm(dir,{recursive:true,force:true});}
+});
+
+test('batched evidence checks connection foreign keys, fresh schema/version and real FK corruption at an unchanged head',async()=>{
+  const db=nodeDriver(':memory:'),registry=await RealOwnerRegistry.create(db,uuidSource(),at);
+  try {
+    const lease=await registry.createFreshOwner(at);
+    await db.exec('PRAGMA foreign_keys=OFF');
+    await assert.rejects(registry.assertCurrent(lease),/Foreign keys are not enabled/);
+    await db.exec('PRAGMA foreign_keys=ON; PRAGMA user_version=2');
+    await assert.rejects(registry.assertCurrent(lease),/Unsupported real owner registry version/);
+    await db.exec('PRAGMA user_version=1');await registry.assertCurrent(lease);
+    const trigger=(await db.first<{sql:string}>("SELECT sql FROM sqlite_master WHERE name='real_owner_records_no_update'"))!.sql;
+    await db.exec('PRAGMA foreign_keys=OFF; DROP TRIGGER real_owner_records_no_update');
+    await db.run('UPDATE real_owner_records SET store_id=? WHERE owner_id=?','99999999-9999-4999-8999-999999999999',lease.ownerId);
+    await db.exec(trigger);await db.exec('PRAGMA foreign_keys=ON');
+    await assert.rejects(registry.assertCurrent(lease),/Broken real owner registry references/);
+    assert.equal((await db.first<{store_id:string}>('SELECT store_id FROM real_owner_records WHERE owner_id=?',lease.ownerId))?.store_id,'99999999-9999-4999-8999-999999999999');
+  }finally{await registry.close();}
+});
 
 function uuidSource(start = 1) {
   let value = start;
