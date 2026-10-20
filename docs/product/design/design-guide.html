@@ -216,7 +216,7 @@
 <p>The authorized live-review increment under #2 exposes <strong>Flugdaten erfassen</strong> and <strong>Erfasste Flüge</strong> directly in Connections. The initial request uses the last 30 device-calendar days, with the exact inclusive dates visible and editable in the existing raw-retrieval disclosure. Saved review is independent of provider authentication, network and recovery readiness. Five-row pages open source-specific details and eight-field raw pages; missing, blank, invalid, conflicting and explicit-zero values stay distinct. Reuse C01/C02, German labels and the existing 520 dp connection-group cap. Review does not convert clocks to UTC or infer landing day, roles, aircraft class or flight identity. New successful captures replace the current review; older immutable evidence is retained in storage, with no historical-capture browser in this slice. Native verification is recorded in the package report separately.</p>
 <p>The explicitly started <a href="../../../apps/platform-lab/src/mobile/ImportPreview.tsx">synthetic import preview</a> under Development reuses dark cards, labelled actions and selected chips in a centered 520 dp group. It compares fictional new/changed/unchanged/conflicting records, shows previous/current evidence, explains book suggestions and requires explicit confirmation of a book or deferral. Returning preserves the separate test stand for the current app session; app restart discards it. Opening does not create fixtures in the saved library or contact a provider. This M3 preparation under #18 does not enable normal live import or accept production identity/schema/assignment rules. Source-specific verification is recorded separately.</p>
 <p>The <a href="../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx">own-flight foundation</a> is a separate Development entry for the authorized core integration checkpoint. It creates a fresh local owner only after the named action, preserves old stores, and uses the original provider interface for explicit account confirmation and bounded retrieval. That confirmation applies to the selected fresh library; users review original rows and counts before explicitly saving flights without book assignment. Saved source facts, revisions and unknown values remain readable offline. Recovery states preserve pending commands/files and disable writes; backup/restore uses its own real-history family and explicit file/folder pickers. Reuse the centered 520 dp C01/C02 groups. The ordinary shell&#x27;s draft/scroll state stays mounted; a guarded suspension detaches its provider browser before the new owner controller mounts. The ordinary Flüge update action now reuses this guarded retrieval/review/save/recovery flow; entry alone performs no retrieval. Returning reloads the read-only list. Statistics/book/paper remain separate. This describes wiring, not a native acceptance claim.</p>
-<p>The <a href="../../../apps/platform-lab/src/mobile/OwnFlights.tsx">ordinary own-flight view</a> reads the selected real library locally, with loading, missing setup, empty result and failure/retry states. It keeps filters and list position across details; a changed owner/store resets them, while a changed flight revision requires a fresh read. Profile and connection overlays retain the underlying detail route. The list uses C09 in two columns from 600 dp at ordinary text size; filter/detail groups cap at 520 dp. Provider text remains selectable and untruncated. Separate source crew slots establish no confirmed identity, role credit, UTC conversion or landing day. Detailed evidence and pending platform gates are in the <a href="../../verification/2026-10-20-ordinary-flights.md">package report</a>.</p>
+<p>The <a href="../../../apps/platform-lab/src/mobile/OwnFlights.tsx">ordinary own-flight view</a> reads the selected real library locally, with loading, missing setup, empty result and failure/retry states. It keeps filters and list position across details; a changed owner/store resets them, while a changed flight revision requires a fresh read. Profile and connection overlays retain the underlying detail route. Search/year filters precede the longer coverage/update card so the focused field remains reachable with a landscape keyboard. The header, filter and detail groups cap at 520 dp; C09 rows use two columns from 600 dp at ordinary text size. Provider text remains selectable and untruncated. Separate source crew slots establish no confirmed identity, role credit, UTC conversion or landing day. Detailed evidence and pending platform gates are in the <a href="../../verification/2026-10-20-ordinary-flights.md">package report</a>.</p>
 <h3 id="chapter-patterns-header-overlays-and-navigation">Header, overlays and navigation</h3>
 <p>Keep header/navigation outside the scrolling canvas. Header order is logo/title, Connection → Med → Profile. Truncate title before shrinking controls. Current font scale above 1.3 places controls on a second wrapping row; subtitle renders only at width at least 412 with normal text.</p>
 <p>App overlays/details replace logo with contextual Back and expose one active accessible header. Return through nested overlays to prior page/filter/scroll state and unsaved local profile-name draft. Identical library reloads preserve the return path; changed book/flight facts invalidate stale details. An active backup/proof operation disables app Back, Profile and Medical until completion; provider Close/history remain separate. Medical opens a read-only unknown-record explanation.</p>
@@ -637,7 +637,7 @@
 <tr><td><code>width: 64</code></td><td>251</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-ownflightstsx">OwnFlights.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/OwnFlights.tsx">apps/platform-lab/src/mobile/OwnFlights.tsx</a>; normalized SHA-256 <code>01ac2d9ad892e7199e12e40b9421ed6d52cb9d977a4ba7f27e774584283c2c92</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/OwnFlights.tsx">apps/platform-lab/src/mobile/OwnFlights.tsx</a>; normalized SHA-256 <code>7d46a464a5256a82b13ae5efbdd0473aba364f37ca0d6efdcf993c2da1050e55</code>.</p>
 <h4 id="chapter-implementation-inventory-literal-colors-7">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><i class="swatch" style="background:#10282d" aria-hidden="true"></i><code>#10282d</code></td><td>121</td></tr>
@@ -659,9 +659,9 @@
 <tr><td><code>borderWidth: 1</code></td><td>122</td></tr>
 <tr><td><code>gap: 2</code></td><td>111</td></tr>
 <tr><td><code>gap: 3</code></td><td>121</td></tr>
-<tr><td><code>gap: 5</code></td><td>61</td></tr>
+<tr><td><code>gap: 5</code></td><td>46</td></tr>
 <tr><td><code>gap: 7</code></td><td>122</td></tr>
-<tr><td><code>gap: 8</code></td><td>41, 69, 120</td></tr>
+<tr><td><code>gap: 8</code></td><td>69, 120</td></tr>
 <tr><td><code>height: 7</code></td><td>82</td></tr>
 <tr><td><code>maxWidth: &#x27;50%&#x27;</code></td><td>72</td></tr>
 <tr><td><code>maxWidth: 520</code></td><td>120</td></tr>
@@ -1601,7 +1601,7 @@ The explicitly started [synthetic import preview](../../../apps/platform-lab/src
 
 The [own-flight foundation](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx) is a separate Development entry for the authorized core integration checkpoint. It creates a fresh local owner only after the named action, preserves old stores, and uses the original provider interface for explicit account confirmation and bounded retrieval. That confirmation applies to the selected fresh library; users review original rows and counts before explicitly saving flights without book assignment. Saved source facts, revisions and unknown values remain readable offline. Recovery states preserve pending commands/files and disable writes; backup/restore uses its own real-history family and explicit file/folder pickers. Reuse the centered 520 dp C01/C02 groups. The ordinary shell&#x27;s draft/scroll state stays mounted; a guarded suspension detaches its provider browser before the new owner controller mounts. The ordinary Flüge update action now reuses this guarded retrieval/review/save/recovery flow; entry alone performs no retrieval. Returning reloads the read-only list. Statistics/book/paper remain separate. This describes wiring, not a native acceptance claim.
 
-The [ordinary own-flight view](../../../apps/platform-lab/src/mobile/OwnFlights.tsx) reads the selected real library locally, with loading, missing setup, empty result and failure/retry states. It keeps filters and list position across details; a changed owner/store resets them, while a changed flight revision requires a fresh read. Profile and connection overlays retain the underlying detail route. The list uses C09 in two columns from 600 dp at ordinary text size; filter/detail groups cap at 520 dp. Provider text remains selectable and untruncated. Separate source crew slots establish no confirmed identity, role credit, UTC conversion or landing day. Detailed evidence and pending platform gates are in the [package report](../../verification/2026-10-20-ordinary-flights.md).
+The [ordinary own-flight view](../../../apps/platform-lab/src/mobile/OwnFlights.tsx) reads the selected real library locally, with loading, missing setup, empty result and failure/retry states. It keeps filters and list position across details; a changed owner/store resets them, while a changed flight revision requires a fresh read. Profile and connection overlays retain the underlying detail route. Search/year filters precede the longer coverage/update card so the focused field remains reachable with a landscape keyboard. The header, filter and detail groups cap at 520 dp; C09 rows use two columns from 600 dp at ordinary text size. Provider text remains selectable and untruncated. Separate source crew slots establish no confirmed identity, role credit, UTC conversion or landing day. Detailed evidence and pending platform gates are in the [package report](../../verification/2026-10-20-ordinary-flights.md).
 
 ## Header, overlays and navigation
 
@@ -2124,7 +2124,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](..
 
 ## OwnFlights.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OwnFlights.tsx](../../../apps/platform-lab/src/mobile/OwnFlights.tsx); normalized SHA-256 `01ac2d9ad892e7199e12e40b9421ed6d52cb9d977a4ba7f27e774584283c2c92`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OwnFlights.tsx](../../../apps/platform-lab/src/mobile/OwnFlights.tsx); normalized SHA-256 `7d46a464a5256a82b13ae5efbdd0473aba364f37ca0d6efdcf993c2da1050e55`.
 
 ### Literal colors
 
@@ -2153,9 +2153,9 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OwnFlights.tsx](.
 | `borderWidth: 1` | 122 |
 | `gap: 2` | 111 |
 | `gap: 3` | 121 |
-| `gap: 5` | 61 |
+| `gap: 5` | 46 |
 | `gap: 7` | 122 |
-| `gap: 8` | 41, 69, 120 |
+| `gap: 8` | 69, 120 |
 | `height: 7` | 82 |
 | `maxWidth: &#x27;50%&#x27;` | 72 |
 | `maxWidth: 520` | 120 |
@@ -3065,7 +3065,7 @@ States / limits: Recreated approved variant, not a byte-identical copy of an old
 Source: docs/assets/branding/moflight-app-icon-ai.png
 docs/assets/branding/README.md; app.json
 </textarea></section>
-<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: e825ec45c6c0992ac963efd9549195d15b16735b7bf1c0f4e3c44d1e152ad931. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
+<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: e3c9b398322d3f5904d490ce437396a8caed8ebd09752e7d7fca674f1fb88aa4. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
 </main><script>
 'use strict';
 const brief = document.querySelector('#brief');

@@ -38,7 +38,14 @@ export function OwnFlights({ active, reloadKey, onUpdate, onHeaderChange, ports 
   }, [data.view?.snapshot.ownerId, data.view?.snapshot.storeId]);
   const changeFilters = (next: OwnFlightFilters) => { offset.current = 0; list.current?.scrollToOffset({ offset: 0, animated: false }); setFilters(next); };
   const update = () => { Keyboard.dismiss(); if (!onUpdate()) setNotice('Bitte zuerst den laufenden Anbietervorgang beenden. Deine gespeicherten Flüge bleiben verfügbar.'); };
-  const header = <View style={{ gap: 8 }}>
+  const header = <View style={s.group}>
+    <View style={ui.row}><View style={s.searchBox}><SymbolIcon name="search" size={20} tone="muted" /><TextInput
+      accessibilityLabel="Flüge durchsuchen" placeholder="Kennzeichen, Ort, Crew …" placeholderTextColor={colors.muted} value={filters.search}
+      onChangeText={search => changeFilters({ ...filters, search })} autoCorrect={false} returnKeyType="search" style={s.search} /></View>
+      <Pressable accessibilityRole="button" accessibilityLabel="Flugfilter öffnen" onPress={() => { Keyboard.dismiss(); setFilterOpen(true); }} style={s.filter}><SymbolIcon name="filter" size={24} /></Pressable></View>
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 5 }}><Chip title="Alle Jahre" selected={filters.year === null} onPress={() => changeFilters({ ...filters, year: null })} />
+      {(filters.year !== null && !years.includes(filters.year) ? [filters.year, ...years] : years).map(year => <Chip key={year} title={String(year)} selected={filters.year === year} onPress={() => changeFilters({ ...filters, year })} />)}</ScrollView>
+    {filters.registration !== undefined && <Label>Filter: {filters.registration ?? 'Kennzeichen unbekannt'}</Label>}
     <Card><Section title="Eigene gespeicherte Flüge" icon="flight-paper-plane" />
       <Label>{selected.length} von {flights.length} gespeicherten Flügen</Label><Label muted>Vereinsflieger · ohne erforderliche Buchzuordnung</Label>
       <Label muted>{freshness.label}</Label>{freshness.reminder && <Label muted>{freshness.note}</Label>}
@@ -54,13 +61,6 @@ export function OwnFlights({ active, reloadKey, onUpdate, onHeaderChange, ports 
       <Pressable accessibilityRole="button" accessibilityState={{expanded:statusOpen}} onPress={()=>setStatusOpen(!statusOpen)} style={ui.smallAction}><Label muted>{statusOpen ? 'Datenstand schließen' : 'Abdeckung & Datenstand'}</Label></Pressable>
     </Card>
     {!!notice && <Card><Label>{notice}</Label></Card>}
-    <View style={ui.row}><View style={s.searchBox}><SymbolIcon name="search" size={20} tone="muted" /><TextInput
-      accessibilityLabel="Flüge durchsuchen" placeholder="Kennzeichen, Ort, Crew …" placeholderTextColor={colors.muted} value={filters.search}
-      onChangeText={search => changeFilters({ ...filters, search })} autoCorrect={false} returnKeyType="search" style={s.search} /></View>
-      <Pressable accessibilityRole="button" accessibilityLabel="Flugfilter öffnen" onPress={() => { Keyboard.dismiss(); setFilterOpen(true); }} style={s.filter}><SymbolIcon name="filter" size={24} /></Pressable></View>
-    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 5 }}><Chip title="Alle Jahre" selected={filters.year === null} onPress={() => changeFilters({ ...filters, year: null })} />
-      {(filters.year !== null && !years.includes(filters.year) ? [filters.year, ...years] : years).map(year => <Chip key={year} title={String(year)} selected={filters.year === year} onPress={() => changeFilters({ ...filters, year })} />)}</ScrollView>
-    {filters.registration !== undefined && <Label>Filter: {filters.registration ?? 'Kennzeichen unbekannt'}</Label>}
   </View>;
   useEffect(() => { if (data.phase !== 'ready') setFilterOpen(false); }, [data.phase]);
   const detail = data.detail, assessment = detail?.facts.assessment;

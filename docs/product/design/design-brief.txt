@@ -263,7 +263,7 @@ The explicitly started [synthetic import preview](../../../apps/platform-lab/src
 
 The [own-flight foundation](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx) is a separate Development entry for the authorized core integration checkpoint. It creates a fresh local owner only after the named action, preserves old stores, and uses the original provider interface for explicit account confirmation and bounded retrieval. That confirmation applies to the selected fresh library; users review original rows and counts before explicitly saving flights without book assignment. Saved source facts, revisions and unknown values remain readable offline. Recovery states preserve pending commands/files and disable writes; backup/restore uses its own real-history family and explicit file/folder pickers. Reuse the centered 520 dp C01/C02 groups. The ordinary shell's draft/scroll state stays mounted; a guarded suspension detaches its provider browser before the new owner controller mounts. The ordinary Flüge update action now reuses this guarded retrieval/review/save/recovery flow; entry alone performs no retrieval. Returning reloads the read-only list. Statistics/book/paper remain separate. This describes wiring, not a native acceptance claim.
 
-The [ordinary own-flight view](../../../apps/platform-lab/src/mobile/OwnFlights.tsx) reads the selected real library locally, with loading, missing setup, empty result and failure/retry states. It keeps filters and list position across details; a changed owner/store resets them, while a changed flight revision requires a fresh read. Profile and connection overlays retain the underlying detail route. The list uses C09 in two columns from 600 dp at ordinary text size; filter/detail groups cap at 520 dp. Provider text remains selectable and untruncated. Separate source crew slots establish no confirmed identity, role credit, UTC conversion or landing day. Detailed evidence and pending platform gates are in the [package report](../../verification/2026-10-20-ordinary-flights.md).
+The [ordinary own-flight view](../../../apps/platform-lab/src/mobile/OwnFlights.tsx) reads the selected real library locally, with loading, missing setup, empty result and failure/retry states. It keeps filters and list position across details; a changed owner/store resets them, while a changed flight revision requires a fresh read. Profile and connection overlays retain the underlying detail route. Search/year filters precede the longer coverage/update card so the focused field remains reachable with a landscape keyboard. The header, filter and detail groups cap at 520 dp; C09 rows use two columns from 600 dp at ordinary text size. Provider text remains selectable and untruncated. Separate source crew slots establish no confirmed identity, role credit, UTC conversion or landing day. Detailed evidence and pending platform gates are in the [package report](../../verification/2026-10-20-ordinary-flights.md).
 
 ## Header, overlays and navigation
 
@@ -786,7 +786,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](..
 
 ## OwnFlights.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OwnFlights.tsx](../../../apps/platform-lab/src/mobile/OwnFlights.tsx); normalized SHA-256 `01ac2d9ad892e7199e12e40b9421ed6d52cb9d977a4ba7f27e774584283c2c92`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OwnFlights.tsx](../../../apps/platform-lab/src/mobile/OwnFlights.tsx); normalized SHA-256 `7d46a464a5256a82b13ae5efbdd0473aba364f37ca0d6efdcf993c2da1050e55`.
 
 ### Literal colors
 
@@ -815,9 +815,9 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OwnFlights.tsx](.
 | `borderWidth: 1` | 122 |
 | `gap: 2` | 111 |
 | `gap: 3` | 121 |
-| `gap: 5` | 61 |
+| `gap: 5` | 46 |
 | `gap: 7` | 122 |
-| `gap: 8` | 41, 69, 120 |
+| `gap: 8` | 69, 120 |
 | `height: 7` | 82 |
 | `maxWidth: '50%'` | 72 |
 | `maxWidth: 520` | 120 |

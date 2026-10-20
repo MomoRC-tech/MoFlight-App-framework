@@ -480,7 +480,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](..
 
 ## OwnFlights.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OwnFlights.tsx](../../../apps/platform-lab/src/mobile/OwnFlights.tsx); normalized SHA-256 `01ac2d9ad892e7199e12e40b9421ed6d52cb9d977a4ba7f27e774584283c2c92`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OwnFlights.tsx](../../../apps/platform-lab/src/mobile/OwnFlights.tsx); normalized SHA-256 `7d46a464a5256a82b13ae5efbdd0473aba364f37ca0d6efdcf993c2da1050e55`.
 
 ### Literal colors
 
@@ -509,9 +509,9 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OwnFlights.tsx](.
 | `borderWidth: 1` | 122 |
 | `gap: 2` | 111 |
 | `gap: 3` | 121 |
-| `gap: 5` | 61 |
+| `gap: 5` | 46 |
 | `gap: 7` | 122 |
-| `gap: 8` | 41, 69, 120 |
+| `gap: 8` | 69, 120 |
 | `height: 7` | 82 |
 | `maxWidth: '50%'` | 72 |
 | `maxWidth: 520` | 120 |
