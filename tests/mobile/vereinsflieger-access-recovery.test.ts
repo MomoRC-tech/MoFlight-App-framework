@@ -37,6 +37,9 @@ const source = ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/
 const controllerSource = ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/vereinsflieger/use-access-controller.tsx', import.meta.url), 'utf8'), {
   compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.React, esModuleInterop: false },
 }).outputText;
+const savedLoginSource = ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/vereinsflieger/use-saved-login.ts', import.meta.url), 'utf8'), {
+  compilerOptions: { module: ts.ModuleKind.CommonJS, esModuleInterop: false },
+}).outputText;
 function fixture(options: { noNativeRecovery?: boolean; failLegacyRead?: boolean; failSafety?: boolean; deferSafety?: boolean; failReceipt?: boolean; deferClear?: boolean; failClear?: boolean; persistedScope?: ProviderScope; scopedView?: ViewPreferences; deferBinding?: boolean; failBinding?: boolean; priorCapture?: probe.ProbeSnapshot; deferJournalSave?: boolean; deferCaptureSave?: boolean; product?: boolean; deferLoginRead?: boolean; failLoginRead?: boolean; savedLogin?: { username: string; password: string } | null; failLoginForget?: boolean; deferLoginForget?: boolean } = {}) {
   let resolveJournal!: (view: ViewPreferences | null) => void, rejectJournal!: (error: Error) => void;
   const journal = new Promise<ViewPreferences | null>((resolve, reject) => { resolveJournal = resolve; rejectJournal = reject; });
@@ -142,6 +145,9 @@ function fixture(options: { noNativeRecovery?: boolean; failLegacyRead?: boolean
     assert.ok(name in modules, `Unexpected component dependency: ${name}`); return modules[name];
   }, setTimeout: (callback: () => void) => { const id = ++timerId; timers.set(id, callback); return id; },
   clearTimeout: (id: number) => timers.delete(id), URL };
+  const loginExports = {};
+  runInNewContext(savedLoginSource, { exports: loginExports, ...runtime });
+  modules['./use-saved-login'] = loginExports;
   const controllerExports = {} as { useAccessController: typeof useAccessController };
   runInNewContext(controllerSource, { exports: controllerExports, ...runtime });
   modules['./use-access-controller'] = controllerExports;

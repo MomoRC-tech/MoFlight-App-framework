@@ -5,8 +5,8 @@ import * as Crypto from 'expo-crypto';
 import { startFlightSpan } from './flight-diagnostics';
 import { bridgeSource, flightUrl, FLIGHT_URL, LOGIN_URL, providerUrl, type ProbeSnapshot } from './probe';
 import { clearOriginalView, latestCapture, readOriginalView, saveCapture, saveOriginalView } from './storage';
-import { loginPage, savedLoginScript } from './login';
-import { readSavedLogin, writeSavedLogin, forgetSavedLogin } from './login-storage';
+import { loginPage } from './login';
+import { useSavedLogin } from './use-saved-login';
 import { acceptExportMessage, beginExport, calendarYearRequest, recentCaptureRequest, exportScript, type ExportRun } from './export';
 import { decodeView, VIEW_PHASES, viewScript, viewProtectionMessage, type ViewPhase, type ViewPreferences } from './view';
 import { canonical } from '@moflight/flight-logbook';
@@ -94,14 +94,6 @@ export function useAccessController(product = false, localOwner?: string) {
   const [from, setFrom] = useState(captureRequest.from), [to, setTo] = useState(captureRequest.to);
   const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const phase = useRef({ loaded: false, progress: 0, injections: 0 });
-  const loginAttempt = useRef<'waiting' | 'reading' | 'submitted' | null>(null);
-  const loginNonce = useRef('');
-  const loginStorageBusy = useRef(false);
-  const [loginNotice, setLoginNotice] = useState<'none' | 'response' | 'unavailable' | 'failed' | 'cancelled'>('none');
-  const [credentialNotice, setCredentialNotice] = useState<'none' | 'forgotten' | 'error'>('none');
-  const loginTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [hasLogin, setHasLogin] = useState(false), [editingLogin, setEditingLogin] = useState(false), [loginBusy, setLoginBusy] = useState(false);
-  const [username, setUsername] = useState(''), [password, setPassword] = useState('');
   const [source, setSource] = useState({ uri: LOGIN_URL }), [url, setUrl] = useState(LOGIN_URL);
   const [generation, setGeneration] = useState(0);
   const [browserActive, setBrowserActive] = useState(!product);
@@ -115,8 +107,20 @@ export function useAccessController(product = false, localOwner?: string) {
   const [preBackupPause, setPreBackupPause] = useState(false);
   const [snapshot, setSnapshot] = useState<ProbeSnapshot | null>(null), [status, setStatus] = useState('Sign in on the original provider page. Choose an inclusive period; configuration is verified before capture.');
   const [captureLoadState, setCaptureLoadState] = useState<'loading' | 'ready' | 'failed'>('loading');
+  const login = useSavedLogin({
+    product,
+    canStart: action => owner.current === activeOwner.current && !clearingStore.current && !bindingBusy.current &&
+      !contextRequest.current && !disconnectMode.current && retrieval.current.state.phase === 'idle' &&
+      (action !== 'forget' || !busy && !saving) && (action !== 'use' || foreground.current && !busy),
+    isCurrent: pageEpoch => mounted.current && pageEpoch === epoch.current,
+    currentUrl: () => currentUrl.current,
+    beforeUse: () => { afterConfirmation.current = null; if (product) { session.current.invalidate(); syncConnection(); setResult('none'); } },
+    navigate, inject: script => web.current?.injectJavaScript(script), setStatus, setVisible, uuid: Crypto.randomUUID,
+  });
+  const { loginAttempt, loginStorageBusy, endLogin, setLoginNotice, loginNotice, credentialNotice,
+    hasLogin, editingLogin, setEditingLogin, loginBusy, username, setUsername, password, setPassword,
+    saveLogin, forgetLogin, useLogin } = login;
   useEffect(() => { let active = true; mounted.current = true; if (!product) void latestCapture().then(s => { if (active) setSnapshot(old => old ?? s); }).catch(() => { if (active && retrieval.current.state.phase === 'idle') setStatus('Saved capture could not be opened. Synthetic logbook remains separate.'); }); return () => { active = false; mounted.current = false; epoch.current++; if (timeout.current) clearTimeout(timeout.current); retrieval.current.dispose(); }; }, []);
-  useEffect(() => { let active = true; if (!product) void readSavedLogin().then(login => { if (active) setHasLogin(!!login); }).catch(() => { if (active) setStatus('Protected login storage could not be opened. Existing captures remain available.'); }); return () => { active = false; loginAttempt.current = null; if (loginTimer.current) clearTimeout(loginTimer.current); }; }, []);
   useEffect(() => { let active = true; const initialInformationRequest = ++informationLoadRequest.current; setInformationLoading(product); void (async () => {
     if (product && owner.current !== activeOwner.current) throw new Error('Owner changed; create a new controller.');
     if (product && !owner.current) throw new Error('Explicit local owner required.');
@@ -247,7 +251,6 @@ export function useAccessController(product = false, localOwner?: string) {
       if (mounted.current && request === historyRequest.current) setInformationHistoryBusy(false);
     }
   }
-  function endLogin(message: string, verdict: 'response' | 'unavailable' | 'failed' | 'cancelled' = 'failed') { setLoginNotice(verdict); loginAttempt.current = null; if (loginTimer.current) clearTimeout(loginTimer.current); loginTimer.current = null; setLoginBusy(false); setStatus(message); }
   function stopInformation(message = 'Informationsabruf abgebrochen. Gespeicherte Belege bleiben erhalten.', retryable = false) {
     const run = informationRun.current;
     if (run?.stage === 'saving') return;
@@ -415,8 +418,7 @@ export function useAccessController(product = false, localOwner?: string) {
     clearContextRequest();
     if (timeout.current) clearTimeout(timeout.current);
     timeout.current = null;
-    if (loginTimer.current) clearTimeout(loginTimer.current);
-    loginTimer.current = null;
+    login.clearTimer();
     pendingNavigation.current = null;
     pendingCapture.current = null;
     afterConfirmation.current = null;
@@ -556,30 +558,6 @@ export function useAccessController(product = false, localOwner?: string) {
     });
     return () => { listener.remove(); clearContextRequest(); session.current.cancel(); };
   }, [product]);
-  async function saveLogin() {
-    if (owner.current !== activeOwner.current || clearingStore.current || bindingBusy.current || loginStorageBusy.current || loginBusy || loginAttempt.current || contextRequest.current || disconnectMode.current || retrieval.current.state.phase !== 'idle') return;
-    loginStorageBusy.current = true; setCredentialNotice('none'); setLoginBusy(true);
-    try { await writeSavedLogin({ username, password }); setUsername(''); setPassword(''); setEditingLogin(false); setHasLogin(true); setStatus('Login saved only on this device. Use saved login when the provider asks you to sign in.'); }
-    catch { setStatus('Login could not be saved. Check the fields and try again.'); }
-    finally { loginStorageBusy.current = false; setLoginBusy(false); }
-  }
-  async function forgetLogin() {
-    if (owner.current !== activeOwner.current || clearingStore.current || bindingBusy.current || loginStorageBusy.current || loginBusy || loginAttempt.current || contextRequest.current || disconnectMode.current || retrieval.current.state.phase !== 'idle' || busy || saving) return;
-    loginStorageBusy.current = true; setCredentialNotice('none'); setLoginBusy(true);
-    try { await forgetSavedLogin(); setCredentialNotice('forgotten'); setHasLogin(false); setUsername(''); setPassword(''); setStatus('Saved username and password forgotten. Existing browser session and captured flights are preserved.'); }
-    catch { setCredentialNotice('error'); setStatus('Saved login could not be removed. Try again.'); }
-    finally { loginStorageBusy.current = false; setLoginBusy(false); }
-  }
-  function useLogin() {
-    if (owner.current !== activeOwner.current || clearingStore.current || bindingBusy.current || !foreground.current || disconnectMode.current || contextRequest.current || loginStorageBusy.current || retrieval.current.state.phase !== 'idle' || busy || loginBusy || loginAttempt.current) return;
-    afterConfirmation.current = null; setLoginNotice('none');
-    if (product) { session.current.invalidate(); syncConnection(); setResult('none'); }
-    loginAttempt.current = 'waiting'; setLoginBusy(true); setVisible(true); setEditingLogin(false);
-    loginNonce.current = Crypto.randomUUID();
-    setStatus('Opening the original provider page for one saved-login attempt.');
-    loginTimer.current = setTimeout(() => endLogin('Saved sign-in did not finish. Provider interaction may be required; no retry loop was started.'), 30_000);
-    navigate(LOGIN_URL);
-  }
   async function loadedPage(page: string) {
     if (product && page !== currentUrl.current) return;
     const pageEpoch = epoch.current;
@@ -601,21 +579,8 @@ export function useAccessController(product = false, localOwner?: string) {
       else contextFailed();
       return;
     }
-    if (loginAttempt.current === 'waiting') {
-      if (!loginPage(page)) { endLogin('Provider session page opened. Verify the account and retrieve flights.', 'response'); return; }
-      // Duplicate native load-end events must not start a second secret read.
-      loginAttempt.current = 'reading';
-      try {
-        const login = await readSavedLogin();
-        if (!mounted.current || pageEpoch !== epoch.current) return;
-        if (!login || !loginPage(currentUrl.current) || loginAttempt.current !== 'reading') { endLogin('Saved login unavailable or page changed. No credentials submitted.', 'unavailable'); return; }
-        loginAttempt.current = 'submitted';
-        web.current?.injectJavaScript(savedLoginScript(login,loginNonce.current));
-        setStatus('Saved login attempted once on the original provider page. Complete verification there if requested.');
-      } catch { if (mounted.current && pageEpoch === epoch.current) endLogin('Saved login could not be used. Existing captures preserved.'); }
-      return;
-    }
-    if (loginAttempt.current === 'submitted') { endLogin('Provider response opened after the saved-login attempt. Verify the account, then retrieve flights; any provider verification remains on this page.', 'response'); return; }
+    const loginLoad = login.pageLoaded(page, pageEpoch);
+    if (loginLoad) { await loginLoad; return; }
     if (retrieval.current.state.phase === 'loading' && !flightUrl(page)) {
       if (product) {
         session.current.cancel();
@@ -965,9 +930,7 @@ export function useAccessController(product = false, localOwner?: string) {
           if (generation !== epoch.current) return;
           if (informationRun.current) { void receiveInformation(event); return; }
           if (product && contextRequest.current) { void receiveContext(event); return; }
-          if(loginAttempt.current==='submitted'&&loginPage(currentUrl.current)&&scopedBridge(event.nativeEvent.url,currentUrl.current,LOGIN_URL)&&event.nativeEvent.data.length<2000){
-            try{const m=JSON.parse(event.nativeEvent.data);if(m.kind==='vf-login-result-v1'&&m.nonce===loginNonce.current&&m.url===LOGIN_URL){if(m.result==='submitted'){setStatus('Original provider submit control invoked once. Waiting for its response; sign-in is not yet verified.');return;}if(m.result==='provider-script-error'){endLogin('Saved sign-in stopped because the original provider form raised an error. Submission was not confirmed. Complete sign-in on the original page.');return;}if(['wrong-page','username-control','password-control','submit-control','form-binding','form-target'].includes(m.result)){endLogin(`Saved sign-in stopped: unsupported original ${m.result}. No credentials submitted. Use the original provider page.`);return;}}}catch{/* Ignore unrelated bridge messages. */}
-          }
+          if (login.receiveMessage(event.nativeEvent)) return;
           if(flightUrl(url))void receive(event);
         }}
         onError={event => { if (generation !== epoch.current) return; if (informationRun.current) { if (event?.nativeEvent.url === PROFILE_URL && currentUrl.current === PROFILE_URL && informationRetry.current && ['before', 'after'].includes(informationRun.current.stage)) informationFailedProfile.current = { target: informationRetry.current, epoch: epoch.current }; stopInformation('Informationsquelle nicht verfügbar. Gespeicherte Belege bleiben erhalten.', true); return; } if (product && contextRequest.current) { contextFailed(); return; } if (product) { endDisconnect('failed'); afterConfirmation.current = null; session.current.invalidate(); syncConnection(); } loginAttempt.current ? endLogin('Provider login page failed to load. Saved login and captures preserved.') : finish('Provider page failed to load. Previous captures preserved.'); }}
