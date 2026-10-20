@@ -51,7 +51,7 @@ test('phase acknowledgements advance only matching commands, preserve source con
 });
 
 // Synthetic DOM contracts, never private provider HTML or real flight records.
-function driverFixture(phase: ExportRun['phase'], options: {expectedAccount?:string;missingPreset?:boolean;activeBackup?:boolean;activeExport?:boolean;activeUserExport?:boolean;missingColumn?:boolean;filtered?:boolean;wrongPeriod?:boolean;foreignForm?:boolean;url?:string;iframe?:boolean;empty?:boolean;malformed?:boolean;rowCount?:number;footerText?:string;duplicateFooter?:boolean;nextPage?:boolean}={}) {
+function driverFixture(phase: ExportRun['phase'], options: {expectedAccount?:string;missingPreset?:boolean;activeBackup?:boolean;activeExport?:boolean;activeUserExport?:boolean;missingColumn?:boolean;filtered?:boolean;wrongPeriod?:boolean;foreignForm?:boolean;url?:string;iframe?:boolean;empty?:boolean;malformed?:boolean;rowCount?:number;footerText?:string;duplicateFooter?:boolean;nextPage?:boolean;summaryText?:string;wrongFooterContainer?:boolean}={}) {
   const messages:string[]=[];const actions:string[]=[];
   const option={text:'MoFlight App export filter',value:'export-id',textContent:'MoFlight App export filter',disabled:false,hidden:false};
   const userExport={text:'Flugbuch Export',value:'user-export-id',textContent:'Flugbuch Export',disabled:false,hidden:false};
@@ -66,7 +66,10 @@ function driverFixture(phase: ExportRun['phase'], options: {expectedAccount?:str
   const flight={id:'row1',parentElement:{tagName:'TBODY'},cells:options.malformed?cells(['wrong']):cells(row('1').values),querySelectorAll:()=>[]};
   const layout={id:'',parentElement:{tagName:'TBODY'},cells:[{textContent:'layout',innerText:'layout',colSpan:99}]};
   const flights=Array.from({length:options.rowCount??1},(_,i)=>({...flight,id:`row${i+1}`}));
-  const table={textContent:options.empty?'Es wurden keine Daten gefunden!':'',rows:[head,...options.empty?[]:flights,layout]};
+  const container={tagName:'DIV',id:'tablefixedcontainer'};
+  const summaryText=options.summaryText??'Zeitspanne: Heute, (20.10.2026), Anz. Flüge: 0, Landungen: 0, Flugzeit:';
+  const summary={className:'summary',textContent:summaryText,parentElement:{tagName:'TBODY'},cells:[{textContent:summaryText,innerText:summaryText,colSpan:99}]};
+  const table={id:'tablelist_20',className:'tablelist',parentElement:container,textContent:'',rows:[head,...(options.empty?[...(options.rowCount?flights:[]),summary]:flights),layout]};
   const boxes=[{checked:true},{checked:!options.filtered}];
   const filter={...form,querySelectorAll:(s:string)=>s.includes('checkbox')?boxes:[{value:''}]};
   const fields:Record<string,unknown>={
@@ -79,8 +82,11 @@ function driverFixture(phase: ExportRun['phase'], options: {expectedAccount?:str
     '#tableconfigtab_li_2':{click:()=>actions.push('preset-tab')},'#userlist_name':{form,value:'',dispatchEvent:()=>actions.push('input-event')},'#btn_userlist_add':{click:()=>actions.push('save-preset')},
     '#startdate':{form,value:''},'#enddate':{form,value:''},'#daterange':{form,value:'',dispatchEvent:()=>actions.push('range-change')}
   };
-  const footer={textContent:options.footerText??(options.empty?'Datensatz 0 bis 0 von 0':'Datensatz 1 bis 1 von 1')};
-  const document={querySelector:(s:string)=>fields[s]??null,querySelectorAll:(s:string)=>s==='#LST_VISIBLE > li'?visible:s==='#LST_AVAILABLE > li'?available:s==='td.footer.f1'?(options.duplicateFooter?[footer,footer]:[footer]):s==='a.pagebrowser'&&options.nextPage?[{textContent:'2',getAttribute:()=>FLIGHT_URL+'?page=2'}]:[]};
+  const footer:{tagName:string;className:string;colSpan:number;textContent:string;parentElement?:unknown}={tagName:'TD',className:'footer f1',colSpan:1,textContent:options.footerText??(options.empty?'Es wurden keine passenden Daten gefunden!':'Datensatz 1 bis 1 von 1')};
+  const footerBody:{tagName:string;parentElement?:unknown}={tagName:'TBODY'};
+  const footerRow={tagName:'TR',parentElement:footerBody,cells:[footer]};footer.parentElement=footerRow;
+  const footerTable={tagName:'TABLE',id:'',className:'tablelist',parentElement:options.wrongFooterContainer?{tagName:'DIV',id:'elsewhere'}:container,rows:[footerRow]};footerBody.parentElement=footerTable;
+  const document={querySelector:(s:string)=>fields[s]??null,querySelectorAll:(s:string)=>s==='#LST_VISIBLE > li'?visible:s==='#LST_AVAILABLE > li'?available:s==='td.footer.f1'?(options.duplicateFooter?[footer,{...footer}]:[footer]):s==='a.pagebrowser'&&options.nextPage?[{textContent:'2',getAttribute:()=>FLIGHT_URL+'?page=2'}]:[]};
   const window:Record<string,unknown>={ReactNativeWebView:{postMessage:(s:string)=>messages.push(s)}};window.top=options.iframe?{}:window;
   const location=new URL(options.url??FLIGHT_URL);const run=beginExport(request);run.phase=phase;
   run.accountLabel=options.expectedAccount??null;
@@ -89,8 +95,37 @@ function driverFixture(phase: ExportRun['phase'], options: {expectedAccount?:str
 }
 test('standalone export reader preserves row-ID fallback, skips layout, and proves 48-column scope',()=>{
   const fixture=driverFixture('read');assert.deepEqual(fixture.actions,[]);assert.equal(accept(reading(),fixture.messages[0]!).complete!.rows[0]!.sourceFlightId,'1');
-  assert.equal(accept(reading(),driverFixture('read',{empty:true}).messages[0]!).complete!.rows.length,0);
+  const empty=accept(reading(),driverFixture('read',{empty:true}).messages[0]!).complete!;
+  assert.equal(empty.rows.length,0);assert.equal(empty.exportContext!.recordCount,0);assert.equal(empty.exportContext!.pageCount,1);
+  assert.deepEqual(validateCapture(empty),empty);
   assert.throws(()=>accept(reading(),driverFixture('read',{malformed:true}).messages[0]!));
+});
+
+test('empty DOM requires the observed adjacent exact marker, zero summary, and first page only',()=>{
+  const accepted=driverFixture('read',{empty:true});
+  const empty=accept(reading(),accepted.messages[0]!).complete!;
+  assert.equal(empty.rows.length,0);assert.equal(empty.coverage,'complete-requested-list');
+  assert.equal(empty.exportContext!.recordCount,0);assert.equal(empty.exportContext!.pageCount,1);
+  assert.deepEqual(validateCapture(empty),empty);
+
+  for(const options of [
+    {empty:true,footerText:''},
+    {empty:true,footerText:'Es wurden keine Daten gefunden!'},
+    {empty:true,footerText:'Es wurden keine passenden Daten gefunden! Mehr'},
+    {empty:true,footerText:'1 Datensätze'},
+    {empty:true,footerText:'0 Datensätze'},
+    {empty:true,footerText:'Datensatz 1 bis 1 von 1'},
+    {empty:true,footerText:'unrecognized footer'},
+    {empty:true,summaryText:'Zeitspanne: Heute, Anz. Flüge: 1, Landungen: 0, Flugzeit:'},
+    {empty:true,summaryText:'Zeitspanne: Heute, Anz. Flüge: 0, Landungen: 1, Flugzeit:'},
+    {empty:true,summaryText:'Zeitspanne: Heute, Flugzeit:'},
+    {empty:true,rowCount:1},
+    {empty:true,nextPage:true},
+    {empty:true,url:FLIGHT_URL+'?page=2'},
+    {empty:true,url:FLIGHT_URL+'?page=1&page=1'},
+    {empty:true,duplicateFooter:true},
+    {empty:true,wrongFooterContainer:true},
+  ]) assert.throws(()=>accept(reading(),driverFixture('read',options).messages[0]!),JSON.stringify(options));
 });
 
 test('observed single-page explicit total proves five rows without inferring coverage from row count alone',()=>{

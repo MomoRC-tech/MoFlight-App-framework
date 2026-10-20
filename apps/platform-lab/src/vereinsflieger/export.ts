@@ -173,7 +173,9 @@ const driver = String.raw`function(token, phase, request, expectedAccount) {
     const table = q('#tablelist_20'), head = Array.from(table.rows).find(r => r.parentElement.tagName === 'THEAD' && Array.from(r.cells).some(c => clean(c) === 'Datum'));
     if (!head) throw new Error();
     const headers = Array.from(head.cells).map(clean);
+    if (table.id !== 'tablelist_20' || !table.parentElement || table.parentElement.tagName !== 'DIV' || table.parentElement.id !== 'tablefixedcontainer') throw new Error();
     const rows = [];
+    const summaries = Array.from(table.rows).filter(r => (r.className || '').split(/\s+/).includes('summary'));
     for (const row of Array.from(table.rows)) {
       if (row.parentElement.tagName === 'THEAD' || row.parentElement.tagName === 'TFOOT' || row === head) continue;
       if (row.cells.length === 1 && row.cells[0].colSpan >= headers.length) {
@@ -188,15 +190,29 @@ const driver = String.raw`function(token, phase, request, expectedAccount) {
       if (ids.size > 1 || (ids.size === 1 && !ids.has(rowId))) throw new Error();
       rows.push({sourceFlightId:rowId,values:Array.from(row.cells).map(c => (c.innerText || '').replace(/\s+/g,' ').trim())});
     }
-    const footers = all('td.footer.f1').map(clean);
+    const footerCells = all('td.footer.f1');
+    const footers = footerCells.map(clean);
     const ranges = footers.filter(t => /^Datensatz /.test(t));
     const singles = footers.filter(t => /^\d+ Datensätze$/.test(t));
-    if (ranges.length > 1 || singles.length > 1 || (ranges.length && singles.length)) throw new Error();
+    if (footerCells.length !== 1 || ranges.length > 1 || singles.length > 1 || (ranges.length && singles.length)) throw new Error();
     const match = /^Datensatz (\d+) bis (\d+) von (\d+)$/.exec(ranges[0] || '');
     const single = /^(\d+) Datensätze$/.exec(singles[0] || '');
-    const empty = rows.length === 0 && /Es wurden keine Daten gefunden/.test(clean(table));
-    const page = Number(new URL(location.href).searchParams.get('page') || '1');
+    const emptyCell = footerCells[0];
+    const emptyRow = emptyCell?.parentElement;
+    const emptyBody = emptyRow?.parentElement;
+    const emptyTable = emptyBody?.parentElement;
+    const emptyContainer = table.parentElement;
+    const summaryText = summaries.length === 1 && summaries[0].cells.length === 1 && summaries[0].cells[0].colSpan >= headers.length ? clean(summaries[0]) : '';
+    const summaryCounts = /^Zeitspanne: .+, Anz\. Flüge: (\d+), Landungen: (\d+), Flugzeit:/.exec(summaryText);
+    const emptyShape = footerCells.length === 1 && clean(emptyCell) === 'Es wurden keine passenden Daten gefunden!' &&
+      emptyCell.colSpan === 1 && emptyRow?.tagName === 'TR' && emptyRow.cells.length === 1 &&
+      emptyBody?.tagName === 'TBODY' && emptyTable?.tagName === 'TABLE' && !emptyTable.id &&
+      (emptyTable.className || '').split(/\s+/).includes('tablelist') && emptyTable.parentElement === emptyContainer &&
+      summaryCounts?.[1] === '0' && summaryCounts?.[2] === '0';
+    const pageParams = new URL(location.href).searchParams.getAll('page');
+    const page = Number(pageParams[0] || '1');
     const pageLinks = all('a.pagebrowser');
+    const empty = rows.length === 0 && emptyShape && pageParams.length <= 1 && page === 1 && pageLinks.length === 0;
     const nextLink = pageLinks.find(e => clean(e) === String(page+1));
     // Observed native single-page form: "5 Datensätze". Its explicit total
     // must equal every decoded row; rows alone never establish completeness.
