@@ -22,10 +22,11 @@ function sqliteOpener(path: string, options: { ignoreTransactionPragmas?: boolea
     const database = new DatabaseSync(path);
     const state: OpenedConnection = { database, useNewConnection: openOptions?.useNewConnection === true, calls: [], closed: false };
     opened.push(state);
+    const ignorePragmas = options.ignoreTransactionPragmas && opened.length > 1;
     const handle = {
       execAsync: async (sql: string) => {
         state.calls.push(sql);
-        if (!(state.useNewConnection && options.ignoreTransactionPragmas)) database.exec(sql);
+        if (!(ignorePragmas)) database.exec(sql);
         else database.exec('PRAGMA foreign_keys=OFF; PRAGMA synchronous=NORMAL;');
       },
       runAsync: async (sql: string, ...params: Bind[]) => {
@@ -68,7 +69,7 @@ test('fresh-owner registry create, selection and reopen work with independent na
     registry = await RealOwnerRegistry.create(driver, uuidSource(), '2026-10-20T10:00:00.000Z');
     const owner = await registry.createFreshOwner('2026-10-20T10:01:00.000Z');
     assert.equal(owner.selectionSeq, 1);
-    assert.equal(factory.opened.filter(connection => connection.useNewConnection).length, 1);
+    assert.equal(factory.opened.slice(1).length, 1);
     await registry.close(); registry = undefined; driver = undefined;
     assert.ok(factory.opened.every(connection => connection.closed));
 
@@ -103,7 +104,7 @@ test('native driver configures the independent transaction connection before BEG
     });
     assert.equal((await driver.first<{ count: number }>('SELECT count(*) AS count FROM child'))?.count, 1);
 
-    const transactionConnection = factory.opened.find(connection => connection.useNewConnection);
+    const transactionConnection = factory.opened[1];
     assert.ok(transactionConnection);
     const pragmaCall = transactionConnection.calls.indexOf('PRAGMA foreign_keys=ON; PRAGMA synchronous=FULL;');
     const beginCall = transactionConnection.calls.indexOf('BEGIN EXCLUSIVE TRANSACTION');
@@ -114,11 +115,11 @@ test('native driver configures the independent transaction connection before BEG
       assert.equal((await tx.first<{ foreign_keys: number }>('PRAGMA foreign_keys'))?.foreign_keys, 1);
       assert.equal((await tx.first<{ synchronous: number }>('PRAGMA synchronous'))?.synchronous, 2);
     });
-    assert.equal(factory.opened.filter(connection => connection.useNewConnection).length, 1);
+    assert.equal(factory.opened.slice(1).length, 1);
 
     await assert.rejects(driver.transaction(tx => tx.run('INSERT INTO child(parent_id) VALUES (?)', 999)), /FOREIGN KEY/);
     assert.equal((await driver.first<{ count: number }>('SELECT count(*) AS count FROM child'))?.count, 1);
-    const completed = factory.opened.filter(connection => connection.useNewConnection);
+    const completed = factory.opened.slice(1);
     assert.ok(completed.every(connection => connection.closed), 'failure discards even a previously reused connection');
   } finally {
     await driver.close();
@@ -136,7 +137,7 @@ test('native driver rolls back callback failures and closes a transaction connec
       throw new Error('simulated callback failure');
     }), /simulated callback failure/);
     assert.equal(await driver.first('SELECT value FROM values_to_keep'), null);
-    assert.ok(factory.opened.filter(connection => connection.useNewConnection).every(connection => connection.closed));
+    assert.ok(factory.opened.slice(1).every(connection => connection.closed));
   } finally {
     await driver.close();
     rmSync(directory, { recursive: true, force: true });
@@ -146,7 +147,7 @@ test('native driver rolls back callback failures and closes a transaction connec
   const unsafeDriver = await openRealFlightNativeDriver('history.sqlite', unsafeFactory.open);
   try {
     await assert.rejects(unsafeDriver.transaction(async () => {}), /Unsafe real flight SQLite connection/);
-    const transactionConnection = unsafeFactory.opened.find(connection => connection.useNewConnection);
+    const transactionConnection = unsafeFactory.opened[1];
     assert.ok(transactionConnection?.closed, 'connection closes if PRAGMA setup fails');
   } finally {
     await unsafeDriver.close();
@@ -204,7 +205,7 @@ test('indeterminate commit and rollback failures discard the connection without 
   const failure = new Error('commit reply lost');let loseCommit=true;
   const driver = await openRealFlightNativeDriver('history.sqlite',async(name,options)=>{
     const db=await factory.open(name,options);
-    if(!options?.useNewConnection)return db;
+    if(factory.opened.length===1)return db;
     return {...db,execAsync:async sql=>{
       if(sql==='ROLLBACK'&&loseCommit===false)throw new Error('rollback failed');
       await db.execAsync(sql);
@@ -259,7 +260,7 @@ test('transaction opener failure does not poison the serial queue', async () => 
   const { directory, path } = temporaryPath(), factory=sqliteOpener(path), failure=new Error('temporary open failure');
   let failOpen=true;
   const driver=await openRealFlightNativeDriver('history.sqlite',async(name,options)=>{
-    if(options?.useNewConnection&&failOpen){failOpen=false;throw failure;}
+    if(options?.useNewConnection&&factory.opened.length>0&&failOpen){failOpen=false;throw failure;}
     return factory.open(name,options);
   });
   try {
@@ -268,4 +269,24 @@ test('transaction opener failure does not poison the serial queue', async () => 
     await assert.rejects(failed,error=>error===failure);await recovered;
     assert.equal(factory.opened.length,2);
   } finally { await driver.close();rmSync(directory,{recursive:true,force:true}); }
+});
+
+test('closing a concurrent inspector cannot invalidate a retained driver when the native opener caches default roots',async()=>{
+  const {directory,path}=temporaryPath(),factory=sqliteOpener(path);
+  let cached:RealFlightNativeDatabase|undefined;
+  const open=async(name:string,options?:RealFlightNativeDatabaseOptions)=>{
+    if(options?.useNewConnection)return factory.open(name,options);
+    cached??=await factory.open(name,options);return cached;
+  };
+  const retained=await openRealFlightNativeDriver('selection.sqlite',open);
+  const inspector=await openRealFlightNativeDriver('selection.sqlite',open);
+  try{
+    await retained.exec('CREATE TABLE selected_head(value INTEGER); INSERT INTO selected_head VALUES (4)');
+    assert.equal((await inspector.first<{value:number}>('SELECT value FROM selected_head'))?.value,4);
+    await inspector.close();
+    assert.equal((await retained.first<{value:number}>('SELECT value FROM selected_head'))?.value,4);
+    await retained.transaction(async tx=>{assert.equal((await tx.first<{value:number}>('SELECT value FROM selected_head'))?.value,4);});
+    assert.ok(factory.opened.every(x=>x.useNewConnection),'root and transaction handles must be independently owned');
+    assert.equal(factory.opened.length,3);
+  }finally{await retained.close();await inspector.close();rmSync(directory,{recursive:true,force:true});}
 });

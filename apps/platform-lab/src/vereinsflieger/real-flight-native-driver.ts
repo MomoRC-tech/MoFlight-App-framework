@@ -36,7 +36,10 @@ async function configure(db: RealFlightNativeDatabase): Promise<void> {
  * No connection or authorization state is shared between drivers.
  */
 export async function openRealFlightNativeDriver(name: string, openDatabase: RealFlightNativeDatabaseOpener): Promise<Driver> {
-  const db = await openDatabase(name);
+  // Expo's default cache can share the underlying root with another driver.
+  // Each driver closes its own handles; closing a concurrent inspector must
+  // never invalidate a retained selection's root connection.
+  const db = await openDatabase(name, { useNewConnection: true });
   try {
     await configure(db);
     let transactionDb: RealFlightNativeDatabase | null = null;
