@@ -37,6 +37,12 @@ Use synthetic inputs: a CSV export, manually specified page observations, an amb
 
 Add a private user-controlled backup/export package with schema/version, source snapshots, observations, decisions, paper state and required file bytes. Restore into a clean local profile and compare IDs/data/hashes. Device-local storage alone does not provide backup or cross-device access; deletion, app uninstall or device loss can lose data unless a backup exists. Avoid claiming encryption until driver/platform support is tested.
 
+## Android system backup — approved 20 October 2026
+
+Manuel explicitly selected allowing user data to participate in Android phone system backups and requested configuration implementation under [#37](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/37). `allowBackup=true` and app-owned exclusion-only rules retain default file/database/preferences coverage, including eligible locally saved flights, source evidence and settings. Exclude SecureStore and default WebView session storage; require provider sign-in again after recovery where needed. This supersedes the earlier disabled Android backup policy; iOS remains unchanged/deferred.
+
+Phone backup settings, platform scheduling/quotas and restore compatibility still apply. Enabling backup does not establish end-to-end recovery or freshness. Keep independent versioned portable backups (#29), compatibility (#34), account isolation (#16) and actual Android restore/device-transfer acceptance (#8/#37) explicit. [One package verification summary](../verification/2026-10-20-android-system-backup.md).
+
 ## App updates and backward compatibility — required before first beta
 
 **Requirement selected by Manuel, 19 October 2026; [#34](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/34).** App updates must preserve local user data and support earlier saved data no later than the first beta test phase (Checkpoint A). This is a required acceptance gate, with implementation and verification still pending; it does not approve production schemas or a particular migration/update mechanism.

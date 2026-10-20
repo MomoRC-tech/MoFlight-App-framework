@@ -14,7 +14,6 @@ class LauncherIconTests(unittest.TestCase):
         config = json.loads((icons.ROOT / 'apps/platform-lab/app.json').read_text())['expo']
         self.assertEqual(config['android']['package'], 'de.momorc.moflight.lab')
         self.assertEqual(config['ios']['bundleIdentifier'], 'de.momorc.moflight.lab')
-        self.assertFalse(config['android']['allowBackup'])
 
     def test_missing_config_corrupt_export_and_source_drift_are_rejected(self):
         with tempfile.TemporaryDirectory() as folder:

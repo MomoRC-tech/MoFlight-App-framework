@@ -4,6 +4,8 @@ Review requested by Manuel. Tracking: [#21](https://github.com/MomoRC-tech/MoFli
 
 **Assessment:** the local-first direction reduces exposure, but the reviewed implementation and planning do not establish release readiness under GDPR. This is a source/documentation review and proposed acceptance gate, not legal acceptance or implementation approval. Priorities and enabled features are unchanged.
 
+**Policy update — 20 October 2026:** Manuel explicitly approved Android system backups. The disabled-backup observations below remain historical evidence for their reviewed source; current source enables app-data backup with credential/WebView exclusions. [Current policy and remaining native/privacy gates](2026-10-20-android-system-backup.md), [#37](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/37).
+
 ## Approved evaluation method
 
 Manuel approved this guiding line on 18 October 2026: aim for the strongest practical GDPR/DSGVO compliance and meaningful protection of people, with proportionate effort. Evaluate requirements individually; imperfect compliance alone does not automatically make every gap a release blocker. The findings below identify questions and candidate controls, not an instruction to implement every possible measure regardless of benefit.

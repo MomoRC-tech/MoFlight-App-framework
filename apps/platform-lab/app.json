@@ -10,7 +10,7 @@
     "ios": { "bundleIdentifier": "de.momorc.moflight.lab", "supportsTablet": true, "icon": "./assets/branding/launcher/icon.png" },
     "android": {
       "package": "de.momorc.moflight.lab",
-      "allowBackup": false,
+      "allowBackup": true,
       "icon": "./assets/branding/launcher/icon.png",
       "adaptiveIcon": {
         "foregroundImage": "./assets/branding/launcher/adaptive-foreground.png",
@@ -18,6 +18,6 @@
         "backgroundColor": "#009bad"
       }
     },
-    "plugins": ["expo-sqlite", "expo-document-picker", "expo-dev-client", ["expo-secure-store", { "configureAndroidBackup": true, "faceIDPermission": false }]]
+    "plugins": ["expo-sqlite", "expo-document-picker", "expo-dev-client", ["expo-secure-store", { "configureAndroidBackup": false, "faceIDPermission": false }], "./plugins/withAndroidBackup.cjs"]
   }
 }

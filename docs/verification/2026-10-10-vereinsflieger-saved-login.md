@@ -2,6 +2,8 @@
 
 Date: 2026-10-10. Tracking: [#2](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/2), [ADR 0006](../adr/0006-vereinsflieger-connector-proposal.md), [user journey](../product/vereinsflieger-connection-and-retrieval.md). Baseline: `b852b9f`. This file's publishing commit identifies the implementation.
 
+**Policy update — 20 October 2026:** Manuel explicitly approved Android system backups. The disabled-backup observations below remain historical evidence for their reviewed source; current source enables app-data backup with credential/WebView exclusions. [Current policy and remaining native/privacy gates](2026-10-20-android-system-backup.md), [#37](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/37).
+
 ## Authorization and implementation
 
 Manuel explicitly authorized saving and using his login on the emulator for the development phase, explaining that repeated desktop sign-in handoffs prevent remote work from his phone. Optional app-owned password saving is approved for this scope. The password is not present in source, fixtures, documentation or commit messages.
