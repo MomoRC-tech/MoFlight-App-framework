@@ -1,6 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
+import { mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { canonical } from '../../packages/flight-logbook/src/index.ts';
 import { nodeDriver } from './sqlite-driver.ts';
 import { RealFlightSelection, IndeterminateRealActivation, IndeterminateRealRestorePreparation, type RealSelectionAuthorization, type RealSelectionGate, type RealSelectionSnapshot } from '../../apps/platform-lab/src/vereinsflieger/real-flight-selection.ts';
@@ -23,8 +26,8 @@ class Candidate {
   async write() { await this.gate?.(true); if (!this.authorize()?.writable) throw new Error('Read-only candidate'); }
   async close() { this.closed = true; }
 }
-async function fixture(fault: (stage: string) => Promise<void> = async () => {}) {
-  const db = nodeDriver(':memory:');
+async function fixture(fault: (stage: string) => Promise<void> = async () => {}, databasePath = ':memory:') {
+  const db = nodeDriver(databasePath);
   let permit: {ownerId:string;storeId:string;leaseId:string;writable:boolean} | null = {ownerId:owner,storeId:store,leaseId:'lease-one',writable:true};
   let expireAfterAuthorize = false, expireAtOpenIndex = -1;
   const authorize: RealSelectionAuthorization = () => {
@@ -40,10 +43,14 @@ async function fixture(fault: (stage: string) => Promise<void> = async () => {})
     const candidate = new Candidate(graph,auth,gate,expire); opened.push(candidate); return candidate;
   };
   const journal = await RealFlightSelection.open(db,owner,store,authorize,opener,hash,true,fault);
-  function file(n: number, receipts: unknown[] = []) {
-    const name = realHistoryCandidateName(id(n)); files.set(name,{manifest:{...manifest},generation:receipts.length,receipts,records:[]}); return name;
+  function file(n: number, receipts: unknown[] = [], records: unknown[] = []) {
+    const name = realHistoryCandidateName(id(n)); files.set(name,{manifest:{...manifest},generation:receipts.length,receipts,records}); return name;
   }
-  return {db,journal,authorize,opener,files,opened,file,expireAfterNextFinalCheck:()=>{expireAtOpenIndex=opened.length+1;},
+  async function reopen() {
+    await journal.close();
+    return RealFlightSelection.open(nodeDriver(databasePath),owner,store,authorize,opener,hash,false,fault);
+  }
+  return {db,journal,authorize,opener,files,opened,file,reopen,expireAfterNextFinalCheck:()=>{expireAtOpenIndex=opened.length+1;},
     switchOwner:()=>{permit={ownerId:id(99),storeId:store,leaseId:'lease-two',writable:true};},revoke:()=>{permit=null;}};
 }
 
@@ -193,6 +200,60 @@ test('rollback preserves newer receipts and disables writes/replay on older hist
     await assert.rejects(oldHandle.candidate.write(),/changed/); await oldHandle.candidate.close();
     const rollback = await f.journal.select(); assert.equal(rollback.name,one); assert.equal(rollback.recoveryRequired,true);
     await assert.rejects(rollback.candidate.write(),/recovery|Read-only/); await rollback.candidate.close(); assert.equal(f.files.size,2);
+  } finally { await f.journal.close(); }
+});
+
+test('valid retained restore prefix stays writable after a later save and selection-journal reopen', async () => {
+  const directory = mkdtempSync(join(tmpdir(),'moflight-real-selection-'));
+  const databasePath = join(directory,'selection.sqlite');
+  let current: RealFlightSelection<Candidate> | null = null;
+  const f = await fixture(async () => {},databasePath);
+  current = f.journal;
+  try {
+    const receipts = [{generation:1},{generation:2},{generation:3}];
+    const records = Array.from({length:15},(_,index)=>({sequence:index+1,value:`flight-${index+1}`}));
+    const original = f.file(20,receipts,records);
+    assert.equal(await current.activate(id(120),original,null,at),1);
+
+    const restored = f.file(21,receipts,records);
+    const restoredGraph = f.files.get(restored)!;
+    await current.prepareRestore({operationId:id(121),candidateName:restored,expectedGraphSha256:await hash(canonical(restoredGraph)),
+      previousSequence:1,preparedAt:at});
+    assert.equal(await current.activatePreparedRestore(id(121)),2);
+
+    f.files.set(restored,{manifest:{...manifest},generation:4,receipts:[...receipts,{generation:4}],
+      records:[...records,{sequence:16,value:'corrected-fact'},{sequence:17,value:'empty-window-coverage'}]});
+    current = await f.reopen();
+
+    const selected = await current.select();
+    assert.equal(selected.name,restored);
+    assert.equal(selected.recoveryRequired,false);
+    assert.equal(selected.warning,null);
+    await selected.candidate.write();
+    await selected.candidate.close();
+  } finally {
+    await current.close();
+    rmSync(directory,{recursive:true,force:true});
+  }
+});
+
+test('older candidate with a divergent record is still selected read-only', async () => {
+  const f = await fixture();
+  try {
+    const receipts = [{generation:1},{generation:2},{generation:3}];
+    const oldRecords = Array.from({length:15},(_,index)=>({sequence:index+1,value:`flight-${index+1}`}));
+    const old = f.file(22,receipts,oldRecords);
+    const divergentRecords = oldRecords.map((record,index)=>index === 4 ? {...record,value:'different-fact'} : record);
+    const newest = f.file(23,[...receipts,{generation:4}],[...divergentRecords,{sequence:16,value:'new-fact'}]);
+    await f.journal.activate(id(122),old,null,at);
+    await f.journal.activate(id(123),newest,1,at);
+
+    const selected = await f.journal.select();
+    assert.equal(selected.name,newest);
+    assert.equal(selected.recoveryRequired,true);
+    assert.ok(selected.warning);
+    await assert.rejects(selected.candidate.write(),/recovery|Read-only/);
+    await selected.candidate.close();
   } finally { await f.journal.close(); }
 });
 

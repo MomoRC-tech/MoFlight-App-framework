@@ -68,6 +68,13 @@ function fullGraph(snapshot: RealSelectionSnapshot): RealSelectionSnapshot {
   return { manifest, generation: snapshot.generation, receipts: snapshot.receipts, records: snapshot.records };
 }
 
+function isGraphPrefix(prefix: RealSelectionSnapshot, graph: RealSelectionSnapshot): boolean {
+  if (prefix.generation > graph.generation || prefix.receipts.length > graph.receipts.length || prefix.records.length > graph.records.length ||
+      prefix.generation === graph.generation && prefix.records.length !== graph.records.length) return false;
+  return prefix.receipts.every((receipt,index) => canonical(receipt) === canonical(graph.receipts[index])) &&
+    prefix.records.every((record,index) => canonical(record) === canonical(graph.records[index]));
+}
+
 export class IndeterminateRealActivation extends Error {
   constructor(readonly activationId: string, options?: ErrorOptions) { super('Activation outcome requires journal recovery',options); }
 }
@@ -300,9 +307,7 @@ export class RealFlightSelection<T extends RealSelectionCandidate> {
     }
     if (!selected) throw new NoReadableRealFlightSelection();
     const chosen = selected.snapshot;
-    const recoveryRequired = unreadable.size > 0 || [...readable.values()].some(g=>g.generation > chosen.generation ||
-      g.receipts.some((receipt,index)=>canonical(receipt) !== canonical(chosen.receipts[index])) ||
-      g.records.length !== chosen.records.length || g.records.some((record,index)=>canonical(record) !== canonical(chosen.records[index])));
+    const recoveryRequired = unreadable.size > 0 || [...readable.values()].some(graph => !isGraphPrefix(graph,chosen));
     const guarded: RealSelectionAuthorization = () => { const permit = this.allowed(); return {...permit,writable:permit.writable && !recoveryRequired}; };
     const selectedSequence = rows[0]!.seq;
     const gate: RealSelectionGate = async write => {
