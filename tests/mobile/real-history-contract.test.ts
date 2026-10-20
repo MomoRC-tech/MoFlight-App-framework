@@ -52,7 +52,7 @@ test('save intent validates review identity without granting source authorizatio
 test('current visible capture is blocked on actual source limitations while unknown clocks and zero remain intact', () => {
   const input = review(), original = structuredClone(input), result = inspectRealHistoryPrerequisites(input);
   assert.equal(result.status,'blocked-source-verification'); assert.equal(result.retainedRows,1);
-  assert.deepEqual(result.blockers,['stable-account-binding-unverified','stable-club-identity-unverified',
+  assert.deepEqual(result.blockers,['stable-account-binding-unverified',
     'flight-reference-durability-unverified','requested-window-not-complete']);
   assert.deepEqual(input,original);
 });
@@ -61,7 +61,8 @@ test('complete-requested-list metadata never attests durable identity or provide
   const result = inspectRealHistoryPrerequisites(review(true));
   assert.equal(result.status,'blocked-source-verification');
   assert.ok(result.blockers.includes('requested-window-semantics-unverified'));
-  assert.ok(result.blockers.includes('stable-club-identity-unverified'));
+  assert.ok(result.blockers.includes('stable-account-binding-unverified'));
+  assert.ok(!result.blockers.some(blocker => blocker.includes('club')));
   const empty = review(true); empty.capture.rows = []; empty.capture.exportContext!.recordCount = 0;
   assert.equal(inspectRealHistoryPrerequisites(empty).retainedRows,0);
   const partial = review(true); partial.capture.exportContext!.recordCount = 2;

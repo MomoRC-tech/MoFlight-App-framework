@@ -78,7 +78,7 @@ export function validateRealHistorySaveIntent(value: unknown, manifest: unknown)
   return {...i} as unknown as RealHistorySaveIntent;
 }
 
-export type RealHistoryBlocker = 'stable-account-binding-unverified' | 'stable-club-identity-unverified' |
+export type RealHistoryBlocker = 'stable-account-binding-unverified' |
   'flight-reference-durability-unverified' | 'requested-window-not-complete' | 'requested-window-semantics-unverified' |
   'missing-flight-reference' | 'planning-bound-exceeded';
 export interface RealHistoryPrerequisites {
@@ -107,7 +107,9 @@ export function inspectRealHistoryPrerequisites(value: unknown): RealHistoryPrer
   if (captureInput!.exportContext) object(captureInput!.exportContext,
     ['from','to','preset','participation','accountLabel','recordCount','pageCount','columnIds','adapterVersion']);
   const capture = validateCapture(captureInput);
-  const blockers: RealHistoryBlocker[] = ['stable-account-binding-unverified','stable-club-identity-unverified','flight-reference-durability-unverified'];
+  // Manuel selected account-scoped own-flight identity on 20 October. A club
+  // label remains operation provenance, not a required external identity key.
+  const blockers: RealHistoryBlocker[] = ['stable-account-binding-unverified','flight-reference-durability-unverified'];
   blockers.push(capture.coverage === 'complete-requested-list' ? 'requested-window-semantics-unverified' : 'requested-window-not-complete');
   if (capture.rows.some(row => row.sourceFlightId === null)) blockers.push('missing-flight-reference');
   if (capture.rows.length > REAL_HISTORY_PLAN_LIMIT) blockers.push('planning-bound-exceeded');
