@@ -88,13 +88,16 @@ function makeIo(options: { picked?: string; canceled?: boolean; size?: number | 
   return { io, files, readUris };
 }
 
-function makeNative(scope: RealFlightNativeScope, options: { pending?: boolean; activationError?: Error } = {}) {
+function makeNative(scope: RealFlightNativeScope, options: { pending?: boolean; activationError?: Error; unreadable?: boolean } = {}) {
   const events: string[] = [];
   const candidates = new Set([oldCandidate]);
   const createdCandidates: string[] = [];
+  const preparations = new Map<string, { operationId:string; candidateName:string; expectedGraphSha256:string; previousSequence:number|null;
+    preparedAt:string; status:'pending'|'stale'|'activated'; activatedSequence:number|null }>();
   const otherFiles = new Set(['moflight-real-history-77777777-7777-4777-8777-777777777777.sqlite',
     'moflight-session-capture-v1.sqlite', 'moflight-pilot-books.sqlite']);
   let activeName = oldCandidate, sequence = 4;
+  let activationError = options.activationError;
   const permit: RealFlightPermit = { ownerId, storeId, leaseId, writable: true };
   const openBackupLibrary = async (text: string) => RealFlightLibrary.restoreValidated(nodeDriver(':memory:'), text,
     ownerId, storeId, hash, () => permit);
@@ -105,15 +108,30 @@ function makeNative(scope: RealFlightNativeScope, options: { pending?: boolean; 
       return {
         select: async () => ({ candidate: await openBackupLibrary(ownerBackup), name, sequence: seq,
           recoveryRequired: false, warning: null }),
-        activate: async (activationId: string, candidateName: string, previousSequence: number | null, _at: string) => {
+        inspect: async () => options.unreadable && name === oldCandidate
+          ? {state:'unreadable',headSequence:seq,selected:null,preparations:[...preparations.values()],warning:'No readable retained candidate.'}
+          : {state:options.unreadable ? 'recovery-required' : 'selected',headSequence:seq,
+            selected:{candidate:await openBackupLibrary(ownerBackup),name,sequence:seq,selectedAt:at,
+              recoveryRequired:options.unreadable ?? false,warning:options.unreadable ? 'Retained history is unreadable.' : null},
+            preparations:[...preparations.values()]},
+        listRestorePreparations: async () => [...preparations.values()],
+        getRestorePreparation: async (operationId: string) => preparations.get(operationId) ?? null,
+        prepareRestore: async (input: { operationId:string; candidateName:string; expectedGraphSha256:string; previousSequence:number|null; preparedAt:string }) => {
+          events.push('prepare');
+          assert.equal(input.previousSequence,seq);
+          const value = { ...input, status:'pending' as const, activatedSequence:null };
+          preparations.set(input.operationId,value); return value;
+        },
+        activatePreparedRestore: async (activationId: string) => {
           events.push('activate');
           assert.match(activationId, /^[0-9a-f-]{36}$/);
-          assert.equal(previousSequence, seq);
-          if (options.activationError) throw options.activationError;
-          if (!candidates.has(candidateName)) throw new Error('candidate is missing');
+          const preparation = preparations.get(activationId);
+          assert.ok(preparation); assert.equal(preparation?.previousSequence, seq);
+          if (activationError) throw activationError;
+          if (!candidates.has(preparation!.candidateName)) throw new Error('candidate is missing');
           const validation = await openBackupLibrary(ownerBackup);
           await validation.close();
-          activeName = candidateName; sequence++; return sequence;
+          activeName = preparation!.candidateName; sequence++; preparation!.status = 'activated'; preparation!.activatedSequence = sequence; return sequence;
         },
         close: async () => { events.push('selection-close'); },
       };
@@ -131,11 +149,20 @@ function makeNative(scope: RealFlightNativeScope, options: { pending?: boolean; 
     },
     openRealFlightCandidate: async (_scope: RealFlightNativeScope, name: string) => {
       events.push('reopen-candidate');
-      if (!candidates.has(name)) throw new Error('candidate is missing');
+      if (!candidates.has(name)) throw new Error('Real flight candidate is missing; preserved for recovery.');
       return openBackupLibrary(ownerBackup);
     },
+    resumePreparedRealFlightCandidate: async (_scope: RealFlightNativeScope, operationId: string, text: string) => {
+      events.push('resume-candidate');
+      const preparation = preparations.get(operationId);
+      assert.ok(preparation, 'resume uses a durable restore preparation');
+      assert.equal(preparation?.status, 'pending');
+      assert.ok(candidates.has(preparation!.candidateName), 'resume retains and populates the reserved candidate');
+      return openBackupLibrary(text);
+    },
   };
-  const state = { native, events, candidates, createdCandidates, otherFiles,
+  const state = { native, events, candidates, createdCandidates, otherFiles, preparations,
+    setActivationError(error?: Error) { activationError = error; },
     changeSelection(name: string, nextSequence: number) { activeName = name; sequence = nextSequence; candidates.add(name); },
     get active() { return { name: activeName, sequence }; } };
   return state;
@@ -220,17 +247,34 @@ test('restore reopens and reads a fresh candidate before explicit predecessor ac
   }
   assert.ok(native.events.indexOf('restore-candidate') < native.events.indexOf('reopen-candidate'));
   assert.ok(native.events.indexOf('reopen-candidate') < native.events.indexOf('activate'));
+  assert.ok(native.events.indexOf('prepare') < native.events.indexOf('restore-candidate'));
   assert.deepEqual(native.createdCandidates, [result.state === 'restored' ? result.fileName : '']);
   assert.deepEqual([...native.otherFiles], ['moflight-real-history-77777777-7777-4777-8777-777777777777.sqlite',
     'moflight-session-capture-v1.sqlite', 'moflight-pilot-books.sqlite']);
 
   const failure = new Error('activation transaction failed');
   const failedNative = makeNative(scope, { activationError: failure }); const failedIo = makeIo();
-  await assert.rejects(restoreRealFlightBackup(scope, allow, dependencies(failedIo.io, failedNative.native)), /activation transaction failed/);
+  const recovery = await restoreRealFlightBackup(scope, allow, dependencies(failedIo.io, failedNative.native));
+  assert.equal(recovery.state,'recovery-required');
+  if (recovery.state === 'recovery-required') {
+    assert.equal(recovery.fileName,failedNative.createdCandidates[0]);
+    assert.equal(failedNative.preparations.get(recovery.operationId)?.status,'pending');
+  }
   assert.deepEqual(failedNative.createdCandidates, [
     'moflight-real-history-88888888-8888-4888-8888-888888888888.sqlite',
   ]);
   assert.deepEqual(failedNative.active, { name: oldCandidate, sequence: 4 });
+  if (recovery.state === 'recovery-required') {
+    failedNative.setActivationError();
+    const resumed = await restoreRealFlightBackup(scope, allow, dependencies(makeIo().io, failedNative.native), recovery.operationId);
+    assert.equal(resumed.state,'restored');
+    if (resumed.state === 'restored') assert.equal(resumed.fileName,recovery.fileName);
+    assert.ok(failedNative.events.includes('resume-candidate'));
+    assert.deepEqual(failedNative.createdCandidates,[recovery.fileName]);
+    const exactRetry = await restoreRealFlightBackup(scope, allow, dependencies(makeIo().io, failedNative.native), recovery.operationId);
+    assert.deepEqual(exactRetry,{state:'already-activated',fileName:recovery.fileName,operationId:recovery.operationId,
+      selection:{name:recovery.fileName,sequence:5}});
+  }
 });
 
 test('restore refuses a predecessor change while the document picker is open', async () => {
@@ -240,4 +284,19 @@ test('restore refuses a predecessor change while the document picker is open', a
   await assert.rejects(restoreRealFlightBackup(scope, allow, deps), /Active real flight history changed/);
   assert.deepEqual(native.createdCandidates, []);
   assert.ok(!native.events.includes('restore-candidate'));
+});
+
+test('explicit restore can extend an unreadable selection head without discarding it and reports the read-only recovery state', async () => {
+  const { scope } = makeScope(); const native = makeNative(scope,{unreadable:true}); const io = makeIo();
+  const result = await restoreRealFlightBackup(scope,allow,dependencies(io.io,native.native));
+  assert.equal(result.state,'restored');
+  if (result.state === 'restored') {
+    assert.equal(result.selection.sequence,5);
+    assert.match(result.warning ?? '',/remains read-only/);
+    const prep = [...native.preparations.values()][0]!;
+    assert.equal(prep.previousSequence,4);
+    assert.equal(prep.status,'activated');
+  }
+  assert.deepEqual(native.active,{name:result.state === 'restored' ? result.fileName : oldCandidate,sequence:5});
+  assert.ok(native.candidates.has(oldCandidate),'the unreadable selected candidate remains retained');
 });

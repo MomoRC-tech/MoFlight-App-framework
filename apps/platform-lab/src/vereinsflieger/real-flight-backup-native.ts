@@ -1,9 +1,11 @@
+import { canonical } from '@moflight/flight-logbook';
 import type { Hash } from '@moflight/local-data';
 import type { RealFlightCommandJournal } from './real-flight-command-journal';
 import type { RealFlightLibrary } from './real-flight-library';
 import { REAL_HISTORY_BACKUP_LIMIT, realHistoryCandidateName, realHistoryUuid, validateRealHistoryCandidateName } from './real-history-contract';
 import { validateRealFlightBackup } from './real-flight-library-model';
 import type { RealFlightSelection } from './real-flight-selection';
+import { IndeterminateRealRestorePreparation } from './real-flight-selection';
 import type { RealFlightNativeScope } from './real-flight-native';
 
 export type RealFlightBackupPhase = 'before-picker' | 'after-picker' | 'before-export' | 'before-write' |
@@ -30,6 +32,8 @@ export interface RealFlightBackupNativePorts {
   openRealFlightCommandJournal(scope: RealFlightNativeScope, createExplicitly?: boolean): Promise<RealFlightCommandJournal | null>;
   restoreRealFlightCandidate(scope: RealFlightNativeScope, name: string, text: string): Promise<RealFlightLibrary>;
   openRealFlightCandidate(scope: RealFlightNativeScope, name: string): Promise<RealFlightLibrary>;
+  /** Resume only the exact append-only preparation, including a generation-zero candidate left by a failed restore transaction. */
+  resumePreparedRealFlightCandidate?(scope: RealFlightNativeScope, operationId: string, text: string): Promise<RealFlightLibrary>;
 }
 
 export interface RealFlightBackupDependencies {
@@ -52,11 +56,13 @@ export type SaveRealFlightBackupResult =
 export type RestoreRealFlightBackupResult =
   | { state: 'cancelled' }
   | { state: 'restored'; fileName: string; selection: { name: string; sequence: number };
-      snapshot: { generation: number; flightCount: number } };
+      snapshot: { generation: number; flightCount: number }; warning?: string }
+  | { state: 'already-activated'; fileName: string; operationId: string; selection: { name: string; sequence: number } }
+  | { state: 'recovery-required'; fileName: string; operationId: string;
+      reason: 'restore-or-activation-incomplete' | 'stale-predecessor' };
 
 const digestPattern = /^[0-9a-f]{64}$/;
 const byteLength = (text: string) => new TextEncoder().encode(text).length;
-
 function nativePermit(scope: RealFlightNativeScope, write: boolean) {
   const permit = scope.authorize();
   if (!permit || typeof permit !== 'object' || Array.isArray(permit) ||
@@ -154,19 +160,30 @@ export async function saveRealFlightBackupToFolder(service: RealFlightBackupServ
 
 interface CurrentSelection {
   handle: RealFlightSelection<RealFlightLibrary>;
-  name: string;
-  sequence: number;
-  generation: number;
+  state: 'empty' | 'readable' | 'unreadable';
+  name: string | null;
+  sequence: number | null;
+  generation: number | null;
 }
 
-async function currentSelection(scope: RealFlightNativeScope, deps: RealFlightBackupDependencies): Promise<CurrentSelection> {
+async function currentSelection(scope: RealFlightNativeScope, deps: RealFlightBackupDependencies,
+  resumeOperationId?: string): Promise<CurrentSelection> {
   const selection = await deps.native.openRealFlightSelection(scope, false);
   if (!selection) throw new Error('Real flight selection is unavailable; restore is blocked.');
   let candidate: RealFlightLibrary | null = null;
   try {
-    const selected = await selection.select();
+    const preparations = await selection.listRestorePreparations();
+    if (preparations.some(preparation => preparation.status !== 'activated' && preparation.operationId !== resumeOperationId)) {
+      throw new Error('Resolve the pending real restore preparation before restoring another backup.');
+    }
+    const inspected = await selection.inspect();
+    if (inspected.state === 'empty') return { handle:selection, state:'empty', name:null, sequence:null, generation:null };
+    if (inspected.state === 'unreadable') return { handle:selection, state:'unreadable', name:null, sequence:inspected.headSequence, generation:null };
+    const selected = inspected.selected;
     candidate = selected.candidate;
-    if (selected.recoveryRequired) throw new Error('Read-only real flight recovery blocks backup restore.');
+    if (inspected.state === 'recovery-required' || selected.recoveryRequired) {
+      throw new Error('Read-only real flight recovery blocks backup restore.');
+    }
     const permit = nativePermit(scope, true);
     if (selected.candidate.manifest.owner_id !== permit.ownerId || selected.candidate.manifest.store_id !== permit.storeId) {
       throw new Error('Selected real flight history does not match the current owner.');
@@ -176,7 +193,7 @@ async function currentSelection(scope: RealFlightNativeScope, deps: RealFlightBa
         !Number.isSafeInteger(selected.sequence) || selected.sequence < 1) {
       throw new Error('Selected real flight history is invalid.');
     }
-    return { handle: selection, name: selected.name, sequence: selected.sequence, generation: snapshot.generation };
+    return { handle: selection, state:'readable', name: selected.name, sequence: selected.sequence, generation: snapshot.generation };
   } catch (error) {
     await selection.close();
     throw error;
@@ -199,11 +216,24 @@ async function assertNoPendingCommand(scope: RealFlightNativeScope, deps: RealFl
  * selection journal; failed candidates are deliberately retained.
  */
 export async function restoreRealFlightBackup(scope: RealFlightNativeScope, gate: RealFlightBackupGate,
-  dependencies?: RealFlightBackupDependencies): Promise<RestoreRealFlightBackupResult> {
+  dependencies?: RealFlightBackupDependencies, resumeOperationId?: string): Promise<RestoreRealFlightBackupResult> {
   const deps = dependencies ?? await defaultDependencies();
+  if (resumeOperationId !== undefined) realHistoryUuid(resumeOperationId);
   await gate('before-picker');
   await assertRestoreScope(scope, true);
-  const before = await currentSelection(scope, deps);
+  const existingPreparation = resumeOperationId ? await (async () => {
+    const selection = await deps.native.openRealFlightSelection(scope, false);
+    if (!selection) return null;
+    try { return await selection.getRestorePreparation(resumeOperationId); }
+    finally { await selection.close(); }
+  })() : null;
+  if (resumeOperationId) await assertRestoreScope(scope, true);
+  if (resumeOperationId && !existingPreparation) throw new Error('Unknown real restore preparation.');
+  if (existingPreparation?.status === 'activated') return { state:'already-activated', fileName:existingPreparation.candidateName,
+    operationId:existingPreparation.operationId, selection:{name:existingPreparation.candidateName,sequence:existingPreparation.activatedSequence!} };
+  if (existingPreparation?.status === 'stale') return { state:'recovery-required', fileName:existingPreparation.candidateName,
+    operationId:existingPreparation.operationId, reason:'stale-predecessor' };
+  const before = await currentSelection(scope, deps, resumeOperationId);
   await before.handle.close();
   await assertNoPendingCommand(scope, deps);
 
@@ -229,30 +259,70 @@ export async function restoreRealFlightBackup(scope: RealFlightNativeScope, gate
   // Validate same-owner/store identity, envelope checksum, exact bounded JSON,
   // SQL-independent graph shape, receipts and source-capture replay before any
   // candidate filename is reserved.
-  await validateRealFlightBackup(text, permit.ownerId, permit.storeId, deps.hash);
+  const reviewedGraph = await validateRealFlightBackup(text, permit.ownerId, permit.storeId, deps.hash);
   await assertRestoreScope(scope, true);
 
-  const afterPicker = await currentSelection(scope, deps);
-  if (afterPicker.name !== before.name || afterPicker.sequence !== before.sequence || afterPicker.generation !== before.generation) {
+  const afterPicker = await currentSelection(scope, deps, resumeOperationId);
+  if (resumeOperationId) {
+    const currentPreparation = await afterPicker.handle.getRestorePreparation(resumeOperationId);
+    if (!currentPreparation) { await afterPicker.handle.close(); throw new Error('Real restore preparation disappeared.'); }
+    if (currentPreparation.status === 'activated') {
+      await afterPicker.handle.close();
+      return { state:'already-activated', fileName:currentPreparation.candidateName, operationId:currentPreparation.operationId,
+        selection:{name:currentPreparation.candidateName,sequence:currentPreparation.activatedSequence!} };
+    }
+    if (currentPreparation.status === 'stale') {
+      await afterPicker.handle.close();
+      return { state:'recovery-required', fileName:currentPreparation.candidateName, operationId:currentPreparation.operationId, reason:'stale-predecessor' };
+    }
+    if (currentPreparation.expectedGraphSha256 !== await deps.hash(canonical(reviewedGraph))) {
+      await afterPicker.handle.close(); throw new Error('Selected backup does not match the prepared restore graph.');
+    }
+  }
+  if (afterPicker.state !== before.state || afterPicker.name !== before.name || afterPicker.sequence !== before.sequence ||
+      afterPicker.generation !== before.generation) {
     await afterPicker.handle.close();
     throw new Error('Active real flight history changed while the backup picker was open.');
   }
   try { await assertNoPendingCommand(scope, deps); }
   catch (error) { await afterPicker.handle.close(); throw error; }
 
-  const candidateId = deps.uuid();
-  realHistoryUuid(candidateId);
-  const fileName = realHistoryCandidateName(candidateId);
+  const candidateId = resumeOperationId ? null : deps.uuid();
+  if (candidateId) realHistoryUuid(candidateId);
+  const fileName = existingPreparation?.candidateName ?? realHistoryCandidateName(candidateId!);
   validateRealHistoryCandidateName(fileName);
-  await gate('before-restore');
+  const operationId = resumeOperationId ?? deps.uuid();
+  realHistoryUuid(operationId);
+  const preparedAt = existingPreparation?.preparedAt ?? deps.now();
   let restored: RealFlightLibrary | null = null;
+  let writer: RealFlightLibrary | null = null;
+  let prepared = false;
   try {
-    const writer = await deps.native.restoreRealFlightCandidate(scope, fileName, text);
-    await writer.close();
-    restored = await deps.native.openRealFlightCandidate(scope, fileName);
+    await gate('before-restore');
+    const preparation = await afterPicker.handle.prepareRestore({ operationId, candidateName: fileName,
+      expectedGraphSha256: await deps.hash(canonical(reviewedGraph)), previousSequence: before.sequence, preparedAt });
+    prepared = true;
+    if (preparation.status === 'stale') {
+      return { state:'recovery-required', fileName, operationId, reason:'stale-predecessor' };
+    }
+    if (preparation.status === 'activated') {
+      return { state:'already-activated', fileName, operationId, selection:{name:fileName,sequence:preparation.activatedSequence!} };
+    }
+    if (resumeOperationId) {
+      const resume = deps.native.resumePreparedRealFlightCandidate;
+      if (!resume) throw new Error('Native prepared-restore recovery is unavailable.');
+      restored = await resume(scope, resumeOperationId, text);
+    } else {
+      writer = await deps.native.restoreRealFlightCandidate(scope, fileName, text);
+      await writer.close(); writer = null;
+      restored = await deps.native.openRealFlightCandidate(scope, fileName);
+    }
     const restoredGraph = await restored.snapshot();
     if (restoredGraph.manifest.owner_id !== permit.ownerId || restoredGraph.manifest.store_id !== permit.storeId) {
       throw new Error('Restored candidate owner does not match the current lease.');
+    }
+    if (await deps.hash(canonical(restoredGraph)) !== preparation.expectedGraphSha256) {
+      throw new Error('Restored real flight graph does not match the reviewed backup.');
     }
     const flights = await restored.list();
     if (flights.length > 0) {
@@ -270,15 +340,32 @@ export async function restoreRealFlightBackup(scope: RealFlightNativeScope, gate
     await gate('before-activation');
     await assertRestoreScope(scope, true);
     await assertNoPendingCommand(scope, deps);
-    const activationId = deps.uuid();
-    realHistoryUuid(activationId);
-    const sequence = await afterPicker.handle.activate(activationId, fileName, before.sequence, deps.now());
+    const sequence = await afterPicker.handle.activatePreparedRestore(operationId);
+    await assertRestoreScope(scope, true);
+    const publication = await afterPicker.handle.inspect();
+    let warning: string | undefined;
+    if (publication.state === 'recovery-required' || publication.state === 'unreadable') {
+      warning = 'The backup was activated, but retained history is unreadable. The selected library remains read-only until recovery.';
+    }
+    if (publication.selected) await publication.selected.candidate.close();
     return { state: 'restored', fileName, selection: { name: fileName, sequence },
-      snapshot: { generation: restoredGraph.generation, flightCount: flights.length } };
+      snapshot: { generation: restoredGraph.generation, flightCount: flights.length }, ...(warning ? {warning} : {}) };
   } catch (error) {
     await restored?.close();
+    await writer?.close();
+    if (prepared || error instanceof IndeterminateRealRestorePreparation) {
+      const stale = error instanceof Error && /stale/i.test(error.message);
+      return { state:'recovery-required', fileName, operationId,
+        reason:stale ? 'stale-predecessor' : 'restore-or-activation-incomplete' };
+    }
     throw error;
   } finally {
     await afterPicker.handle.close();
   }
+}
+
+/** Resume a persisted restore preparation by selecting its original backup again. */
+export async function resumeRealFlightBackup(scope: RealFlightNativeScope, operationId: string, gate: RealFlightBackupGate,
+  dependencies?: RealFlightBackupDependencies): Promise<RestoreRealFlightBackupResult> {
+  return restoreRealFlightBackup(scope,gate,dependencies,operationId);
 }

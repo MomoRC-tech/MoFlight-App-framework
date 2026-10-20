@@ -14,6 +14,8 @@ type NativeTestAdapter = {
   createRealFlightCandidate(scope: unknown, name: string, manifest: unknown): Promise<unknown>;
   restoreRealFlightCandidate(scope: unknown, name: string, text: string): Promise<unknown>;
   openRealFlightCandidate(scope: unknown, name: string, selectionGate?: (write: boolean) => Promise<void>): Promise<unknown>;
+  resumeInitialRealFlightCandidate(scope: unknown): Promise<unknown>;
+  resumePreparedRealFlightCandidate(scope: unknown, operationId: string, text: string): Promise<unknown>;
   openRealFlightSelection(scope: unknown, createExplicitly?: boolean): Promise<unknown>;
   openRealFlightCommandJournal(scope: unknown, createExplicitly?: boolean): Promise<unknown>;
 };
@@ -35,9 +37,10 @@ const manifest = {
   created_at: '2026-10-20T10:00:00.000Z',
 };
 
-function loadAdapter(behavior: { events: string[]; fileExists?: Record<string, boolean>; onOpenDriver?: (name: string) => void;
+function loadAdapter(behavior: { events: string[]; fileExists?: Record<string, boolean>; emptyFiles?: Record<string, boolean>; onOpenDriver?: (name: string) => void;
   onLibraryOpen?: () => void; onLibraryCreate?: () => void; onSelectionOpen?: () => void; onJournalOpen?: () => void;
   registryError?: Error; selectionError?: Error; journalError?: Error; backupError?: Error; restoreError?: Error;
+  preparation?: { operationId: string; candidateName: string; expectedGraphSha256: string; status: string };
   onBackupValidate?: () => void } = { events: [] }) {
   const { events } = behavior;
   const files = behavior.fileExists ?? {};
@@ -49,11 +52,22 @@ function loadAdapter(behavior: { events: string[]; fileExists?: Record<string, b
   const selectionCalls: boolean[] = [];
   const journalCalls: boolean[] = [];
   const libraries: { close: () => Promise<void> }[] = [];
+  const fakeDriver = (name: string) => ({
+    first: async (sql: string) => sql === 'PRAGMA user_version'
+      ? { user_version: behavior.emptyFiles?.[name] ? 0 : 1 } : null,
+    close: async () => { events.push('driver-close'); closedDrivers.push(name); },
+  });
   let permit: { ownerId: string; storeId: string; leaseId: string; writable: boolean } | null = {
     ownerId, storeId, leaseId, writable: true,
   };
 
   class FakeLibrary {
+    static async restoreIntoEmptyValidated(_db: unknown, _text: string, _owner: string, _store: string, _hash: unknown,
+      _authorize: unknown, _fault: unknown, gate: (write: boolean) => Promise<void>) {
+      await gate(true);
+      libraryCalls.push({ mode: 'resume-empty-or-exact' });
+      return { close: async () => { events.push('library-close'); } };
+    }
     static async create(db: unknown, value: typeof manifest, _hash: unknown, _authorize: unknown,
       _fault: unknown, gate: (write: boolean) => Promise<void>) {
       events.push('library-create');
@@ -105,7 +119,8 @@ function loadAdapter(behavior: { events: string[]; fileExists?: Record<string, b
       assert.equal(openOwnerId, ownerId); assert.equal(openStoreId, storeId);
       if (behavior.selectionError) throw behavior.selectionError;
       behavior.onSelectionOpen?.();
-      return { db, close: async () => { events.push('selection-close'); await (db as { close(): Promise<void> }).close(); } };
+      return { db, getRestorePreparation: async (id: string) => behavior.preparation?.operationId === id ? behavior.preparation : null,
+        close: async () => { events.push('selection-close'); await (db as { close(): Promise<void> }).close(); } };
     }
   }
   class FakeCommandJournal {
@@ -120,6 +135,7 @@ function loadAdapter(behavior: { events: string[]; fileExists?: Record<string, b
   }
 
   const modules = {
+    '@moflight/flight-logbook': { canonical: JSON.stringify },
     'expo-crypto': { randomUUID: () => '55555555-5555-4555-8555-555555555555' },
     'expo-file-system': { File: class {} },
     'expo-sqlite': { defaultDatabaseDirectory: 'file:///mock/sqlite' },
@@ -127,13 +143,13 @@ function loadAdapter(behavior: { events: string[]; fileExists?: Record<string, b
       hash: async () => 'a'.repeat(64),
       openDriver: async (name: string) => {
         events.push('driver-open'); databaseNames.push(name); behavior.onOpenDriver?.(name);
-        return { close: async () => { events.push('driver-close'); closedDrivers.push(name); } };
+        return fakeDriver(name);
       },
     },
     './real-flight-native-driver': {
       openRealFlightNativeDriver: async (name: string) => {
         events.push('durable-driver-open'); databaseNames.push(name); behavior.onOpenDriver?.(name);
-        return { close: async () => { events.push('driver-close'); closedDrivers.push(name); } };
+        return fakeDriver(name);
       },
     },
     './real-flight-command-journal': { RealFlightCommandJournal: FakeCommandJournal },
@@ -376,4 +392,57 @@ test('existing selection and command journals are opened without reset and faile
   assert.deepEqual(state.events.filter(event => event === 'file-create'), []);
   assert.ok(files['moflight-real-history-selection-v1.sqlite']);
   assert.ok(files['moflight-real-history-command-journal-v1.sqlite']);
+});
+
+test('reserved empty registry and journals require explicit setup continuation without replacing files', async () => {
+  const selectionName = 'moflight-real-history-selection-v1.sqlite';
+  const commandsName = 'moflight-real-history-command-journal-v1.sqlite';
+  const files = { [ownerRegistryName]: true, [selectionName]: true, [commandsName]: true };
+  const state = loadAdapter({ events: [], fileExists: files, emptyFiles: { ...files } });
+  await assert.rejects(state.adapter.openOwnerRegistry(false), /explicit setup continuation/);
+  await assert.rejects(state.adapter.openRealFlightSelection(state.scope, false), /explicit setup continuation/);
+  await assert.rejects(state.adapter.openRealFlightCommandJournal(state.scope, false), /explicit setup continuation/);
+  assert.equal(state.createdRegistries.length, 0);
+  assert.deepEqual(state.selectionCalls, []); assert.deepEqual(state.journalCalls, []);
+  assert.deepEqual(state.closedDrivers, [ownerRegistryName, selectionName, commandsName]);
+  await state.adapter.openOwnerRegistry(true);
+  await state.adapter.openRealFlightSelection(state.scope, true);
+  await state.adapter.openRealFlightCommandJournal(state.scope, true);
+  assert.equal(state.createdRegistries.length, 1);
+  assert.deepEqual(state.selectionCalls, [true]); assert.deepEqual(state.journalCalls, [true]);
+  assert.equal(state.events.includes('file-create'), false);
+  assert.ok(Object.values(files).every(Boolean));
+});
+
+test('explicit initial-candidate continuation initializes a reserved empty file and enforces its current lease', async () => {
+  const state = loadAdapter({ events: [], fileExists: { [candidateName]: true }, emptyFiles: { [candidateName]: true } });
+  await assert.rejects(state.adapter.openRealFlightCandidate(state.scope, candidateName), /explicit setup continuation/);
+  assert.equal(state.libraryCalls.length, 0);
+  await state.adapter.resumeInitialRealFlightCandidate(state.scope);
+  assert.deepEqual(state.libraryCalls.map(call => call.mode), ['create']);
+  assert.equal(state.events.includes('file-create'), false);
+  state.setPermit(null);
+  const opened = state.databaseNames.length;
+  await assert.rejects(state.adapter.resumeInitialRealFlightCandidate(state.scope), /Unauthorized/);
+  assert.equal(state.databaseNames.length, opened);
+  assert.equal(state.files[candidateName], true);
+});
+
+test('prepared restore retry uses only its recorded candidate and rejects foreign or stale operations before opening it', async () => {
+  const operationId = '66666666-6666-4666-8666-666666666666';
+  const preparation = { operationId, candidateName, expectedGraphSha256: 'a'.repeat(64), status: 'pending' };
+  const selectionName = 'moflight-real-history-selection-v1.sqlite';
+  for (const empty of [true, false]) {
+    const state = loadAdapter({ events: [], preparation, fileExists: { [selectionName]: true, [candidateName]: true },
+      emptyFiles: { [candidateName]: empty } });
+    await state.adapter.resumePreparedRealFlightCandidate(state.scope, operationId, 'valid-backup');
+    assert.deepEqual(state.libraryCalls.map(call => call.mode), [empty ? 'restore' : 'resume-empty-or-exact']);
+    assert.equal(state.events.includes('file-create'), false);
+    assert.equal(state.files[candidateName], true);
+  }
+  for (const input of [{ ...preparation, status: 'stale' }, { ...preparation, operationId: leaseId }]) {
+    const state = loadAdapter({ events: [], preparation: input, fileExists: { [selectionName]: true, [candidateName]: true } });
+    await assert.rejects(state.adapter.resumePreparedRealFlightCandidate(state.scope, operationId, 'valid-backup'), /foreign, stale/);
+    assert.equal(state.databaseNames.includes(candidateName), false);
+  }
 });

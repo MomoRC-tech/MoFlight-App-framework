@@ -318,42 +318,87 @@ export class RealFlightLibrary {
 
   static async restoreValidated(db: Driver, text: string, ownerId: string, storeId: string, hash: Hash,
     authorize: RealFlightAuthorization, fault: RealFlightFault = async () => {}, gate: RealFlightAccessGate = async () => {}): Promise<RealFlightLibrary> {
+    return this.restoreIntoEmptyValidated(db, text, ownerId, storeId, hash, authorize, fault, gate);
+  }
+
+  /**
+   * Restore into a new database or retry a candidate left at its committed
+   * generation-zero manifest. A complete byte-for-byte matching graph is an
+   * idempotent success; every other nonempty candidate is preserved and
+   * rejected.
+   */
+  static async restoreIntoEmptyValidated(db: Driver, text: string, ownerId: string, storeId: string, hash: Hash,
+    authorize: RealFlightAuthorization, fault: RealFlightFault = async () => {}, gate: RealFlightAccessGate = async () => {}): Promise<RealFlightLibrary> {
     const initial = this.permit(authorize, ownerId, storeId, true);
     const graph = await validateRealFlightBackup(text, ownerId, storeId, hash);
     await gate(true);
     const current = this.permit(authorize, ownerId, storeId, true);
     realFlightRequire(current.leaseId === initial.leaseId, 'Expired real flight history restore lease.');
-    const library = await this.create(db, graph.manifest, hash, authorize, fault, gate);
-    try {
-      await db.transaction(async tx => {
-        await gate(true);
-        const active = this.permit(authorize, ownerId, storeId, true);
-        realFlightRequire(active.leaseId === initial.leaseId, 'Expired real flight history restore lease.');
-        await checkSchema(tx);
-        for (const receipt of graph.receipts) {
-          await tx.run('INSERT INTO real_history_receipts VALUES (?,?,?,?,?,?,?,?,?)', receipt.command_id, receipt.owner_id, receipt.kind,
-            receipt.base_generation, receipt.generation, receipt.request_json, receipt.request_sha256, receipt.result_json, receipt.committed_at);
-          await fault('restore-receipt');
-        }
-        for (const record of graph.records) {
-          await tx.run('INSERT INTO real_history_records VALUES (?,?,?,?,?,?,?,?)', record.seq, record.owner_id, record.kind,
-            record.id, record.revision, record.generation, record.payload, record.payload_sha256);
-          await fault('restore-record');
-        }
-        await validateRealFlightGraph(await graphFrom(tx), hash);
-        const finalPermit = this.permit(authorize, ownerId, storeId, true);
-        realFlightRequire(finalPermit.leaseId === initial.leaseId, 'Expired real flight history restore lease.');
-        await fault('restore-before-commit'); await gate(true);
-        const commitPermit = this.permit(authorize, ownerId, storeId, true);
-        realFlightRequire(commitPermit.leaseId === initial.leaseId, 'Real flight history restore lease changed before publication.');
-      });
+
+    await configure(db);
+    await gate(true);
+    const beforeAccess = this.permit(authorize, ownerId, storeId, true);
+    realFlightRequire(beforeAccess.leaseId === initial.leaseId, 'Real flight history restore lease changed before candidate access.');
+    const version = await db.first<{ user_version: number }>('PRAGMA user_version');
+    const objects = await db.all<{ name: string }>("SELECT name FROM sqlite_master WHERE name NOT LIKE 'sqlite_%'");
+    let library: RealFlightLibrary;
+    if (version?.user_version === 0 && objects.length === 0) {
+      library = await this.create(db, graph.manifest, hash, authorize, fault, gate);
+    } else {
+      // Opening validates the full schema, ownership, receipts and source graph
+      // before we consider adding anything to an existing candidate.
+      library = await this.open(db, ownerId, storeId, hash, authorize, fault, gate);
+    }
+    realFlightRequire(library.leaseId === initial.leaseId, 'Real flight history restore lease changed during candidate open.');
+
+    const existing = await library.snapshot();
+    realFlightRequire(canonical(existing.manifest) === canonical(graph.manifest),
+      'Existing real flight history candidate manifest differs from the backup.');
+    if (canonical(existing) === canonical(graph)) {
       await gate(true);
-      const afterPublication = this.permit(authorize, ownerId, storeId, true);
-      realFlightRequire(afterPublication.leaseId === initial.leaseId, 'Real flight history restore lease changed after publication.');
-      const restored = await library.snapshot();
-      realFlightRequire(canonical(restored) === canonical(graph), 'Restored real flight history candidate differs from backup.');
-      await gate(true); library.allowed(true); return library;
-    } catch (error) { await library.close(); throw error; }
+      const ready = library.allowed(true);
+      realFlightRequire(ready.leaseId === initial.leaseId, 'Real flight history restore lease changed after matching candidate readback.');
+      return library;
+    }
+    realFlightRequire(existing.generation === 0 && existing.receipts.length === 0 && existing.records.length === 0,
+      'Existing real flight history candidate is not empty; preserved for recovery.');
+
+    // Match create/open factory ownership: a rejected restore never closes a
+    // caller-supplied Driver. The native adapter owns and closes it on failure.
+    await db.transaction(async tx => {
+      await gate(true);
+      const active = this.permit(authorize, ownerId, storeId, true);
+      realFlightRequire(active.leaseId === initial.leaseId, 'Expired real flight history restore lease.');
+      await checkSchema(tx);
+      const currentGraph = await authorizedGraph(tx, active);
+      await validateRealFlightGraph(currentGraph, hash);
+      if (canonical(currentGraph) === canonical(graph)) return;
+      realFlightRequire(canonical(currentGraph.manifest) === canonical(graph.manifest) && currentGraph.generation === 0 &&
+        currentGraph.receipts.length === 0 && currentGraph.records.length === 0,
+        'Existing real flight history candidate changed or is not empty; preserved for recovery.');
+      for (const receipt of graph.receipts) {
+        await tx.run('INSERT INTO real_history_receipts VALUES (?,?,?,?,?,?,?,?,?)', receipt.command_id, receipt.owner_id, receipt.kind,
+          receipt.base_generation, receipt.generation, receipt.request_json, receipt.request_sha256, receipt.result_json, receipt.committed_at);
+        await fault('restore-receipt');
+      }
+      for (const record of graph.records) {
+        await tx.run('INSERT INTO real_history_records VALUES (?,?,?,?,?,?,?,?)', record.seq, record.owner_id, record.kind,
+          record.id, record.revision, record.generation, record.payload, record.payload_sha256);
+        await fault('restore-record');
+      }
+      await validateRealFlightGraph(await graphFrom(tx), hash);
+      const finalPermit = this.permit(authorize, ownerId, storeId, true);
+      realFlightRequire(finalPermit.leaseId === initial.leaseId, 'Expired real flight history restore lease.');
+      await fault('restore-before-commit'); await gate(true);
+      const commitPermit = this.permit(authorize, ownerId, storeId, true);
+      realFlightRequire(commitPermit.leaseId === initial.leaseId, 'Real flight history restore lease changed before publication.');
+    });
+    await gate(true);
+    const afterPublication = this.permit(authorize, ownerId, storeId, true);
+    realFlightRequire(afterPublication.leaseId === initial.leaseId, 'Real flight history restore lease changed after publication.');
+    const restored = await library.snapshot();
+    realFlightRequire(canonical(restored) === canonical(graph), 'Restored real flight history candidate differs from backup.');
+    await gate(true); library.allowed(true); return library;
   }
 }
 

@@ -6,6 +6,7 @@ import { adaptHistoryFacts, type HistoryFacts, type HistoryScope } from './histo
 import { REAL_HISTORY_BACKUP_LIMIT, REAL_HISTORY_COMMAND_LIMIT, REAL_HISTORY_PLAN_LIMIT,
   realHistoryUuid, validateRealHistoryManifest, type RealHistoryManifest } from './real-history-contract';
 import { createRealFlightSourceObservation, type RealFlightSourceInput, type RealFlightSourceObservation } from './real-flight-source';
+import { sameContext } from './context';
 
 export const REAL_FLIGHT_LIBRARY_BACKUP_FORMAT = 'moflight-real-flight-history-backup';
 export const REAL_FLIGHT_LIBRARY_BACKUP_VERSION = 1;
@@ -200,6 +201,10 @@ async function buildImportPlan(graph: RealFlightGraph, bindingId: string, source
   validateImportWindow(source);
   realFlightRequire(source.binding.provider === binding.provider && source.binding.accountRef === binding.accountRef,
     'Source account differs from the immutable real flight history binding.');
+  // The observed club label is a safety fence, not a durable club identifier.
+  // Cross-club reference semantics are not established by this first adapter.
+  realFlightRequire(sameContext(source.context.before, binding.clubContext.after),
+    'Source club context changed; review is required before importing another context.');
   realFlightRequire(source.rows.length <= REAL_HISTORY_PLAN_LIMIT, 'Real flight history planning bound exceeded.');
 
   const scope: HistoryScope = { ownerId: graph.manifest.owner_id, scopeId: binding.bindingId };

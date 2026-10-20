@@ -67,6 +67,15 @@ async function reEnvelope(graph: RealFlightGraph, change: (graph: RealFlightGrap
   return canonical({ format: 'moflight-real-flight-history-backup', version: 1, payload, checksum: await hash(payload) });
 }
 
+async function assertRestoreRejected(text: string, ownerId: string, storeId: string, leaseId: string, expected: RegExp,
+  fault?: (stage: string) => Promise<void>) {
+  const db = nodeDriver(':memory:');
+  try {
+    await assert.rejects(RealFlightLibrary.restoreValidated(db, text, ownerId, storeId, hash,
+      () => ({ ownerId, storeId, leaseId, writable: true }), fault), expected);
+  } finally { await db.close(); }
+}
+
 test('first-use account binding and unassigned flights preserve source evidence and round-trip to a fresh same-owner candidate', async t => {
   const { library } = await setup(t);
   const initial = source('capture-first', [row('101'), row('102', '', '21.10.2026')]);
@@ -91,6 +100,37 @@ test('first-use account binding and unassigned flights preserve source evidence 
   t.after(async () => { await restored.close(); });
   assert.deepEqual(await restored.snapshot(), graph);
   assert.equal(await restored.exportBackup(), backup);
+});
+
+test('restore retries an initialized generation-zero candidate after rollback and exact completed replay is read-only', async t => {
+  const { library } = await setup(t);
+  await bind(library, source('capture-bind-restore-retry', [row('111')]), 101);
+  await save(library, source('capture-flights-restore-retry', [row('111'), row('112')]), 102);
+  const expected = await library.snapshot();
+  const backup = await library.exportBackup();
+  const db = nodeDriver(':memory:');
+  const authorize = () => ({ ownerId: ownerA, storeId: storeA, leaseId: 'restore-retry-lease', writable: true });
+
+  await assert.rejects(RealFlightLibrary.restoreIntoEmptyValidated(db, backup, ownerA, storeA, hash, authorize, async stage => {
+    if (stage === 'restore-record') throw new Error('injected restore transaction rollback');
+  }), /injected restore transaction rollback/);
+  assert.equal((await db.first<{ count: number }>('SELECT COUNT(*) AS count FROM real_history_manifest'))?.count, 1,
+    'the initialized candidate manifest remains available for exact recovery');
+  assert.equal((await db.first<{ count: number }>('SELECT COUNT(*) AS count FROM real_history_receipts'))?.count, 0,
+    'rolled-back restore receipts are not partially published');
+  assert.equal((await db.first<{ count: number }>('SELECT COUNT(*) AS count FROM real_history_records'))?.count, 0,
+    'rolled-back restore records are not partially published');
+
+  const restored = await RealFlightLibrary.restoreIntoEmptyValidated(db, backup, ownerA, storeA, hash, authorize);
+  assert.deepEqual(await restored.snapshot(), expected);
+  await save(library, source('capture-later-after-restore-backup', [row('113')]), 103);
+  const differentBackup = await library.exportBackup();
+  await assert.rejects(RealFlightLibrary.restoreIntoEmptyValidated(db, differentBackup, ownerA, storeA, hash, authorize),
+    /candidate is not empty/);
+  assert.deepEqual(await restored.snapshot(), expected, 'a different nonempty candidate is preserved');
+  const replay = await RealFlightLibrary.restoreIntoEmptyValidated(db, backup, ownerA, storeA, hash, authorize);
+  assert.deepEqual(await replay.snapshot(), expected, 'the exact matching complete graph is an idempotent no-write success');
+  t.after(async () => { await restored.close(); });
 });
 
 test('exact retry resolves before stale-generation rejection and altered command reuse is rejected', async t => {
@@ -158,6 +198,10 @@ test('foreign owner/account, stale plans and expired leases are rejected before 
   await assert.rejects(RealFlightLibrary.open(nodeDriver(':memory:'), ownerA, storeA, hash,
     () => ({ ownerId: ownerB, storeId: storeB, leaseId: 'foreign', writable: true })), /Unauthorized/);
   await assert.rejects(a.library.prepareImport(source('capture-foreign-account', [row('501')], '20202')), /expected provider account|differs from the immutable/);
+  const changedClub = source('capture-changed-club', [row('501')]);
+  changedClub.contextBefore.clubLabel = changedClub.contextAfter.clubLabel = 'Another observed club';
+  await assert.rejects(a.library.prepareImport(changedClub), /Source club context changed/);
+  assert.deepEqual(await a.library.snapshot(), before);
   const staleSource = source('capture-stale-plan', [row('502')]), stalePlan = await a.library.prepareImport(staleSource);
   await save(a.library, source('capture-advance', []), 41);
   await assert.rejects(a.library.saveUnassigned({ kind: 'import-unassigned', commandId: commandId(42), baseGeneration: stalePlan.baseGeneration,
@@ -218,18 +262,28 @@ test('backup replay rejects semantic receipt/source corruption, unsupported vers
   const { library } = await setup(t); await bind(library, source('capture-bind-corrupt', [row('701')]), 60);
   await save(library, source('capture-corrupt', [row('701')]), 61);
   const graph = await library.snapshot(), backup = await library.exportBackup();
-  await assert.rejects(RealFlightLibrary.restoreValidated(nodeDriver(':memory:'), await reEnvelope(graph, candidate => {
+  await assertRestoreRejected(await reEnvelope(graph, candidate => {
     candidate.receipts[1]!.result_json = canonical({ commandId: 'changed' });
-  }), ownerA, storeA, hash, () => ({ ownerId: ownerA, storeId: storeA, leaseId: 'restore-a', writable: true })), /receipt semantics/);
-  await assert.rejects(RealFlightLibrary.restoreValidated(nodeDriver(':memory:'), await reEnvelope(graph, candidate => {
+  }), ownerA, storeA, 'restore-a', /receipt semantics/);
+  await assertRestoreRejected(await reEnvelope(graph, candidate => {
     const capture = candidate.records.find(record => record.kind === 'capture' && record.id === 'capture-corrupt')!;
     const value = JSON.parse(capture.payload); value.source.capture.rawCaptureSha256 = 'f'.repeat(64); capture.payload = canonical(value);
-  }), ownerA, storeA, hash, () => ({ ownerId: ownerA, storeId: storeA, leaseId: 'restore-b', writable: true })), /record graph/);
+  }), ownerA, storeA, 'restore-b', /record graph/);
   const unsupported = await reEnvelope(graph, candidate => { candidate.version = 2; });
-  await assert.rejects(RealFlightLibrary.restoreValidated(nodeDriver(':memory:'), unsupported, ownerA, storeA, hash,
-    () => ({ ownerId: ownerA, storeId: storeA, leaseId: 'restore-c', writable: true })), /backup version/);
-  await assert.rejects(RealFlightLibrary.restoreValidated(nodeDriver(':memory:'), backup, ownerB, storeB, hash,
-    () => ({ ownerId: ownerB, storeId: storeB, leaseId: 'restore-d', writable: true })), /Foreign real flight history backup/);
+  await assertRestoreRejected(unsupported, ownerA, storeA, 'restore-c', /backup version/);
+  await assertRestoreRejected(backup, ownerB, storeB, 'restore-d', /Foreign real flight history backup/);
+  await assertRestoreRejected(backup, ownerA, storeA, 'restore-e', /injected restore failure/, async stage => {
+    if (stage === 'restore-record') throw new Error('injected restore failure');
+  });
+  const callerOwnedDb = nodeDriver(':memory:');
+  const closeUnderlying = callerOwnedDb.close.bind(callerOwnedDb); let closeCount = 0;
+  callerOwnedDb.close = async () => { closeCount++; if (closeCount > 1) throw new Error('Driver closed more than once'); await closeUnderlying(); };
+  await assert.rejects(RealFlightLibrary.restoreValidated(callerOwnedDb,backup,ownerA,storeA,hash,
+    () => ({ownerId:ownerA,storeId:storeA,leaseId:'restore-f',writable:true}),async stage => {
+      if (stage === 'restore-record') throw new Error('original restore failure');
+    }),/original restore failure/);
+  assert.equal(closeCount,0,'restore factory leaves the supplied Driver with its caller on failure');
+  await callerOwnedDb.close(); assert.equal(closeCount,1);
   assert.equal(graph.generation, 2);
 });
 

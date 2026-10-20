@@ -4,43 +4,79 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Crypto from 'expo-crypto';
 import { hash } from '../storage';
 import { useAccessController } from '../vereinsflieger/use-access-controller';
-import { openOwnerRegistry, createRealFlightCandidate, openRealFlightSelection, openRealFlightCommandJournal,
+import { openOwnerRegistry, openRealFlightCandidate, resumeInitialRealFlightCandidate, openRealFlightSelection,
+  openRealFlightCommandJournal, RealFlightCandidateMissingError, RealFlightUninitializedStoreError,
   type RealFlightNativeScope } from '../vereinsflieger/real-flight-native';
 import type { RealOwnerLease, RealOwnerRegistry } from '../vereinsflieger/real-owner-registry';
+import { continueRealFlightOwnerSetup } from '../vereinsflieger/real-flight-owner-setup';
 import { RealFlightService, PendingRealFlightOperation, type OwnFlightStoredSnapshot, type RealFlightReview,
   type RealFlightRecovery } from '../vereinsflieger/real-flight-service';
 import type { RealFlightDetail, RealFlightListItem } from '../vereinsflieger/real-flight-library';
 import type { RealFlightSourceInput } from '../vereinsflieger/real-flight-source';
-import { saveRealFlightBackupToFolder, restoreRealFlightBackup } from '../vereinsflieger/real-flight-backup-native';
+import { canCancelCoreFlightSource, mayReviewCoreFlightCapture, shouldDeferCoreFlightSourceRejection,
+  type CoreFlightReviewAdmission } from './core-flight-review-policy';
+import { saveRealFlightBackupToFolder, restoreRealFlightBackup, resumeRealFlightBackup,
+  type RestoreRealFlightBackupResult } from '../vereinsflieger/real-flight-backup-native';
+import type { RealFlightRestorePreparation } from '../vereinsflieger/real-flight-selection';
 import { ProviderConnection } from './ProviderConnection';
 import { Action, Card, Label, Section, colors } from './theme';
 
 export function CoreFlightFoundation({ close }: {close: () => void}) {
   const registry = useRef<RealOwnerRegistry | null>(null), alive = useRef(true), lock = useRef(false);
-  const [lease,setLease] = useState<RealOwnerLease | null>(null), [loading,setLoading] = useState(true), [error,setError] = useState(false);
+  const [lease,setLease] = useState<RealOwnerLease | null>(null), [setupLease,setSetupLease] = useState<RealOwnerLease | null>(null);
+  const [loading,setLoading] = useState(true), [error,setError] = useState(false);
+
+  async function finishOwnerSetup(selected: RealOwnerLease, current: RealOwnerRegistry, createMissing: boolean) {
+    const scope: RealFlightNativeScope = {
+      registry: current,
+      lease: selected,
+      authorize: () => alive.current ? {ownerId:selected.ownerId,storeId:selected.storeId,leaseId:selected.leaseId,writable:true} : null,
+    };
+    return continueRealFlightOwnerSetup(selected, {
+      openCandidate: name => openRealFlightCandidate(scope,name),
+      isMissingCandidate: error => error instanceof RealFlightCandidateMissingError,
+      isUninitializedStore: error => error instanceof RealFlightUninitializedStoreError,
+      resumeInitialCandidate: () => resumeInitialRealFlightCandidate(scope),
+      openSelection: create => openRealFlightSelection(scope,create),
+      openCommandJournal: create => openRealFlightCommandJournal(scope,create),
+      uuid: Crypto.randomUUID,
+    }, createMissing);
+  }
+
   useEffect(()=>{
     alive.current = true;
     void (async()=>{
       const opened = await openOwnerRegistry(false);
       if (!alive.current) { await opened?.close(); return; }
       registry.current = opened; const selected = await opened?.currentOwner();
-      if (alive.current) setLease(selected ?? null);
+      if (!alive.current) return;
+      if (!selected || !opened) return;
+      let ready = false;
+      try { ready = await finishOwnerSetup(selected,opened,false); } catch { /* Keep the selected owner and its files available for explicit recovery. */ }
+      if (!alive.current) return;
+      if (ready) setLease(selected);
+      else { setSetupLease(selected); setError(true); }
     })().catch(()=>{if(alive.current)setError(true);}).finally(()=>{if(alive.current)setLoading(false);});
     return ()=>{alive.current=false;void registry.current?.close();};
   },[]);
   useEffect(()=>{const subscription=BackHandler.addEventListener('hardwareBackPress',()=>{if(!lock.current&&!loading&&!lease)close();return true;});return()=>subscription.remove();},[close,loading,lease]);
-  async function create() {
+  async function resumeSelected() {
+    const selected=setupLease,current=registry.current;
+    if(lock.current||!selected||!current)return; lock.current=true;setLoading(true);setError(false);
+    try {
+      if(!await finishOwnerSetup(selected,current,true))throw new Error('Selected owner setup remains incomplete.');
+      if(alive.current){setLease(selected);setSetupLease(null);setError(false);}
+    } catch {if(alive.current){setSetupLease(selected);setError(true);}}
+    finally {lock.current=false;if(alive.current)setLoading(false);}
+  }
+  async function createFreshOwner() {
     if(lock.current)return; lock.current=true;setLoading(true);setError(false);
     try {
       const current = registry.current ?? await openOwnerRegistry(true); if(!current)throw new Error('Owner registry unavailable.');registry.current=current;
       const selected=await current.createFreshOwner(new Date().toISOString());
-      const scope:RealFlightNativeScope={registry:current,lease:selected,authorize:()=>alive.current ? {ownerId:selected.ownerId,storeId:selected.storeId,leaseId:selected.leaseId,writable:true} : null};
-      const candidate=await createRealFlightCandidate(scope,selected.candidateName,{singleton:1,family:'moflight-real-flight-history',schema_version:1,payload_version:1,
-        owner_id:selected.ownerId,store_id:selected.storeId,created_at:selected.createdAt});await candidate.close();
-      const journal=await openRealFlightSelection(scope,true);if(!journal)throw new Error('Selection journal unavailable.');
-      try {await journal.activate(Crypto.randomUUID(),selected.candidateName,null,new Date().toISOString());} finally {await journal.close();}
-      const commands=await openRealFlightCommandJournal(scope,true);if(!commands)throw new Error('Command journal unavailable.');await commands.close();
-      if(alive.current)setLease(selected);
+      if(alive.current){setLease(null);setSetupLease(selected);}
+      if(!await finishOwnerSetup(selected,current,true))throw new Error('New owner setup remains incomplete.');
+      if(alive.current){setLease(selected);setSetupLease(null);setError(false);}
     } catch {if(alive.current)setError(true);}
     finally {lock.current=false;if(alive.current)setLoading(false);}
   }
@@ -51,19 +87,25 @@ export function CoreFlightFoundation({ close }: {close: () => void}) {
       <Action secondary disabled={loading} onPress={close}>Zur App zurück</Action>
       <Card><Label>Neue lokale Bibliothek für deine eigenen Flüge</Label><Label muted>Bestehende Belege, Testbibliotheken und Anbietersitzung bleiben getrennt erhalten. Hier werden keine alten Daten übernommen.</Label></Card>
       {loading&&<ActivityIndicator color={colors.cyan}/>}
+      {setupLease&&<Card><Label>Eine vorhandene Einrichtung für deine ausgewählte Bibliothek ist noch nicht vollständig.</Label><Label muted>Die ursprüngliche Datei wird geprüft. Nur tatsächlich fehlende Dateien dürfen ergänzt werden; vorhandene unlesbare Dateien bleiben erhalten.</Label></Card>}
       {error&&<Card><Label>Die Einrichtung konnte nicht bestätigt werden. Bestehende Dateien bleiben erhalten.</Label></Card>}
-      <Action disabled={loading} onPress={()=>void create()}>Neue lokale Flugbibliothek anlegen</Action>
+      {setupLease&&<Action disabled={loading} onPress={()=>void resumeSelected()}>Vorhandene Einrichtung fortsetzen</Action>}
+      {setupLease
+        ? <Action secondary disabled={loading} onPress={()=>void createFreshOwner()}>Stattdessen neue lokale Bibliothek anlegen</Action>
+        : <Action disabled={loading} onPress={()=>void createFreshOwner()}>Neue lokale Flugbibliothek anlegen</Action>}
     </View>
   </ScrollView></SafeAreaView>;
 }
 
-type WaitingSource = {request:{from:string;to:string};resolve:(source:RealFlightSourceInput)=>void;reject:(error:Error)=>void;started:boolean;seenBusy:boolean;timer:ReturnType<typeof setTimeout>;signal:AbortSignal;abort:()=>void};
+type WaitingSource = {request:{from:string;to:string};resolve:(source:RealFlightSourceInput)=>void;reject:(error:Error)=>void;started:boolean;seenBusy:boolean;suppressReview:boolean;generation:number;timer:ReturnType<typeof setTimeout>;signal:AbortSignal;abort:()=>void};
 function OwnerFlightLibrary({lease,registry,close}:{lease:RealOwnerLease;registry:RealOwnerRegistry;close:()=>void}) {
   const c=useAccessController(true,lease.ownerId), controller=useRef(c);controller.current=c;
   const alive=useRef(true),foreground=useRef(AppState.currentState==='active'),lock=useRef(false),waiting=useRef<WaitingSource|null>(null);
+  const reviewGeneration=useRef(0),directAdmission=useRef<CoreFlightReviewAdmission|null>(null),invalidatedRetrievals=useRef(new Set<string>());
   const [busy,setBusy]=useState(false),[providerOpen,setProviderOpen]=useState(false),[message,setMessage]=useState(''),[failed,setFailed]=useState(false);
   const [review,setReview]=useState<RealFlightReview|null>(null),[flights,setFlights]=useState<RealFlightListItem[]>([]),[page,setPage]=useState(0);
   const [snapshot,setSnapshot]=useState<OwnFlightStoredSnapshot|null>(null),[detail,setDetail]=useState<RealFlightDetail|null>(null),[recovery,setRecovery]=useState<RealFlightRecovery>({status:'none'});
+  const [restorePreparations,setRestorePreparations]=useState<RealFlightRestorePreparation[]>([]),[restoreReadWarning,setRestoreReadWarning]=useState<string|null>(null);
   const handledCapture=useRef<string|null>(null);
   const [reviewRow,setReviewRow]=useState<number|null>(null);
   const scope=useMemo<RealFlightNativeScope>(()=>({registry,lease,authorize:()=>alive.current ? {ownerId:lease.ownerId,storeId:lease.storeId,leaseId:lease.leaseId,writable:foreground.current} : null}),[registry,lease]);
@@ -83,14 +125,45 @@ function OwnerFlightLibrary({lease,registry,close}:{lease:RealOwnerLease;registr
     journal:async()=>{const journal=await openRealFlightCommandJournal(scope);if(!journal)throw new Error('Prepared-save journal unavailable.');return journal;},
     retrieve:async(request,signal)=>new Promise((resolve,reject)=>{
       if(waiting.current||signal.aborted){reject(new Error('Source request unavailable.'));return;}
-      const abort=()=>{controller.current.cancelRetrieval();finishSource(new Error('Source request cancelled.'));};
-      const timer=setTimeout(()=>finishSource(new Error('Source request timed out; saved history remains.')),180_000);
-      waiting.current={request,resolve,reject,started:false,seenBusy:false,timer,signal,abort};signal.addEventListener('abort',abort,{once:true});
+      let pending:WaitingSource|null=null;
+      const abort=()=>{
+        if(!pending)return;pending.suppressReview=true;
+        const current=controller.current,state=current.retrieval.current.state;
+        if(shouldDeferCoreFlightSourceRejection(state.phase,current.saving,current.restoring.current))return;
+        if(state.phase==='loading')current.cancelRetrieval();
+        finishSource(new Error('Source request cancelled.'));
+      };
+      const timer=setTimeout(()=>abandonSource('Source request timed out; saved history remains.'),180_000);
+      pending={request,resolve,reject,started:false,seenBusy:false,suppressReview:false,generation:reviewGeneration.current,timer,signal,abort};
+      waiting.current=pending;signal.addEventListener('abort',abort,{once:true});
       controller.current.setFrom(request.from);controller.current.setTo(request.to);setProviderOpen(true);
       if(!controller.current.browserActive)controller.current.connect();
     }),
   }),[lease,scope]);
+  function abandonSource(reason:string) {
+    const pending=waiting.current,current=controller.current,state=current.retrieval.current.state;
+    if(pending)pending.suppressReview=true;
+    const defer=pending&&shouldDeferCoreFlightSourceRejection(state.phase,current.saving,current.restoring.current);
+    service.cancelReview();
+    if(pending&&waiting.current===pending&&!defer){if(state.phase==='loading')current.cancelRetrieval();finishSource(new Error(reason));}
+  }
+  async function refreshRestorePreparations() {
+    let selection: Awaited<ReturnType<typeof openRealFlightSelection>> = null;
+    try {
+      selection=await openRealFlightSelection(scope,false);
+      if(!selection)throw new Error('Restore journal unavailable.');
+      const preparations=await selection.listRestorePreparations();
+      if(alive.current){setRestorePreparations(preparations);setRestoreReadWarning(null);}
+    } catch {
+      if(alive.current)setRestoreReadWarning('Der Status vorbereiteter Wiederherstellungen konnte nicht gelesen werden. Vorherige Hinweise bleiben erhalten.');
+    } finally {
+      try { await selection?.close(); }
+      catch { if(alive.current)setRestoreReadWarning('Der Status vorbereiteter Wiederherstellungen konnte nicht sicher geschlossen werden. Vorherige Hinweise bleiben erhalten.'); }
+    }
+  }
   async function refresh() {
+    // Keep restore recovery discoverable even when opening the selected graph fails.
+    await refreshRestorePreparations();
     const next=await service.snapshot(),rows=await service.list(),pending=await service.recoverPending();
     if(alive.current){setSnapshot(next);setFlights(rows);setRecovery(pending);setPage(current=>Math.min(current,Math.max(0,Math.ceil(rows.length/5)-1)));}
   }
@@ -111,16 +184,25 @@ function OwnerFlightLibrary({lease,registry,close}:{lease:RealOwnerLease;registr
   useEffect(()=>{
     alive.current=true;void run(refresh);
     const subscription=AppState.addEventListener('change',state=>{
-      foreground.current=state==='active';if(state!=='active'){service.cancelReview();finishSource(new Error('App left foreground.'));setReview(null);}
+      foreground.current=state==='active';if(state!=='active'){
+        reviewGeneration.current++;
+        const retrieval=controller.current.retrieval.current.state;if(retrieval.phase!=='idle')invalidatedRetrievals.current.add(retrieval.nonce);
+        directAdmission.current=null;abandonSource('App left foreground.');setReview(null);
+      }
     });
-    return()=>{alive.current=false;service.dispose();finishSource(new Error('Library closed.'));subscription.remove();};
+    return()=>{
+      alive.current=false;const pending=waiting.current;if(pending)pending.suppressReview=true;service.dispose();
+      const current=controller.current,state=current.retrieval.current.state;
+      if(waiting.current&& !shouldDeferCoreFlightSourceRejection(state.phase,current.saving,current.restoring.current))finishSource(new Error('Library closed.'));
+      subscription.remove();
+    };
   },[service]);
   useEffect(()=>{
     const subscription=BackHandler.addEventListener('hardwareBackPress',()=>{
       if(lock.current||controller.current.busy)return true;
       if(providerOpen){
         if(controller.current.visible&&controller.current.backWithinProvider())return true;
-        controller.current.dismissLogin();setProviderOpen(false);service.cancelReview();finishSource(new Error('Source closed.'));return true;
+        controller.current.dismissLogin();setProviderOpen(false);abandonSource('Source closed.');return true;
       }
       if(detail){setDetail(null);return true;}
       if(review){service.cancelReview();setReview(null);return true;}
@@ -130,19 +212,56 @@ function OwnerFlightLibrary({lease,registry,close}:{lease:RealOwnerLease;registr
   useEffect(()=>{
     const pending=waiting.current;
     if(!pending){
-      if(!lock.current&&!c.busy&&!c.recovery&&c.completedFlightSource&&handledCapture.current!==c.completedFlightSource.capture.captureId){
-        handledCapture.current=c.completedFlightSource.capture.captureId;
-        const input=c.completedFlightSource;void run(async()=>{setReview(await prepareSourceReview(await service.reviewSource(input)));setReviewRow(null);setProviderOpen(false);});
+      const retrieval=c.retrieval.current.state;
+      if(retrieval.phase==='loading'&&foreground.current&&!invalidatedRetrievals.current.has(retrieval.nonce)){
+        if(directAdmission.current?.nonce!==retrieval.nonce)directAdmission.current={nonce:retrieval.nonce,generation:reviewGeneration.current,
+          previousCaptureId:c.completedFlightSource?.capture.captureId??null};
+      }
+      if(retrieval.phase==='idle'&&['failed','cancelled'].includes(c.result))directAdmission.current=null;
+      const input=c.completedFlightSource;
+      if(input&&mayReviewCoreFlightCapture({admission:directAdmission.current,generation:reviewGeneration.current,foreground:foreground.current,
+        retrievalPhase:retrieval.phase,saving:c.saving,restoring:c.restoring.current,busy:c.busy,recovery:c.recovery,
+        captureId:input.capture.captureId,handledCaptureId:handledCapture.current})){
+        handledCapture.current=input.capture.captureId;directAdmission.current=null;
+        void run(async()=>{setReview(await prepareSourceReview(await service.reviewSource(input)));setReviewRow(null);setProviderOpen(false);});
       }
       return;
     }
+    if(pending.suppressReview&&!c.busy&&!c.saving&&!c.restoring.current){finishSource(new Error('Source review cancelled.'));return;}
     if(!pending.started&&c.from===pending.request.from&&c.to===pending.request.to&&c.connection.confirmed&&c.viewReady&&!c.recovery&&!c.busy&&!c.visible){pending.started=true;c.checkConnection('retrieve');}
     if(c.busy)pending.seenBusy=true;
-    if(pending.started&&pending.seenBusy&&!c.busy&&!c.recovery&&c.completedFlightSource){handledCapture.current=c.completedFlightSource.capture.captureId;setProviderOpen(false);setReviewRow(null);finishSource(undefined,c.completedFlightSource);}
+    if(pending.started&&pending.seenBusy&&!c.busy&&!c.recovery&&c.completedFlightSource){
+      if(pending.suppressReview||!foreground.current||pending.generation!==reviewGeneration.current){service.cancelReview();finishSource(new Error('Source review cancelled.'));}
+      else {handledCapture.current=c.completedFlightSource.capture.captureId;setProviderOpen(false);setReviewRow(null);finishSource(undefined,c.completedFlightSource);}
+    }
     else if(pending.seenBusy&&!c.busy&&['failed','cancelled'].includes(c.result))finishSource(new Error('Source retrieval did not complete.'));
   },[c]);
   const gate=async()=>{if(!alive.current)throw new Error('Library closed.');await registry.assertCurrent(lease);};
+  async function showRestoreResult(result:RestoreRealFlightBackupResult) {
+    if(result.state==='restored'){
+      service.cancelReview();setReview(null);
+      try{await refresh();}catch{if(alive.current)setFailed(true);}
+      if(alive.current)setMessage(result.warning??'Geprüfte Sicherung in einer neuen Datei aktiviert. Vorherige Dateien bleiben erhalten.');
+      return;
+    }
+    if(result.state==='already-activated'){
+      service.cancelReview();setReview(null);
+      try{await refresh();}catch{if(alive.current)setFailed(true);}
+      if(alive.current)setMessage('Diese vorbereitete Sicherung ist bereits aktiviert.');
+      return;
+    }
+    if(result.state==='recovery-required'){
+      await refreshRestorePreparations();
+      if(alive.current)setMessage(result.reason==='stale-predecessor'
+        ? 'Die vorbereitete Wiederherstellung hat einen veralteten Vorgänger. Dateien bleiben zur Prüfung erhalten; eine automatische Aktivierung ist gesperrt.'
+        : 'Die Wiederherstellung ist vorbereitet, aber noch nicht vollständig bestätigt. Sie bleibt für eine ausdrückliche Fortsetzung erhalten.');
+      return;
+    }
+    if(alive.current)setMessage('Dateiauswahl abgebrochen.');
+  }
   const coverage=snapshot?.coverage.at(-1)?.coverage;
+  const unresolvedRestores=restorePreparations.filter(preparation=>preparation.status!=='activated');
+  const restoreReadOnly=snapshot===null||snapshot.recovery.readOnly||restoreReadWarning!==null||unresolvedRestores.length>0;
   return <SafeAreaView style={{flex:1,backgroundColor:colors.background}}>
     <ScrollView contentContainerStyle={{padding:12}}><View style={{width:'100%',maxWidth:520,alignSelf:'center',gap:10}}>
       <Section title="Eigene Flugbibliothek" icon="flight-paper-plane"/>
@@ -151,7 +270,18 @@ function OwnerFlightLibrary({lease,registry,close}:{lease:RealOwnerLease;registr
         <Label muted>Originalwerte und Änderungen bleiben erhalten. Zeiten, Rollen und unbekannte Angaben werden nicht ergänzt. Keine Buchzuordnung, Statistik oder Papierfortschreibung.</Label>
         <Label muted>{coverage?.displayedWindow?`Letzter gespeicherter Zeitraum: ${coverage.displayedWindow.from} bis ${coverage.displayedWindow.to} · ${coverage.observedRecordCount} Datensätze.`:'Noch kein gespeicherter vollständiger Abrufzeitraum.'} Keine Aussage über die gesamte Fluggeschichte.</Label></Card>
       {(busy||c.busy)&&<ActivityIndicator color={colors.cyan} accessibilityLabel="Flugbibliothek wird verarbeitet"/>}
+      {failed&&snapshot===null&&<Card><Section title="Bibliothek nicht lesbar"/><Label>Die gespeicherte Auswahl konnte nicht geprüft werden. Abruf und Sicherung bleiben gesperrt. Du kannst eine geprüfte Sicherungsdatei ausdrücklich auswählen, um die Wiederherstellung zu versuchen; vorhandene Dateien bleiben erhalten.</Label></Card>}
       {snapshot?.recovery.readOnly&&<Card><Section title="Bibliothek nur lesbar"/><Label>Eine neuere oder abweichende gespeicherte Datei muss geprüft werden. Frühere Flüge bleiben lesbar; spätere Aufträge und Dateien werden erhalten. Neue Speicherung und Sicherung sind gesperrt.</Label></Card>}
+      {(unresolvedRestores.length>0||restoreReadWarning!==null)&&<Card><Section title="Vorbereitete Wiederherstellung"/>
+        {restoreReadWarning&&<Label>{restoreReadWarning}</Label>}
+        {unresolvedRestores.map(preparation=><View key={preparation.operationId} style={{gap:8}}>
+          <Label>{preparation.status==='pending'?'Eine Sicherungswiederherstellung wartet auf ausdrückliche Fortsetzung.':'Eine Sicherungswiederherstellung hat einen veralteten Vorgänger und bleibt zur Prüfung erhalten.'}</Label>
+          <Label muted>Die Vorbereitung wird aus der ausgewählten Sicherung geprüft. Keine Aktivierung erfolgt beim Öffnen oder Aktualisieren.</Label>
+          <Action secondary disabled={busy} onPress={()=>void run(async()=>{await showRestoreResult(await resumeRealFlightBackup(scope,preparation.operationId,gate));})}>
+            {preparation.status==='pending'?'Vorbereitete Sicherung fortsetzen':'Veraltete Vorbereitung erneut prüfen'}
+          </Action>
+        </View>)}
+      </Card>}
       {!!message&&<Card><Label>{message}</Label></Card>}
       {failed&&<Action secondary disabled={busy} onPress={()=>void run(refresh)}>Gespeicherte Bibliothek erneut prüfen</Action>}
       {recovery.status!=='none'&&<Card><Section title="Gespeicherten Auftrag prüfen"/><Label>{recovery.status==='committed'?'Der frühere Auftrag wurde gespeichert.':recovery.status==='not-committed'?'Für den ursprünglichen Auftrag ist noch kein gespeicherter Beleg vorhanden.':'Die Bibliothek benötigt eine Wiederherstellung. Spätere Dateien bleiben erhalten.'}</Label>
@@ -159,9 +289,10 @@ function OwnerFlightLibrary({lease,registry,close}:{lease:RealOwnerLease;registr
         {recovery.status==='not-committed'&&<Action disabled={busy} onPress={()=>void run(async()=>{await service.retryPending();await refresh();setMessage('Ursprünglicher Auftrag gespeichert.');})}>Ursprünglichen Auftrag erneut versuchen</Action>}
       </Card>}
       <Card><Section title="Eigene Flüge abrufen" icon="refresh"/><Label muted>Zeitraum: {c.from} bis {c.to} einschließlich. Anmeldung und Quellenprüfung erfolgen auf der Originalseite.</Label>
-        <Action disabled={busy||snapshot?.recovery.readOnly||recovery.status==='not-committed'||recovery.status==='recovery-required'} onPress={()=>void run(async()=>{setReview(await prepareSourceReview(await service.retrieve({from:c.from,to:c.to})));})}>Eigene Flüge jetzt abrufen</Action>
+        <Action disabled={busy||restoreReadOnly||recovery.status==='not-committed'||recovery.status==='recovery-required'} onPress={()=>void run(async()=>{setReview(await prepareSourceReview(await service.retrieve({from:c.from,to:c.to})));})}>Eigene Flüge jetzt abrufen</Action>
         <Action secondary disabled={busy} onPress={()=>{setProviderOpen(true);if(!c.browserActive)c.connect();}}>Anbieter und Zeitraum öffnen</Action>
-        {waiting.current&&<Action secondary onPress={()=>{service.cancelReview();controller.current.cancelRetrieval();finishSource(new Error('Cancelled.'));}}>Abruf abbrechen</Action>}
+        {waiting.current&&<Action secondary disabled={!canCancelCoreFlightSource(c.retrieval.current.state.phase,c.saving,c.restoring.current)}
+          onPress={()=>abandonSource('Cancelled.')}>Abruf abbrechen</Action>}
       </Card>
       {review&&<Card><Section title="Abruf prüfen"/>
         <Label>{review.source.capture.rows.length} Quellzeilen · {review.source.requestedWindow.from} bis {review.source.requestedWindow.to}</Label>
@@ -184,10 +315,10 @@ function OwnerFlightLibrary({lease,registry,close}:{lease:RealOwnerLease;registr
         <Action secondary onPress={()=>setDetail(null)}>Flugdetails schließen</Action>
       </Card>}
       <Card><Section title="Sicherung dieser Flugbibliothek" icon="book"/><Label muted>Enthält eigene gespeicherte Flüge, Originalbelege, Fassungen und Importbelege. Unverschlüsselt. Alte Teststände, andere Rohbelege und Anmeldungen sind nicht enthalten.</Label>
-        <Action disabled={busy||snapshot?.recovery.readOnly} onPress={()=>void run(async()=>{const result=await saveRealFlightBackupToFolder(service,gate);setMessage(result.state==='saved'?'Sicherung im gewählten Ordner gespeichert und zurückgelesen.':'Ordnerauswahl abgebrochen.');})}>Flugbibliothek in Geräteordner sichern</Action>
-        <Action secondary disabled={busy} onPress={()=>void run(async()=>{const result=await restoreRealFlightBackup(scope,gate);if(result.state==='restored'){service.cancelReview();setReview(null);await refresh();setMessage('Geprüfte Sicherung in einer neuen Datei aktiviert. Vorherige Dateien bleiben erhalten.');}else setMessage('Dateiauswahl abgebrochen.');})}>Sicherung dieser Bibliothek wiederherstellen</Action>
+        <Action disabled={busy||restoreReadOnly} onPress={()=>void run(async()=>{const result=await saveRealFlightBackupToFolder(service,gate);setMessage(result.state==='saved'?'Sicherung im gewählten Ordner gespeichert und zurückgelesen.':'Ordnerauswahl abgebrochen.');})}>Flugbibliothek in Geräteordner sichern</Action>
+        <Action secondary disabled={busy} onPress={()=>void run(async()=>{await showRestoreResult(await restoreRealFlightBackup(scope,gate));})}>Sicherung dieser Bibliothek wiederherstellen</Action>
       </Card>
     </View></ScrollView>
-    <ProviderConnection controller={c} open={providerOpen} purpose="own-flight-library" close={()=>{setProviderOpen(false);if(waiting.current){service.cancelReview();finishSource(new Error('Source closed.'));}}}/>
+    <ProviderConnection controller={c} open={providerOpen} purpose="own-flight-library" close={()=>{setProviderOpen(false);if(waiting.current)abandonSource('Source closed.');}}/>
   </SafeAreaView>;
 }

@@ -1,8 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
+import { canonical } from '../../packages/flight-logbook/src/index.ts';
 import { nodeDriver } from './sqlite-driver.ts';
-import { RealFlightSelection, IndeterminateRealActivation, type RealSelectionAuthorization, type RealSelectionGate, type RealSelectionSnapshot } from '../../apps/platform-lab/src/vereinsflieger/real-flight-selection.ts';
+import { RealFlightSelection, IndeterminateRealActivation, IndeterminateRealRestorePreparation, type RealSelectionAuthorization, type RealSelectionGate, type RealSelectionSnapshot } from '../../apps/platform-lab/src/vereinsflieger/real-flight-selection.ts';
 import { realHistoryCandidateName, type RealHistoryManifest } from '../../apps/platform-lab/src/vereinsflieger/real-history-contract.ts';
 
 const owner = '11111111-1111-4111-8111-111111111111', store = '22222222-2222-4222-8222-222222222222';
@@ -40,7 +41,7 @@ async function fixture(fault: (stage: string) => Promise<void> = async () => {})
   };
   const journal = await RealFlightSelection.open(db,owner,store,authorize,opener,hash,true,fault);
   function file(n: number, receipts: unknown[] = []) {
-    const name = realHistoryCandidateName(id(n)); files.set(name,{manifest:{...manifest},generation:receipts.length,receipts}); return name;
+    const name = realHistoryCandidateName(id(n)); files.set(name,{manifest:{...manifest},generation:receipts.length,receipts,records:[]}); return name;
   }
   return {db,journal,authorize,opener,files,opened,file,expireAfterNextFinalCheck:()=>{expireAtOpenIndex=opened.length+1;},
     switchOwner:()=>{permit={ownerId:id(99),storeId:store,leaseId:'lease-two',writable:true};},revoke:()=>{permit=null;}};
@@ -58,6 +59,55 @@ test('explicit validated activation selects a candidate; exact retry reuses one 
     await selected.candidate.write(); await selected.candidate.close();
     assert.equal((await f.db.first<{n:number}>('SELECT count(*) AS n FROM real_history_selection'))?.n,1);
     await assert.rejects(f.journal.activate(id(11),name,null,'2026-10-20T11:00:00.000Z'),/reused/);
+  } finally { await f.journal.close(); }
+});
+
+test('restore preparation is durable before activation, exact retries resolve first, and activated rows stay activated after later graph changes', async () => {
+  let stage = '';
+  const f = await fixture(async current => { if (current === stage) throw new Error('Injected interruption'); });
+  try {
+    const empty = await f.journal.inspect(); assert.equal(empty.state,'empty'); assert.equal(empty.headSequence,null); assert.equal(empty.selected,null);
+    const name = f.file(4,[{receipt:'restore'}]);
+    const graph = f.files.get(name)!;
+    const input = { operationId:id(44), candidateName:name, expectedGraphSha256:await hash(canonical(graph)), previousSequence:null, preparedAt:at };
+    stage = 'after-restore-preparation-commit';
+    await assert.rejects(f.journal.prepareRestore(input),IndeterminateRealRestorePreparation);
+    stage = '';
+    const pending = await f.journal.getRestorePreparation(id(44));
+    assert.equal(pending?.status,'pending'); assert.equal(pending?.candidateName,name);
+    await assert.rejects(f.db.exec('UPDATE real_history_restore_preparations SET candidate_name=candidate_name'),/Append-only/);
+    await assert.rejects(f.db.exec('DELETE FROM real_history_restore_preparations'),/Append-only/);
+    assert.deepEqual(await f.journal.prepareRestore(input),pending);
+    assert.equal(await f.journal.activatePreparedRestore(id(44)),1);
+    const activated = await f.journal.getRestorePreparation(id(44));
+    assert.equal(activated?.status,'activated'); assert.equal(activated?.activatedSequence,1);
+    f.files.set(name,{ ...graph, records:[...graph.records,{ later:'validly-appended-fact' }] });
+    assert.equal((await f.journal.listRestorePreparations())[0]?.status,'activated');
+    assert.equal(await f.journal.activatePreparedRestore(id(44)),1);
+    const inspection = await f.journal.inspect();
+    assert.equal(inspection.state,'selected');
+    if (inspection.selected) { assert.equal(inspection.selected.selectedAt,at); await inspection.selected.candidate.close(); }
+  } finally { await f.journal.close(); }
+});
+
+test('restore preparation detects changed graph and stale predecessor while preserving the preparation and candidate', async () => {
+  const f = await fixture();
+  try {
+    const restoreName = f.file(5,[{receipt:'reviewed'}]);
+    const reviewed = structuredClone(f.files.get(restoreName)!);
+    const prep = { operationId:id(45), candidateName:restoreName, expectedGraphSha256:await hash(canonical(reviewed)), previousSequence:null, preparedAt:at };
+    await f.journal.prepareRestore(prep);
+    f.files.set(restoreName,{ ...reviewed, records:[...reviewed.records,{ tampered:true }] });
+    await assert.rejects(f.journal.activatePreparedRestore(id(45)),/does not match reviewed backup/);
+    assert.equal((await f.journal.getRestorePreparation(id(45)))?.status,'pending');
+    f.files.set(restoreName,reviewed);
+    const activeName = f.file(6,[{receipt:'active'}]);
+    await f.journal.activate(id(46),activeName,null,at);
+    const stale = await f.journal.getRestorePreparation(id(45));
+    assert.equal(stale?.status,'stale');
+    await assert.rejects(f.journal.activatePreparedRestore(id(45)),/Stale restore preparation predecessor/);
+    assert.equal(f.files.has(restoreName),true);
+    assert.equal((await f.journal.select()).name,activeName);
   } finally { await f.journal.close(); }
 });
 
@@ -80,6 +130,9 @@ test('activation IDs cannot be replayed across owners and collisions reject befo
   let other: RealFlightSelection<Candidate> | undefined;
   try {
     const firstName = f.file(1); await f.journal.activate(id(11),firstName,null,at);
+    const restoreName = f.file(93);
+    await f.journal.prepareRestore({operationId:id(94),candidateName:restoreName,
+      expectedGraphSha256:await hash(canonical(f.files.get(restoreName)!)),previousSequence:1,preparedAt:at});
     const otherOwner = id(90), otherStore = id(91), otherName = realHistoryCandidateName(id(92));
     const otherManifest = {...manifest,owner_id:otherOwner,store_id:otherStore};
     let otherOpens = 0;
@@ -88,10 +141,13 @@ test('activation IDs cannot be replayed across owners and collisions reject befo
     const otherOpener = async (name: string, authorize: RealSelectionAuthorization, gate?: RealSelectionGate) => {
       otherOpens++;
       assert.equal(name,otherName);
-      return new Candidate({manifest:otherManifest,generation:0,receipts:[]},authorize,gate);
+      return new Candidate({manifest:otherManifest,generation:0,receipts:[],records:[]},authorize,gate);
     };
     other = await RealFlightSelection.open(f.db,otherOwner,otherStore,otherAuthorize,otherOpener,hash);
     await assert.rejects(other.activate(id(11),otherName,null,at),/Activation ID already belongs/);
+    assert.equal(await other.getRestorePreparation(id(94)),null);
+    await assert.rejects(other.prepareRestore({operationId:id(94),candidateName:otherName,expectedGraphSha256:'a'.repeat(64),
+      previousSequence:null,preparedAt:at}),/reused with changed input/);
     assert.equal(otherOpens,0);
     assert.equal((await f.db.first<{n:number}>('SELECT count(*) AS n FROM real_history_selection'))?.n,1);
     assert.equal(await f.journal.activate(id(11),firstName,null,at),1);
@@ -124,6 +180,7 @@ test('missing newest candidate visibly falls back read-only without deleting eit
     await assert.rejects(result.candidate.write(),/recovery|Read-only/); await result.candidate.close();
     assert.equal((await f.db.first<{n:number}>('SELECT count(*) AS n FROM real_history_selection'))?.n,2);
     f.files.delete(one); await assert.rejects(f.journal.select(),/No readable/);
+    const inspection = await f.journal.inspect(); assert.equal(inspection.state,'unreadable'); assert.equal(inspection.headSequence,2);
   } finally { await f.journal.close(); }
 });
 

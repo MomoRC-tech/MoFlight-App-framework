@@ -2,6 +2,7 @@ import * as Crypto from 'expo-crypto';
 import { File } from 'expo-file-system';
 import * as SQLite from 'expo-sqlite';
 import type { Hash } from '@moflight/local-data';
+import { canonical } from '@moflight/flight-logbook';
 import { hash, openDriver } from '../storage';
 import { RealFlightCommandJournal } from './real-flight-command-journal';
 import { RealFlightLibrary, type RealFlightAccessGate, type RealFlightAuthorization, type RealFlightFault } from './real-flight-library';
@@ -21,6 +22,9 @@ export class RealFlightCandidateMissingError extends Error {
   constructor(readonly candidateName: string) {
     super('Real flight candidate is missing; preserved for recovery.');
   }
+}
+export class RealFlightUninitializedStoreError extends Error {
+  constructor(readonly fileName: string) { super('Reserved real flight store needs explicit setup continuation.'); }
 }
 
 export interface RealFlightNativePermit {
@@ -60,8 +64,10 @@ export interface RealFlightNativeAdapter {
     fault?: RealFlightFault, selectionGate?: RealSelectionGate): Promise<RealFlightLibrary>;
   restoreRealFlightCandidate(scope: RealFlightNativeScope, name: string, text: string,
     fault?: RealFlightFault, selectionGate?: RealSelectionGate): Promise<RealFlightLibrary>;
+  resumePreparedRealFlightCandidate(scope: RealFlightNativeScope, operationId: string, text: string): Promise<RealFlightLibrary>;
   openRealFlightCandidate(scope: RealFlightNativeScope, name: string,
     selectionGate?: RealSelectionGate): Promise<RealFlightLibrary>;
+  resumeInitialRealFlightCandidate(scope: RealFlightNativeScope): Promise<RealFlightLibrary>;
   createRealFlightCandidateOpener(scope: RealFlightNativeScope): RealCandidateOpener<RealFlightLibrary>;
   openRealFlightSelection(scope: RealFlightNativeScope, createExplicitly?: boolean,
     fault?: (stage: string) => Promise<void>): Promise<RealFlightSelection<RealFlightLibrary> | null>;
@@ -125,6 +131,19 @@ function reserveFile(file: RealFlightNativeFile): void {
   if (!file.exists) throw new Error('Could not reserve real flight database; existing state preserved.');
 }
 
+async function emptyDatabase(db: Awaited<ReturnType<typeof openDriver>>): Promise<boolean> {
+  return (await db.first<{user_version:number}>('PRAGMA user_version'))?.user_version === 0 &&
+    !(await db.first('SELECT name FROM sqlite_master LIMIT 1'));
+}
+
+async function initializeMode(db: Awaited<ReturnType<typeof openDriver>>, fileName: string,
+  existed: boolean, explicit: boolean): Promise<boolean> {
+  if (!existed) return true;
+  if (!await emptyDatabase(db)) return false;
+  if (!explicit) throw new RealFlightUninitializedStoreError(fileName);
+  return true;
+}
+
 function candidateGate(scope: RealFlightNativeScope, authorize: RealFlightNativeAuthorization,
   selectionGate?: RealSelectionGate): RealFlightAccessGate {
   return async write => { await assertScope(scope, authorize, write, selectionGate); };
@@ -147,9 +166,9 @@ export function createRealFlightNativeAdapter(
     let db: Awaited<ReturnType<typeof openDriver>> | null = null;
     try {
       db = await dependencies.openDriver(REAL_OWNER_REGISTRY_FILE_NAME);
-      return existed
-        ? await RealOwnerRegistry.open(db, dependencies.uuid)
-        : await RealOwnerRegistry.create(db, dependencies.uuid, dependencies.now());
+      return await initializeMode(db, REAL_OWNER_REGISTRY_FILE_NAME, existed, createExplicitly)
+        ? await RealOwnerRegistry.create(db, dependencies.uuid, dependencies.now())
+        : await RealOwnerRegistry.open(db, dependencies.uuid);
     } catch (error) {
       if (db) await db.close();
       throw error;
@@ -230,6 +249,7 @@ export function createRealFlightNativeAdapter(
     try {
       db = await dependencies.openDriver(name);
       await assertScope(scope, authorize, false, selectionGate);
+      if (await emptyDatabase(db)) throw new RealFlightUninitializedStoreError(name);
       const gate = candidateGate(scope, authorize, selectionGate);
       const permit = readPermit(scope, authorize, false);
       library = await RealFlightLibrary.open(db, permit.ownerId, permit.storeId, dependencies.hash,
@@ -245,6 +265,73 @@ export function createRealFlightNativeAdapter(
   async function openRealFlightCandidate(scope: RealFlightNativeScope, name: string,
     selectionGate = scope.selectionGate): Promise<RealFlightLibrary> {
     return openCandidateWith(scope, name, scope.authorize, selectionGate);
+  }
+
+  /** Resume only the exact reviewed graph and filename already recorded for this owner. */
+  async function resumePreparedRealFlightCandidate(scope: RealFlightNativeScope, operationId: string, text: string): Promise<RealFlightLibrary> {
+    realHistoryUuid(operationId);
+    const permit = await assertScope(scope, scope.authorize, true, scope.selectionGate);
+    const graph = await validateRealFlightBackup(text, permit.ownerId, permit.storeId, dependencies.hash);
+    const graphSha256 = await dependencies.hash(canonical(graph));
+    const preparation = await readPreparation();
+    const name = preparation.candidateName;
+    async function readPreparation() {
+      const selection = await openRealFlightSelection(scope, false);
+      if (!selection) throw new Error('Prepared restore journal is missing.');
+      try {
+        const pending = await selection.getRestorePreparation(operationId);
+        if (!pending || pending.status !== 'pending' || pending.expectedGraphSha256 !== graphSha256) {
+          throw new Error('Prepared restore is foreign, stale, or differs from the selected backup.');
+        }
+        return pending;
+      } finally { await selection.close(); }
+    }
+    const preparedGate: RealSelectionGate = async write => {
+      if (scope.selectionGate) await scope.selectionGate(write);
+      const current = await readPreparation();
+      if (current.candidateName !== name) throw new Error('Prepared restore candidate changed.');
+    };
+    await assertScope(scope, scope.authorize, true, preparedGate);
+    if (!databaseFile(dependencies, name).exists) {
+      return restoreRealFlightCandidate(scope, name, text, async () => {}, preparedGate);
+    }
+    let db: Awaited<ReturnType<typeof openDriver>> | null = null;
+    let library: RealFlightLibrary | null = null;
+    try {
+      db = await dependencies.openDriver(name);
+      await assertScope(scope, scope.authorize, true, preparedGate);
+      const gate = candidateGate(scope, scope.authorize, preparedGate);
+      library = await emptyDatabase(db)
+        ? await RealFlightLibrary.restoreValidated(db, text, permit.ownerId, permit.storeId, dependencies.hash, scope.authorize, async () => {}, gate)
+        : await RealFlightLibrary.restoreIntoEmptyValidated(db, text, permit.ownerId, permit.storeId, dependencies.hash, scope.authorize, async () => {}, gate);
+      await assertScope(scope, scope.authorize, true, preparedGate);
+      return library;
+    } catch (error) {
+      if (library) await library.close(); else if (db) await db.close();
+      throw error;
+    }
+  }
+
+  /** Explicit continuation may initialize only the selected owner's original, strictly empty reserved file. */
+  async function resumeInitialRealFlightCandidate(scope: RealFlightNativeScope): Promise<RealFlightLibrary> {
+    const name = validateRealHistoryCandidateName(scope.lease.candidateName);
+    await assertScope(scope, scope.authorize, true, scope.selectionGate);
+    const manifest: RealHistoryManifest = { singleton: 1, family: 'moflight-real-flight-history',
+      schema_version: 1, payload_version: 1, owner_id: scope.lease.ownerId, store_id: scope.lease.storeId,
+      created_at: scope.lease.createdAt };
+    if (!databaseFile(dependencies, name).exists) return createRealFlightCandidate(scope, name, manifest);
+    let db: Awaited<ReturnType<typeof openDriver>> | null = await dependencies.openDriver(name);
+    try {
+      await assertScope(scope, scope.authorize, true, scope.selectionGate);
+      if (!await emptyDatabase(db)) {
+        await db.close(); db = null;
+        return openRealFlightCandidate(scope, name);
+      }
+      const library = await RealFlightLibrary.create(db, manifest, dependencies.hash, scope.authorize,
+        async () => {}, candidateGate(scope, scope.authorize, scope.selectionGate));
+      db = null;
+      return library;
+    } finally { if (db) await db.close(); }
   }
 
   function createRealFlightCandidateOpener(scope: RealFlightNativeScope): RealCandidateOpener<RealFlightLibrary> {
@@ -268,7 +355,7 @@ export function createRealFlightNativeAdapter(
       await assertScope(scope, scope.authorize, createExplicitly, scope.selectionGate);
       selection = await RealFlightSelection.open(db, permit.ownerId, permit.storeId,
         nativeSelectionAuthorization(scope.authorize), createRealFlightCandidateOpener(scope), dependencies.hash,
-        !existed, fault);
+        await initializeMode(db, REAL_FLIGHT_SELECTION_FILE_NAME, existed, createExplicitly), fault);
       await assertScope(scope, scope.authorize, createExplicitly, scope.selectionGate);
       return selection;
     } catch (error) {
@@ -293,7 +380,9 @@ export function createRealFlightNativeAdapter(
       db = await dependencies.openDriver(REAL_FLIGHT_COMMAND_JOURNAL_FILE_NAME);
       await assertScope(scope, scope.authorize, createExplicitly, scope.selectionGate);
       journal = await RealFlightCommandJournal.open(db, permit.ownerId, permit.storeId,
-        scope.authorize, dependencies.hash, !existed, candidateGate(scope, scope.authorize, scope.selectionGate));
+        scope.authorize, dependencies.hash,
+        await initializeMode(db, REAL_FLIGHT_COMMAND_JOURNAL_FILE_NAME, existed, createExplicitly),
+        candidateGate(scope, scope.authorize, scope.selectionGate));
       await assertScope(scope, scope.authorize, createExplicitly, scope.selectionGate);
       return journal;
     } catch (error) {
@@ -302,7 +391,8 @@ export function createRealFlightNativeAdapter(
     }
   }
 
-  return { openOwnerRegistry, createRealFlightCandidate, restoreRealFlightCandidate, openRealFlightCandidate,
+  return { openOwnerRegistry, createRealFlightCandidate, restoreRealFlightCandidate, resumePreparedRealFlightCandidate,
+    openRealFlightCandidate, resumeInitialRealFlightCandidate,
     createRealFlightCandidateOpener, openRealFlightSelection, openRealFlightCommandJournal };
 }
 
@@ -315,8 +405,11 @@ export const createRealFlightCandidate = (scope: RealFlightNativeScope, name: st
 export const restoreRealFlightCandidate = (scope: RealFlightNativeScope, name: string, text: string,
   fault?: RealFlightFault, selectionGate?: RealSelectionGate) =>
   defaultAdapter.restoreRealFlightCandidate(scope, name, text, fault, selectionGate);
+export const resumePreparedRealFlightCandidate = (scope: RealFlightNativeScope, operationId: string, text: string) =>
+  defaultAdapter.resumePreparedRealFlightCandidate(scope, operationId, text);
 export const openRealFlightCandidate = (scope: RealFlightNativeScope, name: string, selectionGate?: RealSelectionGate) =>
   defaultAdapter.openRealFlightCandidate(scope, name, selectionGate);
+export const resumeInitialRealFlightCandidate = (scope: RealFlightNativeScope) => defaultAdapter.resumeInitialRealFlightCandidate(scope);
 export const createRealFlightCandidateOpener = (scope: RealFlightNativeScope) =>
   defaultAdapter.createRealFlightCandidateOpener(scope);
 export const openRealFlightSelection = (scope: RealFlightNativeScope, createExplicitly = false,
