@@ -256,3 +256,43 @@ test('routes an empty selection with a prepared restore without activating the o
   assert.equal(calls.includes('candidate.resume-initial'),false);
   assert.equal(calls.includes('selection.activate'),false);
 });
+
+test('startup hands off selected handles only after command readiness, preserving recovery warnings and one cleanup', async()=>{
+  const calls:string[]=[];let release:(()=>Promise<void>)|undefined;
+  const inspection=selectedInspection('retained.sqlite',true,calls);
+  assert.ok(inspection.selected);inspection.selected.warning='Retained read-only recovery';
+  const ready=await continueRealFlightOwnerSetup(owner,ports({openSelection:async()=>({
+    inspect:async()=>inspection,activate:async()=>{throw new Error('No activation expected');},close:async()=>{calls.push('selection.close');},
+  })},calls),false,(selected,close)=>{
+    assert.equal(selected,inspection.selected);assert.equal(selected.recoveryRequired,true);assert.equal(selected.warning,'Retained read-only recovery');
+    assert.ok(calls.includes('command.close'));assert.equal(calls.includes('selected.close'),false);release=close;
+  });
+  assert.equal(ready,true);assert.ok(release);assert.equal(calls.includes('selection.close'),false);
+  await release();await release();
+  assert.equal(calls.filter(x=>x==='selected.close').length,1);assert.equal(calls.filter(x=>x==='selection.close').length,1);
+});
+
+test('failed or missing command readiness closes startup handles without publishing a handoff',async()=>{
+  for(const fail of [false,true]){
+    const calls:string[]=[];let transfers=0;
+    const result=continueRealFlightOwnerSetup(owner,ports({
+      openSelection:async()=>({inspect:async()=>selectedInspection(undefined,false,calls),activate:async()=>1,close:async()=>{calls.push('selection.close');}}),
+      openCommandJournal:async()=>{if(fail)throw new Error('Unreadable command journal');return null;},
+    },calls),false,()=>{transfers++;});
+    if(fail)await assert.rejects(result,/Unreadable command/);else assert.equal(await result,false);
+    assert.equal(transfers,0);assert.deepEqual(calls,['selected.close','selection.close']);
+  }
+});
+
+test('a rejected startup transfer closes both handles and unreadable restore routing never transfers',async()=>{
+  const calls:string[]=[];
+  await assert.rejects(continueRealFlightOwnerSetup(owner,ports({
+    openSelection:async()=>({inspect:async()=>selectedInspection(undefined,false,calls),activate:async()=>1,close:async()=>{calls.push('selection.close');}}),
+  },calls),false,()=>{throw new Error('Unmounted receiver');}),/Unmounted receiver/);
+  assert.deepEqual(calls.slice(-2),['selected.close','selection.close']);
+  let transfers=0;
+  const ready=await continueRealFlightOwnerSetup(owner,ports({
+    openSelection:async()=>({inspect:async()=>({state:'unreadable',selected:null,warning:'Recovery',preparations:[{status:'pending'}]}),activate:async()=>1,close:async()=>{}}),
+  }),false,()=>{transfers++;});
+  assert.equal(ready,true);assert.equal(transfers,0);
+});

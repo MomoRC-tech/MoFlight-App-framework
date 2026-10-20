@@ -11,8 +11,8 @@ import { openOwnerRegistry, openRealFlightCandidate, resumeInitialRealFlightCand
 import type { RealOwnerLease, RealOwnerRegistry } from '../vereinsflieger/real-owner-registry';
 import { continueRealFlightOwnerSetup } from '../vereinsflieger/real-flight-owner-setup';
 import { RealFlightService, PendingRealFlightOperation, type OwnFlightStoredSnapshot, type RealFlightReview,
-  type RealFlightRecovery } from '../vereinsflieger/real-flight-service';
-import type { RealFlightDetail, RealFlightListItem } from '../vereinsflieger/real-flight-library';
+  type RealFlightRecovery, type RealFlightRepositorySession } from '../vereinsflieger/real-flight-service';
+import type { RealFlightLibrary, RealFlightDetail, RealFlightListItem } from '../vereinsflieger/real-flight-library';
 import type { RealFlightSourceInput } from '../vereinsflieger/real-flight-source';
 import { canCancelCoreFlightSource, mayReviewCoreFlightCapture, shouldDeferCoreFlightSourceRejection,
   type CoreFlightReviewAdmission } from './core-flight-review-policy';
@@ -26,6 +26,8 @@ import { dataFreshness } from './data-freshness';
 
 export function CoreFlightFoundation({ close }: {close: () => void}) {
   const registry = useRef<RealOwnerRegistry | null>(null), alive = useRef(true), lock = useRef(false);
+  const initialRepository = useRef<RealFlightRepositorySession | null>(null);
+  function takeInitialRepository() { const session=initialRepository.current;initialRepository.current=null;return session; }
   const [lease,setLease] = useState<RealOwnerLease | null>(null), [setupLease,setSetupLease] = useState<RealOwnerLease | null>(null);
   const [loading,setLoading] = useState(true), [error,setError] = useState(false);
 
@@ -33,9 +35,9 @@ export function CoreFlightFoundation({ close }: {close: () => void}) {
     const scope: RealFlightNativeScope = {
       registry: current,
       lease: selected,
-      authorize: () => alive.current ? {ownerId:selected.ownerId,storeId:selected.storeId,leaseId:selected.leaseId,writable:true} : null,
+      authorize: () => alive.current ? {ownerId:selected.ownerId,storeId:selected.storeId,leaseId:selected.leaseId,writable:createMissing && AppState.currentState==='active'} : null,
     };
-    return continueRealFlightOwnerSetup(selected, {
+    return continueRealFlightOwnerSetup<RealFlightLibrary>(selected, {
       openCandidate: name => openRealFlightCandidate(scope,name),
       isMissingCandidate: error => error instanceof RealFlightCandidateMissingError,
       isUninitializedStore: error => error instanceof RealFlightUninitializedStoreError,
@@ -43,7 +45,10 @@ export function CoreFlightFoundation({ close }: {close: () => void}) {
       openSelection: create => openRealFlightSelection(scope,create),
       openCommandJournal: create => openRealFlightCommandJournal(scope,create),
       uuid: Crypto.randomUUID,
-    }, createMissing);
+    }, createMissing, createMissing ? undefined : (inspected,release)=>{
+      if(!alive.current||initialRepository.current)throw new Error('Initial own-flight reader unavailable.');
+      initialRepository.current={library:inspected.candidate,writable:!inspected.recoveryRequired,warning:inspected.warning??null,close:release};
+    });
   }
 
   useEffect(()=>{
@@ -60,7 +65,11 @@ export function CoreFlightFoundation({ close }: {close: () => void}) {
       if (ready) setLease(selected);
       else { setSetupLease(selected); setError(true); }
     })().catch(()=>{if(alive.current)setError(true);}).finally(()=>{if(alive.current)setLoading(false);});
-    return ()=>{alive.current=false;void registry.current?.close();};
+    return ()=>{
+      alive.current=false;const unused=takeInitialRepository();
+      void (async()=>{try{await unused?.close();}finally{await registry.current?.close();}})()
+        .catch(()=>console.warn('Own-flight startup cleanup could not be confirmed.'));
+    };
   },[]);
   useEffect(()=>{const subscription=BackHandler.addEventListener('hardwareBackPress',()=>{if(!lock.current&&!loading&&!lease)close();return true;});return()=>subscription.remove();},[close,loading,lease]);
   async function resumeSelected() {
@@ -83,7 +92,7 @@ export function CoreFlightFoundation({ close }: {close: () => void}) {
     } catch {if(alive.current)setError(true);}
     finally {lock.current=false;if(alive.current)setLoading(false);}
   }
-  if(lease&&registry.current)return <OwnerFlightLibrary key={lease.leaseId} lease={lease} registry={registry.current} close={close}/>;
+  if(lease&&registry.current)return <OwnerFlightLibrary key={lease.leaseId} lease={lease} registry={registry.current} close={close} takeInitialRepository={takeInitialRepository}/>;
   return <SafeAreaView style={{flex:1,backgroundColor:colors.background}}><ScrollView contentContainerStyle={{padding:12,gap:10}}>
     <View style={{width:'100%',maxWidth:520,alignSelf:'center',gap:10}}>
       <Section title="Eigene Flugbibliothek" icon="flight-paper-plane"/>
@@ -101,7 +110,7 @@ export function CoreFlightFoundation({ close }: {close: () => void}) {
 }
 
 type WaitingSource = {request:{from:string;to:string};resolve:(source:RealFlightSourceInput)=>void;reject:(error:Error)=>void;started:boolean;seenBusy:boolean;suppressReview:boolean;generation:number;timer:ReturnType<typeof setTimeout>;signal:AbortSignal;abort:()=>void};
-function OwnerFlightLibrary({lease,registry,close}:{lease:RealOwnerLease;registry:RealOwnerRegistry;close:()=>void}) {
+function OwnerFlightLibrary({lease,registry,close,takeInitialRepository}:{lease:RealOwnerLease;registry:RealOwnerRegistry;close:()=>void;takeInitialRepository:()=>RealFlightRepositorySession|null}) {
   const c=useAccessController(true,lease.ownerId), controller=useRef(c);controller.current=c;
   const alive=useRef(true),foreground=useRef(AppState.currentState==='active'),lock=useRef(false),waiting=useRef<WaitingSource|null>(null);
   const reviewGeneration=useRef(0),directAdmission=useRef<CoreFlightReviewAdmission|null>(null),invalidatedRetrievals=useRef(new Set<string>());
@@ -165,11 +174,14 @@ function OwnerFlightLibrary({lease,registry,close}:{lease:RealOwnerLease;registr
     }
   }
   async function refresh() {
+    const initial=takeInitialRepository();
+    try {
     // Keep restore recovery discoverable even when opening the selected graph fails.
     await timeFlightStage('restore-inspection',refreshRestorePreparations);
-    const {snapshot:next,flights:rows}=await timeFlightStage('stored-view',()=>service.readStored()),
+    const {snapshot:next,flights:rows}=await timeFlightStage('stored-view',()=>service.readStored(initial??undefined)),
       pending=await timeFlightStage('receipt-recovery',()=>service.recoverPending());
     if(alive.current){setSnapshot(next);setFlights(rows);setRecovery(pending);setPage(current=>Math.min(current,Math.max(0,Math.ceil(rows.length/5)-1)));}
+    } finally { await initial?.close(); }
   }
   async function prepareSourceReview(next:RealFlightReview) {
     const selected=controller.current.connection;

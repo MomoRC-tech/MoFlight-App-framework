@@ -9,6 +9,10 @@ import { RealFlightLibrary, type RealFlightPermit } from '../../apps/platform-la
 import { RealFlightService, PendingRealFlightOperation, type RealFlightServicePorts } from '../../apps/platform-lab/src/vereinsflieger/real-flight-service.ts';
 import { RealFlightCommandJournal } from '../../apps/platform-lab/src/vereinsflieger/real-flight-command-journal.ts';
 import type { RealFlightSourceInput } from '../../apps/platform-lab/src/vereinsflieger/real-flight-source.ts';
+import { RealFlightSelection } from '../../apps/platform-lab/src/vereinsflieger/real-flight-selection.ts';
+import { continueRealFlightOwnerSetup } from '../../apps/platform-lab/src/vereinsflieger/real-flight-owner-setup.ts';
+import { realHistoryCandidateName } from '../../apps/platform-lab/src/vereinsflieger/real-history-contract.ts';
+import type { RealFlightRepositorySession } from '../../apps/platform-lab/src/vereinsflieger/real-flight-service.ts';
 
 const ownerId = '11111111-1111-4111-8111-111111111111', storeId = '22222222-2222-4222-8222-222222222222';
 const at = '2026-10-20T10:00:00.000Z';
@@ -248,4 +252,74 @@ test('correction/repeat and historical gaps preserve older flights without delet
     await service.saveUnassigned(await service.retrieveUpdate(now));
     assert.equal((await service.list()).length,2);service.dispose();
   } finally {await f.cleanup();}
+});
+
+test('initial stored read consumes its existing session without another open and later reads use fresh sessions',async()=>{
+  const f=await fixture();
+  try{
+    const {service,review}=await ready(f);await service.saveUnassigned(review);
+    const initial=await f.ports.repository(),original=f.ports.repository;let opens=0,closes=0;
+    f.ports.repository=async()=>{opens++;return original();};
+    const session={...initial,writable:false,warning:'Retained candidate recovery',close:async()=>{closes++;await initial.close();}};
+    const stored=await service.readStored(session);
+    assert.equal(opens,0);assert.equal(closes,1);assert.equal(stored.flights.length,1);
+    assert.deepEqual(stored.snapshot.recovery,{readOnly:true,warning:'Retained candidate recovery'});
+    assert.equal((await service.readStored()).flights.length,1);assert.equal(opens,1);service.dispose();
+  }finally{await f.cleanup();}
+});
+
+test('supplied startup sessions are closed even when the service expires before consumption',async()=>{
+  for(const dispose of [false,true]){
+    const f=await fixture();
+    try{
+      const service=f.make(),initial=await f.ports.repository();let closes=0;
+      if(dispose)service.dispose();else f.switchOwner();
+      await assert.rejects(service.readStored({...initial,close:async()=>{closes++;await initial.close();}}),/foreign/);
+      assert.equal(closes,1);service.dispose();
+    }finally{await f.cleanup();}
+  }
+});
+
+test('startup handoff rereads current SQLite integrity rather than trusting its earlier validated graph',async()=>{
+  const f=await fixture();
+  try{
+    const service=f.make(),initial=await f.ports.repository();let closes=0;
+    const corrupt=nodeDriver(f.path);try{await corrupt.exec('PRAGMA user_version=99');}finally{await corrupt.close();}
+    await assert.rejects(service.readStored({...initial,close:async()=>{closes++;await initial.close();}}),/SQL version/);
+    assert.equal(closes,1);service.dispose();
+  }finally{await f.cleanup();}
+});
+
+test('initial reader rejects a legitimately opened foreign library instead of projecting it as the current owner',async()=>{
+  const f=await fixture();
+  try{
+    const service=f.make(),foreignOwner=randomUUID(),foreignStore=randomUUID();
+    const library=await RealFlightLibrary.create(nodeDriver(join(f.directory,'foreign.sqlite')),
+      {singleton:1,family:'moflight-real-flight-history',schema_version:1,payload_version:1,owner_id:foreignOwner,store_id:foreignStore,created_at:at},hash,
+      ()=>({ownerId:foreignOwner,storeId:foreignStore,leaseId:'foreign-lease',writable:true}));
+    let closes=0;
+    await assert.rejects(service.readStored({library,writable:true,warning:null,close:async()=>{closes++;await library.close();}}),/Foreign own-flight repository/);
+    assert.equal(closes,1);service.dispose();
+  }finally{await f.cleanup();}
+});
+
+test('actual SQLite selection head changes after readiness invalidate the transferred initial reader',async()=>{
+  const f=await fixture(),name=realHistoryCandidateName(randomUUID());
+  const selection=await RealFlightSelection.open(nodeDriver(join(f.directory,'selection.sqlite')),ownerId,storeId,f.authorize,
+    async(candidate,authorize,gate)=>{
+      assert.equal(candidate,name);
+      return RealFlightLibrary.open(nodeDriver(f.path),ownerId,storeId,hash,authorize,async()=>{},gate);
+    },hash,true);
+  const service=f.make();let session:RealFlightRepositorySession|undefined;
+  try{
+    await selection.activate(randomUUID(),name,null,at);
+    const isReady=await continueRealFlightOwnerSetup<RealFlightLibrary>({ownerId,storeId,candidateName:name,createdAt:at,selectedAt:at},{
+      openCandidate:async()=>{throw new Error('Not initial activation');},resumeInitialCandidate:async()=>{throw new Error('Not initial activation');},
+      isMissingCandidate:()=>false,isUninitializedStore:()=>false,openSelection:async()=>selection,openCommandJournal:f.ports.journal,uuid:randomUUID,
+    },false,(selected,release)=>{session={library:selected.candidate,writable:!selected.recoveryRequired,warning:selected.warning??null,close:release};});
+    assert.equal(isReady,true);assert.ok(session);
+    await selection.activate(randomUUID(),name,1,at);
+    await assert.rejects(service.readStored(session),/Active real history changed/);
+    await assert.rejects(selection.select(),/Expired|foreign/);
+  }finally{await session?.close();await selection.close();service.dispose();await f.cleanup();}
 });

@@ -77,8 +77,9 @@ export class RealFlightService {
     // A durable prepared command is deliberately retained; cancellation is not rollback.
   }
   dispose() { this.cancelReview(); this.disposed = true; }
-  private async withRepository<T>(work: (session: RealFlightRepositorySession) => Promise<T>): Promise<T> {
-    this.allowed(); const session = await this.ports.repository();
+  private async withRepository<T>(work: (session: RealFlightRepositorySession) => Promise<T>, supplied?: RealFlightRepositorySession): Promise<T> {
+    if (!supplied) this.allowed();
+    const session = supplied ?? await this.ports.repository();
     try { this.allowed(); const result = await work(session); this.allowed(); return result; }
     finally { await session.close(); }
   }
@@ -191,13 +192,14 @@ export class RealFlightService {
       return this.storedSnapshot(await library.snapshot(),writable,warning);
     });
   }
-  async readStored(): Promise<{snapshot: OwnFlightStoredSnapshot; flights: RealFlightListItem[]}> {
+  async readStored(initialSession?: RealFlightRepositorySession): Promise<{snapshot: OwnFlightStoredSnapshot; flights: RealFlightListItem[]}> {
     return this.withRepository(async ({library,writable,warning})=>{
       const {graph,flights}=await library.readStored();
       return {snapshot:this.storedSnapshot(graph,writable,warning),flights};
-    });
+    }, initialSession);
   }
   private storedSnapshot(graph:RealFlightGraph,writable:boolean,warning:string|null):OwnFlightStoredSnapshot {
+      if (graph.manifest.owner_id !== this.ownerId || graph.manifest.store_id !== this.storeId) throw new Error('Foreign own-flight repository graph.');
       const binding = latestRealFlightValues<StoredBinding>(graph.records,'binding')[0];
       const coverage = latestRealFlightValues<StoredCoverage>(graph.records,'coverage');
       const captures = new Map(latestRealFlightValues<StoredCapture>(graph.records,'capture').map(value => [value.source.capture.captureId,value]));
