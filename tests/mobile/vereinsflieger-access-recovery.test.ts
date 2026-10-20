@@ -1578,6 +1578,31 @@ test('network failure and expired source login expose only explicit retry and ca
   }
 });
 
+test('explicit source retry recovers a native load-start/error without load-end and still verifies both contexts before one save', async () => {
+  const f = await trainingSummaryFixture(), failedNonce = f.lastIssuedNonce();
+  const loadingWeb = f.find(f.render(), e => e.type === 'WebView')!;
+  (loadingWeb.props.onLoadStart as (event: unknown) => void)({ nativeEvent: { url: trainingSummarySource } });
+  await f.flush();
+  const failedWeb = f.find(f.render(), e => e.type === 'WebView')!;
+  (failedWeb.props.onError as () => void)(); await f.flush();
+  assert.equal(f.controller().loaded, false, 'Native failure deliberately has no load-end callback');
+  assert.equal(f.controller().informationRetryReady, true); assert.equal(f.controller().informationBusy, false);
+  f.controller().startInformation(); await f.flush();
+  assert.equal(f.controller().informationBusy, false, 'Ordinary capture still requires a loaded source document');
+  f.controller().retryInformation(); await f.flush();
+  assert.equal(f.controller().informationBusy, true, 'Explicit retry must not depend on the failed document loading');
+  assert.equal(f.controller().currentUrl.current, context.PROFILE_URL);
+  assert.notEqual(f.lastIssuedNonce(), failedNonce);
+  await f.loadPage(context.PROFILE_URL); await f.contextMessage(observedContext);
+  assert.equal(f.controller().currentUrl.current, trainingSummarySource);
+  await f.loadPage(trainingSummarySource); await summaryMessage(f, trainingSummaryPage);
+  assert.ok(!f.writes.includes('information-saved'));
+  await f.loadPage(context.PROFILE_URL); await f.contextMessage(observedContext); await f.flush();
+  assert.equal(f.writes.filter(w => w === 'information-saved').length, 1);
+  assert.equal(canonical(f.controller().informationCaptures[0]!.rows), canonical(trainingSummaryPage.rows));
+  assert.equal(f.loginStorage().reads, 0);
+});
+
 test('native event capture probes the still-selected page first and saves only when its date/view survives context navigation', async () => {
   const selected = 'https://vereinsflieger.de/member/community/appointment/?weekCount=synthetic-period';
   for (const changed of [false, true]) {

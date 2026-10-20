@@ -218,7 +218,7 @@ export function useAccessController(product = false, localOwner?: string) {
     if (mounted.current) { setInformationRetryReady(retryable && !!informationRetry.current); setInformationBusy(false); setInformationSaving(false); setBusy(false); setInformationNotice(message); }
   }
   function startInformation(retry = false) {
-    if (!product || !visible || !loaded || !foreground.current || busy || saving || loginBusy || contextRequest.current || recovery || !viewReady || disconnectMode.current || informationRun.current || informationHistoryBusy || informationUncertain.current) return;
+    if (!product || !visible || !loaded && !retry || !foreground.current || busy || saving || loginBusy || contextRequest.current || recovery || !viewReady || disconnectMode.current || informationRun.current || informationHistoryBusy || informationUncertain.current) return;
     try {
       const selectedScope = requireScope(), target = retry ? informationRetry.current : null;
       if (retry && (!informationRetryReady || !target || target.category !== informationCategory || target.scopeKey !== canonical(selectedScope))) return;

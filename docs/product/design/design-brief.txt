@@ -804,7 +804,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProfileSettings.t
 
 ## ProviderConnection.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProviderConnection.tsx](../../../apps/platform-lab/src/mobile/ProviderConnection.tsx); normalized SHA-256 `1a71f654d7fb600b354c266b15996bf463fa70896ae18251eb72977edb43de50`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProviderConnection.tsx](../../../apps/platform-lab/src/mobile/ProviderConnection.tsx); normalized SHA-256 `91a1723714b26c346db307fc4132028ab5e7e45246809a63c0c2ed4755e76ff3`.
 
 ### Literal colors
 

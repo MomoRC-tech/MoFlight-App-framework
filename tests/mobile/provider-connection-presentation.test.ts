@@ -53,7 +53,7 @@ function fixture(overrides: Partial<Controller> = {}, development = false) {
   runInNewContext(source, { exports, URL, require: (name: string) => { assert.ok(name in modules, name); return modules[name]; } });
   const browser: Element = { type: 'retained-browser', props: {}, children: [] };
   const controller = {
-    connection: new ConnectionSession().state, browser, browserActive: false, viewReady: true,
+    connection: new ConnectionSession().state, browser, browserActive: false, viewReady: true, recovery: false,
     informationCategory: 'work-hours', informationCaptures: [], informationNotice: '', informationBusy: false, informationSaving: false,
     nextInformationCategory: () => calls.push('information-category'), startInformation: () => calls.push('information-start'), stopInformation: () => calls.push('information-stop'),
     retryInformation: () => calls.push('information-retry'), reloadInformation: async () => { calls.push('information-reload'); },
@@ -129,6 +129,19 @@ test('summary guidance and failure recovery distinguish repeating the source fro
     Object.assign(f.controller, overrides); f.render(); assert.equal(f.button('Gespeicherte Informationen neu laden').props.disabled, true);
   }
   assert.equal(f.nodes().filter(n => n.type === 'retained-browser').length, 1);
+});
+
+test('retained-source retry stays available after native document failure while ordinary capture still requires loading', () => {
+  const f = fixture({ visible: true, loaded: false, browserActive: true, informationRetryReady: true });
+  f.button('Informationsimport').props.onPress(); f.render();
+  assert.equal(f.button('Ausgewählte Quelle erneut abrufen').props.disabled, false);
+  f.button('Ausgewählte Quelle erneut abrufen').props.onPress(); assert.deepEqual(f.calls, ['information-retry']);
+  for (const overrides of [{ recovery: true }, { recovery: false, busy: true }]) {
+    Object.assign(f.controller, overrides); f.render();
+    assert.equal(f.button('Ausgewählte Quelle erneut abrufen').props.disabled, true);
+  }
+  Object.assign(f.controller, { recovery: false, busy: false, informationRetryReady: false }); f.render();
+  assert.equal(f.button('Informationen dieser Seite speichern').props.disabled, true);
 });
 
 test('initial and invalidated observations never promise logout or a currently valid session', () => {
