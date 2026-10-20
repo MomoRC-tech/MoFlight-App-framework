@@ -54,3 +54,10 @@ test('unmount during read still releases the session and prevents late publicati
   h.reload();h.unmount();const before=h.closes();pending.resolve({snapshot:h.snapshot,flights:h.flights});
   for(let i=0;i<10;i++)await Promise.resolve();assert.equal(h.closes(),before+1);
 });
+
+test('a failed local read removes prior content and explicit retry returns the current stored view',async()=>{
+  const h=host();await h.flush();const read=h.session.service.readStored;
+  h.session.service.readStored=async()=>{throw new Error('Synthetic temporary native read failure');};
+  h.reload();let state=await h.flush();assert.equal(state.phase,'failed');assert.equal(state.view,null);
+  h.session.service.readStored=read;await state.reload();state=h.render();assert.equal(state.phase,'ready');assert.equal(state.view.flights.length,3);h.unmount();
+});

@@ -22,8 +22,8 @@ export function useOwnFlights(ports: OwnFlightReadPorts, active: boolean, reload
     try {
       const next = await readOwnFlightView(ports);
       if (current(id)) { setView(next); setPhase(next ? 'ready' : 'missing'); }
-    } catch {
-      if (current(id)) { setView(null); setPhase('failed'); }
+    } catch (error) {
+      if (current(id)) { console.warn('Own-flight local read failed', error instanceof Error ? error.message : 'Unknown read failure'); setView(null); setPhase('failed'); }
     } finally {
       locked.current = false;
       if (queued.current && alive.current && enabled.current && foreground.current) void reload();
@@ -39,6 +39,7 @@ export function useOwnFlights(ports: OwnFlightReadPorts, active: boolean, reload
       if (current(id)) setDetail(next);
     } catch (error) {
       if (current(id)) {
+        console.warn('Own-flight local detail failed', error instanceof Error ? error.message : 'Unknown detail failure');
         // No previous owner's detail survives an unconfirmed or changed scope.
         setDetail(null); setView(null); setPhase('failed');
         setDetailError(error instanceof OwnFlightChangedError ? 'Die gespeicherte Auswahl hat sich geändert. Bitte die lokale Liste erneut laden.' : 'Flugdetails konnten nicht geprüft werden. Gespeicherte Daten bleiben erhalten.');
