@@ -74,7 +74,7 @@ def run(apk, original_apk, serial, output):
         wait_for("Synthetic Android core recovery PoC")
         wait_for("READY")
         for case in CASES:
-            smoke.tap_node(smoke.find("Run next case", exact=True, enabled=True))
+            smoke.tap_node(smoke.find("RUN NEXT CASE", exact=True, enabled=True))
             wait_for("READY_TO_STOP:" + case)
             before = smoke.shell("pidof", PACKAGE)
             stop()

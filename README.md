@@ -7,6 +7,8 @@
 
 # MoFlight
 
+**Latest Android gate — 20 October:** a two-year requested window retrieved **101 flights across two provider pages**; reviewed save and independently validated backup preserve all earlier records/receipts. Three synthetic Android process-death recovery cases pass. One combined host run passed **529 mobile / 109 Python tests**, types/lint/fixtures. A live-trial ANR remains under [#36](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/36); diagnose responsiveness before downstream Flüge integration. [Evidence and limits](docs/verification/2026-10-10-vereinsflieger-discovery.md#larger-android-history-and-native-process-recovery--20-october-2026).
+
 **Android focus — 20 October:** Manuel deferred iOS topics. Continue the Android retrieval/storage foundation; retain iOS gaps separately. Three new real-file process-recovery regressions plus one combined host check pass **529 mobile / 107 Python tests**, types/lint/fixtures. Committed Android Release/lint and in-place update/offline readback preserve the five saved flights and checked source fields; broader acceptance remains scoped. [Scope and results](docs/verification/2026-10-10-vereinsflieger-discovery.md#android-only-foundation-recovery-follow-up--20-october-2026).
 
 **Revised focus — 20 October:** **first import/store real own flights and make Flüge work, then statistics**. Medical remains in scope without delaying the first step; book assignment and paper catch-up come later. The account-scoped foundation passed its bounded Android emulator journey through the separate Development route; ordinary Flüge integration and broader platform gates remain open. [Current roadmap](docs/project-plan.md#current-focus-and-usability-decision--20-october-2026).
