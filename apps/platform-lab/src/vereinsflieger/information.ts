@@ -22,6 +22,8 @@ export const INFORMATION_TYPES = {
 } as const;
 export type InformationCategory = keyof typeof INFORMATION_TYPES;
 export const informationCategories = Object.keys(INFORMATION_TYPES) as InformationCategory[];
+// Invoice retrieval is deferred; retain its schema for previously saved evidence.
+export const retrievableInformationCategories: InformationCategory[] = informationCategories.filter(category => category !== 'invoices');
 /** Loaded-page bounds; neither a provider-page count nor a completeness claim. */
 export const informationRowLimit = (category: InformationCategory) => category === 'practical' ? 100 : 20;
 const trainingGroups = ['Praktische Ausbildung', 'Theoretische Ausbildung'] as const;

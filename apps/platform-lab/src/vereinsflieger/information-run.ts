@@ -1,7 +1,7 @@
 import { canonical } from '@moflight/flight-logbook';
 import { PROFILE_URL, sameContext, scopedBridge, validateContext } from './context';
 import { validateScope, type ProviderScope } from './scope-store';
-import { eventSelectionFilters, informationCategoryUrl, validateInformationPage, type InformationCapture, type InformationCategory } from './information';
+import { eventSelectionFilters, retrievableInformationCategories, informationCategoryUrl, validateInformationPage, type InformationCapture, type InformationCategory } from './information';
 
 /** Fresh context -> original selected page -> fresh context -> explicit immutable save.
  * No provider writes/automatic traversal; stale/background/cancel events cannot publish.
@@ -15,7 +15,7 @@ export class InformationRun {
   readonly scope: ProviderScope;
   constructor(scope: ProviderScope, readonly category: InformationCategory, readonly sourceUrl: string, readonly nonce: string) {
     this.scope = validateScope(scope);
-    if (!informationCategoryUrl(category, sourceUrl) || !/^[a-zA-Z0-9_-]{1,100}$/.test(nonce)) throw new Error('Unsupported information request');
+    if (!retrievableInformationCategories.includes(category) || !informationCategoryUrl(category, sourceUrl) || !/^[a-zA-Z0-9_-]{1,100}$/.test(nonce)) throw new Error('Unsupported information request');
     if (category === 'events') this.stage = 'selection';
   }
   get url() { return this.stage === 'read' || this.stage === 'selection' ? this.sourceUrl : PROFILE_URL; }

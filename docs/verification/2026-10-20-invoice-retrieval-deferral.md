@@ -1,0 +1,9 @@
+# Invoice retrieval deferred - 20 October 2026
+
+Scope: Manuel explicitly excluded invoice retrieval for now, including the app. Tracked in [#10](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/10#issuecomment-6287878107). This bounded provider-information scope change does not change milestone ordering. Later invoice inclusion requires a new decision.
+
+Implementation: the source selector cycles through retrievable categories excluding invoices. InformationRun rejects invoice requests before provider navigation. The stored schema/category catalogue remains intact so prior evidence and history stay readable. Member-account ledger and all other source categories are unchanged.
+
+Verification: Windows, Node 24.18.0 / pnpm 11.25.0 / Python 3.12.10. Initial TypeScript and 137 focused reader/SQLite/controller/presentation tests passed. Final combined `pnpm check` passed **526 mobile / 107 Python tests**, TypeScript, lint and fixture parity; logs: ignored `build/host-checks/20261020T103148Z-5dbb82cd/`. The runner records dirty parent `3017b08`, checking the invoice changes subsequently committed, rather than that unchanged parent. New regression covers selector exclusion, rejection using a valid scope and continued invoice-page decoding; existing SQLite tests cover every stored category. README, roadmap and category review now record the current exclusion while retaining historical billing evidence.
+
+Native/device UI and Release checks were not repeated for this bounded logic change; the prior core-flight native Release predates this exclusion. The installed app has not been updated with it. No layout/schema changes, data clearing, model calls or manual hosted dispatch. Later invoice inclusion remains deferred; this package does not accept broader #10 source completeness or production integration.

@@ -16,7 +16,7 @@ import { ConnectionSession } from './connection-state';
 import { loadProviderScope, confirmProviderScope, loadScopedCapture, loadScopedView, saveScopedCapture, saveScopedView, clearScopedView, prepareScopedLegacy, saveLegacySafety, legacyQuarantined, finishScopedLegacy } from './scoped-storage';
 import { clearProviderStore, proveSyntheticStore, sessionClearingAvailable, sessionProofAvailable, legacyRecoveryAvailable, legacyRecoveryFingerprint, readReviewedRecovery } from './session-store';
 import type { ProviderScope } from './scope-store';
-import { INFORMATION_TYPES, informationCategories, informationRouteShape, informationScript, informationSelectionScript, type InformationCategory, type InformationCapture, type InformationHistory } from './information';
+import { INFORMATION_TYPES, retrievableInformationCategories, informationRouteShape, informationScript, informationSelectionScript, type InformationCategory, type InformationCapture, type InformationHistory } from './information';
 import { InformationRun } from './information-run';
 import { loadInformation, readInformationCapture, readInformationHistory, saveInformation } from './information-native';
 import type { RealFlightSourceInput } from './real-flight-source';
@@ -312,7 +312,7 @@ export function useAccessController(product = false, localOwner?: string) {
       }
     }
   }
-  function nextInformationCategory() { if (!informationRun.current) { informationRetry.current = null; setInformationRetryReady(false); setInformationCategory(old => informationCategories[(informationCategories.indexOf(old) + 1) % informationCategories.length]!); } }
+  function nextInformationCategory() { if (!informationRun.current) { informationRetry.current = null; setInformationRetryReady(false); setInformationCategory(old => retrievableInformationCategories[(retrievableInformationCategories.indexOf(old) + 1) % retrievableInformationCategories.length]!); } }
   useEffect(() => () => { informationLoadRequest.current++; informationRun.current?.cancel(); informationRun.current = null; if (informationTimer.current) clearTimeout(informationTimer.current); }, []);
   async function refreshRecovery() {
     if (owner.current !== activeOwner.current || clearingStore.current || bindingBusy.current || !product || retrieval.current.state.phase !== 'idle' || contextRequest.current) return;

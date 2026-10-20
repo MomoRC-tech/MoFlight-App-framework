@@ -4,7 +4,7 @@ import { runInNewContext } from 'node:vm';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { INFORMATION_READER_SOURCE, INFORMATION_TYPES, validateInformationPage, validateInformationCapture, informationRouteShape, informationCategoryUrl, informationUrl, type InformationCategory } from '../../apps/platform-lab/src/vereinsflieger/information.ts';
+import { INFORMATION_READER_SOURCE, INFORMATION_TYPES, retrievableInformationCategories, validateInformationPage, validateInformationCapture, informationRouteShape, informationCategoryUrl, informationUrl, type InformationCategory } from '../../apps/platform-lab/src/vereinsflieger/information.ts';
 import { InformationStore } from '../../apps/platform-lab/src/vereinsflieger/information-store.ts';
 import { InformationRun } from '../../apps/platform-lab/src/vereinsflieger/information-run.ts';
 import { PROFILE_URL } from '../../apps/platform-lab/src/vereinsflieger/context.ts';
@@ -412,4 +412,14 @@ test('history cannot publish revoked, foreign or mismatched stored evidence and 
     assert.equal((await db.first<{n:number}>('SELECT count(*) n FROM information_captures'))!.n, 4);
     assert.equal((await store.history('work-hours', 3)).capture!.id, 'capture-a');
   } finally { await db.close(); await rm(dir, { recursive: true, force: true }); }
+});
+
+ test('invoice capture is deferred while existing invoice evidence stays readable', () => {
+  assert.ok(!retrievableInformationCategories.includes('invoices'));
+  assert.ok(retrievableInformationCategories.includes('ledger'));
+  assert.throws(() => new InformationRun(scope, 'invoices', url, 'invoice-deferred'));
+  const config = INFORMATION_TYPES.invoices;
+  const columns = Object.entries(config.fields).map(([key, labels], index) => ({ key, label: labels[0], index }));
+  const page = validateInformationPage({ category: 'invoices', path: new URL(url).pathname, columns, rows: [{ position: 0, values: columns.map(() => 'synthetic') }], filters: [], empty: false, coverage: { kind: 'visible-page', truncated: false, pagination: 'unverified' } });
+  assert.equal(page.category, 'invoices');
 });
