@@ -52,6 +52,36 @@ async function ready(f: Awaited<ReturnType<typeof fixture>>) {
   const bound=await service.confirmAccount(review);assert.equal(bound.state,'ready');return {service,review:bound};
 }
 
+test('combined stored view keeps summary and rows coherent with one repository selection and no shared mutable output',async()=>{
+  const f=await fixture();
+  try {
+    const {service,review}=await ready(f);await service.saveUnassigned(review);
+    const expectedSnapshot=await service.snapshot(),expectedFlights=await service.list();
+    const original=f.ports.repository;let opens=0,closes=0;
+    f.ports.repository=async()=>{opens++;const session=await original();return {...session,close:async()=>{closes++;await session.close();}};};
+    const stored=await service.readStored();
+    assert.equal(opens,1);assert.equal(closes,1);
+    assert.deepEqual(stored,{snapshot:expectedSnapshot,flights:expectedFlights});
+    stored.flights.length=0;stored.snapshot.coverage.length=0;
+    assert.deepEqual(await service.readStored(),{snapshot:expectedSnapshot,flights:expectedFlights});
+    f.switchOwner();await assert.rejects(service.readStored(),/foreign/);service.dispose();
+  }finally{await f.cleanup();}
+});
+
+test('combined stored view rejects changed SQL integrity and closes a repository on failure',async()=>{
+  const f=await fixture();
+  try {
+    const {service,review}=await ready(f);await service.saveUnassigned(review);
+    const original=f.ports.repository;let closes=0;
+    f.ports.repository=async()=>{
+      const session=await original();
+      const db=nodeDriver(f.path);try{await db.exec('PRAGMA user_version=99');}finally{await db.close();}
+      return {...session,close:async()=>{closes++;await session.close();}};
+    };
+    await assert.rejects(service.readStored(),/SQL version/);assert.equal(closes,1);service.dispose();
+  }finally{await f.cleanup();}
+});
+
 test('service owns retrieve/review/explicit save/repeat and validated offline readers without adopting old stores', async () => {
   const f=await fixture();
   try {

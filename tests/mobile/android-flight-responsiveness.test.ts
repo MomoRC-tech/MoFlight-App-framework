@@ -27,7 +27,7 @@ test('responsiveness probe measures production selection/service stages and reop
     const seeded=await runFlightResponsiveness(ports,id,true,stage=>stages.push(stage.name));
     assert.equal(seeded.initialGeneration,6);assert.equal(seeded.finalGeneration,7);
     assert.equal(seeded.initialFlights,101);assert.equal(seeded.finalFlights,101);
-    assert.deepEqual(stages,['seed-six-receipts','candidate-open','candidate-snapshot','service-snapshot','service-list',
+    assert.deepEqual(stages,['seed-six-receipts','candidate-open','candidate-snapshot','service-snapshot','service-list','service-stored-view',
       'service-recover','source-review','explicit-save','post-save-snapshot','post-save-list']);
     assert.ok(seeded.stages.every(stage=>stage.milliseconds>=0&&Number.isSafeInteger(stage.hashCalls)));
     assert.ok(seeded.stages.find(stage=>stage.name==='service-snapshot')!.hashCalls>

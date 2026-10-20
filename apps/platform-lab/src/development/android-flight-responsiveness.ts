@@ -91,6 +91,8 @@ export async function runFlightResponsiveness(ports:ResponsivenessPorts, runId:s
   try {
     const snapshot=await stage('service-snapshot',()=>service.snapshot());
     const flights=await stage('service-list',()=>service.list());
+    const stored=await stage('service-stored-view',()=>service.readStored());
+    if(stored.snapshot.generation!==snapshot.generation||stored.flights.length!==flights.length)throw new Error('Incoherent stored view.');
     await stage('service-recover',()=>service.recoverPending());
     const review=await stage('source-review',()=>service.retrieve({from:'2026-10-01',to:'2026-10-20'}));
     await stage('explicit-save',()=>service.saveUnassigned(review));

@@ -273,8 +273,13 @@ export class RealFlightLibrary {
   }
 
   async list(): Promise<RealFlightListItem[]> {
+    return (await this.readStored()).flights;
+  }
+
+  /** Summary and rows share one fully validated transaction snapshot. */
+  async readStored(): Promise<{graph: RealFlightGraph; flights: RealFlightListItem[]}> {
     const graph = await this.snapshot(), binding = latestRealFlightValues<StoredBinding>(graph.records, 'binding')[0];
-    if (!binding) return [];
+    if (!binding) return {graph,flights:[]};
     const rows: RealFlightListItem[] = [];
     for (const flightRow of latestRealFlightRecords(graph.records, 'flight')) {
       const flight = JSON.parse(flightRow.payload) as StoredFlight;
@@ -286,7 +291,7 @@ export class RealFlightLibrary {
         sourceFlightRef: flight.sourceFlightRef, firstCaptureId: flight.firstCaptureId, factsRevision: factsRow.revision,
         facts: stored.facts, unassigned: true });
     }
-    return realFlightClone(rows);
+    return {graph,flights:realFlightClone(rows)};
   }
 
   async detail(flightId: string): Promise<RealFlightDetail | null> {

@@ -166,7 +166,7 @@ function OwnerFlightLibrary({lease,registry,close}:{lease:RealOwnerLease;registr
   async function refresh() {
     // Keep restore recovery discoverable even when opening the selected graph fails.
     await refreshRestorePreparations();
-    const next=await service.snapshot(),rows=await service.list(),pending=await service.recoverPending();
+    const {snapshot:next,flights:rows}=await service.readStored(),pending=await service.recoverPending();
     if(alive.current){setSnapshot(next);setFlights(rows);setRecovery(pending);setPage(current=>Math.min(current,Math.max(0,Math.ceil(rows.length/5)-1)));}
   }
   async function prepareSourceReview(next:RealFlightReview) {

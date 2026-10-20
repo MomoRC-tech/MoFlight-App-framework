@@ -4,7 +4,7 @@ import { realHistoryUuid } from './real-history-contract';
 import { createRealFlightSourceObservation, type RealFlightSourceInput } from './real-flight-source';
 import type { RealFlightAuthorization, RealFlightLibrary, RealFlightListItem, RealFlightDetail } from './real-flight-library';
 import { latestRealFlightValues, type RealFlightCommand, type RealFlightImportPlan, type RealFlightResult,
-  type StoredBinding, type StoredCapture, type StoredCoverage, type StoredPending } from './real-flight-library-model';
+  type RealFlightGraph, type StoredBinding, type StoredCapture, type StoredCoverage, type StoredPending } from './real-flight-library-model';
 import { planFlightRetrieval, type SavedFlightRetrieval } from './retrieval-policy';
 
 export const REAL_FLIGHT_SERVICE_VERSION = 1;
@@ -187,7 +187,17 @@ export class RealFlightService {
   }
   async snapshot(): Promise<OwnFlightStoredSnapshot> {
     return this.withRepository(async ({library,writable,warning})=>{
-      const graph = await library.snapshot(), binding = latestRealFlightValues<StoredBinding>(graph.records,'binding')[0];
+      return this.storedSnapshot(await library.snapshot(),writable,warning);
+    });
+  }
+  async readStored(): Promise<{snapshot: OwnFlightStoredSnapshot; flights: RealFlightListItem[]}> {
+    return this.withRepository(async ({library,writable,warning})=>{
+      const {graph,flights}=await library.readStored();
+      return {snapshot:this.storedSnapshot(graph,writable,warning),flights};
+    });
+  }
+  private storedSnapshot(graph:RealFlightGraph,writable:boolean,warning:string|null):OwnFlightStoredSnapshot {
+      const binding = latestRealFlightValues<StoredBinding>(graph.records,'binding')[0];
       const coverage = latestRealFlightValues<StoredCoverage>(graph.records,'coverage');
       const captures = new Map(latestRealFlightValues<StoredCapture>(graph.records,'capture').map(value => [value.source.capture.captureId,value]));
       const imports = new Map(graph.receipts.filter(row => row.kind === 'import-unassigned')
@@ -204,7 +214,6 @@ export class RealFlightService {
         coverage,savedRetrievals,pending:latestRealFlightValues<StoredPending>(graph.records,'pending'),
         latestSavedResult:graph.receipts.length ? JSON.parse(graph.receipts.at(-1)!.result_json) as RealFlightResult : null,
         recovery:{readOnly:!writable,warning}};
-    });
   }
   async list(): Promise<RealFlightListItem[]> { return this.withRepository(({library})=>library.list()); }
   async detail(flightId: string): Promise<RealFlightDetail | null> { return this.withRepository(({library})=>library.detail(flightId)); }
