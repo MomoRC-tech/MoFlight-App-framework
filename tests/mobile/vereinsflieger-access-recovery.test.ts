@@ -40,6 +40,9 @@ const controllerSource = ts.transpileModule(readFileSync(new URL('../../apps/pla
 const savedLoginSource = ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/vereinsflieger/use-saved-login.ts', import.meta.url), 'utf8'), {
   compilerOptions: { module: ts.ModuleKind.CommonJS, esModuleInterop: false },
 }).outputText;
+const informationControllerSource = ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/vereinsflieger/use-information-controller.ts', import.meta.url), 'utf8'), {
+  compilerOptions: { module: ts.ModuleKind.CommonJS, esModuleInterop: false },
+}).outputText;
 function fixture(options: { noNativeRecovery?: boolean; failLegacyRead?: boolean; failSafety?: boolean; deferSafety?: boolean; failReceipt?: boolean; deferClear?: boolean; failClear?: boolean; persistedScope?: ProviderScope; scopedView?: ViewPreferences; deferBinding?: boolean; failBinding?: boolean; priorCapture?: probe.ProbeSnapshot; deferJournalSave?: boolean; deferCaptureSave?: boolean; product?: boolean; deferLoginRead?: boolean; failLoginRead?: boolean; savedLogin?: { username: string; password: string } | null; failLoginForget?: boolean; deferLoginForget?: boolean } = {}) {
   let resolveJournal!: (view: ViewPreferences | null) => void, rejectJournal!: (error: Error) => void;
   const journal = new Promise<ViewPreferences | null>((resolve, reject) => { resolveJournal = resolve; rejectJournal = reject; });
@@ -148,6 +151,9 @@ function fixture(options: { noNativeRecovery?: boolean; failLegacyRead?: boolean
   const loginExports = {};
   runInNewContext(savedLoginSource, { exports: loginExports, ...runtime });
   modules['./use-saved-login'] = loginExports;
+  const informationExports = {};
+  runInNewContext(informationControllerSource, { exports: informationExports, ...runtime });
+  modules['./use-information-controller'] = informationExports;
   const controllerExports = {} as { useAccessController: typeof useAccessController };
   runInNewContext(controllerSource, { exports: controllerExports, ...runtime });
   modules['./use-access-controller'] = controllerExports;
@@ -177,9 +183,11 @@ function fixture(options: { noNativeRecovery?: boolean; failLegacyRead?: boolean
   const press = (element: Element) => { assert.equal(typeof element.props.press, 'function'); (element.props.press as () => void)(); };
   async function settle(view: ViewPreferences | null | Error) {
     if (view instanceof Error) rejectJournal(view); else { pending = view; resolveJournal(view); }
-    await journal.catch(() => {}); await Promise.resolve(); await Promise.resolve();
+    await journal.catch(() => {}); await new Promise<void>(resolve => { setImmediate(resolve); });
   }
-  async function flush() { await Promise.resolve(); await Promise.resolve(); await Promise.resolve(); return render(); }
+  // Drain completed promise chains without depending on how many async feature
+  // boundaries they cross. Deferred storage and the controlled timers stay pending.
+  async function flush() { await new Promise<void>(resolve => { setImmediate(resolve); }); return render(); }
   async function loadPage(url: string) {
     const web = find(render(), element => element.type === 'WebView'); assert.ok(web);
     const event = { nativeEvent: { url } };
@@ -1588,6 +1596,31 @@ async function informationMessage(f: ReturnType<typeof fixture>) {
   (web.props.onMessage as (event: unknown) => void)({ nativeEvent: { url: informationSource, data: JSON.stringify({ kind: 'vf-information-v1', nonce: f.lastIssuedNonce() + '-read', url: informationSource, page: informationPage }) } });
   await f.flush();
 }
+test('information and saved-login features share exclusive browser admission', async () => {
+  const informationOwner = await startInformationFixture();
+  const informationUrl = informationOwner.controller().url;
+  informationOwner.controller().useLogin();
+  await informationOwner.controller().forgetLogin();
+  assert.equal(informationOwner.controller().informationBusy, true);
+  assert.equal(informationOwner.controller().loginBusy, false);
+  assert.equal(informationOwner.controller().url, informationUrl);
+  assert.deepEqual(informationOwner.loginStorage(), { reads: 0, forgets: 0 });
+
+  const loginOwner = fixture({ product: true, persistedScope: {
+    version: 1, owner: 'synthetic-pilot', connectionId: 'exclusive-features', context: observedContext,
+  } });
+  loginOwner.render(); await loginOwner.settle(null);
+  loginOwner.controller().setVisible(true); loginOwner.controller().navigate(informationSource);
+  await loginOwner.loadPage(informationSource);
+  loginOwner.controller().useLogin();
+  const loginUrl = loginOwner.controller().url;
+  loginOwner.controller().startInformation();
+  assert.equal(loginOwner.controller().loginBusy, true);
+  assert.equal(loginOwner.controller().informationBusy, false);
+  assert.equal(loginOwner.controller().url, loginUrl);
+  assert.deepEqual(loginOwner.writes, []);
+  loginOwner.controller().dismissLogin();
+});
 test('information capture saves only after matching protected profiles before and after the selected source', async () => {
   const f = await startInformationFixture(); assert.equal(f.controller().informationBusy, true);
   await f.loadPage(context.PROFILE_URL); await f.contextMessage(observedContext);

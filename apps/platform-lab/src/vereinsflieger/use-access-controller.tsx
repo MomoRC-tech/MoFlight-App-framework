@@ -17,12 +17,9 @@ import { ConnectionSession } from './connection-state';
 import { loadProviderScope, confirmProviderScope, loadScopedCapture, loadScopedView, saveScopedCapture, saveScopedView, clearScopedView, prepareScopedLegacy, saveLegacySafety, legacyQuarantined, finishScopedLegacy } from './scoped-storage';
 import { clearProviderStore, proveSyntheticStore, sessionClearingAvailable, sessionProofAvailable, legacyRecoveryAvailable, legacyRecoveryFingerprint, readReviewedRecovery } from './session-store';
 import type { ProviderScope } from './scope-store';
-import { INFORMATION_TYPES, retrievableInformationCategories, informationRouteShape, informationScript, informationSelectionScript, type InformationCategory, type InformationCapture, type InformationHistory } from './information';
-import { InformationRun } from './information-run';
-import { loadInformation, readInformationCapture, readInformationHistory, saveInformation } from './information-native';
+import { useInformationController } from './use-information-controller';
 import type { RealFlightSourceInput } from './real-flight-source';
 
-type InformationRetryTarget = { category: InformationCategory; sourceUrl: string; scopeKey: string };
 type FlightSourceAttempt = {
   owner: string;
   contextBefore: ObservedContext;
@@ -33,25 +30,6 @@ type PendingFlightSource = { owner: string; input: RealFlightSourceInput };
 export function useAccessController(product = false, localOwner?: string) {
   const activeOwner = useRef(localOwner); activeOwner.current = localOwner;
   const owner = useRef(localOwner), scope = useRef<ProviderScope | null>(null);
-  const informationRun = useRef<InformationRun | null>(null);
-  const informationTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [informationCategory, setInformationCategory] = useState<InformationCategory>('work-hours');
-  const [informationCaptures, setInformationCaptures] = useState<InformationCapture[]>([]);
-  const [informationNotice, setInformationNotice] = useState('');
-  const [informationBusy, setInformationBusy] = useState(false);
-  const [informationSaving, setInformationSaving] = useState(false);
-  const informationRetry = useRef<InformationRetryTarget | null>(null);
-  const informationFailedProfile = useRef<{ target: InformationRetryTarget; epoch: number } | null>(null);
-  const informationNavigation = useRef<{ run: InformationRun; nonce: string } | null>(null);
-  const [informationRetryReady, setInformationRetryReady] = useState(false);
-  const informationUncertain = useRef<string | null>(null);
-  const [informationNeedsReload, setInformationNeedsReload] = useState(false);
-  const informationLoadRequest = useRef(0);
-  const [informationLoading, setInformationLoading] = useState(false);
-  const historyRequest = useRef(0);
-  const [informationHistory, setInformationHistory] = useState<InformationHistory | null>(null);
-  const [informationHistoryBusy, setInformationHistoryBusy] = useState(false);
-  const [informationHistoryNotice, setInformationHistoryNotice] = useState('');
   const clearingStore = useRef(false), documentDetached = useRef<(() => void) | null>(null);
   const [clearing, setClearing] = useState(false), [clearNotice, setClearNotice] = useState<'none' | 'cleared' | 'failed'>('none');
   const [proofNotice, setProofNotice] = useState<'none' | 'passed' | 'failed'>('none');
@@ -120,8 +98,19 @@ export function useAccessController(product = false, localOwner?: string) {
   const { loginAttempt, loginStorageBusy, endLogin, setLoginNotice, loginNotice, credentialNotice,
     hasLogin, editingLogin, setEditingLogin, loginBusy, username, setUsername, password, setPassword,
     saveLogin, forgetLogin, useLogin } = login;
+  const information = useInformationController({
+    product, mounted: () => mounted.current, foreground: () => foreground.current,
+    ownerCurrent: () => owner.current === activeOwner.current, scope: requireScope,
+    canStart: retry => product && visible && (loaded || retry) && foreground.current && !busy && !saving && !loginBusy &&
+      !contextRequest.current && !recovery && viewReady && !disconnectMode.current,
+    canReload: () => product && mounted.current && foreground.current && owner.current === activeOwner.current &&
+      !clearingStore.current && !bindingBusy.current,
+    currentUrl: () => currentUrl.current, epoch: () => epoch.current, uuid: Crypto.randomUUID,
+    setBusy, setVisible, navigate, loadPage: loadedPage, inject: script => web.current?.injectJavaScript(script),
+    requestNativeReload: url => { if (pendingNavigation.current?.url === url) pendingNavigation.current.nativeReload = true; },
+  });
   useEffect(() => { let active = true; mounted.current = true; if (!product) void latestCapture().then(s => { if (active) setSnapshot(old => old ?? s); }).catch(() => { if (active && retrieval.current.state.phase === 'idle') setStatus('Saved capture could not be opened. Synthetic logbook remains separate.'); }); return () => { active = false; mounted.current = false; epoch.current++; if (timeout.current) clearTimeout(timeout.current); retrieval.current.dispose(); }; }, []);
-  useEffect(() => { let active = true; const initialInformationRequest = ++informationLoadRequest.current; setInformationLoading(product); void (async () => {
+  useEffect(() => { let active = true; const initialInformationRequest = information.beginInitialLoad(); void (async () => {
     if (product && owner.current !== activeOwner.current) throw new Error('Owner changed; create a new controller.');
     if (product && !owner.current) throw new Error('Explicit local owner required.');
     // Saved review needs no provider session or successful recovery diagnostic.
@@ -136,12 +125,7 @@ export function useAccessController(product = false, localOwner?: string) {
         if (!active) return;
         setSnapshot(capture); setCaptureLoadState('ready');
       } catch { if (active) setCaptureLoadState('failed'); }
-      try {
-        const gate = () => { if (!active || !foreground.current || initialInformationRequest !== informationLoadRequest.current || owner.current !== activeOwner.current || saved && canonical(requireScope()) !== canonical(saved)) throw new Error('Expired initial information read'); };
-        const records = saved ? await loadInformation(saved, gate) : [];
-        gate(); setInformationCaptures(records);
-      } catch { if (active && foreground.current && initialInformationRequest === informationLoadRequest.current && owner.current === activeOwner.current) setInformationNotice('Gespeicherte Informationen konnten nicht geöffnet werden. Vorhandene Daten bleiben erhalten.'); }
-      finally { if (active && initialInformationRequest === informationLoadRequest.current) setInformationLoading(false); }
+      await information.loadInitial(saved, initialInformationRequest, () => active);
     }
     const nativeLegacy = product && legacyRecoveryAvailable;
     const fingerprint = nativeLegacy ? await legacyRecoveryFingerprint() : null;
@@ -159,7 +143,7 @@ export function useAccessController(product = false, localOwner?: string) {
     original.current = v; recoveryKnown.current = true; setRecovery(!!v || legacyPending.current);
     setViewStrategy(v ? v.reset ? 'reset' : 'reserved backup' : null); setViewReady(true);
     if (v || legacyPending.current) setStatus('An earlier export left view restoration pending. Sign into the same provider account, then restore the original view before another export.');
-  })().catch(() => { if(active) { if (initialInformationRequest === informationLoadRequest.current) setInformationLoading(false); setCaptureLoadState(state => state === 'ready' ? state : 'failed'); setRecovery(true); setStatus('Original view recovery could not be opened. Exports are blocked to preserve preferences.'); } }); return () => { active = false; }; }, [localOwner]);
+  })().catch(() => { if(active) { information.initialLoadFailed(initialInformationRequest); setCaptureLoadState(state => state === 'ready' ? state : 'failed'); setRecovery(true); setStatus('Original view recovery could not be opened. Exports are blocked to preserve preferences.'); } }); return () => { active = false; }; }, [localOwner]);
   useEffect(() => {
     if (!product || localOwner === owner.current) return;
     clearContextRequest(); afterConfirmation.current = null; pendingCapture.current = null; pendingNavigation.current = null;
@@ -170,12 +154,7 @@ export function useAccessController(product = false, localOwner?: string) {
     retrieval.current.dispose(); epoch.current++; setGeneration(epoch.current);
     legacyRequest.current = null; legacyAttempt.current = null; legacyFingerprint.current = null; setLegacyChoice(null);
     recoveryKnown.current = false; original.current = null; scope.current = null;
-    informationRun.current?.cancel(); informationRun.current = null;
-    if (informationTimer.current) clearTimeout(informationTimer.current);
-    informationTimer.current = null; setInformationBusy(false); setInformationSaving(false);
-    informationRetry.current = null; setInformationRetryReady(false); informationUncertain.current = null; setInformationNeedsReload(false);
-    informationLoadRequest.current++; setInformationLoading(false);
-    historyRequest.current++; setInformationHistory(null); setInformationHistoryBusy(false); setInformationHistoryNotice('');
+    information.ownerChanged();
     setSnapshot(null); setLastSuccessfulCaptureAt(null); setBrowserActive(false); setCanGoBack(false); setVisible(false); setBusy(false); setRecovery(true); setViewReady(false);
     if (loginAttempt.current) endLogin('Local owner changed. Saved sign-in cancelled.', 'cancelled');
   }, [localOwner]);
@@ -207,118 +186,6 @@ export function useAccessController(product = false, localOwner?: string) {
       return JSON.parse(canonical(input)) as RealFlightSourceInput;
     } catch { return null; }
   }
-  async function reloadInformation() {
-    if (!product || !mounted.current || !foreground.current || owner.current !== activeOwner.current || informationRun.current || clearingStore.current || bindingBusy.current) return;
-    const request = ++informationLoadRequest.current;
-    try {
-      const selectedScope = requireScope(), selectedKey = canonical(selectedScope), selectedHistoryRequest = historyRequest.current;
-      const gate = () => {
-        if (!mounted.current || !foreground.current || request !== informationLoadRequest.current || canonical(requireScope()) !== selectedKey) throw new Error('Expired information reload');
-      };
-      gate(); setInformationLoading(true);
-      const records = await loadInformation(selectedScope, gate);
-      gate();
-      if (informationUncertain.current) {
-        const saved = await readInformationCapture(selectedScope, informationUncertain.current, gate); gate();
-        if (saved && (saved.id !== informationUncertain.current || saved.owner !== selectedScope.owner || saved.connectionId !== selectedScope.connectionId || !records.some(record => record.category === saved.category))) throw new Error('Uncertain capture recovery incomplete');
-      }
-      if ((!records.length && informationCaptures.length) || records.some(record => record.owner !== selectedScope.owner || record.connectionId !== selectedScope.connectionId)) throw new Error('Saved information scope or completeness changed');
-      setInformationCaptures(records);
-      informationUncertain.current = null; setInformationNeedsReload(false);
-      if (historyRequest.current === selectedHistoryRequest) { historyRequest.current++; setInformationHistory(null); setInformationHistoryBusy(false); setInformationHistoryNotice(''); }
-      setInformationNotice('Gespeicherte Informationen lokal neu geladen.');
-    } catch {
-      if (mounted.current && foreground.current && request === informationLoadRequest.current && owner.current === activeOwner.current) setInformationNotice('Gespeicherte Informationen konnten nicht neu geladen werden. Vorhandene Belege bleiben erhalten.');
-    } finally {
-      if (mounted.current && request === informationLoadRequest.current) setInformationLoading(false);
-    }
-  }
-  async function loadInformationHistory(category: InformationCategory, index: number) {
-    const request = ++historyRequest.current;
-    try {
-      const selectedScope = requireScope();
-      const selectedScopeKey = canonical(selectedScope);
-      const gate = () => {
-        if (!mounted.current || !foreground.current || request !== historyRequest.current || canonical(requireScope()) !== selectedScopeKey) throw new Error('Expired information history request');
-      };
-      gate(); setInformationHistoryBusy(true); setInformationHistoryNotice('');
-      const result = await readInformationHistory(selectedScope, category, index, gate);
-      if (result.category !== category || result.index !== index || !result.capture && informationCaptures.some(c => c.category === category)) throw new Error('Saved information history unavailable');
-      gate(); setInformationHistory(result);
-    } catch {
-      if (mounted.current && foreground.current && request === historyRequest.current && owner.current === activeOwner.current) setInformationHistoryNotice('Dieser gespeicherte Quellenbeleg konnte nicht geöffnet werden. Vorhandene Belege bleiben erhalten.');
-    } finally {
-      if (mounted.current && request === historyRequest.current) setInformationHistoryBusy(false);
-    }
-  }
-  function stopInformation(message = 'Informationsabruf abgebrochen. Gespeicherte Belege bleiben erhalten.', retryable = false) {
-    const run = informationRun.current;
-    if (run?.stage === 'saving') return;
-    run?.cancel(); informationRun.current = null;
-    if (!retryable) informationRetry.current = null;
-    if (informationTimer.current) clearTimeout(informationTimer.current);
-    informationTimer.current = null;
-    if (mounted.current) { setInformationRetryReady(retryable && !!informationRetry.current); setInformationBusy(false); setInformationSaving(false); setBusy(false); setInformationNotice(message); }
-  }
-  function startInformation(retry = false) {
-    if (!product || !visible || !loaded && !retry || !foreground.current || busy || saving || loginBusy || contextRequest.current || recovery || !viewReady || disconnectMode.current || informationRun.current || informationHistoryBusy || informationUncertain.current) return;
-    try {
-      const selectedScope = requireScope(), target = retry ? informationRetry.current : null;
-      if (retry && (!informationRetryReady || !target || target.category !== informationCategory || target.scopeKey !== canonical(selectedScope))) return;
-      const reloadFailedProfile = !!(retry && target && informationFailedProfile.current?.target === target && informationFailedProfile.current.epoch === epoch.current && currentUrl.current === PROFILE_URL);
-      const run = new InformationRun(selectedScope, informationCategory, target?.sourceUrl ?? currentUrl.current, Crypto.randomUUID());
-      informationRetry.current = { category: run.category, sourceUrl: run.sourceUrl, scopeKey: canonical(run.scope) }; setInformationRetryReady(false);
-      informationLoadRequest.current++; setInformationLoading(false);
-      informationRun.current = run; setInformationBusy(true); setBusy(true); setInformationNotice('Konto wird vor und nach der Erfassung geprüft…');
-      informationTimer.current = setTimeout(() => stopInformation('Informationsabruf hat das Zeitlimit erreicht. Gespeicherte Belege bleiben erhalten. Quelle und Anmeldung prüfen und erneut versuchen.', true), 90_000);
-      if (run.stage === 'selection') void loadedPage(run.url);
-      else {
-        navigate(run.url);
-        if (reloadFailedProfile && pendingNavigation.current?.url === PROFILE_URL) pendingNavigation.current.nativeReload = true;
-      }
-    } catch {
-      console.info('MoFlight information route shape', JSON.stringify(informationRouteShape(currentUrl.current)));
-      setInformationNotice('Diese Quellseite kann nicht erfasst werden. Erst auf der Originalseite zum ausgewählten Bereich wechseln.');
-    }
-  }
-  function retryInformation() { startInformation(true); }
-  async function receiveInformation(event: WebViewMessageEvent) {
-    const run = informationRun.current;
-    if (!run || event.nativeEvent.data.length > 1_000_000) return;
-    const gate = () => {
-      if (!mounted.current || !foreground.current || informationRun.current !== run) throw new Error('Expired information request');
-      run.assertScope(requireScope());
-    };
-    try {
-      gate(); const action = run.accept(event.nativeEvent.url, currentUrl.current, JSON.parse(event.nativeEvent.data));
-      if (action === 'navigate') { navigate(run.url); return; }
-      if (action !== 'save') return;
-      if (informationTimer.current) clearTimeout(informationTimer.current);
-      informationTimer.current = null; setInformationSaving(true);
-      informationUncertain.current = run.nonce;
-      await saveInformation(run.scope, run.capture(new Date().toISOString()), gate);
-      const records = await loadInformation(run.scope, gate); gate();
-      if (!records.some(record => record.id === run.nonce && record.owner === run.scope.owner && record.connectionId === run.scope.connectionId)) throw new Error('Saved capture readback missing');
-      informationUncertain.current = null; setInformationNeedsReload(false); informationRetry.current = null; setInformationRetryReady(false);
-      informationLoadRequest.current++; setInformationLoading(false);
-      setInformationCaptures(records); historyRequest.current++; setInformationHistory(null); setInformationHistoryBusy(false); setInformationHistoryNotice(''); run.stage = 'done'; informationRun.current = null;
-      setInformationBusy(false); setInformationSaving(false); setBusy(false); setVisible(false);
-      setInformationNotice(`${INFORMATION_TYPES[run.category].title}: lokal gespeichert. Nur die sichtbare Quellseite, keine vollständige Historie.`);
-      navigate(run.sourceUrl);
-    } catch {
-      // A commit may precede readback/lease failure. Do not claim rollback or publish old-owner rows.
-      if (informationRun.current === run) {
-        const uncertain = !!informationUncertain.current;
-        run.stage = 'cancelled'; informationRun.current = null;
-        if (informationTimer.current) clearTimeout(informationTimer.current);
-        informationTimer.current = null; setInformationBusy(false); setInformationSaving(false); setBusy(false);
-        setInformationNeedsReload(uncertain); setInformationRetryReady(!uncertain);
-        setInformationNotice('Erfassung nicht bestätigt. ' + (uncertain ? 'Zuerst gespeicherte Informationen lokal neu laden, bevor erneut erfasst wird. Eine eventuell bereits gespeicherte Erfassung bleibt erhalten.' : (run.failureMessage ?? 'Quelle, Spalten oder Konto nicht unterstützt.') + ' Quelle und Anmeldung prüfen, dann ausdrücklich erneut versuchen. Gespeicherte Belege bleiben erhalten.'));
-      }
-    }
-  }
-  function nextInformationCategory() { if (!informationRun.current) { informationRetry.current = null; setInformationRetryReady(false); setInformationCategory(old => retrievableInformationCategories[(retrievableInformationCategories.indexOf(old) + 1) % retrievableInformationCategories.length]!); } }
-  useEffect(() => () => { informationLoadRequest.current++; informationRun.current?.cancel(); informationRun.current = null; if (informationTimer.current) clearTimeout(informationTimer.current); }, []);
   async function refreshRecovery() {
     if (owner.current !== activeOwner.current || clearingStore.current || bindingBusy.current || !product || retrieval.current.state.phase !== 'idle' || contextRequest.current) return;
     recoveryKnown.current = false; setViewReady(false);
@@ -406,8 +273,7 @@ export function useAccessController(product = false, localOwner?: string) {
   }
   function suspendBrowserForOwnerSwitch(): boolean {
     const retrievalActive = retrieval.current.state.phase !== 'idle' || busy || saving || restoring.current;
-    const informationActive = !!informationRun.current || !!informationTimer.current || !!informationNavigation.current ||
-      informationBusy || informationSaving || informationLoading || informationHistoryBusy || !!informationUncertain.current;
+    const informationActive = information.active();
     if (!product || owner.current !== activeOwner.current || !foreground.current || clearingStore.current || clearing ||
         bindingBusy.current || binding || contextRequest.current || disconnectMode.current || disconnecting ||
         retrievalActive || informationActive || loginAttempt.current || loginBusy || loginStorageBusy.current || editingLogin) return false;
@@ -443,10 +309,10 @@ export function useAccessController(product = false, localOwner?: string) {
     if (generation !== epoch.current || owner.current !== activeOwner.current || clearingStore.current || bindingBusy.current || !foreground.current ||
       !visible || !browserActive || !canGoBack || !viewReady || disconnectMode.current ||
       retrieval.current.state.phase !== 'idle' || busy || saving || loginBusy || loginStorageBusy.current || loginAttempt.current || contextRequest.current || !web.current) return false;
-    informationFailedProfile.current = null; session.current.invalidate(); syncConnection(); web.current.goBack(); return true;
+    information.navigationStarted(); session.current.invalidate(); syncConnection(); web.current.goBack(); return true;
   }
   function dismissLogin() {
-    if (informationRun.current) { if (informationRun.current.stage === 'saving') return; stopInformation(); }
+    if (!information.dismiss()) return;
     if (clearingStore.current) { setVisible(false); return; }
     setVisible(false);
     // Dismissing a presentation must not orphan an owned capture/restoration check.
@@ -546,10 +412,7 @@ export function useAccessController(product = false, localOwner?: string) {
     const listener = AppState.addEventListener('change', state => {
       foreground.current = state === 'active';
       if (state === 'active') return;
-      informationLoadRequest.current++; setInformationLoading(false);
-      informationRetry.current = null; setInformationRetryReady(false);
-      historyRequest.current++; setInformationHistoryBusy(false); setInformationHistoryNotice('');
-      if (informationRun.current) stopInformation('App im Hintergrund. Informationsabruf beendet; gespeicherte Belege bleiben erhalten.');
+      information.backgrounded();
       clearContextRequest(); pendingNavigation.current = null; pendingCapture.current = null; afterConfirmation.current = null; endDisconnect(); session.current.invalidate(); syncConnection();
       flightSourceAttempt.current = null; pendingFlightSource.current = null;
       web.current?.stopLoading(); epoch.current++; setGeneration(epoch.current);
@@ -562,16 +425,7 @@ export function useAccessController(product = false, localOwner?: string) {
     if (product && page !== currentUrl.current) return;
     const pageEpoch = epoch.current;
     phase.current.loaded = true; currentUrl.current = page; setUrl(page); setLoaded(true);
-    if (informationRun.current) {
-      const run = informationRun.current;
-      if (page !== run.url) { stopInformation('Quellseite oder Anmeldung nicht verfügbar. Gespeicherte Informationen bleiben erhalten.', true); return; }
-      // A failed previous request can report load-end for this same URL after
-      // the new run starts. Require this leg's native load-start before reading.
-      if (run.stage !== 'selection' && (informationNavigation.current?.run !== run || informationNavigation.current.nonce !== run.messageNonce)) return;
-      run.observeNavigation(page);
-      web.current?.injectJavaScript(run.stage === 'selection' ? informationSelectionScript(run.messageNonce) : run.stage === 'read' ? informationScript(run.category, run.messageNonce) : contextScript(run.messageNonce));
-      return;
-    }
+    if (information.pageLoaded(page)) return;
     if (product && contextRequest.current) {
       if (!contextRequest.current.navigationObserved) { contextFailed(); return; }
       if (page === PROFILE_URL) web.current?.injectJavaScript(contextScript(contextRequest.current.nonce));
@@ -707,7 +561,7 @@ export function useAccessController(product = false, localOwner?: string) {
   }, [generation]);
   function navigate(uri: string) {
     if (!providerUrl(uri)) return;
-    informationFailedProfile.current = null;
+    information.navigationStarted();
     setLoaded(false); currentUrl.current = uri; setUrl(uri); epoch.current++; setGeneration(epoch.current);
     if (product && browserActive) {
       // Navigate the existing document; changing a key would discard the controller's browser.
@@ -911,9 +765,9 @@ export function useAccessController(product = false, localOwner?: string) {
         cacheEnabled={false} cacheMode="LOAD_NO_CACHE"
         allowFileAccess={false} allowFileAccessFromFileURLs={false} allowUniversalAccessFromFileURLs={false} mixedContentMode="never"
         javaScriptCanOpenWindowsAutomatically={false} setSupportMultipleWindows={true}
-        onShouldStartLoadWithRequest={request => { if (generation !== epoch.current) return false; const allowed = providerUrl(request.url); if (allowed && request.isTopFrame !== false && request.url !== PROFILE_URL) informationFailedProfile.current = null; if (product && contextRequest.current && request.isTopFrame !== false && request.url === PROFILE_URL) contextRequest.current.navigationObserved = true; if (!allowed && request.isTopFrame !== false) finish('External navigation blocked. Previous captures preserved.'); return allowed; }}
+        onShouldStartLoadWithRequest={request => { if (generation !== epoch.current) return false; const allowed = providerUrl(request.url); if (allowed && request.isTopFrame !== false && request.url !== PROFILE_URL) information.navigationStarted(); if (product && contextRequest.current && request.isTopFrame !== false && request.url === PROFILE_URL) contextRequest.current.navigationObserved = true; if (!allowed && request.isTopFrame !== false) finish('External navigation blocked. Previous captures preserved.'); return allowed; }}
         onOpenWindow={() => { if (generation === epoch.current) finish('New browser window blocked in this bounded PoC.'); }}
-        onLoadStart={event => { if (generation !== epoch.current) return; if (informationRun.current && event.nativeEvent.url === informationRun.current.url) informationNavigation.current = { run: informationRun.current, nonce: informationRun.current.messageNonce }; if (product && contextRequest.current && event.nativeEvent.url === PROFILE_URL) contextRequest.current.navigationObserved = true; if (retrieval.current.state.phase === 'loading') {
+        onLoadStart={event => { if (generation !== epoch.current) return; information.loadStarted(event.nativeEvent.url); if (product && contextRequest.current && event.nativeEvent.url === PROFILE_URL) contextRequest.current.navigationObserved = true; if (retrieval.current.state.phase === 'loading') {
           // Native load-start can beat the bridge acknowledgement. Advance only
           // a still-owned, outstanding save/load command; acknowledged commands
           // already cleared their token and must not advance a second time.
@@ -928,15 +782,15 @@ export function useAccessController(product = false, localOwner?: string) {
         onLoadEnd={event => { if (generation === epoch.current) void loadedPage(event.nativeEvent.url); }}
         onMessage={event => {
           if (generation !== epoch.current) return;
-          if (informationRun.current) { void receiveInformation(event); return; }
+          if (information.running()) { void information.receiveInformation(event); return; }
           if (product && contextRequest.current) { void receiveContext(event); return; }
           if (login.receiveMessage(event.nativeEvent)) return;
           if(flightUrl(url))void receive(event);
         }}
-        onError={event => { if (generation !== epoch.current) return; if (informationRun.current) { if (event?.nativeEvent.url === PROFILE_URL && currentUrl.current === PROFILE_URL && informationRetry.current && ['before', 'after'].includes(informationRun.current.stage)) informationFailedProfile.current = { target: informationRetry.current, epoch: epoch.current }; stopInformation('Informationsquelle nicht verfügbar. Gespeicherte Belege bleiben erhalten.', true); return; } if (product && contextRequest.current) { contextFailed(); return; } if (product) { endDisconnect('failed'); afterConfirmation.current = null; session.current.invalidate(); syncConnection(); } loginAttempt.current ? endLogin('Provider login page failed to load. Saved login and captures preserved.') : finish('Provider page failed to load. Previous captures preserved.'); }}
-        onHttpError={() => { if (generation !== epoch.current) return; if (informationRun.current) { stopInformation('Informationsquelle nicht verfügbar. Gespeicherte Belege bleiben erhalten.', true); return; } if (product && contextRequest.current) { contextFailed(); return; } if (product) { endDisconnect('failed'); afterConfirmation.current = null; session.current.invalidate(); syncConnection(); } loginAttempt.current ? endLogin('Provider login returned an HTTP error. Saved login and captures preserved.') : finish('Provider returned an HTTP error. Previous captures preserved.'); }}
-        onContentProcessDidTerminate={() => { if (generation !== epoch.current) return; if (informationRun.current) { stopInformation('Informationsquelle nicht verfügbar. Gespeicherte Belege bleiben erhalten.', true); return; } if (loginAttempt.current) endLogin('Provider renderer stopped. Saved sign-in cancelled.', 'cancelled'); if (product) contextFailed(); finish('Provider renderer stopped. Recovery journal retained.'); }}
-        onRenderProcessGone={() => { if (generation !== epoch.current) return; if (informationRun.current) { stopInformation('Informationsquelle nicht verfügbar. Gespeicherte Belege bleiben erhalten.', true); return; } if (loginAttempt.current) endLogin('Provider renderer stopped. Saved sign-in cancelled.', 'cancelled'); if (product) contextFailed(); finish('Provider renderer stopped. Recovery journal retained.'); }}
+        onError={event => { if (generation !== epoch.current) return; if (information.pageFailed(event?.nativeEvent.url, true)) return; if (product && contextRequest.current) { contextFailed(); return; } if (product) { endDisconnect('failed'); afterConfirmation.current = null; session.current.invalidate(); syncConnection(); } loginAttempt.current ? endLogin('Provider login page failed to load. Saved login and captures preserved.') : finish('Provider page failed to load. Previous captures preserved.'); }}
+        onHttpError={() => { if (generation !== epoch.current) return; if (information.pageFailed()) return; if (product && contextRequest.current) { contextFailed(); return; } if (product) { endDisconnect('failed'); afterConfirmation.current = null; session.current.invalidate(); syncConnection(); } loginAttempt.current ? endLogin('Provider login returned an HTTP error. Saved login and captures preserved.') : finish('Provider returned an HTTP error. Previous captures preserved.'); }}
+        onContentProcessDidTerminate={() => { if (generation !== epoch.current) return; if (information.pageFailed()) return; if (loginAttempt.current) endLogin('Provider renderer stopped. Saved sign-in cancelled.', 'cancelled'); if (product) contextFailed(); finish('Provider renderer stopped. Recovery journal retained.'); }}
+        onRenderProcessGone={() => { if (generation !== epoch.current) return; if (information.pageFailed()) return; if (loginAttempt.current) endLogin('Provider renderer stopped. Saved sign-in cancelled.', 'cancelled'); if (product) contextFailed(); finish('Provider renderer stopped. Recovery journal retained.'); }}
       />;
-  return { retryInformation, informationRetryReady: informationRetryReady && owner.current === localOwner, informationNeedsReload, reloadInformation, informationLoading, informationCanReload: product && mounted.current && !!scope.current && scope.current.owner === localOwner && owner.current === activeOwner.current && foreground.current && !informationRun.current && !clearingStore.current && !bindingBusy.current, informationHistory: owner.current === localOwner ? informationHistory : null, informationHistoryBusy, informationHistoryNotice, loadInformationHistory, informationCategory, informationCaptures: owner.current === localOwner ? informationCaptures : [], informationNotice, informationBusy, informationSaving, startInformation, stopInformation, nextInformationCategory, captureLoadState, canGoBack, backWithinProvider, legacyChoice, requestLegacyRecovery, legacyRecoveryAvailable, clearing, clearNotice, proofNotice, clearLocalSession, sessionClearingAvailable, sessionProofAvailable, binding, legacyRecovery: legacyPending.current, loginNotice, disconnectNotice, credentialNotice, startDisconnect, checkDisconnection, disconnecting, disconnectedAt, refreshRecovery, connection, checkConnection, connect, suspendBrowserForOwnerSwitch, dismissLogin, confirmConnection, lastSuccessfulCaptureAt, result, browser, showRun, setShowRun, showWindow, setShowWindow, viewReady, recovery, original, editingLogin, loginBusy, username, setUsername, password, setPassword, saveLogin, setEditingLogin, providerExpanded, visible, status, busy, openCaptureLab, pauseEnabled, toggleTestPause, preBackupPause, togglePreBackupPause, from, setFrom, to, setTo, saving, restoring, navigate, setVisible, cancelRetrieval, retrieve, hasLogin, useLogin, forgetLogin, recoverView, paused, continueTestRetrieval, viewStrategy, url, toggleProviderPage, browserActive, snapshot: product && owner.current !== localOwner ? null : snapshot, completedFlightSource: product && owner.current === localOwner && !busy && !recovery ? completedFlightSource : null, setProviderExpanded, web, currentUrl, retrieval, loaded, source, generation, epoch };
+  return { ...information.public, captureLoadState, canGoBack, backWithinProvider, legacyChoice, requestLegacyRecovery, legacyRecoveryAvailable, clearing, clearNotice, proofNotice, clearLocalSession, sessionClearingAvailable, sessionProofAvailable, binding, legacyRecovery: legacyPending.current, loginNotice, disconnectNotice, credentialNotice, startDisconnect, checkDisconnection, disconnecting, disconnectedAt, refreshRecovery, connection, checkConnection, connect, suspendBrowserForOwnerSwitch, dismissLogin, confirmConnection, lastSuccessfulCaptureAt, result, browser, showRun, setShowRun, showWindow, setShowWindow, viewReady, recovery, original, editingLogin, loginBusy, username, setUsername, password, setPassword, saveLogin, setEditingLogin, providerExpanded, visible, status, busy, openCaptureLab, pauseEnabled, toggleTestPause, preBackupPause, togglePreBackupPause, from, setFrom, to, setTo, saving, restoring, navigate, setVisible, cancelRetrieval, retrieve, hasLogin, useLogin, forgetLogin, recoverView, paused, continueTestRetrieval, viewStrategy, url, toggleProviderPage, browserActive, snapshot: product && owner.current !== localOwner ? null : snapshot, completedFlightSource: product && owner.current === localOwner && !busy && !recovery ? completedFlightSource : null, setProviderExpanded, web, currentUrl, retrieval, loaded, source, generation, epoch };
 }
