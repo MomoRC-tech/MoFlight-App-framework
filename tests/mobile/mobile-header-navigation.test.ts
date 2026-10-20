@@ -59,6 +59,8 @@ function fixture() {
     './ImportPreview': leaves(['ImportPreview']),
     './CoreFlightFoundation': leaves(['CoreFlightFoundation']),
     './OwnFlights': leaves(['OwnFlights']),
+    './use-own-flights': { useOwnFlights: () => ({ view: null, phase: 'missing' }) },
+    './own-flight-reader-native': { ownFlightReadPorts: {} },
     './ConnectionSummary': leaves(['ConnectionSummary']), './medical-source': { medicalSource },
   };
   const exports = {} as { Shell: () => Element };
@@ -79,8 +81,14 @@ function fixture() {
   function headers() { return nodes().filter(n => n.type === 'AppHeader'); }
   function parent(node: Element) { return nodes().find(n => n.children.includes(node))!; }
   function press(type: string, label?: string) { find(type, label).props.onPress(); render(); }
+  function openOwnDetail() {
+    find('OwnFlights').props.onHeaderChange({ title: 'Flugdetails', back: () => {
+      find('OwnFlights').props.onHeaderChange({ title: 'Flüge' });
+    } });
+    render();
+  }
   render(); render();
-  return { render, nodes, find, headers, parent, press, flight, library, controller, calls, suspended: () => suspended, hardwareBack: () => hardwareBack!() };
+  return { render, nodes, find, headers, parent, press, openOwnDetail, flight, library, controller, calls, suspended: () => suspended, hardwareBack: () => hardwareBack!() };
 }
 
 test('app headers order connection, Medical and profile on every tab', () => {
@@ -112,7 +120,7 @@ test('Start and profile data shortcuts reuse the existing connection without aut
 test('synthetic import preview opens without seeding or provider work, retains its session and returns to the same detail', () => {
   const f = fixture();
   f.press('Pressable', 'Flüge');
-  f.find('Dashboard').props.onDetail(f.flight); f.render();
+  f.openOwnDetail();
   f.press('Pressable', 'Profil & Einstellungen öffnen');
   f.find('ProfileSettings').props.onTools(); f.render();
   f.find('DevelopmentHub').props.onImportPreview(); f.render();
@@ -150,11 +158,13 @@ test('Medical opens without provider work and returns through nested overlays', 
 test('details and sheets retain one active header; profile Back restores details and tab state', () => {
   const f = fixture();
   f.press('Pressable', 'Flüge');
-  f.find('Dashboard').props.onDetail(f.flight); f.render();
+  f.openOwnDetail();
   assert.equal(f.headers().at(-1)!.props.title, 'Flugdetails');
-  assert.equal(f.parent(f.headers()[0]!).props.accessibilityElementsHidden, true);
+  assert.equal(f.headers().length, 1);
+  assert.equal(f.parent(f.headers()[0]!).props.accessibilityElementsHidden, false);
   f.press('Pressable', 'Profil & Einstellungen öffnen');
   assert.equal(f.headers().at(-1)!.props.title, 'Profil & Einstellungen');
+  assert.equal(f.parent(f.headers()[0]!).props.accessibilityElementsHidden, true);
   f.headers().at(-1)!.props.back(); f.render();
   assert.equal(f.headers().at(-1)!.props.title, 'Flugdetails');
   f.headers().at(-1)!.props.back(); f.render();
@@ -176,14 +186,19 @@ test('connection overlay preserves the underlying sheet and browser layer parent
   assert.equal(f.find('ProviderConnection').props.open, false);
 });
 
-test('book changes discard nested flight history before a later Back', () => {
+test('synthetic book changes preserve independent own-flight details through profile Back', () => {
   const f = fixture();
   f.press('Pressable', 'Flüge');
-  f.find('Dashboard').props.onDetail(f.flight); f.render();
+  f.openOwnDetail();
+  const ownFlights = f.find('OwnFlights');
   f.press('Pressable', 'Profil & Einstellungen öffnen');
   f.library.bookId = 'different-synthetic-book'; f.render(); f.render();
   f.headers().at(-1)!.props.back(); f.render();
   assert.equal(f.headers().length, 1);
+  assert.equal(f.headers()[0]!.props.title, 'Flugdetails');
+  assert.equal(f.find('OwnFlights').props.reloadKey, ownFlights.props.reloadKey);
+  assert.equal(f.find('OwnFlights').props.active, true);
+  f.headers()[0]!.props.back(); f.render();
   assert.equal(f.headers()[0]!.props.title, 'Flüge');
 });
 
@@ -221,7 +236,7 @@ test('Development is read-only on entry; proof work guards Back and a reload pre
   const f = fixture();
   f.press('Pressable', 'Flüge');
   const ownFlights = f.find('OwnFlights');
-  f.find('Dashboard').props.onDetail(f.flight); f.render();
+  f.openOwnDetail();
   f.press('Pressable', 'Profil & Einstellungen öffnen');
   f.find('ProfileSettings').props.onTools(); f.render();
   assert.ok(f.find('DevelopmentHub')); assert.equal(f.suspended(), false);
