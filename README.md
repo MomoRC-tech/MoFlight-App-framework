@@ -1,4 +1,7 @@
 <p align="center">
+
+**Flight retrieval policy implemented — 20 October:** the own-flight foundation now uses previous-year January 1 through today on first retrieval, then six calendar months with extension across long absences and known coverage gaps. Only complete saved coverage advances the checkpoint, including empty results. Manual custom ranges, older flights and explicit review/save are preserved. `fabfe4b`; **540 mobile / 109 Python**, types/lint/fixtures pass. Android policy/native acceptance remains pending, including the existing #36 responsiveness prerequisite. [Policy and evidence](docs/verification/2026-10-10-vereinsflieger-discovery.md#coverage-based-flight-retrieval-policy--20-october-2026), [#19](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/19).
+
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/assets/branding/moflight-ai-logo-dark.png">
     <img src="docs/assets/branding/moflight-ai-logo-light.png" alt="MoFlight AI — a glider in a thermal curve with AI sparkles" width="240" height="240">
