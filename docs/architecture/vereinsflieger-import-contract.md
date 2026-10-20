@@ -651,6 +651,8 @@ The [nine focused tests](../../tests/mobile/real-history-contract.test.ts) pass 
 
 ## Approved flight retrieval policy — 20 October 2026
 
+**Stored-view read boundary — 20 October:** `RealFlightService.readStored()` returns summary/coverage and flight rows from a single selected repository session and the same validated transaction graph. Native selection, schema/integrity/FK and current ownership/lease gates still execute. A library handle may reuse successful semantic replay only when the complete newly read graph's canonical bytes exactly equal its last validated graph; generation/count equality is insufficient. Changed graphs and fresh handles replay fully, failed replay never populates trust, returned objects remain independent, and close clears the retained canonical text. Write/receipt/restore validation remains independent. This is the #36 read-cost correction, not an ANR resolution, schema change or production/platform acceptance. [Evidence](../verification/2026-10-10-vereinsflieger-discovery.md#android-responsiveness-diagnosis-and-combined-stored-reader--20-october-2026).
+
 Manuel approved implementation under [#19](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/19#issuecomment-6290146891). M2 retrieval / M3 saved-library integration reuses complete, account-scoped, committed coverage; neither flight row count nor latest flight date is a checkpoint.
 
 - First retrieval: previous calendar year January 1 through device-local today. A saved complete empty window counts as retrieval.

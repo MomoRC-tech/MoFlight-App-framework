@@ -39,7 +39,7 @@ try {
     Copy-Item -LiteralPath $manifest.apk -Destination $proofApk
     [IO.File]::WriteAllText((Join-Path $evidence 'entry-override.ts'), $override)
     $provenance = [ordered]@{
-        kind = $module
+        kind = if ($Proof -eq 'Recovery') { 'synthetic-android-process-death-poc' } else { $module }
         source_commit = $manifest.source_commit
         entry_override = $override
         proof_apk_sha256 = (Get-FileHash -LiteralPath $proofApk -Algorithm SHA256).Hash.ToLowerInvariant()
