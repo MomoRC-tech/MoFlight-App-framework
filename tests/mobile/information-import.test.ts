@@ -334,8 +334,10 @@ test('real SQLite immutable retries, scoped isolation, corruption and close/reop
     await assert.rejects(store.save({ ...capture('foreign'), owner: 'other' }));
     await assert.rejects(db.run('DELETE FROM information_captures')); await assert.rejects(db.run('UPDATE information_manifest SET version=2'));
     await db.close(); db = nodeDriver(file); store = new InformationStore(db, scope, gate); await store.initialize(); assert.deepEqual(await store.latest(), [capture()]);
+    assert.deepEqual(await store.find('capture-a'), capture()); assert.equal(await store.find('not-saved'), null);
+    await assert.rejects(store.find('../foreign'));
     await assert.rejects(new InformationStore(db, { ...scope, connectionId: 'other' }, gate).initialize());
-    permitted = false; await assert.rejects(store.latest()); await assert.rejects(store.save(capture('new'))); permitted = true;
+    permitted = false; await assert.rejects(store.latest()); await assert.rejects(store.find('capture-a')); await assert.rejects(store.save(capture('new'))); permitted = true;
     assert.deepEqual(await store.latest(), [capture()]);
   } finally { await db.close(); await rm(dir, { recursive: true, force: true }); }
 });
@@ -401,8 +403,10 @@ test('history cannot publish revoked, foreign or mismatched stored evidence and 
     const foreign = { ...capture('foreign-history'), owner: 'another-owner' };
     await db.run('INSERT INTO information_captures VALUES (?,?,?,?)', foreign.id, foreign.category, foreign.retrievedAt, JSON.stringify(foreign));
     await assert.rejects(store.history('work-hours', 0), /Foreign/);
+    await assert.rejects(store.find('foreign-history'), /Foreign/);
     await db.run('INSERT INTO information_captures VALUES (?,?,?,?)', 'mismatched', 'work-hours', at, JSON.stringify(capture('different-id')));
     await assert.rejects(store.history('work-hours', 0), /identity mismatch/);
+    await assert.rejects(store.find('mismatched'), /identity mismatch/);
     await db.run('INSERT INTO information_captures VALUES (?,?,?,?)', 'malformed', 'work-hours', at, '{');
     await assert.rejects(store.history('work-hours', 0));
     assert.equal((await db.first<{n:number}>('SELECT count(*) n FROM information_captures'))!.n, 4);

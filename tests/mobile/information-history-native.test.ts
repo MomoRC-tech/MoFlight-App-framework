@@ -25,4 +25,7 @@ test('missing capture history authorizes first, opens no capture database and cr
   assert.ok(events.indexOf('authorized') < events.indexOf('file-check')); assert.equal(events.filter(x => x === 'registry-close').length, 1);
   await assert.rejects(exports.readInformationHistory(scope, 'work-hours', 1, () => {}));
   await assert.rejects(exports.readInformationHistory(scope, 'work-hours', 0, () => { throw new Error('Expired owner'); }));
+  assert.equal(await exports.readInformationCapture(scope, 'uncertain-capture', () => {}), null);
+  await assert.rejects(exports.readInformationCapture(scope, '../foreign', () => {}));
+  await assert.rejects(exports.readInformationCapture(scope, 'uncertain-capture', () => { throw new Error('Expired owner'); }));
 });

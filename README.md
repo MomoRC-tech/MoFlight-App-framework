@@ -7,6 +7,8 @@
 
 # MoFlight
 
+**Continuation — 20 October:** source guidance/retry, isolated production-contract preparation and reusable statistics pass the combined host checkpoint (410 mobile / 107 Python tests, types/lint/fixtures and both exports). Manuel selected fresh local ownership, preserving existing stores/captures separately. Production import/book integration and changed-source native acceptance remain gated by the [current plan and evidence](docs/project-plan.md#retrieval-to-library-continuation-plan--20-october-2026); no canonical or financial integration is claimed.
+
 **App-update requirement — 19 October 2026:** before the first beta, in-place updates must preserve all local user data and newer releases must read or safely migrate supported older data/backup formats, including offline and failed/interrupted-update recovery. [Contract and acceptance gate](docs/architecture/local-first-implementation-plan.md#app-updates-and-backward-compatibility--required-before-first-beta), [#34](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/34). Requirement selected; implementation and native upgrade verification remain pending. Binary downgrade support still needs an explicit policy.
 
 **Local information-read retry — 19 October:** application `4853de3` adds **Gespeicherte Informationen neu laden**: an explicit read-only local reload, independent of provider login. Failed reads preserve the current review; stale/foreign/late results cannot replace it. No new capture or source retrieval. [Verification and limits](docs/verification/2026-10-10-vereinsflieger-discovery.md#local-information-read-retry--19-october-2026).

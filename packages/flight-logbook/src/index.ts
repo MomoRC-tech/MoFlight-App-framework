@@ -1,4 +1,6 @@
 // Pure domain: no Expo, SQLite, network, provider SDK or learning-domain imports.
+export { annualFlightComparison, durationDistribution, DURATION_BANDS } from './statistics';
+export type { StatisticsFilters, StatisticsCoverage } from './statistics';
 export type Role = 'PIC' | 'Dual' | 'FI';
 export interface Crew { person_id: string; name: string; role: 'PIC' | 'instructor' | 'companion' }
 export interface Flight {

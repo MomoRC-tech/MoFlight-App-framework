@@ -27,6 +27,10 @@ export async function loadInformation(scope: ProviderScope, gate: () => void = (
 export async function saveInformation(scope: ProviderScope, capture: InformationCapture, gate: () => void) {
   await withStore(scope, true, gate, store => store.save(capture));
 }
+export async function readInformationCapture(scope: ProviderScope, id: string, gate: () => void): Promise<InformationCapture | null> {
+  if (!/^[a-zA-Z0-9_-]{1,100}$/.test(id)) throw new Error('Invalid information capture identity');
+  return await withStore(scope, false, gate, store => store.find(id));
+}
 export async function readInformationHistory(scope: ProviderScope, category: InformationCategory, index: number, gate: () => void): Promise<InformationHistory> {
   if (!informationCategories.includes(category) || !Number.isSafeInteger(index) || index < 0) throw new Error('Invalid information history request');
   const result = await withStore(scope, false, gate, store => store.history(category, index));

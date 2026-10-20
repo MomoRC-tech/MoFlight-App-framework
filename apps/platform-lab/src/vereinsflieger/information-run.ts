@@ -64,7 +64,14 @@ export class InformationRun {
       }
       this.page = page; this.stage = 'after'; this.navigationObserved = false; return 'navigate';
     }
-    if (!sameContext(validateContext(p.context), this.scope.context)) throw new Error('Provider context mismatch');
+    if (p.context && typeof p.context === 'object' && (p.context as { error?: unknown }).error === 'session-required') {
+      this.failureMessage = 'Anbietersitzung abgelaufen. Auf der Originalseite erneut anmelden und Konto sowie Verein prüfen.';
+      throw new Error('Provider session required');
+    }
+    if (!sameContext(validateContext(p.context), this.scope.context)) {
+      this.failureMessage = 'Konto oder Verein stimmt nicht mit der bestätigten Zuordnung überein.';
+      throw new Error('Provider context mismatch');
+    }
     this.stage = this.stage === 'before' ? 'read' : 'saving'; this.navigationObserved = false;
     return this.stage === 'saving' ? 'save' : 'navigate';
   }

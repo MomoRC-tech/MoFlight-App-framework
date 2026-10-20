@@ -56,6 +56,8 @@ function fixture(overrides: Partial<Controller> = {}, development = false) {
     connection: new ConnectionSession().state, browser, browserActive: false, viewReady: true,
     informationCategory: 'work-hours', informationCaptures: [], informationNotice: '', informationBusy: false, informationSaving: false,
     nextInformationCategory: () => calls.push('information-category'), startInformation: () => calls.push('information-start'), stopInformation: () => calls.push('information-stop'),
+    retryInformation: () => calls.push('information-retry'), reloadInformation: async () => { calls.push('information-reload'); },
+    informationRetryReady: false, informationNeedsReload: false, informationCanReload: true, informationLoading: false,
     setVisible: () => calls.push('provider-visible'),
     original: { current: null }, restoring: { current: false }, result: 'none', loginNotice: 'none',
     disconnectNotice: 'none', clearNotice: 'none', credentialNotice: 'none', proofNotice: 'none',
@@ -111,6 +113,22 @@ test('information page capture is explicit, respects recovery/loading and cannot
   failed.button('Informationsimport').props.onPress(); failed.render(); assert.match(failed.text(), /Erfassung nicht bestätigt/);
   const saved = fixture({ browserActive: true });
   saved.nodes().find(n => n.type === 'InformationReview')!.props.onOpen(); assert.deepEqual(saved.calls, ['provider-visible']);
+});
+
+test('summary guidance and failure recovery distinguish repeating the source from reloading an uncertain local save', () => {
+  const f = fixture({ visible: true, loaded: true, browserActive: true, informationCategory: 'training-summary', informationRetryReady: true });
+  f.button('Informationsimport').props.onPress(); f.render();
+  assert.match(f.text(), /eigene Ausbildung.*Auge.*Übersicht/);
+  assert.deepEqual(f.calls, []); assert.equal(f.button('Ausgewählte Quelle erneut abrufen').props.disabled, false);
+  f.button('Ausgewählte Quelle erneut abrufen').props.onPress(); assert.deepEqual(f.calls, ['information-retry']);
+  assert.equal(f.nodes().some(n => n.type === 'Action' && f.text(n) === 'Informationen dieser Seite speichern'), false);
+  Object.assign(f.controller, { informationNeedsReload: true, informationRetryReady: false }); f.render();
+  assert.equal(f.nodes().some(n => n.type === 'Action' && f.text(n) === 'Ausgewählte Quelle erneut abrufen'), false);
+  f.button('Gespeicherte Informationen neu laden').props.onPress(); assert.deepEqual(f.calls, ['information-retry', 'information-reload']);
+  for (const overrides of [{ informationLoading: true }, { informationLoading: false, informationCanReload: false }, { informationCanReload: true, busy: true }]) {
+    Object.assign(f.controller, overrides); f.render(); assert.equal(f.button('Gespeicherte Informationen neu laden').props.disabled, true);
+  }
+  assert.equal(f.nodes().filter(n => n.type === 'retained-browser').length, 1);
 });
 
 test('initial and invalidated observations never promise logout or a currently valid session', () => {

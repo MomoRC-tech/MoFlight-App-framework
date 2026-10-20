@@ -64,6 +64,14 @@ export class InformationStore {
     const result = rows.map(r => this.decode(r));
     await this.allowed(); return result;
   }
+  /** Resolve one uncertain write by its immutable capture identity. */
+  async find(id: string): Promise<InformationCapture | null> {
+    if (!/^[a-zA-Z0-9_-]{1,100}$/.test(id)) throw new Error('Invalid information capture identity');
+    await this.allowed();
+    const row = await this.db.first<SavedInformation>('SELECT * FROM information_captures WHERE id=?', id);
+    const capture = row ? this.decode(row) : null;
+    await this.allowed(); return capture;
+  }
   /** One immutable snapshot at a time; local retrieval order, never source revisions. */
   async history(category: InformationCategory, index = 0): Promise<InformationHistory> {
     if (!informationCategories.includes(category) || !Number.isSafeInteger(index) || index < 0) throw new Error('Invalid information history request');

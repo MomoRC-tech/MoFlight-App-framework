@@ -50,7 +50,8 @@ function fixture(options: { noNativeRecovery?: boolean; failLegacyRead?: boolean
   let clearCalls = 0;
   let historyBacks = 0;
   let informationReads = 0, savedInformation: information.InformationCapture | null = null;
-  let informationReader = async (_scope: ProviderScope, gate: () => void): Promise<information.InformationCapture[]> => { gate(); return []; };
+  let informationReader = async (_scope: ProviderScope, gate: () => void): Promise<information.InformationCapture[]> => { gate(); return savedInformation ? [savedInformation] : []; };
+  let informationCaptureReader = async (_scope: ProviderScope, id: string, gate: () => void): Promise<information.InformationCapture | null> => { gate(); return savedInformation?.id === id ? savedInformation : null; };
   let informationHistoryReader = async (_scope: ProviderScope, category: information.InformationCategory, position: number, gate: () => void): Promise<information.InformationHistory> => { gate(); return { category, index: position, total: 0, capture: null }; };
   let currentFingerprint = 'ab'.repeat(32);
   let finishSafety!: () => void;
@@ -133,7 +134,7 @@ function fixture(options: { noNativeRecovery?: boolean; failLegacyRead?: boolean
     './retrieval': { Retrieval }, './CaptureRun': { CaptureRun }, './WindowCapture': { WindowCapture },
     './login': login, './view': view, './context': context, './connection-state': { ConnectionSession },
     './information': information, './information-run': { InformationRun },
-    './information-native': { loadInformation: (scope: ProviderScope, gate: () => void) => { informationReads++; return informationReader(scope, gate); }, readInformationHistory: (scope: ProviderScope, category: information.InformationCategory, position: number, gate: () => void) => informationHistoryReader(scope, category, position, gate), saveInformation: async (_scope: unknown, value: unknown, gate: () => void) => { gate(); savedInformation = information.validateInformationCapture(value); writes.push('information-saved'); } },
+    './information-native': { readInformationCapture: (scope: ProviderScope, id: string, gate: () => void) => informationCaptureReader(scope, id, gate), loadInformation: (scope: ProviderScope, gate: () => void) => { informationReads++; return informationReader(scope, gate); }, readInformationHistory: (scope: ProviderScope, category: information.InformationCategory, position: number, gate: () => void) => informationHistoryReader(scope, category, position, gate), saveInformation: async (_scope: unknown, value: unknown, gate: () => void) => { gate(); savedInformation = information.validateInformationCapture(value); writes.push('information-saved'); } },
   };
   const runtime = { require: (name: string) => {
     assert.ok(name in modules, `Unexpected component dependency: ${name}`); return modules[name];
@@ -215,6 +216,7 @@ function fixture(options: { noNativeRecovery?: boolean; failLegacyRead?: boolean
   }
   return { render, button, press, settle, find, flush, loadPage, loadFlight, message, currentCommand, writes, injections,
     setInformationReader: (reader: typeof informationReader) => { informationReader = reader; }, informationReads: () => informationReads, savedInformation: () => savedInformation,
+    setInformationCaptureReader: (reader: typeof informationCaptureReader) => { informationCaptureReader = reader; },
     setInformationHistoryReader: (reader: typeof informationHistoryReader) => { informationHistoryReader = reader; },
     contextMessage, loginMessage, history, historyBacks: () => historyBacks,
     allowNavigation, lastIssuedNonce: () => issuedNonces.at(-1),
@@ -1504,6 +1506,78 @@ test('background cancellation prevents late information callbacks from saving or
   await f.flush(); assert.equal(f.controller().informationBusy, false); assert.ok(!f.writes.includes('information-saved'));
 });
 
+const trainingSummarySource = 'https://vereinsflieger.de/member/profile/usereducation/summaryueid?ueid=synthetic-selected';
+const trainingSummaryPage = {
+  category: 'training-summary', path: '/member/profile/usereducation/summaryueid',
+  columns: [['group', 'Ausbildungsbereich'], ['field', 'Quellenfeld'], ['unit', 'Quelleneinheit'], ['value', 'Originaltext']].map(([key, label], index) => ({ key, label, index })),
+  rows: ['Praktische Ausbildung', 'Theoretische Ausbildung'].flatMap((group, g) => [
+    ...['Lernziele beendet', 'Lernziele begonnen', 'Lernziele nicht begonnen'].map((field, i) => ({ position: g * 3 + i, values: [group, field, 'Anzahl', String(i)] })),
+    ...(g ? [{ position: 6, values: [group, 'Theoriestunden', 'Zeit', ''] }] : []),
+  ]), filters: [], empty: false, coverage: { kind: 'visible-page', truncated: false, pagination: 'unverified' },
+};
+async function trainingSummaryFixture() {
+  const f = fixture({ product: true }); f.render(); await f.settle(null); await establishProductAssociation(f);
+  for (let i = 0; i < information.informationCategories.length && f.controller().informationCategory !== 'training-summary'; i++) f.controller().nextInformationCategory();
+  f.controller().setVisible(true); f.controller().navigate(trainingSummarySource); await f.loadPage(trainingSummarySource);
+  f.controller().startInformation(); await f.flush();
+  await f.loadPage(context.PROFILE_URL); await f.contextMessage(observedContext); await f.loadPage(trainingSummarySource);
+  return f;
+}
+async function summaryMessage(f: ReturnType<typeof fixture>, page: unknown, nonce = f.lastIssuedNonce()) {
+  const web = f.find(f.render(), e => e.type === 'WebView')!;
+  (web.props.onMessage as (event: unknown) => void)({ nativeEvent: { url: trainingSummarySource, data: JSON.stringify({ kind: 'vf-information-v1', nonce: nonce + '-read', url: trainingSummarySource, page }) } });
+  await f.flush();
+}
+test('explicit summary retry retains the selected source, ignores stale messages and rechecks both contexts before a single save', async () => {
+  const f = await trainingSummaryFixture(), failedNonce = f.lastIssuedNonce();
+  await summaryMessage(f, { error: 'training-summary-unverified' });
+  assert.equal(f.controller().informationRetryReady, true); assert.equal(f.controller().informationNeedsReload, false);
+  assert.match(f.controller().informationNotice, /Ausbildungsübersicht/); assert.ok(!f.writes.includes('information-saved'));
+  f.controller().navigate(context.PROFILE_URL); await f.loadPage(context.PROFILE_URL);
+  f.controller().retryInformation(); await f.flush();
+  assert.notEqual(f.lastIssuedNonce(), failedNonce); assert.equal(f.controller().informationBusy, true);
+  await f.loadPage(context.PROFILE_URL); await f.contextMessage(observedContext);
+  assert.equal(f.controller().currentUrl.current, trainingSummarySource, 'Retry must use the originally selected opaque enrolment URL');
+  await f.loadPage(trainingSummarySource); await summaryMessage(f, trainingSummaryPage, failedNonce);
+  assert.ok(!f.writes.includes('information-saved'));
+  await summaryMessage(f, trainingSummaryPage); assert.ok(!f.writes.includes('information-saved'));
+  await f.loadPage(context.PROFILE_URL); await f.contextMessage(observedContext); await f.flush();
+  assert.equal(f.writes.filter(w => w === 'information-saved').length, 1);
+  assert.equal(canonical(f.controller().informationCaptures[0]!.rows), canonical(trainingSummaryPage.rows));
+  assert.equal(f.controller().informationRetryReady, false); assert.equal(f.loginStorage().reads, 0);
+});
+
+test('summary retry rejects changed account or club; changing category, owner or cancelling removes the old retry', async () => {
+  for (const boundary of ['account', 'club', 'category', 'owner', 'cancel', 'background'] as const) {
+    const f = await trainingSummaryFixture(); await summaryMessage(f, { error: 'source-unavailable' });
+    if (boundary === 'category') f.controller().nextInformationCategory();
+    if (boundary === 'owner') f.changeOwner('another-owner');
+    if (boundary === 'cancel') f.controller().stopInformation();
+    if (boundary === 'background') { f.appState('background'); f.appState('active'); }
+    f.controller().retryInformation(); await f.flush();
+    if (boundary === 'account' || boundary === 'club') {
+      await f.loadPage(context.PROFILE_URL); await f.contextMessage({ ...observedContext, ...(boundary === 'account' ? { accountNumber: '999' } : { clubLabel: 'Another club' }) });
+    } else assert.equal(f.controller().informationBusy, false, boundary);
+    assert.ok(!f.writes.includes('information-saved'), boundary);
+  }
+});
+
+test('network failure and expired source login expose only explicit retry and cannot save late source data', async () => {
+  for (const failure of ['network', 'session'] as const) {
+    const f = await trainingSummaryFixture(), failedNonce = f.lastIssuedNonce();
+    if (failure === 'network') {
+      const web = f.find(f.render(), e => e.type === 'WebView')!; (web.props.onHttpError as () => void)();
+    } else await summaryMessage(f, { error: 'source-unavailable' });
+    await f.flush(); assert.equal(f.controller().informationRetryReady, true); assert.equal(f.controller().informationBusy, false);
+    await summaryMessage(f, trainingSummaryPage, failedNonce); assert.ok(!f.writes.includes('information-saved'));
+    f.controller().retryInformation(); await f.flush(); await f.loadPage(context.PROFILE_URL);
+    await f.contextMessage({ error: 'session-required' });
+    assert.ok(!f.writes.includes('information-saved')); assert.equal(f.controller().informationBusy, false);
+    assert.match(f.controller().informationNotice, /Anbietersitzung abgelaufen/);
+    assert.equal(f.loginStorage().reads, 0);
+  }
+});
+
 test('native event capture probes the still-selected page first and saves only when its date/view survives context navigation', async () => {
   const selected = 'https://vereinsflieger.de/member/community/appointment/?weekCount=synthetic-period';
   for (const changed of [false, true]) {
@@ -1653,12 +1727,12 @@ test('new information capture invalidates pending local reload publication and r
   f.controller().setVisible(true); f.controller().navigate(informationSource); await f.loadPage(informationSource); f.controller().startInformation(); await f.flush();
   assert.equal(f.controller().informationBusy, true, 'Capture must be active before testing reload exclusion');
   const reads = f.informationReads(); await f.controller().reloadInformation(); assert.equal(f.informationReads(), reads);
-  f.setInformationReader(async (_scope, gate) => { gate(); return [historyValue(1).capture!]; });
+  f.setInformationReader(async (_scope, gate) => { gate(); return [f.savedInformation() ?? historyValue(1).capture!]; });
   await f.loadPage(context.PROFILE_URL); await f.contextMessage(observedContext);
   await f.loadPage(informationSource); await informationMessage(f);
   await f.loadPage(context.PROFILE_URL); await f.contextMessage(observedContext); await f.flush(); await f.flush();
   finish([historyValue().capture!]); await pending; await f.flush();
-  assert.deepEqual(Array.from(f.controller().informationCaptures), [historyValue(1).capture!]);
+  assert.deepEqual(Array.from(f.controller().informationCaptures), [f.savedInformation()]);
   assert.equal(f.writes.filter(w => w === 'information-saved').length, 1); assert.equal(f.controller().informationLoading, false);
 });
 
@@ -1671,12 +1745,25 @@ test('explicit local reload recovers a committed capture after failed readback w
   await f.loadPage(context.PROFILE_URL); await f.contextMessage(observedContext); await f.flush(); await f.flush();
   assert.equal(f.writes.filter(w => w === 'information-saved').length, 1);
   assert.match(f.controller().informationNotice, /nicht bestätigt/); assert.equal(f.controller().informationBusy, false);
+  assert.equal(f.controller().informationNeedsReload, true); assert.equal(f.controller().informationRetryReady, false);
+  const beforeRetry = f.injections.length;
+  f.controller().startInformation(); f.controller().retryInformation(); await f.flush();
+  assert.equal(f.writes.filter(w => w === 'information-saved').length, 1); assert.equal(f.injections.length, beforeRetry);
   const saved = f.savedInformation(); assert.ok(saved);
+  f.setInformationReader(async () => []); await f.controller().reloadInformation();
+  assert.equal(f.controller().informationNeedsReload, true, 'Known committed ID missing from latest read must not unlock a duplicate capture');
+  f.setInformationReader(async () => [saved]);
+  f.setInformationCaptureReader(async () => { throw new Error('Synthetic ID recovery failure'); }); await f.controller().reloadInformation();
+  assert.equal(f.controller().informationNeedsReload, true);
+  f.setInformationCaptureReader(async () => ({ ...saved, id: 'another-id' })); await f.controller().reloadInformation();
+  assert.equal(f.controller().informationNeedsReload, true);
+  f.setInformationCaptureReader(async () => saved);
   const injections = f.injections.length;
   f.setInformationReader(async (_scope, gate) => { gate(); return [saved]; }); await f.controller().reloadInformation();
   assert.deepEqual(f.controller().informationCaptures, [saved]);
   assert.equal(f.writes.filter(w => w === 'information-saved').length, 1); assert.equal(f.injections.length, injections);
   assert.match(f.controller().informationNotice, /lokal neu geladen/);
+  assert.equal(f.controller().informationNeedsReload, false);
 });
 
 

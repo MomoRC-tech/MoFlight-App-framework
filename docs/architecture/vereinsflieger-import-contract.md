@@ -451,3 +451,162 @@ Before implementation, the review must contain:
 6. **Source-specific verification:** A1–A9 remain the acceptance reference. Add focused deterministic real-store/controller tests for missing/blank/conflicting facts, repeats/corrections, stale/foreign plans and IDs, partial/empty/cancel/error, receipt retry and transaction/readback/restore/activation failure. Then committed-source Release and bounded native first save/offline force-stop/reopen/repeat/failure preservation checks with actual counts and field comparison. Android, a real second account, iOS and physical acceptance are reported separately. B's synthetic 319/107 checkpoint is not a rerun or evidence for C.
 
 The next evidence pass can close specific source gaps or report them blocked; it cannot supply missing product/architecture approval. Present the actual production/native artifact for scoped authorization after those dependencies are concrete. No C implementation, live adoption, unified non-flight interface, migration, device action or real write has been performed by this review.
+
+## Concrete production v1 artifacts — 20 October 2026
+
+**P3 status:** review artifacts prepared under Manuel's subsequent request to implement the continuation plan, including parallel work. [Recorded package contract](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/2#issuecomment-6284181919); coordinated #4/#16/#29/#34. That request authorizes implementation work; it does not establish unobserved provider facts, select an ownership migration or accept ADR 0007. The SQL and operations below are a concrete proposed first C slice, not executed production DDL or a native acceptance result. Earlier dated approval statements describe their historical checkpoint.
+
+### Ownership and source binding
+
+**Selected by Manuel — 20 October 2026:** create a fresh local owner; keep existing captures and lab stores separate. This selects the first transition below. No association transfer, historical adoption or migration is selected. New production binding still requires verified source identity; creating a UUID cannot attest a club or flight reference.
+
+Use an opaque UUID local owner independent of provider credentials and any future cloud identity. A local owner is an isolation boundary, not proof of backend authentication. Keep `synthetic-pilot`, its registry associations and every existing store unchanged. Two transition alternatives remain explicit:
+
+| Alternative | Exact operation | Required selection/evidence |
+| --- | --- | --- |
+| Fresh real owner (recommended) | Explicitly create/select a new real owner; create a new connection only after verified provider binding. Retrieve a new capture under it. Start a new store with no historical adoption. | Manuel selects this transition; verified stable account/club/flight identity and bounded window. No existing association is rewritten. |
+| Reviewed association transfer | Stage a separate new connection/store; record old/new owner and association, selected capture IDs/digests and consent scope; independently revalidate source binding; copy only selected evidence. Leave originals readable only under their original owner. | A specific transfer manifest and explicit approval are required. Automatic matching on display names/account labels or an old file's presence is forbidden. No converter is proposed in v1. |
+
+The actual [context reader](../../apps/platform-lab/src/vereinsflieger/context.ts) supplies a numeric profile reference plus **display-label-only** club. Its `sameContext` check protects the current capture flow; it does not meet the production stable-club contract. Production binding is an immutable record with `provider`, `accountRef`, `clubRef`, source-specific evidence IDs/hashes, verification method/version and verification time. Its `bindingId` is an opaque internal ID; flight identity is the exact tuple `(bindingId, sourceFlightRef)`. Do not derive either external reference from a URL selector, label, row position, registration or crew name. Binding verification must be produced by the approved adapter from evidence, never accepted from an arbitrary JSON `verified: true` field.
+
+### Proposed manifest and DDL
+
+Separate families prevent accidental opening by lab/proof readers. Candidate filename: `moflight-real-history-<UUID>.sqlite`; selection journal: `moflight-real-history-selection-v1.sqlite`; owner registry: `moflight-real-owner-registry-v1.sqlite`. Names contain no account, club or pilot information. Production store manifest family is `moflight-real-flight-history`, SQL/payload version 1; backup family is `moflight-real-flight-history-backup`, envelope version 1. This does not introduce a combined all-information backup.
+
+Reuse B's append-only ledger/receipt structure with production-specific validators; preserve the original proof modules and their synthetic guards. Proposed store SQL:
+
+```sql
+CREATE TABLE real_history_manifest(
+  singleton INTEGER PRIMARY KEY CHECK(singleton=1),
+  family TEXT NOT NULL CHECK(family='moflight-real-flight-history'),
+  schema_version INTEGER NOT NULL CHECK(schema_version=1),
+  payload_version INTEGER NOT NULL CHECK(payload_version=1),
+  store_id TEXT NOT NULL UNIQUE,
+  owner_id TEXT NOT NULL UNIQUE,
+  created_at TEXT NOT NULL
+);
+CREATE TABLE real_history_receipts(
+  command_id TEXT PRIMARY KEY NOT NULL,
+  owner_id TEXT NOT NULL REFERENCES real_history_manifest(owner_id),
+  kind TEXT NOT NULL CHECK(kind IN ('bind','import-unassigned')),
+  base_generation INTEGER NOT NULL CHECK(base_generation>=0),
+  generation INTEGER NOT NULL UNIQUE CHECK(generation=base_generation+1),
+  request_json TEXT NOT NULL CHECK(json_valid(request_json)),
+  request_sha256 TEXT NOT NULL,
+  result_json TEXT NOT NULL CHECK(json_valid(result_json)),
+  committed_at TEXT NOT NULL
+);
+CREATE TABLE real_history_records(
+  seq INTEGER PRIMARY KEY,
+  owner_id TEXT NOT NULL REFERENCES real_history_manifest(owner_id),
+  kind TEXT NOT NULL CHECK(kind IN
+    ('binding','capture','flight','facts','coverage','pending')),
+  id TEXT NOT NULL,
+  revision INTEGER NOT NULL CHECK(revision>0),
+  generation INTEGER NOT NULL REFERENCES real_history_receipts(generation),
+  payload TEXT NOT NULL CHECK(json_valid(payload)),
+  payload_sha256 TEXT NOT NULL,
+  UNIQUE(kind,id,revision)
+);
+CREATE INDEX real_history_latest
+  ON real_history_records(kind,id,revision DESC);
+PRAGMA user_version=1;
+```
+
+All three tables receive separate `BEFORE UPDATE` and `BEFORE DELETE` triggers raising `Append-only real flight history`. Add the following collision guards as well: SQLite `INSERT OR REPLACE` can bypass a delete trigger when `recursive_triggers=OFF`, so update/delete triggers alone do not establish append-only behavior. All nine triggers are normative. Creation configures and verifies `foreign_keys=ON` and `synchronous=FULL`; opening verifies the exact maintained SQL objects, manifest, version, integrity and foreign keys **without initializing missing/unknown files**. Single-writer transactions include receipt, evidence, facts and coverage. Source omissions never generate deletes. Generation, record revision and activation sequence remain distinct.
+
+```sql
+CREATE TRIGGER real_history_manifest_no_collision
+BEFORE INSERT ON real_history_manifest
+WHEN EXISTS(SELECT 1 FROM real_history_manifest
+  WHERE singleton=NEW.singleton OR store_id=NEW.store_id OR owner_id=NEW.owner_id)
+BEGIN SELECT RAISE(ABORT,'Append-only real flight history identity collision'); END;
+CREATE TRIGGER real_history_receipts_no_collision
+BEFORE INSERT ON real_history_receipts
+WHEN EXISTS(SELECT 1 FROM real_history_receipts
+  WHERE command_id=NEW.command_id OR generation=NEW.generation)
+BEGIN SELECT RAISE(ABORT,'Append-only real flight history identity collision'); END;
+CREATE TRIGGER real_history_records_no_collision
+BEFORE INSERT ON real_history_records
+WHEN EXISTS(SELECT 1 FROM real_history_records
+  WHERE seq=NEW.seq OR (kind=NEW.kind AND id=NEW.id AND revision=NEW.revision))
+BEGIN SELECT RAISE(ABORT,'Append-only real flight history identity collision'); END;
+```
+
+The first slice deliberately has no book, format, choice, acknowledgement, paper or non-flight record kinds. Its saved flights are explicitly unassigned. Adding assignment or acknowledgement commands requires a versioned contract and compatibility update; changing a CHECK constraint in place is not an implicit v1 extension.
+
+### Payload, replay and bounded validation
+
+Each payload uses exact keys and discriminated `version: 1` kinds; reject unknown fields/versions instead of discarding data. Reuse canonical serialization/SHA-256, pure raw-fact assessment and replay/reference validation from A/B. Hashes detect inconsistency; they do not prove provider truth or authenticate a backup owner.
+
+| Record / command | Required runtime checks |
+| --- | --- |
+| Binding | Current owner/connection lease, stable permitted account/club references and evidence-backed adapter verification; immutable binding identity. Reject mismatched source binding before staging facts. |
+| Capture | Original validated bounded raw observation, source/capture ID, timestamps, binding reference, exact raw digest and requested/displayed window. Preserve original text/unknown/blank/zero distinctions. Same capture ID with altered payload rejects. |
+| Flight | Binding/source-reference tuple unique across logical flights, immutable identity, linked initial capture/row. Same-looking different references remain distinct. |
+| Facts | Original observation plus deterministic mapping version and assessment, predecessor facts revision, supporting capture/row references. Rebuild assessment from raw evidence; unknown clocks/roles/class remain unknown. No synthetic format or canonical `Flight` coercion. |
+| Coverage | Requested and displayed inclusive bounds, evidenced page sequence/count/cap/terminal condition and capture references. A complete bounded window does not mean lifetime completeness. Partial/error/cancelled windows cannot advance verified coverage. |
+| Pending | Conflicting same-ID variants and reasons, supporting raw references, prior usable facts reference where present. Conflicting observations preserve prior saved facts and remain visibly unresolved. |
+| Import request / receipt | Command ID, owner/store/binding IDs, base generation, selected capture digest, reviewed plan fingerprint, explicit `save-unassigned` intent and timestamp. Recompute the plan; never trust caller-provided resulting facts/counts. Exact original retry returns its receipt even after later commits; reused ID/different request rejects. |
+
+Use the current raw-observation ceiling (20,000 records / 20 million characters), A's narrower 5,000-row planning bound and field validation, and B's 64 MiB command / 128 MiB backup UTF-8 ceilings. Enforce both byte and raw-observation bounds before JSON expansion/replay, safe integers, canonical UTC storage timestamps, contiguous generations/revisions and all owner/reference constraints. These are initial bounded limits reused from existing code, not a throughput benchmark. An oversized import is unavailable with its raw capture preserved; never truncate or split it into falsely complete windows. SQL uniqueness alone does not prove the JSON graph: deterministic replay validates every receipt's expected records/results and every source tuple. Production validation needs its own tests; B's existing tests are design evidence only.
+
+### Native reservation, activation and recovery
+
+Use the existing `openDriver`, Expo SQLite database directory and Expo `File` primitives; add no service/dependency. Native implementation must first prove exclusive candidate reservation: create a generated UUID basename with overwrite disabled, reject collisions, and verify an empty reserved file before DDL. A mere `exists` check followed by auto-creating SQLite open is insufficient for reservation. Where the installed native primitive cannot guarantee this, serialize creation under the owner operation lock and keep activation blocked until the race behavior is tested. Read-only open first requires file existence and verified authorization; it never calls a create initializer.
+
+The production journal uses B's `history_selection` shape under a separate name `real_history_selection`: `seq`, `owner_id`, `store_id`, `candidate_name`, `manifest_sha256`, `validated_generation`, unique `activation_id`, same-owner/store `previous_seq`, `activated_at`; immutable update/delete triggers and SQL `user_version=1`. Validate exact schema, basename, UUID, owner/store, lower-bound generation, predecessor chain and manifest hash. It never reads the proof or synthetic selection journals.
+
+1. Capture/review does not reserve a store or activate anything. Explicit save uses a current owner/session/foreground lease and verified binding, then stages a new candidate when no active store exists.
+2. For creation/restore/upgrade, close the candidate, reopen it under the same authorization and validate the full graph plus intended list/detail/coverage readers. Append selection only after successful validation. There is no cross-file transaction with raw capture storage.
+3. Journal commit and response loss resolves the original activation ID before any retry. Changed activation arguments reject. Stale predecessor sequence or owner/lease change rejects publication and invalidates all old handles.
+4. Existing-store imports use a single SQLite transaction. Before-commit failures retain the prior generation. Commit/readback uncertainty exposes a receipt-recovery state using the **same command ID**, rather than creating another import or claiming failure/success prematurely.
+5. Startup selects only the explicit owner's logical store. Missing/corrupt latest candidates may fall back to a fully validated predecessor with a visible warning. Unreadable/later/divergent retained candidates make fallback read-only; absent receipts must never be replayed into older history. No usable predecessor means recovery required, not a fresh seeded store.
+6. Rollback appends a new validated selection; it retains candidates/journals and does not erase receipt history. No automatic compaction/cleanup, destructive repair, cross-owner fallback or production migration is included. Native power-loss guarantees are untested until the adapter/device trial supplies evidence.
+
+### Backup inventory and version compatibility
+
+The proposed v1 export contains the manifest, complete binding/capture/facts/flight/coverage/pending graph, all receipts and a canonical envelope digest. Include an inventory of record counts/versions and the logical store/owner IDs. Export into a user-selected destination only through an explicit action; report success only after exact byte/hash readback. Private evidence makes this a sensitive export; do not claim encryption. Restore validates limits, envelope, versions, identity, graph and receipts before writing a separately reserved candidate; close/reopen and reader validation precede activation. Cancellation, foreign owner, unsupported/corrupt input, storage exhaustion, readback or picker failure preserve the active store.
+
+| Durable family | Included in real-history v1 export? | Preservation / next action |
+| --- | --- | --- |
+| Real-history records and receipts | Yes, including raw evidence copied for imported/pending observations | Exact round-trip required; restore to same authorized local owner only in first slice. Cross-device/new-owner adoption needs a separately selected transfer contract. |
+| Real owner/connection registry and activation journal | Identity metadata/inventory only; do not overwrite the device registries/journal | Revalidate current owner/binding; append activation locally. A raw owner ID in an export grants no access. |
+| Original flight capture/recovery DB and information-capture DB | No | Originals remain untouched and excluded explicitly in UI/export description. #29 still requires a full durable-state backup contract. |
+| Provider cookies, credentials and session helpers | No | Never export through this package; do not require provider login to read saved history. |
+| Synthetic books/lab stores, their backups and selections | No | Their current backup/readers remain available and unchanged. Do not imply the real-history export includes their paper state. |
+| Future books, assignments, acknowledgements, photos, settings and pending sync | No new such state is created by this slice | Before introducing it, update the inventory/schema/export and prove preservation under #29/#34. Existing state in other stores must still survive app updates. |
+
+Proposed #34 format matrix, independent of release labels:
+
+| Starting artifact | Production-v1 behavior | Acceptance status |
+| --- | --- | --- |
+| Current synthetic `PilotBooks`/legacy lab/proof families and backups | Keep existing family readers; never convert/open them as real-history files | Existing checks are reusable for unchanged paths; actual populated in-place update still required. |
+| Current provisional owner/raw-flight/information captures, schema/payload 1 | Preserve paths/associations/history; continue existing readers; no implicit promotion or ownership transfer | Native preservation comparison required with original counts/digests. |
+| New real-history schema/payload 1 and backup envelope 1 | Exact validated read; same-owner staged restore; idempotent receipt recovery | Proposed; not implemented/tested by this P3 artifact. |
+| Future real-history schema/payload or backup version | Refuse unsupported version without DDL/write/reset; retain originals and direct to compatible recovery | No future converter or arbitrary downgrade support is claimed. |
+| Interrupted candidate/activation/restore | Resolve receipt/activation IDs, validate retained files, show read-only recovery where necessary | Host failure tests and native trial required. |
+| Development install → first beta, skipped beta updates, binary downgrade | Starting app versions/signing and supported paths must be selected in #34; default unsupported formats preserve files and refuse writes | Open release decision. A clean install or backup round-trip does not pass signed in-place update acceptance. |
+
+### Account-history operation states and executable gates
+
+| Operation state | Available behavior / failure outcome |
+| --- | --- |
+| Raw capture / blocked source | Show original capture and exact missing identity/coverage requirements. No save action can bypass missing attestations. |
+| Review ready | Show added/changed/unchanged/pending counts, optional unknowns, bounded coverage and unassigned destination. Opening/cancelling causes no canonical write. |
+| Saving | Lock explicit command ID/input fingerprint; invalidate on changed owner/selection/foreground lease. Keep prior usable list visible. |
+| Receipt recovery | Resolve original command before retry/new save; report uncertain result, never create a second command automatically. |
+| Saved unassigned | Account list/detail and source revision/coverage work offline without provider login; no book credit, paper progress or acknowledgement is implied. |
+| Changed / pending evidence | Retain prior and next revisions or conflicting raw evidence. No acknowledgement action is included until #30's command/UX is selected. |
+| Refresh failure / expired provider session | Existing saved history remains readable; source error/freshness is separate from local history availability. |
+| Read-only recovery / unavailable | Expose recovery warning and preserve all candidate files. Disable writes; never fall back to another owner or seed an empty replacement. |
+
+Useful deterministic tests for the implementation can share one real-SQLite harness: two owners/bindings, repeats/corrections/unknowns/conflicts, complete/partial/empty windows, forged/stale request IDs, transaction/receipt/readback interruption, every-kind semantic corruption, exact backup restore and candidate/journal failure. Add controller tests for review/cancel/owner switch/background/offline publication. Run focused tests during changes and one combined host checkpoint; do not rerun A/B unchanged tests separately merely to inflate evidence. Then one committed-source Android journey can combine source comparison → explicit unassigned save → repeat → actual offline restart → export/restore/preservation and the affected UI state. Signed populated old→new update is a distinct #34 check; iOS/physical/live second-account gaps remain explicit.
+
+**Remaining decisions/evidence:** P3 now has concrete review artifacts. The user has authorized continuing implementation, and selected fresh ownership on 20 October; stable permitted account/club/flight identity plus complete bounded-window evidence still need a source result. Production book/format selection/ADR 0007 gates P5; Motorflüge semantics gate only that P6 measure; billing signs/periods/linkage and separately typed storage gate P7 cost implementation. None is supplied by generic authorization or by B's synthetic pass. Safe preparation of isolated code does not require repeated permission, but activation/promotion cannot silently invent these inputs. This documentation slice runs no application tests, builds, device or paid calls and claims no production/native acceptance.
+
+### Implemented inert production contract preparation — 20 October 2026
+
+The subsequent [narrowed implementation contract](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/2#issuecomment-6284215095) adds [real-history-contract](../../apps/platform-lab/src/vereinsflieger/real-history-contract.ts) without connecting it to the app, a native opener or a writer. It exports the proposed store DDL with immutable triggers, strict manifest and opaque lowercase UUID-v4 candidate-name validation, a structural save-review intent validator and a source-prerequisite inspection using the existing raw capture/context contracts. An intent is not an import permit. Current account/club/reference evidence always returns `blocked-source-verification`; even `complete-requested-list` metadata cannot attest provider window semantics. Unknown extra attestation fields, foreign/changed owner/provider context, invalid versions/timestamps and oversized observations reject. Missing references and the narrower 5,000-row planning bound remain explicit blockers.
+
+The [nine focused tests](../../tests/mobile/real-history-contract.test.ts) pass on Node 24 using synthetic observations and a real in-memory SQLite database. They cover hostile manifests/names/intents, current source limitations, owner/context switching, empty/partial/oversized windows, six update/delete and three insert-collision triggers, foreign keys, unique revisions and unavailable record kinds. Independent review exposed SQLite's replacement bypass under disabled recursive triggers; collision guards now reject replacement attempts against every primary/unique identity across all three tables, preserving exact previous rows. The first run also exposed an eight-placeholder test insert for a seven-column manifest; the test insert was corrected. This is structural/DDL evidence, not file durability or production source acceptance. Root integration owns combined types/lint/broader verification. Full production graph/receipt replay, backup envelope validation, source attestation, owner registry, native operations and activation remain unimplemented; defining them without the final source/command semantics would falsely suggest readiness. No existing proof/lab guard, association, store, private data or session changed.

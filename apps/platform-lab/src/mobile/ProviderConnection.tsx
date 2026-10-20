@@ -64,7 +64,8 @@ export function ProviderConnection({ controller: c, open, close, development = f
       </View>}
       {!c.disconnecting && (informationTools || c.informationBusy) && <>
         <Action secondary disabled={locked} onPress={c.nextInformationCategory}>Quelltyp: {INFORMATION_TYPES[c.informationCategory].title}</Action>
-        {c.informationBusy ? <Action secondary disabled={c.informationSaving} onPress={() => c.stopInformation()}>Informationsabruf abbrechen</Action> : <Action disabled={locked || c.recovery || !c.loaded} onPress={c.startInformation}>Informationen dieser Seite speichern</Action>}
+        {c.informationCategory === 'training-summary' && <Label muted>Auf der Originalseite die eigene Ausbildung öffnen, beim gewählten Eintrag das Auge und dann „Übersicht“ wählen. Praktische und theoretische Lernziele sowie Theoriestunden müssen sichtbar sein. Konto, Verein und Ausbildung vor dem Speichern prüfen.</Label>}
+        {c.informationBusy ? <Action secondary disabled={c.informationSaving} onPress={() => c.stopInformation()}>Informationsabruf abbrechen</Action> : c.informationNeedsReload ? <Action secondary disabled={locked || c.informationLoading || !c.informationCanReload} onPress={() => { void c.reloadInformation(); }}>Gespeicherte Informationen neu laden</Action> : c.informationRetryReady ? <Action disabled={locked || c.recovery || !c.loaded} onPress={c.retryInformation}>Ausgewählte Quelle erneut abrufen</Action> : <Action disabled={locked || c.recovery || !c.loaded} onPress={() => c.startInformation()}>Informationen dieser Seite speichern</Action>}
         {!!c.informationNotice && <View accessibilityLiveRegion="polite"><Label muted>{c.informationNotice}</Label></View>}
       </>}
     </View> : <KeyboardAvoidingView style={styles.panel} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>

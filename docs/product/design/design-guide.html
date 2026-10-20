@@ -177,7 +177,8 @@
 <p><a href="symbols/README.md">Source notes, regeneration and fidelity limits</a> and <a href="../../verification/2026-10-18-icon-option-2.md">one verification report</a> distinguish selected intent, implemented artwork and source-specific native acceptance.</p>
 <h3 id="chapter-components-schematic-examples">Schematic examples</h3>
 <p>The combined HTML presents C01–C13 shapes/states alongside these rules: neutral Medical/session status, selected chips, disabled action, no-track/empty placeholder and illustrative distribution ring. These examples execute no app/provider operation and establish no native acceptance. Use a concrete example to discuss a proposed change, then verify the implemented control in context.</p>
-<p>C16 also offers an explicit secondary <strong>Gespeicherte Informationen neu laden</strong> action. It reads existing local captures without requiring a provider session; loading/unavailable state disables it, and read failure keeps the previous review visible. Successful reload returns category review to the latest saved snapshot unless a newer history choice was made while it loaded; source timestamps remain the retrieval timestamps. Shared C01/C02 styling and layout bounds are unchanged.</p></section>
+<p>C16 also offers an explicit secondary <strong>Gespeicherte Informationen neu laden</strong> action. It reads existing local captures without requiring a provider session; loading/unavailable state disables it, and read failure keeps the previous review visible. Successful reload returns category review to the latest saved snapshot unless a newer history choice was made while it loaded; source timestamps remain the retrieval timestamps. Shared C01/C02 styling and layout bounds are unchanged.</p>
+<p>The provider&#x27;s information-import controls guide the selected own training summary through the observed own enrolment → eye → <strong>Übersicht</strong> path. A failed source read exposes <strong>Ausgewählte Quelle erneut abrufen</strong>: the user explicitly repeats the original selected source with fresh account/club checks. Changing category, owner, cancellation or backgrounding removes that retry. An uncertain save/readback instead exposes local reload and blocks new capture until the original capture identity has been checked locally; saved review and history stay available. This adds guidance/recovery states within existing controls, without automatic menu navigation or a new visual style. Native source/offline and affected-toolbar acceptance remain separately recorded.</p></section>
 <section id="component-examples"><h2>Component and shape examples</h2><p>Schematic browser specimens, using current styles and synthetic labels. They illustrate the handbook, execute no app action and establish no native/device acceptance.</p><div class="example-grid">
 <article class="example" id="C01"><h4>C01 · Content card</h4><div class="specimen"><div class="spec-card"><strong>Bekannte Flugzeit</strong><p>4:30 h · Beispiel</p><span style="color:#adbed5">Nur gespeicherte bekannte Zeiten</span></div></div><p class="example-note">Radius 14, border 1, padding 11; subtle shared gradient.</p></article>
 <article class="example" id="C02"><h4>C02 · Action states</h4><div class="specimen"><span class="face">Anzeigename speichern</span><span class="face secondary">Erneut laden</span><span class="face disabled">Deaktiviert</span></div><p class="example-note">Minimum height 48; disabled is dimmed and guarded in native code.</p></article>
@@ -652,46 +653,46 @@
 <tr><td><code>width: &#x27;100%&#x27;</code></td><td>76</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-providerconnectiontsx">ProviderConnection.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/ProviderConnection.tsx">apps/platform-lab/src/mobile/ProviderConnection.tsx</a>; normalized SHA-256 <code>3e9cae595903ac207e8e92c18dc6b91de2f914079588566890227a136fac9bc3</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/ProviderConnection.tsx">apps/platform-lab/src/mobile/ProviderConnection.tsx</a>; normalized SHA-256 <code>1a71f654d7fb600b354c266b15996bf463fa70896ae18251eb72977edb43de50</code>.</p>
 <h4 id="chapter-implementation-inventory-literal-colors-8">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><i class="swatch" style="background:#102d47aa" aria-hidden="true"></i><code>#102d47aa</code></td><td>168</td></tr>
+<tr><td><i class="swatch" style="background:#102d47aa" aria-hidden="true"></i><code>#102d47aa</code></td><td>169</td></tr>
 <tr><td><i class="swatch" style="background:#ffb39e" aria-hidden="true"></i><code>#ffb39e</code></td><td>25</td></tr>
-<tr><td><code>white</code></td><td>171</td></tr>
+<tr><td><code>white</code></td><td>172</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-typography-declarations-8">Typography declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>fontSize: 12</code></td><td>25</td></tr>
-<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>53, 58, 73</td></tr>
+<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>53, 58, 74</td></tr>
 <tr><td><code>fontWeight: &#x27;700&#x27;</code></td><td>25</td></tr>
 <tr><td><code>lineHeight: 15</code></td><td>25</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-geometry--opacity-declarations-13">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>borderRadius: 10</code></td><td>178</td></tr>
-<tr><td><code>borderRadius: 14</code></td><td>168</td></tr>
-<tr><td><code>borderRadius: 7</code></td><td>170</td></tr>
-<tr><td><code>borderRadius: 8</code></td><td>169</td></tr>
-<tr><td><code>borderWidth: 1</code></td><td>178</td></tr>
-<tr><td><code>borderWidth: 2</code></td><td>170</td></tr>
-<tr><td><code>gap: 10</code></td><td>177</td></tr>
-<tr><td><code>gap: 12</code></td><td>173</td></tr>
-<tr><td><code>gap: 6</code></td><td>61, 174</td></tr>
-<tr><td><code>height: 12</code></td><td>170</td></tr>
-<tr><td><code>height: 16</code></td><td>169</td></tr>
-<tr><td><code>height: 48</code></td><td>168</td></tr>
-<tr><td><code>maxWidth: 520</code></td><td>177</td></tr>
-<tr><td><code>maxWidth: 800</code></td><td>171</td></tr>
-<tr><td><code>minHeight: 48</code></td><td>176, 178</td></tr>
-<tr><td><code>minHeight: 68</code></td><td>173</td></tr>
-<tr><td><code>minWidth: 16</code></td><td>169</td></tr>
-<tr><td><code>opacity: 0</code></td><td>172</td></tr>
-<tr><td><code>padding: 10</code></td><td>173, 174, 177, 178</td></tr>
-<tr><td><code>paddingHorizontal: 8</code></td><td>176</td></tr>
-<tr><td><code>paddingVertical: 10</code></td><td>176</td></tr>
-<tr><td><code>width: &#x27;100%&#x27;</code></td><td>171, 177</td></tr>
-<tr><td><code>width: 18</code></td><td>170</td></tr>
-<tr><td><code>width: 48</code></td><td>168</td></tr>
+<tr><td><code>borderRadius: 10</code></td><td>179</td></tr>
+<tr><td><code>borderRadius: 14</code></td><td>169</td></tr>
+<tr><td><code>borderRadius: 7</code></td><td>171</td></tr>
+<tr><td><code>borderRadius: 8</code></td><td>170</td></tr>
+<tr><td><code>borderWidth: 1</code></td><td>179</td></tr>
+<tr><td><code>borderWidth: 2</code></td><td>171</td></tr>
+<tr><td><code>gap: 10</code></td><td>178</td></tr>
+<tr><td><code>gap: 12</code></td><td>174</td></tr>
+<tr><td><code>gap: 6</code></td><td>61, 175</td></tr>
+<tr><td><code>height: 12</code></td><td>171</td></tr>
+<tr><td><code>height: 16</code></td><td>170</td></tr>
+<tr><td><code>height: 48</code></td><td>169</td></tr>
+<tr><td><code>maxWidth: 520</code></td><td>178</td></tr>
+<tr><td><code>maxWidth: 800</code></td><td>172</td></tr>
+<tr><td><code>minHeight: 48</code></td><td>177, 179</td></tr>
+<tr><td><code>minHeight: 68</code></td><td>174</td></tr>
+<tr><td><code>minWidth: 16</code></td><td>170</td></tr>
+<tr><td><code>opacity: 0</code></td><td>173</td></tr>
+<tr><td><code>padding: 10</code></td><td>174, 175, 178, 179</td></tr>
+<tr><td><code>paddingHorizontal: 8</code></td><td>177</td></tr>
+<tr><td><code>paddingVertical: 10</code></td><td>177</td></tr>
+<tr><td><code>width: &#x27;100%&#x27;</code></td><td>172, 178</td></tr>
+<tr><td><code>width: 18</code></td><td>171</td></tr>
+<tr><td><code>width: 48</code></td><td>169</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-rawcapturereviewtsx">RawCaptureReview.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/RawCaptureReview.tsx">apps/platform-lab/src/mobile/RawCaptureReview.tsx</a>; normalized SHA-256 <code>0d897511ac3fa00409c597a5d6fa2f8fd8b0f90551aac3ef8decd195646262e4</code>.</p>
@@ -1507,6 +1508,8 @@ The combined HTML presents C01–C13 shapes/states alongside these rules: neutra
 
 C16 also offers an explicit secondary **Gespeicherte Informationen neu laden** action. It reads existing local captures without requiring a provider session; loading/unavailable state disables it, and read failure keeps the previous review visible. Successful reload returns category review to the latest saved snapshot unless a newer history choice was made while it loaded; source timestamps remain the retrieval timestamps. Shared C01/C02 styling and layout bounds are unchanged.
 
+The provider&#x27;s information-import controls guide the selected own training summary through the observed own enrolment → eye → **Übersicht** path. A failed source read exposes **Ausgewählte Quelle erneut abrufen**: the user explicitly repeats the original selected source with fresh account/club checks. Changing category, owner, cancellation or backgrounding removes that retry. An uncertain save/readback instead exposes local reload and blocks new capture until the original capture identity has been checked locally; saved review and history stay available. This adds guidance/recovery states within existing controls, without automatic menu navigation or a new visual style. Native source/offline and affected-toolbar acceptance remain separately recorded.
+
 # Layout and presentation patterns
 
 [Handbook entry point](README.md). These patterns consolidate approved visual/navigation decisions and current boundaries. Behavior remains governed by journey/provider/book contracts.
@@ -2082,22 +2085,22 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProfileSettings.t
 
 ## ProviderConnection.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProviderConnection.tsx](../../../apps/platform-lab/src/mobile/ProviderConnection.tsx); normalized SHA-256 `3e9cae595903ac207e8e92c18dc6b91de2f914079588566890227a136fac9bc3`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProviderConnection.tsx](../../../apps/platform-lab/src/mobile/ProviderConnection.tsx); normalized SHA-256 `1a71f654d7fb600b354c266b15996bf463fa70896ae18251eb72977edb43de50`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#102d47aa` | 168 |
+| `#102d47aa` | 169 |
 | `#ffb39e` | 25 |
-| `white` | 171 |
+| `white` | 172 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
 | `fontSize: 12` | 25 |
-| `fontWeight: &#x27;600&#x27;` | 53, 58, 73 |
+| `fontWeight: &#x27;600&#x27;` | 53, 58, 74 |
 | `fontWeight: &#x27;700&#x27;` | 25 |
 | `lineHeight: 15` | 25 |
 
@@ -2105,30 +2108,30 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProviderConnectio
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 10` | 178 |
-| `borderRadius: 14` | 168 |
-| `borderRadius: 7` | 170 |
-| `borderRadius: 8` | 169 |
-| `borderWidth: 1` | 178 |
-| `borderWidth: 2` | 170 |
-| `gap: 10` | 177 |
-| `gap: 12` | 173 |
-| `gap: 6` | 61, 174 |
-| `height: 12` | 170 |
-| `height: 16` | 169 |
-| `height: 48` | 168 |
-| `maxWidth: 520` | 177 |
-| `maxWidth: 800` | 171 |
-| `minHeight: 48` | 176, 178 |
-| `minHeight: 68` | 173 |
-| `minWidth: 16` | 169 |
-| `opacity: 0` | 172 |
-| `padding: 10` | 173, 174, 177, 178 |
-| `paddingHorizontal: 8` | 176 |
-| `paddingVertical: 10` | 176 |
-| `width: &#x27;100%&#x27;` | 171, 177 |
-| `width: 18` | 170 |
-| `width: 48` | 168 |
+| `borderRadius: 10` | 179 |
+| `borderRadius: 14` | 169 |
+| `borderRadius: 7` | 171 |
+| `borderRadius: 8` | 170 |
+| `borderWidth: 1` | 179 |
+| `borderWidth: 2` | 171 |
+| `gap: 10` | 178 |
+| `gap: 12` | 174 |
+| `gap: 6` | 61, 175 |
+| `height: 12` | 171 |
+| `height: 16` | 170 |
+| `height: 48` | 169 |
+| `maxWidth: 520` | 178 |
+| `maxWidth: 800` | 172 |
+| `minHeight: 48` | 177, 179 |
+| `minHeight: 68` | 174 |
+| `minWidth: 16` | 170 |
+| `opacity: 0` | 173 |
+| `padding: 10` | 174, 175, 178, 179 |
+| `paddingHorizontal: 8` | 177 |
+| `paddingVertical: 10` | 177 |
+| `width: &#x27;100%&#x27;` | 172, 178 |
+| `width: 18` | 171 |
+| `width: 48` | 169 |
 
 ## RawCaptureReview.tsx
 
@@ -2929,7 +2932,7 @@ States / limits: Recreated approved variant, not a byte-identical copy of an old
 Source: docs/assets/branding/moflight-app-icon-ai.png
 docs/assets/branding/README.md; app.json
 </textarea></section>
-<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: e4e5b41327f3df604478c079c067ccd858f86079a43e575311ed1b6d1322d3e4. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
+<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: 7ac41e2bb471735e3d7135ee148f36699520612d4e474e67f2a29cb2aff36938. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
 </main><script>
 'use strict';
 const brief = document.querySelector('#brief');
