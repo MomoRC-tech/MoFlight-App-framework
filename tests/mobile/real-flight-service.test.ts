@@ -89,7 +89,7 @@ test('post-commit response loss recovers the original receipt after service rest
     await assert.rejects(service.saveUnassigned(review),PendingRealFlightOperation);service.dispose();f.setFailure('');
     const reopened=f.make(),recovery=await reopened.recoverPending();assert.equal(recovery.status,'committed');
     if(recovery.status!=='committed')throw new Error('Missing recovery result');assert.equal(recovery.result.counts.added,1);
-    assert.equal((await reopened.list()).length,1);assert.equal((await reopened.recoverPending()).status,'none');reopened.dispose();
+    assert.equal((await reopened.list()).length,1);assert.equal((await reopened.snapshot()).savedRetrievals.length,1);assert.equal((await reopened.recoverPending()).status,'none');reopened.dispose();
   } finally {await f.cleanup();}
 });
 
@@ -98,11 +98,11 @@ test('before-commit failure keeps the exact durable request and blocks a new pla
   try {
     const {service,review}=await ready(f);f.setFailure('before-commit');
     let commandId='';await assert.rejects(service.saveUnassigned(review),error=>{assert.ok(error instanceof PendingRealFlightOperation);commandId=error.commandId;return true;});
-    assert.equal((await service.list()).length,0);await assert.rejects(service.reviewSource(source('new-capture')),PendingRealFlightOperation);service.dispose();
+    assert.equal((await service.list()).length,0);assert.deepEqual((await service.snapshot()).savedRetrievals,[]);await assert.rejects(service.reviewSource(source('new-capture')),PendingRealFlightOperation);service.dispose();
     f.setFailure('');const reopened=f.make(),recovery=await reopened.recoverPending();assert.equal(recovery.status,'not-committed');
     await assert.rejects(reopened.exportBackup(),PendingRealFlightOperation);await assert.rejects(reopened.retrieve({from:'2026-10-01',to:'2026-10-20'}),PendingRealFlightOperation);
     const result=await reopened.retryPending();assert.equal(result.commandId,commandId);assert.equal(result.counts.added,1);
-    assert.equal((await reopened.list()).length,1);assert.equal((await reopened.recoverPending()).status,'none');reopened.dispose();
+    assert.equal((await reopened.list()).length,1);assert.equal((await reopened.snapshot()).savedRetrievals.length,1);assert.equal((await reopened.recoverPending()).status,'none');reopened.dispose();
   } finally {await f.cleanup();}
 });
 
@@ -146,5 +146,76 @@ test('stored snapshot exposes read-only recovery and cannot export an older cand
     const open=f.ports.repository;f.ports.repository=async()=>({...await open(),writable:false,warning:'Retained newer candidate is unavailable.'});
     const snapshot=await service.snapshot();assert.equal(snapshot.recovery.readOnly,true);assert.ok(snapshot.recovery.warning);
     assert.equal((await service.list()).length,1);await assert.rejects(service.exportBackup(),/recovery/);service.dispose();
+  } finally {await f.cleanup();}
+});
+
+
+function windowSource(captureId: string, from: string, to: string, empty = false): RealFlightSourceInput {
+  const input=source(captureId);input.requestedWindow={...input.requestedWindow,from,to};
+  input.capture.exportContext={...input.capture.exportContext!,from,to,recordCount:empty?0:1};
+  if(empty)input.capture.rows=[];
+  return input;
+}
+
+test('planned retrieval uses saved empty coverage after restart, never login, capture or unsaved review', async () => {
+  const f=await fixture(),now=new Date(2026,9,20,12),requests:{from:string;to:string}[]=[];
+  try {
+    f.ports.retrieve=async request=>{requests.push({...request});return windowSource(`empty-${requests.length}`,request.from,request.to,true);};
+    let service=f.make();assert.equal(requests.length,0);
+    const first=await service.retrieveUpdate(now);
+    assert.deepEqual(requests[0],{from:'2025-01-01',to:'2026-10-20'});
+    assert.deepEqual((await service.snapshot()).savedRetrievals,[]);
+    const bound=await service.confirmAccount(first);assert.deepEqual((await service.snapshot()).savedRetrievals,[]);
+    service.cancelReview();await service.retrieveUpdate(now);
+    assert.deepEqual(requests[1],requests[0]);
+    service.cancelReview();const review=await service.retrieveUpdate(now);await service.saveUnassigned(review);
+    assert.equal((await service.list()).length,0);assert.equal((await service.snapshot()).savedRetrievals.length,1);
+    service.dispose();service=f.make();await service.retrieveUpdate(now);
+    assert.deepEqual(requests.at(-1),{from:'2026-04-20',to:'2026-10-20'});service.dispose();
+  } finally {await f.cleanup();}
+});
+
+test('planned updates preserve checkpoint on retrieval failure and cancellation, and reject owner switch before navigation', async () => {
+  const f=await fixture(),now=new Date(2027,9,20,12);
+  try {
+    const {service,review}=await ready(f);await service.saveUnassigned(review);
+    const before=(await service.snapshot()).savedRetrievals;
+    f.ports.retrieve=async request=>{assert.deepEqual(request,{from:'2026-10-20',to:'2027-10-20'});throw new Error('Offline');};
+    await assert.rejects(service.retrieveUpdate(now),/Offline/);
+    assert.deepEqual((await service.snapshot()).savedRetrievals,before);
+    let release!:(value:RealFlightSourceInput)=>void,started!:()=>void;
+    const start=new Promise<void>(resolve=>{started=resolve;});
+    f.ports.retrieve=async()=>new Promise(resolve=>{release=resolve;started();});
+    const pending=service.retrieveUpdate(now);await start;service.cancelReview();release(windowSource('cancelled','2026-10-20','2027-10-20',true));
+    await assert.rejects(pending,/Superseded/);assert.deepEqual((await service.snapshot()).savedRetrievals,before);
+    let called=false;f.ports.retrieve=async()=>{called=true;return source();};f.switchOwner();
+    await assert.rejects(service.retrieveUpdate(now),/foreign/);assert.equal(called,false);service.dispose();
+  } finally {await f.cleanup();}
+});
+
+test('correction/repeat and historical gaps preserve older flights without deletion', async () => {
+  const f=await fixture(),now=new Date(2026,9,20,12);
+  try {
+    const service=f.make(),old=windowSource('older','2025-01-01','2026-02-10');
+    old.capture.rows[0]!.values[0]='10.02.2026';old.capture.rows[0]!.sourceFlightId='8999';
+    let review=await service.confirmAccount(await service.reviewSource(old));await service.saveUnassigned(review);
+    f.ports.retrieve=async request=>{assert.deepEqual(request,{from:'2026-02-10',to:'2026-10-20'});return windowSource('new',request.from,request.to);};
+    review=await service.retrieveUpdate(now);assert.equal(review.state,'ready');
+    if(review.state!=='ready')throw new Error('Expected plan');assert.equal(review.plan.counts.added,1);
+    await service.saveUnassigned(review);
+    const correction=windowSource('correction','2026-04-20','2026-10-20');correction.capture.rows[0]!.values[4]='10';
+    const changed=await service.reviewSource(correction);if(changed.state!=='ready')throw new Error('Expected plan');
+    assert.equal(changed.plan.counts.changed,1);await service.saveUnassigned(changed);
+    const repeat=windowSource('repeat','2026-04-20','2026-10-20');repeat.capture.rows[0]!.values[4]='10';
+    const repeated=await service.reviewSource(repeat);if(repeated.state!=='ready')throw new Error('Expected plan');
+    assert.equal(repeated.plan.counts.unchanged,1);await service.saveUnassigned(repeated);
+    const empty=windowSource('historical-empty','2020-01-01','2020-12-31',true);
+    await service.saveUnassigned(await service.reviewSource(empty));
+    const retained=await service.list();assert.equal(retained.length,2);
+    const original=retained.find(row=>row.sourceFlightRef==='8999')!;assert.ok(original);
+    assert.equal((await service.detail(original.flightId))?.factHistory.length,1);
+    f.ports.retrieve=async request=>{assert.deepEqual(request,{from:'2020-12-31',to:'2026-10-20'});return windowSource('gap-fill',request.from,request.to,true);};
+    await service.saveUnassigned(await service.retrieveUpdate(now));
+    assert.equal((await service.list()).length,2);service.dispose();
   } finally {await f.cleanup();}
 });

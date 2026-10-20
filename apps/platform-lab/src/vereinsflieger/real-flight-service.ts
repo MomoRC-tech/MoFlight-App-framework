@@ -4,7 +4,8 @@ import { realHistoryUuid } from './real-history-contract';
 import { createRealFlightSourceObservation, type RealFlightSourceInput } from './real-flight-source';
 import type { RealFlightAuthorization, RealFlightLibrary, RealFlightListItem, RealFlightDetail } from './real-flight-library';
 import { latestRealFlightValues, type RealFlightCommand, type RealFlightImportPlan, type RealFlightResult,
-  type StoredBinding, type StoredCoverage, type StoredPending } from './real-flight-library-model';
+  type StoredBinding, type StoredCapture, type StoredCoverage, type StoredPending } from './real-flight-library-model';
+import { planFlightRetrieval, type SavedFlightRetrieval } from './retrieval-policy';
 
 export const REAL_FLIGHT_SERVICE_VERSION = 1;
 export interface RealFlightOperationJournal {
@@ -41,6 +42,7 @@ export interface OwnFlightStoredSnapshot {
   version: 1; ownerId: string; storeId: string; generation: number;
   account: {provider: 'vereinsflieger'; accountRef: string} | null;
   coverage: StoredCoverage[];
+  savedRetrievals: SavedFlightRetrieval[];
   pending: StoredPending[];
   latestSavedResult: RealFlightResult | null;
   recovery: {readOnly: boolean; warning: string | null};
@@ -93,6 +95,10 @@ export class RealFlightService {
       const source = await this.ports.retrieve({...request},controller.signal); this.live(sequence);
       return await this.buildReview(source,sequence);
     } finally { if (this.controller === controller) this.controller = null; }
+  }
+  async retrieveUpdate(now = new Date()): Promise<RealFlightReview> {
+    const snapshot = await this.snapshot();
+    return this.retrieve(planFlightRetrieval(snapshot.savedRetrievals, now).request);
   }
   async reviewSource(source: RealFlightSourceInput): Promise<RealFlightReview> {
     this.allowed(); if (this.writing || this.dispatching) throw new Error('Save is in progress.');
@@ -182,9 +188,20 @@ export class RealFlightService {
   async snapshot(): Promise<OwnFlightStoredSnapshot> {
     return this.withRepository(async ({library,writable,warning})=>{
       const graph = await library.snapshot(), binding = latestRealFlightValues<StoredBinding>(graph.records,'binding')[0];
+      const coverage = latestRealFlightValues<StoredCoverage>(graph.records,'coverage');
+      const captures = new Map(latestRealFlightValues<StoredCapture>(graph.records,'capture').map(value => [value.source.capture.captureId,value]));
+      const imports = new Map(graph.receipts.filter(row => row.kind === 'import-unassigned')
+        .map(row => [(JSON.parse(row.result_json) as RealFlightResult).captureId,row]));
+      const savedRetrievals = coverage.map(value => {
+        const capture = captures.get(value.captureId), window = value.coverage.displayedWindow;
+        const receipt = imports.get(value.captureId);
+        if (!binding || value.bindingId !== binding.bindingId || capture?.bindingId !== binding.bindingId || !window || !receipt ||
+          !['complete','empty'].includes(value.coverage.state)) throw new Error('Invalid committed flight coverage.');
+        return {from:window.from,to:window.to,retrievedAt:capture.source.capture.retrievedAt,savedAt:receipt.committed_at};
+      });
       return {version:1,ownerId:this.ownerId,storeId:this.storeId,generation:graph.generation,
         account:binding ? {provider:binding.provider,accountRef:binding.accountRef} : null,
-        coverage:latestRealFlightValues<StoredCoverage>(graph.records,'coverage'),pending:latestRealFlightValues<StoredPending>(graph.records,'pending'),
+        coverage,savedRetrievals,pending:latestRealFlightValues<StoredPending>(graph.records,'pending'),
         latestSavedResult:graph.receipts.length ? JSON.parse(graph.receipts.at(-1)!.result_json) as RealFlightResult : null,
         recovery:{readOnly:!writable,warning}};
     });

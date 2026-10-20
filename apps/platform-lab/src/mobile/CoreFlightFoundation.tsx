@@ -20,6 +20,8 @@ import { saveRealFlightBackupToFolder, restoreRealFlightBackup, resumeRealFlight
 import type { RealFlightRestorePreparation } from '../vereinsflieger/real-flight-selection';
 import { ProviderConnection } from './ProviderConnection';
 import { Action, Card, Label, Section, colors } from './theme';
+import { planFlightRetrieval } from '../vereinsflieger/retrieval-policy';
+import { dataFreshness } from './data-freshness';
 
 export function CoreFlightFoundation({ close }: {close: () => void}) {
   const registry = useRef<RealOwnerRegistry | null>(null), alive = useRef(true), lock = useRef(false);
@@ -260,6 +262,8 @@ function OwnerFlightLibrary({lease,registry,close}:{lease:RealOwnerLease;registr
     if(alive.current)setMessage('Dateiauswahl abgebrochen.');
   }
   const coverage=snapshot?.coverage.at(-1)?.coverage;
+  const retrievalPlan=planFlightRetrieval(snapshot?.savedRetrievals??[]);
+  const freshness=dataFreshness(retrievalPlan.lastSuccessfulRetrievalAt,snapshot?'ready':'loading');
   const unresolvedRestores=restorePreparations.filter(preparation=>preparation.status!=='activated');
   const restoreReadOnly=snapshot===null||snapshot.recovery.readOnly||restoreReadWarning!==null||unresolvedRestores.length>0;
   return <SafeAreaView style={{flex:1,backgroundColor:colors.background}}>
@@ -269,6 +273,12 @@ function OwnerFlightLibrary({lease,registry,close}:{lease:RealOwnerLease;registr
       <Card><Label>{flights.length} gespeicherte eigene Flüge · ohne Buchzuordnung</Label><Label muted>{snapshot?.account?'Vereinsflieger-Konto lokal verknüpft.':'Das eigene Anbieter-Konto wird nach dem ersten Abruf bestätigt.'}</Label>
         <Label muted>Originalwerte und Änderungen bleiben erhalten. Zeiten, Rollen und unbekannte Angaben werden nicht ergänzt. Keine Buchzuordnung, Statistik oder Papierfortschreibung.</Label>
         <Label muted>{coverage?.displayedWindow?`Letzter gespeicherter Zeitraum: ${coverage.displayedWindow.from} bis ${coverage.displayedWindow.to} · ${coverage.observedRecordCount} Datensätze.`:'Noch kein gespeicherter vollständiger Abrufzeitraum.'} Keine Aussage über die gesamte Fluggeschichte.</Label></Card>
+      {snapshot&&<Card><Label>{freshness.label}</Label>
+        <Label muted>{retrievalPlan.lastSavedAt?`In der Bibliothek gespeichert: ${new Date(retrievalPlan.lastSavedAt).toLocaleString('de-DE')}`:'Noch kein vollständiger Abruf in der Bibliothek gespeichert.'}</Label>
+        {freshness.reminder&&<Label>{freshness.note}</Label>}
+        {retrievalPlan.periods.map(period=><Label muted key={period.from}>Abgedeckt: {period.from} bis {period.to}</Label>)}
+        {retrievalPlan.gaps.map(gap=><Label key={gap.from}>Lücke: {gap.from} bis {gap.to}</Label>)}
+      </Card>}
       {(busy||c.busy)&&<ActivityIndicator color={colors.cyan} accessibilityLabel="Flugbibliothek wird verarbeitet"/>}
       {failed&&snapshot===null&&<Card><Section title="Bibliothek nicht lesbar"/><Label>Die gespeicherte Auswahl konnte nicht geprüft werden. Abruf und Sicherung bleiben gesperrt. Du kannst eine geprüfte Sicherungsdatei ausdrücklich auswählen, um die Wiederherstellung zu versuchen; vorhandene Dateien bleiben erhalten.</Label></Card>}
       {snapshot?.recovery.readOnly&&<Card><Section title="Bibliothek nur lesbar"/><Label>Eine neuere oder abweichende gespeicherte Datei muss geprüft werden. Frühere Flüge bleiben lesbar; spätere Aufträge und Dateien werden erhalten. Neue Speicherung und Sicherung sind gesperrt.</Label></Card>}
@@ -288,9 +298,10 @@ function OwnerFlightLibrary({lease,registry,close}:{lease:RealOwnerLease;registr
         <Action disabled={busy} onPress={()=>void run(async()=>{setRecovery(await service.recoverPending());await refresh();})}>Auftragsbeleg erneut prüfen</Action>
         {recovery.status==='not-committed'&&<Action disabled={busy} onPress={()=>void run(async()=>{await service.retryPending();await refresh();setMessage('Ursprünglicher Auftrag gespeichert.');})}>Ursprünglichen Auftrag erneut versuchen</Action>}
       </Card>}
-      <Card><Section title="Eigene Flüge abrufen" icon="refresh"/><Label muted>Zeitraum: {c.from} bis {c.to} einschließlich. Anmeldung und Quellenprüfung erfolgen auf der Originalseite.</Label>
-        <Action disabled={busy||restoreReadOnly||recovery.status==='not-committed'||recovery.status==='recovery-required'} onPress={()=>void run(async()=>{setReview(await prepareSourceReview(await service.retrieve({from:c.from,to:c.to})));})}>Eigene Flüge jetzt abrufen</Action>
-        <Action secondary disabled={busy} onPress={()=>{setProviderOpen(true);if(!c.browserActive)c.connect();}}>Anbieter und Zeitraum öffnen</Action>
+      <Card><Section title="Eigene Flüge abrufen" icon="refresh"/><Label muted>Aktualisierung: {retrievalPlan.request.from} bis {retrievalPlan.request.to} einschließlich. Anmeldung und Quellenprüfung erfolgen auf der Originalseite.</Label>
+        <Label muted>{retrievalPlan.firstRetrieval?'Beim ersten Abruf werden das Vorjahr und das laufende Jahr bis heute geladen.':'Die letzten sechs Monate werden erneut geprüft. Nach längerer Pause und bei bekannten Lücken wird der Zeitraum erweitert.'} Ältere Korrekturen können unentdeckt bleiben. Dafür einen eigenen Zeitraum wählen; gespeicherte ältere Flüge bleiben erhalten.</Label>
+        <Action disabled={busy||restoreReadOnly||recovery.status==='not-committed'||recovery.status==='recovery-required'} onPress={()=>void run(async()=>{setReview(await prepareSourceReview(await service.retrieveUpdate()));})}>Daten aktualisieren</Action>
+        <Action secondary disabled={busy||restoreReadOnly} onPress={()=>{c.setFrom(retrievalPlan.request.from);c.setTo(retrievalPlan.request.to);setProviderOpen(true);if(!c.browserActive)c.connect();}}>Anbieter und eigenen Zeitraum öffnen</Action>
         {waiting.current&&<Action secondary disabled={!canCancelCoreFlightSource(c.retrieval.current.state.phase,c.saving,c.restoring.current)}
           onPress={()=>abandonSource('Cancelled.')}>Abruf abbrechen</Action>}
       </Card>
