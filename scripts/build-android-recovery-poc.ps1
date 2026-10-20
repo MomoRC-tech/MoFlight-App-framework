@@ -3,10 +3,12 @@ param(
     [Parameter(Mandatory)][string]$BuildDirectory,
     [Parameter(Mandatory)][string]$OutputDirectory,
     [string]$SourceRef = 'HEAD',
-    [ValidateSet('Recovery', 'Responsiveness')][string]$Proof = 'Recovery'
+    [ValidateSet('Recovery', 'Responsiveness')][string]$Proof = 'Recovery',
+    [ValidatePattern('^[a-z][a-z0-9-]{0,39}$')][string]$RecoveryNamespace
 )
 
 $ErrorActionPreference = 'Stop'
+if ($RecoveryNamespace -and $Proof -ne 'Recovery') { throw 'A recovery namespace requires the Recovery proof.' }
 $evidence = [IO.Path]::GetFullPath($OutputDirectory)
 if (Test-Path -LiteralPath $evidence) { throw 'Use a new output directory; prior evidence is preserved.' }
 New-Item -ItemType Directory -Path $evidence | Out-Null
@@ -21,6 +23,9 @@ $entry = Join-Path $checkout 'apps/platform-lab/index.ts'
 $original = [IO.File]::ReadAllBytes($entry)
 $module = if ($Proof -eq 'Responsiveness') { 'android-flight-responsiveness-poc' } else { 'android-core-recovery-poc' }
 $override = "import { registerRootComponent } from 'expo';`nimport ProofComponent from './src/development/$module';`nregisterRootComponent(ProofComponent);`n"
+if ($RecoveryNamespace) {
+    $override = "import { registerRootComponent } from 'expo';`nimport ProofComponent, { setRecoveryNamespace } from './src/development/$module';`nsetRecoveryNamespace('$RecoveryNamespace');`nregisterRootComponent(ProofComponent);`n"
+}
 $overrideBytes = [Text.UTF8Encoding]::new($false).GetBytes($override)
 $env:JAVA_HOME = $JavaHome
 $env:ANDROID_HOME = Join-Path $env:LOCALAPPDATA 'Android/Sdk'
@@ -42,6 +47,7 @@ try {
         kind = if ($Proof -eq 'Recovery') { 'synthetic-android-process-death-poc' } else { $module }
         source_commit = $manifest.source_commit
         entry_override = $override
+        recovery_namespace = $RecoveryNamespace
         proof_apk_sha256 = (Get-FileHash -LiteralPath $proofApk -Algorithm SHA256).Hash.ToLowerInvariant()
         normal_apk_sha256 = $manifest.apk_sha256
         boundary = 'Test entry override; not normal-app or physical power-loss acceptance'

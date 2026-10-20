@@ -17,6 +17,15 @@ export const recoveryCommandId = (index: number) => `49494949-4949-4949-8949-${i
 export const recoveryFileName = (caseName: RecoveryCase, kind: 'library' | 'commands' | 'candidate') =>
   `native-recovery-${caseName}-${kind}.sqlite`;
 
+/** A fresh bounded proof preserves all earlier recovery runs on the synthetic AVD. */
+export function recoveryPathNamespace(namespace: string) {
+  if (!/^[a-z][a-z0-9-]{0,39}$/.test(namespace)) throw new Error('Invalid synthetic recovery namespace');
+  return (name: string) => {
+    if (!/^native-recovery-[a-z0-9.-]+$/.test(name)) throw new Error('Invalid synthetic recovery filename');
+    return `${namespace}-${name}`;
+  };
+}
+
 export function recoverySource(captureId: string): RealFlightSourceInput {
   const context = { accountNumber: '101', clubLabel: 'Synthetic recovery club', clubIdentity: 'display-label-only' as const,
     verification: 'observed-profile-number' as const };

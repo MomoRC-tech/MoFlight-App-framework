@@ -9,7 +9,7 @@ import { RealFlightCommandJournal } from '../vereinsflieger/real-flight-command-
 import { openRealFlightNativeDriver } from '../vereinsflieger/real-flight-native-driver';
 import type { RealFlightCommand } from '../vereinsflieger/real-flight-library-model';
 import { RECOVERY_AT, RECOVERY_CASES, RECOVERY_MANIFEST, RECOVERY_OWNER, RECOVERY_STORE,
-  recoveryCommandId, recoveryFileName, recoveryPermit, recoverySource, type RecoveryCase } from './android-core-recovery-fixture';
+  recoveryCommandId, recoveryFileName, recoveryPathNamespace, recoveryPermit, recoverySource, type RecoveryCase } from './android-core-recovery-fixture';
 
 /**
  * Unimported by the normal app. Build-only entry for the designated synthetic
@@ -17,9 +17,12 @@ import { RECOVERY_AT, RECOVERY_CASES, RECOVERY_MANIFEST, RECOVERY_OWNER, RECOVER
  * At READY_TO_STOP, force-stop the process and relaunch this same binary.
  * No timeout releases the paused transaction; recovery must run in a new process.
  */
-const marker = () => new File(Paths.document, 'native-recovery-progress-v1.json');
-const backupFile = () => new File(Paths.document, 'native-recovery-restore-record-backup.json');
-const commandFile = (caseName: RecoveryCase) => new File(Paths.document, `native-recovery-${caseName}-expected-command.json`);
+let proofPath = (name: string) => name;
+/** Build-only entry configuration, before mounting the isolated proof. */
+export function setRecoveryNamespace(namespace: string) { proofPath = recoveryPathNamespace(namespace); }
+const marker = () => new File(Paths.document, proofPath('native-recovery-progress-v1.json'));
+const backupFile = () => new File(Paths.document, proofPath('native-recovery-restore-record-backup.json'));
+const commandFile = (caseName: RecoveryCase) => new File(Paths.document, proofPath(`native-recovery-${caseName}-expected-command.json`));
 const hash = (text: string) => Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256, text);
 type Phase = 'idle' | 'running' | 'awaiting-stop' | 'passed' | 'failed';
 interface Progress { version: 1; phase: Phase; passed: RecoveryCase[]; current: RecoveryCase | null }
@@ -49,7 +52,7 @@ async function saveProgress(progress: Progress): Promise<void> {
   check(await file.text() === text, 'MARKER_READBACK');
 }
 const driver = (caseName: RecoveryCase, kind: 'library' | 'commands' | 'candidate') =>
-  openRealFlightNativeDriver(recoveryFileName(caseName, kind), (name, options) => SQLite.openDatabaseAsync(name, options));
+  openRealFlightNativeDriver(proofPath(recoveryFileName(caseName, kind)), (name, options) => SQLite.openDatabaseAsync(name, options));
 const openLibrary = async (caseName: RecoveryCase, kind: 'library' | 'candidate' = 'library', fault?: RealFlightFault) =>
   RealFlightLibrary.open(await driver(caseName, kind), RECOVERY_OWNER, RECOVERY_STORE, hash, recoveryPermit, fault);
 const openJournal = async (caseName: RecoveryCase, create = false) => RealFlightCommandJournal.open(
