@@ -77,7 +77,7 @@ export function OwnFlights({ active, reloadKey, onUpdate, onHeaderChange, ports 
           <Label muted>Quellflug {item.sourceFlightRef} · Fassung {item.factsRevision}</Label>
         </Card>; }}
         ListEmptyComponent={<Card><Empty title={flights.length ? 'Keine passenden Flüge' : 'Noch keine gespeicherten Flüge'}>{flights.length ? 'Suchbegriff oder Filter ändern. Ein leeres Ergebnis ist keine Aussage über die gesamte Fluggeschichte.' : 'Eigene Flüge ausdrücklich abrufen, prüfen und speichern. Ein Flugbuch wird dafür nicht benötigt.'}</Empty></Card>}
-        onScroll={event => { offset.current = event.nativeEvent.contentOffset.y; }} scrollEventThrottle={32}
+        onScroll={event => { if (active && data.phase === 'ready' && !filterOpen && !detailOpen) offset.current = event.nativeEvent.contentOffset.y; }} scrollEventThrottle={32}
         onContentSizeChange={() => { if (data.phase === 'ready') list.current?.scrollToOffset({ offset: offset.current, animated: false }); }}
         contentContainerStyle={s.canvas} ItemSeparatorComponent={() => <View style={{ height: 7 }} />} initialNumToRender={10} maxToRenderPerBatch={10} windowSize={7} keyboardShouldPersistTaps="handled" />
     </View>
