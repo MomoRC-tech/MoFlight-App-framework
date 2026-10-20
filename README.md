@@ -7,6 +7,8 @@
 
 # MoFlight
 
+**Revised focus — 20 October:** reliable own-flight retrieval, durable offline storage, a working **Flüge** tab and real-flight statistics, plus source-backed **Medical status**. Flugbuch creation/assignment and paper catch-up come later and must not block this journey. Profile settings is the selected administrative home, with direct Start/header shortcuts and a non-blocking data-age reminder after more than seven days. This supersedes the older order below. Product direction selected; implementation/acceptance remain pending. [Current roadmap](docs/project-plan.md#current-focus-and-usability-decision--20-october-2026).
+
 **Priority — 20 October:** all training-status/progress work is deferred at **very low priority**. Focus on reliable own-flight import → real offline library and data preservation → real-book assignment/corrections → statistics and paper-logbook catch-up. Next: flight identity and requested-window coverage evidence. Existing training code/data stay preserved; training does not gate the core journey. [Current roadmap](docs/project-plan.md).
 
 **Core retrieval/storage is incomplete:** raw captures work, but production flight-database import/update and its independent service/repository boundary are unfinished. Dependent features wait for scoped completion. [Open deliverables and dependency gate](docs/architecture/vereinsflieger-import-contract.md#core-flight-retrievalstorage-completion-gate--20-october-2026).
