@@ -2,7 +2,8 @@ param(
     [Parameter(Mandatory)][string]$JavaHome,
     [Parameter(Mandatory)][string]$BuildDirectory,
     [Parameter(Mandatory)][string]$OutputDirectory,
-    [string]$SourceRef = 'HEAD'
+    [string]$SourceRef = 'HEAD',
+    [ValidateSet('Recovery', 'Responsiveness')][string]$Proof = 'Recovery'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -18,7 +19,8 @@ Copy-Item -LiteralPath $manifest.apk -Destination $normal
 if ((Get-FileHash -LiteralPath $normal -Algorithm SHA256).Hash.ToLowerInvariant() -ne $manifest.apk_sha256) { throw 'Normal APK manifest mismatch.' }
 $entry = Join-Path $checkout 'apps/platform-lab/index.ts'
 $original = [IO.File]::ReadAllBytes($entry)
-$override = "import { registerRootComponent } from 'expo';`nimport AndroidCoreRecoveryPoc from './src/development/android-core-recovery-poc';`nregisterRootComponent(AndroidCoreRecoveryPoc);`n"
+$module = if ($Proof -eq 'Responsiveness') { 'android-flight-responsiveness-poc' } else { 'android-core-recovery-poc' }
+$override = "import { registerRootComponent } from 'expo';`nimport ProofComponent from './src/development/$module';`nregisterRootComponent(ProofComponent);`n"
 $overrideBytes = [Text.UTF8Encoding]::new($false).GetBytes($override)
 $env:JAVA_HOME = $JavaHome
 $env:ANDROID_HOME = Join-Path $env:LOCALAPPDATA 'Android/Sdk'
@@ -32,14 +34,15 @@ try {
         & ./gradlew.bat :app:assembleRelease '-PreactNativeArchitectures=arm64-v8a,x86_64' --max-workers=2 *> (Join-Path $evidence 'proof-build.log')
         if ($LASTEXITCODE) { throw 'Recovery proof build failed.' }
     } finally { Pop-Location }
-    $proof = Join-Path $evidence 'core-recovery-poc.apk'
-    Copy-Item -LiteralPath $manifest.apk -Destination $proof
+    $proofName = if ($Proof -eq 'Recovery') { 'core-recovery-poc.apk' } else { 'flight-responsiveness-poc.apk' }
+    $proofApk = Join-Path $evidence $proofName
+    Copy-Item -LiteralPath $manifest.apk -Destination $proofApk
     [IO.File]::WriteAllText((Join-Path $evidence 'entry-override.ts'), $override)
     $provenance = [ordered]@{
-        kind = 'synthetic-android-process-death-poc'
+        kind = $module
         source_commit = $manifest.source_commit
         entry_override = $override
-        proof_apk_sha256 = (Get-FileHash -LiteralPath $proof -Algorithm SHA256).Hash.ToLowerInvariant()
+        proof_apk_sha256 = (Get-FileHash -LiteralPath $proofApk -Algorithm SHA256).Hash.ToLowerInvariant()
         normal_apk_sha256 = $manifest.apk_sha256
         boundary = 'Test entry override; not normal-app or physical power-loss acceptance'
     }
