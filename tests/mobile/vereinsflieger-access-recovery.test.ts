@@ -1632,10 +1632,52 @@ test('exact failed-profile retry uses one native reload and ignores old same-URL
   assert.equal(f.writes.filter(w => w === 'information-saved').length, 1); assert.equal(f.nativeReloads(), 1);
 });
 
+test('failed-profile reload evidence survives Android trailing profile/error-document callbacks but never reloads an error document', async () => {
+  for (const intermediate of [null, 'about:blank', 'chrome-error://chromewebdata/']) {
+    const blank = intermediate !== null;
+    const f = await failedProfileFixture();
+    let web = f.find(f.render(), e => e.type === 'WebView')!;
+    if (blank) {
+      (web.props.onNavigationStateChange as (state: unknown) => void)({ url: intermediate, canGoBack: true }); await f.flush();
+      const before = f.injections.length; f.controller().retryInformation(); await f.flush();
+      assert.equal(f.nativeReloads(), 0, 'An internal error document is never an authorized reload target');
+      // The guarded navigation attempt above consumes the retry target. Use a
+      // separate failed attempt to exercise the trailing blank/profile sequence.
+      assert.ok(f.injections.length > before);
+      f.controller().stopInformation();
+    }
+    const current = blank ? await failedProfileFixture() : f;
+    web = current.find(current.render(), e => e.type === 'WebView')!;
+    if (blank) {
+      (web.props.onNavigationStateChange as (state: unknown) => void)({ url: intermediate, canGoBack: true }); await current.flush();
+      web = current.find(current.render(), e => e.type === 'WebView')!;
+      (web.props.onLoadStart as (event: unknown) => void)({ nativeEvent: { url: intermediate } }); await current.flush();
+      web = current.find(current.render(), e => e.type === 'WebView')!;
+    }
+    (web.props.onLoadStart as (event: unknown) => void)({ nativeEvent: { url: context.PROFILE_URL } }); await current.flush();
+    web = current.find(current.render(), e => e.type === 'WebView')!;
+    (web.props.onNavigationStateChange as (state: unknown) => void)({ url: context.PROFILE_URL, canGoBack: true });
+    (web.props.onLoadEnd as (event: unknown) => void)({ nativeEvent: { url: context.PROFILE_URL } }); await current.flush();
+    current.controller().retryInformation(); await current.flush();
+    assert.equal(current.nativeReloads(), 1, 'Same failed-profile callback train must retain native recovery');
+    await current.loadPage(context.PROFILE_URL); await current.contextMessage(observedContext);
+    await current.loadPage(trainingSummarySource); await summaryMessage(current, trainingSummaryPage);
+    await current.loadPage(context.PROFILE_URL); await current.contextMessage(observedContext); await current.flush();
+    assert.equal(current.writes.filter(w => w === 'information-saved').length, 1);
+  }
+});
+
 test('unproven error URLs, source failures and intervening navigation cannot select native profile reload', async () => {
-  for (const boundary of ['unknown', 'foreign', 'source', 'intervening'] as const) {
-    const f = boundary === 'intervening' ? await failedProfileFixture() : await trainingSummaryFixture(boundary === 'source');
+  for (const boundary of ['unknown', 'foreign', 'source', 'intervening', 'intervening-native'] as const) {
+    const f = boundary === 'intervening' || boundary === 'intervening-native' ? await failedProfileFixture() : await trainingSummaryFixture(boundary === 'source');
     if (boundary === 'intervening') { f.controller().navigate(context.PROFILE_URL); await f.flush(); }
+    else if (boundary === 'intervening-native') {
+      let web = f.find(f.render(), e => e.type === 'WebView')!;
+      (web.props.onShouldStartLoadWithRequest as (request: unknown) => boolean)({ url: trainingSummarySource, isTopFrame: true });
+      (web.props.onLoadStart as (event: unknown) => void)({ nativeEvent: { url: trainingSummarySource } }); await f.flush();
+      web = f.find(f.render(), e => e.type === 'WebView')!;
+      (web.props.onLoadStart as (event: unknown) => void)({ nativeEvent: { url: context.PROFILE_URL } }); await f.flush();
+    }
     else {
       const web = f.find(f.render(), e => e.type === 'WebView')!;
       const error = boundary === 'unknown' ? undefined : { nativeEvent: { url: boundary === 'foreign' ? 'https://evil.test/' : trainingSummarySource } };

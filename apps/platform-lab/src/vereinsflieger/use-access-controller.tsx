@@ -371,7 +371,7 @@ export function useAccessController(product = false, localOwner?: string) {
     if (generation !== epoch.current || owner.current !== activeOwner.current || clearingStore.current || bindingBusy.current || !foreground.current ||
       !visible || !browserActive || !canGoBack || !viewReady || disconnectMode.current ||
       retrieval.current.state.phase !== 'idle' || busy || saving || loginBusy || loginStorageBusy.current || loginAttempt.current || contextRequest.current || !web.current) return false;
-    session.current.invalidate(); syncConnection(); web.current.goBack(); return true;
+    informationFailedProfile.current = null; session.current.invalidate(); syncConnection(); web.current.goBack(); return true;
   }
   function dismissLogin() {
     if (informationRun.current) { if (informationRun.current.stage === 'saving') return; stopInformation(); }
@@ -823,14 +823,17 @@ export function useAccessController(product = false, localOwner?: string) {
     } catch { finish('Local saving failed. Earlier captures retained.', nonce); }
   }
 
+  // Android may report synthetic history/error-document callbacks after failure.
+  // Preserve its exact-profile evidence until an explicit navigation/request;
+  // callbacks alone cannot authorize reload, which still requires PROFILE_URL.
   const browser = browserActive && <WebView key={product ? `retained-provider-${documentId}` : generation} ref={web} source={source} originWhitelist={['*']}
         incognito={false} thirdPartyCookiesEnabled={false} sharedCookiesEnabled={false} webviewDebuggingEnabled={false}
         cacheEnabled={false} cacheMode="LOAD_NO_CACHE"
         allowFileAccess={false} allowFileAccessFromFileURLs={false} allowUniversalAccessFromFileURLs={false} mixedContentMode="never"
         javaScriptCanOpenWindowsAutomatically={false} setSupportMultipleWindows={true}
-        onShouldStartLoadWithRequest={request => { if (generation !== epoch.current) return false; const allowed = providerUrl(request.url); if (product && contextRequest.current && request.isTopFrame !== false && request.url === PROFILE_URL) contextRequest.current.navigationObserved = true; if (!allowed && request.isTopFrame !== false) finish('External navigation blocked. Previous captures preserved.'); return allowed; }}
+        onShouldStartLoadWithRequest={request => { if (generation !== epoch.current) return false; const allowed = providerUrl(request.url); if (allowed && request.isTopFrame !== false && request.url !== PROFILE_URL) informationFailedProfile.current = null; if (product && contextRequest.current && request.isTopFrame !== false && request.url === PROFILE_URL) contextRequest.current.navigationObserved = true; if (!allowed && request.isTopFrame !== false) finish('External navigation blocked. Previous captures preserved.'); return allowed; }}
         onOpenWindow={() => { if (generation === epoch.current) finish('New browser window blocked in this bounded PoC.'); }}
-        onLoadStart={event => { if (generation !== epoch.current) return; informationFailedProfile.current = null; if (informationRun.current && event.nativeEvent.url === informationRun.current.url) informationNavigation.current = { run: informationRun.current, nonce: informationRun.current.messageNonce }; if (product && contextRequest.current && event.nativeEvent.url === PROFILE_URL) contextRequest.current.navigationObserved = true; if (retrieval.current.state.phase === 'loading') {
+        onLoadStart={event => { if (generation !== epoch.current) return; if (informationRun.current && event.nativeEvent.url === informationRun.current.url) informationNavigation.current = { run: informationRun.current, nonce: informationRun.current.messageNonce }; if (product && contextRequest.current && event.nativeEvent.url === PROFILE_URL) contextRequest.current.navigationObserved = true; if (retrieval.current.state.phase === 'loading') {
           // Native load-start can beat the bridge acknowledgement. Advance only
           // a still-owned, outstanding save/load command; acknowledged commands
           // already cleared their token and must not advance a second time.
@@ -840,7 +843,7 @@ export function useAccessController(product = false, localOwner?: string) {
           }
           reading.current = false; command.current = '';
         } currentUrl.current = event.nativeEvent.url; setUrl(event.nativeEvent.url); setLoaded(false); }}
-        onNavigationStateChange={state => { if (generation !== epoch.current) return; if (state.url !== PROFILE_URL) informationFailedProfile.current = null; currentUrl.current = state.url; setUrl(state.url); setCanGoBack(state.canGoBack); }}
+        onNavigationStateChange={state => { if (generation !== epoch.current) return; currentUrl.current = state.url; setUrl(state.url); setCanGoBack(state.canGoBack); }}
         onLoadProgress={event => { if (generation === epoch.current) phase.current.progress = event.nativeEvent.progress; }}
         onLoadEnd={event => { if (generation === epoch.current) void loadedPage(event.nativeEvent.url); }}
         onMessage={event => {
