@@ -10,6 +10,7 @@ import { openRealFlightNativeDriver, type RealFlightNativeDatabase, type RealFli
 import { RealOwnerRegistry } from '../../apps/platform-lab/src/vereinsflieger/real-owner-registry.ts';
 
 interface OpenedConnection {
+  database: DatabaseSync;
   useNewConnection: boolean;
   calls: string[];
   closed: boolean;
@@ -19,7 +20,7 @@ function sqliteOpener(path: string, options: { ignoreTransactionPragmas?: boolea
   const opened: OpenedConnection[] = [];
   const open = async (_name: string, openOptions?: RealFlightNativeDatabaseOptions): Promise<RealFlightNativeDatabase> => {
     const database = new DatabaseSync(path);
-    const state: OpenedConnection = { useNewConnection: openOptions?.useNewConnection === true, calls: [], closed: false };
+    const state: OpenedConnection = { database, useNewConnection: openOptions?.useNewConnection === true, calls: [], closed: false };
     opened.push(state);
     const handle = {
       execAsync: async (sql: string) => {
@@ -67,8 +68,9 @@ test('fresh-owner registry create, selection and reopen work with independent na
     registry = await RealOwnerRegistry.create(driver, uuidSource(), '2026-10-20T10:00:00.000Z');
     const owner = await registry.createFreshOwner('2026-10-20T10:01:00.000Z');
     assert.equal(owner.selectionSeq, 1);
-    assert.ok(factory.opened.filter(connection => connection.useNewConnection).every(connection => connection.closed));
+    assert.equal(factory.opened.filter(connection => connection.useNewConnection).length, 1);
     await registry.close(); registry = undefined; driver = undefined;
+    assert.ok(factory.opened.every(connection => connection.closed));
 
     reopenedDriver = await openRealFlightNativeDriver('history.sqlite', factory.open);
     reopened = await RealOwnerRegistry.open(reopenedDriver, uuidSource(100));
@@ -106,12 +108,18 @@ test('native driver configures the independent transaction connection before BEG
     const pragmaCall = transactionConnection.calls.indexOf('PRAGMA foreign_keys=ON; PRAGMA synchronous=FULL;');
     const beginCall = transactionConnection.calls.indexOf('BEGIN EXCLUSIVE TRANSACTION');
     assert.ok(pragmaCall >= 0 && beginCall > pragmaCall, 'connection-local settings must precede BEGIN');
-    assert.equal(transactionConnection.closed, true);
+    assert.equal(transactionConnection.closed, false, 'successful connection remains owned by this driver');
+    transactionConnection.database.exec('PRAGMA foreign_keys=OFF; PRAGMA synchronous=NORMAL;');
+    await driver.transaction(async tx => {
+      assert.equal((await tx.first<{ foreign_keys: number }>('PRAGMA foreign_keys'))?.foreign_keys, 1);
+      assert.equal((await tx.first<{ synchronous: number }>('PRAGMA synchronous'))?.synchronous, 2);
+    });
+    assert.equal(factory.opened.filter(connection => connection.useNewConnection).length, 1);
 
     await assert.rejects(driver.transaction(tx => tx.run('INSERT INTO child(parent_id) VALUES (?)', 999)), /FOREIGN KEY/);
     assert.equal((await driver.first<{ count: number }>('SELECT count(*) AS count FROM child'))?.count, 1);
     const completed = factory.opened.filter(connection => connection.useNewConnection);
-    assert.ok(completed.every(connection => connection.closed), 'every transaction connection closes after success or failure');
+    assert.ok(completed.every(connection => connection.closed), 'failure discards even a previously reused connection');
   } finally {
     await driver.close();
     rmSync(directory, { recursive: true, force: true });
@@ -144,4 +152,120 @@ test('native driver rolls back callback failures and closes a transaction connec
     await unsafeDriver.close();
     rmSync(unsafe.directory, { recursive: true, force: true });
   }
+});
+
+test('transactions serialize; close drains accepted work, rejects new work and closes each handle once', async () => {
+  const { directory, path } = temporaryPath(), factory = sqliteOpener(path);
+  const driver = await openRealFlightNativeDriver('history.sqlite',factory.open);
+  let release!: () => void, entered!: () => void;
+  const hold = new Promise<void>(resolve => { release=resolve; });
+  const started = new Promise<void>(resolve => { entered=resolve; });
+  const order: string[] = [];
+  try {
+    await driver.exec('CREATE TABLE ordered_values(value TEXT)');
+    const first = driver.transaction(async tx => {
+      order.push('first-start');await tx.run('INSERT INTO ordered_values VALUES (?)','first');entered();await hold;order.push('first-end');
+    });
+    await started;
+    const second = driver.transaction(async tx => {
+      order.push('second');await tx.run('INSERT INTO ordered_values VALUES (?)','second');
+    });
+    const closing = driver.close();
+    assert.equal(driver.close(),closing,'close is idempotent, including while draining');
+    await assert.rejects(driver.transaction(async()=>{}),/driver closed/);
+    await assert.rejects(driver.first('SELECT 1'),/driver closed/);
+    assert.deepEqual(order,['first-start']);
+    release();await Promise.all([first,second,closing]);
+    assert.deepEqual(order,['first-start','first-end','second']);
+    assert.equal(factory.opened.length,2,'one root and one private serial transaction connection');
+    assert.ok(factory.opened.every(x=>x.closed));
+    const readback = new DatabaseSync(path);
+    try { assert.deepEqual(readback.prepare('SELECT value FROM ordered_values ORDER BY rowid').all().map(x=>x.value),['first','second']); }
+    finally { readback.close(); }
+  } finally { release();await driver.close();rmSync(directory,{recursive:true,force:true}); }
+});
+
+test('a failed callback discards its handle, preserves the error and lets queued work reopen cleanly', async () => {
+  const { directory, path } = temporaryPath(), factory = sqliteOpener(path);
+  const driver = await openRealFlightNativeDriver('history.sqlite',factory.open), failure = new Error('original callback failure');
+  try {
+    await driver.exec('CREATE TABLE retained_values(value INTEGER)');
+    const failed = driver.transaction(async tx => { await tx.run('INSERT INTO retained_values VALUES (1)');throw failure; });
+    const next = driver.transaction(async tx => { await tx.run('INSERT INTO retained_values VALUES (2)'); });
+    await assert.rejects(failed,error=>error===failure);await next;
+    assert.deepEqual((await driver.all<{value:number}>('SELECT value FROM retained_values')).map(x=>x.value),[2]);
+    assert.equal(factory.opened.length,3);
+    assert.equal(factory.opened[1]!.closed,true);assert.equal(factory.opened[2]!.closed,false);
+  } finally { await driver.close();rmSync(directory,{recursive:true,force:true}); }
+});
+
+test('indeterminate commit and rollback failures discard the connection without replacing the original error', async () => {
+  const { directory, path } = temporaryPath(), factory = sqliteOpener(path);
+  const failure = new Error('commit reply lost');let loseCommit=true;
+  const driver = await openRealFlightNativeDriver('history.sqlite',async(name,options)=>{
+    const db=await factory.open(name,options);
+    if(!options?.useNewConnection)return db;
+    return {...db,execAsync:async sql=>{
+      if(sql==='ROLLBACK'&&loseCommit===false)throw new Error('rollback failed');
+      await db.execAsync(sql);
+      if(sql==='COMMIT'&&loseCommit){loseCommit=false;throw failure;}
+    }};
+  });
+  try {
+    await driver.exec('CREATE TABLE committed_values(value INTEGER)');
+    await assert.rejects(driver.transaction(tx=>tx.run('INSERT INTO committed_values VALUES (1)')),error=>error===failure);
+    assert.equal(factory.opened[1]!.closed,true);
+    await driver.transaction(tx=>tx.run('INSERT INTO committed_values VALUES (2)'));
+    assert.deepEqual((await driver.all<{value:number}>('SELECT value FROM committed_values ORDER BY value')).map(x=>x.value),[1,2]);
+    assert.equal(factory.opened.length,3);
+  } finally { await driver.close();rmSync(directory,{recursive:true,force:true}); }
+});
+
+test('reused registry connections still reject another handle switching owner and forged leases', async () => {
+  const { directory, path } = temporaryPath(), factory = sqliteOpener(path);
+  const driver=await openRealFlightNativeDriver('registry.sqlite',factory.open);
+  const registry=await RealOwnerRegistry.create(driver,uuidSource(),'2026-10-20T10:00:00.000Z');
+  const otherDriver=await openRealFlightNativeDriver('registry.sqlite',factory.open);
+  const other=await RealOwnerRegistry.open(otherDriver,uuidSource(100));
+  try {
+    const first=await registry.createFreshOwner('2026-10-20T10:01:00.000Z');
+    await registry.assertCurrent(first);await registry.assertCurrent(first);
+    await assert.rejects(registry.assertCurrent({...first,leaseId:'00000000-0000-4000-8000-000000000099'}),/lease|owner|selection/i);
+    const second=await other.createFreshOwner('2026-10-20T10:02:00.000Z');
+    await assert.rejects(registry.assertCurrent(first));
+    await other.assertCurrent(second);
+    assert.notEqual(first.ownerId,second.ownerId);
+  } finally { await registry.close();await other.close();assert.ok(factory.opened.every(x=>x.closed));rmSync(directory,{recursive:true,force:true}); }
+});
+
+test('transaction callbacks cannot retain access to a connection reused by later work', async () => {
+  const { directory, path } = temporaryPath(), factory = sqliteOpener(path);
+  const driver=await openRealFlightNativeDriver('history.sqlite',factory.open);
+  let expired: Parameters<Parameters<Driver['transaction']>[0]>[0] | undefined;
+  try {
+    await driver.exec('CREATE TABLE scoped_values(value INTEGER)');
+    await driver.transaction(async tx=>{ expired=tx;await tx.run('INSERT INTO scoped_values VALUES (1)'); });
+    assert.ok(expired);
+    await assert.rejects(expired.run('INSERT INTO scoped_values VALUES (99)'),/transaction ended/);
+    await driver.transaction(async tx=>{
+      await assert.rejects(expired!.exec('DELETE FROM scoped_values'),/transaction ended/);
+      await tx.run('INSERT INTO scoped_values VALUES (2)');
+    });
+    assert.deepEqual((await driver.all<{value:number}>('SELECT value FROM scoped_values ORDER BY value')).map(x=>x.value),[1,2]);
+  } finally { await driver.close();rmSync(directory,{recursive:true,force:true}); }
+});
+
+test('transaction opener failure does not poison the serial queue', async () => {
+  const { directory, path } = temporaryPath(), factory=sqliteOpener(path), failure=new Error('temporary open failure');
+  let failOpen=true;
+  const driver=await openRealFlightNativeDriver('history.sqlite',async(name,options)=>{
+    if(options?.useNewConnection&&failOpen){failOpen=false;throw failure;}
+    return factory.open(name,options);
+  });
+  try {
+    const failed=driver.transaction(async()=>{assert.fail('callback must not run without a transaction connection');});
+    const recovered=driver.transaction(async tx=>{assert.equal((await tx.first<{value:number}>('SELECT 1 AS value'))?.value,1);});
+    await assert.rejects(failed,error=>error===failure);await recovered;
+    assert.equal(factory.opened.length,2);
+  } finally { await driver.close();rmSync(directory,{recursive:true,force:true}); }
 });
