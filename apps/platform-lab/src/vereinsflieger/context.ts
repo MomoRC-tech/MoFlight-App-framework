@@ -29,7 +29,10 @@ export function contextFailure(value: unknown): string | null {
     default: return null;
   }
 }
-export function contextScript(nonce: string) { return `window.ReactNativeWebView?.postMessage(JSON.stringify({kind:'vf-context-v1',nonce:${JSON.stringify(nonce)},url:location.href,context:(${CONTEXT_READER_SOURCE})()}));true;`; }
+// Native load-end can precede completion of the new document after a failed
+// navigation. Read the actual completed DOM once; nonce/URL guards still decide
+// whether the host may accept the response if this document is later abandoned.
+export function contextScript(nonce: string) { return `(()=>{let sent=false;const send=()=>{if(sent||document.readyState!=='complete')return;sent=true;window.ReactNativeWebView?.postMessage(JSON.stringify({kind:'vf-context-v1',nonce:${JSON.stringify(nonce)},url:location.href,context:(${CONTEXT_READER_SOURCE})()}));};if(document.readyState==='complete')send();else window.addEventListener('load',send,{once:true});})();true;`; }
 // Inspect structure only, never credential values or hidden fields. A root page
 // alone is not evidence: this reader is used only after a fresh protected-profile
 // request redirects to the exact original login document.
