@@ -1,7 +1,7 @@
 import { ownFlightFixture } from './own-flight-fixture.ts';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readOwnFlightView, readOwnFlightDetail, OwnFlightChangedError } from '../../apps/platform-lab/src/mobile/own-flight-reader.ts';
+import { readOwnFlightView, readOwnFlightDetail, OwnFlightChangedError, serializeOwnFlightReads } from '../../apps/platform-lab/src/mobile/own-flight-reader.ts';
 import { allOwnFlights, ownFlightYears, ownFlightRegistrations, selectOwnFlights } from '../../apps/platform-lab/src/mobile/own-flight-model.ts';
 
 test('ordinary read returns the saved coherent projection and pending status with both ownership checks and cleanup',async()=>{
@@ -40,4 +40,33 @@ test('filters combine raw source text, parsed source year and exact registration
   assert.equal(selectOwnFlights(flights,{...allOwnFlights,registration:null})[0]?.flightId,'flight-2');
   assert.equal(selectOwnFlights(flights,{...allOwnFlights,year:2024}).length,0);
   assert.equal(flights[2]!.facts.assessment.durations.flight.state,'unknown');assert.deepEqual(flights,before);
+});
+
+test('a remounted reader waits for prior native cleanup and selects the owner fresh after admission',async()=>{
+  const f=ownFlightFixture();let opens=0,owner='owner',finishClose!:()=>void;
+  const closing=new Promise<void>(done=>{finishClose=done;});
+  let closeStarted!:()=>void;const started=new Promise<void>(done=>{closeStarted=done;});
+  const ports=serializeOwnFlightReads({open:async()=>{
+    opens++;const first=opens===1,selected=owner;
+    return {...f.session,ownerId:selected,service:{...f.session.service,readStored:async()=>({snapshot:{...f.snapshot,ownerId:selected},flights:first?f.flights:[]})},
+      close:async()=>{if(first){closeStarted();await closing;}}};
+  }});
+  const first=readOwnFlightView(ports);await started;const second=readOwnFlightView(ports);
+  await new Promise<void>(done=>{setImmediate(done);});assert.equal(opens,1);
+  owner='other-owner';finishClose();
+  assert.equal((await first)?.snapshot.ownerId,'owner');assert.equal((await second)?.snapshot.ownerId,'other-owner');
+  assert.equal(opens,2);assert.equal((await readOwnFlightView(ports))?.flights.length,0);
+});
+
+test('missing selection, failed open and failed close release the queue without granting overlapping sessions',async()=>{
+  const f=ownFlightFixture();let attempt=0;
+  const ports=serializeOwnFlightReads({open:async()=>{
+    attempt++;if(attempt===1)throw new Error('Open interrupted');if(attempt===2)return null;
+    if(attempt===3)return {...f.session,close:async()=>{throw new Error('Close interrupted');}};
+    return f.session;
+  }});
+  const results=await Promise.allSettled(Array.from({length:4},()=>readOwnFlightView(ports)));
+  assert.deepEqual(results.map(r=>r.status),['rejected','fulfilled','rejected','fulfilled']);
+  assert.equal((results[1] as PromiseFulfilledResult<unknown>).value,null);
+  assert.equal((results[3] as PromiseFulfilledResult<any>).value.flights.length,3);assert.equal(attempt,4);
 });

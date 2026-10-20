@@ -9,6 +9,26 @@ export interface OwnFlightReadSession extends OwnFlightScope {
   close(): Promise<void>;
 }
 export interface OwnFlightReadPorts { open(): Promise<OwnFlightReadSession | null> }
+
+/** Keep native read transactions apart across hook unmount/remount, not just one hook's lock. */
+export function serializeOwnFlightReads(ports: OwnFlightReadPorts): OwnFlightReadPorts {
+  let tail = Promise.resolve();
+  return { async open() {
+    const previous = tail;
+    let release!: () => void;
+    tail = new Promise<void>(resolve => { release = resolve; });
+    await previous;
+    try {
+      // Select the current owner only after admission; never retain a queued lease.
+      const session = await ports.open();
+      if (!session) { release(); return null; }
+      let closing: Promise<void> | null = null;
+      return { ...session, close: () => closing ??= (async () => {
+        try { await session.close(); } finally { release(); }
+      })() };
+    } catch (error) { release(); throw error; }
+  } };
+}
 export interface OwnFlightView {
   snapshot: OwnFlightStoredSnapshot; flights: RealFlightListItem[]; pendingCommand: boolean;
 }

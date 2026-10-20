@@ -2,10 +2,10 @@ import * as Crypto from 'expo-crypto';
 import { hash } from '../storage';
 import { openOwnerRegistry, openRealFlightSelection, openRealFlightCommandJournal } from '../vereinsflieger/real-flight-native';
 import { RealFlightService } from '../vereinsflieger/real-flight-service';
-import type { OwnFlightReadPorts } from './own-flight-reader';
+import { serializeOwnFlightReads, type OwnFlightReadPorts } from './own-flight-reader';
 
 /** Read the selected real owner. Missing files stay missing; no fallback to the lab library. */
-export const ownFlightReadPorts: OwnFlightReadPorts = {
+export const ownFlightReadPorts: OwnFlightReadPorts = serializeOwnFlightReads({
   async open() {
     const registry = await openOwnerRegistry(false);
     if (!registry) return null;
@@ -42,4 +42,4 @@ export const ownFlightReadPorts: OwnFlightReadPorts = {
       };
     } catch (error) { await registry.close(); throw error; }
   },
-};
+});
