@@ -295,6 +295,8 @@ test('nested settings preserve the unsaved profile draft and each sheet scroll o
  test('ordinary flights uses its own reader, routes explicit updates safely and handles nested Back', () => {
   const f=fixture();f.press('Pressable','Flüge');
   assert.equal(f.find('OwnFlights').props.active,true);
+  assert.ok(f.nodes().some(n=>n.type==='Label' && n.children.includes('Entwicklung · eigene gespeicherte Flüge')));
+  assert.equal(f.nodes().some(n=>n.type==='Label' && n.children.includes('Entwicklung · synthetische lokale Bibliothek')),false);
   assert.equal(f.nodes().some(n=>n.type==='FlatList'),false);
   f.controller.suspendBrowserForOwnerSwitch=()=>false;
   assert.equal(f.find('OwnFlights').props.onUpdate(),false);assert.deepEqual(f.calls,[]);

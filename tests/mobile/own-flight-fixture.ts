@@ -20,4 +20,3 @@ export function ownFlightFixture() {
   const ports: OwnFlightReadPorts = {open:async()=>session};
   return {flights,snapshot,detail,session,ports,assertions:()=>assertions,closes:()=>closes};
 }
-

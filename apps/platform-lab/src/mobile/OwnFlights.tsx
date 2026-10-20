@@ -44,6 +44,7 @@ export function OwnFlights({ active, reloadKey, onUpdate, onHeaderChange, ports 
       <Label muted>{freshness.label}</Label>{freshness.reminder && <Label muted>{freshness.note}</Label>}
       {(data.view?.pendingCommand || data.view?.snapshot.recovery.readOnly) && <Label>Eine Speicherung oder Wiederherstellung muss geprüft werden. Der letzte geprüfte Stand bleibt lesbar.</Label>}
       {statusOpen && <>
+      <Label muted>{plan.lastSavedAt ? `In der Bibliothek gespeichert: ${new Date(plan.lastSavedAt).toLocaleString('de-DE')}` : 'Noch kein vollständiger Abruf in der Bibliothek gespeichert.'}</Label>
       {plan.periods.map(p => <Label muted key={p.from}>Abgedeckt: {p.from} bis {p.to}</Label>)}
       {plan.gaps.map(p => <Label key={p.from}>Lücke: {p.from} bis {p.to}</Label>)}
       {!plan.periods.length && <Label muted>Noch kein vollständiger Abruf gespeichert.</Label>}
