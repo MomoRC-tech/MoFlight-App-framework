@@ -1,0 +1,33 @@
+{
+  "status": "passed",
+  "source": "9ac4e5607a4c290951fdf8223c9ae245f7b1156f",
+  "original": {
+    "size": "Physical size: 1080x1920",
+    "density": "Physical density: 420",
+    "font": "1.0",
+    "airplane_mode_on": "1",
+    "wifi_on": "0",
+    "mobile_data": "0"
+  },
+  "apkSha256": "fdb2343ce7dffc1490273c4eeca955ae5048dc94b750f79f335224ad9928d71e",
+  "checks": [
+    "ordinary empty real-library state, no synthetic-book fallback",
+    "main390 season visible with empty time explicitly unknown",
+    "main390 season opens ordinary flights with 2026 selected",
+    "min360 season visible with empty time explicitly unknown",
+    "min360 season opens ordinary flights with 2026 selected",
+    "large360 season visible with empty time explicitly unknown",
+    "large360 season opens ordinary flights with 2026 selected",
+    "actual offline restart retains readable empty library"
+  ],
+  "limits": "Synthetic first-use/empty-library only; populated ring inputs tested by host component contracts. No provider access or data clear.",
+  "restored": {
+    "size": "Physical size: 1080x1920",
+    "density": "Physical density: 420",
+    "font": "1.0",
+    "airplane_mode_on": "1",
+    "wifi_on": "0",
+    "mobile_data": "0"
+  },
+  "cleanupPassed": true
+}

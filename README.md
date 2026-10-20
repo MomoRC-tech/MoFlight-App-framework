@@ -7,9 +7,9 @@
 
 # MoFlight
 
-**Current delivery — 20 October 2026:** the real account-owned flight library and ordinary Flüge list/detail/filters/offline journey are delivered within their recorded Android scope. Start statistics use that saved library; native statistics/UI acceptance remains open. The shell-test regression is repaired, and the selected controller refactor passes host checks, both exports, committed Android Release and six bounded offline native checks. [Current roadmap](docs/project-plan.md#current-focus-and-usability-decision--20-october-2026), [review and evidence](docs/verification/2026-10-17-current-status-and-open-issues.md#20-october-review--baseline-repair-and-bounded-controller-refactor).
+**Current delivery — 20 October 2026:** the real account-owned flight library and ordinary Flüge list/detail/filters/offline journey are delivered within their recorded Android scope. Start statistics use that saved library, with restored aircraft-share season rings and current-year drill-down. Populated statistics native/UI acceptance remains open. The shell-test regression is repaired, and the selected controller refactor passes host checks, both exports, committed Android Release and six bounded offline native checks. [Current roadmap](docs/project-plan.md#current-focus-and-usability-decision--20-october-2026), [review and evidence](docs/verification/2026-10-17-current-status-and-open-issues.md#20-october-review--baseline-repair-and-bounded-controller-refactor).
 
-Next: statistics/UI follow-ups (#9/#20), after the delivered bounded controller checkpoint (#39). Book assignment and paper work come later. Android remains the selected focus; iOS, training and new invoice retrieval remain deferred. Broader account, backup/update and release gates remain open. Earlier source-specific checkpoints are retained in the linked verification reports and Git history.
+The bounded statistics/UI implementation (#9/#20) follows the delivered controller checkpoint (#39); source-specific checks and remaining acceptance are in the [statistics report](docs/verification/2026-10-20-real-flight-statistics.md). Book assignment and paper work come later. Android remains the selected focus; iOS, training and new invoice retrieval remain deferred. Broader account, backup/update and release gates remain open. Earlier source-specific checkpoints are retained in the linked verification reports and Git history.
 
 <table width="100%">
   <tr>
@@ -108,7 +108,7 @@ See [product scope](docs/product/moflight-feature-scope.md), [writing presentati
 | Area | Where it stands |
 | --- | --- |
 | User journeys | Reviewed; detailed UI/application contracts remain open |
-| UI design | Approved-reference five-tab shell/header implemented; the latest statistics change removed the approved season rings. Track that presentation gap and remaining native acceptance under #9/#20; no redesign is selected |
+| UI design | Approved-reference five-tab shell/header and restored saved-flight aircraft-share season rings implemented; remaining populated native statistics acceptance stays under #9/#20; no redesign is selected |
 | Native foundation | Expo/React Native lab with local SQLite, backup and bounded Android evidence |
 | Vereinsflieger access | Verified account-scoped own-flight storage and ordinary Flüge delivered within bounded Android evidence; broader source/account/platform gates remain open |
 | Statistics and books | Real-library Start counts/time/year/registration/coverage implemented; statistics native/UI acceptance open. Real book assignment is deferred; multi-book proofs remain synthetic |
@@ -132,7 +132,7 @@ Writing assistance has immediate product value; its place in the smallest useful
 
 ## Next action and unresolved decisions
 
-The explicitly selected bounded provider-controller refactor under [#39](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/39) is delivered. Return to statistics presentation/drill-down and scoped acceptance under #9/#20. [#38](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/38) repaired the shell regression; the [review report](docs/verification/2026-10-17-current-status-and-open-issues.md#20-october-review--baseline-repair-and-bounded-controller-refactor) distinguishes current checks from reused native evidence. Keep #29/#34/#37 backup/update gates, real second-account and deferred physical/iOS acceptance explicit. #36 remains closed by owner risk acceptance, without a root-cause/fix claim.
+The explicitly selected bounded provider-controller refactor under [#39](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/39) is delivered. The bounded statistics rings/year-drill-down follow-up is implemented under #9/#20; remaining native/populated and broader statistics gates are explicit in its report. [#38](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/38) repaired the shell regression; the [review report](docs/verification/2026-10-17-current-status-and-open-issues.md#20-october-review--baseline-repair-and-bounded-controller-refactor) distinguishes current checks from reused native evidence. Keep #29/#34/#37 backup/update gates, real second-account and deferred physical/iOS acceptance explicit. #36 remains closed by owner risk acceptance, without a root-cause/fix claim.
 
 **Historical design-review notes below (16–18 October):** these preserve earlier options and do not define the current next action.
 
