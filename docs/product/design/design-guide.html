@@ -153,6 +153,7 @@
 <tr><td>C14</td><td>Synthetic import review</td><td>Shared C01/C02/C03 cards/actions/choice chips, centered group capped at 520 dp</td><td>Development-only comparison, source variants and explicit book choice; <a href="../../../apps/platform-lab/src/mobile/ImportPreview.tsx">ImportPreview</a>. No saved-library import.</td></tr>
 <tr><td>C15</td><td>Captured flight review</td><td>Shared cards/actions in the connection panel&#x27;s centered 520 dp group; five records per page, eight original fields per detail page</td><td><a href="../../../apps/platform-lab/src/mobile/CapturedFlights.tsx">CapturedFlights</a> reads owner-scoped saved evidence without requiring provider login. Dates/clocks, reported duration, aircraft and separate crew fields retain unknown/invalid/conflict states; original field text is selectable and untruncated. No book membership or canonical import.</td></tr>
 <tr><td>C16</td><td>Information source review</td><td>Shared C01/C02 controls in the connection panel&#x27;s centered 520 dp group; five raw rows per page, one immutable snapshot at a time</td><td><a href="../../../apps/platform-lab/src/mobile/InformationReview.tsx">InformationReview</a> shows retrieval time and recorded coverage, with older/newer controls available offline. Category counts use the latest snapshot. Blank extracted text stays unknown; known date-only document snapshots are marked incomplete. No canonical history or cross-snapshot aggregation.</td></tr>
+<tr><td>C17</td><td>Own-flight foundation</td><td>Shared C01/C02 controls, centered 520 dp groups, five saved flights per page and expandable original source rows</td><td><a href="../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx">CoreFlightFoundation</a> provides explicit fresh local ownership, account-scoped retrieval/review/save-as-unassigned, offline list/detail, original-command recovery and separate real-history backup/restore. Entry is under Development for bounded integration acceptance; opening creates no owner/store. The prior shell remains mounted with its draft/scroll state, while its provider browser is safely suspended before entering this independent owner scope. Native acceptance is recorded separately.</td></tr>
 </tbody></table></div>
 <p>Sources: <a href="../../../apps/platform-lab/src/mobile/theme.tsx">theme</a>, <a href="../../../apps/platform-lab/src/mobile/MobileApp.tsx">MobileApp</a>, <a href="../../../apps/platform-lab/src/mobile/Dashboard.tsx">Dashboard</a>, <a href="../../../apps/platform-lab/src/mobile/AppHeader.tsx">AppHeader</a>, <a href="../../../apps/platform-lab/src/mobile/ProviderConnection.tsx">ProviderConnection</a>, <a href="../../../apps/platform-lab/src/mobile/MedicalStatus.tsx">MedicalStatus</a>, <a href="../../../apps/platform-lab/src/mobile/ProfileSettings.tsx">ProfileSettings</a> and <a href="../../../apps/platform-lab/src/mobile/SeasonRing.tsx">SeasonRing</a>.</p>
 <h3 id="chapter-components-state-presentation">State presentation</h3>
@@ -213,6 +214,7 @@
 <p>Provider login, recovery, session controls and <strong>Rohbelege &amp; begrenzter Abruf</strong> stay in the ordinary connection dialog. Extra browserstore test controls require the explicit Development route on the same retained controller, with existing native AVD/operation/recovery guards. No source capture becomes an imported flight by moving its controls.</p>
 <p>The authorized live-review increment under #2 exposes <strong>Flugdaten erfassen</strong> and <strong>Erfasste Flüge</strong> directly in Connections. The initial request uses the last 30 device-calendar days, with the exact inclusive dates visible and editable in the existing raw-retrieval disclosure. Saved review is independent of provider authentication, network and recovery readiness. Five-row pages open source-specific details and eight-field raw pages; missing, blank, invalid, conflicting and explicit-zero values stay distinct. Reuse C01/C02, German labels and the existing 520 dp connection-group cap. Review does not convert clocks to UTC or infer landing day, roles, aircraft class or flight identity. New successful captures replace the current review; older immutable evidence is retained in storage, with no historical-capture browser in this slice. Native verification is recorded in the package report separately.</p>
 <p>The explicitly started <a href="../../../apps/platform-lab/src/mobile/ImportPreview.tsx">synthetic import preview</a> under Development reuses dark cards, labelled actions and selected chips in a centered 520 dp group. It compares fictional new/changed/unchanged/conflicting records, shows previous/current evidence, explains book suggestions and requires explicit confirmation of a book or deferral. Returning preserves the separate test stand for the current app session; app restart discards it. Opening does not create fixtures in the saved library or contact a provider. This M3 preparation under #18 does not enable normal live import or accept production identity/schema/assignment rules. Source-specific verification is recorded separately.</p>
+<p>The <a href="../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx">own-flight foundation</a> is a separate Development entry for the authorized core integration checkpoint. It creates a fresh local owner only after the named action, preserves old stores, and uses the original provider interface for explicit account confirmation and bounded retrieval. That confirmation applies to the selected fresh library; users review original rows and counts before explicitly saving flights without book assignment. Saved source facts, revisions and unknown values remain readable offline. Recovery states preserve pending commands/files and disable writes; backup/restore uses its own real-history family and explicit file/folder pickers. Reuse the centered 520 dp C01/C02 groups. The ordinary shell&#x27;s draft/scroll state stays mounted; a guarded suspension detaches its provider browser before the new owner controller mounts. This is core-foundation wiring, not downstream Flüge/statistics/book/paper integration or a native acceptance claim.</p>
 <h3 id="chapter-patterns-header-overlays-and-navigation">Header, overlays and navigation</h3>
 <p>Keep header/navigation outside the scrolling canvas. Header order is logo/title, Connection → Med → Profile. Truncate title before shrinking controls. Current font scale above 1.3 places controls on a second wrapping row; subtitle renders only at width at least 412 with normal text.</p>
 <p>App overlays/details replace logo with contextual Back and expose one active accessible header. Return through nested overlays to prior page/filter/scroll state and unsaved local profile-name draft. Identical library reloads preserve the return path; changed book/flight facts invalidate stale details. An active backup/proof operation disables app Back, Profile and Medical until completion; provider Close/history remain separate. Medical opens a read-only unknown-record explanation.</p>
@@ -241,7 +243,7 @@
 <p>Follow the <a href="../../development/verification-workflow.md">verification workflow</a>: this consolidation adds no native acceptance. Substantial UI changes need their relevant committed-source Release/native matrix; logic-only changes do not trigger unrelated visual audits.</p></section>
 <section class="chapter" id="chapter-implementation-inventory"><h2 id="chapter-implementation-inventory-platform-lab-ui-implementation-inventory">Platform-lab UI implementation inventory</h2>
 <p><a href="#chapter-overview">Handbook entry point</a>. Generated by <code>python scripts/design_handbook.py</code>; do not hand-edit.</p>
-<p>Scope: 31 product mobile TypeScript/model and app-owned TSX UI/adapter files; 86 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.</p>
+<p>Scope: 32 product mobile TypeScript/model and app-owned TSX UI/adapter files; 86 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.</p>
 <h3 id="chapter-implementation-inventory-apptsx">App.tsx</h3>
 <p>Retained app-owned lab/adapter surface; document its existing appearance as an exception. Source: <a href="../../../apps/platform-lab/src/App.tsx">apps/platform-lab/src/App.tsx</a>; normalized SHA-256 <code>00e90dbdf13115e9cffa98b6123f015dc87f095cdd8736daa20f73edab02e7e6</code>.</p>
 <h4 id="chapter-implementation-inventory-literal-colors">Literal colors</h4>
@@ -362,6 +364,16 @@
 <tr><td><i class="swatch" style="background:#ffb39e" aria-hidden="true"></i><code>#ffb39e</code></td><td>7</td></tr>
 <tr><td><i class="swatch" style="background:#ffc477" aria-hidden="true"></i><code>#ffc477</code></td><td>6</td></tr>
 </tbody></table></div>
+<h3 id="chapter-implementation-inventory-coreflightfoundationtsx">CoreFlightFoundation.tsx</h3>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx">apps/platform-lab/src/mobile/CoreFlightFoundation.tsx</a>; normalized SHA-256 <code>555d4cf50214c84536aaefc48debdb26260ed09551fe467a784f4c6598bf890c</code>.</p>
+<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-4">Geometry / opacity declarations</h4>
+<div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
+<tr><td><code>gap: 10</code></td><td>48, 49, 147</td></tr>
+<tr><td><code>gap: 8</code></td><td>170, 180</td></tr>
+<tr><td><code>maxWidth: 520</code></td><td>49, 147</td></tr>
+<tr><td><code>padding: 12</code></td><td>48, 147</td></tr>
+<tr><td><code>width: &#x27;100%&#x27;</code></td><td>49, 147</td></tr>
+</tbody></table></div>
 <h3 id="chapter-implementation-inventory-dashboardtsx">Dashboard.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/Dashboard.tsx">apps/platform-lab/src/mobile/Dashboard.tsx</a>; normalized SHA-256 <code>75674ed4838e634e76eeed160a7005be1768af2e941736e7daf3ea2442f645be</code>.</p>
 <h4 id="chapter-implementation-inventory-literal-colors-4">Literal colors</h4>
@@ -409,7 +421,7 @@
 <tr><td><code>lineHeight: 29</code></td><td>80</td></tr>
 <tr><td><code>lineHeight: 32</code></td><td>83</td></tr>
 </tbody></table></div>
-<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-4">Geometry / opacity declarations</h4>
+<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-5">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>borderRadius: 12</code></td><td>79, 83</td></tr>
 <tr><td><code>borderRadius: 15</code></td><td>76, 78</td></tr>
@@ -447,14 +459,14 @@
 <tr><td><code>width: 38</code></td><td>76</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-developmenthubtsx">DevelopmentHub.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/DevelopmentHub.tsx">apps/platform-lab/src/mobile/DevelopmentHub.tsx</a>; normalized SHA-256 <code>d260ad6a5de6362a4efa2fe19f1975f227564a449db51dd899e3de695c9ec2f5</code>.</p>
-<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-5">Geometry / opacity declarations</h4>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/DevelopmentHub.tsx">apps/platform-lab/src/mobile/DevelopmentHub.tsx</a>; normalized SHA-256 <code>c82d148af0ce28ddc37bf581b0c30101ecb97f812f02dc69bf8a9976c8488155</code>.</p>
+<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-6">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>gap: 10</code></td><td>6</td></tr>
 <tr><td><code>maxWidth: 520</code></td><td>6</td></tr>
-<tr><td><code>maxWidth: 720</code></td><td>31</td></tr>
-<tr><td><code>padding: 10</code></td><td>31</td></tr>
-<tr><td><code>width: &#x27;100%&#x27;</code></td><td>6, 31</td></tr>
+<tr><td><code>maxWidth: 720</code></td><td>35</td></tr>
+<tr><td><code>padding: 10</code></td><td>35</td></tr>
+<tr><td><code>width: &#x27;100%&#x27;</code></td><td>6, 35</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-importpreviewtsx">ImportPreview.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/ImportPreview.tsx">apps/platform-lab/src/mobile/ImportPreview.tsx</a>; normalized SHA-256 <code>00afa3c7529703b757c8dda6c2cc79fe84550708af1e1d4449ccfd490d05ad81</code>.</p>
@@ -462,7 +474,7 @@
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>76</td></tr>
 </tbody></table></div>
-<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-6">Geometry / opacity declarations</h4>
+<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-7">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>gap: 10</code></td><td>59</td></tr>
 <tr><td><code>gap: 4</code></td><td>27, 76</td></tr>
@@ -471,14 +483,14 @@
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-informationreviewtsx">InformationReview.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/InformationReview.tsx">apps/platform-lab/src/mobile/InformationReview.tsx</a>; normalized SHA-256 <code>ccc0c2236cbef12628a688bdaab2c7691d4d647d046f376dfc5ec9b0075c3e6e</code>.</p>
-<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-7">Geometry / opacity declarations</h4>
+<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-8">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>gap: 4</code></td><td>33</td></tr>
 <tr><td><code>gap: 8</code></td><td>22</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-librarybackuptsx">LibraryBackup.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/LibraryBackup.tsx">apps/platform-lab/src/mobile/LibraryBackup.tsx</a>; normalized SHA-256 <code>509c280cd2dc0650bdad08853731a94e1a0bcfa5ad50de65173409556212dcc6</code>.</p>
-<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-8">Geometry / opacity declarations</h4>
+<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-9">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>gap: 10</code></td><td>42</td></tr>
 <tr><td><code>maxWidth: 520</code></td><td>42</td></tr>
@@ -498,7 +510,7 @@
 <tr><td><code>lineHeight: 15</code></td><td>27</td></tr>
 <tr><td><code>lineHeight: 16</code></td><td>26</td></tr>
 </tbody></table></div>
-<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-9">Geometry / opacity declarations</h4>
+<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-10">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>borderRadius: 12</code></td><td>24</td></tr>
 <tr><td><code>gap: 3</code></td><td>25</td></tr>
@@ -511,118 +523,118 @@
 <tr><td><code>width: &#x27;100%&#x27;</code></td><td>28</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-mobileapptsx">MobileApp.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/MobileApp.tsx">apps/platform-lab/src/mobile/MobileApp.tsx</a>; normalized SHA-256 <code>7cec55640d14452fa1f268701534a20a3acaed71e5cf993c15ea4e45d32e7ed1</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/MobileApp.tsx">apps/platform-lab/src/mobile/MobileApp.tsx</a>; normalized SHA-256 <code>08f1364694e9b4d119fc2b6d2de08010424e49697095a6608fe4d8e374119bde</code>.</p>
 <h4 id="chapter-implementation-inventory-literal-colors-6">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><i class="swatch" style="background:#00c8ff" aria-hidden="true"></i><code>#00c8ff</code></td><td>232, 274</td></tr>
-<tr><td><i class="swatch" style="background:#020e17" aria-hidden="true"></i><code>#020e17</code></td><td>274</td></tr>
-<tr><td><i class="swatch" style="background:#031326" aria-hidden="true"></i><code>#031326</code></td><td>209</td></tr>
-<tr><td><i class="swatch" style="background:#064240" aria-hidden="true"></i><code>#064240</code></td><td>269</td></tr>
-<tr><td><i class="swatch" style="background:#10233d" aria-hidden="true"></i><code>#10233d</code></td><td>271</td></tr>
-<tr><td><i class="swatch" style="background:#10263e" aria-hidden="true"></i><code>#10263e</code></td><td>273</td></tr>
-<tr><td><i class="swatch" style="background:#10282d" aria-hidden="true"></i><code>#10282d</code></td><td>269</td></tr>
-<tr><td><i class="swatch" style="background:#102d47aa" aria-hidden="true"></i><code>#102d47aa</code></td><td>264</td></tr>
-<tr><td><i class="swatch" style="background:#11263a" aria-hidden="true"></i><code>#11263a</code></td><td>268</td></tr>
-<tr><td><i class="swatch" style="background:#152d42" aria-hidden="true"></i><code>#152d42</code></td><td>270</td></tr>
-<tr><td><i class="swatch" style="background:#1b344a" aria-hidden="true"></i><code>#1b344a</code></td><td>273</td></tr>
-<tr><td><i class="swatch" style="background:#1c3449" aria-hidden="true"></i><code>#1c3449</code></td><td>274</td></tr>
-<tr><td><i class="swatch" style="background:#227f87" aria-hidden="true"></i><code>#227f87</code></td><td>269</td></tr>
-<tr><td><i class="swatch" style="background:#354d74" aria-hidden="true"></i><code>#354d74</code></td><td>271</td></tr>
-<tr><td><i class="swatch" style="background:#3a5a8b" aria-hidden="true"></i><code>#3a5a8b</code></td><td>273</td></tr>
-<tr><td><i class="swatch" style="background:#7299ab" aria-hidden="true"></i><code>#7299ab</code></td><td>42</td></tr>
-<tr><td><i class="swatch" style="background:#78efdc" aria-hidden="true"></i><code>#78efdc</code></td><td>271</td></tr>
-<tr><td><i class="swatch" style="background:#8ba4bc" aria-hidden="true"></i><code>#8ba4bc</code></td><td>231, 266</td></tr>
-<tr><td><i class="swatch" style="background:#ffbd9b" aria-hidden="true"></i><code>#ffbd9b</code></td><td>159</td></tr>
+<tr><td><i class="swatch" style="background:#00c8ff" aria-hidden="true"></i><code>#00c8ff</code></td><td>239, 281</td></tr>
+<tr><td><i class="swatch" style="background:#020e17" aria-hidden="true"></i><code>#020e17</code></td><td>281</td></tr>
+<tr><td><i class="swatch" style="background:#031326" aria-hidden="true"></i><code>#031326</code></td><td>216</td></tr>
+<tr><td><i class="swatch" style="background:#064240" aria-hidden="true"></i><code>#064240</code></td><td>276</td></tr>
+<tr><td><i class="swatch" style="background:#10233d" aria-hidden="true"></i><code>#10233d</code></td><td>278</td></tr>
+<tr><td><i class="swatch" style="background:#10263e" aria-hidden="true"></i><code>#10263e</code></td><td>280</td></tr>
+<tr><td><i class="swatch" style="background:#10282d" aria-hidden="true"></i><code>#10282d</code></td><td>276</td></tr>
+<tr><td><i class="swatch" style="background:#102d47aa" aria-hidden="true"></i><code>#102d47aa</code></td><td>271</td></tr>
+<tr><td><i class="swatch" style="background:#11263a" aria-hidden="true"></i><code>#11263a</code></td><td>275</td></tr>
+<tr><td><i class="swatch" style="background:#152d42" aria-hidden="true"></i><code>#152d42</code></td><td>277</td></tr>
+<tr><td><i class="swatch" style="background:#1b344a" aria-hidden="true"></i><code>#1b344a</code></td><td>280</td></tr>
+<tr><td><i class="swatch" style="background:#1c3449" aria-hidden="true"></i><code>#1c3449</code></td><td>281</td></tr>
+<tr><td><i class="swatch" style="background:#227f87" aria-hidden="true"></i><code>#227f87</code></td><td>276</td></tr>
+<tr><td><i class="swatch" style="background:#354d74" aria-hidden="true"></i><code>#354d74</code></td><td>278</td></tr>
+<tr><td><i class="swatch" style="background:#3a5a8b" aria-hidden="true"></i><code>#3a5a8b</code></td><td>280</td></tr>
+<tr><td><i class="swatch" style="background:#7299ab" aria-hidden="true"></i><code>#7299ab</code></td><td>43</td></tr>
+<tr><td><i class="swatch" style="background:#78efdc" aria-hidden="true"></i><code>#78efdc</code></td><td>278</td></tr>
+<tr><td><i class="swatch" style="background:#8ba4bc" aria-hidden="true"></i><code>#8ba4bc</code></td><td>238, 273</td></tr>
+<tr><td><i class="swatch" style="background:#ffbd9b" aria-hidden="true"></i><code>#ffbd9b</code></td><td>166</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-typography-declarations-6">Typography declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>fontSize: 10</code></td><td>42, 220, 231, 266</td></tr>
-<tr><td><code>fontSize: 11</code></td><td>45, 225, 267, 274</td></tr>
-<tr><td><code>fontSize: 12</code></td><td>269</td></tr>
-<tr><td><code>fontSize: 13</code></td><td>221, 268, 273</td></tr>
-<tr><td><code>fontSize: 18</code></td><td>197</td></tr>
-<tr><td><code>fontSize: 20</code></td><td>209, 267</td></tr>
-<tr><td><code>fontSize: 23</code></td><td>272</td></tr>
-<tr><td><code>fontSize: 25</code></td><td>274</td></tr>
-<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>43, 197, 209, 267, 269</td></tr>
-<tr><td><code>letterSpacing: .6</code></td><td>266</td></tr>
-<tr><td><code>lineHeight: 16</code></td><td>231, 266, 267, 274</td></tr>
-<tr><td><code>lineHeight: 17</code></td><td>269</td></tr>
-<tr><td><code>lineHeight: 25</code></td><td>267</td></tr>
-<tr><td><code>lineHeight: 29</code></td><td>274</td></tr>
+<tr><td><code>fontSize: 10</code></td><td>43, 227, 238, 273</td></tr>
+<tr><td><code>fontSize: 11</code></td><td>46, 232, 274, 281</td></tr>
+<tr><td><code>fontSize: 12</code></td><td>276</td></tr>
+<tr><td><code>fontSize: 13</code></td><td>228, 275, 280</td></tr>
+<tr><td><code>fontSize: 18</code></td><td>204</td></tr>
+<tr><td><code>fontSize: 20</code></td><td>216, 274</td></tr>
+<tr><td><code>fontSize: 23</code></td><td>279</td></tr>
+<tr><td><code>fontSize: 25</code></td><td>281</td></tr>
+<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>44, 204, 216, 274, 276</td></tr>
+<tr><td><code>letterSpacing: .6</code></td><td>273</td></tr>
+<tr><td><code>lineHeight: 16</code></td><td>238, 273, 274, 281</td></tr>
+<tr><td><code>lineHeight: 17</code></td><td>276</td></tr>
+<tr><td><code>lineHeight: 25</code></td><td>274</td></tr>
+<tr><td><code>lineHeight: 29</code></td><td>281</td></tr>
 </tbody></table></div>
-<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-10">Geometry / opacity declarations</h4>
+<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-11">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>borderRadius: 12</code></td><td>269, 272</td></tr>
-<tr><td><code>borderRadius: 13</code></td><td>269</td></tr>
-<tr><td><code>borderRadius: 14</code></td><td>264</td></tr>
-<tr><td><code>borderRadius: 15</code></td><td>271</td></tr>
-<tr><td><code>borderRadius: 17</code></td><td>270</td></tr>
-<tr><td><code>borderRadius: 2</code></td><td>274</td></tr>
-<tr><td><code>borderRadius: 20</code></td><td>273</td></tr>
-<tr><td><code>borderRadius: 21</code></td><td>273</td></tr>
-<tr><td><code>borderRadius: 22</code></td><td>268</td></tr>
-<tr><td><code>borderRadius: 24</code></td><td>268</td></tr>
-<tr><td><code>borderRadius: 9</code></td><td>269</td></tr>
-<tr><td><code>borderWidth: 1</code></td><td>268, 269, 272, 273</td></tr>
-<tr><td><code>gap: 1</code></td><td>267, 274</td></tr>
-<tr><td><code>gap: 10</code></td><td>196, 271</td></tr>
-<tr><td><code>gap: 3</code></td><td>169, 266, 269</td></tr>
-<tr><td><code>gap: 4</code></td><td>44</td></tr>
-<tr><td><code>gap: 5</code></td><td>268</td></tr>
-<tr><td><code>gap: 6</code></td><td>43, 272, 273</td></tr>
-<tr><td><code>gap: 7</code></td><td>268, 271</td></tr>
-<tr><td><code>gap: 8</code></td><td>192, 244, 247, 263, 270, 273</td></tr>
-<tr><td><code>height: 2</code></td><td>274</td></tr>
-<tr><td><code>height: 30</code></td><td>271</td></tr>
-<tr><td><code>height: 42</code></td><td>273</td></tr>
-<tr><td><code>height: 48</code></td><td>264</td></tr>
-<tr><td><code>height: 7</code></td><td>192</td></tr>
-<tr><td><code>maxHeight: 150</code></td><td>273</td></tr>
-<tr><td><code>maxWidth: &#x27;50%&#x27;</code></td><td>39</td></tr>
-<tr><td><code>maxWidth: 430</code></td><td>271</td></tr>
-<tr><td><code>maxWidth: 480</code></td><td>196</td></tr>
-<tr><td><code>maxWidth: 520</code></td><td>244, 247</td></tr>
-<tr><td><code>maxWidth: 599</code></td><td>262, 274</td></tr>
-<tr><td><code>maxWidth: 600</code></td><td>183, 232</td></tr>
-<tr><td><code>maxWidth: 720</code></td><td>218</td></tr>
-<tr><td><code>maxWidth: 960</code></td><td>183, 232</td></tr>
-<tr><td><code>minHeight: 126</code></td><td>271</td></tr>
-<tr><td><code>minHeight: 174</code></td><td>209</td></tr>
-<tr><td><code>minHeight: 34</code></td><td>270</td></tr>
-<tr><td><code>minHeight: 36</code></td><td>265</td></tr>
-<tr><td><code>minHeight: 40</code></td><td>268, 273</td></tr>
-<tr><td><code>minHeight: 48</code></td><td>268, 270</td></tr>
-<tr><td><code>minHeight: 60</code></td><td>274</td></tr>
-<tr><td><code>minHeight: 64</code></td><td>269</td></tr>
-<tr><td><code>minHeight: 66</code></td><td>269</td></tr>
-<tr><td><code>minHeight: 68</code></td><td>42</td></tr>
-<tr><td><code>minHeight: 70</code></td><td>272</td></tr>
-<tr><td><code>minWidth: 0</code></td><td>267, 268</td></tr>
-<tr><td><code>opacity: .45</code></td><td>223</td></tr>
-<tr><td><code>padding: 0</code></td><td>270</td></tr>
-<tr><td><code>padding: 10</code></td><td>263, 272</td></tr>
-<tr><td><code>padding: 4</code></td><td>266, 273</td></tr>
-<tr><td><code>padding: 7</code></td><td>269</td></tr>
-<tr><td><code>paddingHorizontal: 12</code></td><td>268</td></tr>
-<tr><td><code>paddingHorizontal: 16</code></td><td>270</td></tr>
-<tr><td><code>paddingHorizontal: 6</code></td><td>269</td></tr>
-<tr><td><code>paddingHorizontal: 7</code></td><td>269</td></tr>
-<tr><td><code>paddingHorizontal: 8</code></td><td>273</td></tr>
-<tr><td><code>paddingVertical: 10</code></td><td>269</td></tr>
-<tr><td><code>paddingVertical: 4</code></td><td>268, 274</td></tr>
-<tr><td><code>width: &#x27;100%&#x27;</code></td><td>42, 196, 211, 231, 244, 247, 262, 270, 271, 274</td></tr>
-<tr><td><code>width: &#x27;49.2%&#x27;</code></td><td>270</td></tr>
-<tr><td><code>width: 24</code></td><td>274</td></tr>
-<tr><td><code>width: 30</code></td><td>271</td></tr>
-<tr><td><code>width: 42</code></td><td>268, 273</td></tr>
-<tr><td><code>width: 48</code></td><td>264</td></tr>
-<tr><td><code>width: 64</code></td><td>269</td></tr>
-<tr><td><code>width: 80</code></td><td>42</td></tr>
+<tr><td><code>borderRadius: 12</code></td><td>276, 279</td></tr>
+<tr><td><code>borderRadius: 13</code></td><td>276</td></tr>
+<tr><td><code>borderRadius: 14</code></td><td>271</td></tr>
+<tr><td><code>borderRadius: 15</code></td><td>278</td></tr>
+<tr><td><code>borderRadius: 17</code></td><td>277</td></tr>
+<tr><td><code>borderRadius: 2</code></td><td>281</td></tr>
+<tr><td><code>borderRadius: 20</code></td><td>280</td></tr>
+<tr><td><code>borderRadius: 21</code></td><td>280</td></tr>
+<tr><td><code>borderRadius: 22</code></td><td>275</td></tr>
+<tr><td><code>borderRadius: 24</code></td><td>275</td></tr>
+<tr><td><code>borderRadius: 9</code></td><td>276</td></tr>
+<tr><td><code>borderWidth: 1</code></td><td>275, 276, 279, 280</td></tr>
+<tr><td><code>gap: 1</code></td><td>274, 281</td></tr>
+<tr><td><code>gap: 10</code></td><td>203, 278</td></tr>
+<tr><td><code>gap: 3</code></td><td>176, 273, 276</td></tr>
+<tr><td><code>gap: 4</code></td><td>45</td></tr>
+<tr><td><code>gap: 5</code></td><td>275</td></tr>
+<tr><td><code>gap: 6</code></td><td>44, 279, 280</td></tr>
+<tr><td><code>gap: 7</code></td><td>275, 278</td></tr>
+<tr><td><code>gap: 8</code></td><td>199, 251, 254, 270, 277, 280</td></tr>
+<tr><td><code>height: 2</code></td><td>281</td></tr>
+<tr><td><code>height: 30</code></td><td>278</td></tr>
+<tr><td><code>height: 42</code></td><td>280</td></tr>
+<tr><td><code>height: 48</code></td><td>271</td></tr>
+<tr><td><code>height: 7</code></td><td>199</td></tr>
+<tr><td><code>maxHeight: 150</code></td><td>280</td></tr>
+<tr><td><code>maxWidth: &#x27;50%&#x27;</code></td><td>40</td></tr>
+<tr><td><code>maxWidth: 430</code></td><td>278</td></tr>
+<tr><td><code>maxWidth: 480</code></td><td>203</td></tr>
+<tr><td><code>maxWidth: 520</code></td><td>251, 254</td></tr>
+<tr><td><code>maxWidth: 599</code></td><td>269, 281</td></tr>
+<tr><td><code>maxWidth: 600</code></td><td>190, 239</td></tr>
+<tr><td><code>maxWidth: 720</code></td><td>225</td></tr>
+<tr><td><code>maxWidth: 960</code></td><td>190, 239</td></tr>
+<tr><td><code>minHeight: 126</code></td><td>278</td></tr>
+<tr><td><code>minHeight: 174</code></td><td>216</td></tr>
+<tr><td><code>minHeight: 34</code></td><td>277</td></tr>
+<tr><td><code>minHeight: 36</code></td><td>272</td></tr>
+<tr><td><code>minHeight: 40</code></td><td>275, 280</td></tr>
+<tr><td><code>minHeight: 48</code></td><td>275, 277</td></tr>
+<tr><td><code>minHeight: 60</code></td><td>281</td></tr>
+<tr><td><code>minHeight: 64</code></td><td>276</td></tr>
+<tr><td><code>minHeight: 66</code></td><td>276</td></tr>
+<tr><td><code>minHeight: 68</code></td><td>43</td></tr>
+<tr><td><code>minHeight: 70</code></td><td>279</td></tr>
+<tr><td><code>minWidth: 0</code></td><td>274, 275</td></tr>
+<tr><td><code>opacity: .45</code></td><td>230</td></tr>
+<tr><td><code>padding: 0</code></td><td>277</td></tr>
+<tr><td><code>padding: 10</code></td><td>270, 279</td></tr>
+<tr><td><code>padding: 4</code></td><td>273, 280</td></tr>
+<tr><td><code>padding: 7</code></td><td>276</td></tr>
+<tr><td><code>paddingHorizontal: 12</code></td><td>275</td></tr>
+<tr><td><code>paddingHorizontal: 16</code></td><td>277</td></tr>
+<tr><td><code>paddingHorizontal: 6</code></td><td>276</td></tr>
+<tr><td><code>paddingHorizontal: 7</code></td><td>276</td></tr>
+<tr><td><code>paddingHorizontal: 8</code></td><td>280</td></tr>
+<tr><td><code>paddingVertical: 10</code></td><td>276</td></tr>
+<tr><td><code>paddingVertical: 4</code></td><td>275, 281</td></tr>
+<tr><td><code>width: &#x27;100%&#x27;</code></td><td>43, 203, 218, 238, 251, 254, 269, 277, 278, 281</td></tr>
+<tr><td><code>width: &#x27;49.2%&#x27;</code></td><td>277</td></tr>
+<tr><td><code>width: 24</code></td><td>281</td></tr>
+<tr><td><code>width: 30</code></td><td>278</td></tr>
+<tr><td><code>width: 42</code></td><td>275, 280</td></tr>
+<tr><td><code>width: 48</code></td><td>271</td></tr>
+<tr><td><code>width: 64</code></td><td>276</td></tr>
+<tr><td><code>width: 80</code></td><td>43</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-paperstatustsx">PaperStatus.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/PaperStatus.tsx">apps/platform-lab/src/mobile/PaperStatus.tsx</a>; normalized SHA-256 <code>d030bb2911e9f988f450f9ae521677534c839dba425b0b4b24c7791015d14aa9</code>.</p>
-<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-11">Geometry / opacity declarations</h4>
+<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-12">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>gap: 10</code></td><td>8</td></tr>
 <tr><td><code>maxWidth: 520</code></td><td>8</td></tr>
@@ -641,7 +653,7 @@
 <tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>77</td></tr>
 <tr><td><code>lineHeight: 18</code></td><td>47</td></tr>
 </tbody></table></div>
-<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-12">Geometry / opacity declarations</h4>
+<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-13">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>borderRadius: 12</code></td><td>78</td></tr>
 <tr><td><code>borderWidth: 1</code></td><td>78</td></tr>
@@ -653,7 +665,7 @@
 <tr><td><code>width: &#x27;100%&#x27;</code></td><td>76</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-providerconnectiontsx">ProviderConnection.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/ProviderConnection.tsx">apps/platform-lab/src/mobile/ProviderConnection.tsx</a>; normalized SHA-256 <code>91a1723714b26c346db307fc4132028ab5e7e45246809a63c0c2ed4755e76ff3</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/ProviderConnection.tsx">apps/platform-lab/src/mobile/ProviderConnection.tsx</a>; normalized SHA-256 <code>b6d6f5ce61bfe1062b9b806ab5ebc00c983de346dc789674e297e1ef53792f0a</code>.</p>
 <h4 id="chapter-implementation-inventory-literal-colors-8">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><i class="swatch" style="background:#102d47aa" aria-hidden="true"></i><code>#102d47aa</code></td><td>169</td></tr>
@@ -667,7 +679,7 @@
 <tr><td><code>fontWeight: &#x27;700&#x27;</code></td><td>25</td></tr>
 <tr><td><code>lineHeight: 15</code></td><td>25</td></tr>
 </tbody></table></div>
-<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-13">Geometry / opacity declarations</h4>
+<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-14">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>borderRadius: 10</code></td><td>179</td></tr>
 <tr><td><code>borderRadius: 14</code></td><td>169</td></tr>
@@ -696,7 +708,7 @@
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-rawcapturereviewtsx">RawCaptureReview.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/RawCaptureReview.tsx">apps/platform-lab/src/mobile/RawCaptureReview.tsx</a>; normalized SHA-256 <code>0d897511ac3fa00409c597a5d6fa2f8fd8b0f90551aac3ef8decd195646262e4</code>.</p>
-<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-14">Geometry / opacity declarations</h4>
+<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-15">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>gap: 8</code></td><td>19</td></tr>
 </tbody></table></div>
@@ -742,7 +754,7 @@
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>linear-gradient(140deg, #b9dcf52b, #7497bf12)</code></td><td>23</td></tr>
 </tbody></table></div>
-<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-15">Geometry / opacity declarations</h4>
+<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-16">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>borderRadius: 12</code></td><td>22</td></tr>
 <tr><td><code>borderWidth: 1</code></td><td>22</td></tr>
@@ -789,7 +801,7 @@
 <tr><td><code>lineHeight: 18</code></td><td>43, 51</td></tr>
 <tr><td><code>lineHeight: 20</code></td><td>45, 56</td></tr>
 </tbody></table></div>
-<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-16">Geometry / opacity declarations</h4>
+<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-17">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>borderRadius: 14</code></td><td>46</td></tr>
 <tr><td><code>borderRadius: 16</code></td><td>50, 60</td></tr>
@@ -838,7 +850,7 @@
 <tr><td><code>fontWeight: &#x27;700&#x27;</code></td><td>50</td></tr>
 <tr><td><code>lineHeight: 21</code></td><td>50</td></tr>
 </tbody></table></div>
-<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-17">Geometry / opacity declarations</h4>
+<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-18">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>borderRadius: 6</code></td><td>50</td></tr>
 <tr><td><code>borderWidth: 1</code></td><td>50</td></tr>
@@ -865,7 +877,7 @@
 <tr><td><code>fontSize: 22</code></td><td>52</td></tr>
 <tr><td><code>fontWeight: &#x27;700&#x27;</code></td><td>52</td></tr>
 </tbody></table></div>
-<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-18">Geometry / opacity declarations</h4>
+<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-19">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>borderRadius: 6</code></td><td>52</td></tr>
 <tr><td><code>gap: 10</code></td><td>52</td></tr>
@@ -886,7 +898,7 @@
 <tr><td><code>fontSize: 22</code></td><td>80</td></tr>
 <tr><td><code>fontWeight: &#x27;700&#x27;</code></td><td>80</td></tr>
 </tbody></table></div>
-<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-19">Geometry / opacity declarations</h4>
+<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-20">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>borderRadius: 6</code></td><td>80</td></tr>
 <tr><td><code>gap: 10</code></td><td>80</td></tr>
@@ -1470,6 +1482,7 @@ The HTML guide embeds original reference and symbol/brand images unchanged. Comp
 | C14 | Synthetic import review | Shared C01/C02/C03 cards/actions/choice chips, centered group capped at 520 dp | Development-only comparison, source variants and explicit book choice; [ImportPreview](../../../apps/platform-lab/src/mobile/ImportPreview.tsx). No saved-library import. |
 | C15 | Captured flight review | Shared cards/actions in the connection panel&#x27;s centered 520 dp group; five records per page, eight original fields per detail page | [CapturedFlights](../../../apps/platform-lab/src/mobile/CapturedFlights.tsx) reads owner-scoped saved evidence without requiring provider login. Dates/clocks, reported duration, aircraft and separate crew fields retain unknown/invalid/conflict states; original field text is selectable and untruncated. No book membership or canonical import. |
 | C16 | Information source review | Shared C01/C02 controls in the connection panel&#x27;s centered 520 dp group; five raw rows per page, one immutable snapshot at a time | [InformationReview](../../../apps/platform-lab/src/mobile/InformationReview.tsx) shows retrieval time and recorded coverage, with older/newer controls available offline. Category counts use the latest snapshot. Blank extracted text stays unknown; known date-only document snapshots are marked incomplete. No canonical history or cross-snapshot aggregation. |
+| C17 | Own-flight foundation | Shared C01/C02 controls, centered 520 dp groups, five saved flights per page and expandable original source rows | [CoreFlightFoundation](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx) provides explicit fresh local ownership, account-scoped retrieval/review/save-as-unassigned, offline list/detail, original-command recovery and separate real-history backup/restore. Entry is under Development for bounded integration acceptance; opening creates no owner/store. The prior shell remains mounted with its draft/scroll state, while its provider browser is safely suspended before entering this independent owner scope. Native acceptance is recorded separately. |
 
 Sources: [theme](../../../apps/platform-lab/src/mobile/theme.tsx), [MobileApp](../../../apps/platform-lab/src/mobile/MobileApp.tsx), [Dashboard](../../../apps/platform-lab/src/mobile/Dashboard.tsx), [AppHeader](../../../apps/platform-lab/src/mobile/AppHeader.tsx), [ProviderConnection](../../../apps/platform-lab/src/mobile/ProviderConnection.tsx), [MedicalStatus](../../../apps/platform-lab/src/mobile/MedicalStatus.tsx), [ProfileSettings](../../../apps/platform-lab/src/mobile/ProfileSettings.tsx) and [SeasonRing](../../../apps/platform-lab/src/mobile/SeasonRing.tsx).
 
@@ -1540,6 +1553,8 @@ The authorized live-review increment under #2 exposes **Flugdaten erfassen** and
 
 The explicitly started [synthetic import preview](../../../apps/platform-lab/src/mobile/ImportPreview.tsx) under Development reuses dark cards, labelled actions and selected chips in a centered 520 dp group. It compares fictional new/changed/unchanged/conflicting records, shows previous/current evidence, explains book suggestions and requires explicit confirmation of a book or deferral. Returning preserves the separate test stand for the current app session; app restart discards it. Opening does not create fixtures in the saved library or contact a provider. This M3 preparation under #18 does not enable normal live import or accept production identity/schema/assignment rules. Source-specific verification is recorded separately.
 
+The [own-flight foundation](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx) is a separate Development entry for the authorized core integration checkpoint. It creates a fresh local owner only after the named action, preserves old stores, and uses the original provider interface for explicit account confirmation and bounded retrieval. That confirmation applies to the selected fresh library; users review original rows and counts before explicitly saving flights without book assignment. Saved source facts, revisions and unknown values remain readable offline. Recovery states preserve pending commands/files and disable writes; backup/restore uses its own real-history family and explicit file/folder pickers. Reuse the centered 520 dp C01/C02 groups. The ordinary shell&#x27;s draft/scroll state stays mounted; a guarded suspension detaches its provider browser before the new owner controller mounts. This is core-foundation wiring, not downstream Flüge/statistics/book/paper integration or a native acceptance claim.
+
 ## Header, overlays and navigation
 
 Keep header/navigation outside the scrolling canvas. Header order is logo/title, Connection → Med → Profile. Truncate title before shrinking controls. Current font scale above 1.3 places controls on a second wrapping row; subtitle renders only at width at least 412 with normal text.
@@ -1583,7 +1598,7 @@ Follow the [verification workflow](../../development/verification-workflow.md): 
 
 [Handbook entry point](README.md). Generated by `python scripts/design_handbook.py`; do not hand-edit.
 
-Scope: 31 product mobile TypeScript/model and app-owned TSX UI/adapter files; 86 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.
+Scope: 32 product mobile TypeScript/model and app-owned TSX UI/adapter files; 86 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.
 
 ## App.tsx
 
@@ -1737,6 +1752,20 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/connection-guidan
 | `#ffb39e` | 7 |
 | `#ffc477` | 6 |
 
+## CoreFlightFoundation.tsx
+
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `555d4cf50214c84536aaefc48debdb26260ed09551fe467a784f4c6598bf890c`.
+
+### Geometry / opacity declarations
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `gap: 10` | 48, 49, 147 |
+| `gap: 8` | 170, 180 |
+| `maxWidth: 520` | 49, 147 |
+| `padding: 12` | 48, 147 |
+| `width: &#x27;100%&#x27;` | 49, 147 |
+
 ## Dashboard.tsx
 
 Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](../../../apps/platform-lab/src/mobile/Dashboard.tsx); normalized SHA-256 `75674ed4838e634e76eeed160a7005be1768af2e941736e7daf3ea2442f645be`.
@@ -1833,7 +1862,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](..
 
 ## DevelopmentHub.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DevelopmentHub.tsx](../../../apps/platform-lab/src/mobile/DevelopmentHub.tsx); normalized SHA-256 `d260ad6a5de6362a4efa2fe19f1975f227564a449db51dd899e3de695c9ec2f5`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DevelopmentHub.tsx](../../../apps/platform-lab/src/mobile/DevelopmentHub.tsx); normalized SHA-256 `c82d148af0ce28ddc37bf581b0c30101ecb97f812f02dc69bf8a9976c8488155`.
 
 ### Geometry / opacity declarations
 
@@ -1841,9 +1870,9 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DevelopmentHub.ts
 | --- | --- |
 | `gap: 10` | 6 |
 | `maxWidth: 520` | 6 |
-| `maxWidth: 720` | 31 |
-| `padding: 10` | 31 |
-| `width: &#x27;100%&#x27;` | 6, 31 |
+| `maxWidth: 720` | 35 |
+| `padding: 10` | 35 |
+| `width: &#x27;100%&#x27;` | 6, 35 |
 
 ## ImportPreview.tsx
 
@@ -1923,121 +1952,121 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MedicalStatus.tsx
 
 ## MobileApp.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `7cec55640d14452fa1f268701534a20a3acaed71e5cf993c15ea4e45d32e7ed1`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `08f1364694e9b4d119fc2b6d2de08010424e49697095a6608fe4d8e374119bde`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#00c8ff` | 232, 274 |
-| `#020e17` | 274 |
-| `#031326` | 209 |
-| `#064240` | 269 |
-| `#10233d` | 271 |
-| `#10263e` | 273 |
-| `#10282d` | 269 |
-| `#102d47aa` | 264 |
-| `#11263a` | 268 |
-| `#152d42` | 270 |
-| `#1b344a` | 273 |
-| `#1c3449` | 274 |
-| `#227f87` | 269 |
-| `#354d74` | 271 |
-| `#3a5a8b` | 273 |
-| `#7299ab` | 42 |
-| `#78efdc` | 271 |
-| `#8ba4bc` | 231, 266 |
-| `#ffbd9b` | 159 |
+| `#00c8ff` | 239, 281 |
+| `#020e17` | 281 |
+| `#031326` | 216 |
+| `#064240` | 276 |
+| `#10233d` | 278 |
+| `#10263e` | 280 |
+| `#10282d` | 276 |
+| `#102d47aa` | 271 |
+| `#11263a` | 275 |
+| `#152d42` | 277 |
+| `#1b344a` | 280 |
+| `#1c3449` | 281 |
+| `#227f87` | 276 |
+| `#354d74` | 278 |
+| `#3a5a8b` | 280 |
+| `#7299ab` | 43 |
+| `#78efdc` | 278 |
+| `#8ba4bc` | 238, 273 |
+| `#ffbd9b` | 166 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 10` | 42, 220, 231, 266 |
-| `fontSize: 11` | 45, 225, 267, 274 |
-| `fontSize: 12` | 269 |
-| `fontSize: 13` | 221, 268, 273 |
-| `fontSize: 18` | 197 |
-| `fontSize: 20` | 209, 267 |
-| `fontSize: 23` | 272 |
-| `fontSize: 25` | 274 |
-| `fontWeight: &#x27;600&#x27;` | 43, 197, 209, 267, 269 |
-| `letterSpacing: .6` | 266 |
-| `lineHeight: 16` | 231, 266, 267, 274 |
-| `lineHeight: 17` | 269 |
-| `lineHeight: 25` | 267 |
-| `lineHeight: 29` | 274 |
+| `fontSize: 10` | 43, 227, 238, 273 |
+| `fontSize: 11` | 46, 232, 274, 281 |
+| `fontSize: 12` | 276 |
+| `fontSize: 13` | 228, 275, 280 |
+| `fontSize: 18` | 204 |
+| `fontSize: 20` | 216, 274 |
+| `fontSize: 23` | 279 |
+| `fontSize: 25` | 281 |
+| `fontWeight: &#x27;600&#x27;` | 44, 204, 216, 274, 276 |
+| `letterSpacing: .6` | 273 |
+| `lineHeight: 16` | 238, 273, 274, 281 |
+| `lineHeight: 17` | 276 |
+| `lineHeight: 25` | 274 |
+| `lineHeight: 29` | 281 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 269, 272 |
-| `borderRadius: 13` | 269 |
-| `borderRadius: 14` | 264 |
-| `borderRadius: 15` | 271 |
-| `borderRadius: 17` | 270 |
-| `borderRadius: 2` | 274 |
-| `borderRadius: 20` | 273 |
-| `borderRadius: 21` | 273 |
-| `borderRadius: 22` | 268 |
-| `borderRadius: 24` | 268 |
-| `borderRadius: 9` | 269 |
-| `borderWidth: 1` | 268, 269, 272, 273 |
-| `gap: 1` | 267, 274 |
-| `gap: 10` | 196, 271 |
-| `gap: 3` | 169, 266, 269 |
-| `gap: 4` | 44 |
-| `gap: 5` | 268 |
-| `gap: 6` | 43, 272, 273 |
-| `gap: 7` | 268, 271 |
-| `gap: 8` | 192, 244, 247, 263, 270, 273 |
-| `height: 2` | 274 |
-| `height: 30` | 271 |
-| `height: 42` | 273 |
-| `height: 48` | 264 |
-| `height: 7` | 192 |
-| `maxHeight: 150` | 273 |
-| `maxWidth: &#x27;50%&#x27;` | 39 |
-| `maxWidth: 430` | 271 |
-| `maxWidth: 480` | 196 |
-| `maxWidth: 520` | 244, 247 |
-| `maxWidth: 599` | 262, 274 |
-| `maxWidth: 600` | 183, 232 |
-| `maxWidth: 720` | 218 |
-| `maxWidth: 960` | 183, 232 |
-| `minHeight: 126` | 271 |
-| `minHeight: 174` | 209 |
-| `minHeight: 34` | 270 |
-| `minHeight: 36` | 265 |
-| `minHeight: 40` | 268, 273 |
-| `minHeight: 48` | 268, 270 |
-| `minHeight: 60` | 274 |
-| `minHeight: 64` | 269 |
-| `minHeight: 66` | 269 |
-| `minHeight: 68` | 42 |
-| `minHeight: 70` | 272 |
-| `minWidth: 0` | 267, 268 |
-| `opacity: .45` | 223 |
-| `padding: 0` | 270 |
-| `padding: 10` | 263, 272 |
-| `padding: 4` | 266, 273 |
-| `padding: 7` | 269 |
-| `paddingHorizontal: 12` | 268 |
-| `paddingHorizontal: 16` | 270 |
-| `paddingHorizontal: 6` | 269 |
-| `paddingHorizontal: 7` | 269 |
-| `paddingHorizontal: 8` | 273 |
-| `paddingVertical: 10` | 269 |
-| `paddingVertical: 4` | 268, 274 |
-| `width: &#x27;100%&#x27;` | 42, 196, 211, 231, 244, 247, 262, 270, 271, 274 |
-| `width: &#x27;49.2%&#x27;` | 270 |
-| `width: 24` | 274 |
-| `width: 30` | 271 |
-| `width: 42` | 268, 273 |
-| `width: 48` | 264 |
-| `width: 64` | 269 |
-| `width: 80` | 42 |
+| `borderRadius: 12` | 276, 279 |
+| `borderRadius: 13` | 276 |
+| `borderRadius: 14` | 271 |
+| `borderRadius: 15` | 278 |
+| `borderRadius: 17` | 277 |
+| `borderRadius: 2` | 281 |
+| `borderRadius: 20` | 280 |
+| `borderRadius: 21` | 280 |
+| `borderRadius: 22` | 275 |
+| `borderRadius: 24` | 275 |
+| `borderRadius: 9` | 276 |
+| `borderWidth: 1` | 275, 276, 279, 280 |
+| `gap: 1` | 274, 281 |
+| `gap: 10` | 203, 278 |
+| `gap: 3` | 176, 273, 276 |
+| `gap: 4` | 45 |
+| `gap: 5` | 275 |
+| `gap: 6` | 44, 279, 280 |
+| `gap: 7` | 275, 278 |
+| `gap: 8` | 199, 251, 254, 270, 277, 280 |
+| `height: 2` | 281 |
+| `height: 30` | 278 |
+| `height: 42` | 280 |
+| `height: 48` | 271 |
+| `height: 7` | 199 |
+| `maxHeight: 150` | 280 |
+| `maxWidth: &#x27;50%&#x27;` | 40 |
+| `maxWidth: 430` | 278 |
+| `maxWidth: 480` | 203 |
+| `maxWidth: 520` | 251, 254 |
+| `maxWidth: 599` | 269, 281 |
+| `maxWidth: 600` | 190, 239 |
+| `maxWidth: 720` | 225 |
+| `maxWidth: 960` | 190, 239 |
+| `minHeight: 126` | 278 |
+| `minHeight: 174` | 216 |
+| `minHeight: 34` | 277 |
+| `minHeight: 36` | 272 |
+| `minHeight: 40` | 275, 280 |
+| `minHeight: 48` | 275, 277 |
+| `minHeight: 60` | 281 |
+| `minHeight: 64` | 276 |
+| `minHeight: 66` | 276 |
+| `minHeight: 68` | 43 |
+| `minHeight: 70` | 279 |
+| `minWidth: 0` | 274, 275 |
+| `opacity: .45` | 230 |
+| `padding: 0` | 277 |
+| `padding: 10` | 270, 279 |
+| `padding: 4` | 273, 280 |
+| `padding: 7` | 276 |
+| `paddingHorizontal: 12` | 275 |
+| `paddingHorizontal: 16` | 277 |
+| `paddingHorizontal: 6` | 276 |
+| `paddingHorizontal: 7` | 276 |
+| `paddingHorizontal: 8` | 280 |
+| `paddingVertical: 10` | 276 |
+| `paddingVertical: 4` | 275, 281 |
+| `width: &#x27;100%&#x27;` | 43, 203, 218, 238, 251, 254, 269, 277, 278, 281 |
+| `width: &#x27;49.2%&#x27;` | 277 |
+| `width: 24` | 281 |
+| `width: 30` | 278 |
+| `width: 42` | 275, 280 |
+| `width: 48` | 271 |
+| `width: 64` | 276 |
+| `width: 80` | 43 |
 
 ## PaperStatus.tsx
 
@@ -2085,7 +2114,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProfileSettings.t
 
 ## ProviderConnection.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProviderConnection.tsx](../../../apps/platform-lab/src/mobile/ProviderConnection.tsx); normalized SHA-256 `91a1723714b26c346db307fc4132028ab5e7e45246809a63c0c2ed4755e76ff3`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProviderConnection.tsx](../../../apps/platform-lab/src/mobile/ProviderConnection.tsx); normalized SHA-256 `b6d6f5ce61bfe1062b9b806ab5ebc00c983de346dc789674e297e1ef53792f0a`.
 
 ### Literal colors
 
@@ -2932,7 +2961,7 @@ States / limits: Recreated approved variant, not a byte-identical copy of an old
 Source: docs/assets/branding/moflight-app-icon-ai.png
 docs/assets/branding/README.md; app.json
 </textarea></section>
-<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: e0b40df92faeaa4b457e54a82d2fb5b941c889a7c7205c9ce2a852f8ca69ca58. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
+<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: e7c0d48fabff8d8b2254061e4092c2e400abf9ef64bd7a50afa33d5ddcf490fb. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
 </main><script>
 'use strict';
 const brief = document.querySelector('#brief');

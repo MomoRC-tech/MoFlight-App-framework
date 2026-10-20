@@ -27,7 +27,7 @@ export function ConnectionIndicator({ controller: c, onPress }: { controller: Co
 }
 
 /** The browser keeps this exact native parent whether login, progress or tabs are visible. */
-export function ProviderConnection({ controller: c, open, close, development = false }: { controller: Controller; open: boolean; close: () => void; development?: boolean }) {
+export function ProviderConnection({ controller: c, open, close, development = false, purpose = 'existing-captures' }: { controller: Controller; open: boolean; close: () => void; development?: boolean; purpose?: 'existing-captures' | 'own-flight-library' }) {
   const insets = useSafeAreaInsets();
   const [barHeight, setBarHeight] = useState(68), [loginHeight, setLoginHeight] = useState(132);
   const [details, setDetails] = useState(false), [lab, setLab] = useState(false);
@@ -83,8 +83,8 @@ export function ProviderConnection({ controller: c, open, close, development = f
           {c.connection.phase === 'observed' && !c.connection.confirmed && c.connection.observed && <Card>
             <Section title="Ist das dein Konto?" />
             <Label>Benutzernummer: {c.connection.observed.accountNumber}</Label><Label>Verein: {c.connection.observed.clubLabel}</Label>
-            <Label muted>Mit der Bestätigung verknüpfst du dieses Konto vorläufig mit deinem lokalen Demoprofil auf diesem Gerät. Die Vereinsbezeichnung ist keine stabile Vereins-ID. Es werden keine Flüge in deine Bibliothek importiert.</Label>
-            <Action disabled={locked} onPress={() => { void c.confirmConnection(); }}>Konto für diesen Test bestätigen</Action>
+            <Label muted>{purpose === 'own-flight-library' ? 'Mit der Bestätigung wählst du das Anbieter-Konto für diese neue lokale Flugbibliothek. Flüge werden nach dem Abruf geprüft und erst durch ausdrückliches Speichern aufgenommen.' : 'Mit der Bestätigung verknüpfst du dieses Konto vorläufig mit deinem lokalen Demoprofil auf diesem Gerät. Die Vereinsbezeichnung ist keine stabile Vereins-ID. Es werden keine Flüge in deine Bibliothek importiert.'}</Label>
+            <Action disabled={locked} onPress={() => { void c.confirmConnection(); }}>{purpose === 'own-flight-library' ? 'Eigenes Anbieter-Konto bestätigen' : 'Konto für diesen Test bestätigen'}</Action>
           </Card>}
           {c.busy && <Card><ActivityIndicator color={colors.cyan} /><Label>{c.saving ? 'Belege werden lokal gesichert…' : c.restoring.current ? 'Anbieteransicht wird wiederhergestellt…' : 'Abruf läuft · Anbieteransicht bleibt im Hintergrund.'}</Label>
             <Action secondary disabled={c.saving || c.restoring.current} onPress={c.cancelRetrieval}>Abruf abbrechen</Action>

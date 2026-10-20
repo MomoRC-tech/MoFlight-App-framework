@@ -21,7 +21,7 @@ const source = ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/
 
 // Run the real component/handlers; native rendering and leaf controls are the
 // only replacements. Disclosure tests make no provider/storage implementation.
-function fixture(overrides: Partial<Controller> = {}, development = false) {
+function fixture(overrides: Partial<Controller> = {}, development = false, purpose: 'existing-captures'|'own-flight-library' = 'existing-captures') {
   let index = 0;
   const hooks: unknown[] = [], effects: (() => void)[] = [], calls: string[] = [];
   const react = {
@@ -72,7 +72,7 @@ function fixture(overrides: Partial<Controller> = {}, development = false) {
   let tree: Element;
   function render(open = true) {
     index = 0;
-    tree = exports.ProviderConnection!({ controller, open, development, close: () => calls.push('close') });
+    tree = exports.ProviderConnection!({ controller, open, development, purpose, close: () => calls.push('close') });
     while (effects.length) effects.shift()!();
     return tree;
   }
@@ -113,6 +113,14 @@ test('information page capture is explicit, respects recovery/loading and cannot
   failed.button('Informationsimport').props.onPress(); failed.render(); assert.match(failed.text(), /Erfassung nicht bestätigt/);
   const saved = fixture({ browserActive: true });
   saved.nodes().find(n => n.type === 'InformationReview')!.props.onOpen(); assert.deepEqual(saved.calls, ['provider-visible']);
+});
+
+test('fresh-library account confirmation names its real scope and performs no flight save', () => {
+  const session=new ConnectionSession();session.start('confirm-source');session.observe('confirm-source',observed,at);
+  const f=fixture({connection:session.state},false,'own-flight-library');
+  assert.match(f.text(),/neue lokale Flugbibliothek/);assert.match(f.text(),/erst durch ausdrückliches Speichern/);
+  assert.doesNotMatch(f.text(),/lokalen Demoprofil/);assert.deepEqual(f.calls,[]);
+  f.button('Eigenes Anbieter-Konto bestätigen').props.onPress();assert.deepEqual(f.calls,['confirm']);
 });
 
 test('summary guidance and failure recovery distinguish repeating the source from reloading an uncertain local save', () => {

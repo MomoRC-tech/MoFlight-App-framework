@@ -385,6 +385,19 @@ async function establishProductAssociation(f: ReturnType<typeof fixture>) {
   await f.contextMessage(observedContext); await f.controller().confirmConnection();
 }
 
+async function reachPostCaptureCheck(f: ReturnType<typeof fixture>) {
+  await establishProductAssociation(f);
+  f.controller().retrieve(); await f.loadFlight(); await backupVerified(f);
+  for (const phase of exporter.EXPORT_PHASES.filter(phase => phase !== 'read')) {
+    assert.equal(f.currentCommand().phase, phase);
+    await f.message({ kind: 'vf-export-v1', status: 'next', preset: exporter.ACTIVE_EXPORT_VIEW });
+  }
+  await f.message({ kind: 'vf-export-v1', status: 'page', preset: exporter.ACTIVE_EXPORT_VIEW,
+    period: 'ab 01.01.2026 bis 31.12.2026', participation: exporter.PARTICIPATION, filtersClear: true, allColumns: true,
+    headers: ['Datum', 'Lfz.', 'Start', 'Landung', 'Flugzeit', 'Kosten'], columnIds: ['1', '2', '3', '4', '5', '6'],
+    first: 0, last: 0, total: 0, rows: [], nextUrl: null });
+}
+
 test('disconnect refuses startup, failed-read, recovery, and active-save states', async () => {
   const startup = fixture({ product: true }); startup.render();
   startup.controller().startDisconnect();
@@ -756,6 +769,21 @@ test('product post-capture account mismatch preserves prior capture and recovery
   assert.equal(f.controller().busy, false);
   assert.equal(f.controller().lastSuccessfulCaptureAt, null);
   assert.equal(f.savedCapture(), priorCapture);
+  assert.equal(f.controller().completedFlightSource, null, 'A foreign after-context cannot publish source input');
+});
+
+test('late post-capture context cannot publish source input after cancellation or backgrounding', async () => {
+  for (const boundary of ['cancel', 'background'] as const) {
+    const f = fixture({ product: true, priorCapture }); f.render(); await f.settle(null);
+    await reachPostCaptureCheck(f); await f.loadPage(context.PROFILE_URL);
+    const staleNonce = /nonce:"([^\"]+)"/.exec(f.injections.at(-1)!)![1]!;
+    if (boundary === 'cancel') f.controller().cancelRetrieval();
+    else f.appState('background');
+    await f.contextMessage(observedContext, context.PROFILE_URL, staleNonce);
+    assert.equal(f.controller().completedFlightSource, null, `${boundary} leaves no publishable source input`);
+    assert.equal(f.writes.includes('capture-saved'), false);
+    assert.equal(f.savedCapture(), priorCapture);
+  }
 });
 
 test('hiding the product panel during post-capture checking keeps ownership through save and verified restoration', async () => {
@@ -777,6 +805,7 @@ test('hiding the product panel during post-capture checking keeps ownership thro
   await f.loadPage(context.PROFILE_URL); await f.contextMessage(observedContext);
   assert.ok(f.writes.includes('capture-saved'));
   assert.notEqual(f.savedCapture(), priorCapture);
+  assert.equal(f.controller().completedFlightSource, null, 'Raw save alone is not enough before view restoration');
   await restoredReadback(f);
   await f.message({ kind: 'vf-view-v2', status: 'next', view: restored });
   assert.deepEqual(f.pending(), original, 'Restored view alone must wait for final account check');
@@ -785,6 +814,21 @@ test('hiding the product panel during post-capture checking keeps ownership thro
   assert.equal(f.controller().busy, false);
   assert.equal(f.controller().result, 'captured');
   assert.equal(f.controller().lastSuccessfulCaptureAt, f.savedCapture()!.retrievedAt);
+  const sourceInput = f.controller().completedFlightSource;
+  assert.ok(sourceInput);
+  assert.equal(sourceInput.binding.accountRef, observedContext.accountNumber);
+  assert.equal(canonical(sourceInput.contextBefore), canonical(observedContext));
+  assert.equal(canonical(sourceInput.contextAfter), canonical(observedContext));
+  assert.equal(canonical(sourceInput.requestedWindow), canonical({ from: '2026-01-01', to: '2026-12-31', participation: exporter.PARTICIPATION }));
+  assert.equal(canonical(sourceInput.capture), canonical(f.savedCapture()));
+  f.controller().dismissLogin();
+  assert.equal(f.controller().completedFlightSource, sourceInput, 'Closing the provider panel retains completed source evidence');
+  f.controller().connect(); await f.loadPage(probe.LOGIN_URL);
+  f.controller().checkConnection(); await f.loadPage(context.PROFILE_URL); await f.contextMessage(observedContext);
+  assert.equal(f.controller().completedFlightSource, sourceInput, 'A same-context check does not replace the completed capture evidence');
+  f.controller().retrieve();
+  assert.equal(f.controller().completedFlightSource, null, 'A new retrieval supersedes the earlier source input');
+  f.controller().cancelRetrieval();
 });
 
 test('both legacy labs stay closed until the startup recovery journal has been read', () => {
@@ -1375,6 +1419,60 @@ test('reopened association rejects a different provider account before capture o
   assert.equal(f.scopeWrites(), 0); assert.equal(f.controller().busy, false); assert.deepEqual(f.writes, []);
 });
 
+test('explicit browser suspension preserves scoped evidence and recovery while rejecting late native callbacks', async () => {
+  const capture = captureFixture();
+  const f = fixture({ product: true, priorCapture: capture,
+    persistedScope: { version: 1, owner: 'synthetic-pilot', connectionId: 'prior', context: observedContext }, scopedView: original });
+  f.render(); await f.settle(null); for (let i = 0; i < 4; i++) await f.flush();
+  assert.equal(f.controller().snapshot, capture);
+  assert.equal(f.controller().recovery, true);
+  assert.deepEqual(f.controller().original.current, original);
+
+  f.controller().connect(); await f.loadPage(probe.LOGIN_URL);
+  const staleWebView = f.find(f.render(), element => element.type === 'WebView'); assert.ok(staleWebView);
+  const staleLoadEnd = staleWebView.props.onLoadEnd as (event: unknown) => void;
+  const injectionsBefore = f.injections.length;
+  assert.equal(f.controller().suspendBrowserForOwnerSwitch(), true);
+  assert.equal(f.controller().browserActive, false);
+  assert.equal(f.controller().visible, false);
+  assert.equal(f.controller().loaded, false);
+  assert.equal(f.controller().connection.phase, 'unknown');
+  assert.equal(f.controller().connection.confirmed, false);
+  assert.equal(f.controller().snapshot, capture);
+  assert.equal(f.controller().recovery, true);
+  assert.deepEqual(f.controller().original.current, original);
+  staleLoadEnd({ nativeEvent: { url: probe.LOGIN_URL } });
+  await f.flush();
+  assert.equal(f.controller().loaded, false, 'A callback from the detached document cannot mark it loaded again');
+  assert.equal(f.injections.length, injectionsBefore, 'A callback from the detached document cannot inject a new page command');
+  assert.deepEqual(f.writes, [], 'Suspension does not write captures, recovery, or information files');
+  assert.deepEqual(f.loginStorage(), { reads: 0, forgets: 0 }, 'Suspension does not read, change, or forget credentials');
+  assert.equal(f.scopeWrites(), 0);
+
+  f.controller().connect(); await f.loadPage(probe.LOGIN_URL);
+  assert.equal(f.controller().browserActive, true, 'The existing connect path resumes the provider browser');
+  f.controller().checkConnection(); await f.loadPage(context.PROFILE_URL);
+  await f.contextMessage({ ...observedContext, accountNumber: '456' });
+  assert.equal(f.controller().connection.phase, 'mismatch', 'The prior owner association remains binding after suspension');
+  assert.equal(f.scopeWrites(), 0);
+  assert.equal(f.savedCapture(), capture);
+  assert.deepEqual(f.writes, []);
+});
+
+test('explicit browser suspension refuses while a provider context check owns the browser', async () => {
+  const f = fixture({ product: true }); f.render(); await f.settle(null); for (let i = 0; i < 4; i++) await f.flush();
+  f.controller().connect(); await f.loadPage(probe.LOGIN_URL);
+  f.controller().checkConnection();
+  assert.equal(f.controller().connection.phase, 'checking');
+  const generation = f.controller().generation;
+  assert.equal(f.controller().suspendBrowserForOwnerSwitch(), false);
+  assert.equal(f.controller().browserActive, true);
+  assert.equal(f.controller().visible, true);
+  assert.equal(f.controller().connection.phase, 'checking');
+  assert.equal(f.controller().generation, generation, 'A refused suspension leaves native callbacks owned by the active check');
+  assert.deepEqual(f.writes, []);
+});
+
 test('saved owner-scoped review loads offline before recovery is ready and survives recovery-read failure', async () => {
   const capture = captureFixture();
   const f = fixture({ product: true, priorCapture: capture, persistedScope: { version: 1, owner: 'synthetic-pilot', connectionId: 'prior', context: observedContext } });
@@ -1383,6 +1481,7 @@ test('saved owner-scoped review loads offline before recovery is ready and survi
   assert.equal(f.controller().captureLoadState, 'ready');
   assert.equal(f.controller().viewReady, false);
   assert.equal(f.controller().browserActive, false); assert.equal(f.controller().connection.confirmed, false);
+  assert.equal(f.controller().completedFlightSource, null, 'A persisted capture has no live before/after retrieval context');
   await f.settle(new Error('Synthetic failed legacy diagnostic'));
   for (let i = 0; i < 4; i++) await f.flush();
   assert.equal(f.controller().snapshot, capture); assert.equal(f.controller().captureLoadState, 'ready');

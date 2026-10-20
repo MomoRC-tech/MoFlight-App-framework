@@ -26,7 +26,7 @@ function fixture() {
   };
   const flight = { id: 'synthetic-flight', registration: 'D-SYN', date: '2026-10-18', minutes: 30 };
   const library = { flights: [flight], books: [{ id: 'synthetic-book', name: 'Synthetic book' }], bookId: 'synthetic-book', pending: 0, displayName: 'Synthetic pilot' };
-  const controller = { visible: false, connection: { phase: 'unknown' }, refreshRecovery: () => calls.push('refresh-recovery'), dismissLogin() {}, backWithinProvider: () => false };
+  const controller = { visible: false, connection: { phase: 'unknown' }, refreshRecovery: () => calls.push('refresh-recovery'), dismissLogin() {}, backWithinProvider: () => false, suspendBrowserForOwnerSwitch: () => true };
   const calls: string[] = [];
   let suspended = false;
   Object.assign(controller, { connect: () => calls.push('connect'), checkConnection: () => calls.push('check'), retrieve: () => calls.push('retrieve') });
@@ -56,6 +56,7 @@ function fixture() {
     './DevelopmentHub': leaves(['DevelopmentHub', 'DevelopmentNotice']),
     './LibraryBackup': leaves(['LibraryBackup']), './PaperStatus': leaves(['PaperStatus']),
     './ImportPreview': leaves(['ImportPreview']),
+    './CoreFlightFoundation': leaves(['CoreFlightFoundation']),
   };
   const exports = {} as { Shell: () => Element };
   runInNewContext(source + '\nexports.Shell = Shell;', { exports, require: (name: string) => {
@@ -63,7 +64,7 @@ function fixture() {
     assert.ok(name in modules, name); return modules[name];
   } });
   let tree: Element;
-  function render() { index = 0; tree = exports.Shell(); effects.splice(0).forEach(effect => effect()); return tree; }
+  function render() { index = 0; tree = (exports.Shell as (props:unknown)=>Element)({onCoreFlights:()=>calls.push('core-library-route')}); effects.splice(0).forEach(effect => effect()); return tree; }
   function nodes() {
     const found: Element[] = [];
     const visit = (value: unknown) => { if (value && typeof value === 'object' && 'children' in value) { const node = value as Element; found.push(node); node.children.forEach(visit); if (node.type === 'FlatList') visit(node.props.ListHeaderComponent); } };
@@ -246,6 +247,14 @@ test('provider diagnostics reuses the retained controller and normal entry remov
   assert.equal(f.find('ProviderConnection').props.development, false);
   assert.equal(f.nodes().filter(n => n.type === 'ProviderConnection').length, 1);
   assert.deepEqual(f.calls, []);
+});
+
+test('core-library route requires safe browser suspension and keeps the main profile draft in its shell', () => {
+  const f=fixture();f.press('Pressable','Profil & Einstellungen öffnen');
+  f.find('ProfileSettings').props.onNameDraftChange('Retained draft');f.render();f.find('ProfileSettings').props.onTools();f.render();
+  f.controller.suspendBrowserForOwnerSwitch=()=>false;f.find('DevelopmentHub').props.onCoreFlights();assert.deepEqual(f.calls,[]);
+  f.controller.suspendBrowserForOwnerSwitch=()=>true;f.find('DevelopmentHub').props.onCoreFlights();assert.deepEqual(f.calls,['core-library-route']);
+  f.render();f.headers().at(-1)!.props.back();f.render();assert.equal(f.find('ProfileSettings').props.nameDraft,'Retained draft');
 });
 
 test('nested settings preserve the unsaved profile draft and each sheet scroll offset', () => {
