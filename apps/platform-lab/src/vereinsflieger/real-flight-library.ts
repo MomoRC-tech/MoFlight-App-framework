@@ -109,6 +109,7 @@ export type RealFlightReceiptRecovery =
 /** Account-scoped, append-only source-flight history. It does not assign books or compute credit. */
 export class RealFlightLibrary {
   private closed = false;
+  private validatedGraphText: string | null = null;
 
   private constructor(private readonly db: Driver, readonly manifest: Readonly<RealHistoryManifest>,
     private readonly hash: Hash, private readonly authorize: RealFlightAuthorization, private readonly leaseId: string,
@@ -174,13 +175,14 @@ export class RealFlightLibrary {
     });
     realFlightRequire(graph.manifest.owner_id === ownerId && graph.manifest.store_id === storeId, 'Foreign real flight history file.');
     const library = new RealFlightLibrary(db, Object.freeze(realFlightClone(graph.manifest)), hash, authorize, permit.leaseId, fault, gate);
+    library.validatedGraphText = canonical(graph);
     await gate(false);
     const afterReplay = library.allowed();
     realFlightRequire(afterReplay.leaseId === permit.leaseId, 'Real flight history lease changed after open.');
     return library;
   }
 
-  async close(): Promise<void> { if (!this.closed) { this.closed = true; await this.db.close(); } }
+  async close(): Promise<void> { if (!this.closed) { this.closed = true; this.validatedGraphText = null; await this.db.close(); } }
 
   async snapshot(): Promise<RealFlightGraph> {
     const before = this.allowed(); await this.gate(false);
@@ -190,7 +192,15 @@ export class RealFlightLibrary {
     await this.db.transaction(async tx => {
       const current = this.allowed();
       realFlightRequire(current.leaseId === ready.leaseId, 'Real flight history lease changed during read.');
-      await checkSchema(tx); graph = await authorizedGraph(tx, current); await validateRealFlightGraph(graph, this.hash);
+      await checkSchema(tx); graph = await authorizedGraph(tx, current);
+      // The current graph is still read and checked in this transaction. Reuse
+      // replay only for exact bytes already validated by this same handle;
+      // generation/count equality alone never establishes integrity.
+      const text = canonical(graph);
+      if (text !== this.validatedGraphText) {
+        await validateRealFlightGraph(graph, this.hash);
+        this.validatedGraphText = text;
+      }
     });
     realFlightRequire(graph.manifest.owner_id === before.ownerId && graph.manifest.store_id === before.storeId,
       'Foreign real flight history file.');

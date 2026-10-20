@@ -165,8 +165,14 @@ function OwnerFlightLibrary({lease,registry,close}:{lease:RealOwnerLease;registr
   }
   async function refresh() {
     // Keep restore recovery discoverable even when opening the selected graph fails.
-    await refreshRestorePreparations();
-    const {snapshot:next,flights:rows}=await service.readStored(),pending=await service.recoverPending();
+    async function timed<T>(name:string,work:()=>Promise<T>):Promise<T> {
+      const start=performance.now();let succeeded=false;
+      try{const value=await work();succeeded=true;return value;}
+      finally{console.info('MOFLIGHT_STORED_READ_STAGE '+JSON.stringify({name,milliseconds:performance.now()-start,succeeded}));}
+    }
+    await timed('restore-inspection',refreshRestorePreparations);
+    const {snapshot:next,flights:rows}=await timed('stored-view',()=>service.readStored()),
+      pending=await timed('receipt-recovery',()=>service.recoverPending());
     if(alive.current){setSnapshot(next);setFlights(rows);setRecovery(pending);setPage(current=>Math.min(current,Math.max(0,Math.ceil(rows.length/5)-1)));}
   }
   async function prepareSourceReview(next:RealFlightReview) {

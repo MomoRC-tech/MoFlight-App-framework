@@ -2,12 +2,12 @@ import { test, type TestContext } from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { canonical } from '../../packages/flight-logbook/src/index.ts';
-import type { Driver, Hash } from '../../packages/local-data/src/index.ts';
+import type { Bind, Driver, Hash } from '../../packages/local-data/src/index.ts';
 import { nodeDriver } from './sqlite-driver.ts';
 import { REAL_HISTORY_BACKUP_LIMIT, REAL_HISTORY_COMMAND_LIMIT, type RealHistoryManifest } from '../../apps/platform-lab/src/vereinsflieger/real-history-contract.ts';
 import { RealFlightLibrary, IndeterminateRealFlightCommit, type RealFlightPermit } from '../../apps/platform-lab/src/vereinsflieger/real-flight-library.ts';
 import type { RealFlightSourceInput } from '../../apps/platform-lab/src/vereinsflieger/real-flight-source.ts';
-import type { RealFlightGraph } from '../../apps/platform-lab/src/vereinsflieger/real-flight-library-model.ts';
+import type { RealFlightGraph, RealFlightRecord } from '../../apps/platform-lab/src/vereinsflieger/real-flight-library-model.ts';
 
 const hash: Hash = async value => createHash('sha256').update(value, 'utf8').digest('hex');
 const at = '2026-10-20T10:00:00.000Z';
@@ -60,6 +60,53 @@ async function save(library: RealFlightLibrary, input: RealFlightSourceInput, id
     bindingId: plan.bindingId, source: input, planToken: plan.planToken, at: atTime });
   return { plan, result };
 }
+
+test('same-handle exact graph replay reuse preserves changed-graph, fresh-handle and lease validation',async t=>{
+  let calls=0;
+  const counted:Hash=async value=>{calls++;return hash(value);};
+  const db=nodeDriver(':memory:');
+  let permit:RealFlightPermit={ownerId:ownerA,storeId:storeA,leaseId:'replay-lease',writable:true};
+  const authorize=()=>permit;
+  const library=await RealFlightLibrary.create(db,manifest(ownerA,storeA),counted,authorize);
+  t.after(()=>db.close());
+  await bind(library);await save(library,source('replay-first',[row('101')]),2);
+  const first=await library.snapshot(),before=calls;
+  first.records.length=0;
+  assert.equal((await library.snapshot()).generation,2);assert.equal(calls,before,'unchanged exact graph avoids redundant hashing');
+  const writer=await RealFlightLibrary.open(db,ownerA,storeA,counted,authorize);
+  await save(writer,source('replay-new',[row('101'),row('102')]),3);
+  const afterWrite=calls;assert.equal((await library.readStored()).flights.length,2);
+  assert.ok(calls>afterWrite,'a later graph must replay even on the same handle');
+  const beforeOpen=calls;
+  const reopened=await RealFlightLibrary.open(db,ownerA,storeA,counted,authorize);
+  assert.ok(calls>beforeOpen,'new handles cannot inherit replay trust');
+  const afterOpen=calls;assert.equal((await reopened.snapshot()).generation,3);assert.equal(calls,afterOpen);
+  permit={...permit,leaseId:'foreign-lease'};
+  await assert.rejects(reopened.snapshot(),/lease/);
+});
+
+test('same-generation forged records and failed replay cannot populate exact-graph trust',async t=>{
+  const db=nodeDriver(':memory:');let corrupt=false,calls=0;
+  const transaction=db.transaction.bind(db);
+  db.transaction=work=>transaction(tx=>work({...tx,all:async<T>(sql:string,...params:Bind[])=>{
+    const rows=await tx.all<T>(sql,...params);
+    if(corrupt&&sql==='SELECT * FROM real_history_records ORDER BY seq') {
+      return (rows as RealFlightRecord[]).map(row=>row.kind==='facts'?{...row,payload:row.payload.replaceAll('D-TEST','D-FORGED')}:row) as T[];
+    }
+    return rows;
+  }}));
+  const counted:Hash=async value=>{calls++;return hash(value);};
+  const library=await RealFlightLibrary.create(db,manifest(ownerA,storeA),counted,
+    ()=>({ownerId:ownerA,storeId:storeA,leaseId:'same-generation',writable:true}));
+  t.after(()=>library.close());
+  await bind(library);await save(library,source('cached-records',[row('101')]),2);
+  await library.snapshot();corrupt=true;
+  for(let attempt=0;attempt<2;attempt++){
+    const before=calls;await assert.rejects(library.readStored(),/record graph/);
+    assert.ok(calls>before,'a rejected graph is never memoized');
+  }
+  corrupt=false;assert.equal((await library.readStored()).flights[0]!.sourceFlightRef,'101');
+});
 async function reEnvelope(graph: RealFlightGraph, change: (graph: RealFlightGraph & { version: number }) => void) {
   const body = { version: 1, ...structuredClone(graph) };
   change(body);
