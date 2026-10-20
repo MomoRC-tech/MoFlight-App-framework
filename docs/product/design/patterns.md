@@ -6,7 +6,7 @@
 
 | Destination | Current presentation |
 | --- | --- |
-| Übersicht | Photo paper hero; asymmetric season/AI and flight/club pairs; weather and next actions. Use selected-book saved facts with details on tap. |
+| Übersicht | Photo paper hero; asymmetric season/AI and flight/club pairs; weather and next actions. Flight summaries use the selected real account library without a book requirement; paper status remains separate. See the [recorded statistics presentation gap](history.md#20-october-implementation-gap--real-flight-statistics). |
 | Flüge | Selected real account’s locally saved flights without a required book: source-date/year, text and exact recorded-registration filters; source-specific details and eight-field original-value pages. Collapsible coverage/freshness and explicit update entry. Missing tracks/distances/classifications stay unavailable; no training or book inference. |
 | Flugbuch | Selected-book saved paper status and ordinary library backup/restore. Full reconciliation/writing remains M5; book identity differs from account/format. |
 | Verein | Overview/Dienste/Termine/Mitteilungen scopes with bounded sections and honest missing-source states. |

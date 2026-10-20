@@ -72,7 +72,7 @@ This bounded Android emulator sequence cannot pass physical-device/iOS acceptanc
 
 ## Reproducible sources
 
-- [Workflow](../../.github/workflows/host-lab.yml), [emulator script](../../scripts/android_smoke.py) and [runbook/manual gates](../../apps/platform-lab/README.md).
+- [Historical workflow](https://github.com/MomoRC-tech/MoFlight-App-framework/blob/8d9cf69/.github/workflows/host-lab.yml) (replaced by the [current CI workflow](../../.github/workflows/ci.yml) on 18 October), [emulator script](../../scripts/android_smoke.py) and [runbook/manual gates](../../apps/platform-lab/README.md).
 - [Android emulator command-line reference](https://developer.android.com/studio/run/emulator-commandline).
 - [Emulator-runner maintained instructions](https://github.com/ReactiveCircus/android-emulator-runner), reviewed 2026-10-09 for API/architecture, headless launch, KVM and bounded custom scripts. A CI support action does not change the approved app architecture.
 

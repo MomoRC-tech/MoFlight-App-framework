@@ -51,3 +51,7 @@ The later selected duotone symbols supersede earlier artwork choices in their sc
 - 18 Oct 2026: chapters, complete source-literal inventory, component shape examples and portable/copyable views assembled under #23. Application UI and original assets are unchanged.
 
 Regenerate with `python scripts/design_handbook.py`; validate freshness/links/coverage with `python scripts/design_handbook.py --check`. Focused tooling checks: `python -m unittest discover -s tests -p test_design_handbook.py -v`. The command normalizes source line endings before hashing and performs no network/app operations. [Package verification](../../verification/2026-10-18-design-handbook.md) records actual results and limits.
+
+## 20 October implementation gap — real-flight statistics
+
+The saved-account statistics change `8fe0078` replaces the season card contents with text groups and does not render the previously approved aircraft-share rings. Its season card passes a year, but the shell currently opens unfiltered Flüge. These are recorded implementation/presentation follow-ups under [#9](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/9) and [#20](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/20), after the selected controller maintenance. No new appearance or replacement of the approved ring decision is inferred. The generated inventory records current source values; native statistics acceptance remains open. The controller refactor does not change this screen.
