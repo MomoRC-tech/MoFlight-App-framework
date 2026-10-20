@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 import { runInNewContext } from 'node:vm';
 import ts from 'typescript';
 import { canonical } from '../../packages/flight-logbook/src/index.ts';
+import { medicalSource } from '../../apps/platform-lab/src/mobile/medical-source.ts';
 
 interface Element { type: unknown; props: Record<string, any>; children: unknown[] }
 const source = ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/mobile/MobileApp.tsx', import.meta.url), 'utf8'), {
@@ -26,7 +27,7 @@ function fixture() {
   };
   const flight = { id: 'synthetic-flight', registration: 'D-SYN', date: '2026-10-18', minutes: 30 };
   const library = { flights: [flight], books: [{ id: 'synthetic-book', name: 'Synthetic book' }], bookId: 'synthetic-book', pending: 0, displayName: 'Synthetic pilot' };
-  const controller = { visible: false, connection: { phase: 'unknown' }, refreshRecovery: () => calls.push('refresh-recovery'), dismissLogin() {}, backWithinProvider: () => false, suspendBrowserForOwnerSwitch: () => true };
+  const controller = { visible: false, informationCaptures: [], connection: { phase: 'unknown' }, refreshRecovery: () => calls.push('refresh-recovery'), dismissLogin() {}, backWithinProvider: () => false, suspendBrowserForOwnerSwitch: () => true };
   const calls: string[] = [];
   let suspended = false;
   Object.assign(controller, { connect: () => calls.push('connect'), checkConnection: () => calls.push('check'), retrieve: () => calls.push('retrieve') });
@@ -57,6 +58,7 @@ function fixture() {
     './LibraryBackup': leaves(['LibraryBackup']), './PaperStatus': leaves(['PaperStatus']),
     './ImportPreview': leaves(['ImportPreview']),
     './CoreFlightFoundation': leaves(['CoreFlightFoundation']),
+    './ConnectionSummary': leaves(['ConnectionSummary']), './medical-source': { medicalSource },
   };
   const exports = {} as { Shell: () => Element };
   runInNewContext(source + '\nexports.Shell = Shell;', { exports, require: (name: string) => {
@@ -87,6 +89,22 @@ test('app headers order connection, Medical and profile on every tab', () => {
     const controls = f.nodes().filter(n => n.type === 'ConnectionIndicator' || n.type === 'MedicalIndicator' || n.props.accessibilityLabel === 'Profil & Einstellungen öffnen');
     assert.deepEqual(controls.map(n => n.type), ['ConnectionIndicator', 'MedicalIndicator', 'Pressable']);
   }
+  assert.deepEqual(f.calls, []);
+});
+
+test('Start and profile data shortcuts reuse the existing connection without automatic login or retrieval', () => {
+  const f = fixture();
+  f.find('ConnectionSummary').props.onOpen(); f.render();
+  const connection = f.find('ProviderConnection');
+  assert.equal(connection.props.open, true);
+  assert.deepEqual(f.calls, []);
+  connection.props.close(); f.render();
+  f.press('Pressable', 'Profil & Einstellungen öffnen');
+  const summary = f.find('ProfileSettings').props.connectionSummary as Element;
+  assert.equal(summary.props.controller, connection.props.controller);
+  summary.props.onOpen(); f.render();
+  assert.equal(f.find('ProviderConnection').props.open, true);
+  assert.equal(f.nodes().filter(n => n.type === 'ProviderConnection').length, 1);
   assert.deepEqual(f.calls, []);
 });
 

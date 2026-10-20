@@ -18,6 +18,8 @@
 
 ## Preserved history
 
+**20 October implementation amendment:** Manuel selected profile administration with direct Start/header shortcuts and a non-blocking more-than-seven-day capture-age reminder, then authorized implementation. The first increment reuses shared cards/actions, adds a Start/profile session/data summary and presents saved own Medical class/expiry as original source text with retrieval time. Med / Angaben means source rows exist, never validity or fitness. Empty/foreign/ambiguous source remains unknown. The current sequence is imported/stored flights and working Flüge first, then statistics; neither Medical nor appearance refinements delays it. [Decision](../2026-10-13-journey-information-map.md#retrieval-first-and-profile-administration--20-october-2026), [focused evidence and pending native checks](../../verification/2026-10-10-vereinsflieger-discovery.md#retrieval-first-usability-increment--20-october-2026). This amends the earlier unknown-only Medical wording; source/date interpretation remains unverified.
+
 | Source | Current use |
 | --- | --- |
 | [App design chronology](../app-design.md) | Original prototype choices/provenance; older refresh header, palettes, Medical expiry, goals and navigation do not override later decisions. |

@@ -7,7 +7,7 @@
 
 # MoFlight
 
-**Revised focus — 20 October:** reliable own-flight retrieval, durable offline storage, a working **Flüge** tab and real-flight statistics, plus source-backed **Medical status**. Flugbuch creation/assignment and paper catch-up come later and must not block this journey. Profile settings is the selected administrative home, with direct Start/header shortcuts and a non-blocking data-age reminder after more than seven days. This supersedes the older order below. Product direction selected; implementation/acceptance remain pending. [Current roadmap](docs/project-plan.md#current-focus-and-usability-decision--20-october-2026).
+**Revised focus — 20 October:** **first import/store real own flights and make Flüge work, then statistics**. Medical remains in scope without delaying the first step. Flugbuch creation/assignment and paper catch-up come later. Profile settings is the selected administrative home, with direct Start/header shortcuts and a non-blocking data-age reminder after more than seven days. This supersedes the older order below. The parallel account-scoped store/service and separate Development review/save path are implemented; core native acceptance and normal Flüge integration remain open. [Current roadmap](docs/project-plan.md#current-focus-and-usability-decision--20-october-2026).
 
 **Priority — 20 October:** all training-status/progress work is deferred at **very low priority**. Focus on reliable own-flight import → real offline library and data preservation → real-book assignment/corrections → statistics and paper-logbook catch-up. Next: flight identity and requested-window coverage evidence. Existing training code/data stay preserved; training does not gate the core journey. [Current roadmap](docs/project-plan.md).
 

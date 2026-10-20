@@ -2,21 +2,32 @@ import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { MedicalIcon } from './ShellIcons';
 import { Card, Label, Section, colors } from './theme';
+import type { InformationCapture } from '../vereinsflieger/information';
 
-/** Presentation only: no medical source, record, date or eligibility is inferred. */
-export function MedicalIndicator({ onPress, active = false, disabled = false }: { onPress: () => void; active?: boolean; disabled?: boolean }) {
-  return <Pressable accessibilityRole="button" accessibilityLabel="Medical unbekannt. Details öffnen" accessibilityState={{ selected: active, disabled }} disabled={disabled} onPress={onPress} style={[styles.control, disabled && { opacity: .5 }]}>
+/** Source availability only; never a fitness or legal-validity indicator. */
+export function MedicalIndicator({ onPress, active = false, disabled = false, capture = null }: { onPress: () => void; active?: boolean; disabled?: boolean; capture?: InformationCapture | null }) {
+  const available = !!capture?.rows.length;
+  return <Pressable accessibilityRole="button" accessibilityLabel={available ? 'Medical Quellenangaben vorhanden. Gültigkeit ungeprüft. Details öffnen' : 'Medical unbekannt. Details öffnen'} accessibilityState={{ selected: active, disabled }} disabled={disabled} onPress={onPress} style={[styles.control, disabled && { opacity: .5 }]}>
     <View accessible={false} style={styles.title}><MedicalIcon /><Text style={styles.label}>Med</Text></View>
-    <Text style={styles.status}>unbekannt</Text>
+    <Text style={styles.status}>{available ? 'Angaben' : 'unbekannt'}</Text>
   </Pressable>;
 }
 
-export function MedicalDetails() {
+export function MedicalDetails({ capture = null, loading = false, needsReload = false }: { capture?: InformationCapture | null; loading?: boolean; needsReload?: boolean } = {}) {
   return <Card style={styles.details}>
     <Section title="Medical" />
-    <Label style={{ fontWeight: '600' }}>Status unbekannt</Label>
-    <Label>In MoFlight ist noch kein Medical-Nachweis hinterlegt. Eine Datenquelle ist noch nicht verbunden.</Label>
-    <Label muted>Klasse, Gültigkeitsdatum und Quelle sind unbekannt.</Label>
+    <Label style={{ fontWeight: '600' }}>Gültigkeit ungeprüft</Label>
+    {loading && <Label muted>Gespeicherte Angaben werden geladen…</Label>}
+    {needsReload && <Label muted>Der neueste gespeicherte Stand muss erneut geladen werden. Vorhandene Angaben bleiben lesbar.</Label>}
+    {capture ? <>
+      <Label muted>Quelle: Vereinsflieger · eigene Profilseite · abgerufen am {new Date(capture.retrievedAt).toLocaleString('de-DE')}</Label>
+      {capture.rows.map(row => <View key={row.position} style={{ gap: 4 }}>
+        {capture.columns.map((column, index) => <Label selectable key={column.key}>{column.label}: {row.values[index]?.trim() ? row.values[index] : 'Unbekannt / leer in der Quelle'}</Label>)}
+      </View>)}
+      {!capture.rows.length && <Label>Im erfassten Seitenausschnitt wurden keine Medical-Angaben gefunden. Der Status bleibt unbekannt.</Label>}
+      <Label muted>{capture.coverage.truncated ? 'Der erfasste Ausschnitt ist unvollständig. ' : ''}Originalangaben aus dem gespeicherten Seitenausschnitt; Vollständigkeit und Gültigkeit sind nicht bestätigt.</Label>
+    </> : <><Label>Status unbekannt</Label><Label>In dieser lokalen Ansicht sind noch keine Medical-Quellenangaben verfügbar.</Label></>}
+    <Label muted>Diese Angaben bestätigen weder Flugtauglichkeit noch eine Flugberechtigung.</Label>
   </Card>;
 }
 

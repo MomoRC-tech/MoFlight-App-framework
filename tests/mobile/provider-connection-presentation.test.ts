@@ -10,6 +10,7 @@ import { providerUrl } from '../../apps/platform-lab/src/vereinsflieger/probe.ts
 import type { useAccessController } from '../../apps/platform-lab/src/vereinsflieger/use-access-controller.tsx';
 import { captureFixture } from './capture-review-fixture.ts';
 import { INFORMATION_TYPES } from '../../apps/platform-lab/src/vereinsflieger/information.ts';
+import { dataFreshness } from '../../apps/platform-lab/src/mobile/data-freshness.ts';
 
 type Controller = ReturnType<typeof useAccessController>;
 interface Element { type: unknown; props: Record<string, any>; children: unknown[] }
@@ -43,6 +44,7 @@ function fixture(overrides: Partial<Controller> = {}, development = false, purpo
     './theme': { ...Object.fromEntries(['Action', 'Card', 'IconLabel', 'Label', 'Section'].map(name => [name, name])), colors: {}, ui: { text: {} } },
     './SymbolIcon': { SymbolIcon: 'SymbolIcon' },
     './connection-guidance': { connectionGuidance, connectionSymbol }, '../vereinsflieger/connection-state': { retrievalFailureHint },
+    './data-freshness': { dataFreshness },
     '../vereinsflieger/probe': { providerUrl },
     'react-native-safe-area-context': { useSafeAreaInsets: () => ({ top: 0, bottom: 0 }) },
     './LegacyRecoveryReview': { LegacyRecoveryReview: 'LegacyRecoveryReview' }, './RawCaptureReview': { RawCaptureReview: 'RawCaptureReview' },
@@ -113,6 +115,17 @@ test('information page capture is explicit, respects recovery/loading and cannot
   failed.button('Informationsimport').props.onPress(); failed.render(); assert.match(failed.text(), /Erfassung nicht bestätigt/);
   const saved = fixture({ browserActive: true });
   saved.nodes().find(n => n.type === 'InformationReview')!.props.onOpen(); assert.deepEqual(saved.calls, ['provider-visible']);
+});
+
+test('a recent session check does not hide an old successful flight capture or automatically refresh it', () => {
+  const session = new ConnectionSession(); session.start('fresh-check');
+  session.observe('fresh-check', observed, at); session.confirm();
+  const snapshot = {...captureFixture(),retrievedAt:'2000-01-01T00:00:00.000Z'};
+  const f = fixture({connection:session.state, snapshot, captureLoadState:'failed'});
+  assert.match(f.text(), /Letzter Flugdatenabruf:/);
+  assert.match(f.text(), /2000/);
+  assert.match(f.text(), /Frühere Daten bleiben erhalten/);
+  assert.deepEqual(f.calls, []);
 });
 
 test('fresh-library account confirmation names its real scope and performs no flight save', () => {

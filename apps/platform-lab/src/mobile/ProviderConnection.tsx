@@ -4,6 +4,7 @@ import { Action, Card, IconLabel, Label, Section, colors, ui } from './theme';
 import { SymbolIcon } from './SymbolIcon';
 import { retrievalFailureHint } from '../vereinsflieger/connection-state';
 import { connectionGuidance, connectionSymbol } from './connection-guidance';
+import { dataFreshness } from './data-freshness';
 import type { useAccessController } from '../vereinsflieger/use-access-controller';
 import { providerUrl } from '../vereinsflieger/probe';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -38,6 +39,7 @@ export function ProviderConnection({ controller: c, open, close, development = f
   const locked = operationLocked || c.disconnecting;
   const login = open && c.visible;
   const guidance = connectionGuidance(c.connection, c.browserActive);
+  const freshness = dataFreshness(c.snapshot?.retrievedAt ?? null, c.captureLoadState);
   const loginFeedback = c.loginBusy ? 'Gespeicherte Anmeldung wird einmalig versucht…' :
     c.loginNotice === 'response' ? 'Anmeldung noch nicht bestätigt. Schließe eine mögliche Anbieterprüfung ab und tippe auf „Anmeldung prüfen“.' :
     c.loginNotice === 'unavailable' ? 'Gespeicherte Anmeldung nicht verfügbar. Bitte auf der Originalseite anmelden.' :
@@ -73,7 +75,8 @@ export function ProviderConnection({ controller: c, open, close, development = f
         <View style={styles.group}>
           <Card><Section title="Vereinsflieger" /><View accessible accessibilityLabel={guidance.title} accessibilityLiveRegion="polite"><Label selectable={false} style={{ fontWeight: '600' }}>{guidance.title}</Label></View>
             <Label muted>{guidance.hint}</Label>
-            <Label muted>Gespeicherter Rohbeleg: {c.snapshot ? `${new Date(c.snapshot.retrievedAt).toLocaleString('de-DE')} · ${c.snapshot.rows.length} Datensätze` : 'noch keiner'}</Label>
+            <Label muted>{freshness.label}{c.snapshot ? ` · ${c.snapshot.rows.length} erfasste Flüge` : ''}</Label>
+            {!!freshness.note && <Label muted>{freshness.note}</Label>}
             {guidance.action && <Action disabled={locked || guidance.action === 'check' && !c.browserActive} onPress={guidance.action === 'connect' ? c.connect : () => c.checkConnection()}>{guidance.actionLabel}</Action>}
             {checking && <ActivityIndicator color={colors.cyan} />}
             {c.binding && <Label>Kontozuordnung wird gespeichert…</Label>}

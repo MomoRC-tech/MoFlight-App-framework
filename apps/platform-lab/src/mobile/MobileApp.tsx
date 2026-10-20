@@ -23,6 +23,8 @@ import { PaperStatus } from './PaperStatus';
 import { ImportPreview } from './ImportPreview';
 import type { PreviewSession } from '../import-preview';
 import { CoreFlightFoundation } from './CoreFlightFoundation';
+import { ConnectionSummary } from './ConnectionSummary';
+import { medicalSource } from './medical-source';
 
 const mountain = require('../../assets/aviation/mountain-header-v2.jpg');
 const windsock = require('../../assets/aviation/windsock.jpg');
@@ -58,6 +60,7 @@ export default function MobileApp() {
 }
 function Shell({onCoreFlights=()=>{}}:{onCoreFlights?:()=>void}={}) {
   const connection = useAccessController(true, PILOT);
+  const medical = medicalSource(connection.informationCaptures, PILOT);
   const [connectionOpen, setConnectionOpen] = useState(false);
   const [connectionDevelopment, setConnectionDevelopment] = useState(false);
   const [tab, setTab] = useState<Tab>('home');
@@ -168,7 +171,7 @@ function Shell({onCoreFlights=()=>{}}:{onCoreFlights?:()=>void}={}) {
   const pageTitle = tabs.find(item => item.id === tab)!.title;
   const statusControls = <>
     <ConnectionIndicator controller={connection} onPress={() => openConnection()} />
-    <MedicalIndicator active={sheet === 'medical'} disabled={screenBusy} onPress={() => openHeaderSheet('medical')} />
+    <MedicalIndicator capture={medical} active={sheet === 'medical'} disabled={screenBusy} onPress={() => openHeaderSheet('medical')} />
     <Pressable accessibilityRole="button" accessibilityLabel="Profil & Einstellungen öffnen" accessibilityState={{ disabled: screenBusy }} disabled={screenBusy} onPress={() => openHeaderSheet('profile')} style={s.profileButton}><ProfileIcon /></Pressable>
   </>;
   const header = <AppHeader source={tab === 'club' ? clubAirfield : mountain} title={tab === 'ai' ? 'MoFlight AI' : pageTitle}
@@ -190,6 +193,7 @@ function Shell({onCoreFlights=()=>{}}:{onCoreFlights?:()=>void}={}) {
     <View style={[s.content, wide && { maxWidth: 960 }, tablet && !wide && { maxWidth: 600 }]}>
       <View style={[s.page, tab !== 'home' && s.hidden]} accessibilityElementsHidden={tab !== 'home'} importantForAccessibility={tab === 'home' ? 'auto' : 'no-hide-descendants'}>
         <ScrollView contentContainerStyle={s.canvas} keyboardShouldPersistTaps="handled">
+          <ConnectionSummary controller={connection} onOpen={() => openConnection()} />
           <Dashboard flights={library.flights} pending={library.pending} width={width} fontScale={fontScale} onPaper={openBooks} onAi={() => ask('Mit welchem Flugzeug bin ich am häufigsten geflogen?')} onFlights={value => { setYear(value ?? null); setTab('flights'); }} onDetail={setDetail} onClub={() => { setClubSection('Dienste'); setTab('club'); }} onStatus={() => setSheet('status')} />
           {stateBanner}
           <Pressable accessibilityRole="button" onPress={() => setSheet('credits')} style={ui.smallAction}><Label muted>Bildnachweise & Lizenzen</Label></Pressable>
@@ -241,12 +245,12 @@ function Shell({onCoreFlights=()=>{}}:{onCoreFlights?:()=>void}={}) {
     {overlayOpen && <View style={[StyleSheet.absoluteFill, s.modal]} accessibilityViewIsModal>
       <AppHeader source={mountain} back={closeOverlay} backDisabled={screenBusy} title={detail ? 'Flugdetails' : sheet === 'paper' ? 'Papierflugbuch' : sheet === 'development' ? 'Entwicklung' : sheet === 'importPreview' ? 'Importvorschau' : sheet === 'flightLab' ? 'Datensatztest' : sheet === 'bookLab' ? 'Flugbuchtest' : sheet === 'backup' ? 'Sicherung' : sheet === 'profile' ? 'Profil & Einstellungen' : sheet === 'medical' ? 'Medical' : 'MoFlight'}>{statusControls}</AppHeader>
         {sheet === 'flightLab' ? <><DevelopmentNotice /><LabApp providerOwned={true} embedded onBusyChange={setScreenBusy} /></> : sheet === 'bookLab' ? <><DevelopmentNotice /><BookLab close={closeOverlay} onBusyChange={setScreenBusy} /></> : <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}><ScrollView ref={overlayScroll} key={overlayKey} contentOffset={{ x: 0, y: overlayOffsets.current[overlayKey] ?? 0 }} onScroll={event => { overlayOffsets.current[overlayKey] = event.nativeEvent.contentOffset.y; }} scrollEventThrottle={32} contentContainerStyle={s.canvas} keyboardShouldPersistTaps="handled">
-          {sheet === 'profile' && <ProfileSettings onConnections={() => openConnection()} onTools={() => openHeaderSheet('development')} onBackup={() => openHeaderSheet('backup')} onStatus={() => openHeaderSheet('status')} onCredits={() => openHeaderSheet('credits')} onBooks={() => openHeaderSheet('selectBook')} displayName={library.displayName} nameDraft={profileNameDraft} onNameDraftChange={setProfileNameDraft} busy={library.busy} error={library.error} onSaveName={library.saveDisplayName} onRetry={() => void library.reload()} />}
+          {sheet === 'profile' && <ProfileSettings connectionSummary={<ConnectionSummary controller={connection} onOpen={() => openConnection()} />} onConnections={() => openConnection()} onTools={() => openHeaderSheet('development')} onBackup={() => openHeaderSheet('backup')} onStatus={() => openHeaderSheet('status')} onCredits={() => openHeaderSheet('credits')} onBooks={() => openHeaderSheet('selectBook')} displayName={library.displayName} nameDraft={profileNameDraft} onNameDraftChange={setProfileNameDraft} busy={library.busy} error={library.error} onSaveName={library.saveDisplayName} onRetry={() => void library.reload()} />}
           {sheet === 'development' && <DevelopmentHub onFlights={() => openHeaderSheet('flightLab')} onBooks={() => openHeaderSheet('bookLab')} onProvider={() => openConnection(true)} onImportPreview={() => openHeaderSheet('importPreview')} onCoreFlights={()=>{if(connection.suspendBrowserForOwnerSwitch())onCoreFlights();}} />}
           {sheet === 'importPreview' && <ImportPreview session={importPreview} onChange={setImportPreview} onNavigate={() => { overlayOffsets.current.importPreview = 0; overlayScroll.current?.scrollTo({ y: 0, animated: false }); }} />}
           {sheet === 'backup' && <LibraryBackup onBusyChange={setScreenBusy} />}
           {sheet === 'paper' && <PaperStatus bookName={book?.name ?? null} pending={library.pending} onBooks={() => openHeaderSheet('selectBook')} onBackup={() => openHeaderSheet('backup')} onFlights={() => { overlayHistory.current = []; setDetail(null); setSheet(null); setTab('flights'); }} />}
-          {sheet === 'medical' && <MedicalDetails />}
+          {sheet === 'medical' && <MedicalDetails capture={medical} loading={connection.informationLoading} needsReload={connection.informationNeedsReload} />}
           {detail && <><Section title={detail.registration ?? 'Flugzeug unbekannt'} />{[['Datum', dateText(detail.date)], ['Flugzeugtyp', detail.aircraft_model], ['Abflug', detail.start_place], ['Ankunft', detail.landing_place], ['Start', detail.start], ['Landung', detail.landing], ['Zeitbasis', detail.time_basis], ['Dauer', detail.minutes === null ? null : `${formatDuration(detail.minutes)} h`], ['Rolle', detail.pilot_role], ['Startart', detail.launch], ['Landungen', detail.landings?.toString()], ['Bemerkungen', detail.remarks]].map(([label, value]) => <Card key={label}><Label muted>{label}</Label><Label selectable>{value ?? 'Unbekannt'}</Label></Card>)}<Label muted>Quelle: gespeicherte synthetische Bibliothek · {book?.name}. Distanz und Flugtrack sind nicht verfügbar.</Label></>}
           {sheet === 'selectBook' && <View style={{ width: '100%', maxWidth: 520, alignSelf: 'center', gap: 8 }}><Section title="Flugbuch auswählen" />{library.books.map(b => <Action key={b.id} secondary icon={b.id === library.bookId ? 'check' : undefined} onPress={() => { overlayHistory.current = []; setDetail(null); setSheet(null); void library.selectBook(b.id); }}>{b.name}</Action>)}{!library.books.length && <Empty title="Noch kein Flugbuch">Eine vorhandene Sicherung kann in einer neuen lokalen Bibliothek geöffnet werden. Live-Import und neue Produkt-Flugbücher sind noch nicht verfügbar.</Empty>}<Label muted>Gespeicherte synthetische Bibliothek · keine automatische Zuordnung.</Label><Action secondary onPress={() => openHeaderSheet('backup')}>Sicherung & Wiederherstellung</Action></View>}
           {sheet === 'filters' && <><Section title="Flugfilter" /><Label muted>Jahr, Suche und Schulungsrolle werden gemeinsam auf die gespeicherten Flüge angewendet.</Label><Chip title="Alle Rollen" selected={!training} onPress={() => setTraining(false)} /><Chip title="Schulung · Dual / FI" selected={training} onPress={() => setTraining(true)} /><Action onPress={() => { setSearch(''); setTraining(false); setYear(null); setSheet(null); }}>Filter zurücksetzen</Action></>}

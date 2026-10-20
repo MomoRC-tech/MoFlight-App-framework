@@ -3,6 +3,7 @@ import { ActivityIndicator, Keyboard, StyleSheet, Text, TextInput, View } from '
 import { Action, Card, Label, Section, colors } from './theme';
 
 export interface ProfileSettingsProps {
+  connectionSummary?: React.ReactNode;
   displayName: string;
   nameDraft: string;
   onNameDraftChange: (value: string) => void;
@@ -17,7 +18,7 @@ export interface ProfileSettingsProps {
   onBooks: () => void;
   onBackup: () => void;
 }
-export function ProfileSettings({ displayName, nameDraft: name, onNameDraftChange, busy, error, onSaveName, onRetry, onTools, onStatus, onCredits, onBooks, onBackup, onConnections }: ProfileSettingsProps) {
+export function ProfileSettings({ connectionSummary, displayName, nameDraft: name, onNameDraftChange, busy, error, onSaveName, onRetry, onTools, onStatus, onCredits, onBooks, onBackup, onConnections }: ProfileSettingsProps) {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const alive = useRef(false);
@@ -37,6 +38,7 @@ export function ProfileSettings({ displayName, nameDraft: name, onNameDraftChang
     finally { saving.current = false; }
   };
   return <View style={styles.content}>
+    {connectionSummary ?? <Card><Section title="Vereinsflieger & Daten" /><Action secondary onPress={onConnections}>Vereinsflieger & Daten öffnen</Action></Card>}
     <Card>
       <Section title="Lokales Demoprofil" />
       <Label muted>Dein Anzeigename wird nur in dieser lokalen Demobibliothek gespeichert. Ein MoFlight-Konto ist noch nicht verbunden.</Label>
@@ -55,7 +57,6 @@ export function ProfileSettings({ displayName, nameDraft: name, onNameDraftChang
       <Action secondary icon="book" onPress={onBackup}>Sicherung & Wiederherstellung</Action>
       <Action secondary onPress={onStatus}>Datenstatus</Action>
     </Card>
-    <Card><Section title="Verbindungen" /><Action secondary onPress={onConnections}>Vereinsflieger</Action></Card>
     <Card>
       <Section title="Darstellung" />
       <Label>Sprache: Deutsch</Label>
