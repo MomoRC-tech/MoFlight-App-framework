@@ -26,6 +26,8 @@ import { CoreFlightFoundation } from './CoreFlightFoundation';
 import { ConnectionSummary } from './ConnectionSummary';
 import { medicalSource } from './medical-source';
 import { OwnFlights, type OwnFlightHeader } from './OwnFlights';
+import { useOwnFlights } from './use-own-flights';
+import { ownFlightReadPorts } from './own-flight-reader-native';
 
 const mountain = require('../../assets/aviation/mountain-header-v2.jpg');
 const windsock = require('../../assets/aviation/windsock.jpg');
@@ -90,6 +92,7 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0}:{onCo
     previouslyToolsOpen.current = toolsOpen;
   }, [toolsOpen]);
   const library = useLibrary(toolsOpen || sheet === 'backup');
+  const ownFlights = useOwnFlights(ownFlightReadPorts, tab === 'home' && !connectionOpen && !coreFlightsOpen, flightReload);
   const libraryRevision = canonical([library.bookId, library.flights]);
   useEffect(() => { setProfileNameDraft(library.displayName); }, [library.displayName]);
   const { width, height, fontScale } = useWindowDimensions();
@@ -165,7 +168,7 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0}:{onCo
       <View style={[s.page, tab !== 'home' && s.hidden]} accessibilityElementsHidden={tab !== 'home'} importantForAccessibility={tab === 'home' ? 'auto' : 'no-hide-descendants'}>
         <ScrollView contentContainerStyle={s.canvas} keyboardShouldPersistTaps="handled">
           <ConnectionSummary controller={connection} onOpen={() => openConnection()} />
-          <Dashboard flights={library.flights} pending={library.pending} width={width} fontScale={fontScale} onPaper={openBooks} onAi={() => ask('Mit welchem Flugzeug bin ich am häufigsten geflogen?')} onFlights={() => setTab('flights')} onDetail={setDetail} onClub={() => { setClubSection('Dienste'); setTab('club'); }} onStatus={() => setSheet('status')} />
+          <Dashboard ownFlights={ownFlights.view} ownFlightPhase={ownFlights.phase} pending={library.pending} width={width} fontScale={fontScale} onPaper={openBooks} onAi={() => ask('Mit welchem Flugzeug bin ich am häufigsten geflogen?')} onFlights={() => setTab('flights')} onClub={() => { setClubSection('Dienste'); setTab('club'); }} onStatus={() => setSheet('status')} />
           {stateBanner}
           <Pressable accessibilityRole="button" onPress={() => setSheet('credits')} style={ui.smallAction}><Label muted>Bildnachweise & Lizenzen</Label></Pressable>
         </ScrollView>

@@ -1,30 +1,27 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import type { Flight } from '@moflight/flight-logbook';
 import { Card, GliderMark, IconLabel, Label, Photo, Section, colors, ui } from './theme';
-import { formatDuration, selectFlights, summarizeFlights } from './flight-model';
-import { aircraftSeasonShares, seasonRingSlices } from './season-model';
-import { SeasonRing } from './SeasonRing';
+import type { OwnFlightView } from './own-flight-reader';
+import { dataFreshness } from './data-freshness';
+import { planFlightRetrieval } from '../vereinsflieger/retrieval-policy';
+import { formatReportedMinutes, summarizeRealFlights } from './real-flight-statistics';
 import { SymbolIcon } from './SymbolIcon';
 
 const sunset = require('../../assets/aviation/gliding-sunset.jpg');
 const windsock = require('../../assets/aviation/windsock.jpg');
 interface Props {
-  flights: Flight[]; pending: number | null; width: number; fontScale: number;
+  ownFlights: OwnFlightView | null; ownFlightPhase: 'loading' | 'ready' | 'missing' | 'failed'; pending: number | null; width: number; fontScale: number;
   onPaper: () => void; onAi: () => void; onFlights: (year?: number) => void;
-  onDetail: (flight: Flight) => void; onClub: () => void; onStatus: () => void;
+  onClub: () => void; onStatus: () => void;
 }
-export function Dashboard({ flights, pending, width, fontScale, onPaper, onAi, onFlights, onDetail, onClub, onStatus }: Props) {
+export function Dashboard({ ownFlights, ownFlightPhase, pending, width, fontScale, onPaper, onAi, onFlights, onClub, onStatus }: Props) {
   const year = new Date().getFullYear();
-  const seasonFlights = selectFlights(flights, { year, search: '', category: 'all' });
-  const season = summarizeFlights(seasonFlights);
-  const aircraft = aircraftSeasonShares(seasonFlights);
-  const countDescription = `${season.count} gespeicherte Flüge ${year}. Verteilung nach Kennzeichen: ${aircraft.map(share => `${share.aircraft}: ${share.count}`).join(', ') || 'keine Flüge'}. Saisonflüge öffnen.`;
-  const timeDescription = `${formatDuration(season.knownMinutes)} bekannte Flugstunden ${year}. Verteilung nach Kennzeichen: ${aircraft.map(share => `${share.aircraft}: ${formatDuration(share.knownMinutes)} Stunden${share.unknownDurationCount ? `, ${share.unknownDurationCount} Zeiten unbekannt` : ''}`).join(', ') || 'keine Flüge'}. Saisonflüge öffnen.`;
-  const ordered = selectFlights(flights, { year: null, search: '', category: 'all' });
-  const latest = ordered.find(f => f.date !== null);
-  const day = latest ? ordered.filter(f => f.date === latest.date) : [];
-  const latestKnown = day.length === 1 || day.every(f => f.start !== null && f.time_basis === 'UTC') && new Set(day.map(f => f.start)).size === day.length;
+  const real = ownFlights?.flights ?? [];
+  const statistics = summarizeRealFlights(real);
+  const yearCount = statistics.years.find(item => item.year === String(year))?.flights ?? 0;
+  const retrieval = ownFlights ? planFlightRetrieval(ownFlights.snapshot.savedRetrievals) : null;
+  const freshness = dataFreshness(retrieval?.lastSuccessfulRetrievalAt ?? null, ownFlightPhase === 'ready' ? 'ready' : ownFlightPhase === 'failed' ? 'failed' : 'loading');
+  const latest = [...real].filter(f => f.facts.assessment.date.state === 'parsed').sort((a,b) => (b.facts.assessment.date.value ?? '').localeCompare(a.facts.assessment.date.value ?? ''))[0];
   const largeText = fontScale > 1.3;
   const multiColumn = width >= 840 && !largeText;
   const pairWidth = multiColumn ? (Math.min(width - 20, 920) - 8) / 2 : Math.min(width - 20, 430);
@@ -40,12 +37,22 @@ export function Dashboard({ flights, pending, width, fontScale, onPaper, onAi, o
       </Photo>
     </Card>;
   const seasonCards = <View style={[groupStyle, pairStyle]}>
-      <Card style={[styles.season, { width: leftWidth }, largeText && styles.noFlex]} onPress={() => onFlights(year)} label={`Deine Saison ${year}. ${countDescription} ${timeDescription}`}>
+      <Card style={[styles.season, { width: leftWidth }, largeText && styles.noFlex]} onPress={() => onFlights(year)} label={`Eigene gespeicherte Flüge. ${statistics.count} insgesamt; ${statistics.unknownDurationCount} unbekannte oder strittige Flugzeiten. Abdeckung und Datenstand.`}>
         <View style={ui.section}><Section title="Deine Saison" /><View style={styles.yearBadge}><Label style={styles.small}>{year}</Label></View></View>
-        <View style={styles.seasonMetrics}><View style={styles.metric}><Text style={styles.value}>{season.count}</Text><Label muted>Flüge</Label></View><View style={styles.metric}><Text style={styles.value}>{formatDuration(season.knownMinutes)}</Text><Label muted>bekannte Std.</Label></View></View>
-        <Label muted style={styles.small}>Flugzeuganteile · Vergleich offen</Label>
-        {!largeText && season.count < 1000 && formatDuration(season.knownMinutes).length <= 5 && <View style={styles.rings}><SeasonRing slices={seasonRingSlices(aircraft, 'count')} value={String(season.count)} label="Flüge" description={countDescription} /><SeasonRing slices={seasonRingSlices(aircraft, 'knownMinutes')} value={formatDuration(season.knownMinutes)} label="bekannte h" description={timeDescription} /></View>}
-        {season.unknownDurationCount > 0 && <Label muted style={styles.small}>{season.unknownDurationCount} Zeiten unbekannt</Label>}
+        {ownFlightPhase === 'ready' ? <>
+          <View style={styles.seasonMetrics}><View style={styles.metric}><Text style={styles.value}>{yearCount}</Text><Label muted>Flüge {year}</Label></View><View style={styles.metric}><Text style={styles.value}>{formatReportedMinutes(real.filter(f => f.facts.assessment.date.value?.slice(0,4) === String(year) && f.facts.assessment.durations.flight.state === 'known').reduce((sum,f) => sum + (f.facts.assessment.durations.flight.state === 'known' ? f.facts.assessment.durations.flight.minutes : 0),0))}</Text><Label muted>gemeldete Std.</Label></View></View>
+          <Label muted style={styles.small}>Bibliothek: {statistics.count} Flüge · {statistics.unknownDurationCount} Zeiten unbekannt/strittig</Label>
+          <Label muted style={styles.small}>Gesamt: {formatReportedMinutes(statistics.knownMinutes)} bekannte gemeldete Flugzeit</Label>
+          {statistics.years.map(item => <Label key={item.year} muted style={styles.small}>{item.year}: {item.flights} Flüge</Label>)}
+          {statistics.unknownDateCount > 0 && <Label muted style={styles.small}>{statistics.unknownDateCount} Flüge ohne gültiges Quelldatum</Label>}
+          {statistics.aircraft.map(item => <Label key={item.registration} muted style={styles.small}>{item.registration}: {item.flights} Flüge</Label>)}
+          <Label muted style={styles.small}>{freshness.label}</Label>
+          {retrieval?.periods.map(p => <Label key={p.from} muted style={styles.small}>Abgedeckt: {p.from} bis {p.to}</Label>)}
+          {retrieval && retrieval.periods.length === 0 && <Label muted style={styles.small}>Noch keine gespeicherte Abrufabdeckung.</Label>}
+          {retrieval?.gaps.map(p => <Label key={p.from} style={styles.small}>Lücke: {p.from} bis {p.to}</Label>)}
+          {freshness.reminder && <Label muted style={styles.small}>{freshness.note}</Label>}
+        </> : <Label muted>{ownFlightPhase === 'failed' ? 'Eigene Flüge nicht lesbar. Gespeicherte Daten bleiben erhalten.' : ownFlightPhase === 'missing' ? 'Eigene Flugbibliothek noch nicht eingerichtet.' : 'Eigene gespeicherte Flüge werden geladen …'}</Label>}
+        <Label muted style={styles.small}>Nur aktuell gespeicherte Anbieterwerte; keine Buchzuordnung.</Label>
       </Card>
       <Card style={[styles.ai, { width: rightWidth }, largeText && styles.noFlex]} onPress={onAi} label="MoFlight AI öffnen">
         <View style={[ui.row, { gap: 5, flexWrap: 'wrap' }]}><SymbolIcon name="sparkle" size={27} tone="assistant" /><Label style={{ fontWeight: '600' }}>MoFlight AI</Label></View>
@@ -54,9 +61,9 @@ export function Dashboard({ flights, pending, width, fontScale, onPaper, onAi, o
       </Card>
     </View>;
   const flightCards = <View style={[groupStyle, pairStyle]}>
-      <Card style={[styles.flight, { width: leftWidth }, largeText && styles.noFlex]} onPress={latest ? () => onDetail(latest) : () => onFlights()} label="Zuletzt datierten Flug öffnen">
-        <Section title={latestKnown ? 'Letzter Flug' : 'Zuletzt datiert'} />
-        {latest ? <><Label muted style={styles.small}>{latest.date ? new Date(latest.date + 'T12:00:00Z').toLocaleDateString('de-DE', { timeZone: 'UTC' }) : 'Datum unbekannt'}</Label><Label>{latest.registration ?? 'Kennzeichen unbekannt'} · {latest.aircraft_model ?? 'Typ unbekannt'}</Label><Label>{latest.start_place ?? '—'} → {latest.landing_place ?? '—'}</Label><IconLabel name="clock" size={16} style={styles.small}>{formatDuration(latest.minutes)} h{!latestKnown ? ' · Reihenfolge offen' : ''}</IconLabel></> : <Label muted>Noch keine gespeicherten Flüge.</Label>}
+      <Card style={[styles.flight, { width: leftWidth }, largeText && styles.noFlex]} onPress={onFlights} label="Gespeicherte Flüge öffnen">
+        <Section title="Zuletzt datiert" />
+        {latest ? <><Label muted style={styles.small}>{latest.facts.assessment.date.value}</Label><Label>{latest.facts.assessment.fields.registration.state === 'value' ? latest.facts.assessment.fields.registration.raw : 'Kennzeichen unbekannt'}</Label><IconLabel name="clock" size={16} style={styles.small}>{latest.facts.assessment.durations.flight.state === 'known' ? `${formatReportedMinutes(latest.facts.assessment.durations.flight.minutes)} h` : 'Flugzeit unbekannt'}</IconLabel></> : <Label muted>{ownFlightPhase === 'ready' ? 'Noch keine datierten gespeicherten Flüge.' : 'Kein gespeicherter Flug ausgewählt.'}</Label>}
         <View style={styles.track}><GliderMark color="#598596" /><Label muted style={styles.small}>Kein gespeicherter Track</Label></View>
       </Card>
       <Card style={[styles.club, { width: rightWidth }, largeText && styles.noFlex]} onPress={onClub} label="Vereinsdienste öffnen"><Photo source={windsock} tint="#00112688" style={{ flex: 1 }}><Section title="Verein" /><View style={{ flex: 1 }} /><Label>Nächster Dienst</Label><Label style={{ fontWeight: '600' }}>Nicht verfügbar</Label><Label muted style={styles.small}>Vereinsquelle fehlt</Label><IconLabel name="location" size={16}>Startplatz —</IconLabel></Photo></Card>
