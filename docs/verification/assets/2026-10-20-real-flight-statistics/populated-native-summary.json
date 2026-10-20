@@ -1,0 +1,78 @@
+{
+  "status": "passed",
+  "applicationSource": "9ac4e5607a4c290951fdf8223c9ae245f7b1156f",
+  "apkSha256": "fdb2343ce7dffc1490273c4eeca955ae5048dc94b750f79f335224ad9928d71e",
+  "platform": {
+    "avd": "MoFlight_API37",
+    "api": 37,
+    "abi": "x86_64"
+  },
+  "viewports": [
+    {
+      "widthDp": 390,
+      "heightDp": 900,
+      "densityDpi": 160,
+      "fontScale": 1
+    },
+    {
+      "widthDp": 360,
+      "heightDp": 900,
+      "densityDpi": 160,
+      "fontScale": 1
+    },
+    {
+      "widthDp": 360,
+      "heightDp": 900,
+      "densityDpi": 160,
+      "fontScale": 1.4
+    }
+  ],
+  "checks": [
+    "main390 season count/time match independent saved-graph oracle",
+    "main390 all exact aircraft count/time/unknown legend rows reachable",
+    "main390 ordinary flights selects current year and matching contributing count",
+    "min360 season count/time match independent saved-graph oracle",
+    "min360 all exact aircraft count/time/unknown legend rows reachable",
+    "min360 ordinary flights selects current year and matching contributing count",
+    "large360 season count/time match independent saved-graph oracle",
+    "large360 all exact aircraft count/time/unknown legend rows reachable",
+    "large360 ordinary flights selects current year and matching contributing count",
+    "three affected viewport/font states complete",
+    "entire saved canonical graph exactly preserved"
+  ],
+  "independentSavedGraphProjectionAgrees": true,
+  "bothAircraftDistributionsTotal360Degrees": true,
+  "entireCanonicalGraphEqual": true,
+  "originalApkRestored": true,
+  "displayAndNetworkExactlyRestored": true,
+  "retainedProviderSessionFreshlyMatched": true,
+  "explicitProviderSessionChecks": 1,
+  "flightRetrievalActions": 0,
+  "canonicalSaveActions": 0,
+  "loginHelperAttempts": 0,
+  "credentialsEntered": false,
+  "visualReview": [
+    "attempt-2/main390.png",
+    "attempt-2/main390-legend.png",
+    "attempt-3/min360.png",
+    "attempt-3/main390-drilldown.png",
+    "attempt-3/large360.png"
+  ],
+  "failedHarnessAttempts": [
+    {
+      "attempt": 1,
+      "cause": "Scrolling readiness wait moved past season heading",
+      "cleanupPassed": true
+    },
+    {
+      "attempt": 2,
+      "cause": "Scrolling list readiness wait moved past count header",
+      "cleanupPassed": true
+    }
+  ],
+  "limits": [
+    "Existing saved dataset contains two aircraft and only current-year flights; mixed-year exclusion and unknown/conflict/zero/overflow use prior synthetic regression evidence.",
+    "No new physical, spoken TalkBack, second-account or iOS acceptance.",
+    "Private graphs, identities, expectations, screenshots and XML stay ignored locally; no real-flight rows or images included here."
+  ]
+}
