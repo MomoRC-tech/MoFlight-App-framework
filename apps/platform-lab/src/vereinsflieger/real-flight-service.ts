@@ -6,6 +6,7 @@ import type { RealFlightAuthorization, RealFlightLibrary, RealFlightListItem, Re
 import { latestRealFlightValues, type RealFlightCommand, type RealFlightImportPlan, type RealFlightResult,
   type RealFlightGraph, type StoredBinding, type StoredCapture, type StoredCoverage, type StoredPending } from './real-flight-library-model';
 import { planFlightRetrieval, type SavedFlightRetrieval } from './retrieval-policy';
+import { timeFlightStage } from './flight-diagnostics';
 
 export const REAL_FLIGHT_SERVICE_VERSION = 1;
 export interface RealFlightOperationJournal {
@@ -92,8 +93,8 @@ export class RealFlightService {
     try {
       const pending = await this.withJournal(journal=>journal.pending()); this.live(sequence);
       if (pending) throw new PendingRealFlightOperation(pending.commandId);
-      const source = await this.ports.retrieve({...request},controller.signal); this.live(sequence);
-      return await this.buildReview(source,sequence);
+      const source = await timeFlightStage('source-retrieval',()=>this.ports.retrieve({...request},controller.signal)); this.live(sequence);
+      return await timeFlightStage('source-review',()=>this.buildReview(source,sequence));
     } finally { if (this.controller === controller) this.controller = null; }
   }
   async retrieveUpdate(now = new Date()): Promise<RealFlightReview> {
@@ -102,7 +103,7 @@ export class RealFlightService {
   }
   async reviewSource(source: RealFlightSourceInput): Promise<RealFlightReview> {
     this.allowed(); if (this.writing || this.dispatching) throw new Error('Save is in progress.');
-    this.controller?.abort(); this.controller = null; return this.buildReview(source,++this.operation);
+    this.controller?.abort(); this.controller = null; return timeFlightStage('source-review',()=>this.buildReview(source,++this.operation));
   }
   private async buildReview(input: RealFlightSourceInput, sequence: number): Promise<RealFlightReview> {
     const observation = await createRealFlightSourceObservation(input,this.ports.hash), source = clone(input); this.live(sequence);
@@ -154,9 +155,9 @@ export class RealFlightService {
     realHistoryUuid(command.commandId); this.writing = true;
     try {
       try {
-        await this.withJournal(journal=>journal.prepare(command)); this.live(sequence); this.allowed(true);
-        const result = await session.library.commit(command); this.allowed();
-        await this.withJournal(journal=>journal.resolve(command.commandId,'committed')); this.allowed(); return result;
+        await timeFlightStage('command-prepare',()=>this.withJournal(journal=>journal.prepare(command))); this.live(sequence); this.allowed(true);
+        const result = await timeFlightStage('explicit-save',()=>session.library.commit(command)); this.allowed();
+        await timeFlightStage('command-resolve',()=>this.withJournal(journal=>journal.resolve(command.commandId,'committed'))); this.allowed(); return result;
       } catch (error) { throw new PendingRealFlightOperation(command.commandId,{cause:error}); }
     } finally { this.writing = false; }
   }

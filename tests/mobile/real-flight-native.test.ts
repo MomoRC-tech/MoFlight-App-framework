@@ -153,6 +153,7 @@ function loadAdapter(behavior: { events: string[]; fileExists?: Record<string, b
       },
     },
     './real-flight-command-journal': { RealFlightCommandJournal: FakeCommandJournal },
+    './flight-diagnostics': { flightDiagnostics: { measure: async (_key:string,work:()=>Promise<unknown>)=>work(), driver:(db:unknown)=>db } },
     './real-flight-library': { RealFlightLibrary: FakeLibrary },
     './real-flight-library-model': {
       validateRealFlightBackup: async (text: string, expectedOwnerId: string, expectedStoreId: string) => {

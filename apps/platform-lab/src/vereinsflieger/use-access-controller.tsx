@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { AppState } from 'react-native';
 import { WebView, type WebViewMessageEvent } from 'react-native-webview';
 import * as Crypto from 'expo-crypto';
+import { startFlightSpan } from './flight-diagnostics';
 import { bridgeSource, flightUrl, FLIGHT_URL, LOGIN_URL, providerUrl, type ProbeSnapshot } from './probe';
 import { clearOriginalView, latestCapture, readOriginalView, saveCapture, saveOriginalView } from './storage';
 import { loginPage, savedLoginScript } from './login';
@@ -84,6 +85,7 @@ export function useAccessController(product = false, localOwner?: string) {
   const web = useRef<WebView>(null), currentUrl = useRef(LOGIN_URL);
   const pendingNavigation = useRef<{ url: string; nativeReload?: boolean } | null>(null);
   const retrieval = useRef(new Retrieval()), epoch = useRef(0), mounted = useRef(true);
+  const bridgeTiming=useRef<((succeeded:boolean)=>void)|null>(null);
   const run = useRef<ExportRun | null>(null), command = useRef(''), reading = useRef(false);
   const original = useRef<ViewPreferences | null>(null), viewPhase = useRef<ViewPhase | null>(null), restoring = useRef(false), restoreSteps = useRef(0), outcome = useRef('');
   const [recovery, setRecovery] = useState(false), [viewReady, setViewReady] = useState(false);
@@ -628,6 +630,7 @@ export function useAccessController(product = false, localOwner?: string) {
   function stop(message: string, nonce?: string) {
     const state = retrieval.current.state;
     if (nonce ? !retrieval.current.finish(nonce) : state.phase === 'saving') return;
+    bridgeTiming.current?.(false);bridgeTiming.current=null;
     if (!nonce && state.phase === 'loading') retrieval.current.finish(state.nonce);
     if (timeout.current) clearTimeout(timeout.current); timeout.current = null;
     pendingNavigation.current = null;
@@ -716,6 +719,7 @@ export function useAccessController(product = false, localOwner?: string) {
       if (++restoreSteps.current > 30) { finish('View verification navigation limit reached.', state.nonce); return; }
       reading.current = true; command.current = Crypto.randomUUID(); armTimeout(state.nonce);
       setStatus(viewPhase.current === 'snapshot' ? 'Saving your original provider view before any export changes…' : `Restoring original provider view: ${viewPhase.current}…`);
+      bridgeTiming.current?.(false);bridgeTiming.current=startFlightSpan(`provider-view-${viewPhase.current}`);
       web.current?.injectJavaScript(viewScript(command.current, viewPhase.current, original.current)); return;
     }
     if (!active) return;
@@ -723,6 +727,7 @@ export function useAccessController(product = false, localOwner?: string) {
     reading.current = true; command.current = Crypto.randomUUID(); phase.current.injections++;
     armTimeout(state.nonce);
     setStatus(`Verifying export: ${active.phase}; ${active.pages.length} pages read.`);
+    bridgeTiming.current?.(false);bridgeTiming.current=startFlightSpan(`provider-export-${active.phase}`);
     web.current?.injectJavaScript(exportScript(command.current, active));
   }
   // Commit the page-scoped bridge before executing the explicit table reader.
@@ -803,6 +808,7 @@ export function useAccessController(product = false, localOwner?: string) {
       const message: unknown = JSON.parse(event.nativeEvent.data);
       if (!message || typeof message !== 'object' || (message as Record<string, unknown>).token !== command.current) return;
       if (!reading.current) return;
+      bridgeTiming.current?.(true);bridgeTiming.current=null;
       if (viewPhase.current) {
         const stage = viewPhase.current;
         const captured = decodeView(event.nativeEvent.data, event.nativeEvent.url, currentUrl.current, command.current, stage, original.current);

@@ -3,6 +3,7 @@ import { ActivityIndicator, AppState, BackHandler, ScrollView, View } from 'reac
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Crypto from 'expo-crypto';
 import { hash } from '../storage';
+import { timeFlightStage } from '../vereinsflieger/flight-diagnostics';
 import { useAccessController } from '../vereinsflieger/use-access-controller';
 import { openOwnerRegistry, openRealFlightCandidate, resumeInitialRealFlightCandidate, openRealFlightSelection,
   openRealFlightCommandJournal, RealFlightCandidateMissingError, RealFlightUninitializedStoreError,
@@ -48,13 +49,13 @@ export function CoreFlightFoundation({ close }: {close: () => void}) {
   useEffect(()=>{
     alive.current = true;
     void (async()=>{
-      const opened = await openOwnerRegistry(false);
+      const opened = await timeFlightStage('owner-registry-open',()=>openOwnerRegistry(false));
       if (!alive.current) { await opened?.close(); return; }
-      registry.current = opened; const selected = await opened?.currentOwner();
+      registry.current = opened; const selected = await timeFlightStage('owner-selection',async()=>opened?.currentOwner());
       if (!alive.current) return;
       if (!selected || !opened) return;
       let ready = false;
-      try { ready = await finishOwnerSetup(selected,opened,false); } catch { /* Keep the selected owner and its files available for explicit recovery. */ }
+      try { ready = await timeFlightStage('owner-setup',()=>finishOwnerSetup(selected,opened,false)); } catch { /* Keep the selected owner and its files available for explicit recovery. */ }
       if (!alive.current) return;
       if (ready) setLease(selected);
       else { setSetupLease(selected); setError(true); }
@@ -165,14 +166,9 @@ function OwnerFlightLibrary({lease,registry,close}:{lease:RealOwnerLease;registr
   }
   async function refresh() {
     // Keep restore recovery discoverable even when opening the selected graph fails.
-    async function timed<T>(name:string,work:()=>Promise<T>):Promise<T> {
-      const start=performance.now();let succeeded=false;
-      try{const value=await work();succeeded=true;return value;}
-      finally{console.info('MOFLIGHT_STORED_READ_STAGE '+JSON.stringify({name,milliseconds:performance.now()-start,succeeded}));}
-    }
-    await timed('restore-inspection',refreshRestorePreparations);
-    const {snapshot:next,flights:rows}=await timed('stored-view',()=>service.readStored()),
-      pending=await timed('receipt-recovery',()=>service.recoverPending());
+    await timeFlightStage('restore-inspection',refreshRestorePreparations);
+    const {snapshot:next,flights:rows}=await timeFlightStage('stored-view',()=>service.readStored()),
+      pending=await timeFlightStage('receipt-recovery',()=>service.recoverPending());
     if(alive.current){setSnapshot(next);setFlights(rows);setRecovery(pending);setPage(current=>Math.min(current,Math.max(0,Math.ceil(rows.length/5)-1)));}
   }
   async function prepareSourceReview(next:RealFlightReview) {

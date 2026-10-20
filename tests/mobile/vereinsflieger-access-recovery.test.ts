@@ -92,6 +92,7 @@ function fixture(options: { noNativeRecovery?: boolean; failLegacyRead?: boolean
   function CaptureRun() {}
   function WindowCapture() {}
   const modules: Record<string, unknown> = {
+    './flight-diagnostics': { startFlightSpan:()=>()=>{} },
     '@moflight/flight-logbook': { canonical }, './legacy-recovery-store': legacyStore,
     react: { default: react, ...react },
     'react-native': { AppState: { currentState: 'active', addEventListener: (_: string, listener: (state: string) => void) => { appStateListener = listener; return { remove() { appStateListener = undefined; } }; } }, StyleSheet: { create: (value: unknown) => value }, View: 'View', Text: 'Text', FlatList: 'FlatList' },

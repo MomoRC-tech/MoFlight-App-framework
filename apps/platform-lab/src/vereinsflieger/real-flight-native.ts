@@ -4,6 +4,7 @@ import * as SQLite from 'expo-sqlite';
 import type { Hash } from '@moflight/local-data';
 import { canonical } from '@moflight/flight-logbook';
 import { hash, openDriver } from '../storage';
+import { flightDiagnostics } from './flight-diagnostics';
 import { RealFlightCommandJournal } from './real-flight-command-journal';
 import { RealFlightLibrary, type RealFlightAccessGate, type RealFlightAuthorization, type RealFlightFault } from './real-flight-library';
 import { validateRealFlightBackup } from './real-flight-library-model';
@@ -81,9 +82,9 @@ const defaultDependencies: RealFlightNativeDependencies = {
     const base = directory.startsWith('file:') ? directory : 'file://' + directory;
     return new File(base, name);
   },
-  openDriver: name => import('./real-flight-native-driver').then(({ openRealFlightNativeDriver }) =>
-    openRealFlightNativeDriver(name, (databaseName, options) => SQLite.openDatabaseAsync(databaseName, options))),
-  hash,
+  openDriver: async name => flightDiagnostics.driver(await flightDiagnostics.measure('databaseOpen',()=>import('./real-flight-native-driver').then(({ openRealFlightNativeDriver }) =>
+    openRealFlightNativeDriver(name, (databaseName, options) => SQLite.openDatabaseAsync(databaseName, options))))),
+  hash:text=>flightDiagnostics.measure('hash',()=>hash(text)),
   uuid: Crypto.randomUUID,
   now: () => new Date().toISOString(),
 };
@@ -113,11 +114,11 @@ function readPermit(scope: RealFlightNativeScope, authorize: RealFlightNativeAut
 async function assertScope(scope: RealFlightNativeScope, authorize: RealFlightNativeAuthorization,
   write: boolean, selectionGate?: RealSelectionGate): Promise<RealFlightNativePermit> {
   const before = readPermit(scope, authorize, write);
-  await scope.registry.assertCurrent(scope.lease as RealOwnerLease, before.ownerId, before.storeId);
+  await flightDiagnostics.measure('ownerGuard',()=>scope.registry.assertCurrent(scope.lease as RealOwnerLease, before.ownerId, before.storeId));
   if (selectionGate) await selectionGate(write);
   const after = readPermit(scope, authorize, write);
   if (!samePermit(before, after)) throw new Error('Real flight owner lease changed during native access.');
-  await scope.registry.assertCurrent(scope.lease as RealOwnerLease, after.ownerId, after.storeId);
+  await flightDiagnostics.measure('ownerGuard',()=>scope.registry.assertCurrent(scope.lease as RealOwnerLease, after.ownerId, after.storeId));
   return after;
 }
 
