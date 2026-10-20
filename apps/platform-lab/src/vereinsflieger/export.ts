@@ -99,6 +99,7 @@ const driver = String.raw`function(token, phase, request, expectedAccount) {
   if (window.top !== window || location.protocol !== 'https:' || !['vereinsflieger.de','www.vereinsflieger.de'].includes(location.hostname) || location.pathname !== '/member/profile/flightlog.php') return;
   const bridge = window.ReactNativeWebView; if (!bridge) return;
   const clean = e => (e?.textContent || '').replace(/\s+/g,' ').trim();
+  const visible = e => (e?.innerText || '').replace(/\s+/g,' ').trim();
   const q = s => document.querySelector(s);
   const all = s => Array.from(document.querySelectorAll(s));
   const quick = q('form[name="frm_tablelist_quickconfig"]');
@@ -204,10 +205,15 @@ const driver = String.raw`function(token, phase, request, expectedAccount) {
     const emptyContainer = table.parentElement;
     const summaryText = summaries.length === 1 && summaries[0].cells.length === 1 && summaries[0].cells[0].colSpan >= headers.length ? clean(summaries[0]) : '';
     const summaryCounts = /^Zeitspanne: .+, Anz\. Flüge: (\d+), Landungen: (\d+), Flugzeit:/.exec(summaryText);
-    const emptyShape = footerCells.length === 1 && clean(emptyCell) === 'Es wurden keine passenden Daten gefunden!' &&
-      emptyCell.colSpan === 1 && emptyRow?.tagName === 'TR' && emptyRow.cells.length === 1 &&
+    const emptyShape = footerCells.length === 1 && visible(emptyCell) === 'Es wurden keine passenden Daten gefunden!' &&
+      emptyCell.colSpan === 1 && emptyRow?.tagName === 'TR' && emptyRow.cells.length === 2 && emptyRow.cells[0] === emptyCell &&
+      emptyRow.cells[1].tagName === 'TD' && (emptyRow.cells[1].className || '').split(/\s+/).includes('footer') &&
+      (emptyRow.cells[1].className || '').split(/\s+/).includes('f2') && emptyRow.cells[1].colSpan === 1 &&
+      (emptyRow.cells[1].rowSpan || 1) === 1 && visible(emptyRow.cells[1]) === '' && !clean(emptyRow.cells[1]) &&
+      emptyRow.cells[1].children.length === 0 &&
       emptyBody?.tagName === 'TBODY' && emptyTable?.tagName === 'TABLE' && !emptyTable.id &&
       (emptyTable.className || '').split(/\s+/).includes('tablelist') && emptyTable.parentElement === emptyContainer &&
+      emptyTable.rows.length === 1 &&
       summaryCounts?.[1] === '0' && summaryCounts?.[2] === '0';
     const pageParams = new URL(location.href).searchParams.getAll('page');
     const page = Number(pageParams[0] || '1');

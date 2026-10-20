@@ -51,7 +51,7 @@ test('phase acknowledgements advance only matching commands, preserve source con
 });
 
 // Synthetic DOM contracts, never private provider HTML or real flight records.
-function driverFixture(phase: ExportRun['phase'], options: {expectedAccount?:string;missingPreset?:boolean;activeBackup?:boolean;activeExport?:boolean;activeUserExport?:boolean;missingColumn?:boolean;filtered?:boolean;wrongPeriod?:boolean;foreignForm?:boolean;url?:string;iframe?:boolean;empty?:boolean;malformed?:boolean;rowCount?:number;footerText?:string;duplicateFooter?:boolean;nextPage?:boolean;summaryText?:string;wrongFooterContainer?:boolean}={}) {
+function driverFixture(phase: ExportRun['phase'], options: {expectedAccount?:string;missingPreset?:boolean;activeBackup?:boolean;activeExport?:boolean;activeUserExport?:boolean;missingColumn?:boolean;filtered?:boolean;wrongPeriod?:boolean;foreignForm?:boolean;url?:string;iframe?:boolean;empty?:boolean;malformed?:boolean;rowCount?:number;footerText?:string;footerContent?:string;footerInnerText?:string;footerSecondText?:string;footerSecondContent?:string;footerSecondClass?:string;footerSecondColSpan?:number;footerSecondHasChild?:boolean;extraFooterTableRow?:boolean;duplicateFooter?:boolean;nextPage?:boolean;summaryText?:string;wrongFooterContainer?:boolean}={}) {
   const messages:string[]=[];const actions:string[]=[];
   const option={text:'MoFlight App export filter',value:'export-id',textContent:'MoFlight App export filter',disabled:false,hidden:false};
   const userExport={text:'Flugbuch Export',value:'user-export-id',textContent:'Flugbuch Export',disabled:false,hidden:false};
@@ -82,10 +82,13 @@ function driverFixture(phase: ExportRun['phase'], options: {expectedAccount?:str
     '#tableconfigtab_li_2':{click:()=>actions.push('preset-tab')},'#userlist_name':{form,value:'',dispatchEvent:()=>actions.push('input-event')},'#btn_userlist_add':{click:()=>actions.push('save-preset')},
     '#startdate':{form,value:''},'#enddate':{form,value:''},'#daterange':{form,value:'',dispatchEvent:()=>actions.push('range-change')}
   };
-  const footer:{tagName:string;className:string;colSpan:number;textContent:string;parentElement?:unknown}={tagName:'TD',className:'footer f1',colSpan:1,textContent:options.footerText??(options.empty?'Es wurden keine passenden Daten gefunden!':'Datensatz 1 bis 1 von 1')};
+  const visibleFooter=options.footerText??(options.empty?'Es wurden keine passenden Daten gefunden!':'Datensatz 1 bis 1 von 1');
+  const footer:{tagName:string;className:string;colSpan:number;textContent:string;innerText:string;children:unknown[];parentElement?:unknown}={tagName:'TD',className:'footer f1',colSpan:1,textContent:options.footerContent??(options.empty&&options.footerText===undefined?`${visibleFooter}td.f1{width:100%!important}td.f2{width:0%!important}`:visibleFooter),innerText:options.footerInnerText??visibleFooter,children:options.empty?[{}]:[]};
+  const footerSecond={tagName:'TD',className:options.footerSecondClass??'footer f2',colSpan:options.footerSecondColSpan??1,rowSpan:1,textContent:options.footerSecondContent??options.footerSecondText??'',innerText:options.footerSecondText??'',children:options.footerSecondHasChild?[{}]:[]};
   const footerBody:{tagName:string;parentElement?:unknown}={tagName:'TBODY'};
-  const footerRow={tagName:'TR',parentElement:footerBody,cells:[footer]};footer.parentElement=footerRow;
-  const footerTable={tagName:'TABLE',id:'',className:'tablelist',parentElement:options.wrongFooterContainer?{tagName:'DIV',id:'elsewhere'}:container,rows:[footerRow]};footerBody.parentElement=footerTable;
+  const footerRow={tagName:'TR',parentElement:footerBody,cells:[footer,footerSecond]};footer.parentElement=footerRow;
+  const extraFooterRow={tagName:'TR',parentElement:footerBody,cells:[{tagName:'TD',className:'footer unknown',colSpan:1,rowSpan:1,textContent:'Unbekannter Gesamtwert',innerText:'Unbekannter Gesamtwert',children:[]}]};
+  const footerTable={tagName:'TABLE',id:'',className:'tablelist',parentElement:options.wrongFooterContainer?{tagName:'DIV',id:'elsewhere'}:container,rows:[footerRow,...(options.extraFooterTableRow?[extraFooterRow]:[])]};footerBody.parentElement=footerTable;
   const document={querySelector:(s:string)=>fields[s]??null,querySelectorAll:(s:string)=>s==='#LST_VISIBLE > li'?visible:s==='#LST_AVAILABLE > li'?available:s==='td.footer.f1'?(options.duplicateFooter?[footer,{...footer}]:[footer]):s==='a.pagebrowser'&&options.nextPage?[{textContent:'2',getAttribute:()=>FLIGHT_URL+'?page=2'}]:[]};
   const window:Record<string,unknown>={ReactNativeWebView:{postMessage:(s:string)=>messages.push(s)}};window.top=options.iframe?{}:window;
   const location=new URL(options.url??FLIGHT_URL);const run=beginExport(request);run.phase=phase;
@@ -112,6 +115,13 @@ test('empty DOM requires the observed adjacent exact marker, zero summary, and f
     {empty:true,footerText:''},
     {empty:true,footerText:'Es wurden keine Daten gefunden!'},
     {empty:true,footerText:'Es wurden keine passenden Daten gefunden! Mehr'},
+    {empty:true,footerContent:'Es wurden keine passenden Daten gefunden!',footerInnerText:'Es wurden keine Daten gefunden!'},
+    {empty:true,footerSecondText:'extra visible text'},
+    {empty:true,footerSecondContent:'hidden text'},
+    {empty:true,footerSecondClass:'footer f1'},
+    {empty:true,footerSecondColSpan:2},
+    {empty:true,footerSecondHasChild:true},
+    {empty:true,extraFooterTableRow:true},
     {empty:true,footerText:'1 Datensätze'},
     {empty:true,footerText:'0 Datensätze'},
     {empty:true,footerText:'Datensatz 1 bis 1 von 1'},
