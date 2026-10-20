@@ -11,7 +11,7 @@ export interface AircraftSeasonShare {
 }
 
 /** Stable registration colors connect the count and time distributions, independent of ordering. */
-function colorForAircraft(aircraft: string): string {
+export function colorForAircraft(aircraft: string): string {
   let hash = 0;
   for (const character of aircraft) hash = (hash * 31 + character.charCodeAt(0)) >>> 0;
   return aircraftColors[hash % aircraftColors.length]!;

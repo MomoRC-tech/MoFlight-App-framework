@@ -52,6 +52,7 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0}:{onCo
   const [connectionOpen, setConnectionOpen] = useState(false);
   const [connectionDevelopment, setConnectionDevelopment] = useState(false);
   const [tab, setTab] = useState<Tab>('home');
+  const [flightRequest, setFlightRequest] = useState<{ year: number | null } | null>(null);
   const [sheet, setSheet] = useState<Sheet>(null);
   const [detail, setDetail] = useState<Flight | null>(null);
   const [screenBusy, setScreenBusy] = useState(false);
@@ -168,13 +169,13 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0}:{onCo
       <View style={[s.page, tab !== 'home' && s.hidden]} accessibilityElementsHidden={tab !== 'home'} importantForAccessibility={tab === 'home' ? 'auto' : 'no-hide-descendants'}>
         <ScrollView contentContainerStyle={s.canvas} keyboardShouldPersistTaps="handled">
           <ConnectionSummary controller={connection} onOpen={() => openConnection()} />
-          <Dashboard ownFlights={ownFlights.view} ownFlightPhase={ownFlights.phase} pending={library.pending} width={width} fontScale={fontScale} onPaper={openBooks} onAi={() => ask('Mit welchem Flugzeug bin ich am häufigsten geflogen?')} onFlights={() => setTab('flights')} onClub={() => { setClubSection('Dienste'); setTab('club'); }} onStatus={() => setSheet('status')} />
+          <Dashboard ownFlights={ownFlights.view} ownFlightPhase={ownFlights.phase} pending={library.pending} width={width} fontScale={fontScale} onPaper={openBooks} onAi={() => ask('Mit welchem Flugzeug bin ich am häufigsten geflogen?')} onFlights={year => { setFlightRequest({ year: year ?? null }); setTab('flights'); }} onClub={() => { setClubSection('Dienste'); setTab('club'); }} onStatus={() => setSheet('status')} />
           {stateBanner}
           <Pressable accessibilityRole="button" onPress={() => setSheet('credits')} style={ui.smallAction}><Label muted>Bildnachweise & Lizenzen</Label></Pressable>
         </ScrollView>
       </View>
       <View style={[s.page, tab !== 'flights' && s.hidden]} accessibilityElementsHidden={tab !== 'flights'} importantForAccessibility={tab === 'flights' ? 'auto' : 'no-hide-descendants'}>
-        <OwnFlights active={tab === 'flights' && !coreFlightsOpen} reloadKey={flightReload} onHeaderChange={setFlightHeader}
+        <OwnFlights filterRequest={flightRequest} active={tab === 'flights' && !coreFlightsOpen} reloadKey={flightReload} onHeaderChange={setFlightHeader}
           onUpdate={()=>{if(!connection.suspendBrowserForOwnerSwitch())return false;onCoreFlights();return true;}} />
       </View>
       <View style={[s.page, tab !== 'logbook' && s.hidden]} accessibilityElementsHidden={tab !== 'logbook'} importantForAccessibility={tab === 'logbook' ? 'auto' : 'no-hide-descendants'}>

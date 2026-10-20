@@ -5,6 +5,8 @@ import type { OwnFlightView } from './own-flight-reader';
 import { dataFreshness } from './data-freshness';
 import { planFlightRetrieval } from '../vereinsflieger/retrieval-policy';
 import { formatReportedMinutes, summarizeRealFlights } from './real-flight-statistics';
+import { SeasonRing } from './SeasonRing';
+import { seasonRingSlices } from './season-model';
 import { SymbolIcon } from './SymbolIcon';
 
 const sunset = require('../../assets/aviation/gliding-sunset.jpg');
@@ -17,8 +19,10 @@ interface Props {
 export function Dashboard({ ownFlights, ownFlightPhase, pending, width, fontScale, onPaper, onAi, onFlights, onClub, onStatus }: Props) {
   const year = new Date().getFullYear();
   const real = ownFlights?.flights ?? [];
-  const statistics = summarizeRealFlights(real);
-  const yearCount = statistics.years.find(item => item.year === String(year))?.flights ?? 0;
+  const statistics = summarizeRealFlights(real, year);
+  const season = statistics.season;
+  const time = season.knownDurationCount ? formatReportedMinutes(season.knownMinutes) : '—';
+  const showRings = fontScale <= 1.3 && String(season.count).length <= 5 && time.length <= 5;
   const retrieval = ownFlights ? planFlightRetrieval(ownFlights.snapshot.savedRetrievals) : null;
   const freshness = dataFreshness(retrieval?.lastSuccessfulRetrievalAt ?? null, ownFlightPhase === 'ready' ? 'ready' : ownFlightPhase === 'failed' ? 'failed' : 'loading');
   const latest = [...real].filter(f => f.facts.assessment.date.state === 'parsed').sort((a,b) => (b.facts.assessment.date.value ?? '').localeCompare(a.facts.assessment.date.value ?? ''))[0];
@@ -40,7 +44,12 @@ export function Dashboard({ ownFlights, ownFlightPhase, pending, width, fontScal
       <Card style={[styles.season, { width: leftWidth }, largeText && styles.noFlex]} onPress={() => onFlights(year)} label={`Eigene gespeicherte Flüge. ${statistics.count} insgesamt; ${statistics.unknownDurationCount} unbekannte oder strittige Flugzeiten. Abdeckung und Datenstand.`}>
         <View style={ui.section}><Section title="Deine Saison" /><View style={styles.yearBadge}><Label style={styles.small}>{year}</Label></View></View>
         {ownFlightPhase === 'ready' ? <>
-          <View style={styles.seasonMetrics}><View style={styles.metric}><Text style={styles.value}>{yearCount}</Text><Label muted>Flüge {year}</Label></View><View style={styles.metric}><Text style={styles.value}>{formatReportedMinutes(real.filter(f => f.facts.assessment.date.value?.slice(0,4) === String(year) && f.facts.assessment.durations.flight.state === 'known').reduce((sum,f) => sum + (f.facts.assessment.durations.flight.state === 'known' ? f.facts.assessment.durations.flight.minutes : 0),0))}</Text><Label muted>gemeldete Std.</Label></View></View>
+          {showRings ? <View style={styles.rings}>
+            <SeasonRing slices={seasonRingSlices(season.aircraft, 'count')} value={String(season.count)} label="Flüge" description={`${season.count} gespeicherte Flüge ${year}, Anteile nach Kennzeichen.`} />
+            <SeasonRing slices={seasonRingSlices(season.aircraft, 'knownMinutes')} value={time} label="Std." description={`${time} bekannte gemeldete Stunden ${year}, Anteile nach Kennzeichen; ${season.unknownDurationCount} Zeiten unbekannt oder strittig.`} />
+          </View> : <View style={styles.seasonMetrics}><View style={styles.metric}><Text style={styles.value}>{season.count}</Text><Label muted>Flüge {year}</Label></View><View style={styles.metric}><Text style={styles.value}>{time}</Text><Label muted>gemeldete Std.</Label></View></View>}
+          <Label muted style={styles.small}>{season.unknownDurationCount} Saisonzeiten unbekannt/strittig</Label>
+          {season.aircraft.map(item => <View key={item.aircraft} style={ui.row}><View style={[styles.aircraftKey, { backgroundColor: item.color }]} /><Label muted style={[styles.small, { flex: 1 }]}>{item.aircraft}: {item.count} Flüge · {item.knownMinutes === null ? 'Zeit unbekannt' : `${formatReportedMinutes(item.knownMinutes)} h bekannt`}{item.unknownDurationCount ? ` · ${item.unknownDurationCount} Zeiten unbekannt/strittig` : ''}</Label></View>)}
           <Label muted style={styles.small}>Bibliothek: {statistics.count} Flüge · {statistics.unknownDurationCount} Zeiten unbekannt/strittig</Label>
           <Label muted style={styles.small}>Gesamt: {formatReportedMinutes(statistics.knownMinutes)} bekannte gemeldete Flugzeit</Label>
           {statistics.years.map(item => <Label key={item.year} muted style={styles.small}>{item.year}: {item.flights} Flüge</Label>)}
@@ -61,7 +70,7 @@ export function Dashboard({ ownFlights, ownFlightPhase, pending, width, fontScal
       </Card>
     </View>;
   const flightCards = <View style={[groupStyle, pairStyle]}>
-      <Card style={[styles.flight, { width: leftWidth }, largeText && styles.noFlex]} onPress={onFlights} label="Gespeicherte Flüge öffnen">
+      <Card style={[styles.flight, { width: leftWidth }, largeText && styles.noFlex]} onPress={() => onFlights()} label="Gespeicherte Flüge öffnen">
         <Section title="Zuletzt datiert" />
         {latest ? <><Label muted style={styles.small}>{latest.facts.assessment.date.value}</Label><Label>{latest.facts.assessment.fields.registration.state === 'value' ? latest.facts.assessment.fields.registration.raw : 'Kennzeichen unbekannt'}</Label><IconLabel name="clock" size={16} style={styles.small}>{latest.facts.assessment.durations.flight.state === 'known' ? `${formatReportedMinutes(latest.facts.assessment.durations.flight.minutes)} h` : 'Flugzeit unbekannt'}</IconLabel></> : <Label muted>{ownFlightPhase === 'ready' ? 'Noch keine datierten gespeicherten Flüge.' : 'Kein gespeicherter Flug ausgewählt.'}</Label>}
         <View style={styles.track}><GliderMark color="#598596" /><Label muted style={styles.small}>Kein gespeicherter Track</Label></View>
@@ -85,6 +94,7 @@ const styles = StyleSheet.create({
   orangeButton: { backgroundColor: '#ff762b', experimental_backgroundImage: 'linear-gradient(180deg, #ff963e, #ff621f)', minHeight: 36, paddingVertical: 7, borderRadius: 15, justifyContent: 'center', alignSelf: 'flex-start', paddingHorizontal: 18, marginTop: 2 },
   season: { minWidth: 0, minHeight: 194, gap: 5 }, yearBadge: { paddingHorizontal: 7, borderRadius: 12, backgroundColor: '#1b4269' },
   seasonMetrics: { flexDirection: 'row', gap: 5, justifyContent: 'space-between' }, metric: { flexShrink: 1 }, value: { color: colors.text, fontSize: 24, lineHeight: 29, fontWeight: '700' },
+  aircraftKey: { width: 7, height: 7, borderRadius: 4 },
   rings: { flexDirection: 'row', justifyContent: 'space-between', gap: 6, flexWrap: 'wrap', marginTop: 2 },
   ai: { minWidth: 0, minHeight: 194, backgroundColor: '#181854', experimental_backgroundImage: 'linear-gradient(145deg, #292276, #101c45, #53165e)', borderColor: '#6853b5', justifyContent: 'space-between' },
   sparkle: { fontSize: 27, lineHeight: 32, color: '#d59bff' }, aiQuestion: { backgroundColor: '#181c5988', borderColor: '#3c4492', borderWidth: 1, borderRadius: 12, padding: 8 }, arrow: { width: 34, height: 34, borderRadius: 17, borderWidth: 1, borderColor: '#426cbe', backgroundColor: '#173a7a', alignItems: 'center', justifyContent: 'center' },

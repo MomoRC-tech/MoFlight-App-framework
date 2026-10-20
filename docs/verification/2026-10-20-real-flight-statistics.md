@@ -12,3 +12,11 @@ The deterministic projection counts each current flight ID once. It groups only 
 - `git diff --check` — passed.
 
 These are host checks against synthetic facts and reader ports. No live provider read, device/emulator visual review, native rebuild, second-account/device test, or broader release acceptance was run for this UI integration. Offline support reuses the existing stored-library reader and lifecycle boundary; actual native acceptance remains separate. Private provider stores/sessions and previously recorded native evidence were not opened or modified in this package.
+
+## Bounded season rings and drill-down follow-up
+
+Authorized under #9/#20 on 20 October after the completed #38/#39 checkpoint. The package restores the two existing aircraft-share rings using saved selected-account flights. A single first-flight-ID projection supplies season counts, known reported minutes, unknown/conflicting counts and exact-registration aircraft shares. It rejects negative, fractional, nonfinite or unsafe known minutes and unsafe totals. Empty/unknown-only time reads —; recorded zero remains 0:00. Existing font-scale/long-value fallbacks retain readable metrics. No duration is derived from clocks, no book assignment is needed, and no provider/storage behavior changes.
+
+The shell passes a fresh year-filter request on each dashboard activation. Ordinary Flüge consumes it after its account snapshot is available, clears unrelated filters/detail/position, and retains subsequent user edits on normal tab/detail return. A consumed request is not replayed after an owner/store switch. The latest-flight card explicitly requests all years; a native press event cannot be mistaken for a year.
+
+Regression assessment: extend the projection, shell and existing component harnesses; add a Dashboard component contract for real-data ring inputs and unknown/empty/enlarged-text states. Reuse existing reader/lifecycle and season-angle tests. These synthetic checks protect observable values/navigation, without claiming native geometry or actual provider acceptance. Native follow-up and final check results are recorded below when available.

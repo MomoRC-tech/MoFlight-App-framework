@@ -321,3 +321,15 @@ test('nested settings preserve the unsaved profile draft and each sheet scroll o
   assert.equal(f.headers()[0]!.props.title,'Flugdetails');f.hardwareBack();assert.equal(back,1);
   f.press('Pressable','Verein');assert.equal(f.find('OwnFlights').props.active,false);
  });
+
+test('dashboard year reaches ordinary Flüge as a fresh request without provider work', () => {
+  const f=fixture();
+  f.find('Dashboard').props.onFlights(2026); f.render();
+  const first=f.find('OwnFlights').props.filterRequest;
+  assert.equal(first.year,2026);assert.equal(f.find('OwnFlights').props.active,true);
+  f.press('Pressable','Übersicht');f.find('Dashboard').props.onFlights(2026);f.render();
+  assert.notEqual(f.find('OwnFlights').props.filterRequest,first);
+  f.find('Dashboard').props.onFlights();f.render();
+  assert.equal(f.find('OwnFlights').props.filterRequest.year,null);
+  assert.deepEqual(f.calls,[]);
+});

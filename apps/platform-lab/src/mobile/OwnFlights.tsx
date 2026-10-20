@@ -11,8 +11,8 @@ import { dataFreshness } from './data-freshness';
 import { reviewDuration, reviewParsedField, reviewRawField } from '../vereinsflieger/capture-review';
 
 export interface OwnFlightHeader { title: string; back?: () => void }
-export function OwnFlights({ active, reloadKey, onUpdate, onHeaderChange, ports = ownFlightReadPorts }: {
-  active: boolean; reloadKey: number; onUpdate: () => boolean;
+export function OwnFlights({ active, reloadKey, filterRequest, onUpdate, onHeaderChange, ports = ownFlightReadPorts }: {
+  active: boolean; reloadKey: number; filterRequest?: { year: number | null } | null; onUpdate: () => boolean;
   onHeaderChange: (header: OwnFlightHeader) => void; ports?: OwnFlightReadPorts;
 }) {
   const data = useOwnFlights(ports, active, reloadKey);
@@ -36,6 +36,15 @@ export function OwnFlights({ active, reloadKey, onUpdate, onHeaderChange, ports 
     if (scope.current !== null && scope.current !== key) { setFilters(allOwnFlights); offset.current = 0; setFilterOpen(false); }
     scope.current = key;
   }, [data.view?.snapshot.ownerId, data.view?.snapshot.storeId]);
+  const appliedRequest = useRef<typeof filterRequest>(null);
+  useEffect(() => {
+    if (!active || !data.view || !filterRequest || appliedRequest.current === filterRequest) return;
+    appliedRequest.current = filterRequest;
+    setFilters({ ...allOwnFlights, year: filterRequest.year });
+    offset.current = 0;
+    list.current?.scrollToOffset({ offset: 0, animated: false });
+    setFilterOpen(false); setRawPage(0); data.clearDetail();
+  }, [active, data.view, filterRequest, data.clearDetail]);
   const changeFilters = (next: OwnFlightFilters) => { offset.current = 0; list.current?.scrollToOffset({ offset: 0, animated: false }); setFilters(next); };
   const update = () => { Keyboard.dismiss(); if (!onUpdate()) setNotice('Bitte zuerst den laufenden Anbietervorgang beenden. Deine gespeicherten Flüge bleiben verfügbar.'); };
   const header = <View style={s.group}>
