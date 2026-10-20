@@ -16,6 +16,13 @@ export const REAL_OWNER_REGISTRY_FILE_NAME = 'moflight-real-owner-registry-v1.sq
 export const REAL_FLIGHT_SELECTION_FILE_NAME = 'moflight-real-history-selection-v1.sqlite';
 export const REAL_FLIGHT_COMMAND_JOURNAL_FILE_NAME = 'moflight-real-history-command-journal-v1.sqlite';
 
+/** Only an absent file permits an explicit setup continuation to create it. */
+export class RealFlightCandidateMissingError extends Error {
+  constructor(readonly candidateName: string) {
+    super('Real flight candidate is missing; preserved for recovery.');
+  }
+}
+
 export interface RealFlightNativePermit {
   ownerId: string;
   storeId: string;
@@ -68,7 +75,8 @@ const defaultDependencies: RealFlightNativeDependencies = {
     const base = directory.startsWith('file:') ? directory : 'file://' + directory;
     return new File(base, name);
   },
-  openDriver,
+  openDriver: name => import('./real-flight-native-driver').then(({ openRealFlightNativeDriver }) =>
+    openRealFlightNativeDriver(name, (databaseName, options) => SQLite.openDatabaseAsync(databaseName, options))),
   hash,
   uuid: Crypto.randomUUID,
   now: () => new Date().toISOString(),
@@ -215,7 +223,7 @@ export function createRealFlightNativeAdapter(
     validateRealHistoryCandidateName(name);
     await assertScope(scope, authorize, false, selectionGate);
     const file = databaseFile(dependencies, name);
-    if (!file.exists) throw new Error('Real flight candidate is missing; preserved for recovery.');
+    if (!file.exists) throw new RealFlightCandidateMissingError(name);
 
     let db: Awaited<ReturnType<typeof openDriver>> | null = null;
     let library: RealFlightLibrary | null = null;

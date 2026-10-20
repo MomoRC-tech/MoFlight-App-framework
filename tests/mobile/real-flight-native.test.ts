@@ -130,6 +130,12 @@ function loadAdapter(behavior: { events: string[]; fileExists?: Record<string, b
         return { close: async () => { events.push('driver-close'); closedDrivers.push(name); } };
       },
     },
+    './real-flight-native-driver': {
+      openRealFlightNativeDriver: async (name: string) => {
+        events.push('durable-driver-open'); databaseNames.push(name); behavior.onOpenDriver?.(name);
+        return { close: async () => { events.push('driver-close'); closedDrivers.push(name); } };
+      },
+    },
     './real-flight-command-journal': { RealFlightCommandJournal: FakeCommandJournal },
     './real-flight-library': { RealFlightLibrary: FakeLibrary },
     './real-flight-library-model': {
