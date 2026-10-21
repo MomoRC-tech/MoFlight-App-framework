@@ -66,6 +66,7 @@ def main(argv=None):
         if args.source_ref or args.build_directory:
             raise RuntimeError('On Linux/macOS check out the desired commit in a clean checkout before building.')
         commit = identity()
+        os.environ['EXPO_PUBLIC_MOFLIGHT_SOURCE'] = commit
         sdk = os.environ.get('ANDROID_HOME') or os.environ.get('ANDROID_SDK_ROOT')
         if not sdk or not Path(sdk).is_dir():
             raise RuntimeError('Set ANDROID_HOME to an installed Android SDK and accept its licenses.')
@@ -78,7 +79,8 @@ def main(argv=None):
         gradle = android / 'gradlew'
         gradle.chmod(0o755)
         run([gradle, ':app:assembleRelease', ':app:lintVitalRelease',
-             f'-PreactNativeArchitectures={TOOLCHAIN["architectures"]}', '--no-daemon', '--max-workers=2'], cwd=android)
+             f'-PreactNativeArchitectures={TOOLCHAIN["architectures"]}', '--no-daemon', '--max-workers=2',
+             '--init-script', ROOT / 'scripts/android-source-input.gradle'], cwd=android)
         apk = android / 'app/build/outputs/apk/release/app-release.apk'
         manifest = {'source_commit': commit, 'configuration': 'Release'}
     # Reuse the existing inspector: embedded Hermes/JS plus both device ABIs.

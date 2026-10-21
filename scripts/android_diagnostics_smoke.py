@@ -29,7 +29,7 @@ def launch(smoke):
 def open_diagnostics(smoke):
     smoke.tap(PROFILE)
     smoke.tap('Diagnose öffnen', scroll=True)
-    smoke.find('Die letzten fünf technischen Vorgänge')
+    smoke.find('Bis zu 2.000 Aktionen und 600 technische Vorgänge')
 
 
 def report(smoke):

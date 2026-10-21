@@ -1,0 +1,8 @@
+// The embedded public source revision is an input even when JS files are unchanged.
+gradle.projectsEvaluated {
+    allprojects {
+        tasks.matching { it.name.startsWith('createBundle') && it.name.endsWith('JsAndAssets') }.configureEach {
+            inputs.property('moflightSource', System.getenv('EXPO_PUBLIC_MOFLIGHT_SOURCE') ?: 'unversioned')
+        }
+    }
+}

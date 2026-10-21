@@ -16,6 +16,21 @@ from scripts.android_smoke import Smoke
 ROOT = Path(__file__).resolve().parents[1]
 
 
+class DiagnosticBuildSourceTests(unittest.TestCase):
+    def test_source_revision_changes_metro_transform_cache_identity(self):
+        if not shutil.which('node') or not (ROOT / 'apps/platform-lab/node_modules/expo').exists():
+            self.skipTest('Installed Node/Expo required for real Metro configuration')
+        versions = []
+        for source in ['a' * 40, 'b' * 40, 'a' * 40]:
+            result = subprocess.run(
+                ['node', '-e', "console.log(require('./apps/platform-lab/metro.config.cjs').cacheVersion)"],
+                cwd=ROOT, env=dict(os.environ, EXPO_PUBLIC_MOFLIGHT_SOURCE=source, CI='1'),
+                capture_output=True, text=True, timeout=30, check=True)
+            versions.append(result.stdout.strip())
+        self.assertNotEqual(versions[0], versions[1])
+        self.assertEqual(versions[0], versions[2])
+
+
 class EmulatorRunnerScriptTests(unittest.TestCase):
     def test_each_runner_script_line_is_a_complete_shell_command(self):
         checkpoint = ROOT / '.github/workflows/android-checkpoint.yml'
