@@ -169,17 +169,17 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/connection-guidan
 
 ## CoreFlightFoundation.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `b7d902acad22296906ec580ca0953bcfabbf0926ed3639ed8e0f9c1ed9939ecf`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `698d69fa88071e223fc314b755b2f17dea8045eb198b8b18434d5523ab01021b`.
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `gap: 10` | 121, 122, 426 |
-| `gap: 8` | 452, 478, 488 |
-| `maxWidth: 520` | 122, 426 |
-| `padding: 12` | 121, 426 |
-| `width: '100%'` | 122, 426 |
+| `gap: 10` | 121, 122, 427 |
+| `gap: 8` | 453, 479, 489 |
+| `maxWidth: 520` | 122, 427 |
+| `padding: 12` | 121, 427 |
+| `width: '100%'` | 122, 427 |
 
 ## Dashboard.tsx
 

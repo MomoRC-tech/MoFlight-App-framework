@@ -17,7 +17,7 @@ const source=ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/sr
 
 // Real screen effects and handlers; SQLite and provider behavior have their own
 // integration tests. These ports control timing to exercise the screen coordinator.
-function fixture({startUpdate=false,root=false,readOnly=false,deferReservation=false,failStartup=false,medicalFailure=false,loginPending=false,deferProvider=false}={}) {
+function fixture({startUpdate=false,root=false,readOnly=false,deferReservation=false,failStartup=false,medicalFailure=false,loginPending=false,deferProvider=false,quietResume=false}={}) {
   const journal=new DiagnosticJournal(), diagnosis={current:journal.begin(startUpdate?'update-flights':'open-flight-tools')};
   const hooks:any[]=[],effects:(()=>void)[]=[],calls:string[]=[],closed:any[]=[];
   let index=0,dirty=true,tree:Element,abort:AbortController|null=null;
@@ -35,7 +35,7 @@ function fixture({startUpdate=false,root=false,readOnly=false,deferReservation=f
     retrieval:{current:{state:{phase:'idle'}}},
     setFrom:(v:string)=>{c.from=v;dirty=true;},setTo:(v:string)=>{c.to=v;dirty=true;},
     beginGuidedFlightConnection:()=>{calls.push('session');if(loginPending)c.visible=true;else c.connection={phase:'observed',confirmed:true,observed:{accountNumber:'101',clubLabel:'Example'}};dirty=true;},
-    resumeGuidedFlightConnection:()=>{calls.push('resume');c.connection={phase:'unknown',confirmed:false};c.visible=true;dirty=true;return true;},
+    resumeGuidedFlightConnection:()=>{calls.push('resume');if(!quietResume){c.connection={phase:'unknown',confirmed:false};c.visible=true;dirty=true;}return true;},
     endGuidedFlightConnection:()=>{},connect:()=>calls.push('login'),
     retrieveMedical:async()=>{calls.push('medical');if(medicalFailure)throw new Error('Synthetic Medical failure');return {rows:[{}]};},
     checkConnection:()=>{calls.push('retrieve');c.busy=true;dirty=true;},
@@ -195,5 +195,13 @@ test('interruption before browser readiness starts guided login once readiness r
     f.background();f.resume();await f.flush();assert.deepEqual(f.calls,[]);
     f.c.viewReady=true;f.render();await f.flush();assert.deepEqual(f.calls,['session']);
     assert.match(f.progressText(),/Bitte bei Vereinsflieger anmelden/);assert.equal(f.pendingTimers(),0);
+  }finally{f.dispose();}
+});
+
+test('a preserved login form returns to sign-in guidance even without a provider state change',async()=>{
+  const f=fixture({startUpdate:true,loginPending:true,quietResume:true});try{
+    f.render();await f.flush();f.background();await f.flush();f.resume();await f.flush();
+    assert.deepEqual(f.calls,['session','resume']);assert.match(f.progressText(),/Bitte bei Vereinsflieger anmelden/);
+    assert.doesNotMatch(f.progressText(),/nach der Rückkehr geprüft/);
   }finally{f.dispose();}
 });

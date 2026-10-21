@@ -347,6 +347,7 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,takeInitialReposit
         interruption.current='background';abandonSource('Sign-in could not resume safely.');return;
       }
       pending.paused=false;pending.checking=pending.resumeRequired;setLoginPaused(false);
+      setStep(c.visible?'Bitte bei Vereinsflieger anmelden. Danach geht es automatisch weiter.':'Anmeldung wird geprüft …');
       if(pending.checking)return;
     }
     if(pending.suppressReview&&!c.busy&&!c.saving&&!c.restoring.current){finishSource(new Error('Source review cancelled.'));return;}
@@ -410,7 +411,7 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,takeInitialReposit
       <Label>{completed?medicalResult:loadStage==='medical'?'→ Medical laden':'Medical · ausstehend'}</Label>
       {!completed&&<Label muted>{failed?message:step}</Label>}
     </View>
-    {busy&&!loginPaused&&<ActivityIndicator color={colors.cyan} accessibilityLabel={step}/>}
+    {busy&&!loginPaused&&loadStage!=='sign-in'&&<ActivityIndicator color={colors.cyan} accessibilityLabel={step}/>}
     {completed?<>
       <Label muted>{completed.added} neu · {completed.changed} geändert · {completed.pending} ungeklärt</Label>
       <Action onPress={()=>close(completed)}>{partial?'Zur Übersicht':'Fertig'}</Action>
