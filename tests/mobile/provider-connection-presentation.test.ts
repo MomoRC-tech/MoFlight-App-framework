@@ -102,6 +102,8 @@ test('the same guided progress and native browser parents survive login, retriev
   const f=fixture({visible:true,loaded:true,url:'https://www.vereinsflieger.de/'},false,'own-flight-library',true,progress);
   const browserParent=f.nodes().find(n=>n.children.includes(f.browser))!;
   const progressParent=f.nodes().find(n=>n.children.includes(progress))!;
+  f.nodes()[0]!.props.onLayout({nativeEvent:{layout:{height:450}}});f.render();
+  assert.ok(f.nodes().find(n=>n.type==='ScrollView')!.props.style.maxHeight<=450-68-240,'Landscape reserves space for the original login form');
   for(const state of [{visible:false,busy:true},{visible:false,busy:false}]){
     Object.assign(f.controller,state);f.render();
     f.nodes().find(n=>n.type==='ScrollView')!.props.onLayout({nativeEvent:{layout:{height:732}}});f.render();

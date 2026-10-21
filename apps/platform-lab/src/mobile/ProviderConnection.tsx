@@ -39,6 +39,7 @@ export function ProviderConnection({ controller: c, open, close, development = f
   const operationLocked = c.clearing || c.binding || c.busy || checking || c.saving || c.loginBusy || c.informationHistoryBusy || !c.viewReady;
   const locked = operationLocked || c.disconnecting;
   const login = open && c.visible && loginEnabled;
+  const progressHeight = Math.max(96, Math.min((panelHeight-insets.top-insets.bottom-barHeight)*0.5, panelHeight-insets.top-insets.bottom-barHeight-240));
   const guidance = connectionGuidance(c.connection, c.browserActive);
   const freshness = dataFreshness(c.snapshot?.retrievedAt ?? null, c.captureLoadState);
   const loginFeedback = c.loginBusy ? 'Gespeicherte Anmeldung wird einmalig versucht…' :
@@ -56,7 +57,7 @@ export function ProviderConnection({ controller: c, open, close, development = f
       <Label style={{ flex: 1, fontWeight: '600' }}>{progress ? 'Daten laden' : login ? c.disconnecting ? 'Bei Vereinsflieger abmelden' : 'Bei Vereinsflieger anmelden' : guided ? 'Daten laden' : 'Verbindungen'}</Label>
       <ConnectionIndicator controller={c} onPress={login && !progress ? c.dismissLogin : undefined} />
     </View>
-    {progress ? <ScrollView style={login ? {maxHeight: Math.max(120, (panelHeight-insets.top-insets.bottom-barHeight)*0.5)} : {flex:1}} onLayout={event => setLoginHeight(event.nativeEvent.layout.height)} contentContainerStyle={styles.canvas} keyboardShouldPersistTaps="handled"><View style={styles.group}>
+    {progress ? <ScrollView style={login ? {maxHeight: progressHeight} : {flex:1}} onLayout={event => setLoginHeight(event.nativeEvent.layout.height)} contentContainerStyle={styles.canvas} keyboardShouldPersistTaps="handled"><View style={styles.group}>
       {progress}
       {login && <View style={{gap:6}}>
         <Label muted>{providerUrl(c.url) ? new URL(c.url).origin : 'Anbieteradresse nicht bestätigt'} · Zugangsdaten nur auf der Originalseite eingeben.</Label>

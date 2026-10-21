@@ -904,22 +904,22 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProfileSettings.t
 
 ## ProviderConnection.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProviderConnection.tsx](../../../apps/platform-lab/src/mobile/ProviderConnection.tsx); normalized SHA-256 `b259ad9b4941b087cea54532c2077c0f29fd2b17a639e19a3dd61d32b19f1b22`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProviderConnection.tsx](../../../apps/platform-lab/src/mobile/ProviderConnection.tsx); normalized SHA-256 `5a6ee03e61ec57fb0a7198183f0a9866aa14818cfe80c1afd5d617f934380fb1`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#102d47aa` | 180 |
+| `#102d47aa` | 181 |
 | `#ffb39e` | 26 |
-| `white` | 183 |
+| `white` | 184 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
 | `fontSize: 12` | 26 |
-| `fontWeight: '600'` | 56, 68, 84 |
+| `fontWeight: '600'` | 57, 69, 85 |
 | `fontWeight: '700'` | 26 |
 | `lineHeight: 15` | 26 |
 
@@ -927,30 +927,30 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProviderConnectio
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 10` | 190 |
-| `borderRadius: 14` | 180 |
-| `borderRadius: 7` | 182 |
-| `borderRadius: 8` | 181 |
-| `borderWidth: 1` | 190 |
-| `borderWidth: 2` | 182 |
-| `gap: 10` | 189 |
-| `gap: 12` | 185 |
-| `gap: 6` | 61, 71, 186 |
-| `height: 12` | 182 |
-| `height: 16` | 181 |
-| `height: 48` | 180 |
-| `maxWidth: 520` | 189 |
-| `maxWidth: 800` | 183 |
-| `minHeight: 48` | 188, 190 |
-| `minHeight: 68` | 185 |
-| `minWidth: 16` | 181 |
-| `opacity: 0` | 184 |
-| `padding: 10` | 185, 186, 189, 190 |
-| `paddingHorizontal: 8` | 188 |
-| `paddingVertical: 10` | 188 |
-| `width: '100%'` | 183, 189 |
-| `width: 18` | 182 |
-| `width: 48` | 180 |
+| `borderRadius: 10` | 191 |
+| `borderRadius: 14` | 181 |
+| `borderRadius: 7` | 183 |
+| `borderRadius: 8` | 182 |
+| `borderWidth: 1` | 191 |
+| `borderWidth: 2` | 183 |
+| `gap: 10` | 190 |
+| `gap: 12` | 186 |
+| `gap: 6` | 62, 72, 187 |
+| `height: 12` | 183 |
+| `height: 16` | 182 |
+| `height: 48` | 181 |
+| `maxWidth: 520` | 190 |
+| `maxWidth: 800` | 184 |
+| `minHeight: 48` | 189, 191 |
+| `minHeight: 68` | 186 |
+| `minWidth: 16` | 182 |
+| `opacity: 0` | 185 |
+| `padding: 10` | 186, 187, 190, 191 |
+| `paddingHorizontal: 8` | 189 |
+| `paddingVertical: 10` | 189 |
+| `width: '100%'` | 184, 190 |
+| `width: 18` | 183 |
+| `width: 48` | 181 |
 
 ## RawCaptureReview.tsx
 
