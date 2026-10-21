@@ -47,6 +47,7 @@ function fixture(options: { noNativeRecovery?: boolean; failLegacyRead?: boolean
   let resolveJournal!: (view: ViewPreferences | null) => void, rejectJournal!: (error: Error) => void;
   const journal = new Promise<ViewPreferences | null>((resolve, reject) => { resolveJournal = resolve; rejectJournal = reject; });
   const diagnosticPhases:{name:string;result:boolean|null}[]=[];
+  const verificationDiagnostics: string[] = [];
   const hooks: unknown[] = [], effects: (() => void)[] = [];
   let index = 0, nextId = 0, timerId = 0, pending: ViewPreferences | null = null;
   const issuedNonces: string[] = [];
@@ -129,7 +130,7 @@ function fixture(options: { noNativeRecovery?: boolean; failLegacyRead?: boolean
       finishScopedLegacy: async () => { if (options.failReceipt) throw new Error('Synthetic failed receipt'); writes.push('legacy-receipt'); },
       loadProviderScope: async () => options.persistedScope ?? null,
       confirmProviderScope: async (owner: string, context: unknown) => { scopeWrites++; if (options.deferBinding) await bindingWrite; if (options.failBinding) throw new Error('Synthetic binding failure'); return { version: 1, owner, connectionId: 'synthetic-connection', context }; },
-      loadScopedView: async () => options.scopedView ?? null, loadScopedCapture: async () => savedCapture,
+      loadScopedView: async () => { pending = options.scopedView ?? null; return pending; }, loadScopedCapture: async () => savedCapture,
       saveScopedView: (value: unknown, v: ViewPreferences) => (modules['./storage'] as any).saveOriginalView(v),
       clearScopedView: (value: unknown, v: ViewPreferences) => (modules['./storage'] as any).clearOriginalView(v),
       saveScopedCapture: (value: unknown, v: probe.ProbeSnapshot) => (modules['./storage'] as any).saveCapture(v),
@@ -145,7 +146,7 @@ function fixture(options: { noNativeRecovery?: boolean; failLegacyRead?: boolean
     './information': information, './information-run': { InformationRun },
     './information-native': { readInformationCapture: (scope: ProviderScope, id: string, gate: () => void) => informationCaptureReader(scope, id, gate), loadInformation: (scope: ProviderScope, gate: () => void) => { informationReads++; return informationReader(scope, gate); }, readInformationHistory: (scope: ProviderScope, category: information.InformationCategory, position: number, gate: () => void) => informationHistoryReader(scope, category, position, gate), saveInformation: async (_scope: unknown, value: unknown, gate: () => void) => { gate(); savedInformation = information.validateInformationCapture(value); writes.push('information-saved'); } },
   };
-  const runtime = { require: (name: string) => {
+  const runtime = { console: { info: (message: string) => verificationDiagnostics.push(message) }, require: (name: string) => {
     assert.ok(name in modules, `Unexpected component dependency: ${name}`); return modules[name];
   }, setTimeout: (callback: () => void) => { const id = ++timerId; timers.set(id, callback); return id; },
   clearTimeout: (id: number) => timers.delete(id), URL };
@@ -231,7 +232,7 @@ function fixture(options: { noNativeRecovery?: boolean; failLegacyRead?: boolean
       data: JSON.stringify({ kind: 'vf-login-result-v1', nonce, url: probe.LOGIN_URL, result }) } });
     return flush();
   }
-  return { diagnosticPhases, render, button, press, settle, find, flush, loadPage, loadFlight, message, currentCommand, writes, injections,
+  return { diagnosticPhases, verificationDiagnostics, render, button, press, settle, find, flush, loadPage, loadFlight, message, currentCommand, writes, injections,
     setInformationReader: (reader: typeof informationReader) => { informationReader = reader; }, informationReads: () => informationReads, savedInformation: () => savedInformation,
     setInformationCaptureReader: (reader: typeof informationCaptureReader) => { informationCaptureReader = reader; },
     setInformationHistoryReader: (reader: typeof informationHistoryReader) => { informationHistoryReader = reader; },
@@ -294,6 +295,34 @@ test('returning combined entry checks protected profile before exposing login',a
   await f.loadPage(context.PROFILE_URL);await f.contextMessage({...observedContext,accountNumber:'456'});
   assert.equal(f.controller().connection.phase,'mismatch');assert.equal(f.scopeWrites(),0);
   f.unmount();
+});
+
+test('native verification failures retain distinct sanitized diagnostics and allow an explicit matching-account retry', async () => {
+  for (const [handler, reason] of [['onError', 'page-error'], ['onHttpError', 'http-error']] as const) {
+    const f = fixture({ product: true, priorCapture,
+      persistedScope: { version: 1, owner: 'synthetic-pilot', connectionId: 'prior', context: observedContext } });
+    f.render(); await f.settle(null); await f.flush();
+    f.controller().beginGuidedFlightConnection();
+    const web = f.find(f.render(), element => element.type === 'WebView')!;
+    (web.props[handler] as (event: unknown) => void)({ nativeEvent: {
+      url: context.PROFILE_URL, description: 'Synthetic private provider failure', statusCode: 503,
+    } });
+    await f.flush();
+    assert.equal(f.controller().connection.phase, 'error');
+    assert.equal(f.controller().connection.confirmed, false);
+    assert.equal(f.controller().busy, false);
+    assert.equal(f.savedCapture(), priorCapture);
+    assert.deepEqual(f.writes, []);
+    assert.deepEqual(f.verificationDiagnostics, ['MOFLIGHT_PROVIDER_VERIFICATION ' + JSON.stringify({
+      reason, loginRequired: false, document: 'profile', navigationObserved: false,
+    })]);
+    f.controller().beginGuidedFlightConnection(); await f.loadPage(context.PROFILE_URL);
+    await f.contextMessage(observedContext);
+    assert.equal(f.controller().connection.confirmed, true);
+    assert.equal(f.scopeWrites(), 0, 'Retry retains the existing association');
+    assert.deepEqual(f.writes, []);
+    f.unmount();
+  }
 });
 
 test('rechecking an observed same-URL profile uses native reload and still requires fresh navigation/account proof',async()=>{
@@ -1137,6 +1166,51 @@ test('ordinary scoped recovery reports completion only after view readback and f
   assert.equal(f.controller().result, 'recovered');
   assert.equal(f.savedCapture(), priorCapture);
   assert.equal(f.controller().completedFlightSource, null, 'Recovery alone must not publish new flight data');
+});
+
+test('interrupted standalone scoped recovery preserves its journal and rejects stale or foreign evidence before explicit retry', async () => {
+  for (const foreign of [{ accountNumber: '456' }, { clubLabel: 'Other synthetic club' }]) {
+    const f = fixture({ product: true, priorCapture, scopedView: original,
+      persistedScope: { version: 1, owner: 'synthetic-pilot', connectionId: 'prior', context: observedContext } });
+    f.render(); await f.settle(null); await f.flush();
+    assert.deepEqual(f.pending(), original);
+    f.controller().checkConnection('recover'); await f.loadPage(context.PROFILE_URL);
+    await f.contextMessage(observedContext); await restoredReadback(f);
+    const stale = f.find(f.render(), element => element.type === 'WebView')!;
+    const staleCommand = f.currentCommand();
+    f.appState('background'); f.appState('active'); await f.flush();
+    (stale.props.onMessage as (event: unknown) => void)({ nativeEvent: { url: FLIGHT_URL,
+      data: JSON.stringify({ kind: 'vf-view-v2', ...staleCommand, url: FLIGHT_URL,
+        accountLabel: original.accountLabel, status: 'next', view: restored }) } });
+    await f.flush();
+    assert.equal(f.controller().busy, false);
+    assert.equal(f.controller().recovery, true);
+    assert.equal(f.controller().connection.confirmed, false);
+    assert.deepEqual(f.pending(), original);
+    assert.deepEqual(f.writes, []);
+    const beforeForeign = f.injections.length;
+    f.controller().checkConnection('recover'); await f.loadPage(context.PROFILE_URL);
+    await f.contextMessage({ ...observedContext, ...foreign });
+    assert.equal(f.controller().connection.phase, 'mismatch');
+    assert.equal(f.controller().busy, false);
+    assert.deepEqual(f.pending(), original);
+    assert.deepEqual(f.writes, []);
+    assert.equal(f.injections.slice(beforeForeign).some(script => script.includes('vf-view-v2')), false,
+      'Foreign verification cannot start provider restoration');
+    f.controller().checkConnection('recover'); await f.loadPage(context.PROFILE_URL);
+    await f.contextMessage(observedContext); await restoredReadback(f);
+    await f.message({ kind: 'vf-view-v2', status: 'next', view: restored });
+    assert.deepEqual(f.pending(), original, 'Readback still needs fresh account proof');
+    await f.loadPage(context.PROFILE_URL); await f.contextMessage(observedContext);
+    assert.equal(f.pending(), null);
+    assert.equal(f.controller().result, 'recovered');
+    assert.equal(f.controller().recovery, false);
+    assert.equal(f.savedCapture(), priorCapture);
+    assert.equal(f.controller().completedFlightSource, null);
+    assert.deepEqual(f.writes, ['journal-cleared']);
+    assert.equal(f.scopeWrites(), 0);
+    f.unmount();
+  }
 });
 
 test('capture writing locks cancellation and commits its outcome separately from restoration', async () => {
