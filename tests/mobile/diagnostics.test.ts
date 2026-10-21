@@ -89,3 +89,10 @@ test('late span completion preserves its original operation-relative checkpoint 
  const f=fixture(),op=f.journal.begin('update-flights');f.now(20);const stage=op.span('source-retrieval');f.now(50);op.finish('cancelled','cancelled');f.now(100);stage(false);
  assert.equal(f.journal.snapshot()[0]!.checkpoints.at(-1)!.offset,100);assert.equal(f.journal.snapshot()[0]!.stages[0]!.milliseconds,80);
 });
+
+
+test('background state resets do not become observed user screen visits; resume records the current screen',()=>{
+ const f=fixture();f.journal.record('screen','flight-detail');f.journal.record('lifecycle','background');f.journal.record('screen','flights');
+ assert.deepEqual(f.journal.journey().filter(e=>e.kind==='screen').map(e=>e.target),['flight-detail']);f.journal.record('lifecycle','active');
+ assert.deepEqual(f.journal.journey().filter(e=>e.kind==='screen').map(e=>e.target),['flight-detail','flights']);assert.deepEqual(f.journal.journeySummary(),[]);
+});

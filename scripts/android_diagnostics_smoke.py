@@ -6,6 +6,7 @@ checks restart retention and clears only this synthetic diagnostic journal.
 """
 import argparse
 import json
+import os
 import re
 from pathlib import Path
 
@@ -35,6 +36,13 @@ def report(smoke):
     node = smoke.find('MoFlight support diagnostics', scroll=True)
     value = next(label for label in smoke.labels(node) if 'MoFlight support diagnostics' in label)
     return json.loads(value)
+
+
+def comparable(entry):
+    value = {key: item for key, item in entry.items() if key != 'sequence'}
+    for stage in value.get('stages', []):
+        stage.setdefault('counters', {})
+    return value
 
 
 def execute(smoke, share_only=False):
@@ -70,6 +78,8 @@ def execute(smoke, share_only=False):
         assert 1 <= len(before['entries']) <= 3
         assert before['version'] == 2 and before['context'].get('androidApi') == 37
         assert before['context'].get('webViewVersion'), 'Native public WebView version missing'
+        if os.environ.get('APK_SOURCE_COMMIT'):
+            assert before['context'].get('buildSource') == os.environ['APK_SOURCE_COMMIT'], 'Embedded diagnostic source differs from APK source'
         assert all(entry['action'] == 'read-flights' for entry in before['entries'])
         # A large full report must use a file rather than Android's text Binder payload.
         smoke.tap_node(smoke.find('Diagnosebericht teilen', exact=True, scroll=True, up=False))
@@ -86,11 +96,11 @@ def execute(smoke, share_only=False):
         smoke.record('short-share-cancel-retains-diagnostics')
         if share_only:
             return
-        retained = [{key: value for key, value in entry.items() if key != 'sequence'} for entry in report(smoke)['entries'][-1:]]
+        retained = [comparable(entry) for entry in report(smoke)['entries'][-1:]]
         launch(smoke)
         open_diagnostics(smoke)
         after = report(smoke)
-        restored = [{key: value for key, value in entry.items() if key != 'sequence'} for entry in after['entries']]
+        restored = [comparable(entry) for entry in after['entries']]
         for expected in retained:
             assert expected in restored, 'Last operations lost on process restart'
             restored.remove(expected)

@@ -54,6 +54,8 @@ export class DiagnosticJournal {
   private starts = new Map<DiagnosticEntry, number>();
   private sizes = new WeakMap<object, number>();
   private sequence = 0; private session = 1; private origin: number;
+  private foreground = true;
+  private currentScreen: typeof journeyTargets[number] | null = null;
   private lastCheckpointWrite = -Infinity;
   private context: Context = {};
   private contexts: Dated<{session:number;context:Context}>[]=[];
@@ -148,7 +150,7 @@ export class DiagnosticJournal {
   failureSnapshot(): Failure[] { this.prune(); return this.protectedFailures.map(f => ({ operation: this.view(f.operation), preceding: f.preceding.map(({ sequence, session, offset, kind, target }) => ({ sequence, session, offset, kind, target })) })); }
   journeySummary() {
     const paths = new Map<string, { path: string; occurrences: number }>(); let previous: JourneyEvent | null = null;
-    for (const event of this.journey()) if (event.kind === 'screen') { if (previous && previous.session === event.session && previous.target !== event.target) { const path = `${previous.target} → ${event.target}`, known = paths.get(path); if (known) known.occurrences++; else paths.set(path, { path, occurrences: 1 }); } previous = event; }
+    for (const event of this.journey()) { if(event.kind==='lifecycle'){previous=null;continue;} if (event.kind === 'screen') { if (previous && previous.session === event.session && previous.target !== event.target) { const path = `${previous.target} → ${event.target}`, known = paths.get(path); if (known) known.occurrences++; else paths.set(path, { path, occurrences: 1 }); } previous = event; } }
     return [...paths.values()].sort((a,b) => b.occurrences - a.occurrences).slice(0,20);
   }
   private report() { return { format: 'MoFlight support diagnostics', version: 2, timing: 'milliseconds; session-relative offsets; nested/counter measurements overlap; no wall-clock timestamps', context: this.context,
@@ -162,9 +164,13 @@ export class DiagnosticJournal {
   stats() { const text = this.export(); return { bytes: utf8Bytes(text), maxStorageBytes: DIAGNOSTIC_STORAGE_BYTES, operations: this.entries.length, actions: this.events.length, failures: this.protectedFailures.length }; }
   record(kind: typeof journeyKinds[number], target: typeof journeyTargets[number]) {
     if (!member(journeyKinds, kind) || !member(journeyTargets, target)) return;
+    if(kind==='screen'){this.currentScreen=target;if(!this.foreground)return;}
+    if(kind==='lifecycle'&&(target==='background'||target==='inactive'))this.foreground=false;
+    if(kind==='lifecycle'&&target==='active')this.foreground=true;
     const previous = this.events.at(-1);
     if (previous?.session === this.session && previous.kind === kind && previous.target === target && (kind === 'screen' || kind === 'filter') && this.now() - this.origin - previous.offset < 1000) return;
-    this.events.push({ sequence: ++this.sequence, session: this.session, offset: number(this.now() - this.origin), kind, target, retainedAt: this.wall() }); this.changed(false);
+    this.events.push({ sequence: ++this.sequence, session: this.session, offset: number(this.now() - this.origin), kind, target, retainedAt: this.wall() }); this.changed(kind==='lifecycle');
+    if(kind==='lifecycle'&&(target==='active'||target==='start')&&this.currentScreen)this.record('screen',this.currentScreen);
   }
   private protect(entry: Dated<DiagnosticEntry>) {
     const old=this.protectedFailures.find(f=>f.operation.sequence===entry.sequence&&f.operation.session===entry.session);
