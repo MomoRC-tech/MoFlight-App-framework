@@ -148,6 +148,7 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,takeInitialReposit
   const [reviewRow,setReviewRow]=useState<number|null>(null);
   const [advanced,setAdvanced]=useState(false),[step,setStep]=useState('Gespeicherte Flüge werden geprüft …');
   const [loadStage,setLoadStage]=useState<LoadStage>('verify'),[loginPaused,setLoginPaused]=useState(false);
+  const [,wakeSource]=useState(0);
   const [flightSaved,setFlightSaved]=useState<number|null>(null),[completed,setCompleted]=useState<FlightLoadResult|null>(null);
   const interruption=useRef<'background'|'cancelled'|'timeout'|null>(null);
   const initialUpdate = useRef(false), automatic = useRef(false);
@@ -181,6 +182,7 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,takeInitialReposit
       pending={request,resolve,reject,started:false,checking:false,seenBusy:false,paused:false,resumeRequired:false,suppressReview:false,generation:reviewGeneration.current,timer:null,signal,abort};
       waiting.current=pending;signal.addEventListener('abort',abort,{once:true});
       controller.current.setFrom(request.from);controller.current.setTo(request.to);setProviderOpen(true);
+      wakeSource(value=>value+1);
       if(!automatic.current&&!controller.current.browserActive)controller.current.connect();
     }),
   }),[lease,scope]);

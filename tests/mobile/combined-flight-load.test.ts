@@ -17,7 +17,7 @@ const source=ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/sr
 
 // Real screen effects and handlers; SQLite and provider behavior have their own
 // integration tests. These ports control timing to exercise the screen coordinator.
-function fixture({startUpdate=false,root=false,readOnly=false,deferReservation=false,failStartup=false,medicalFailure=false,loginPending=false,deferProvider=false,quietResume=false}={}) {
+function fixture({startUpdate=false,root=false,readOnly=false,deferReservation=false,failStartup=false,medicalFailure=false,loginPending=false,deferProvider=false,quietResume=false,deferSource=false,sameWindow=false}={}) {
   const journal=new DiagnosticJournal(), diagnosis={current:journal.begin(startUpdate?'update-flights':'open-flight-tools')};
   const hooks:any[]=[],effects:(()=>void)[]=[],calls:string[]=[],closed:any[]=[];
   let index=0,dirty=true,tree:Element,abort:AbortController|null=null;
@@ -26,14 +26,15 @@ function fixture({startUpdate=false,root=false,readOnly=false,deferReservation=f
   const listeners=new Set<(state:string)=>void>();
   let saved=false,timerId=0;
   const timers=new Map<number,()=>void>();
+  let admitSource!:()=>void;
   const lease={ownerId:'owner',storeId:'store',leaseId:'lease'};
   const registry={currentOwner:async()=>null,createFreshOwner:async()=>{calls.push('create');return lease;},assertCurrent:async()=>{},close:async()=>{}};
   const snapshot={account:null,savedRetrievals:[],coverage:[],pending:[],recovery:{readOnly}};
   const input={capture:{captureId:'fresh',rows:[]},requestedWindow:{from:'2025-01-01',to:'2026-10-21'}};
-  const c:any={viewReady:true,browserActive:false,from:'',to:'',connection:{phase:'unknown',confirmed:false},
+  const c:any={viewReady:true,browserActive:false,from:sameWindow?'2025-01-01':'',to:sameWindow?'2026-10-21':'',connection:{phase:'unknown',confirmed:false},
     busy:false,saving:false,restoring:{current:false},visible:false,recovery:false,result:'none',completedFlightSource:null,
     retrieval:{current:{state:{phase:'idle'}}},
-    setFrom:(v:string)=>{c.from=v;dirty=true;},setTo:(v:string)=>{c.to=v;dirty=true;},
+    setFrom:(v:string)=>{if(c.from!==v){c.from=v;dirty=true;}},setTo:(v:string)=>{if(c.to!==v){c.to=v;dirty=true;}},
     beginGuidedFlightConnection:()=>{calls.push('session');if(loginPending)c.visible=true;else c.connection={phase:'observed',confirmed:true,observed:{accountNumber:'101',clubLabel:'Example'}};dirty=true;},
     resumeGuidedFlightConnection:()=>{calls.push('resume');if(!quietResume){c.connection={phase:'unknown',confirmed:false};c.visible=true;dirty=true;}return true;},
     endGuidedFlightConnection:()=>{},connect:()=>calls.push('login'),
@@ -46,7 +47,7 @@ function fixture({startUpdate=false,root=false,readOnly=false,deferReservation=f
     ports:any;
     async readStored(){return {snapshot,flights:saved?[{},{},{}]:[]};}
     async recoverPending(){return {status:'none'};}
-    async retrieveUpdate(){abort=new AbortController();if(deferProvider)c.viewReady=false;const value=await this.ports.retrieve({from:'2025-01-01',to:'2026-10-21'},abort.signal);return {state:'confirm-account',source:value};}
+    async retrieveUpdate(){if(deferSource)await new Promise<void>(resolve=>{admitSource=resolve;});abort=new AbortController();if(deferProvider)c.viewReady=false;const value=await this.ports.retrieve({from:'2025-01-01',to:'2026-10-21'},abort.signal);return {state:'confirm-account',source:value};}
     async saveVerifiedReview(_review:any,context:any){assert.equal(context.accountNumber,'101');calls.push('save');saved=true;return {counts:{added:2,changed:1,pending:0}};}
     cancelReview(){abort?.abort();}
     dispose(){this.cancelReview();}
@@ -83,6 +84,7 @@ function fixture({startUpdate=false,root=false,readOnly=false,deferReservation=f
   return {journal,render,flush,c,calls,closed,nodes,text:()=>text(tree),progressText:()=>text(nodes().find(n=>n.type==='ProviderConnection')?.props.progress),press,finishReservation,background:()=>listeners.forEach(f=>f('background')),resume:()=>listeners.forEach(f=>f('active')),
     verify:()=>{c.visible=false;c.connection={phase:'observed',confirmed:true,observed:{accountNumber:'101',clubLabel:'Example'}};dirty=true;},
     pendingTimers:()=>timers.size,expire:()=>{for(const [id,fn] of timers){timers.delete(id);fn();}},
+    admitSource:()=>admitSource(),
     complete:()=>{c.busy=false;c.result='captured';c.completedFlightSource=input;dirty=true;},
     dispose:()=>{for(const hook of hooks)hook?.cleanup?.();},
   };
@@ -203,5 +205,15 @@ test('a preserved login form returns to sign-in guidance even without a provider
     f.render();await f.flush();f.background();await f.flush();f.resume();await f.flush();
     assert.deepEqual(f.calls,['session','resume']);assert.match(f.progressText(),/Bitte bei Vereinsflieger anmelden/);
     assert.doesNotMatch(f.progressText(),/nach der Rückkehr geprüft/);
+  }finally{f.dispose();}
+});
+
+test('a delayed source request and same-window retry start without incidental controller state updates',async()=>{
+  const f=fixture({startUpdate:true,deferSource:true,sameWindow:true});try{
+    f.render();await f.flush();assert.deepEqual(f.calls,[]);
+    f.admitSource();await f.flush();assert.deepEqual(f.calls,['session','retrieve']);
+    f.nodes().find(n=>n.type==='ProviderConnection')!.props.close();await f.flush();
+    f.press('Erneut versuchen');await f.flush();f.admitSource();await f.flush();
+    assert.deepEqual(f.calls,['session','retrieve','session','retrieve']);
   }finally{f.dispose();}
 });
