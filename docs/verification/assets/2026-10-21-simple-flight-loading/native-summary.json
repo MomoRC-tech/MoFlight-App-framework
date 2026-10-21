@@ -1,0 +1,158 @@
+{
+  "applicationSource": "4063bcb2ab05ba58c8904cea5f8d50eac3cfe17c",
+  "apkSha256": "f2ee9d4e3e8bd07b8377b38b6ec7339c55e83fb4ddb2a3c595ff815998edcdb5",
+  "releaseBuildSeconds": 103.2616907,
+  "environment": {
+    "platform": "Android",
+    "api": 37,
+    "architecture": "x86_64"
+  },
+  "host": {
+    "source": "fe1d25b",
+    "mobileTests": 608,
+    "pythonTests": 109,
+    "typecheck": true,
+    "lint": true,
+    "fixtures": true,
+    "finalLabelFocusedTests": 2
+  },
+  "syntheticFlow": {
+    "source": "3702e5159d6f4400b626c20df491e45e283b34fb",
+    "status": "passed",
+    "checks": [
+      "main390 combined action visible, no technical setup",
+      "main390 options idle and secondary details collapsed",
+      "min360 combined action visible, no technical setup",
+      "min360 options idle and secondary details collapsed",
+      "large360 combined action visible, no technical setup",
+      "large360 options idle and secondary details collapsed",
+      "wide600 combined action visible, no technical setup",
+      "wide600 options idle and secondary details collapsed",
+      "combined action starts directly; offline failure/cancel preserves previous data",
+      "actual offline process restart retains ordinary empty real library"
+    ],
+    "displayRestored": true,
+    "networkRestored": {
+      "airplane_mode_on": "1",
+      "wifi_on": "0",
+      "mobile_data": "0"
+    }
+  },
+  "visualMatrix": {
+    "source": "9ec1bdb642791631462d3c44a308d9a59b8b1f2e",
+    "checks": [
+      {
+        "name": "main390",
+        "widthDp": 390,
+        "heightDp": 900,
+        "densityDpi": 160,
+        "fontScale": 1,
+        "primaryEnabled": true,
+        "primaryBounds": [
+          22,
+          245,
+          368,
+          293
+        ]
+      },
+      {
+        "name": "min360",
+        "widthDp": 360,
+        "heightDp": 900,
+        "densityDpi": 160,
+        "fontScale": 1,
+        "primaryEnabled": true,
+        "primaryBounds": [
+          22,
+          245,
+          338,
+          293
+        ]
+      },
+      {
+        "name": "large360",
+        "widthDp": 360,
+        "heightDp": 900,
+        "densityDpi": 160,
+        "fontScale": 1.4,
+        "primaryEnabled": true,
+        "primaryBounds": [
+          22,
+          372,
+          338,
+          434
+        ]
+      },
+      {
+        "name": "wide600",
+        "widthDp": 600,
+        "heightDp": 900,
+        "densityDpi": 160,
+        "fontScale": 1,
+        "primaryEnabled": true,
+        "primaryBounds": [
+          22,
+          227,
+          578,
+          275
+        ]
+      }
+    ],
+    "displayRestored": true,
+    "inspected": [
+      "main390",
+      "min360",
+      "large360",
+      "wide600"
+    ]
+  },
+  "liveAcceptedStages": {
+    "source": "fe1d25b26e4a88cddd8aef38fd420f3134cf569b",
+    "wholeTrialStatus": "failed",
+    "acceptedStages": [
+      "populated Start uses saved library and primary update action",
+      "one Start action freshly verifies retained session, retrieves, saves and returns to ordinary Fl\u00fcge"
+    ],
+    "boundary": "The helper later failed while completing the OS folder picker; this is accepted stage evidence, not a whole-trial pass.",
+    "observedActionToResultSeconds": 252.67199999996228,
+    "credentialsEntered": 0,
+    "loginHelperAttempts": 0
+  },
+  "deliveryContinuation": {
+    "source": "4063bcb2ab05ba58c8904cea5f8d50eac3cfe17c",
+    "status": "passed",
+    "checks": [
+      "ordinary reader -> native options stays writable with the shared admission reservation",
+      "system folder selection completed and returned to the app",
+      "verified backup preserves all prior immutable records/receipts and exact flight identities after the repeated automatic save",
+      "delivery APK exposes the accurate paper-information accessibility label",
+      "actual offline restart reads the saved populated ordinary library after native-flow teardown"
+    ],
+    "providerRequests": 0,
+    "displayRestored": true,
+    "networkRestored": {
+      "airplane_mode_on": "0",
+      "wifi_on": "1",
+      "mobile_data": "1"
+    },
+    "installedApkMatches": true,
+    "pickerCleanupFailed": false,
+    "providerAvdKeptRunning": true,
+    "syntheticAvdStopped": true
+  },
+  "independentPreservation": {
+    "originalManifestExact": true,
+    "quietManifestExact": true,
+    "originalRecordsPreserved": true,
+    "originalReceiptsPreserved": true,
+    "quietRecordsPreserved": true,
+    "quietReceiptsPreserved": true
+  },
+  "limits": [
+    "Fresh provider credential entry not tested natively",
+    "Real second-account/mismatch trial not tested",
+    "Spoken TalkBack and physical devices not tested",
+    "iOS export is not iOS runtime acceptance",
+    "Import latency remains under issue 41"
+  ]
+}
