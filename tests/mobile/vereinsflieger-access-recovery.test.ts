@@ -364,6 +364,15 @@ test('paused guided login cannot resume after dismissal or owner change, and a f
   }
 });
 
+test('returning during an unfinished login navigation starts fresh verification instead of waiting on a stopped load',async()=>{
+  const f=fixture({product:true});f.render();await f.settle(null);await f.flush();
+  f.controller().beginGuidedFlightConnection();assert.equal(f.controller().loaded,false);
+  f.appState('background');f.appState('active');await f.flush();
+  assert.equal(f.controller().resumeGuidedFlightConnection(),true);
+  assert.equal(f.controller().connection.phase,'checking');assert.equal(f.controller().url,context.PROFILE_URL);
+  assert.equal(f.scopeWrites(),0);f.unmount();
+});
+
 test('provider Back uses retained native history only on an idle visible owned page', async () => {
   const f = fixture({ product: true }); f.render(); await f.settle(null);
   f.controller().connect(); await f.loadPage(probe.LOGIN_URL);

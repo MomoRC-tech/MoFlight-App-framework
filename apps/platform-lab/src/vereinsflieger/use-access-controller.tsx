@@ -306,7 +306,7 @@ export function useAccessController(product = false, localOwner?: string) {
     clearCompletedFlightSource(); setResult('none');
     // Keep the original login form and Android Autofill values in the same
     // native WebView. A later authenticated navigation still needs fresh proof.
-    if (loginPage(currentUrl.current)) setVisible(true);
+    if (loginPage(currentUrl.current) && loaded) setVisible(true);
     else checkConnection();
     return true;
   }
