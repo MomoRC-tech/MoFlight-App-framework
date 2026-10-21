@@ -1,5 +1,9 @@
 # MoFlight project plan
 
+## Next usability package — simplified login-to-flights, 21 October 2026
+
+**Selected user need:** Manuel finds the menus too complex and wants app open → one login action → immediate data retrieval, with no or minimal user curation. Extend [#22](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/22) over the delivered own-flight foundation: one explicit foreground action handles necessary local setup, original-provider authentication, verified retrieval, deterministic assessment and local saving, then exposes saved flights/Start. Reuse a verified retained session and the approved #19 retrieval defaults. Routine valid rows need no separate review/save confirmation; only unresolved account/identity or unsafe recovery decisions interrupt. Preserve source evidence, unknowns, account isolation and safe retry. No book is required. This is the refined next-package direction; the current multi-step flow is not yet replaced or accepted. Details and acceptance are in the [maintained journey](product/2026-10-13-journey-information-map.md#single-action-login-and-flight-loading--21-october-2026) and #22. No background polling, new source category or paid service is selected.
+
 ## Current focus and usability decision — 20 October 2026
 
 **Current delivery:** the account-owned real-flight foundation and ordinary Flüge list/detail/year-text-registration filters/offline journey are delivered within the [bounded Android evidence](verification/2026-10-20-ordinary-flights.md). Start statistics now read the same saved account library: distinct flights, reported time, recorded-year/registration groups, latest dated flight and committed coverage/freshness. The [statistics package](verification/2026-10-20-real-flight-statistics.md) has host and scoped populated saved-flight Android ring/year-navigation evidence; broader selected measures/platform acceptance remain open.
