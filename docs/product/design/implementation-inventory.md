@@ -169,17 +169,17 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/connection-guidan
 
 ## CoreFlightFoundation.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `64abbe8e459159fae9d855e86c0b21df8cff69d97ae6f2071c03b24010258cf0`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `d752b1eab79a2bda459fba705e6f4db028bd72ab19ed5ad713bac49e25ee80a7`.
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `gap: 10` | 121, 122, 373 |
-| `gap: 8` | 399, 425, 435 |
-| `maxWidth: 520` | 122, 373 |
-| `padding: 12` | 121, 373 |
-| `width: '100%'` | 122, 373 |
+| `gap: 10` | 121, 122, 420 |
+| `gap: 8` | 446, 472, 482 |
+| `maxWidth: 520` | 122, 420 |
+| `padding: 12` | 121, 420 |
+| `width: '100%'` | 122, 420 |
 
 ## Dashboard.tsx
 
@@ -587,22 +587,22 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProfileSettings.t
 
 ## ProviderConnection.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProviderConnection.tsx](../../../apps/platform-lab/src/mobile/ProviderConnection.tsx); normalized SHA-256 `a4c782e9ea71fa3668398a0d69aa9aaf32e9b0bd86d9134e07f69f3bf8016e78`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProviderConnection.tsx](../../../apps/platform-lab/src/mobile/ProviderConnection.tsx); normalized SHA-256 `525aa752c445135a134b3c7f955403388ddf884392fa98bd5251b26043aee50a`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#102d47aa` | 172 |
+| `#102d47aa` | 180 |
 | `#ffb39e` | 26 |
-| `white` | 175 |
+| `white` | 183 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
 | `fontSize: 12` | 26 |
-| `fontWeight: '600'` | 55, 60, 76 |
+| `fontWeight: '600'` | 56, 68, 84 |
 | `fontWeight: '700'` | 26 |
 | `lineHeight: 15` | 26 |
 
@@ -610,30 +610,30 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProviderConnectio
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 10` | 182 |
-| `borderRadius: 14` | 172 |
-| `borderRadius: 7` | 174 |
-| `borderRadius: 8` | 173 |
-| `borderWidth: 1` | 182 |
-| `borderWidth: 2` | 174 |
-| `gap: 10` | 181 |
-| `gap: 12` | 177 |
-| `gap: 6` | 63, 178 |
-| `height: 12` | 174 |
-| `height: 16` | 173 |
-| `height: 48` | 172 |
-| `maxWidth: 520` | 181 |
-| `maxWidth: 800` | 175 |
-| `minHeight: 48` | 180, 182 |
-| `minHeight: 68` | 177 |
-| `minWidth: 16` | 173 |
-| `opacity: 0` | 176 |
-| `padding: 10` | 177, 178, 181, 182 |
-| `paddingHorizontal: 8` | 180 |
-| `paddingVertical: 10` | 180 |
-| `width: '100%'` | 175, 181 |
-| `width: 18` | 174 |
-| `width: 48` | 172 |
+| `borderRadius: 10` | 190 |
+| `borderRadius: 14` | 180 |
+| `borderRadius: 7` | 182 |
+| `borderRadius: 8` | 181 |
+| `borderWidth: 1` | 190 |
+| `borderWidth: 2` | 182 |
+| `gap: 10` | 189 |
+| `gap: 12` | 185 |
+| `gap: 6` | 61, 71, 186 |
+| `height: 12` | 182 |
+| `height: 16` | 181 |
+| `height: 48` | 180 |
+| `maxWidth: 520` | 189 |
+| `maxWidth: 800` | 183 |
+| `minHeight: 48` | 188, 190 |
+| `minHeight: 68` | 185 |
+| `minWidth: 16` | 181 |
+| `opacity: 0` | 184 |
+| `padding: 10` | 185, 186, 189, 190 |
+| `paddingHorizontal: 8` | 188 |
+| `paddingVertical: 10` | 188 |
+| `width: '100%'` | 183, 189 |
+| `width: 18` | 182 |
+| `width: 48` | 180 |
 
 ## RawCaptureReview.tsx
 

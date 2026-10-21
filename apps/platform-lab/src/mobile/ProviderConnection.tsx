@@ -28,16 +28,17 @@ export function ConnectionIndicator({ controller: c, onPress }: { controller: Co
 }
 
 /** The browser keeps this exact native parent whether login, progress or tabs are visible. */
-export function ProviderConnection({ controller: c, open, close, development = false, guided = false, purpose = 'existing-captures' }: { controller: Controller; open: boolean; close: () => void; development?: boolean; guided?: boolean; purpose?: 'existing-captures' | 'own-flight-library' }) {
+export function ProviderConnection({ controller: c, open, close, development = false, guided = false, progress, loginEnabled = true, closeDisabled = false, purpose = 'existing-captures' }: { controller: Controller; open: boolean; close: () => void; development?: boolean; guided?: boolean; progress?: React.ReactNode; loginEnabled?: boolean; closeDisabled?: boolean; purpose?: 'existing-captures' | 'own-flight-library' }) {
   const insets = useSafeAreaInsets();
   const [barHeight, setBarHeight] = useState(68), [loginHeight, setLoginHeight] = useState(132);
+  const [panelHeight, setPanelHeight] = useState(800);
   const [details, setDetails] = useState(false), [lab, setLab] = useState(false);
   const [informationTools, setInformationTools] = useState(false);
   useEffect(() => { if (!open) { setDetails(false); setLab(false); setInformationTools(false); } }, [open]);
   const checking = c.connection.phase === 'checking';
   const operationLocked = c.clearing || c.binding || c.busy || checking || c.saving || c.loginBusy || c.informationHistoryBusy || !c.viewReady;
   const locked = operationLocked || c.disconnecting;
-  const login = open && c.visible;
+  const login = open && c.visible && loginEnabled;
   const guidance = connectionGuidance(c.connection, c.browserActive);
   const freshness = dataFreshness(c.snapshot?.retrievedAt ?? null, c.captureLoadState);
   const loginFeedback = c.loginBusy ? 'Gespeicherte Anmeldung wird einmalig versucht…' :
@@ -45,17 +46,24 @@ export function ProviderConnection({ controller: c, open, close, development = f
     c.loginNotice === 'unavailable' ? 'Gespeicherte Anmeldung nicht verfügbar. Bitte auf der Originalseite anmelden.' :
     c.loginNotice === 'failed' ? 'Anmeldung nicht bestätigt. Bitte auf der Originalseite anmelden. Kein automatischer weiterer Versuch.' :
     c.loginNotice === 'cancelled' ? 'Anmeldeversuch beendet. Bitte die Sitzung erneut prüfen.' : null;
-  const dismiss = () => { if (c.visible || checking) c.dismissLogin(); close(); };
-  return <View pointerEvents={open ? 'auto' : 'none'} style={[StyleSheet.absoluteFill, { zIndex: open ? 20 : -1, opacity: open ? 1 : 0, paddingTop: insets.top, paddingBottom: insets.bottom, backgroundColor: colors.background }]} accessibilityElementsHidden={!open} importantForAccessibility={open ? 'auto' : 'no-hide-descendants'} accessibilityViewIsModal={open}>
+  const dismiss = () => { if(closeDisabled)return; if (c.visible || checking) c.dismissLogin(); close(); };
+  return <View onLayout={event => setPanelHeight(event.nativeEvent.layout.height)} pointerEvents={open ? 'auto' : 'none'} style={[StyleSheet.absoluteFill, { zIndex: open ? 20 : -1, opacity: open ? 1 : 0, paddingTop: insets.top, paddingBottom: insets.bottom, backgroundColor: colors.background }]} accessibilityElementsHidden={!open} importantForAccessibility={open ? 'auto' : 'no-hide-descendants'} accessibilityViewIsModal={open}>
     <View pointerEvents={login ? 'auto' : 'none'} style={[styles.browserFrame, { top: barHeight + loginHeight + insets.top, bottom: insets.bottom }, !login && styles.coveredBrowser]} accessibilityElementsHidden={!login} importantForAccessibility={login ? 'auto' : 'no-hide-descendants'}>
       {c.browser}
     </View>
     <View style={styles.bar} onLayout={event => setBarHeight(event.nativeEvent.layout.height)}>
-      <Action secondary icon="close" label="Verbindungen schließen und zur App zurückkehren" disabled={guided && (c.saving || c.restoring.current)} onPress={dismiss}>Schließen</Action>
-      <Label style={{ flex: 1, fontWeight: '600' }}>{login ? c.disconnecting ? 'Bei Vereinsflieger abmelden' : 'Bei Vereinsflieger anmelden' : guided ? 'Flüge laden' : 'Verbindungen'}</Label>
-      <ConnectionIndicator controller={c} onPress={login ? c.dismissLogin : undefined} />
+      <Action secondary icon="close" label={progress ? 'Datenabruf schließen oder abbrechen' : 'Verbindungen schließen und zur App zurückkehren'} disabled={closeDisabled || guided && (c.saving || c.restoring.current)} onPress={dismiss}>Schließen</Action>
+      <Label style={{ flex: 1, fontWeight: '600' }}>{progress ? 'Daten laden' : login ? c.disconnecting ? 'Bei Vereinsflieger abmelden' : 'Bei Vereinsflieger anmelden' : guided ? 'Daten laden' : 'Verbindungen'}</Label>
+      <ConnectionIndicator controller={c} onPress={login && !progress ? c.dismissLogin : undefined} />
     </View>
-    {login ? <View style={styles.loginBar} onLayout={event => setLoginHeight(event.nativeEvent.layout.height)}>
+    {progress ? <ScrollView style={login ? {maxHeight: Math.max(120, (panelHeight-insets.top-insets.bottom-barHeight)*0.5)} : {flex:1}} onLayout={event => setLoginHeight(event.nativeEvent.layout.height)} contentContainerStyle={styles.canvas} keyboardShouldPersistTaps="handled"><View style={styles.group}>
+      {progress}
+      {login && <View style={{gap:6}}>
+        <Label muted>{providerUrl(c.url) ? new URL(c.url).origin : 'Anbieteradresse nicht bestätigt'} · Zugangsdaten nur auf der Originalseite eingeben.</Label>
+        {loginFeedback && <Label>{loginFeedback}</Label>}
+        <Action secondary disabled={locked || !c.loaded} onPress={()=>c.checkConnection()}>Anmeldung prüfen</Action>
+      </View>}
+    </View></ScrollView> : login ? <View style={styles.loginBar} onLayout={event => setLoginHeight(event.nativeEvent.layout.height)}>
       <Action secondary icon="back" label="Auf der Vereinsflieger-Seite zurück" disabled={locked || !c.canGoBack} onPress={c.backWithinProvider}>Anbieterseite zurück</Action>
       <Label style={{ fontWeight: '600' }}>{providerUrl(c.url) ? new URL(c.url).origin : 'Anbieteradresse nicht bestätigt'}</Label>
       <Label muted>{c.disconnecting ? 'Auf der Originalseite „Abmelden“ wählen, danach hier prüfen. Schließen allein meldet dich nicht ab.' : 'Zugangsdaten nur auf der Originalseite eingeben.'}</Label>

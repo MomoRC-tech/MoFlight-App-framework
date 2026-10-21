@@ -22,7 +22,7 @@ const source = ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/
 
 // Run the real component/handlers; native rendering and leaf controls are the
 // only replacements. Disclosure tests make no provider/storage implementation.
-function fixture(overrides: Partial<Controller> = {}, development = false, purpose: 'existing-captures'|'own-flight-library' = 'existing-captures', guided = false) {
+function fixture(overrides: Partial<Controller> = {}, development = false, purpose: 'existing-captures'|'own-flight-library' = 'existing-captures', guided = false, progress?: Element) {
   let index = 0;
   const hooks: unknown[] = [], effects: (() => void)[] = [], calls: string[] = [];
   const react = {
@@ -74,7 +74,7 @@ function fixture(overrides: Partial<Controller> = {}, development = false, purpo
   let tree: Element;
   function render(open = true) {
     index = 0;
-    tree = exports.ProviderConnection!({ controller, open, development, purpose, guided, close: () => calls.push('close') });
+    tree = exports.ProviderConnection!({ controller, open, development, purpose, guided, progress, closeDisabled:controller.informationSaving, close: () => calls.push('close') });
     while (effects.length) effects.shift()!();
     return tree;
   }
@@ -96,6 +96,21 @@ function fixture(overrides: Partial<Controller> = {}, development = false, purpo
   render();
   return { controller, calls, browser, render, nodes, text, button };
 }
+
+test('the same guided progress and native browser parents survive login, retrieval and completion',()=>{
+  const progress:Element={type:'progress-card',props:{},children:['Anmeldung · Flüge · Medical']};
+  const f=fixture({visible:true,loaded:true,url:'https://www.vereinsflieger.de/'},false,'own-flight-library',true,progress);
+  const browserParent=f.nodes().find(n=>n.children.includes(f.browser))!;
+  const progressParent=f.nodes().find(n=>n.children.includes(progress))!;
+  for(const state of [{visible:false,busy:true},{visible:false,busy:false}]){
+    Object.assign(f.controller,state);f.render();
+    assert.equal(f.nodes().find(n=>n.children.includes(f.browser))!.type,browserParent.type);
+    assert.equal(f.nodes().find(n=>n.children.includes(progress))!.type,progressParent.type);
+    assert.equal(f.nodes().filter(n=>n===f.browser).length,1);assert.match(f.text(),/Anmeldung · Flüge · Medical/);
+  }
+  f.controller.informationSaving=true;f.render();assert.equal(f.button('Schließen').props.disabled,true);
+  f.button('Schließen').props.onPress();assert.deepEqual(f.calls,[]);
+});
 
 test('information page capture is explicit, respects recovery/loading and cannot cancel an atomic save', () => {
   const f = fixture({ visible: true, loaded: true, browserActive: true });

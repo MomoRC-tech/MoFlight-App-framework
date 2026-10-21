@@ -189,7 +189,7 @@ The HTML guide embeds original reference and symbol/brand images unchanged. Comp
 | C14 | Synthetic import review | Shared C01/C02/C03 cards/actions/choice chips, centered group capped at 520 dp | Development-only comparison, source variants and explicit book choice; [ImportPreview](../../../apps/platform-lab/src/mobile/ImportPreview.tsx). No saved-library import. |
 | C15 | Captured flight review | Shared cards/actions in the connection panel's centered 520 dp group; five records per page, eight original fields per detail page | [CapturedFlights](../../../apps/platform-lab/src/mobile/CapturedFlights.tsx) reads owner-scoped saved evidence without requiring provider login. Dates/clocks, reported duration, aircraft and separate crew fields retain unknown/invalid/conflict states; original field text is selectable and untruncated. No book membership or canonical import. |
 | C16 | Information source review | Shared C01/C02 controls in the connection panel's centered 520 dp group; five raw rows per page, one immutable snapshot at a time | [InformationReview](../../../apps/platform-lab/src/mobile/InformationReview.tsx) shows retrieval time and recorded coverage, with older/newer controls available offline. Category counts use the latest snapshot. Blank extracted text stays unknown; known date-only document snapshots are marked incomplete. No canonical history or cross-snapshot aggregation. |
-| C17 | Own-flight loading | Shared C01/C02 controls, centered 520 dp groups; ordinary progress and secondary details | [CoreFlightFoundation](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx) coordinates one explicit action through internal fresh storage, original-provider authentication, verified retrieval and local save. A verified retained session avoids login; valid rows need no routine review/save tap. Source/account/recovery checks remain; unresolved recovery is visible outside the details disclosure. Custom period, raw review and real-history backup remain under Details & weitere Optionen. Successful saving returns to ordinary Flüge with a result. Opening options alone creates/retrieves nothing. |
+| C17 | Own-flight loading | Shared C01/C02 controls, centered 520 dp groups; ordinary progress and secondary details | [CoreFlightFoundation](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx) coordinates one explicit action through internal fresh storage, original-provider authentication, verified retrieval and local save. A verified retained session avoids login; valid rows need no routine review/save tap. Source/account/recovery checks remain; unresolved recovery is visible outside the details disclosure. Custom period, raw review and real-history backup remain under Details & weitere Optionen. The combined flow retains one progress card through original-provider sign-in, verification, flights/save and Medical; success/partial failure stays visible until acknowledgement, which returns to ordinary Flüge with the result. Opening options alone creates/retrieves nothing. |
 | C18 | Connection/data summary | Shared C01/C02 card, one primary combined action and secondary options; no new symbols or geometry | [ConnectionSummary](../../../apps/platform-lab/src/mobile/ConnectionSummary.tsx) on Start/Profile uses the same committed account library as Flüge/season freshness. Session evidence stays separate. First use offers Anmelden & Daten laden; returning users get Daten aktualisieren. The combined action retrieves flights and own Medical through separate jobs. More than seven days gives a quiet reminder. The action explicitly requests foreground retrieval/save; no polling or retrieval just from opening the app. |
 | C19 | Support diagnostics | Shared C01/C02 cards/actions and selectable report text in a centered 520 dp group | [Diagnostics](../../../apps/platform-lab/src/mobile/Diagnostics.tsx) via Settings; paged technical/action histories and protected failures; observed navigation transitions without inferred intent. Explicit full JSON-file sharing, bounded short text copying and diagnostic-only clearing; 1 MB total managed storage cap. No automatic transmission. |
 
@@ -272,7 +272,7 @@ The [ordinary own-flight view](../../../apps/platform-lab/src/mobile/OwnFlights.
 
 Before opening native ownership, the flow reserves the existing reader queue: admitted reads finish first, and later reads wait until teardown. Account/selection recovery remains guarded; the reservation does not make unreadable or divergent candidates writable. [Handoff correction, #40](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/40).
 
-Start/Profile and Flüge expose the same explicit login-and-load/update action. Necessary fresh local storage is internal. Check retained session cookies through a protected provider profile; show the original login page only when needed, then resume verification after provider navigation. Keep that browser in the same native parent across login/progress. Use one-column, centered progress/forms up to 520 dp; labels wrap with text scaling. The login view omits information-import menus. Provider-required login still belongs to Vereinsflieger; account mismatch and unresolved recovery remain actionable exceptions. Known provider values save through deterministic validation without routine per-row review or a second save confirmation. Display a short result and covered period in ordinary Flüge. Preserve previous saved data and user state on error/cancellation; opening the app does not initiate retrieval.
+Start/Profile and Flüge expose the same explicit login-and-load/update action. Necessary fresh local storage is internal. Check retained session cookies through a protected provider profile; show the original login page only when needed, then resume verification after provider navigation. Keep that browser in the same native parent across login/progress. Use one-column, centered progress/forms up to 520 dp; labels wrap with text scaling. The login view omits information-import menus. Provider-required login still belongs to Vereinsflieger; account mismatch and unresolved recovery remain actionable exceptions. Known provider values save through deterministic validation without routine per-row review or a second save confirmation. Keep one progress card in the same provider screen through sign-in, account verification, flight retrieval/save and Medical. Preserve its native browser parent while the login form is visible beneath the progress area; cap and scroll the progress area during login so the form remains usable. Keep success or partial/failure results on that screen until acknowledgement, then return the result and covered period to ordinary Flüge. A foreground interruption before retrieval preserves the original login document; a guarded resume re-arms the guided intent without accepting stale proof, and subsequent authenticated navigation still requires fresh account verification. Interactive sign-in time does not consume the outer flight-response timeout. Backgrounding after retrieval starts retains cancellation/recovery safeguards. Failed or skipped Medical does not undo the confirmed flight save. These changes were approved on 21 October under #22/#42; native/phone evidence remains source-specific. Preserve previous saved data and user state on error/cancellation; opening the app does not initiate retrieval.
 
 The Start summary reads committed-library freshness, independently of raw captures and session checks. Keep the season rings and compact aircraft legend; detailed year/coverage/source information is reached through Flüge rather than repeated in the small season card. Book setup remains deferred and never gates flights. Start shows Später einrichten with a short information sheet instead of displaying synthetic paper-book tasks as real account progress. Retained lab book/paper data stay separate. [Package evidence and platform limits](../../verification/2026-10-21-simple-flight-loading.md) distinguish host behavior from native/provider acceptance.
 
@@ -486,17 +486,17 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/connection-guidan
 
 ## CoreFlightFoundation.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `64abbe8e459159fae9d855e86c0b21df8cff69d97ae6f2071c03b24010258cf0`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `d752b1eab79a2bda459fba705e6f4db028bd72ab19ed5ad713bac49e25ee80a7`.
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `gap: 10` | 121, 122, 373 |
-| `gap: 8` | 399, 425, 435 |
-| `maxWidth: 520` | 122, 373 |
-| `padding: 12` | 121, 373 |
-| `width: '100%'` | 122, 373 |
+| `gap: 10` | 121, 122, 420 |
+| `gap: 8` | 446, 472, 482 |
+| `maxWidth: 520` | 122, 420 |
+| `padding: 12` | 121, 420 |
+| `width: '100%'` | 122, 420 |
 
 ## Dashboard.tsx
 
@@ -904,22 +904,22 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProfileSettings.t
 
 ## ProviderConnection.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProviderConnection.tsx](../../../apps/platform-lab/src/mobile/ProviderConnection.tsx); normalized SHA-256 `a4c782e9ea71fa3668398a0d69aa9aaf32e9b0bd86d9134e07f69f3bf8016e78`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProviderConnection.tsx](../../../apps/platform-lab/src/mobile/ProviderConnection.tsx); normalized SHA-256 `525aa752c445135a134b3c7f955403388ddf884392fa98bd5251b26043aee50a`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#102d47aa` | 172 |
+| `#102d47aa` | 180 |
 | `#ffb39e` | 26 |
-| `white` | 175 |
+| `white` | 183 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
 | `fontSize: 12` | 26 |
-| `fontWeight: '600'` | 55, 60, 76 |
+| `fontWeight: '600'` | 56, 68, 84 |
 | `fontWeight: '700'` | 26 |
 | `lineHeight: 15` | 26 |
 
@@ -927,30 +927,30 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProviderConnectio
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 10` | 182 |
-| `borderRadius: 14` | 172 |
-| `borderRadius: 7` | 174 |
-| `borderRadius: 8` | 173 |
-| `borderWidth: 1` | 182 |
-| `borderWidth: 2` | 174 |
-| `gap: 10` | 181 |
-| `gap: 12` | 177 |
-| `gap: 6` | 63, 178 |
-| `height: 12` | 174 |
-| `height: 16` | 173 |
-| `height: 48` | 172 |
-| `maxWidth: 520` | 181 |
-| `maxWidth: 800` | 175 |
-| `minHeight: 48` | 180, 182 |
-| `minHeight: 68` | 177 |
-| `minWidth: 16` | 173 |
-| `opacity: 0` | 176 |
-| `padding: 10` | 177, 178, 181, 182 |
-| `paddingHorizontal: 8` | 180 |
-| `paddingVertical: 10` | 180 |
-| `width: '100%'` | 175, 181 |
-| `width: 18` | 174 |
-| `width: 48` | 172 |
+| `borderRadius: 10` | 190 |
+| `borderRadius: 14` | 180 |
+| `borderRadius: 7` | 182 |
+| `borderRadius: 8` | 181 |
+| `borderWidth: 1` | 190 |
+| `borderWidth: 2` | 182 |
+| `gap: 10` | 189 |
+| `gap: 12` | 185 |
+| `gap: 6` | 61, 71, 186 |
+| `height: 12` | 182 |
+| `height: 16` | 181 |
+| `height: 48` | 180 |
+| `maxWidth: 520` | 189 |
+| `maxWidth: 800` | 183 |
+| `minHeight: 48` | 188, 190 |
+| `minHeight: 68` | 185 |
+| `minWidth: 16` | 181 |
+| `opacity: 0` | 184 |
+| `padding: 10` | 185, 186, 189, 190 |
+| `paddingHorizontal: 8` | 188 |
+| `paddingVertical: 10` | 188 |
+| `width: '100%'` | 183, 189 |
+| `width: 18` | 182 |
+| `width: 48` | 180 |
 
 ## RawCaptureReview.tsx
 

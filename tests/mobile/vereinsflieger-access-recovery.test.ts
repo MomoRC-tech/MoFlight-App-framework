@@ -329,6 +329,41 @@ test('combined login resumes after original-page authentication but never after 
   }
 });
 
+test('guided sign-in return preserves the native login document and still requires fresh account proof',async()=>{
+  const f=fixture({product:true});f.render();await f.settle(null);await f.flush();
+  f.controller().beginGuidedFlightConnection();await f.loadPage(probe.LOGIN_URL);
+  const browserKey=(f.controller().browser as any).props.key;
+  const injected=f.injections.length;
+  f.appState('background');await f.flush();
+  assert.equal(f.controller().resumeGuidedFlightConnection(),false);
+  f.appState('active');await f.flush();
+  assert.equal(f.controller().resumeGuidedFlightConnection(),true);
+  assert.equal((f.controller().browser as any).props.key,browserKey);
+  assert.equal(f.controller().url,probe.LOGIN_URL);assert.equal(f.injections.length,injected);
+  assert.equal(f.controller().connection.confirmed,false);assert.equal(f.scopeWrites(),0);
+  await f.loadPage('https://vereinsflieger.de/member/index.php');
+  assert.equal(f.controller().connection.phase,'checking');
+  await f.loadPage(context.PROFILE_URL);await f.contextMessage(observedContext);
+  assert.equal(f.controller().connection.confirmed,true);assert.equal(f.scopeWrites(),1);
+  f.unmount();
+});
+
+test('paused guided login cannot resume after dismissal or owner change, and a foreign account is rejected',async()=>{
+  for(const stop of ['dismiss','owner','foreign'] as const){
+    const f=fixture({product:true,persistedScope:{version:1,owner:'synthetic-pilot',connectionId:'prior',context:observedContext}});
+    f.render();await f.settle(null);await f.flush();f.controller().beginGuidedFlightConnection();
+    f.appState('background');f.appState('active');await f.flush();
+    if(stop==='dismiss')f.controller().dismissLogin();
+    if(stop==='owner')f.changeOwner('other-owner');
+    assert.equal(f.controller().resumeGuidedFlightConnection(),stop==='foreign');
+    if(stop==='foreign'){
+      await f.loadPage(context.PROFILE_URL);await f.contextMessage({...observedContext,accountNumber:'999'});
+      assert.equal(f.controller().connection.phase,'mismatch');assert.equal(f.controller().connection.confirmed,false);
+    }
+    assert.equal(f.scopeWrites(),0);assert.equal(f.controller().busy,false);f.unmount();
+  }
+});
+
 test('provider Back uses retained native history only on an idle visible owned page', async () => {
   const f = fixture({ product: true }); f.render(); await f.settle(null);
   f.controller().connect(); await f.loadPage(probe.LOGIN_URL);
