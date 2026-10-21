@@ -1,5 +1,8 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
+import { existsSync, mkdtempSync, readdirSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import test from 'node:test';
 import type { Hash } from '../../packages/local-data/src/index.ts';
 import { nodeDriver } from './sqlite-driver.ts';
@@ -9,6 +12,8 @@ import { restoreRealFlightBackup, saveRealFlightBackupToFolder, type RealFlightB
   type RealFlightBackupIo } from '../../apps/platform-lab/src/vereinsflieger/real-flight-backup-native.ts';
 import type { RealFlightNativeScope } from '../../apps/platform-lab/src/vereinsflieger/real-flight-native.ts';
 import type { RealFlightSourceInput } from '../../apps/platform-lab/src/vereinsflieger/real-flight-source.ts';
+import { RealFlightSelection, type RealCandidateOpener } from '../../apps/platform-lab/src/vereinsflieger/real-flight-selection.ts';
+import { RealFlightService } from '../../apps/platform-lab/src/vereinsflieger/real-flight-service.ts';
 
 const ownerId = '11111111-1111-4111-8111-111111111111';
 const storeId = '22222222-2222-4222-8222-222222222222';
@@ -88,7 +93,8 @@ function makeIo(options: { picked?: string; canceled?: boolean; size?: number | 
   return { io, files, readUris };
 }
 
-function makeNative(scope: RealFlightNativeScope, options: { pending?: boolean; activationError?: Error; unreadable?: boolean } = {}) {
+function makeNative(scope: RealFlightNativeScope, options: { pending?: boolean; activationError?: Error; unreadable?: boolean;
+  publicationUnreadable?: boolean } = {}) {
   const events: string[] = [];
   const candidates = new Set([oldCandidate]);
   const createdCandidates: string[] = [];
@@ -108,10 +114,10 @@ function makeNative(scope: RealFlightNativeScope, options: { pending?: boolean; 
       return {
         select: async () => ({ candidate: await openBackupLibrary(ownerBackup), name, sequence: seq,
           recoveryRequired: false, warning: null }),
-        inspect: async () => options.unreadable && name === oldCandidate
-          ? {state:'unreadable',headSequence:seq,selected:null,preparations:[...preparations.values()],warning:'No readable retained candidate.'}
-          : {state:options.unreadable ? 'recovery-required' : 'selected',headSequence:seq,
-            selected:{candidate:await openBackupLibrary(ownerBackup),name,sequence:seq,selectedAt:at,
+        inspect: async () => options.unreadable && (activeName === oldCandidate || options.publicationUnreadable)
+          ? {state:'unreadable',headSequence:sequence,selected:null,preparations:[...preparations.values()],warning:'No readable retained candidate.'}
+          : {state:options.unreadable ? 'recovery-required' : 'selected',headSequence:sequence,
+            selected:{candidate:await openBackupLibrary(ownerBackup),name:activeName,sequence,selectedAt:at,
               recoveryRequired:options.unreadable ?? false,warning:options.unreadable ? 'Retained history is unreadable.' : null},
             preparations:[...preparations.values()]},
         listRestorePreparations: async () => [...preparations.values()],
@@ -292,11 +298,119 @@ test('explicit restore can extend an unreadable selection head without discardin
   assert.equal(result.state,'restored');
   if (result.state === 'restored') {
     assert.equal(result.selection.sequence,5);
-    assert.match(result.warning ?? '',/remains read-only/);
+    assert.equal(result.warning,'Die Sicherung wurde aktiviert. Aufbewahrte Dateien müssen geprüft werden. Die ausgewählte Bibliothek bleibt bis zur Klärung nur lesbar.');
     const prep = [...native.preparations.values()][0]!;
     assert.equal(prep.previousSequence,4);
     assert.equal(prep.status,'activated');
   }
   assert.deepEqual(native.active,{name:result.state === 'restored' ? result.fileName : oldCandidate,sequence:5});
   assert.ok(native.candidates.has(oldCandidate),'the unreadable selected candidate remains retained');
+});
+
+test('restore reports when no retained library can be read after activation', async () => {
+  const { scope } = makeScope();
+  const native = makeNative(scope,{unreadable:true,publicationUnreadable:true});
+  const result = await restoreRealFlightBackup(scope,allow,dependencies(makeIo().io,native.native));
+  assert.equal(result.state,'restored');
+  if (result.state === 'restored') {
+    assert.equal(result.warning,'Die Sicherung wurde aktiviert, aber keine gespeicherte Bibliothek kann gelesen werden. Die aufbewahrten Dateien müssen geprüft werden.');
+    assert.equal([...native.preparations.values()][0]!.status,'activated');
+    assert.ok(native.candidates.has(result.fileName));
+  }
+  assert.ok(native.candidates.has(oldCandidate));
+});
+
+test('SQLite empty-to-populated-to-empty restore reports review without claiming readable retained history is unreadable', async t => {
+  const directory = mkdtempSync(join(tmpdir(),'moflight-real-backup-rollback-'));
+  t.after(() => rmSync(directory,{recursive:true,force:true}));
+  const { scope } = makeScope();
+  const authorize = scope.authorize;
+  const selectionPath = join(directory,'selection.sqlite');
+  const opener: RealCandidateOpener<RealFlightLibrary> = async (name,auth,gate) => {
+    const path = join(directory,name);
+    assert.ok(existsSync(path),'reading a missing candidate must not create a database');
+    return RealFlightLibrary.open(nodeDriver(path),ownerId,storeId,hash,auth,async () => {},gate);
+  };
+  const initial = await RealFlightLibrary.create(nodeDriver(join(directory,oldCandidate)),manifest(ownerId,storeId),hash,authorize);
+  const emptyBackup = await initial.exportBackup(), emptyGraph = await initial.snapshot();
+  await initial.close();
+  const selection = await RealFlightSelection.open(nodeDriver(selectionPath),ownerId,storeId,authorize,opener,hash,true);
+  try { await selection.activate(commandId(400),oldCandidate,null,at); }
+  finally { await selection.close(); }
+  let nextId = 401, picked = ownerBackup, pickerCalls = 0;
+  const io = makeIo().io;
+  io.pickBackup = async () => { pickerCalls++; return {canceled:false,assets:[{uri:'cache://synthetic-backup.json'}]}; };
+  io.readPickedFile = async () => picked;
+  const deps: RealFlightBackupDependencies = {
+    io,hash,uuid:() => commandId(nextId++),now:() => at,
+    native:{
+      openRealFlightSelection:async () => RealFlightSelection.open(nodeDriver(selectionPath),ownerId,storeId,authorize,opener,hash),
+      openRealFlightCommandJournal:async () => null,
+      restoreRealFlightCandidate:async (_scope,name,text) => {
+        const path = join(directory,name);
+        assert.equal(existsSync(path),false,'restore reserves a fresh candidate');
+        return RealFlightLibrary.restoreValidated(nodeDriver(path),text,ownerId,storeId,hash,authorize);
+      },
+      openRealFlightCandidate:async (_scope,name) => opener(name,authorize),
+    },
+  };
+  const populated = await restoreRealFlightBackup(scope,allow,deps);
+  assert.equal(populated.state,'restored');
+  if (populated.state !== 'restored') return;
+  assert.equal(populated.warning,undefined);
+  assert.deepEqual(populated.snapshot,{generation:2,flightCount:1});
+  const retained = await opener(populated.fileName,authorize);
+  let populatedGraph;
+  try { populatedGraph = await retained.snapshot(); }
+  finally { await retained.close(); }
+
+  picked = emptyBackup;
+  const rollback = await restoreRealFlightBackup(scope,allow,deps);
+  assert.equal(rollback.state,'restored');
+  if (rollback.state !== 'restored') return;
+  assert.equal(rollback.warning,'Die Sicherung wurde aktiviert. Aufbewahrte Dateien müssen geprüft werden. Die ausgewählte Bibliothek bleibt bis zur Klärung nur lesbar.');
+  assert.deepEqual(rollback.snapshot,{generation:0,flightCount:0});
+  const reopened = await deps.native.openRealFlightSelection(scope);
+  assert.ok(reopened);
+  try {
+    const selected = await reopened.select();
+    try {
+      assert.equal(selected.name,rollback.fileName);
+      assert.equal(selected.recoveryRequired,true);
+      assert.deepEqual(await selected.candidate.snapshot(),emptyGraph);
+      assert.deepEqual(await selected.candidate.list(),[]);
+      await assert.rejects(selected.candidate.bindAccount({kind:'bind',commandId:commandId(450),baseGeneration:0,
+        source:source('blocked-rollback-bind','1001'),at}),/write|writ|recovery|Unauthorized/i);
+    } finally { await selected.candidate.close(); }
+    assert.equal((await reopened.listRestorePreparations()).every(preparation => preparation.status === 'activated'),true);
+  } finally { await reopened.close(); }
+
+  const service = new RealFlightService(ownerId,storeId,leaseId,{
+    authorize,hash,uuid:() => commandId(nextId++),now:() => at,
+    retrieve:async () => { throw new Error('No provider retrieval in rollback verification'); },
+    journal:async () => ({pending:async () => null,close:async () => {},
+      prepare:async () => assert.fail('no save command may be prepared'),resolve:async () => assert.fail('no command to resolve')}),
+    repository:async () => {
+      const journal = await deps.native.openRealFlightSelection(scope);
+      assert.ok(journal);
+      try {
+        const selected = await journal.select();
+        return {library:selected.candidate,writable:!selected.recoveryRequired,warning:selected.warning,
+          close:async () => { try { await selected.candidate.close(); } finally { await journal.close(); } }};
+      } catch (error) { await journal.close(); throw error; }
+    },
+  });
+  try {
+    const stored = await service.readStored();
+    assert.equal(stored.snapshot.recovery.readOnly,true);
+    assert.deepEqual(stored.flights,[]);
+    await assert.rejects(service.exportBackup(),/retained-candidate recovery/);
+  } finally { service.dispose(); }
+  const filesBeforeBlockedRestore = readdirSync(directory).sort(), pickedBefore = pickerCalls;
+  await assert.rejects(restoreRealFlightBackup(scope,allow,deps),/Read-only real flight recovery/);
+  assert.equal(pickerCalls,pickedBefore,'read-only restore is rejected before opening the picker');
+  assert.deepEqual(readdirSync(directory).sort(),filesBeforeBlockedRestore);
+  const stillRetained = await opener(populated.fileName,authorize);
+  try { assert.deepEqual(await stillRetained.snapshot(),populatedGraph); }
+  finally { await stillRetained.close(); }
 });

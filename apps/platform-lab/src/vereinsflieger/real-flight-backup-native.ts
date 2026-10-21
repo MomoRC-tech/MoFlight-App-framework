@@ -344,8 +344,10 @@ export async function restoreRealFlightBackup(scope: RealFlightNativeScope, gate
     await assertRestoreScope(scope, true);
     const publication = await afterPicker.handle.inspect();
     let warning: string | undefined;
-    if (publication.state === 'recovery-required' || publication.state === 'unreadable') {
-      warning = 'The backup was activated, but retained history is unreadable. The selected library remains read-only until recovery.';
+    if (publication.state === 'recovery-required') {
+      warning = 'Die Sicherung wurde aktiviert. Aufbewahrte Dateien müssen geprüft werden. Die ausgewählte Bibliothek bleibt bis zur Klärung nur lesbar.';
+    } else if (publication.state === 'unreadable') {
+      warning = 'Die Sicherung wurde aktiviert, aber keine gespeicherte Bibliothek kann gelesen werden. Die aufbewahrten Dateien müssen geprüft werden.';
     }
     if (publication.selected) await publication.selected.candidate.close();
     return { state: 'restored', fileName, selection: { name: fileName, sequence },
