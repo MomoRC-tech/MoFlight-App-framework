@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, FlatList, Keyboard, Pressable, ScrollView, StyleSheet, TextInput, View, useWindowDimensions } from 'react-native';
-import { Action, Card, Chip, Empty, GliderMark, IconLabel, Label, Section, colors, ui } from './theme';
+import { Action, Card, Chip, Empty, IconLabel, Label, Section, colors, ui } from './theme';
 import { diagnosticJournal } from '../diagnostics';
 import { SymbolIcon } from './SymbolIcon';
 import type { useOwnFlights } from './use-own-flights';
@@ -78,14 +78,13 @@ export function OwnFlights({ active, data, filterRequest, onUpdate, onHeaderChan
       <FlatList ref={list} key={tablet ? 'wide' : 'phone'} numColumns={tablet ? 2 : 1} columnWrapperStyle={tablet ? { gap: 8 } : undefined}
         data={selected} keyExtractor={flight => flight.flightId} ListHeaderComponent={header} ListHeaderComponentStyle={{ marginBottom: 8 }}
         renderItem={({ item }) => { const a = item.facts.assessment; return <Card onPress={() => { diagnosticJournal.record('action','flight-detail');setRawPage(0); void data.openDetail(item); }}
-          label={`Quellflug ${item.sourceFlightRef} ansehen`} style={[s.row, tablet && { flex: 1, maxWidth: '50%' }]}>
+          label={`${reviewParsedField(a.date)}, ${reviewRawField(a.fields.registration)}, ${reviewRawField(a.fields.departure)} nach ${reviewRawField(a.fields.arrival)}, ${reviewDuration(a.durations.flight)} ansehen`} style={[s.row, tablet && { flex: 1, maxWidth: '50%' }]}>
           <Label style={{ fontWeight: '600' }}>{reviewParsedField(a.date)}</Label>
-          <View style={ui.row}><View style={s.noTrack}><GliderMark color="#7299ab" /><Label muted style={{ fontSize: 10 }}>Kein Track</Label></View>
+          <View style={ui.row}>
             <View style={ui.column}><Label>{reviewRawField(a.fields.registration)} · {reviewRawField(a.fields.model)}</Label>
               <Label muted>{reviewRawField(a.fields.departure)} → {reviewRawField(a.fields.arrival)}</Label><IconLabel name="clock" size={16}>{reviewDuration(a.durations.flight)}</IconLabel></View><SymbolIcon name="right" size={16} tone="muted" /></View>
-          <Label muted>Quellflug {item.sourceFlightRef} · Fassung {item.factsRevision}</Label>
         </Card>; }}
-        ListEmptyComponent={<Card><Empty title={flights.length ? 'Keine passenden Flüge' : 'Noch keine gespeicherten Flüge'}>{flights.length ? 'Suchbegriff oder Filter ändern. Ein leeres Ergebnis ist keine Aussage über die gesamte Fluggeschichte.' : 'Eigene Flüge ausdrücklich abrufen, prüfen und speichern. Ein Flugbuch wird dafür nicht benötigt.'}</Empty></Card>}
+        ListEmptyComponent={<Card><Empty title={flights.length ? 'Keine passenden Flüge' : 'Noch keine gespeicherten Flüge'}>{flights.length ? 'Suchbegriff oder Filter ändern. Ein leeres Ergebnis ist keine Aussage über die gesamte Fluggeschichte.' : 'Mit „Daten aktualisieren“ eigene Flüge laden und automatisch speichern. Ein Flugbuch wird dafür nicht benötigt.'}</Empty></Card>}
         onScroll={event => { if (active && data.phase === 'ready' && !filterOpen && !detailOpen) offset.current = event.nativeEvent.contentOffset.y; }} scrollEventThrottle={32}
         onContentSizeChange={() => { if (data.phase === 'ready') list.current?.scrollToOffset({ offset: offset.current, animated: false }); }}
         contentContainerStyle={s.canvas} ItemSeparatorComponent={() => <View style={{ height: 7 }} />} initialNumToRender={10} maxToRenderPerBatch={10} windowSize={7} keyboardShouldPersistTaps="handled" />
@@ -108,7 +107,8 @@ export function OwnFlights({ active, data, filterRequest, onUpdate, onHeaderChan
     {detailOpen && <ScrollView key={detail?.flightId ?? 'loading-detail'} contentContainerStyle={s.canvas}><View style={s.group}>
       {data.detailBusy && <ActivityIndicator color={colors.cyan} accessibilityLabel="Gespeicherte Flugdetails laden" />}
       {detail && assessment && <>
-        <Card><Section title={`Quellflug ${detail.sourceFlightRef}`} /><Label>Fassung {detail.factsRevision} · {detail.factHistory.length} gespeicherte Fassung(en)</Label>
+        <Card><Section title="Gespeicherter Flug" /><Label>Fassung {detail.factsRevision} · {detail.factHistory.length} gespeicherte Fassung(en)</Label>
+          <Label selectable>Quellflug: {detail.sourceFlightRef}</Label><Label muted>Kein gespeicherter Track. Distanz und Flugweg sind nicht verifiziert.</Label>
           <Label selectable>Datum: {reviewParsedField(assessment.date)}</Label><Label selectable>Kennzeichen: {reviewRawField(assessment.fields.registration)}</Label>
           <Label selectable>Muster: {reviewRawField(assessment.fields.model)}</Label><Label selectable>Startort: {reviewRawField(assessment.fields.departure)}</Label><Label selectable>Landeort: {reviewRawField(assessment.fields.arrival)}</Label>
           <Label selectable>Start: {reviewParsedField(assessment.clocks.start)} · Landung: {reviewParsedField(assessment.clocks.landing)}</Label><Label selectable>Flugzeit: {reviewDuration(assessment.durations.flight)}</Label>
@@ -127,7 +127,7 @@ export function OwnFlights({ active, data, filterRequest, onUpdate, onHeaderChan
 }
 const s = StyleSheet.create({
   hidden: { display: 'none' }, canvas: { padding: 10, paddingBottom: 20, gap: 8 }, group: { width: '100%', maxWidth: 520, alignSelf: 'center', gap: 8 },
-  row: { padding: 7, borderRadius: 13, gap: 3 }, noTrack: { width: 64, minHeight: 64, backgroundColor: '#10282d', borderRadius: 9, justifyContent: 'center', alignItems: 'center' },
+  row: { padding: 7, borderRadius: 13, gap: 3 },
   searchBox: { flex: 1, minWidth: 0, flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: colors.border, borderRadius: 22, backgroundColor: '#11263a', paddingHorizontal: 12, gap: 7 },
   search: { flex: 1, minHeight: 48, color: colors.text, fontSize: 13, paddingVertical: 4 }, filter: { width: 48, minHeight: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center' },
 });

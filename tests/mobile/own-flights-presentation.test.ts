@@ -38,7 +38,7 @@ function fixture() {
   function render(){index=0;tree=exports.OwnFlights({active,filterRequest,data,onUpdate:()=>false,onHeaderChange:header});effects.splice(0).forEach(fn=>fn());return tree;}
   function nodes(){const result:Element[]=[];const visit=(n:any)=>{if(n?.children){result.push(n);n.children.forEach(visit);if(n.type==='FlatList')visit(n.props.ListHeaderComponent);}};visit(tree);return result;}
   function find(type:string,label?:string){const node=nodes().find(n=>n.type===type&&(!label||n.props.accessibilityLabel===label));assert.ok(node,`${type} ${label}`);return node;}
-  render();return{data,render,find,restores,request:(year:number|null)=>{filterRequest={year};render();render();},setActive:(value:boolean)=>{active=value;render();}};
+  render();return{data,render,find,nodes,restores,request:(year:number|null)=>{filterRequest={year};render();render();},setActive:(value:boolean)=>{active=value;render();}};
 }
 test('native zero-offset events while loading, hidden or inactive cannot erase the saved list return position',()=>{
   const f=fixture(),view=f.data.view;
@@ -84,4 +84,21 @@ test('actual filter controls record action kinds without search text, year or re
  f.find('Pressable','Flugfilter öffnen').props.onPress();f.render();
  const report=diagnostics.diagnosticJournal.export();assert.ok(!report.includes('Private secret crew'));assert.ok(!report.includes('D-PRIVATE'));
  assert.ok(diagnostics.diagnosticJournal.journey().some(e=>e.kind==='filter'&&e.target==='search'));assert.ok(diagnostics.diagnosticJournal.journey().some(e=>e.kind==='screen'&&e.target==='flight-filter'));
+});
+
+function visibleText(node:any):string {
+  if(node?.children)return node.children.map(visibleText).join(' ');
+  return typeof node==='string'||typeof node==='number'?String(node):'';
+}
+test('ordinary flight rows expose useful saved facts while technical provenance and absent-track explanation remain in detail',()=>{
+  const f=fixture(),list=f.find('FlatList'),item=f.data.view.flights[0];
+  const row=list.props.renderItem({item});const text=visibleText(row);
+  assert.ok(text.includes(review.reviewParsedField(item.facts.assessment.date)));
+  for(const field of ['registration','departure','arrival'])assert.ok(text.includes(review.reviewRawField(item.facts.assessment.fields[field])));
+  assert.ok(text.includes(review.reviewDuration(item.facts.assessment.durations.flight)));
+  assert.ok(!/Quellflug|Fassung|Track/.test(text));
+  f.data.detail={...item,factHistory:[item.facts],pending:[]};
+  const detailText=visibleText(f.render()).replace(/\s+/g,' ');
+  assert.ok(detailText.includes(item.sourceFlightRef));assert.ok(detailText.includes('Fassung 1'));
+  assert.ok(detailText.includes('Kein gespeicherter Track'));assert.ok(f.nodes().some(n=>n.type==='Section'&&n.props.title==='Originale Anbieterfelder'));assert.ok(detailText.includes(item.facts.assessment.observation.row.values[0]));
 });

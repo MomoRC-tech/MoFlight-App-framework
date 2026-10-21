@@ -30,7 +30,8 @@ Keep German labels beside important navigation/status symbols. Show saved facts 
 2. The [17 October shell corrections](../2026-10-17-native-shell-corrections.md) amend that baseline with Übersicht, Flüge, Flugbuch, Verein and AI; the compact fixed branded/profile header; and aircraft-share rings.
 3. The [18 October header decisions](../2026-10-18-header-status-review.md#package-1b-decision-checkpoint) amend their scope with aircraft B, contextual app Back, separate provider-history Back/Close and Connection → Med → Profile. Med reads unbekannt and opens a read-only explanation.
 4. Manuel's 18 October symbol selection adopts **Modern Duotone as the default family**, including **M2 Medical card** and the **supplied folded paper plane**, for navigation/header/dashboard/action symbols. His subsequent instruction removes the old icon designs and comparison pages. Labels, status meanings, approved branding and data notation remain. See [default family](symbols/README.md).
-5. This handbook consolidates those decisions. Earlier prototype choices apply only where explicitly carried forward. Code values record implementation and cannot approve an unresolved visual difference.
+5. Manuel's **21 October “start with 1 and 2” instruction** selects the [smaller everyday interface](../2026-10-13-journey-information-map.md#smaller-everyday-interface--selected-21-october-2026): one first-use entry, useful returning-account season/flight content, quiet deferred-paper access, technical details in flight details and synthetic tools under Development. This amends the default dashboard composition and unfinished Flugbuch/settings content only; existing header/colors/symbols/five labeled tabs remain.
+6. This handbook consolidates those decisions. Earlier prototype choices apply only where explicitly carried forward. Code values record implementation and cannot approve an unresolved visual difference.
 
 Manuel owns design decisions. Priorities, journeys and account/book behavior remain in the [project plan](../../project-plan.md), [journey map](../2026-10-13-journey-information-map.md) and feature contracts. Link those contracts rather than duplicating them here.
 
@@ -96,9 +97,9 @@ No automatic stale-time threshold is selected for the connection mark. Session e
 | --- | --- | --- |
 | Shared card | `linear-gradient(140deg, #0c2d4a, #04131e)`; fallback colors.card | theme ui.card: subtle depth within a bounded card. |
 | Selected chip | `linear-gradient(180deg, #46acff, #238bf5)`; border `#68baff`; shadow `0 0 7px #1889ff55` | theme ui.chipSelected: selected query scope. |
-| Paper action | `linear-gradient(180deg, #ff963e, #ff621f)`; fallback `#ff762b`; text `#281004` | [Dashboard](../../../apps/platform-lab/src/mobile/Dashboard.tsx), orangeButton. |
-| AI dashboard | `linear-gradient(145deg, #292276, #101c45, #53165e)`; fallback `#181854`; border `#6853b5` | Dashboard ai: bounded purple accent panel. |
-| Photo shade | Default `#00102277`; header `#001022df`; paper `#913e1266`; club `#00112688` | theme Photo, AppHeader, Dashboard: check text against the displayed crop. |
+| Photo shade | Default `#00102277`; header `#001022df` | theme Photo, AppHeader: check text against the displayed crop. |
+
+The 21 October selected Start simplification removes the photographic paper hero and purple AI promotion; their former local gradients are not current dashboard treatments. The original approved reference/artwork stays preserved. The quiet paper entry retains the paper-tone symbol; other shared palette/category roles remain unchanged.
 
 Eight-digit hex uses RGBA: the last byte is opacity. Effects belong to their current component context; this does not authorize spreading glow/transparency throughout the app.
 
@@ -181,16 +182,16 @@ The HTML guide embeds original reference and symbol/brand images unchanged. Comp
 | C06 | Header status group | Connection soft tile, growing Med, profile soft tile; gap 4 | Back replaces logo on app overlays. AppHeader / MedicalStatus / ShellIcons. |
 | C07 | Bottom navigation | Attached dark bar, five equal targets, minimum height 60 | Icon above German label; cyan selected state. MobileApp. |
 | C08 | Overlay / provider panel | Current dark full app overlay with one active header; provider has its own toolbar/history | Different from pale v0.30 prototype sheets. MobileApp / ProviderConnection. |
-| C09 | Flight row | Padding 7, radius 13; no-track tile, route/reported duration and detail chevron | Whole row opens selected-account saved source facts, reference and revision. [OwnFlights](../../../apps/platform-lab/src/mobile/OwnFlights.tsx); no inferred role or book assignment. |
+| C09 | Flight row | Padding 7, radius 13; date, aircraft, route/reported duration and detail chevron | Whole row opens selected-account saved source facts. Source reference/revision/original fields and absent-track context stay in details. [OwnFlights](../../../apps/platform-lab/src/mobile/OwnFlights.tsx); no inferred role or book assignment. |
 | C10 | AI question / composer | Question radius 12; composer radius 20; send face 42 × 42; input max height 150 | Local questions calculate deterministically; free-text service unavailable. MobileApp. |
-| C11 | Paper hero / action face | Orange-accent photo card, minimum height 144; normal hero height 154; CTA radius 15 | Papierstand ansehen opens the read-only saved paper status. Full reconciliation/writing remains M5; viewing never confirms copying. Dashboard / PaperStatus. |
+| C11 | Quiet paper entry | Minimum-height 48 row with paper-tone logbook symbol and detail chevron | Associated-account Start offers Papierflugbuch später einrichten and opens the deferred-setup explanation. The former photographic hero remains in the original reference. Synthetic saved paper status stays under Development; viewing never confirms copying. Dashboard / PaperStatus. |
 | C12 | Season ring | Diameter 62, thickness 6, aircraft segments, central value/label | Whole season card opens current-year flights. SeasonRing / season-model. |
 | C13 | Badges / disclosures | Role pill radius 12; session badge minimum 16; details + / − | Role, session evidence and expansion remain separate meanings. MobileApp / ProviderConnection. |
 | C14 | Synthetic import review | Shared C01/C02/C03 cards/actions/choice chips, centered group capped at 520 dp | Development-only comparison, source variants and explicit book choice; [ImportPreview](../../../apps/platform-lab/src/mobile/ImportPreview.tsx). No saved-library import. |
 | C15 | Captured flight review | Shared cards/actions in the connection panel's centered 520 dp group; five records per page, eight original fields per detail page | [CapturedFlights](../../../apps/platform-lab/src/mobile/CapturedFlights.tsx) reads owner-scoped saved evidence without requiring provider login. Dates/clocks, reported duration, aircraft and separate crew fields retain unknown/invalid/conflict states; original field text is selectable and untruncated. No book membership or canonical import. |
 | C16 | Information source review | Shared C01/C02 controls in the connection panel's centered 520 dp group; five raw rows per page, one immutable snapshot at a time | [InformationReview](../../../apps/platform-lab/src/mobile/InformationReview.tsx) shows retrieval time and recorded coverage, with older/newer controls available offline. Category counts use the latest snapshot. Blank extracted text stays unknown; known date-only document snapshots are marked incomplete. No canonical history or cross-snapshot aggregation. |
 | C17 | Own-flight loading | Shared C01/C02 controls, centered 520 dp groups; ordinary progress and secondary details | [CoreFlightFoundation](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx) coordinates one explicit action through internal fresh storage, original-provider authentication, verified retrieval and local save. A verified retained session avoids login; valid rows need no routine review/save tap. Source/account/recovery checks remain; unresolved recovery is visible outside the details disclosure. Custom period, raw review and real-history backup remain under Details & weitere Optionen. The combined flow retains one progress card through original-provider sign-in, verification, flights/save and Medical; success/partial failure stays visible until acknowledgement, which returns to ordinary Flüge with the result. Opening options alone creates/retrieves nothing. |
-| C18 | Connection/data summary | Shared C01/C02 card, one primary combined action and secondary options; no new symbols or geometry | [ConnectionSummary](../../../apps/platform-lab/src/mobile/ConnectionSummary.tsx) on Start/Profile uses the same committed account library as Flüge/season freshness. Session evidence stays separate. First use offers Anmelden & Daten laden; returning users get Daten aktualisieren. The combined action retrieves flights and own Medical through separate jobs. More than seven days gives a quiet reminder. The action explicitly requests foreground retrieval/save; no polling or retrieval just from opening the app. |
+| C18 | Connection/data summary | Shared C01/C02 card; Start caps at 430 dp with one primary action, Profile retains secondary administration | [ConnectionSummary](../../../apps/platform-lab/src/mobile/ConnectionSummary.tsx) on Start/Profile uses the same committed account library as Flüge/season freshness. Session evidence stays separate in the header/Profile. First use offers Anmelden & Daten laden; returning users get Daten aktualisieren. Recovery that needs a decision exposes options even in compact Start. The combined action retrieves flights and own Medical through separate jobs. More than seven days gives a quiet reminder. No polling or retrieval just from opening the app. |
 | C19 | Support diagnostics | Shared C01/C02 cards/actions and selectable report text in a centered 520 dp group | [Diagnostics](../../../apps/platform-lab/src/mobile/Diagnostics.tsx) via Settings; paged technical/action histories and protected failures; observed navigation transitions without inferred intent. Explicit full JSON-file sharing, bounded short text copying and diagnostic-only clearing; 1 MB total managed storage cap. No automatic transmission. |
 
 Sources: [theme](../../../apps/platform-lab/src/mobile/theme.tsx), [MobileApp](../../../apps/platform-lab/src/mobile/MobileApp.tsx), [Dashboard](../../../apps/platform-lab/src/mobile/Dashboard.tsx), [AppHeader](../../../apps/platform-lab/src/mobile/AppHeader.tsx), [ProviderConnection](../../../apps/platform-lab/src/mobile/ProviderConnection.tsx), [MedicalStatus](../../../apps/platform-lab/src/mobile/MedicalStatus.tsx), [ProfileSettings](../../../apps/platform-lab/src/mobile/ProfileSettings.tsx) and [SeasonRing](../../../apps/platform-lab/src/mobile/SeasonRing.tsx).
@@ -240,9 +241,9 @@ The provider's information-import controls guide the selected own training summa
 
 | Destination | Current presentation |
 | --- | --- |
-| Übersicht | Photo paper hero; asymmetric season/AI and flight/club pairs; weather and next actions. Flight summaries use the selected real account library without a book requirement; paper status remains separate. See the [recorded statistics presentation gap](history.md#20-october-implementation-gap--real-flight-statistics). |
-| Flüge | Selected real account’s locally saved flights without a required book: source-date/year, text and exact recorded-registration filters; source-specific details and eight-field original-value pages. Collapsible coverage/freshness and explicit update entry. Missing tracks/distances/classifications stay unavailable; no training or book inference. |
-| Flugbuch | Selected-book saved paper status and ordinary library backup/restore. Full reconciliation/writing remains M5; book identity differs from account/format. |
+| Übersicht | One compact login/data action and saved count/date. Once an associated account is ready, show season rings/legend, latest dated flight and a quiet deferred-paper link; no unavailable service promotions. A new unassociated library has no empty dashboard; an associated zero-flight account retains truthful zero/unknown values. Flight summaries require no book. |
+| Flüge | Selected real account’s locally saved flights without a required book: date, aircraft, route/duration rows; source-date/year, text and exact registration filters. Source IDs/revisions/original fields and absent-track context stay in details. Collapsible coverage/freshness and explicit update entry remain; no training or book inference. |
+| Flugbuch | Concise deferred real-book/setup explanation and Flüge ansehen. Existing synthetic book/paper/backup tools remain under Development. Full reconciliation/writing remains M5; book identity differs from account/format. |
 | Verein | Overview/Dienste/Termine/Mitteilungen scopes with bounded sections and honest missing-source states. |
 | AI | Welcome, supported local questions/results, composer and unavailable free-text state. Sparkles identify the category. |
 
@@ -254,9 +255,9 @@ Development surfaces are explicit visual exceptions: [App.tsx](../../../apps/pla
 
 Settings → **Diagnose öffnen** opens a separate scrollable support screen with contextual Back. Reuse C01/C02 and a centered 520 dp group; page through technical operations, action/navigation events and protected failures (ten per page). The journey view shows observed transitions and explicitly avoids inferring intentions. Full sharing opens the OS chooser for a JSON file; a bounded short report can be shared/copied as text. Clearing affects the journal and managed export file only. Storage is capped at 1 MB total and 14 days, with earlier byte/count limits. [Contract and evidence](../../verification/2026-10-21-diagnostics.md).
 
-Settings exposes **Sicherung & Wiederherstellung** beside ordinary book/data actions and a separate **Entwicklung öffnen** entry. [DevelopmentHub](../../../apps/platform-lab/src/mobile/DevelopmentHub.tsx) groups the dataset/flight proof, book/paper proof and provider diagnostics. Entry alone runs no fixture or provider operation. The experimental lab Release retains these explicit tools for offline testing; this is no security boundary or approval for a future production build. Synthetic operations and old copy-confirmation semantics remain labelled.
+Settings groups connection/data administration, **Flugbibliothek sichern & wiederherstellen**, support/about and **Entwicklung öffnen**. The ordinary backup action opens existing real-flight options; explain the Details & weitere Optionen disclosure and exclusions, including Medical. [DevelopmentHub](../../../apps/platform-lab/src/mobile/DevelopmentHub.tsx) retains synthetic profile editing, selected books, paper status/backup, dataset/flight and book/paper proofs, and provider diagnostics. Entry alone runs no fixture or provider operation. These retained experimental tools are no security boundary or approval for a future production build.
 
-Product maintenance uses current dark C01/C02 cards/actions and selected Modern Duotone symbols. [LibraryBackup](../../../apps/platform-lab/src/mobile/LibraryBackup.tsx) explains whole-library scope, unencrypted lab format/2 MB restore limit, exclusions, picker cancellation and the difference between sharing and verified external saving. Restore validates a new library and its selected book before activating it; previous stores stay retained. [PaperStatus](../../../apps/platform-lab/src/mobile/PaperStatus.tsx) shows saved synthetic facts/unknowns and the unfinished M5 boundary, with book/history/backup navigation. These groups are capped and centered at 520 dp. No ordinary floating plus, book selector or data-status action launches a proof.
+Maintenance uses dark C01/C02 cards/actions and selected Modern Duotone symbols. Development's [LibraryBackup](../../../apps/platform-lab/src/mobile/LibraryBackup.tsx) explains synthetic-library scope, unencrypted lab format/2 MB restore limit, exclusions, picker cancellation and the difference between sharing and verified external saving. Restore validates a new library and selected book before activating it; previous stores remain. [PaperStatus](../../../apps/platform-lab/src/mobile/PaperStatus.tsx) shows saved synthetic facts/unknowns and the unfinished M5 boundary. These groups cap and center at 520 dp. Ordinary account-flight backup and synthetic-library backup are distinct.
 
 Provider login, recovery, session controls and **Rohbelege & begrenzter Abruf** stay in the ordinary connection dialog. Extra browserstore test controls require the explicit Development route on the same retained controller, with existing native AVD/operation/recovery guards. No source capture becomes an imported flight by moving its controls.
 
@@ -274,7 +275,7 @@ Before opening native ownership, the flow reserves the existing reader queue: ad
 
 Start/Profile and Flüge expose the same explicit login-and-load/update action. Necessary fresh local storage is internal. Check retained session cookies through a protected provider profile; show the original login page only when needed, then resume verification after provider navigation. Keep that browser in the same native parent across login/progress. Use one-column, centered progress/forms up to 520 dp; labels wrap with text scaling. The login view omits information-import menus. Provider-required login still belongs to Vereinsflieger; account mismatch and unresolved recovery remain actionable exceptions. Known provider values save through deterministic validation without routine per-row review or a second save confirmation. Keep one progress card in the same provider screen through sign-in, account verification, flight retrieval/save and Medical. Preserve its native browser parent while the login form is visible beneath the progress area; cap and scroll the progress area during login so the form remains usable. Keep success or partial/failure results on that screen until acknowledgement, then return the result and covered period to ordinary Flüge. A foreground interruption before retrieval preserves the original login document; a guarded resume re-arms the guided intent without accepting stale proof, and subsequent authenticated navigation still requires fresh account verification. Interactive sign-in time does not consume the outer flight-response timeout. Backgrounding after retrieval starts retains cancellation/recovery safeguards. Failed or skipped Medical does not undo the confirmed flight save. These changes were approved on 21 October under #22/#42; native/phone evidence remains source-specific. Preserve previous saved data and user state on error/cancellation; opening the app does not initiate retrieval.
 
-The Start summary reads committed-library freshness, independently of raw captures and session checks. Keep the season rings and compact aircraft legend; detailed year/coverage/source information is reached through Flüge rather than repeated in the small season card. Book setup remains deferred and never gates flights. Start shows Später einrichten with a short information sheet instead of displaying synthetic paper-book tasks as real account progress. Retained lab book/paper data stay separate. [Package evidence and platform limits](../../verification/2026-10-21-simple-flight-loading.md) distinguish host behavior from native/provider acceptance.
+The Start summary reads committed-library freshness, independently of raw captures and session checks. Keep season rings and compact aircraft legend; detailed coverage/source information is reached through Flüge. The 21 October selected simplification uses full-width cards capped at 430 dp, or two bounded columns from 840 dp at ordinary text size. Book setup stays deferred and never gates flights. Its quiet Start link opens a short information sheet; synthetic paper tasks and the editable demo name are in Development. Compact Start keeps recovery options visible when a decision is required. [Package evidence and platform limits](../../verification/2026-10-21-simple-flight-loading.md) distinguish host behavior from native/provider acceptance.
 
 ## Header, overlays and navigation
 
@@ -319,7 +320,7 @@ Follow the [verification workflow](../../development/verification-workflow.md): 
 
 [Handbook entry point](README.md). Generated by `python scripts/design_handbook.py`; do not hand-edit.
 
-Scope: 48 product mobile TypeScript/model and app-owned TSX UI/adapter files; 86 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.
+Scope: 48 product mobile TypeScript/model and app-owned TSX UI/adapter files; 63 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.
 
 ## App.tsx
 
@@ -484,6 +485,17 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/connection-guidan
 | `#ffb39e` | 17 |
 | `#ffc477` | 16 |
 
+## ConnectionSummary.tsx
+
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ConnectionSummary.tsx](../../../apps/platform-lab/src/mobile/ConnectionSummary.tsx); normalized SHA-256 `c9a56c0298c144605bccd59f1b79bb7dffdc991103cd9db95bcc51b21fb0adf2`.
+
+### Geometry / opacity declarations
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `maxWidth: 430` | 20 |
+| `width: '100%'` | 20 |
+
 ## CoreFlightFoundation.tsx
 
 Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `f92feace4c7e8d88f5b40865de03f5313d82528780908199bd487ddfd50d256e`.
@@ -500,104 +512,47 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundat
 
 ## Dashboard.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](../../../apps/platform-lab/src/mobile/Dashboard.tsx); normalized SHA-256 `cef38ad25ac9a790c5ddae8e6cd597bfa808c55c0e66c0f2d43c3ab305f14739`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](../../../apps/platform-lab/src/mobile/Dashboard.tsx); normalized SHA-256 `3507ac3f3facb77a4785a62422aa9e72cf710025c39090817d3465763e31e367`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#00112688` | 86 |
-| `#101c45` | 107 |
-| `#102c35` | 110 |
-| `#173a7a` | 108 |
-| `#181854` | 107 |
-| `#181c5988` | 108 |
-| `#1b4269` | 103 |
-| `#281004` | 55 |
-| `#292276` | 107 |
-| `#3c4492` | 108 |
-| `#426cbe` | 108 |
-| `#53165e` | 107 |
-| `#598596` | 84 |
-| `#6853b5` | 107 |
-| `#913e1266` | 53 |
-| `#995f3c` | 99 |
-| `#d59bff` | 108 |
-| `#ff621f` | 102 |
-| `#ff762b` | 102 |
-| `#ff963e` | 102 |
-| `#ffb76c33` | 100, 111 |
-| `#ffc38f66` | 100 |
-
-### Gradients
-
-| Value / declaration | Source line(s) |
-| --- | --- |
-| `linear-gradient(145deg, #292276, #101c45, #53165e)` | 107 |
-| `linear-gradient(180deg, #ff963e, #ff621f)` | 102 |
+| `#1b4269` | 70 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 11` | 90, 101 |
-| `fontSize: 12` | 76 |
-| `fontSize: 16` | 101 |
-| `fontSize: 24` | 104 |
-| `fontSize: 27` | 108 |
-| `fontWeight: '600'` | 75, 86, 101 |
-| `fontWeight: '700'` | 55, 104 |
-| `lineHeight: 16` | 101 |
-| `lineHeight: 17` | 76 |
-| `lineHeight: 22` | 101 |
-| `lineHeight: 29` | 104 |
-| `lineHeight: 32` | 108 |
+| `fontSize: 11` | 69 |
+| `fontSize: 24` | 71 |
+| `fontWeight: '700'` | 71 |
+| `lineHeight: 16` | 69 |
+| `lineHeight: 29` | 71 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 103, 108 |
-| `borderRadius: 15` | 100, 102 |
-| `borderRadius: 17` | 108 |
-| `borderRadius: 4` | 105 |
-| `borderRadius: 8` | 111 |
-| `borderRadius: 9` | 110 |
-| `borderWidth: 1` | 100, 108 |
-| `gap: 3` | 109, 111 |
-| `gap: 5` | 75, 103, 104, 110 |
-| `gap: 6` | 106 |
-| `gap: 8` | 97, 98 |
-| `height: 154` | 52 |
-| `height: 25` | 111 |
-| `height: 34` | 108 |
-| `height: 38` | 100 |
-| `height: 7` | 105 |
-| `maxWidth: 430` | 97 |
-| `maxWidth: 920` | 97 |
-| `minHeight: 140` | 111 |
-| `minHeight: 144` | 99 |
-| `minHeight: 166` | 109 |
-| `minHeight: 194` | 103, 107 |
-| `minHeight: 36` | 102 |
-| `minHeight: 48` | 110 |
-| `minWidth: 0` | 97, 103, 107, 109, 111 |
-| `padding: 0` | 99, 109 |
-| `padding: 8` | 108 |
-| `paddingHorizontal: 18` | 102 |
-| `paddingHorizontal: 7` | 103 |
-| `paddingVertical: 4` | 89 |
-| `paddingVertical: 7` | 102 |
-| `width: '100%'` | 97, 98 |
-| `width: '49.5%'` | 98 |
-| `width: 25` | 111 |
-| `width: 34` | 108 |
-| `width: 38` | 100 |
-| `width: 7` | 105 |
+| `borderRadius: 12` | 70 |
+| `borderRadius: 4` | 72 |
+| `gap: 5` | 70, 71, 74 |
+| `gap: 6` | 73 |
+| `gap: 8` | 67, 68 |
+| `height: 7` | 72 |
+| `maxWidth: 430` | 67 |
+| `maxWidth: 920` | 67 |
+| `minHeight: 194` | 70 |
+| `minHeight: 48` | 68 |
+| `minWidth: 0` | 67, 70, 74 |
+| `paddingHorizontal: 11` | 68 |
+| `paddingHorizontal: 7` | 70 |
+| `width: '100%'` | 67, 68 |
+| `width: 7` | 72 |
 
 ## DevelopmentHub.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DevelopmentHub.tsx](../../../apps/platform-lab/src/mobile/DevelopmentHub.tsx); normalized SHA-256 `c82d148af0ce28ddc37bf581b0c30101ecb97f812f02dc69bf8a9976c8488155`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DevelopmentHub.tsx](../../../apps/platform-lab/src/mobile/DevelopmentHub.tsx); normalized SHA-256 `0d37b4c47999c2b7f8c69f96510d0f07c2cbc393cbb1fcd61d2c4e638a239167`.
 
 ### Geometry / opacity declarations
 
@@ -605,9 +560,9 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DevelopmentHub.ts
 | --- | --- |
 | `gap: 10` | 6 |
 | `maxWidth: 520` | 6 |
-| `maxWidth: 720` | 35 |
-| `padding: 10` | 35 |
-| `width: '100%'` | 6, 35 |
+| `maxWidth: 720` | 37 |
+| `padding: 10` | 37 |
+| `width: '100%'` | 6, 37 |
 
 ## Diagnostics.tsx
 
@@ -700,133 +655,128 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MedicalStatus.tsx
 
 ## MobileApp.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `c0996ffd7d596567bb6b367968736e14e7767ac32c29f4cd4338c3ba77ebaac5`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `37d39415f1d90e9beda53d84d1b24d165d1b94765bcc15764531ce2f19ab582c`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#00c8ff` | 246, 289 |
-| `#020e17` | 289 |
-| `#031326` | 223 |
-| `#064240` | 284 |
-| `#10233d` | 286 |
-| `#10263e` | 288 |
-| `#10282d` | 284 |
-| `#102d47aa` | 279 |
-| `#11263a` | 283 |
-| `#152d42` | 285 |
-| `#1b344a` | 288 |
-| `#1c3449` | 289 |
-| `#227f87` | 284 |
-| `#354d74` | 286 |
-| `#3a5a8b` | 288 |
-| `#78efdc` | 286 |
-| `#8ba4bc` | 245, 281 |
-| `#ffbd9b` | 176 |
+| `#00c8ff` | 233, 276 |
+| `#020e17` | 276 |
+| `#031326` | 210 |
+| `#064240` | 271 |
+| `#10233d` | 273 |
+| `#10263e` | 275 |
+| `#10282d` | 271 |
+| `#102d47aa` | 266 |
+| `#11263a` | 270 |
+| `#152d42` | 272 |
+| `#1b344a` | 275 |
+| `#1c3449` | 276 |
+| `#227f87` | 271 |
+| `#354d74` | 273 |
+| `#3a5a8b` | 275 |
+| `#78efdc` | 273 |
+| `#8ba4bc` | 232, 268 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 10` | 234, 245, 281 |
-| `fontSize: 11` | 239, 282, 289 |
-| `fontSize: 12` | 284 |
-| `fontSize: 13` | 235, 283, 288 |
-| `fontSize: 18` | 211 |
-| `fontSize: 20` | 223, 282 |
-| `fontSize: 23` | 287 |
-| `fontSize: 25` | 289 |
-| `fontWeight: '600'` | 211, 223, 282, 284 |
-| `letterSpacing: .6` | 281 |
-| `lineHeight: 16` | 245, 281, 282, 289 |
-| `lineHeight: 17` | 284 |
-| `lineHeight: 25` | 282 |
-| `lineHeight: 29` | 289 |
+| `fontSize: 10` | 221, 232, 268 |
+| `fontSize: 11` | 226, 269, 276 |
+| `fontSize: 12` | 271 |
+| `fontSize: 13` | 222, 270, 275 |
+| `fontSize: 20` | 210, 269 |
+| `fontSize: 23` | 274 |
+| `fontSize: 25` | 276 |
+| `fontWeight: '600'` | 210, 269, 271 |
+| `letterSpacing: .6` | 268 |
+| `lineHeight: 16` | 232, 268, 269, 276 |
+| `lineHeight: 17` | 271 |
+| `lineHeight: 25` | 269 |
+| `lineHeight: 29` | 276 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 284, 287 |
-| `borderRadius: 13` | 284 |
-| `borderRadius: 14` | 279 |
-| `borderRadius: 15` | 286 |
-| `borderRadius: 17` | 285 |
-| `borderRadius: 2` | 289 |
-| `borderRadius: 20` | 288 |
-| `borderRadius: 21` | 288 |
-| `borderRadius: 22` | 283 |
-| `borderRadius: 24` | 283 |
-| `borderRadius: 9` | 284 |
-| `borderWidth: 1` | 283, 284, 287, 288 |
-| `gap: 1` | 282, 289 |
-| `gap: 10` | 210, 286 |
-| `gap: 3` | 281, 284 |
-| `gap: 5` | 283 |
-| `gap: 6` | 287, 288 |
-| `gap: 7` | 283, 286 |
-| `gap: 8` | 260, 262, 278, 285, 288 |
-| `height: 2` | 289 |
-| `height: 30` | 286 |
-| `height: 42` | 288 |
-| `height: 48` | 279 |
-| `maxHeight: 150` | 288 |
-| `maxWidth: 430` | 286 |
-| `maxWidth: 480` | 210 |
-| `maxWidth: 520` | 260, 262 |
-| `maxWidth: 599` | 277, 289 |
-| `maxWidth: 600` | 191, 246 |
-| `maxWidth: 720` | 232 |
-| `maxWidth: 960` | 191, 246 |
-| `minHeight: 126` | 286 |
-| `minHeight: 174` | 223 |
-| `minHeight: 34` | 285 |
-| `minHeight: 36` | 280 |
-| `minHeight: 40` | 283, 288 |
-| `minHeight: 48` | 283, 285 |
-| `minHeight: 60` | 289 |
-| `minHeight: 64` | 284 |
-| `minHeight: 66` | 284 |
-| `minHeight: 70` | 287 |
-| `minWidth: 0` | 282, 283 |
-| `opacity: .45` | 237 |
-| `padding: 0` | 285 |
-| `padding: 10` | 278, 287 |
-| `padding: 4` | 281, 288 |
-| `padding: 7` | 284 |
-| `paddingHorizontal: 12` | 283 |
-| `paddingHorizontal: 16` | 285 |
-| `paddingHorizontal: 6` | 284 |
-| `paddingHorizontal: 7` | 284 |
-| `paddingHorizontal: 8` | 288 |
-| `paddingVertical: 10` | 284 |
-| `paddingVertical: 4` | 283, 289 |
-| `width: '100%'` | 210, 225, 245, 260, 262, 277, 285, 286, 289 |
-| `width: '49.2%'` | 285 |
-| `width: 24` | 289 |
-| `width: 30` | 286 |
-| `width: 42` | 283, 288 |
-| `width: 48` | 279 |
-| `width: 64` | 284 |
+| `borderRadius: 12` | 271, 274 |
+| `borderRadius: 13` | 271 |
+| `borderRadius: 14` | 266 |
+| `borderRadius: 15` | 273 |
+| `borderRadius: 17` | 272 |
+| `borderRadius: 2` | 276 |
+| `borderRadius: 20` | 275 |
+| `borderRadius: 21` | 275 |
+| `borderRadius: 22` | 270 |
+| `borderRadius: 24` | 270 |
+| `borderRadius: 9` | 271 |
+| `borderWidth: 1` | 270, 271, 274, 275 |
+| `gap: 1` | 269, 276 |
+| `gap: 10` | 201, 273 |
+| `gap: 3` | 268, 271 |
+| `gap: 5` | 270 |
+| `gap: 6` | 274, 275 |
+| `gap: 7` | 270, 273 |
+| `gap: 8` | 247, 249, 265, 272, 275 |
+| `height: 2` | 276 |
+| `height: 30` | 273 |
+| `height: 42` | 275 |
+| `height: 48` | 266 |
+| `maxHeight: 150` | 275 |
+| `maxWidth: 430` | 273 |
+| `maxWidth: 480` | 201 |
+| `maxWidth: 520` | 247, 249 |
+| `maxWidth: 599` | 264, 276 |
+| `maxWidth: 600` | 184, 233 |
+| `maxWidth: 720` | 219 |
+| `maxWidth: 960` | 184, 233 |
+| `minHeight: 126` | 273 |
+| `minHeight: 174` | 210 |
+| `minHeight: 34` | 272 |
+| `minHeight: 36` | 267 |
+| `minHeight: 40` | 270, 275 |
+| `minHeight: 48` | 270, 272 |
+| `minHeight: 60` | 276 |
+| `minHeight: 64` | 271 |
+| `minHeight: 66` | 271 |
+| `minHeight: 70` | 274 |
+| `minWidth: 0` | 269, 270 |
+| `opacity: .45` | 224 |
+| `padding: 0` | 272 |
+| `padding: 10` | 265, 274 |
+| `padding: 4` | 268, 275 |
+| `padding: 7` | 271 |
+| `paddingHorizontal: 12` | 270 |
+| `paddingHorizontal: 16` | 272 |
+| `paddingHorizontal: 6` | 271 |
+| `paddingHorizontal: 7` | 271 |
+| `paddingHorizontal: 8` | 275 |
+| `paddingVertical: 10` | 271 |
+| `paddingVertical: 4` | 270, 276 |
+| `width: '100%'` | 201, 212, 232, 247, 249, 264, 272, 273, 276 |
+| `width: '49.2%'` | 272 |
+| `width: 24` | 276 |
+| `width: 30` | 273 |
+| `width: 42` | 270, 275 |
+| `width: 48` | 266 |
+| `width: 64` | 271 |
 
 ## OwnFlights.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OwnFlights.tsx](../../../apps/platform-lab/src/mobile/OwnFlights.tsx); normalized SHA-256 `1fb2b88730d330a5e7f7ed5e40d8bb504814f33c6d888a7b5aa37b58b361acff`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OwnFlights.tsx](../../../apps/platform-lab/src/mobile/OwnFlights.tsx); normalized SHA-256 `ae3a5b6833f9653d246bd575b893c314ddbac201b930b92d2fb3013261191dcf`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#10282d` | 130 |
 | `#11263a` | 131 |
-| `#7299ab` | 83 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 10` | 83 |
 | `fontSize: 13` | 132 |
 | `fontWeight: '600'` | 82 |
 
@@ -837,18 +787,16 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OwnFlights.tsx](.
 | `borderRadius: 13` | 130 |
 | `borderRadius: 22` | 131 |
 | `borderRadius: 24` | 132 |
-| `borderRadius: 9` | 130 |
 | `borderWidth: 1` | 131 |
 | `gap: 2` | 120 |
 | `gap: 3` | 130 |
 | `gap: 5` | 54 |
 | `gap: 7` | 131 |
 | `gap: 8` | 78, 129 |
-| `height: 7` | 91 |
+| `height: 7` | 90 |
 | `maxWidth: '50%'` | 81 |
 | `maxWidth: 520` | 129 |
 | `minHeight: 48` | 132 |
-| `minHeight: 64` | 130 |
 | `minWidth: 0` | 131 |
 | `padding: 10` | 129 |
 | `padding: 7` | 130 |
@@ -856,7 +804,6 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OwnFlights.tsx](.
 | `paddingVertical: 4` | 132 |
 | `width: '100%'` | 129 |
 | `width: 48` | 132 |
-| `width: 64` | 130 |
 
 ## PaperStatus.tsx
 
@@ -872,35 +819,35 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/PaperStatus.tsx](
 
 ## ProfileSettings.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProfileSettings.tsx](../../../apps/platform-lab/src/mobile/ProfileSettings.tsx); normalized SHA-256 `f47b1b20296080e3ea573b07382f3b20cb99f15fbbfd3ddc473bbc0d5a1ad4db`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProfileSettings.tsx](../../../apps/platform-lab/src/mobile/ProfileSettings.tsx); normalized SHA-256 `290202c399401edf906c8ee5d699397329be91ca6d0d4e33aa7492057045803b`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#ffba9b` | 49 |
+| `#ffba9b` | 67 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 13` | 50 |
-| `fontSize: 16` | 81 |
-| `fontWeight: '600'` | 80 |
-| `lineHeight: 18` | 50 |
+| `fontSize: 13` | 68 |
+| `fontSize: 16` | 78 |
+| `fontWeight: '600'` | 77 |
+| `lineHeight: 18` | 68 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 81 |
-| `borderWidth: 1` | 81 |
-| `gap: 12` | 79 |
-| `maxWidth: 480` | 79 |
-| `minHeight: 48` | 81 |
-| `paddingHorizontal: 12` | 81 |
-| `paddingVertical: 10` | 81 |
-| `width: '100%'` | 79 |
+| `borderRadius: 12` | 78 |
+| `borderWidth: 1` | 78 |
+| `gap: 12` | 76 |
+| `maxWidth: 480` | 76 |
+| `minHeight: 48` | 78 |
+| `paddingHorizontal: 12` | 78 |
+| `paddingVertical: 10` | 78 |
+| `width: '100%'` | 76 |
 
 ## ProviderConnection.tsx
 
@@ -1225,6 +1172,8 @@ Retained app-owned lab/adapter surface; document its existing appearance as an e
 | 18 Oct 2026 / Manuel | Made Modern Duotone the default and requested removal of old icon designs | [Default library](symbols/index.html) contains only the 29 current masters. Old aircraft assets, unselected proposals and icon comparison pages are removed; retired X01–X03/B04 no longer appear in the active catalogue. Original references and dated evidence remain. [Authorization](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/20#issuecomment-6250110588). |
 | 18 Oct 2026 / Manuel | Authorized starting the urgent #25 launcher package using the existing approved Thermik logo | Square AI icon adapted for legacy/iOS and padded adaptive/themed exports; no new brand design. [Execution contract](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/25#issuecomment-6250575222), [installed Release evidence and platform limits](../../verification/2026-10-18-launcher-icon.md). |
 | 18 Oct 2026 / Manuel | Continued with #26/#27 route/tool cleanup | Existing functions classified before implementation. Ordinary paper entry becomes read-only status; backup stays an ordinary product control, and synthetic proofs move behind Settings → Development. Current cards/symbols are reused; full paper redesign remains M5. [Scope, disposition and source-specific evidence](../../verification/2026-10-18-development-navigation.md). |
+
+**21 October selected composition amendment — Manuel:** instructed starting ordered packages 1 and 2, selecting the reviewed everyday-UI simplification: compact first-use login/load entry; associated-account season/latest-flight content and quiet paper link; simpler flight rows with evidence in details; synthetic profile/book/paper controls under Development. This supersedes the default large deferred-paper hero and unavailable dashboard promotions only for this slice. Header/colors/symbols/five tabs remain. [Maintained journey](../2026-10-13-journey-information-map.md#smaller-everyday-interface--selected-21-october-2026); [source-specific verification](../../verification/2026-10-21-simple-flight-loading.md).
 
 ## Preserved history
 

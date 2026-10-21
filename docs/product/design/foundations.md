@@ -45,9 +45,9 @@ No automatic stale-time threshold is selected for the connection mark. Session e
 | --- | --- | --- |
 | Shared card | `linear-gradient(140deg, #0c2d4a, #04131e)`; fallback colors.card | theme ui.card: subtle depth within a bounded card. |
 | Selected chip | `linear-gradient(180deg, #46acff, #238bf5)`; border `#68baff`; shadow `0 0 7px #1889ff55` | theme ui.chipSelected: selected query scope. |
-| Paper action | `linear-gradient(180deg, #ff963e, #ff621f)`; fallback `#ff762b`; text `#281004` | [Dashboard](../../../apps/platform-lab/src/mobile/Dashboard.tsx), orangeButton. |
-| AI dashboard | `linear-gradient(145deg, #292276, #101c45, #53165e)`; fallback `#181854`; border `#6853b5` | Dashboard ai: bounded purple accent panel. |
-| Photo shade | Default `#00102277`; header `#001022df`; paper `#913e1266`; club `#00112688` | theme Photo, AppHeader, Dashboard: check text against the displayed crop. |
+| Photo shade | Default `#00102277`; header `#001022df` | theme Photo, AppHeader: check text against the displayed crop. |
+
+The 21 October selected Start simplification removes the photographic paper hero and purple AI promotion; their former local gradients are not current dashboard treatments. The original approved reference/artwork stays preserved. The quiet paper entry retains the paper-tone symbol; other shared palette/category roles remain unchanged.
 
 Eight-digit hex uses RGBA: the last byte is opacity. Effects belong to their current component context; this does not authorize spreading glow/transparency throughout the app.
 

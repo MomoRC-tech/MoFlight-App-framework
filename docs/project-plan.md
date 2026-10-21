@@ -4,6 +4,8 @@
 
 **Requested scope:** Manuel asked for a review, further UI simplification and an ordered implementation plan covering every open Issue. This is the recommended sequence for review, not blanket implementation approval or a new release commitment. Existing scoped authorizations remain valid; proposed features, production decisions and spending retain their gates.
 
+**Execution update — 21 October:** Manuel then instructed **“start with 1 and 2”**, selecting the current retrieval/recovery package and the concrete everyday-UI slice below for implementation. #42/#50 and #22/#20 carry the saved bounded contracts. GPT-6.1 Sol/Medium workers handle reliability and UI; GPT-6 Luna/Max handles the independent acceptance inventory. Required host/committed-source native checks and remaining physical/provider/iOS gates stay separate from implementation. Later rows remain proposals or conditional work.
+
 **Inventory:** 39 open Issues, checked against GitHub bodies and comments on 21 October, from clean main `a22ca41`. Every open Issue has exactly one primary row below. Detailed scope/checklists stay in the matching Issue; this roadmap owns ordering. Parent Issues can span several packages and remain open until their full acceptance is met. Closed Issues, including the accepted #36 risk disposition, are not reopened.
 
 ### Next executable packages
@@ -17,7 +19,7 @@ Rows 1–8 order remaining work on the current Android/local core. Rows 9–15 p
 
 A beta checkpoint covers its separately selected scope. Placement before row 8 does not turn every remaining parent-Issue criterion, multi-club research gap or future query into a beta blocker; resolve or explicitly bound the relevant requirement. #34's supported-update/backward-compatibility requirement is explicitly mandatory before the first beta.
 
-### Further UI simplification — concrete review proposal
+### Further UI simplification — selected implementation slice
 
 Source review finds the large deferred paper-book hero ahead of useful season content, AI/club/weather panels without connected services, technical flight references/revisions on every list row, and synthetic profile/book tools in ordinary administration. The [dated 390 dp Start capture](verification/assets/2026-10-21-simple-flight-loading/main390.png) supports the density finding; its old login label is superseded by current source. This is a source/evidence review, not a new device usability pass.
 
@@ -29,7 +31,7 @@ Source review finds the large deferred paper-book hero ahead of useful season co
 | Profile/settings | Group real data/connection administration, backup, support/about and advanced tools. Keep synthetic profile/book tools explicitly in Development. | Existing stores/drafts; accurate backup exclusions, including the current separate Medical-store gap. |
 | Shared navigation | Reuse the approved header, colors, symbols and five labeled tabs for the first slice. Keep a concise honest explanation where a destination is unfinished. | Existing navigation identity and back/return behavior; tab removal or a new navigation model needs a separate choice. |
 
-**Review/acceptance:** first-use and returning users can identify the next action, last successful saved-data retrieval and saved flights without explanation or technical setup. Review normal, offline, empty, failure/retry and account/recovery states. Implementation requires meaningful navigation/state regressions and the affected committed-source Android layout/text/keyboard checks (360 dp, 390–412 dp, 600+ dp and enlarged text as relevant). Spoken accessibility, physical sign-in and iOS remain separately evidenced. The [design handbook](product/design/README.md) remains the visual authority; this proposal does not amend it before selection.
+**Review/acceptance:** first-use and returning users can identify the next action, last successful saved-data retrieval and saved flights without explanation or technical setup. Cover normal, offline, empty, failure/retry and account/recovery states. Meaningful navigation/state regressions and the affected committed-source Android layout/text/keyboard checks (360 dp, 390–412 dp, 600+ dp and enlarged text as relevant) are required. Spoken accessibility, physical sign-in and iOS remain separately evidenced. The [design handbook](product/design/README.md) records the selected composition amendment; its header/colors/symbols/five-tab identity remains authoritative.
 
 ### Complete ordered issue map
 

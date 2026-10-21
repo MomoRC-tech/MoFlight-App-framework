@@ -19,7 +19,26 @@ export interface ProfileSettingsProps {
   onBackup: () => void;
   onDiagnostics: () => void;
 }
-export function ProfileSettings({ connectionSummary, displayName, nameDraft: name, onNameDraftChange, busy, error, onSaveName, onRetry, onTools, onStatus, onCredits, onBooks, onBackup, onConnections, onDiagnostics }: ProfileSettingsProps) {
+export function ProfileSettings({ connectionSummary, onConnections, onBackup, onDiagnostics, onCredits, onTools }: ProfileSettingsProps) {
+  return <View style={styles.content}>
+    {connectionSummary ?? <Card><Section title="Vereinsflieger & Daten" /><Action secondary onPress={onConnections}>Vereinsflieger & Daten öffnen</Action></Card>}
+    <Card><Section title="Sicherung" icon="book" />
+      <Label muted>Sichert eigene Flüge, Originalbelege, Fassungen und Importbelege unverschlüsselt. Medical-Angaben, andere Rohbelege, Anmeldungen und Teststände sind nicht enthalten.</Label>
+      <Action secondary icon="book" onPress={onBackup}>Flugbibliothek sichern & wiederherstellen</Action>
+      <Label muted>Die Sicherungsaktionen findest du unter „Details & weitere Optionen“.</Label>
+    </Card>
+    <Card><Section title="Support & Über MoFlight" />
+      <Action testID="diagnostics-entry" secondary icon="info" onPress={onDiagnostics}>Diagnose öffnen</Action>
+      <Action secondary onPress={onCredits}>Bildnachweise & Lizenzen</Action>
+      <Label muted>Sprache: Deutsch · Textgröße nach Geräteeinstellung.</Label>
+    </Card>
+    <Card><Section title="Erweitert" />
+      <Action testID="development-entry" secondary icon="info" onPress={onTools}>Entwicklung öffnen</Action>
+      <Label muted>Synthetische Teststände, Demoprofil und ältere Nachweise.</Label>
+    </Card>
+  </View>;
+}
+export function SyntheticProfileSettings({ displayName, nameDraft: name, onNameDraftChange, busy, error, onSaveName, onRetry }: Pick<ProfileSettingsProps, 'displayName' | 'nameDraft' | 'onNameDraftChange' | 'busy' | 'error' | 'onSaveName' | 'onRetry'>) {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const alive = useRef(false);
@@ -39,7 +58,6 @@ export function ProfileSettings({ connectionSummary, displayName, nameDraft: nam
     finally { saving.current = false; }
   };
   return <View style={styles.content}>
-    {connectionSummary ?? <Card><Section title="Vereinsflieger & Daten" /><Action secondary onPress={onConnections}>Vereinsflieger & Daten öffnen</Action></Card>}
     <Card>
       <Section title="Lokales Demoprofil" />
       <Label muted>Dein Anzeigename wird nur in dieser lokalen Demobibliothek gespeichert. Ein MoFlight-Konto ist noch nicht verbunden.</Label>
@@ -51,27 +69,6 @@ export function ProfileSettings({ connectionSummary, displayName, nameDraft: nam
       <Action disabled={busy || !!error} onPress={() => void save()}>Anzeigename speichern</Action>
       {error && <Action secondary disabled={busy} onPress={onRetry}>Profil erneut laden</Action>}
       <Label muted>Der Name gilt für diese Bibliothek, nicht für einzelne Flugbücher. Er ist nicht Teil der Flugbuch-Sicherung.</Label>
-    </Card>
-    <Card>
-      <Section title="Flugbücher & Daten" />
-      <Action secondary onPress={onBooks}>Meine Flugbücher</Action>
-      <Action secondary icon="book" onPress={onBackup}>Sicherung & Wiederherstellung</Action>
-      <Action secondary onPress={onStatus}>Datenstatus</Action>
-    </Card>
-    <Card>
-      <Section title="Darstellung" />
-      <Label>Sprache: Deutsch</Label>
-      <Label muted>Die Textgröße folgt den Systemeinstellungen deines Geräts.</Label>
-    </Card>
-    <Card>
-      <Section title="Über MoFlight" />
-      <Action testID="diagnostics-entry" secondary icon="info" onPress={onDiagnostics}>Diagnose öffnen</Action>
-      <Action secondary onPress={onCredits}>Bildnachweise & Lizenzen</Action>
-    </Card>
-    <Card>
-      <Section title="Entwicklung" />
-      <Action testID="development-entry" secondary icon="info" onPress={onTools}>Entwicklung öffnen</Action>
-      <Label muted>Die Werkzeuge enthalten synthetische Testabläufe. Die Anmeldung bei Vereinsflieger ist separat; sie erstellt kein MoFlight-Konto.</Label>
     </Card>
   </View>;
 }

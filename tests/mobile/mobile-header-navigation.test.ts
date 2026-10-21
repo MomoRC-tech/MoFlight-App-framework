@@ -56,7 +56,7 @@ function fixture() {
     './local-insights': { localQuestions: [], localInsight: () => '' },
     './Dashboard': { Dashboard: 'Dashboard' }, './ShellIcons': leaves(['PlaneIcon', 'ProfileIcon', 'BookIcon']),
     './Diagnostics': leaves(['Diagnostics']), './diagnostics-native': {initializeDiagnostics() {}}, '../diagnostics': diagnostics,
-    './ProfileSettings': { ProfileSettings: 'ProfileSettings' }, '../book-storage': { PILOT: 'synthetic-pilot' },
+    './ProfileSettings': { ProfileSettings: 'ProfileSettings', SyntheticProfileSettings:'SyntheticProfileSettings' }, '../book-storage': { PILOT: 'synthetic-pilot' },
     '../vereinsflieger/use-access-controller': { useAccessController: () => controller },
     './ProviderConnection': leaves(['ProviderConnection', 'ConnectionIndicator']), './AppHeader': { AppHeader: 'AppHeader' },
     './MedicalStatus': leaves(['MedicalIndicator', 'MedicalDetails']),
@@ -266,10 +266,12 @@ test('hardware Back prefers guarded provider history and then returns to the sam
   assert.equal(f.headers().at(-1)!.props.title, 'Entwicklung');
 });
 
-test('normal paper, backup and book/status paths expose no synthetic experiment launcher', () => {
+test('ordinary paper is deferred while Development retains synthetic paper and backup without launching experiments', () => {
   const f = fixture();
   assert.equal(f.nodes().some(n => n.props.accessibilityLabel === 'Flugworkflow öffnen'), false);
-  f.press('Pressable','Flugbuch');f.nodes().find(n=>n.props.testID==='paper-assistant-entry')!.props.onPress();f.render();
+  f.press('Pressable','Flugbuch');assert.ok(f.nodes().some(n=>n.props.testID==='paper-flights-entry'));
+  assert.equal(f.nodes().some(n=>n.props.testID==='paper-assistant-entry'),false);
+  f.press('Pressable','Profil & Einstellungen öffnen');f.find('ProfileSettings').props.onTools();f.render();f.find('DevelopmentHub').props.onPaper();f.render();
   assert.ok(f.find('PaperStatus'));
   assert.equal(f.nodes().some(n => n.type === 'BookLab' || n.type === 'LabApp'), false);
   f.find('PaperStatus').props.onBackup(); f.render();
@@ -417,4 +419,18 @@ test('actual nested Settings routes preserve the observed action and Back path w
  diagnostics.diagnosticJournal.clear();const f=fixture();f.press('Pressable','Profil & Einstellungen öffnen');f.find('ProfileSettings').props.onNameDraftChange('Secret private name');f.render();
  f.find('ProfileSettings').props.onDiagnostics();f.render();f.headers().at(-1)!.props.back();f.render();
  const events=diagnostics.diagnosticJournal.journey();assert.ok(events.some(e=>e.kind==='screen'&&e.target==='profile'));assert.ok(events.some(e=>e.kind==='screen'&&e.target==='diagnostics'));assert.ok(events.some(e=>e.kind==='back'&&e.target==='diagnostics'));assert.ok(!diagnostics.diagnosticJournal.export().includes('Secret private name'));
+});
+
+test('ordinary backup opens real-flight options and Development retains synthetic profile drafts and separate backup',()=>{
+  const f=fixture();f.press('Pressable','Profil & Einstellungen öffnen');
+  f.find('ProfileSettings').props.onBackup();assert.deepEqual(f.calls,['core-library-route']);
+  f.find('ProfileSettings').props.onTools();f.render();
+  let profile=f.find('DevelopmentHub').props.profileTools as Element;
+  assert.equal(profile.type,'SyntheticProfileSettings');profile.props.onNameDraftChange('Development draft');f.render();
+  f.find('DevelopmentHub').props.onBackup();f.render();assert.ok(f.find('LibraryBackup'));
+  f.headers().at(-1)!.props.back();f.render();
+  profile=f.find('DevelopmentHub').props.profileTools as Element;assert.equal(profile.props.nameDraft,'Development draft');
+  f.headers().at(-1)!.props.back();f.render();f.find('ProfileSettings').props.onTools();f.render();
+  assert.equal((f.find('DevelopmentHub').props.profileTools as Element).props.nameDraft,'Development draft');
+  assert.equal(f.library.displayName,'Synthetic pilot');
 });

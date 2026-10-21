@@ -2,7 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 import { Action, Card, Label, Section } from './theme';
 
-export function DevelopmentHub({ onFlights, onBooks, onProvider, onImportPreview, onCoreFlights }: { onFlights: () => void; onBooks: () => void; onProvider: () => void; onImportPreview: () => void; onCoreFlights: () => void }) {
+export function DevelopmentHub({ onFlights, onBooks, onProvider, onImportPreview, onCoreFlights, profileTools, onSelectBook, onBackup, onPaper }: { onPaper: () => void; profileTools?: React.ReactNode; onSelectBook: () => void; onBackup: () => void; onFlights: () => void; onBooks: () => void; onProvider: () => void; onImportPreview: () => void; onCoreFlights: () => void }) {
   return <View style={{ width: '100%', maxWidth: 520, alignSelf: 'center', gap: 10 }}>
     <Card><Section title="Entwicklung" icon="info" />
       <Label>Testwerkzeuge dieses experimentellen Lab-Builds</Label>
@@ -20,6 +20,8 @@ export function DevelopmentHub({ onFlights, onBooks, onProvider, onImportPreview
       <Label muted>Getrennte Datensätze A/B, vorbereitete CSV- und Papierdaten, Abgleich, Abfragen und ältere Schreibnachweise. Englische Lab-Oberfläche; keine Live-Importvorschau.</Label>
       <Action testID="development-flight-lab" secondary icon="flight-paper-plane" onPress={onFlights}>Datensatztest öffnen</Action>
     </Card>
+    {profileTools}
+    <Card><Section title="Synthetische Bibliothek" icon="book" /><Action secondary onPress={onPaper}>Synthetischen Papierstand ansehen</Action><Action secondary onPress={onSelectBook}>Synthetisches Flugbuch auswählen</Action><Action secondary onPress={onBackup}>Synthetische Bibliothek sichern & wiederherstellen</Action><Label muted>Diese Sicherung enthält keine eigenen Vereinsflieger-Flüge oder Medical-Angaben.</Label></Card>
     <Card><Section title="Flugbücher & Papierexperimente" icon="book" />
       <Label muted>Vier synthetische Bücher, Formatvorschau, Korrekturen, feste Schreibstände und ältere Kopierbestätigungen. Änderungen betreffen die aktuelle synthetische Bibliothek. Der neue Papierablauf ist noch nicht umgesetzt.</Label>
       <Action testID="development-book-lab" secondary icon="book" onPress={onBooks}>Flugbuchtest öffnen</Action>

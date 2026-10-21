@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, AppState, BackHandler, Keyboard, KeyboardAvoidingView, Linking, Platform, Pressable, ScrollView, StatusBar, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
+import { AppState, BackHandler, Keyboard, KeyboardAvoidingView, Linking, Platform, Pressable, ScrollView, StatusBar, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { canonical, type Flight } from '@moflight/flight-logbook';
 import LabApp from '../App';
@@ -11,7 +11,7 @@ import { localQuestions, localInsight } from './local-insights';
 import { Dashboard } from './Dashboard';
 import { PlaneIcon, ProfileIcon, BookIcon } from './ShellIcons';
 import { SymbolIcon } from './SymbolIcon';
-import { ProfileSettings } from './ProfileSettings';
+import { ProfileSettings, SyntheticProfileSettings } from './ProfileSettings';
 import { Diagnostics } from './Diagnostics';
 import { initializeDiagnostics } from './diagnostics-native';
 import { diagnosticJournal } from '../diagnostics';
@@ -156,7 +156,6 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
   useEffect(() => { const listener=AppState.addEventListener('change',state=>{if(state==='active'||state==='background'||state==='inactive')diagnosticJournal.record('lifecycle',state);});return()=>listener.remove(); }, []);
   const openBooks = () => openHeaderSheet('paper');
   const openConnection = (development = false) => { setConnectionDevelopment(development); setConnectionOpen(true); };
-  const ask = (question: string) => { setDraft(question); setAiError(false); setTab('ai'); };
   const quickQuestions = localQuestions;
   const localQuery = (index: number) => {
     diagnosticJournal.record('action','local-query');
@@ -169,12 +168,6 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
     // No gateway exists: report a real unavailable state; never manufacture a response.
     setSending(true); setAiError(true); setSending(false);
   };
-  const stateBanner = <View style={s.stateBanner}>
-    <Label style={s.provenance}>ENTWICKLUNG · SYNTHETISCHE LOKALE BIBLIOTHEK</Label>
-    <View style={ui.row}><Pressable accessibilityRole="button" accessibilityLabel="Flugbuch auswählen" disabled={library.busy} onPress={() => setSheet('selectBook')} style={[ui.smallAction, { flex: 1 }]}><IconLabel name="down" size={14} muted>{book?.name ?? 'Noch kein Flugbuch'}</IconLabel></Pressable><Pressable accessibilityRole="button" accessibilityLabel="Lokale Daten aktualisieren" disabled={library.busy} onPress={() => void library.reload()} style={ui.smallAction}><IconLabel name="refresh" size={16} style={{ color: colors.cyan }}>Aktualisieren</IconLabel></Pressable></View>
-    {library.busy && <ActivityIndicator color={colors.cyan} accessibilityLabel="Lokale Flüge laden" />}
-    {library.error && <View accessibilityLiveRegion="polite"><Label style={{ color: '#ffbd9b' }}>{library.error}</Label><Action secondary onPress={() => void library.reload()}>Erneut versuchen</Action></View>}
-  </View>;
   const pageTitle = tabs.find(item => item.id === tab)!.title;
   const statusControls = <>
     <ConnectionIndicator controller={flightStatusController} onPress={() => openFlightFlow()} />
@@ -182,7 +175,7 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
     <Pressable accessibilityRole="button" accessibilityLabel="Profil & Einstellungen öffnen" accessibilityState={{ disabled: screenBusy }} disabled={screenBusy} onPress={() => openHeaderSheet('profile')} style={s.profileButton}><ProfileIcon /></Pressable>
   </>;
   const header = <AppHeader source={tab === 'club' ? clubAirfield : mountain} title={tab === 'ai' ? 'MoFlight AI' : tab === 'flights' ? flightHeader.title : pageTitle} back={tab === 'flights' ? flightHeader.back : undefined}
-    subtitle={tab === 'home' ? (library.displayName ? `Hallo, ${library.displayName}!` : 'Guten Tag!') : tab === 'ai' ? 'Dein Segelflug-Assistent' : 'MoFlight'}>{statusControls}</AppHeader>;
+    subtitle={tab === 'home' ? 'Guten Tag!' : tab === 'ai' ? 'Dein Segelflug-Assistent' : 'MoFlight'}>{statusControls}</AppHeader>;
   return <SafeAreaView edges={['top', 'left', 'right', 'bottom']} style={[s.root, keyboardOverlap > 0 && { paddingBottom: keyboardOverlap }]}>
     <View collapsable={false} style={[{ flex: 1 }, connectionOpen && s.hidden]} aria-hidden={connectionOpen} accessibilityElementsHidden={connectionOpen} importantForAccessibility={connectionOpen ? 'no-hide-descendants' : 'auto'}>
     <View collapsable={false} style={[{ flex: 1 }, overlayOpen && s.hidden]} aria-hidden={overlayOpen} accessibilityElementsHidden={overlayOpen} importantForAccessibility={overlayOpen ? 'no-hide-descendants' : 'auto'}>
@@ -191,10 +184,8 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
     <View style={[s.content, wide && { maxWidth: 960 }, tablet && !wide && { maxWidth: 600 }]}>
       <View style={[s.page, tab !== 'home' && s.hidden]} accessibilityElementsHidden={tab !== 'home'} importantForAccessibility={tab === 'home' ? 'auto' : 'no-hide-descendants'}>
         <ScrollView contentContainerStyle={s.canvas} keyboardShouldPersistTaps="handled">
-          <ConnectionSummary controller={flightStatusController} ownFlights={ownFlights.view} phase={ownFlights.phase} onUpdate={() => openFlightFlow(true)} onOpen={() => openFlightFlow()} />
-          <Dashboard ownFlights={ownFlights.view} ownFlightPhase={ownFlights.phase} pending={null} width={width} fontScale={fontScale} onPaper={() => openHeaderSheet('paperInfo')} onAi={() => ask('Mit welchem Flugzeug bin ich am häufigsten geflogen?')} onFlights={year => { diagnosticJournal.record('action','flights');diagnosticJournal.record('filter','year');setFlightRequest({ year: year ?? null }); setTab('flights'); }} onClub={() => { setClubSection('Dienste'); setTab('club'); }} onStatus={() => setSheet('status')} />
-          {stateBanner}
-          <Pressable accessibilityRole="button" onPress={() => setSheet('credits')} style={ui.smallAction}><Label muted>Bildnachweise & Lizenzen</Label></Pressable>
+          <ConnectionSummary compact controller={flightStatusController} ownFlights={ownFlights.view} phase={ownFlights.phase} onUpdate={() => openFlightFlow(true)} onOpen={() => openFlightFlow()} />
+          <Dashboard ownFlights={ownFlights.view} ownFlightPhase={ownFlights.phase} pending={null} width={width} fontScale={fontScale} onPaper={() => openHeaderSheet('paperInfo')} onFlights={year => { diagnosticJournal.record('action','flights');diagnosticJournal.record('filter','year');setFlightRequest({ year: year ?? null }); setTab('flights'); }} />
         </ScrollView>
       </View>
       <View style={[s.page, tab !== 'flights' && s.hidden]} accessibilityElementsHidden={tab !== 'flights'} importantForAccessibility={tab === 'flights' ? 'auto' : 'no-hide-descendants'}>
@@ -208,11 +199,7 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
       <View style={[s.page, tab !== 'logbook' && s.hidden]} accessibilityElementsHidden={tab !== 'logbook'} importantForAccessibility={tab === 'logbook' ? 'auto' : 'no-hide-descendants'}>
         <ScrollView contentContainerStyle={[s.canvas, { paddingTop: 10 }]}>
           <View style={{ width: '100%', maxWidth: 480, alignSelf: 'center', gap: 10 }}>
-            <Card><Section title="Mein Flugbuch" /><Label style={{ fontSize: 18, fontWeight: '600' }}>{book?.name ?? 'Noch kein Flugbuch ausgewählt'}</Label><Label muted>{book ? `${library.flights.length} gespeicherte Flüge · eigenes Papierprotokoll` : 'Ein bestehendes lokales Flugbuch auswählen.'}</Label><Action secondary onPress={() => setSheet('selectBook')}>Flugbuch auswählen</Action></Card>
-            <Card><Section title="Papierflugbuch" /><Label>{library.pending === null ? 'Papierstand unbekannt' : `${library.pending} Flüge ohne gespeicherten Papiernachweis`}</Label><Label muted>Gespeicherten Papierstand ansehen. Der vollständige Abgleich und neue Schreibvorlagen werden noch vorbereitet.</Label><Action testID="paper-assistant-entry" onPress={openBooks}>Papierstand ansehen</Action></Card>
-            <Card><Section title="Sicherung & Wiederherstellung" /><Label muted>Alle Flugbücher dieser synthetischen Bibliothek sichern oder eine vorhandene Sicherung in einer neuen Bibliothek öffnen.</Label><Action secondary icon="book" onPress={() => openHeaderSheet('backup')}>Sicherung & Wiederherstellung</Action></Card>
-            <Action secondary onPress={() => setTab('flights')}>Eigene Flüge ohne Buchzuordnung ansehen</Action>
-            {stateBanner}
+            <Card><Section title="Papierflugbuch später einrichten" /><Label>Das Einrichten deines Papierflugbuchs und die Zuordnung deiner Flüge werden noch vorbereitet.</Label><Label muted>Du kannst deine eigenen Flüge bereits laden, offline ansehen und auswerten. Dafür brauchst du kein Flugbuch.</Label><Action testID="paper-flights-entry" onPress={() => setTab('flights')}>Flüge ansehen</Action></Card>
           </View>
         </ScrollView>
       </View>
@@ -248,8 +235,8 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
     {overlayOpen && <View style={[StyleSheet.absoluteFill, s.modal]} accessibilityViewIsModal>
       <AppHeader source={mountain} back={closeOverlay} backDisabled={screenBusy} title={detail ? 'Flugdetails' : sheet === 'paper' || sheet === 'paperInfo' ? 'Papierflugbuch' : sheet === 'development' ? 'Entwicklung' : sheet === 'importPreview' ? 'Importvorschau' : sheet === 'flightLab' ? 'Datensatztest' : sheet === 'bookLab' ? 'Flugbuchtest' : sheet === 'backup' ? 'Sicherung' : sheet === 'diagnostics' ? 'Diagnose' : sheet === 'profile' ? 'Profil & Einstellungen' : sheet === 'medical' ? 'Medical' : 'MoFlight'}>{statusControls}</AppHeader>
         {sheet === 'flightLab' ? <><DevelopmentNotice /><LabApp providerOwned={true} embedded onBusyChange={setScreenBusy} /></> : sheet === 'bookLab' ? <><DevelopmentNotice /><BookLab close={closeOverlay} onBusyChange={setScreenBusy} /></> : <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}><ScrollView ref={overlayScroll} key={overlayKey} contentOffset={{ x: 0, y: overlayOffsets.current[overlayKey] ?? 0 }} onScroll={event => { overlayOffsets.current[overlayKey] = event.nativeEvent.contentOffset.y; }} scrollEventThrottle={32} contentContainerStyle={s.canvas} keyboardShouldPersistTaps="handled">
-          {sheet === 'profile' && <ProfileSettings connectionSummary={<ConnectionSummary controller={connection} ownFlights={ownFlights.view} phase={ownFlights.phase} onUpdate={() => openFlightFlow(true)} onOpen={() => openFlightFlow()} />} onConnections={() => openFlightFlow()} onTools={() => openHeaderSheet('development')} onBackup={() => openHeaderSheet('backup')} onDiagnostics={() => openHeaderSheet('diagnostics')} onStatus={() => openHeaderSheet('status')} onCredits={() => openHeaderSheet('credits')} onBooks={() => openHeaderSheet('selectBook')} displayName={library.displayName} nameDraft={profileNameDraft} onNameDraftChange={setProfileNameDraft} busy={library.busy} error={library.error} onSaveName={library.saveDisplayName} onRetry={() => void library.reload()} />}
-          {sheet === 'development' && <DevelopmentHub onFlights={() => openHeaderSheet('flightLab')} onBooks={() => openHeaderSheet('bookLab')} onProvider={() => openConnection(true)} onImportPreview={() => openHeaderSheet('importPreview')} onCoreFlights={()=>{if(connection.suspendBrowserForOwnerSwitch())onCoreFlights();}} />}
+          {sheet === 'profile' && <ProfileSettings connectionSummary={<ConnectionSummary controller={flightStatusController} ownFlights={ownFlights.view} phase={ownFlights.phase} onUpdate={() => openFlightFlow(true)} onOpen={() => openFlightFlow()} />} onConnections={() => openFlightFlow()} onTools={() => openHeaderSheet('development')} onBackup={() => openFlightFlow()} onDiagnostics={() => openHeaderSheet('diagnostics')} onStatus={() => openHeaderSheet('status')} onCredits={() => openHeaderSheet('credits')} onBooks={() => openHeaderSheet('selectBook')} displayName={library.displayName} nameDraft={profileNameDraft} onNameDraftChange={setProfileNameDraft} busy={library.busy} error={library.error} onSaveName={library.saveDisplayName} onRetry={() => void library.reload()} />}
+          {sheet === 'development' && <DevelopmentHub onPaper={openBooks} profileTools={<SyntheticProfileSettings displayName={library.displayName} nameDraft={profileNameDraft} onNameDraftChange={setProfileNameDraft} busy={library.busy} error={library.error} onSaveName={library.saveDisplayName} onRetry={() => void library.reload()} />} onSelectBook={() => openHeaderSheet('selectBook')} onBackup={() => openHeaderSheet('backup')} onFlights={() => openHeaderSheet('flightLab')} onBooks={() => openHeaderSheet('bookLab')} onProvider={() => openConnection(true)} onImportPreview={() => openHeaderSheet('importPreview')} onCoreFlights={()=>{if(connection.suspendBrowserForOwnerSwitch())onCoreFlights();}} />}
           {sheet === 'importPreview' && <ImportPreview session={importPreview} onChange={setImportPreview} onNavigate={() => { overlayOffsets.current.importPreview = 0; overlayScroll.current?.scrollTo({ y: 0, animated: false }); }} />}
           {sheet === 'diagnostics' && <Diagnostics />}
           {sheet === 'backup' && <LibraryBackup onBusyChange={setScreenBusy} />}

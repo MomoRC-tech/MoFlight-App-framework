@@ -12,6 +12,16 @@ The choices below are confirmed product intent. They do not establish provider c
 
 Manuel requested journeys and needed information before choosing overall layouts. The three earlier in-chat German concepts are exploratory and unselected; their explicit completion-checkbox flow is now outdated. Figma files and reviewed application wireframes have not been created. Keep UI text German, documentation/communication English. Ask one focused question at a time, offer clickable suggested answers and free text, and wait for an actual reply. A preselected option is not an answer. Confirm the preceding answer before opening the next question.
 
+## Smaller everyday interface — selected 21 October 2026
+
+Manuel instructed starting packages 1 and 2 of the reviewed [ordered plan](../project-plan.md#ordered-open-issue-implementation-plan--review-21-october-2026). This authorizes the bounded #22/#20 UI slice: first use has one concise original-provider login/data-load entry; a ready associated account shows compact saved count/date/update followed by season and latest-flight facts. A local library created before cancelled sign-in is not completed onboarding; omit its empty dashboard. A verified account with zero saved flights retains truthful zero/unknown values.
+
+Keep the five labeled tabs, header, colors, symbols and season rings. Remove unavailable AI/club/weather promotions from Start and reduce the deferred-paper entry to a quiet secondary link. The ordinary Flugbuch destination explains that real setup remains deferred and links to saved flights. Synthetic profile/book/paper/backup operations remain accessible under Development, preserving their stores and drafts; ordinary backup administration opens the existing real-flight options and discloses current exclusions, including Medical.
+
+Flüge rows emphasize date, aircraft, route and reported duration; original IDs/revisions/fields and missing-track context remain in details. Keep collapsed coverage, actionable recovery warnings, account isolation and offline/error/retry states. Rendering/navigating does not trigger provider retrieval. These are selected behavior/composition changes, not full native, physical, spoken-accessibility or iOS acceptance.
+
+For #31's bounded help review, prefer contextual explanations beside unfamiliar app states and a small maintained offline glossary/FAQ if separately selected. This keeps help available without a service or personal-history upload. The “What is PIC?” example would explain the term with source/context and return to the original screen; it must not infer credited roles or alter records. No glossary content set, new Help destination, AI backend/model/budget or implementation beyond the selected existing-screen copy is chosen here.
+
 ## Start data updates only on relevant change — 21 October 2026
 
 **Selected general requirement, Manuel:** only update the Start screen's data if something changed. Applies to every Start card, statistic and status, including future content; tracking: [#45](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/45), coordinated with #9/#20/#22.

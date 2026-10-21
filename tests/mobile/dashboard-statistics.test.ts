@@ -27,7 +27,7 @@ function render(flights:any[], phase='ready', fontScale=1) {
   const exports:any={};runInNewContext(source,{exports,Date:class extends Date {getFullYear(){return 2026;}},require:(name:string)=>{
     if(name.startsWith('../../assets/'))return name;assert.ok(name in modules,name);return modules[name];}});
   const calls:(number|undefined)[]=[];
-  const props:any={ownFlights:{flights,snapshot:{savedRetrievals:[]}},ownFlightPhase:phase,pending:null,width:390,fontScale,
+  const props:any={ownFlights:{flights,snapshot:{account:{accountRef:'101'},savedRetrievals:[]}},ownFlightPhase:phase,pending:null,width:390,fontScale,
     onFlights:(year?:number)=>calls.push(year)};
   const tree=exports.Dashboard(props);
   const nodes:Element[]=[];function visit(n:any){if(n?.children){nodes.push(n);n.children.forEach(visit);}}visit(tree);
@@ -51,7 +51,7 @@ test('real season rings use deduplicated aircraft shares and the card supplies i
 
 test('empty/unknown-only rings invent no time; unavailable states and enlarged text keep honest alternatives',()=>{
   const empty=render([]),rings=empty.nodes.filter(n=>n.type==='SeasonRing');
-  assert.ok(empty.nodes.some(n=>n.type==='Card'&&n.props.label==='Informationen zum Papierflugbuch ansehen'));
+  assert.ok(empty.nodes.some(n=>n.type==='Pressable'&&n.props.accessibilityLabel==='Informationen zum Papierflugbuch ansehen'));
   assert.equal(rings[0]!.props.value,'0');assert.equal(rings[1]!.props.value,'—');
   assert.deepEqual(rings[1]!.props.slices,[]);
   for(const phase of ['loading','failed','missing'])assert.equal(render([],phase).nodes.filter(n=>n.type==='SeasonRing').length,0);
@@ -81,4 +81,22 @@ test('retrieval or Medical changes and temporary unavailability do not reprocess
   f.changeView(null);assert.equal(f.calculations(),count);
   f.changeView(structuredClone(next));assert.equal(f.calculations(),count);
   f.changeView({...next,snapshot:{...next.snapshot,ownerId:'other'}});assert.equal(f.calculations(),count+1);
+});
+
+test('first-use/loading/failure dashboard avoids empty promotions; returning dashboard leads with saved season and flights',()=>{
+  for(const phase of ['loading','failed','missing']) assert.equal(render([],phase).nodes.length,0);
+  const f=render(ownFlightFixture().flights);
+  assert.deepEqual(f.nodes.filter(n=>n.type==='Section').map(n=>n.props.title),['Deine Saison','Zuletzt datiert']);
+  const season=f.nodes.findIndex(n=>n.type==='SeasonRing');
+  const paper=f.nodes.findIndex(n=>n.props.accessibilityLabel==='Informationen zum Papierflugbuch ansehen');
+  assert.ok(season>=0&&paper>season);assert.ok(!f.text.includes('Kein gespeicherter Track'));
+  f.nodes.find(n=>n.type==='Card'&&n.props.label==='Gespeicherte Flüge öffnen')!.props.onPress();
+  assert.deepEqual(f.calls,[undefined]);
+});
+
+test('cancelled first login leaves no empty dashboard while a returning empty account keeps truthful zero and unknown time',()=>{
+  const f=render([]);assert.equal(f.changeView({flights:[],snapshot:{account:null,savedRetrievals:[]}}),null);
+  const tree=f.changeView({flights:[],snapshot:{account:{accountRef:'101'},savedRetrievals:[]}});
+  const rings:any[]=[];const visit=(n:any)=>{if(n?.type==='SeasonRing')rings.push(n);n?.children?.forEach(visit);};visit(tree);
+  assert.deepEqual(rings.map(r=>r.props.value),['0','—']);
 });
