@@ -5,6 +5,7 @@ import { runInNewContext } from 'node:vm';
 import ts from 'typescript';
 import { canonical } from '../../packages/flight-logbook/src/index.ts';
 import { medicalSource } from '../../apps/platform-lab/src/mobile/medical-source.ts';
+import { ownFlightConnectionState, connectionSymbol } from '../../apps/platform-lab/src/mobile/connection-guidance.ts';
 
 interface Element { type: unknown; props: Record<string, any>; children: unknown[] }
 const source = ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/mobile/MobileApp.tsx', import.meta.url), 'utf8'), {
@@ -30,6 +31,7 @@ function fixture() {
   const controller = { visible: false, informationCaptures: [], connection: { phase: 'unknown' }, refreshRecovery: () => calls.push('refresh-recovery'), dismissLogin() {}, backWithinProvider: () => false, suspendBrowserForOwnerSwitch: () => true };
   const calls: string[] = [];
   let suspended = false;
+  let lastLoad:any=null, ownView:any=null, appStateListener:((state:string)=>void)|undefined;
   Object.assign(controller, { connect: () => calls.push('connect'), checkConnection: () => calls.push('check'), retrieve: () => calls.push('retrieve') });
   let hardwareBack: () => boolean;
   const leaves = (names: string[]) => Object.fromEntries(names.map(name => [name, name]));
@@ -37,6 +39,7 @@ function fixture() {
     react: { default: react, ...react },
     'react-native': { ...leaves(['ActivityIndicator', 'FlatList', 'KeyboardAvoidingView', 'Pressable', 'ScrollView', 'StatusBar', 'Text', 'TextInput', 'View']),
       Keyboard: { addListener: () => ({ remove() {} }), dismiss() {} },
+      AppState: { addEventListener: (_:string,handler:(state:string)=>void) => {appStateListener=handler;return {remove(){}};} },
       BackHandler: { addEventListener: (_: string, handler: () => boolean) => { hardwareBack = handler; return { remove() {} }; } },
       Linking: {}, Platform: { OS: 'android' }, StyleSheet: { create: (s: unknown) => s, absoluteFill: {} },
       useWindowDimensions: () => ({ width: 390, height: 900, fontScale: 1 }),
@@ -59,9 +62,10 @@ function fixture() {
     './ImportPreview': leaves(['ImportPreview']),
     './CoreFlightFoundation': leaves(['CoreFlightFoundation']),
     './OwnFlights': leaves(['OwnFlights']),
-    './use-own-flights': { useOwnFlights: () => ({ view: null, phase: 'missing' }) },
+    './use-own-flights': { useOwnFlights: () => ({ view: ownView, phase: ownView?'ready':'missing' }) },
     './own-flight-reader-native': { ownFlightReadPorts: {} },
     './ConnectionSummary': leaves(['ConnectionSummary']), './medical-source': { medicalSource },
+    './connection-guidance': { ownFlightConnectionState },
   };
   const exports = {} as { Shell: () => Element };
   runInNewContext(source + '\nexports.Shell = Shell;', { exports, require: (name: string) => {
@@ -69,7 +73,7 @@ function fixture() {
     assert.ok(name in modules, name); return modules[name];
   } });
   let tree: Element;
-  function render() { index = 0; tree = (exports.Shell as (props:unknown)=>Element)({onCoreFlights:(startUpdate:boolean)=>calls.push(startUpdate?'core-load':'core-library-route')}); effects.splice(0).forEach(effect => effect()); return tree; }
+  function render() { index = 0; tree = (exports.Shell as (props:unknown)=>Element)({lastLoad,onCoreFlights:(startUpdate:boolean)=>calls.push(startUpdate?'core-load':'core-library-route')}); effects.splice(0).forEach(effect => effect()); return tree; }
   function nodes() {
     const found: Element[] = [];
     const visit = (value: unknown) => { if (value && typeof value === 'object' && 'children' in value) { const node = value as Element; found.push(node); node.children.forEach(visit); if (node.type === 'FlatList') visit(node.props.ListHeaderComponent); } };
@@ -88,8 +92,29 @@ function fixture() {
     render();
   }
   render(); render();
-  return { render, nodes, find, headers, parent, press, openOwnDetail, flight, library, controller, calls, suspended: () => suspended, hardwareBack: () => hardwareBack!() };
+  return { render, nodes, find, headers, parent, press, openOwnDetail, flight, library, controller, calls, suspended: () => suspended, hardwareBack: () => hardwareBack!(),
+    showLoad:(result:any,view:any)=>{lastLoad=result;ownView=view;render();render();},
+    appState:(state:string)=>{appStateListener?.(state);render();} };
 }
+
+test('real-flight verification updates both shell summaries without authorizing the legacy controller and expires on background',()=>{
+  const f=fixture();
+  const state={phase:'observed',confirmed:true,lastCheckedAt:'2026-10-21T07:00:00.000Z',observed:{accountNumber:'101',clubLabel:'Synthetic',clubIdentity:'display-label-only',verification:'observed-profile-number'}};
+  const result={added:2,changed:0,pending:0,verifiedConnection:{ownerId:'real-owner',state}};
+  const view={snapshot:{ownerId:'real-owner',account:{accountRef:'101'}}};
+  f.showLoad(result,view);
+  assert.equal(connectionSymbol(f.find('ConnectionIndicator').props.controller.connection).mark,'✓');
+  assert.equal(f.find('ConnectionSummary').props.controller.connection.lastCheckedAt,state.lastCheckedAt);
+  assert.equal(f.controller.connection.phase,'unknown');assert.deepEqual(f.calls,[]);
+  f.appState('background');f.appState('active');
+  assert.equal(connectionSymbol(f.find('ConnectionIndicator').props.controller.connection).mark,'?');
+  for(const foreign of [{snapshot:{ownerId:'other',account:{accountRef:'101'}}},{snapshot:{ownerId:'real-owner',account:{accountRef:'102'}}}]){
+    f.showLoad({...result},foreign);assert.equal(connectionSymbol(f.find('ConnectionIndicator').props.controller.connection).mark,'?');
+  }
+  f.showLoad(null,view);assert.equal(connectionSymbol(f.find('ConnectionIndicator').props.controller.connection).mark,'?');
+  f.showLoad({...result,verifiedConnection:{ownerId:'real-owner',state:{...state,confirmed:false}}},view);
+  assert.equal(connectionSymbol(f.find('ConnectionIndicator').props.controller.connection).mark,'?');
+});
 
 test('app headers order connection, Medical and profile on every tab', () => {
   const f = fixture();

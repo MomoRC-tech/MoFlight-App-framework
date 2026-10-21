@@ -1,5 +1,15 @@
 import type { ConnectionState } from '../vereinsflieger/connection-state';
 
+export interface OwnFlightConnectionEvidence { ownerId: string; state: ConnectionState }
+/** Read-only handoff from the successful foreground flow, never authorization. */
+export function ownFlightConnectionState(evidence: OwnFlightConnectionEvidence | null | undefined,
+  ownerId: string | undefined, accountRef: string | undefined): ConnectionState {
+  const state=evidence?.state;
+  if(evidence?.ownerId===ownerId && ownerId && accountRef && state?.phase==='observed' &&
+    state.confirmed && state.observed?.accountNumber===accountRef && state.lastCheckedAt) return state;
+  return {phase:'unknown',confirmed:false,observed:null,lastCheckedAt:null};
+}
+
 /** Non-color cues describe session evidence, never saved-flight freshness. */
 export function connectionSymbol(state: ConnectionState) {
   if (state.phase === 'observed' && state.confirmed && state.observed && state.lastCheckedAt) return { mark: '✓', color: '#74dfba' };

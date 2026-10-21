@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, BackHandler, Keyboard, KeyboardAvoidingView, Linking, Platform, Pressable, ScrollView, StatusBar, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
+import { ActivityIndicator, AppState, BackHandler, Keyboard, KeyboardAvoidingView, Linking, Platform, Pressable, ScrollView, StatusBar, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { canonical, type Flight } from '@moflight/flight-logbook';
 import LabApp from '../App';
@@ -28,6 +28,7 @@ import { medicalSource } from './medical-source';
 import { OwnFlights, type OwnFlightHeader } from './OwnFlights';
 import { useOwnFlights } from './use-own-flights';
 import { ownFlightReadPorts } from './own-flight-reader-native';
+import { ownFlightConnectionState, type OwnFlightConnectionEvidence } from './connection-guidance';
 
 const mountain = require('../../assets/aviation/mountain-header-v2.jpg');
 const windsock = require('../../assets/aviation/windsock.jpg');
@@ -49,6 +50,12 @@ export default function MobileApp() {
 }
 function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLoad=null}:{onCoreFlights?:(startUpdate?:boolean)=>void;coreFlightsOpen?:boolean;flightReload?:number;lastLoad?:FlightLoadResult|null}={}) {
   const connection = useAccessController(true, PILOT);
+  const [recentConnection,setRecentConnection]=useState<OwnFlightConnectionEvidence|null>(null);
+  useEffect(()=>{
+    setRecentConnection(lastLoad?.verifiedConnection??null);
+    const listener=AppState.addEventListener('change',state=>{if(state!=='active')setRecentConnection(null);});
+    return()=>listener.remove();
+  },[lastLoad]);
   const medical = medicalSource(connection.informationCaptures, PILOT);
   const [connectionOpen, setConnectionOpen] = useState(false);
   const [connectionDevelopment, setConnectionDevelopment] = useState(false);
@@ -95,6 +102,10 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
   }, [toolsOpen]);
   const library = useLibrary(toolsOpen || sheet === 'backup');
   const ownFlights = useOwnFlights(ownFlightReadPorts, (tab === 'home' || sheet === 'profile') && !connectionOpen && !coreFlightsOpen, flightReload);
+  // Presentation only. The legacy provider controller must never gain the real
+  // owner's authorization or pretend its synthetic-owner observation is current.
+  const flightStatusController={...connection,connection:ownFlightConnectionState(recentConnection,
+    ownFlights.view?.snapshot.ownerId,ownFlights.view?.snapshot.account?.accountRef)};
   const libraryRevision = canonical([library.bookId, library.flights]);
   useEffect(() => { setProfileNameDraft(library.displayName); }, [library.displayName]);
   const { width, height, fontScale } = useWindowDimensions();
@@ -157,7 +168,7 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
   </View>;
   const pageTitle = tabs.find(item => item.id === tab)!.title;
   const statusControls = <>
-    <ConnectionIndicator controller={connection} onPress={() => openFlightFlow()} />
+    <ConnectionIndicator controller={flightStatusController} onPress={() => openFlightFlow()} />
     <MedicalIndicator capture={medical} active={sheet === 'medical'} disabled={screenBusy} onPress={() => openHeaderSheet('medical')} />
     <Pressable accessibilityRole="button" accessibilityLabel="Profil & Einstellungen öffnen" accessibilityState={{ disabled: screenBusy }} disabled={screenBusy} onPress={() => openHeaderSheet('profile')} style={s.profileButton}><ProfileIcon /></Pressable>
   </>;
@@ -171,7 +182,7 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
     <View style={[s.content, wide && { maxWidth: 960 }, tablet && !wide && { maxWidth: 600 }]}>
       <View style={[s.page, tab !== 'home' && s.hidden]} accessibilityElementsHidden={tab !== 'home'} importantForAccessibility={tab === 'home' ? 'auto' : 'no-hide-descendants'}>
         <ScrollView contentContainerStyle={s.canvas} keyboardShouldPersistTaps="handled">
-          <ConnectionSummary controller={connection} ownFlights={ownFlights.view} phase={ownFlights.phase} onUpdate={() => openFlightFlow(true)} onOpen={() => openFlightFlow()} />
+          <ConnectionSummary controller={flightStatusController} ownFlights={ownFlights.view} phase={ownFlights.phase} onUpdate={() => openFlightFlow(true)} onOpen={() => openFlightFlow()} />
           <Dashboard ownFlights={ownFlights.view} ownFlightPhase={ownFlights.phase} pending={null} width={width} fontScale={fontScale} onPaper={() => openHeaderSheet('paperInfo')} onAi={() => ask('Mit welchem Flugzeug bin ich am häufigsten geflogen?')} onFlights={year => { setFlightRequest({ year: year ?? null }); setTab('flights'); }} onClub={() => { setClubSection('Dienste'); setTab('club'); }} onStatus={() => setSheet('status')} />
           {stateBanner}
           <Pressable accessibilityRole="button" onPress={() => setSheet('credits')} style={ui.smallAction}><Label muted>Bildnachweise & Lizenzen</Label></Pressable>

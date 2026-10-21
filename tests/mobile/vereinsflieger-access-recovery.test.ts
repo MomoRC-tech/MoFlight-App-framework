@@ -249,9 +249,27 @@ function fixture(options: { noNativeRecovery?: boolean; failLegacyRead?: boolean
 
 const observedContext = { accountNumber: '123', clubLabel: 'Synthetic Club', clubIdentity: 'display-label-only', verification: 'observed-profile-number' } as const;
 
-test('combined action checks retained session and binds only a fresh matching profile without a confirmation tap',async()=>{
+test('first combined entry opens original login visibly without a hidden profile preflight',async()=>{
   const f=fixture({product:true});f.render();await f.settle(null);await f.flush();
   f.controller().beginGuidedFlightConnection();
+  assert.equal(f.controller().visible,true);
+  assert.equal(f.controller().url,probe.LOGIN_URL);
+  assert.notEqual(f.controller().connection.phase,'checking');
+  assert.equal(f.scopeWrites(),0);
+  await f.loadPage(probe.LOGIN_URL);
+  assert.equal(f.controller().visible,true);
+  assert.equal(f.injections.some(script=>script.includes('vf-context-v1')),false);
+  await f.loadPage('https://vereinsflieger.de/member/index.php');
+  assert.equal(f.controller().connection.phase,'checking');
+  await f.loadPage(context.PROFILE_URL);await f.contextMessage(observedContext);
+  assert.equal(f.controller().connection.confirmed,true);assert.equal(f.scopeWrites(),1);
+  f.unmount();
+});
+
+test('combined action binds only a fresh matching profile and checks that session on repeat',async()=>{
+  const f=fixture({product:true});f.render();await f.settle(null);await f.flush();
+  f.controller().beginGuidedFlightConnection();
+  await f.loadPage('https://vereinsflieger.de/member/index.php');
   assert.equal(f.controller().connection.phase,'checking');
   await f.loadPage(context.PROFILE_URL);await f.contextMessage(observedContext);await f.flush();
   assert.equal(f.controller().connection.confirmed,true);assert.equal(f.controller().visible,false);assert.equal(f.scopeWrites(),1);
@@ -262,11 +280,25 @@ test('combined action checks retained session and binds only a fresh matching pr
   f.unmount();
 });
 
+test('returning combined entry checks protected profile before exposing login',async()=>{
+  const f=fixture({product:true,persistedScope:{version:1,owner:'synthetic-pilot',connectionId:'prior',context:observedContext}});
+  f.render();await f.settle(null);await f.flush();
+  f.controller().beginGuidedFlightConnection();
+  assert.equal(f.controller().url,context.PROFILE_URL);
+  assert.equal(f.controller().connection.phase,'checking');assert.equal(f.controller().visible,false);
+  await f.loadPage(context.PROFILE_URL);await f.loadPage(probe.LOGIN_URL);
+  await f.contextMessage({error:'session-required'},probe.LOGIN_URL,undefined,probe.LOGIN_URL,'vf-login-required-v1');
+  assert.equal(f.controller().visible,true);assert.equal(f.controller().connection.confirmed,false);
+  await f.loadPage('https://vereinsflieger.de/member/index.php');
+  await f.loadPage(context.PROFILE_URL);await f.contextMessage({...observedContext,accountNumber:'456'});
+  assert.equal(f.controller().connection.phase,'mismatch');assert.equal(f.scopeWrites(),0);
+  f.unmount();
+});
+
 test('combined login resumes after original-page authentication but never after dismissal or background',async()=>{
   for(const stop of ['none','dismiss','background'] as const){
     const f=fixture({product:true});f.render();await f.settle(null);await f.flush();
-    f.controller().beginGuidedFlightConnection();await f.loadPage(context.PROFILE_URL);await f.loadPage(probe.LOGIN_URL);
-    await f.contextMessage({error:'session-required'},probe.LOGIN_URL,undefined,probe.LOGIN_URL,'vf-login-required-v1');
+    f.controller().beginGuidedFlightConnection();await f.loadPage(probe.LOGIN_URL);
     assert.equal(f.controller().visible,true);assert.equal(f.scopeWrites(),0);
     if(stop==='dismiss')f.controller().dismissLogin();
     if(stop==='background'){f.appState('background');f.appState('active');}

@@ -272,12 +272,14 @@ export function useAccessController(product = false, localOwner?: string) {
     session.current.invalidate(); syncConnection(); setVisible(true); setResult('none');
     navigate(LOGIN_URL);
   }
-  // An explicit combined action checks retained cookies before requesting login.
+  // First use follows the same visible login route as Connect. A saved
+  // association uses the protected profile to check retained cookies first.
   function beginGuidedFlightConnection() {
     if (!product || !viewReady || !foreground.current || contextRequest.current || busy || saving || recovery || bindingBusy.current || clearingStore.current || disconnectMode.current) return;
     guidedFlightLogin.current = true;
     clearCompletedFlightSource(); setResult('none');
-    checkConnection();
+    if (scope.current) checkConnection();
+    else connect();
   }
   function endGuidedFlightConnection() { guidedFlightLogin.current = false; }
   function suspendBrowserForOwnerSwitch(): boolean {

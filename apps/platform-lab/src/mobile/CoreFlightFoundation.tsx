@@ -24,8 +24,10 @@ import { Action, Card, Label, Section, colors } from './theme';
 import { planFlightRetrieval } from '../vereinsflieger/retrieval-policy';
 import { dataFreshness } from './data-freshness';
 import { ownFlightReadPorts } from './own-flight-reader-native';
+import type { OwnFlightConnectionEvidence } from './connection-guidance';
 
-export interface FlightLoadResult { added: number; changed: number; pending: number; from: string; to: string }
+export interface FlightLoadResult { added: number; changed: number; pending: number; from: string; to: string;
+  verifiedConnection?: OwnFlightConnectionEvidence }
 export function CoreFlightFoundation({ close, startUpdate = false }: {close: (result?: FlightLoadResult) => void; startUpdate?: boolean}) {
   const [requestedUpdate,setRequestedUpdate] = useState(startUpdate);
   const registry = useRef<RealOwnerRegistry | null>(null), alive = useRef(true), lock = useRef(false);
@@ -217,7 +219,8 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,takeInitialReposit
     const result=await service.saveVerifiedReview(next,selected.observed);
     await refresh();
     if(alive.current&&foreground.current)close({added:result.counts.added,changed:result.counts.changed,pending:result.counts.pending,
-      from:next.source.requestedWindow.from,to:next.source.requestedWindow.to});
+      from:next.source.requestedWindow.from,to:next.source.requestedWindow.to,
+      verifiedConnection:{ownerId:lease.ownerId,state:selected}});
   }
   function loadFlights() {
     if(lock.current)return;
