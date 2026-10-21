@@ -111,7 +111,7 @@
     "wholeTrialStatus": "failed",
     "acceptedStages": [
       "populated Start uses saved library and primary update action",
-      "one Start action freshly verifies retained session, retrieves, saves and returns to ordinary Fl\u00fcge"
+      "one Start action freshly verifies retained session, retrieves, saves and returns to ordinary Flüge"
     ],
     "boundary": "The helper later failed while completing the OS folder picker; this is accepted stage evidence, not a whole-trial pass.",
     "observedActionToResultSeconds": 252.67199999996228,
@@ -214,6 +214,129 @@
       "Medical excluded from own-flight backup",
       "no performance improvement claim",
       "concurrent cache/diagnostics work excluded from APK"
+    ]
+  },
+  "persistentProgress": {
+    "implementationSource": "404bd086b8f49427476b2ef6ca1c9f35bacbc0bd",
+    "apkSource": "82f293f4028ca27b832736d4808edaa98d9292cd",
+    "apkSha256": "647d84416267152d0c27c04a269f1b3b8508e45938ce6db0417c07b90aaae9ec",
+    "acceptance": "partial; live restoration blocked; no release published",
+    "host": {
+      "source": "82f293f",
+      "mobileTests": 670,
+      "pythonTests": 110,
+      "typecheck": true,
+      "lint": true,
+      "fixtures": true,
+      "androidExport": true,
+      "iosExport": true
+    },
+    "finalGeometryHost": {
+      "source": "404bd08",
+      "focusedTests": 130,
+      "typecheck": true
+    },
+    "firstEntryHome": {
+      "source": "72f9bdc0e7d22aa14373be6c3486d3f2fe00ac30",
+      "completedAssertions": [
+        "fresh one-button entry shows persistent progress and original login on the same screen",
+        "actual Android activity background/return preserves synthetic login input and continues waiting for authentication without retrieval"
+      ],
+      "overallRunStatus": "failed",
+      "laterFailure": "matrix harness/configuration interruption; not a complete native pass"
+    },
+    "portraitMatrix": {
+      "source": "72f9bdc0e7d22aa14373be6c3486d3f2fe00ac30",
+      "captures": [
+        {
+          "widthDp": 390,
+          "heightDp": 900,
+          "densityDpi": 160,
+          "fontScale": 1,
+          "capture": "main390"
+        },
+        {
+          "widthDp": 360,
+          "heightDp": 900,
+          "densityDpi": 160,
+          "fontScale": 1,
+          "capture": "min360"
+        },
+        {
+          "widthDp": 360,
+          "heightDp": 900,
+          "densityDpi": 160,
+          "fontScale": 1.4,
+          "capture": "large360"
+        },
+        {
+          "widthDp": 600,
+          "heightDp": 900,
+          "densityDpi": 160,
+          "fontScale": 1,
+          "capture": "wide600"
+        }
+      ],
+      "overallRunStatus": "failed",
+      "laterFailure": "landscape login reachability; final geometry changed"
+    },
+    "shortScreen": {
+      "status": "passed",
+      "source": "82f293f4028ca27b832736d4808edaa98d9292cd",
+      "checks": [
+        "final committed APK shows first-use progress and original sign-in together at MAIN390",
+        "short-screen progress leaves the original login action reachable in landscape",
+        "cancellation stays in the same progress card with explicit retry and no confirmed save",
+        "retry returns to original sign-in in the same retained progress screen",
+        "actual offline process restart preserves empty own library after cancelled sign-in"
+      ],
+      "credentialsSubmitted": 0,
+      "matrix": [
+        {
+          "widthDp": 800,
+          "heightDp": 450,
+          "densityDpi": 160,
+          "fontScale": 1,
+          "loginActionReachable": true
+        }
+      ],
+      "networkRestored": {
+        "airplane_mode_on": "1",
+        "wifi_on": "0",
+        "mobile_data": "0"
+      },
+      "displayRestored": true
+    },
+    "retainedSession": {
+      "source": "72f9bdc0e7d22aa14373be6c3486d3f2fe00ac30",
+      "status": "failed",
+      "verifiedAccount": true,
+      "retrievalBegan": true,
+      "flightSaveConfirmed": false,
+      "medicalCompleted": false,
+      "failure": "provider-view restoration remained pending"
+    },
+    "recoveryCleanup": {
+      "status": "blocked",
+      "reason": "Bounded guarded provider-view recovery did not reach a confirmed result; helper stopped, journal retained.",
+      "source": "72f9bdc0e7d22aa14373be6c3486d3f2fe00ac30",
+      "credentialsSubmitted": 0,
+      "originalApkRestored": true,
+      "finalApkSha256": "0f183c0b382fd64af53ace9365a99c0d33f60dc9183095631db52b2eb593011d",
+      "networkRestored": {
+        "airplane_mode_on": "0",
+        "wifi_on": "1",
+        "mobile_data": "1"
+      },
+      "displayRestored": true
+    },
+    "limits": [
+      "No complete native live success; final 404bd08 render fence not native-retested",
+      "Physical credential chooser/credential submission untested",
+      "Home return is not Autofill acceptance",
+      "Provider preference restoration unconfirmed; preserve journal",
+      "No iOS runtime or spoken accessibility",
+      "No latency improvement or published replacement APK"
     ]
   }
 }

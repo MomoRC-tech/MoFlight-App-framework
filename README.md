@@ -7,6 +7,8 @@
 
 # MoFlight
 
+**Persistent data-loading screen — 21 October 2026:** “Anmelden & Daten laden” / “Daten aktualisieren” now stays in one progress screen through login, verification, flight save and Medical. The original login form survives a safe sign-in foreground return; completed or partial results remain until acknowledgement. Interactive sign-in wait is separate from flight-response timeouts. [Source-specific checks, Android evidence and remaining phone/iOS limits](docs/verification/2026-10-21-simple-flight-loading.md#persistent-login-to-data-progress--21-october-2026).
+
 **Android retrieval follow-up — 21 October 2026:** The combined action now coordinates independent flight and other-data jobs (currently own Medical class/expiry). First use opens original login visibly; successful real-account verification reaches Start/header. Medical source fields/date reopen offline without a validity claim; failures preserve saved flights. The final retained-session Android emulator journey passes; the original phone failure still needs a phone retry, and latency remains open. Medical is excluded from own-flight backups. [Source-specific evidence and limits](docs/verification/2026-10-21-simple-flight-loading.md#phone-feedback-and-separate-retrieval-jobs--21-october-2026).
 
 **Support diagnostics — 21 October 2026:** Settings → Diagnose now retains a larger bounded action/navigation and technical history, protected failure context, phase/login timings and observed journey transitions. Total managed journal/export storage is capped at 1 MB, with 14-day expiry. Users can share a full JSON file or copy a short report and clear both stores. [Verification and platform limits](docs/verification/2026-10-21-diagnostics.md).
