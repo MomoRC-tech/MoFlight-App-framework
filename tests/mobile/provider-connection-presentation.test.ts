@@ -22,7 +22,7 @@ const source = ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/
 
 // Run the real component/handlers; native rendering and leaf controls are the
 // only replacements. Disclosure tests make no provider/storage implementation.
-function fixture(overrides: Partial<Controller> = {}, development = false, purpose: 'existing-captures'|'own-flight-library' = 'existing-captures') {
+function fixture(overrides: Partial<Controller> = {}, development = false, purpose: 'existing-captures'|'own-flight-library' = 'existing-captures', guided = false) {
   let index = 0;
   const hooks: unknown[] = [], effects: (() => void)[] = [], calls: string[] = [];
   const react = {
@@ -74,7 +74,7 @@ function fixture(overrides: Partial<Controller> = {}, development = false, purpo
   let tree: Element;
   function render(open = true) {
     index = 0;
-    tree = exports.ProviderConnection!({ controller, open, development, purpose, close: () => calls.push('close') });
+    tree = exports.ProviderConnection!({ controller, open, development, purpose, guided, close: () => calls.push('close') });
     while (effects.length) effects.shift()!();
     return tree;
   }
@@ -301,4 +301,19 @@ test('connection marks distinguish unknown, login, unconfirmed, verified and mis
   session.invalidate(); assert.equal(connectionSymbol(session.state).mark, '?');
   session.start('c'); session.observe('c', { ...observed, accountNumber: '999' }, at);
   assert.equal(connectionSymbol(session.state).mark, '!');
+});
+
+
+test('guided provider keeps the browser parent and shows progress without import menus',()=>{
+  const f=fixture({},false,'own-flight-library',true);
+  assert.match(f.text(),/automatisch weiter/);
+  assert.equal(f.nodes().some(n=>n.type==='InformationReview'||n.type==='CapturedFlights'),false);
+  const parent=()=>f.nodes().find(n=>n.children.includes(f.browser));
+  const type=parent()!.type;
+  Object.assign(f.controller,{visible:true,loaded:true,browserActive:true});f.render();
+  assert.equal(parent()!.type,type);
+  assert.equal(f.text().includes('Informationsimport'),false);
+  f.button('Anmeldung erneut prüfen').props.onPress();assert.deepEqual(f.calls,['check']);
+  Object.assign(f.controller,{visible:false,saving:true,restoring:{current:false}});f.render();
+  assert.equal(f.button('Abbrechen').props.disabled,true);
 });

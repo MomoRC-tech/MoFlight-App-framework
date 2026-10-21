@@ -36,7 +36,7 @@ export function Dashboard({ ownFlights, ownFlightPhase, pending, width, fontScal
   const groupStyle = styles.group;
   const hero = <Card style={[styles.hero, !largeText && { height: 154 }]} onPress={onPaper} label="Papierstand ansehen">
       <Photo source={sunset} tint="#913e1266" style={styles.heroImage}>
-        <View style={[ui.row, { alignItems: 'flex-start' }]}><View style={styles.paperIcon}><SymbolIcon name="logbook" size={28} tone="paper" /></View><View style={ui.column}><Label style={styles.eyebrow}>PAPIERFLUGBUCH</Label><Label style={styles.pending}>{pending === null ? 'Flugbuch auswählen' : `${pending} Flüge offen`}</Label><Label style={styles.small}>Gespeicherte Nachweise ansehen.</Label></View></View>
+        <View style={[ui.row, { alignItems: 'flex-start' }]}><View style={styles.paperIcon}><SymbolIcon name="logbook" size={28} tone="paper" /></View><View style={ui.column}><Label style={styles.eyebrow}>PAPIERFLUGBUCH</Label><Label style={styles.pending}>{pending === null ? 'Später einrichten' : `${pending} Flüge offen`}</Label><Label style={styles.small}>Gespeicherte Nachweise ansehen.</Label></View></View>
         <View style={styles.orangeButton}><IconLabel name="arrow" size={18} tone="contrast" style={{ color: '#281004', fontWeight: '700' }}>Papierstand ansehen</IconLabel></View>
       </Photo>
     </Card>;
@@ -50,18 +50,11 @@ export function Dashboard({ ownFlights, ownFlightPhase, pending, width, fontScal
           </View> : <View style={styles.seasonMetrics}><View style={styles.metric}><Text style={styles.value}>{season.count}</Text><Label muted>Flüge {year}</Label></View><View style={styles.metric}><Text style={styles.value}>{time}</Text><Label muted>gemeldete Std.</Label></View></View>}
           <Label muted style={styles.small}>{season.unknownDurationCount} Saisonzeiten unbekannt/strittig</Label>
           {season.aircraft.map(item => <View key={item.aircraft} style={ui.row}><View style={[styles.aircraftKey, { backgroundColor: item.color }]} /><Label muted style={[styles.small, { flex: 1 }]}>{item.aircraft}: {item.count} Flüge · {item.knownMinutes === null ? 'Zeit unbekannt' : `${formatReportedMinutes(item.knownMinutes)} h bekannt`}{item.unknownDurationCount ? ` · ${item.unknownDurationCount} Zeiten unbekannt/strittig` : ''}</Label></View>)}
-          <Label muted style={styles.small}>Bibliothek: {statistics.count} Flüge · {statistics.unknownDurationCount} Zeiten unbekannt/strittig</Label>
-          <Label muted style={styles.small}>Gesamt: {formatReportedMinutes(statistics.knownMinutes)} bekannte gemeldete Flugzeit</Label>
-          {statistics.years.map(item => <Label key={item.year} muted style={styles.small}>{item.year}: {item.flights} Flüge</Label>)}
-          {statistics.unknownDateCount > 0 && <Label muted style={styles.small}>{statistics.unknownDateCount} Flüge ohne gültiges Quelldatum</Label>}
-          {statistics.aircraft.map(item => <Label key={item.registration} muted style={styles.small}>{item.registration}: {item.flights} Flüge</Label>)}
           <Label muted style={styles.small}>{freshness.label}</Label>
-          {retrieval?.periods.map(p => <Label key={p.from} muted style={styles.small}>Abgedeckt: {p.from} bis {p.to}</Label>)}
-          {retrieval && retrieval.periods.length === 0 && <Label muted style={styles.small}>Noch keine gespeicherte Abrufabdeckung.</Label>}
-          {retrieval?.gaps.map(p => <Label key={p.from} style={styles.small}>Lücke: {p.from} bis {p.to}</Label>)}
+          <Label muted style={styles.small}>Flüge & Datenstand ansehen →</Label>
           {freshness.reminder && <Label muted style={styles.small}>{freshness.note}</Label>}
         </> : <Label muted>{ownFlightPhase === 'failed' ? 'Eigene Flüge nicht lesbar. Gespeicherte Daten bleiben erhalten.' : ownFlightPhase === 'missing' ? 'Eigene Flugbibliothek noch nicht eingerichtet.' : 'Eigene gespeicherte Flüge werden geladen …'}</Label>}
-        <Label muted style={styles.small}>Nur aktuell gespeicherte Anbieterwerte; keine Buchzuordnung.</Label>
+        <Label muted style={styles.small}>Gespeicherte Vereinsflieger-Daten</Label>
       </Card>
       <Card style={[styles.ai, { width: rightWidth }, largeText && styles.noFlex]} onPress={onAi} label="MoFlight AI öffnen">
         <View style={[ui.row, { gap: 5, flexWrap: 'wrap' }]}><SymbolIcon name="sparkle" size={27} tone="assistant" /><Label style={{ fontWeight: '600' }}>MoFlight AI</Label></View>

@@ -1,0 +1,25 @@
+# Single-action flight loading — 21 October 2026
+
+Manuel explicitly authorized implementing #22 after selecting app open → one login action → immediate flight retrieval with minimal curation. Scope: M1 usability over existing M2–M4 own-flight foundations, coordinated with #2/#16/#19/#20. No new dependency, paid service, background scheduler, book/schema expansion or provider write.
+
+## Behavior and risk
+
+Start/Profile/Flüge use the same explicit combined action. Fresh local storage is prepared internally; a protected-profile check reuses retained cookies or opens the original provider login. After authentication, a fresh account/club observation resumes deterministic retrieval/assessment/save. The combined action authorizes selecting a first fresh account; a persisted association still fences unexpected account/club changes. Valid rows require no routine review/save tap. Unknown values stay unknown; ambiguous observations remain separately preserved by the existing importer. Partial/invalid captures cannot establish a complete saved library. Existing journals, leases, source revisions, view restoration and duplicate prevention remain authoritative. A successful save returns to ordinary Flüge with new/updated/unresolved counts and the covered period. Opening options/app alone performs no retrieval.
+
+Technical details, custom periods and backup are secondary. Recovery warnings remain directly visible and block unsafe work. Start/Profile freshness now uses committed library receipts, independently of more recent raw captures or session checks. The approved season rings/aircraft legend remain; repeated overall/year/coverage detail is removed from that compact card and stays accessible through Flüge. Existing profile drafts, filters and retained provider sessions are preserved.
+
+## Host verification
+
+Environment: Windows, Node 24.18.0, pnpm 11.25.0, Python 3.12.10. Application source commit and Android build evidence are recorded below at the checkpoint.
+
+- Final full `pnpm check`: **604 mobile / 109 Python**, types, lint and fixture parity pass; ignored `build/host-checks/20261021T050232Z-8373bfb0/`. The final first-use options copy/setup refinement then passes four coordinator tests (`build/simplified-login-setup-final.log`), TypeScript and scoped lint. Earlier 602-test host and six-test screen/summary runs remain source-specific supporting evidence.
+- [Screen orchestration](../../tests/mobile/combined-flight-load.test.ts): explicit versus idle entry, internal fresh setup, one operation, return result, read-only guard, cancellation/background/mismatch and rejected late captures. These use controlled storage/provider ports to isolate coordination; they are not native/provider acceptance.
+- [Provider-controller](../../tests/mobile/vereinsflieger-access-recovery.test.ts): real hook handlers with controlled native/bridge events verify fresh and retained association, provider login redirect/resume, wrong account, dismissal/background invalidation. Existing nonce/document/owner/expiry/recovery contracts remain covered.
+- [SQLite service](../../tests/mobile/real-flight-service.test.ts): first verified binding/save, repeat/no duplicates, correction revisions, unknown/ambiguous evidence, foreign context/altered review/cancellation/account switching and interrupted-save receipt recovery.
+- [Summary](../../tests/mobile/connection-summary.test.ts), [navigation](../../tests/mobile/mobile-header-navigation.test.ts) and [provider presentation](../../tests/mobile/provider-connection-presentation.test.ts): committed freshness rather than raw capture, zero-book combined entry, safe browser suspension, preserved underlying sheets and browser parent, reduced menus and locked atomic-save cancellation.
+
+Initial development failures were corrected before the passing checks: one nullable accessibility prop, old navigation expectations after intentional routing changes, a synthetic source row missing its required nullable ID, a test asserting a leaf heading as body text, and a promise-executor lint error. The first host runner also hit Windows cp1252 while printing diagnostics; the passing run uses `PYTHONIOENCODING=utf-8`. Earlier logs remain ignored; no failed run is accepted as a whole pass.
+
+## Native and provider checkpoint
+
+Pending at the initial implementation commit: platform exports, committed-source Android Release, affected layout/progress/cancellation/offline checks and actual live combined retrieval/save. Fresh credential entry, physical device, spoken TalkBack, real second account and iOS runtime must retain their own evidence/limits. Host tests and earlier multi-step native evidence do not establish acceptance of this new sequence. No private populated screenshots, source rows, tokens or flight data belong in this report.

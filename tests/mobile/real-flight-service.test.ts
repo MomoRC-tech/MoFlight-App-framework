@@ -56,6 +56,52 @@ async function ready(f: Awaited<ReturnType<typeof fixture>>) {
   const bound=await service.confirmAccount(review);assert.equal(bound.state,'ready');return {service,review:bound};
 }
 
+test('combined load binds a fresh verified account and saves valid flights, repeats and corrections without curation',async()=>{
+  const f=await fixture();const service=f.make();
+  try {
+    const verified={accountNumber:'101',clubLabel:'Example club'};
+    assert.equal((await service.saveVerifiedReview(await service.reviewSource(source()),verified)).counts.added,1);
+    assert.equal((await service.saveVerifiedReview(await service.reviewSource(source('repeat')),verified)).counts.unchanged,1);
+    const correction=source('correction');correction.capture.rows[0]!.values[4]='1:00';
+    assert.equal((await service.saveVerifiedReview(await service.reviewSource(correction),verified)).counts.changed,1);
+    service.dispose();const reopened=f.make();
+    const flights=await reopened.list();assert.equal(flights.length,1);assert.equal(flights[0]!.factsRevision,2);
+    assert.equal((await reopened.detail(flights[0]!.flightId))!.factHistory.length,2);
+    assert.equal((await reopened.recoverPending()).status,'none');reopened.dispose();
+  }finally{service.dispose();await f.cleanup();}
+});
+
+test('combined save rejects foreign context, altered intent, cancellation and changed owner before writing',async()=>{
+  const f=await fixture();const service=f.make();
+  try {
+    const review=await service.reviewSource(source()),verified={accountNumber:'101',clubLabel:'Example club'};
+    for(const other of [{...verified,accountNumber:'202'},{...verified,clubLabel:'Other club'}]){
+      await assert.rejects(service.saveVerifiedReview(review,other),/context/);
+      assert.equal((await service.snapshot()).generation,0);
+    }
+    await assert.rejects(service.saveVerifiedReview({...review,accountRef:'202'},verified),/Review changed/);
+    service.cancelReview();await assert.rejects(service.saveVerifiedReview(review,verified),/Review changed/);
+    const next=await service.reviewSource(source('next'));f.switchOwner();
+    await assert.rejects(service.saveVerifiedReview(next,verified),/foreign/);
+  }finally{service.dispose();await f.cleanup();}
+});
+
+test('combined save preserves uncertain rows separately and blocks a new load after response loss',async()=>{
+  const f=await fixture();const service=f.make();
+  try {
+    const input=source();input.capture.rows.push({sourceFlightId:null,values:['20.10.2026','D-OTHER','','','','']});
+    input.capture.exportContext!.recordCount=2;
+    const result=await service.saveVerifiedReview(await service.reviewSource(input),{accountNumber:'101',clubLabel:'Example club'});
+    assert.equal(result.counts.added,1);assert.equal(result.counts.pending,1);
+    assert.equal((await service.list()).length,1);assert.equal((await service.snapshot()).pending.length,1);
+    const review=await service.reviewSource(source('response-lost'));f.setFailure('after-commit');
+    await assert.rejects(service.saveVerifiedReview(review,{accountNumber:'101',clubLabel:'Example club'}),PendingRealFlightOperation);
+    await assert.rejects(service.retrieveUpdate(),PendingRealFlightOperation);
+    f.setFailure('');assert.equal((await service.recoverPending()).status,'committed');
+    assert.equal((await service.list()).length,1);
+  }finally{service.dispose();await f.cleanup();}
+});
+
 test('combined stored view keeps summary and rows coherent with one repository selection and no shared mutable output',async()=>{
   const f=await fixture();
   try {

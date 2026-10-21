@@ -28,7 +28,7 @@ export function ConnectionIndicator({ controller: c, onPress }: { controller: Co
 }
 
 /** The browser keeps this exact native parent whether login, progress or tabs are visible. */
-export function ProviderConnection({ controller: c, open, close, development = false, purpose = 'existing-captures' }: { controller: Controller; open: boolean; close: () => void; development?: boolean; purpose?: 'existing-captures' | 'own-flight-library' }) {
+export function ProviderConnection({ controller: c, open, close, development = false, guided = false, purpose = 'existing-captures' }: { controller: Controller; open: boolean; close: () => void; development?: boolean; guided?: boolean; purpose?: 'existing-captures' | 'own-flight-library' }) {
   const insets = useSafeAreaInsets();
   const [barHeight, setBarHeight] = useState(68), [loginHeight, setLoginHeight] = useState(132);
   const [details, setDetails] = useState(false), [lab, setLab] = useState(false);
@@ -51,8 +51,8 @@ export function ProviderConnection({ controller: c, open, close, development = f
       {c.browser}
     </View>
     <View style={styles.bar} onLayout={event => setBarHeight(event.nativeEvent.layout.height)}>
-      <Action secondary icon="close" label="Verbindungen schließen und zur App zurückkehren" onPress={dismiss}>Schließen</Action>
-      <Label style={{ flex: 1, fontWeight: '600' }}>{login ? c.disconnecting ? 'Bei Vereinsflieger abmelden' : 'Bei Vereinsflieger anmelden' : 'Verbindungen'}</Label>
+      <Action secondary icon="close" label="Verbindungen schließen und zur App zurückkehren" disabled={guided && (c.saving || c.restoring.current)} onPress={dismiss}>Schließen</Action>
+      <Label style={{ flex: 1, fontWeight: '600' }}>{login ? c.disconnecting ? 'Bei Vereinsflieger abmelden' : 'Bei Vereinsflieger anmelden' : guided ? 'Flüge laden' : 'Verbindungen'}</Label>
       <ConnectionIndicator controller={c} onPress={login ? c.dismissLogin : undefined} />
     </View>
     {login ? <View style={styles.loginBar} onLayout={event => setLoginHeight(event.nativeEvent.layout.height)}>
@@ -61,16 +61,16 @@ export function ProviderConnection({ controller: c, open, close, development = f
       <Label muted>{c.disconnecting ? 'Auf der Originalseite „Abmelden“ wählen, danach hier prüfen. Schließen allein meldet dich nicht ab.' : 'Zugangsdaten nur auf der Originalseite eingeben.'}</Label>
       {loginFeedback && <Label>{loginFeedback}</Label>}
       {c.disconnecting ? <Action disabled={operationLocked || !c.loaded} onPress={c.checkDisconnection}>Abmeldung prüfen</Action> : <View style={{ flexDirection: 'row', gap: 6 }}>
-        <View style={{ flex: 1 }}><Action disabled={locked || !c.loaded} onPress={() => c.checkConnection()}>Anmeldung prüfen</Action></View>
-        <View style={{ flex: 1 }}><Action secondary disabled={locked} onPress={() => setInformationTools(!informationTools)}>{informationTools ? 'Import zuklappen' : 'Informationsimport'}</Action></View>
+        <View style={{ flex: 1 }}><Action disabled={locked || !c.loaded} onPress={() => c.checkConnection()}>{guided ? 'Anmeldung erneut prüfen' : 'Anmeldung prüfen'}</Action></View>
+        {!guided && <View style={{ flex: 1 }}><Action secondary disabled={locked} onPress={() => setInformationTools(!informationTools)}>{informationTools ? 'Import zuklappen' : 'Informationsimport'}</Action></View>}
       </View>}
-      {!c.disconnecting && (informationTools || c.informationBusy) && <>
+      {!guided && !c.disconnecting && (informationTools || c.informationBusy) && <>
         <Action secondary disabled={locked} onPress={c.nextInformationCategory}>Quelltyp: {INFORMATION_TYPES[c.informationCategory].title}</Action>
         {c.informationCategory === 'training-summary' && <Label muted>Auf der Originalseite die eigene Ausbildung öffnen, beim gewählten Eintrag das Auge und dann „Übersicht“ wählen. Praktische und theoretische Lernziele sowie Theoriestunden müssen sichtbar sein. Konto, Verein und Ausbildung vor dem Speichern prüfen.</Label>}
         {c.informationBusy ? <Action secondary disabled={c.informationSaving} onPress={() => c.stopInformation()}>Informationsabruf abbrechen</Action> : c.informationNeedsReload ? <Action secondary disabled={locked || c.informationLoading || !c.informationCanReload} onPress={() => { void c.reloadInformation(); }}>Gespeicherte Informationen neu laden</Action> : c.informationRetryReady ? <Action disabled={locked || c.recovery} onPress={c.retryInformation}>Ausgewählte Quelle erneut abrufen</Action> : <Action disabled={locked || c.recovery || !c.loaded} onPress={() => c.startInformation()}>Informationen dieser Seite speichern</Action>}
         {!!c.informationNotice && <View accessibilityLiveRegion="polite"><Label muted>{c.informationNotice}</Label></View>}
       </>}
-    </View> : <KeyboardAvoidingView style={styles.panel} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+    </View> : guided && !c.recovery && c.connection.phase !== 'mismatch' ? <ScrollView contentContainerStyle={styles.canvas}><View style={styles.group}><Card><Section title="Deine Flüge werden geladen" /><ActivityIndicator color={colors.cyan} /><View accessibilityLiveRegion="polite"><Label>{c.busy ? c.saving ? 'Flüge werden lokal vorbereitet …' : 'Flüge werden geladen …' : c.binding ? 'Dein Konto wird verbunden …' : 'Anmeldung wird geprüft …'}</Label></View><Label muted>Nach der Anmeldung geht es automatisch weiter. Gespeicherte Flüge bleiben erhalten.</Label><Action secondary disabled={c.saving || c.restoring.current} onPress={dismiss}>Abbrechen</Action></Card></View></ScrollView> : <KeyboardAvoidingView style={styles.panel} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <ScrollView removeClippedSubviews={false} contentContainerStyle={styles.canvas} keyboardShouldPersistTaps="handled">
         <View style={styles.group}>
           <Card><Section title="Vereinsflieger" /><View accessible accessibilityLabel={guidance.title} accessibilityLiveRegion="polite"><Label selectable={false} style={{ fontWeight: '600' }}>{guidance.title}</Label></View>

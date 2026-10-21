@@ -151,6 +151,14 @@ export class RealFlightService {
       this.live(sequence); this.currentReview = null; return result;
     } finally { this.dispatching = false; }
   }
+  /** Save within an explicitly requested foreground load, using a fresh context. */
+  async saveVerifiedReview(review: RealFlightReview, verified: {accountNumber: string; clubLabel: string}): Promise<RealFlightResult> {
+    this.selected(review);
+    if (verified.accountNumber !== review.accountRef || verified.accountNumber !== review.source.contextAfter.accountNumber ||
+        verified.clubLabel !== review.source.contextAfter.clubLabel) throw new Error('Fresh provider context does not match the flight review.');
+    const ready = review.state === 'confirm-account' ? await this.confirmAccount(review) : review;
+    return this.saveUnassigned(ready);
+  }
   private async execute(command: RealFlightCommand, session: RealFlightRepositorySession, sequence: number): Promise<RealFlightResult> {
     this.live(sequence); this.allowed(true); if (!session.writable || this.writing) throw new Error('Read-only recovery or another save blocks this command.');
     realHistoryUuid(command.commandId); this.writing = true;

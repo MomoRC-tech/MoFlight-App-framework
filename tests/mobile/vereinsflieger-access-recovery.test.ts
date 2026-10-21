@@ -249,6 +249,36 @@ function fixture(options: { noNativeRecovery?: boolean; failLegacyRead?: boolean
 
 const observedContext = { accountNumber: '123', clubLabel: 'Synthetic Club', clubIdentity: 'display-label-only', verification: 'observed-profile-number' } as const;
 
+test('combined action checks retained session and binds only a fresh matching profile without a confirmation tap',async()=>{
+  const f=fixture({product:true});f.render();await f.settle(null);await f.flush();
+  f.controller().beginGuidedFlightConnection();
+  assert.equal(f.controller().connection.phase,'checking');
+  await f.loadPage(context.PROFILE_URL);await f.contextMessage(observedContext);await f.flush();
+  assert.equal(f.controller().connection.confirmed,true);assert.equal(f.controller().visible,false);assert.equal(f.scopeWrites(),1);
+  f.controller().beginGuidedFlightConnection();await f.loadPage(context.PROFILE_URL);await f.contextMessage(observedContext);
+  assert.equal(f.controller().connection.confirmed,true);assert.equal(f.scopeWrites(),1);
+  f.controller().beginGuidedFlightConnection();await f.loadPage(context.PROFILE_URL);await f.contextMessage({...observedContext,accountNumber:'456'});
+  assert.equal(f.controller().connection.phase,'mismatch');assert.equal(f.scopeWrites(),1);assert.equal(f.controller().busy,false);
+  f.unmount();
+});
+
+test('combined login resumes after original-page authentication but never after dismissal or background',async()=>{
+  for(const stop of ['none','dismiss','background'] as const){
+    const f=fixture({product:true});f.render();await f.settle(null);await f.flush();
+    f.controller().beginGuidedFlightConnection();await f.loadPage(context.PROFILE_URL);await f.loadPage(probe.LOGIN_URL);
+    await f.contextMessage({error:'session-required'},probe.LOGIN_URL,undefined,probe.LOGIN_URL,'vf-login-required-v1');
+    assert.equal(f.controller().visible,true);assert.equal(f.scopeWrites(),0);
+    if(stop==='dismiss')f.controller().dismissLogin();
+    if(stop==='background'){f.appState('background');f.appState('active');}
+    await f.loadPage('https://vereinsflieger.de/member/index.php');
+    if(stop==='none'){
+      assert.equal(f.controller().connection.phase,'checking');await f.loadPage(context.PROFILE_URL);await f.contextMessage(observedContext);
+      assert.equal(f.controller().connection.confirmed,true);assert.equal(f.scopeWrites(),1);
+    }else{assert.notEqual(f.controller().connection.phase,'checking');assert.equal(f.scopeWrites(),0);}
+    f.unmount();
+  }
+});
+
 test('provider Back uses retained native history only on an idle visible owned page', async () => {
   const f = fixture({ product: true }); f.render(); await f.settle(null);
   f.controller().connect(); await f.loadPage(probe.LOGIN_URL);

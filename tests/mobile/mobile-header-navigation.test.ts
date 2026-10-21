@@ -69,7 +69,7 @@ function fixture() {
     assert.ok(name in modules, name); return modules[name];
   } });
   let tree: Element;
-  function render() { index = 0; tree = (exports.Shell as (props:unknown)=>Element)({onCoreFlights:()=>calls.push('core-library-route')}); effects.splice(0).forEach(effect => effect()); return tree; }
+  function render() { index = 0; tree = (exports.Shell as (props:unknown)=>Element)({onCoreFlights:(startUpdate:boolean)=>calls.push(startUpdate?'core-load':'core-library-route')}); effects.splice(0).forEach(effect => effect()); return tree; }
   function nodes() {
     const found: Element[] = [];
     const visit = (value: unknown) => { if (value && typeof value === 'object' && 'children' in value) { const node = value as Element; found.push(node); node.children.forEach(visit); if (node.type === 'FlatList') visit(node.props.ListHeaderComponent); } };
@@ -101,20 +101,22 @@ test('app headers order connection, Medical and profile on every tab', () => {
   assert.deepEqual(f.calls, []);
 });
 
-test('Start and profile data shortcuts reuse the existing connection without automatic login or retrieval', () => {
+test('Start, profile and flight updates use the combined flow only after an explicit action', () => {
   const f = fixture();
-  f.find('ConnectionSummary').props.onOpen(); f.render();
-  const connection = f.find('ProviderConnection');
-  assert.equal(connection.props.open, true);
   assert.deepEqual(f.calls, []);
-  connection.props.close(); f.render();
+  f.find('ConnectionSummary').props.onUpdate(); f.render();
+  assert.deepEqual(f.calls, ['core-load']);
+  assert.equal(f.find('ProviderConnection').props.open, false);
   f.press('Pressable', 'Profil & Einstellungen öffnen');
   const summary = f.find('ProfileSettings').props.connectionSummary as Element;
-  assert.equal(summary.props.controller, connection.props.controller);
   summary.props.onOpen(); f.render();
-  assert.equal(f.find('ProviderConnection').props.open, true);
-  assert.equal(f.nodes().filter(n => n.type === 'ProviderConnection').length, 1);
-  assert.deepEqual(f.calls, []);
+  assert.deepEqual(f.calls, ['core-load','core-library-route']);
+  summary.props.onUpdate(); f.render();
+  f.find('OwnFlights').props.onUpdate(); f.render();
+  assert.deepEqual(f.calls, ['core-load','core-library-route','core-load','core-load']);
+  f.controller.suspendBrowserForOwnerSwitch=()=>false;
+  assert.equal(f.find('OwnFlights').props.onUpdate(),false);
+  assert.equal(f.calls.length,4);
 });
 
 test('synthetic import preview opens without seeding or provider work, retains its session and returns to the same detail', () => {
@@ -152,7 +154,7 @@ test('Medical opens without provider work and returns through nested overlays', 
   assert.equal(f.headers().at(-1)!.props.title, 'Medical');
   f.headers().at(-1)!.props.back(); f.render();
   assert.equal(f.headers()[0]!.props.title, 'Flugfilter');
-  assert.deepEqual(f.calls, []);
+  assert.deepEqual(f.calls, ['core-library-route']);
 });
 
 test('details and sheets retain one active header; profile Back restores details and tab state', () => {
@@ -177,12 +179,13 @@ test('connection overlay preserves the underlying sheet and browser layer parent
   const f = fixture();
   f.press('Pressable', 'Profil & Einstellungen öffnen');
   const providerParent = f.parent(f.find('ProviderConnection'));
-  f.press('ConnectionIndicator');
+  f.find('ProfileSettings').props.onTools(); f.render();
+  f.find('DevelopmentHub').props.onProvider(); f.render();
   assert.equal(f.find('ProviderConnection').props.open, true);
   assert.equal(f.parent(f.parent(f.headers()[0]!)).props.accessibilityElementsHidden, true);
   assert.equal(f.parent(f.find('ProviderConnection')).type, providerParent.type);
   f.find('ProviderConnection').props.close(); f.render();
-  assert.equal(f.headers().at(-1)!.props.title, 'Profil & Einstellungen');
+  assert.equal(f.headers().at(-1)!.props.title, 'Entwicklung');
   assert.equal(f.find('ProviderConnection').props.open, false);
 });
 
@@ -205,14 +208,15 @@ test('synthetic book changes preserve independent own-flight details through pro
 test('hardware Back prefers guarded provider history and then returns to the same sheet', () => {
   const f = fixture();
   f.press('Pressable', 'Profil & Einstellungen öffnen');
-  f.find('ProfileSettings').props.onConnections(); f.render();
+  f.find('ProfileSettings').props.onTools(); f.render();
+  f.find('DevelopmentHub').props.onProvider(); f.render();
   f.controller.visible = true; f.controller.backWithinProvider = () => true; f.render();
   assert.equal(f.hardwareBack(), true); f.render();
   assert.equal(f.find('ProviderConnection').props.open, true);
   f.controller.backWithinProvider = () => false;
   assert.equal(f.hardwareBack(), true); f.render();
   assert.equal(f.find('ProviderConnection').props.open, false);
-  assert.equal(f.headers().at(-1)!.props.title, 'Profil & Einstellungen');
+  assert.equal(f.headers().at(-1)!.props.title, 'Entwicklung');
 });
 
 test('normal paper, backup and book/status paths expose no synthetic experiment launcher', () => {
@@ -276,9 +280,9 @@ test('provider diagnostics reuses the retained controller and normal entry remov
   f.find('ProviderConnection').props.close(); f.render();
   assert.ok(f.find('DevelopmentHub'));
   f.press('ConnectionIndicator');
-  assert.equal(f.find('ProviderConnection').props.development, false);
+  assert.equal(f.find('ProviderConnection').props.open, false);
   assert.equal(f.nodes().filter(n => n.type === 'ProviderConnection').length, 1);
-  assert.deepEqual(f.calls, []);
+  assert.deepEqual(f.calls, ['core-library-route']);
 });
 
 test('core-library route requires safe browser suspension and keeps the main profile draft in its shell', () => {
@@ -316,7 +320,7 @@ test('nested settings preserve the unsaved profile draft and each sheet scroll o
   f.controller.suspendBrowserForOwnerSwitch=()=>false;
   assert.equal(f.find('OwnFlights').props.onUpdate(),false);assert.deepEqual(f.calls,[]);
   f.controller.suspendBrowserForOwnerSwitch=()=>true;
-  assert.equal(f.find('OwnFlights').props.onUpdate(),true);assert.deepEqual(f.calls,['core-library-route']);
+  assert.equal(f.find('OwnFlights').props.onUpdate(),true);assert.deepEqual(f.calls,['core-load']);
   let back=0;f.find('OwnFlights').props.onHeaderChange({title:'Flugdetails',back:()=>back++});f.render();
   assert.equal(f.headers()[0]!.props.title,'Flugdetails');f.hardwareBack();assert.equal(back,1);
   f.press('Pressable','Verein');assert.equal(f.find('OwnFlights').props.active,false);
