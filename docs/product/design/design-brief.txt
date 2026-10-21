@@ -269,7 +269,7 @@ The [ordinary own-flight view](../../../apps/platform-lab/src/mobile/OwnFlights.
 
 Start/Profile and Flüge expose the same explicit login-and-load/update action. Necessary fresh local storage is internal. Check retained session cookies through a protected provider profile; show the original login page only when needed, then resume verification after provider navigation. Keep that browser in the same native parent across login/progress. Use one-column, centered progress/forms up to 520 dp; labels wrap with text scaling. The login view omits information-import menus. Provider-required login still belongs to Vereinsflieger; account mismatch and unresolved recovery remain actionable exceptions. Known provider values save through deterministic validation without routine per-row review or a second save confirmation. Display a short result and covered period in ordinary Flüge. Preserve previous saved data and user state on error/cancellation; opening the app does not initiate retrieval.
 
-The Start summary reads committed-library freshness, independently of raw captures and session checks. Keep the season rings and compact aircraft legend; detailed year/coverage/source information is reached through Flüge rather than repeated in the small season card. Book setup remains deferred and never gates flights. [Package evidence and platform limits](../../verification/2026-10-21-simple-flight-loading.md) distinguish host behavior from native/provider acceptance.
+The Start summary reads committed-library freshness, independently of raw captures and session checks. Keep the season rings and compact aircraft legend; detailed year/coverage/source information is reached through Flüge rather than repeated in the small season card. Book setup remains deferred and never gates flights. Start shows Später einrichten with a short information sheet instead of displaying synthetic paper-book tasks as real account progress. Retained lab book/paper data stay separate. [Package evidence and platform limits](../../verification/2026-10-21-simple-flight-loading.md) distinguish host behavior from native/provider acceptance.
 
 ## Header, overlays and navigation
 
@@ -495,7 +495,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundat
 
 ## Dashboard.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](../../../apps/platform-lab/src/mobile/Dashboard.tsx); normalized SHA-256 `9cef87a68c08b31d41822311e8c4b5d8fa2bc23521e383ce085b4aca7a241027`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](../../../apps/platform-lab/src/mobile/Dashboard.tsx); normalized SHA-256 `e442b2f41e07adcc536f5ad7d75e0be95757672190a7fdde9d0800e524edf2f3`.
 
 ### Literal colors
 
@@ -683,115 +683,115 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MedicalStatus.tsx
 
 ## MobileApp.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `3deeab4e57edfe7bc54957429d45d711a98f5790258ba0dc68fddd9a32e311f5`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `e2586c756be3e3083e654875b57091e8b7f0ebc855893fc877573d2ee327fbfd`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#00c8ff` | 223, 264 |
-| `#020e17` | 264 |
+| `#00c8ff` | 223, 265 |
+| `#020e17` | 265 |
 | `#031326` | 200 |
-| `#064240` | 259 |
-| `#10233d` | 261 |
-| `#10263e` | 263 |
-| `#10282d` | 259 |
-| `#102d47aa` | 254 |
-| `#11263a` | 258 |
-| `#152d42` | 260 |
-| `#1b344a` | 263 |
-| `#1c3449` | 264 |
-| `#227f87` | 259 |
-| `#354d74` | 261 |
-| `#3a5a8b` | 263 |
-| `#78efdc` | 261 |
-| `#8ba4bc` | 222, 256 |
+| `#064240` | 260 |
+| `#10233d` | 262 |
+| `#10263e` | 264 |
+| `#10282d` | 260 |
+| `#102d47aa` | 255 |
+| `#11263a` | 259 |
+| `#152d42` | 261 |
+| `#1b344a` | 264 |
+| `#1c3449` | 265 |
+| `#227f87` | 260 |
+| `#354d74` | 262 |
+| `#3a5a8b` | 264 |
+| `#78efdc` | 262 |
+| `#8ba4bc` | 222, 257 |
 | `#ffbd9b` | 156 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 10` | 211, 222, 256 |
-| `fontSize: 11` | 216, 257, 264 |
-| `fontSize: 12` | 259 |
-| `fontSize: 13` | 212, 258, 263 |
+| `fontSize: 10` | 211, 222, 257 |
+| `fontSize: 11` | 216, 258, 265 |
+| `fontSize: 12` | 260 |
+| `fontSize: 13` | 212, 259, 264 |
 | `fontSize: 18` | 188 |
-| `fontSize: 20` | 200, 257 |
-| `fontSize: 23` | 262 |
-| `fontSize: 25` | 264 |
-| `fontWeight: '600'` | 188, 200, 257, 259 |
-| `letterSpacing: .6` | 256 |
-| `lineHeight: 16` | 222, 256, 257, 264 |
-| `lineHeight: 17` | 259 |
-| `lineHeight: 25` | 257 |
-| `lineHeight: 29` | 264 |
+| `fontSize: 20` | 200, 258 |
+| `fontSize: 23` | 263 |
+| `fontSize: 25` | 265 |
+| `fontWeight: '600'` | 188, 200, 258, 260 |
+| `letterSpacing: .6` | 257 |
+| `lineHeight: 16` | 222, 257, 258, 265 |
+| `lineHeight: 17` | 260 |
+| `lineHeight: 25` | 258 |
+| `lineHeight: 29` | 265 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 259, 262 |
-| `borderRadius: 13` | 259 |
-| `borderRadius: 14` | 254 |
-| `borderRadius: 15` | 261 |
-| `borderRadius: 17` | 260 |
-| `borderRadius: 2` | 264 |
-| `borderRadius: 20` | 263 |
-| `borderRadius: 21` | 263 |
-| `borderRadius: 22` | 258 |
-| `borderRadius: 24` | 258 |
-| `borderRadius: 9` | 259 |
-| `borderWidth: 1` | 258, 259, 262, 263 |
-| `gap: 1` | 257, 264 |
-| `gap: 10` | 187, 261 |
-| `gap: 3` | 256, 259 |
-| `gap: 5` | 258 |
-| `gap: 6` | 262, 263 |
-| `gap: 7` | 258, 261 |
-| `gap: 8` | 235, 237, 253, 260, 263 |
-| `height: 2` | 264 |
-| `height: 30` | 261 |
-| `height: 42` | 263 |
-| `height: 48` | 254 |
-| `maxHeight: 150` | 263 |
-| `maxWidth: 430` | 261 |
+| `borderRadius: 12` | 260, 263 |
+| `borderRadius: 13` | 260 |
+| `borderRadius: 14` | 255 |
+| `borderRadius: 15` | 262 |
+| `borderRadius: 17` | 261 |
+| `borderRadius: 2` | 265 |
+| `borderRadius: 20` | 264 |
+| `borderRadius: 21` | 264 |
+| `borderRadius: 22` | 259 |
+| `borderRadius: 24` | 259 |
+| `borderRadius: 9` | 260 |
+| `borderWidth: 1` | 259, 260, 263, 264 |
+| `gap: 1` | 258, 265 |
+| `gap: 10` | 187, 262 |
+| `gap: 3` | 257, 260 |
+| `gap: 5` | 259 |
+| `gap: 6` | 263, 264 |
+| `gap: 7` | 259, 262 |
+| `gap: 8` | 236, 238, 254, 261, 264 |
+| `height: 2` | 265 |
+| `height: 30` | 262 |
+| `height: 42` | 264 |
+| `height: 48` | 255 |
+| `maxHeight: 150` | 264 |
+| `maxWidth: 430` | 262 |
 | `maxWidth: 480` | 187 |
-| `maxWidth: 520` | 235, 237 |
-| `maxWidth: 599` | 252, 264 |
+| `maxWidth: 520` | 236, 238 |
+| `maxWidth: 599` | 253, 265 |
 | `maxWidth: 600` | 171, 223 |
 | `maxWidth: 720` | 209 |
 | `maxWidth: 960` | 171, 223 |
-| `minHeight: 126` | 261 |
+| `minHeight: 126` | 262 |
 | `minHeight: 174` | 200 |
-| `minHeight: 34` | 260 |
-| `minHeight: 36` | 255 |
-| `minHeight: 40` | 258, 263 |
-| `minHeight: 48` | 258, 260 |
-| `minHeight: 60` | 264 |
-| `minHeight: 64` | 259 |
-| `minHeight: 66` | 259 |
-| `minHeight: 70` | 262 |
-| `minWidth: 0` | 257, 258 |
+| `minHeight: 34` | 261 |
+| `minHeight: 36` | 256 |
+| `minHeight: 40` | 259, 264 |
+| `minHeight: 48` | 259, 261 |
+| `minHeight: 60` | 265 |
+| `minHeight: 64` | 260 |
+| `minHeight: 66` | 260 |
+| `minHeight: 70` | 263 |
+| `minWidth: 0` | 258, 259 |
 | `opacity: .45` | 214 |
-| `padding: 0` | 260 |
-| `padding: 10` | 253, 262 |
-| `padding: 4` | 256, 263 |
-| `padding: 7` | 259 |
-| `paddingHorizontal: 12` | 258 |
-| `paddingHorizontal: 16` | 260 |
-| `paddingHorizontal: 6` | 259 |
-| `paddingHorizontal: 7` | 259 |
-| `paddingHorizontal: 8` | 263 |
-| `paddingVertical: 10` | 259 |
-| `paddingVertical: 4` | 258, 264 |
-| `width: '100%'` | 187, 202, 222, 235, 237, 252, 260, 261, 264 |
-| `width: '49.2%'` | 260 |
-| `width: 24` | 264 |
-| `width: 30` | 261 |
-| `width: 42` | 258, 263 |
-| `width: 48` | 254 |
-| `width: 64` | 259 |
+| `padding: 0` | 261 |
+| `padding: 10` | 254, 263 |
+| `padding: 4` | 257, 264 |
+| `padding: 7` | 260 |
+| `paddingHorizontal: 12` | 259 |
+| `paddingHorizontal: 16` | 261 |
+| `paddingHorizontal: 6` | 260 |
+| `paddingHorizontal: 7` | 260 |
+| `paddingHorizontal: 8` | 264 |
+| `paddingVertical: 10` | 260 |
+| `paddingVertical: 4` | 259, 265 |
+| `width: '100%'` | 187, 202, 222, 236, 238, 253, 261, 262, 265 |
+| `width: '49.2%'` | 261 |
+| `width: 24` | 265 |
+| `width: 30` | 262 |
+| `width: 42` | 259, 264 |
+| `width: 48` | 255 |
+| `width: 64` | 260 |
 
 ## OwnFlights.tsx
 

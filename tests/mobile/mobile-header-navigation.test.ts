@@ -103,6 +103,7 @@ test('app headers order connection, Medical and profile on every tab', () => {
 
 test('Start, profile and flight updates use the combined flow only after an explicit action', () => {
   const f = fixture();
+  assert.equal(f.find('Dashboard').props.pending,null,'Synthetic book tasks cannot appear as real account-flight setup/progress');
   assert.deepEqual(f.calls, []);
   f.find('ConnectionSummary').props.onUpdate(); f.render();
   assert.deepEqual(f.calls, ['core-load']);
@@ -139,6 +140,14 @@ test('synthetic import preview opens without seeding or provider work, retains i
   f.headers().at(-1)!.props.back(); f.render();
   assert.equal(f.headers().at(-1)!.props.title, 'Flugdetails');
   assert.deepEqual(f.calls, []);
+});
+
+test('Start paper information explains deferred setup without showing synthetic book progress',()=>{
+  const f=fixture();f.find('Dashboard').props.onPaper();f.render();
+  assert.equal(f.nodes().some(n=>n.type==='PaperStatus'),false);
+  assert.ok(f.nodes().some(n=>n.type==='Section'&&n.props.title==='Papierflugbuch später einrichten'));
+  assert.equal(f.headers().at(-1)!.props.title,'Papierflugbuch');assert.deepEqual(f.calls,[]);
+  f.headers().at(-1)!.props.back();f.render();assert.equal(f.headers().at(-1)!.props.title,'Übersicht');
 });
 
 test('Medical opens without provider work and returns through nested overlays', () => {
@@ -222,7 +231,7 @@ test('hardware Back prefers guarded provider history and then returns to the sam
 test('normal paper, backup and book/status paths expose no synthetic experiment launcher', () => {
   const f = fixture();
   assert.equal(f.nodes().some(n => n.props.accessibilityLabel === 'Flugworkflow öffnen'), false);
-  f.find('Dashboard').props.onPaper(); f.render();
+  f.press('Pressable','Flugbuch');f.nodes().find(n=>n.props.testID==='paper-assistant-entry')!.props.onPress();f.render();
   assert.ok(f.find('PaperStatus'));
   assert.equal(f.nodes().some(n => n.type === 'BookLab' || n.type === 'LabApp'), false);
   f.find('PaperStatus').props.onBackup(); f.render();
