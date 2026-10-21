@@ -50,7 +50,7 @@ App overlays/details replace logo with contextual Back and expose one active acc
 
 The header connection shortcut opens the ordinary flight connection/options screen. Legacy provider/information diagnostics remain under Development. Provider Close, connection status and origin belong to its app-owned toolbar. Provider-history Back affects the original embedded webpage; Close returns to MoFlight without promising logout. Preserve retained browser parent, busy/recovery guards and provenance. OS-owned full-screen surfaces keep their own controls. See [header decisions](../2026-10-18-header-status-review.md#package-1b-decision-checkpoint).
 
-Bottom navigation has five equal icon/label destinations and semantic selected state. Current code hides it with the AI keyboard and app/provider overlays. Do not reintroduce an old floating dock or add a destination through documentation cleanup.
+Bottom navigation has five equal icon/label destinations and semantic selected state. At widths below 600 dp with font scale above 1.3, reflow to three columns with the final two items centered so full labels retain system scaling; ordinary text/width keeps one row. Current code hides it with the AI keyboard and app/provider overlays. Do not reintroduce an old floating dock or add a destination through documentation cleanup. The generic Entwicklungsversion footer does not classify real saved flights as synthetic data.
 
 ## Responsive layout and text
 

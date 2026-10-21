@@ -15,7 +15,7 @@ const source = ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/
 
 // Real shell state and handlers, with native leaves and the independent data /
 // provider services replaced. These checks make no native-layout claim.
-function fixture() {
+function fixture(width = 390, fontScale = 1) {
   let index = 0;
   const hooks: any[] = [], effects: (() => void)[] = [];
   const react = {
@@ -44,7 +44,7 @@ function fixture() {
       AppState: { addEventListener: (_:string,handler:(state:string)=>void) => {appStateListener=handler;return {remove(){}};} },
       BackHandler: { addEventListener: (_: string, handler: () => boolean) => { hardwareBack = handler; return { remove() {} }; } },
       Linking: {}, Platform: { OS: 'android' }, StyleSheet: { create: (s: unknown) => s, absoluteFill: {} },
-      useWindowDimensions: () => ({ width: 390, height: 900, fontScale: 1 }),
+      useWindowDimensions: () => ({ width, height: 900, fontScale }),
     },
     'react-native-safe-area-context': leaves(['SafeAreaProvider', 'SafeAreaView']),
     '../App': { default: 'LabApp' }, '../BookLab': { BookLab: 'BookLab' },
@@ -95,7 +95,7 @@ function fixture() {
     render();
   }
   render(); render();
-  return { render, nodes, find, headers, parent, press, openOwnDetail, flight, library, controller, calls, readEnabled, suspended: () => suspended, hardwareBack: () => hardwareBack!(),
+  return { render, nodes, find, resize:(nextWidth:number,nextFontScale:number)=>{width=nextWidth;fontScale=nextFontScale;render();}, headers, parent, press, openOwnDetail, flight, library, controller, calls, readEnabled, suspended: () => suspended, hardwareBack: () => hardwareBack!(),
     showLoad:(result:any,view:any)=>{lastLoad=result;ownView=view;render();render();},
     appState:(state:string)=>{appStateListener?.(state);render();} };
 }
@@ -363,7 +363,7 @@ test('nested settings preserve the unsaved profile draft and each sheet scroll o
  test('ordinary flights shares the shell reader, routes explicit updates safely and handles nested Back', () => {
   const f=fixture();f.press('Pressable','Flüge');
   assert.equal(f.find('OwnFlights').props.active,true);
-  assert.ok(f.nodes().some(n=>n.type==='Label' && n.children.includes('Entwicklung · eigene gespeicherte Flüge')));
+  assert.ok(f.nodes().some(n=>n.type==='Label' && n.children.includes('Entwicklungsversion')));
   assert.equal(f.nodes().some(n=>n.type==='Label' && n.children.includes('Entwicklung · synthetische lokale Bibliothek')),false);
   assert.equal(f.nodes().some(n=>n.type==='FlatList'),false);
   f.controller.suspendBrowserForOwnerSwitch=()=>false;
@@ -433,4 +433,25 @@ test('ordinary backup opens real-flight options and Development retains syntheti
   f.headers().at(-1)!.props.back();f.render();f.find('ProfileSettings').props.onTools();f.render();
   assert.equal((f.find('DevelopmentHub').props.profileTools as Element).props.nameDraft,'Development draft');
   assert.equal(f.library.displayName,'Synthetic pilot');
+});
+
+test('font and width changes preserve every navigation destination, selected state and truthful version provenance',()=>{
+  const f=fixture();f.press('Pressable','Flugbuch');
+  const tabs=()=>f.nodes().filter(n=>n.props.accessibilityRole==='tab');
+  for(const [width,fontScale] of [[360,1.6],[390,1.6],[412,1.6],[390,1],[600,1.6],[840,1]] as const){
+    f.resize(width,fontScale);
+    const items=tabs();assert.deepEqual(items.map(n=>n.props.accessibilityLabel),['Übersicht','Flüge','Flugbuch','Verein','AI']);
+    assert.equal(items.filter(n=>n.props.accessibilityState.selected).length,1);
+    assert.equal(items.find(n=>n.props.accessibilityState.selected)!.props.accessibilityLabel,'Flugbuch');
+    for(const item of items){
+      const label=item.children.find((n:any)=>n?.type==='Text') as Element;
+      assert.equal(label.children[0],item.props.accessibilityLabel);assert.notEqual(label.props.allowFontScaling,false);assert.equal(label.props.numberOfLines,undefined);
+    }
+    f.press('Pressable','Flüge');
+    assert.equal(f.find('OwnFlights').props.active,true);
+    assert.equal(tabs().find(n=>n.props.accessibilityState.selected)!.props.accessibilityLabel,'Flüge');
+    f.press('Pressable','Flugbuch');
+  }
+  assert.ok(f.nodes().some(n=>n.type==='Label'&&n.children.includes('Entwicklungsversion')));
+  assert.equal(f.nodes().some(n=>n.type==='Label'&&n.children.includes('Entwicklung · synthetische lokale Bibliothek')),false);
 });

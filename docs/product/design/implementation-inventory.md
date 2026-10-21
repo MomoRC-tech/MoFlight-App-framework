@@ -337,113 +337,114 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MedicalStatus.tsx
 
 ## MobileApp.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `37d39415f1d90e9beda53d84d1b24d165d1b94765bcc15764531ce2f19ab582c`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `b09fa38f4264ae4f53d4d1086293955dfd3ebfc925d974214f4a97ad9a099994`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#00c8ff` | 233, 276 |
-| `#020e17` | 276 |
-| `#031326` | 210 |
-| `#064240` | 271 |
-| `#10233d` | 273 |
-| `#10263e` | 275 |
-| `#10282d` | 271 |
-| `#102d47aa` | 266 |
-| `#11263a` | 270 |
-| `#152d42` | 272 |
-| `#1b344a` | 275 |
-| `#1c3449` | 276 |
-| `#227f87` | 271 |
-| `#354d74` | 273 |
-| `#3a5a8b` | 275 |
-| `#78efdc` | 273 |
-| `#8ba4bc` | 232, 268 |
+| `#00c8ff` | 234, 277 |
+| `#020e17` | 277 |
+| `#031326` | 211 |
+| `#064240` | 272 |
+| `#10233d` | 274 |
+| `#10263e` | 276 |
+| `#10282d` | 272 |
+| `#102d47aa` | 267 |
+| `#11263a` | 271 |
+| `#152d42` | 273 |
+| `#1b344a` | 276 |
+| `#1c3449` | 277 |
+| `#227f87` | 272 |
+| `#354d74` | 274 |
+| `#3a5a8b` | 276 |
+| `#78efdc` | 274 |
+| `#8ba4bc` | 233, 269 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 10` | 221, 232, 268 |
-| `fontSize: 11` | 226, 269, 276 |
-| `fontSize: 12` | 271 |
-| `fontSize: 13` | 222, 270, 275 |
-| `fontSize: 20` | 210, 269 |
-| `fontSize: 23` | 274 |
-| `fontSize: 25` | 276 |
-| `fontWeight: '600'` | 210, 269, 271 |
-| `letterSpacing: .6` | 268 |
-| `lineHeight: 16` | 232, 268, 269, 276 |
-| `lineHeight: 17` | 271 |
-| `lineHeight: 25` | 269 |
-| `lineHeight: 29` | 276 |
+| `fontSize: 10` | 222, 233, 269 |
+| `fontSize: 11` | 227, 270, 277 |
+| `fontSize: 12` | 272 |
+| `fontSize: 13` | 223, 271, 276 |
+| `fontSize: 20` | 211, 270 |
+| `fontSize: 23` | 275 |
+| `fontSize: 25` | 277 |
+| `fontWeight: '600'` | 211, 270, 272 |
+| `letterSpacing: .6` | 269 |
+| `lineHeight: 16` | 233, 269, 270, 277 |
+| `lineHeight: 17` | 272 |
+| `lineHeight: 25` | 270 |
+| `lineHeight: 29` | 277 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 271, 274 |
-| `borderRadius: 13` | 271 |
-| `borderRadius: 14` | 266 |
-| `borderRadius: 15` | 273 |
-| `borderRadius: 17` | 272 |
-| `borderRadius: 2` | 276 |
-| `borderRadius: 20` | 275 |
-| `borderRadius: 21` | 275 |
-| `borderRadius: 22` | 270 |
-| `borderRadius: 24` | 270 |
-| `borderRadius: 9` | 271 |
-| `borderWidth: 1` | 270, 271, 274, 275 |
-| `gap: 1` | 269, 276 |
-| `gap: 10` | 201, 273 |
-| `gap: 3` | 268, 271 |
-| `gap: 5` | 270 |
-| `gap: 6` | 274, 275 |
-| `gap: 7` | 270, 273 |
-| `gap: 8` | 247, 249, 265, 272, 275 |
-| `height: 2` | 276 |
-| `height: 30` | 273 |
-| `height: 42` | 275 |
-| `height: 48` | 266 |
-| `maxHeight: 150` | 275 |
-| `maxWidth: 430` | 273 |
-| `maxWidth: 480` | 201 |
-| `maxWidth: 520` | 247, 249 |
-| `maxWidth: 599` | 264, 276 |
-| `maxWidth: 600` | 184, 233 |
-| `maxWidth: 720` | 219 |
-| `maxWidth: 960` | 184, 233 |
-| `minHeight: 126` | 273 |
-| `minHeight: 174` | 210 |
-| `minHeight: 34` | 272 |
-| `minHeight: 36` | 267 |
-| `minHeight: 40` | 270, 275 |
-| `minHeight: 48` | 270, 272 |
-| `minHeight: 60` | 276 |
-| `minHeight: 64` | 271 |
-| `minHeight: 66` | 271 |
-| `minHeight: 70` | 274 |
-| `minWidth: 0` | 269, 270 |
-| `opacity: .45` | 224 |
-| `padding: 0` | 272 |
-| `padding: 10` | 265, 274 |
-| `padding: 4` | 268, 275 |
-| `padding: 7` | 271 |
-| `paddingHorizontal: 12` | 270 |
-| `paddingHorizontal: 16` | 272 |
-| `paddingHorizontal: 6` | 271 |
-| `paddingHorizontal: 7` | 271 |
-| `paddingHorizontal: 8` | 275 |
-| `paddingVertical: 10` | 271 |
-| `paddingVertical: 4` | 270, 276 |
-| `width: '100%'` | 201, 212, 232, 247, 249, 264, 272, 273, 276 |
-| `width: '49.2%'` | 272 |
-| `width: 24` | 276 |
-| `width: 30` | 273 |
-| `width: 42` | 270, 275 |
-| `width: 48` | 266 |
-| `width: 64` | 271 |
+| `borderRadius: 12` | 272, 275 |
+| `borderRadius: 13` | 272 |
+| `borderRadius: 14` | 267 |
+| `borderRadius: 15` | 274 |
+| `borderRadius: 17` | 273 |
+| `borderRadius: 2` | 277 |
+| `borderRadius: 20` | 276 |
+| `borderRadius: 21` | 276 |
+| `borderRadius: 22` | 271 |
+| `borderRadius: 24` | 271 |
+| `borderRadius: 9` | 272 |
+| `borderWidth: 1` | 271, 272, 275, 276 |
+| `gap: 1` | 270, 277 |
+| `gap: 10` | 202, 274 |
+| `gap: 3` | 269, 272 |
+| `gap: 5` | 271 |
+| `gap: 6` | 275, 276 |
+| `gap: 7` | 271, 274 |
+| `gap: 8` | 248, 250, 266, 273, 276 |
+| `height: 2` | 277 |
+| `height: 30` | 274 |
+| `height: 42` | 276 |
+| `height: 48` | 267 |
+| `maxHeight: 150` | 276 |
+| `maxWidth: 430` | 274 |
+| `maxWidth: 480` | 202 |
+| `maxWidth: 520` | 248, 250 |
+| `maxWidth: 599` | 265, 277 |
+| `maxWidth: 600` | 185, 234 |
+| `maxWidth: 720` | 220 |
+| `maxWidth: 960` | 185, 234 |
+| `minHeight: 126` | 274 |
+| `minHeight: 174` | 211 |
+| `minHeight: 34` | 273 |
+| `minHeight: 36` | 268 |
+| `minHeight: 40` | 271, 276 |
+| `minHeight: 48` | 271, 273 |
+| `minHeight: 60` | 277 |
+| `minHeight: 64` | 272 |
+| `minHeight: 66` | 272 |
+| `minHeight: 70` | 275 |
+| `minWidth: 0` | 270, 271 |
+| `opacity: .45` | 225 |
+| `padding: 0` | 273 |
+| `padding: 10` | 266, 275 |
+| `padding: 4` | 269, 276 |
+| `padding: 7` | 272 |
+| `paddingHorizontal: 12` | 271 |
+| `paddingHorizontal: 16` | 273 |
+| `paddingHorizontal: 6` | 272 |
+| `paddingHorizontal: 7` | 272 |
+| `paddingHorizontal: 8` | 276 |
+| `paddingVertical: 10` | 272 |
+| `paddingVertical: 4` | 271, 277 |
+| `width: '100%'` | 202, 213, 233, 248, 250, 265, 273, 274, 277 |
+| `width: '33.333333%'` | 277 |
+| `width: '49.2%'` | 273 |
+| `width: 24` | 277 |
+| `width: 30` | 274 |
+| `width: 42` | 271, 276 |
+| `width: 48` | 267 |
+| `width: 64` | 272 |
 
 ## OwnFlights.tsx
 
