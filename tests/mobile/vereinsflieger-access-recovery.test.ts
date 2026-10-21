@@ -349,15 +349,15 @@ test('guided sign-in return preserves the native login document and still requir
 });
 
 test('paused guided login cannot resume after dismissal or owner change, and a foreign account is rejected',async()=>{
-  for(const stop of ['dismiss','owner','foreign'] as const){
+  for(const stop of ['dismiss','owner','foreign','foreign-club'] as const){
     const f=fixture({product:true,persistedScope:{version:1,owner:'synthetic-pilot',connectionId:'prior',context:observedContext}});
     f.render();await f.settle(null);await f.flush();f.controller().beginGuidedFlightConnection();
     f.appState('background');f.appState('active');await f.flush();
     if(stop==='dismiss')f.controller().dismissLogin();
     if(stop==='owner')f.changeOwner('other-owner');
-    assert.equal(f.controller().resumeGuidedFlightConnection(),stop==='foreign');
-    if(stop==='foreign'){
-      await f.loadPage(context.PROFILE_URL);await f.contextMessage({...observedContext,accountNumber:'999'});
+    assert.equal(f.controller().resumeGuidedFlightConnection(),stop==='foreign'||stop==='foreign-club');
+    if(stop==='foreign'||stop==='foreign-club'){
+      await f.loadPage(context.PROFILE_URL);await f.contextMessage({...observedContext,...(stop==='foreign'?{accountNumber:'999'}:{clubLabel:'Other club'})});
       assert.equal(f.controller().connection.phase,'mismatch');assert.equal(f.controller().connection.confirmed,false);
     }
     assert.equal(f.scopeWrites(),0);assert.equal(f.controller().busy,false);f.unmount();

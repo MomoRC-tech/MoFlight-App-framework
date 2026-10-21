@@ -275,6 +275,7 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,takeInitialReposit
     alive.current=true;void run(refresh,'library-operation',true);
     const subscription=AppState.addEventListener('change',state=>{
       foreground.current=state==='active';if(state!=='active'){
+        setCompleted(current=>current?{...current,verifiedConnection:undefined}:null);
         const pending=waiting.current;
         if(automatic.current&&pending&&!pending.started&&!pending.seenBusy&&!controller.current.binding&&!controller.current.loginBusy&&!controller.current.informationBusy&&!controller.current.saving&&!controller.current.restoring.current){
           pending.paused=true;pending.checking=false;pending.generation=++reviewGeneration.current;

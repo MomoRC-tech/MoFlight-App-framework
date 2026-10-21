@@ -91,6 +91,7 @@ function fixture({startUpdate=false,root=false,readOnly=false,deferReservation=f
 test('opening options does no retrieval; one explicit action verifies, loads, saves and returns a result',async()=>{
   const f=fixture();try{
     f.render();await f.flush();assert.deepEqual(f.calls,[]);
+    assert.equal(f.nodes().find(n=>n.type==='ProviderConnection')!.props.loginEnabled,true,'Manual provider options still expose the original login');
     assert.equal(f.text().includes('Quellzeilen'),false);assert.equal(f.text().includes('Geräteordner'),false);
     f.press('Anmelden & Daten laden');await f.flush();
     assert.deepEqual(f.calls,['session','retrieve']);
@@ -175,5 +176,14 @@ test('a retrieval timeout stays in the progress screen with retry and no confirm
     assert.equal(f.nodes().find(n=>n.type==='ProviderConnection')!.props.open,true);
     assert.match(f.progressText(),/Datenabruf hat zu lange gedauert/);
     f.press('Erneut versuchen');await f.flush();assert.equal(f.calls.filter(v=>v==='session').length,2);
+  }finally{f.dispose();}
+});
+
+test('leaving a completed progress screen retains its saved result but invalidates session presentation',async()=>{
+  const f=fixture({startUpdate:true});try{
+    f.render();await f.flush();f.complete();await f.flush();assert.equal(f.closed.length,0);
+    f.background();f.resume();await f.flush();
+    assert.match(f.progressText(),/3 Flüge auf diesem Gerät gespeichert/);f.press('Fertig');
+    assert.equal(f.closed.length,1);assert.equal(f.closed[0].added,2);assert.equal(f.closed[0].verifiedConnection,undefined);
   }finally{f.dispose();}
 });
