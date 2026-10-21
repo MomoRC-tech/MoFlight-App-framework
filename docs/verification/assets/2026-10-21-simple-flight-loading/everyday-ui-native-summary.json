@@ -1,0 +1,68 @@
+{
+  "application_commit": "b6d8c8d357cc75a22e7f8354b9173da65b09fa44",
+  "apk_sha256": "fa2685a2a2c3c393c526e9c68ea4befd41ea116b5d678df113ffefc227f98435",
+  "configuration": "Release, embedded Hermes, arm64-v8a/x86_64",
+  "platform": "Android API 37 x86_64, MoFlight_Synthetic_API37",
+  "network": "Offline throughout; no provider operations",
+  "worker_launch": {
+    "model": "gpt-6.1-sol",
+    "reasoning_effort": "medium",
+    "historical_controller_hint": "low; overridden by explicit current user instruction",
+    "runtime_token_telemetry": "unavailable"
+  },
+  "initial_review": {
+    "application_commit": "046e70b47c8b2deb2b616c37fed9356d18c4dc07",
+    "ignored_session": "build/ui-agent/20261021T211542Z-e6edb85c",
+    "actions": 40,
+    "captures": 8,
+    "seconds": 186.8,
+    "result": "partial; enlarged tab word splitting corrected in final source",
+    "reused_evidence": "Unchanged MAIN Settings, settings scroll/contextual return and WIDE centered/capped Settings",
+    "limitations": "One selector retry; transient Overview and incomplete final restart excluded; swipe across IME entered temporary unsaved search text, later discarded. Controller defect #51 remains open."
+  },
+  "final_followup": {
+    "ignored_session": "build/ui-agent/20261021T212514Z-6fc20271",
+    "actions": 36,
+    "captures": 8,
+    "seconds": 207.5,
+    "viewports": [
+      {"width_dp": 390, "height_dp": 900, "density": 160, "font_scale": 1.0},
+      {"width_dp": 360, "height_dp": 900, "density": 160, "font_scale": 1.6},
+      {"width_dp": 800, "height_dp": 600, "density": 160, "font_scale": 1.0}
+    ],
+    "passed": [
+      "Settled first-use Overview at MAIN, MIN and WIDE; wide content centered/capped",
+      "All five full enlarged tab labels readable in two rows; tested Flights/Flugbuch/Overview selection and return",
+      "Deferred Flugbuch content and flight action readable at MIN and WIDE",
+      "MIN empty Flights main controls readable",
+      "Real empty search field focus, visible keyboard and Back dismissal; no swipe while IME visible",
+      "Actual process restart with separate settled readback: 0 saved flights/no retrieval before and after; finished Overview with keyboard hidden"
+    ],
+    "blocked": [
+      "Populated rows/details unavailable with actual 0-flight state; no seeding/retrieval allowed",
+      "Filter opening rejected by controller selector allowlist; no bypass"
+    ],
+    "not_tested": [
+      "Lower Flights empty explanation scroll reachability",
+      "Keyboard scrolling/resizing",
+      "Whole-app baseline U01-U08",
+      "Physical fresh credentials/Autofill",
+      "Actual standalone provider-recovery interruption",
+      "Spoken accessibility and iOS"
+    ],
+    "excluded_evidence": "One transient MIN loading capture replaced by settled capture",
+    "parent_png_review": [
+      "overview-main-settled.png", "overview-min-settled.png", "overview-wide-settled.png",
+      "logbook-min.png", "logbook-wide.png", "flights-min.png", "flights-min-keyboard.png"
+    ]
+  },
+  "preservation": {
+    "controller_cleanup_errors": [],
+    "display_restored": "1080x1920, density 420, font scale 1.0",
+    "network_restored": "airplane_mode_on=1, wifi_on=0, mobile_data=0",
+    "original_apk_independently_reinstalled_and_hashed": "647d84416267152d0c27c04a269f1b3b8508e45938ce6db0417c07b90aaae9ec",
+    "data_reset": false,
+    "final_state": "Owned synthetic AVD stopped; no connected ADB devices; owned helper exited",
+    "provider_sessions": "Provider-session AVDs not started or changed"
+  }
+}
