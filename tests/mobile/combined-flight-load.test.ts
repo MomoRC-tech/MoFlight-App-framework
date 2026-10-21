@@ -14,9 +14,11 @@ const source=ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/sr
 
 // Real screen effects and handlers; SQLite and provider behavior have their own
 // integration tests. These ports control timing to exercise the screen coordinator.
-function fixture({startUpdate=false,root=false,readOnly=false}={}) {
+function fixture({startUpdate=false,root=false,readOnly=false,deferReservation=false,failStartup=false}={}) {
   const hooks:any[]=[],effects:(()=>void)[]=[],calls:string[]=[],closed:any[]=[];
   let index=0,dirty=true,tree:Element,abort:AbortController|null=null;
+  let finishReservation!:()=>void;
+  const reservation=new Promise<void>(resolve=>{finishReservation=resolve;});
   const listeners=new Set<(state:string)=>void>();
   const lease={ownerId:'owner',storeId:'store',leaseId:'lease'};
   const registry={currentOwner:async()=>null,createFreshOwner:async()=>{calls.push('create');return lease;},assertCurrent:async()=>{},close:async()=>{}};
@@ -54,10 +56,11 @@ function fixture({startUpdate=false,root=false,readOnly=false}={}) {
     'react-native-safe-area-context':leaves(['SafeAreaView']), 'expo-crypto':{randomUUID:()=> 'uuid'},'../storage':{hash:async()=>''},
     '../vereinsflieger/flight-diagnostics':{timeFlightStage:(_:string,work:()=>unknown)=>work()},
     '../vereinsflieger/use-access-controller':{useAccessController:()=>({...c})},
-    '../vereinsflieger/real-flight-native':{openOwnerRegistry:async()=>registry,openRealFlightSelection:async()=>({listRestorePreparations:async()=>[],close:async()=>{}})},
+    '../vereinsflieger/real-flight-native':{openOwnerRegistry:async()=>{calls.push('registry');if(failStartup)throw new Error('Startup interrupted');return registry;},openRealFlightSelection:async()=>({listRestorePreparations:async()=>[],close:async()=>{}})},
     '../vereinsflieger/real-flight-owner-setup':{continueRealFlightOwnerSetup:async()=>true},
     '../vereinsflieger/real-flight-service':{RealFlightService:Service,PendingRealFlightOperation:class extends Error{}},
     './core-flight-review-policy':policy,'../vereinsflieger/real-flight-backup-native':{},
+    './own-flight-reader-native':{ownFlightReadPorts:{suspend:async()=>{calls.push('reserve');if(deferReservation)await reservation;return ()=>calls.push('release');}}},
     './ProviderConnection':leaves(['ProviderConnection']),'./theme':{...leaves(['Action','Card','Label','Section']),colors:{}},
     '../vereinsflieger/retrieval-policy':{planFlightRetrieval},'./data-freshness':{dataFreshness},
   };
@@ -67,7 +70,7 @@ function fixture({startUpdate=false,root=false,readOnly=false}={}) {
   function nodes(){const result:Element[]=[];function visit(value:any){if(value&&typeof value==='object'&&'children'in value){result.push(value);value.children.forEach(visit);}}visit(tree);return result;}
   const text=(node:any):string=>node&&typeof node==='object'&&'children'in node?node.children.map(text).join(''):typeof node==='string'?node:'';
   function press(label:string){const node=nodes().find(n=>n.type==='Action'&&text(n)===label);assert.ok(node,label);assert.ok(!node.props.disabled,label);node.props.onPress();}
-  return {render,flush,c,calls,closed,nodes,text:()=>text(tree),press,background:()=>listeners.forEach(f=>f('background')),
+  return {render,flush,c,calls,closed,nodes,text:()=>text(tree),press,finishReservation,background:()=>listeners.forEach(f=>f('background')),
     complete:()=>{c.busy=false;c.result='captured';c.completedFlightSource=input;dirty=true;},
     dispose:()=>{for(const hook of hooks)hook?.cleanup?.();},
   };
@@ -114,4 +117,17 @@ test('fresh local setup is internal to the explicit combined entry, not ordinary
       if(startUpdate)assert.ok(f.nodes().some(n=>typeof n.type==='function'&&n.props.startUpdate===true));
     }finally{f.dispose();}
   }
+});
+
+test('flow cannot open native ownership before read admission, and cancellation releases its queued reservation',async()=>{
+  const f=fixture({root:true,startUpdate:true,deferReservation:true});
+  f.render();await f.flush();assert.deepEqual(f.calls,['reserve']);
+  f.dispose();f.finishReservation();await f.flush();
+  assert.deepEqual(f.calls,['reserve','release']);
+});
+
+test('startup failure releases reserved reader access on exit without creating new storage',async()=>{
+  const f=fixture({root:true,startUpdate:true,failStartup:true});
+  f.render();await f.flush();assert.deepEqual(f.calls,['reserve','registry']);
+  f.dispose();await f.flush();assert.deepEqual(f.calls,['reserve','registry','release']);
 });

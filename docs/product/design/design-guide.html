@@ -218,6 +218,7 @@
 <p>The <a href="../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx">own-flight foundation</a> is a separate Development entry for the authorized core integration checkpoint. It creates a fresh local owner only after the named action, preserves old stores, and uses the original provider interface for explicit account confirmation and bounded retrieval. That confirmation applies to the selected fresh library; users review original rows and counts before explicitly saving flights without book assignment. Saved source facts, revisions and unknown values remain readable offline. Recovery states preserve pending commands/files and disable writes; backup/restore uses its own real-history family and explicit file/folder pickers. Reuse the centered 520 dp C01/C02 groups. The ordinary shell&#x27;s draft/scroll state stays mounted; a guarded suspension detaches its provider browser before the new owner controller mounts. The ordinary Flüge update action now starts the combined guarded login/retrieval/save flow; opening secondary options alone performs no retrieval. Returning reloads the read-only list. Statistics/book/paper remain separate. This describes wiring, not a native acceptance claim.</p>
 <p>The <a href="../../../apps/platform-lab/src/mobile/OwnFlights.tsx">ordinary own-flight view</a> reads the selected real library locally, with loading, missing setup, empty result and failure/retry states. It keeps filters and list position across details; a changed owner/store resets them, while a changed flight revision requires a fresh read. Profile and connection overlays retain the underlying detail route. Search/year filters precede the longer coverage/update card so the focused field remains reachable with a landscape keyboard. The header, filter and detail groups cap at 520 dp; C09 rows use two columns from 600 dp at ordinary text size. Provider text remains selectable and untruncated. Separate source crew slots establish no confirmed identity, role credit, UTC conversion or landing day. Detailed evidence and pending platform gates are in the <a href="../../verification/2026-10-20-ordinary-flights.md">package report</a>.</p>
 <h3 id="chapter-patterns-combined-flight-loading--21-october-2026">Combined flight loading — 21 October 2026</h3>
+<p>Before opening native ownership, the flow reserves the existing reader queue: admitted reads finish first, and later reads wait until teardown. Account/selection recovery remains guarded; the reservation does not make unreadable or divergent candidates writable. <a href="https://github.com/MomoRC-tech/MoFlight-App-framework/issues/40">Handoff correction, #40</a>.</p>
 <p>Start/Profile and Flüge expose the same explicit login-and-load/update action. Necessary fresh local storage is internal. Check retained session cookies through a protected provider profile; show the original login page only when needed, then resume verification after provider navigation. Keep that browser in the same native parent across login/progress. Use one-column, centered progress/forms up to 520 dp; labels wrap with text scaling. The login view omits information-import menus. Provider-required login still belongs to Vereinsflieger; account mismatch and unresolved recovery remain actionable exceptions. Known provider values save through deterministic validation without routine per-row review or a second save confirmation. Display a short result and covered period in ordinary Flüge. Preserve previous saved data and user state on error/cancellation; opening the app does not initiate retrieval.</p>
 <p>The Start summary reads committed-library freshness, independently of raw captures and session checks. Keep the season rings and compact aircraft legend; detailed year/coverage/source information is reached through Flüge rather than repeated in the small season card. Book setup remains deferred and never gates flights. Start shows Später einrichten with a short information sheet instead of displaying synthetic paper-book tasks as real account progress. Retained lab book/paper data stay separate. <a href="../../verification/2026-10-21-simple-flight-loading.md">Package evidence and platform limits</a> distinguish host behavior from native/provider acceptance.</p>
 <h3 id="chapter-patterns-header-overlays-and-navigation">Header, overlays and navigation</h3>
@@ -377,14 +378,14 @@
 <tr><td><i class="swatch" style="background:#ffc477" aria-hidden="true"></i><code>#ffc477</code></td><td>6</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-coreflightfoundationtsx">CoreFlightFoundation.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx">apps/platform-lab/src/mobile/CoreFlightFoundation.tsx</a>; normalized SHA-256 <code>47715a7cc2bce74fdc3b76803d9465973080565de7fe0ae7b33095b8deb61ecf</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx">apps/platform-lab/src/mobile/CoreFlightFoundation.tsx</a>; normalized SHA-256 <code>c1e653595afc1a17169c5d84ad9b3a4ec930e096a01dde2132c3045e48cf7997</code>.</p>
 <h4 id="chapter-implementation-inventory-geometry--opacity-declarations-5">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>gap: 10</code></td><td>102, 103, 331</td></tr>
-<tr><td><code>gap: 8</code></td><td>356, 382, 392</td></tr>
-<tr><td><code>maxWidth: 520</code></td><td>103, 331</td></tr>
-<tr><td><code>padding: 12</code></td><td>102, 331</td></tr>
-<tr><td><code>width: &#x27;100%&#x27;</code></td><td>103, 331</td></tr>
+<tr><td><code>gap: 10</code></td><td>110, 111, 339</td></tr>
+<tr><td><code>gap: 8</code></td><td>364, 390, 400</td></tr>
+<tr><td><code>maxWidth: 520</code></td><td>111, 339</td></tr>
+<tr><td><code>padding: 12</code></td><td>110, 339</td></tr>
+<tr><td><code>width: &#x27;100%&#x27;</code></td><td>111, 339</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-dashboardtsx">Dashboard.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/Dashboard.tsx">apps/platform-lab/src/mobile/Dashboard.tsx</a>; normalized SHA-256 <code>e442b2f41e07adcc536f5ad7d75e0be95757672190a7fdde9d0800e524edf2f3</code>.</p>
@@ -1617,6 +1618,8 @@ The [ordinary own-flight view](../../../apps/platform-lab/src/mobile/OwnFlights.
 
 ## Combined flight loading — 21 October 2026
 
+Before opening native ownership, the flow reserves the existing reader queue: admitted reads finish first, and later reads wait until teardown. Account/selection recovery remains guarded; the reservation does not make unreadable or divergent candidates writable. [Handoff correction, #40](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/40).
+
 Start/Profile and Flüge expose the same explicit login-and-load/update action. Necessary fresh local storage is internal. Check retained session cookies through a protected provider profile; show the original login page only when needed, then resume verification after provider navigation. Keep that browser in the same native parent across login/progress. Use one-column, centered progress/forms up to 520 dp; labels wrap with text scaling. The login view omits information-import menus. Provider-required login still belongs to Vereinsflieger; account mismatch and unresolved recovery remain actionable exceptions. Known provider values save through deterministic validation without routine per-row review or a second save confirmation. Display a short result and covered period in ordinary Flüge. Preserve previous saved data and user state on error/cancellation; opening the app does not initiate retrieval.
 
 The Start summary reads committed-library freshness, independently of raw captures and session checks. Keep the season rings and compact aircraft legend; detailed year/coverage/source information is reached through Flüge rather than repeated in the small season card. Book setup remains deferred and never gates flights. Start shows Später einrichten with a short information sheet instead of displaying synthetic paper-book tasks as real account progress. Retained lab book/paper data stay separate. [Package evidence and platform limits](../../verification/2026-10-21-simple-flight-loading.md) distinguish host behavior from native/provider acceptance.
@@ -1831,17 +1834,17 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/connection-guidan
 
 ## CoreFlightFoundation.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `47715a7cc2bce74fdc3b76803d9465973080565de7fe0ae7b33095b8deb61ecf`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `c1e653595afc1a17169c5d84ad9b3a4ec930e096a01dde2132c3045e48cf7997`.
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `gap: 10` | 102, 103, 331 |
-| `gap: 8` | 356, 382, 392 |
-| `maxWidth: 520` | 103, 331 |
-| `padding: 12` | 102, 331 |
-| `width: &#x27;100%&#x27;` | 103, 331 |
+| `gap: 10` | 110, 111, 339 |
+| `gap: 8` | 364, 390, 400 |
+| `maxWidth: 520` | 111, 339 |
+| `padding: 12` | 110, 339 |
+| `width: &#x27;100%&#x27;` | 111, 339 |
 
 ## Dashboard.tsx
 
@@ -3099,7 +3102,7 @@ States / limits: Recreated approved variant, not a byte-identical copy of an old
 Source: docs/assets/branding/moflight-app-icon-ai.png
 docs/assets/branding/README.md; app.json
 </textarea></section>
-<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: a8807e9086d5170bb5b50b87489095b69c8581252367caf79a87e9e05a87340f. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
+<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: 95bd0785314f6febe445999aaeb6816b2b0bff6decc9808282297b39257004c1. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
 </main><script>
 'use strict';
 const brief = document.querySelector('#brief');

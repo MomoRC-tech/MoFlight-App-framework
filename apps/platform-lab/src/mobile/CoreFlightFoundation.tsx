@@ -23,12 +23,14 @@ import { ProviderConnection } from './ProviderConnection';
 import { Action, Card, Label, Section, colors } from './theme';
 import { planFlightRetrieval } from '../vereinsflieger/retrieval-policy';
 import { dataFreshness } from './data-freshness';
+import { ownFlightReadPorts } from './own-flight-reader-native';
 
 export interface FlightLoadResult { added: number; changed: number; pending: number; from: string; to: string }
 export function CoreFlightFoundation({ close, startUpdate = false }: {close: (result?: FlightLoadResult) => void; startUpdate?: boolean}) {
   const [requestedUpdate,setRequestedUpdate] = useState(startUpdate);
   const registry = useRef<RealOwnerRegistry | null>(null), alive = useRef(true), lock = useRef(false);
   const initialRepository = useRef<RealFlightRepositorySession | null>(null);
+  const releaseOwnReads = useRef<(() => void) | null>(null);
   function takeInitialRepository() { const session=initialRepository.current;initialRepository.current=null;return session; }
   const [lease,setLease] = useState<RealOwnerLease | null>(null), [setupLease,setSetupLease] = useState<RealOwnerLease | null>(null);
   const [loading,setLoading] = useState(true), [error,setError] = useState(false);
@@ -56,7 +58,10 @@ export function CoreFlightFoundation({ close, startUpdate = false }: {close: (re
 
   useEffect(()=>{
     alive.current = true;
-    void (async()=>{
+    const startup = (async()=>{
+      const release = await ownFlightReadPorts.suspend();
+      if(!alive.current){release();return;}
+      releaseOwnReads.current=release;
       const opened = await timeFlightStage('owner-registry-open',()=>openOwnerRegistry(false));
       if (!alive.current) { await opened?.close(); return; }
       registry.current = opened; const selected = await timeFlightStage('owner-selection',async()=>opened?.currentOwner());
@@ -69,8 +74,11 @@ export function CoreFlightFoundation({ close, startUpdate = false }: {close: (re
       else { setSetupLease(selected); setError(true); }
     })().catch(()=>{if(alive.current)setError(true);}).finally(()=>{if(alive.current)setLoading(false);});
     return ()=>{
-      alive.current=false;const unused=takeInitialRepository();
-      void (async()=>{try{await unused?.close();}finally{await registry.current?.close();}})()
+      alive.current=false;
+      void (async()=>{
+        try { await startup; const unused=takeInitialRepository();try{await unused?.close();}finally{await registry.current?.close();} }
+        finally { releaseOwnReads.current?.();releaseOwnReads.current=null; }
+      })()
         .catch(()=>console.warn('Own-flight startup cleanup could not be confirmed.'));
     };
   },[]);

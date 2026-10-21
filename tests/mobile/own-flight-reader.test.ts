@@ -70,3 +70,18 @@ test('missing selection, failed open and failed close release the queue without 
   assert.equal((results[1] as PromiseFulfilledResult<unknown>).value,null);
   assert.equal((results[3] as PromiseFulfilledResult<any>).value.flights.length,3);assert.equal(attempt,4);
 });
+
+test('provider-flow reservation drains native readers and blocks later reads until released',async()=>{
+  const f=ownFlightFixture();let opened=0,finishClose!:()=>void;
+  const closing=new Promise<void>(resolve=>{finishClose=resolve;});
+  const ports=serializeOwnFlightReads({open:async()=>{opened++;return {...f.session,close:async()=>{if(opened===1)await closing;}};}});
+  const first=await ports.open();assert.ok(first);
+  const close=first.close();let admitted=false;
+  const reservation=ports.suspend().then(release=>{admitted=true;return release;});
+  const later=ports.open();
+  await new Promise<void>(resolve=>{setImmediate(resolve);});assert.equal(admitted,false);assert.equal(opened,1);
+  finishClose();await close;const release=await reservation;
+  await new Promise<void>(resolve=>{setImmediate(resolve);});assert.equal(opened,1);
+  release();release();const next=await later;assert.ok(next);await next.close();assert.equal(opened,2);
+  const again=await ports.open();assert.ok(again);await again.close();assert.equal(opened,3);
+});

@@ -267,6 +267,8 @@ The [ordinary own-flight view](../../../apps/platform-lab/src/mobile/OwnFlights.
 
 ## Combined flight loading — 21 October 2026
 
+Before opening native ownership, the flow reserves the existing reader queue: admitted reads finish first, and later reads wait until teardown. Account/selection recovery remains guarded; the reservation does not make unreadable or divergent candidates writable. [Handoff correction, #40](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/40).
+
 Start/Profile and Flüge expose the same explicit login-and-load/update action. Necessary fresh local storage is internal. Check retained session cookies through a protected provider profile; show the original login page only when needed, then resume verification after provider navigation. Keep that browser in the same native parent across login/progress. Use one-column, centered progress/forms up to 520 dp; labels wrap with text scaling. The login view omits information-import menus. Provider-required login still belongs to Vereinsflieger; account mismatch and unresolved recovery remain actionable exceptions. Known provider values save through deterministic validation without routine per-row review or a second save confirmation. Display a short result and covered period in ordinary Flüge. Preserve previous saved data and user state on error/cancellation; opening the app does not initiate retrieval.
 
 The Start summary reads committed-library freshness, independently of raw captures and session checks. Keep the season rings and compact aircraft legend; detailed year/coverage/source information is reached through Flüge rather than repeated in the small season card. Book setup remains deferred and never gates flights. Start shows Später einrichten with a short information sheet instead of displaying synthetic paper-book tasks as real account progress. Retained lab book/paper data stay separate. [Package evidence and platform limits](../../verification/2026-10-21-simple-flight-loading.md) distinguish host behavior from native/provider acceptance.
@@ -481,17 +483,17 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/connection-guidan
 
 ## CoreFlightFoundation.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `47715a7cc2bce74fdc3b76803d9465973080565de7fe0ae7b33095b8deb61ecf`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `c1e653595afc1a17169c5d84ad9b3a4ec930e096a01dde2132c3045e48cf7997`.
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `gap: 10` | 102, 103, 331 |
-| `gap: 8` | 356, 382, 392 |
-| `maxWidth: 520` | 103, 331 |
-| `padding: 12` | 102, 331 |
-| `width: '100%'` | 103, 331 |
+| `gap: 10` | 110, 111, 339 |
+| `gap: 8` | 364, 390, 400 |
+| `maxWidth: 520` | 111, 339 |
+| `padding: 12` | 110, 339 |
+| `width: '100%'` | 111, 339 |
 
 ## Dashboard.tsx
 
