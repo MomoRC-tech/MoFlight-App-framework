@@ -497,7 +497,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundat
 
 ## Dashboard.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](../../../apps/platform-lab/src/mobile/Dashboard.tsx); normalized SHA-256 `e442b2f41e07adcc536f5ad7d75e0be95757672190a7fdde9d0800e524edf2f3`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](../../../apps/platform-lab/src/mobile/Dashboard.tsx); normalized SHA-256 `055fc4462ac73425babf2b28ae2bf7c995521b6260ad29748985114340641f9b`.
 
 ### Literal colors
 

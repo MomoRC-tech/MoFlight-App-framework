@@ -46,6 +46,7 @@ test('real season rings use deduplicated aircraft shares and the card supplies i
 
 test('empty/unknown-only rings invent no time; unavailable states and enlarged text keep honest alternatives',()=>{
   const empty=render([]),rings=empty.nodes.filter(n=>n.type==='SeasonRing');
+  assert.ok(empty.nodes.some(n=>n.type==='Card'&&n.props.label==='Informationen zum Papierflugbuch ansehen'));
   assert.equal(rings[0]!.props.value,'0');assert.equal(rings[1]!.props.value,'—');
   assert.deepEqual(rings[1]!.props.slices,[]);
   for(const phase of ['loading','failed','missing'])assert.equal(render([],phase).nodes.filter(n=>n.type==='SeasonRing').length,0);
