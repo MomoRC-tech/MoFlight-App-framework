@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Label } from './theme';
 import type { RingSlice } from './season-model';
@@ -8,7 +8,7 @@ const thickness = 6;
 const radius = (size - thickness) / 2;
 
 /** Two tiny charts only: native tangent strips approximate arcs without a map/SVG dependency. */
-export function SeasonRing({ slices, value, label, description }: {
+export const SeasonRing = memo(function SeasonRing({ slices, value, label, description }: {
   slices: readonly RingSlice[]; value: string; label: string; description: string;
 }) {
   return <View accessible accessibilityLabel={description} style={styles.ring}>
@@ -38,7 +38,7 @@ export function SeasonRing({ slices, value, label, description }: {
     <View style={styles.center} />
     <Label style={styles.value}>{value}</Label><Label style={styles.label}>{label}</Label>
   </View>;
-}
+});
 
 const styles = StyleSheet.create({
   ring: { width: size, height: size, alignItems: 'center', justifyContent: 'center', backgroundColor: '#061626', borderRadius: size / 2, overflow: 'hidden' },

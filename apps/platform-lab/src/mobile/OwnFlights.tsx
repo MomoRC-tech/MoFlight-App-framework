@@ -2,20 +2,17 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ActivityIndicator, FlatList, Keyboard, Pressable, ScrollView, StyleSheet, TextInput, View, useWindowDimensions } from 'react-native';
 import { Action, Card, Chip, Empty, GliderMark, IconLabel, Label, Section, colors, ui } from './theme';
 import { SymbolIcon } from './SymbolIcon';
-import { useOwnFlights } from './use-own-flights';
-import { ownFlightReadPorts } from './own-flight-reader-native';
+import type { useOwnFlights } from './use-own-flights';
 import { allOwnFlights, ownFlightYears, ownFlightRegistrations, ownRawValue, selectOwnFlights, type OwnFlightFilters } from './own-flight-model';
-import type { OwnFlightReadPorts } from './own-flight-reader';
 import { planFlightRetrieval } from '../vereinsflieger/retrieval-policy';
 import { dataFreshness } from './data-freshness';
 import { reviewDuration, reviewParsedField, reviewRawField } from '../vereinsflieger/capture-review';
 
 export interface OwnFlightHeader { title: string; back?: () => void }
-export function OwnFlights({ active, reloadKey, filterRequest, onUpdate, onHeaderChange, ports = ownFlightReadPorts }: {
-  active: boolean; reloadKey: number; filterRequest?: { year: number | null } | null; onUpdate: () => boolean;
-  onHeaderChange: (header: OwnFlightHeader) => void; ports?: OwnFlightReadPorts;
+export function OwnFlights({ active, data, filterRequest, onUpdate, onHeaderChange }: {
+  active: boolean; data: ReturnType<typeof useOwnFlights>; filterRequest?: { year: number | null } | null; onUpdate: () => boolean;
+  onHeaderChange: (header: OwnFlightHeader) => void;
 }) {
-  const data = useOwnFlights(ports, active, reloadKey);
   const [filters, setFilters] = useState<OwnFlightFilters>(allOwnFlights);
   const [filterOpen, setFilterOpen] = useState(false), [notice, setNotice] = useState('');
   const [rawPage, setRawPage] = useState(0), [statusOpen, setStatusOpen] = useState(false);

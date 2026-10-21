@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Card, GliderMark, IconLabel, Label, Photo, Section, colors, ui } from './theme';
 import type { OwnFlightView } from './own-flight-reader';
@@ -18,14 +18,16 @@ interface Props {
 }
 export function Dashboard({ ownFlights, ownFlightPhase, pending, width, fontScale, onPaper, onAi, onFlights, onClub, onStatus }: Props) {
   const year = new Date().getFullYear();
-  const real = ownFlights?.flights ?? [];
-  const statistics = summarizeRealFlights(real, year);
+  const real = useMemo(() => ownFlights?.flights ?? [], [ownFlights]);
+  const statistics = useMemo(() => summarizeRealFlights(real, year), [real, year]);
   const season = statistics.season;
   const time = season.knownDurationCount ? formatReportedMinutes(season.knownMinutes) : '—';
   const showRings = fontScale <= 1.3 && String(season.count).length <= 5 && time.length <= 5;
-  const retrieval = ownFlights ? planFlightRetrieval(ownFlights.snapshot.savedRetrievals) : null;
+  const retrieval = useMemo(() => ownFlights ? planFlightRetrieval(ownFlights.snapshot.savedRetrievals) : null, [ownFlights]);
   const freshness = dataFreshness(retrieval?.lastSuccessfulRetrievalAt ?? null, ownFlightPhase === 'ready' ? 'ready' : ownFlightPhase === 'failed' ? 'failed' : 'loading');
-  const latest = [...real].filter(f => f.facts.assessment.date.state === 'parsed').sort((a,b) => (b.facts.assessment.date.value ?? '').localeCompare(a.facts.assessment.date.value ?? ''))[0];
+  const latest = useMemo(() => [...real].filter(f => f.facts.assessment.date.state === 'parsed').sort((a,b) => (b.facts.assessment.date.value ?? '').localeCompare(a.facts.assessment.date.value ?? ''))[0], [real]);
+  const countSlices = useMemo(() => seasonRingSlices(season.aircraft, 'count'), [season]);
+  const timeSlices = useMemo(() => seasonRingSlices(season.aircraft, 'knownMinutes'), [season]);
   const largeText = fontScale > 1.3;
   const multiColumn = width >= 840 && !largeText;
   const pairWidth = multiColumn ? (Math.min(width - 20, 920) - 8) / 2 : Math.min(width - 20, 430);
@@ -45,8 +47,8 @@ export function Dashboard({ ownFlights, ownFlightPhase, pending, width, fontScal
         <View style={ui.section}><Section title="Deine Saison" /><View style={styles.yearBadge}><Label style={styles.small}>{year}</Label></View></View>
         {ownFlightPhase === 'ready' ? <>
           {showRings ? <View style={styles.rings}>
-            <SeasonRing slices={seasonRingSlices(season.aircraft, 'count')} value={String(season.count)} label="Flüge" description={`${season.count} gespeicherte Flüge ${year}, Anteile nach Kennzeichen.`} />
-            <SeasonRing slices={seasonRingSlices(season.aircraft, 'knownMinutes')} value={time} label="Std." description={`${time} bekannte gemeldete Stunden ${year}, Anteile nach Kennzeichen; ${season.unknownDurationCount} Zeiten unbekannt oder strittig.`} />
+            <SeasonRing slices={countSlices} value={String(season.count)} label="Flüge" description={`${season.count} gespeicherte Flüge ${year}, Anteile nach Kennzeichen.`} />
+            <SeasonRing slices={timeSlices} value={time} label="Std." description={`${time} bekannte gemeldete Stunden ${year}, Anteile nach Kennzeichen; ${season.unknownDurationCount} Zeiten unbekannt oder strittig.`} />
           </View> : <View style={styles.seasonMetrics}><View style={styles.metric}><Text style={styles.value}>{season.count}</Text><Label muted>Flüge {year}</Label></View><View style={styles.metric}><Text style={styles.value}>{time}</Text><Label muted>gemeldete Std.</Label></View></View>}
           <Label muted style={styles.small}>{season.unknownDurationCount} Saisonzeiten unbekannt/strittig</Label>
           {season.aircraft.map(item => <View key={item.aircraft} style={ui.row}><View style={[styles.aircraftKey, { backgroundColor: item.color }]} /><Label muted style={[styles.small, { flex: 1 }]}>{item.aircraft}: {item.count} Flüge · {item.knownMinutes === null ? 'Zeit unbekannt' : `${formatReportedMinutes(item.knownMinutes)} h bekannt`}{item.unknownDurationCount ? ` · ${item.unknownDurationCount} Zeiten unbekannt/strittig` : ''}</Label></View>)}

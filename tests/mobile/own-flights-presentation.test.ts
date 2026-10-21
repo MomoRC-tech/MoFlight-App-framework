@@ -30,11 +30,11 @@ function fixture() {
   const modules:Record<string,unknown>={react:{default:react,...react},'react-native':{
     ...leaves(['ActivityIndicator','FlatList','Pressable','ScrollView','TextInput','View']),Keyboard:{dismiss(){}},StyleSheet:{create:(x:unknown)=>x},useWindowDimensions:()=>({width:390,fontScale:1}),
   },'./theme':{...leaves(['Action','Card','Chip','Empty','GliderMark','IconLabel','Label','Section']),colors:{},ui:{}},'./SymbolIcon':leaves(['SymbolIcon']),
-  './use-own-flights':{useOwnFlights:()=>data},'./own-flight-reader-native':{ownFlightReadPorts:{}},'./own-flight-model':model,
+  './use-own-flights':{useOwnFlights:()=>{throw new Error('Presentation must reuse the shell reader');}},'./own-flight-reader-native':{ownFlightReadPorts:{}},'./own-flight-model':model,
   '../vereinsflieger/retrieval-policy':{planFlightRetrieval},'./data-freshness':{dataFreshness},'../vereinsflieger/capture-review':review};
   const exports:any={};runInNewContext(source,{exports,require:(name:string)=>{assert.ok(name in modules,name);return modules[name];}});
   let tree:Element;const header=()=>{};
-  function render(){index=0;tree=exports.OwnFlights({active,filterRequest,reloadKey:0,onUpdate:()=>false,onHeaderChange:header});effects.splice(0).forEach(fn=>fn());return tree;}
+  function render(){index=0;tree=exports.OwnFlights({active,filterRequest,data,onUpdate:()=>false,onHeaderChange:header});effects.splice(0).forEach(fn=>fn());return tree;}
   function nodes(){const result:Element[]=[];const visit=(n:any)=>{if(n?.children){result.push(n);n.children.forEach(visit);if(n.type==='FlatList')visit(n.props.ListHeaderComponent);}};visit(tree);return result;}
   function find(type:string,label?:string){const node=nodes().find(n=>n.type===type&&(!label||n.props.accessibilityLabel===label));assert.ok(node,`${type} ${label}`);return node;}
   render();return{data,render,find,restores,request:(year:number|null)=>{filterRequest={year};render();render();},setActive:(value:boolean)=>{active=value;render();}};

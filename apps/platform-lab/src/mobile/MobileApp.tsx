@@ -101,7 +101,7 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
     previouslyToolsOpen.current = toolsOpen;
   }, [toolsOpen]);
   const library = useLibrary(toolsOpen || sheet === 'backup');
-  const ownFlights = useOwnFlights(ownFlightReadPorts, (tab === 'home' || sheet === 'profile') && !connectionOpen && !coreFlightsOpen, flightReload);
+  const ownFlights = useOwnFlights(ownFlightReadPorts, !connectionOpen && !coreFlightsOpen, flightReload);
   // Presentation only. The legacy provider controller must never gain the real
   // owner's authorization or pretend its synthetic-owner observation is current.
   const flightStatusController={...connection,connection:ownFlightConnectionState(recentConnection,
@@ -190,7 +190,7 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
       </View>
       <View style={[s.page, tab !== 'flights' && s.hidden]} accessibilityElementsHidden={tab !== 'flights'} importantForAccessibility={tab === 'flights' ? 'auto' : 'no-hide-descendants'}>
         {lastLoad&&<Card><View accessibilityLiveRegion="polite"><Label>{lastLoad.added} neue · {lastLoad.changed} aktualisierte Flüge gespeichert{lastLoad.pending ? ` · ${lastLoad.pending} ungeklärte Beobachtungen` : ''}</Label><Label muted>Zeitraum: {lastLoad.from} bis {lastLoad.to}</Label></View></Card>}
-        <OwnFlights filterRequest={flightRequest} active={tab === 'flights' && !coreFlightsOpen} reloadKey={flightReload} onHeaderChange={setFlightHeader}
+        <OwnFlights filterRequest={flightRequest} active={tab === 'flights' && !coreFlightsOpen} data={ownFlights} onHeaderChange={setFlightHeader}
           onUpdate={()=>openFlightFlow(true)} />
       </View>
       <View style={[s.page, tab !== 'logbook' && s.hidden]} accessibilityElementsHidden={tab !== 'logbook'} importantForAccessibility={tab === 'logbook' ? 'auto' : 'no-hide-descendants'}>

@@ -362,6 +362,8 @@ Implementation and acceptance are separate. Use the current delivery/order above
 
 ### 2.1 Acceptance traceability
 
+Returning Start/Fluge navigation (#45): one foreground verified flight projection now serves both screens; unchanged statistics/rings reuse derived data. [Host regression evidence and pending native/phone responsiveness](verification/2026-10-21-simple-flight-loading.md#unchanged-tab-navigation-follow-up--45) cover this bounded follow-up; broader statistics/platform acceptance remains open.
+
 For first-use/returning flight loading under #22/#2/#19/#20, the [combined-flow report](verification/2026-10-21-simple-flight-loading.md) links screen orchestration, provider-controller, SQLite service and committed-library freshness tests to zero-book setup, retained/expired/wrong account, cancellation/backgrounding, unknown/conflicting data, recovery and idempotent save. Source-specific Android/live/offline evidence and remaining acceptance stay in that report.
 
 **Controller maintenance / R04/R12, FL-03/10/11 and G06/S13 (#38/#39):** the [current review](verification/2026-10-17-current-status-and-open-issues.md#20-october-review--baseline-repair-and-bounded-controller-refactor) links the repaired [shell navigation scenarios](../tests/mobile/mobile-header-navigation.test.ts), [real-controller lifecycle/recovery and cross-feature admission tests](../tests/mobile/vereinsflieger-access-recovery.test.ts), source-specific host checks and the passed bounded platform/native checkpoint and its explicit remaining live/iOS/physical limits. The split changes internal ownership of login/information state only; broader authentication, live source quality, iOS and physical acceptance remain separate.

@@ -16,17 +16,20 @@ const source=ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/sr
 function render(flights:any[], phase='ready', fontScale=1) {
   const leaves=(names:string[])=>Object.fromEntries(names.map(n=>[n,n]));
   const react={createElement:(type:string,props:Element['props'],...children:any[]):Element=>({type,props:props??{},children:children.flat(Infinity)})};
-  const modules:Record<string,unknown>={react:{default:react},'react-native':{...leaves(['Pressable','Text','View']),StyleSheet:{create:(x:unknown)=>x}},
+  let hookIndex=0; const memos:{deps:unknown[];value:unknown}[]=[];
+  const useMemo=(fn:()=>unknown,deps:unknown[])=>{const i=hookIndex++;if(!memos[i]||deps.some((v,n)=>v!==memos[i]!.deps[n]))memos[i]={deps,value:fn()};return memos[i]!.value;};
+  const modules:Record<string,unknown>={react:{default:react,useMemo},'react-native':{...leaves(['Pressable','Text','View']),StyleSheet:{create:(x:unknown)=>x}},
     './theme':{...leaves(['Card','GliderMark','IconLabel','Label','Photo','Section']),colors:{},ui:{}},'./SymbolIcon':leaves(['SymbolIcon']),
     './SeasonRing':leaves(['SeasonRing']),'./season-model':season,'./real-flight-statistics':statistics,
     './data-freshness':{dataFreshness},'../vereinsflieger/retrieval-policy':{planFlightRetrieval}};
   const exports:any={};runInNewContext(source,{exports,Date:class extends Date {getFullYear(){return 2026;}},require:(name:string)=>{
     if(name.startsWith('../../assets/'))return name;assert.ok(name in modules,name);return modules[name];}});
   const calls:(number|undefined)[]=[];
-  const tree=exports.Dashboard({ownFlights:{flights,snapshot:{savedRetrievals:[]}},ownFlightPhase:phase,pending:null,width:390,fontScale,
-    onFlights:(year?:number)=>calls.push(year)});
+  const props={ownFlights:{flights,snapshot:{savedRetrievals:[]}},ownFlightPhase:phase,pending:null,width:390,fontScale,
+    onFlights:(year?:number)=>calls.push(year)};
+  const tree=exports.Dashboard(props);
   const nodes:Element[]=[];function visit(n:any){if(n?.children){nodes.push(n);n.children.forEach(visit);}}visit(tree);
-  return {nodes,calls,text:JSON.stringify(tree)};
+  return {nodes,calls,text:JSON.stringify(tree), rerender(nextFlights=flights){hookIndex=0;if(nextFlights!==props.ownFlights.flights)props.ownFlights={...props.ownFlights,flights:nextFlights};return exports.Dashboard(props);}};
 }
 
 test('real season rings use deduplicated aircraft shares and the card supplies its year',()=>{
@@ -51,4 +54,12 @@ test('empty/unknown-only rings invent no time; unavailable states and enlarged t
   assert.deepEqual(rings[1]!.props.slices,[]);
   for(const phase of ['loading','failed','missing'])assert.equal(render([],phase).nodes.filter(n=>n.type==='SeasonRing').length,0);
   assert.equal(render([],'ready',1.4).nodes.filter(n=>n.type==='SeasonRing').length,0);
+});
+
+ test('unchanged dashboard renders retain ring slices; a new flight projection updates them',()=>{
+  const flights=ownFlightFixture().flights;const f=render(flights);
+  const slices=(tree:any)=>{const found:any[]=[];const visit=(n:any)=>{if(n?.type==='SeasonRing')found.push(n.props.slices);n?.children?.forEach(visit);};visit(tree);return found;};
+  const initial=f.nodes.filter(n=>n.type==='SeasonRing').map(n=>n.props.slices);
+  for(let i=0;i<3;i++){const next=slices(f.rerender());assert.equal(next[0],initial[0]);assert.equal(next[1],initial[1]);}
+  const changed=slices(f.rerender([]));assert.notEqual(changed[0],initial[0]);assert.equal(changed[0].length,0);
 });

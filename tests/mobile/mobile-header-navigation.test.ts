@@ -30,6 +30,7 @@ function fixture() {
   const library = { flights: [flight], books: [{ id: 'synthetic-book', name: 'Synthetic book' }], bookId: 'synthetic-book', pending: 0, displayName: 'Synthetic pilot' };
   const controller = { visible: false, informationCaptures: [], connection: { phase: 'unknown' }, refreshRecovery: () => calls.push('refresh-recovery'), dismissLogin() {}, backWithinProvider: () => false, suspendBrowserForOwnerSwitch: () => true };
   const calls: string[] = [];
+  const readEnabled:boolean[]=[];
   let suspended = false;
   let lastLoad:any=null, ownView:any=null, appStateListener:((state:string)=>void)|undefined;
   Object.assign(controller, { connect: () => calls.push('connect'), checkConnection: () => calls.push('check'), retrieve: () => calls.push('retrieve') });
@@ -62,7 +63,7 @@ function fixture() {
     './ImportPreview': leaves(['ImportPreview']),
     './CoreFlightFoundation': leaves(['CoreFlightFoundation']),
     './OwnFlights': leaves(['OwnFlights']),
-    './use-own-flights': { useOwnFlights: () => ({ view: ownView, phase: ownView?'ready':'missing' }) },
+    './use-own-flights': { useOwnFlights: (_ports:unknown,active:boolean) => {readEnabled.push(active);return { view: ownView, phase: ownView?'ready':'missing' };} },
     './own-flight-reader-native': { ownFlightReadPorts: {} },
     './ConnectionSummary': leaves(['ConnectionSummary']), './medical-source': { medicalSource },
     './connection-guidance': { ownFlightConnectionState },
@@ -92,7 +93,7 @@ function fixture() {
     render();
   }
   render(); render();
-  return { render, nodes, find, headers, parent, press, openOwnDetail, flight, library, controller, calls, suspended: () => suspended, hardwareBack: () => hardwareBack!(),
+  return { render, nodes, find, headers, parent, press, openOwnDetail, flight, library, controller, calls, readEnabled, suspended: () => suspended, hardwareBack: () => hardwareBack!(),
     showLoad:(result:any,view:any)=>{lastLoad=result;ownView=view;render();render();},
     appState:(state:string)=>{appStateListener?.(state);render();} };
 }
@@ -345,7 +346,7 @@ test('nested settings preserve the unsaved profile draft and each sheet scroll o
   assert.deepEqual(f.calls, []);
 });
 
- test('ordinary flights uses its own reader, routes explicit updates safely and handles nested Back', () => {
+ test('ordinary flights shares the shell reader, routes explicit updates safely and handles nested Back', () => {
   const f=fixture();f.press('Pressable','Flüge');
   assert.equal(f.find('OwnFlights').props.active,true);
   assert.ok(f.nodes().some(n=>n.type==='Label' && n.children.includes('Entwicklung · eigene gespeicherte Flüge')));
@@ -370,4 +371,20 @@ test('dashboard year reaches ordinary Flüge as a fresh request without provider
   f.find('Dashboard').props.onFlights();f.render();
   assert.equal(f.find('OwnFlights').props.filterRequest.year,null);
   assert.deepEqual(f.calls,[]);
+  assert.ok(f.readEnabled.every(Boolean), 'Tab changes must not suspend or restart the reader');
+});
+
+test('tab round trips retain the same shell flight projection for Start and flights',()=>{
+  const f=fixture();const view={snapshot:{ownerId:'owner-a',account:{accountRef:'account-a'}},flights:[]};
+  f.showLoad(null,view);
+  for(let i=0;i<3;i++){
+    const list=f.find('OwnFlights');assert.equal(list.props.data.view,view);
+    assert.equal(f.find('Dashboard').props.ownFlights,view);
+    f.find('Dashboard').props.onFlights();f.render();
+    assert.equal(f.find('OwnFlights').props.data.view,view);
+    assert.equal(f.hardwareBack(),true);f.render();
+    assert.equal(f.find('Dashboard').props.ownFlights,view);
+  }
+  assert.deepEqual(f.calls,[]);
+  assert.ok(f.readEnabled.every(Boolean), 'Tab changes must not suspend or restart the reader');
 });
