@@ -12,6 +12,16 @@ The choices below are confirmed product intent. They do not establish provider c
 
 Manuel requested journeys and needed information before choosing overall layouts. The three earlier in-chat German concepts are exploratory and unselected; their explicit completion-checkbox flow is now outdated. Figma files and reviewed application wireframes have not been created. Keep UI text German, documentation/communication English. Ask one focused question at a time, offer clickable suggested answers and free text, and wait for an actual reply. A preselected option is not an answer. Confirm the preceding answer before opening the next question.
 
+## Start data updates only on relevant change — 21 October 2026
+
+**Selected general requirement, Manuel:** only update the Start screen's data if something changed. Applies to every Start card, statistic and status, including future content; tracking: [#45](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/45), coordinated with #9/#20/#22.
+
+Keep unchanged usable content immediately available across navigation and repeated unchanged reads/retrievals. Do not clear/rebuild the screen or repeat unaffected calculations merely because the user returns. Update only content whose relevant inputs changed: source values, selected account/scope, settings or a time boundary used by the displayed result. For example, a successful identical retrieval can update its timestamp while unchanged flight statistics remain ready; a new year or freshness threshold can change the affected time-dependent content.
+
+Required storage, ownership and session validation remains separate from publishing changed content. Never display another account's data or treat a failed check as current verification. This requirement selects no background polling, new cache technology or weakened integrity checks.
+
+**Acceptance:** unchanged inputs/results preserve displayed content without repeated loading or derivation; changed inputs update all dependent sections while unrelated sections remain stable. Cover navigation, identical retrieval, changed source values, failure/retry, relevant date transitions and account switching. The bounded tab-navigation fix in `6f87381` is an initial implementation; broader Start-wide compliance and native/phone responsiveness remain open. This clarification records product intent, not completion of all affected features.
+
 ## Single-action login and flight loading — 21 October 2026
 
 **Selected user need, Manuel:** menus are too complex. Users should open the app, use one login action and immediately retrieve their data, with no or minimal curation. This refines the next implementation package under [#22](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/22); it supersedes the earlier normal-journey requirement for separate retrieval/review/save actions. Manuel subsequently authorized implementation on 21 October; the combined flow is implemented in source. [Verification and remaining native/provider acceptance](../verification/2026-10-21-simple-flight-loading.md) remain separate.
