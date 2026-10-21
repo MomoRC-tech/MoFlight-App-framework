@@ -40,7 +40,7 @@ function fixture({startUpdate=false,root=false,readOnly=false,deferReservation=f
     endGuidedFlightConnection:()=>{},connect:()=>calls.push('login'),
     retrieveMedical:async()=>{calls.push('medical');if(medicalFailure)throw new Error('Synthetic Medical failure');return {rows:[{}]};},
     checkConnection:()=>{calls.push('retrieve');c.busy=true;dirty=true;},
-    dismissLogin:()=>{c.visible=false;dirty=true;},backWithinProvider:()=>false,cancelRetrieval:()=>{c.busy=false;dirty=true;},
+    dismissLogin:()=>{c.visible=false;c.busy=false;dirty=true;},backWithinProvider:()=>false,cancelRetrieval:()=>{c.busy=false;dirty=true;},
   };
   class Service {
     constructor(...args:any[]) { this.ports=args[3]; }
