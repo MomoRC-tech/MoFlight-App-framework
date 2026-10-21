@@ -26,6 +26,7 @@ import { dataFreshness } from './data-freshness';
 import { ownFlightReadPorts } from './own-flight-reader-native';
 import type { OwnFlightConnectionEvidence } from './connection-guidance';
 import { retrieveOtherAccountData, runAccountRetrievalJobs, type MedicalJobStatus } from './account-retrieval-jobs';
+import { retrievalFailureHint } from '../vereinsflieger/connection-state';
 
 export interface FlightLoadResult { added: number; changed: number; pending: number; from: string; to: string;
   verifiedConnection?: OwnFlightConnectionEvidence; medicalStatus?: MedicalJobStatus }
@@ -245,7 +246,7 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,takeInitialReposit
     if(lock.current||!alive.current)return;lock.current=true;setBusy(true);setFailed(false);setMessage('');
     try{await work();}catch(error){if(alive.current){
       setFailed(true);if(automatic.current)setProviderOpen(false);
-      setMessage(error instanceof PendingRealFlightOperation?'Der gespeicherte Auftrag muss zuerst über seinen Beleg geprüft werden. Kein neuer Auftrag wurde gestartet.':controller.current.connection.phase==='mismatch'?'Ein anderes Vereinsflieger-Konto oder ein anderer Verein ist angemeldet. Bitte melde dich mit dem bisherigen Konto an. Deine gespeicherten Flüge bleiben erhalten.':'Der Vorgang konnte nicht bestätigt werden. Gespeicherte Daten und Belege bleiben erhalten.');
+      setMessage(error instanceof PendingRealFlightOperation?'Der gespeicherte Auftrag muss zuerst über seinen Beleg geprüft werden. Kein neuer Auftrag wurde gestartet.':controller.current.connection.phase==='mismatch'?'Ein anderes Vereinsflieger-Konto oder ein anderer Verein ist angemeldet. Bitte melde dich mit dem bisherigen Konto an. Deine gespeicherten Flüge bleiben erhalten.':controller.current.connection.phase==='error'?'Die Anbieteranmeldung konnte nicht geprüft werden. Bitte erneut versuchen. Gespeicherte Flüge bleiben erhalten.':controller.current.result==='failed'?retrievalFailureHint(controller.current.status):'Der Vorgang konnte nicht bestätigt werden. Gespeicherte Daten und Belege bleiben erhalten.');
       if(error instanceof PendingRealFlightOperation){try{await refresh();}catch{/* Keep the failure and original journal visible. */}}
     }}
     finally{lock.current=false;if(alive.current)setBusy(false);}

@@ -295,6 +295,23 @@ test('returning combined entry checks protected profile before exposing login',a
   f.unmount();
 });
 
+test('rechecking an observed same-URL profile uses native reload and still requires fresh navigation/account proof',async()=>{
+  const f=fixture({product:true});f.render();await f.settle(null);await establishProductAssociation(f);
+  const count=f.nativeReloads();
+  f.controller().checkConnection('retrieve');await f.flush();
+  assert.equal(f.nativeReloads(),count+1);assert.equal(f.controller().connection.confirmed,false);
+  const web=f.find(f.render(),e=>e.type==='WebView')!;
+  (web.props.onLoadEnd as (event:unknown)=>void)({nativeEvent:{url:context.PROFILE_URL}});
+  await f.flush();
+  assert.equal(f.controller().connection.confirmed,false);assert.equal(f.controller().busy,false);
+  f.controller().dismissLogin();
+  f.controller().checkConnection();await f.loadPage(context.PROFILE_URL);await f.contextMessage(observedContext);
+  f.controller().checkConnection('retrieve');await f.loadPage(context.PROFILE_URL);
+  await f.contextMessage({...observedContext,accountNumber:'999'});
+  assert.equal(f.controller().connection.phase,'mismatch');assert.equal(f.controller().busy,false);
+  f.unmount();
+});
+
 test('combined login resumes after original-page authentication but never after dismissal or background',async()=>{
   for(const stop of ['none','dismiss','background'] as const){
     const f=fixture({product:true});f.render();await f.settle(null);await f.flush();
