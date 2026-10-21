@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, FlatList, Keyboard, Pressable, ScrollView, StyleSheet, TextInput, View, useWindowDimensions } from 'react-native';
 import { Action, Card, Chip, Empty, GliderMark, IconLabel, Label, Section, colors, ui } from './theme';
+import { diagnosticJournal } from '../diagnostics';
 import { SymbolIcon } from './SymbolIcon';
 import type { useOwnFlights } from './use-own-flights';
 import { allOwnFlights, ownFlightYears, ownFlightRegistrations, ownRawValue, selectOwnFlights, type OwnFlightFilters } from './own-flight-model';
@@ -26,7 +27,7 @@ export function OwnFlights({ active, data, filterRequest, onUpdate, onHeaderChan
   const plan = useMemo(() => planFlightRetrieval(data.view?.snapshot.savedRetrievals ?? []), [data.view?.snapshot.savedRetrievals]);
   const freshness = dataFreshness(plan.lastSuccessfulRetrievalAt, data.phase === 'ready' ? 'ready' : 'loading');
   const detailOpen = !!data.detail || data.detailBusy;
-  const back = useCallback(() => { Keyboard.dismiss(); setFilterOpen(false); setRawPage(0); data.clearDetail(); }, [data.clearDetail]);
+  const back = useCallback(() => { diagnosticJournal.record('back','flights');Keyboard.dismiss(); setFilterOpen(false); setRawPage(0); data.clearDetail(); }, [data.clearDetail]);
   useEffect(() => { onHeaderChange({ title: filterOpen ? 'Flugfilter' : detailOpen ? 'Flugdetails' : 'Flüge', back: filterOpen || detailOpen ? back : undefined }); }, [filterOpen, detailOpen, back, onHeaderChange]);
   useEffect(() => {
     if (!data.view) return;
@@ -43,13 +44,13 @@ export function OwnFlights({ active, data, filterRequest, onUpdate, onHeaderChan
     list.current?.scrollToOffset({ offset: 0, animated: false });
     setFilterOpen(false); setRawPage(0); data.clearDetail();
   }, [active, data.view, filterRequest, data.clearDetail]);
-  const changeFilters = (next: OwnFlightFilters) => { offset.current = 0; list.current?.scrollToOffset({ offset: 0, animated: false }); setFilters(next); };
+  const changeFilters = (next: OwnFlightFilters) => { if(next.search!==filters.search)diagnosticJournal.record('filter','search');if(next.year!==filters.year)diagnosticJournal.record('filter','year');if(next.registration!==filters.registration)diagnosticJournal.record('filter','registration'); offset.current = 0; list.current?.scrollToOffset({ offset: 0, animated: false }); setFilters(next); };
   const update = () => { Keyboard.dismiss(); if (!onUpdate()) setNotice('Bitte zuerst den laufenden Anbietervorgang beenden. Deine gespeicherten Flüge bleiben verfügbar.'); };
   const header = <View style={s.group}>
     <View style={ui.row}><View style={s.searchBox}><SymbolIcon name="search" size={20} tone="muted" /><TextInput
       accessibilityLabel="Flüge durchsuchen" placeholder="Kennzeichen, Ort, Crew …" placeholderTextColor={colors.muted} value={filters.search}
       onChangeText={search => changeFilters({ ...filters, search })} autoCorrect={false} returnKeyType="search" style={s.search} /></View>
-      <Pressable accessibilityRole="button" accessibilityLabel="Flugfilter öffnen" onPress={() => { Keyboard.dismiss(); setFilterOpen(true); }} style={s.filter}><SymbolIcon name="filter" size={24} /></Pressable></View>
+      <Pressable accessibilityRole="button" accessibilityLabel="Flugfilter öffnen" onPress={() => { Keyboard.dismiss(); diagnosticJournal.record('action','flight-filter');setFilterOpen(true); }} style={s.filter}><SymbolIcon name="filter" size={24} /></Pressable></View>
     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 5 }}><Chip title="Alle Jahre" selected={filters.year === null} onPress={() => changeFilters({ ...filters, year: null })} />
       {(filters.year !== null && !years.includes(filters.year) ? [filters.year, ...years] : years).map(year => <Chip key={year} title={String(year)} selected={filters.year === year} onPress={() => changeFilters({ ...filters, year })} />)}</ScrollView>
     {filters.registration !== undefined && <Label>Filter: {filters.registration ?? 'Kennzeichen unbekannt'}</Label>}
@@ -70,12 +71,13 @@ export function OwnFlights({ active, data, filterRequest, onUpdate, onHeaderChan
     {!!notice && <Card><Label>{notice}</Label></Card>}
   </View>;
   useEffect(() => { if (data.phase !== 'ready') setFilterOpen(false); }, [data.phase]);
+  useEffect(()=>{if(active)diagnosticJournal.record('screen',filterOpen?'flight-filter':detailOpen?'flight-detail':'flights');},[active,filterOpen,detailOpen]);
   const detail = data.detail, assessment = detail?.facts.assessment;
   return <View style={{ flex: 1 }}>
     <View style={[{ flex: 1 }, (filterOpen || detailOpen || data.phase !== 'ready') && s.hidden]} accessibilityElementsHidden={filterOpen || detailOpen || data.phase !== 'ready'} importantForAccessibility={filterOpen || detailOpen || data.phase !== 'ready' ? 'no-hide-descendants' : 'auto'}>
       <FlatList ref={list} key={tablet ? 'wide' : 'phone'} numColumns={tablet ? 2 : 1} columnWrapperStyle={tablet ? { gap: 8 } : undefined}
         data={selected} keyExtractor={flight => flight.flightId} ListHeaderComponent={header} ListHeaderComponentStyle={{ marginBottom: 8 }}
-        renderItem={({ item }) => { const a = item.facts.assessment; return <Card onPress={() => { setRawPage(0); void data.openDetail(item); }}
+        renderItem={({ item }) => { const a = item.facts.assessment; return <Card onPress={() => { diagnosticJournal.record('action','flight-detail');setRawPage(0); void data.openDetail(item); }}
           label={`Quellflug ${item.sourceFlightRef} ansehen`} style={[s.row, tablet && { flex: 1, maxWidth: '50%' }]}>
           <Label style={{ fontWeight: '600' }}>{reviewParsedField(a.date)}</Label>
           <View style={ui.row}><View style={s.noTrack}><GliderMark color="#7299ab" /><Label muted style={{ fontSize: 10 }}>Kein Track</Label></View>
@@ -101,7 +103,7 @@ export function OwnFlights({ active, data, filterRequest, onUpdate, onHeaderChan
       <Action secondary onPress={() => changeFilters({ ...filters, registration: undefined })}>Alle Kennzeichen</Action>
       {registrations.map(registration => <Chip key={registration} title={registration} selected={filters.registration === registration} onPress={() => changeFilters({ ...filters, registration })} />)}
       {flights.some(f => ownRawValue(f.facts.assessment.fields.registration) === null) && <Chip title="Kennzeichen unbekannt" selected={filters.registration === null} onPress={() => changeFilters({ ...filters, registration: null })} />}
-      <Action secondary onPress={() => changeFilters(allOwnFlights)}>Filter zurücksetzen</Action><Action onPress={back}>Gefilterte Liste anzeigen</Action>
+      <Action secondary onPress={() => {diagnosticJournal.record('filter','filter-reset');changeFilters(allOwnFlights);}}>Filter zurücksetzen</Action><Action onPress={back}>Gefilterte Liste anzeigen</Action>
     </Card></View></ScrollView>}
     {detailOpen && <ScrollView key={detail?.flightId ?? 'loading-detail'} contentContainerStyle={s.canvas}><View style={s.group}>
       {data.detailBusy && <ActivityIndicator color={colors.cyan} accessibilityLabel="Gespeicherte Flugdetails laden" />}

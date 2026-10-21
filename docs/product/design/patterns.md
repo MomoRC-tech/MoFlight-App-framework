@@ -18,7 +18,7 @@ Development surfaces are explicit visual exceptions: [App.tsx](../../../apps/pla
 
 ## Settings, Development and library maintenance
 
-Settings → **Diagnose öffnen** opens a separate scrollable support screen with contextual Back. Reuse C01/C02 and a centered 520 dp group; show the newest five technical operations, outcomes, fixed codes and timings. Explicit sharing opens the OS chooser; the report is also selectable for copying. Clearing affects only the diagnostic journal. [Contract and evidence](../../verification/2026-10-21-diagnostics.md).
+Settings → **Diagnose öffnen** opens a separate scrollable support screen with contextual Back. Reuse C01/C02 and a centered 520 dp group; page through technical operations, action/navigation events and protected failures (ten per page). The journey view shows observed transitions and explicitly avoids inferring intentions. Full sharing opens the OS chooser for a JSON file; a bounded short report can be shared/copied as text. Clearing affects the journal and managed export file only. Storage is capped at 1 MB total and 14 days, with earlier byte/count limits. [Contract and evidence](../../verification/2026-10-21-diagnostics.md).
 
 Settings exposes **Sicherung & Wiederherstellung** beside ordinary book/data actions and a separate **Entwicklung öffnen** entry. [DevelopmentHub](../../../apps/platform-lab/src/mobile/DevelopmentHub.tsx) groups the dataset/flight proof, book/paper proof and provider diagnostics. Entry alone runs no fixture or provider operation. The experimental lab Release retains these explicit tools for offline testing; this is no security boundary or approval for a future production build. Synthetic operations and old copy-confirmation semantics remain labelled.
 

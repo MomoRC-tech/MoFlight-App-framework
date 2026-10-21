@@ -228,9 +228,11 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,takeInitialReposit
   async function saveFlightReview(next:RealFlightReview) {
     const selected=controller.current.connection;
     if(!selected.confirmed||!selected.observed||!foreground.current)throw new Error('Fresh account verification required.');
+    diagnosis.current?.note('provider','account-verified');diagnosis.current?.note('save','pending');
     setStep('Flüge werden gespeichert …');
     const result=await service.saveVerifiedReview(next,selected.observed);
-    await refresh();
+    diagnosis.current?.note('save','receipt-confirmed');
+    await timeFlightStage('return-readback',refresh);
     return {result,source:next};
   }
   async function finishAutomaticLoad(flights:()=>ReturnType<typeof saveFlightReview>) {
@@ -287,6 +289,7 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,takeInitialReposit
   },[startUpdate,busy,snapshot,c.viewReady,restoreReadWarning,restorePreparations,recovery]);
   useEffect(()=>{
     const subscription=BackHandler.addEventListener('hardwareBackPress',()=>{
+      diagnosticJournal.record('back',providerOpen?'provider-options':'own-flight-tools');
       if(providerOpen&&waiting.current){
         if(!canCancelCoreFlightSource(controller.current.retrieval.current.state.phase,controller.current.saving,controller.current.restoring.current))return true;
         if(controller.current.visible&&controller.current.backWithinProvider())return true;
@@ -373,7 +376,7 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,takeInitialReposit
       <Card><Label>{flights.length} gespeicherte eigene Flüge</Label><Label muted>{freshness.label}</Label>
         <Label muted>Die Anmeldung erfolgt bei Vereinsflieger. Deine Flüge werden anschließend automatisch auf diesem Gerät gespeichert und sind offline verfügbar.</Label>
         {busy ? <View accessibilityLiveRegion="polite"><Label>{step}</Label></View> : <Action disabled={restoreReadOnly||c.recovery||recovery.status==='not-committed'||recovery.status==='recovery-required'} onPress={loadFlights}>{snapshot?.account ? 'Flüge aktualisieren' : 'Mit Vereinsflieger anmelden & Flüge laden'}</Action>}
-        {waiting.current&&<Action secondary disabled={!canCancelCoreFlightSource(c.retrieval.current.state.phase,c.saving,c.restoring.current)} onPress={()=>{abandonSource('Cancelled.');c.dismissLogin();setProviderOpen(false);}}>Abbrechen</Action>}
+        {waiting.current&&<Action secondary disabled={!canCancelCoreFlightSource(c.retrieval.current.state.phase,c.saving,c.restoring.current)} onPress={()=>{diagnosticJournal.record('action','cancel');abandonSource('Cancelled.');c.dismissLogin();setProviderOpen(false);}}>Abbrechen</Action>}
         {busy&&c.informationBusy&&<Action secondary disabled={c.informationSaving} onPress={()=>c.stopInformation()}>Medical überspringen</Action>}
         <Action secondary disabled={busy} onPress={()=>setAdvanced(!advanced)}>{advanced ? 'Details schließen' : 'Details & weitere Optionen'}</Action>
       </Card>
@@ -412,7 +415,7 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,takeInitialReposit
         <Action disabled={busy||restoreReadOnly||recovery.status==='not-committed'||recovery.status==='recovery-required'} onPress={()=>void run(async()=>{setReview(await prepareSourceReview(await service.retrieveUpdate()));})}>Daten aktualisieren</Action>
         <Action secondary disabled={busy||restoreReadOnly} onPress={()=>{automatic.current=false;c.setFrom(retrievalPlan.request.from);c.setTo(retrievalPlan.request.to);setProviderOpen(true);if(!c.browserActive)c.connect();}}>Anbieter und eigenen Zeitraum öffnen</Action>
         {waiting.current&&<Action secondary disabled={!canCancelCoreFlightSource(c.retrieval.current.state.phase,c.saving,c.restoring.current)}
-          onPress={()=>abandonSource('Cancelled.')}>Abruf abbrechen</Action>}
+          onPress={()=>{diagnosticJournal.record('action','cancel');abandonSource('Cancelled.');}}>Abruf abbrechen</Action>}
       </Card>
       </>}
       {review&&<Card><Section title="Abruf prüfen"/>

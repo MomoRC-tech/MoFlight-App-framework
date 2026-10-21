@@ -78,6 +78,7 @@ try {
     }
     $variant = $Configuration.ToLowerInvariant()
     $env:NODE_ENV = if ($Configuration -eq 'Release') { 'production' } else { 'development' }
+    $env:EXPO_PUBLIC_MOFLIGHT_SOURCE = $commit
     Push-Location $android
     $gradleTimer = [Diagnostics.Stopwatch]::StartNew()
     try { Invoke-Checked '.\gradlew.bat' @((':app:assemble' + $Configuration), '-PreactNativeArchitectures=arm64-v8a,x86_64', '--max-workers=2') }

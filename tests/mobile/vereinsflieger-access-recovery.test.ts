@@ -46,6 +46,7 @@ const informationControllerSource = ts.transpileModule(readFileSync(new URL('../
 function fixture(options: { noNativeRecovery?: boolean; failLegacyRead?: boolean; failSafety?: boolean; deferSafety?: boolean; failReceipt?: boolean; deferClear?: boolean; failClear?: boolean; persistedScope?: ProviderScope; scopedView?: ViewPreferences; deferBinding?: boolean; failBinding?: boolean; priorCapture?: probe.ProbeSnapshot; deferJournalSave?: boolean; deferCaptureSave?: boolean; product?: boolean; deferLoginRead?: boolean; failLoginRead?: boolean; savedLogin?: { username: string; password: string } | null; failLoginForget?: boolean; deferLoginForget?: boolean } = {}) {
   let resolveJournal!: (view: ViewPreferences | null) => void, rejectJournal!: (error: Error) => void;
   const journal = new Promise<ViewPreferences | null>((resolve, reject) => { resolveJournal = resolve; rejectJournal = reject; });
+  const diagnosticPhases:{name:string;result:boolean|null}[]=[];
   const hooks: unknown[] = [], effects: (() => void)[] = [];
   let index = 0, nextId = 0, timerId = 0, pending: ViewPreferences | null = null;
   const issuedNonces: string[] = [];
@@ -98,7 +99,7 @@ function fixture(options: { noNativeRecovery?: boolean; failLegacyRead?: boolean
   function CaptureRun() {}
   function WindowCapture() {}
   const modules: Record<string, unknown> = {
-    './flight-diagnostics': { startFlightSpan:()=>()=>{} },
+    './flight-diagnostics': { startFlightSpan:(name:string)=>{const phase={name,result:null as boolean|null};diagnosticPhases.push(phase);return(result:boolean)=>{if(phase.result===null)phase.result=result;};} },
     '@moflight/flight-logbook': { canonical }, './legacy-recovery-store': legacyStore,
     react: { default: react, ...react },
     'react-native': { AppState: { currentState: 'active', addEventListener: (_: string, listener: (state: string) => void) => { appStateListener = listener; return { remove() { appStateListener = undefined; } }; } }, StyleSheet: { create: (value: unknown) => value }, View: 'View', Text: 'Text', FlatList: 'FlatList' },
@@ -230,7 +231,7 @@ function fixture(options: { noNativeRecovery?: boolean; failLegacyRead?: boolean
       data: JSON.stringify({ kind: 'vf-login-result-v1', nonce, url: probe.LOGIN_URL, result }) } });
     return flush();
   }
-  return { render, button, press, settle, find, flush, loadPage, loadFlight, message, currentCommand, writes, injections,
+  return { diagnosticPhases, render, button, press, settle, find, flush, loadPage, loadFlight, message, currentCommand, writes, injections,
     setInformationReader: (reader: typeof informationReader) => { informationReader = reader; }, informationReads: () => informationReads, savedInformation: () => savedInformation,
     setInformationCaptureReader: (reader: typeof informationCaptureReader) => { informationCaptureReader = reader; },
     setInformationHistoryReader: (reader: typeof informationHistoryReader) => { informationHistoryReader = reader; },
@@ -2184,4 +2185,19 @@ test('a history choice made after local reload starts is preserved when the relo
   finish([historyValue().capture!]); await pending; await f.flush();
   assert.equal(f.controller().informationHistory!.index, 1); assert.deepEqual(f.controller().informationHistory!.capture, historyValue(1).capture);
   assert.deepEqual(f.controller().informationCaptures, [historyValue().capture!]);
+});
+
+
+test('diagnostics separate page loading, user sign-in waiting and verified session without capturing provider values',async()=>{
+ const f=fixture({product:true});f.render();await f.settle(null);await f.flush();f.controller().beginGuidedFlightConnection();
+ assert.equal(f.diagnosticPhases.find(p=>p.name==='login-page')!.result,null);
+ await f.loadPage(probe.LOGIN_URL);assert.equal(f.diagnosticPhases.find(p=>p.name==='login-page')!.result,true);assert.equal(f.diagnosticPhases.find(p=>p.name==='user-sign-in-wait')!.result,null);
+ await f.loadPage('https://vereinsflieger.de/member/index.php');assert.equal(f.diagnosticPhases.find(p=>p.name==='user-sign-in-wait')!.result,true);
+ await f.loadPage(context.PROFILE_URL);await f.contextMessage(observedContext);assert.ok(f.diagnosticPhases.some(p=>p.name==='session-verification'&&p.result===true));
+ assert.ok(!JSON.stringify(f.diagnosticPhases).includes(observedContext.accountNumber));assert.ok(!JSON.stringify(f.diagnosticPhases).includes('https'));f.unmount();
+});
+
+test('backgrounding ends sign-in waiting as interrupted measurement rather than extending it into background time',async()=>{
+ const f=fixture({product:true});f.render();await f.settle(null);await f.flush();f.controller().beginGuidedFlightConnection();await f.loadPage(probe.LOGIN_URL);f.appState('background');
+ assert.equal(f.diagnosticPhases.find(p=>p.name==='user-sign-in-wait')!.result,false);f.unmount();
 });

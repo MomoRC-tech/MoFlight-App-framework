@@ -30,10 +30,11 @@ export class FlightDiagnostics {
 }
 export const flightDiagnostics=new FlightDiagnostics();
 export function startFlightSpan(name:string):(succeeded:boolean)=>void {
+  if(name==='user-sign-in-wait')diagnosticJournal.record('screen','provider-login');
   const journalSpan=diagnosticJournal.span(name);
   const start=performance.now(),before=flightDiagnostics.snapshot();let finished=false;
-  return succeeded=>{if(finished)return;finished=true;journalSpan(succeeded);console.info('MOFLIGHT_STORED_READ_STAGE '+JSON.stringify({name,milliseconds:performance.now()-start,succeeded,
-    inclusiveCounters:flightDiagnostics.difference(before)}));};
+  return succeeded=>{if(finished)return;finished=true;const counters=flightDiagnostics.difference(before);journalSpan(succeeded,counters);console.info('MOFLIGHT_STORED_READ_STAGE '+JSON.stringify({name,milliseconds:performance.now()-start,succeeded,
+    inclusiveCounters:counters}));};
 }
 export async function timeFlightStage<T>(name:string,work:()=>Promise<T>):Promise<T> {
   const finish=startFlightSpan(name);let succeeded=false;

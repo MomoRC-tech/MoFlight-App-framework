@@ -411,3 +411,10 @@ test('Settings exposes a separate Diagnostics screen and contextual Back preserv
   assert.equal(f.find('ProfileSettings').props.nameDraft,'Unsaved private name');
   assert.ok(!diagnostics.diagnosticJournal.export().includes('Unsaved private name'));
 });
+
+
+test('actual nested Settings routes preserve the observed action and Back path without storing a draft',()=>{
+ diagnostics.diagnosticJournal.clear();const f=fixture();f.press('Pressable','Profil & Einstellungen öffnen');f.find('ProfileSettings').props.onNameDraftChange('Secret private name');f.render();
+ f.find('ProfileSettings').props.onDiagnostics();f.render();f.headers().at(-1)!.props.back();f.render();
+ const events=diagnostics.diagnosticJournal.journey();assert.ok(events.some(e=>e.kind==='screen'&&e.target==='profile'));assert.ok(events.some(e=>e.kind==='screen'&&e.target==='diagnostics'));assert.ok(events.some(e=>e.kind==='back'&&e.target==='diagnostics'));assert.ok(!diagnostics.diagnosticJournal.export().includes('Secret private name'));
+});

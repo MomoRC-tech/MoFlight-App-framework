@@ -21,7 +21,7 @@ export function useOwnFlights(ports: OwnFlightReadPorts, active: boolean, reload
     if (locked.current) { queued.current = true; sequence.current++; return; }
     queued.current = false; locked.current = true;
     const id = ++sequence.current;
-    const diagnosis = diagnosticJournal.begin('read-flights'), stage = diagnosticJournal.span('local-read');
+    const diagnosis = diagnosticJournal.begin('read-flights'), stage = diagnosis.span('local-read');
     setPhase('loading'); setDetail(null); setDetailBusy(false); setDetailError(null);
     try {
       const next = await readOwnFlightView(ports);
@@ -46,7 +46,7 @@ export function useOwnFlights(ports: OwnFlightReadPorts, active: boolean, reload
     if (!view || locked.current || !alive.current || !enabled.current || !foreground.current ||
       !view.flights.some(f => f.flightId === selected.flightId && f.factsRevision === selected.factsRevision)) return;
     locked.current = true; const id = ++sequence.current;
-    const diagnosis = diagnosticJournal.begin('read-flight-detail'), stage = diagnosticJournal.span('detail-read');
+    const diagnosis = diagnosticJournal.begin('read-flight-detail'), stage = diagnosis.span('detail-read');
     setDetail(null); setDetailBusy(true); setDetailError(null);
     try {
       const next = await readOwnFlightDetail(ports, view.snapshot, selected);

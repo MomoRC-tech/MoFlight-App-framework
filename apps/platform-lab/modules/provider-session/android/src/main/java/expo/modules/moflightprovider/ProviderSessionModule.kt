@@ -23,6 +23,14 @@ class ProviderSessionModule : Module() {
 
   override fun definition() = ModuleDefinition {
     Name("MoFlightProviderSession")
+    // Public runtime versions only; no device, account or WebView session data.
+    AsyncFunction("diagnosticContextAsync") {
+      val context = appContext.reactContext ?: throw IllegalStateException()
+      val info = context.packageManager.getPackageInfo(context.packageName, 0)
+      val web = if (android.os.Build.VERSION.SDK_INT >= 26) WebView.getCurrentWebViewPackage()?.versionName else null
+      mapOf("appVersion" to info.versionName, "buildVersion" to (if (android.os.Build.VERSION.SDK_INT >= 28) info.longVersionCode else info.versionCode.toLong()).toString(),
+        "androidApi" to android.os.Build.VERSION.SDK_INT, "webViewVersion" to web)
+    }.runOnQueue(Queues.MAIN)
     // State-only restart gate: no metadata or replay payload is returned.
     AsyncFunction("legacyRecoveryStateAsync") { promise: Promise ->
       try { val payload = readLegacyPayload(); promise.resolve(payload?.let { fingerprint(it) }) }

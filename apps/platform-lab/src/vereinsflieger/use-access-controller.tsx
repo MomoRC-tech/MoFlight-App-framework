@@ -65,6 +65,9 @@ export function useAccessController(product = false, localOwner?: string) {
   const pendingNavigation = useRef<{ url: string; nativeReload?: boolean } | null>(null);
   const retrieval = useRef(new Retrieval()), epoch = useRef(0), mounted = useRef(true);
   const bridgeTiming=useRef<((succeeded:boolean)=>void)|null>(null);
+  const loginPageTiming=useRef<((succeeded:boolean)=>void)|null>(null), userWaitTiming=useRef<((succeeded:boolean)=>void)|null>(null), contextTiming=useRef<((succeeded:boolean)=>void)|null>(null);
+  function stopDiagnosticLogin(succeeded=false) { loginPageTiming.current?.(succeeded);loginPageTiming.current=null;userWaitTiming.current?.(succeeded);userWaitTiming.current=null;contextTiming.current?.(succeeded);contextTiming.current=null; }
+  useEffect(()=>()=>stopDiagnosticLogin(false),[]);
   const run = useRef<ExportRun | null>(null), command = useRef(''), reading = useRef(false);
   const original = useRef<ViewPreferences | null>(null), viewPhase = useRef<ViewPhase | null>(null), restoring = useRef(false), restoreSteps = useRef(0), outcome = useRef('');
   const [recovery, setRecovery] = useState(false), [viewReady, setViewReady] = useState(false);
@@ -204,7 +207,7 @@ export function useAccessController(product = false, localOwner?: string) {
       original.current = saved; recoveryKnown.current = true; setRecovery(!!saved || unresolved); setViewReady(true);
     } catch { if (mounted.current) setRecovery(true); }
   }
-  function syncConnection() { setConnection(session.current.state); }
+  function syncConnection() { if(session.current.state.phase!=='checking'){contextTiming.current?.(session.current.state.phase==='observed');contextTiming.current=null;}setConnection(session.current.state); }
   function endDisconnect(verdict: 'verified' | 'failed' | 'cancelled' = 'cancelled') {
     if (disconnectMode.current) setDisconnectNotice(verdict);
     disconnectMode.current = false; setDisconnecting(false);
@@ -267,6 +270,7 @@ export function useAccessController(product = false, localOwner?: string) {
     const reloadObservedProfile=product&&browserActive&&loaded&&currentUrl.current===PROFILE_URL&&session.current.state.phase==='observed';
     const nonce = Crypto.randomUUID();
     if (!session.current.start(nonce)) return;
+    contextTiming.current?.(false);contextTiming.current=startFlightSpan('session-verification');
     setLoginNotice('none');
     contextRequest.current = { nonce, action, navigationObserved: false }; syncConnection();
     if (timeout.current) clearTimeout(timeout.current); timeout.current = null;
@@ -278,6 +282,7 @@ export function useAccessController(product = false, localOwner?: string) {
     if (owner.current !== activeOwner.current || clearingStore.current || bindingBusy.current || !foreground.current || disconnectMode.current || retrieval.current.state.phase !== 'idle' || loginBusy || loginStorageBusy.current || loginAttempt.current || busy || contextRequest.current || saving) return;
     afterConfirmation.current = null; flightSourceAttempt.current = null; pendingFlightSource.current = null; setLoginNotice('none');
     session.current.invalidate(); syncConnection(); setVisible(true); setResult('none');
+    stopDiagnosticLogin(false);loginPageTiming.current=startFlightSpan('login-page');
     navigate(LOGIN_URL);
   }
   // First use follows the same visible login route as Connect. A saved
@@ -331,6 +336,7 @@ export function useAccessController(product = false, localOwner?: string) {
     information.navigationStarted(); session.current.invalidate(); syncConnection(); web.current.goBack(); return true;
   }
   function dismissLogin() {
+    stopDiagnosticLogin(false);
     guidedFlightLogin.current = false;
     if (!information.dismiss()) return;
     if (clearingStore.current) { setVisible(false); return; }
@@ -437,6 +443,7 @@ export function useAccessController(product = false, localOwner?: string) {
     const listener = AppState.addEventListener('change', state => {
       foreground.current = state === 'active';
       if (state === 'active') return;
+      stopDiagnosticLogin(false);
       guidedFlightLogin.current = false;
       information.backgrounded();
       clearContextRequest(); pendingNavigation.current = null; pendingCapture.current = null; afterConfirmation.current = null; endDisconnect(); session.current.invalidate(); syncConnection();
@@ -449,6 +456,7 @@ export function useAccessController(product = false, localOwner?: string) {
   }, [product]);
   async function loadedPage(page: string) {
     if (product && page !== currentUrl.current) return;
+    if(loginPage(page)){loginPageTiming.current?.(true);loginPageTiming.current=null;if(!userWaitTiming.current)userWaitTiming.current=startFlightSpan('user-sign-in-wait');}else{userWaitTiming.current?.(true);userWaitTiming.current=null;}
     const pageEpoch = epoch.current;
     phase.current.loaded = true; currentUrl.current = page; setUrl(page); setLoaded(true);
     if (information.pageLoaded(page)) return;
@@ -817,8 +825,8 @@ export function useAccessController(product = false, localOwner?: string) {
           if (login.receiveMessage(event.nativeEvent)) return;
           if(flightUrl(url))void receive(event);
         }}
-        onError={event => { if (generation !== epoch.current) return; if (information.pageFailed(event?.nativeEvent.url, true)) return; if (product && contextRequest.current) { contextFailed(); return; } if (product) { endDisconnect('failed'); afterConfirmation.current = null; session.current.invalidate(); syncConnection(); } loginAttempt.current ? endLogin('Provider login page failed to load. Saved login and captures preserved.') : finish('Provider page failed to load. Previous captures preserved.'); }}
-        onHttpError={() => { if (generation !== epoch.current) return; if (information.pageFailed()) return; if (product && contextRequest.current) { contextFailed(); return; } if (product) { endDisconnect('failed'); afterConfirmation.current = null; session.current.invalidate(); syncConnection(); } loginAttempt.current ? endLogin('Provider login returned an HTTP error. Saved login and captures preserved.') : finish('Provider returned an HTTP error. Previous captures preserved.'); }}
+        onError={event => { if (generation !== epoch.current) return;stopDiagnosticLogin(false); if (information.pageFailed(event?.nativeEvent.url, true)) return; if (product && contextRequest.current) { contextFailed(); return; } if (product) { endDisconnect('failed'); afterConfirmation.current = null; session.current.invalidate(); syncConnection(); } loginAttempt.current ? endLogin('Provider login page failed to load. Saved login and captures preserved.') : finish('Provider page failed to load. Previous captures preserved.'); }}
+        onHttpError={() => { if (generation !== epoch.current) return;stopDiagnosticLogin(false); if (information.pageFailed()) return; if (product && contextRequest.current) { contextFailed(); return; } if (product) { endDisconnect('failed'); afterConfirmation.current = null; session.current.invalidate(); syncConnection(); } loginAttempt.current ? endLogin('Provider login returned an HTTP error. Saved login and captures preserved.') : finish('Provider returned an HTTP error. Previous captures preserved.'); }}
         onContentProcessDidTerminate={() => { if (generation !== epoch.current) return; if (information.pageFailed()) return; if (loginAttempt.current) endLogin('Provider renderer stopped. Saved sign-in cancelled.', 'cancelled'); if (product) contextFailed(); finish('Provider renderer stopped. Recovery journal retained.'); }}
         onRenderProcessGone={() => { if (generation !== epoch.current) return; if (information.pageFailed()) return; if (loginAttempt.current) endLogin('Provider renderer stopped. Saved sign-in cancelled.', 'cancelled'); if (product) contextFailed(); finish('Provider renderer stopped. Recovery journal retained.'); }}
       />;

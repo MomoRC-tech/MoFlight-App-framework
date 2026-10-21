@@ -1,0 +1,21 @@
+/** Semantic names only: never labels, identifiers, URLs or entered values. */
+export const diagnosticActions = ['update-flights', 'open-flight-tools', 'library-operation', 'read-flights', 'read-flight-detail'] as const;
+export const diagnosticCodes = ['none', 'operation-failed', 'owner-setup', 'provider-handoff', 'account-verification', 'account-mismatch', 'recovery-required', 'source-timeout', 'source-failed', 'cancelled', 'background', 'closed', 'interrupted', 'medical-failed', 'medical-skipped', 'stale-selection'] as const;
+export const diagnosticStages = ['owner-registry-open', 'owner-selection', 'owner-setup', 'restore-inspection', 'stored-view', 'receipt-recovery', 'source-retrieval', 'source-review', 'command-prepare', 'explicit-save', 'command-resolve', 'medical', 'local-read', 'detail-read', 'login-page', 'user-sign-in-wait', 'session-verification', 'return-readback', 'provider-view-snapshot', 'provider-view-backup', 'provider-view-backup-load', 'provider-view-backup-verify', 'provider-view-restore', 'provider-view-verify', 'provider-export-reset', 'provider-export-columns', 'provider-export-clear', 'provider-export-participation', 'provider-export-period', 'provider-export-read', 'provider-other-stage'] as const;
+export const journeyKinds = ['screen', 'action', 'back', 'filter', 'lifecycle'] as const;
+export const journeyTargets = ['home', 'flights', 'logbook', 'club', 'ai', 'profile', 'diagnostics', 'medical', 'backup', 'selectBook', 'status', 'credits', 'development', 'importPreview', 'flightLab', 'bookLab', 'paper', 'paperInfo', 'unsupported', 'flight-detail', 'flight-filter', 'own-flight-tools', 'provider-options', 'provider-login', 'year', 'search', 'registration', 'filter-reset', 'update-flights', 'open-flight-tools', 'retry', 'cancel', 'save', 'restore', 'share-report', 'clear-report', 'start', 'active', 'background', 'inactive', 'close', 'details', 'local-query', 'send-query', 'club-section'] as const;
+export const counterNames = ['ownerGuard', 'sql', 'transaction', 'hash', 'databaseOpen'] as const;
+export type DiagnosticAction = typeof diagnosticActions[number];
+export type DiagnosticCode = typeof diagnosticCodes[number];
+export type DiagnosticStage = typeof diagnosticStages[number];
+export type DiagnosticOutcome = 'running' | 'success' | 'partial' | 'failed' | 'blocked' | 'cancelled' | 'interrupted';
+export const outcomes: DiagnosticOutcome[] = ['running', 'success', 'partial', 'failed', 'blocked', 'cancelled', 'interrupted'];
+export const member = <T extends string>(values: readonly T[], value: unknown): value is T => typeof value === 'string' && values.includes(value as T);
+export const boundedNumber = (value: unknown, max = 86_400_000) => typeof value === 'number' && Number.isFinite(value) ? Math.min(max, Math.max(0, Math.round(value))) : 0;
+export const object = (value: unknown): Record<string, unknown> => value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : {};
+export const array = (value: unknown): unknown[] => Array.isArray(value) ? value : [];
+export function utf8Bytes(value: string): number {
+  let bytes = 0;
+  for (let i = 0; i < value.length; i++) { const c = value.charCodeAt(i); if (c < 128) bytes++; else if (c < 2048) bytes += 2; else if (c >= 0xd800 && c <= 0xdbff && value.charCodeAt(i + 1) >= 0xdc00 && value.charCodeAt(i + 1) <= 0xdfff) { bytes += 4; i++; } else bytes += 3; }
+  return bytes;
+}

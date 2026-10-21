@@ -1,3 +1,4 @@
+import * as diagnostics from '../../apps/platform-lab/src/diagnostics';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -27,7 +28,7 @@ function fixture() {
     useEffect(fn:()=>void,deps:unknown[]){const i=index++;if(!hooks[i]||deps.some((v,n)=>v!==hooks[i][n])){hooks[i]=deps;effects.push(fn);}},
   };
   const leaves=(names:string[])=>Object.fromEntries(names.map(n=>[n,n]));
-  const modules:Record<string,unknown>={react:{default:react,...react},'react-native':{
+  const modules:Record<string,unknown>={'../diagnostics':diagnostics,react:{default:react,...react},'react-native':{
     ...leaves(['ActivityIndicator','FlatList','Pressable','ScrollView','TextInput','View']),Keyboard:{dismiss(){}},StyleSheet:{create:(x:unknown)=>x},useWindowDimensions:()=>({width:390,fontScale:1}),
   },'./theme':{...leaves(['Action','Card','Chip','Empty','GliderMark','IconLabel','Label','Section']),colors:{},ui:{}},'./SymbolIcon':leaves(['SymbolIcon']),
   './use-own-flights':{useOwnFlights:()=>{throw new Error('Presentation must reuse the shell reader');}},'./own-flight-reader-native':{ownFlightReadPorts:{}},'./own-flight-model':model,
@@ -75,4 +76,12 @@ test('deferred season request applies after loading, but consumed requests canno
   assert.equal(f.find('FlatList').props.data.length,1);
   f.data.view={...view,snapshot:{...view.snapshot,ownerId:'other-owner'}};f.render();f.render();
   assert.equal(f.find('FlatList').props.data.length,3);
+});
+
+
+test('actual filter controls record action kinds without search text, year or registration values',()=>{
+ diagnostics.diagnosticJournal.clear();const f=fixture();f.find('TextInput','Flüge durchsuchen').props.onChangeText('Private secret crew D-PRIVATE');f.render();
+ f.find('Pressable','Flugfilter öffnen').props.onPress();f.render();
+ const report=diagnostics.diagnosticJournal.export();assert.ok(!report.includes('Private secret crew'));assert.ok(!report.includes('D-PRIVATE'));
+ assert.ok(diagnostics.diagnosticJournal.journey().some(e=>e.kind==='filter'&&e.target==='search'));assert.ok(diagnostics.diagnosticJournal.journey().some(e=>e.kind==='screen'&&e.target==='flight-filter'));
 });

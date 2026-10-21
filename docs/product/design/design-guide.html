@@ -155,7 +155,7 @@
 <tr><td>C16</td><td>Information source review</td><td>Shared C01/C02 controls in the connection panel&#x27;s centered 520 dp group; five raw rows per page, one immutable snapshot at a time</td><td><a href="../../../apps/platform-lab/src/mobile/InformationReview.tsx">InformationReview</a> shows retrieval time and recorded coverage, with older/newer controls available offline. Category counts use the latest snapshot. Blank extracted text stays unknown; known date-only document snapshots are marked incomplete. No canonical history or cross-snapshot aggregation.</td></tr>
 <tr><td>C17</td><td>Own-flight loading</td><td>Shared C01/C02 controls, centered 520 dp groups; ordinary progress and secondary details</td><td><a href="../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx">CoreFlightFoundation</a> coordinates one explicit action through internal fresh storage, original-provider authentication, verified retrieval and local save. A verified retained session avoids login; valid rows need no routine review/save tap. Source/account/recovery checks remain; unresolved recovery is visible outside the details disclosure. Custom period, raw review and real-history backup remain under Details &amp; weitere Optionen. Successful saving returns to ordinary Flüge with a result. Opening options alone creates/retrieves nothing.</td></tr>
 <tr><td>C18</td><td>Connection/data summary</td><td>Shared C01/C02 card, one primary combined action and secondary options; no new symbols or geometry</td><td><a href="../../../apps/platform-lab/src/mobile/ConnectionSummary.tsx">ConnectionSummary</a> on Start/Profile uses the same committed account library as Flüge/season freshness. Session evidence stays separate. First use offers Mit Vereinsflieger anmelden &amp; Flüge laden; returning users get Flüge aktualisieren. More than seven days gives a quiet reminder. The action explicitly requests foreground retrieval/save; no polling or retrieval just from opening the app.</td></tr>
-<tr><td>C19</td><td>Support diagnostics</td><td>Shared C01/C02 cards/actions and selectable report text in a centered 520 dp group</td><td><a href="../../../apps/platform-lab/src/mobile/Diagnostics.tsx">Diagnostics</a> via Settings; latest five anonymized technical operations, explicit OS sharing/copy and journal-only clearing. No automatic transmission.</td></tr>
+<tr><td>C19</td><td>Support diagnostics</td><td>Shared C01/C02 cards/actions and selectable report text in a centered 520 dp group</td><td><a href="../../../apps/platform-lab/src/mobile/Diagnostics.tsx">Diagnostics</a> via Settings; paged technical/action histories and protected failures; observed navigation transitions without inferred intent. Explicit full JSON-file sharing, bounded short text copying and diagnostic-only clearing; 1 MB total managed storage cap. No automatic transmission.</td></tr>
 </tbody></table></div>
 <p>Sources: <a href="../../../apps/platform-lab/src/mobile/theme.tsx">theme</a>, <a href="../../../apps/platform-lab/src/mobile/MobileApp.tsx">MobileApp</a>, <a href="../../../apps/platform-lab/src/mobile/Dashboard.tsx">Dashboard</a>, <a href="../../../apps/platform-lab/src/mobile/AppHeader.tsx">AppHeader</a>, <a href="../../../apps/platform-lab/src/mobile/ProviderConnection.tsx">ProviderConnection</a>, <a href="../../../apps/platform-lab/src/mobile/MedicalStatus.tsx">MedicalStatus</a>, <a href="../../../apps/platform-lab/src/mobile/ProfileSettings.tsx">ProfileSettings</a> and <a href="../../../apps/platform-lab/src/mobile/SeasonRing.tsx">SeasonRing</a>.</p>
 <h3 id="chapter-components-state-presentation">State presentation</h3>
@@ -211,7 +211,7 @@
 <p>The <a href="../design-sources/2026-10-16-four-screen/reference.png">approved reference</a> establishes card/layout/color fidelity. Later five-tab changes add Flugbuch and retain AI. Older Wetter-tab, goals, monthly-chart and synthetic Medical-expiry prototypes remain historical.</p>
 <p>Development surfaces are explicit visual exceptions: <a href="../../../apps/platform-lab/src/App.tsx">App.tsx</a> and <a href="../../../apps/platform-lab/src/BookLab.tsx">BookLab.tsx</a> retain their functional English proof styling, including light backgrounds and different type/button sizes, behind <strong>Settings → Development</strong>. Their body groups are capped at 720 dp. They are not ordinary product paper/import screens. The older <a href="../../../apps/platform-lab/src/vereinsflieger">provider trial views</a> remain historical proofs; the embedded lab cannot mount a duplicate provider browser. Their values are included in the generated inventory. The original provider webpage and OS-owned dialogs remain external visual surfaces.</p>
 <h3 id="chapter-patterns-settings-development-and-library-maintenance">Settings, Development and library maintenance</h3>
-<p>Settings → <strong>Diagnose öffnen</strong> opens a separate scrollable support screen with contextual Back. Reuse C01/C02 and a centered 520 dp group; show the newest five technical operations, outcomes, fixed codes and timings. Explicit sharing opens the OS chooser; the report is also selectable for copying. Clearing affects only the diagnostic journal. <a href="../../verification/2026-10-21-diagnostics.md">Contract and evidence</a>.</p>
+<p>Settings → <strong>Diagnose öffnen</strong> opens a separate scrollable support screen with contextual Back. Reuse C01/C02 and a centered 520 dp group; page through technical operations, action/navigation events and protected failures (ten per page). The journey view shows observed transitions and explicitly avoids inferring intentions. Full sharing opens the OS chooser for a JSON file; a bounded short report can be shared/copied as text. Clearing affects the journal and managed export file only. Storage is capped at 1 MB total and 14 days, with earlier byte/count limits. <a href="../../verification/2026-10-21-diagnostics.md">Contract and evidence</a>.</p>
 <p>Settings exposes <strong>Sicherung &amp; Wiederherstellung</strong> beside ordinary book/data actions and a separate <strong>Entwicklung öffnen</strong> entry. <a href="../../../apps/platform-lab/src/mobile/DevelopmentHub.tsx">DevelopmentHub</a> groups the dataset/flight proof, book/paper proof and provider diagnostics. Entry alone runs no fixture or provider operation. The experimental lab Release retains these explicit tools for offline testing; this is no security boundary or approval for a future production build. Synthetic operations and old copy-confirmation semantics remain labelled.</p>
 <p>Product maintenance uses current dark C01/C02 cards/actions and selected Modern Duotone symbols. <a href="../../../apps/platform-lab/src/mobile/LibraryBackup.tsx">LibraryBackup</a> explains whole-library scope, unencrypted lab format/2 MB restore limit, exclusions, picker cancellation and the difference between sharing and verified external saving. Restore validates a new library and its selected book before activating it; previous stores stay retained. <a href="../../../apps/platform-lab/src/mobile/PaperStatus.tsx">PaperStatus</a> shows saved synthetic facts/unknowns and the unfinished M5 boundary, with book/history/backup navigation. These groups are capped and centered at 520 dp. No ordinary floating plus, book selector or data-status action launches a proof.</p>
 <p>Provider login, recovery, session controls and <strong>Rohbelege &amp; begrenzter Abruf</strong> stay in the ordinary connection dialog. Extra browserstore test controls require the explicit Development route on the same retained controller, with existing native AVD/operation/recovery guards. No source capture becomes an imported flight by moving its controls.</p>
@@ -380,14 +380,14 @@
 <tr><td><i class="swatch" style="background:#ffc477" aria-hidden="true"></i><code>#ffc477</code></td><td>16</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-coreflightfoundationtsx">CoreFlightFoundation.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx">apps/platform-lab/src/mobile/CoreFlightFoundation.tsx</a>; normalized SHA-256 <code>d16963e58043d17d6eaf950bc427794546fdc2d6fc2f47223e8f46dac2d55a5a</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx">apps/platform-lab/src/mobile/CoreFlightFoundation.tsx</a>; normalized SHA-256 <code>d148adb0894fc6d4e94d22d130ed1b5ff0ddd280c45792b275f0c57975ab2e53</code>.</p>
 <h4 id="chapter-implementation-inventory-geometry--opacity-declarations-5">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>gap: 10</code></td><td>121, 122, 370</td></tr>
-<tr><td><code>gap: 8</code></td><td>396, 422, 432</td></tr>
-<tr><td><code>maxWidth: 520</code></td><td>122, 370</td></tr>
-<tr><td><code>padding: 12</code></td><td>121, 370</td></tr>
-<tr><td><code>width: &#x27;100%&#x27;</code></td><td>122, 370</td></tr>
+<tr><td><code>gap: 10</code></td><td>121, 122, 373</td></tr>
+<tr><td><code>gap: 8</code></td><td>399, 425, 435</td></tr>
+<tr><td><code>maxWidth: 520</code></td><td>122, 373</td></tr>
+<tr><td><code>padding: 12</code></td><td>121, 373</td></tr>
+<tr><td><code>width: &#x27;100%&#x27;</code></td><td>122, 373</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-dashboardtsx">Dashboard.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/Dashboard.tsx">apps/platform-lab/src/mobile/Dashboard.tsx</a>; normalized SHA-256 <code>cef38ad25ac9a790c5ddae8e6cd597bfa808c55c0e66c0f2d43c3ab305f14739</code>.</p>
@@ -487,12 +487,12 @@
 <tr><td><code>width: &#x27;100%&#x27;</code></td><td>6, 35</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-diagnosticstsx">Diagnostics.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/Diagnostics.tsx">apps/platform-lab/src/mobile/Diagnostics.tsx</a>; normalized SHA-256 <code>de34163e80342d3fc5df7572398ed0252013211235b7cfad3afe5f6c85da1b39</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/Diagnostics.tsx">apps/platform-lab/src/mobile/Diagnostics.tsx</a>; normalized SHA-256 <code>cc418e9dec9a883c0d615f64fc7efad38e65e07a20524f3492375a5e30da1e4f</code>.</p>
 <h4 id="chapter-implementation-inventory-geometry--opacity-declarations-8">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>gap: 10</code></td><td>20</td></tr>
-<tr><td><code>maxWidth: 520</code></td><td>20</td></tr>
-<tr><td><code>width: &#x27;100%&#x27;</code></td><td>20</td></tr>
+<tr><td><code>gap: 10</code></td><td>26</td></tr>
+<tr><td><code>maxWidth: 520</code></td><td>26</td></tr>
+<tr><td><code>width: &#x27;100%&#x27;</code></td><td>26</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-importpreviewtsx">ImportPreview.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/ImportPreview.tsx">apps/platform-lab/src/mobile/ImportPreview.tsx</a>; normalized SHA-256 <code>00afa3c7529703b757c8dda6c2cc79fe84550708af1e1d4449ccfd490d05ad81</code>.</p>
@@ -550,148 +550,148 @@
 <tr><td><code>width: &#x27;100%&#x27;</code></td><td>40</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-mobileapptsx">MobileApp.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/MobileApp.tsx">apps/platform-lab/src/mobile/MobileApp.tsx</a>; normalized SHA-256 <code>1251a0a9764bab43f4102612a4258eb1360d0c1170988e5e22ff3170fb1e6577</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/MobileApp.tsx">apps/platform-lab/src/mobile/MobileApp.tsx</a>; normalized SHA-256 <code>c0996ffd7d596567bb6b367968736e14e7767ac32c29f4cd4338c3ba77ebaac5</code>.</p>
 <h4 id="chapter-implementation-inventory-literal-colors-6">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><i class="swatch" style="background:#00c8ff" aria-hidden="true"></i><code>#00c8ff</code></td><td>240, 283</td></tr>
-<tr><td><i class="swatch" style="background:#020e17" aria-hidden="true"></i><code>#020e17</code></td><td>283</td></tr>
-<tr><td><i class="swatch" style="background:#031326" aria-hidden="true"></i><code>#031326</code></td><td>217</td></tr>
-<tr><td><i class="swatch" style="background:#064240" aria-hidden="true"></i><code>#064240</code></td><td>278</td></tr>
-<tr><td><i class="swatch" style="background:#10233d" aria-hidden="true"></i><code>#10233d</code></td><td>280</td></tr>
-<tr><td><i class="swatch" style="background:#10263e" aria-hidden="true"></i><code>#10263e</code></td><td>282</td></tr>
-<tr><td><i class="swatch" style="background:#10282d" aria-hidden="true"></i><code>#10282d</code></td><td>278</td></tr>
-<tr><td><i class="swatch" style="background:#102d47aa" aria-hidden="true"></i><code>#102d47aa</code></td><td>273</td></tr>
-<tr><td><i class="swatch" style="background:#11263a" aria-hidden="true"></i><code>#11263a</code></td><td>277</td></tr>
-<tr><td><i class="swatch" style="background:#152d42" aria-hidden="true"></i><code>#152d42</code></td><td>279</td></tr>
-<tr><td><i class="swatch" style="background:#1b344a" aria-hidden="true"></i><code>#1b344a</code></td><td>282</td></tr>
-<tr><td><i class="swatch" style="background:#1c3449" aria-hidden="true"></i><code>#1c3449</code></td><td>283</td></tr>
-<tr><td><i class="swatch" style="background:#227f87" aria-hidden="true"></i><code>#227f87</code></td><td>278</td></tr>
-<tr><td><i class="swatch" style="background:#354d74" aria-hidden="true"></i><code>#354d74</code></td><td>280</td></tr>
-<tr><td><i class="swatch" style="background:#3a5a8b" aria-hidden="true"></i><code>#3a5a8b</code></td><td>282</td></tr>
-<tr><td><i class="swatch" style="background:#78efdc" aria-hidden="true"></i><code>#78efdc</code></td><td>280</td></tr>
-<tr><td><i class="swatch" style="background:#8ba4bc" aria-hidden="true"></i><code>#8ba4bc</code></td><td>239, 275</td></tr>
-<tr><td><i class="swatch" style="background:#ffbd9b" aria-hidden="true"></i><code>#ffbd9b</code></td><td>170</td></tr>
+<tr><td><i class="swatch" style="background:#00c8ff" aria-hidden="true"></i><code>#00c8ff</code></td><td>246, 289</td></tr>
+<tr><td><i class="swatch" style="background:#020e17" aria-hidden="true"></i><code>#020e17</code></td><td>289</td></tr>
+<tr><td><i class="swatch" style="background:#031326" aria-hidden="true"></i><code>#031326</code></td><td>223</td></tr>
+<tr><td><i class="swatch" style="background:#064240" aria-hidden="true"></i><code>#064240</code></td><td>284</td></tr>
+<tr><td><i class="swatch" style="background:#10233d" aria-hidden="true"></i><code>#10233d</code></td><td>286</td></tr>
+<tr><td><i class="swatch" style="background:#10263e" aria-hidden="true"></i><code>#10263e</code></td><td>288</td></tr>
+<tr><td><i class="swatch" style="background:#10282d" aria-hidden="true"></i><code>#10282d</code></td><td>284</td></tr>
+<tr><td><i class="swatch" style="background:#102d47aa" aria-hidden="true"></i><code>#102d47aa</code></td><td>279</td></tr>
+<tr><td><i class="swatch" style="background:#11263a" aria-hidden="true"></i><code>#11263a</code></td><td>283</td></tr>
+<tr><td><i class="swatch" style="background:#152d42" aria-hidden="true"></i><code>#152d42</code></td><td>285</td></tr>
+<tr><td><i class="swatch" style="background:#1b344a" aria-hidden="true"></i><code>#1b344a</code></td><td>288</td></tr>
+<tr><td><i class="swatch" style="background:#1c3449" aria-hidden="true"></i><code>#1c3449</code></td><td>289</td></tr>
+<tr><td><i class="swatch" style="background:#227f87" aria-hidden="true"></i><code>#227f87</code></td><td>284</td></tr>
+<tr><td><i class="swatch" style="background:#354d74" aria-hidden="true"></i><code>#354d74</code></td><td>286</td></tr>
+<tr><td><i class="swatch" style="background:#3a5a8b" aria-hidden="true"></i><code>#3a5a8b</code></td><td>288</td></tr>
+<tr><td><i class="swatch" style="background:#78efdc" aria-hidden="true"></i><code>#78efdc</code></td><td>286</td></tr>
+<tr><td><i class="swatch" style="background:#8ba4bc" aria-hidden="true"></i><code>#8ba4bc</code></td><td>245, 281</td></tr>
+<tr><td><i class="swatch" style="background:#ffbd9b" aria-hidden="true"></i><code>#ffbd9b</code></td><td>176</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-typography-declarations-6">Typography declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>fontSize: 10</code></td><td>228, 239, 275</td></tr>
-<tr><td><code>fontSize: 11</code></td><td>233, 276, 283</td></tr>
-<tr><td><code>fontSize: 12</code></td><td>278</td></tr>
-<tr><td><code>fontSize: 13</code></td><td>229, 277, 282</td></tr>
-<tr><td><code>fontSize: 18</code></td><td>205</td></tr>
-<tr><td><code>fontSize: 20</code></td><td>217, 276</td></tr>
-<tr><td><code>fontSize: 23</code></td><td>281</td></tr>
-<tr><td><code>fontSize: 25</code></td><td>283</td></tr>
-<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>205, 217, 276, 278</td></tr>
-<tr><td><code>letterSpacing: .6</code></td><td>275</td></tr>
-<tr><td><code>lineHeight: 16</code></td><td>239, 275, 276, 283</td></tr>
-<tr><td><code>lineHeight: 17</code></td><td>278</td></tr>
-<tr><td><code>lineHeight: 25</code></td><td>276</td></tr>
-<tr><td><code>lineHeight: 29</code></td><td>283</td></tr>
+<tr><td><code>fontSize: 10</code></td><td>234, 245, 281</td></tr>
+<tr><td><code>fontSize: 11</code></td><td>239, 282, 289</td></tr>
+<tr><td><code>fontSize: 12</code></td><td>284</td></tr>
+<tr><td><code>fontSize: 13</code></td><td>235, 283, 288</td></tr>
+<tr><td><code>fontSize: 18</code></td><td>211</td></tr>
+<tr><td><code>fontSize: 20</code></td><td>223, 282</td></tr>
+<tr><td><code>fontSize: 23</code></td><td>287</td></tr>
+<tr><td><code>fontSize: 25</code></td><td>289</td></tr>
+<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>211, 223, 282, 284</td></tr>
+<tr><td><code>letterSpacing: .6</code></td><td>281</td></tr>
+<tr><td><code>lineHeight: 16</code></td><td>245, 281, 282, 289</td></tr>
+<tr><td><code>lineHeight: 17</code></td><td>284</td></tr>
+<tr><td><code>lineHeight: 25</code></td><td>282</td></tr>
+<tr><td><code>lineHeight: 29</code></td><td>289</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-geometry--opacity-declarations-13">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>borderRadius: 12</code></td><td>278, 281</td></tr>
-<tr><td><code>borderRadius: 13</code></td><td>278</td></tr>
-<tr><td><code>borderRadius: 14</code></td><td>273</td></tr>
-<tr><td><code>borderRadius: 15</code></td><td>280</td></tr>
-<tr><td><code>borderRadius: 17</code></td><td>279</td></tr>
-<tr><td><code>borderRadius: 2</code></td><td>283</td></tr>
-<tr><td><code>borderRadius: 20</code></td><td>282</td></tr>
-<tr><td><code>borderRadius: 21</code></td><td>282</td></tr>
-<tr><td><code>borderRadius: 22</code></td><td>277</td></tr>
-<tr><td><code>borderRadius: 24</code></td><td>277</td></tr>
-<tr><td><code>borderRadius: 9</code></td><td>278</td></tr>
-<tr><td><code>borderWidth: 1</code></td><td>277, 278, 281, 282</td></tr>
-<tr><td><code>gap: 1</code></td><td>276, 283</td></tr>
-<tr><td><code>gap: 10</code></td><td>204, 280</td></tr>
-<tr><td><code>gap: 3</code></td><td>275, 278</td></tr>
-<tr><td><code>gap: 5</code></td><td>277</td></tr>
-<tr><td><code>gap: 6</code></td><td>281, 282</td></tr>
-<tr><td><code>gap: 7</code></td><td>277, 280</td></tr>
-<tr><td><code>gap: 8</code></td><td>254, 256, 272, 279, 282</td></tr>
-<tr><td><code>height: 2</code></td><td>283</td></tr>
-<tr><td><code>height: 30</code></td><td>280</td></tr>
-<tr><td><code>height: 42</code></td><td>282</td></tr>
-<tr><td><code>height: 48</code></td><td>273</td></tr>
-<tr><td><code>maxHeight: 150</code></td><td>282</td></tr>
-<tr><td><code>maxWidth: 430</code></td><td>280</td></tr>
-<tr><td><code>maxWidth: 480</code></td><td>204</td></tr>
-<tr><td><code>maxWidth: 520</code></td><td>254, 256</td></tr>
-<tr><td><code>maxWidth: 599</code></td><td>271, 283</td></tr>
-<tr><td><code>maxWidth: 600</code></td><td>185, 240</td></tr>
-<tr><td><code>maxWidth: 720</code></td><td>226</td></tr>
-<tr><td><code>maxWidth: 960</code></td><td>185, 240</td></tr>
-<tr><td><code>minHeight: 126</code></td><td>280</td></tr>
-<tr><td><code>minHeight: 174</code></td><td>217</td></tr>
-<tr><td><code>minHeight: 34</code></td><td>279</td></tr>
-<tr><td><code>minHeight: 36</code></td><td>274</td></tr>
-<tr><td><code>minHeight: 40</code></td><td>277, 282</td></tr>
-<tr><td><code>minHeight: 48</code></td><td>277, 279</td></tr>
-<tr><td><code>minHeight: 60</code></td><td>283</td></tr>
-<tr><td><code>minHeight: 64</code></td><td>278</td></tr>
-<tr><td><code>minHeight: 66</code></td><td>278</td></tr>
-<tr><td><code>minHeight: 70</code></td><td>281</td></tr>
-<tr><td><code>minWidth: 0</code></td><td>276, 277</td></tr>
-<tr><td><code>opacity: .45</code></td><td>231</td></tr>
-<tr><td><code>padding: 0</code></td><td>279</td></tr>
-<tr><td><code>padding: 10</code></td><td>272, 281</td></tr>
-<tr><td><code>padding: 4</code></td><td>275, 282</td></tr>
-<tr><td><code>padding: 7</code></td><td>278</td></tr>
-<tr><td><code>paddingHorizontal: 12</code></td><td>277</td></tr>
-<tr><td><code>paddingHorizontal: 16</code></td><td>279</td></tr>
-<tr><td><code>paddingHorizontal: 6</code></td><td>278</td></tr>
-<tr><td><code>paddingHorizontal: 7</code></td><td>278</td></tr>
-<tr><td><code>paddingHorizontal: 8</code></td><td>282</td></tr>
-<tr><td><code>paddingVertical: 10</code></td><td>278</td></tr>
-<tr><td><code>paddingVertical: 4</code></td><td>277, 283</td></tr>
-<tr><td><code>width: &#x27;100%&#x27;</code></td><td>204, 219, 239, 254, 256, 271, 279, 280, 283</td></tr>
-<tr><td><code>width: &#x27;49.2%&#x27;</code></td><td>279</td></tr>
-<tr><td><code>width: 24</code></td><td>283</td></tr>
-<tr><td><code>width: 30</code></td><td>280</td></tr>
-<tr><td><code>width: 42</code></td><td>277, 282</td></tr>
-<tr><td><code>width: 48</code></td><td>273</td></tr>
-<tr><td><code>width: 64</code></td><td>278</td></tr>
+<tr><td><code>borderRadius: 12</code></td><td>284, 287</td></tr>
+<tr><td><code>borderRadius: 13</code></td><td>284</td></tr>
+<tr><td><code>borderRadius: 14</code></td><td>279</td></tr>
+<tr><td><code>borderRadius: 15</code></td><td>286</td></tr>
+<tr><td><code>borderRadius: 17</code></td><td>285</td></tr>
+<tr><td><code>borderRadius: 2</code></td><td>289</td></tr>
+<tr><td><code>borderRadius: 20</code></td><td>288</td></tr>
+<tr><td><code>borderRadius: 21</code></td><td>288</td></tr>
+<tr><td><code>borderRadius: 22</code></td><td>283</td></tr>
+<tr><td><code>borderRadius: 24</code></td><td>283</td></tr>
+<tr><td><code>borderRadius: 9</code></td><td>284</td></tr>
+<tr><td><code>borderWidth: 1</code></td><td>283, 284, 287, 288</td></tr>
+<tr><td><code>gap: 1</code></td><td>282, 289</td></tr>
+<tr><td><code>gap: 10</code></td><td>210, 286</td></tr>
+<tr><td><code>gap: 3</code></td><td>281, 284</td></tr>
+<tr><td><code>gap: 5</code></td><td>283</td></tr>
+<tr><td><code>gap: 6</code></td><td>287, 288</td></tr>
+<tr><td><code>gap: 7</code></td><td>283, 286</td></tr>
+<tr><td><code>gap: 8</code></td><td>260, 262, 278, 285, 288</td></tr>
+<tr><td><code>height: 2</code></td><td>289</td></tr>
+<tr><td><code>height: 30</code></td><td>286</td></tr>
+<tr><td><code>height: 42</code></td><td>288</td></tr>
+<tr><td><code>height: 48</code></td><td>279</td></tr>
+<tr><td><code>maxHeight: 150</code></td><td>288</td></tr>
+<tr><td><code>maxWidth: 430</code></td><td>286</td></tr>
+<tr><td><code>maxWidth: 480</code></td><td>210</td></tr>
+<tr><td><code>maxWidth: 520</code></td><td>260, 262</td></tr>
+<tr><td><code>maxWidth: 599</code></td><td>277, 289</td></tr>
+<tr><td><code>maxWidth: 600</code></td><td>191, 246</td></tr>
+<tr><td><code>maxWidth: 720</code></td><td>232</td></tr>
+<tr><td><code>maxWidth: 960</code></td><td>191, 246</td></tr>
+<tr><td><code>minHeight: 126</code></td><td>286</td></tr>
+<tr><td><code>minHeight: 174</code></td><td>223</td></tr>
+<tr><td><code>minHeight: 34</code></td><td>285</td></tr>
+<tr><td><code>minHeight: 36</code></td><td>280</td></tr>
+<tr><td><code>minHeight: 40</code></td><td>283, 288</td></tr>
+<tr><td><code>minHeight: 48</code></td><td>283, 285</td></tr>
+<tr><td><code>minHeight: 60</code></td><td>289</td></tr>
+<tr><td><code>minHeight: 64</code></td><td>284</td></tr>
+<tr><td><code>minHeight: 66</code></td><td>284</td></tr>
+<tr><td><code>minHeight: 70</code></td><td>287</td></tr>
+<tr><td><code>minWidth: 0</code></td><td>282, 283</td></tr>
+<tr><td><code>opacity: .45</code></td><td>237</td></tr>
+<tr><td><code>padding: 0</code></td><td>285</td></tr>
+<tr><td><code>padding: 10</code></td><td>278, 287</td></tr>
+<tr><td><code>padding: 4</code></td><td>281, 288</td></tr>
+<tr><td><code>padding: 7</code></td><td>284</td></tr>
+<tr><td><code>paddingHorizontal: 12</code></td><td>283</td></tr>
+<tr><td><code>paddingHorizontal: 16</code></td><td>285</td></tr>
+<tr><td><code>paddingHorizontal: 6</code></td><td>284</td></tr>
+<tr><td><code>paddingHorizontal: 7</code></td><td>284</td></tr>
+<tr><td><code>paddingHorizontal: 8</code></td><td>288</td></tr>
+<tr><td><code>paddingVertical: 10</code></td><td>284</td></tr>
+<tr><td><code>paddingVertical: 4</code></td><td>283, 289</td></tr>
+<tr><td><code>width: &#x27;100%&#x27;</code></td><td>210, 225, 245, 260, 262, 277, 285, 286, 289</td></tr>
+<tr><td><code>width: &#x27;49.2%&#x27;</code></td><td>285</td></tr>
+<tr><td><code>width: 24</code></td><td>289</td></tr>
+<tr><td><code>width: 30</code></td><td>286</td></tr>
+<tr><td><code>width: 42</code></td><td>283, 288</td></tr>
+<tr><td><code>width: 48</code></td><td>279</td></tr>
+<tr><td><code>width: 64</code></td><td>284</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-ownflightstsx">OwnFlights.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/OwnFlights.tsx">apps/platform-lab/src/mobile/OwnFlights.tsx</a>; normalized SHA-256 <code>0f025f04aa31cf4670b2dfd1d63a69534342e2091c8c702217854fe4f785661d</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/OwnFlights.tsx">apps/platform-lab/src/mobile/OwnFlights.tsx</a>; normalized SHA-256 <code>f6cc9df55230bba27c81d697a2f97fa2a0520ce70ae8ee9645fc7c598aa5da3c</code>.</p>
 <h4 id="chapter-implementation-inventory-literal-colors-7">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><i class="swatch" style="background:#10282d" aria-hidden="true"></i><code>#10282d</code></td><td>128</td></tr>
-<tr><td><i class="swatch" style="background:#11263a" aria-hidden="true"></i><code>#11263a</code></td><td>129</td></tr>
-<tr><td><i class="swatch" style="background:#7299ab" aria-hidden="true"></i><code>#7299ab</code></td><td>81</td></tr>
+<tr><td><i class="swatch" style="background:#10282d" aria-hidden="true"></i><code>#10282d</code></td><td>130</td></tr>
+<tr><td><i class="swatch" style="background:#11263a" aria-hidden="true"></i><code>#11263a</code></td><td>131</td></tr>
+<tr><td><i class="swatch" style="background:#7299ab" aria-hidden="true"></i><code>#7299ab</code></td><td>83</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-typography-declarations-7">Typography declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>fontSize: 10</code></td><td>81</td></tr>
-<tr><td><code>fontSize: 13</code></td><td>130</td></tr>
-<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>80</td></tr>
+<tr><td><code>fontSize: 10</code></td><td>83</td></tr>
+<tr><td><code>fontSize: 13</code></td><td>132</td></tr>
+<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>82</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-geometry--opacity-declarations-14">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>borderRadius: 13</code></td><td>128</td></tr>
-<tr><td><code>borderRadius: 22</code></td><td>129</td></tr>
-<tr><td><code>borderRadius: 24</code></td><td>130</td></tr>
-<tr><td><code>borderRadius: 9</code></td><td>128</td></tr>
-<tr><td><code>borderWidth: 1</code></td><td>129</td></tr>
-<tr><td><code>gap: 2</code></td><td>118</td></tr>
-<tr><td><code>gap: 3</code></td><td>128</td></tr>
-<tr><td><code>gap: 5</code></td><td>53</td></tr>
-<tr><td><code>gap: 7</code></td><td>129</td></tr>
-<tr><td><code>gap: 8</code></td><td>76, 127</td></tr>
-<tr><td><code>height: 7</code></td><td>89</td></tr>
-<tr><td><code>maxWidth: &#x27;50%&#x27;</code></td><td>79</td></tr>
-<tr><td><code>maxWidth: 520</code></td><td>127</td></tr>
-<tr><td><code>minHeight: 48</code></td><td>130</td></tr>
-<tr><td><code>minHeight: 64</code></td><td>128</td></tr>
-<tr><td><code>minWidth: 0</code></td><td>129</td></tr>
-<tr><td><code>padding: 10</code></td><td>127</td></tr>
-<tr><td><code>padding: 7</code></td><td>128</td></tr>
-<tr><td><code>paddingHorizontal: 12</code></td><td>129</td></tr>
-<tr><td><code>paddingVertical: 4</code></td><td>130</td></tr>
-<tr><td><code>width: &#x27;100%&#x27;</code></td><td>127</td></tr>
-<tr><td><code>width: 48</code></td><td>130</td></tr>
-<tr><td><code>width: 64</code></td><td>128</td></tr>
+<tr><td><code>borderRadius: 13</code></td><td>130</td></tr>
+<tr><td><code>borderRadius: 22</code></td><td>131</td></tr>
+<tr><td><code>borderRadius: 24</code></td><td>132</td></tr>
+<tr><td><code>borderRadius: 9</code></td><td>130</td></tr>
+<tr><td><code>borderWidth: 1</code></td><td>131</td></tr>
+<tr><td><code>gap: 2</code></td><td>120</td></tr>
+<tr><td><code>gap: 3</code></td><td>130</td></tr>
+<tr><td><code>gap: 5</code></td><td>54</td></tr>
+<tr><td><code>gap: 7</code></td><td>131</td></tr>
+<tr><td><code>gap: 8</code></td><td>78, 129</td></tr>
+<tr><td><code>height: 7</code></td><td>91</td></tr>
+<tr><td><code>maxWidth: &#x27;50%&#x27;</code></td><td>81</td></tr>
+<tr><td><code>maxWidth: 520</code></td><td>129</td></tr>
+<tr><td><code>minHeight: 48</code></td><td>132</td></tr>
+<tr><td><code>minHeight: 64</code></td><td>130</td></tr>
+<tr><td><code>minWidth: 0</code></td><td>131</td></tr>
+<tr><td><code>padding: 10</code></td><td>129</td></tr>
+<tr><td><code>padding: 7</code></td><td>130</td></tr>
+<tr><td><code>paddingHorizontal: 12</code></td><td>131</td></tr>
+<tr><td><code>paddingVertical: 4</code></td><td>132</td></tr>
+<tr><td><code>width: &#x27;100%&#x27;</code></td><td>129</td></tr>
+<tr><td><code>width: 48</code></td><td>132</td></tr>
+<tr><td><code>width: 64</code></td><td>130</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-paperstatustsx">PaperStatus.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/PaperStatus.tsx">apps/platform-lab/src/mobile/PaperStatus.tsx</a>; normalized SHA-256 <code>d030bb2911e9f988f450f9ae521677534c839dba425b0b4b24c7791015d14aa9</code>.</p>
@@ -1552,7 +1552,7 @@ The HTML guide embeds original reference and symbol/brand images unchanged. Comp
 | C16 | Information source review | Shared C01/C02 controls in the connection panel&#x27;s centered 520 dp group; five raw rows per page, one immutable snapshot at a time | [InformationReview](../../../apps/platform-lab/src/mobile/InformationReview.tsx) shows retrieval time and recorded coverage, with older/newer controls available offline. Category counts use the latest snapshot. Blank extracted text stays unknown; known date-only document snapshots are marked incomplete. No canonical history or cross-snapshot aggregation. |
 | C17 | Own-flight loading | Shared C01/C02 controls, centered 520 dp groups; ordinary progress and secondary details | [CoreFlightFoundation](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx) coordinates one explicit action through internal fresh storage, original-provider authentication, verified retrieval and local save. A verified retained session avoids login; valid rows need no routine review/save tap. Source/account/recovery checks remain; unresolved recovery is visible outside the details disclosure. Custom period, raw review and real-history backup remain under Details &amp; weitere Optionen. Successful saving returns to ordinary Flüge with a result. Opening options alone creates/retrieves nothing. |
 | C18 | Connection/data summary | Shared C01/C02 card, one primary combined action and secondary options; no new symbols or geometry | [ConnectionSummary](../../../apps/platform-lab/src/mobile/ConnectionSummary.tsx) on Start/Profile uses the same committed account library as Flüge/season freshness. Session evidence stays separate. First use offers Mit Vereinsflieger anmelden &amp; Flüge laden; returning users get Flüge aktualisieren. More than seven days gives a quiet reminder. The action explicitly requests foreground retrieval/save; no polling or retrieval just from opening the app. |
-| C19 | Support diagnostics | Shared C01/C02 cards/actions and selectable report text in a centered 520 dp group | [Diagnostics](../../../apps/platform-lab/src/mobile/Diagnostics.tsx) via Settings; latest five anonymized technical operations, explicit OS sharing/copy and journal-only clearing. No automatic transmission. |
+| C19 | Support diagnostics | Shared C01/C02 cards/actions and selectable report text in a centered 520 dp group | [Diagnostics](../../../apps/platform-lab/src/mobile/Diagnostics.tsx) via Settings; paged technical/action histories and protected failures; observed navigation transitions without inferred intent. Explicit full JSON-file sharing, bounded short text copying and diagnostic-only clearing; 1 MB total managed storage cap. No automatic transmission. |
 
 Sources: [theme](../../../apps/platform-lab/src/mobile/theme.tsx), [MobileApp](../../../apps/platform-lab/src/mobile/MobileApp.tsx), [Dashboard](../../../apps/platform-lab/src/mobile/Dashboard.tsx), [AppHeader](../../../apps/platform-lab/src/mobile/AppHeader.tsx), [ProviderConnection](../../../apps/platform-lab/src/mobile/ProviderConnection.tsx), [MedicalStatus](../../../apps/platform-lab/src/mobile/MedicalStatus.tsx), [ProfileSettings](../../../apps/platform-lab/src/mobile/ProfileSettings.tsx) and [SeasonRing](../../../apps/platform-lab/src/mobile/SeasonRing.tsx).
 
@@ -1613,7 +1613,7 @@ Development surfaces are explicit visual exceptions: [App.tsx](../../../apps/pla
 
 ## Settings, Development and library maintenance
 
-Settings → **Diagnose öffnen** opens a separate scrollable support screen with contextual Back. Reuse C01/C02 and a centered 520 dp group; show the newest five technical operations, outcomes, fixed codes and timings. Explicit sharing opens the OS chooser; the report is also selectable for copying. Clearing affects only the diagnostic journal. [Contract and evidence](../../verification/2026-10-21-diagnostics.md).
+Settings → **Diagnose öffnen** opens a separate scrollable support screen with contextual Back. Reuse C01/C02 and a centered 520 dp group; page through technical operations, action/navigation events and protected failures (ten per page). The journey view shows observed transitions and explicitly avoids inferring intentions. Full sharing opens the OS chooser for a JSON file; a bounded short report can be shared/copied as text. Clearing affects the journal and managed export file only. Storage is capped at 1 MB total and 14 days, with earlier byte/count limits. [Contract and evidence](../../verification/2026-10-21-diagnostics.md).
 
 Settings exposes **Sicherung &amp; Wiederherstellung** beside ordinary book/data actions and a separate **Entwicklung öffnen** entry. [DevelopmentHub](../../../apps/platform-lab/src/mobile/DevelopmentHub.tsx) groups the dataset/flight proof, book/paper proof and provider diagnostics. Entry alone runs no fixture or provider operation. The experimental lab Release retains these explicit tools for offline testing; this is no security boundary or approval for a future production build. Synthetic operations and old copy-confirmation semantics remain labelled.
 
@@ -1847,17 +1847,17 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/connection-guidan
 
 ## CoreFlightFoundation.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `d16963e58043d17d6eaf950bc427794546fdc2d6fc2f47223e8f46dac2d55a5a`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `d148adb0894fc6d4e94d22d130ed1b5ff0ddd280c45792b275f0c57975ab2e53`.
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `gap: 10` | 121, 122, 370 |
-| `gap: 8` | 396, 422, 432 |
-| `maxWidth: 520` | 122, 370 |
-| `padding: 12` | 121, 370 |
-| `width: &#x27;100%&#x27;` | 122, 370 |
+| `gap: 10` | 121, 122, 373 |
+| `gap: 8` | 399, 425, 435 |
+| `maxWidth: 520` | 122, 373 |
+| `padding: 12` | 121, 373 |
+| `width: &#x27;100%&#x27;` | 122, 373 |
 
 ## Dashboard.tsx
 
@@ -1972,15 +1972,15 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DevelopmentHub.ts
 
 ## Diagnostics.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Diagnostics.tsx](../../../apps/platform-lab/src/mobile/Diagnostics.tsx); normalized SHA-256 `de34163e80342d3fc5df7572398ed0252013211235b7cfad3afe5f6c85da1b39`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Diagnostics.tsx](../../../apps/platform-lab/src/mobile/Diagnostics.tsx); normalized SHA-256 `cc418e9dec9a883c0d615f64fc7efad38e65e07a20524f3492375a5e30da1e4f`.
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `gap: 10` | 20 |
-| `maxWidth: 520` | 20 |
-| `width: &#x27;100%&#x27;` | 20 |
+| `gap: 10` | 26 |
+| `maxWidth: 520` | 26 |
+| `width: &#x27;100%&#x27;` | 26 |
 
 ## ImportPreview.tsx
 
@@ -2061,163 +2061,163 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MedicalStatus.tsx
 
 ## MobileApp.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `1251a0a9764bab43f4102612a4258eb1360d0c1170988e5e22ff3170fb1e6577`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `c0996ffd7d596567bb6b367968736e14e7767ac32c29f4cd4338c3ba77ebaac5`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#00c8ff` | 240, 283 |
-| `#020e17` | 283 |
-| `#031326` | 217 |
-| `#064240` | 278 |
-| `#10233d` | 280 |
-| `#10263e` | 282 |
-| `#10282d` | 278 |
-| `#102d47aa` | 273 |
-| `#11263a` | 277 |
-| `#152d42` | 279 |
-| `#1b344a` | 282 |
-| `#1c3449` | 283 |
-| `#227f87` | 278 |
-| `#354d74` | 280 |
-| `#3a5a8b` | 282 |
-| `#78efdc` | 280 |
-| `#8ba4bc` | 239, 275 |
-| `#ffbd9b` | 170 |
+| `#00c8ff` | 246, 289 |
+| `#020e17` | 289 |
+| `#031326` | 223 |
+| `#064240` | 284 |
+| `#10233d` | 286 |
+| `#10263e` | 288 |
+| `#10282d` | 284 |
+| `#102d47aa` | 279 |
+| `#11263a` | 283 |
+| `#152d42` | 285 |
+| `#1b344a` | 288 |
+| `#1c3449` | 289 |
+| `#227f87` | 284 |
+| `#354d74` | 286 |
+| `#3a5a8b` | 288 |
+| `#78efdc` | 286 |
+| `#8ba4bc` | 245, 281 |
+| `#ffbd9b` | 176 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 10` | 228, 239, 275 |
-| `fontSize: 11` | 233, 276, 283 |
-| `fontSize: 12` | 278 |
-| `fontSize: 13` | 229, 277, 282 |
-| `fontSize: 18` | 205 |
-| `fontSize: 20` | 217, 276 |
-| `fontSize: 23` | 281 |
-| `fontSize: 25` | 283 |
-| `fontWeight: &#x27;600&#x27;` | 205, 217, 276, 278 |
-| `letterSpacing: .6` | 275 |
-| `lineHeight: 16` | 239, 275, 276, 283 |
-| `lineHeight: 17` | 278 |
-| `lineHeight: 25` | 276 |
-| `lineHeight: 29` | 283 |
+| `fontSize: 10` | 234, 245, 281 |
+| `fontSize: 11` | 239, 282, 289 |
+| `fontSize: 12` | 284 |
+| `fontSize: 13` | 235, 283, 288 |
+| `fontSize: 18` | 211 |
+| `fontSize: 20` | 223, 282 |
+| `fontSize: 23` | 287 |
+| `fontSize: 25` | 289 |
+| `fontWeight: &#x27;600&#x27;` | 211, 223, 282, 284 |
+| `letterSpacing: .6` | 281 |
+| `lineHeight: 16` | 245, 281, 282, 289 |
+| `lineHeight: 17` | 284 |
+| `lineHeight: 25` | 282 |
+| `lineHeight: 29` | 289 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 278, 281 |
-| `borderRadius: 13` | 278 |
-| `borderRadius: 14` | 273 |
-| `borderRadius: 15` | 280 |
-| `borderRadius: 17` | 279 |
-| `borderRadius: 2` | 283 |
-| `borderRadius: 20` | 282 |
-| `borderRadius: 21` | 282 |
-| `borderRadius: 22` | 277 |
-| `borderRadius: 24` | 277 |
-| `borderRadius: 9` | 278 |
-| `borderWidth: 1` | 277, 278, 281, 282 |
-| `gap: 1` | 276, 283 |
-| `gap: 10` | 204, 280 |
-| `gap: 3` | 275, 278 |
-| `gap: 5` | 277 |
-| `gap: 6` | 281, 282 |
-| `gap: 7` | 277, 280 |
-| `gap: 8` | 254, 256, 272, 279, 282 |
-| `height: 2` | 283 |
-| `height: 30` | 280 |
-| `height: 42` | 282 |
-| `height: 48` | 273 |
-| `maxHeight: 150` | 282 |
-| `maxWidth: 430` | 280 |
-| `maxWidth: 480` | 204 |
-| `maxWidth: 520` | 254, 256 |
-| `maxWidth: 599` | 271, 283 |
-| `maxWidth: 600` | 185, 240 |
-| `maxWidth: 720` | 226 |
-| `maxWidth: 960` | 185, 240 |
-| `minHeight: 126` | 280 |
-| `minHeight: 174` | 217 |
-| `minHeight: 34` | 279 |
-| `minHeight: 36` | 274 |
-| `minHeight: 40` | 277, 282 |
-| `minHeight: 48` | 277, 279 |
-| `minHeight: 60` | 283 |
-| `minHeight: 64` | 278 |
-| `minHeight: 66` | 278 |
-| `minHeight: 70` | 281 |
-| `minWidth: 0` | 276, 277 |
-| `opacity: .45` | 231 |
-| `padding: 0` | 279 |
-| `padding: 10` | 272, 281 |
-| `padding: 4` | 275, 282 |
-| `padding: 7` | 278 |
-| `paddingHorizontal: 12` | 277 |
-| `paddingHorizontal: 16` | 279 |
-| `paddingHorizontal: 6` | 278 |
-| `paddingHorizontal: 7` | 278 |
-| `paddingHorizontal: 8` | 282 |
-| `paddingVertical: 10` | 278 |
-| `paddingVertical: 4` | 277, 283 |
-| `width: &#x27;100%&#x27;` | 204, 219, 239, 254, 256, 271, 279, 280, 283 |
-| `width: &#x27;49.2%&#x27;` | 279 |
-| `width: 24` | 283 |
-| `width: 30` | 280 |
-| `width: 42` | 277, 282 |
-| `width: 48` | 273 |
-| `width: 64` | 278 |
+| `borderRadius: 12` | 284, 287 |
+| `borderRadius: 13` | 284 |
+| `borderRadius: 14` | 279 |
+| `borderRadius: 15` | 286 |
+| `borderRadius: 17` | 285 |
+| `borderRadius: 2` | 289 |
+| `borderRadius: 20` | 288 |
+| `borderRadius: 21` | 288 |
+| `borderRadius: 22` | 283 |
+| `borderRadius: 24` | 283 |
+| `borderRadius: 9` | 284 |
+| `borderWidth: 1` | 283, 284, 287, 288 |
+| `gap: 1` | 282, 289 |
+| `gap: 10` | 210, 286 |
+| `gap: 3` | 281, 284 |
+| `gap: 5` | 283 |
+| `gap: 6` | 287, 288 |
+| `gap: 7` | 283, 286 |
+| `gap: 8` | 260, 262, 278, 285, 288 |
+| `height: 2` | 289 |
+| `height: 30` | 286 |
+| `height: 42` | 288 |
+| `height: 48` | 279 |
+| `maxHeight: 150` | 288 |
+| `maxWidth: 430` | 286 |
+| `maxWidth: 480` | 210 |
+| `maxWidth: 520` | 260, 262 |
+| `maxWidth: 599` | 277, 289 |
+| `maxWidth: 600` | 191, 246 |
+| `maxWidth: 720` | 232 |
+| `maxWidth: 960` | 191, 246 |
+| `minHeight: 126` | 286 |
+| `minHeight: 174` | 223 |
+| `minHeight: 34` | 285 |
+| `minHeight: 36` | 280 |
+| `minHeight: 40` | 283, 288 |
+| `minHeight: 48` | 283, 285 |
+| `minHeight: 60` | 289 |
+| `minHeight: 64` | 284 |
+| `minHeight: 66` | 284 |
+| `minHeight: 70` | 287 |
+| `minWidth: 0` | 282, 283 |
+| `opacity: .45` | 237 |
+| `padding: 0` | 285 |
+| `padding: 10` | 278, 287 |
+| `padding: 4` | 281, 288 |
+| `padding: 7` | 284 |
+| `paddingHorizontal: 12` | 283 |
+| `paddingHorizontal: 16` | 285 |
+| `paddingHorizontal: 6` | 284 |
+| `paddingHorizontal: 7` | 284 |
+| `paddingHorizontal: 8` | 288 |
+| `paddingVertical: 10` | 284 |
+| `paddingVertical: 4` | 283, 289 |
+| `width: &#x27;100%&#x27;` | 210, 225, 245, 260, 262, 277, 285, 286, 289 |
+| `width: &#x27;49.2%&#x27;` | 285 |
+| `width: 24` | 289 |
+| `width: 30` | 286 |
+| `width: 42` | 283, 288 |
+| `width: 48` | 279 |
+| `width: 64` | 284 |
 
 ## OwnFlights.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OwnFlights.tsx](../../../apps/platform-lab/src/mobile/OwnFlights.tsx); normalized SHA-256 `0f025f04aa31cf4670b2dfd1d63a69534342e2091c8c702217854fe4f785661d`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OwnFlights.tsx](../../../apps/platform-lab/src/mobile/OwnFlights.tsx); normalized SHA-256 `f6cc9df55230bba27c81d697a2f97fa2a0520ce70ae8ee9645fc7c598aa5da3c`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#10282d` | 128 |
-| `#11263a` | 129 |
-| `#7299ab` | 81 |
+| `#10282d` | 130 |
+| `#11263a` | 131 |
+| `#7299ab` | 83 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 10` | 81 |
-| `fontSize: 13` | 130 |
-| `fontWeight: &#x27;600&#x27;` | 80 |
+| `fontSize: 10` | 83 |
+| `fontSize: 13` | 132 |
+| `fontWeight: &#x27;600&#x27;` | 82 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 13` | 128 |
-| `borderRadius: 22` | 129 |
-| `borderRadius: 24` | 130 |
-| `borderRadius: 9` | 128 |
-| `borderWidth: 1` | 129 |
-| `gap: 2` | 118 |
-| `gap: 3` | 128 |
-| `gap: 5` | 53 |
-| `gap: 7` | 129 |
-| `gap: 8` | 76, 127 |
-| `height: 7` | 89 |
-| `maxWidth: &#x27;50%&#x27;` | 79 |
-| `maxWidth: 520` | 127 |
-| `minHeight: 48` | 130 |
-| `minHeight: 64` | 128 |
-| `minWidth: 0` | 129 |
-| `padding: 10` | 127 |
-| `padding: 7` | 128 |
-| `paddingHorizontal: 12` | 129 |
-| `paddingVertical: 4` | 130 |
-| `width: &#x27;100%&#x27;` | 127 |
-| `width: 48` | 130 |
-| `width: 64` | 128 |
+| `borderRadius: 13` | 130 |
+| `borderRadius: 22` | 131 |
+| `borderRadius: 24` | 132 |
+| `borderRadius: 9` | 130 |
+| `borderWidth: 1` | 131 |
+| `gap: 2` | 120 |
+| `gap: 3` | 130 |
+| `gap: 5` | 54 |
+| `gap: 7` | 131 |
+| `gap: 8` | 78, 129 |
+| `height: 7` | 91 |
+| `maxWidth: &#x27;50%&#x27;` | 81 |
+| `maxWidth: 520` | 129 |
+| `minHeight: 48` | 132 |
+| `minHeight: 64` | 130 |
+| `minWidth: 0` | 131 |
+| `padding: 10` | 129 |
+| `padding: 7` | 130 |
+| `paddingHorizontal: 12` | 131 |
+| `paddingVertical: 4` | 132 |
+| `width: &#x27;100%&#x27;` | 129 |
+| `width: 48` | 132 |
+| `width: 64` | 130 |
 
 ## PaperStatus.tsx
 
@@ -3127,7 +3127,7 @@ States / limits: Recreated approved variant, not a byte-identical copy of an old
 Source: docs/assets/branding/moflight-app-icon-ai.png
 docs/assets/branding/README.md; app.json
 </textarea></section>
-<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: 8a97b610b9ea01b6345c2244715bf4ab114555fd3eccf476a2afdd36c464f962. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
+<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: 9eeb31392bbbfd5e08b2243271ef1b7e1c63eb4662e223ccfefa1c29d620213b. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
 </main><script>
 'use strict';
 const brief = document.querySelector('#brief');

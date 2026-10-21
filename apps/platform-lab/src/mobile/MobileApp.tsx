@@ -77,11 +77,13 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
     if (screenBusy) return;
     if (sheet === next && !detail) return;
     Keyboard.dismiss();
+    if (next) diagnosticJournal.record('action',next);
     if (overlayOpen) overlayHistory.current.push({ sheet, detail });
     setDetail(null); setSheet(next);
   };
   const closeOverlay = () => {
     if (screenBusy) return;
+    diagnosticJournal.record('back', detail ? 'flight-detail' : sheet ?? 'close');
     Keyboard.dismiss();
     const previous = overlayHistory.current.pop();
     setDetail(previous?.detail ?? null); setSheet(previous?.sheet ?? null);
@@ -149,16 +151,20 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
     }); return () => listener.remove();
   }, [detail, sheet, tab, connectionOpen, connection, screenBusy, flightHeader]);
   useEffect(()=>{if(lastLoad){overlayHistory.current=[];setDetail(null);setSheet(null);setTab('flights');}},[lastLoad]);
-  const openFlightFlow = (startUpdate=false) => { if(!connection.suspendBrowserForOwnerSwitch()){diagnosticJournal.begin(startUpdate?'update-flights':'open-flight-tools').finish('blocked','provider-handoff');return false;} onCoreFlights(startUpdate); return true; };
+  const openFlightFlow = (startUpdate=false) => { diagnosticJournal.record('action',startUpdate?'update-flights':'open-flight-tools'); if(!connection.suspendBrowserForOwnerSwitch()){diagnosticJournal.begin(startUpdate?'update-flights':'open-flight-tools').finish('blocked','provider-handoff');return false;} onCoreFlights(startUpdate); return true; };
+  useEffect(() => { diagnosticJournal.record('screen', coreFlightsOpen ? 'own-flight-tools' : connectionOpen ? 'provider-options' : detail ? 'flight-detail' : sheet ?? tab); }, [tab,sheet,detail,connectionOpen,coreFlightsOpen]);
+  useEffect(() => { const listener=AppState.addEventListener('change',state=>{if(state==='active'||state==='background'||state==='inactive')diagnosticJournal.record('lifecycle',state);});return()=>listener.remove(); }, []);
   const openBooks = () => openHeaderSheet('paper');
   const openConnection = (development = false) => { setConnectionDevelopment(development); setConnectionOpen(true); };
   const ask = (question: string) => { setDraft(question); setAiError(false); setTab('ai'); };
   const quickQuestions = localQuestions;
   const localQuery = (index: number) => {
+    diagnosticJournal.record('action','local-query');
     setDraft(quickQuestions[index]!); setAiError(false);
     setLocalAnswer(localInsight(library.flights, index, currentYear));
   };
   const send = () => {
+    diagnosticJournal.record('action','send-query');
     if (!draft.trim() || sending) return;
     // No gateway exists: report a real unavailable state; never manufacture a response.
     setSending(true); setAiError(true); setSending(false);
@@ -186,7 +192,7 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
       <View style={[s.page, tab !== 'home' && s.hidden]} accessibilityElementsHidden={tab !== 'home'} importantForAccessibility={tab === 'home' ? 'auto' : 'no-hide-descendants'}>
         <ScrollView contentContainerStyle={s.canvas} keyboardShouldPersistTaps="handled">
           <ConnectionSummary controller={flightStatusController} ownFlights={ownFlights.view} phase={ownFlights.phase} onUpdate={() => openFlightFlow(true)} onOpen={() => openFlightFlow()} />
-          <Dashboard ownFlights={ownFlights.view} ownFlightPhase={ownFlights.phase} pending={null} width={width} fontScale={fontScale} onPaper={() => openHeaderSheet('paperInfo')} onAi={() => ask('Mit welchem Flugzeug bin ich am häufigsten geflogen?')} onFlights={year => { setFlightRequest({ year: year ?? null }); setTab('flights'); }} onClub={() => { setClubSection('Dienste'); setTab('club'); }} onStatus={() => setSheet('status')} />
+          <Dashboard ownFlights={ownFlights.view} ownFlightPhase={ownFlights.phase} pending={null} width={width} fontScale={fontScale} onPaper={() => openHeaderSheet('paperInfo')} onAi={() => ask('Mit welchem Flugzeug bin ich am häufigsten geflogen?')} onFlights={year => { diagnosticJournal.record('action','flights');diagnosticJournal.record('filter','year');setFlightRequest({ year: year ?? null }); setTab('flights'); }} onClub={() => { setClubSection('Dienste'); setTab('club'); }} onStatus={() => setSheet('status')} />
           {stateBanner}
           <Pressable accessibilityRole="button" onPress={() => setSheet('credits')} style={ui.smallAction}><Label muted>Bildnachweise & Lizenzen</Label></Pressable>
         </ScrollView>
@@ -212,7 +218,7 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
       </View>
       <View style={[s.page, tab !== 'club' && s.hidden]} accessibilityElementsHidden={tab !== 'club'} importantForAccessibility={tab === 'club' ? 'auto' : 'no-hide-descendants'}>
         <ScrollView contentContainerStyle={s.canvas}>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.chips}>{(['Übersicht', 'Termine', 'Dienste', 'Mitteilungen'] as const).map(section => <Chip key={section} title={section} selected={clubSection === section} onPress={() => setClubSection(section)} />)}</ScrollView>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.chips}>{(['Übersicht', 'Termine', 'Dienste', 'Mitteilungen'] as const).map(section => <Chip key={section} title={section} selected={clubSection === section} onPress={() => {diagnosticJournal.record('filter','club-section');setClubSection(section);}} />)}</ScrollView>
           <View style={[s.clubBody, tablet && s.clubBodyWide]}>
           {(clubSection === 'Übersicht' || clubSection === 'Dienste') && <Card style={[s.duty, tablet && s.clubHalf]}><Photo source={windsock} style={{ minHeight: 174 }}><Section title="Nächster Dienst" icon="duty" /><Label muted>Nächste Zuweisung</Label><Label style={{ fontSize: 20, fontWeight: '600' }}>Keine Dienste verfügbar</Label><IconLabel name="clock" size={16}>Zeit —</IconLabel><IconLabel name="location" size={16}>Startplatz —</IconLabel><Pressable accessibilityRole="button" onPress={() => setSheet('status')} style={s.dutyAction}><View style={s.dutyActionFace}><IconLabel name="arrow" size={16} tone="contrast" style={{ color: '#031326', fontWeight: '600' }}>Details anzeigen</IconLabel></View></Pressable></Photo></Card>}
           {(clubSection === 'Übersicht' || clubSection === 'Termine') && <Card style={[s.clubSectionCard, tablet && s.clubHalf]}><Section icon="calendar-neutral" title={clubSection === 'Termine' ? 'Termine' : 'Kommende Termine'} action={clubSection === 'Übersicht' ? 'Alle anzeigen' : undefined} onPress={() => setClubSection('Termine')} /><Empty title="Keine Termine verfügbar">Vereinskalender noch nicht verbunden.</Empty></Card>}
@@ -237,7 +243,7 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
       </KeyboardAvoidingView>
     </View>
     {!aiKeyboard && <Label style={{ width: '100%', textAlign: 'center', color: '#8ba4bc', fontSize: 10, lineHeight: 16 }}>{tab === 'flights' ? 'Entwicklung · eigene gespeicherte Flüge' : 'Entwicklung · synthetische lokale Bibliothek'}</Label>}
-    <View style={[s.nav, wide && { maxWidth: 960 }, tablet && !wide && { maxWidth: 600 }, aiKeyboard && s.hidden]} accessibilityRole="tablist">{tabs.map(item => <Pressable key={item.id} testID={`tab-${item.id}`} accessibilityRole="tab" accessibilityLabel={item.title} accessibilityState={{ selected: tab === item.id }} onPress={() => setTab(item.id)} style={({ pressed }) => [s.navItem, pressed && ui.pressed]}>{item.id === 'flights' ? <PlaneIcon color={tab === item.id ? '#00c8ff' : colors.muted} /> : item.id === 'logbook' ? <BookIcon color={tab === item.id ? '#00c8ff' : colors.muted} /> : item.id === 'club' ? <ClubMark color={tab === item.id ? '#00c8ff' : colors.muted} /> : <SymbolIcon name={item.id === 'home' ? 'home' : 'sparkle'} size={28} tone={tab === item.id ? 'default' : 'muted'} tile />}<Text style={[s.navLabel, tab === item.id && s.active]}>{item.title}</Text></Pressable>)}</View>
+    <View style={[s.nav, wide && { maxWidth: 960 }, tablet && !wide && { maxWidth: 600 }, aiKeyboard && s.hidden]} accessibilityRole="tablist">{tabs.map(item => <Pressable key={item.id} testID={`tab-${item.id}`} accessibilityRole="tab" accessibilityLabel={item.title} accessibilityState={{ selected: tab === item.id }} onPress={() => { diagnosticJournal.record('action',item.id);setTab(item.id); }} style={({ pressed }) => [s.navItem, pressed && ui.pressed]}>{item.id === 'flights' ? <PlaneIcon color={tab === item.id ? '#00c8ff' : colors.muted} /> : item.id === 'logbook' ? <BookIcon color={tab === item.id ? '#00c8ff' : colors.muted} /> : item.id === 'club' ? <ClubMark color={tab === item.id ? '#00c8ff' : colors.muted} /> : <SymbolIcon name={item.id === 'home' ? 'home' : 'sparkle'} size={28} tone={tab === item.id ? 'default' : 'muted'} tile />}<Text style={[s.navLabel, tab === item.id && s.active]}>{item.title}</Text></Pressable>)}</View>
     </View>
     {overlayOpen && <View style={[StyleSheet.absoluteFill, s.modal]} accessibilityViewIsModal>
       <AppHeader source={mountain} back={closeOverlay} backDisabled={screenBusy} title={detail ? 'Flugdetails' : sheet === 'paper' || sheet === 'paperInfo' ? 'Papierflugbuch' : sheet === 'development' ? 'Entwicklung' : sheet === 'importPreview' ? 'Importvorschau' : sheet === 'flightLab' ? 'Datensatztest' : sheet === 'bookLab' ? 'Flugbuchtest' : sheet === 'backup' ? 'Sicherung' : sheet === 'diagnostics' ? 'Diagnose' : sheet === 'profile' ? 'Profil & Einstellungen' : sheet === 'medical' ? 'Medical' : 'MoFlight'}>{statusControls}</AppHeader>

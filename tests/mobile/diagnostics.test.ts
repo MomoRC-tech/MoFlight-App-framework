@@ -1,81 +1,91 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { DiagnosticJournal, diagnosticStages } from '../../apps/platform-lab/src/diagnostics';
+import { DiagnosticJournal, diagnosticStages, DIAGNOSTIC_FILE_BYTES, DIAGNOSTIC_STORAGE_BYTES, DIAGNOSTIC_RETENTION_MS, utf8Bytes } from '../../apps/platform-lab/src/diagnostics';
 
-test('last five interactions, monotonic timing, bounded phase aggregation and detached snapshots', () => {
-  let now = 0; const journal = new DiagnosticJournal(() => now);
-  const first = journal.begin('update-flights');
-  const span = journal.span('source-retrieval'); now = 125; span(false); span(true);
-  first.finish('failed', 'source-failed'); first.finish('success');
-  assert.deepEqual(journal.snapshot()[0], { sequence: 1, action: 'update-flights', outcome: 'failed', code: 'source-failed', milliseconds: 125,
-    stages: [{ name: 'source-retrieval', calls: 1, failures: 1, milliseconds: 125 }] });
-  journal.snapshot()[0]!.stages[0]!.calls = 999;
-  for (let i = 0; i < 6; i++) { const operation = journal.begin('read-flights'); now += 10; operation.finish('success'); }
-  assert.deepEqual(journal.snapshot().map(entry => entry.sequence), [3, 4, 5, 6, 7]);
-  assert.equal(journal.snapshot()[0]!.milliseconds, 10);
+const wall=2_000_000_000_000;
+function fixture() { let now=0, date=wall, saved:string|null=null; const journal=new DiagnosticJournal(()=>now,()=>date); const storage={read:()=>saved,write:(text:string)=>{saved=text;}}; return {journal,storage,now:(v:number)=>{now=v;},date:(v:number)=>{date=v;},saved:()=>saved}; }
+
+test('retains hundreds of operations rather than five, with detached timing and phase maxima',()=>{
+ const f=fixture(),j=f.journal,first=j.begin('update-flights'),stage=first.span('source-retrieval');f.now(125);stage(false);stage(true);first.finish('failed','source-failed');first.finish('success');
+ const entry=j.snapshot()[0]!;assert.equal(entry.milliseconds,125);assert.deepEqual(entry.stages,[{name:'source-retrieval',calls:1,failures:1,milliseconds:125,maximum:125}]);entry.stages[0]!.calls=999;
+ for(let i=0;i<650;i++){j.begin('read-flights').finish('success');}
+ assert.equal(j.snapshot().length,600);assert.equal(j.failureSnapshot()[0]!.operation.stages[0]!.calls,1);assert.equal(j.failureSnapshot()[0]!.operation.code,'source-failed');
 });
 
-test('hostile persisted diagnostics are reconstructed without private or unexpected fields', () => {
-  const privateValue = 'secret@example.test D-PRIVATE account-123 token-secret';
-  const journal = new DiagnosticJournal(); let saved = '';
-  journal.connect({ read: () => JSON.stringify({ version: 1, identity: privateValue, entries: [
-    { action: privateValue, outcome: 'failed' },
-    { action: 'update-flights', outcome: 'failed', code: privateValue, milliseconds: privateValue, error: privateValue,
-      stages: [{ name: privateValue }, { name: 'source-review', calls: 2, failures: 1, milliseconds: 12, error: privateValue }] },
-  ] }), write: text => { saved = text; } });
-  assert.ok(!journal.export().includes(privateValue)); assert.ok(!saved.includes(privateValue));
-  assert.equal(journal.snapshot().length, 1); assert.equal(journal.snapshot()[0]!.code, 'none');
-  assert.deepEqual(journal.snapshot()[0]!.stages, [{ name: 'source-review', calls: 2, failures: 1, milliseconds: 12 }]);
-  assert.throws(() => journal.begin(privateValue as never));
-  const operation = journal.begin('update-flights');
-  journal.span(privateValue)(false); journal.span(`provider-${privateValue}`)(false);
-  operation.finish('failed', privateValue as never);
-  assert.ok(!journal.export().includes(privateValue)); assert.equal(journal.snapshot()[1]!.code, 'operation-failed');
+test('action history is independent of technical floods, failures retain preceding semantic context',()=>{
+ const j=fixture().journal;j.record('screen','home');j.record('action','update-flights');j.begin('update-flights').finish('blocked','account-mismatch');
+ for(let i=0;i<1500;i++)j.begin('read-flights').finish('success');
+ assert.deepEqual(j.journey().map(e=>e.target),['home','update-flights']);assert.equal(j.failureSnapshot()[0]!.operation.code,'account-mismatch');assert.deepEqual(j.failureSnapshot()[0]!.preceding.map(e=>e.target),['home','update-flights']);
 });
 
-test('restart preserves completed outcomes and identifies unfinished actions without reusing old clocks', () => {
-  let saved: string | null = null, now = 50;
-  const storage = { read: () => saved, write: (text: string) => { saved = text; } };
-  const first = new DiagnosticJournal(() => now); first.connect(storage);
-  first.begin('read-flights').finish('success'); first.begin('update-flights'); now += 25;
-  const resumed = new DiagnosticJournal(() => 0); resumed.connect(storage);
-  assert.deepEqual(resumed.snapshot().map(entry => [entry.outcome, entry.code]), [['success', 'none'], ['interrupted', 'interrupted']]);
-  resumed.begin('read-flight-detail').finish('success');
-  assert.equal(resumed.snapshot()[2]!.sequence, 3);
-  resumed.clear(); assert.deepEqual(JSON.parse(saved!).entries, []);
+test('hard UTF-8 byte bounds hold under mixed floods; short export and separately retained failures stay bounded',async()=>{
+ const f=fixture(),j=f.journal;j.connect(f.storage);
+ for(let i=0;i<3500;i++){f.now(i*1000);j.record('screen',i%2?'flights':'home');}
+ for(let i=0;i<700;i++){const op=j.begin('update-flights');for(const name of diagnosticStages.slice(0,12))op.span(name)(false,{sql:{calls:99,milliseconds:1234,failures:3}});op.finish('failed','operation-failed');}
+ await j.flush();assert.ok(j.snapshot().length<=600);assert.ok(j.journey().length<=2000);assert.ok(j.failureSnapshot().length<=5);
+ assert.ok(utf8Bytes(f.saved()!)<=DIAGNOSTIC_FILE_BYTES);assert.ok(utf8Bytes(j.export())<=DIAGNOSTIC_FILE_BYTES);assert.ok(utf8Bytes(f.saved()!)+utf8Bytes(j.export())<=DIAGNOSTIC_STORAGE_BYTES);assert.ok(utf8Bytes(j.shortReport())<=32_000);
+ assert.equal(utf8Bytes('ä→🛩'),Buffer.byteLength('ä→🛩'));
 });
 
-test('late spans remain with their original action; clearing cannot resurrect entries', () => {
-  const journal = new DiagnosticJournal(() => 5);
-  const first = journal.begin('update-flights'), span = journal.span('source-review'); first.finish('cancelled', 'background');
-  const second = journal.begin('read-flights'); span(false);
-  assert.equal(journal.snapshot()[0]!.stages.length, 1); assert.equal(journal.snapshot()[1]!.stages.length, 0);
-  const late = journal.span('local-read'); journal.clear(); late(true); second.finish('success');
-  assert.deepEqual(journal.snapshot(), []);
+test('unknown/private fields and context values cannot enter any exported stream',()=>{
+ const secret='secret@example.test D-PRIVATE token-secret',f=fixture(),j=f.journal;
+ const raw={version:2,context:{account:secret},entries:[{sequence:1,session:1,action:'update-flights',outcome:'failed',code:secret,milliseconds:12,retainedAt:wall,private:secret,stages:[{name:secret},{name:'source-review',calls:2,error:secret,counters:{sql:{calls:2,sql:secret},url:secret}}]}],events:[{sequence:2,session:1,offset:2,kind:'filter',target:'search',value:secret,retainedAt:wall},{kind:'screen',target:secret,retainedAt:wall}],failures:[]};
+ j.connect({read:()=>JSON.stringify(raw),write:()=>{}});j.setContext({appVersion:secret,webViewVersion:'143.0.1',androidApi:37,owner:secret});j.record('screen',secret as never);j.record(secret as never,'home');j.span(secret)(false);j.span('provider-'+secret)(false);
+ assert.ok(!j.export().includes(secret));assert.ok(!j.shortReport().includes(secret));assert.ok(!j.export().includes('retainedAt'));assert.ok(!j.export().includes(String(wall)));assert.equal(j.snapshot()[0]!.code,'none');assert.equal(j.journey().filter(e=>e.kind==='filter').length,1);assert.throws(()=>j.begin(secret as never));
 });
 
-test('connecting persisted history after child reads start preserves live handles and independent clocks', () => {
-  let now=10; const journal=new DiagnosticJournal(()=>now);
-  const first=journal.begin('read-flights');now=20;const second=journal.begin('read-flight-detail');
-  journal.connect({read:()=>JSON.stringify({version:1,entries:[{action:'update-flights',outcome:'success',stages:[]}]}),write:()=>{}});
-  now=40;first.finish('success');second.finish('failed');
-  assert.deepEqual(journal.snapshot().map(entry=>[entry.sequence,entry.milliseconds]),[[1,0],[2,30],[3,20]]);
+test('legacy history migrates, unfinished active phases survive restart and sessions/order remain distinct',async()=>{
+ const f=fixture();let saved=JSON.stringify({version:1,entries:[{sequence:1,action:'read-flights',outcome:'success',stages:[]}]});
+ const storage={read:()=>saved,write:(text:string)=>{saved=text;}};f.journal.connect(storage);const op=f.journal.begin('update-flights');op.span('session-verification');await f.journal.flush();
+ const resumed=new DiagnosticJournal(()=>0,()=>wall);resumed.connect(storage);const interrupted=resumed.snapshot().find(e=>e.action==='update-flights')!;
+ assert.equal(interrupted.outcome,'interrupted');assert.deepEqual(interrupted.activeStages,['session-verification']);assert.equal(interrupted.checkpoints[0]!.state,'start');assert.ok(resumed.failureSnapshot().some(f=>f.operation.outcome==='interrupted'));
+ const previous=resumed.journey().at(-1)!;resumed.begin('read-flight-detail').finish('success');assert.ok(resumed.snapshot().at(-1)!.sequence>previous.sequence);assert.ok(previous.session>interrupted.session);
 });
 
-test('diagnostics never propagate persistence failures into application operations', () => {
-  const journal = new DiagnosticJournal(); journal.connect({ read: () => '{broken', write: () => { throw new Error('No space'); } });
-  assert.equal(journal.storageFailed, true);
-  assert.doesNotThrow(() => journal.begin('update-flights').finish('blocked', 'recovery-required'));
-  assert.equal(journal.snapshot()[0]!.code, 'recovery-required');
-  assert.doesNotThrow(() => journal.clear());
-  assert.equal(journal.storageFailed, true);
+test('14-day expiry prunes all buffers and prevents expired failure revival on restart',async()=>{
+ const f=fixture();f.journal.connect(f.storage);f.journal.record('screen','flights');f.journal.begin('update-flights').finish('failed');await f.journal.flush();
+ f.date(wall+DIAGNOSTIC_RETENTION_MS+1);assert.deepEqual(f.journal.snapshot(),[]);assert.deepEqual(f.journal.journey(),[]);assert.deepEqual(f.journal.failureSnapshot(),[]);
+ const next=new DiagnosticJournal(()=>0,()=>wall+DIAGNOSTIC_RETENTION_MS+1);next.connect(f.storage);assert.deepEqual(next.snapshot(),[]);assert.deepEqual(next.failureSnapshot(),[]);
 });
 
-test('all phase names remain bounded and aggregate repeated navigation without payloads', () => {
-  const journal = new DiagnosticJournal(); const operation = journal.begin('update-flights');
-  for (let i = 0; i < 100; i++) for (const name of diagnosticStages) journal.span(name)(true);
-  operation.finish('partial', 'medical-failed');
-  assert.equal(journal.snapshot()[0]!.stages.length, diagnosticStages.length);
-  assert.equal(journal.snapshot()[0]!.stages[0]!.calls, 100);
-  assert.ok(journal.export().length < 10000);
+test('span ownership is captured before concurrent actions; clear/eviction prevents resurrection',()=>{
+ const f=fixture(),first=f.journal.begin('update-flights'),a=first.span('source-review'),second=f.journal.begin('read-flights'),b=second.span('local-read');f.now(20);a(false);b(true);
+ assert.equal(f.journal.snapshot()[0]!.stages[0]!.name,'source-review');assert.equal(f.journal.snapshot()[1]!.stages[0]!.name,'local-read');
+ const late=first.span('explicit-save');f.journal.clear();late(true);first.finish('success');second.finish('success');assert.deepEqual(f.journal.snapshot(),[]);assert.deepEqual(f.journal.journey(),[]);assert.deepEqual(f.journal.failureSnapshot(),[]);
+});
+
+test('async writes are serialized/coalesced and a clear wins over an outstanding old write',async()=>{
+ const f=fixture();let saved='',active=0,maxActive=0;const finish:(()=>void)[]=[];
+ f.journal.connect({read:()=>null,write:text=>new Promise<void>(resolve=>{active++;maxActive=Math.max(active,maxActive);finish.push(()=>{saved=text;active--;resolve();});})});
+ f.journal.begin('update-flights').finish('failed');f.journal.clear();const flushed=f.journal.flush();
+ while(finish.length){finish.shift()!();await new Promise<void>(done=>{setImmediate(done);});}
+ await flushed;assert.equal(maxActive,1);const report=JSON.parse(saved);assert.deepEqual(report.entries,[]);assert.deepEqual(report.events,[]);assert.deepEqual(report.failures,[]);
+});
+
+test('persistence failures never break application operations and remain observable',async()=>{
+ const j=fixture().journal;j.connect({read:()=>'{broken',write:async()=>{throw new Error('No space');}});j.begin('update-flights').finish('blocked','recovery-required');await j.flush();assert.equal(j.storageFailed,true);assert.equal(j.snapshot()[0]!.code,'recovery-required');j.clear();await j.flush();assert.equal(j.storageFailed,true);
+});
+
+test('observed transitions support unfamiliar paths without inferring intention or bridging sessions',()=>{
+ const f=fixture();f.journal.record('screen','home');f.now(1000);f.journal.record('screen','flights');f.journal.record('filter','year');f.now(2000);f.journal.record('screen','flight-detail');f.journal.record('back','flights');f.now(3000);f.journal.record('screen','flights');
+ assert.deepEqual(f.journal.journeySummary().map(p=>p.path),['home → flights','flights → flight-detail','flight-detail → flights']);assert.ok(!f.journal.export().includes('intent'));
+});
+
+
+test('public build context is associated with each process session across an app update',async()=>{
+ const f=fixture();f.journal.connect(f.storage);f.journal.setContext({appVersion:'0.1.0',buildSource:'abcdef1234567',androidApi:37});f.journal.record('screen','flights');await f.journal.flush();
+ const next=new DiagnosticJournal(()=>0,()=>wall+1000);next.connect(f.storage);next.setContext({appVersion:'0.2.0',buildSource:'fedcba7654321',androidApi:37});
+ const report=JSON.parse(next.export());assert.equal(report.sessions.length,2);assert.equal(report.sessions[0].context.appVersion,'0.1.0');assert.equal(report.sessions[1].context.appVersion,'0.2.0');assert.notEqual(report.sessions[0].session,report.sessions[1].session);assert.ok(!next.export().includes('retainedAt'));
+});
+
+
+test('a failed child read before storage initialization keeps its handle and protected context',()=>{
+ const f=fixture();f.journal.record('screen','home');const operation=f.journal.begin('read-flights');operation.finish('failed','operation-failed');
+ f.journal.connect({read:()=>JSON.stringify({version:1,entries:[{sequence:4,action:'update-flights',outcome:'failed',code:'source-failed',stages:[]}]}),write:()=>{}});
+ assert.equal(f.journal.failureSnapshot().length,2);assert.ok(f.journal.failureSnapshot().some(v=>v.operation.action==='read-flights'&&v.preceding.some(e=>e.target==='home')));
+});
+
+test('late span completion preserves its original operation-relative checkpoint offset',()=>{
+ const f=fixture(),op=f.journal.begin('update-flights');f.now(20);const stage=op.span('source-retrieval');f.now(50);op.finish('cancelled','cancelled');f.now(100);stage(false);
+ assert.equal(f.journal.snapshot()[0]!.checkpoints.at(-1)!.offset,100);assert.equal(f.journal.snapshot()[0]!.stages[0]!.milliseconds,80);
 });

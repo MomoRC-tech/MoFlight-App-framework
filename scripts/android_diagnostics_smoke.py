@@ -10,6 +10,7 @@ import re
 from pathlib import Path
 
 from android_smoke import Smoke, PACKAGE
+from android_mobile_ui_smoke import tab
 from android_mobile_width_matrix import bounds, override, finish
 
 AVD = 'MoFlight_Synthetic_API37'
@@ -66,21 +67,26 @@ def execute(smoke, share_only=False):
         launch(smoke)
         open_diagnostics(smoke)
         before = report(smoke)
-        assert 1 <= len(before['entries']) <= 5
+        assert 1 <= len(before['entries']) <= 3
+        assert before['version'] == 2 and before['context'].get('androidApi') == 37
+        assert before['context'].get('webViewVersion'), 'Native public WebView version missing'
         assert all(entry['action'] == 'read-flights' for entry in before['entries'])
-        # Open/cancel only. Never choose a recipient or invoke a send action.
+        # A large full report must use a file rather than Android's text Binder payload.
         smoke.tap_node(smoke.find('Diagnosebericht teilen', exact=True, scroll=True, up=False))
-        window = smoke.shell('dumpsys', 'window', 'windows')
-        assert any(name in window for name in ['ChooserActivity', 'ResolverActivity', 'intentresolver']), 'OS share chooser did not open'
-        # Wait for visible OS content, rather than capturing the opening transition.
-        smoke.find('Copy text', exact=True, attempts=12)
-        smoke.record('explicit-os-share-chooser')
+        smoke.find('moflight-support-report.json', attempts=12)
+        smoke.record('full-report-file-share-chooser')
         smoke.shell('input', 'keyevent', 'KEYCODE_BACK')
         smoke.find('Diagnosejournal leeren', scroll=True)
-        smoke.record('share-cancel-retains-diagnostics')
+        smoke.record('full-share-cancel-retains-diagnostics')
+        smoke.tap_node(smoke.find('Kurzbericht teilen / kopieren', exact=True, scroll=True, up=False))
+        smoke.find('Copy text', exact=True, attempts=12)
+        smoke.record('short-report-copy-text-chooser')
+        smoke.shell('input', 'keyevent', 'KEYCODE_BACK')
+        smoke.find('Diagnosejournal leeren', scroll=True)
+        smoke.record('short-share-cancel-retains-diagnostics')
         if share_only:
             return
-        retained = [{key: value for key, value in entry.items() if key != 'sequence'} for entry in report(smoke)['entries'][-2:]]
+        retained = [{key: value for key, value in entry.items() if key != 'sequence'} for entry in report(smoke)['entries'][-1:]]
         launch(smoke)
         open_diagnostics(smoke)
         after = report(smoke)
@@ -89,6 +95,18 @@ def execute(smoke, share_only=False):
             assert expected in restored, 'Last operations lost on process restart'
             restored.remove(expected)
         smoke.record('journal-retained-after-process-restart')
+        smoke.tap(BACK)
+        smoke.tap(BACK)
+        tab(smoke, 'Flüge')
+        tab(smoke, 'Verein')
+        open_diagnostics(smoke)
+        journey = report(smoke)
+        assert any(event['kind']=='screen' and event['target']=='flights' for event in journey['events'])
+        assert any(event['kind']=='screen' and event['target']=='club' for event in journey['events'])
+        smoke.tap_node(smoke.find('Bedienverlauf & Wege', exact=True, scroll=True, up=False))
+        smoke.find('Beobachtete Wege', scroll=True)
+        smoke.record('actual-navigation-path-visible')
+
         smoke.tap_node(smoke.find('Diagnosejournal leeren', exact=True, scroll=True, up=False))
         smoke.find('Noch keine Diagnoseeinträge')
         smoke.record('clear-only-diagnostic-journal')
