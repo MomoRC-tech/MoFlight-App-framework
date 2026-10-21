@@ -111,7 +111,7 @@
     "wholeTrialStatus": "failed",
     "acceptedStages": [
       "populated Start uses saved library and primary update action",
-      "one Start action freshly verifies retained session, retrieves, saves and returns to ordinary Flüge"
+      "one Start action freshly verifies retained session, retrieves, saves and returns to ordinary Fl\u00fcge"
     ],
     "boundary": "The helper later failed while completing the OS folder picker; this is accepted stage evidence, not a whole-trial pass.",
     "observedActionToResultSeconds": 252.67199999996228,
@@ -337,6 +337,56 @@
       "Provider preference restoration unconfirmed; preserve journal",
       "No iOS runtime or spoken accessibility",
       "No latency improvement or published replacement APK"
-    ]
+    ],
+    "completionCheckpoint": {
+      "applicationSource": "e0a5d3964d794317ee24b261df82143f2ec78f2f",
+      "apkSha256": "6177562c7de5be71cc4b9c04358fd60aceff1064191b0d9d14b500fecc6f42b0",
+      "status": "passed",
+      "host": {
+        "source": "80e7ff0",
+        "mobileTests": 672,
+        "pythonTests": 110,
+        "checksPassed": 5
+      },
+      "diagnosticFollowUp": {
+        "source": "e0a5d39",
+        "controllerTests": 100,
+        "typecheck": true
+      },
+      "native": {
+        "api": 37,
+        "dp": [
+          390,
+          900
+        ],
+        "density": 160,
+        "fontScale": 1,
+        "checks": [
+          "Live flights and Medical complete in the same retained progress card until acknowledgement",
+          "Acknowledgement returns the preserved 101-flight library and Medical source status",
+          "Actual offline process restart preserves saved flights and Medical without claiming a live session"
+        ],
+        "acknowledgementNavigation": "Ordinary flight list; one manual Overview-tab action for the dashboard count assertion",
+        "tapToResultSeconds": 84.7,
+        "originalViewRestoredAndFreshlyVerified": true,
+        "displayRestored": true,
+        "radiosRestored": true,
+        "emulatorStopped": true,
+        "credentialsSubmitted": 0
+      },
+      "distribution": {
+        "url": "https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/lab-2026-10-21-guided-data-loading/MoFlight-Android-guided-data-loading.zip",
+        "httpStatus": 200,
+        "bytes": 24808457,
+        "unauthenticatedDownload": true,
+        "zipAndApkHashesMatch": true
+      },
+      "limits": [
+        "Physical Autofill/fresh credentials and iOS runtime untested",
+        "One earlier 80e7ff0 session verification failed before retrieval; cause unproven",
+        "No latency improvement claimed; #41 remains open",
+        "Interrupted standalone recovery needs focused native follow-up; #50 remains open"
+      ]
+    }
   }
 }
