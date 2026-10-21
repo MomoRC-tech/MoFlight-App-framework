@@ -3,11 +3,35 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readOwnFlightView, readOwnFlightDetail, OwnFlightChangedError, serializeOwnFlightReads } from '../../apps/platform-lab/src/mobile/own-flight-reader.ts';
 import { allOwnFlights, ownFlightYears, ownFlightRegistrations, selectOwnFlights } from '../../apps/platform-lab/src/mobile/own-flight-model.ts';
+import type { InformationCapture } from '../../apps/platform-lab/src/vereinsflieger/information.ts';
+
+test('saved Medical is read only for the selected flight account; failures and foreign captures cannot hide saved flights',async()=>{
+  const capture:InformationCapture={version:1,id:'medical',owner:'owner',connectionId:'connection',retrievedAt:'2026-10-21T07:00:00.000Z',
+    sourceIdentity:'provisional-observed-profile',category:'medical',path:'/member/profile/viewprofile',
+    columns:[{key:'kind',label:'Medical-Art',index:0},{key:'expiry',label:'Gültig bis · Originaltext',index:1}],
+    rows:[{position:1,values:['Klasse 2','31.12.2027']}],filters:[],empty:false,coverage:{kind:'visible-page',truncated:false,pagination:'unverified'}};
+  for(const mode of ['saved','failed','foreign','owner-change'] as const){
+    const f=ownFlightFixture();
+    f.session.readMedical=async accountRef=>{
+      assert.equal(accountRef,'101');
+      if(mode==='failed')throw new Error('Unreadable Medical');
+      if(mode==='owner-change')f.session.assertCurrent=async()=>{throw new Error('Owner changed');};
+      return mode==='foreign'?{...capture,owner:'foreign'}:capture;
+    };
+    if(mode==='owner-change')await assert.rejects(readOwnFlightView(f.ports),/Owner changed/);
+    else {
+      const view=await readOwnFlightView(f.ports);assert.deepEqual(view?.flights,f.flights);
+      assert.equal(view?.medical,mode==='saved'?capture:null);
+      assert.equal(view?.medicalReadFailed,mode!=='saved');
+    }
+    assert.equal(f.closes(),1);
+  }
+});
 
 test('ordinary read returns the saved coherent projection and pending status with both ownership checks and cleanup',async()=>{
   const f=ownFlightFixture();f.session.pendingCommand=async()=>true;
-  assert.deepEqual(await readOwnFlightView(f.ports),{snapshot:f.snapshot,flights:f.flights,pendingCommand:true});
-  assert.equal(f.assertions(),2);assert.equal(f.closes(),1);
+  assert.deepEqual(await readOwnFlightView(f.ports),{snapshot:f.snapshot,flights:f.flights,pendingCommand:true,medical:null,medicalReadFailed:false});
+  assert.equal(f.assertions(),3);assert.equal(f.closes(),1);
   assert.equal(await readOwnFlightView({open:async()=>null}),null);
 });
 test('foreign snapshot, account rows, changed owner and read failures never publish a library',async()=>{

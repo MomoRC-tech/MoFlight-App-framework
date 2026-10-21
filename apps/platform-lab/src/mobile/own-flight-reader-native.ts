@@ -3,6 +3,9 @@ import { hash } from '../storage';
 import { openOwnerRegistry, openRealFlightSelection, openRealFlightCommandJournal } from '../vereinsflieger/real-flight-native';
 import { RealFlightService } from '../vereinsflieger/real-flight-service';
 import { serializeOwnFlightReads } from './own-flight-reader';
+import { loadProviderScope } from '../vereinsflieger/scoped-storage';
+import { loadInformation } from '../vereinsflieger/information-native';
+import { medicalSource } from './medical-source';
 
 /** Read the selected real owner. Missing files stay missing; no fallback to the lab library. */
 export const ownFlightReadPorts = serializeOwnFlightReads({
@@ -36,6 +39,15 @@ export const ownFlightReadPorts = serializeOwnFlightReads({
         },
       });
       return { ownerId: lease.ownerId, storeId: lease.storeId, service,
+        readMedical:async(accountRef:string)=>{
+          await registry.assertCurrent(lease);
+          const selected=await loadProviderScope(lease.ownerId);
+          if(!selected)return null;
+          if(selected.owner!==lease.ownerId||selected.context.accountNumber!==accountRef)throw new Error('Foreign Medical scope.');
+          const captures=await loadInformation(selected,()=>{if(closed)throw new Error('Medical reader closed.');});
+          await registry.assertCurrent(lease);
+          return medicalSource(captures,lease.ownerId);
+        },
         assertCurrent: () => registry.assertCurrent(lease),
         pendingCommand: async () => { const opened = await journal(); try { return !!await opened.pending(); } finally { await opened.close(); } },
         close: async () => { if (!closed) { closed = true; service.dispose(); await registry.close(); } },

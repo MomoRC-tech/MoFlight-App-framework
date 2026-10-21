@@ -1641,6 +1641,69 @@ test('renderer termination cancels an outstanding secret read before its late re
 });
 
 const informationSource = 'https://vereinsflieger.de/member/profile/synthetic-hours?year=2026';
+const medicalPage={category:'medical',path:'/member/profile/viewprofile',
+  columns:[{key:'kind',label:'Medical-Art',index:0},{key:'expiry',label:'Gültig bis · Originaltext',index:1}],
+  rows:[{position:1,values:['Klasse 2','31.12.2027']}],filters:[],empty:false,
+  coverage:{kind:'visible-page',truncated:false,pagination:'unverified'}};
+async function medicalMessage(f:ReturnType<typeof fixture>,empty=false) {
+  const web=f.find(f.render(),e=>e.type==='WebView')!;
+  (web.props.onMessage as (event:unknown)=>void)({nativeEvent:{url:context.PROFILE_URL,data:JSON.stringify({
+    kind:'vf-information-v1',nonce:f.lastIssuedNonce()+'-read',url:context.PROFILE_URL,
+    page:empty?{...medicalPage,rows:[],empty:true}:medicalPage,
+  })}});
+  await f.flush();
+}
+
+test('combined Medical job reads only own profile and saves source text after two matching contexts, including empty results',async()=>{
+  for(const empty of [false,true]){
+    const f=fixture({product:true});f.render();await f.settle(null);await establishProductAssociation(f);
+    assert.equal(f.controller().visible,false);
+    const work=f.controller().retrieveMedical();await f.flush();
+    assert.equal(f.controller().url,context.PROFILE_URL);
+    await f.loadPage(context.PROFILE_URL);await f.contextMessage(observedContext);
+    await f.loadPage(context.PROFILE_URL);await medicalMessage(f,empty);
+    assert.equal(f.writes.includes('information-saved'),false);
+    await f.loadPage(context.PROFILE_URL);await f.contextMessage(observedContext);
+    const capture=await work;
+    assert.equal(capture.category,'medical');assert.equal(capture.owner,'synthetic-pilot');
+    assert.equal(capture.rows.length,empty?0:1);
+    if(!empty)assert.deepEqual(Array.from(capture.rows[0]!.values),['Klasse 2','31.12.2027']);
+    assert.equal(f.writes.filter(w=>w==='information-saved').length,1);assert.equal(f.loginStorage().reads,0);
+    f.unmount();
+  }
+});
+
+test('Medical job rejects changed account/club and lifecycle interruption without publishing or saving foreign data',async()=>{
+  for(const boundary of ['account','club','background','dismiss','owner','unmount'] as const){
+    const f=fixture({product:true});f.render();await f.settle(null);await establishProductAssociation(f);
+    const work=f.controller().retrieveMedical();const rejected=assert.rejects(work);await f.flush();
+    await f.loadPage(context.PROFILE_URL);await f.contextMessage(observedContext);
+    await f.loadPage(context.PROFILE_URL);await medicalMessage(f);
+    if(boundary==='account'||boundary==='club'){
+      await f.loadPage(context.PROFILE_URL);await f.contextMessage({...observedContext,
+        ...(boundary==='account'?{accountNumber:'999'}:{clubLabel:'Foreign Club'})});
+    }
+    if(boundary==='background')f.appState('background');
+    if(boundary==='dismiss')f.controller().dismissLogin();
+    if(boundary==='owner')f.changeOwner('foreign-owner');
+    if(boundary==='unmount')f.unmount();
+    await rejected;await f.flush();
+    assert.equal(f.writes.includes('information-saved'),false);
+    assert.equal(f.controller().connection.confirmed,false);
+    if(boundary!=='unmount')f.unmount();
+  }
+});
+
+test('Medical cannot start without fresh account verification and does not replace an active job',async()=>{
+  const f=fixture({product:true});f.render();await f.settle(null);await f.flush();
+  await assert.rejects(f.controller().retrieveMedical());assert.equal(f.controller().browserActive,false);
+  await establishProductAssociation(f);
+  const work=f.controller().retrieveMedical();const rejected=assert.rejects(work);await f.flush();
+  await assert.rejects(f.controller().retrieveMedical());
+  f.controller().stopInformation();await rejected;
+  assert.equal(f.writes.includes('information-saved'),false);f.unmount();
+});
+
 const informationPage = {
   category: 'work-hours', path: '/member/profile/synthetic-hours',
   columns: [{ key: 'date', label: 'Datum', index: 0 }, { key: 'activity', label: 'Tätigkeit', index: 1 }, { key: 'hours', label: 'Stunden', index: 2 }, { key: 'status', label: 'Status', index: 3 }],

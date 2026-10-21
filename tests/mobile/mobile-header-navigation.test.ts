@@ -117,6 +117,16 @@ test('real-flight verification updates both shell summaries without authorizing 
   assert.equal(connectionSymbol(f.find('ConnectionIndicator').props.controller.connection).mark,'?');
 });
 
+test('Medical header and details use the real selected library projection rather than legacy information',()=>{
+  const f=fixture();
+  const medical={id:'real-medical',owner:'real-owner',rows:[{values:['Klasse 2','31.12.2027']}]};
+  Object.assign(f.controller,{informationCaptures:[{id:'legacy-medical',owner:'synthetic-pilot',category:'medical'}]});
+  f.showLoad(null,{snapshot:{ownerId:'real-owner',account:{accountRef:'101'}},medical});
+  assert.equal(f.find('MedicalIndicator').props.capture,medical);
+  f.press('MedicalIndicator');assert.equal(f.find('MedicalDetails').props.capture,medical);
+  f.showLoad(null,null);assert.equal(f.find('MedicalIndicator').props.capture,null);
+});
+
 test('app headers order connection, Medical and profile on every tab', () => {
   const f = fixture();
   for (const title of ['Übersicht', 'Flüge', 'Flugbuch', 'Verein', 'AI']) {

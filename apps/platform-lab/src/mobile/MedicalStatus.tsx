@@ -13,12 +13,13 @@ export function MedicalIndicator({ onPress, active = false, disabled = false, ca
   </Pressable>;
 }
 
-export function MedicalDetails({ capture = null, loading = false, needsReload = false }: { capture?: InformationCapture | null; loading?: boolean; needsReload?: boolean } = {}) {
+export function MedicalDetails({ capture = null, loading = false, needsReload = false, refreshFailed = false }: { capture?: InformationCapture | null; loading?: boolean; needsReload?: boolean; refreshFailed?:boolean } = {}) {
   return <Card style={styles.details}>
     <Section title="Medical" />
     <Label style={{ fontWeight: '600' }}>Gültigkeit ungeprüft</Label>
     {loading && <Label muted>Gespeicherte Angaben werden geladen…</Label>}
     {needsReload && <Label muted>Der neueste gespeicherte Stand muss erneut geladen werden. Vorhandene Angaben bleiben lesbar.</Label>}
+    {refreshFailed && <Label muted>Medical konnte beim letzten Abruf nicht aktualisiert werden. Angezeigt wird die gespeicherte Quelle, sofern vorhanden.</Label>}
     {capture ? <>
       <Label muted>Quelle: Vereinsflieger · eigene Profilseite · abgerufen am {new Date(capture.retrievedAt).toLocaleString('de-DE')}</Label>
       {capture.rows.map(row => <View key={row.position} style={{ gap: 4 }}>

@@ -6,6 +6,7 @@ import ts from 'typescript';
 import * as policy from '../../apps/platform-lab/src/mobile/core-flight-review-policy.ts';
 import { planFlightRetrieval } from '../../apps/platform-lab/src/vereinsflieger/retrieval-policy.ts';
 import { dataFreshness } from '../../apps/platform-lab/src/mobile/data-freshness.ts';
+import * as accountJobs from '../../apps/platform-lab/src/mobile/account-retrieval-jobs.ts';
 
 interface Element { type: string; props: Record<string, any>; children: unknown[] }
 const source=ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx',import.meta.url),'utf8'),{
@@ -14,7 +15,7 @@ const source=ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/sr
 
 // Real screen effects and handlers; SQLite and provider behavior have their own
 // integration tests. These ports control timing to exercise the screen coordinator.
-function fixture({startUpdate=false,root=false,readOnly=false,deferReservation=false,failStartup=false}={}) {
+function fixture({startUpdate=false,root=false,readOnly=false,deferReservation=false,failStartup=false,medicalFailure=false}={}) {
   const hooks:any[]=[],effects:(()=>void)[]=[],calls:string[]=[],closed:any[]=[];
   let index=0,dirty=true,tree:Element,abort:AbortController|null=null;
   let finishReservation!:()=>void;
@@ -30,6 +31,7 @@ function fixture({startUpdate=false,root=false,readOnly=false,deferReservation=f
     setFrom:(v:string)=>{c.from=v;dirty=true;},setTo:(v:string)=>{c.to=v;dirty=true;},
     beginGuidedFlightConnection:()=>{calls.push('session');c.connection={phase:'observed',confirmed:true,observed:{accountNumber:'101',clubLabel:'Example'}};dirty=true;},
     endGuidedFlightConnection:()=>{},connect:()=>calls.push('login'),
+    retrieveMedical:async()=>{calls.push('medical');if(medicalFailure)throw new Error('Synthetic Medical failure');return {rows:[{}]};},
     checkConnection:()=>{calls.push('retrieve');c.busy=true;dirty=true;},
     dismissLogin:()=>{c.visible=false;dirty=true;},backWithinProvider:()=>false,cancelRetrieval:()=>{c.busy=false;dirty=true;},
   };
@@ -52,6 +54,7 @@ function fixture({startUpdate=false,root=false,readOnly=false,deferReservation=f
   };
   const leaves=(names:string[])=>Object.fromEntries(names.map(name=>[name,name]));
   const modules:Record<string,any>={react:{default:react,...react},
+    './account-retrieval-jobs':accountJobs,
     'react-native':{...leaves(['ActivityIndicator','ScrollView','View']),AppState:{currentState:'active',addEventListener:(_:string,f:(state:string)=>void)=>{listeners.add(f);return {remove:()=>listeners.delete(f)};}},BackHandler:{addEventListener:()=>({remove(){}})}},
     'react-native-safe-area-context':leaves(['SafeAreaView']), 'expo-crypto':{randomUUID:()=> 'uuid'},'../storage':{hash:async()=>''},
     '../vereinsflieger/flight-diagnostics':{timeFlightStage:(_:string,work:()=>unknown)=>work()},
@@ -82,7 +85,7 @@ test('opening options does no retrieval; one explicit action verifies, loads, sa
     assert.equal(f.text().includes('Quellzeilen'),false);assert.equal(f.text().includes('Geräteordner'),false);
     f.press('Mit Vereinsflieger anmelden & Flüge laden');await f.flush();
     assert.deepEqual(f.calls,['session','retrieve']);
-    f.complete();await f.flush();assert.deepEqual(f.calls,['session','retrieve','save']);
+    f.complete();await f.flush();assert.deepEqual(f.calls,['session','retrieve','save','medical']);
     assert.equal(f.closed.length,1);assert.equal(f.closed[0].added,2);assert.equal(f.closed[0].from,'2025-01-01');
   }finally{f.dispose();}
 });
@@ -95,6 +98,14 @@ test('combined entry starts once, while read-only recovery prevents automatic wo
       if(readOnly)assert.ok(f.nodes().some(n=>n.props.title==='Bibliothek nur lesbar')); 
     }finally{f.dispose();}
   }
+});
+
+test('Medical failure still returns the confirmed flight save and separate Medical outcome',async()=>{
+  const f=fixture({startUpdate:true,medicalFailure:true});try{
+    f.render();await f.flush();f.complete();await f.flush();
+    assert.deepEqual(f.calls,['session','retrieve','save','medical']);
+    assert.equal(f.closed.length,1);assert.equal(f.closed[0].added,2);assert.equal(f.closed[0].medicalStatus,'failed');
+  }finally{f.dispose();}
 });
 
 test('cancelled, backgrounded and mismatched load cannot save a late capture',async()=>{

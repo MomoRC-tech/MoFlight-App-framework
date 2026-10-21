@@ -25,9 +25,10 @@ import { planFlightRetrieval } from '../vereinsflieger/retrieval-policy';
 import { dataFreshness } from './data-freshness';
 import { ownFlightReadPorts } from './own-flight-reader-native';
 import type { OwnFlightConnectionEvidence } from './connection-guidance';
+import { retrieveOtherAccountData, runAccountRetrievalJobs, type MedicalJobStatus } from './account-retrieval-jobs';
 
 export interface FlightLoadResult { added: number; changed: number; pending: number; from: string; to: string;
-  verifiedConnection?: OwnFlightConnectionEvidence }
+  verifiedConnection?: OwnFlightConnectionEvidence; medicalStatus?: MedicalJobStatus }
 export function CoreFlightFoundation({ close, startUpdate = false }: {close: (result?: FlightLoadResult) => void; startUpdate?: boolean}) {
   const [requestedUpdate,setRequestedUpdate] = useState(startUpdate);
   const registry = useRef<RealOwnerRegistry | null>(null), alive = useRef(true), lock = useRef(false);
@@ -213,19 +214,32 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,takeInitialReposit
   }
   async function finishReview(next:RealFlightReview) {
     if(!automatic.current){setReview(await prepareSourceReview(next));return;}
+    await finishAutomaticLoad(()=>saveFlightReview(next));
+  }
+  async function saveFlightReview(next:RealFlightReview) {
     const selected=controller.current.connection;
     if(!selected.confirmed||!selected.observed||!foreground.current)throw new Error('Fresh account verification required.');
     setStep('Flüge werden gespeichert …');
     const result=await service.saveVerifiedReview(next,selected.observed);
     await refresh();
+    return {result,source:next};
+  }
+  async function finishAutomaticLoad(flights:()=>ReturnType<typeof saveFlightReview>) {
+    const active=()=>alive.current&&foreground.current;
+    const completed=await runAccountRetrievalJobs({flights,active,
+      otherData:()=>retrieveOtherAccountData({active,medical:()=>controller.current.retrieveMedical()}),
+      stage:stage=>{if(stage==='other-data')setStep('Flüge gespeichert. Medical wird geladen …');},
+    });
+    const {result,source:next}=completed.flights;
+    const verified=controller.current.connection;
     if(alive.current&&foreground.current)close({added:result.counts.added,changed:result.counts.changed,pending:result.counts.pending,
       from:next.source.requestedWindow.from,to:next.source.requestedWindow.to,
-      verifiedConnection:{ownerId:lease.ownerId,state:selected}});
+      verifiedConnection:verified.confirmed?{ownerId:lease.ownerId,state:verified}:undefined,medicalStatus:completed.otherData.medical});
   }
   function loadFlights() {
     if(lock.current)return;
     automatic.current=true;setStep('Anmeldung wird geprüft …');
-    void run(async()=>{await finishReview(await service.retrieveUpdate());});
+    void run(()=>finishAutomaticLoad(async()=>saveFlightReview(await service.retrieveUpdate())));
   }
   async function run(work:()=>Promise<void>) {
     if(lock.current||!alive.current)return;lock.current=true;setBusy(true);setFailed(false);setMessage('');
@@ -346,6 +360,7 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,takeInitialReposit
         <Label muted>Die Anmeldung erfolgt bei Vereinsflieger. Deine Flüge werden anschließend automatisch auf diesem Gerät gespeichert und sind offline verfügbar.</Label>
         {busy ? <View accessibilityLiveRegion="polite"><Label>{step}</Label></View> : <Action disabled={restoreReadOnly||c.recovery||recovery.status==='not-committed'||recovery.status==='recovery-required'} onPress={loadFlights}>{snapshot?.account ? 'Flüge aktualisieren' : 'Mit Vereinsflieger anmelden & Flüge laden'}</Action>}
         {waiting.current&&<Action secondary disabled={!canCancelCoreFlightSource(c.retrieval.current.state.phase,c.saving,c.restoring.current)} onPress={()=>{abandonSource('Cancelled.');c.dismissLogin();setProviderOpen(false);}}>Abbrechen</Action>}
+        {busy&&c.informationBusy&&<Action secondary disabled={c.informationSaving} onPress={()=>c.stopInformation()}>Medical überspringen</Action>}
         <Action secondary disabled={busy} onPress={()=>setAdvanced(!advanced)}>{advanced ? 'Details schließen' : 'Details & weitere Optionen'}</Action>
       </Card>
       {advanced&&<><Card><Label>{flights.length} gespeicherte eigene Flüge · ohne Buchzuordnung</Label><Label muted>{snapshot?.account?'Vereinsflieger-Konto lokal verknüpft.':'Das eigene Anbieter-Konto wird nach dem ersten Abruf bestätigt.'}</Label>
@@ -406,7 +421,7 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,takeInitialReposit
         {detail.facts.assessment.observation.headers.map((header,index)=>header?<Label key={index}>{header}: {detail.facts.assessment.observation.row.values[index]||'unbekannt / leer'}</Label>:null)}
         <Action secondary onPress={()=>setDetail(null)}>Flugdetails schließen</Action>
       </Card>}</>}
-      {(advanced||restoreReadOnly)&&<Card><Section title="Sicherung dieser Flugbibliothek" icon="book"/><Label muted>Enthält eigene gespeicherte Flüge, Originalbelege, Fassungen und Importbelege. Unverschlüsselt. Alte Teststände, andere Rohbelege und Anmeldungen sind nicht enthalten.</Label>
+      {(advanced||restoreReadOnly)&&<Card><Section title="Sicherung dieser Flugbibliothek" icon="book"/><Label muted>Enthält eigene gespeicherte Flüge, Originalbelege, Fassungen und Importbelege. Unverschlüsselt. Alte Teststände, Medical-Quellenangaben, andere Rohbelege und Anmeldungen sind nicht enthalten.</Label>
         <Action disabled={busy||restoreReadOnly} onPress={()=>void run(async()=>{const result=await saveRealFlightBackupToFolder(service,gate);setMessage(result.state==='saved'?'Sicherung im gewählten Ordner gespeichert und zurückgelesen.':'Ordnerauswahl abgebrochen.');})}>Flugbibliothek in Geräteordner sichern</Action>
         <Action secondary disabled={busy} onPress={()=>void run(async()=>{await showRestoreResult(await restoreRealFlightBackup(scope,gate));})}>Sicherung dieser Bibliothek wiederherstellen</Action>
       </Card>}

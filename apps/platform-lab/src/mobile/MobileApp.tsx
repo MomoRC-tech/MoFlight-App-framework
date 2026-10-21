@@ -24,7 +24,6 @@ import { ImportPreview } from './ImportPreview';
 import type { PreviewSession } from '../import-preview';
 import { CoreFlightFoundation, type FlightLoadResult } from './CoreFlightFoundation';
 import { ConnectionSummary } from './ConnectionSummary';
-import { medicalSource } from './medical-source';
 import { OwnFlights, type OwnFlightHeader } from './OwnFlights';
 import { useOwnFlights } from './use-own-flights';
 import { ownFlightReadPorts } from './own-flight-reader-native';
@@ -56,7 +55,6 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
     const listener=AppState.addEventListener('change',state=>{if(state!=='active')setRecentConnection(null);});
     return()=>listener.remove();
   },[lastLoad]);
-  const medical = medicalSource(connection.informationCaptures, PILOT);
   const [connectionOpen, setConnectionOpen] = useState(false);
   const [connectionDevelopment, setConnectionDevelopment] = useState(false);
   const [tab, setTab] = useState<Tab>('home');
@@ -102,6 +100,7 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
   }, [toolsOpen]);
   const library = useLibrary(toolsOpen || sheet === 'backup');
   const ownFlights = useOwnFlights(ownFlightReadPorts, !connectionOpen && !coreFlightsOpen, flightReload);
+  const medical=ownFlights.view?.medical??null;
   // Presentation only. The legacy provider controller must never gain the real
   // owner's authorization or pretend its synthetic-owner observation is current.
   const flightStatusController={...connection,connection:ownFlightConnectionState(recentConnection,
@@ -189,7 +188,10 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
         </ScrollView>
       </View>
       <View style={[s.page, tab !== 'flights' && s.hidden]} accessibilityElementsHidden={tab !== 'flights'} importantForAccessibility={tab === 'flights' ? 'auto' : 'no-hide-descendants'}>
-        {lastLoad&&<Card><View accessibilityLiveRegion="polite"><Label>{lastLoad.added} neue · {lastLoad.changed} aktualisierte Flüge gespeichert{lastLoad.pending ? ` · ${lastLoad.pending} ungeklärte Beobachtungen` : ''}</Label><Label muted>Zeitraum: {lastLoad.from} bis {lastLoad.to}</Label></View></Card>}
+        {lastLoad&&<Card><View accessibilityLiveRegion="polite"><Label>{lastLoad.added} neue · {lastLoad.changed} aktualisierte Flüge gespeichert{lastLoad.pending ? ` · ${lastLoad.pending} ungeklärte Beobachtungen` : ''}</Label><Label muted>Zeitraum: {lastLoad.from} bis {lastLoad.to}</Label>
+          {lastLoad.medicalStatus==='failed'&&<Label>Flüge gespeichert. Medical konnte nicht aktualisiert werden; frühere Quellenangaben bleiben erhalten.</Label>}
+          {lastLoad.medicalStatus==='empty'&&<Label>Keine Medical-Angaben im geprüften Profil gefunden. Status bleibt unbekannt.</Label>}
+        </View></Card>}
         <OwnFlights filterRequest={flightRequest} active={tab === 'flights' && !coreFlightsOpen} data={ownFlights} onHeaderChange={setFlightHeader}
           onUpdate={()=>openFlightFlow(true)} />
       </View>
@@ -242,7 +244,7 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
           {sheet === 'backup' && <LibraryBackup onBusyChange={setScreenBusy} />}
           {sheet === 'paperInfo' && <Card><Section title="Papierflugbuch später einrichten" /><Label>Das Einrichten deines Papierflugbuchs und die Zuordnung deiner Flüge werden noch vorbereitet.</Label><Label muted>Du kannst deine eigenen Flüge bereits laden, offline ansehen und auswerten. Dafür brauchst du kein Flugbuch.</Label><Action onPress={() => { overlayHistory.current=[];setSheet(null);setTab('flights'); }}>Flüge ansehen</Action></Card>}
           {sheet === 'paper' && <PaperStatus bookName={book?.name ?? null} pending={library.pending} onBooks={() => openHeaderSheet('selectBook')} onBackup={() => openHeaderSheet('backup')} onFlights={() => { overlayHistory.current = []; setDetail(null); setSheet(null); setTab('flights'); }} />}
-          {sheet === 'medical' && <MedicalDetails capture={medical} loading={connection.informationLoading} needsReload={connection.informationNeedsReload} />}
+          {sheet === 'medical' && <MedicalDetails capture={medical} loading={ownFlights.phase==='loading'} needsReload={ownFlights.view?.medicalReadFailed} refreshFailed={lastLoad?.medicalStatus==='failed'} />}
           {detail && <><Section title={detail.registration ?? 'Flugzeug unbekannt'} />{[['Datum', dateText(detail.date)], ['Flugzeugtyp', detail.aircraft_model], ['Abflug', detail.start_place], ['Ankunft', detail.landing_place], ['Start', detail.start], ['Landung', detail.landing], ['Zeitbasis', detail.time_basis], ['Dauer', detail.minutes === null ? null : `${formatDuration(detail.minutes)} h`], ['Rolle', detail.pilot_role], ['Startart', detail.launch], ['Landungen', detail.landings?.toString()], ['Bemerkungen', detail.remarks]].map(([label, value]) => <Card key={label}><Label muted>{label}</Label><Label selectable>{value ?? 'Unbekannt'}</Label></Card>)}<Label muted>Quelle: gespeicherte synthetische Bibliothek · {book?.name}. Distanz und Flugtrack sind nicht verfügbar.</Label></>}
           {sheet === 'selectBook' && <View style={{ width: '100%', maxWidth: 520, alignSelf: 'center', gap: 8 }}><Section title="Flugbuch auswählen" />{library.books.map(b => <Action key={b.id} secondary icon={b.id === library.bookId ? 'check' : undefined} onPress={() => { overlayHistory.current = []; setDetail(null); setSheet(null); void library.selectBook(b.id); }}>{b.name}</Action>)}{!library.books.length && <Empty title="Noch kein Flugbuch">Eine vorhandene Sicherung kann in einer neuen lokalen Bibliothek geöffnet werden. Live-Import und neue Produkt-Flugbücher sind noch nicht verfügbar.</Empty>}<Label muted>Gespeicherte synthetische Bibliothek · keine automatische Zuordnung.</Label><Action secondary onPress={() => openHeaderSheet('backup')}>Sicherung & Wiederherstellung</Action></View>}
           {sheet === 'unsupported' && <Empty title="Klassifikation nicht verfügbar">Der gespeicherte Flugvertrag enthält keine Strecken- oder Platzrundenkennzeichnung. Flugzeit, Start-/Zielfeld und Rolle werden dafür nicht als Ersatz interpretiert. Der aktive Filter bleibt erhalten.</Empty>}

@@ -1,11 +1,13 @@
 import type { RealFlightDetail, RealFlightListItem } from '../vereinsflieger/real-flight-library';
 import type { OwnFlightStoredSnapshot, RealFlightService } from '../vereinsflieger/real-flight-service';
+import type { InformationCapture } from '../vereinsflieger/information';
 
 export interface OwnFlightScope { ownerId: string; storeId: string }
 export interface OwnFlightReadSession extends OwnFlightScope {
   service: Pick<RealFlightService, 'readStored' | 'detail'>;
   assertCurrent(): Promise<void>;
   pendingCommand(): Promise<boolean>;
+  readMedical?(accountRef:string):Promise<InformationCapture|null>;
   close(): Promise<void>;
 }
 export interface OwnFlightReadPorts { open(): Promise<OwnFlightReadSession | null> }
@@ -35,6 +37,7 @@ export function serializeOwnFlightReads(ports: OwnFlightReadPorts): OwnFlightRea
 }
 export interface OwnFlightView {
   snapshot: OwnFlightStoredSnapshot; flights: RealFlightListItem[]; pendingCommand: boolean;
+  medical?:InformationCapture|null; medicalReadFailed?:boolean;
 }
 export class OwnFlightChangedError extends Error {
   constructor() { super('Saved flight selection changed; reload the current library.'); }
@@ -53,7 +56,15 @@ export async function readOwnFlightView(ports: OwnFlightReadPorts): Promise<OwnF
       result.flights.some(flight => flight.accountRef !== result.snapshot.account?.accountRef)) {
       throw new Error('Foreign own-flight projection.');
     }
-    return { ...result, pendingCommand };
+    let medical:InformationCapture|null=null,medicalReadFailed=false;
+    if(result.snapshot.account&&session.readMedical){
+      try {
+        medical=await session.readMedical(result.snapshot.account.accountRef);
+        if(medical&&(medical.owner!==session.ownerId||medical.category!=='medical'))throw new Error('Foreign Medical projection.');
+      } catch { medical=null;medicalReadFailed=true; }
+    }
+    await session.assertCurrent();
+    return { ...result, pendingCommand,medical,medicalReadFailed };
   } finally { await session.close(); }
 }
 
