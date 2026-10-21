@@ -138,6 +138,7 @@ export class DiagnosticJournal {
   }
   private prune() {
     this.entries = this.trim(this.entries, 600, 240_000); this.events = this.trim(this.events, 2000, 180_000); this.protectedFailures = this.trim(this.protectedFailures, 5, 48_000);
+    for(const failure of this.protectedFailures){const fresh=failure.preceding.filter(event=>this.date(object(event).retainedAt)!==null);if(fresh.length!==failure.preceding.length){failure.preceding=fresh;this.sizes.delete(failure);}}
     this.contexts=this.trim(this.contexts,32,8000);
     for (const entry of this.starts.keys()) if (!this.entries.includes(entry as Dated<DiagnosticEntry>)) this.starts.delete(entry);
   }

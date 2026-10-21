@@ -96,3 +96,9 @@ test('background state resets do not become observed user screen visits; resume 
  assert.deepEqual(f.journal.journey().filter(e=>e.kind==='screen').map(e=>e.target),['flight-detail']);f.journal.record('lifecycle','active');
  assert.deepEqual(f.journal.journey().filter(e=>e.kind==='screen').map(e=>e.target),['flight-detail','flights']);assert.deepEqual(f.journal.journeySummary(),[]);
 });
+
+
+test('protected failure context expires by each action age even when the failure itself is newer',()=>{
+ const f=fixture();f.journal.record('screen','home');f.date(wall+10*86_400_000);f.journal.begin('update-flights').finish('failed','source-failed');
+ f.date(wall+15*86_400_000);const failures=f.journal.failureSnapshot();assert.equal(failures.length,1);assert.deepEqual(failures[0]!.preceding,[]);
+});
