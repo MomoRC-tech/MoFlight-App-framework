@@ -29,7 +29,7 @@ def launch(smoke):
 def open_diagnostics(smoke):
     smoke.tap(PROFILE)
     smoke.tap('Diagnose öffnen', scroll=True)
-    smoke.find('Bis zu 2.000 Aktionen und 600 technische Vorgänge')
+    smoke.find('Bis zu 2.000 Aktionen und 600 technische Vorgänge', scroll=True, up=False)
 
 
 def report(smoke):
@@ -45,7 +45,7 @@ def comparable(entry):
     return value
 
 
-def execute(smoke, share_only=False):
+def execute(smoke, share_only=False, skip_layout=False, journey_only=False):
     assert smoke.shell('getprop', 'ro.kernel.qemu') == '1'
     assert smoke.adb('emu', 'avd', 'name').stdout.splitlines()[0].strip() == AVD
     smoke.emulator = True
@@ -55,7 +55,11 @@ def execute(smoke, share_only=False):
     original_density = smoke.shell('wm', 'density')
     original_scale = smoke.shell('settings', 'get', 'system', 'font_scale')
     try:
-        for width, height, scale in ([] if share_only else [(360, 900, '1.0'), (390, 900, '1.0'), (600, 1100, '1.0'), (360, 900, '1.4')]):
+        if journey_only:
+            launch(smoke)
+            journey_and_clear(smoke)
+            return
+        for width, height, scale in ([] if share_only or skip_layout else [(360, 900, '1.0'), (390, 900, '1.0'), (600, 1100, '1.0'), (360, 900, '1.4')]):
             smoke.shell('wm', 'size', f'{width}x{height}')
             smoke.shell('wm', 'density', '160')
             smoke.shell('settings', 'put', 'system', 'font_scale', scale)
@@ -107,19 +111,8 @@ def execute(smoke, share_only=False):
         smoke.record('journal-retained-after-process-restart')
         smoke.tap(BACK)
         smoke.tap(BACK)
-        tab(smoke, 'Flüge')
-        tab(smoke, 'Verein')
-        open_diagnostics(smoke)
-        journey = report(smoke)
-        assert any(event['kind']=='screen' and event['target']=='flights' for event in journey['events'])
-        assert any(event['kind']=='screen' and event['target']=='club' for event in journey['events'])
-        smoke.tap_node(smoke.find('Bedienverlauf & Wege', exact=True, scroll=True, up=False))
-        smoke.find('Beobachtete Wege', scroll=True)
-        smoke.record('actual-navigation-path-visible')
+        journey_and_clear(smoke)
 
-        smoke.tap_node(smoke.find('Diagnosejournal leeren', exact=True, scroll=True, up=False))
-        smoke.find('Noch keine Diagnoseeinträge')
-        smoke.record('clear-only-diagnostic-journal')
     finally:
         smoke.shell('input', 'keyevent', 'KEYCODE_BACK')
         smoke.shell('wm', 'size', override(original_size, r'Override size:\s*(\d+x\d+)') or 'reset')
@@ -132,15 +125,33 @@ def execute(smoke, share_only=False):
                                    'network': 'unchanged', 'provider_sessions': 'untouched', 'data_reset': False}
 
 
+def journey_and_clear(smoke):
+    tab(smoke, 'Flüge')
+    tab(smoke, 'Verein')
+    open_diagnostics(smoke)
+    journey = report(smoke)
+    assert any(event['kind']=='screen' and event['target']=='flights' for event in journey['events'])
+    assert any(event['kind']=='screen' and event['target']=='club' for event in journey['events'])
+    smoke.tap_node(smoke.find('Bedienverlauf & Wege', exact=True, scroll=True, up=False))
+    smoke.find('Beobachtete Wege', scroll=True)
+    smoke.record('actual-navigation-path-visible')
+
+    smoke.tap_node(smoke.find('Diagnosejournal leeren', exact=True, scroll=True, up=False))
+    smoke.find('Noch keine Diagnoseeinträge')
+    smoke.record('clear-only-diagnostic-journal')
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--serial', required=True)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--share-only', action='store_true', help='Recheck only visible OS sharing/cancellation against the same APK.')
+    parser.add_argument('--skip-layout', action='store_true', help='Reuse applicable layout evidence; still check sharing/restart/journeys/clear.')
+    parser.add_argument('--journey-only', action='store_true', help='Check actual navigation paths and journal-only clearing on the installed APK.')
     args = parser.parse_args()
     smoke = Smoke(args.output, serial=args.serial, expected_avd=AVD)
     try:
-        execute(smoke, args.share_only)
+        execute(smoke, args.share_only, args.skip_layout, args.journey_only)
         finish(smoke, 'passed')
     except Exception as error:
         finish(smoke, 'failed', error)
