@@ -134,7 +134,7 @@ export function CoreFlightFoundation({ close, startUpdate = false }: {close: (re
   </ScrollView></SafeAreaView>;
 }
 
-type WaitingSource = {request:{from:string;to:string};resolve:(source:RealFlightSourceInput)=>void;reject:(error:Error)=>void;started:boolean;checking:boolean;seenBusy:boolean;paused:boolean;suppressReview:boolean;generation:number;timer:ReturnType<typeof setTimeout>|null;signal:AbortSignal;abort:()=>void};
+type WaitingSource = {request:{from:string;to:string};resolve:(source:RealFlightSourceInput)=>void;reject:(error:Error)=>void;started:boolean;checking:boolean;seenBusy:boolean;paused:boolean;resumeRequired:boolean;suppressReview:boolean;generation:number;timer:ReturnType<typeof setTimeout>|null;signal:AbortSignal;abort:()=>void};
 type LoadStage = 'sign-in'|'verify'|'flights'|'save'|'medical'|'done';
 function OwnerFlightLibrary({lease,registry,close,startUpdate,takeInitialRepository,diagnosis}:{lease:RealOwnerLease;registry:RealOwnerRegistry;close:(result?:FlightLoadResult)=>void;startUpdate:boolean;takeInitialRepository:()=>RealFlightRepositorySession|null;diagnosis:React.MutableRefObject<DiagnosticOperation|null>}) {
   const c=useAccessController(true,lease.ownerId), controller=useRef(c);controller.current=c;
@@ -178,7 +178,7 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,takeInitialReposit
       };
       // Interactive sign-in has no flight-response deadline. The controller's
       // bounded profile checks still time out; start the outer timer at retrieval.
-      pending={request,resolve,reject,started:false,checking:false,seenBusy:false,paused:false,suppressReview:false,generation:reviewGeneration.current,timer:null,signal,abort};
+      pending={request,resolve,reject,started:false,checking:false,seenBusy:false,paused:false,resumeRequired:false,suppressReview:false,generation:reviewGeneration.current,timer:null,signal,abort};
       waiting.current=pending;signal.addEventListener('abort',abort,{once:true});
       controller.current.setFrom(request.from);controller.current.setTo(request.to);setProviderOpen(true);
       if(!automatic.current&&!controller.current.browserActive)controller.current.connect();
@@ -278,6 +278,7 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,takeInitialReposit
         setCompleted(current=>current?{...current,verifiedConnection:undefined}:null);
         const pending=waiting.current;
         if(automatic.current&&pending&&!pending.started&&!pending.seenBusy&&!controller.current.binding&&!controller.current.loginBusy&&!controller.current.informationBusy&&!controller.current.saving&&!controller.current.restoring.current){
+          if(!pending.paused)pending.resumeRequired=pending.checking;
           pending.paused=true;pending.checking=false;pending.generation=++reviewGeneration.current;
           if(pending.timer)clearTimeout(pending.timer);pending.timer=null;
           setLoginPaused(true);setStep('Anmeldung pausiert. Nach der Rückkehr wird sicher fortgesetzt.');return;
@@ -341,8 +342,12 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,takeInitialReposit
     }
     if(!foreground.current)return;
     if(pending.paused){
-      if(!c.resumeGuidedFlightConnection())return;
-      pending.paused=false;pending.checking=true;setLoginPaused(false);return;
+      if(!c.viewReady||c.busy||c.binding||c.loginBusy)return;
+      if(pending.resumeRequired&&!c.resumeGuidedFlightConnection()){
+        interruption.current='background';abandonSource('Sign-in could not resume safely.');return;
+      }
+      pending.paused=false;pending.checking=pending.resumeRequired;setLoginPaused(false);
+      if(pending.checking)return;
     }
     if(pending.suppressReview&&!c.busy&&!c.saving&&!c.restoring.current){finishSource(new Error('Source review cancelled.'));return;}
     if(automatic.current&&!pending.checking&&c.viewReady&&c.from===pending.request.from&&c.to===pending.request.to){
@@ -418,7 +423,7 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,takeInitialReposit
     </>}
   </Card>:undefined;
   return <SafeAreaView style={{flex:1,backgroundColor:colors.background}}>
-    <ScrollView contentContainerStyle={{padding:12}}><View style={{width:'100%',maxWidth:520,alignSelf:'center',gap:10}}>
+    <ScrollView accessibilityElementsHidden={providerOpen} importantForAccessibility={providerOpen?'no-hide-descendants':'auto'} contentContainerStyle={{padding:12}}><View style={{width:'100%',maxWidth:520,alignSelf:'center',gap:10}}>
       <Section title="Deine Flüge" icon="flight-paper-plane"/>
       <Action secondary disabled={busy||c.busy} onPress={()=>close(completed??undefined)}>Zur App zurück</Action>
       <Card><Label>{flights.length} gespeicherte eigene Flüge</Label><Label muted>{freshness.label}</Label>

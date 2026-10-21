@@ -17,7 +17,7 @@ const source=ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/sr
 
 // Real screen effects and handlers; SQLite and provider behavior have their own
 // integration tests. These ports control timing to exercise the screen coordinator.
-function fixture({startUpdate=false,root=false,readOnly=false,deferReservation=false,failStartup=false,medicalFailure=false,loginPending=false}={}) {
+function fixture({startUpdate=false,root=false,readOnly=false,deferReservation=false,failStartup=false,medicalFailure=false,loginPending=false,deferProvider=false}={}) {
   const journal=new DiagnosticJournal(), diagnosis={current:journal.begin(startUpdate?'update-flights':'open-flight-tools')};
   const hooks:any[]=[],effects:(()=>void)[]=[],calls:string[]=[],closed:any[]=[];
   let index=0,dirty=true,tree:Element,abort:AbortController|null=null;
@@ -46,7 +46,7 @@ function fixture({startUpdate=false,root=false,readOnly=false,deferReservation=f
     ports:any;
     async readStored(){return {snapshot,flights:saved?[{},{},{}]:[]};}
     async recoverPending(){return {status:'none'};}
-    async retrieveUpdate(){abort=new AbortController();const value=await this.ports.retrieve({from:'2025-01-01',to:'2026-10-21'},abort.signal);return {state:'confirm-account',source:value};}
+    async retrieveUpdate(){abort=new AbortController();if(deferProvider)c.viewReady=false;const value=await this.ports.retrieve({from:'2025-01-01',to:'2026-10-21'},abort.signal);return {state:'confirm-account',source:value};}
     async saveVerifiedReview(_review:any,context:any){assert.equal(context.accountNumber,'101');calls.push('save');saved=true;return {counts:{added:2,changed:1,pending:0}};}
     cancelReview(){abort?.abort();}
     dispose(){this.cancelReview();}
@@ -98,6 +98,7 @@ test('opening options does no retrieval; one explicit action verifies, loads, sa
     f.complete();await f.flush();assert.deepEqual(f.calls,['session','retrieve','save','medical']);
     assert.equal(f.closed.length,0);assert.match(f.progressText(),/3 Flüge auf diesem Gerät gespeichert/);assert.match(f.progressText(),/Medical-Angaben geladen/);
     assert.equal(f.nodes().find(n=>n.type==='ProviderConnection')!.props.open,true);
+    assert.ok(f.nodes().some(n=>n.type==='ScrollView'&&n.props.importantForAccessibility==='no-hide-descendants'));
     f.press('Fertig');
     assert.equal(f.closed.length,1);assert.equal(f.closed[0].added,2);assert.equal(f.closed[0].from,'2025-01-01');assert.equal(f.journal.snapshot().at(-1)!.outcome,'success');
   }finally{f.dispose();}
@@ -162,7 +163,7 @@ test('interactive login has no flight timeout and foreground return needs verifi
   const f=fixture({startUpdate:true,loginPending:true});try{
     f.render();await f.flush();assert.deepEqual(f.calls,['session']);assert.equal(f.pendingTimers(),0);
     f.expire();await f.flush();assert.equal(f.closed.length,0);assert.match(f.progressText(),/Bitte bei Vereinsflieger anmelden/);
-    f.background();await f.flush();assert.equal(f.calls.includes('retrieve'),false);assert.match(f.progressText(),/Anmeldung pausiert/);
+    f.background();f.background();await f.flush();assert.equal(f.calls.includes('retrieve'),false);assert.match(f.progressText(),/Anmeldung pausiert/);
     f.resume();await f.flush();assert.deepEqual(f.calls,['session','resume']);assert.equal(f.pendingTimers(),0);
     f.verify();await f.flush();assert.deepEqual(f.calls,['session','resume','retrieve']);assert.equal(f.pendingTimers(),1);
     f.complete();await f.flush();assert.equal(f.pendingTimers(),0);assert.equal(f.closed.length,0);f.press('Fertig');assert.equal(f.closed.length,1);
@@ -185,5 +186,14 @@ test('leaving a completed progress screen retains its saved result but invalidat
     f.background();f.resume();await f.flush();
     assert.match(f.progressText(),/3 Flüge auf diesem Gerät gespeichert/);f.press('Fertig');
     assert.equal(f.closed.length,1);assert.equal(f.closed[0].added,2);assert.equal(f.closed[0].verifiedConnection,undefined);
+  }finally{f.dispose();}
+});
+
+test('interruption before browser readiness starts guided login once readiness returns',async()=>{
+  const f=fixture({startUpdate:true,loginPending:true,deferProvider:true});try{
+    f.render();await f.flush();assert.deepEqual(f.calls,[]);
+    f.background();f.resume();await f.flush();assert.deepEqual(f.calls,[]);
+    f.c.viewReady=true;f.render();await f.flush();assert.deepEqual(f.calls,['session']);
+    assert.match(f.progressText(),/Bitte bei Vereinsflieger anmelden/);assert.equal(f.pendingTimers(),0);
   }finally{f.dispose();}
 });
