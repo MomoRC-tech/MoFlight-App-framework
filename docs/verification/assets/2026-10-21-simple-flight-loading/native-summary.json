@@ -154,5 +154,66 @@
     "Spoken TalkBack and physical devices not tested",
     "iOS export is not iOS runtime acceptance",
     "Import latency remains under issue 41"
-  ]
+  ],
+  "phoneFeedback": {
+    "applicationSource": "215b4bb6ba8dbc96fd1fb23e5d7f27e591ffddb1",
+    "apkSha256": "0f183c0b382fd64af53ace9365a99c0d33f60dc9183095631db52b2eb593011d",
+    "host": {
+      "source": "049da12",
+      "mobileTests": 623,
+      "pythonTests": 109,
+      "typecheck": true,
+      "lint": true,
+      "fixtures": true
+    },
+    "freshOpening": {
+      "source": "6a75b54",
+      "status": "passed",
+      "checks": [
+        "direct original login",
+        "cancel without save",
+        "explicit retry",
+        "offline process restart"
+      ],
+      "credentialsSubmitted": 0
+    },
+    "retainedSession": {
+      "status": "passed",
+      "source": "215b4bb6ba8dbc96fd1fb23e5d7f27e591ffddb1",
+      "apkSha256": "0f183c0b382fd64af53ace9365a99c0d33f60dc9183095631db52b2eb593011d",
+      "checks": [
+        "combined action returns confirmed flight-save result and completed Medical stage",
+        "real-owner Medical source availability and verified connection reach ordinary header",
+        "Start reads stored 101-flight library and matching fresh connection evidence",
+        "Medical sheet shows saved raw class/expiry and source date without a validity claim",
+        "actual offline process restart preserves flights and own Medical while live-session status is unknown"
+      ],
+      "credentialsEntered": 0,
+      "tapToResultSeconds": 465.9,
+      "networkRestored": {
+        "airplane_mode_on": "0",
+        "wifi_on": "1",
+        "mobile_data": "1"
+      },
+      "displayRestored": true,
+      "finalApkSha256": "0f183c0b382fd64af53ace9365a99c0d33f60dc9183095631db52b2eb593011d"
+    },
+    "visualInspection": {
+      "widthDp": 390,
+      "heightDp": 900,
+      "densityDpi": 160,
+      "fontScale": 1,
+      "states": [
+        "Start connection feedback",
+        "Medical source fields"
+      ]
+    },
+    "limits": [
+      "original phone failure not reproduced; phone retry pending",
+      "fresh credential submission and native second account not tested",
+      "Medical excluded from own-flight backup",
+      "no performance improvement claim",
+      "concurrent cache/diagnostics work excluded from APK"
+    ]
+  }
 }
