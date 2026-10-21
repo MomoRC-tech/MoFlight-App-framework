@@ -26,9 +26,24 @@
     "captures": 8,
     "seconds": 207.5,
     "viewports": [
-      {"width_dp": 390, "height_dp": 900, "density": 160, "font_scale": 1.0},
-      {"width_dp": 360, "height_dp": 900, "density": 160, "font_scale": 1.6},
-      {"width_dp": 800, "height_dp": 600, "density": 160, "font_scale": 1.0}
+      {
+        "width_dp": 390,
+        "height_dp": 900,
+        "density": 160,
+        "font_scale": 1.0
+      },
+      {
+        "width_dp": 360,
+        "height_dp": 900,
+        "density": 160,
+        "font_scale": 1.6
+      },
+      {
+        "width_dp": 800,
+        "height_dp": 600,
+        "density": 160,
+        "font_scale": 1.0
+      }
     ],
     "passed": [
       "Settled first-use Overview at MAIN, MIN and WIDE; wide content centered/capped",
@@ -52,11 +67,70 @@
     ],
     "excluded_evidence": "One transient MIN loading capture replaced by settled capture",
     "parent_png_review": [
-      "overview-main-settled.png", "overview-min-settled.png", "overview-wide-settled.png",
-      "logbook-min.png", "logbook-wide.png", "flights-min.png", "flights-min-keyboard.png"
+      "overview-main-settled.png",
+      "overview-min-settled.png",
+      "overview-wide-settled.png",
+      "logbook-min.png",
+      "logbook-wide.png",
+      "flights-min.png",
+      "flights-min-keyboard.png"
     ]
   },
+  "populated_continuation_21_22_october_2026": {
+    "application_commit": "b6d8c8d357cc75a22e7f8354b9173da65b09fa44",
+    "ignored_session": "build/ui-agent/20261021T214914Z-79f45a68",
+    "worker_launch": "gpt-6.1-sol, explicit medium, fork none",
+    "actions": 40,
+    "captures": 8,
+    "seconds": 192.0,
+    "action_errors": [],
+    "controller_cleanup_errors": [],
+    "fixture_preparation": "Original empty graph exported through ordinary UI; same-owner/store synthetic backup built through production library APIs, validated and replayed on host, then activated through ordinary native restore. No raw SQLite/journal edits or provider requests.",
+    "independently_matched_fixture_facts": {
+      "saved_flights": 12,
+      "season_2026_flights": 6,
+      "season_known_reported_minutes": 233,
+      "season_unknown_duration_count": 1,
+      "D_EXA_filtered_flights": 6,
+      "filtered_denominator": 12
+    },
+    "passed": [
+      "MAIN populated Overview and ordinary flight rows",
+      "MIN enlarged-text lower Overview scroll, wrapped rows and detail facts/contextual return",
+      "Technical source/version/missing-track caveats in detail; raw-field XML readback",
+      "MIN filter controls/bottom action and actual D-EXA filtered count",
+      "WIDE centered/capped filter and return",
+      "Restart preserves observed total/season/unknown values; finished Overview with keyboard hidden"
+    ],
+    "parent_png_review": [
+      "main-start.png",
+      "main-flights.png",
+      "min-start-lower.png",
+      "min-flights.png",
+      "min-detail.png",
+      "min-filter.png",
+      "wide-filter.png"
+    ],
+    "limitations": [
+      "WIDE list XML only: intended list capture showed Overview after viewport recreation; excluded from list visual acceptance",
+      "Lower original-field detail and absolute-bottom visual completeness not tested",
+      "MIN detail capture XML was loading; PNG plus separate settled XML support its facts",
+      "No new spoken accessibility, physical or iOS acceptance"
+    ],
+    "fixture_cleanup": {
+      "state": "Original empty graph reactivated read-only; newer synthetic activated history/candidates preserved",
+      "pristine_app_state_restored": false,
+      "canonical_export_readback": "Blocked by intentional read-only protection; not completed",
+      "cause": "Preparation plan missed the documented rollback invariant: later retained receipts prohibit writing older selected history",
+      "policy": "No journal/candidate deletion, replacement or weakened safety guard",
+      "original_apk_independently_reinstalled_and_hashed": "647d84416267152d0c27c04a269f1b3b8508e45938ce6db0417c07b90aaae9ec",
+      "settings_restored": "1080x1920/density420/font1.0; airplane1/Wi-Fi0/mobile0",
+      "lifecycle": "Owned synthetic AVD stopped",
+      "tracked_followups": "#29 branch-disposition design remains unselected; #52 corrects misleading unreadable wording only"
+    }
+  },
   "preservation": {
+    "scope": "Earlier empty-state runs only; populated-continuation preservation is recorded separately above",
     "controller_cleanup_errors": [],
     "display_restored": "1080x1920, density 420, font scale 1.0",
     "network_restored": "airplane_mode_on=1, wifi_on=0, mobile_data=0",
@@ -64,5 +138,59 @@
     "data_reset": false,
     "final_state": "Owned synthetic AVD stopped; no connected ADB devices; owned helper exited",
     "provider_sessions": "Provider-session AVDs not started or changed"
+  },
+  "standalone_recovery_continuation": {
+    "application_commit": "08217f6e0d593319b1a3cf3546e87cf5af1caa72",
+    "apk_sha256": "da6e06baaca3b1837bde73472312674eb611f564c3750739f7586ab44d15bf2e",
+    "status": "Scoped recovery acceptance completed; original functional helper failed final dashboard navigation, separate same-Release fresh-root readback passed",
+    "viewport": {
+      "width_dp": 480,
+      "height_dp": 800,
+      "density": 160,
+      "font_scale": 1.0
+    },
+    "host": {
+      "mobile_tests": 689,
+      "python_tests": 110,
+      "types_lint_fixtures": "passed",
+      "android_ios_exports": "passed"
+    },
+    "native": {
+      "setup_requests": 1,
+      "scoped_journal_held_readbacks": 2,
+      "home_and_process_restart_retained_journal": true,
+      "matching_recovery_before_commands_readbacks": 2,
+      "home_interruption_no_false_success": true,
+      "unarmed_explicit_retry_success_and_gate_clear": true,
+      "saved_count_before": 101,
+      "saved_count_final_restart": 101,
+      "final_readback_new_provider_requests": 0,
+      "default_screen_development_controls_absent": true
+    },
+    "qualifications": [
+      "Two earlier setup helpers failed before retrieval (readiness/scroll selector)",
+      "Parent used one keyboard-checked bounded scroll during read-only result wait",
+      "Original functional helper ended StopIteration in dashboard navigation; its status remains failed",
+      "Initial mixed ordinary/raw freshness comparison invalid; same scoped raw timestamp/count unchanged across22 comparable readbacks",
+      "No private capture/cookie/journal byte equality, live second-account, deliberately changed-preference, physical/iOS or performance acceptance"
+    ],
+    "parent_review": [
+      "Journal marker PNG",
+      "Matching-recovery marker PNG",
+      "Functional checks plus separate exact-Release final restart",
+      "Independent original APK/display/radio readback and owned AVD stop"
+    ],
+    "cleanup": {
+      "errors": [],
+      "original_apk_sha256": "6177562c7de5be71cc4b9c04358fd60aceff1064191b0d9d14b500fecc6f42b0",
+      "settings_restored": "480x800 override/density160/font1.0; airplane0/Wi-Fi1/mobile1",
+      "lifecycle": "Owned provider AVD stopped; no ADB devices",
+      "data_clear_or_raw_journal_edits": false
+    },
+    "closed_issues": [
+      50,
+      52
+    ],
+    "remaining": "#42 physical fresh login/intermittent cause; #20/#22 user/WIDE list/lower raw detail/spoken/iOS; #29 rollback branch-disposition policy unselected"
   }
 }
