@@ -104,6 +104,8 @@ test('the same guided progress and native browser parents survive login, retriev
   const progressParent=f.nodes().find(n=>n.children.includes(progress))!;
   for(const state of [{visible:false,busy:true},{visible:false,busy:false}]){
     Object.assign(f.controller,state);f.render();
+    f.nodes().find(n=>n.type==='ScrollView')!.props.onLayout({nativeEvent:{layout:{height:732}}});f.render();
+    assert.ok(f.nodes().find(n=>n.children.includes(f.browser))!.props.style[1].top<400,'Covered browser keeps a nonzero viewport while progress fills the screen');
     assert.equal(f.nodes().find(n=>n.children.includes(f.browser))!.type,browserParent.type);
     assert.equal(f.nodes().find(n=>n.children.includes(progress))!.type,progressParent.type);
     assert.equal(f.nodes().filter(n=>n===f.browser).length,1);assert.match(f.text(),/Anmeldung · Flüge · Medical/);
