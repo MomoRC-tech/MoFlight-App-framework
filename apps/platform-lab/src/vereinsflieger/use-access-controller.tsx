@@ -256,8 +256,12 @@ export function useAccessController(product = false, localOwner?: string) {
     if (contextTimer.current) clearTimeout(contextTimer.current);
     contextTimer.current = null;
   }
-  function contextFailed(loginRequired = false) {
+  function contextFailed(loginRequired = false, reason: 'context-response' | 'navigation-unobserved' | 'unexpected-document' | 'timeout' | 'page-error' | 'http-error' = 'context-response') {
     const request = contextRequest.current;
+    // Fixed technical categories only; never log URLs, profile fields or errors.
+    console.info('MOFLIGHT_PROVIDER_VERIFICATION ' + JSON.stringify({ reason, loginRequired,
+      document: currentUrl.current === PROFILE_URL ? 'profile' : loginPage(currentUrl.current) ? 'login' : flightUrl(currentUrl.current) ? 'flight-list' : providerUrl(currentUrl.current) ? 'other-provider' : 'other',
+      navigationObserved: request?.navigationObserved ?? false }));
     endDisconnect('failed'); afterConfirmation.current = null;
     if (request) session.current.fail(request.nonce, loginRequired ? 'login-required' : 'error');
     else session.current.invalidate();
@@ -277,7 +281,7 @@ export function useAccessController(product = false, localOwner?: string) {
     setLoginNotice('none');
     contextRequest.current = { nonce, action, navigationObserved: false }; syncConnection();
     if (timeout.current) clearTimeout(timeout.current); timeout.current = null;
-    contextTimer.current = setTimeout(() => contextFailed(), 25_000);
+    contextTimer.current = setTimeout(() => contextFailed(false, 'timeout'), 25_000);
     navigate(PROFILE_URL);
     if(reloadObservedProfile&&pendingNavigation.current?.url===PROFILE_URL)pendingNavigation.current.nativeReload=true;
   }
@@ -480,10 +484,10 @@ export function useAccessController(product = false, localOwner?: string) {
     phase.current.loaded = true; currentUrl.current = page; setUrl(page); setLoaded(true);
     if (information.pageLoaded(page)) return;
     if (product && contextRequest.current) {
-      if (!contextRequest.current.navigationObserved) { contextFailed(); return; }
+      if (!contextRequest.current.navigationObserved) { contextFailed(false, 'navigation-unobserved'); return; }
       if (page === PROFILE_URL) web.current?.injectJavaScript(contextScript(contextRequest.current.nonce));
       else if (loginPage(page)) web.current?.injectJavaScript(loginRequiredScript(contextRequest.current.nonce));
-      else contextFailed();
+      else contextFailed(false, 'unexpected-document');
       return;
     }
     const loginLoad = login.pageLoaded(page, pageEpoch);
