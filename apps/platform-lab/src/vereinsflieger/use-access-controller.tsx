@@ -71,6 +71,7 @@ export function useAccessController(product = false, localOwner?: string) {
   useEffect(()=>()=>stopDiagnosticLogin(false),[]);
   const run = useRef<ExportRun | null>(null), command = useRef(''), reading = useRef(false);
   const original = useRef<ViewPreferences | null>(null), viewPhase = useRef<ViewPhase | null>(null), restoring = useRef(false), restoreSteps = useRef(0), outcome = useRef('');
+  const restorationOnly = useRef(false);
   const [recovery, setRecovery] = useState(false), [viewReady, setViewReady] = useState(false);
   const [viewStrategy, setViewStrategy] = useState<'reset' | 'reserved backup' | null>(null);
   const [captureRequest] = useState(() => product ? recentCaptureRequest() : calendarYearRequest());
@@ -512,6 +513,7 @@ export function useAccessController(product = false, localOwner?: string) {
     flightSourceAttempt.current = null;
     if (legacyAttempt.current) { original.current = null; legacyAttempt.current = null; }
     run.current = null; command.current = ''; reading.current = false; viewPhase.current = null; restoring.current = false;
+    restorationOnly.current = false;
     testPaused.current = false; setPaused(null);
     epoch.current++; setGeneration(epoch.current); if (!product) setBrowserActive(false); setLoaded(false); setVisible(false);
     if (mounted.current) { setBusy(false); setSaving(false); setStatus(message); if (product) setResult(captureSaved.current ? 'captured' : cancelled.current ? 'cancelled' : 'failed'); }
@@ -539,6 +541,7 @@ export function useAccessController(product = false, localOwner?: string) {
   function recoverView() {
     if (owner.current !== activeOwner.current || clearingStore.current || bindingBusy.current || legacyPending.current || disconnectMode.current || product && !session.current.state.confirmed || !original.current || !viewReady || busy || loginBusy || loginAttempt.current) return;
     const nonce = Crypto.randomUUID(); if (!retrieval.current.start(nonce)) return;
+    restorationOnly.current = true;
     startRestoration('Earlier export recovery.', nonce);
   }
   function requestLegacyRecovery(fingerprint: string, acceptedCurrent: ViewPreferences | null = null) {
@@ -766,6 +769,7 @@ export function useAccessController(product = false, localOwner?: string) {
     if (active.phase !== 'loading' || !original.current || !retrieval.current.beginSave(active.nonce)) return;
     setSaving(true); if (timeout.current) clearTimeout(timeout.current); timeout.current = null;
     const reviewedRecovery = !!legacyAttempt.current;
+    const recovered = reviewedRecovery || restorationOnly.current;
     try {
       if (legacyAttempt.current) {
         const attempt = legacyAttempt.current;
@@ -791,7 +795,7 @@ export function useAccessController(product = false, localOwner?: string) {
         } catch { /* An unverified final profile cannot publish the captured context. */ }
       }
       stop(`${outcome.current} Original provider view restored and verified.`, active.nonce);
-      if (reviewedRecovery) setResult('recovered');
+      if (recovered) setResult('recovered');
     } catch { finish('Original view journal could not be cleared. Recovery retained.', active.nonce); }
   }
   async function persistCompletedCapture(data: ProbeSnapshot, observedAfter: ObservedContext | null = null) {

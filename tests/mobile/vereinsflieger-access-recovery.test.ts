@@ -1117,6 +1117,28 @@ test('failed restoration readback keeps recovery visible and blocks new exports 
   assert.equal(f.pending(), null); assert.equal(f.savedCapture(), priorCapture);
 });
 
+test('ordinary scoped recovery reports completion only after view readback and fresh matching account proof', async () => {
+  const f = fixture({ product: true, priorCapture }); f.render(); await f.settle(null);
+  await establishProductAssociation(f);
+  f.controller().retrieve(); await f.loadFlight();
+  await f.message({ kind: 'vf-view-v2', view: original });
+  f.controller().cancelRetrieval(); await restoredReadback(f);
+  await f.message({ kind: 'vf-view-v2', status: 'next', view: { ...restored, period: 'Synthetic changed period' } });
+  assert.equal(f.controller().result, 'cancelled');
+  assert.deepEqual(f.pending(), original);
+  f.controller().checkConnection('recover'); await f.loadPage(context.PROFILE_URL); await f.contextMessage(observedContext);
+  await restoredReadback(f);
+  await f.message({ kind: 'vf-view-v2', status: 'next', view: restored });
+  assert.deepEqual(f.pending(), original, 'View readback alone cannot clear scoped recovery');
+  assert.notEqual(f.controller().result, 'recovered');
+  await f.loadPage(context.PROFILE_URL); await f.contextMessage(observedContext);
+  assert.equal(f.pending(), null);
+  assert.equal(f.controller().recovery, false);
+  assert.equal(f.controller().result, 'recovered');
+  assert.equal(f.savedCapture(), priorCapture);
+  assert.equal(f.controller().completedFlightSource, null, 'Recovery alone must not publish new flight data');
+});
+
 test('capture writing locks cancellation and commits its outcome separately from restoration', async () => {
   const f = fixture({ priorCapture, deferCaptureSave: true }); await start(f);
   await f.message({ kind: 'vf-view-v2', view: original });
