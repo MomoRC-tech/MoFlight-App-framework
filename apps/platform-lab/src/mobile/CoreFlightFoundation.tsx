@@ -354,7 +354,7 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,takeInitialReposit
     }
     if(pending.suppressReview&&!c.busy&&!c.saving&&!c.restoring.current){finishSource(new Error('Source review cancelled.'));return;}
     if(automatic.current&&!pending.checking&&c.viewReady&&c.from===pending.request.from&&c.to===pending.request.to){
-      pending.checking=true;c.beginGuidedFlightConnection();
+      pending.checking=true;c.beginGuidedFlightConnection();return;
     }
     if(automatic.current&&pending.checking&&['error','mismatch'].includes(c.connection.phase)){
       diagnosis.current?.finish('blocked',c.connection.phase==='mismatch'?'account-mismatch':'account-verification');

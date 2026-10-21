@@ -169,7 +169,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/connection-guidan
 
 ## CoreFlightFoundation.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `28dc8ee1b2df64adaaa9a678ee39337d5003e6e8ea65ea3070c634d3b3cdef10`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `f92feace4c7e8d88f5b40865de03f5313d82528780908199bd487ddfd50d256e`.
 
 ### Geometry / opacity declarations
 
