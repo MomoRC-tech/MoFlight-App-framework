@@ -483,3 +483,7 @@ The register distinguishes selected rules from remaining decisions; entries are 
 | Platform and production obligations | Track iOS/native acceptance, isolation, backup/migrations, encryption/privacy/deletion and distribution conditions separately; no local-lab success implies full product acceptance | Engineer records gaps; Manuel supplies decisions/access | At affected milestone and before release |
 
 Invoice exclusion checkpoint - 20 October 2026 (#10): new invoice captures are disabled and removed from the import source selector; stored invoice evidence remains readable. See [verification](verification/2026-10-20-invoice-retrieval-deferral.md). This supersedes earlier invoice inclusion for current retrieval scope; other categories remain unchanged.
+
+## Support diagnostics — 21 October 2026
+
+[#46](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/46), authorized by Manuel: bounded five-operation installation-local journal, Settings → Diagnose, anonymized fixed-code/phase timing report, explicit sharing/selectable copy and clear. M1 support with M2/M3 reliability dependencies; no milestone reorder or automatic telemetry. Host privacy/retention/restart/export and combined-flow tests cover first/returning reads, failures, recovery gates and account-mismatch/cancel paths. [One verification report and remaining native/platform gates](verification/2026-10-21-diagnostics.md). This extends R01/R12 and E09/E11 support/failure traceability; it does not accept broader provider/account journeys.

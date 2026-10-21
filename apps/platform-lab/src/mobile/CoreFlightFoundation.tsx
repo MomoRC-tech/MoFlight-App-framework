@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Crypto from 'expo-crypto';
 import { hash } from '../storage';
 import { timeFlightStage } from '../vereinsflieger/flight-diagnostics';
+import { diagnosticJournal, type DiagnosticOperation, type DiagnosticAction } from '../diagnostics';
 import { useAccessController } from '../vereinsflieger/use-access-controller';
 import { openOwnerRegistry, openRealFlightCandidate, resumeInitialRealFlightCandidate, openRealFlightSelection,
   openRealFlightCommandJournal, RealFlightCandidateMissingError, RealFlightUninitializedStoreError,
@@ -31,6 +32,7 @@ import { retrievalFailureHint } from '../vereinsflieger/connection-state';
 export interface FlightLoadResult { added: number; changed: number; pending: number; from: string; to: string;
   verifiedConnection?: OwnFlightConnectionEvidence; medicalStatus?: MedicalJobStatus }
 export function CoreFlightFoundation({ close, startUpdate = false }: {close: (result?: FlightLoadResult) => void; startUpdate?: boolean}) {
+  const diagnosis = useRef<DiagnosticOperation | null>(null);
   const [requestedUpdate,setRequestedUpdate] = useState(startUpdate);
   const registry = useRef<RealOwnerRegistry | null>(null), alive = useRef(true), lock = useRef(false);
   const initialRepository = useRef<RealFlightRepositorySession | null>(null);
@@ -62,6 +64,8 @@ export function CoreFlightFoundation({ close, startUpdate = false }: {close: (re
 
   useEffect(()=>{
     alive.current = true;
+    diagnosis.current = diagnosticJournal.begin(startUpdate ? 'update-flights' : 'open-flight-tools');
+    let enteringLibrary=false;
     const startup = (async()=>{
       const release = await ownFlightReadPorts.suspend();
       if(!alive.current){release();return;}
@@ -74,11 +78,12 @@ export function CoreFlightFoundation({ close, startUpdate = false }: {close: (re
       let ready = false;
       try { ready = await timeFlightStage('owner-setup',()=>finishOwnerSetup(selected,opened,false)); } catch { /* Keep the selected owner and its files available for explicit recovery. */ }
       if (!alive.current) return;
-      if (ready) setLease(selected);
-      else { setSetupLease(selected); setError(true); }
-    })().catch(()=>{if(alive.current)setError(true);}).finally(()=>{if(alive.current)setLoading(false);});
+      if (ready) { enteringLibrary=true;setLease(selected); }
+      else { diagnosis.current?.finish('blocked','owner-setup');setSetupLease(selected); setError(true); }
+    })().catch(()=>{diagnosis.current?.finish('failed','owner-setup');if(alive.current)setError(true);}).finally(()=>{if(alive.current){setLoading(false);if(!startUpdate&&!enteringLibrary)diagnosis.current?.finish('success');}});
     return ()=>{
       alive.current=false;
+      diagnosis.current?.finish('cancelled','closed');
       void (async()=>{
         try { await startup; const unused=takeInitialRepository();try{await unused?.close();}finally{await registry.current?.close();} }
         finally { releaseOwnReads.current?.();releaseOwnReads.current=null; }
@@ -90,27 +95,29 @@ export function CoreFlightFoundation({ close, startUpdate = false }: {close: (re
   async function resumeSelected() {
     const selected=setupLease,current=registry.current;
     if(lock.current||!selected||!current)return; lock.current=true;setLoading(true);setError(false);
+    diagnosis.current=diagnosticJournal.begin('library-operation');
     try {
       if(!await finishOwnerSetup(selected,current,true))throw new Error('Selected owner setup remains incomplete.');
       if(alive.current){setLease(selected);setSetupLease(null);setError(false);}
-    } catch {if(alive.current){setSetupLease(selected);setError(true);}}
+    } catch {diagnosis.current?.finish('failed','owner-setup');if(alive.current){setSetupLease(selected);setError(true);}}
     finally {lock.current=false;if(alive.current)setLoading(false);}
   }
   async function createFreshOwner() {
     if(lock.current)return; lock.current=true;setLoading(true);setError(false);
+    if(!diagnosis.current?.running())diagnosis.current=diagnosticJournal.begin('update-flights');
     try {
       const current = registry.current ?? await openOwnerRegistry(true); if(!current)throw new Error('Owner registry unavailable.');registry.current=current;
       const selected=await current.createFreshOwner(new Date().toISOString());
       if(alive.current){setLease(null);setSetupLease(selected);}
       if(!await finishOwnerSetup(selected,current,true))throw new Error('New owner setup remains incomplete.');
       if(alive.current){setLease(selected);setSetupLease(null);setError(false);}
-    } catch {if(alive.current)setError(true);}
+    } catch {diagnosis.current?.finish('failed','owner-setup');if(alive.current)setError(true);}
     finally {lock.current=false;if(alive.current)setLoading(false);}
   }
   useEffect(()=>{
     if(requestedUpdate&&!loading&&!lease&&!error&&!setupLease&&!setupStarted.current){setupStarted.current=true;void createFreshOwner();}
   },[requestedUpdate,loading,lease,error,setupLease]);
-  if(lease&&registry.current)return <OwnerFlightLibrary key={lease.leaseId} lease={lease} registry={registry.current} close={close} startUpdate={requestedUpdate} takeInitialRepository={takeInitialRepository}/>;
+  if(lease&&registry.current)return <OwnerFlightLibrary key={lease.leaseId} lease={lease} registry={registry.current} close={close} startUpdate={requestedUpdate} takeInitialRepository={takeInitialRepository} diagnosis={diagnosis}/>;
   return <SafeAreaView style={{flex:1,backgroundColor:colors.background}}><ScrollView contentContainerStyle={{padding:12,gap:10}}>
     <View style={{width:'100%',maxWidth:520,alignSelf:'center',gap:10}}>
       <Section title="Deine Flüge" icon="flight-paper-plane"/>
@@ -128,7 +135,7 @@ export function CoreFlightFoundation({ close, startUpdate = false }: {close: (re
 }
 
 type WaitingSource = {request:{from:string;to:string};resolve:(source:RealFlightSourceInput)=>void;reject:(error:Error)=>void;started:boolean;checking:boolean;seenBusy:boolean;suppressReview:boolean;generation:number;timer:ReturnType<typeof setTimeout>;signal:AbortSignal;abort:()=>void};
-function OwnerFlightLibrary({lease,registry,close,startUpdate,takeInitialRepository}:{lease:RealOwnerLease;registry:RealOwnerRegistry;close:(result?:FlightLoadResult)=>void;startUpdate:boolean;takeInitialRepository:()=>RealFlightRepositorySession|null}) {
+function OwnerFlightLibrary({lease,registry,close,startUpdate,takeInitialRepository,diagnosis}:{lease:RealOwnerLease;registry:RealOwnerRegistry;close:(result?:FlightLoadResult)=>void;startUpdate:boolean;takeInitialRepository:()=>RealFlightRepositorySession|null;diagnosis:React.MutableRefObject<DiagnosticOperation|null>}) {
   const c=useAccessController(true,lease.ownerId), controller=useRef(c);controller.current=c;
   const alive=useRef(true),foreground=useRef(AppState.currentState==='active'),lock=useRef(false),waiting=useRef<WaitingSource|null>(null);
   const reviewGeneration=useRef(0),directAdmission=useRef<CoreFlightReviewAdmission|null>(null),invalidatedRetrievals=useRef(new Set<string>());
@@ -165,7 +172,7 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,takeInitialReposit
         if(state.phase==='loading')current.cancelRetrieval();
         finishSource(new Error('Source request cancelled.'));
       };
-      const timer=setTimeout(()=>abandonSource('Source request timed out; saved history remains.'),180_000);
+      const timer=setTimeout(()=>{diagnosis.current?.finish('failed','source-timeout');abandonSource('Source request timed out; saved history remains.');},180_000);
       pending={request,resolve,reject,started:false,checking:false,seenBusy:false,suppressReview:false,generation:reviewGeneration.current,timer,signal,abort};
       waiting.current=pending;signal.addEventListener('abort',abort,{once:true});
       controller.current.setFrom(request.from);controller.current.setTo(request.to);setProviderOpen(true);
@@ -173,6 +180,7 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,takeInitialReposit
     }),
   }),[lease,scope]);
   function abandonSource(reason:string) {
+    diagnosis.current?.finish('cancelled','cancelled');
     controller.current.endGuidedFlightConnection();
     const pending=waiting.current,current=controller.current,state=current.retrieval.current.state;
     if(pending)pending.suppressReview=true;
@@ -228,11 +236,12 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,takeInitialReposit
   async function finishAutomaticLoad(flights:()=>ReturnType<typeof saveFlightReview>) {
     const active=()=>alive.current&&foreground.current;
     const completed=await runAccountRetrievalJobs({flights,active,
-      otherData:()=>retrieveOtherAccountData({active,medical:()=>controller.current.retrieveMedical()}),
+      otherData:()=>retrieveOtherAccountData({active,medical:()=>timeFlightStage('medical',()=>controller.current.retrieveMedical())}),
       stage:stage=>{if(stage==='other-data')setStep('Flüge gespeichert. Medical wird geladen …');},
     });
     const {result,source:next}=completed.flights;
     const verified=controller.current.connection;
+    diagnosis.current?.finish(completed.otherData.medical==='failed'||completed.otherData.medical==='skipped'?'partial':'success',completed.otherData.medical==='failed'?'medical-failed':completed.otherData.medical==='skipped'?'medical-skipped':'none');
     if(alive.current&&foreground.current)close({added:result.counts.added,changed:result.counts.changed,pending:result.counts.pending,
       from:next.source.requestedWindow.from,to:next.source.requestedWindow.to,
       verifiedConnection:verified.confirmed?{ownerId:lease.ownerId,state:verified}:undefined,medicalStatus:completed.otherData.medical});
@@ -240,11 +249,13 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,takeInitialReposit
   function loadFlights() {
     if(lock.current)return;
     automatic.current=true;setStep('Anmeldung wird geprüft …');
-    void run(()=>finishAutomaticLoad(async()=>saveFlightReview(await service.retrieveUpdate())));
+    void run(()=>finishAutomaticLoad(async()=>saveFlightReview(await service.retrieveUpdate())),'update-flights');
   }
-  async function run(work:()=>Promise<void>) {
+  async function run(work:()=>Promise<void>, action:DiagnosticAction='library-operation', initial=false) {
     if(lock.current||!alive.current)return;lock.current=true;setBusy(true);setFailed(false);setMessage('');
-    try{await work();}catch(error){if(alive.current){
+    if(!initial&&!diagnosis.current?.running())diagnosis.current=diagnosticJournal.begin(action);
+    const operation=diagnosis.current;
+    try{await work();if(!initial||!startUpdate)operation?.finish('success');}catch(error){operation?.finish(error instanceof PendingRealFlightOperation?'blocked':'failed',error instanceof PendingRealFlightOperation?'recovery-required':controller.current.connection.phase==='mismatch'?'account-mismatch':'operation-failed');if(alive.current){
       setFailed(true);if(automatic.current)setProviderOpen(false);
       setMessage(error instanceof PendingRealFlightOperation?'Der gespeicherte Auftrag muss zuerst über seinen Beleg geprüft werden. Kein neuer Auftrag wurde gestartet.':controller.current.connection.phase==='mismatch'?'Ein anderes Vereinsflieger-Konto oder ein anderer Verein ist angemeldet. Bitte melde dich mit dem bisherigen Konto an. Deine gespeicherten Flüge bleiben erhalten.':controller.current.connection.phase==='error'?'Die Anbieteranmeldung konnte nicht geprüft werden. Bitte erneut versuchen. Gespeicherte Flüge bleiben erhalten.':controller.current.result==='failed'?retrievalFailureHint(controller.current.status):'Der Vorgang konnte nicht bestätigt werden. Gespeicherte Daten und Belege bleiben erhalten.');
       if(error instanceof PendingRealFlightOperation){try{await refresh();}catch{/* Keep the failure and original journal visible. */}}
@@ -252,9 +263,10 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,takeInitialReposit
     finally{lock.current=false;if(alive.current)setBusy(false);}
   }
   useEffect(()=>{
-    alive.current=true;void run(refresh);
+    alive.current=true;void run(refresh,'library-operation',true);
     const subscription=AppState.addEventListener('change',state=>{
       foreground.current=state==='active';if(state!=='active'){
+        diagnosis.current?.finish('cancelled','background');
         reviewGeneration.current++;
         const retrieval=controller.current.retrieval.current.state;if(retrieval.phase!=='idle')invalidatedRetrievals.current.add(retrieval.nonce);
         directAdmission.current=null;abandonSource('App left foreground.');setReview(null);
@@ -270,7 +282,7 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,takeInitialReposit
   useEffect(()=>{
     if(!startUpdate||initialUpdate.current||busy||!snapshot||!c.viewReady)return;
     initialUpdate.current=true;
-    if(snapshot.recovery.readOnly||c.recovery||restoreReadWarning||restorePreparations.some(p=>p.status!=='activated')||recovery.status==='not-committed'||recovery.status==='recovery-required')return;
+    if(snapshot.recovery.readOnly||c.recovery||restoreReadWarning||restorePreparations.some(p=>p.status!=='activated')||recovery.status==='not-committed'||recovery.status==='recovery-required'){diagnosis.current?.finish('blocked','recovery-required');return;}
     loadFlights();
   },[startUpdate,busy,snapshot,c.viewReady,restoreReadWarning,restorePreparations,recovery]);
   useEffect(()=>{
@@ -313,9 +325,10 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,takeInitialReposit
       pending.checking=true;c.beginGuidedFlightConnection();
     }
     if(automatic.current&&pending.checking&&['error','mismatch'].includes(c.connection.phase)){
+      diagnosis.current?.finish('blocked',c.connection.phase==='mismatch'?'account-mismatch':'account-verification');
       abandonSource('Provider account could not be verified.');setProviderOpen(false);return;
     }
-    if(automatic.current&&c.recovery&&!c.busy){abandonSource('Provider recovery needs a decision.');return;}
+    if(automatic.current&&c.recovery&&!c.busy){diagnosis.current?.finish('blocked','recovery-required');abandonSource('Provider recovery needs a decision.');return;}
     if(automatic.current&&c.connection.confirmed)setStep('Flüge werden geladen …');
     if(!pending.started&&c.from===pending.request.from&&c.to===pending.request.to&&c.connection.confirmed&&c.viewReady&&!c.recovery&&!c.busy&&!c.visible){pending.started=true;c.checkConnection('retrieve');}
     if(c.busy)pending.seenBusy=true;
@@ -323,7 +336,7 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,takeInitialReposit
       if(pending.suppressReview||!foreground.current||pending.generation!==reviewGeneration.current){service.cancelReview();finishSource(new Error('Source review cancelled.'));}
       else {handledCapture.current=c.completedFlightSource.capture.captureId;setProviderOpen(false);setReviewRow(null);finishSource(undefined,c.completedFlightSource);}
     }
-    else if(pending.seenBusy&&!c.busy&&['failed','cancelled'].includes(c.result))finishSource(new Error('Source retrieval did not complete.'));
+    else if(pending.seenBusy&&!c.busy&&['failed','cancelled'].includes(c.result)){diagnosis.current?.finish(c.result==='cancelled'?'cancelled':'failed',c.result==='cancelled'?'cancelled':'source-failed');finishSource(new Error('Source retrieval did not complete.'));}
   },[c]);
   const gate=async()=>{if(!alive.current)throw new Error('Library closed.');await registry.assertCurrent(lease);};
   async function showRestoreResult(result:RestoreRealFlightBackupResult) {

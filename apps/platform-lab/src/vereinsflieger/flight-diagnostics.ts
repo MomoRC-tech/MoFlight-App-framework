@@ -1,4 +1,5 @@
 import type { Bind, Connection, Driver } from '@moflight/local-data';
+import { diagnosticJournal } from '../diagnostics';
 
 type Counter = 'ownerGuard'|'sql'|'transaction'|'hash'|'databaseOpen';
 type Totals = Record<Counter,{calls:number;milliseconds:number;failures:number}>;
@@ -29,8 +30,9 @@ export class FlightDiagnostics {
 }
 export const flightDiagnostics=new FlightDiagnostics();
 export function startFlightSpan(name:string):(succeeded:boolean)=>void {
+  const journalSpan=diagnosticJournal.span(name);
   const start=performance.now(),before=flightDiagnostics.snapshot();let finished=false;
-  return succeeded=>{if(finished)return;finished=true;console.info('MOFLIGHT_STORED_READ_STAGE '+JSON.stringify({name,milliseconds:performance.now()-start,succeeded,
+  return succeeded=>{if(finished)return;finished=true;journalSpan(succeeded);console.info('MOFLIGHT_STORED_READ_STAGE '+JSON.stringify({name,milliseconds:performance.now()-start,succeeded,
     inclusiveCounters:flightDiagnostics.difference(before)}));};
 }
 export async function timeFlightStage<T>(name:string,work:()=>Promise<T>):Promise<T> {

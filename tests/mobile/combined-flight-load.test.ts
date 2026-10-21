@@ -1,3 +1,4 @@
+import { DiagnosticJournal } from '../../apps/platform-lab/src/diagnostics';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -17,6 +18,7 @@ const source=ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/sr
 // Real screen effects and handlers; SQLite and provider behavior have their own
 // integration tests. These ports control timing to exercise the screen coordinator.
 function fixture({startUpdate=false,root=false,readOnly=false,deferReservation=false,failStartup=false,medicalFailure=false}={}) {
+  const journal=new DiagnosticJournal(), diagnosis={current:journal.begin(startUpdate?'update-flights':'open-flight-tools')};
   const hooks:any[]=[],effects:(()=>void)[]=[],calls:string[]=[],closed:any[]=[];
   let index=0,dirty=true,tree:Element,abort:AbortController|null=null;
   let finishReservation!:()=>void;
@@ -55,7 +57,7 @@ function fixture({startUpdate=false,root=false,readOnly=false,deferReservation=f
   };
   const leaves=(names:string[])=>Object.fromEntries(names.map(name=>[name,name]));
   const modules:Record<string,any>={react:{default:react,...react},
-    './account-retrieval-jobs':accountJobs,
+    './account-retrieval-jobs':accountJobs, '../diagnostics':{diagnosticJournal:journal},
     '../vereinsflieger/connection-state':{retrievalFailureHint},
     'react-native':{...leaves(['ActivityIndicator','ScrollView','View']),AppState:{currentState:'active',addEventListener:(_:string,f:(state:string)=>void)=>{listeners.add(f);return {remove:()=>listeners.delete(f)};}},BackHandler:{addEventListener:()=>({remove(){}})}},
     'react-native-safe-area-context':leaves(['SafeAreaView']), 'expo-crypto':{randomUUID:()=> 'uuid'},'../storage':{hash:async()=>''},
@@ -70,12 +72,12 @@ function fixture({startUpdate=false,root=false,readOnly=false,deferReservation=f
     '../vereinsflieger/retrieval-policy':{planFlightRetrieval},'./data-freshness':{dataFreshness},
   };
   const exports:any={};runInNewContext(source,{exports,require:(name:string)=>{assert.ok(name in modules,name);return modules[name];},setTimeout,clearTimeout,console,Error});
-  function render(){dirty=false;index=0;tree=root?exports.CoreFlightFoundation({startUpdate,close:(v:any)=>closed.push(v)}):exports.OwnerFlightLibrary({lease,registry,startUpdate,close:(v:any)=>closed.push(v),takeInitialRepository:()=>null});while(effects.length)effects.shift()!();return tree;}
+  function render(){dirty=false;index=0;tree=root?exports.CoreFlightFoundation({startUpdate,close:(v:any)=>closed.push(v)}):exports.OwnerFlightLibrary({lease,registry,startUpdate,close:(v:any)=>closed.push(v),takeInitialRepository:()=>null,diagnosis});while(effects.length)effects.shift()!();return tree;}
   async function flush(){for(let n=0;n<12;n++){if(dirty)render();await new Promise<void>(resolve=>{setImmediate(resolve);});}if(dirty)render();}
   function nodes(){const result:Element[]=[];function visit(value:any){if(value&&typeof value==='object'&&'children'in value){result.push(value);value.children.forEach(visit);}}visit(tree);return result;}
   const text=(node:any):string=>node&&typeof node==='object'&&'children'in node?node.children.map(text).join(''):typeof node==='string'?node:'';
   function press(label:string){const node=nodes().find(n=>n.type==='Action'&&text(n)===label);assert.ok(node,label);assert.ok(!node.props.disabled,label);node.props.onPress();}
-  return {render,flush,c,calls,closed,nodes,text:()=>text(tree),press,finishReservation,background:()=>listeners.forEach(f=>f('background')),
+  return {journal,render,flush,c,calls,closed,nodes,text:()=>text(tree),press,finishReservation,background:()=>listeners.forEach(f=>f('background')),
     complete:()=>{c.busy=false;c.result='captured';c.completedFlightSource=input;dirty=true;},
     dispose:()=>{for(const hook of hooks)hook?.cleanup?.();},
   };
@@ -88,7 +90,7 @@ test('opening options does no retrieval; one explicit action verifies, loads, sa
     f.press('Mit Vereinsflieger anmelden & Flüge laden');await f.flush();
     assert.deepEqual(f.calls,['session','retrieve']);
     f.complete();await f.flush();assert.deepEqual(f.calls,['session','retrieve','save','medical']);
-    assert.equal(f.closed.length,1);assert.equal(f.closed[0].added,2);assert.equal(f.closed[0].from,'2025-01-01');
+    assert.equal(f.closed.length,1);assert.equal(f.closed[0].added,2);assert.equal(f.closed[0].from,'2025-01-01');assert.equal(f.journal.snapshot().at(-1)!.outcome,'success');
   }finally{f.dispose();}
 });
 
@@ -97,6 +99,7 @@ test('combined entry starts once, while read-only recovery prevents automatic wo
     const f=fixture({startUpdate:true,readOnly});try{
       f.render();await f.flush();await f.flush();
       assert.deepEqual(f.calls,readOnly?[]:['session','retrieve']);
+      if(readOnly)assert.equal(f.journal.snapshot().at(-1)!.code,'recovery-required');
       if(readOnly)assert.ok(f.nodes().some(n=>n.props.title==='Bibliothek nur lesbar')); 
     }finally{f.dispose();}
   }
@@ -106,7 +109,7 @@ test('Medical failure still returns the confirmed flight save and separate Medic
   const f=fixture({startUpdate:true,medicalFailure:true});try{
     f.render();await f.flush();f.complete();await f.flush();
     assert.deepEqual(f.calls,['session','retrieve','save','medical']);
-    assert.equal(f.closed.length,1);assert.equal(f.closed[0].added,2);assert.equal(f.closed[0].medicalStatus,'failed');
+    assert.equal(f.closed.length,1);assert.equal(f.closed[0].added,2);assert.equal(f.closed[0].medicalStatus,'failed');assert.equal(f.journal.snapshot().at(-1)!.outcome,'partial');assert.equal(f.journal.snapshot().at(-1)!.code,'medical-failed');
   }finally{f.dispose();}
 });
 
@@ -118,7 +121,7 @@ test('cancelled, backgrounded and mismatched load cannot save a late capture',as
       if(stop==='background')f.background();
       if(stop==='mismatch'){f.c.connection={phase:'mismatch',confirmed:false};f.render();}
       await f.flush();f.complete();await f.flush();
-      assert.equal(f.calls.includes('save'),false);assert.equal(f.closed.length,0);
+      assert.equal(f.calls.includes('save'),false);assert.equal(f.closed.length,0);assert.equal(f.journal.snapshot().at(-1)!.code,stop==='background'?'background':stop==='mismatch'?'account-mismatch':'cancelled');
     }finally{f.dispose();}
   }
 });

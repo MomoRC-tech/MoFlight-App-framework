@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AppState } from 'react-native';
+import { diagnosticJournal } from '../diagnostics';
 import { reuseEqualData } from './processed-result';
 import type { RealFlightDetail, RealFlightListItem } from '../vereinsflieger/real-flight-library';
 import { readOwnFlightDetail, readOwnFlightView, OwnFlightChangedError, type OwnFlightReadPorts, type OwnFlightView } from './own-flight-reader';
@@ -20,9 +21,11 @@ export function useOwnFlights(ports: OwnFlightReadPorts, active: boolean, reload
     if (locked.current) { queued.current = true; sequence.current++; return; }
     queued.current = false; locked.current = true;
     const id = ++sequence.current;
+    const diagnosis = diagnosticJournal.begin('read-flights'), stage = diagnosticJournal.span('local-read');
     setPhase('loading'); setDetail(null); setDetailBusy(false); setDetailError(null);
     try {
       const next = await readOwnFlightView(ports);
+      stage(true); diagnosis.finish(current(id)?'success':'cancelled',current(id)?'none':'stale-selection');
       if (current(id)) {
         const prior = processedView.current;
         const sameScope = prior && next && prior.snapshot.ownerId === next.snapshot.ownerId &&
@@ -32,6 +35,7 @@ export function useOwnFlights(ports: OwnFlightReadPorts, active: boolean, reload
         setView(shared); setPhase(shared ? 'ready' : 'missing');
       }
     } catch (error) {
+      stage(false); diagnosis.finish(current(id)?'failed':'cancelled',current(id)?'operation-failed':'stale-selection');
       if (current(id)) { console.warn('Own-flight local read failed', error instanceof Error ? error.message : 'Unknown read failure'); processedView.current = null; setView(null); setPhase('failed'); }
     } finally {
       locked.current = false;
@@ -42,11 +46,14 @@ export function useOwnFlights(ports: OwnFlightReadPorts, active: boolean, reload
     if (!view || locked.current || !alive.current || !enabled.current || !foreground.current ||
       !view.flights.some(f => f.flightId === selected.flightId && f.factsRevision === selected.factsRevision)) return;
     locked.current = true; const id = ++sequence.current;
+    const diagnosis = diagnosticJournal.begin('read-flight-detail'), stage = diagnosticJournal.span('detail-read');
     setDetail(null); setDetailBusy(true); setDetailError(null);
     try {
       const next = await readOwnFlightDetail(ports, view.snapshot, selected);
+      stage(true); diagnosis.finish(current(id)?'success':'cancelled',current(id)?'none':'stale-selection');
       if (current(id)) setDetail(next);
     } catch (error) {
+      stage(false); diagnosis.finish(current(id)?'failed':'cancelled',error instanceof OwnFlightChangedError?'stale-selection':'operation-failed');
       if (current(id)) {
         console.warn('Own-flight local detail failed', error instanceof Error ? error.message : 'Unknown detail failure');
         // No previous owner's detail survives an unconfirmed or changed scope.

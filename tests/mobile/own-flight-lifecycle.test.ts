@@ -1,3 +1,4 @@
+import * as diagnostics from '../../apps/platform-lab/src/diagnostics';
 import * as processedResults from '../../apps/platform-lab/src/mobile/processed-result.ts';
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -22,7 +23,7 @@ function host() {
   };
   const exports:any={};runInNewContext(source,{exports,require:(name:string)=>name==='react'?react:name==='react-native'?{
     AppState:{currentState:'active',addEventListener:(_:string,fn:typeof listener)=>{listener=fn;return{remove(){}};}},
-  }:name==='./processed-result'?processedResults:reader});
+  }:name==='../diagnostics'?diagnostics:name==='./processed-result'?processedResults:reader});
   let result:any;
   function render(){index=0;result=exports.useOwnFlights(f.ports,active,revision);effects.splice(0).forEach(fn=>fn());return result;}
   async function flush(){for(let i=0;i<3;i++){await new Promise<void>(done=>{setImmediate(done);});render();}return result;}

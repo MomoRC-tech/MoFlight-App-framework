@@ -1,3 +1,4 @@
+import * as diagnostics from '../../apps/platform-lab/src/diagnostics';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -54,6 +55,7 @@ function fixture() {
     './flight-model': { flightYears: () => [2026], selectFlights: () => library.flights, summarizeFlights: () => ({ count: 1, knownMinutes: 30 }), formatDuration: () => '0:30' },
     './local-insights': { localQuestions: [], localInsight: () => '' },
     './Dashboard': { Dashboard: 'Dashboard' }, './ShellIcons': leaves(['PlaneIcon', 'ProfileIcon', 'BookIcon']),
+    './Diagnostics': leaves(['Diagnostics']), './diagnostics-native': {initializeDiagnostics() {}}, '../diagnostics': diagnostics,
     './ProfileSettings': { ProfileSettings: 'ProfileSettings' }, '../book-storage': { PILOT: 'synthetic-pilot' },
     '../vereinsflieger/use-access-controller': { useAccessController: () => controller },
     './ProviderConnection': leaves(['ProviderConnection', 'ConnectionIndicator']), './AppHeader': { AppHeader: 'AppHeader' },
@@ -397,4 +399,15 @@ test('tab round trips retain the same shell flight projection for Start and flig
   }
   assert.deepEqual(f.calls,[]);
   assert.ok(f.readEnabled.every(Boolean), 'Tab changes must not suspend or restart the reader');
+});
+
+
+test('Settings exposes a separate Diagnostics screen and contextual Back preserves profile draft',()=>{
+  const f=fixture(); f.press('Pressable','Profil & Einstellungen öffnen');
+  f.find('ProfileSettings').props.onNameDraftChange('Unsaved private name'); f.render();
+  f.find('ProfileSettings').props.onDiagnostics(); f.render();
+  assert.ok(f.find('Diagnostics')); assert.equal(f.headers().at(-1)!.props.title,'Diagnose');
+  f.headers().at(-1)!.props.back(); f.render();
+  assert.equal(f.find('ProfileSettings').props.nameDraft,'Unsaved private name');
+  assert.ok(!diagnostics.diagnosticJournal.export().includes('Unsaved private name'));
 });

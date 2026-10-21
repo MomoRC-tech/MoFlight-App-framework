@@ -17,8 +17,9 @@ export interface ProfileSettingsProps {
   onCredits: () => void;
   onBooks: () => void;
   onBackup: () => void;
+  onDiagnostics: () => void;
 }
-export function ProfileSettings({ connectionSummary, displayName, nameDraft: name, onNameDraftChange, busy, error, onSaveName, onRetry, onTools, onStatus, onCredits, onBooks, onBackup, onConnections }: ProfileSettingsProps) {
+export function ProfileSettings({ connectionSummary, displayName, nameDraft: name, onNameDraftChange, busy, error, onSaveName, onRetry, onTools, onStatus, onCredits, onBooks, onBackup, onConnections, onDiagnostics }: ProfileSettingsProps) {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const alive = useRef(false);
@@ -64,6 +65,7 @@ export function ProfileSettings({ connectionSummary, displayName, nameDraft: nam
     </Card>
     <Card>
       <Section title="Über MoFlight" />
+      <Action testID="diagnostics-entry" secondary icon="info" onPress={onDiagnostics}>Diagnose öffnen</Action>
       <Action secondary onPress={onCredits}>Bildnachweise & Lizenzen</Action>
     </Card>
     <Card>
