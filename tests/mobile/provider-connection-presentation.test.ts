@@ -22,7 +22,7 @@ const source = ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/
 
 // Run the real component/handlers; native rendering and leaf controls are the
 // only replacements. Disclosure tests make no provider/storage implementation.
-function fixture(overrides: Partial<Controller> = {}, development = false, purpose: 'existing-captures'|'own-flight-library' = 'existing-captures', guided = false, progress?: Element) {
+function fixture(overrides: Partial<Controller> = {}, development = false, purpose: 'existing-captures'|'own-flight-library' = 'existing-captures', guided = false, progress?: Element, developmentRecoveryCheckpoints = false) {
   let index = 0;
   const hooks: unknown[] = [], effects: (() => void)[] = [], calls: string[] = [];
   const react = {
@@ -56,6 +56,7 @@ function fixture(overrides: Partial<Controller> = {}, development = false, purpo
   const browser: Element = { type: 'retained-browser', props: {}, children: [] };
   const controller = {
     connection: new ConnectionSession().state, browser, browserActive: false, viewReady: true, recovery: false,
+    developmentCheckpoint: null, armDevelopmentJournalCheckpoint: () => calls.push('arm-journal'), armDevelopmentRecoveryCheckpoint: () => calls.push('arm-recovery'),
     informationCategory: 'work-hours', informationCaptures: [], informationNotice: '', informationBusy: false, informationSaving: false,
     nextInformationCategory: () => calls.push('information-category'), startInformation: () => calls.push('information-start'), stopInformation: () => calls.push('information-stop'),
     retryInformation: () => calls.push('information-retry'), reloadInformation: async () => { calls.push('information-reload'); },
@@ -74,7 +75,7 @@ function fixture(overrides: Partial<Controller> = {}, development = false, purpo
   let tree: Element;
   function render(open = true) {
     index = 0;
-    tree = exports.ProviderConnection!({ controller, open, development, purpose, guided, progress, closeDisabled:controller.informationSaving, close: () => calls.push('close') });
+    tree = exports.ProviderConnection!({ controller, open, development, developmentRecoveryCheckpoints, purpose, guided, progress, closeDisabled:controller.informationSaving, close: () => calls.push('close') });
     while (effects.length) effects.shift()!();
     return tree;
   }
@@ -96,6 +97,40 @@ function fixture(overrides: Partial<Controller> = {}, development = false, purpo
   render();
   return { controller, calls, browser, render, nodes, text, button };
 }
+
+test('development recovery controls require the explicit scoped flag and remain outside the retained browser', () => {
+  for (const development of [false, true]) {
+    const ordinary = fixture({}, development);
+    assert.equal(ordinary.nodes().some(node => node.props.testID === 'development-provider-checkpoint'), false);
+  }
+  const f = fixture({}, false, 'own-flight-library', false, undefined, true);
+  const journal = () => f.nodes().find(node => node.props.testID === 'development-arm-provider-journal')!;
+  const recovery = () => f.nodes().find(node => node.props.testID === 'development-arm-provider-recovery')!;
+  assert.equal(journal().props.disabled, false); assert.equal(recovery().props.disabled, true);
+  journal().props.onPress(); assert.deepEqual(f.calls, ['arm-journal']);
+  Object.assign(f.controller, { recovery: true, original: { current: {} } }); f.render();
+  assert.equal(journal().props.disabled, true); assert.equal(recovery().props.disabled, false);
+  recovery().props.onPress(); assert.deepEqual(f.calls, ['arm-journal', 'arm-recovery']);
+  f.controller.developmentCheckpoint = 'recovery-armed'; f.render();
+  f.button('Schließen').props.onPress();
+  assert.deepEqual(f.calls, ['arm-journal', 'arm-recovery', 'dismiss', 'close']);
+  for (const visible of [false, true]) {
+    Object.assign(f.controller, { visible, developmentCheckpoint: 'recovery-paused', busy: true });
+    const root = f.render();
+    const marker = f.nodes().find(node => node.props.testID === 'development-provider-checkpoint')!;
+    assert.equal(marker.props.accessibilityLabel, 'Testpause: Passendes Konto geprüft. Noch kein Wiederherstellungsbefehl gesendet.');
+    const markerParent = f.nodes().find(node => node.children.includes(marker))!;
+    assert.ok(root.children.includes(markerParent), 'Marker is a root-level sibling of browser/body branches');
+    assert.equal(f.nodes().filter(node => node === f.browser).length, 1);
+    assert.equal(journal().props.disabled, true); assert.equal(recovery().props.disabled, true);
+    markerParent.props.onLayout({nativeEvent:{layout:{height:132}}}); f.render();
+    const browserFrame = f.nodes().find(node => node.children.includes(f.browser))!;
+    assert.equal((browserFrame.props.style as {top?:number}[])[1]!.top, 68 + 132 + (visible ? 132 : 0));
+  }
+  f.controller.developmentCheckpoint = 'journal-paused'; f.render();
+  assert.equal(f.nodes().find(node => node.props.testID === 'development-provider-checkpoint')!.props.accessibilityLabel,
+    'Testpause: Originalansicht lokal gesichert. Noch keine Anbietereinstellung geändert.');
+});
 
 test('the same guided progress and native browser parents survive login, retrieval and completion',()=>{
   const progress:Element={type:'progress-card',props:{},children:['Anmeldung · Flüge · Medical']};

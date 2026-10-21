@@ -43,7 +43,7 @@ const savedLoginSource = ts.transpileModule(readFileSync(new URL('../../apps/pla
 const informationControllerSource = ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/vereinsflieger/use-information-controller.ts', import.meta.url), 'utf8'), {
   compilerOptions: { module: ts.ModuleKind.CommonJS, esModuleInterop: false },
 }).outputText;
-function fixture(options: { noNativeRecovery?: boolean; failLegacyRead?: boolean; failSafety?: boolean; deferSafety?: boolean; failReceipt?: boolean; deferClear?: boolean; failClear?: boolean; persistedScope?: ProviderScope; scopedView?: ViewPreferences; deferBinding?: boolean; failBinding?: boolean; priorCapture?: probe.ProbeSnapshot; deferJournalSave?: boolean; deferCaptureSave?: boolean; product?: boolean; deferLoginRead?: boolean; failLoginRead?: boolean; savedLogin?: { username: string; password: string } | null; failLoginForget?: boolean; deferLoginForget?: boolean } = {}) {
+function fixture(options: { developmentRecoveryCheckpoints?: boolean; noNativeRecovery?: boolean; failLegacyRead?: boolean; failSafety?: boolean; deferSafety?: boolean; failReceipt?: boolean; deferClear?: boolean; failClear?: boolean; persistedScope?: ProviderScope; scopedView?: ViewPreferences; deferBinding?: boolean; failBinding?: boolean; priorCapture?: probe.ProbeSnapshot; deferJournalSave?: boolean; deferCaptureSave?: boolean; product?: boolean; deferLoginRead?: boolean; failLoginRead?: boolean; savedLogin?: { username: string; password: string } | null; failLoginForget?: boolean; deferLoginForget?: boolean } = {}) {
   let resolveJournal!: (view: ViewPreferences | null) => void, rejectJournal!: (error: Error) => void;
   const journal = new Promise<ViewPreferences | null>((resolve, reject) => { resolveJournal = resolve; rejectJournal = reject; });
   const diagnosticPhases:{name:string;result:boolean|null}[]=[];
@@ -165,7 +165,7 @@ function fixture(options: { noNativeRecovery?: boolean; failLegacyRead?: boolean
   let controller: ReturnType<typeof useAccessController>;
   function render() {
     index = 0;
-    const tree = options.product ? (() => { controller = controllerExports.useAccessController(true, localOwner); return { type: 'Host', props: {}, children: [controller.browser] }; })() : exported.AccessProbe({ close() {} });
+    const tree = options.product ? (() => { controller = controllerExports.useAccessController(true, localOwner, !!options.developmentRecoveryCheckpoints); return { type: 'Host', props: {}, children: [controller.browser] }; })() : exported.AccessProbe({ close() {} });
     effects.splice(0).forEach(effect => effect()); return tree;
   }
   function find(tree: Element, predicate: (element: Element) => boolean): Element | undefined {
@@ -241,6 +241,7 @@ function fixture(options: { noNativeRecovery?: boolean; failLegacyRead?: boolean
     unmount: () => { for (const hook of hooks) if (hook && typeof hook === 'object' && 'cleanup' in hook && typeof hook.cleanup === 'function') hook.cleanup(); },
     appState: (state: string) => appStateListener?.(state),
     changeOwner: (value: string) => { localOwner = value; render(); },
+    setDevelopmentRecoveryCheckpoints: (enabled: boolean) => { options.developmentRecoveryCheckpoints = enabled; render(); },
     controller: () => { render(); return controller; },
     finishJournalSave, finishCaptureSave, pending: () => pending, savedCapture: () => savedCapture,
     loginStorage: () => ({ reads: savedLoginReads, forgets: savedLoginForgets }),
@@ -1166,6 +1167,118 @@ test('ordinary scoped recovery reports completion only after view readback and f
   assert.equal(f.controller().result, 'recovered');
   assert.equal(f.savedCapture(), priorCapture);
   assert.equal(f.controller().completedFlightSource, null, 'Recovery alone must not publish new flight data');
+});
+
+test('development scoped journal checkpoint waits for durable storage and cannot inject backup commands', async () => {
+  const f = fixture({ product: true, developmentRecoveryCheckpoints: true, priorCapture, deferJournalSave: true });
+  f.render(); await f.settle(null); await establishProductAssociation(f);
+  f.controller().armDevelopmentJournalCheckpoint();
+  assert.equal(f.controller().developmentCheckpoint, 'journal-armed');
+  f.controller().retrieve(); await f.loadFlight();
+  const saving = f.message({ kind: 'vf-view-v2', view: original });
+  await f.flush();
+  assert.equal(f.controller().developmentCheckpoint, 'journal-armed');
+  assert.equal(f.pending(), null);
+  f.finishJournalSave(); await saving; await f.flush();
+  assert.equal(f.controller().developmentCheckpoint, 'journal-paused');
+  assert.deepEqual(f.pending(), original);
+  assert.deepEqual(f.writes, ['journal-start', 'journal-saved']);
+  const commands = f.injections.length;
+  f.controller().continueTestRetrieval(f.controller().paused!);
+  await f.loadFlight();
+  assert.equal(f.injections.length, commands, 'Native page callbacks cannot pass the durable pause');
+  assert.equal(f.currentCommand().phase, 'snapshot');
+  f.appState('background'); f.appState('active'); await f.flush();
+  assert.equal(f.controller().developmentCheckpoint, null);
+  assert.equal(f.controller().busy, false);
+  assert.deepEqual(f.pending(), original);
+  assert.equal(f.savedCapture(), priorCapture);
+  f.unmount();
+});
+
+test('development recovery checkpoint requires fresh matching admission and is consumed before Home and explicit retry', async () => {
+  const f = fixture({ product: true, developmentRecoveryCheckpoints: true, priorCapture, scopedView: original,
+    persistedScope: { version: 1, owner: 'synthetic-pilot', connectionId: 'prior', context: observedContext } });
+  f.render(); await f.settle(null); await f.flush();
+  f.controller().armDevelopmentRecoveryCheckpoint();
+  assert.equal(f.controller().developmentCheckpoint, 'recovery-armed');
+  f.controller().checkConnection('recover'); await f.loadPage(context.PROFILE_URL);
+  const beforeProof = f.injections.length;
+  assert.equal(f.controller().developmentCheckpoint, 'recovery-armed');
+  await f.contextMessage({ ...observedContext, clubLabel: 'Other synthetic club' });
+  assert.equal(f.controller().connection.phase, 'mismatch');
+  assert.equal(f.controller().developmentCheckpoint, 'recovery-armed');
+  assert.equal(f.injections.length, beforeProof);
+  f.controller().checkConnection('recover'); await f.loadPage(context.PROFILE_URL);
+  const stale = f.find(f.render(), element => element.type === 'WebView')!;
+  const proofNonce = f.lastIssuedNonce();
+  await f.contextMessage(observedContext);
+  assert.equal(f.controller().developmentCheckpoint, 'recovery-paused');
+  assert.equal(f.controller().busy, true);
+  assert.equal(f.controller().restoring.current, true);
+  const pausedCommands = f.injections.length;
+  assert.equal(f.controller().url, context.PROFILE_URL, 'No replay navigation before the checkpoint');
+  await f.flush(); assert.equal(f.injections.length, pausedCommands);
+  assert.deepEqual(f.writes, []);
+  f.appState('background'); f.appState('active'); await f.flush();
+  assert.equal(f.controller().developmentCheckpoint, null);
+  (stale.props.onMessage as (event: unknown) => void)({ nativeEvent: { url: context.PROFILE_URL,
+    data: JSON.stringify({ kind: 'vf-context-v1', nonce: proofNonce, url: context.PROFILE_URL, context: observedContext }) } });
+  await f.flush(); assert.deepEqual(f.writes, []); assert.deepEqual(f.pending(), original);
+  f.controller().checkConnection('recover'); await f.loadPage(context.PROFILE_URL); await f.contextMessage(observedContext);
+  assert.equal(f.controller().developmentCheckpoint, null, 'Retry is not paused without a new explicit arm');
+  await restoredReadback(f); await f.message({ kind: 'vf-view-v2', status: 'next', view: restored });
+  await f.loadPage(context.PROFILE_URL); await f.contextMessage(observedContext);
+  assert.equal(f.pending(), null); assert.equal(f.controller().result, 'recovered');
+  assert.equal(f.savedCapture(), priorCapture); assert.equal(f.controller().completedFlightSource, null);
+  f.unmount();
+});
+
+test('dismissing or revoking a held development recovery preserves its journal without replay', async () => {
+  for (const boundary of ['dismiss', 'revoke', 'owner']) {
+    const f = fixture({ product: true, developmentRecoveryCheckpoints: true, priorCapture, scopedView: original,
+      persistedScope: { version: 1, owner: 'synthetic-pilot', connectionId: 'prior', context: observedContext } });
+    f.render(); await f.settle(null); await f.flush();
+    f.controller().armDevelopmentRecoveryCheckpoint();
+    f.controller().checkConnection('recover'); await f.loadPage(context.PROFILE_URL); await f.contextMessage(observedContext);
+    assert.equal(f.controller().developmentCheckpoint, 'recovery-paused');
+    const obsolete = f.controller(), commands = f.injections.length;
+    if (boundary === 'dismiss') f.controller().dismissLogin();
+    if (boundary === 'revoke') f.setDevelopmentRecoveryCheckpoints(false);
+    if (boundary === 'owner') f.changeOwner('another-owner');
+    await f.flush();
+    obsolete.armDevelopmentRecoveryCheckpoint();
+    assert.equal(f.controller().developmentCheckpoint, null);
+    assert.equal(f.controller().busy, false);
+    assert.deepEqual(f.pending(), original); assert.deepEqual(f.writes, []);
+    assert.equal(f.injections.length, commands); assert.equal(f.savedCapture(), priorCapture);
+    f.unmount();
+  }
+});
+
+test('development checkpoint arms are unavailable by default and revoked on dismissal background owner change or unmount', async () => {
+  for (const enabled of [false, true]) {
+    for (const boundary of ['dismiss', 'background', 'owner', 'unmount']) {
+      const f = fixture({ product: true, developmentRecoveryCheckpoints: enabled });
+      f.render(); await f.settle(null); await establishProductAssociation(f);
+      f.controller().armDevelopmentJournalCheckpoint();
+      assert.equal(f.controller().developmentCheckpoint, enabled ? 'journal-armed' : null);
+      if (boundary === 'dismiss') f.controller().dismissLogin();
+      if (boundary === 'background') { f.appState('background'); f.appState('active'); }
+      if (boundary === 'owner') f.changeOwner('another-owner');
+      if (boundary === 'unmount') {
+        f.unmount();
+        const reopened = fixture({ product: true, developmentRecoveryCheckpoints: enabled });
+        reopened.render(); await reopened.settle(null);
+        assert.equal(reopened.controller().developmentCheckpoint, null); reopened.unmount();
+        continue;
+      }
+      await f.flush();
+      assert.equal(f.controller().developmentCheckpoint, null);
+      assert.deepEqual(f.writes, []);
+      if (boundary !== 'unmount') f.unmount();
+    }
+  }
 });
 
 test('interrupted standalone scoped recovery preserves its journal and rejects stale or foreign evidence before explicit retry', async () => {

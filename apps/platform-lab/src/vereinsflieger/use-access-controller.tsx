@@ -27,7 +27,9 @@ type FlightSourceAttempt = {
 };
 type PendingFlightSource = { owner: string; input: RealFlightSourceInput };
 
-export function useAccessController(product = false, localOwner?: string) {
+type DevelopmentCheckpoint = 'journal-armed' | 'journal-paused' | 'recovery-armed' | 'recovery-paused' | null;
+
+export function useAccessController(product = false, localOwner?: string, developmentRecoveryCheckpoints = false) {
   const activeOwner = useRef(localOwner); activeOwner.current = localOwner;
   const owner = useRef(localOwner), scope = useRef<ProviderScope | null>(null);
   const clearingStore = useRef(false), documentDetached = useRef<(() => void) | null>(null);
@@ -89,6 +91,32 @@ export function useAccessController(product = false, localOwner?: string) {
   const preBackupPauseEnabled = useRef(false);
   const [pauseEnabled, setPauseEnabled] = useState(false), [paused, setPaused] = useState<string | null>(null);
   const [preBackupPause, setPreBackupPause] = useState(false);
+  const developmentAllowed = useRef(false); developmentAllowed.current = product && developmentRecoveryCheckpoints;
+  const developmentCheckpointRef = useRef<DevelopmentCheckpoint>(null);
+  const [developmentCheckpoint, setDevelopmentCheckpoint] = useState<DevelopmentCheckpoint>(null);
+  function checkpoint(next: DevelopmentCheckpoint) {
+    developmentCheckpointRef.current = next; setDevelopmentCheckpoint(next);
+  }
+  function clearDevelopmentCheckpoints() {
+    if (!developmentCheckpointRef.current) return;
+    const held = developmentCheckpointRef.current.endsWith('-paused');
+    checkpoint(null);
+    if (held) { testPaused.current = false; setPaused(null); }
+  }
+  function armDevelopmentCheckpoint(kind: 'journal' | 'recovery') {
+    if (!developmentAllowed.current || !mounted.current || !foreground.current ||
+      owner.current !== activeOwner.current || !scope.current || !viewReady || clearingStore.current || bindingBusy.current ||
+      legacyPending.current || disconnectMode.current || contextRequest.current || loginAttempt.current || loginBusy ||
+      busy || saving || information.active() || retrieval.current.state.phase !== 'idle') return;
+    if (kind === 'journal' ? recovery || !!original.current : !recovery || !original.current) return;
+    checkpoint(kind === 'journal' ? 'journal-armed' : 'recovery-armed');
+  }
+  useEffect(() => () => { developmentCheckpointRef.current = null; }, []);
+  useEffect(() => {
+    if (developmentAllowed.current || !developmentCheckpointRef.current) return;
+    if (developmentCheckpointRef.current.endsWith('-paused')) stop('Development checkpoint revoked. Original view recovery retained.');
+    else clearDevelopmentCheckpoints();
+  }, [developmentRecoveryCheckpoints]);
   const [snapshot, setSnapshot] = useState<ProbeSnapshot | null>(null), [status, setStatus] = useState('Sign in on the original provider page. Choose an inclusive period; configuration is verified before capture.');
   const [captureLoadState, setCaptureLoadState] = useState<'loading' | 'ready' | 'failed'>('loading');
   const login = useSavedLogin({
@@ -156,6 +184,7 @@ export function useAccessController(product = false, localOwner?: string) {
   })().catch(() => { if(active) { information.initialLoadFailed(initialInformationRequest); setCaptureLoadState(state => state === 'ready' ? state : 'failed'); setRecovery(true); setStatus('Original view recovery could not be opened. Exports are blocked to preserve preferences.'); } }); return () => { active = false; }; }, [localOwner]);
   useEffect(() => {
     if (!product || localOwner === owner.current) return;
+    clearDevelopmentCheckpoints();
     endGuidedFlightConnection();
     clearContextRequest(); afterConfirmation.current = null; pendingCapture.current = null; pendingNavigation.current = null;
     flightSourceAttempt.current = null; pendingFlightSource.current = null; clearCompletedFlightSource();
@@ -356,6 +385,11 @@ export function useAccessController(product = false, localOwner?: string) {
     information.navigationStarted(); session.current.invalidate(); syncConnection(); web.current.goBack(); return true;
   }
   function dismissLogin() {
+    // A held development run must end through the normal guarded interruption
+    // path; merely hiding its marker would leave an unresumable operation.
+    const held = developmentCheckpointRef.current?.endsWith('-paused');
+    clearDevelopmentCheckpoints();
+    if (held) { stop('Development checkpoint dismissed. Original view recovery retained.'); }
     stopDiagnosticLogin(false);
     endGuidedFlightConnection();
     if (!information.dismiss()) return;
@@ -463,6 +497,7 @@ export function useAccessController(product = false, localOwner?: string) {
     const listener = AppState.addEventListener('change', state => {
       foreground.current = state === 'active';
       if (state === 'active') return;
+      clearDevelopmentCheckpoints();
       if (guidedFlightLogin.current && owner.current === activeOwner.current && retrieval.current.state.phase === 'idle' && !bindingBusy.current && !information.active()) {
         guidedLoginResume.current = { owner: owner.current };
       }
@@ -510,6 +545,7 @@ export function useAccessController(product = false, localOwner?: string) {
   function stop(message: string, nonce?: string) {
     const state = retrieval.current.state;
     if (nonce ? !retrieval.current.finish(nonce) : state.phase === 'saving') return;
+    clearDevelopmentCheckpoints();
     bridgeTiming.current?.(false);bridgeTiming.current=null;
     if (!nonce && state.phase === 'loading') retrieval.current.finish(state.nonce);
     if (timeout.current) clearTimeout(timeout.current); timeout.current = null;
@@ -522,13 +558,20 @@ export function useAccessController(product = false, localOwner?: string) {
     epoch.current++; setGeneration(epoch.current); if (!product) setBrowserActive(false); setLoaded(false); setVisible(false);
     if (mounted.current) { setBusy(false); setSaving(false); setStatus(message); if (product) setResult(captureSaved.current ? 'captured' : cancelled.current ? 'cancelled' : 'failed'); }
   }
-  function startRestoration(message: string, nonce: string) {
+  function startRestoration(message: string, nonce: string, developmentPause = false) {
     if (!original.current || !retrieval.current.owns(nonce)) return;
     if (retrieval.current.state.phase === 'saving') retrieval.current.resume(nonce);
     outcome.current = message; restoring.current = true; restoreSteps.current = 0; viewPhase.current = 'restore';
     testPaused.current = false; setPaused(null);
     run.current = null; reading.current = false; command.current = ''; setSaving(false); setBusy(true); if (!product) setVisible(true);
-    web.current?.stopLoading(); armTimeout(nonce); navigate(FLIGHT_URL);
+    web.current?.stopLoading();
+    if (developmentPause) {
+      testPaused.current = true; setPaused(nonce); checkpoint('recovery-paused');
+      if (timeout.current) clearTimeout(timeout.current); timeout.current = null;
+      setStatus('Development checkpoint: matching recovery admitted before replay.');
+      return;
+    }
+    armTimeout(nonce); navigate(FLIGHT_URL);
   }
   function finish(message: string, nonce?: string) {
     const state = retrieval.current.state;
@@ -546,7 +589,8 @@ export function useAccessController(product = false, localOwner?: string) {
     if (owner.current !== activeOwner.current || clearingStore.current || bindingBusy.current || legacyPending.current || disconnectMode.current || product && !session.current.state.confirmed || !original.current || !viewReady || busy || loginBusy || loginAttempt.current) return;
     const nonce = Crypto.randomUUID(); if (!retrieval.current.start(nonce)) return;
     restorationOnly.current = true;
-    startRestoration('Earlier export recovery.', nonce);
+    const developmentPause = developmentAllowed.current && developmentCheckpointRef.current === 'recovery-armed';
+    startRestoration('Earlier export recovery.', nonce, developmentPause);
   }
   function requestLegacyRecovery(fingerprint: string, acceptedCurrent: ViewPreferences | null = null) {
     if (!product || !legacyRecoveryAvailable || !legacyPending.current || fingerprint !== legacyFingerprint.current ||
@@ -641,6 +685,7 @@ export function useAccessController(product = false, localOwner?: string) {
     preBackupPauseEnabled.current = !preBackupPauseEnabled.current; setPreBackupPause(preBackupPauseEnabled.current);
   }
   function continueTestRetrieval(nonce: string) {
+    if (developmentCheckpointRef.current?.endsWith('-paused')) return;
     if (!testPaused.current || restoring.current || !retrieval.current.owns(nonce) || retrieval.current.state.phase !== 'loading') return;
     const beforeBackup = viewPhase.current === 'backup' && run.current?.phase === 'reset';
     const afterReset = !viewPhase.current && run.current?.phase === 'columns';
@@ -720,9 +765,11 @@ export function useAccessController(product = false, localOwner?: string) {
           if (product && !foreground.current) { finish('App interrupted after journaling.', nonce); return; }
           if(run.current) run.current.accountLabel = captured.accountLabel;
           viewPhase.current = 'backup';
-          if (preBackupPauseEnabled.current) {
+          const developmentPause = developmentAllowed.current && developmentCheckpointRef.current === 'journal-armed';
+          if (preBackupPauseEnabled.current || developmentPause) {
             reading.current = false; command.current = '';
             testPaused.current = true; setPaused(nonce);
+            if (developmentPause) checkpoint('journal-paused');
             if (timeout.current) clearTimeout(timeout.current); timeout.current = null;
             setStatus('Test checkpoint: original view journaled before backup changes. Continue or cancel.');
             return;
@@ -859,5 +906,5 @@ export function useAccessController(product = false, localOwner?: string) {
   return { ...information.public, retrieveMedical: async () => {
     try { return await information.public.retrieveMedical(); }
     catch(error) { session.current.invalidate(); syncConnection(); throw error; }
-  }, beginGuidedFlightConnection, resumeGuidedFlightConnection, endGuidedFlightConnection, captureLoadState, canGoBack, backWithinProvider, legacyChoice, requestLegacyRecovery, legacyRecoveryAvailable, clearing, clearNotice, proofNotice, clearLocalSession, sessionClearingAvailable, sessionProofAvailable, binding, legacyRecovery: legacyPending.current, loginNotice, disconnectNotice, credentialNotice, startDisconnect, checkDisconnection, disconnecting, disconnectedAt, refreshRecovery, connection, checkConnection, connect, suspendBrowserForOwnerSwitch, dismissLogin, confirmConnection, lastSuccessfulCaptureAt, result, browser, showRun, setShowRun, showWindow, setShowWindow, viewReady, recovery, original, editingLogin, loginBusy, username, setUsername, password, setPassword, saveLogin, setEditingLogin, providerExpanded, visible, status, busy, openCaptureLab, pauseEnabled, toggleTestPause, preBackupPause, togglePreBackupPause, from, setFrom, to, setTo, saving, restoring, navigate, setVisible, cancelRetrieval, retrieve, hasLogin, useLogin, forgetLogin, recoverView, paused, continueTestRetrieval, viewStrategy, url, toggleProviderPage, browserActive, snapshot: product && owner.current !== localOwner ? null : snapshot, completedFlightSource: product && owner.current === localOwner && !busy && !recovery ? completedFlightSource : null, setProviderExpanded, web, currentUrl, retrieval, loaded, source, generation, epoch };
+  }, developmentCheckpoint, armDevelopmentJournalCheckpoint: () => armDevelopmentCheckpoint('journal'), armDevelopmentRecoveryCheckpoint: () => armDevelopmentCheckpoint('recovery'), beginGuidedFlightConnection, resumeGuidedFlightConnection, endGuidedFlightConnection, captureLoadState, canGoBack, backWithinProvider, legacyChoice, requestLegacyRecovery, legacyRecoveryAvailable, clearing, clearNotice, proofNotice, clearLocalSession, sessionClearingAvailable, sessionProofAvailable, binding, legacyRecovery: legacyPending.current, loginNotice, disconnectNotice, credentialNotice, startDisconnect, checkDisconnection, disconnecting, disconnectedAt, refreshRecovery, connection, checkConnection, connect, suspendBrowserForOwnerSwitch, dismissLogin, confirmConnection, lastSuccessfulCaptureAt, result, browser, showRun, setShowRun, showWindow, setShowWindow, viewReady, recovery, original, editingLogin, loginBusy, username, setUsername, password, setPassword, saveLogin, setEditingLogin, providerExpanded, visible, status, busy, openCaptureLab, pauseEnabled, toggleTestPause, preBackupPause, togglePreBackupPause, from, setFrom, to, setTo, saving, restoring, navigate, setVisible, cancelRetrieval, retrieve, hasLogin, useLogin, forgetLogin, recoverView, paused, continueTestRetrieval, viewStrategy, url, toggleProviderPage, browserActive, snapshot: product && owner.current !== localOwner ? null : snapshot, completedFlightSource: product && owner.current === localOwner && !busy && !recovery ? completedFlightSource : null, setProviderExpanded, web, currentUrl, retrieval, loaded, source, generation, epoch };
 }

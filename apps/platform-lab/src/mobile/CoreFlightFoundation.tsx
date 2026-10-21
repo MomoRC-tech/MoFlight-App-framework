@@ -31,7 +31,7 @@ import { retrievalFailureHint } from '../vereinsflieger/connection-state';
 
 export interface FlightLoadResult { added: number; changed: number; pending: number; from: string; to: string;
   verifiedConnection?: OwnFlightConnectionEvidence; medicalStatus?: MedicalJobStatus }
-export function CoreFlightFoundation({ close, startUpdate = false }: {close: (result?: FlightLoadResult) => void; startUpdate?: boolean}) {
+export function CoreFlightFoundation({ close, startUpdate = false, developmentRecoveryCheckpoints = false }: {close: (result?: FlightLoadResult) => void; startUpdate?: boolean; developmentRecoveryCheckpoints?: boolean}) {
   const diagnosis = useRef<DiagnosticOperation | null>(null);
   const [requestedUpdate,setRequestedUpdate] = useState(startUpdate);
   const registry = useRef<RealOwnerRegistry | null>(null), alive = useRef(true), lock = useRef(false);
@@ -117,7 +117,7 @@ export function CoreFlightFoundation({ close, startUpdate = false }: {close: (re
   useEffect(()=>{
     if(requestedUpdate&&!loading&&!lease&&!error&&!setupLease&&!setupStarted.current){setupStarted.current=true;void createFreshOwner();}
   },[requestedUpdate,loading,lease,error,setupLease]);
-  if(lease&&registry.current)return <OwnerFlightLibrary key={lease.leaseId} lease={lease} registry={registry.current} close={close} startUpdate={requestedUpdate} takeInitialRepository={takeInitialRepository} diagnosis={diagnosis}/>;
+  if(lease&&registry.current)return <OwnerFlightLibrary developmentRecoveryCheckpoints={developmentRecoveryCheckpoints} key={lease.leaseId} lease={lease} registry={registry.current} close={close} startUpdate={requestedUpdate} takeInitialRepository={takeInitialRepository} diagnosis={diagnosis}/>;
   return <SafeAreaView style={{flex:1,backgroundColor:colors.background}}><ScrollView contentContainerStyle={{padding:12,gap:10}}>
     <View style={{width:'100%',maxWidth:520,alignSelf:'center',gap:10}}>
       <Section title="Deine Flüge" icon="flight-paper-plane"/>
@@ -136,8 +136,8 @@ export function CoreFlightFoundation({ close, startUpdate = false }: {close: (re
 
 type WaitingSource = {request:{from:string;to:string};resolve:(source:RealFlightSourceInput)=>void;reject:(error:Error)=>void;started:boolean;checking:boolean;seenBusy:boolean;paused:boolean;resumeRequired:boolean;suppressReview:boolean;generation:number;timer:ReturnType<typeof setTimeout>|null;signal:AbortSignal;abort:()=>void};
 type LoadStage = 'sign-in'|'verify'|'flights'|'save'|'medical'|'done';
-function OwnerFlightLibrary({lease,registry,close,startUpdate,takeInitialRepository,diagnosis}:{lease:RealOwnerLease;registry:RealOwnerRegistry;close:(result?:FlightLoadResult)=>void;startUpdate:boolean;takeInitialRepository:()=>RealFlightRepositorySession|null;diagnosis:React.MutableRefObject<DiagnosticOperation|null>}) {
-  const c=useAccessController(true,lease.ownerId), controller=useRef(c);controller.current=c;
+function OwnerFlightLibrary({lease,registry,close,startUpdate,takeInitialRepository,diagnosis,developmentRecoveryCheckpoints}:{developmentRecoveryCheckpoints:boolean;lease:RealOwnerLease;registry:RealOwnerRegistry;close:(result?:FlightLoadResult)=>void;startUpdate:boolean;takeInitialRepository:()=>RealFlightRepositorySession|null;diagnosis:React.MutableRefObject<DiagnosticOperation|null>}) {
+  const c=useAccessController(true,lease.ownerId,developmentRecoveryCheckpoints), controller=useRef(c);controller.current=c;
   const alive=useRef(true),foreground=useRef(AppState.currentState==='active'),lock=useRef(false),waiting=useRef<WaitingSource|null>(null);
   const reviewGeneration=useRef(0),directAdmission=useRef<CoreFlightReviewAdmission|null>(null),invalidatedRetrievals=useRef(new Set<string>());
   const [busy,setBusy]=useState(false),[providerOpen,setProviderOpen]=useState(false),[message,setMessage]=useState(''),[failed,setFailed]=useState(false);
@@ -499,7 +499,7 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,takeInitialReposit
         <Action secondary disabled={busy} onPress={()=>void run(async()=>{await showRestoreResult(await restoreRealFlightBackup(scope,gate));})}>Sicherung dieser Bibliothek wiederherstellen</Action>
       </Card>}
     </View></ScrollView>
-    <ProviderConnection controller={c} open={providerOpen} guided={automatic.current} progress={progress} loginEnabled={!automatic.current||(busy&&!loginPaused&&!failed)} closeDisabled={automatic.current&&busy&&(loadStage==='save'||c.saving||c.restoring.current||c.informationSaving)} purpose="own-flight-library" close={()=>{
+    <ProviderConnection developmentRecoveryCheckpoints={developmentRecoveryCheckpoints} controller={c} open={providerOpen} guided={automatic.current} progress={progress} loginEnabled={!automatic.current||(busy&&!loginPaused&&!failed)} closeDisabled={automatic.current&&busy&&(loadStage==='save'||c.saving||c.restoring.current||c.informationSaving)} purpose="own-flight-library" close={()=>{
       if(automatic.current){
         if(waiting.current){interruption.current='cancelled';abandonSource('Source closed.');c.dismissLogin();return;}
         if(busy){if(c.informationBusy)c.stopInformation();return;}

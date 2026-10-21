@@ -28,6 +28,8 @@
 
 Sources: [theme](../../../apps/platform-lab/src/mobile/theme.tsx), [MobileApp](../../../apps/platform-lab/src/mobile/MobileApp.tsx), [Dashboard](../../../apps/platform-lab/src/mobile/Dashboard.tsx), [AppHeader](../../../apps/platform-lab/src/mobile/AppHeader.tsx), [ProviderConnection](../../../apps/platform-lab/src/mobile/ProviderConnection.tsx), [MedicalStatus](../../../apps/platform-lab/src/mobile/MedicalStatus.tsx), [ProfileSettings](../../../apps/platform-lab/src/mobile/ProfileSettings.tsx) and [SeasonRing](../../../apps/platform-lab/src/mobile/SeasonRing.tsx).
 
+The Development entry for the own-flight library additionally exposes two one-shot recovery test pauses in the same owner-scoped controller: after the original view is saved locally, and after matching recovery admission before replay. Their fixed phase labels and actions sit outside the retained browser/body branches, with their measured height reserved above the browser. Ordinary login, update and backup routes omit these controls. Home, dismissal, owner change and unmount revoke them; resumption requires the existing explicit recovery action. These are development verification controls, not user-facing recovery choices or evidence of native acceptance.
+
 ## State presentation
 
 | State | Current treatment / meaning |

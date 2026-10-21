@@ -180,7 +180,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ConnectionSummary
 
 ## CoreFlightFoundation.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `f92feace4c7e8d88f5b40865de03f5313d82528780908199bd487ddfd50d256e`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `275924d6ef2cb87a72f1308519b8ff1deac62b291d105fe62a67872d73334b6e`.
 
 ### Geometry / opacity declarations
 
@@ -337,7 +337,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MedicalStatus.tsx
 
 ## MobileApp.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `b09fa38f4264ae4f53d4d1086293955dfd3ebfc925d974214f4a97ad9a099994`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `b98185bcea2cc906b5bdbc6dabfbdf3aa1a857dd25402dc365d4eee8dad6625d`.
 
 ### Literal colors
 
@@ -534,22 +534,22 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProfileSettings.t
 
 ## ProviderConnection.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProviderConnection.tsx](../../../apps/platform-lab/src/mobile/ProviderConnection.tsx); normalized SHA-256 `5a6ee03e61ec57fb0a7198183f0a9866aa14818cfe80c1afd5d617f934380fb1`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProviderConnection.tsx](../../../apps/platform-lab/src/mobile/ProviderConnection.tsx); normalized SHA-256 `7bf458ea7f9cd7b45b85b6720ced59f227e486c885fc53716dce2e2485478b7e`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#102d47aa` | 181 |
+| `#102d47aa` | 191 |
 | `#ffb39e` | 26 |
-| `white` | 184 |
+| `white` | 194 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
 | `fontSize: 12` | 26 |
-| `fontWeight: '600'` | 57, 69, 85 |
+| `fontWeight: '600'` | 60, 79, 95 |
 | `fontWeight: '700'` | 26 |
 | `lineHeight: 15` | 26 |
 
@@ -557,30 +557,32 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProviderConnectio
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 10` | 191 |
-| `borderRadius: 14` | 181 |
-| `borderRadius: 7` | 183 |
-| `borderRadius: 8` | 182 |
-| `borderWidth: 1` | 191 |
-| `borderWidth: 2` | 183 |
-| `gap: 10` | 190 |
-| `gap: 12` | 186 |
-| `gap: 6` | 62, 72, 187 |
-| `height: 12` | 183 |
-| `height: 16` | 182 |
-| `height: 48` | 181 |
-| `maxWidth: 520` | 190 |
-| `maxWidth: 800` | 184 |
-| `minHeight: 48` | 189, 191 |
-| `minHeight: 68` | 186 |
-| `minWidth: 16` | 182 |
-| `opacity: 0` | 185 |
-| `padding: 10` | 186, 187, 190, 191 |
-| `paddingHorizontal: 8` | 189 |
-| `paddingVertical: 10` | 189 |
-| `width: '100%'` | 184, 190 |
-| `width: 18` | 183 |
-| `width: 48` | 181 |
+| `borderRadius: 10` | 201 |
+| `borderRadius: 14` | 191 |
+| `borderRadius: 7` | 193 |
+| `borderRadius: 8` | 192 |
+| `borderWidth: 1` | 201 |
+| `borderWidth: 2` | 193 |
+| `gap: 10` | 200 |
+| `gap: 12` | 196 |
+| `gap: 4` | 63, 65 |
+| `gap: 6` | 72, 82, 197 |
+| `height: 12` | 193 |
+| `height: 16` | 192 |
+| `height: 48` | 191 |
+| `maxWidth: 520` | 200 |
+| `maxWidth: 800` | 194 |
+| `minHeight: 48` | 199, 201 |
+| `minHeight: 68` | 196 |
+| `minWidth: 16` | 192 |
+| `opacity: 0` | 195 |
+| `padding: 10` | 196, 197, 200, 201 |
+| `paddingHorizontal: 12` | 63 |
+| `paddingHorizontal: 8` | 199 |
+| `paddingVertical: 10` | 199 |
+| `width: '100%'` | 194, 200 |
+| `width: 18` | 193 |
+| `width: 48` | 191 |
 
 ## RawCaptureReview.tsx
 

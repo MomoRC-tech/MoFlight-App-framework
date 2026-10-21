@@ -31,6 +31,7 @@ function fixture(width = 390, fontScale = 1) {
   const library = { flights: [flight], books: [{ id: 'synthetic-book', name: 'Synthetic book' }], bookId: 'synthetic-book', pending: 0, displayName: 'Synthetic pilot' };
   const controller = { visible: false, informationCaptures: [], connection: { phase: 'unknown' }, refreshRecovery: () => calls.push('refresh-recovery'), dismissLogin() {}, backWithinProvider: () => false, suspendBrowserForOwnerSwitch: () => true };
   const calls: string[] = [];
+  const coreRoutes: {startUpdate:boolean;developmentRecoveryCheckpoints:boolean}[] = [];
   const readEnabled:boolean[]=[];
   let suspended = false;
   let lastLoad:any=null, ownView:any=null, appStateListener:((state:string)=>void)|undefined;
@@ -76,7 +77,7 @@ function fixture(width = 390, fontScale = 1) {
     assert.ok(name in modules, name); return modules[name];
   } });
   let tree: Element;
-  function render() { index = 0; tree = (exports.Shell as (props:unknown)=>Element)({lastLoad,onCoreFlights:(startUpdate:boolean)=>calls.push(startUpdate?'core-load':'core-library-route')}); effects.splice(0).forEach(effect => effect()); return tree; }
+  function render() { index = 0; tree = (exports.Shell as (props:unknown)=>Element)({lastLoad,onCoreFlights:(startUpdate=false,developmentRecoveryCheckpoints=false)=>{coreRoutes.push({startUpdate,developmentRecoveryCheckpoints});calls.push(startUpdate?'core-load':'core-library-route');}}); effects.splice(0).forEach(effect => effect()); return tree; }
   function nodes() {
     const found: Element[] = [];
     const visit = (value: unknown) => { if (value && typeof value === 'object' && 'children' in value) { const node = value as Element; found.push(node); node.children.forEach(visit); if (node.type === 'FlatList') visit(node.props.ListHeaderComponent); } };
@@ -95,7 +96,7 @@ function fixture(width = 390, fontScale = 1) {
     render();
   }
   render(); render();
-  return { render, nodes, find, resize:(nextWidth:number,nextFontScale:number)=>{width=nextWidth;fontScale=nextFontScale;render();}, headers, parent, press, openOwnDetail, flight, library, controller, calls, readEnabled, suspended: () => suspended, hardwareBack: () => hardwareBack!(),
+  return { render, nodes, find, resize:(nextWidth:number,nextFontScale:number)=>{width=nextWidth;fontScale=nextFontScale;render();}, headers, parent, press, openOwnDetail, flight, library, controller, calls, coreRoutes, readEnabled, suspended: () => suspended, hardwareBack: () => hardwareBack!(),
     showLoad:(result:any,view:any)=>{lastLoad=result;ownView=view;render();render();},
     appState:(state:string)=>{appStateListener?.(state);render();} };
 }
@@ -334,11 +335,25 @@ test('provider diagnostics reuses the retained controller and normal entry remov
   assert.deepEqual(f.calls, ['core-library-route']);
 });
 
+test('ordinary login update and backup routes do not enable development recovery checkpoints', () => {
+  const f = fixture();
+  f.find('ConnectionSummary').props.onOpen();
+  f.find('ConnectionSummary').props.onUpdate();
+  f.press('Pressable', 'Profil & Einstellungen öffnen');
+  f.find('ProfileSettings').props.onBackup();
+  assert.deepEqual(f.coreRoutes, [
+    {startUpdate:false,developmentRecoveryCheckpoints:false},
+    {startUpdate:true,developmentRecoveryCheckpoints:false},
+    {startUpdate:false,developmentRecoveryCheckpoints:false},
+  ]);
+});
+
 test('core-library route requires safe browser suspension and keeps the main profile draft in its shell', () => {
   const f=fixture();f.press('Pressable','Profil & Einstellungen öffnen');
   f.find('ProfileSettings').props.onNameDraftChange('Retained draft');f.render();f.find('ProfileSettings').props.onTools();f.render();
   f.controller.suspendBrowserForOwnerSwitch=()=>false;f.find('DevelopmentHub').props.onCoreFlights();assert.deepEqual(f.calls,[]);
   f.controller.suspendBrowserForOwnerSwitch=()=>true;f.find('DevelopmentHub').props.onCoreFlights();assert.deepEqual(f.calls,['core-library-route']);
+  assert.deepEqual(f.coreRoutes,[{startUpdate:false,developmentRecoveryCheckpoints:true}]);
   f.render();f.headers().at(-1)!.props.back();f.render();assert.equal(f.find('ProfileSettings').props.nameDraft,'Retained draft');
 });
 
