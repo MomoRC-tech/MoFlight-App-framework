@@ -1,7 +1,20 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { FlightDiagnostics } from '../../apps/platform-lab/src/vereinsflieger/flight-diagnostics';
+import { FlightDiagnostics, timeFlightStage } from '../../apps/platform-lab/src/vereinsflieger/flight-diagnostics';
+import { diagnosticJournal } from '../../apps/platform-lab/src/diagnostics';
 import { nodeDriver } from './sqlite-driver';
+
+test('existing timed flight stages feed the support operation without capturing results or errors',async()=>{
+  diagnosticJournal.clear();const operation=diagnosticJournal.begin('update-flights');
+  const privateResult={name:'private@example.test',accountId:'secret-owner'};
+  assert.equal(await timeFlightStage('source-retrieval',async()=>privateResult),privateResult);
+  const error=new Error('private@example.test token-secret');
+  await assert.rejects(timeFlightStage('source-review',async()=>{throw error;}),value=>value===error);
+  operation.finish('failed','operation-failed');
+  assert.deepEqual(diagnosticJournal.snapshot()[0]!.stages.map(stage=>[stage.name,stage.calls,stage.failures]),[['source-retrieval',1,0],['source-review',1,1]]);
+  assert.ok(!diagnosticJournal.export().includes('private'));assert.ok(!diagnosticJournal.export().includes('secret'));
+  diagnosticJournal.clear();
+});
 
 test('diagnostic counters preserve results/errors and keep nested timings inclusive and detached',async()=>{
   let now=0;const metrics=new FlightDiagnostics(()=>now),before=metrics.snapshot();

@@ -10,12 +10,18 @@ import re
 from pathlib import Path
 
 from android_smoke import Smoke, PACKAGE
-from android_mobile_ui_smoke import launch
 from android_mobile_width_matrix import bounds, override, finish
 
 AVD = 'MoFlight_Synthetic_API37'
 PROFILE = 'Profil & Einstellungen öffnen'
 BACK = 'Zur vorherigen App-Ansicht'
+
+
+def launch(smoke):
+    smoke.shell('am', 'force-stop', PACKAGE)
+    smoke.shell('am', 'start', '-W', '-n', f'{PACKAGE}/.MainActivity')
+    smoke.find(PROFILE, exact=True, attempts=40)
+    smoke.find('Übersicht', exact=True, attempts=40)
 
 
 def open_diagnostics(smoke):
@@ -30,7 +36,7 @@ def report(smoke):
     return json.loads(value)
 
 
-def execute(smoke):
+def execute(smoke, share_only=False):
     assert smoke.shell('getprop', 'ro.kernel.qemu') == '1'
     assert smoke.adb('emu', 'avd', 'name').stdout.splitlines()[0].strip() == AVD
     smoke.emulator = True
@@ -40,7 +46,7 @@ def execute(smoke):
     original_density = smoke.shell('wm', 'density')
     original_scale = smoke.shell('settings', 'get', 'system', 'font_scale')
     try:
-        for width, height, scale in [(360, 900, '1.0'), (390, 900, '1.0'), (600, 1100, '1.0'), (360, 900, '1.4')]:
+        for width, height, scale in ([] if share_only else [(360, 900, '1.0'), (390, 900, '1.0'), (600, 1100, '1.0'), (360, 900, '1.4')]):
             smoke.shell('wm', 'size', f'{width}x{height}')
             smoke.shell('wm', 'density', '160')
             smoke.shell('settings', 'put', 'system', 'font_scale', scale)
@@ -48,13 +54,14 @@ def execute(smoke):
             open_diagnostics(smoke)
             for label in ['Diagnosebericht teilen', 'Diagnosejournal leeren']:
                 node = smoke.find(label, exact=True, scroll=True)
+                assert node.get('enabled') == 'true', 'Completed local read should be exportable'
                 x1, y1, x2, y2 = bounds(node)
                 assert 0 <= x1 < x2 <= width and 0 <= y1 < y2 <= height
                 assert y2-y1 >= 48 and x2-x1 <= 520
             smoke.record(f'diagnostics-{width}-font-{scale}')
             smoke.report['checks'][-1]['viewport'] = {'width_dp': width, 'height_dp': height, 'density_dpi': 160, 'font_scale': float(scale)}
             smoke.tap(BACK)
-            smoke.find('Lokales Demoprofil', scroll=True)
+            smoke.find('Lokales Demoprofil', scroll=True, up=False)
 
         launch(smoke)
         open_diagnostics(smoke)
@@ -62,20 +69,27 @@ def execute(smoke):
         assert 1 <= len(before['entries']) <= 5
         assert all(entry['action'] == 'read-flights' for entry in before['entries'])
         # Open/cancel only. Never choose a recipient or invoke a send action.
-        smoke.tap('Diagnosebericht teilen', scroll=True)
+        smoke.tap_node(smoke.find('Diagnosebericht teilen', exact=True, scroll=True, up=False))
         window = smoke.shell('dumpsys', 'window', 'windows')
         assert any(name in window for name in ['ChooserActivity', 'ResolverActivity', 'intentresolver']), 'OS share chooser did not open'
+        # Wait for visible OS content, rather than capturing the opening transition.
+        smoke.find('Copy text', exact=True, attempts=12)
         smoke.record('explicit-os-share-chooser')
         smoke.shell('input', 'keyevent', 'KEYCODE_BACK')
         smoke.find('Diagnosejournal leeren', scroll=True)
         smoke.record('share-cancel-retains-diagnostics')
-        retained = report(smoke)['entries'][-1]
+        if share_only:
+            return
+        retained = [{key: value for key, value in entry.items() if key != 'sequence'} for entry in report(smoke)['entries'][-2:]]
         launch(smoke)
         open_diagnostics(smoke)
         after = report(smoke)
-        assert any(entry['sequence'] == retained['sequence'] and entry['action'] == retained['action'] for entry in after['entries']), 'Last operation lost on process restart'
+        restored = [{key: value for key, value in entry.items() if key != 'sequence'} for entry in after['entries']]
+        for expected in retained:
+            assert expected in restored, 'Last operations lost on process restart'
+            restored.remove(expected)
         smoke.record('journal-retained-after-process-restart')
-        smoke.tap('Diagnosejournal leeren', scroll=True)
+        smoke.tap_node(smoke.find('Diagnosejournal leeren', exact=True, scroll=True, up=False))
         smoke.find('Noch keine Diagnoseeinträge')
         smoke.record('clear-only-diagnostic-journal')
     finally:
@@ -94,10 +108,11 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--serial', required=True)
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--share-only', action='store_true', help='Recheck only visible OS sharing/cancellation against the same APK.')
     args = parser.parse_args()
     smoke = Smoke(args.output, serial=args.serial, expected_avd=AVD)
     try:
-        execute(smoke)
+        execute(smoke, args.share_only)
         finish(smoke, 'passed')
     except Exception as error:
         finish(smoke, 'failed', error)
