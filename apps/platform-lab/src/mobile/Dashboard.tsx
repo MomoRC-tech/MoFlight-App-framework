@@ -8,6 +8,11 @@ import { formatReportedMinutes, summarizeRealFlights } from './real-flight-stati
 import { SeasonRing } from './SeasonRing';
 import { seasonRingSlices } from './season-model';
 import { SymbolIcon } from './SymbolIcon';
+import { createProcessedSelector } from './processed-result';
+import type { RealFlightListItem } from '../vereinsflieger/real-flight-library';
+
+const emptyStatistics = summarizeRealFlights([]);
+const emptySlices: ReturnType<typeof seasonRingSlices> = [];
 
 const sunset = require('../../assets/aviation/gliding-sunset.jpg');
 const windsock = require('../../assets/aviation/windsock.jpg');
@@ -18,16 +23,24 @@ interface Props {
 }
 export function Dashboard({ ownFlights, ownFlightPhase, pending, width, fontScale, onPaper, onAi, onFlights, onClub, onStatus }: Props) {
   const year = new Date().getFullYear();
-  const real = useMemo(() => ownFlights?.flights ?? [], [ownFlights]);
-  const statistics = useMemo(() => summarizeRealFlights(real, year), [real, year]);
+  const scope = ownFlights ? JSON.stringify([ownFlights.snapshot.ownerId, ownFlights.snapshot.storeId, ownFlights.snapshot.account?.accountRef]) : null;
+  const processFlights = useMemo(() => createProcessedSelector(({ flights, year }: { flights: RealFlightListItem[]; year: number }) => {
+    const statistics = summarizeRealFlights(flights, year);
+    const latest = [...flights].filter(f => f.facts.assessment.date.state === 'parsed').sort((a,b) => (b.facts.assessment.date.value ?? '').localeCompare(a.facts.assessment.date.value ?? ''))[0];
+    return { statistics, latest, countSlices: seasonRingSlices(statistics.season.aircraft, 'count'), timeSlices: seasonRingSlices(statistics.season.aircraft, 'knownMinutes') };
+  }), []);
+  const processRetrieval = useMemo(() => createProcessedSelector(planFlightRetrieval), []);
+  const processed = processFlights(scope, ownFlights ? { flights: ownFlights.flights, year } : null);
+  const statistics = processed?.statistics ?? emptyStatistics;
   const season = statistics.season;
   const time = season.knownDurationCount ? formatReportedMinutes(season.knownMinutes) : '—';
   const showRings = fontScale <= 1.3 && String(season.count).length <= 5 && time.length <= 5;
-  const retrieval = useMemo(() => ownFlights ? planFlightRetrieval(ownFlights.snapshot.savedRetrievals) : null, [ownFlights]);
+  const retrieval = processRetrieval(scope, ownFlights?.snapshot.savedRetrievals ?? null);
+  // Time-dependent labels still evaluate the current clock; cached flight work does not.
   const freshness = dataFreshness(retrieval?.lastSuccessfulRetrievalAt ?? null, ownFlightPhase === 'ready' ? 'ready' : ownFlightPhase === 'failed' ? 'failed' : 'loading');
-  const latest = useMemo(() => [...real].filter(f => f.facts.assessment.date.state === 'parsed').sort((a,b) => (b.facts.assessment.date.value ?? '').localeCompare(a.facts.assessment.date.value ?? ''))[0], [real]);
-  const countSlices = useMemo(() => seasonRingSlices(season.aircraft, 'count'), [season]);
-  const timeSlices = useMemo(() => seasonRingSlices(season.aircraft, 'knownMinutes'), [season]);
+  const latest = processed?.latest;
+  const countSlices = processed?.countSlices ?? emptySlices;
+  const timeSlices = processed?.timeSlices ?? emptySlices;
   const largeText = fontScale > 1.3;
   const multiColumn = width >= 840 && !largeText;
   const pairWidth = multiColumn ? (Math.min(width - 20, 920) - 8) / 2 : Math.min(width - 20, 430);

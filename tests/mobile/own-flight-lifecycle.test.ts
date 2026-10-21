@@ -1,3 +1,4 @@
+import * as processedResults from '../../apps/platform-lab/src/mobile/processed-result.ts';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -21,7 +22,7 @@ function host() {
   };
   const exports:any={};runInNewContext(source,{exports,require:(name:string)=>name==='react'?react:name==='react-native'?{
     AppState:{currentState:'active',addEventListener:(_:string,fn:typeof listener)=>{listener=fn;return{remove(){}};}},
-  }:reader});
+  }:name==='./processed-result'?processedResults:reader});
   let result:any;
   function render(){index=0;result=exports.useOwnFlights(f.ports,active,revision);effects.splice(0).forEach(fn=>fn());return result;}
   async function flush(){for(let i=0;i<3;i++){await new Promise<void>(done=>{setImmediate(done);});render();}return result;}
@@ -60,4 +61,25 @@ test('a failed local read removes prior content and explicit retry returns the c
   h.session.service.readStored=async()=>{throw new Error('Synthetic temporary native read failure');};
   h.reload();let state=await h.flush();assert.equal(state.phase,'failed');assert.equal(state.view,null);
   h.session.service.readStored=read;await state.reload();state=h.render();assert.equal(state.phase,'ready');assert.equal(state.view.flights.length,3);h.unmount();
+});
+
+test('identical verified reads reuse the processed view and metadata changes retain flight references', async () => {
+  const h=host(); const first=(await h.flush()).view;
+  h.session.service.readStored=async()=>structuredClone({snapshot:h.snapshot,flights:h.flights});
+  h.reload(); let state=await h.flush(); assert.equal(state.view,first);
+  h.background(); assert.equal(h.render().view,null); h.foreground();
+  state=await h.flush(); assert.equal(state.view,first);
+  h.session.service.readStored=async()=>({...structuredClone({snapshot:h.snapshot,flights:h.flights}),snapshot:{...structuredClone(h.snapshot),generation:3}});
+  h.reload(); state=await h.flush(); assert.notEqual(state.view,first); assert.equal(state.view.flights,first.flights);
+  h.session.service.readStored=async()=>{const result=structuredClone({snapshot:h.snapshot,flights:h.flights});result.flights[0]!.facts.assessment.durations.flight={state:'known',minutes:999,evidence:[]};return result;};
+  h.reload(); state=await h.flush(); assert.notEqual(state.view.flights,first.flights); assert.equal(state.view.flights[0].facts.assessment.durations.flight.minutes,999);
+  h.unmount();
+});
+
+test('a verified owner change never reuses previous owner branches even with identical flights', async () => {
+  const h=host(); const first=(await h.flush()).view;
+  h.session.ownerId='owner-b';h.session.storeId='store-b';
+  h.session.service.readStored=async()=>({snapshot:{...h.snapshot,ownerId:'owner-b',storeId:'store-b'},flights:structuredClone(h.flights)});
+  h.setActive(false); assert.equal(h.render().view,null);h.setActive(true);
+  const state=await h.flush();assert.equal(state.view.snapshot.ownerId,'owner-b');assert.notEqual(state.view.flights,first.flights);h.unmount();
 });

@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import type { useAccessController } from '../vereinsflieger/use-access-controller';
 import { Action, Card, Label, Section } from './theme';
 import { connectionGuidance } from './connection-guidance';
 import { dataFreshness } from './data-freshness';
 import type { OwnFlightView } from './own-flight-reader';
+import { createProcessedSelector } from './processed-result';
 import { planFlightRetrieval } from '../vereinsflieger/retrieval-policy';
 
 /** Read-only summary; all entry points open the same retained connection flow. */
@@ -11,8 +12,10 @@ export function ConnectionSummary({ controller, onOpen, onUpdate, ownFlights, ph
   controller: ReturnType<typeof useAccessController>; onOpen: () => void; onUpdate?: () => void;
   ownFlights?: OwnFlightView | null; phase?: 'loading' | 'ready' | 'missing' | 'failed';
 }) {
-  const plan = planFlightRetrieval(ownFlights?.snapshot.savedRetrievals ?? []);
-  const freshness = dataFreshness(plan.lastSuccessfulRetrievalAt, phase === 'missing' ? 'ready' : phase);
+  const processRetrieval = useMemo(() => createProcessedSelector(planFlightRetrieval), []);
+  const scope = ownFlights ? JSON.stringify([ownFlights.snapshot.ownerId, ownFlights.snapshot.storeId, ownFlights.snapshot.account?.accountRef]) : null;
+  const plan = processRetrieval(scope, ownFlights?.snapshot.savedRetrievals ?? null);
+  const freshness = dataFreshness(plan?.lastSuccessfulRetrievalAt ?? null, phase === 'missing' ? 'ready' : phase);
   return <Card>
     <Section title="Deine Flüge" icon="flight-paper-plane" />
     {ownFlights ? <Label>{ownFlights.flights.length} Flüge auf diesem Gerät gespeichert</Label> : <Label>Deine Flüge und Saisonübersicht an einem Ort.</Label>}

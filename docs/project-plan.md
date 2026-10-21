@@ -362,7 +362,7 @@ Implementation and acceptance are separate. Use the current delivery/order above
 
 ### 2.1 Acceptance traceability
 
-Returning Start/Fluge navigation (#45): one foreground verified flight projection now serves both screens; unchanged statistics/rings reuse derived data. [Host regression evidence and pending native/phone responsiveness](verification/2026-10-21-simple-flight-loading.md#unchanged-tab-navigation-follow-up--45) cover this bounded follow-up; broader statistics/platform acceptance remains open.
+Returning Start/Fluge navigation (#45): one foreground verified flight projection now serves both screens; unchanged statistics/rings reuse derived data. [Host regression evidence and pending native/phone responsiveness](verification/2026-10-21-simple-flight-loading.md#unchanged-tab-navigation-follow-up--45) cover this bounded follow-up; broader statistics/platform acceptance remains open. Generic content-aware result reuse now also covers cloned identical reads and independent metadata changes; [verification and remaining native gates](verification/2026-10-21-simple-flight-loading.md#generic-processed-result-reuse---45).
 
 For first-use/returning flight loading under #22/#2/#19/#20, the [combined-flow report](verification/2026-10-21-simple-flight-loading.md) links screen orchestration, provider-controller, SQLite service and committed-library freshness tests to zero-book setup, retained/expired/wrong account, cancellation/backgrounding, unknown/conflicting data, recovery and idempotent save. Source-specific Android/live/offline evidence and remaining acceptance stay in that report.
 

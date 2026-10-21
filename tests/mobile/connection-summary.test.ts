@@ -1,3 +1,4 @@
+import * as processedResults from '../../apps/platform-lab/src/mobile/processed-result.ts';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -14,8 +15,8 @@ const source=ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/sr
 function render(ownFlights:any,phase='ready'){
   const calls:string[]=[],exports:any={};
   const react={createElement:(type:string,props:any,...children:any[]):Element=>({type,props:props??{},children:children.flat(Infinity)})};
-  const modules:Record<string,any>={react:{default:react},'./theme':{Action:'Action',Card:'Card',Label:'Label',Section:'Section'},
-    './data-freshness':{dataFreshness},'../vereinsflieger/retrieval-policy':{planFlightRetrieval},'./connection-guidance':{connectionGuidance}};
+  const modules:Record<string,any>={react:{default:react,useMemo:(fn:()=>unknown)=>fn()},'./theme':{Action:'Action',Card:'Card',Label:'Label',Section:'Section'},
+    './processed-result':processedResults,'./data-freshness':{dataFreshness},'../vereinsflieger/retrieval-policy':{planFlightRetrieval},'./connection-guidance':{connectionGuidance}};
   runInNewContext(source,{exports,require:(name:string)=>{assert.ok(name in modules,name);return modules[name];}});
   const tree:Element=exports.ConnectionSummary({ownFlights,phase,controller:{connection:{phase:'unknown'},snapshot:{retrievedAt:'2026-10-21T00:00:00.000Z'}},onUpdate:()=>calls.push('load'),onOpen:()=>calls.push('options')});
   const nodes:Element[]=[];function visit(v:any){if(v&&typeof v==='object'&&'children'in v){nodes.push(v);v.children.forEach(visit);}}visit(tree);

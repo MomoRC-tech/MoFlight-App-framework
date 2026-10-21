@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AppState } from 'react-native';
+import { reuseEqualData } from './processed-result';
 import type { RealFlightDetail, RealFlightListItem } from '../vereinsflieger/real-flight-library';
 import { readOwnFlightDetail, readOwnFlightView, OwnFlightChangedError, type OwnFlightReadPorts, type OwnFlightView } from './own-flight-reader';
 
 export function useOwnFlights(ports: OwnFlightReadPorts, active: boolean, reloadKey: number) {
+  const processedView = useRef<OwnFlightView | null>(null);
   const [view, setView] = useState<OwnFlightView | null>(null);
   const [phase, setPhase] = useState<'loading' | 'ready' | 'missing' | 'failed'>('loading');
   const [detail, setDetail] = useState<RealFlightDetail | null>(null);
@@ -21,9 +23,16 @@ export function useOwnFlights(ports: OwnFlightReadPorts, active: boolean, reload
     setPhase('loading'); setDetail(null); setDetailBusy(false); setDetailError(null);
     try {
       const next = await readOwnFlightView(ports);
-      if (current(id)) { setView(next); setPhase(next ? 'ready' : 'missing'); }
+      if (current(id)) {
+        const prior = processedView.current;
+        const sameScope = prior && next && prior.snapshot.ownerId === next.snapshot.ownerId &&
+          prior.snapshot.storeId === next.snapshot.storeId && prior.snapshot.account?.accountRef === next.snapshot.account?.accountRef;
+        const shared = sameScope ? reuseEqualData(prior, next) : next;
+        processedView.current = shared;
+        setView(shared); setPhase(shared ? 'ready' : 'missing');
+      }
     } catch (error) {
-      if (current(id)) { console.warn('Own-flight local read failed', error instanceof Error ? error.message : 'Unknown read failure'); setView(null); setPhase('failed'); }
+      if (current(id)) { console.warn('Own-flight local read failed', error instanceof Error ? error.message : 'Unknown read failure'); processedView.current = null; setView(null); setPhase('failed'); }
     } finally {
       locked.current = false;
       if (queued.current && alive.current && enabled.current && foreground.current) void reload();
@@ -41,7 +50,7 @@ export function useOwnFlights(ports: OwnFlightReadPorts, active: boolean, reload
       if (current(id)) {
         console.warn('Own-flight local detail failed', error instanceof Error ? error.message : 'Unknown detail failure');
         // No previous owner's detail survives an unconfirmed or changed scope.
-        setDetail(null); setView(null); setPhase('failed');
+        setDetail(null); processedView.current = null; setView(null); setPhase('failed');
         setDetailError(error instanceof OwnFlightChangedError ? 'Die gespeicherte Auswahl hat sich geändert. Bitte die lokale Liste erneut laden.' : 'Flugdetails konnten nicht geprüft werden. Gespeicherte Daten bleiben erhalten.');
       }
     } finally {

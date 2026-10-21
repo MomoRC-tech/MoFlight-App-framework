@@ -19,10 +19,11 @@ export function OwnFlights({ active, data, filterRequest, onUpdate, onHeaderChan
   const list = useRef<FlatList>(null), offset = useRef(0), scope = useRef<string | null>(null);
   const { width, fontScale } = useWindowDimensions();
   const tablet = width >= 600 && fontScale <= 1.3;
-  const flights = data.view?.flights ?? [];
+  const flights = useMemo(() => data.view?.flights ?? [], [data.view?.flights]);
   const selected = useMemo(() => selectOwnFlights(flights, filters), [flights, filters]);
-  const years = ownFlightYears(flights), registrations = ownFlightRegistrations(flights);
-  const plan = planFlightRetrieval(data.view?.snapshot.savedRetrievals ?? []);
+  const years = useMemo(() => ownFlightYears(flights), [flights]);
+  const registrations = useMemo(() => ownFlightRegistrations(flights), [flights]);
+  const plan = useMemo(() => planFlightRetrieval(data.view?.snapshot.savedRetrievals ?? []), [data.view?.snapshot.savedRetrievals]);
   const freshness = dataFreshness(plan.lastSuccessfulRetrievalAt, data.phase === 'ready' ? 'ready' : 'loading');
   const detailOpen = !!data.detail || data.detailBusy;
   const back = useCallback(() => { Keyboard.dismiss(); setFilterOpen(false); setRawPage(0); data.clearDetail(); }, [data.clearDetail]);
