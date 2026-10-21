@@ -21,8 +21,8 @@ export function ConnectionSummary({ controller, onOpen, onUpdate, ownFlights, ph
     {ownFlights ? <Label>{ownFlights.flights.length} Flüge auf diesem Gerät gespeichert</Label> : <Label>Deine Flüge und Saisonübersicht an einem Ort.</Label>}
     <Label muted>{freshness.label}</Label>
     {!!freshness.note && <Label muted>{freshness.note}</Label>}
-    {!ownFlights?.snapshot.account && <Label muted>Du meldest dich auf der Originalseite von Vereinsflieger an. Anschließend laden und speichern wir deine Flüge für die Offline-Nutzung.</Label>}
-    <Action icon="chain" disabled={phase === 'loading'} onPress={onUpdate ?? onOpen}>{ownFlights?.snapshot.account ? 'Flüge aktualisieren' : 'Mit Vereinsflieger anmelden & Flüge laden'}</Action>
+    {!ownFlights?.snapshot.account && <Label muted>Du meldest dich auf der Originalseite von Vereinsflieger an. Anschließend laden wir deine Flüge und Medical-Angaben und speichern sie für die Offline-Nutzung.</Label>}
+    <Action icon="chain" disabled={phase === 'loading'} onPress={onUpdate ?? onOpen}>{ownFlights?.snapshot.account ? 'Daten aktualisieren' : 'Anmelden & Daten laden'}</Action>
     <Action secondary onPress={onOpen}>Verbindung & Optionen</Action>
     <Label muted>{connectionGuidance(controller.connection, controller.browserActive).title}</Label>
   </Card>;

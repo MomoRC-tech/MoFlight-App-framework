@@ -129,7 +129,7 @@ export function CoreFlightFoundation({ close, startUpdate = false }: {close: (re
       {setupLease&&<Action disabled={loading} onPress={()=>void resumeSelected()}>Vorhandene Einrichtung fortsetzen</Action>}
       {!loading && (setupLease
         ? <Action secondary disabled={loading} onPress={()=>void createFreshOwner()}>Stattdessen neue lokale Bibliothek anlegen</Action>
-        : error ? <Action disabled={loading} onPress={()=>{setRequestedUpdate(true);void createFreshOwner();}}>Erneut versuchen</Action> : !requestedUpdate ? <Action onPress={()=>setRequestedUpdate(true)}>Mit Vereinsflieger anmelden & Flüge laden</Action> : null)}
+        : error ? <Action disabled={loading} onPress={()=>{setRequestedUpdate(true);void createFreshOwner();}}>Erneut versuchen</Action> : !requestedUpdate ? <Action onPress={()=>setRequestedUpdate(true)}>Anmelden & Daten laden</Action> : null)}
     </View>
   </ScrollView></SafeAreaView>;
 }
@@ -374,8 +374,8 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,takeInitialReposit
       <Section title="Deine Flüge" icon="flight-paper-plane"/>
       <Action secondary disabled={busy||c.busy} onPress={()=>close()}>Zur App zurück</Action>
       <Card><Label>{flights.length} gespeicherte eigene Flüge</Label><Label muted>{freshness.label}</Label>
-        <Label muted>Die Anmeldung erfolgt bei Vereinsflieger. Deine Flüge werden anschließend automatisch auf diesem Gerät gespeichert und sind offline verfügbar.</Label>
-        {busy ? <View accessibilityLiveRegion="polite"><Label>{step}</Label></View> : <Action disabled={restoreReadOnly||c.recovery||recovery.status==='not-committed'||recovery.status==='recovery-required'} onPress={loadFlights}>{snapshot?.account ? 'Flüge aktualisieren' : 'Mit Vereinsflieger anmelden & Flüge laden'}</Action>}
+        <Label muted>Die Anmeldung erfolgt bei Vereinsflieger. Deine Flüge und Medical-Angaben werden anschließend automatisch auf diesem Gerät gespeichert und sind offline verfügbar.</Label>
+        {busy ? <View accessibilityLiveRegion="polite"><Label>{step}</Label></View> : <Action disabled={restoreReadOnly||c.recovery||recovery.status==='not-committed'||recovery.status==='recovery-required'} onPress={loadFlights}>{snapshot?.account ? 'Daten aktualisieren' : 'Anmelden & Daten laden'}</Action>}
         {waiting.current&&<Action secondary disabled={!canCancelCoreFlightSource(c.retrieval.current.state.phase,c.saving,c.restoring.current)} onPress={()=>{diagnosticJournal.record('action','cancel');abandonSource('Cancelled.');c.dismissLogin();setProviderOpen(false);}}>Abbrechen</Action>}
         {busy&&c.informationBusy&&<Action secondary disabled={c.informationSaving} onPress={()=>c.stopInformation()}>Medical überspringen</Action>}
         <Action secondary disabled={busy} onPress={()=>setAdvanced(!advanced)}>{advanced ? 'Details schließen' : 'Details & weitere Optionen'}</Action>

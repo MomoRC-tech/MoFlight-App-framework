@@ -65,7 +65,7 @@ export function OwnFlights({ active, data, filterRequest, onUpdate, onHeaderChan
       {!plan.periods.length && <Label muted>Noch kein vollständiger Abruf gespeichert.</Label>}
       <Label muted>Gespeicherte Anbieterwerte, keine Aussage über die gesamte Fluggeschichte. Tracks und Distanzen sind nicht verifiziert.</Label>
       <Action secondary onPress={() => void data.reload()}>Gespeicherte Flüge neu laden</Action></>}
-      <Action onPress={update}>Flüge aktualisieren</Action>
+      <Action onPress={update}>Daten aktualisieren</Action>
       <Pressable accessibilityRole="button" accessibilityState={{expanded:statusOpen}} onPress={()=>setStatusOpen(!statusOpen)} style={ui.smallAction}><Label muted>{statusOpen ? 'Datenstand schließen' : 'Abdeckung & Datenstand'}</Label></Pressable>
     </Card>
     {!!notice && <Card><Label>{notice}</Label></Card>}
@@ -95,7 +95,7 @@ export function OwnFlights({ active, data, filterRequest, onUpdate, onHeaderChan
       <Section title={data.phase === 'loading' ? 'Gespeicherte Flüge laden' : data.phase === 'missing' ? 'Eigene Flüge einrichten' : 'Flüge nicht lesbar'} icon="flight-paper-plane" />
       {data.phase === 'loading' ? <ActivityIndicator color={colors.cyan} accessibilityLabel="Eigene gespeicherte Flüge werden geladen" /> : <>
         <Label>{data.detailError ?? (data.phase === 'missing' ? 'Noch keine eigene Flugbibliothek ausgewählt. Bestehende Teststände bleiben getrennt erhalten.' : 'Die gespeicherte Auswahl konnte nicht geprüft werden. Vorhandene Dateien und Aufträge bleiben erhalten.')}</Label>
-        <Action secondary onPress={() => void data.reload()}>Gespeicherte Flüge erneut prüfen</Action><Action onPress={update}>{data.phase === 'missing' ? 'Mit Vereinsflieger anmelden & Flüge laden' : 'Flüge aktualisieren'}</Action>
+        <Action secondary onPress={() => void data.reload()}>Gespeicherte Flüge erneut prüfen</Action><Action onPress={update}>{data.phase === 'missing' ? 'Anmelden & Daten laden' : 'Daten aktualisieren'}</Action>
       </>}
     </Card></View></ScrollView>}
     {filterOpen && <ScrollView contentContainerStyle={s.canvas}><View style={s.group}><Card><Section title="Flugfilter" />

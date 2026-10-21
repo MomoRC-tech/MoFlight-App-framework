@@ -169,7 +169,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/connection-guidan
 
 ## CoreFlightFoundation.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `d148adb0894fc6d4e94d22d130ed1b5ff0ddd280c45792b275f0c57975ab2e53`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `64abbe8e459159fae9d855e86c0b21df8cff69d97ae6f2071c03b24010258cf0`.
 
 ### Geometry / opacity declarations
 
@@ -495,7 +495,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](..
 
 ## OwnFlights.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OwnFlights.tsx](../../../apps/platform-lab/src/mobile/OwnFlights.tsx); normalized SHA-256 `f6cc9df55230bba27c81d697a2f97fa2a0520ce70ae8ee9645fc7c598aa5da3c`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OwnFlights.tsx](../../../apps/platform-lab/src/mobile/OwnFlights.tsx); normalized SHA-256 `1fb2b88730d330a5e7f7ed5e40d8bb504814f33c6d888a7b5aa37b58b361acff`.
 
 ### Literal colors
 

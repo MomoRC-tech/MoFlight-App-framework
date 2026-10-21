@@ -87,7 +87,7 @@ test('opening options does no retrieval; one explicit action verifies, loads, sa
   const f=fixture();try{
     f.render();await f.flush();assert.deepEqual(f.calls,[]);
     assert.equal(f.text().includes('Quellzeilen'),false);assert.equal(f.text().includes('Geräteordner'),false);
-    f.press('Mit Vereinsflieger anmelden & Flüge laden');await f.flush();
+    f.press('Anmelden & Daten laden');await f.flush();
     assert.deepEqual(f.calls,['session','retrieve']);
     f.complete();await f.flush();assert.deepEqual(f.calls,['session','retrieve','save','medical']);
     assert.equal(f.closed.length,1);assert.equal(f.closed[0].added,2);assert.equal(f.closed[0].from,'2025-01-01');assert.equal(f.journal.snapshot().at(-1)!.outcome,'success');

@@ -29,12 +29,12 @@ test('summary uses committed library freshness instead of a more recent raw capt
   const f=render({flights:[{}],snapshot:{account:{accountRef:'101'},savedRetrievals:[{from:'2025-01-01',to:'2026-10-19',retrievedAt,savedAt:retrievedAt}]}});
   assert.ok(f.text.includes(dataFreshness(retrievedAt,'ready').label));
   assert.ok(!f.text.includes(dataFreshness('2026-10-21T00:00:00.000Z','ready').label));
-  assert.deepEqual(f.calls,[]);f.button('Flüge aktualisieren').props.onPress();assert.deepEqual(f.calls,['load']);
+  assert.deepEqual(f.calls,[]);f.button('Daten aktualisieren').props.onPress();assert.deepEqual(f.calls,['load']);
 });
 
 test('zero-book first use exposes a single combined load action and no technical setup',()=>{
   const f=render(null,'missing');
   assert.ok(f.text.includes('Noch keine Flugdaten abgerufen'));assert.ok(!f.text.includes('Bibliothek anlegen'));
-  f.button('Mit Vereinsflieger anmelden & Flüge laden').props.onPress();assert.deepEqual(f.calls,['load']);
+  f.button('Anmelden & Daten laden').props.onPress();assert.deepEqual(f.calls,['load']);
   const failed=render(null,'failed');assert.ok(!failed.text.includes('Noch keine Flugdaten abgerufen'));
 });
