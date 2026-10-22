@@ -3004,6 +3004,73 @@ test('optional-source failure allows a fresh work-summary check and idle session
   }
 });
 
+test('same-turn source handoff admits document notices immediately after Medical completes', async () => {
+  const f = fixture({ product: true }); f.render(); await f.settle(null); await establishProductAssociation(f);
+  const medical = f.controller().retrieveMedical();
+  await f.flush();
+  await f.loadPage(context.PROFILE_URL); await f.contextMessage(observedContext);
+  await f.loadPage(context.PROFILE_URL);
+  await medicalMessage(f);
+  await f.loadPage(context.PROFILE_URL);
+
+  // Capture the callbacks while the rendered busy value is still true. The
+  // final native profile proof below releases busy and resolves Medical, but
+  // this harness intentionally does not render before the chained next job.
+  const staleController = f.controller();
+  const web = f.find(f.render(), element => element.type === 'WebView')!;
+  const onMessage = web.props.onMessage as (event: unknown) => void;
+  const nonce = /nonce:"([^"]+)"/.exec(f.injections.at(-1) ?? '')?.[1];
+  assert.ok(nonce, 'The final profile proof script must be active');
+  let notices: Promise<information.InformationCapture> | undefined;
+  const chain = medical.then(() => {
+    notices = staleController.retrieveFeatureInformation('document-notices');
+  });
+  onMessage({ nativeEvent: { url: context.PROFILE_URL, data: JSON.stringify({
+    kind: 'vf-context-v1', nonce, url: context.PROFILE_URL, context: observedContext,
+  }) } });
+  await chain;
+  assert.ok(notices, 'The next combined job should start in the Medical completion turn');
+  const noticesRejected = assert.rejects(notices);
+  await f.flush();
+  assert.equal(f.controller().informationBusy, true);
+  assert.equal(f.controller().url, context.PROFILE_URL);
+  assert.equal(f.controller().connection.confirmed, true);
+  f.controller().stopInformation(); await noticesRejected; f.unmount();
+});
+
+test('same-turn source handoff admits work summary after an optional source failure', async () => {
+  const f = fixture({ product: true }); f.render(); await f.settle(null); await establishProductAssociation(f);
+  const noticesUrl = 'https://vereinsflieger.de/member/overview/overview';
+  const notices = f.controller().retrieveFeatureInformation('document-notices');
+  const noticesRejected = assert.rejects(notices);
+  await f.flush();
+  await f.loadPage(context.PROFILE_URL); await f.contextMessage(observedContext);
+  await f.loadPage(noticesUrl);
+
+  // Keep the last render's busy=true callback for the chained admission.
+  const staleController = f.controller();
+  const web = f.find(f.render(), element => element.type === 'WebView')!;
+  const onMessage = web.props.onMessage as (event: unknown) => void;
+  let summary: Promise<information.InformationCapture> | undefined;
+  const chain = notices.catch(() => undefined).then(() => {
+    summary = staleController.retrieveFeatureInformation('work-summary');
+  });
+  onMessage({ nativeEvent: { url: noticesUrl, data: JSON.stringify({
+    kind: 'vf-information-v1', nonce: `${f.lastIssuedNonce()}-read`, url: noticesUrl,
+    page: { error: 'notice-source-unverified' },
+  }) } });
+  await noticesRejected; await chain;
+  assert.ok(summary, 'The next source should start after the optional reader rejects');
+  const summaryRejected = assert.rejects(summary);
+  await f.flush();
+  assert.equal(f.controller().informationBusy, true);
+  assert.equal(f.controller().url, context.PROFILE_URL);
+  assert.equal(f.controller().connection.confirmed, false, 'The failed source still requires a fresh matching profile proof');
+  const readerScripts = f.injections.filter(script => script.includes("kind:'vf-information-v1'")).length;
+  assert.equal(readerScripts, 1, 'The work-summary reader must wait for its fresh profile proof');
+  f.controller().stopInformation(); await summaryRejected; f.unmount();
+});
+
 
 test('successful sign-in at the original URL automatically verifies without a second button; repeated load-end is idempotent',async()=>{
   for(const foreign of [false,true]){

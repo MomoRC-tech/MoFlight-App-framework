@@ -93,11 +93,19 @@ export function useAccessController(product = false, localOwner?: string, develo
   const [flow,setFlow] = useState<ConnectionFlow>({phase:'idle'});
   const visible=flow.phase==='sign-in';
   function setVisible(show:boolean){setFlow(previous=>connectionFlow(previous,{type:show?'show-login':'hide-login'}));}
-  const [busy, setBusy] = useState(false), [loaded, setLoaded] = useState(false);
+  const [busy, setBusyState] = useState(false), [loaded, setLoaded] = useState(false);
+  // React state is the rendered indicator, while admission checks also need
+  // the latest transition before React commits the render. Information jobs
+  // resolve their promises in the same turn that they release browser busy;
+  // the combined refresh may start the next job before a new closure exists.
+  const busyRef = useRef(false);
+  function setBusy(value: boolean) { busyRef.current = value; setBusyState(value); }
   const failedDocument=useRef<string|null>(null);
   const resumeConnection=useRef<()=>boolean>(()=>false);resumeConnection.current=resumeGuidedFlightConnection;
   useEffect(() => { if (!browserActive) return; recordProviderEvent('provider-mounted'); return () => recordProviderEvent('provider-unmounted'); }, [browserActive, documentId]);
-  const [saving, setSaving] = useState(false);
+  const [saving, setSavingState] = useState(false);
+  const savingRef = useRef(false);
+  function setSaving(value: boolean) { savingRef.current = value; setSavingState(value); }
   const testPauseEnabled = useRef(false), testPaused = useRef(false);
   const preBackupPauseEnabled = useRef(false);
   const [pauseEnabled, setPauseEnabled] = useState(false), [paused, setPaused] = useState<string | null>(null);
@@ -146,13 +154,13 @@ export function useAccessController(product = false, localOwner?: string, develo
   const information = useInformationController({
     product, mounted: () => mounted.current, foreground: () => foreground.current,
     ownerCurrent: () => owner.current === activeOwner.current, scope: requireScope,
-    canStart: retry => product && visible && (loaded || retry) && foreground.current && !busy && !saving && !loginBusy &&
+    canStart: retry => product && visible && (loaded || retry) && foreground.current && !busyRef.current && !savingRef.current && !loginBusy &&
       !contextRequest.current && !recovery && viewReady && !disconnectMode.current,
     // A failed optional source invalidates the cached session observation. Each
     // independent job must still be allowed to obtain its own fresh profile
     // proof; InformationRun verifies the saved scope before and after reading.
     canStartMedical: () => product && mounted.current && owner.current===activeOwner.current && foreground.current &&
-      !!scope.current && scope.current.owner===owner.current && !busy && !saving && !loginBusy && !loginStorageBusy.current && !loginAttempt.current &&
+      !!scope.current && scope.current.owner===owner.current && !busyRef.current && !savingRef.current && !loginBusy && !loginStorageBusy.current && !loginAttempt.current &&
       !contextRequest.current && !recovery && viewReady && !disconnectMode.current && !clearingStore.current && !bindingBusy.current &&
       retrieval.current.state.phase==='idle',
     canReload: () => product && mounted.current && foreground.current && owner.current === activeOwner.current &&
