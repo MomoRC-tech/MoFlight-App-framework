@@ -1649,8 +1649,8 @@ duotone-assets.ts; symbols/glyphs.svg #chain
 
 H04 · Current native UI · selected duotone
 Medical / Med
-Appearance: Selected M2 Medical card: rounded credential card, cyan top band and medical cross, slate document fields. Med with earliest strictly parsed recorded expiry, or unbekannt; partial source warnings remain visible.
-Where: App header, between Connection and Profile.
+Appearance: Selected M2 Medical card: rounded credential card, cyan top band, red medical cross and slate document fields. Med with earliest strictly parsed recorded expiry, or unbekannt; partial source warnings remain visible.
+Where: App header lower left, beside Data; Profile is at the lower right.
 Meaning: Availability of saved own Medical source text; never a validity or fitness verdict.
 Function / action: Tap opens read-only original class/expiry text with source and retrieval time, or an unknown-state explanation.
 States / limits: Source-date reminder: earliest recorded expiry including expired; red for past, amber through six calendar months inclusive, quiet later. Missing/ambiguous/partial source explicit; raw text retained. No fitness or legal eligibility judgment. Selected state follows the open sheet.
@@ -1782,23 +1782,23 @@ duotone-assets.ts; symbols/glyphs.svg #weather
 
 D07 · Current native UI
 Season flight count
-Appearance: Prominent count/known-time KPI on a raised panel; no ring.
-Where: Dashboard Meine Saison, count KPI.
+Appearance: Two concentric aircraft-share rings with labelled year totals: current outside, prior inside.
+Where: Dashboard Meine Saison, Starts comparison.
 Meaning: Deduplicated saved selected-account flight count for the current season.
-Function / action: Read-only; Alle anzeigen opens the general Flüge view.
-States / limits: Zero and unknown differ. Unknown durations remain explicit. Panels stack at enlarged text; compact aircraft breakdown remains.
+Function / action: Read-only; Alle Flüge ansehen opens the general Flüge view.
+States / limits: Zero and unknown differ. Unknown durations remain explicit. Measures stack at enlarged text; shared aircraft legend remains.
 Source: apps/platform-lab/src/mobile/Dashboard.tsx
-seasonMetrics; metric; real-flight-statistics.summarizeRealFlights
+SeasonRing; seasonRingSlices; real-flight-statistics.summarizeRealFlights
 
 D08 · Current native UI
 Season known flight time
-Appearance: Prominent count/known-time KPI on a raised panel; no ring.
-Where: Dashboard Meine Saison, known-time KPI.
+Appearance: Two concentric aircraft-share rings with labelled year totals: current outside, prior inside.
+Where: Dashboard Meine Saison, known-hours comparison.
 Meaning: Known reported flight minutes for the saved selected-account season.
-Function / action: Read-only; Alle anzeigen opens the general Flüge view.
-States / limits: Zero and unknown differ. Unknown durations remain explicit. Panels stack at enlarged text; compact aircraft breakdown remains.
+Function / action: Read-only; Alle Flüge ansehen opens the general Flüge view.
+States / limits: Zero and unknown differ. Unknown durations remain explicit. Measures stack at enlarged text; shared aircraft legend remains.
 Source: apps/platform-lab/src/mobile/Dashboard.tsx
-seasonMetrics; metric; real-flight-statistics.summarizeRealFlights
+SeasonRing; seasonRingSlices; real-flight-statistics.summarizeRealFlights
 
 K01 · Current native UI · selected duotone
 Next club duty

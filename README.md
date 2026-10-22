@@ -11,9 +11,9 @@ MoFlight is a mobile app in development for glider pilots, students and instruct
 
 ## Current delivery
 
-Manuel selected the modern UI as the new main baseline on **22 October 2026**. It combines the ASK-21-like header, compact latest flight, four aircraft-split season rings and a current/prior-year Jan–Dec chart that fits on screen. The Daten action continues automatically after verified login; returning from another app retains verified content during guarded local revalidation.
+Manuel selected the modern UI as the new main baseline on **22 October 2026**. It combines the ASK-21-like header, compact latest flight, concentric current/prior-year aircraft-share rings and a current/prior-year Jan–Dec chart that fits on screen. The Daten action continues automatically after verified login; returning from another app retains verified content during guarded local revalidation.
 
-**Latest Android APK:** [download ZIP — source `d241dbd`](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/main-ui-2026-10-22-d241dbd/MoFlight-Android-d241dbd.zip). The merged Release includes both the selected modern UI and newer main safeguards. [Verification, screenshots and remaining gates](docs/verification/2026-10-22-alternative-ui.md#main-adoption-and-documentation-reconciliation).
+**Start/header refinement — 23 October:** [download ZIP — source `503ed0f`](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/ui-refinement-2026-10-23-503ed0f/MoFlight-Android-503ed0f.zip). Larger logo, lower-right Profile, compact Data/Medical faces, full-width warm season artwork, two-row latest flight, concentric year rings and monthly bar values. [Verification, screenshots and limits](docs/verification/2026-10-22-alternative-ui.md#startheader-refinement--23-october-2026). This APK/evidence covers that exact UI source; subsequent session/retrieval work has its own delivery and acceptance.
 
 The integration also preserves main's filtered-flight known/unknown-time summary, strict duty-source checks, timing tools and unsupported-version preservation checks. These features have separate evidence; no live provider or physical-device acceptance follows from merging them.
 
@@ -54,7 +54,7 @@ The [first-use journey added on 18 October](docs/product/2026-10-13-journey-info
 
 ### Your flying, at a glance
 
-The selected Start shows four aircraft-split time/start rings for the current and previous calendar years, one compact latest-flight row, and a combined Jan–Dec monthly chart behind a disclosure. All twelve months fit without horizontal scrolling. The latest-flight row opens its saved detail. Broader person/role/distribution queries remain under #9.
+The selected Start shows two concentric aircraft-share comparisons for time/starts across the current and previous calendar years, one compact latest-flight row, and a combined Jan–Dec monthly chart behind a disclosure. All twelve months fit without horizontal scrolling. The latest-flight row opens its saved detail. Broader person/role/distribution queries remain under #9.
 
 Unknown durations stay unknown. Incomplete history is shown as incomplete; a partial year must not look like a complete lifetime record.
 

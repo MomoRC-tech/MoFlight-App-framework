@@ -4,7 +4,7 @@
 
 This is MoFlight's **default symbol family**, approved by Manuel on 18 October 2026: cyan/slate duotone silhouettes, rounded terminals and soft translucent tiles. **M2 Medical card** and the **supplied folded paper plane** are the Medical and Flüge symbols. The app uses this family throughout navigation, headers, dashboard, club and actions. [Default/removal authorization](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/20#issuecomment-6250110588).
 
-Previous aircraft assets, unselected proposals and comparison pages have been removed. The active catalogue contains 47 current entries; retired IDs X01–X03 and B04 are not reused. Approved Thermik branding, text/status notation and native busy indicators retain their identity. D07/D08 now describe season KPIs under the selected 22 October Start alternative; no new artwork is needed.
+Previous aircraft assets, unselected proposals and comparison pages have been removed. The active catalogue contains 47 current entries; retired IDs X01–X03 and B04 are not reused. Approved Thermik branding, text/status notation and native busy indicators retain their identity. D07/D08 describe concentric current/prior-year aircraft-share rings under the 23 October refinement. The Medical cross is red; its decorative colour does not establish source status.
 
 ## Family and use
 
@@ -12,7 +12,7 @@ Previous aircraft assets, unselected proposals and comparison pages have been re
 - 34 artwork mappings and 13 preserved branding/data/text entries in [symbols.json](../symbols.json). IDs retain their meanings, actions and state contracts.
 - Base cyan: `#32f1ef` → `#00d9e8` → `#00b9df`; slate: `#8caac1` → `#7094b1` → `#46688b`. Native assets have explicit default, muted, paper, assistant and dark contrast palettes; runtime tint does not flatten their duotone structure. The complete handbook embeds actual native PNGs; standalone SVG downloads use the base palette.
 - Compact tile specimens pair 40/48/56 px tiles with 12/14/16 px corners. Artwork sizes are context-specific; artwork bounds never define effective touch targets. Native navigation uses 28-unit artwork in 36-unit tiles with radius 12; header controls retain 48-unit targets.
-- Medical stays **Med / unbekannt**. Connection badges retain ?, ✓, → and ! with explicit wording. Category art establishes no date, forecast, track, qualification or verified session. Neutral calendar cells avoid a fictional date.
+- Medical shows **Med** with the earliest recorded expiry or **unbekannt**. Connection badges retain ?, ✓, → and ! with explicit wording. Category art establishes no date, forecast, track, qualification or verified session. Neutral calendar cells avoid a fictional date.
 
 ## Original references
 

@@ -1,0 +1,46 @@
+{
+  "application_source": "503ed0fcf1d92a482707e489b155b9af52ec8f76",
+  "android_api": 37,
+  "density": 160,
+  "viewports": [
+    {
+      "size": "390x900",
+      "font": 1
+    },
+    {
+      "size": "360x900",
+      "font": 1.6
+    },
+    {
+      "size": "800x600",
+      "font": 1
+    }
+  ],
+  "host": {
+    "mobile_tests": 828,
+    "python_tests": 110,
+    "types": true,
+    "lint": true,
+    "fixtures": true
+  },
+  "native": {
+    "header_targets_minimum_48": true,
+    "profile_lower_right": true,
+    "concentric_year_values": true,
+    "ordinary_latest_two_rows": true,
+    "all_twelve_months_both_measures": true,
+    "synthetic_preview_only": true,
+    "min_initial_ring_capture_clipped": "Superseded by min-reviewed, same APK"
+  },
+  "cleanup": {
+    "restored_verified_recovery_apk": true,
+    "display_and_radios_restored": true,
+    "initial_missing_apk_reinstalled_from_preserved_copy": true,
+    "task_started_emulator_stopped": true
+  },
+  "limits": [
+    "No live-provider, physical-phone, iOS or spoken acceptance",
+    "Not a populated-storage performance check",
+    "Concurrent session work after 503ed0f excluded from this APK/evidence"
+  ]
+}
