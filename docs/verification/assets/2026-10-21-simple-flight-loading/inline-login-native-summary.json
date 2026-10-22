@@ -1,0 +1,139 @@
+{
+  "status": "passed for named native assertions and correctly scoped diagnostic analysis",
+  "application_source": "7afe69d93855fd011555ad567c244db290903862",
+  "apk_sha256": "6eff69ff119a914d5f9f2f8b867eec7a7930678b0c2a251d12e4375896d1a668",
+  "android_api": 37,
+  "viewport_dp": [
+    390,
+    900
+  ],
+  "density": 160,
+  "font_scale": 1,
+  "checks": [
+    {
+      "name": "protected-profile-original-form",
+      "status": "passed",
+      "viewport": {
+        "width_px": 390,
+        "height_px": 900,
+        "density_dpi": 160,
+        "width_dp": 390.0,
+        "height_dp": 900.0,
+        "font_scale": 1.0
+      },
+      "assertion_scope": "Nonvisual native field and retained-browser assertions. Exact-session portable diagnostics verify the inline URL/return sequence. No new appearance acceptance is claimed."
+    },
+    {
+      "name": "synthetic-autofill-on-inline-form",
+      "status": "passed",
+      "viewport": {
+        "width_px": 390,
+        "height_px": 900,
+        "density_dpi": 160,
+        "width_dp": 390.0,
+        "height_dp": 900.0,
+        "font_scale": 1.0
+      },
+      "assertion_scope": "Nonvisual native field and retained-browser assertions. Exact-session portable diagnostics verify the inline URL/return sequence. No new appearance acceptance is claimed."
+    },
+    {
+      "name": "inline-form-home-return-1",
+      "status": "passed",
+      "viewport": {
+        "width_px": 390,
+        "height_px": 900,
+        "density_dpi": 160,
+        "width_dp": 390.0,
+        "height_dp": 900.0,
+        "font_scale": 1.0
+      },
+      "assertion_scope": "Nonvisual native field and retained-browser assertions. Exact-session portable diagnostics verify the inline URL/return sequence. No new appearance acceptance is claimed."
+    },
+    {
+      "name": "inline-form-home-return-2",
+      "status": "passed",
+      "viewport": {
+        "width_px": 390,
+        "height_px": 900,
+        "density_dpi": 160,
+        "width_dp": 390.0,
+        "height_dp": 900.0,
+        "font_scale": 1.0
+      },
+      "assertion_scope": "Nonvisual native field and retained-browser assertions. Exact-session portable diagnostics verify the inline URL/return sequence. No new appearance acceptance is claimed."
+    }
+  ],
+  "synthetic_autofill": {
+    "fields_filled": 2,
+    "external_confirmation_activity": true,
+    "home_returns": 2,
+    "same_browser": true,
+    "provider_submissions": 0
+  },
+  "diagnostics": {
+    "session": 24,
+    "profile_navigations": 1,
+    "profile_navigation_reason": "Explicit UI check before filling",
+    "replacing_navigations_after_inline_form": 0,
+    "retained_background_return_pairs": 3,
+    "input_events": 2,
+    "stop_background_events": 0,
+    "credential_strings_present": false,
+    "fixed_provider_categories": [
+      "provider-surface-closed",
+      "provider-surface-progress",
+      "provider-connect",
+      "provider-command-login",
+      "provider-surface-sign-in",
+      "provider-mounted",
+      "provider-start-login",
+      "provider-end-login",
+      "provider-login-ready",
+      "provider-check",
+      "provider-command-profile",
+      "provider-surface-progress",
+      "provider-start-profile",
+      "provider-end-profile",
+      "provider-login-ready",
+      "provider-verification-context-response",
+      "provider-surface-sign-in",
+      "provider-keep-background",
+      "provider-resume-wait",
+      "provider-login-input",
+      "provider-login-change",
+      "provider-login-input",
+      "provider-login-change",
+      "provider-keep-background",
+      "provider-resume-wait",
+      "provider-keep-background",
+      "provider-resume-wait"
+    ]
+  },
+  "helper_limit": "Final helper postcondition incorrectly combined all sessions from this same APK, including prior attempts. Its overall status is failed. This read-only analysis selects the latest session with native Autofill input and verifies the actual interval. Four native behavioral assertions preceding the postcondition passed.",
+  "earlier_trials": [
+    {
+      "run": "native",
+      "status": "failed",
+      "reason": "Android uiautomator subprocess exit137; no accepted behavior assertions"
+    },
+    {
+      "run": "native-retry",
+      "status": "failed",
+      "reason": "Extra helper Back closed panel after successful Autofill; only original-form/fill assertions passed"
+    }
+  ],
+  "cleanup": {
+    "baseline_apk_restored": true,
+    "display_radios_restored": true,
+    "autofill_setting_restored": true,
+    "temporary_service_removed": true,
+    "errors": [],
+    "owned_synthetic_emulator_stopped": true
+  },
+  "not_tested": [
+    "Actual Google Password Manager valid-account phone login and authenticated retrieval",
+    "iOS runtime",
+    "Spoken accessibility"
+  ],
+  "boundary": "Synthetic fields only, never submitted. No provider record retrieval/save, data clearing/seeding or provider-session emulator."
+}
