@@ -49,37 +49,31 @@ test('identical refresh receipt timestamps do not recalculate monthly statistics
  f.changeView({...changedCoverage,flights});assert.equal(f.monthlyCalculations(),initial+2);
 });
 
-test('real season rings use deduplicated aircraft shares and the card supplies its year',()=>{
+test('season KPIs deduplicate flights and retain aircraft/unknown-time totals',()=>{
   const flights=ownFlightFixture().flights;
-  const a={...flights[0]!,facts:structuredClone(flights[0]!.facts)};
+  const a=structuredClone(flights[0]!);
   a.facts.assessment.date={...a.facts.assessment.date,state:'parsed',value:'2026-01-01'};
   a.facts.assessment.durations.flight={state:'known',minutes:90,evidence:[]};
   const b=structuredClone(a);b.flightId='second';b.facts.assessment.fields.registration={state:'value',raw:'D-OTHER',label:'Kennzeichen'};
   b.facts.assessment.durations.flight={state:'unknown',minutes:null,evidence:[]};
-  const f=render([a,a,b,...flights.slice(1)]),rings=f.nodes.filter(n=>n.type==='SeasonRing');
-  assert.equal(rings.length,2);assert.equal(rings[0]!.props.value,'2');assert.equal(rings[1]!.props.value,'1:30');
-  assert.equal(rings[0]!.props.slices.length,2);assert.equal(rings[1]!.props.slices.length,1);
-  assert.equal(rings[0]!.props.slices.reduce((sum:number,s:any)=>sum+s.sweep,0),360);
-  assert.equal(f.nodes.filter(n=>n.type==='Action').length,0);
+  const f=render([a,a,b]);
+  assert.deepEqual(f.nodes.filter(n=>n.type==='Text'&&n.props.style?.fontSize===28).map(n=>n.children[0]),[2,'1:30']);
+  assert.match(f.text,/D-OTHER/);assert.match(f.text,/Saisonzeiten unbekannt/);
   assert.ok(f.nodes.filter(n=>n.type==='Card').every(n=>!n.props.onPress));
-  assert.deepEqual(f.calls,[]);
+  f.nodes.find(n=>n.type==='Section'&&n.props.action)!.props.onPress();
+  assert.deepEqual(f.calls,[undefined]);
 });
 
-test('empty/unknown-only rings invent no time; unavailable states and enlarged text keep honest alternatives',()=>{
-  const empty=render([]),rings=empty.nodes.filter(n=>n.type==='SeasonRing');
-  assert.ok(empty.nodes.some(n=>n.type==='Pressable'&&n.props.accessibilityLabel==='Informationen zum Papierflugbuch ansehen'));
-  assert.equal(rings[0]!.props.value,'0');assert.equal(rings[1]!.props.value,'—');
-  assert.deepEqual(rings[1]!.props.slices,[]);
-  for(const phase of ['loading','failed','missing'])assert.equal(render([],phase).nodes.filter(n=>n.type==='SeasonRing').length,0);
-  assert.equal(render([],'ready',1.4).nodes.filter(n=>n.type==='SeasonRing').length,0);
-});
-
- test('unchanged dashboard renders retain ring slices; a new flight projection updates them',()=>{
-  const flights=ownFlightFixture().flights;const f=render(flights);
-  const slices=(tree:any)=>{const found:any[]=[];const visit=(n:any)=>{if(n?.type==='SeasonRing')found.push(n.props.slices);n?.children?.forEach(visit);};visit(tree);return found;};
-  const initial=f.nodes.filter(n=>n.type==='SeasonRing').map(n=>n.props.slices);
-  for(let i=0;i<3;i++){const next=slices(f.rerender());assert.equal(next[0],initial[0]);assert.equal(next[1],initial[1]);}
-  const changed=slices(f.rerender([]));assert.notEqual(changed[0],initial[0]);assert.equal(changed[0].length,0);
+test('empty and unknown-only seasons show unknown time at normal and enlarged text',()=>{
+  for(const scale of [1,1.6]) {
+    const empty=render([],'ready',scale);
+    const values=empty.nodes.filter(n=>n.type==='Text'&&n.props.style?.fontSize===28).map(n=>n.children[0]);
+    assert.deepEqual(values,[0,'—']);
+    assert.ok(!empty.text.includes('Saisonzeiten unbekannt'));
+    const flights=structuredClone(ownFlightFixture().flights);
+    flights.forEach(f=>{f.facts.assessment.date={...f.facts.assessment.date,state:'parsed',value:'2026-01-01'};f.facts.assessment.durations.flight={state:'unknown',minutes:null,evidence:[]};});
+    assert.match(render(flights,'ready',scale).text,/Saisonzeiten unbekannt/);
+  }
 });
 
 test('cloned identical flight values reuse processed results and a same-count correction recomputes',()=>{
@@ -102,8 +96,8 @@ test('retrieval or Medical changes and temporary unavailability do not reprocess
 test('first-use/loading/failure dashboard avoids empty promotions; returning dashboard leads with saved season and flights',()=>{
   for(const phase of ['failed','missing']) assert.equal(render([],phase).nodes.length,0);
   const f=render(ownFlightFixture().flights);
-  assert.deepEqual(f.nodes.filter(n=>n.type==='Section').map(n=>n.props.title),['Meine Saison','Deine letzten zwei Flüge']);
-  const season=f.nodes.findIndex(n=>n.type==='SeasonRing');
+  assert.deepEqual(f.nodes.filter(n=>n.type==='Section').map(n=>n.props.title),['Meine Saison','Letzte Flüge']);
+  const season=f.nodes.findIndex(n=>n.type==='Text'&&n.props.style?.fontSize===28);
   const paper=f.nodes.findIndex(n=>n.props.accessibilityLabel==='Informationen zum Papierflugbuch ansehen');
   assert.ok(season>=0&&paper>season);assert.ok(!f.text.includes('Kein gespeicherter Track'));
   assert.ok(!f.nodes.some(n=>n.props.accessibilityLabel?.startsWith('Gespeicherten Flug ')));
@@ -113,8 +107,8 @@ test('first-use/loading/failure dashboard avoids empty promotions; returning das
 test('cancelled first login leaves no empty dashboard while a returning empty account keeps truthful zero and unknown time',()=>{
   const f=render([]);assert.equal(f.changeView({flights:[],snapshot:{account:null,savedRetrievals:[]}}),null);
   const tree=f.changeView({flights:[],snapshot:{account:{accountRef:'101'},savedRetrievals:[]}});
-  const rings:any[]=[];const visit=(n:any)=>{if(n?.type==='SeasonRing')rings.push(n);n?.children?.forEach(visit);};visit(tree);
-  assert.deepEqual(rings.map(r=>r.props.value),['0','—']);
+  const values:any[]=[];const visit=(n:any)=>{if(n?.type==='Text'&&n.props.style?.fontSize===28)values.push(n.children[0]);n?.children?.forEach(visit);};visit(tree);
+  assert.deepEqual(values,[0,'—']);
 });
 
  test('Start shows preparation feedback without publishing unverified cached totals',()=>{
@@ -130,9 +124,18 @@ test('cancelled first login leaves no empty dashboard while a returning empty ac
 test('recent-flight boxes show date, aircraft, crew and reported duration without navigation',()=>{
  const flights=structuredClone(ownFlightFixture().flights);
  flights[0]!.facts.assessment.durations.flight={state:'known',minutes:95,evidence:[]};
+ flights.forEach(f=>{f.facts.assessment.fields.companion={state:'blank',raw:'',label:'Begleitung'};});
  const f=render(flights);
- assert.match(f.text,/Deine letzten zwei Flüge/);assert.match(f.text,/1:35 h/);
- assert.match(f.text,/Pilot: /);assert.match(f.text,/Begleitung: /);
- assert.equal(f.nodes.filter(n=>n.props.onPress&&n.type!=='Pressable').length,0);
+ assert.match(f.text,/Letzte Flüge/);assert.match(f.text,/1:35 h/);
+ assert.match(f.text,/Pilot: /);assert.ok(!f.text.includes('Begleitung: '));
+ assert.equal(f.nodes.filter(n=>n.props.onPress&&n.type!=='Pressable'&&n.type!=='Section').length,0);
  assert.ok(!f.nodes.some(n=>n.props.accessibilityLabel?.startsWith('Gespeicherten Flug ')));
+});
+
+test('recent summary includes a known companion without inventing an identity',()=>{
+ const flights=structuredClone(ownFlightFixture().flights);
+ flights.forEach(f=>{f.facts.assessment.fields.companion={state:'value',raw:'Alex Example',label:'Begleitung'};});
+ assert.match(render(flights).text,/Begleitung: /);
+ flights.forEach(f=>{f.facts.assessment.fields.companion={state:'value',raw:'   ',label:'Begleitung'};});
+ assert.ok(!render(flights).text.includes('Begleitung: '));
 });

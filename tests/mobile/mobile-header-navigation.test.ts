@@ -396,9 +396,9 @@ test('nested settings preserve the unsaved profile draft and each sheet scroll o
   f.press('Pressable','Verein');assert.equal(f.find('OwnFlights').props.active,false);
  });
 
-test('Start has no flight drilldown and the Flüge tab opens without provider work', () => {
+test('Start offers the general Flüge route without per-flight drilldown or provider work', () => {
   const f=fixture();
-  assert.equal(f.find('Dashboard').props.onFlights,undefined);
+  f.find('Dashboard').props.onFlights();f.render();assert.equal(f.find('OwnFlights').props.active,true);
   f.press('Pressable','Flüge');
   assert.equal(f.find('OwnFlights').props.active,true);
   assert.deepEqual(f.calls,[]);

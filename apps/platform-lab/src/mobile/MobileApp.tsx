@@ -201,7 +201,7 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
           <ConnectionSummary compact now={now} reminderSnooze={reminder.snooze} onSnoozeReminder={reminder.save} controller={flightStatusController} ownFlights={ownFlights.view} phase={ownFlights.phase} onUpdate={() => openFlightFlow(true)} onOpen={() => openFlightFlow()} />
           {reminder.error&&<Label muted>Erinnerungseinstellung konnte nicht gelesen oder gespeichert werden.</Label>}
           <View style={{width:'100%',maxWidth:wide?920:480,alignSelf:'center',flexDirection:wide?'row':'column',alignItems:'flex-start',gap:10}}>
-          <View style={{width:'100%',flex:wide?1:undefined}}><Dashboard now={now} ownFlights={ownFlights.view} ownFlightPhase={ownFlights.phase} pending={null} width={width} fontScale={fontScale} onPaper={() => openHeaderSheet('paperInfo')} /></View>
+          <View style={{width:'100%',flex:wide?1:undefined}}><Dashboard now={now} ownFlights={ownFlights.view} ownFlightPhase={ownFlights.phase} pending={null} width={width} fontScale={fontScale} onPaper={() => openHeaderSheet('paperInfo')} onFlights={() => { overlayHistory.current=[]; setDetail(null); setSheet(null); setTab('flights'); }} /></View>
           {ownFlights.phase==='ready'&&!!selected?.snapshot.account&&<View style={{width:'100%',flex:wide?1:undefined}}>{dutyContent()}</View>}
           </View>
         </ScrollView>
