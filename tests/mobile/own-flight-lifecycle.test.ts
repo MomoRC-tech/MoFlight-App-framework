@@ -119,7 +119,7 @@ test('identical verified reads reuse the processed view and metadata changes ret
   const h=host(); const first=(await h.flush()).view;
   h.session.service.readStored=async()=>structuredClone({snapshot:h.snapshot,flights:h.flights});
   h.reload(); let state=await h.flush(); assert.equal(state.view,first);
-  h.background(); assert.equal(h.render().view,null); h.foreground();
+  h.background(); assert.equal(h.render().view,first); h.foreground();
   state=await h.flush(); assert.equal(state.view,first);
   h.session.service.readStored=async()=>({...structuredClone({snapshot:h.snapshot,flights:h.flights}),snapshot:{...structuredClone(h.snapshot),generation:3}});
   h.reload(); state=await h.flush(); assert.notEqual(state.view,first); assert.equal(state.view.flights,first.flights);
@@ -141,6 +141,93 @@ test('ordinary tab return and duplicate active events preserve the verified view
  h.setFlightsActive(false);h.setFlightsActive(true);h.setFlightsActive(false);
  h.foreground();h.foreground();
  const next=await h.flush();assert.equal(next.phase,'ready');assert.equal(next.view,first);assert.equal(h.closes(),reads);
- h.background();assert.equal(h.render().view,null);h.foreground();await h.flush();assert.equal(h.closes(),reads+1);
+ h.background();assert.equal(h.render().view,first);h.foreground();await h.flush();assert.equal(h.closes(),reads+1);
  h.unmount();
+});
+
+test('app switching retains the verified screen and detail throughout a slow unchanged resume read',async()=>{
+ const h=host();let state=await h.flush();await state.openDetail(h.flights[0]!);
+ const first=h.render(),pending=deferred<any>();
+ h.session.service.readStored=()=>pending.promise;
+ h.background();state=h.render();assert.equal(state.phase,'ready');assert.equal(state.view,first.view);assert.equal(state.detail,first.detail);
+ h.foreground();state=await h.flush();assert.equal(state.phase,'ready');assert.equal(state.view,first.view);assert.equal(state.detail,first.detail);
+ pending.resolve(structuredClone({snapshot:h.snapshot,flights:h.flights}));state=await h.flush();
+ assert.equal(state.view,first.view);assert.equal(state.detail,first.detail);assert.equal(state.phase,'ready');h.unmount();
+});
+
+test('changed resume data replaces dependent values and invalidates the old detail',async()=>{
+ const h=host();let state=await h.flush();await state.openDetail(h.flights[0]!);const first=h.render().view;
+ h.session.service.readStored=async()=>({snapshot:{...h.snapshot,generation:3},flights:h.flights});
+ h.background();h.foreground();state=await h.flush();
+ assert.equal(state.phase,'ready');assert.equal(state.view.snapshot.generation,3);assert.equal(state.view.flights,first.flights);assert.equal(state.detail,null);h.unmount();
+});
+
+test('resume failure or missing selection clears cached view and detail; explicit retry recovers',async()=>{
+ const h=host();let state=await h.flush();await state.openDetail(h.flights[0]!);const read=h.session.service.readStored;
+ h.session.assertCurrent=async()=>{throw new Error('Synthetic expired owner lease');};
+ h.background();h.foreground();state=await h.flush();assert.equal(state.phase,'failed');assert.equal(state.view,null);assert.equal(state.detail,null);
+ h.session.assertCurrent=async()=>{};h.session.service.readStored=read;await state.reload();assert.equal(h.render().phase,'ready');
+ h.ports.open=async()=>null;h.background();h.foreground();state=await h.flush();assert.equal(state.phase,'missing');assert.equal(state.view,null);h.unmount();
+});
+
+test('writer suspension while backgrounded removes cached data before selecting a different account',async()=>{
+ const h=host();let state=await h.flush();await state.openDetail(h.flights[0]!);
+ h.background();h.setActive(false);state=h.render();assert.equal(state.view,null);assert.equal(state.detail,null);
+ h.session.ownerId='owner-b';h.session.storeId='store-b';
+ h.session.service.readStored=async()=>({snapshot:{...h.snapshot,ownerId:'owner-b',storeId:'store-b',account:{provider:'vereinsflieger',accountRef:'202'}},flights:h.flights.map(f=>({...f,accountRef:'202'}))});
+ h.setActive(true);h.foreground();state=await h.flush();assert.equal(state.view.snapshot.ownerId,'owner-b');assert.equal(state.view.snapshot.account.accountRef,'202');assert.equal(state.detail,null);h.unmount();
+});
+
+test('closing a retained detail during resume does not cancel the authoritative refresh',async()=>{
+ const h=host();let state=await h.flush();await state.openDetail(h.flights[0]!);const pending=deferred<any>();
+ h.session.service.readStored=()=>pending.promise;h.background();h.foreground();await h.flush();h.render().clearDetail();
+ pending.resolve({snapshot:{...h.snapshot,generation:9},flights:[]});state=await h.flush();
+ assert.equal(state.detail,null);assert.equal(state.view.snapshot.generation,9);assert.equal(state.view.flights.length,0);h.unmount();
+});
+
+test('a recent-flight request during quiet resume waits and opens exactly once',async()=>{
+ const h=host(true);await h.flush();const pending=deferred<any>();let details=0;
+ h.session.service.readStored=()=>pending.promise;h.session.service.detail=async()=>{details++;return h.detail;};
+ h.background();h.foreground();await h.flush();h.requestFlight(h.flights[0]!.flightId);
+ let state=await h.flush();assert.equal(state.detailBusy,true);assert.equal(details,0);
+ pending.resolve({snapshot:h.snapshot,flights:h.flights});state=await h.flush();
+ assert.equal(state.detail?.flightId,h.flights[0]!.flightId);assert.equal(state.detailBusy,false);assert.equal(details,1);h.unmount();
+});
+
+test('queued detail cannot cross a changed owner even if account and flight identities match',async()=>{
+ const h=host();await h.flush();const pending=deferred<any>();let details=0;
+ h.session.service.readStored=()=>pending.promise;h.session.service.detail=async()=>{details++;return h.detail;};
+ h.background();h.foreground();await h.flush();await h.render().openDetail(h.flights[0]!);
+ h.session.ownerId='owner-b';h.session.storeId='store-b';
+ pending.resolve({snapshot:{...h.snapshot,ownerId:'owner-b',storeId:'store-b'},flights:h.flights});
+ const state=await h.flush();assert.equal(state.view.snapshot.ownerId,'owner-b');assert.equal(state.detail,null);assert.equal(state.detailBusy,false);assert.equal(details,0);h.unmount();
+});
+
+test('background during detail read drops the late detail and resumes without a stuck spinner',async()=>{
+ const h=host();await h.flush();const pending=deferred<any>();h.session.service.detail=()=>pending.promise;
+ const opening=h.render().openDetail(h.flights[0]!);h.background();h.foreground();pending.resolve(h.detail);await opening;
+ const state=await h.flush();assert.equal(state.phase,'ready');assert.equal(state.detail,null);assert.equal(state.detailBusy,false);h.unmount();
+});
+
+test('repeated app switches discard old refreshes and publish only the latest changed data',async()=>{
+ const h=host();const first=(await h.flush()).view;const pending=deferred<any>();let reads=0;
+ h.session.service.readStored=async()=>++reads===1?pending.promise:{snapshot:{...h.snapshot,generation:4},flights:[]};
+ h.background();h.foreground();await h.flush();h.background();h.foreground();
+ assert.equal(h.render().view,first);pending.resolve({snapshot:h.snapshot,flights:h.flights});const state=await h.flush();
+ assert.equal(state.phase,'ready');assert.equal(state.view.snapshot.generation,4);assert.equal(reads,2);h.unmount();
+});
+
+test('Back during an unfinished detail permits the next selected flight after the reader releases',async()=>{
+ const h=host();await h.flush();const pending=deferred<any>();let reads=0;
+ const second={...h.flights[1]!,factHistory:[],captures:[],pending:[]};
+ h.session.service.detail=async()=>++reads===1?pending.promise:second;
+ const opening=h.render().openDetail(h.flights[0]!);h.render().clearDetail();await h.render().openDetail(h.flights[1]!);
+ pending.resolve(h.detail);await opening;const state=await h.flush();assert.equal(state.detail?.flightId,second.flightId);assert.equal(state.detailBusy,false);assert.equal(reads,2);h.unmount();
+});
+
+test('unmount while a resume refresh has a queued detail never opens it',async()=>{
+ const h=host();await h.flush();const pending=deferred<any>();let details=0;
+ h.session.service.readStored=()=>pending.promise;h.session.service.detail=async()=>{details++;return h.detail;};
+ h.background();h.foreground();await h.flush();await h.render().openDetail(h.flights[0]!);h.unmount();
+ pending.resolve({snapshot:h.snapshot,flights:h.flights});await h.flush();assert.equal(details,0);
 });

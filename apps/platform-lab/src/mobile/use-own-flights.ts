@@ -13,16 +13,26 @@ export function useOwnFlights(ports: OwnFlightReadPorts, active: boolean, reload
   const [detailBusy, setDetailBusy] = useState(false), [detailError, setDetailError] = useState<string | null>(null);
   const alive = useRef(false), enabled = useRef(active), foreground = useRef(AppState.currentState === 'active');
   const sequence = useRef(0), locked = useRef(false), queued = useRef(false);
+  const queuedQuiet = useRef(false), readingDetail = useRef(false);
+  const pendingDetail = useRef<RealFlightListItem | null>(null);
+  const detailReader = useRef<(selected: RealFlightListItem) => Promise<void>>(async () => {});
   enabled.current = active;
   const current = (id: number) => alive.current && enabled.current && foreground.current && sequence.current === id;
-  const clearDetail = useCallback(() => { sequence.current++; setDetail(null); setDetailBusy(false); setDetailError(null); }, []);
-  const reload: () => Promise<void> = useCallback(async () => {
+  const clearDetail = useCallback(() => {
+    // Back cancels a detail request, not a concurrent quiet list refresh.
+    if (readingDetail.current) sequence.current++;
+    pendingDetail.current = null; setDetail(null); setDetailBusy(false); setDetailError(null);
+  }, []);
+  const reload: (quiet?: boolean) => Promise<void> = useCallback(async (quiet = false) => {
     if (!alive.current || !enabled.current || !foreground.current) return;
-    if (locked.current) { queued.current = true; sequence.current++; return; }
+    if (locked.current) {
+      queuedQuiet.current = queued.current ? queuedQuiet.current && quiet : quiet;
+      queued.current = true; sequence.current++; return;
+    }
     queued.current = false; locked.current = true;
     const id = ++sequence.current;
     const diagnosis = diagnosticJournal.begin('read-flights'), stage = diagnosis.span('local-read');
-    setPhase('loading'); setDetail(null); setDetailBusy(false); setDetailError(null);
+    if (!quiet) { setPhase('loading'); pendingDetail.current = null; setDetail(null); setDetailBusy(false); setDetailError(null); }
     try {
       const next = await readOwnFlightView(ports);
       stage(true); diagnosis.finish(current(id)?'success':'cancelled',current(id)?'none':'stale-selection');
@@ -31,25 +41,37 @@ export function useOwnFlights(ports: OwnFlightReadPorts, active: boolean, reload
         const sameScope = prior && next && prior.snapshot.ownerId === next.snapshot.ownerId &&
           prior.snapshot.storeId === next.snapshot.storeId && prior.snapshot.account?.accountRef === next.snapshot.account?.accountRef;
         const shared = sameScope ? reuseEqualData(prior, next) : next;
+        if (!sameScope) { pendingDetail.current = null; setDetailBusy(false); }
+        // Details include capture/history evidence beyond the visible facts revision.
+        if (!sameScope || shared?.snapshot !== prior?.snapshot || shared?.flights !== prior?.flights) setDetail(null);
         processedView.current = shared;
         setView(shared); setPhase(shared ? 'ready' : 'missing');
       }
     } catch (error) {
       stage(false); diagnosis.finish(current(id)?'failed':'cancelled',current(id)?'operation-failed':'stale-selection');
-      if (current(id)) { console.warn('Own-flight local read failed', error instanceof Error ? error.message : 'Unknown read failure'); processedView.current = null; setView(null); setPhase('failed'); }
+      if (current(id)) { console.warn('Own-flight local read failed', error instanceof Error ? error.message : 'Unknown read failure'); processedView.current = null; pendingDetail.current = null; setView(null); setDetail(null); setDetailBusy(false); setPhase('failed'); }
     } finally {
       locked.current = false;
-      if (queued.current && alive.current && enabled.current && foreground.current) void reload();
+      if (queued.current && alive.current && enabled.current && foreground.current) void reload(queuedQuiet.current);
+      else if (pendingDetail.current && alive.current && enabled.current && foreground.current) { const selected = pendingDetail.current; pendingDetail.current = null; void detailReader.current(selected); }
     }
   }, [ports]);
   const openDetail = async (selected: RealFlightListItem) => {
-    if (!view || locked.current || !alive.current || !enabled.current || !foreground.current ||
-      !view.flights.some(f => f.flightId === selected.flightId && f.factsRevision === selected.factsRevision)) return;
-    locked.current = true; const id = ++sequence.current;
+    const latest = processedView.current;
+    if (!alive.current || !enabled.current || !foreground.current) return;
+    if (!latest ||
+      !latest.flights.some(f => f.flightId === selected.flightId && f.accountRef === selected.accountRef &&
+        f.bindingId === selected.bindingId && f.sourceFlightRef === selected.sourceFlightRef && f.factsRevision === selected.factsRevision)) { setDetailBusy(false); return; }
+    if (locked.current) {
+      if (readingDetail.current) sequence.current++;
+      pendingDetail.current = selected; setDetail(null); setDetailBusy(true); setDetailError(null);
+      return;
+    }
+    locked.current = true; readingDetail.current = true; const id = ++sequence.current;
     const diagnosis = diagnosticJournal.begin('read-flight-detail'), stage = diagnosis.span('detail-read');
     setDetail(null); setDetailBusy(true); setDetailError(null);
     try {
-      const next = await readOwnFlightDetail(ports, view.snapshot, selected);
+      const next = await readOwnFlightDetail(ports, latest.snapshot, selected);
       stage(true); diagnosis.finish(current(id)?'success':'cancelled',current(id)?'none':'stale-selection');
       if (current(id)) setDetail(next);
     } catch (error) {
@@ -61,27 +83,30 @@ export function useOwnFlights(ports: OwnFlightReadPorts, active: boolean, reload
         setDetailError(error instanceof OwnFlightChangedError ? 'Die gespeicherte Auswahl hat sich geändert. Bitte die lokale Liste erneut laden.' : 'Flugdetails konnten nicht geprüft werden. Gespeicherte Daten bleiben erhalten.');
       }
     } finally {
-      locked.current = false;
+      locked.current = false; readingDetail.current = false;
       if (current(id)) setDetailBusy(false);
-      if (queued.current && alive.current && enabled.current && foreground.current) void reload();
+      if (queued.current && alive.current && enabled.current && foreground.current) void reload(queuedQuiet.current);
+      else if (pendingDetail.current && alive.current && enabled.current && foreground.current) { const next = pendingDetail.current; pendingDetail.current = null; void detailReader.current(next); }
     }
   };
+  detailReader.current = openDetail;
   useEffect(() => {
     alive.current = true;
     const subscription = AppState.addEventListener('change', state => {
       const nextForeground = state === 'active';
       // Native surfaces can repeat an active notification without leaving the app.
-      // Only a real lifecycle transition invalidates the verified local view.
+      // A real transition cancels unfinished work, retaining the last verified
+      // local screen. Account/writer changes still invalidate through active/reloadKey.
       if (foreground.current === nextForeground) return;
       foreground.current = nextForeground;
-      if (!foreground.current) { sequence.current++; setView(null); setDetail(null); setDetailBusy(false); setPhase('loading'); }
-      else if (enabled.current) void reload();
+      if (!foreground.current) { sequence.current++; pendingDetail.current = null; setDetailBusy(false); }
+      else if (enabled.current) void reload(true);
     });
-    return () => { alive.current = false; sequence.current++; queued.current = false; subscription.remove(); };
+    return () => { alive.current = false; sequence.current++; queued.current = false; pendingDetail.current = null; subscription.remove(); };
   }, [reload]);
   useEffect(() => {
     if (active) void reload();
-    else { sequence.current++; setView(null); setDetail(null); setDetailBusy(false); setPhase('loading'); }
+    else { sequence.current++; processedView.current = null; pendingDetail.current = null; setView(null); setDetail(null); setDetailBusy(false); setPhase('loading'); }
   }, [active, reloadKey, reload]);
   return { view, phase, detail, detailBusy, detailError, openDetail, clearDetail, reload };
 }
