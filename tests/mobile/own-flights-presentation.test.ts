@@ -9,6 +9,7 @@ import * as review from '../../apps/platform-lab/src/vereinsflieger/capture-revi
 import { planFlightRetrieval } from '../../apps/platform-lab/src/vereinsflieger/retrieval-policy.ts';
 import { dataFreshness } from '../../apps/platform-lab/src/mobile/data-freshness.ts';
 import { ownFlightFixture } from './own-flight-fixture.ts';
+import * as statistics from '../../apps/platform-lab/src/mobile/real-flight-statistics.ts';
 
 interface Element {type:string;props:Record<string,any>;children:any[]}
 const source=ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/mobile/OwnFlights.tsx',import.meta.url),'utf8'),{
@@ -32,7 +33,7 @@ function fixture() {
     ...leaves(['ActivityIndicator','FlatList','Pressable','ScrollView','TextInput','View']),Keyboard:{dismiss(){}},StyleSheet:{create:(x:unknown)=>x},useWindowDimensions:()=>({width:390,fontScale:1}),
   },'./theme':{...leaves(['Action','Card','Chip','Empty','GliderMark','IconLabel','Label','Section']),colors:{},ui:{}},'./SymbolIcon':leaves(['SymbolIcon']),
   './use-own-flights':{useOwnFlights:()=>{throw new Error('Presentation must reuse the shell reader');}},'./own-flight-reader-native':{ownFlightReadPorts:{}},'./own-flight-model':model,
-  '../vereinsflieger/retrieval-policy':{planFlightRetrieval},'./data-freshness':{dataFreshness},'../vereinsflieger/capture-review':review};
+  '../vereinsflieger/retrieval-policy':{planFlightRetrieval},'./data-freshness':{dataFreshness},'../vereinsflieger/capture-review':review,'./real-flight-statistics':statistics};
   const exports:any={};runInNewContext(source,{exports,require:(name:string)=>{assert.ok(name in modules,name);return modules[name];}});
   let tree:Element;const header=()=>{};
   function render(){index=0;tree=exports.OwnFlights({active,filterRequest,data,onUpdate:()=>false,onHeaderChange:header});effects.splice(0).forEach(fn=>fn());return tree;}
@@ -167,4 +168,19 @@ test('month request clears stale search and opens only the exact saved identity 
   assert.equal(opened.length,1);
   f.find('Pressable','Zeitraumfilter entfernen').props.onPress();f.render();
   assert.ok(!f.nodes().some(n=>n.props.accessibilityLabel==='Zeitraumfilter entfernen'));
+});
+
+test('visible filtered totals follow exact rows, distinguish zero/unknown/empty and reset on owner change',()=>{
+  const f=fixture();
+  f.data.view.flights[0].facts.assessment.durations.flight={state:'known',minutes:75};
+  f.data.view.flights[1].facts.assessment.durations.flight={state:'known',minutes:0};
+  f.data.view.flights[2].facts.assessment.durations.flight={state:'unknown',minutes:null};
+  const summary=()=>{f.render();return visibleText(f.nodes().find(n=>n.props.testID==='filtered-flight-summary')).replace(/\s+/g,' ');};
+  assert.match(summary(),/Bekannte Flugzeit: 1:15 h/);assert.match(summary(),/1 Flug\/Flüge ohne bekannte Flugzeit/);
+  f.request(2025);assert.match(summary(),/Bekannte Flugzeit: 0:00 h/);assert.ok(!summary().includes('ohne bekannte'));
+  f.find('TextInput','Flüge durchsuchen').props.onChangeText('absent query');assert.match(summary(),/Bekannte Flugzeit: —/);
+  f.data.view={...f.data.view,snapshot:{...f.data.view.snapshot,ownerId:'new-owner',storeId:'new-store'},flights:[f.data.view.flights[2]]};
+  f.render();assert.match(summary(),/Bekannte Flugzeit: unbekannt/);
+  assert.equal(f.find('TextInput','Flüge durchsuchen').props.value,'');
+  assert.equal(f.find('FlatList').props.data.length,1);
 });

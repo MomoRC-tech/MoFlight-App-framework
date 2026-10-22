@@ -14,7 +14,9 @@ export async function refreshDutyRoster(owner: string, accountRef: string, ports
   const gate = () => { if (!ports.active()) throw new Error('Duty update expired'); };
   gate();
   const own = await ports.readPage('own'); gate();
+  if (own.path !== '/member/profile/myservices.php') throw new Error('Unexpected own duty source');
   const club = await ports.readPage('club'); gate();
+  if (club.path !== '/member/community/serviceshedulelist.php') throw new Error('Unexpected club duty source');
   const current = await loadProviderScope(owner); gate();
   if (canonical(scope) !== canonical(current)) throw new Error('Duty scope changed');
   const snapshot = createDutyRosterSnapshot(scope, [own, club], new Date().toISOString());

@@ -15,6 +15,30 @@ function capture(rows: string[][] = [], path = '/member/profile/myservices.php',
 }
 const sample = () => createDutyRosterSnapshot(scope, [capture([['Custom duty', '20.10.2026 -\n25.10.2026 23:59', 'Ada Synthetic\nBob Example']])], at);
 
+test('source coverage keeps local window, missing/empty/truncated pages and unknown dates distinct after offline reopen', async () => {
+  const db = nodeDriver(':memory:');
+  try {
+    const own = capture([['Own', '01.10.2026 - 25.10.2026', 'Ada Synthetic'], ['Unknown', '', 'Bob Example']]);
+    const club = capture([], '/member/community/serviceshedulelist.php', 'club-page');
+    const snapshot = createDutyRosterSnapshot(scope,[own,club],at);
+    const store = new DutyRosterStore(db,scope,async()=>{},()=>time);
+    await store.initialize(); await store.save(snapshot);
+    const reopened = new DutyRosterStore(db,scope,async()=>{},()=>time); await reopened.initialize(false);
+    const overview = buildDutyOverview(scope,await reopened.load(),'2026-10-22',time);
+    assert.deepEqual(overview.sources?.map(s=>[s.source,s.state,s.rowCount,s.inWindowCount,s.unknownPeriodCount,s.complete]),[
+      ['own','partial',2,1,1,false],['personal-list','missing',0,0,0,false],['club','empty-page',0,0,0,false],
+    ]);
+    assert.deepEqual(overview.sources?.[0]?.displayedInterval,{start:'2026-10-01',end:'2026-10-25'});
+    assert.deepEqual(overview.window,{start:'2026-10-22',end:'2026-11-01'});
+    assert.equal(overview.status,'partial');
+    assert.ok(!JSON.stringify(overview.sources).includes('Ada'));
+    const truncated = createDutyRosterSnapshot(scope,[{...own,coverage:{...own.coverage,truncated:true}}],at);
+    const cut = buildDutyOverview(scope,truncated,'2026-10-22',time);
+    assert.equal(cut.sources?.[0]?.state,'truncated');assert.match(cut.coverageMessage,/abgeschnitten/);
+    assert.deepEqual(buildDutyOverview(scope,snapshot,'2026-11-22',time+DUTY_RETENTION_MS).sources,[]);
+  } finally { await db.close(); }
+});
+
 test('window includes current partial week through following Sunday, including Sunday/month/year edges', () => {
   assert.deepEqual(dutyWindow('2026-10-22'), { start: '2026-10-22', end: '2026-11-01' });
   assert.equal(dutyWindow('2026-10-25').end, '2026-11-01');

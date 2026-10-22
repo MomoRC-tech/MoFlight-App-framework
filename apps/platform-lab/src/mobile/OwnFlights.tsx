@@ -7,6 +7,7 @@ import type { useOwnFlights } from './use-own-flights';
 import { allOwnFlights, ownFlightYears, ownFlightRegistrations, ownRawValue, selectOwnFlights, requestedOwnFlight, type OwnFlightRequest, type OwnFlightFilters } from './own-flight-model';
 import { planFlightRetrieval } from '../vereinsflieger/retrieval-policy';
 import { dataFreshness } from './data-freshness';
+import { summarizeRealFlights, formatReportedMinutes } from './real-flight-statistics';
 import { reviewDuration, reviewParsedField, reviewRawField } from '../vereinsflieger/capture-review';
 
 export interface OwnFlightHeader { title: string; back?: () => void }
@@ -22,6 +23,7 @@ export function OwnFlights({ active, data, filterRequest, onHeaderChange }: {
   const tablet = width >= 600 && fontScale <= 1.3;
   const flights = useMemo(() => data.view?.flights ?? [], [data.view?.flights]);
   const selected = useMemo(() => selectOwnFlights(flights, filters), [flights, filters]);
+  const summary = useMemo(() => summarizeRealFlights(selected), [selected]);
   const years = useMemo(() => ownFlightYears(flights), [flights]);
   const registrations = useMemo(() => ownFlightRegistrations(flights), [flights]);
   const plan = useMemo(() => planFlightRetrieval(data.view?.snapshot.savedRetrievals ?? []), [data.view?.snapshot.savedRetrievals]);
@@ -57,7 +59,12 @@ export function OwnFlights({ active, data, filterRequest, onHeaderChange }: {
     {filters.dateRange && <View style={ui.row}><Label muted style={{flex:1}}>{filters.dateRange.from} – {filters.dateRange.to}</Label><Pressable accessibilityRole="button" accessibilityLabel="Zeitraumfilter entfernen" onPress={()=>changeFilters({...filters,dateRange:null})} style={ui.smallAction}><Label>Entfernen</Label></Pressable></View>}
     {filters.registration !== undefined && <Label>Filter: {filters.registration ?? 'Kennzeichen unbekannt'}</Label>}
     <Card><Section title="Eigene gespeicherte Flüge" icon="flight-paper-plane" />
-      <Label>{selected.length} von {flights.length} gespeicherten Flügen</Label><Label muted>Vereinsflieger · ohne erforderliche Buchzuordnung</Label>
+      <Label>{summary.count} von {flights.length} gespeicherten Flügen</Label>
+      <View testID="filtered-flight-summary">
+        <Label>Bekannte Flugzeit: {summary.count === 0 ? '—' : summary.knownDurationCount ? `${formatReportedMinutes(summary.knownMinutes)} h` : 'unbekannt'}</Label>
+        {summary.unknownDurationCount > 0 && <Label muted>{summary.unknownDurationCount} Flug/Flüge ohne bekannte Flugzeit</Label>}
+        <Label muted>Aus den unten aufgeführten Flügen · gemeldete Flugzeit, keine Rollen-Anrechnung</Label>
+      </View><Label muted>Vereinsflieger · ohne erforderliche Buchzuordnung</Label>
       <Label muted>{freshness.label}</Label>{freshness.reminder && <Label muted>{freshness.note}</Label>}
       {(data.view?.pendingCommand || data.view?.snapshot.recovery.readOnly) && <Label>Eine Speicherung oder Wiederherstellung muss geprüft werden. Der letzte geprüfte Stand bleibt lesbar.</Label>}
       {statusOpen && <>
