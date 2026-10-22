@@ -194,45 +194,45 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundat
 
 ## Dashboard.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](../../../apps/platform-lab/src/mobile/Dashboard.tsx); normalized SHA-256 `d1cbfc7df1ec22a82125d29fce174ab059d6b7a6ccffaee16ff235b9009e8538`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](../../../apps/platform-lab/src/mobile/Dashboard.tsx); normalized SHA-256 `533af6de8c256a90cc0bfda6d17a9489ca43f8998e28a77aad0820b75622dc07`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#1b4269` | 63 |
+| `#1b4269` | 65 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 11` | 63 |
-| `fontSize: 24` | 63 |
-| `fontWeight: '700'` | 63 |
-| `lineHeight: 16` | 63 |
-| `lineHeight: 29` | 63 |
+| `fontSize: 11` | 65 |
+| `fontSize: 24` | 65 |
+| `fontWeight: '700'` | 65 |
+| `lineHeight: 16` | 65 |
+| `lineHeight: 29` | 65 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 10` | 63 |
-| `borderRadius: 12` | 63 |
-| `borderRadius: 4` | 63 |
-| `gap: 4` | 63 |
-| `gap: 5` | 63 |
-| `gap: 6` | 63 |
-| `gap: 8` | 63 |
-| `height: 7` | 63 |
-| `maxWidth: 430` | 63 |
-| `minHeight: 48` | 63 |
-| `minWidth: 0` | 63 |
-| `padding: 9` | 63 |
-| `paddingHorizontal: 11` | 63 |
-| `paddingHorizontal: 7` | 63 |
-| `paddingVertical: 6` | 63 |
-| `width: '100%'` | 63 |
-| `width: 7` | 63 |
+| `borderRadius: 10` | 65 |
+| `borderRadius: 12` | 65 |
+| `borderRadius: 4` | 65 |
+| `gap: 4` | 65 |
+| `gap: 5` | 65 |
+| `gap: 6` | 65 |
+| `gap: 8` | 65 |
+| `height: 7` | 65 |
+| `maxWidth: 430` | 65 |
+| `minHeight: 48` | 65 |
+| `minWidth: 0` | 65 |
+| `padding: 9` | 65 |
+| `paddingHorizontal: 11` | 65 |
+| `paddingHorizontal: 7` | 65 |
+| `paddingVertical: 6` | 65 |
+| `width: '100%'` | 65 |
+| `width: 7` | 65 |
 
 ## DevelopmentHub.tsx
 

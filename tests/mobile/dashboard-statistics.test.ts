@@ -18,12 +18,12 @@ const source=ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/sr
 function render(flights:any[], phase='ready', fontScale=1) {
   const leaves=(names:string[])=>Object.fromEntries(names.map(n=>[n,n]));
   const react={createElement:(type:string,props:Element['props'],...children:any[]):Element=>({type,props:props??{},children:children.flat(Infinity)})};
-  let calculations=0;
+  let calculations=0,monthlyCalculations=0;
   let hookIndex=0; const memos:{deps:unknown[];value:unknown}[]=[];
   const useMemo=(fn:()=>unknown,deps:unknown[])=>{const i=hookIndex++;if(!memos[i]||deps.some((v,n)=>v!==memos[i]!.deps[n]))memos[i]={deps,value:fn()};return memos[i]!.value;};
   const modules:Record<string,unknown>={react:{default:react,useMemo},'react-native':{...leaves(['Pressable','Text','View']),StyleSheet:{create:(x:unknown)=>x}},
     './theme':{...leaves(['Action','Card','GliderMark','IconLabel','Label','Photo','Section']),colors:{},ui:{}},'./SymbolIcon':leaves(['SymbolIcon']),
-    './SeasonMonthlyCharts':leaves(['SeasonMonthlyCharts']), './season-dashboard-model':dashboardModel, './SeasonRing':leaves(['SeasonRing']),'./season-model':season,'./real-flight-statistics':{...statistics,summarizeRealFlights:(...args:Parameters<typeof statistics.summarizeRealFlights>)=>{calculations++;return statistics.summarizeRealFlights(...args);}},
+    './SeasonMonthlyCharts':leaves(['SeasonMonthlyCharts']), './season-dashboard-model':{...dashboardModel,monthlySeasonForCoverage:(...args:Parameters<typeof dashboardModel.monthlySeasonForCoverage>)=>{monthlyCalculations++;return dashboardModel.monthlySeasonForCoverage(...args);}}, './SeasonRing':leaves(['SeasonRing']),'./season-model':season,'./real-flight-statistics':{...statistics,summarizeRealFlights:(...args:Parameters<typeof statistics.summarizeRealFlights>)=>{calculations++;return statistics.summarizeRealFlights(...args);}},
     './processed-result':processedResults,'./data-freshness':{dataFreshness},'../vereinsflieger/retrieval-policy':{planFlightRetrieval}};
   const exports:any={};runInNewContext(source,{exports,Date:class extends Date {getFullYear(){return 2026;}},require:(name:string)=>{
     if(name.startsWith('../../assets/'))return name;assert.ok(name in modules,name);return modules[name];}});
@@ -32,8 +32,22 @@ function render(flights:any[], phase='ready', fontScale=1) {
     onFlights:(year?:number)=>calls.push(year)};
   const tree=exports.Dashboard(props);
   const nodes:Element[]=[];function visit(n:any){if(n?.children){nodes.push(n);n.children.forEach(visit);}}visit(tree);
-  return {nodes,calls,text:JSON.stringify(tree), calculations:()=>calculations, rerender(nextFlights=flights){hookIndex=0;if(nextFlights!==props.ownFlights.flights)props.ownFlights={...props.ownFlights,flights:nextFlights};return exports.Dashboard(props);}, changeView(next:any){hookIndex=0;props.ownFlights=next;return exports.Dashboard(props);}, view:()=>props.ownFlights};
+  return {nodes,calls,text:JSON.stringify(tree), calculations:()=>calculations, monthlyCalculations:()=>monthlyCalculations, rerender(nextFlights=flights){hookIndex=0;if(nextFlights!==props.ownFlights.flights)props.ownFlights={...props.ownFlights,flights:nextFlights};return exports.Dashboard(props);}, changeView(next:any){hookIndex=0;props.ownFlights=next;return exports.Dashboard(props);}, view:()=>props.ownFlights};
 }
+
+test('identical refresh receipt timestamps do not recalculate monthly statistics; coverage and facts changes do',()=>{
+ const f=render(ownFlightFixture().flights);
+ const receipt={from:'2026-01-01',to:'2026-10-21',retrievedAt:'2026-10-21T00:00:00.000Z',savedAt:'2026-10-21T00:00:00.000Z'};
+ const view={...f.view(),snapshot:{...f.view().snapshot,savedRetrievals:[receipt]}};
+ f.changeView(view);const initial=f.monthlyCalculations();
+ const sameCoverage={...view,snapshot:{...view.snapshot,savedRetrievals:[receipt,{...receipt,retrievedAt:'2026-10-22T00:00:00.000Z',savedAt:'2026-10-22T01:00:00.000Z'}]}};
+ f.changeView(sameCoverage);assert.equal(f.monthlyCalculations(),initial);
+ f.changeView({...sameCoverage,medical:{updated:true}});assert.equal(f.monthlyCalculations(),initial);
+ const changedCoverage={...view,snapshot:{...view.snapshot,savedRetrievals:[{...receipt,to:'2026-10-22'}]}};
+ f.changeView(changedCoverage);assert.equal(f.monthlyCalculations(),initial+1);
+ const flights=structuredClone(view.flights);flights[0].facts.assessment.durations.flight={state:'known',minutes:999,evidence:[]};
+ f.changeView({...changedCoverage,flights});assert.equal(f.monthlyCalculations(),initial+2);
+});
 
 test('real season rings use deduplicated aircraft shares and the card supplies its year',()=>{
   const flights=ownFlightFixture().flights;

@@ -12,6 +12,11 @@ const iso = (year: number, month: number, day: number) => `${year}-${String(mont
 export function monthlySeason(flights: readonly RealFlightListItem[], saved: readonly SavedFlightRetrieval[], today: string): SeasonMonth[][] {
   const [year, month, day] = today.split('-').map(Number) as [number, number, number];
   const periods = planFlightRetrieval(saved, new Date(year, month - 1, day, 12)).periods;
+  return monthlySeasonForCoverage(flights, periods, today);
+}
+/** Receipt timestamps are deliberately outside the monthly statistics input. */
+export function monthlySeasonForCoverage(flights: readonly RealFlightListItem[], periods: readonly FlightRetrievalWindow[], today: string): SeasonMonth[][] {
+  const [year, month, day] = today.split('-').map(Number) as [number, number, number];
   const seen = new Set<string>();
   const unique = flights.filter(f => { if(seen.has(f.flightId)) return false; seen.add(f.flightId); return true; });
   return [year, year - 1].map(y => Array.from({ length: 12 }, (_, i) => {

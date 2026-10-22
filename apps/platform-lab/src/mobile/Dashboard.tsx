@@ -8,10 +8,10 @@ import { seasonRingSlices } from './season-model';
 import { SymbolIcon } from './SymbolIcon';
 import { createProcessedSelector } from './processed-result';
 import type { RealFlightListItem } from '../vereinsflieger/real-flight-library';
-import { latestSavedFlights, abbreviatedCrew, monthlySeason } from './season-dashboard-model';
+import { latestSavedFlights, abbreviatedCrew, monthlySeasonForCoverage } from './season-dashboard-model';
 import { SeasonMonthlyCharts } from './SeasonMonthlyCharts';
 import type { OwnFlightRequest } from './own-flight-model';
-import type { SavedFlightRetrieval } from '../vereinsflieger/retrieval-policy';
+import { planFlightRetrieval, type FlightRetrievalWindow, type SavedFlightRetrieval } from '../vereinsflieger/retrieval-policy';
 const emptyStatistics = summarizeRealFlights([]);
 const emptySlices: ReturnType<typeof seasonRingSlices> = [];
 interface Props {
@@ -27,8 +27,10 @@ export function Dashboard({ ownFlights, ownFlightPhase, pending, fontScale, onPa
     return { statistics, latest:latestSavedFlights(flights), countSlices:seasonRingSlices(statistics.season.aircraft,'count'),timeSlices:seasonRingSlices(statistics.season.aircraft,'knownMinutes') };
   }), []);
   const processed = processFlights(scope, ownFlights ? { flights:ownFlights.flights, year } : null);
-  const processMonths = useMemo(() => createProcessedSelector(({flights,saved,today}:{flights:RealFlightListItem[];saved:SavedFlightRetrieval[];today:string})=>monthlySeason(flights,saved,today)), []);
-  const monthly = processMonths(scope,ownFlights?{flights:ownFlights.flights,saved:ownFlights.snapshot.savedRetrievals,today}:null);
+  const processCoverage=useMemo(()=>createProcessedSelector(({saved,today}:{saved:SavedFlightRetrieval[];today:string})=>planFlightRetrieval(saved,new Date(today+'T12:00:00')).periods),[]);
+  const coverage=processCoverage(scope,ownFlights?{saved:ownFlights.snapshot.savedRetrievals,today}:null);
+  const processMonths = useMemo(() => createProcessedSelector(({flights,coverage,today}:{flights:RealFlightListItem[];coverage:FlightRetrievalWindow[];today:string})=>monthlySeasonForCoverage(flights,coverage,today)), []);
+  const monthly = processMonths(scope,ownFlights&&coverage?{flights:ownFlights.flights,coverage,today}:null);
   const season = (processed?.statistics ?? emptyStatistics).season;
   const time = season.knownDurationCount ? formatReportedMinutes(season.knownMinutes) : '—';
   const showRings = fontScale <= 1.3 && String(season.count).length <= 5 && time.length <= 5;
