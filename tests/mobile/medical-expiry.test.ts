@@ -25,6 +25,17 @@ test('column values use projection order even when source table indexes are spar
   assert.equal(assessment.state, 'later');
 });
 
+test('observed provider expiry prefix and opaque certificate reference preserve the date without parsing the reference', () => {
+  const source=capture([['Klasse 2','Gültig bis 31.12.2027 - DE-0000000-0'],['LAPL','Gültig bis 30.06.2028 - DE-0000000-1']]);
+  const original=structuredClone(source);
+  assert.equal(medicalExpiry(source,now).date,'31.12.2027');
+  assert.equal(medicalExpiry(source,now).state,'later');
+  assert.deepEqual(source,original);
+  for(const raw of ['Gültig bis 31.02.2027 - DE-0000000-0','Gültig bis 31.12.2027 - DE-0000000-0 01.01.2028','Gültig bis unknown - DE-0000000-0']){
+    assert.equal(medicalExpiry(capture([['Klasse 2',raw]]),now).date,null);
+  }
+});
+
 test('date colors classify today and the six-calendar-month boundary as soon, then become quiet', () => {
   assert.equal(medicalExpiry(capture([['Klasse 2', '22.10.2026']]), now).state, 'soon');
   assert.equal(medicalExpiry(capture([['Klasse 2', '22.04.2027']]), now).state, 'soon');
