@@ -86,6 +86,7 @@ function fixture(options: { panel?:boolean; developmentRecoveryCheckpoints?: boo
   let nativeStops = 0;
   let nativeDocument = probe.LOGIN_URL;
   let nativeLoginForm: boolean | undefined;
+  let knownLoginDocument:string|null=null;
   let automaticLoginObservation = true;
   const deliveredLoginObservations = new Set<string>();
   const nativeWeb = { injectJavaScript: (script: string) => injections.push(script), reload() { nativeReloads++; }, stopLoading() { nativeStops++; }, goBack() { historyBacks++; } };
@@ -226,12 +227,13 @@ function fixture(options: { panel?:boolean; developmentRecoveryCheckpoints?: boo
       const window: any = { ReactNativeWebView: { postMessage: (data: string) => (web.props.onMessage as (event: unknown) => void)({ nativeEvent: { url: nativeDocument, data } }) } };
       window.top = window;
       runInNewContext(script, { window, location: new URL(nativeDocument), document: { readyState: 'complete',
-        querySelector: () => (nativeLoginForm ?? nativeDocument === probe.LOGIN_URL) ? {} : null } });
+        querySelector: () => (nativeLoginForm ?? (nativeDocument === probe.LOGIN_URL||nativeDocument===knownLoginDocument)) ? {} : null } });
       tree = render();
     }
     return tree;
   }
   async function loadPage(url: string) {
+    knownLoginDocument=null;
     nativeDocument = url;
     const web = find(render(), element => element.type === 'WebView'); assert.ok(web);
     const event = { nativeEvent: { url } };
@@ -275,6 +277,7 @@ function fixture(options: { panel?:boolean; developmentRecoveryCheckpoints?: boo
     return flush();
   }
   async function contextMessage(observed: unknown, sender = context.PROFILE_URL, nonce?: string, documentUrl = context.PROFILE_URL, kind = 'vf-context-v1') {
+    if((observed as {error?:string})?.error==='session-required')knownLoginDocument=nativeDocument;
     const web = find(render(), element => element.type === 'WebView'); assert.ok(web);
     const token = nonce ?? /nonce:"([^"]+)"/.exec(injections.at(-1) ?? '')?.[1]; assert.ok(token, 'Missing issued context nonce');
     (web.props.onMessage as (event: unknown) => void)({ nativeEvent: { url: sender, data: JSON.stringify({ kind, nonce: token, url: documentUrl, context: observed }) } });
@@ -505,6 +508,18 @@ test('a login form replaced within the same document continues without another v
   await f.loadPage(context.PROFILE_URL);await f.contextMessage(observedContext);
   assert.equal(f.controller().connection.confirmed,true);
   assert.equal(f.controller().visible,false);f.unmount();
+});
+
+test('an inline expired-session form installs its watcher before any new navigation or activity return',async()=>{
+  const f=fixture({product:true,persistedScope:{version:1,owner:'synthetic-pilot',connectionId:'prior',context:observedContext}});
+  f.render();await f.settle(null);await f.flush();f.controller().beginGuidedFlightConnection();
+  await f.loadPage(context.PROFILE_URL);await f.contextMessage({error:'session-required'});
+  const nonce=f.lastIssuedNonce();assert.equal(f.controller().visible,true);
+  assert.match(f.injections.at(-1)!,/vf-login-document-v1/);
+  (f.controller().browser as any).props.onMessage({nativeEvent:{url:context.PROFILE_URL,data:JSON.stringify({kind:'vf-login-document-v1',nonce,url:context.PROFILE_URL,loginForm:false})}});
+  await f.flush();assert.equal(f.controller().connection.phase,'checking');
+  await f.loadPage(context.PROFILE_URL);await f.contextMessage(observedContext);
+  assert.equal(f.controller().connection.confirmed,true);assert.equal(f.controller().visible,false);f.unmount();
 });
 
 test('quiet session checks never expose login, bind a new account or interrupt guided work',async()=>{

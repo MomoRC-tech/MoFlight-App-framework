@@ -307,7 +307,7 @@ export function useAccessController(product = false, localOwner?: string, develo
     if (request) session.current.fail(request.nonce, loginRequired ? 'login-required' : 'error');
     else session.current.invalidate();
     clearContextRequest(); pendingCapture.current = null; flightSourceAttempt.current = null; pendingFlightSource.current = null; syncConnection();
-    if (loginRequired) { signInDocument.current = currentUrl.current; setVisible(request?.action!=='status'); }
+    if (loginRequired) { signInDocument.current = currentUrl.current; setVisible(request?.action!=='status'); if(request?.action!=='status')continueGuidedLogin(); }
     const active = retrieval.current.state;
     if (active.phase === 'loading') stop('Provider context unavailable. Earlier captures and recovery journal retained.', active.nonce);
   }
