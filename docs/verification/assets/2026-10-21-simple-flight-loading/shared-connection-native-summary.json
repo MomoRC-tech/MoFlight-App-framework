@@ -1,0 +1,268 @@
+{
+  "application_source": "efab01ca94d581b5153afca81c479496af953d23",
+  "android_api": 37,
+  "apk_sha256": "7d245e97ff29873fe095c9117909d671b3101f40c44a29fd267a72b57b182f9c",
+  "host": {
+    "mobile_tests": 760,
+    "python_tests": 110,
+    "typecheck": "passed",
+    "lint": "passed",
+    "fixtures": "passed",
+    "exports": [
+      "android",
+      "ios"
+    ]
+  },
+  "offline_and_retention": {
+    "source": "20b316d7ec61313d53719644bd67a2d7ff4bdda1",
+    "accepted_checks": [
+      {
+        "name": "direct-connection-error-390x900-font1.0",
+        "status": "passed",
+        "viewport": {
+          "width_px": 390,
+          "height_px": 900,
+          "density_dpi": 160,
+          "width_dp": 390.0,
+          "height_dp": 900.0,
+          "font_scale": 1.0
+        },
+        "screenshot": "01-direct-connection-error-390x900-font1.0.png",
+        "hierarchy": "01-direct-connection-error-390x900-font1.0.xml",
+        "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+      },
+      {
+        "name": "profile-context-retained",
+        "status": "passed",
+        "viewport": {
+          "width_px": 390,
+          "height_px": 900,
+          "density_dpi": 160,
+          "width_dp": 390.0,
+          "height_dp": 900.0,
+          "font_scale": 1.0
+        },
+        "screenshot": "02-profile-context-retained.png",
+        "hierarchy": "02-profile-context-retained.xml",
+        "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+      },
+      {
+        "name": "direct-connection-error-360x900-font1.4",
+        "status": "passed",
+        "viewport": {
+          "width_px": 360,
+          "height_px": 900,
+          "density_dpi": 160,
+          "width_dp": 360.0,
+          "height_dp": 900.0,
+          "font_scale": 1.4
+        },
+        "screenshot": "03-direct-connection-error-360x900-font1.4.png",
+        "hierarchy": "03-direct-connection-error-360x900-font1.4.xml",
+        "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+      },
+      {
+        "name": "direct-connection-error-600x900-font1.0",
+        "status": "passed",
+        "viewport": {
+          "width_px": 600,
+          "height_px": 900,
+          "density_dpi": 160,
+          "width_dp": 600.0,
+          "height_dp": 900.0,
+          "font_scale": 1.0
+        },
+        "screenshot": "04-direct-connection-error-600x900-font1.0.png",
+        "hierarchy": "04-direct-connection-error-600x900-font1.0.xml",
+        "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+      },
+      {
+        "name": "direct-connection-error-800x450-font1.0",
+        "status": "passed",
+        "viewport": {
+          "width_px": 800,
+          "height_px": 450,
+          "density_dpi": 160,
+          "width_dp": 800.0,
+          "height_dp": 450.0,
+          "font_scale": 1.0
+        },
+        "screenshot": "05-direct-connection-error-800x450-font1.0.png",
+        "hierarchy": "05-direct-connection-error-800x450-font1.0.xml",
+        "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+      },
+      {
+        "name": "actual-offline-process-restart",
+        "status": "passed",
+        "viewport": {
+          "width_px": 800,
+          "height_px": 450,
+          "density_dpi": 160,
+          "width_dp": 800.0,
+          "height_dp": 450.0,
+          "font_scale": 1.0
+        },
+        "screenshot": "06-actual-offline-process-restart.png",
+        "hierarchy": "06-actual-offline-process-restart.xml",
+        "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+      }
+    ],
+    "browser_retention": "passed",
+    "overall_run": "failed",
+    "run_limit": "Later font configuration restarted the activity; only named preceding checks are reused. Keyboard-only change in final source does not alter these branches."
+  },
+  "public_form_and_keyboard": {
+    "source": "efab01ca94d581b5153afca81c479496af953d23",
+    "accepted_checks": [
+      {
+        "name": "original-public-login-main",
+        "status": "passed",
+        "viewport": {
+          "width_px": 390,
+          "height_px": 900,
+          "density_dpi": 160,
+          "width_dp": 390.0,
+          "height_dp": 900.0,
+          "font_scale": 1.0
+        },
+        "screenshot": "01-original-public-login-main.png",
+        "hierarchy": "01-original-public-login-main.xml",
+        "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+      },
+      {
+        "name": "original-public-login-after-home",
+        "status": "passed",
+        "viewport": {
+          "width_px": 390,
+          "height_px": 900,
+          "density_dpi": 160,
+          "width_dp": 390.0,
+          "height_dp": 900.0,
+          "font_scale": 1.0
+        },
+        "screenshot": "02-original-public-login-after-home.png",
+        "hierarchy": "02-original-public-login-after-home.xml",
+        "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+      },
+      {
+        "name": "original-public-login-min-enlarged",
+        "status": "passed",
+        "viewport": {
+          "width_px": 360,
+          "height_px": 900,
+          "density_dpi": 160,
+          "width_dp": 360.0,
+          "height_dp": 900.0,
+          "font_scale": 1.4
+        },
+        "screenshot": "03-original-public-login-min-enlarged.png",
+        "hierarchy": "03-original-public-login-min-enlarged.xml",
+        "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+      },
+      {
+        "name": "original-public-login-keyboard-before-scroll",
+        "status": "passed",
+        "viewport": {
+          "width_px": 360,
+          "height_px": 900,
+          "density_dpi": 160,
+          "width_dp": 360.0,
+          "height_dp": 900.0,
+          "font_scale": 1.4
+        },
+        "screenshot": "04-original-public-login-keyboard-before-scroll.png",
+        "hierarchy": "04-original-public-login-keyboard-before-scroll.xml",
+        "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+      },
+      {
+        "name": "original-public-login-keyboard-no-input",
+        "status": "passed",
+        "viewport": {
+          "width_px": 360,
+          "height_px": 900,
+          "density_dpi": 160,
+          "width_dp": 360.0,
+          "height_dp": 900.0,
+          "font_scale": 1.4
+        },
+        "screenshot": "05-original-public-login-keyboard-no-input.png",
+        "hierarchy": "05-original-public-login-keyboard-no-input.xml",
+        "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+      }
+    ],
+    "keyboard": {
+      "browser_ids_unchanged": true,
+      "status": "passed",
+      "ime_top_px": 601,
+      "geometry_source": "WindowManager visible InputMethod frame plus content inset",
+      "password_bounds": [
+        37,
+        404,
+        281,
+        443
+      ],
+      "sign_in_bounds": [
+        36,
+        494,
+        324,
+        533
+      ],
+      "credentials_entered": false,
+      "credentials_submitted": false
+    },
+    "overall_run": "failed",
+    "run_limit": "Later landscape provenance selector was clipped by capped progress; separate landscape trial below verifies the original form itself."
+  },
+  "landscape": {
+    "source": "efab01ca94d581b5153afca81c479496af953d23",
+    "status": "passed",
+    "checks": [
+      {
+        "name": "original-public-login-wide-landscape",
+        "status": "passed",
+        "viewport": {
+          "width_px": 800,
+          "height_px": 450,
+          "density_dpi": 160,
+          "width_dp": 800.0,
+          "height_dp": 450.0,
+          "font_scale": 1.0
+        },
+        "screenshot": "01-original-public-login-wide-landscape.png",
+        "hierarchy": "01-original-public-login-wide-landscape.xml",
+        "assertion_scope": "Visible native controls and selected tab; screenshot requires visual review"
+      }
+    ],
+    "form": {
+      "status": "passed",
+      "scrolls": 3,
+      "password_bounds": [
+        257,
+        308,
+        501,
+        340
+      ],
+      "sign_in_bounds": [
+        256,
+        388,
+        544,
+        420
+      ],
+      "credentials_entered": false,
+      "credentials_submitted": false
+    }
+  },
+  "visual_review": "Actual relevant MAIN/MIN/WIDE and keyboard PNGs reviewed; initial landscape hero-only capture was not accepted as form reachability.",
+  "cleanup": {
+    "baseline_apk_restored": true,
+    "display_radios_restored": true,
+    "errors": [],
+    "owned_synthetic_emulator_stopped": true
+  },
+  "not_tested": [
+    "Actual fresh Google Password Manager valid-account sign-in and authenticated retrieval on Manuel phone",
+    "iOS runtime",
+    "Spoken accessibility"
+  ],
+  "boundary": "No credentials entered/submitted, provider flight/Medical retrieval, seeding or data clearing. Public original form plus local synthetic/offline behavior only. No full combined native-run success is inferred from partial runs."
+}
