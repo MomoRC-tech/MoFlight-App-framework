@@ -512,7 +512,9 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,takeInitialReposit
         <Action secondary disabled={busy} onPress={()=>void run(async()=>{await showRestoreResult(await restoreRealFlightBackup(scope,gate));})}>Sicherung dieser Bibliothek wiederherstellen</Action>
       </Card>}
     </View></ScrollView>
-    <ProviderConnection developmentRecoveryCheckpoints={developmentRecoveryCheckpoints} controller={c} open={providerOpen} guided={automatic.current} progress={progress} loginEnabled={!automatic.current||(busy&&!loginPaused&&!failed)} closeDisabled={automatic.current&&busy&&(loadStage==='save'||c.saving||c.restoring.current||c.informationSaving)} purpose="own-flight-library" close={()=>{
+    {/* Android's credential dialogs pause the app. Keep their original login target visible;
+        foreground guards still suspend verification, retrieval and writes until return. */}
+    <ProviderConnection developmentRecoveryCheckpoints={developmentRecoveryCheckpoints} controller={c} open={providerOpen} guided={automatic.current} progress={progress} loginEnabled={!automatic.current||(busy&&!failed)} closeDisabled={automatic.current&&busy&&(loadStage==='save'||c.saving||c.restoring.current||c.informationSaving)} purpose="own-flight-library" close={()=>{
       if(automatic.current){
         if(waiting.current){interruption.current='cancelled';abandonSource('Source closed.');c.dismissLogin();return;}
         if(busy){if(c.informationBusy)c.stopInformation();return;}

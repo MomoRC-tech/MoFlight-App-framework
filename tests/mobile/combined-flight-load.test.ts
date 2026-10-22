@@ -225,6 +225,37 @@ test('a preserved login form returns to sign-in guidance even without a provider
   }finally{f.dispose();}
 });
 
+test('both Android credential dialogs retain the original login surface until sign-in resumes',async()=>{
+  const f=fixture({startUpdate:true,loginPending:true,quietResume:true});try{
+    f.render();await f.flush();
+    const login=()=>f.nodes().find(n=>n.type==='ProviderConnection')!.props;
+    for(let dialog=0;dialog<2;dialog++){
+      f.background();await f.flush();f.background();await f.flush();
+      assert.match(f.progressText(),/Anmeldung pausiert/);
+      assert.equal(login().open,true);
+      assert.equal(login().controller.visible,true);
+      assert.equal(login().loginEnabled,true,'The system credential dialog must not hide its target login surface');
+      assert.equal(f.pendingTimers(),0);assert.equal(f.calls.includes('retrieve'),false);
+      f.resume();await f.flush();
+      assert.match(f.progressText(),/Bitte bei Vereinsflieger anmelden/);
+      assert.equal(login().loginEnabled,true);
+    }
+    assert.deepEqual(f.calls,['session','resume','resume']);
+    f.verify();await f.flush();assert.deepEqual(f.calls,['session','resume','resume','retrieve']);
+    f.complete();await f.flush();assert.equal(f.calls.filter(call=>call==='save').length,1);
+  }finally{f.dispose();}
+});
+
+test('cancelling while Android credentials are open revokes the login surface and automatic continuation',async()=>{
+  const f=fixture({startUpdate:true,loginPending:true});try{
+    f.render();await f.flush();f.background();await f.flush();
+    f.nodes().find(n=>n.type==='ProviderConnection')!.props.close();await f.flush();
+    assert.equal(f.nodes().find(n=>n.type==='ProviderConnection')!.props.loginEnabled,false);
+    f.resume();f.verify();await f.flush();
+    assert.equal(f.calls.includes('resume'),false);assert.equal(f.calls.includes('retrieve'),false);assert.equal(f.calls.includes('save'),false);
+  }finally{f.dispose();}
+});
+
 test('a delayed source request and same-window retry start without incidental controller state updates',async()=>{
   const f=fixture({startUpdate:true,deferSource:true,sameWindow:true});try{
     f.render();await f.flush();assert.deepEqual(f.calls,[]);

@@ -388,13 +388,19 @@ test('guided sign-in return preserves the native login document and still requir
   f.controller().beginGuidedFlightConnection();await f.loadPage(probe.LOGIN_URL);
   const browserKey=(f.controller().browser as any).props.key;
   const injected=f.injections.length;
-  f.appState('background');await f.flush();
-  assert.equal(f.controller().resumeGuidedFlightConnection(),false);
-  f.appState('active');await f.flush();
-  assert.equal(f.controller().resumeGuidedFlightConnection(),true);
-  assert.equal((f.controller().browser as any).props.key,browserKey);
-  assert.equal(f.controller().url,probe.LOGIN_URL);assert.equal(f.injections.length,injected);
-  assert.equal(f.controller().connection.confirmed,false);assert.equal(f.scopeWrites(),0);
+  const browserSource=(f.controller().browser as any).props.source;
+  for(let dialog=0;dialog<2;dialog++){
+    f.appState('background');await f.flush();f.appState('background');await f.flush();
+    assert.equal(f.controller().resumeGuidedFlightConnection(),false);
+    assert.equal(f.controller().visible,true);assert.equal(f.controller().busy,false);
+    assert.deepEqual(f.writes,[]);assert.equal(f.scopeWrites(),0);
+    f.appState('active');await f.flush();
+    assert.equal(f.controller().resumeGuidedFlightConnection(),true);
+    assert.equal((f.controller().browser as any).props.key,browserKey);
+    assert.equal((f.controller().browser as any).props.source,browserSource);
+    assert.equal(f.controller().url,probe.LOGIN_URL);assert.equal(f.injections.length,injected);
+    assert.equal(f.controller().connection.confirmed,false);assert.equal(f.scopeWrites(),0);
+  }
   await f.loadPage('https://vereinsflieger.de/member/index.php');
   assert.equal(f.controller().connection.phase,'checking');
   await f.loadPage(context.PROFILE_URL);await f.contextMessage(observedContext);
