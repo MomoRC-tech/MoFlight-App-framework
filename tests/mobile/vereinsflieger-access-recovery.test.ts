@@ -12,6 +12,10 @@ import * as login from '../../apps/platform-lab/src/vereinsflieger/login.ts';
 import * as legacyStore from '../../apps/platform-lab/src/vereinsflieger/legacy-recovery-store.ts';
 import { canonical } from '../../packages/flight-logbook/src/index.ts';
 import type { ProviderScope } from '../../apps/platform-lab/src/vereinsflieger/scope-store.ts';
+import { connectionGuidance, connectionSymbol } from '../../apps/platform-lab/src/mobile/connection-guidance.ts';
+import { dataFreshness } from '../../apps/platform-lab/src/mobile/data-freshness.ts';
+import { retrievalFailureHint } from '../../apps/platform-lab/src/vereinsflieger/connection-state.ts';
+import { connectionFlow } from '../../apps/platform-lab/src/vereinsflieger/connection-flow.ts';
 import { ConnectionSession } from '../../apps/platform-lab/src/vereinsflieger/connection-state.ts';
 import type { useAccessController } from '../../apps/platform-lab/src/vereinsflieger/use-access-controller.tsx';
 import type { ViewPreferences } from '../../apps/platform-lab/src/vereinsflieger/view.ts';
@@ -44,7 +48,7 @@ const savedLoginSource = ts.transpileModule(readFileSync(new URL('../../apps/pla
 const informationControllerSource = ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/vereinsflieger/use-information-controller.ts', import.meta.url), 'utf8'), {
   compilerOptions: { module: ts.ModuleKind.CommonJS, esModuleInterop: false },
 }).outputText;
-function fixture(options: { developmentRecoveryCheckpoints?: boolean; noNativeRecovery?: boolean; failLegacyRead?: boolean; failSafety?: boolean; deferSafety?: boolean; failReceipt?: boolean; deferClear?: boolean; failClear?: boolean; persistedScope?: ProviderScope; scopedView?: ViewPreferences; deferBinding?: boolean; failBinding?: boolean; priorCapture?: probe.ProbeSnapshot; deferJournalSave?: boolean; deferCaptureSave?: boolean; product?: boolean; deferLoginRead?: boolean; failLoginRead?: boolean; savedLogin?: { username: string; password: string } | null; failLoginForget?: boolean; deferLoginForget?: boolean } = {}) {
+function fixture(options: { panel?:boolean; developmentRecoveryCheckpoints?: boolean; noNativeRecovery?: boolean; failLegacyRead?: boolean; failSafety?: boolean; deferSafety?: boolean; failReceipt?: boolean; deferClear?: boolean; failClear?: boolean; persistedScope?: ProviderScope; scopedView?: ViewPreferences; deferBinding?: boolean; failBinding?: boolean; priorCapture?: probe.ProbeSnapshot; deferJournalSave?: boolean; deferCaptureSave?: boolean; product?: boolean; deferLoginRead?: boolean; failLoginRead?: boolean; savedLogin?: { username: string; password: string } | null; failLoginForget?: boolean; deferLoginForget?: boolean } = {}) {
   let resolveJournal!: (view: ViewPreferences | null) => void, rejectJournal!: (error: Error) => void;
   const journal = new Promise<ViewPreferences | null>((resolve, reject) => { resolveJournal = resolve; rejectJournal = reject; });
   const diagnosticPhases:{name:string;result:boolean|null}[]=[];
@@ -146,7 +150,7 @@ function fixture(options: { developmentRecoveryCheckpoints?: boolean; noNativeRe
     },
     './export': { ...exporter, calendarYearRequest: () => ({ from: '2026-01-01', to: '2026-12-31' }), recentCaptureRequest: () => ({ from: '2026-01-01', to: '2026-12-31' }) },
     './retrieval': { Retrieval }, './CaptureRun': { CaptureRun }, './WindowCapture': { WindowCapture },
-    './login': login, './view': view, './context': context, './connection-state': { ConnectionSession },
+    './connection-flow': {connectionFlow}, './login': login, './view': view, './context': context, './connection-state': { ConnectionSession },
     './information': information, './information-run': { InformationRun },
     './information-native': { readInformationCapture: (scope: ProviderScope, id: string, gate: () => void) => informationCaptureReader(scope, id, gate), loadInformation: (scope: ProviderScope, gate: () => void) => { informationReads++; return informationReader(scope, gate); }, readInformationHistory: (scope: ProviderScope, category: information.InformationCategory, position: number, gate: () => void) => informationHistoryReader(scope, category, position, gate), saveInformation: async (_scope: unknown, value: unknown, gate: () => void) => { gate(); savedInformation = information.validateInformationCapture(value); writes.push('information-saved'); } },
   };
@@ -165,11 +169,26 @@ function fixture(options: { developmentRecoveryCheckpoints?: boolean; noNativeRe
   modules['./use-access-controller'] = controllerExports;
   const exported = {} as { AccessProbe: (props: { close: () => void }) => Element };
   runInNewContext(source, { exports: exported, ...runtime });
+  const panelExports={} as {ProviderConnection:(props:unknown)=>Element};
+  if(options.panel){
+    Object.assign(modules,{
+      '../vereinsflieger/probe':probe,'../vereinsflieger/connection-state':{retrievalFailureHint},
+      '../vereinsflieger/provider-diagnostics':modules['./provider-diagnostics'],
+      '../vereinsflieger/information':information,'./connection-guidance':{connectionGuidance,connectionSymbol},'./data-freshness':{dataFreshness},
+      './theme':{...Object.fromEntries(['Action','Card','IconLabel','Label','Section'].map(n=>[n,n])),colors:{},ui:{text:{}}},
+      './SymbolIcon':{SymbolIcon:'SymbolIcon'},'react-native-safe-area-context':{useSafeAreaInsets:()=>({top:0,bottom:0})},
+      ...Object.fromEntries(['LegacyRecoveryReview','RawCaptureReview','CapturedFlights','InformationReview'].map(n=>['./'+n,{[n]:n}]))
+    });
+    Object.assign(modules['react-native'] as object,{Platform:{OS:'android'},...Object.fromEntries(['ActivityIndicator','Pressable','ScrollView','TextInput','KeyboardAvoidingView'].map(n=>[n,n]))});
+    const panelSource=ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/mobile/ProviderConnection.tsx',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.React,esModuleInterop:false}}).outputText;
+    runInNewContext(panelSource,{exports:panelExports,...runtime});
+  }
+  let panelOpen=true;
   let localOwner = 'synthetic-pilot';
   let controller: ReturnType<typeof useAccessController>;
   function render() {
     index = 0;
-    const tree = options.product ? (() => { controller = controllerExports.useAccessController(true, localOwner, !!options.developmentRecoveryCheckpoints); return { type: 'Host', props: {}, children: [controller.browser] }; })() : exported.AccessProbe({ close() {} });
+    const tree = options.product ? (() => { controller = controllerExports.useAccessController(true, localOwner, !!options.developmentRecoveryCheckpoints); return options.panel?panelExports.ProviderConnection({controller,open:panelOpen,close:()=>{panelOpen=false;controller.dismissLogin();},guided:true,progress:{type:'Progress',props:{},children:[]}}):{ type: 'Host', props: {}, children: [controller.browser] }; })() : exported.AccessProbe({ close() {} });
     effects.splice(0).forEach(effect => effect()); return tree;
   }
   function find(tree: Element, predicate: (element: Element) => boolean): Element | undefined {
@@ -246,7 +265,7 @@ function fixture(options: { developmentRecoveryCheckpoints?: boolean; noNativeRe
       data: JSON.stringify({ kind: 'vf-login-result-v1', nonce, url: probe.LOGIN_URL, result }) } });
     return flush();
   }
-  return { diagnosticPhases, providerEvents, verificationDiagnostics, render, button, press, settle, find, flush, loadPage, loadFlight, message, currentCommand, writes, injections,
+  return { setPanelOpen:(value:boolean)=>{panelOpen=value;render();}, diagnosticPhases, providerEvents, verificationDiagnostics, render, button, press, settle, find, flush, loadPage, loadFlight, message, currentCommand, writes, injections,
     setInformationReader: (reader: typeof informationReader) => { informationReader = reader; }, informationReads: () => informationReads, savedInformation: () => savedInformation,
     setInformationCaptureReader: (reader: typeof informationCaptureReader) => { informationCaptureReader = reader; },
     setInformationHistoryReader: (reader: typeof informationHistoryReader) => { informationHistoryReader = reader; },
@@ -395,7 +414,7 @@ test('rechecking an observed same-URL profile uses native reload and still requi
   f.unmount();
 });
 
-test('combined login resumes after original-page authentication but never after dismissal or background',async()=>{
+test('guided original-page login resumes after credential activity but never after dismissal',async()=>{
   for(const stop of ['none','dismiss','background'] as const){
     const f=fixture({product:true});f.render();await f.settle(null);await f.flush();
     f.controller().beginGuidedFlightConnection();await f.loadPage(probe.LOGIN_URL);
@@ -403,7 +422,7 @@ test('combined login resumes after original-page authentication but never after 
     if(stop==='dismiss')f.controller().dismissLogin();
     if(stop==='background'){f.appState('background');f.appState('active');}
     await f.loadPage('https://vereinsflieger.de/member/index.php');
-    if(stop==='none'){
+    if(stop!=='dismiss'){
       assert.equal(f.controller().connection.phase,'checking');await f.loadPage(context.PROFILE_URL);await f.contextMessage(observedContext);
       assert.equal(f.controller().connection.confirmed,true);assert.equal(f.scopeWrites(),1);
     }else{assert.notEqual(f.controller().connection.phase,'checking');assert.equal(f.scopeWrites(),0);}
@@ -1925,7 +1944,7 @@ test('explicit browser suspension refuses while a provider context check owns th
   const generation = f.controller().generation;
   assert.equal(f.controller().suspendBrowserForOwnerSwitch(), false);
   assert.equal(f.controller().browserActive, true);
-  assert.equal(f.controller().visible, true);
+  assert.equal(f.controller().visible, false, 'Verification shows progress, preserving the native browser');
   assert.equal(f.controller().connection.phase, 'checking');
   assert.equal(f.controller().generation, generation, 'A refused suspension leaves native callbacks owned by the active check');
   assert.deepEqual(f.writes, []);
@@ -2594,4 +2613,22 @@ test('diagnostics separate page loading, user sign-in waiting and verified sessi
 test('backgrounding ends sign-in waiting as interrupted measurement rather than extending it into background time',async()=>{
  const f=fixture({product:true});f.render();await f.settle(null);await f.flush();f.controller().beginGuidedFlightConnection();await f.loadPage(probe.LOGIN_URL);f.appState('background');
  assert.equal(f.diagnosticPhases.find(p=>p.name==='user-sign-in-wait')!.result,false);f.unmount();
+});
+
+
+test('real connection controller and panel retain one browser through credential return, failure and contextual close',async()=>{
+  const f=fixture({product:true,panel:true});f.render();await f.settle(null);await f.flush();
+  f.controller().beginGuidedFlightConnection();await f.loadPage(probe.LOGIN_URL);
+  const browser=()=>f.find(f.render(),n=>n.type==='WebView')!;
+  const frame=()=>{const tree=f.render(),web=f.find(tree,n=>n.type==='WebView')!;return f.find(tree,n=>Array.isArray(n.children)&&n.children.includes(web))!;};
+  const key=browser().props.key;
+  assert.equal(f.controller().flow.phase,'sign-in');assert.equal(f.providerEvents.includes('provider-surface-sign-in'),true);
+  f.appState('background');f.appState('active');await f.flush();assert.equal(f.controller().visible,true);assert.equal(browser().props.key,key);
+  const web=browser();(web.props.onError as (event:unknown)=>void)({nativeEvent:{url:probe.LOGIN_URL}});await f.flush();
+  (browser().props.onLoadEnd as (event:unknown)=>void)({nativeEvent:{url:probe.LOGIN_URL}});await f.flush();
+  assert.equal(f.controller().loaded,false);assert.equal(f.controller().result,'failed');assert.equal(f.scopeWrites(),0);
+  f.setPanelOpen(false);assert.equal(browser().props.key,key);assert.equal(f.providerEvents.includes('provider-surface-closed'),true);
+  f.setPanelOpen(true);f.controller().beginGuidedFlightConnection();await f.loadPage(probe.LOGIN_URL);
+  assert.equal(browser().props.key,key);assert.equal(f.controller().visible,true);assert.equal(frame().props.pointerEvents,'auto');
+  f.unmount();
 });

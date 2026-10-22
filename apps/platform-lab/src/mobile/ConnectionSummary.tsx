@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import type { useAccessController } from '../vereinsflieger/use-access-controller';
+import type { ProviderStatus } from './ProviderConnection';
 import { Action, Card, Label, Section } from './theme';
 import { connectionGuidance } from './connection-guidance';
 import { dataFreshness } from './data-freshness';
@@ -10,7 +10,7 @@ import { planFlightRetrieval } from '../vereinsflieger/retrieval-policy';
 
 /** Read-only summary; all entry points open the same retained connection flow. */
 export function ConnectionSummary({ controller, onOpen, onUpdate, ownFlights, phase = 'loading', compact = false, reminderSnooze = null, onSnoozeReminder, newOrChangedObservation = false, now = Date.now() }: {
-  controller: ReturnType<typeof useAccessController>; onOpen: () => void; onUpdate?: () => void;
+  controller: Pick<ProviderStatus,'connection'|'browserActive'>; onOpen: () => void; onUpdate?: () => void;
   compact?: boolean; ownFlights?: OwnFlightView | null; phase?: 'loading' | 'ready' | 'missing' | 'failed';
   reminderSnooze?: { scopeKey: string; until: string | null } | null;
   onSnoozeReminder?: (scopeKey: string, until: string) => void;

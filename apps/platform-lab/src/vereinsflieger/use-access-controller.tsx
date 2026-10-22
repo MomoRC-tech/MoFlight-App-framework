@@ -15,6 +15,7 @@ import { legacyViewNeedsChoice, type LegacyRecoveryCopy } from './legacy-recover
 import { Retrieval } from './retrieval';
 import { PROFILE_URL, contextScript, loginRequiredScript, sameContext, scopedBridge, validateContext, type ObservedContext } from './context';
 import { ConnectionSession } from './connection-state';
+import { connectionFlow, type ConnectionFlow } from './connection-flow';
 import { loadProviderScope, confirmProviderScope, loadScopedCapture, loadScopedView, saveScopedCapture, saveScopedView, clearScopedView, prepareScopedLegacy, saveLegacySafety, legacyQuarantined, finishScopedLegacy } from './scoped-storage';
 import { clearProviderStore, proveSyntheticStore, sessionClearingAvailable, sessionProofAvailable, legacyRecoveryAvailable, legacyRecoveryFingerprint, readReviewedRecovery } from './session-store';
 import type { ProviderScope } from './scope-store';
@@ -87,7 +88,12 @@ export function useAccessController(product = false, localOwner?: string, develo
   const [browserActive, setBrowserActive] = useState(!product);
   const [canGoBack, setCanGoBack] = useState(false);
   const [providerExpanded, setProviderExpanded] = useState(false);
-  const [visible, setVisible] = useState(false), [busy, setBusy] = useState(false), [loaded, setLoaded] = useState(false);
+  const [flow,setFlow] = useState<ConnectionFlow>({phase:'idle'});
+  const visible=flow.phase==='sign-in';
+  function setVisible(show:boolean){setFlow(previous=>connectionFlow(previous,{type:show?'show-login':'hide-login'}));}
+  const [busy, setBusy] = useState(false), [loaded, setLoaded] = useState(false);
+  const failedDocument=useRef<string|null>(null);
+  const resumeConnection=useRef<()=>boolean>(()=>false);resumeConnection.current=resumeGuidedFlightConnection;
   useEffect(() => { if (!browserActive) return; recordProviderEvent('provider-mounted'); return () => recordProviderEvent('provider-unmounted'); }, [browserActive, documentId]);
   const [saving, setSaving] = useState(false);
   const testPauseEnabled = useRef(false), testPaused = useRef(false);
@@ -242,7 +248,7 @@ export function useAccessController(product = false, localOwner?: string, develo
       original.current = saved; recoveryKnown.current = true; setRecovery(!!saved || unresolved); setViewReady(true);
     } catch { if (mounted.current) setRecovery(true); }
   }
-  function syncConnection() { if(session.current.state.phase!=='checking'){contextTiming.current?.(session.current.state.phase==='observed');contextTiming.current=null;}setConnection(session.current.state); }
+  function syncConnection() { const next=session.current.state;if(next.phase!=='checking'){contextTiming.current?.(next.phase==='observed');contextTiming.current=null;}setConnection(next);setFlow(previous=>connectionFlow(previous,{type:'proof',state:next})); }
   function endDisconnect(verdict: 'verified' | 'failed' | 'cancelled' = 'cancelled') {
     if (disconnectMode.current) setDisconnectNotice(verdict);
     disconnectMode.current = false; setDisconnecting(false);
@@ -290,6 +296,7 @@ export function useAccessController(product = false, localOwner?: string, develo
   }
   function contextFailed(loginRequired = false, reason: 'context-response' | 'navigation-unobserved' | 'unexpected-document' | 'timeout' | 'page-error' | 'http-error' = 'context-response') {
     const request = contextRequest.current;
+    recordProviderEvent(`provider-verification-${reason}`);
     // Fixed technical categories only; never log URLs, profile fields or errors.
     console.info('MOFLIGHT_PROVIDER_VERIFICATION ' + JSON.stringify({ reason, loginRequired,
       document: currentUrl.current === PROFILE_URL ? 'profile' : loginPage(currentUrl.current) ? 'login' : flightUrl(currentUrl.current) ? 'flight-list' : providerUrl(currentUrl.current) ? 'other-provider' : 'other',
@@ -337,6 +344,7 @@ export function useAccessController(product = false, localOwner?: string, develo
   }
   function endGuidedFlightConnection() { guidedFlightLogin.current = false; guidedLoginResume.current = null; }
   function resumeGuidedFlightConnection(): boolean {
+    if(guidedFlightLogin.current)return true;
     const paused = guidedLoginResume.current;
     if (!paused || paused.owner !== owner.current || owner.current !== activeOwner.current || !product || !viewReady || !foreground.current ||
         contextRequest.current || busy || saving || recovery || bindingBusy.current || clearingStore.current || disconnectMode.current ||
@@ -411,7 +419,7 @@ export function useAccessController(product = false, localOwner?: string, develo
     epoch.current++; setGeneration(epoch.current);
     if (loginAttempt.current) endLogin('Sign-in presentation closed. No further saved-login attempt will run.', 'cancelled');
     if (invalidate) session.current.cancel();
-    syncConnection();
+    syncConnection();setFlow(previous=>connectionFlow(previous,{type:'cancel'}));
   }
   async function confirmConnection() {
     const observed = session.current.state.observed;
@@ -503,7 +511,7 @@ export function useAccessController(product = false, localOwner?: string, develo
     if (!product) return;
     const listener = AppState.addEventListener('change', state => {
       foreground.current = state === 'active';
-      if (state === 'active') return;
+      if (state === 'active') { if(guidedLoginResume.current)resumeConnection.current(); return; }
       clearDevelopmentCheckpoints();
       // Credential pickers/authentication activities background Android. Leave
       // the passive sign-in document AND any automatic submission/redirect alone.
@@ -530,6 +538,7 @@ export function useAccessController(product = false, localOwner?: string, develo
   }, [product]);
   async function loadedPage(page: string) {
     if (product && page !== currentUrl.current) return;
+    if(failedDocument.current===page){if(information.running())information.pageLoaded(page);return;}
     recordProviderDocument('end', page);
     if(loginPage(page)){loginPageTiming.current?.(true);loginPageTiming.current=null;if(!userWaitTiming.current)userWaitTiming.current=startFlightSpan('user-sign-in-wait');}else{userWaitTiming.current?.(true);userWaitTiming.current=null;}
     const pageEpoch = epoch.current;
@@ -897,7 +906,7 @@ export function useAccessController(product = false, localOwner?: string, develo
         javaScriptCanOpenWindowsAutomatically={false} setSupportMultipleWindows={true}
         onShouldStartLoadWithRequest={request => { if (generation !== epoch.current) return false; const allowed = providerUrl(request.url); if (allowed && request.isTopFrame !== false && request.url !== PROFILE_URL) information.navigationStarted(); if (product && contextRequest.current && request.isTopFrame !== false && request.url === PROFILE_URL) contextRequest.current.navigationObserved = true; if (!allowed && request.isTopFrame !== false) finish('External navigation blocked. Previous captures preserved.'); return allowed; }}
         onOpenWindow={() => { if (generation === epoch.current) finish('New browser window blocked in this bounded PoC.'); }}
-        onLoadStart={event => { if (generation !== epoch.current) return; diagnosticMessages.current = 0; recordProviderDocument('start', event.nativeEvent.url); phase.current.loaded = false; information.loadStarted(event.nativeEvent.url); if (product && contextRequest.current && event.nativeEvent.url === PROFILE_URL) contextRequest.current.navigationObserved = true; if (retrieval.current.state.phase === 'loading') {
+        onLoadStart={event => { if (generation !== epoch.current) return; failedDocument.current=null; diagnosticMessages.current = 0; recordProviderDocument('start', event.nativeEvent.url); phase.current.loaded = false; information.loadStarted(event.nativeEvent.url); if (product && contextRequest.current && event.nativeEvent.url === PROFILE_URL) contextRequest.current.navigationObserved = true; if (retrieval.current.state.phase === 'loading') {
           // Native load-start can beat the bridge acknowledgement. Advance only
           // a still-owned, outstanding save/load command; acknowledged commands
           // already cleared their token and must not advance a second time.
@@ -919,8 +928,8 @@ export function useAccessController(product = false, localOwner?: string, develo
           if (login.receiveMessage(event.nativeEvent)) return;
           if(flightUrl(url))void receive(event);
         }}
-        onError={event => { if (generation !== epoch.current) return;stopDiagnosticLogin(false); if (information.pageFailed(event?.nativeEvent.url, true)) return; if (product && contextRequest.current) { contextFailed(false, 'page-error'); return; } if (product) { endGuidedFlightConnection(); endDisconnect('failed'); afterConfirmation.current = null; session.current.invalidate(); syncConnection(); } loginAttempt.current ? endLogin('Provider login page failed to load. Saved login and captures preserved.') : finish('Provider page failed to load. Previous captures preserved.'); }}
-        onHttpError={() => { if (generation !== epoch.current) return;stopDiagnosticLogin(false); if (information.pageFailed()) return; if (product && contextRequest.current) { contextFailed(false, 'http-error'); return; } if (product) { endGuidedFlightConnection(); endDisconnect('failed'); afterConfirmation.current = null; session.current.invalidate(); syncConnection(); } loginAttempt.current ? endLogin('Provider login returned an HTTP error. Saved login and captures preserved.') : finish('Provider returned an HTTP error. Previous captures preserved.'); }}
+        onError={event => { if (generation !== epoch.current) return;failedDocument.current=event?.nativeEvent.url??currentUrl.current;stopDiagnosticLogin(false); if (information.pageFailed(event?.nativeEvent.url, true)) return; setFlow(previous=>connectionFlow(previous,{type:'page-error'})); if (product && contextRequest.current) { contextFailed(false, 'page-error'); return; } if (product) { endGuidedFlightConnection(); endDisconnect('failed'); afterConfirmation.current = null; session.current.invalidate(); syncConnection(); } loginAttempt.current ? endLogin('Provider login page failed to load. Saved login and captures preserved.') : finish('Provider page failed to load. Previous captures preserved.'); }}
+        onHttpError={event => { if (generation !== epoch.current || event?.nativeEvent?.url&&event.nativeEvent.url!==currentUrl.current) return;failedDocument.current=event?.nativeEvent?.url??currentUrl.current;stopDiagnosticLogin(false); if (information.pageFailed()) return; setFlow(previous=>connectionFlow(previous,{type:'page-error'})); if (product && contextRequest.current) { contextFailed(false, 'http-error'); return; } if (product) { endGuidedFlightConnection(); endDisconnect('failed'); afterConfirmation.current = null; session.current.invalidate(); syncConnection(); } loginAttempt.current ? endLogin('Provider login returned an HTTP error. Saved login and captures preserved.') : finish('Provider returned an HTTP error. Previous captures preserved.'); }}
         onContentProcessDidTerminate={() => { if (generation !== epoch.current) return; if (information.pageFailed()) return; if (loginAttempt.current) endLogin('Provider renderer stopped. Saved sign-in cancelled.', 'cancelled'); if (product) contextFailed(); finish('Provider renderer stopped. Recovery journal retained.'); }}
         onRenderProcessGone={() => { if (generation !== epoch.current) return; if (information.pageFailed()) return; if (loginAttempt.current) endLogin('Provider renderer stopped. Saved sign-in cancelled.', 'cancelled'); if (product) contextFailed(); finish('Provider renderer stopped. Recovery journal retained.'); }}
       />;
@@ -930,5 +939,5 @@ export function useAccessController(product = false, localOwner?: string, develo
   }, retrieveMedical: async () => {
     try { return await information.public.retrieveMedical(); }
     catch(error) { session.current.invalidate(); syncConnection(); throw error; }
-  }, developmentCheckpoint, armDevelopmentJournalCheckpoint: () => armDevelopmentCheckpoint('journal'), armDevelopmentRecoveryCheckpoint: () => armDevelopmentCheckpoint('recovery'), beginGuidedFlightConnection, resumeGuidedFlightConnection, endGuidedFlightConnection, captureLoadState, canGoBack, backWithinProvider, legacyChoice, requestLegacyRecovery, legacyRecoveryAvailable, clearing, clearNotice, proofNotice, clearLocalSession, sessionClearingAvailable, sessionProofAvailable, binding, legacyRecovery: legacyPending.current, loginNotice, disconnectNotice, credentialNotice, startDisconnect, checkDisconnection, disconnecting, disconnectedAt, refreshRecovery, connection, checkConnection, connect, suspendBrowserForOwnerSwitch, dismissLogin, confirmConnection, lastSuccessfulCaptureAt, result, browser, showRun, setShowRun, showWindow, setShowWindow, viewReady, recovery, original, editingLogin, loginBusy, username, setUsername, password, setPassword, saveLogin, setEditingLogin, providerExpanded, visible, status, busy, openCaptureLab, pauseEnabled, toggleTestPause, preBackupPause, togglePreBackupPause, from, setFrom, to, setTo, saving, restoring, navigate, setVisible, cancelRetrieval, retrieve, hasLogin, useLogin, forgetLogin, recoverView, paused, continueTestRetrieval, viewStrategy, url, toggleProviderPage, browserActive, snapshot: product && owner.current !== localOwner ? null : snapshot, completedFlightSource: product && owner.current === localOwner && !busy && !recovery ? completedFlightSource : null, setProviderExpanded, web, currentUrl, retrieval, loaded, source, generation, epoch };
+  }, developmentCheckpoint, armDevelopmentJournalCheckpoint: () => armDevelopmentCheckpoint('journal'), armDevelopmentRecoveryCheckpoint: () => armDevelopmentCheckpoint('recovery'), beginGuidedFlightConnection, resumeGuidedFlightConnection, endGuidedFlightConnection, captureLoadState, canGoBack, backWithinProvider, legacyChoice, requestLegacyRecovery, legacyRecoveryAvailable, clearing, clearNotice, proofNotice, clearLocalSession, sessionClearingAvailable, sessionProofAvailable, binding, legacyRecovery: legacyPending.current, loginNotice, disconnectNotice, credentialNotice, startDisconnect, checkDisconnection, disconnecting, disconnectedAt, refreshRecovery, connection, checkConnection, connect, suspendBrowserForOwnerSwitch, dismissLogin, confirmConnection, lastSuccessfulCaptureAt, result, browser, showRun, setShowRun, showWindow, setShowWindow, viewReady, recovery, original, editingLogin, loginBusy, username, setUsername, password, setPassword, saveLogin, setEditingLogin, providerExpanded, visible, status, busy, openCaptureLab, pauseEnabled, toggleTestPause, preBackupPause, togglePreBackupPause, from, setFrom, to, setTo, saving, restoring, navigate, setVisible, cancelRetrieval, retrieve, hasLogin, useLogin, forgetLogin, recoverView, paused, continueTestRetrieval, viewStrategy, url, toggleProviderPage, browserActive, snapshot: product && owner.current !== localOwner ? null : snapshot, completedFlightSource: product && owner.current === localOwner && !busy && !recovery ? completedFlightSource : null, setProviderExpanded, flow, web, currentUrl, retrieval, loaded, source, generation, epoch };
 }

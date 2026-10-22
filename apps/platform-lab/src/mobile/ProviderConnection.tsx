@@ -13,9 +13,12 @@ import { RawCaptureReview } from './RawCaptureReview';
 import { CapturedFlights } from './CapturedFlights';
 import { InformationReview } from './InformationReview';
 import { INFORMATION_TYPES } from '../vereinsflieger/information';
+import { recordProviderEvent } from '../vereinsflieger/provider-diagnostics';
 
 type Controller = ReturnType<typeof useAccessController>;
-export function ConnectionIndicator({ controller: c, onPress }: { controller: Controller; onPress?: () => void }) {
+export type ProviderStatus = Pick<Controller, 'connection' | 'browserActive' | 'clearing' | 'binding' | 'busy' | 'loginBusy' | 'disconnecting' | 'saving' | 'recovery'> & { ownerId?:string; restoring: { current: boolean } };
+export const unknownProviderStatus: ProviderStatus = { connection: { phase:'unknown', confirmed:false, observed:null, lastCheckedAt:null }, browserActive:false, clearing:false, binding:false, busy:false, loginBusy:false, disconnecting:false, saving:false, recovery:false, restoring:{current:false} };
+export function ConnectionIndicator({ controller: c, onPress }: { controller: ProviderStatus; onPress?: () => void }) {
   const pending = c.clearing || c.binding || c.busy || c.loginBusy || c.disconnecting || c.connection.phase === 'checking';
   const { mark, color: tint } = connectionSymbol(c.connection);
   const operation = c.clearing ? 'Browserdaten werden gelöscht' : c.binding ? 'Kontozuordnung wird gespeichert' : c.saving ? 'Belege werden gespeichert' : c.busy ? c.restoring.current ? 'Anbieteransicht wird wiederhergestellt' : 'Rohabruf läuft' : c.loginBusy ? 'Anmeldung wird versucht' : c.disconnecting ? 'Abmeldung wird geprüft' : 'Sitzung wird geprüft';
@@ -28,7 +31,7 @@ export function ConnectionIndicator({ controller: c, onPress }: { controller: Co
 }
 
 /** The browser keeps this exact native parent whether login, progress or tabs are visible. */
-export function ProviderConnection({ controller: c, open, close, development = false, developmentRecoveryCheckpoints = false, guided = false, progress, loginEnabled = true, closeDisabled = false, purpose = 'existing-captures' }: { controller: Controller; open: boolean; close: () => void; development?: boolean; developmentRecoveryCheckpoints?: boolean; guided?: boolean; progress?: React.ReactNode; loginEnabled?: boolean; closeDisabled?: boolean; purpose?: 'existing-captures' | 'own-flight-library' }) {
+export function ProviderConnection({ controller: c, open, close, development = false, developmentRecoveryCheckpoints = false, guided = false, progress, title, closeDisabled = false, purpose = 'existing-captures' }: { controller: Controller; open: boolean; close: () => void; development?: boolean; developmentRecoveryCheckpoints?: boolean; guided?: boolean; progress?: React.ReactNode; title?:string; closeDisabled?: boolean; purpose?: 'existing-captures' | 'own-flight-library' }) {
   const insets = useSafeAreaInsets();
   const [barHeight, setBarHeight] = useState(68), [loginHeight, setLoginHeight] = useState(132);
   const [panelHeight, setPanelHeight] = useState(800);
@@ -40,7 +43,8 @@ export function ProviderConnection({ controller: c, open, close, development = f
   const operationLocked = c.clearing || c.binding || c.busy || checking || c.saving || c.loginBusy || c.informationHistoryBusy || !c.viewReady;
   const locked = operationLocked || c.disconnecting;
   const developmentMarker = c.developmentCheckpoint === 'journal-paused' ? 'Testpause: Originalansicht lokal gesichert. Noch keine Anbietereinstellung geändert.' : c.developmentCheckpoint === 'recovery-paused' ? 'Testpause: Passendes Konto geprüft. Noch kein Wiederherstellungsbefehl gesendet.' : c.developmentCheckpoint === 'journal-armed' ? 'Testpause nach Sicherung vorgemerkt.' : c.developmentCheckpoint === 'recovery-armed' ? 'Testpause vor Wiederherstellung vorgemerkt.' : 'Anbieter-Wiederherstellungstest · nur Entwicklung';
-  const login = open && c.visible && loginEnabled;
+  const login = open && c.visible;
+  useEffect(()=>recordProviderEvent(!open?'provider-surface-closed':login?'provider-surface-sign-in':'provider-surface-progress'),[open,login]);
   const checkpointHeight = developmentRecoveryCheckpoints ? developmentHeight : 0;
   const progressHeight = Math.max(96, Math.min((panelHeight-insets.top-insets.bottom-barHeight-checkpointHeight)*0.5, panelHeight-insets.top-insets.bottom-barHeight-checkpointHeight-240));
   const guidance = connectionGuidance(c.connection, c.browserActive);
@@ -56,8 +60,8 @@ export function ProviderConnection({ controller: c, open, close, development = f
       {c.browser}
     </View>
     <View style={styles.bar} onLayout={event => setBarHeight(event.nativeEvent.layout.height)}>
-      <Action secondary icon="close" label={progress ? 'Datenabruf schließen oder abbrechen' : 'Verbindungen schließen und zur App zurückkehren'} disabled={closeDisabled || guided && (c.saving || c.restoring.current)} onPress={dismiss}>Schließen</Action>
-      <Label style={{ flex: 1, fontWeight: '600' }}>{progress ? 'Daten laden' : login ? c.disconnecting ? 'Bei Vereinsflieger abmelden' : 'Bei Vereinsflieger anmelden' : guided ? 'Daten laden' : 'Verbindungen'}</Label>
+      <Action secondary icon="close" label={title==='Vereinsflieger'?'Verbindung schließen und zur App zurückkehren':progress ? 'Datenabruf schließen oder abbrechen' : 'Verbindungen schließen und zur App zurückkehren'} disabled={closeDisabled || guided && (c.saving || c.restoring.current)} onPress={dismiss}>Schließen</Action>
+      <Label style={{ flex: 1, fontWeight: '600' }}>{title??(progress ? 'Daten laden' : login ? c.disconnecting ? 'Bei Vereinsflieger abmelden' : 'Bei Vereinsflieger anmelden' : guided ? 'Daten laden' : 'Verbindungen')}</Label>
       <ConnectionIndicator controller={c} onPress={login && !progress ? c.dismissLogin : undefined} />
     </View>
     {developmentRecoveryCheckpoints && <View onLayout={event => setDevelopmentHeight(event.nativeEvent.layout.height)} style={{paddingHorizontal:12,paddingBottom:8,gap:4}}>

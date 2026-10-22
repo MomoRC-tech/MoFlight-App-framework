@@ -17,7 +17,8 @@ const source=ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/sr
 
 // Real screen effects and handlers; SQLite and provider behavior have their own
 // integration tests. These ports control timing to exercise the screen coordinator.
-function fixture({startUpdate=false,root=false,readOnly=false,deferReservation=false,failStartup=false,medicalFailure=false,loginPending=false,deferProvider=false,quietResume=false,deferSource=false,sameWindow=false,deferVerification=false,priorConnection='unknown'}={}) {
+function fixture({startUpdate=false,root=false,readOnly=false,deferReservation=false,failStartup=false,medicalFailure=false,loginPending=false,deferProvider=false,quietResume=false,deferSource=false,sameWindow=false,deferVerification=false,priorConnection='unknown',intent:requestedIntent=undefined as string|undefined}={}) {
+  let panelOpen=true,requestId=0;
   const journal=new DiagnosticJournal(), diagnosis={current:journal.begin(startUpdate?'update-flights':'open-flight-tools')};
   const hooks:any[]=[],effects:(()=>void)[]=[],calls:string[]=[],closed:any[]=[];
   let index=0,dirty=true,tree:Element,abort:AbortController|null=null;
@@ -77,12 +78,12 @@ function fixture({startUpdate=false,root=false,readOnly=false,deferReservation=f
     '../vereinsflieger/retrieval-policy':{planFlightRetrieval},'./data-freshness':{dataFreshness},
   };
   const exports:any={};runInNewContext(source,{exports,require:(name:string)=>{assert.ok(name in modules,name);return modules[name];},setTimeout:(fn:()=>void)=>{timers.set(++timerId,fn);return timerId;},clearTimeout:(id:number)=>timers.delete(id),console,Error});
-  function render(){dirty=false;index=0;tree=root?exports.CoreFlightFoundation({startUpdate,close:(v:any)=>closed.push(v)}):exports.OwnerFlightLibrary({lease,registry,startUpdate,close:(v:any)=>closed.push(v),takeInitialRepository:()=>null,diagnosis});while(effects.length)effects.shift()!();return tree;}
+  function render(){dirty=false;index=0;tree=root?exports.CoreFlightFoundation({startUpdate,intent:requestedIntent,open:panelOpen,requestId,close:(v:any)=>closed.push(v)}):exports.OwnerFlightLibrary({lease,registry,startUpdate,intent:requestedIntent,open:panelOpen,requestId,close:(v:any)=>closed.push(v),takeInitialRepository:()=>null,diagnosis});while(effects.length)effects.shift()!();return tree;}
   async function flush(){for(let n=0;n<12;n++){if(dirty)render();await new Promise<void>(resolve=>{setImmediate(resolve);});}if(dirty)render();}
   function nodes(){const result:Element[]=[];function visit(value:any){if(value&&typeof value==='object'&&'children'in value){result.push(value);value.children.forEach(visit);if(value.props.progress)visit(value.props.progress);}}visit(tree);return result;}
   const text=(node:any):string=>node&&typeof node==='object'&&'children'in node?node.children.map(text).join(''):typeof node==='string'?node:'';
   function press(label:string){const node=nodes().find(n=>n.type==='Action'&&text(n)===label);assert.ok(node,label);assert.ok(!node.props.disabled,label);node.props.onPress();}
-  return {journal,render,flush,c,calls,closed,nodes,text:()=>text(tree),progressText:()=>text(nodes().find(n=>n.type==='ProviderConnection')?.props.progress),press,finishReservation,background:()=>listeners.forEach(f=>f('background')),resume:()=>listeners.forEach(f=>f('active')),
+  return {journal,render,flush,c,calls,closed,nodes,setOpen:(value:boolean)=>{panelOpen=value;if(value)requestId++;dirty=true;},text:()=>text(tree),progressText:()=>text(nodes().find(n=>n.type==='ProviderConnection')?.props.progress),press,finishReservation,background:()=>listeners.forEach(f=>f('background')),resume:()=>listeners.forEach(f=>f('active')),
     verify:()=>{c.visible=false;c.connection={phase:'observed',confirmed:true,observed:{accountNumber:'101',clubLabel:'Example'}};dirty=true;},
     pendingTimers:()=>timers.size,expire:()=>{for(const [id,fn] of timers){timers.delete(id);fn();}},
     admitSource:()=>admitSource(),
@@ -94,7 +95,7 @@ function fixture({startUpdate=false,root=false,readOnly=false,deferReservation=f
 test('opening options does no retrieval; one explicit action verifies, loads, saves and returns a result',async()=>{
   const f=fixture();try{
     f.render();await f.flush();assert.deepEqual(f.calls,[]);
-    assert.equal(f.nodes().find(n=>n.type==='ProviderConnection')!.props.loginEnabled,true,'Manual provider options still expose the original login');
+    assert.equal(f.nodes().find(n=>n.type==='ProviderConnection')!.props.guided,false);
     assert.equal(f.text().includes('Quellzeilen'),false);assert.equal(f.text().includes('Geräteordner'),false);
     f.press('Anmelden & Daten laden');await f.flush();
     assert.deepEqual(f.calls,['session','retrieve']);
@@ -102,8 +103,8 @@ test('opening options does no retrieval; one explicit action verifies, loads, sa
     assert.equal(f.closed.length,0);assert.match(f.progressText(),/3 Flüge auf diesem Gerät gespeichert/);assert.match(f.progressText(),/Medical-Angaben geladen/);
     assert.equal(f.nodes().find(n=>n.type==='ProviderConnection')!.props.open,true);
     assert.ok(f.nodes().some(n=>n.type==='ScrollView'&&n.props.importantForAccessibility==='no-hide-descendants'));
-    f.press('Zur Übersicht');
-    assert.equal(f.closed.length,1);assert.equal(f.closed[0].added,2);assert.equal(f.closed[0].from,'2025-01-01');assert.equal(f.closed[0].dutyStatus,'partial');assert.equal(f.journal.snapshot().at(-1)!.outcome,'partial');
+    f.press('Fertig');
+    assert.equal(f.closed.length,1);assert.equal(f.closed[0].added,2);assert.equal(f.closed[0].from,'2025-01-01');assert.equal(f.closed[0].dutyStatus,'partial');assert.equal(f.journal.snapshot().at(-1)!.outcome,'success');
   }finally{f.dispose();}
 });
 
@@ -169,7 +170,7 @@ test('interactive login has no flight timeout and foreground return needs verifi
     f.background();f.background();await f.flush();assert.equal(f.calls.includes('retrieve'),false);assert.match(f.progressText(),/Anmeldung pausiert/);
     f.resume();await f.flush();assert.deepEqual(f.calls,['session','resume']);assert.equal(f.pendingTimers(),0);
     f.verify();await f.flush();assert.deepEqual(f.calls,['session','resume','retrieve']);assert.equal(f.pendingTimers(),1);
-    f.complete();await f.flush();assert.equal(f.pendingTimers(),0);assert.equal(f.closed.length,0);f.press('Zur Übersicht');assert.equal(f.closed.length,1);
+    f.complete();await f.flush();assert.equal(f.pendingTimers(),0);assert.equal(f.closed.length,0);f.press('Fertig');assert.equal(f.closed.length,1);
   }finally{f.dispose();}
 });
 
@@ -203,7 +204,7 @@ test('leaving a completed progress screen retains its saved result but invalidat
   const f=fixture({startUpdate:true});try{
     f.render();await f.flush();f.complete();await f.flush();assert.equal(f.closed.length,0);
     f.background();f.resume();await f.flush();
-    assert.match(f.progressText(),/3 Flüge auf diesem Gerät gespeichert/);f.press('Zur Übersicht');
+    assert.match(f.progressText(),/3 Flüge auf diesem Gerät gespeichert/);f.press('Fertig');
     assert.equal(f.closed.length,1);assert.equal(f.closed[0].added,2);assert.equal(f.closed[0].verifiedConnection,undefined);
   }finally{f.dispose();}
 });
@@ -234,11 +235,11 @@ test('both Android credential dialogs retain the original login surface until si
       assert.match(f.progressText(),/Anmeldung pausiert/);
       assert.equal(login().open,true);
       assert.equal(login().controller.visible,true);
-      assert.equal(login().loginEnabled,true,'The system credential dialog must not hide its target login surface');
+      assert.equal(login().controller.visible,true,'The system credential dialog must not hide its target login surface');
       assert.equal(f.pendingTimers(),0);assert.equal(f.calls.includes('retrieve'),false);
       f.resume();await f.flush();
       assert.match(f.progressText(),/Bitte bei Vereinsflieger anmelden/);
-      assert.equal(login().loginEnabled,true);
+      assert.equal(login().controller.visible,true);
     }
     assert.deepEqual(f.calls,['session','resume','resume']);
     f.verify();await f.flush();assert.deepEqual(f.calls,['session','resume','resume','retrieve']);
@@ -250,7 +251,7 @@ test('cancelling while Android credentials are open revokes the login surface an
   const f=fixture({startUpdate:true,loginPending:true});try{
     f.render();await f.flush();f.background();await f.flush();
     f.nodes().find(n=>n.type==='ProviderConnection')!.props.close();await f.flush();
-    assert.equal(f.nodes().find(n=>n.type==='ProviderConnection')!.props.loginEnabled,false);
+    assert.equal(f.nodes().find(n=>n.type==='ProviderConnection')!.props.controller.visible,false);
     f.resume();f.verify();await f.flush();
     assert.equal(f.calls.includes('resume'),false);assert.equal(f.calls.includes('retrieve'),false);assert.equal(f.calls.includes('save'),false);
   }finally{f.dispose();}
@@ -283,5 +284,29 @@ test('fresh sign-in clears a previous failed result before waiting indefinitely 
     assert.match(f.progressText(),/Bitte bei Vereinsflieger anmelden/);assert.equal(f.pendingTimers(),0);
     f.expire();await f.flush();assert.deepEqual(f.calls,['session']);assert.equal(f.closed.length,0);
     f.verify();await f.flush();assert.deepEqual(f.calls,['session','retrieve']);
+  }finally{f.dispose();}
+});
+
+
+test('connection-only entry opens the provider directly and never starts flight retrieval',async()=>{
+  const f=fixture({intent:'connect',loginPending:true});try{
+    f.render();await f.flush();assert.deepEqual(f.calls,['session']);
+    assert.equal(f.nodes().find(n=>n.type==='ProviderConnection')!.props.open,true);
+    assert.ok(f.nodes().some(n=>n.type==='Section'&&n.props.title==='Vereinsflieger'));
+    f.background();await f.flush();f.resume();await f.flush();assert.deepEqual(f.calls,['session']);
+    f.verify();await f.flush();assert.match(f.progressText(),/Verbunden/);assert.deepEqual(f.calls,['session']);
+    f.press('Daten aktualisieren');await f.flush();assert.deepEqual(f.calls,['session','session']);f.verify();await f.flush();assert.deepEqual(f.calls,['session','session','retrieve']);
+    f.complete();await f.flush();assert.deepEqual(f.calls,['session','session','retrieve','save','medical']);
+  }finally{f.dispose();}
+});
+
+test('closing and reopening connection retains the controller and creates no hidden work',async()=>{
+  const f=fixture({intent:'connect',loginPending:true});try{
+    f.render();await f.flush();const first=f.nodes().find(n=>n.type==='ProviderConnection')!.props.controller;
+    f.c.dismissLogin();f.setOpen(false);await f.flush();assert.equal(f.nodes().find(n=>n.type==='ProviderConnection')!.props.open,false);
+    assert.deepEqual(f.calls,['session']);
+    f.setOpen(true);await f.flush();const reopened=f.nodes().find(n=>n.type==='ProviderConnection')!.props.controller;
+    assert.equal(reopened.retrieval,first.retrieval);assert.deepEqual(f.calls,['session','session']);
+    assert.equal(reopened.visible,true);assert.equal(f.calls.includes('save'),false);
   }finally{f.dispose();}
 });

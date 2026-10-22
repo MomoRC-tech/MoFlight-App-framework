@@ -8,6 +8,7 @@ import { canonical } from '../../packages/flight-logbook/src/index.ts';
 import { medicalSource } from '../../apps/platform-lab/src/mobile/medical-source.ts';
 import { ownFlightConnectionState, connectionSymbol } from '../../apps/platform-lab/src/mobile/connection-guidance.ts';
 import * as dutyModel from '../../apps/platform-lab/src/vereinsflieger/duties';
+const unknownProviderStatus={connection:{phase:'unknown',confirmed:false,observed:null,lastCheckedAt:null},browserActive:false};
 import { planFlightRetrieval } from '../../apps/platform-lab/src/vereinsflieger/retrieval-policy';
 
 interface Element { type: unknown; props: Record<string, any>; children: unknown[] }
@@ -34,10 +35,10 @@ function fixture(width = 390, fontScale = 1) {
   const library = { flights: [flight], books: [{ id: 'synthetic-book', name: 'Synthetic book' }], bookId: 'synthetic-book', pending: 0, displayName: 'Synthetic pilot' };
   const controller = { visible: false, informationCaptures: [], connection: { phase: 'unknown' }, refreshRecovery: () => calls.push('refresh-recovery'), dismissLogin() {}, backWithinProvider: () => false, suspendBrowserForOwnerSwitch: () => true };
   const calls: string[] = [];
-  const coreRoutes: {startUpdate:boolean;developmentRecoveryCheckpoints:boolean}[] = [];
+  const coreRoutes: {intent:string;developmentRecoveryCheckpoints:boolean}[] = [];
   const readEnabled:boolean[]=[];
   let suspended = false;
-  let lastLoad:any=null, ownView:any=null, appStateListener:((state:string)=>void)|undefined;
+  let providerStatus:any=unknownProviderStatus, lastLoad:any=null, ownView:any=null, appStateListener:((state:string)=>void)|undefined;
   Object.assign(controller, { connect: () => calls.push('connect'), checkConnection: () => calls.push('check'), retrieve: () => calls.push('retrieve') });
   let hardwareBack: () => boolean;
   const leaves = (names: string[]) => Object.fromEntries(names.map(name => [name, name]));
@@ -62,7 +63,7 @@ function fixture(width = 390, fontScale = 1) {
     './Diagnostics': leaves(['Diagnostics']), './diagnostics-native': {initializeDiagnostics() {}}, '../diagnostics': diagnostics,
     './ProfileSettings': { ProfileSettings: 'ProfileSettings', SyntheticProfileSettings:'SyntheticProfileSettings' }, '../book-storage': { PILOT: 'synthetic-pilot' },
     '../vereinsflieger/use-access-controller': { useAccessController: () => controller },
-    './ProviderConnection': leaves(['ProviderConnection', 'ConnectionIndicator']), './AppHeader': { AppHeader: 'AppHeader' },
+    './ProviderConnection': {...leaves(['ProviderConnection', 'ConnectionIndicator']),unknownProviderStatus}, './AppHeader': { AppHeader: 'AppHeader' },
     './MedicalStatus': leaves(['MedicalIndicator', 'MedicalDetails']),
     './DevelopmentHub': leaves(['DevelopmentHub', 'DevelopmentNotice']),
     './LibraryBackup': leaves(['LibraryBackup']), './PaperStatus': leaves(['PaperStatus']),
@@ -83,7 +84,7 @@ function fixture(width = 390, fontScale = 1) {
     assert.ok(name in modules, name); return modules[name];
   } });
   let tree: Element;
-  function render() { index = 0; tree = (exports.Shell as (props:unknown)=>Element)({lastLoad,onCoreFlights:(startUpdate=false,developmentRecoveryCheckpoints=false)=>{coreRoutes.push({startUpdate,developmentRecoveryCheckpoints});calls.push(startUpdate?'core-load':'core-library-route');}}); effects.splice(0).forEach(effect => effect()); return tree; }
+  function render() { index = 0; tree = (exports.Shell as (props:unknown)=>Element)({lastLoad,providerStatus,onCoreFlights:(intent='connect',developmentRecoveryCheckpoints=false)=>{coreRoutes.push({intent,developmentRecoveryCheckpoints});calls.push(intent==='update'?'core-load':intent==='development'?'core-development-route':intent==='options'?'core-library-route':'core-connect');}}); effects.splice(0).forEach(effect => effect()); return tree; }
   function nodes() {
     const found: Element[] = [];
     const visit = (value: unknown) => { if (value && typeof value === 'object' && 'children' in value) { const node = value as Element; found.push(node); node.children.forEach(visit); if (node.type === 'FlatList') visit(node.props.ListHeaderComponent); } };
@@ -103,8 +104,8 @@ function fixture(width = 390, fontScale = 1) {
   }
   render(); render();
   return { render, nodes, find, resize:(nextWidth:number,nextFontScale:number)=>{width=nextWidth;fontScale=nextFontScale;render();}, headers, parent, press, openOwnDetail, flight, library, controller, calls, coreRoutes, readEnabled, suspended: () => suspended, hardwareBack: () => hardwareBack!(),
-    showLoad:(result:any,view:any)=>{lastLoad=result;ownView=view;render();render();},
-    appState:(state:string)=>{appStateListener?.(state);render();} };
+    showLoad:(result:any,view:any)=>{providerStatus=result?.verifiedConnection?{...unknownProviderStatus,ownerId:result.verifiedConnection.ownerId,connection:result.verifiedConnection.state}:unknownProviderStatus;lastLoad=result;ownView=view;render();render();},
+    appState:(state:string)=>{if(state!=='active')providerStatus=unknownProviderStatus;appStateListener?.(state);render();} };
 }
 
 test('real-flight verification updates both shell summaries without authorizing the legacy controller and expires on background',()=>{
@@ -123,7 +124,7 @@ test('real-flight verification updates both shell summaries without authorizing 
   }
   f.showLoad(null,view);assert.equal(connectionSymbol(f.find('ConnectionIndicator').props.controller.connection).mark,'?');
   f.showLoad({...result,verifiedConnection:{ownerId:'real-owner',state:{...state,confirmed:false}}},view);
-  assert.equal(connectionSymbol(f.find('ConnectionIndicator').props.controller.connection).mark,'?');
+  assert.equal(connectionSymbol(f.find('ConnectionIndicator').props.controller.connection).mark,'!');
 });
 
 test('Medical header and details use the real selected library projection rather than legacy information',()=>{
@@ -152,16 +153,14 @@ test('Start, profile and flight updates use the combined flow only after an expl
   assert.deepEqual(f.calls, []);
   f.find('ConnectionSummary').props.onUpdate(); f.render();
   assert.deepEqual(f.calls, ['core-load']);
-  assert.equal(f.find('ProviderConnection').props.open, false);
+  assert.equal(f.nodes().some(n=>n.type==='ProviderConnection'),false);
   f.press('Pressable', 'Profil & Einstellungen öffnen');
   const summary = f.find('ProfileSettings').props.connectionSummary as Element;
   summary.props.onOpen(); f.render();
-  assert.deepEqual(f.calls, ['core-load','core-library-route']);
+  assert.deepEqual(f.calls, ['core-load','core-connect']);
   summary.props.onUpdate(); f.render();
   f.find('OwnFlights').props.onUpdate(); f.render();
-  assert.deepEqual(f.calls, ['core-load','core-library-route','core-load','core-load']);
-  f.controller.suspendBrowserForOwnerSwitch=()=>false;
-  assert.equal(f.find('OwnFlights').props.onUpdate(),false);
+  assert.deepEqual(f.calls, ['core-load','core-connect','core-load','core-load']);
   assert.equal(f.calls.length,4);
 });
 
@@ -204,11 +203,11 @@ test('Medical opens without provider work and returns through nested overlays', 
   assert.ok(f.find('MedicalDetails'));
   assert.equal(f.nodes().filter(n => n.type === 'MedicalIndicator').at(-1)!.props.active, true);
   f.press('ConnectionIndicator');
-  f.find('ProviderConnection').props.close(); f.render();
+  f.render();
   assert.equal(f.headers().at(-1)!.props.title, 'Medical');
   f.headers().at(-1)!.props.back(); f.render();
   assert.equal(f.headers()[0]!.props.title, 'Flugfilter');
-  assert.deepEqual(f.calls, ['core-library-route']);
+  assert.deepEqual(f.calls, ['core-connect']);
 });
 
 test('details and sheets retain one active header; profile Back restores details and tab state', () => {
@@ -229,18 +228,13 @@ test('details and sheets retain one active header; profile Back restores details
   assert.equal(f.parent(f.headers()[0]!).props.accessibilityElementsHidden, false);
 });
 
-test('connection overlay preserves the underlying sheet and browser layer parent', () => {
-  const f = fixture();
-  f.press('Pressable', 'Profil & Einstellungen öffnen');
-  const providerParent = f.parent(f.find('ProviderConnection'));
-  f.find('ProfileSettings').props.onTools(); f.render();
-  f.find('DevelopmentHub').props.onProvider(); f.render();
-  assert.equal(f.find('ProviderConnection').props.open, true);
-  assert.equal(f.parent(f.parent(f.headers()[0]!)).props.accessibilityElementsHidden, true);
-  assert.equal(f.parent(f.find('ProviderConnection')).type, providerParent.type);
-  f.find('ProviderConnection').props.close(); f.render();
-  assert.equal(f.headers().at(-1)!.props.title, 'Entwicklung');
-  assert.equal(f.find('ProviderConnection').props.open, false);
+test('header connection opens the shared panel directly and preserves the invoking sheet', () => {
+  const f=fixture();f.press('Pressable','Profil & Einstellungen öffnen');
+  f.find('ProfileSettings').props.onNameDraftChange('Retained draft');f.render();
+  f.press('ConnectionIndicator');
+  assert.deepEqual(f.coreRoutes,[{intent:'connect',developmentRecoveryCheckpoints:false}]);
+  assert.equal(f.find('ProfileSettings').props.nameDraft,'Retained draft');
+  assert.equal(f.nodes().some(n=>n.type==='ProviderConnection'),false,'The shell cannot create a competing browser');
 });
 
 test('synthetic book changes preserve independent own-flight details through profile Back', () => {
@@ -259,18 +253,11 @@ test('synthetic book changes preserve independent own-flight details through pro
   assert.equal(f.headers()[0]!.props.title, 'Flüge');
 });
 
-test('hardware Back prefers guarded provider history and then returns to the same sheet', () => {
-  const f = fixture();
-  f.press('Pressable', 'Profil & Einstellungen öffnen');
-  f.find('ProfileSettings').props.onTools(); f.render();
-  f.find('DevelopmentHub').props.onProvider(); f.render();
-  f.controller.visible = true; f.controller.backWithinProvider = () => true; f.render();
-  assert.equal(f.hardwareBack(), true); f.render();
-  assert.equal(f.find('ProviderConnection').props.open, true);
-  f.controller.backWithinProvider = () => false;
-  assert.equal(f.hardwareBack(), true); f.render();
-  assert.equal(f.find('ProviderConnection').props.open, false);
-  assert.equal(f.headers().at(-1)!.props.title, 'Entwicklung');
+test('shell Back remains contextual after requesting the shared connection', () => {
+  const f=fixture();f.press('Pressable','Flüge');f.openOwnDetail();
+  f.press('Pressable','Profil & Einstellungen öffnen');f.press('ConnectionIndicator');
+  assert.equal(f.headers().at(-1)!.props.title,'Profil & Einstellungen');
+  f.hardwareBack();f.render();assert.equal(f.headers().at(-1)!.props.title,'Flugdetails');
 });
 
 test('ordinary paper is deferred while Development retains synthetic paper and backup without launching experiments', () => {
@@ -314,7 +301,7 @@ test('Development is read-only on entry; proof work guards Back and a reload pre
   assert.ok(f.find('LabApp'));
   lab.props.onBusyChange(false); f.render();
   f.headers().at(-1)!.props.back(); f.render();
-  assert.ok(f.find('DevelopmentHub')); assert.deepEqual(f.calls, ['refresh-recovery']);
+  assert.ok(f.find('DevelopmentHub')); assert.deepEqual(f.calls, []);
   f.library.flights = [...f.library.flights]; f.render(); f.render();
   f.headers().at(-1)!.props.back(); f.render();
   assert.ok(f.find('ProfileSettings'));
@@ -324,21 +311,11 @@ test('Development is read-only on entry; proof work guards Back and a reload pre
   assert.equal(f.find('OwnFlights').type, ownFlights.type);
 });
 
-test('provider diagnostics reuses the retained controller and normal entry removes test controls', () => {
-  const f = fixture();
-  const controller = f.find('ProviderConnection').props.controller;
-  f.press('Pressable', 'Profil & Einstellungen öffnen');
-  f.find('ProfileSettings').props.onTools(); f.render();
-  f.find('DevelopmentHub').props.onProvider(); f.render();
-  assert.equal(f.find('ProviderConnection').props.controller, controller);
-  assert.equal(f.find('ProviderConnection').props.development, true);
-  assert.equal(f.find('ProviderConnection').props.open, true);
-  f.find('ProviderConnection').props.close(); f.render();
-  assert.ok(f.find('DevelopmentHub'));
-  f.press('ConnectionIndicator');
-  assert.equal(f.find('ProviderConnection').props.open, false);
-  assert.equal(f.nodes().filter(n => n.type === 'ProviderConnection').length, 1);
-  assert.deepEqual(f.calls, ['core-library-route']);
+test('Development requests the same selected-owner host with an explicit development intent', () => {
+  const f=fixture();f.press('Pressable','Profil & Einstellungen öffnen');f.find('ProfileSettings').props.onTools();f.render();
+  f.find('DevelopmentHub').props.onProvider();f.render();f.press('ConnectionIndicator');
+  assert.deepEqual(f.coreRoutes,[{intent:'development',developmentRecoveryCheckpoints:true},{intent:'connect',developmentRecoveryCheckpoints:false}]);
+  assert.equal(f.nodes().some(n=>n.type==='ProviderConnection'),false);
 });
 
 test('ordinary login update and backup routes do not enable development recovery checkpoints', () => {
@@ -348,19 +325,18 @@ test('ordinary login update and backup routes do not enable development recovery
   f.press('Pressable', 'Profil & Einstellungen öffnen');
   f.find('ProfileSettings').props.onBackup();
   assert.deepEqual(f.coreRoutes, [
-    {startUpdate:false,developmentRecoveryCheckpoints:false},
-    {startUpdate:true,developmentRecoveryCheckpoints:false},
-    {startUpdate:false,developmentRecoveryCheckpoints:false},
+    {intent:'connect',developmentRecoveryCheckpoints:false},
+    {intent:'update',developmentRecoveryCheckpoints:false},
+    {intent:'options',developmentRecoveryCheckpoints:false},
   ]);
 });
 
-test('core-library route requires safe browser suspension and keeps the main profile draft in its shell', () => {
+test('advanced library tools retain the Profile draft without a browser handoff', () => {
   const f=fixture();f.press('Pressable','Profil & Einstellungen öffnen');
   f.find('ProfileSettings').props.onNameDraftChange('Retained draft');f.render();f.find('ProfileSettings').props.onTools();f.render();
-  f.controller.suspendBrowserForOwnerSwitch=()=>false;f.find('DevelopmentHub').props.onCoreFlights();assert.deepEqual(f.calls,[]);
-  f.controller.suspendBrowserForOwnerSwitch=()=>true;f.find('DevelopmentHub').props.onCoreFlights();assert.deepEqual(f.calls,['core-library-route']);
-  assert.deepEqual(f.coreRoutes,[{startUpdate:false,developmentRecoveryCheckpoints:true}]);
-  f.render();f.headers().at(-1)!.props.back();f.render();assert.equal(f.find('ProfileSettings').props.nameDraft,'Retained draft');
+  f.find('DevelopmentHub').props.onCoreFlights();
+  assert.deepEqual(f.coreRoutes,[{intent:'options',developmentRecoveryCheckpoints:true}]);
+  f.headers().at(-1)!.props.back();f.render();assert.equal(f.find('ProfileSettings').props.nameDraft,'Retained draft');
 });
 
 test('nested settings preserve the unsaved profile draft and each sheet scroll offset', () => {
@@ -387,9 +363,7 @@ test('nested settings preserve the unsaved profile draft and each sheet scroll o
   assert.ok(f.nodes().some(n=>n.type==='Label' && n.children.includes('Entwicklungsversion')));
   assert.equal(f.nodes().some(n=>n.type==='Label' && n.children.includes('Entwicklung · synthetische lokale Bibliothek')),false);
   assert.equal(f.nodes().some(n=>n.type==='FlatList'),false);
-  f.controller.suspendBrowserForOwnerSwitch=()=>false;
-  assert.equal(f.find('OwnFlights').props.onUpdate(),false);assert.deepEqual(f.calls,[]);
-  f.controller.suspendBrowserForOwnerSwitch=()=>true;
+
   assert.equal(f.find('OwnFlights').props.onUpdate(),true);assert.deepEqual(f.calls,['core-load']);
   let back=0;f.find('OwnFlights').props.onHeaderChange({title:'Flugdetails',back:()=>back++});f.render();
   assert.equal(f.headers()[0]!.props.title,'Flugdetails');f.hardwareBack();assert.equal(back,1);

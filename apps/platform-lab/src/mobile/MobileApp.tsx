@@ -15,9 +15,7 @@ import { ProfileSettings, SyntheticProfileSettings } from './ProfileSettings';
 import { Diagnostics } from './Diagnostics';
 import { initializeDiagnostics } from './diagnostics-native';
 import { diagnosticJournal } from '../diagnostics';
-import { PILOT } from '../book-storage';
-import { useAccessController } from '../vereinsflieger/use-access-controller';
-import { ProviderConnection, ConnectionIndicator } from './ProviderConnection';
+import { ConnectionIndicator, unknownProviderStatus, type ProviderStatus } from './ProviderConnection';
 import { AppHeader } from './AppHeader';
 import { MedicalDetails, MedicalIndicator } from './MedicalStatus';
 import { DevelopmentHub, DevelopmentNotice } from './DevelopmentHub';
@@ -25,12 +23,11 @@ import { LibraryBackup } from './LibraryBackup';
 import { PaperStatus } from './PaperStatus';
 import { ImportPreview } from './ImportPreview';
 import type { PreviewSession } from '../import-preview';
-import { CoreFlightFoundation, type FlightLoadResult } from './CoreFlightFoundation';
+import { CoreFlightFoundation, type FlightLoadResult, type ConnectionIntent } from './CoreFlightFoundation';
 import { ConnectionSummary } from './ConnectionSummary';
 import { OwnFlights, type OwnFlightHeader } from './OwnFlights';
 import { useOwnFlights } from './use-own-flights';
 import { ownFlightReadPorts } from './own-flight-reader-native';
-import { ownFlightConnectionState, type OwnFlightConnectionEvidence } from './connection-guidance';
 import { buildDutyOverview, dutySnapshotExpiresAt } from '../vereinsflieger/duties';
 import { DutyRoster } from './DutyRoster';
 import { planFlightRetrieval } from '../vereinsflieger/retrieval-policy';
@@ -46,24 +43,18 @@ const dateText = (date: string | null) => date ? new Date(date + 'T12:00:00Z').t
 
 export default function MobileApp() {
   useEffect(initializeDiagnostics, []);
-  const [coreFlights,setCoreFlights]=useState<{startUpdate:boolean;developmentRecoveryCheckpoints:boolean}|null>(null);
-  const [lastLoad,setLastLoad]=useState<FlightLoadResult|null>(null);
-  const [flightReload,setFlightReload]=useState(0);
+  const [entry,setEntry] = useState<{intent:ConnectionIntent;requestId:number;open:boolean;development:boolean}|null>(null);
+  const [lastLoad,setLastLoad] = useState<FlightLoadResult|null>(null);
+  const [flightReload,setFlightReload] = useState(0);
+  const [providerStatus,setProviderStatus] = useState<ProviderStatus>(unknownProviderStatus);
   return <SafeAreaProvider><View style={{flex:1}}>
-    <View style={{flex:1,display:coreFlights?'none':'flex'}} accessibilityElementsHidden={!!coreFlights} importantForAccessibility={coreFlights?'no-hide-descendants':'auto'}><Shell coreFlightsOpen={!!coreFlights} flightReload={flightReload} lastLoad={lastLoad} onCoreFlights={(startUpdate=false,developmentRecoveryCheckpoints=false)=>{setLastLoad(null);setCoreFlights({startUpdate,developmentRecoveryCheckpoints});}}/></View>
-    {coreFlights&&<CoreFlightFoundation developmentRecoveryCheckpoints={coreFlights.developmentRecoveryCheckpoints} startUpdate={coreFlights.startUpdate} close={result=>{setCoreFlights(null);if(result)setLastLoad(result);setFlightReload(value=>value+1);}}/>}
+    <View style={{flex:1}} accessibilityElementsHidden={!!entry?.open} importantForAccessibility={entry?.open?'no-hide-descendants':'auto'}><Shell coreFlightsOpen={!!entry?.open} flightReload={flightReload} lastLoad={lastLoad} providerStatus={providerStatus} onCoreFlights={(intent='connect',development=false)=>{setLastLoad(null);setEntry(previous=>({intent,development,open:true,requestId:(previous?.requestId??0)+1}));}}/></View>
+    {entry&&<View pointerEvents={entry.open?'auto':'none'} accessibilityElementsHidden={!entry.open} importantForAccessibility={entry.open?'auto':'no-hide-descendants'} style={[StyleSheet.absoluteFill,{opacity:entry.open?1:0,zIndex:entry.open?20:-1}]}>
+      <CoreFlightFoundation open={entry.open} requestId={entry.requestId} intent={entry.intent} onStatus={setProviderStatus} developmentRecoveryCheckpoints={entry.development} close={result=>{setEntry(previous=>previous?{...previous,open:false}:null);if(result)setLastLoad(result);setFlightReload(value=>value+1);}}/>
+    </View>}
   </View></SafeAreaProvider>;
 }
-function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLoad=null}:{onCoreFlights?:(startUpdate?:boolean,developmentRecoveryCheckpoints?:boolean)=>void;coreFlightsOpen?:boolean;flightReload?:number;lastLoad?:FlightLoadResult|null}={}) {
-  const connection = useAccessController(true, PILOT);
-  const [recentConnection,setRecentConnection]=useState<OwnFlightConnectionEvidence|null>(null);
-  useEffect(()=>{
-    setRecentConnection(lastLoad?.verifiedConnection??null);
-    const listener=AppState.addEventListener('change',state=>{if(state!=='active')setRecentConnection(null);});
-    return()=>listener.remove();
-  },[lastLoad]);
-  const [connectionOpen, setConnectionOpen] = useState(false);
-  const [connectionDevelopment, setConnectionDevelopment] = useState(false);
+function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLoad=null,providerStatus=unknownProviderStatus}:{onCoreFlights?:(intent?:ConnectionIntent,developmentRecoveryCheckpoints?:boolean)=>void;coreFlightsOpen?:boolean;flightReload?:number;lastLoad?:FlightLoadResult|null;providerStatus?:ProviderStatus}={}) {
   const [tab, setTab] = useState<Tab>('home');
   const [sheet, setSheet] = useState<Sheet>(null);
   const [detail, setDetail] = useState<Flight | null>(null);
@@ -101,13 +92,8 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
   const activeTab = useRef(tab);
   activeTab.current = tab;
   const toolsOpen = sheet === 'bookLab' || sheet === 'flightLab';
-  const previouslyToolsOpen = useRef(false);
-  useEffect(() => {
-    if (previouslyToolsOpen.current && !toolsOpen) void connection.refreshRecovery();
-    previouslyToolsOpen.current = toolsOpen;
-  }, [toolsOpen]);
   const library = useLibrary(toolsOpen || sheet === 'backup');
-  const ownFlights = useOwnFlights(ownFlightReadPorts, !connectionOpen && !coreFlightsOpen, flightReload);
+  const ownFlights = useOwnFlights(ownFlightReadPorts, !coreFlightsOpen, flightReload);
   const medical=ownFlights.view?.medical??null;
   const selected=ownFlights.view;
   const reminderScopeKey=selected?.snapshot.account?JSON.stringify([selected.snapshot.ownerId,selected.snapshot.storeId,selected.snapshot.account.accountRef]):null;
@@ -120,14 +106,13 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
   const dutyOverview=useMemo(()=>selected?.duties?buildDutyOverview(selected.duties.scope,selected.duties.snapshot,today,now):null,[selected?.duties,today,rosterExpired]);
   const openDuties=()=>{setClubSection('Dienste');setTab('club');};
   const dutyContent=(expanded=false)=>dutyOverview?<DutyRoster overview={dutyOverview} expanded={expanded} onOpen={openDuties}/>:<Card style={{width:'100%',maxWidth:430,alignSelf:'center'}}><Section title="Verein" icon="duty"/><Label muted>{selected?.dutiesReadFailed?'Gespeicherte Dienstquelle konnte nicht gelesen werden.':'Dienstplan noch nicht verfügbar.'}</Label><Label muted>Daten aktualisieren lädt unterstützte Dienstquellen. Vollständigkeit bleibt bis zur Quellenprüfung unbekannt.</Label>{!expanded&&<Action secondary onPress={openDuties}>Alle Dienste ansehen</Action>}</Card>;
-  // Presentation only. The legacy provider controller must never gain the real
-  // owner's authorization or pretend its synthetic-owner observation is current.
-  const flightStatusController={...connection,connection:ownFlightConnectionState(recentConnection,
-    ownFlights.view?.snapshot.ownerId,ownFlights.view?.snapshot.account?.accountRef)};
+  const sameProviderOwner=providerStatus.ownerId===selected?.snapshot.ownerId&&!!providerStatus.ownerId;
+  const sameProviderAccount=!selected?.snapshot.account||providerStatus.connection.observed?.accountNumber===selected.snapshot.account.accountRef;
+  const flightStatusController=sameProviderOwner&&sameProviderAccount?providerStatus:unknownProviderStatus;
   const libraryRevision = canonical([library.bookId, library.flights]);
   useEffect(() => { setProfileNameDraft(library.displayName); }, [library.displayName]);
   const { width, height, fontScale } = useWindowDimensions();
-  const aiKeyboard = tab === 'ai' && !overlayOpen && !connectionOpen && keyboardTop !== null;
+  const aiKeyboard = tab === 'ai' && !overlayOpen && keyboardTop !== null;
   const keyboardOverlap = Platform.OS === 'android' && aiKeyboard ? Math.max(0, height - keyboardTop!) : 0;
   const compact = fontScale > 1.3;
   const wrapTabs = width < 600 && compact;
@@ -153,23 +138,17 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
   }, [libraryRevision]);
   useEffect(() => {
     const listener = BackHandler.addEventListener('hardwareBackPress', () => {
-      if (connectionOpen) {
-        if (connection.visible && connection.backWithinProvider()) return true;
-        if (connection.visible || connection.connection.phase === 'checking') connection.dismissLogin();
-        setConnectionOpen(false); return true;
-      }
       if (detail || sheet) { closeOverlay(); return true; }
       if (tab === 'flights' && flightHeader.back) { flightHeader.back(); return true; }
       if (tab !== 'home') { setTab('home'); return true; }
       return false;
     }); return () => listener.remove();
-  }, [detail, sheet, tab, connectionOpen, connection, screenBusy, flightHeader]);
-  useEffect(()=>{if(lastLoad){overlayHistory.current=[];setDetail(null);setSheet(null);setTab('flights');}},[lastLoad]);
-  const openFlightFlow = (startUpdate=false) => { diagnosticJournal.record('action',startUpdate?'update-flights':'open-flight-tools'); if(!connection.suspendBrowserForOwnerSwitch()){diagnosticJournal.begin(startUpdate?'update-flights':'open-flight-tools').finish('blocked','provider-handoff');return false;} onCoreFlights(startUpdate); return true; };
-  useEffect(() => { diagnosticJournal.record('screen', coreFlightsOpen ? 'own-flight-tools' : connectionOpen ? 'provider-options' : detail ? 'flight-detail' : sheet ?? tab); }, [tab,sheet,detail,connectionOpen,coreFlightsOpen]);
+  }, [detail, sheet, tab, screenBusy, flightHeader]);
+  const openFlightFlow = (intent:ConnectionIntent='connect') => { diagnosticJournal.record('action',intent==='update'?'update-flights':'open-flight-tools'); onCoreFlights(intent); return true; };
+  useEffect(() => { diagnosticJournal.record('screen', coreFlightsOpen ? 'provider-options' : detail ? 'flight-detail' : sheet ?? tab); }, [tab,sheet,detail,coreFlightsOpen]);
   useEffect(() => { const listener=AppState.addEventListener('change',state=>{if(state==='active'||state==='background'||state==='inactive')diagnosticJournal.record('lifecycle',state);});return()=>listener.remove(); }, []);
   const openBooks = () => openHeaderSheet('paper');
-  const openConnection = (development = false) => { setConnectionDevelopment(development); setConnectionOpen(true); };
+  const openConnection = (development = false) => onCoreFlights(development?'development':'connect',development);
   const quickQuestions = localQuestions;
   const localQuery = (index: number) => {
     diagnosticJournal.record('action','local-query');
@@ -191,14 +170,14 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
   const header = <AppHeader source={tab === 'club' ? clubAirfield : mountain} title={tab === 'ai' ? 'MoFlight AI' : tab === 'flights' ? flightHeader.title : pageTitle} back={tab === 'flights' ? flightHeader.back : undefined}
     subtitle={tab === 'home' ? 'Guten Tag!' : tab === 'ai' ? 'Dein Segelflug-Assistent' : 'MoFlight'}>{statusControls}</AppHeader>;
   return <SafeAreaView edges={['top', 'left', 'right', 'bottom']} style={[s.root, keyboardOverlap > 0 && { paddingBottom: keyboardOverlap }]}>
-    <View collapsable={false} style={[{ flex: 1 }, connectionOpen && s.hidden]} aria-hidden={connectionOpen} accessibilityElementsHidden={connectionOpen} importantForAccessibility={connectionOpen ? 'no-hide-descendants' : 'auto'}>
+    <View collapsable={false} style={{ flex: 1 }}>
     <View collapsable={false} style={[{ flex: 1 }, overlayOpen && s.hidden]} aria-hidden={overlayOpen} accessibilityElementsHidden={overlayOpen} importantForAccessibility={overlayOpen ? 'no-hide-descendants' : 'auto'}>
     <StatusBar barStyle="light-content" backgroundColor={colors.background} />
     {header}
     <View style={[s.content, wide && { maxWidth: 960 }, tablet && !wide && { maxWidth: 600 }]}>
       <View style={[s.page, tab !== 'home' && s.hidden]} accessibilityElementsHidden={tab !== 'home'} importantForAccessibility={tab === 'home' ? 'auto' : 'no-hide-descendants'}>
         <ScrollView contentContainerStyle={s.canvas} keyboardShouldPersistTaps="handled">
-          <ConnectionSummary compact now={now} reminderSnooze={reminder.snooze} onSnoozeReminder={reminder.save} controller={flightStatusController} ownFlights={ownFlights.view} phase={ownFlights.phase} onUpdate={() => openFlightFlow(true)} onOpen={() => openFlightFlow()} />
+          <ConnectionSummary compact now={now} reminderSnooze={reminder.snooze} onSnoozeReminder={reminder.save} controller={flightStatusController} ownFlights={ownFlights.view} phase={ownFlights.phase} onUpdate={() => openFlightFlow('update')} onOpen={() => openFlightFlow()} />
           {reminder.error&&<Label muted>Erinnerungseinstellung konnte nicht gelesen oder gespeichert werden.</Label>}
           <View style={{width:'100%',maxWidth:wide?920:480,alignSelf:'center',flexDirection:wide?'row':'column',alignItems:'flex-start',gap:10}}>
           <View style={{width:'100%',flex:wide?1:undefined}}><Dashboard now={now} ownFlights={ownFlights.view} ownFlightPhase={ownFlights.phase} pending={null} width={width} fontScale={fontScale} onPaper={() => openHeaderSheet('paperInfo')} onFlights={() => { overlayHistory.current=[]; setDetail(null); setSheet(null); setTab('flights'); }} /></View>
@@ -213,7 +192,7 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
           {lastLoad.dutyStatus&&<Label>{lastLoad.dutyStatus==='partial'?'Dienstquelle gespeichert · Dienstplan unvollständig geprüft.':'Dienste nicht aktualisiert. Vorhandene Quellen bleiben erhalten.'}</Label>}
         </View></Card>}
         <OwnFlights active={tab === 'flights' && !coreFlightsOpen} data={ownFlights} onHeaderChange={setFlightHeader}
-          onUpdate={()=>openFlightFlow(true)} />
+          onUpdate={()=>openFlightFlow('update')} />
       </View>
       <View style={[s.page, tab !== 'logbook' && s.hidden]} accessibilityElementsHidden={tab !== 'logbook'} importantForAccessibility={tab === 'logbook' ? 'auto' : 'no-hide-descendants'}>
         <ScrollView contentContainerStyle={[s.canvas, { paddingTop: 10 }]}>
@@ -254,8 +233,8 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
     {overlayOpen && <View style={[StyleSheet.absoluteFill, s.modal]} accessibilityViewIsModal>
       <AppHeader source={mountain} back={closeOverlay} backDisabled={screenBusy} title={detail ? 'Flugdetails' : sheet === 'paper' || sheet === 'paperInfo' ? 'Papierflugbuch' : sheet === 'development' ? 'Entwicklung' : sheet === 'importPreview' ? 'Importvorschau' : sheet === 'flightLab' ? 'Datensatztest' : sheet === 'bookLab' ? 'Flugbuchtest' : sheet === 'backup' ? 'Sicherung' : sheet === 'diagnostics' ? 'Diagnose' : sheet === 'profile' ? 'Profil & Einstellungen' : sheet === 'medical' ? 'Medical' : 'MoFlight'}>{statusControls}</AppHeader>
         {sheet === 'flightLab' ? <><DevelopmentNotice /><LabApp providerOwned={true} embedded onBusyChange={setScreenBusy} /></> : sheet === 'bookLab' ? <><DevelopmentNotice /><BookLab close={closeOverlay} onBusyChange={setScreenBusy} /></> : <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}><ScrollView ref={overlayScroll} key={overlayKey} contentOffset={{ x: 0, y: overlayOffsets.current[overlayKey] ?? 0 }} onScroll={event => { overlayOffsets.current[overlayKey] = event.nativeEvent.contentOffset.y; }} scrollEventThrottle={32} contentContainerStyle={s.canvas} keyboardShouldPersistTaps="handled">
-          {sheet === 'profile' && <ProfileSettings connectionSummary={<ConnectionSummary controller={flightStatusController} ownFlights={ownFlights.view} phase={ownFlights.phase} onUpdate={() => openFlightFlow(true)} onOpen={() => openFlightFlow()} />} onConnections={() => openFlightFlow()} onTools={() => openHeaderSheet('development')} onBackup={() => openFlightFlow()} onDiagnostics={() => openHeaderSheet('diagnostics')} onStatus={() => openHeaderSheet('status')} onCredits={() => openHeaderSheet('credits')} onBooks={() => openHeaderSheet('selectBook')} displayName={library.displayName} nameDraft={profileNameDraft} onNameDraftChange={setProfileNameDraft} busy={library.busy} error={library.error} onSaveName={library.saveDisplayName} onRetry={() => void library.reload()} />}
-          {sheet === 'development' && <DevelopmentHub onPaper={openBooks} profileTools={<SyntheticProfileSettings displayName={library.displayName} nameDraft={profileNameDraft} onNameDraftChange={setProfileNameDraft} busy={library.busy} error={library.error} onSaveName={library.saveDisplayName} onRetry={() => void library.reload()} />} onSelectBook={() => openHeaderSheet('selectBook')} onBackup={() => openHeaderSheet('backup')} onFlights={() => openHeaderSheet('flightLab')} onBooks={() => openHeaderSheet('bookLab')} onProvider={() => openConnection(true)} onImportPreview={() => openHeaderSheet('importPreview')} onCoreFlights={()=>{if(connection.suspendBrowserForOwnerSwitch())onCoreFlights(false,true);}} />}
+          {sheet === 'profile' && <ProfileSettings connectionSummary={<ConnectionSummary controller={flightStatusController} ownFlights={ownFlights.view} phase={ownFlights.phase} onUpdate={() => openFlightFlow('update')} onOpen={() => openFlightFlow()} />} onConnections={() => openFlightFlow()} onTools={() => openHeaderSheet('development')} onBackup={() => openFlightFlow('options')} onDiagnostics={() => openHeaderSheet('diagnostics')} onStatus={() => openHeaderSheet('status')} onCredits={() => openHeaderSheet('credits')} onBooks={() => openHeaderSheet('selectBook')} displayName={library.displayName} nameDraft={profileNameDraft} onNameDraftChange={setProfileNameDraft} busy={library.busy} error={library.error} onSaveName={library.saveDisplayName} onRetry={() => void library.reload()} />}
+          {sheet === 'development' && <DevelopmentHub onPaper={openBooks} profileTools={<SyntheticProfileSettings displayName={library.displayName} nameDraft={profileNameDraft} onNameDraftChange={setProfileNameDraft} busy={library.busy} error={library.error} onSaveName={library.saveDisplayName} onRetry={() => void library.reload()} />} onSelectBook={() => openHeaderSheet('selectBook')} onBackup={() => openHeaderSheet('backup')} onFlights={() => openHeaderSheet('flightLab')} onBooks={() => openHeaderSheet('bookLab')} onProvider={() => openConnection(true)} onImportPreview={() => openHeaderSheet('importPreview')} onCoreFlights={()=>onCoreFlights('options',true)} />}
           {sheet === 'importPreview' && <ImportPreview session={importPreview} onChange={setImportPreview} onNavigate={() => { overlayOffsets.current.importPreview = 0; overlayScroll.current?.scrollTo({ y: 0, animated: false }); }} />}
           {sheet === 'diagnostics' && <Diagnostics />}
           {sheet === 'backup' && <LibraryBackup onBusyChange={setScreenBusy} />}
@@ -276,7 +255,6 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
         </ScrollView></KeyboardAvoidingView>}
     </View>}
     </View>
-    <ProviderConnection controller={connection} open={connectionOpen} development={connectionDevelopment} close={() => setConnectionOpen(false)} />
   </SafeAreaView>;
 }
 const s = StyleSheet.create({

@@ -44,6 +44,7 @@ function fixture(overrides: Partial<Controller> = {}, development = false, purpo
     './theme': { ...Object.fromEntries(['Action', 'Card', 'IconLabel', 'Label', 'Section'].map(name => [name, name])), colors: {}, ui: { text: {} } },
     './SymbolIcon': { SymbolIcon: 'SymbolIcon' },
     './connection-guidance': { connectionGuidance, connectionSymbol }, '../vereinsflieger/connection-state': { retrievalFailureHint },
+    '../vereinsflieger/provider-diagnostics': {recordProviderEvent(){}},
     './data-freshness': { dataFreshness },
     '../vereinsflieger/probe': { providerUrl },
     'react-native-safe-area-context': { useSafeAreaInsets: () => ({ top: 0, bottom: 0 }) },
