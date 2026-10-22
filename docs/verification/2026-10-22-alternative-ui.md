@@ -1,5 +1,29 @@
 # Alternative native UI — 22 October 2026
 
+## ASK-21 header refinement
+
+Manuel requested a realistic ASK-21-like flight situation and aerodynamic lines, consistent header symbols, and no increase in header height. #55 covers this M4 presentation package; R04/R12 and E07/E09 retain existing actions/data semantics. The original generated 2172×724 [aircraft asset](../../apps/platform-lab/assets/aviation/ask21-flight-header-v2.png) depicts tandem soaring flight over hazy terrain with restrained illustrative streamlines. [Provenance and exact built-in generation prompt](../product/design/alternative-ui.md#header-artwork-generation-prompt) preserve its distinction from photographs, technical aircraft drawings and measured CFD. The Thermik logo and Profile button are unchanged.
+
+Data and Medical now use the same 28-unit Modern Duotone art and card surface with radius 14 as Profile. Semantic age/date color remains in the caption; the colored Data outline is removed. Compact padding avoids added height. Native review led to explicit image dimensions, navy edge fades and subdued artwork at enlarged text. Absolute decorative placement never participates in layout height; the small season illustration is unchanged. Astra/Medium implemented and independently reviewed controls and integration risks.
+
+Host evidence: implementation `pnpm check` passed **820 mobile / 110 Python tests**, types/lint/fixture parity (`build/host-checks/20261022T203917Z-91e774f3/`, starting `8ff0a66` with the edits committed as `d01ee54`). Final visual refinements reuse those unaffected logic checks; 39 focused status/header tests pass (`build/header-integrated-tests.log`), with final TypeScript/lint (`build/header-delivered-typecheck.log`, `build/header-delivered-lint.log`). Tests preserve actions, disabled/selected accessibility, Medical unknown/expired/partial/date states and Data freshness/unknown semantics. Decorative bitmap quality is assessed visually rather than by brittle pixel unit tests. Handbook regeneration and 174-link/source freshness check pass.
+
+Earlier trials remain qualified: the first geometry helper selected the whole app root because React Native collapsed the header container. Corrected measurements use the unchanged first content heading's y-position from the saved XML, which compares header extent with content margins held constant. The initial `d01ee54` native capture showed absent artwork despite passing geometry; `7bb83fe` corrected native sizing. Parent review then rejected the small rectangular photo treatment; `edf7b06` blended/enlarged the scene without layout growth, and `c03f099` softens its remaining wide-layout edge. These are distinct source builds, not one passing run.
+
+**Final APK source: `c03f0997ad197c503b191b2148fc756c0581de66`.** Both final exports and committed-source Release pass (`build/header-delivered-bundle.log`, `build/header-delivered-build.log`, `build/header-delivered-android/build.json`); Release took 60.609 seconds total. Final installed APK hash was verified before the native matrix. Parent inspected all three final screenshots. All header hit targets remain at least 48×48 dp and do not overlap.
+
+| Native comparison | Before: `6a46fe0` | Final: `c03f099` | Header change |
+| --- | --- | --- | --- |
+| MAIN390×900, font1.0 | First content heading y179 | y177 | 2 dp shorter |
+| MIN360×900, font1.6 | y192 | y185 | 7 dp shorter |
+| WIDE800×600, font1.0 | y123 | y122 | 1 dp shorter |
+
+All cases use API37, density160 and the preserved offline `MoFlight_Synthetic_API37` emulator. Reports/XML/PNGs: `build/header-native/before/` and `build/header-native/delivered/`. Final visual evidence: [MAIN](assets/alternative-header-2026-10-22/main-c03f099.png), [MIN enlarged text](assets/alternative-header-2026-10-22/min-large-c03f099.png), [WIDE](assets/alternative-header-2026-10-22/wide-c03f099.png). Medical opens source-date details, Profile opens settings, and both header Back paths restore Start: four native assertions on unchanged-control source `edf7b06` (`build/header-native/integrated/actions.json`), reused for final wide-only decorative fade. Native captions are unknown/never-retrieved; known-date/partial/age states have host coverage, not additional native captures. No provider call or data reseeding was used. Original APK bytes, display/radios and stopped-app state were restored and verified (`build/header-native/restored.json`), then the task-started emulator was stopped. Physical-phone, iOS runtime and extended spoken accessibility remain untested; no main merge.
+
+[Download header APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/ui-header-2026-10-22-c03f099/MoFlight-Alternative-UI-c03f099.zip). APK 52,082,818 bytes, SHA-256 `a33a64c7d25a2a3e12583f58ee8b3427a8f3d2cb949cf332d4f547c7c28cad98`; ZIP 26,331,253 bytes, SHA-256 `4cc248b0ae47d4f37e85b49d41ee03c3d11cfb0ade12cff152d941c879ba8a0a`. Archive contains exactly the APK and sanitized metadata. Later commits are documentation/evidence only.
+
+## Earlier alternative delivery
+
 Tracking: [#55](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/55). [Design contract](../product/design/alternative-ui.md). Branch `ui/alternative-flight-experience`, isolated from main and its unrelated timing/summary work. Base `3a16c30`.
 
 ## Package and risk
