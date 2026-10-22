@@ -6,10 +6,10 @@
 
 | Destination | Current presentation |
 | --- | --- |
-| Übersicht | One compact login/data action and saved count/date. Once an associated account is ready, show season rings/legend, latest dated flight and a quiet deferred-paper link; no unavailable service promotions. A new unassociated library has no empty dashboard; an associated zero-flight account retains truthful zero/unknown values. Flight summaries require no book. |
+| Übersicht | First-use/load/recovery actions remain; returning users see a conditional 72-hour reminder, integrated Meine Saison rings/aircraft/monthly count/time comparisons/latest-flight inset and compact Verein duty source summary. Detailed counts/freshness stay in Profile/Flüge. No empty first-use dashboard, invented coverage or automatic full retrieval. |
 | Flüge | Selected real account’s locally saved flights without a required book: date, aircraft, route/duration rows; source-date/year, text and exact registration filters. Source IDs/revisions/original fields and absent-track context stay in details. Collapsible coverage/freshness and explicit update entry remain; no training or book inference. |
 | Flugbuch | Concise deferred real-book/setup explanation and Flüge ansehen. Existing synthetic book/paper/backup tools remain under Development. Full reconciliation/writing remains M5; book identity differs from account/format. |
-| Verein | Overview/Dienste/Termine/Mitteilungen scopes with bounded sections and honest missing-source states. |
+| Verein | Real account/club-context duty source pages with abbreviated names and full raw periods; visible-page coverage remains partial. Separate 30-day backup-excluded cache. Termine/Mitteilungen keep honest missing-source states. |
 | AI | Welcome, supported local questions/results, composer and unavailable free-text state. Sparkles identify the category. |
 
 The [approved reference](../design-sources/2026-10-16-four-screen/reference.png) establishes card/layout/color fidelity. Later five-tab changes add Flugbuch and retain AI. Older Wetter-tab, goals, monthly-chart and synthetic Medical-expiry prototypes remain historical.

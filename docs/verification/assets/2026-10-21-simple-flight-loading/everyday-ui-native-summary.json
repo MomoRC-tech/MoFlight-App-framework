@@ -287,5 +287,120 @@
       "synthetic_older_readonly_selection": "Untouched; history retained"
     },
     "remaining": "#42 physical fresh login/chooser/intermittent cause; #17/#20/#22 user/spoken/physical/iOS; #29 synthetic branch disposition remains unselected; no release/push/paid services"
+  },
+  "compact_start_data_20261022": {
+    "application_commit": "6dcc0da70dfad77c661bb4ea5e6607c6fb17cb31",
+    "apk_sha256": "0dfdced55745047136cb3de5b9804c3b3ef4c9adaef5bcca3ea7bea16bd72b74",
+    "host": {
+      "mobile_tests": 739,
+      "python_tests": 110,
+      "types_lint_fixtures": "passed",
+      "full_check_commit": "0d8d2b0d493f95f4d6c2d4d661c561b901946f9c",
+      "final_copy_only_checks": "22 focused tests and TypeScript passed on 6dcc0da",
+      "report": "build/host-checks/20261022T072326Z-06acc5cc/report.json",
+      "both_exports": "build/start-dashboard-followup/release-exports.log",
+      "unchanged_receipt_coverage_regression": "passed; identical receipt timestamps do not recalculate monthly aggregates"
+    },
+    "native": {
+      "baseline": {
+        "application_commit": "4eae01c4b2a86074ca0575f66f864e0b98b59b55",
+        "runner_status": "failed",
+        "accepted_steps": [
+          "MAIN390 and MIN360/font1.6 Start/charts/latest/Verein/Medical unknown states",
+          "month exact-range/count/detail/Back round trip"
+        ],
+        "limits": [
+          "first harness selected Verein overview chip instead of Start tab",
+          "second harness overshot WIDE hours heading; no complete-run pass"
+        ],
+        "all_attempts_restored_original_apk_display_radios": true
+      },
+      "caption_followup": {
+        "application_commit": "f2e3e3c373d4926ddaa366812327801691067844",
+        "status": "passed",
+        "layouts": [
+          {
+            "name": "min",
+            "widthDp": 360,
+            "heightDp": 900,
+            "densityDpi": 160,
+            "fontScale": 1.6,
+            "actualSize": "Physical size: 1080x1920\nOverride size: 360x900",
+            "actualDensity": "Physical density: 420\nOverride density: 160",
+            "actualFontScale": "1.6"
+          },
+          {
+            "name": "wide",
+            "widthDp": 800,
+            "heightDp": 600,
+            "densityDpi": 160,
+            "fontScale": 1,
+            "actualSize": "Physical size: 1080x1920\nOverride size: 800x600",
+            "actualDensity": "Physical density: 420\nOverride density: 160",
+            "actualFontScale": "1.0"
+          }
+        ],
+        "saved_count_before": 101,
+        "saved_count_after": 101
+      },
+      "medical_followup": {
+        "application_commit": "b595faa8e99e8f8c041ef1198446abdcb470f62a",
+        "status": "passed",
+        "layouts": [
+          {
+            "name": "main",
+            "widthDp": 390,
+            "heightDp": 900,
+            "densityDpi": 160,
+            "fontScale": 1,
+            "actualSize": "Physical size: 1080x1920\nOverride size: 390x900",
+            "actualDensity": "Physical density: 420\nOverride density: 160",
+            "actualFontScale": "1",
+            "earliestSourceExpiryDisplayed": true
+          },
+          {
+            "name": "min",
+            "widthDp": 360,
+            "heightDp": 900,
+            "densityDpi": 160,
+            "fontScale": 1.6,
+            "actualSize": "Physical size: 1080x1920\nOverride size: 360x900",
+            "actualDensity": "Physical density: 420\nOverride density: 160",
+            "actualFontScale": "1.6",
+            "earliestSourceExpiryDisplayed": true
+          }
+        ],
+        "saved_count_before": 101,
+        "saved_count_after": 101
+      },
+      "parent_visual_review": [
+        "MAIN season/chart/latest/club composition",
+        "MIN full shortened hours title and both bar plots",
+        "WIDE bounded card and both full chart captions",
+        "MAIN/MIN actual earliest source Medical expiry and raw-detail layout"
+      ],
+      "final_cache_and_copy_followup": {
+        "application_commit": "6dcc0da70dfad77c661bb4ea5e6607c6fb17cb31",
+        "native_reuse": "Medical/controller/layout unchanged; dependency projection and optional-job feedback wording verified by focused/full host checks and fresh Release, no repeated device trial"
+      },
+      "all_final_cleanup": {
+        "original_apk_display_radios_restored": true,
+        "owned_emulators_stopped": true,
+        "provider_requests": 0,
+        "flight_selection_write_actions": 0,
+        "private_images_committed": false,
+        "cookie_journal_graph_byte_equality": "not-tested"
+      }
+    },
+    "delivery": {
+      "release": "https://github.com/MomoRC-tech/MoFlight-App-framework/releases/tag/lab-2026-10-22-start-dashboard",
+      "zip_sha256": "4a4c1f2566875109dc7321f9de956bc376cdecd775b00674a43f756b2a36a1cc"
+    },
+    "remaining": [
+      "quiet startup latest-flight source unavailable; approved 72-hour manual-update reminder fallback",
+      "duty full coverage/paging/identities/partner/time semantics and live acceptance unverified; source view always partial",
+      "physical fresh-login retry, iOS and broader user acceptance",
+      "spoken accessibility deferred to last; synthetic read-only history untouched"
+    ]
   }
 }
