@@ -83,7 +83,7 @@ export function ProviderConnection({ controller: c, open, close, development = f
         <Action secondary testID="development-arm-provider-recovery" disabled={locked || !c.recovery || c.legacyRecovery || !c.original.current || !!c.developmentCheckpoint} onPress={c.armDevelopmentRecoveryCheckpoint}>Testpause vor Wiederherstellung vormerken</Action>
       </View>
     </View>}
-    {progress ? <ScrollView style={login ? {maxHeight: progressHeight} : {flex:1}} onLayout={event => setLoginHeight(event.nativeEvent.layout.height)} contentContainerStyle={styles.canvas} keyboardShouldPersistTaps="handled"><View style={styles.group}>
+    {progress ? <ScrollView style={login ? {maxHeight: progressHeight, flexGrow: 0} : {flex:1}} onLayout={event => setLoginHeight(event.nativeEvent.layout.height)} contentContainerStyle={styles.canvas} keyboardShouldPersistTaps="handled"><View style={styles.group}>
       {progress}
       {login && <View style={{gap:6}}>
         <Label muted>{providerUrl(c.url) ? new URL(c.url).origin : 'Anbieteradresse nicht bestätigt'} · Zugangsdaten nur auf der Originalseite eingeben.</Label>
