@@ -1,35 +1,53 @@
 import { canonical } from '@moflight/flight-logbook';
 import { PROFILE_URL, sameContext, scopedBridge, validateContext } from './context';
 import { validateScope, type ProviderScope } from './scope-store';
-import { eventSelectionFilters, retrievableInformationCategories, informationCategoryUrl, validateInformationPage, type InformationCapture, type InformationCategory } from './information';
+import { eventSelectionFilters, retrievableInformationCategories, informationCategoryUrl, TASK_SELECTION_PROBE_URL, validateTaskSelection, validateInformationPage, type InformationCapture, type InformationCategory } from './information';
 
 /** Fresh context -> original selected page -> fresh context -> explicit immutable save.
  * No provider writes/automatic traversal; stale/background/cancel events cannot publish.
  */
 export class InformationRun {
-  stage: 'selection' | 'before' | 'read' | 'after' | 'saving' | 'done' | 'cancelled' = 'before';
+  stage: 'selection' | 'before' | 'read' | 'after' | 'restore' | 'saving' | 'done' | 'cancelled' = 'before';
   private page: ReturnType<typeof validateInformationPage> | null = null;
   private selectedFilters: string[] | null = null;
+  private taskSelection: { selected: string; restoreUrl: string } | null = null;
+  private taskRestoreAllowed = false;
   private navigationObserved = false;
   failureMessage: string | null = null;
   readonly scope: ProviderScope;
   constructor(scope: ProviderScope, readonly category: InformationCategory, readonly sourceUrl: string, readonly nonce: string) {
     this.scope = validateScope(scope);
     if (!retrievableInformationCategories.includes(category) || !informationCategoryUrl(category, sourceUrl) || !/^[a-zA-Z0-9_-]{1,100}$/.test(nonce)) throw new Error('Unsupported information request');
-    if (category === 'events') this.stage = 'selection';
+    if (category === 'tasks' && sourceUrl !== 'https://vereinsflieger.de/member/community/tasklist/tasklist?gselect=myopen') throw new Error('Unsupported own-task request');
+    if (category === 'events' || category === 'tasks') this.stage = 'selection';
   }
-  get url() { return this.stage === 'read' || this.stage === 'selection' ? this.sourceUrl : PROFILE_URL; }
+  get url() {
+    if (this.stage === 'selection') return this.category === 'tasks' ? TASK_SELECTION_PROBE_URL : this.sourceUrl;
+    if (this.stage === 'read') return this.sourceUrl;
+    if (this.stage === 'restore') {
+      if (!this.taskSelection) throw new Error('Task selection was not captured');
+      return this.taskSelection.restoreUrl;
+    }
+    return PROFILE_URL;
+  }
   get messageNonce() { return this.nonce + '-' + this.stage; }
-  observeNavigation(url: string) { if (url === this.url && ['selection','before','read','after'].includes(this.stage)) this.navigationObserved = true; }
+  get taskRestoreUrl() { return this.taskSelection?.restoreUrl ?? null; }
+  get taskRestoreAuthorized() { return this.category === 'tasks' && !!this.taskSelection && this.taskRestoreAllowed; }
+  get taskSelectedFilter() { return this.taskSelection?.selected ?? null; }
+  get resultUrl() { return this.taskSelection?.restoreUrl ?? this.sourceUrl; }
+  observeNavigation(url: string) { if (url === this.url && ['selection','before','read','after','restore'].includes(this.stage)) this.navigationObserved = true; }
   cancel() { if (this.stage !== 'saving' && this.stage !== 'done') { this.stage = 'cancelled'; this.page = null; } }
   assertScope(scope: ProviderScope) { if (canonical(validateScope(scope)) !== canonical(this.scope) || this.stage === 'cancelled' || this.stage === 'done') throw new Error('Expired information operation'); }
   accept(nativeUrl: string, currentUrl: string, input: unknown): 'navigate' | 'save' | 'ignored' {
-    if (!this.navigationObserved || !['selection','before','read','after'].includes(this.stage) || !scopedBridge(nativeUrl, currentUrl, this.url) || !input || typeof input !== 'object') return 'ignored';
+    if (!this.navigationObserved || !['selection','before','read','after','restore'].includes(this.stage) || !scopedBridge(nativeUrl, currentUrl, this.url) || !input || typeof input !== 'object') return 'ignored';
     const p = input as Record<string, unknown>;
-    const kind = this.stage === 'selection' ? 'vf-information-selection-v1' : this.stage === 'read' ? 'vf-information-v1' : 'vf-context-v1';
+    const kind = this.stage === 'selection' ? this.category === 'tasks' ? 'vf-information-task-selection-v1' : 'vf-information-selection-v1' : this.stage === 'read' ? 'vf-information-v1' : this.stage === 'restore' ? 'vf-information-task-restore-v1' : 'vf-context-v1';
     if (p.nonce !== this.messageNonce || p.url !== this.url || p.kind !== kind) return 'ignored';
     if (this.stage === 'selection') {
-      this.selectedFilters = eventSelectionFilters(p.selection);
+      if (this.category === 'tasks') {
+        try { this.taskSelection = validateTaskSelection(p.selection); }
+        catch { this.failureMessage = 'Die aktuelle Aufgabenfilter-Auswahl und die zugelassenen Filterlinks konnten nicht eindeutig bestätigt werden.'; throw new Error('Unverified task selection'); }
+      } else this.selectedFilters = eventSelectionFilters(p.selection);
       this.stage = 'before'; this.navigationObserved = false; return 'navigate';
     }
     if (this.stage === 'read') {
@@ -64,15 +82,34 @@ export class InformationRun {
       }
       this.page = page; this.stage = 'after'; this.navigationObserved = false; return 'navigate';
     }
+    if (this.stage === 'restore') {
+      let restored: ReturnType<typeof validateTaskSelection>;
+      try { restored = validateTaskSelection(p.selection); }
+      catch { this.failureMessage = 'Der vorherige Aufgabenfilter konnte nicht bestätigt werden.'; throw new Error('Task selector restoration was not verified'); }
+      if (!this.taskSelection || restored.selected !== this.taskSelection.selected || restored.restoreUrl !== this.taskSelection.restoreUrl) {
+        this.failureMessage = 'Der vorherige Aufgabenfilter konnte nicht bestätigt werden.';
+        throw new Error('Task selector restoration mismatch');
+      }
+      this.stage = 'saving'; this.navigationObserved = false; return 'save';
+    }
     if (p.context && typeof p.context === 'object' && (p.context as { error?: unknown }).error === 'session-required') {
+      if (this.category === 'tasks' && this.stage === 'after') this.taskRestoreAllowed = false;
       this.failureMessage = 'Anbietersitzung abgelaufen. Auf der Originalseite erneut anmelden und Konto sowie Verein prüfen.';
       throw new Error('Provider session required');
     }
-    if (!sameContext(validateContext(p.context), this.scope.context)) {
+    let observedContext: ReturnType<typeof validateContext>;
+    try { observedContext = validateContext(p.context); }
+    catch (error) { if (this.category === 'tasks' && this.stage === 'after') this.taskRestoreAllowed = false; throw error; }
+    if (!sameContext(observedContext, this.scope.context)) {
+      if (this.category === 'tasks' && this.stage === 'after') this.taskRestoreAllowed = false;
       this.failureMessage = 'Konto oder Verein stimmt nicht mit der bestätigten Zuordnung überein.';
       throw new Error('Provider context mismatch');
     }
-    this.stage = this.stage === 'before' ? 'read' : 'saving'; this.navigationObserved = false;
+    if (this.stage === 'before') {
+      if (this.category === 'tasks') this.taskRestoreAllowed = true;
+      this.stage = 'read'; this.navigationObserved = false; return 'navigate';
+    }
+    this.stage = this.category === 'tasks' ? 'restore' : 'saving'; this.navigationObserved = false;
     return this.stage === 'saving' ? 'save' : 'navigate';
   }
   capture(at: string): InformationCapture {

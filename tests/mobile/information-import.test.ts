@@ -4,16 +4,16 @@ import { runInNewContext } from 'node:vm';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { INFORMATION_READER_SOURCE, INFORMATION_TYPES, retrievableInformationCategories, validateInformationPage, validateInformationCapture, informationRouteShape, informationCategoryUrl, informationUrl, type InformationCategory } from '../../apps/platform-lab/src/vereinsflieger/information.ts';
+import { INFORMATION_READER_SOURCE, TASK_SELECTION_READER_SOURCE, TASK_SELECTION_PROBE_URL, OWN_OPEN_TASKS_URL, INFORMATION_TYPES, retrievableInformationCategories, validateTaskSelection, validateInformationPage, validateInformationCapture, informationRouteShape, informationCategoryUrl, informationUrl, type InformationCategory } from '../../apps/platform-lab/src/vereinsflieger/information.ts';
 import { InformationStore } from '../../apps/platform-lab/src/vereinsflieger/information-store.ts';
 import { InformationRun } from '../../apps/platform-lab/src/vereinsflieger/information-run.ts';
 import { PROFILE_URL } from '../../apps/platform-lab/src/vereinsflieger/context.ts';
 import { nodeDriver } from './sqlite-driver.ts';
 import type { ProviderScope } from '../../apps/platform-lab/src/vereinsflieger/scope-store.ts';
 
-const url = 'https://vereinsflieger.de/member/profile/synthetic-working-hours?year=2026';
+const url = 'https://vereinsflieger.de/member/profile/workhours/list?year=2026';
 const ledgerUrl = 'https://vereinsflieger.de/member/profile/account.php?caid=synthetic-account';
-const tasksUrl = 'https://vereinsflieger.de/member/community/tasklist/tasklist?gselect=synthetic-own';
+const tasksUrl = OWN_OPEN_TASKS_URL;
 const overviewUrl = 'https://vereinsflieger.de/member/overview/overview';
 const at = '2026-10-19T12:00:00.000Z';
 const scope: ProviderScope = { version: 1, owner: 'synthetic-owner', connectionId: 'synthetic-scope', context: { accountNumber: '1001', clubLabel: 'Synthetic club', clubIdentity: 'display-label-only', verification: 'observed-profile-number' } };
@@ -21,9 +21,10 @@ function cell(text: string, extra: Record<string, unknown> = {}) { return { text
 function row(texts: string[]) { return { cells: texts.map(t => cell(t)), querySelector: () => null }; }
 const header = ['', 'Datum', 'Tätigkeit', 'Stunden', 'Kategorie', 'Status', 'Private contact'];
 const entries = [['', '01.10.2026', 'Synthetic work', '0.00', 'Custom', 'Akzeptiert', 'Do not collect']];
-function read(category: InformationCategory, rows = [row(header), ...entries.map(row)], tables?: { rows: typeof rows }[], taskFilter = 'Meine nicht beendeten Aufgaben', taskAnchor = 'globalfiltertime') {
-  const window = {}; const document = { getElementById: (id: string) => id === taskAnchor ? ({ innerText: category === 'tasks' ? taskFilter : '' }) : null, querySelector: () => null, querySelectorAll: (s: string) => s === 'table' ? tables ?? [{ rows }] : s === 'select' ? category === 'tasks' ? [] : [{ selectedOptions: [{ textContent: '2026' }] }, { selectedOptions: [{ textContent: 'Private person filter' }] }] : [] };
-  return JSON.parse(JSON.stringify(runInNewContext(`(${INFORMATION_READER_SOURCE})(category, config)`, { document, location: { href: category === 'tasks' ? tasksUrl : category === 'ledger' ? ledgerUrl : category === 'medical' || category === 'work-summary' || category === 'own-profile' || category === 'licence-metadata' ? PROFILE_URL : category === 'duties' ? 'https://vereinsflieger.de/member/profile/myservices.php' : category === 'practical' || category === 'theory' ? 'https://vereinsflieger.de/member/profile/usereducation/editelid' + (category === 'practical' ? 'p' : 't') + '?ueid=synthetic' : url }, window: Object.assign(window, { top: window }), URL, category, config: INFORMATION_TYPES[category] })));
+function read(category: InformationCategory, rows = [row(header), ...entries.map(row)], tables?: { rows: typeof rows }[], taskFilter = 'Meine nicht beendeten Aufgaben', taskAnchor = 'globalfiltertime', options: { url?: string; globalFilter?: string } = {}) {
+  const window = {}; const document = { getElementById: (id: string) => id === taskAnchor ? ({ innerText: category === 'tasks' ? taskFilter : '' }) : id === 'globalfilter' ? ({ innerText: options.globalFilter ?? '' }) : null, querySelector: () => null, querySelectorAll: (s: string) => s === 'table' ? tables ?? [{ rows }] : s === 'select' ? category === 'tasks' ? [] : [{ selectedOptions: [{ textContent: '2026' }] }, { selectedOptions: [{ textContent: 'Private person filter' }] }] : [] };
+  const defaultUrl = category === 'tasks' ? tasksUrl : category === 'ledger' ? ledgerUrl : category === 'medical' || category === 'work-summary' || category === 'own-profile' || category === 'licence-metadata' ? PROFILE_URL : category === 'duties' ? 'https://vereinsflieger.de/member/profile/myservices.php' : category === 'practical' || category === 'theory' ? 'https://vereinsflieger.de/member/profile/usereducation/editelid' + (category === 'practical' ? 'p' : 't') + '?ueid=synthetic' : url;
+  return JSON.parse(JSON.stringify(runInNewContext(`(${INFORMATION_READER_SOURCE})(category, config)`, { document, location: { href: options.url ?? defaultUrl }, window: Object.assign(window, { top: window }), URL, category, config: INFORMATION_TYPES[category] })));
 }
 const page = () => validateInformationPage(read('work-hours'));
 test('bounded local route diagnostic excludes query values and numeric path identities', () => {
@@ -37,6 +38,12 @@ test('allowlisted work rows retain exact zero/raw evidence and exclude private c
   const p = page(); assert.equal(p.rows.length, 1); assert.deepEqual(p.rows[0]!.values, ['01.10.2026', 'Synthetic work', '0.00', 'Custom', 'Akzeptiert']);
   assert.deepEqual(p.filters, ['2026']); assert.equal(p.coverage.pagination, 'unverified');
   assert.ok(!JSON.stringify(p).includes('Do not collect')); assert.ok(!JSON.stringify(p).includes('Private'));
+});
+test('work-hours reads only the evidenced workhours list route', () => {
+  assert.equal(informationCategoryUrl('work-hours', url), true);
+  const wrong = 'https://vereinsflieger.de/member/profile/synthetic-hours?year=2026';
+  assert.equal(informationCategoryUrl('work-hours', wrong), false);
+  assert.throws(() => validateInformationPage(read('work-hours', [row(header), row(entries[0]!)], undefined, undefined, undefined, { url: wrong })));
 });
 test('visible-page cap preserves partial coverage and never calls twenty rows complete', () => {
   const p = validateInformationPage(read('work-hours', [row(header), ...Array.from({ length: 21 }, () => row(entries[0]!))]));
@@ -191,9 +198,32 @@ test('own-task empty source needs exact owned filter and explicit marker; other 
 });
 test('task selection key is confined to its evidenced route; mutation, duplicate and cross-category routes reject', () => {
   assert.equal(informationCategoryUrl('tasks', tasksUrl), true);
-  for (const bad of [tasksUrl + '&action=delete', tasksUrl + '&gselect=other', tasksUrl.replace('tasklist/tasklist', 'tasklist/edit'), tasksUrl.replace('tasklist/tasklist', 'elsewhere')]) assert.equal(informationUrl(bad), false);
+  for (const bad of [tasksUrl + '&action=delete', tasksUrl + '&gselect=all', tasksUrl.replace('gselect=myopen', 'gselect=other'), tasksUrl.replace('tasklist/tasklist', 'tasklist/edit'), tasksUrl.replace('tasklist/tasklist', 'elsewhere')]) assert.equal(informationUrl(bad), false);
   assert.equal(informationCategoryUrl('tasks', url), false);
   assert.equal(informationCategoryUrl('tasks', ledgerUrl), false);
+});
+test('task selector probe reads only the selected label and exact observed selector links', () => {
+  const options = [
+    { label: 'Alle nicht beendeten Aufgaben', href: '?gselect=allopen' },
+    { label: 'Meine nicht beendeten Aufgaben', href: '?gselect=myopen' },
+    { label: 'Alle Aufgaben', href: '?gselect=all' },
+  ];
+  function probe(selected: string, links = options, href = TASK_SELECTION_PROBE_URL) {
+    const selectedNode = { innerText: selected };
+    const anchors = links.map(option => ({ innerText: option.label, getAttribute: (key: string) => key === 'href' ? option.href : null }));
+    const document = { querySelector: () => null, querySelectorAll: (selector: string) => selector === '#globalfiltertime' ? [selectedNode] : selector === 'a[href*="gselect="]' ? anchors : [] };
+    const window = {}; Object.assign(window, { top: window });
+    return JSON.parse(JSON.stringify(runInNewContext(`(${TASK_SELECTION_READER_SOURCE})('probe')`, { document, window, location: { href }, URL })));
+  }
+  const captured = probe('Alle nicht beendeten Aufgaben');
+  assert.deepEqual(captured, { selected: 'Alle nicht beendeten Aufgaben', options });
+  assert.equal(validateTaskSelection(captured).restoreUrl, 'https://vereinsflieger.de/member/community/tasklist/tasklist?gselect=allopen');
+  assert.equal(probe('Unknown selector'), null);
+  assert.equal(probe('Alle Aufgaben', [...options, { label: 'Unsupported', href: '?gselect=other' }]), null);
+  assert.equal(probe('Alle Aufgaben', options.slice(1)), null);
+  assert.equal(probe('Alle Aufgaben', options, tasksUrl), null, 'initial selector probe requires a query-free task-list route');
+  assert.throws(() => validateTaskSelection({ ...captured, options: [...options.slice(0, 2), { label: 'Unsupported', href: '?gselect=other' }] }));
+  assert.throws(() => validateTaskSelection({ ...captured, selected: 'All tasks' }));
 });
 test('native task empty footer must be the exact paired sibling of the own-list header', () => {
   const fixture = () => {
@@ -213,6 +243,75 @@ test('native task empty footer must be the exact paired sibling of the own-list 
   ]) {
     const bad = fixture(); change(bad); assert.throws(() => validateInformationPage(read('tasks', [], [bad.h, bad.f])));
   }
+});
+test('duty empty requires the observed selected filter and exact paired header/footer on a known route', () => {
+  const fixture = (url = 'https://vereinsflieger.de/member/profile/myservices.php') => {
+    const h = { tagName: 'TABLE', id: 'tablelist_32', rows: [row(['Dienst', 'Diensttausch', 'Zeitraum', 'Person(en)', 'Dienstplan von'])], parentElement: null as any, nextElementSibling: null as any };
+    const f = { tagName: 'TABLE', rows: [row(['Es wurden keine passenden Daten gefunden!', ''])] };
+    h.parentElement = { tagName: 'DIV', id: 'div32', children: [h, f] }; h.nextElementSibling = f;
+    return { h, f, url };
+  };
+  const native = fixture();
+  const page = validateInformationPage(read('duties', [], [native.h, native.f], undefined, undefined, { url: native.url, globalFilter: 'Aktuelle und anstehende Dienste' }));
+  assert.equal(page.empty, true); assert.deepEqual(page.rows, []);
+  assert.deepEqual(page.filters, ['2026', 'Aktuelle und anstehende Dienste']);
+  assert.equal(page.coverage.kind, 'visible-page'); assert.equal(page.coverage.pagination, 'unverified');
+  for (const mutate of [
+    ({ h }: ReturnType<typeof fixture>) => { h.parentElement.id = 'div31'; },
+    ({ h }: ReturnType<typeof fixture>) => { h.parentElement.children = [h]; },
+    ({ h }: ReturnType<typeof fixture>) => { h.nextElementSibling = null; },
+    ({ f }: ReturnType<typeof fixture>) => { f.rows[0]!.cells[1]!.innerText = 'Source text'; },
+    ({ f }: ReturnType<typeof fixture>) => { f.rows.push(row(['Another footer row', ''])); },
+    ({ h }: ReturnType<typeof fixture>) => { h.rows[0]!.cells[1]!.innerText = 'Unsupported exchange'; },
+  ]) {
+    const bad = fixture(); mutate(bad);
+    assert.equal(read('duties', [], [bad.h, bad.f], undefined, undefined, { url: bad.url, globalFilter: 'Aktuelle und anstehende Dienste' }).error, 'empty-scope-unverified');
+  }
+  assert.equal(read('duties', [], [native.h, native.f], undefined, undefined, { url: native.url, globalFilter: 'Alle Dienste' }).error, 'empty-scope-unverified');
+  assert.equal(read('duties', [], [native.h, native.f], undefined, undefined, { url: 'https://vereinsflieger.de/member/profile/unrelated.php', globalFilter: 'Aktuelle und anstehende Dienste' }).error, 'empty-scope-unverified');
+  const extraRows = [row(['Dienst', 'Diensttausch', 'Zeitraum', 'Person(en)', 'Dienstplan von']), row(['Synthetic duty', '', '01.11.2026', '', ''])];
+  assert.equal(read('duties', extraRows, undefined, undefined, undefined, { url: native.url, globalFilter: 'Aktuelle und anstehende Dienste' }).empty, false);
+});
+function readCalendar(categories: string[], options: { selectedDate?: string; view?: string; shownDate?: string; dataDates?: string[] } = {}) {
+  const selectedDate = options.selectedDate ?? '23.10.2026', view = options.view ?? '1 Tag';
+  const labels = ['1 Tag', '1 Woche', '2 Wochen', '3 Wochen', '4 Wochen', '3 Monate', '6 Monate', '1 Jahr'];
+  const dateInput = { tagName: 'INPUT', type: 'text', value: selectedDate };
+  const selectOptions = labels.map(textContent => ({ textContent }));
+  const dropdown = { options: selectOptions, selectedOptions: selectOptions.filter(option => option.textContent === view) };
+  const calendarRow = (kind: string, index: number) => {
+    const date = options.dataDates?.[index] ?? (index === 0 ? (options.shownDate ?? selectedDate) : '');
+    const cells = ['', 'Tag', date, 'Synthetic time', kind, 'Synthetic info'].map(text => cell(text));
+    if (kind !== 'Termine') {
+      Object.defineProperty(cells[3]!, 'innerText', { get() { throw new Error('Unselected calendar time must not be read'); } });
+      Object.defineProperty(cells[5]!, 'innerText', { get() { throw new Error('Unselected calendar Info must not be read'); } });
+    }
+    return { cells, querySelector: () => null };
+  };
+  const table = { id: 'tablelist_230', rows: [row(['', 'Tag', 'Datum', 'Zeit', 'Kategorie', 'Info']), ...categories.map((kind, index) => calendarRow(kind, index))] };
+  const document = {
+    getElementById: (id: string) => id === 'frm_datefrom' ? dateInput : null,
+    querySelector: () => null,
+    querySelectorAll: (query: string) => query === '#frm_datefrom' ? [dateInput] : query === 'select' ? [dropdown] : query === 'table[id^="tablelist_"]' ? [table] : [],
+  };
+  const window = {}; Object.assign(window, { top: window });
+  return JSON.parse(JSON.stringify(runInNewContext(`(${INFORMATION_READER_SOURCE})(category, config)`, {
+    document, location: { href: 'https://vereinsflieger.de/member/community/appointment/' }, window, URL,
+    category: 'events', config: INFORMATION_TYPES.events,
+  })));
+}
+test('calendar empty captures only a validated one-day excerpt with known other categories and never reads their details', () => {
+  const categories = ['Fremde Dienste', 'Fremde Reservierungen', 'Flugzeugsperren', 'Fremde Dienste', 'Fremde Reservierungen', 'Flugzeugsperren'];
+  const p = validateInformationPage(readCalendar(categories));
+  assert.equal(p.empty, true); assert.deepEqual(p.rows, []);
+  assert.deepEqual(p.filters, ['Quellkategorie: Termine', 'Ab 23.10.2026', 'Ansicht: 1 Tag']);
+  assert.equal(p.coverage.kind, 'visible-page'); assert.equal(p.coverage.pagination, 'unverified');
+  const headerOnly = readCalendar([]); assert.equal(headerOnly.error, 'empty-scope-unverified');
+  assert.equal(readCalendar(categories, { view: '3 Monate' }).error, 'empty-scope-unverified');
+  assert.equal(readCalendar(categories, { shownDate: '22.10.2026' }).error, 'empty-scope-unverified');
+  assert.equal(readCalendar(categories, { dataDates: ['22.10.2026', '23.10.2026', '', '', '', ''] }).error, 'empty-scope-unverified');
+  assert.equal(readCalendar([...categories.slice(0, 5), 'Unobserved category']).error, 'empty-scope-unverified');
+  const event = validateInformationPage(readCalendar(['Termine']));
+  assert.equal(event.empty, false); assert.deepEqual(event.rows[0]!.values, ['23.10.2026', 'Synthetic time', 'Termine', 'Synthetic info']);
 });
 function readNotice(category: 'document-notices' | 'news' | 'own-reservations', options: { rows?: ReturnType<typeof row>[]; duplicate?: boolean; wrongParent?: boolean; caption?: string; copies?: number; linkedTitle?: string; dateSuffix?: string } = {}) {
   const id = category === 'news' ? 'news' : category === 'own-reservations' ? 'my_reservation' : 'docs';
@@ -293,6 +392,12 @@ test('decoder rejects unknown fields, unsafe source, forged coverage and malform
   for (const bad of [url.replace('https:', 'http:'), url + '#secret', url + '&token=secret', 'https://evil.test/member/profile/viewprofile', 'https://vereinsflieger.de/member/download/document']) assert.equal(informationUrl(bad), false);
 });
 function contextMessage(run: InformationRun, changed = false) { return { kind: 'vf-context-v1', nonce: run.messageNonce, url: PROFILE_URL, context: { ...scope.context, accountNumber: changed ? '9999' : '1001' } }; }
+const taskOptions = [
+  { label: 'Alle nicht beendeten Aufgaben', href: '?gselect=allopen' },
+  { label: 'Meine nicht beendeten Aufgaben', href: '?gselect=myopen' },
+  { label: 'Alle Aufgaben', href: '?gselect=all' },
+];
+const taskSelection = (selected: string) => ({ selected, options: taskOptions });
 function advance(run: InformationRun) {
   run.observeNavigation(PROFILE_URL); assert.equal(run.accept(PROFILE_URL, PROFILE_URL, contextMessage(run)), 'navigate');
   run.observeNavigation(url); assert.equal(run.accept(url, url, { kind: 'vf-information-v1', nonce: run.messageNonce, url, page: page() }), 'navigate');
@@ -321,6 +426,49 @@ test('a replayed before-profile message cannot replace the required after-profil
   run.accept(url, url, { kind: 'vf-information-v1', nonce: run.messageNonce, url, page: page() });
   run.observeNavigation(PROFILE_URL);
   assert.equal(run.accept(PROFILE_URL, PROFILE_URL, before), 'ignored');
+  assert.throws(() => run.capture(at));
+});
+test('own-task run probes the prior selector, reads only my-open tasks, and verifies the original selection is restored', () => {
+  const run = new InformationRun(scope, 'tasks', tasksUrl, 'tasks-preserve');
+  assert.equal(run.stage, 'selection'); assert.equal(run.url, TASK_SELECTION_PROBE_URL);
+  run.observeNavigation(TASK_SELECTION_PROBE_URL);
+  assert.equal(run.accept(TASK_SELECTION_PROBE_URL, TASK_SELECTION_PROBE_URL, {
+    kind: 'vf-information-task-selection-v1', nonce: run.messageNonce, url: TASK_SELECTION_PROBE_URL,
+    selection: taskSelection('Alle nicht beendeten Aufgaben'),
+  }), 'navigate');
+  assert.equal(run.taskRestoreUrl, 'https://vereinsflieger.de/member/community/tasklist/tasklist?gselect=allopen');
+  assert.equal(run.url, PROFILE_URL);
+  run.observeNavigation(PROFILE_URL); assert.equal(run.accept(PROFILE_URL, PROFILE_URL, contextMessage(run)), 'navigate');
+  run.observeNavigation(tasksUrl);
+  const ownTasks = read('tasks', [row(['Titel', 'Zu erledigen bis', 'Status']), row(['Synthetic own task', '', 'Offen'])]);
+  assert.equal(run.accept(tasksUrl, tasksUrl, { kind: 'vf-information-v1', nonce: run.messageNonce, url: tasksUrl, page: ownTasks }), 'navigate');
+  run.observeNavigation(PROFILE_URL); assert.equal(run.accept(PROFILE_URL, PROFILE_URL, contextMessage(run)), 'navigate');
+  assert.equal(run.stage, 'restore'); assert.equal(run.url, run.taskRestoreUrl);
+  run.observeNavigation(run.url);
+  assert.equal(run.accept(run.url, run.url, { kind: 'vf-information-task-restore-v1', nonce: run.messageNonce, url: run.url, selection: taskSelection('Alle nicht beendeten Aufgaben') }), 'save');
+  assert.deepEqual(run.capture(at).rows, ownTasks.rows);
+  assert.equal(run.resultUrl, run.taskRestoreUrl);
+});
+test('unsupported prior task selector cannot navigate to or capture the own-open list', () => {
+  const run = new InformationRun(scope, 'tasks', tasksUrl, 'tasks-mismatch');
+  run.observeNavigation(TASK_SELECTION_PROBE_URL);
+  assert.throws(() => run.accept(TASK_SELECTION_PROBE_URL, TASK_SELECTION_PROBE_URL, {
+    kind: 'vf-information-task-selection-v1', nonce: run.messageNonce, url: TASK_SELECTION_PROBE_URL,
+    selection: { selected: 'Alle Aufgaben', options: [...taskOptions.slice(0, 2), { label: 'Andere Aufgaben', href: '?gselect=other' }] },
+  }));
+  assert.equal(run.stage, 'selection'); assert.equal(run.url, TASK_SELECTION_PROBE_URL);
+  assert.throws(() => run.capture(at));
+});
+test('own-task capture is withheld when the restored selector does not match the prior choice', () => {
+  const run = new InformationRun(scope, 'tasks', tasksUrl, 'tasks-restore-mismatch');
+  run.observeNavigation(TASK_SELECTION_PROBE_URL);
+  run.accept(TASK_SELECTION_PROBE_URL, TASK_SELECTION_PROBE_URL, { kind: 'vf-information-task-selection-v1', nonce: run.messageNonce, url: TASK_SELECTION_PROBE_URL, selection: taskSelection('Alle Aufgaben') });
+  run.observeNavigation(PROFILE_URL); run.accept(PROFILE_URL, PROFILE_URL, contextMessage(run));
+  run.observeNavigation(tasksUrl); run.accept(tasksUrl, tasksUrl, { kind: 'vf-information-v1', nonce: run.messageNonce, url: tasksUrl, page: read('tasks', [row(['Titel', 'Zu erledigen bis', 'Status']), row(['Synthetic task', '', 'Offen'])]) });
+  run.observeNavigation(PROFILE_URL); run.accept(PROFILE_URL, PROFILE_URL, contextMessage(run));
+  run.observeNavigation(run.url);
+  assert.throws(() => run.accept(run.url, run.url, { kind: 'vf-information-task-restore-v1', nonce: run.messageNonce, url: run.url, selection: taskSelection('Meine nicht beendeten Aufgaben') }));
+  assert.equal(run.failureMessage, 'Der vorherige Aufgabenfilter konnte nicht bestätigt werden.');
   assert.throws(() => run.capture(at));
 });
 test('real SQLite immutable retries, scoped isolation, corruption and close/reopen preserve source facts', async () => {

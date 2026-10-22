@@ -19,7 +19,7 @@ import { connectionFlow, type ConnectionFlow } from './connection-flow';
 import { loadProviderScope, confirmProviderScope, loadScopedCapture, loadScopedView, saveScopedCapture, saveScopedView, clearScopedView, prepareScopedLegacy, saveLegacySafety, legacyQuarantined, finishScopedLegacy } from './scoped-storage';
 import { clearProviderStore, proveSyntheticStore, sessionClearingAvailable, sessionProofAvailable, legacyRecoveryAvailable, legacyRecoveryFingerprint, readReviewedRecovery } from './session-store';
 import type { ProviderScope } from './scope-store';
-import { useInformationController } from './use-information-controller';
+import { useInformationController, type FeatureInformationCategory } from './use-information-controller';
 import type { RealFlightSourceInput } from './real-flight-source';
 
 type FlightSourceAttempt = {
@@ -148,8 +148,11 @@ export function useAccessController(product = false, localOwner?: string, develo
     ownerCurrent: () => owner.current === activeOwner.current, scope: requireScope,
     canStart: retry => product && visible && (loaded || retry) && foreground.current && !busy && !saving && !loginBusy &&
       !contextRequest.current && !recovery && viewReady && !disconnectMode.current,
+    // A failed optional source invalidates the cached session observation. Each
+    // independent job must still be allowed to obtain its own fresh profile
+    // proof; InformationRun verifies the saved scope before and after reading.
     canStartMedical: () => product && mounted.current && owner.current===activeOwner.current && foreground.current &&
-      session.current.state.confirmed && !busy && !saving && !loginBusy && !loginStorageBusy.current && !loginAttempt.current &&
+      !!scope.current && scope.current.owner===owner.current && !busy && !saving && !loginBusy && !loginStorageBusy.current && !loginAttempt.current &&
       !contextRequest.current && !recovery && viewReady && !disconnectMode.current && !clearingStore.current && !bindingBusy.current &&
       retrieval.current.state.phase==='idle',
     canReload: () => product && mounted.current && foreground.current && owner.current === activeOwner.current &&
@@ -978,7 +981,7 @@ export function useAccessController(product = false, localOwner?: string, develo
         onContentProcessDidTerminate={() => { if (generation !== epoch.current) return; if (information.pageFailed()) return; if (loginAttempt.current) endLogin('Provider renderer stopped. Saved sign-in cancelled.', 'cancelled'); if (product) contextFailed(); finish('Provider renderer stopped. Recovery journal retained.'); }}
         onRenderProcessGone={() => { if (generation !== epoch.current) return; if (information.pageFailed()) return; if (loginAttempt.current) endLogin('Provider renderer stopped. Saved sign-in cancelled.', 'cancelled'); if (product) contextFailed(); finish('Provider renderer stopped. Recovery journal retained.'); }}
       />;
-  return { ...information.public, retrieveFeatureInformation: async (category:'events'|'document-notices') => {
+  return { ...information.public, retrieveFeatureInformation: async (category:FeatureInformationCategory) => {
     try { return await information.public.retrieveFeatureInformation(category); }
     catch(error) { session.current.invalidate(); syncConnection(); throw error; }
   }, retrieveDutyPage: async (source:'own'|'club') => {

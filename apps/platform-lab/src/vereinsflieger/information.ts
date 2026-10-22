@@ -60,6 +60,30 @@ export interface InformationHistory {
   category: InformationCategory; index: number; total: number; capture: InformationCapture | null;
 }
 export const normalizedLabel = (s: string) => s.replace(/\s+/g, ' ').trim();
+export const TASK_LIST_URL = 'https://vereinsflieger.de/member/community/tasklist/tasklist';
+export const TASK_SELECTION_PROBE_URL = TASK_LIST_URL;
+export const OWN_OPEN_TASKS_URL = TASK_LIST_URL + '?gselect=myopen';
+const taskSelectorOptions = [
+  { label: 'Alle nicht beendeten Aufgaben', href: '?gselect=allopen' },
+  { label: 'Meine nicht beendeten Aufgaben', href: '?gselect=myopen' },
+  { label: 'Alle Aufgaben', href: '?gselect=all' },
+] as const;
+/** Validate the exact selector choices observed on the task-list page. */
+export function validateTaskSelection(input: unknown): { selected: string; restoreUrl: string } {
+  const p = object(input); exact(p, ['selected', 'options']);
+  if (typeof p.selected !== 'string' || !Array.isArray(p.options) || p.options.length !== taskSelectorOptions.length) throw new Error('Unverified task selection');
+  const seen = new Set<string>();
+  for (const value of p.options) {
+    const option = object(value); exact(option, ['label', 'href']);
+    if (typeof option.label !== 'string' || typeof option.href !== 'string' || seen.has(option.href) ||
+        !taskSelectorOptions.some(expected => expected.href === option.href && expected.label === option.label)) throw new Error('Unverified task selector links');
+    seen.add(option.href);
+  }
+  if (taskSelectorOptions.some(option => !seen.has(option.href))) throw new Error('Incomplete task selector links');
+  const selected = taskSelectorOptions.find(option => option.label === p.selected);
+  if (!selected) throw new Error('Unverified selected task filter');
+  return { selected: selected.label, restoreUrl: TASK_LIST_URL + selected.href };
+}
 /** Bounded local development evidence for unsupported source selection. */
 export function informationRouteShape(value: string) {
   if (!providerUrl(value)) return null;
@@ -75,7 +99,7 @@ export function informationUrl(value: string): boolean {
   if (u.pathname === '/member/profile/account.php') return !u.hash &&
     (!u.search || u.searchParams.size === 1 && u.searchParams.has('caid'));
   if (u.pathname === '/member/community/tasklist/tasklist') return !u.hash &&
-    (!u.search || u.searchParams.size === 1 && u.searchParams.has('gselect'));
+    (!u.search || u.searchParams.size === 1 && ['allopen', 'myopen', 'all'].includes(u.searchParams.get('gselect') ?? ''));
   if (u.pathname === '/member/profile/usereducation/summaryueid') return !u.hash &&
     (!u.search || u.searchParams.size === 1 && u.searchParams.has('ueid'));
   if (u.pathname === '/member/overview/overview') return !u.hash && !u.search;
@@ -98,6 +122,7 @@ export function informationCategoryUrl(category: InformationCategory, url: strin
     events: ['/member/community/appointment/'],
     'document-notices': ['/member/overview/overview'], news: ['/member/overview/overview'], 'own-reservations': ['/member/overview/overview'],
     medical: ['/member/profile/viewprofile'], 'work-summary': ['/member/profile/viewprofile'],
+    'work-hours': ['/member/profile/workhours/list'],
     'own-profile': ['/member/profile/viewprofile'],
     'licence-metadata': ['/member/profile/viewprofile'],
     duties: ['/member/profile/myservices.php', '/member/profile/allservicelist.php', '/member/community/serviceshedulelist.php'],
@@ -126,7 +151,6 @@ export function validateInformationPage(input: unknown): InformationPage {
   });
   if (config.required.some(k => !keys.has(k)) || !Array.isArray(p.rows) || p.rows.length > informationRowLimit(category) || typeof p.empty !== 'boolean' || p.empty !== !p.rows.length) throw new Error('Missing information anchors');
   if ((category === 'news' || category === 'own-reservations') && !p.empty || category === 'document-notices' && p.empty) throw new Error('Unsupported overview state');
-  if (category === 'events' && p.empty) throw new Error('Unverified empty event source');
   let lastPosition = -1;
   const rows = p.rows.map(value => {
     const r = object(value); exact(r, ['position', 'values']);
@@ -189,6 +213,31 @@ export function informationSelectionScript(nonce: string) {
   return `try { window.ReactNativeWebView?.postMessage(JSON.stringify({kind:'vf-information-selection-v1',nonce:${JSON.stringify(nonce)},url:location.href,selection:(${EVENT_SELECTION_READER_SOURCE})()})); } catch { window.ReactNativeWebView?.postMessage(JSON.stringify({kind:'vf-information-selection-v1',nonce:${JSON.stringify(nonce)},url:location.href,selection:null})); } true;`;
 }
 
+/** Reads only the selected task-filter label and its three observed selector links. */
+export const TASK_SELECTION_READER_SOURCE = String.raw`(mode) => {
+  const norm=s=>String(s || '').replace(/\s+/g,' ').trim(), u=new URL(location.href);
+  const allowed=${JSON.stringify(taskSelectorOptions)};
+  if(window.top!==window || u.protocol!=='https:' || !['vereinsflieger.de','www.vereinsflieger.de'].includes(u.hostname) || u.pathname!=='/member/community/tasklist/tasklist' || u.username || u.password || u.port || u.hash || document.querySelector('input[name="pwinput"]')) return null;
+  if(mode==='probe' ? !!u.search : mode==='restore' ? !(u.searchParams.size===1 && allowed.some(option=>option.href==='?'+u.searchParams.toString())) : true) return null;
+  const selectedNodes=document.querySelectorAll('#globalfiltertime');
+  if(selectedNodes.length!==1) return null;
+  const selected=norm(selectedNodes[0].innerText);
+  const anchors=Array.from(document.querySelectorAll('a[href*="gselect="]'));
+  if(anchors.length!==allowed.length) return null;
+  const options=[];
+  for(const anchor of anchors) {
+    const href=anchor.getAttribute('href'), option=allowed.find(candidate=>candidate.href===href);
+    if(!option || norm(anchor.innerText)!==option.label) return null;
+    options.push({label:option.label,href});
+  }
+  if(new Set(options.map(option=>option.href)).size!==allowed.length || !allowed.some(option=>option.label===selected)) return null;
+  return {selected,options};
+}`;
+export function taskSelectionScript(nonce: string, mode: 'probe' | 'restore' = 'probe') {
+  const kind = mode === 'probe' ? 'vf-information-task-selection-v1' : 'vf-information-task-restore-v1';
+  return `try { window.ReactNativeWebView?.postMessage(JSON.stringify({kind:${JSON.stringify(kind)},nonce:${JSON.stringify(nonce)},url:location.href,selection:(${TASK_SELECTION_READER_SOURCE})(${JSON.stringify(mode)})})); } catch { window.ReactNativeWebView?.postMessage(JSON.stringify({kind:${JSON.stringify(kind)},nonce:${JSON.stringify(nonce)},url:location.href,selection:null})); } true;`;
+}
+
 // Explicit read only: no requests, navigation, other form values, document downloads,
 // cookies, storage, full-page HTML/text or unknown columns. Limits are page bounds.
 export const INFORMATION_READER_SOURCE = String.raw`(category, config) => {
@@ -198,7 +247,8 @@ export const INFORMATION_READER_SOURCE = String.raw`(category, config) => {
   if (window.top !== window || u.protocol !== 'https:' || !['vereinsflieger.de','www.vereinsflieger.de'].includes(u.hostname) || !u.pathname.startsWith('/member/') || u.username || u.password || u.port || u.hash || document.querySelector('input[name="pwinput"]')) return {error:'source-unavailable'};
   // Native source diagnostic identified the selected-filter label exactly.
   const taskFilter = category === 'tasks' ? norm(document.getElementById?.('globalfiltertime')?.innerText) : '';
-  if (category === 'tasks' && taskFilter !== 'Meine nicht beendeten Aufgaben') return {error:'task-scope-unverified'};
+  const dutyFilter = category === 'duties' ? norm(document.getElementById?.('globalfilter')?.innerText) : '';
+  if (category === 'tasks' && (u.pathname!=='/member/community/tasklist/tasklist' || u.searchParams.size!==1 || u.searchParams.get('gselect')!=='myopen' || taskFilter !== 'Meine nicht beendeten Aufgaben')) return {error:'task-scope-unverified'};
   const columnsFor = cells => {
     const cols = []; const seen = new Set();
     for (let index=0;index<cells.length;index++) {
@@ -248,15 +298,21 @@ export const INFORMATION_READER_SOURCE = String.raw`(category, config) => {
     const all=Array.from(tables[0].rows || []), header=Array.from(all[0]?.cells || []);
     if(!all.length || all.length>10000 || header.length!==6 || header.map(c=>norm(c.innerText)).join('|')!=='|Tag|Datum|Zeit|Kategorie|Info') return unsupported(2,all.length,header.length);
     columns=[{key:'date',label:'Datum',index:2},{key:'time',label:'Zeit',index:3},{key:'kind',label:'Kategorie',index:4},{key:'info',label:'Info · Titel/Ort',index:5}];
-    let date='';
+    let date='',otherRows=0,unsupportedOtherKind=false,allDatesMatch=true;
     for(let i=1;i<all.length;i++) {
       const cells=Array.from(all[i].cells);
       if(cells.length!==6 || cells.some(c=>(c.colSpan || 1)!==1 || (c.rowSpan || 1)!==1)) return {error:'row-shape'};
       const shownDate=norm(cells[2].innerText);
       if(shownDate) {if(!/^\d{2}\.\d{2}\.\d{4}$/.test(shownDate)) return unsupported(3,shownDate.length);date=shownDate;}
+      if(date!==selection.date) allDatesMatch=false;
       // Establish category BEFORE reading Info or time. Other calendar kinds
       // can contain third-party names, reservations and aircraft lock notes.
-      if(norm(cells[4].innerText)!=='Termine') continue;
+      const kind=norm(cells[4].innerText);
+      if(kind!=='Termine') {
+        otherRows++;
+        if(!['Fremde Dienste','Fremde Reservierungen','Flugzeugsperren'].includes(kind)) unsupportedOtherKind=true;
+        continue;
+      }
       if(!date || [cells[3],cells[4],cells[5]].some(c=>c.querySelector('table,input,button,select,textarea,iframe,object,embed'))) return unsupported(4,date?1:0);
       if(rows.length===20) {truncated=true;break;}
       const time=cells[3].innerText || '', info=cells[5].innerText || '';
@@ -267,7 +323,14 @@ export const INFORMATION_READER_SOURCE = String.raw`(category, config) => {
       // the evidenced title and immediate optional Ort line, never later text.
       rows.push({position:i,values:[date,time,cells[4].innerText,lines.slice(0,hasLocation?2:1).join('\n')]});
     }
-    if(!rows.length) return {error:'empty-scope-unverified'};
+    if(!rows.length) {
+      // Only the observed one-day view with a matching date and a nonempty set
+      // of known non-Termine rows proves that this selected excerpt has no
+      // Termine. Header-only, unknown categories and other date ranges remain
+      // unavailable; non-Termine Info/time fields are never read.
+      if(selection.view!=='1 Tag' || date!==selection.date || !allDatesMatch || !otherRows || unsupportedOtherKind || otherRows!==all.length-1) return {error:'empty-scope-unverified'};
+      empty=true;
+    }
   } else if (category === 'document-notices' || category === 'news' || category === 'own-reservations') {
     const id=category==='news' ? 'news' : category==='own-reservations' ? 'my_reservation' : 'docs', caption=category==='news' ? 'News' : category==='own-reservations' ? 'Meine Reservierungen' : 'Dokumente';
     const section=document.getElementById?.(id), content=document.getElementById?.(id+'_content');
@@ -394,6 +457,19 @@ export const INFORMATION_READER_SOURCE = String.raw`(category, config) => {
       const cells=Array.from(footer?.rows?.[0]?.cells || []);
       if(/^tablelist_\d+$/.test(t.table.id || '') && parent?.tagName==='DIV' && /^div\d+$/.test(parent.id || '') && parent.children.length===2 && parent.children[0]===t.table && parent.children[1]===footer && footer?.tagName==='TABLE' && footer.rows.length===1 && cells.length===2 && norm(cells[0].innerText)==='Es wurden keine passenden Daten gefunden!' && !norm(cells[1].innerText) && cells.every(c=>(c.colSpan || 1)===1 && (c.rowSpan || 1)===1 && !c.querySelector('table,input,button,select'))) empty=true;
     }
+    if(category==='duties' && !rows.length && !empty && t.header===0 && t.all.length===1 &&
+      ['/member/profile/myservices.php','/member/profile/allservicelist.php','/member/community/serviceshedulelist.php'].includes(u.pathname) &&
+      dutyFilter==='Aktuelle und anstehende Dienste' && t.width===5 &&
+      Array.from(t.all[0].cells).map(c=>norm(c.innerText ?? c.textContent)).join('|')==='Dienst|Diensttausch|Zeitraum|Person(en)|Dienstplan von') {
+      // Observed on the exact own-services view: a one-row header table and
+      // its adjacent, paired footer table prove only this displayed excerpt is
+      // empty. Match the shared numeric table/container identity as well.
+      const parent=t.table.parentElement, footer=t.table.nextElementSibling, tableId=/^tablelist_(\d+)$/.exec(t.table.id || '');
+      const cells=Array.from(footer?.rows?.[0]?.cells || []);
+      if(tableId && parent?.tagName==='DIV' && parent.id==='div'+tableId[1] && parent.children.length===2 && parent.children[0]===t.table && parent.children[1]===footer &&
+        footer?.tagName==='TABLE' && footer.rows.length===1 && cells.length===2 && norm(cells[0].innerText)==='Es wurden keine passenden Daten gefunden!' && !norm(cells[1].innerText) &&
+        cells.every(c=>(c.colSpan || 1)===1 && (c.rowSpan || 1)===1 && !c.querySelector('table,input,button,select'))) empty=true;
+    }
     if(!rows.length && !empty) return {error:'empty-scope-unverified'};
     if(rows.length && empty) return {error:'conflicting-empty-state'};
   }
@@ -402,7 +478,7 @@ export const INFORMATION_READER_SOURCE = String.raw`(category, config) => {
     const text=norm(s.selectedOptions?.[0]?.textContent);
     if(/^(?:\d{4}|Jahr \d{4}|Aktuelle und anstehende Dienste|Alle Dienste|Alle anstehenden Dienste)$/.test(text) && !filters.includes(text)) filters.push(text);
   }
-  const displayedFilter=['own-profile','licence-metadata','events','training-summary'].includes(category) ? '' : norm(document.getElementById?.('globalfilter')?.innerText);
+  const displayedFilter=category==='duties' ? dutyFilter : ['own-profile','licence-metadata','events','training-summary'].includes(category) ? '' : norm(document.getElementById?.('globalfilter')?.innerText);
   if(/^(?:\d{4}|Jahr \d{4}|Aktuelle und anstehende Dienste|Alle Dienste|Alle anstehenden Dienste)$/.test(displayedFilter) && !filters.includes(displayedFilter)) filters.push(displayedFilter);
   return {category,path:u.pathname,columns,rows,filters,empty:!rows.length,coverage:{kind:'visible-page',truncated,pagination:'unverified'}};
 }`;

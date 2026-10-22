@@ -33,7 +33,10 @@ import { startSessionMonitor } from './session-monitor';
 
 export type ConnectionIntent = 'connect'|'update'|'options'|'development';
 export interface FlightLoadResult { ownerId?:string; added: number; changed: number; pending: number; from: string; to: string;
-  verifiedConnection?: OwnFlightConnectionEvidence; medicalStatus?: MedicalJobStatus; dutyStatus?:DutyJobStatus; eventsStatus?:FeatureJobStatus; documentNoticesStatus?:FeatureJobStatus }
+  verifiedConnection?: OwnFlightConnectionEvidence; medicalStatus?: MedicalJobStatus; dutyStatus?:DutyJobStatus; eventsStatus?:FeatureJobStatus; documentNoticesStatus?:FeatureJobStatus; workSummaryStatus?:FeatureJobStatus; workHoursStatus?:FeatureJobStatus; tasksStatus?:FeatureJobStatus }
+function featureJobResult(label:string,status:FeatureJobStatus) {
+  return status==='partial'?`${label}: Quelle erfasst · Vollständigkeit ungeprüft.`:status==='failed'?`${label}: Abruf fehlgeschlagen · gespeicherte Angaben bleiben erhalten.`:`${label}: nicht abgeschlossen · gespeicherte Angaben bleiben erhalten.`;
+}
 export function CoreFlightFoundation({ close, startUpdate = false, intent = startUpdate?'update':'options', open = true, requestId = 0, onStatus, developmentRecoveryCheckpoints = false, providerEntryAllowed = false, dialogTop }: {close: (result?: FlightLoadResult) => void; startUpdate?: boolean; intent?:ConnectionIntent; open?:boolean; requestId?:number; onStatus?:(status:ProviderStatus)=>void; developmentRecoveryCheckpoints?: boolean; providerEntryAllowed?:boolean; dialogTop?:number}) {
   const diagnosis = useRef<DiagnosticOperation | null>(null);
   const [requestedUpdate,setRequestedUpdate] = useState(intent!=='options');
@@ -287,15 +290,20 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,open=true,requestI
             readPage:source=>controller.current.retrieveDutyPage(source)}));},
         events:()=>{setStep('Termine werden geladen …');return controller.current.retrieveFeatureInformation('events');},
         documentNotices:()=>{setStep('Dokumenthinweise werden geladen …');return controller.current.retrieveFeatureInformation('document-notices');},
+        workSummary:()=>{setStep('Arbeitsstunden · Jahresübersicht wird geladen …');return controller.current.retrieveFeatureInformation('work-summary');},
+        workHours:()=>{setStep('Erfasste Arbeitsstunden werden geladen …');return controller.current.retrieveFeatureInformation('work-hours');},
+        tasks:()=>{setStep('Eigene Aufgaben werden geladen …');return controller.current.retrieveFeatureInformation('tasks');},
       }),
       stage:stage=>{if(stage==='other-data'){setLoadStage('medical');setStep('Flüge gespeichert. Medical wird geladen …');}},
     });
     const {result,source:next}=completed.flights;
     const verified=controller.current.connection;
-    diagnosis.current?.finish(completed.otherData.events==='failed'||completed.otherData.events==='skipped'||completed.otherData.documentNotices==='failed'||completed.otherData.documentNotices==='skipped'||completed.otherData.medical==='failed'||completed.otherData.medical==='skipped'||completed.otherData.duties==='failed'||completed.otherData.duties==='skipped'?'partial':'success',completed.otherData.medical==='failed'?'medical-failed':completed.otherData.medical==='skipped'?'medical-skipped':completed.otherData.duties==='failed'?'duties-failed':completed.otherData.duties==='skipped'?'duties-skipped':completed.otherData.events==='failed'||completed.otherData.documentNotices==='failed'?'operation-failed':'none');
+    const optionalSourceStatuses=[completed.otherData.medical,completed.otherData.duties,completed.otherData.events,completed.otherData.documentNotices,completed.otherData.workSummary,completed.otherData.workHours,completed.otherData.tasks];
+    const optionalSourceIncomplete=optionalSourceStatuses.some(status=>status==='failed'||status==='skipped');
+    diagnosis.current?.finish(optionalSourceIncomplete?'partial':'success',completed.otherData.medical==='failed'?'medical-failed':completed.otherData.medical==='skipped'?'medical-skipped':completed.otherData.duties==='failed'?'duties-failed':completed.otherData.duties==='skipped'?'duties-skipped':completed.otherData.events==='failed'||completed.otherData.documentNotices==='failed'||completed.otherData.workSummary==='failed'||completed.otherData.workHours==='failed'||completed.otherData.tasks==='failed'?'operation-failed':'none');
     if(alive.current){setLoadStage('done');setStep('Fertig.');setCompleted({ownerId:lease.ownerId,added:result.counts.added,changed:result.counts.changed,pending:result.counts.pending,
       from:next.source.requestedWindow.from,to:next.source.requestedWindow.to,
-      verifiedConnection:foreground.current&&!stopRemainingJobs.current&&verified.confirmed?{ownerId:lease.ownerId,state:verified}:undefined,medicalStatus:completed.otherData.medical,dutyStatus:completed.otherData.duties,eventsStatus:completed.otherData.events,documentNoticesStatus:completed.otherData.documentNotices});}
+      verifiedConnection:foreground.current&&!stopRemainingJobs.current&&verified.confirmed?{ownerId:lease.ownerId,state:verified}:undefined,medicalStatus:completed.otherData.medical,dutyStatus:completed.otherData.duties,eventsStatus:completed.otherData.events,documentNoticesStatus:completed.otherData.documentNotices,workSummaryStatus:completed.otherData.workSummary,workHoursStatus:completed.otherData.workHours,tasksStatus:completed.otherData.tasks});}
   }
   function retryOtherJob(job:'medical'|'duties') {
     if(lock.current||!foreground.current||!panelActive.current||!c.viewReady||c.recovery)return;
@@ -504,7 +512,7 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,open=true,requestI
   const unresolvedRestores=restorePreparations.filter(preparation=>preparation.status!=='activated');
   const restoreReadOnly=snapshot===null||snapshot.recovery.readOnly||restoreReadWarning!==null||unresolvedRestores.length>0;
   const pastLogin=['flights','save','medical','done'].includes(loadStage);
-  const partial=completed&&(completed.medicalStatus==='failed'||completed.medicalStatus==='skipped'||completed.dutyStatus==='failed'||completed.dutyStatus==='skipped'||completed.pending>0);
+  const partial=completed&&(completed.medicalStatus==='failed'||completed.medicalStatus==='skipped'||completed.dutyStatus==='failed'||completed.dutyStatus==='skipped'||completed.eventsStatus==='failed'||completed.eventsStatus==='skipped'||completed.documentNoticesStatus==='failed'||completed.documentNoticesStatus==='skipped'||completed.workSummaryStatus==='failed'||completed.workSummaryStatus==='skipped'||completed.workHoursStatus==='failed'||completed.workHoursStatus==='skipped'||completed.tasksStatus==='failed'||completed.tasksStatus==='skipped'||completed.pending>0);
   const medicalResult=completed?.medicalStatus==='updated'?'Medical-Angaben geladen.':completed?.medicalStatus==='empty'?'Keine Medical-Angaben gefunden.':completed?.medicalStatus==='skipped'?'Medical nicht abgeschlossen. Gespeicherte Angaben bleiben erhalten.':'Medical konnte nicht geladen werden. Gespeicherte Angaben bleiben erhalten.';
   const connectionProgress=connectionOnly?<Card>
     <Section title="Vereinsflieger" icon="chain"/>
@@ -520,8 +528,13 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,open=true,requestI
     <View accessibilityLiveRegion="polite">
       <Label>{pastLogin?'✓ Anmeldung geprüft':loadStage==='sign-in'?'→ Anmeldung erforderlich':'→ Anmeldung prüfen'}</Label>
       <Label>{flightSaved!==null?`✓ ${flightSaved} Flüge auf diesem Gerät gespeichert`:loadStage==='save'?'→ Flüge speichern':loadStage==='flights'?'→ Flüge laden':'Flüge · ausstehend'}</Label>
-      <Label>{completed?medicalResult:loadStage==='medical'?'→ Medical und Dienste laden':'Medical und Dienste · ausstehend'}</Label>
+      <Label>{completed?medicalResult:loadStage==='medical'?'→ Medical, Dienste und Vereinsangaben laden':'Medical, Dienste und Vereinsangaben · ausstehend'}</Label>
       {completed?.dutyStatus&&<Label>{completed.dutyStatus==='partial'?'Dienstquelle aktualisiert · Vollständigkeit ungeprüft.':completed.dutyStatus==='failed'?'Dienste konnten nicht aktualisiert werden. Gespeicherte Quelle bleibt erhalten.':'Dienste nicht abgeschlossen. Gespeicherte Quelle bleibt erhalten.'}</Label>}
+      {completed?.eventsStatus&&<Label>{featureJobResult('Termine',completed.eventsStatus)}</Label>}
+      {completed?.documentNoticesStatus&&<Label>{featureJobResult('Dokumenthinweise',completed.documentNoticesStatus)}</Label>}
+      {completed?.workSummaryStatus&&<Label>{featureJobResult('Arbeitsstunden · Jahresübersicht',completed.workSummaryStatus)}</Label>}
+      {completed?.workHoursStatus&&<Label>{featureJobResult('Erfasste Arbeitsstunden',completed.workHoursStatus)}</Label>}
+      {completed?.tasksStatus&&<Label>{featureJobResult('Eigene Aufgaben',completed.tasksStatus)}</Label>}
       {!completed&&<Label muted>{failed?message:step}</Label>}
     </View>
     {busy&&!loginPaused&&loadStage!=='sign-in'&&<ActivityIndicator color={colors.cyan} accessibilityLabel={step}/>}

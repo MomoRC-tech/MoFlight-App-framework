@@ -116,7 +116,7 @@ test('opening options does no retrieval; one explicit action verifies, loads, sa
     assert.equal(f.text().includes('Quellzeilen'),false);assert.equal(f.text().includes('Geräteordner'),false);
     f.press('Anmelden & Daten laden');await f.flush();
     assert.deepEqual(f.calls,['session','retrieve']);
-    f.complete();await f.flush();assert.deepEqual(f.calls,['session','retrieve','save','medical','events','document-notices']);
+    f.complete();await f.flush();assert.deepEqual(f.calls,['session','retrieve','save','medical','events','document-notices','work-summary','work-hours','tasks']);
     assert.equal(f.closed.length,1);assert.match(f.progressText(),/3 Flüge auf diesem Gerät gespeichert/);assert.match(f.progressText(),/Medical-Angaben geladen/);;
     assert.equal(f.nodes().find(n=>n.type==='ProviderConnection')!.props.open,true);
     assert.ok(f.nodes().some(n=>n.type==='ScrollView'&&n.props.importantForAccessibility==='no-hide-descendants'&&n.props.style?.display==='none'));
@@ -139,9 +139,20 @@ test('combined entry starts once, while read-only recovery prevents automatic wo
 test('Medical failure still returns the confirmed flight save and separate Medical outcome',async()=>{
   const f=fixture({startUpdate:true,medicalFailure:true});try{
     f.render();await f.flush();f.complete();await f.flush();
-    assert.deepEqual(f.calls,['session','retrieve','save','medical','events','document-notices']);
+    assert.deepEqual(f.calls,['session','retrieve','save','medical','events','document-notices','work-summary','work-hours','tasks']);
     assert.equal(f.closed.length,1);assert.match(f.progressText(),/Medical konnte nicht geladen werden/);
     assert.equal(f.closed.length,1);assert.equal(f.closed[0].added,2);assert.equal(f.closed[0].medicalStatus,'failed');assert.equal(f.journal.snapshot().at(-1)!.outcome,'partial');assert.equal(f.journal.snapshot().at(-1)!.code,'medical-failed');
+  }finally{f.dispose();}
+});
+
+test('annual work refresh failure leaves the saved flight receipt intact and does not block own-task retrieval',async()=>{
+  const f=fixture({startUpdate:true});try{
+    f.c.retrieveFeatureInformation=async(category:string)=>{f.calls.push(category);if(category==='work-summary')throw new Error('Synthetic unavailable');return {rows:category==='tasks'||category==='work-hours'?[]:[{}]};};
+    f.render();await f.flush();f.complete();await f.flush();
+    assert.deepEqual(f.calls,['session','retrieve','save','medical','events','document-notices','work-summary','work-hours','tasks']);
+    assert.equal(f.closed.length,1);assert.equal(f.closed[0].added,2);assert.equal(f.closed[0].workSummaryStatus,'failed');assert.equal(f.closed[0].workHoursStatus,'partial');assert.equal(f.closed[0].tasksStatus,'partial');
+    assert.match(f.progressText(),/Arbeitsstunden · Jahresübersicht: Abruf fehlgeschlagen/);assert.match(f.progressText(),/Erfasste Arbeitsstunden: Quelle erfasst/);assert.match(f.progressText(),/Eigene Aufgaben: Quelle erfasst/);
+    assert.equal(f.journal.snapshot().at(-1)!.outcome,'partial');assert.equal(f.journal.snapshot().at(-1)!.code,'operation-failed');
   }finally{f.dispose();}
 });
 
@@ -212,7 +223,7 @@ for(const status of ['Provider page failed to load. Previous captures preserved.
       assert.deepEqual(f.calls,['session','session']);assert.equal(f.c.result,'none');
       assert.match(f.progressText(),/Bitte bei Vereinsflieger anmelden/);
       f.verify();await f.flush();assert.deepEqual(f.calls,['session','session','retrieve']);
-      f.complete();await f.flush();assert.deepEqual(f.calls,['session','session','retrieve','save','medical','events','document-notices']);
+      f.complete();await f.flush();assert.deepEqual(f.calls,['session','session','retrieve','save','medical','events','document-notices','work-summary','work-hours','tasks']);
     }finally{f.dispose();}
   });
 }
@@ -312,7 +323,7 @@ test('connection-only entry opens the provider directly and never starts flight 
     f.background();await f.flush();f.resume();await f.flush();assert.deepEqual(f.calls,['session']);
     f.verify();await f.flush();assert.match(f.progressText(),/Verbunden/);assert.deepEqual(f.calls,['session']);
     f.press('Daten aktualisieren');await f.flush();assert.deepEqual(f.calls,['session','session']);f.verify();await f.flush();assert.deepEqual(f.calls,['session','session','retrieve']);
-    f.complete();await f.flush();assert.deepEqual(f.calls,['session','session','retrieve','save','medical','events','document-notices']);
+    f.complete();await f.flush();assert.deepEqual(f.calls,['session','session','retrieve','save','medical','events','document-notices','work-summary','work-hours','tasks']);
   }finally{f.dispose();}
 });
 
@@ -331,8 +342,8 @@ test('closing and reopening retains the controller and admits only quiet session
 test('Medical-only retry verifies the account again and never repeats a confirmed flight save',async()=>{
   const f=fixture({startUpdate:true,medicalFailure:true});try{
     f.render();await f.flush();f.complete();await f.flush();
-    f.press('Nur Medical erneut laden');await f.flush();assert.deepEqual(f.calls,['session','retrieve','save','medical','events','document-notices','verify-job']);
-    f.verify();await f.flush();assert.deepEqual(f.calls,['session','retrieve','save','medical','events','document-notices','verify-job','medical']);
+    f.press('Nur Medical erneut laden');await f.flush();assert.deepEqual(f.calls,['session','retrieve','save','medical','events','document-notices','work-summary','work-hours','tasks','verify-job']);
+    f.verify();await f.flush();assert.deepEqual(f.calls,['session','retrieve','save','medical','events','document-notices','work-summary','work-hours','tasks','verify-job','medical']);
     assert.match(f.progressText(),/3 Flüge auf diesem Gerät gespeichert/);assert.match(f.progressText(),/Erneuter Abruf nicht abgeschlossen/);
     assert.equal(f.calls.filter(x=>x==='save').length,1);assert.equal(f.journal.snapshot().at(-1)!.code,'medical-failed');
   }finally{f.dispose();}
@@ -343,7 +354,7 @@ test('foreign-account proof blocks an independent retry while preserving the con
   const f=fixture({startUpdate:true,medicalFailure:true});try{
     f.render();await f.flush();f.complete();await f.flush();f.press('Nur Medical erneut laden');await f.flush();
     f.c.connection={phase:'mismatch',confirmed:false};f.render();await f.flush();
-    assert.deepEqual(f.calls,['session','retrieve','save','medical','events','document-notices','verify-job']);
+    assert.deepEqual(f.calls,['session','retrieve','save','medical','events','document-notices','work-summary','work-hours','tasks','verify-job']);
     assert.match(f.progressText(),/3 Flüge auf diesem Gerät gespeichert/);assert.equal(f.closed.length,1);
   }finally{f.dispose();}
 });
@@ -396,7 +407,7 @@ test('Close during optional retrieval skips remaining sources and returns the ow
     assert.deepEqual(f.calls,['session','retrieve','save','medical','stop-medical']);
     assert.equal(f.closed.length,1);
     assert.equal(f.closed[0].ownerId,'owner');assert.equal(f.closed[0].added,2);assert.equal(f.closed[0].verifiedConnection,undefined);
-    for(const status of ['medicalStatus','dutyStatus','eventsStatus','documentNoticesStatus'])assert.equal(f.closed[0][status],'skipped');
+    for(const status of ['medicalStatus','dutyStatus','eventsStatus','documentNoticesStatus','workSummaryStatus','workHoursStatus','tasksStatus'])assert.equal(f.closed[0][status],'skipped');
     f.render();await f.flush();assert.equal(f.closed.length,1);
   }finally{f.dispose();}
 });
@@ -413,7 +424,7 @@ test('Close queues cancellation during optional saving and waits for its safe co
     f.c.busy=false;f.c.informationBusy=false;f.c.informationSaving=false;finishMedical({rows:[{}]});f.render();await f.flush();
     assert.deepEqual(f.calls,['session','retrieve','save','medical']);assert.equal(f.closed.length,1);
     assert.equal(f.closed[0].ownerId,'owner');assert.equal(f.closed[0].added,2);
-    assert.equal(f.closed[0].eventsStatus,'skipped');assert.equal(f.closed[0].documentNoticesStatus,'skipped');
+    assert.equal(f.closed[0].eventsStatus,'skipped');assert.equal(f.closed[0].documentNoticesStatus,'skipped');assert.equal(f.closed[0].workSummaryStatus,'skipped');assert.equal(f.closed[0].workHoursStatus,'skipped');assert.equal(f.closed[0].tasksStatus,'skipped');
   }finally{f.dispose();}
 });
 
@@ -425,7 +436,7 @@ test('explicit per-source skip still continues the other supported sources',asyn
     f.render();await f.flush();f.complete();await f.flush();
     const skip=f.nodes().find(n=>n.type==='Action'&&n.children.some(v=>typeof v==='string'&&v.startsWith('Diesen Abruf')))!;
     assert.ok(skip);skip.props.onPress();await f.flush();
-    assert.deepEqual(f.calls,['session','retrieve','save','medical','events','document-notices']);
+    assert.deepEqual(f.calls,['session','retrieve','save','medical','events','document-notices','work-summary','work-hours','tasks']);
     assert.equal(f.closed.length,1);assert.equal(f.closed[0].medicalStatus,'failed');assert.equal(f.closed[0].eventsStatus,'partial');
   }finally{f.dispose();}
 });

@@ -2252,7 +2252,7 @@ test('renderer termination cancels an outstanding secret read before its late re
   assert.ok(f.injections.every(script => !script.includes('login.username')));
 });
 
-const informationSource = 'https://vereinsflieger.de/member/profile/synthetic-hours?year=2026';
+const informationSource = 'https://vereinsflieger.de/member/profile/workhours/list?year=2026';
 test('explicit duty jobs verify both contexts and return only an expiring-cache capture, never immutable information writes',async()=>{
   for(const source of ['own','club'] as const){
     const f=fixture({product:true});f.render();await f.settle(null);await establishProductAssociation(f);
@@ -2348,7 +2348,7 @@ test('Medical cannot start without fresh account verification and does not repla
 });
 
 const informationPage = {
-  category: 'work-hours', path: '/member/profile/synthetic-hours',
+  category: 'work-hours', path: '/member/profile/workhours/list',
   columns: [{ key: 'date', label: 'Datum', index: 0 }, { key: 'activity', label: 'Tätigkeit', index: 1 }, { key: 'hours', label: 'Stunden', index: 2 }, { key: 'status', label: 'Status', index: 3 }],
   rows: [{ position: 1, values: ['01.10.2026', 'Synthetic activity', '2.00', 'Akzeptiert'] }], filters: ['2026'], empty: false,
   coverage: { kind: 'visible-page', truncated: false, pagination: 'unverified' },
@@ -2846,6 +2846,83 @@ test('real connection controller and panel retain one browser through credential
 });
 
 
+test('own annual work and tasks use independent fresh-context jobs with durable scoped readback', async () => {
+  const annual = { category:'work-summary', path:'/member/profile/viewprofile', columns:[
+    {key:'period',label:'Zeitraum',index:0},{key:'obligation',label:'Pflicht',index:1},
+    {key:'performed',label:'Geleistet',index:2},{key:'hours',label:'Geleistet Stunden',index:3}],
+    rows:[{position:1,values:['Jahr 2026','150,00 EUR','75,00 EUR','5.00']}], filters:[],empty:false,
+    coverage:{kind:'visible-page',truncated:false,pagination:'unverified'} };
+  const tasks = { ...annual,category:'tasks',path:'/member/community/tasklist/tasklist',
+    columns:[{key:'title',label:'Titel',index:0},{key:'due',label:'Zu erledigen bis',index:1},{key:'status',label:'Status',index:2}],
+    rows:[{position:4,values:['Synthetic own task','31.10.2026','Offen']}],filters:['Meine nicht beendeten Aufgaben'],empty:false };
+  const taskOptions=[
+    {label:'Alle nicht beendeten Aufgaben',href:'?gselect=allopen'},
+    {label:'Meine nicht beendeten Aufgaben',href:'?gselect=myopen'},
+    {label:'Alle Aufgaben',href:'?gselect=all'},
+  ];
+  for(const category of ['work-summary','tasks'] as const)for(const foreign of [false,true]) {
+    const f=fixture({product:true});f.render();await f.settle(null);await establishProductAssociation(f);
+    const work=f.controller().retrieveFeatureInformation(category), rejected=foreign?assert.rejects(work):null;
+    await f.flush();
+    if(category==='tasks') {
+      assert.equal(f.controller().url,information.TASK_SELECTION_PROBE_URL,'an own-task request from the profile must navigate to the selector probe');
+      await f.loadPage(information.TASK_SELECTION_PROBE_URL);
+      assert.match(f.injections.at(-1)!,/vf-information-task-selection-v1/);
+      const web=f.find(f.render(),e=>e.type==='WebView')!;
+      (web.props.onMessage as (event:unknown)=>void)({nativeEvent:{url:information.TASK_SELECTION_PROBE_URL,data:JSON.stringify({kind:'vf-information-task-selection-v1',nonce:f.lastIssuedNonce()+'-selection',url:information.TASK_SELECTION_PROBE_URL,selection:{selected:'Alle nicht beendeten Aufgaben',options:taskOptions}})}});
+      await f.flush();
+    }
+    await f.loadPage(context.PROFILE_URL);await f.contextMessage(observedContext);
+    const page=category==='work-summary'?annual:tasks, url='https://vereinsflieger.de'+page.path+(category==='tasks'?'?gselect=myopen':'');
+    await f.loadPage(url);
+    const web=f.find(f.render(),e=>e.type==='WebView')!;
+    (web.props.onMessage as (event:unknown)=>void)({nativeEvent:{url,data:JSON.stringify({kind:'vf-information-v1',nonce:f.lastIssuedNonce()+'-read',url,page})}});
+    await f.flush();assert.equal(f.writes.includes('information-saved'),false);
+    await f.loadPage(context.PROFILE_URL);await f.contextMessage(foreign?{...observedContext,accountNumber:'999'}:observedContext);
+    if(category==='tasks'&&!foreign) {
+      const restoreUrl='https://vereinsflieger.de/member/community/tasklist/tasklist?gselect=allopen';
+      await f.loadPage(restoreUrl);assert.match(f.injections.at(-1)!,/vf-information-task-restore-v1/);
+      const restoreWeb=f.find(f.render(),e=>e.type==='WebView')!;
+      (restoreWeb.props.onMessage as (event:unknown)=>void)({nativeEvent:{url:restoreUrl,data:JSON.stringify({kind:'vf-information-task-restore-v1',nonce:f.lastIssuedNonce()+'-restore',url:restoreUrl,selection:{selected:'Alle nicht beendeten Aufgaben',options:taskOptions}})}});
+      await f.flush();
+    }
+    if(rejected) {
+      await rejected;
+      if(category==='tasks') assert.equal(f.controller().url,context.PROFILE_URL,'a failed after-context identity proof must not navigate the saved selector into another account');
+    } else {const result=await work;assert.equal(result.category,category);assert.deepEqual(JSON.parse(JSON.stringify(result.rows)),page.rows);}
+    assert.equal(f.writes.filter(w=>w==='information-saved').length,foreign?0:1);
+    f.unmount();
+  }
+});
+
+test('own-task refresh leaves an unsupported selector unchanged and attempts restoration on cancellation',async()=>{
+  const options=[
+    {label:'Alle nicht beendeten Aufgaben',href:'?gselect=allopen'},
+    {label:'Meine nicht beendeten Aufgaben',href:'?gselect=myopen'},
+    {label:'Alle Aufgaben',href:'?gselect=all'},
+  ];
+  {
+    const f=fixture({product:true});f.render();await f.settle(null);await establishProductAssociation(f);
+    const work=f.controller().retrieveFeatureInformation('tasks'),rejected=assert.rejects(work);await f.flush();
+    await f.loadPage(information.TASK_SELECTION_PROBE_URL);
+    const web=f.find(f.render(),e=>e.type==='WebView')!;
+    (web.props.onMessage as (event:unknown)=>void)({nativeEvent:{url:information.TASK_SELECTION_PROBE_URL,data:JSON.stringify({kind:'vf-information-task-selection-v1',nonce:f.lastIssuedNonce()+'-selection',url:information.TASK_SELECTION_PROBE_URL,selection:{selected:'Unknown task filter',options}})}});
+    await rejected;assert.equal(f.controller().url,information.TASK_SELECTION_PROBE_URL);assert.equal(f.writes.includes('information-saved'),false);f.unmount();
+  }
+  {
+    const f=fixture({product:true});f.render();await f.settle(null);await establishProductAssociation(f);
+    const work=f.controller().retrieveFeatureInformation('tasks'),rejected=assert.rejects(work);await f.flush();
+    await f.loadPage(information.TASK_SELECTION_PROBE_URL);
+    const web=f.find(f.render(),e=>e.type==='WebView')!;
+    (web.props.onMessage as (event:unknown)=>void)({nativeEvent:{url:information.TASK_SELECTION_PROBE_URL,data:JSON.stringify({kind:'vf-information-task-selection-v1',nonce:f.lastIssuedNonce()+'-selection',url:information.TASK_SELECTION_PROBE_URL,selection:{selected:'Alle Aufgaben',options}})}});
+    await f.flush();await f.loadPage(context.PROFILE_URL);await f.contextMessage(observedContext);
+    await f.loadPage(information.OWN_OPEN_TASKS_URL);
+    await f.controller().stopInformation();await rejected;
+    assert.equal(f.controller().url,'https://vereinsflieger.de/member/community/tasklist/tasklist?gselect=all');
+    assert.equal(f.writes.includes('information-saved'),false);f.unmount();
+  }
+});
+
 test('feature update captures document notices with fresh account checks and durable readback', async () => {
   const selected = 'https://vereinsflieger.de/member/overview/overview';
   for (const mode of ['success', 'foreign', 'background', 'owner', 'unmount'] as const) {
@@ -2867,6 +2944,63 @@ test('feature update captures document notices with fresh account checks and dur
     else await rejected;
     assert.equal(f.writes.filter(w => w === 'information-saved').length, mode === 'success' ? 1 : 0);
     if (mode !== 'unmount') f.unmount();
+  }
+});
+
+test('optional-source failure allows a fresh work-summary check and idle session checks after terminal outcomes', async () => {
+  const annual = { category: 'work-summary', path: '/member/profile/viewprofile', columns: [
+    { key: 'period', label: 'Zeitraum', index: 0 }, { key: 'obligation', label: 'Pflicht', index: 1 },
+    { key: 'performed', label: 'Geleistet', index: 2 }, { key: 'hours', label: 'Geleistet Stunden', index: 3 },
+  ], rows: [{ position: 1, values: ['Jahr 2026', '150,00 EUR', '75,00 EUR', '5.00'] }], filters: [], empty: false,
+  coverage: { kind: 'visible-page', truncated: false, pagination: 'unverified' } };
+  const noticesUrl = 'https://vereinsflieger.de/member/overview/overview';
+
+  for (const outcome of ['matching', 'foreign'] as const) {
+    const f = fixture({ product: true }); f.render(); await f.settle(null); await establishProductAssociation(f);
+
+    // An optional source can fail after the association was established. The
+    // wrapper invalidates its cached session confidence, but the saved scope
+    // still admits a new job that starts by checking the protected profile.
+    const notices = f.controller().retrieveFeatureInformation('document-notices');
+    const noticesRejected = assert.rejects(notices); await f.flush();
+    await f.loadPage(context.PROFILE_URL); await f.contextMessage(observedContext);
+    await f.loadPage(noticesUrl);
+    const noticesWeb = f.find(f.render(), element => element.type === 'WebView')!;
+    (noticesWeb.props.onMessage as (event: unknown) => void)({ nativeEvent: { url: noticesUrl, data: JSON.stringify({
+      kind: 'vf-information-v1', nonce: f.lastIssuedNonce() + '-read', url: noticesUrl,
+      page: { error: 'notice-source-unverified' },
+    }) } });
+    await f.flush(); await noticesRejected;
+    assert.equal(f.controller().connection.confirmed, false, 'a failed optional source invalidates cached session confidence');
+    assert.equal(f.writes.includes('information-saved'), false);
+
+    const readerScriptsBeforeSummary = f.injections.filter(script => script.includes("kind:'vf-information-v1'")).length;
+    const summary = f.controller().retrieveFeatureInformation('work-summary');
+    const summaryRejected = outcome === 'matching' ? null : assert.rejects(summary);
+    await f.flush(); assert.equal(f.controller().url, context.PROFILE_URL);
+    await f.loadPage(context.PROFILE_URL);
+    await f.contextMessage(outcome === 'foreign' ? { ...observedContext, accountNumber: '999' } : observedContext);
+
+    if (outcome === 'matching') {
+      await f.loadPage(context.PROFILE_URL);
+      assert.match(f.injections.at(-1)!, /vf-information-v1/);
+      const web = f.find(f.render(), element => element.type === 'WebView')!;
+      (web.props.onMessage as (event: unknown) => void)({ nativeEvent: { url: context.PROFILE_URL, data: JSON.stringify({
+        kind: 'vf-information-v1', nonce: f.lastIssuedNonce() + '-read', url: context.PROFILE_URL, page: annual,
+      }) } });
+      await f.flush(); assert.equal(f.writes.includes('information-saved'), false, 'the second fresh profile proof is required before saving');
+      await f.loadPage(context.PROFILE_URL); await f.contextMessage(observedContext);
+      const saved = await summary;
+      assert.equal(saved.category, 'work-summary'); assert.equal(saved.rows[0]!.values[2], '75,00 EUR');
+      assert.equal(f.writes.filter(write => write === 'information-saved').length, 1);
+      assert.equal(f.controller().checkSession(), true, 'a successful information job releases the session-check gate');
+    } else {
+      await summaryRejected;
+      assert.equal(f.injections.filter(script => script.includes("kind:'vf-information-v1'")).length, readerScriptsBeforeSummary, 'a foreign before-proof must not read the source');
+      assert.equal(f.writes.includes('information-saved'), false);
+      assert.equal(f.controller().checkSession(), true, 'a failed information job releases the session-check gate');
+    }
+    f.unmount();
   }
 });
 
@@ -2900,6 +3034,7 @@ test('feature event refresh probes selection and preserves the context/selection
     const f = fixture({ product: true }); f.render(); await f.settle(null); await establishProductAssociation(f);
     const work=f.controller().retrieveFeatureInformation('events');
     const rejected=changed?assert.rejects(work):null; await f.flush();
+    assert.equal(f.controller().url,selected,'an event request from the profile must navigate to its selector probe');
     await f.loadPage(selected);
     assert.match(f.injections.at(-1)!, /vf-information-selection-v1/);
     assert.ok(!f.writes.includes('information-saved'));

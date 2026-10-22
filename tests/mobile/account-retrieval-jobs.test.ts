@@ -69,8 +69,11 @@ test('all supported optional sources run once independently and interruption ski
       duties:async()=>{calls.push('duties');return {rows:[],partial:true};},
       events:async()=>{calls.push('events');if(interrupt)active=false;throw new Error('unavailable');},
       documentNotices:async()=>{calls.push('documents');return {rows:[{}]};},
+      workSummary:async()=>{calls.push('work-summary');throw new Error('unavailable');},
+      workHours:async()=>{calls.push('work-hours');return {rows:[]};},
+      tasks:async()=>{calls.push('tasks');return {rows:[]};},
     });
-    assert.deepEqual(calls,interrupt?['medical','duties','events']:['medical','duties','events','documents']);
-    assert.deepEqual(result,{medical:'failed',duties:'partial',events:interrupt?'skipped':'failed',documentNotices:interrupt?'skipped':'partial'});
+    assert.deepEqual(calls,interrupt?['medical','duties','events']:['medical','duties','events','documents','work-summary','work-hours','tasks']);
+    assert.deepEqual(result,{medical:'failed',duties:'partial',events:interrupt?'skipped':'failed',documentNotices:interrupt?'skipped':'partial',workSummary:interrupt?'skipped':'failed',workHours:interrupt?'skipped':'partial',tasks:interrupt?'skipped':'partial'});
   }
 });

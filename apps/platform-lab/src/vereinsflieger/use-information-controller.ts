@@ -4,12 +4,20 @@ import { canonical } from '@moflight/flight-logbook';
 import { PROFILE_URL, contextScript } from './context';
 import type { ProviderScope } from './scope-store';
 import { INFORMATION_TYPES, retrievableInformationCategories, informationRouteShape, informationScript,
-  informationSelectionScript, type InformationCategory, type InformationCapture, type InformationHistory } from './information';
+  informationSelectionScript, taskSelectionScript, OWN_OPEN_TASKS_URL, type InformationCategory, type InformationCapture, type InformationHistory } from './information';
 import { InformationRun } from './information-run';
 import { loadInformation, readInformationCapture, readInformationHistory, saveInformation } from './information-native';
 
-export type FeatureInformationCategory = 'events' | 'document-notices';
-const featureSources: Record<FeatureInformationCategory, string> = { events: 'https://vereinsflieger.de/member/community/appointment/', 'document-notices': 'https://vereinsflieger.de/member/overview/overview' };
+export type FeatureInformationCategory = 'events' | 'document-notices' | 'work-summary' | 'work-hours' | 'tasks';
+const featureSources: Record<FeatureInformationCategory, string> = {
+  events: 'https://vereinsflieger.de/member/community/appointment/',
+  'document-notices': 'https://vereinsflieger.de/member/overview/overview',
+  'work-summary': PROFILE_URL,
+  'work-hours': 'https://vereinsflieger.de/member/profile/workhours/list',
+  // The own/open link is allowlisted; InformationRun first probes the current
+  // selector on the query-free page so it can restore the member's preference.
+  tasks: OWN_OPEN_TASKS_URL,
+};
 
 type InformationRetryTarget = { category: InformationCategory; sourceUrl: string; scopeKey: string };
 export interface InformationControllerPorts {
@@ -59,6 +67,9 @@ export function useInformationController(ports: InformationControllerPorts) {
   const informationRetry = useRef<InformationRetryTarget | null>(null);
   const informationFailedProfile = useRef<{ target: InformationRetryTarget; epoch: number } | null>(null);
   const informationNavigation = useRef<{ run: InformationRun; nonce: string } | null>(null);
+  function clearInformationNavigation(run?: InformationRun | null) {
+    if (!run || informationNavigation.current?.run === run) informationNavigation.current = null;
+  }
   const [informationRetryReady, setInformationRetryReady] = useState(false);
   const informationUncertain = useRef<string | null>(null);
   const [informationNeedsReload, setInformationNeedsReload] = useState(false);
@@ -116,7 +127,9 @@ export function useInformationController(ports: InformationControllerPorts) {
   function stopInformation(message = 'Informationsabruf abgebrochen. Gespeicherte Belege bleiben erhalten.', retryable = false) {
     const run = informationRun.current;
     if (run?.stage === 'saving') return;
+    const restoreTaskUrl = run?.stage !== 'restore' && run?.taskRestoreAuthorized ? run.taskRestoreUrl : null;
     run?.cancel(); informationRun.current = null;
+    clearInformationNavigation(run);
     finishMedical(new Error('Medical capture did not complete.'));
     finishFeature(new Error('Feature capture did not complete.'));
     finishDuty(new Error('Duty capture did not complete.'));
@@ -124,6 +137,7 @@ export function useInformationController(ports: InformationControllerPorts) {
     if (informationTimer.current) clearTimeout(informationTimer.current);
     informationTimer.current = null;
     if (ports.mounted()) { setInformationRetryReady(retryable && !!informationRetry.current); setInformationBusy(false); setInformationSaving(false); ports.setBusy(false); setInformationNotice(message); }
+    if (restoreTaskUrl && ports.mounted() && ports.ownerCurrent()) ports.navigate(restoreTaskUrl);
   }
   function beginInformation(retry = false, medical = false, dutyUrl?:string, feature?:FeatureInformationCategory): InformationRun | null {
     if (!(medical||dutyUrl||feature?ports.canStartMedical():ports.canStart(retry)) || informationRun.current || informationHistoryBusy || informationUncertain.current) return null;
@@ -134,9 +148,11 @@ export function useInformationController(ports: InformationControllerPorts) {
       const run = new InformationRun(selectedScope, medical?'medical':dutyUrl?'duties':feature??informationCategory, medical?PROFILE_URL:dutyUrl??(feature?featureSources[feature]:target?.sourceUrl ?? ports.currentUrl()), ports.uuid());
       informationRetry.current = { category: run.category, sourceUrl: run.sourceUrl, scopeKey: canonical(run.scope) }; setInformationRetryReady(false);
       informationLoadRequest.current++; setInformationLoading(false);
+      clearInformationNavigation();
       informationRun.current = run; setInformationBusy(true); ports.setBusy(true); setInformationNotice('Konto wird vor und nach der Erfassung geprüft…');
       informationTimer.current = setTimeout(() => stopInformation('Informationsabruf hat das Zeitlimit erreicht. Gespeicherte Belege bleiben erhalten. Quelle und Anmeldung prüfen und erneut versuchen.', true), 90_000);
-      if (run.stage === 'selection') void ports.loadPage(run.url);
+      if (run.stage === 'selection' && ports.currentUrl() === run.url) void ports.loadPage(run.url);
+      else if (run.stage === 'selection') ports.navigate(run.url);
       else {
         ports.navigate(run.url);
         if (reloadFailedProfile) ports.requestNativeReload(PROFILE_URL);
@@ -195,6 +211,7 @@ export function useInformationController(ports: InformationControllerPorts) {
         const capture=run.capture(new Date().toISOString());gate();
         const returnUrl=dutyRequest.current.returnUrl;
         run.stage='done';informationRun.current=null;informationRetry.current=null;setInformationRetryReady(false);
+        clearInformationNavigation(run);
         setInformationBusy(false);setInformationSaving(false);ports.setBusy(false);ports.setVisible(false);
         finishDuty(undefined,capture);ports.navigate(returnUrl);return;
       }
@@ -205,20 +222,27 @@ export function useInformationController(ports: InformationControllerPorts) {
       informationUncertain.current = null; setInformationNeedsReload(false); informationRetry.current = null; setInformationRetryReady(false);
       informationLoadRequest.current++; setInformationLoading(false);
       setInformationCaptures(records); historyRequest.current++; setInformationHistory(null); setInformationHistoryBusy(false); setInformationHistoryNotice(''); run.stage = 'done'; informationRun.current = null;
+      clearInformationNavigation(run);
       setInformationBusy(false); setInformationSaving(false); ports.setBusy(false); ports.setVisible(false);
       setInformationNotice(`${INFORMATION_TYPES[run.category].title}: lokal gespeichert. Nur die sichtbare Quellseite, keine vollständige Historie.`);
       if(medicalRequest.current?.run===run)finishMedical(undefined,records.find(record=>record.id===run.nonce)!);
       if(featureRequest.current?.run===run)finishFeature(undefined,records.find(record=>record.id===run.nonce)!);
-      ports.navigate(run.sourceUrl);
+      ports.navigate(run.resultUrl);
     } catch {
       // A commit may precede readback/lease failure. Do not claim rollback or publish old-owner rows.
       if (informationRun.current === run) {
         const uncertain = !!informationUncertain.current;
+        const restoreTaskUrl = run.stage !== 'restore' && run.taskRestoreAuthorized ? run.taskRestoreUrl : null;
+        const taskRestoreFailed = run.category === 'tasks' && run.stage === 'restore';
         run.stage = 'cancelled'; informationRun.current = null;
+        clearInformationNavigation(run);
         if (informationTimer.current) clearTimeout(informationTimer.current);
         informationTimer.current = null; setInformationBusy(false); setInformationSaving(false); ports.setBusy(false);
         setInformationNeedsReload(uncertain); setInformationRetryReady(!uncertain);
-        setInformationNotice('Erfassung nicht bestätigt. ' + (uncertain ? 'Zuerst gespeicherte Informationen lokal neu laden, bevor erneut erfasst wird. Eine eventuell bereits gespeicherte Erfassung bleibt erhalten.' : (run.failureMessage ?? 'Quelle, Spalten oder Konto nicht unterstützt.') + ' Quelle und Anmeldung prüfen, dann ausdrücklich erneut versuchen. Gespeicherte Belege bleiben erhalten.'));
+        setInformationNotice(taskRestoreFailed
+          ? 'Erfassung nicht bestätigt. Der vorherige Aufgabenfilter konnte nicht bestätigt werden. Aufgabenfilter auf der Vereinsflieger-Seite prüfen. Gespeicherte Belege bleiben erhalten.'
+          : 'Erfassung nicht bestätigt. ' + (uncertain ? 'Zuerst gespeicherte Informationen lokal neu laden, bevor erneut erfasst wird. Eine eventuell bereits gespeicherte Erfassung bleibt erhalten.' : (run.failureMessage ?? 'Quelle, Spalten oder Konto nicht unterstützt.') + ' Quelle und Anmeldung prüfen, dann ausdrücklich erneut versuchen. Gespeicherte Belege bleiben erhalten.'));
+        if (restoreTaskUrl && ports.mounted() && ports.ownerCurrent()) ports.navigate(restoreTaskUrl);
         if(medicalRequest.current?.run===run)finishMedical(new Error('Medical capture was not verified.'));
         if(dutyRequest.current?.run===run)finishDuty(new Error('Duty capture was not verified.'));
         if(featureRequest.current?.run===run)finishFeature(new Error('Feature capture was not verified.'));
@@ -226,7 +250,7 @@ export function useInformationController(ports: InformationControllerPorts) {
     }
   }
   function nextInformationCategory() { if (!informationRun.current) { informationRetry.current = null; setInformationRetryReady(false); setInformationCategory(old => retrievableInformationCategories[(retrievableInformationCategories.indexOf(old) + 1) % retrievableInformationCategories.length]!); } }
-  useEffect(() => () => { informationLoadRequest.current++; informationRun.current?.cancel(); informationRun.current = null; finishMedical(new Error('Medical reader closed.')); finishFeature(new Error('Feature reader closed.')); finishDuty(new Error('Duty reader closed.')); if (informationTimer.current) clearTimeout(informationTimer.current); }, []);
+  useEffect(() => () => { informationLoadRequest.current++; informationRun.current?.cancel(); informationRun.current = null; clearInformationNavigation(); finishMedical(new Error('Medical reader closed.')); finishFeature(new Error('Feature reader closed.')); finishDuty(new Error('Duty reader closed.')); if (informationTimer.current) clearTimeout(informationTimer.current); }, []);
   function beginInitialLoad() {
     const request = ++informationLoadRequest.current; setInformationLoading(ports.product); return request;
   }
@@ -251,6 +275,7 @@ export function useInformationController(ports: InformationControllerPorts) {
     finishFeature(new Error('Feature owner changed.'));
     finishDuty(new Error('Duty owner changed.'));
     informationRun.current?.cancel(); informationRun.current = null;
+    clearInformationNavigation();
     if (informationTimer.current) clearTimeout(informationTimer.current);
     informationTimer.current = null; setInformationBusy(false); setInformationSaving(false);
     informationRetry.current = null; setInformationRetryReady(false); informationUncertain.current = null; setInformationNeedsReload(false);
@@ -274,7 +299,10 @@ export function useInformationController(ports: InformationControllerPorts) {
     // A previous same-URL load-end cannot advance a new request without its own load-start.
     if (run.stage !== 'selection' && (informationNavigation.current?.run !== run || informationNavigation.current.nonce !== run.messageNonce)) return true;
     run.observeNavigation(page);
-    ports.inject(run.stage === 'selection' ? informationSelectionScript(run.messageNonce) : run.stage === 'read' ? informationScript(run.category, run.messageNonce) : contextScript(run.messageNonce));
+    ports.inject(run.stage === 'selection'
+      ? run.category === 'tasks' ? taskSelectionScript(run.messageNonce, 'probe') : informationSelectionScript(run.messageNonce)
+      : run.stage === 'restore' ? taskSelectionScript(run.messageNonce, 'restore')
+      : run.stage === 'read' ? informationScript(run.category, run.messageNonce) : contextScript(run.messageNonce));
     return true;
   }
   function loadStarted(url: string) {
@@ -285,6 +313,9 @@ export function useInformationController(ports: InformationControllerPorts) {
   function pageFailed(url?: string, recordProfileFailure = false): boolean {
     const run = informationRun.current;
     if (!run) return false;
+    if (run.category === 'tasks' && run.stage === 'restore') {
+      stopInformation('Der vorherige Aufgabenfilter konnte nicht bestätigt werden. Aufgabenfilter auf der Vereinsflieger-Seite prüfen. Gespeicherte Belege bleiben erhalten.'); return true;
+    }
     if (recordProfileFailure && url === PROFILE_URL && ports.currentUrl() === PROFILE_URL && informationRetry.current && ['before', 'after'].includes(run.stage))
       informationFailedProfile.current = { target: informationRetry.current, epoch: ports.epoch() };
     stopInformation('Informationsquelle nicht verfügbar. Gespeicherte Belege bleiben erhalten.', true); return true;

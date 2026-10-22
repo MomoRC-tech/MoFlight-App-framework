@@ -1,7 +1,7 @@
 export type MedicalJobStatus='updated'|'empty'|'failed'|'skipped';
 export type DutyJobStatus='partial'|'failed'|'skipped';
 export type FeatureJobStatus='partial'|'failed'|'skipped';
-export interface OtherAccountDataResult { medical:MedicalJobStatus; duties?:DutyJobStatus; events?:FeatureJobStatus; documentNotices?:FeatureJobStatus }
+export interface OtherAccountDataResult { medical:MedicalJobStatus; duties?:DutyJobStatus; events?:FeatureJobStatus; documentNotices?:FeatureJobStatus; workSummary?:FeatureJobStatus; workHours?:FeatureJobStatus; tasks?:FeatureJobStatus }
 
 /** Independent optional source jobs. A failure never reruns the flight job. */
 export async function retrieveOtherAccountData(ports:{
@@ -9,6 +9,9 @@ export async function retrieveOtherAccountData(ports:{
   duties?:()=>Promise<{rows:readonly unknown[];partial:true}>;
   events?:()=>Promise<{rows:readonly unknown[]}>;
   documentNotices?:()=>Promise<{rows:readonly unknown[]}>;
+  workSummary?:()=>Promise<{rows:readonly unknown[]}>;
+  workHours?:()=>Promise<{rows:readonly unknown[]}>;
+  tasks?:()=>Promise<{rows:readonly unknown[]}>;
   active:()=>boolean;
 }):Promise<OtherAccountDataResult> {
   const result:OtherAccountDataResult={medical:'skipped'};
@@ -16,7 +19,7 @@ export async function retrieveOtherAccountData(ports:{
     const capture=await ports.medical();
     result.medical=ports.active()?(capture.rows.length?'updated':'empty'):'skipped';
   } catch { result.medical=ports.active()?'failed':'skipped'; }
-  for(const key of ['duties','events','documentNotices'] as const){
+  for(const key of ['duties','events','documentNotices','workSummary','workHours','tasks'] as const){
     const job=ports[key];if(!job)continue;
     result[key]='skipped';if(!ports.active())continue;
     try { await job();result[key]=ports.active()?'partial':'skipped'; }

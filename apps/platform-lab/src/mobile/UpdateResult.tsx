@@ -4,7 +4,8 @@ import type { FlightLoadResult } from './CoreFlightFoundation';
 import { Label, colors, ui } from './theme';
 
 export function updateSourceResults(result: FlightLoadResult) {
-  return ([['Medical', result.medicalStatus], ['Dienste', result.dutyStatus], ['Termine', result.eventsStatus], ['Dokumenthinweise', result.documentNoticesStatus]] as const)
+  return ([['Medical', result.medicalStatus], ['Dienste', result.dutyStatus], ['Termine', result.eventsStatus], ['Dokumenthinweise', result.documentNoticesStatus],
+    ['Arbeitsstunden · Jahresübersicht', result.workSummaryStatus], ['Erfasste Arbeitsstunden', result.workHoursStatus], ['Eigene Aufgaben', result.tasksStatus]] as const)
     .filter(([, status]) => status !== undefined)
     .map(([name, status]) => ({ name, incomplete: status === 'failed' || status === 'skipped',
       text: status === 'updated' ? 'aktualisiert' : status === 'partial' ? 'sichtbare Quelle gespeichert · teilweise geprüft' : status === 'empty' ? 'keine Angaben · Status unbekannt' : status === 'failed' ? 'Abruf fehlgeschlagen · bisherige Angaben erhalten' : 'nicht aktualisiert' }));

@@ -37,7 +37,7 @@ test('source review opens old partial notice evidence and returns to latest with
 });
 test('blank extracted text stays unknown while explicit zero remains visible', () => {
   const f = fixture();
-  const work = information.validateInformationCapture({ ...capture('work-hours', ''), path: '/member/profile/synthetic-hours', columns: [{ key: 'date', label: 'Datum', index: 0 }, { key: 'activity', label: 'Tätigkeit', index: 1 }, { key: 'hours', label: 'Stunden', index: 2 }, { key: 'status', label: 'Status', index: 3 }], rows: [{ position: 0, values: ['01.10.2026', 'Synthetic activity', '0.00', ''] }], filters: ['2026'] });
+  const work = information.validateInformationCapture({ ...capture('work-hours', ''), path: '/member/profile/workhours/list', columns: [{ key: 'date', label: 'Datum', index: 0 }, { key: 'activity', label: 'Tätigkeit', index: 1 }, { key: 'hours', label: 'Stunden', index: 2 }, { key: 'status', label: 'Status', index: 3 }], rows: [{ position: 0, values: ['01.10.2026', 'Synthetic activity', '0.00', ''] }], filters: ['2026'] });
   f.props.captures = [work]; f.props.onHistory = (category, index) => { f.props.history = { category, index, total: 1, capture: work }; };
   f.button('Ansehen: Arbeitsstunden · 1 Zeilen').props.onPress();
   assert.match(f.text(f.render()), /Kein unterstützter Textwert erfasst/); assert.match(f.text(f.render()), /Stunden: 0.00/);
