@@ -70,10 +70,10 @@ The native shell uses the platform default family; it does not configure Inter. 
 | Section heading | 15 / 20 | 600. |
 | Body / action label | 13 / 18 | Regular / 600 for actions. |
 | Profile name input | 16 / platform default | System-scaled editable text. |
-| Dashboard / summary value | 24 / 29 and 20 / 25 | 700 / 600. |
+| Dashboard / summary value | 28 / 36 and 20 / 25 | 700 / 600; KPI unit 16. |
 | Supporting text / tab label | Usually 11 / 16 | Secondary emphasis; preserve meaningful labels. |
 | Medical label / status | 12 / 16 and 11 / 15 | Med is 600; status quieter. |
-| Ring value / label | 15 / 19 and 9 / 12 | Native rings hide at enlarged text or when values cannot fit. |
+| Season KPI / unit | 28 / 36 and 16 | Count and known reported hours; stack at enlarged text. |
 
 Sources: theme, AppHeader, Dashboard, MobileApp, [ProfileSettings](../../../apps/platform-lab/src/mobile/ProfileSettings.tsx), MedicalStatus and [SeasonRing](../../../apps/platform-lab/src/mobile/SeasonRing.tsx). Icon-glyph font sizes describe artwork, not body hierarchy. The generated inventory lists literal typography declarations. Selected icon raster palettes are recorded separately in the [native asset manifest](../../../apps/platform-lab/assets/icons/duotone/manifest.json); body/text color tokens are unchanged.
 
@@ -90,7 +90,7 @@ Use the documented component context. Common implementation values include 8 dp 
 | Medical group | Minimum 72 × 48, radius 12; grows with text | Icon + Med above unbekannt. |
 | Field / composer | Profile radius 12, minimum height 48; provider radius 10; composer radius 20 | Context-specific forms. |
 | Tab / artwork | Tab minimum height 60; artwork 28 in soft tile 36 / radius 12; label 11 | Five equal destinations. |
-| Ring | Diameter 62; thickness 6 | Aircraft distribution. |
+| Season KPI | Raised panels, radius 12, padding 10; gap 10 | Count and known time; Start rings superseded. |
 
 Smaller faces, such as the 42 dp send face, 40 dp search input and 36 dp paper CTA face, do not independently prove adequate effective touch regions. [Known gaps](history.md) require actual hit-region review when affected controls change.
 
@@ -110,7 +110,7 @@ Generated ratios use standard sRGB relative luminance on fully opaque pairs. The
 
 ## Branding and photography
 
-Preserve the [approved Thermik artwork](../../assets/branding/README.md). The native header uses the unchanged dark square logo at 52 × 52 with original aspect ratio. The approved square AI icon now supplies the [platform launcher exports](../../../apps/platform-lab/assets/branding/launcher/README.md): opaque iOS/legacy artwork, a padded white adaptive/themed silhouette and teal background. Source originals are unchanged. [Package evidence and platform limits](../../verification/2026-10-18-launcher-icon.md) distinguish configuration, generated assets and installed Release acceptance.
+Preserve the [approved Thermik artwork](../../assets/branding/README.md). The native header uses the unchanged dark square logo at 40 × 40 with original aspect ratio. The approved square AI icon now supplies the [platform launcher exports](../../../apps/platform-lab/assets/branding/launcher/README.md): opaque iOS/legacy artwork, a padded white adaptive/themed silhouette and teal background. Source originals are unchanged. [Package evidence and platform limits](../../verification/2026-10-18-launcher-icon.md) distinguish configuration, generated assets and installed Release acceptance.
 
 Use the existing [aviation photographs/credits](../../../apps/platform-lab/assets/aviation/README.md). Preserve source/author/license links and explain cropping/dark overlays. Native scenes differ from exact reference photography; document this rather than extracting screenshot pixels. Photos are decorative, not weather/club/location evidence.
 

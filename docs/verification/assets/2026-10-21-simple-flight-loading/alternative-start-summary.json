@@ -1,0 +1,172 @@
+{
+  "source_commit": "15412e2baacdf3911d163cd8a0b7f37777e0283d",
+  "apk_sha256": "82b5e89726e8eb0b102bfd4040ce74072d2105cd860dafc21ec6d412880b2a74",
+  "host": {
+    "full_check_source": "3950ee1",
+    "mobile_tests": 750,
+    "python_tests": 110,
+    "types": true,
+    "lint": true,
+    "fixtures": true,
+    "android_ios_exports": true,
+    "final_scale_label_source": "15412e2baacdf3911d163cd8a0b7f37777e0283d",
+    "final_focused_tests": 13,
+    "final_types_lint_exports": true
+  },
+  "native": {
+    "status": "passed",
+    "android_api": 37,
+    "android_release": "17",
+    "layouts": [
+      {
+        "name": "main",
+        "widthDp": 390,
+        "heightDp": 900,
+        "densityDpi": 160,
+        "fontScale": 1,
+        "actualSize": "Physical size: 1080x1920\nOverride size: 390x900",
+        "actualDensity": "Physical density: 420\nOverride density: 160",
+        "actualFontScale": "1"
+      },
+      {
+        "name": "min",
+        "widthDp": 360,
+        "heightDp": 900,
+        "densityDpi": 160,
+        "fontScale": 1,
+        "actualSize": "Physical size: 1080x1920\nOverride size: 360x900",
+        "actualDensity": "Physical density: 420\nOverride density: 160",
+        "actualFontScale": "1"
+      },
+      {
+        "name": "large",
+        "widthDp": 360,
+        "heightDp": 900,
+        "densityDpi": 160,
+        "fontScale": 1.6,
+        "actualSize": "Physical size: 1080x1920\nOverride size: 360x900",
+        "actualDensity": "Physical density: 420\nOverride density: 160",
+        "actualFontScale": "1.6"
+      },
+      {
+        "name": "wide",
+        "widthDp": 800,
+        "heightDp": 600,
+        "densityDpi": 160,
+        "fontScale": 1,
+        "actualSize": "Physical size: 1080x1920\nOverride size: 800x600",
+        "actualDensity": "Physical density: 420\nOverride density: 160",
+        "actualFontScale": "1.0"
+      }
+    ],
+    "checks": [
+      "offline-existing-provider-library-saved-count-preserved",
+      "main-all-flights-navigation",
+      "main-KPI-recent-chart-switch-and-month-bounds",
+      "min-all-flights-navigation",
+      "min-KPI-recent-chart-switch-and-month-bounds",
+      "large-all-flights-navigation",
+      "large-KPI-recent-chart-switch-and-month-bounds",
+      "wide-all-flights-navigation",
+      "wide-KPI-recent-chart-switch-and-month-bounds",
+      "offline-final-process-restart-retains-saved-count"
+    ],
+    "saved_count_preserved": true,
+    "settings_and_original_apk_restored": true,
+    "owned_emulator_stopped": true,
+    "cleanup_errors": [],
+    "provider_requests": 0,
+    "flight_or_selection_write_actions": 0,
+    "visually_reviewed_private_images": [
+      "main-kpis-header-private.png",
+      "main-chart-hours-private.png",
+      "min-kpis-header-private.png",
+      "min-chart-count-private.png",
+      "large-kpis-header-private.png",
+      "large-recent-flights-private.png",
+      "large-chart-count-private.png",
+      "large-chart-hours-private.png",
+      "wide-kpis-header-private.png",
+      "wide-chart-count-private.png"
+    ],
+    "private_images_published": false,
+    "source_commit": "3950ee1c3dcdcc24679148ee9c1df8d84940f717",
+    "apk_sha256": "09c29fc50f7c46600e51b99d7d13676bd433e52f93a24c514e7f028d19cf888a"
+  },
+  "lower_chart_image_followup": {
+    "source_commit": "4b7e8b857edeb383047c7b181dedcc2f5062d69f",
+    "layouts": [
+      {
+        "name": "large",
+        "widthDp": 360,
+        "heightDp": 900,
+        "densityDpi": 160,
+        "fontScale": 1.6,
+        "actualSize": "Physical size: 1080x1920\nOverride size: 360x900",
+        "actualDensity": "Physical density: 420\nOverride density: 160",
+        "actualFontScale": "1.6"
+      },
+      {
+        "name": "wide",
+        "widthDp": 800,
+        "heightDp": 600,
+        "densityDpi": 160,
+        "fontScale": 1,
+        "actualSize": "Physical size: 1080x1920\nOverride size: 800x600",
+        "actualDensity": "Physical density: 420\nOverride density: 160",
+        "actualFontScale": "1.0"
+      }
+    ],
+    "checks": [
+      "offline-source-started",
+      "large-twelve-complete-visible-month-rectangles-count-hours",
+      "wide-twelve-complete-visible-month-rectangles-count-hours",
+      "offline-final-restart-retains-season-view"
+    ],
+    "settings_and_original_apk_restored": true,
+    "owned_emulator_stopped": true,
+    "cleanup_errors": [],
+    "visually_reviewed_private_images": [
+      "large-visible-count-labels-private.png",
+      "large-visible-hours-labels-private.png",
+      "wide-visible-count-labels-private.png",
+      "wide-visible-hours-labels-private.png"
+    ],
+    "private_images_published": false,
+    "earlier_capture_limitation": "Earlier captures did not show the lower chart; Android retained offscreen month nodes with inverted/clipped bounds. Final follow-up requires all twelve complete month rectangles within the observed scroll viewport, then image review. Saved-count evidence is reused from the same-source primary run."
+  },
+  "limits": [
+    "No physical-phone, spoken accessibility or iOS runtime acceptance",
+    "Preservation checks compare saved count and APK/display/radios; no new full canonical-graph equality or live session revalidation claim",
+    "Unknown/empty/account-transition behavior retains synthetic host-test provenance"
+  ],
+  "final_scale_repaint_regression": {
+    "source_commit": "15412e2baacdf3911d163cd8a0b7f37777e0283d",
+    "apk_sha256": "82b5e89726e8eb0b102bfd4040ce74072d2105cd860dafc21ec6d412880b2a74",
+    "layouts": [
+      {
+        "name": "large",
+        "widthDp": 360,
+        "heightDp": 900,
+        "densityDpi": 160,
+        "fontScale": 1.6,
+        "actualSize": "Physical size: 1080x1920\nOverride size: 360x900",
+        "actualDensity": "Physical density: 420\nOverride density: 160",
+        "actualFontScale": "1.6"
+      }
+    ],
+    "checks": [
+      "offline-source-started",
+      "large-twelve-complete-visible-month-rectangles-count-hours",
+      "offline-final-restart-retains-season-view"
+    ],
+    "settings_and_original_apk_restored": true,
+    "owned_emulator_stopped": true,
+    "cleanup_errors": [],
+    "visually_reviewed_private_images": [
+      "large-visible-count-labels-private.png",
+      "large-visible-hours-labels-private.png"
+    ],
+    "private_images_published": false
+  }
+}

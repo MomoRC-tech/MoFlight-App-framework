@@ -4,7 +4,7 @@
 
 This is MoFlight's **default symbol family**, approved by Manuel on 18 October 2026: cyan/slate duotone silhouettes, rounded terminals and soft translucent tiles. **M2 Medical card** and the **supplied folded paper plane** are the Medical and Flüge symbols. The app uses this family throughout navigation, headers, dashboard, club and actions. [Default/removal authorization](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/20#issuecomment-6250110588).
 
-Previous aircraft assets, unselected proposals and comparison pages have been removed. The active catalogue contains 47 current entries; retired IDs X01–X03 and B04 are not reused. Approved Thermik branding, text/status notation, native busy indicators and dynamic rings retain their identity.
+Previous aircraft assets, unselected proposals and comparison pages have been removed. The active catalogue contains 47 current entries; retired IDs X01–X03 and B04 are not reused. Approved Thermik branding, text/status notation and native busy indicators retain their identity. D07/D08 now describe season KPIs under the selected 22 October Start alternative; no new artwork is needed.
 
 ## Family and use
 

@@ -1,4 +1,7 @@
 <p align="center">
+
+**Alternative Start layout — 22 October 2026:** application `3950ee1`, final scale-label correction `15412e2`, replaces season rings with count/known-time KPIs, compacts aircraft/recent flights, adds Alle anzeigen into Flüge and fits the month chart with enlarged-text reflow. Full host checks pass 750 mobile/110 Python; final label checks pass 13 focused tests/types/lint/exports and committed-source Android Release. Populated MIN/MAIN/WIDE/enlarged-text checks retain source-specific evidence. [APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/lab-2026-10-22-alternative-start/MoFlight-Android-alternative-start.zip); [verification and limits](docs/verification/2026-10-21-simple-flight-loading.md#alternative-start-layout--22-october-2026).
+
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/assets/branding/moflight-ai-logo-dark.png">
     <img src="docs/assets/branding/moflight-ai-logo-light.png" alt="MoFlight AI — a glider in a thermal curve with AI sparkles" width="240" height="240">

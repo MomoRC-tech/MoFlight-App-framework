@@ -6,6 +6,7 @@
 
 | Date / owner | Scope / status | Implementation / evidence |
 | --- | --- | --- |
+| 22 Oct 2026 / Manuel | Selected alternative Start: KPIs replace rings, compact flights/aircraft, Alle anzeigen into Flüge, responsive month chart/lower legend, smaller header logo | [Selection](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/20#issuecomment-6340199647); [verification and limits](../../verification/2026-10-21-simple-flight-loading.md#alternative-start-layout--22-october-2026). Supersedes scoped ring/layout values only. |
 | 13 Oct 2026 / Manuel | Approved Thermik dark/light logos and icon artwork | Dark header logo implemented; the later #25 package integrates the approved square AI icon. [Brand record](../../assets/branding/README.md). |
 | 16 Oct 2026 / Manuel | Approved four-screen composition and reference fidelity | Native UI exists with documented photo/data-state differences. [Scope](../2026-10-16-four-screen-implementation.md), [refinement](../2026-10-16-ui-fidelity-refinement.md), [evidence](../../verification/2026-10-16-ui-fidelity-width-matrix.md). |
 | 17 Oct 2026 / Manuel | Approved five tabs, compact header/profile, aircraft and aircraft-share rings | [Shell report](../../verification/2026-10-17-native-shell-corrections.md) records Android checks and remaining iOS/physical limits. |
