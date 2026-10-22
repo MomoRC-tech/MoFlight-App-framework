@@ -262,7 +262,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](..
 
 ## DataUpdateIndicator.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DataUpdateIndicator.tsx](../../../apps/platform-lab/src/mobile/DataUpdateIndicator.tsx); normalized SHA-256 `282790dacc1d64f8d1847aac16e87567fff6597698a663ae3dcdb4cbdb1e981a`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DataUpdateIndicator.tsx](../../../apps/platform-lab/src/mobile/DataUpdateIndicator.tsx); normalized SHA-256 `50ef13cd42492c7cb2780f42fe6b62ac3188c60d5365fb874f651ce84fa8b5fb`.
 
 ### Literal colors
 
@@ -275,22 +275,21 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DataUpdateIndicat
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 12` | 27, 28 |
-| `fontWeight: '600'` | 27 |
-| `lineHeight: 17` | 27, 28 |
+| `fontSize: 12` | 28, 29 |
+| `fontWeight: '600'` | 28 |
+| `lineHeight: 17` | 28, 29 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 14` | 24 |
-| `borderWidth: 1` | 25 |
-| `gap: 3` | 26 |
-| `minHeight: 48` | 24 |
-| `minWidth: 74` | 24 |
+| `borderRadius: 14` | 25 |
+| `gap: 4` | 27 |
+| `minHeight: 48` | 25 |
+| `minWidth: 74` | 25 |
 | `opacity: .5` | 16 |
-| `paddingHorizontal: 12` | 24 |
-| `paddingVertical: 6` | 24 |
+| `paddingHorizontal: 10` | 25 |
+| `paddingVertical: 2` | 25 |
 
 ## DesignPreview.tsx
 
@@ -360,17 +359,17 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DutyRoster.tsx](.
 
 ## FlightScene.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/FlightScene.tsx](../../../apps/platform-lab/src/mobile/FlightScene.tsx); normalized SHA-256 `8b3f3ed4ccb9900549933ff2139ab34f3423a0627cb6605da4957c78192ce453`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/FlightScene.tsx](../../../apps/platform-lab/src/mobile/FlightScene.tsx); normalized SHA-256 `0e1a9553495c891c610ebf239bc84c828407520ddbdc94745bd006a2498eafce`.
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `height: '100%'` | 16 |
-| `height: 44` | 15 |
-| `opacity: .85` | 14 |
-| `width: '100%'` | 16 |
-| `width: 88` | 15 |
+| `height: '100%'` | 20, 22 |
+| `height: 44` | 21 |
+| `height: 80` | 19 |
+| `width: '100%'` | 22 |
+| `width: 88` | 21 |
 
 ## ImportPreview.tsx
 
@@ -416,7 +415,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/LibraryBackup.tsx
 
 ## MedicalStatus.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MedicalStatus.tsx](../../../apps/platform-lab/src/mobile/MedicalStatus.tsx); normalized SHA-256 `ae1c66566e2cd6dc88e056561a946dec74e6881e0e363df4a9481cbd065d28a9`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MedicalStatus.tsx](../../../apps/platform-lab/src/mobile/MedicalStatus.tsx); normalized SHA-256 `12641f8dac20dd54c1a3962273fd6b52ba005368701ea0c56715c5c9c4a27865`.
 
 ### Literal colors
 
@@ -431,22 +430,20 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MedicalStatus.tsx
 | --- | --- |
 | `fontSize: 12` | 52, 53 |
 | `fontWeight: '600'` | 29, 52 |
-| `lineHeight: 16` | 52 |
-| `lineHeight: 17` | 53 |
+| `lineHeight: 17` | 52, 53 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 50 |
-| `gap: 3` | 51 |
-| `gap: 4` | 39 |
+| `borderRadius: 14` | 50 |
+| `gap: 4` | 39, 51 |
 | `maxWidth: 480` | 54 |
 | `minHeight: 48` | 50 |
 | `minWidth: 72` | 50 |
 | `opacity: .5` | 19 |
-| `paddingHorizontal: 12` | 50 |
-| `paddingVertical: 6` | 50 |
+| `paddingHorizontal: 10` | 50 |
+| `paddingVertical: 2` | 50 |
 | `width: '100%'` | 54 |
 
 ## MobileApp.tsx

@@ -65,9 +65,9 @@
 <h3 id="chapter-alternative-ui-review-and-design-response">Review and design response</h3>
 <p>The baseline makes too many elements equally prominent: tiny header title beside three status controls, gradient cards around every group, dense flight metadata before results, and charts mixed with everyday tasks. The alternative establishes a reading order: destination → essential actions → flight information → optional detail.</p>
 <ul>
-<li><strong>Foundation:</strong> matte navy canvas <i class="swatch" style="background:#0b141c" aria-hidden="true"></i><code>#0b141c</code>, opaque panels <i class="swatch" style="background:#14232f" aria-hidden="true"></i><code>#14232f</code>, raised controls <i class="swatch" style="background:#1d3242" aria-hidden="true"></i><code>#1d3242</code>, high-contrast off-white text, muted blue-grey labels and mint action color <i class="swatch" style="background:#76dfc6" aria-hidden="true"></i><code>#76dfc6</code>. Preserve the selected duotone art and Thermik logo. No external fonts or image generation.</li>
+<li><strong>Foundation:</strong> matte navy canvas <i class="swatch" style="background:#0b141c" aria-hidden="true"></i><code>#0b141c</code>, opaque panels <i class="swatch" style="background:#14232f" aria-hidden="true"></i><code>#14232f</code>, raised controls <i class="swatch" style="background:#1d3242" aria-hidden="true"></i><code>#1d3242</code>, high-contrast off-white text, muted blue-grey labels and mint action color <i class="swatch" style="background:#76dfc6" aria-hidden="true"></i><code>#76dfc6</code>. Preserve the selected duotone art and Thermik logo. No external fonts. The later ASK-21 header refinement uses an original generated raster scene; icon/logo assets stay unchanged.</li>
 <li><strong>Typography and spacing:</strong> 15/22 body, 19/26 section headings, 28/34 header title and 18/24 ring-adjacent season values. Shared cards use 18-unit padding and 22-unit corners; the dense season card uses 14-unit padding. Page spacing is 18. Primary actions are at least 52 units, labelled icon targets at least 48. Text follows system scaling.</li>
-<li><strong>Header (C05/C06):</strong> decorative flight-scene artwork over navy, 46-unit unchanged Thermik logo, destination title and labelled Data/Medical/Profile controls. Phones place controls below the destination; wide layouts share one row and enlarged text wraps. Header-only update/login admission remains unchanged.</li>
+<li><strong>Header (C05/C06):</strong> realistic ASK-21-like soaring scene with restrained relative-airflow illustration over navy, 46-unit unchanged Thermik logo, destination title and labelled Data/Medical/Profile controls. All three controls use the existing 28-unit duotone symbols and card surface/radius14; status color belongs to the age/date caption, not a frame. Phones place controls below the destination; wide layouts share one row and enlarged text wraps. Keep the header no taller than the preceding APK at matching viewport/font settings. Header-only update/login admission remains unchanged.</li>
 <li><strong>Start — revised after Manuel&#x27;s feedback:</strong> remove the permanent leading connection/reminder box. Meine Saison is the first content group, with a small flight illustration and one latest saved, dated flight integrated into the same card. Prioritize calendar date/relative age (for example −4 Tage or −2 Wochen), recorded PIC and aircraft. Do not infer PIC from another crew slot. Its row opens the exact saved flight; Alle Flüge ansehen opens the general list. Unknown dates/times and ambiguous same-day chronology remain explicit.</li>
 <li><strong>Season comparison:</strong> four compact aircraft-split rings: known reported time and starts for each of the current/prior calendar years. Aircraft colors stay stable across measures/years and have a shared registration legend. Empty/unknown time has no fabricated arc. Ring values sit beside the artwork so enlarged text can grow; the measure pair stacks at enlarged text. These are saved-year totals, not a claim of complete coverage or equal year-to-date periods.</li>
 <li><strong>Saison im Detail:</strong> opens directly onto one dense current/prior-year monthly chart with Flüge/Flugstunden chips, without a duplicate aircraft list. Jan–Dec always occupy one row; all twelve months fit visibly without horizontal scrolling, including enlarged text. Only the compact month/marker labels cap font scaling at 1; surrounding controls and captions still scale. Preserve year labels, unknown/partial markers, equal current-month cutoffs and blank future months. Expansion performs no provider work.</li>
@@ -77,7 +77,11 @@
 <li><strong>Responsive composition:</strong> bounded single groups through phone/tablet widths; at 840+ a two-column Start. Flight rows use two columns at 600+ with standard font scale. The month canvas remains a single row at every width; all twelve months fit visibly at enlarged text too, using compact axis labels. Both series retain year-labelled legends and unknown/partial markers.</li>
 </ul>
 <h3 id="chapter-alternative-ui-artwork-provenance-and-retained-data-behavior">Artwork provenance and retained-data behavior</h3>
-<p>The new <a href="flight-scene.svg">flight-scene.svg</a> is an original code-native decorative illustration created for this alternative, rasterized with CairoSVG to <a href="../../../apps/platform-lab/assets/aviation/flight-scene.png">flight-scene.png</a> and the compact <a href="../../../apps/platform-lab/assets/aviation/flight-scene-detail.png">flight-scene-detail.png</a>. <a href="../../../apps/platform-lab/src/mobile/FlightScene.tsx">FlightScene</a> renders the full header scene or 88 × 44 compact season art. No image model or external photograph was used for these assets. The illustration establishes no observed aircraft, location, weather or measured track. Original approved branding/reference images and licensed photographs remain preserved.</p>
+<p>The initial <a href="flight-scene.svg">flight-scene.svg</a>, <a href="../../../apps/platform-lab/assets/aviation/flight-scene.png">flight-scene.png</a> and compact <a href="../../../apps/platform-lab/assets/aviation/flight-scene-detail.png">flight-scene-detail.png</a> remain preserved. Manuel rejected the schematic permanent-header artwork and requested a more realistic ASK-21-like aircraft and airflow on 22 October. The replacement <a href="../../../apps/platform-lab/assets/aviation/ask21-flight-header-v2.png">ask21-flight-header-v2.png</a> is original built-in image-generation output, copied unchanged into the repository; no third-party photograph was copied. Its aircraft proportions were guided by <a href="https://www.alexander-schleicher.de/en/flugzeuge/ask-21/">Schleicher&#x27;s ASK21 reference</a> (two-seat canopy, mid-wing, double-taper wings and T-tail). It is an illustrative likeness, not a certified aircraft drawing or CFD result.</p>
+<p><a href="../../../apps/platform-lab/src/mobile/FlightScene.tsx">FlightScene</a> contains the full aircraft inside the existing header without participating in layout height. Phone artwork occupies the upper-right80-unit band; the shallow wide header places it in the gap before controls. The compact88×44 season artwork remains unchanged. The scene establishes no observed aircraft, location, weather or measured track. Original logo/reference images remain preserved.</p>
+<h4 id="chapter-alternative-ui-header-artwork-generation-prompt">Header artwork generation prompt</h4>
+<p>Built-in image tool, opaque background, original output2048×683; no API/CLI fallback or private image input. Final prompt:</p>
+<p>&gt; Use case: photorealistic-natural. Asset type: extremely wide, low-height banner background for a compact dark navy personal sailplane flight-log app header. Generate a new original, highly realistic aviation photograph/visualization, landscape aspect ratio 3:1, approximately 1536 x 512. No text, no logos, no frame, no UI. Scene: a white fiberglass Schleicher ASK-21-like two-seat training sailplane genuinely soaring in a gentle coordinated bank above hazy forested hills, seen from a nearby aircraft, slightly above and ahead of its left side. Accurate recognizable ASK-21 proportions: substantial rounded tandem two-seat nose, long clearly divided two-piece canopy, mid-mounted long straight double-tapered wings with blunt simple tips and NO winglets, slender rear fuselage, proper vertical fin with T-tail horizontal stabilizer. Small red-orange nose/wingtip safety accents. Not a generic extreme racing glider, not a jet, not a toy, no propeller, no steep aerobatics. Composition critical: place the complete aircraft exclusively in the RIGHT HALF of the wide image, wingspan about 40 percent of canvas width; fuselage diagonally nose toward lower-left, tail upper-right, wings foreshortened naturally. Aircraft must read at a very small UI size. Keep the LEFT 45 percent mostly clean, very dark navy #0b141c with a gentle atmospheric fade for a separate existing logo and screen title; keep bottom 25 percent dark and quiet for separate controls. Cool blue hour, realistic white fiberglass reflections and translucent smoky canopy, subtle terrain far below to establish a believable in-flight situation. Add just 4 to 6 fine semi-transparent cyan-white aerodynamic visualization streamlines following the SAME local relative-wind direction from ahead of nose past wings toward the tail and downstream; they should gently deflect around the aircraft and indicate a restrained downstream wingtip wake. Thin, elegant, physically coherent, no big random crossing swooshes, no neon ribbons, no contrails or smoke. These are illustrative airflow overlays, not literal visible wind or CFD evidence. Photographic realism with understated airflow graphics. Preserve quiet navy background and complete aircraft visibility.</p>
 <p>The shell retains Start and its processed selectors across ordinary tab navigation. Unchanged view inputs reuse summary/month calculations; returning to Start does not itself read the library. Duplicate native active notifications no longer trigger another read. Real background/foreground transitions and provider closure still perform guarded local revalidation; unavailable, changed-owner or failed reads do not publish cached data as verified. No persistent unscoped cache or generation-only shortcut was introduced. Host regressions cover these boundaries; they do not establish that the full user-reported reload symptom has been reproduced or eliminated on a device. Evidence and remaining gates belong in the <a href="../../verification/2026-10-22-alternative-ui.md">package report</a> and <a href="https://github.com/MomoRC-tech/MoFlight-App-framework/issues/45">#45</a>.</p>
 <h3 id="chapter-alternative-ui-synthetic-design-preview">Synthetic design preview</h3>
 <p>Profile → Development → Designvorschau opens the real Dashboard/OwnFlights components with eight fictional in-memory observations and a fixed 22 October 2026 clock. The Verein preview shows actual source cards with three fictional events and two document notices. Start-footer actions show empty and read-failure states; retry and the Flights preview tab restore the populated projection. No provider call, database mutation or account activation occurs. This is a repeatable visual aid, not native storage acceptance.</p>
@@ -174,8 +178,8 @@
 <tr><td>C02</td><td>Primary / secondary action</td><td>Mint or raised bordered face, radius 16, minimum height 52</td><td>Explicit action label; disabled opacity .5, pressed .72. theme Action.</td></tr>
 <tr><td>C03</td><td>Scope chip</td><td>Radius 14; face minimum 66 × 40 in a minimum-48-height target</td><td>Selected opaque mint fill; selected/disabled semantics. theme Chip.</td></tr>
 <tr><td>C04</td><td>Search / input</td><td>Ordinary flight search radius 16/minimum height 52; profile radius 12 and font 16; provider radius 10</td><td>Operate on named scope. MobileApp / ProfileSettings / ProviderConnection.</td></tr>
-<tr><td>C05</td><td>Shared header</td><td>Navy canvas with decorative flight scene, logo 46, title 28/34, controls 48; content minimum height 64 and padding 18 horizontal/10 vertical</td><td>Header can grow; minimum is not universal actual height. AppHeader.</td></tr>
-<tr><td>C06</td><td>Header data/status group</td><td>Data-update age control, growing Med, profile soft tile; gap 4</td><td>Refresh action shows saved received-age; provider session status stays in its panel. Back replaces logo on app overlays. AppHeader / DataUpdateIndicator / MedicalStatus / ShellIcons.</td></tr>
+<tr><td>C05</td><td>Shared header</td><td>Navy with realistic ASK-21-like decorative flight scene; logo46, title28/34; unchanged content minimum64 and padding18 horizontal/10 vertical</td><td>Preserve preceding header height at matching viewport/font; artwork is absolute and contained. AppHeader / FlightScene.</td></tr>
+<tr><td>C06</td><td>Header data/status group</td><td>Data/Medical/Profile all use existing28-unit Modern Duotone art, card surface/radius14, minimum48 targets; status captions retain semantic color</td><td>No colored control frame; compact vertical padding avoids extra header height. Refresh age and Medical date/unknown keep their separate meanings. Profile unchanged. AppHeader / DataUpdateIndicator / MedicalStatus.</td></tr>
 <tr><td>C07</td><td>Bottom navigation</td><td>Attached dark bar, five equal destinations, minimum target height 68; three-column wrapping below 600 dp with font scale above 1.3</td><td>Icon above full system-scaled German label; final two wrapping items center. Standard text/width retains one row; raised selected tile and bold mint label. MobileApp.</td></tr>
 <tr><td>C08</td><td>Update popup / app overlays</td><td>Bounded centered navy update frame, radius22, border1, dim scrim; one active dialog, retained native child tree</td><td>UpdateDialog frames setup/login/progress/results; underlying page is visible but inert. Other app sheets keep their existing layout. ProviderConnection retains its toolbar/history inside the popup.</td></tr>
 <tr><td>C09</td><td>Flight row</td><td>Padding 18, radius 20; date/reported duration, registration/model, route and detail chevron</td><td>Whole row opens selected-account saved source facts. Source reference/revision/original fields and absent-track context stay in details. Original fields use eight-field pages with concise Zurück / Weiter captions and full provider-field accessibility labels; first/last guards and contextual list return remain. <a href="../../../apps/platform-lab/src/mobile/OwnFlights.tsx">OwnFlights</a>; no inferred role or book assignment.</td></tr>
@@ -219,7 +223,7 @@
 <h3 id="chapter-components-earlier-main-branch-start-amendment---22-october-2026">Earlier main-branch Start amendment - 22 October 2026</h3>
 <p>Historical main-branch amendment, superseded on this branch by <a href="#chapter-alternative-ui">alternative UI</a>: the two recent read-only flights use radius 14 raised rows: date/start and duration, then aircraft/model and abbreviated pilot; known companion alone adds a line. Unknown companion remains available in flight details. Alle anzeigen opens the general Flüge view. The monthly chart fills its card with twelve equal columns, or two rows of six above font scale 1.3; year legend sits beneath. Measure chips retain 48 dp targets, units and month accessibility descriptions. The 40 dp header logo preserves status-control targets and enlarged-text reflow. This supersedes the earlier Start ring and horizontal-chart composition only. Native acceptance is recorded in the <a href="../../verification/2026-10-21-simple-flight-loading.md#alternative-start-layout--22-october-2026">existing report</a>.</p>
 <h4 id="chapter-components-header-data-update--selected-22-october-2026">Header data update — selected 22 October 2026</h4>
-<p>The ordinary header uses <a href="../../../apps/platform-lab/src/mobile/DataUpdateIndicator.tsx">DataUpdateIndicator</a>: existing Modern Duotone refresh artwork, visible “Daten” and compact relative age, minimum74×48dp target. The frame and text are green (<i class="swatch" style="background:#74dfba" aria-hidden="true"></i><code>#74dfba</code>) for a durably saved successful flight retrieval less than one hour old, amber (<i class="swatch" style="background:#ffc477" aria-hidden="true"></i><code>#ffc477</code>) from one hour onward, neutral for no valid saved timestamp. Exact time and the update/login-if-needed purpose are in the accessible label/hint; the update panel retains exact saved-time wording. Color is accompanied by age text. Failure/cancellation/login checks cannot advance this timestamp. The selected owner/account library supplies it after restart; the local clock updates the age and crosses the hour boundary without provider requests. A successful empty/no-change retrieval counts. Medical/duty outcomes retain their separate category times; this control does not claim all source categories are current. The three-day Start reminder is unchanged. This supersedes the shell&#x27;s former connection/session badge; the provider panel still uses its separate connection indicator and proof safeguards.</p>
+<p>The ordinary header uses <a href="../../../apps/platform-lab/src/mobile/DataUpdateIndicator.tsx">DataUpdateIndicator</a>: existing28-unit Modern Duotone refresh artwork, visible “Daten” and compact relative age, minimum74×48dp target. The later ASK-21 refinement matches the Profile card surface/radius14 and removes the colored frame; only the age caption is green (<i class="swatch" style="background:#74dfba" aria-hidden="true"></i><code>#74dfba</code>) for a durably saved successful flight retrieval less than one hour old, amber (<i class="swatch" style="background:#ffc477" aria-hidden="true"></i><code>#ffc477</code>) from one hour onward, neutral for no valid saved timestamp. Exact time and the update/login-if-needed purpose are in the accessible label/hint; the update panel retains exact saved-time wording. Color is accompanied by age text. Failure/cancellation/login checks cannot advance this timestamp. The selected owner/account library supplies it after restart; the local clock updates the age and crosses the hour boundary without provider requests. A successful empty/no-change retrieval counts. Medical/duty outcomes retain their separate category times; this control does not claim all source categories are current. The three-day Start reminder is unchanged. This supersedes the shell&#x27;s former connection/session badge; the provider panel still uses its separate connection indicator and proof safeguards.</p>
 <h4 id="chapter-components-header-only-update-popup--22-october-2026">Header-only update popup — 22 October 2026</h4>
 <p><a href="../../../apps/platform-lab/src/mobile/UpdateDialog.tsx">UpdateDialog</a> supplies a centered frame capped at720dp wide,420dp high for setup/progress/results and900dp high while the login is visible. It uses12dp outer margin below600dp and24dp at wider widths, safe-area bounds,22dp corners, slate border and deep navy scrim/surface. The original login website remains an external white surface inside this frame. Setup, progress, error/retry and completion stay in the same frame; visibility and resizing never replace its native child parent. The background route stays visible but cannot receive pointer/accessibility interaction. Outside taps do not bypass cancellation/write safeguards. The inner provider panel uses zero additional safe-area padding and its frame&#x27;s actual window offset when reserving space above Android IME; a system-resized frame is not shrunk twice. Only the header data action opens provider work; all other data summaries are read-only and point to it. Local reload and offline backup/restore remain available.</p></section>
 <section id="component-examples"><h2>Historical component and shape examples</h2><p>Historical baseline browser specimens, preserved for comparison with synthetic labels. Their gradients, dimensions, status captions and rings are not the current alternative branch target. Read the alternative contract and current component table for branch values. They execute no app action and establish no native/device acceptance.</p><div class="example-grid">
@@ -497,7 +501,7 @@
 <tr><td><code>width: 88</code></td><td>71</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-dataupdateindicatortsx">DataUpdateIndicator.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/DataUpdateIndicator.tsx">apps/platform-lab/src/mobile/DataUpdateIndicator.tsx</a>; normalized SHA-256 <code>282790dacc1d64f8d1847aac16e87567fff6597698a663ae3dcdb4cbdb1e981a</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/DataUpdateIndicator.tsx">apps/platform-lab/src/mobile/DataUpdateIndicator.tsx</a>; normalized SHA-256 <code>50ef13cd42492c7cb2780f42fe6b62ac3188c60d5365fb874f651ce84fa8b5fb</code>.</p>
 <h4 id="chapter-implementation-inventory-literal-colors-5">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><i class="swatch" style="background:#74dfba" aria-hidden="true"></i><code>#74dfba</code></td><td>12</td></tr>
@@ -505,20 +509,19 @@
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-typography-declarations-5">Typography declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>fontSize: 12</code></td><td>27, 28</td></tr>
-<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>27</td></tr>
-<tr><td><code>lineHeight: 17</code></td><td>27, 28</td></tr>
+<tr><td><code>fontSize: 12</code></td><td>28, 29</td></tr>
+<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>28</td></tr>
+<tr><td><code>lineHeight: 17</code></td><td>28, 29</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-geometry--opacity-declarations-9">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>borderRadius: 14</code></td><td>24</td></tr>
-<tr><td><code>borderWidth: 1</code></td><td>25</td></tr>
-<tr><td><code>gap: 3</code></td><td>26</td></tr>
-<tr><td><code>minHeight: 48</code></td><td>24</td></tr>
-<tr><td><code>minWidth: 74</code></td><td>24</td></tr>
+<tr><td><code>borderRadius: 14</code></td><td>25</td></tr>
+<tr><td><code>gap: 4</code></td><td>27</td></tr>
+<tr><td><code>minHeight: 48</code></td><td>25</td></tr>
+<tr><td><code>minWidth: 74</code></td><td>25</td></tr>
 <tr><td><code>opacity: .5</code></td><td>16</td></tr>
-<tr><td><code>paddingHorizontal: 12</code></td><td>24</td></tr>
-<tr><td><code>paddingVertical: 6</code></td><td>24</td></tr>
+<tr><td><code>paddingHorizontal: 10</code></td><td>25</td></tr>
+<tr><td><code>paddingVertical: 2</code></td><td>25</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-designpreviewtsx">DesignPreview.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/DesignPreview.tsx">apps/platform-lab/src/mobile/DesignPreview.tsx</a>; normalized SHA-256 <code>b4984ef01fbbd8a5d36fe1fd65e3a360cf37f4ca954e0b88e1982c6a805cdc71</code>.</p>
@@ -569,14 +572,14 @@
 <tr><td><code>width: &#x27;100%&#x27;</code></td><td>18</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-flightscenetsx">FlightScene.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/FlightScene.tsx">apps/platform-lab/src/mobile/FlightScene.tsx</a>; normalized SHA-256 <code>8b3f3ed4ccb9900549933ff2139ab34f3423a0627cb6605da4957c78192ce453</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/FlightScene.tsx">apps/platform-lab/src/mobile/FlightScene.tsx</a>; normalized SHA-256 <code>0e1a9553495c891c610ebf239bc84c828407520ddbdc94745bd006a2498eafce</code>.</p>
 <h4 id="chapter-implementation-inventory-geometry--opacity-declarations-14">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>height: &#x27;100%&#x27;</code></td><td>16</td></tr>
-<tr><td><code>height: 44</code></td><td>15</td></tr>
-<tr><td><code>opacity: .85</code></td><td>14</td></tr>
-<tr><td><code>width: &#x27;100%&#x27;</code></td><td>16</td></tr>
-<tr><td><code>width: 88</code></td><td>15</td></tr>
+<tr><td><code>height: &#x27;100%&#x27;</code></td><td>20, 22</td></tr>
+<tr><td><code>height: 44</code></td><td>21</td></tr>
+<tr><td><code>height: 80</code></td><td>19</td></tr>
+<tr><td><code>width: &#x27;100%&#x27;</code></td><td>22</td></tr>
+<tr><td><code>width: 88</code></td><td>21</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-importpreviewtsx">ImportPreview.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/ImportPreview.tsx">apps/platform-lab/src/mobile/ImportPreview.tsx</a>; normalized SHA-256 <code>00afa3c7529703b757c8dda6c2cc79fe84550708af1e1d4449ccfd490d05ad81</code>.</p>
@@ -607,7 +610,7 @@
 <tr><td><code>width: &#x27;100%&#x27;</code></td><td>42</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-medicalstatustsx">MedicalStatus.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/MedicalStatus.tsx">apps/platform-lab/src/mobile/MedicalStatus.tsx</a>; normalized SHA-256 <code>ae1c66566e2cd6dc88e056561a946dec74e6881e0e363df4a9481cbd065d28a9</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/MedicalStatus.tsx">apps/platform-lab/src/mobile/MedicalStatus.tsx</a>; normalized SHA-256 <code>12641f8dac20dd54c1a3962273fd6b52ba005368701ea0c56715c5c9c4a27865</code>.</p>
 <h4 id="chapter-implementation-inventory-literal-colors-6">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><i class="swatch" style="background:#f9b65b" aria-hidden="true"></i><code>#f9b65b</code></td><td>10, 33</td></tr>
@@ -617,20 +620,18 @@
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>fontSize: 12</code></td><td>52, 53</td></tr>
 <tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>29, 52</td></tr>
-<tr><td><code>lineHeight: 16</code></td><td>52</td></tr>
-<tr><td><code>lineHeight: 17</code></td><td>53</td></tr>
+<tr><td><code>lineHeight: 17</code></td><td>52, 53</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-geometry--opacity-declarations-18">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>borderRadius: 12</code></td><td>50</td></tr>
-<tr><td><code>gap: 3</code></td><td>51</td></tr>
-<tr><td><code>gap: 4</code></td><td>39</td></tr>
+<tr><td><code>borderRadius: 14</code></td><td>50</td></tr>
+<tr><td><code>gap: 4</code></td><td>39, 51</td></tr>
 <tr><td><code>maxWidth: 480</code></td><td>54</td></tr>
 <tr><td><code>minHeight: 48</code></td><td>50</td></tr>
 <tr><td><code>minWidth: 72</code></td><td>50</td></tr>
 <tr><td><code>opacity: .5</code></td><td>19</td></tr>
-<tr><td><code>paddingHorizontal: 12</code></td><td>50</td></tr>
-<tr><td><code>paddingVertical: 6</code></td><td>50</td></tr>
+<tr><td><code>paddingHorizontal: 10</code></td><td>50</td></tr>
+<tr><td><code>paddingVertical: 2</code></td><td>50</td></tr>
 <tr><td><code>width: &#x27;100%&#x27;</code></td><td>54</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-mobileapptsx">MobileApp.tsx</h3>
@@ -1570,9 +1571,9 @@ Manuel authorized an alternative native implementation and verification. Choosin
 
 The baseline makes too many elements equally prominent: tiny header title beside three status controls, gradient cards around every group, dense flight metadata before results, and charts mixed with everyday tasks. The alternative establishes a reading order: destination → essential actions → flight information → optional detail.
 
-- **Foundation:** matte navy canvas `#0b141c`, opaque panels `#14232f`, raised controls `#1d3242`, high-contrast off-white text, muted blue-grey labels and mint action color `#76dfc6`. Preserve the selected duotone art and Thermik logo. No external fonts or image generation.
+- **Foundation:** matte navy canvas `#0b141c`, opaque panels `#14232f`, raised controls `#1d3242`, high-contrast off-white text, muted blue-grey labels and mint action color `#76dfc6`. Preserve the selected duotone art and Thermik logo. No external fonts. The later ASK-21 header refinement uses an original generated raster scene; icon/logo assets stay unchanged.
 - **Typography and spacing:** 15/22 body, 19/26 section headings, 28/34 header title and 18/24 ring-adjacent season values. Shared cards use 18-unit padding and 22-unit corners; the dense season card uses 14-unit padding. Page spacing is 18. Primary actions are at least 52 units, labelled icon targets at least 48. Text follows system scaling.
-- **Header (C05/C06):** decorative flight-scene artwork over navy, 46-unit unchanged Thermik logo, destination title and labelled Data/Medical/Profile controls. Phones place controls below the destination; wide layouts share one row and enlarged text wraps. Header-only update/login admission remains unchanged.
+- **Header (C05/C06):** realistic ASK-21-like soaring scene with restrained relative-airflow illustration over navy, 46-unit unchanged Thermik logo, destination title and labelled Data/Medical/Profile controls. All three controls use the existing 28-unit duotone symbols and card surface/radius14; status color belongs to the age/date caption, not a frame. Phones place controls below the destination; wide layouts share one row and enlarged text wraps. Keep the header no taller than the preceding APK at matching viewport/font settings. Header-only update/login admission remains unchanged.
 - **Start — revised after Manuel&#x27;s feedback:** remove the permanent leading connection/reminder box. Meine Saison is the first content group, with a small flight illustration and one latest saved, dated flight integrated into the same card. Prioritize calendar date/relative age (for example −4 Tage or −2 Wochen), recorded PIC and aircraft. Do not infer PIC from another crew slot. Its row opens the exact saved flight; Alle Flüge ansehen opens the general list. Unknown dates/times and ambiguous same-day chronology remain explicit.
 - **Season comparison:** four compact aircraft-split rings: known reported time and starts for each of the current/prior calendar years. Aircraft colors stay stable across measures/years and have a shared registration legend. Empty/unknown time has no fabricated arc. Ring values sit beside the artwork so enlarged text can grow; the measure pair stacks at enlarged text. These are saved-year totals, not a claim of complete coverage or equal year-to-date periods.
 - **Saison im Detail:** opens directly onto one dense current/prior-year monthly chart with Flüge/Flugstunden chips, without a duplicate aircraft list. Jan–Dec always occupy one row; all twelve months fit visibly without horizontal scrolling, including enlarged text. Only the compact month/marker labels cap font scaling at 1; surrounding controls and captions still scale. Preserve year labels, unknown/partial markers, equal current-month cutoffs and blank future months. Expansion performs no provider work.
@@ -1583,7 +1584,15 @@ The baseline makes too many elements equally prominent: tiny header title beside
 
 ## Artwork provenance and retained-data behavior
 
-The new [flight-scene.svg](flight-scene.svg) is an original code-native decorative illustration created for this alternative, rasterized with CairoSVG to [flight-scene.png](../../../apps/platform-lab/assets/aviation/flight-scene.png) and the compact [flight-scene-detail.png](../../../apps/platform-lab/assets/aviation/flight-scene-detail.png). [FlightScene](../../../apps/platform-lab/src/mobile/FlightScene.tsx) renders the full header scene or 88 × 44 compact season art. No image model or external photograph was used for these assets. The illustration establishes no observed aircraft, location, weather or measured track. Original approved branding/reference images and licensed photographs remain preserved.
+The initial [flight-scene.svg](flight-scene.svg), [flight-scene.png](../../../apps/platform-lab/assets/aviation/flight-scene.png) and compact [flight-scene-detail.png](../../../apps/platform-lab/assets/aviation/flight-scene-detail.png) remain preserved. Manuel rejected the schematic permanent-header artwork and requested a more realistic ASK-21-like aircraft and airflow on 22 October. The replacement [ask21-flight-header-v2.png](../../../apps/platform-lab/assets/aviation/ask21-flight-header-v2.png) is original built-in image-generation output, copied unchanged into the repository; no third-party photograph was copied. Its aircraft proportions were guided by [Schleicher&#x27;s ASK21 reference](https://www.alexander-schleicher.de/en/flugzeuge/ask-21/) (two-seat canopy, mid-wing, double-taper wings and T-tail). It is an illustrative likeness, not a certified aircraft drawing or CFD result.
+
+[FlightScene](../../../apps/platform-lab/src/mobile/FlightScene.tsx) contains the full aircraft inside the existing header without participating in layout height. Phone artwork occupies the upper-right80-unit band; the shallow wide header places it in the gap before controls. The compact88×44 season artwork remains unchanged. The scene establishes no observed aircraft, location, weather or measured track. Original logo/reference images remain preserved.
+
+### Header artwork generation prompt
+
+Built-in image tool, opaque background, original output2048×683; no API/CLI fallback or private image input. Final prompt:
+
+&gt; Use case: photorealistic-natural. Asset type: extremely wide, low-height banner background for a compact dark navy personal sailplane flight-log app header. Generate a new original, highly realistic aviation photograph/visualization, landscape aspect ratio 3:1, approximately 1536 x 512. No text, no logos, no frame, no UI. Scene: a white fiberglass Schleicher ASK-21-like two-seat training sailplane genuinely soaring in a gentle coordinated bank above hazy forested hills, seen from a nearby aircraft, slightly above and ahead of its left side. Accurate recognizable ASK-21 proportions: substantial rounded tandem two-seat nose, long clearly divided two-piece canopy, mid-mounted long straight double-tapered wings with blunt simple tips and NO winglets, slender rear fuselage, proper vertical fin with T-tail horizontal stabilizer. Small red-orange nose/wingtip safety accents. Not a generic extreme racing glider, not a jet, not a toy, no propeller, no steep aerobatics. Composition critical: place the complete aircraft exclusively in the RIGHT HALF of the wide image, wingspan about 40 percent of canvas width; fuselage diagonally nose toward lower-left, tail upper-right, wings foreshortened naturally. Aircraft must read at a very small UI size. Keep the LEFT 45 percent mostly clean, very dark navy #0b141c with a gentle atmospheric fade for a separate existing logo and screen title; keep bottom 25 percent dark and quiet for separate controls. Cool blue hour, realistic white fiberglass reflections and translucent smoky canopy, subtle terrain far below to establish a believable in-flight situation. Add just 4 to 6 fine semi-transparent cyan-white aerodynamic visualization streamlines following the SAME local relative-wind direction from ahead of nose past wings toward the tail and downstream; they should gently deflect around the aircraft and indicate a restrained downstream wingtip wake. Thin, elegant, physically coherent, no big random crossing swooshes, no neon ribbons, no contrails or smoke. These are illustrative airflow overlays, not literal visible wind or CFD evidence. Photographic realism with understated airflow graphics. Preserve quiet navy background and complete aircraft visibility.
 
 The shell retains Start and its processed selectors across ordinary tab navigation. Unchanged view inputs reuse summary/month calculations; returning to Start does not itself read the library. Duplicate native active notifications no longer trigger another read. Real background/foreground transitions and provider closure still perform guarded local revalidation; unavailable, changed-owner or failed reads do not publish cached data as verified. No persistent unscoped cache or generation-only shortcut was introduced. Host regressions cover these boundaries; they do not establish that the full user-reported reload symptom has been reproduced or eliminated on a device. Evidence and remaining gates belong in the [package report](../../verification/2026-10-22-alternative-ui.md) and [#45](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/45).
 
@@ -1729,8 +1738,8 @@ The 22 October header data-update amendment reuses `#74dfba` for saved data rece
 | C02 | Primary / secondary action | Mint or raised bordered face, radius 16, minimum height 52 | Explicit action label; disabled opacity .5, pressed .72. theme Action. |
 | C03 | Scope chip | Radius 14; face minimum 66 × 40 in a minimum-48-height target | Selected opaque mint fill; selected/disabled semantics. theme Chip. |
 | C04 | Search / input | Ordinary flight search radius 16/minimum height 52; profile radius 12 and font 16; provider radius 10 | Operate on named scope. MobileApp / ProfileSettings / ProviderConnection. |
-| C05 | Shared header | Navy canvas with decorative flight scene, logo 46, title 28/34, controls 48; content minimum height 64 and padding 18 horizontal/10 vertical | Header can grow; minimum is not universal actual height. AppHeader. |
-| C06 | Header data/status group | Data-update age control, growing Med, profile soft tile; gap 4 | Refresh action shows saved received-age; provider session status stays in its panel. Back replaces logo on app overlays. AppHeader / DataUpdateIndicator / MedicalStatus / ShellIcons. |
+| C05 | Shared header | Navy with realistic ASK-21-like decorative flight scene; logo46, title28/34; unchanged content minimum64 and padding18 horizontal/10 vertical | Preserve preceding header height at matching viewport/font; artwork is absolute and contained. AppHeader / FlightScene. |
+| C06 | Header data/status group | Data/Medical/Profile all use existing28-unit Modern Duotone art, card surface/radius14, minimum48 targets; status captions retain semantic color | No colored control frame; compact vertical padding avoids extra header height. Refresh age and Medical date/unknown keep their separate meanings. Profile unchanged. AppHeader / DataUpdateIndicator / MedicalStatus. |
 | C07 | Bottom navigation | Attached dark bar, five equal destinations, minimum target height 68; three-column wrapping below 600 dp with font scale above 1.3 | Icon above full system-scaled German label; final two wrapping items center. Standard text/width retains one row; raised selected tile and bold mint label. MobileApp. |
 | C08 | Update popup / app overlays | Bounded centered navy update frame, radius22, border1, dim scrim; one active dialog, retained native child tree | UpdateDialog frames setup/login/progress/results; underlying page is visible but inert. Other app sheets keep their existing layout. ProviderConnection retains its toolbar/history inside the popup. |
 | C09 | Flight row | Padding 18, radius 20; date/reported duration, registration/model, route and detail chevron | Whole row opens selected-account saved source facts. Source reference/revision/original fields and absent-track context stay in details. Original fields use eight-field pages with concise Zurück / Weiter captions and full provider-field accessibility labels; first/last guards and contextual list return remain. [OwnFlights](../../../apps/platform-lab/src/mobile/OwnFlights.tsx); no inferred role or book assignment. |
@@ -1792,7 +1801,7 @@ Historical main-branch amendment, superseded on this branch by [alternative UI](
 
 ### Header data update — selected 22 October 2026
 
-The ordinary header uses [DataUpdateIndicator](../../../apps/platform-lab/src/mobile/DataUpdateIndicator.tsx): existing Modern Duotone refresh artwork, visible “Daten” and compact relative age, minimum74×48dp target. The frame and text are green (`#74dfba`) for a durably saved successful flight retrieval less than one hour old, amber (`#ffc477`) from one hour onward, neutral for no valid saved timestamp. Exact time and the update/login-if-needed purpose are in the accessible label/hint; the update panel retains exact saved-time wording. Color is accompanied by age text. Failure/cancellation/login checks cannot advance this timestamp. The selected owner/account library supplies it after restart; the local clock updates the age and crosses the hour boundary without provider requests. A successful empty/no-change retrieval counts. Medical/duty outcomes retain their separate category times; this control does not claim all source categories are current. The three-day Start reminder is unchanged. This supersedes the shell&#x27;s former connection/session badge; the provider panel still uses its separate connection indicator and proof safeguards.
+The ordinary header uses [DataUpdateIndicator](../../../apps/platform-lab/src/mobile/DataUpdateIndicator.tsx): existing28-unit Modern Duotone refresh artwork, visible “Daten” and compact relative age, minimum74×48dp target. The later ASK-21 refinement matches the Profile card surface/radius14 and removes the colored frame; only the age caption is green (`#74dfba`) for a durably saved successful flight retrieval less than one hour old, amber (`#ffc477`) from one hour onward, neutral for no valid saved timestamp. Exact time and the update/login-if-needed purpose are in the accessible label/hint; the update panel retains exact saved-time wording. Color is accompanied by age text. Failure/cancellation/login checks cannot advance this timestamp. The selected owner/account library supplies it after restart; the local clock updates the age and crosses the hour boundary without provider requests. A successful empty/no-change retrieval counts. Medical/duty outcomes retain their separate category times; this control does not claim all source categories are current. The three-day Start reminder is unchanged. This supersedes the shell&#x27;s former connection/session badge; the provider panel still uses its separate connection indicator and proof safeguards.
 
 ### Header-only update popup — 22 October 2026
 
@@ -2158,7 +2167,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](..
 
 ## DataUpdateIndicator.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DataUpdateIndicator.tsx](../../../apps/platform-lab/src/mobile/DataUpdateIndicator.tsx); normalized SHA-256 `282790dacc1d64f8d1847aac16e87567fff6597698a663ae3dcdb4cbdb1e981a`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DataUpdateIndicator.tsx](../../../apps/platform-lab/src/mobile/DataUpdateIndicator.tsx); normalized SHA-256 `50ef13cd42492c7cb2780f42fe6b62ac3188c60d5365fb874f651ce84fa8b5fb`.
 
 ### Literal colors
 
@@ -2171,22 +2180,21 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DataUpdateIndicat
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 12` | 27, 28 |
-| `fontWeight: &#x27;600&#x27;` | 27 |
-| `lineHeight: 17` | 27, 28 |
+| `fontSize: 12` | 28, 29 |
+| `fontWeight: &#x27;600&#x27;` | 28 |
+| `lineHeight: 17` | 28, 29 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 14` | 24 |
-| `borderWidth: 1` | 25 |
-| `gap: 3` | 26 |
-| `minHeight: 48` | 24 |
-| `minWidth: 74` | 24 |
+| `borderRadius: 14` | 25 |
+| `gap: 4` | 27 |
+| `minHeight: 48` | 25 |
+| `minWidth: 74` | 25 |
 | `opacity: .5` | 16 |
-| `paddingHorizontal: 12` | 24 |
-| `paddingVertical: 6` | 24 |
+| `paddingHorizontal: 10` | 25 |
+| `paddingVertical: 2` | 25 |
 
 ## DesignPreview.tsx
 
@@ -2256,17 +2264,17 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DutyRoster.tsx](.
 
 ## FlightScene.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/FlightScene.tsx](../../../apps/platform-lab/src/mobile/FlightScene.tsx); normalized SHA-256 `8b3f3ed4ccb9900549933ff2139ab34f3423a0627cb6605da4957c78192ce453`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/FlightScene.tsx](../../../apps/platform-lab/src/mobile/FlightScene.tsx); normalized SHA-256 `0e1a9553495c891c610ebf239bc84c828407520ddbdc94745bd006a2498eafce`.
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `height: &#x27;100%&#x27;` | 16 |
-| `height: 44` | 15 |
-| `opacity: .85` | 14 |
-| `width: &#x27;100%&#x27;` | 16 |
-| `width: 88` | 15 |
+| `height: &#x27;100%&#x27;` | 20, 22 |
+| `height: 44` | 21 |
+| `height: 80` | 19 |
+| `width: &#x27;100%&#x27;` | 22 |
+| `width: 88` | 21 |
 
 ## ImportPreview.tsx
 
@@ -2312,7 +2320,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/LibraryBackup.tsx
 
 ## MedicalStatus.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MedicalStatus.tsx](../../../apps/platform-lab/src/mobile/MedicalStatus.tsx); normalized SHA-256 `ae1c66566e2cd6dc88e056561a946dec74e6881e0e363df4a9481cbd065d28a9`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MedicalStatus.tsx](../../../apps/platform-lab/src/mobile/MedicalStatus.tsx); normalized SHA-256 `12641f8dac20dd54c1a3962273fd6b52ba005368701ea0c56715c5c9c4a27865`.
 
 ### Literal colors
 
@@ -2327,22 +2335,20 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MedicalStatus.tsx
 | --- | --- |
 | `fontSize: 12` | 52, 53 |
 | `fontWeight: &#x27;600&#x27;` | 29, 52 |
-| `lineHeight: 16` | 52 |
-| `lineHeight: 17` | 53 |
+| `lineHeight: 17` | 52, 53 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 50 |
-| `gap: 3` | 51 |
-| `gap: 4` | 39 |
+| `borderRadius: 14` | 50 |
+| `gap: 4` | 39, 51 |
 | `maxWidth: 480` | 54 |
 | `minHeight: 48` | 50 |
 | `minWidth: 72` | 50 |
 | `opacity: .5` | 19 |
-| `paddingHorizontal: 12` | 50 |
-| `paddingVertical: 6` | 50 |
+| `paddingHorizontal: 10` | 50 |
+| `paddingVertical: 2` | 50 |
 | `width: &#x27;100%&#x27;` | 54 |
 
 ## MobileApp.tsx
@@ -3489,7 +3495,7 @@ States / limits: Recreated approved variant, not a byte-identical copy of an old
 Source: docs/assets/branding/moflight-app-icon-ai.png
 docs/assets/branding/README.md; app.json
 </textarea></section>
-<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: d9514a5bda7812d25249fac17d92163ab84ee7e99582913f6311a54ddc3f8eb4. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
+<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: 00b8b43a14d5f1706df3e2c7c9f4fc1e60ad9be087e5dbd6615889070e921ee0. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
 </main><script>
 'use strict';
 const brief = document.querySelector('#brief');

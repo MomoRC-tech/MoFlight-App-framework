@@ -1,6 +1,6 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { MedicalIcon } from './ShellIcons';
+import { SymbolIcon } from './SymbolIcon';
 import { Card, Label, Section, colors } from './theme';
 import type { InformationCapture } from '../vereinsflieger/information';
 import { medicalExpiry, medicalExpiryStatusText, type MedicalExpiryState } from './medical-expiry';
@@ -17,7 +17,7 @@ export function MedicalIndicator({ onPress, active = false, disabled = false, ca
   const status = assessment.date ? `${assessment.date}${assessment.issues.length ? '*' : ''}` : 'unbekannt';
   const dateDescription = assessment.date ? `Erfasstes frühestes Ablaufdatum: ${assessment.date}. ${medicalExpiryStatusText(assessment.state)}${assessment.issues.length ? '. Weitere Medical-Angaben sind teilweise unbekannt' : ''}.` : 'Medical-Ablaufdatum unbekannt. Einordnung unbekannt.';
   return <Pressable accessibilityRole="button" accessibilityLabel={`Medical. ${dateDescription} Details öffnen`} accessibilityState={{ selected: active, disabled }} disabled={disabled} onPress={onPress} style={[styles.control, disabled && { opacity: .5 }]}>
-    <View accessible={false} style={styles.title}><MedicalIcon /><Text style={styles.label}>Med</Text></View>
+    <View accessible={false} style={styles.title}><SymbolIcon name="medical-card" size={28} /><Text style={styles.label}>Med</Text></View>
     <Text style={[styles.status, assessment.date ? { color: dateColor(assessment.state) } : undefined]}>{status}</Text>
   </Pressable>;
 }
@@ -47,9 +47,9 @@ export function MedicalDetails({ capture = null, loading = false, needsReload = 
 }
 
 const styles = StyleSheet.create({
-  control: { minWidth: 72, minHeight: 48, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12, backgroundColor: colors.card, alignItems: 'center', justifyContent: 'center' },
-  title: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 3 },
-  label: { color: colors.text, fontSize: 12, lineHeight: 16, fontWeight: '600' },
+  control: { minWidth: 72, minHeight: 48, paddingHorizontal: 10, paddingVertical: 2, borderRadius: 14, backgroundColor: colors.card, alignItems: 'center', justifyContent: 'center' },
+  title: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 4 },
+  label: { color: colors.text, fontSize: 12, lineHeight: 17, fontWeight: '600' },
   status: { color: colors.muted, fontSize: 12, lineHeight: 17 },
   details: { width: '100%', maxWidth: 480, alignSelf: 'center' },
 });

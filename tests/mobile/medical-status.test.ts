@@ -15,11 +15,11 @@ const react = { createElement: (type: string, props: Element['props'], ...childr
 const modules: Record<string, unknown> = {
   react: { default: react },
   'react-native': { ...leaves(['Pressable', 'Text', 'View']), StyleSheet: { create: (s: unknown) => s } },
-  './ShellIcons': { MedicalIcon: 'MedicalIcon' },
+  './SymbolIcon': { SymbolIcon: 'SymbolIcon' },
   './theme': { ...leaves(['Card', 'Label', 'Section']), colors: { muted: '#adbed5', text: '#f5f7ff' } },
   './medical-expiry': { medicalExpiry, medicalExpiryStatusText },
 };
-const component = {} as { MedicalIndicator: (p: { onPress: () => void; active?: boolean; capture?: InformationCapture; now?: number }) => Element; MedicalDetails: (p?: {capture?: InformationCapture; needsReload?: boolean; now?: number}) => Element };
+const component = {} as { MedicalIndicator: (p: { onPress: () => void; active?: boolean; disabled?: boolean; capture?: InformationCapture; now?: number }) => Element; MedicalDetails: (p?: {capture?: InformationCapture; needsReload?: boolean; now?: number}) => Element };
 runInNewContext(source, { exports: component, require: (name: string) => { assert.ok(name in modules, `Unexpected data/service dependency: ${name}`); return modules[name]; } });
 function nodes(tree: Element): Element[] {
   const result: Element[] = [];
@@ -37,6 +37,10 @@ test('Medical control is honestly unknown and only opens details on explicit tap
   assert.match(text(control), /Med unbekannt/);
   control.props.onPress(); assert.equal(opened, 1);
   assert.equal(component.MedicalIndicator({ onPress() {}, active: true }).props.accessibilityState.selected, true);
+  const disabled = component.MedicalIndicator({ onPress: () => opened++, disabled: true });
+  assert.equal(disabled.props.disabled, true);
+  assert.equal(disabled.props.accessibilityState.disabled, true);
+  assert.match(text(disabled), /Med unbekannt/, 'Busy controls retain their source status');
 });
 
 test('Medical details explain missing evidence without input, save or provider actions', () => {
