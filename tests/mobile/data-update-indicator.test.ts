@@ -50,7 +50,7 @@ test('update control labels the action and saved time, with an explicit login-if
   let calls = 0;
   for (const disabled of [false, true]) {
     const tree = exports.DataUpdateIndicator({ receivedAt: at, readState: 'ready', now: received, disabled, onPress: () => calls++ });
-    assert.match(tree.props.accessibilityLabel, /Vereinsflieger-Daten aktualisieren/);
+    assert.match(tree.props.accessibilityLabel, /Bei Vereinsflieger anmelden/);
     assert.ok(tree.props.accessibilityLabel.includes(new Date(received).toLocaleString('de-DE')));
     assert.match(tree.props.accessibilityHint, /Falls nötig.*Anmeldung/);
     assert.equal(tree.props.disabled, disabled);
@@ -58,17 +58,16 @@ test('update control labels the action and saved time, with an explicit login-if
     if (!disabled) tree.props.onPress();
   }
   assert.equal(calls, 1);
-  for (const [receivedAt, now, expectedColor] of [
-    [at, received, '#74dfba'], [at, received + DATA_UPDATE_FRESH_MS, '#ffc477'], [null, received, '#adbed5'],
-  ] as const) {
-    const tree = exports.DataUpdateIndicator({ receivedAt, readState: 'ready', now, onPress() {} });
-    assert.equal(tree.children[0].children[1].children[1].props.style[1].color, expectedColor, 'Age wording accompanies the color');
-    assert.equal(tree.children[0].children[1].children[1].children[0], dataUpdateStatus(receivedAt, 'ready', now).caption);
-  }
-  for (const readState of ['loading', 'failed', 'ready'] as const) {
-    const tree = exports.DataUpdateIndicator({ receivedAt: null, readState, now: received, onPress() {} });
-    const status = dataUpdateStatus(null, readState, received);
-    assert.equal(tree.children[0].children[1].children[1].children[0], status.caption, 'Unknown age retains its specific visible explanation');
-    assert.ok(tree.props.accessibilityLabel.includes(status.description));
+  const proof={phase:'observed',confirmed:true,observed:{accountNumber:'123'},lastCheckedAt:at};
+  for(const [connection,now,green] of [
+    [undefined,received,false],[proof,received,true],[proof,received+90_000,false],
+    [{...proof,confirmed:false},received,false],[{...proof,phase:'error'},received,false],
+    [{...proof,phase:'login-required'},received,false],[{...proof,phase:'checking'},received,false],
+  ] as const){
+    const tree=exports.DataUpdateIndicator({connection,receivedAt:at,readState:'ready',now,onPress(){}});
+    assert.equal(tree.children[0].children[1].children[1].props.style[1].color,green?'#74dfba':'#adbed5');
+    assert.equal(tree.props.accessibilityLabel.startsWith('Daten synchronisieren'),green);
+    assert.equal(tree.children[0].children[1].children[1].children[0],green?'synchronisieren':connection?.phase==='checking'?'Verbinden …':'Anmelden');
+    assert.ok(tree.props.accessibilityLabel.includes(dataUpdateStatus(at,'ready',now).description));
   }
 });

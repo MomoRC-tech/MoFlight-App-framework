@@ -442,8 +442,9 @@ test('password-manager returns preserve an expired-session login form at the pro
   f.render(); await f.settle(null); await f.flush();
   f.controller().beginGuidedFlightConnection(); await f.loadPage(context.PROFILE_URL);
   await f.contextMessage({ error: 'session-required' });
+  f.setNativeLoginForm(true);
   assert.equal(f.controller().visible, true);
-  const stops = f.nativeStops(), commands = f.injections.length;
+  const stops = f.nativeStops(), commands = f.injections.filter(s=>s.includes('window.location.assign')).length;
   const browser = f.controller().browser as any;
   for (let dialog = 0; dialog < 3; dialog++) {
     f.appState('background'); f.appState('active'); await f.flush();
@@ -451,7 +452,7 @@ test('password-manager returns preserve an expired-session login form at the pro
     assert.equal(f.controller().url, context.PROFILE_URL);
     assert.equal(f.controller().visible, true, 'Inline original form remains visible during credential dialogs');
     assert.equal(f.nativeStops(), stops, 'Returning from a credential activity must not stop the form');
-    assert.equal(f.injections.length, commands, 'No replacing profile GET during password-manager filling');
+    assert.equal(f.injections.filter(s=>s.includes('window.location.assign')).length, commands, 'No replacing profile GET during password-manager filling');
     assert.equal((f.controller().browser as any).props.key, browser.props.key);
     assert.equal((f.controller().browser as any).props.source, browser.props.source);
     assert.equal(f.controller().connection.confirmed, false);
@@ -492,6 +493,50 @@ test('completed inline login responses wait for sign-in; only a form-free docume
   }
 });
 
+test('a login form replaced within the same document continues without another verification tap', async () => {
+  const f=fixture({product:true});f.render();await f.settle(null);await f.flush();
+  f.controller().beginGuidedFlightConnection();await f.loadPage(probe.LOGIN_URL);
+  const nonce=f.lastIssuedNonce();
+  assert.equal(f.controller().visible,true);
+  const web=f.controller().browser as any;
+  web.props.onMessage({nativeEvent:{url:probe.LOGIN_URL,data:JSON.stringify({kind:'vf-login-document-v1',nonce,url:probe.LOGIN_URL,loginForm:false})}});
+  await f.flush();
+  assert.equal(f.controller().connection.phase,'checking');
+  await f.loadPage(context.PROFILE_URL);await f.contextMessage(observedContext);
+  assert.equal(f.controller().connection.confirmed,true);
+  assert.equal(f.controller().visible,false);f.unmount();
+});
+
+test('quiet session checks never expose login, bind a new account or interrupt guided work',async()=>{
+  for(const outcome of ['matching','expired','foreign','error']){
+    const f=fixture({product:true,persistedScope:{version:1,owner:'synthetic-pilot',connectionId:'prior',context:observedContext}});
+    f.render();await f.settle(null);await f.flush();
+    assert.equal(f.controller().checkSession(),true);await f.loadPage(context.PROFILE_URL);
+    if(outcome==='error'){
+      (f.controller().browser as any).props.onError({nativeEvent:{url:context.PROFILE_URL}});await f.flush();
+    }else await f.contextMessage(outcome==='expired'?{error:'session-required'}:{...observedContext,accountNumber:outcome==='foreign'?'999':'123'});
+    assert.equal(f.controller().visible,false,outcome);
+    assert.equal(f.controller().connection.confirmed,outcome==='matching',outcome);
+    assert.equal(f.scopeWrites(),0);assert.deepEqual(f.writes,[]);
+    f.appState('background');assert.equal(f.controller().checkSession(),false);f.appState('active');await f.flush();
+    f.controller().beginGuidedFlightConnection();await f.flush();assert.equal(f.controller().checkSession(),false);
+    f.unmount();
+  }
+  const f=fixture({product:true});f.render();await f.settle(null);await f.flush();
+  assert.equal(f.controller().checkSession(),false,'Never create an association in a background check');f.unmount();
+});
+
+test('an explicit update preempts an unfinished quiet check and rejects its late proof',async()=>{
+  const f=fixture({product:true,persistedScope:{version:1,owner:'synthetic-pilot',connectionId:'prior',context:observedContext}});
+  f.render();await f.settle(null);await f.flush();f.controller().checkSession();await f.loadPage(context.PROFILE_URL);
+  const old=f.controller().browser as any,nonce=f.lastIssuedNonce();
+  f.controller().beginGuidedFlightConnection();await f.flush();
+  old.props.onMessage({nativeEvent:{url:context.PROFILE_URL,data:JSON.stringify({kind:'vf-context-v1',nonce,url:context.PROFILE_URL,context:observedContext})}});
+  await f.flush();assert.equal(f.controller().connection.confirmed,false);
+  await f.loadPage(context.PROFILE_URL);await f.contextMessage(observedContext);
+  assert.equal(f.controller().connection.confirmed,true);assert.equal(f.controller().visible,false);f.unmount();
+});
+
 test('passive form observations cannot navigate after a foreign, stale, cancelled or failed document', async () => {
   for (const boundary of ['foreign-source', 'foreign-url', 'nonce', 'owner', 'dismiss', 'background', 'new-load', 'page-error', 'malformed']) {
     const f = fixture({ product: true }); f.render(); await f.settle(null); await f.flush();
@@ -517,6 +562,22 @@ test('passive form observations cannot navigate after a foreign, stale, cancelle
     assert.notEqual(f.controller().connection.phase, 'checking', boundary);
     assert.equal(f.scopeWrites(), 0); assert.deepEqual(f.writes, []); f.unmount();
   }
+});
+
+test('the document observer detects removed and hidden login fields without reading secrets',()=>{
+  const messages:any[]=[];let mutation!:()=>void,shown=true,attached=true,disconnected=0;
+  const field={getClientRects:()=>shown?[{}]:[],get value():never{throw new Error('Credential read');}};
+  const window:any={ReactNativeWebView:{postMessage:(s:string)=>messages.push(JSON.parse(s))},addEventListener(){}};window.top=window;
+  const env={window,location:new URL(probe.LOGIN_URL),MutationObserver:class{
+    constructor(fn:()=>void){mutation=fn;}observe(){}disconnect(){disconnected++;}
+  },document:{readyState:'complete',documentElement:{},querySelector:()=>attached?field:null,get cookie():never{throw new Error('Cookie read');}}};
+  runInNewContext(context.loginDocumentScript('watch'),env);
+  assert.equal(messages[0].loginForm,true);mutation();assert.equal(messages.length,1);
+  shown=false;mutation();assert.equal(messages[1].loginForm,false);
+  shown=true;mutation();assert.equal(messages[2].loginForm,true);
+  attached=false;mutation();assert.equal(messages[3].loginForm,false);
+  runInNewContext(context.loginDocumentScript('replacement'),env);assert.equal(disconnected,1);
+  assert.equal(messages.at(-1).nonce,'replacement');
 });
 
 test('passive completed-document reader inspects only form structure and never credentials or cookies', () => {
@@ -583,7 +644,7 @@ test('guided sign-in return preserves the native login document and still requir
     assert.equal(f.controller().resumeGuidedFlightConnection(),true);
     assert.equal((f.controller().browser as any).props.key,browserKey);
     assert.equal((f.controller().browser as any).props.source,browserSource);
-    assert.equal(f.controller().url,probe.LOGIN_URL);assert.equal(f.injections.length,injected);
+    assert.equal(f.controller().url,probe.LOGIN_URL);assert.ok(f.injections.slice(injected).every(s=>s.includes('vf-login-document-v1')),'Only credential-free structure observation may resume');
     assert.equal(f.nativeStops(),stops,'Credential selection must not stop the original document');
     assert.equal(f.controller().generation,generation,'Native Autofill callbacks retain their document generation');
     assert.equal(f.controller().connection.confirmed,false);assert.equal(f.scopeWrites(),0);

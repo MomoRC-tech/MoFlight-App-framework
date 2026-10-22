@@ -20,7 +20,7 @@ import { canCancelCoreFlightSource, mayReviewCoreFlightCapture, shouldDeferCoreF
 import { saveRealFlightBackupToFolder, restoreRealFlightBackup, resumeRealFlightBackup,
   type RestoreRealFlightBackupResult } from '../vereinsflieger/real-flight-backup-native';
 import type { RealFlightRestorePreparation } from '../vereinsflieger/real-flight-selection';
-import { ProviderConnection, type ProviderStatus } from './ProviderConnection';
+import { ProviderConnection, unknownProviderStatus, type ProviderStatus } from './ProviderConnection';
 import { Action, Card, Label, Section, colors } from './theme';
 import { planFlightRetrieval } from '../vereinsflieger/retrieval-policy';
 import { dataFreshness } from './data-freshness';
@@ -29,6 +29,7 @@ import type { OwnFlightConnectionEvidence } from './connection-guidance';
 import { retrieveOtherAccountData, runAccountRetrievalJobs, type MedicalJobStatus, type DutyJobStatus, type FeatureJobStatus } from './account-retrieval-jobs';
 import { refreshDutyRoster } from '../vereinsflieger/duty-refresh-native';
 import { retrievalFailureHint } from '../vereinsflieger/connection-state';
+import { startSessionMonitor } from './session-monitor';
 
 export type ConnectionIntent = 'connect'|'update'|'options'|'development';
 export interface FlightLoadResult { ownerId?:string; added: number; changed: number; pending: number; from: string; to: string;
@@ -65,7 +66,18 @@ export function CoreFlightFoundation({ close, startUpdate = false, intent = star
   }
 
   useEffect(()=>{
-    if(!open){setAdmitted(false);return;}
+    if(!open){
+      setAdmitted(false);
+      let current=true;
+      void (async()=>{
+        const opened=registry.current??await openOwnerRegistry(false);
+        if(!current){if(opened!==registry.current)await opened?.close();return;}
+        registry.current=opened;
+        const selected=await opened?.currentOwner();
+        if(current)setLease(selected??null);
+      })().catch(()=>{if(current){setLease(null);onStatus?.({...unknownProviderStatus});}});
+      return()=>{current=false;};
+    }
     let current=true;
     setLoading(true);setAdmitted(false);setError(false);setupStarted.current=false;setRequestedUpdate(intent!=='options');
     diagnosis.current = diagnosticJournal.begin(intent==='update' ? 'update-flights' : 'open-flight-tools');
@@ -141,6 +153,17 @@ type WaitingSource = {request:{from:string;to:string};resolve:(source:RealFlight
 type LoadStage = 'sign-in'|'verify'|'flights'|'save'|'medical'|'done';
 function OwnerFlightLibrary({lease,registry,close,startUpdate,open=true,requestId=0,intent=startUpdate?'update':'options',onStatus,takeInitialRepository,diagnosis,developmentRecoveryCheckpoints,providerEntryAllowed=false,dialogTop}:{developmentRecoveryCheckpoints:boolean;lease:RealOwnerLease;registry:RealOwnerRegistry;close:(result?:FlightLoadResult)=>void;startUpdate:boolean;open?:boolean;requestId?:number;intent?:ConnectionIntent;onStatus?:(status:ProviderStatus)=>void;takeInitialRepository:()=>RealFlightRepositorySession|null;diagnosis:React.MutableRefObject<DiagnosticOperation|null>;providerEntryAllowed?:boolean;dialogTop?:number}) {
   const c=useAccessController(true,lease.ownerId,developmentRecoveryCheckpoints), controller=useRef(c);controller.current=c;
+  useEffect(()=>{
+    if(open||!c.viewReady)return;
+    return startSessionMonitor({active:AppState.currentState==='active',
+      subscribe:changed=>{const sub=AppState.addEventListener('change',state=>changed(state==='active'));return()=>sub.remove();},
+      schedule:(callback,ms)=>{const timer=setTimeout(callback,ms);return()=>clearTimeout(timer);},
+      check:async current=>{
+        try{await registry.assertCurrent(lease);if(current())controller.current.checkSession();}
+        catch{if(current()){controller.current.dismissLogin();onStatus?.({...unknownProviderStatus});}}
+      },
+    });
+  },[open,c.viewReady,registry,lease]);
   const alive=useRef(true),foreground=useRef(AppState.currentState==='active'),lock=useRef(false),waiting=useRef<WaitingSource|null>(null);
   const reviewGeneration=useRef(0),directAdmission=useRef<CoreFlightReviewAdmission|null>(null),invalidatedRetrievals=useRef(new Set<string>());
   const [busy,setBusy]=useState(false),[providerOpen,setProviderOpen]=useState(false),[message,setMessage]=useState(''),[failed,setFailed]=useState(false);

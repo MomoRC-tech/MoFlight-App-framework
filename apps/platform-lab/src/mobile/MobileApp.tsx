@@ -50,7 +50,7 @@ const dateText = (date: string | null) => date ? new Date(date + 'T12:00:00Z').t
 
 export default function MobileApp() {
   useEffect(initializeDiagnostics, []);
-  const [entry,setEntry] = useState<{intent:ConnectionIntent;requestId:number;open:boolean;development:boolean}|null>(null);
+  const [entry,setEntry] = useState<{intent:ConnectionIntent;requestId:number;open:boolean;development:boolean}|null>({intent:'options',requestId:0,open:false,development:false});
   const [lastLoad,setLastLoad] = useState<FlightLoadResult|null>(null);
   const [flightReload,setFlightReload] = useState(0);
   const [providerStatus,setProviderStatus] = useState<ProviderStatus>(unknownProviderStatus);
@@ -108,7 +108,7 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
   const rosterExpiry=selected?.duties?.snapshot?dutySnapshotExpiresAt(selected.duties.snapshot):NaN;
   const receivedAt=retrievalPlan.lastSuccessfulRetrievalAt;
   const receivedTime=Date.parse(receivedAt??'');
-  const now=useStartClock([rosterExpiry,
+  const now=useStartClock([rosterExpiry,Date.parse(providerStatus.connection.lastCheckedAt??'')+90_000,
     receivedTime+DATA_UPDATE_FRESH_MS,Number.isFinite(receivedTime)?Math.floor(Date.now()/60_000)*60_000+60_000:NaN]);
   const clock=new Date(now),today=`${clock.getFullYear()}-${String(clock.getMonth()+1).padStart(2,'0')}-${String(clock.getDate()).padStart(2,'0')}`;
   const rosterExpired=Number.isFinite(rosterExpiry)&&now>=rosterExpiry;
@@ -176,7 +176,7 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
   };
   const pageTitle = tabs.find(item => item.id === tab)!.title;
   const statusControls = <>
-    <DataUpdateIndicator receivedAt={receivedAt} readState={ownFlights.phase==='failed'?'failed':ownFlights.phase==='loading'?'loading':'ready'}
+    <DataUpdateIndicator connection={flightStatusController.connection} receivedAt={receivedAt} readState={ownFlights.phase==='failed'?'failed':ownFlights.phase==='loading'?'loading':'ready'}
       now={now} disabled={screenBusy} onPress={() => openFlightFlow('update')} />
     <MedicalIndicator capture={medical} now={now} active={sheet === 'medical'} disabled={screenBusy} onPress={() => openHeaderSheet('medical')} />
 

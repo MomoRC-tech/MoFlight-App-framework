@@ -454,7 +454,8 @@ test('font and width changes preserve every navigation destination, selected sta
 test('app root retains the provider host across close/tab entry and hides covered shell layout',()=>{
   const f=fixture(390,1,true);
   const shell=()=>f.nodes().find(n=>typeof n.type==='function'&&(n.type as Function).name==='Shell')!;
-  assert.equal(f.nodes().some(n=>n.type==='CoreFlightFoundation'),false,'Startup creates no provider host');
+  assert.equal(f.find('CoreFlightFoundation').props.open,false,'Startup keeps session observation hidden');
+  assert.equal(f.find('CoreFlightFoundation').props.providerEntryAllowed,false,'Startup cannot start retrieval or interactive login');
   shell().props.onCoreFlights('update');f.render();
   const first=f.find('CoreFlightFoundation');assert.equal(first.props.intent,'update');assert.equal(first.props.providerEntryAllowed,true);assert.equal(first.props.open,true);
   assert.equal(f.parent(shell()).props.pointerEvents,'none');assert.equal(f.parent(shell()).props.accessibilityElementsHidden,true);assert.ok(f.find('UpdateDialog'));

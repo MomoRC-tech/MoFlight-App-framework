@@ -9,6 +9,7 @@ import { planFlightRetrieval } from '../../apps/platform-lab/src/vereinsflieger/
 import { dataFreshness } from '../../apps/platform-lab/src/mobile/data-freshness.ts';
 import * as accountJobs from '../../apps/platform-lab/src/mobile/account-retrieval-jobs.ts';
 import { retrievalFailureHint } from '../../apps/platform-lab/src/vereinsflieger/connection-state.ts';
+import { startSessionMonitor } from '../../apps/platform-lab/src/mobile/session-monitor.ts';
 
 interface Element { type: string; props: Record<string, any>; children: unknown[] }
 const source=ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx',import.meta.url),'utf8'),{
@@ -35,7 +36,7 @@ function fixture({providerAllowed=true,startUpdate=false,root=false,readOnly=fal
   const input={capture:{captureId:'fresh',rows:[]},requestedWindow:{from:'2025-01-01',to:'2026-10-21'}};
   const c:any={viewReady:true,browserActive:false,from:sameWindow?'2025-01-01':'',to:sameWindow?'2026-10-21':'',connection:priorConnection==='verified'?{phase:'observed',confirmed:true,observed:{accountNumber:'101',clubLabel:'Example'}}:{phase:priorConnection,confirmed:false},
     busy:false,saving:false,restoring:{current:false},visible:false,recovery:false,result:'none',completedFlightSource:null,
-    retrieval:{current:{state:{phase:'idle'}}},
+    retrieval:{current:{state:{phase:'idle'}}},checkSession:()=>calls.push('quiet-session'),
     setFrom:(v:string)=>{if(c.from!==v){c.from=v;dirty=true;}},setTo:(v:string)=>{if(c.to!==v){c.to=v;dirty=true;}},
     beginGuidedFlightConnection:()=>{calls.push('session');c.result='none';if(deferVerification)c.connection={phase:'checking',confirmed:false};else if(loginPending)c.visible=true;else c.connection={phase:'observed',confirmed:true,observed:{accountNumber:'101',clubLabel:'Example'}};dirty=true;},
     resumeGuidedFlightConnection:()=>{calls.push('resume');if(!quietResume){c.connection={phase:'unknown',confirmed:false};c.visible=true;dirty=true;}return true;},
@@ -64,6 +65,7 @@ function fixture({providerAllowed=true,startUpdate=false,root=false,readOnly=fal
   };
   const leaves=(names:string[])=>Object.fromEntries(names.map(name=>[name,name]));
   const modules:Record<string,any>={react:{default:react,...react},
+    './session-monitor':{startSessionMonitor},
     './account-retrieval-jobs':accountJobs, '../diagnostics':{diagnosticJournal:journal},
     '../vereinsflieger/duty-refresh-native':{refreshDutyRoster:async()=>({rows:[],partial:true})},
     '../vereinsflieger/connection-state':{retrievalFailureHint},
@@ -314,13 +316,13 @@ test('connection-only entry opens the provider directly and never starts flight 
   }finally{f.dispose();}
 });
 
-test('closing and reopening connection retains the controller and creates no hidden work',async()=>{
+test('closing and reopening retains the controller and admits only quiet session checks while hidden',async()=>{
   const f=fixture({intent:'connect',loginPending:true});try{
     f.render();await f.flush();const first=f.nodes().find(n=>n.type==='ProviderConnection')!.props.controller;
     f.c.dismissLogin();f.setOpen(false);await f.flush();assert.equal(f.nodes().find(n=>n.type==='ProviderConnection')!.props.open,false);
-    assert.deepEqual(f.calls,['session']);
+    assert.deepEqual(f.calls,['session','quiet-session']);
     f.setOpen(true);await f.flush();const reopened=f.nodes().find(n=>n.type==='ProviderConnection')!.props.controller;
-    assert.equal(reopened.retrieval,first.retrieval);assert.deepEqual(f.calls,['session','session']);
+    assert.equal(reopened.retrieval,first.retrieval);assert.deepEqual(f.calls,['session','quiet-session','session']);
     assert.equal(reopened.visible,true);assert.equal(f.calls.includes('save'),false);
   }finally{f.dispose();}
 });

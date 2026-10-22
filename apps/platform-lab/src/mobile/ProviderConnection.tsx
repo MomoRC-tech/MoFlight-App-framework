@@ -61,10 +61,10 @@ export function ProviderConnection({ controller: c, open, close, development = f
   const guidance = connectionGuidance(c.connection, c.browserActive);
   const freshness = dataFreshness(c.snapshot?.retrievedAt ?? null, c.captureLoadState);
   const loginFeedback = c.loginBusy ? 'Gespeicherte Anmeldung wird einmalig versucht…' :
-    c.loginNotice === 'response' ? 'Anmeldung noch nicht bestätigt. Schließe eine mögliche Anbieterprüfung ab und tippe auf „Anmeldung prüfen“.' :
+    c.loginNotice === 'response' ? 'Schließe eine mögliche Anbieterprüfung ab. Danach geht es automatisch weiter.' :
     c.loginNotice === 'unavailable' ? 'Gespeicherte Anmeldung nicht verfügbar. Bitte auf der Originalseite anmelden.' :
     c.loginNotice === 'failed' ? 'Anmeldung nicht bestätigt. Bitte auf der Originalseite anmelden. Kein automatischer weiterer Versuch.' :
-    c.loginNotice === 'cancelled' ? 'Anmeldeversuch beendet. Bitte die Sitzung erneut prüfen.' : null;
+    c.loginNotice === 'cancelled' ? 'Anmeldeversuch beendet. Bitte auf der Originalseite anmelden.' : null;
   const dismiss = () => { if(closeDisabled)return; if (c.visible || checking || developmentRecoveryCheckpoints && !!c.developmentCheckpoint) c.dismissLogin(); close(); };
   return <View onLayout={event => setPanelHeight(event.nativeEvent.layout.height)} pointerEvents={open ? 'auto' : 'none'} style={[StyleSheet.absoluteFill, { zIndex: open ? 20 : -1, opacity: open ? 1 : 0, paddingTop: insets.top, paddingBottom: insets.bottom, backgroundColor: colors.background }]} accessibilityElementsHidden={!open} importantForAccessibility={open ? 'auto' : 'no-hide-descendants'} accessibilityViewIsModal={open}>
     <View pointerEvents={login ? 'auto' : 'none'} style={[styles.browserFrame, { top: barHeight + checkpointHeight + (login ? loginHeight : 0) + insets.top, bottom: insets.bottom+keyboardInset }, !login && styles.coveredBrowser]} accessibilityElementsHidden={!login} importantForAccessibility={login ? 'auto' : 'no-hide-descendants'}>
@@ -88,7 +88,7 @@ export function ProviderConnection({ controller: c, open, close, development = f
       {login && <View style={{gap:6}}>
         <Label muted>{providerUrl(c.url) ? new URL(c.url).origin : 'Anbieteradresse nicht bestätigt'} · Zugangsdaten nur auf der Originalseite eingeben.</Label>
         {loginFeedback && <Label>{loginFeedback}</Label>}
-        {(!guided||loginFeedback)&&<Action secondary disabled={locked || !c.loaded} onPress={()=>c.checkConnection()}>Anmeldung prüfen</Action>}
+        {!guided&&<Action secondary disabled={locked || !c.loaded} onPress={()=>c.checkConnection()}>Anmeldung prüfen</Action>}
       </View>}
     </View></ScrollView> : login ? <View style={styles.loginBar} onLayout={event => setLoginHeight(event.nativeEvent.layout.height)}>
       <Action secondary icon="back" label="Auf der Vereinsflieger-Seite zurück" disabled={locked || !c.canGoBack} onPress={c.backWithinProvider}>Anbieterseite zurück</Action>
@@ -96,7 +96,7 @@ export function ProviderConnection({ controller: c, open, close, development = f
       <Label muted>{c.disconnecting ? 'Auf der Originalseite „Abmelden“ wählen, danach hier prüfen. Schließen allein meldet dich nicht ab.' : 'Zugangsdaten nur auf der Originalseite eingeben.'}</Label>
       {loginFeedback && <Label>{loginFeedback}</Label>}
       {c.disconnecting ? <Action disabled={operationLocked || !c.loaded} onPress={c.checkDisconnection}>Abmeldung prüfen</Action> : <View style={{ flexDirection: 'row', gap: 6 }}>
-        <View style={{ flex: 1 }}><Action disabled={locked || !c.loaded} onPress={() => c.checkConnection()}>{guided ? 'Anmeldung erneut prüfen' : 'Anmeldung prüfen'}</Action></View>
+        {!guided&&<View style={{ flex: 1 }}><Action disabled={locked || !c.loaded} onPress={() => c.checkConnection()}>Anmeldung prüfen</Action></View>}
         {!guided && <View style={{ flex: 1 }}><Action secondary disabled={locked} onPress={() => setInformationTools(!informationTools)}>{informationTools ? 'Import zuklappen' : 'Informationsimport'}</Action></View>}
       </View>}
       {!guided && !c.disconnecting && (informationTools || c.informationBusy) && <>

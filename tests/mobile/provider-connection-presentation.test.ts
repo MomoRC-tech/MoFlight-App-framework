@@ -370,7 +370,8 @@ test('guided provider keeps the browser parent and shows progress without import
   Object.assign(f.controller,{visible:true,loaded:true,browserActive:true});f.render();
   assert.equal(parent()!.type,type);
   assert.equal(f.text().includes('Informationsimport'),false);
-  f.button('Anmeldung erneut prüfen').props.onPress();assert.deepEqual(f.calls,['check']);
+  assert.equal(f.text().includes('Anmeldung erneut prüfen'),false);assert.deepEqual(f.calls,[]);
+  for(const loginNotice of ['response','failed','cancelled'] as const){f.controller.loginNotice=loginNotice;f.render();assert.equal(f.text().includes('Anmeldung prüfen'),false);}
   Object.assign(f.controller,{visible:false,saving:true,restoring:{current:false}});f.render();
   assert.equal(f.button('Abbrechen').props.disabled,true);
 });

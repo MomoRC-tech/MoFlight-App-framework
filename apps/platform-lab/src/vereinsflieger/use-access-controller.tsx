@@ -47,7 +47,7 @@ export function useAccessController(product = false, localOwner?: string, develo
   const foreground = useRef(AppState.currentState === undefined || AppState.currentState === 'active');
   const session = useRef(new ConnectionSession());
   const [connection, setConnection] = useState(session.current.state);
-  const contextRequest = useRef<{ nonce: string; action: 'check' | 'retrieve' | 'capture' | 'recover' | 'restored' | 'disconnect' | 'legacy'; navigationObserved: boolean } | null>(null);
+  const contextRequest = useRef<{ nonce: string; action: 'status' | 'check' | 'retrieve' | 'capture' | 'recover' | 'restored' | 'disconnect' | 'legacy'; navigationObserved: boolean } | null>(null);
   const disconnectMode = useRef(false), recoveryKnown = useRef(false);
   const [disconnecting, setDisconnecting] = useState(false);
   const [disconnectedAt, setDisconnectedAt] = useState<string | null>(null);
@@ -307,11 +307,11 @@ export function useAccessController(product = false, localOwner?: string, develo
     if (request) session.current.fail(request.nonce, loginRequired ? 'login-required' : 'error');
     else session.current.invalidate();
     clearContextRequest(); pendingCapture.current = null; flightSourceAttempt.current = null; pendingFlightSource.current = null; syncConnection();
-    if (loginRequired) { signInDocument.current = currentUrl.current; setVisible(true); }
+    if (loginRequired) { signInDocument.current = currentUrl.current; setVisible(request?.action!=='status'); }
     const active = retrieval.current.state;
     if (active.phase === 'loading') stop('Provider context unavailable. Earlier captures and recovery journal retained.', active.nonce);
   }
-  function checkConnection(action: 'check' | 'retrieve' | 'capture' | 'recover' | 'restored' | 'disconnect' | 'legacy' = 'check') {
+  function checkConnection(action: 'status' | 'check' | 'retrieve' | 'capture' | 'recover' | 'restored' | 'disconnect' | 'legacy' = 'check') {
     if (owner.current !== activeOwner.current || clearingStore.current || bindingBusy.current || !foreground.current || loginBusy || loginStorageBusy.current || loginAttempt.current || disconnectMode.current !== (action === 'disconnect') || contextRequest.current || !viewReady || saving || busy && action !== 'capture' && action !== 'restored') return false;
     // An already observed, loaded profile needs a real new native request.
     // Android may not produce fresh document callbacks for same-URL JS assign.
@@ -328,6 +328,11 @@ export function useAccessController(product = false, localOwner?: string, develo
     if(reloadObservedProfile&&pendingNavigation.current?.url===PROFILE_URL)pendingNavigation.current.nativeReload=true;
     return true;
   }
+  function checkSession() {
+    if(!product||!mounted.current||!scope.current||!recoveryKnown.current||visible||guidedFlightLogin.current||guidedLoginResume.current||
+      recovery||original.current||restoring.current||information.active()||editingLogin||retrieval.current.state.phase!=='idle')return false;
+    return checkConnection('status');
+  }
   function connect() {
     if (owner.current !== activeOwner.current || clearingStore.current || bindingBusy.current || !foreground.current || disconnectMode.current || retrieval.current.state.phase !== 'idle' || loginBusy || loginStorageBusy.current || loginAttempt.current || busy || contextRequest.current || saving) return;
     recordProviderEvent('provider-connect');
@@ -339,10 +344,15 @@ export function useAccessController(product = false, localOwner?: string, develo
   // First use follows the same visible login route as Connect. A saved
   // association uses the protected profile to check retained cookies first.
   function beginGuidedFlightConnection() {
+    // Explicit interaction takes priority over a quiet status request.
+    if(contextRequest.current?.action==='status'){
+      clearContextRequest();pendingNavigation.current=null;web.current?.stopLoading();epoch.current++;setGeneration(epoch.current);
+      session.current.invalidate();syncConnection();
+    }
     if (!product || !viewReady || !foreground.current || contextRequest.current || busy || saving || recovery || bindingBusy.current || clearingStore.current || disconnectMode.current) return;
     guidedLoginResume.current = null; guidedFlightLogin.current = true;
     clearCompletedFlightSource(); setResult('none');
-    if (scope.current) checkConnection();
+    if (scope.current&&session.current.state.phase!=='login-required') checkConnection();
     else connect();
   }
   function endGuidedFlightConnection() { guidedFlightLogin.current = false; guidedLoginResume.current = null; loginObservation.current = null; }
@@ -352,7 +362,7 @@ export function useAccessController(product = false, localOwner?: string, develo
         disconnectMode.current || retrieval.current.state.phase !== 'idle' || !providerUrl(currentUrl.current)) return;
     setVisible(true);
     // Returning from a credential Activity is never itself a reason to navigate.
-    if (!phase.current.loaded || signInDocument.current === currentUrl.current) return;
+    if (!phase.current.loaded || loginObservation.current?.url === currentUrl.current) return;
     const observation = { nonce: Crypto.randomUUID(), url: currentUrl.current, epoch: epoch.current };
     loginObservation.current = observation;
     web.current?.injectJavaScript(loginDocumentScript(observation.nonce));
@@ -367,9 +377,8 @@ export function useAccessController(product = false, localOwner?: string, develo
           observation.epoch !== epoch.current || message.nonce !== observation.nonce || message.url !== observation.url ||
           currentUrl.current !== observation.url || !phase.current.loaded || failedDocument.current === observation.url ||
           !scopedBridge(event.nativeEvent.url, currentUrl.current, observation.url) || typeof message.loginForm !== 'boolean') return true;
-      loginObservation.current = null;
       if (message.loginForm) { signInDocument.current = observation.url; setVisible(true); }
-      else { recordProviderEvent('provider-resume-check'); checkConnection(); }
+      else { loginObservation.current=null; signInDocument.current=null; recordProviderEvent('provider-resume-check'); checkConnection(); }
       return true;
     } catch { return false; }
   }
@@ -584,7 +593,7 @@ export function useAccessController(product = false, localOwner?: string, develo
       return;
     }
     const loginLoad = login.pageLoaded(page, pageEpoch);
-    if (loginLoad) { await loginLoad; return; }
+    if (loginLoad) { await loginLoad; continueGuidedLogin(); return; }
     if (guidedFlightLogin.current && product && foreground.current && providerUrl(page) &&
         !contextRequest.current && retrieval.current.state.phase === 'idle') {
       continueGuidedLogin(); return;
@@ -949,7 +958,9 @@ export function useAccessController(product = false, localOwner?: string, develo
           }
           reading.current = false; command.current = '';
         } currentUrl.current = event.nativeEvent.url; setUrl(event.nativeEvent.url); setLoaded(false); }}
-        onNavigationStateChange={state => { if (generation !== epoch.current) return; currentUrl.current = state.url; setUrl(state.url); setCanGoBack(state.canGoBack); }}
+        onNavigationStateChange={state => { if (generation !== epoch.current) return; currentUrl.current = state.url; setUrl(state.url); setCanGoBack(state.canGoBack);
+          if(state.loading===false&&guidedFlightLogin.current&&!contextRequest.current)void loadedPage(state.url);
+        }}
         onLoadProgress={event => { if (generation === epoch.current) phase.current.progress = event.nativeEvent.progress; }}
         onLoadEnd={event => { if (generation === epoch.current) void loadedPage(event.nativeEvent.url); }}
         onMessage={event => {
@@ -976,5 +987,5 @@ export function useAccessController(product = false, localOwner?: string, develo
   }, retrieveMedical: async () => {
     try { return await information.public.retrieveMedical(); }
     catch(error) { session.current.invalidate(); syncConnection(); throw error; }
-  }, developmentCheckpoint, armDevelopmentJournalCheckpoint: () => armDevelopmentCheckpoint('journal'), armDevelopmentRecoveryCheckpoint: () => armDevelopmentCheckpoint('recovery'), beginGuidedFlightConnection, resumeGuidedFlightConnection, endGuidedFlightConnection, captureLoadState, canGoBack, backWithinProvider, legacyChoice, requestLegacyRecovery, legacyRecoveryAvailable, clearing, clearNotice, proofNotice, clearLocalSession, sessionClearingAvailable, sessionProofAvailable, binding, legacyRecovery: legacyPending.current, loginNotice, disconnectNotice, credentialNotice, startDisconnect, checkDisconnection, disconnecting, disconnectedAt, refreshRecovery, connection, checkConnection, connect, suspendBrowserForOwnerSwitch, dismissLogin, confirmConnection, lastSuccessfulCaptureAt, result, browser, showRun, setShowRun, showWindow, setShowWindow, viewReady, recovery, original, editingLogin, loginBusy, username, setUsername, password, setPassword, saveLogin, setEditingLogin, providerExpanded, visible, status, busy, openCaptureLab, pauseEnabled, toggleTestPause, preBackupPause, togglePreBackupPause, from, setFrom, to, setTo, saving, restoring, navigate, setVisible, cancelRetrieval, retrieve, hasLogin, useLogin, forgetLogin, recoverView, paused, continueTestRetrieval, viewStrategy, url, toggleProviderPage, browserActive, snapshot: product && owner.current !== localOwner ? null : snapshot, completedFlightSource: product && owner.current === localOwner && !busy && !recovery ? completedFlightSource : null, setProviderExpanded, flow, web, currentUrl, retrieval, loaded, source, generation, epoch };
+  }, checkSession, developmentCheckpoint, armDevelopmentJournalCheckpoint: () => armDevelopmentCheckpoint('journal'), armDevelopmentRecoveryCheckpoint: () => armDevelopmentCheckpoint('recovery'), beginGuidedFlightConnection, resumeGuidedFlightConnection, endGuidedFlightConnection, captureLoadState, canGoBack, backWithinProvider, legacyChoice, requestLegacyRecovery, legacyRecoveryAvailable, clearing, clearNotice, proofNotice, clearLocalSession, sessionClearingAvailable, sessionProofAvailable, binding, legacyRecovery: legacyPending.current, loginNotice, disconnectNotice, credentialNotice, startDisconnect, checkDisconnection, disconnecting, disconnectedAt, refreshRecovery, connection, checkConnection, connect, suspendBrowserForOwnerSwitch, dismissLogin, confirmConnection, lastSuccessfulCaptureAt, result, browser, showRun, setShowRun, showWindow, setShowWindow, viewReady, recovery, original, editingLogin, loginBusy, username, setUsername, password, setPassword, saveLogin, setEditingLogin, providerExpanded, visible, status, busy, openCaptureLab, pauseEnabled, toggleTestPause, preBackupPause, togglePreBackupPause, from, setFrom, to, setTo, saving, restoring, navigate, setVisible, cancelRetrieval, retrieve, hasLogin, useLogin, forgetLogin, recoverView, paused, continueTestRetrieval, viewStrategy, url, toggleProviderPage, browserActive, snapshot: product && owner.current !== localOwner ? null : snapshot, completedFlightSource: product && owner.current === localOwner && !busy && !recovery ? completedFlightSource : null, setProviderExpanded, flow, web, currentUrl, retrieval, loaded, source, generation, epoch };
 }

@@ -52,12 +52,16 @@ export function loginRequiredScript(nonce: string) { return `window.ReactNativeW
 // Observe its structure before leaving a completed document, without reading
 // field values or treating the absence of a form as authentication evidence.
 export function loginDocumentScript(nonce: string) {
-  return `(()=>{let sent=false;const send=()=>{
-    if(sent||window.top!==window||document.readyState!=='complete'||location.protocol!=='https:'||!['vereinsflieger.de','www.vereinsflieger.de'].includes(location.hostname))return;
-    sent=true;
+  return `(()=>{let previous;const send=()=>{
+    if(window.top!==window||document.readyState!=='complete'||location.protocol!=='https:'||!['vereinsflieger.de','www.vereinsflieger.de'].includes(location.hostname))return;
     const user=document.querySelector('input[name="user"]'),password=document.querySelector('input#pwinput[name="pwinput"]');
-    window.ReactNativeWebView?.postMessage(JSON.stringify({kind:'vf-login-document-v1',nonce:${JSON.stringify(nonce)},url:location.href,loginForm:!!(user&&password)}));
-  };if(document.readyState==='complete')send();else window.addEventListener('load',send,{once:true});})();true;`;
+    const shown=field=>field&&!field.hidden&&(typeof field.getClientRects!=='function'||field.getClientRects().length>0);
+    const loginForm=!!(shown(user)&&shown(password));
+    if(previous===loginForm)return;previous=loginForm;
+    window.ReactNativeWebView?.postMessage(JSON.stringify({kind:'vf-login-document-v1',nonce:${JSON.stringify(nonce)},url:location.href,loginForm}));
+  };window.__moflightLoginObserver?.disconnect();
+  if(typeof MutationObserver!=='undefined'){const observer=new MutationObserver(send);window.__moflightLoginObserver=observer;observer.observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:['hidden','style','class']});}
+  if(document.readyState==='complete')send();else window.addEventListener('load',send,{once:true});})();true;`;
 }
 export function scopedBridge(source: string, document: string, expected: string) {
   if (!providerUrl(source) || !providerUrl(document) || !providerUrl(expected)) return false;
