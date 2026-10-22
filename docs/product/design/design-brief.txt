@@ -2,7 +2,7 @@ MOFLIGHT — CURRENT UI DESIGN HANDBOOK AND AI HANDOFF
 
 # MoFlight UI design handbook
 
-> **Alternative branch — 22 October 2026, [#55](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/55).** Manuel requested a separate modern, friendlier native UI. This branch implements that alternative; it does not replace the approved main-branch reference until he selects it. Read the [alternative design contract](alternative-ui.md) and [verification report](../../verification/2026-10-22-alternative-ui.md). Generated token inventories describe this branch. Historical baseline descriptions below retain their original decision scope.
+> **Selected main UI — 22 October 2026, [#55](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/55).** Manuel explicitly selected the modern alternative as the new main and requested its merge. The [modern UI contract](alternative-ui.md) now overrides conflicting earlier appearance/composition rules. Integration verification is recorded in the [single report](../../verification/2026-10-22-alternative-ui.md); this decision does not pass remaining live/physical/iOS gates.
 
 This is the current starting point for MoFlight's visual design. Use it when enhancing screens, reviewing symbols or proposing a change to the overall appearance. Manuel authorized this consolidation on 18 October 2026 under [#23](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/23). The later selected duotone symbol family, M2 Medical card and supplied folded paper plane were approved for guide/app integration on 18 October 2026 under #20. Other layout and data decisions retain their scope.
 
@@ -10,7 +10,7 @@ This is the current starting point for MoFlight's visual design. Use it when enh
 
 | Chapter | Responsibility |
 | --- | --- |
-| [Alternative branch contract](alternative-ui.md) | Authorized branch design and acceptance boundary; main adoption remains separate. |
+| [Alternative branch contract](alternative-ui.md) | Selected main design and scoped acceptance boundary. |
 | [Foundations](foundations.md) | Color roles/pairings, typography, spacing, geometry, effects, photography and branding. |
 | [Components and shapes](components.md) | Cards, controls, headers, navigation, sheets, badges and charts, with relevant states and source locations. |
 | [Layout and presentation patterns](patterns.md) | Composition, responsive widths, navigation, keyboard, accessibility and honest data presentation. |
@@ -23,7 +23,7 @@ This is the current starting point for MoFlight's visual design. Use it when enh
 
 ## Current visual direction
 
-This branch uses matte navy, opaque panels, mint actions, a larger destination heading and a calmer reading order. A compact season card integrates the latest flight and current/prior-year aircraft-share rings; the single-row monthly comparison sits behind a disclosure. The former leading connection box is removed and decorative flight artwork supports the header/season heading. Preserve selected duotone symbols and the Thermik logo. The [alternative contract](alternative-ui.md) describes this branch; the authority list below records main-branch decisions, not approval to replace them.
+This branch uses matte navy, opaque panels, mint actions, a larger destination heading and a calmer reading order. A compact season card integrates the latest flight and current/prior-year aircraft-share rings; the single-row monthly comparison sits behind a disclosure. The former leading connection box is removed and decorative flight artwork supports the header/season heading. Preserve selected duotone symbols and the Thermik logo. The [selected modern contract](alternative-ui.md) takes precedence for its named changes; the authority list below preserves earlier decisions outside that scope.
 
 Keep German labels beside important navigation/status symbols. Show saved facts and explicit unknown/unavailable states. Decorative photographs and illustrative design examples do not establish weather, tracks, source freshness or copied paper entries.
 
@@ -62,7 +62,7 @@ The generator uses Python's standard library and repository files only: no netwo
 
 [Handbook](README.md) · [#55](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/55) · branch `ui/alternative-flight-experience`.
 
-Manuel authorized an alternative native implementation and verification. Choosing it as the main product design remains a separate decision. M4 presentation reuses existing M2/M3 saved-data and provider boundaries. This visual contract adds no services, migrations or real-book activation. Provider retrieval changes are tracked separately and do not follow from appearance approval.
+Manuel authorized an alternative native implementation and verification. On 22 October Manuel explicitly selected it as the new main and requested merging the branch. The integration preserves newer main safeguards; selection is separate from the remaining acceptance gates. M4 presentation reuses existing M2/M3 saved-data and provider boundaries. This visual contract adds no services, migrations or real-book activation. Provider retrieval changes are tracked separately and do not follow from appearance approval.
 
 ## Review and design response
 
@@ -75,7 +75,7 @@ The baseline makes too many elements equally prominent: tiny header title beside
 - **Season comparison:** four compact aircraft-split rings: known reported time and starts for each of the current/prior calendar years. Aircraft colors stay stable across measures/years and have a shared registration legend. Empty/unknown time has no fabricated arc. Ring values sit beside the artwork so enlarged text can grow; the measure pair stacks at enlarged text. These are saved-year totals, not a claim of complete coverage or equal year-to-date periods.
 - **Saison im Detail:** opens directly onto one dense current/prior-year monthly chart with Flüge/Flugstunden chips, without a duplicate aircraft list. Jan–Dec always occupy one row; all twelve months fit visibly without horizontal scrolling, including enlarged text. Only the compact month/marker labels cap font scaling at 1; surrounding controls and captions still scale. Preserve year labels, unknown/partial markers, equal current-month cutoffs and blank future months. Expansion performs no provider work.
 - **Flüge (C04/C09):** prominent search, year chips, aircraft filter, concise saved-row count, optional coverage disclosure. Clear search without clearing the year, or reset all filters with one action. The list shows date, reported time, registration, model and route. Details lead with aircraft and duration, with complete original evidence below. No inferred route, track, role or flight time.
-- **Navigation (C07):** five preserved destinations, selected filled tile and heavier mint label. Enlarged text uses wrapped rows. The development footer names this as an alternative.
+- **Navigation (C07):** five preserved destinations, selected filled tile and heavier mint label. Enlarged text uses wrapped rows. The footer identifies this as a development version; the synthetic preview remains under Development.
 - **Empty/deferred states:** explain the next supported step. Paper setup stays “In Vorbereitung”; AI explains its synthetic example scope. A compact Meine Saison empty/error state gives passive guidance to the header Daten action without invented totals or the removed permanent connection box.
 - **Responsive composition:** bounded single groups through phone/tablet widths; at 840+ a two-column Start. Flight rows use two columns at 600+ with standard font scale. The month canvas remains a single row at every width; all twelve months fit visibly at enlarged text too, using compact axis labels. Both series retain year-labelled legends and unknown/partial markers.
 
@@ -91,7 +91,7 @@ Built-in image tool, opaque background, original PNG2172×724 (measured file dim
 
 > Use case: photorealistic-natural. Asset type: extremely wide, low-height banner background for a compact dark navy personal sailplane flight-log app header. Generate a new original, highly realistic aviation photograph/visualization, landscape aspect ratio 3:1, approximately 1536 x 512. No text, no logos, no frame, no UI. Scene: a white fiberglass Schleicher ASK-21-like two-seat training sailplane genuinely soaring in a gentle coordinated bank above hazy forested hills, seen from a nearby aircraft, slightly above and ahead of its left side. Accurate recognizable ASK-21 proportions: substantial rounded tandem two-seat nose, long clearly divided two-piece canopy, mid-mounted long straight double-tapered wings with blunt simple tips and NO winglets, slender rear fuselage, proper vertical fin with T-tail horizontal stabilizer. Small red-orange nose/wingtip safety accents. Not a generic extreme racing glider, not a jet, not a toy, no propeller, no steep aerobatics. Composition critical: place the complete aircraft exclusively in the RIGHT HALF of the wide image, wingspan about 40 percent of canvas width; fuselage diagonally nose toward lower-left, tail upper-right, wings foreshortened naturally. Aircraft must read at a very small UI size. Keep the LEFT 45 percent mostly clean, very dark navy #0b141c with a gentle atmospheric fade for a separate existing logo and screen title; keep bottom 25 percent dark and quiet for separate controls. Cool blue hour, realistic white fiberglass reflections and translucent smoky canopy, subtle terrain far below to establish a believable in-flight situation. Add just 4 to 6 fine semi-transparent cyan-white aerodynamic visualization streamlines following the SAME local relative-wind direction from ahead of nose past wings toward the tail and downstream; they should gently deflect around the aircraft and indicate a restrained downstream wingtip wake. Thin, elegant, physically coherent, no big random crossing swooshes, no neon ribbons, no contrails or smoke. These are illustrative airflow overlays, not literal visible wind or CFD evidence. Photographic realism with understated airflow graphics. Preserve quiet navy background and complete aircraft visibility.
 
-The shell retains Start and its processed selectors across ordinary tab navigation. Unchanged view inputs reuse summary/month calculations; returning to Start does not itself read the library. Duplicate native active notifications no longer trigger another read. Real background/foreground transitions and provider closure still perform guarded local revalidation; unavailable, changed-owner or failed reads do not publish cached data as verified. No persistent unscoped cache or generation-only shortcut was introduced. Host regressions cover these boundaries; they do not establish that the full user-reported reload symptom has been reproduced or eliminated on a device. Evidence and remaining gates belong in the [package report](../../verification/2026-10-22-alternative-ui.md) and [#45](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/45).
+The shell retains Start and its processed selectors across ordinary tab navigation. Unchanged view inputs reuse summary/month calculations; returning to Start does not itself read the library. Duplicate native active notifications no longer trigger another read. Real background/foreground transitions and provider closure still perform guarded local revalidation. The app-switch correction retains the last verified screen and completed detail during ordinary quiet revalidation; equal results reuse references, changed evidence invalidates detail, and missing/failed validation removes retained data. Provider/writer admission clears retained data through the active boundary; changed owners never reuse prior data. No persistent unscoped cache or generation-only shortcut was introduced. Host regressions cover these boundaries; they do not establish that the full user-reported reload symptom has been reproduced or eliminated on a device. Evidence and remaining gates belong in the [package report](../../verification/2026-10-22-alternative-ui.md) and [#45](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/45).
 
 ## Synthetic design preview
 
@@ -99,11 +99,11 @@ Profile → Development → Designvorschau opens the real Dashboard/OwnFlights c
 
 ## Acceptance boundary
 
-Native screen matrix, keyboard, offline restart and host behavior evidence belong in the [package report](../../verification/2026-10-22-alternative-ui.md). Source exports are not iOS runtime proof. Provider login, physical-device experience and spoken accessibility retain their existing independent gates. Main stays unchanged and no PR is requested.
+Native screen matrix, keyboard, offline restart and host behavior evidence belong in the [package report](../../verification/2026-10-22-alternative-ui.md). Source exports are not iOS runtime proof. Issue #55 records the completed branch UI delivery and the separately authorized main-integration checkpoint. Fresh authenticated native login remains open under #42, populated/physical-device responsiveness under #45, and broader supported-source coverage under #56. Physical-device and iOS runtime acceptance have not passed; extended spoken accessibility is deferred behind core functionality, UI simplification and targeted regression checks. Main adoption was explicitly selected; these limits remain open despite that selection. The integration report records the merged-source checks. No PR is requested.
 
 # Visual foundations
 
-> This alternative branch applies the [22 October alternative design contract](alternative-ui.md) to C01–C09, typography, surfaces, Start and flight browsing. It supersedes conflicting baseline appearance descriptions on this branch only; data semantics and main-branch approval are unchanged.
+> The [22 October modern UI contract](alternative-ui.md) is selected as the main baseline. It supersedes conflicting earlier appearance/composition descriptions for C01–C09, typography, surfaces, Start and flight browsing. Data and acceptance boundaries retain their separate contracts.
 [Handbook entry point](README.md). Branch implementation is summarized here; numeric values are the current implementation snapshot, not a new independent selection of every token. Layout lengths are React Native logical units; text follows platform scaling. Browser examples use CSS pixels for explanation.
 
 ## Color roles
@@ -224,8 +224,8 @@ The 22 October header data-update amendment reuses `#74dfba` for saved data rece
 
 # Components, symbols and shapes
 
-> This alternative branch applies the [22 October alternative design contract](alternative-ui.md) to C01–C09, typography, surfaces, Start and flight browsing. It supersedes conflicting baseline appearance descriptions on this branch only; data semantics and main-branch approval are unchanged.
-[Handbook entry point](README.md). This catalogue records branch implementation; adoption as the main design remains separate. The portable guide includes schematic examples; source values and native evidence remain authoritative. Example labels/data are synthetic.
+> The [22 October modern UI contract](alternative-ui.md) is selected as the main baseline. It supersedes conflicting earlier appearance/composition descriptions for C01–C09, typography, surfaces, Start and flight browsing. Data and acceptance boundaries retain their separate contracts.
+[Handbook entry point](README.md). This catalogue records branch implementation; main adoption was selected on 22 October. The portable guide includes schematic examples; source values and native evidence remain authoritative. Example labels/data are synthetic.
 
 ## Component map
 
@@ -247,8 +247,8 @@ The 22 October header data-update amendment reuses `#74dfba` for saved data rece
 | C14 | Synthetic import review | Shared C01/C02/C03 cards/actions/choice chips, centered group capped at 520 dp | Development-only comparison, source variants and explicit book choice; [ImportPreview](../../../apps/platform-lab/src/mobile/ImportPreview.tsx). No saved-library import. |
 | C15 | Captured flight review | Shared cards/actions in the connection panel's centered 520 dp group; five records per page, eight original fields per detail page | [CapturedFlights](../../../apps/platform-lab/src/mobile/CapturedFlights.tsx) reads owner-scoped saved evidence without requiring provider login. Dates/clocks, reported duration, aircraft and separate crew fields retain unknown/invalid/conflict states; original field text is selectable and untruncated. No book membership or canonical import. |
 | C16 | Information source review | Shared C01/C02 controls in the connection panel's centered 520 dp group; five raw rows per page, one immutable snapshot at a time | [InformationReview](../../../apps/platform-lab/src/mobile/InformationReview.tsx) shows retrieval time and recorded coverage, with older/newer controls available offline. Category counts use the latest snapshot. Blank extracted text stays unknown; known date-only document snapshots are marked incomplete. No canonical history or cross-snapshot aggregation. |
-| C17 | Own-flight loading | Shared C01/C02 controls, centered 520 dp groups; ordinary progress and secondary details | [CoreFlightFoundation](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx) coordinates one explicit action through internal fresh storage, original-provider authentication, verified retrieval and local save. A verified retained session avoids login; valid rows need no routine review/save tap. Source/account/recovery checks remain; unresolved recovery is visible outside the details disclosure. Custom period, raw review and real-history backup remain under Details & weitere Optionen. The header data-update entry runs the combined update in the shared selected-owner panel, with login only when needed and contextual return. Only the header admits provider work. Start/Flüge/Profile/status/Development retain passive guidance; non-header backup/library routes cannot open login. The same native browser remains mounted above tab navigation after closing; advanced library options are secondary. Original-login exposure comes from the explicit connection flow, without an outer login-enabled override. On Android, the measured keyboard frame caps progress and reserves the same retained browser viewport above the IME. The combined flow retains one progress card through original-provider sign-in, verification, flights/save and Medical; success/partial failure stays visible until acknowledgement, which returns to ordinary Flüge with the result. Opening options alone creates/retrieves nothing. |
-| C18 | Connection/data summary | Compact conditional Start row capped at 430 dp; Profile retains administration | [ConnectionSummary](../../../apps/platform-lab/src/mobile/ConnectionSummary.tsx) uses successful saved-retrieval time, with a reminder only after more than 72 hours or a positively identified change. Ordinary reminders can be hidden for 24 hours in the exact account/store scope. First-use/load failure/recovery remain actionable. Explicit update coordinates flights, Medical and separate duty capture; failures do not undo flight saves. Startup latest-flight observation is unavailable; no automatic provider request is enabled. |
+| C17 | Own-flight loading | Shared C01/C02 controls, centered 520 dp groups; ordinary progress and secondary details | [CoreFlightFoundation](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx) coordinates one explicit action through internal fresh storage, original-provider authentication, verified retrieval and local save. A verified retained session avoids login; valid rows need no routine review/save tap. Source/account/recovery checks remain; unresolved recovery is visible outside the details disclosure. Custom period, raw review and real-history backup remain under Details & weitere Optionen. The header data-update entry runs the combined update in the shared selected-owner panel, with login only when needed and contextual return. Only the header admits provider work. Start/Flüge/Profile/status/Development retain passive guidance; non-header backup/library routes cannot open login. The same native browser remains mounted above tab navigation after closing; advanced library options are secondary. Original-login exposure comes from the explicit connection flow, without an outer login-enabled override. On Android, the measured keyboard frame caps progress and reserves the same retained browser viewport above the IME. The combined flow retains one progress card through original-provider sign-in, verification, flights/save and separate Medical, supported duty, calendar-entry and document-notice jobs. Settled automatic completion returns to Start once with a dismissible owner-scoped receipt, including optional failures. Blocking errors/recovery stay actionable in the popup; supported source coverage remains partial under #56. Opening options alone creates/retrieves nothing. |
+| C18 | Connection/data summary | Profile/status data summary; earlier conditional Start placement is superseded on this branch | [ConnectionSummary](../../../apps/platform-lab/src/mobile/ConnectionSummary.tsx) uses successful saved-retrieval time in Profile/status. Its retained compact reminder logic is not mounted on alternative Start; that page uses season empty/error guidance instead. Only the header admits updates. Explicit update coordinates flights and separate supported information jobs; optional failures do not undo flight saves. Startup latest-flight observation is unavailable; no automatic provider request is enabled. |
 | C19 | Support diagnostics | Shared C01/C02 cards/actions and selectable report text in a centered 520 dp group | [Diagnostics](../../../apps/platform-lab/src/mobile/Diagnostics.tsx) via Settings; paged technical/action histories and protected failures; observed navigation transitions without inferred intent. Explicit full JSON-file sharing, bounded short text copying and diagnostic-only clearing; 1 MB total managed storage cap. No automatic transmission. |
 
 Sources: [theme](../../../apps/platform-lab/src/mobile/theme.tsx), [MobileApp](../../../apps/platform-lab/src/mobile/MobileApp.tsx), [Dashboard](../../../apps/platform-lab/src/mobile/Dashboard.tsx), [AppHeader](../../../apps/platform-lab/src/mobile/AppHeader.tsx), [ProviderConnection](../../../apps/platform-lab/src/mobile/ProviderConnection.tsx), [MedicalStatus](../../../apps/platform-lab/src/mobile/MedicalStatus.tsx), [ProfileSettings](../../../apps/platform-lab/src/mobile/ProfileSettings.tsx) and [SeasonRing](../../../apps/platform-lab/src/mobile/SeasonRing.tsx).
@@ -284,6 +284,10 @@ Images are decorative and excluded from accessibility announcements; their label
 
 [Source notes, regeneration and fidelity limits](symbols/README.md) and [one verification report](../../verification/2026-10-18-icon-option-2.md) distinguish selected intent, implemented artwork and source-specific native acceptance.
 
+## Filtered saved-flight summary — selected 22 October 2026
+
+The existing Flüge summary card shows the count and known reported duration for exactly the rows admitted by its year/date/registration/text filters. Unknown durations have a separate count; a known zero remains `0:00`, an unknown-only selection says unknown, and no rows show a dash. Use existing card/label spacing and wrapping. Supporting text identifies reported time without role credit; it makes no complete-history claim. This is the bounded #9 query slice approved in the project-review continuation, with no new chart, filter or navigation model.
+
 ## Schematic examples
 
 The combined HTML retains explicitly labelled historical C01–C13 browser specimens for comparison; they are not the branch appearance target: neutral Medical/session status, selected chips, disabled action, no-track/empty placeholder and illustrative distribution ring. These examples execute no app/provider operation and establish no native acceptance. Use a concrete example to discuss a proposed change, then verify the implemented control in context.
@@ -298,7 +302,7 @@ Historical main-branch amendment, superseded on this branch by [alternative UI](
 
 ### Header data update — selected 22 October 2026
 
-The ordinary header uses [DataUpdateIndicator](../../../apps/platform-lab/src/mobile/DataUpdateIndicator.tsx): existing28-unit Modern Duotone refresh artwork, visible “Daten” and compact relative age, minimum74×48dp target. The later ASK-21 refinement matches the Profile card surface/radius14 and removes the colored frame; only the age caption is green (`#74dfba`) for a durably saved successful flight retrieval less than one hour old, amber (`#ffc477`) from one hour onward, neutral for no valid saved timestamp. Exact time and the update/login-if-needed purpose are in the accessible label/hint; the update panel retains exact saved-time wording. Color is accompanied by age text. Failure/cancellation/login checks cannot advance this timestamp. The selected owner/account library supplies it after restart; the local clock updates the age and crosses the hour boundary without provider requests. A successful empty/no-change retrieval counts. Medical/duty outcomes retain their separate category times; this control does not claim all source categories are current. The three-day Start reminder is unchanged. This supersedes the shell's former connection/session badge; the provider panel still uses its separate connection indicator and proof safeguards.
+The ordinary header uses [DataUpdateIndicator](../../../apps/platform-lab/src/mobile/DataUpdateIndicator.tsx): existing28-unit Modern Duotone refresh artwork, visible “Daten” and compact relative age, minimum74×48dp target. The later ASK-21 refinement matches the Profile card surface/radius14 and removes the colored frame; only the age caption is green (`#74dfba`) for a durably saved successful flight retrieval less than one hour old, amber (`#ffc477`) from one hour onward, neutral for no valid saved timestamp. Exact time and the update/login-if-needed purpose are in the accessible label/hint; the update panel retains exact saved-time wording. Color is accompanied by age text. Failure/cancellation/login checks cannot advance this timestamp. The selected owner/account library supplies it after restart; the local clock updates the age and crosses the hour boundary without provider requests. A successful empty/no-change retrieval counts. Medical/duty outcomes retain their separate category times; this control does not claim all source categories are current. The earlier three-day Start reminder is superseded on this branch by the compact season presentation. This supersedes the shell's former connection/session badge; the provider panel still uses its separate connection indicator and proof safeguards.
 
 ### Header-only update popup — 22 October 2026
 
@@ -306,17 +310,17 @@ The ordinary header uses [DataUpdateIndicator](../../../apps/platform-lab/src/mo
 
 # Layout and presentation patterns
 
-> This alternative branch applies the [22 October alternative design contract](alternative-ui.md) to C01–C09, typography, surfaces, Start and flight browsing. It supersedes conflicting baseline appearance descriptions on this branch only; data semantics and main-branch approval are unchanged.
-[Handbook entry point](README.md). These patterns describe the branch alternative and preserved data/navigation boundaries; main-design selection remains separate. Behavior remains governed by journey/provider/book contracts.
+> The [22 October modern UI contract](alternative-ui.md) is selected as the main baseline. It supersedes conflicting earlier appearance/composition descriptions for C01–C09, typography, surfaces, Start and flight browsing. Data and acceptance boundaries retain their separate contracts.
+[Handbook entry point](README.md). These patterns describe the branch alternative and preserved data/navigation boundaries; main adoption was selected on 22 October. Behavior remains governed by journey/provider/book contracts.
 
 ## Screen composition
 
 | Destination | Current presentation |
 | --- | --- |
-| Übersicht | First-use/load/recovery actions remain; returning users see a conditional 72-hour reminder, season KPIs, a separate recent-flight list opening exact saved identities, and optional aircraft/monthly comparisons behind Saison im Detail and compact Verein duty source summary. Detailed counts/freshness stay in Profile/Flüge. No empty first-use dashboard, invented coverage or automatic full retrieval. |
+| Übersicht | Meine Saison leads with four current/prior-year time/starts rings and one latest dated flight opening its exact saved identity. Saison im Detail reveals one combined, fully visible Jan–Dec chart without horizontal scrolling. Empty/error states point to the header Daten action; the permanent connection/reminder box is removed. A compact Verein source summary remains. Detailed counts/freshness stay in Profile/Flüge. No empty first-use dashboard, invented coverage or automatic full retrieval. |
 | Flüge | Selected real account’s locally saved flights without a required book: date, aircraft, route/duration rows; source-date/year, text and exact registration filters. Source IDs/revisions/original fields and absent-track context stay in details. Collapsible coverage/freshness and passive header-update guidance remain; no training or book inference. |
 | Flugbuch | Concise deferred real-book/setup explanation and Flüge ansehen. Existing synthetic book/paper/backup tools remain under Development. Full reconciliation/writing remains M5; book identity differs from account/format. |
-| Verein | Real account/club-context duty source pages with abbreviated names and full raw periods; visible-page coverage remains partial. Separate 30-day backup-excluded cache. Termine/Mitteilungen keep honest missing-source states. |
+| Verein | Real account/club-context duty source pages with abbreviated names and full raw periods; visible-page coverage remains partial. Separate 30-day backup-excluded cache. Supported visible calendar entries and document notices use saved partial source projections; unsupported or unreadable pages stay unknown. Populated club news has no verified reader. Broader coverage remains open under #56. |
 | AI | Welcome, supported local questions/results, composer and unavailable free-text state. Sparkles identify the category. |
 
 The [approved reference](../design-sources/2026-10-16-four-screen/reference.png) retains main-branch authority; this branch follows the [alternative contract](alternative-ui.md). Later five-tab changes add Flugbuch and retain AI. Older Wetter-tab, goals, monthly-chart and synthetic Medical-expiry prototypes remain historical.
@@ -337,7 +341,7 @@ The authorized live-review increment under #2 exposes **Flugdaten erfassen** and
 
 The explicitly started [synthetic import preview](../../../apps/platform-lab/src/mobile/ImportPreview.tsx) under Development reuses dark cards, labelled actions and selected chips in a centered 520 dp group. It compares fictional new/changed/unchanged/conflicting records, shows previous/current evidence, explains book suggestions and requires explicit confirmation of a book or deferral. Returning preserves the separate test stand for the current app session; app restart discards it. Opening does not create fixtures in the saved library or contact a provider. This M3 preparation under #18 does not enable normal live import or accept production identity/schema/assignment rules. Source-specific verification is recorded separately.
 
-The [own-flight foundation](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx) is a separate Development entry for the authorized core integration checkpoint. It creates a fresh local owner only after the named action, preserves old stores, and uses the original provider interface for explicit account confirmation and bounded retrieval. That confirmation applies to the selected fresh library; users review original rows and counts before explicitly saving flights without book assignment. Saved source facts, revisions and unknown values remain readable offline. Recovery states preserve pending commands/files and disable writes; backup/restore uses its own real-history family and explicit file/folder pickers. Reuse the centered 520 dp C01/C02 groups. The ordinary shell's draft/scroll state stays mounted. A single selected-owner controller/browser remains above normal navigation after closing; the shell reads its scoped status and creates no competing provider controller. Only the header admits provider update/login; Profile points to it, while backup opens secondary library options. Changing the owner/store/selection sequence replaces the old controller and revokes its work; renewing a capability for the same selection retains the browser. The header data action starts the combined guarded login/retrieval/save flow; opening secondary options alone performs no retrieval. Returning reloads the read-only list. Statistics/book/paper remain separate. This describes wiring, not a native acceptance claim.
+The earlier core-checkpoint [own-flight foundation](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx) is a separate Development entry for the authorized core integration checkpoint. It creates a fresh local owner only after the named action, preserves old stores, and uses the original provider interface for explicit account confirmation and bounded retrieval. That confirmation applies to the selected fresh library. The earlier explicit review/save flow remains available in secondary tooling; ordinary header loading now saves validated flights automatically without book assignment. Saved source facts, revisions and unknown values remain readable offline. Recovery states preserve pending commands/files and disable writes; backup/restore uses its own real-history family and explicit file/folder pickers. Reuse the centered 520 dp C01/C02 groups. The ordinary shell's draft/scroll state stays mounted. A single selected-owner controller/browser remains above normal navigation after closing; the shell reads its scoped status and creates no competing provider controller. Only the header admits provider update/login; Profile points to it, while backup opens secondary library options. Changing the owner/store/selection sequence replaces the old controller and revokes its work; renewing a capability for the same selection retains the browser. The header data action starts the combined guarded login/retrieval/save flow; opening secondary options alone performs no retrieval. Completed automatic loading returns to Start with an owner-scoped result receipt; provider closure triggers guarded local revalidation. Statistics/book/paper remain separate. This describes wiring, not a native acceptance claim.
 
 The [ordinary own-flight view](../../../apps/platform-lab/src/mobile/OwnFlights.tsx) reads the selected real library locally, with loading, missing setup, empty result and failure/retry states. It keeps filters and list position across details; a changed owner/store resets them, while a changed flight revision requires a fresh read. Profile and connection overlays retain the underlying detail route. Search/year filters precede the longer coverage/update card so the focused field remains reachable with a landscape keyboard. The header, filter and detail groups cap at 520 dp; C09 rows use two columns from 600 dp at ordinary text size. Provider text remains selectable and untruncated. Separate source crew slots establish no confirmed identity, role credit, UTC conversion or landing day. Detailed evidence and pending platform gates are in the [package report](../../verification/2026-10-20-ordinary-flights.md).
 
@@ -345,7 +349,7 @@ The [ordinary own-flight view](../../../apps/platform-lab/src/mobile/OwnFlights.
 
 Before opening native ownership, the flow reserves the existing reader queue: admitted reads finish first, and later reads wait until teardown. Account/selection recovery remains guarded; the reservation does not make unreadable or divergent candidates writable. [Handoff correction, #40](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/40).
 
-Only the header exposes the explicit login-and-load/update action; Start/Profile and Flüge give passive guidance. Necessary fresh local storage is internal. Check retained session cookies through a protected provider profile; show the original login page only when needed, then resume verification after provider navigation. Keep that browser in the same native parent across login/progress. Use one-column, centered progress/forms up to 520 dp; labels wrap with text scaling. The login view omits information-import menus. Provider-required login still belongs to Vereinsflieger; account mismatch and unresolved recovery remain actionable exceptions. Known provider values save through deterministic validation without routine per-row review or a second save confirmation. Keep one progress card in the same provider screen through sign-in, account verification, flight retrieval/save and Medical. Preserve its native browser parent while the login form is visible beneath the progress area; cap and scroll the progress area during login so the form remains usable. Keep success or partial/failure results on that screen until acknowledgement, then return the result and covered period to ordinary Flüge. A foreground interruption before retrieval preserves the original login document; a guarded resume re-arms the guided intent without accepting stale proof, and subsequent authenticated navigation still requires fresh account verification. Interactive sign-in time does not consume the outer flight-response timeout. Backgrounding after retrieval starts retains cancellation/recovery safeguards. Failed or skipped Medical does not undo the confirmed flight save. These changes were approved on 21 October under #22/#42; native/phone evidence remains source-specific. Preserve previous saved data and user state on error/cancellation; opening the app does not initiate retrieval.
+Only the header exposes the explicit login-and-load/update action; Start/Profile and Flüge give passive guidance. Necessary fresh local storage is internal. Check retained session cookies through a protected provider profile; show the original login page only when needed, then resume verification after detecting completion, including when login remains at the original URL. Form absence triggers fresh matching-account proof and is not authentication evidence itself. Keep that browser in the same native parent across login/progress. Use one-column, centered progress/forms up to 520 dp; labels wrap with text scaling. The login view omits information-import menus. Provider-required login still belongs to Vereinsflieger; account mismatch and unresolved recovery remain actionable exceptions. Known provider values save through deterministic validation without routine per-row review or a second save confirmation. Keep one progress card in the same provider screen through sign-in, account verification, flight retrieval/save and separate Medical, supported duty, calendar-entry and document-notice jobs. Preserve its native browser parent while the login form is visible beneath the progress area; cap and scroll the progress area during login so the form remains usable. After automatic completion and settled write/recovery guards, return to Start once with a dismissible owner-scoped receipt, including optional-source failures. Blocking errors and recovery decisions remain in the popup. Optional jobs do not imply complete source coverage. A foreground interruption before retrieval preserves the original login document; a guarded resume re-arms the guided intent without accepting stale proof, and subsequent authenticated navigation still requires fresh account verification. Interactive sign-in time does not consume the outer flight-response timeout. Backgrounding after retrieval starts retains cancellation/recovery safeguards. Failed or skipped Medical does not undo the confirmed flight save. These changes were approved on 21 October under #22/#42; native/phone evidence remains source-specific. Preserve previous saved data and user state on error/cancellation; opening the app does not initiate retrieval.
 
 The Start summary reads committed-library freshness, independently of raw captures and session checks. Keep compact current/prior-year count/known-time rings and their aircraft legend; detailed coverage/source information is reached through Flüge. This branch uses bounded groups up to 520 dp, or two bounded columns from 840 dp at ordinary text size. Book setup stays deferred and never gates flights. Its quiet Start link opens a short information sheet; synthetic paper tasks and the editable demo name are in Development. Compact Start keeps recovery options visible when a decision is required. Entry copy makes manual original-page sign-in conditional: retained provider cookies may avoid typing credentials. A fresh unassociated owner still opens the original login route; this wording does not promise a protected-profile precheck on every first use. Native login-page/HTTP opening failure must end combined progress with explicit retry even before retrieval becomes busy; interactive sign-in itself remains untimed. [Package evidence and platform limits](../../verification/2026-10-21-simple-flight-loading.md) distinguish host behavior from native/provider acceptance.
 
@@ -353,7 +357,7 @@ The Start summary reads committed-library freshness, independently of raw captur
 
 **22 October alternative branch (#55), revised feedback:** Meine Saison is the first Start group; the permanent leading connection/reminder box is removed. The compact card contains one latest saved flight with date/relative age, recorded PIC and aircraft, plus current/prior-year time/starts rings split by aircraft. Its row opens the exact saved identity; Alle Flüge ansehen opens the general list. Saison im Detail opens one dense monthly chart with measure chips. Jan–Dec always stay in one row; all twelve months fit visibly at enlarged text too, using compact axis labels. Unknown dates/times, ambiguous same-day chronology and incomplete coverage remain explicit. Empty/error states give passive header guidance. The compact Verein card and source-expiry Medical states remain. See the [alternative contract](alternative-ui.md) for scoped authority, illustration provenance and acceptance limits.
 
-Start remains mounted across ordinary navigation, retaining processed selectors and disclosure state. Identical inputs do not recompute season/month summaries and tab return does not itself reload storage. Duplicate active notifications are ignored; real background/foreground and provider closure still require guarded local revalidation. Never show an unconfirmed owner's cached data. These host-tested boundaries are not proof that every reported native reload has been resolved.
+Start remains mounted across ordinary navigation, retaining processed selectors and disclosure state. Identical inputs do not recompute season/month summaries and tab return does not itself reload storage. Duplicate active notifications are ignored; real background/foreground and provider closure still require guarded local revalidation. Ordinary app-switch revalidation retains the last verified screen and completed detail quietly; equal results reuse references, changed evidence invalidates detail, and missing/failed validation removes retained data. Provider/writer admission clears retained data through the active boundary. Never show an unconfirmed owner's cached data. These host-tested boundaries are not proof that every reported native reload has been resolved.
 
 Keep header/navigation outside the scrolling canvas. Header order is logo/title, data update → Med → Profile. Below 600 dp or above font scale 1.3, destination and controls occupy separate rows, with controls wrapping. Wide standard-text layouts share one row; subtitle appears only there. The navy header includes the decorative flight illustration; text and controls remain above it.
 
@@ -394,11 +398,11 @@ Follow the [verification workflow](../../development/verification-workflow.md): 
 
 ### Everyday header data action — 22 October amendment
 
-Header order is data update → Medical → Profile. The update button starts the existing explicit combined fetch, showing original login only if required. Use a refresh symbol, “Daten” and received-age wording; green under one hour, amber for older, neutral when unknown. Its durable successful flight-update timestamp survives background/restart and remains unchanged on failed/cancelled updates. The provider panel's account-verification indicator remains a separate internal status. This amendment replaces only the former connection meaning/action in the ordinary shell; contextual return, selected-owner isolation and the separate three-day reminder remain.
+Header order is data update → Medical → Profile. The update button starts the existing explicit combined fetch, showing original login only if required. Use a refresh symbol, “Daten” and received-age wording; green under one hour, amber for older, neutral when unknown. Its durable successful flight-update timestamp survives background/restart and remains unchanged on failed/cancelled updates. The provider panel's account-verification indicator remains a separate internal status. This amendment replaces only the former connection meaning/action in the ordinary shell; contextual return and selected-owner isolation remain. The earlier separate three-day Start reminder is superseded on this branch by the compact season presentation.
 
 ### One update/login entry — 22 October popup amendment
 
-Use only the header “Daten” button for new provider data and login. Start reminders, empty Flüge, Profile, status and Development explain this entry without duplicating it. Keep local reload, filters, diagnostics and offline backup independent. The whole update journey appears in a persistent framed popup over the dimmed inert invoking page; do not switch to a full provider screen or remount/move the WebView during Android credential activities. All retry, recovery, source-specific optional jobs and result acknowledgement stay inside that frame. Close and hardware Back preserve existing cancellation/save guards and contextual return.
+Use only the header “Daten” button for new provider data and login. Start empty/error states, empty Flüge, Profile, status and Development explain this entry without duplicating it. Keep local reload, filters, diagnostics and offline backup independent. The whole update journey appears in a persistent framed popup over the dimmed inert invoking page; do not switch to a full provider screen or remount/move the WebView during Android credential activities. Retry, recovery and source-specific optional jobs stay inside that frame. Settled automatic completion returns to Start with its dismissible result receipt; it needs no routine acknowledgement in the popup. Close and hardware Back preserve existing cancellation/save guards and contextual return.
 
 # Platform-lab UI implementation inventory
 
@@ -723,7 +727,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DesignPreview.tsx
 
 ## DevelopmentHub.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DevelopmentHub.tsx](../../../apps/platform-lab/src/mobile/DevelopmentHub.tsx); normalized SHA-256 `773703bd58c1108204437ebeb278d866c9aa50a8a743ad7d426671c5286c7305`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DevelopmentHub.tsx](../../../apps/platform-lab/src/mobile/DevelopmentHub.tsx); normalized SHA-256 `6cda92476c8c1b6cc53fe0ecd453caae44cb0d49960c069b5b414f5634f72917`.
 
 ### Geometry / opacity declarations
 
@@ -869,7 +873,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MedicalStatus.tsx
 
 ## MobileApp.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `8a1c9f7f973a0d9a3f00b5f4b5970fa9144b21cb150fd5fca666810ba7bc8e70`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `ffdb13bb2295f5fa1409d87297423ee6970e027588e3104772b0a0b20ced7816`.
 
 ### Literal colors
 
@@ -981,48 +985,48 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](..
 
 ## OwnFlights.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OwnFlights.tsx](../../../apps/platform-lab/src/mobile/OwnFlights.tsx); normalized SHA-256 `9c9c208a82d52e9ab101624f5f779682864462d24c639553c4eaa963d871d5e4`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OwnFlights.tsx](../../../apps/platform-lab/src/mobile/OwnFlights.tsx); normalized SHA-256 `7b3ac3e443644c23960685150c2bbc2918d2b27f271df57e18ec8d164e6d38ea`.
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 16` | 139 |
-| `fontSize: 20` | 89 |
-| `fontSize: 22` | 116 |
-| `fontSize: 30` | 115 |
-| `fontWeight: '600'` | 89 |
-| `fontWeight: '700'` | 115 |
-| `lineHeight: 27` | 89 |
-| `lineHeight: 30` | 116 |
-| `lineHeight: 38` | 115 |
+| `fontSize: 16` | 146 |
+| `fontSize: 20` | 96 |
+| `fontSize: 22` | 123 |
+| `fontSize: 30` | 122 |
+| `fontWeight: '600'` | 96 |
+| `fontWeight: '700'` | 122 |
+| `lineHeight: 27` | 96 |
+| `lineHeight: 30` | 123 |
+| `lineHeight: 38` | 122 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 16` | 138, 139 |
-| `borderRadius: 20` | 137 |
-| `borderWidth: 1` | 138 |
-| `gap: 12` | 135, 137 |
-| `gap: 16` | 135 |
-| `gap: 2` | 125 |
-| `gap: 5` | 58 |
-| `gap: 6` | 136 |
-| `gap: 7` | 138 |
-| `gap: 8` | 83 |
-| `height: 7` | 95 |
-| `maxWidth: '50%'` | 86 |
-| `maxWidth: 600` | 135 |
-| `maxWidth: 960` | 135 |
-| `minHeight: 48` | 136 |
-| `minHeight: 52` | 139 |
-| `minWidth: 0` | 138 |
-| `minWidth: 48` | 136 |
-| `padding: 18` | 135, 137 |
-| `paddingVertical: 8` | 136, 139 |
-| `width: '100%'` | 135 |
-| `width: 52` | 139 |
+| `borderRadius: 16` | 145, 146 |
+| `borderRadius: 20` | 144 |
+| `borderWidth: 1` | 145 |
+| `gap: 12` | 142, 144 |
+| `gap: 16` | 142 |
+| `gap: 2` | 132 |
+| `gap: 5` | 60 |
+| `gap: 6` | 143 |
+| `gap: 7` | 145 |
+| `gap: 8` | 90 |
+| `height: 7` | 102 |
+| `maxWidth: '50%'` | 93 |
+| `maxWidth: 600` | 142 |
+| `maxWidth: 960` | 142 |
+| `minHeight: 48` | 143 |
+| `minHeight: 52` | 146 |
+| `minWidth: 0` | 145 |
+| `minWidth: 48` | 143 |
+| `padding: 18` | 142, 144 |
+| `paddingVertical: 8` | 143, 146 |
+| `width: '100%'` | 142 |
+| `width: 52` | 146 |
 
 ## PaperStatus.tsx
 
@@ -1443,6 +1447,11 @@ Retained app-owned lab/adapter surface; document its existing appearance as an e
 | `padding: 12` | 80 |
 
 # Decisions, history and known gaps
+
+## Selected modern main — 22 October 2026
+
+Manuel explicitly instructed merging the alternative branch because “this branch is the new main.” The [modern UI contract](alternative-ui.md) supersedes conflicting earlier canvas/layout, header, reminder, latest-flight and chart decisions below: compact ASK-21 scene, consistent status controls, no leading Start box, one latest-flight row, four season rings and one fully visible Jan–Dec paired-year chart. Original logo and selected symbol family remain. Automatic post-login completion and quiet app-switch retention keep their separately verified data/ownership boundaries. Earlier dated sections retain historical evidence; adoption does not establish physical/iOS/live-source or populated-performance acceptance. [Integration and source-specific evidence](../../verification/2026-10-22-alternative-ui.md).
+
 
 > This alternative branch applies the [22 October alternative design contract](alternative-ui.md) to C01–C09, typography, surfaces, Start and flight browsing. It supersedes conflicting baseline appearance descriptions on this branch only; data semantics and main-branch approval are unchanged.
 [Handbook entry point](README.md). Current guidance is in this handbook. Dated sources stay at existing paths; historical selected/confirmed/latest wording describes its original checkpoint unless explicitly carried forward.

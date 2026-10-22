@@ -1,5 +1,20 @@
 # MoFlight native platform lab
 
+**Latest review package — 22 October 2026:** APK source `e1f90b6` adds current-filter flight-time/unknown-duration summaries and strict duty-source checks. [Download APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/lab-2026-10-22-review-continuation/MoFlight-Android-review-continuation.zip); [checks and acceptance limits](../../docs/verification/2026-10-21-simple-flight-loading.md#review-continuation--22-october-2026). The signed Android witness used an empty selected library; physical-phone, populated beta-upgrade, full-user backup and complete live-duty acceptance remain open.
+
+## Local timing tools
+
+Run from the repository root with the pinned Node/pnpm environment:
+
+```powershell
+node --import tsx scripts/flight_loading_baseline.ts build/NEW_TIMING_RUN 101 3
+node --import tsx scripts/flight_loading_timing.ts INPUT.json NEW_OUTPUT.json
+```
+
+The first creates a fresh synthetic real-SQLite baseline through the actual service/library/journal: initial import, repeated unchanged imports and a reopened connection. It refuses an existing output directory and makes no provider/model requests. These same-process host measurements do not measure native ownership checks, provider/sign-in latency or an OS cold cache. The second projects allowlisted finite timing fields from an existing diagnostic-v2 JSON into a new file, without context/IDs/source values/errors; existing output is refused. Inclusive stages can overlap and must not be added or subtracted. Missing stages remain unmeasured. Keep private input reports in ignored local storage. [Recorded baseline](../../docs/verification/2026-10-21-simple-flight-loading.md#review-continuation--22-october-2026).
+
+## Current application and historical checkpoints
+
 **Current update/login — 22 October 2026:** only the header **Daten** button starts provider work. It shows durable received-age (green under one hour, amber for older, neutral when unknown) and opens a retained centered navy popup over the dimmed invoking page. Setup/progress/results use a compact frame; the original provider login expands within the same native parent when required. Start/Flüge/Profile/status/Development provide passive header guidance. Local reload, diagnostics and offline library backup/restore remain available; administration routes cannot open provider login. Closing retains the browser and returns to the invoking route. The protected-URL original-form and credential-return corrections remain. [Current package evidence and device limits](../../docs/verification/2026-10-21-simple-flight-loading.md#header-only-popup-update-journey--22-october-2026). Earlier dated commands/screens below retain their historical source scope.
 
 **Live capture review — 18 October 2026:** open the header connection control. Sign in/check the original provider session and confirm the provisional account if requested, then **Flugdaten jetzt abrufen**. Initial dates cover the last 30 device-calendar days; **Rohbelege & begrenzter Abruf** can edit them. **Erfasste Flüge ansehen** opens saved rows/details without login/network, including separate crew fields and original text. A failed/cancelled retrieval retains the previous review. These captures are separate from the synthetic library, book assignments and statistics. [Source, verification and remaining platform gates](../../docs/verification/2026-10-18-live-capture-review.md).

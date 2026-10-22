@@ -321,7 +321,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DesignPreview.tsx
 
 ## DevelopmentHub.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DevelopmentHub.tsx](../../../apps/platform-lab/src/mobile/DevelopmentHub.tsx); normalized SHA-256 `773703bd58c1108204437ebeb278d866c9aa50a8a743ad7d426671c5286c7305`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DevelopmentHub.tsx](../../../apps/platform-lab/src/mobile/DevelopmentHub.tsx); normalized SHA-256 `6cda92476c8c1b6cc53fe0ecd453caae44cb0d49960c069b5b414f5634f72917`.
 
 ### Geometry / opacity declarations
 
@@ -467,7 +467,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MedicalStatus.tsx
 
 ## MobileApp.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `8a1c9f7f973a0d9a3f00b5f4b5970fa9144b21cb150fd5fca666810ba7bc8e70`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `ffdb13bb2295f5fa1409d87297423ee6970e027588e3104772b0a0b20ced7816`.
 
 ### Literal colors
 
@@ -579,48 +579,48 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](..
 
 ## OwnFlights.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OwnFlights.tsx](../../../apps/platform-lab/src/mobile/OwnFlights.tsx); normalized SHA-256 `9c9c208a82d52e9ab101624f5f779682864462d24c639553c4eaa963d871d5e4`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OwnFlights.tsx](../../../apps/platform-lab/src/mobile/OwnFlights.tsx); normalized SHA-256 `7b3ac3e443644c23960685150c2bbc2918d2b27f271df57e18ec8d164e6d38ea`.
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 16` | 139 |
-| `fontSize: 20` | 89 |
-| `fontSize: 22` | 116 |
-| `fontSize: 30` | 115 |
-| `fontWeight: '600'` | 89 |
-| `fontWeight: '700'` | 115 |
-| `lineHeight: 27` | 89 |
-| `lineHeight: 30` | 116 |
-| `lineHeight: 38` | 115 |
+| `fontSize: 16` | 146 |
+| `fontSize: 20` | 96 |
+| `fontSize: 22` | 123 |
+| `fontSize: 30` | 122 |
+| `fontWeight: '600'` | 96 |
+| `fontWeight: '700'` | 122 |
+| `lineHeight: 27` | 96 |
+| `lineHeight: 30` | 123 |
+| `lineHeight: 38` | 122 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 16` | 138, 139 |
-| `borderRadius: 20` | 137 |
-| `borderWidth: 1` | 138 |
-| `gap: 12` | 135, 137 |
-| `gap: 16` | 135 |
-| `gap: 2` | 125 |
-| `gap: 5` | 58 |
-| `gap: 6` | 136 |
-| `gap: 7` | 138 |
-| `gap: 8` | 83 |
-| `height: 7` | 95 |
-| `maxWidth: '50%'` | 86 |
-| `maxWidth: 600` | 135 |
-| `maxWidth: 960` | 135 |
-| `minHeight: 48` | 136 |
-| `minHeight: 52` | 139 |
-| `minWidth: 0` | 138 |
-| `minWidth: 48` | 136 |
-| `padding: 18` | 135, 137 |
-| `paddingVertical: 8` | 136, 139 |
-| `width: '100%'` | 135 |
-| `width: 52` | 139 |
+| `borderRadius: 16` | 145, 146 |
+| `borderRadius: 20` | 144 |
+| `borderWidth: 1` | 145 |
+| `gap: 12` | 142, 144 |
+| `gap: 16` | 142 |
+| `gap: 2` | 132 |
+| `gap: 5` | 60 |
+| `gap: 6` | 143 |
+| `gap: 7` | 145 |
+| `gap: 8` | 90 |
+| `height: 7` | 102 |
+| `maxWidth: '50%'` | 93 |
+| `maxWidth: 600` | 142 |
+| `maxWidth: 960` | 142 |
+| `minHeight: 48` | 143 |
+| `minHeight: 52` | 146 |
+| `minWidth: 0` | 145 |
+| `minWidth: 48` | 143 |
+| `padding: 18` | 142, 144 |
+| `paddingVertical: 8` | 143, 146 |
+| `width: '100%'` | 142 |
+| `width: 52` | 146 |
 
 ## PaperStatus.tsx
 

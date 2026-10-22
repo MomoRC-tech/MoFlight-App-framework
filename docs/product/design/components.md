@@ -1,7 +1,7 @@
 # Components, symbols and shapes
 
-> This alternative branch applies the [22 October alternative design contract](alternative-ui.md) to C01–C09, typography, surfaces, Start and flight browsing. It supersedes conflicting baseline appearance descriptions on this branch only; data semantics and main-branch approval are unchanged.
-[Handbook entry point](README.md). This catalogue records branch implementation; adoption as the main design remains separate. The portable guide includes schematic examples; source values and native evidence remain authoritative. Example labels/data are synthetic.
+> The [22 October modern UI contract](alternative-ui.md) is selected as the main baseline. It supersedes conflicting earlier appearance/composition descriptions for C01–C09, typography, surfaces, Start and flight browsing. Data and acceptance boundaries retain their separate contracts.
+[Handbook entry point](README.md). This catalogue records branch implementation; main adoption was selected on 22 October. The portable guide includes schematic examples; source values and native evidence remain authoritative. Example labels/data are synthetic.
 
 ## Component map
 
@@ -59,6 +59,10 @@ Manuel made Modern Duotone & Soft-Filled Glyphs the default family on 18 October
 Images are decorative and excluded from accessibility announcements; their labelled parent owns navigation/action/status semantics. Native busy indicators remain animated ActivityIndicators; a drawn spinner is never substituted for actual progress. Calendar category artwork uses neutral date cells, not the reference's illustrative 26. The separate send arrow remains distinct from the folded plane used for Flüge.
 
 [Source notes, regeneration and fidelity limits](symbols/README.md) and [one verification report](../../verification/2026-10-18-icon-option-2.md) distinguish selected intent, implemented artwork and source-specific native acceptance.
+
+## Filtered saved-flight summary — selected 22 October 2026
+
+The existing Flüge summary card shows the count and known reported duration for exactly the rows admitted by its year/date/registration/text filters. Unknown durations have a separate count; a known zero remains `0:00`, an unknown-only selection says unknown, and no rows show a dash. Use existing card/label spacing and wrapping. Supporting text identifies reported time without role credit; it makes no complete-history claim. This is the bounded #9 query slice approved in the project-review continuation, with no new chart, filter or navigation model.
 
 ## Schematic examples
 

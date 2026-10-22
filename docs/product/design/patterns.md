@@ -1,7 +1,7 @@
 # Layout and presentation patterns
 
-> This alternative branch applies the [22 October alternative design contract](alternative-ui.md) to C01–C09, typography, surfaces, Start and flight browsing. It supersedes conflicting baseline appearance descriptions on this branch only; data semantics and main-branch approval are unchanged.
-[Handbook entry point](README.md). These patterns describe the branch alternative and preserved data/navigation boundaries; main-design selection remains separate. Behavior remains governed by journey/provider/book contracts.
+> The [22 October modern UI contract](alternative-ui.md) is selected as the main baseline. It supersedes conflicting earlier appearance/composition descriptions for C01–C09, typography, surfaces, Start and flight browsing. Data and acceptance boundaries retain their separate contracts.
+[Handbook entry point](README.md). These patterns describe the branch alternative and preserved data/navigation boundaries; main adoption was selected on 22 October. Behavior remains governed by journey/provider/book contracts.
 
 ## Screen composition
 

@@ -1,5 +1,10 @@
 # Decisions, history and known gaps
 
+## Selected modern main — 22 October 2026
+
+Manuel explicitly instructed merging the alternative branch because “this branch is the new main.” The [modern UI contract](alternative-ui.md) supersedes conflicting earlier canvas/layout, header, reminder, latest-flight and chart decisions below: compact ASK-21 scene, consistent status controls, no leading Start box, one latest-flight row, four season rings and one fully visible Jan–Dec paired-year chart. Original logo and selected symbol family remain. Automatic post-login completion and quiet app-switch retention keep their separately verified data/ownership boundaries. Earlier dated sections retain historical evidence; adoption does not establish physical/iOS/live-source or populated-performance acceptance. [Integration and source-specific evidence](../../verification/2026-10-22-alternative-ui.md).
+
+
 > This alternative branch applies the [22 October alternative design contract](alternative-ui.md) to C01–C09, typography, surfaces, Start and flight browsing. It supersedes conflicting baseline appearance descriptions on this branch only; data semantics and main-branch approval are unchanged.
 [Handbook entry point](README.md). Current guidance is in this handbook. Dated sources stay at existing paths; historical selected/confirmed/latest wording describes its original checkpoint unless explicitly carried forward.
 

@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
-import { mkdtemp, rm } from 'node:fs/promises';
+import { mkdtemp, rm, readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { basename, dirname, join, resolve } from 'node:path';
 import { nodeDriver } from './sqlite-driver.ts';
@@ -17,6 +17,22 @@ const hash = async (value: string) => createHash('sha256').update(value).digest(
 const authorize = () => ({ ownerId, storeId, leaseId: 'host-restart-test', writable: true });
 const manifest = { singleton: 1 as const, family: 'moflight-real-flight-history' as const, schema_version: 1 as const,
   payload_version: 1 as const, owner_id: ownerId, store_id: storeId, created_at: at };
+
+test('unsupported on-disk version is refused without changing the original file or command journal', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'moflight-restore-recovery-'));
+  const path = join(directory,'newer.sqlite'), journalPath = join(directory,'commands.sqlite');
+  try {
+    const library = await seed(path); await library.close();
+    const journal = await RealFlightCommandJournal.open(nodeDriver(journalPath),ownerId,storeId,authorize,hash,true); await journal.close();
+    const changed = nodeDriver(path); await changed.exec('PRAGMA user_version=2'); await changed.close();
+    const before = await readFile(path), journalBefore = await readFile(journalPath);
+    const db = nodeDriver(path);
+    try { await assert.rejects(RealFlightLibrary.open(db,ownerId,storeId,hash,authorize),/SQL version/); }
+    finally { await db.close(); }
+    assert.deepEqual(await readFile(path),before);
+    assert.deepEqual(await readFile(journalPath),journalBefore);
+  } finally { await removeFixtureDirectory(directory); }
+});
 async function removeFixtureDirectory(directory: string) {
   const target = resolve(directory);
   assert.equal(dirname(target), resolve(tmpdir()));

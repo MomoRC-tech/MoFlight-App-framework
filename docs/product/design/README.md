@@ -1,6 +1,6 @@
 # MoFlight UI design handbook
 
-> **Alternative branch — 22 October 2026, [#55](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/55).** Manuel requested a separate modern, friendlier native UI. This branch implements that alternative; it does not replace the approved main-branch reference until he selects it. Read the [alternative design contract](alternative-ui.md) and [verification report](../../verification/2026-10-22-alternative-ui.md). Generated token inventories describe this branch. Historical baseline descriptions below retain their original decision scope.
+> **Selected main UI — 22 October 2026, [#55](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/55).** Manuel explicitly selected the modern alternative as the new main and requested its merge. The [modern UI contract](alternative-ui.md) now overrides conflicting earlier appearance/composition rules. Integration verification is recorded in the [single report](../../verification/2026-10-22-alternative-ui.md); this decision does not pass remaining live/physical/iOS gates.
 
 This is the current starting point for MoFlight's visual design. Use it when enhancing screens, reviewing symbols or proposing a change to the overall appearance. Manuel authorized this consolidation on 18 October 2026 under [#23](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/23). The later selected duotone symbol family, M2 Medical card and supplied folded paper plane were approved for guide/app integration on 18 October 2026 under #20. Other layout and data decisions retain their scope.
 
@@ -8,7 +8,7 @@ This is the current starting point for MoFlight's visual design. Use it when enh
 
 | Chapter | Responsibility |
 | --- | --- |
-| [Alternative branch contract](alternative-ui.md) | Authorized branch design and acceptance boundary; main adoption remains separate. |
+| [Alternative branch contract](alternative-ui.md) | Selected main design and scoped acceptance boundary. |
 | [Foundations](foundations.md) | Color roles/pairings, typography, spacing, geometry, effects, photography and branding. |
 | [Components and shapes](components.md) | Cards, controls, headers, navigation, sheets, badges and charts, with relevant states and source locations. |
 | [Layout and presentation patterns](patterns.md) | Composition, responsive widths, navigation, keyboard, accessibility and honest data presentation. |
@@ -21,7 +21,7 @@ This is the current starting point for MoFlight's visual design. Use it when enh
 
 ## Current visual direction
 
-This branch uses matte navy, opaque panels, mint actions, a larger destination heading and a calmer reading order. A compact season card integrates the latest flight and current/prior-year aircraft-share rings; the single-row monthly comparison sits behind a disclosure. The former leading connection box is removed and decorative flight artwork supports the header/season heading. Preserve selected duotone symbols and the Thermik logo. The [alternative contract](alternative-ui.md) describes this branch; the authority list below records main-branch decisions, not approval to replace them.
+This branch uses matte navy, opaque panels, mint actions, a larger destination heading and a calmer reading order. A compact season card integrates the latest flight and current/prior-year aircraft-share rings; the single-row monthly comparison sits behind a disclosure. The former leading connection box is removed and decorative flight artwork supports the header/season heading. Preserve selected duotone symbols and the Thermik logo. The [selected modern contract](alternative-ui.md) takes precedence for its named changes; the authority list below preserves earlier decisions outside that scope.
 
 Keep German labels beside important navigation/status symbols. Show saved facts and explicit unknown/unavailable states. Decorative photographs and illustrative design examples do not establish weather, tracks, source freshness or copied paper entries.
 

@@ -1,85 +1,44 @@
-**Header-only update popup delivered — 22 October 2026:** the header **Daten** button now opens the whole update/login journey in a retained centered navy frame over the dimmed current page. Setup/progress/results are compact; the original Vereinsflieger login expands inside the same frame when required. Other pages provide passive header guidance; local reload and offline backup/restore remain. [Download APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/lab-2026-10-22-update-popup/MoFlight-Android-update-popup.zip), actual APK source `cf59bde`.773 mobile/110 Python, types/lint/fixtures, both exports and committed Release pass;15 named same-source native assertions cover popup widths/font/keyboard, synthetic Autofill and retained browser across interruption/reopen, with failed-helper limits explicit. [Evidence and remaining physical/iOS gates](docs/verification/2026-10-21-simple-flight-loading.md#header-only-popup-update-journey--22-october-2026). This supersedes earlier full-screen/multi-entry descriptions within this scope.
-
-> **Alternative UI feedback revision:** `ui/alternative-flight-experience` implements Manuel’s tested feedback ([#55](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/55)): glider-scene header, compact latest flight/PIC/aircraft, restored comparison rings and both years in one fully visible Jan–Dec chart without horizontal scrolling. Same-URL login continuation, automatic Start return, retained optional-source outcomes and supported calendar/document views are integrated. [APK ZIP — source `8aaeb99`](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/ui-feedback-2026-10-22-8aaeb99/MoFlight-Alternative-UI-8aaeb99.zip) · [design](docs/product/design/alternative-ui.md) · [source-specific tests and limits](docs/verification/2026-10-22-alternative-ui.md#tested-feedback-revision). Stable full host checks passed 808 mobile/110 Python tests; final chart and login-spacing changes have focused checks, exports and committed-source native evidence. Complete authenticated source retrieval, physical/iOS runtime and main-design adoption remain separate.
-
-**Data-update header delivered — 22 October 2026:** the header now fetches new Vereinsflieger data, with login only if needed, and shows the last saved flight-data age: green under one hour, amber for older, neutral when unknown. Failed/cancelled updates and login checks cannot renew the timestamp. [Download APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/lab-2026-10-22-data-update/MoFlight-Android-data-update.zip), actual APK source `1560454`. 769 mobile/110 Python, types/lint/fixtures, both exports and committed Release pass; eight named native layout/route/offline assertions have source-specific evidence. [Verification and limits](docs/verification/2026-10-21-simple-flight-loading.md#header-data-freshness-and-explicit-update--22-october-2026). Medical/duty freshness remains separate; new physical-header/live-retrieval and iOS acceptance remain open.
-
-**Phone follow-up — 22 October 2026:** Manuel reports login works after the prior replacement delivery. This is user-reported login success; authenticated flight retrieval/save is not separately confirmed. His unclear-header feedback led to the selected data-update meaning above. [Evidence](docs/verification/2026-10-21-simple-flight-loading.md#user-phone-confirmation-and-header-feedback--22-october-2026). Earlier delivery statements below retain their original verification scope.
-
-**Inline login reset correction — 22 October 2026:** source `7afe69d` fixes repeated profile navigation when the original Vereinsflieger form appears at the protected profile URL. Credential returns retain the form; read-only structural observation precedes fresh account proof. 765 mobile/110 Python, types/lint/fixtures, both exports and committed Release pass. Scoped native synthetic Autofill/return assertions and correctly scoped diagnostic analysis pass, with composite-helper limits recorded. [Download replacement APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/lab-2026-10-22-inline-login/MoFlight-Android-inline-login.zip); [evidence and remaining phone/iOS gates](docs/verification/2026-10-21-simple-flight-loading.md#inline-login-form-and-credential-return-correction--22-october-2026). Actual Google valid-account sign-in and authenticated phone retrieval remain unverified.
-
-**Shared connection delivered — 22 October 2026:** source `efab01c` opens Vereinsflieger directly from header/Profile, retains one selected-owner browser across close/reopen, returns to the invoking screen and offers independent Medical/duty retries after a confirmed flight save. Android keyboard handling keeps the original form usable above the IME. 760 mobile/110 Python, types/lint/fixtures and both exports pass; committed-source Android Release and scoped native evidence are recorded. [Download APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/lab-2026-10-22-shared-connection/MoFlight-Android-shared-connection.zip); [verification and remaining gates](docs/verification/2026-10-21-simple-flight-loading.md#shared-connection-implementation--22-october-2026). Actual fresh Google Password Manager sign-in with authenticated retrieval on Manuel’s phone, iOS runtime and spoken accessibility remain unverified.
+# MoFlight
 
 <p align="center">
-
-**Alternative Start layout — 22 October 2026:** application `3950ee1`, final scale-label correction `15412e2`, replaces season rings with count/known-time KPIs, compacts aircraft/recent flights, adds Alle anzeigen into Flüge and fits the month chart with enlarged-text reflow. Full host checks pass 750 mobile/110 Python; final label checks pass 13 focused tests/types/lint/exports and committed-source Android Release. Populated MIN/MAIN/WIDE/enlarged-text checks retain source-specific evidence. [APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/lab-2026-10-22-alternative-start/MoFlight-Android-alternative-start.zip); [verification and limits](docs/verification/2026-10-21-simple-flight-loading.md#alternative-start-layout--22-october-2026).
-
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/assets/branding/moflight-ai-logo-dark.png">
-    <img src="docs/assets/branding/moflight-ai-logo-light.png" alt="MoFlight AI — a glider in a thermal curve with AI sparkles" width="240" height="240">
+    <img src="docs/assets/branding/moflight-ai-logo-light.png" alt="MoFlight AI — glider and thermal-curve identity" width="200" height="200">
   </picture>
 </p>
 
-# MoFlight
+MoFlight is a mobile app in development for glider pilots, students and instructors. It brings saved flight history, season comparisons and supported club information together, with offline local data. Paper-logbook assistance is a later journey; Android is the current focus and iOS runtime acceptance remains deferred.
 
-**Latest alternative APK — ASK-21 header:** [Download ZIP, source `c03f099`](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/ui-header-2026-10-22-c03f099/MoFlight-Alternative-UI-c03f099.zip). Realistic soaring artwork, coherent Data/Medical/Profile symbols and a verified slightly shorter header. Includes the app-switch fix below. [Screenshots, checks and remaining limits](docs/verification/2026-10-22-alternative-ui.md#ask-21-header-refinement).
+## Current delivery
 
-**Latest alternative APK — app-switch correction:** [Download ZIP, source `6a46fe0`](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/ui-resume-2026-10-22-6a46fe0/MoFlight-Alternative-UI-6a46fe0.zip). Returning from another app retains the verified flight screen/details during local revalidation. Full host checks (820 mobile/110 Python), both exports, committed-source Release and bounded Android lifecycle checks pass. [Evidence and remaining populated-device/phone limits](docs/verification/2026-10-22-alternative-ui.md#app-switch-resume-correction). Includes the alternative UI feedback revision above; main adoption remains separate.
+Manuel selected the modern UI as the new main baseline on **22 October 2026**. It combines the ASK-21-like header, compact latest flight, four aircraft-split season rings and a current/prior-year Jan–Dec chart that fits on screen. The Daten action continues automatically after verified login; returning from another app retains verified content during guarded local revalidation.
 
-**Start usability follow-up — 22 October 2026:** application `a946a2a` displays local preparation feedback, combines monthly counts/hours in one switchable chart and displays the latest two flights in read-only boxes before the chart. Start detail drill-downs are removed. Details belong in Flüge; broader filtered analytics remain pending in #9. [Download APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/lab-2026-10-22-start-simplification/MoFlight-Android-start-simplification.zip); [verification and limits](docs/verification/2026-10-21-simple-flight-loading.md#start-feedback-simplification--22-october-2026).
+**Latest published UI APK:** [download ZIP — source `c03f099`](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/ui-header-2026-10-22-c03f099/MoFlight-Alternative-UI-c03f099.zip). This is the pre-merge delivery; the combined main integration is being verified. [Source-specific evidence and screenshots](docs/verification/2026-10-22-alternative-ui.md).
 
-**Android automatic-sign-in follow-up — 22 October 2026:** manual login works on Manuel's phone; the prior handoff APK did not resolve Google auto-sign-in. Application `ce61e50` corrects a reproduced race that could stop/replace the unfinished authentication response on credential-window return. It also adds credential-free input/submit/navigation traces to the existing user-exported diagnostic JSON. **749 mobile/110 Python**, types/lint/fixtures, both exports, committed-source Release/lint and native synthetic fill → Enter → rejected-response → diagnostic-export checks pass. Physical Google acceptance remains open. [APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/lab-2026-10-22-autofill-submit/MoFlight-Android-autofill-submit.zip); [evidence and remaining gates](docs/verification/2026-10-21-simple-flight-loading.md#automatic-sign-in-response-race--22-october-2026).
+The integration also preserves main's filtered-flight known/unknown-time summary, strict duty-source checks, timing tools and unsupported-version preservation checks. These features have separate evidence; no live provider or physical-device acceptance follows from merging them.
 
-**Compact Start/data package — 22 October 2026:** application `6dcc0da` integrates monthly flight-count/known-hours comparisons and the latest saved flight into Meine Saison, replaces the returning large flight box with a conditional 72-hour reminder/24-hour snooze, and displays the earliest recorded Medical expiry with six-calendar-month attention. Verein now presents scope-labelled partial duty sources through a separate manual-update job and 30-day backup-excluded cache with abbreviated names. The startup latest-flight check uses the approved reminder-only fallback because no safe lightweight source is proven; full roster/partner coverage and live duty acceptance remain open. Checks pass **739 mobile/110 Python**, types/lint/fixtures, both exports and committed-source Android Release. Scoped offline month/detail return, normal/enlarged/wide chart layout and actual saved Medical-expiry display pass with source-specific limits. Included in the newer APK above; [evidence and remaining gates](docs/verification/2026-10-21-simple-flight-loading.md#compact-start-monthly-comparisons-medical-and-duty-sources--22-october-2026).
+| Available within recorded scope | Remaining acceptance or later work |
+| --- | --- |
+| Account-scoped saved flights, list/detail/filters and offline reads | Fresh authenticated phone journey and a real second-account boundary |
+| Current/prior season rings, one-row monthly comparisons, latest-flight detail | Populated phone responsiveness after tab/app switching and broader analytics |
+| Automatic flights/Medical/supported duty/calendar/document sequence | Full live source coverage, populated news, paging and source semantics |
+| Flight/book portable backups and bounded update/recovery proof | Full-user backup, supported populated beta upgrades and actual Android system restore |
+| Selected modern native UI with scoped Android size/interaction evidence | Physical/iOS runtime and deferred spoken accessibility trials |
 
-**Persistent data-loading screen — 21 October 2026:** “Anmelden & Daten laden” / “Daten aktualisieren” now stays in one progress screen through login, verification, flight save and Medical. The original login form survives a safe sign-in foreground return; completed or partial results remain until acknowledgement. Interactive sign-in wait is separate from flight-response timeouts. [Source-specific checks, Android evidence and remaining phone/iOS limits](docs/verification/2026-10-21-simple-flight-loading.md#persistent-login-to-data-progress--21-october-2026). The exact e0a5d39 Android Release passes retained-session flights/Medical completion, acknowledgement and offline restart; [download the phone ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/lab-2026-10-21-guided-data-loading/MoFlight-Android-guided-data-loading.zip). Physical Autofill and an intermittent session-check failure remain open.
+This is a development delivery, not full product or beta acceptance. Unknown and partial data remain explicit. No cloud Auth, real photo-to-writing or commercial release is implied.
 
-**Android retrieval follow-up — 21 October 2026:** The combined action now coordinates independent flight and other-data jobs (currently own Medical class/expiry). First use opens original login visibly; successful real-account verification reaches Start/header. Medical source fields/date reopen offline without a validity claim; failures preserve saved flights. The final retained-session Android emulator journey passes; the original phone failure still needs a phone retry, and latency remains open. Medical is excluded from own-flight backups. [Source-specific evidence and limits](docs/verification/2026-10-21-simple-flight-loading.md#phone-feedback-and-separate-retrieval-jobs--21-october-2026).
+## Find the right document
 
-**Support diagnostics — 21 October 2026:** Settings → Diagnose now retains a larger bounded action/navigation and technical history, protected failure context, phase/login timings and observed journey transitions. Total managed journal/export storage is capped at 1 MB, with 14-day expiry. Users can share a full JSON file or copy a short report and clear both stores. [Verification and platform limits](docs/verification/2026-10-21-diagnostics.md).
+| Need | Source of truth |
+| --- | --- |
+| Priorities, milestones and next work | [Project plan](docs/project-plan.md#next-executable-packages) |
+| Work contracts and open decisions | [GitHub Issues](https://github.com/MomoRC-tech/MoFlight-App-framework/issues) |
+| Current screens, symbols and visual rules | [UI design handbook](docs/product/design/README.md) |
+| Product behavior and longer-term journeys | [Product index](docs/product/README.md) |
+| Run, build and verify | [Lab runbook](apps/platform-lab/README.md), [verification workflow](docs/development/verification-workflow.md) |
+| What was actually tested | [Modern UI report](docs/verification/2026-10-22-alternative-ui.md), [retrieval/main continuation report](docs/verification/2026-10-21-simple-flight-loading.md) |
 
-**Usability implementation — 21 October 2026:** Start/Profile/Flüge now offer one explicit login-and-load/update action. The app prepares local storage, checks the retained provider session and saves validated flights without routine review/save clicks; no book is required. Start freshness uses the committed library and season detail is quieter. Host checks, both exports, committed Android Release, scoped UI/live retained-session save, preserved backup and offline restart checks pass; fresh-login/iOS/physical acceptance and measured latency remain open. [Verification and limits](docs/verification/2026-10-21-simple-flight-loading.md).
-
-**Current delivery — 20 October 2026:** the real account-owned flight library and ordinary Flüge list/detail/filters/offline journey are delivered within their recorded Android scope. Start statistics use that saved library, with restored aircraft-share season rings and current-year drill-down. Scoped populated Android ring/year-navigation checks now pass; broader statistics/platform acceptance remains open. The shell-test regression is repaired, and the selected controller refactor passes host checks, both exports, committed Android Release and six bounded offline native checks. [Current roadmap](docs/project-plan.md#current-focus-and-usability-decision--20-october-2026), [review and evidence](docs/verification/2026-10-17-current-status-and-open-issues.md#20-october-review--baseline-repair-and-bounded-controller-refactor).
-
-The bounded statistics/UI implementation (#9/#20) follows the delivered controller checkpoint (#39); source-specific checks and remaining acceptance are in the [statistics report](docs/verification/2026-10-20-real-flight-statistics.md). Book assignment and paper work come later. Android remains the selected focus; iOS, training and new invoice retrieval remain deferred. Broader account, backup/update and release gates remain open. Earlier source-specific checkpoints are retained in the linked verification reports and Git history.
-
-<table width="100%">
-  <tr>
-    <td width="33%" align="center">📱<br><strong>Android / iOS App</strong><br><sub>Target platforms</sub></td>
-    <td width="33%" align="center">🔒<br><strong>Data privacy</strong><br><sub>Design priority</sub></td>
-    <td width="33%" align="center">🏡<br><strong>Local-first</strong><br><sub>Phone-local data</sub></td>
-  </tr>
-  <tr>
-    <td width="33%" align="center">📴<br><strong>Offline access</strong><br><sub>Saved information</sub></td>
-    <td width="33%" align="center">📖<br><strong>Paper logbook</strong><br><sub>Writing companion</sub></td>
-    <td width="33%" align="center">🚧<br><strong>In development</strong><br><sub>Not yet released</sub></td>
-  </tr>
-</table>
-
-*Product priorities and target platforms; see the delivery status below.*
-
-### More flying. Less paperwork. A clearer picture of your season.
-
-**MoFlight is a mobile app in development for pilots, students and instructors who want to understand their flying, catch up on their paper logbook and keep useful club information close at hand.**
-
-The vision is simple: bring your flight history, next actions and flying-club essentials into one calm, readable experience—starting with gliding, with other aircraft categories and book formats in view.
-
-| 📊 Understand your flying | 📖 Keep your logbook moving | 🧭 Stay connected to your club |
-| --- | --- | --- |
-| Explore your season, aircraft and flight durations. Open a statistic to see the flights behind it. | Check where your paper book stops, review missing entries and prepare clear phone-side or printable writing instructions. | See relevant duties, others assigned to the same duties, work-hour progress, upcoming events and new club information. |
-
-💶 **Make costs understandable:** the planned costs view separates flying from membership and other charges, with aircraft totals and account balances in details.
-
-📱 **Built around your phone:** Android and iOS are the target platforms, with phone-local storage and offline access as the initial direction. The first app UI is German; an English option is planned later.
-
-> **Early development, not a released app.** The features above describe the product direction. A native development lab and bounded Android proofs exist; the complete live-history, photo-to-writing and club-information journeys are not delivered yet.
-
-**Explore:** [Product journeys](docs/product/2026-10-13-journey-information-map.md) · [Roadmap](docs/project-plan.md) · [Next implementation plan](docs/project-plan.md#retrieval-to-library-continuation-plan--20-october-2026) · [UI design](docs/product/design/README.md) · [Ideas & progress](https://github.com/MomoRC-tech/MoFlight-App-framework/issues)
-
-*Manuel selected the thermal-curve identity with an explicit AI badge on 13 October 2026. [Light and dark logos and app-icon variants](docs/assets/branding/README.md) are available; the project name remains MoFlight.*
-
----
+Earlier release announcements remain in those dated reports and [the pre-restructure README](https://github.com/MomoRC-tech/MoFlight-App-framework/blob/a47f56178da1e6d9dd0475bb95216d4106cfdd97/README.md). Their APKs and test counts are historical, not competing current delivery instructions.
 
 <details>
 <summary><strong>🧭 Product vision & user journeys</strong></summary>
@@ -94,7 +53,7 @@ The [first-use journey added on 18 October](docs/product/2026-10-13-journey-info
 
 ### Your flying, at a glance
 
-A compact swipeable summary is planned for this year's flight count and known time, with a same-period previous-year comparison, aircraft flown most often and duration distribution. Start now keeps its overview and recent-flight boxes read-only. Richer charts, supporting flights and period/aircraft/person/recorded-role filters are planned in Flüge; the complete set is not implemented yet.
+The selected Start shows four aircraft-split time/start rings for the current and previous calendar years, one compact latest-flight row, and a combined Jan–Dec monthly chart behind a disclosure. All twelve months fit without horizontal scrolling. The latest-flight row opens its saved detail. Broader person/role/distribution queries remain under #9.
 
 Unknown durations stay unknown. Incomplete history is shown as incomplete; a partial year must not look like a complete lifetime record.
 
@@ -115,7 +74,7 @@ flowchart LR
 
 Flight takeoff/landing times are saved and documented in **UTC**; original source values remain preserved, and an unknown source time zone must be clarified before conversion. See the [UTC requirement](docs/product/2026-10-13-journey-information-map.md#flight-clock-times--utc-requirement).
 
-Vereinsflieger is authoritative for provider-backed flight data, including recorded flight duration. Statistics group by its recorded flight date; year comparisons use 1 January–today against the same calendar dates in the previous year. Later source corrections update the saved app flight and receive an orange label/dot; the marker clears only after explicit acknowledgement, while paper evidence and frozen instructions remain separate. Incorrect source records should be corrected in Vereinsflieger through the club administrator/responsible personnel. [Product decision and remaining marker rules](docs/product/2026-10-13-journey-information-map.md#authoritative-provider-data-and-changed-flight-indication), [#30](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/30).
+Vereinsflieger is authoritative for provider-backed flight data, including recorded flight duration. Statistics group by its recorded flight date; monthly comparisons use matching cutoffs; the season rings show saved calendar-year totals with coverage limits, as specified in the current design contract. Later source corrections update the saved app flight and receive an orange label/dot; the marker clears only after explicit acknowledgement, while paper evidence and frozen instructions remain separate. Incorrect source records should be corrected in Vereinsflieger through the club administrator/responsible personnel. [Product decision and remaining marker rules](docs/product/2026-10-13-journey-information-map.md#authoritative-provider-data-and-changed-flight-indication), [#30](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/30).
 
 A pilot may accept a historical paper-total discrepancy. A persistent, book-specific [totals adjustment](docs/product/2026-10-13-journey-information-map.md#paper-total-adjustments) carries it into future writing templates: accepted paper carryover plus new Vereinsflieger durations. Provider flight facts and app statistics remain unchanged. Later source corrections can be accepted through revised adjustments while paper entries stay unchanged. Evidenced affected flights retain a deviation dot/label in lists/details, including accepted deviations; acknowledging a source update does not hide an ongoing deviation.
 
@@ -141,7 +100,7 @@ See [product scope](docs/product/moflight-feature-scope.md), [writing presentati
 | Area | Where it stands |
 | --- | --- |
 | User journeys | Reviewed; detailed UI/application contracts remain open |
-| UI design | Approved-reference five-tab shell/header and restored saved-flight aircraft-share season rings implemented; remaining populated native statistics acceptance stays under #9/#20; no redesign is selected |
+| UI design | Modern alternative selected as the main baseline on 22 October: compact ASK-21 header, season rings, single-row paired-year chart and retained five-tab navigation; scoped device evidence is in the design report |
 | Native foundation | Expo/React Native lab with local SQLite, backup and bounded Android evidence |
 | Vereinsflieger access | Verified account-scoped own-flight storage and ordinary Flüge delivered within bounded Android evidence; broader source/account/platform gates remain open |
 | Statistics and books | Real-library Start counts/time/year/registration/coverage implemented; scoped populated Android ring/year-navigation checks pass; broader statistics/platform acceptance open. Real book assignment is deferred; multi-book proofs remain synthetic |
@@ -165,7 +124,7 @@ Writing assistance has immediate product value; its place in the smallest useful
 
 ## Next action and unresolved decisions
 
-The [ordered implementation plan](docs/project-plan.md#ordered-open-issue-implementation-plan--review-21-october-2026) maps all **39 open Issues**. Manuel selected **packages 1 and 2**: retrieval/recovery follow-up and the smaller everyday interface. `1451f1a` fixes failed original-login opening that could leave combined progress waiting; `bfbd470` retains conditional sign-in wording and concise original-field paging with full accessibility labels. **695 mobile / 110 Python**, types/lint/fixtures, both exports and committed-source Android Release pass. Source-specific Android evidence covers populated WIDE rows, MIN48-field paging/bottom return and native offline opening/failure/Retry; the separate same-Release final readback preserves0/no successful retrieval. [Evidence and limitations](docs/verification/2026-10-21-simple-flight-loading.md#first-login-failure-and-remaining-visual-checks--22-october-2026) distinguish helper failures, user/spoken/physical/iOS acceptance and the unproven physical/intermittent login cause. #50/#52 remain closed within their scopes. The synthetic fixture rollback still preserves newer history with the original empty selection read-only. Measured responsiveness/latency follows, then ownership, backup/update/restore and scoped beta/privacy gates. Later candidates retain their decisions; #36's accepted risk and deferred iOS/training/invoice scope are unchanged.
+Follow the [current next actions](docs/project-plan.md#next-executable-packages) and [complete issue map](docs/project-plan.md#complete-ordered-issue-map). Fresh authenticated phone retrieval, populated app-switch responsiveness and complete supported-source coverage remain open. Full-user backup and supported beta upgrades retain separate acceptance gates. Main adoption is selected; it does not establish those untested outcomes.
 
 **Historical design-review notes below (16–18 October):** these preserve earlier options and do not define the current next action.
 
@@ -330,7 +289,7 @@ Cloud/sync, tutor/RAG, chat and weather are later work. A service that wakes aut
 
 Start with the [project plan](docs/project-plan.md) for order and the [reviewed journey map](docs/product/2026-10-13-journey-information-map.md) for behavior. Then follow the [product index](docs/product/README.md), [architecture decisions](docs/adr/0001-project-workflow.md) and [development runbook](apps/platform-lab/README.md).
 
-- [Current visual direction](docs/product/2026-10-13-dark-concept-review.md): clean, dark, spacious; revised concept unselected.
+- [Current visual direction](docs/product/design/README.md): selected modern UI and maintained component/layout rules. The [13 October concept review](docs/product/2026-10-13-dark-concept-review.md) is historical.
 - [Source access investigation](docs/architecture/vereinsflieger-access-investigation.md): observed access, permissions and open retrieval questions.
 - [Provider preservation/recovery contract](docs/architecture/vereinsflieger-view-preservation.md): keep existing preferences and captures recoverable.
 - [Book/format proposal](docs/adr/0007-multiple-logbooks-and-formats.md): production architecture remains proposed.

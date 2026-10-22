@@ -1,0 +1,166 @@
+{
+  "source_commit": "e1f90b6a84b9adca63934f8e8b95e52e83b4ba06",
+  "apk_sha256": "fc25df6fdfe83132376e79816456bb7263f69a55aff9599984bf0d78dbc1c2ad",
+  "zip_sha256": "74b4259c20b4bc275e9014685ccf2c03f54b7a823a044163e338cb5b3bf2ff7e",
+  "host": {
+    "mobile_tests": 780,
+    "python_tests": 110,
+    "types_lint_fixtures": "passed",
+    "exports": [
+      "Android",
+      "iOS"
+    ],
+    "script_types": "passed",
+    "logs": "build/host-checks/20261022T183540Z-54bd5435"
+  },
+  "timing": {
+    "scope": "synthetic host real SQLite; same process, new connections; no native driver, provider, sign-in, OS cold-cache or device speed claim",
+    "flights": 101,
+    "samples": [
+      {
+        "mode": "first-import",
+        "milliseconds": 626.47
+      },
+      {
+        "mode": "repeat-import",
+        "milliseconds": 846.22
+      },
+      {
+        "mode": "repeat-import",
+        "milliseconds": 1091.14
+      },
+      {
+        "mode": "reopened-read",
+        "milliseconds": 187.89
+      }
+    ]
+  },
+  "native": {
+    "avd": "MoFlight_Synthetic_API37",
+    "api": 37,
+    "source_pair": {
+      "old": "cf59bde647b5ad6b1bb08a776c920468a05dbaee",
+      "new": "e1f90b6a84b9adca63934f8e8b95e52e83b4ba06"
+    },
+    "signed_update": {
+      "status": "passed",
+      "exact_file_bytes_and_set": true,
+      "fileCount": 9,
+      "bytes": 331776,
+      "historyLibraries": 1,
+      "populatedLibraries": 0,
+      "factRevisionRows": 0,
+      "unreadableLibraries": 0,
+      "scope": "Named app-owned data/selection SQLite + WAL/journal and selection JSON; no credentials/WebView/cache/preferences or all-state claim"
+    },
+    "checks": [
+      {
+        "name": "old-offline-selected-library",
+        "viewport": {
+          "width_px": 390,
+          "height_px": 900,
+          "density_dpi": 160,
+          "width_dp": 390.0,
+          "height_dp": 900.0,
+          "font_scale": 1.0
+        }
+      },
+      {
+        "name": "filtered-empty-390-font1",
+        "viewport": {
+          "width_px": 390,
+          "height_px": 900,
+          "density_dpi": 160,
+          "width_dp": 390.0,
+          "height_dp": 900.0,
+          "font_scale": 1.0
+        }
+      },
+      {
+        "name": "filtered-empty-360-font1",
+        "viewport": {
+          "width_px": 360,
+          "height_px": 900,
+          "density_dpi": 160,
+          "width_dp": 360.0,
+          "height_dp": 900.0,
+          "font_scale": 1.0
+        }
+      },
+      {
+        "name": "filtered-empty-600-font1",
+        "viewport": {
+          "width_px": 600,
+          "height_px": 900,
+          "density_dpi": 160,
+          "width_dp": 600.0,
+          "height_dp": 900.0,
+          "font_scale": 1.0
+        }
+      },
+      {
+        "name": "filtered-empty-360-font1.4",
+        "viewport": {
+          "width_px": 360,
+          "height_px": 900,
+          "density_dpi": 160,
+          "width_dp": 360.0,
+          "height_dp": 900.0,
+          "font_scale": 1.4
+        }
+      },
+      {
+        "name": "offline-second-restart",
+        "viewport": {
+          "width_px": 390,
+          "height_px": 900,
+          "density_dpi": 160,
+          "width_dp": 390.0,
+          "height_dp": 900.0,
+          "font_scale": 1.0
+        }
+      },
+      {
+        "name": "offline-update-failure",
+        "viewport": {
+          "width_px": 390,
+          "height_px": 900,
+          "density_dpi": 160,
+          "width_dp": 390.0,
+          "height_dp": 900.0,
+          "font_scale": 1.0
+        }
+      },
+      {
+        "name": "preserved-flights-after-failure",
+        "viewport": {
+          "width_px": 390,
+          "height_px": 900,
+          "density_dpi": 160,
+          "width_dp": 390.0,
+          "height_dp": 900.0,
+          "font_scale": 1.0
+        }
+      }
+    ],
+    "baseline_apk_restored": true,
+    "temporary_probe_removed": true,
+    "settings_restored": true,
+    "cleanup_errors": [],
+    "probe_source_sha256": "a742d17b5e9e9af218870d351ddcb60953546ab049c2a0cfb8be7d51320204ad",
+    "limits": "Existing selected real library empty; no clearing/seeding/activation. Install witness covers nine matched durable files only, excludes credentials/WebView/cache/preferences. Populated query and recovery cases host-only in this package. Physical/live roster/iOS untested.",
+    "owned_emulator_stopped": true
+  },
+  "release_verification": {
+    "status": "passed",
+    "http_status": 200,
+    "authentication": "none",
+    "zip_sha256": "74b4259c20b4bc275e9014685ccf2c03f54b7a823a044163e338cb5b3bf2ff7e",
+    "apk_sha256": "fc25df6fdfe83132376e79816456bb7263f69a55aff9599984bf0d78dbc1c2ad",
+    "source_commit": "e1f90b6a84b9adca63934f8e8b95e52e83b4ba06",
+    "contents": [
+      "app-release.apk",
+      "build.json"
+    ]
+  }
+}

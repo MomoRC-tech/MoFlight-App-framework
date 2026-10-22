@@ -1,5 +1,6 @@
 import * as diagnostics from '../../apps/platform-lab/src/diagnostics';
 import * as processedResults from '../../apps/platform-lab/src/mobile/processed-result.ts';
+import * as statistics from '../../apps/platform-lab/src/mobile/real-flight-statistics.ts';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -43,7 +44,7 @@ function host(withPresentation = false) {
       './theme':{...leaves(['Action','Card','Chip','Empty','IconLabel','Label','Section']),colors:{},ui:{}},
       './SymbolIcon':leaves(['SymbolIcon']),'./own-flight-model':flightModel,
       '../vereinsflieger/retrieval-policy':{planFlightRetrieval},'./data-freshness':{dataFreshness},
-      '../vereinsflieger/capture-review':captureReview,
+      '../vereinsflieger/capture-review':captureReview,'./real-flight-statistics':statistics,
     };
     const component=ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/mobile/OwnFlights.tsx',import.meta.url),'utf8'),{
       compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.React,esModuleInterop:false},

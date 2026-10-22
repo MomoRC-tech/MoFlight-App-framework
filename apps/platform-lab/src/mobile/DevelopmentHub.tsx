@@ -8,7 +8,7 @@ export function DevelopmentHub({ onFlights, onBooks, onImportPreview, onCoreFlig
       <Label>Testwerkzeuge dieses experimentellen Lab-Builds</Label>
       <Label muted>Hier sind synthetische Testdaten und ältere Funktionsnachweise gebündelt. Öffnen allein lädt keine Fixtures und startet keinen Anbieterabruf. Diese Seite ist keine Zugriffssperre und keine Freigabe für eine spätere Produktversion.</Label>
     </Card>
-    {onDesignPreview&&<Card><Section title="UI-Alternative ausprobieren" icon="glider"/><Label muted>Fiktive Flüge, leere Listen und Fehlerzustände. Keine Speicherung und kein Anbieterzugriff.</Label><Action onPress={onDesignPreview}>Designvorschau öffnen</Action></Card>}
+    {onDesignPreview&&<Card><Section title="Designvorschau" icon="glider"/><Label muted>Fiktive Flüge, leere Listen und Fehlerzustände. Keine Speicherung und kein Anbieterzugriff.</Label><Action onPress={onDesignPreview}>Designvorschau öffnen</Action></Card>}
     <Card><Section title="Eigene Flugbibliothek" icon="flight-paper-plane" />
       <Label muted>Neue lokale Bibliothek für eigene Vereinsflieger-Flüge. Abruf prüfen, ausdrücklich ohne Buchzuordnung speichern und offline wieder öffnen. Bestehende Belege und Teststände bleiben getrennt.</Label>
       <Action testID="development-own-flight-library" icon="flight-paper-plane" onPress={onCoreFlights}>Eigene Flugbibliothek öffnen</Action>
