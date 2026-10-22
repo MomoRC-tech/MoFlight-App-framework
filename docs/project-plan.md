@@ -6,6 +6,10 @@ Manuel selected `ui/alternative-flight-experience` as the new main UI and explic
 
 Current visual authority is the [selected modern UI contract](product/design/alternative-ui.md), read with the maintained handbook. Historical main/prototype layouts below remain evidence of earlier decisions. The [single UI verification report](verification/2026-10-22-alternative-ui.md) identifies actual APK sources and integration status. Selection and merge do not complete live-provider, physical/iOS, populated-performance or beta-preservation acceptance.
 
+### Requested Start/header refinement — 23 October 2026
+
+#20 now carries Manuel's selected compact latest-flight/concentric-ring/month-value, season-artwork and header refinement. Implement and verify only this reported UI scope; retain all broader acceptance gates. [Contract](product/design/alternative-ui.md#startheader-refinement--23-october-2026) · [one package report and statistics review](verification/2026-10-22-alternative-ui.md#startheader-refinement--23-october-2026). #9's richer statistics remain planned: duration distribution, coverage-aware annual comparisons, aircraft/person/role and launch-method exploration. Existing deterministic code is not an integrated statistics screen; this request reviews that backlog, without selecting the entire implementation.
+
 ## Ordered open-issue implementation plan — review, 21 October 2026
 
 **Requested scope:** Manuel asked for a review, further UI simplification and an ordered implementation plan covering every open Issue. This is the recommended sequence for review, not blanket implementation approval or a new release commitment. Existing scoped authorizations remain valid; proposed features, production decisions and spending retain their gates.

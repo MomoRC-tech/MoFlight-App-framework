@@ -62,13 +62,13 @@ test('update control labels the action and saved time, with an explicit login-if
     [at, received, '#74dfba'], [at, received + DATA_UPDATE_FRESH_MS, '#ffc477'], [null, received, '#adbed5'],
   ] as const) {
     const tree = exports.DataUpdateIndicator({ receivedAt, readState: 'ready', now, onPress() {} });
-    assert.equal(tree.children[1].props.style[1].color, expectedColor, 'Age wording accompanies the color');
-    assert.equal(tree.children[1].children[0], dataUpdateStatus(receivedAt, 'ready', now).caption);
+    assert.equal(tree.children[0].children[1].children[1].props.style[1].color, expectedColor, 'Age wording accompanies the color');
+    assert.equal(tree.children[0].children[1].children[1].children[0], dataUpdateStatus(receivedAt, 'ready', now).caption);
   }
   for (const readState of ['loading', 'failed', 'ready'] as const) {
     const tree = exports.DataUpdateIndicator({ receivedAt: null, readState, now: received, onPress() {} });
     const status = dataUpdateStatus(null, readState, received);
-    assert.equal(tree.children[1].children[0], status.caption, 'Unknown age retains its specific visible explanation');
+    assert.equal(tree.children[0].children[1].children[1].children[0], status.caption, 'Unknown age retains its specific visible explanation');
     assert.ok(tree.props.accessibilityLabel.includes(status.description));
   }
 });

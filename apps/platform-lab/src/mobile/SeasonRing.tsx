@@ -3,47 +3,64 @@ import { StyleSheet, View } from 'react-native';
 import { Label, colors } from './theme';
 import type { RingSlice } from './season-model';
 
-const size = 44;
+const size = 64;
 const thickness = 5;
-const radius = (size - thickness) / 2;
 
-/** Compact aircraft-share charts: native tangent strips approximate arcs without a map/SVG dependency. */
-export const SeasonRing = memo(function SeasonRing({ slices, value, label, description }: {
-  slices: readonly RingSlice[]; value: string; label: string; description: string;
+interface SeasonRingLayer {
+  year: number; slices: readonly RingSlice[]; value: string; description: string;
+}
+
+/** Two aircraft-share distributions share a centre; outer is current, inner is prior year. */
+export const SeasonRing = memo(function SeasonRing({ layers, label }: {
+  layers: readonly SeasonRingLayer[]; label: string;
 }) {
-  return <View accessible accessibilityLabel={description} style={styles.group}><View style={styles.ring}>
-    <View style={styles.track} />
-    {slices.flatMap((slice, sliceIndex) => {
-      // Narrow boundaries distinguish aircraft without changing their calculated angular shares.
-      const gap = slices.length > 1 ? Math.min(2, slice.sweep / 5) : 0;
-      const sweep = slice.sweep - gap;
-      const strips = Math.max(1, Math.ceil(sweep / 3));
-      const step = sweep / strips;
-      const chord = 2 * radius * Math.sin(step * Math.PI / 360);
-      return Array.from({ length: strips }, (_, index) => {
-        // Overlap interior rasterized edges: subpixel antialiasing otherwise exposes tick seams.
-        // Keep the two aircraft-boundary ends narrow so the intentional gap remains visible.
-        const atBoundary = slices.length > 1 && (index === 0 || index === strips - 1);
-        const length = chord + (atBoundary ? .25 : 1.75);
-        const angle = slice.start + gap / 2 + step * (index + .5);
-        const radians = angle * Math.PI / 180;
-        return <View key={`${sliceIndex}-${index}`} style={{
-          position: 'absolute', width: length, height: thickness,
-          left: size / 2 + radius * Math.cos(radians) - length / 2,
-          top: size / 2 + radius * Math.sin(radians) - thickness / 2,
-          backgroundColor: slice.color, transform: [{ rotate: `${angle + 90}deg` }],
-        }} />;
-      });
-    })}
-    <View style={styles.center} />
-    </View><View style={{flex:1,minWidth:0}}><Label style={styles.value}>{value}</Label><Label muted style={styles.label}>{label}</Label></View>
+  return <View accessible accessibilityLabel={`${label}. ${layers.map((layer, index) => `${index === 0 ? 'Außen' : 'Innen'} ${layer.description}`).join('; ')}`} style={styles.group}>
+    <Label muted style={styles.label}>{label}</Label>
+    <View style={styles.body}>
+      <View style={styles.ring}>
+        {layers.map((layer, layerIndex) => {
+          const diameter = size - layerIndex * 18;
+          const radius = (diameter - thickness) / 2;
+          const inset = (size - diameter) / 2;
+          return <View key={layer.year} style={StyleSheet.absoluteFill}>
+            <View style={[styles.track, { left: inset, top: inset, width: diameter, height: diameter, borderRadius: diameter / 2 }]} />
+            {layer.slices.flatMap((slice, sliceIndex) => {
+              const gap = layer.slices.length > 1 ? Math.min(2, slice.sweep / 5) : 0;
+              const sweep = slice.sweep - gap;
+              const strips = Math.max(1, Math.ceil(sweep / 3));
+              const step = sweep / strips;
+              const chord = 2 * radius * Math.sin(step * Math.PI / 360);
+              return Array.from({ length: strips }, (_, index) => {
+                const atBoundary = layer.slices.length > 1 && (index === 0 || index === strips - 1);
+                const length = chord + (atBoundary ? .25 : 1.75);
+                const angle = slice.start + gap / 2 + step * (index + .5);
+                const radians = angle * Math.PI / 180;
+                return <View key={`${sliceIndex}-${index}`} style={{
+                  position: 'absolute', width: length, height: thickness,
+                  left: size / 2 + radius * Math.cos(radians) - length / 2,
+                  top: size / 2 + radius * Math.sin(radians) - thickness / 2,
+                  backgroundColor: slice.color, transform: [{ rotate: `${angle + 90}deg` }],
+                }} />;
+              });
+            })}
+          </View>;
+        })}
+      </View>
+      <View style={styles.values}>{layers.map((layer, index) => <View key={layer.year}>
+        <Label muted style={styles.year}>{layer.year} · {index === 0 ? 'außen' : 'innen'}</Label>
+        <Label style={styles.value}>{layer.value}</Label>
+      </View>)}</View>
+    </View>
   </View>;
 });
 
 const styles = StyleSheet.create({
-  group: {flex:1,flexDirection:'row',alignItems:'center',gap:7},
-  ring: { width: size, height: size, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.card, borderRadius: size / 2, overflow: 'hidden' },
-  track: { position: 'absolute', width: size, height: size, borderWidth: thickness, borderRadius: size / 2, borderColor: colors.border },
-  center: { position: 'absolute', width: size - thickness * 2, height: size - thickness * 2, borderRadius: size / 2 - thickness, backgroundColor: colors.card },
-  value: { fontSize: 18, lineHeight: 24, fontWeight: '700' }, label: { fontSize: 11, lineHeight: 16 },
+  group: { flex: 1, minWidth: 0, gap: 4 },
+  body: { flexDirection: 'row', alignItems: 'center', gap: 7 },
+  ring: { width: size, height: size, flexShrink: 0 },
+  track: { position: 'absolute', borderWidth: thickness, borderColor: colors.border },
+  values: { flex: 1, minWidth: 0, gap: 3 },
+  value: { fontSize: 16, lineHeight: 21, fontWeight: '700' },
+  year: { fontSize: 10, lineHeight: 14 },
+  label: { fontSize: 12, lineHeight: 18, fontWeight: '600' },
 });

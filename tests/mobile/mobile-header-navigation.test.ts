@@ -90,7 +90,7 @@ function fixture(width = 390, fontScale = 1, root = false) {
   function render() { index = 0; tree = root?(exports as any).default():(exports.Shell as (props:unknown)=>Element)({lastLoad,providerStatus,onCoreFlights:(intent='connect',developmentRecoveryCheckpoints=false)=>{coreRoutes.push({intent,developmentRecoveryCheckpoints});calls.push(intent==='update'?'core-load':intent==='development'?'core-development-route':intent==='options'?'core-library-route':'core-connect');}}); effects.splice(0).forEach(effect => effect()); return tree; }
   function nodes() {
     const found: Element[] = [];
-    const visit = (value: unknown) => { if (value && typeof value === 'object' && 'children' in value) { const node = value as Element; found.push(node); node.children.forEach(visit); if (node.type === 'FlatList') visit(node.props.ListHeaderComponent); } };
+    const visit = (value: unknown) => { if (value && typeof value === 'object' && 'children' in value) { const node = value as Element; found.push(node); node.children.forEach(visit); if (node.type === 'AppHeader') visit(node.props.profile); if (node.type === 'FlatList') visit(node.props.ListHeaderComponent); } };
     visit(tree); return found;
   }
   function find(type: string, label?: string) {
@@ -149,12 +149,13 @@ test('Medical header and details use the real selected library projection rather
   f.showLoad(null,null);assert.equal(f.find('MedicalIndicator').props.capture,null);
 });
 
-test('app headers order connection, Medical and profile on every tab', () => {
+test('app headers retain Data and Medical with a separate profile action on every tab', () => {
   const f = fixture();
   for (const title of ['Übersicht', 'Flüge', 'Flugbuch', 'Verein', 'AI']) {
     f.press('Pressable', title);
     const controls = f.nodes().filter(n => n.type === 'DataUpdateIndicator' || n.type === 'MedicalIndicator' || n.props.accessibilityLabel === 'Profil & Einstellungen öffnen');
     assert.deepEqual(controls.map(n => n.type), ['DataUpdateIndicator', 'MedicalIndicator', 'Pressable']);
+    assert.equal(f.headers()[0]!.props.profile, controls[2], 'Profile stays in the header’s dedicated lower-right slot');
   }
   assert.deepEqual(f.calls, []);
 });

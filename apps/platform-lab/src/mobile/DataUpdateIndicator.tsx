@@ -14,17 +14,16 @@ export function DataUpdateIndicator({ receivedAt, readState, now, disabled = fal
     accessibilityHint="Lädt neue Daten. Falls nötig, öffnet sich die Anmeldung."
     accessibilityState={{ disabled }} disabled={disabled} onPress={onPress}
     style={[styles.button, disabled && { opacity: .5 }]}>
-    <View accessible={false} style={styles.row}><SymbolIcon name="refresh" size={28} />
-      <Label style={styles.title}>Daten</Label></View>
-    <Label style={[styles.age, { color: tint }]}>{status.caption}</Label>
+    <View style={styles.face}><SymbolIcon name="refresh" size={24} />
+    <View accessible={false} style={styles.copy}><Label style={styles.title}>Daten</Label>
+      <Label style={[styles.age, { color: tint }]}>{status.caption}</Label></View></View>
   </Pressable>;
 }
 
 const styles = StyleSheet.create({
-  // The 28 dp symbol matches Profile; compact padding keeps the fixed header no taller.
-  button: { minWidth: 74, minHeight: 48, paddingHorizontal: 10, paddingVertical: 2, borderRadius: 14,
-    backgroundColor: colors.card, alignItems: 'center', justifyContent: 'center' },
-  row: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  title: { fontSize: 12, lineHeight: 17, fontWeight: '600' },
-  age: { fontSize: 12, lineHeight: 17 },
+  button: { minWidth: 94, minHeight: 48, justifyContent: 'center', flexShrink: 1 },
+  face: { minHeight: 40, paddingHorizontal: 8, paddingVertical: 2, borderRadius: 12, backgroundColor: colors.card, flexDirection: 'row', gap: 5, alignItems: 'center', justifyContent: 'center' },
+  copy: { flexShrink: 1 },
+  title: { fontSize: 12, lineHeight: 16, fontWeight: '600' },
+  age: { fontSize: 11, lineHeight: 15 },
 });

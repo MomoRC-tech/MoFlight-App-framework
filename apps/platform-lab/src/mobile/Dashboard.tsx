@@ -37,21 +37,24 @@ export function Dashboard({ ownFlights, ownFlightPhase, pending, fontScale, onPa
   if (ownFlightPhase === 'loading') return <Card style={styles.dashboard}><View accessibilityLiveRegion="polite" accessibilityState={{busy:true}} style={ui.row}><ActivityIndicator color={colors.cyan} /><Label style={{flex:1}}>Gespeicherte Flugdaten werden vorbereitet …</Label></View><Label muted>Deine Saisonübersicht erscheint gleich.</Label></Card>;
   if (ownFlightPhase !== 'ready' || !ownFlights?.snapshot.account) return <Card style={styles.dashboard}><Section title="Meine Saison" /><Label muted>{ownFlightPhase==='failed'?'Gespeicherte Flugdaten konnten nicht geprüft werden.':'Deine Saison erscheint, sobald eigene Flüge gespeichert sind.'}</Label><Label muted style={styles.small}>Über „Daten“ oben kannst du deine Flüge laden.</Label></Card>;
   return <View style={styles.dashboard}><Card style={styles.season}>
-    <View style={styles.heading}><View style={{flex:1}}><Section title="Meine Saison" /><Label muted style={styles.small}>{year} · Vergleich mit {year-1}</Label></View><View style={styles.scene}><FlightScene compact /></View></View>
+    <View style={styles.heading}><FlightScene compact /><View style={styles.headingText}><Section title="Meine Saison" /><Label muted style={styles.small}>{year} · Vergleich mit {year-1}</Label></View></View>
     {latest ? (()=>{const a=latest.facts.assessment;const raw=(field:keyof typeof a.fields)=>{const value=a.fields[field];return value.state==='value'&&value.raw.trim()?value.raw:'unbekannt';};const day=a.date.value;
       return <Pressable accessibilityRole="button" accessibilityLabel={`Flug ${day?.split('-').reverse().join('.')} · ${raw('registration')} ansehen`} onPress={()=>onFlight?onFlight(latest.flightId):onFlights()} style={({pressed})=>[styles.latestFlight,pressed&&ui.pressed]}>
-        <View style={styles.flightHeading}><View style={styles.age}><SymbolIcon name="clock" size={20}/><Label style={styles.ageText}>{flightRelativeAge(day,today)}</Label></View><Label muted style={styles.small}>Letzter Flug · {day?.split('-').reverse().join('.')}</Label></View>
-        <Label style={styles.flightAircraft}>{raw('registration')} · {raw('model')}</Label>
-        <View style={styles.flightHeading}><Label muted style={{flex:1}}>PIC: {abbreviatedCrew(a.fields.pic)}</Label><Label style={styles.flightDuration}>{a.durations.flight.state==='known'?`${formatReportedMinutes(a.durations.flight.minutes)} h`:'Zeit unbekannt/strittig'}</Label><SymbolIcon name="right" size={16} tone="muted" /></View>
+        <View style={styles.flightHeading}><Label style={styles.flightDate}>Letzter Flug · {day?.split('-').reverse().join('.')} · {flightRelativeAge(day,today)}</Label><Label style={styles.flightDuration}>{a.durations.flight.state==='known'?`${formatReportedMinutes(a.durations.flight.minutes)} h`:'Zeit unbekannt/strittig'}</Label></View>
+        <View style={styles.flightHeading}><Label style={styles.flightAircraft}>{raw('registration')} · {raw('model')} · PIC: {abbreviatedCrew(a.fields.pic)}</Label><SymbolIcon name="right" size={16} tone="muted" /></View>
         {ownFlights.flights.some(f=>f.facts.assessment.date.value===day&&f.facts.assessment.clocks.start.state!=='parsed')&&<Label muted style={styles.small}>Reihenfolge am selben Tag unbekannt.</Label>}
       </Pressable>;
     })():<Label muted>Noch keine datierten gespeicherten Flüge.</Label>}
-    <View style={styles.comparison}>{seasons.map((item,index)=><View key={year-index} style={styles.yearRow}>
-      <View style={{width:37*fontScale}}><Label muted style={styles.year}>{year-index}</Label></View><View style={[styles.rings,fontScale>1.3&&{flexDirection:'column'}]}>
-        <SeasonRing slices={seasonRingSlices(item.aircraft,'knownMinutes')} value={item.knownDurationCount?formatReportedMinutes(item.knownMinutes):'—'} label="h bekannt" description={`${year-index}: ${item.knownDurationCount?formatReportedMinutes(item.knownMinutes)+' Stunden bekannt':'Flugzeit unbekannt'}, ${item.unknownDurationCount} Zeiten unbekannt/strittig. Flugzeit nach Flugzeug: ${item.aircraft.map(a=>`${a.aircraft}: ${a.knownMinutes===null?'unbekannt':formatReportedMinutes(a.knownMinutes)+' h'}`).join(', ')}`} />
-        <SeasonRing slices={seasonRingSlices(item.aircraft,'count')} value={String(item.count)} label="Starts" description={`${year-index}: ${item.count} Starts nach Flugzeug: ${item.aircraft.map(a=>`${a.aircraft}: ${a.count}`).join(', ')}`} />
-      </View>
-    </View>)}</View>
+    <View style={[styles.rings,fontScale>1.3&&{flexDirection:'column'}]}>
+      <SeasonRing label="Flugstunden · h bekannt" layers={seasons.map((item,index)=>({
+        year:year-index, slices:seasonRingSlices(item.aircraft,'knownMinutes'), value:item.knownDurationCount?formatReportedMinutes(item.knownMinutes):'—',
+        description:`${year-index}: ${item.knownDurationCount?formatReportedMinutes(item.knownMinutes)+' Stunden bekannt':'Flugzeit unbekannt'}, ${item.unknownDurationCount} Zeiten unbekannt/strittig. Flugzeit nach Flugzeug: ${item.aircraft.map(a=>`${a.aircraft}: ${a.knownMinutes===null?'unbekannt':formatReportedMinutes(a.knownMinutes)+' h'}`).join(', ')}`,
+      }))} />
+      <SeasonRing label="Starts" layers={seasons.map((item,index)=>({
+        year:year-index, slices:seasonRingSlices(item.aircraft,'count'), value:String(item.count),
+        description:`${year-index}: ${item.count} Starts nach Flugzeug: ${item.aircraft.map(a=>`${a.aircraft}: ${a.count}`).join(', ')}`,
+      }))} />
+    </View>
     {seasons[1]!.unknownDurationCount>0&&<Label muted style={styles.small}>{year-1}: {seasons[1]!.unknownDurationCount} Zeiten unbekannt/strittig</Label>}
     {season.unknownDurationCount>0&&<Label muted style={styles.small}>{season.unknownDurationCount} Saisonzeiten unbekannt/strittig</Label>}
     {(processed?.statistics.unknownDateCount??0)>0&&<Label muted style={styles.small}>{processed?.statistics.unknownDateCount} Flüge mit unbekanntem Datum nicht zugeordnet.</Label>}
@@ -67,12 +70,12 @@ const styles=StyleSheet.create({
   dashboard:{width:'100%',maxWidth:520,alignSelf:'center',gap:12},
   disclosure:{minHeight:52,flexDirection:'row',alignItems:'center',gap:12},
   paperLink:{minHeight:48,paddingHorizontal:11,flexDirection:'row',alignItems:'center',gap:8},
-  small:{fontSize:12,lineHeight:18},season:{minWidth:0,gap:10,padding:14,borderColor:'#426759'},
-  heading:{flexDirection:'row',alignItems:'center',gap:8},scene:{width:88,height:44,borderRadius:12,overflow:'hidden'},
-  comparison:{gap:8},yearRow:{flexDirection:'row',alignItems:'center',gap:8},year:{fontSize:12},rings:{flex:1,flexDirection:'row',gap:10},
+  small:{fontSize:12,lineHeight:18},season:{minWidth:0,gap:10,padding:14,borderColor:'#67533c',overflow:'hidden'},
+  heading:{minHeight:88,marginHorizontal:-14,marginTop:-14,overflow:'hidden',justifyContent:'center'},headingText:{paddingHorizontal:14,paddingVertical:14},
+  rings:{flexDirection:'row',gap:12},
   legend:{flexDirection:'row',flexWrap:'wrap',gap:10},allFlights:{minHeight:44,flexDirection:'row',alignItems:'center',justifyContent:'space-between'},
   aircraftBadge:{flexDirection:'row',alignItems:'center',gap:5},aircraftKey:{width:7,height:7,borderRadius:4},
-  latestFlight:{gap:5,paddingVertical:10,borderTopWidth:1,borderBottomWidth:1,borderColor:colors.border},
-  flightHeading:{flexDirection:'row',flexWrap:'wrap',alignItems:'center',gap:7},age:{flexDirection:'row',alignItems:'center',gap:5},ageText:{fontWeight:'700',color:colors.cyan},
-  flightDuration:{color:colors.cyan,fontWeight:'600',fontSize:13,flexShrink:1},flightAircraft:{fontWeight:'600'},
+  latestFlight:{gap:4,paddingBottom:10,borderBottomWidth:1,borderColor:colors.border},
+  flightHeading:{flexDirection:'row',alignItems:'center',gap:7},flightDate:{flex:1,fontSize:12,lineHeight:18,color:colors.muted},
+  flightDuration:{color:colors.cyan,fontWeight:'600',fontSize:13,flexShrink:1},flightAircraft:{flex:1,fontSize:12,lineHeight:18,fontWeight:'600'},
 });

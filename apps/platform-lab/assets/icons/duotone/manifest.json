@@ -1,6 +1,6 @@
 {
   "config": {
-    "master_sha256": "f7d3c7d3871b520dd370cf40b2ada41b020ef3b18d9687b314c605636d3b75cf",
+    "master_sha256": "9f565fce7633943c3b65cb9a0882eff188672d8f845315d2fadbfc2e907b9f25",
     "glyphs": [
       "home",
       "flight-paper-plane",
@@ -224,23 +224,23 @@
       "size_px": 192
     },
     "medical-card-default.png": {
-      "sha256": "6797b0ded7fd37da32c42c6ca039c3f6243b052bd20bbe439b6e7d31b7102eb6",
+      "sha256": "c9f2b80a6852120be52d152950588ced83bb1eeb492b0f881b912ebdb5c3e214",
       "size_px": 192
     },
     "medical-card-muted.png": {
-      "sha256": "b9834481902d2cf078bde2006a4ad05e0342d66720b185b375455fc5685dbea9",
+      "sha256": "51ac24b2f9384b0313061e92b99e11a38220e849e7a6759929757c71494b17c1",
       "size_px": 192
     },
     "medical-card-paper.png": {
-      "sha256": "078a76127f33362815af90f782244a6eb43a677bc96671b66c52f915599508e3",
+      "sha256": "d5c4d732bc4d6c42e82e47fff79ece0d6ea17aeb16929f2e6533158b2ebca43b",
       "size_px": 192
     },
     "medical-card-assistant.png": {
-      "sha256": "7edc1f9478134dff7f831a5f3ec46877d3f221fd714dc2849345e070a7cf8878",
+      "sha256": "9a70ca6b66e92a39728c7c283a001dd73e0c532084ef5ddc20e9a0423d13e917",
       "size_px": 192
     },
     "medical-card-contrast.png": {
-      "sha256": "d07afc86368411b4273caf9093fd093004f646c994a4bd74ba7a8b9d71ceb728",
+      "sha256": "3757df5855e88cd0a78999d7a03219621dd4976c8a64e9f37c2d594d8f0653eb",
       "size_px": 192
     },
     "profile-default.png": {

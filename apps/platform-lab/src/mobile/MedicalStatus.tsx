@@ -17,8 +17,9 @@ export function MedicalIndicator({ onPress, active = false, disabled = false, ca
   const status = assessment.date ? `${assessment.date}${assessment.issues.length ? '*' : ''}` : 'unbekannt';
   const dateDescription = assessment.date ? `Erfasstes frühestes Ablaufdatum: ${assessment.date}. ${medicalExpiryStatusText(assessment.state)}${assessment.issues.length ? '. Weitere Medical-Angaben sind teilweise unbekannt' : ''}.` : 'Medical-Ablaufdatum unbekannt. Einordnung unbekannt.';
   return <Pressable accessibilityRole="button" accessibilityLabel={`Medical. ${dateDescription} Details öffnen`} accessibilityState={{ selected: active, disabled }} disabled={disabled} onPress={onPress} style={[styles.control, disabled && { opacity: .5 }]}>
-    <View accessible={false} style={styles.title}><SymbolIcon name="medical-card" size={28} /><Text style={styles.label}>Med</Text></View>
-    <Text style={[styles.status, assessment.date ? { color: dateColor(assessment.state) } : undefined]}>{status}</Text>
+    <View style={styles.face}><SymbolIcon name="medical-card" size={24} />
+    <View accessible={false} style={styles.copy}><Text style={styles.label}>Med</Text>
+      <Text style={[styles.status, assessment.date ? { color: dateColor(assessment.state) } : undefined]}>{status}</Text></View></View>
   </Pressable>;
 }
 
@@ -47,9 +48,10 @@ export function MedicalDetails({ capture = null, loading = false, needsReload = 
 }
 
 const styles = StyleSheet.create({
-  control: { minWidth: 72, minHeight: 48, paddingHorizontal: 10, paddingVertical: 2, borderRadius: 14, backgroundColor: colors.card, alignItems: 'center', justifyContent: 'center' },
-  title: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 4 },
-  label: { color: colors.text, fontSize: 12, lineHeight: 17, fontWeight: '600' },
-  status: { color: colors.muted, fontSize: 12, lineHeight: 17 },
+  control: { minWidth: 94, minHeight: 48, justifyContent: 'center', flexShrink: 1 },
+  face: { minHeight: 40, paddingHorizontal: 8, paddingVertical: 2, borderRadius: 12, backgroundColor: colors.card, flexDirection: 'row', gap: 5, alignItems: 'center', justifyContent: 'center' },
+  copy: { flexShrink: 1 },
+  label: { color: colors.text, fontSize: 12, lineHeight: 16, fontWeight: '600' },
+  status: { color: colors.muted, fontSize: 11, lineHeight: 15 },
   details: { width: '100%', maxWidth: 480, alignSelf: 'center' },
 });

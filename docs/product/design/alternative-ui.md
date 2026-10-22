@@ -4,6 +4,16 @@
 
 Manuel authorized an alternative native implementation and verification. On 22 October Manuel explicitly selected it as the new main and requested merging the branch. The integration preserves newer main safeguards; selection is separate from the remaining acceptance gates. M4 presentation reuses existing M2/M3 saved-data and provider boundaries. This visual contract adds no services, migrations or real-book activation. Provider retrieval changes are tracked separately and do not follow from appearance approval.
 
+## Start/header refinement — 23 October 2026
+
+Manuel requested the following refinement under [#20](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/20#issuecomment-6352511938). It supersedes the earlier scoped geometry below: the unchanged Thermik logo is 88 dp (previously 46), with title alongside; Profile occupies the header's lower right over the existing ASK-21 artwork. Data and Medical use compact 40 dp faces inside minimum 48 dp targets, icons beside two-line labels, and system-scaled text. Medical's cross is red in the maintained SVG and generated native family; it is decorative and does not change source-date status meaning.
+
+Meine Saison uses the same realistic artwork across its complete heading width, beneath the text, with a warm amber/brown overlay instead of the former small schematic image. The ordinary latest-flight summary has two rows: date/age and duration, then aircraft and recorded PIC. Long source text and enlarged text may reflow; the same-day ambiguity warning remains separate. Each measure has one concentric comparison: current year outside, prior year inside, with explicit year/position labels and stable aircraft colours. The circles describe each year's aircraft shares, not comparative total magnitude. Empty/unknown time retains an unfilled track. Hours and starts remain separate.
+
+Monthly bars now have small rotated values immediately above them, keeping all twelve months and both years visible. Hours use exact hours:minutes, zero stays zero, unknown is ?, partial values retain · and future months stay blank. Compact chart value/axis labels cap font scaling at 1; full values remain in accessible month descriptions. Broader statistics were requested for review only, under #9; this UI refinement does not authorize all pending analytics.
+
+Source-specific checks and delivery status are recorded in the [existing verification report](../../verification/2026-10-22-alternative-ui.md#startheader-refinement--23-october-2026).
+
 ## Review and design response
 
 The baseline makes too many elements equally prominent: tiny header title beside three status controls, gradient cards around every group, dense flight metadata before results, and charts mixed with everyday tasks. The alternative establishes a reading order: destination → essential actions → flight information → optional detail.

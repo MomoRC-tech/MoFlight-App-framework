@@ -70,3 +70,19 @@ test('current and previous years share each month and one comparison scale',()=>
  assert.equal(nodes.filter(n=>n.props.accessible).length,12,'Both years are combined into twelve month groups');
  assert.equal(nodes.filter(n=>n.type==='ScrollView').length,0);
 });
+
+
+test('bar values preserve known zero, exact hours, partial and unknown values while future months stay blank',()=>{
+ const f=fixture();
+ Object.assign(f.series[0]![0]!,{count:4,knownMinutes:95,covered:false});
+ Object.assign(f.series[1]![0]!,{count:0,knownMinutes:0,covered:true});
+ Object.assign(f.series[0]![1]!,{count:null,knownMinutes:null,covered:false});
+ const values=(nodes:Element[],month:string)=>nodes.find(n=>n.props.accessibilityLabel?.startsWith(month+':'))!.children[0].children.map((slot:Element)=>slot.children[1]);
+ const captions=(nodes:Element[],month:string)=>values(nodes,month).map((v:Element)=>v?.children.filter((c:any)=>typeof c==='string').join(''));
+ const counts=f.render();assert.deepEqual(captions(counts,'Jan'),['4·','0']);assert.equal(captions(counts,'Feb')[0],'?');
+ assert.ok(values(counts,'Nov').every((v:any)=>!v),'Future months show no numeric label');
+ counts.find(n=>n.type==='Chip'&&n.props.title==='Flugstunden')!.props.onPress();
+ const hours=f.render();assert.deepEqual(captions(hours,'Jan'),['1:35·','0:00']);
+ assert.ok(values(hours,'Jan').every((v:Element)=>v.props.maxFontSizeMultiplier===1));
+ assert.match(JSON.stringify(hours),/Stunden:Minuten/);
+});

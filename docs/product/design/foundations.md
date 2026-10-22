@@ -74,7 +74,7 @@ The native shell uses the platform default family; it does not configure Inter. 
 | Dashboard / summary value | 18 / 24 for ring-adjacent season values | 700; KPI unit 16. |
 | Supporting text / tab label | Supporting text varies; tabs 12 / 18 | Secondary emphasis; selected tabs 700. |
 | Medical label / status | 12 / 16 and 12 / 17 | Med is 600; status quieter, with date/unknown semantics preserved. |
-| Season ring value / label | 18 / 24 and 11 / 16 | Saved starts and known reported hours beside 44-unit rings; measure pairs stack at enlarged text. |
+| Season ring value / label | 18 / 24 and 11 / 16 | Saved starts and known reported hours beside concentric 64/46-unit rings; measure pairs stack at enlarged text. |
 
 Sources: theme, AppHeader, Dashboard, MobileApp, [ProfileSettings](../../../apps/platform-lab/src/mobile/ProfileSettings.tsx), MedicalStatus and [SeasonRing](../../../apps/platform-lab/src/mobile/SeasonRing.tsx). Icon-glyph font sizes describe artwork, not body hierarchy. The generated inventory lists literal typography declarations. Selected icon raster palettes are recorded separately in the [native asset manifest](../../../apps/platform-lab/assets/icons/duotone/manifest.json); their artwork remains unchanged while branch body/text tokens differ.
 
@@ -87,11 +87,11 @@ Use the documented component context. The branch uses 18 dp page spacing, shared
 | Shared card | Radius 22; border 1; padding 18; gap 12 | Most cards; flight rows override radius/padding. |
 | Shared action | Radius 16; minimum height 52; padding 18 horizontal / 12 vertical | Secondary adds border 1. |
 | Chip face / target | Radius 14; face minimum 66 × 40; target minimum height 48 | Year/training/club scope. |
-| Header icon / Back | Controls 48 × 48, radius 14; Back 48 × 48, radius 16 | Artwork size and target differ. |
-| Medical group | Minimum 72 × 48, radius 12; grows with text | Icon + Med above unbekannt. |
+| Header icon / Back | Profile 48 × 48, radius14; Data/Medical faces minimum40, radius12, within minimum48 targets; Back 48 × 48, radius 16 | Artwork size and target differ. |
+| Medical group | Minimum 72 × 48, radius 12; grows with text | Icon beside Med/date text; 40-unit face within minimum48 target. |
 | Field / composer | Profile radius 12, minimum height 48; provider radius 10; composer radius 20 | Context-specific forms. |
 | Tab / artwork | Tab minimum height 68, radius 16; artwork 28 in soft tile 36 / radius 12; label 12 | Five equal destinations. |
-| Season comparison | Season card padding 14; four rings 44 with thickness 5, adjacent values and shared aircraft legend | Current/prior calendar-year starts and known time; see the alternative feedback contract. |
+| Season comparison | Season card padding 14; two concentric charts with outer64/inner46 and thickness5, adjacent values and shared aircraft legend | Current/prior calendar-year starts and known time; see the alternative feedback contract. |
 
 The branch send target is 48 dp and ordinary flight search minimum height 52 dp. Retained lab faces do not independently prove adequate effective touch regions. [Known gaps](history.md) require actual hit-region review when affected controls change.
 
@@ -111,9 +111,9 @@ Generated ratios use standard sRGB relative luminance on fully opaque pairs. The
 
 ## Branding and photography
 
-Preserve the [approved Thermik artwork](../../assets/branding/README.md). The native header uses the unchanged dark square logo at 46 × 46 with original aspect ratio on this alternative branch. The approved square AI icon now supplies the [platform launcher exports](../../../apps/platform-lab/assets/branding/launcher/README.md): opaque iOS/legacy artwork, a padded white adaptive/themed silhouette and teal background. Source originals are unchanged. [Package evidence and platform limits](../../verification/2026-10-18-launcher-icon.md) distinguish configuration, generated assets and installed Release acceptance.
+Preserve the [approved Thermik artwork](../../assets/branding/README.md). The native header uses the unchanged dark square logo at 88 × 88 with original aspect ratio on this alternative branch. The approved square AI icon now supplies the [platform launcher exports](../../../apps/platform-lab/assets/branding/launcher/README.md): opaque iOS/legacy artwork, a padded white adaptive/themed silhouette and teal background. Source originals are unchanged. [Package evidence and platform limits](../../verification/2026-10-18-launcher-icon.md) distinguish configuration, generated assets and installed Release acceptance.
 
-The branch header uses a decorative code-native flight illustration over navy. Its compact form appears beside Meine Saison. The [alternative contract](alternative-ui.md#artwork-provenance-and-retained-data-behavior) records SVG/CairoSVG provenance; this art is not a photograph or measured-flight evidence. Retained decorative scenes use the existing [aviation photographs/credits](../../../apps/platform-lab/assets/aviation/README.md). Preserve source/author/license links and explain cropping/dark overlays. Native scenes differ from exact reference photography; document this rather than extracting screenshot pixels. Photos are decorative, not weather/club/location evidence.
+The header uses the approved original realistic ASK-21-like raster artwork. The season heading reuses it at full width beneath the text with a warm amber/brown wash. Original bitmap and logo files remain unchanged; these are native layout/overlay treatments, not a new generated photo. [Provenance and the selected refinement](alternative-ui.md) remain explicit. Artwork is decorative, not weather, location or measured-flight evidence.
 
 The HTML guide embeds original reference and symbol/brand images unchanged. Component examples are schematic CSS explanations with synthetic labels, not new app screenshots or replacement artwork.
 
