@@ -16,7 +16,7 @@ import { INFORMATION_TYPES } from '../vereinsflieger/information';
 import { recordProviderEvent } from '../vereinsflieger/provider-diagnostics';
 
 type Controller = ReturnType<typeof useAccessController>;
-export type ProviderStatus = Pick<Controller, 'connection' | 'browserActive' | 'clearing' | 'binding' | 'busy' | 'loginBusy' | 'disconnecting' | 'saving' | 'recovery'> & { ownerId?:string; restoring: { current: boolean } };
+export type ProviderStatus = Pick<Controller, 'connection' | 'browserActive' | 'clearing' | 'binding' | 'busy' | 'loginBusy' | 'disconnecting' | 'saving' | 'recovery'> & { ownerId?:string; loginVisible?:boolean; restoring: { current: boolean } };
 export const unknownProviderStatus: ProviderStatus = { connection: { phase:'unknown', confirmed:false, observed:null, lastCheckedAt:null }, browserActive:false, clearing:false, binding:false, busy:false, loginBusy:false, disconnecting:false, saving:false, recovery:false, restoring:{current:false} };
 export function ConnectionIndicator({ controller: c, onPress }: { controller: ProviderStatus; onPress?: () => void }) {
   const pending = c.clearing || c.binding || c.busy || c.loginBusy || c.disconnecting || c.connection.phase === 'checking';

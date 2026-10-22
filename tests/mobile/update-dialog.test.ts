@@ -16,8 +16,8 @@ test('update popup stays within safe bounds and keeps its native child parent ac
   const child=(top:number)=>{suppliedTop=top;return browser;};
   for(const size of [[390,900],[360,900],[600,1100],[840,450]]){
     [width,height]=size as [number,number];
-    for(const open of [true,false,true]){
-      const tree=exports.UpdateDialog({open,children:child}),frame=tree.children[1],layout=frame.props.style[1];
+    for(const [open,expanded] of [[true,false],[true,true],[false,true],[true,true],[true,false]]){
+      const tree=exports.UpdateDialog({open,expanded,children:child}),frame=tree.children[1],layout=frame.props.style[1];
       assert.equal(frame.children[0],browser,'Visibility never replaces or reparents the browser tree');
       assert.equal(frame.type,'View');assert.equal(frame.props.testID,'data-update-dialog');
       assert.equal(tree.props.pointerEvents,open?'auto':'none');assert.equal(tree.props.accessibilityViewIsModal,open);
@@ -25,6 +25,8 @@ test('update popup stays within safe bounds and keeps its native child parent ac
       assert.ok(layout.left>=12&&layout.left+layout.width<=width-12);
       assert.ok(layout.top>=insets.top+12&&layout.top+layout.height<=height-insets.bottom-12);
       assert.ok(layout.width<=720&&layout.height<=900);
+      if(!expanded)assert.ok(layout.height<=420,'Progress and results stay compact');
+      if(expanded&&height===900)assert.ok(layout.height>420,'The same frame grows for the original login');
       assert.equal(tree.children[0].props.accessible,false,'Scrim has no extra dismiss action that could bypass save guards');
     }
   }

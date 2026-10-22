@@ -180,7 +180,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ConnectionSummary
 
 ## CoreFlightFoundation.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `3e08456e0afd120cf3f2009cfc8025d705eb2067ce9fb179717f87ab5d150580`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `8e466984102512c6a7009b0b22389b6c62f1a5c0cebd3f747ebf911e843aa3a1`.
 
 ### Geometry / opacity declarations
 
@@ -386,7 +386,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MedicalStatus.tsx
 
 ## MobileApp.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `c7eae2d80a151ca77f40c5ffc751a4950c0c7fe92648e857966bc2ea1a67ed2c`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `43a68c1ac6123880bc6ce625bf6560138a3f600cd7ed80b4c1766a5f2f6203ba`.
 
 ### Literal colors
 
@@ -581,7 +581,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProfileSettings.t
 
 ## ProviderConnection.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProviderConnection.tsx](../../../apps/platform-lab/src/mobile/ProviderConnection.tsx); normalized SHA-256 `caaf08ebfc695a18f5b84e1a37982c2012e1543fe197ceabfa5703c067e115fb`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProviderConnection.tsx](../../../apps/platform-lab/src/mobile/ProviderConnection.tsx); normalized SHA-256 `30756a6a538bb11ec5d1887cceacc49363c755e65f315c47f7b1b39b90089f47`.
 
 ### Literal colors
 
@@ -823,7 +823,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/theme.tsx](../../
 
 ## UpdateDialog.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/UpdateDialog.tsx](../../../apps/platform-lab/src/mobile/UpdateDialog.tsx); normalized SHA-256 `bbb91b74a6b11df0ad067bc927193d4b77999ab261cbaf4345114bb799dc50b5`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/UpdateDialog.tsx](../../../apps/platform-lab/src/mobile/UpdateDialog.tsx); normalized SHA-256 `d0ac36b132634a9d956aef345f02db1f351a388073c07436e934320f2f2829a4`.
 
 ### Literal colors
 

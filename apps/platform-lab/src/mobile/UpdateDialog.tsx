@@ -4,13 +4,13 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from './theme';
 
 /** Keep the same frame/native child tree while closed or during credential activities. */
-export function UpdateDialog({ open, children }: { open: boolean; children: (windowTop: number) => React.ReactNode }) {
+export function UpdateDialog({ open, expanded = false, children }: { open: boolean; expanded?: boolean; children: (windowTop: number) => React.ReactNode }) {
   const { width, height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const margin = width >= 600 ? 24 : 12;
   const availableWidth = Math.max(1, width - insets.left - insets.right - margin * 2);
   const availableHeight = Math.max(1, height - insets.top - insets.bottom - margin * 2);
-  const frameWidth = Math.min(720, availableWidth), frameHeight = Math.min(900, availableHeight);
+  const frameWidth = Math.min(720, availableWidth), frameHeight = Math.min(expanded ? 900 : 420, availableHeight);
   const left = insets.left + margin + (availableWidth - frameWidth) / 2;
   const top = insets.top + margin + (availableHeight - frameHeight) / 2;
   return <View pointerEvents={open ? 'auto' : 'none'} accessibilityElementsHidden={!open} aria-hidden={!open}
