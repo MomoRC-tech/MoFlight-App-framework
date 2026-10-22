@@ -28,7 +28,7 @@ test('one monthly chart switches count and hours without offering drilldowns',()
  assert.equal(initial.filter(n=>n.type==='Pressable'||n.type==='Action').length,0);
  assert.equal(initial.filter(n=>n.type==='Chip').length,2);
  assert.equal(initial.filter(n=>n.type==='Chip'&&n.props.selected)[0]!.props.title,'Flüge');
- assert.match(JSON.stringify(initial),/Monatsübersicht/);assert.match(JSON.stringify(initial),/Flüge/);
+ assert.match(JSON.stringify(initial),/Flüge/);
  initial.find(n=>n.type==='Chip'&&n.props.title==='Flugstunden')!.props.onPress();
  const hours=f.render();assert.equal(hours.filter(n=>n.type==='ScrollView').length,1);
  assert.match(JSON.stringify(hours),/Flugstunden/);

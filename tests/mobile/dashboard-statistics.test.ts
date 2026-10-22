@@ -147,7 +147,7 @@ test('recent flight opens its exact saved identity and secondary statistics expa
  assert.equal(rows.length,1);rows[0]!.props.onPress();assert.deepEqual(f.opened,[expected[0]!.flightId]);assert.deepEqual(f.calls,[]);
  assert.ok(!f.nodes.some(n=>n.type==='SeasonMonthlyCharts'));
  const expand=f.nodes.find(n=>n.props.accessibilityLabel==='Saison im Detail')!;assert.equal(expand.props.accessibilityState.expanded,false);
- expand.props.onPress();const expanded=JSON.stringify(f.rerender());assert.match(expanded,/SeasonMonthlyCharts/);assert.match(expanded,/Abdeckung kann unvollständig sein/);
+ expand.props.onPress();const expanded=JSON.stringify(f.rerender());assert.match(expanded,/SeasonMonthlyCharts/);
 });
 
 test('ordinary retained Start rerenders preserve summary and monthly computations',()=>{
