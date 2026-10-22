@@ -396,15 +396,11 @@ test('nested settings preserve the unsaved profile draft and each sheet scroll o
   f.press('Pressable','Verein');assert.equal(f.find('OwnFlights').props.active,false);
  });
 
-test('dashboard year reaches ordinary Flüge as a fresh request without provider work', () => {
+test('Start has no flight drilldown and the Flüge tab opens without provider work', () => {
   const f=fixture();
-  f.find('Dashboard').props.onFlights(2026); f.render();
-  const first=f.find('OwnFlights').props.filterRequest;
-  assert.equal(first.year,2026);assert.equal(f.find('OwnFlights').props.active,true);
-  f.press('Pressable','Übersicht');f.find('Dashboard').props.onFlights(2026);f.render();
-  assert.notEqual(f.find('OwnFlights').props.filterRequest,first);
-  f.find('Dashboard').props.onFlights();f.render();
-  assert.equal(f.find('OwnFlights').props.filterRequest.year,null);
+  assert.equal(f.find('Dashboard').props.onFlights,undefined);
+  f.press('Pressable','Flüge');
+  assert.equal(f.find('OwnFlights').props.active,true);
   assert.deepEqual(f.calls,[]);
   assert.ok(f.readEnabled.every(Boolean), 'Tab changes must not suspend or restart the reader');
 });
@@ -415,7 +411,7 @@ test('tab round trips retain the same shell flight projection for Start and flig
   for(let i=0;i<3;i++){
     const list=f.find('OwnFlights');assert.equal(list.props.data.view,view);
     assert.equal(f.find('Dashboard').props.ownFlights,view);
-    f.find('Dashboard').props.onFlights();f.render();
+    f.press('Pressable','Flüge');f.render();
     assert.equal(f.find('OwnFlights').props.data.view,view);
     assert.equal(f.hardwareBack(),true);f.render();
     assert.equal(f.find('Dashboard').props.ownFlights,view);

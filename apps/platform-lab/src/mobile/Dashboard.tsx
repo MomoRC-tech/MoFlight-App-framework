@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { Action, Card, Label, Section, colors, ui } from './theme';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Card, Label, Section, colors, ui } from './theme';
 import type { OwnFlightView } from './own-flight-reader';
 import { formatReportedMinutes, summarizeRealFlights } from './real-flight-statistics';
 import { SeasonRing } from './SeasonRing';
@@ -10,15 +10,14 @@ import { createProcessedSelector } from './processed-result';
 import type { RealFlightListItem } from '../vereinsflieger/real-flight-library';
 import { latestSavedFlights, abbreviatedCrew, monthlySeasonForCoverage } from './season-dashboard-model';
 import { SeasonMonthlyCharts } from './SeasonMonthlyCharts';
-import type { OwnFlightRequest } from './own-flight-model';
 import { planFlightRetrieval, type FlightRetrievalWindow, type SavedFlightRetrieval } from '../vereinsflieger/retrieval-policy';
 const emptyStatistics = summarizeRealFlights([]);
 const emptySlices: ReturnType<typeof seasonRingSlices> = [];
 interface Props {
   ownFlights: OwnFlightView | null; ownFlightPhase: 'loading' | 'ready' | 'missing' | 'failed'; pending: number | null; width: number; fontScale: number;
-  onPaper: () => void; onFlights: (year?: number, request?: OwnFlightRequest) => void; now?: number;
+  onPaper: () => void; now?: number;
 }
-export function Dashboard({ ownFlights, ownFlightPhase, pending, fontScale, onPaper, onFlights, now = Date.now() }: Props) {
+export function Dashboard({ ownFlights, ownFlightPhase, pending, fontScale, onPaper, now = Date.now() }: Props) {
   const clock = new Date(now), year = clock.getFullYear();
   const today = `${year}-${String(clock.getMonth()+1).padStart(2,'0')}-${String(clock.getDate()).padStart(2,'0')}`;
   const scope = ownFlights ? JSON.stringify([ownFlights.snapshot.ownerId, ownFlights.snapshot.storeId, ownFlights.snapshot.account?.accountRef]) : null;
@@ -35,6 +34,7 @@ export function Dashboard({ ownFlights, ownFlightPhase, pending, fontScale, onPa
   const time = season.knownDurationCount ? formatReportedMinutes(season.knownMinutes) : '—';
   const showRings = fontScale <= 1.3 && String(season.count).length <= 5 && time.length <= 5;
   const latest = processed?.latest ?? [];
+  if (ownFlightPhase === 'loading') return <Card style={styles.dashboard}><View accessibilityLiveRegion="polite" accessibilityState={{busy:true}} style={ui.row}><ActivityIndicator color={colors.cyan} /><Label>Gespeicherte Flugdaten werden vorbereitet …</Label></View><Label muted>Deine Saisonübersicht erscheint gleich.</Label></Card>;
   if (ownFlightPhase !== 'ready' || !ownFlights?.snapshot.account) return null;
   return <View style={styles.dashboard}><Card style={styles.season}>
     <View style={ui.section}><Section title="Meine Saison" /><View style={styles.yearBadge}><Label style={styles.small}>{year}</Label></View></View>
@@ -44,16 +44,15 @@ export function Dashboard({ ownFlights, ownFlightPhase, pending, fontScale, onPa
     </View> : <View style={styles.seasonMetrics}><View style={styles.metric}><Text style={styles.value}>{season.count}</Text><Label muted>Flüge {year}</Label></View><View style={styles.metric}><Text style={styles.value}>{time}</Text><Label muted>gemeldete Std.</Label></View></View>}
     <Label muted style={styles.small}>{season.unknownDurationCount} Saisonzeiten unbekannt/strittig</Label>
     {season.aircraft.map(item=><View key={item.aircraft} style={ui.row}><View style={[styles.aircraftKey,{backgroundColor:item.color}]} /><Label muted style={[styles.small,{flex:1}]}>{item.aircraft}: {item.count} Flüge · {item.knownMinutes===null?'Zeit unbekannt':`${formatReportedMinutes(item.knownMinutes)} h bekannt`}{item.unknownDurationCount?` · ${item.unknownDurationCount} Zeiten unbekannt/strittig`:''}</Label></View>)}
-    <Action secondary onPress={()=>onFlights(year)}>Saisonflüge ansehen</Action>
-    {monthly && <SeasonMonthlyCharts series={monthly} selectionScope={scope} onFlights={onFlights} />}
+    {monthly && <SeasonMonthlyCharts series={monthly} />}
     <View style={styles.latest}><Section title={latest.length>1?'Letzte Flüge am selben Tag':'Letzter gespeicherter Flug'} />
-      {latest.length>1 && <Label muted style={styles.small}>Reihenfolge nicht eindeutig – Flug auswählen.</Label>}
+      {latest.length>1 && <Label muted style={styles.small}>Reihenfolge der letzten Flüge nicht eindeutig.</Label>}
       {latest.map(flight=>{const a=flight.facts.assessment;const raw=(field:keyof typeof a.fields)=>{const value=a.fields[field];return value.state==='value'?value.raw:'unbekannt';};const day=a.date.value;
-        return <Pressable key={flight.flightId} accessibilityRole="button" accessibilityLabel={`Gespeicherten Flug ${day}, ${raw('registration')}, ${raw('model')} ansehen`} style={styles.latestFlight} onPress={()=>onFlights(undefined,{year:null,dateRange:day?{from:day,to:day}:null,flightId:flight.flightId})}>
+        return <View key={flight.flightId} style={styles.latestFlight}>
           <Label>{day} · {a.clocks.start.state==='parsed'?a.clocks.start.value:'Startzeit unbekannt'} · {a.durations.flight.state==='known'?`${formatReportedMinutes(a.durations.flight.minutes)} h`:'Flugzeit unbekannt/strittig'}</Label>
           <Label>{raw('registration')} · {raw('model')} · Startart: {raw('launch')}</Label>
-          <Label muted>PIC: {abbreviatedCrew(a.fields.pic)} · Begleiter: {abbreviatedCrew(a.fields.companion)}</Label><Label muted style={styles.small}>Gespeicherte Quellenangaben · Flugdetails →</Label>
-        </Pressable>;
+          <Label muted>PIC: {abbreviatedCrew(a.fields.pic)} · Begleiter: {abbreviatedCrew(a.fields.companion)}</Label>
+        </View>;
       })}
       {!latest.length&&<Label muted>Noch keine datierten gespeicherten Flüge.</Label>}
     </View>

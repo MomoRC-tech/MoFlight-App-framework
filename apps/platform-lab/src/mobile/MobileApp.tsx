@@ -31,7 +31,6 @@ import { OwnFlights, type OwnFlightHeader } from './OwnFlights';
 import { useOwnFlights } from './use-own-flights';
 import { ownFlightReadPorts } from './own-flight-reader-native';
 import { ownFlightConnectionState, type OwnFlightConnectionEvidence } from './connection-guidance';
-import type { OwnFlightRequest } from './own-flight-model';
 import { buildDutyOverview, dutySnapshotExpiresAt } from '../vereinsflieger/duties';
 import { DutyRoster } from './DutyRoster';
 import { planFlightRetrieval } from '../vereinsflieger/retrieval-policy';
@@ -66,7 +65,6 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
   const [connectionOpen, setConnectionOpen] = useState(false);
   const [connectionDevelopment, setConnectionDevelopment] = useState(false);
   const [tab, setTab] = useState<Tab>('home');
-  const [flightRequest, setFlightRequest] = useState<OwnFlightRequest | null>(null);
   const [sheet, setSheet] = useState<Sheet>(null);
   const [detail, setDetail] = useState<Flight | null>(null);
   const [screenBusy, setScreenBusy] = useState(false);
@@ -203,7 +201,7 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
           <ConnectionSummary compact now={now} reminderSnooze={reminder.snooze} onSnoozeReminder={reminder.save} controller={flightStatusController} ownFlights={ownFlights.view} phase={ownFlights.phase} onUpdate={() => openFlightFlow(true)} onOpen={() => openFlightFlow()} />
           {reminder.error&&<Label muted>Erinnerungseinstellung konnte nicht gelesen oder gespeichert werden.</Label>}
           <View style={{width:'100%',maxWidth:wide?920:480,alignSelf:'center',flexDirection:wide?'row':'column',alignItems:'flex-start',gap:10}}>
-          <View style={{width:'100%',flex:wide?1:undefined}}><Dashboard now={now} ownFlights={ownFlights.view} ownFlightPhase={ownFlights.phase} pending={null} width={width} fontScale={fontScale} onPaper={() => openHeaderSheet('paperInfo')} onFlights={(year,request) => { diagnosticJournal.record('action','flights');diagnosticJournal.record('filter','year');setFlightRequest(request??{ year: year ?? null }); setTab('flights'); }} /></View>
+          <View style={{width:'100%',flex:wide?1:undefined}}><Dashboard now={now} ownFlights={ownFlights.view} ownFlightPhase={ownFlights.phase} pending={null} width={width} fontScale={fontScale} onPaper={() => openHeaderSheet('paperInfo')} /></View>
           {ownFlights.phase==='ready'&&!!selected?.snapshot.account&&<View style={{width:'100%',flex:wide?1:undefined}}>{dutyContent()}</View>}
           </View>
         </ScrollView>
@@ -214,7 +212,7 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
           {lastLoad.medicalStatus==='empty'&&<Label>Keine Medical-Angaben im geprüften Profil gefunden. Status bleibt unbekannt.</Label>}
           {lastLoad.dutyStatus&&<Label>{lastLoad.dutyStatus==='partial'?'Dienstquelle gespeichert · Dienstplan unvollständig geprüft.':'Dienste nicht aktualisiert. Vorhandene Quellen bleiben erhalten.'}</Label>}
         </View></Card>}
-        <OwnFlights filterRequest={flightRequest} active={tab === 'flights' && !coreFlightsOpen} data={ownFlights} onHeaderChange={setFlightHeader}
+        <OwnFlights active={tab === 'flights' && !coreFlightsOpen} data={ownFlights} onHeaderChange={setFlightHeader}
           onUpdate={()=>openFlightFlow(true)} />
       </View>
       <View style={[s.page, tab !== 'logbook' && s.hidden]} accessibilityElementsHidden={tab !== 'logbook'} importantForAccessibility={tab === 'logbook' ? 'auto' : 'no-hide-descendants'}>
