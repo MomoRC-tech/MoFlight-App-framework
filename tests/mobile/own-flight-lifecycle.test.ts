@@ -7,15 +7,22 @@ import { runInNewContext } from 'node:vm';
 import ts from 'typescript';
 import * as reader from '../../apps/platform-lab/src/mobile/own-flight-reader.ts';
 import { ownFlightFixture } from './own-flight-fixture.ts';
+import * as flightModel from '../../apps/platform-lab/src/mobile/own-flight-model.ts';
+import * as captureReview from '../../apps/platform-lab/src/vereinsflieger/capture-review.ts';
+import { planFlightRetrieval } from '../../apps/platform-lab/src/vereinsflieger/retrieval-policy.ts';
+import { dataFreshness } from '../../apps/platform-lab/src/mobile/data-freshness.ts';
 
 const source=ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/mobile/use-own-flights.ts',import.meta.url),'utf8'),{
   compilerOptions:{module:ts.ModuleKind.CommonJS},
 }).outputText;
 function deferred<T>() { let resolve!:(value:T)=>void;const promise=new Promise<T>(done=>{resolve=done;});return {promise,resolve}; }
-function host() {
+function host(withPresentation = false) {
   const f=ownFlightFixture(),hooks:any[]=[],effects:(()=>void)[]=[],cleanups:(()=>void)[]=[];
   let index=0,active=true,revision=0,listener!:(state:string)=>void;
+  let flightsActive=true,filterRequest:flightModel.OwnFlightRequest|null=null;
   const react={
+    createElement:(type:unknown,props:unknown,...children:unknown[])=>({type,props,children}),
+    useMemo:(fn:()=>unknown)=>fn(),
     useRef(initial:unknown){const i=index++;if(!(i in hooks))hooks[i]={current:initial};return hooks[i];},
     useState(initial:unknown){const i=index++;if(!(i in hooks))hooks[i]=initial;return [hooks[i],(value:unknown)=>{hooks[i]=value;}];},
     useCallback(fn:unknown,deps:unknown[]){const i=index++;if(!hooks[i]||deps.some((v,n)=>v!==hooks[i].deps[n]))hooks[i]={fn,deps};return hooks[i].fn;},
@@ -24,12 +31,56 @@ function host() {
   const exports:any={};runInNewContext(source,{exports,require:(name:string)=>name==='react'?react:name==='react-native'?{
     AppState:{currentState:'active',addEventListener:(_:string,fn:typeof listener)=>{listener=fn;return{remove(){}};}},
   }:name==='../diagnostics'?diagnostics:name==='./processed-result'?processedResults:reader});
+  const presentation:any={};
+  const onHeaderChange=()=>{};
+  if(withPresentation){
+    const leaves=(names:string[])=>Object.fromEntries(names.map(name=>[name,name]));
+    const modules:Record<string,unknown>={
+      react:{default:react,...react},'react-native':{
+        ...leaves(['ActivityIndicator','FlatList','Pressable','ScrollView','TextInput','View']),
+        Keyboard:{dismiss(){}},StyleSheet:{create:(value:unknown)=>value},useWindowDimensions:()=>({width:390,fontScale:1}),
+      },'../diagnostics':diagnostics,
+      './theme':{...leaves(['Action','Card','Chip','Empty','IconLabel','Label','Section']),colors:{},ui:{}},
+      './SymbolIcon':leaves(['SymbolIcon']),'./own-flight-model':flightModel,
+      '../vereinsflieger/retrieval-policy':{planFlightRetrieval},'./data-freshness':{dataFreshness},
+      '../vereinsflieger/capture-review':captureReview,
+    };
+    const component=ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/mobile/OwnFlights.tsx',import.meta.url),'utf8'),{
+      compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.React,esModuleInterop:false},
+    }).outputText;
+    runInNewContext(component,{exports:presentation,require:(name:string)=>{assert.ok(name in modules,name);return modules[name];}});
+  }
   let result:any;
-  function render(){index=0;result=exports.useOwnFlights(f.ports,active,revision);effects.splice(0).forEach(fn=>fn());return result;}
+  function render(){index=0;result=exports.useOwnFlights(f.ports,active,revision);if(withPresentation)presentation.OwnFlights({active:flightsActive,data:result,filterRequest,onHeaderChange});effects.splice(0).forEach(fn=>fn());return result;}
   async function flush(){for(let i=0;i<3;i++){await new Promise<void>(done=>{setImmediate(done);});render();}return result;}
   render();return{...f,render,flush,background:()=>listener('background'),foreground:()=>listener('active'),
+    setFlightsActive:(value:boolean)=>{flightsActive=value;render();},
+    requestFlight:(flightId:string)=>{filterRequest={year:null,flightId};flightsActive=true;render();},
     setActive:(value:boolean)=>{active=value;render();},reload:()=>{revision++;render();},unmount:()=>cleanups.forEach(fn=>fn())};
 }
+
+test('latest recent-flight request survives a busy local detail read through the real presentation and reader',async()=>{
+  const h=host(true);await h.flush();
+  const first=deferred<any>(),second=deferred<any>(),reads:string[]=[];
+  h.session.service.detail=async flightId=>{reads.push(flightId);return flightId===h.flights[0]!.flightId?first.promise:second.promise;};
+  try{
+    h.requestFlight(h.flights[0]!.flightId);
+    assert.equal((await h.flush()).detailBusy,true);
+    h.setFlightsActive(false);
+    h.requestFlight(h.flights[1]!.flightId);
+    let state=await h.flush();
+    assert.equal(state.detailBusy,true);assert.deepEqual(reads,[h.flights[0]!.flightId]);
+    first.resolve(h.detail);
+    state=await h.flush();
+    assert.deepEqual(reads,[h.flights[0]!.flightId,h.flights[1]!.flightId]);
+    assert.equal(state.detailBusy,true);assert.equal(state.detail,null);
+    second.resolve({...h.flights[1]!,factHistory:[],captures:[],pending:[]});
+    state=await h.flush();
+    assert.equal(state.detailBusy,false);assert.equal(state.detail.flightId,h.flights[1]!.flightId);
+    h.setFlightsActive(false);h.setFlightsActive(true);await h.flush();
+    assert.equal(reads.length,2,'a consumed request must not reopen on ordinary tab return');
+  }finally{first.resolve(h.detail);second.resolve(null);h.unmount();}
+});
 test('local read, detail and retry are independent of provider calls; returning reloads the selected owner',async()=>{
   const h=host();let state=await h.flush();assert.equal(state.phase,'ready');assert.equal(state.view.flights.length,3);
   await state.openDetail(h.flights[0]);state=h.render();assert.equal(state.detail.flightId,'flight-0');

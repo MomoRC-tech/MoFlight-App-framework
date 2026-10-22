@@ -1,11 +1,14 @@
 # MoFlight UI design handbook
 
+> **Alternative branch — 22 October 2026, [#55](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/55).** Manuel requested a separate modern, friendlier native UI. This branch implements that alternative; it does not replace the approved main-branch reference until he selects it. Read the [alternative design contract](alternative-ui.md) and [verification report](../../verification/2026-10-22-alternative-ui.md). Generated token inventories describe this branch. Historical baseline descriptions below retain their original decision scope.
+
 This is the current starting point for MoFlight's visual design. Use it when enhancing screens, reviewing symbols or proposing a change to the overall appearance. Manuel authorized this consolidation on 18 October 2026 under [#23](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/23). The later selected duotone symbol family, M2 Medical card and supplied folded paper plane were approved for guide/app integration on 18 October 2026 under #20. Other layout and data decisions retain their scope.
 
 ## Read or share the guide
 
 | Chapter | Responsibility |
 | --- | --- |
+| [Alternative branch contract](alternative-ui.md) | Authorized branch design and acceptance boundary; main adoption remains separate. |
 | [Foundations](foundations.md) | Color roles/pairings, typography, spacing, geometry, effects, photography and branding. |
 | [Components and shapes](components.md) | Cards, controls, headers, navigation, sheets, badges and charts, with relevant states and source locations. |
 | [Layout and presentation patterns](patterns.md) | Composition, responsive widths, navigation, keyboard, accessibility and honest data presentation. |
@@ -18,7 +21,7 @@ This is the current starting point for MoFlight's visual design. Use it when enh
 
 ## Current visual direction
 
-Preserve the compact aviation interface: deep navy canvas and layered dark cards, blue/cyan actions and selection, warm orange paper-logbook actions, purple assistant accents, readable light text and licensed photographic headers with dark overlays. Group related content with a clear title, primary value/action and quieter supporting information. Use the approved reference's asymmetric dashboard composition and restrained spacing; adapt it to available width and enlarged text.
+This branch uses matte navy, opaque panels, mint actions, a larger destination heading and a calmer reading order. Season values and recent flights lead; optional comparisons sit behind a disclosure. Preserve selected duotone symbols and the Thermik logo. The [alternative contract](alternative-ui.md) describes this branch; the authority list below records main-branch decisions, not approval to replace them.
 
 Keep German labels beside important navigation/status symbols. Show saved facts and explicit unknown/unavailable states. Decorative photographs and illustrative design examples do not establish weather, tracks, source freshness or copied paper entries.
 

@@ -1,6 +1,7 @@
 # Visual foundations
 
-[Handbook entry point](README.md). Existing approved direction is summarized here; numeric values are the current implementation snapshot, not a new independent selection of every token. Layout lengths are React Native logical units; text follows platform scaling. Browser examples use CSS pixels for explanation.
+> This alternative branch applies the [22 October alternative design contract](alternative-ui.md) to C01–C09, typography, surfaces, Start and flight browsing. It supersedes conflicting baseline appearance descriptions on this branch only; data semantics and main-branch approval are unchanged.
+[Handbook entry point](README.md). Branch implementation is summarized here; numeric values are the current implementation snapshot, not a new independent selection of every token. Layout lengths are React Native logical units; text follows platform scaling. Browser examples use CSS pixels for explanation.
 
 ## Color roles
 
@@ -9,16 +10,16 @@ Keep surface, text, action, state and chart roles consistent, including foregrou
 <!-- generated:theme:start -->
 | Semantic role / code key | Value | Allowed/current use | Pairing context |
 | --- | --- | --- | --- |
-| surface.canvas / `background` | `#000d18` | Primary dark canvas | text / muted |
-| surface.card / `card` | `#071929` | Card fallback; actual shared card adds a gradient | text / muted |
-| surface.raised / `raised` | `#11263b` | Raised / secondary action surface | text |
-| stroke.default / `border` | `#244760` | Shared card/control outlines | dark surfaces |
-| text.primary / `text` | `#f5f7ff` | Primary readable text | background / card / raised |
-| text.secondary / `muted` | `#adbed5` | Supporting text and inactive symbols | dark surfaces |
-| action.primary / `blue` | `#3595fe` | Shared filled action and selected-chip base | #031326 action text |
-| accent.general / `cyan` | `#46ccff` | General links, metrics and accents; tab selection has its own literal | dark surfaces |
-| accent.assistant.family / `purple` | `#231e63` | Exported assistant-family token; dashboard uses local variants | light text; check displayed panel |
-| accent.paper.family / `orange` | `#fc6a2d` | Exported paper-family token; hero uses local orange variants | dark action text in context |
+| surface.canvas / `background` | `#0b141c` | Primary dark canvas | text / muted |
+| surface.card / `card` | `#14232f` | Opaque shared content panel | text / muted |
+| surface.raised / `raised` | `#1d3242` | Raised / secondary action surface | text |
+| stroke.default / `border` | `#304653` | Shared card/control outlines | dark surfaces |
+| text.primary / `text` | `#f4f7f8` | Primary readable text | background / card / raised |
+| text.secondary / `muted` | `#b0c1cd` | Supporting text and inactive symbols | dark surfaces |
+| action.primary / `blue` | `#76dfc6` | Mint filled action and selected-chip base; legacy code key | #031326 action text |
+| accent.general / `cyan` | `#8be8d2` | Mint links, metrics and selected navigation labels; legacy code key | dark surfaces |
+| accent.assistant.family / `purple` | `#231e63` | Retained assistant-family token; not a shared panel fill | light text; check displayed panel |
+| accent.paper.family / `orange` | `#fc6a2d` | Retained paper-family token; no photographic paper hero | dark action text in context |
 | feedback.saved / `green` | `#48dba5` | Local profile saved text; also a chart-palette color | dark surfaces; meaning needs text |
 <!-- generated:theme:end -->
 
@@ -28,12 +29,12 @@ The purple/orange exports describe accent families; actual dashboard cards use l
 
 | Role | Current values | Meaning / pairing / source |
 | --- | --- | --- |
-| Selected navigation | `#00c8ff` on `#020e17`; inactive `#adbed5` | Selected destination plus label/accessible state. [MobileApp](../../../apps/platform-lab/src/mobile/MobileApp.tsx), nav/active. |
+| Selected navigation | `colors.cyan` on `colors.raised`; inactive `colors.muted` | Selected destination plus label/accessible state. [MobileApp](../../../apps/platform-lab/src/mobile/MobileApp.tsx), nav/active. |
 | Last confirmed session check | `#74dfba` | Prior matching observation, ✓ and last-check wording; dark badge. [connection-guidance](../../../apps/platform-lab/src/mobile/connection-guidance.ts), S02. |
 | Login required | `#ffc477` | Original-provider sign-in required, →; dark badge. Same source, S03. |
 | Attention / recovery | `#ffb39e` | Error/mismatch/unconfirmed association/recovery; ! and a specific explanation. Same source and [ProviderConnection](../../../apps/platform-lab/src/mobile/ProviderConnection.tsx), S04. |
-| Unknown / header control | `#adbed5`; background `#102d47aa` | Neutral ?, or Med / unbekannt. The photo/overlay affects the translucent control's actual background. ProviderConnection / [MedicalStatus](../../../apps/platform-lab/src/mobile/MedicalStatus.tsx). |
-| App Back | Fill `#a4adff`, border `#d0d5ff`, dark contrast duotone arrow (brightest stop `#123a50`) | Contextual return, distinct from the dark header. [AppHeader](../../../apps/platform-lab/src/mobile/AppHeader.tsx). |
+| Unknown / header control | `colors.muted`; opaque `colors.card` | Neutral ?, or Med / unbekannt. The ordinary header uses opaque controls. ProviderConnection / [MedicalStatus](../../../apps/platform-lab/src/mobile/MedicalStatus.tsx). |
+| App Back | Fill `colors.blue`, no separate border, dark contrast duotone arrow (brightest stop `#123a50`) | Contextual return, distinct from the dark header. [AppHeader](../../../apps/platform-lab/src/mobile/AppHeader.tsx). |
 | Recorded role pill | Fill `#064240`, border `#227f87`, general cyan text | Recorded role, not qualification/completion. MobileApp badge. |
 | AI welcome badge | Fill `#78efdc`, dark contrast duotone sparkle | Category decoration, not AI availability. MobileApp aiBadge. |
 
@@ -45,9 +46,9 @@ Medical source-date reminders use `#ff7777` for recorded past expiry and `#f9b65
 
 | Surface | Implemented treatment | Source / use |
 | --- | --- | --- |
-| Shared card | `linear-gradient(140deg, #0c2d4a, #04131e)`; fallback colors.card | theme ui.card: subtle depth within a bounded card. |
-| Selected chip | `linear-gradient(180deg, #46acff, #238bf5)`; border `#68baff`; shadow `0 0 7px #1889ff55` | theme ui.chipSelected: selected query scope. |
-| Photo shade | Default `#00102277`; header `#001022df` | theme Photo, AppHeader: check text against the displayed crop. |
+| Shared card | Opaque colors.card; no gradient | theme ui.card: subtle depth within a bounded card. |
+| Selected chip | Opaque colors.blue fill/border; no glow | theme ui.chipSelected: selected query scope. |
+| Photo shade | Retained Photo default `#00102277`; ordinary header has no photo | theme Photo: check retained photo text against the displayed crop. |
 
 The 21 October selected Start simplification removes the photographic paper hero and purple AI promotion; their former local gradients are not current dashboard treatments. The original approved reference/artwork stays preserved. The quiet paper entry retains the paper-tone symbol; other shared palette/category roles remain unchanged.
 
@@ -66,33 +67,33 @@ The native shell uses the platform default family; it does not configure Inter. 
 | Context | Current size / line height | Treatment |
 | --- | --- | --- |
 | Shared title declaration | 26 / platform default | 700, letter spacing −0.6; not every screen uses this style. |
-| Fixed header title | 18 / 24 | 700; truncate before controls shrink. |
-| Section heading | 15 / 20 | 600. |
-| Body / action label | 13 / 18 | Regular / 600 for actions. |
+| Fixed header title | 28 / 34 | 700; destination row precedes controls on phones. |
+| Section heading | 19 / 26 | 600. |
+| Body / action label | 15 / 22 | Regular / 600 for actions. |
 | Profile name input | 16 / platform default | System-scaled editable text. |
-| Dashboard / summary value | 28 / 36 and 20 / 25 | 700 / 600; KPI unit 16. |
-| Supporting text / tab label | Usually 11 / 16 | Secondary emphasis; preserve meaningful labels. |
+| Dashboard / summary value | 36 / 44 for season values | 700; KPI unit 16. |
+| Supporting text / tab label | Supporting text varies; tabs 12 / 18 | Secondary emphasis; selected tabs 700. |
 | Medical label / status | 12 / 16 and 11 / 15 | Med is 600; status quieter. |
-| Season KPI / unit | 28 / 36 and 16 | Count and known reported hours; stack at enlarged text. |
+| Season KPI / unit | 36 / 44 and 16 | Count and known reported hours; stack at enlarged text. |
 
-Sources: theme, AppHeader, Dashboard, MobileApp, [ProfileSettings](../../../apps/platform-lab/src/mobile/ProfileSettings.tsx), MedicalStatus and [SeasonRing](../../../apps/platform-lab/src/mobile/SeasonRing.tsx). Icon-glyph font sizes describe artwork, not body hierarchy. The generated inventory lists literal typography declarations. Selected icon raster palettes are recorded separately in the [native asset manifest](../../../apps/platform-lab/assets/icons/duotone/manifest.json); body/text color tokens are unchanged.
+Sources: theme, AppHeader, Dashboard, MobileApp, [ProfileSettings](../../../apps/platform-lab/src/mobile/ProfileSettings.tsx), MedicalStatus and [SeasonRing](../../../apps/platform-lab/src/mobile/SeasonRing.tsx). Icon-glyph font sizes describe artwork, not body hierarchy. The generated inventory lists literal typography declarations. Selected icon raster palettes are recorded separately in the [native asset manifest](../../../apps/platform-lab/assets/icons/duotone/manifest.json); their artwork remains unchanged while branch body/text tokens differ.
 
 ## Spacing, geometry and target size
 
-Use the documented component context. Common implementation values include 8 dp card/grid gaps, 10 dp canvas/row spacing, shared-card padding 11, photographic padding 12 and action horizontal padding 14. These are observed values, not a newly mandated universal spacing scale.
+Use the documented component context. The branch uses 18 dp page spacing, shared-card padding 18/gap 12 and action horizontal padding 18. Retained grids/rows use 8/10 dp gaps and the Photo helper retains padding 12. These are observed values, not a newly mandated universal spacing scale.
 
 | Shape | Current geometry | Context |
 | --- | --- | --- |
-| Shared card | Radius 14; border 1; padding 11; gap 6 | Most cards; flight rows override radius/padding. |
-| Shared action | Radius 16; minimum height 48; padding 14 horizontal / 8 vertical | Secondary adds border 1. |
-| Chip face / target | Radius 20; face minimum 66 × 34; target minimum height 48 | Year/training/club scope. |
+| Shared card | Radius 22; border 1; padding 18; gap 12 | Most cards; flight rows override radius/padding. |
+| Shared action | Radius 16; minimum height 52; padding 18 horizontal / 12 vertical | Secondary adds border 1. |
+| Chip face / target | Radius 14; face minimum 66 × 40; target minimum height 48 | Year/training/club scope. |
 | Header icon / Back | Controls 48 × 48, radius 14; Back 48 × 48, radius 16 | Artwork size and target differ. |
 | Medical group | Minimum 72 × 48, radius 12; grows with text | Icon + Med above unbekannt. |
 | Field / composer | Profile radius 12, minimum height 48; provider radius 10; composer radius 20 | Context-specific forms. |
-| Tab / artwork | Tab minimum height 60; artwork 28 in soft tile 36 / radius 12; label 11 | Five equal destinations. |
-| Season KPI | Raised panels, radius 12, padding 10; gap 10 | Count and known time; Start rings superseded. |
+| Tab / artwork | Tab minimum height 68, radius 16; artwork 28 in soft tile 36 / radius 12; label 12 | Five equal destinations. |
+| Season KPI | Unboxed values inside season card; vertical padding 8; gap 18 | Count and known time; Start rings superseded. |
 
-Smaller faces, such as the 42 dp send face, 40 dp search input and 36 dp paper CTA face, do not independently prove adequate effective touch regions. [Known gaps](history.md) require actual hit-region review when affected controls change.
+The branch send target is 48 dp and ordinary flight search minimum height 52 dp. Retained lab faces do not independently prove adequate effective touch regions. [Known gaps](history.md) require actual hit-region review when affected controls change.
 
 ## Solid-color contrast measurements
 
@@ -101,19 +102,19 @@ Generated ratios use standard sRGB relative luminance on fully opaque pairs. The
 <!-- generated:contrast:start -->
 | Opaque pair | Foreground | Background | Calculated ratio |
 | --- | --- | --- | --- |
-| Primary text / canvas | `#f5f7ff` | `#000d18` | 18.33:1 |
-| Muted text / card fallback | `#adbed5` | `#071929` | 9.41:1 |
-| Action label / blue fallback | `#031326` | `#3595fe` | 6.12:1 |
-| General cyan / canvas | `#46ccff` | `#000d18` | 10.59:1 |
-| Brightest Back arrow gradient stop / opaque Back face | `#123a50` | `#a4adff` | 5.72:1 |
+| Primary text / canvas | `#f4f7f8` | `#0b141c` | 17.25:1 |
+| Muted text / card | `#b0c1cd` | `#14232f` | 8.66:1 |
+| Action label / mint action | `#031326` | `#76dfc6` | 11.68:1 |
+| General mint accent / canvas | `#8be8d2` | `#0b141c` | 12.88:1 |
+| Brightest Back arrow gradient stop / opaque Back face | `#123a50` | `#76dfc6` | 7.52:1 |
 <!-- generated:contrast:end -->
 
 ## Branding and photography
 
 Preserve the [approved Thermik artwork](../../assets/branding/README.md). The native header uses the unchanged dark square logo at 40 × 40 with original aspect ratio. The approved square AI icon now supplies the [platform launcher exports](../../../apps/platform-lab/assets/branding/launcher/README.md): opaque iOS/legacy artwork, a padded white adaptive/themed silhouette and teal background. Source originals are unchanged. [Package evidence and platform limits](../../verification/2026-10-18-launcher-icon.md) distinguish configuration, generated assets and installed Release acceptance.
 
-Use the existing [aviation photographs/credits](../../../apps/platform-lab/assets/aviation/README.md). Preserve source/author/license links and explain cropping/dark overlays. Native scenes differ from exact reference photography; document this rather than extracting screenshot pixels. Photos are decorative, not weather/club/location evidence.
+The branch header is opaque and uses no photograph. Retained decorative scenes use the existing [aviation photographs/credits](../../../apps/platform-lab/assets/aviation/README.md). Preserve source/author/license links and explain cropping/dark overlays. Native scenes differ from exact reference photography; document this rather than extracting screenshot pixels. Photos are decorative, not weather/club/location evidence.
 
 The HTML guide embeds original reference and symbol/brand images unchanged. Component examples are schematic CSS explanations with synthetic labels, not new app screenshots or replacement artwork.
 
-The 22 October header data-update amendment reuses `#74dfba` for saved data received less than one hour ago and `#ffc477` for older saved data, accompanied by visible relative age. These header colors describe saved flight-data age; the same provider-panel colors retain their separate session meanings. Neutral `#adbed5` indicates an unknown timestamp.
+The 22 October header data-update amendment reuses `#74dfba` for saved data received less than one hour ago and `#ffc477` for older saved data, accompanied by visible relative age. These header colors describe saved flight-data age; the same provider-panel colors retain their separate session meanings. Neutral `colors.muted` indicates an unknown timestamp.

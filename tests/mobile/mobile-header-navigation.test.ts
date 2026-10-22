@@ -62,7 +62,7 @@ function fixture(width = 390, fontScale = 1, root = false) {
     './flight-model': { flightYears: () => [2026], selectFlights: () => library.flights, summarizeFlights: () => ({ count: 1, knownMinutes: 30 }), formatDuration: () => '0:30' },
     './local-insights': { localQuestions: [], localInsight: () => '' },
     './Dashboard': { Dashboard: 'Dashboard' }, './ShellIcons': leaves(['PlaneIcon', 'ProfileIcon', 'BookIcon']),
-    './Diagnostics': leaves(['Diagnostics']), './diagnostics-native': {initializeDiagnostics() {}}, '../diagnostics': diagnostics,
+    './DesignPreview':leaves(['DesignPreview']),'./Diagnostics': leaves(['Diagnostics']), './diagnostics-native': {initializeDiagnostics() {}}, '../diagnostics': diagnostics,
     './ProfileSettings': { ProfileSettings: 'ProfileSettings', SyntheticProfileSettings:'SyntheticProfileSettings' }, '../book-storage': { PILOT: 'synthetic-pilot' },
     '../vereinsflieger/use-access-controller': { useAccessController: () => controller },
     './ProviderConnection': {...leaves(['ProviderConnection', 'ConnectionIndicator']),unknownProviderStatus}, './DataUpdateIndicator':leaves(['DataUpdateIndicator']), './UpdateDialog':leaves(['UpdateDialog']), './data-freshness':{DATA_UPDATE_FRESH_MS}, './AppHeader': { AppHeader: 'AppHeader' },
@@ -477,4 +477,19 @@ test('recent-flight entry carries exact identity into the ordinary list and does
  assert.equal(f.find('OwnFlights').props.active,true);
  assert.equal(f.find('OwnFlights').props.filterRequest.flightId,'saved-flight-123');
  assert.equal(f.find('OwnFlights').props.filterRequest.year,null);assert.equal(f.coreRoutes.length,0);
+});
+
+
+test('all recent flights replaces the previous detail request with a fresh unfiltered list request',()=>{
+ const f=fixture();f.find('Dashboard').props.onFlight('saved-flight-123');f.render();const previous=f.find('OwnFlights').props.filterRequest;
+ f.press('Pressable','Übersicht');f.find('Dashboard').props.onFlights();f.render();
+ const request=f.find('OwnFlights').props.filterRequest;assert.notEqual(request,previous);assert.equal(request.flightId,undefined);assert.equal(request.year,null);assert.equal(f.find('OwnFlights').props.active,true);
+});
+
+
+test('design preview is an explicit Development route and Back restores settings without provider work',()=>{
+ const f=fixture();f.press('Pressable','Profil & Einstellungen öffnen');f.find('ProfileSettings').props.onTools();f.render();
+ assert.ok(!f.nodes().some(n=>n.type==='DesignPreview'));f.find('DevelopmentHub').props.onDesignPreview();f.render();
+ assert.equal(f.headers().at(-1)!.props.title,'Designvorschau');assert.ok(f.nodes().some(n=>n.type==='DesignPreview'));assert.deepEqual(f.coreRoutes,[]);
+ f.headers().at(-1)!.props.back();f.render();assert.ok(f.nodes().some(n=>n.type==='DevelopmentHub'));
 });

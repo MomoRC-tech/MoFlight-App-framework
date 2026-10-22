@@ -48,9 +48,10 @@ class HandbookGenerationTests(unittest.TestCase):
     def test_source_color_change_requires_regeneration(self):
         outputs,report=guide.build()
         original=guide.read
+        baseline=guide.theme_values()['background']
         def changed(path):
             text=original(path)
-            return text.replace("background: '#000d18'","background: '#010e19'") if path==guide.ROOT/guide.MOBILE/'theme.tsx' else text
+            return text.replace(f"background: '{baseline}'","background: '#010e19'") if path==guide.ROOT/guide.MOBILE/'theme.tsx' else text
         with patch.object(guide,'read',side_effect=changed):
             changed_outputs,changed_report=guide.build()
         self.assertNotEqual(report['input_sha256'],changed_report['input_sha256'])

@@ -38,7 +38,9 @@ export function OwnFlights({ active, data, filterRequest, onHeaderChange }: {
   }, [data.view?.snapshot.ownerId, data.view?.snapshot.storeId]);
   const appliedRequest = useRef<typeof filterRequest>(null);
   useEffect(() => {
-    if (!active || !data.view || !filterRequest || appliedRequest.current === filterRequest) return;
+    // A newer dashboard request waits for the existing reader to release its
+    // lock. Consuming it early would cancel the old read and silently lose the new one.
+    if (!active || data.phase !== 'ready' || data.detailBusy || !data.view || !filterRequest || appliedRequest.current === filterRequest) return;
     appliedRequest.current = filterRequest;
     setFilters({ ...allOwnFlights, year: filterRequest.year, dateRange: filterRequest.dateRange });
     offset.current = 0;
@@ -46,7 +48,7 @@ export function OwnFlights({ active, data, filterRequest, onHeaderChange }: {
     setFilterOpen(false); setRawPage(0); data.clearDetail();
     const requested = requestedOwnFlight(flights, filterRequest);
     if (requested) void data.openDetail(requested);
-  }, [active, data.view, filterRequest, data.clearDetail]);
+  }, [active, data.phase, data.detailBusy, data.view, filterRequest, data.clearDetail]);
   const changeFilters = (next: OwnFlightFilters) => { if(next.search!==filters.search)diagnosticJournal.record('filter','search');if(next.year!==filters.year)diagnosticJournal.record('filter','year');if(next.registration!==filters.registration)diagnosticJournal.record('filter','registration'); offset.current = 0; list.current?.scrollToOffset({ offset: 0, animated: false }); setFilters(next); };
   const header = <View style={s.group}>
     <View style={ui.row}><View style={s.searchBox}><SymbolIcon name="search" size={20} tone="muted" /><TextInput

@@ -1,5 +1,6 @@
 # Decisions, history and known gaps
 
+> This alternative branch applies the [22 October alternative design contract](alternative-ui.md) to C01–C09, typography, surfaces, Start and flight browsing. It supersedes conflicting baseline appearance descriptions on this branch only; data semantics and main-branch approval are unchanged.
 [Handbook entry point](README.md). Current guidance is in this handbook. Dated sources stay at existing paths; historical selected/confirmed/latest wording describes its original checkpoint unless explicitly carried forward.
 
 ## Decision register

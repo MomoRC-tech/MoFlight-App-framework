@@ -6,7 +6,7 @@
   ],
   "card": [
     "surface.card",
-    "Card fallback; actual shared card adds a gradient",
+    "Opaque shared content panel",
     "text / muted"
   ],
   "raised": [
@@ -31,22 +31,22 @@
   ],
   "blue": [
     "action.primary",
-    "Shared filled action and selected-chip base",
+    "Mint filled action and selected-chip base; legacy code key",
     "#031326 action text"
   ],
   "cyan": [
     "accent.general",
-    "General links, metrics and accents; tab selection has its own literal",
+    "Mint links, metrics and selected navigation labels; legacy code key",
     "dark surfaces"
   ],
   "purple": [
     "accent.assistant.family",
-    "Exported assistant-family token; dashboard uses local variants",
+    "Retained assistant-family token; not a shared panel fill",
     "light text; check displayed panel"
   ],
   "orange": [
     "accent.paper.family",
-    "Exported paper-family token; hero uses local orange variants",
+    "Retained paper-family token; no photographic paper hero",
     "dark action text in context"
   ],
   "green": [

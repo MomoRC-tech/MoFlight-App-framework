@@ -24,7 +24,7 @@ from urllib.parse import unquote, urlsplit
 ROOT = Path(__file__).resolve().parents[1]
 DESIGN = Path('docs/product/design')
 MOBILE = Path('apps/platform-lab/src/mobile')
-CHAPTERS = ['README.md', 'foundations.md', 'components.md', 'patterns.md', 'implementation-inventory.md', 'history.md']
+CHAPTERS = ['README.md', 'alternative-ui.md', 'foundations.md', 'components.md', 'patterns.md', 'implementation-inventory.md', 'history.md']
 HEX = re.compile(r'#[0-9a-fA-F]{8}\b|#[0-9a-fA-F]{6}\b|#[0-9a-fA-F]{4}\b|#[0-9a-fA-F]{3}\b')
 MD_LINK = re.compile(r'(!?)\[([^\]]+)\]\(([^)]+)\)')
 
@@ -87,10 +87,10 @@ def contrast(foreground: str, background: str) -> float:
 
 def contrast_table(values: dict[str, str]) -> str:
     pairs = [('Primary text / canvas', values['text'], values['background']),
-             ('Muted text / card fallback', values['muted'], values['card']),
-             ('Action label / blue fallback', '#031326', values['blue']),
-             ('General cyan / canvas', values['cyan'], values['background']),
-             ('Brightest Back arrow gradient stop / opaque Back face', '#123a50', '#a4adff')]
+             ('Muted text / card', values['muted'], values['card']),
+             ('Action label / mint action', '#031326', values['blue']),
+             ('General mint accent / canvas', values['cyan'], values['background']),
+             ('Brightest Back arrow gradient stop / opaque Back face', '#123a50', values['blue'])]
     return '\n'.join(['| Opaque pair | Foreground | Background | Calculated ratio |', '| --- | --- | --- | --- |'] +
                      [f'| {name} | `{fg}` | `{bg}` | {contrast(fg,bg):.2f}:1 |' for name,fg,bg in pairs])
 
@@ -399,7 +399,7 @@ def build(root: Path = ROOT) -> tuple[dict[Path,str],dict]:
     cat_html,cat_brief=render_catalogue(catalogue,full,root)
     full_brief='MOFLIGHT — CURRENT UI DESIGN HANDBOOK AND AI HANDOFF\n\n'+'\n\n'.join(chapters[name].strip() for name in CHAPTERS)+'\n\n'+cat_brief+'\n'
     # Embed the approved design evidence unchanged; it is not application artwork.
-    reference='<section id="approved-reference"><h2>Approved visual baseline</h2><p>16 October supplied reference; illustrative data. Apply the subsequent scoped navigation/header amendments in the handbook. Original bytes embedded unchanged.</p><img class="reference" alt="Approved four-screen MoFlight visual baseline" src="'+asset_uri(Path('docs/product/design-sources/2026-10-16-four-screen/reference.png'),root)+'"></section>'
+    reference='<section id="approved-reference"><h2>Approved main-branch visual baseline</h2><p>Historical authority for main; this branch explores the separately authorized alternative in the handbook. 16 October supplied reference; illustrative data. Original bytes embedded unchanged.</p><img class="reference" alt="Approved four-screen MoFlight visual baseline" src="'+asset_uri(Path('docs/product/design-sources/2026-10-16-four-screen/reference.png'),root)+'"></section>'
     body=[]
     for name in CHAPTERS:
         body.append(f'<section class="chapter" id="{chapter_id(name)}">'+render_markdown(chapters[name],DESIGN/name,full,root)+'</section>')
@@ -407,7 +407,7 @@ def build(root: Path = ROOT) -> tuple[dict[Path,str],dict]:
         if name=='components.md': body.append(examples)
     body.append(cat_html)
     nav=' '.join(f'<a href="#{chapter_id(name)}">{escape(name.replace(".md","").replace("README","Overview"))}</a>' for name in CHAPTERS)+' <a href="#component-examples">Examples</a> <a href="#symbol-catalogue">Symbols</a> <a href="#copy-area">Copy text</a>'
-    common={'HASH':source_hash,'DATE':'18 October 2026'}
+    common={'HASH':source_hash,'DATE':'22 October 2026'}
     outputs[full]=fill_template(template,{**common,'TITLE':'MoFlight UI design handbook','LEAD':'Current design direction, color map, component shapes, presentation patterns and symbols. Generated from maintained repository sources.','NAV':nav,'BODY':'\n'.join(body),'BRIEF':escape(full_brief),'DOWNLOAD':'moflight-design-brief.txt','HOME':'README.md'})
     outputs[DESIGN/'design-brief.txt']=full_brief
     compat=Path('docs/product/symbol-reference.html')

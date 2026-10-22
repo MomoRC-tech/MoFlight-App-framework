@@ -177,3 +177,16 @@ test('search clear preserves year; one-step filter reset restores all saved rows
  const reset=f.nodes().find(n=>n.type==='Action'&&visibleText(n).includes('Alle Filter zurücksetzen'));assert.ok(reset);reset.props.onPress();f.render();assert.equal(f.find('FlatList').props.data.length,f.data.view.flights.length);
  assert.ok(!f.nodes().some(n=>n.props.accessibilityLabel==='Suche löschen'));
 });
+
+
+test('latest dashboard request waits for a locked detail reader before consuming it',()=>{
+ const f=fixture(),opened:string[]=[];let clears=0;
+ f.data.clearDetail=()=>{assert.equal(f.data.detailBusy,false,'must not invalidate a busy read');clears++;};
+ f.data.openDetail=(flight:any)=>{assert.equal(f.data.detailBusy,false,'reader must have released lock');opened.push(flight.flightId);};
+ f.data.detailBusy=true;f.render();
+ f.request(null,{flightId:f.data.view.flights[0].flightId});
+ f.request(null,{flightId:f.data.view.flights[1].flightId});
+ assert.deepEqual(opened,[]);assert.equal(clears,0);
+ f.data.detailBusy=false;f.render();assert.deepEqual(opened,[f.data.view.flights[1].flightId]);assert.equal(clears,1);
+ f.render();assert.equal(opened.length,1);
+});
