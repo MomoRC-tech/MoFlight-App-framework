@@ -422,7 +422,7 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,takeInitialReposit
     <View accessibilityLiveRegion="polite">
       <Label>{pastLogin?'✓ Anmeldung geprüft':loadStage==='sign-in'?'→ Anmeldung erforderlich':'→ Anmeldung prüfen'}</Label>
       <Label>{flightSaved!==null?`✓ ${flightSaved} Flüge auf diesem Gerät gespeichert`:loadStage==='save'?'→ Flüge speichern':loadStage==='flights'?'→ Flüge laden':'Flüge · ausstehend'}</Label>
-      <Label>{completed?medicalResult:loadStage==='medical'?'→ Medical laden':'Medical · ausstehend'}</Label>
+      <Label>{completed?medicalResult:loadStage==='medical'?'→ Medical und Dienste laden':'Medical und Dienste · ausstehend'}</Label>
       {completed?.dutyStatus&&<Label>{completed.dutyStatus==='partial'?'Dienstquelle aktualisiert · Vollständigkeit ungeprüft.':completed.dutyStatus==='failed'?'Dienste konnten nicht aktualisiert werden. Gespeicherte Quelle bleibt erhalten.':'Dienste nicht abgeschlossen. Gespeicherte Quelle bleibt erhalten.'}</Label>}
       {!completed&&<Label muted>{failed?message:step}</Label>}
     </View>
@@ -435,7 +435,7 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,takeInitialReposit
       {(restoreReadOnly||c.recovery||c.connection.phase==='mismatch'||recovery.status==='not-committed'||recovery.status==='recovery-required')&&<Action secondary disabled={busy} onPress={()=>{automatic.current=false;setProviderOpen(false);}}>Verbindung & Wiederherstellung prüfen</Action>}
     </>:<>
       {loginPaused&&<Label muted>Bitte zur App zurückkehren. Es wurde noch kein Flugabruf gestartet.</Label>}
-      {busy&&c.informationBusy?<Action secondary disabled={c.informationSaving} onPress={()=>c.stopInformation()}>Medical überspringen</Action>:waiting.current&&<Action secondary disabled={!canCancelCoreFlightSource(c.retrieval.current.state.phase,c.saving,c.restoring.current)} onPress={()=>{interruption.current='cancelled';abandonSource('Cancelled.');c.dismissLogin();}}>Abbrechen</Action>}
+      {busy&&c.informationBusy?<Action secondary disabled={c.informationSaving} onPress={()=>c.stopInformation()}>Diesen Abruf überspringen</Action>:waiting.current&&<Action secondary disabled={!canCancelCoreFlightSource(c.retrieval.current.state.phase,c.saving,c.restoring.current)} onPress={()=>{interruption.current='cancelled';abandonSource('Cancelled.');c.dismissLogin();}}>Abbrechen</Action>}
     </>}
   </Card>:undefined;
   return <SafeAreaView style={{flex:1,backgroundColor:colors.background}}>
@@ -446,7 +446,7 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,takeInitialReposit
         <Label muted>Bei Bedarf meldest du dich auf der Originalseite von Vereinsflieger an. Danach werden deine Flüge und Medical-Angaben automatisch auf diesem Gerät gespeichert und sind offline verfügbar.</Label>
         {busy ? <View accessibilityLiveRegion="polite"><Label>{step}</Label></View> : <Action disabled={restoreReadOnly||c.recovery||recovery.status==='not-committed'||recovery.status==='recovery-required'} onPress={loadFlights}>{snapshot?.account ? 'Daten aktualisieren' : 'Anmelden & Daten laden'}</Action>}
         {waiting.current&&<Action secondary disabled={!canCancelCoreFlightSource(c.retrieval.current.state.phase,c.saving,c.restoring.current)} onPress={()=>{diagnosticJournal.record('action','cancel');abandonSource('Cancelled.');c.dismissLogin();setProviderOpen(false);}}>Abbrechen</Action>}
-        {busy&&c.informationBusy&&<Action secondary disabled={c.informationSaving} onPress={()=>c.stopInformation()}>Medical überspringen</Action>}
+        {busy&&c.informationBusy&&<Action secondary disabled={c.informationSaving} onPress={()=>c.stopInformation()}>Diesen Abruf überspringen</Action>}
         <Action secondary disabled={busy} onPress={()=>setAdvanced(!advanced)}>{advanced ? 'Details schließen' : 'Details & weitere Optionen'}</Action>
       </Card>
       {advanced&&<><Card><Label>{flights.length} gespeicherte eigene Flüge · ohne Buchzuordnung</Label><Label muted>{snapshot?.account?'Vereinsflieger-Konto lokal verknüpft.':'Das eigene Anbieter-Konto wird nach dem ersten Abruf bestätigt.'}</Label>
