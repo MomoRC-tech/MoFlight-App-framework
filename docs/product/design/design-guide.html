@@ -139,7 +139,7 @@
 <tr><td>Profile name input</td><td>16 / platform default</td><td>System-scaled editable text.</td></tr>
 <tr><td>Dashboard / summary value</td><td>18 / 24 for ring-adjacent season values</td><td>700; KPI unit 16.</td></tr>
 <tr><td>Supporting text / tab label</td><td>Supporting text varies; tabs 12 / 18</td><td>Secondary emphasis; selected tabs 700.</td></tr>
-<tr><td>Medical label / status</td><td>12 / 16 and 11 / 15</td><td>Med is 600; status quieter.</td></tr>
+<tr><td>Medical label / status</td><td>12 / 16 and 12 / 17</td><td>Med is 600; status quieter, with date/unknown semantics preserved.</td></tr>
 <tr><td>Season ring value / label</td><td>18 / 24 and 11 / 16</td><td>Saved starts and known reported hours beside 44-unit rings; measure pairs stack at enlarged text.</td></tr>
 </tbody></table></div>
 <p>Sources: theme, AppHeader, Dashboard, MobileApp, <a href="../../../apps/platform-lab/src/mobile/ProfileSettings.tsx">ProfileSettings</a>, MedicalStatus and <a href="../../../apps/platform-lab/src/mobile/SeasonRing.tsx">SeasonRing</a>. Icon-glyph font sizes describe artwork, not body hierarchy. The generated inventory lists literal typography declarations. Selected icon raster palettes are recorded separately in the <a href="../../../apps/platform-lab/assets/icons/duotone/manifest.json">native asset manifest</a>; their artwork remains unchanged while branch body/text tokens differ.</p>
@@ -213,7 +213,7 @@
 <p>The <a href="#symbol-catalogue">47-entry catalogue</a> is the current meaning/function reference. <a href="symbols.json">symbols.json</a> is its maintained source; both the compatibility catalogue and combined guide are generated from it. Keep current N/H/S/D/K/A/T/B identifiers stable. Retired X01–X03 and B04 are not reused.</p>
 <p>Separate semantic roles even when characters repeat: a right arrow can mean route direction, continue or login required; a tick can mean selected book or previous session confirmation. Assess artwork size, optical balance, stroke and effective touch area separately.</p>
 <p>Manuel made Modern Duotone &amp; Soft-Filled Glyphs the default family on 18 October 2026, with <strong>M2 Medical card</strong> for H04 and his supplied <strong>folded paper plane</strong> for N02. Superseded aircraft/stethoscope designs and comparison proposals are removed from the maintained library and remain recoverable through Git history. Original supplied references, Thermik branding, dynamic aircraft-share rings, data notation and status meanings retain their identity.</p>
-<p><a href="symbols/index.html">Selected family and ID mapping</a> use the same editable SVG masters as the app. The native renderer uses 145 checked local RGBA PNGs (29 glyphs × default/muted/paper/assistant/contrast variants), with static Metro requires and no new icon runtime. Artwork sizes are context-specific; navigation art is 28 in a 36-unit soft tile with radius 12, header controls retain 48-unit targets with radius 14, and M2 is 20 inside the existing growing Medical control. The original large reference tiles are illustrations, not new app card dimensions.</p>
+<p><a href="symbols/index.html">Selected family and ID mapping</a> use the same editable SVG masters as the app. The native renderer uses 145 checked local RGBA PNGs (29 glyphs × default/muted/paper/assistant/contrast variants), with static Metro requires and no new icon runtime. Artwork sizes are context-specific; navigation art is 28 in a 36-unit soft tile with radius 12. The ASK-21 header refinement uses28-unit Data/Medical/Profile art with minimum48-unit targets and radius14. The original large reference tiles are illustrations, not new app card dimensions.</p>
 <p>Images are decorative and excluded from accessibility announcements; their labelled parent owns navigation/action/status semantics. Native busy indicators remain animated ActivityIndicators; a drawn spinner is never substituted for actual progress. Calendar category artwork uses neutral date cells, not the reference&#x27;s illustrative 26. The separate send arrow remains distinct from the folded plane used for Flüge.</p>
 <p><a href="symbols/README.md">Source notes, regeneration and fidelity limits</a> and <a href="../../verification/2026-10-18-icon-option-2.md">one verification report</a> distinguish selected intent, implemented artwork and source-specific native acceptance.</p>
 <h3 id="chapter-components-schematic-examples">Schematic examples</h3>
@@ -572,28 +572,29 @@
 <tr><td><code>width: &#x27;100%&#x27;</code></td><td>18</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-flightscenetsx">FlightScene.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/FlightScene.tsx">apps/platform-lab/src/mobile/FlightScene.tsx</a>; normalized SHA-256 <code>0f939f89197358a57b8887ea7f74cc9413852461c082d0b3250a812121abb05c</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/FlightScene.tsx">apps/platform-lab/src/mobile/FlightScene.tsx</a>; normalized SHA-256 <code>3da1c6f4389dbe94a0763f9bb27f640d4360a2115af396b9df69bdd90ed22199</code>.</p>
 <h4 id="chapter-implementation-inventory-literal-colors-6">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><i class="swatch" style="background:#0b141c" aria-hidden="true"></i><code>#0b141c</code></td><td>27, 28</td></tr>
-<tr><td><i class="swatch" style="background:#0b141c00" aria-hidden="true"></i><code>#0b141c00</code></td><td>27, 28</td></tr>
+<tr><td><i class="swatch" style="background:#0b141c" aria-hidden="true"></i><code>#0b141c</code></td><td>28, 29, 30</td></tr>
+<tr><td><i class="swatch" style="background:#0b141c00" aria-hidden="true"></i><code>#0b141c00</code></td><td>28, 29, 30</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-gradients">Gradients</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>linear-gradient(0deg, #0b141c 0%, #0b141c00 35%)</code></td><td>28</td></tr>
-<tr><td><code>linear-gradient(90deg, #0b141c 0%, #0b141c00 45%)</code></td><td>27</td></tr>
+<tr><td><code>linear-gradient(0deg, #0b141c 0%, #0b141c00 35%)</code></td><td>29</td></tr>
+<tr><td><code>linear-gradient(270deg, #0b141c 0%, #0b141c00 18%)</code></td><td>30</td></tr>
+<tr><td><code>linear-gradient(90deg, #0b141c 0%, #0b141c00 45%)</code></td><td>28</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-geometry--opacity-declarations-14">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>height: &#x27;100%&#x27;</code></td><td>30</td></tr>
-<tr><td><code>height: 110</code></td><td>24</td></tr>
-<tr><td><code>height: 44</code></td><td>29</td></tr>
-<tr><td><code>height: 64</code></td><td>25</td></tr>
-<tr><td><code>opacity: .42</code></td><td>26</td></tr>
-<tr><td><code>width: &#x27;100%&#x27;</code></td><td>30</td></tr>
-<tr><td><code>width: 192</code></td><td>25</td></tr>
-<tr><td><code>width: 330</code></td><td>24</td></tr>
-<tr><td><code>width: 88</code></td><td>29</td></tr>
+<tr><td><code>height: &#x27;100%&#x27;</code></td><td>32</td></tr>
+<tr><td><code>height: 110</code></td><td>25</td></tr>
+<tr><td><code>height: 44</code></td><td>31</td></tr>
+<tr><td><code>height: 64</code></td><td>26</td></tr>
+<tr><td><code>opacity: .42</code></td><td>27</td></tr>
+<tr><td><code>width: &#x27;100%&#x27;</code></td><td>32</td></tr>
+<tr><td><code>width: 192</code></td><td>26</td></tr>
+<tr><td><code>width: 330</code></td><td>25</td></tr>
+<tr><td><code>width: 88</code></td><td>31</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-importpreviewtsx">ImportPreview.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/ImportPreview.tsx">apps/platform-lab/src/mobile/ImportPreview.tsx</a>; normalized SHA-256 <code>00afa3c7529703b757c8dda6c2cc79fe84550708af1e1d4449ccfd490d05ad81</code>.</p>
@@ -1693,7 +1694,7 @@ The native shell uses the platform default family; it does not configure Inter. 
 | Profile name input | 16 / platform default | System-scaled editable text. |
 | Dashboard / summary value | 18 / 24 for ring-adjacent season values | 700; KPI unit 16. |
 | Supporting text / tab label | Supporting text varies; tabs 12 / 18 | Secondary emphasis; selected tabs 700. |
-| Medical label / status | 12 / 16 and 11 / 15 | Med is 600; status quieter. |
+| Medical label / status | 12 / 16 and 12 / 17 | Med is 600; status quieter, with date/unknown semantics preserved. |
 | Season ring value / label | 18 / 24 and 11 / 16 | Saved starts and known reported hours beside 44-unit rings; measure pairs stack at enlarged text. |
 
 Sources: theme, AppHeader, Dashboard, MobileApp, [ProfileSettings](../../../apps/platform-lab/src/mobile/ProfileSettings.tsx), MedicalStatus and [SeasonRing](../../../apps/platform-lab/src/mobile/SeasonRing.tsx). Icon-glyph font sizes describe artwork, not body hierarchy. The generated inventory lists literal typography declarations. Selected icon raster palettes are recorded separately in the [native asset manifest](../../../apps/platform-lab/assets/icons/duotone/manifest.json); their artwork remains unchanged while branch body/text tokens differ.
@@ -1795,7 +1796,7 @@ Separate semantic roles even when characters repeat: a right arrow can mean rout
 
 Manuel made Modern Duotone &amp; Soft-Filled Glyphs the default family on 18 October 2026, with **M2 Medical card** for H04 and his supplied **folded paper plane** for N02. Superseded aircraft/stethoscope designs and comparison proposals are removed from the maintained library and remain recoverable through Git history. Original supplied references, Thermik branding, dynamic aircraft-share rings, data notation and status meanings retain their identity.
 
-[Selected family and ID mapping](symbols/index.html) use the same editable SVG masters as the app. The native renderer uses 145 checked local RGBA PNGs (29 glyphs × default/muted/paper/assistant/contrast variants), with static Metro requires and no new icon runtime. Artwork sizes are context-specific; navigation art is 28 in a 36-unit soft tile with radius 12, header controls retain 48-unit targets with radius 14, and M2 is 20 inside the existing growing Medical control. The original large reference tiles are illustrations, not new app card dimensions.
+[Selected family and ID mapping](symbols/index.html) use the same editable SVG masters as the app. The native renderer uses 145 checked local RGBA PNGs (29 glyphs × default/muted/paper/assistant/contrast variants), with static Metro requires and no new icon runtime. Artwork sizes are context-specific; navigation art is 28 in a 36-unit soft tile with radius 12. The ASK-21 header refinement uses28-unit Data/Medical/Profile art with minimum48-unit targets and radius14. The original large reference tiles are illustrations, not new app card dimensions.
 
 Images are decorative and excluded from accessibility announcements; their labelled parent owns navigation/action/status semantics. Native busy indicators remain animated ActivityIndicators; a drawn spinner is never substituted for actual progress. Calendar category artwork uses neutral date cells, not the reference&#x27;s illustrative 26. The separate send arrow remains distinct from the folded plane used for Flüge.
 
@@ -2278,35 +2279,36 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DutyRoster.tsx](.
 
 ## FlightScene.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/FlightScene.tsx](../../../apps/platform-lab/src/mobile/FlightScene.tsx); normalized SHA-256 `0f939f89197358a57b8887ea7f74cc9413852461c082d0b3250a812121abb05c`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/FlightScene.tsx](../../../apps/platform-lab/src/mobile/FlightScene.tsx); normalized SHA-256 `3da1c6f4389dbe94a0763f9bb27f640d4360a2115af396b9df69bdd90ed22199`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#0b141c` | 27, 28 |
-| `#0b141c00` | 27, 28 |
+| `#0b141c` | 28, 29, 30 |
+| `#0b141c00` | 28, 29, 30 |
 
 ### Gradients
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `linear-gradient(0deg, #0b141c 0%, #0b141c00 35%)` | 28 |
-| `linear-gradient(90deg, #0b141c 0%, #0b141c00 45%)` | 27 |
+| `linear-gradient(0deg, #0b141c 0%, #0b141c00 35%)` | 29 |
+| `linear-gradient(270deg, #0b141c 0%, #0b141c00 18%)` | 30 |
+| `linear-gradient(90deg, #0b141c 0%, #0b141c00 45%)` | 28 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `height: &#x27;100%&#x27;` | 30 |
-| `height: 110` | 24 |
-| `height: 44` | 29 |
-| `height: 64` | 25 |
-| `opacity: .42` | 26 |
-| `width: &#x27;100%&#x27;` | 30 |
-| `width: 192` | 25 |
-| `width: 330` | 24 |
-| `width: 88` | 29 |
+| `height: &#x27;100%&#x27;` | 32 |
+| `height: 110` | 25 |
+| `height: 44` | 31 |
+| `height: 64` | 26 |
+| `opacity: .42` | 27 |
+| `width: &#x27;100%&#x27;` | 32 |
+| `width: 192` | 26 |
+| `width: 330` | 25 |
+| `width: 88` | 31 |
 
 ## ImportPreview.tsx
 
@@ -3527,7 +3529,7 @@ States / limits: Recreated approved variant, not a byte-identical copy of an old
 Source: docs/assets/branding/moflight-app-icon-ai.png
 docs/assets/branding/README.md; app.json
 </textarea></section>
-<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: 26316d9b113d56fb466ac8a59d6f942dd8a922ba8ab4e1e9a0c54826c091c33f. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
+<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: e518efdcd2ca4a1ed98b0a3a8890ea20b2bda1c6ebfb89f8176cbe262ebb3890. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
 </main><script>
 'use strict';
 const brief = document.querySelector('#brief');

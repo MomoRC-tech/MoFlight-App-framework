@@ -359,35 +359,36 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DutyRoster.tsx](.
 
 ## FlightScene.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/FlightScene.tsx](../../../apps/platform-lab/src/mobile/FlightScene.tsx); normalized SHA-256 `0f939f89197358a57b8887ea7f74cc9413852461c082d0b3250a812121abb05c`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/FlightScene.tsx](../../../apps/platform-lab/src/mobile/FlightScene.tsx); normalized SHA-256 `3da1c6f4389dbe94a0763f9bb27f640d4360a2115af396b9df69bdd90ed22199`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#0b141c` | 27, 28 |
-| `#0b141c00` | 27, 28 |
+| `#0b141c` | 28, 29, 30 |
+| `#0b141c00` | 28, 29, 30 |
 
 ### Gradients
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `linear-gradient(0deg, #0b141c 0%, #0b141c00 35%)` | 28 |
-| `linear-gradient(90deg, #0b141c 0%, #0b141c00 45%)` | 27 |
+| `linear-gradient(0deg, #0b141c 0%, #0b141c00 35%)` | 29 |
+| `linear-gradient(270deg, #0b141c 0%, #0b141c00 18%)` | 30 |
+| `linear-gradient(90deg, #0b141c 0%, #0b141c00 45%)` | 28 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `height: '100%'` | 30 |
-| `height: 110` | 24 |
-| `height: 44` | 29 |
-| `height: 64` | 25 |
-| `opacity: .42` | 26 |
-| `width: '100%'` | 30 |
-| `width: 192` | 25 |
-| `width: 330` | 24 |
-| `width: 88` | 29 |
+| `height: '100%'` | 32 |
+| `height: 110` | 25 |
+| `height: 44` | 31 |
+| `height: 64` | 26 |
+| `opacity: .42` | 27 |
+| `width: '100%'` | 32 |
+| `width: 192` | 26 |
+| `width: 330` | 25 |
+| `width: 88` | 31 |
 
 ## ImportPreview.tsx
 

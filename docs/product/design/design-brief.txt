@@ -176,7 +176,7 @@ The native shell uses the platform default family; it does not configure Inter. 
 | Profile name input | 16 / platform default | System-scaled editable text. |
 | Dashboard / summary value | 18 / 24 for ring-adjacent season values | 700; KPI unit 16. |
 | Supporting text / tab label | Supporting text varies; tabs 12 / 18 | Secondary emphasis; selected tabs 700. |
-| Medical label / status | 12 / 16 and 11 / 15 | Med is 600; status quieter. |
+| Medical label / status | 12 / 16 and 12 / 17 | Med is 600; status quieter, with date/unknown semantics preserved. |
 | Season ring value / label | 18 / 24 and 11 / 16 | Saved starts and known reported hours beside 44-unit rings; measure pairs stack at enlarged text. |
 
 Sources: theme, AppHeader, Dashboard, MobileApp, [ProfileSettings](../../../apps/platform-lab/src/mobile/ProfileSettings.tsx), MedicalStatus and [SeasonRing](../../../apps/platform-lab/src/mobile/SeasonRing.tsx). Icon-glyph font sizes describe artwork, not body hierarchy. The generated inventory lists literal typography declarations. Selected icon raster palettes are recorded separately in the [native asset manifest](../../../apps/platform-lab/assets/icons/duotone/manifest.json); their artwork remains unchanged while branch body/text tokens differ.
@@ -278,7 +278,7 @@ Separate semantic roles even when characters repeat: a right arrow can mean rout
 
 Manuel made Modern Duotone & Soft-Filled Glyphs the default family on 18 October 2026, with **M2 Medical card** for H04 and his supplied **folded paper plane** for N02. Superseded aircraft/stethoscope designs and comparison proposals are removed from the maintained library and remain recoverable through Git history. Original supplied references, Thermik branding, dynamic aircraft-share rings, data notation and status meanings retain their identity.
 
-[Selected family and ID mapping](symbols/index.html) use the same editable SVG masters as the app. The native renderer uses 145 checked local RGBA PNGs (29 glyphs × default/muted/paper/assistant/contrast variants), with static Metro requires and no new icon runtime. Artwork sizes are context-specific; navigation art is 28 in a 36-unit soft tile with radius 12, header controls retain 48-unit targets with radius 14, and M2 is 20 inside the existing growing Medical control. The original large reference tiles are illustrations, not new app card dimensions.
+[Selected family and ID mapping](symbols/index.html) use the same editable SVG masters as the app. The native renderer uses 145 checked local RGBA PNGs (29 glyphs × default/muted/paper/assistant/contrast variants), with static Metro requires and no new icon runtime. Artwork sizes are context-specific; navigation art is 28 in a 36-unit soft tile with radius 12. The ASK-21 header refinement uses28-unit Data/Medical/Profile art with minimum48-unit targets and radius14. The original large reference tiles are illustrations, not new app card dimensions.
 
 Images are decorative and excluded from accessibility announcements; their labelled parent owns navigation/action/status semantics. Native busy indicators remain animated ActivityIndicators; a drawn spinner is never substituted for actual progress. Calendar category artwork uses neutral date cells, not the reference's illustrative 26. The separate send arrow remains distinct from the folded plane used for Flüge.
 
@@ -761,35 +761,36 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DutyRoster.tsx](.
 
 ## FlightScene.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/FlightScene.tsx](../../../apps/platform-lab/src/mobile/FlightScene.tsx); normalized SHA-256 `0f939f89197358a57b8887ea7f74cc9413852461c082d0b3250a812121abb05c`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/FlightScene.tsx](../../../apps/platform-lab/src/mobile/FlightScene.tsx); normalized SHA-256 `3da1c6f4389dbe94a0763f9bb27f640d4360a2115af396b9df69bdd90ed22199`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#0b141c` | 27, 28 |
-| `#0b141c00` | 27, 28 |
+| `#0b141c` | 28, 29, 30 |
+| `#0b141c00` | 28, 29, 30 |
 
 ### Gradients
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `linear-gradient(0deg, #0b141c 0%, #0b141c00 35%)` | 28 |
-| `linear-gradient(90deg, #0b141c 0%, #0b141c00 45%)` | 27 |
+| `linear-gradient(0deg, #0b141c 0%, #0b141c00 35%)` | 29 |
+| `linear-gradient(270deg, #0b141c 0%, #0b141c00 18%)` | 30 |
+| `linear-gradient(90deg, #0b141c 0%, #0b141c00 45%)` | 28 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `height: '100%'` | 30 |
-| `height: 110` | 24 |
-| `height: 44` | 29 |
-| `height: 64` | 25 |
-| `opacity: .42` | 26 |
-| `width: '100%'` | 30 |
-| `width: 192` | 25 |
-| `width: 330` | 24 |
-| `width: 88` | 29 |
+| `height: '100%'` | 32 |
+| `height: 110` | 25 |
+| `height: 44` | 31 |
+| `height: 64` | 26 |
+| `opacity: .42` | 27 |
+| `width: '100%'` | 32 |
+| `width: 192` | 26 |
+| `width: 330` | 25 |
+| `width: 88` | 31 |
 
 ## ImportPreview.tsx
 

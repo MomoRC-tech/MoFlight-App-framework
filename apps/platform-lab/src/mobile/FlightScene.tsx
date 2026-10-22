@@ -14,6 +14,7 @@ export function FlightScene({ compact = false }: { compact?: boolean }) {
         <Image source={scene} resizeMode="contain" style={styles.image} accessible={false}/>
         <View style={[StyleSheet.absoluteFill, styles.fadeLeft]}/>
         <View style={[StyleSheet.absoluteFill, styles.fadeBottom]}/>
+        {wide && <View style={[StyleSheet.absoluteFill, styles.fadeRight]}/>}
       </View>}
   </View>;
 }
@@ -26,6 +27,7 @@ const styles = StyleSheet.create({
   largeTextImage: { opacity: .42 },
   fadeLeft: { experimental_backgroundImage: 'linear-gradient(90deg, #0b141c 0%, #0b141c00 45%)' },
   fadeBottom: { experimental_backgroundImage: 'linear-gradient(0deg, #0b141c 0%, #0b141c00 35%)' },
+  fadeRight: { experimental_backgroundImage: 'linear-gradient(270deg, #0b141c 0%, #0b141c00 18%)' },
   compact: { width: 88, height: 44 },
   image: { width: '100%', height: '100%' },
 });
