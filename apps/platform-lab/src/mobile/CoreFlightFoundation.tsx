@@ -122,7 +122,7 @@ export function CoreFlightFoundation({ close, startUpdate = false, developmentRe
     <View style={{width:'100%',maxWidth:520,alignSelf:'center',gap:10}}>
       <Section title="Deine Flüge" icon="flight-paper-plane"/>
       <Action secondary disabled={loading} onPress={close}>Zur App zurück</Action>
-      <Card><Label>{requestedUpdate ? 'Deine Flüge werden vorbereitet …' : 'Deine Flüge und Saisonübersicht an einem Ort.'}</Label><Label muted>Du meldest dich auf der Originalseite von Vereinsflieger an. Anschließend werden deine Flüge geladen und auf diesem Gerät gespeichert. Ein Papierflugbuch brauchst du dafür nicht.</Label></Card>
+      <Card><Label>{requestedUpdate ? 'Deine Flüge werden vorbereitet …' : 'Deine Flüge und Saisonübersicht an einem Ort.'}</Label><Label muted>Bei Bedarf meldest du dich auf der Originalseite von Vereinsflieger an. Danach werden deine Flüge geladen und auf diesem Gerät gespeichert. Ein Papierflugbuch brauchst du dafür nicht.</Label></Card>
       {loading&&<ActivityIndicator color={colors.cyan}/>}
       {setupLease&&<Card><Label>Eine vorhandene Einrichtung für deine ausgewählte Bibliothek ist noch nicht vollständig.</Label><Label muted>Die ursprüngliche Datei wird geprüft. Nur tatsächlich fehlende Dateien dürfen ergänzt werden; vorhandene unlesbare Dateien bleiben erhalten.</Label></Card>}
       {error&&<Card><Label>Die Einrichtung konnte nicht bestätigt werden. Bestehende Dateien bleiben erhalten.</Label></Card>}
@@ -361,6 +361,11 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,takeInitialReposit
       abandonSource('Provider account could not be verified.');return;
     }
     if(automatic.current&&c.recovery&&!c.busy){diagnosis.current?.finish('blocked','recovery-required');abandonSource('Provider recovery needs a decision.');return;}
+    // beginGuidedFlightConnection clears the previous result before returning.
+    // A native login-page failure can finish before retrieval ever becomes busy.
+    if(automatic.current&&pending.checking&&!pending.started&&!c.busy&&!c.binding&&!c.loginBusy&&c.result==='failed'){
+      diagnosis.current?.finish('failed','source-failed');abandonSource('Provider login did not complete.');return;
+    }
     if(automatic.current&&!pending.started){setLoadStage(c.visible?'sign-in':'verify');setStep(c.visible?'Bitte bei Vereinsflieger anmelden. Danach geht es automatisch weiter.':'Anmeldung wird geprüft …');}
     if(!pending.started&&c.from===pending.request.from&&c.to===pending.request.to&&c.connection.confirmed&&c.viewReady&&!c.recovery&&!c.busy&&!c.visible){
       pending.started=true;setLoadStage('flights');setStep('Flüge werden geladen …');
@@ -430,7 +435,7 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,takeInitialReposit
       <Section title="Deine Flüge" icon="flight-paper-plane"/>
       <Action secondary disabled={busy||c.busy} onPress={()=>close(completed??undefined)}>Zur App zurück</Action>
       <Card><Label>{flights.length} gespeicherte eigene Flüge</Label><Label muted>{freshness.label}</Label>
-        <Label muted>Die Anmeldung erfolgt bei Vereinsflieger. Deine Flüge und Medical-Angaben werden anschließend automatisch auf diesem Gerät gespeichert und sind offline verfügbar.</Label>
+        <Label muted>Bei Bedarf meldest du dich auf der Originalseite von Vereinsflieger an. Danach werden deine Flüge und Medical-Angaben automatisch auf diesem Gerät gespeichert und sind offline verfügbar.</Label>
         {busy ? <View accessibilityLiveRegion="polite"><Label>{step}</Label></View> : <Action disabled={restoreReadOnly||c.recovery||recovery.status==='not-committed'||recovery.status==='recovery-required'} onPress={loadFlights}>{snapshot?.account ? 'Daten aktualisieren' : 'Anmelden & Daten laden'}</Action>}
         {waiting.current&&<Action secondary disabled={!canCancelCoreFlightSource(c.retrieval.current.state.phase,c.saving,c.restoring.current)} onPress={()=>{diagnosticJournal.record('action','cancel');abandonSource('Cancelled.');c.dismissLogin();setProviderOpen(false);}}>Abbrechen</Action>}
         {busy&&c.informationBusy&&<Action secondary disabled={c.informationSaving} onPress={()=>c.stopInformation()}>Medical überspringen</Action>}

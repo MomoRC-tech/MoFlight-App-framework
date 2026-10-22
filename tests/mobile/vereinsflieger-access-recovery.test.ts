@@ -269,6 +269,30 @@ test('first combined entry opens original login visibly without a hidden profile
   f.unmount();
 });
 
+for(const handler of ['onError','onHttpError'] as const){
+  test(`fresh original-login ${handler} stops guided sign-in until explicit retry`,async()=>{
+    const f=fixture({product:true});f.render();await f.settle(null);await f.flush();
+    f.controller().beginGuidedFlightConnection();await f.flush();
+    const web=f.find(f.render(),element=>element.type==='WebView')!;
+    (web.props[handler] as (event:unknown)=>void)({nativeEvent:{url:probe.LOGIN_URL,statusCode:503}});
+    await f.flush();
+    assert.equal(f.controller().result,'failed');assert.equal(f.controller().visible,false);
+    assert.equal(f.controller().busy,false);assert.equal(f.controller().connection.confirmed,false);
+    assert.equal(f.scopeWrites(),0);assert.deepEqual(f.writes,[]);
+    await f.loadPage('https://vereinsflieger.de/member/index.php');
+    assert.notEqual(f.controller().connection.phase,'checking','Failure must revoke automatic login continuation');
+    f.controller().beginGuidedFlightConnection();await f.flush();
+    assert.equal(f.controller().result,'none','New login must clear the previous failure');
+    assert.equal(f.controller().visible,true);assert.equal(f.controller().url,probe.LOGIN_URL);
+    (web.props[handler] as (event:unknown)=>void)({nativeEvent:{url:probe.LOGIN_URL,statusCode:503}});
+    await f.flush();assert.equal(f.controller().result,'none','Old native failure cannot stop the explicit retry');
+    await f.loadPage(probe.LOGIN_URL);await f.loadPage('https://vereinsflieger.de/member/index.php');
+    await f.loadPage(context.PROFILE_URL);await f.contextMessage(observedContext);await f.flush();
+    assert.equal(f.controller().connection.confirmed,true);assert.equal(f.scopeWrites(),1);
+    assert.deepEqual(f.writes,[]);f.unmount();
+  });
+}
+
 test('combined action binds only a fresh matching profile and checks that session on repeat',async()=>{
   const f=fixture({product:true});f.render();await f.settle(null);await f.flush();
   f.controller().beginGuidedFlightConnection();

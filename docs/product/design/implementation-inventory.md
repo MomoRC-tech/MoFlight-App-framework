@@ -169,7 +169,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/connection-guidan
 
 ## ConnectionSummary.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ConnectionSummary.tsx](../../../apps/platform-lab/src/mobile/ConnectionSummary.tsx); normalized SHA-256 `c9a56c0298c144605bccd59f1b79bb7dffdc991103cd9db95bcc51b21fb0adf2`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ConnectionSummary.tsx](../../../apps/platform-lab/src/mobile/ConnectionSummary.tsx); normalized SHA-256 `a425f3a81c59beaea2aa6c6a5395479aa3ed8166034b8926185c961d95486445`.
 
 ### Geometry / opacity declarations
 
@@ -180,17 +180,17 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ConnectionSummary
 
 ## CoreFlightFoundation.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `275924d6ef2cb87a72f1308519b8ff1deac62b291d105fe62a67872d73334b6e`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `39ede7476942ae328d4cb1dfed6041355395e01b03ade2dcd6bea48ad7627140`.
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `gap: 10` | 121, 122, 429 |
-| `gap: 8` | 455, 481, 491 |
-| `maxWidth: 520` | 122, 429 |
-| `padding: 12` | 121, 429 |
-| `width: '100%'` | 122, 429 |
+| `gap: 10` | 121, 122, 434 |
+| `gap: 8` | 460, 486, 496 |
+| `maxWidth: 520` | 122, 434 |
+| `padding: 12` | 121, 434 |
+| `width: '100%'` | 122, 434 |
 
 ## Dashboard.tsx
 

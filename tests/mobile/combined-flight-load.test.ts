@@ -35,7 +35,7 @@ function fixture({startUpdate=false,root=false,readOnly=false,deferReservation=f
     busy:false,saving:false,restoring:{current:false},visible:false,recovery:false,result:'none',completedFlightSource:null,
     retrieval:{current:{state:{phase:'idle'}}},
     setFrom:(v:string)=>{if(c.from!==v){c.from=v;dirty=true;}},setTo:(v:string)=>{if(c.to!==v){c.to=v;dirty=true;}},
-    beginGuidedFlightConnection:()=>{calls.push('session');if(deferVerification)c.connection={phase:'checking',confirmed:false};else if(loginPending)c.visible=true;else c.connection={phase:'observed',confirmed:true,observed:{accountNumber:'101',clubLabel:'Example'}};dirty=true;},
+    beginGuidedFlightConnection:()=>{calls.push('session');c.result='none';if(deferVerification)c.connection={phase:'checking',confirmed:false};else if(loginPending)c.visible=true;else c.connection={phase:'observed',confirmed:true,observed:{accountNumber:'101',clubLabel:'Example'}};dirty=true;},
     resumeGuidedFlightConnection:()=>{calls.push('resume');if(!quietResume){c.connection={phase:'unknown',confirmed:false};c.visible=true;dirty=true;}return true;},
     endGuidedFlightConnection:()=>{},connect:()=>calls.push('login'),
     retrieveMedical:async()=>{calls.push('medical');if(medicalFailure)throw new Error('Synthetic Medical failure');return {rows:[{}]};},
@@ -182,6 +182,22 @@ test('a retrieval timeout stays in the progress screen with retry and no confirm
   }finally{f.dispose();}
 });
 
+for(const status of ['Provider page failed to load. Previous captures preserved.','Provider returned an HTTP error. Previous captures preserved.']){
+  test(`failed fresh login opening exposes guidance and explicit retry: ${status}`,async()=>{
+    const f=fixture({startUpdate:true,loginPending:true});try{
+      f.render();await f.flush();assert.deepEqual(f.calls,['session']);assert.equal(f.pendingTimers(),0);
+      f.c.visible=false;f.c.result='failed';f.c.status=status;f.render();await f.flush();
+      assert.match(f.progressText(),/Anbieterseite/);assert.equal(f.pendingTimers(),0);
+      assert.deepEqual(f.calls,['session']);assert.equal(f.closed.length,0);
+      f.press('Erneut versuchen');await f.flush();
+      assert.deepEqual(f.calls,['session','session']);assert.equal(f.c.result,'none');
+      assert.match(f.progressText(),/Bitte bei Vereinsflieger anmelden/);
+      f.verify();await f.flush();assert.deepEqual(f.calls,['session','session','retrieve']);
+      f.complete();await f.flush();assert.deepEqual(f.calls,['session','session','retrieve','save','medical']);
+    }finally{f.dispose();}
+  });
+}
+
 test('leaving a completed progress screen retains its saved result but invalidates session presentation',async()=>{
   const f=fixture({startUpdate:true});try{
     f.render();await f.flush();f.complete();await f.flush();assert.equal(f.closed.length,0);
@@ -226,4 +242,14 @@ test('fresh verification cannot consume an old confirmed or error state from the
       f.verify();await f.flush();assert.deepEqual(f.calls,['session','retrieve']);
     }finally{f.dispose();}
   }
+});
+
+test('fresh sign-in clears a previous failed result before waiting indefinitely for the user',async()=>{
+  const f=fixture({startUpdate:true,loginPending:true,sameWindow:true});try{
+    f.c.result='failed';f.c.status='Provider page failed to load. Previous captures preserved.';
+    f.render();await f.flush();assert.deepEqual(f.calls,['session']);assert.equal(f.c.result,'none');
+    assert.match(f.progressText(),/Bitte bei Vereinsflieger anmelden/);assert.equal(f.pendingTimers(),0);
+    f.expire();await f.flush();assert.deepEqual(f.calls,['session']);assert.equal(f.closed.length,0);
+    f.verify();await f.flush();assert.deepEqual(f.calls,['session','retrieve']);
+  }finally{f.dispose();}
 });

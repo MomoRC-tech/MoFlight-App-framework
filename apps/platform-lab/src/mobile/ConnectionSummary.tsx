@@ -22,7 +22,7 @@ export function ConnectionSummary({ controller, onOpen, onUpdate, ownFlights, ph
     {ownFlights ? <Label>{ownFlights.flights.length} Flüge auf diesem Gerät gespeichert</Label> : <Label>Deine Flüge und Saisonübersicht an einem Ort.</Label>}
     {(ownFlights || phase !== 'missing') && <Label muted>{freshness.label}</Label>}
     {!!freshness.note && <Label muted>{freshness.note}</Label>}
-    {!ownFlights?.snapshot.account && <Label muted>Du meldest dich auf der Originalseite von Vereinsflieger an. Anschließend laden wir deine Flüge und Medical-Angaben und speichern sie für die Offline-Nutzung.</Label>}
+    {!ownFlights?.snapshot.account && <Label muted>Bei Bedarf meldest du dich auf der Originalseite von Vereinsflieger an. Anschließend laden wir deine Flüge und Medical-Angaben und speichern sie für die Offline-Nutzung.</Label>}
     {recoveryNeedsAction && <Label>Eine Speicherung oder Wiederherstellung muss geprüft werden. Der letzte geprüfte Stand bleibt lesbar. Öffne Verbindung & Optionen.</Label>}
     <Action icon="chain" disabled={phase === 'loading'} onPress={onUpdate ?? onOpen}>{ownFlights?.snapshot.account ? 'Daten aktualisieren' : 'Anmelden & Daten laden'}</Action>
     {(!compact || recoveryNeedsAction) && <Action secondary onPress={onOpen}>Verbindung & Optionen</Action>}

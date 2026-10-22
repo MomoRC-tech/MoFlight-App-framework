@@ -35,6 +35,8 @@ test('summary uses committed library freshness instead of a more recent raw capt
 test('zero-book first use exposes a single combined load action and no technical setup',()=>{
   const f=render(null,'missing',true);
   assert.equal(f.nodes.filter(n=>n.type==='Action').length,1);assert.ok(!f.text.includes('Bibliothek anlegen'));
+  assert.ok(f.text.includes('Bei Bedarf meldest du dich auf der Originalseite von Vereinsflieger an.'));
+  assert.ok(f.text.includes('Medical-Angaben')&&f.text.includes('Offline-Nutzung'));
   f.button('Anmelden & Daten laden').props.onPress();assert.deepEqual(f.calls,['load']);
   const failed=render(null,'failed');assert.ok(!failed.text.includes('Noch keine Flugdaten abgerufen'));
 });
@@ -45,6 +47,7 @@ test('compact returning summary retains saved facts and recovery warning without
   assert.ok(f.text.includes('2 Flüge'));assert.ok(f.text.includes(dataFreshness(retrievedAt,'ready').label));
   assert.ok(f.text.includes('Wiederherstellung muss geprüft werden'));assert.deepEqual(f.calls,[]);
   assert.equal(f.nodes.filter(n=>n.type==='Action').length,2);
+  assert.equal(f.text.includes('Bei Bedarf meldest du dich auf der Originalseite'),false);
   f.button('Verbindung & Optionen').props.onPress();assert.deepEqual(f.calls,['options']);
   f.button('Daten aktualisieren').props.onPress();assert.deepEqual(f.calls,['options','load']);
 });

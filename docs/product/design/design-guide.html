@@ -223,7 +223,7 @@
 <h3 id="chapter-patterns-combined-flight-loading--21-october-2026">Combined flight loading — 21 October 2026</h3>
 <p>Before opening native ownership, the flow reserves the existing reader queue: admitted reads finish first, and later reads wait until teardown. Account/selection recovery remains guarded; the reservation does not make unreadable or divergent candidates writable. <a href="https://github.com/MomoRC-tech/MoFlight-App-framework/issues/40">Handoff correction, #40</a>.</p>
 <p>Start/Profile and Flüge expose the same explicit login-and-load/update action. Necessary fresh local storage is internal. Check retained session cookies through a protected provider profile; show the original login page only when needed, then resume verification after provider navigation. Keep that browser in the same native parent across login/progress. Use one-column, centered progress/forms up to 520 dp; labels wrap with text scaling. The login view omits information-import menus. Provider-required login still belongs to Vereinsflieger; account mismatch and unresolved recovery remain actionable exceptions. Known provider values save through deterministic validation without routine per-row review or a second save confirmation. Keep one progress card in the same provider screen through sign-in, account verification, flight retrieval/save and Medical. Preserve its native browser parent while the login form is visible beneath the progress area; cap and scroll the progress area during login so the form remains usable. Keep success or partial/failure results on that screen until acknowledgement, then return the result and covered period to ordinary Flüge. A foreground interruption before retrieval preserves the original login document; a guarded resume re-arms the guided intent without accepting stale proof, and subsequent authenticated navigation still requires fresh account verification. Interactive sign-in time does not consume the outer flight-response timeout. Backgrounding after retrieval starts retains cancellation/recovery safeguards. Failed or skipped Medical does not undo the confirmed flight save. These changes were approved on 21 October under #22/#42; native/phone evidence remains source-specific. Preserve previous saved data and user state on error/cancellation; opening the app does not initiate retrieval.</p>
-<p>The Start summary reads committed-library freshness, independently of raw captures and session checks. Keep season rings and compact aircraft legend; detailed coverage/source information is reached through Flüge. The 21 October selected simplification uses full-width cards capped at 430 dp, or two bounded columns from 840 dp at ordinary text size. Book setup stays deferred and never gates flights. Its quiet Start link opens a short information sheet; synthetic paper tasks and the editable demo name are in Development. Compact Start keeps recovery options visible when a decision is required. <a href="../../verification/2026-10-21-simple-flight-loading.md">Package evidence and platform limits</a> distinguish host behavior from native/provider acceptance.</p>
+<p>The Start summary reads committed-library freshness, independently of raw captures and session checks. Keep season rings and compact aircraft legend; detailed coverage/source information is reached through Flüge. The 21 October selected simplification uses full-width cards capped at 430 dp, or two bounded columns from 840 dp at ordinary text size. Book setup stays deferred and never gates flights. Its quiet Start link opens a short information sheet; synthetic paper tasks and the editable demo name are in Development. Compact Start keeps recovery options visible when a decision is required. Entry copy makes manual original-page sign-in conditional: retained provider cookies may avoid typing credentials. A fresh unassociated owner still opens the original login route; this wording does not promise a protected-profile precheck on every first use. Native login-page/HTTP opening failure must end combined progress with explicit retry even before retrieval becomes busy; interactive sign-in itself remains untimed. <a href="../../verification/2026-10-21-simple-flight-loading.md">Package evidence and platform limits</a> distinguish host behavior from native/provider acceptance.</p>
 <h3 id="chapter-patterns-header-overlays-and-navigation">Header, overlays and navigation</h3>
 <p>Keep header/navigation outside the scrolling canvas. Header order is logo/title, Connection → Med → Profile. Truncate title before shrinking controls. Current font scale above 1.3 places controls on a second wrapping row; subtitle renders only at width at least 412 with normal text.</p>
 <p>App overlays/details replace logo with contextual Back and expose one active accessible header. Return through nested overlays to prior page/filter/scroll state and unsaved local profile-name draft. Identical library reloads preserve the return path; changed book/flight facts invalidate stale details. An active backup/proof operation disables app Back, Profile and Medical until completion; provider Close/history remain separate. Medical opens a read-only unknown-record explanation.</p>
@@ -381,21 +381,21 @@
 <tr><td><i class="swatch" style="background:#ffc477" aria-hidden="true"></i><code>#ffc477</code></td><td>16</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-connectionsummarytsx">ConnectionSummary.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/ConnectionSummary.tsx">apps/platform-lab/src/mobile/ConnectionSummary.tsx</a>; normalized SHA-256 <code>c9a56c0298c144605bccd59f1b79bb7dffdc991103cd9db95bcc51b21fb0adf2</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/ConnectionSummary.tsx">apps/platform-lab/src/mobile/ConnectionSummary.tsx</a>; normalized SHA-256 <code>a425f3a81c59beaea2aa6c6a5395479aa3ed8166034b8926185c961d95486445</code>.</p>
 <h4 id="chapter-implementation-inventory-geometry--opacity-declarations-5">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>maxWidth: 430</code></td><td>20</td></tr>
 <tr><td><code>width: &#x27;100%&#x27;</code></td><td>20</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-coreflightfoundationtsx">CoreFlightFoundation.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx">apps/platform-lab/src/mobile/CoreFlightFoundation.tsx</a>; normalized SHA-256 <code>275924d6ef2cb87a72f1308519b8ff1deac62b291d105fe62a67872d73334b6e</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx">apps/platform-lab/src/mobile/CoreFlightFoundation.tsx</a>; normalized SHA-256 <code>39ede7476942ae328d4cb1dfed6041355395e01b03ade2dcd6bea48ad7627140</code>.</p>
 <h4 id="chapter-implementation-inventory-geometry--opacity-declarations-6">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>gap: 10</code></td><td>121, 122, 429</td></tr>
-<tr><td><code>gap: 8</code></td><td>455, 481, 491</td></tr>
-<tr><td><code>maxWidth: 520</code></td><td>122, 429</td></tr>
-<tr><td><code>padding: 12</code></td><td>121, 429</td></tr>
-<tr><td><code>width: &#x27;100%&#x27;</code></td><td>122, 429</td></tr>
+<tr><td><code>gap: 10</code></td><td>121, 122, 434</td></tr>
+<tr><td><code>gap: 8</code></td><td>460, 486, 496</td></tr>
+<tr><td><code>maxWidth: 520</code></td><td>122, 434</td></tr>
+<tr><td><code>padding: 12</code></td><td>121, 434</td></tr>
+<tr><td><code>width: &#x27;100%&#x27;</code></td><td>122, 434</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-dashboardtsx">Dashboard.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/Dashboard.tsx">apps/platform-lab/src/mobile/Dashboard.tsx</a>; normalized SHA-256 <code>3507ac3f3facb77a4785a62422aa9e72cf710025c39090817d3465763e31e367</code>.</p>
@@ -1587,7 +1587,7 @@ Before opening native ownership, the flow reserves the existing reader queue: ad
 
 Start/Profile and Flüge expose the same explicit login-and-load/update action. Necessary fresh local storage is internal. Check retained session cookies through a protected provider profile; show the original login page only when needed, then resume verification after provider navigation. Keep that browser in the same native parent across login/progress. Use one-column, centered progress/forms up to 520 dp; labels wrap with text scaling. The login view omits information-import menus. Provider-required login still belongs to Vereinsflieger; account mismatch and unresolved recovery remain actionable exceptions. Known provider values save through deterministic validation without routine per-row review or a second save confirmation. Keep one progress card in the same provider screen through sign-in, account verification, flight retrieval/save and Medical. Preserve its native browser parent while the login form is visible beneath the progress area; cap and scroll the progress area during login so the form remains usable. Keep success or partial/failure results on that screen until acknowledgement, then return the result and covered period to ordinary Flüge. A foreground interruption before retrieval preserves the original login document; a guarded resume re-arms the guided intent without accepting stale proof, and subsequent authenticated navigation still requires fresh account verification. Interactive sign-in time does not consume the outer flight-response timeout. Backgrounding after retrieval starts retains cancellation/recovery safeguards. Failed or skipped Medical does not undo the confirmed flight save. These changes were approved on 21 October under #22/#42; native/phone evidence remains source-specific. Preserve previous saved data and user state on error/cancellation; opening the app does not initiate retrieval.
 
-The Start summary reads committed-library freshness, independently of raw captures and session checks. Keep season rings and compact aircraft legend; detailed coverage/source information is reached through Flüge. The 21 October selected simplification uses full-width cards capped at 430 dp, or two bounded columns from 840 dp at ordinary text size. Book setup stays deferred and never gates flights. Its quiet Start link opens a short information sheet; synthetic paper tasks and the editable demo name are in Development. Compact Start keeps recovery options visible when a decision is required. [Package evidence and platform limits](../../verification/2026-10-21-simple-flight-loading.md) distinguish host behavior from native/provider acceptance.
+The Start summary reads committed-library freshness, independently of raw captures and session checks. Keep season rings and compact aircraft legend; detailed coverage/source information is reached through Flüge. The 21 October selected simplification uses full-width cards capped at 430 dp, or two bounded columns from 840 dp at ordinary text size. Book setup stays deferred and never gates flights. Its quiet Start link opens a short information sheet; synthetic paper tasks and the editable demo name are in Development. Compact Start keeps recovery options visible when a decision is required. Entry copy makes manual original-page sign-in conditional: retained provider cookies may avoid typing credentials. A fresh unassociated owner still opens the original login route; this wording does not promise a protected-profile precheck on every first use. Native login-page/HTTP opening failure must end combined progress with explicit retry even before retrieval becomes busy; interactive sign-in itself remains untimed. [Package evidence and platform limits](../../verification/2026-10-21-simple-flight-loading.md) distinguish host behavior from native/provider acceptance.
 
 ## Header, overlays and navigation
 
@@ -1799,7 +1799,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/connection-guidan
 
 ## ConnectionSummary.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ConnectionSummary.tsx](../../../apps/platform-lab/src/mobile/ConnectionSummary.tsx); normalized SHA-256 `c9a56c0298c144605bccd59f1b79bb7dffdc991103cd9db95bcc51b21fb0adf2`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ConnectionSummary.tsx](../../../apps/platform-lab/src/mobile/ConnectionSummary.tsx); normalized SHA-256 `a425f3a81c59beaea2aa6c6a5395479aa3ed8166034b8926185c961d95486445`.
 
 ### Geometry / opacity declarations
 
@@ -1810,17 +1810,17 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ConnectionSummary
 
 ## CoreFlightFoundation.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `275924d6ef2cb87a72f1308519b8ff1deac62b291d105fe62a67872d73334b6e`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `39ede7476942ae328d4cb1dfed6041355395e01b03ade2dcd6bea48ad7627140`.
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `gap: 10` | 121, 122, 429 |
-| `gap: 8` | 455, 481, 491 |
-| `maxWidth: 520` | 122, 429 |
-| `padding: 12` | 121, 429 |
-| `width: &#x27;100%&#x27;` | 122, 429 |
+| `gap: 10` | 121, 122, 434 |
+| `gap: 8` | 460, 486, 496 |
+| `maxWidth: 520` | 122, 434 |
+| `padding: 12` | 121, 434 |
+| `width: &#x27;100%&#x27;` | 122, 434 |
 
 ## Dashboard.tsx
 
@@ -3030,7 +3030,7 @@ States / limits: Recreated approved variant, not a byte-identical copy of an old
 Source: docs/assets/branding/moflight-app-icon-ai.png
 docs/assets/branding/README.md; app.json
 </textarea></section>
-<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: e3aa785defea030640fe7586bc94fd7ce5bc2657275f769790b16bcaf8585e60. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
+<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: 2a9dc3576a2e11bc790b0ef98dc9cee35081722cc1756f7619b92584aef8caf1. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
 </main><script>
 'use strict';
 const brief = document.querySelector('#brief');
