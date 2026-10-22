@@ -4,6 +4,14 @@
 
 Manuel authorized an alternative native implementation and verification. On 22 October Manuel explicitly selected it as the new main and requested merging the branch. The integration preserves newer main safeguards; selection is separate from the remaining acceptance gates. M4 presentation reuses existing M2/M3 saved-data and provider boundaries. This visual contract adds no services, migrations or real-book activation. Provider retrieval changes are tracked separately and do not follow from appearance approval.
 
+## Connection action — 23 October 2026
+
+Manuel requests one useful action and automatic login continuation under [#42](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/42) and [#22](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/22). This supersedes the earlier received-age colour meaning of the Data header control: green now requires recent matching-account session proof. Connected users see **Daten synchronisieren**; otherwise the same control starts the guarded login/update journey. Saved-data age remains independent in data details and the accessible description. A successful login automatically verifies the account, hides the original page, retrieves/saves requested data and returns to Start. Ordinary login has no manual verification button.
+
+The retained selected-owner browser checks an existing association on foreground startup and approximately every minute while the update dialog is closed. Checks pause in the background and never interrupt login, retrieval, saving or recovery; they do not download flights or create an account association. Expired/unverified/error states cannot stay green. Explicit user interaction takes priority over a pending quiet check. Unknown or foreign account proof never authorizes retrieval. Cancellation and necessary recovery/account decisions remain available.
+
+Implementation and source-specific verification are recorded in the [loading report](../../verification/2026-10-21-simple-flight-loading.md#automatic-login-and-foreground-session-status--23-october-2026). A host regression is not proof of the reported physical-phone cause or successful live login.
+
 ## Start/header refinement — 23 October 2026
 
 Manuel requested the following refinement under [#20](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/20#issuecomment-6352511938). It supersedes the earlier scoped geometry below: the unchanged Thermik logo is 88 dp (previously 46), with title alongside; Profile occupies the header's lower right over the existing ASK-21 artwork. Data and Medical use compact 40 dp faces inside minimum 48 dp targets, icons beside two-line labels, and system-scaled text. Medical's cross is red in the maintained SVG and generated native family; it is decorative and does not change source-date status meaning.

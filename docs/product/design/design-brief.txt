@@ -39,7 +39,8 @@ Keep German labels beside important navigation/status symbols. Show saved facts 
 8. Manuel's **22 October implement instruction** selects the alternative Start layout under [#20](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/20#issuecomment-6340199647): count/known-time KPIs replace rings, compact aircraft/recent-flight rows, a general Alle anzeigen route to Flüge, responsive month chart/lower legend and a 40 dp header logo. This supersedes those scoped ring/layout values; status meanings and five tabs remain.
 9. Manuel's **22 October data-update header instruction (#22)** supersedes the ordinary header connection/session symbol with an explicit data-fetch action and durable received-age display: green under one hour, amber for older data, neutral when unknown; login opens only when an update needs it. Provider-panel verification remains separate.
 10. Manuel's **22 October popup/header-only instruction (#22)** places the complete update journey, including original login when required, in a bounded rounded navy frame over a dimmed inert page. Only the header data button opens provider update/login; other pages give passive header guidance and retain offline administration. The retained browser parent and credential-activity behavior remain protected.
-11. This handbook consolidates those decisions. Earlier prototype choices apply only where explicitly carried forward. Code values record implementation and cannot approve an unresolved visual difference.
+11. Manuel's **23 October connection instruction (#42/#22)** replaces saved-age header colouring with recent verified session status and one login/synchronize action. Foreground minute checks are internal; ordinary login continues automatically without a manual verification button. The [current connection contract](alternative-ui.md#connection-action--23-october-2026) preserves separate saved-age evidence and account/recovery boundaries.
+12. This handbook consolidates those decisions. Earlier prototype choices apply only where explicitly carried forward. Code values record implementation and cannot approve an unresolved visual difference.
 
 Manuel owns design decisions. Priorities, journeys and account/book behavior remain in the [project plan](../../project-plan.md), [journey map](../2026-10-13-journey-information-map.md) and feature contracts. Link those contracts rather than duplicating them here.
 
@@ -63,6 +64,14 @@ The generator uses Python's standard library and repository files only: no netwo
 [Handbook](README.md) · [#55](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/55) · branch `ui/alternative-flight-experience`.
 
 Manuel authorized an alternative native implementation and verification. On 22 October Manuel explicitly selected it as the new main and requested merging the branch. The integration preserves newer main safeguards; selection is separate from the remaining acceptance gates. M4 presentation reuses existing M2/M3 saved-data and provider boundaries. This visual contract adds no services, migrations or real-book activation. Provider retrieval changes are tracked separately and do not follow from appearance approval.
+
+## Connection action — 23 October 2026
+
+Manuel requests one useful action and automatic login continuation under [#42](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/42) and [#22](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/22). This supersedes the earlier received-age colour meaning of the Data header control: green now requires recent matching-account session proof. Connected users see **Daten synchronisieren**; otherwise the same control starts the guarded login/update journey. Saved-data age remains independent in data details and the accessible description. A successful login automatically verifies the account, hides the original page, retrieves/saves requested data and returns to Start. Ordinary login has no manual verification button.
+
+The retained selected-owner browser checks an existing association on foreground startup and approximately every minute while the update dialog is closed. Checks pause in the background and never interrupt login, retrieval, saving or recovery; they do not download flights or create an account association. Expired/unverified/error states cannot stay green. Explicit user interaction takes priority over a pending quiet check. Unknown or foreign account proof never authorizes retrieval. Cancellation and necessary recovery/account decisions remain available.
+
+Implementation and source-specific verification are recorded in the [loading report](../../verification/2026-10-21-simple-flight-loading.md#automatic-login-and-foreground-session-status--23-october-2026). A host regression is not proof of the reported physical-phone cause or successful live login.
 
 ## Start/header refinement — 23 October 2026
 
@@ -236,6 +245,8 @@ The 22 October header data-update amendment reuses `#74dfba` for saved data rece
 
 > The [22 October modern UI contract](alternative-ui.md) is selected as the main baseline. It supersedes conflicting earlier appearance/composition descriptions for C01–C09, typography, surfaces, Start and flight browsing. Data and acceptance boundaries retain their separate contracts.
 [Handbook entry point](README.md). This catalogue records branch implementation; main adoption was selected on 22 October. The portable guide includes schematic examples; source values and native evidence remain authoritative. Example labels/data are synthetic.
+
+**23 October connection override (#42/#22):** the ordinary header has one connection-aware login/synchronize action. Green represents recent matching session proof; saved-age colouring in older descriptions below is superseded. Foreground minute checks are silent and defer to login/jobs. Guided login has no manual verification control. See the [current contract](alternative-ui.md#connection-action--23-october-2026).
 
 ## Component map
 
@@ -418,7 +429,7 @@ Use only the header “Daten” button for new provider data and login. Start em
 
 [Handbook entry point](README.md). Generated by `python scripts/design_handbook.py`; do not hand-edit.
 
-Scope: 63 product mobile TypeScript/model and app-owned TSX UI/adapter files; 60 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.
+Scope: 64 product mobile TypeScript/model and app-owned TSX UI/adapter files; 60 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.
 
 ## App.tsx
 
@@ -607,7 +618,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/connection-guidan
 
 ## ConnectionSummary.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ConnectionSummary.tsx](../../../apps/platform-lab/src/mobile/ConnectionSummary.tsx); normalized SHA-256 `908d9c45fabef3ddbd674a5da782815e6ffb9ae5d70ce0a0e58f0bea82c16468`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ConnectionSummary.tsx](../../../apps/platform-lab/src/mobile/ConnectionSummary.tsx); normalized SHA-256 `8126e8144c87d3ac96448d8b623eb01cffb225c72d28eb323a4bb2dfbe3803a5`.
 
 ### Geometry / opacity declarations
 
@@ -618,21 +629,21 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ConnectionSummary
 
 ## CoreFlightFoundation.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `fdc1bfcc6ed68422a931bbc0ca733e8f7d69108479de0f676e3641981e9c3da7`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `55ad4c07a4ed83a21b75113c155632e5df45a1953d67beac32a418282c31711d`.
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `gap: 10` | 124, 125, 520 |
-| `gap: 8` | 546, 572, 582 |
-| `maxWidth: 520` | 125, 520 |
-| `padding: 12` | 124, 520 |
-| `width: '100%'` | 125, 520 |
+| `gap: 10` | 136, 137, 543 |
+| `gap: 8` | 569, 595, 605 |
+| `maxWidth: 520` | 137, 543 |
+| `padding: 12` | 136, 543 |
+| `width: '100%'` | 137, 543 |
 
 ## Dashboard.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](../../../apps/platform-lab/src/mobile/Dashboard.tsx); normalized SHA-256 `1a9a1e13d1268e4b70b74b160445c1666b85e8343015186dc251eeafafa022cf`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](../../../apps/platform-lab/src/mobile/Dashboard.tsx); normalized SHA-256 `a78b766fb49efd3d9aaafe7e80cab12b17bfc61a034c6dd7826b617923a8b221`.
 
 ### Literal colors
 
@@ -676,37 +687,39 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](..
 
 ## DataUpdateIndicator.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DataUpdateIndicator.tsx](../../../apps/platform-lab/src/mobile/DataUpdateIndicator.tsx); normalized SHA-256 `c3335e44134684db8f48b61e2f89ef97c50516e7ebe7235844880d66f9a0b82a`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DataUpdateIndicator.tsx](../../../apps/platform-lab/src/mobile/DataUpdateIndicator.tsx); normalized SHA-256 `20980a9ebe71fda784060d8e896301bff5a90921bbaa415d15075d86ac1101c2`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#74dfba` | 12 |
-| `#ffc477` | 12 |
+| `#74dfba` | 17 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 11` | 28 |
-| `fontSize: 12` | 27 |
-| `fontWeight: '600'` | 27 |
-| `lineHeight: 15` | 28 |
-| `lineHeight: 16` | 27 |
+| `fontSize: 11` | 35 |
+| `fontSize: 12` | 34 |
+| `fontWeight: '600'` | 34 |
+| `lineHeight: 15` | 35 |
+| `lineHeight: 16` | 34 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 25 |
-| `gap: 5` | 25 |
-| `minHeight: 40` | 25 |
-| `minHeight: 48` | 24 |
-| `minWidth: 94` | 24 |
-| `opacity: .5` | 16 |
-| `paddingHorizontal: 8` | 25 |
-| `paddingVertical: 2` | 25 |
+| `borderRadius: 12` | 32 |
+| `borderRadius: 4` | 24 |
+| `gap: 5` | 32 |
+| `height: 8` | 24 |
+| `minHeight: 40` | 32 |
+| `minHeight: 48` | 31 |
+| `minWidth: 94` | 31 |
+| `opacity: .5` | 22 |
+| `paddingHorizontal: 8` | 32 |
+| `paddingVertical: 2` | 32 |
+| `width: 8` | 24 |
 
 ## DesignPreview.tsx
 
@@ -738,7 +751,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DesignPreview.tsx
 
 ## DevelopmentHub.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DevelopmentHub.tsx](../../../apps/platform-lab/src/mobile/DevelopmentHub.tsx); normalized SHA-256 `6cda92476c8c1b6cc53fe0ecd453caae44cb0d49960c069b5b414f5634f72917`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DevelopmentHub.tsx](../../../apps/platform-lab/src/mobile/DevelopmentHub.tsx); normalized SHA-256 `4ea9c42a01f3d326368c4c2837ce5f61bb052b3cef81d97ca049601cef3d1a1f`.
 
 ### Geometry / opacity declarations
 
@@ -891,7 +904,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MedicalStatus.tsx
 
 ## MobileApp.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `cbb19740081c13b976adf92e6dedb73f641e727decde4559b908cccfbf50bd4e`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `779c2e1a638037487a0db88b2f482d262a97cf5e46e20d3feb49a600e0d3e379`.
 
 ### Literal colors
 
@@ -1003,7 +1016,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](..
 
 ## OwnFlights.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OwnFlights.tsx](../../../apps/platform-lab/src/mobile/OwnFlights.tsx); normalized SHA-256 `7b3ac3e443644c23960685150c2bbc2918d2b27f271df57e18ec8d164e6d38ea`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OwnFlights.tsx](../../../apps/platform-lab/src/mobile/OwnFlights.tsx); normalized SHA-256 `419fce4b11bcf4509a367f70ad51db822bfb2ce95c886bf41f1c76b90015acc7`.
 
 ### Typography declarations
 
@@ -1060,7 +1073,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/PaperStatus.tsx](
 
 ## ProfileSettings.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProfileSettings.tsx](../../../apps/platform-lab/src/mobile/ProfileSettings.tsx); normalized SHA-256 `a3fc874aaa3275cea16b81ce64e479629932c8e9ac9ec47390097f3538a2c86f`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProfileSettings.tsx](../../../apps/platform-lab/src/mobile/ProfileSettings.tsx); normalized SHA-256 `bbbb7e136354f658ea8b334f120c34d0c2d585198f4f8a72193ca7cd0447ec00`.
 
 ### Literal colors
 
@@ -1092,7 +1105,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProfileSettings.t
 
 ## ProviderConnection.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProviderConnection.tsx](../../../apps/platform-lab/src/mobile/ProviderConnection.tsx); normalized SHA-256 `fc38194f448e67b7ec224f36627c2fa7eb875f0faccdc098f5b2b22f1d5d5375`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProviderConnection.tsx](../../../apps/platform-lab/src/mobile/ProviderConnection.tsx); normalized SHA-256 `46f70df3ba2c92affef358544e2afc625d3ebc2f7ce410324f44d67b4b54d979`.
 
 ### Literal colors
 
@@ -1669,11 +1682,11 @@ duotone-assets.ts; symbols/glyphs.svg #profile
 
 S01 · Current native UI · selected duotone
 Update Vereinsflieger data
-Appearance: Selected Modern Duotone refresh symbol with Daten and relative received age; green frame/text under one hour, amber from one hour, neutral when unknown.
+Appearance: Selected Modern Duotone refresh symbol for connected Daten synchronisieren; chain symbol for Anmeldung. Green marker/text requires recent matching-account session proof.
 Where: Ordinary app header; separate from provider-panel session indicators.
-Meaning: Age of the selected owner/account library’s last durably saved successful flight-data retrieval. No live-login or all-category freshness promise.
+Meaning: Recently verified session for the selected owner/account. Saved retrieval age is separate and does not establish connection or all-category freshness.
 Function / action: The header is the only entry to provider update/login. Tap opens the whole update journey in a retained centered popup frame; original login appears only if needed. Other pages provide passive guidance. Contextual return is preserved.
-States / limits: Green <1 hour; amber >=1 hour; neutral missing/invalid/future timestamp. Visible relative age and accessible exact time. Failed updates and session checks do not renew it.
+States / limits: Green only for confirmed matching account proof younger than 90 seconds; neutral for unknown, checking, expired, failed or foreign proof. Foreground checks repeat every minute outside login/jobs. Saved retrieval age remains independently accessible and is never renewed by a session check.
 Source: apps/platform-lab/src/mobile/DataUpdateIndicator.tsx
 DataUpdateIndicator; dataUpdateStatus; glyphs.svg #refresh
 

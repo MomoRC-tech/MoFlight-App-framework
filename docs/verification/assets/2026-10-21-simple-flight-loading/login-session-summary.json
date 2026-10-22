@@ -1,0 +1,49 @@
+{
+  "application_source": "f3f005e029ee6627438c8cb17119beee9cd20f18",
+  "included_ui_source": "503ed0fcf1d92a482707e489b155b9af52ec8f76",
+  "apk_sha256": "6def3ea361537be52e1baa91dbd04fb1cf18fb0cae60bb2542661669e3d86480",
+  "zip_sha256": "a79c524bde22b7a62b84fbe91b1c29859cbee8eb66a1fe9c9405239eeb26d985",
+  "host": {
+    "mobile_pass": 835,
+    "python_pass": 110,
+    "types_lint_fixtures": "passed",
+    "platform_exports": [
+      "android",
+      "ios"
+    ]
+  },
+  "native": [
+    {
+      "status": "passed",
+      "source_commit": "4b7e02867d1cb60bbbd01303529a31f8e6f39084",
+      "checks": [
+        "MIN360/font1 first-use glider header, removed old introduction, tab return settled with no visible provider popup",
+        "Offline process restart returns settled first-use Start",
+        "MIN360/font1.6 connection action readable and minimum touch target",
+        "MAIN390/font1 public original login reached; no extra manual verification button on initial guided sign-in",
+        "Public login remains accessible after more than one minute; controller guards have separate host coverage",
+        "Original login field opens real keyboard; captured geometry requires parent inspection; no input or credential submission",
+        "Home/return retains accessible public login and Close returns safely to app"
+      ],
+      "boundary": "Synthetic AVD; public login only, no credentials entered or submitted. Host tests cover authenticated continuation; phone/live success not claimed.",
+      "original_apk_restored": true
+    },
+    {
+      "status": "passed",
+      "source_commit": "f3f005e029ee6627438c8cb17119beee9cd20f18",
+      "checks": [
+        "Final-source offline Start shows guidance matching the connection action",
+        "Final-source original login automatically opens with no manual verification control; no credentials entered",
+        "Final-source Close returns safely to the invoking page"
+      ],
+      "boundary": "Synthetic AVD; public login only, no credentials entered or submitted. Host tests cover authenticated continuation; phone/live success not claimed.",
+      "original_apk_restored": true
+    }
+  ],
+  "limits": [
+    "No real credentials entered or submitted",
+    "Actual phone authenticated continuation/retrieval remains open",
+    "No live foreign-account test",
+    "No iOS runtime or spoken accessibility acceptance"
+  ]
+}

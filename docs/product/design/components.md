@@ -3,6 +3,8 @@
 > The [22 October modern UI contract](alternative-ui.md) is selected as the main baseline. It supersedes conflicting earlier appearance/composition descriptions for C01–C09, typography, surfaces, Start and flight browsing. Data and acceptance boundaries retain their separate contracts.
 [Handbook entry point](README.md). This catalogue records branch implementation; main adoption was selected on 22 October. The portable guide includes schematic examples; source values and native evidence remain authoritative. Example labels/data are synthetic.
 
+**23 October connection override (#42/#22):** the ordinary header has one connection-aware login/synchronize action. Green represents recent matching session proof; saved-age colouring in older descriptions below is superseded. Foreground minute checks are silent and defer to login/jobs. Guided login has no manual verification control. See the [current contract](alternative-ui.md#connection-action--23-october-2026).
+
 ## Component map
 
 | ID | Component / shape | Geometry / presentation | Function / source |
