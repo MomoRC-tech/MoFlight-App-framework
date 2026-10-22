@@ -768,45 +768,45 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](..
 
 ## OwnFlights.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OwnFlights.tsx](../../../apps/platform-lab/src/mobile/OwnFlights.tsx); normalized SHA-256 `ff501fa9a1d7d6c20b6252d8a5274122308ff713f414e724172d64abfb094ad5`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OwnFlights.tsx](../../../apps/platform-lab/src/mobile/OwnFlights.tsx); normalized SHA-256 `0021a113e56cf234e996c0c35629b5a8159dc23ac85429790c3d132234dd5660`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#11263a` | 131 |
+| `#11263a` | 133 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 13` | 132 |
+| `fontSize: 13` | 134 |
 | `fontWeight: '600'` | 82 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 13` | 130 |
-| `borderRadius: 22` | 131 |
-| `borderRadius: 24` | 132 |
-| `borderWidth: 1` | 131 |
+| `borderRadius: 13` | 132 |
+| `borderRadius: 22` | 133 |
+| `borderRadius: 24` | 134 |
+| `borderWidth: 1` | 133 |
 | `gap: 2` | 120 |
-| `gap: 3` | 130 |
+| `gap: 3` | 132 |
 | `gap: 5` | 54 |
-| `gap: 7` | 131 |
-| `gap: 8` | 78, 129 |
+| `gap: 7` | 133 |
+| `gap: 8` | 78, 131 |
 | `height: 7` | 90 |
 | `maxWidth: '50%'` | 81 |
-| `maxWidth: 520` | 129 |
-| `minHeight: 48` | 132 |
-| `minWidth: 0` | 131 |
-| `padding: 10` | 129 |
-| `padding: 7` | 130 |
-| `paddingHorizontal: 12` | 131 |
-| `paddingVertical: 4` | 132 |
-| `width: '100%'` | 129 |
-| `width: 48` | 132 |
+| `maxWidth: 520` | 131 |
+| `minHeight: 48` | 134 |
+| `minWidth: 0` | 133 |
+| `padding: 10` | 131 |
+| `padding: 7` | 132 |
+| `paddingHorizontal: 12` | 133 |
+| `paddingVertical: 4` | 134 |
+| `width: '100%'` | 131 |
+| `width: 48` | 134 |
 
 ## PaperStatus.tsx
 
