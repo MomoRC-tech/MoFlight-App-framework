@@ -192,5 +192,100 @@
       52
     ],
     "remaining": "#42 physical fresh login/intermittent cause; #20/#22 user/WIDE list/lower raw detail/spoken/iOS; #29 rollback branch-disposition policy unselected"
+  },
+  "first_login_and_visual_followup": {
+    "application_commit": "bfbd470188d0efa4bdb514a1a02ab6a61aab54e0",
+    "apk_sha256": "14d631fba22dfa62d07fcc7e76113d71be5261f9ba172ff5b7c5be0c910477f1",
+    "host": {
+      "mobile_tests": 695,
+      "python_tests": 110,
+      "types_lint_fixtures": "passed",
+      "android_ios_exports": "passed",
+      "report": "build/host-checks/20261022T045245Z-660d03e9/report.json"
+    },
+    "first_login": {
+      "source": "1451f1adb8754bc5b35d6d94a49a14c77a39569f",
+      "avd": "MoFlight_LoginUX_API37",
+      "viewport": "360x900dp/density160/font1.6",
+      "passed": [
+        "Unassociated first-use action",
+        "Native offline original-page failure reaches terminal guidance and enabled Retry",
+        "Explicit retry remains recoverable offline",
+        "Separate same-Release restart:0 saved flights/no successful retrieval; zero new login/retrieval actions"
+      ],
+      "limits": [
+        "Functional helper failed final return selector; its Overview image already shows0/no successful retrieval, followed by distinct passed restart supplement",
+        "Earlier Android-startup helper failed before state capture/app actions",
+        "Normal required empty owner/library remains retained; no pristine-state claim",
+        "Native HTTP error, successful credential/authentication, physical chooser and iOS not tested"
+      ],
+      "synthetic_images": [
+        "fresh-login-offline-retry-min.png",
+        "conditional-login-copy-min.png"
+      ]
+    },
+    "readonly_visual": {
+      "wide_source": "08217f6e0d593319b1a3cf3546e87cf5af1caa72",
+      "wide_viewport": "800x600dp/density160/font1.0",
+      "wide_result": "Two complete centered rows with readable route/duration; parent PNG review",
+      "final_caption_source": "bfbd470188d0efa4bdb514a1a02ab6a61aab54e0",
+      "min_viewport": "360x900dp/density160/font1.6; measured during final trial",
+      "field_ranges": [
+        [
+          1,
+          8,
+          48
+        ],
+        [
+          9,
+          16,
+          48
+        ],
+        [
+          17,
+          24,
+          48
+        ],
+        [
+          25,
+          32,
+          48
+        ],
+        [
+          33,
+          40,
+          48
+        ],
+        [
+          41,
+          48,
+          48
+        ]
+      ],
+      "saved_count_before": 101,
+      "saved_count_after_restart": 101,
+      "visible_pager_captions": [
+        "Zurück",
+        "Weiter"
+      ],
+      "parent_png_review": "Both complete captions, last Next disabled, bottom contextual return visible",
+      "status": "passed",
+      "limits": [
+        "Intermediate-page values/ranges have XML/action evidence rather than a screenshot of every field",
+        "Two-word shortening and local remount did not fix the suffix; remount removed and standard one-word captions verified",
+        "First helper swiped over fixed navigation; its partial WIDE frame/failure excluded",
+        "No flight/selection mutation action, provider navigation/network, credentials or private image publication"
+      ]
+    },
+    "cleanup": {
+      "errors": [],
+      "provider_original_apk_display_radios_independently_restored": true,
+      "login_original_apk_display_radios_independently_restored": true,
+      "owned_avds_stopped": true,
+      "adb_devices_after_cleanup": 0,
+      "private_capture_cookie_journal_byte_equality": "not-tested",
+      "synthetic_older_readonly_selection": "Untouched; history retained"
+    },
+    "remaining": "#42 physical fresh login/chooser/intermittent cause; #17/#20/#22 user/spoken/physical/iOS; #29 synthetic branch disposition remains unselected; no release/push/paid services"
   }
 }
