@@ -33,7 +33,7 @@ import { retrievalFailureHint } from '../vereinsflieger/connection-state';
 export type ConnectionIntent = 'connect'|'update'|'options'|'development';
 export interface FlightLoadResult { added: number; changed: number; pending: number; from: string; to: string;
   verifiedConnection?: OwnFlightConnectionEvidence; medicalStatus?: MedicalJobStatus; dutyStatus?:DutyJobStatus }
-export function CoreFlightFoundation({ close, startUpdate = false, intent = startUpdate?'update':'options', open = true, requestId = 0, onStatus, developmentRecoveryCheckpoints = false }: {close: (result?: FlightLoadResult) => void; startUpdate?: boolean; intent?:ConnectionIntent; open?:boolean; requestId?:number; onStatus?:(status:ProviderStatus)=>void; developmentRecoveryCheckpoints?: boolean}) {
+export function CoreFlightFoundation({ close, startUpdate = false, intent = startUpdate?'update':'options', open = true, requestId = 0, onStatus, developmentRecoveryCheckpoints = false, providerEntryAllowed = false, dialogTop }: {close: (result?: FlightLoadResult) => void; startUpdate?: boolean; intent?:ConnectionIntent; open?:boolean; requestId?:number; onStatus?:(status:ProviderStatus)=>void; developmentRecoveryCheckpoints?: boolean; providerEntryAllowed?:boolean; dialogTop?:number}) {
   const diagnosis = useRef<DiagnosticOperation | null>(null);
   const [requestedUpdate,setRequestedUpdate] = useState(intent!=='options');
   const registry = useRef<RealOwnerRegistry | null>(null), alive = useRef(true), lock = useRef(false);
@@ -120,8 +120,8 @@ export function CoreFlightFoundation({ close, startUpdate = false, intent = star
   useEffect(()=>{
     if(open&&admitted&&requestedUpdate&&!loading&&!lease&&!error&&!setupLease&&!setupStarted.current){setupStarted.current=true;void createFreshOwner();}
   },[open,admitted,requestedUpdate,loading,lease,error,setupLease]);
-  if(lease&&registry.current)return <OwnerFlightLibrary developmentRecoveryCheckpoints={developmentRecoveryCheckpoints} key={`${lease.ownerId}:${lease.storeId}:${lease.selectionSeq}`} lease={lease} registry={registry.current} close={close} open={open&&admitted} requestId={requestId} intent={intent} onStatus={onStatus} startUpdate={intent==='update'} takeInitialRepository={takeInitialRepository} diagnosis={diagnosis}/>;
-  return <SafeAreaView style={{flex:1,backgroundColor:colors.background}}><ScrollView contentContainerStyle={{padding:12,gap:10}}>
+  if(lease&&registry.current)return <OwnerFlightLibrary providerEntryAllowed={providerEntryAllowed} dialogTop={dialogTop} developmentRecoveryCheckpoints={developmentRecoveryCheckpoints} key={`${lease.ownerId}:${lease.storeId}:${lease.selectionSeq}`} lease={lease} registry={registry.current} close={close} open={open&&admitted} requestId={requestId} intent={intent} onStatus={onStatus} startUpdate={intent==='update'} takeInitialRepository={takeInitialRepository} diagnosis={diagnosis}/>;
+  return <SafeAreaView edges={dialogTop===undefined?undefined:[]} style={{flex:1,backgroundColor:colors.background}}><ScrollView contentContainerStyle={{padding:12,gap:10}}>
     <View style={{width:'100%',maxWidth:520,alignSelf:'center',gap:10}}>
       <Section title={intent==='options'?"Deine Flüge":"Vereinsflieger"} icon={intent==='options'?"flight-paper-plane":"chain"}/>
       <Action secondary disabled={loading} onPress={close}>Zur App zurück</Action>
@@ -132,14 +132,14 @@ export function CoreFlightFoundation({ close, startUpdate = false, intent = star
       {setupLease&&<Action disabled={loading} onPress={()=>void resumeSelected()}>Vorhandene Einrichtung fortsetzen</Action>}
       {!loading && (setupLease
         ? <Action secondary disabled={loading} onPress={()=>void createFreshOwner()}>Stattdessen neue lokale Bibliothek anlegen</Action>
-        : error ? <Action disabled={loading} onPress={()=>{setRequestedUpdate(true);void createFreshOwner();}}>Erneut versuchen</Action> : !requestedUpdate ? <Action onPress={()=>setRequestedUpdate(true)}>Anmelden & Daten laden</Action> : null)}
+        : error ? <Action disabled={loading} onPress={()=>{setRequestedUpdate(true);void createFreshOwner();}}>Erneut versuchen</Action> : !requestedUpdate ? <Label muted>Neue Daten und Anmeldung erreichst du über „Daten“ oben in der Kopfzeile.</Label> : null)}
     </View>
   </ScrollView></SafeAreaView>;
 }
 
 type WaitingSource = {request:{from:string;to:string};resolve:(source:RealFlightSourceInput)=>void;reject:(error:Error)=>void;started:boolean;checking:boolean;seenBusy:boolean;paused:boolean;resumeRequired:boolean;suppressReview:boolean;generation:number;timer:ReturnType<typeof setTimeout>|null;signal:AbortSignal;abort:()=>void};
 type LoadStage = 'sign-in'|'verify'|'flights'|'save'|'medical'|'done';
-function OwnerFlightLibrary({lease,registry,close,startUpdate,open=true,requestId=0,intent=startUpdate?'update':'options',onStatus,takeInitialRepository,diagnosis,developmentRecoveryCheckpoints}:{developmentRecoveryCheckpoints:boolean;lease:RealOwnerLease;registry:RealOwnerRegistry;close:(result?:FlightLoadResult)=>void;startUpdate:boolean;open?:boolean;requestId?:number;intent?:ConnectionIntent;onStatus?:(status:ProviderStatus)=>void;takeInitialRepository:()=>RealFlightRepositorySession|null;diagnosis:React.MutableRefObject<DiagnosticOperation|null>}) {
+function OwnerFlightLibrary({lease,registry,close,startUpdate,open=true,requestId=0,intent=startUpdate?'update':'options',onStatus,takeInitialRepository,diagnosis,developmentRecoveryCheckpoints,providerEntryAllowed=false,dialogTop}:{developmentRecoveryCheckpoints:boolean;lease:RealOwnerLease;registry:RealOwnerRegistry;close:(result?:FlightLoadResult)=>void;startUpdate:boolean;open?:boolean;requestId?:number;intent?:ConnectionIntent;onStatus?:(status:ProviderStatus)=>void;takeInitialRepository:()=>RealFlightRepositorySession|null;diagnosis:React.MutableRefObject<DiagnosticOperation|null>;providerEntryAllowed?:boolean;dialogTop?:number}) {
   const c=useAccessController(true,lease.ownerId,developmentRecoveryCheckpoints), controller=useRef(c);controller.current=c;
   const alive=useRef(true),foreground=useRef(AppState.currentState==='active'),lock=useRef(false),waiting=useRef<WaitingSource|null>(null);
   const reviewGeneration=useRef(0),directAdmission=useRef<CoreFlightReviewAdmission|null>(null),invalidatedRetrievals=useRef(new Set<string>());
@@ -177,7 +177,7 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,open=true,requestI
     },
     journal:async()=>{const journal=await openRealFlightCommandJournal(scope);if(!journal)throw new Error('Prepared-save journal unavailable.');return journal;},
     retrieve:async(request,signal)=>new Promise((resolve,reject)=>{
-      if(waiting.current||signal.aborted){reject(new Error('Source request unavailable.'));return;}
+      if(!providerEntryAllowed||waiting.current||signal.aborted){reject(new Error('Source request unavailable.'));return;}
       let pending:WaitingSource|null=null;
       const abort=()=>{
         if(!pending)return;pending.suppressReview=true;
@@ -194,7 +194,7 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,open=true,requestI
       wakeSource(value=>value+1);
       if(!automatic.current&&!controller.current.browserActive)controller.current.connect();
     }),
-  }),[lease,scope]);
+  }),[lease,scope,providerEntryAllowed]);
   function abandonSource(reason:string) {
     const verification=jobVerification.current;jobVerification.current=null;verification?.reject(new Error('Verification cancelled.'));
     diagnosis.current?.finish('cancelled','cancelled');
@@ -309,6 +309,7 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,open=true,requestI
     if(c.connection.confirmed)pending.resolve();else pending.reject(new Error('Account proof unavailable.'));
   },[c.connection]);
   function loadFlights() {
+    if(!providerEntryAllowed)return;
     if(lock.current)return;
     if(!foreground.current)return;
     setConnectionOnly(false);automatic.current=true;interruption.current=null;setCompleted(null);setFlightSaved(null);setLoginPaused(false);setLoadStage('verify');setProviderOpen(true);setStep('Anmeldung wird geprüft …');
@@ -354,14 +355,14 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,open=true,requestI
   },[service]);
   useEffect(()=>{
     initialUpdate.current=false;setEntryReady(false);automatic.current=false;setCompleted(null);setFlightSaved(null);setFailed(false);setMessage('');
-    setConnectionOnly(intent==='connect');setProviderOpen(open&&intent!=='options');
+    setConnectionOnly(intent==='connect');setProviderOpen(providerEntryAllowed&&open&&intent!=='options');
     if(!open)return;
     let current=true;
     void run(async()=>{await refresh();if(current)setEntryReady(true);},'library-operation',true);
     return()=>{current=false;};
   },[open,requestId,service]);
   useEffect(()=>{
-    if(!open||!entryReady||initialUpdate.current||busy||!snapshot||!c.viewReady)return;
+    if(!providerEntryAllowed||!open||!entryReady||initialUpdate.current||busy||!snapshot||!c.viewReady)return;
     initialUpdate.current=true;
     if(intent==='connect'){c.beginGuidedFlightConnection();return;}
     if(intent!=='update')return;
@@ -508,13 +509,13 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,open=true,requestI
       {busy&&c.informationBusy?<Action secondary disabled={c.informationSaving} onPress={()=>c.stopInformation()}>Diesen Abruf überspringen</Action>:waiting.current&&<Action secondary disabled={!canCancelCoreFlightSource(c.retrieval.current.state.phase,c.saving,c.restoring.current)} onPress={()=>{interruption.current='cancelled';abandonSource('Cancelled.');c.dismissLogin();}}>Abbrechen</Action>}
     </>}
   </Card>:undefined;
-  return <SafeAreaView style={{flex:1,backgroundColor:colors.background}}>
+  return <SafeAreaView edges={dialogTop===undefined?undefined:[]} style={{flex:1,backgroundColor:colors.background}}>
     <ScrollView style={{display:!open||providerOpen?'none':'flex'}} accessibilityElementsHidden={providerOpen} importantForAccessibility={providerOpen?'no-hide-descendants':'auto'} contentContainerStyle={{padding:12}}><View style={{width:'100%',maxWidth:520,alignSelf:'center',gap:10}}>
       <Section title="Deine Flüge" icon="flight-paper-plane"/>
       <Action secondary disabled={busy||c.busy} onPress={()=>close(completed??undefined)}>Zur App zurück</Action>
       <Card><Label>{flights.length} gespeicherte eigene Flüge</Label><Label muted>{freshness.label}</Label>
         <Label muted>Bei Bedarf meldest du dich auf der Originalseite von Vereinsflieger an. Danach werden deine Flüge und Medical-Angaben automatisch auf diesem Gerät gespeichert und sind offline verfügbar.</Label>
-        {busy ? <View accessibilityLiveRegion="polite"><Label>{step}</Label></View> : <Action disabled={restoreReadOnly||c.recovery||recovery.status==='not-committed'||recovery.status==='recovery-required'} onPress={loadFlights}>{snapshot?.account ? 'Daten aktualisieren' : 'Anmelden & Daten laden'}</Action>}
+        {busy ? <View accessibilityLiveRegion="polite"><Label>{step}</Label></View> : providerEntryAllowed?<Action disabled={restoreReadOnly||c.recovery||recovery.status==='not-committed'||recovery.status==='recovery-required'} onPress={loadFlights}>{snapshot?.account ? 'Daten aktualisieren' : 'Anmelden & Daten laden'}</Action>:<Label muted>Neue Daten und Anmeldung erreichst du über „Daten“ oben in der Kopfzeile.</Label>}
         {waiting.current&&<Action secondary disabled={!canCancelCoreFlightSource(c.retrieval.current.state.phase,c.saving,c.restoring.current)} onPress={()=>{diagnosticJournal.record('action','cancel');abandonSource('Cancelled.');c.dismissLogin();setProviderOpen(false);}}>Abbrechen</Action>}
         {busy&&c.informationBusy&&<Action secondary disabled={c.informationSaving} onPress={()=>c.stopInformation()}>Diesen Abruf überspringen</Action>}
         <Action secondary disabled={busy} onPress={()=>setAdvanced(!advanced)}>{advanced ? 'Details schließen' : 'Details & weitere Optionen'}</Action>
@@ -530,8 +531,8 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,open=true,requestI
       </Card>}</>}
       {(busy||c.busy)&&<ActivityIndicator color={colors.cyan} accessibilityLabel="Flugbibliothek wird verarbeitet"/>}
       {failed&&snapshot===null&&<Card><Section title="Bibliothek nicht lesbar"/><Label>Die gespeicherte Auswahl konnte nicht geprüft werden. Abruf und Sicherung bleiben gesperrt. Du kannst eine geprüfte Sicherungsdatei ausdrücklich auswählen, um die Wiederherstellung zu versuchen; vorhandene Dateien bleiben erhalten.</Label></Card>}
-      {c.recovery&&<Card><Section title="Anbieteransicht prüfen"/><Label>Ein früherer Abruf hat eine Wiederherstellung offen gelassen. Bitte prüfe die Anbieteransicht, bevor weitere Flüge geladen werden.</Label><Action secondary disabled={busy} onPress={()=>{automatic.current=false;setProviderOpen(true);}}>Anbieteransicht prüfen</Action></Card>}
-      {failed&&c.connection.phase==='mismatch'&&<Action secondary disabled={busy} onPress={()=>{automatic.current=false;setProviderOpen(true);c.connect();}}>Mit bisherigem Konto anmelden</Action>}
+      {c.recovery&&<Card><Section title="Anbieteransicht prüfen"/><Label>Ein früherer Abruf hat eine Wiederherstellung offen gelassen. Öffne „Daten“ in der Kopfzeile, bevor weitere Flüge geladen werden.</Label>{providerEntryAllowed&&<Action secondary disabled={busy} onPress={()=>{automatic.current=false;setProviderOpen(true);}}>Anbieteransicht prüfen</Action>}</Card>}
+      {providerEntryAllowed&&failed&&c.connection.phase==='mismatch'&&<Action secondary disabled={busy} onPress={()=>{automatic.current=false;setProviderOpen(true);c.connect();}}>Mit bisherigem Konto anmelden</Action>}
       {snapshot?.recovery.readOnly&&<Card><Section title="Bibliothek nur lesbar"/><Label>Eine neuere oder abweichende gespeicherte Datei muss geprüft werden. Frühere Flüge bleiben lesbar; spätere Aufträge und Dateien werden erhalten. Neue Speicherung und Sicherung sind gesperrt.</Label></Card>}
       {(unresolvedRestores.length>0||restoreReadWarning!==null)&&<Card><Section title="Vorbereitete Wiederherstellung"/>
         {restoreReadWarning&&<Label>{restoreReadWarning}</Label>}
@@ -549,7 +550,7 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,open=true,requestI
         <Action disabled={busy} onPress={()=>void run(async()=>{setRecovery(await service.recoverPending());await refresh();})}>Auftragsbeleg erneut prüfen</Action>
         {recovery.status==='not-committed'&&<Action disabled={busy} onPress={()=>void run(async()=>{await service.retryPending();await refresh();setMessage('Ursprünglicher Auftrag gespeichert.');})}>Ursprünglichen Auftrag erneut versuchen</Action>}
       </Card>}
-      {advanced&&<><Card><Section title="Eigene Flüge abrufen" icon="refresh"/><Label muted>Aktualisierung: {retrievalPlan.request.from} bis {retrievalPlan.request.to} einschließlich. Anmeldung und Quellenprüfung erfolgen auf der Originalseite.</Label>
+      {providerEntryAllowed&&advanced&&<><Card><Section title="Eigene Flüge abrufen" icon="refresh"/><Label muted>Aktualisierung: {retrievalPlan.request.from} bis {retrievalPlan.request.to} einschließlich. Anmeldung und Quellenprüfung erfolgen auf der Originalseite.</Label>
         <Label muted>{retrievalPlan.firstRetrieval?'Beim ersten Abruf werden das Vorjahr und das laufende Jahr bis heute geladen.':'Die letzten sechs Monate werden erneut geprüft. Nach längerer Pause und bei bekannten Lücken wird der Zeitraum erweitert.'} Ältere Korrekturen können unentdeckt bleiben. Dafür einen eigenen Zeitraum wählen; gespeicherte ältere Flüge bleiben erhalten.</Label>
         <Action disabled={busy||restoreReadOnly||recovery.status==='not-committed'||recovery.status==='recovery-required'} onPress={()=>void run(async()=>{setReview(await prepareSourceReview(await service.retrieveUpdate()));})}>Daten aktualisieren</Action>
         <Action secondary disabled={busy||restoreReadOnly} onPress={()=>{automatic.current=false;c.setFrom(retrievalPlan.request.from);c.setTo(retrievalPlan.request.to);setProviderOpen(true);if(!c.browserActive)c.connect();}}>Anbieter und eigenen Zeitraum öffnen</Action>
@@ -584,7 +585,7 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,open=true,requestI
     </View></ScrollView>
     {/* Android's credential dialogs pause the app. Keep their original login target visible;
         foreground guards still suspend verification, retrieval and writes until return. */}
-    <ProviderConnection developmentRecoveryCheckpoints={developmentRecoveryCheckpoints} controller={c} open={open&&providerOpen} development={intent==='development'} guided={automatic.current||connectionOnly} title={connectionOnly?'Vereinsflieger':undefined} progress={progress??connectionProgress} closeDisabled={automatic.current&&busy&&(loadStage==='save'||c.saving||c.restoring.current||c.informationSaving)} purpose="own-flight-library" close={()=>{
+    <ProviderConnection dialogTop={dialogTop} developmentRecoveryCheckpoints={developmentRecoveryCheckpoints} controller={c} open={providerEntryAllowed&&open&&providerOpen} development={intent==='development'} guided={automatic.current||connectionOnly} title={connectionOnly?'Vereinsflieger':undefined} progress={progress??connectionProgress} closeDisabled={automatic.current&&busy&&(loadStage==='save'||c.saving||c.restoring.current||c.informationSaving)} purpose="own-flight-library" close={()=>{
       if(automatic.current){
         if(waiting.current){interruption.current='cancelled';abandonSource('Source closed.');c.dismissLogin();return;}
         if(busy){if(jobVerification.current){const pending=jobVerification.current;jobVerification.current=null;pending.reject(new Error('Verification cancelled.'));c.dismissLogin();}else if(c.informationBusy)c.stopInformation();return;}

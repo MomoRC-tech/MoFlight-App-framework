@@ -35,7 +35,8 @@ Keep German labels beside important navigation/status symbols. Show saved facts 
 7. Manuel’s **22 October Start feedback (#54)** supersedes two simultaneous monthly plots and all season/month/latest-flight detail entry points with one chart, Flüge/Flugstunden measure chips and two read-only recent-flight boxes. Local preparation has visible busy feedback; details belong in the Flüge tab.
 8. Manuel's **22 October implement instruction** selects the alternative Start layout under [#20](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/20#issuecomment-6340199647): count/known-time KPIs replace rings, compact aircraft/recent-flight rows, a general Alle anzeigen route to Flüge, responsive month chart/lower legend and a 40 dp header logo. This supersedes those scoped ring/layout values; status meanings and five tabs remain.
 9. Manuel's **22 October data-update header instruction (#22)** supersedes the ordinary header connection/session symbol with an explicit data-fetch action and durable received-age display: green under one hour, amber for older data, neutral when unknown; login opens only when an update needs it. Provider-panel verification remains separate.
-10. This handbook consolidates those decisions. Earlier prototype choices apply only where explicitly carried forward. Code values record implementation and cannot approve an unresolved visual difference.
+10. Manuel's **22 October popup/header-only instruction (#22)** places the complete update journey, including original login when required, in a bounded rounded navy frame over a dimmed inert page. Only the header data button opens provider update/login; other pages give passive header guidance and retain offline administration. The retained browser parent and credential-activity behavior remain protected.
+11. This handbook consolidates those decisions. Earlier prototype choices apply only where explicitly carried forward. Code values record implementation and cannot approve an unresolved visual difference.
 
 Manuel owns design decisions. Priorities, journeys and account/book behavior remain in the [project plan](../../project-plan.md), [journey map](../2026-10-13-journey-information-map.md) and feature contracts. Link those contracts rather than duplicating them here.
 
@@ -189,7 +190,7 @@ The 22 October header data-update amendment reuses `#74dfba` for saved data rece
 | C05 | Shared header | Fixed photo/shade, logo 40, title 18/24, controls 48; content minimum height 64 and padding 10/5 | Header can grow; minimum is not universal actual height. AppHeader. |
 | C06 | Header data/status group | Data-update age control, growing Med, profile soft tile; gap 4 | Refresh action shows saved received-age; provider session status stays in its panel. Back replaces logo on app overlays. AppHeader / DataUpdateIndicator / MedicalStatus / ShellIcons. |
 | C07 | Bottom navigation | Attached dark bar, five equal destinations, minimum target height 60; three-column wrapping below 600 dp with font scale above 1.3 | Icon above full system-scaled German label; final two wrapping items center. Standard text/width retains one row; cyan selected state. MobileApp. |
-| C08 | Overlay / provider panel | Current dark full app overlay with one active header; provider has its own toolbar/history | Different from pale v0.30 prototype sheets. MobileApp / ProviderConnection. |
+| C08 | Update popup / app overlays | Bounded centered navy update frame, radius22, border1, dim scrim; one active dialog, retained native child tree | UpdateDialog frames setup/login/progress/results; underlying page is visible but inert. Other app sheets keep their existing layout. ProviderConnection retains its toolbar/history inside the popup. |
 | C09 | Flight row | Padding 7, radius 13; date, aircraft, route/reported duration and detail chevron | Whole row opens selected-account saved source facts. Source reference/revision/original fields and absent-track context stay in details. Original fields use eight-field pages with concise Zurück / Weiter captions and full provider-field accessibility labels; first/last guards and contextual list return remain. [OwnFlights](../../../apps/platform-lab/src/mobile/OwnFlights.tsx); no inferred role or book assignment. |
 | C10 | AI question / composer | Question radius 12; composer radius 20; send face 42 × 42; input max height 150 | Local questions calculate deterministically; free-text service unavailable. MobileApp. |
 | C11 | Quiet paper entry | Minimum-height 48 row with paper-tone logbook symbol and detail chevron | Associated-account Start offers Papierflugbuch später einrichten and opens the deferred-setup explanation. The former photographic hero remains in the original reference. Synthetic saved paper status stays under Development; viewing never confirms copying. Dashboard / PaperStatus. |
@@ -198,7 +199,7 @@ The 22 October header data-update amendment reuses `#74dfba` for saved data rece
 | C14 | Synthetic import review | Shared C01/C02/C03 cards/actions/choice chips, centered group capped at 520 dp | Development-only comparison, source variants and explicit book choice; [ImportPreview](../../../apps/platform-lab/src/mobile/ImportPreview.tsx). No saved-library import. |
 | C15 | Captured flight review | Shared cards/actions in the connection panel's centered 520 dp group; five records per page, eight original fields per detail page | [CapturedFlights](../../../apps/platform-lab/src/mobile/CapturedFlights.tsx) reads owner-scoped saved evidence without requiring provider login. Dates/clocks, reported duration, aircraft and separate crew fields retain unknown/invalid/conflict states; original field text is selectable and untruncated. No book membership or canonical import. |
 | C16 | Information source review | Shared C01/C02 controls in the connection panel's centered 520 dp group; five raw rows per page, one immutable snapshot at a time | [InformationReview](../../../apps/platform-lab/src/mobile/InformationReview.tsx) shows retrieval time and recorded coverage, with older/newer controls available offline. Category counts use the latest snapshot. Blank extracted text stays unknown; known date-only document snapshots are marked incomplete. No canonical history or cross-snapshot aggregation. |
-| C17 | Own-flight loading | Shared C01/C02 controls, centered 520 dp groups; ordinary progress and secondary details | [CoreFlightFoundation](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx) coordinates one explicit action through internal fresh storage, original-provider authentication, verified retrieval and local save. A verified retained session avoids login; valid rows need no routine review/save tap. Source/account/recovery checks remain; unresolved recovery is visible outside the details disclosure. Custom period, raw review and real-history backup remain under Details & weitere Optionen. The header data-update entry runs the combined update in the shared selected-owner panel, with login only when needed and contextual return. Profile retains the explicit connect-only entry. The same native browser remains mounted above tab navigation after closing; advanced library options are secondary. Original-login exposure comes from the explicit connection flow, without an outer login-enabled override. On Android, the measured keyboard frame caps progress and reserves the same retained browser viewport above the IME. The combined flow retains one progress card through original-provider sign-in, verification, flights/save and Medical; success/partial failure stays visible until acknowledgement, which returns to ordinary Flüge with the result. Opening options alone creates/retrieves nothing. |
+| C17 | Own-flight loading | Shared C01/C02 controls, centered 520 dp groups; ordinary progress and secondary details | [CoreFlightFoundation](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx) coordinates one explicit action through internal fresh storage, original-provider authentication, verified retrieval and local save. A verified retained session avoids login; valid rows need no routine review/save tap. Source/account/recovery checks remain; unresolved recovery is visible outside the details disclosure. Custom period, raw review and real-history backup remain under Details & weitere Optionen. The header data-update entry runs the combined update in the shared selected-owner panel, with login only when needed and contextual return. Only the header admits provider work. Start/Flüge/Profile/status/Development retain passive guidance; non-header backup/library routes cannot open login. The same native browser remains mounted above tab navigation after closing; advanced library options are secondary. Original-login exposure comes from the explicit connection flow, without an outer login-enabled override. On Android, the measured keyboard frame caps progress and reserves the same retained browser viewport above the IME. The combined flow retains one progress card through original-provider sign-in, verification, flights/save and Medical; success/partial failure stays visible until acknowledgement, which returns to ordinary Flüge with the result. Opening options alone creates/retrieves nothing. |
 | C18 | Connection/data summary | Compact conditional Start row capped at 430 dp; Profile retains administration | [ConnectionSummary](../../../apps/platform-lab/src/mobile/ConnectionSummary.tsx) uses successful saved-retrieval time, with a reminder only after more than 72 hours or a positively identified change. Ordinary reminders can be hidden for 24 hours in the exact account/store scope. First-use/load failure/recovery remain actionable. Explicit update coordinates flights, Medical and separate duty capture; failures do not undo flight saves. Startup latest-flight observation is unavailable; no automatic provider request is enabled. |
 | C19 | Support diagnostics | Shared C01/C02 cards/actions and selectable report text in a centered 520 dp group | [Diagnostics](../../../apps/platform-lab/src/mobile/Diagnostics.tsx) via Settings; paged technical/action histories and protected failures; observed navigation transitions without inferred intent. Explicit full JSON-file sharing, bounded short text copying and diagnostic-only clearing; 1 MB total managed storage cap. No automatic transmission. |
 
@@ -250,6 +251,10 @@ The two recent read-only flights use radius 14 raised rows: date/start and durat
 ### Header data update — selected 22 October 2026
 
 The ordinary header uses [DataUpdateIndicator](../../../apps/platform-lab/src/mobile/DataUpdateIndicator.tsx): existing Modern Duotone refresh artwork, visible “Daten” and compact relative age, minimum74×48dp target. The frame and text are green (`#74dfba`) for a durably saved successful flight retrieval less than one hour old, amber (`#ffc477`) from one hour onward, neutral for no valid saved timestamp. Exact time and the update/login-if-needed purpose are in the accessible label/hint; the update panel retains exact saved-time wording. Color is accompanied by age text. Failure/cancellation/login checks cannot advance this timestamp. The selected owner/account library supplies it after restart; the local clock updates the age and crosses the hour boundary without provider requests. A successful empty/no-change retrieval counts. Medical/duty outcomes retain their separate category times; this control does not claim all source categories are current. The three-day Start reminder is unchanged. This supersedes the shell's former connection/session badge; the provider panel still uses its separate connection indicator and proof safeguards.
+
+### Header-only update popup — 22 October 2026
+
+[UpdateDialog](../../../apps/platform-lab/src/mobile/UpdateDialog.tsx) supplies a centered max720×900dp frame,12dp outer margin below600dp and24dp at wider widths, safe-area bounds,22dp corners, slate border and deep navy scrim/surface. The original login website remains an external white surface inside this frame. Setup, progress, error/retry and completion stay in the same frame; closed visibility never replaces its native child parent. The background route stays visible but cannot receive pointer/accessibility interaction. Outside taps do not bypass cancellation/write safeguards. The inner provider panel uses zero additional safe-area padding and its frame's actual window offset when reserving space above Android IME; a system-resized frame is not shrunk twice. Only the header data action opens provider work; all other data summaries are read-only and point to it. Local reload and offline backup/restore remain available.
 
 # Layout and presentation patterns
 
@@ -303,7 +308,7 @@ Keep header/navigation outside the scrolling canvas. Header order is logo/title,
 
 App overlays/details replace logo with contextual Back and expose one active accessible header. Return through nested overlays to prior page/filter/scroll state and unsaved local profile-name draft. Identical library reloads preserve the return path; changed book/flight facts invalidate stale details. An active backup/proof operation disables app Back, Profile and Medical until completion; provider Close/history remain separate. Medical opens a read-only unknown-record explanation.
 
-The header data shortcut starts the ordinary combined update, showing original login only when required. Profile retains connection administration; legacy provider/information diagnostics remain under Development. Provider Close, connection status and origin belong to its app-owned toolbar. Provider-history Back affects the original embedded webpage; Close returns to MoFlight without promising logout. Preserve retained browser parent, busy/recovery guards and provenance. OS-owned full-screen surfaces keep their own controls. The [earlier header decisions](../2026-10-18-header-status-review.md#package-1b-decision-checkpoint) retain their scope except for the 22 October data-update amendment below.
+The header data shortcut starts the ordinary combined update, showing original login only when required. Profile retains read-only data information and offline backup; legacy provider/information diagnostics remain under Development. Provider Close, connection status and origin belong to its app-owned toolbar. Provider-history Back affects the original embedded webpage; Close returns to MoFlight without promising logout. Preserve retained browser parent, busy/recovery guards and provenance. OS-owned full-screen surfaces keep their own controls. The [earlier header decisions](../2026-10-18-header-status-review.md#package-1b-decision-checkpoint) retain their scope except for the 22 October data-update amendment below.
 
 Bottom navigation has five equal icon/label destinations and semantic selected state. At widths below 600 dp with font scale above 1.3, reflow to three columns with the final two items centered so full labels retain system scaling; ordinary text/width keeps one row. Current code hides it with the AI keyboard and app/provider overlays. Do not reintroduce an old floating dock or add a destination through documentation cleanup. The generic Entwicklungsversion footer does not classify real saved flights as synthetic data.
 
@@ -340,11 +345,15 @@ Follow the [verification workflow](../../development/verification-workflow.md): 
 
 Header order is data update → Medical → Profile. The update button starts the existing explicit combined fetch, showing original login only if required. Use a refresh symbol, “Daten” and received-age wording; green under one hour, amber for older, neutral when unknown. Its durable successful flight-update timestamp survives background/restart and remains unchanged on failed/cancelled updates. The provider panel's account-verification indicator remains a separate internal status. This amendment replaces only the former connection meaning/action in the ordinary shell; contextual return, selected-owner isolation and the separate three-day reminder remain.
 
+### One update/login entry — 22 October popup amendment
+
+Use only the header “Daten” button for new provider data and login. Start reminders, empty Flüge, Profile, status and Development explain this entry without duplicating it. Keep local reload, filters, diagnostics and offline backup independent. The whole update journey appears in a persistent framed popup over the dimmed inert invoking page; do not switch to a full provider screen or remount/move the WebView during Android credential activities. All retry, recovery, source-specific optional jobs and result acknowledgement stay inside that frame. Close and hardware Back preserve existing cancellation/save guards and contextual return.
+
 # Platform-lab UI implementation inventory
 
 [Handbook entry point](README.md). Generated by `python scripts/design_handbook.py`; do not hand-edit.
 
-Scope: 56 product mobile TypeScript/model and app-owned TSX UI/adapter files; 63 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.
+Scope: 57 product mobile TypeScript/model and app-owned TSX UI/adapter files; 66 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.
 
 ## App.tsx
 
@@ -511,7 +520,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/connection-guidan
 
 ## ConnectionSummary.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ConnectionSummary.tsx](../../../apps/platform-lab/src/mobile/ConnectionSummary.tsx); normalized SHA-256 `5a9470f5876e11c6fb734736c03c05e6b569d30f26bcb2fd79691849b970e3d5`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ConnectionSummary.tsx](../../../apps/platform-lab/src/mobile/ConnectionSummary.tsx); normalized SHA-256 `4a35152e7523f3c1a3dcd90dcdae886cbce4d0a47f9721c4e2ffd3aadef29487`.
 
 ### Geometry / opacity declarations
 
@@ -522,17 +531,17 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ConnectionSummary
 
 ## CoreFlightFoundation.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `b008bc80f72d480fa8fa502860f26246185feaa4f74ea3b046f7990f0defec02`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `3e08456e0afd120cf3f2009cfc8025d705eb2067ce9fb179717f87ab5d150580`.
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `gap: 10` | 124, 125, 512 |
-| `gap: 8` | 538, 564, 574 |
-| `maxWidth: 520` | 125, 512 |
-| `padding: 12` | 124, 512 |
-| `width: '100%'` | 125, 512 |
+| `gap: 10` | 124, 125, 513 |
+| `gap: 8` | 539, 565, 575 |
+| `maxWidth: 520` | 125, 513 |
+| `padding: 12` | 124, 513 |
+| `width: '100%'` | 125, 513 |
 
 ## Dashboard.tsx
 
@@ -611,7 +620,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DataUpdateIndicat
 
 ## DevelopmentHub.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DevelopmentHub.tsx](../../../apps/platform-lab/src/mobile/DevelopmentHub.tsx); normalized SHA-256 `0d37b4c47999c2b7f8c69f96510d0f07c2cbc393cbb1fcd61d2c4e638a239167`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DevelopmentHub.tsx](../../../apps/platform-lab/src/mobile/DevelopmentHub.tsx); normalized SHA-256 `8df8abef0d007f5d2a4a8ac0599c5dff937b80c7aadd9c58684d9012e0fd3ef5`.
 
 ### Geometry / opacity declarations
 
@@ -619,9 +628,9 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DevelopmentHub.ts
 | --- | --- |
 | `gap: 10` | 6 |
 | `maxWidth: 520` | 6 |
-| `maxWidth: 720` | 37 |
-| `padding: 10` | 37 |
-| `width: '100%'` | 6, 37 |
+| `maxWidth: 720` | 36 |
+| `padding: 10` | 36 |
+| `width: '100%'` | 6, 36 |
 
 ## Diagnostics.tsx
 
@@ -728,154 +737,154 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MedicalStatus.tsx
 
 ## MobileApp.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `50f02920007f0b79b77474f9dd456d6e80b067610eb9df7dd11844667c3163cb`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `c7eae2d80a151ca77f40c5ffc751a4950c0c7fe92648e857966bc2ea1a67ed2c`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#00c8ff` | 237, 279 |
-| `#020e17` | 279 |
-| `#064240` | 274 |
-| `#10233d` | 276 |
-| `#10263e` | 278 |
-| `#10282d` | 274 |
-| `#102d47aa` | 269 |
-| `#11263a` | 273 |
-| `#152d42` | 275 |
-| `#1b344a` | 278 |
-| `#1c3449` | 279 |
-| `#227f87` | 274 |
-| `#354d74` | 276 |
-| `#3a5a8b` | 278 |
-| `#78efdc` | 276 |
-| `#8ba4bc` | 236, 271 |
+| `#00c8ff` | 235, 277 |
+| `#020e17` | 277 |
+| `#064240` | 272 |
+| `#10233d` | 274 |
+| `#10263e` | 276 |
+| `#10282d` | 272 |
+| `#102d47aa` | 267 |
+| `#11263a` | 271 |
+| `#152d42` | 273 |
+| `#1b344a` | 276 |
+| `#1c3449` | 277 |
+| `#227f87` | 272 |
+| `#354d74` | 274 |
+| `#3a5a8b` | 276 |
+| `#78efdc` | 274 |
+| `#8ba4bc` | 234, 269 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 10` | 225, 236, 271 |
-| `fontSize: 11` | 230, 272, 279 |
-| `fontSize: 12` | 274 |
-| `fontSize: 13` | 226, 273, 278 |
-| `fontSize: 20` | 272 |
-| `fontSize: 23` | 277 |
-| `fontSize: 25` | 279 |
-| `fontWeight: '600'` | 272, 274 |
-| `letterSpacing: .6` | 271 |
-| `lineHeight: 16` | 236, 271, 272, 279 |
-| `lineHeight: 17` | 274 |
-| `lineHeight: 25` | 272 |
-| `lineHeight: 29` | 279 |
+| `fontSize: 10` | 223, 234, 269 |
+| `fontSize: 11` | 228, 270, 277 |
+| `fontSize: 12` | 272 |
+| `fontSize: 13` | 224, 271, 276 |
+| `fontSize: 20` | 270 |
+| `fontSize: 23` | 275 |
+| `fontSize: 25` | 277 |
+| `fontWeight: '600'` | 270, 272 |
+| `letterSpacing: .6` | 269 |
+| `lineHeight: 16` | 234, 269, 270, 277 |
+| `lineHeight: 17` | 272 |
+| `lineHeight: 25` | 270 |
+| `lineHeight: 29` | 277 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 274, 277 |
-| `borderRadius: 13` | 274 |
-| `borderRadius: 14` | 269 |
-| `borderRadius: 15` | 276 |
-| `borderRadius: 17` | 275 |
-| `borderRadius: 2` | 279 |
-| `borderRadius: 20` | 278 |
-| `borderRadius: 21` | 278 |
-| `borderRadius: 22` | 273 |
-| `borderRadius: 24` | 273 |
-| `borderRadius: 9` | 274 |
-| `borderWidth: 1` | 273, 274, 277, 278 |
-| `gap: 1` | 272, 279 |
-| `gap: 10` | 188, 205, 276 |
-| `gap: 3` | 271, 274 |
-| `gap: 5` | 273 |
-| `gap: 6` | 277, 278 |
-| `gap: 7` | 273, 276 |
-| `gap: 8` | 251, 253, 268, 275, 278 |
-| `height: 2` | 279 |
-| `height: 30` | 276 |
-| `height: 42` | 278 |
-| `height: 48` | 269 |
-| `maxHeight: 150` | 278 |
-| `maxWidth: 430` | 113, 276 |
-| `maxWidth: 480` | 205 |
-| `maxWidth: 520` | 251, 253 |
-| `maxWidth: 599` | 267, 279 |
-| `maxWidth: 600` | 183, 237 |
-| `maxWidth: 720` | 223 |
-| `maxWidth: 960` | 183, 237 |
-| `minHeight: 126` | 276 |
-| `minHeight: 34` | 275 |
-| `minHeight: 36` | 270 |
-| `minHeight: 40` | 273, 278 |
-| `minHeight: 48` | 273, 275 |
-| `minHeight: 60` | 279 |
-| `minHeight: 64` | 274 |
-| `minHeight: 66` | 274 |
-| `minHeight: 70` | 277 |
-| `minWidth: 0` | 272, 273 |
-| `opacity: .45` | 228 |
-| `padding: 0` | 275 |
-| `padding: 10` | 268, 277 |
-| `padding: 4` | 271, 278 |
-| `padding: 7` | 274 |
-| `paddingHorizontal: 12` | 273 |
-| `paddingHorizontal: 16` | 275 |
-| `paddingHorizontal: 6` | 274 |
-| `paddingHorizontal: 7` | 274 |
-| `paddingHorizontal: 8` | 278 |
-| `paddingVertical: 10` | 274 |
-| `paddingVertical: 4` | 273, 279 |
-| `width: '100%'` | 113, 188, 189, 190, 205, 216, 236, 251, 253, 267, 275, 276, 279 |
-| `width: '33.333333%'` | 279 |
-| `width: '49.2%'` | 275 |
-| `width: 24` | 279 |
-| `width: 30` | 276 |
-| `width: 42` | 273, 278 |
-| `width: 48` | 269 |
-| `width: 64` | 274 |
+| `borderRadius: 12` | 272, 275 |
+| `borderRadius: 13` | 272 |
+| `borderRadius: 14` | 267 |
+| `borderRadius: 15` | 274 |
+| `borderRadius: 17` | 273 |
+| `borderRadius: 2` | 277 |
+| `borderRadius: 20` | 276 |
+| `borderRadius: 21` | 276 |
+| `borderRadius: 22` | 271 |
+| `borderRadius: 24` | 271 |
+| `borderRadius: 9` | 272 |
+| `borderWidth: 1` | 271, 272, 275, 276 |
+| `gap: 1` | 270, 277 |
+| `gap: 10` | 186, 203, 274 |
+| `gap: 3` | 269, 272 |
+| `gap: 5` | 271 |
+| `gap: 6` | 275, 276 |
+| `gap: 7` | 271, 274 |
+| `gap: 8` | 249, 251, 266, 273, 276 |
+| `height: 2` | 277 |
+| `height: 30` | 274 |
+| `height: 42` | 276 |
+| `height: 48` | 267 |
+| `maxHeight: 150` | 276 |
+| `maxWidth: 430` | 112, 274 |
+| `maxWidth: 480` | 203 |
+| `maxWidth: 520` | 249, 251 |
+| `maxWidth: 599` | 265, 277 |
+| `maxWidth: 600` | 181, 235 |
+| `maxWidth: 720` | 221 |
+| `maxWidth: 960` | 181, 235 |
+| `minHeight: 126` | 274 |
+| `minHeight: 34` | 273 |
+| `minHeight: 36` | 268 |
+| `minHeight: 40` | 271, 276 |
+| `minHeight: 48` | 271, 273 |
+| `minHeight: 60` | 277 |
+| `minHeight: 64` | 272 |
+| `minHeight: 66` | 272 |
+| `minHeight: 70` | 275 |
+| `minWidth: 0` | 270, 271 |
+| `opacity: .45` | 226 |
+| `padding: 0` | 273 |
+| `padding: 10` | 266, 275 |
+| `padding: 4` | 269, 276 |
+| `padding: 7` | 272 |
+| `paddingHorizontal: 12` | 271 |
+| `paddingHorizontal: 16` | 273 |
+| `paddingHorizontal: 6` | 272 |
+| `paddingHorizontal: 7` | 272 |
+| `paddingHorizontal: 8` | 276 |
+| `paddingVertical: 10` | 272 |
+| `paddingVertical: 4` | 271, 277 |
+| `width: '100%'` | 112, 186, 187, 188, 203, 214, 234, 249, 251, 265, 273, 274, 277 |
+| `width: '33.333333%'` | 277 |
+| `width: '49.2%'` | 273 |
+| `width: 24` | 277 |
+| `width: 30` | 274 |
+| `width: 42` | 271, 276 |
+| `width: 48` | 267 |
+| `width: 64` | 272 |
 
 ## OwnFlights.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OwnFlights.tsx](../../../apps/platform-lab/src/mobile/OwnFlights.tsx); normalized SHA-256 `d6b0a858bf90d6adce4a9638abfc6da6575c180904b3667ef02df93d3b5635aa`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OwnFlights.tsx](../../../apps/platform-lab/src/mobile/OwnFlights.tsx); normalized SHA-256 `c2dc0e3312be34cb43017084a39aad7814ea11293771dd7ff8d693ea7ceee458`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#11263a` | 135 |
+| `#11263a` | 134 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 13` | 136 |
-| `fontWeight: '600'` | 85 |
+| `fontSize: 13` | 135 |
+| `fontWeight: '600'` | 84 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 13` | 134 |
-| `borderRadius: 22` | 135 |
-| `borderRadius: 24` | 136 |
-| `borderWidth: 1` | 135 |
-| `gap: 2` | 123 |
-| `gap: 3` | 134 |
-| `gap: 5` | 56 |
-| `gap: 7` | 135 |
-| `gap: 8` | 81, 133 |
-| `height: 7` | 93 |
-| `maxWidth: '50%'` | 84 |
-| `maxWidth: 520` | 133 |
-| `minHeight: 48` | 136 |
-| `minWidth: 0` | 135 |
-| `padding: 10` | 133 |
-| `padding: 7` | 134 |
-| `paddingHorizontal: 12` | 135 |
-| `paddingVertical: 4` | 136 |
-| `width: '100%'` | 133 |
-| `width: 48` | 136 |
+| `borderRadius: 13` | 133 |
+| `borderRadius: 22` | 134 |
+| `borderRadius: 24` | 135 |
+| `borderWidth: 1` | 134 |
+| `gap: 2` | 122 |
+| `gap: 3` | 133 |
+| `gap: 5` | 55 |
+| `gap: 7` | 134 |
+| `gap: 8` | 80, 132 |
+| `height: 7` | 92 |
+| `maxWidth: '50%'` | 83 |
+| `maxWidth: 520` | 132 |
+| `minHeight: 48` | 135 |
+| `minWidth: 0` | 134 |
+| `padding: 10` | 132 |
+| `padding: 7` | 133 |
+| `paddingHorizontal: 12` | 134 |
+| `paddingVertical: 4` | 135 |
+| `width: '100%'` | 132 |
+| `width: 48` | 135 |
 
 ## PaperStatus.tsx
 
@@ -891,7 +900,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/PaperStatus.tsx](
 
 ## ProfileSettings.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProfileSettings.tsx](../../../apps/platform-lab/src/mobile/ProfileSettings.tsx); normalized SHA-256 `290202c399401edf906c8ee5d699397329be91ca6d0d4e33aa7492057045803b`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProfileSettings.tsx](../../../apps/platform-lab/src/mobile/ProfileSettings.tsx); normalized SHA-256 `a3fc874aaa3275cea16b81ce64e479629932c8e9ac9ec47390097f3538a2c86f`.
 
 ### Literal colors
 
@@ -923,22 +932,22 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProfileSettings.t
 
 ## ProviderConnection.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProviderConnection.tsx](../../../apps/platform-lab/src/mobile/ProviderConnection.tsx); normalized SHA-256 `d24b1ecb4bf9b768dbc63b5ae24e2dba6baadd0e6b7294e91a905f1b64b67195`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProviderConnection.tsx](../../../apps/platform-lab/src/mobile/ProviderConnection.tsx); normalized SHA-256 `caaf08ebfc695a18f5b84e1a37982c2012e1543fe197ceabfa5703c067e115fb`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#102d47aa` | 205 |
+| `#102d47aa` | 208 |
 | `#ffb39e` | 29 |
-| `white` | 208 |
+| `white` | 211 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
 | `fontSize: 12` | 29 |
-| `fontWeight: '600'` | 73, 92, 108 |
+| `fontWeight: '600'` | 76, 95, 111 |
 | `fontWeight: '700'` | 29 |
 | `lineHeight: 15` | 29 |
 
@@ -946,32 +955,32 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProviderConnectio
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 10` | 215 |
-| `borderRadius: 14` | 205 |
-| `borderRadius: 7` | 207 |
-| `borderRadius: 8` | 206 |
-| `borderWidth: 1` | 215 |
-| `borderWidth: 2` | 207 |
-| `gap: 10` | 214 |
-| `gap: 12` | 210 |
-| `gap: 4` | 76, 78 |
-| `gap: 6` | 85, 95, 211 |
-| `height: 12` | 207 |
-| `height: 16` | 206 |
-| `height: 48` | 205 |
-| `maxWidth: 520` | 214 |
-| `maxWidth: 800` | 208 |
-| `minHeight: 48` | 213, 215 |
-| `minHeight: 68` | 210 |
-| `minWidth: 16` | 206 |
-| `opacity: 0` | 209 |
-| `padding: 10` | 210, 211, 214, 215 |
-| `paddingHorizontal: 12` | 76 |
-| `paddingHorizontal: 8` | 213 |
-| `paddingVertical: 10` | 213 |
-| `width: '100%'` | 208, 214 |
-| `width: 18` | 207 |
-| `width: 48` | 205 |
+| `borderRadius: 10` | 218 |
+| `borderRadius: 14` | 208 |
+| `borderRadius: 7` | 210 |
+| `borderRadius: 8` | 209 |
+| `borderWidth: 1` | 218 |
+| `borderWidth: 2` | 210 |
+| `gap: 10` | 217 |
+| `gap: 12` | 213 |
+| `gap: 4` | 79, 81 |
+| `gap: 6` | 88, 98, 214 |
+| `height: 12` | 210 |
+| `height: 16` | 209 |
+| `height: 48` | 208 |
+| `maxWidth: 520` | 217 |
+| `maxWidth: 800` | 211 |
+| `minHeight: 48` | 216, 218 |
+| `minHeight: 68` | 213 |
+| `minWidth: 16` | 209 |
+| `opacity: 0` | 212 |
+| `padding: 10` | 213, 214, 217, 218 |
+| `paddingHorizontal: 12` | 79 |
+| `paddingHorizontal: 8` | 216 |
+| `paddingVertical: 10` | 216 |
+| `width: '100%'` | 211, 217 |
+| `width: 18` | 210 |
+| `width: 48` | 208 |
 
 ## RawCaptureReview.tsx
 
@@ -1162,6 +1171,26 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/theme.tsx](../../
 | `paddingVertical: 8` | 50 |
 | `width: '100%'` | 33 |
 | `width: '40%'` | 33 |
+
+## UpdateDialog.tsx
+
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/UpdateDialog.tsx](../../../apps/platform-lab/src/mobile/UpdateDialog.tsx); normalized SHA-256 `bbb91b74a6b11df0ad067bc927193d4b77999ab261cbaf4345114bb799dc50b5`.
+
+### Literal colors
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `#000000` | 29 |
+| `#000712bd` | 27 |
+| `#426783` | 28 |
+
+### Geometry / opacity declarations
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `borderRadius: 22` | 28 |
+| `borderWidth: 1` | 28 |
+| `shadowOpacity: .5` | 29 |
 
 ## AccessProbe.tsx
 
@@ -1453,7 +1482,7 @@ Update Vereinsflieger data
 Appearance: Selected Modern Duotone refresh symbol with Daten and relative received age; green frame/text under one hour, amber from one hour, neutral when unknown.
 Where: Ordinary app header; separate from provider-panel session indicators.
 Meaning: Age of the selected owner/account library’s last durably saved successful flight-data retrieval. No live-login or all-category freshness promise.
-Function / action: Tap explicitly fetches new Vereinsflieger data through the shared update flow; original login appears only if needed. Contextual return is preserved.
+Function / action: The header is the only entry to provider update/login. Tap opens the whole update journey in a retained centered popup frame; original login appears only if needed. Other pages provide passive guidance. Contextual return is preserved.
 States / limits: Green <1 hour; amber >=1 hour; neutral missing/invalid/future timestamp. Visible relative age and accessible exact time. Failed updates and session checks do not renew it.
 Source: apps/platform-lab/src/mobile/DataUpdateIndicator.tsx
 DataUpdateIndicator; dataUpdateStatus; glyphs.svg #refresh

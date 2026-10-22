@@ -31,8 +31,9 @@ export function ConnectionIndicator({ controller: c, onPress }: { controller: Pr
 }
 
 /** The browser keeps this exact native parent whether login, progress or tabs are visible. */
-export function ProviderConnection({ controller: c, open, close, development = false, developmentRecoveryCheckpoints = false, guided = false, progress, title, closeDisabled = false, purpose = 'existing-captures' }: { controller: Controller; open: boolean; close: () => void; development?: boolean; developmentRecoveryCheckpoints?: boolean; guided?: boolean; progress?: React.ReactNode; title?:string; closeDisabled?: boolean; purpose?: 'existing-captures' | 'own-flight-library' }) {
-  const insets = useSafeAreaInsets();
+export function ProviderConnection({ controller: c, open, close, development = false, developmentRecoveryCheckpoints = false, guided = false, progress, title, closeDisabled = false, purpose = 'existing-captures', dialogTop }: { controller: Controller; open: boolean; close: () => void; development?: boolean; developmentRecoveryCheckpoints?: boolean; guided?: boolean; progress?: React.ReactNode; title?:string; closeDisabled?: boolean; purpose?: 'existing-captures' | 'own-flight-library'; dialogTop?:number }) {
+  const safeInsets = useSafeAreaInsets();
+  const insets = dialogTop===undefined?safeInsets:{top:0,bottom:0};
   const [barHeight, setBarHeight] = useState(68), [loginHeight, setLoginHeight] = useState(132);
   const [panelHeight, setPanelHeight] = useState(800);
   const [keyboardTop,setKeyboardTop]=useState<number|null>(null);
@@ -41,7 +42,7 @@ export function ProviderConnection({ controller: c, open, close, development = f
     const hide=Keyboard.addListener('keyboardDidHide',()=>setKeyboardTop(null));
     return()=>{show.remove();hide.remove();};
   },[]);
-  const keyboardInset=Platform.OS==='android'&&open&&keyboardTop!==null?Math.max(0,panelHeight-keyboardTop):0;
+  const keyboardInset=Platform.OS==='android'&&open&&keyboardTop!==null?Math.max(0,(dialogTop??0)+panelHeight-keyboardTop):0;
   const availableHeight=panelHeight-keyboardInset;
   const [developmentHeight, setDevelopmentHeight] = useState(0);
   const [details, setDetails] = useState(false), [lab, setLab] = useState(false);
@@ -54,7 +55,9 @@ export function ProviderConnection({ controller: c, open, close, development = f
   const login = open && c.visible;
   useEffect(()=>recordProviderEvent(!open?'provider-surface-closed':login?'provider-surface-sign-in':'provider-surface-progress'),[open,login]);
   const checkpointHeight = developmentRecoveryCheckpoints ? developmentHeight : 0;
-  const progressHeight = Math.max(96, Math.min((availableHeight-insets.top-insets.bottom-barHeight-checkpointHeight)*0.5, availableHeight-insets.top-insets.bottom-barHeight-checkpointHeight-240));
+  const usableHeight=availableHeight-insets.top-insets.bottom-barHeight-checkpointHeight;
+  const minimumProgress=dialogTop===undefined?96:Math.min(96,Math.max(48,usableHeight-180));
+  const progressHeight = Math.max(minimumProgress, Math.min(usableHeight*0.5, usableHeight-240));
   const guidance = connectionGuidance(c.connection, c.browserActive);
   const freshness = dataFreshness(c.snapshot?.retrievedAt ?? null, c.captureLoadState);
   const loginFeedback = c.loginBusy ? 'Gespeicherte Anmeldung wird einmalig versucht…' :

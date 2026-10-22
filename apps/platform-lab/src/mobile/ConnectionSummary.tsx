@@ -1,16 +1,15 @@
 import React, { useMemo } from 'react';
 import type { ProviderStatus } from './ProviderConnection';
-import { Action, Card, Label, Section } from './theme';
-import { connectionGuidance } from './connection-guidance';
+import { Card, Label, Section } from './theme';
 import { dataFreshness } from './data-freshness';
 import { flightReminder, snoozeFlightReminder, type FlightReminderReason } from './flight-reminder';
 import type { OwnFlightView } from './own-flight-reader';
 import { createProcessedSelector } from './processed-result';
 import { planFlightRetrieval } from '../vereinsflieger/retrieval-policy';
 
-/** Read-only summary; all entry points open the same retained connection flow. */
-export function ConnectionSummary({ controller, onOpen, onUpdate, ownFlights, phase = 'loading', compact = false, reminderSnooze = null, onSnoozeReminder, newOrChangedObservation = false, now = Date.now() }: {
-  controller: Pick<ProviderStatus,'connection'|'browserActive'>; onOpen: () => void; onUpdate?: () => void;
+/** Read-only data summary. Only the header may open provider update/login. */
+export function ConnectionSummary({ ownFlights, phase = 'loading', compact = false, reminderSnooze = null, onSnoozeReminder, newOrChangedObservation = false, now = Date.now() }: {
+  controller?: Pick<ProviderStatus,'connection'|'browserActive'>; onOpen?: () => void; onUpdate?: () => void;
   compact?: boolean; ownFlights?: OwnFlightView | null; phase?: 'loading' | 'ready' | 'missing' | 'failed';
   reminderSnooze?: { scopeKey: string; until: string | null } | null;
   onSnoozeReminder?: (scopeKey: string, until: string) => void;
@@ -22,6 +21,7 @@ export function ConnectionSummary({ controller, onOpen, onUpdate, ownFlights, ph
   const plan = processRetrieval(scope, currentOwnFlights?.snapshot.savedRetrievals ?? null);
   const readState = phase === 'missing' ? 'ready' : phase;
   const freshness = dataFreshness(plan?.lastSuccessfulRetrievalAt ?? null, readState, now);
+  const headerHint=<Label muted>Neue Daten und Anmeldung erreichst du über „Daten“ oben in der Kopfzeile.</Label>;
   const recoveryNeedsAction = !!(currentOwnFlights?.pendingCommand || currentOwnFlights?.snapshot.recovery?.readOnly);
   const firstUse = !currentOwnFlights?.snapshot.account && phase !== 'loading' && phase !== 'failed';
   const needsInitialLoad = !!currentOwnFlights?.snapshot.account && !plan?.lastSuccessfulRetrievalAt && phase !== 'loading' && phase !== 'failed';
@@ -41,26 +41,26 @@ export function ConnectionSummary({ controller, onOpen, onUpdate, ownFlights, ph
 
   if (phase === 'failed') return <Card style={compact ? { width: '100%', maxWidth: 430, alignSelf: 'center' } : undefined}>
     <Label>Gespeicherte Flugdaten konnten nicht gelesen werden. Ein aktueller Stand wird nicht angezeigt.</Label>
-    <Action secondary onPress={onOpen}>Verbindung & Optionen</Action>
+    {headerHint}
   </Card>;
   if (compact && phase === 'loading' && !recoveryNeedsAction) return null;
   if (compact && !firstUse && !needsInitialLoad && !recoveryNeedsAction && !reminder.visible) return null;
 
   if (compact && recoveryNeedsAction) return <Card style={{ width: '100%', maxWidth: 430, alignSelf: 'center' }}>
     <Label>Eine Speicherung oder Wiederherstellung muss geprüft werden. Der letzte geprüfte Stand bleibt lesbar.</Label>
-    <Action secondary onPress={onOpen}>Verbindung & Optionen</Action>
+    {headerHint}
   </Card>;
 
   if (compact && !firstUse && reminder.visible) return <Card style={{ width: '100%', maxWidth: 430, alignSelf: 'center' }}>
     <Section title="Flugdaten" action={onSnoozeReminder && reminderScopeKey ? '24 h ausblenden' : undefined} onPress={onSnoozeReminder && reminderScopeKey ? snooze : undefined} />
     <Label>{reminderMessage(reminder.reason)}</Label>
-    <Action secondary onPress={onUpdate ?? onOpen}>Daten aktualisieren</Action>
+    {headerHint}
   </Card>;
 
   if (compact && needsInitialLoad) return <Card style={{ width: '100%', maxWidth: 430, alignSelf: 'center' }}>
     <Section title="Deine Flüge" icon="flight-paper-plane" />
     <Label>Für dieses zugeordnete Konto wurden noch keine Flugdaten gespeichert.</Label>
-    <Action icon="chain" onPress={onUpdate ?? onOpen}>Daten laden</Action>
+    {headerHint}
   </Card>;
 
   return <Card style={compact ? { width: '100%', maxWidth: 430, alignSelf: 'center' } : undefined}>
@@ -69,9 +69,7 @@ export function ConnectionSummary({ controller, onOpen, onUpdate, ownFlights, ph
     {(!compact && (currentOwnFlights || phase !== 'missing')) && <Label muted>{freshness.label}</Label>}
     {!compact && !!freshness.note && !(freshness.reminder && reminder.snoozed && readState === 'ready') && <Label muted>{freshness.note}</Label>}
     {firstUse && <Label muted>Bei Bedarf meldest du dich auf der Originalseite von Vereinsflieger an. Anschließend laden wir deine Flüge und Medical-Angaben und speichern sie für die Offline-Nutzung.</Label>}
-    {!compact && recoveryNeedsAction && <Label>Eine Speicherung oder Wiederherstellung muss geprüft werden. Der letzte geprüfte Stand bleibt lesbar. Öffne Verbindung & Optionen.</Label>}
-    <Action icon="chain" disabled={phase === 'loading'} onPress={onUpdate ?? onOpen}>{firstUse ? 'Anmelden & Daten laden' : needsInitialLoad ? 'Daten laden' : 'Daten aktualisieren'}</Action>
-    {!compact && <Action secondary onPress={onOpen}>Verbindung & Optionen</Action>}
-    {!compact && <Label muted>{connectionGuidance(controller.connection, controller.browserActive).title}</Label>}
+    {!compact && recoveryNeedsAction && <Label>Eine Speicherung oder Wiederherstellung muss geprüft werden. Der letzte geprüfte Stand bleibt lesbar.</Label>}
+    {headerHint}
   </Card>;
 }

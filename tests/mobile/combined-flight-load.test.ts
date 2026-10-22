@@ -17,7 +17,7 @@ const source=ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/sr
 
 // Real screen effects and handlers; SQLite and provider behavior have their own
 // integration tests. These ports control timing to exercise the screen coordinator.
-function fixture({startUpdate=false,root=false,readOnly=false,deferReservation=false,failStartup=false,medicalFailure=false,loginPending=false,deferProvider=false,quietResume=false,deferSource=false,sameWindow=false,deferVerification=false,priorConnection='unknown',existingOwner=false,intent:requestedIntent=undefined as string|undefined}={}) {
+function fixture({providerAllowed=true,startUpdate=false,root=false,readOnly=false,deferReservation=false,failStartup=false,medicalFailure=false,loginPending=false,deferProvider=false,quietResume=false,deferSource=false,sameWindow=false,deferVerification=false,priorConnection='unknown',existingOwner=false,intent:requestedIntent=undefined as string|undefined}={}) {
   let panelOpen=true,requestId=0;
   const journal=new DiagnosticJournal(), diagnosis={current:journal.begin(startUpdate?'update-flights':'open-flight-tools')};
   const hooks:any[]=[],effects:(()=>void)[]=[],calls:string[]=[],closed:any[]=[];
@@ -79,7 +79,7 @@ function fixture({startUpdate=false,root=false,readOnly=false,deferReservation=f
     '../vereinsflieger/retrieval-policy':{planFlightRetrieval},'./data-freshness':{dataFreshness},
   };
   const exports:any={};runInNewContext(source,{exports,require:(name:string)=>{assert.ok(name in modules,name);return modules[name];},setTimeout:(fn:()=>void)=>{timers.set(++timerId,fn);return timerId;},clearTimeout:(id:number)=>timers.delete(id),console,Error});
-  function render(){dirty=false;index=0;tree=root?exports.CoreFlightFoundation({startUpdate,intent:requestedIntent,open:panelOpen,requestId,close:(v:any)=>closed.push(v)}):exports.OwnerFlightLibrary({lease,registry,startUpdate,intent:requestedIntent,open:panelOpen,requestId,close:(v:any)=>closed.push(v),takeInitialRepository:()=>null,diagnosis});while(effects.length)effects.shift()!();return tree;}
+  function render(){dirty=false;index=0;tree=root?exports.CoreFlightFoundation({providerEntryAllowed:providerAllowed,startUpdate,intent:requestedIntent,open:panelOpen,requestId,close:(v:any)=>closed.push(v)}):exports.OwnerFlightLibrary({providerEntryAllowed:providerAllowed,lease,registry,startUpdate,intent:requestedIntent,open:panelOpen,requestId,close:(v:any)=>closed.push(v),takeInitialRepository:()=>null,diagnosis});while(effects.length)effects.shift()!();return tree;}
   async function flush(){for(let n=0;n<12;n++){if(dirty)render();await new Promise<void>(resolve=>{setImmediate(resolve);});}if(dirty)render();}
   function nodes(){const result:Element[]=[];function visit(value:any){if(value&&typeof value==='object'&&'children'in value){result.push(value);value.children.forEach(visit);if(value.props.progress)visit(value.props.progress);}}visit(tree);return result;}
   const text=(node:any):string=>node&&typeof node==='object'&&'children'in node?node.children.map(text).join(''):typeof node==='string'?node:'';
@@ -92,6 +92,19 @@ function fixture({startUpdate=false,root=false,readOnly=false,deferReservation=f
     dispose:()=>{for(const hook of hooks)hook?.cleanup?.();},
   };
 }
+
+test('non-header administration cannot start provider work or expose login, even with a retained visible controller',async()=>{
+  for(const intent of ['options','connect','update','development']){
+    const f=fixture({providerAllowed:false,intent});
+    try{
+      f.render();await f.flush();f.c.visible=true;f.render();await f.flush();
+      assert.deepEqual(f.calls,[],intent);
+      assert.equal(f.nodes().find(n=>n.type==='ProviderConnection')!.props.open,false,intent);
+      assert.equal(f.nodes().some(n=>n.type==='Action'&&n.children.includes('Anmelden & Daten laden')),false);
+      assert.match(f.text(),/Kopfzeile/);
+    }finally{f.dispose();}
+  }
+});
 
 test('opening options does no retrieval; one explicit action verifies, loads, saves and returns a result',async()=>{
   const f=fixture();try{

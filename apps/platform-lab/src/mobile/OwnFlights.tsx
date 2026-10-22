@@ -10,12 +10,12 @@ import { dataFreshness } from './data-freshness';
 import { reviewDuration, reviewParsedField, reviewRawField } from '../vereinsflieger/capture-review';
 
 export interface OwnFlightHeader { title: string; back?: () => void }
-export function OwnFlights({ active, data, filterRequest, onUpdate, onHeaderChange }: {
-  active: boolean; data: ReturnType<typeof useOwnFlights>; filterRequest?: OwnFlightRequest | null; onUpdate: () => boolean;
+export function OwnFlights({ active, data, filterRequest, onHeaderChange }: {
+  active: boolean; data: ReturnType<typeof useOwnFlights>; filterRequest?: OwnFlightRequest | null; onUpdate?: () => boolean;
   onHeaderChange: (header: OwnFlightHeader) => void;
 }) {
   const [filters, setFilters] = useState<OwnFlightFilters>(allOwnFlights);
-  const [filterOpen, setFilterOpen] = useState(false), [notice, setNotice] = useState('');
+  const [filterOpen, setFilterOpen] = useState(false);
   const [rawPage, setRawPage] = useState(0), [statusOpen, setStatusOpen] = useState(false);
   const list = useRef<FlatList>(null), offset = useRef(0), scope = useRef<string | null>(null);
   const { width, fontScale } = useWindowDimensions();
@@ -47,7 +47,6 @@ export function OwnFlights({ active, data, filterRequest, onUpdate, onHeaderChan
     if (requested) void data.openDetail(requested);
   }, [active, data.view, filterRequest, data.clearDetail]);
   const changeFilters = (next: OwnFlightFilters) => { if(next.search!==filters.search)diagnosticJournal.record('filter','search');if(next.year!==filters.year)diagnosticJournal.record('filter','year');if(next.registration!==filters.registration)diagnosticJournal.record('filter','registration'); offset.current = 0; list.current?.scrollToOffset({ offset: 0, animated: false }); setFilters(next); };
-  const update = () => { Keyboard.dismiss(); if (!onUpdate()) setNotice('Bitte zuerst den laufenden Anbietervorgang beenden. Deine gespeicherten Flüge bleiben verfügbar.'); };
   const header = <View style={s.group}>
     <View style={ui.row}><View style={s.searchBox}><SymbolIcon name="search" size={20} tone="muted" /><TextInput
       accessibilityLabel="Flüge durchsuchen" placeholder="Kennzeichen, Ort, Crew …" placeholderTextColor={colors.muted} value={filters.search}
@@ -68,10 +67,10 @@ export function OwnFlights({ active, data, filterRequest, onUpdate, onHeaderChan
       {!plan.periods.length && <Label muted>Noch kein vollständiger Abruf gespeichert.</Label>}
       <Label muted>Gespeicherte Anbieterwerte, keine Aussage über die gesamte Fluggeschichte. Tracks und Distanzen sind nicht verifiziert.</Label>
       <Action secondary onPress={() => void data.reload()}>Gespeicherte Flüge neu laden</Action></>}
-      <Action onPress={update}>Daten aktualisieren</Action>
+      <Label muted>Neue Daten und Anmeldung erreichst du über „Daten“ oben in der Kopfzeile.</Label>
       <Pressable accessibilityRole="button" accessibilityState={{expanded:statusOpen}} onPress={()=>setStatusOpen(!statusOpen)} style={ui.smallAction}><Label muted>{statusOpen ? 'Datenstand schließen' : 'Abdeckung & Datenstand'}</Label></Pressable>
     </Card>
-    {!!notice && <Card><Label>{notice}</Label></Card>}
+
   </View>;
   useEffect(() => { if (data.phase !== 'ready') setFilterOpen(false); }, [data.phase]);
   useEffect(()=>{if(active)diagnosticJournal.record('screen',filterOpen?'flight-filter':detailOpen?'flight-detail':'flights');},[active,filterOpen,detailOpen]);
@@ -87,17 +86,17 @@ export function OwnFlights({ active, data, filterRequest, onUpdate, onHeaderChan
             <View style={ui.column}><Label>{reviewRawField(a.fields.registration)} · {reviewRawField(a.fields.model)}</Label>
               <Label muted>{reviewRawField(a.fields.departure)} → {reviewRawField(a.fields.arrival)}</Label><IconLabel name="clock" size={16}>{reviewDuration(a.durations.flight)}</IconLabel></View><SymbolIcon name="right" size={16} tone="muted" /></View>
         </Card>; }}
-        ListEmptyComponent={<Card><Empty title={flights.length ? 'Keine passenden Flüge' : 'Noch keine gespeicherten Flüge'}>{flights.length ? 'Suchbegriff oder Filter ändern. Ein leeres Ergebnis ist keine Aussage über die gesamte Fluggeschichte.' : 'Mit „Daten aktualisieren“ eigene Flüge laden und automatisch speichern. Ein Flugbuch wird dafür nicht benötigt.'}</Empty></Card>}
+        ListEmptyComponent={<Card><Empty title={flights.length ? 'Keine passenden Flüge' : 'Noch keine gespeicherten Flüge'}>{flights.length ? 'Suchbegriff oder Filter ändern. Ein leeres Ergebnis ist keine Aussage über die gesamte Fluggeschichte.' : 'Über „Daten“ oben in der Kopfzeile eigene Flüge laden. Ein Flugbuch wird dafür nicht benötigt.'}</Empty></Card>}
         onScroll={event => { if (active && data.phase === 'ready' && !filterOpen && !detailOpen) offset.current = event.nativeEvent.contentOffset.y; }} scrollEventThrottle={32}
         onContentSizeChange={() => { if (data.phase === 'ready') list.current?.scrollToOffset({ offset: offset.current, animated: false }); }}
         contentContainerStyle={s.canvas} ItemSeparatorComponent={() => <View style={{ height: 7 }} />} initialNumToRender={10} maxToRenderPerBatch={10} windowSize={7} keyboardShouldPersistTaps="handled" />
     </View>
     {data.phase !== 'ready' && <ScrollView contentContainerStyle={s.canvas}><View style={s.group}><Card>
-      {!!notice && <Label>{notice}</Label>}
+
       <Section title={data.phase === 'loading' ? 'Gespeicherte Flüge laden' : data.phase === 'missing' ? 'Eigene Flüge einrichten' : 'Flüge nicht lesbar'} icon="flight-paper-plane" />
       {data.phase === 'loading' ? <ActivityIndicator color={colors.cyan} accessibilityLabel="Eigene gespeicherte Flüge werden geladen" /> : <>
         <Label>{data.detailError ?? (data.phase === 'missing' ? 'Noch keine eigene Flugbibliothek ausgewählt. Bestehende Teststände bleiben getrennt erhalten.' : 'Die gespeicherte Auswahl konnte nicht geprüft werden. Vorhandene Dateien und Aufträge bleiben erhalten.')}</Label>
-        <Action secondary onPress={() => void data.reload()}>Gespeicherte Flüge erneut prüfen</Action><Action onPress={update}>{data.phase === 'missing' ? 'Anmelden & Daten laden' : 'Daten aktualisieren'}</Action>
+        <Action secondary onPress={() => void data.reload()}>Gespeicherte Flüge erneut prüfen</Action><Label muted>Neue Daten und Anmeldung erreichst du über „Daten“ oben in der Kopfzeile.</Label>
       </>}
     </Card></View></ScrollView>}
     {filterOpen && <ScrollView contentContainerStyle={s.canvas}><View style={s.group}><Card><Section title="Flugfilter" />

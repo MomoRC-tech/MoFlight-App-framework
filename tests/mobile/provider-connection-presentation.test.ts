@@ -22,7 +22,7 @@ const source = ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/
 
 // Run the real component/handlers; native rendering and leaf controls are the
 // only replacements. Disclosure tests make no provider/storage implementation.
-function fixture(overrides: Partial<Controller> = {}, development = false, purpose: 'existing-captures'|'own-flight-library' = 'existing-captures', guided = false, progress?: Element, developmentRecoveryCheckpoints = false) {
+function fixture(overrides: Partial<Controller> = {}, development = false, purpose: 'existing-captures'|'own-flight-library' = 'existing-captures', guided = false, progress?: Element, developmentRecoveryCheckpoints = false, dialogTop?: number) {
   let index = 0;
   const keyboardListeners:Record<string,(event:unknown)=>void>={};
   const hooks: unknown[] = [], effects: (() => void)[] = [], calls: string[] = [];
@@ -77,7 +77,7 @@ function fixture(overrides: Partial<Controller> = {}, development = false, purpo
   let tree: Element;
   function render(open = true) {
     index = 0;
-    tree = exports.ProviderConnection!({ controller, open, development, developmentRecoveryCheckpoints, purpose, guided, progress, closeDisabled:controller.informationSaving, close: () => calls.push('close') });
+    tree = exports.ProviderConnection!({dialogTop, controller, open, development, developmentRecoveryCheckpoints, purpose, guided, progress, closeDisabled:controller.informationSaving, close: () => calls.push('close') });
     while (effects.length) effects.shift()!();
     return tree;
   }
@@ -387,4 +387,15 @@ test('Android keyboard reserves space for the original form without changing its
   assert.ok(progress().props.style.maxHeight<priorMax,'Compact progress leaves room for form fields above the IME');
   assert.equal(f.nodes().filter(n=>n===f.browser).length,1);assert.deepEqual(f.calls,[]);
   f.keyboard(null);assert.equal(frame().props.style[1].bottom,0);assert.equal(progress().props.style.maxHeight,priorMax);
+});
+
+test('popup keyboard reservation includes its window offset and avoids double shrinking an already resized frame',()=>{
+  const f=fixture({visible:true,browserActive:true},false,'own-flight-library',true,{type:'Progress',props:{},children:[]},false,40);
+  f.render().props.onLayout({nativeEvent:{layout:{height:800}}});f.render();
+  const frame=()=>f.nodes().find(n=>n.children.includes(f.browser))!;
+  f.keyboard(600);assert.equal(frame().props.style[1].bottom,240);
+  assert.equal(f.nodes().filter(n=>n===f.browser).length,1);assert.deepEqual(f.calls,[]);
+  f.render().props.onLayout({nativeEvent:{layout:{height:520}}});f.render();
+  assert.equal(frame().props.style[1].bottom,0,'System resize already places the frame above the keyboard');
+  f.keyboard(null);assert.equal(frame().props.style[1].bottom,0);
 });

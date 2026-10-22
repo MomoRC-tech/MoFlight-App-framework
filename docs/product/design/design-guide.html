@@ -41,6 +41,7 @@
 <li>Manuel’s <strong>22 October Start feedback (#54)</strong> supersedes two simultaneous monthly plots and all season/month/latest-flight detail entry points with one chart, Flüge/Flugstunden measure chips and two read-only recent-flight boxes. Local preparation has visible busy feedback; details belong in the Flüge tab.</li>
 <li>Manuel&#x27;s <strong>22 October implement instruction</strong> selects the alternative Start layout under <a href="https://github.com/MomoRC-tech/MoFlight-App-framework/issues/20#issuecomment-6340199647">#20</a>: count/known-time KPIs replace rings, compact aircraft/recent-flight rows, a general Alle anzeigen route to Flüge, responsive month chart/lower legend and a 40 dp header logo. This supersedes those scoped ring/layout values; status meanings and five tabs remain.</li>
 <li>Manuel&#x27;s <strong>22 October data-update header instruction (#22)</strong> supersedes the ordinary header connection/session symbol with an explicit data-fetch action and durable received-age display: green under one hour, amber for older data, neutral when unknown; login opens only when an update needs it. Provider-panel verification remains separate.</li>
+<li>Manuel&#x27;s <strong>22 October popup/header-only instruction (#22)</strong> places the complete update journey, including original login when required, in a bounded rounded navy frame over a dimmed inert page. Only the header data button opens provider update/login; other pages give passive header guidance and retain offline administration. The retained browser parent and credential-activity behavior remain protected.</li>
 <li>This handbook consolidates those decisions. Earlier prototype choices apply only where explicitly carried forward. Code values record implementation and cannot approve an unresolved visual difference.</li>
 </ol>
 <p>Manuel owns design decisions. Priorities, journeys and account/book behavior remain in the <a href="../../project-plan.md">project plan</a>, <a href="../2026-10-13-journey-information-map.md">journey map</a> and feature contracts. Link those contracts rather than duplicating them here.</p>
@@ -150,7 +151,7 @@
 <tr><td>C05</td><td>Shared header</td><td>Fixed photo/shade, logo 40, title 18/24, controls 48; content minimum height 64 and padding 10/5</td><td>Header can grow; minimum is not universal actual height. AppHeader.</td></tr>
 <tr><td>C06</td><td>Header data/status group</td><td>Data-update age control, growing Med, profile soft tile; gap 4</td><td>Refresh action shows saved received-age; provider session status stays in its panel. Back replaces logo on app overlays. AppHeader / DataUpdateIndicator / MedicalStatus / ShellIcons.</td></tr>
 <tr><td>C07</td><td>Bottom navigation</td><td>Attached dark bar, five equal destinations, minimum target height 60; three-column wrapping below 600 dp with font scale above 1.3</td><td>Icon above full system-scaled German label; final two wrapping items center. Standard text/width retains one row; cyan selected state. MobileApp.</td></tr>
-<tr><td>C08</td><td>Overlay / provider panel</td><td>Current dark full app overlay with one active header; provider has its own toolbar/history</td><td>Different from pale v0.30 prototype sheets. MobileApp / ProviderConnection.</td></tr>
+<tr><td>C08</td><td>Update popup / app overlays</td><td>Bounded centered navy update frame, radius22, border1, dim scrim; one active dialog, retained native child tree</td><td>UpdateDialog frames setup/login/progress/results; underlying page is visible but inert. Other app sheets keep their existing layout. ProviderConnection retains its toolbar/history inside the popup.</td></tr>
 <tr><td>C09</td><td>Flight row</td><td>Padding 7, radius 13; date, aircraft, route/reported duration and detail chevron</td><td>Whole row opens selected-account saved source facts. Source reference/revision/original fields and absent-track context stay in details. Original fields use eight-field pages with concise Zurück / Weiter captions and full provider-field accessibility labels; first/last guards and contextual list return remain. <a href="../../../apps/platform-lab/src/mobile/OwnFlights.tsx">OwnFlights</a>; no inferred role or book assignment.</td></tr>
 <tr><td>C10</td><td>AI question / composer</td><td>Question radius 12; composer radius 20; send face 42 × 42; input max height 150</td><td>Local questions calculate deterministically; free-text service unavailable. MobileApp.</td></tr>
 <tr><td>C11</td><td>Quiet paper entry</td><td>Minimum-height 48 row with paper-tone logbook symbol and detail chevron</td><td>Associated-account Start offers Papierflugbuch später einrichten and opens the deferred-setup explanation. The former photographic hero remains in the original reference. Synthetic saved paper status stays under Development; viewing never confirms copying. Dashboard / PaperStatus.</td></tr>
@@ -159,7 +160,7 @@
 <tr><td>C14</td><td>Synthetic import review</td><td>Shared C01/C02/C03 cards/actions/choice chips, centered group capped at 520 dp</td><td>Development-only comparison, source variants and explicit book choice; <a href="../../../apps/platform-lab/src/mobile/ImportPreview.tsx">ImportPreview</a>. No saved-library import.</td></tr>
 <tr><td>C15</td><td>Captured flight review</td><td>Shared cards/actions in the connection panel&#x27;s centered 520 dp group; five records per page, eight original fields per detail page</td><td><a href="../../../apps/platform-lab/src/mobile/CapturedFlights.tsx">CapturedFlights</a> reads owner-scoped saved evidence without requiring provider login. Dates/clocks, reported duration, aircraft and separate crew fields retain unknown/invalid/conflict states; original field text is selectable and untruncated. No book membership or canonical import.</td></tr>
 <tr><td>C16</td><td>Information source review</td><td>Shared C01/C02 controls in the connection panel&#x27;s centered 520 dp group; five raw rows per page, one immutable snapshot at a time</td><td><a href="../../../apps/platform-lab/src/mobile/InformationReview.tsx">InformationReview</a> shows retrieval time and recorded coverage, with older/newer controls available offline. Category counts use the latest snapshot. Blank extracted text stays unknown; known date-only document snapshots are marked incomplete. No canonical history or cross-snapshot aggregation.</td></tr>
-<tr><td>C17</td><td>Own-flight loading</td><td>Shared C01/C02 controls, centered 520 dp groups; ordinary progress and secondary details</td><td><a href="../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx">CoreFlightFoundation</a> coordinates one explicit action through internal fresh storage, original-provider authentication, verified retrieval and local save. A verified retained session avoids login; valid rows need no routine review/save tap. Source/account/recovery checks remain; unresolved recovery is visible outside the details disclosure. Custom period, raw review and real-history backup remain under Details &amp; weitere Optionen. The header data-update entry runs the combined update in the shared selected-owner panel, with login only when needed and contextual return. Profile retains the explicit connect-only entry. The same native browser remains mounted above tab navigation after closing; advanced library options are secondary. Original-login exposure comes from the explicit connection flow, without an outer login-enabled override. On Android, the measured keyboard frame caps progress and reserves the same retained browser viewport above the IME. The combined flow retains one progress card through original-provider sign-in, verification, flights/save and Medical; success/partial failure stays visible until acknowledgement, which returns to ordinary Flüge with the result. Opening options alone creates/retrieves nothing.</td></tr>
+<tr><td>C17</td><td>Own-flight loading</td><td>Shared C01/C02 controls, centered 520 dp groups; ordinary progress and secondary details</td><td><a href="../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx">CoreFlightFoundation</a> coordinates one explicit action through internal fresh storage, original-provider authentication, verified retrieval and local save. A verified retained session avoids login; valid rows need no routine review/save tap. Source/account/recovery checks remain; unresolved recovery is visible outside the details disclosure. Custom period, raw review and real-history backup remain under Details &amp; weitere Optionen. The header data-update entry runs the combined update in the shared selected-owner panel, with login only when needed and contextual return. Only the header admits provider work. Start/Flüge/Profile/status/Development retain passive guidance; non-header backup/library routes cannot open login. The same native browser remains mounted above tab navigation after closing; advanced library options are secondary. Original-login exposure comes from the explicit connection flow, without an outer login-enabled override. On Android, the measured keyboard frame caps progress and reserves the same retained browser viewport above the IME. The combined flow retains one progress card through original-provider sign-in, verification, flights/save and Medical; success/partial failure stays visible until acknowledgement, which returns to ordinary Flüge with the result. Opening options alone creates/retrieves nothing.</td></tr>
 <tr><td>C18</td><td>Connection/data summary</td><td>Compact conditional Start row capped at 430 dp; Profile retains administration</td><td><a href="../../../apps/platform-lab/src/mobile/ConnectionSummary.tsx">ConnectionSummary</a> uses successful saved-retrieval time, with a reminder only after more than 72 hours or a positively identified change. Ordinary reminders can be hidden for 24 hours in the exact account/store scope. First-use/load failure/recovery remain actionable. Explicit update coordinates flights, Medical and separate duty capture; failures do not undo flight saves. Startup latest-flight observation is unavailable; no automatic provider request is enabled.</td></tr>
 <tr><td>C19</td><td>Support diagnostics</td><td>Shared C01/C02 cards/actions and selectable report text in a centered 520 dp group</td><td><a href="../../../apps/platform-lab/src/mobile/Diagnostics.tsx">Diagnostics</a> via Settings; paged technical/action histories and protected failures; observed navigation transitions without inferred intent. Explicit full JSON-file sharing, bounded short text copying and diagnostic-only clearing; 1 MB total managed storage cap. No automatic transmission.</td></tr>
 </tbody></table></div>
@@ -192,7 +193,9 @@
 <h3 id="chapter-components-selected-alternative-start---22-october-2026">Selected alternative Start - 22 October 2026</h3>
 <p>The two recent read-only flights use radius 14 raised rows: date/start and duration, then aircraft/model and abbreviated pilot; known companion alone adds a line. Unknown companion remains available in flight details. Alle anzeigen opens the general Flüge view. The monthly chart fills its card with twelve equal columns, or two rows of six above font scale 1.3; year legend sits beneath. Measure chips retain 48 dp targets, units and month accessibility descriptions. The 40 dp header logo preserves status-control targets and enlarged-text reflow. This supersedes the earlier Start ring and horizontal-chart composition only. Native acceptance is recorded in the <a href="../../verification/2026-10-21-simple-flight-loading.md#alternative-start-layout--22-october-2026">existing report</a>.</p>
 <h4 id="chapter-components-header-data-update--selected-22-october-2026">Header data update — selected 22 October 2026</h4>
-<p>The ordinary header uses <a href="../../../apps/platform-lab/src/mobile/DataUpdateIndicator.tsx">DataUpdateIndicator</a>: existing Modern Duotone refresh artwork, visible “Daten” and compact relative age, minimum74×48dp target. The frame and text are green (<i class="swatch" style="background:#74dfba" aria-hidden="true"></i><code>#74dfba</code>) for a durably saved successful flight retrieval less than one hour old, amber (<i class="swatch" style="background:#ffc477" aria-hidden="true"></i><code>#ffc477</code>) from one hour onward, neutral for no valid saved timestamp. Exact time and the update/login-if-needed purpose are in the accessible label/hint; the update panel retains exact saved-time wording. Color is accompanied by age text. Failure/cancellation/login checks cannot advance this timestamp. The selected owner/account library supplies it after restart; the local clock updates the age and crosses the hour boundary without provider requests. A successful empty/no-change retrieval counts. Medical/duty outcomes retain their separate category times; this control does not claim all source categories are current. The three-day Start reminder is unchanged. This supersedes the shell&#x27;s former connection/session badge; the provider panel still uses its separate connection indicator and proof safeguards.</p></section>
+<p>The ordinary header uses <a href="../../../apps/platform-lab/src/mobile/DataUpdateIndicator.tsx">DataUpdateIndicator</a>: existing Modern Duotone refresh artwork, visible “Daten” and compact relative age, minimum74×48dp target. The frame and text are green (<i class="swatch" style="background:#74dfba" aria-hidden="true"></i><code>#74dfba</code>) for a durably saved successful flight retrieval less than one hour old, amber (<i class="swatch" style="background:#ffc477" aria-hidden="true"></i><code>#ffc477</code>) from one hour onward, neutral for no valid saved timestamp. Exact time and the update/login-if-needed purpose are in the accessible label/hint; the update panel retains exact saved-time wording. Color is accompanied by age text. Failure/cancellation/login checks cannot advance this timestamp. The selected owner/account library supplies it after restart; the local clock updates the age and crosses the hour boundary without provider requests. A successful empty/no-change retrieval counts. Medical/duty outcomes retain their separate category times; this control does not claim all source categories are current. The three-day Start reminder is unchanged. This supersedes the shell&#x27;s former connection/session badge; the provider panel still uses its separate connection indicator and proof safeguards.</p>
+<h4 id="chapter-components-header-only-update-popup--22-october-2026">Header-only update popup — 22 October 2026</h4>
+<p><a href="../../../apps/platform-lab/src/mobile/UpdateDialog.tsx">UpdateDialog</a> supplies a centered max720×900dp frame,12dp outer margin below600dp and24dp at wider widths, safe-area bounds,22dp corners, slate border and deep navy scrim/surface. The original login website remains an external white surface inside this frame. Setup, progress, error/retry and completion stay in the same frame; closed visibility never replaces its native child parent. The background route stays visible but cannot receive pointer/accessibility interaction. Outside taps do not bypass cancellation/write safeguards. The inner provider panel uses zero additional safe-area padding and its frame&#x27;s actual window offset when reserving space above Android IME; a system-resized frame is not shrunk twice. Only the header data action opens provider work; all other data summaries are read-only and point to it. Local reload and offline backup/restore remain available.</p></section>
 <section id="component-examples"><h2>Component and shape examples</h2><p>Schematic browser specimens, using current styles and synthetic labels. They illustrate the handbook, execute no app action and establish no native/device acceptance.</p><div class="example-grid">
 <article class="example" id="C01"><h4>C01 · Content card</h4><div class="specimen"><div class="spec-card"><strong>Bekannte Flugzeit</strong><p>4:30 h · Beispiel</p><span style="color:#adbed5">Nur gespeicherte bekannte Zeiten</span></div></div><p class="example-note">Radius 14, border 1, padding 11; subtle shared gradient.</p></article>
 <article class="example" id="C02"><h4>C02 · Action states</h4><div class="specimen"><span class="face">Anzeigename speichern</span><span class="face secondary">Erneut laden</span><span class="face disabled">Deaktiviert</span></div><p class="example-note">Minimum height 48; disabled is dimmed and guarded in native code.</p></article>
@@ -238,7 +241,7 @@
 <p><strong>22 October Start amendment, simplified after Manuel&#x27;s feedback (#54):</strong> Start shows an explicit busy card while local saved flights are prepared. The later selected alternative replaces aircraft rings with count/known-time KPI panels and compact aircraft rows, retaining one monthly current/prior-year chart with Flüge/Flugstunden measure chips, and two compact read-only recent-flight rows before the chart, with a general Alle anzeigen link to Flüge. The later alternative fits twelve month columns within the card, reflowing to two rows of six above font scale 1.3; months and latest flights have no drill-down actions, and the season-detail button is removed. Users open the Flüge tab for details. Unknown durations and incomplete coverage remain explicit. The conditional 72-hour reminder and compact Verein card remain. At wide widths cap season and club groups in two columns. Source-expiry Medical retains its separate date states without a fitness implication. This supersedes the earlier two-chart/month-selection presentation; broader filtered statistics in Flüge remain pending under #9.</p>
 <p>Keep header/navigation outside the scrolling canvas. Header order is logo/title, data update → Med → Profile. Truncate title before shrinking controls. Current font scale above 1.3 places controls on a second wrapping row; subtitle renders only at width at least 412 with normal text.</p>
 <p>App overlays/details replace logo with contextual Back and expose one active accessible header. Return through nested overlays to prior page/filter/scroll state and unsaved local profile-name draft. Identical library reloads preserve the return path; changed book/flight facts invalidate stale details. An active backup/proof operation disables app Back, Profile and Medical until completion; provider Close/history remain separate. Medical opens a read-only unknown-record explanation.</p>
-<p>The header data shortcut starts the ordinary combined update, showing original login only when required. Profile retains connection administration; legacy provider/information diagnostics remain under Development. Provider Close, connection status and origin belong to its app-owned toolbar. Provider-history Back affects the original embedded webpage; Close returns to MoFlight without promising logout. Preserve retained browser parent, busy/recovery guards and provenance. OS-owned full-screen surfaces keep their own controls. The <a href="../2026-10-18-header-status-review.md#package-1b-decision-checkpoint">earlier header decisions</a> retain their scope except for the 22 October data-update amendment below.</p>
+<p>The header data shortcut starts the ordinary combined update, showing original login only when required. Profile retains read-only data information and offline backup; legacy provider/information diagnostics remain under Development. Provider Close, connection status and origin belong to its app-owned toolbar. Provider-history Back affects the original embedded webpage; Close returns to MoFlight without promising logout. Preserve retained browser parent, busy/recovery guards and provenance. OS-owned full-screen surfaces keep their own controls. The <a href="../2026-10-18-header-status-review.md#package-1b-decision-checkpoint">earlier header decisions</a> retain their scope except for the 22 October data-update amendment below.</p>
 <p>Bottom navigation has five equal icon/label destinations and semantic selected state. At widths below 600 dp with font scale above 1.3, reflow to three columns with the final two items centered so full labels retain system scaling; ordinary text/width keeps one row. Current code hides it with the AI keyboard and app/provider overlays. Do not reintroduce an old floating dock or add a destination through documentation cleanup. The generic Entwicklungsversion footer does not classify real saved flights as synthetic data.</p>
 <h3 id="chapter-patterns-responsive-layout-and-text">Responsive layout and text</h3>
 <div class="table-wrap"><table><thead><tr><th>Level</th><th>Visual question / current reference</th></tr></thead><tbody>
@@ -262,10 +265,12 @@
 <p>When affected, check actual touch regions, reading/focus order, long labels, text scaling, contrast over the displayed photo crop and keyboard reachability. Some small faces/targets and universal focus styling remain <a href="#chapter-history">review gaps</a>. Spoken TalkBack/focus, iOS, physical-device and positive provider-history checks remain separate from bounded Android evidence.</p>
 <p>Follow the <a href="../../development/verification-workflow.md">verification workflow</a>: this consolidation adds no native acceptance. Substantial UI changes need their relevant committed-source Release/native matrix; logic-only changes do not trigger unrelated visual audits.</p>
 <h4 id="chapter-patterns-everyday-header-data-action--22-october-amendment">Everyday header data action — 22 October amendment</h4>
-<p>Header order is data update → Medical → Profile. The update button starts the existing explicit combined fetch, showing original login only if required. Use a refresh symbol, “Daten” and received-age wording; green under one hour, amber for older, neutral when unknown. Its durable successful flight-update timestamp survives background/restart and remains unchanged on failed/cancelled updates. The provider panel&#x27;s account-verification indicator remains a separate internal status. This amendment replaces only the former connection meaning/action in the ordinary shell; contextual return, selected-owner isolation and the separate three-day reminder remain.</p></section>
+<p>Header order is data update → Medical → Profile. The update button starts the existing explicit combined fetch, showing original login only if required. Use a refresh symbol, “Daten” and received-age wording; green under one hour, amber for older, neutral when unknown. Its durable successful flight-update timestamp survives background/restart and remains unchanged on failed/cancelled updates. The provider panel&#x27;s account-verification indicator remains a separate internal status. This amendment replaces only the former connection meaning/action in the ordinary shell; contextual return, selected-owner isolation and the separate three-day reminder remain.</p>
+<h4 id="chapter-patterns-one-updatelogin-entry--22-october-popup-amendment">One update/login entry — 22 October popup amendment</h4>
+<p>Use only the header “Daten” button for new provider data and login. Start reminders, empty Flüge, Profile, status and Development explain this entry without duplicating it. Keep local reload, filters, diagnostics and offline backup independent. The whole update journey appears in a persistent framed popup over the dimmed inert invoking page; do not switch to a full provider screen or remount/move the WebView during Android credential activities. All retry, recovery, source-specific optional jobs and result acknowledgement stay inside that frame. Close and hardware Back preserve existing cancellation/save guards and contextual return.</p></section>
 <section class="chapter" id="chapter-implementation-inventory"><h2 id="chapter-implementation-inventory-platform-lab-ui-implementation-inventory">Platform-lab UI implementation inventory</h2>
 <p><a href="#chapter-overview">Handbook entry point</a>. Generated by <code>python scripts/design_handbook.py</code>; do not hand-edit.</p>
-<p>Scope: 56 product mobile TypeScript/model and app-owned TSX UI/adapter files; 63 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.</p>
+<p>Scope: 57 product mobile TypeScript/model and app-owned TSX UI/adapter files; 66 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.</p>
 <h3 id="chapter-implementation-inventory-apptsx">App.tsx</h3>
 <p>Retained app-owned lab/adapter surface; document its existing appearance as an exception. Source: <a href="../../../apps/platform-lab/src/App.tsx">apps/platform-lab/src/App.tsx</a>; normalized SHA-256 <code>00e90dbdf13115e9cffa98b6123f015dc87f095cdd8736daa20f73edab02e7e6</code>.</p>
 <h4 id="chapter-implementation-inventory-literal-colors">Literal colors</h4>
@@ -394,21 +399,21 @@
 <tr><td><i class="swatch" style="background:#ffc477" aria-hidden="true"></i><code>#ffc477</code></td><td>16</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-connectionsummarytsx">ConnectionSummary.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/ConnectionSummary.tsx">apps/platform-lab/src/mobile/ConnectionSummary.tsx</a>; normalized SHA-256 <code>5a9470f5876e11c6fb734736c03c05e6b569d30f26bcb2fd79691849b970e3d5</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/ConnectionSummary.tsx">apps/platform-lab/src/mobile/ConnectionSummary.tsx</a>; normalized SHA-256 <code>4a35152e7523f3c1a3dcd90dcdae886cbce4d0a47f9721c4e2ffd3aadef29487</code>.</p>
 <h4 id="chapter-implementation-inventory-geometry--opacity-declarations-5">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>maxWidth: 430</code></td><td>42, 49, 54, 60, 66</td></tr>
 <tr><td><code>width: &#x27;100%&#x27;</code></td><td>42, 49, 54, 60, 66</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-coreflightfoundationtsx">CoreFlightFoundation.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx">apps/platform-lab/src/mobile/CoreFlightFoundation.tsx</a>; normalized SHA-256 <code>b008bc80f72d480fa8fa502860f26246185feaa4f74ea3b046f7990f0defec02</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx">apps/platform-lab/src/mobile/CoreFlightFoundation.tsx</a>; normalized SHA-256 <code>3e08456e0afd120cf3f2009cfc8025d705eb2067ce9fb179717f87ab5d150580</code>.</p>
 <h4 id="chapter-implementation-inventory-geometry--opacity-declarations-6">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>gap: 10</code></td><td>124, 125, 512</td></tr>
-<tr><td><code>gap: 8</code></td><td>538, 564, 574</td></tr>
-<tr><td><code>maxWidth: 520</code></td><td>125, 512</td></tr>
-<tr><td><code>padding: 12</code></td><td>124, 512</td></tr>
-<tr><td><code>width: &#x27;100%&#x27;</code></td><td>125, 512</td></tr>
+<tr><td><code>gap: 10</code></td><td>124, 125, 513</td></tr>
+<tr><td><code>gap: 8</code></td><td>539, 565, 575</td></tr>
+<tr><td><code>maxWidth: 520</code></td><td>125, 513</td></tr>
+<tr><td><code>padding: 12</code></td><td>124, 513</td></tr>
+<tr><td><code>width: &#x27;100%&#x27;</code></td><td>125, 513</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-dashboardtsx">Dashboard.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/Dashboard.tsx">apps/platform-lab/src/mobile/Dashboard.tsx</a>; normalized SHA-256 <code>d1e39984d07c365185f14d4e4f0669ef3813088d713fd865f8abf185927c64cf</code>.</p>
@@ -472,14 +477,14 @@
 <tr><td><code>paddingVertical: 3</code></td><td>24</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-developmenthubtsx">DevelopmentHub.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/DevelopmentHub.tsx">apps/platform-lab/src/mobile/DevelopmentHub.tsx</a>; normalized SHA-256 <code>0d37b4c47999c2b7f8c69f96510d0f07c2cbc393cbb1fcd61d2c4e638a239167</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/DevelopmentHub.tsx">apps/platform-lab/src/mobile/DevelopmentHub.tsx</a>; normalized SHA-256 <code>8df8abef0d007f5d2a4a8ac0599c5dff937b80c7aadd9c58684d9012e0fd3ef5</code>.</p>
 <h4 id="chapter-implementation-inventory-geometry--opacity-declarations-9">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>gap: 10</code></td><td>6</td></tr>
 <tr><td><code>maxWidth: 520</code></td><td>6</td></tr>
-<tr><td><code>maxWidth: 720</code></td><td>37</td></tr>
-<tr><td><code>padding: 10</code></td><td>37</td></tr>
-<tr><td><code>width: &#x27;100%&#x27;</code></td><td>6, 37</td></tr>
+<tr><td><code>maxWidth: 720</code></td><td>36</td></tr>
+<tr><td><code>padding: 10</code></td><td>36</td></tr>
+<tr><td><code>width: &#x27;100%&#x27;</code></td><td>6, 36</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-diagnosticstsx">Diagnostics.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/Diagnostics.tsx">apps/platform-lab/src/mobile/Diagnostics.tsx</a>; normalized SHA-256 <code>cc418e9dec9a883c0d615f64fc7efad38e65e07a20524f3492375a5e30da1e4f</code>.</p>
@@ -555,139 +560,139 @@
 <tr><td><code>width: &#x27;100%&#x27;</code></td><td>54</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-mobileapptsx">MobileApp.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/MobileApp.tsx">apps/platform-lab/src/mobile/MobileApp.tsx</a>; normalized SHA-256 <code>50f02920007f0b79b77474f9dd456d6e80b067610eb9df7dd11844667c3163cb</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/MobileApp.tsx">apps/platform-lab/src/mobile/MobileApp.tsx</a>; normalized SHA-256 <code>c7eae2d80a151ca77f40c5ffc751a4950c0c7fe92648e857966bc2ea1a67ed2c</code>.</p>
 <h4 id="chapter-implementation-inventory-literal-colors-6">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><i class="swatch" style="background:#00c8ff" aria-hidden="true"></i><code>#00c8ff</code></td><td>237, 279</td></tr>
-<tr><td><i class="swatch" style="background:#020e17" aria-hidden="true"></i><code>#020e17</code></td><td>279</td></tr>
-<tr><td><i class="swatch" style="background:#064240" aria-hidden="true"></i><code>#064240</code></td><td>274</td></tr>
-<tr><td><i class="swatch" style="background:#10233d" aria-hidden="true"></i><code>#10233d</code></td><td>276</td></tr>
-<tr><td><i class="swatch" style="background:#10263e" aria-hidden="true"></i><code>#10263e</code></td><td>278</td></tr>
-<tr><td><i class="swatch" style="background:#10282d" aria-hidden="true"></i><code>#10282d</code></td><td>274</td></tr>
-<tr><td><i class="swatch" style="background:#102d47aa" aria-hidden="true"></i><code>#102d47aa</code></td><td>269</td></tr>
-<tr><td><i class="swatch" style="background:#11263a" aria-hidden="true"></i><code>#11263a</code></td><td>273</td></tr>
-<tr><td><i class="swatch" style="background:#152d42" aria-hidden="true"></i><code>#152d42</code></td><td>275</td></tr>
-<tr><td><i class="swatch" style="background:#1b344a" aria-hidden="true"></i><code>#1b344a</code></td><td>278</td></tr>
-<tr><td><i class="swatch" style="background:#1c3449" aria-hidden="true"></i><code>#1c3449</code></td><td>279</td></tr>
-<tr><td><i class="swatch" style="background:#227f87" aria-hidden="true"></i><code>#227f87</code></td><td>274</td></tr>
-<tr><td><i class="swatch" style="background:#354d74" aria-hidden="true"></i><code>#354d74</code></td><td>276</td></tr>
-<tr><td><i class="swatch" style="background:#3a5a8b" aria-hidden="true"></i><code>#3a5a8b</code></td><td>278</td></tr>
-<tr><td><i class="swatch" style="background:#78efdc" aria-hidden="true"></i><code>#78efdc</code></td><td>276</td></tr>
-<tr><td><i class="swatch" style="background:#8ba4bc" aria-hidden="true"></i><code>#8ba4bc</code></td><td>236, 271</td></tr>
+<tr><td><i class="swatch" style="background:#00c8ff" aria-hidden="true"></i><code>#00c8ff</code></td><td>235, 277</td></tr>
+<tr><td><i class="swatch" style="background:#020e17" aria-hidden="true"></i><code>#020e17</code></td><td>277</td></tr>
+<tr><td><i class="swatch" style="background:#064240" aria-hidden="true"></i><code>#064240</code></td><td>272</td></tr>
+<tr><td><i class="swatch" style="background:#10233d" aria-hidden="true"></i><code>#10233d</code></td><td>274</td></tr>
+<tr><td><i class="swatch" style="background:#10263e" aria-hidden="true"></i><code>#10263e</code></td><td>276</td></tr>
+<tr><td><i class="swatch" style="background:#10282d" aria-hidden="true"></i><code>#10282d</code></td><td>272</td></tr>
+<tr><td><i class="swatch" style="background:#102d47aa" aria-hidden="true"></i><code>#102d47aa</code></td><td>267</td></tr>
+<tr><td><i class="swatch" style="background:#11263a" aria-hidden="true"></i><code>#11263a</code></td><td>271</td></tr>
+<tr><td><i class="swatch" style="background:#152d42" aria-hidden="true"></i><code>#152d42</code></td><td>273</td></tr>
+<tr><td><i class="swatch" style="background:#1b344a" aria-hidden="true"></i><code>#1b344a</code></td><td>276</td></tr>
+<tr><td><i class="swatch" style="background:#1c3449" aria-hidden="true"></i><code>#1c3449</code></td><td>277</td></tr>
+<tr><td><i class="swatch" style="background:#227f87" aria-hidden="true"></i><code>#227f87</code></td><td>272</td></tr>
+<tr><td><i class="swatch" style="background:#354d74" aria-hidden="true"></i><code>#354d74</code></td><td>274</td></tr>
+<tr><td><i class="swatch" style="background:#3a5a8b" aria-hidden="true"></i><code>#3a5a8b</code></td><td>276</td></tr>
+<tr><td><i class="swatch" style="background:#78efdc" aria-hidden="true"></i><code>#78efdc</code></td><td>274</td></tr>
+<tr><td><i class="swatch" style="background:#8ba4bc" aria-hidden="true"></i><code>#8ba4bc</code></td><td>234, 269</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-typography-declarations-7">Typography declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>fontSize: 10</code></td><td>225, 236, 271</td></tr>
-<tr><td><code>fontSize: 11</code></td><td>230, 272, 279</td></tr>
-<tr><td><code>fontSize: 12</code></td><td>274</td></tr>
-<tr><td><code>fontSize: 13</code></td><td>226, 273, 278</td></tr>
-<tr><td><code>fontSize: 20</code></td><td>272</td></tr>
-<tr><td><code>fontSize: 23</code></td><td>277</td></tr>
-<tr><td><code>fontSize: 25</code></td><td>279</td></tr>
-<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>272, 274</td></tr>
-<tr><td><code>letterSpacing: .6</code></td><td>271</td></tr>
-<tr><td><code>lineHeight: 16</code></td><td>236, 271, 272, 279</td></tr>
-<tr><td><code>lineHeight: 17</code></td><td>274</td></tr>
-<tr><td><code>lineHeight: 25</code></td><td>272</td></tr>
-<tr><td><code>lineHeight: 29</code></td><td>279</td></tr>
+<tr><td><code>fontSize: 10</code></td><td>223, 234, 269</td></tr>
+<tr><td><code>fontSize: 11</code></td><td>228, 270, 277</td></tr>
+<tr><td><code>fontSize: 12</code></td><td>272</td></tr>
+<tr><td><code>fontSize: 13</code></td><td>224, 271, 276</td></tr>
+<tr><td><code>fontSize: 20</code></td><td>270</td></tr>
+<tr><td><code>fontSize: 23</code></td><td>275</td></tr>
+<tr><td><code>fontSize: 25</code></td><td>277</td></tr>
+<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>270, 272</td></tr>
+<tr><td><code>letterSpacing: .6</code></td><td>269</td></tr>
+<tr><td><code>lineHeight: 16</code></td><td>234, 269, 270, 277</td></tr>
+<tr><td><code>lineHeight: 17</code></td><td>272</td></tr>
+<tr><td><code>lineHeight: 25</code></td><td>270</td></tr>
+<tr><td><code>lineHeight: 29</code></td><td>277</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-geometry--opacity-declarations-16">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>borderRadius: 12</code></td><td>274, 277</td></tr>
-<tr><td><code>borderRadius: 13</code></td><td>274</td></tr>
-<tr><td><code>borderRadius: 14</code></td><td>269</td></tr>
-<tr><td><code>borderRadius: 15</code></td><td>276</td></tr>
-<tr><td><code>borderRadius: 17</code></td><td>275</td></tr>
-<tr><td><code>borderRadius: 2</code></td><td>279</td></tr>
-<tr><td><code>borderRadius: 20</code></td><td>278</td></tr>
-<tr><td><code>borderRadius: 21</code></td><td>278</td></tr>
-<tr><td><code>borderRadius: 22</code></td><td>273</td></tr>
-<tr><td><code>borderRadius: 24</code></td><td>273</td></tr>
-<tr><td><code>borderRadius: 9</code></td><td>274</td></tr>
-<tr><td><code>borderWidth: 1</code></td><td>273, 274, 277, 278</td></tr>
-<tr><td><code>gap: 1</code></td><td>272, 279</td></tr>
-<tr><td><code>gap: 10</code></td><td>188, 205, 276</td></tr>
-<tr><td><code>gap: 3</code></td><td>271, 274</td></tr>
-<tr><td><code>gap: 5</code></td><td>273</td></tr>
-<tr><td><code>gap: 6</code></td><td>277, 278</td></tr>
-<tr><td><code>gap: 7</code></td><td>273, 276</td></tr>
-<tr><td><code>gap: 8</code></td><td>251, 253, 268, 275, 278</td></tr>
-<tr><td><code>height: 2</code></td><td>279</td></tr>
-<tr><td><code>height: 30</code></td><td>276</td></tr>
-<tr><td><code>height: 42</code></td><td>278</td></tr>
-<tr><td><code>height: 48</code></td><td>269</td></tr>
-<tr><td><code>maxHeight: 150</code></td><td>278</td></tr>
-<tr><td><code>maxWidth: 430</code></td><td>113, 276</td></tr>
-<tr><td><code>maxWidth: 480</code></td><td>205</td></tr>
-<tr><td><code>maxWidth: 520</code></td><td>251, 253</td></tr>
-<tr><td><code>maxWidth: 599</code></td><td>267, 279</td></tr>
-<tr><td><code>maxWidth: 600</code></td><td>183, 237</td></tr>
-<tr><td><code>maxWidth: 720</code></td><td>223</td></tr>
-<tr><td><code>maxWidth: 960</code></td><td>183, 237</td></tr>
-<tr><td><code>minHeight: 126</code></td><td>276</td></tr>
-<tr><td><code>minHeight: 34</code></td><td>275</td></tr>
-<tr><td><code>minHeight: 36</code></td><td>270</td></tr>
-<tr><td><code>minHeight: 40</code></td><td>273, 278</td></tr>
-<tr><td><code>minHeight: 48</code></td><td>273, 275</td></tr>
-<tr><td><code>minHeight: 60</code></td><td>279</td></tr>
-<tr><td><code>minHeight: 64</code></td><td>274</td></tr>
-<tr><td><code>minHeight: 66</code></td><td>274</td></tr>
-<tr><td><code>minHeight: 70</code></td><td>277</td></tr>
-<tr><td><code>minWidth: 0</code></td><td>272, 273</td></tr>
-<tr><td><code>opacity: .45</code></td><td>228</td></tr>
-<tr><td><code>padding: 0</code></td><td>275</td></tr>
-<tr><td><code>padding: 10</code></td><td>268, 277</td></tr>
-<tr><td><code>padding: 4</code></td><td>271, 278</td></tr>
-<tr><td><code>padding: 7</code></td><td>274</td></tr>
-<tr><td><code>paddingHorizontal: 12</code></td><td>273</td></tr>
-<tr><td><code>paddingHorizontal: 16</code></td><td>275</td></tr>
-<tr><td><code>paddingHorizontal: 6</code></td><td>274</td></tr>
-<tr><td><code>paddingHorizontal: 7</code></td><td>274</td></tr>
-<tr><td><code>paddingHorizontal: 8</code></td><td>278</td></tr>
-<tr><td><code>paddingVertical: 10</code></td><td>274</td></tr>
-<tr><td><code>paddingVertical: 4</code></td><td>273, 279</td></tr>
-<tr><td><code>width: &#x27;100%&#x27;</code></td><td>113, 188, 189, 190, 205, 216, 236, 251, 253, 267, 275, 276, 279</td></tr>
-<tr><td><code>width: &#x27;33.333333%&#x27;</code></td><td>279</td></tr>
-<tr><td><code>width: &#x27;49.2%&#x27;</code></td><td>275</td></tr>
-<tr><td><code>width: 24</code></td><td>279</td></tr>
-<tr><td><code>width: 30</code></td><td>276</td></tr>
-<tr><td><code>width: 42</code></td><td>273, 278</td></tr>
-<tr><td><code>width: 48</code></td><td>269</td></tr>
-<tr><td><code>width: 64</code></td><td>274</td></tr>
+<tr><td><code>borderRadius: 12</code></td><td>272, 275</td></tr>
+<tr><td><code>borderRadius: 13</code></td><td>272</td></tr>
+<tr><td><code>borderRadius: 14</code></td><td>267</td></tr>
+<tr><td><code>borderRadius: 15</code></td><td>274</td></tr>
+<tr><td><code>borderRadius: 17</code></td><td>273</td></tr>
+<tr><td><code>borderRadius: 2</code></td><td>277</td></tr>
+<tr><td><code>borderRadius: 20</code></td><td>276</td></tr>
+<tr><td><code>borderRadius: 21</code></td><td>276</td></tr>
+<tr><td><code>borderRadius: 22</code></td><td>271</td></tr>
+<tr><td><code>borderRadius: 24</code></td><td>271</td></tr>
+<tr><td><code>borderRadius: 9</code></td><td>272</td></tr>
+<tr><td><code>borderWidth: 1</code></td><td>271, 272, 275, 276</td></tr>
+<tr><td><code>gap: 1</code></td><td>270, 277</td></tr>
+<tr><td><code>gap: 10</code></td><td>186, 203, 274</td></tr>
+<tr><td><code>gap: 3</code></td><td>269, 272</td></tr>
+<tr><td><code>gap: 5</code></td><td>271</td></tr>
+<tr><td><code>gap: 6</code></td><td>275, 276</td></tr>
+<tr><td><code>gap: 7</code></td><td>271, 274</td></tr>
+<tr><td><code>gap: 8</code></td><td>249, 251, 266, 273, 276</td></tr>
+<tr><td><code>height: 2</code></td><td>277</td></tr>
+<tr><td><code>height: 30</code></td><td>274</td></tr>
+<tr><td><code>height: 42</code></td><td>276</td></tr>
+<tr><td><code>height: 48</code></td><td>267</td></tr>
+<tr><td><code>maxHeight: 150</code></td><td>276</td></tr>
+<tr><td><code>maxWidth: 430</code></td><td>112, 274</td></tr>
+<tr><td><code>maxWidth: 480</code></td><td>203</td></tr>
+<tr><td><code>maxWidth: 520</code></td><td>249, 251</td></tr>
+<tr><td><code>maxWidth: 599</code></td><td>265, 277</td></tr>
+<tr><td><code>maxWidth: 600</code></td><td>181, 235</td></tr>
+<tr><td><code>maxWidth: 720</code></td><td>221</td></tr>
+<tr><td><code>maxWidth: 960</code></td><td>181, 235</td></tr>
+<tr><td><code>minHeight: 126</code></td><td>274</td></tr>
+<tr><td><code>minHeight: 34</code></td><td>273</td></tr>
+<tr><td><code>minHeight: 36</code></td><td>268</td></tr>
+<tr><td><code>minHeight: 40</code></td><td>271, 276</td></tr>
+<tr><td><code>minHeight: 48</code></td><td>271, 273</td></tr>
+<tr><td><code>minHeight: 60</code></td><td>277</td></tr>
+<tr><td><code>minHeight: 64</code></td><td>272</td></tr>
+<tr><td><code>minHeight: 66</code></td><td>272</td></tr>
+<tr><td><code>minHeight: 70</code></td><td>275</td></tr>
+<tr><td><code>minWidth: 0</code></td><td>270, 271</td></tr>
+<tr><td><code>opacity: .45</code></td><td>226</td></tr>
+<tr><td><code>padding: 0</code></td><td>273</td></tr>
+<tr><td><code>padding: 10</code></td><td>266, 275</td></tr>
+<tr><td><code>padding: 4</code></td><td>269, 276</td></tr>
+<tr><td><code>padding: 7</code></td><td>272</td></tr>
+<tr><td><code>paddingHorizontal: 12</code></td><td>271</td></tr>
+<tr><td><code>paddingHorizontal: 16</code></td><td>273</td></tr>
+<tr><td><code>paddingHorizontal: 6</code></td><td>272</td></tr>
+<tr><td><code>paddingHorizontal: 7</code></td><td>272</td></tr>
+<tr><td><code>paddingHorizontal: 8</code></td><td>276</td></tr>
+<tr><td><code>paddingVertical: 10</code></td><td>272</td></tr>
+<tr><td><code>paddingVertical: 4</code></td><td>271, 277</td></tr>
+<tr><td><code>width: &#x27;100%&#x27;</code></td><td>112, 186, 187, 188, 203, 214, 234, 249, 251, 265, 273, 274, 277</td></tr>
+<tr><td><code>width: &#x27;33.333333%&#x27;</code></td><td>277</td></tr>
+<tr><td><code>width: &#x27;49.2%&#x27;</code></td><td>273</td></tr>
+<tr><td><code>width: 24</code></td><td>277</td></tr>
+<tr><td><code>width: 30</code></td><td>274</td></tr>
+<tr><td><code>width: 42</code></td><td>271, 276</td></tr>
+<tr><td><code>width: 48</code></td><td>267</td></tr>
+<tr><td><code>width: 64</code></td><td>272</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-ownflightstsx">OwnFlights.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/OwnFlights.tsx">apps/platform-lab/src/mobile/OwnFlights.tsx</a>; normalized SHA-256 <code>d6b0a858bf90d6adce4a9638abfc6da6575c180904b3667ef02df93d3b5635aa</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/OwnFlights.tsx">apps/platform-lab/src/mobile/OwnFlights.tsx</a>; normalized SHA-256 <code>c2dc0e3312be34cb43017084a39aad7814ea11293771dd7ff8d693ea7ceee458</code>.</p>
 <h4 id="chapter-implementation-inventory-literal-colors-7">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><i class="swatch" style="background:#11263a" aria-hidden="true"></i><code>#11263a</code></td><td>135</td></tr>
+<tr><td><i class="swatch" style="background:#11263a" aria-hidden="true"></i><code>#11263a</code></td><td>134</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-typography-declarations-8">Typography declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>fontSize: 13</code></td><td>136</td></tr>
-<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>85</td></tr>
+<tr><td><code>fontSize: 13</code></td><td>135</td></tr>
+<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>84</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-geometry--opacity-declarations-17">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>borderRadius: 13</code></td><td>134</td></tr>
-<tr><td><code>borderRadius: 22</code></td><td>135</td></tr>
-<tr><td><code>borderRadius: 24</code></td><td>136</td></tr>
-<tr><td><code>borderWidth: 1</code></td><td>135</td></tr>
-<tr><td><code>gap: 2</code></td><td>123</td></tr>
-<tr><td><code>gap: 3</code></td><td>134</td></tr>
-<tr><td><code>gap: 5</code></td><td>56</td></tr>
-<tr><td><code>gap: 7</code></td><td>135</td></tr>
-<tr><td><code>gap: 8</code></td><td>81, 133</td></tr>
-<tr><td><code>height: 7</code></td><td>93</td></tr>
-<tr><td><code>maxWidth: &#x27;50%&#x27;</code></td><td>84</td></tr>
-<tr><td><code>maxWidth: 520</code></td><td>133</td></tr>
-<tr><td><code>minHeight: 48</code></td><td>136</td></tr>
-<tr><td><code>minWidth: 0</code></td><td>135</td></tr>
-<tr><td><code>padding: 10</code></td><td>133</td></tr>
-<tr><td><code>padding: 7</code></td><td>134</td></tr>
-<tr><td><code>paddingHorizontal: 12</code></td><td>135</td></tr>
-<tr><td><code>paddingVertical: 4</code></td><td>136</td></tr>
-<tr><td><code>width: &#x27;100%&#x27;</code></td><td>133</td></tr>
-<tr><td><code>width: 48</code></td><td>136</td></tr>
+<tr><td><code>borderRadius: 13</code></td><td>133</td></tr>
+<tr><td><code>borderRadius: 22</code></td><td>134</td></tr>
+<tr><td><code>borderRadius: 24</code></td><td>135</td></tr>
+<tr><td><code>borderWidth: 1</code></td><td>134</td></tr>
+<tr><td><code>gap: 2</code></td><td>122</td></tr>
+<tr><td><code>gap: 3</code></td><td>133</td></tr>
+<tr><td><code>gap: 5</code></td><td>55</td></tr>
+<tr><td><code>gap: 7</code></td><td>134</td></tr>
+<tr><td><code>gap: 8</code></td><td>80, 132</td></tr>
+<tr><td><code>height: 7</code></td><td>92</td></tr>
+<tr><td><code>maxWidth: &#x27;50%&#x27;</code></td><td>83</td></tr>
+<tr><td><code>maxWidth: 520</code></td><td>132</td></tr>
+<tr><td><code>minHeight: 48</code></td><td>135</td></tr>
+<tr><td><code>minWidth: 0</code></td><td>134</td></tr>
+<tr><td><code>padding: 10</code></td><td>132</td></tr>
+<tr><td><code>padding: 7</code></td><td>133</td></tr>
+<tr><td><code>paddingHorizontal: 12</code></td><td>134</td></tr>
+<tr><td><code>paddingVertical: 4</code></td><td>135</td></tr>
+<tr><td><code>width: &#x27;100%&#x27;</code></td><td>132</td></tr>
+<tr><td><code>width: 48</code></td><td>135</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-paperstatustsx">PaperStatus.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/PaperStatus.tsx">apps/platform-lab/src/mobile/PaperStatus.tsx</a>; normalized SHA-256 <code>d030bb2911e9f988f450f9ae521677534c839dba425b0b4b24c7791015d14aa9</code>.</p>
@@ -698,7 +703,7 @@
 <tr><td><code>width: &#x27;100%&#x27;</code></td><td>8</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-profilesettingstsx">ProfileSettings.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/ProfileSettings.tsx">apps/platform-lab/src/mobile/ProfileSettings.tsx</a>; normalized SHA-256 <code>290202c399401edf906c8ee5d699397329be91ca6d0d4e33aa7492057045803b</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/ProfileSettings.tsx">apps/platform-lab/src/mobile/ProfileSettings.tsx</a>; normalized SHA-256 <code>a3fc874aaa3275cea16b81ce64e479629932c8e9ac9ec47390097f3538a2c86f</code>.</p>
 <h4 id="chapter-implementation-inventory-literal-colors-8">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><i class="swatch" style="background:#ffba9b" aria-hidden="true"></i><code>#ffba9b</code></td><td>67</td></tr>
@@ -722,48 +727,48 @@
 <tr><td><code>width: &#x27;100%&#x27;</code></td><td>76</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-providerconnectiontsx">ProviderConnection.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/ProviderConnection.tsx">apps/platform-lab/src/mobile/ProviderConnection.tsx</a>; normalized SHA-256 <code>d24b1ecb4bf9b768dbc63b5ae24e2dba6baadd0e6b7294e91a905f1b64b67195</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/ProviderConnection.tsx">apps/platform-lab/src/mobile/ProviderConnection.tsx</a>; normalized SHA-256 <code>caaf08ebfc695a18f5b84e1a37982c2012e1543fe197ceabfa5703c067e115fb</code>.</p>
 <h4 id="chapter-implementation-inventory-literal-colors-9">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><i class="swatch" style="background:#102d47aa" aria-hidden="true"></i><code>#102d47aa</code></td><td>205</td></tr>
+<tr><td><i class="swatch" style="background:#102d47aa" aria-hidden="true"></i><code>#102d47aa</code></td><td>208</td></tr>
 <tr><td><i class="swatch" style="background:#ffb39e" aria-hidden="true"></i><code>#ffb39e</code></td><td>29</td></tr>
-<tr><td><code>white</code></td><td>208</td></tr>
+<tr><td><code>white</code></td><td>211</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-typography-declarations-10">Typography declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>fontSize: 12</code></td><td>29</td></tr>
-<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>73, 92, 108</td></tr>
+<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>76, 95, 111</td></tr>
 <tr><td><code>fontWeight: &#x27;700&#x27;</code></td><td>29</td></tr>
 <tr><td><code>lineHeight: 15</code></td><td>29</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-geometry--opacity-declarations-20">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>borderRadius: 10</code></td><td>215</td></tr>
-<tr><td><code>borderRadius: 14</code></td><td>205</td></tr>
-<tr><td><code>borderRadius: 7</code></td><td>207</td></tr>
-<tr><td><code>borderRadius: 8</code></td><td>206</td></tr>
-<tr><td><code>borderWidth: 1</code></td><td>215</td></tr>
-<tr><td><code>borderWidth: 2</code></td><td>207</td></tr>
-<tr><td><code>gap: 10</code></td><td>214</td></tr>
-<tr><td><code>gap: 12</code></td><td>210</td></tr>
-<tr><td><code>gap: 4</code></td><td>76, 78</td></tr>
-<tr><td><code>gap: 6</code></td><td>85, 95, 211</td></tr>
-<tr><td><code>height: 12</code></td><td>207</td></tr>
-<tr><td><code>height: 16</code></td><td>206</td></tr>
-<tr><td><code>height: 48</code></td><td>205</td></tr>
-<tr><td><code>maxWidth: 520</code></td><td>214</td></tr>
-<tr><td><code>maxWidth: 800</code></td><td>208</td></tr>
-<tr><td><code>minHeight: 48</code></td><td>213, 215</td></tr>
-<tr><td><code>minHeight: 68</code></td><td>210</td></tr>
-<tr><td><code>minWidth: 16</code></td><td>206</td></tr>
-<tr><td><code>opacity: 0</code></td><td>209</td></tr>
-<tr><td><code>padding: 10</code></td><td>210, 211, 214, 215</td></tr>
-<tr><td><code>paddingHorizontal: 12</code></td><td>76</td></tr>
-<tr><td><code>paddingHorizontal: 8</code></td><td>213</td></tr>
-<tr><td><code>paddingVertical: 10</code></td><td>213</td></tr>
-<tr><td><code>width: &#x27;100%&#x27;</code></td><td>208, 214</td></tr>
-<tr><td><code>width: 18</code></td><td>207</td></tr>
-<tr><td><code>width: 48</code></td><td>205</td></tr>
+<tr><td><code>borderRadius: 10</code></td><td>218</td></tr>
+<tr><td><code>borderRadius: 14</code></td><td>208</td></tr>
+<tr><td><code>borderRadius: 7</code></td><td>210</td></tr>
+<tr><td><code>borderRadius: 8</code></td><td>209</td></tr>
+<tr><td><code>borderWidth: 1</code></td><td>218</td></tr>
+<tr><td><code>borderWidth: 2</code></td><td>210</td></tr>
+<tr><td><code>gap: 10</code></td><td>217</td></tr>
+<tr><td><code>gap: 12</code></td><td>213</td></tr>
+<tr><td><code>gap: 4</code></td><td>79, 81</td></tr>
+<tr><td><code>gap: 6</code></td><td>88, 98, 214</td></tr>
+<tr><td><code>height: 12</code></td><td>210</td></tr>
+<tr><td><code>height: 16</code></td><td>209</td></tr>
+<tr><td><code>height: 48</code></td><td>208</td></tr>
+<tr><td><code>maxWidth: 520</code></td><td>217</td></tr>
+<tr><td><code>maxWidth: 800</code></td><td>211</td></tr>
+<tr><td><code>minHeight: 48</code></td><td>216, 218</td></tr>
+<tr><td><code>minHeight: 68</code></td><td>213</td></tr>
+<tr><td><code>minWidth: 16</code></td><td>209</td></tr>
+<tr><td><code>opacity: 0</code></td><td>212</td></tr>
+<tr><td><code>padding: 10</code></td><td>213, 214, 217, 218</td></tr>
+<tr><td><code>paddingHorizontal: 12</code></td><td>79</td></tr>
+<tr><td><code>paddingHorizontal: 8</code></td><td>216</td></tr>
+<tr><td><code>paddingVertical: 10</code></td><td>216</td></tr>
+<tr><td><code>width: &#x27;100%&#x27;</code></td><td>211, 217</td></tr>
+<tr><td><code>width: 18</code></td><td>210</td></tr>
+<tr><td><code>width: 48</code></td><td>208</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-rawcapturereviewtsx">RawCaptureReview.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/RawCaptureReview.tsx">apps/platform-lab/src/mobile/RawCaptureReview.tsx</a>; normalized SHA-256 <code>0d897511ac3fa00409c597a5d6fa2f8fd8b0f90551aac3ef8decd195646262e4</code>.</p>
@@ -917,9 +922,23 @@
 <tr><td><code>width: &#x27;100%&#x27;</code></td><td>33</td></tr>
 <tr><td><code>width: &#x27;40%&#x27;</code></td><td>33</td></tr>
 </tbody></table></div>
+<h3 id="chapter-implementation-inventory-updatedialogtsx">UpdateDialog.tsx</h3>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/UpdateDialog.tsx">apps/platform-lab/src/mobile/UpdateDialog.tsx</a>; normalized SHA-256 <code>bbb91b74a6b11df0ad067bc927193d4b77999ab261cbaf4345114bb799dc50b5</code>.</p>
+<h4 id="chapter-implementation-inventory-literal-colors-14">Literal colors</h4>
+<div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
+<tr><td><i class="swatch" style="background:#000000" aria-hidden="true"></i><code>#000000</code></td><td>29</td></tr>
+<tr><td><i class="swatch" style="background:#000712bd" aria-hidden="true"></i><code>#000712bd</code></td><td>27</td></tr>
+<tr><td><i class="swatch" style="background:#426783" aria-hidden="true"></i><code>#426783</code></td><td>28</td></tr>
+</tbody></table></div>
+<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-25">Geometry / opacity declarations</h4>
+<div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
+<tr><td><code>borderRadius: 22</code></td><td>28</td></tr>
+<tr><td><code>borderWidth: 1</code></td><td>28</td></tr>
+<tr><td><code>shadowOpacity: .5</code></td><td>29</td></tr>
+</tbody></table></div>
 <h3 id="chapter-implementation-inventory-accessprobetsx">AccessProbe.tsx</h3>
 <p>Retained app-owned lab/adapter surface; document its existing appearance as an exception. Source: <a href="../../../apps/platform-lab/src/vereinsflieger/AccessProbe.tsx">apps/platform-lab/src/vereinsflieger/AccessProbe.tsx</a>; normalized SHA-256 <code>5b64a01f9baeb968fb58ee20855e1694e2c53b06f6348f1c4e36dad3377239ff</code>.</p>
-<h4 id="chapter-implementation-inventory-literal-colors-14">Literal colors</h4>
+<h4 id="chapter-implementation-inventory-literal-colors-15">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><i class="swatch" style="background:#173a57" aria-hidden="true"></i><code>#173a57</code></td><td>50</td></tr>
 <tr><td><i class="swatch" style="background:#174c72" aria-hidden="true"></i><code>#174c72</code></td><td>50</td></tr>
@@ -937,7 +956,7 @@
 <tr><td><code>fontWeight: &#x27;700&#x27;</code></td><td>50</td></tr>
 <tr><td><code>lineHeight: 21</code></td><td>50</td></tr>
 </tbody></table></div>
-<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-25">Geometry / opacity declarations</h4>
+<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-26">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>borderRadius: 6</code></td><td>50</td></tr>
 <tr><td><code>borderWidth: 1</code></td><td>50</td></tr>
@@ -954,7 +973,7 @@
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-captureruntsx">CaptureRun.tsx</h3>
 <p>Retained app-owned lab/adapter surface; document its existing appearance as an exception. Source: <a href="../../../apps/platform-lab/src/vereinsflieger/CaptureRun.tsx">apps/platform-lab/src/vereinsflieger/CaptureRun.tsx</a>; normalized SHA-256 <code>d06673feadf63177de982d7a1dec91de596b9ff548b5a8acd35f436ec8c24d6a</code>.</p>
-<h4 id="chapter-implementation-inventory-literal-colors-15">Literal colors</h4>
+<h4 id="chapter-implementation-inventory-literal-colors-16">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><i class="swatch" style="background:#174c72" aria-hidden="true"></i><code>#174c72</code></td><td>52</td></tr>
 <tr><td><code>white</code></td><td>11</td></tr>
@@ -964,7 +983,7 @@
 <tr><td><code>fontSize: 22</code></td><td>52</td></tr>
 <tr><td><code>fontWeight: &#x27;700&#x27;</code></td><td>52</td></tr>
 </tbody></table></div>
-<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-26">Geometry / opacity declarations</h4>
+<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-27">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>borderRadius: 6</code></td><td>52</td></tr>
 <tr><td><code>gap: 10</code></td><td>52</td></tr>
@@ -975,7 +994,7 @@
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-windowcapturetsx">WindowCapture.tsx</h3>
 <p>Retained app-owned lab/adapter surface; document its existing appearance as an exception. Source: <a href="../../../apps/platform-lab/src/vereinsflieger/WindowCapture.tsx">apps/platform-lab/src/vereinsflieger/WindowCapture.tsx</a>; normalized SHA-256 <code>fb270278f16b64123b91586bd254dec10f4ea5c97c72627114a399971d0fe6db</code>.</p>
-<h4 id="chapter-implementation-inventory-literal-colors-16">Literal colors</h4>
+<h4 id="chapter-implementation-inventory-literal-colors-17">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><i class="swatch" style="background:#174c72" aria-hidden="true"></i><code>#174c72</code></td><td>80</td></tr>
 <tr><td><code>white</code></td><td>12</td></tr>
@@ -985,7 +1004,7 @@
 <tr><td><code>fontSize: 22</code></td><td>80</td></tr>
 <tr><td><code>fontWeight: &#x27;700&#x27;</code></td><td>80</td></tr>
 </tbody></table></div>
-<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-27">Geometry / opacity declarations</h4>
+<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-28">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>borderRadius: 6</code></td><td>80</td></tr>
 <tr><td><code>gap: 10</code></td><td>80</td></tr>
@@ -1125,7 +1144,7 @@
 <dt>Appearance</dt><dd>Selected Modern Duotone refresh symbol with Daten and relative received age; green frame/text under one hour, amber from one hour, neutral when unknown.</dd>
 <dt>Where</dt><dd>Ordinary app header; separate from provider-panel session indicators.</dd>
 <dt>Meaning</dt><dd>Age of the selected owner/account library’s last durably saved successful flight-data retrieval. No live-login or all-category freshness promise.</dd>
-<dt>Function / action</dt><dd>Tap explicitly fetches new Vereinsflieger data through the shared update flow; original login appears only if needed. Contextual return is preserved.</dd>
+<dt>Function / action</dt><dd>The header is the only entry to provider update/login. Tap opens the whole update journey in a retained centered popup frame; original login appears only if needed. Other pages provide passive guidance. Contextual return is preserved.</dd>
 <dt>States / limits</dt><dd>Green &lt;1 hour; amber &gt;=1 hour; neutral missing/invalid/future timestamp. Visible relative age and accessible exact time. Failed updates and session checks do not renew it.</dd>
 <dt>Source</dt><dd><a href="../../../apps/platform-lab/src/mobile/DataUpdateIndicator.tsx">apps/platform-lab/src/mobile/DataUpdateIndicator.tsx</a><br>DataUpdateIndicator; dataUpdateStatus; glyphs.svg #refresh</dd></dl></article>
 <article class="entry" id="S02"><div class="entry-head"><div class="sample" role="img" aria-label="Last confirmed session check sample"><span class="connection"><img src="data:image/png;base64,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" alt="Selected duotone chain"><b>✓</b></span></div><div><p class="eyebrow">S02 · Current native UI · selected duotone</p><h4>Last confirmed session check</h4></div></div><dl>
@@ -1427,7 +1446,8 @@ Keep German labels beside important navigation/status symbols. Show saved facts 
 7. Manuel’s **22 October Start feedback (#54)** supersedes two simultaneous monthly plots and all season/month/latest-flight detail entry points with one chart, Flüge/Flugstunden measure chips and two read-only recent-flight boxes. Local preparation has visible busy feedback; details belong in the Flüge tab.
 8. Manuel&#x27;s **22 October implement instruction** selects the alternative Start layout under [#20](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/20#issuecomment-6340199647): count/known-time KPIs replace rings, compact aircraft/recent-flight rows, a general Alle anzeigen route to Flüge, responsive month chart/lower legend and a 40 dp header logo. This supersedes those scoped ring/layout values; status meanings and five tabs remain.
 9. Manuel&#x27;s **22 October data-update header instruction (#22)** supersedes the ordinary header connection/session symbol with an explicit data-fetch action and durable received-age display: green under one hour, amber for older data, neutral when unknown; login opens only when an update needs it. Provider-panel verification remains separate.
-10. This handbook consolidates those decisions. Earlier prototype choices apply only where explicitly carried forward. Code values record implementation and cannot approve an unresolved visual difference.
+10. Manuel&#x27;s **22 October popup/header-only instruction (#22)** places the complete update journey, including original login when required, in a bounded rounded navy frame over a dimmed inert page. Only the header data button opens provider update/login; other pages give passive header guidance and retain offline administration. The retained browser parent and credential-activity behavior remain protected.
+11. This handbook consolidates those decisions. Earlier prototype choices apply only where explicitly carried forward. Code values record implementation and cannot approve an unresolved visual difference.
 
 Manuel owns design decisions. Priorities, journeys and account/book behavior remain in the [project plan](../../project-plan.md), [journey map](../2026-10-13-journey-information-map.md) and feature contracts. Link those contracts rather than duplicating them here.
 
@@ -1581,7 +1601,7 @@ The 22 October header data-update amendment reuses `#74dfba` for saved data rece
 | C05 | Shared header | Fixed photo/shade, logo 40, title 18/24, controls 48; content minimum height 64 and padding 10/5 | Header can grow; minimum is not universal actual height. AppHeader. |
 | C06 | Header data/status group | Data-update age control, growing Med, profile soft tile; gap 4 | Refresh action shows saved received-age; provider session status stays in its panel. Back replaces logo on app overlays. AppHeader / DataUpdateIndicator / MedicalStatus / ShellIcons. |
 | C07 | Bottom navigation | Attached dark bar, five equal destinations, minimum target height 60; three-column wrapping below 600 dp with font scale above 1.3 | Icon above full system-scaled German label; final two wrapping items center. Standard text/width retains one row; cyan selected state. MobileApp. |
-| C08 | Overlay / provider panel | Current dark full app overlay with one active header; provider has its own toolbar/history | Different from pale v0.30 prototype sheets. MobileApp / ProviderConnection. |
+| C08 | Update popup / app overlays | Bounded centered navy update frame, radius22, border1, dim scrim; one active dialog, retained native child tree | UpdateDialog frames setup/login/progress/results; underlying page is visible but inert. Other app sheets keep their existing layout. ProviderConnection retains its toolbar/history inside the popup. |
 | C09 | Flight row | Padding 7, radius 13; date, aircraft, route/reported duration and detail chevron | Whole row opens selected-account saved source facts. Source reference/revision/original fields and absent-track context stay in details. Original fields use eight-field pages with concise Zurück / Weiter captions and full provider-field accessibility labels; first/last guards and contextual list return remain. [OwnFlights](../../../apps/platform-lab/src/mobile/OwnFlights.tsx); no inferred role or book assignment. |
 | C10 | AI question / composer | Question radius 12; composer radius 20; send face 42 × 42; input max height 150 | Local questions calculate deterministically; free-text service unavailable. MobileApp. |
 | C11 | Quiet paper entry | Minimum-height 48 row with paper-tone logbook symbol and detail chevron | Associated-account Start offers Papierflugbuch später einrichten and opens the deferred-setup explanation. The former photographic hero remains in the original reference. Synthetic saved paper status stays under Development; viewing never confirms copying. Dashboard / PaperStatus. |
@@ -1590,7 +1610,7 @@ The 22 October header data-update amendment reuses `#74dfba` for saved data rece
 | C14 | Synthetic import review | Shared C01/C02/C03 cards/actions/choice chips, centered group capped at 520 dp | Development-only comparison, source variants and explicit book choice; [ImportPreview](../../../apps/platform-lab/src/mobile/ImportPreview.tsx). No saved-library import. |
 | C15 | Captured flight review | Shared cards/actions in the connection panel&#x27;s centered 520 dp group; five records per page, eight original fields per detail page | [CapturedFlights](../../../apps/platform-lab/src/mobile/CapturedFlights.tsx) reads owner-scoped saved evidence without requiring provider login. Dates/clocks, reported duration, aircraft and separate crew fields retain unknown/invalid/conflict states; original field text is selectable and untruncated. No book membership or canonical import. |
 | C16 | Information source review | Shared C01/C02 controls in the connection panel&#x27;s centered 520 dp group; five raw rows per page, one immutable snapshot at a time | [InformationReview](../../../apps/platform-lab/src/mobile/InformationReview.tsx) shows retrieval time and recorded coverage, with older/newer controls available offline. Category counts use the latest snapshot. Blank extracted text stays unknown; known date-only document snapshots are marked incomplete. No canonical history or cross-snapshot aggregation. |
-| C17 | Own-flight loading | Shared C01/C02 controls, centered 520 dp groups; ordinary progress and secondary details | [CoreFlightFoundation](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx) coordinates one explicit action through internal fresh storage, original-provider authentication, verified retrieval and local save. A verified retained session avoids login; valid rows need no routine review/save tap. Source/account/recovery checks remain; unresolved recovery is visible outside the details disclosure. Custom period, raw review and real-history backup remain under Details &amp; weitere Optionen. The header data-update entry runs the combined update in the shared selected-owner panel, with login only when needed and contextual return. Profile retains the explicit connect-only entry. The same native browser remains mounted above tab navigation after closing; advanced library options are secondary. Original-login exposure comes from the explicit connection flow, without an outer login-enabled override. On Android, the measured keyboard frame caps progress and reserves the same retained browser viewport above the IME. The combined flow retains one progress card through original-provider sign-in, verification, flights/save and Medical; success/partial failure stays visible until acknowledgement, which returns to ordinary Flüge with the result. Opening options alone creates/retrieves nothing. |
+| C17 | Own-flight loading | Shared C01/C02 controls, centered 520 dp groups; ordinary progress and secondary details | [CoreFlightFoundation](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx) coordinates one explicit action through internal fresh storage, original-provider authentication, verified retrieval and local save. A verified retained session avoids login; valid rows need no routine review/save tap. Source/account/recovery checks remain; unresolved recovery is visible outside the details disclosure. Custom period, raw review and real-history backup remain under Details &amp; weitere Optionen. The header data-update entry runs the combined update in the shared selected-owner panel, with login only when needed and contextual return. Only the header admits provider work. Start/Flüge/Profile/status/Development retain passive guidance; non-header backup/library routes cannot open login. The same native browser remains mounted above tab navigation after closing; advanced library options are secondary. Original-login exposure comes from the explicit connection flow, without an outer login-enabled override. On Android, the measured keyboard frame caps progress and reserves the same retained browser viewport above the IME. The combined flow retains one progress card through original-provider sign-in, verification, flights/save and Medical; success/partial failure stays visible until acknowledgement, which returns to ordinary Flüge with the result. Opening options alone creates/retrieves nothing. |
 | C18 | Connection/data summary | Compact conditional Start row capped at 430 dp; Profile retains administration | [ConnectionSummary](../../../apps/platform-lab/src/mobile/ConnectionSummary.tsx) uses successful saved-retrieval time, with a reminder only after more than 72 hours or a positively identified change. Ordinary reminders can be hidden for 24 hours in the exact account/store scope. First-use/load failure/recovery remain actionable. Explicit update coordinates flights, Medical and separate duty capture; failures do not undo flight saves. Startup latest-flight observation is unavailable; no automatic provider request is enabled. |
 | C19 | Support diagnostics | Shared C01/C02 cards/actions and selectable report text in a centered 520 dp group | [Diagnostics](../../../apps/platform-lab/src/mobile/Diagnostics.tsx) via Settings; paged technical/action histories and protected failures; observed navigation transitions without inferred intent. Explicit full JSON-file sharing, bounded short text copying and diagnostic-only clearing; 1 MB total managed storage cap. No automatic transmission. |
 
@@ -1642,6 +1662,10 @@ The two recent read-only flights use radius 14 raised rows: date/start and durat
 ### Header data update — selected 22 October 2026
 
 The ordinary header uses [DataUpdateIndicator](../../../apps/platform-lab/src/mobile/DataUpdateIndicator.tsx): existing Modern Duotone refresh artwork, visible “Daten” and compact relative age, minimum74×48dp target. The frame and text are green (`#74dfba`) for a durably saved successful flight retrieval less than one hour old, amber (`#ffc477`) from one hour onward, neutral for no valid saved timestamp. Exact time and the update/login-if-needed purpose are in the accessible label/hint; the update panel retains exact saved-time wording. Color is accompanied by age text. Failure/cancellation/login checks cannot advance this timestamp. The selected owner/account library supplies it after restart; the local clock updates the age and crosses the hour boundary without provider requests. A successful empty/no-change retrieval counts. Medical/duty outcomes retain their separate category times; this control does not claim all source categories are current. The three-day Start reminder is unchanged. This supersedes the shell&#x27;s former connection/session badge; the provider panel still uses its separate connection indicator and proof safeguards.
+
+### Header-only update popup — 22 October 2026
+
+[UpdateDialog](../../../apps/platform-lab/src/mobile/UpdateDialog.tsx) supplies a centered max720×900dp frame,12dp outer margin below600dp and24dp at wider widths, safe-area bounds,22dp corners, slate border and deep navy scrim/surface. The original login website remains an external white surface inside this frame. Setup, progress, error/retry and completion stay in the same frame; closed visibility never replaces its native child parent. The background route stays visible but cannot receive pointer/accessibility interaction. Outside taps do not bypass cancellation/write safeguards. The inner provider panel uses zero additional safe-area padding and its frame&#x27;s actual window offset when reserving space above Android IME; a system-resized frame is not shrunk twice. Only the header data action opens provider work; all other data summaries are read-only and point to it. Local reload and offline backup/restore remain available.
 
 # Layout and presentation patterns
 
@@ -1695,7 +1719,7 @@ Keep header/navigation outside the scrolling canvas. Header order is logo/title,
 
 App overlays/details replace logo with contextual Back and expose one active accessible header. Return through nested overlays to prior page/filter/scroll state and unsaved local profile-name draft. Identical library reloads preserve the return path; changed book/flight facts invalidate stale details. An active backup/proof operation disables app Back, Profile and Medical until completion; provider Close/history remain separate. Medical opens a read-only unknown-record explanation.
 
-The header data shortcut starts the ordinary combined update, showing original login only when required. Profile retains connection administration; legacy provider/information diagnostics remain under Development. Provider Close, connection status and origin belong to its app-owned toolbar. Provider-history Back affects the original embedded webpage; Close returns to MoFlight without promising logout. Preserve retained browser parent, busy/recovery guards and provenance. OS-owned full-screen surfaces keep their own controls. The [earlier header decisions](../2026-10-18-header-status-review.md#package-1b-decision-checkpoint) retain their scope except for the 22 October data-update amendment below.
+The header data shortcut starts the ordinary combined update, showing original login only when required. Profile retains read-only data information and offline backup; legacy provider/information diagnostics remain under Development. Provider Close, connection status and origin belong to its app-owned toolbar. Provider-history Back affects the original embedded webpage; Close returns to MoFlight without promising logout. Preserve retained browser parent, busy/recovery guards and provenance. OS-owned full-screen surfaces keep their own controls. The [earlier header decisions](../2026-10-18-header-status-review.md#package-1b-decision-checkpoint) retain their scope except for the 22 October data-update amendment below.
 
 Bottom navigation has five equal icon/label destinations and semantic selected state. At widths below 600 dp with font scale above 1.3, reflow to three columns with the final two items centered so full labels retain system scaling; ordinary text/width keeps one row. Current code hides it with the AI keyboard and app/provider overlays. Do not reintroduce an old floating dock or add a destination through documentation cleanup. The generic Entwicklungsversion footer does not classify real saved flights as synthetic data.
 
@@ -1732,11 +1756,15 @@ Follow the [verification workflow](../../development/verification-workflow.md): 
 
 Header order is data update → Medical → Profile. The update button starts the existing explicit combined fetch, showing original login only if required. Use a refresh symbol, “Daten” and received-age wording; green under one hour, amber for older, neutral when unknown. Its durable successful flight-update timestamp survives background/restart and remains unchanged on failed/cancelled updates. The provider panel&#x27;s account-verification indicator remains a separate internal status. This amendment replaces only the former connection meaning/action in the ordinary shell; contextual return, selected-owner isolation and the separate three-day reminder remain.
 
+### One update/login entry — 22 October popup amendment
+
+Use only the header “Daten” button for new provider data and login. Start reminders, empty Flüge, Profile, status and Development explain this entry without duplicating it. Keep local reload, filters, diagnostics and offline backup independent. The whole update journey appears in a persistent framed popup over the dimmed inert invoking page; do not switch to a full provider screen or remount/move the WebView during Android credential activities. All retry, recovery, source-specific optional jobs and result acknowledgement stay inside that frame. Close and hardware Back preserve existing cancellation/save guards and contextual return.
+
 # Platform-lab UI implementation inventory
 
 [Handbook entry point](README.md). Generated by `python scripts/design_handbook.py`; do not hand-edit.
 
-Scope: 56 product mobile TypeScript/model and app-owned TSX UI/adapter files; 63 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.
+Scope: 57 product mobile TypeScript/model and app-owned TSX UI/adapter files; 66 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.
 
 ## App.tsx
 
@@ -1903,7 +1931,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/connection-guidan
 
 ## ConnectionSummary.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ConnectionSummary.tsx](../../../apps/platform-lab/src/mobile/ConnectionSummary.tsx); normalized SHA-256 `5a9470f5876e11c6fb734736c03c05e6b569d30f26bcb2fd79691849b970e3d5`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ConnectionSummary.tsx](../../../apps/platform-lab/src/mobile/ConnectionSummary.tsx); normalized SHA-256 `4a35152e7523f3c1a3dcd90dcdae886cbce4d0a47f9721c4e2ffd3aadef29487`.
 
 ### Geometry / opacity declarations
 
@@ -1914,17 +1942,17 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ConnectionSummary
 
 ## CoreFlightFoundation.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `b008bc80f72d480fa8fa502860f26246185feaa4f74ea3b046f7990f0defec02`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `3e08456e0afd120cf3f2009cfc8025d705eb2067ce9fb179717f87ab5d150580`.
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `gap: 10` | 124, 125, 512 |
-| `gap: 8` | 538, 564, 574 |
-| `maxWidth: 520` | 125, 512 |
-| `padding: 12` | 124, 512 |
-| `width: &#x27;100%&#x27;` | 125, 512 |
+| `gap: 10` | 124, 125, 513 |
+| `gap: 8` | 539, 565, 575 |
+| `maxWidth: 520` | 125, 513 |
+| `padding: 12` | 124, 513 |
+| `width: &#x27;100%&#x27;` | 125, 513 |
 
 ## Dashboard.tsx
 
@@ -2003,7 +2031,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DataUpdateIndicat
 
 ## DevelopmentHub.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DevelopmentHub.tsx](../../../apps/platform-lab/src/mobile/DevelopmentHub.tsx); normalized SHA-256 `0d37b4c47999c2b7f8c69f96510d0f07c2cbc393cbb1fcd61d2c4e638a239167`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DevelopmentHub.tsx](../../../apps/platform-lab/src/mobile/DevelopmentHub.tsx); normalized SHA-256 `8df8abef0d007f5d2a4a8ac0599c5dff937b80c7aadd9c58684d9012e0fd3ef5`.
 
 ### Geometry / opacity declarations
 
@@ -2011,9 +2039,9 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DevelopmentHub.ts
 | --- | --- |
 | `gap: 10` | 6 |
 | `maxWidth: 520` | 6 |
-| `maxWidth: 720` | 37 |
-| `padding: 10` | 37 |
-| `width: &#x27;100%&#x27;` | 6, 37 |
+| `maxWidth: 720` | 36 |
+| `padding: 10` | 36 |
+| `width: &#x27;100%&#x27;` | 6, 36 |
 
 ## Diagnostics.tsx
 
@@ -2120,154 +2148,154 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MedicalStatus.tsx
 
 ## MobileApp.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `50f02920007f0b79b77474f9dd456d6e80b067610eb9df7dd11844667c3163cb`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `c7eae2d80a151ca77f40c5ffc751a4950c0c7fe92648e857966bc2ea1a67ed2c`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#00c8ff` | 237, 279 |
-| `#020e17` | 279 |
-| `#064240` | 274 |
-| `#10233d` | 276 |
-| `#10263e` | 278 |
-| `#10282d` | 274 |
-| `#102d47aa` | 269 |
-| `#11263a` | 273 |
-| `#152d42` | 275 |
-| `#1b344a` | 278 |
-| `#1c3449` | 279 |
-| `#227f87` | 274 |
-| `#354d74` | 276 |
-| `#3a5a8b` | 278 |
-| `#78efdc` | 276 |
-| `#8ba4bc` | 236, 271 |
+| `#00c8ff` | 235, 277 |
+| `#020e17` | 277 |
+| `#064240` | 272 |
+| `#10233d` | 274 |
+| `#10263e` | 276 |
+| `#10282d` | 272 |
+| `#102d47aa` | 267 |
+| `#11263a` | 271 |
+| `#152d42` | 273 |
+| `#1b344a` | 276 |
+| `#1c3449` | 277 |
+| `#227f87` | 272 |
+| `#354d74` | 274 |
+| `#3a5a8b` | 276 |
+| `#78efdc` | 274 |
+| `#8ba4bc` | 234, 269 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 10` | 225, 236, 271 |
-| `fontSize: 11` | 230, 272, 279 |
-| `fontSize: 12` | 274 |
-| `fontSize: 13` | 226, 273, 278 |
-| `fontSize: 20` | 272 |
-| `fontSize: 23` | 277 |
-| `fontSize: 25` | 279 |
-| `fontWeight: &#x27;600&#x27;` | 272, 274 |
-| `letterSpacing: .6` | 271 |
-| `lineHeight: 16` | 236, 271, 272, 279 |
-| `lineHeight: 17` | 274 |
-| `lineHeight: 25` | 272 |
-| `lineHeight: 29` | 279 |
+| `fontSize: 10` | 223, 234, 269 |
+| `fontSize: 11` | 228, 270, 277 |
+| `fontSize: 12` | 272 |
+| `fontSize: 13` | 224, 271, 276 |
+| `fontSize: 20` | 270 |
+| `fontSize: 23` | 275 |
+| `fontSize: 25` | 277 |
+| `fontWeight: &#x27;600&#x27;` | 270, 272 |
+| `letterSpacing: .6` | 269 |
+| `lineHeight: 16` | 234, 269, 270, 277 |
+| `lineHeight: 17` | 272 |
+| `lineHeight: 25` | 270 |
+| `lineHeight: 29` | 277 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 274, 277 |
-| `borderRadius: 13` | 274 |
-| `borderRadius: 14` | 269 |
-| `borderRadius: 15` | 276 |
-| `borderRadius: 17` | 275 |
-| `borderRadius: 2` | 279 |
-| `borderRadius: 20` | 278 |
-| `borderRadius: 21` | 278 |
-| `borderRadius: 22` | 273 |
-| `borderRadius: 24` | 273 |
-| `borderRadius: 9` | 274 |
-| `borderWidth: 1` | 273, 274, 277, 278 |
-| `gap: 1` | 272, 279 |
-| `gap: 10` | 188, 205, 276 |
-| `gap: 3` | 271, 274 |
-| `gap: 5` | 273 |
-| `gap: 6` | 277, 278 |
-| `gap: 7` | 273, 276 |
-| `gap: 8` | 251, 253, 268, 275, 278 |
-| `height: 2` | 279 |
-| `height: 30` | 276 |
-| `height: 42` | 278 |
-| `height: 48` | 269 |
-| `maxHeight: 150` | 278 |
-| `maxWidth: 430` | 113, 276 |
-| `maxWidth: 480` | 205 |
-| `maxWidth: 520` | 251, 253 |
-| `maxWidth: 599` | 267, 279 |
-| `maxWidth: 600` | 183, 237 |
-| `maxWidth: 720` | 223 |
-| `maxWidth: 960` | 183, 237 |
-| `minHeight: 126` | 276 |
-| `minHeight: 34` | 275 |
-| `minHeight: 36` | 270 |
-| `minHeight: 40` | 273, 278 |
-| `minHeight: 48` | 273, 275 |
-| `minHeight: 60` | 279 |
-| `minHeight: 64` | 274 |
-| `minHeight: 66` | 274 |
-| `minHeight: 70` | 277 |
-| `minWidth: 0` | 272, 273 |
-| `opacity: .45` | 228 |
-| `padding: 0` | 275 |
-| `padding: 10` | 268, 277 |
-| `padding: 4` | 271, 278 |
-| `padding: 7` | 274 |
-| `paddingHorizontal: 12` | 273 |
-| `paddingHorizontal: 16` | 275 |
-| `paddingHorizontal: 6` | 274 |
-| `paddingHorizontal: 7` | 274 |
-| `paddingHorizontal: 8` | 278 |
-| `paddingVertical: 10` | 274 |
-| `paddingVertical: 4` | 273, 279 |
-| `width: &#x27;100%&#x27;` | 113, 188, 189, 190, 205, 216, 236, 251, 253, 267, 275, 276, 279 |
-| `width: &#x27;33.333333%&#x27;` | 279 |
-| `width: &#x27;49.2%&#x27;` | 275 |
-| `width: 24` | 279 |
-| `width: 30` | 276 |
-| `width: 42` | 273, 278 |
-| `width: 48` | 269 |
-| `width: 64` | 274 |
+| `borderRadius: 12` | 272, 275 |
+| `borderRadius: 13` | 272 |
+| `borderRadius: 14` | 267 |
+| `borderRadius: 15` | 274 |
+| `borderRadius: 17` | 273 |
+| `borderRadius: 2` | 277 |
+| `borderRadius: 20` | 276 |
+| `borderRadius: 21` | 276 |
+| `borderRadius: 22` | 271 |
+| `borderRadius: 24` | 271 |
+| `borderRadius: 9` | 272 |
+| `borderWidth: 1` | 271, 272, 275, 276 |
+| `gap: 1` | 270, 277 |
+| `gap: 10` | 186, 203, 274 |
+| `gap: 3` | 269, 272 |
+| `gap: 5` | 271 |
+| `gap: 6` | 275, 276 |
+| `gap: 7` | 271, 274 |
+| `gap: 8` | 249, 251, 266, 273, 276 |
+| `height: 2` | 277 |
+| `height: 30` | 274 |
+| `height: 42` | 276 |
+| `height: 48` | 267 |
+| `maxHeight: 150` | 276 |
+| `maxWidth: 430` | 112, 274 |
+| `maxWidth: 480` | 203 |
+| `maxWidth: 520` | 249, 251 |
+| `maxWidth: 599` | 265, 277 |
+| `maxWidth: 600` | 181, 235 |
+| `maxWidth: 720` | 221 |
+| `maxWidth: 960` | 181, 235 |
+| `minHeight: 126` | 274 |
+| `minHeight: 34` | 273 |
+| `minHeight: 36` | 268 |
+| `minHeight: 40` | 271, 276 |
+| `minHeight: 48` | 271, 273 |
+| `minHeight: 60` | 277 |
+| `minHeight: 64` | 272 |
+| `minHeight: 66` | 272 |
+| `minHeight: 70` | 275 |
+| `minWidth: 0` | 270, 271 |
+| `opacity: .45` | 226 |
+| `padding: 0` | 273 |
+| `padding: 10` | 266, 275 |
+| `padding: 4` | 269, 276 |
+| `padding: 7` | 272 |
+| `paddingHorizontal: 12` | 271 |
+| `paddingHorizontal: 16` | 273 |
+| `paddingHorizontal: 6` | 272 |
+| `paddingHorizontal: 7` | 272 |
+| `paddingHorizontal: 8` | 276 |
+| `paddingVertical: 10` | 272 |
+| `paddingVertical: 4` | 271, 277 |
+| `width: &#x27;100%&#x27;` | 112, 186, 187, 188, 203, 214, 234, 249, 251, 265, 273, 274, 277 |
+| `width: &#x27;33.333333%&#x27;` | 277 |
+| `width: &#x27;49.2%&#x27;` | 273 |
+| `width: 24` | 277 |
+| `width: 30` | 274 |
+| `width: 42` | 271, 276 |
+| `width: 48` | 267 |
+| `width: 64` | 272 |
 
 ## OwnFlights.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OwnFlights.tsx](../../../apps/platform-lab/src/mobile/OwnFlights.tsx); normalized SHA-256 `d6b0a858bf90d6adce4a9638abfc6da6575c180904b3667ef02df93d3b5635aa`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OwnFlights.tsx](../../../apps/platform-lab/src/mobile/OwnFlights.tsx); normalized SHA-256 `c2dc0e3312be34cb43017084a39aad7814ea11293771dd7ff8d693ea7ceee458`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#11263a` | 135 |
+| `#11263a` | 134 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 13` | 136 |
-| `fontWeight: &#x27;600&#x27;` | 85 |
+| `fontSize: 13` | 135 |
+| `fontWeight: &#x27;600&#x27;` | 84 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 13` | 134 |
-| `borderRadius: 22` | 135 |
-| `borderRadius: 24` | 136 |
-| `borderWidth: 1` | 135 |
-| `gap: 2` | 123 |
-| `gap: 3` | 134 |
-| `gap: 5` | 56 |
-| `gap: 7` | 135 |
-| `gap: 8` | 81, 133 |
-| `height: 7` | 93 |
-| `maxWidth: &#x27;50%&#x27;` | 84 |
-| `maxWidth: 520` | 133 |
-| `minHeight: 48` | 136 |
-| `minWidth: 0` | 135 |
-| `padding: 10` | 133 |
-| `padding: 7` | 134 |
-| `paddingHorizontal: 12` | 135 |
-| `paddingVertical: 4` | 136 |
-| `width: &#x27;100%&#x27;` | 133 |
-| `width: 48` | 136 |
+| `borderRadius: 13` | 133 |
+| `borderRadius: 22` | 134 |
+| `borderRadius: 24` | 135 |
+| `borderWidth: 1` | 134 |
+| `gap: 2` | 122 |
+| `gap: 3` | 133 |
+| `gap: 5` | 55 |
+| `gap: 7` | 134 |
+| `gap: 8` | 80, 132 |
+| `height: 7` | 92 |
+| `maxWidth: &#x27;50%&#x27;` | 83 |
+| `maxWidth: 520` | 132 |
+| `minHeight: 48` | 135 |
+| `minWidth: 0` | 134 |
+| `padding: 10` | 132 |
+| `padding: 7` | 133 |
+| `paddingHorizontal: 12` | 134 |
+| `paddingVertical: 4` | 135 |
+| `width: &#x27;100%&#x27;` | 132 |
+| `width: 48` | 135 |
 
 ## PaperStatus.tsx
 
@@ -2283,7 +2311,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/PaperStatus.tsx](
 
 ## ProfileSettings.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProfileSettings.tsx](../../../apps/platform-lab/src/mobile/ProfileSettings.tsx); normalized SHA-256 `290202c399401edf906c8ee5d699397329be91ca6d0d4e33aa7492057045803b`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProfileSettings.tsx](../../../apps/platform-lab/src/mobile/ProfileSettings.tsx); normalized SHA-256 `a3fc874aaa3275cea16b81ce64e479629932c8e9ac9ec47390097f3538a2c86f`.
 
 ### Literal colors
 
@@ -2315,22 +2343,22 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProfileSettings.t
 
 ## ProviderConnection.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProviderConnection.tsx](../../../apps/platform-lab/src/mobile/ProviderConnection.tsx); normalized SHA-256 `d24b1ecb4bf9b768dbc63b5ae24e2dba6baadd0e6b7294e91a905f1b64b67195`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProviderConnection.tsx](../../../apps/platform-lab/src/mobile/ProviderConnection.tsx); normalized SHA-256 `caaf08ebfc695a18f5b84e1a37982c2012e1543fe197ceabfa5703c067e115fb`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#102d47aa` | 205 |
+| `#102d47aa` | 208 |
 | `#ffb39e` | 29 |
-| `white` | 208 |
+| `white` | 211 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
 | `fontSize: 12` | 29 |
-| `fontWeight: &#x27;600&#x27;` | 73, 92, 108 |
+| `fontWeight: &#x27;600&#x27;` | 76, 95, 111 |
 | `fontWeight: &#x27;700&#x27;` | 29 |
 | `lineHeight: 15` | 29 |
 
@@ -2338,32 +2366,32 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProviderConnectio
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 10` | 215 |
-| `borderRadius: 14` | 205 |
-| `borderRadius: 7` | 207 |
-| `borderRadius: 8` | 206 |
-| `borderWidth: 1` | 215 |
-| `borderWidth: 2` | 207 |
-| `gap: 10` | 214 |
-| `gap: 12` | 210 |
-| `gap: 4` | 76, 78 |
-| `gap: 6` | 85, 95, 211 |
-| `height: 12` | 207 |
-| `height: 16` | 206 |
-| `height: 48` | 205 |
-| `maxWidth: 520` | 214 |
-| `maxWidth: 800` | 208 |
-| `minHeight: 48` | 213, 215 |
-| `minHeight: 68` | 210 |
-| `minWidth: 16` | 206 |
-| `opacity: 0` | 209 |
-| `padding: 10` | 210, 211, 214, 215 |
-| `paddingHorizontal: 12` | 76 |
-| `paddingHorizontal: 8` | 213 |
-| `paddingVertical: 10` | 213 |
-| `width: &#x27;100%&#x27;` | 208, 214 |
-| `width: 18` | 207 |
-| `width: 48` | 205 |
+| `borderRadius: 10` | 218 |
+| `borderRadius: 14` | 208 |
+| `borderRadius: 7` | 210 |
+| `borderRadius: 8` | 209 |
+| `borderWidth: 1` | 218 |
+| `borderWidth: 2` | 210 |
+| `gap: 10` | 217 |
+| `gap: 12` | 213 |
+| `gap: 4` | 79, 81 |
+| `gap: 6` | 88, 98, 214 |
+| `height: 12` | 210 |
+| `height: 16` | 209 |
+| `height: 48` | 208 |
+| `maxWidth: 520` | 217 |
+| `maxWidth: 800` | 211 |
+| `minHeight: 48` | 216, 218 |
+| `minHeight: 68` | 213 |
+| `minWidth: 16` | 209 |
+| `opacity: 0` | 212 |
+| `padding: 10` | 213, 214, 217, 218 |
+| `paddingHorizontal: 12` | 79 |
+| `paddingHorizontal: 8` | 216 |
+| `paddingVertical: 10` | 216 |
+| `width: &#x27;100%&#x27;` | 211, 217 |
+| `width: 18` | 210 |
+| `width: 48` | 208 |
 
 ## RawCaptureReview.tsx
 
@@ -2554,6 +2582,26 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/theme.tsx](../../
 | `paddingVertical: 8` | 50 |
 | `width: &#x27;100%&#x27;` | 33 |
 | `width: &#x27;40%&#x27;` | 33 |
+
+## UpdateDialog.tsx
+
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/UpdateDialog.tsx](../../../apps/platform-lab/src/mobile/UpdateDialog.tsx); normalized SHA-256 `bbb91b74a6b11df0ad067bc927193d4b77999ab261cbaf4345114bb799dc50b5`.
+
+### Literal colors
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `#000000` | 29 |
+| `#000712bd` | 27 |
+| `#426783` | 28 |
+
+### Geometry / opacity declarations
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `borderRadius: 22` | 28 |
+| `borderWidth: 1` | 28 |
+| `shadowOpacity: .5` | 29 |
 
 ## AccessProbe.tsx
 
@@ -2845,7 +2893,7 @@ Update Vereinsflieger data
 Appearance: Selected Modern Duotone refresh symbol with Daten and relative received age; green frame/text under one hour, amber from one hour, neutral when unknown.
 Where: Ordinary app header; separate from provider-panel session indicators.
 Meaning: Age of the selected owner/account library’s last durably saved successful flight-data retrieval. No live-login or all-category freshness promise.
-Function / action: Tap explicitly fetches new Vereinsflieger data through the shared update flow; original login appears only if needed. Contextual return is preserved.
+Function / action: The header is the only entry to provider update/login. Tap opens the whole update journey in a retained centered popup frame; original login appears only if needed. Other pages provide passive guidance. Contextual return is preserved.
 States / limits: Green &lt;1 hour; amber &gt;=1 hour; neutral missing/invalid/future timestamp. Visible relative age and accessible exact time. Failed updates and session checks do not renew it.
 Source: apps/platform-lab/src/mobile/DataUpdateIndicator.tsx
 DataUpdateIndicator; dataUpdateStatus; glyphs.svg #refresh
@@ -3222,7 +3270,7 @@ States / limits: Recreated approved variant, not a byte-identical copy of an old
 Source: docs/assets/branding/moflight-app-icon-ai.png
 docs/assets/branding/README.md; app.json
 </textarea></section>
-<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: d360f3dbb41f0080edd9b425a3f0764458cce2df0df2760967001875accdbe53. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
+<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: ebaefaae18da2e88b2e0516690578cd40855d6af461f6b6d2dbf993bc5ce5c14. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
 </main><script>
 'use strict';
 const brief = document.querySelector('#brief');

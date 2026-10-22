@@ -23,7 +23,7 @@ function fixture(width = 390, fontScale = 1, root = false) {
   let index = 0;
   const hooks: any[] = [], effects: (() => void)[] = [];
   const react = {
-    createElement: (type: unknown, props: Element['props'], ...children: unknown[]): Element => ({ type, props: props ?? {}, children: children.flat(Infinity) }),
+    createElement: (type: unknown, props: Element['props'], ...children: unknown[]): Element => ({ type, props: props ?? {}, children: children.flat(Infinity).map(child=>type==='UpdateDialog'&&typeof child==='function'?child(40):child) }),
     useRef(initial: unknown) { const i = index++; if (!(i in hooks)) hooks[i] = { current: initial }; return hooks[i]; },
     useState(initial: unknown) { const i = index++; if (!(i in hooks)) hooks[i] = typeof initial==='function'?(initial as ()=>unknown)():initial; return [hooks[i], (value: unknown) => { hooks[i] = typeof value==='function'?(value as (old:unknown)=>unknown)(hooks[i]):value; }]; },
     useMemo(make:()=>unknown,deps:unknown[]) { const i=index++,previous=hooks[i];if(!previous||deps.some((v,n)=>v!==previous.deps[n]))hooks[i]={deps,value:make()};return hooks[i].value; },
@@ -65,7 +65,7 @@ function fixture(width = 390, fontScale = 1, root = false) {
     './Diagnostics': leaves(['Diagnostics']), './diagnostics-native': {initializeDiagnostics() {}}, '../diagnostics': diagnostics,
     './ProfileSettings': { ProfileSettings: 'ProfileSettings', SyntheticProfileSettings:'SyntheticProfileSettings' }, '../book-storage': { PILOT: 'synthetic-pilot' },
     '../vereinsflieger/use-access-controller': { useAccessController: () => controller },
-    './ProviderConnection': {...leaves(['ProviderConnection', 'ConnectionIndicator']),unknownProviderStatus}, './DataUpdateIndicator':leaves(['DataUpdateIndicator']), './data-freshness':{DATA_UPDATE_FRESH_MS}, './AppHeader': { AppHeader: 'AppHeader' },
+    './ProviderConnection': {...leaves(['ProviderConnection', 'ConnectionIndicator']),unknownProviderStatus}, './DataUpdateIndicator':leaves(['DataUpdateIndicator']), './UpdateDialog':leaves(['UpdateDialog']), './data-freshness':{DATA_UPDATE_FRESH_MS}, './AppHeader': { AppHeader: 'AppHeader' },
     './MedicalStatus': leaves(['MedicalIndicator', 'MedicalDetails']),
     './DevelopmentHub': leaves(['DevelopmentHub', 'DevelopmentNotice']),
     './LibraryBackup': leaves(['LibraryBackup']), './PaperStatus': leaves(['PaperStatus']),
@@ -156,21 +156,19 @@ test('app headers order connection, Medical and profile on every tab', () => {
   assert.deepEqual(f.calls, []);
 });
 
-test('Start, profile and flight updates use the combined flow only after an explicit action', () => {
-  const f = fixture();
-  assert.equal(f.find('Dashboard').props.pending,null,'Synthetic book tasks cannot appear as real account-flight setup/progress');
-  assert.deepEqual(f.calls, []);
-  f.find('ConnectionSummary').props.onUpdate(); f.render();
-  assert.deepEqual(f.calls, ['core-load']);
-  assert.equal(f.nodes().some(n=>n.type==='ProviderConnection'),false);
-  f.press('Pressable', 'Profil & Einstellungen öffnen');
-  const summary = f.find('ProfileSettings').props.connectionSummary as Element;
-  summary.props.onOpen(); f.render();
-  assert.deepEqual(f.calls, ['core-load','core-connect']);
-  summary.props.onUpdate(); f.render();
-  f.find('OwnFlights').props.onUpdate(); f.render();
-  assert.deepEqual(f.calls, ['core-load','core-connect','core-load','core-load']);
-  assert.equal(f.calls.length,4);
+test('only the header starts update/login; other pages retain guidance and offline backup', () => {
+  const f=fixture();
+  assert.equal(f.find('ConnectionSummary').props.onUpdate,undefined);
+  assert.equal(f.find('ConnectionSummary').props.onOpen,undefined);
+  assert.equal(f.find('OwnFlights').props.onUpdate,undefined);
+  f.press('Pressable','Profil & Einstellungen öffnen');
+  assert.equal(f.find('ProfileSettings').props.onConnections,undefined);
+  const summary=f.find('ProfileSettings').props.connectionSummary as Element;
+  assert.equal(summary.props.onUpdate,undefined);assert.equal(summary.props.onOpen,undefined);
+  f.find('ProfileSettings').props.onTools();f.render();
+  assert.equal(f.find('DevelopmentHub').props.onProvider,undefined);
+  assert.deepEqual(f.calls,[]);
+  f.press('DataUpdateIndicator');assert.deepEqual(f.calls,['core-load']);
 });
 
 test('synthetic import preview opens without seeding or provider work, retains its session and returns to the same detail', () => {
@@ -320,24 +318,17 @@ test('Development is read-only on entry; proof work guards Back and a reload pre
   assert.equal(f.find('OwnFlights').type, ownFlights.type);
 });
 
-test('Development requests the same selected-owner host with an explicit development intent', () => {
+test('Development has offline library tools while update/login remains on the header', () => {
   const f=fixture();f.press('Pressable','Profil & Einstellungen öffnen');f.find('ProfileSettings').props.onTools();f.render();
-  f.find('DevelopmentHub').props.onProvider();f.render();f.press('DataUpdateIndicator');
-  assert.deepEqual(f.coreRoutes,[{intent:'development',developmentRecoveryCheckpoints:true},{intent:'update',developmentRecoveryCheckpoints:false}]);
-  assert.equal(f.nodes().some(n=>n.type==='ProviderConnection'),false);
+  assert.equal(f.find('DevelopmentHub').props.onProvider,undefined);
+  f.find('DevelopmentHub').props.onCoreFlights();f.render();f.press('DataUpdateIndicator');
+  assert.deepEqual(f.coreRoutes,[{intent:'options',developmentRecoveryCheckpoints:true},{intent:'update',developmentRecoveryCheckpoints:false}]);
 });
 
-test('ordinary login update and backup routes do not enable development recovery checkpoints', () => {
-  const f = fixture();
-  f.find('ConnectionSummary').props.onOpen();
-  f.find('ConnectionSummary').props.onUpdate();
-  f.press('Pressable', 'Profil & Einstellungen öffnen');
-  f.find('ProfileSettings').props.onBackup();
-  assert.deepEqual(f.coreRoutes, [
-    {intent:'connect',developmentRecoveryCheckpoints:false},
-    {intent:'update',developmentRecoveryCheckpoints:false},
-    {intent:'options',developmentRecoveryCheckpoints:false},
-  ]);
+test('ordinary backup cannot request a provider entry', () => {
+  const f=fixture();f.press('Pressable','Profil & Einstellungen öffnen');f.find('ProfileSettings').props.onBackup();
+  assert.deepEqual(f.coreRoutes,[{intent:'options',developmentRecoveryCheckpoints:false}]);
+  assert.equal(f.find('ProfileSettings').props.onConnections,undefined);
 });
 
 test('advanced library tools retain the Profile draft without a browser handoff', () => {
@@ -373,7 +364,7 @@ test('nested settings preserve the unsaved profile draft and each sheet scroll o
   assert.equal(f.nodes().some(n=>n.type==='Label' && n.children.includes('Entwicklung · synthetische lokale Bibliothek')),false);
   assert.equal(f.nodes().some(n=>n.type==='FlatList'),false);
 
-  assert.equal(f.find('OwnFlights').props.onUpdate(),true);assert.deepEqual(f.calls,['core-load']);
+  assert.equal(f.find('OwnFlights').props.onUpdate,undefined);f.press('DataUpdateIndicator');assert.deepEqual(f.calls,['core-load']);
   let back=0;f.find('OwnFlights').props.onHeaderChange({title:'Flugdetails',back:()=>back++});f.render();
   assert.equal(f.headers()[0]!.props.title,'Flugdetails');f.hardwareBack();assert.equal(back,1);
   f.press('Pressable','Verein');assert.equal(f.find('OwnFlights').props.active,false);
@@ -461,13 +452,21 @@ test('app root retains the provider host across close/tab entry and hides covere
   const f=fixture(390,1,true);
   const shell=()=>f.nodes().find(n=>typeof n.type==='function'&&(n.type as Function).name==='Shell')!;
   assert.equal(f.nodes().some(n=>n.type==='CoreFlightFoundation'),false,'Startup creates no provider host');
-  shell().props.onCoreFlights('connect');f.render();
-  const first=f.find('CoreFlightFoundation');assert.equal(first.props.intent,'connect');assert.equal(first.props.open,true);
-  assert.equal(f.parent(shell()).props.style.display,'none');
+  shell().props.onCoreFlights('update');f.render();
+  const first=f.find('CoreFlightFoundation');assert.equal(first.props.intent,'update');assert.equal(first.props.providerEntryAllowed,true);assert.equal(first.props.open,true);
+  assert.equal(f.parent(shell()).props.pointerEvents,'none');assert.equal(f.parent(shell()).props.accessibilityElementsHidden,true);assert.ok(f.find('UpdateDialog'));
   first.props.close();f.render();
   const retained=f.find('CoreFlightFoundation');assert.equal(retained.props.open,false);assert.equal(retained.props.requestId,first.props.requestId);
-  assert.equal(f.parent(shell()).props.style.display,'flex');
+  assert.equal(f.parent(shell()).props.pointerEvents,'auto');
   shell().props.onCoreFlights('update');f.render();
   const reopened=f.find('CoreFlightFoundation');assert.equal(reopened.type,retained.type);assert.equal(reopened.props.open,true);
   assert.equal(reopened.props.requestId,first.props.requestId+1);assert.equal(reopened.props.intent,'update');
+});
+
+test('non-header legacy connection intents are normalized to offline administration without provider admission',()=>{
+  const f=fixture(390,1,true);
+  const shell=f.nodes().find(n=>typeof n.type==='function'&&(n.type as Function).name==='Shell')!;
+  shell.props.onCoreFlights('connect');f.render();
+  assert.equal(f.find('CoreFlightFoundation').props.intent,'options');
+  assert.equal(f.find('CoreFlightFoundation').props.providerEntryAllowed,false);
 });

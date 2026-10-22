@@ -2,7 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 import { Action, Card, Label, Section } from './theme';
 
-export function DevelopmentHub({ onFlights, onBooks, onProvider, onImportPreview, onCoreFlights, profileTools, onSelectBook, onBackup, onPaper }: { onPaper: () => void; profileTools?: React.ReactNode; onSelectBook: () => void; onBackup: () => void; onFlights: () => void; onBooks: () => void; onProvider: () => void; onImportPreview: () => void; onCoreFlights: () => void }) {
+export function DevelopmentHub({ onFlights, onBooks, onImportPreview, onCoreFlights, profileTools, onSelectBook, onBackup, onPaper }: { onPaper: () => void; profileTools?: React.ReactNode; onSelectBook: () => void; onBackup: () => void; onFlights: () => void; onBooks: () => void; onProvider?: () => void; onImportPreview: () => void; onCoreFlights: () => void }) {
   return <View style={{ width: '100%', maxWidth: 520, alignSelf: 'center', gap: 10 }}>
     <Card><Section title="Entwicklung" icon="info" />
       <Label>Testwerkzeuge dieses experimentellen Lab-Builds</Label>
@@ -27,8 +27,7 @@ export function DevelopmentHub({ onFlights, onBooks, onProvider, onImportPreview
       <Action testID="development-book-lab" secondary icon="book" onPress={onBooks}>Flugbuchtest öffnen</Action>
     </Card>
     <Card><Section title="Anbieterdiagnose" icon="chain" />
-      <Label muted>Der vorhandene Verbindungsdialog mit zusätzlichen Testdetails. Kein zweiter Browser. Ein synthetischer Browserstore-Test ist zusätzlich auf den benannten Testemulator begrenzt.</Label>
-      <Action testID="development-provider" secondary icon="chain" onPress={onProvider}>Anbieterdiagnose öffnen</Action>
+      <Label muted>Neue Daten und Anmeldung erreichst du ausschließlich über „Daten“ oben in der Kopfzeile. Die lokale Diagnose bleibt unter Profil verfügbar.</Label>
     </Card>
   </View>;
 }

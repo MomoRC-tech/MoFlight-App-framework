@@ -39,22 +39,22 @@ test('profile summary uses committed library freshness and the shared 72-hour po
   assert.ok(f.text.includes(dataFreshness(retrievedAt,'ready',now).label));
   assert.ok(f.text.includes('mehr als drei Tage'));
   assert.ok(!f.text.includes(dataFreshness('2026-10-21T00:00:00.000Z','ready',now).label));
-  assert.deepEqual(f.calls,[]);f.button('Daten aktualisieren').props.onPress();assert.deepEqual(f.calls,['load']);
+  assert.deepEqual(f.calls,[]);assert.equal(f.button('Daten aktualisieren'),undefined);assert.deepEqual(f.calls,[]);
 });
 
-test('first use shows the ordinary combined login action; compact loading stays absent',()=>{
+test('first use points to the header without a login action; compact loading stays absent',()=>{
   const f=render(null,{phase:'missing',compact:true});
-  assert.equal(f.nodes.filter(n=>n.type==='Action').length,1);assert.ok(!f.text.includes('Bibliothek anlegen'));
+  assert.equal(f.nodes.filter(n=>n.type==='Action').length,0);assert.match(f.text,/Kopfzeile/);assert.ok(!f.text.includes('Bibliothek anlegen'));
   assert.ok(f.text.includes('Bei Bedarf meldest du dich auf der Originalseite von Vereinsflieger an.'));
   assert.ok(f.text.includes('Medical-Angaben')&&f.text.includes('Offline-Nutzung'));
-  f.button('Anmelden & Daten laden').props.onPress();assert.deepEqual(f.calls,['load']);
+  assert.equal(f.button('Anmelden & Daten laden'),undefined);assert.match(f.text,/Kopfzeile/);assert.deepEqual(f.calls,[]);
   assert.equal(render(null,{phase:'loading',compact:true}).tree,null);
 });
 
 test('an associated account with no successful retrieval still offers its first data load',()=>{
   const f=render({flights:[],snapshot:{ownerId:'owner-1',storeId:'store-1',account:{accountRef:'101'},savedRetrievals:[]}}, {phase:'ready',compact:true});
   assert.ok(f.text.includes('Für dieses zugeordnete Konto wurden noch keine Flugdaten gespeichert.'));
-  assert.ok(f.button('Daten laden'));
+  assert.equal(f.button('Daten laden'),undefined);assert.match(f.text,/Kopfzeile/);
   assert.equal(f.nodes.some(n=>n.type==='Action'&&f.text.includes('Anmelden & Daten laden')),false);
 });
 
@@ -62,15 +62,15 @@ test('failed own-flight reads show an error without displaying stale scoped data
   const f=render(accountView('2026-10-01T12:00:00.000Z'),{phase:'failed',compact:true});
   assert.ok(f.text.includes('Gespeicherte Flugdaten konnten nicht gelesen werden.'));
   assert.equal(f.text.includes('2 Flüge auf diesem Gerät gespeichert'),false);
-  assert.equal(f.nodes.filter(n=>n.type==='Action').length,1);
+  assert.equal(f.nodes.filter(n=>n.type==='Action').length,0);assert.match(f.text,/Kopfzeile/);
 });
 
 test('compact recovery remains visible regardless of snooze and exposes options without an update shortcut',()=>{
   const retrievedAt='2026-10-18T09:00:00.000Z';
   const f=render(accountView(retrievedAt,retrievedAt,{pendingCommand:true,snapshot:{recovery:{readOnly:true}}}),{compact:true,reminderSnooze:{scopeKey:'wrong-account',until:'2026-10-23T12:00:00.000Z'}});
   assert.ok(f.text.includes('Wiederherstellung muss geprüft werden'));assert.deepEqual(f.calls,[]);
-  assert.equal(f.nodes.filter(n=>n.type==='Action').length,1);
-  f.button('Verbindung & Optionen').props.onPress();assert.deepEqual(f.calls,['options']);
+  assert.equal(f.nodes.filter(n=>n.type==='Action').length,0);assert.match(f.text,/Kopfzeile/);
+  assert.equal(f.button('Verbindung & Optionen'),undefined);assert.deepEqual(f.calls,[]);
 });
 
 test('compact reminder starts only after a successful retrieval receipt is older than 72 hours and snoozes for its account',()=>{
@@ -79,9 +79,9 @@ test('compact reminder starts only after a successful retrieval receipt is older
   const f=render(accountView(retrievedAt,recentSaveAt),{compact:true});
   assert.ok(f.text.includes('mehr als 72 Stunden'));
   assert.ok(!f.text.includes('2 Flüge'));
-  f.button('Daten aktualisieren').props.onPress();
+  assert.equal(f.button('Daten aktualisieren'),undefined);
   f.section('Flugdaten').props.onPress();
-  assert.deepEqual(f.calls,[ 'load', ['snooze',JSON.stringify(['owner-1','store-1','101']),new Date(now+24*60*60*1000).toISOString()] ]);
+  assert.deepEqual(f.calls,[ ['snooze',JSON.stringify(['owner-1','store-1','101']),new Date(now+24*60*60*1000).toISOString()] ]);
   const snoozed=render(accountView(retrievedAt,recentSaveAt),{compact:true,reminderSnooze:{scopeKey:JSON.stringify(['owner-1','store-1','101']),until:new Date(now+24*60*60*1000).toISOString()}});
   assert.equal(snoozed.tree,null);
   const otherAccount=render(accountView(retrievedAt,recentSaveAt),{compact:true,reminderSnooze:{scopeKey:'other-account',until:new Date(now+24*60*60*1000).toISOString()}});
