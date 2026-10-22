@@ -1,0 +1,405 @@
+{
+  "package": "Header-only popup update/login",
+  "date": "2026-10-22",
+  "source_commit": "cf59bde647b5ad6b1bb08a776c920468a05dbaee",
+  "apk_sha256": "6083285bbe72650ea8a1d539e798f975194ee16d524882be4752e3542c1493de",
+  "zip_sha256": "fab5c01fe327872059c9cca8259406c17e2cd751cf3edd864e8bdfe76bf4c2c6",
+  "platform": {
+    "avd": "MoFlight_Synthetic_API37",
+    "api": 37,
+    "webview": "155.0.8059.43",
+    "density_dpi": 160
+  },
+  "accepted_named_final_source_checks": 15,
+  "runs": [
+    {
+      "run": "build/update-popup/native",
+      "overall_status": "failed",
+      "scope": "Preliminary expanded frame on7122d2f; not final source",
+      "compiled_commit": "7122d2f13f3e612b3c42b7d88c11fb76b2af7f60",
+      "apk_sha256": "31e801bed67a13d3f91e74b01c9dba4c2f63cefdb474102cfd73815892710769",
+      "error": "Cannot establish native IME geometry from WindowManager",
+      "checks": [
+        {
+          "name": "offline-backup-without-provider-entry",
+          "status": "passed",
+          "viewport": {
+            "width_px": 390,
+            "height_px": 900,
+            "density_dpi": 160,
+            "width_dp": 390.0,
+            "height_dp": 900.0,
+            "font_scale": 1.0
+          }
+        },
+        {
+          "name": "framed-offline-update-error",
+          "status": "passed",
+          "viewport": {
+            "width_px": 390,
+            "height_px": 900,
+            "density_dpi": 160,
+            "width_dp": 390.0,
+            "height_dp": 900.0,
+            "font_scale": 1.0
+          }
+        },
+        {
+          "name": "popup-original-form-390x900-font1",
+          "status": "passed",
+          "viewport": {
+            "width_px": 390,
+            "height_px": 900,
+            "density_dpi": 160,
+            "width_dp": 390.0,
+            "height_dp": 900.0,
+            "font_scale": 1.0
+          }
+        },
+        {
+          "name": "popup-original-form-360x900-font1",
+          "status": "passed",
+          "viewport": {
+            "width_px": 360,
+            "height_px": 900,
+            "density_dpi": 160,
+            "width_dp": 360.0,
+            "height_dp": 900.0,
+            "font_scale": 1.0
+          }
+        },
+        {
+          "name": "popup-original-form-600x900-font1",
+          "status": "passed",
+          "viewport": {
+            "width_px": 600,
+            "height_px": 900,
+            "density_dpi": 160,
+            "width_dp": 600.0,
+            "height_dp": 900.0,
+            "font_scale": 1.0
+          }
+        },
+        {
+          "name": "popup-original-form-840x450-font1",
+          "status": "passed",
+          "viewport": {
+            "width_px": 840,
+            "height_px": 450,
+            "density_dpi": 160,
+            "width_dp": 840.0,
+            "height_dp": 450.0,
+            "font_scale": 1.0
+          }
+        },
+        {
+          "name": "popup-original-form-360x900-font1.4",
+          "status": "passed",
+          "viewport": {
+            "width_px": 360,
+            "height_px": 900,
+            "density_dpi": 160,
+            "width_dp": 360.0,
+            "height_dp": 900.0,
+            "font_scale": 1.4
+          }
+        },
+        {
+          "name": "inert-popup-backdrop",
+          "status": "passed",
+          "viewport": {
+            "width_px": 360,
+            "height_px": 900,
+            "density_dpi": 160,
+            "width_dp": 360.0,
+            "height_dp": 900.0,
+            "font_scale": 1.4
+          }
+        }
+      ],
+      "cleanup": {
+        "baseline_apk_restored": true,
+        "autofill_setting_restored": true,
+        "test_service_removed": true,
+        "cleanup_errors": []
+      }
+    },
+    {
+      "run": "build/update-popup/final-native",
+      "overall_status": "failed",
+      "scope": "Final-source preliminary helper: full-screen swipe began outside the compact popup; no complete named assertion",
+      "compiled_commit": "cf59bde647b5ad6b1bb08a776c920468a05dbaee",
+      "apk_sha256": "6083285bbe72650ea8a1d539e798f975194ee16d524882be4752e3542c1493de",
+      "error": "Visible UI did not contain 'Flugbibliothek in Ger\u00e4teordner sichern'",
+      "checks": [],
+      "cleanup": {
+        "baseline_apk_restored": true,
+        "keyboard_preference_restored": true,
+        "cleanup_errors": []
+      }
+    },
+    {
+      "run": "build/update-popup/final-native-bounded",
+      "overall_status": "failed",
+      "scope": "Reuse only eight preceding named assertions; whole helper failed when synthetic Autofill suggestion appeared without software IME",
+      "compiled_commit": "cf59bde647b5ad6b1bb08a776c920468a05dbaee",
+      "apk_sha256": "6083285bbe72650ea8a1d539e798f975194ee16d524882be4752e3542c1493de",
+      "error": "Cannot establish native IME geometry from WindowManager",
+      "checks": [
+        {
+          "name": "offline-backup-without-provider-entry",
+          "status": "passed",
+          "viewport": {
+            "width_px": 390,
+            "height_px": 900,
+            "density_dpi": 160,
+            "width_dp": 390.0,
+            "height_dp": 900.0,
+            "font_scale": 1.0
+          }
+        },
+        {
+          "name": "framed-offline-update-error",
+          "status": "passed",
+          "viewport": {
+            "width_px": 390,
+            "height_px": 900,
+            "density_dpi": 160,
+            "width_dp": 390.0,
+            "height_dp": 900.0,
+            "font_scale": 1.0
+          }
+        },
+        {
+          "name": "popup-original-form-390x900-font1",
+          "status": "passed",
+          "viewport": {
+            "width_px": 390,
+            "height_px": 900,
+            "density_dpi": 160,
+            "width_dp": 390.0,
+            "height_dp": 900.0,
+            "font_scale": 1.0
+          }
+        },
+        {
+          "name": "popup-original-form-360x900-font1",
+          "status": "passed",
+          "viewport": {
+            "width_px": 360,
+            "height_px": 900,
+            "density_dpi": 160,
+            "width_dp": 360.0,
+            "height_dp": 900.0,
+            "font_scale": 1.0
+          }
+        },
+        {
+          "name": "popup-original-form-600x900-font1",
+          "status": "passed",
+          "viewport": {
+            "width_px": 600,
+            "height_px": 900,
+            "density_dpi": 160,
+            "width_dp": 600.0,
+            "height_dp": 900.0,
+            "font_scale": 1.0
+          }
+        },
+        {
+          "name": "popup-original-form-840x450-font1",
+          "status": "passed",
+          "viewport": {
+            "width_px": 840,
+            "height_px": 450,
+            "density_dpi": 160,
+            "width_dp": 840.0,
+            "height_dp": 450.0,
+            "font_scale": 1.0
+          }
+        },
+        {
+          "name": "popup-original-form-360x900-font1.4",
+          "status": "passed",
+          "viewport": {
+            "width_px": 360,
+            "height_px": 900,
+            "density_dpi": 160,
+            "width_dp": 360.0,
+            "height_dp": 900.0,
+            "font_scale": 1.4
+          }
+        },
+        {
+          "name": "inert-popup-backdrop",
+          "status": "passed",
+          "viewport": {
+            "width_px": 360,
+            "height_px": 900,
+            "density_dpi": 160,
+            "width_dp": 360.0,
+            "height_dp": 900.0,
+            "font_scale": 1.4
+          }
+        }
+      ],
+      "cleanup": {
+        "baseline_apk_restored": true,
+        "keyboard_preference_restored": true,
+        "autofill_setting_restored": true,
+        "test_service_removed": true,
+        "cleanup_errors": []
+      }
+    },
+    {
+      "run": "build/update-popup/native-continuation",
+      "overall_status": "passed",
+      "scope": "Seven named assertions pass, keyboard measured with baseline service before separate synthetic Autofill process",
+      "compiled_commit": "cf59bde647b5ad6b1bb08a776c920468a05dbaee",
+      "apk_sha256": "6083285bbe72650ea8a1d539e798f975194ee16d524882be4752e3542c1493de",
+      "error": null,
+      "checks": [
+        {
+          "name": "landscape-provider-scroll-reaches-sign-in",
+          "status": "passed",
+          "viewport": {
+            "width_px": 840,
+            "height_px": 450,
+            "density_dpi": 160,
+            "width_dp": 840.0,
+            "height_dp": 450.0,
+            "font_scale": 1.0
+          }
+        },
+        {
+          "name": "popup-keyboard-fields-and-sign-in",
+          "status": "passed",
+          "viewport": {
+            "width_px": 360,
+            "height_px": 900,
+            "density_dpi": 160,
+            "width_dp": 360.0,
+            "height_dp": 900.0,
+            "font_scale": 1.4
+          }
+        },
+        {
+          "name": "popup-authenticated-synthetic-autofill",
+          "status": "passed",
+          "viewport": {
+            "width_px": 360,
+            "height_px": 900,
+            "density_dpi": 160,
+            "width_dp": 360.0,
+            "height_dp": 900.0,
+            "font_scale": 1.4
+          }
+        },
+        {
+          "name": "popup-retains-form-after-home-1",
+          "status": "passed",
+          "viewport": {
+            "width_px": 360,
+            "height_px": 900,
+            "density_dpi": 160,
+            "width_dp": 360.0,
+            "height_dp": 900.0,
+            "font_scale": 1.4
+          }
+        },
+        {
+          "name": "popup-retains-form-after-home-2",
+          "status": "passed",
+          "viewport": {
+            "width_px": 360,
+            "height_px": 900,
+            "density_dpi": 160,
+            "width_dp": 360.0,
+            "height_dp": 900.0,
+            "font_scale": 1.4
+          }
+        },
+        {
+          "name": "popup-reopen-retains-native-browser",
+          "status": "passed",
+          "viewport": {
+            "width_px": 360,
+            "height_px": 900,
+            "density_dpi": 160,
+            "width_dp": 360.0,
+            "height_dp": 900.0,
+            "font_scale": 1.4
+          }
+        },
+        {
+          "name": "offline-restart-no-provider-operation",
+          "status": "passed",
+          "viewport": {
+            "width_px": 390,
+            "height_px": 900,
+            "density_dpi": 160,
+            "width_dp": 390.0,
+            "height_dp": 900.0,
+            "font_scale": 1.0
+          }
+        }
+      ],
+      "cleanup": {
+        "baseline_apk_restored": true,
+        "keyboard_preference_restored": true,
+        "autofill_setting_restored": true,
+        "test_service_removed": true,
+        "cleanup_errors": []
+      },
+      "keyboard": {
+        "status": "passed",
+        "ime_top_px": 601,
+        "geometry_source": "WindowManager visible InputMethod frame plus content inset",
+        "password_bounds": [
+          37,
+          455,
+          281,
+          494
+        ],
+        "sign_in_bounds": [
+          36,
+          545,
+          324,
+          584
+        ],
+        "same_browser": true
+      }
+    }
+  ],
+  "visual_review": [
+    "Final-source compact390 error frame; expanded390/360/600 and360 enlarged login",
+    "Final-source landscape original-form scroll exposing sign-in",
+    "Final-source MIN360/font1.4 keyboard/password/sign-in and synthetic fields retained after second Home return"
+  ],
+  "assertion_scope": "Header-only ordinary entry and provider-denied offline options; compact/expanded safe frame; public original form; inert backdrop; landscape scrolling; native IME clearance; synthetic authenticated Autofill dataset activity, retained browser across two Home/return cycles and close/reopen; offline process restart. No provider submission or successful live authentication/retrieval.",
+  "cleanup": {
+    "status": "passed",
+    "owned_avd": "MoFlight_Synthetic_API37",
+    "serial": "emulator-5554",
+    "independently_confirmed_stopped": true
+  },
+  "limits": [
+    "No actual Google credential selection or provider submission in this package",
+    "No authenticated flight retrieval/save or real saved-age native seeding",
+    "No private provider-session AVD, data clearing or fixture seeding",
+    "Baseline APK and selected display/radio/service preferences restored; no whole-database byte-equality claim",
+    "Physical new-popup use, iOS runtime and spoken accessibility remain untested"
+  ],
+  "release_verification": {
+    "status": "passed",
+    "http_status": 200,
+    "unauthenticated": true,
+    "source_commit": "cf59bde647b5ad6b1bb08a776c920468a05dbaee",
+    "zip_sha256": "fab5c01fe327872059c9cca8259406c17e2cd751cf3edd864e8bdfe76bf4c2c6",
+    "apk_sha256": "6083285bbe72650ea8a1d539e798f975194ee16d524882be4752e3542c1493de",
+    "entries": [
+      "app-release.apk",
+      "build.json"
+    ]
+  }
+}
