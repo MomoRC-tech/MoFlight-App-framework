@@ -55,6 +55,34 @@ Design version detection, migration and recovery before changing persistent form
 
 **Acceptance before beta handoff and subsequent supported beta updates:** compare populated historical synthetic fixtures before/after every supported migration path, including skipped releases, multiple accounts/books, attachments and unsynchronized work. Inject interruption, repeated execution, storage/write failures and malformed/unsupported formats; verify preservation and recovery. Test supported older-backup restore without replacing valid data on failure. Then perform actual signed old-release → new-release in-place updates on each beta target platform and verify offline restart, settings, queries, attachment hashes, pending work and isolation. Host tests, clean installs and backup round-trips alone do not establish update acceptance; Android does not establish iOS. Record versions, environment, exact checks and limits in one package summary linked from #34 and the roadmap acceptance map. No update/migration acceptance is claimed by this documentation change.
 
+## Durable-data and portable-backup inventory — 22 October 2026
+
+Approved bounded inventory/proof package: #29/#34. This describes the implemented lab; it does not select a new full-user backup format, encryption mechanism or production schema. Ordinary updates must preserve every durable row below even where portable export is incomplete.
+
+| Durable data / owner | Current portable coverage | Update / restore boundary |
+| --- | --- | --- |
+| Account real-flight graph: source captures, current/prior facts, stable IDs, receipts, coverage and unresolved observations | Real-history v1 exports the selected validated graph; exact populated synthetic export/restore/re-export is tested | Preserve each candidate and owner relationship; restore into an isolated candidate, then validate before activation. Never overwrite the selected graph on invalid input. |
+| Real owner registry, selected candidate, restore/selection history and unfinished command journal | Not a complete portable export; unresolved recovery blocks ordinary backup | Preserve all files, including unselected candidates and pending work. A backup is not a reason to reset an older read-only selection. |
+| Raw provider evidence and separate own Medical/information stores, scoped by connection | Excluded from current real-history backup | Preserve locally across updates; full-user portable coverage remains open under #29. Medical dates are source observations, not fitness decisions. |
+| Synthetic pilot/books: sources, memberships, paper/decision/photo observations, pending state, frozen snapshots/entries | `moflight-pilot-proof-v1`; legacy `moflight-native-lab-backup-v1` has an explicit migration path | Synthetic proof only; real photo attachment lifecycle, production book activation and all-account full backup are not established. |
+| Local display name, selected book/profile and selection journals | UI metadata/pointers are not included in the current flight/book backup formats | Preserve local values/pointers; future full-user export needs explicit supported settings and account mapping. |
+| Duty roster cache, including other assignees | Deliberately excluded; cache storage, 30-day expiry on next access | Never promote a missing/expired cache into an empty or complete roster. Refresh requires the selected source and fresh account/club scope. |
+| Saved-login SecureStore and native WebView sessions | Deliberately excluded from portable and configured Android system backup | No credential export. A restored device may require original-provider login; preserved flights remain usable offline. |
+| Local diagnostic journal/export | Separate deliberate support export; excluded from the proposed full-user package | Bounded technical diagnostics, no personal source values. Not required to reconstruct flight history. |
+| Transient filters, reminder snooze and navigation state | No durable portable promise | No new persistence requirement is inferred from this inventory. |
+
+Implementation references: [real native ownership/selection](../../apps/platform-lab/src/vereinsflieger/real-flight-native.ts), [real backup adapter](../../apps/platform-lab/src/vereinsflieger/real-flight-backup-native.ts), [current preservation tests](../../tests/mobile/real-flight-compatibility.test.ts), [Android system-backup exclusions](../verification/2026-10-20-android-system-backup.md). System backup eligibility is separate from a verified portable full-user backup and actual device-transfer acceptance.
+
+### Bounded supported-format matrix
+
+| Starting format / path | Current evidence and limit |
+| --- | --- |
+| Real-history SQL/payload v1 and real-history backup v1 | Current read/write and exact populated synthetic restore; interrupted writes/restore, restart/retry and no duplicate effects tested on real host SQLite. |
+| Unsupported SQL v2 or backup v2; malformed/foreign backup | Refuse opening/restoring; original database and command-journal bytes preserved. No reset or silent downgrade. |
+| Legacy synthetic backup → pilot proof v1 | Existing explicit migration tests; not real production book migration. |
+| Signed Android `cf59bde` → current review-package Release | Bounded native in-place witness and offline reopening recorded in the [package report](../verification/2026-10-21-simple-flight-loading.md#review-continuation--22-october-2026). No format change in this package. |
+| Skipped beta releases, future schema migration, all development installations, binary downgrade and iOS | Not accepted. Select supported beta starting versions and exercise populated multi-account/book/attachment/pending-state paths before beta. Restoring a test's prior APK is cleanup, not downgrade support. |
+
 ## Early Supabase trial boundary
 
 Run a small separate lab/schema with synthetic accounts and records, using the selected Cloud Free mode. Verify actual email recovery and private row/file access, not only documentation or anonymous reads. Select/check a free SMTP arrangement for ordinary users; keep secrets off the device/repository. Prove an authenticated server command/function boundary without paid AI.

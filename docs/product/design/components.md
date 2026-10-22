@@ -59,6 +59,10 @@ Images are decorative and excluded from accessibility announcements; their label
 
 [Source notes, regeneration and fidelity limits](symbols/README.md) and [one verification report](../../verification/2026-10-18-icon-option-2.md) distinguish selected intent, implemented artwork and source-specific native acceptance.
 
+## Filtered saved-flight summary — selected 22 October 2026
+
+The existing Flüge summary card shows the count and known reported duration for exactly the rows admitted by its year/date/registration/text filters. Unknown durations have a separate count; a known zero remains `0:00`, an unknown-only selection says unknown, and no rows show a dash. Use existing card/label spacing and wrapping. Supporting text identifies reported time without role credit; it makes no complete-history claim. This is the bounded #9 query slice approved in the project-review continuation, with no new chart, filter or navigation model.
+
 ## Schematic examples
 
 The combined HTML presents C01–C13 shapes/states alongside these rules: neutral Medical/session status, selected chips, disabled action, no-track/empty placeholder and illustrative distribution ring. These examples execute no app/provider operation and establish no native acceptance. Use a concrete example to discuss a proposed change, then verify the implemented control in context.

@@ -186,6 +186,8 @@
 <p><a href="symbols/index.html">Selected family and ID mapping</a> use the same editable SVG masters as the app. The native renderer uses 145 checked local RGBA PNGs (29 glyphs × default/muted/paper/assistant/contrast variants), with static Metro requires and no new icon runtime. Artwork sizes are context-specific; navigation art is 28 in a 36-unit soft tile with radius 12, header controls retain 48-unit targets with radius 14, and M2 is 20 inside the existing growing Medical control. The original large reference tiles are illustrations, not new app card dimensions.</p>
 <p>Images are decorative and excluded from accessibility announcements; their labelled parent owns navigation/action/status semantics. Native busy indicators remain animated ActivityIndicators; a drawn spinner is never substituted for actual progress. Calendar category artwork uses neutral date cells, not the reference&#x27;s illustrative 26. The separate send arrow remains distinct from the folded plane used for Flüge.</p>
 <p><a href="symbols/README.md">Source notes, regeneration and fidelity limits</a> and <a href="../../verification/2026-10-18-icon-option-2.md">one verification report</a> distinguish selected intent, implemented artwork and source-specific native acceptance.</p>
+<h3 id="chapter-components-filtered-saved-flight-summary--selected-22-october-2026">Filtered saved-flight summary — selected 22 October 2026</h3>
+<p>The existing Flüge summary card shows the count and known reported duration for exactly the rows admitted by its year/date/registration/text filters. Unknown durations have a separate count; a known zero remains <code>0:00</code>, an unknown-only selection says unknown, and no rows show a dash. Use existing card/label spacing and wrapping. Supporting text identifies reported time without role credit; it makes no complete-history claim. This is the bounded #9 query slice approved in the project-review continuation, with no new chart, filter or navigation model.</p>
 <h3 id="chapter-components-schematic-examples">Schematic examples</h3>
 <p>The combined HTML presents C01–C13 shapes/states alongside these rules: neutral Medical/session status, selected chips, disabled action, no-track/empty placeholder and illustrative distribution ring. These examples execute no app/provider operation and establish no native acceptance. Use a concrete example to discuss a proposed change, then verify the implemented control in context.</p>
 <p>C16 also offers an explicit secondary <strong>Gespeicherte Informationen neu laden</strong> action. It reads existing local captures without requiring a provider session; loading/unavailable state disables it, and read failure keeps the previous review visible. Successful reload returns category review to the latest saved snapshot unless a newer history choice was made while it loaded; source timestamps remain the retrieval timestamps. Shared C01/C02 styling and layout bounds are unchanged.</p>
@@ -661,38 +663,38 @@
 <tr><td><code>width: 64</code></td><td>272</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-ownflightstsx">OwnFlights.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/OwnFlights.tsx">apps/platform-lab/src/mobile/OwnFlights.tsx</a>; normalized SHA-256 <code>c2dc0e3312be34cb43017084a39aad7814ea11293771dd7ff8d693ea7ceee458</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/OwnFlights.tsx">apps/platform-lab/src/mobile/OwnFlights.tsx</a>; normalized SHA-256 <code>6c5cc37123961bec303e3adff2aab66f675e52ecb6d785a7c03d4c623356810a</code>.</p>
 <h4 id="chapter-implementation-inventory-literal-colors-7">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><i class="swatch" style="background:#11263a" aria-hidden="true"></i><code>#11263a</code></td><td>134</td></tr>
+<tr><td><i class="swatch" style="background:#11263a" aria-hidden="true"></i><code>#11263a</code></td><td>141</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-typography-declarations-8">Typography declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>fontSize: 13</code></td><td>135</td></tr>
-<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>84</td></tr>
+<tr><td><code>fontSize: 13</code></td><td>142</td></tr>
+<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>91</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-geometry--opacity-declarations-17">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>borderRadius: 13</code></td><td>133</td></tr>
-<tr><td><code>borderRadius: 22</code></td><td>134</td></tr>
-<tr><td><code>borderRadius: 24</code></td><td>135</td></tr>
-<tr><td><code>borderWidth: 1</code></td><td>134</td></tr>
-<tr><td><code>gap: 2</code></td><td>122</td></tr>
-<tr><td><code>gap: 3</code></td><td>133</td></tr>
-<tr><td><code>gap: 5</code></td><td>55</td></tr>
-<tr><td><code>gap: 7</code></td><td>134</td></tr>
-<tr><td><code>gap: 8</code></td><td>80, 132</td></tr>
-<tr><td><code>height: 7</code></td><td>92</td></tr>
-<tr><td><code>maxWidth: &#x27;50%&#x27;</code></td><td>83</td></tr>
-<tr><td><code>maxWidth: 520</code></td><td>132</td></tr>
-<tr><td><code>minHeight: 48</code></td><td>135</td></tr>
-<tr><td><code>minWidth: 0</code></td><td>134</td></tr>
-<tr><td><code>padding: 10</code></td><td>132</td></tr>
-<tr><td><code>padding: 7</code></td><td>133</td></tr>
-<tr><td><code>paddingHorizontal: 12</code></td><td>134</td></tr>
-<tr><td><code>paddingVertical: 4</code></td><td>135</td></tr>
-<tr><td><code>width: &#x27;100%&#x27;</code></td><td>132</td></tr>
-<tr><td><code>width: 48</code></td><td>135</td></tr>
+<tr><td><code>borderRadius: 13</code></td><td>140</td></tr>
+<tr><td><code>borderRadius: 22</code></td><td>141</td></tr>
+<tr><td><code>borderRadius: 24</code></td><td>142</td></tr>
+<tr><td><code>borderWidth: 1</code></td><td>141</td></tr>
+<tr><td><code>gap: 2</code></td><td>129</td></tr>
+<tr><td><code>gap: 3</code></td><td>140</td></tr>
+<tr><td><code>gap: 5</code></td><td>57</td></tr>
+<tr><td><code>gap: 7</code></td><td>141</td></tr>
+<tr><td><code>gap: 8</code></td><td>87, 139</td></tr>
+<tr><td><code>height: 7</code></td><td>99</td></tr>
+<tr><td><code>maxWidth: &#x27;50%&#x27;</code></td><td>90</td></tr>
+<tr><td><code>maxWidth: 520</code></td><td>139</td></tr>
+<tr><td><code>minHeight: 48</code></td><td>142</td></tr>
+<tr><td><code>minWidth: 0</code></td><td>141</td></tr>
+<tr><td><code>padding: 10</code></td><td>139</td></tr>
+<tr><td><code>padding: 7</code></td><td>140</td></tr>
+<tr><td><code>paddingHorizontal: 12</code></td><td>141</td></tr>
+<tr><td><code>paddingVertical: 4</code></td><td>142</td></tr>
+<tr><td><code>width: &#x27;100%&#x27;</code></td><td>139</td></tr>
+<tr><td><code>width: 48</code></td><td>142</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-paperstatustsx">PaperStatus.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/PaperStatus.tsx">apps/platform-lab/src/mobile/PaperStatus.tsx</a>; normalized SHA-256 <code>d030bb2911e9f988f450f9ae521677534c839dba425b0b4b24c7791015d14aa9</code>.</p>
@@ -1647,6 +1649,10 @@ Images are decorative and excluded from accessibility announcements; their label
 
 [Source notes, regeneration and fidelity limits](symbols/README.md) and [one verification report](../../verification/2026-10-18-icon-option-2.md) distinguish selected intent, implemented artwork and source-specific native acceptance.
 
+## Filtered saved-flight summary — selected 22 October 2026
+
+The existing Flüge summary card shows the count and known reported duration for exactly the rows admitted by its year/date/registration/text filters. Unknown durations have a separate count; a known zero remains `0:00`, an unknown-only selection says unknown, and no rows show a dash. Use existing card/label spacing and wrapping. Supporting text identifies reported time without role credit; it makes no complete-history claim. This is the bounded #9 query slice approved in the project-review continuation, with no new chart, filter or navigation model.
+
 ## Schematic examples
 
 The combined HTML presents C01–C13 shapes/states alongside these rules: neutral Medical/session status, selected chips, disabled action, no-track/empty placeholder and illustrative distribution ring. These examples execute no app/provider operation and establish no native acceptance. Use a concrete example to discuss a proposed change, then verify the implemented control in context.
@@ -2257,45 +2263,45 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](..
 
 ## OwnFlights.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OwnFlights.tsx](../../../apps/platform-lab/src/mobile/OwnFlights.tsx); normalized SHA-256 `c2dc0e3312be34cb43017084a39aad7814ea11293771dd7ff8d693ea7ceee458`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OwnFlights.tsx](../../../apps/platform-lab/src/mobile/OwnFlights.tsx); normalized SHA-256 `6c5cc37123961bec303e3adff2aab66f675e52ecb6d785a7c03d4c623356810a`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#11263a` | 134 |
+| `#11263a` | 141 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 13` | 135 |
-| `fontWeight: &#x27;600&#x27;` | 84 |
+| `fontSize: 13` | 142 |
+| `fontWeight: &#x27;600&#x27;` | 91 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 13` | 133 |
-| `borderRadius: 22` | 134 |
-| `borderRadius: 24` | 135 |
-| `borderWidth: 1` | 134 |
-| `gap: 2` | 122 |
-| `gap: 3` | 133 |
-| `gap: 5` | 55 |
-| `gap: 7` | 134 |
-| `gap: 8` | 80, 132 |
-| `height: 7` | 92 |
-| `maxWidth: &#x27;50%&#x27;` | 83 |
-| `maxWidth: 520` | 132 |
-| `minHeight: 48` | 135 |
-| `minWidth: 0` | 134 |
-| `padding: 10` | 132 |
-| `padding: 7` | 133 |
-| `paddingHorizontal: 12` | 134 |
-| `paddingVertical: 4` | 135 |
-| `width: &#x27;100%&#x27;` | 132 |
-| `width: 48` | 135 |
+| `borderRadius: 13` | 140 |
+| `borderRadius: 22` | 141 |
+| `borderRadius: 24` | 142 |
+| `borderWidth: 1` | 141 |
+| `gap: 2` | 129 |
+| `gap: 3` | 140 |
+| `gap: 5` | 57 |
+| `gap: 7` | 141 |
+| `gap: 8` | 87, 139 |
+| `height: 7` | 99 |
+| `maxWidth: &#x27;50%&#x27;` | 90 |
+| `maxWidth: 520` | 139 |
+| `minHeight: 48` | 142 |
+| `minWidth: 0` | 141 |
+| `padding: 10` | 139 |
+| `padding: 7` | 140 |
+| `paddingHorizontal: 12` | 141 |
+| `paddingVertical: 4` | 142 |
+| `width: &#x27;100%&#x27;` | 139 |
+| `width: 48` | 142 |
 
 ## PaperStatus.tsx
 
@@ -3270,7 +3276,7 @@ States / limits: Recreated approved variant, not a byte-identical copy of an old
 Source: docs/assets/branding/moflight-app-icon-ai.png
 docs/assets/branding/README.md; app.json
 </textarea></section>
-<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: 0749f155b336f4f19b77ecc552e2aad4ffefb758088c27501eb54fd2f074792b. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
+<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: 4b9943820f41ff90689a6b4539e68e44688a9559d9b2b99726a0c34755e1eb43. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
 </main><script>
 'use strict';
 const brief = document.querySelector('#brief');
