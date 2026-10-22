@@ -10,7 +10,7 @@ export function SeasonMonthlyCharts({ series, fontScale = 1 }: { series: SeasonM
   const describe = (m: SeasonMonth) => `${m.year}: ${m.count === null ? 'Flugzahl unbekannt' : `${m.count} Flüge`}, ${m.knownMinutes === null ? 'Zeit unbekannt' : `${formatReportedMinutes(m.knownMinutes)} h bekannt`}, ${m.covered ? 'abgedeckt' : 'Abdeckung unvollständig'}, ${m.unknownDurationCount} Zeiten unbekannt/strittig`;
   return <View style={s.group}>
     <View style={s.header}><Section title="Monatsübersicht" /><View style={s.controls}><Chip title="Flüge" selected={metric==='count'} onPress={()=>setMetric('count')} /><Chip title="Flugstunden" selected={metric==='knownMinutes'} onPress={()=>setMetric('knownMinutes')} /></View></View>
-    <Label muted style={s.small}>0 – {metric==='count'?`${max} Flüge`:`${formatReportedMinutes(max)} h bekannt`}</Label>
+    <Label muted style={s.small}>{`0 – ${metric==='count'?`${max} Flüge`:`${formatReportedMinutes(max)} h bekannt`}`}</Label>
       <View style={s.chart}>{months.map((name,i)=>{
         const first=series[0]?.[i];
         return <View key={name} accessible accessibilityLabel={`${name}: ${first?.future?'zukünftig':series.map(y=>describe(y[i]!)).join('; ')}`} style={[s.month,{width:fontScale>1.3?'16.666666%':'8.333333%'}]}>
