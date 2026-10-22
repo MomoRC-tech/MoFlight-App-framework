@@ -34,7 +34,8 @@ Keep German labels beside important navigation/status symbols. Show saved facts 
 6. Manuel's **22 October implementation instruction** selects the [compact Start/data amendment](../2026-10-13-journey-information-map.md#compact-start-and-data-reminders--22-october-2026): conditional three-day reminder, integrated latest flight, visible monthly count/time comparisons, earliest-source Medical expiry reminder and compact Verein duties. Quiet startup latest-flight checking remains unavailable until a reliable lightweight source is proven; captured duty pages are explicitly partial.
 7. Manuel’s **22 October Start feedback (#54)** supersedes two simultaneous monthly plots and all season/month/latest-flight detail entry points with one chart, Flüge/Flugstunden measure chips and two read-only recent-flight boxes. Local preparation has visible busy feedback; details belong in the Flüge tab.
 8. Manuel's **22 October implement instruction** selects the alternative Start layout under [#20](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/20#issuecomment-6340199647): count/known-time KPIs replace rings, compact aircraft/recent-flight rows, a general Alle anzeigen route to Flüge, responsive month chart/lower legend and a 40 dp header logo. This supersedes those scoped ring/layout values; status meanings and five tabs remain.
-9. This handbook consolidates those decisions. Earlier prototype choices apply only where explicitly carried forward. Code values record implementation and cannot approve an unresolved visual difference.
+9. Manuel's **22 October data-update header instruction (#22)** supersedes the ordinary header connection/session symbol with an explicit data-fetch action and durable received-age display: green under one hour, amber for older data, neutral when unknown; login opens only when an update needs it. Provider-panel verification remains separate.
+10. This handbook consolidates those decisions. Earlier prototype choices apply only where explicitly carried forward. Code values record implementation and cannot approve an unresolved visual difference.
 
 Manuel owns design decisions. Priorities, journeys and account/book behavior remain in the [project plan](../../project-plan.md), [journey map](../2026-10-13-journey-information-map.md) and feature contracts. Link those contracts rather than duplicating them here.
 
@@ -171,6 +172,8 @@ Use the existing [aviation photographs/credits](../../../apps/platform-lab/asset
 
 The HTML guide embeds original reference and symbol/brand images unchanged. Component examples are schematic CSS explanations with synthetic labels, not new app screenshots or replacement artwork.
 
+The 22 October header data-update amendment reuses `#74dfba` for saved data received less than one hour ago and `#ffc477` for older saved data, accompanied by visible relative age. These header colors describe saved flight-data age; the same provider-panel colors retain their separate session meanings. Neutral `#adbed5` indicates an unknown timestamp.
+
 # Components, symbols and shapes
 
 [Handbook entry point](README.md). This catalogue records current implementation and approved use. The portable guide includes schematic examples; source values and native evidence remain authoritative. Example labels/data are synthetic.
@@ -195,7 +198,7 @@ The HTML guide embeds original reference and symbol/brand images unchanged. Comp
 | C14 | Synthetic import review | Shared C01/C02/C03 cards/actions/choice chips, centered group capped at 520 dp | Development-only comparison, source variants and explicit book choice; [ImportPreview](../../../apps/platform-lab/src/mobile/ImportPreview.tsx). No saved-library import. |
 | C15 | Captured flight review | Shared cards/actions in the connection panel's centered 520 dp group; five records per page, eight original fields per detail page | [CapturedFlights](../../../apps/platform-lab/src/mobile/CapturedFlights.tsx) reads owner-scoped saved evidence without requiring provider login. Dates/clocks, reported duration, aircraft and separate crew fields retain unknown/invalid/conflict states; original field text is selectable and untruncated. No book membership or canonical import. |
 | C16 | Information source review | Shared C01/C02 controls in the connection panel's centered 520 dp group; five raw rows per page, one immutable snapshot at a time | [InformationReview](../../../apps/platform-lab/src/mobile/InformationReview.tsx) shows retrieval time and recorded coverage, with older/newer controls available offline. Category counts use the latest snapshot. Blank extracted text stays unknown; known date-only document snapshots are marked incomplete. No canonical history or cross-snapshot aggregation. |
-| C17 | Own-flight loading | Shared C01/C02 controls, centered 520 dp groups; ordinary progress and secondary details | [CoreFlightFoundation](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx) coordinates one explicit action through internal fresh storage, original-provider authentication, verified retrieval and local save. A verified retained session avoids login; valid rows need no routine review/save tap. Source/account/recovery checks remain; unresolved recovery is visible outside the details disclosure. Custom period, raw review and real-history backup remain under Details & weitere Optionen. The header/Profile connection entry opens the shared selected-owner panel directly, with connect-only intent and contextual return. The same native browser remains mounted above tab navigation after closing; advanced library options are secondary. Original-login exposure comes from the explicit connection flow, without an outer login-enabled override. On Android, the measured keyboard frame caps progress and reserves the same retained browser viewport above the IME. The combined flow retains one progress card through original-provider sign-in, verification, flights/save and Medical; success/partial failure stays visible until acknowledgement, which returns to ordinary Flüge with the result. Opening options alone creates/retrieves nothing. |
+| C17 | Own-flight loading | Shared C01/C02 controls, centered 520 dp groups; ordinary progress and secondary details | [CoreFlightFoundation](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx) coordinates one explicit action through internal fresh storage, original-provider authentication, verified retrieval and local save. A verified retained session avoids login; valid rows need no routine review/save tap. Source/account/recovery checks remain; unresolved recovery is visible outside the details disclosure. Custom period, raw review and real-history backup remain under Details & weitere Optionen. The header data-update entry runs the combined update in the shared selected-owner panel, with login only when needed and contextual return. Profile retains the explicit connect-only entry. The same native browser remains mounted above tab navigation after closing; advanced library options are secondary. Original-login exposure comes from the explicit connection flow, without an outer login-enabled override. On Android, the measured keyboard frame caps progress and reserves the same retained browser viewport above the IME. The combined flow retains one progress card through original-provider sign-in, verification, flights/save and Medical; success/partial failure stays visible until acknowledgement, which returns to ordinary Flüge with the result. Opening options alone creates/retrieves nothing. |
 | C18 | Connection/data summary | Compact conditional Start row capped at 430 dp; Profile retains administration | [ConnectionSummary](../../../apps/platform-lab/src/mobile/ConnectionSummary.tsx) uses successful saved-retrieval time, with a reminder only after more than 72 hours or a positively identified change. Ordinary reminders can be hidden for 24 hours in the exact account/store scope. First-use/load failure/recovery remain actionable. Explicit update coordinates flights, Medical and separate duty capture; failures do not undo flight saves. Startup latest-flight observation is unavailable; no automatic provider request is enabled. |
 | C19 | Support diagnostics | Shared C01/C02 cards/actions and selectable report text in a centered 520 dp group | [Diagnostics](../../../apps/platform-lab/src/mobile/Diagnostics.tsx) via Settings; paged technical/action histories and protected failures; observed navigation transitions without inferred intent. Explicit full JSON-file sharing, bounded short text copying and diagnostic-only clearing; 1 MB total managed storage cap. No automatic transmission. |
 
@@ -243,6 +246,10 @@ The provider's information-import controls guide the selected own training summa
 ## Selected alternative Start - 22 October 2026
 
 The two recent read-only flights use radius 14 raised rows: date/start and duration, then aircraft/model and abbreviated pilot; known companion alone adds a line. Unknown companion remains available in flight details. Alle anzeigen opens the general Flüge view. The monthly chart fills its card with twelve equal columns, or two rows of six above font scale 1.3; year legend sits beneath. Measure chips retain 48 dp targets, units and month accessibility descriptions. The 40 dp header logo preserves status-control targets and enlarged-text reflow. This supersedes the earlier Start ring and horizontal-chart composition only. Native acceptance is recorded in the [existing report](../../verification/2026-10-21-simple-flight-loading.md#alternative-start-layout--22-october-2026).
+
+### Header data update — selected 22 October 2026
+
+The ordinary header uses [DataUpdateIndicator](../../../apps/platform-lab/src/mobile/DataUpdateIndicator.tsx): existing Modern Duotone refresh artwork, visible “Daten” and compact relative age, minimum74×48dp target. The frame and text are green (`#74dfba`) for a durably saved successful flight retrieval less than one hour old, amber (`#ffc477`) from one hour onward, neutral for no valid saved timestamp. Exact time and the update/login-if-needed purpose are in the accessible label/hint; the update panel retains exact saved-time wording. Color is accompanied by age text. Failure/cancellation/login checks cannot advance this timestamp. The selected owner/account library supplies it after restart; the local clock updates the age and crosses the hour boundary without provider requests. A successful empty/no-change retrieval counts. Medical/duty outcomes retain their separate category times; this control does not claim all source categories are current. The three-day Start reminder is unchanged. This supersedes the shell's former connection/session badge; the provider panel still uses its separate connection indicator and proof safeguards.
 
 # Layout and presentation patterns
 
@@ -329,11 +336,15 @@ When affected, check actual touch regions, reading/focus order, long labels, tex
 
 Follow the [verification workflow](../../development/verification-workflow.md): this consolidation adds no native acceptance. Substantial UI changes need their relevant committed-source Release/native matrix; logic-only changes do not trigger unrelated visual audits.
 
+### Everyday header data action — 22 October amendment
+
+Header order is data update → Medical → Profile. The update button starts the existing explicit combined fetch, showing original login only if required. Use a refresh symbol, “Daten” and received-age wording; green under one hour, amber for older, neutral when unknown. Its durable successful flight-update timestamp survives background/restart and remains unchanged on failed/cancelled updates. The provider panel's account-verification indicator remains a separate internal status. This amendment replaces only the former connection meaning/action in the ordinary shell; contextual return, selected-owner isolation and the separate three-day reminder remain.
+
 # Platform-lab UI implementation inventory
 
 [Handbook entry point](README.md). Generated by `python scripts/design_handbook.py`; do not hand-edit.
 
-Scope: 55 product mobile TypeScript/model and app-owned TSX UI/adapter files; 63 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.
+Scope: 56 product mobile TypeScript/model and app-owned TSX UI/adapter files; 63 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.
 
 ## App.tsx
 
@@ -563,6 +574,41 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](..
 | `width: '100%'` | 58 |
 | `width: 7` | 64 |
 
+## DataUpdateIndicator.tsx
+
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DataUpdateIndicator.tsx](../../../apps/platform-lab/src/mobile/DataUpdateIndicator.tsx); normalized SHA-256 `d3b0fc667b4332861609c51622ad08eae8d592fa63ee9649d530b06d4e6f8d37`.
+
+### Literal colors
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `#102d47aa` | 25 |
+| `#74dfba` | 12 |
+| `#ffc477` | 12 |
+
+### Typography declarations
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `fontSize: 10` | 28 |
+| `fontSize: 11` | 27 |
+| `fontWeight: '600'` | 27 |
+| `lineHeight: 14` | 28 |
+| `lineHeight: 15` | 27 |
+
+### Geometry / opacity declarations
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `borderRadius: 14` | 24 |
+| `borderWidth: 1` | 25 |
+| `gap: 3` | 26 |
+| `minHeight: 48` | 24 |
+| `minWidth: 74` | 24 |
+| `opacity: .5` | 16 |
+| `paddingHorizontal: 6` | 24 |
+| `paddingVertical: 3` | 24 |
+
 ## DevelopmentHub.tsx
 
 Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DevelopmentHub.tsx](../../../apps/platform-lab/src/mobile/DevelopmentHub.tsx); normalized SHA-256 `0d37b4c47999c2b7f8c69f96510d0f07c2cbc393cbb1fcd61d2c4e638a239167`.
@@ -682,112 +728,112 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MedicalStatus.tsx
 
 ## MobileApp.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `3ffef87c2b0d94a177944dfe210671ae0f508084841e23985ab3cb0237262a3b`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `50f02920007f0b79b77474f9dd456d6e80b067610eb9df7dd11844667c3163cb`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#00c8ff` | 231, 273 |
-| `#020e17` | 273 |
-| `#064240` | 268 |
-| `#10233d` | 270 |
-| `#10263e` | 272 |
-| `#10282d` | 268 |
-| `#102d47aa` | 263 |
-| `#11263a` | 267 |
-| `#152d42` | 269 |
-| `#1b344a` | 272 |
-| `#1c3449` | 273 |
-| `#227f87` | 268 |
-| `#354d74` | 270 |
-| `#3a5a8b` | 272 |
-| `#78efdc` | 270 |
-| `#8ba4bc` | 230, 265 |
+| `#00c8ff` | 237, 279 |
+| `#020e17` | 279 |
+| `#064240` | 274 |
+| `#10233d` | 276 |
+| `#10263e` | 278 |
+| `#10282d` | 274 |
+| `#102d47aa` | 269 |
+| `#11263a` | 273 |
+| `#152d42` | 275 |
+| `#1b344a` | 278 |
+| `#1c3449` | 279 |
+| `#227f87` | 274 |
+| `#354d74` | 276 |
+| `#3a5a8b` | 278 |
+| `#78efdc` | 276 |
+| `#8ba4bc` | 236, 271 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 10` | 219, 230, 265 |
-| `fontSize: 11` | 224, 266, 273 |
-| `fontSize: 12` | 268 |
-| `fontSize: 13` | 220, 267, 272 |
-| `fontSize: 20` | 266 |
-| `fontSize: 23` | 271 |
-| `fontSize: 25` | 273 |
-| `fontWeight: '600'` | 266, 268 |
-| `letterSpacing: .6` | 265 |
-| `lineHeight: 16` | 230, 265, 266, 273 |
-| `lineHeight: 17` | 268 |
-| `lineHeight: 25` | 266 |
-| `lineHeight: 29` | 273 |
+| `fontSize: 10` | 225, 236, 271 |
+| `fontSize: 11` | 230, 272, 279 |
+| `fontSize: 12` | 274 |
+| `fontSize: 13` | 226, 273, 278 |
+| `fontSize: 20` | 272 |
+| `fontSize: 23` | 277 |
+| `fontSize: 25` | 279 |
+| `fontWeight: '600'` | 272, 274 |
+| `letterSpacing: .6` | 271 |
+| `lineHeight: 16` | 236, 271, 272, 279 |
+| `lineHeight: 17` | 274 |
+| `lineHeight: 25` | 272 |
+| `lineHeight: 29` | 279 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 268, 271 |
-| `borderRadius: 13` | 268 |
-| `borderRadius: 14` | 263 |
-| `borderRadius: 15` | 270 |
-| `borderRadius: 17` | 269 |
-| `borderRadius: 2` | 273 |
-| `borderRadius: 20` | 272 |
-| `borderRadius: 21` | 272 |
-| `borderRadius: 22` | 267 |
-| `borderRadius: 24` | 267 |
-| `borderRadius: 9` | 268 |
-| `borderWidth: 1` | 267, 268, 271, 272 |
-| `gap: 1` | 266, 273 |
-| `gap: 10` | 182, 199, 270 |
-| `gap: 3` | 265, 268 |
-| `gap: 5` | 267 |
-| `gap: 6` | 271, 272 |
-| `gap: 7` | 267, 270 |
-| `gap: 8` | 245, 247, 262, 269, 272 |
-| `height: 2` | 273 |
-| `height: 30` | 270 |
-| `height: 42` | 272 |
-| `height: 48` | 263 |
-| `maxHeight: 150` | 272 |
-| `maxWidth: 430` | 108, 270 |
-| `maxWidth: 480` | 199 |
-| `maxWidth: 520` | 245, 247 |
-| `maxWidth: 599` | 261, 273 |
-| `maxWidth: 600` | 177, 231 |
-| `maxWidth: 720` | 217 |
-| `maxWidth: 960` | 177, 231 |
-| `minHeight: 126` | 270 |
-| `minHeight: 34` | 269 |
-| `minHeight: 36` | 264 |
-| `minHeight: 40` | 267, 272 |
-| `minHeight: 48` | 267, 269 |
-| `minHeight: 60` | 273 |
-| `minHeight: 64` | 268 |
-| `minHeight: 66` | 268 |
-| `minHeight: 70` | 271 |
-| `minWidth: 0` | 266, 267 |
-| `opacity: .45` | 222 |
-| `padding: 0` | 269 |
-| `padding: 10` | 262, 271 |
-| `padding: 4` | 265, 272 |
-| `padding: 7` | 268 |
-| `paddingHorizontal: 12` | 267 |
-| `paddingHorizontal: 16` | 269 |
-| `paddingHorizontal: 6` | 268 |
-| `paddingHorizontal: 7` | 268 |
-| `paddingHorizontal: 8` | 272 |
-| `paddingVertical: 10` | 268 |
-| `paddingVertical: 4` | 267, 273 |
-| `width: '100%'` | 108, 182, 183, 184, 199, 210, 230, 245, 247, 261, 269, 270, 273 |
-| `width: '33.333333%'` | 273 |
-| `width: '49.2%'` | 269 |
-| `width: 24` | 273 |
-| `width: 30` | 270 |
-| `width: 42` | 267, 272 |
-| `width: 48` | 263 |
-| `width: 64` | 268 |
+| `borderRadius: 12` | 274, 277 |
+| `borderRadius: 13` | 274 |
+| `borderRadius: 14` | 269 |
+| `borderRadius: 15` | 276 |
+| `borderRadius: 17` | 275 |
+| `borderRadius: 2` | 279 |
+| `borderRadius: 20` | 278 |
+| `borderRadius: 21` | 278 |
+| `borderRadius: 22` | 273 |
+| `borderRadius: 24` | 273 |
+| `borderRadius: 9` | 274 |
+| `borderWidth: 1` | 273, 274, 277, 278 |
+| `gap: 1` | 272, 279 |
+| `gap: 10` | 188, 205, 276 |
+| `gap: 3` | 271, 274 |
+| `gap: 5` | 273 |
+| `gap: 6` | 277, 278 |
+| `gap: 7` | 273, 276 |
+| `gap: 8` | 251, 253, 268, 275, 278 |
+| `height: 2` | 279 |
+| `height: 30` | 276 |
+| `height: 42` | 278 |
+| `height: 48` | 269 |
+| `maxHeight: 150` | 278 |
+| `maxWidth: 430` | 113, 276 |
+| `maxWidth: 480` | 205 |
+| `maxWidth: 520` | 251, 253 |
+| `maxWidth: 599` | 267, 279 |
+| `maxWidth: 600` | 183, 237 |
+| `maxWidth: 720` | 223 |
+| `maxWidth: 960` | 183, 237 |
+| `minHeight: 126` | 276 |
+| `minHeight: 34` | 275 |
+| `minHeight: 36` | 270 |
+| `minHeight: 40` | 273, 278 |
+| `minHeight: 48` | 273, 275 |
+| `minHeight: 60` | 279 |
+| `minHeight: 64` | 274 |
+| `minHeight: 66` | 274 |
+| `minHeight: 70` | 277 |
+| `minWidth: 0` | 272, 273 |
+| `opacity: .45` | 228 |
+| `padding: 0` | 275 |
+| `padding: 10` | 268, 277 |
+| `padding: 4` | 271, 278 |
+| `padding: 7` | 274 |
+| `paddingHorizontal: 12` | 273 |
+| `paddingHorizontal: 16` | 275 |
+| `paddingHorizontal: 6` | 274 |
+| `paddingHorizontal: 7` | 274 |
+| `paddingHorizontal: 8` | 278 |
+| `paddingVertical: 10` | 274 |
+| `paddingVertical: 4` | 273, 279 |
+| `width: '100%'` | 113, 188, 189, 190, 205, 216, 236, 251, 253, 267, 275, 276, 279 |
+| `width: '33.333333%'` | 279 |
+| `width: '49.2%'` | 275 |
+| `width: 24` | 279 |
+| `width: 30` | 276 |
+| `width: 42` | 273, 278 |
+| `width: 48` | 269 |
+| `width: 64` | 274 |
 
 ## OwnFlights.tsx
 
@@ -1350,7 +1396,7 @@ Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
 duotone-assets.ts; symbols/glyphs.svg #sparkle
 
 Header and provider-session states
-The current app header order is Connection → Med → Profile. App overlays keep one active accessible header. The provider panel has its own Close, provider-history Back and connection indicator; it does not show the entire three-control group.
+The ordinary app header order is data update → Med → Profile. App overlays keep one active accessible header. The provider panel retains separate account/session indicators and Close/provider-history Back controls.
 
 H01 · Current native UI
 MoFlight Thermik brand
@@ -1403,19 +1449,19 @@ Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
 duotone-assets.ts; symbols/glyphs.svg #profile
 
 S01 · Current native UI · selected duotone
-Session unverified / unknown
-Appearance: Selected soft-filled cyan/slate duotone chain silhouette; local RGBA PNG from the editable SVG master. muted palette in this context.
-Where: Connection indicator when no stronger usable observation exists.
-Meaning: Current session is not established by the available evidence.
-Function / action: The containing connection button opens details; this badge has no independent action.
-States / limits: Includes unknown/disconnected and incomplete observations. An old cookie or failure to inspect a page is not proof of login or logout.
-Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
-duotone-assets.ts; symbols/glyphs.svg #chain
+Update Vereinsflieger data
+Appearance: Selected Modern Duotone refresh symbol with Daten and relative received age; green frame/text under one hour, amber from one hour, neutral when unknown.
+Where: Ordinary app header; separate from provider-panel session indicators.
+Meaning: Age of the selected owner/account library’s last durably saved successful flight-data retrieval. No live-login or all-category freshness promise.
+Function / action: Tap explicitly fetches new Vereinsflieger data through the shared update flow; original login appears only if needed. Contextual return is preserved.
+States / limits: Green <1 hour; amber >=1 hour; neutral missing/invalid/future timestamp. Visible relative age and accessible exact time. Failed updates and session checks do not renew it.
+Source: apps/platform-lab/src/mobile/DataUpdateIndicator.tsx
+DataUpdateIndicator; dataUpdateStatus; glyphs.svg #refresh
 
 S02 · Current native UI · selected duotone
 Last confirmed session check
 Appearance: Selected soft-filled cyan/slate duotone chain silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
-Where: Connection indicator after a confirmed matching profile observation with a check time.
+Where: Provider connection panel only. The ordinary header uses S01 saved-data update age.
 Meaning: A previous session check matched the provisional account association.
 Function / action: Open details to read the last-check time and available next action.
 States / limits: Requires observed + confirmed + observed identity + lastCheckedAt. No automatic expiry threshold is implemented; a tick does not promise continuous login or fresh imported flights.
@@ -1425,7 +1471,7 @@ duotone-assets.ts; symbols/glyphs.svg #chain
 S03 · Current native UI · selected duotone
 Provider login required
 Appearance: Selected soft-filled cyan/slate duotone chain silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
-Where: Connection indicator for login-required.
+Where: Provider connection panel only. The ordinary header uses S01 saved-data update age.
 Meaning: Login on the original Vereinsflieger page is required.
 Function / action: Open Verbindungen and use the sign-in action. The badge itself does not submit credentials.
 States / limits: Login-required state. Keep distinct from the same arrow used for route direction or forward navigation.
@@ -1435,7 +1481,7 @@ duotone-assets.ts; symbols/glyphs.svg #chain
 S04 · Current native UI · selected duotone
 Connection attention / blocked
 Appearance: Selected soft-filled cyan/slate duotone chain silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
-Where: Connection indicator for mismatch, error, unconfirmed observed identity, or pending recovery.
+Where: Provider connection panel only. The ordinary header uses S01 saved-data update age.
 Meaning: Something needs review: account/club mismatch, failed checking, association confirmation, or recovery blocking retrieval.
 Function / action: Open details to understand the specific reason and next action.
 States / limits: Recovery forces the ! badge. Several causes share the shape, so accompanying accessible wording/details must distinguish them. A session error does not prove logout.
@@ -1445,7 +1491,7 @@ duotone-assets.ts; symbols/glyphs.svg #chain
 S05 · Current native UI
 Busy / checking / saving
 Appearance: Native ActivityIndicator: indeterminate spinner. The sample here is a schematic still.
-Where: Connection indicator and operation panels; local-library/profile loading.
+Where: Provider connection panel only. The ordinary header uses S01 saved-data update age.
 Meaning: Work is in progress; the result is not known yet.
 Function / action: No separate action on the spinner. The containing control and explicit operation buttons define available actions.
 States / limits: Connection pending covers clearing, binding, busy retrieval/restoring/saving, login attempt, disconnect checking and session checking. Local/profile spinners mean their own named operation. This is not percentage progress.

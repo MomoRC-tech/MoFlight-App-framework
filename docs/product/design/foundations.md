@@ -115,3 +115,5 @@ Preserve the [approved Thermik artwork](../../assets/branding/README.md). The na
 Use the existing [aviation photographs/credits](../../../apps/platform-lab/assets/aviation/README.md). Preserve source/author/license links and explain cropping/dark overlays. Native scenes differ from exact reference photography; document this rather than extracting screenshot pixels. Photos are decorative, not weather/club/location evidence.
 
 The HTML guide embeds original reference and symbol/brand images unchanged. Component examples are schematic CSS explanations with synthetic labels, not new app screenshots or replacement artwork.
+
+The 22 October header data-update amendment reuses `#74dfba` for saved data received less than one hour ago and `#ffc477` for older saved data, accompanied by visible relative age. These header colors describe saved flight-data age; the same provider-panel colors retain their separate session meanings. Neutral `#adbed5` indicates an unknown timestamp.

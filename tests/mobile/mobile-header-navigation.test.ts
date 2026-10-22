@@ -6,9 +6,10 @@ import { runInNewContext } from 'node:vm';
 import ts from 'typescript';
 import { canonical } from '../../packages/flight-logbook/src/index.ts';
 import { medicalSource } from '../../apps/platform-lab/src/mobile/medical-source.ts';
-import { ownFlightConnectionState, connectionSymbol } from '../../apps/platform-lab/src/mobile/connection-guidance.ts';
+import { ownFlightConnectionState } from '../../apps/platform-lab/src/mobile/connection-guidance.ts';
 import * as dutyModel from '../../apps/platform-lab/src/vereinsflieger/duties';
 const unknownProviderStatus={connection:{phase:'unknown',confirmed:false,observed:null,lastCheckedAt:null},browserActive:false};
+import { dataUpdateStatus, DATA_UPDATE_FRESH_MS } from '../../apps/platform-lab/src/mobile/data-freshness.ts';
 import { planFlightRetrieval } from '../../apps/platform-lab/src/vereinsflieger/retrieval-policy';
 
 interface Element { type: unknown; props: Record<string, any>; children: unknown[] }
@@ -38,6 +39,7 @@ function fixture(width = 390, fontScale = 1, root = false) {
   const coreRoutes: {intent:string;developmentRecoveryCheckpoints:boolean}[] = [];
   const readEnabled:boolean[]=[];
   let suspended = false;
+  let clockNow=Date.UTC(2026,9,22,12),clockDeadlines:readonly number[]=[];
   let providerStatus:any=unknownProviderStatus, lastLoad:any=null, ownView:any=null, appStateListener:((state:string)=>void)|undefined;
   Object.assign(controller, { connect: () => calls.push('connect'), checkConnection: () => calls.push('check'), retrieve: () => calls.push('retrieve') });
   let hardwareBack: () => boolean;
@@ -63,7 +65,7 @@ function fixture(width = 390, fontScale = 1, root = false) {
     './Diagnostics': leaves(['Diagnostics']), './diagnostics-native': {initializeDiagnostics() {}}, '../diagnostics': diagnostics,
     './ProfileSettings': { ProfileSettings: 'ProfileSettings', SyntheticProfileSettings:'SyntheticProfileSettings' }, '../book-storage': { PILOT: 'synthetic-pilot' },
     '../vereinsflieger/use-access-controller': { useAccessController: () => controller },
-    './ProviderConnection': {...leaves(['ProviderConnection', 'ConnectionIndicator']),unknownProviderStatus}, './AppHeader': { AppHeader: 'AppHeader' },
+    './ProviderConnection': {...leaves(['ProviderConnection', 'ConnectionIndicator']),unknownProviderStatus}, './DataUpdateIndicator':leaves(['DataUpdateIndicator']), './data-freshness':{DATA_UPDATE_FRESH_MS}, './AppHeader': { AppHeader: 'AppHeader' },
     './MedicalStatus': leaves(['MedicalIndicator', 'MedicalDetails']),
     './DevelopmentHub': leaves(['DevelopmentHub', 'DevelopmentNotice']),
     './LibraryBackup': leaves(['LibraryBackup']), './PaperStatus': leaves(['PaperStatus']),
@@ -76,7 +78,7 @@ function fixture(width = 390, fontScale = 1, root = false) {
     './connection-guidance': { ownFlightConnectionState },
     '../vereinsflieger/duties': dutyModel, './DutyRoster':leaves(['DutyRoster']),
     '../vereinsflieger/retrieval-policy':{planFlightRetrieval},
-    './use-start-clock':{useStartClock:()=>Date.UTC(2026,9,22,12),useReminderSnooze:()=>({snooze:null,error:false,save:()=>{}})},
+    './use-start-clock':{useStartClock:(deadlines:readonly number[])=>{clockDeadlines=deadlines;return clockNow;},useReminderSnooze:()=>({snooze:null,error:false,save:()=>{}})},
   };
   const exports = {} as { Shell: () => Element };
   runInNewContext(source + '\nexports.Shell = Shell;', { exports, require: (name: string) => {
@@ -105,26 +107,33 @@ function fixture(width = 390, fontScale = 1, root = false) {
   render(); render();
   return { render, nodes, find, resize:(nextWidth:number,nextFontScale:number)=>{width=nextWidth;fontScale=nextFontScale;render();}, headers, parent, press, openOwnDetail, flight, library, controller, calls, coreRoutes, readEnabled, suspended: () => suspended, hardwareBack: () => hardwareBack!(),
     showLoad:(result:any,view:any)=>{providerStatus=result?.verifiedConnection?{...unknownProviderStatus,ownerId:result.verifiedConnection.ownerId,connection:result.verifiedConnection.state}:unknownProviderStatus;lastLoad=result;ownView=view;render();render();},
+    setTime:(time:number)=>{clockNow=time;render();}, clockDeadlines:()=>clockDeadlines,
     appState:(state:string)=>{if(state!=='active')providerStatus=unknownProviderStatus;appStateListener?.(state);render();} };
 }
 
-test('real-flight verification updates both shell summaries without authorizing the legacy controller and expires on background',()=>{
+test('header age comes from the selected saved retrieval independently of provider session and failed updates',()=>{
   const f=fixture();
-  const state={phase:'observed',confirmed:true,lastCheckedAt:'2026-10-21T07:00:00.000Z',observed:{accountNumber:'101',clubLabel:'Synthetic',clubIdentity:'display-label-only',verification:'observed-profile-number'}};
-  const result={added:2,changed:0,pending:0,verifiedConnection:{ownerId:'real-owner',state}};
-  const view={snapshot:{ownerId:'real-owner',account:{accountRef:'101'}}};
+  const now=Date.UTC(2026,9,22,12),at=new Date(now-20*60_000).toISOString();
+  const state={phase:'observed',confirmed:true,lastCheckedAt:new Date(now).toISOString(),observed:{accountNumber:'101',clubLabel:'Synthetic',clubIdentity:'display-label-only',verification:'observed-profile-number'}};
+  const result={added:0,changed:0,pending:0,verifiedConnection:{ownerId:'real-owner',state}};
+  const view={snapshot:{ownerId:'real-owner',account:{accountRef:'101'},savedRetrievals:[{from:'2026-01-01',to:'2026-10-22',retrievedAt:at,savedAt:at}]}};
+  const status=()=>dataUpdateStatus(f.find('DataUpdateIndicator').props.receivedAt,'ready',f.find('DataUpdateIndicator').props.now);
   f.showLoad(result,view);
-  assert.equal(connectionSymbol(f.find('ConnectionIndicator').props.controller.connection).mark,'✓');
+  assert.equal(status().state,'fresh');assert.equal(status().caption,'vor 20 Min.');
+  assert.ok(f.clockDeadlines().includes(Date.parse(at)+DATA_UPDATE_FRESH_MS),'The existing local clock schedules the exact one-hour transition');
+  f.setTime(now+40*60_000);assert.equal(status().state,'older');f.setTime(now);
   assert.equal(f.find('ConnectionSummary').props.controller.connection.lastCheckedAt,state.lastCheckedAt);
-  assert.equal(f.controller.connection.phase,'unknown');assert.deepEqual(f.calls,[]);
+  assert.deepEqual(f.calls,[]);
   f.appState('background');f.appState('active');
-  assert.equal(connectionSymbol(f.find('ConnectionIndicator').props.controller.connection).mark,'?');
-  for(const foreign of [{snapshot:{ownerId:'other',account:{accountRef:'101'}}},{snapshot:{ownerId:'real-owner',account:{accountRef:'102'}}}]){
-    f.showLoad({...result},foreign);assert.equal(connectionSymbol(f.find('ConnectionIndicator').props.controller.connection).mark,'?');
-  }
-  f.showLoad(null,view);assert.equal(connectionSymbol(f.find('ConnectionIndicator').props.controller.connection).mark,'?');
-  f.showLoad({...result,verifiedConnection:{ownerId:'real-owner',state:{...state,confirmed:false}}},view);
-  assert.equal(connectionSymbol(f.find('ConnectionIndicator').props.controller.connection).mark,'!');
+  assert.equal(status().state,'fresh','Losing live provider proof does not age saved data');
+  f.showLoad(null,view);
+  assert.equal(f.find('DataUpdateIndicator').props.receivedAt,at,'Failed or cancelled updates cannot renew the saved timestamp');
+  const older='2026-10-20T12:00:00.000Z';
+  f.showLoad(result,{snapshot:{ownerId:'other-owner',account:{accountRef:'102'},savedRetrievals:[{from:'2026-01-01',to:'2026-10-20',retrievedAt:older,savedAt:older}]}});
+  assert.equal(status().state,'older');assert.equal(status().caption,'vor 2 Tg.','Owner/account switch uses its own saved record');
+  f.showLoad(result,{snapshot:{ownerId:'new-owner',account:{accountRef:'103'}}});
+  assert.equal(status().state,'unknown','Login proof alone cannot make data fresh');
+  f.showLoad(null,null);assert.equal(status().state,'unknown');
 });
 
 test('Medical header and details use the real selected library projection rather than legacy information',()=>{
@@ -141,8 +150,8 @@ test('app headers order connection, Medical and profile on every tab', () => {
   const f = fixture();
   for (const title of ['Übersicht', 'Flüge', 'Flugbuch', 'Verein', 'AI']) {
     f.press('Pressable', title);
-    const controls = f.nodes().filter(n => n.type === 'ConnectionIndicator' || n.type === 'MedicalIndicator' || n.props.accessibilityLabel === 'Profil & Einstellungen öffnen');
-    assert.deepEqual(controls.map(n => n.type), ['ConnectionIndicator', 'MedicalIndicator', 'Pressable']);
+    const controls = f.nodes().filter(n => n.type === 'DataUpdateIndicator' || n.type === 'MedicalIndicator' || n.props.accessibilityLabel === 'Profil & Einstellungen öffnen');
+    assert.deepEqual(controls.map(n => n.type), ['DataUpdateIndicator', 'MedicalIndicator', 'Pressable']);
   }
   assert.deepEqual(f.calls, []);
 });
@@ -202,12 +211,12 @@ test('Medical opens without provider work and returns through nested overlays', 
   assert.equal(f.headers().at(-1)!.props.title, 'Medical');
   assert.ok(f.find('MedicalDetails'));
   assert.equal(f.nodes().filter(n => n.type === 'MedicalIndicator').at(-1)!.props.active, true);
-  f.press('ConnectionIndicator');
+  f.press('DataUpdateIndicator');
   f.render();
   assert.equal(f.headers().at(-1)!.props.title, 'Medical');
   f.headers().at(-1)!.props.back(); f.render();
   assert.equal(f.headers()[0]!.props.title, 'Flugfilter');
-  assert.deepEqual(f.calls, ['core-connect']);
+  assert.deepEqual(f.calls, ['core-load']);
 });
 
 test('details and sheets retain one active header; profile Back restores details and tab state', () => {
@@ -228,11 +237,11 @@ test('details and sheets retain one active header; profile Back restores details
   assert.equal(f.parent(f.headers()[0]!).props.accessibilityElementsHidden, false);
 });
 
-test('header connection opens the shared panel directly and preserves the invoking sheet', () => {
+test('header data update opens the combined flow directly and preserves the invoking sheet', () => {
   const f=fixture();f.press('Pressable','Profil & Einstellungen öffnen');
   f.find('ProfileSettings').props.onNameDraftChange('Retained draft');f.render();
-  f.press('ConnectionIndicator');
-  assert.deepEqual(f.coreRoutes,[{intent:'connect',developmentRecoveryCheckpoints:false}]);
+  f.press('DataUpdateIndicator');
+  assert.deepEqual(f.coreRoutes,[{intent:'update',developmentRecoveryCheckpoints:false}]);
   assert.equal(f.find('ProfileSettings').props.nameDraft,'Retained draft');
   assert.equal(f.nodes().some(n=>n.type==='ProviderConnection'),false,'The shell cannot create a competing browser');
 });
@@ -255,7 +264,7 @@ test('synthetic book changes preserve independent own-flight details through pro
 
 test('shell Back remains contextual after requesting the shared connection', () => {
   const f=fixture();f.press('Pressable','Flüge');f.openOwnDetail();
-  f.press('Pressable','Profil & Einstellungen öffnen');f.press('ConnectionIndicator');
+  f.press('Pressable','Profil & Einstellungen öffnen');f.press('DataUpdateIndicator');
   assert.equal(f.headers().at(-1)!.props.title,'Profil & Einstellungen');
   f.hardwareBack();f.render();assert.equal(f.headers().at(-1)!.props.title,'Flugdetails');
 });
@@ -313,8 +322,8 @@ test('Development is read-only on entry; proof work guards Back and a reload pre
 
 test('Development requests the same selected-owner host with an explicit development intent', () => {
   const f=fixture();f.press('Pressable','Profil & Einstellungen öffnen');f.find('ProfileSettings').props.onTools();f.render();
-  f.find('DevelopmentHub').props.onProvider();f.render();f.press('ConnectionIndicator');
-  assert.deepEqual(f.coreRoutes,[{intent:'development',developmentRecoveryCheckpoints:true},{intent:'connect',developmentRecoveryCheckpoints:false}]);
+  f.find('DevelopmentHub').props.onProvider();f.render();f.press('DataUpdateIndicator');
+  assert.deepEqual(f.coreRoutes,[{intent:'development',developmentRecoveryCheckpoints:true},{intent:'update',developmentRecoveryCheckpoints:false}]);
   assert.equal(f.nodes().some(n=>n.type==='ProviderConnection'),false);
 });
 

@@ -82,3 +82,7 @@ Retain visible labels, button/tab roles, selected/expanded/busy/disabled states 
 When affected, check actual touch regions, reading/focus order, long labels, text scaling, contrast over the displayed photo crop and keyboard reachability. Some small faces/targets and universal focus styling remain [review gaps](history.md). Spoken TalkBack/focus, iOS, physical-device and positive provider-history checks remain separate from bounded Android evidence.
 
 Follow the [verification workflow](../../development/verification-workflow.md): this consolidation adds no native acceptance. Substantial UI changes need their relevant committed-source Release/native matrix; logic-only changes do not trigger unrelated visual audits.
+
+### Everyday header data action — 22 October amendment
+
+Header order is data update → Medical → Profile. The update button starts the existing explicit combined fetch, showing original login only if required. Use a refresh symbol, “Daten” and received-age wording; green under one hour, amber for older, neutral when unknown. Its durable successful flight-update timestamp survives background/restart and remains unchanged on failed/cancelled updates. The provider panel's account-verification indicator remains a separate internal status. This amendment replaces only the former connection meaning/action in the ordinary shell; contextual return, selected-owner isolation and the separate three-day reminder remain.

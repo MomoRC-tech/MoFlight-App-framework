@@ -15,7 +15,9 @@ import { ProfileSettings, SyntheticProfileSettings } from './ProfileSettings';
 import { Diagnostics } from './Diagnostics';
 import { initializeDiagnostics } from './diagnostics-native';
 import { diagnosticJournal } from '../diagnostics';
-import { ConnectionIndicator, unknownProviderStatus, type ProviderStatus } from './ProviderConnection';
+import { unknownProviderStatus, type ProviderStatus } from './ProviderConnection';
+import { DataUpdateIndicator } from './DataUpdateIndicator';
+import { DATA_UPDATE_FRESH_MS } from './data-freshness';
 import { AppHeader } from './AppHeader';
 import { MedicalDetails, MedicalIndicator } from './MedicalStatus';
 import { DevelopmentHub, DevelopmentNotice } from './DevelopmentHub';
@@ -100,7 +102,10 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
   const reminder=useReminderSnooze(reminderScopeKey);
   const retrievalPlan=useMemo(()=>planFlightRetrieval(selected?.snapshot.savedRetrievals??[]),[selected?.snapshot.savedRetrievals]);
   const rosterExpiry=selected?.duties?.snapshot?dutySnapshotExpiresAt(selected.duties.snapshot):NaN;
-  const now=useStartClock([Date.parse(retrievalPlan.lastSuccessfulRetrievalAt??'')+72*60*60*1000+1,Date.parse(reminder.snooze?.until??''),rosterExpiry]);
+  const receivedAt=retrievalPlan.lastSuccessfulRetrievalAt;
+  const receivedTime=Date.parse(receivedAt??'');
+  const now=useStartClock([receivedTime+72*60*60*1000+1,Date.parse(reminder.snooze?.until??''),rosterExpiry,
+    receivedTime+DATA_UPDATE_FRESH_MS,Number.isFinite(receivedTime)?Math.floor(Date.now()/60_000)*60_000+60_000:NaN]);
   const clock=new Date(now),today=`${clock.getFullYear()}-${String(clock.getMonth()+1).padStart(2,'0')}-${String(clock.getDate()).padStart(2,'0')}`;
   const rosterExpired=Number.isFinite(rosterExpiry)&&now>=rosterExpiry;
   const dutyOverview=useMemo(()=>selected?.duties?buildDutyOverview(selected.duties.scope,selected.duties.snapshot,today,now):null,[selected?.duties,today,rosterExpired]);
@@ -163,7 +168,8 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
   };
   const pageTitle = tabs.find(item => item.id === tab)!.title;
   const statusControls = <>
-    <ConnectionIndicator controller={flightStatusController} onPress={() => openFlightFlow()} />
+    <DataUpdateIndicator receivedAt={receivedAt} readState={ownFlights.phase==='failed'?'failed':ownFlights.phase==='loading'?'loading':'ready'}
+      now={now} disabled={screenBusy} onPress={() => openFlightFlow('update')} />
     <MedicalIndicator capture={medical} now={now} active={sheet === 'medical'} disabled={screenBusy} onPress={() => openHeaderSheet('medical')} />
     <Pressable accessibilityRole="button" accessibilityLabel="Profil & Einstellungen öffnen" accessibilityState={{ disabled: screenBusy }} disabled={screenBusy} onPress={() => openHeaderSheet('profile')} style={s.profileButton}><ProfileIcon /></Pressable>
   </>;
