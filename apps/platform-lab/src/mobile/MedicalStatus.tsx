@@ -3,20 +3,34 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { MedicalIcon } from './ShellIcons';
 import { Card, Label, Section, colors } from './theme';
 import type { InformationCapture } from '../vereinsflieger/information';
+import { medicalExpiry, medicalExpiryStatusText, type MedicalExpiryState } from './medical-expiry';
 
-/** Source availability only; never a fitness or legal-validity indicator. */
-export function MedicalIndicator({ onPress, active = false, disabled = false, capture = null }: { onPress: () => void; active?: boolean; disabled?: boolean; capture?: InformationCapture | null }) {
-  const available = !!capture?.rows.length;
-  return <Pressable accessibilityRole="button" accessibilityLabel={available ? 'Medical Quellenangaben vorhanden. Gültigkeit ungeprüft. Details öffnen' : 'Medical unbekannt. Details öffnen'} accessibilityState={{ selected: active, disabled }} disabled={disabled} onPress={onPress} style={[styles.control, disabled && { opacity: .5 }]}>
+function dateColor(state: MedicalExpiryState) {
+  if (state === 'expired') return '#ff7777';
+  if (state === 'soon') return '#f9b65b';
+  return colors.muted;
+}
+
+/** Shows a source-date reminder only; it never states fitness or legal eligibility. */
+export function MedicalIndicator({ onPress, active = false, disabled = false, capture = null, now = Date.now() }: { onPress: () => void; active?: boolean; disabled?: boolean; capture?: InformationCapture | null; now?: number }) {
+  const assessment = medicalExpiry(capture, now);
+  const status = assessment.date ? `${assessment.date}${assessment.issues.length ? '*' : ''}` : 'unbekannt';
+  const dateDescription = assessment.date ? `Erfasstes frühestes Ablaufdatum: ${assessment.date}. ${medicalExpiryStatusText(assessment.state)}${assessment.issues.length ? '. Weitere Medical-Angaben sind teilweise unbekannt' : ''}.` : 'Medical-Ablaufdatum unbekannt. Einordnung unbekannt.';
+  return <Pressable accessibilityRole="button" accessibilityLabel={`Medical. ${dateDescription} Details öffnen`} accessibilityState={{ selected: active, disabled }} disabled={disabled} onPress={onPress} style={[styles.control, disabled && { opacity: .5 }]}>
     <View accessible={false} style={styles.title}><MedicalIcon /><Text style={styles.label}>Med</Text></View>
-    <Text style={styles.status}>{available ? 'Angaben' : 'unbekannt'}</Text>
+    <Text style={[styles.status, assessment.date ? { color: dateColor(assessment.state) } : undefined]}>{status}</Text>
   </Pressable>;
 }
 
-export function MedicalDetails({ capture = null, loading = false, needsReload = false, refreshFailed = false }: { capture?: InformationCapture | null; loading?: boolean; needsReload?: boolean; refreshFailed?:boolean } = {}) {
+export function MedicalDetails({ capture = null, loading = false, needsReload = false, refreshFailed = false, now = Date.now() }: { capture?: InformationCapture | null; loading?: boolean; needsReload?: boolean; refreshFailed?:boolean; now?: number } = {}) {
+  const assessment = medicalExpiry(capture, now);
   return <Card style={styles.details}>
     <Section title="Medical" />
-    <Label style={{ fontWeight: '600' }}>Gültigkeit ungeprüft</Label>
+    <Label style={{ fontWeight: '600' }}>Erfasstes Ablaufdatum</Label>
+    {capture && (assessment.date ? <Label style={{ color: dateColor(assessment.state) }}>
+      {assessment.date}{assessment.issues.length ? '*' : ''} · {medicalExpiryStatusText(assessment.state)}
+    </Label> : <Label style={{ color: colors.muted }}>Kein eindeutig lesbares Datum · Einordnung unbekannt</Label>)}
+    {capture && assessment.issues.map((issue, index) => <Label key={`issue-${index}`} style={{ color: '#f9b65b' }}>{issue}</Label>)}
     {loading && <Label muted>Gespeicherte Angaben werden geladen…</Label>}
     {needsReload && <Label muted>Der neueste gespeicherte Stand muss erneut geladen werden. Vorhandene Angaben bleiben lesbar.</Label>}
     {refreshFailed && <Label muted>Medical konnte beim letzten Abruf nicht aktualisiert werden. Angezeigt wird die gespeicherte Quelle, sofern vorhanden.</Label>}
@@ -28,7 +42,7 @@ export function MedicalDetails({ capture = null, loading = false, needsReload = 
       {!capture.rows.length && <Label>Im erfassten Seitenausschnitt wurden keine Medical-Angaben gefunden. Der Status bleibt unbekannt.</Label>}
       <Label muted>{capture.coverage.truncated ? 'Der erfasste Ausschnitt ist unvollständig. ' : ''}Originalangaben aus dem gespeicherten Seitenausschnitt; Vollständigkeit und Gültigkeit sind nicht bestätigt.</Label>
     </> : <><Label>Status unbekannt</Label><Label>In dieser lokalen Ansicht sind noch keine Medical-Quellenangaben verfügbar.</Label></>}
-    <Label muted>Diese Angaben bestätigen weder Flugtauglichkeit noch eine Flugberechtigung.</Label>
+    <Label muted>Diese Quellangaben sind keine Bestätigung der Flugtauglichkeit oder einer Flugberechtigung.</Label>
   </Card>;
 }
 

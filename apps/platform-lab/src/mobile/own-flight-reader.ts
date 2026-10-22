@@ -1,6 +1,8 @@
 import type { RealFlightDetail, RealFlightListItem } from '../vereinsflieger/real-flight-library';
 import type { OwnFlightStoredSnapshot, RealFlightService } from '../vereinsflieger/real-flight-service';
 import type { InformationCapture } from '../vereinsflieger/information';
+import type { DutyRosterSnapshot } from '../vereinsflieger/duties';
+import type { ProviderScope } from '../vereinsflieger/scope-store';
 
 export interface OwnFlightScope { ownerId: string; storeId: string }
 export interface OwnFlightReadSession extends OwnFlightScope {
@@ -8,6 +10,7 @@ export interface OwnFlightReadSession extends OwnFlightScope {
   assertCurrent(): Promise<void>;
   pendingCommand(): Promise<boolean>;
   readMedical?(accountRef:string):Promise<InformationCapture|null>;
+  readDuties?(accountRef:string):Promise<{scope:ProviderScope;snapshot:DutyRosterSnapshot|null}|null>;
   close(): Promise<void>;
 }
 export interface OwnFlightReadPorts { open(): Promise<OwnFlightReadSession | null> }
@@ -38,6 +41,7 @@ export function serializeOwnFlightReads(ports: OwnFlightReadPorts): OwnFlightRea
 export interface OwnFlightView {
   snapshot: OwnFlightStoredSnapshot; flights: RealFlightListItem[]; pendingCommand: boolean;
   medical?:InformationCapture|null; medicalReadFailed?:boolean;
+  duties?:{scope:ProviderScope;snapshot:DutyRosterSnapshot|null}|null; dutiesReadFailed?:boolean;
 }
 export class OwnFlightChangedError extends Error {
   constructor() { super('Saved flight selection changed; reload the current library.'); }
@@ -64,7 +68,15 @@ export async function readOwnFlightView(ports: OwnFlightReadPorts): Promise<OwnF
       } catch { medical=null;medicalReadFailed=true; }
     }
     await session.assertCurrent();
-    return { ...result, pendingCommand,medical,medicalReadFailed };
+    let duties:OwnFlightView['duties']=null,dutiesReadFailed=false;
+    if(result.snapshot.account&&session.readDuties){
+      try{
+        duties=await session.readDuties(result.snapshot.account.accountRef);
+        if(duties&&(duties.scope.owner!==session.ownerId||duties.scope.context.accountNumber!==result.snapshot.account.accountRef))throw new Error('Foreign duty projection');
+      }catch{duties=null;dutiesReadFailed=true;}
+    }
+    await session.assertCurrent();
+    return { ...result, pendingCommand,medical,medicalReadFailed,duties,dutiesReadFailed };
   } finally { await session.close(); }
 }
 

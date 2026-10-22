@@ -44,6 +44,8 @@ The Start summary reads committed-library freshness, independently of raw captur
 
 ## Header, overlays and navigation
 
+**22 October Start amendment:** replace the returning summary/latest cards with one conditional 72-hour reminder and one Meine Saison card containing rings/aircraft, two always-visible aligned monthly current/prior-year bar charts and the latest-flight inset. The 576 dp shared chart canvas scrolls horizontally with 48 dp month targets; labels retain text scaling. Month actions and exact-flight actions are independent, without a nested whole-card action. Source coverage/unknown durations remain explicit. A separate compact Verein card opens the real partial-source duty overview; at wide widths cap the season and club groups in two columns. Source-expiry Medical uses past/within-six-calendar-month/late date states, without a fitness implication. This paragraph amends the older card composition above; authority is the maintained journey and #20.
+
 Keep header/navigation outside the scrolling canvas. Header order is logo/title, Connection → Med → Profile. Truncate title before shrinking controls. Current font scale above 1.3 places controls on a second wrapping row; subtitle renders only at width at least 412 with normal text.
 
 App overlays/details replace logo with contextual Back and expose one active accessible header. Return through nested overlays to prior page/filter/scroll state and unsaved local profile-name draft. Identical library reloads preserve the return path; changed book/flight facts invalidate stale details. An active backup/proof operation disables app Back, Profile and Medical until completion; provider Close/history remain separate. Medical opens a read-only unknown-record explanation.
@@ -68,7 +70,7 @@ Respect safe areas/system bars. Current AI layout accounts for keyboard overlap,
 ## Honest data and state presentation
 
 - Provider tick: previous matching check, not continuing login, imported-data freshness or cloud sync.
-- Med / unbekannt: unknown until separate source/input work exists; no prototype expiry date or invented fit-to-fly status.
+- Med: earliest recorded source expiry including past entries; explicit unknown/partial warnings, red past/amber through six calendar months inclusive/quiet later. No invented date or fit-to-fly status.
 - Rings: aircraft shares of count/known minutes; no unstated goal or missing-time-as-zero. Native rings do not open the old inline-breakdown prototype.
 - No-track: missing track evidence; no decorative measured route. Cloud/weather and club photographs are category/decorative elements.
 - Preserve clear empty/error/retry wording, scoped selection and pending work. Simplification must not hide required ownership/recovery/confirmation decisions.

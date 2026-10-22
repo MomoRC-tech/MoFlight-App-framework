@@ -62,6 +62,7 @@ function fixture({startUpdate=false,root=false,readOnly=false,deferReservation=f
   const leaves=(names:string[])=>Object.fromEntries(names.map(name=>[name,name]));
   const modules:Record<string,any>={react:{default:react,...react},
     './account-retrieval-jobs':accountJobs, '../diagnostics':{diagnosticJournal:journal},
+    '../vereinsflieger/duty-refresh-native':{refreshDutyRoster:async()=>({rows:[],partial:true})},
     '../vereinsflieger/connection-state':{retrievalFailureHint},
     'react-native':{...leaves(['ActivityIndicator','ScrollView','View']),AppState:{currentState:'active',addEventListener:(_:string,f:(state:string)=>void)=>{listeners.add(f);return {remove:()=>listeners.delete(f)};}},BackHandler:{addEventListener:()=>({remove(){}})}},
     'react-native-safe-area-context':leaves(['SafeAreaView']), 'expo-crypto':{randomUUID:()=> 'uuid'},'../storage':{hash:async()=>''},
@@ -101,8 +102,8 @@ test('opening options does no retrieval; one explicit action verifies, loads, sa
     assert.equal(f.closed.length,0);assert.match(f.progressText(),/3 Flüge auf diesem Gerät gespeichert/);assert.match(f.progressText(),/Medical-Angaben geladen/);
     assert.equal(f.nodes().find(n=>n.type==='ProviderConnection')!.props.open,true);
     assert.ok(f.nodes().some(n=>n.type==='ScrollView'&&n.props.importantForAccessibility==='no-hide-descendants'));
-    f.press('Fertig');
-    assert.equal(f.closed.length,1);assert.equal(f.closed[0].added,2);assert.equal(f.closed[0].from,'2025-01-01');assert.equal(f.journal.snapshot().at(-1)!.outcome,'success');
+    f.press('Zur Übersicht');
+    assert.equal(f.closed.length,1);assert.equal(f.closed[0].added,2);assert.equal(f.closed[0].from,'2025-01-01');assert.equal(f.closed[0].dutyStatus,'partial');assert.equal(f.journal.snapshot().at(-1)!.outcome,'partial');
   }finally{f.dispose();}
 });
 
@@ -168,7 +169,7 @@ test('interactive login has no flight timeout and foreground return needs verifi
     f.background();f.background();await f.flush();assert.equal(f.calls.includes('retrieve'),false);assert.match(f.progressText(),/Anmeldung pausiert/);
     f.resume();await f.flush();assert.deepEqual(f.calls,['session','resume']);assert.equal(f.pendingTimers(),0);
     f.verify();await f.flush();assert.deepEqual(f.calls,['session','resume','retrieve']);assert.equal(f.pendingTimers(),1);
-    f.complete();await f.flush();assert.equal(f.pendingTimers(),0);assert.equal(f.closed.length,0);f.press('Fertig');assert.equal(f.closed.length,1);
+    f.complete();await f.flush();assert.equal(f.pendingTimers(),0);assert.equal(f.closed.length,0);f.press('Zur Übersicht');assert.equal(f.closed.length,1);
   }finally{f.dispose();}
 });
 
@@ -202,7 +203,7 @@ test('leaving a completed progress screen retains its saved result but invalidat
   const f=fixture({startUpdate:true});try{
     f.render();await f.flush();f.complete();await f.flush();assert.equal(f.closed.length,0);
     f.background();f.resume();await f.flush();
-    assert.match(f.progressText(),/3 Flüge auf diesem Gerät gespeichert/);f.press('Fertig');
+    assert.match(f.progressText(),/3 Flüge auf diesem Gerät gespeichert/);f.press('Zur Übersicht');
     assert.equal(f.closed.length,1);assert.equal(f.closed[0].added,2);assert.equal(f.closed[0].verifiedConnection,undefined);
   }finally{f.dispose();}
 });

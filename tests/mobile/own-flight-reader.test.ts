@@ -30,8 +30,8 @@ test('saved Medical is read only for the selected flight account; failures and f
 
 test('ordinary read returns the saved coherent projection and pending status with both ownership checks and cleanup',async()=>{
   const f=ownFlightFixture();f.session.pendingCommand=async()=>true;
-  assert.deepEqual(await readOwnFlightView(f.ports),{snapshot:f.snapshot,flights:f.flights,pendingCommand:true,medical:null,medicalReadFailed:false});
-  assert.equal(f.assertions(),3);assert.equal(f.closes(),1);
+  assert.deepEqual(await readOwnFlightView(f.ports),{snapshot:f.snapshot,flights:f.flights,pendingCommand:true,medical:null,medicalReadFailed:false,duties:null,dutiesReadFailed:false});
+  assert.equal(f.assertions(),4);assert.equal(f.closes(),1);
   assert.equal(await readOwnFlightView({open:async()=>null}),null);
 });
 test('foreign snapshot, account rows, changed owner and read failures never publish a library',async()=>{

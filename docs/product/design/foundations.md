@@ -41,6 +41,8 @@ No automatic stale-time threshold is selected for the connection mark. Session e
 
 ## Gradients, overlays and shadows
 
+Medical source-date reminders use `#ff7777` for recorded past expiry and `#f9b65b` for dates from today through six calendar months inclusive. Later/unknown dates retain muted text; date relationship and partial/unknown source meaning also have text. These colors do not indicate flight fitness. The original recorded source remains available in details.
+
 | Surface | Implemented treatment | Source / use |
 | --- | --- | --- |
 | Shared card | `linear-gradient(140deg, #0c2d4a, #04131e)`; fallback colors.card | theme ui.card: subtle depth within a bounded card. |

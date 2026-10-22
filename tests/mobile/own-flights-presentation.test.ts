@@ -16,7 +16,7 @@ const source=ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/sr
 }).outputText;
 function fixture() {
   const f=ownFlightFixture(),data:any={view:{snapshot:f.snapshot,flights:f.flights,pendingCommand:false},phase:'ready',detail:null,detailBusy:false,clearDetail(){},reload(){},openDetail(){}};
-  let index=0,active=true;let filterRequest:{year:number|null}|null=null;const hooks:any[]=[],effects:(()=>void)[]=[],restores:number[]=[];
+  let index=0,active=true;let filterRequest:model.OwnFlightRequest|null=null;const hooks:any[]=[],effects:(()=>void)[]=[],restores:number[]=[];
   const react={
     createElement:(type:string,props:Element['props'],...children:any[]):Element=>{
       if(type==='FlatList'&&props?.ref)props.ref.current={scrollToOffset:({offset}:{offset:number})=>restores.push(offset)};
@@ -38,7 +38,7 @@ function fixture() {
   function render(){index=0;tree=exports.OwnFlights({active,filterRequest,data,onUpdate:()=>false,onHeaderChange:header});effects.splice(0).forEach(fn=>fn());return tree;}
   function nodes(){const result:Element[]=[];const visit=(n:any)=>{if(n?.children){result.push(n);n.children.forEach(visit);if(n.type==='FlatList')visit(n.props.ListHeaderComponent);}};visit(tree);return result;}
   function find(type:string,label?:string){const node=nodes().find(n=>n.type===type&&(!label||n.props.accessibilityLabel===label));assert.ok(node,`${type} ${label}`);return node;}
-  render();return{data,render,find,nodes,restores,request:(year:number|null)=>{filterRequest={year};render();render();},setActive:(value:boolean)=>{active=value;render();}};
+  render();return{data,render,find,nodes,restores,request:(year:number|null, extras:Partial<model.OwnFlightRequest>={})=>{filterRequest={year,...extras};render();render();},setActive:(value:boolean)=>{active=value;render();}};
 }
 test('native zero-offset events while loading, hidden or inactive cannot erase the saved list return position',()=>{
   const f=fixture(),view=f.data.view;
@@ -151,4 +151,20 @@ test('original provider fields paginate across three pages and return to the fil
   f.data.detail=makeDetail();
   assertRange(1,8);
   assert.ok(detailText().includes('Synthetic value 1'));
+});
+
+
+test('month request clears stale search and opens only the exact saved identity with a day range',()=>{
+  const f=fixture();const chosen=f.data.view.flights[1];const day=chosen.facts.assessment.date.value;
+  const other=structuredClone(chosen);other.flightId='same-provider-reference';
+  f.data.view={...f.data.view,flights:[...f.data.view.flights,other]};f.render();
+  const opened:any[]=[];f.data.openDetail=(flight:any)=>opened.push(flight);
+  f.find('TextInput','Flüge durchsuchen').props.onChangeText('no match');f.render();
+  f.request(2025,{dateRange:{from:day,to:day},flightId:chosen.flightId});
+  assert.deepEqual(f.find('FlatList').props.data.map((flight:any)=>flight.flightId),[chosen.flightId,other.flightId]);
+  assert.deepEqual(opened.map(flight=>flight.flightId),[chosen.flightId]);
+  f.request(2025,{dateRange:{from:day,to:day},flightId:'foreign-flight'});
+  assert.equal(opened.length,1);
+  f.find('Pressable','Zeitraumfilter entfernen').props.onPress();f.render();
+  assert.ok(!f.nodes().some(n=>n.props.accessibilityLabel==='Zeitraumfilter entfernen'));
 });

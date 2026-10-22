@@ -121,11 +121,11 @@
           "title": "Medical / Med",
           "status": "Current native UI · selected duotone",
           "sample": "<img src=\"asset:apps/platform-lab/assets/icons/duotone/medical-card-default.png\" alt=\"Selected duotone medical-card\"><span class=\"mini-label\">Med<br>unbekannt</span>",
-          "appearance": "Selected M2 Medical card: rounded credential card, cyan top band and medical cross, slate document fields. Med / unbekannt without saved source rows; Med / Angaben when own source rows are available.",
+          "appearance": "Selected M2 Medical card: rounded credential card, cyan top band and medical cross, slate document fields. Med with earliest strictly parsed recorded expiry, or unbekannt; partial source warnings remain visible.",
           "where": "App header, between Connection and Profile.",
           "meaning": "Availability of saved own Medical source text; never a validity or fitness verdict.",
           "behavior": "Tap opens read-only original class/expiry text with source and retrieval time, or an unknown-state explanation.",
-          "states": "Unknown without source rows; Angaben when saved own rows exist. Empty/partial/uncertain reads remain explicit; original expiry text is not normalized or classified. No input, expiry reminder or fit-to-fly judgment. Selected state follows the open sheet.",
+          "states": "Source-date reminder: earliest recorded expiry including expired; red for past, amber through six calendar months inclusive, quiet later. Missing/ambiguous/partial source explicit; raw text retained. No fitness or legal eligibility judgment. Selected state follows the open sheet.",
           "file": "apps/platform-lab/src/mobile/SymbolIcon.tsx",
           "locator": "duotone-assets.ts; symbols/glyphs.svg #medical-card"
         },

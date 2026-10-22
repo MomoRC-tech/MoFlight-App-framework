@@ -1,5 +1,5 @@
 export type CaptureReadState = 'loading' | 'ready' | 'failed';
-const week = 7 * 24 * 60 * 60 * 1000;
+export const DATA_FRESHNESS_REMINDER_MS = 72 * 60 * 60 * 1000;
 
 /** Successful capture time only. A session check or failed refresh cannot renew it. */
 export function dataFreshness(retrievedAt: string | null, readState: CaptureReadState, now = Date.now()) {
@@ -12,10 +12,10 @@ export function dataFreshness(retrievedAt: string | null, readState: CaptureRead
     reminder: false,
     note: readNote,
   };
-  const reminder = now - time > week;
+  const reminder = now - time > DATA_FRESHNESS_REMINDER_MS;
   return {
     label: `Letzter Flugdatenabruf: ${new Date(time).toLocaleString('de-DE')}`,
     reminder,
-    note: readNote || (reminder ? 'Der Abruf liegt mehr als eine Woche zurück. Du kannst die Daten aktualisieren; gespeicherte Daten bleiben offline verfügbar.' : ''),
+    note: readNote || (reminder ? 'Der letzte Flugdatenabruf liegt mehr als drei Tage zurück. Du kannst die Daten aktualisieren; gespeicherte Daten bleiben offline verfügbar.' : ''),
   };
 }

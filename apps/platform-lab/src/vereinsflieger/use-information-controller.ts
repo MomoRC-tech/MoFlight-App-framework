@@ -33,6 +33,11 @@ export interface InformationControllerPorts {
 export function useInformationController(ports: InformationControllerPorts) {
   const informationRun = useRef<InformationRun | null>(null);
   const medicalRequest=useRef<{run:InformationRun;resolve:(capture:InformationCapture)=>void;reject:(error:Error)=>void}|null>(null);
+  const dutyRequest=useRef<{run:InformationRun;returnUrl:string;resolve:(capture:InformationCapture)=>void;reject:(error:Error)=>void}|null>(null);
+  function finishDuty(error?:Error,capture?:InformationCapture) {
+    const pending=dutyRequest.current;dutyRequest.current=null;
+    if(error)pending?.reject(error);else if(capture)pending?.resolve(capture);
+  }
   function finishMedical(error?:Error,capture?:InformationCapture) {
     const pending=medicalRequest.current;medicalRequest.current=null;
     if(error)pending?.reject(error);else if(capture)pending?.resolve(capture);
@@ -105,18 +110,19 @@ export function useInformationController(ports: InformationControllerPorts) {
     if (run?.stage === 'saving') return;
     run?.cancel(); informationRun.current = null;
     finishMedical(new Error('Medical capture did not complete.'));
+    finishDuty(new Error('Duty capture did not complete.'));
     if (!retryable) informationRetry.current = null;
     if (informationTimer.current) clearTimeout(informationTimer.current);
     informationTimer.current = null;
     if (ports.mounted()) { setInformationRetryReady(retryable && !!informationRetry.current); setInformationBusy(false); setInformationSaving(false); ports.setBusy(false); setInformationNotice(message); }
   }
-  function beginInformation(retry = false, medical = false): InformationRun | null {
-    if (!(medical?ports.canStartMedical():ports.canStart(retry)) || informationRun.current || informationHistoryBusy || informationUncertain.current) return null;
+  function beginInformation(retry = false, medical = false, dutyUrl?:string): InformationRun | null {
+    if (!(medical||dutyUrl?ports.canStartMedical():ports.canStart(retry)) || informationRun.current || informationHistoryBusy || informationUncertain.current) return null;
     try {
       const selectedScope = ports.scope(), target = retry ? informationRetry.current : null;
       if (retry && (!informationRetryReady || !target || target.category !== informationCategory || target.scopeKey !== canonical(selectedScope))) return null;
       const reloadFailedProfile = !!(retry && target && informationFailedProfile.current?.target === target && informationFailedProfile.current.epoch === ports.epoch() && ports.currentUrl() === PROFILE_URL);
-      const run = new InformationRun(selectedScope, medical?'medical':informationCategory, medical?PROFILE_URL:target?.sourceUrl ?? ports.currentUrl(), ports.uuid());
+      const run = new InformationRun(selectedScope, medical?'medical':dutyUrl?'duties':informationCategory, medical?PROFILE_URL:dutyUrl??target?.sourceUrl ?? ports.currentUrl(), ports.uuid());
       informationRetry.current = { category: run.category, sourceUrl: run.sourceUrl, scopeKey: canonical(run.scope) }; setInformationRetryReady(false);
       informationLoadRequest.current++; setInformationLoading(false);
       informationRun.current = run; setInformationBusy(true); ports.setBusy(true); setInformationNotice('Konto wird vor und nach der Erfassung geprüft…');
@@ -141,6 +147,16 @@ export function useInformationController(ports: InformationControllerPorts) {
       medicalRequest.current={run,resolve,reject};
     });
   }
+  /** Explicit combined update only. No filters, forms, pagination or provider writes. */
+  function retrieveDutyPage(source:'own'|'club'):Promise<InformationCapture> {
+    return new Promise((resolve,reject)=>{
+      const returnUrl=ports.currentUrl();
+      const url='https://vereinsflieger.de'+(source==='own'?'/member/profile/myservices.php':'/member/community/serviceshedulelist.php');
+      const run=beginInformation(false,false,url);
+      if(!run){reject(new Error('Duty capture is unavailable.'));return;}
+      dutyRequest.current={run,returnUrl,resolve,reject};
+    });
+  }
   function retryInformation() { startInformation(true); }
   async function receiveInformation(event: WebViewMessageEvent) {
     const run = informationRun.current;
@@ -155,6 +171,15 @@ export function useInformationController(ports: InformationControllerPorts) {
       if (action !== 'save') return;
       if (informationTimer.current) clearTimeout(informationTimer.current);
       informationTimer.current = null; setInformationSaving(true);
+      if(dutyRequest.current?.run===run){
+        // The expiring duty cache is deliberately separate from immutable
+        // information history, which cannot honour the selected 30-day policy.
+        const capture=run.capture(new Date().toISOString());gate();
+        const returnUrl=dutyRequest.current.returnUrl;
+        run.stage='done';informationRun.current=null;informationRetry.current=null;setInformationRetryReady(false);
+        setInformationBusy(false);setInformationSaving(false);ports.setBusy(false);ports.setVisible(false);
+        finishDuty(undefined,capture);ports.navigate(returnUrl);return;
+      }
       informationUncertain.current = run.nonce;
       await saveInformation(run.scope, run.capture(new Date().toISOString()), gate);
       const records = await loadInformation(run.scope, gate); gate();
@@ -176,11 +201,12 @@ export function useInformationController(ports: InformationControllerPorts) {
         setInformationNeedsReload(uncertain); setInformationRetryReady(!uncertain);
         setInformationNotice('Erfassung nicht bestätigt. ' + (uncertain ? 'Zuerst gespeicherte Informationen lokal neu laden, bevor erneut erfasst wird. Eine eventuell bereits gespeicherte Erfassung bleibt erhalten.' : (run.failureMessage ?? 'Quelle, Spalten oder Konto nicht unterstützt.') + ' Quelle und Anmeldung prüfen, dann ausdrücklich erneut versuchen. Gespeicherte Belege bleiben erhalten.'));
         if(medicalRequest.current?.run===run)finishMedical(new Error('Medical capture was not verified.'));
+        if(dutyRequest.current?.run===run)finishDuty(new Error('Duty capture was not verified.'));
       }
     }
   }
   function nextInformationCategory() { if (!informationRun.current) { informationRetry.current = null; setInformationRetryReady(false); setInformationCategory(old => retrievableInformationCategories[(retrievableInformationCategories.indexOf(old) + 1) % retrievableInformationCategories.length]!); } }
-  useEffect(() => () => { informationLoadRequest.current++; informationRun.current?.cancel(); informationRun.current = null; finishMedical(new Error('Medical reader closed.')); if (informationTimer.current) clearTimeout(informationTimer.current); }, []);
+  useEffect(() => () => { informationLoadRequest.current++; informationRun.current?.cancel(); informationRun.current = null; finishMedical(new Error('Medical reader closed.')); finishDuty(new Error('Duty reader closed.')); if (informationTimer.current) clearTimeout(informationTimer.current); }, []);
   function beginInitialLoad() {
     const request = ++informationLoadRequest.current; setInformationLoading(ports.product); return request;
   }
@@ -202,6 +228,7 @@ export function useInformationController(ports: InformationControllerPorts) {
   }
   function ownerChanged() {
     finishMedical(new Error('Medical owner changed.'));
+    finishDuty(new Error('Duty owner changed.'));
     informationRun.current?.cancel(); informationRun.current = null;
     if (informationTimer.current) clearTimeout(informationTimer.current);
     informationTimer.current = null; setInformationBusy(false); setInformationSaving(false);
@@ -254,7 +281,7 @@ export function useInformationController(ports: InformationControllerPorts) {
     beginInitialLoad, loadInitial, initialLoadFailed, ownerChanged, backgrounded, active, pageLoaded, loadStarted,
     navigationStarted, pageFailed, dismiss, running: () => !!informationRun.current, receiveInformation,
     public: {
-      retrieveMedical, retryInformation, informationRetryReady: informationRetryReady && ports.ownerCurrent(), informationNeedsReload,
+      retrieveMedical, retrieveDutyPage, retryInformation, informationRetryReady: informationRetryReady && ports.ownerCurrent(), informationNeedsReload,
       reloadInformation, informationLoading, informationCanReload: canReload(),
       informationHistory: ports.ownerCurrent() ? informationHistory : null, informationHistoryBusy, informationHistoryNotice,
       loadInformationHistory, informationCategory, informationCaptures: ports.ownerCurrent() ? informationCaptures : [],

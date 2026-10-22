@@ -7,6 +7,8 @@ import ts from 'typescript';
 import { canonical } from '../../packages/flight-logbook/src/index.ts';
 import { medicalSource } from '../../apps/platform-lab/src/mobile/medical-source.ts';
 import { ownFlightConnectionState, connectionSymbol } from '../../apps/platform-lab/src/mobile/connection-guidance.ts';
+import * as dutyModel from '../../apps/platform-lab/src/vereinsflieger/duties';
+import { planFlightRetrieval } from '../../apps/platform-lab/src/vereinsflieger/retrieval-policy';
 
 interface Element { type: unknown; props: Record<string, any>; children: unknown[] }
 const source = ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/mobile/MobileApp.tsx', import.meta.url), 'utf8'), {
@@ -22,6 +24,7 @@ function fixture(width = 390, fontScale = 1) {
     createElement: (type: unknown, props: Element['props'], ...children: unknown[]): Element => ({ type, props: props ?? {}, children: children.flat(Infinity) }),
     useRef(initial: unknown) { const i = index++; if (!(i in hooks)) hooks[i] = { current: initial }; return hooks[i]; },
     useState(initial: unknown) { const i = index++; if (!(i in hooks)) hooks[i] = initial; return [hooks[i], (value: unknown) => { hooks[i] = value; }]; },
+    useMemo(make:()=>unknown,deps:unknown[]) { const i=index++,previous=hooks[i];if(!previous||deps.some((v,n)=>v!==previous.deps[n]))hooks[i]={deps,value:make()};return hooks[i].value; },
     useEffect(effect: () => void, deps: unknown[]) {
       const i = index++, previous = hooks[i];
       if (!previous || deps.some((v, n) => v !== previous[n])) { hooks[i] = deps; effects.push(effect); }
@@ -70,6 +73,9 @@ function fixture(width = 390, fontScale = 1) {
     './own-flight-reader-native': { ownFlightReadPorts: {} },
     './ConnectionSummary': leaves(['ConnectionSummary']), './medical-source': { medicalSource },
     './connection-guidance': { ownFlightConnectionState },
+    '../vereinsflieger/duties': dutyModel, './DutyRoster':leaves(['DutyRoster']),
+    '../vereinsflieger/retrieval-policy':{planFlightRetrieval},
+    './use-start-clock':{useStartClock:()=>Date.UTC(2026,9,22,12),useReminderSnooze:()=>({snooze:null,error:false,save:()=>{}})},
   };
   const exports = {} as { Shell: () => Element };
   runInNewContext(source + '\nexports.Shell = Shell;', { exports, require: (name: string) => {

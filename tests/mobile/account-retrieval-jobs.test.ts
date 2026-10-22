@@ -2,6 +2,24 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { retrieveOtherAccountData, runAccountRetrievalJobs } from '../../apps/platform-lab/src/mobile/account-retrieval-jobs.ts';
 
+test('duty capture follows Medical independently and cannot turn visible empty pages into a complete empty roster',async()=>{
+  for(const failMedical of [false,true]){
+    const calls:string[]=[];
+    const result=await retrieveOtherAccountData({active:()=>true,medical:async()=>{
+      calls.push('medical');if(failMedical)throw new Error('Medical unavailable');return {rows:[1]};
+    },duties:async()=>{calls.push('duties');return {rows:[],partial:true};}});
+    assert.deepEqual(calls,['medical','duties']);
+    assert.deepEqual(result,{medical:failMedical?'failed':'updated',duties:'partial'});
+  }
+});
+test('failed duty refresh preserves successful Medical; background skips duties',async()=>{
+  let active=true;
+  assert.deepEqual(await retrieveOtherAccountData({active:()=>active,medical:async()=>({rows:[1]}),duties:async()=>{throw new Error('offline');}}),{medical:'updated',duties:'failed'});
+  let dutyCalls=0;
+  assert.deepEqual(await retrieveOtherAccountData({active:()=>active,medical:async()=>{active=false;return {rows:[1]};},duties:async()=>{dutyCalls++;return {rows:[],partial:true};}}),{medical:'skipped',duties:'skipped'});
+  assert.equal(dutyCalls,0);
+});
+
 test('one action finishes the flight job before optional other-data jobs and reports their results separately',async()=>{
   const calls:string[]=[];
   const result=await runAccountRetrievalJobs({active:()=>true,stage:s=>calls.push(s),

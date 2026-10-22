@@ -26,11 +26,12 @@ import { planFlightRetrieval } from '../vereinsflieger/retrieval-policy';
 import { dataFreshness } from './data-freshness';
 import { ownFlightReadPorts } from './own-flight-reader-native';
 import type { OwnFlightConnectionEvidence } from './connection-guidance';
-import { retrieveOtherAccountData, runAccountRetrievalJobs, type MedicalJobStatus } from './account-retrieval-jobs';
+import { retrieveOtherAccountData, runAccountRetrievalJobs, type MedicalJobStatus, type DutyJobStatus } from './account-retrieval-jobs';
+import { refreshDutyRoster } from '../vereinsflieger/duty-refresh-native';
 import { retrievalFailureHint } from '../vereinsflieger/connection-state';
 
 export interface FlightLoadResult { added: number; changed: number; pending: number; from: string; to: string;
-  verifiedConnection?: OwnFlightConnectionEvidence; medicalStatus?: MedicalJobStatus }
+  verifiedConnection?: OwnFlightConnectionEvidence; medicalStatus?: MedicalJobStatus; dutyStatus?:DutyJobStatus }
 export function CoreFlightFoundation({ close, startUpdate = false, developmentRecoveryCheckpoints = false }: {close: (result?: FlightLoadResult) => void; startUpdate?: boolean; developmentRecoveryCheckpoints?: boolean}) {
   const diagnosis = useRef<DiagnosticOperation | null>(null);
   const [requestedUpdate,setRequestedUpdate] = useState(startUpdate);
@@ -246,15 +247,21 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,takeInitialReposit
   async function finishAutomaticLoad(flights:()=>ReturnType<typeof saveFlightReview>) {
     const active=()=>alive.current&&foreground.current;
     const completed=await runAccountRetrievalJobs({flights,active,
-      otherData:()=>retrieveOtherAccountData({active,medical:()=>timeFlightStage('medical',()=>controller.current.retrieveMedical())}),
+      otherData:()=>retrieveOtherAccountData({active,medical:()=>timeFlightStage('medical',()=>controller.current.retrieveMedical()),
+        duties:()=>{setStep('Flüge gespeichert. Dienste werden geladen …');
+          const account=controller.current.connection.observed?.accountNumber;
+          if(!account)return Promise.reject(new Error('Verified duty account unavailable'));
+          return timeFlightStage('duties',()=>refreshDutyRoster(lease.ownerId,account,{active,
+            readPage:source=>controller.current.retrieveDutyPage(source)}));},
+      }),
       stage:stage=>{if(stage==='other-data'){setLoadStage('medical');setStep('Flüge gespeichert. Medical wird geladen …');}},
     });
     const {result,source:next}=completed.flights;
     const verified=controller.current.connection;
-    diagnosis.current?.finish(completed.otherData.medical==='failed'||completed.otherData.medical==='skipped'?'partial':'success',completed.otherData.medical==='failed'?'medical-failed':completed.otherData.medical==='skipped'?'medical-skipped':'none');
+    diagnosis.current?.finish(completed.otherData.medical==='failed'||completed.otherData.medical==='skipped'||!!completed.otherData.duties?'partial':'success',completed.otherData.medical==='failed'?'medical-failed':completed.otherData.medical==='skipped'?'medical-skipped':completed.otherData.duties==='failed'?'source-failed':'none');
     if(alive.current){setLoadStage('done');setStep('Fertig.');setCompleted({added:result.counts.added,changed:result.counts.changed,pending:result.counts.pending,
       from:next.source.requestedWindow.from,to:next.source.requestedWindow.to,
-      verifiedConnection:foreground.current&&verified.confirmed?{ownerId:lease.ownerId,state:verified}:undefined,medicalStatus:completed.otherData.medical});}
+      verifiedConnection:foreground.current&&verified.confirmed?{ownerId:lease.ownerId,state:verified}:undefined,medicalStatus:completed.otherData.medical,dutyStatus:completed.otherData.duties});}
   }
   function loadFlights() {
     if(lock.current)return;
@@ -408,7 +415,7 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,takeInitialReposit
   const unresolvedRestores=restorePreparations.filter(preparation=>preparation.status!=='activated');
   const restoreReadOnly=snapshot===null||snapshot.recovery.readOnly||restoreReadWarning!==null||unresolvedRestores.length>0;
   const pastLogin=['flights','save','medical','done'].includes(loadStage);
-  const partial=completed&&(completed.medicalStatus==='failed'||completed.medicalStatus==='skipped'||completed.pending>0);
+  const partial=completed&&(completed.medicalStatus==='failed'||completed.medicalStatus==='skipped'||completed.dutyStatus==='failed'||completed.dutyStatus==='skipped'||completed.dutyStatus==='partial'||completed.pending>0);
   const medicalResult=completed?.medicalStatus==='updated'?'Medical-Angaben geladen.':completed?.medicalStatus==='empty'?'Keine Medical-Angaben gefunden.':completed?.medicalStatus==='skipped'?'Medical nicht abgeschlossen. Gespeicherte Angaben bleiben erhalten.':'Medical konnte nicht geladen werden. Gespeicherte Angaben bleiben erhalten.';
   const progress=automatic.current?<Card>
     <Section title={completed ? partial ? 'Teilweise abgeschlossen.' : 'Fertig.' : failed ? 'Datenabruf nicht abgeschlossen' : 'Deine Daten werden geladen'} icon="chain"/>
@@ -416,6 +423,7 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,takeInitialReposit
       <Label>{pastLogin?'✓ Anmeldung geprüft':loadStage==='sign-in'?'→ Anmeldung erforderlich':'→ Anmeldung prüfen'}</Label>
       <Label>{flightSaved!==null?`✓ ${flightSaved} Flüge auf diesem Gerät gespeichert`:loadStage==='save'?'→ Flüge speichern':loadStage==='flights'?'→ Flüge laden':'Flüge · ausstehend'}</Label>
       <Label>{completed?medicalResult:loadStage==='medical'?'→ Medical laden':'Medical · ausstehend'}</Label>
+      {completed?.dutyStatus&&<Label>{completed.dutyStatus==='partial'?'Dienstquelle aktualisiert · Vollständigkeit ungeprüft.':completed.dutyStatus==='failed'?'Dienste konnten nicht aktualisiert werden. Gespeicherte Quelle bleibt erhalten.':'Dienste nicht abgeschlossen. Gespeicherte Quelle bleibt erhalten.'}</Label>}
       {!completed&&<Label muted>{failed?message:step}</Label>}
     </View>
     {busy&&!loginPaused&&loadStage!=='sign-in'&&<ActivityIndicator color={colors.cyan} accessibilityLabel={step}/>}

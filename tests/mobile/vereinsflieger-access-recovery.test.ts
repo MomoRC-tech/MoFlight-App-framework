@@ -1936,6 +1936,37 @@ test('renderer termination cancels an outstanding secret read before its late re
 });
 
 const informationSource = 'https://vereinsflieger.de/member/profile/synthetic-hours?year=2026';
+test('explicit duty jobs verify both contexts and return only an expiring-cache capture, never immutable information writes',async()=>{
+  for(const source of ['own','club'] as const){
+    const f=fixture({product:true});f.render();await f.settle(null);await establishProductAssociation(f);
+    const path=source==='own'?'/member/profile/myservices.php':'/member/community/serviceshedulelist.php';
+    const url='https://vereinsflieger.de'+path;
+    const page={category:'duties',path,columns:[{key:'duty',label:'Dienst',index:0},{key:'period',label:'Zeitraum',index:1},{key:'people',label:'Person(en)',index:2}],rows:[{position:1,values:['Synthetic duty','22.10.2026 - 25.10.2026','Ada Example']}],filters:[],empty:false,coverage:{kind:'visible-page',truncated:false,pagination:'unverified'}};
+    const work=f.controller().retrieveDutyPage(source);await f.flush();
+    await f.loadPage(context.PROFILE_URL);await f.contextMessage(observedContext);
+    await f.loadPage(url);
+    const web=f.find(f.render(),e=>e.type==='WebView')!;
+    (web.props.onMessage as (event:unknown)=>void)({nativeEvent:{url,data:JSON.stringify({kind:'vf-information-v1',nonce:f.lastIssuedNonce()+'-read',url,page})}});
+    await f.flush();assert.equal(f.writes.includes('information-saved'),false);
+    await f.loadPage(context.PROFILE_URL);await f.contextMessage(observedContext);
+    const capture=await work;
+    assert.equal(capture.category,'duties');assert.equal(capture.owner,'synthetic-pilot');assert.equal(capture.path,path);
+    assert.equal(f.writes.includes('information-saved'),false);assert.equal(f.loginStorage().reads,0);
+    f.unmount();
+  }
+});
+test('duty read rejects foreign context or lifecycle cancellation without a saved roster',async()=>{
+  for(const mode of ['foreign','background','owner','unmount'] as const){
+    const f=fixture({product:true});f.render();await f.settle(null);await establishProductAssociation(f);
+    const work=f.controller().retrieveDutyPage('club'),rejected=assert.rejects(work);await f.flush();
+    if(mode==='foreign'){await f.loadPage(context.PROFILE_URL);await f.contextMessage({...observedContext,accountNumber:'999'});}
+    if(mode==='background')f.appState('background');
+    if(mode==='owner')f.changeOwner('foreign');
+    if(mode==='unmount')f.unmount();
+    await rejected;await f.flush();assert.equal(f.writes.includes('information-saved'),false);
+    if(mode!=='unmount')f.unmount();
+  }
+});
 const medicalPage={category:'medical',path:'/member/profile/viewprofile',
   columns:[{key:'kind',label:'Medical-Art',index:0},{key:'expiry',label:'Gültig bis · Originaltext',index:1}],
   rows:[{position:1,values:['Klasse 2','31.12.2027']}],filters:[],empty:false,

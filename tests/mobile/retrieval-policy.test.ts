@@ -44,9 +44,9 @@ test('future-only coverage cannot suppress initial historical retrieval; invalid
   assert.throws(()=>planFlightRetrieval([saved('2026-02-30','2026-03-01')],now));
   assert.throws(()=>planFlightRetrieval([saved('2026-10-20','2026-01-01')],now));
 });
-test('freshness uses source retrieval time independently of save time and only reminds after seven days', () => {
+test('freshness uses source retrieval time independently of save time and only reminds after 72 hours', () => {
   const plan=planFlightRetrieval([saved('2025-01-01','2026-10-20')],now),stamp=Date.parse(plan.lastSuccessfulRetrievalAt!);
   assert.notEqual(plan.lastSavedAt,plan.lastSuccessfulRetrievalAt);
-  assert.equal(dataFreshness(plan.lastSuccessfulRetrievalAt,'ready',stamp+7*86400000).reminder,false);
-  assert.equal(dataFreshness(plan.lastSuccessfulRetrievalAt,'ready',stamp+7*86400000+1).reminder,true);
+  assert.equal(dataFreshness(plan.lastSuccessfulRetrievalAt,'ready',stamp+3*86400000).reminder,false);
+  assert.equal(dataFreshness(plan.lastSuccessfulRetrievalAt,'ready',stamp+3*86400000+1).reminder,true);
 });

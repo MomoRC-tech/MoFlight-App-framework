@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { AppState, BackHandler, Keyboard, KeyboardAvoidingView, Linking, Platform, Pressable, ScrollView, StatusBar, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { canonical, type Flight } from '@moflight/flight-logbook';
@@ -31,9 +31,13 @@ import { OwnFlights, type OwnFlightHeader } from './OwnFlights';
 import { useOwnFlights } from './use-own-flights';
 import { ownFlightReadPorts } from './own-flight-reader-native';
 import { ownFlightConnectionState, type OwnFlightConnectionEvidence } from './connection-guidance';
+import type { OwnFlightRequest } from './own-flight-model';
+import { buildDutyOverview, dutySnapshotExpiresAt } from '../vereinsflieger/duties';
+import { DutyRoster } from './DutyRoster';
+import { planFlightRetrieval } from '../vereinsflieger/retrieval-policy';
+import { useReminderSnooze, useStartClock } from './use-start-clock';
 
 const mountain = require('../../assets/aviation/mountain-header-v2.jpg');
-const windsock = require('../../assets/aviation/windsock.jpg');
 const clubAirfield = require('../../assets/aviation/club-airfield.jpg');
 const tabs = [{ id: 'home', title: 'Übersicht' }, { id: 'flights', title: 'Flüge' }, { id: 'logbook', title: 'Flugbuch' }, { id: 'club', title: 'Verein' }, { id: 'ai', title: 'AI' }] as const;
 type Tab = typeof tabs[number]['id'];
@@ -62,7 +66,7 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
   const [connectionOpen, setConnectionOpen] = useState(false);
   const [connectionDevelopment, setConnectionDevelopment] = useState(false);
   const [tab, setTab] = useState<Tab>('home');
-  const [flightRequest, setFlightRequest] = useState<{ year: number | null } | null>(null);
+  const [flightRequest, setFlightRequest] = useState<OwnFlightRequest | null>(null);
   const [sheet, setSheet] = useState<Sheet>(null);
   const [detail, setDetail] = useState<Flight | null>(null);
   const [screenBusy, setScreenBusy] = useState(false);
@@ -107,6 +111,17 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
   const library = useLibrary(toolsOpen || sheet === 'backup');
   const ownFlights = useOwnFlights(ownFlightReadPorts, !connectionOpen && !coreFlightsOpen, flightReload);
   const medical=ownFlights.view?.medical??null;
+  const selected=ownFlights.view;
+  const reminderScopeKey=selected?.snapshot.account?JSON.stringify([selected.snapshot.ownerId,selected.snapshot.storeId,selected.snapshot.account.accountRef]):null;
+  const reminder=useReminderSnooze(reminderScopeKey);
+  const retrievalPlan=useMemo(()=>planFlightRetrieval(selected?.snapshot.savedRetrievals??[]),[selected?.snapshot.savedRetrievals]);
+  const rosterExpiry=selected?.duties?.snapshot?dutySnapshotExpiresAt(selected.duties.snapshot):NaN;
+  const now=useStartClock([Date.parse(retrievalPlan.lastSuccessfulRetrievalAt??'')+72*60*60*1000+1,Date.parse(reminder.snooze?.until??''),rosterExpiry]);
+  const clock=new Date(now),today=`${clock.getFullYear()}-${String(clock.getMonth()+1).padStart(2,'0')}-${String(clock.getDate()).padStart(2,'0')}`;
+  const rosterExpired=Number.isFinite(rosterExpiry)&&now>=rosterExpiry;
+  const dutyOverview=useMemo(()=>selected?.duties?buildDutyOverview(selected.duties.scope,selected.duties.snapshot,today,now):null,[selected?.duties,today,rosterExpired]);
+  const openDuties=()=>{setClubSection('Dienste');setTab('club');};
+  const dutyContent=(expanded=false)=>dutyOverview?<DutyRoster overview={dutyOverview} expanded={expanded} onOpen={openDuties}/>:<Card style={{width:'100%',maxWidth:430,alignSelf:'center'}}><Section title="Verein" icon="duty"/><Label muted>{selected?.dutiesReadFailed?'Gespeicherte Dienstquelle konnte nicht gelesen werden.':'Dienstplan noch nicht verfügbar.'}</Label><Label muted>Daten aktualisieren lädt unterstützte Dienstquellen. Vollständigkeit bleibt bis zur Quellenprüfung unbekannt.</Label>{!expanded&&<Action secondary onPress={openDuties}>Alle Dienste ansehen</Action>}</Card>;
   // Presentation only. The legacy provider controller must never gain the real
   // owner's authorization or pretend its synthetic-owner observation is current.
   const flightStatusController={...connection,connection:ownFlightConnectionState(recentConnection,
@@ -172,7 +187,7 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
   const pageTitle = tabs.find(item => item.id === tab)!.title;
   const statusControls = <>
     <ConnectionIndicator controller={flightStatusController} onPress={() => openFlightFlow()} />
-    <MedicalIndicator capture={medical} active={sheet === 'medical'} disabled={screenBusy} onPress={() => openHeaderSheet('medical')} />
+    <MedicalIndicator capture={medical} now={now} active={sheet === 'medical'} disabled={screenBusy} onPress={() => openHeaderSheet('medical')} />
     <Pressable accessibilityRole="button" accessibilityLabel="Profil & Einstellungen öffnen" accessibilityState={{ disabled: screenBusy }} disabled={screenBusy} onPress={() => openHeaderSheet('profile')} style={s.profileButton}><ProfileIcon /></Pressable>
   </>;
   const header = <AppHeader source={tab === 'club' ? clubAirfield : mountain} title={tab === 'ai' ? 'MoFlight AI' : tab === 'flights' ? flightHeader.title : pageTitle} back={tab === 'flights' ? flightHeader.back : undefined}
@@ -185,14 +200,19 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
     <View style={[s.content, wide && { maxWidth: 960 }, tablet && !wide && { maxWidth: 600 }]}>
       <View style={[s.page, tab !== 'home' && s.hidden]} accessibilityElementsHidden={tab !== 'home'} importantForAccessibility={tab === 'home' ? 'auto' : 'no-hide-descendants'}>
         <ScrollView contentContainerStyle={s.canvas} keyboardShouldPersistTaps="handled">
-          <ConnectionSummary compact controller={flightStatusController} ownFlights={ownFlights.view} phase={ownFlights.phase} onUpdate={() => openFlightFlow(true)} onOpen={() => openFlightFlow()} />
-          <Dashboard ownFlights={ownFlights.view} ownFlightPhase={ownFlights.phase} pending={null} width={width} fontScale={fontScale} onPaper={() => openHeaderSheet('paperInfo')} onFlights={year => { diagnosticJournal.record('action','flights');diagnosticJournal.record('filter','year');setFlightRequest({ year: year ?? null }); setTab('flights'); }} />
+          <ConnectionSummary compact now={now} reminderSnooze={reminder.snooze} onSnoozeReminder={reminder.save} controller={flightStatusController} ownFlights={ownFlights.view} phase={ownFlights.phase} onUpdate={() => openFlightFlow(true)} onOpen={() => openFlightFlow()} />
+          {reminder.error&&<Label muted>Erinnerungseinstellung konnte nicht gelesen oder gespeichert werden.</Label>}
+          <View style={{width:'100%',maxWidth:wide?920:480,alignSelf:'center',flexDirection:wide?'row':'column',alignItems:'flex-start',gap:10}}>
+          <View style={{width:'100%',flex:wide?1:undefined}}><Dashboard now={now} ownFlights={ownFlights.view} ownFlightPhase={ownFlights.phase} pending={null} width={width} fontScale={fontScale} onPaper={() => openHeaderSheet('paperInfo')} onFlights={(year,request) => { diagnosticJournal.record('action','flights');diagnosticJournal.record('filter','year');setFlightRequest(request??{ year: year ?? null }); setTab('flights'); }} /></View>
+          {ownFlights.phase==='ready'&&!!selected?.snapshot.account&&<View style={{width:'100%',flex:wide?1:undefined}}>{dutyContent()}</View>}
+          </View>
         </ScrollView>
       </View>
       <View style={[s.page, tab !== 'flights' && s.hidden]} accessibilityElementsHidden={tab !== 'flights'} importantForAccessibility={tab === 'flights' ? 'auto' : 'no-hide-descendants'}>
         {lastLoad&&<Card><View accessibilityLiveRegion="polite"><Label>{lastLoad.added} neue · {lastLoad.changed} aktualisierte Flüge gespeichert{lastLoad.pending ? ` · ${lastLoad.pending} ungeklärte Beobachtungen` : ''}</Label><Label muted>Zeitraum: {lastLoad.from} bis {lastLoad.to}</Label>
           {lastLoad.medicalStatus==='failed'&&<Label>Flüge gespeichert. Medical konnte nicht aktualisiert werden; frühere Quellenangaben bleiben erhalten.</Label>}
           {lastLoad.medicalStatus==='empty'&&<Label>Keine Medical-Angaben im geprüften Profil gefunden. Status bleibt unbekannt.</Label>}
+          {lastLoad.dutyStatus&&<Label>{lastLoad.dutyStatus==='partial'?'Dienstquelle gespeichert · Dienstplan unvollständig geprüft.':'Dienste nicht aktualisiert. Vorhandene Quellen bleiben erhalten.'}</Label>}
         </View></Card>}
         <OwnFlights filterRequest={flightRequest} active={tab === 'flights' && !coreFlightsOpen} data={ownFlights} onHeaderChange={setFlightHeader}
           onUpdate={()=>openFlightFlow(true)} />
@@ -208,7 +228,7 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
         <ScrollView contentContainerStyle={s.canvas}>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.chips}>{(['Übersicht', 'Termine', 'Dienste', 'Mitteilungen'] as const).map(section => <Chip key={section} title={section} selected={clubSection === section} onPress={() => {diagnosticJournal.record('filter','club-section');setClubSection(section);}} />)}</ScrollView>
           <View style={[s.clubBody, tablet && s.clubBodyWide]}>
-          {(clubSection === 'Übersicht' || clubSection === 'Dienste') && <Card style={[s.duty, tablet && s.clubHalf]}><Photo source={windsock} style={{ minHeight: 174 }}><Section title="Nächster Dienst" icon="duty" /><Label muted>Nächste Zuweisung</Label><Label style={{ fontSize: 20, fontWeight: '600' }}>Keine Dienste verfügbar</Label><IconLabel name="clock" size={16}>Zeit —</IconLabel><IconLabel name="location" size={16}>Startplatz —</IconLabel><Pressable accessibilityRole="button" onPress={() => setSheet('status')} style={s.dutyAction}><View style={s.dutyActionFace}><IconLabel name="arrow" size={16} tone="contrast" style={{ color: '#031326', fontWeight: '600' }}>Details anzeigen</IconLabel></View></Pressable></Photo></Card>}
+          {(clubSection === 'Übersicht' || clubSection === 'Dienste') && dutyContent(true)}
           {(clubSection === 'Übersicht' || clubSection === 'Termine') && <Card style={[s.clubSectionCard, tablet && s.clubHalf]}><Section icon="calendar-neutral" title={clubSection === 'Termine' ? 'Termine' : 'Kommende Termine'} action={clubSection === 'Übersicht' ? 'Alle anzeigen' : undefined} onPress={() => setClubSection('Termine')} /><Empty title="Keine Termine verfügbar">Vereinskalender noch nicht verbunden.</Empty></Card>}
           {(clubSection === 'Übersicht' || clubSection === 'Mitteilungen') && <Card style={[s.clubSectionCard, tablet && { width: '100%' }]}><Section title="Aktuelle Mitteilungen" icon="messages" action={clubSection === 'Übersicht' ? 'Alle anzeigen' : undefined} onPress={() => setClubSection('Mitteilungen')} /><Empty title="Keine Mitteilungen verfügbar">Keine Nachrichten- oder Dokumentenquelle verbunden.</Empty></Card>}
           </View>
@@ -243,7 +263,7 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
           {sheet === 'backup' && <LibraryBackup onBusyChange={setScreenBusy} />}
           {sheet === 'paperInfo' && <Card><Section title="Papierflugbuch später einrichten" /><Label>Das Einrichten deines Papierflugbuchs und die Zuordnung deiner Flüge werden noch vorbereitet.</Label><Label muted>Du kannst deine eigenen Flüge bereits laden, offline ansehen und auswerten. Dafür brauchst du kein Flugbuch.</Label><Action onPress={() => { overlayHistory.current=[];setSheet(null);setTab('flights'); }}>Flüge ansehen</Action></Card>}
           {sheet === 'paper' && <PaperStatus bookName={book?.name ?? null} pending={library.pending} onBooks={() => openHeaderSheet('selectBook')} onBackup={() => openHeaderSheet('backup')} onFlights={() => { overlayHistory.current = []; setDetail(null); setSheet(null); setTab('flights'); }} />}
-          {sheet === 'medical' && <MedicalDetails capture={medical} loading={ownFlights.phase==='loading'} needsReload={ownFlights.view?.medicalReadFailed} refreshFailed={lastLoad?.medicalStatus==='failed'} />}
+          {sheet === 'medical' && <MedicalDetails now={now} capture={medical} loading={ownFlights.phase==='loading'} needsReload={ownFlights.view?.medicalReadFailed} refreshFailed={lastLoad?.medicalStatus==='failed'} />}
           {detail && <><Section title={detail.registration ?? 'Flugzeug unbekannt'} />{[['Datum', dateText(detail.date)], ['Flugzeugtyp', detail.aircraft_model], ['Abflug', detail.start_place], ['Ankunft', detail.landing_place], ['Start', detail.start], ['Landung', detail.landing], ['Zeitbasis', detail.time_basis], ['Dauer', detail.minutes === null ? null : `${formatDuration(detail.minutes)} h`], ['Rolle', detail.pilot_role], ['Startart', detail.launch], ['Landungen', detail.landings?.toString()], ['Bemerkungen', detail.remarks]].map(([label, value]) => <Card key={label}><Label muted>{label}</Label><Label selectable>{value ?? 'Unbekannt'}</Label></Card>)}<Label muted>Quelle: gespeicherte synthetische Bibliothek · {book?.name}. Distanz und Flugtrack sind nicht verfügbar.</Label></>}
           {sheet === 'selectBook' && <View style={{ width: '100%', maxWidth: 520, alignSelf: 'center', gap: 8 }}><Section title="Flugbuch auswählen" />{library.books.map(b => <Action key={b.id} secondary icon={b.id === library.bookId ? 'check' : undefined} onPress={() => { overlayHistory.current = []; setDetail(null); setSheet(null); void library.selectBook(b.id); }}>{b.name}</Action>)}{!library.books.length && <Empty title="Noch kein Flugbuch">Eine vorhandene Sicherung kann in einer neuen lokalen Bibliothek geöffnet werden. Live-Import und neue Produkt-Flugbücher sind noch nicht verfügbar.</Empty>}<Label muted>Gespeicherte synthetische Bibliothek · keine automatische Zuordnung.</Label><Action secondary onPress={() => openHeaderSheet('backup')}>Sicherung & Wiederherstellung</Action></View>}
           {sheet === 'unsupported' && <Empty title="Klassifikation nicht verfügbar">Der gespeicherte Flugvertrag enthält keine Strecken- oder Platzrundenkennzeichnung. Flugzeit, Start-/Zielfeld und Rolle werden dafür nicht als Ersatz interpretiert. Der aktive Filter bleibt erhalten.</Empty>}

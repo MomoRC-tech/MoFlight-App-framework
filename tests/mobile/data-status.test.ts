@@ -4,7 +4,7 @@ import { dataFreshness } from '../../apps/platform-lab/src/mobile/data-freshness
 import { medicalSource } from '../../apps/platform-lab/src/mobile/medical-source.ts';
 import type { InformationCapture } from '../../apps/platform-lab/src/vereinsflieger/information.ts';
 
-const at = '2026-10-01T12:00:00.000Z', time = Date.parse(at), week = 7 * 24 * 60 * 60 * 1000;
+const at = '2026-10-01T12:00:00.000Z', time = Date.parse(at), threeDays = 72 * 60 * 60 * 1000;
 export function medicalFixture(): InformationCapture {
   return { version: 1, id: 'synthetic-medical', owner: 'synthetic-owner', connectionId: 'synthetic-connection',
     retrievedAt: at, sourceIdentity: 'provisional-observed-profile', category: 'medical', path: '/member/profile/viewprofile',
@@ -13,10 +13,10 @@ export function medicalFixture(): InformationCapture {
     coverage: {kind:'visible-page',truncated:false,pagination:'unverified'} };
 }
 
-test('data-age reminder begins only after seven elapsed days, independent of session state', () => {
-  assert.equal(dataFreshness(at, 'ready', time + week).reminder, false);
-  assert.equal(dataFreshness(at, 'ready', time + week + 1).reminder, true);
-  assert.match(dataFreshness(at, 'ready', time + week + 1).note, /offline/);
+test('data-age reminder begins only after 72 elapsed hours, independent of session state', () => {
+  assert.equal(dataFreshness(at, 'ready', time + threeDays).reminder, false);
+  assert.equal(dataFreshness(at, 'ready', time + threeDays + 1).reminder, true);
+  assert.match(dataFreshness(at, 'ready', time + threeDays + 1).note, /mehr als drei Tage/);
 });
 
 test('missing, loading and failed reads are distinct; an unconfirmed time never looks fresh', () => {
@@ -30,8 +30,8 @@ test('missing, loading and failed reads are distinct; an unconfirmed time never 
 });
 
 test('failed refresh/readback preserves the age and reminder of the last usable capture', () => {
-  const saved = dataFreshness(at, 'ready', time + week + 1);
-  const failed = dataFreshness(at, 'failed', time + week + 1);
+  const saved = dataFreshness(at, 'ready', time + threeDays + 1);
+  const failed = dataFreshness(at, 'failed', time + threeDays + 1);
   assert.equal(failed.label, saved.label);
   assert.equal(failed.reminder, true);
   assert.match(failed.note, /Frühere Daten bleiben/);

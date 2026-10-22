@@ -4,14 +4,14 @@ import { Action, Card, Chip, Empty, IconLabel, Label, Section, colors, ui } from
 import { diagnosticJournal } from '../diagnostics';
 import { SymbolIcon } from './SymbolIcon';
 import type { useOwnFlights } from './use-own-flights';
-import { allOwnFlights, ownFlightYears, ownFlightRegistrations, ownRawValue, selectOwnFlights, type OwnFlightFilters } from './own-flight-model';
+import { allOwnFlights, ownFlightYears, ownFlightRegistrations, ownRawValue, selectOwnFlights, requestedOwnFlight, type OwnFlightRequest, type OwnFlightFilters } from './own-flight-model';
 import { planFlightRetrieval } from '../vereinsflieger/retrieval-policy';
 import { dataFreshness } from './data-freshness';
 import { reviewDuration, reviewParsedField, reviewRawField } from '../vereinsflieger/capture-review';
 
 export interface OwnFlightHeader { title: string; back?: () => void }
 export function OwnFlights({ active, data, filterRequest, onUpdate, onHeaderChange }: {
-  active: boolean; data: ReturnType<typeof useOwnFlights>; filterRequest?: { year: number | null } | null; onUpdate: () => boolean;
+  active: boolean; data: ReturnType<typeof useOwnFlights>; filterRequest?: OwnFlightRequest | null; onUpdate: () => boolean;
   onHeaderChange: (header: OwnFlightHeader) => void;
 }) {
   const [filters, setFilters] = useState<OwnFlightFilters>(allOwnFlights);
@@ -39,10 +39,12 @@ export function OwnFlights({ active, data, filterRequest, onUpdate, onHeaderChan
   useEffect(() => {
     if (!active || !data.view || !filterRequest || appliedRequest.current === filterRequest) return;
     appliedRequest.current = filterRequest;
-    setFilters({ ...allOwnFlights, year: filterRequest.year });
+    setFilters({ ...allOwnFlights, year: filterRequest.year, dateRange: filterRequest.dateRange });
     offset.current = 0;
     list.current?.scrollToOffset({ offset: 0, animated: false });
     setFilterOpen(false); setRawPage(0); data.clearDetail();
+    const requested = requestedOwnFlight(flights, filterRequest);
+    if (requested) void data.openDetail(requested);
   }, [active, data.view, filterRequest, data.clearDetail]);
   const changeFilters = (next: OwnFlightFilters) => { if(next.search!==filters.search)diagnosticJournal.record('filter','search');if(next.year!==filters.year)diagnosticJournal.record('filter','year');if(next.registration!==filters.registration)diagnosticJournal.record('filter','registration'); offset.current = 0; list.current?.scrollToOffset({ offset: 0, animated: false }); setFilters(next); };
   const update = () => { Keyboard.dismiss(); if (!onUpdate()) setNotice('Bitte zuerst den laufenden Anbietervorgang beenden. Deine gespeicherten Flüge bleiben verfügbar.'); };
@@ -51,8 +53,9 @@ export function OwnFlights({ active, data, filterRequest, onUpdate, onHeaderChan
       accessibilityLabel="Flüge durchsuchen" placeholder="Kennzeichen, Ort, Crew …" placeholderTextColor={colors.muted} value={filters.search}
       onChangeText={search => changeFilters({ ...filters, search })} autoCorrect={false} returnKeyType="search" style={s.search} /></View>
       <Pressable accessibilityRole="button" accessibilityLabel="Flugfilter öffnen" onPress={() => { Keyboard.dismiss(); diagnosticJournal.record('action','flight-filter');setFilterOpen(true); }} style={s.filter}><SymbolIcon name="filter" size={24} /></Pressable></View>
-    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 5 }}><Chip title="Alle Jahre" selected={filters.year === null} onPress={() => changeFilters({ ...filters, year: null })} />
-      {(filters.year !== null && !years.includes(filters.year) ? [filters.year, ...years] : years).map(year => <Chip key={year} title={String(year)} selected={filters.year === year} onPress={() => changeFilters({ ...filters, year })} />)}</ScrollView>
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 5 }}><Chip title="Alle Jahre" selected={filters.year === null} onPress={() => changeFilters({ ...filters, year: null, dateRange:null })} />
+      {(filters.year !== null && !years.includes(filters.year) ? [filters.year, ...years] : years).map(year => <Chip key={year} title={String(year)} selected={filters.year === year} onPress={() => changeFilters({ ...filters, year, dateRange:null })} />)}</ScrollView>
+    {filters.dateRange && <View style={ui.row}><Label muted style={{flex:1}}>{filters.dateRange.from} – {filters.dateRange.to}</Label><Pressable accessibilityRole="button" accessibilityLabel="Zeitraumfilter entfernen" onPress={()=>changeFilters({...filters,dateRange:null})} style={ui.smallAction}><Label>Entfernen</Label></Pressable></View>}
     {filters.registration !== undefined && <Label>Filter: {filters.registration ?? 'Kennzeichen unbekannt'}</Label>}
     <Card><Section title="Eigene gespeicherte Flüge" icon="flight-paper-plane" />
       <Label>{selected.length} von {flights.length} gespeicherten Flügen</Label><Label muted>Vereinsflieger · ohne erforderliche Buchzuordnung</Label>

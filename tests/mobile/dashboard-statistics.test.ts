@@ -1,3 +1,4 @@
+import * as dashboardModel from '../../apps/platform-lab/src/mobile/season-dashboard-model.ts';
 import * as processedResults from '../../apps/platform-lab/src/mobile/processed-result.ts';
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -21,8 +22,8 @@ function render(flights:any[], phase='ready', fontScale=1) {
   let hookIndex=0; const memos:{deps:unknown[];value:unknown}[]=[];
   const useMemo=(fn:()=>unknown,deps:unknown[])=>{const i=hookIndex++;if(!memos[i]||deps.some((v,n)=>v!==memos[i]!.deps[n]))memos[i]={deps,value:fn()};return memos[i]!.value;};
   const modules:Record<string,unknown>={react:{default:react,useMemo},'react-native':{...leaves(['Pressable','Text','View']),StyleSheet:{create:(x:unknown)=>x}},
-    './theme':{...leaves(['Card','GliderMark','IconLabel','Label','Photo','Section']),colors:{},ui:{}},'./SymbolIcon':leaves(['SymbolIcon']),
-    './SeasonRing':leaves(['SeasonRing']),'./season-model':season,'./real-flight-statistics':{...statistics,summarizeRealFlights:(...args:Parameters<typeof statistics.summarizeRealFlights>)=>{calculations++;return statistics.summarizeRealFlights(...args);}},
+    './theme':{...leaves(['Action','Card','GliderMark','IconLabel','Label','Photo','Section']),colors:{},ui:{}},'./SymbolIcon':leaves(['SymbolIcon']),
+    './SeasonMonthlyCharts':leaves(['SeasonMonthlyCharts']), './season-dashboard-model':dashboardModel, './SeasonRing':leaves(['SeasonRing']),'./season-model':season,'./real-flight-statistics':{...statistics,summarizeRealFlights:(...args:Parameters<typeof statistics.summarizeRealFlights>)=>{calculations++;return statistics.summarizeRealFlights(...args);}},
     './processed-result':processedResults,'./data-freshness':{dataFreshness},'../vereinsflieger/retrieval-policy':{planFlightRetrieval}};
   const exports:any={};runInNewContext(source,{exports,Date:class extends Date {getFullYear(){return 2026;}},require:(name:string)=>{
     if(name.startsWith('../../assets/'))return name;assert.ok(name in modules,name);return modules[name];}});
@@ -45,7 +46,8 @@ test('real season rings use deduplicated aircraft shares and the card supplies i
   assert.equal(rings.length,2);assert.equal(rings[0]!.props.value,'2');assert.equal(rings[1]!.props.value,'1:30');
   assert.equal(rings[0]!.props.slices.length,2);assert.equal(rings[1]!.props.slices.length,1);
   assert.equal(rings[0]!.props.slices.reduce((sum:number,s:any)=>sum+s.sweep,0),360);
-  f.nodes.find(n=>n.type==='Card'&&n.props.label?.startsWith('Eigene gespeicherte Flüge.'))!.props.onPress();
+  f.nodes.find(n=>n.type==='Action'&&n.children.includes('Saisonflüge ansehen'))!.props.onPress();
+  assert.ok(f.nodes.filter(n=>n.type==='Card').every(n=>!n.props.onPress));
   assert.deepEqual(f.calls,[2026]);
 });
 
@@ -86,11 +88,11 @@ test('retrieval or Medical changes and temporary unavailability do not reprocess
 test('first-use/loading/failure dashboard avoids empty promotions; returning dashboard leads with saved season and flights',()=>{
   for(const phase of ['loading','failed','missing']) assert.equal(render([],phase).nodes.length,0);
   const f=render(ownFlightFixture().flights);
-  assert.deepEqual(f.nodes.filter(n=>n.type==='Section').map(n=>n.props.title),['Deine Saison','Zuletzt datiert']);
+  assert.deepEqual(f.nodes.filter(n=>n.type==='Section').map(n=>n.props.title),['Meine Saison','Letzter gespeicherter Flug']);
   const season=f.nodes.findIndex(n=>n.type==='SeasonRing');
   const paper=f.nodes.findIndex(n=>n.props.accessibilityLabel==='Informationen zum Papierflugbuch ansehen');
   assert.ok(season>=0&&paper>season);assert.ok(!f.text.includes('Kein gespeicherter Track'));
-  f.nodes.find(n=>n.type==='Card'&&n.props.label==='Gespeicherte Flüge öffnen')!.props.onPress();
+  f.nodes.find(n=>n.type==='Pressable'&&n.props.accessibilityLabel?.startsWith('Gespeicherten Flug '))!.props.onPress();
   assert.deepEqual(f.calls,[undefined]);
 });
 

@@ -1,0 +1,49 @@
+import type { RealFlightListItem } from '../vereinsflieger/real-flight-library';
+import { planFlightRetrieval, type SavedFlightRetrieval, type FlightRetrievalWindow } from '../vereinsflieger/retrieval-policy';
+import type { RawField } from '../vereinsflieger/fields';
+import { abbreviatedMemberName } from '../provider/member-name';
+
+export interface SeasonMonth extends FlightRetrievalWindow {
+  year: number; month: number; future: boolean; covered: boolean;
+  count: number | null; knownMinutes: number | null; unknownDurationCount: number;
+}
+const iso = (year: number, month: number, day: number) => `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+/** One saved identity is one flight. Unknown dates never enter a calendar bucket. */
+export function monthlySeason(flights: readonly RealFlightListItem[], saved: readonly SavedFlightRetrieval[], today: string): SeasonMonth[][] {
+  const [year, month, day] = today.split('-').map(Number) as [number, number, number];
+  const periods = planFlightRetrieval(saved, new Date(year, month - 1, day, 12)).periods;
+  const seen = new Set<string>();
+  const unique = flights.filter(f => { if(seen.has(f.flightId)) return false; seen.add(f.flightId); return true; });
+  return [year, year - 1].map(y => Array.from({ length: 12 }, (_, i) => {
+    const m = i + 1, last = new Date(y, m, 0, 12).getDate();
+    const from = iso(y, m, 1), to = iso(y, m, m === month ? Math.min(day, last) : last);
+    const future = m > month;
+    const covered = !future && periods.some(p => p.from <= from && p.to >= to);
+    const rows = future ? [] : unique.filter(f => { const d = f.facts.assessment.date; return d.state === 'parsed' && d.value >= from && d.value <= to; });
+    let minutes = 0, known = 0;
+    for (const f of rows) if (f.facts.assessment.durations.flight.state === 'known') {
+      const value = f.facts.assessment.durations.flight.minutes;
+      if (!Number.isSafeInteger(value) || value < 0) throw new Error('Unsafe monthly reported minutes.');
+      minutes += value; known++;
+      if (!Number.isSafeInteger(minutes) || minutes < 0) throw new Error('Unsafe monthly reported minutes.');
+    }
+    return {year:y, month:m, from, to, future, covered, count:future || (!rows.length && !covered) ? null : rows.length,
+      knownMinutes:future || (!known && (rows.length > 0 || !covered)) ? null : minutes, unknownDurationCount:rows.length-known};
+  }));
+}
+/** Source date + parsed clock only; an absent clock prevents ordering that day. */
+export function latestSavedFlights(flights: readonly RealFlightListItem[]): RealFlightListItem[] {
+  const seen = new Set<string>();
+  const unique = flights.filter(f => { if(seen.has(f.flightId)) return false; seen.add(f.flightId); return true; });
+  const dated = unique.filter(f => f.facts.assessment.date.state === 'parsed').sort((a,b) => b.facts.assessment.date.value!.localeCompare(a.facts.assessment.date.value!));
+  const day = dated[0]?.facts.assessment.date.value;
+  const rows = dated.filter(f => f.facts.assessment.date.value === day);
+  if (rows.some(f => f.facts.assessment.clocks.start.state !== 'parsed')) return rows;
+  const latest = rows.map(f => f.facts.assessment.clocks.start.value!).sort().at(-1);
+  return rows.filter(f => f.facts.assessment.clocks.start.value === latest);
+}
+/** Abbreviate display text only; no identity or role is inferred. */
+export function abbreviatedCrew(field: RawField): string {
+  if (field.state !== 'value') return 'unbekannt';
+  return abbreviatedMemberName(field.raw) || 'unbekannt';
+}

@@ -6,6 +6,7 @@ import { serializeOwnFlightReads } from './own-flight-reader';
 import { loadProviderScope } from '../vereinsflieger/scoped-storage';
 import { loadInformation } from '../vereinsflieger/information-native';
 import { medicalSource } from './medical-source';
+import { loadDutyRoster } from '../vereinsflieger/duty-native';
 
 /** Read the selected real owner. Missing files stay missing; no fallback to the lab library. */
 export const ownFlightReadPorts = serializeOwnFlightReads({
@@ -39,6 +40,15 @@ export const ownFlightReadPorts = serializeOwnFlightReads({
         },
       });
       return { ownerId: lease.ownerId, storeId: lease.storeId, service,
+        readDuties:async(accountRef:string)=>{
+          await registry.assertCurrent(lease);
+          const selected=await loadProviderScope(lease.ownerId);
+          if(!selected)return null;
+          if(selected.owner!==lease.ownerId||selected.context.accountNumber!==accountRef)throw new Error('Foreign duty scope');
+          const snapshot=await loadDutyRoster(selected,()=>{if(closed)throw new Error('Duty reader closed');});
+          await registry.assertCurrent(lease);
+          return {scope:selected,snapshot};
+        },
         readMedical:async(accountRef:string)=>{
           await registry.assertCurrent(lease);
           const selected=await loadProviderScope(lease.ownerId);

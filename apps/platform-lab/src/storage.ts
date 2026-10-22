@@ -13,8 +13,8 @@ function connection(db: SQLite.SQLiteDatabase): Connection {
     first: <T>(sql: string, ...params: Bind[]) => db.getFirstAsync<T>(sql, ...params),
   };
 }
-export async function openDriver(name: string): Promise<Driver> {
-  const db = await SQLite.openDatabaseAsync(name);
+export async function openDriver(name: string, directory?: string): Promise<Driver> {
+  const db = await SQLite.openDatabaseAsync(name, undefined, directory);
   return { ...connection(db), close: () => db.closeAsync(), transaction: work => db.withExclusiveTransactionAsync(async tx => { await work(connection(tx)); }) };
 }
 export const hash = (text: string) => Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256, text);
