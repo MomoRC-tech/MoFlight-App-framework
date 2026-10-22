@@ -15,10 +15,10 @@ export function recordProviderDocument(stage: 'command' | 'start' | 'end', url: 
 
 const loginEvents = ['provider-login-ready', 'provider-login-input', 'provider-login-change', 'provider-login-click', 'provider-login-submit', 'provider-login-exit'] as const;
 export function readLoginDiagnostic(source: string, current: string, data: string, document: number): ProviderDiagnosticEvent | null {
-  if (!providerUrl(current) || new URL(current).pathname !== '/' || !scopedBridge(source, current, current) || data.length > 512) return null;
+  if (!providerUrl(current) || !scopedBridge(source, current, current) || data.length > 512) return null;
   try {
     const message = JSON.parse(data);
-    return message.kind === 'vf-login-diagnostic-v1' && message.document === document && loginEvents.includes(message.event) ? message.event : null;
+    return message.kind === 'vf-login-diagnostic-v1' && message.document === document && message.url === current && loginEvents.includes(message.event) ? message.event : null;
   } catch { return null; }
 }
 
@@ -28,14 +28,14 @@ export function loginDiagnosticScript(document: number) {
 }
 export const LOGIN_DIAGNOSTIC_SOURCE = String.raw`function(documentToken) {
   if (window.top !== window || location.protocol !== 'https:' ||
-      !['vereinsflieger.de','www.vereinsflieger.de'].includes(location.hostname) || location.pathname !== '/') return;
+      !['vereinsflieger.de','www.vereinsflieger.de'].includes(location.hostname)) return;
   const form = document.querySelector('form#signin'), user = document.querySelector('input[name="user"]'), password = document.querySelector('input#pwinput[name="pwinput"]');
   if (!form || user?.form !== form || password?.form !== form) return;
   if (window.__moflightLoginDiagnostic) { window.__moflightLoginDiagnostic.document = documentToken; return; }
   const state = { document:documentToken, remaining:32 }; window.__moflightLoginDiagnostic = state;
   const send = event => {
     if (state.remaining-- <= 0) return;
-    window.ReactNativeWebView?.postMessage(JSON.stringify({kind:'vf-login-diagnostic-v1',document:state.document,event}));
+    window.ReactNativeWebView?.postMessage(JSON.stringify({kind:'vf-login-diagnostic-v1',document:state.document,url:location.href,event}));
   };
   for (const event of ['input','change']) form.addEventListener(event, e => {
     if (e.target === user || e.target === password) send('provider-login-'+event);

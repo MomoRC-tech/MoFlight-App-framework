@@ -13,7 +13,7 @@ import { decodeView, VIEW_PHASES, viewScript, viewProtectionMessage, type ViewPh
 import { canonical } from '@moflight/flight-logbook';
 import { legacyViewNeedsChoice, type LegacyRecoveryCopy } from './legacy-recovery-store';
 import { Retrieval } from './retrieval';
-import { PROFILE_URL, contextScript, loginRequiredScript, sameContext, scopedBridge, validateContext, type ObservedContext } from './context';
+import { PROFILE_URL, contextScript, loginRequiredScript, loginDocumentScript, sameContext, scopedBridge, validateContext, type ObservedContext } from './context';
 import { ConnectionSession } from './connection-state';
 import { connectionFlow, type ConnectionFlow } from './connection-flow';
 import { loadProviderScope, confirmProviderScope, loadScopedCapture, loadScopedView, saveScopedCapture, saveScopedView, clearScopedView, prepareScopedLegacy, saveLegacySafety, legacyQuarantined, finishScopedLegacy } from './scoped-storage';
@@ -61,6 +61,8 @@ export function useAccessController(product = false, localOwner?: string, develo
   const afterConfirmation = useRef<'retrieve' | 'recover' | null>(null);
   const guidedFlightLogin = useRef(false);
   const guidedLoginResume = useRef<{ owner: string | undefined; retainedLoginDocument: boolean } | null>(null);
+  const signInDocument = useRef<string | null>(null);
+  const loginObservation = useRef<{ nonce: string; url: string; epoch: number } | null>(null);
   const [lastSuccessfulCaptureAt, setLastSuccessfulCaptureAt] = useState<string | null>(null);
   const [result, setResult] = useState<'none' | 'captured' | 'cancelled' | 'failed' | 'review-required' | 'recovered'>('none');
   const captureSaved = useRef(false), cancelled = useRef(false);
@@ -305,7 +307,7 @@ export function useAccessController(product = false, localOwner?: string, develo
     if (request) session.current.fail(request.nonce, loginRequired ? 'login-required' : 'error');
     else session.current.invalidate();
     clearContextRequest(); pendingCapture.current = null; flightSourceAttempt.current = null; pendingFlightSource.current = null; syncConnection();
-    if (loginRequired) setVisible(true);
+    if (loginRequired) { signInDocument.current = currentUrl.current; setVisible(true); }
     const active = retrieval.current.state;
     if (active.phase === 'loading') stop('Provider context unavailable. Earlier captures and recovery journal retained.', active.nonce);
   }
@@ -343,7 +345,34 @@ export function useAccessController(product = false, localOwner?: string, develo
     if (scope.current) checkConnection();
     else connect();
   }
-  function endGuidedFlightConnection() { guidedFlightLogin.current = false; guidedLoginResume.current = null; }
+  function endGuidedFlightConnection() { guidedFlightLogin.current = false; guidedLoginResume.current = null; loginObservation.current = null; }
+  function continueGuidedLogin() {
+    if (!guidedFlightLogin.current || !product || !foreground.current || owner.current !== activeOwner.current ||
+        contextRequest.current || busy || saving || recovery || bindingBusy.current || clearingStore.current ||
+        disconnectMode.current || retrieval.current.state.phase !== 'idle' || !providerUrl(currentUrl.current)) return;
+    setVisible(true);
+    // Returning from a credential Activity is never itself a reason to navigate.
+    if (!phase.current.loaded || loginPage(currentUrl.current) || signInDocument.current === currentUrl.current) return;
+    const observation = { nonce: Crypto.randomUUID(), url: currentUrl.current, epoch: epoch.current };
+    loginObservation.current = observation;
+    web.current?.injectJavaScript(loginDocumentScript(observation.nonce));
+  }
+  function receiveLoginDocument(event: WebViewMessageEvent): boolean {
+    const observation = loginObservation.current;
+    if (!observation || event.nativeEvent.data.length > 2000) return false;
+    try {
+      const message = JSON.parse(event.nativeEvent.data);
+      if (message.kind !== 'vf-login-document-v1') return false;
+      if (!guidedFlightLogin.current || !foreground.current || !mounted.current || owner.current !== activeOwner.current ||
+          observation.epoch !== epoch.current || message.nonce !== observation.nonce || message.url !== observation.url ||
+          currentUrl.current !== observation.url || !phase.current.loaded || failedDocument.current === observation.url ||
+          !scopedBridge(event.nativeEvent.url, currentUrl.current, observation.url) || typeof message.loginForm !== 'boolean') return true;
+      loginObservation.current = null;
+      if (message.loginForm) { signInDocument.current = observation.url; setVisible(true); }
+      else { recordProviderEvent('provider-resume-check'); checkConnection(); }
+      return true;
+    } catch { return false; }
+  }
   function resumeGuidedFlightConnection(): boolean {
     if(guidedFlightLogin.current)return true;
     const paused = guidedLoginResume.current;
@@ -356,7 +385,7 @@ export function useAccessController(product = false, localOwner?: string, develo
     // native WebView. A later authenticated navigation still needs fresh proof.
     // Autofill can submit before Android reports the activity as active. Do not
     // replace an unfinished authentication POST/redirect with a profile GET.
-    if (paused.retainedLoginDocument && (!phase.current.loaded || loginPage(currentUrl.current))) { recordProviderEvent('provider-resume-wait'); setVisible(true); }
+    if (paused.retainedLoginDocument) { recordProviderEvent('provider-resume-wait'); continueGuidedLogin(); }
     else { recordProviderEvent('provider-resume-check'); checkConnection(); }
     return true;
   }
@@ -526,6 +555,7 @@ export function useAccessController(product = false, localOwner?: string, develo
         guidedLoginResume.current = { owner: owner.current, retainedLoginDocument: retainLoginDocument };
       }
       stopDiagnosticLogin(false);
+      loginObservation.current = null;
       guidedFlightLogin.current = false;
       information.backgrounded();
       clearContextRequest(); pendingNavigation.current = null; pendingCapture.current = null; afterConfirmation.current = null; endDisconnect(); session.current.invalidate(); syncConnection();
@@ -556,7 +586,7 @@ export function useAccessController(product = false, localOwner?: string, develo
     if (loginLoad) { await loginLoad; return; }
     if (guidedFlightLogin.current && product && foreground.current && providerUrl(page) && !loginPage(page) &&
         !contextRequest.current && retrieval.current.state.phase === 'idle') {
-      checkConnection(); return;
+      continueGuidedLogin(); return;
     }
     if (retrieval.current.state.phase === 'loading' && !flightUrl(page)) {
       if (product) {
@@ -697,6 +727,7 @@ export function useAccessController(product = false, localOwner?: string, develo
     if (!providerUrl(uri)) return;
     recordProviderDocument('command', uri);
     information.navigationStarted();
+    signInDocument.current = null; loginObservation.current = null;
     phase.current.loaded = false; setLoaded(false); currentUrl.current = uri; setUrl(uri); epoch.current++; setGeneration(epoch.current);
     if (product && browserActive) {
       // Navigate the existing document; changing a key would discard the controller's browser.
@@ -907,7 +938,7 @@ export function useAccessController(product = false, localOwner?: string, develo
         javaScriptCanOpenWindowsAutomatically={false} setSupportMultipleWindows={true}
         onShouldStartLoadWithRequest={request => { if (generation !== epoch.current) return false; const allowed = providerUrl(request.url); if (allowed && request.isTopFrame !== false && request.url !== PROFILE_URL) information.navigationStarted(); if (product && contextRequest.current && request.isTopFrame !== false && request.url === PROFILE_URL) contextRequest.current.navigationObserved = true; if (!allowed && request.isTopFrame !== false) finish('External navigation blocked. Previous captures preserved.'); return allowed; }}
         onOpenWindow={() => { if (generation === epoch.current) finish('New browser window blocked in this bounded PoC.'); }}
-        onLoadStart={event => { if (generation !== epoch.current) return; failedDocument.current=null; diagnosticMessages.current = 0; recordProviderDocument('start', event.nativeEvent.url); phase.current.loaded = false; information.loadStarted(event.nativeEvent.url); if (product && contextRequest.current && event.nativeEvent.url === PROFILE_URL) contextRequest.current.navigationObserved = true; if (retrieval.current.state.phase === 'loading') {
+        onLoadStart={event => { if (generation !== epoch.current) return; signInDocument.current=null; loginObservation.current=null; failedDocument.current=null; diagnosticMessages.current = 0; recordProviderDocument('start', event.nativeEvent.url); phase.current.loaded = false; information.loadStarted(event.nativeEvent.url); if (product && contextRequest.current && event.nativeEvent.url === PROFILE_URL) contextRequest.current.navigationObserved = true; if (retrieval.current.state.phase === 'loading') {
           // Native load-start can beat the bridge acknowledgement. Advance only
           // a still-owned, outstanding save/load command; acknowledged commands
           // already cleared their token and must not advance a second time.
@@ -924,6 +955,7 @@ export function useAccessController(product = false, localOwner?: string, develo
           if (generation !== epoch.current) return;
           const observation = readLoginDiagnostic(event.nativeEvent.url, currentUrl.current, event.nativeEvent.data, generation);
           if (observation) { if (diagnosticMessages.current++ < 32) recordProviderEvent(observation); return; }
+          if (receiveLoginDocument(event)) return;
           if (information.running()) { void information.receiveInformation(event); return; }
           if (product && contextRequest.current) { void receiveContext(event); return; }
           if (login.receiveMessage(event.nativeEvent)) return;

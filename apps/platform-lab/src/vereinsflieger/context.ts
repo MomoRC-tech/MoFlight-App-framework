@@ -47,6 +47,18 @@ export const LOGIN_REQUIRED_SOURCE = String.raw`() => {
   return { error:'session-required' };
 }`;
 export function loginRequiredScript(nonce: string) { return `window.ReactNativeWebView?.postMessage(JSON.stringify({kind:'vf-login-required-v1',nonce:${JSON.stringify(nonce)},url:location.href,context:(${LOGIN_REQUIRED_SOURCE})()}));true;`; }
+
+// The provider also renders the original sign-in form at protected member URLs.
+// Observe its structure before leaving a completed document, without reading
+// field values or treating the absence of a form as authentication evidence.
+export function loginDocumentScript(nonce: string) {
+  return `(()=>{let sent=false;const send=()=>{
+    if(sent||window.top!==window||document.readyState!=='complete'||location.protocol!=='https:'||!['vereinsflieger.de','www.vereinsflieger.de'].includes(location.hostname))return;
+    sent=true;
+    const user=document.querySelector('input[name="user"]'),password=document.querySelector('input#pwinput[name="pwinput"]');
+    window.ReactNativeWebView?.postMessage(JSON.stringify({kind:'vf-login-document-v1',nonce:${JSON.stringify(nonce)},url:location.href,loginForm:!!(user&&password)}));
+  };if(document.readyState==='complete')send();else window.addEventListener('load',send,{once:true});})();true;`;
+}
 export function scopedBridge(source: string, document: string, expected: string) {
   if (!providerUrl(source) || !providerUrl(document) || !providerUrl(expected)) return false;
   const s = new URL(source), d = new URL(document), e = new URL(expected);

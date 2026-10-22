@@ -1,5 +1,7 @@
 # MoFlight project plan
 
+**22 October phone follow-up (#42):** the delivered shared-connection APK still resets during credential activities. New session8 reproduces profile navigations on return because the original form can appear at the protected profile URL. A bounded correction uses read-only form observation before leaving a retained login document; host/native/release verification is in progress. Actual Google valid-account phone success remains open. [One evidence section](verification/2026-10-21-simple-flight-loading.md#inline-login-form-and-credential-return-correction--22-october-2026).
+
 ## Ordered open-issue implementation plan — review, 21 October 2026
 
 **Requested scope:** Manuel asked for a review, further UI simplification and an ordered implementation plan covering every open Issue. This is the recommended sequence for review, not blanket implementation approval or a new release commitment. Existing scoped authorizations remain valid; proposed features, production decisions and spending retain their gates.

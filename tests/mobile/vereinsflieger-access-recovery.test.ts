@@ -84,6 +84,10 @@ function fixture(options: { panel?:boolean; developmentRecoveryCheckpoints?: boo
   const journalSave = new Promise<void>(resolve => { finishJournalSave = resolve; });
   const captureSave = new Promise<void>(resolve => { finishCaptureSave = resolve; });
   let nativeStops = 0;
+  let nativeDocument = probe.LOGIN_URL;
+  let nativeLoginForm: boolean | undefined;
+  let automaticLoginObservation = true;
+  const deliveredLoginObservations = new Set<string>();
   const nativeWeb = { injectJavaScript: (script: string) => injections.push(script), reload() { nativeReloads++; }, stopLoading() { nativeStops++; }, goBack() { historyBacks++; } };
   const react = {
     createElement: (type: unknown, props: Record<string, unknown> | null, ...children: unknown[]): Element => {
@@ -212,8 +216,23 @@ function fixture(options: { panel?:boolean; developmentRecoveryCheckpoints?: boo
   }
   // Drain completed promise chains without depending on how many async feature
   // boundaries they cross. Deferred storage and the controlled timers stay pending.
-  async function flush() { await new Promise<void>(resolve => { setImmediate(resolve); }); return render(); }
+  async function flush() {
+    await new Promise<void>(resolve => { setImmediate(resolve); });
+    let tree = render();
+    const script = injections.at(-1);
+    if (automaticLoginObservation && script?.includes("kind:'vf-login-document-v1'") && !deliveredLoginObservations.has(script)) {
+      deliveredLoginObservations.add(script);
+      const web = find(tree, element => element.type === 'WebView'); assert.ok(web);
+      const window: any = { ReactNativeWebView: { postMessage: (data: string) => (web.props.onMessage as (event: unknown) => void)({ nativeEvent: { url: nativeDocument, data } }) } };
+      window.top = window;
+      runInNewContext(script, { window, location: new URL(nativeDocument), document: { readyState: 'complete',
+        querySelector: () => (nativeLoginForm ?? nativeDocument === probe.LOGIN_URL) ? {} : null } });
+      tree = render();
+    }
+    return tree;
+  }
   async function loadPage(url: string) {
+    nativeDocument = url;
     const web = find(render(), element => element.type === 'WebView'); assert.ok(web);
     const event = { nativeEvent: { url } };
     (web.props.onLoadStart as (event: unknown) => void)(event);
@@ -222,11 +241,13 @@ function fixture(options: { panel?:boolean; developmentRecoveryCheckpoints?: boo
     return flush();
   }
   function startPage(url: string) {
+    nativeDocument = url;
     const web = find(render(), element => element.type === 'WebView'); assert.ok(web);
     (web.props.onLoadStart as (event: unknown) => void)({ nativeEvent: { url } });
     render();
   }
   async function finishPage(url: string) {
+    nativeDocument = url;
     const web = find(render(), element => element.type === 'WebView'); assert.ok(web);
     (web.props.onLoadEnd as (event: unknown) => void)({ nativeEvent: { url } });
     return flush();
@@ -271,6 +292,8 @@ function fixture(options: { panel?:boolean; developmentRecoveryCheckpoints?: boo
     setInformationHistoryReader: (reader: typeof informationHistoryReader) => { informationHistoryReader = reader; },
     contextMessage, loginMessage, history, historyBacks: () => historyBacks, nativeReloads: () => nativeReloads,
     allowNavigation, startPage, finishPage, nativeStops: () => nativeStops, lastIssuedNonce: () => issuedNonces.at(-1),
+    setNativeLoginForm: (present: boolean | undefined) => { nativeLoginForm = present; },
+    setAutomaticLoginObservation: (enabled: boolean) => { automaticLoginObservation = enabled; },
     unmount: () => { for (const hook of hooks) if (hook && typeof hook === 'object' && 'cleanup' in hook && typeof hook.cleanup === 'function') hook.cleanup(); },
     appState: (state: string) => appStateListener?.(state),
     changeOwner: (value: string) => { localOwner = value; render(); },
@@ -294,7 +317,7 @@ test('first-document diagnostics work when native start and script injection pre
   const script=web.props.injectedJavaScript as string;
   const token=Number(/\)\((\d+)\);\}catch/.exec(script)![1]);
   (web.props.onLoadStart as (e:unknown)=>void)({nativeEvent:{url:probe.LOGIN_URL}});
-  (web.props.onMessage as (e:unknown)=>void)({nativeEvent:{url:probe.LOGIN_URL,data:JSON.stringify({kind:'vf-login-diagnostic-v1',document:token,event:'provider-login-ready'})}});
+  (web.props.onMessage as (e:unknown)=>void)({nativeEvent:{url:probe.LOGIN_URL,data:JSON.stringify({kind:'vf-login-diagnostic-v1',document:token,url:probe.LOGIN_URL,event:'provider-login-ready'})}});
   assert.equal(f.providerEvents.includes('provider-login-ready'),true);
   f.unmount();
 });
@@ -412,6 +435,119 @@ test('rechecking an observed same-URL profile uses native reload and still requi
   await f.contextMessage({...observedContext,accountNumber:'999'});
   assert.equal(f.controller().connection.phase,'mismatch');assert.equal(f.controller().busy,false);
   f.unmount();
+});
+
+test('password-manager returns preserve an expired-session login form at the protected profile URL', async () => {
+  const f = fixture({ product: true, persistedScope: { version: 1, owner: 'synthetic-pilot', connectionId: 'prior', context: observedContext } });
+  f.render(); await f.settle(null); await f.flush();
+  f.controller().beginGuidedFlightConnection(); await f.loadPage(context.PROFILE_URL);
+  await f.contextMessage({ error: 'session-required' });
+  assert.equal(f.controller().visible, true);
+  const stops = f.nativeStops(), commands = f.injections.length;
+  const browser = f.controller().browser as any;
+  for (let dialog = 0; dialog < 3; dialog++) {
+    f.appState('background'); f.appState('active'); await f.flush();
+    f.appState('background'); f.appState('active'); await f.flush();
+    assert.equal(f.controller().url, context.PROFILE_URL);
+    assert.equal(f.controller().visible, true, 'Inline original form remains visible during credential dialogs');
+    assert.equal(f.nativeStops(), stops, 'Returning from a credential activity must not stop the form');
+    assert.equal(f.injections.length, commands, 'No replacing profile GET during password-manager filling');
+    assert.equal((f.controller().browser as any).props.key, browser.props.key);
+    assert.equal((f.controller().browser as any).props.source, browser.props.source);
+    assert.equal(f.controller().connection.confirmed, false);
+  }
+  assert.equal(f.scopeWrites(), 0); assert.deepEqual(f.writes, []); f.unmount();
+});
+
+test('completed inline login responses wait for sign-in; only a form-free document starts fresh account proof', async () => {
+  for (const order of ['foreground', 'background'] as const) {
+    for (const accountNumber of [observedContext.accountNumber, '999']) {
+      const f = fixture({ product: true, persistedScope: { version: 1, owner: 'synthetic-pilot', connectionId: 'prior', context: observedContext } });
+      f.render(); await f.settle(null); await f.flush();
+      f.controller().beginGuidedFlightConnection(); await f.loadPage(context.PROFILE_URL);
+      await f.contextMessage({ error: 'session-required' });
+      const stops = f.nativeStops();
+      f.setNativeLoginForm(true);
+      if (order === 'background') f.appState('background');
+      // A POST can return the original form at exactly the same protected URL.
+      await f.loadPage(context.PROFILE_URL);
+      if (order === 'background') { f.appState('active'); await f.flush(); }
+      assert.equal(f.controller().visible, true);
+      assert.equal(f.controller().connection.confirmed, false);
+      assert.equal(f.nativeStops(), stops, 'A completed inline login response is inspected without navigation');
+      const commands = f.injections.filter(script => script.includes('window.location.assign')).length;
+      await f.finishPage(context.PROFILE_URL);
+      f.appState('background'); f.appState('active'); await f.flush();
+      assert.equal(f.injections.filter(script => script.includes('window.location.assign')).length, commands);
+      assert.equal(f.nativeStops(), stops);
+      f.setNativeLoginForm(false);
+      await f.loadPage('https://vereinsflieger.de/member/index.php');
+      assert.equal(f.controller().connection.phase, 'checking', 'Form absence only requests protected proof');
+      assert.equal(f.controller().connection.confirmed, false);
+      await f.loadPage(context.PROFILE_URL); await f.contextMessage({ ...observedContext, accountNumber });
+      assert.equal(f.controller().connection.confirmed, accountNumber === observedContext.accountNumber);
+      assert.equal(f.controller().connection.phase, accountNumber === observedContext.accountNumber ? 'observed' : 'mismatch');
+      assert.equal(f.scopeWrites(), 0); assert.deepEqual(f.writes, []); f.unmount();
+    }
+  }
+});
+
+test('passive form observations cannot navigate after a foreign, stale, cancelled or failed document', async () => {
+  for (const boundary of ['foreign-source', 'foreign-url', 'nonce', 'owner', 'dismiss', 'background', 'new-load', 'page-error', 'malformed']) {
+    const f = fixture({ product: true }); f.render(); await f.settle(null); await f.flush();
+    f.controller().beginGuidedFlightConnection(); await f.loadPage(probe.LOGIN_URL);
+    f.setAutomaticLoginObservation(false);
+    const target = 'https://vereinsflieger.de/member/index.php'; await f.loadPage(target);
+    const nonce = f.lastIssuedNonce();
+    const web = f.find(f.render(), node => node.type === 'WebView')!;
+    if (boundary === 'owner') f.changeOwner('foreign-owner');
+    if (boundary === 'dismiss') f.controller().dismissLogin();
+    if (boundary === 'background') f.appState('background');
+    if (boundary === 'new-load') f.startPage(target);
+    if (boundary === 'page-error') (web.props.onError as (event: unknown) => void)({ nativeEvent: { url: target } });
+    const stops = f.nativeStops(), commands = f.injections.filter(script => script.includes('window.location.assign')).length;
+    (web.props.onMessage as (event: unknown) => void)({ nativeEvent: {
+      url: boundary === 'foreign-source' ? 'https://foreign.invalid/' : target,
+      data: JSON.stringify({ kind: 'vf-login-document-v1', nonce: boundary === 'nonce' ? 'forged' : nonce,
+        url: boundary === 'foreign-url' ? probe.LOGIN_URL : target, loginForm: boundary === 'malformed' ? 'false' : false }),
+    } });
+    await f.flush();
+    assert.equal(f.injections.filter(script => script.includes('window.location.assign')).length, commands, boundary);
+    assert.equal(f.nativeStops(), stops, boundary);
+    assert.notEqual(f.controller().connection.phase, 'checking', boundary);
+    assert.equal(f.scopeWrites(), 0); assert.deepEqual(f.writes, []); f.unmount();
+  }
+});
+
+test('passive completed-document reader inspects only form structure and never credentials or cookies', () => {
+  for (const present of [true, false]) {
+    const messages: string[] = [];
+    let completed: (() => void) | undefined;
+    const window: any = { ReactNativeWebView: { postMessage: (data: string) => messages.push(data) },
+      addEventListener: (event: string, callback: () => void) => { assert.equal(event, 'load'); completed = callback; } }; window.top = window;
+    const field = { get value(): never { throw new Error('Credential read'); } };
+    const environment = { window, location: new URL(context.PROFILE_URL), document: {
+      readyState: 'complete', querySelector: () => present ? field : null,
+      get cookie(): never { throw new Error('Cookie read'); },
+    } };
+    runInNewContext(context.loginDocumentScript('proof'), environment);
+    assert.deepEqual(JSON.parse(messages[0]!), { kind: 'vf-login-document-v1', nonce: 'proof', url: context.PROFILE_URL, loginForm: present });
+    for (const invalid of ['loading', 'foreign-host', 'subframe']) {
+      messages.length = 0;
+      runInNewContext(context.loginDocumentScript('proof'), { ...environment,
+        window: invalid === 'subframe' ? { ...window, top: {} } : window,
+        location: new URL(invalid === 'foreign-host' ? 'https://foreign.invalid/' : context.PROFILE_URL),
+        document: Object.assign(Object.create(environment.document), { readyState: invalid === 'loading' ? 'loading' : 'complete' }),
+      });
+      assert.equal(messages.length, 0, invalid);
+    }
+    environment.document.readyState = 'loading';
+    runInNewContext(context.loginDocumentScript('delayed'), environment);
+    assert.equal(messages.length, 0);
+    environment.document.readyState = 'complete'; completed!(); completed!();
+    assert.equal(messages.length, 1, 'Early native completion waits for the actual document once');
+    assert.equal(JSON.parse(messages[0]!).nonce, 'delayed');
+  }
 });
 
 test('guided original-page login resumes after credential activity but never after dismissal',async()=>{

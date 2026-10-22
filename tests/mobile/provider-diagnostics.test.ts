@@ -5,7 +5,7 @@ import { diagnosticJournal } from '../../apps/platform-lab/src/diagnostics.ts';
 import { loginDiagnosticScript, readLoginDiagnostic, recordProviderDocument } from '../../apps/platform-lab/src/vereinsflieger/provider-diagnostics.ts';
 
 const login = 'https://vereinsflieger.de/';
-test('login observations never read credentials and leave input/submission behavior alone', () => {
+for (const documentUrl of [login, 'https://vereinsflieger.de/member/profile/viewprofile']) test(`login observations leave credentials and submission alone at ${new URL(documentUrl).pathname}`, () => {
   const events = new Map<string, ((event?: any) => void)[]>(), messages: string[] = [];
   const form = { addEventListener(name: string, listener: (event?: any) => void) { events.set(name, [...events.get(name) ?? [], listener]); } };
   const field = () => ({ form, get value(): never { throw new Error('Credential read'); } });
@@ -13,7 +13,7 @@ test('login observations never read credentials and leave input/submission behav
   const window: any = { ReactNativeWebView: { postMessage: (data: string) => messages.push(data) },
     addEventListener: (name: string, listener: () => void) => events.set(name, [listener]) };
   window.top = window;
-  const environment = { window, location: new URL(login), document: {
+  const environment = { window, location: new URL(documentUrl), document: {
     querySelector: (selector: string) => selector === 'form#signin' ? form : selector.includes('name="user"') ? user : password,
     get cookie(): never { throw new Error('Cookie read'); },
   } };
@@ -37,7 +37,7 @@ test('login observations never read credentials and leave input/submission behav
 });
 
 test('diagnostic bridge rejects foreign/stale/malformed data and persists fixed categories only', () => {
-  const message = JSON.stringify({ kind: 'vf-login-diagnostic-v1', document: 7, event: 'provider-login-submit', private: 'SECRET' });
+  const message = JSON.stringify({ kind: 'vf-login-diagnostic-v1', document: 7, url: login, event: 'provider-login-submit', private: 'SECRET' });
   assert.equal(readLoginDiagnostic(login, login, message, 7), 'provider-login-submit');
   for (const [source, current, data, token] of [
     ['https://foreign.test/', login, message, 7], [login, login, message, 8],
