@@ -148,6 +148,19 @@
     "settings_restored": true,
     "cleanup_errors": [],
     "probe_source_sha256": "a742d17b5e9e9af218870d351ddcb60953546ab049c2a0cfb8be7d51320204ad",
-    "limits": "Existing selected real library empty; no clearing/seeding/activation. Install witness covers nine matched durable files only, excludes credentials/WebView/cache/preferences. Populated query and recovery cases host-only in this package. Physical/live roster/iOS untested."
+    "limits": "Existing selected real library empty; no clearing/seeding/activation. Install witness covers nine matched durable files only, excludes credentials/WebView/cache/preferences. Populated query and recovery cases host-only in this package. Physical/live roster/iOS untested.",
+    "owned_emulator_stopped": true
+  },
+  "release_verification": {
+    "status": "passed",
+    "http_status": 200,
+    "authentication": "none",
+    "zip_sha256": "74b4259c20b4bc275e9014685ccf2c03f54b7a823a044163e338cb5b3bf2ff7e",
+    "apk_sha256": "fc25df6fdfe83132376e79816456bb7263f69a55aff9599984bf0d78dbc1c2ad",
+    "source_commit": "e1f90b6a84b9adca63934f8e8b95e52e83b4ba06",
+    "contents": [
+      "app-release.apk",
+      "build.json"
+    ]
   }
 }
