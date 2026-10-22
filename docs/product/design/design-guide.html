@@ -205,10 +205,10 @@
 <p><a href="#chapter-overview">Handbook entry point</a>. These patterns consolidate approved visual/navigation decisions and current boundaries. Behavior remains governed by journey/provider/book contracts.</p>
 <h3 id="chapter-patterns-screen-composition">Screen composition</h3>
 <div class="table-wrap"><table><thead><tr><th>Destination</th><th>Current presentation</th></tr></thead><tbody>
-<tr><td>Übersicht</td><td>One compact login/data action and saved count/date. Once an associated account is ready, show season rings/legend, latest dated flight and a quiet deferred-paper link; no unavailable service promotions. A new unassociated library has no empty dashboard; an associated zero-flight account retains truthful zero/unknown values. Flight summaries require no book.</td></tr>
+<tr><td>Übersicht</td><td>First-use/load/recovery actions remain; returning users see a conditional 72-hour reminder, integrated Meine Saison rings/aircraft/monthly count/time comparisons/latest-flight inset and compact Verein duty source summary. Detailed counts/freshness stay in Profile/Flüge. No empty first-use dashboard, invented coverage or automatic full retrieval.</td></tr>
 <tr><td>Flüge</td><td>Selected real account’s locally saved flights without a required book: date, aircraft, route/duration rows; source-date/year, text and exact registration filters. Source IDs/revisions/original fields and absent-track context stay in details. Collapsible coverage/freshness and explicit update entry remain; no training or book inference.</td></tr>
 <tr><td>Flugbuch</td><td>Concise deferred real-book/setup explanation and Flüge ansehen. Existing synthetic book/paper/backup tools remain under Development. Full reconciliation/writing remains M5; book identity differs from account/format.</td></tr>
-<tr><td>Verein</td><td>Overview/Dienste/Termine/Mitteilungen scopes with bounded sections and honest missing-source states.</td></tr>
+<tr><td>Verein</td><td>Real account/club-context duty source pages with abbreviated names and full raw periods; visible-page coverage remains partial. Separate 30-day backup-excluded cache. Termine/Mitteilungen keep honest missing-source states.</td></tr>
 <tr><td>AI</td><td>Welcome, supported local questions/results, composer and unavailable free-text state. Sparkles identify the category.</td></tr>
 </tbody></table></div>
 <p>The <a href="../design-sources/2026-10-16-four-screen/reference.png">approved reference</a> establishes card/layout/color fidelity. Later five-tab changes add Flugbuch and retain AI. Older Wetter-tab, goals, monthly-chart and synthetic Medical-expiry prototypes remain historical.</p>
@@ -746,7 +746,7 @@
 <tr><td><i class="swatch" style="background:#f9b65b" aria-hidden="true"></i><code>#f9b65b</code></td><td>3</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-seasonmonthlychartstsx">SeasonMonthlyCharts.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/SeasonMonthlyCharts.tsx">apps/platform-lab/src/mobile/SeasonMonthlyCharts.tsx</a>; normalized SHA-256 <code>1742ab5d7714152bf87120e0a02766c2ce607255f717da99714a1ead4f197f7c</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/SeasonMonthlyCharts.tsx">apps/platform-lab/src/mobile/SeasonMonthlyCharts.tsx</a>; normalized SHA-256 <code>63ade85dc0b1b1d23e6f755e2fb44bc94e221e1e50f961dc4224f8a61c3d96b2</code>.</p>
 <h4 id="chapter-implementation-inventory-literal-colors-11">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>transparent</code></td><td>32</td></tr>
@@ -1596,10 +1596,10 @@ The provider&#x27;s information-import controls guide the selected own training 
 
 | Destination | Current presentation |
 | --- | --- |
-| Übersicht | One compact login/data action and saved count/date. Once an associated account is ready, show season rings/legend, latest dated flight and a quiet deferred-paper link; no unavailable service promotions. A new unassociated library has no empty dashboard; an associated zero-flight account retains truthful zero/unknown values. Flight summaries require no book. |
+| Übersicht | First-use/load/recovery actions remain; returning users see a conditional 72-hour reminder, integrated Meine Saison rings/aircraft/monthly count/time comparisons/latest-flight inset and compact Verein duty source summary. Detailed counts/freshness stay in Profile/Flüge. No empty first-use dashboard, invented coverage or automatic full retrieval. |
 | Flüge | Selected real account’s locally saved flights without a required book: date, aircraft, route/duration rows; source-date/year, text and exact registration filters. Source IDs/revisions/original fields and absent-track context stay in details. Collapsible coverage/freshness and explicit update entry remain; no training or book inference. |
 | Flugbuch | Concise deferred real-book/setup explanation and Flüge ansehen. Existing synthetic book/paper/backup tools remain under Development. Full reconciliation/writing remains M5; book identity differs from account/format. |
-| Verein | Overview/Dienste/Termine/Mitteilungen scopes with bounded sections and honest missing-source states. |
+| Verein | Real account/club-context duty source pages with abbreviated names and full raw periods; visible-page coverage remains partial. Separate 30-day backup-excluded cache. Termine/Mitteilungen keep honest missing-source states. |
 | AI | Welcome, supported local questions/results, composer and unavailable free-text state. Sparkles identify the category. |
 
 The [approved reference](../design-sources/2026-10-16-four-screen/reference.png) establishes card/layout/color fidelity. Later five-tab changes add Flugbuch and retain AI. Older Wetter-tab, goals, monthly-chart and synthetic Medical-expiry prototypes remain historical.
@@ -2300,7 +2300,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/season-model.ts](
 
 ## SeasonMonthlyCharts.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/SeasonMonthlyCharts.tsx](../../../apps/platform-lab/src/mobile/SeasonMonthlyCharts.tsx); normalized SHA-256 `1742ab5d7714152bf87120e0a02766c2ce607255f717da99714a1ead4f197f7c`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/SeasonMonthlyCharts.tsx](../../../apps/platform-lab/src/mobile/SeasonMonthlyCharts.tsx); normalized SHA-256 `63ade85dc0b1b1d23e6f755e2fb44bc94e221e1e50f961dc4224f8a61c3d96b2`.
 
 ### Literal colors
 
@@ -3125,7 +3125,7 @@ States / limits: Recreated approved variant, not a byte-identical copy of an old
 Source: docs/assets/branding/moflight-app-icon-ai.png
 docs/assets/branding/README.md; app.json
 </textarea></section>
-<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: fb080bb33769d518ce5d762755ddd5ba74119121f598360b4407ecfa2c220efb. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
+<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: 67032901524907378c5422b3451a12694f5a9a847d009bea78b02a6df4286766. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
 </main><script>
 'use strict';
 const brief = document.querySelector('#brief');

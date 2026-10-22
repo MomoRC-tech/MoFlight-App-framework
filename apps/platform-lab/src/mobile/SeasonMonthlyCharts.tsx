@@ -15,7 +15,7 @@ export function SeasonMonthlyCharts({ series, onFlights, selectionScope }: { ser
     <ScrollView horizontal contentContainerStyle={s.scroll} showsHorizontalScrollIndicator>
       <View style={s.plots}>{(['count','knownMinutes'] as const).map(metric=>{
         const max=Math.max(1,...series.flat().map(m=>m[metric]??0));
-        return <View key={metric} style={s.group}><Label>{metric==='count'?'Flüge pro Monat':'Gemeldete bekannte Stunden pro Monat'}</Label><Label muted style={s.small}>0 – {metric==='count'?max:`${formatReportedMinutes(max)} h`}</Label>
+        return <View key={metric} style={s.group}><Label>{metric==='count'?'Flüge pro Monat':'Flugstunden pro Monat'}</Label><Label muted style={s.small}>0 – {metric==='count'?max:`${formatReportedMinutes(max)} h bekannt`}</Label>
           <View style={s.chart}>{months.map((name,i)=>{
             const first=series[0]![i]!;
             const describe=(m:SeasonMonth)=>`${m.year}: ${m.count===null?'Flugzahl unbekannt':`${m.count} Flüge`}, ${m.knownMinutes===null?'Zeit unbekannt':`${formatReportedMinutes(m.knownMinutes)} h bekannt`}, ${m.covered?'abgedeckt':'Abdeckung unvollständig'}, ${m.unknownDurationCount} Zeiten unbekannt/strittig`;

@@ -625,7 +625,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/season-model.ts](
 
 ## SeasonMonthlyCharts.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/SeasonMonthlyCharts.tsx](../../../apps/platform-lab/src/mobile/SeasonMonthlyCharts.tsx); normalized SHA-256 `1742ab5d7714152bf87120e0a02766c2ce607255f717da99714a1ead4f197f7c`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/SeasonMonthlyCharts.tsx](../../../apps/platform-lab/src/mobile/SeasonMonthlyCharts.tsx); normalized SHA-256 `63ade85dc0b1b1d23e6f755e2fb44bc94e221e1e50f961dc4224f8a61c3d96b2`.
 
 ### Literal colors
 
