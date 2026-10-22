@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, Keyboard, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { Action, Card, IconLabel, Label, Section, colors, ui } from './theme';
 import { SymbolIcon } from './SymbolIcon';
 import { retrievalFailureHint } from '../vereinsflieger/connection-state';
@@ -35,6 +35,14 @@ export function ProviderConnection({ controller: c, open, close, development = f
   const insets = useSafeAreaInsets();
   const [barHeight, setBarHeight] = useState(68), [loginHeight, setLoginHeight] = useState(132);
   const [panelHeight, setPanelHeight] = useState(800);
+  const [keyboardTop,setKeyboardTop]=useState<number|null>(null);
+  useEffect(()=>{
+    const show=Keyboard.addListener('keyboardDidShow',event=>setKeyboardTop(event.endCoordinates.screenY));
+    const hide=Keyboard.addListener('keyboardDidHide',()=>setKeyboardTop(null));
+    return()=>{show.remove();hide.remove();};
+  },[]);
+  const keyboardInset=Platform.OS==='android'&&open&&keyboardTop!==null?Math.max(0,panelHeight-keyboardTop):0;
+  const availableHeight=panelHeight-keyboardInset;
   const [developmentHeight, setDevelopmentHeight] = useState(0);
   const [details, setDetails] = useState(false), [lab, setLab] = useState(false);
   const [informationTools, setInformationTools] = useState(false);
@@ -46,7 +54,7 @@ export function ProviderConnection({ controller: c, open, close, development = f
   const login = open && c.visible;
   useEffect(()=>recordProviderEvent(!open?'provider-surface-closed':login?'provider-surface-sign-in':'provider-surface-progress'),[open,login]);
   const checkpointHeight = developmentRecoveryCheckpoints ? developmentHeight : 0;
-  const progressHeight = Math.max(96, Math.min((panelHeight-insets.top-insets.bottom-barHeight-checkpointHeight)*0.5, panelHeight-insets.top-insets.bottom-barHeight-checkpointHeight-240));
+  const progressHeight = Math.max(96, Math.min((availableHeight-insets.top-insets.bottom-barHeight-checkpointHeight)*0.5, availableHeight-insets.top-insets.bottom-barHeight-checkpointHeight-240));
   const guidance = connectionGuidance(c.connection, c.browserActive);
   const freshness = dataFreshness(c.snapshot?.retrievedAt ?? null, c.captureLoadState);
   const loginFeedback = c.loginBusy ? 'Gespeicherte Anmeldung wird einmalig versucht…' :
@@ -56,7 +64,7 @@ export function ProviderConnection({ controller: c, open, close, development = f
     c.loginNotice === 'cancelled' ? 'Anmeldeversuch beendet. Bitte die Sitzung erneut prüfen.' : null;
   const dismiss = () => { if(closeDisabled)return; if (c.visible || checking || developmentRecoveryCheckpoints && !!c.developmentCheckpoint) c.dismissLogin(); close(); };
   return <View onLayout={event => setPanelHeight(event.nativeEvent.layout.height)} pointerEvents={open ? 'auto' : 'none'} style={[StyleSheet.absoluteFill, { zIndex: open ? 20 : -1, opacity: open ? 1 : 0, paddingTop: insets.top, paddingBottom: insets.bottom, backgroundColor: colors.background }]} accessibilityElementsHidden={!open} importantForAccessibility={open ? 'auto' : 'no-hide-descendants'} accessibilityViewIsModal={open}>
-    <View pointerEvents={login ? 'auto' : 'none'} style={[styles.browserFrame, { top: barHeight + checkpointHeight + (login ? loginHeight : 0) + insets.top, bottom: insets.bottom }, !login && styles.coveredBrowser]} accessibilityElementsHidden={!login} importantForAccessibility={login ? 'auto' : 'no-hide-descendants'}>
+    <View pointerEvents={login ? 'auto' : 'none'} style={[styles.browserFrame, { top: barHeight + checkpointHeight + (login ? loginHeight : 0) + insets.top, bottom: insets.bottom+keyboardInset }, !login && styles.coveredBrowser]} accessibilityElementsHidden={!login} importantForAccessibility={login ? 'auto' : 'no-hide-descendants'}>
       {c.browser}
     </View>
     <View style={{flex:1,display:open?'flex':'none'}}>

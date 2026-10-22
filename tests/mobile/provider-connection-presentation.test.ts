@@ -24,6 +24,7 @@ const source = ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/
 // only replacements. Disclosure tests make no provider/storage implementation.
 function fixture(overrides: Partial<Controller> = {}, development = false, purpose: 'existing-captures'|'own-flight-library' = 'existing-captures', guided = false, progress?: Element, developmentRecoveryCheckpoints = false) {
   let index = 0;
+  const keyboardListeners:Record<string,(event:unknown)=>void>={};
   const hooks: unknown[] = [], effects: (() => void)[] = [], calls: string[] = [];
   const react = {
     createElement: (type: unknown, props: Element['props'], ...children: unknown[]): Element => ({ type, props: props ?? {}, children: children.flat(Infinity) }),
@@ -40,7 +41,7 @@ function fixture(overrides: Partial<Controller> = {}, development = false, purpo
   const modules: Record<string, unknown> = {
     react: { default: react, ...react },
     'react-native': { ...Object.fromEntries(['ActivityIndicator', 'KeyboardAvoidingView', 'Pressable', 'ScrollView', 'TextInput', 'View'].map(name => [name, name])),
-      Platform: { OS: 'android' }, StyleSheet: { create: (value: unknown) => value, absoluteFill: {} } },
+      Platform: { OS: 'android' }, Keyboard:{addListener:(name:string,callback:(event:unknown)=>void)=>{keyboardListeners[name]=callback;return {remove:()=>{delete keyboardListeners[name];}};}}, StyleSheet: { create: (value: unknown) => value, absoluteFill: {} } },
     './theme': { ...Object.fromEntries(['Action', 'Card', 'IconLabel', 'Label', 'Section'].map(name => [name, name])), colors: {}, ui: { text: {} } },
     './SymbolIcon': { SymbolIcon: 'SymbolIcon' },
     './connection-guidance': { connectionGuidance, connectionSymbol }, '../vereinsflieger/connection-state': { retrievalFailureHint },
@@ -96,7 +97,7 @@ function fixture(overrides: Partial<Controller> = {}, development = false, purpo
   function text(value: unknown = tree): string { return content(value); }
   function button(label: string) { const node = nodes().find(n => n.type === 'Action' && text(n) === label || n.type === 'Pressable' && n.props.accessibilityLabel === label); assert.ok(node, label); return node; }
   render();
-  return { controller, calls, browser, render, nodes, text, button };
+  return { keyboard:(top:number|null)=>{if(top===null)keyboardListeners.keyboardDidHide?.({});else keyboardListeners.keyboardDidShow?.({endCoordinates:{screenY:top}});render();}, controller, calls, browser, render, nodes, text, button };
 }
 
 test('development recovery controls require the explicit scoped flag and remain outside the retained browser', () => {
@@ -372,4 +373,18 @@ test('guided provider keeps the browser parent and shows progress without import
   f.button('Anmeldung erneut prüfen').props.onPress();assert.deepEqual(f.calls,['check']);
   Object.assign(f.controller,{visible:false,saving:true,restoring:{current:false}});f.render();
   assert.equal(f.button('Abbrechen').props.disabled,true);
+});
+
+
+test('Android keyboard reserves space for the original form without changing its browser parent',()=>{
+  const f=fixture({visible:true,browserActive:true},false,'own-flight-library',true,{type:'Progress',props:{},children:[]});
+  const root=f.render();root.props.onLayout({nativeEvent:{layout:{height:900}}});f.render();
+  const frame=()=>f.nodes().find(n=>n.children.includes(f.browser))!;
+  const progress=()=>f.nodes().find(n=>n.type==='ScrollView'&&n.props.style?.maxHeight!==undefined)!;
+  const priorMax=progress().props.style.maxHeight;
+  assert.equal(frame().props.style[1].bottom,0);
+  f.keyboard(600);assert.equal(frame().props.style[1].bottom,300);
+  assert.ok(progress().props.style.maxHeight<priorMax,'Compact progress leaves room for form fields above the IME');
+  assert.equal(f.nodes().filter(n=>n===f.browser).length,1);assert.deepEqual(f.calls,[]);
+  f.keyboard(null);assert.equal(frame().props.style[1].bottom,0);assert.equal(progress().props.style.maxHeight,priorMax);
 });

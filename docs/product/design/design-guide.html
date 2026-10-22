@@ -157,7 +157,7 @@
 <tr><td>C14</td><td>Synthetic import review</td><td>Shared C01/C02/C03 cards/actions/choice chips, centered group capped at 520 dp</td><td>Development-only comparison, source variants and explicit book choice; <a href="../../../apps/platform-lab/src/mobile/ImportPreview.tsx">ImportPreview</a>. No saved-library import.</td></tr>
 <tr><td>C15</td><td>Captured flight review</td><td>Shared cards/actions in the connection panel&#x27;s centered 520 dp group; five records per page, eight original fields per detail page</td><td><a href="../../../apps/platform-lab/src/mobile/CapturedFlights.tsx">CapturedFlights</a> reads owner-scoped saved evidence without requiring provider login. Dates/clocks, reported duration, aircraft and separate crew fields retain unknown/invalid/conflict states; original field text is selectable and untruncated. No book membership or canonical import.</td></tr>
 <tr><td>C16</td><td>Information source review</td><td>Shared C01/C02 controls in the connection panel&#x27;s centered 520 dp group; five raw rows per page, one immutable snapshot at a time</td><td><a href="../../../apps/platform-lab/src/mobile/InformationReview.tsx">InformationReview</a> shows retrieval time and recorded coverage, with older/newer controls available offline. Category counts use the latest snapshot. Blank extracted text stays unknown; known date-only document snapshots are marked incomplete. No canonical history or cross-snapshot aggregation.</td></tr>
-<tr><td>C17</td><td>Own-flight loading</td><td>Shared C01/C02 controls, centered 520 dp groups; ordinary progress and secondary details</td><td><a href="../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx">CoreFlightFoundation</a> coordinates one explicit action through internal fresh storage, original-provider authentication, verified retrieval and local save. A verified retained session avoids login; valid rows need no routine review/save tap. Source/account/recovery checks remain; unresolved recovery is visible outside the details disclosure. Custom period, raw review and real-history backup remain under Details &amp; weitere Optionen. The header/Profile connection entry opens the shared selected-owner panel directly, with connect-only intent and contextual return. The same native browser remains mounted above tab navigation after closing; advanced library options are secondary. Original-login exposure comes from the explicit connection flow, without an outer login-enabled override. The combined flow retains one progress card through original-provider sign-in, verification, flights/save and Medical; success/partial failure stays visible until acknowledgement, which returns to ordinary Flüge with the result. Opening options alone creates/retrieves nothing.</td></tr>
+<tr><td>C17</td><td>Own-flight loading</td><td>Shared C01/C02 controls, centered 520 dp groups; ordinary progress and secondary details</td><td><a href="../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx">CoreFlightFoundation</a> coordinates one explicit action through internal fresh storage, original-provider authentication, verified retrieval and local save. A verified retained session avoids login; valid rows need no routine review/save tap. Source/account/recovery checks remain; unresolved recovery is visible outside the details disclosure. Custom period, raw review and real-history backup remain under Details &amp; weitere Optionen. The header/Profile connection entry opens the shared selected-owner panel directly, with connect-only intent and contextual return. The same native browser remains mounted above tab navigation after closing; advanced library options are secondary. Original-login exposure comes from the explicit connection flow, without an outer login-enabled override. On Android, the measured keyboard frame caps progress and reserves the same retained browser viewport above the IME. The combined flow retains one progress card through original-provider sign-in, verification, flights/save and Medical; success/partial failure stays visible until acknowledgement, which returns to ordinary Flüge with the result. Opening options alone creates/retrieves nothing.</td></tr>
 <tr><td>C18</td><td>Connection/data summary</td><td>Compact conditional Start row capped at 430 dp; Profile retains administration</td><td><a href="../../../apps/platform-lab/src/mobile/ConnectionSummary.tsx">ConnectionSummary</a> uses successful saved-retrieval time, with a reminder only after more than 72 hours or a positively identified change. Ordinary reminders can be hidden for 24 hours in the exact account/store scope. First-use/load failure/recovery remain actionable. Explicit update coordinates flights, Medical and separate duty capture; failures do not undo flight saves. Startup latest-flight observation is unavailable; no automatic provider request is enabled.</td></tr>
 <tr><td>C19</td><td>Support diagnostics</td><td>Shared C01/C02 cards/actions and selectable report text in a centered 520 dp group</td><td><a href="../../../apps/platform-lab/src/mobile/Diagnostics.tsx">Diagnostics</a> via Settings; paged technical/action histories and protected failures; observed navigation transitions without inferred intent. Explicit full JSON-file sharing, bounded short text copying and diagnostic-only clearing; 1 MB total managed storage cap. No automatic transmission.</td></tr>
 </tbody></table></div>
@@ -689,48 +689,48 @@
 <tr><td><code>width: &#x27;100%&#x27;</code></td><td>76</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-providerconnectiontsx">ProviderConnection.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/ProviderConnection.tsx">apps/platform-lab/src/mobile/ProviderConnection.tsx</a>; normalized SHA-256 <code>e45b3fb1fa8abf082c695277d805b8d7f60ab6de47821fb10b4e8b7f7b18626a</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/ProviderConnection.tsx">apps/platform-lab/src/mobile/ProviderConnection.tsx</a>; normalized SHA-256 <code>d24b1ecb4bf9b768dbc63b5ae24e2dba6baadd0e6b7294e91a905f1b64b67195</code>.</p>
 <h4 id="chapter-implementation-inventory-literal-colors-8">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><i class="swatch" style="background:#102d47aa" aria-hidden="true"></i><code>#102d47aa</code></td><td>197</td></tr>
+<tr><td><i class="swatch" style="background:#102d47aa" aria-hidden="true"></i><code>#102d47aa</code></td><td>205</td></tr>
 <tr><td><i class="swatch" style="background:#ffb39e" aria-hidden="true"></i><code>#ffb39e</code></td><td>29</td></tr>
-<tr><td><code>white</code></td><td>200</td></tr>
+<tr><td><code>white</code></td><td>208</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-typography-declarations-9">Typography declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>fontSize: 12</code></td><td>29</td></tr>
-<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>65, 84, 100</td></tr>
+<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>73, 92, 108</td></tr>
 <tr><td><code>fontWeight: &#x27;700&#x27;</code></td><td>29</td></tr>
 <tr><td><code>lineHeight: 15</code></td><td>29</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-geometry--opacity-declarations-19">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>borderRadius: 10</code></td><td>207</td></tr>
-<tr><td><code>borderRadius: 14</code></td><td>197</td></tr>
-<tr><td><code>borderRadius: 7</code></td><td>199</td></tr>
-<tr><td><code>borderRadius: 8</code></td><td>198</td></tr>
-<tr><td><code>borderWidth: 1</code></td><td>207</td></tr>
-<tr><td><code>borderWidth: 2</code></td><td>199</td></tr>
-<tr><td><code>gap: 10</code></td><td>206</td></tr>
-<tr><td><code>gap: 12</code></td><td>202</td></tr>
-<tr><td><code>gap: 4</code></td><td>68, 70</td></tr>
-<tr><td><code>gap: 6</code></td><td>77, 87, 203</td></tr>
-<tr><td><code>height: 12</code></td><td>199</td></tr>
-<tr><td><code>height: 16</code></td><td>198</td></tr>
-<tr><td><code>height: 48</code></td><td>197</td></tr>
-<tr><td><code>maxWidth: 520</code></td><td>206</td></tr>
-<tr><td><code>maxWidth: 800</code></td><td>200</td></tr>
-<tr><td><code>minHeight: 48</code></td><td>205, 207</td></tr>
-<tr><td><code>minHeight: 68</code></td><td>202</td></tr>
-<tr><td><code>minWidth: 16</code></td><td>198</td></tr>
-<tr><td><code>opacity: 0</code></td><td>201</td></tr>
-<tr><td><code>padding: 10</code></td><td>202, 203, 206, 207</td></tr>
-<tr><td><code>paddingHorizontal: 12</code></td><td>68</td></tr>
-<tr><td><code>paddingHorizontal: 8</code></td><td>205</td></tr>
-<tr><td><code>paddingVertical: 10</code></td><td>205</td></tr>
-<tr><td><code>width: &#x27;100%&#x27;</code></td><td>200, 206</td></tr>
-<tr><td><code>width: 18</code></td><td>199</td></tr>
-<tr><td><code>width: 48</code></td><td>197</td></tr>
+<tr><td><code>borderRadius: 10</code></td><td>215</td></tr>
+<tr><td><code>borderRadius: 14</code></td><td>205</td></tr>
+<tr><td><code>borderRadius: 7</code></td><td>207</td></tr>
+<tr><td><code>borderRadius: 8</code></td><td>206</td></tr>
+<tr><td><code>borderWidth: 1</code></td><td>215</td></tr>
+<tr><td><code>borderWidth: 2</code></td><td>207</td></tr>
+<tr><td><code>gap: 10</code></td><td>214</td></tr>
+<tr><td><code>gap: 12</code></td><td>210</td></tr>
+<tr><td><code>gap: 4</code></td><td>76, 78</td></tr>
+<tr><td><code>gap: 6</code></td><td>85, 95, 211</td></tr>
+<tr><td><code>height: 12</code></td><td>207</td></tr>
+<tr><td><code>height: 16</code></td><td>206</td></tr>
+<tr><td><code>height: 48</code></td><td>205</td></tr>
+<tr><td><code>maxWidth: 520</code></td><td>214</td></tr>
+<tr><td><code>maxWidth: 800</code></td><td>208</td></tr>
+<tr><td><code>minHeight: 48</code></td><td>213, 215</td></tr>
+<tr><td><code>minHeight: 68</code></td><td>210</td></tr>
+<tr><td><code>minWidth: 16</code></td><td>206</td></tr>
+<tr><td><code>opacity: 0</code></td><td>209</td></tr>
+<tr><td><code>padding: 10</code></td><td>210, 211, 214, 215</td></tr>
+<tr><td><code>paddingHorizontal: 12</code></td><td>76</td></tr>
+<tr><td><code>paddingHorizontal: 8</code></td><td>213</td></tr>
+<tr><td><code>paddingVertical: 10</code></td><td>213</td></tr>
+<tr><td><code>width: &#x27;100%&#x27;</code></td><td>208, 214</td></tr>
+<tr><td><code>width: 18</code></td><td>207</td></tr>
+<tr><td><code>width: 48</code></td><td>205</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-rawcapturereviewtsx">RawCaptureReview.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/RawCaptureReview.tsx">apps/platform-lab/src/mobile/RawCaptureReview.tsx</a>; normalized SHA-256 <code>0d897511ac3fa00409c597a5d6fa2f8fd8b0f90551aac3ef8decd195646262e4</code>.</p>
@@ -1554,7 +1554,7 @@ The HTML guide embeds original reference and symbol/brand images unchanged. Comp
 | C14 | Synthetic import review | Shared C01/C02/C03 cards/actions/choice chips, centered group capped at 520 dp | Development-only comparison, source variants and explicit book choice; [ImportPreview](../../../apps/platform-lab/src/mobile/ImportPreview.tsx). No saved-library import. |
 | C15 | Captured flight review | Shared cards/actions in the connection panel&#x27;s centered 520 dp group; five records per page, eight original fields per detail page | [CapturedFlights](../../../apps/platform-lab/src/mobile/CapturedFlights.tsx) reads owner-scoped saved evidence without requiring provider login. Dates/clocks, reported duration, aircraft and separate crew fields retain unknown/invalid/conflict states; original field text is selectable and untruncated. No book membership or canonical import. |
 | C16 | Information source review | Shared C01/C02 controls in the connection panel&#x27;s centered 520 dp group; five raw rows per page, one immutable snapshot at a time | [InformationReview](../../../apps/platform-lab/src/mobile/InformationReview.tsx) shows retrieval time and recorded coverage, with older/newer controls available offline. Category counts use the latest snapshot. Blank extracted text stays unknown; known date-only document snapshots are marked incomplete. No canonical history or cross-snapshot aggregation. |
-| C17 | Own-flight loading | Shared C01/C02 controls, centered 520 dp groups; ordinary progress and secondary details | [CoreFlightFoundation](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx) coordinates one explicit action through internal fresh storage, original-provider authentication, verified retrieval and local save. A verified retained session avoids login; valid rows need no routine review/save tap. Source/account/recovery checks remain; unresolved recovery is visible outside the details disclosure. Custom period, raw review and real-history backup remain under Details &amp; weitere Optionen. The header/Profile connection entry opens the shared selected-owner panel directly, with connect-only intent and contextual return. The same native browser remains mounted above tab navigation after closing; advanced library options are secondary. Original-login exposure comes from the explicit connection flow, without an outer login-enabled override. The combined flow retains one progress card through original-provider sign-in, verification, flights/save and Medical; success/partial failure stays visible until acknowledgement, which returns to ordinary Flüge with the result. Opening options alone creates/retrieves nothing. |
+| C17 | Own-flight loading | Shared C01/C02 controls, centered 520 dp groups; ordinary progress and secondary details | [CoreFlightFoundation](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx) coordinates one explicit action through internal fresh storage, original-provider authentication, verified retrieval and local save. A verified retained session avoids login; valid rows need no routine review/save tap. Source/account/recovery checks remain; unresolved recovery is visible outside the details disclosure. Custom period, raw review and real-history backup remain under Details &amp; weitere Optionen. The header/Profile connection entry opens the shared selected-owner panel directly, with connect-only intent and contextual return. The same native browser remains mounted above tab navigation after closing; advanced library options are secondary. Original-login exposure comes from the explicit connection flow, without an outer login-enabled override. On Android, the measured keyboard frame caps progress and reserves the same retained browser viewport above the IME. The combined flow retains one progress card through original-provider sign-in, verification, flights/save and Medical; success/partial failure stays visible until acknowledgement, which returns to ordinary Flüge with the result. Opening options alone creates/retrieves nothing. |
 | C18 | Connection/data summary | Compact conditional Start row capped at 430 dp; Profile retains administration | [ConnectionSummary](../../../apps/platform-lab/src/mobile/ConnectionSummary.tsx) uses successful saved-retrieval time, with a reminder only after more than 72 hours or a positively identified change. Ordinary reminders can be hidden for 24 hours in the exact account/store scope. First-use/load failure/recovery remain actionable. Explicit update coordinates flights, Medical and separate duty capture; failures do not undo flight saves. Startup latest-flight observation is unavailable; no automatic provider request is enabled. |
 | C19 | Support diagnostics | Shared C01/C02 cards/actions and selectable report text in a centered 520 dp group | [Diagnostics](../../../apps/platform-lab/src/mobile/Diagnostics.tsx) via Settings; paged technical/action histories and protected failures; observed navigation transitions without inferred intent. Explicit full JSON-file sharing, bounded short text copying and diagnostic-only clearing; 1 MB total managed storage cap. No automatic transmission. |
 
@@ -2236,22 +2236,22 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProfileSettings.t
 
 ## ProviderConnection.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProviderConnection.tsx](../../../apps/platform-lab/src/mobile/ProviderConnection.tsx); normalized SHA-256 `e45b3fb1fa8abf082c695277d805b8d7f60ab6de47821fb10b4e8b7f7b18626a`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProviderConnection.tsx](../../../apps/platform-lab/src/mobile/ProviderConnection.tsx); normalized SHA-256 `d24b1ecb4bf9b768dbc63b5ae24e2dba6baadd0e6b7294e91a905f1b64b67195`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#102d47aa` | 197 |
+| `#102d47aa` | 205 |
 | `#ffb39e` | 29 |
-| `white` | 200 |
+| `white` | 208 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
 | `fontSize: 12` | 29 |
-| `fontWeight: &#x27;600&#x27;` | 65, 84, 100 |
+| `fontWeight: &#x27;600&#x27;` | 73, 92, 108 |
 | `fontWeight: &#x27;700&#x27;` | 29 |
 | `lineHeight: 15` | 29 |
 
@@ -2259,32 +2259,32 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProviderConnectio
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 10` | 207 |
-| `borderRadius: 14` | 197 |
-| `borderRadius: 7` | 199 |
-| `borderRadius: 8` | 198 |
-| `borderWidth: 1` | 207 |
-| `borderWidth: 2` | 199 |
-| `gap: 10` | 206 |
-| `gap: 12` | 202 |
-| `gap: 4` | 68, 70 |
-| `gap: 6` | 77, 87, 203 |
-| `height: 12` | 199 |
-| `height: 16` | 198 |
-| `height: 48` | 197 |
-| `maxWidth: 520` | 206 |
-| `maxWidth: 800` | 200 |
-| `minHeight: 48` | 205, 207 |
-| `minHeight: 68` | 202 |
-| `minWidth: 16` | 198 |
-| `opacity: 0` | 201 |
-| `padding: 10` | 202, 203, 206, 207 |
-| `paddingHorizontal: 12` | 68 |
-| `paddingHorizontal: 8` | 205 |
-| `paddingVertical: 10` | 205 |
-| `width: &#x27;100%&#x27;` | 200, 206 |
-| `width: 18` | 199 |
-| `width: 48` | 197 |
+| `borderRadius: 10` | 215 |
+| `borderRadius: 14` | 205 |
+| `borderRadius: 7` | 207 |
+| `borderRadius: 8` | 206 |
+| `borderWidth: 1` | 215 |
+| `borderWidth: 2` | 207 |
+| `gap: 10` | 214 |
+| `gap: 12` | 210 |
+| `gap: 4` | 76, 78 |
+| `gap: 6` | 85, 95, 211 |
+| `height: 12` | 207 |
+| `height: 16` | 206 |
+| `height: 48` | 205 |
+| `maxWidth: 520` | 214 |
+| `maxWidth: 800` | 208 |
+| `minHeight: 48` | 213, 215 |
+| `minHeight: 68` | 210 |
+| `minWidth: 16` | 206 |
+| `opacity: 0` | 209 |
+| `padding: 10` | 210, 211, 214, 215 |
+| `paddingHorizontal: 12` | 76 |
+| `paddingHorizontal: 8` | 213 |
+| `paddingVertical: 10` | 213 |
+| `width: &#x27;100%&#x27;` | 208, 214 |
+| `width: 18` | 207 |
+| `width: 48` | 205 |
 
 ## RawCaptureReview.tsx
 
@@ -3143,7 +3143,7 @@ States / limits: Recreated approved variant, not a byte-identical copy of an old
 Source: docs/assets/branding/moflight-app-icon-ai.png
 docs/assets/branding/README.md; app.json
 </textarea></section>
-<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: ccf5d70edc9f54b7266d281e7f43440f85b6e11d1868848bd40aee7faf56bab9. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
+<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: 158b358a0bd3d5b20f4d30ad051e6225cd7598ec8c01e9068feb2ea28874da31. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
 </main><script>
 'use strict';
 const brief = document.querySelector('#brief');

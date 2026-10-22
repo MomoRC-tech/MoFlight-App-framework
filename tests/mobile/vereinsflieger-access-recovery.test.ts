@@ -179,7 +179,7 @@ function fixture(options: { panel?:boolean; developmentRecoveryCheckpoints?: boo
       './SymbolIcon':{SymbolIcon:'SymbolIcon'},'react-native-safe-area-context':{useSafeAreaInsets:()=>({top:0,bottom:0})},
       ...Object.fromEntries(['LegacyRecoveryReview','RawCaptureReview','CapturedFlights','InformationReview'].map(n=>['./'+n,{[n]:n}]))
     });
-    Object.assign(modules['react-native'] as object,{Platform:{OS:'android'},...Object.fromEntries(['ActivityIndicator','Pressable','ScrollView','TextInput','KeyboardAvoidingView'].map(n=>[n,n]))});
+    Object.assign(modules['react-native'] as object,{Keyboard:{addListener:()=>({remove(){}})},Platform:{OS:'android'},...Object.fromEntries(['ActivityIndicator','Pressable','ScrollView','TextInput','KeyboardAvoidingView'].map(n=>[n,n]))});
     const panelSource=ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/mobile/ProviderConnection.tsx',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.React,esModuleInterop:false}}).outputText;
     runInNewContext(panelSource,{exports:panelExports,...runtime});
   }
