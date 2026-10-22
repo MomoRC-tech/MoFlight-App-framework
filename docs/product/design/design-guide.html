@@ -38,7 +38,7 @@
 <li>Manuel&#x27;s 18 October symbol selection adopts <strong>Modern Duotone as the default family</strong>, including <strong>M2 Medical card</strong> and the <strong>supplied folded paper plane</strong>, for navigation/header/dashboard/action symbols. His subsequent instruction removes the old icon designs and comparison pages. Labels, status meanings, approved branding and data notation remain. See <a href="symbols/README.md">default family</a>.</li>
 <li>Manuel&#x27;s <strong>21 October “start with 1 and 2” instruction</strong> selects the <a href="../2026-10-13-journey-information-map.md#smaller-everyday-interface--selected-21-october-2026">smaller everyday interface</a>: one first-use entry, useful returning-account season/flight content, quiet deferred-paper access, technical details in flight details and synthetic tools under Development. This amends the default dashboard composition and unfinished Flugbuch/settings content only; existing header/colors/symbols/five labeled tabs remain.</li>
 <li>Manuel&#x27;s <strong>22 October implementation instruction</strong> selects the <a href="../2026-10-13-journey-information-map.md#compact-start-and-data-reminders--22-october-2026">compact Start/data amendment</a>: conditional three-day reminder, integrated latest flight, visible monthly count/time comparisons, earliest-source Medical expiry reminder and compact Verein duties. Quiet startup latest-flight checking remains unavailable until a reliable lightweight source is proven; captured duty pages are explicitly partial.</li>
-<li>Manuel’s <strong>22 October Start feedback (#54)</strong> supersedes two simultaneous monthly plots and all season/month/latest-flight detail entry points with one chart, Flüge/Flugstunden measure chips and read-only latest-flight facts. Local preparation has visible busy feedback; details belong in the Flüge tab.</li>
+<li>Manuel’s <strong>22 October Start feedback (#54)</strong> supersedes two simultaneous monthly plots and all season/month/latest-flight detail entry points with one chart, Flüge/Flugstunden measure chips and two read-only recent-flight boxes. Local preparation has visible busy feedback; details belong in the Flüge tab.</li>
 <li>This handbook consolidates those decisions. Earlier prototype choices apply only where explicitly carried forward. Code values record implementation and cannot approve an unresolved visual difference.</li>
 </ol>
 <p>Manuel owns design decisions. Priorities, journeys and account/book behavior remain in the <a href="../../project-plan.md">project plan</a>, <a href="../2026-10-13-journey-information-map.md">journey map</a> and feature contracts. Link those contracts rather than duplicating them here.</p>
@@ -228,7 +228,7 @@
 <p>Start/Profile and Flüge expose the same explicit login-and-load/update action. Necessary fresh local storage is internal. Check retained session cookies through a protected provider profile; show the original login page only when needed, then resume verification after provider navigation. Keep that browser in the same native parent across login/progress. Use one-column, centered progress/forms up to 520 dp; labels wrap with text scaling. The login view omits information-import menus. Provider-required login still belongs to Vereinsflieger; account mismatch and unresolved recovery remain actionable exceptions. Known provider values save through deterministic validation without routine per-row review or a second save confirmation. Keep one progress card in the same provider screen through sign-in, account verification, flight retrieval/save and Medical. Preserve its native browser parent while the login form is visible beneath the progress area; cap and scroll the progress area during login so the form remains usable. Keep success or partial/failure results on that screen until acknowledgement, then return the result and covered period to ordinary Flüge. A foreground interruption before retrieval preserves the original login document; a guarded resume re-arms the guided intent without accepting stale proof, and subsequent authenticated navigation still requires fresh account verification. Interactive sign-in time does not consume the outer flight-response timeout. Backgrounding after retrieval starts retains cancellation/recovery safeguards. Failed or skipped Medical does not undo the confirmed flight save. These changes were approved on 21 October under #22/#42; native/phone evidence remains source-specific. Preserve previous saved data and user state on error/cancellation; opening the app does not initiate retrieval.</p>
 <p>The Start summary reads committed-library freshness, independently of raw captures and session checks. Keep season rings and compact aircraft legend; detailed coverage/source information is reached through Flüge. The 21 October selected simplification uses full-width cards capped at 430 dp, or two bounded columns from 840 dp at ordinary text size. Book setup stays deferred and never gates flights. Its quiet Start link opens a short information sheet; synthetic paper tasks and the editable demo name are in Development. Compact Start keeps recovery options visible when a decision is required. Entry copy makes manual original-page sign-in conditional: retained provider cookies may avoid typing credentials. A fresh unassociated owner still opens the original login route; this wording does not promise a protected-profile precheck on every first use. Native login-page/HTTP opening failure must end combined progress with explicit retry even before retrieval becomes busy; interactive sign-in itself remains untimed. <a href="../../verification/2026-10-21-simple-flight-loading.md">Package evidence and platform limits</a> distinguish host behavior from native/provider acceptance.</p>
 <h3 id="chapter-patterns-header-overlays-and-navigation">Header, overlays and navigation</h3>
-<p><strong>22 October Start amendment, simplified after Manuel&#x27;s feedback (#54):</strong> Start shows an explicit busy card while local saved flights are prepared. Meine Saison retains aircraft rings/legend, one monthly current/prior-year chart with Flüge/Flugstunden measure chips, and a read-only latest-flight inset. The 576 dp chart scrolls horizontally with 48 dp month columns; months and latest flights have no drill-down actions, and the season-detail button is removed. Users open the Flüge tab for details. Unknown durations and incomplete coverage remain explicit. The conditional 72-hour reminder and compact Verein card remain. At wide widths cap season and club groups in two columns. Source-expiry Medical retains its separate date states without a fitness implication. This supersedes the earlier two-chart/month-selection presentation; broader filtered statistics in Flüge remain pending under #9.</p>
+<p><strong>22 October Start amendment, simplified after Manuel&#x27;s feedback (#54):</strong> Start shows an explicit busy card while local saved flights are prepared. Meine Saison retains aircraft rings/legend, one monthly current/prior-year chart with Flüge/Flugstunden measure chips, and two read-only recent-flight boxes before the chart. The 576 dp chart scrolls horizontally with 48 dp month columns; months and latest flights have no drill-down actions, and the season-detail button is removed. Users open the Flüge tab for details. Unknown durations and incomplete coverage remain explicit. The conditional 72-hour reminder and compact Verein card remain. At wide widths cap season and club groups in two columns. Source-expiry Medical retains its separate date states without a fitness implication. This supersedes the earlier two-chart/month-selection presentation; broader filtered statistics in Flüge remain pending under #9.</p>
 <p>Keep header/navigation outside the scrolling canvas. Header order is logo/title, Connection → Med → Profile. Truncate title before shrinking controls. Current font scale above 1.3 places controls on a second wrapping row; subtitle renders only at width at least 412 with normal text.</p>
 <p>App overlays/details replace logo with contextual Back and expose one active accessible header. Return through nested overlays to prior page/filter/scroll state and unsaved local profile-name draft. Identical library reloads preserve the return path; changed book/flight facts invalidate stale details. An active backup/proof operation disables app Back, Profile and Medical until completion; provider Close/history remain separate. Medical opens a read-only unknown-record explanation.</p>
 <p>The header connection shortcut opens the ordinary flight connection/options screen. Legacy provider/information diagnostics remain under Development. Provider Close, connection status and origin belong to its app-owned toolbar. Provider-history Back affects the original embedded webpage; Close returns to MoFlight without promising logout. Preserve retained browser parent, busy/recovery guards and provenance. OS-owned full-screen surfaces keep their own controls. See <a href="../2026-10-18-header-status-review.md#package-1b-decision-checkpoint">header decisions</a>.</p>
@@ -402,38 +402,40 @@
 <tr><td><code>width: &#x27;100%&#x27;</code></td><td>123, 442</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-dashboardtsx">Dashboard.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/Dashboard.tsx">apps/platform-lab/src/mobile/Dashboard.tsx</a>; normalized SHA-256 <code>cc41f1aec1416d83d842145965f7b64cd656c886f3f0c250f437c8bb82660e0b</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/Dashboard.tsx">apps/platform-lab/src/mobile/Dashboard.tsx</a>; normalized SHA-256 <code>89c172eecb045f9bca20e1f7f3696c5eb783a761cdac9e4cc832635866207f67</code>.</p>
 <h4 id="chapter-implementation-inventory-literal-colors-4">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><i class="swatch" style="background:#1b4269" aria-hidden="true"></i><code>#1b4269</code></td><td>64</td></tr>
+<tr><td><i class="swatch" style="background:#1b4269" aria-hidden="true"></i><code>#1b4269</code></td><td>65</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-typography-declarations-3">Typography declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>fontSize: 11</code></td><td>64</td></tr>
-<tr><td><code>fontSize: 24</code></td><td>64</td></tr>
-<tr><td><code>fontWeight: &#x27;700&#x27;</code></td><td>64</td></tr>
-<tr><td><code>lineHeight: 16</code></td><td>64</td></tr>
-<tr><td><code>lineHeight: 29</code></td><td>64</td></tr>
+<tr><td><code>fontSize: 11</code></td><td>65</td></tr>
+<tr><td><code>fontSize: 15</code></td><td>65</td></tr>
+<tr><td><code>fontSize: 24</code></td><td>65</td></tr>
+<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>65</td></tr>
+<tr><td><code>fontWeight: &#x27;700&#x27;</code></td><td>65</td></tr>
+<tr><td><code>lineHeight: 16</code></td><td>65</td></tr>
+<tr><td><code>lineHeight: 21</code></td><td>65</td></tr>
+<tr><td><code>lineHeight: 29</code></td><td>65</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-geometry--opacity-declarations-7">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>borderRadius: 10</code></td><td>64</td></tr>
-<tr><td><code>borderRadius: 12</code></td><td>64</td></tr>
-<tr><td><code>borderRadius: 4</code></td><td>64</td></tr>
-<tr><td><code>gap: 4</code></td><td>64</td></tr>
-<tr><td><code>gap: 5</code></td><td>64</td></tr>
-<tr><td><code>gap: 6</code></td><td>64</td></tr>
-<tr><td><code>gap: 8</code></td><td>64</td></tr>
-<tr><td><code>height: 7</code></td><td>64</td></tr>
-<tr><td><code>maxWidth: 430</code></td><td>64</td></tr>
-<tr><td><code>minHeight: 48</code></td><td>64</td></tr>
-<tr><td><code>minWidth: 0</code></td><td>64</td></tr>
-<tr><td><code>padding: 9</code></td><td>64</td></tr>
-<tr><td><code>paddingHorizontal: 11</code></td><td>64</td></tr>
-<tr><td><code>paddingHorizontal: 7</code></td><td>64</td></tr>
-<tr><td><code>paddingVertical: 6</code></td><td>64</td></tr>
-<tr><td><code>width: &#x27;100%&#x27;</code></td><td>64</td></tr>
-<tr><td><code>width: 7</code></td><td>64</td></tr>
+<tr><td><code>borderRadius: 12</code></td><td>65</td></tr>
+<tr><td><code>borderRadius: 4</code></td><td>65</td></tr>
+<tr><td><code>borderWidth: 1</code></td><td>65</td></tr>
+<tr><td><code>gap: 3</code></td><td>51</td></tr>
+<tr><td><code>gap: 5</code></td><td>65</td></tr>
+<tr><td><code>gap: 6</code></td><td>65</td></tr>
+<tr><td><code>gap: 8</code></td><td>65</td></tr>
+<tr><td><code>height: 7</code></td><td>65</td></tr>
+<tr><td><code>maxWidth: 430</code></td><td>65</td></tr>
+<tr><td><code>minHeight: 48</code></td><td>65</td></tr>
+<tr><td><code>minWidth: 0</code></td><td>65</td></tr>
+<tr><td><code>padding: 11</code></td><td>65</td></tr>
+<tr><td><code>paddingHorizontal: 11</code></td><td>65</td></tr>
+<tr><td><code>paddingHorizontal: 7</code></td><td>65</td></tr>
+<tr><td><code>width: &#x27;100%&#x27;</code></td><td>65</td></tr>
+<tr><td><code>width: 7</code></td><td>65</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-developmenthubtsx">DevelopmentHub.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/DevelopmentHub.tsx">apps/platform-lab/src/mobile/DevelopmentHub.tsx</a>; normalized SHA-256 <code>0d37b4c47999c2b7f8c69f96510d0f07c2cbc393cbb1fcd61d2c4e638a239167</code>.</p>
@@ -1001,7 +1003,8 @@
 <p>The subsequent saved-real-flight trial on unchanged <code>9ac4e56</code> verifies populated rings/legend and year drill-down at 360/390 dp, plus the existing enlarged-text fallback, with exact saved-graph and provider-session preservation. This satisfies that bounded Android presentation check; broader user/platform acceptance remains separate. Private populated screenshots are not part of the portable guide; see the extended statistics report for sanitized evidence and limits.</p>
 <h3 id="chapter-history-single-action-flight-loading--21-october-2026">Single-action flight loading — 21 October 2026</h3>
 <p>Manuel explicitly authorized implementing the simplified #22 journey. Start/Profile/Flüge share the combined login/load/save action; only provider-required authentication or material account/recovery exceptions interrupt. Session evidence and committed-library freshness remain separate. C17/C18 and the patterns chapter describe the implementation; existing artwork/colors/five-tab identity remain. The season card removes duplicated year/source/coverage detail while retaining aircraft-share rings/legend. The <a href="../../verification/2026-10-21-simple-flight-loading.md">one package report</a> records source-specific verification and remaining native/live-platform gates. This decision supersedes routine separate library-creation, review and save UI steps for the normal own-flight journey, not the underlying validation/recovery contracts.</p>
-<p><strong>22 October Start feedback — Manuel, #54:</strong> requested visible startup feedback, one monthly chart and no Start detail entry points. Implemented with local preparation wording, a shared Flüge/Flugstunden chart controlled by measure chips, and read-only latest-flight facts. This supersedes two simultaneous monthly plots and season/month/latest-flight drill-downs. Richer filtered analytics remain planned in Flüge under #9; this feedback does not approve their full implementation. Native acceptance is recorded separately in the package report.</p></section>
+<p><strong>22 October Start feedback — Manuel, #54:</strong> requested visible startup feedback, one monthly chart and no Start detail entry points. Implemented with local preparation wording, a shared Flüge/Flugstunden chart controlled by measure chips, and two read-only recent-flight boxes. This supersedes two simultaneous monthly plots and season/month/latest-flight drill-downs. Richer filtered analytics remain planned in Flüge under #9; this feedback does not approve their full implementation. Native acceptance is recorded separately in the package report.</p>
+<p><strong>22 October follow-up — Manuel, #54:</strong> explicitly retains the latest two known saved flights in separate boxes within Meine Saison, emphasizing date, aircraft, crew and recorded duration. Boxes precede the chart so recency is easier to find. Source date/known clock orders distinct flights; missing same-day clock ordering is stated, unknown duration/crew stay unknown. Boxes do not open details.</p></section>
 <section id="symbol-catalogue"><h2>Symbols, icons and state marks</h2><p>Maintained source: symbols.json. Original assets are embedded unchanged. Native View marks are schematic SVG redraws, enlarged on neutral tiles; glyph rendering depends on fonts. Browser samples do not establish native acceptance.</p>
 <h3>Main navigation</h3><p>Five persistent destinations. Selected icons use cyan/slate duotone; inactive ones use the muted duotone variant. Labels retain #00c8ff / #adbed5. The tab label and accessible selected state carry meaning too.</p><div class="entries">
 <article class="entry" id="N01"><div class="entry-head"><div class="sample" role="img" aria-label="Home / Übersicht sample"><img src="data:image/png;base64,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" alt="Selected duotone home"></div><div><p class="eyebrow">N01 · Current native UI · selected duotone</p><h4>Home / Übersicht</h4></div></div><dl>
@@ -1379,7 +1382,7 @@ Keep German labels beside important navigation/status symbols. Show saved facts 
 4. Manuel&#x27;s 18 October symbol selection adopts **Modern Duotone as the default family**, including **M2 Medical card** and the **supplied folded paper plane**, for navigation/header/dashboard/action symbols. His subsequent instruction removes the old icon designs and comparison pages. Labels, status meanings, approved branding and data notation remain. See [default family](symbols/README.md).
 5. Manuel&#x27;s **21 October “start with 1 and 2” instruction** selects the [smaller everyday interface](../2026-10-13-journey-information-map.md#smaller-everyday-interface--selected-21-october-2026): one first-use entry, useful returning-account season/flight content, quiet deferred-paper access, technical details in flight details and synthetic tools under Development. This amends the default dashboard composition and unfinished Flugbuch/settings content only; existing header/colors/symbols/five labeled tabs remain.
 6. Manuel&#x27;s **22 October implementation instruction** selects the [compact Start/data amendment](../2026-10-13-journey-information-map.md#compact-start-and-data-reminders--22-october-2026): conditional three-day reminder, integrated latest flight, visible monthly count/time comparisons, earliest-source Medical expiry reminder and compact Verein duties. Quiet startup latest-flight checking remains unavailable until a reliable lightweight source is proven; captured duty pages are explicitly partial.
-7. Manuel’s **22 October Start feedback (#54)** supersedes two simultaneous monthly plots and all season/month/latest-flight detail entry points with one chart, Flüge/Flugstunden measure chips and read-only latest-flight facts. Local preparation has visible busy feedback; details belong in the Flüge tab.
+7. Manuel’s **22 October Start feedback (#54)** supersedes two simultaneous monthly plots and all season/month/latest-flight detail entry points with one chart, Flüge/Flugstunden measure chips and two read-only recent-flight boxes. Local preparation has visible busy feedback; details belong in the Flüge tab.
 8. This handbook consolidates those decisions. Earlier prototype choices apply only where explicitly carried forward. Code values record implementation and cannot approve an unresolved visual difference.
 
 Manuel owns design decisions. Priorities, journeys and account/book behavior remain in the [project plan](../../project-plan.md), [journey map](../2026-10-13-journey-information-map.md) and feature contracts. Link those contracts rather than duplicating them here.
@@ -1632,7 +1635,7 @@ The Start summary reads committed-library freshness, independently of raw captur
 
 ## Header, overlays and navigation
 
-**22 October Start amendment, simplified after Manuel&#x27;s feedback (#54):** Start shows an explicit busy card while local saved flights are prepared. Meine Saison retains aircraft rings/legend, one monthly current/prior-year chart with Flüge/Flugstunden measure chips, and a read-only latest-flight inset. The 576 dp chart scrolls horizontally with 48 dp month columns; months and latest flights have no drill-down actions, and the season-detail button is removed. Users open the Flüge tab for details. Unknown durations and incomplete coverage remain explicit. The conditional 72-hour reminder and compact Verein card remain. At wide widths cap season and club groups in two columns. Source-expiry Medical retains its separate date states without a fitness implication. This supersedes the earlier two-chart/month-selection presentation; broader filtered statistics in Flüge remain pending under #9.
+**22 October Start amendment, simplified after Manuel&#x27;s feedback (#54):** Start shows an explicit busy card while local saved flights are prepared. Meine Saison retains aircraft rings/legend, one monthly current/prior-year chart with Flüge/Flugstunden measure chips, and two read-only recent-flight boxes before the chart. The 576 dp chart scrolls horizontally with 48 dp month columns; months and latest flights have no drill-down actions, and the season-detail button is removed. Users open the Flüge tab for details. Unknown durations and incomplete coverage remain explicit. The conditional 72-hour reminder and compact Verein card remain. At wide widths cap season and club groups in two columns. Source-expiry Medical retains its separate date states without a fitness implication. This supersedes the earlier two-chart/month-selection presentation; broader filtered statistics in Flüge remain pending under #9.
 
 Keep header/navigation outside the scrolling canvas. Header order is logo/title, Connection → Med → Profile. Truncate title before shrinking controls. Current font scale above 1.3 places controls on a second wrapping row; subtitle renders only at width at least 412 with normal text.
 
@@ -1867,45 +1870,47 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundat
 
 ## Dashboard.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](../../../apps/platform-lab/src/mobile/Dashboard.tsx); normalized SHA-256 `cc41f1aec1416d83d842145965f7b64cd656c886f3f0c250f437c8bb82660e0b`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](../../../apps/platform-lab/src/mobile/Dashboard.tsx); normalized SHA-256 `89c172eecb045f9bca20e1f7f3696c5eb783a761cdac9e4cc832635866207f67`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#1b4269` | 64 |
+| `#1b4269` | 65 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 11` | 64 |
-| `fontSize: 24` | 64 |
-| `fontWeight: &#x27;700&#x27;` | 64 |
-| `lineHeight: 16` | 64 |
-| `lineHeight: 29` | 64 |
+| `fontSize: 11` | 65 |
+| `fontSize: 15` | 65 |
+| `fontSize: 24` | 65 |
+| `fontWeight: &#x27;600&#x27;` | 65 |
+| `fontWeight: &#x27;700&#x27;` | 65 |
+| `lineHeight: 16` | 65 |
+| `lineHeight: 21` | 65 |
+| `lineHeight: 29` | 65 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 10` | 64 |
-| `borderRadius: 12` | 64 |
-| `borderRadius: 4` | 64 |
-| `gap: 4` | 64 |
-| `gap: 5` | 64 |
-| `gap: 6` | 64 |
-| `gap: 8` | 64 |
-| `height: 7` | 64 |
-| `maxWidth: 430` | 64 |
-| `minHeight: 48` | 64 |
-| `minWidth: 0` | 64 |
-| `padding: 9` | 64 |
-| `paddingHorizontal: 11` | 64 |
-| `paddingHorizontal: 7` | 64 |
-| `paddingVertical: 6` | 64 |
-| `width: &#x27;100%&#x27;` | 64 |
-| `width: 7` | 64 |
+| `borderRadius: 12` | 65 |
+| `borderRadius: 4` | 65 |
+| `borderWidth: 1` | 65 |
+| `gap: 3` | 51 |
+| `gap: 5` | 65 |
+| `gap: 6` | 65 |
+| `gap: 8` | 65 |
+| `height: 7` | 65 |
+| `maxWidth: 430` | 65 |
+| `minHeight: 48` | 65 |
+| `minWidth: 0` | 65 |
+| `padding: 11` | 65 |
+| `paddingHorizontal: 11` | 65 |
+| `paddingHorizontal: 7` | 65 |
+| `width: &#x27;100%&#x27;` | 65 |
+| `width: 7` | 65 |
 
 ## DevelopmentHub.tsx
 
@@ -2625,7 +2630,9 @@ The subsequent saved-real-flight trial on unchanged `9ac4e56` verifies populated
 
 Manuel explicitly authorized implementing the simplified #22 journey. Start/Profile/Flüge share the combined login/load/save action; only provider-required authentication or material account/recovery exceptions interrupt. Session evidence and committed-library freshness remain separate. C17/C18 and the patterns chapter describe the implementation; existing artwork/colors/five-tab identity remain. The season card removes duplicated year/source/coverage detail while retaining aircraft-share rings/legend. The [one package report](../../verification/2026-10-21-simple-flight-loading.md) records source-specific verification and remaining native/live-platform gates. This decision supersedes routine separate library-creation, review and save UI steps for the normal own-flight journey, not the underlying validation/recovery contracts.
 
-**22 October Start feedback — Manuel, #54:** requested visible startup feedback, one monthly chart and no Start detail entry points. Implemented with local preparation wording, a shared Flüge/Flugstunden chart controlled by measure chips, and read-only latest-flight facts. This supersedes two simultaneous monthly plots and season/month/latest-flight drill-downs. Richer filtered analytics remain planned in Flüge under #9; this feedback does not approve their full implementation. Native acceptance is recorded separately in the package report.
+**22 October Start feedback — Manuel, #54:** requested visible startup feedback, one monthly chart and no Start detail entry points. Implemented with local preparation wording, a shared Flüge/Flugstunden chart controlled by measure chips, and two read-only recent-flight boxes. This supersedes two simultaneous monthly plots and season/month/latest-flight drill-downs. Richer filtered analytics remain planned in Flüge under #9; this feedback does not approve their full implementation. Native acceptance is recorded separately in the package report.
+
+**22 October follow-up — Manuel, #54:** explicitly retains the latest two known saved flights in separate boxes within Meine Saison, emphasizing date, aircraft, crew and recorded duration. Boxes precede the chart so recency is easier to find. Source date/known clock orders distinct flights; missing same-day clock ordering is stated, unknown duration/crew stay unknown. Boxes do not open details.
 
 SYMBOLS, ICONS AND STATE MARKS
 Modern Duotone is the default symbol family, including M2 Medical card and the folded paper plane. Preserve current stable IDs, labels, meanings, actions, states and approved Thermik branding. Retired icon designs have been removed. Samples are schematic except unchanged source images.
@@ -3118,7 +3125,7 @@ States / limits: Recreated approved variant, not a byte-identical copy of an old
 Source: docs/assets/branding/moflight-app-icon-ai.png
 docs/assets/branding/README.md; app.json
 </textarea></section>
-<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: 06cb9c6a12da183e32be0ab714fba4f39aea0b08504dfcd9811f276b2d3af189. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
+<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: 32e91cf359d87cb6daed5bfad17b1fda6029e69a63b9ae04416e49f173f39257. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
 </main><script>
 'use strict';
 const brief = document.querySelector('#brief');

@@ -34,14 +34,24 @@ test('leap day comparison clamps prior cutoff and drilldown selects exactly the 
  assert.equal(requestedOwnFlight(rows,{year:2023,dateRange:bucket,flightId:'march'}),null);
  assert.equal(requestedOwnFlight(rows,{year:2023,dateRange:bucket,flightId:'prior'})?.flightId,'prior');
 });
-test('latest uses parsed date/clock and exposes all ambiguous day candidates without fabricated order',()=>{
+test('latest two use distinct saved identities, recorded dates and known clocks across flight days',()=>{
  const first=flight('a','2026-10-21',60,'12:00'),later=flight('b','2026-10-21',60,'13:00');
- assert.deepEqual(latestSavedFlights([first,later,later]).map(f=>f.flightId),['b']);
- const tie=flight('c','2026-10-21',60,'13:00');assert.deepEqual(latestSavedFlights([first,later,tie]).map(f=>f.flightId),['b','c']);
- const unknown=flight('d','2026-10-21',60,null);assert.equal(latestSavedFlights([first,later,unknown]).length,3);
- assert.deepEqual(latestSavedFlights([later,flight('older','2026-10-20',60,'23:59')]).map(f=>f.flightId),['b']);
- const invalid=flight('invalid','2026-10-22');invalid.facts.assessment.date={...invalid.facts.assessment.date,state:'invalid',value:null};assert.deepEqual(latestSavedFlights([later,invalid]).map(f=>f.flightId),['b']);
+ assert.deepEqual(latestSavedFlights([first,later,later]).map(f=>f.flightId),['b','a']);
+ const tie=flight('c','2026-10-21',60,'13:00');assert.deepEqual(latestSavedFlights([first,tie,later]).map(f=>f.flightId),['b','c']);
+ const older=flight('older','2026-10-20',60,'23:59');
+ assert.deepEqual(latestSavedFlights([older,later]).map(f=>f.flightId),['b','older']);
+ const invalid=flight('invalid','2026-10-22');invalid.facts.assessment.date={...invalid.facts.assessment.date,state:'invalid',value:null};
+ assert.deepEqual(latestSavedFlights([later,invalid]).map(f=>f.flightId),['b']);
+ assert.deepEqual(latestSavedFlights([]),[]);
 });
+test('unknown clocks remain unknown and same-day ambiguous selection is stable without inventing chronology',()=>{
+ const a=flight('a','2026-10-21',null,'12:00'),b=flight('b','2026-10-21',0,'13:00'),c=flight('c','2026-10-21',60,null);
+ assert.deepEqual(latestSavedFlights([c,b,a,a]).map(f=>f.flightId),['a','b']);
+ assert.deepEqual(latestSavedFlights([a,c,b]).map(f=>f.flightId),['a','b']);
+ assert.equal(latestSavedFlights([c])[0]!.facts.assessment.clocks.start.value,null);
+ assert.equal(latestSavedFlights([a,b])[1]!.facts.assessment.durations.flight.minutes,null);
+});
+
 test('crew labels abbreviate source names without filling blank or missing roles',()=>{
  assert.equal(abbreviatedCrew({state:'value',label:'PIC',raw:'Ada Marie Example'}),'Ada E.');
  assert.equal(abbreviatedCrew({state:'value',label:'PIC',raw:'Example, Ada Marie'}),'Ada E.');

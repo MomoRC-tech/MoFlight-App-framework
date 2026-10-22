@@ -194,45 +194,47 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundat
 
 ## Dashboard.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](../../../apps/platform-lab/src/mobile/Dashboard.tsx); normalized SHA-256 `cc41f1aec1416d83d842145965f7b64cd656c886f3f0c250f437c8bb82660e0b`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](../../../apps/platform-lab/src/mobile/Dashboard.tsx); normalized SHA-256 `89c172eecb045f9bca20e1f7f3696c5eb783a761cdac9e4cc832635866207f67`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#1b4269` | 64 |
+| `#1b4269` | 65 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 11` | 64 |
-| `fontSize: 24` | 64 |
-| `fontWeight: '700'` | 64 |
-| `lineHeight: 16` | 64 |
-| `lineHeight: 29` | 64 |
+| `fontSize: 11` | 65 |
+| `fontSize: 15` | 65 |
+| `fontSize: 24` | 65 |
+| `fontWeight: '600'` | 65 |
+| `fontWeight: '700'` | 65 |
+| `lineHeight: 16` | 65 |
+| `lineHeight: 21` | 65 |
+| `lineHeight: 29` | 65 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 10` | 64 |
-| `borderRadius: 12` | 64 |
-| `borderRadius: 4` | 64 |
-| `gap: 4` | 64 |
-| `gap: 5` | 64 |
-| `gap: 6` | 64 |
-| `gap: 8` | 64 |
-| `height: 7` | 64 |
-| `maxWidth: 430` | 64 |
-| `minHeight: 48` | 64 |
-| `minWidth: 0` | 64 |
-| `padding: 9` | 64 |
-| `paddingHorizontal: 11` | 64 |
-| `paddingHorizontal: 7` | 64 |
-| `paddingVertical: 6` | 64 |
-| `width: '100%'` | 64 |
-| `width: 7` | 64 |
+| `borderRadius: 12` | 65 |
+| `borderRadius: 4` | 65 |
+| `borderWidth: 1` | 65 |
+| `gap: 3` | 51 |
+| `gap: 5` | 65 |
+| `gap: 6` | 65 |
+| `gap: 8` | 65 |
+| `height: 7` | 65 |
+| `maxWidth: 430` | 65 |
+| `minHeight: 48` | 65 |
+| `minWidth: 0` | 65 |
+| `padding: 11` | 65 |
+| `paddingHorizontal: 11` | 65 |
+| `paddingHorizontal: 7` | 65 |
+| `width: '100%'` | 65 |
+| `width: 7` | 65 |
 
 ## DevelopmentHub.tsx
 

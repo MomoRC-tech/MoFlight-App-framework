@@ -102,7 +102,7 @@ test('retrieval or Medical changes and temporary unavailability do not reprocess
 test('first-use/loading/failure dashboard avoids empty promotions; returning dashboard leads with saved season and flights',()=>{
   for(const phase of ['failed','missing']) assert.equal(render([],phase).nodes.length,0);
   const f=render(ownFlightFixture().flights);
-  assert.deepEqual(f.nodes.filter(n=>n.type==='Section').map(n=>n.props.title),['Meine Saison','Letzter gespeicherter Flug']);
+  assert.deepEqual(f.nodes.filter(n=>n.type==='Section').map(n=>n.props.title),['Meine Saison','Deine letzten zwei Flüge']);
   const season=f.nodes.findIndex(n=>n.type==='SeasonRing');
   const paper=f.nodes.findIndex(n=>n.props.accessibilityLabel==='Informationen zum Papierflugbuch ansehen');
   assert.ok(season>=0&&paper>season);assert.ok(!f.text.includes('Kein gespeicherter Track'));
@@ -125,4 +125,14 @@ test('cancelled first login leaves no empty dashboard while a returning empty ac
     assert.match(f.text,/Gespeicherte Flugdaten werden vorbereitet/);
     assert.ok(!f.nodes.some(n=>n.type==='SeasonRing'||n.type==='SeasonMonthlyCharts'));
   }
+});
+
+test('recent-flight boxes show date, aircraft, crew and reported duration without navigation',()=>{
+ const flights=structuredClone(ownFlightFixture().flights);
+ flights[0]!.facts.assessment.durations.flight={state:'known',minutes:95,evidence:[]};
+ const f=render(flights);
+ assert.match(f.text,/Deine letzten zwei Flüge/);assert.match(f.text,/1:35 h/);
+ assert.match(f.text,/Pilot: /);assert.match(f.text,/Begleitung: /);
+ assert.equal(f.nodes.filter(n=>n.props.onPress&&n.type!=='Pressable').length,0);
+ assert.ok(!f.nodes.some(n=>n.props.accessibilityLabel?.startsWith('Gespeicherten Flug ')));
 });

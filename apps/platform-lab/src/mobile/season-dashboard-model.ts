@@ -36,16 +36,20 @@ export function monthlySeasonForCoverage(flights: readonly RealFlightListItem[],
       knownMinutes:future || (!known && (rows.length > 0 || !covered)) ? null : minutes, unknownDurationCount:rows.length-known};
   }));
 }
-/** Source date + parsed clock only; an absent clock prevents ordering that day. */
+/** Two distinct saved flights by recorded date. Unknown clocks never imply an order. */
 export function latestSavedFlights(flights: readonly RealFlightListItem[]): RealFlightListItem[] {
   const seen = new Set<string>();
-  const unique = flights.filter(f => { if(seen.has(f.flightId)) return false; seen.add(f.flightId); return true; });
-  const dated = unique.filter(f => f.facts.assessment.date.state === 'parsed').sort((a,b) => b.facts.assessment.date.value!.localeCompare(a.facts.assessment.date.value!));
-  const day = dated[0]?.facts.assessment.date.value;
-  const rows = dated.filter(f => f.facts.assessment.date.value === day);
-  if (rows.some(f => f.facts.assessment.clocks.start.state !== 'parsed')) return rows;
-  const latest = rows.map(f => f.facts.assessment.clocks.start.value!).sort().at(-1);
-  return rows.filter(f => f.facts.assessment.clocks.start.value === latest);
+  const dated = flights.filter(f => {
+    if (seen.has(f.flightId) || f.facts.assessment.date.state !== 'parsed') return false;
+    seen.add(f.flightId); return true;
+  });
+  const uncertainDays = new Set(dated.filter(f=>f.facts.assessment.clocks.start.state!=='parsed').map(f=>f.facts.assessment.date.value));
+  return dated.sort((a,b)=>{
+    const day=b.facts.assessment.date.value!.localeCompare(a.facts.assessment.date.value!);
+    if(day) return day;
+    const clock=uncertainDays.has(a.facts.assessment.date.value)?0:b.facts.assessment.clocks.start.value!.localeCompare(a.facts.assessment.clocks.start.value!);
+    return clock || a.flightId.localeCompare(b.flightId);
+  }).slice(0,2);
 }
 /** Abbreviate display text only; no identity or role is inferred. */
 export function abbreviatedCrew(field: RawField): string {

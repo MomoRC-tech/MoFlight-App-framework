@@ -32,7 +32,7 @@ Keep German labels beside important navigation/status symbols. Show saved facts 
 4. Manuel's 18 October symbol selection adopts **Modern Duotone as the default family**, including **M2 Medical card** and the **supplied folded paper plane**, for navigation/header/dashboard/action symbols. His subsequent instruction removes the old icon designs and comparison pages. Labels, status meanings, approved branding and data notation remain. See [default family](symbols/README.md).
 5. Manuel's **21 October “start with 1 and 2” instruction** selects the [smaller everyday interface](../2026-10-13-journey-information-map.md#smaller-everyday-interface--selected-21-october-2026): one first-use entry, useful returning-account season/flight content, quiet deferred-paper access, technical details in flight details and synthetic tools under Development. This amends the default dashboard composition and unfinished Flugbuch/settings content only; existing header/colors/symbols/five labeled tabs remain.
 6. Manuel's **22 October implementation instruction** selects the [compact Start/data amendment](../2026-10-13-journey-information-map.md#compact-start-and-data-reminders--22-october-2026): conditional three-day reminder, integrated latest flight, visible monthly count/time comparisons, earliest-source Medical expiry reminder and compact Verein duties. Quiet startup latest-flight checking remains unavailable until a reliable lightweight source is proven; captured duty pages are explicitly partial.
-7. Manuel’s **22 October Start feedback (#54)** supersedes two simultaneous monthly plots and all season/month/latest-flight detail entry points with one chart, Flüge/Flugstunden measure chips and read-only latest-flight facts. Local preparation has visible busy feedback; details belong in the Flüge tab.
+7. Manuel’s **22 October Start feedback (#54)** supersedes two simultaneous monthly plots and all season/month/latest-flight detail entry points with one chart, Flüge/Flugstunden measure chips and two read-only recent-flight boxes. Local preparation has visible busy feedback; details belong in the Flüge tab.
 8. This handbook consolidates those decisions. Earlier prototype choices apply only where explicitly carried forward. Code values record implementation and cannot approve an unresolved visual difference.
 
 Manuel owns design decisions. Priorities, journeys and account/book behavior remain in the [project plan](../../project-plan.md), [journey map](../2026-10-13-journey-information-map.md) and feature contracts. Link those contracts rather than duplicating them here.
@@ -285,7 +285,7 @@ The Start summary reads committed-library freshness, independently of raw captur
 
 ## Header, overlays and navigation
 
-**22 October Start amendment, simplified after Manuel's feedback (#54):** Start shows an explicit busy card while local saved flights are prepared. Meine Saison retains aircraft rings/legend, one monthly current/prior-year chart with Flüge/Flugstunden measure chips, and a read-only latest-flight inset. The 576 dp chart scrolls horizontally with 48 dp month columns; months and latest flights have no drill-down actions, and the season-detail button is removed. Users open the Flüge tab for details. Unknown durations and incomplete coverage remain explicit. The conditional 72-hour reminder and compact Verein card remain. At wide widths cap season and club groups in two columns. Source-expiry Medical retains its separate date states without a fitness implication. This supersedes the earlier two-chart/month-selection presentation; broader filtered statistics in Flüge remain pending under #9.
+**22 October Start amendment, simplified after Manuel's feedback (#54):** Start shows an explicit busy card while local saved flights are prepared. Meine Saison retains aircraft rings/legend, one monthly current/prior-year chart with Flüge/Flugstunden measure chips, and two read-only recent-flight boxes before the chart. The 576 dp chart scrolls horizontally with 48 dp month columns; months and latest flights have no drill-down actions, and the season-detail button is removed. Users open the Flüge tab for details. Unknown durations and incomplete coverage remain explicit. The conditional 72-hour reminder and compact Verein card remain. At wide widths cap season and club groups in two columns. Source-expiry Medical retains its separate date states without a fitness implication. This supersedes the earlier two-chart/month-selection presentation; broader filtered statistics in Flüge remain pending under #9.
 
 Keep header/navigation outside the scrolling canvas. Header order is logo/title, Connection → Med → Profile. Truncate title before shrinking controls. Current font scale above 1.3 places controls on a second wrapping row; subtitle renders only at width at least 412 with normal text.
 
@@ -520,45 +520,47 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundat
 
 ## Dashboard.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](../../../apps/platform-lab/src/mobile/Dashboard.tsx); normalized SHA-256 `cc41f1aec1416d83d842145965f7b64cd656c886f3f0c250f437c8bb82660e0b`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](../../../apps/platform-lab/src/mobile/Dashboard.tsx); normalized SHA-256 `89c172eecb045f9bca20e1f7f3696c5eb783a761cdac9e4cc832635866207f67`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#1b4269` | 64 |
+| `#1b4269` | 65 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 11` | 64 |
-| `fontSize: 24` | 64 |
-| `fontWeight: '700'` | 64 |
-| `lineHeight: 16` | 64 |
-| `lineHeight: 29` | 64 |
+| `fontSize: 11` | 65 |
+| `fontSize: 15` | 65 |
+| `fontSize: 24` | 65 |
+| `fontWeight: '600'` | 65 |
+| `fontWeight: '700'` | 65 |
+| `lineHeight: 16` | 65 |
+| `lineHeight: 21` | 65 |
+| `lineHeight: 29` | 65 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 10` | 64 |
-| `borderRadius: 12` | 64 |
-| `borderRadius: 4` | 64 |
-| `gap: 4` | 64 |
-| `gap: 5` | 64 |
-| `gap: 6` | 64 |
-| `gap: 8` | 64 |
-| `height: 7` | 64 |
-| `maxWidth: 430` | 64 |
-| `minHeight: 48` | 64 |
-| `minWidth: 0` | 64 |
-| `padding: 9` | 64 |
-| `paddingHorizontal: 11` | 64 |
-| `paddingHorizontal: 7` | 64 |
-| `paddingVertical: 6` | 64 |
-| `width: '100%'` | 64 |
-| `width: 7` | 64 |
+| `borderRadius: 12` | 65 |
+| `borderRadius: 4` | 65 |
+| `borderWidth: 1` | 65 |
+| `gap: 3` | 51 |
+| `gap: 5` | 65 |
+| `gap: 6` | 65 |
+| `gap: 8` | 65 |
+| `height: 7` | 65 |
+| `maxWidth: 430` | 65 |
+| `minHeight: 48` | 65 |
+| `minWidth: 0` | 65 |
+| `padding: 11` | 65 |
+| `paddingHorizontal: 11` | 65 |
+| `paddingHorizontal: 7` | 65 |
+| `width: '100%'` | 65 |
+| `width: 7` | 65 |
 
 ## DevelopmentHub.tsx
 
@@ -1278,7 +1280,9 @@ The subsequent saved-real-flight trial on unchanged `9ac4e56` verifies populated
 
 Manuel explicitly authorized implementing the simplified #22 journey. Start/Profile/Flüge share the combined login/load/save action; only provider-required authentication or material account/recovery exceptions interrupt. Session evidence and committed-library freshness remain separate. C17/C18 and the patterns chapter describe the implementation; existing artwork/colors/five-tab identity remain. The season card removes duplicated year/source/coverage detail while retaining aircraft-share rings/legend. The [one package report](../../verification/2026-10-21-simple-flight-loading.md) records source-specific verification and remaining native/live-platform gates. This decision supersedes routine separate library-creation, review and save UI steps for the normal own-flight journey, not the underlying validation/recovery contracts.
 
-**22 October Start feedback — Manuel, #54:** requested visible startup feedback, one monthly chart and no Start detail entry points. Implemented with local preparation wording, a shared Flüge/Flugstunden chart controlled by measure chips, and read-only latest-flight facts. This supersedes two simultaneous monthly plots and season/month/latest-flight drill-downs. Richer filtered analytics remain planned in Flüge under #9; this feedback does not approve their full implementation. Native acceptance is recorded separately in the package report.
+**22 October Start feedback — Manuel, #54:** requested visible startup feedback, one monthly chart and no Start detail entry points. Implemented with local preparation wording, a shared Flüge/Flugstunden chart controlled by measure chips, and two read-only recent-flight boxes. This supersedes two simultaneous monthly plots and season/month/latest-flight drill-downs. Richer filtered analytics remain planned in Flüge under #9; this feedback does not approve their full implementation. Native acceptance is recorded separately in the package report.
+
+**22 October follow-up — Manuel, #54:** explicitly retains the latest two known saved flights in separate boxes within Meine Saison, emphasizing date, aircraft, crew and recorded duration. Boxes precede the chart so recency is easier to find. Source date/known clock orders distinct flights; missing same-day clock ordering is stated, unknown duration/crew stay unknown. Boxes do not open details.
 
 SYMBOLS, ICONS AND STATE MARKS
 Modern Duotone is the default symbol family, including M2 Medical card and the folded paper plane. Preserve current stable IDs, labels, meanings, actions, states and approved Thermik branding. Retired icon designs have been removed. Samples are schematic except unchanged source images.
