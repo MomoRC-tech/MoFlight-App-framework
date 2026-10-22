@@ -310,12 +310,12 @@ export function useAccessController(product = false, localOwner?: string, develo
     if (active.phase === 'loading') stop('Provider context unavailable. Earlier captures and recovery journal retained.', active.nonce);
   }
   function checkConnection(action: 'check' | 'retrieve' | 'capture' | 'recover' | 'restored' | 'disconnect' | 'legacy' = 'check') {
-    if (owner.current !== activeOwner.current || clearingStore.current || bindingBusy.current || !foreground.current || loginBusy || loginStorageBusy.current || loginAttempt.current || disconnectMode.current !== (action === 'disconnect') || contextRequest.current || !viewReady || saving || busy && action !== 'capture' && action !== 'restored') return;
+    if (owner.current !== activeOwner.current || clearingStore.current || bindingBusy.current || !foreground.current || loginBusy || loginStorageBusy.current || loginAttempt.current || disconnectMode.current !== (action === 'disconnect') || contextRequest.current || !viewReady || saving || busy && action !== 'capture' && action !== 'restored') return false;
     // An already observed, loaded profile needs a real new native request.
     // Android may not produce fresh document callbacks for same-URL JS assign.
     const reloadObservedProfile=product&&browserActive&&loaded&&currentUrl.current===PROFILE_URL&&session.current.state.phase==='observed';
     const nonce = Crypto.randomUUID();
-    if (!session.current.start(nonce)) return;
+    if (!session.current.start(nonce)) return false;
     recordProviderEvent('provider-check');
     contextTiming.current?.(false);contextTiming.current=startFlightSpan('session-verification');
     setLoginNotice('none');
@@ -324,6 +324,7 @@ export function useAccessController(product = false, localOwner?: string, develo
     contextTimer.current = setTimeout(() => contextFailed(false, 'timeout'), 25_000);
     navigate(PROFILE_URL);
     if(reloadObservedProfile&&pendingNavigation.current?.url===PROFILE_URL)pendingNavigation.current.nativeReload=true;
+    return true;
   }
   function connect() {
     if (owner.current !== activeOwner.current || clearingStore.current || bindingBusy.current || !foreground.current || disconnectMode.current || retrieval.current.state.phase !== 'idle' || loginBusy || loginStorageBusy.current || loginAttempt.current || busy || contextRequest.current || saving) return;

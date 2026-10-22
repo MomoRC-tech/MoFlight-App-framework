@@ -40,7 +40,7 @@ function fixture({startUpdate=false,root=false,readOnly=false,deferReservation=f
     resumeGuidedFlightConnection:()=>{calls.push('resume');if(!quietResume){c.connection={phase:'unknown',confirmed:false};c.visible=true;dirty=true;}return true;},
     endGuidedFlightConnection:()=>{},connect:()=>calls.push('login'),
     retrieveMedical:async()=>{calls.push('medical');if(medicalFailure)throw new Error('Synthetic Medical failure');return {rows:[{}]};},
-    checkConnection:()=>{calls.push('retrieve');c.busy=true;dirty=true;},
+    checkConnection:(action?:string)=>{if(action==='check'){calls.push('verify-job');c.connection={phase:'checking',confirmed:false};}else{calls.push('retrieve');c.busy=true;}dirty=true;return true;},
     dismissLogin:()=>{c.visible=false;c.busy=false;dirty=true;},backWithinProvider:()=>false,cancelRetrieval:()=>{c.busy=false;dirty=true;},
   };
   class Service {
@@ -102,7 +102,7 @@ test('opening options does no retrieval; one explicit action verifies, loads, sa
     f.complete();await f.flush();assert.deepEqual(f.calls,['session','retrieve','save','medical']);
     assert.equal(f.closed.length,0);assert.match(f.progressText(),/3 Flüge auf diesem Gerät gespeichert/);assert.match(f.progressText(),/Medical-Angaben geladen/);
     assert.equal(f.nodes().find(n=>n.type==='ProviderConnection')!.props.open,true);
-    assert.ok(f.nodes().some(n=>n.type==='ScrollView'&&n.props.importantForAccessibility==='no-hide-descendants'));
+    assert.ok(f.nodes().some(n=>n.type==='ScrollView'&&n.props.importantForAccessibility==='no-hide-descendants'&&n.props.style?.display==='none'));
     f.press('Fertig');
     assert.equal(f.closed.length,1);assert.equal(f.closed[0].added,2);assert.equal(f.closed[0].from,'2025-01-01');assert.equal(f.closed[0].dutyStatus,'partial');assert.equal(f.journal.snapshot().at(-1)!.outcome,'success');
   }finally{f.dispose();}
@@ -308,5 +308,26 @@ test('closing and reopening connection retains the controller and creates no hid
     f.setOpen(true);await f.flush();const reopened=f.nodes().find(n=>n.type==='ProviderConnection')!.props.controller;
     assert.equal(reopened.retrieval,first.retrieval);assert.deepEqual(f.calls,['session','session']);
     assert.equal(reopened.visible,true);assert.equal(f.calls.includes('save'),false);
+  }finally{f.dispose();}
+});
+
+
+test('Medical-only retry verifies the account again and never repeats a confirmed flight save',async()=>{
+  const f=fixture({startUpdate:true,medicalFailure:true});try{
+    f.render();await f.flush();f.complete();await f.flush();
+    f.press('Nur Medical erneut laden');await f.flush();assert.deepEqual(f.calls,['session','retrieve','save','medical','verify-job']);
+    f.verify();await f.flush();assert.deepEqual(f.calls,['session','retrieve','save','medical','verify-job','medical']);
+    assert.match(f.progressText(),/3 Flüge auf diesem Gerät gespeichert/);assert.match(f.progressText(),/Erneuter Abruf nicht abgeschlossen/);
+    assert.equal(f.calls.filter(x=>x==='save').length,1);assert.equal(f.journal.snapshot().at(-1)!.code,'medical-failed');
+  }finally{f.dispose();}
+});
+
+
+test('foreign-account proof blocks an independent retry while preserving the confirmed flight result',async()=>{
+  const f=fixture({startUpdate:true,medicalFailure:true});try{
+    f.render();await f.flush();f.complete();await f.flush();f.press('Nur Medical erneut laden');await f.flush();
+    f.c.connection={phase:'mismatch',confirmed:false};f.render();await f.flush();
+    assert.deepEqual(f.calls,['session','retrieve','save','medical','verify-job']);
+    assert.match(f.progressText(),/3 Flüge auf diesem Gerät gespeichert/);assert.equal(f.closed.length,0);
   }finally{f.dispose();}
 });

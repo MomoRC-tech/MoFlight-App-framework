@@ -154,6 +154,7 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,open=true,requestI
   const [,wakeSource]=useState(0);
   const [flightSaved,setFlightSaved]=useState<number|null>(null),[completed,setCompleted]=useState<FlightLoadResult|null>(null);
   const interruption=useRef<'background'|'cancelled'|'timeout'|null>(null);
+  const jobVerification=useRef<{previous:typeof c.connection;resolve:()=>void;reject:(error:Error)=>void}|null>(null);
   const initialUpdate = useRef(false), automatic = useRef(false);
   const panelActive=useRef(open);panelActive.current=open;
   const [entryReady,setEntryReady]=useState(false);
@@ -195,6 +196,7 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,open=true,requestI
     }),
   }),[lease,scope]);
   function abandonSource(reason:string) {
+    const verification=jobVerification.current;jobVerification.current=null;verification?.reject(new Error('Verification cancelled.'));
     diagnosis.current?.finish('cancelled','cancelled');
     controller.current.endGuidedFlightConnection();
     const pending=waiting.current,current=controller.current,state=current.retrieval.current.state;
@@ -270,6 +272,42 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,open=true,requestI
       from:next.source.requestedWindow.from,to:next.source.requestedWindow.to,
       verifiedConnection:foreground.current&&verified.confirmed?{ownerId:lease.ownerId,state:verified}:undefined,medicalStatus:completed.otherData.medical,dutyStatus:completed.otherData.duties});}
   }
+  function retryOtherJob(job:'medical'|'duties') {
+    if(lock.current||!foreground.current||!panelActive.current||!c.viewReady||c.recovery)return;
+    setStep('Anmeldung wird vor dem erneuten Abruf geprüft …');
+    void run(async()=>{
+      try {
+        await new Promise<void>((resolve,reject)=>{
+          jobVerification.current={previous:controller.current.connection,resolve,reject};
+          if(!controller.current.checkConnection('check')){jobVerification.current=null;reject(new Error('Verification unavailable.'));}
+        });
+        const current=controller.current;
+        if(!foreground.current||!current.connection.confirmed)throw new Error('Fresh account proof required.');
+        setLoadStage('medical');setStep(job==='medical'?'Medical wird erneut geladen …':'Dienste werden erneut geladen …');
+        if(job==='medical'){
+          const capture=await timeFlightStage('medical',()=>current.retrieveMedical());
+          setCompleted(previous=>previous?{...previous,medicalStatus:capture.rows.length?'updated':'empty'}:previous);
+        }else{
+          const account=current.connection.observed?.accountNumber;
+          if(!account)throw new Error('Verified duty account unavailable.');
+          await timeFlightStage('duties',()=>refreshDutyRoster(lease.ownerId,account,{active:()=>alive.current&&foreground.current&&panelActive.current,readPage:source=>controller.current.retrieveDutyPage(source)}));
+          setCompleted(previous=>previous?{...previous,dutyStatus:'partial'}:previous);
+        }
+        setMessage('');
+      }catch{
+        if(!alive.current)return;
+        setCompleted(previous=>previous?{...previous,...(job==='medical'?{medicalStatus:'failed' as const}:{dutyStatus:'failed' as const})}:previous);
+        diagnosis.current?.finish('partial',job==='medical'?'medical-failed':'duties-failed');
+        setMessage('Erneuter Abruf nicht abgeschlossen. Gespeicherte Flüge und frühere Angaben bleiben erhalten.');
+      }
+    },'update-flights');
+  }
+  useEffect(()=>{
+    const pending=jobVerification.current;
+    if(!pending||c.connection===pending.previous||c.connection.phase==='checking')return;
+    jobVerification.current=null;
+    if(c.connection.confirmed)pending.resolve();else pending.reject(new Error('Account proof unavailable.'));
+  },[c.connection]);
   function loadFlights() {
     if(lock.current)return;
     if(!foreground.current)return;
@@ -308,7 +346,7 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,open=true,requestI
       }else if(waiting.current?.paused){setLoginPaused(false);setStep('Anmeldung wird nach der Rückkehr geprüft …');}
     });
     return()=>{
-      alive.current=false;const pending=waiting.current;if(pending)pending.suppressReview=true;service.dispose();
+      alive.current=false;const verification=jobVerification.current;jobVerification.current=null;verification?.reject(new Error('Owner closed.'));const pending=waiting.current;if(pending)pending.suppressReview=true;service.dispose();
       const current=controller.current,state=current.retrieval.current.state;
       if(waiting.current&& !shouldDeferCoreFlightSourceRejection(state.phase,current.saving,current.restoring.current))finishSource(new Error('Library closed.'));
       subscription.remove();
@@ -458,7 +496,10 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,open=true,requestI
     {busy&&!loginPaused&&loadStage!=='sign-in'&&<ActivityIndicator color={colors.cyan} accessibilityLabel={step}/>}
     {completed?<>
       <Label muted>{completed.added} neu · {completed.changed} geändert · {completed.pending} ungeklärt</Label>
-      <Action onPress={()=>close(completed)}>{partial?'Zur Übersicht':'Fertig'}</Action>
+      {!!message&&<Label muted>{message}</Label>}
+      {['failed','skipped'].includes(completed.medicalStatus??'')&&<Action secondary disabled={busy||c.recovery} onPress={()=>retryOtherJob('medical')}>Nur Medical erneut laden</Action>}
+      {['failed','skipped'].includes(completed.dutyStatus??'')&&<Action secondary disabled={busy||c.recovery} onPress={()=>retryOtherJob('duties')}>Nur Dienste erneut laden</Action>}
+      <Action disabled={busy} onPress={()=>close(completed)}>{partial?'Zur Übersicht':'Fertig'}</Action>
     </>:failed?<>
       <Action disabled={busy||restoreReadOnly||c.recovery||recovery.status==='not-committed'||recovery.status==='recovery-required'} onPress={loadFlights}>Erneut versuchen</Action>
       {(restoreReadOnly||c.recovery||c.connection.phase==='mismatch'||recovery.status==='not-committed'||recovery.status==='recovery-required')&&<Action secondary disabled={busy} onPress={()=>{automatic.current=false;setProviderOpen(false);}}>Verbindung & Wiederherstellung prüfen</Action>}
@@ -468,7 +509,7 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,open=true,requestI
     </>}
   </Card>:undefined;
   return <SafeAreaView style={{flex:1,backgroundColor:colors.background}}>
-    <ScrollView accessibilityElementsHidden={providerOpen} importantForAccessibility={providerOpen?'no-hide-descendants':'auto'} contentContainerStyle={{padding:12}}><View style={{width:'100%',maxWidth:520,alignSelf:'center',gap:10}}>
+    <ScrollView style={{display:!open||providerOpen?'none':'flex'}} accessibilityElementsHidden={providerOpen} importantForAccessibility={providerOpen?'no-hide-descendants':'auto'} contentContainerStyle={{padding:12}}><View style={{width:'100%',maxWidth:520,alignSelf:'center',gap:10}}>
       <Section title="Deine Flüge" icon="flight-paper-plane"/>
       <Action secondary disabled={busy||c.busy} onPress={()=>close(completed??undefined)}>Zur App zurück</Action>
       <Card><Label>{flights.length} gespeicherte eigene Flüge</Label><Label muted>{freshness.label}</Label>
@@ -546,7 +587,7 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,open=true,requestI
     <ProviderConnection developmentRecoveryCheckpoints={developmentRecoveryCheckpoints} controller={c} open={open&&providerOpen} development={intent==='development'} guided={automatic.current||connectionOnly} title={connectionOnly?'Vereinsflieger':undefined} progress={progress??connectionProgress} closeDisabled={automatic.current&&busy&&(loadStage==='save'||c.saving||c.restoring.current||c.informationSaving)} purpose="own-flight-library" close={()=>{
       if(automatic.current){
         if(waiting.current){interruption.current='cancelled';abandonSource('Source closed.');c.dismissLogin();return;}
-        if(busy){if(c.informationBusy)c.stopInformation();return;}
+        if(busy){if(jobVerification.current){const pending=jobVerification.current;jobVerification.current=null;pending.reject(new Error('Verification cancelled.'));c.dismissLogin();}else if(c.informationBusy)c.stopInformation();return;}
         close(completed??undefined);return;
       }
       c.endGuidedFlightConnection();setProviderOpen(false);if(waiting.current)abandonSource('Source closed.');if(intent==='connect'||intent==='development')close();

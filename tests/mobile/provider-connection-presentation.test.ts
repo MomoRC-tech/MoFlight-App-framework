@@ -121,7 +121,8 @@ test('development recovery controls require the explicit scoped flag and remain 
     const marker = f.nodes().find(node => node.props.testID === 'development-provider-checkpoint')!;
     assert.equal(marker.props.accessibilityLabel, 'Testpause: Passendes Konto geprüft. Noch kein Wiederherstellungsbefehl gesendet.');
     const markerParent = f.nodes().find(node => node.children.includes(marker))!;
-    assert.ok(root.children.includes(markerParent), 'Marker is a root-level sibling of browser/body branches');
+    const chrome=f.nodes().find(node=>node.children.includes(markerParent))!;
+    assert.ok(root.children.includes(chrome), 'Recovery marker stays in the retained chrome beside, never inside, the browser');
     assert.equal(f.nodes().filter(node => node === f.browser).length, 1);
     assert.equal(journal().props.disabled, true); assert.equal(recovery().props.disabled, true);
     markerParent.props.onLayout({nativeEvent:{layout:{height:132}}}); f.render();

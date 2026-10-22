@@ -48,7 +48,7 @@ export default function MobileApp() {
   const [flightReload,setFlightReload] = useState(0);
   const [providerStatus,setProviderStatus] = useState<ProviderStatus>(unknownProviderStatus);
   return <SafeAreaProvider><View style={{flex:1}}>
-    <View style={{flex:1}} accessibilityElementsHidden={!!entry?.open} importantForAccessibility={entry?.open?'no-hide-descendants':'auto'}><Shell coreFlightsOpen={!!entry?.open} flightReload={flightReload} lastLoad={lastLoad} providerStatus={providerStatus} onCoreFlights={(intent='connect',development=false)=>{setLastLoad(null);setEntry(previous=>({intent,development,open:true,requestId:(previous?.requestId??0)+1}));}}/></View>
+    <View style={{flex:1,display:entry?.open?'none':'flex'}} accessibilityElementsHidden={!!entry?.open} importantForAccessibility={entry?.open?'no-hide-descendants':'auto'}><Shell coreFlightsOpen={!!entry?.open} flightReload={flightReload} lastLoad={lastLoad} providerStatus={providerStatus} onCoreFlights={(intent='connect',development=false)=>{setLastLoad(null);setEntry(previous=>({intent,development,open:true,requestId:(previous?.requestId??0)+1}));}}/></View>
     {entry&&<View pointerEvents={entry.open?'auto':'none'} accessibilityElementsHidden={!entry.open} importantForAccessibility={entry.open?'auto':'no-hide-descendants'} style={[StyleSheet.absoluteFill,{opacity:entry.open?1:0,zIndex:entry.open?20:-1}]}>
       <CoreFlightFoundation open={entry.open} requestId={entry.requestId} intent={entry.intent} onStatus={setProviderStatus} developmentRecoveryCheckpoints={entry.development} close={result=>{setEntry(previous=>previous?{...previous,open:false}:null);if(result)setLastLoad(result);setFlightReload(value=>value+1);}}/>
     </View>}

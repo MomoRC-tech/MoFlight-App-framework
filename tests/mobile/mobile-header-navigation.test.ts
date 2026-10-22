@@ -18,13 +18,13 @@ const source = ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/
 
 // Real shell state and handlers, with native leaves and the independent data /
 // provider services replaced. These checks make no native-layout claim.
-function fixture(width = 390, fontScale = 1) {
+function fixture(width = 390, fontScale = 1, root = false) {
   let index = 0;
   const hooks: any[] = [], effects: (() => void)[] = [];
   const react = {
     createElement: (type: unknown, props: Element['props'], ...children: unknown[]): Element => ({ type, props: props ?? {}, children: children.flat(Infinity) }),
     useRef(initial: unknown) { const i = index++; if (!(i in hooks)) hooks[i] = { current: initial }; return hooks[i]; },
-    useState(initial: unknown) { const i = index++; if (!(i in hooks)) hooks[i] = initial; return [hooks[i], (value: unknown) => { hooks[i] = value; }]; },
+    useState(initial: unknown) { const i = index++; if (!(i in hooks)) hooks[i] = typeof initial==='function'?(initial as ()=>unknown)():initial; return [hooks[i], (value: unknown) => { hooks[i] = typeof value==='function'?(value as (old:unknown)=>unknown)(hooks[i]):value; }]; },
     useMemo(make:()=>unknown,deps:unknown[]) { const i=index++,previous=hooks[i];if(!previous||deps.some((v,n)=>v!==previous.deps[n]))hooks[i]={deps,value:make()};return hooks[i].value; },
     useEffect(effect: () => void, deps: unknown[]) {
       const i = index++, previous = hooks[i];
@@ -84,7 +84,7 @@ function fixture(width = 390, fontScale = 1) {
     assert.ok(name in modules, name); return modules[name];
   } });
   let tree: Element;
-  function render() { index = 0; tree = (exports.Shell as (props:unknown)=>Element)({lastLoad,providerStatus,onCoreFlights:(intent='connect',developmentRecoveryCheckpoints=false)=>{coreRoutes.push({intent,developmentRecoveryCheckpoints});calls.push(intent==='update'?'core-load':intent==='development'?'core-development-route':intent==='options'?'core-library-route':'core-connect');}}); effects.splice(0).forEach(effect => effect()); return tree; }
+  function render() { index = 0; tree = root?(exports as any).default():(exports.Shell as (props:unknown)=>Element)({lastLoad,providerStatus,onCoreFlights:(intent='connect',developmentRecoveryCheckpoints=false)=>{coreRoutes.push({intent,developmentRecoveryCheckpoints});calls.push(intent==='update'?'core-load':intent==='development'?'core-development-route':intent==='options'?'core-library-route':'core-connect');}}); effects.splice(0).forEach(effect => effect()); return tree; }
   function nodes() {
     const found: Element[] = [];
     const visit = (value: unknown) => { if (value && typeof value === 'object' && 'children' in value) { const node = value as Element; found.push(node); node.children.forEach(visit); if (node.type === 'FlatList') visit(node.props.ListHeaderComponent); } };
@@ -445,4 +445,20 @@ test('font and width changes preserve every navigation destination, selected sta
   }
   assert.ok(f.nodes().some(n=>n.type==='Label'&&n.children.includes('Entwicklungsversion')));
   assert.equal(f.nodes().some(n=>n.type==='Label'&&n.children.includes('Entwicklung · synthetische lokale Bibliothek')),false);
+});
+
+
+test('app root retains the provider host across close/tab entry and hides covered shell layout',()=>{
+  const f=fixture(390,1,true);
+  const shell=()=>f.nodes().find(n=>typeof n.type==='function'&&(n.type as Function).name==='Shell')!;
+  assert.equal(f.nodes().some(n=>n.type==='CoreFlightFoundation'),false,'Startup creates no provider host');
+  shell().props.onCoreFlights('connect');f.render();
+  const first=f.find('CoreFlightFoundation');assert.equal(first.props.intent,'connect');assert.equal(first.props.open,true);
+  assert.equal(f.parent(shell()).props.style.display,'none');
+  first.props.close();f.render();
+  const retained=f.find('CoreFlightFoundation');assert.equal(retained.props.open,false);assert.equal(retained.props.requestId,first.props.requestId);
+  assert.equal(f.parent(shell()).props.style.display,'flex');
+  shell().props.onCoreFlights('update');f.render();
+  const reopened=f.find('CoreFlightFoundation');assert.equal(reopened.type,retained.type);assert.equal(reopened.props.open,true);
+  assert.equal(reopened.props.requestId,first.props.requestId+1);assert.equal(reopened.props.intent,'update');
 });

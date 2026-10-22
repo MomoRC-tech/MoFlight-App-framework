@@ -59,6 +59,7 @@ export function ProviderConnection({ controller: c, open, close, development = f
     <View pointerEvents={login ? 'auto' : 'none'} style={[styles.browserFrame, { top: barHeight + checkpointHeight + (login ? loginHeight : 0) + insets.top, bottom: insets.bottom }, !login && styles.coveredBrowser]} accessibilityElementsHidden={!login} importantForAccessibility={login ? 'auto' : 'no-hide-descendants'}>
       {c.browser}
     </View>
+    <View style={{flex:1,display:open?'flex':'none'}}>
     <View style={styles.bar} onLayout={event => setBarHeight(event.nativeEvent.layout.height)}>
       <Action secondary icon="close" label={title==='Vereinsflieger'?'Verbindung schließen und zur App zurückkehren':progress ? 'Datenabruf schließen oder abbrechen' : 'Verbindungen schließen und zur App zurückkehren'} disabled={closeDisabled || guided && (c.saving || c.restoring.current)} onPress={dismiss}>Schließen</Action>
       <Label style={{ flex: 1, fontWeight: '600' }}>{title??(progress ? 'Daten laden' : login ? c.disconnecting ? 'Bei Vereinsflieger abmelden' : 'Bei Vereinsflieger anmelden' : guided ? 'Daten laden' : 'Verbindungen')}</Label>
@@ -189,6 +190,7 @@ export function ProviderConnection({ controller: c, open, close, development = f
         </View>
       </ScrollView>
     </KeyboardAvoidingView>}
+    </View>
   </View>;
 }
 const styles = StyleSheet.create({

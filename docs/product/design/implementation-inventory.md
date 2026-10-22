@@ -180,17 +180,17 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ConnectionSummary
 
 ## CoreFlightFoundation.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `aa794c53e371aba1abc9a0139665567f6ee2ae22b83fbc50756152e1137ab92f`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `0b6ba2abae07179b2b163b2a9fea484f86810658b62a4d42b5bd4f2f11dfdaa1`.
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `gap: 10` | 124, 125, 471 |
-| `gap: 8` | 497, 523, 533 |
-| `maxWidth: 520` | 125, 471 |
-| `padding: 12` | 124, 471 |
-| `width: '100%'` | 125, 471 |
+| `gap: 10` | 124, 125, 512 |
+| `gap: 8` | 538, 564, 574 |
+| `maxWidth: 520` | 125, 512 |
+| `padding: 12` | 124, 512 |
+| `width: '100%'` | 125, 512 |
 
 ## Dashboard.tsx
 
@@ -351,7 +351,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MedicalStatus.tsx
 
 ## MobileApp.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `c011e6e400fc9357197e555293544e4a00b1f5ffb0472db1e07272d303f52b1b`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `3ffef87c2b0d94a177944dfe210671ae0f508084841e23985ab3cb0237262a3b`.
 
 ### Literal colors
 
@@ -546,22 +546,22 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProfileSettings.t
 
 ## ProviderConnection.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProviderConnection.tsx](../../../apps/platform-lab/src/mobile/ProviderConnection.tsx); normalized SHA-256 `f9f002fa84cddd1110056937495b0e92af7acdd9c28bf8a873ddb575d9facd57`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProviderConnection.tsx](../../../apps/platform-lab/src/mobile/ProviderConnection.tsx); normalized SHA-256 `e45b3fb1fa8abf082c695277d805b8d7f60ab6de47821fb10b4e8b7f7b18626a`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#102d47aa` | 195 |
+| `#102d47aa` | 197 |
 | `#ffb39e` | 29 |
-| `white` | 198 |
+| `white` | 200 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
 | `fontSize: 12` | 29 |
-| `fontWeight: '600'` | 64, 83, 99 |
+| `fontWeight: '600'` | 65, 84, 100 |
 | `fontWeight: '700'` | 29 |
 | `lineHeight: 15` | 29 |
 
@@ -569,32 +569,32 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProviderConnectio
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 10` | 205 |
-| `borderRadius: 14` | 195 |
-| `borderRadius: 7` | 197 |
-| `borderRadius: 8` | 196 |
-| `borderWidth: 1` | 205 |
-| `borderWidth: 2` | 197 |
-| `gap: 10` | 204 |
-| `gap: 12` | 200 |
-| `gap: 4` | 67, 69 |
-| `gap: 6` | 76, 86, 201 |
-| `height: 12` | 197 |
-| `height: 16` | 196 |
-| `height: 48` | 195 |
-| `maxWidth: 520` | 204 |
-| `maxWidth: 800` | 198 |
-| `minHeight: 48` | 203, 205 |
-| `minHeight: 68` | 200 |
-| `minWidth: 16` | 196 |
-| `opacity: 0` | 199 |
-| `padding: 10` | 200, 201, 204, 205 |
-| `paddingHorizontal: 12` | 67 |
-| `paddingHorizontal: 8` | 203 |
-| `paddingVertical: 10` | 203 |
-| `width: '100%'` | 198, 204 |
-| `width: 18` | 197 |
-| `width: 48` | 195 |
+| `borderRadius: 10` | 207 |
+| `borderRadius: 14` | 197 |
+| `borderRadius: 7` | 199 |
+| `borderRadius: 8` | 198 |
+| `borderWidth: 1` | 207 |
+| `borderWidth: 2` | 199 |
+| `gap: 10` | 206 |
+| `gap: 12` | 202 |
+| `gap: 4` | 68, 70 |
+| `gap: 6` | 77, 87, 203 |
+| `height: 12` | 199 |
+| `height: 16` | 198 |
+| `height: 48` | 197 |
+| `maxWidth: 520` | 206 |
+| `maxWidth: 800` | 200 |
+| `minHeight: 48` | 205, 207 |
+| `minHeight: 68` | 202 |
+| `minWidth: 16` | 198 |
+| `opacity: 0` | 201 |
+| `padding: 10` | 202, 203, 206, 207 |
+| `paddingHorizontal: 12` | 68 |
+| `paddingHorizontal: 8` | 205 |
+| `paddingVertical: 10` | 205 |
+| `width: '100%'` | 200, 206 |
+| `width: 18` | 199 |
+| `width: 48` | 197 |
 
 ## RawCaptureReview.tsx
 
