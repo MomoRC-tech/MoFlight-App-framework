@@ -119,9 +119,8 @@ export function OwnFlights({ active, data, filterRequest, onUpdate, onHeaderChan
         <Card><Section title="Originale Anbieterfelder" />
           {assessment.observation.headers.slice(rawPage * 8, rawPage * 8 + 8).map((h,i) => <View key={rawPage * 8 + i} style={{ gap: 2 }}><Label muted>{h || '(ohne Überschrift)'}</Label><Label selectable>{assessment.observation.row.values[rawPage * 8 + i] || 'Leer im Anbieterbeleg'}</Label></View>)}
           <Label muted>Felder {rawPage * 8 + 1}–{Math.min(rawPage * 8 + 8, assessment.observation.headers.length)} von {assessment.observation.headers.length}</Label>
-          <Action secondary label="Vorherige Anbieterfelder" disabled={rawPage === 0} onPress={() => setRawPage(rawPage - 1)}>Vorherige Felder</Action>
-          {/* Refresh the native label at the last-page boundary: enlarged Android text otherwise drops its suffix. */}
-          <Action key={(rawPage + 1) * 8 >= assessment.observation.headers.length ? 'last-field-page' : 'more-field-pages'} secondary label="Weitere Anbieterfelder" disabled={(rawPage + 1) * 8 >= assessment.observation.headers.length} onPress={() => setRawPage(rawPage + 1)}>Weitere Felder</Action>
+          <Action secondary label="Vorherige Anbieterfelder" disabled={rawPage === 0} onPress={() => setRawPage(rawPage - 1)}>Zurück</Action>
+          <Action secondary label="Weitere Anbieterfelder" disabled={(rawPage + 1) * 8 >= assessment.observation.headers.length} onPress={() => setRawPage(rawPage + 1)}>Weiter</Action>
         </Card><Action secondary onPress={back}>Zur gefilterten Flugliste</Action>
       </>}
     </View></ScrollView>}

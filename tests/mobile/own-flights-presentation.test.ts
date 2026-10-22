@@ -120,8 +120,8 @@ test('original provider fields paginate across three pages and return to the fil
   };
   const detailText=()=>visibleText(f.render()).replace(/\s+/g,' ');
   const assertRange=(from:number,to:number)=>assert.match(detailText(),new RegExp(`Felder ${from}\\s*–\\s*${to} von ${total}`));
-  const previous=()=>action('Vorherige Felder');
-  const next=()=>action('Weitere Felder');
+  const previous=()=>action('Zurück');
+  const next=()=>action('Weiter');
 
   assert.equal(previous().props.label,'Vorherige Anbieterfelder');assert.equal(previous().props.disabled,true);
   assert.equal(next().props.label,'Weitere Anbieterfelder');assert.equal(next().props.disabled,false);
