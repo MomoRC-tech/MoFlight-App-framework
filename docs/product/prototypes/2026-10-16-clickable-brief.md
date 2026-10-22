@@ -63,4 +63,4 @@ Acceptance: inspect a representative popup and its backdrop, Back visibility/tit
 
 ## Two cleaner Start proposals v0.31
 
-Manuel requested two alternatives because the current Start is not clean and raises questions, with Android guidance where possible. The [dedicated review brief](../2026-10-16-start-alternatives.md) defines the two layouts, dependencies, acceptance checks, official sources and standalone HTML deliverables. Both retain existing synthetic routes. Neither is selected; v0.30 and earlier files remain unchanged. This remains M1 design discovery.
+Manuel requested two alternatives because the current Start is not clean and raises questions, with Android guidance where possible. The [dedicated review brief](../../archive/design/2026-10-16-start-alternatives.md) defines the two layouts, dependencies, acceptance checks, official sources and standalone HTML deliverables. Both retain existing synthetic routes. Neither is selected; v0.30 and earlier files remain unchanged. This remains M1 design discovery.

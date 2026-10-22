@@ -34,6 +34,7 @@ This is a development delivery, not full product or beta acceptance. Unknown and
 | Priorities, milestones and next work | [Project plan](docs/project-plan.md#next-executable-packages) |
 | Work contracts and open decisions | [GitHub Issues](https://github.com/MomoRC-tech/MoFlight-App-framework/issues) |
 | Current screens, symbols and visual rules | [UI design handbook](docs/product/design/README.md) |
+| Documentation map and historical archive | [Documentation index](docs/README.md), [archive](docs/archive/README.md) |
 | Product behavior and longer-term journeys | [Product index](docs/product/README.md) |
 | Run, build and verify | [Lab runbook](apps/platform-lab/README.md), [verification workflow](docs/development/verification-workflow.md) |
 | What was actually tested | [Modern UI report](docs/verification/2026-10-22-alternative-ui.md), [retrieval/main continuation report](docs/verification/2026-10-21-simple-flight-loading.md) |
@@ -107,7 +108,7 @@ See [product scope](docs/product/moflight-feature-scope.md), [writing presentati
 | Photo-to-writing | Product journey and format work exist; real recognition and full phone/print acceptance remain open |
 | iOS | Intended platform, currently deferred; exports do not establish runtime acceptance |
 
-The earlier Figma transfer encountered a Starter tool-call limit; it is historical design-workflow evidence, not a prerequisite for the current native UI. No upgrade or spending change was made. See the [initial wireframe record](docs/product/2026-10-13-rough-figma-wireframes.md) and [dark concept review](docs/product/2026-10-13-dark-concept-review.md).
+The earlier Figma transfer encountered a Starter tool-call limit; it is historical design-workflow evidence, not a prerequisite for the current native UI. No upgrade or spending change was made. See the [initial wireframe record](docs/archive/design/2026-10-13-rough-figma-wireframes.md) and [dark concept review](docs/archive/design/2026-10-13-dark-concept-review.md).
 
 ## Phase 1 execution plan and Issues
 
@@ -126,15 +127,7 @@ Writing assistance has immediate product value; its place in the smallest useful
 
 Follow the [current next actions](docs/project-plan.md#next-executable-packages) and [complete issue map](docs/project-plan.md#complete-ordered-issue-map). Fresh authenticated phone retrieval, populated app-switch responsiveness and complete supported-source coverage remain open. Full-user backup and supported beta upgrades retain separate acceptance gates. Main adoption is selected; it does not establish those untested outcomes.
 
-**Historical design-review notes below (16–18 October):** these preserve earlier options and do not define the current next action.
-
-Review **what goes where** in the [screen-content and placement inventory](docs/product/screen-content.md), independently of visual design. Stable item IDs support adding or moving content screen by screen; confirmed needs, draft placements and prototype gaps are distinguished.
-
-Historical unselected review: [two cleaner Start proposals](docs/product/2026-10-16-start-alternatives.md) and their standalone comparison HTML (historical planned artifact; unavailable). Klarer Überblick uses numerical summaries; Saison im Fokus keeps the aircraft rings with clearer labels and less competing decoration. Neither alternative is selected. Official Android guidance informs spacing, grouping and touch-target aims; HTML browser checks do not prove native Material/accessibility compliance. The earlier selected arrangement below remains available.
-
-Review the [v0.30 draft](docs/product/prototypes/2026-10-16-clickable-v030.html) and its [standalone phone download](docs/product/prototypes/exports/moflight-design-v0.30.html) against the [versioned app design description](docs/product/app-design.md). It gives popup sheets and top-left Back buttons stronger contrast and adds a visible Med label with expiry on a second line, keeping the 48 px medical control and 66 px app header. The v0.28 twin-ring summary and v0.26 five-tab flow, 2026 goals, synthetic medical reminder and Wetter placeholder carry forward. Bounded browser observations are in the [popup/back/medical report](docs/verification/2026-10-16-popup-back-med-preview.md). Earlier [v0.29](docs/product/prototypes/2026-10-16-clickable-v029.html), [v0.28](docs/product/prototypes/2026-10-16-clickable-v028.html), [v0.27](docs/product/prototypes/2026-10-16-clickable-v027.html), [v0.26](docs/product/prototypes/2026-10-16-clickable-v026.html), [v0.25](docs/product/prototypes/2026-10-16-clickable-v025.html), [v0.23](docs/product/prototypes/2026-10-16-clickable-v023.html) and [browser observations](docs/verification/2026-10-16-weather-goals-medical-preview.md) remain available. No app implementation or change to weather/provider scope is claimed.
-
-Historical visual revision: v0.30 increases popup and Back-button contrast and adds a compact visible Med label without increasing the header height. The current twin-ring content decision remains v0.28, recorded with [content inventory v0.7](docs/product/screen-content.md) and the [versioned app design](docs/product/app-design.md). v0.26 goals, medical reminder and Wetter placeholder remain. Bounded browser observations are recorded; Manuel's visual review remains open. No live lookup, weather provider or application behavior is claimed.
+Superseded prototype comparisons and design-review instructions are in the [documentation archive](docs/archive/README.md). Current appearance is governed by the [design handbook](docs/product/design/README.md).
 
 Deferred ideas include [Activities live — #14](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/14), [in-app chat — #13](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/13), possible SPL tutoring and weather integration. The v0.26 Wetter tab is a selected navigation placeholder only; weather content/provider/integration remain deferred. Billing discovery was added to the basic retrieval checkpoint on 19 October; cost analytics implementation still needs its source contract. No release date is promised.
 
@@ -289,7 +282,7 @@ Cloud/sync, tutor/RAG, chat and weather are later work. A service that wakes aut
 
 Start with the [project plan](docs/project-plan.md) for order and the [reviewed journey map](docs/product/2026-10-13-journey-information-map.md) for behavior. Then follow the [product index](docs/product/README.md), [architecture decisions](docs/adr/0001-project-workflow.md) and [development runbook](apps/platform-lab/README.md).
 
-- [Current visual direction](docs/product/design/README.md): selected modern UI and maintained component/layout rules. The [13 October concept review](docs/product/2026-10-13-dark-concept-review.md) is historical.
+- [Current visual direction](docs/product/design/README.md): selected modern UI and maintained component/layout rules. The [13 October concept review](docs/archive/design/2026-10-13-dark-concept-review.md) is historical.
 - [Source access investigation](docs/architecture/vereinsflieger-access-investigation.md): observed access, permissions and open retrieval questions.
 - [Provider preservation/recovery contract](docs/architecture/vereinsflieger-view-preservation.md): keep existing preferences and captures recoverable.
 - [Book/format proposal](docs/adr/0007-multiple-logbooks-and-formats.md): production architecture remains proposed.

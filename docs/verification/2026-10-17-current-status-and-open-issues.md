@@ -56,7 +56,7 @@ Manuel requested a source/roadmap/Issue review, selected the controller refactor
 
 ## 18 October review — 20 open Issues
 
-Manuel requested a repository/documentation review and a rough plan through app completion. Tracking: [#12 package contract](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/12#issuecomment-6246407175). Baseline **`8a831e160181b2e4dc501d532de447c2e7d56722`**, clean `main`, matching remote when checked in this session. All 20 open Issue bodies were read; relevant follow-ups separate delivered work from historical findings. No Issue was closed or application implementation authorized. [Proposed packages and release boundaries](../project-plan.md#proposed-delivery-packages-and-release-boundaries--18-october-2026) retain the authorized M1–M5 order and ADR statuses.
+Manuel requested a repository/documentation review and a rough plan through app completion. Tracking: [#12 package contract](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/12#issuecomment-6246407175). Baseline **`8a831e160181b2e4dc501d532de447c2e7d56722`**, clean `main`, matching remote when checked in this session. All 20 open Issue bodies were read; relevant follow-ups separate delivered work from historical findings. No Issue was closed or application implementation authorized. [Proposed packages and release boundaries](../archive/planning/2026-10-22-checkpoints.md#proposed-delivery-packages-and-release-boundaries--18-october-2026) retain the authorized M1–M5 order and ADR statuses.
 
 ### Current open-work inventory
 

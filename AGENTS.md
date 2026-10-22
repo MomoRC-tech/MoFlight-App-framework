@@ -8,6 +8,7 @@
 ## Project map and sources of truth
 
 - [README](README.md) is the central project documentation. Keep requirements, architecture, status and meaningful test evidence aligned with code.
+- Use the [documentation map](docs/README.md) for maintained sources and the [archive](docs/archive/README.md) for superseded plans/rejected designs. Move obsolete next-action prose out of current entry points while preserving historical decisions and links; do not archive active requirements or evidence supporting open acceptance gates merely because it is old.
 - [Project plan](docs/project-plan.md) controls priorities, milestones and next actions. Read the relevant current source, documentation and ADRs before changing them. Update the roadmap for material status/decision changes; keep detailed results in verification reports.
 - [UI design handbook](docs/product/design/README.md) is the current visual starting point. Read its authority, foundations, component/symbol and layout rules before appearance changes; preserve original references and distinguish approved intent from implemented values. Edit maintained chapters/catalogue and regenerate portable views with `python scripts/design_handbook.py`; use `--check` for source/output freshness and link coverage. Historical design records do not override its scoped current decisions.
 - Communicate and maintain active documentation in English; preserve historical source snapshots in their original language.

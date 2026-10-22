@@ -6,7 +6,7 @@ Manuel explicitly instructed merging the alternative branch because “this bran
 
 
 > This alternative branch applies the [22 October alternative design contract](alternative-ui.md) to C01–C09, typography, surfaces, Start and flight browsing. It supersedes conflicting baseline appearance descriptions on this branch only; data semantics and main-branch approval are unchanged.
-[Handbook entry point](README.md). Current guidance is in this handbook. Dated sources stay at existing paths; historical selected/confirmed/latest wording describes its original checkpoint unless explicitly carried forward.
+[Handbook entry point](README.md). Current guidance is in this handbook. Superseded design prose is in the [documentation archive](../../archive/README.md), with compatibility pointers at original paths; historical selected/confirmed/latest wording describes its original checkpoint unless explicitly carried forward.
 
 ## Decision register
 
@@ -38,10 +38,10 @@ Manuel explicitly instructed merging the alternative branch because “this bran
 | [Screen content](../screen-content.md) | Content-placement history/requirements; apply current amendments and feature contracts. |
 | [Stitch archive](../design-sources/2026-10-16-stitch/README.md) / [DESIGN.md](../design-sources/2026-10-16-stitch/DESIGN.md) | Generated third-party source with typography/extra concepts not adopted wholesale. |
 | [Micro Bento](../design-sources/2026-10-16-micro-bento/README.md) | Earlier prototype context; later four-screen native reference controls fidelity. |
-| [Start alternatives](../2026-10-16-start-alternatives.md) | Two unselected compositions. |
+| [Start alternatives](../../archive/design/2026-10-16-start-alternatives.md) | Two unselected compositions. |
 | [v0.30](../prototypes/2026-10-16-clickable-v030.html) | Preserved historical interaction snapshot with synthetic states; its icon vocabulary is excluded from the current catalogue. |
 | Retired icon comparisons | A/B and later six-candidate reviews were superseded by the selected M2 / folded-plane family. Removed comparison files remain recoverable through Git history. |
-| [Dark-concept review](../2026-10-13-dark-concept-review.md) | Earlier rationale and revisions, not a competing current guide. |
+| [Dark-concept review](../../archive/design/2026-10-13-dark-concept-review.md) | Earlier rationale and revisions, not a competing current guide. |
 
 ## Known differences and open choices
 

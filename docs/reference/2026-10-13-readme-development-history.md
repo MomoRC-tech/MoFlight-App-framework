@@ -8,7 +8,7 @@ A reusable Android/iOS platform for multiple flight-related features or sub-apps
 
 ## Status and source of truth
 
-**UI direction revision (2026-10-13):** Manuel rejected the two [initial Figma drafts](../../docs/product/2026-10-13-rough-figma-wireframes.md) as crowded, lacking a concept and a real navigation header. [Dark concept review](../../docs/product/2026-10-13-dark-concept-review.md) records his clean/dark/navigation references and an unselected isolated preview. Figma's Starter tool-call limit blocks edits there; no upgrade or spending change occurred. Prototype navigation was checked locally; product review and Figma transfer remain pending. No application implementation or milestone/order change.
+**UI direction revision (2026-10-13):** Manuel rejected the two [initial Figma drafts](../archive/design/2026-10-13-rough-figma-wireframes.md) as crowded, lacking a concept and a real navigation header. [Dark concept review](../archive/design/2026-10-13-dark-concept-review.md) records his clean/dark/navigation references and an unselected isolated preview. Figma's Starter tool-call limit blocks edits there; no upgrade or spending change occurred. Prototype navigation was checked locally; product review and Figma transfer remain pending. No application implementation or milestone/order change.
 
 **Next discovery step (2026-10-13):** explore user journeys, relevant features and feasibility, then compare rough UI concepts before fixing detailed contracts. [Guided discovery brief](../../docs/product/user-journey-ui-discovery.md) and [roadmap agreement](../../docs/project-plan.md#12-user-journeys-and-ui-concept-discovery--2026-10-13) distinguish proposed ideas from selected features and implementation scope.
 

@@ -1,6 +1,6 @@
 # Journey and information map — discovery consolidation
 
-Subsequent design preparation: Manuel rejected both [rough German Figma wireframes](2026-10-13-rough-figma-wireframes.md) as crowded and lacking a concept/navigation header. [Dark concept revision](2026-10-13-dark-concept-review.md) records his clean/dark/navigation references and an unselected local preview; Figma edits are currently limited by the plan's tool-call cap. Confirmed product choices and delivery boundaries continue to govern design work. Statements below about no created wireframes describe the earlier map-review state.
+Subsequent design preparation: Manuel rejected both [rough German Figma wireframes](../archive/design/2026-10-13-rough-figma-wireframes.md) as crowded and lacking a concept/navigation header. [Dark concept revision](../archive/design/2026-10-13-dark-concept-review.md) records his clean/dark/navigation references and an unselected local preview; Figma edits are currently limited by the plan's tool-call cap. Confirmed product choices and delivery boundaries continue to govern design work. Statements below about no created wireframes describe the earlier map-review state.
 
 Date: 2026-10-13 (Europe/Berlin). Product owner: Manuel Singer. Source: explicit answers and corrections in guided discovery. This is a reviewable product record, not application implementation, final navigation, a production schema or acceptance evidence. The [roadmap](../project-plan.md) retains milestone order and gates.
 
