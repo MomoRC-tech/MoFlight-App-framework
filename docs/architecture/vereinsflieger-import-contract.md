@@ -1,8 +1,8 @@
 # Vereinsflieger verified retrieval and local import contract
 
-## Alternative-branch source integration — 22 October 2026
+## Supported-source integration — current on main, 23 October 2026
 
-Manuel's tested feedback explicitly selects attaching supported sources to the visible features, tracked in [#56](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/56) alongside #55/#42/#45. On `ui/alternative-flight-experience`, this supersedes the Medical-only selection and manual completion acknowledgement below. It does not adopt the alternative into main or approve guessed source semantics.
+Manuel's tested feedback explicitly selects attaching supported sources to the visible features, tracked in [#56](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/56) alongside #55/#42/#45. Originally delivered on `ui/alternative-flight-experience`, this integration is now on main and included in combined source `f3f005e`. It supersedes the Medical-only selection and manual completion acknowledgement below. Main adoption does not establish missing source semantics or live acceptance.
 
 | Source | Automatic job and local feature | Current evidence boundary |
 | --- | --- | --- |
@@ -12,6 +12,9 @@ Manuel's tested feedback explicitly selects attaching supported sources to the v
 | Events | Existing appointment-page reader; Verein → Termine | Selected visible calendar date/view filters; partial capture, unsupported empty source stays unavailable |
 | Document notices | Existing overview notice reader; Verein → Dokumente | Original notice/title/date text only; no download or news contract |
 | Populated club news | No automatic reader or populated news UI | Unverified; retained as an open source-discovery gate in #56/#10 |
+| Work hours / annual obligation | Existing raw readers and saved discovery evidence; no combined job or ordinary progress UI | Verify year, units, accepted/adjusted status and hours versus money before integration |
+| Own open tasks / reservations | Existing scoped empty-source evidence; no combined job or ordinary feature | Positive rows/identity/status remain unverified; do not infer support from an empty list |
+| Activities live | No automatic job or ordinary feature; #14 remains deferred implementation | Next-work review recommends today's completed flights feasibility first; explicit airborne evidence and refresh policy remain separate |
 
 The single explicit update runs flights first, then independent Medical/duty/event/document jobs sequentially through the retained WebView. Failure preserves saved flights and prior source captures; it cannot label an unavailable source as empty or complete. Fresh before/after account observations, selected-owner lease and stored connection scope remain mandatory. Same-URL login observation starts fresh account proof; absence of a login form alone never authenticates an account.
 
