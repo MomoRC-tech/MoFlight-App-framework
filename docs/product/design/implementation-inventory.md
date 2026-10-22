@@ -729,43 +729,43 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/season-model.ts](
 
 ## SeasonMonthlyCharts.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/SeasonMonthlyCharts.tsx](../../../apps/platform-lab/src/mobile/SeasonMonthlyCharts.tsx); normalized SHA-256 `fd072685eae38552008c3fa8fe7313a02534fa79a903c918d22a22853a2f23c3`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/SeasonMonthlyCharts.tsx](../../../apps/platform-lab/src/mobile/SeasonMonthlyCharts.tsx); normalized SHA-256 `1dd5e9b23dec48bcc8acc887c6debb18c7388e6878d81b0cbad1b20017a0e0cc`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#7194be` | 17, 21 |
+| `#7194be` | 17, 20 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 10` | 25 |
-| `fontSize: 12` | 25 |
-| `lineHeight: 12` | 25 |
-| `lineHeight: 16` | 25 |
-| `lineHeight: 18` | 25 |
+| `fontSize: 10` | 24 |
+| `fontSize: 12` | 24 |
+| `lineHeight: 12` | 24 |
+| `lineHeight: 16` | 24 |
+| `lineHeight: 18` | 24 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 4` | 25 |
-| `gap: 16` | 25 |
-| `gap: 5` | 25 |
-| `gap: 6` | 25 |
-| `gap: 8` | 25 |
-| `height: 8` | 25 |
-| `height: 80` | 25 |
-| `minHeight: 94` | 25 |
-| `minWidth: 0` | 25 |
-| `minWidth: 2` | 25 |
-| `opacity: .5` | 25 |
-| `paddingHorizontal: 0` | 25 |
-| `width: '100%'` | 25 |
-| `width: '62%'` | 25 |
-| `width: 8` | 25 |
+| `borderRadius: 4` | 24 |
+| `gap: 16` | 24 |
+| `gap: 5` | 24 |
+| `gap: 6` | 24 |
+| `gap: 8` | 24 |
+| `height: 8` | 24 |
+| `height: 80` | 24 |
+| `minHeight: 94` | 24 |
+| `minWidth: 0` | 24 |
+| `minWidth: 2` | 24 |
+| `opacity: .5` | 24 |
+| `paddingHorizontal: 0` | 24 |
+| `width: '100%'` | 24 |
+| `width: '62%'` | 24 |
+| `width: 8` | 24 |
 
 ## SeasonRing.tsx
 

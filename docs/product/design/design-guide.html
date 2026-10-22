@@ -70,11 +70,11 @@
 <li><strong>Header (C05/C06):</strong> decorative flight-scene artwork over navy, 46-unit unchanged Thermik logo, destination title and labelled Data/Medical/Profile controls. Phones place controls below the destination; wide layouts share one row and enlarged text wraps. Header-only update/login admission remains unchanged.</li>
 <li><strong>Start — revised after Manuel&#x27;s feedback:</strong> remove the permanent leading connection/reminder box. Meine Saison is the first content group, with a small flight illustration and one latest saved, dated flight integrated into the same card. Prioritize calendar date/relative age (for example −4 Tage or −2 Wochen), recorded PIC and aircraft. Do not infer PIC from another crew slot. Its row opens the exact saved flight; Alle Flüge ansehen opens the general list. Unknown dates/times and ambiguous same-day chronology remain explicit.</li>
 <li><strong>Season comparison:</strong> four compact aircraft-split rings: known reported time and starts for each of the current/prior calendar years. Aircraft colors stay stable across measures/years and have a shared registration legend. Empty/unknown time has no fabricated arc. Ring values sit beside the artwork so enlarged text can grow; the measure pair stacks at enlarged text. These are saved-year totals, not a claim of complete coverage or equal year-to-date periods.</li>
-<li><strong>Saison im Detail:</strong> opens directly onto one dense current/prior-year monthly chart with Flüge/Flugstunden chips, without a duplicate aircraft list. Jan–Dec always occupy one row; enlarged text uses horizontal scrolling instead of wrapping months. Preserve year labels, unknown/partial markers, equal current-month cutoffs and blank future months. Expansion performs no provider work.</li>
+<li><strong>Saison im Detail:</strong> opens directly onto one dense current/prior-year monthly chart with Flüge/Flugstunden chips, without a duplicate aircraft list. Jan–Dec always occupy one row; all twelve months fit visibly without horizontal scrolling, including enlarged text. Only the compact month/marker labels cap font scaling at 1; surrounding controls and captions still scale. Preserve year labels, unknown/partial markers, equal current-month cutoffs and blank future months. Expansion performs no provider work.</li>
 <li><strong>Flüge (C04/C09):</strong> prominent search, year chips, aircraft filter, concise saved-row count, optional coverage disclosure. Clear search without clearing the year, or reset all filters with one action. The list shows date, reported time, registration, model and route. Details lead with aircraft and duration, with complete original evidence below. No inferred route, track, role or flight time.</li>
 <li><strong>Navigation (C07):</strong> five preserved destinations, selected filled tile and heavier mint label. Enlarged text uses wrapped rows. The development footer names this as an alternative.</li>
 <li><strong>Empty/deferred states:</strong> explain the next supported step. Paper setup stays “In Vorbereitung”; AI explains its synthetic example scope. A compact Meine Saison empty/error state gives passive guidance to the header Daten action without invented totals or the removed permanent connection box.</li>
-<li><strong>Responsive composition:</strong> bounded single groups through phone/tablet widths; at 840+ a two-column Start. Flight rows use two columns at 600+ with standard font scale. The month canvas remains a single row at every width; enlarged text scrolls horizontally. Both series retain year-labelled legends and unknown/partial markers.</li>
+<li><strong>Responsive composition:</strong> bounded single groups through phone/tablet widths; at 840+ a two-column Start. Flight rows use two columns at 600+ with standard font scale. The month canvas remains a single row at every width; all twelve months fit visibly at enlarged text too, using compact axis labels. Both series retain year-labelled legends and unknown/partial markers.</li>
 </ul>
 <h3 id="chapter-alternative-ui-artwork-provenance-and-retained-data-behavior">Artwork provenance and retained-data behavior</h3>
 <p>The new <a href="flight-scene.svg">flight-scene.svg</a> is an original code-native decorative illustration created for this alternative, rasterized with CairoSVG to <a href="../../../apps/platform-lab/assets/aviation/flight-scene.png">flight-scene.png</a> and the compact <a href="../../../apps/platform-lab/assets/aviation/flight-scene-detail.png">flight-scene-detail.png</a>. <a href="../../../apps/platform-lab/src/mobile/FlightScene.tsx">FlightScene</a> renders the full header scene or 88 × 44 compact season art. No image model or external photograph was used for these assets. The illustration establishes no observed aircraft, location, weather or measured track. Original approved branding/reference images and licensed photographs remain preserved.</p>
@@ -181,7 +181,7 @@
 <tr><td>C09</td><td>Flight row</td><td>Padding 18, radius 20; date/reported duration, registration/model, route and detail chevron</td><td>Whole row opens selected-account saved source facts. Source reference/revision/original fields and absent-track context stay in details. Original fields use eight-field pages with concise Zurück / Weiter captions and full provider-field accessibility labels; first/last guards and contextual list return remain. <a href="../../../apps/platform-lab/src/mobile/OwnFlights.tsx">OwnFlights</a>; no inferred role or book assignment.</td></tr>
 <tr><td>C10</td><td>AI question / composer</td><td>Question radius 18; composer radius 20; send face 48 × 48; input max height 150</td><td>Local questions calculate deterministically; free-text service unavailable. MobileApp.</td></tr>
 <tr><td>C11</td><td>Quiet paper entry</td><td>Minimum-height 48 row with paper-tone logbook symbol and detail chevron</td><td>Associated-account Start offers Papierflugbuch später einrichten and opens the deferred-setup explanation. The former photographic hero remains in the original reference. Synthetic saved paper status stays under Development; viewing never confirms copying. Dashboard / PaperStatus.</td></tr>
-<tr><td>C12</td><td>Season comparison</td><td>Four 44-unit aircraft-share rings with adjacent 18/24 values; two year rows, shared aircraft legend, integrated latest flight and 88 × 44 decorative heading art</td><td>Current/prior calendar-year known time and starts. Recorded PIC, aircraft and relative date lead the latest row; unknown facts remain explicit. Detail reveals one Jan–Dec row with horizontal scrolling at enlarged text. Dashboard / SeasonRing / SeasonMonthlyCharts / real-flight-statistics.</td></tr>
+<tr><td>C12</td><td>Season comparison</td><td>Four 44-unit aircraft-share rings with adjacent 18/24 values; two year rows, shared aircraft legend, integrated latest flight and 88 × 44 decorative heading art</td><td>Current/prior calendar-year known time and starts. Recorded PIC, aircraft and relative date lead the latest row; unknown facts remain explicit. Detail reveals one fully visible Jan–Dec row without horizontal scrolling; compact axis labels cap scaling while surrounding text still scales. Dashboard / SeasonRing / SeasonMonthlyCharts / real-flight-statistics.</td></tr>
 <tr><td>C13</td><td>Badges / disclosures</td><td>Role pill radius 12; session badge minimum 16; details + / −</td><td>Role, session evidence and expansion remain separate meanings. MobileApp / ProviderConnection.</td></tr>
 <tr><td>C14</td><td>Synthetic import review</td><td>Shared C01/C02/C03 cards/actions/choice chips, centered group capped at 520 dp</td><td>Development-only comparison, source variants and explicit book choice; <a href="../../../apps/platform-lab/src/mobile/ImportPreview.tsx">ImportPreview</a>. No saved-library import.</td></tr>
 <tr><td>C15</td><td>Captured flight review</td><td>Shared cards/actions in the connection panel&#x27;s centered 520 dp group; five records per page, eight original fields per detail page</td><td><a href="../../../apps/platform-lab/src/mobile/CapturedFlights.tsx">CapturedFlights</a> reads owner-scoped saved evidence without requiring provider login. Dates/clocks, reported duration, aircraft and separate crew fields retain unknown/invalid/conflict states; original field text is selectable and untruncated. No book membership or canonical import.</td></tr>
@@ -264,7 +264,7 @@
 <p>Only the header exposes the explicit login-and-load/update action; Start/Profile and Flüge give passive guidance. Necessary fresh local storage is internal. Check retained session cookies through a protected provider profile; show the original login page only when needed, then resume verification after provider navigation. Keep that browser in the same native parent across login/progress. Use one-column, centered progress/forms up to 520 dp; labels wrap with text scaling. The login view omits information-import menus. Provider-required login still belongs to Vereinsflieger; account mismatch and unresolved recovery remain actionable exceptions. Known provider values save through deterministic validation without routine per-row review or a second save confirmation. Keep one progress card in the same provider screen through sign-in, account verification, flight retrieval/save and Medical. Preserve its native browser parent while the login form is visible beneath the progress area; cap and scroll the progress area during login so the form remains usable. Keep success or partial/failure results on that screen until acknowledgement, then return the result and covered period to ordinary Flüge. A foreground interruption before retrieval preserves the original login document; a guarded resume re-arms the guided intent without accepting stale proof, and subsequent authenticated navigation still requires fresh account verification. Interactive sign-in time does not consume the outer flight-response timeout. Backgrounding after retrieval starts retains cancellation/recovery safeguards. Failed or skipped Medical does not undo the confirmed flight save. These changes were approved on 21 October under #22/#42; native/phone evidence remains source-specific. Preserve previous saved data and user state on error/cancellation; opening the app does not initiate retrieval.</p>
 <p>The Start summary reads committed-library freshness, independently of raw captures and session checks. Keep compact current/prior-year count/known-time rings and their aircraft legend; detailed coverage/source information is reached through Flüge. This branch uses bounded groups up to 520 dp, or two bounded columns from 840 dp at ordinary text size. Book setup stays deferred and never gates flights. Its quiet Start link opens a short information sheet; synthetic paper tasks and the editable demo name are in Development. Compact Start keeps recovery options visible when a decision is required. Entry copy makes manual original-page sign-in conditional: retained provider cookies may avoid typing credentials. A fresh unassociated owner still opens the original login route; this wording does not promise a protected-profile precheck on every first use. Native login-page/HTTP opening failure must end combined progress with explicit retry even before retrieval becomes busy; interactive sign-in itself remains untimed. <a href="../../verification/2026-10-21-simple-flight-loading.md">Package evidence and platform limits</a> distinguish host behavior from native/provider acceptance.</p>
 <h3 id="chapter-patterns-header-overlays-and-navigation">Header, overlays and navigation</h3>
-<p><strong>22 October alternative branch (#55), revised feedback:</strong> Meine Saison is the first Start group; the permanent leading connection/reminder box is removed. The compact card contains one latest saved flight with date/relative age, recorded PIC and aircraft, plus current/prior-year time/starts rings split by aircraft. Its row opens the exact saved identity; Alle Flüge ansehen opens the general list. Saison im Detail opens one dense monthly chart with measure chips. Jan–Dec always stay in one row; enlarged text scrolls horizontally. Unknown dates/times, ambiguous same-day chronology and incomplete coverage remain explicit. Empty/error states give passive header guidance. The compact Verein card and source-expiry Medical states remain. See the <a href="#chapter-alternative-ui">alternative contract</a> for scoped authority, illustration provenance and acceptance limits.</p>
+<p><strong>22 October alternative branch (#55), revised feedback:</strong> Meine Saison is the first Start group; the permanent leading connection/reminder box is removed. The compact card contains one latest saved flight with date/relative age, recorded PIC and aircraft, plus current/prior-year time/starts rings split by aircraft. Its row opens the exact saved identity; Alle Flüge ansehen opens the general list. Saison im Detail opens one dense monthly chart with measure chips. Jan–Dec always stay in one row; all twelve months fit visibly at enlarged text too, using compact axis labels. Unknown dates/times, ambiguous same-day chronology and incomplete coverage remain explicit. Empty/error states give passive header guidance. The compact Verein card and source-expiry Medical states remain. See the <a href="#chapter-alternative-ui">alternative contract</a> for scoped authority, illustration provenance and acceptance limits.</p>
 <p>Start remains mounted across ordinary navigation, retaining processed selectors and disclosure state. Identical inputs do not recompute season/month summaries and tab return does not itself reload storage. Duplicate active notifications are ignored; real background/foreground and provider closure still require guarded local revalidation. Never show an unconfirmed owner&#x27;s cached data. These host-tested boundaries are not proof that every reported native reload has been resolved.</p>
 <p>Keep header/navigation outside the scrolling canvas. Header order is logo/title, data update → Med → Profile. Below 600 dp or above font scale 1.3, destination and controls occupy separate rows, with controls wrapping. Wide standard-text layouts share one row; subtitle appears only there. The navy header includes the decorative flight illustration; text and controls remain above it.</p>
 <p>App overlays/details replace logo with contextual Back and expose one active accessible header. Return through nested overlays to prior page/filter/scroll state and unsaved local profile-name draft. Identical library reloads preserve the return path; changed book/flight facts invalidate stale details. An active backup/proof operation disables app Back, Profile and Medical until completion; provider Close/history remain separate. Medical opens a read-only source-date explanation, retaining unknown/partial evidence.</p>
@@ -275,7 +275,7 @@
 <tr><td>MIN, 360 dp</td><td>Check overlap, clipping, scrolling and keyboard. Enlarged text avoids forced compact pairings.</td></tr>
 <tr><td>MAIN, 390–412 dp</td><td>Primary fidelity target for approved geometry, spacing, colors and hierarchy. Code values alone do not prove it.</td></tr>
 <tr><td>MAX, 600+ dp</td><td>Bound forms/details/card groups or use columns/master-detail. Current shell uses 600/960 bounds; forms commonly 480/520; dashboard groups cap at 520 and use two columns at width 840 when text is not enlarged.</td></tr>
-<tr><td>Large text / landscape</td><td>Controls grow, labels remain, content reflows with keyboard/insets. Above font scale 1.3 several sections stack; ring measure pairs stack and the monthly chart remains one Jan–Dec row with horizontal scrolling.</td></tr>
+<tr><td>Large text / landscape</td><td>Controls grow, labels remain, content reflows with keyboard/insets. Above font scale 1.3 several sections stack; ring measure pairs stack and the monthly chart remains one fully visible Jan–Dec row without horizontal scrolling, using compact axis labels.</td></tr>
 </tbody></table></div>
 <p>At 600+ dp—including landscape phones, tablets/foldables—cap and center individual groups or use an appropriate multi-column composition. A 480 dp cap is illustrative, not universal. Record actual logical dp, density and font scale. The <a href="../2026-10-16-ui-fidelity-refinement.md">refinement policy</a> controls acceptance.</p>
 <p>Respect safe areas/system bars. Current AI layout accounts for keyboard overlap, keeps the multiline composer reachable and preserves drafts on unavailable service/retry. Browser specimens do not prove native keyboard behavior.</p>
@@ -870,36 +870,36 @@
 <tr><td><i class="swatch" style="background:#f9b65b" aria-hidden="true"></i><code>#f9b65b</code></td><td>3</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-seasonmonthlychartstsx">SeasonMonthlyCharts.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/SeasonMonthlyCharts.tsx">apps/platform-lab/src/mobile/SeasonMonthlyCharts.tsx</a>; normalized SHA-256 <code>fd072685eae38552008c3fa8fe7313a02534fa79a903c918d22a22853a2f23c3</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/SeasonMonthlyCharts.tsx">apps/platform-lab/src/mobile/SeasonMonthlyCharts.tsx</a>; normalized SHA-256 <code>1dd5e9b23dec48bcc8acc887c6debb18c7388e6878d81b0cbad1b20017a0e0cc</code>.</p>
 <h4 id="chapter-implementation-inventory-literal-colors-11">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><i class="swatch" style="background:#7194be" aria-hidden="true"></i><code>#7194be</code></td><td>17, 21</td></tr>
+<tr><td><i class="swatch" style="background:#7194be" aria-hidden="true"></i><code>#7194be</code></td><td>17, 20</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-typography-declarations-13">Typography declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>fontSize: 10</code></td><td>25</td></tr>
-<tr><td><code>fontSize: 12</code></td><td>25</td></tr>
-<tr><td><code>lineHeight: 12</code></td><td>25</td></tr>
-<tr><td><code>lineHeight: 16</code></td><td>25</td></tr>
-<tr><td><code>lineHeight: 18</code></td><td>25</td></tr>
+<tr><td><code>fontSize: 10</code></td><td>24</td></tr>
+<tr><td><code>fontSize: 12</code></td><td>24</td></tr>
+<tr><td><code>lineHeight: 12</code></td><td>24</td></tr>
+<tr><td><code>lineHeight: 16</code></td><td>24</td></tr>
+<tr><td><code>lineHeight: 18</code></td><td>24</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-geometry--opacity-declarations-25">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>borderRadius: 4</code></td><td>25</td></tr>
-<tr><td><code>gap: 16</code></td><td>25</td></tr>
-<tr><td><code>gap: 5</code></td><td>25</td></tr>
-<tr><td><code>gap: 6</code></td><td>25</td></tr>
-<tr><td><code>gap: 8</code></td><td>25</td></tr>
-<tr><td><code>height: 8</code></td><td>25</td></tr>
-<tr><td><code>height: 80</code></td><td>25</td></tr>
-<tr><td><code>minHeight: 94</code></td><td>25</td></tr>
-<tr><td><code>minWidth: 0</code></td><td>25</td></tr>
-<tr><td><code>minWidth: 2</code></td><td>25</td></tr>
-<tr><td><code>opacity: .5</code></td><td>25</td></tr>
-<tr><td><code>paddingHorizontal: 0</code></td><td>25</td></tr>
-<tr><td><code>width: &#x27;100%&#x27;</code></td><td>25</td></tr>
-<tr><td><code>width: &#x27;62%&#x27;</code></td><td>25</td></tr>
-<tr><td><code>width: 8</code></td><td>25</td></tr>
+<tr><td><code>borderRadius: 4</code></td><td>24</td></tr>
+<tr><td><code>gap: 16</code></td><td>24</td></tr>
+<tr><td><code>gap: 5</code></td><td>24</td></tr>
+<tr><td><code>gap: 6</code></td><td>24</td></tr>
+<tr><td><code>gap: 8</code></td><td>24</td></tr>
+<tr><td><code>height: 8</code></td><td>24</td></tr>
+<tr><td><code>height: 80</code></td><td>24</td></tr>
+<tr><td><code>minHeight: 94</code></td><td>24</td></tr>
+<tr><td><code>minWidth: 0</code></td><td>24</td></tr>
+<tr><td><code>minWidth: 2</code></td><td>24</td></tr>
+<tr><td><code>opacity: .5</code></td><td>24</td></tr>
+<tr><td><code>paddingHorizontal: 0</code></td><td>24</td></tr>
+<tr><td><code>width: &#x27;100%&#x27;</code></td><td>24</td></tr>
+<tr><td><code>width: &#x27;62%&#x27;</code></td><td>24</td></tr>
+<tr><td><code>width: 8</code></td><td>24</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-seasonringtsx">SeasonRing.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/SeasonRing.tsx">apps/platform-lab/src/mobile/SeasonRing.tsx</a>; normalized SHA-256 <code>c60481ebaa48a271d8114e63037203d90baf4dc5986a8eb9a874024b561d0ceb</code>.</p>
@@ -1575,11 +1575,11 @@ The baseline makes too many elements equally prominent: tiny header title beside
 - **Header (C05/C06):** decorative flight-scene artwork over navy, 46-unit unchanged Thermik logo, destination title and labelled Data/Medical/Profile controls. Phones place controls below the destination; wide layouts share one row and enlarged text wraps. Header-only update/login admission remains unchanged.
 - **Start — revised after Manuel&#x27;s feedback:** remove the permanent leading connection/reminder box. Meine Saison is the first content group, with a small flight illustration and one latest saved, dated flight integrated into the same card. Prioritize calendar date/relative age (for example −4 Tage or −2 Wochen), recorded PIC and aircraft. Do not infer PIC from another crew slot. Its row opens the exact saved flight; Alle Flüge ansehen opens the general list. Unknown dates/times and ambiguous same-day chronology remain explicit.
 - **Season comparison:** four compact aircraft-split rings: known reported time and starts for each of the current/prior calendar years. Aircraft colors stay stable across measures/years and have a shared registration legend. Empty/unknown time has no fabricated arc. Ring values sit beside the artwork so enlarged text can grow; the measure pair stacks at enlarged text. These are saved-year totals, not a claim of complete coverage or equal year-to-date periods.
-- **Saison im Detail:** opens directly onto one dense current/prior-year monthly chart with Flüge/Flugstunden chips, without a duplicate aircraft list. Jan–Dec always occupy one row; enlarged text uses horizontal scrolling instead of wrapping months. Preserve year labels, unknown/partial markers, equal current-month cutoffs and blank future months. Expansion performs no provider work.
+- **Saison im Detail:** opens directly onto one dense current/prior-year monthly chart with Flüge/Flugstunden chips, without a duplicate aircraft list. Jan–Dec always occupy one row; all twelve months fit visibly without horizontal scrolling, including enlarged text. Only the compact month/marker labels cap font scaling at 1; surrounding controls and captions still scale. Preserve year labels, unknown/partial markers, equal current-month cutoffs and blank future months. Expansion performs no provider work.
 - **Flüge (C04/C09):** prominent search, year chips, aircraft filter, concise saved-row count, optional coverage disclosure. Clear search without clearing the year, or reset all filters with one action. The list shows date, reported time, registration, model and route. Details lead with aircraft and duration, with complete original evidence below. No inferred route, track, role or flight time.
 - **Navigation (C07):** five preserved destinations, selected filled tile and heavier mint label. Enlarged text uses wrapped rows. The development footer names this as an alternative.
 - **Empty/deferred states:** explain the next supported step. Paper setup stays “In Vorbereitung”; AI explains its synthetic example scope. A compact Meine Saison empty/error state gives passive guidance to the header Daten action without invented totals or the removed permanent connection box.
-- **Responsive composition:** bounded single groups through phone/tablet widths; at 840+ a two-column Start. Flight rows use two columns at 600+ with standard font scale. The month canvas remains a single row at every width; enlarged text scrolls horizontally. Both series retain year-labelled legends and unknown/partial markers.
+- **Responsive composition:** bounded single groups through phone/tablet widths; at 840+ a two-column Start. Flight rows use two columns at 600+ with standard font scale. The month canvas remains a single row at every width; all twelve months fit visibly at enlarged text too, using compact axis labels. Both series retain year-labelled legends and unknown/partial markers.
 
 ## Artwork provenance and retained-data behavior
 
@@ -1736,7 +1736,7 @@ The 22 October header data-update amendment reuses `#74dfba` for saved data rece
 | C09 | Flight row | Padding 18, radius 20; date/reported duration, registration/model, route and detail chevron | Whole row opens selected-account saved source facts. Source reference/revision/original fields and absent-track context stay in details. Original fields use eight-field pages with concise Zurück / Weiter captions and full provider-field accessibility labels; first/last guards and contextual list return remain. [OwnFlights](../../../apps/platform-lab/src/mobile/OwnFlights.tsx); no inferred role or book assignment. |
 | C10 | AI question / composer | Question radius 18; composer radius 20; send face 48 × 48; input max height 150 | Local questions calculate deterministically; free-text service unavailable. MobileApp. |
 | C11 | Quiet paper entry | Minimum-height 48 row with paper-tone logbook symbol and detail chevron | Associated-account Start offers Papierflugbuch später einrichten and opens the deferred-setup explanation. The former photographic hero remains in the original reference. Synthetic saved paper status stays under Development; viewing never confirms copying. Dashboard / PaperStatus. |
-| C12 | Season comparison | Four 44-unit aircraft-share rings with adjacent 18/24 values; two year rows, shared aircraft legend, integrated latest flight and 88 × 44 decorative heading art | Current/prior calendar-year known time and starts. Recorded PIC, aircraft and relative date lead the latest row; unknown facts remain explicit. Detail reveals one Jan–Dec row with horizontal scrolling at enlarged text. Dashboard / SeasonRing / SeasonMonthlyCharts / real-flight-statistics. |
+| C12 | Season comparison | Four 44-unit aircraft-share rings with adjacent 18/24 values; two year rows, shared aircraft legend, integrated latest flight and 88 × 44 decorative heading art | Current/prior calendar-year known time and starts. Recorded PIC, aircraft and relative date lead the latest row; unknown facts remain explicit. Detail reveals one fully visible Jan–Dec row without horizontal scrolling; compact axis labels cap scaling while surrounding text still scales. Dashboard / SeasonRing / SeasonMonthlyCharts / real-flight-statistics. |
 | C13 | Badges / disclosures | Role pill radius 12; session badge minimum 16; details + / − | Role, session evidence and expansion remain separate meanings. MobileApp / ProviderConnection. |
 | C14 | Synthetic import review | Shared C01/C02/C03 cards/actions/choice chips, centered group capped at 520 dp | Development-only comparison, source variants and explicit book choice; [ImportPreview](../../../apps/platform-lab/src/mobile/ImportPreview.tsx). No saved-library import. |
 | C15 | Captured flight review | Shared cards/actions in the connection panel&#x27;s centered 520 dp group; five records per page, eight original fields per detail page | [CapturedFlights](../../../apps/platform-lab/src/mobile/CapturedFlights.tsx) reads owner-scoped saved evidence without requiring provider login. Dates/clocks, reported duration, aircraft and separate crew fields retain unknown/invalid/conflict states; original field text is selectable and untruncated. No book membership or canonical import. |
@@ -1845,7 +1845,7 @@ The Start summary reads committed-library freshness, independently of raw captur
 
 ## Header, overlays and navigation
 
-**22 October alternative branch (#55), revised feedback:** Meine Saison is the first Start group; the permanent leading connection/reminder box is removed. The compact card contains one latest saved flight with date/relative age, recorded PIC and aircraft, plus current/prior-year time/starts rings split by aircraft. Its row opens the exact saved identity; Alle Flüge ansehen opens the general list. Saison im Detail opens one dense monthly chart with measure chips. Jan–Dec always stay in one row; enlarged text scrolls horizontally. Unknown dates/times, ambiguous same-day chronology and incomplete coverage remain explicit. Empty/error states give passive header guidance. The compact Verein card and source-expiry Medical states remain. See the [alternative contract](alternative-ui.md) for scoped authority, illustration provenance and acceptance limits.
+**22 October alternative branch (#55), revised feedback:** Meine Saison is the first Start group; the permanent leading connection/reminder box is removed. The compact card contains one latest saved flight with date/relative age, recorded PIC and aircraft, plus current/prior-year time/starts rings split by aircraft. Its row opens the exact saved identity; Alle Flüge ansehen opens the general list. Saison im Detail opens one dense monthly chart with measure chips. Jan–Dec always stay in one row; all twelve months fit visibly at enlarged text too, using compact axis labels. Unknown dates/times, ambiguous same-day chronology and incomplete coverage remain explicit. Empty/error states give passive header guidance. The compact Verein card and source-expiry Medical states remain. See the [alternative contract](alternative-ui.md) for scoped authority, illustration provenance and acceptance limits.
 
 Start remains mounted across ordinary navigation, retaining processed selectors and disclosure state. Identical inputs do not recompute season/month summaries and tab return does not itself reload storage. Duplicate active notifications are ignored; real background/foreground and provider closure still require guarded local revalidation. Never show an unconfirmed owner&#x27;s cached data. These host-tested boundaries are not proof that every reported native reload has been resolved.
 
@@ -1864,7 +1864,7 @@ Bottom navigation has five equal icon/label destinations and semantic selected s
 | MIN, 360 dp | Check overlap, clipping, scrolling and keyboard. Enlarged text avoids forced compact pairings. |
 | MAIN, 390–412 dp | Primary fidelity target for approved geometry, spacing, colors and hierarchy. Code values alone do not prove it. |
 | MAX, 600+ dp | Bound forms/details/card groups or use columns/master-detail. Current shell uses 600/960 bounds; forms commonly 480/520; dashboard groups cap at 520 and use two columns at width 840 when text is not enlarged. |
-| Large text / landscape | Controls grow, labels remain, content reflows with keyboard/insets. Above font scale 1.3 several sections stack; ring measure pairs stack and the monthly chart remains one Jan–Dec row with horizontal scrolling. |
+| Large text / landscape | Controls grow, labels remain, content reflows with keyboard/insets. Above font scale 1.3 several sections stack; ring measure pairs stack and the monthly chart remains one fully visible Jan–Dec row without horizontal scrolling, using compact axis labels. |
 
 At 600+ dp—including landscape phones, tablets/foldables—cap and center individual groups or use an appropriate multi-column composition. A 480 dp cap is illustrative, not universal. Record actual logical dp, density and font scale. The [refinement policy](../2026-10-16-ui-fidelity-refinement.md) controls acceptance.
 
@@ -2625,43 +2625,43 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/season-model.ts](
 
 ## SeasonMonthlyCharts.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/SeasonMonthlyCharts.tsx](../../../apps/platform-lab/src/mobile/SeasonMonthlyCharts.tsx); normalized SHA-256 `fd072685eae38552008c3fa8fe7313a02534fa79a903c918d22a22853a2f23c3`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/SeasonMonthlyCharts.tsx](../../../apps/platform-lab/src/mobile/SeasonMonthlyCharts.tsx); normalized SHA-256 `1dd5e9b23dec48bcc8acc887c6debb18c7388e6878d81b0cbad1b20017a0e0cc`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#7194be` | 17, 21 |
+| `#7194be` | 17, 20 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 10` | 25 |
-| `fontSize: 12` | 25 |
-| `lineHeight: 12` | 25 |
-| `lineHeight: 16` | 25 |
-| `lineHeight: 18` | 25 |
+| `fontSize: 10` | 24 |
+| `fontSize: 12` | 24 |
+| `lineHeight: 12` | 24 |
+| `lineHeight: 16` | 24 |
+| `lineHeight: 18` | 24 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 4` | 25 |
-| `gap: 16` | 25 |
-| `gap: 5` | 25 |
-| `gap: 6` | 25 |
-| `gap: 8` | 25 |
-| `height: 8` | 25 |
-| `height: 80` | 25 |
-| `minHeight: 94` | 25 |
-| `minWidth: 0` | 25 |
-| `minWidth: 2` | 25 |
-| `opacity: .5` | 25 |
-| `paddingHorizontal: 0` | 25 |
-| `width: &#x27;100%&#x27;` | 25 |
-| `width: &#x27;62%&#x27;` | 25 |
-| `width: 8` | 25 |
+| `borderRadius: 4` | 24 |
+| `gap: 16` | 24 |
+| `gap: 5` | 24 |
+| `gap: 6` | 24 |
+| `gap: 8` | 24 |
+| `height: 8` | 24 |
+| `height: 80` | 24 |
+| `minHeight: 94` | 24 |
+| `minWidth: 0` | 24 |
+| `minWidth: 2` | 24 |
+| `opacity: .5` | 24 |
+| `paddingHorizontal: 0` | 24 |
+| `width: &#x27;100%&#x27;` | 24 |
+| `width: &#x27;62%&#x27;` | 24 |
+| `width: 8` | 24 |
 
 ## SeasonRing.tsx
 
@@ -3489,7 +3489,7 @@ States / limits: Recreated approved variant, not a byte-identical copy of an old
 Source: docs/assets/branding/moflight-app-icon-ai.png
 docs/assets/branding/README.md; app.json
 </textarea></section>
-<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: 901f1ea1a65b35ea41e0bc5e84627d591b80e7af35710038e6e579fa20e5e06e. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
+<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: 8b555a50cae840a01ba6b4f91516ae4cad5773e7ce32210b1ae6ef7262fbf95b. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
 </main><script>
 'use strict';
 const brief = document.querySelector('#brief');
