@@ -196,7 +196,7 @@ test('synthetic import preview opens without seeding or provider work, retains i
 test('Start paper information explains deferred setup without showing synthetic book progress',()=>{
   const f=fixture();f.find('Dashboard').props.onPaper();f.render();
   assert.equal(f.nodes().some(n=>n.type==='PaperStatus'),false);
-  assert.ok(f.nodes().some(n=>n.type==='Section'&&n.props.title==='Papierflugbuch später einrichten'));
+  assert.ok(f.nodes().some(n=>n.type==='Section'&&n.props.title==='Dein Papierflugbuch'));
   assert.equal(f.headers().at(-1)!.props.title,'Papierflugbuch');assert.deepEqual(f.calls,[]);
   f.headers().at(-1)!.props.back();f.render();assert.equal(f.headers().at(-1)!.props.title,'Übersicht');
 });
@@ -360,7 +360,7 @@ test('nested settings preserve the unsaved profile draft and each sheet scroll o
  test('ordinary flights shares the shell reader, routes explicit updates safely and handles nested Back', () => {
   const f=fixture();f.press('Pressable','Flüge');
   assert.equal(f.find('OwnFlights').props.active,true);
-  assert.ok(f.nodes().some(n=>n.type==='Label' && n.children.includes('Entwicklungsversion')));
+  assert.ok(f.nodes().some(n=>n.type==='Label' && n.children.some((child:any)=>typeof child==='string'&&child.includes('Entwicklungsversion'))));
   assert.equal(f.nodes().some(n=>n.type==='Label' && n.children.includes('Entwicklung · synthetische lokale Bibliothek')),false);
   assert.equal(f.nodes().some(n=>n.type==='FlatList'),false);
 
@@ -370,7 +370,7 @@ test('nested settings preserve the unsaved profile draft and each sheet scroll o
   f.press('Pressable','Verein');assert.equal(f.find('OwnFlights').props.active,false);
  });
 
-test('Start offers the general Flüge route without per-flight drilldown or provider work', () => {
+test('Start offers the general Flüge route without provider work', () => {
   const f=fixture();
   f.find('Dashboard').props.onFlights();f.render();assert.equal(f.find('OwnFlights').props.active,true);
   f.press('Pressable','Flüge');
@@ -443,7 +443,7 @@ test('font and width changes preserve every navigation destination, selected sta
     assert.equal(tabs().find(n=>n.props.accessibilityState.selected)!.props.accessibilityLabel,'Flüge');
     f.press('Pressable','Flugbuch');
   }
-  assert.ok(f.nodes().some(n=>n.type==='Label'&&n.children.includes('Entwicklungsversion')));
+  assert.ok(f.nodes().some(n=>n.type==='Label'&&n.children.some((child:any)=>typeof child==='string'&&child.includes('Entwicklungsversion'))));
   assert.equal(f.nodes().some(n=>n.type==='Label'&&n.children.includes('Entwicklung · synthetische lokale Bibliothek')),false);
 });
 
@@ -469,4 +469,12 @@ test('non-header legacy connection intents are normalized to offline administrat
   shell.props.onCoreFlights('connect');f.render();
   assert.equal(f.find('CoreFlightFoundation').props.intent,'options');
   assert.equal(f.find('CoreFlightFoundation').props.providerEntryAllowed,false);
+});
+
+
+test('recent-flight entry carries exact identity into the ordinary list and does not open provider UI',()=>{
+ const f=fixture();f.find('Dashboard').props.onFlight('saved-flight-123');f.render();
+ assert.equal(f.find('OwnFlights').props.active,true);
+ assert.equal(f.find('OwnFlights').props.filterRequest.flightId,'saved-flight-123');
+ assert.equal(f.find('OwnFlights').props.filterRequest.year,null);assert.equal(f.coreRoutes.length,0);
 });

@@ -39,32 +39,32 @@ export function ConnectionSummary({ ownFlights, phase = 'loading', compact = fal
     : reason === 'new-or-changed' ? 'Neue oder geänderte Fluginformationen wurden erkannt.'
     : 'Der letzte bestätigte Flugdatenabruf liegt mehr als 72 Stunden zurück.';
 
-  if (phase === 'failed') return <Card style={compact ? { width: '100%', maxWidth: 430, alignSelf: 'center' } : undefined}>
+  if (phase === 'failed') return <Card style={compact ? { width: '100%', maxWidth: 520, alignSelf: 'center' } : undefined}>
     <Label>Gespeicherte Flugdaten konnten nicht gelesen werden. Ein aktueller Stand wird nicht angezeigt.</Label>
     {headerHint}
   </Card>;
   if (compact && phase === 'loading' && !recoveryNeedsAction) return null;
   if (compact && !firstUse && !needsInitialLoad && !recoveryNeedsAction && !reminder.visible) return null;
 
-  if (compact && recoveryNeedsAction) return <Card style={{ width: '100%', maxWidth: 430, alignSelf: 'center' }}>
+  if (compact && recoveryNeedsAction) return <Card style={{ width: '100%', maxWidth: 520, alignSelf: 'center' }}>
     <Label>Eine Speicherung oder Wiederherstellung muss geprüft werden. Der letzte geprüfte Stand bleibt lesbar.</Label>
     {headerHint}
   </Card>;
 
-  if (compact && !firstUse && reminder.visible) return <Card style={{ width: '100%', maxWidth: 430, alignSelf: 'center' }}>
+  if (compact && !firstUse && reminder.visible) return <Card style={{ width: '100%', maxWidth: 520, alignSelf: 'center' }}>
     <Section title="Flugdaten" action={onSnoozeReminder && reminderScopeKey ? '24 h ausblenden' : undefined} onPress={onSnoozeReminder && reminderScopeKey ? snooze : undefined} />
     <Label>{reminderMessage(reminder.reason)}</Label>
     {headerHint}
   </Card>;
 
-  if (compact && needsInitialLoad) return <Card style={{ width: '100%', maxWidth: 430, alignSelf: 'center' }}>
-    <Section title="Deine Flüge" icon="flight-paper-plane" />
+  if (compact && needsInitialLoad) return <Card style={{ width: '100%', maxWidth: 520, alignSelf: 'center' }}>
+    <Section title={firstUse?"Bereit für deinen nächsten Flug?":"Deine Flüge"} icon="flight-paper-plane" />
     <Label>Für dieses zugeordnete Konto wurden noch keine Flugdaten gespeichert.</Label>
     {headerHint}
   </Card>;
 
-  return <Card style={compact ? { width: '100%', maxWidth: 430, alignSelf: 'center' } : undefined}>
-    <Section title="Deine Flüge" icon="flight-paper-plane" />
+  return <Card style={compact ? { width: '100%', maxWidth: 520, alignSelf: 'center' } : undefined}>
+    <Section title={firstUse?"Bereit für deinen nächsten Flug?":"Deine Flüge"} icon="flight-paper-plane" />
     {currentOwnFlights && !firstUse ? <Label>{currentOwnFlights.flights.length} Flüge auf diesem Gerät gespeichert</Label> : <Label>Deine Flüge und Saisonübersicht an einem Ort.</Label>}
     {(!compact && (currentOwnFlights || phase !== 'missing')) && <Label muted>{freshness.label}</Label>}
     {!compact && !!freshness.note && !(freshness.reminder && reminder.snoozed && readState === 'ready') && <Label muted>{freshness.note}</Label>}

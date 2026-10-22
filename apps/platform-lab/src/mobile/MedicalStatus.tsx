@@ -47,9 +47,9 @@ export function MedicalDetails({ capture = null, loading = false, needsReload = 
 }
 
 const styles = StyleSheet.create({
-  control: { minWidth: 72, minHeight: 48, paddingHorizontal: 6, paddingVertical: 3, borderRadius: 12, backgroundColor: '#102d47aa', alignItems: 'center', justifyContent: 'center' },
+  control: { minWidth: 72, minHeight: 48, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12, backgroundColor: colors.card, alignItems: 'center', justifyContent: 'center' },
   title: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 3 },
   label: { color: colors.text, fontSize: 12, lineHeight: 16, fontWeight: '600' },
-  status: { color: colors.muted, fontSize: 11, lineHeight: 15 },
+  status: { color: colors.muted, fontSize: 12, lineHeight: 17 },
   details: { width: '100%', maxWidth: 480, alignSelf: 'center' },
 });

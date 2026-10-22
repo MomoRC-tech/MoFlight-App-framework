@@ -21,9 +21,9 @@ export function DataUpdateIndicator({ receivedAt, readState, now, disabled = fal
 }
 
 const styles = StyleSheet.create({
-  button: { minWidth: 74, minHeight: 48, paddingHorizontal: 6, paddingVertical: 3, borderRadius: 14,
-    borderWidth: 1, backgroundColor: '#102d47aa', alignItems: 'center', justifyContent: 'center' },
+  button: { minWidth: 74, minHeight: 48, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 14,
+    borderWidth: 1, backgroundColor: colors.card, alignItems: 'center', justifyContent: 'center' },
   row: { flexDirection: 'row', alignItems: 'center', gap: 3 },
-  title: { fontSize: 11, lineHeight: 15, fontWeight: '600' },
-  age: { fontSize: 10, lineHeight: 14 },
+  title: { fontSize: 12, lineHeight: 17, fontWeight: '600' },
+  age: { fontSize: 12, lineHeight: 17 },
 });

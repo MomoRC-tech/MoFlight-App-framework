@@ -2,7 +2,8 @@ import React from 'react';
 import { ImageBackground, Pressable, StyleSheet, Text, View, type ImageSourcePropType, type StyleProp, type ViewStyle } from 'react-native';
 import { SymbolIcon, legacyIconTone, type SymbolName, type SymbolTone } from './SymbolIcon';
 
-export const colors = { background: '#000d18', card: '#071929', raised: '#11263b', border: '#244760', text: '#f5f7ff', muted: '#adbed5', blue: '#3595fe', cyan: '#46ccff', purple: '#231e63', orange: '#fc6a2d', green: '#48dba5' };
+// Branch alternative: quiet surfaces, one action color, strong reading hierarchy.
+export const colors = { background: '#0b141c', card: '#14232f', raised: '#1d3242', border: '#304653', text: '#f4f7f8', muted: '#b0c1cd', blue: '#76dfc6', cyan: '#8be8d2', purple: '#231e63', orange: '#fc6a2d', green: '#48dba5' };
 export function GliderMark({ color = colors.text, large = false }: { color?: string; large?: boolean }) {
   return <SymbolIcon name="glider" size={large ? 68 : 28} tone={legacyIconTone(color)} />;
 }
@@ -40,20 +41,20 @@ export function Photo({ source, children, style, contentStyle, tint, radius = 14
   return <ImageBackground source={source} resizeMode="cover" style={[ui.photo, { borderRadius: radius }, style]} imageStyle={{ borderRadius: radius }}><View style={[ui.shade, tint ? { backgroundColor: tint } : undefined, contentStyle]}>{children}</View></ImageBackground>;
 }
 export const ui = StyleSheet.create({
-  text: { color: colors.text, fontSize: 13, lineHeight: 18 }, muted: { color: colors.muted },
+  text: { color: colors.text, fontSize: 15, lineHeight: 22 }, muted: { color: colors.muted },
   title: { color: colors.text, fontSize: 26, fontWeight: '700', letterSpacing: -.6 },
-  heading: { color: colors.text, fontSize: 15, lineHeight: 20, fontWeight: '600' },
-  card: { backgroundColor: colors.card, experimental_backgroundImage: 'linear-gradient(140deg, #0c2d4a, #04131e)', borderWidth: 1, borderColor: colors.border, borderRadius: 14, padding: 11, gap: 6, overflow: 'hidden' },
+  heading: { color: colors.text, fontSize: 19, lineHeight: 26, fontWeight: '600' },
+  card: { backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border, borderRadius: 22, padding: 18, gap: 12, overflow: 'hidden' },
   row: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   grid: { flexDirection: 'row', gap: 8, alignItems: 'stretch' },
   column: { flex: 1, minWidth: 0, gap: 8 },
-  action: { minHeight: 48, borderRadius: 16, paddingHorizontal: 14, paddingVertical: 8, backgroundColor: colors.blue, alignItems: 'center', justifyContent: 'center' },
-  actionText: { color: '#031326', fontSize: 13, lineHeight: 18, fontWeight: '600' },
+  action: { minHeight: 52, borderRadius: 16, paddingHorizontal: 18, paddingVertical: 12, backgroundColor: colors.blue, alignItems: 'center', justifyContent: 'center' },
+  actionText: { color: '#031326', fontSize: 15, lineHeight: 22, fontWeight: '600' },
   actionContent: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6 },
   secondary: { backgroundColor: colors.raised, borderWidth: 1, borderColor: colors.border },
   chipTouch: { minHeight: 48, justifyContent: 'center' },
-  chip: { minHeight: 34, minWidth: 66, borderWidth: 1, borderColor: colors.border, borderRadius: 20, paddingHorizontal: 13, paddingVertical: 6, justifyContent: 'center', alignItems: 'center', backgroundColor: '#061522' },
-  chipSelected: { backgroundColor: colors.blue, experimental_backgroundImage: 'linear-gradient(180deg, #46acff, #238bf5)', borderColor: '#68baff', boxShadow: '0 0 7px #1889ff55' }, chipText: { color: colors.text, fontSize: 13, lineHeight: 20 },
+  chip: { minHeight: 40, minWidth: 66, borderWidth: 1, borderColor: colors.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 8, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.card },
+  chipSelected: { backgroundColor: colors.blue, borderColor: colors.blue }, chipText: { color: colors.text, fontSize: 14, lineHeight: 20 },
   section: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
   smallAction: { minHeight: 48, justifyContent: 'center', paddingHorizontal: 4 },
   empty: { gap: 4, paddingVertical: 5 }, pressed: { opacity: .72 },

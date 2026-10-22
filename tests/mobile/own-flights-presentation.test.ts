@@ -168,3 +168,12 @@ test('month request clears stale search and opens only the exact saved identity 
   f.find('Pressable','Zeitraumfilter entfernen').props.onPress();f.render();
   assert.ok(!f.nodes().some(n=>n.props.accessibilityLabel==='Zeitraumfilter entfernen'));
 });
+
+
+test('search clear preserves year; one-step filter reset restores all saved rows',()=>{
+ const f=fixture();f.request(2025);
+ f.find('TextInput','Flüge durchsuchen').props.onChangeText('absent');f.render();assert.equal(f.find('FlatList').props.data.length,0);
+ f.find('Pressable','Suche löschen').props.onPress();f.render();assert.equal(f.find('FlatList').props.data.length,1);
+ const reset=f.nodes().find(n=>n.type==='Action'&&visibleText(n).includes('Alle Filter zurücksetzen'));assert.ok(reset);reset.props.onPress();f.render();assert.equal(f.find('FlatList').props.data.length,f.data.view.flights.length);
+ assert.ok(!f.nodes().some(n=>n.props.accessibilityLabel==='Suche löschen'));
+});

@@ -22,7 +22,7 @@ test('one monthly chart switches count and hours without offering drilldowns',()
  assert.equal(initial.filter(n=>n.type==='ScrollView').length,0);
  const months=initial.filter(n=>n.props.accessible);assert.equal(months.length,12);
  assert.equal(months.filter(n=>n.props.accessibilityLabel.includes('zukünftig')).length,2);
- assert.ok(months.every(n=>n.props.style[1].width==='8.333333%'));
+ assert.ok(months.every(n=>n.props.style[1].width==='16.666666%'));
  assert.equal(initial.filter(n=>n.type==='Pressable'||n.type==='Action').length,0);
  assert.equal(initial.filter(n=>n.type==='Chip').length,2);
  assert.equal(initial.filter(n=>n.type==='Chip'&&n.props.selected)[0]!.props.title,'Flüge');
@@ -46,9 +46,9 @@ test('year rollover and account changes leave no stale month selection or action
  assert.equal(next.filter(n=>n.props.accessible&&n.props.accessibilityLabel.includes('zukünftig')).length,11);
 });
 
-test('enlarged text keeps all twelve month descriptions in two six-month rows',()=>{
+test('enlarged text keeps all twelve month descriptions in four three-month rows',()=>{
  const f=fixture(1.6),nodes=f.render();
  const months=nodes.filter(n=>n.props.accessible);
- assert.equal(months.length,12);assert.ok(months.every(n=>n.props.style[1].width==='16.666666%'));
+ assert.equal(months.length,12);assert.ok(months.every(n=>n.props.style[1].width==='33.333333%'));
  assert.match(months[0]!.props.accessibilityLabel,/Jan/);assert.match(months[11]!.props.accessibilityLabel,/Dez/);
 });
