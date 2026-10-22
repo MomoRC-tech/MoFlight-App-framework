@@ -7,6 +7,8 @@
 
 # MoFlight
 
+**Start usability follow-up — 22 October 2026:** application `a946a2a` displays local preparation feedback, combines monthly counts/hours in one switchable chart and displays the latest two flights in read-only boxes before the chart. Start detail drill-downs are removed. Details belong in Flüge; broader filtered analytics remain pending in #9. [Download APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/lab-2026-10-22-start-simplification/MoFlight-Android-start-simplification.zip); [verification and limits](docs/verification/2026-10-21-simple-flight-loading.md#start-feedback-simplification--22-october-2026).
+
 **Android stored-credential follow-up — 22 October 2026:** application `d6510e2` keeps the original login form visible while Android's password-manager dialogs pause MoFlight. Fresh account verification still gates retrieval and writes. **741 mobile/110 Python**, types/lint/fixtures, both exports and committed-source Android Release pass. The actual Google credential chooser and authenticated phone retry remain open under #42. [Download the APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/lab-2026-10-22-autofill-resume/MoFlight-Android-autofill-resume.zip); [evidence and limits](docs/verification/2026-10-21-simple-flight-loading.md#android-credential-dialog-login-surface--22-october-2026).
 
 **Compact Start/data package — 22 October 2026:** application `6dcc0da` integrates monthly flight-count/known-hours comparisons and the latest saved flight into Meine Saison, replaces the returning large flight box with a conditional 72-hour reminder/24-hour snooze, and displays the earliest recorded Medical expiry with six-calendar-month attention. Verein now presents scope-labelled partial duty sources through a separate manual-update job and 30-day backup-excluded cache with abbreviated names. The startup latest-flight check uses the approved reminder-only fallback because no safe lightweight source is proven; full roster/partner coverage and live duty acceptance remain open. Checks pass **739 mobile/110 Python**, types/lint/fixtures, both exports and committed-source Android Release. Scoped offline month/detail return, normal/enlarged/wide chart layout and actual saved Medical-expiry display pass with source-specific limits. Included in the newer APK above; [evidence and remaining gates](docs/verification/2026-10-21-simple-flight-loading.md#compact-start-monthly-comparisons-medical-and-duty-sources--22-october-2026).
@@ -73,7 +75,7 @@ The [first-use journey added on 18 October](docs/product/2026-10-13-journey-info
 
 ### Your flying, at a glance
 
-A compact swipeable summary is planned for this year's flight count and known time, with a same-period previous-year comparison, aircraft flown most often and duration distribution. Tapping a summary opens its charts and supporting flights. Filters cover period, aircraft, person and your recorded role.
+A compact swipeable summary is planned for this year's flight count and known time, with a same-period previous-year comparison, aircraft flown most often and duration distribution. Start now keeps its overview and recent-flight boxes read-only. Richer charts, supporting flights and period/aircraft/person/recorded-role filters are planned in Flüge; the complete set is not implemented yet.
 
 Unknown durations stay unknown. Incomplete history is shown as incomplete; a partial year must not look like a complete lifetime record.
 
