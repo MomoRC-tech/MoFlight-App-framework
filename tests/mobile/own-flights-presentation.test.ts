@@ -102,3 +102,53 @@ test('ordinary flight rows expose useful saved facts while technical provenance 
   assert.ok(detailText.includes(item.sourceFlightRef));assert.ok(detailText.includes('Fassung 1'));
   assert.ok(detailText.includes('Kein gespeicherter Track'));assert.ok(f.nodes().some(n=>n.type==='Section'&&n.props.title==='Originale Anbieterfelder'));assert.ok(detailText.includes(item.facts.assessment.observation.row.values[0]));
 });
+
+test('original provider fields paginate across three pages and return to the filtered list',()=>{
+  const f=fixture();
+  f.find('TextInput','Flüge durchsuchen').props.onChangeText('D-T001');f.render();
+  const item=f.find('FlatList').props.data[0];
+  const total=19;
+  const headers=Array.from({length:total},(_,i)=>`Synthetic provider field ${i+1}`);
+  const values=Array.from({length:total},(_,i)=>`Synthetic value ${i+1}`);
+  const makeDetail=()=>({...item,factHistory:[],captures:[],pending:[],facts:{...item.facts,assessment:{...item.facts.assessment,observation:{...item.facts.assessment.observation,headers,row:{...item.facts.assessment.observation.row,values}}}}});
+  f.data.detail=makeDetail();
+  f.data.clearDetail=()=>{f.data.detail=null;};
+  f.render();
+  const action=(caption:string)=>{
+    const node=f.nodes().find(n=>n.type==='Action'&&visibleText(n).trim()===caption);
+    assert.ok(node,`Action ${caption}`);return node;
+  };
+  const detailText=()=>visibleText(f.render()).replace(/\s+/g,' ');
+  const assertRange=(from:number,to:number)=>assert.match(detailText(),new RegExp(`Felder ${from}\\s*–\\s*${to} von ${total}`));
+  const previous=()=>action('Vorherige Felder');
+  const next=()=>action('Weitere Felder');
+
+  assert.equal(previous().props.label,'Vorherige Anbieterfelder');assert.equal(previous().props.disabled,true);
+  assert.equal(next().props.label,'Weitere Anbieterfelder');assert.equal(next().props.disabled,false);
+  assertRange(1,8);
+  assert.ok(detailText().includes('Synthetic value 1')&&detailText().includes('Synthetic value 8'));
+  assert.ok(!detailText().includes('Synthetic value 9'));
+
+  next().props.onPress();
+  assertRange(9,16);
+  assert.ok(detailText().includes('Synthetic value 9')&&detailText().includes('Synthetic value 16'));
+  assert.equal(previous().props.disabled,false);assert.equal(next().props.disabled,false);
+
+  next().props.onPress();
+  assertRange(17,19);
+  assert.ok(detailText().includes('Synthetic value 17')&&detailText().includes('Synthetic value 19'));
+  assert.equal(previous().props.disabled,false);assert.equal(next().props.disabled,true);
+
+  previous().props.onPress();
+  assertRange(9,16);
+  action('Zur gefilterten Flugliste').props.onPress();
+  const listText=detailText();
+  assert.ok(f.nodes().some(n=>n.type==='Section'&&n.props.title==='Eigene gespeicherte Flüge'));
+  assert.ok(!listText.includes('Originale Anbieterfelder'));
+  assert.equal(f.find('TextInput','Flüge durchsuchen').props.value,'D-T001');
+  assert.deepEqual(f.find('FlatList').props.data.map((flight:any)=>flight.flightId),['flight-1']);
+
+  f.data.detail=makeDetail();
+  assertRange(1,8);
+  assert.ok(detailText().includes('Synthetic value 1'));
+});
