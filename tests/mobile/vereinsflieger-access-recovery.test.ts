@@ -17,6 +17,7 @@ import type { useAccessController } from '../../apps/platform-lab/src/vereinsfli
 import type { ViewPreferences } from '../../apps/platform-lab/src/vereinsflieger/view.ts';
 import { captureFixture } from './capture-review-fixture.ts';
 import * as information from '../../apps/platform-lab/src/vereinsflieger/information.ts';
+import * as providerDiagnostics from '../../apps/platform-lab/src/vereinsflieger/provider-diagnostics.ts';
 import { InformationRun } from '../../apps/platform-lab/src/vereinsflieger/information-run.ts';
 const { FLIGHT_URL } = probe;
 
@@ -101,6 +102,7 @@ function fixture(options: { developmentRecoveryCheckpoints?: boolean; noNativeRe
   function CaptureRun() {}
   function WindowCapture() {}
   const modules: Record<string, unknown> = {
+    './provider-diagnostics': { ...providerDiagnostics, recordProviderEvent() {}, recordProviderDocument() {} },
     './flight-diagnostics': { startFlightSpan:(name:string)=>{const phase={name,result:null as boolean|null};diagnosticPhases.push(phase);return(result:boolean)=>{if(phase.result===null)phase.result=result;};} },
     '@moflight/flight-logbook': { canonical }, './legacy-recovery-store': legacyStore,
     react: { default: react, ...react },
@@ -199,6 +201,16 @@ function fixture(options: { developmentRecoveryCheckpoints?: boolean; noNativeRe
     (web.props.onLoadEnd as (event: unknown) => void)(event);
     return flush();
   }
+  function startPage(url: string) {
+    const web = find(render(), element => element.type === 'WebView'); assert.ok(web);
+    (web.props.onLoadStart as (event: unknown) => void)({ nativeEvent: { url } });
+    render();
+  }
+  async function finishPage(url: string) {
+    const web = find(render(), element => element.type === 'WebView'); assert.ok(web);
+    (web.props.onLoadEnd as (event: unknown) => void)({ nativeEvent: { url } });
+    return flush();
+  }
   function allowNavigation(url: string) {
     const web = find(render(), element => element.type === 'WebView'); assert.ok(web);
     return (web.props.onShouldStartLoadWithRequest as (request: unknown) => boolean)({ url, isTopFrame: true });
@@ -238,7 +250,7 @@ function fixture(options: { developmentRecoveryCheckpoints?: boolean; noNativeRe
     setInformationCaptureReader: (reader: typeof informationCaptureReader) => { informationCaptureReader = reader; },
     setInformationHistoryReader: (reader: typeof informationHistoryReader) => { informationHistoryReader = reader; },
     contextMessage, loginMessage, history, historyBacks: () => historyBacks, nativeReloads: () => nativeReloads,
-    allowNavigation, nativeStops: () => nativeStops, lastIssuedNonce: () => issuedNonces.at(-1),
+    allowNavigation, startPage, finishPage, nativeStops: () => nativeStops, lastIssuedNonce: () => issuedNonces.at(-1),
     unmount: () => { for (const hook of hooks) if (hook && typeof hook === 'object' && 'cleanup' in hook && typeof hook.cleanup === 'function') hook.cleanup(); },
     appState: (state: string) => appStateListener?.(state),
     changeOwner: (value: string) => { localOwner = value; render(); },
@@ -441,6 +453,49 @@ test('returning during an unfinished original login load preserves it until nati
   await f.loadPage('https://vereinsflieger.de/member/index.php');
   assert.equal(f.controller().connection.phase,'checking');
   assert.equal(f.scopeWrites(),0);f.unmount();
+});
+
+test('automatic sign-in navigation is not replaced by a profile check during credential return',async()=>{
+  for(const order of ['start-before-background','start-while-background','two-backgrounds','finish-while-background'] as const){
+    const f=fixture({product:true});f.render();await f.settle(null);await f.flush();
+    f.controller().beginGuidedFlightConnection();await f.loadPage(probe.LOGIN_URL);
+    const target='https://vereinsflieger.de/member/index.php';
+    const stops=f.nativeStops(),injections=f.injections.length;
+    if(order==='start-before-background')f.startPage(target);
+    f.appState('background');await f.flush();
+    if(order!=='start-before-background')f.startPage(target);
+    if(order==='two-backgrounds'){f.appState('background');await f.flush();}
+    if(order==='finish-while-background')await f.finishPage(target);
+    assert.equal(f.nativeStops(),stops,`Authentication response stopped: ${order}`);
+    f.appState('active');await f.flush();
+    assert.equal(f.controller().resumeGuidedFlightConnection(),true);
+    if(order!=='finish-while-background'){
+      assert.equal(f.controller().url,target,`In-flight authentication replaced: ${order}`);
+      assert.equal(f.injections.length,injections,`Premature profile navigation: ${order}`);
+      assert.equal(f.nativeStops(),stops);
+      assert.equal(f.scopeWrites(),0);
+      await f.finishPage(target);
+    }
+    assert.equal(f.controller().connection.phase,'checking');
+    await f.loadPage(context.PROFILE_URL);await f.contextMessage(observedContext);
+    assert.equal(f.controller().connection.confirmed,true);assert.equal(f.scopeWrites(),1);
+    f.unmount();
+  }
+});
+
+test('retaining an automatic sign-in response cannot resume after dismissal or owner change',async()=>{
+  for(const boundary of ['dismiss','owner']){
+    const f=fixture({product:true});f.render();await f.settle(null);await f.flush();
+    f.controller().beginGuidedFlightConnection();await f.loadPage(probe.LOGIN_URL);
+    const target='https://vereinsflieger.de/member/index.php';f.startPage(target);
+    const old=f.find(f.render(),e=>e.type==='WebView')!;
+    f.appState('background');f.appState('active');await f.flush();
+    if(boundary==='dismiss')f.controller().dismissLogin();else f.changeOwner('foreign-owner');
+    assert.equal(f.controller().resumeGuidedFlightConnection(),false);
+    (old.props.onLoadEnd as (event:unknown)=>void)({nativeEvent:{url:target}});await f.flush();
+    assert.notEqual(f.controller().connection.phase,'checking');
+    assert.equal(f.scopeWrites(),0);assert.deepEqual(f.writes,[]);f.unmount();
+  }
 });
 
 test('provider Back uses retained native history only on an idle visible owned page', async () => {

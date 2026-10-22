@@ -3,6 +3,7 @@ import { AppState } from 'react-native';
 import { WebView, type WebViewMessageEvent } from 'react-native-webview';
 import * as Crypto from 'expo-crypto';
 import { startFlightSpan } from './flight-diagnostics';
+import { recordProviderDocument, recordProviderEvent, loginDiagnosticScript, readLoginDiagnostic } from './provider-diagnostics';
 import { bridgeSource, flightUrl, FLIGHT_URL, LOGIN_URL, providerUrl, type ProbeSnapshot } from './probe';
 import { clearOriginalView, latestCapture, readOriginalView, saveCapture, saveOriginalView } from './storage';
 import { loginPage } from './login';
@@ -80,12 +81,14 @@ export function useAccessController(product = false, localOwner?: string, develo
   const [from, setFrom] = useState(captureRequest.from), [to, setTo] = useState(captureRequest.to);
   const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const phase = useRef({ loaded: false, progress: 0, injections: 0 });
+  const diagnosticDocument = useRef(0), diagnosticMessages = useRef(0);
   const [source, setSource] = useState({ uri: LOGIN_URL }), [url, setUrl] = useState(LOGIN_URL);
   const [generation, setGeneration] = useState(0);
   const [browserActive, setBrowserActive] = useState(!product);
   const [canGoBack, setCanGoBack] = useState(false);
   const [providerExpanded, setProviderExpanded] = useState(false);
   const [visible, setVisible] = useState(false), [busy, setBusy] = useState(false), [loaded, setLoaded] = useState(false);
+  useEffect(() => { if (!browserActive) return; recordProviderEvent('provider-mounted'); return () => recordProviderEvent('provider-unmounted'); }, [browserActive, documentId]);
   const [saving, setSaving] = useState(false);
   const testPauseEnabled = useRef(false), testPaused = useRef(false);
   const preBackupPauseEnabled = useRef(false);
@@ -306,6 +309,7 @@ export function useAccessController(product = false, localOwner?: string, develo
     const reloadObservedProfile=product&&browserActive&&loaded&&currentUrl.current===PROFILE_URL&&session.current.state.phase==='observed';
     const nonce = Crypto.randomUUID();
     if (!session.current.start(nonce)) return;
+    recordProviderEvent('provider-check');
     contextTiming.current?.(false);contextTiming.current=startFlightSpan('session-verification');
     setLoginNotice('none');
     contextRequest.current = { nonce, action, navigationObserved: false }; syncConnection();
@@ -316,6 +320,7 @@ export function useAccessController(product = false, localOwner?: string, develo
   }
   function connect() {
     if (owner.current !== activeOwner.current || clearingStore.current || bindingBusy.current || !foreground.current || disconnectMode.current || retrieval.current.state.phase !== 'idle' || loginBusy || loginStorageBusy.current || loginAttempt.current || busy || contextRequest.current || saving) return;
+    recordProviderEvent('provider-connect');
     afterConfirmation.current = null; flightSourceAttempt.current = null; pendingFlightSource.current = null; setLoginNotice('none');
     session.current.invalidate(); syncConnection(); setVisible(true); setResult('none');
     stopDiagnosticLogin(false);loginPageTiming.current=startFlightSpan('login-page');
@@ -340,8 +345,10 @@ export function useAccessController(product = false, localOwner?: string, develo
     clearCompletedFlightSource(); setResult('none');
     // Keep the original login form and Android Autofill values in the same
     // native WebView. A later authenticated navigation still needs fresh proof.
-    if (paused.retainedLoginDocument && loginPage(currentUrl.current)) setVisible(true);
-    else checkConnection();
+    // Autofill can submit before Android reports the activity as active. Do not
+    // replace an unfinished authentication POST/redirect with a profile GET.
+    if (paused.retainedLoginDocument && (!phase.current.loaded || loginPage(currentUrl.current))) { recordProviderEvent('provider-resume-wait'); setVisible(true); }
+    else { recordProviderEvent('provider-resume-check'); checkConnection(); }
     return true;
   }
   function suspendBrowserForOwnerSwitch(): boolean {
@@ -499,11 +506,11 @@ export function useAccessController(product = false, localOwner?: string, develo
       if (state === 'active') return;
       clearDevelopmentCheckpoints();
       // Credential pickers/authentication activities background Android. Leave
-      // the passive original form (and its native Autofill targets) untouched.
+      // the passive sign-in document AND any automatic submission/redirect alone.
       // Verification/retrieval and app-owned secret attempts still invalidate.
       const retainLoginDocument = owner.current === activeOwner.current &&
         (guidedFlightLogin.current || guidedLoginResume.current?.retainedLoginDocument === true) &&
-        loginPage(currentUrl.current) && !contextRequest.current && !pendingNavigation.current &&
+        providerUrl(currentUrl.current) && !contextRequest.current && !pendingNavigation.current &&
         retrieval.current.state.phase === 'idle' && !bindingBusy.current && !clearingStore.current &&
         !loginAttempt.current && !loginStorageBusy.current && !disconnectMode.current && !information.active();
       if (guidedFlightLogin.current && owner.current === activeOwner.current && retrieval.current.state.phase === 'idle' && !bindingBusy.current && !information.active()) {
@@ -514,6 +521,7 @@ export function useAccessController(product = false, localOwner?: string, develo
       information.backgrounded();
       clearContextRequest(); pendingNavigation.current = null; pendingCapture.current = null; afterConfirmation.current = null; endDisconnect(); session.current.invalidate(); syncConnection();
       flightSourceAttempt.current = null; pendingFlightSource.current = null;
+      recordProviderEvent(retainLoginDocument ? 'provider-keep-background' : 'provider-stop-background');
       if (!retainLoginDocument) { web.current?.stopLoading(); epoch.current++; setGeneration(epoch.current); }
       if (loginAttempt.current) endLogin('App left the foreground. Sign-in stopped; retry explicitly.', 'cancelled');
       if (retrieval.current.state.phase === 'loading') finish('App left the foreground. Recovery may be required.');
@@ -522,6 +530,7 @@ export function useAccessController(product = false, localOwner?: string, develo
   }, [product]);
   async function loadedPage(page: string) {
     if (product && page !== currentUrl.current) return;
+    recordProviderDocument('end', page);
     if(loginPage(page)){loginPageTiming.current?.(true);loginPageTiming.current=null;if(!userWaitTiming.current)userWaitTiming.current=startFlightSpan('user-sign-in-wait');}else{userWaitTiming.current?.(true);userWaitTiming.current=null;}
     const pageEpoch = epoch.current;
     phase.current.loaded = true; currentUrl.current = page; setUrl(page); setLoaded(true);
@@ -676,8 +685,9 @@ export function useAccessController(product = false, localOwner?: string, develo
   }, [generation]);
   function navigate(uri: string) {
     if (!providerUrl(uri)) return;
+    recordProviderDocument('command', uri);
     information.navigationStarted();
-    setLoaded(false); currentUrl.current = uri; setUrl(uri); epoch.current++; setGeneration(epoch.current);
+    phase.current.loaded = false; setLoaded(false); currentUrl.current = uri; setUrl(uri); epoch.current++; setGeneration(epoch.current);
     if (product && browserActive) {
       // Navigate the existing document; changing a key would discard the controller's browser.
       web.current?.stopLoading();
@@ -880,13 +890,14 @@ export function useAccessController(product = false, localOwner?: string, develo
   // Preserve its exact-profile evidence until an explicit navigation/request;
   // callbacks alone cannot authorize reload, which still requires PROFILE_URL.
   const browser = browserActive && <WebView key={product ? `retained-provider-${documentId}` : generation} ref={web} source={source} originWhitelist={['*']}
+        injectedJavaScript={loginDiagnosticScript(diagnosticDocument.current)}
         incognito={false} thirdPartyCookiesEnabled={false} sharedCookiesEnabled={false} webviewDebuggingEnabled={false}
         cacheEnabled={false} cacheMode="LOAD_NO_CACHE"
         allowFileAccess={false} allowFileAccessFromFileURLs={false} allowUniversalAccessFromFileURLs={false} mixedContentMode="never"
         javaScriptCanOpenWindowsAutomatically={false} setSupportMultipleWindows={true}
         onShouldStartLoadWithRequest={request => { if (generation !== epoch.current) return false; const allowed = providerUrl(request.url); if (allowed && request.isTopFrame !== false && request.url !== PROFILE_URL) information.navigationStarted(); if (product && contextRequest.current && request.isTopFrame !== false && request.url === PROFILE_URL) contextRequest.current.navigationObserved = true; if (!allowed && request.isTopFrame !== false) finish('External navigation blocked. Previous captures preserved.'); return allowed; }}
         onOpenWindow={() => { if (generation === epoch.current) finish('New browser window blocked in this bounded PoC.'); }}
-        onLoadStart={event => { if (generation !== epoch.current) return; information.loadStarted(event.nativeEvent.url); if (product && contextRequest.current && event.nativeEvent.url === PROFILE_URL) contextRequest.current.navigationObserved = true; if (retrieval.current.state.phase === 'loading') {
+        onLoadStart={event => { if (generation !== epoch.current) return; diagnosticDocument.current++; diagnosticMessages.current = 0; recordProviderDocument('start', event.nativeEvent.url); phase.current.loaded = false; information.loadStarted(event.nativeEvent.url); if (product && contextRequest.current && event.nativeEvent.url === PROFILE_URL) contextRequest.current.navigationObserved = true; if (retrieval.current.state.phase === 'loading') {
           // Native load-start can beat the bridge acknowledgement. Advance only
           // a still-owned, outstanding save/load command; acknowledged commands
           // already cleared their token and must not advance a second time.
@@ -901,6 +912,8 @@ export function useAccessController(product = false, localOwner?: string, develo
         onLoadEnd={event => { if (generation === epoch.current) void loadedPage(event.nativeEvent.url); }}
         onMessage={event => {
           if (generation !== epoch.current) return;
+          const observation = readLoginDiagnostic(event.nativeEvent.url, currentUrl.current, event.nativeEvent.data, diagnosticDocument.current);
+          if (observation) { if (diagnosticMessages.current++ < 32) recordProviderEvent(observation); return; }
           if (information.running()) { void information.receiveInformation(event); return; }
           if (product && contextRequest.current) { void receiveContext(event); return; }
           if (login.receiveMessage(event.nativeEvent)) return;
