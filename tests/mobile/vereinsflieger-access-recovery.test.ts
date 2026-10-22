@@ -77,7 +77,8 @@ function fixture(options: { developmentRecoveryCheckpoints?: boolean; noNativeRe
   const loginForget = new Promise<void>(resolve => { finishLoginForget = resolve; });
   const journalSave = new Promise<void>(resolve => { finishJournalSave = resolve; });
   const captureSave = new Promise<void>(resolve => { finishCaptureSave = resolve; });
-  const nativeWeb = { injectJavaScript: (script: string) => injections.push(script), reload() { nativeReloads++; }, stopLoading() {}, goBack() { historyBacks++; } };
+  let nativeStops = 0;
+  const nativeWeb = { injectJavaScript: (script: string) => injections.push(script), reload() { nativeReloads++; }, stopLoading() { nativeStops++; }, goBack() { historyBacks++; } };
   const react = {
     createElement: (type: unknown, props: Record<string, unknown> | null, ...children: unknown[]): Element => {
       if (type === 'WebView' && props?.ref) (props.ref as { current: unknown }).current = nativeWeb;
@@ -237,7 +238,7 @@ function fixture(options: { developmentRecoveryCheckpoints?: boolean; noNativeRe
     setInformationCaptureReader: (reader: typeof informationCaptureReader) => { informationCaptureReader = reader; },
     setInformationHistoryReader: (reader: typeof informationHistoryReader) => { informationHistoryReader = reader; },
     contextMessage, loginMessage, history, historyBacks: () => historyBacks, nativeReloads: () => nativeReloads,
-    allowNavigation, lastIssuedNonce: () => issuedNonces.at(-1),
+    allowNavigation, nativeStops: () => nativeStops, lastIssuedNonce: () => issuedNonces.at(-1),
     unmount: () => { for (const hook of hooks) if (hook && typeof hook === 'object' && 'cleanup' in hook && typeof hook.cleanup === 'function') hook.cleanup(); },
     appState: (state: string) => appStateListener?.(state),
     changeOwner: (value: string) => { localOwner = value; render(); },
@@ -389,6 +390,8 @@ test('guided sign-in return preserves the native login document and still requir
   const browserKey=(f.controller().browser as any).props.key;
   const injected=f.injections.length;
   const browserSource=(f.controller().browser as any).props.source;
+  const stops=f.nativeStops();
+  const generation=f.controller().generation;
   for(let dialog=0;dialog<2;dialog++){
     f.appState('background');await f.flush();f.appState('background');await f.flush();
     assert.equal(f.controller().resumeGuidedFlightConnection(),false);
@@ -399,6 +402,8 @@ test('guided sign-in return preserves the native login document and still requir
     assert.equal((f.controller().browser as any).props.key,browserKey);
     assert.equal((f.controller().browser as any).props.source,browserSource);
     assert.equal(f.controller().url,probe.LOGIN_URL);assert.equal(f.injections.length,injected);
+    assert.equal(f.nativeStops(),stops,'Credential selection must not stop the original document');
+    assert.equal(f.controller().generation,generation,'Native Autofill callbacks retain their document generation');
     assert.equal(f.controller().connection.confirmed,false);assert.equal(f.scopeWrites(),0);
   }
   await f.loadPage('https://vereinsflieger.de/member/index.php');
@@ -424,12 +429,17 @@ test('paused guided login cannot resume after dismissal or owner change, and a f
   }
 });
 
-test('returning during an unfinished login navigation starts fresh verification instead of waiting on a stopped load',async()=>{
+test('returning during an unfinished original login load preserves it until native completion',async()=>{
   const f=fixture({product:true});f.render();await f.settle(null);await f.flush();
   f.controller().beginGuidedFlightConnection();assert.equal(f.controller().loaded,false);
   f.appState('background');f.appState('active');await f.flush();
   assert.equal(f.controller().resumeGuidedFlightConnection(),true);
-  assert.equal(f.controller().connection.phase,'checking');assert.equal(f.controller().url,context.PROFILE_URL);
+  assert.equal(f.controller().connection.phase,'unknown');assert.equal(f.controller().url,probe.LOGIN_URL);
+  assert.equal(f.nativeStops(),0);assert.equal(f.injections.length,0);
+  await f.loadPage(probe.LOGIN_URL);
+  assert.equal(f.controller().visible,true);assert.equal(f.controller().loaded,true);
+  await f.loadPage('https://vereinsflieger.de/member/index.php');
+  assert.equal(f.controller().connection.phase,'checking');
   assert.equal(f.scopeWrites(),0);f.unmount();
 });
 

@@ -58,7 +58,7 @@ export function useAccessController(product = false, localOwner?: string, develo
   const [completedFlightSource, setCompletedFlightSource] = useState<RealFlightSourceInput | null>(null);
   const afterConfirmation = useRef<'retrieve' | 'recover' | null>(null);
   const guidedFlightLogin = useRef(false);
-  const guidedLoginResume = useRef<{ owner: string | undefined } | null>(null);
+  const guidedLoginResume = useRef<{ owner: string | undefined; retainedLoginDocument: boolean } | null>(null);
   const [lastSuccessfulCaptureAt, setLastSuccessfulCaptureAt] = useState<string | null>(null);
   const [result, setResult] = useState<'none' | 'captured' | 'cancelled' | 'failed' | 'review-required' | 'recovered'>('none');
   const captureSaved = useRef(false), cancelled = useRef(false);
@@ -340,7 +340,7 @@ export function useAccessController(product = false, localOwner?: string, develo
     clearCompletedFlightSource(); setResult('none');
     // Keep the original login form and Android Autofill values in the same
     // native WebView. A later authenticated navigation still needs fresh proof.
-    if (loginPage(currentUrl.current) && loaded) setVisible(true);
+    if (paused.retainedLoginDocument && loginPage(currentUrl.current)) setVisible(true);
     else checkConnection();
     return true;
   }
@@ -498,15 +498,23 @@ export function useAccessController(product = false, localOwner?: string, develo
       foreground.current = state === 'active';
       if (state === 'active') return;
       clearDevelopmentCheckpoints();
+      // Credential pickers/authentication activities background Android. Leave
+      // the passive original form (and its native Autofill targets) untouched.
+      // Verification/retrieval and app-owned secret attempts still invalidate.
+      const retainLoginDocument = owner.current === activeOwner.current &&
+        (guidedFlightLogin.current || guidedLoginResume.current?.retainedLoginDocument === true) &&
+        loginPage(currentUrl.current) && !contextRequest.current && !pendingNavigation.current &&
+        retrieval.current.state.phase === 'idle' && !bindingBusy.current && !clearingStore.current &&
+        !loginAttempt.current && !loginStorageBusy.current && !disconnectMode.current && !information.active();
       if (guidedFlightLogin.current && owner.current === activeOwner.current && retrieval.current.state.phase === 'idle' && !bindingBusy.current && !information.active()) {
-        guidedLoginResume.current = { owner: owner.current };
+        guidedLoginResume.current = { owner: owner.current, retainedLoginDocument: retainLoginDocument };
       }
       stopDiagnosticLogin(false);
       guidedFlightLogin.current = false;
       information.backgrounded();
       clearContextRequest(); pendingNavigation.current = null; pendingCapture.current = null; afterConfirmation.current = null; endDisconnect(); session.current.invalidate(); syncConnection();
       flightSourceAttempt.current = null; pendingFlightSource.current = null;
-      web.current?.stopLoading(); epoch.current++; setGeneration(epoch.current);
+      if (!retainLoginDocument) { web.current?.stopLoading(); epoch.current++; setGeneration(epoch.current); }
       if (loginAttempt.current) endLogin('App left the foreground. Sign-in stopped; retry explicitly.', 'cancelled');
       if (retrieval.current.state.phase === 'loading') finish('App left the foreground. Recovery may be required.');
     });
