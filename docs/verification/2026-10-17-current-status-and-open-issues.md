@@ -1,4 +1,16 @@
-# Implementation and open-issue reviews — 17–21 October 2026
+# Implementation and open-issue reviews — 17–22 October 2026
+
+## 22 October review — post-archive plan and Issue reconciliation
+
+**Scope/source:** Manuel requested another plan/Issue check after main adoption and documentation archival. Baseline clean main `51edec7b1426b56ddf7c95bff3949d8c22179581`; delivered application remains `d241dbd`. [#12](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/12) records this bounded documentation package. Retrieved the live inventory of 41 open Issues, compared primary roadmap ownership/categories and current summaries, and inspected the affected #2/#17/#19/#43 contracts against the selected main's header, Start and retrieval presentation. This is a focused reconciliation, not a repeat application or device audit.
+
+**Corrections:** the [plan](../project-plan.md#complete-ordered-issue-map) and those four Issues now distinguish saved retrieval age from live-session verification, describe conditional login followed by automatic retrieval/save/return, and mark the removed permanent Start reminder as historical. The over-72-hour note remains available in data-status detail; no lightweight startup provider check exists. The obsolete row 11.2 reference now points to #56/#10. The current decision register uses the selected four-ring/latest-flight/non-scroll chart layout; earlier source-specific evidence keeps its original dates and limits. Prior worker assignments are labelled history. No Issue is closed and no priority, product decision, acceptance gate or implementation scope is changed.
+
+**Source/evidence:** [header and Start composition](../../apps/platform-lab/src/mobile/MobileApp.tsx), [saved-age rules](../../apps/platform-lab/src/mobile/data-freshness.ts), [status-detail guidance](../../apps/platform-lab/src/mobile/ConnectionSummary.tsx), [automatic-flow presentation](../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx), [existing saved-age regression cases](../../tests/mobile/data-update-indicator.test.ts) and the [selected layout contract](../product/design/alternative-ui.md). The [merged-app verification](2026-10-22-alternative-ui.md#main-adoption-and-documentation-reconciliation) remains the source of application/native results; reading code/tests here adds no new runtime acceptance.
+
+**Remaining sequence:** actual fresh/returning phone login → automatic complete/partial result → Start → offline reopen (#42/#22/#43/#44); populated responsiveness and supported-source coverage (#45/#41/#56/#10); selected full-user preservation, supported upgrades/system restore and beta gates (#29/#34/#37/#21/#8). #19's earlier bounded acceptance and #36's owner risk disposition remain unchanged. #53 is a design proposal, and later cloud/AI/books/training retain their decisions. Spoken accessibility stays last; iOS remains deferred.
+
+**Verification passed:** 41 live open Issues map to 41 unique primary rows with matching category labels; 278 local links/anchors resolve across the two changed Markdown files. The archive check preserves all 27 legacy roadmap anchors and original archived prose; generated handbook remains fresh (177 links). Whitespace and GitHub write readback pass. Detailed local inventory is ignored at `build/plan-issue-review.json`; the verification summary is `build/plan-issue-review-check.json`. No application tests, builds, device/provider actions or paid execution were needed for documentation-only changes.
 
 ## 21 October review — complete backlog order and UI simplification
 
