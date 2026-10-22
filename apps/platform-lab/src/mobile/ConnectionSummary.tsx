@@ -21,7 +21,7 @@ export function ConnectionSummary({ ownFlights, phase = 'loading', compact = fal
   const plan = processRetrieval(scope, currentOwnFlights?.snapshot.savedRetrievals ?? null);
   const readState = phase === 'missing' ? 'ready' : phase;
   const freshness = dataFreshness(plan?.lastSuccessfulRetrievalAt ?? null, readState, now);
-  const headerHint=<Label muted>Neue Daten und Anmeldung erreichst du über „Daten“ oben in der Kopfzeile.</Label>;
+  const headerHint=<Label muted>Neue Daten und Anmeldung erreichst du über die Verbindung oben in der Kopfzeile.</Label>;
   const recoveryNeedsAction = !!(currentOwnFlights?.pendingCommand || currentOwnFlights?.snapshot.recovery?.readOnly);
   const firstUse = !currentOwnFlights?.snapshot.account && phase !== 'loading' && phase !== 'failed';
   const needsInitialLoad = !!currentOwnFlights?.snapshot.account && !plan?.lastSuccessfulRetrievalAt && phase !== 'loading' && phase !== 'failed';

@@ -28,7 +28,7 @@ export function DevelopmentHub({ onFlights, onBooks, onImportPreview, onCoreFlig
       <Action testID="development-book-lab" secondary icon="book" onPress={onBooks}>Flugbuchtest öffnen</Action>
     </Card>
     <Card><Section title="Anbieterdiagnose" icon="chain" />
-      <Label muted>Neue Daten und Anmeldung erreichst du ausschließlich über „Daten“ oben in der Kopfzeile. Die lokale Diagnose bleibt unter Profil verfügbar.</Label>
+      <Label muted>Neue Daten und Anmeldung erreichst du ausschließlich über die Verbindung oben in der Kopfzeile. Die lokale Diagnose bleibt unter Profil verfügbar.</Label>
     </Card>
   </View>;
 }

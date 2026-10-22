@@ -77,7 +77,7 @@ export function OwnFlights({ active, data, filterRequest, onHeaderChange }: {
       {plan.gaps.map(p => <Label key={p.from}>Lücke: {p.from} bis {p.to}</Label>)}
       {!plan.periods.length && <Label muted>Noch kein vollständiger Abruf gespeichert.</Label>}
       <Label muted>Gespeicherte Anbieterwerte, keine Aussage über die gesamte Fluggeschichte. Tracks und Distanzen sind nicht verifiziert.</Label>
-      <Action secondary onPress={() => void data.reload()}>Gespeicherte Flüge neu laden</Action><Label muted>Neue Daten und Anmeldung erreichst du über „Daten“ oben in der Kopfzeile.</Label></>}
+      <Action secondary onPress={() => void data.reload()}>Gespeicherte Flüge neu laden</Action><Label muted>Neue Daten und Anmeldung erreichst du über die Verbindung oben in der Kopfzeile.</Label></>}
       <Pressable accessibilityRole="button" accessibilityState={{expanded:statusOpen}} onPress={()=>setStatusOpen(!statusOpen)} style={ui.smallAction}><Label muted>{statusOpen ? 'Datenstand schließen' : 'Abdeckung & Datenstand'}</Label></Pressable>
     </View>
 
@@ -96,7 +96,7 @@ export function OwnFlights({ active, data, filterRequest, onHeaderChange }: {
             <View style={ui.column}><Label style={{fontSize:20,lineHeight:27,fontWeight:'600'}}>{reviewRawField(a.fields.registration)}</Label><Label muted>{reviewRawField(a.fields.model)}</Label>
               <Label>{reviewRawField(a.fields.departure)} → {reviewRawField(a.fields.arrival)}</Label></View><SymbolIcon name="right" size={20} tone="muted" /></View>
         </Card>; }}
-        ListEmptyComponent={<Card><Empty title={flights.length ? 'Keine passenden Flüge' : 'Noch keine gespeicherten Flüge'}>{flights.length ? 'Suchbegriff oder Filter ändern. Ein leeres Ergebnis ist keine Aussage über die gesamte Fluggeschichte.' : 'Über „Daten“ oben in der Kopfzeile eigene Flüge laden. Ein Flugbuch wird dafür nicht benötigt.'}</Empty></Card>}
+        ListEmptyComponent={<Card><Empty title={flights.length ? 'Keine passenden Flüge' : 'Noch keine gespeicherten Flüge'}>{flights.length ? 'Suchbegriff oder Filter ändern. Ein leeres Ergebnis ist keine Aussage über die gesamte Fluggeschichte.' : 'Über die Verbindung oben in der Kopfzeile eigene Flüge laden. Ein Flugbuch wird dafür nicht benötigt.'}</Empty></Card>}
         onScroll={event => { if (active && data.phase === 'ready' && !filterOpen && !detailOpen) offset.current = event.nativeEvent.contentOffset.y; }} scrollEventThrottle={32}
         onContentSizeChange={() => { if (data.phase === 'ready') list.current?.scrollToOffset({ offset: offset.current, animated: false }); }}
         contentContainerStyle={s.canvas} ItemSeparatorComponent={() => <View style={{ height: 7 }} />} initialNumToRender={10} maxToRenderPerBatch={10} windowSize={7} keyboardShouldPersistTaps="handled" />
@@ -106,7 +106,7 @@ export function OwnFlights({ active, data, filterRequest, onHeaderChange }: {
       <Section title={data.phase === 'loading' ? 'Gespeicherte Flüge laden' : data.phase === 'missing' ? 'Eigene Flüge einrichten' : 'Flüge nicht lesbar'} icon="flight-paper-plane" />
       {data.phase === 'loading' ? <ActivityIndicator color={colors.cyan} accessibilityLabel="Eigene gespeicherte Flüge werden geladen" /> : <>
         <Label>{data.detailError ?? (data.phase === 'missing' ? 'Noch keine eigene Flugbibliothek ausgewählt. Bestehende Teststände bleiben getrennt erhalten.' : 'Die gespeicherte Auswahl konnte nicht geprüft werden. Vorhandene Dateien und Aufträge bleiben erhalten.')}</Label>
-        <Action secondary onPress={() => void data.reload()}>Gespeicherte Flüge erneut prüfen</Action><Label muted>Neue Daten und Anmeldung erreichst du über „Daten“ oben in der Kopfzeile.</Label>
+        <Action secondary onPress={() => void data.reload()}>Gespeicherte Flüge erneut prüfen</Action><Label muted>Neue Daten und Anmeldung erreichst du über die Verbindung oben in der Kopfzeile.</Label>
       </>}
     </Card></View></ScrollView>}
     {filterOpen && <ScrollView contentContainerStyle={s.canvas}><View style={s.group}><Card><Section title="Flugfilter" />

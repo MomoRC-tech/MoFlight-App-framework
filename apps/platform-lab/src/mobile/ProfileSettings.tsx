@@ -21,7 +21,7 @@ export interface ProfileSettingsProps {
 }
 export function ProfileSettings({ connectionSummary, onBackup, onDiagnostics, onCredits, onTools }: ProfileSettingsProps) {
   return <View style={styles.content}>
-    {connectionSummary ?? <Card><Section title="Vereinsflieger & Daten" /><Label muted>Neue Daten und Anmeldung erreichst du über „Daten“ oben in der Kopfzeile.</Label></Card>}
+    {connectionSummary ?? <Card><Section title="Vereinsflieger & Daten" /><Label muted>Neue Daten und Anmeldung erreichst du über die Verbindung oben in der Kopfzeile.</Label></Card>}
     <Card><Section title="Sicherung" icon="book" />
       <Label muted>Sichert eigene Flüge, Originalbelege, Fassungen und Importbelege unverschlüsselt. Medical-Angaben, andere Rohbelege, Anmeldungen und Teststände sind nicht enthalten.</Label>
       <Action secondary icon="book" onPress={onBackup}>Flugbibliothek sichern & wiederherstellen</Action>

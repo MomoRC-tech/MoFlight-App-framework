@@ -95,7 +95,7 @@ test('retrieval or Medical changes and temporary unavailability do not reprocess
 });
 
 test('first-use/loading/failure dashboard avoids empty promotions; returning dashboard leads with saved season and flights',()=>{
-  for(const phase of ['failed','missing']) {const empty=render([],phase);assert.match(empty.text,/Meine Saison/);assert.match(empty.text,/Daten/);assert.ok(!empty.nodes.some(n=>n.type==='SeasonRing'));}
+  for(const phase of ['failed','missing']) {const empty=render([],phase);assert.match(empty.text,/Meine Saison/);assert.match(empty.text,/Verbindung oben/);assert.ok(!empty.nodes.some(n=>n.type==='SeasonRing'));}
   const f=render(ownFlightFixture().flights);
   assert.deepEqual(f.nodes.filter(n=>n.type==='Section').map(n=>n.props.title),['Meine Saison']);
   const season=f.nodes.findIndex(n=>n.type==='SeasonRing');
