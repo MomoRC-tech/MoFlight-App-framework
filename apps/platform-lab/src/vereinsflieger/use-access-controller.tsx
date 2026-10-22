@@ -81,7 +81,7 @@ export function useAccessController(product = false, localOwner?: string, develo
   const [from, setFrom] = useState(captureRequest.from), [to, setTo] = useState(captureRequest.to);
   const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const phase = useRef({ loaded: false, progress: 0, injections: 0 });
-  const diagnosticDocument = useRef(0), diagnosticMessages = useRef(0);
+  const diagnosticMessages = useRef(0);
   const [source, setSource] = useState({ uri: LOGIN_URL }), [url, setUrl] = useState(LOGIN_URL);
   const [generation, setGeneration] = useState(0);
   const [browserActive, setBrowserActive] = useState(!product);
@@ -521,7 +521,7 @@ export function useAccessController(product = false, localOwner?: string, develo
       information.backgrounded();
       clearContextRequest(); pendingNavigation.current = null; pendingCapture.current = null; afterConfirmation.current = null; endDisconnect(); session.current.invalidate(); syncConnection();
       flightSourceAttempt.current = null; pendingFlightSource.current = null;
-      recordProviderEvent(retainLoginDocument ? 'provider-keep-background' : 'provider-stop-background');
+      if (web.current) recordProviderEvent(retainLoginDocument ? 'provider-keep-background' : 'provider-stop-background');
       if (!retainLoginDocument) { web.current?.stopLoading(); epoch.current++; setGeneration(epoch.current); }
       if (loginAttempt.current) endLogin('App left the foreground. Sign-in stopped; retry explicitly.', 'cancelled');
       if (retrieval.current.state.phase === 'loading') finish('App left the foreground. Recovery may be required.');
@@ -890,14 +890,14 @@ export function useAccessController(product = false, localOwner?: string, develo
   // Preserve its exact-profile evidence until an explicit navigation/request;
   // callbacks alone cannot authorize reload, which still requires PROFILE_URL.
   const browser = browserActive && <WebView key={product ? `retained-provider-${documentId}` : generation} ref={web} source={source} originWhitelist={['*']}
-        injectedJavaScript={loginDiagnosticScript(diagnosticDocument.current)}
+        injectedJavaScript={loginDiagnosticScript(generation)}
         incognito={false} thirdPartyCookiesEnabled={false} sharedCookiesEnabled={false} webviewDebuggingEnabled={false}
         cacheEnabled={false} cacheMode="LOAD_NO_CACHE"
         allowFileAccess={false} allowFileAccessFromFileURLs={false} allowUniversalAccessFromFileURLs={false} mixedContentMode="never"
         javaScriptCanOpenWindowsAutomatically={false} setSupportMultipleWindows={true}
         onShouldStartLoadWithRequest={request => { if (generation !== epoch.current) return false; const allowed = providerUrl(request.url); if (allowed && request.isTopFrame !== false && request.url !== PROFILE_URL) information.navigationStarted(); if (product && contextRequest.current && request.isTopFrame !== false && request.url === PROFILE_URL) contextRequest.current.navigationObserved = true; if (!allowed && request.isTopFrame !== false) finish('External navigation blocked. Previous captures preserved.'); return allowed; }}
         onOpenWindow={() => { if (generation === epoch.current) finish('New browser window blocked in this bounded PoC.'); }}
-        onLoadStart={event => { if (generation !== epoch.current) return; diagnosticDocument.current++; diagnosticMessages.current = 0; recordProviderDocument('start', event.nativeEvent.url); phase.current.loaded = false; information.loadStarted(event.nativeEvent.url); if (product && contextRequest.current && event.nativeEvent.url === PROFILE_URL) contextRequest.current.navigationObserved = true; if (retrieval.current.state.phase === 'loading') {
+        onLoadStart={event => { if (generation !== epoch.current) return; diagnosticMessages.current = 0; recordProviderDocument('start', event.nativeEvent.url); phase.current.loaded = false; information.loadStarted(event.nativeEvent.url); if (product && contextRequest.current && event.nativeEvent.url === PROFILE_URL) contextRequest.current.navigationObserved = true; if (retrieval.current.state.phase === 'loading') {
           // Native load-start can beat the bridge acknowledgement. Advance only
           // a still-owned, outstanding save/load command; acknowledged commands
           // already cleared their token and must not advance a second time.
@@ -912,7 +912,7 @@ export function useAccessController(product = false, localOwner?: string, develo
         onLoadEnd={event => { if (generation === epoch.current) void loadedPage(event.nativeEvent.url); }}
         onMessage={event => {
           if (generation !== epoch.current) return;
-          const observation = readLoginDiagnostic(event.nativeEvent.url, currentUrl.current, event.nativeEvent.data, diagnosticDocument.current);
+          const observation = readLoginDiagnostic(event.nativeEvent.url, currentUrl.current, event.nativeEvent.data, generation);
           if (observation) { if (diagnosticMessages.current++ < 32) recordProviderEvent(observation); return; }
           if (information.running()) { void information.receiveInformation(event); return; }
           if (product && contextRequest.current) { void receiveContext(event); return; }

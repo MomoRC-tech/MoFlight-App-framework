@@ -48,6 +48,7 @@ function fixture(options: { developmentRecoveryCheckpoints?: boolean; noNativeRe
   let resolveJournal!: (view: ViewPreferences | null) => void, rejectJournal!: (error: Error) => void;
   const journal = new Promise<ViewPreferences | null>((resolve, reject) => { resolveJournal = resolve; rejectJournal = reject; });
   const diagnosticPhases:{name:string;result:boolean|null}[]=[];
+  const providerEvents:string[]=[];
   const verificationDiagnostics: string[] = [];
   const hooks: unknown[] = [], effects: (() => void)[] = [];
   let index = 0, nextId = 0, timerId = 0, pending: ViewPreferences | null = null;
@@ -102,7 +103,7 @@ function fixture(options: { developmentRecoveryCheckpoints?: boolean; noNativeRe
   function CaptureRun() {}
   function WindowCapture() {}
   const modules: Record<string, unknown> = {
-    './provider-diagnostics': { ...providerDiagnostics, recordProviderEvent() {}, recordProviderDocument() {} },
+    './provider-diagnostics': { ...providerDiagnostics, recordProviderEvent(event:string) {providerEvents.push(event);}, recordProviderDocument() {} },
     './flight-diagnostics': { startFlightSpan:(name:string)=>{const phase={name,result:null as boolean|null};diagnosticPhases.push(phase);return(result:boolean)=>{if(phase.result===null)phase.result=result;};} },
     '@moflight/flight-logbook': { canonical }, './legacy-recovery-store': legacyStore,
     react: { default: react, ...react },
@@ -245,7 +246,7 @@ function fixture(options: { developmentRecoveryCheckpoints?: boolean; noNativeRe
       data: JSON.stringify({ kind: 'vf-login-result-v1', nonce, url: probe.LOGIN_URL, result }) } });
     return flush();
   }
-  return { diagnosticPhases, verificationDiagnostics, render, button, press, settle, find, flush, loadPage, loadFlight, message, currentCommand, writes, injections,
+  return { diagnosticPhases, providerEvents, verificationDiagnostics, render, button, press, settle, find, flush, loadPage, loadFlight, message, currentCommand, writes, injections,
     setInformationReader: (reader: typeof informationReader) => { informationReader = reader; }, informationReads: () => informationReads, savedInformation: () => savedInformation,
     setInformationCaptureReader: (reader: typeof informationCaptureReader) => { informationCaptureReader = reader; },
     setInformationHistoryReader: (reader: typeof informationHistoryReader) => { informationHistoryReader = reader; },
@@ -264,6 +265,20 @@ function fixture(options: { developmentRecoveryCheckpoints?: boolean; noNativeRe
 }
 
 const observedContext = { accountNumber: '123', clubLabel: 'Synthetic Club', clubIdentity: 'display-label-only', verification: 'observed-profile-number' } as const;
+
+test('first-document diagnostics work when native start and script injection precede React rerender',async()=>{
+  const f=fixture({product:true});f.render();await f.settle(null);await f.flush();
+  f.appState('background');f.appState('active');await f.flush();
+  assert.equal(f.providerEvents.includes('provider-stop-background'),false,'An unmounted controller must not claim it stopped a document');
+  f.controller().beginGuidedFlightConnection();
+  const web=f.find(f.render(),e=>e.type==='WebView')!;
+  const script=web.props.injectedJavaScript as string;
+  const token=Number(/\)\((\d+)\);\}catch/.exec(script)![1]);
+  (web.props.onLoadStart as (e:unknown)=>void)({nativeEvent:{url:probe.LOGIN_URL}});
+  (web.props.onMessage as (e:unknown)=>void)({nativeEvent:{url:probe.LOGIN_URL,data:JSON.stringify({kind:'vf-login-diagnostic-v1',document:token,event:'provider-login-ready'})}});
+  assert.equal(f.providerEvents.includes('provider-login-ready'),true);
+  f.unmount();
+});
 
 test('first combined entry opens original login visibly without a hidden profile preflight',async()=>{
   const f=fixture({product:true});f.render();await f.settle(null);await f.flush();
