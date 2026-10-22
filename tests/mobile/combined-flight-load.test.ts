@@ -40,6 +40,7 @@ function fixture({providerAllowed=true,startUpdate=false,root=false,readOnly=fal
     beginGuidedFlightConnection:()=>{calls.push('session');c.result='none';if(deferVerification)c.connection={phase:'checking',confirmed:false};else if(loginPending)c.visible=true;else c.connection={phase:'observed',confirmed:true,observed:{accountNumber:'101',clubLabel:'Example'}};dirty=true;},
     resumeGuidedFlightConnection:()=>{calls.push('resume');if(!quietResume){c.connection={phase:'unknown',confirmed:false};c.visible=true;dirty=true;}return true;},
     endGuidedFlightConnection:()=>{},connect:()=>calls.push('login'),
+    retrieveFeatureInformation:async(category:string)=>{calls.push(category);return {rows:[{}]};},
     retrieveMedical:async()=>{calls.push('medical');if(medicalFailure)throw new Error('Synthetic Medical failure');return {rows:[{}]};},
     checkConnection:(action?:string)=>{if(action==='check'){calls.push('verify-job');c.connection={phase:'checking',confirmed:false};}else{calls.push('retrieve');c.busy=true;}dirty=true;return true;},
     dismissLogin:()=>{c.visible=false;c.busy=false;dirty=true;},backWithinProvider:()=>false,cancelRetrieval:()=>{c.busy=false;dirty=true;},
@@ -113,11 +114,11 @@ test('opening options does no retrieval; one explicit action verifies, loads, sa
     assert.equal(f.text().includes('Quellzeilen'),false);assert.equal(f.text().includes('Geräteordner'),false);
     f.press('Anmelden & Daten laden');await f.flush();
     assert.deepEqual(f.calls,['session','retrieve']);
-    f.complete();await f.flush();assert.deepEqual(f.calls,['session','retrieve','save','medical']);
-    assert.equal(f.closed.length,0);assert.match(f.progressText(),/3 Flüge auf diesem Gerät gespeichert/);assert.match(f.progressText(),/Medical-Angaben geladen/);
+    f.complete();await f.flush();assert.deepEqual(f.calls,['session','retrieve','save','medical','events','document-notices']);
+    assert.equal(f.closed.length,1);assert.match(f.progressText(),/3 Flüge auf diesem Gerät gespeichert/);assert.match(f.progressText(),/Medical-Angaben geladen/);;
     assert.equal(f.nodes().find(n=>n.type==='ProviderConnection')!.props.open,true);
     assert.ok(f.nodes().some(n=>n.type==='ScrollView'&&n.props.importantForAccessibility==='no-hide-descendants'&&n.props.style?.display==='none'));
-    f.press('Fertig');
+    await f.flush();
     assert.equal(f.closed.length,1);assert.equal(f.closed[0].added,2);assert.equal(f.closed[0].from,'2025-01-01');assert.equal(f.closed[0].dutyStatus,'partial');assert.equal(f.journal.snapshot().at(-1)!.outcome,'success');
   }finally{f.dispose();}
 });
@@ -136,8 +137,8 @@ test('combined entry starts once, while read-only recovery prevents automatic wo
 test('Medical failure still returns the confirmed flight save and separate Medical outcome',async()=>{
   const f=fixture({startUpdate:true,medicalFailure:true});try{
     f.render();await f.flush();f.complete();await f.flush();
-    assert.deepEqual(f.calls,['session','retrieve','save','medical']);
-    assert.equal(f.closed.length,0);assert.match(f.progressText(),/Medical konnte nicht geladen werden/);f.press('Zur Übersicht');
+    assert.deepEqual(f.calls,['session','retrieve','save','medical','events','document-notices']);
+    assert.equal(f.closed.length,1);assert.match(f.progressText(),/Medical konnte nicht geladen werden/);
     assert.equal(f.closed.length,1);assert.equal(f.closed[0].added,2);assert.equal(f.closed[0].medicalStatus,'failed');assert.equal(f.journal.snapshot().at(-1)!.outcome,'partial');assert.equal(f.journal.snapshot().at(-1)!.code,'medical-failed');
   }finally{f.dispose();}
 });
@@ -184,7 +185,7 @@ test('interactive login has no flight timeout and foreground return needs verifi
     f.background();f.background();await f.flush();assert.equal(f.calls.includes('retrieve'),false);assert.match(f.progressText(),/Anmeldung pausiert/);
     f.resume();await f.flush();assert.deepEqual(f.calls,['session','resume']);assert.equal(f.pendingTimers(),0);
     f.verify();await f.flush();assert.deepEqual(f.calls,['session','resume','retrieve']);assert.equal(f.pendingTimers(),1);
-    f.complete();await f.flush();assert.equal(f.pendingTimers(),0);assert.equal(f.closed.length,0);f.press('Fertig');assert.equal(f.closed.length,1);
+    f.complete();await f.flush();assert.equal(f.pendingTimers(),0);assert.equal(f.closed.length,1);
   }finally{f.dispose();}
 });
 
@@ -209,17 +210,16 @@ for(const status of ['Provider page failed to load. Previous captures preserved.
       assert.deepEqual(f.calls,['session','session']);assert.equal(f.c.result,'none');
       assert.match(f.progressText(),/Bitte bei Vereinsflieger anmelden/);
       f.verify();await f.flush();assert.deepEqual(f.calls,['session','session','retrieve']);
-      f.complete();await f.flush();assert.deepEqual(f.calls,['session','session','retrieve','save','medical']);
+      f.complete();await f.flush();assert.deepEqual(f.calls,['session','session','retrieve','save','medical','events','document-notices']);
     }finally{f.dispose();}
   });
 }
 
-test('leaving a completed progress screen retains its saved result but invalidates session presentation',async()=>{
+test('completion returns once even if a retained screen receives duplicate source events',async()=>{
   const f=fixture({startUpdate:true});try{
-    f.render();await f.flush();f.complete();await f.flush();assert.equal(f.closed.length,0);
-    f.background();f.resume();await f.flush();
-    assert.match(f.progressText(),/3 Flüge auf diesem Gerät gespeichert/);f.press('Fertig');
-    assert.equal(f.closed.length,1);assert.equal(f.closed[0].added,2);assert.equal(f.closed[0].verifiedConnection,undefined);
+    f.render();await f.flush();f.complete();await f.flush();assert.equal(f.closed.length,1);
+    f.complete();f.render();await f.flush();assert.equal(f.closed.length,1);
+    assert.equal(f.calls.filter(x=>x==='save').length,1);
   }finally{f.dispose();}
 });
 
@@ -310,7 +310,7 @@ test('connection-only entry opens the provider directly and never starts flight 
     f.background();await f.flush();f.resume();await f.flush();assert.deepEqual(f.calls,['session']);
     f.verify();await f.flush();assert.match(f.progressText(),/Verbunden/);assert.deepEqual(f.calls,['session']);
     f.press('Daten aktualisieren');await f.flush();assert.deepEqual(f.calls,['session','session']);f.verify();await f.flush();assert.deepEqual(f.calls,['session','session','retrieve']);
-    f.complete();await f.flush();assert.deepEqual(f.calls,['session','session','retrieve','save','medical']);
+    f.complete();await f.flush();assert.deepEqual(f.calls,['session','session','retrieve','save','medical','events','document-notices']);
   }finally{f.dispose();}
 });
 
@@ -329,8 +329,8 @@ test('closing and reopening connection retains the controller and creates no hid
 test('Medical-only retry verifies the account again and never repeats a confirmed flight save',async()=>{
   const f=fixture({startUpdate:true,medicalFailure:true});try{
     f.render();await f.flush();f.complete();await f.flush();
-    f.press('Nur Medical erneut laden');await f.flush();assert.deepEqual(f.calls,['session','retrieve','save','medical','verify-job']);
-    f.verify();await f.flush();assert.deepEqual(f.calls,['session','retrieve','save','medical','verify-job','medical']);
+    f.press('Nur Medical erneut laden');await f.flush();assert.deepEqual(f.calls,['session','retrieve','save','medical','events','document-notices','verify-job']);
+    f.verify();await f.flush();assert.deepEqual(f.calls,['session','retrieve','save','medical','events','document-notices','verify-job','medical']);
     assert.match(f.progressText(),/3 Flüge auf diesem Gerät gespeichert/);assert.match(f.progressText(),/Erneuter Abruf nicht abgeschlossen/);
     assert.equal(f.calls.filter(x=>x==='save').length,1);assert.equal(f.journal.snapshot().at(-1)!.code,'medical-failed');
   }finally{f.dispose();}
@@ -341,8 +341,8 @@ test('foreign-account proof blocks an independent retry while preserving the con
   const f=fixture({startUpdate:true,medicalFailure:true});try{
     f.render();await f.flush();f.complete();await f.flush();f.press('Nur Medical erneut laden');await f.flush();
     f.c.connection={phase:'mismatch',confirmed:false};f.render();await f.flush();
-    assert.deepEqual(f.calls,['session','retrieve','save','medical','verify-job']);
-    assert.match(f.progressText(),/3 Flüge auf diesem Gerät gespeichert/);assert.equal(f.closed.length,0);
+    assert.deepEqual(f.calls,['session','retrieve','save','medical','events','document-notices','verify-job']);
+    assert.match(f.progressText(),/3 Flüge auf diesem Gerät gespeichert/);assert.equal(f.closed.length,1);
   }finally{f.dispose();}
 });
 
@@ -356,5 +356,74 @@ test('renewed capabilities for one owner selection cannot replace the retained p
     assert.equal(reopened.props.key,first.props.key,'A fresh capability does not mean a different owner selection');
     f.setOpen(false);await f.flush();f.changeSelection();f.setOpen(true);await f.flush();
     assert.notEqual(host().props.key,first.props.key,'Changing the actual selection must revoke and replace the old host');
+  }finally{f.dispose();}
+});
+
+
+test('a rejected retrieval admission is retried after readiness, without arming a timeout or losing the request',async()=>{
+  const f=fixture({startUpdate:true,loginPending:true});try{
+    f.render();await f.flush();const check=f.c.checkConnection;
+    f.c.checkConnection=()=>false;f.verify();await f.flush();
+    assert.equal(f.pendingTimers(),0);assert.equal(f.calls.includes('retrieve'),false);
+    f.c.checkConnection=check;f.render();await f.flush();
+    assert.equal(f.calls.filter(x=>x==='retrieve').length,1);assert.equal(f.pendingTimers(),1);
+    f.complete();await f.flush();assert.equal(f.closed.length,1);
+  }finally{f.dispose();}
+});
+
+test('confirmed proof cannot start retrieval during binding or saving and duplicate verification does not repeat it',async()=>{
+  for(const gate of ['binding','saving','loginBusy']){
+    const f=fixture({startUpdate:true,loginPending:true});try{
+      f.render();await f.flush();f.c[gate]=true;f.verify();await f.flush();
+      assert.equal(f.calls.includes('retrieve'),false);assert.equal(f.pendingTimers(),0);
+      f.c[gate]=false;f.render();await f.flush();f.verify();await f.flush();
+      assert.equal(f.calls.filter(x=>x==='retrieve').length,1);
+    }finally{f.dispose();}
+  }
+});
+
+
+test('Close during optional retrieval skips remaining sources and returns the owner-scoped saved-flight receipt once',async()=>{
+  const f=fixture({startUpdate:true});try{
+    let rejectMedical!:(error:Error)=>void;
+    f.c.retrieveMedical=()=>{f.calls.push('medical');f.c.busy=true;f.c.informationBusy=true;return new Promise((_resolve,reject)=>{rejectMedical=reject;});};
+    f.c.stopInformation=()=>{f.calls.push('stop-medical');f.c.busy=false;f.c.informationBusy=false;f.c.connection={phase:'unknown',confirmed:false};rejectMedical(new Error('Cancelled'));};
+    f.render();await f.flush();f.complete();await f.flush();
+    assert.equal(f.calls.filter(x=>x==='save').length,1);assert.equal(f.closed.length,0);
+    f.nodes().find(n=>n.type==='ProviderConnection')!.props.close();await f.flush();
+    assert.deepEqual(f.calls,['session','retrieve','save','medical','stop-medical']);
+    assert.equal(f.closed.length,1);
+    assert.equal(f.closed[0].ownerId,'owner');assert.equal(f.closed[0].added,2);assert.equal(f.closed[0].verifiedConnection,undefined);
+    for(const status of ['medicalStatus','dutyStatus','eventsStatus','documentNoticesStatus'])assert.equal(f.closed[0][status],'skipped');
+    f.render();await f.flush();assert.equal(f.closed.length,1);
+  }finally{f.dispose();}
+});
+
+test('Close queues cancellation during optional saving and waits for its safe completion',async()=>{
+  const f=fixture({startUpdate:true});try{
+    let finishMedical!:(value:{rows:unknown[]})=>void;
+    f.c.retrieveMedical=()=>{f.calls.push('medical');f.c.busy=true;f.c.informationBusy=true;f.c.informationSaving=true;return new Promise(resolve=>{finishMedical=resolve;});};
+    f.c.stopInformation=()=>{throw new Error('Must not interrupt a save');};
+    f.render();await f.flush();f.complete();await f.flush();
+    const panel=f.nodes().find(n=>n.type==='ProviderConnection')!;
+    assert.equal(panel.props.closeDisabled,false);panel.props.close();await f.flush();
+    assert.equal(f.closed.length,0);assert.equal(f.c.informationSaving,true);
+    f.c.busy=false;f.c.informationBusy=false;f.c.informationSaving=false;finishMedical({rows:[{}]});f.render();await f.flush();
+    assert.deepEqual(f.calls,['session','retrieve','save','medical']);assert.equal(f.closed.length,1);
+    assert.equal(f.closed[0].ownerId,'owner');assert.equal(f.closed[0].added,2);
+    assert.equal(f.closed[0].eventsStatus,'skipped');assert.equal(f.closed[0].documentNoticesStatus,'skipped');
+  }finally{f.dispose();}
+});
+
+test('explicit per-source skip still continues the other supported sources',async()=>{
+  const f=fixture({startUpdate:true});try{
+    let rejectMedical!:(error:Error)=>void;
+    f.c.retrieveMedical=()=>{f.calls.push('medical');f.c.busy=true;f.c.informationBusy=true;return new Promise((_resolve,reject)=>{rejectMedical=reject;});};
+    f.c.stopInformation=()=>{f.c.busy=false;f.c.informationBusy=false;rejectMedical(new Error('Skip source'));};
+    f.render();await f.flush();f.complete();await f.flush();
+    const skip=f.nodes().find(n=>n.type==='Action'&&n.children.some(v=>typeof v==='string'&&v.startsWith('Diesen Abruf')))!;
+    assert.ok(skip);skip.props.onPress();await f.flush();
+    assert.deepEqual(f.calls,['session','retrieve','save','medical','events','document-notices']);
+    assert.equal(f.closed.length,1);assert.equal(f.closed[0].medicalStatus,'failed');assert.equal(f.closed[0].eventsStatus,'partial');
   }finally{f.dispose();}
 });

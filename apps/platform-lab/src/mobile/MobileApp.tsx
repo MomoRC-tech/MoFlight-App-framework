@@ -28,6 +28,8 @@ import { PaperStatus } from './PaperStatus';
 import { ImportPreview } from './ImportPreview';
 import type { PreviewSession } from '../import-preview';
 import { CoreFlightFoundation, type FlightLoadResult, type ConnectionIntent } from './CoreFlightFoundation';
+import { UpdateResult } from './UpdateResult';
+import { ClubEvents, ClubDocumentNotices } from './ClubInformation';
 import { ConnectionSummary } from './ConnectionSummary';
 import { OwnFlights, type OwnFlightHeader } from './OwnFlights';
 import type { OwnFlightRequest } from './own-flight-model';
@@ -36,13 +38,13 @@ import { ownFlightReadPorts } from './own-flight-reader-native';
 import { buildDutyOverview, dutySnapshotExpiresAt } from '../vereinsflieger/duties';
 import { DutyRoster } from './DutyRoster';
 import { planFlightRetrieval } from '../vereinsflieger/retrieval-policy';
-import { useReminderSnooze, useStartClock } from './use-start-clock';
+import { useStartClock } from './use-start-clock';
 
 const mountain = require('../../assets/aviation/mountain-header-v2.jpg');
 const clubAirfield = require('../../assets/aviation/club-airfield.jpg');
 const tabs = [{ id: 'home', title: 'Übersicht' }, { id: 'flights', title: 'Flüge' }, { id: 'logbook', title: 'Flugbuch' }, { id: 'club', title: 'Verein' }, { id: 'ai', title: 'AI' }] as const;
 type Tab = typeof tabs[number]['id'];
-type ClubSection = 'Übersicht' | 'Termine' | 'Dienste' | 'Mitteilungen';
+type ClubSection = 'Übersicht' | 'Termine' | 'Dienste' | 'Dokumente';
 type Sheet = 'designPreview' | 'diagnostics' | 'paper' | 'paperInfo' | 'development' | 'importPreview' | 'flightLab' | 'bookLab' | 'backup' | 'selectBook' | 'unsupported' | 'credits' | 'status' | 'profile' | 'medical' | null;
 const dateText = (date: string | null) => date ? new Date(date + 'T12:00:00Z').toLocaleDateString('de-DE', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' }) : 'Datum unbekannt';
 
@@ -98,15 +100,15 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
   const toolsOpen = sheet === 'bookLab' || sheet === 'flightLab';
   const library = useLibrary(toolsOpen || sheet === 'backup');
   const ownFlights = useOwnFlights(ownFlightReadPorts, !coreFlightsOpen, flightReload);
+  const [dismissedUpdate, setDismissedUpdate] = useState<FlightLoadResult|null>(null);
+  const updateForOwner=(lastLoad?.ownerId??lastLoad?.verifiedConnection?.ownerId)===ownFlights.view?.snapshot.ownerId && !!ownFlights.view?.snapshot.ownerId ? lastLoad : null;
   const medical=ownFlights.view?.medical??null;
   const selected=ownFlights.view;
-  const reminderScopeKey=selected?.snapshot.account?JSON.stringify([selected.snapshot.ownerId,selected.snapshot.storeId,selected.snapshot.account.accountRef]):null;
-  const reminder=useReminderSnooze(reminderScopeKey);
   const retrievalPlan=useMemo(()=>planFlightRetrieval(selected?.snapshot.savedRetrievals??[]),[selected?.snapshot.savedRetrievals]);
   const rosterExpiry=selected?.duties?.snapshot?dutySnapshotExpiresAt(selected.duties.snapshot):NaN;
   const receivedAt=retrievalPlan.lastSuccessfulRetrievalAt;
   const receivedTime=Date.parse(receivedAt??'');
-  const now=useStartClock([receivedTime+72*60*60*1000+1,Date.parse(reminder.snooze?.until??''),rosterExpiry,
+  const now=useStartClock([rosterExpiry,
     receivedTime+DATA_UPDATE_FRESH_MS,Number.isFinite(receivedTime)?Math.floor(Date.now()/60_000)*60_000+60_000:NaN]);
   const clock=new Date(now),today=`${clock.getFullYear()}-${String(clock.getMonth()+1).padStart(2,'0')}-${String(clock.getDate()).padStart(2,'0')}`;
   const rosterExpired=Number.isFinite(rosterExpiry)&&now>=rosterExpiry;
@@ -116,6 +118,11 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
   const sameProviderOwner=providerStatus.ownerId===selected?.snapshot.ownerId&&!!providerStatus.ownerId;
   const sameProviderAccount=!selected?.snapshot.account||providerStatus.connection.observed?.accountNumber===selected.snapshot.account.accountRef;
   const flightStatusController=sameProviderOwner&&sameProviderAccount?providerStatus:unknownProviderStatus;
+  useEffect(() => {
+    if (!lastLoad) return;
+    overlayHistory.current = [];
+    setDetail(null); setSheet(null); setTab('home');
+  }, [lastLoad]);
   const libraryRevision = canonical([library.bookId, library.flights]);
   useEffect(() => { setProfileNameDraft(library.displayName); }, [library.displayName]);
   const { width, height, fontScale } = useWindowDimensions();
@@ -184,8 +191,7 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
     <View style={[s.content, wide && { maxWidth: 960 }, tablet && !wide && { maxWidth: 600 }]}>
       <View style={[s.page, tab !== 'home' && s.hidden]} accessibilityElementsHidden={tab !== 'home'} importantForAccessibility={tab === 'home' ? 'auto' : 'no-hide-descendants'}>
         <ScrollView contentContainerStyle={s.canvas} keyboardShouldPersistTaps="handled">
-          <ConnectionSummary compact now={now} reminderSnooze={reminder.snooze} onSnoozeReminder={reminder.save} controller={flightStatusController} ownFlights={ownFlights.view} phase={ownFlights.phase} />
-          {reminder.error&&<Label muted>Erinnerungseinstellung konnte nicht gelesen oder gespeichert werden.</Label>}
+          {updateForOwner && dismissedUpdate !== updateForOwner && <UpdateResult result={updateForOwner} onDetails={() => openHeaderSheet('status')} onDismiss={() => setDismissedUpdate(updateForOwner)} />}
           <View style={{width:'100%',maxWidth:wide?920:520,alignSelf:'center',flexDirection:wide?'row':'column',alignItems:'flex-start',gap:18}}>
           <View style={{width:'100%',flex:wide?1:undefined}}><Dashboard now={now} ownFlights={ownFlights.view} ownFlightPhase={ownFlights.phase} pending={null} width={width} fontScale={fontScale} onFlight={flightId=>{setFlightRequest({year:null,flightId});setTab('flights');}} onPaper={() => openHeaderSheet('paperInfo')} onFlights={() => { overlayHistory.current=[]; setDetail(null); setSheet(null); setFlightRequest({year:null}); setTab('flights'); }} /></View>
           {ownFlights.phase==='ready'&&!!selected?.snapshot.account&&<View style={{width:'100%',flex:wide?1:undefined}}>{dutyContent()}</View>}
@@ -193,11 +199,6 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
         </ScrollView>
       </View>
       <View style={[s.page, tab !== 'flights' && s.hidden]} accessibilityElementsHidden={tab !== 'flights'} importantForAccessibility={tab === 'flights' ? 'auto' : 'no-hide-descendants'}>
-        {lastLoad&&<Card><View accessibilityLiveRegion="polite"><Label>{lastLoad.added} neue · {lastLoad.changed} aktualisierte Flüge gespeichert{lastLoad.pending ? ` · ${lastLoad.pending} ungeklärte Beobachtungen` : ''}</Label><Label muted>Zeitraum: {lastLoad.from} bis {lastLoad.to}</Label>
-          {lastLoad.medicalStatus==='failed'&&<Label>Flüge gespeichert. Medical konnte nicht aktualisiert werden; frühere Quellenangaben bleiben erhalten.</Label>}
-          {lastLoad.medicalStatus==='empty'&&<Label>Keine Medical-Angaben im geprüften Profil gefunden. Status bleibt unbekannt.</Label>}
-          {lastLoad.dutyStatus&&<Label>{lastLoad.dutyStatus==='partial'?'Dienstquelle gespeichert · Dienstplan unvollständig geprüft.':'Dienste nicht aktualisiert. Vorhandene Quellen bleiben erhalten.'}</Label>}
-        </View></Card>}
         <OwnFlights active={tab === 'flights' && !coreFlightsOpen} data={ownFlights} filterRequest={flightRequest} onHeaderChange={setFlightHeader}
           />
       </View>
@@ -210,11 +211,11 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
       </View>
       <View style={[s.page, tab !== 'club' && s.hidden]} accessibilityElementsHidden={tab !== 'club'} importantForAccessibility={tab === 'club' ? 'auto' : 'no-hide-descendants'}>
         <ScrollView contentContainerStyle={s.canvas}>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.chips}>{(['Übersicht', 'Termine', 'Dienste', 'Mitteilungen'] as const).map(section => <Chip key={section} title={section} selected={clubSection === section} onPress={() => {diagnosticJournal.record('filter','club-section');setClubSection(section);}} />)}</ScrollView>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.chips}>{(['Übersicht', 'Termine', 'Dienste', 'Dokumente'] as const).map(section => <Chip key={section} title={section} selected={clubSection === section} onPress={() => {diagnosticJournal.record('filter','club-section');setClubSection(section);}} />)}</ScrollView>
           <View style={[s.clubBody, tablet && s.clubBodyWide]}>
           {(clubSection === 'Übersicht' || clubSection === 'Dienste') && dutyContent(true)}
-          {(clubSection === 'Übersicht' || clubSection === 'Termine') && <Card style={[s.clubSectionCard, tablet && s.clubHalf]}><Section icon="calendar-neutral" title={clubSection === 'Termine' ? 'Termine' : 'Kommende Termine'} action={clubSection === 'Übersicht' ? 'Alle anzeigen' : undefined} onPress={() => setClubSection('Termine')} /><Empty title="Keine Termine verfügbar">Vereinskalender noch nicht verbunden.</Empty></Card>}
-          {(clubSection === 'Übersicht' || clubSection === 'Mitteilungen') && <Card style={[s.clubSectionCard, tablet && { width: '100%' }]}><Section title="Aktuelle Mitteilungen" icon="messages" action={clubSection === 'Übersicht' ? 'Alle anzeigen' : undefined} onPress={() => setClubSection('Mitteilungen')} /><Empty title="Keine Mitteilungen verfügbar">Keine Nachrichten- oder Dokumentenquelle verbunden.</Empty></Card>}
+          {(clubSection === 'Übersicht' || clubSection === 'Termine') && <View style={[s.clubSectionCard, tablet && s.clubHalf]}><ClubEvents information={selected?.featureInformation} readFailed={selected?.featureInformationReadFailed} compact={clubSection === 'Übersicht'} onOpen={() => setClubSection('Termine')} /></View>}
+          {(clubSection === 'Übersicht' || clubSection === 'Dokumente') && <View style={[s.clubSectionCard, tablet && s.clubHalf]}><ClubDocumentNotices information={selected?.featureInformation} readFailed={selected?.featureInformationReadFailed} compact={clubSection === 'Übersicht'} onOpen={() => setClubSection('Dokumente')} /></View>}
           </View>
           <Pressable accessibilityRole="button" onPress={() => setSheet('status')} style={ui.smallAction}><IconLabel name="right" size={16} muted>Verbindung & Datenstatus</IconLabel></Pressable>
         </ScrollView>
@@ -251,7 +252,7 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
           {detail && <><Section title={detail.registration ?? 'Flugzeug unbekannt'} />{[['Datum', dateText(detail.date)], ['Flugzeugtyp', detail.aircraft_model], ['Abflug', detail.start_place], ['Ankunft', detail.landing_place], ['Start', detail.start], ['Landung', detail.landing], ['Zeitbasis', detail.time_basis], ['Dauer', detail.minutes === null ? null : `${formatDuration(detail.minutes)} h`], ['Rolle', detail.pilot_role], ['Startart', detail.launch], ['Landungen', detail.landings?.toString()], ['Bemerkungen', detail.remarks]].map(([label, value]) => <Card key={label}><Label muted>{label}</Label><Label selectable>{value ?? 'Unbekannt'}</Label></Card>)}<Label muted>Quelle: gespeicherte synthetische Bibliothek · {book?.name}. Distanz und Flugtrack sind nicht verfügbar.</Label></>}
           {sheet === 'selectBook' && <View style={{ width: '100%', maxWidth: 520, alignSelf: 'center', gap: 8 }}><Section title="Flugbuch auswählen" />{library.books.map(b => <Action key={b.id} secondary icon={b.id === library.bookId ? 'check' : undefined} onPress={() => { overlayHistory.current = []; setDetail(null); setSheet(null); void library.selectBook(b.id); }}>{b.name}</Action>)}{!library.books.length && <Empty title="Noch kein Flugbuch">Eine vorhandene Sicherung kann in einer neuen lokalen Bibliothek geöffnet werden. Live-Import und neue Produkt-Flugbücher sind noch nicht verfügbar.</Empty>}<Label muted>Gespeicherte synthetische Bibliothek · keine automatische Zuordnung.</Label><Action secondary onPress={() => openHeaderSheet('backup')}>Sicherung & Wiederherstellung</Action></View>}
           {sheet === 'unsupported' && <Empty title="Klassifikation nicht verfügbar">Der gespeicherte Flugvertrag enthält keine Strecken- oder Platzrundenkennzeichnung. Flugzeit, Start-/Zielfeld und Rolle werden dafür nicht als Ersatz interpretiert. Der aktive Filter bleibt erhalten.</Empty>}
-          {sheet === 'status' && <View style={{ width: '100%', maxWidth: 520, alignSelf: 'center', gap: 8 }}><Section title="Verbindung & Datenstatus" /><ConnectionSummary ownFlights={ownFlights.view} phase={ownFlights.phase}/><Label muted>Eigene Flüge, Medical und unterstützte Dienstquellen werden getrennt gespeichert. Kalender, Mitteilungen und AI-Dienst sind noch nicht verbunden. Flugtracks und Distanzen sind nicht verifiziert. Testflugbuch und Papierwerkzeuge bleiben unter Entwicklung getrennt.</Label><Label muted>Neue Daten und Anmeldung erreichst du über „Daten“ oben in der Kopfzeile.</Label><Action secondary icon="book" onPress={() => openHeaderSheet('backup')}>Sicherung & Wiederherstellung</Action></View>}
+          {sheet === 'status' && <View style={{ width: '100%', maxWidth: 520, alignSelf: 'center', gap: 8 }}><Section title="Verbindung & Datenstatus" />{updateForOwner && <UpdateResult result={updateForOwner} detail />}<ConnectionSummary ownFlights={ownFlights.view} phase={ownFlights.phase}/><Label muted>Eigene Flüge, Medical, unterstützte Dienstquellen, sichtbare Termine und Dokumenthinweise werden getrennt gespeichert. Termine, Dienste und Dokumenthinweise bilden nur die geprüften Quellenausschnitte ab. Vereinsnachrichten und AI-Dienst sind noch nicht verbunden. Flugtracks und Distanzen sind nicht verifiziert. Testflugbuch und Papierwerkzeuge bleiben unter Entwicklung getrennt.</Label><Label muted>Neue Daten und Anmeldung erreichst du über „Daten“ oben in der Kopfzeile.</Label><Action secondary icon="book" onPress={() => openHeaderSheet('backup')}>Sicherung & Wiederherstellung</Action></View>}
           {sheet === 'credits' && <><Section title="Bildnachweise" /><Label muted>Dekorative Bilder, keine Flug-, Wetter- oder Vereinsdaten. Darstellung mit Ausschnitt und dunkler Farbüberlagerung. Bildlizenzen gelten unabhängig vom Anwendungscode.</Label>{[
             ['Sebastian Kawa, Tomasz Kawa · GrandPrixGlidingChile.JPG', 'CC BY-SA 3.0', 'https://commons.wikimedia.org/wiki/File:GrandPrixGlidingChile.JPG', 'https://creativecommons.org/licenses/by-sa/3.0/'],
             ['Dg-505 · Sunset', 'CC BY 3.0', 'https://commons.wikimedia.org/wiki/File:Sunset_-_panoramio_(312).jpg', 'https://creativecommons.org/licenses/by/3.0/'],

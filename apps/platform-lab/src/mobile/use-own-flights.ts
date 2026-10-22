@@ -69,7 +69,11 @@ export function useOwnFlights(ports: OwnFlightReadPorts, active: boolean, reload
   useEffect(() => {
     alive.current = true;
     const subscription = AppState.addEventListener('change', state => {
-      foreground.current = state === 'active';
+      const nextForeground = state === 'active';
+      // Native surfaces can repeat an active notification without leaving the app.
+      // Only a real lifecycle transition invalidates the verified local view.
+      if (foreground.current === nextForeground) return;
+      foreground.current = nextForeground;
       if (!foreground.current) { sequence.current++; setView(null); setDetail(null); setDetailBusy(false); setPhase('loading'); }
       else if (enabled.current) void reload();
     });

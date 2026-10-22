@@ -48,7 +48,7 @@ Medical source-date reminders use `#ff7777` for recorded past expiry and `#f9b65
 | --- | --- | --- |
 | Shared card | Opaque colors.card; no gradient | theme ui.card: subtle depth within a bounded card. |
 | Selected chip | Opaque colors.blue fill/border; no glow | theme ui.chipSelected: selected query scope. |
-| Photo shade | Retained Photo default `#00102277`; ordinary header has no photo | theme Photo: check retained photo text against the displayed crop. |
+| Photo shade | Retained Photo default `#00102277`; ordinary header uses the decorative flight illustration | theme Photo: check retained photo text against the displayed crop. |
 
 The 21 October selected Start simplification removes the photographic paper hero and purple AI promotion; their former local gradients are not current dashboard treatments. The original approved reference/artwork stays preserved. The quiet paper entry retains the paper-tone symbol; other shared palette/category roles remain unchanged.
 
@@ -71,10 +71,10 @@ The native shell uses the platform default family; it does not configure Inter. 
 | Section heading | 19 / 26 | 600. |
 | Body / action label | 15 / 22 | Regular / 600 for actions. |
 | Profile name input | 16 / platform default | System-scaled editable text. |
-| Dashboard / summary value | 36 / 44 for season values | 700; KPI unit 16. |
+| Dashboard / summary value | 18 / 24 for ring-adjacent season values | 700; KPI unit 16. |
 | Supporting text / tab label | Supporting text varies; tabs 12 / 18 | Secondary emphasis; selected tabs 700. |
 | Medical label / status | 12 / 16 and 11 / 15 | Med is 600; status quieter. |
-| Season KPI / unit | 36 / 44 and 16 | Count and known reported hours; stack at enlarged text. |
+| Season ring value / label | 18 / 24 and 11 / 16 | Saved starts and known reported hours beside 44-unit rings; measure pairs stack at enlarged text. |
 
 Sources: theme, AppHeader, Dashboard, MobileApp, [ProfileSettings](../../../apps/platform-lab/src/mobile/ProfileSettings.tsx), MedicalStatus and [SeasonRing](../../../apps/platform-lab/src/mobile/SeasonRing.tsx). Icon-glyph font sizes describe artwork, not body hierarchy. The generated inventory lists literal typography declarations. Selected icon raster palettes are recorded separately in the [native asset manifest](../../../apps/platform-lab/assets/icons/duotone/manifest.json); their artwork remains unchanged while branch body/text tokens differ.
 
@@ -91,7 +91,7 @@ Use the documented component context. The branch uses 18 dp page spacing, shared
 | Medical group | Minimum 72 × 48, radius 12; grows with text | Icon + Med above unbekannt. |
 | Field / composer | Profile radius 12, minimum height 48; provider radius 10; composer radius 20 | Context-specific forms. |
 | Tab / artwork | Tab minimum height 68, radius 16; artwork 28 in soft tile 36 / radius 12; label 12 | Five equal destinations. |
-| Season KPI | Unboxed values inside season card; vertical padding 8; gap 18 | Count and known time; Start rings superseded. |
+| Season comparison | Season card padding 14; four rings 44 with thickness 5, adjacent values and shared aircraft legend | Current/prior calendar-year starts and known time; see the alternative feedback contract. |
 
 The branch send target is 48 dp and ordinary flight search minimum height 52 dp. Retained lab faces do not independently prove adequate effective touch regions. [Known gaps](history.md) require actual hit-region review when affected controls change.
 
@@ -111,9 +111,9 @@ Generated ratios use standard sRGB relative luminance on fully opaque pairs. The
 
 ## Branding and photography
 
-Preserve the [approved Thermik artwork](../../assets/branding/README.md). The native header uses the unchanged dark square logo at 40 × 40 with original aspect ratio. The approved square AI icon now supplies the [platform launcher exports](../../../apps/platform-lab/assets/branding/launcher/README.md): opaque iOS/legacy artwork, a padded white adaptive/themed silhouette and teal background. Source originals are unchanged. [Package evidence and platform limits](../../verification/2026-10-18-launcher-icon.md) distinguish configuration, generated assets and installed Release acceptance.
+Preserve the [approved Thermik artwork](../../assets/branding/README.md). The native header uses the unchanged dark square logo at 46 × 46 with original aspect ratio on this alternative branch. The approved square AI icon now supplies the [platform launcher exports](../../../apps/platform-lab/assets/branding/launcher/README.md): opaque iOS/legacy artwork, a padded white adaptive/themed silhouette and teal background. Source originals are unchanged. [Package evidence and platform limits](../../verification/2026-10-18-launcher-icon.md) distinguish configuration, generated assets and installed Release acceptance.
 
-The branch header is opaque and uses no photograph. Retained decorative scenes use the existing [aviation photographs/credits](../../../apps/platform-lab/assets/aviation/README.md). Preserve source/author/license links and explain cropping/dark overlays. Native scenes differ from exact reference photography; document this rather than extracting screenshot pixels. Photos are decorative, not weather/club/location evidence.
+The branch header uses a decorative code-native flight illustration over navy. Its compact form appears beside Meine Saison. The [alternative contract](alternative-ui.md#artwork-provenance-and-retained-data-behavior) records SVG/CairoSVG provenance; this art is not a photograph or measured-flight evidence. Retained decorative scenes use the existing [aviation photographs/credits](../../../apps/platform-lab/assets/aviation/README.md). Preserve source/author/license links and explain cropping/dark overlays. Native scenes differ from exact reference photography; document this rather than extracting screenshot pixels. Photos are decorative, not weather/club/location evidence.
 
 The HTML guide embeds original reference and symbol/brand images unchanged. Component examples are schematic CSS explanations with synthetic labels, not new app screenshots or replacement artwork.
 

@@ -135,3 +135,12 @@ test('a verified owner change never reuses previous owner branches even with ide
   h.setActive(false); assert.equal(h.render().view,null);h.setActive(true);
   const state=await h.flush();assert.equal(state.view.snapshot.ownerId,'owner-b');assert.notEqual(state.view.flights,first.flights);h.unmount();
 });
+
+test('ordinary tab return and duplicate active events preserve the verified view without storage reads',async()=>{
+ const h=host(true),first=(await h.flush()).view,reads=h.closes();
+ h.setFlightsActive(false);h.setFlightsActive(true);h.setFlightsActive(false);
+ h.foreground();h.foreground();
+ const next=await h.flush();assert.equal(next.phase,'ready');assert.equal(next.view,first);assert.equal(h.closes(),reads);
+ h.background();assert.equal(h.render().view,null);h.foreground();await h.flush();assert.equal(h.closes(),reads+1);
+ h.unmount();
+});

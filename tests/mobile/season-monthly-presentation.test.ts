@@ -19,16 +19,18 @@ function fixture(fontScale=1) {
 }
 test('one monthly chart switches count and hours without offering drilldowns',()=>{
  const f=fixture(),initial=f.render();
- assert.equal(initial.filter(n=>n.type==='ScrollView').length,0);
+ assert.equal(initial.filter(n=>n.type==='ScrollView').length,1);
  const months=initial.filter(n=>n.props.accessible);assert.equal(months.length,12);
  assert.equal(months.filter(n=>n.props.accessibilityLabel.includes('zukünftig')).length,2);
- assert.ok(months.every(n=>n.props.style[1].width==='16.666666%'));
+ assert.ok(months.every(n=>n.props.style.flex===1));
+ assert.equal(initial.find(n=>n.type==='ScrollView')!.props.horizontal,true);
+ assert.ok(initial.some(n=>Array.isArray(n.props.style)&&n.props.style[0]?.flexWrap==='nowrap'));
  assert.equal(initial.filter(n=>n.type==='Pressable'||n.type==='Action').length,0);
  assert.equal(initial.filter(n=>n.type==='Chip').length,2);
  assert.equal(initial.filter(n=>n.type==='Chip'&&n.props.selected)[0]!.props.title,'Flüge');
  assert.match(JSON.stringify(initial),/Monatsübersicht/);assert.match(JSON.stringify(initial),/Flüge/);
  initial.find(n=>n.type==='Chip'&&n.props.title==='Flugstunden')!.props.onPress();
- const hours=f.render();assert.equal(hours.filter(n=>n.type==='ScrollView').length,0);
+ const hours=f.render();assert.equal(hours.filter(n=>n.type==='ScrollView').length,1);
  assert.match(JSON.stringify(hours),/Flugstunden/);
  assert.match(JSON.stringify(hours),/h bekannt/);
  assert.equal(hours.filter(n=>n.type==='Chip'&&n.props.selected)[0]!.props.title,'Flugstunden');
@@ -46,9 +48,11 @@ test('year rollover and account changes leave no stale month selection or action
  assert.equal(next.filter(n=>n.props.accessible&&n.props.accessibilityLabel.includes('zukünftig')).length,11);
 });
 
-test('enlarged text keeps all twelve month descriptions in four three-month rows',()=>{
+test('enlarged text keeps all twelve month descriptions in one horizontally scrollable row',()=>{
  const f=fixture(1.6),nodes=f.render();
  const months=nodes.filter(n=>n.props.accessible);
- assert.equal(months.length,12);assert.ok(months.every(n=>n.props.style[1].width==='33.333333%'));
+ assert.equal(months.length,12);assert.ok(months.every(n=>n.props.style.flex===1));
+ assert.equal(nodes.find(n=>n.type==='ScrollView')!.props.horizontal,true);
+ assert.ok(nodes.some(n=>Array.isArray(n.props.style)&&n.props.style[0]?.flexWrap==='nowrap'&&n.props.style[1].minWidth>=576));
  assert.match(months[0]!.props.accessibilityLabel,/Jan/);assert.match(months[11]!.props.accessibilityLabel,/Dez/);
 });

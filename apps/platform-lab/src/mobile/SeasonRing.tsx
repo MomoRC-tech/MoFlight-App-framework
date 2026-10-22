@@ -1,17 +1,17 @@
 import React, { memo } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Label } from './theme';
+import { Label, colors } from './theme';
 import type { RingSlice } from './season-model';
 
-const size = 62;
-const thickness = 6;
+const size = 44;
+const thickness = 5;
 const radius = (size - thickness) / 2;
 
-/** Two tiny charts only: native tangent strips approximate arcs without a map/SVG dependency. */
+/** Compact aircraft-share charts: native tangent strips approximate arcs without a map/SVG dependency. */
 export const SeasonRing = memo(function SeasonRing({ slices, value, label, description }: {
   slices: readonly RingSlice[]; value: string; label: string; description: string;
 }) {
-  return <View accessible accessibilityLabel={description} style={styles.ring}>
+  return <View accessible accessibilityLabel={description} style={styles.group}><View style={styles.ring}>
     <View style={styles.track} />
     {slices.flatMap((slice, sliceIndex) => {
       // Narrow boundaries distinguish aircraft without changing their calculated angular shares.
@@ -36,13 +36,14 @@ export const SeasonRing = memo(function SeasonRing({ slices, value, label, descr
       });
     })}
     <View style={styles.center} />
-    <Label style={styles.value}>{value}</Label><Label style={styles.label}>{label}</Label>
+    </View><View style={{flex:1,minWidth:0}}><Label style={styles.value}>{value}</Label><Label muted style={styles.label}>{label}</Label></View>
   </View>;
 });
 
 const styles = StyleSheet.create({
-  ring: { width: size, height: size, alignItems: 'center', justifyContent: 'center', backgroundColor: '#061626', borderRadius: size / 2, overflow: 'hidden' },
-  track: { position: 'absolute', width: size, height: size, borderWidth: thickness, borderRadius: size / 2, borderColor: '#234357' },
-  center: { position: 'absolute', width: size - thickness * 2, height: size - thickness * 2, borderRadius: size / 2 - thickness, backgroundColor: '#061626' },
-  value: { fontSize: 15, lineHeight: 19, fontWeight: '700' }, label: { fontSize: 9, lineHeight: 12 },
+  group: {flex:1,flexDirection:'row',alignItems:'center',gap:7},
+  ring: { width: size, height: size, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.card, borderRadius: size / 2, overflow: 'hidden' },
+  track: { position: 'absolute', width: size, height: size, borderWidth: thickness, borderRadius: size / 2, borderColor: colors.border },
+  center: { position: 'absolute', width: size - thickness * 2, height: size - thickness * 2, borderRadius: size / 2 - thickness, backgroundColor: colors.card },
+  value: { fontSize: 18, lineHeight: 24, fontWeight: '700' }, label: { fontSize: 11, lineHeight: 16 },
 });

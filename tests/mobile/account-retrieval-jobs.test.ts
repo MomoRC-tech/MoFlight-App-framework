@@ -59,3 +59,18 @@ test('flight failure and leaving foreground prevent optional retrieval from star
     assert.equal(otherCalls,0);
   }
 });
+
+
+test('all supported optional sources run once independently and interruption skips the remainder',async()=>{
+  for(const interrupt of [false,true]){
+    let active=true;const calls:string[]=[];
+    const result=await retrieveOtherAccountData({active:()=>active,
+      medical:async()=>{calls.push('medical');throw new Error('offline');},
+      duties:async()=>{calls.push('duties');return {rows:[],partial:true};},
+      events:async()=>{calls.push('events');if(interrupt)active=false;throw new Error('unavailable');},
+      documentNotices:async()=>{calls.push('documents');return {rows:[{}]};},
+    });
+    assert.deepEqual(calls,interrupt?['medical','duties','events']:['medical','duties','events','documents']);
+    assert.deepEqual(result,{medical:'failed',duties:'partial',events:interrupt?'skipped':'failed',documentNotices:interrupt?'skipped':'partial'});
+  }
+});

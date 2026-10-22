@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { ownFlightFixture } from './own-flight-fixture.ts';
-import { monthlySeason, latestSavedFlights, abbreviatedCrew } from '../../apps/platform-lab/src/mobile/season-dashboard-model.ts';
+import { monthlySeason, latestSavedFlights, abbreviatedCrew, flightRelativeAge } from '../../apps/platform-lab/src/mobile/season-dashboard-model.ts';
 import { selectOwnFlights, allOwnFlights, requestedOwnFlight } from '../../apps/platform-lab/src/mobile/own-flight-model.ts';
 function flight(id:string,date:string,minutes:number|null=60,start:string|null='12:00') {
   const f=structuredClone(ownFlightFixture().flights[0]!);f.flightId=id;
@@ -60,4 +60,14 @@ test('crew labels abbreviate source names without filling blank or missing roles
  assert.equal(abbreviatedCrew(multiline),'Ada E. · Bob S.');
  assert.equal(multiline.raw,'Example, Ada\r\n\r\nBob Synthetic');
  assert.equal(abbreviatedCrew({state:'blank',label:'PIC',raw:''}),'unbekannt');assert.equal(abbreviatedCrew({state:'not-captured'}),'unbekannt');
+});
+
+test('latest-flight age uses calendar days and weeks and preserves unknown/future dates',()=>{
+ assert.equal(flightRelativeAge('2026-10-18','2026-10-22'),'−4 Tage');
+ assert.equal(flightRelativeAge('2026-10-08','2026-10-22'),'−2 Wochen');
+ assert.equal(flightRelativeAge('2026-10-22','2026-10-22'),'Heute');
+ assert.equal(flightRelativeAge('2026-03-28','2026-03-30'),'−2 Tage');
+ assert.equal(flightRelativeAge(null,'2026-10-22'),'Datum unbekannt');
+ assert.equal(flightRelativeAge('2026-02-30','2026-10-22'),'Datum unbekannt');
+ assert.equal(flightRelativeAge('2026-10-23','2026-10-22'),'Zukünftiges Datum');
 });

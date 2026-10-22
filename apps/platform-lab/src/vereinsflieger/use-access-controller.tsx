@@ -352,7 +352,7 @@ export function useAccessController(product = false, localOwner?: string, develo
         disconnectMode.current || retrieval.current.state.phase !== 'idle' || !providerUrl(currentUrl.current)) return;
     setVisible(true);
     // Returning from a credential Activity is never itself a reason to navigate.
-    if (!phase.current.loaded || loginPage(currentUrl.current) || signInDocument.current === currentUrl.current) return;
+    if (!phase.current.loaded || signInDocument.current === currentUrl.current) return;
     const observation = { nonce: Crypto.randomUUID(), url: currentUrl.current, epoch: epoch.current };
     loginObservation.current = observation;
     web.current?.injectJavaScript(loginDocumentScript(observation.nonce));
@@ -501,6 +501,7 @@ export function useAccessController(product = false, localOwner?: string, develo
       const accepted = session.current.observe(request.nonce, message.context, new Date().toISOString());
       clearContextRequest(); syncConnection();
       if (!accepted) {
+        endGuidedFlightConnection();
         pendingCapture.current = null; flightSourceAttempt.current = null; pendingFlightSource.current = null;
         if (session.current.state.phase === 'mismatch') clearCompletedFlightSource();
         const active = retrieval.current.state;
@@ -584,7 +585,7 @@ export function useAccessController(product = false, localOwner?: string, develo
     }
     const loginLoad = login.pageLoaded(page, pageEpoch);
     if (loginLoad) { await loginLoad; return; }
-    if (guidedFlightLogin.current && product && foreground.current && providerUrl(page) && !loginPage(page) &&
+    if (guidedFlightLogin.current && product && foreground.current && providerUrl(page) &&
         !contextRequest.current && retrieval.current.state.phase === 'idle') {
       continueGuidedLogin(); return;
     }
@@ -966,7 +967,10 @@ export function useAccessController(product = false, localOwner?: string, develo
         onContentProcessDidTerminate={() => { if (generation !== epoch.current) return; if (information.pageFailed()) return; if (loginAttempt.current) endLogin('Provider renderer stopped. Saved sign-in cancelled.', 'cancelled'); if (product) contextFailed(); finish('Provider renderer stopped. Recovery journal retained.'); }}
         onRenderProcessGone={() => { if (generation !== epoch.current) return; if (information.pageFailed()) return; if (loginAttempt.current) endLogin('Provider renderer stopped. Saved sign-in cancelled.', 'cancelled'); if (product) contextFailed(); finish('Provider renderer stopped. Recovery journal retained.'); }}
       />;
-  return { ...information.public, retrieveDutyPage: async (source:'own'|'club') => {
+  return { ...information.public, retrieveFeatureInformation: async (category:'events'|'document-notices') => {
+    try { return await information.public.retrieveFeatureInformation(category); }
+    catch(error) { session.current.invalidate(); syncConnection(); throw error; }
+  }, retrieveDutyPage: async (source:'own'|'club') => {
     try { return await information.public.retrieveDutyPage(source); }
     catch(error) { session.current.invalidate(); syncConnection(); throw error; }
   }, retrieveMedical: async () => {

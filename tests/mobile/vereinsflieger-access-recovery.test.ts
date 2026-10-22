@@ -2768,3 +2768,82 @@ test('real connection controller and panel retain one browser through credential
   assert.equal(browser().props.key,key);assert.equal(f.controller().visible,true);assert.equal(frame().props.pointerEvents,'auto');
   f.unmount();
 });
+
+
+test('feature update captures document notices with fresh account checks and durable readback', async () => {
+  const selected = 'https://vereinsflieger.de/member/overview/overview';
+  for (const mode of ['success', 'foreign', 'background', 'owner', 'unmount'] as const) {
+    const f = fixture({ product: true }); f.render(); await f.settle(null); await establishProductAssociation(f);
+    const work = f.controller().retrieveFeatureInformation('document-notices');
+    const rejected = mode === 'success' ? null : assert.rejects(work); await f.flush();
+    await f.loadPage(context.PROFILE_URL); await f.contextMessage(observedContext);
+    await f.loadPage(selected);
+    const web = f.find(f.render(), e => e.type === 'WebView')!;
+    (web.props.onMessage as (event: unknown) => void)({ nativeEvent: { url: selected, data: JSON.stringify({ kind: 'vf-information-v1', nonce: f.lastIssuedNonce() + '-read', url: selected, page: {
+      category: 'document-notices', path: '/member/overview/overview', columns: [{ key: 'notice', label: 'Hinweis \u00b7 Originaltext', index: 0 }], rows: [{ position: 0, values: ['Synthetic notice 22.10.2026'] }], filters: [], empty: false, coverage: { kind: 'visible-page', truncated: false, pagination: 'unverified' },
+    } }) } }); await f.flush();
+    assert.equal(f.writes.includes('information-saved'), false);
+    if (mode === 'success' || mode === 'foreign') { await f.loadPage(context.PROFILE_URL); await f.contextMessage(mode === 'foreign' ? { ...observedContext, accountNumber: '999' } : observedContext); }
+    if (mode === 'background') f.appState('background');
+    if (mode === 'owner') f.changeOwner('foreign-owner');
+    if (mode === 'unmount') f.unmount();
+    if (mode === 'success') { const capture = await work; assert.equal(capture.category, 'document-notices'); assert.equal(capture.rows[0]!.values[0], 'Synthetic notice 22.10.2026'); }
+    else await rejected;
+    assert.equal(f.writes.filter(w => w === 'information-saved').length, mode === 'success' ? 1 : 0);
+    if (mode !== 'unmount') f.unmount();
+  }
+});
+
+
+test('successful sign-in at the original URL automatically verifies without a second button; repeated load-end is idempotent',async()=>{
+  for(const foreign of [false,true]){
+    const f=fixture({product:true,persistedScope:{version:1,owner:'synthetic-pilot',connectionId:'prior',context:observedContext}});
+    f.render();await f.settle(null);await f.flush();
+    f.controller().beginGuidedFlightConnection();
+    f.allowNavigation(context.PROFILE_URL);
+    await f.loadPage(context.PROFILE_URL);await f.loadPage(probe.LOGIN_URL);
+    await f.contextMessage({error:'session-required'},probe.LOGIN_URL,undefined,probe.LOGIN_URL,'vf-login-required-v1');
+    f.setNativeLoginForm(false);
+    await f.loadPage(probe.LOGIN_URL);
+    assert.equal(f.controller().connection.phase,'checking');
+    assert.equal(f.controller().connection.confirmed,false);
+    await f.loadPage(context.PROFILE_URL);
+    await f.contextMessage({...observedContext,...(foreign?{accountNumber:'999'}:{})});
+    assert.equal(f.controller().connection.phase,foreign?'mismatch':'observed');
+    assert.equal(f.controller().connection.confirmed,!foreign);
+    const checks=f.providerEvents.filter(event=>event==='provider-check').length;
+    await f.finishPage(context.PROFILE_URL);await f.flush();
+    assert.equal(f.providerEvents.filter(event=>event==='provider-check').length,checks);
+    f.unmount();
+  }
+});
+
+test('feature event refresh probes selection and preserves the context/selection checks', async () => {
+  const selected = 'https://vereinsflieger.de/member/community/appointment/';
+  for (const changed of [false, true]) {
+    const f = fixture({ product: true }); f.render(); await f.settle(null); await establishProductAssociation(f);
+    const work=f.controller().retrieveFeatureInformation('events');
+    const rejected=changed?assert.rejects(work):null; await f.flush();
+    await f.loadPage(selected);
+    assert.match(f.injections.at(-1)!, /vf-information-selection-v1/);
+    assert.ok(!f.writes.includes('information-saved'));
+    async function send(kind: string, stage: string, payload: Record<string, unknown>) {
+      const web = f.find(f.render(), e => e.type === 'WebView')!;
+      (web.props.onMessage as (event: unknown) => void)({ nativeEvent: { url: selected, data: JSON.stringify({ kind, nonce: f.lastIssuedNonce() + '-' + stage, url: selected, ...payload }) } });
+      await f.flush();
+    }
+    await send('vf-information-selection-v1', 'selection', { selection: { date: '19.07.2026', view: '3 Monate' } });
+    await f.loadPage(context.PROFILE_URL); await f.contextMessage(observedContext);
+    await f.loadPage(selected);
+    await send('vf-information-v1', 'read', { page: {
+      category: 'events', path: '/member/community/appointment/', columns: [{ key: 'date', label: 'Datum', index: 2 }, { key: 'time', label: 'Zeit', index: 3 }, { key: 'kind', label: 'Kategorie', index: 4 }, { key: 'info', label: 'Info · Titel/Ort', index: 5 }],
+      rows: [{ position: 3, values: ['26.07.2026', 'Ganztägig', 'Termine', 'Synthetic event'] }], filters: ['Quellkategorie: Termine', 'Ab ' + (changed ? '20.07.2026' : '19.07.2026'), 'Ansicht: 3 Monate'], empty: false, coverage: { kind: 'visible-page', truncated: false, pagination: 'unverified' },
+    } });
+    if (changed) assert.match(f.controller().informationNotice, /Kalenderansicht.*geändert/);
+    else { await f.loadPage(context.PROFILE_URL); await f.contextMessage(observedContext); await f.flush(); }
+    if(changed)await rejected;else assert.equal((await work).category,'events');
+    f.unmount();
+    assert.equal(f.writes.filter(w => w === 'information-saved').length, changed ? 0 : 1);
+    assert.ok(!f.writes.includes('capture-saved')); assert.equal(f.loginStorage().reads, 0);
+  }
+});

@@ -2,6 +2,7 @@ import type { RealFlightDetail, RealFlightListItem } from '../vereinsflieger/rea
 import type { OwnFlightStoredSnapshot, RealFlightService } from '../vereinsflieger/real-flight-service';
 import type { InformationCapture } from '../vereinsflieger/information';
 import type { DutyRosterSnapshot } from '../vereinsflieger/duties';
+import { buildFeatureInformation, type FeatureInformation } from './feature-information';
 import type { ProviderScope } from '../vereinsflieger/scope-store';
 
 export interface OwnFlightScope { ownerId: string; storeId: string }
@@ -9,6 +10,7 @@ export interface OwnFlightReadSession extends OwnFlightScope {
   service: Pick<RealFlightService, 'readStored' | 'detail'>;
   assertCurrent(): Promise<void>;
   pendingCommand(): Promise<boolean>;
+  readFeatureInformation?(accountRef:string):Promise<{scope:ProviderScope;captures:InformationCapture[]}|null>;
   readMedical?(accountRef:string):Promise<InformationCapture|null>;
   readDuties?(accountRef:string):Promise<{scope:ProviderScope;snapshot:DutyRosterSnapshot|null}|null>;
   close(): Promise<void>;
@@ -40,6 +42,7 @@ export function serializeOwnFlightReads(ports: OwnFlightReadPorts): OwnFlightRea
 }
 export interface OwnFlightView {
   snapshot: OwnFlightStoredSnapshot; flights: RealFlightListItem[]; pendingCommand: boolean;
+  featureInformation?:FeatureInformation|null; featureInformationReadFailed?:boolean;
   medical?:InformationCapture|null; medicalReadFailed?:boolean;
   duties?:{scope:ProviderScope;snapshot:DutyRosterSnapshot|null}|null; dutiesReadFailed?:boolean;
 }
@@ -76,7 +79,18 @@ export async function readOwnFlightView(ports: OwnFlightReadPorts): Promise<OwnF
       }catch{duties=null;dutiesReadFailed=true;}
     }
     await session.assertCurrent();
-    return { ...result, pendingCommand,medical,medicalReadFailed,duties,dutiesReadFailed };
+    let featureInformation:FeatureInformation|null=null,featureInformationReadFailed=false;
+    if(result.snapshot.account&&session.readFeatureInformation){
+      try {
+        const source=await session.readFeatureInformation(result.snapshot.account.accountRef);
+        if(source){
+          if(source.scope.owner!==session.ownerId||source.scope.context.accountNumber!==result.snapshot.account.accountRef||source.captures.some(c=>c.owner!==session.ownerId||c.connectionId!==source.scope.connectionId))throw new Error('Foreign feature source');
+          featureInformation=buildFeatureInformation(source.scope,source.captures);
+        }
+      } catch { featureInformation=null;featureInformationReadFailed=true; }
+      await session.assertCurrent();
+    }
+    return { ...result, pendingCommand,medical,medicalReadFailed,duties,dutiesReadFailed,featureInformation,featureInformationReadFailed };
   } finally { await session.close(); }
 }
 

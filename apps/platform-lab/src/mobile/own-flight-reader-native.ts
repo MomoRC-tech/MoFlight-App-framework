@@ -1,3 +1,4 @@
+import { canonical } from '@moflight/flight-logbook';
 import * as Crypto from 'expo-crypto';
 import { hash } from '../storage';
 import { openOwnerRegistry, openRealFlightSelection, openRealFlightCommandJournal } from '../vereinsflieger/real-flight-native';
@@ -39,6 +40,26 @@ export const ownFlightReadPorts = serializeOwnFlightReads({
           } catch (error) { await selection.close(); throw error; }
         },
       });
+      let informationRead: Promise<{scope: NonNullable<Awaited<ReturnType<typeof loadProviderScope>>>;captures:Awaited<ReturnType<typeof loadInformation>>}|null>|null=null;
+      let informationAccount:string|null=null;
+      async function readInformation(accountRef:string) {
+        if(closed)throw new Error('Information reader closed');
+        await registry!.assertCurrent(lease!);
+        if(informationAccount!==null&&informationAccount!==accountRef)throw new Error('Information account changed');
+        informationAccount=accountRef;
+        informationRead??=(async()=>{
+          const selected=await loadProviderScope(lease!.ownerId);
+          if(!selected)return null;
+          if(selected.owner!==lease!.ownerId||selected.context.accountNumber!==accountRef)throw new Error('Foreign information scope');
+          const captures=await loadInformation(selected,()=>{if(closed)throw new Error('Information reader closed');});
+          return {scope:selected,captures};
+        })();
+        const result=await informationRead;
+        await registry!.assertCurrent(lease!);
+        const current=await loadProviderScope(lease!.ownerId);
+        if(closed||canonical(result?.scope??null)!==canonical(current))throw new Error('Information scope changed');
+        return result;
+      }
       return { ownerId: lease.ownerId, storeId: lease.storeId, service,
         readDuties:async(accountRef:string)=>{
           await registry.assertCurrent(lease);
@@ -49,14 +70,10 @@ export const ownFlightReadPorts = serializeOwnFlightReads({
           await registry.assertCurrent(lease);
           return {scope:selected,snapshot};
         },
+        readFeatureInformation:readInformation,
         readMedical:async(accountRef:string)=>{
-          await registry.assertCurrent(lease);
-          const selected=await loadProviderScope(lease.ownerId);
-          if(!selected)return null;
-          if(selected.owner!==lease.ownerId||selected.context.accountNumber!==accountRef)throw new Error('Foreign Medical scope.');
-          const captures=await loadInformation(selected,()=>{if(closed)throw new Error('Medical reader closed.');});
-          await registry.assertCurrent(lease);
-          return medicalSource(captures,lease.ownerId);
+          const source=await readInformation(accountRef);
+          return source?medicalSource(source.captures,lease.ownerId):null;
         },
         assertCurrent: () => registry.assertCurrent(lease),
         pendingCommand: async () => { const opened = await journal(); try { return !!await opened.pending(); } finally { await opened.close(); } },

@@ -56,3 +56,17 @@ No physical phone, iOS runtime, live Google/provider credential handoff or exten
 ## Independent review
 
 Astra with Medium reasoning independently reviewed navigation and layout source. Two concrete defects were fixed: latest recent-flight request now waits for an active local detail read, and “Alle ansehen” sends a fresh list request instead of retaining a previous detail. A real-hook/reader delayed-promise test plus presentation and shell regressions pass. A separate Astra/Medium agent aligned the handbook and its portable outputs (10 handbook tests); another implemented the explicit synthetic Development preview (3 fixture tests). No model API service or paid CI was used.
+
+## Tested-feedback revision
+
+Tracking: #55 (M4 alternative presentation), #42 (M2 login continuation), #45 (retained Start processing), [#56](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/56) (supported source integration). Manuel's tested feedback authorizes this implementation. No new dependency, database migration, paid service or main merge.
+
+Changes: original-logo glider-scene header and compact season artwork; removed permanent Start introduction; one latest dated flight with relative age, actual PIC and aircraft; four aircraft-split year/measure rings; dense single-row Jan–Dec comparison. Returning tabs retain the same reader/processed data; duplicate active notifications are ignored. Real foreground/provider-return still revalidates account-scoped local data. The entire reported device latency symptom was not reproduced; no measured speedup is claimed.
+
+The actual login controller now observes the original URL too: successful login may remain at that URL, so URL exclusion stalled continuation. The new same-URL regression fails with the prior exclusion and passes with the fix. Form absence only triggers fresh, matching account proof; it is not authentication evidence itself. Automatic saved-flight completion returns Start once and shows a dismissible owner-scoped receipt, including optional failures. Closing during optional retrieval stops later jobs; in-flight saves/recovery must settle first. Per-source Skip remains distinct.
+
+Flights, Medical, supported duties, visible calendar entries and document notices are separate jobs. New source projections load from the same validated account-scoped local evidence and survive offline reads. Event/document sources remain partial; unsupported empty pages remain unknown, and populated news has no verified reader. No download links, complete coverage or synthetic news are invented. Independent Astra/Medium review checked isolation, cancellation and same-URL proof. Synthetic preview now includes actual Verein cards with fictional sources.
+
+Acceptance mapping: R04/R12, FL-03/10/11, E07/E09 use dashboard/season/chart/header-navigation regressions plus the scoped visual matrix. Provider continuity uses access-recovery and combined-flight-load controller tests; source isolation uses feature-information, own-flight-information-native and reader tests. Existing recovery/raw-evidence/account tests remain applicable. Native/live-provider/iOS acceptance stays source-specific.
+
+Verification is in progress at this implementation checkpoint; final host/native/build results and delivery will be appended below. The previous delivery and evidence above retain their original source commits.

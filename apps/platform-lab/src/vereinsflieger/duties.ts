@@ -17,9 +17,32 @@ export interface DutyOverview {
   status: 'partial' | 'unavailable'; window: { start: string; end: string };
   items: DutyItem[]; ownItems: DutyItem[]; laterOwn: DutyItem[]; unplaced: DutyItem[];
   retrievedAt: string | null; clubLabel: string; coverageMessage: string;
+  sources?: DutySourceCoverage[];
+}
+export interface DutySourceCoverage {
+  source: 'own' | 'personal-list' | 'club';
+  state: 'missing' | 'empty-page' | 'partial' | 'truncated';
+  rowCount: number; inWindowCount: number; unknownPeriodCount: number;
+  displayedInterval: { start: string; end: string } | null;
+  pagination: 'unverified'; complete: false;
 }
 const ownPath = '/member/profile/myservices.php';
 const paths = [ownPath, '/member/profile/allservicelist.php', '/member/community/serviceshedulelist.php'];
+/** The UI window is a local filter; it is never evidence of the page's requested scope. */
+function sourceCoverage(snapshot: DutyRosterSnapshot, window: { start: string; end: string }): DutySourceCoverage[] {
+  return paths.map((path, index) => {
+    const capture = snapshot.captures.find(c => c.path === path);
+    const periodIndex = capture?.columns.findIndex(column => column.key === 'period') ?? -1;
+    const periods = capture?.rows.map(row => parseDutyPeriod(row.values[periodIndex]!)) ?? [];
+    const known = periods.filter((period): period is { start: string; end: string } => period !== null);
+    return { source: (['own','personal-list','club'] as const)[index]!,
+      state: !capture ? 'missing' : capture.coverage.truncated ? 'truncated' : capture.empty ? 'empty-page' : 'partial',
+      rowCount: periods.length, inWindowCount: known.filter(p => p.start <= window.end && p.end >= window.start).length,
+      unknownPeriodCount: periods.length - known.length,
+      displayedInterval: known.length ? { start: known.map(p => p.start).sort()[0]!, end: known.map(p => p.end).sort().at(-1)! } : null,
+      pagination: 'unverified', complete: false };
+  });
+}
 export function dutyTimestamp(value: string): number {
   const time = Date.parse(value);
   if (!Number.isFinite(time) || new Date(time).toISOString() !== value) throw new Error('Invalid duty timestamp');
@@ -72,7 +95,7 @@ export function dutySnapshotExpiresAt(snapshot: DutyRosterSnapshot) {
 }
 export function buildDutyOverview(scope: ProviderScope, input: DutyRosterSnapshot | null, today: string, now = Date.now()): DutyOverview {
   const validScope = validateScope(scope), window = dutyWindow(today);
-  const base = { window, items: [], ownItems: [], laterOwn: [], unplaced: [], retrievedAt: null, clubLabel: validScope.context.clubLabel };
+  const base = { window, items: [], ownItems: [], laterOwn: [], unplaced: [], sources: [], retrievedAt: null, clubLabel: validScope.context.clubLabel };
   if (!input) return { ...base, status: 'unavailable', coverageMessage: 'Dienstplan unbekannt. Noch keine unterstützte Quelle erfasst.' };
   const snapshot = validateDutyRosterSnapshot(input);
   if (canonical(snapshot.scope) !== canonical(validScope)) throw new Error('Foreign duty roster');
@@ -89,5 +112,6 @@ export function buildDutyOverview(scope: ProviderScope, input: DutyRosterSnapsho
   // No identity/name matching across rows. Missing person IDs and time semantics
   // leave cross-row co-assignee linkage explicitly unverified.
   const items = entries.filter(item => item.start && item.end && item.start <= window.end && item.end >= window.start);
-  return { status: 'partial', window, items, ownItems: items.filter(item => item.ownState === 'own'), laterOwn: entries.filter(item => item.ownState === 'own' && item.start && item.start > window.end).slice(0, 3), unplaced: entries.filter(item => !item.start), retrievedAt: snapshot.retrievedAt, clubLabel: validScope.context.clubLabel, coverageMessage: 'Erfasster Seitenausschnitt · Vollständigkeit, weitere Pläne/Seiten und nächste drei eigene Dienste ungeprüft. Personenbezug außerhalb der eigenen Liste und dienstgleiche Partner ungeprüft. Datumszuordnung nach angezeigten Kalendertagen; Zeitzone und Tagesgrenzen ungeprüft.' };
+  const sources = sourceCoverage(snapshot, window);
+  return { status: 'partial', window, items, sources, ownItems: items.filter(item => item.ownState === 'own'), laterOwn: entries.filter(item => item.ownState === 'own' && item.start && item.start > window.end).slice(0, 3), unplaced: entries.filter(item => !item.start), retrievedAt: snapshot.retrievedAt, clubLabel: validScope.context.clubLabel, coverageMessage: (sources.some(s => s.state === 'truncated') ? 'Quellansicht am Erfassungslimit abgeschnitten. ' : '') + 'Erfasster Seitenausschnitt · Vollständigkeit, weitere Pläne/Seiten und nächste drei eigene Dienste ungeprüft. Personenbezug außerhalb der eigenen Liste und dienstgleiche Partner ungeprüft. Datumszuordnung nach angezeigten Kalendertagen; Zeitzone und Tagesgrenzen ungeprüft.' };
 }

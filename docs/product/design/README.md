@@ -21,7 +21,7 @@ This is the current starting point for MoFlight's visual design. Use it when enh
 
 ## Current visual direction
 
-This branch uses matte navy, opaque panels, mint actions, a larger destination heading and a calmer reading order. Season values and recent flights lead; optional comparisons sit behind a disclosure. Preserve selected duotone symbols and the Thermik logo. The [alternative contract](alternative-ui.md) describes this branch; the authority list below records main-branch decisions, not approval to replace them.
+This branch uses matte navy, opaque panels, mint actions, a larger destination heading and a calmer reading order. A compact season card integrates the latest flight and current/prior-year aircraft-share rings; the single-row monthly comparison sits behind a disclosure. The former leading connection box is removed and decorative flight artwork supports the header/season heading. Preserve selected duotone symbols and the Thermik logo. The [alternative contract](alternative-ui.md) describes this branch; the authority list below records main-branch decisions, not approval to replace them.
 
 Keep German labels beside important navigation/status symbols. Show saved facts and explicit unknown/unavailable states. Decorative photographs and illustrative design examples do not establish weather, tracks, source freshness or copied paper entries.
 

@@ -74,6 +74,7 @@ function fixture(width = 390, fontScale = 1, root = false) {
     './OwnFlights': leaves(['OwnFlights']),
     './use-own-flights': { useOwnFlights: (_ports:unknown,active:boolean) => {readEnabled.push(active);return { view: ownView, phase: ownView?'ready':'missing' };} },
     './own-flight-reader-native': { ownFlightReadPorts: {} },
+    './UpdateResult':leaves(['UpdateResult']), './ClubInformation':leaves(['ClubEvents','ClubDocumentNotices']),
     './ConnectionSummary': leaves(['ConnectionSummary']), './medical-source': { medicalSource },
     './connection-guidance': { ownFlightConnectionState },
     '../vereinsflieger/duties': dutyModel, './DutyRoster':leaves(['DutyRoster']),
@@ -122,7 +123,9 @@ test('header age comes from the selected saved retrieval independently of provid
   assert.equal(status().state,'fresh');assert.equal(status().caption,'vor 20 Min.');
   assert.ok(f.clockDeadlines().includes(Date.parse(at)+DATA_UPDATE_FRESH_MS),'The existing local clock schedules the exact one-hour transition');
   f.setTime(now+40*60_000);assert.equal(status().state,'older');f.setTime(now);
-  assert.equal(f.find('ConnectionSummary').props.controller.connection.lastCheckedAt,state.lastCheckedAt);
+  f.press('Pressable','Profil & Einstellungen öffnen');
+  assert.equal(f.find('ProfileSettings').props.connectionSummary.props.controller.connection.lastCheckedAt,state.lastCheckedAt);
+  f.headers().at(-1)!.props.back();f.render();
   assert.deepEqual(f.calls,[]);
   f.appState('background');f.appState('active');
   assert.equal(status().state,'fresh','Losing live provider proof does not age saved data');
@@ -158,8 +161,7 @@ test('app headers order connection, Medical and profile on every tab', () => {
 
 test('only the header starts update/login; other pages retain guidance and offline backup', () => {
   const f=fixture();
-  assert.equal(f.find('ConnectionSummary').props.onUpdate,undefined);
-  assert.equal(f.find('ConnectionSummary').props.onOpen,undefined);
+  assert.equal(f.nodes().some(n=>n.type==='ConnectionSummary'),false,'Start has no permanent connection introduction');
   assert.equal(f.find('OwnFlights').props.onUpdate,undefined);
   f.press('Pressable','Profil & Einstellungen öffnen');
   assert.equal(f.find('ProfileSettings').props.onConnections,undefined);
@@ -492,4 +494,29 @@ test('design preview is an explicit Development route and Back restores settings
  assert.ok(!f.nodes().some(n=>n.type==='DesignPreview'));f.find('DevelopmentHub').props.onDesignPreview();f.render();
  assert.equal(f.headers().at(-1)!.props.title,'Designvorschau');assert.ok(f.nodes().some(n=>n.type==='DesignPreview'));assert.deepEqual(f.coreRoutes,[]);
  f.headers().at(-1)!.props.back();f.render();assert.ok(f.nodes().some(n=>n.type==='DevelopmentHub'));
+});
+
+
+test('a completed update returns Start once, retains source failures and scopes its receipt to the owner',()=>{
+ const f=fixture();f.press('Pressable','Flüge');f.openOwnDetail();
+ f.press('Pressable','Profil & Einstellungen öffnen');
+ const result={added:1,changed:0,pending:0,from:'2026-01-01',to:'2026-10-22',eventsStatus:'failed',verifiedConnection:{ownerId:'owner-a',state:unknownProviderStatus.connection}};
+ const view={snapshot:{ownerId:'owner-a',account:{accountRef:'101'}}};
+ f.showLoad(result,view);
+ assert.equal(f.headers()[0]!.props.title,'Übersicht');assert.equal(f.nodes().some(n=>n.type==='ProfileSettings'),false);
+ assert.equal(f.find('UpdateResult').props.result.eventsStatus,'failed');
+ f.find('UpdateResult').props.onDetails();f.render();assert.ok(f.nodes().some(n=>n.type==='UpdateResult'&&n.props.detail));
+ f.headers().at(-1)!.props.back();f.render();f.find('UpdateResult').props.onDismiss();f.render();
+ assert.equal(f.nodes().some(n=>n.type==='UpdateResult'),false);
+ f.press('Pressable','Flüge');f.showLoad(result,view);assert.equal(f.find('OwnFlights').props.active,true,'Same result cannot repeatedly force Start');
+ f.showLoad(result,{snapshot:{ownerId:'owner-b',account:{accountRef:'102'}}});
+ assert.equal(f.nodes().some(n=>n.type==='UpdateResult'),false,'Never show another owner update receipt');
+});
+
+test('Verein uses selected account sources in overview and detail routes',()=>{
+ const f=fixture();const information={events:{status:'partial',items:[]},documentNotices:{status:'unavailable',items:[]}};
+ f.showLoad(null,{snapshot:{ownerId:'owner-a',account:{accountRef:'101'}},featureInformation:information,featureInformationReadFailed:true});f.press('Pressable','Verein');
+ assert.equal(f.find('ClubEvents').props.information,information);assert.equal(f.find('ClubEvents').props.readFailed,true);
+ f.find('ClubEvents').props.onOpen();f.render();assert.equal(f.find('ClubEvents').props.compact,false);
+ assert.equal(f.nodes().some(n=>n.type==='ClubDocumentNotices'),false);
 });

@@ -1,5 +1,6 @@
 import { adaptHistoryFacts } from '../vereinsflieger/history-facts';
 import type { RealFlightDetail } from '../vereinsflieger/real-flight-library';
+import type { FeatureInformation } from './feature-information';
 import type { OwnFlightView } from './own-flight-reader';
 
 export const DESIGN_PREVIEW_NOW = Date.parse('2026-10-22T12:00:00.000Z');
@@ -33,7 +34,17 @@ export function createDesignPreviewData(): { view: OwnFlightView; details: RealF
     factHistory: [{ version: 1, bindingId: flight.bindingId, flightId: flight.flightId, facts: flight.facts,
       predecessor: null, reason: 'source-change', captureId: capture.captureId, rowIndex }],
   }));
-  return { details, view: { flights, pendingCommand: false, snapshot: {
+  const featureInformation: FeatureInformation = {
+    events: { status: 'partial', retrievedAt: '2026-10-22T10:00:00.000Z', filters: ['Quellkategorie: Termine', 'Ab 22.10.2026', 'Ansicht: 3 Monate'], truncated: false,
+      items: [
+        { key: 'synthetic-event-1', date: '24.10.2026', time: '10:00', kind: 'Termine', title: 'Demo Saisonabschluss', location: 'Demo Talwiese' },
+        { key: 'synthetic-event-2', date: '07.11.2026', time: '09:00', kind: 'Termine', title: 'Demo Werkstatttag', location: 'Demo Werkstatt' },
+        { key: 'synthetic-event-3', date: '21.11.2026', time: '18:00', kind: 'Termine', title: 'Demo Vereinsabend', location: null },
+      ] },
+    documentNotices: { status: 'partial', retrievedAt: '2026-10-22T10:00:00.000Z', filters: [], truncated: false,
+      items: [{ key: 'synthetic-document-1', text: 'Demo Winterprogramm 20.10.2026' }, { key: 'synthetic-document-2', text: 'Demo Werkstattplan 18.10.2026' }] },
+  };
+  return { details, view: { featureInformation, featureInformationReadFailed: false, flights, pendingCommand: false, snapshot: {
     version: 1, ownerId: DESIGN_PREVIEW_SCOPE.ownerId, storeId: DESIGN_PREVIEW_SCOPE.storeId, generation: 1,
     account: { provider: 'vereinsflieger', accountRef: DESIGN_PREVIEW_SCOPE.accountRef }, coverage: [],
     savedRetrievals: [{ from: '2025-01-01', to: '2025-12-31', retrievedAt: '2026-10-22T10:00:00.000Z', savedAt: '2026-10-22T10:01:00.000Z' },

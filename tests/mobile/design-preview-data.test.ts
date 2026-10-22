@@ -47,3 +47,17 @@ test('preview factories are fresh in-memory data and expose no persistence capab
   assert.deepEqual(Object.keys(first).sort(), ['details', 'view']);
   assert.equal(first.view.pendingCommand, false);
 });
+
+
+test('club preview contains only fresh bounded synthetic event/document projections', () => {
+  const first = createDesignPreviewData(), second = createDesignPreviewData();
+  const source = first.view.featureInformation!;
+  assert.equal(source.events.items.length, 3); assert.equal(source.documentNotices.items.length, 2);
+  assert.equal(source.events.status, 'partial'); assert.equal(source.documentNotices.status, 'partial');
+  assert.deepEqual(source.events.filters, ['Quellkategorie: Termine', 'Ab 22.10.2026', 'Ansicht: 3 Monate']);
+  assert.equal(source.events.retrievedAt, '2026-10-22T10:00:00.000Z');
+  for (const item of [...source.events.items, ...source.documentNotices.items]) assert.match(item.key, /^synthetic-/);
+  source.events.items.pop(); source.documentNotices.items[0]!.text = 'changed';
+  assert.equal(second.view.featureInformation!.events.items.length, 3);
+  assert.equal(second.view.featureInformation!.documentNotices.items[0]!.text, 'Demo Winterprogramm 20.10.2026');
+});

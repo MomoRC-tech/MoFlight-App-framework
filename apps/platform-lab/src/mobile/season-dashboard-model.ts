@@ -56,3 +56,18 @@ export function abbreviatedCrew(field: RawField): string {
   if (field.state !== 'value') return 'unbekannt';
   return abbreviatedMemberName(field.raw) || 'unbekannt';
 }
+
+/** Calendar-day age avoids DST/clock drift and never assigns an age to an unknown date. */
+export function flightRelativeAge(date: string | null, today: string): string {
+  const parse = (value: string) => {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return NaN;
+    const time = Date.parse(value+'T00:00:00Z');
+    return Number.isFinite(time) && new Date(time).toISOString().slice(0,10)===value ? time : NaN;
+  };
+  const days = date ? Math.round((parse(today)-parse(date))/86_400_000) : NaN;
+  if (!Number.isFinite(days)) return 'Datum unbekannt';
+  if (days < 0) return 'Zukünftiges Datum';
+  if (days === 0) return 'Heute';
+  if (days < 14) return `−${days} ${days===1?'Tag':'Tage'}`;
+  return `−${Math.floor(days/7)} Wochen`;
+}

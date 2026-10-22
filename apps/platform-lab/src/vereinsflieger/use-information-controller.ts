@@ -8,6 +8,9 @@ import { INFORMATION_TYPES, retrievableInformationCategories, informationRouteSh
 import { InformationRun } from './information-run';
 import { loadInformation, readInformationCapture, readInformationHistory, saveInformation } from './information-native';
 
+export type FeatureInformationCategory = 'events' | 'document-notices';
+const featureSources: Record<FeatureInformationCategory, string> = { events: 'https://vereinsflieger.de/member/community/appointment/', 'document-notices': 'https://vereinsflieger.de/member/overview/overview' };
+
 type InformationRetryTarget = { category: InformationCategory; sourceUrl: string; scopeKey: string };
 export interface InformationControllerPorts {
   product: boolean;
@@ -33,6 +36,11 @@ export interface InformationControllerPorts {
 export function useInformationController(ports: InformationControllerPorts) {
   const informationRun = useRef<InformationRun | null>(null);
   const medicalRequest=useRef<{run:InformationRun;resolve:(capture:InformationCapture)=>void;reject:(error:Error)=>void}|null>(null);
+  const featureRequest=useRef<{run:InformationRun;resolve:(capture:InformationCapture)=>void;reject:(error:Error)=>void}|null>(null);
+  function finishFeature(error?:Error,capture?:InformationCapture) {
+    const pending=featureRequest.current;featureRequest.current=null;
+    if(error)pending?.reject(error);else if(capture)pending?.resolve(capture);
+  }
   const dutyRequest=useRef<{run:InformationRun;returnUrl:string;resolve:(capture:InformationCapture)=>void;reject:(error:Error)=>void}|null>(null);
   function finishDuty(error?:Error,capture?:InformationCapture) {
     const pending=dutyRequest.current;dutyRequest.current=null;
@@ -110,19 +118,20 @@ export function useInformationController(ports: InformationControllerPorts) {
     if (run?.stage === 'saving') return;
     run?.cancel(); informationRun.current = null;
     finishMedical(new Error('Medical capture did not complete.'));
+    finishFeature(new Error('Feature capture did not complete.'));
     finishDuty(new Error('Duty capture did not complete.'));
     if (!retryable) informationRetry.current = null;
     if (informationTimer.current) clearTimeout(informationTimer.current);
     informationTimer.current = null;
     if (ports.mounted()) { setInformationRetryReady(retryable && !!informationRetry.current); setInformationBusy(false); setInformationSaving(false); ports.setBusy(false); setInformationNotice(message); }
   }
-  function beginInformation(retry = false, medical = false, dutyUrl?:string): InformationRun | null {
-    if (!(medical||dutyUrl?ports.canStartMedical():ports.canStart(retry)) || informationRun.current || informationHistoryBusy || informationUncertain.current) return null;
+  function beginInformation(retry = false, medical = false, dutyUrl?:string, feature?:FeatureInformationCategory): InformationRun | null {
+    if (!(medical||dutyUrl||feature?ports.canStartMedical():ports.canStart(retry)) || informationRun.current || informationHistoryBusy || informationUncertain.current) return null;
     try {
       const selectedScope = ports.scope(), target = retry ? informationRetry.current : null;
       if (retry && (!informationRetryReady || !target || target.category !== informationCategory || target.scopeKey !== canonical(selectedScope))) return null;
       const reloadFailedProfile = !!(retry && target && informationFailedProfile.current?.target === target && informationFailedProfile.current.epoch === ports.epoch() && ports.currentUrl() === PROFILE_URL);
-      const run = new InformationRun(selectedScope, medical?'medical':dutyUrl?'duties':informationCategory, medical?PROFILE_URL:dutyUrl??target?.sourceUrl ?? ports.currentUrl(), ports.uuid());
+      const run = new InformationRun(selectedScope, medical?'medical':dutyUrl?'duties':feature??informationCategory, medical?PROFILE_URL:dutyUrl??(feature?featureSources[feature]:target?.sourceUrl ?? ports.currentUrl()), ports.uuid());
       informationRetry.current = { category: run.category, sourceUrl: run.sourceUrl, scopeKey: canonical(run.scope) }; setInformationRetryReady(false);
       informationLoadRequest.current++; setInformationLoading(false);
       informationRun.current = run; setInformationBusy(true); ports.setBusy(true); setInformationNotice('Konto wird vor und nach der Erfassung geprüft…');
@@ -155,6 +164,15 @@ export function useInformationController(ports: InformationControllerPorts) {
       const run=beginInformation(false,false,url);
       if(!run){reject(new Error('Duty capture is unavailable.'));return;}
       dutyRequest.current={run,returnUrl,resolve,reject};
+    });
+  }
+  /** Bounded existing readers only; original selection and fresh account checks remain mandatory. */
+  function retrieveFeatureInformation(category:FeatureInformationCategory):Promise<InformationCapture> {
+    return new Promise((resolve,reject)=>{
+      if (!Object.hasOwn(featureSources,category)) { reject(new Error('Unsupported feature source.')); return; }
+      const run=beginInformation(false,false,undefined,category);
+      if(!run){reject(new Error('Feature capture is unavailable.'));return;}
+      featureRequest.current={run,resolve,reject};
     });
   }
   function retryInformation() { startInformation(true); }
@@ -190,6 +208,7 @@ export function useInformationController(ports: InformationControllerPorts) {
       setInformationBusy(false); setInformationSaving(false); ports.setBusy(false); ports.setVisible(false);
       setInformationNotice(`${INFORMATION_TYPES[run.category].title}: lokal gespeichert. Nur die sichtbare Quellseite, keine vollständige Historie.`);
       if(medicalRequest.current?.run===run)finishMedical(undefined,records.find(record=>record.id===run.nonce)!);
+      if(featureRequest.current?.run===run)finishFeature(undefined,records.find(record=>record.id===run.nonce)!);
       ports.navigate(run.sourceUrl);
     } catch {
       // A commit may precede readback/lease failure. Do not claim rollback or publish old-owner rows.
@@ -202,11 +221,12 @@ export function useInformationController(ports: InformationControllerPorts) {
         setInformationNotice('Erfassung nicht bestätigt. ' + (uncertain ? 'Zuerst gespeicherte Informationen lokal neu laden, bevor erneut erfasst wird. Eine eventuell bereits gespeicherte Erfassung bleibt erhalten.' : (run.failureMessage ?? 'Quelle, Spalten oder Konto nicht unterstützt.') + ' Quelle und Anmeldung prüfen, dann ausdrücklich erneut versuchen. Gespeicherte Belege bleiben erhalten.'));
         if(medicalRequest.current?.run===run)finishMedical(new Error('Medical capture was not verified.'));
         if(dutyRequest.current?.run===run)finishDuty(new Error('Duty capture was not verified.'));
+        if(featureRequest.current?.run===run)finishFeature(new Error('Feature capture was not verified.'));
       }
     }
   }
   function nextInformationCategory() { if (!informationRun.current) { informationRetry.current = null; setInformationRetryReady(false); setInformationCategory(old => retrievableInformationCategories[(retrievableInformationCategories.indexOf(old) + 1) % retrievableInformationCategories.length]!); } }
-  useEffect(() => () => { informationLoadRequest.current++; informationRun.current?.cancel(); informationRun.current = null; finishMedical(new Error('Medical reader closed.')); finishDuty(new Error('Duty reader closed.')); if (informationTimer.current) clearTimeout(informationTimer.current); }, []);
+  useEffect(() => () => { informationLoadRequest.current++; informationRun.current?.cancel(); informationRun.current = null; finishMedical(new Error('Medical reader closed.')); finishFeature(new Error('Feature reader closed.')); finishDuty(new Error('Duty reader closed.')); if (informationTimer.current) clearTimeout(informationTimer.current); }, []);
   function beginInitialLoad() {
     const request = ++informationLoadRequest.current; setInformationLoading(ports.product); return request;
   }
@@ -228,6 +248,7 @@ export function useInformationController(ports: InformationControllerPorts) {
   }
   function ownerChanged() {
     finishMedical(new Error('Medical owner changed.'));
+    finishFeature(new Error('Feature owner changed.'));
     finishDuty(new Error('Duty owner changed.'));
     informationRun.current?.cancel(); informationRun.current = null;
     if (informationTimer.current) clearTimeout(informationTimer.current);
@@ -281,7 +302,7 @@ export function useInformationController(ports: InformationControllerPorts) {
     beginInitialLoad, loadInitial, initialLoadFailed, ownerChanged, backgrounded, active, pageLoaded, loadStarted,
     navigationStarted, pageFailed, dismiss, running: () => !!informationRun.current, receiveInformation,
     public: {
-      retrieveMedical, retrieveDutyPage, retryInformation, informationRetryReady: informationRetryReady && ports.ownerCurrent(), informationNeedsReload,
+      retrieveMedical, retrieveDutyPage, retrieveFeatureInformation, retryInformation, informationRetryReady: informationRetryReady && ports.ownerCurrent(), informationNeedsReload,
       reloadInformation, informationLoading, informationCanReload: canReload(),
       informationHistory: ports.ownerCurrent() ? informationHistory : null, informationHistoryBusy, informationHistoryNotice,
       loadInformationHistory, informationCategory, informationCaptures: ports.ownerCurrent() ? informationCaptures : [],

@@ -88,7 +88,7 @@ export function ProviderConnection({ controller: c, open, close, development = f
       {login && <View style={{gap:6}}>
         <Label muted>{providerUrl(c.url) ? new URL(c.url).origin : 'Anbieteradresse nicht bestätigt'} · Zugangsdaten nur auf der Originalseite eingeben.</Label>
         {loginFeedback && <Label>{loginFeedback}</Label>}
-        <Action secondary disabled={locked || !c.loaded} onPress={()=>c.checkConnection()}>Anmeldung prüfen</Action>
+        {(!guided||loginFeedback)&&<Action secondary disabled={locked || !c.loaded} onPress={()=>c.checkConnection()}>Anmeldung prüfen</Action>}
       </View>}
     </View></ScrollView> : login ? <View style={styles.loginBar} onLayout={event => setLoginHeight(event.nativeEvent.layout.height)}>
       <Action secondary icon="back" label="Auf der Vereinsflieger-Seite zurück" disabled={locked || !c.canGoBack} onPress={c.backWithinProvider}>Anbieterseite zurück</Action>

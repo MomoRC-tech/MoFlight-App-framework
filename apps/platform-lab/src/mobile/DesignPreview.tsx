@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { ClubEvents, ClubDocumentNotices } from './ClubInformation';
 import { Dashboard } from './Dashboard';
 import { OwnFlights, type OwnFlightHeader } from './OwnFlights';
 import { Action, Card, Label, colors } from './theme';
@@ -12,7 +13,7 @@ import type { RealFlightDetail, RealFlightListItem } from '../vereinsflieger/rea
 export function DesignPreview() {
   const fixture = useMemo(createDesignPreviewData, []);
   const emptyView = useMemo(() => ({ ...fixture.view, flights: [] }), [fixture]);
-  const [page, setPage] = useState<'start' | 'flights'>('start');
+  const [page, setPage] = useState<'start' | 'flights' | 'club'>('start');
   const [mode, setMode] = useState<'populated' | 'empty' | 'error'>('populated');
   const [request, setRequest] = useState<OwnFlightRequest | null>(null);
   const [detail, setDetail] = useState<RealFlightDetail | null>(null);
@@ -45,6 +46,7 @@ export function DesignPreview() {
       <View style={styles.tabs}>
         <Pressable accessibilityRole="button" accessibilityLabel="Vorschau Start" accessibilityState={{ selected: page === 'start' }} onPress={() => setPage('start')} style={[styles.tab, page === 'start' && styles.selected]}><Label>Vorschau Start</Label></Pressable>
         <Pressable accessibilityRole="button" accessibilityLabel="Vorschau Flüge" accessibilityState={{ selected: page === 'flights' }} onPress={() => showFlights()} style={[styles.tab, page === 'flights' && styles.selected]}><Label>Vorschau Flüge</Label></Pressable>
+        <Pressable accessibilityRole="button" accessibilityLabel="Vorschau Verein" accessibilityState={{ selected: page === 'club' }} onPress={() => setPage('club')} style={[styles.tab, page === 'club' && styles.selected]}><Label>Vorschau Verein</Label></Pressable>
       </View>
     </View>
     {page === 'start' ? <ScrollView contentContainerStyle={styles.canvas}>
@@ -54,6 +56,10 @@ export function DesignPreview() {
       {paper && <Card><Label>Papierflugbuch später einrichten</Label><Label muted>Diese Vorschau zeigt nur erfundene Flugdaten. Es wird kein Flugbuch angelegt.</Label></Card>}
       <Action secondary onPress={() => showState('empty')}>Leere Liste ansehen</Action>
       <Action secondary onPress={() => showState('error')}>Lesefehler ansehen</Action>
+    </ScrollView> : page === 'club' ? <ScrollView contentContainerStyle={styles.canvas}>
+      <Label muted>Erfundene Termine und Dokumentenhinweise. Fester Demo-Abruf: 22.10.2026.</Label>
+      <ClubEvents information={fixture.view.featureInformation} />
+      <ClubDocumentNotices information={fixture.view.featureInformation} />
     </ScrollView> : <View style={styles.root}>
       {header.back && <Pressable accessibilityRole="button" accessibilityLabel="Zurück zur Vorschau Flugliste" onPress={header.back} style={styles.back}><Label>Zurück · {header.title}</Label></Pressable>}
       <OwnFlights active data={data} filterRequest={request} onHeaderChange={setHeader} />

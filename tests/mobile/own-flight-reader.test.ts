@@ -30,7 +30,7 @@ test('saved Medical is read only for the selected flight account; failures and f
 
 test('ordinary read returns the saved coherent projection and pending status with both ownership checks and cleanup',async()=>{
   const f=ownFlightFixture();f.session.pendingCommand=async()=>true;
-  assert.deepEqual(await readOwnFlightView(f.ports),{snapshot:f.snapshot,flights:f.flights,pendingCommand:true,medical:null,medicalReadFailed:false,duties:null,dutiesReadFailed:false});
+  assert.deepEqual(await readOwnFlightView(f.ports),{snapshot:f.snapshot,flights:f.flights,pendingCommand:true,medical:null,medicalReadFailed:false,duties:null,dutiesReadFailed:false,featureInformation:null,featureInformationReadFailed:false});
   assert.equal(f.assertions(),4);assert.equal(f.closes(),1);
   assert.equal(await readOwnFlightView({open:async()=>null}),null);
 });
@@ -108,4 +108,19 @@ test('provider-flow reservation drains native readers and blocks later reads unt
   await new Promise<void>(resolve=>{setImmediate(resolve);});assert.equal(opened,1);
   release();release();const next=await later;assert.ok(next);await next.close();assert.equal(opened,2);
   const again=await ports.open();assert.ok(again);await again.close();assert.equal(opened,3);
+});
+
+
+test('feature information is scoped to the selected account and isolated failures preserve saved flights',async()=>{
+ for(const mode of ['saved','failed','foreign-owner','foreign-account','foreign-capture','owner-change'] as const){
+  const f=ownFlightFixture();
+  f.session.readFeatureInformation=async()=>{
+   if(mode==='failed')throw new Error('Unreadable');
+   if(mode==='owner-change')f.session.assertCurrent=async()=>{throw new Error('Owner changed');};
+   return {scope:{version:1,owner:mode==='foreign-owner'?'foreign':f.snapshot.ownerId,connectionId:'connection',context:{accountNumber:mode==='foreign-account'?'999':'101',clubLabel:'Synthetic Club',clubIdentity:'display-label-only',verification:'observed-profile-number'}},captures:mode==='foreign-capture'?[{owner:'foreign'} as any]:[]};
+  };
+  if(mode==='owner-change')await assert.rejects(readOwnFlightView(f.ports),/Owner changed/);
+  else {const result=await readOwnFlightView(f.ports);assert.deepEqual(result?.flights,f.flights);assert.equal(result?.featureInformationReadFailed,mode!=='saved');assert.equal(result?.featureInformation?.events.status,mode==='saved'?'unavailable':undefined);}
+  assert.equal(f.closes(),1);
+ }
 });
