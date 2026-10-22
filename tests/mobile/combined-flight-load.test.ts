@@ -17,7 +17,7 @@ const source=ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/sr
 
 // Real screen effects and handlers; SQLite and provider behavior have their own
 // integration tests. These ports control timing to exercise the screen coordinator.
-function fixture({startUpdate=false,root=false,readOnly=false,deferReservation=false,failStartup=false,medicalFailure=false,loginPending=false,deferProvider=false,quietResume=false,deferSource=false,sameWindow=false,deferVerification=false,priorConnection='unknown',intent:requestedIntent=undefined as string|undefined}={}) {
+function fixture({startUpdate=false,root=false,readOnly=false,deferReservation=false,failStartup=false,medicalFailure=false,loginPending=false,deferProvider=false,quietResume=false,deferSource=false,sameWindow=false,deferVerification=false,priorConnection='unknown',existingOwner=false,intent:requestedIntent=undefined as string|undefined}={}) {
   let panelOpen=true,requestId=0;
   const journal=new DiagnosticJournal(), diagnosis={current:journal.begin(startUpdate?'update-flights':'open-flight-tools')};
   const hooks:any[]=[],effects:(()=>void)[]=[],calls:string[]=[],closed:any[]=[];
@@ -29,7 +29,8 @@ function fixture({startUpdate=false,root=false,readOnly=false,deferReservation=f
   const timers=new Map<number,()=>void>();
   let admitSource!:()=>void;
   const lease={ownerId:'owner',storeId:'store',leaseId:'lease'};
-  const registry={currentOwner:async()=>null,createFreshOwner:async()=>{calls.push('create');return lease;},assertCurrent:async()=>{},close:async()=>{}};
+  let ownerProof=0,selectedHead=1;
+  const registry={currentOwner:async()=>existingOwner?{...lease,selectionSeq:selectedHead,leaseId:'proof-'+(++ownerProof)}:null,createFreshOwner:async()=>{calls.push('create');return lease;},assertCurrent:async()=>{},close:async()=>{}};
   const snapshot={account:null,savedRetrievals:[],coverage:[],pending:[],recovery:{readOnly}};
   const input={capture:{captureId:'fresh',rows:[]},requestedWindow:{from:'2025-01-01',to:'2026-10-21'}};
   const c:any={viewReady:true,browserActive:false,from:sameWindow?'2025-01-01':'',to:sameWindow?'2026-10-21':'',connection:priorConnection==='verified'?{phase:'observed',confirmed:true,observed:{accountNumber:'101',clubLabel:'Example'}}:{phase:priorConnection,confirmed:false},
@@ -83,7 +84,7 @@ function fixture({startUpdate=false,root=false,readOnly=false,deferReservation=f
   function nodes(){const result:Element[]=[];function visit(value:any){if(value&&typeof value==='object'&&'children'in value){result.push(value);value.children.forEach(visit);if(value.props.progress)visit(value.props.progress);}}visit(tree);return result;}
   const text=(node:any):string=>node&&typeof node==='object'&&'children'in node?node.children.map(text).join(''):typeof node==='string'?node:'';
   function press(label:string){const node=nodes().find(n=>n.type==='Action'&&text(n)===label);assert.ok(node,label);assert.ok(!node.props.disabled,label);node.props.onPress();}
-  return {journal,render,flush,c,calls,closed,nodes,setOpen:(value:boolean)=>{panelOpen=value;if(value)requestId++;dirty=true;},text:()=>text(tree),progressText:()=>text(nodes().find(n=>n.type==='ProviderConnection')?.props.progress),press,finishReservation,background:()=>listeners.forEach(f=>f('background')),resume:()=>listeners.forEach(f=>f('active')),
+  return {journal,render,flush,c,calls,closed,nodes,changeSelection:()=>{selectedHead++;},setOpen:(value:boolean)=>{panelOpen=value;if(value)requestId++;dirty=true;},text:()=>text(tree),progressText:()=>text(nodes().find(n=>n.type==='ProviderConnection')?.props.progress),press,finishReservation,background:()=>listeners.forEach(f=>f('background')),resume:()=>listeners.forEach(f=>f('active')),
     verify:()=>{c.visible=false;c.connection={phase:'observed',confirmed:true,observed:{accountNumber:'101',clubLabel:'Example'}};dirty=true;},
     pendingTimers:()=>timers.size,expire:()=>{for(const [id,fn] of timers){timers.delete(id);fn();}},
     admitSource:()=>admitSource(),
@@ -329,5 +330,18 @@ test('foreign-account proof blocks an independent retry while preserving the con
     f.c.connection={phase:'mismatch',confirmed:false};f.render();await f.flush();
     assert.deepEqual(f.calls,['session','retrieve','save','medical','verify-job']);
     assert.match(f.progressText(),/3 Flüge auf diesem Gerät gespeichert/);assert.equal(f.closed.length,0);
+  }finally{f.dispose();}
+});
+
+
+test('renewed capabilities for one owner selection cannot replace the retained provider host',async()=>{
+  const f=fixture({root:true,existingOwner:true,intent:'connect'});try{
+    f.render();await f.flush();const host=()=>f.nodes().find(n=>typeof n.type==='function'&&(n.type as Function).name==='OwnerFlightLibrary')!;
+    const first=host();assert.ok(first);
+    f.setOpen(false);await f.flush();f.setOpen(true);await f.flush();const reopened=host();
+    assert.notEqual(reopened.props.lease.leaseId,first.props.lease.leaseId,'The registry renews capabilities when reopened');
+    assert.equal(reopened.props.key,first.props.key,'A fresh capability does not mean a different owner selection');
+    f.setOpen(false);await f.flush();f.changeSelection();f.setOpen(true);await f.flush();
+    assert.notEqual(host().props.key,first.props.key,'Changing the actual selection must revoke and replace the old host');
   }finally{f.dispose();}
 });
