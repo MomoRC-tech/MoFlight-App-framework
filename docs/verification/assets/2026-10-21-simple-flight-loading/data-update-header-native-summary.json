@@ -1,0 +1,134 @@
+{
+  "application_source": "1560454e3994b0adce2475ff8a122f3eb69c10bc",
+  "apk_sha256": "78c3bf8a32501bcf7b5592c95cd9204486b6b3816284deafdfda2ee6c0390562",
+  "host": {
+    "mobile_tests": 769,
+    "python_tests": 110,
+    "typecheck": "passed",
+    "lint": "passed",
+    "fixtures": "passed",
+    "exports": [
+      "android",
+      "ios"
+    ]
+  },
+  "native": {
+    "status": "Eight named assertions passed across two same-source runs",
+    "android_api": 37,
+    "checks": [
+      {
+        "name": "update-header-390-font1.0",
+        "status": "passed",
+        "viewport": {
+          "width_px": 390,
+          "height_px": 900,
+          "density_dpi": 160,
+          "width_dp": 390.0,
+          "height_dp": 900.0,
+          "font_scale": 1.0
+        }
+      },
+      {
+        "name": "update-header-360-font1.0",
+        "status": "passed",
+        "viewport": {
+          "width_px": 360,
+          "height_px": 900,
+          "density_dpi": 160,
+          "width_dp": 360.0,
+          "height_dp": 900.0,
+          "font_scale": 1.0
+        }
+      },
+      {
+        "name": "update-header-360-font1.4",
+        "status": "passed",
+        "viewport": {
+          "width_px": 360,
+          "height_px": 900,
+          "density_dpi": 160,
+          "width_dp": 360.0,
+          "height_dp": 900.0,
+          "font_scale": 1.4
+        }
+      },
+      {
+        "name": "update-header-600-font1.0",
+        "status": "passed",
+        "viewport": {
+          "width_px": 600,
+          "height_px": 900,
+          "density_dpi": 160,
+          "width_dp": 600.0,
+          "height_dp": 900.0,
+          "font_scale": 1.0
+        }
+      },
+      {
+        "name": "update-header-flights-context",
+        "status": "passed",
+        "viewport": {
+          "width_px": 390,
+          "height_px": 900,
+          "density_dpi": 160,
+          "width_dp": 390.0,
+          "height_dp": 900.0,
+          "font_scale": 1.0
+        }
+      },
+      {
+        "name": "header-update-opens-original-login",
+        "status": "passed",
+        "viewport": {
+          "width_px": 390,
+          "height_px": 900,
+          "density_dpi": 160,
+          "width_dp": 390.0,
+          "height_dp": 900.0,
+          "font_scale": 1.0
+        }
+      },
+      {
+        "name": "cancel-retains-flights-context",
+        "status": "passed",
+        "viewport": {
+          "width_px": 390,
+          "height_px": 900,
+          "density_dpi": 160,
+          "width_dp": 390.0,
+          "height_dp": 900.0,
+          "font_scale": 1.0
+        }
+      },
+      {
+        "name": "offline-process-restart",
+        "status": "passed",
+        "viewport": {
+          "width_px": 390,
+          "height_px": 900,
+          "density_dpi": 160,
+          "width_dp": 390.0,
+          "height_dp": 900.0,
+          "font_scale": 1.0
+        }
+      }
+    ],
+    "visual_review": "Actual MAIN390, MIN360 and enlarged MIN360 header images reviewed; controls/labels fit. WIDE600 checked by native bounds and capture.",
+    "state_scope": "No saved retrieval: neutral/unknown header. Fresh/older/invalid timestamp and exact hour transition are deterministic host evidence; no device clock manipulation or data seeding.",
+    "route_scope": "Header update opens original provider login when required; first close cancels to an explicit result, second close returns to Fluege; offline restart starts no provider browser.",
+    "run_limits": "First helper passed six assertions then wrongly expected immediate exit on cancellation. Its complete run failed. The continuation passed five assertions including explicit cancellation-result acknowledgement and offline restart; only named preceding layout evidence is reused from the first run."
+  },
+  "cleanup": {
+    "baseline_apk_restored": true,
+    "display_radios_restored": true,
+    "owned_synthetic_emulator_stopped": true,
+    "errors": []
+  },
+  "not_tested": [
+    "Live authenticated retrieval through the new header on a physical phone",
+    "Native fresh/older data colors from real update timestamps",
+    "iOS runtime",
+    "Spoken accessibility"
+  ],
+  "boundary": "Dedicated synthetic AVD only. No credentials, login submission, provider data retrieval/save, clearing or seeding. Earlier phone login success retains its user-reported scope."
+}

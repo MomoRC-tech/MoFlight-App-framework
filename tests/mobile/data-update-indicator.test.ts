@@ -58,4 +58,11 @@ test('update control labels the action and saved time, with an explicit login-if
     if (!disabled) tree.props.onPress();
   }
   assert.equal(calls, 1);
+  for (const [receivedAt, now, expectedColor] of [
+    [at, received, '#74dfba'], [at, received + DATA_UPDATE_FRESH_MS, '#ffc477'], [null, received, '#adbed5'],
+  ] as const) {
+    const tree = exports.DataUpdateIndicator({ receivedAt, readState: 'ready', now, onPress() {} });
+    assert.equal(tree.props.style[1].borderColor, expectedColor, 'Saved-data age determines the visible state color');
+    assert.equal(tree.children[1].props.style[1].color, expectedColor, 'Age wording accompanies the color');
+  }
 });
