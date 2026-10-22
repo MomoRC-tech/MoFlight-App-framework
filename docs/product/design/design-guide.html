@@ -78,7 +78,7 @@
 </ul>
 <h3 id="chapter-alternative-ui-artwork-provenance-and-retained-data-behavior">Artwork provenance and retained-data behavior</h3>
 <p>The initial <a href="flight-scene.svg">flight-scene.svg</a>, <a href="../../../apps/platform-lab/assets/aviation/flight-scene.png">flight-scene.png</a> and compact <a href="../../../apps/platform-lab/assets/aviation/flight-scene-detail.png">flight-scene-detail.png</a> remain preserved. Manuel rejected the schematic permanent-header artwork and requested a more realistic ASK-21-like aircraft and airflow on 22 October. The replacement <a href="../../../apps/platform-lab/assets/aviation/ask21-flight-header-v2.png">ask21-flight-header-v2.png</a> is original built-in image-generation output, copied unchanged into the repository; no third-party photograph was copied. Its aircraft proportions were guided by <a href="https://www.alexander-schleicher.de/en/flugzeuge/ask-21/">Schleicher&#x27;s ASK21 reference</a> (two-seat canopy, mid-wing, double-taper wings and T-tail). It is an illustrative likeness, not a certified aircraft drawing or CFD result.</p>
-<p><a href="../../../apps/platform-lab/src/mobile/FlightScene.tsx">FlightScene</a> contains the full aircraft inside the existing header without participating in layout height. Phone artwork occupies the upper-right80-unit band; the shallow wide header places it in the gap before controls. The compact88×44 season artwork remains unchanged. The scene establishes no observed aircraft, location, weather or measured track. Original logo/reference images remain preserved.</p>
+<p><a href="../../../apps/platform-lab/src/mobile/FlightScene.tsx">FlightScene</a> contains the full aircraft inside the existing header without participating in layout height. The phone scene is330×110, blended into the navy canvas along its left/bottom edges; the shallow wide header uses192×64 in the gap before controls. Enlarged text subdues the decorative image to preserve title readability. The compact88×44 season artwork remains unchanged. The scene establishes no observed aircraft, location, weather or measured track. Original logo/reference images remain preserved.</p>
 <h4 id="chapter-alternative-ui-header-artwork-generation-prompt">Header artwork generation prompt</h4>
 <p>Built-in image tool, opaque background, original PNG2172×724 (measured file dimensions); no API/CLI fallback or private image input. Final prompt:</p>
 <p>&gt; Use case: photorealistic-natural. Asset type: extremely wide, low-height banner background for a compact dark navy personal sailplane flight-log app header. Generate a new original, highly realistic aviation photograph/visualization, landscape aspect ratio 3:1, approximately 1536 x 512. No text, no logos, no frame, no UI. Scene: a white fiberglass Schleicher ASK-21-like two-seat training sailplane genuinely soaring in a gentle coordinated bank above hazy forested hills, seen from a nearby aircraft, slightly above and ahead of its left side. Accurate recognizable ASK-21 proportions: substantial rounded tandem two-seat nose, long clearly divided two-piece canopy, mid-mounted long straight double-tapered wings with blunt simple tips and NO winglets, slender rear fuselage, proper vertical fin with T-tail horizontal stabilizer. Small red-orange nose/wingtip safety accents. Not a generic extreme racing glider, not a jet, not a toy, no propeller, no steep aerobatics. Composition critical: place the complete aircraft exclusively in the RIGHT HALF of the wide image, wingspan about 40 percent of canvas width; fuselage diagonally nose toward lower-left, tail upper-right, wings foreshortened naturally. Aircraft must read at a very small UI size. Keep the LEFT 45 percent mostly clean, very dark navy #0b141c with a gentle atmospheric fade for a separate existing logo and screen title; keep bottom 25 percent dark and quiet for separate controls. Cool blue hour, realistic white fiberglass reflections and translucent smoky canopy, subtle terrain far below to establish a believable in-flight situation. Add just 4 to 6 fine semi-transparent cyan-white aerodynamic visualization streamlines following the SAME local relative-wind direction from ahead of nose past wings toward the tail and downstream; they should gently deflect around the aircraft and indicate a restrained downstream wingtip wake. Thin, elegant, physically coherent, no big random crossing swooshes, no neon ribbons, no contrails or smoke. These are illustrative airflow overlays, not literal visible wind or CFD evidence. Photographic realism with understated airflow graphics. Preserve quiet navy background and complete aircraft visibility.</p>
@@ -301,7 +301,7 @@
 <p>Use only the header “Daten” button for new provider data and login. Start reminders, empty Flüge, Profile, status and Development explain this entry without duplicating it. Keep local reload, filters, diagnostics and offline backup independent. The whole update journey appears in a persistent framed popup over the dimmed inert invoking page; do not switch to a full provider screen or remount/move the WebView during Android credential activities. All retry, recovery, source-specific optional jobs and result acknowledgement stay inside that frame. Close and hardware Back preserve existing cancellation/save guards and contextual return.</p></section>
 <section class="chapter" id="chapter-implementation-inventory"><h2 id="chapter-implementation-inventory-platform-lab-ui-implementation-inventory">Platform-lab UI implementation inventory</h2>
 <p><a href="#chapter-overview">Handbook entry point</a>. Generated by <code>python scripts/design_handbook.py</code>; do not hand-edit.</p>
-<p>Scope: 63 product mobile TypeScript/model and app-owned TSX UI/adapter files; 55 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.</p>
+<p>Scope: 63 product mobile TypeScript/model and app-owned TSX UI/adapter files; 56 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.</p>
 <h3 id="chapter-implementation-inventory-apptsx">App.tsx</h3>
 <p>Retained app-owned lab/adapter surface; document its existing appearance as an exception. Source: <a href="../../../apps/platform-lab/src/App.tsx">apps/platform-lab/src/App.tsx</a>; normalized SHA-256 <code>00e90dbdf13115e9cffa98b6123f015dc87f095cdd8736daa20f73edab02e7e6</code>.</p>
 <h4 id="chapter-implementation-inventory-literal-colors">Literal colors</h4>
@@ -572,17 +572,28 @@
 <tr><td><code>width: &#x27;100%&#x27;</code></td><td>18</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-flightscenetsx">FlightScene.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/FlightScene.tsx">apps/platform-lab/src/mobile/FlightScene.tsx</a>; normalized SHA-256 <code>0dcd75dc424826930477a07fc1c402de789273e4a7bd5f6f6a001197d25c550f</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/FlightScene.tsx">apps/platform-lab/src/mobile/FlightScene.tsx</a>; normalized SHA-256 <code>0f939f89197358a57b8887ea7f74cc9413852461c082d0b3250a812121abb05c</code>.</p>
+<h4 id="chapter-implementation-inventory-literal-colors-6">Literal colors</h4>
+<div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
+<tr><td><i class="swatch" style="background:#0b141c" aria-hidden="true"></i><code>#0b141c</code></td><td>27, 28</td></tr>
+<tr><td><i class="swatch" style="background:#0b141c00" aria-hidden="true"></i><code>#0b141c00</code></td><td>27, 28</td></tr>
+</tbody></table></div>
+<h4 id="chapter-implementation-inventory-gradients">Gradients</h4>
+<div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
+<tr><td><code>linear-gradient(0deg, #0b141c 0%, #0b141c00 35%)</code></td><td>28</td></tr>
+<tr><td><code>linear-gradient(90deg, #0b141c 0%, #0b141c00 45%)</code></td><td>27</td></tr>
+</tbody></table></div>
 <h4 id="chapter-implementation-inventory-geometry--opacity-declarations-14">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>height: &#x27;100%&#x27;</code></td><td>22</td></tr>
-<tr><td><code>height: 44</code></td><td>21</td></tr>
-<tr><td><code>height: 64</code></td><td>20</td></tr>
-<tr><td><code>height: 80</code></td><td>19</td></tr>
-<tr><td><code>width: &#x27;100%&#x27;</code></td><td>22</td></tr>
-<tr><td><code>width: 192</code></td><td>20</td></tr>
-<tr><td><code>width: 240</code></td><td>19</td></tr>
-<tr><td><code>width: 88</code></td><td>21</td></tr>
+<tr><td><code>height: &#x27;100%&#x27;</code></td><td>30</td></tr>
+<tr><td><code>height: 110</code></td><td>24</td></tr>
+<tr><td><code>height: 44</code></td><td>29</td></tr>
+<tr><td><code>height: 64</code></td><td>25</td></tr>
+<tr><td><code>opacity: .42</code></td><td>26</td></tr>
+<tr><td><code>width: &#x27;100%&#x27;</code></td><td>30</td></tr>
+<tr><td><code>width: 192</code></td><td>25</td></tr>
+<tr><td><code>width: 330</code></td><td>24</td></tr>
+<tr><td><code>width: 88</code></td><td>29</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-importpreviewtsx">ImportPreview.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/ImportPreview.tsx">apps/platform-lab/src/mobile/ImportPreview.tsx</a>; normalized SHA-256 <code>00afa3c7529703b757c8dda6c2cc79fe84550708af1e1d4449ccfd490d05ad81</code>.</p>
@@ -614,7 +625,7 @@
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-medicalstatustsx">MedicalStatus.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/MedicalStatus.tsx">apps/platform-lab/src/mobile/MedicalStatus.tsx</a>; normalized SHA-256 <code>12641f8dac20dd54c1a3962273fd6b52ba005368701ea0c56715c5c9c4a27865</code>.</p>
-<h4 id="chapter-implementation-inventory-literal-colors-6">Literal colors</h4>
+<h4 id="chapter-implementation-inventory-literal-colors-7">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><i class="swatch" style="background:#f9b65b" aria-hidden="true"></i><code>#f9b65b</code></td><td>10, 33</td></tr>
 <tr><td><i class="swatch" style="background:#ff7777" aria-hidden="true"></i><code>#ff7777</code></td><td>9</td></tr>
@@ -639,7 +650,7 @@
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-mobileapptsx">MobileApp.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/MobileApp.tsx">apps/platform-lab/src/mobile/MobileApp.tsx</a>; normalized SHA-256 <code>8a1c9f7f973a0d9a3f00b5f4b5970fa9144b21cb150fd5fca666810ba7bc8e70</code>.</p>
-<h4 id="chapter-implementation-inventory-literal-colors-7">Literal colors</h4>
+<h4 id="chapter-implementation-inventory-literal-colors-8">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><i class="swatch" style="background:#00c8ff" aria-hidden="true"></i><code>#00c8ff</code></td><td>239</td></tr>
 <tr><td><i class="swatch" style="background:#064240" aria-hidden="true"></i><code>#064240</code></td><td>276</td></tr>
@@ -790,7 +801,7 @@
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-profilesettingstsx">ProfileSettings.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/ProfileSettings.tsx">apps/platform-lab/src/mobile/ProfileSettings.tsx</a>; normalized SHA-256 <code>a3fc874aaa3275cea16b81ce64e479629932c8e9ac9ec47390097f3538a2c86f</code>.</p>
-<h4 id="chapter-implementation-inventory-literal-colors-8">Literal colors</h4>
+<h4 id="chapter-implementation-inventory-literal-colors-9">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><i class="swatch" style="background:#ffba9b" aria-hidden="true"></i><code>#ffba9b</code></td><td>67</td></tr>
 </tbody></table></div>
@@ -814,7 +825,7 @@
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-providerconnectiontsx">ProviderConnection.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/ProviderConnection.tsx">apps/platform-lab/src/mobile/ProviderConnection.tsx</a>; normalized SHA-256 <code>fc38194f448e67b7ec224f36627c2fa7eb875f0faccdc098f5b2b22f1d5d5375</code>.</p>
-<h4 id="chapter-implementation-inventory-literal-colors-9">Literal colors</h4>
+<h4 id="chapter-implementation-inventory-literal-colors-10">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><i class="swatch" style="background:#102d47aa" aria-hidden="true"></i><code>#102d47aa</code></td><td>208</td></tr>
 <tr><td><i class="swatch" style="background:#ffb39e" aria-hidden="true"></i><code>#ffb39e</code></td><td>29</td></tr>
@@ -864,7 +875,7 @@
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-season-modelts">season-model.ts</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/season-model.ts">apps/platform-lab/src/mobile/season-model.ts</a>; normalized SHA-256 <code>1e954ba6395f44ea50fe544e3448df6cb1a7732ab902d80d2f2bb829fec0ac26</code>.</p>
-<h4 id="chapter-implementation-inventory-literal-colors-10">Literal colors</h4>
+<h4 id="chapter-implementation-inventory-literal-colors-11">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><i class="swatch" style="background:#3595fe" aria-hidden="true"></i><code>#3595fe</code></td><td>3</td></tr>
 <tr><td><i class="swatch" style="background:#46ccff" aria-hidden="true"></i><code>#46ccff</code></td><td>3</td></tr>
@@ -875,7 +886,7 @@
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-seasonmonthlychartstsx">SeasonMonthlyCharts.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/SeasonMonthlyCharts.tsx">apps/platform-lab/src/mobile/SeasonMonthlyCharts.tsx</a>; normalized SHA-256 <code>1dd5e9b23dec48bcc8acc887c6debb18c7388e6878d81b0cbad1b20017a0e0cc</code>.</p>
-<h4 id="chapter-implementation-inventory-literal-colors-11">Literal colors</h4>
+<h4 id="chapter-implementation-inventory-literal-colors-12">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><i class="swatch" style="background:#7194be" aria-hidden="true"></i><code>#7194be</code></td><td>17, 20</td></tr>
 </tbody></table></div>
@@ -922,7 +933,7 @@
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-symbolicontsx">SymbolIcon.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/SymbolIcon.tsx">apps/platform-lab/src/mobile/SymbolIcon.tsx</a>; normalized SHA-256 <code>e831bc49e9d8fb846893a5011f828e458f78feae6e0b8d350a4464db96a639f4</code>.</p>
-<h4 id="chapter-implementation-inventory-literal-colors-12">Literal colors</h4>
+<h4 id="chapter-implementation-inventory-literal-colors-13">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><i class="swatch" style="background:#00c8ff" aria-hidden="true"></i><code>#00c8ff</code></td><td>18</td></tr>
 <tr><td><i class="swatch" style="background:#46ccff" aria-hidden="true"></i><code>#46ccff</code></td><td>18</td></tr>
@@ -934,7 +945,7 @@
 <tr><td><i class="swatch" style="background:#f4f7f8" aria-hidden="true"></i><code>#f4f7f8</code></td><td>18</td></tr>
 <tr><td><i class="swatch" style="background:#f5f7ff" aria-hidden="true"></i><code>#f5f7ff</code></td><td>18</td></tr>
 </tbody></table></div>
-<h4 id="chapter-implementation-inventory-gradients">Gradients</h4>
+<h4 id="chapter-implementation-inventory-gradients-1">Gradients</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>linear-gradient(140deg, #b9dcf52b, #7497bf12)</code></td><td>23</td></tr>
 </tbody></table></div>
@@ -945,7 +956,7 @@
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-themetsx">theme.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/theme.tsx">apps/platform-lab/src/mobile/theme.tsx</a>; normalized SHA-256 <code>376416f3732682abf99fbf3fd660328aae53c07365fd04e9b7f089d10a8085e5</code>.</p>
-<h4 id="chapter-implementation-inventory-literal-colors-13">Literal colors</h4>
+<h4 id="chapter-implementation-inventory-literal-colors-14">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><i class="swatch" style="background:#00102277" aria-hidden="true"></i><code>#00102277</code></td><td>62</td></tr>
 <tr><td><i class="swatch" style="background:#031326" aria-hidden="true"></i><code>#031326</code></td><td>31, 52</td></tr>
@@ -1008,7 +1019,7 @@
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-updatedialogtsx">UpdateDialog.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/UpdateDialog.tsx">apps/platform-lab/src/mobile/UpdateDialog.tsx</a>; normalized SHA-256 <code>d0ac36b132634a9d956aef345f02db1f351a388073c07436e934320f2f2829a4</code>.</p>
-<h4 id="chapter-implementation-inventory-literal-colors-14">Literal colors</h4>
+<h4 id="chapter-implementation-inventory-literal-colors-15">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><i class="swatch" style="background:#000000" aria-hidden="true"></i><code>#000000</code></td><td>29</td></tr>
 <tr><td><i class="swatch" style="background:#000712bd" aria-hidden="true"></i><code>#000712bd</code></td><td>27</td></tr>
@@ -1032,7 +1043,7 @@
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-accessprobetsx">AccessProbe.tsx</h3>
 <p>Retained app-owned lab/adapter surface; document its existing appearance as an exception. Source: <a href="../../../apps/platform-lab/src/vereinsflieger/AccessProbe.tsx">apps/platform-lab/src/vereinsflieger/AccessProbe.tsx</a>; normalized SHA-256 <code>5b64a01f9baeb968fb58ee20855e1694e2c53b06f6348f1c4e36dad3377239ff</code>.</p>
-<h4 id="chapter-implementation-inventory-literal-colors-15">Literal colors</h4>
+<h4 id="chapter-implementation-inventory-literal-colors-16">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><i class="swatch" style="background:#173a57" aria-hidden="true"></i><code>#173a57</code></td><td>50</td></tr>
 <tr><td><i class="swatch" style="background:#174c72" aria-hidden="true"></i><code>#174c72</code></td><td>50</td></tr>
@@ -1067,7 +1078,7 @@
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-captureruntsx">CaptureRun.tsx</h3>
 <p>Retained app-owned lab/adapter surface; document its existing appearance as an exception. Source: <a href="../../../apps/platform-lab/src/vereinsflieger/CaptureRun.tsx">apps/platform-lab/src/vereinsflieger/CaptureRun.tsx</a>; normalized SHA-256 <code>d06673feadf63177de982d7a1dec91de596b9ff548b5a8acd35f436ec8c24d6a</code>.</p>
-<h4 id="chapter-implementation-inventory-literal-colors-16">Literal colors</h4>
+<h4 id="chapter-implementation-inventory-literal-colors-17">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><i class="swatch" style="background:#174c72" aria-hidden="true"></i><code>#174c72</code></td><td>52</td></tr>
 <tr><td><code>white</code></td><td>11</td></tr>
@@ -1088,7 +1099,7 @@
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-windowcapturetsx">WindowCapture.tsx</h3>
 <p>Retained app-owned lab/adapter surface; document its existing appearance as an exception. Source: <a href="../../../apps/platform-lab/src/vereinsflieger/WindowCapture.tsx">apps/platform-lab/src/vereinsflieger/WindowCapture.tsx</a>; normalized SHA-256 <code>fb270278f16b64123b91586bd254dec10f4ea5c97c72627114a399971d0fe6db</code>.</p>
-<h4 id="chapter-implementation-inventory-literal-colors-17">Literal colors</h4>
+<h4 id="chapter-implementation-inventory-literal-colors-18">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><i class="swatch" style="background:#174c72" aria-hidden="true"></i><code>#174c72</code></td><td>80</td></tr>
 <tr><td><code>white</code></td><td>12</td></tr>
@@ -1589,7 +1600,7 @@ The baseline makes too many elements equally prominent: tiny header title beside
 
 The initial [flight-scene.svg](flight-scene.svg), [flight-scene.png](../../../apps/platform-lab/assets/aviation/flight-scene.png) and compact [flight-scene-detail.png](../../../apps/platform-lab/assets/aviation/flight-scene-detail.png) remain preserved. Manuel rejected the schematic permanent-header artwork and requested a more realistic ASK-21-like aircraft and airflow on 22 October. The replacement [ask21-flight-header-v2.png](../../../apps/platform-lab/assets/aviation/ask21-flight-header-v2.png) is original built-in image-generation output, copied unchanged into the repository; no third-party photograph was copied. Its aircraft proportions were guided by [Schleicher&#x27;s ASK21 reference](https://www.alexander-schleicher.de/en/flugzeuge/ask-21/) (two-seat canopy, mid-wing, double-taper wings and T-tail). It is an illustrative likeness, not a certified aircraft drawing or CFD result.
 
-[FlightScene](../../../apps/platform-lab/src/mobile/FlightScene.tsx) contains the full aircraft inside the existing header without participating in layout height. Phone artwork occupies the upper-right80-unit band; the shallow wide header places it in the gap before controls. The compact88×44 season artwork remains unchanged. The scene establishes no observed aircraft, location, weather or measured track. Original logo/reference images remain preserved.
+[FlightScene](../../../apps/platform-lab/src/mobile/FlightScene.tsx) contains the full aircraft inside the existing header without participating in layout height. The phone scene is330×110, blended into the navy canvas along its left/bottom edges; the shallow wide header uses192×64 in the gap before controls. Enlarged text subdues the decorative image to preserve title readability. The compact88×44 season artwork remains unchanged. The scene establishes no observed aircraft, location, weather or measured track. Original logo/reference images remain preserved.
 
 ### Header artwork generation prompt
 
@@ -1910,7 +1921,7 @@ Use only the header “Daten” button for new provider data and login. Start re
 
 [Handbook entry point](README.md). Generated by `python scripts/design_handbook.py`; do not hand-edit.
 
-Scope: 63 product mobile TypeScript/model and app-owned TSX UI/adapter files; 55 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.
+Scope: 63 product mobile TypeScript/model and app-owned TSX UI/adapter files; 56 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.
 
 ## App.tsx
 
@@ -2267,20 +2278,35 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DutyRoster.tsx](.
 
 ## FlightScene.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/FlightScene.tsx](../../../apps/platform-lab/src/mobile/FlightScene.tsx); normalized SHA-256 `0dcd75dc424826930477a07fc1c402de789273e4a7bd5f6f6a001197d25c550f`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/FlightScene.tsx](../../../apps/platform-lab/src/mobile/FlightScene.tsx); normalized SHA-256 `0f939f89197358a57b8887ea7f74cc9413852461c082d0b3250a812121abb05c`.
+
+### Literal colors
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `#0b141c` | 27, 28 |
+| `#0b141c00` | 27, 28 |
+
+### Gradients
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `linear-gradient(0deg, #0b141c 0%, #0b141c00 35%)` | 28 |
+| `linear-gradient(90deg, #0b141c 0%, #0b141c00 45%)` | 27 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `height: &#x27;100%&#x27;` | 22 |
-| `height: 44` | 21 |
-| `height: 64` | 20 |
-| `height: 80` | 19 |
-| `width: &#x27;100%&#x27;` | 22 |
-| `width: 192` | 20 |
-| `width: 240` | 19 |
-| `width: 88` | 21 |
+| `height: &#x27;100%&#x27;` | 30 |
+| `height: 110` | 24 |
+| `height: 44` | 29 |
+| `height: 64` | 25 |
+| `opacity: .42` | 26 |
+| `width: &#x27;100%&#x27;` | 30 |
+| `width: 192` | 25 |
+| `width: 330` | 24 |
+| `width: 88` | 29 |
 
 ## ImportPreview.tsx
 
@@ -3501,7 +3527,7 @@ States / limits: Recreated approved variant, not a byte-identical copy of an old
 Source: docs/assets/branding/moflight-app-icon-ai.png
 docs/assets/branding/README.md; app.json
 </textarea></section>
-<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: a1c0f30fb682158eb7afd1b4240d1c72fa44650d5c138ab5f2f9c0120cfeb3fa. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
+<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: 26316d9b113d56fb466ac8a59d6f942dd8a922ba8ab4e1e9a0c54826c091c33f. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
 </main><script>
 'use strict';
 const brief = document.querySelector('#brief');
