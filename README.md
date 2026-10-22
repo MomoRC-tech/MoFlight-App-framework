@@ -13,7 +13,7 @@ MoFlight is a mobile app in development for glider pilots, students and instruct
 
 Manuel selected the modern UI as the new main baseline on **22 October 2026**. It combines the ASK-21-like header, compact latest flight, four aircraft-split season rings and a current/prior-year Jan–Dec chart that fits on screen. The Daten action continues automatically after verified login; returning from another app retains verified content during guarded local revalidation.
 
-**Latest published UI APK:** [download ZIP — source `c03f099`](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/ui-header-2026-10-22-c03f099/MoFlight-Alternative-UI-c03f099.zip). This is the pre-merge delivery; the combined main integration is being verified. [Source-specific evidence and screenshots](docs/verification/2026-10-22-alternative-ui.md).
+**Latest Android APK:** [download ZIP — source `d241dbd`](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/main-ui-2026-10-22-d241dbd/MoFlight-Android-d241dbd.zip). The merged Release includes both the selected modern UI and newer main safeguards. [Verification, screenshots and remaining gates](docs/verification/2026-10-22-alternative-ui.md#main-adoption-and-documentation-reconciliation).
 
 The integration also preserves main's filtered-flight known/unknown-time summary, strict duty-source checks, timing tools and unsupported-version preservation checks. These features have separate evidence; no live provider or physical-device acceptance follows from merging them.
 
@@ -107,7 +107,7 @@ See [product scope](docs/product/moflight-feature-scope.md), [writing presentati
 | Photo-to-writing | Product journey and format work exist; real recognition and full phone/print acceptance remain open |
 | iOS | Intended platform, currently deferred; exports do not establish runtime acceptance |
 
-The connected Figma Starter tool-call limit currently blocks transferring/refining the revised design there. No upgrade or spending change was made. See the [initial wireframe record](docs/product/2026-10-13-rough-figma-wireframes.md) and [dark concept review](docs/product/2026-10-13-dark-concept-review.md).
+The earlier Figma transfer encountered a Starter tool-call limit; it is historical design-workflow evidence, not a prerequisite for the current native UI. No upgrade or spending change was made. See the [initial wireframe record](docs/product/2026-10-13-rough-figma-wireframes.md) and [dark concept review](docs/product/2026-10-13-dark-concept-review.md).
 
 ## Phase 1 execution plan and Issues
 

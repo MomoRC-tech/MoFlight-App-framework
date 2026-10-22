@@ -12,7 +12,7 @@ Approved by Manuel on 17 October 2026 after requesting lower token use and autho
 | Substantial layout, navigation or typography | Targeted screen iteration | Relevant MIN360 / MAIN390–412 / MAX600+ matrix, enlarged text/keyboard/landscape as applicable; actual dp/density/font recorded |
 | Documentation | Links, traceability, consistency and approval/status claims | No application tests, exports, builds, device actions or screenshots |
 
-The approved visual reference and existing screen-size requirements remain authoritative when visual checks apply. A logic-only change does not trigger the matrix. Prefer nonvisual native assertions for behavioral questions. Do not inspect every screenshot produced by an existing harness automatically; inspect images only for a specific visual acceptance question or failure.
+The [selected current UI contract](../product/design/alternative-ui.md), maintained handbook and existing screen-size requirements remain authoritative when visual checks apply; the 22 October main adoption supersedes conflicting historical appearance references. A logic-only change does not trigger the matrix. Prefer nonvisual native assertions for behavioral questions. Do not inspect every screenshot produced by an existing harness automatically; inspect images only for a specific visual acceptance question or failure.
 
 ## Local checks without model calls
 
