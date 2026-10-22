@@ -290,3 +290,105 @@ test('closing a concurrent inspector cannot invalidate a retained driver when th
     assert.equal(factory.opened.length,3);
   }finally{await retained.close();await inspector.close();rmSync(directory,{recursive:true,force:true});}
 });
+
+test('concurrent registry handles retain current-owner validation without SQLite lock failures', async () => {
+  const { directory, path } = temporaryPath(), factory = sqliteOpener(path);
+  const driver = await openRealFlightNativeDriver('registry.sqlite', factory.open);
+  const registry = await RealOwnerRegistry.create(driver, uuidSource(), '2026-10-23T10:00:00.000Z');
+  let inspector: RealOwnerRegistry | undefined;
+  try {
+    const selected = await registry.createFreshOwner('2026-10-23T10:01:00.000Z');
+    // Opening the foreground session inspector overlaps the own-flight reader.
+    const [current, opened] = await Promise.all([
+      registry.currentOwner(),
+      openRealFlightNativeDriver('registry.sqlite', factory.open)
+        .then(db => RealOwnerRegistry.open(db, uuidSource(100))),
+    ]);
+    inspector = opened;
+    assert.equal(current?.ownerId, selected.ownerId);
+    const inspected = await inspector.currentOwner();
+    assert.ok(inspected);
+    await Promise.all([registry.assertCurrent(selected), inspector.assertCurrent(inspected)]);
+    // A queued switch is visible to subsequent validation; leases are never cached globally.
+    const switched = await inspector.createFreshOwner('2026-10-23T10:02:00.000Z');
+    const results = await Promise.allSettled([registry.assertCurrent(selected), inspector.assertCurrent(switched)]);
+    assert.equal(results[0]!.status, 'rejected');
+    assert.equal(results[1]!.status, 'fulfilled');
+  } finally {
+    await registry.close();
+    if (inspector) await inspector.close();
+    for (const handle of factory.opened) if (!handle.closed) handle.database.close();
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test('root reads and a new same-file driver wait for a transaction; close drains accepted reads', async () => {
+  const { directory, path } = temporaryPath(), factory = sqliteOpener(path);
+  const driver = await openRealFlightNativeDriver('history.sqlite', factory.open);
+  let release!: () => void, entered!: () => void;
+  const hold = new Promise<void>(resolve => { release = resolve; });
+  const started = new Promise<void>(resolve => { entered = resolve; });
+  let inspector: Driver | undefined;
+  try {
+    await driver.exec('CREATE TABLE committed_values(value INTEGER)');
+    const write = driver.transaction(async tx => {
+      await tx.run('INSERT INTO committed_values VALUES (7)');
+      entered();
+      await hold;
+    });
+    await started;
+    const read = driver.first<{ value: number }>('SELECT value FROM committed_values');
+    const opening = openRealFlightNativeDriver('history.sqlite', factory.open);
+    const closing = driver.close();
+    release();
+    const [, value, opened] = await Promise.all([write, read, opening, closing]);
+    inspector = opened;
+    assert.equal(value?.value, 7);
+    assert.equal((await inspector.first<{ value: number }>('SELECT value FROM committed_values'))?.value, 7);
+  } finally {
+    release();
+    await driver.close();
+    if (inspector) await inspector.close();
+    for (const handle of factory.opened) if (!handle.closed) handle.database.close();
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test('a blocked database does not stall another file and a failed transaction releases same-file work', async () => {
+  const firstPath = temporaryPath(), secondPath = temporaryPath();
+  const factory = sqliteOpener(firstPath.path), independentFactory = sqliteOpener(secondPath.path);
+  const first = await openRealFlightNativeDriver('first.sqlite', factory.open);
+  const next = await openRealFlightNativeDriver('first.sqlite', factory.open);
+  let independent: Driver | undefined;
+  let release!: () => void, entered!: () => void;
+  const hold = new Promise<void>(resolve => { release = resolve; });
+  const started = new Promise<void>(resolve => { entered = resolve; });
+  const failure = new Error('rollback this write');
+  try {
+    await first.exec('CREATE TABLE retained_values(value INTEGER)');
+    const failed = first.transaction(async tx => {
+      await tx.run('INSERT INTO retained_values VALUES (1)');
+      entered();
+      await hold;
+      throw failure;
+    });
+    const rejected = assert.rejects(failed, error => error === failure);
+    await started;
+    const queued = next.transaction(tx => tx.run('INSERT INTO retained_values VALUES (2)'));
+    try {
+      independent = await openRealFlightNativeDriver('second.sqlite', independentFactory.open);
+      await independent.transaction(async tx => {
+        assert.equal((await tx.first<{ value: number }>('SELECT 3 AS value'))?.value, 3);
+      });
+    } finally { release(); }
+    await Promise.all([rejected, queued]);
+    assert.deepEqual((await next.all<{ value: number }>('SELECT value FROM retained_values')).map(row => row.value), [2]);
+  } finally {
+    release();
+    await first.close();
+    await next.close();
+    if (independent) await independent.close();
+    rmSync(firstPath.directory, { recursive: true, force: true });
+    rmSync(secondPath.directory, { recursive: true, force: true });
+  }
+});

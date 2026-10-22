@@ -11,6 +11,20 @@ export interface RealFlightNativeDatabaseOptions { useNewConnection?: boolean }
 export type RealFlightNativeDatabaseOpener =
   (name: string, options?: RealFlightNativeDatabaseOptions) => Promise<RealFlightNativeDatabase>;
 
+// Independent handles still contend for the same SQLite file. Include setup,
+// root reads and close, not only BEGIN, in the same file's operation queue.
+// Only scheduling is shared: connections, leases and validation stay private.
+const databaseWork = new Map<string, Promise<void>>();
+function serialize<T>(name: string, work: () => Promise<T>): Promise<T> {
+  const result = (databaseWork.get(name) ?? Promise.resolve()).then(work);
+  const settled = result.then(() => {}, () => {});
+  databaseWork.set(name, settled);
+  void settled.then(() => {
+    if (databaseWork.get(name) === settled) databaseWork.delete(name);
+  });
+  return result;
+}
+
 function connection(db: RealFlightNativeDatabase, allowed: () => void): Connection {
   return {
     exec: async sql => { allowed(); await db.execAsync(sql); },
@@ -33,62 +47,67 @@ async function configure(db: RealFlightNativeDatabase): Promise<void> {
  * Opens an owner-scoped native database driver whose transaction connection
  * is configured independently before every BEGIN. Serial transactions reuse
  * this driver's connection; failures discard it and close drains accepted work.
- * No connection or authorization state is shared between drivers.
+ * Same-file operations across drivers serialize without sharing connection or
+ * authorization state. Transaction callbacks must use their supplied connection.
  */
 export async function openRealFlightNativeDriver(name: string, openDatabase: RealFlightNativeDatabaseOpener): Promise<Driver> {
   // Expo's default cache can share the underlying root with another driver.
   // Each driver closes its own handles; closing a concurrent inspector must
   // never invalidate a retained selection's root connection.
-  const db = await openDatabase(name, { useNewConnection: true });
-  try {
-    await configure(db);
-    let transactionDb: RealFlightNativeDatabase | null = null;
-    let pending: Promise<void> = Promise.resolve();
-    let closing: Promise<void> | null = null;
-    function allowed() { if (closing) throw new Error('Real flight SQLite driver closed.'); }
-    async function discardTransaction() {
-      const current = transactionDb;
-      transactionDb = null;
-      await current?.closeAsync();
+  const db = await serialize(name, async () => {
+    const opened = await openDatabase(name, { useNewConnection: true });
+    try { await configure(opened); return opened; }
+    catch (error) {
+      try { await opened.closeAsync(); } catch { /* Preserve the original connection setup failure. */ }
+      throw error;
     }
-    return {
-      ...connection(db, allowed),
-      close: () => {
-        closing ??= pending.then(async () => {
-          try { await discardTransaction(); }
-          finally { await db.closeAsync(); }
-        });
-        return closing;
-      },
-      transaction: async work => {
-        allowed();
-        const result = pending.then(async () => {
-          let began = false;
-          try {
-            transactionDb ??= await openDatabase(name, { useNewConnection: true });
-            await configure(transactionDb);
-            await transactionDb.execAsync('BEGIN EXCLUSIVE TRANSACTION');
-            began = true;
-            let active = true;
-            try {
-              await work(connection(transactionDb, () => { if (!active) throw new Error('Real flight SQLite transaction ended.'); }));
-            } finally { active = false; }
-            await transactionDb.execAsync('COMMIT');
-            began = false;
-          } catch (error) {
-            if (began) {
-              try { await transactionDb?.execAsync('ROLLBACK'); } catch { /* Preserve the original or indeterminate commit failure. */ }
-            }
-            try { await discardTransaction(); } catch { /* Failed handles are never reused; preserve the operation error. */ }
-            throw error;
-          }
-        });
-        pending = result.catch(() => {});
-        return result;
-      },
-    };
-  } catch (error) {
-    try { await db.closeAsync(); } catch { /* Preserve the original connection setup failure. */ }
-    throw error;
+  });
+  let transactionDb: RealFlightNativeDatabase | null = null;
+  let closing: Promise<void> | null = null;
+  function allowed() { if (closing) throw new Error('Real flight SQLite driver closed.'); }
+  async function schedule<T>(work: () => Promise<T>): Promise<T> {
+    allowed();
+    return serialize(name, work);
   }
+  async function discardTransaction() {
+    const current = transactionDb;
+    transactionDb = null;
+    await current?.closeAsync();
+  }
+  return {
+    exec: sql => schedule(() => db.execAsync(sql)),
+    run: (sql, ...params: Bind[]) => schedule(async () => { await db.runAsync(sql, ...params); }),
+    all: <T>(sql: string, ...params: Bind[]) => schedule(() => db.getAllAsync<T>(sql, ...params)),
+    first: <T>(sql: string, ...params: Bind[]) => schedule(() => db.getFirstAsync<T>(sql, ...params)),
+    close: () => {
+      closing ??= serialize(name, async () => {
+        try { await discardTransaction(); }
+        finally { await db.closeAsync(); }
+      });
+      return closing;
+    },
+    transaction: async work => {
+      return schedule(async () => {
+        let began = false;
+        try {
+          transactionDb ??= await openDatabase(name, { useNewConnection: true });
+          await configure(transactionDb);
+          await transactionDb.execAsync('BEGIN EXCLUSIVE TRANSACTION');
+          began = true;
+          let active = true;
+          try {
+            await work(connection(transactionDb, () => { if (!active) throw new Error('Real flight SQLite transaction ended.'); }));
+          } finally { active = false; }
+          await transactionDb.execAsync('COMMIT');
+          began = false;
+        } catch (error) {
+          if (began) {
+            try { await transactionDb?.execAsync('ROLLBACK'); } catch { /* Preserve the original or indeterminate commit failure. */ }
+          }
+          try { await discardTransaction(); } catch { /* Failed handles are never reused; preserve the operation error. */ }
+          throw error;
+        }
+      });
+    },
+  };
 }
