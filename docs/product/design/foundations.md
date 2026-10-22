@@ -71,10 +71,10 @@ The native shell uses the platform default family; it does not configure Inter. 
 | Section heading | 19 / 26 | 600. |
 | Body / action label | 15 / 22 | Regular / 600 for actions. |
 | Profile name input | 16 / platform default | System-scaled editable text. |
-| Dashboard / summary value | 18 / 24 for ring-adjacent season values | 700; KPI unit 16. |
+| Dashboard / summary value | Ring center14/19; prior value14/19; difference12/17 | Current700/prior600; native text scales and ring geometry grows with it. |
 | Supporting text / tab label | Supporting text varies; tabs 12 / 18 | Secondary emphasis; selected tabs 700. |
 | Medical label / status | 12 / 16 and 12 / 17 | Med is 600; status quieter, with date/unknown semantics preserved. |
-| Season ring value / label | 18 / 24 and 11 / 16 | Saved starts and known reported hours beside concentric 64/46-unit rings; measure pairs stack at enlarged text. |
+| Season ring year / measure label | 10 / 14 and 12 / 18 | Current value inside concentric88/70-unit rings, prior year and difference outside; measure pairs stack at enlarged text. |
 
 Sources: theme, AppHeader, Dashboard, MobileApp, [ProfileSettings](../../../apps/platform-lab/src/mobile/ProfileSettings.tsx), MedicalStatus and [SeasonRing](../../../apps/platform-lab/src/mobile/SeasonRing.tsx). Icon-glyph font sizes describe artwork, not body hierarchy. The generated inventory lists literal typography declarations. Selected icon raster palettes are recorded separately in the [native asset manifest](../../../apps/platform-lab/assets/icons/duotone/manifest.json); their artwork remains unchanged while branch body/text tokens differ.
 
@@ -91,7 +91,7 @@ Use the documented component context. The branch uses 18 dp page spacing, shared
 | Medical group | Minimum 72 × 48, radius 12; grows with text | Icon beside Med/date text; 40-unit face within minimum48 target. |
 | Field / composer | Profile radius 12, minimum height 48; provider radius 10; composer radius 20 | Context-specific forms. |
 | Tab / artwork | Tab minimum height 68, radius 16; artwork 28 in soft tile 36 / radius 12; label 12 | Five equal destinations. |
-| Season comparison | Season card padding 14; two concentric charts with outer64/inner46 and thickness5, adjacent values and shared aircraft legend | Current/prior calendar-year starts and known time; see the alternative feedback contract. |
+| Season comparison | Season card padding14; concentric outer88/inner70 at font scale1, thickness5; current value centered, prior/delta outside and shared aircraft legend | Prior ring50% opacity; geometry grows with font scale. Exact numeric saved-year differences retain unknown/unequal-period limits; see the alternative contract. |
 
 The branch send target is 48 dp and ordinary flight search minimum height 52 dp. Retained lab faces do not independently prove adequate effective touch regions. [Known gaps](history.md) require actual hit-region review when affected controls change.
 

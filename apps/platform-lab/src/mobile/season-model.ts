@@ -39,6 +39,25 @@ export function aircraftSeasonShares(flights: readonly Flight[]): AircraftSeason
 
 export interface RingSlice { color: string; start: number; sweep: number }
 
+export interface SeasonDifference {
+  value: number | null;
+  direction: 'up' | 'down' | 'equal' | 'unknown';
+  text: string;
+}
+
+/** Difference of saved numeric totals, not a claim of equal or complete periods. */
+export function seasonDifference(current: number | null, previous: number | null, measure: 'starts' | 'minutes'): SeasonDifference {
+  for (const value of [current, previous]) {
+    if (value !== null && (!Number.isSafeInteger(value) || value < 0)) throw new Error('Unsafe season comparison total.');
+  }
+  if (current === null || previous === null) return { value: null, direction: 'unknown', text: '—' };
+  const value = current - previous, magnitude = Math.abs(value);
+  const sign = value > 0 ? '+' : value < 0 ? '−' : '';
+  const formatted = measure === 'starts' ? String(magnitude) : magnitude % 60 === 0
+    ? `${magnitude / 60} h` : `${Math.floor(magnitude / 60)}:${String(magnitude % 60).padStart(2, '0')} h`;
+  return { value, direction: value > 0 ? 'up' : value < 0 ? 'down' : 'equal', text: sign + formatted };
+}
+
 /** Angles describe a distribution, never progress toward an unstated target. Zero has no arc. */
 export function seasonRingSlices(shares: readonly AircraftSeasonShare[], measure: 'count' | 'knownMinutes'): RingSlice[] {
   const values = shares.map(share => ({ color: share.color, value: share[measure] ?? 0 })).filter(share => share.value > 0);

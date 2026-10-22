@@ -68,8 +68,9 @@
 <p>The retained selected-owner browser checks an existing association on foreground startup and approximately every minute while the update dialog is closed. Checks pause in the background and never interrupt login, retrieval, saving or recovery; they do not download flights or create an account association. Expired/unverified/error states cannot stay green. Explicit user interaction takes priority over a pending quiet check. Unknown or foreign account proof never authorizes retrieval. Cancellation and necessary recovery/account decisions remain available.</p>
 <p>Implementation and source-specific verification are recorded in the <a href="../../verification/2026-10-21-simple-flight-loading.md#automatic-login-and-foreground-session-status--23-october-2026">loading report</a>. A host regression is not proof of the reported physical-phone cause or successful live login.</p>
 <h3 id="chapter-alternative-ui-startheader-refinement--23-october-2026">Start/header refinement — 23 October 2026</h3>
-<p>Manuel requested the following refinement under <a href="https://github.com/MomoRC-tech/MoFlight-App-framework/issues/20#issuecomment-6352511938">#20</a>. It supersedes the earlier scoped geometry below: the unchanged Thermik logo is 88 dp (previously 46), with title alongside; Profile occupies the header&#x27;s lower right over the existing ASK-21 artwork. Data and Medical use compact 40 dp faces inside minimum 48 dp targets, icons beside two-line labels, and system-scaled text. Medical&#x27;s cross is red in the maintained SVG and generated native family; it is decorative and does not change source-date status meaning.</p>
-<p>Meine Saison uses the same realistic artwork across its complete heading width, beneath the text, with a warm amber/brown overlay instead of the former small schematic image. The ordinary latest-flight summary has two rows: date/age and duration, then aircraft and recorded PIC. Long source text and enlarged text may reflow; the same-day ambiguity warning remains separate. Each measure has one concentric comparison: current year outside, prior year inside, with explicit year/position labels and stable aircraft colours. The circles describe each year&#x27;s aircraft shares, not comparative total magnitude. Empty/unknown time retains an unfilled track. Hours and starts remain separate.</p>
+<p>Manuel requested the following refinement under <a href="https://github.com/MomoRC-tech/MoFlight-App-framework/issues/20#issuecomment-6352511938">#20</a>, then corrected the header composition on 23 October: the unchanged 88 dp Thermik logo spans the compact header&#x27;s left side. Beside it, the title sits above the synchronization/Medical row; those two rows together are roughly the logo&#x27;s height at ordinary text size. Profile occupies the upper-right edge. This supersedes the preceding lower-right Profile and separate full-width controls row. Data and Medical use compact 40 dp faces inside minimum 48 dp targets, icons beside two-line labels, and system-scaled text. Long titles and enlarged text may grow and wrap the header. Medical&#x27;s cross is red in the maintained SVG and generated native family; it is decorative and does not change source-date status meaning.</p>
+<p>Meine Saison uses the same realistic artwork across its complete heading width, beneath the text, with a warm amber/brown overlay instead of the former small schematic image. The ordinary latest-flight summary has two rows: date/age and duration, then aircraft and recorded PIC. Long source text and enlarged text may reflow; the same-day ambiguity warning remains separate. Each measure has one concentric comparison: current year outside, prior year inside, with stable aircraft colours. Manuel&#x27;s further 23 October instructions put the current-year number and small year label in the center, with a small prior-year label/value and signed difference outside. Both starts and flight time use ↑ for an increase, ↓ for a decrease and ↔ for no change; exact time differences use hours or hours:minutes, such as +4 h or +0:05 h. Differences come from numeric saved totals, never parsed display strings. Missing or partly unknown time yields Δ —, not invented zero. A visible saved-year-values note and accessible descriptions retain unequal/incomplete-period uncertainty; no like-for-like performance claim is made.</p>
+<p>The shared renderer uses outer88/inner70 dp rings at ordinary text size and grows their geometry with system font scaling; enlarged-text comparisons stack as before. The inner prior-year ring is composited at 50% opacity, retaining the same aircraft hues. Outer current-year colors and aircraft legend mapping stay unchanged. The circles describe each year&#x27;s aircraft shares, not comparative total magnitude. Empty/unknown time retains an unfilled track. Hours and starts remain separate.</p>
 <p>Monthly bars now have small rotated values immediately above them, keeping all twelve months and both years visible. Hours use exact hours:minutes, zero stays zero, unknown is ?, partial values retain · and future months stay blank. Compact chart value/axis labels cap font scaling at 1; full values remain in accessible month descriptions. Broader statistics were requested for review only, under #9; this UI refinement does not authorize all pending analytics.</p>
 <p>Source-specific checks and delivery status are recorded in the <a href="../../verification/2026-10-22-alternative-ui.md#startheader-refinement--23-october-2026">existing verification report</a>.</p>
 <h3 id="chapter-alternative-ui-review-and-design-response">Review and design response</h3>
@@ -88,7 +89,7 @@
 </ul>
 <h3 id="chapter-alternative-ui-artwork-provenance-and-retained-data-behavior">Artwork provenance and retained-data behavior</h3>
 <p>The initial <a href="flight-scene.svg">flight-scene.svg</a>, <a href="../../../apps/platform-lab/assets/aviation/flight-scene.png">flight-scene.png</a> and compact <a href="../../../apps/platform-lab/assets/aviation/flight-scene-detail.png">flight-scene-detail.png</a> remain preserved. Manuel rejected the schematic permanent-header artwork and requested a more realistic ASK-21-like aircraft and airflow on 22 October. The replacement <a href="../../../apps/platform-lab/assets/aviation/ask21-flight-header-v2.png">ask21-flight-header-v2.png</a> is original built-in image-generation output, copied unchanged into the repository; no third-party photograph was copied. Its aircraft proportions were guided by <a href="https://www.alexander-schleicher.de/en/flugzeuge/ask-21/">Schleicher&#x27;s ASK21 reference</a> (two-seat canopy, mid-wing, double-taper wings and T-tail). It is an illustrative likeness, not a certified aircraft drawing or CFD result.</p>
-<p><a href="../../../apps/platform-lab/src/mobile/FlightScene.tsx">FlightScene</a> contains the full aircraft inside the existing header without participating in layout height. The phone scene is330×110, blended into the navy canvas along its left/bottom edges; the shallow wide header uses192×64 in the gap before controls. Enlarged text subdues the decorative image to preserve title readability. The compact88×44 season artwork remains unchanged. The scene establishes no observed aircraft, location, weather or measured track. Original logo/reference images remain preserved.</p>
+<p><a href="../../../apps/platform-lab/src/mobile/FlightScene.tsx">FlightScene</a> keeps the existing aircraft artwork behind the header without participating in layout height. The 23 October compact-header correction crops that artwork at the header bounds; it does not replace or resize the source bitmap. The phone scene is330×110 and the wide scene420×140, blended into the navy canvas. Enlarged text subdues the decorative image to preserve title readability. The season reuses the same image beneath its heading with the selected warm wash. The scene establishes no observed aircraft, location, weather or measured track. Original logo/reference images remain preserved.</p>
 <h4 id="chapter-alternative-ui-header-artwork-generation-prompt">Header artwork generation prompt</h4>
 <p>Built-in image tool, opaque background, original PNG2172×724 (measured file dimensions); no API/CLI fallback or private image input. Final prompt:</p>
 <p>&gt; Use case: photorealistic-natural. Asset type: extremely wide, low-height banner background for a compact dark navy personal sailplane flight-log app header. Generate a new original, highly realistic aviation photograph/visualization, landscape aspect ratio 3:1, approximately 1536 x 512. No text, no logos, no frame, no UI. Scene: a white fiberglass Schleicher ASK-21-like two-seat training sailplane genuinely soaring in a gentle coordinated bank above hazy forested hills, seen from a nearby aircraft, slightly above and ahead of its left side. Accurate recognizable ASK-21 proportions: substantial rounded tandem two-seat nose, long clearly divided two-piece canopy, mid-mounted long straight double-tapered wings with blunt simple tips and NO winglets, slender rear fuselage, proper vertical fin with T-tail horizontal stabilizer. Small red-orange nose/wingtip safety accents. Not a generic extreme racing glider, not a jet, not a toy, no propeller, no steep aerobatics. Composition critical: place the complete aircraft exclusively in the RIGHT HALF of the wide image, wingspan about 40 percent of canvas width; fuselage diagonally nose toward lower-left, tail upper-right, wings foreshortened naturally. Aircraft must read at a very small UI size. Keep the LEFT 45 percent mostly clean, very dark navy #0b141c with a gentle atmospheric fade for a separate existing logo and screen title; keep bottom 25 percent dark and quiet for separate controls. Cool blue hour, realistic white fiberglass reflections and translucent smoky canopy, subtle terrain far below to establish a believable in-flight situation. Add just 4 to 6 fine semi-transparent cyan-white aerodynamic visualization streamlines following the SAME local relative-wind direction from ahead of nose past wings toward the tail and downstream; they should gently deflect around the aircraft and indicate a restrained downstream wingtip wake. Thin, elegant, physically coherent, no big random crossing swooshes, no neon ribbons, no contrails or smoke. These are illustrative airflow overlays, not literal visible wind or CFD evidence. Photographic realism with understated airflow graphics. Preserve quiet navy background and complete aircraft visibility.</p>
@@ -147,10 +148,10 @@
 <tr><td>Section heading</td><td>19 / 26</td><td>600.</td></tr>
 <tr><td>Body / action label</td><td>15 / 22</td><td>Regular / 600 for actions.</td></tr>
 <tr><td>Profile name input</td><td>16 / platform default</td><td>System-scaled editable text.</td></tr>
-<tr><td>Dashboard / summary value</td><td>18 / 24 for ring-adjacent season values</td><td>700; KPI unit 16.</td></tr>
+<tr><td>Dashboard / summary value</td><td>Ring center14/19; prior value14/19; difference12/17</td><td>Current700/prior600; native text scales and ring geometry grows with it.</td></tr>
 <tr><td>Supporting text / tab label</td><td>Supporting text varies; tabs 12 / 18</td><td>Secondary emphasis; selected tabs 700.</td></tr>
 <tr><td>Medical label / status</td><td>12 / 16 and 12 / 17</td><td>Med is 600; status quieter, with date/unknown semantics preserved.</td></tr>
-<tr><td>Season ring value / label</td><td>18 / 24 and 11 / 16</td><td>Saved starts and known reported hours beside concentric 64/46-unit rings; measure pairs stack at enlarged text.</td></tr>
+<tr><td>Season ring year / measure label</td><td>10 / 14 and 12 / 18</td><td>Current value inside concentric88/70-unit rings, prior year and difference outside; measure pairs stack at enlarged text.</td></tr>
 </tbody></table></div>
 <p>Sources: theme, AppHeader, Dashboard, MobileApp, <a href="../../../apps/platform-lab/src/mobile/ProfileSettings.tsx">ProfileSettings</a>, MedicalStatus and <a href="../../../apps/platform-lab/src/mobile/SeasonRing.tsx">SeasonRing</a>. Icon-glyph font sizes describe artwork, not body hierarchy. The generated inventory lists literal typography declarations. Selected icon raster palettes are recorded separately in the <a href="../../../apps/platform-lab/assets/icons/duotone/manifest.json">native asset manifest</a>; their artwork remains unchanged while branch body/text tokens differ.</p>
 <h3 id="chapter-foundations-spacing-geometry-and-target-size">Spacing, geometry and target size</h3>
@@ -163,7 +164,7 @@
 <tr><td>Medical group</td><td>Minimum 72 × 48, radius 12; grows with text</td><td>Icon beside Med/date text; 40-unit face within minimum48 target.</td></tr>
 <tr><td>Field / composer</td><td>Profile radius 12, minimum height 48; provider radius 10; composer radius 20</td><td>Context-specific forms.</td></tr>
 <tr><td>Tab / artwork</td><td>Tab minimum height 68, radius 16; artwork 28 in soft tile 36 / radius 12; label 12</td><td>Five equal destinations.</td></tr>
-<tr><td>Season comparison</td><td>Season card padding 14; two concentric charts with outer64/inner46 and thickness5, adjacent values and shared aircraft legend</td><td>Current/prior calendar-year starts and known time; see the alternative feedback contract.</td></tr>
+<tr><td>Season comparison</td><td>Season card padding14; concentric outer88/inner70 at font scale1, thickness5; current value centered, prior/delta outside and shared aircraft legend</td><td>Prior ring50% opacity; geometry grows with font scale. Exact numeric saved-year differences retain unknown/unequal-period limits; see the alternative contract.</td></tr>
 </tbody></table></div>
 <p>The branch send target is 48 dp and ordinary flight search minimum height 52 dp. Retained lab faces do not independently prove adequate effective touch regions. <a href="#chapter-history">Known gaps</a> require actual hit-region review when affected controls change.</p>
 <h3 id="chapter-foundations-solid-color-contrast-measurements">Solid-color contrast measurements</h3>
@@ -189,14 +190,14 @@
 <tr><td>C02</td><td>Primary / secondary action</td><td>Mint or raised bordered face, radius 16, minimum height 52</td><td>Explicit action label; disabled opacity .5, pressed .72. theme Action.</td></tr>
 <tr><td>C03</td><td>Scope chip</td><td>Radius 14; face minimum 66 × 40 in a minimum-48-height target</td><td>Selected opaque mint fill; selected/disabled semantics. theme Chip.</td></tr>
 <tr><td>C04</td><td>Search / input</td><td>Ordinary flight search radius 16/minimum height 52; profile radius 12 and font 16; provider radius 10</td><td>Operate on named scope. MobileApp / ProfileSettings / ProviderConnection.</td></tr>
-<tr><td>C05</td><td>Shared header</td><td>Navy ASK-21 artwork, unchanged logo88, title28/34; title row minimum88, padding14 horizontal</td><td>Profile in the lower-right slot over the image; contextual Back and disabled guards preserved. AppHeader / FlightScene.</td></tr>
+<tr><td>C05</td><td>Shared header</td><td>Cropped navy ASK-21 artwork, unchanged logo88 at left; beside it title28/34 above Data/Medical; padding14 horizontal</td><td>Profile at the upper-right edge; title row minimum48 and controls minimum48 give roughly logo-height composition. Enlarged text wraps/grows; contextual Back and disabled guards preserved. AppHeader / FlightScene.</td></tr>
 <tr><td>C06</td><td>Header data/status group</td><td>Data/Medical 24-unit icons beside two-line labels, minimum40 faces in minimum48 targets; Profile48</td><td>Smaller faces retain full touch targets and scaled text. Red Medical cross is decorative; age/date captions retain separate semantic colours.</td></tr>
 <tr><td>C07</td><td>Bottom navigation</td><td>Attached dark bar, five equal destinations, minimum target height 68; three-column wrapping below 600 dp with font scale above 1.3</td><td>Icon above full system-scaled German label; final two wrapping items center. Standard text/width retains one row; raised selected tile and bold mint label. MobileApp.</td></tr>
 <tr><td>C08</td><td>Update popup / app overlays</td><td>Bounded centered navy update frame, radius22, border1, dim scrim; one active dialog, retained native child tree</td><td>UpdateDialog frames setup/login/progress/results; underlying page is visible but inert. Other app sheets keep their existing layout. ProviderConnection retains its toolbar/history inside the popup.</td></tr>
 <tr><td>C09</td><td>Flight row</td><td>Padding 18, radius 20; date/reported duration, registration/model, route and detail chevron</td><td>Whole row opens selected-account saved source facts. Source reference/revision/original fields and absent-track context stay in details. Original fields use eight-field pages with concise Zurück / Weiter captions and full provider-field accessibility labels; first/last guards and contextual list return remain. <a href="../../../apps/platform-lab/src/mobile/OwnFlights.tsx">OwnFlights</a>; no inferred role or book assignment.</td></tr>
 <tr><td>C10</td><td>AI question / composer</td><td>Question radius 18; composer radius 20; send face 48 × 48; input max height 150</td><td>Local questions calculate deterministically; free-text service unavailable. MobileApp.</td></tr>
 <tr><td>C11</td><td>Quiet paper entry</td><td>Minimum-height 48 row with paper-tone logbook symbol and detail chevron</td><td>Associated-account Start offers Papierflugbuch später einrichten and opens the deferred-setup explanation. The former photographic hero remains in the original reference. Synthetic saved paper status stays under Development; viewing never confirms copying. Dashboard / PaperStatus.</td></tr>
-<tr><td>C12</td><td>Season comparisons</td><td>Two concentric aircraft-share charts, outer64/inner46, thickness5; adjacent labelled year values</td><td>Current year outside, prior inside; separate known-hours and starts, stable aircraft colours and explicit unknowns. SeasonRing / Dashboard.</td></tr>
+<tr><td>C12</td><td>Season comparisons</td><td>Two concentric aircraft-share charts, outer88/inner70 at font scale1, thickness5; current-year value centered; prior-year label/value and exact signed delta outside</td><td>Ring geometry grows with system text. Prior inner ring at50% opacity; current outer hues and legend stable. Both time/starts use ↑/↓/↔; unavailable time delta is Δ —. Saved-period uncertainty and unknown tracks remain. SeasonRing / Dashboard.</td></tr>
 <tr><td>C13</td><td>Badges / disclosures</td><td>Role pill radius 12; session badge minimum 16; details + / −</td><td>Role, session evidence and expansion remain separate meanings. MobileApp / ProviderConnection.</td></tr>
 <tr><td>C14</td><td>Synthetic import review</td><td>Shared C01/C02/C03 cards/actions/choice chips, centered group capped at 520 dp</td><td>Development-only comparison, source variants and explicit book choice; <a href="../../../apps/platform-lab/src/mobile/ImportPreview.tsx">ImportPreview</a>. No saved-library import.</td></tr>
 <tr><td>C15</td><td>Captured flight review</td><td>Shared cards/actions in the connection panel&#x27;s centered 520 dp group; five records per page, eight original fields per detail page</td><td><a href="../../../apps/platform-lab/src/mobile/CapturedFlights.tsx">CapturedFlights</a> reads owner-scoped saved evidence without requiring provider login. Dates/clocks, reported duration, aircraft and separate crew fields retain unknown/invalid/conflict states; original field text is selectable and untruncated. No book membership or canonical import.</td></tr>
@@ -283,7 +284,7 @@
 <h3 id="chapter-patterns-header-overlays-and-navigation">Header, overlays and navigation</h3>
 <p><strong>22 October alternative branch (#55), revised feedback:</strong> Meine Saison is the first Start group; the permanent leading connection/reminder box is removed. The compact card contains one latest saved flight with date/relative age, recorded PIC and aircraft, plus current/prior-year time/starts rings split by aircraft. Its row opens the exact saved identity; Alle Flüge ansehen opens the general list. Saison im Detail opens one dense monthly chart with measure chips. Jan–Dec always stay in one row; all twelve months fit visibly at enlarged text too, using compact axis labels. Unknown dates/times, ambiguous same-day chronology and incomplete coverage remain explicit. Empty/error states give passive header guidance. The compact Verein card and source-expiry Medical states remain. See the <a href="#chapter-alternative-ui">alternative contract</a> for scoped authority, illustration provenance and acceptance limits.</p>
 <p>Start remains mounted across ordinary navigation, retaining processed selectors and disclosure state. Identical inputs do not recompute season/month summaries and tab return does not itself reload storage. Duplicate active notifications are ignored; real background/foreground and provider closure still require guarded local revalidation. Ordinary app-switch revalidation retains the last verified screen and completed detail quietly; equal results reuse references, changed evidence invalidates detail, and missing/failed validation removes retained data. Provider/writer admission clears retained data through the active boundary. Never show an unconfirmed owner&#x27;s cached data. These host-tested boundaries are not proof that every reported native reload has been resolved.</p>
-<p>Keep header/navigation outside the scrolling canvas. The enlarged unchanged logo and destination share the upper row. Data and Medical sit at the lower left with compact faces inside minimum48 targets; Profile sits at the lower right over the decorative aircraft image. Controls and text reflow at enlarged sizes without overlapping; contextual Back replaces the logo on overlays. See the <a href="#chapter-alternative-ui-startheader-refinement--23-october-2026">23 October refinement</a> for concentric rings, full-width season artwork and bar labels.</p>
+<p>Keep header/navigation outside the scrolling canvas. The unchanged 88 dp logo spans the left side; beside it the destination title sits above Data and Medical, making a compact two-row group roughly the logo&#x27;s height at ordinary text size. Profile sits at the upper-right edge. The same decorative aircraft image is cropped by the shorter header. Controls retain minimum48 targets; text and controls may wrap and grow at enlarged sizes. Contextual Back replaces the logo on overlays. See the <a href="#chapter-alternative-ui-startheader-refinement--23-october-2026">23 October refinement</a> for concentric rings, full-width season artwork and bar labels.</p>
 <p>App overlays/details replace logo with contextual Back and expose one active accessible header. Return through nested overlays to prior page/filter/scroll state and unsaved local profile-name draft. Identical library reloads preserve the return path; changed book/flight facts invalidate stale details. An active backup/proof operation disables app Back, Profile and Medical until completion; provider Close/history remain separate. Medical opens a read-only source-date explanation, retaining unknown/partial evidence.</p>
 <p>The header data shortcut starts the ordinary combined update, showing original login only when required. Profile retains read-only data information and offline backup; legacy provider/information diagnostics remain under Development. Provider Close, connection status and origin belong to its app-owned toolbar. Provider-history Back affects the original embedded webpage; Close returns to MoFlight without promising logout. Preserve retained browser parent, busy/recovery guards and provenance. OS-owned full-screen surfaces keep their own controls. The <a href="../2026-10-18-header-status-review.md#package-1b-decision-checkpoint">earlier header decisions</a> retain their scope except for the 22 October data-update amendment below.</p>
 <p>Bottom navigation has five equal icon/label destinations and semantic selected state. At widths below 600 dp with font scale above 1.3, reflow to three columns with the final two items centered so full labels retain system scaling; ordinary text/width keeps one row. Current code hides it with the AI keyboard and app/provider overlays. Do not reintroduce an old floating dock or add a destination through documentation cleanup. The development footer identifies this alternative; connection copy reflects the selected real library.</p>
@@ -392,39 +393,39 @@
 <tr><td><code>padding: 24</code></td><td>184</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-appheadertsx">AppHeader.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/AppHeader.tsx">apps/platform-lab/src/mobile/AppHeader.tsx</a>; normalized SHA-256 <code>c30a157dcf3e95ceac08a9efecfc2d132b0f4d270c863cf9c6b8610dc980cda5</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/AppHeader.tsx">apps/platform-lab/src/mobile/AppHeader.tsx</a>; normalized SHA-256 <code>c17ddd974fc8e9b95e53dfd7558eac761f03148e6fced788c67c9e72260d2806</code>.</p>
 <h4 id="chapter-implementation-inventory-literal-colors-2">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><i class="swatch" style="background:#26444b" aria-hidden="true"></i><code>#26444b</code></td><td>33</td></tr>
+<tr><td><i class="swatch" style="background:#26444b" aria-hidden="true"></i><code>#26444b</code></td><td>35</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-typography-declarations-2">Typography declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>fontSize: 11</code></td><td>41</td></tr>
-<tr><td><code>fontSize: 28</code></td><td>40</td></tr>
-<tr><td><code>fontWeight: &#x27;700&#x27;</code></td><td>40</td></tr>
-<tr><td><code>letterSpacing: -.7</code></td><td>40</td></tr>
-<tr><td><code>lineHeight: 16</code></td><td>41</td></tr>
-<tr><td><code>lineHeight: 34</code></td><td>40</td></tr>
+<tr><td><code>fontSize: 11</code></td><td>44</td></tr>
+<tr><td><code>fontSize: 28</code></td><td>43</td></tr>
+<tr><td><code>fontWeight: &#x27;700&#x27;</code></td><td>43</td></tr>
+<tr><td><code>letterSpacing: -.7</code></td><td>43</td></tr>
+<tr><td><code>lineHeight: 16</code></td><td>44</td></tr>
+<tr><td><code>lineHeight: 34</code></td><td>43</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-geometry--opacity-declarations-3">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>borderRadius: 10</code></td><td>42</td></tr>
-<tr><td><code>borderRadius: 16</code></td><td>43</td></tr>
-<tr><td><code>gap: 0</code></td><td>34</td></tr>
-<tr><td><code>gap: 10</code></td><td>35</td></tr>
-<tr><td><code>gap: 6</code></td><td>37</td></tr>
-<tr><td><code>gap: 8</code></td><td>36</td></tr>
-<tr><td><code>height: 48</code></td><td>43</td></tr>
-<tr><td><code>height: 88</code></td><td>42</td></tr>
-<tr><td><code>maxWidth: 960</code></td><td>33</td></tr>
-<tr><td><code>minHeight: 64</code></td><td>34</td></tr>
-<tr><td><code>minHeight: 88</code></td><td>35</td></tr>
-<tr><td><code>minWidth: 0</code></td><td>37, 39</td></tr>
+<tr><td><code>borderRadius: 10</code></td><td>45</td></tr>
+<tr><td><code>borderRadius: 16</code></td><td>46</td></tr>
+<tr><td><code>gap: 0</code></td><td>36</td></tr>
+<tr><td><code>gap: 10</code></td><td>37</td></tr>
+<tr><td><code>gap: 6</code></td><td>39, 40</td></tr>
+<tr><td><code>height: 48</code></td><td>46</td></tr>
+<tr><td><code>height: 88</code></td><td>45</td></tr>
+<tr><td><code>maxWidth: 960</code></td><td>35</td></tr>
+<tr><td><code>minHeight: 48</code></td><td>39</td></tr>
+<tr><td><code>minHeight: 64</code></td><td>36</td></tr>
+<tr><td><code>minHeight: 88</code></td><td>37</td></tr>
+<tr><td><code>minWidth: 0</code></td><td>38, 40, 42</td></tr>
 <tr><td><code>opacity: .5</code></td><td>19</td></tr>
-<tr><td><code>paddingHorizontal: 14</code></td><td>34</td></tr>
-<tr><td><code>width: &#x27;100%&#x27;</code></td><td>33</td></tr>
-<tr><td><code>width: 48</code></td><td>43</td></tr>
-<tr><td><code>width: 88</code></td><td>42</td></tr>
+<tr><td><code>paddingHorizontal: 14</code></td><td>36</td></tr>
+<tr><td><code>width: &#x27;100%&#x27;</code></td><td>35</td></tr>
+<tr><td><code>width: 48</code></td><td>46</td></tr>
+<tr><td><code>width: 88</code></td><td>45</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-capturedflightstsx">CapturedFlights.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/CapturedFlights.tsx">apps/platform-lab/src/mobile/CapturedFlights.tsx</a>; normalized SHA-256 <code>b0cb656d3ee0d080104524b6302f5743ecab598c9dafcd977c1cba8838a8eac0</code>.</p>
@@ -434,20 +435,24 @@
 <tr><td><code>gap: 2</code></td><td>57</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-clubinformationtsx">ClubInformation.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/ClubInformation.tsx">apps/platform-lab/src/mobile/ClubInformation.tsx</a>; normalized SHA-256 <code>c82f65fc45d73188b9dfad4d81a7eba95551166d796d055260dc1e66989d6595</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/ClubInformation.tsx">apps/platform-lab/src/mobile/ClubInformation.tsx</a>; normalized SHA-256 <code>2054ab877aeedd126d22d6a902405f6e693ad25af4e055fc93f0027f5d0b6bdc</code>.</p>
 <h4 id="chapter-implementation-inventory-typography-declarations-3">Typography declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>fontSize: 12</code></td><td>63</td></tr>
-<tr><td><code>fontSize: 14</code></td><td>58</td></tr>
-<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>58, 60</td></tr>
-<tr><td><code>lineHeight: 18</code></td><td>63</td></tr>
+<tr><td><code>fontSize: 12</code></td><td>151</td></tr>
+<tr><td><code>fontSize: 14</code></td><td>137, 142</td></tr>
+<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>137, 139, 142</td></tr>
+<tr><td><code>lineHeight: 18</code></td><td>151</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-geometry--opacity-declarations-5">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>gap: 12</code></td><td>55, 56</td></tr>
-<tr><td><code>gap: 2</code></td><td>57, 59, 62</td></tr>
-<tr><td><code>minWidth: 0</code></td><td>59</td></tr>
-<tr><td><code>padding: 16</code></td><td>55</td></tr>
+<tr><td><code>gap: 10</code></td><td>147</td></tr>
+<tr><td><code>gap: 12</code></td><td>134, 135</td></tr>
+<tr><td><code>gap: 2</code></td><td>136, 138, 144, 150</td></tr>
+<tr><td><code>gap: 5</code></td><td>141, 148</td></tr>
+<tr><td><code>gap: 6</code></td><td>145</td></tr>
+<tr><td><code>gap: 8</code></td><td>143, 149</td></tr>
+<tr><td><code>minWidth: 0</code></td><td>138, 144</td></tr>
+<tr><td><code>padding: 16</code></td><td>134</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-connection-guidancets">connection-guidance.ts</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/connection-guidance.ts">apps/platform-lab/src/mobile/connection-guidance.ts</a>; normalized SHA-256 <code>b5a3a99a64f395c0c6383c857eaa0d6fd924108a69f6a8336262a72027849cf8</code>.</p>
@@ -466,50 +471,50 @@
 <tr><td><code>width: &#x27;100%&#x27;</code></td><td>42, 49, 54, 60, 66</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-coreflightfoundationtsx">CoreFlightFoundation.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx">apps/platform-lab/src/mobile/CoreFlightFoundation.tsx</a>; normalized SHA-256 <code>55ad4c07a4ed83a21b75113c155632e5df45a1953d67beac32a418282c31711d</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx">apps/platform-lab/src/mobile/CoreFlightFoundation.tsx</a>; normalized SHA-256 <code>c61cacaf614dae77eaf918931271763813fcd5041d16a9d0322682661f05f188</code>.</p>
 <h4 id="chapter-implementation-inventory-geometry--opacity-declarations-7">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>gap: 10</code></td><td>136, 137, 543</td></tr>
-<tr><td><code>gap: 8</code></td><td>569, 595, 605</td></tr>
-<tr><td><code>maxWidth: 520</code></td><td>137, 543</td></tr>
-<tr><td><code>padding: 12</code></td><td>136, 543</td></tr>
-<tr><td><code>width: &#x27;100%&#x27;</code></td><td>137, 543</td></tr>
+<tr><td><code>gap: 10</code></td><td>139, 140, 556</td></tr>
+<tr><td><code>gap: 8</code></td><td>582, 608, 618</td></tr>
+<tr><td><code>maxWidth: 520</code></td><td>140, 556</td></tr>
+<tr><td><code>padding: 12</code></td><td>139, 556</td></tr>
+<tr><td><code>width: &#x27;100%&#x27;</code></td><td>140, 556</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-dashboardtsx">Dashboard.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/Dashboard.tsx">apps/platform-lab/src/mobile/Dashboard.tsx</a>; normalized SHA-256 <code>a78b766fb49efd3d9aaafe7e80cab12b17bfc61a034c6dd7826b617923a8b221</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/Dashboard.tsx">apps/platform-lab/src/mobile/Dashboard.tsx</a>; normalized SHA-256 <code>72c9f44592a4486d9a95e27549fdec7dcbd2062389420dce6d081d779c6725da</code>.</p>
 <h4 id="chapter-implementation-inventory-literal-colors-4">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><i class="swatch" style="background:#67533c" aria-hidden="true"></i><code>#67533c</code></td><td>73</td></tr>
+<tr><td><i class="swatch" style="background:#67533c" aria-hidden="true"></i><code>#67533c</code></td><td>77</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-typography-declarations-4">Typography declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>fontSize: 12</code></td><td>73, 79, 80</td></tr>
-<tr><td><code>fontSize: 13</code></td><td>80</td></tr>
-<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>63, 80</td></tr>
-<tr><td><code>lineHeight: 18</code></td><td>73, 79, 80</td></tr>
+<tr><td><code>fontSize: 12</code></td><td>77, 83, 84</td></tr>
+<tr><td><code>fontSize: 13</code></td><td>84</td></tr>
+<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>67, 84</td></tr>
+<tr><td><code>lineHeight: 18</code></td><td>77, 83, 84</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-geometry--opacity-declarations-8">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>borderRadius: 4</code></td><td>77</td></tr>
-<tr><td><code>gap: 10</code></td><td>73, 76</td></tr>
-<tr><td><code>gap: 12</code></td><td>70, 71, 75</td></tr>
-<tr><td><code>gap: 4</code></td><td>78</td></tr>
-<tr><td><code>gap: 5</code></td><td>77</td></tr>
-<tr><td><code>gap: 7</code></td><td>79</td></tr>
-<tr><td><code>gap: 8</code></td><td>72</td></tr>
-<tr><td><code>height: 7</code></td><td>77</td></tr>
-<tr><td><code>maxWidth: 520</code></td><td>70</td></tr>
-<tr><td><code>minHeight: 44</code></td><td>76</td></tr>
-<tr><td><code>minHeight: 48</code></td><td>72</td></tr>
-<tr><td><code>minHeight: 52</code></td><td>71</td></tr>
-<tr><td><code>minHeight: 88</code></td><td>74</td></tr>
-<tr><td><code>minWidth: 0</code></td><td>73</td></tr>
-<tr><td><code>padding: 14</code></td><td>73</td></tr>
-<tr><td><code>paddingHorizontal: 11</code></td><td>72</td></tr>
-<tr><td><code>paddingHorizontal: 14</code></td><td>74</td></tr>
-<tr><td><code>paddingVertical: 14</code></td><td>74</td></tr>
-<tr><td><code>width: &#x27;100%&#x27;</code></td><td>70</td></tr>
-<tr><td><code>width: 7</code></td><td>77</td></tr>
+<tr><td><code>borderRadius: 4</code></td><td>81</td></tr>
+<tr><td><code>gap: 10</code></td><td>77, 80</td></tr>
+<tr><td><code>gap: 12</code></td><td>74, 75, 79</td></tr>
+<tr><td><code>gap: 4</code></td><td>82</td></tr>
+<tr><td><code>gap: 5</code></td><td>81</td></tr>
+<tr><td><code>gap: 7</code></td><td>83</td></tr>
+<tr><td><code>gap: 8</code></td><td>76</td></tr>
+<tr><td><code>height: 7</code></td><td>81</td></tr>
+<tr><td><code>maxWidth: 520</code></td><td>74</td></tr>
+<tr><td><code>minHeight: 44</code></td><td>80</td></tr>
+<tr><td><code>minHeight: 48</code></td><td>76</td></tr>
+<tr><td><code>minHeight: 52</code></td><td>75</td></tr>
+<tr><td><code>minHeight: 88</code></td><td>78</td></tr>
+<tr><td><code>minWidth: 0</code></td><td>77</td></tr>
+<tr><td><code>padding: 14</code></td><td>77</td></tr>
+<tr><td><code>paddingHorizontal: 11</code></td><td>76</td></tr>
+<tr><td><code>paddingHorizontal: 14</code></td><td>78</td></tr>
+<tr><td><code>paddingVertical: 14</code></td><td>78</td></tr>
+<tr><td><code>width: &#x27;100%&#x27;</code></td><td>74</td></tr>
+<tr><td><code>width: 7</code></td><td>81</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-dataupdateindicatortsx">DataUpdateIndicator.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/DataUpdateIndicator.tsx">apps/platform-lab/src/mobile/DataUpdateIndicator.tsx</a>; normalized SHA-256 <code>20980a9ebe71fda784060d8e896301bff5a90921bbaa415d15075d86ac1101c2</code>.</p>
@@ -673,108 +678,108 @@
 <tr><td><code>width: &#x27;100%&#x27;</code></td><td>56</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-mobileapptsx">MobileApp.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/MobileApp.tsx">apps/platform-lab/src/mobile/MobileApp.tsx</a>; normalized SHA-256 <code>779c2e1a638037487a0db88b2f482d262a97cf5e46e20d3feb49a600e0d3e379</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/MobileApp.tsx">apps/platform-lab/src/mobile/MobileApp.tsx</a>; normalized SHA-256 <code>3f1587eb8a4dd3c28962caa7b4d85c9bb106bb974aa92c40cfbb3194aed76a3b</code>.</p>
 <h4 id="chapter-implementation-inventory-literal-colors-8">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><i class="swatch" style="background:#00c8ff" aria-hidden="true"></i><code>#00c8ff</code></td><td>240</td></tr>
-<tr><td><i class="swatch" style="background:#064240" aria-hidden="true"></i><code>#064240</code></td><td>277</td></tr>
-<tr><td><i class="swatch" style="background:#10282d" aria-hidden="true"></i><code>#10282d</code></td><td>277</td></tr>
-<tr><td><i class="swatch" style="background:#11263a" aria-hidden="true"></i><code>#11263a</code></td><td>276</td></tr>
-<tr><td><i class="swatch" style="background:#152d42" aria-hidden="true"></i><code>#152d42</code></td><td>278</td></tr>
-<tr><td><i class="swatch" style="background:#1b344a" aria-hidden="true"></i><code>#1b344a</code></td><td>281</td></tr>
-<tr><td><i class="swatch" style="background:#227f87" aria-hidden="true"></i><code>#227f87</code></td><td>277</td></tr>
-<tr><td><i class="swatch" style="background:#78efdc" aria-hidden="true"></i><code>#78efdc</code></td><td>279</td></tr>
-<tr><td><i class="swatch" style="background:#8ba4bc" aria-hidden="true"></i><code>#8ba4bc</code></td><td>239, 274</td></tr>
+<tr><td><i class="swatch" style="background:#00c8ff" aria-hidden="true"></i><code>#00c8ff</code></td><td>242</td></tr>
+<tr><td><i class="swatch" style="background:#064240" aria-hidden="true"></i><code>#064240</code></td><td>279</td></tr>
+<tr><td><i class="swatch" style="background:#10282d" aria-hidden="true"></i><code>#10282d</code></td><td>279</td></tr>
+<tr><td><i class="swatch" style="background:#11263a" aria-hidden="true"></i><code>#11263a</code></td><td>278</td></tr>
+<tr><td><i class="swatch" style="background:#152d42" aria-hidden="true"></i><code>#152d42</code></td><td>280</td></tr>
+<tr><td><i class="swatch" style="background:#1b344a" aria-hidden="true"></i><code>#1b344a</code></td><td>283</td></tr>
+<tr><td><i class="swatch" style="background:#227f87" aria-hidden="true"></i><code>#227f87</code></td><td>279</td></tr>
+<tr><td><i class="swatch" style="background:#78efdc" aria-hidden="true"></i><code>#78efdc</code></td><td>281</td></tr>
+<tr><td><i class="swatch" style="background:#8ba4bc" aria-hidden="true"></i><code>#8ba4bc</code></td><td>241, 276</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-typography-declarations-9">Typography declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>fontSize: 10</code></td><td>228, 239, 274</td></tr>
-<tr><td><code>fontSize: 11</code></td><td>233, 275</td></tr>
-<tr><td><code>fontSize: 12</code></td><td>277, 282</td></tr>
-<tr><td><code>fontSize: 13</code></td><td>229, 276</td></tr>
-<tr><td><code>fontSize: 16</code></td><td>281</td></tr>
-<tr><td><code>fontSize: 20</code></td><td>275</td></tr>
-<tr><td><code>fontSize: 23</code></td><td>280</td></tr>
-<tr><td><code>fontSize: 25</code></td><td>282</td></tr>
-<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>275, 277</td></tr>
-<tr><td><code>fontWeight: &#x27;700&#x27;</code></td><td>282</td></tr>
-<tr><td><code>letterSpacing: .6</code></td><td>274</td></tr>
-<tr><td><code>lineHeight: 16</code></td><td>239, 274, 275</td></tr>
-<tr><td><code>lineHeight: 17</code></td><td>277</td></tr>
-<tr><td><code>lineHeight: 18</code></td><td>282</td></tr>
-<tr><td><code>lineHeight: 25</code></td><td>275</td></tr>
-<tr><td><code>lineHeight: 29</code></td><td>282</td></tr>
+<tr><td><code>fontSize: 10</code></td><td>230, 241, 276</td></tr>
+<tr><td><code>fontSize: 11</code></td><td>235, 277</td></tr>
+<tr><td><code>fontSize: 12</code></td><td>279, 284</td></tr>
+<tr><td><code>fontSize: 13</code></td><td>231, 278</td></tr>
+<tr><td><code>fontSize: 16</code></td><td>283</td></tr>
+<tr><td><code>fontSize: 20</code></td><td>277</td></tr>
+<tr><td><code>fontSize: 23</code></td><td>282</td></tr>
+<tr><td><code>fontSize: 25</code></td><td>284</td></tr>
+<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>277, 279</td></tr>
+<tr><td><code>fontWeight: &#x27;700&#x27;</code></td><td>284</td></tr>
+<tr><td><code>letterSpacing: .6</code></td><td>276</td></tr>
+<tr><td><code>lineHeight: 16</code></td><td>241, 276, 277</td></tr>
+<tr><td><code>lineHeight: 17</code></td><td>279</td></tr>
+<tr><td><code>lineHeight: 18</code></td><td>284</td></tr>
+<tr><td><code>lineHeight: 25</code></td><td>277</td></tr>
+<tr><td><code>lineHeight: 29</code></td><td>284</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-geometry--opacity-declarations-19">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>borderRadius: 12</code></td><td>277</td></tr>
-<tr><td><code>borderRadius: 13</code></td><td>277</td></tr>
-<tr><td><code>borderRadius: 14</code></td><td>272</td></tr>
-<tr><td><code>borderRadius: 15</code></td><td>279</td></tr>
-<tr><td><code>borderRadius: 16</code></td><td>281, 282</td></tr>
-<tr><td><code>borderRadius: 17</code></td><td>278</td></tr>
-<tr><td><code>borderRadius: 18</code></td><td>280</td></tr>
-<tr><td><code>borderRadius: 2</code></td><td>282</td></tr>
-<tr><td><code>borderRadius: 20</code></td><td>281</td></tr>
-<tr><td><code>borderRadius: 22</code></td><td>276</td></tr>
-<tr><td><code>borderRadius: 24</code></td><td>276</td></tr>
-<tr><td><code>borderRadius: 9</code></td><td>277</td></tr>
-<tr><td><code>borderWidth: 1</code></td><td>276, 277, 280, 281</td></tr>
-<tr><td><code>gap: 1</code></td><td>275</td></tr>
+<tr><td><code>borderRadius: 12</code></td><td>279</td></tr>
+<tr><td><code>borderRadius: 13</code></td><td>279</td></tr>
+<tr><td><code>borderRadius: 14</code></td><td>274</td></tr>
+<tr><td><code>borderRadius: 15</code></td><td>281</td></tr>
+<tr><td><code>borderRadius: 16</code></td><td>283, 284</td></tr>
+<tr><td><code>borderRadius: 17</code></td><td>280</td></tr>
+<tr><td><code>borderRadius: 18</code></td><td>282</td></tr>
+<tr><td><code>borderRadius: 2</code></td><td>284</td></tr>
+<tr><td><code>borderRadius: 20</code></td><td>283</td></tr>
+<tr><td><code>borderRadius: 22</code></td><td>278</td></tr>
+<tr><td><code>borderRadius: 24</code></td><td>278</td></tr>
+<tr><td><code>borderRadius: 9</code></td><td>279</td></tr>
+<tr><td><code>borderWidth: 1</code></td><td>278, 279, 282, 283</td></tr>
+<tr><td><code>gap: 1</code></td><td>277</td></tr>
 <tr><td><code>gap: 10</code></td><td>208</td></tr>
-<tr><td><code>gap: 18</code></td><td>196, 271, 279</td></tr>
-<tr><td><code>gap: 2</code></td><td>282</td></tr>
-<tr><td><code>gap: 3</code></td><td>274, 277</td></tr>
-<tr><td><code>gap: 4</code></td><td>282</td></tr>
-<tr><td><code>gap: 5</code></td><td>276</td></tr>
-<tr><td><code>gap: 6</code></td><td>280, 281</td></tr>
-<tr><td><code>gap: 7</code></td><td>276, 279</td></tr>
-<tr><td><code>gap: 8</code></td><td>254, 256, 278, 281</td></tr>
-<tr><td><code>height: 2</code></td><td>282</td></tr>
-<tr><td><code>height: 30</code></td><td>279</td></tr>
-<tr><td><code>height: 48</code></td><td>272, 281</td></tr>
-<tr><td><code>maxHeight: 150</code></td><td>281</td></tr>
+<tr><td><code>gap: 18</code></td><td>196, 273, 281</td></tr>
+<tr><td><code>gap: 2</code></td><td>284</td></tr>
+<tr><td><code>gap: 3</code></td><td>276, 279</td></tr>
+<tr><td><code>gap: 4</code></td><td>284</td></tr>
+<tr><td><code>gap: 5</code></td><td>278</td></tr>
+<tr><td><code>gap: 6</code></td><td>282, 283</td></tr>
+<tr><td><code>gap: 7</code></td><td>278, 281</td></tr>
+<tr><td><code>gap: 8</code></td><td>256, 258, 280, 283</td></tr>
+<tr><td><code>height: 2</code></td><td>284</td></tr>
+<tr><td><code>height: 30</code></td><td>281</td></tr>
+<tr><td><code>height: 48</code></td><td>274, 283</td></tr>
+<tr><td><code>maxHeight: 150</code></td><td>283</td></tr>
 <tr><td><code>maxWidth: 480</code></td><td>208</td></tr>
-<tr><td><code>maxWidth: 520</code></td><td>117, 254, 256, 279</td></tr>
-<tr><td><code>maxWidth: 599</code></td><td>270, 282</td></tr>
-<tr><td><code>maxWidth: 600</code></td><td>192, 240</td></tr>
-<tr><td><code>maxWidth: 720</code></td><td>226</td></tr>
-<tr><td><code>maxWidth: 960</code></td><td>192, 240</td></tr>
-<tr><td><code>minHeight: 126</code></td><td>279</td></tr>
-<tr><td><code>minHeight: 34</code></td><td>278</td></tr>
-<tr><td><code>minHeight: 36</code></td><td>273</td></tr>
-<tr><td><code>minHeight: 40</code></td><td>276</td></tr>
-<tr><td><code>minHeight: 48</code></td><td>276, 278</td></tr>
-<tr><td><code>minHeight: 52</code></td><td>281</td></tr>
-<tr><td><code>minHeight: 64</code></td><td>277</td></tr>
-<tr><td><code>minHeight: 66</code></td><td>277</td></tr>
-<tr><td><code>minHeight: 68</code></td><td>282</td></tr>
-<tr><td><code>minHeight: 86</code></td><td>280</td></tr>
-<tr><td><code>minWidth: 0</code></td><td>275, 276</td></tr>
-<tr><td><code>opacity: .45</code></td><td>231</td></tr>
-<tr><td><code>padding: 0</code></td><td>278</td></tr>
-<tr><td><code>padding: 10</code></td><td>271</td></tr>
-<tr><td><code>padding: 16</code></td><td>280</td></tr>
-<tr><td><code>padding: 18</code></td><td>271</td></tr>
-<tr><td><code>padding: 4</code></td><td>274, 281</td></tr>
-<tr><td><code>padding: 6</code></td><td>282</td></tr>
-<tr><td><code>padding: 7</code></td><td>277</td></tr>
-<tr><td><code>paddingHorizontal: 12</code></td><td>276</td></tr>
-<tr><td><code>paddingHorizontal: 16</code></td><td>278</td></tr>
-<tr><td><code>paddingHorizontal: 6</code></td><td>277</td></tr>
-<tr><td><code>paddingHorizontal: 7</code></td><td>277</td></tr>
-<tr><td><code>paddingHorizontal: 8</code></td><td>281</td></tr>
-<tr><td><code>paddingVertical: 10</code></td><td>277</td></tr>
-<tr><td><code>paddingVertical: 4</code></td><td>276</td></tr>
-<tr><td><code>paddingVertical: 8</code></td><td>282</td></tr>
-<tr><td><code>width: &#x27;100%&#x27;</code></td><td>117, 196, 197, 198, 208, 239, 254, 256, 270, 278, 279, 282</td></tr>
-<tr><td><code>width: &#x27;32%&#x27;</code></td><td>282</td></tr>
-<tr><td><code>width: &#x27;49.2%&#x27;</code></td><td>278</td></tr>
-<tr><td><code>width: 24</code></td><td>282</td></tr>
-<tr><td><code>width: 30</code></td><td>279</td></tr>
-<tr><td><code>width: 42</code></td><td>276</td></tr>
-<tr><td><code>width: 48</code></td><td>272, 281</td></tr>
-<tr><td><code>width: 64</code></td><td>277</td></tr>
+<tr><td><code>maxWidth: 520</code></td><td>117, 256, 258, 281</td></tr>
+<tr><td><code>maxWidth: 599</code></td><td>272, 284</td></tr>
+<tr><td><code>maxWidth: 600</code></td><td>192, 242</td></tr>
+<tr><td><code>maxWidth: 720</code></td><td>228</td></tr>
+<tr><td><code>maxWidth: 960</code></td><td>192, 242</td></tr>
+<tr><td><code>minHeight: 126</code></td><td>281</td></tr>
+<tr><td><code>minHeight: 34</code></td><td>280</td></tr>
+<tr><td><code>minHeight: 36</code></td><td>275</td></tr>
+<tr><td><code>minHeight: 40</code></td><td>278</td></tr>
+<tr><td><code>minHeight: 48</code></td><td>278, 280</td></tr>
+<tr><td><code>minHeight: 52</code></td><td>283</td></tr>
+<tr><td><code>minHeight: 64</code></td><td>279</td></tr>
+<tr><td><code>minHeight: 66</code></td><td>279</td></tr>
+<tr><td><code>minHeight: 68</code></td><td>284</td></tr>
+<tr><td><code>minHeight: 86</code></td><td>282</td></tr>
+<tr><td><code>minWidth: 0</code></td><td>277, 278</td></tr>
+<tr><td><code>opacity: .45</code></td><td>233</td></tr>
+<tr><td><code>padding: 0</code></td><td>280</td></tr>
+<tr><td><code>padding: 10</code></td><td>273</td></tr>
+<tr><td><code>padding: 16</code></td><td>282</td></tr>
+<tr><td><code>padding: 18</code></td><td>273</td></tr>
+<tr><td><code>padding: 4</code></td><td>276, 283</td></tr>
+<tr><td><code>padding: 6</code></td><td>284</td></tr>
+<tr><td><code>padding: 7</code></td><td>279</td></tr>
+<tr><td><code>paddingHorizontal: 12</code></td><td>278</td></tr>
+<tr><td><code>paddingHorizontal: 16</code></td><td>280</td></tr>
+<tr><td><code>paddingHorizontal: 6</code></td><td>279</td></tr>
+<tr><td><code>paddingHorizontal: 7</code></td><td>279</td></tr>
+<tr><td><code>paddingHorizontal: 8</code></td><td>283</td></tr>
+<tr><td><code>paddingVertical: 10</code></td><td>279</td></tr>
+<tr><td><code>paddingVertical: 4</code></td><td>278</td></tr>
+<tr><td><code>paddingVertical: 8</code></td><td>284</td></tr>
+<tr><td><code>width: &#x27;100%&#x27;</code></td><td>117, 196, 197, 198, 208, 241, 256, 258, 272, 280, 281, 284</td></tr>
+<tr><td><code>width: &#x27;32%&#x27;</code></td><td>284</td></tr>
+<tr><td><code>width: &#x27;49.2%&#x27;</code></td><td>280</td></tr>
+<tr><td><code>width: 24</code></td><td>284</td></tr>
+<tr><td><code>width: 30</code></td><td>281</td></tr>
+<tr><td><code>width: 42</code></td><td>278</td></tr>
+<tr><td><code>width: 48</code></td><td>274, 283</td></tr>
+<tr><td><code>width: 64</code></td><td>279</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-ownflightstsx">OwnFlights.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/OwnFlights.tsx">apps/platform-lab/src/mobile/OwnFlights.tsx</a>; normalized SHA-256 <code>419fce4b11bcf4509a367f70ad51db822bfb2ce95c886bf41f1c76b90015acc7</code>.</p>
@@ -898,7 +903,7 @@
 <tr><td><code>gap: 8</code></td><td>19</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-season-modelts">season-model.ts</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/season-model.ts">apps/platform-lab/src/mobile/season-model.ts</a>; normalized SHA-256 <code>1e954ba6395f44ea50fe544e3448df6cb1a7732ab902d80d2f2bb829fec0ac26</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/season-model.ts">apps/platform-lab/src/mobile/season-model.ts</a>; normalized SHA-256 <code>c50b9ebf0f5e04ccd8d109547636d587c0bc5e19d0479912d4b1395b8702cdc1</code>.</p>
 <h4 id="chapter-implementation-inventory-literal-colors-11">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><i class="swatch" style="background:#3595fe" aria-hidden="true"></i><code>#3595fe</code></td><td>3</td></tr>
@@ -943,24 +948,27 @@
 <tr><td><code>width: 8</code></td><td>33</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-seasonringtsx">SeasonRing.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/SeasonRing.tsx">apps/platform-lab/src/mobile/SeasonRing.tsx</a>; normalized SHA-256 <code>8529259cecc973cdbcd0c9e69d7853967b2b455379e21a9797fdce20025bcf7d</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/SeasonRing.tsx">apps/platform-lab/src/mobile/SeasonRing.tsx</a>; normalized SHA-256 <code>328637e46333af7cbbed0a0e376b60d3a6b180a641df618b41d288fee080a79a</code>.</p>
 <h4 id="chapter-implementation-inventory-typography-declarations-14">Typography declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>fontSize: 10</code></td><td>64</td></tr>
-<tr><td><code>fontSize: 12</code></td><td>65</td></tr>
-<tr><td><code>fontSize: 16</code></td><td>63</td></tr>
-<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>65</td></tr>
-<tr><td><code>fontWeight: &#x27;700&#x27;</code></td><td>63</td></tr>
-<tr><td><code>lineHeight: 14</code></td><td>64</td></tr>
-<tr><td><code>lineHeight: 18</code></td><td>65</td></tr>
-<tr><td><code>lineHeight: 21</code></td><td>63</td></tr>
+<tr><td><code>fontSize: 10</code></td><td>77</td></tr>
+<tr><td><code>fontSize: 12</code></td><td>76, 78</td></tr>
+<tr><td><code>fontSize: 14</code></td><td>73, 75</td></tr>
+<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>75, 76, 78</td></tr>
+<tr><td><code>fontWeight: &#x27;700&#x27;</code></td><td>73</td></tr>
+<tr><td><code>lineHeight: 14</code></td><td>77</td></tr>
+<tr><td><code>lineHeight: 17</code></td><td>76</td></tr>
+<tr><td><code>lineHeight: 18</code></td><td>78</td></tr>
+<tr><td><code>lineHeight: 19</code></td><td>73, 75</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-geometry--opacity-declarations-26">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>gap: 3</code></td><td>62</td></tr>
-<tr><td><code>gap: 4</code></td><td>58</td></tr>
-<tr><td><code>gap: 7</code></td><td>59</td></tr>
-<tr><td><code>minWidth: 0</code></td><td>58, 62</td></tr>
+<tr><td><code>gap: 2</code></td><td>74</td></tr>
+<tr><td><code>gap: 4</code></td><td>67</td></tr>
+<tr><td><code>gap: 7</code></td><td>68</td></tr>
+<tr><td><code>minWidth: 0</code></td><td>67</td></tr>
+<tr><td><code>minWidth: 40</code></td><td>57</td></tr>
+<tr><td><code>opacity: .5</code></td><td>71</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-symbolicontsx">SymbolIcon.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/SymbolIcon.tsx">apps/platform-lab/src/mobile/SymbolIcon.tsx</a>; normalized SHA-256 <code>e831bc49e9d8fb846893a5011f828e458f78feae6e0b8d350a4464db96a639f4</code>.</p>
@@ -1063,14 +1071,14 @@
 <tr><td><code>shadowOpacity: .5</code></td><td>29</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-updateresulttsx">UpdateResult.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/UpdateResult.tsx">apps/platform-lab/src/mobile/UpdateResult.tsx</a>; normalized SHA-256 <code>bad65f07770370862cf2fd87a7daa72fdc0c3eced82b10d419ac269115b5e958</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/UpdateResult.tsx">apps/platform-lab/src/mobile/UpdateResult.tsx</a>; normalized SHA-256 <code>101d4d00ee6162607207a9c4145d2cc4d0149372b2532895fbde1783db0b9b34</code>.</p>
 <h4 id="chapter-implementation-inventory-geometry--opacity-declarations-30">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>gap: 20</code></td><td>23</td></tr>
-<tr><td><code>gap: 5</code></td><td>18</td></tr>
-<tr><td><code>maxWidth: 520</code></td><td>18</td></tr>
-<tr><td><code>paddingVertical: 8</code></td><td>18</td></tr>
-<tr><td><code>width: &#x27;100%&#x27;</code></td><td>18</td></tr>
+<tr><td><code>gap: 20</code></td><td>24</td></tr>
+<tr><td><code>gap: 5</code></td><td>19</td></tr>
+<tr><td><code>maxWidth: 520</code></td><td>19</td></tr>
+<tr><td><code>paddingVertical: 8</code></td><td>19</td></tr>
+<tr><td><code>width: &#x27;100%&#x27;</code></td><td>19</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-accessprobetsx">AccessProbe.tsx</h3>
 <p>Retained app-owned lab/adapter surface; document its existing appearance as an exception. Source: <a href="../../../apps/platform-lab/src/vereinsflieger/AccessProbe.tsx">apps/platform-lab/src/vereinsflieger/AccessProbe.tsx</a>; normalized SHA-256 <code>5b64a01f9baeb968fb58ee20855e1694e2c53b06f6348f1c4e36dad3377239ff</code>.</p>
@@ -1206,7 +1214,7 @@
 <p><strong>22 October Start feedback — Manuel, #54:</strong> requested visible startup feedback, one monthly chart and no Start detail entry points. Implemented with local preparation wording, a shared Flüge/Flugstunden chart controlled by measure chips, and two read-only recent-flight boxes. This supersedes two simultaneous monthly plots and season/month/latest-flight drill-downs. Richer filtered analytics remain planned in Flüge under #9; this feedback does not approve their full implementation. Native acceptance is recorded separately in the package report.</p>
 <p><strong>22 October follow-up — Manuel, #54:</strong> explicitly retains the latest two known saved flights in separate boxes within Meine Saison, emphasizing date, aircraft, crew and recorded duration. Boxes precede the chart so recency is easier to find. Source date/known clock orders distinct flights; missing same-day clock ordering is stated, unknown duration/crew stay unknown. Boxes do not open details.</p>
 <h3 id="chapter-history-23-october-startheader-refinement">23 October Start/header refinement</h3>
-<p>Manuel selected larger branding, Profile lower right, compact Data/Medical faces, red Medical cross, full-width warm-tinted realistic season artwork, a two-row latest flight, concentric year comparisons and small monthly bar values. <a href="#chapter-alternative-ui-startheader-refinement--23-october-2026">Current contract</a>, <a href="https://github.com/MomoRC-tech/MoFlight-App-framework/issues/20">#20</a>. Earlier 46-unit branding, four separate circles and compact schematic season image are historical. Broader statistics requested for review remain under #9; selection, implementation and native evidence stay separate.</p></section>
+<p>Manuel selected larger branding, initially Profile lower right, compact Data/Medical faces, red Medical cross, full-width warm-tinted realistic season artwork, a two-row latest flight, concentric year comparisons and small monthly bar values. His subsequent 23 October correction places the logo at left spanning a compact title-above-controls group beside it, with Profile at the upper-right edge and the existing header photo cropped. This supersedes the lower-right Profile/separate controls row. <a href="#chapter-alternative-ui-startheader-refinement--23-october-2026">Current contract</a>, <a href="https://github.com/MomoRC-tech/MoFlight-App-framework/issues/20">#20</a>. Earlier 46-unit branding, four separate circles and compact schematic season image are historical. Broader statistics requested for review remain under #9; selection, implementation and native evidence stay separate.</p></section>
 <section id="symbol-catalogue"><h2>Symbols, icons and state marks</h2><p>Maintained source: symbols.json. Original assets are embedded unchanged. Native View marks are schematic SVG redraws, enlarged on neutral tiles; glyph rendering depends on fonts. Browser samples do not establish native acceptance.</p>
 <h3>Main navigation</h3><p>Five persistent destinations. Selected icons use cyan/slate duotone; inactive ones use the muted duotone variant. Labels retain #00c8ff / #adbed5. The tab label and accessible selected state carry meaning too.</p><div class="entries">
 <article class="entry" id="N01"><div class="entry-head"><div class="sample" role="img" aria-label="Home / Übersicht sample"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAYAAABS3GwHAAAABmJLR0QA/wD/AP+gvaeTAAAatUlEQVR4nO2de5RcRZ3Hv3W7ZyYhT2YyM8lMJvNKSDAhoIB5aFAwD5iAEbN6WNEcN2cFQSXLP7v7X3L4x3P2D1ejZ115HFgVFwMiQTJhJUZdIgFW1ASDcCZmksxkpudJiHnQTHf99o9+zL23b91H9+1HTX4fTkPfqrpVdae/37pVv75dAAzDMAzDMAzDMAzDMAzDMAzDMAzDMAzDMAzDMAzDMAzDMAzDMAzDMAzDMAzDMAzDMAzDMAzDMAzDMEx5EeXuwOXGYqKaGWfP3kNEd0PgGgAA4U0hxJMX5s59+LgQ8TJ38bKCDVBCVp492w6SzxJwHSiVRtYifzIM47NH587tLX3vLk/YACVixfj4SgDdAJrJnkkWI8QMadzx5/q5vy9d7y5f2AAlYMXY2EYJ8TSA2eb0HCOkEwm4AMJdb9fXvlCSDl7GGOXuwFTnQ2Nj25MQLxAwmwBImnyR6ZVKI0gQCDSDBD23dHT8vnL3f6rDd4BiQSSWjY7vhBA7gcxoT7YiDqfZEwR299TVPgghZDG6ebnDBigCy4mqE2NjjxGJL9rznKY9pMgwJT2dvHBu28n29vdD6yQDgA0QOktHRmYRjD0E3JpJ8zXSe5Ql4CCqja0nr7zybDg9ZQA2QKgsHRlpSpKxD8B1QQXumJZ7azhmSKPrRFPt6YI6ymRhA4REZ2x8BQzqJkKLPc+vwJWmsWYOCik3n2pu+GP+vWUysAFCoGNodD1B/AymMGcBAleWpck35yRh60DzvAP59TiX686+S5IImUhVJjJFIEvUSgIgopzjweZ6LbXEYdACaR8a3SYJ3UQ0WxIh8yKilHiQEolz2NOUnilnK+sYNgVmQ2D/goGRr4R1Hcm0qJMy1VYyfR2Z42yaJCSzx8ge6woboAAWxcZ2JAlPSKBKJXDKQ+DSVNbZNAQiioLwg/lnRnaFcS1ZQROQlORwbEqTJoOkj3UlWu4OaAlRdNHg6PeJ6B8tyTlvPKYyyrKKaVPu80MCwM7GMyPNQ03z7oMQCe/OOyMlIGGa2mRMS5RzbJ3+pNJ0Rct5WzlpjMVmVMmqnwK0GfAvcMotkRSgB0mI94nwHwCiigfknNNsZYlwQMaNreNL6s75vBQLV42MUWb+nxI4mQSeEbzdIJPH77U1aKklvgMEoG14eH4iYbwgQdcDcBnpHUZwa9m4AG0bXNiwBwAaz4wOE9FPAFxhP9GvGQhYL2roUG3/WNf4wrp+/1eVIju9gvMi13ycNUj2rhC0tcpBS9eWg/mDYx8SkroBtDo+2OB/2jNOSdoy0tpwyJxf1zf6UQP0CwAN3ncQRVpqKnJGJmnz2Y7GI8qLcaB9aIwyoraO/PY7AVnWMZk7wcWORi21xItgHzT0j61BUv6WiFqzIrEvepG7cHVY4J6QAmvt4geAsZZ5rxtSrpES71jOz9SJzKhrizSlX5KyEadmRMSv5/aOfCLINWYXtIpFbpImyzhFinSFDeBBQ9/QVgF5UALzfAjcQbTZ9NeNeHLNaHP9O6q2hlobT0wY1Wsl0SGVwMlUr7J9wpVSyF/OPjnyBb/XaQ5tZkOiZBO6qT17GV1hA7hQ3ze8g2DskYRpPgTuHOsHkAT21kQnbh5aPH/Yq81zLXPG58gLGyCxx0XgFjM4P2ItqiXRj2f2Du3yc63mUT/3+4DcUX/yrpBK0xUt521FhyhS3z/yHYL4mu3XWtZi9iOHsgQ8enZRffAQJVFk9qmRbwP4emEP0xEI4tGLp+rvw83qPjT2j5A9tGle5GbSzIYzrw+wdL6WWtKy08Wkrbd32vnorB8S0ef8CDydk5tGIEH00Nn2xl2F9GdG7/AOAXwL6bu1s8AVfTJnCOy9NC35BTQ1XXRqp75vhNwWuarHI7K3wasXaKklLTtdLGb199dFk9V7AXzMnK4QuCPp5Dggtp9rq/+JsjEicdXI2DfJENO9fvAy/a9DW4XAjwBMt7Rj64PrnYoAQXg9KuiO8w5TsdrTI2QPbWa/BINzVGhyMQJgORtAa+acGuoQJPZD4KogIz2QY4Z3CeLO8+31v1W1tbiHasTc8ScIuAsECODnl+IX7+5vabmkOmd6z9AaMvA8gHmOffJhhnTaCSNhdMWXWRfjc08Nk/tDcJPfCE8ufjD5WsEG0JbZvbFVQhjPE9CQkxls2nNSGEbX+bZ5f1G1tfy992rfjyeeE8A6Wz2vimT1p48vmDWiOrfm+PBigPYDWOxr2qPoJ0DjMIwtic7JcOys3uH0N8H2Rx8m08hR/On3K5u01NJlHwWa1Tv0GQnjoCQ05ERwPKMtlrj8UZmMrHMT/9LY2fZ4PPE7AOsydQJZHa2WRvxwx/DwEtX58cUNx+MRsU4S3lCGYpF+ZAGK7wpS05xamZQHIj2Dn8/UrXoILhMFoqzYaVL45pCYplzWBpjZO/wAQTwD4AofAof5H2kRBl66mIyuu7RE/QhCx+jojQkjeZiAZYA1hJq5yxBEJ1HkcOfQ2Fplp9sbYhMX6RNS0D6VwMliBlgWtSbT1CSleApvD/4zoIr9A5Q52Sx2y8iQuQg90fK2VTBEYuaJ4Z0ksNPvVEKRBAl6/IN3G+/FDWJC1dziobGNJPAMEWa51ZdqlwDgggG668T8evW+QEQRoyf2PYL4qr0ypRzVOt1dHRUPKBe5GSc5TX0yr+ubtdSSlp0uiJ6emunR2Y9D4u/tWQHn1QTCQx8scQ9zdgyPbQfhPwFUObVhEr29D0kh8I2TjfO+71Y/3o7tgMC/AxAuArdVnlswEhXui1zzsXQwwo0LtdSSlp3Olzmnzl4ZT8SfA3BTJs3vwtGmnQQE3T+xeP4jysaIRMfw+E4g9y5DtkadTZE92H16QZ37vkDvDG0D0SMgVCuvwMMcIpL2j+tI72CKzFRoFRugopnWO9hGCbEfQizzIXD7W3PJ8yTo88nFC/ar2lp+jKovzht7DEjtC0TWfznWbTeiLf/pyPt/c98X6FjsFgh6FsAc524rz0wREc5il/AwQvr96hYttaRlp4NSfWJopZToFkCzD4G7mWFQCmMzlqh3ZFg+PDzzIkWeJuBWs6odBW9645lPOFgz3fjsidra91Rt463YChDtA7DIuTIn0gKOCO9R3zL1seWtZQNUJNGeoY0AshvTkkJxPu4Kxygqu9DZpNyTp2VkpCmSNPYBdJ1TnR6jvB9THAOMrgG3fYHeHmlCIpntQ1bgbhAAISbLek5/zHeH9PuPL9JSS1M6DBrpiW0nohfMOzb4DBFan6wEDlK0+mNu4u+Mja+IJMVhAl2X0Qlg0ks60awvwKopkFVnDvnLAflq05nhDysveln9AISxDpJetMzRVa9Mvj20mQ17knMI1L5W0JSpaQAiYbwzuEsSHrPv2KAQuEWEtlHwR0iM3YZO9dSjNTZ6SwLyEKWnHr5Eb853F70pn0BECyTE/y4YGL4VKpY3nMfYgjtAeMRV/LnXCqtpzCOFhyk0RcvblivHjlUjWvcYAOvGtH6mATkFaTeWLfgnCKE8e9HQ6JcE4VECqj2nN175pjdky3HIT4Bw/1BLvWskCn8aSO9Q7XAJqqsich7lCc4GIQA3t2qppal1B3h7ZBYitXtB+KLnKKd8ASAkQbgfVzftcBV/bGwHJP6LKCV+z5HeKR/OI316vHebHkVJ4AcNfS77AglB+HDzLoC2g8SE7zsBRGpNkB39YXs2xNQZvgNUCG+PNAHJfaDM4s+E79EfAHABUtyFa+a7fgvbGhv7LgH35TXSO+YrR3rnrprzhXh8JFbn+m00/nhmAwjPILN9o+vfxOS0JAEJs3sV79e3aaklLTudw1uxFQB1A7kb0wJw/7CteTFIuh0rm95QFW+MxWZUUfQpAdxuOT2IYE3vyFZYeb5HG0LQS1Qjto7W1/9N1Xe80bcSMLoBag7wN0kZYEIqvhNIH29s11JL+k+BjsU+BaJDILQ43s5doyCWqc9xiMQ6N/G3Dw01VlP0NwBud5ma+J/awJRPDuc75KsuQUqxAZdwqK5vtFn5t7q+5SgM4+OQ+Ivv6RAh9R1BNC0Vp4WxvjMgzQ3w1uA2EO0HYY63wB1eWXOIw4jTGixvOa5qqmVoqHMiGXmZCDcUJHpzvk/R+82XwEoiermud3SZ8m/24QUn8X7yYyD81t+AkW4oAqDKtC4wN64x+hrgzYEdkPQEiKq8Be76ehbnE5/CDU2jqqaaY2OrKRk5TMCSgkXvdD5M+XmbIvtYdLs05CtzTw9nn3fKYV3ru7jy0iYQ/bfPoEDqZQigxrBehOboN2/bQxFcPfg9AF/1/BDc8lN5u3HtAtcHzRYOjN5JwJNI/x43WyXZmyC45yNYfvrAPT/3B/Gm47gQ4svvLqp/CiqIBF7t3wmBnY6dySlv+u/FpDX6M7PqCdTE7sENN6gX4hWIXgY4EpsBIX8KYDMAPwJ3OgCAJCQexEeav+vW3MKBsR0E+hZl7pRlFz35MIXl2N/OFIf7vgLgP0Aue8VS9l+Tx++nNwcCgBkRADiAaHwrVi/Ja4PecqCPAY4Nz0ci8QKAnI1pHZ2gNkcckrbh+oV7lCWIRFNs7JuQ+Jfc6ipe9E75u8+11bs/Uv2701sAWDfoVVZoIi5TUaIrIqljgTcxYXTh5oWBN+gtB3oY4A+DH4Ih0xvTpvE9+lsYhxRbcENTzt6cGRb39NRcvKL2CYDuKproPU0Riujt+T//WzR+N1x2nsArfR+FxC8Asm4O4PW3npBAlWFOOwMjsRnrOgJt0FsOKt8Af+hfAyGs24HkNfenE5CiCzc2K/fmXNj3Xm3SSDwHSPuODcUQpO049aCeOh8F5wN4FYnkp88vWaDceQIvn+oA0A2IpeqKyPGtjXchjDtxU4tye5hKoLIN8IeBrQD9GMA0S7rriOSY+TqqonfgWvXenI2xWLuRjHRT+kfr4SxSC1rEZooUlm9LJEF/TUpxW7yzoQcqXumrRULuBfDx/AabLB9A0j/gljb1BmFlpnLDoL8f2AGiPSBMAwHZl30HWrewHQEg2gsYN7uJf/7g6I0iGTlMhGWwVQNbdbA1FTzftJODUz6sl1NwPll3swCh0xB0ePrxIfXOE2tbxpGUG0DYk/v3NH8WLnmp/GoAP8avencp2yozlXcH2EMRtPd/B0J8zTHfaz5qQTyKC02um8I2DYxtlFI+Q3DZsUGHkd7WIc87AXCBQHfFO12eedpDEdT3fRugrzvm2yt1zM/yKIxW18+iHFSWAX7dOw0zq34I4HOO+f5vxwTQQ1jVssuteOOZ4e0gkbtjQ8HTHyrcNAhB9N7ToySAb8Q7G913nvj1qR0gym7Q61iZHcd8sReXqr6AO5w36C0HlWOA1/rrIJCzMa0Fu4KcDgXiALZjVYvrxrTz+0et+wJdPqK33wlAoN0TnY3uYdKDJ7eCTBv05mUAAgivg5J3YNNiz/9XQimoDAP836kOUGQ/CFdNJnp8knZS+e+CcCfWqiMPy49R9cic0dQPZrxE72kKfUXvkP/0RPTiNrjtPHHg5BoAz4OsG/Tm1Oz9WZ2ApC7c1qGMyJWK8hvgcN8qGHge5LAxrRnPub84CZHowpo25d6c9cPDM0VcpHZsUFXtKdgQRB/YFHmIPj9THEwYVZ91+/knXjy+GEZ0P0CLlWW8DJBiHIbcgg2dyu9kSkF5DfDa6c+AxJMArvAWuAuSjiJqbMZq9beP806PNAmBfQByd2zwIfpix+hzBZljOz+juHu+6U1uPmX6eUxG3He/wL7e+Yhi8lv5/ImDaBtu7VB/K19kymeAw30PIPV/Pol43zJdChBeQjT+d27PnzSeHl9BIrlPmvfL8RylKzJyE3K+1Q2mfM/9j/A/sRkQF38KEpuVZfxBEPhXbGz/twLryYvSG4BI4JX+yScQU2ku5d3qwuOYPnyv2xOIdf2jtwhK75jGoncTvfWYcJ7I+ByWNbwIFXsogrknvwfCV5Vl/LMbh9sexC6XhXgRKK0BuntqMKfmccC0Ma33gkmRSg9hXesut1Pr+ke/JCSldmxQVekl+lIsYm0nlVH09vwEgPux1GUPVAD4Ze8OUHqD3kIQeBYzo1/EWpfnlUKmdAZ4+dSVEMKyMS0ArxHeKTH1odzU6vqh1J4a3iGEyH4ok1WRj+lPCUSf3yI1QD55n2964/ynzlRFD+HqBbucimR58cQ2CPEIbINNHryKZOLT6Fqifl4pREpjgEOnm0A4AOBqS7rLX12Rfw4SW3Fz6wFlW0SRur7R78KyYwOL3nLsLXqntMdxwf3/g4AX/7oewvgZMjtP5M9fICLrsXHRQIH1eFJ8A3T31GBmzWsArk0luArcLe8MDKMLN7UcVZ3SGIvNSExEniLC7aGIPrApShautLZXPNHbMukliKqtWOay88T+EythiG4A6h/n++MIkolV6FoSL7AeV4r/MNwV1feA6Nqch9X8/V4383oTFFntJv6GE0ONEx8Yv5GSbk89bKaoipDTlUD5OWUsj5p51gFbPpzyTWVA9vx0W+lrzM13OJ+s+Y6dsqTbMrOHYgNk4hDe6VOL+7aOo0gmVgN4U1nGH9ciErmnwDo8Kb4BBN0dQOgmc2RV8iskEuvcfmE05/RQZyIiUjs2IPezLfjpSlOZnKcrc/Ldz/dvLPPLKvqg5nW8qJx0lehzyq9EIvoyjg6od57oWtIPQ64D0a+UZXwh7i7sfG+KbwAS13gIXPECQPgRRi90YUOn8pvJ2t7YakOKw9K+Y0Ohojfnk13ywUSfzyhtFr1zvlW3OaO800XlpPsWvT29HYZ4BW8NqHee2ND5HmpO3QoI9wiSO9cUcK4vir8GOHjyPIAZljT7H9gxj3bjU22uG9POPTl0J4SY3LHBVjLncwyUr1W4Ul2pqnG38q51WIgD8stY0ey+88QvT+4ETN/7+Eacx6a2Wd7l8qcEdwD8OXf0d30lAHEv1re7bkw799TwDkA8Q4TpoY30cBjpLXeCEEb6nPzJH8gUZ6Q3NW4vS/ayqjocGkzVWwMSP8GbZ3ZBhRCETe27ANwLBP0tAB0LVj44xTeAFE96iz/9B5U4D8IWrG992KtaInyb0v0vquidzjeVCUX0TuejSKL3XYdDg+bp6WSyAImd8GJT+8MQ2AKI855lJyt/0n/Z/Ci+ASY+eBigI57zfYkYSHwSG9u6/VRr+Yxs1eXko9yiNy9iQxa9fRApjeid6/BiY1s3ID4JIOaj9BEkk54DYaEU3wBdS+KQkS5IHHEe/QEQjgBiLTa1KjemzcHhswld9Ob8gkTv8/x8RG/OLFj05j+qT9EHNcKm1jcAsRaA25YpRyAiXcX+DgAo1Y/iNy4aQDKxCqAHALwG4GL69RpADyCZWIVNbb1BqlR6yfL5BYvR+8p3LRNyuDJs0TvWrRB80LqDsKmt11MPJfgWGCj37wEKYGbvMAG4DCI3DgU8y3uVdRB7oXVf16SlltR7QVY4ZBLH1BO9Q6Zvcbs0GLbo874FVA76GsD2x/eM8dsSWfT51O3zTqQR2hoAKJHovc43vSlY9GGM0Cz6QGhrAFKIrjDRl/rpSlUFQdMVos+7bh99nCJG0NcA5vcF3Ql8it4lX5lYNNGHNJ+3pBcgeo3NoK8BChqlQxB9WFOHShF9WHVrhr4GUB0rp0bkke9+vjrR4WTf5b3K6iB6lz5qgLYGAPzM9ytE9GEJKm9DsehVaGsA9SK42KJ3yCy16H2VDVn09oWWVx2aoK8BLO/J9fMOXfTFHkXzEn3Y0y9MWdGb0dgAU0j0Yczng9YTlug1N4O2BnDSUt6iD0NQbg2WWvSB6768RG9GWwOQ+b9u091ijqKqBkMxDpz7GFrdAUQ/hY2grwHynto4FCh46qCD6MO+E7kV0gd9DeCZYE+vUNGrBKWD6PXXv74GABBsEasqH4aggtZTTNGHNZ8P0keNjaCvARxXwCVcxKrKl3zNgeKKfgrP/wGdDQCUXvRhzOeD1hPGItZX3UVYaGuAvgZwexour/QyiD5w3Sz6sNHYAIWmFzlyoypfTNGHtYgNbCh93aCvAcxUiugrcs1hOwitbn1Fb0ZfA/j+wDSI3IQ+/bIdlGPNoQn6GiCDrqKvpHDlZSZ6M/oaoNDpTdiRm480l3ZfnNf6ydKB0KZ2Iaw5NEJfAwAou+jLSpjrGYeMir728NDXAF6/hPedXkA95RSDve1yiH4KmEFfAwCVFa4sB2GEK8Nac2iKvgYIPAKWMFxZCkjxPqdMkUSvv/YB6GwAoHJEXw4xhBW58XU9eS60NUBfAyhHwCksehUs+ryZGgao1Bh9MSnKL7pCDqlqgL4GyFf0xZw6lItSi76Srr1A9DVApYi+XGLIW/QeA0deo7++jtDXABnCiH8HraeSQoEs+oLQ1wDFGunDEFQp8GvMsObzQUOqmqCvATIEjdHrLHonSi36Srr2ENDXAE6LudBu7w4HlTT/t7QdtugDjPJTwAz6GgAIL3Kji+gtBLzLqdKDTm0q5vrDQV8DhPYwnOlAp/i3ve3Ad78QRD8FzKCvAYACPjAf83kdPvRSiz7oeksD9DVA4BGwCKJXTcFKASne55QJW/Qed0vNmDoGcEwPWfSVFAoMQ/S+rz3PKaIG6GsAM2GIXuf4d5BwJYvegr4GKKroQ4ouFZNSi36KCN6OvgbIN1yps+idOsCiLwh9DVBq0VeaEQqd01fa9ZQJfQ2QIQzRhzWKlgMWfUHoa4BC5/QFid7HmqPY+AkDs+g90dcAGcIIV+oiejuXaeQmTPQ1gOMIWCTRV6KgyPamEvuoAfoaAAgvcqOL6C3w9CYM9DVAIQ/DhTV1qIg7AFjwBaCvAYDCQ4GByufRZjFh0YeCvgbwMwKGIXrXsqxC3ZkaBlCm+4jchCF69oG26GsAM0FEn9eUh0U/VdHXAGFEbsIQPRtBa/Q1QClEX4nRHyZU9DVAsaY3OoVCmYLR1wAZAi9uw/622K0gU+noawBfD4OhuKJn3WuPvgYAiit6x7Is+qmGvgYoxsNwQUXPZtAefQ0AhBOuDOsRCUZL9DWAn4fhWPQMwzAMwzAMwzAMwzAMwzAMwzAMwzAMwzAMwzAMwzAMwzAMwzAMwzAMwzAMwzAMwzAMwzAMwzAMwzAMwzAMwzAMwzAMU0H8Py92YirMi5QUAAAAAElFTkSuQmCC" alt="Selected duotone home"></div><div><p class="eyebrow">N01 · Current native UI · selected duotone</p><h4>Home / Übersicht</h4></div></div><dl>
@@ -1269,7 +1277,7 @@
 <dt>Source</dt><dd><a href="../../../apps/platform-lab/src/mobile/SymbolIcon.tsx">apps/platform-lab/src/mobile/SymbolIcon.tsx</a><br>duotone-assets.ts; symbols/glyphs.svg #chain</dd></dl></article>
 <article class="entry" id="H04"><div class="entry-head"><div class="sample" role="img" aria-label="Medical / Med sample"><img src="data:image/png;base64,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" alt="Selected duotone medical-card"><span class="mini-label">Med<br>unbekannt</span></div><div><p class="eyebrow">H04 · Current native UI · selected duotone</p><h4>Medical / Med</h4></div></div><dl>
 <dt>Appearance</dt><dd>Selected M2 Medical card: rounded credential card, cyan top band, red medical cross and slate document fields. Med with earliest strictly parsed recorded expiry, or unbekannt; partial source warnings remain visible.</dd>
-<dt>Where</dt><dd>App header lower left, beside Data; Profile is at the lower right.</dd>
+<dt>Where</dt><dd>App header beside Data below the title, alongside the logo; Profile is at the upper right.</dd>
 <dt>Meaning</dt><dd>Availability of saved own Medical source text; never a validity or fitness verdict.</dd>
 <dt>Function / action</dt><dd>Tap opens read-only original class/expiry text with source and retrieval time, or an unknown-state explanation.</dd>
 <dt>States / limits</dt><dd>Source-date reminder: earliest recorded expiry including expired; red for past, amber through six calendar months inclusive, quiet later. Missing/ambiguous/partial source explicit; raw text retained. No fitness or legal eligibility judgment. Selected state follows the open sheet.</dd>
@@ -1361,18 +1369,18 @@
 <dt>States / limits</dt><dd>Currently Kein Wetterbericht / no dated source. The cloud is a placeholder category icon, not a measured cloudy-weather report.</dd>
 <dt>Source</dt><dd><a href="../../../apps/platform-lab/src/mobile/SymbolIcon.tsx">apps/platform-lab/src/mobile/SymbolIcon.tsx</a><br>duotone-assets.ts; symbols/glyphs.svg #weather</dd></dl></article>
 <article class="entry" id="D07"><div class="entry-head"><div class="sample" role="img" aria-label="Season flight count sample"><span><strong>12</strong><small> Flüge</small></span></div><div><p class="eyebrow">D07 · Current native UI</p><h4>Season flight count</h4></div></div><dl>
-<dt>Appearance</dt><dd>Two concentric aircraft-share rings with labelled year totals: current outside, prior inside.</dd>
+<dt>Appearance</dt><dd>Current-year value centered in concentric aircraft-share rings; prior-year label/value outside. Prior inner ring uses the same hues at50% opacity. ↑/↓/↔ indicate positive/negative/zero signed saved-count difference.</dd>
 <dt>Where</dt><dd>Dashboard Meine Saison, Starts comparison.</dd>
 <dt>Meaning</dt><dd>Deduplicated saved selected-account flight count for the current season.</dd>
 <dt>Function / action</dt><dd>Read-only; Alle Flüge ansehen opens the general Flüge view.</dd>
-<dt>States / limits</dt><dd>Zero and unknown differ. Unknown durations remain explicit. Measures stack at enlarged text; shared aircraft legend remains.</dd>
+<dt>States / limits</dt><dd>Saved yearly counts may cover unequal/incomplete periods. Measures stack and rings grow at enlarged text; shared aircraft legend remains. No performance or complete-year claim.</dd>
 <dt>Source</dt><dd><a href="../../../apps/platform-lab/src/mobile/Dashboard.tsx">apps/platform-lab/src/mobile/Dashboard.tsx</a><br>SeasonRing; seasonRingSlices; real-flight-statistics.summarizeRealFlights</dd></dl></article>
 <article class="entry" id="D08"><div class="entry-head"><div class="sample" role="img" aria-label="Season known flight time sample"><span><strong>4:30 h</strong><small> bekannt</small></span></div><div><p class="eyebrow">D08 · Current native UI</p><h4>Season known flight time</h4></div></div><dl>
-<dt>Appearance</dt><dd>Two concentric aircraft-share rings with labelled year totals: current outside, prior inside.</dd>
+<dt>Appearance</dt><dd>Current-year time centered in concentric aircraft-share rings; prior-year label/value outside. Prior inner ring uses the same hues at50% opacity. ↑/↓/↔ accompany exact signed hour/minute differences; Δ — means unavailable difference.</dd>
 <dt>Where</dt><dd>Dashboard Meine Saison, known-hours comparison.</dd>
 <dt>Meaning</dt><dd>Known reported flight minutes for the saved selected-account season.</dd>
 <dt>Function / action</dt><dd>Read-only; Alle Flüge ansehen opens the general Flüge view.</dd>
-<dt>States / limits</dt><dd>Zero and unknown differ. Unknown durations remain explicit. Measures stack at enlarged text; shared aircraft legend remains.</dd>
+<dt>States / limits</dt><dd>Missing or partly unknown durations cannot become a numeric delta. Saved years may cover unequal/incomplete periods. Measures stack and rings grow at enlarged text; shared aircraft legend remains.</dd>
 <dt>Source</dt><dd><a href="../../../apps/platform-lab/src/mobile/Dashboard.tsx">apps/platform-lab/src/mobile/Dashboard.tsx</a><br>SeasonRing; seasonRingSlices; real-flight-statistics.summarizeRealFlights</dd></dl></article>
 <article class="entry" id="K01"><div class="entry-head"><div class="sample" role="img" aria-label="Next club duty sample"><img src="data:image/png;base64,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" alt="Selected duotone duty"></div><div><p class="eyebrow">K01 · Current native UI · selected duotone</p><h4>Next club duty</h4></div></div><dl>
 <dt>Appearance</dt><dd>Selected soft-filled cyan/slate duotone duty silhouette; local RGBA PNG from the editable SVG master. default palette in this context.</dd>
@@ -1627,9 +1635,11 @@ Implementation and source-specific verification are recorded in the [loading rep
 
 ## Start/header refinement — 23 October 2026
 
-Manuel requested the following refinement under [#20](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/20#issuecomment-6352511938). It supersedes the earlier scoped geometry below: the unchanged Thermik logo is 88 dp (previously 46), with title alongside; Profile occupies the header&#x27;s lower right over the existing ASK-21 artwork. Data and Medical use compact 40 dp faces inside minimum 48 dp targets, icons beside two-line labels, and system-scaled text. Medical&#x27;s cross is red in the maintained SVG and generated native family; it is decorative and does not change source-date status meaning.
+Manuel requested the following refinement under [#20](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/20#issuecomment-6352511938), then corrected the header composition on 23 October: the unchanged 88 dp Thermik logo spans the compact header&#x27;s left side. Beside it, the title sits above the synchronization/Medical row; those two rows together are roughly the logo&#x27;s height at ordinary text size. Profile occupies the upper-right edge. This supersedes the preceding lower-right Profile and separate full-width controls row. Data and Medical use compact 40 dp faces inside minimum 48 dp targets, icons beside two-line labels, and system-scaled text. Long titles and enlarged text may grow and wrap the header. Medical&#x27;s cross is red in the maintained SVG and generated native family; it is decorative and does not change source-date status meaning.
 
-Meine Saison uses the same realistic artwork across its complete heading width, beneath the text, with a warm amber/brown overlay instead of the former small schematic image. The ordinary latest-flight summary has two rows: date/age and duration, then aircraft and recorded PIC. Long source text and enlarged text may reflow; the same-day ambiguity warning remains separate. Each measure has one concentric comparison: current year outside, prior year inside, with explicit year/position labels and stable aircraft colours. The circles describe each year&#x27;s aircraft shares, not comparative total magnitude. Empty/unknown time retains an unfilled track. Hours and starts remain separate.
+Meine Saison uses the same realistic artwork across its complete heading width, beneath the text, with a warm amber/brown overlay instead of the former small schematic image. The ordinary latest-flight summary has two rows: date/age and duration, then aircraft and recorded PIC. Long source text and enlarged text may reflow; the same-day ambiguity warning remains separate. Each measure has one concentric comparison: current year outside, prior year inside, with stable aircraft colours. Manuel&#x27;s further 23 October instructions put the current-year number and small year label in the center, with a small prior-year label/value and signed difference outside. Both starts and flight time use ↑ for an increase, ↓ for a decrease and ↔ for no change; exact time differences use hours or hours:minutes, such as +4 h or +0:05 h. Differences come from numeric saved totals, never parsed display strings. Missing or partly unknown time yields Δ —, not invented zero. A visible saved-year-values note and accessible descriptions retain unequal/incomplete-period uncertainty; no like-for-like performance claim is made.
+
+The shared renderer uses outer88/inner70 dp rings at ordinary text size and grows their geometry with system font scaling; enlarged-text comparisons stack as before. The inner prior-year ring is composited at 50% opacity, retaining the same aircraft hues. Outer current-year colors and aircraft legend mapping stay unchanged. The circles describe each year&#x27;s aircraft shares, not comparative total magnitude. Empty/unknown time retains an unfilled track. Hours and starts remain separate.
 
 Monthly bars now have small rotated values immediately above them, keeping all twelve months and both years visible. Hours use exact hours:minutes, zero stays zero, unknown is ?, partial values retain · and future months stay blank. Compact chart value/axis labels cap font scaling at 1; full values remain in accessible month descriptions. Broader statistics were requested for review only, under #9; this UI refinement does not authorize all pending analytics.
 
@@ -1654,7 +1664,7 @@ The baseline makes too many elements equally prominent: tiny header title beside
 
 The initial [flight-scene.svg](flight-scene.svg), [flight-scene.png](../../../apps/platform-lab/assets/aviation/flight-scene.png) and compact [flight-scene-detail.png](../../../apps/platform-lab/assets/aviation/flight-scene-detail.png) remain preserved. Manuel rejected the schematic permanent-header artwork and requested a more realistic ASK-21-like aircraft and airflow on 22 October. The replacement [ask21-flight-header-v2.png](../../../apps/platform-lab/assets/aviation/ask21-flight-header-v2.png) is original built-in image-generation output, copied unchanged into the repository; no third-party photograph was copied. Its aircraft proportions were guided by [Schleicher&#x27;s ASK21 reference](https://www.alexander-schleicher.de/en/flugzeuge/ask-21/) (two-seat canopy, mid-wing, double-taper wings and T-tail). It is an illustrative likeness, not a certified aircraft drawing or CFD result.
 
-[FlightScene](../../../apps/platform-lab/src/mobile/FlightScene.tsx) contains the full aircraft inside the existing header without participating in layout height. The phone scene is330×110, blended into the navy canvas along its left/bottom edges; the shallow wide header uses192×64 in the gap before controls. Enlarged text subdues the decorative image to preserve title readability. The compact88×44 season artwork remains unchanged. The scene establishes no observed aircraft, location, weather or measured track. Original logo/reference images remain preserved.
+[FlightScene](../../../apps/platform-lab/src/mobile/FlightScene.tsx) keeps the existing aircraft artwork behind the header without participating in layout height. The 23 October compact-header correction crops that artwork at the header bounds; it does not replace or resize the source bitmap. The phone scene is330×110 and the wide scene420×140, blended into the navy canvas. Enlarged text subdues the decorative image to preserve title readability. The season reuses the same image beneath its heading with the selected warm wash. The scene establishes no observed aircraft, location, weather or measured track. Original logo/reference images remain preserved.
 
 ### Header artwork generation prompt
 
@@ -1745,10 +1755,10 @@ The native shell uses the platform default family; it does not configure Inter. 
 | Section heading | 19 / 26 | 600. |
 | Body / action label | 15 / 22 | Regular / 600 for actions. |
 | Profile name input | 16 / platform default | System-scaled editable text. |
-| Dashboard / summary value | 18 / 24 for ring-adjacent season values | 700; KPI unit 16. |
+| Dashboard / summary value | Ring center14/19; prior value14/19; difference12/17 | Current700/prior600; native text scales and ring geometry grows with it. |
 | Supporting text / tab label | Supporting text varies; tabs 12 / 18 | Secondary emphasis; selected tabs 700. |
 | Medical label / status | 12 / 16 and 12 / 17 | Med is 600; status quieter, with date/unknown semantics preserved. |
-| Season ring value / label | 18 / 24 and 11 / 16 | Saved starts and known reported hours beside concentric 64/46-unit rings; measure pairs stack at enlarged text. |
+| Season ring year / measure label | 10 / 14 and 12 / 18 | Current value inside concentric88/70-unit rings, prior year and difference outside; measure pairs stack at enlarged text. |
 
 Sources: theme, AppHeader, Dashboard, MobileApp, [ProfileSettings](../../../apps/platform-lab/src/mobile/ProfileSettings.tsx), MedicalStatus and [SeasonRing](../../../apps/platform-lab/src/mobile/SeasonRing.tsx). Icon-glyph font sizes describe artwork, not body hierarchy. The generated inventory lists literal typography declarations. Selected icon raster palettes are recorded separately in the [native asset manifest](../../../apps/platform-lab/assets/icons/duotone/manifest.json); their artwork remains unchanged while branch body/text tokens differ.
 
@@ -1765,7 +1775,7 @@ Use the documented component context. The branch uses 18 dp page spacing, shared
 | Medical group | Minimum 72 × 48, radius 12; grows with text | Icon beside Med/date text; 40-unit face within minimum48 target. |
 | Field / composer | Profile radius 12, minimum height 48; provider radius 10; composer radius 20 | Context-specific forms. |
 | Tab / artwork | Tab minimum height 68, radius 16; artwork 28 in soft tile 36 / radius 12; label 12 | Five equal destinations. |
-| Season comparison | Season card padding 14; two concentric charts with outer64/inner46 and thickness5, adjacent values and shared aircraft legend | Current/prior calendar-year starts and known time; see the alternative feedback contract. |
+| Season comparison | Season card padding14; concentric outer88/inner70 at font scale1, thickness5; current value centered, prior/delta outside and shared aircraft legend | Prior ring50% opacity; geometry grows with font scale. Exact numeric saved-year differences retain unknown/unequal-period limits; see the alternative contract. |
 
 The branch send target is 48 dp and ordinary flight search minimum height 52 dp. Retained lab faces do not independently prove adequate effective touch regions. [Known gaps](history.md) require actual hit-region review when affected controls change.
 
@@ -1808,14 +1818,14 @@ The 22 October header data-update amendment reuses `#74dfba` for saved data rece
 | C02 | Primary / secondary action | Mint or raised bordered face, radius 16, minimum height 52 | Explicit action label; disabled opacity .5, pressed .72. theme Action. |
 | C03 | Scope chip | Radius 14; face minimum 66 × 40 in a minimum-48-height target | Selected opaque mint fill; selected/disabled semantics. theme Chip. |
 | C04 | Search / input | Ordinary flight search radius 16/minimum height 52; profile radius 12 and font 16; provider radius 10 | Operate on named scope. MobileApp / ProfileSettings / ProviderConnection. |
-| C05 | Shared header | Navy ASK-21 artwork, unchanged logo88, title28/34; title row minimum88, padding14 horizontal | Profile in the lower-right slot over the image; contextual Back and disabled guards preserved. AppHeader / FlightScene. |
+| C05 | Shared header | Cropped navy ASK-21 artwork, unchanged logo88 at left; beside it title28/34 above Data/Medical; padding14 horizontal | Profile at the upper-right edge; title row minimum48 and controls minimum48 give roughly logo-height composition. Enlarged text wraps/grows; contextual Back and disabled guards preserved. AppHeader / FlightScene. |
 | C06 | Header data/status group | Data/Medical 24-unit icons beside two-line labels, minimum40 faces in minimum48 targets; Profile48 | Smaller faces retain full touch targets and scaled text. Red Medical cross is decorative; age/date captions retain separate semantic colours. |
 | C07 | Bottom navigation | Attached dark bar, five equal destinations, minimum target height 68; three-column wrapping below 600 dp with font scale above 1.3 | Icon above full system-scaled German label; final two wrapping items center. Standard text/width retains one row; raised selected tile and bold mint label. MobileApp. |
 | C08 | Update popup / app overlays | Bounded centered navy update frame, radius22, border1, dim scrim; one active dialog, retained native child tree | UpdateDialog frames setup/login/progress/results; underlying page is visible but inert. Other app sheets keep their existing layout. ProviderConnection retains its toolbar/history inside the popup. |
 | C09 | Flight row | Padding 18, radius 20; date/reported duration, registration/model, route and detail chevron | Whole row opens selected-account saved source facts. Source reference/revision/original fields and absent-track context stay in details. Original fields use eight-field pages with concise Zurück / Weiter captions and full provider-field accessibility labels; first/last guards and contextual list return remain. [OwnFlights](../../../apps/platform-lab/src/mobile/OwnFlights.tsx); no inferred role or book assignment. |
 | C10 | AI question / composer | Question radius 18; composer radius 20; send face 48 × 48; input max height 150 | Local questions calculate deterministically; free-text service unavailable. MobileApp. |
 | C11 | Quiet paper entry | Minimum-height 48 row with paper-tone logbook symbol and detail chevron | Associated-account Start offers Papierflugbuch später einrichten and opens the deferred-setup explanation. The former photographic hero remains in the original reference. Synthetic saved paper status stays under Development; viewing never confirms copying. Dashboard / PaperStatus. |
-| C12 | Season comparisons | Two concentric aircraft-share charts, outer64/inner46, thickness5; adjacent labelled year values | Current year outside, prior inside; separate known-hours and starts, stable aircraft colours and explicit unknowns. SeasonRing / Dashboard. |
+| C12 | Season comparisons | Two concentric aircraft-share charts, outer88/inner70 at font scale1, thickness5; current-year value centered; prior-year label/value and exact signed delta outside | Ring geometry grows with system text. Prior inner ring at50% opacity; current outer hues and legend stable. Both time/starts use ↑/↓/↔; unavailable time delta is Δ —. Saved-period uncertainty and unknown tracks remain. SeasonRing / Dashboard. |
 | C13 | Badges / disclosures | Role pill radius 12; session badge minimum 16; details + / − | Role, session evidence and expansion remain separate meanings. MobileApp / ProviderConnection. |
 | C14 | Synthetic import review | Shared C01/C02/C03 cards/actions/choice chips, centered group capped at 520 dp | Development-only comparison, source variants and explicit book choice; [ImportPreview](../../../apps/platform-lab/src/mobile/ImportPreview.tsx). No saved-library import. |
 | C15 | Captured flight review | Shared cards/actions in the connection panel&#x27;s centered 520 dp group; five records per page, eight original fields per detail page | [CapturedFlights](../../../apps/platform-lab/src/mobile/CapturedFlights.tsx) reads owner-scoped saved evidence without requiring provider login. Dates/clocks, reported duration, aircraft and separate crew fields retain unknown/invalid/conflict states; original field text is selectable and untruncated. No book membership or canonical import. |
@@ -1932,7 +1942,7 @@ The Start summary reads committed-library freshness, independently of raw captur
 
 Start remains mounted across ordinary navigation, retaining processed selectors and disclosure state. Identical inputs do not recompute season/month summaries and tab return does not itself reload storage. Duplicate active notifications are ignored; real background/foreground and provider closure still require guarded local revalidation. Ordinary app-switch revalidation retains the last verified screen and completed detail quietly; equal results reuse references, changed evidence invalidates detail, and missing/failed validation removes retained data. Provider/writer admission clears retained data through the active boundary. Never show an unconfirmed owner&#x27;s cached data. These host-tested boundaries are not proof that every reported native reload has been resolved.
 
-Keep header/navigation outside the scrolling canvas. The enlarged unchanged logo and destination share the upper row. Data and Medical sit at the lower left with compact faces inside minimum48 targets; Profile sits at the lower right over the decorative aircraft image. Controls and text reflow at enlarged sizes without overlapping; contextual Back replaces the logo on overlays. See the [23 October refinement](alternative-ui.md#startheader-refinement--23-october-2026) for concentric rings, full-width season artwork and bar labels.
+Keep header/navigation outside the scrolling canvas. The unchanged 88 dp logo spans the left side; beside it the destination title sits above Data and Medical, making a compact two-row group roughly the logo&#x27;s height at ordinary text size. Profile sits at the upper-right edge. The same decorative aircraft image is cropped by the shorter header. Controls retain minimum48 targets; text and controls may wrap and grow at enlarged sizes. Contextual Back replaces the logo on overlays. See the [23 October refinement](alternative-ui.md#startheader-refinement--23-october-2026) for concentric rings, full-width season artwork and bar labels.
 
 App overlays/details replace logo with contextual Back and expose one active accessible header. Return through nested overlays to prior page/filter/scroll state and unsaved local profile-name draft. Identical library reloads preserve the return path; changed book/flight facts invalidate stale details. An active backup/proof operation disables app Back, Profile and Medical until completion; provider Close/history remain separate. Medical opens a read-only source-date explanation, retaining unknown/partial evidence.
 
@@ -2081,46 +2091,46 @@ Retained app-owned lab/adapter surface; document its existing appearance as an e
 
 ## AppHeader.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/AppHeader.tsx](../../../apps/platform-lab/src/mobile/AppHeader.tsx); normalized SHA-256 `c30a157dcf3e95ceac08a9efecfc2d132b0f4d270c863cf9c6b8610dc980cda5`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/AppHeader.tsx](../../../apps/platform-lab/src/mobile/AppHeader.tsx); normalized SHA-256 `c17ddd974fc8e9b95e53dfd7558eac761f03148e6fced788c67c9e72260d2806`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#26444b` | 33 |
+| `#26444b` | 35 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 11` | 41 |
-| `fontSize: 28` | 40 |
-| `fontWeight: &#x27;700&#x27;` | 40 |
-| `letterSpacing: -.7` | 40 |
-| `lineHeight: 16` | 41 |
-| `lineHeight: 34` | 40 |
+| `fontSize: 11` | 44 |
+| `fontSize: 28` | 43 |
+| `fontWeight: &#x27;700&#x27;` | 43 |
+| `letterSpacing: -.7` | 43 |
+| `lineHeight: 16` | 44 |
+| `lineHeight: 34` | 43 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 10` | 42 |
-| `borderRadius: 16` | 43 |
-| `gap: 0` | 34 |
-| `gap: 10` | 35 |
-| `gap: 6` | 37 |
-| `gap: 8` | 36 |
-| `height: 48` | 43 |
-| `height: 88` | 42 |
-| `maxWidth: 960` | 33 |
-| `minHeight: 64` | 34 |
-| `minHeight: 88` | 35 |
-| `minWidth: 0` | 37, 39 |
+| `borderRadius: 10` | 45 |
+| `borderRadius: 16` | 46 |
+| `gap: 0` | 36 |
+| `gap: 10` | 37 |
+| `gap: 6` | 39, 40 |
+| `height: 48` | 46 |
+| `height: 88` | 45 |
+| `maxWidth: 960` | 35 |
+| `minHeight: 48` | 39 |
+| `minHeight: 64` | 36 |
+| `minHeight: 88` | 37 |
+| `minWidth: 0` | 38, 40, 42 |
 | `opacity: .5` | 19 |
-| `paddingHorizontal: 14` | 34 |
-| `width: &#x27;100%&#x27;` | 33 |
-| `width: 48` | 43 |
-| `width: 88` | 42 |
+| `paddingHorizontal: 14` | 36 |
+| `width: &#x27;100%&#x27;` | 35 |
+| `width: 48` | 46 |
+| `width: 88` | 45 |
 
 ## CapturedFlights.tsx
 
@@ -2135,25 +2145,29 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CapturedFlights.t
 
 ## ClubInformation.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ClubInformation.tsx](../../../apps/platform-lab/src/mobile/ClubInformation.tsx); normalized SHA-256 `c82f65fc45d73188b9dfad4d81a7eba95551166d796d055260dc1e66989d6595`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ClubInformation.tsx](../../../apps/platform-lab/src/mobile/ClubInformation.tsx); normalized SHA-256 `2054ab877aeedd126d22d6a902405f6e693ad25af4e055fc93f0027f5d0b6bdc`.
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 12` | 63 |
-| `fontSize: 14` | 58 |
-| `fontWeight: &#x27;600&#x27;` | 58, 60 |
-| `lineHeight: 18` | 63 |
+| `fontSize: 12` | 151 |
+| `fontSize: 14` | 137, 142 |
+| `fontWeight: &#x27;600&#x27;` | 137, 139, 142 |
+| `lineHeight: 18` | 151 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `gap: 12` | 55, 56 |
-| `gap: 2` | 57, 59, 62 |
-| `minWidth: 0` | 59 |
-| `padding: 16` | 55 |
+| `gap: 10` | 147 |
+| `gap: 12` | 134, 135 |
+| `gap: 2` | 136, 138, 144, 150 |
+| `gap: 5` | 141, 148 |
+| `gap: 6` | 145 |
+| `gap: 8` | 143, 149 |
+| `minWidth: 0` | 138, 144 |
+| `padding: 16` | 134 |
 
 ## connection-guidance.ts
 
@@ -2181,61 +2195,61 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ConnectionSummary
 
 ## CoreFlightFoundation.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `55ad4c07a4ed83a21b75113c155632e5df45a1953d67beac32a418282c31711d`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `c61cacaf614dae77eaf918931271763813fcd5041d16a9d0322682661f05f188`.
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `gap: 10` | 136, 137, 543 |
-| `gap: 8` | 569, 595, 605 |
-| `maxWidth: 520` | 137, 543 |
-| `padding: 12` | 136, 543 |
-| `width: &#x27;100%&#x27;` | 137, 543 |
+| `gap: 10` | 139, 140, 556 |
+| `gap: 8` | 582, 608, 618 |
+| `maxWidth: 520` | 140, 556 |
+| `padding: 12` | 139, 556 |
+| `width: &#x27;100%&#x27;` | 140, 556 |
 
 ## Dashboard.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](../../../apps/platform-lab/src/mobile/Dashboard.tsx); normalized SHA-256 `a78b766fb49efd3d9aaafe7e80cab12b17bfc61a034c6dd7826b617923a8b221`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](../../../apps/platform-lab/src/mobile/Dashboard.tsx); normalized SHA-256 `72c9f44592a4486d9a95e27549fdec7dcbd2062389420dce6d081d779c6725da`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#67533c` | 73 |
+| `#67533c` | 77 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 12` | 73, 79, 80 |
-| `fontSize: 13` | 80 |
-| `fontWeight: &#x27;600&#x27;` | 63, 80 |
-| `lineHeight: 18` | 73, 79, 80 |
+| `fontSize: 12` | 77, 83, 84 |
+| `fontSize: 13` | 84 |
+| `fontWeight: &#x27;600&#x27;` | 67, 84 |
+| `lineHeight: 18` | 77, 83, 84 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 4` | 77 |
-| `gap: 10` | 73, 76 |
-| `gap: 12` | 70, 71, 75 |
-| `gap: 4` | 78 |
-| `gap: 5` | 77 |
-| `gap: 7` | 79 |
-| `gap: 8` | 72 |
-| `height: 7` | 77 |
-| `maxWidth: 520` | 70 |
-| `minHeight: 44` | 76 |
-| `minHeight: 48` | 72 |
-| `minHeight: 52` | 71 |
-| `minHeight: 88` | 74 |
-| `minWidth: 0` | 73 |
-| `padding: 14` | 73 |
-| `paddingHorizontal: 11` | 72 |
-| `paddingHorizontal: 14` | 74 |
-| `paddingVertical: 14` | 74 |
-| `width: &#x27;100%&#x27;` | 70 |
-| `width: 7` | 77 |
+| `borderRadius: 4` | 81 |
+| `gap: 10` | 77, 80 |
+| `gap: 12` | 74, 75, 79 |
+| `gap: 4` | 82 |
+| `gap: 5` | 81 |
+| `gap: 7` | 83 |
+| `gap: 8` | 76 |
+| `height: 7` | 81 |
+| `maxWidth: 520` | 74 |
+| `minHeight: 44` | 80 |
+| `minHeight: 48` | 76 |
+| `minHeight: 52` | 75 |
+| `minHeight: 88` | 78 |
+| `minWidth: 0` | 77 |
+| `padding: 14` | 77 |
+| `paddingHorizontal: 11` | 76 |
+| `paddingHorizontal: 14` | 78 |
+| `paddingVertical: 14` | 78 |
+| `width: &#x27;100%&#x27;` | 74 |
+| `width: 7` | 81 |
 
 ## DataUpdateIndicator.tsx
 
@@ -2456,115 +2470,115 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MedicalStatus.tsx
 
 ## MobileApp.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `779c2e1a638037487a0db88b2f482d262a97cf5e46e20d3feb49a600e0d3e379`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `3f1587eb8a4dd3c28962caa7b4d85c9bb106bb974aa92c40cfbb3194aed76a3b`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#00c8ff` | 240 |
-| `#064240` | 277 |
-| `#10282d` | 277 |
-| `#11263a` | 276 |
-| `#152d42` | 278 |
-| `#1b344a` | 281 |
-| `#227f87` | 277 |
-| `#78efdc` | 279 |
-| `#8ba4bc` | 239, 274 |
+| `#00c8ff` | 242 |
+| `#064240` | 279 |
+| `#10282d` | 279 |
+| `#11263a` | 278 |
+| `#152d42` | 280 |
+| `#1b344a` | 283 |
+| `#227f87` | 279 |
+| `#78efdc` | 281 |
+| `#8ba4bc` | 241, 276 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 10` | 228, 239, 274 |
-| `fontSize: 11` | 233, 275 |
-| `fontSize: 12` | 277, 282 |
-| `fontSize: 13` | 229, 276 |
-| `fontSize: 16` | 281 |
-| `fontSize: 20` | 275 |
-| `fontSize: 23` | 280 |
-| `fontSize: 25` | 282 |
-| `fontWeight: &#x27;600&#x27;` | 275, 277 |
-| `fontWeight: &#x27;700&#x27;` | 282 |
-| `letterSpacing: .6` | 274 |
-| `lineHeight: 16` | 239, 274, 275 |
-| `lineHeight: 17` | 277 |
-| `lineHeight: 18` | 282 |
-| `lineHeight: 25` | 275 |
-| `lineHeight: 29` | 282 |
+| `fontSize: 10` | 230, 241, 276 |
+| `fontSize: 11` | 235, 277 |
+| `fontSize: 12` | 279, 284 |
+| `fontSize: 13` | 231, 278 |
+| `fontSize: 16` | 283 |
+| `fontSize: 20` | 277 |
+| `fontSize: 23` | 282 |
+| `fontSize: 25` | 284 |
+| `fontWeight: &#x27;600&#x27;` | 277, 279 |
+| `fontWeight: &#x27;700&#x27;` | 284 |
+| `letterSpacing: .6` | 276 |
+| `lineHeight: 16` | 241, 276, 277 |
+| `lineHeight: 17` | 279 |
+| `lineHeight: 18` | 284 |
+| `lineHeight: 25` | 277 |
+| `lineHeight: 29` | 284 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 277 |
-| `borderRadius: 13` | 277 |
-| `borderRadius: 14` | 272 |
-| `borderRadius: 15` | 279 |
-| `borderRadius: 16` | 281, 282 |
-| `borderRadius: 17` | 278 |
-| `borderRadius: 18` | 280 |
-| `borderRadius: 2` | 282 |
-| `borderRadius: 20` | 281 |
-| `borderRadius: 22` | 276 |
-| `borderRadius: 24` | 276 |
-| `borderRadius: 9` | 277 |
-| `borderWidth: 1` | 276, 277, 280, 281 |
-| `gap: 1` | 275 |
+| `borderRadius: 12` | 279 |
+| `borderRadius: 13` | 279 |
+| `borderRadius: 14` | 274 |
+| `borderRadius: 15` | 281 |
+| `borderRadius: 16` | 283, 284 |
+| `borderRadius: 17` | 280 |
+| `borderRadius: 18` | 282 |
+| `borderRadius: 2` | 284 |
+| `borderRadius: 20` | 283 |
+| `borderRadius: 22` | 278 |
+| `borderRadius: 24` | 278 |
+| `borderRadius: 9` | 279 |
+| `borderWidth: 1` | 278, 279, 282, 283 |
+| `gap: 1` | 277 |
 | `gap: 10` | 208 |
-| `gap: 18` | 196, 271, 279 |
-| `gap: 2` | 282 |
-| `gap: 3` | 274, 277 |
-| `gap: 4` | 282 |
-| `gap: 5` | 276 |
-| `gap: 6` | 280, 281 |
-| `gap: 7` | 276, 279 |
-| `gap: 8` | 254, 256, 278, 281 |
-| `height: 2` | 282 |
-| `height: 30` | 279 |
-| `height: 48` | 272, 281 |
-| `maxHeight: 150` | 281 |
+| `gap: 18` | 196, 273, 281 |
+| `gap: 2` | 284 |
+| `gap: 3` | 276, 279 |
+| `gap: 4` | 284 |
+| `gap: 5` | 278 |
+| `gap: 6` | 282, 283 |
+| `gap: 7` | 278, 281 |
+| `gap: 8` | 256, 258, 280, 283 |
+| `height: 2` | 284 |
+| `height: 30` | 281 |
+| `height: 48` | 274, 283 |
+| `maxHeight: 150` | 283 |
 | `maxWidth: 480` | 208 |
-| `maxWidth: 520` | 117, 254, 256, 279 |
-| `maxWidth: 599` | 270, 282 |
-| `maxWidth: 600` | 192, 240 |
-| `maxWidth: 720` | 226 |
-| `maxWidth: 960` | 192, 240 |
-| `minHeight: 126` | 279 |
-| `minHeight: 34` | 278 |
-| `minHeight: 36` | 273 |
-| `minHeight: 40` | 276 |
-| `minHeight: 48` | 276, 278 |
-| `minHeight: 52` | 281 |
-| `minHeight: 64` | 277 |
-| `minHeight: 66` | 277 |
-| `minHeight: 68` | 282 |
-| `minHeight: 86` | 280 |
-| `minWidth: 0` | 275, 276 |
-| `opacity: .45` | 231 |
-| `padding: 0` | 278 |
-| `padding: 10` | 271 |
-| `padding: 16` | 280 |
-| `padding: 18` | 271 |
-| `padding: 4` | 274, 281 |
-| `padding: 6` | 282 |
-| `padding: 7` | 277 |
-| `paddingHorizontal: 12` | 276 |
-| `paddingHorizontal: 16` | 278 |
-| `paddingHorizontal: 6` | 277 |
-| `paddingHorizontal: 7` | 277 |
-| `paddingHorizontal: 8` | 281 |
-| `paddingVertical: 10` | 277 |
-| `paddingVertical: 4` | 276 |
-| `paddingVertical: 8` | 282 |
-| `width: &#x27;100%&#x27;` | 117, 196, 197, 198, 208, 239, 254, 256, 270, 278, 279, 282 |
-| `width: &#x27;32%&#x27;` | 282 |
-| `width: &#x27;49.2%&#x27;` | 278 |
-| `width: 24` | 282 |
-| `width: 30` | 279 |
-| `width: 42` | 276 |
-| `width: 48` | 272, 281 |
-| `width: 64` | 277 |
+| `maxWidth: 520` | 117, 256, 258, 281 |
+| `maxWidth: 599` | 272, 284 |
+| `maxWidth: 600` | 192, 242 |
+| `maxWidth: 720` | 228 |
+| `maxWidth: 960` | 192, 242 |
+| `minHeight: 126` | 281 |
+| `minHeight: 34` | 280 |
+| `minHeight: 36` | 275 |
+| `minHeight: 40` | 278 |
+| `minHeight: 48` | 278, 280 |
+| `minHeight: 52` | 283 |
+| `minHeight: 64` | 279 |
+| `minHeight: 66` | 279 |
+| `minHeight: 68` | 284 |
+| `minHeight: 86` | 282 |
+| `minWidth: 0` | 277, 278 |
+| `opacity: .45` | 233 |
+| `padding: 0` | 280 |
+| `padding: 10` | 273 |
+| `padding: 16` | 282 |
+| `padding: 18` | 273 |
+| `padding: 4` | 276, 283 |
+| `padding: 6` | 284 |
+| `padding: 7` | 279 |
+| `paddingHorizontal: 12` | 278 |
+| `paddingHorizontal: 16` | 280 |
+| `paddingHorizontal: 6` | 279 |
+| `paddingHorizontal: 7` | 279 |
+| `paddingHorizontal: 8` | 283 |
+| `paddingVertical: 10` | 279 |
+| `paddingVertical: 4` | 278 |
+| `paddingVertical: 8` | 284 |
+| `width: &#x27;100%&#x27;` | 117, 196, 197, 198, 208, 241, 256, 258, 272, 280, 281, 284 |
+| `width: &#x27;32%&#x27;` | 284 |
+| `width: &#x27;49.2%&#x27;` | 280 |
+| `width: 24` | 284 |
+| `width: 30` | 281 |
+| `width: 42` | 278 |
+| `width: 48` | 274, 283 |
+| `width: 64` | 279 |
 
 ## OwnFlights.tsx
 
@@ -2719,7 +2733,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/RawCaptureReview.
 
 ## season-model.ts
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/season-model.ts](../../../apps/platform-lab/src/mobile/season-model.ts); normalized SHA-256 `1e954ba6395f44ea50fe544e3448df6cb1a7732ab902d80d2f2bb829fec0ac26`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/season-model.ts](../../../apps/platform-lab/src/mobile/season-model.ts); normalized SHA-256 `c50b9ebf0f5e04ccd8d109547636d587c0bc5e19d0479912d4b1395b8702cdc1`.
 
 ### Literal colors
 
@@ -2776,29 +2790,32 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/SeasonMonthlyChar
 
 ## SeasonRing.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/SeasonRing.tsx](../../../apps/platform-lab/src/mobile/SeasonRing.tsx); normalized SHA-256 `8529259cecc973cdbcd0c9e69d7853967b2b455379e21a9797fdce20025bcf7d`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/SeasonRing.tsx](../../../apps/platform-lab/src/mobile/SeasonRing.tsx); normalized SHA-256 `328637e46333af7cbbed0a0e376b60d3a6b180a641df618b41d288fee080a79a`.
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 10` | 64 |
-| `fontSize: 12` | 65 |
-| `fontSize: 16` | 63 |
-| `fontWeight: &#x27;600&#x27;` | 65 |
-| `fontWeight: &#x27;700&#x27;` | 63 |
-| `lineHeight: 14` | 64 |
-| `lineHeight: 18` | 65 |
-| `lineHeight: 21` | 63 |
+| `fontSize: 10` | 77 |
+| `fontSize: 12` | 76, 78 |
+| `fontSize: 14` | 73, 75 |
+| `fontWeight: &#x27;600&#x27;` | 75, 76, 78 |
+| `fontWeight: &#x27;700&#x27;` | 73 |
+| `lineHeight: 14` | 77 |
+| `lineHeight: 17` | 76 |
+| `lineHeight: 18` | 78 |
+| `lineHeight: 19` | 73, 75 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `gap: 3` | 62 |
-| `gap: 4` | 58 |
-| `gap: 7` | 59 |
-| `minWidth: 0` | 58, 62 |
+| `gap: 2` | 74 |
+| `gap: 4` | 67 |
+| `gap: 7` | 68 |
+| `minWidth: 0` | 67 |
+| `minWidth: 40` | 57 |
+| `opacity: .5` | 71 |
 
 ## SymbolIcon.tsx
 
@@ -2924,17 +2941,17 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/UpdateDialog.tsx]
 
 ## UpdateResult.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/UpdateResult.tsx](../../../apps/platform-lab/src/mobile/UpdateResult.tsx); normalized SHA-256 `bad65f07770370862cf2fd87a7daa72fdc0c3eced82b10d419ac269115b5e958`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/UpdateResult.tsx](../../../apps/platform-lab/src/mobile/UpdateResult.tsx); normalized SHA-256 `101d4d00ee6162607207a9c4145d2cc4d0149372b2532895fbde1783db0b9b34`.
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `gap: 20` | 23 |
-| `gap: 5` | 18 |
-| `maxWidth: 520` | 18 |
-| `paddingVertical: 8` | 18 |
-| `width: &#x27;100%&#x27;` | 18 |
+| `gap: 20` | 24 |
+| `gap: 5` | 19 |
+| `maxWidth: 520` | 19 |
+| `paddingVertical: 8` | 19 |
+| `width: &#x27;100%&#x27;` | 19 |
 
 ## AccessProbe.tsx
 
@@ -3121,7 +3138,7 @@ Manuel explicitly authorized implementing the simplified #22 journey. Start/Prof
 
 ## 23 October Start/header refinement
 
-Manuel selected larger branding, Profile lower right, compact Data/Medical faces, red Medical cross, full-width warm-tinted realistic season artwork, a two-row latest flight, concentric year comparisons and small monthly bar values. [Current contract](alternative-ui.md#startheader-refinement--23-october-2026), [#20](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/20). Earlier 46-unit branding, four separate circles and compact schematic season image are historical. Broader statistics requested for review remain under #9; selection, implementation and native evidence stay separate.
+Manuel selected larger branding, initially Profile lower right, compact Data/Medical faces, red Medical cross, full-width warm-tinted realistic season artwork, a two-row latest flight, concentric year comparisons and small monthly bar values. His subsequent 23 October correction places the logo at left spanning a compact title-above-controls group beside it, with Profile at the upper-right edge and the existing header photo cropped. This supersedes the lower-right Profile/separate controls row. [Current contract](alternative-ui.md#startheader-refinement--23-october-2026), [#20](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/20). Earlier 46-unit branding, four separate circles and compact schematic season image are historical. Broader statistics requested for review remain under #9; selection, implementation and native evidence stay separate.
 
 SYMBOLS, ICONS AND STATE MARKS
 Modern Duotone is the default symbol family, including M2 Medical card and the folded paper plane. Preserve current stable IDs, labels, meanings, actions, states and approved Thermik branding. Retired icon designs have been removed. Samples are schematic except unchanged source images.
@@ -3215,7 +3232,7 @@ duotone-assets.ts; symbols/glyphs.svg #chain
 H04 · Current native UI · selected duotone
 Medical / Med
 Appearance: Selected M2 Medical card: rounded credential card, cyan top band, red medical cross and slate document fields. Med with earliest strictly parsed recorded expiry, or unbekannt; partial source warnings remain visible.
-Where: App header lower left, beside Data; Profile is at the lower right.
+Where: App header beside Data below the title, alongside the logo; Profile is at the upper right.
 Meaning: Availability of saved own Medical source text; never a validity or fitness verdict.
 Function / action: Tap opens read-only original class/expiry text with source and retrieval time, or an unknown-state explanation.
 States / limits: Source-date reminder: earliest recorded expiry including expired; red for past, amber through six calendar months inclusive, quiet later. Missing/ambiguous/partial source explicit; raw text retained. No fitness or legal eligibility judgment. Selected state follows the open sheet.
@@ -3347,21 +3364,21 @@ duotone-assets.ts; symbols/glyphs.svg #weather
 
 D07 · Current native UI
 Season flight count
-Appearance: Two concentric aircraft-share rings with labelled year totals: current outside, prior inside.
+Appearance: Current-year value centered in concentric aircraft-share rings; prior-year label/value outside. Prior inner ring uses the same hues at50% opacity. ↑/↓/↔ indicate positive/negative/zero signed saved-count difference.
 Where: Dashboard Meine Saison, Starts comparison.
 Meaning: Deduplicated saved selected-account flight count for the current season.
 Function / action: Read-only; Alle Flüge ansehen opens the general Flüge view.
-States / limits: Zero and unknown differ. Unknown durations remain explicit. Measures stack at enlarged text; shared aircraft legend remains.
+States / limits: Saved yearly counts may cover unequal/incomplete periods. Measures stack and rings grow at enlarged text; shared aircraft legend remains. No performance or complete-year claim.
 Source: apps/platform-lab/src/mobile/Dashboard.tsx
 SeasonRing; seasonRingSlices; real-flight-statistics.summarizeRealFlights
 
 D08 · Current native UI
 Season known flight time
-Appearance: Two concentric aircraft-share rings with labelled year totals: current outside, prior inside.
+Appearance: Current-year time centered in concentric aircraft-share rings; prior-year label/value outside. Prior inner ring uses the same hues at50% opacity. ↑/↓/↔ accompany exact signed hour/minute differences; Δ — means unavailable difference.
 Where: Dashboard Meine Saison, known-hours comparison.
 Meaning: Known reported flight minutes for the saved selected-account season.
 Function / action: Read-only; Alle Flüge ansehen opens the general Flüge view.
-States / limits: Zero and unknown differ. Unknown durations remain explicit. Measures stack at enlarged text; shared aircraft legend remains.
+States / limits: Missing or partly unknown durations cannot become a numeric delta. Saved years may cover unequal/incomplete periods. Measures stack and rings grow at enlarged text; shared aircraft legend remains.
 Source: apps/platform-lab/src/mobile/Dashboard.tsx
 SeasonRing; seasonRingSlices; real-flight-statistics.summarizeRealFlights
 
@@ -3614,7 +3631,7 @@ States / limits: Recreated approved variant, not a byte-identical copy of an old
 Source: docs/assets/branding/moflight-app-icon-ai.png
 docs/assets/branding/README.md; app.json
 </textarea></section>
-<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: b15d051c586f4289e49a5141a94e1cfd7b61405b9ec02a605d15a380487aad70. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
+<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: c2fadbf4e466c9d1b3bbbebafbc0177410b3ed1754ea1297366f00b528931e0e. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
 </main><script>
 'use strict';
 const brief = document.querySelector('#brief');

@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import type { Flight } from '../../packages/flight-logbook/src/index.ts';
-import { aircraftSeasonShares, seasonRingSlices } from '../../apps/platform-lab/src/mobile/season-model.ts';
+import { aircraftSeasonShares, seasonRingSlices, seasonDifference } from '../../apps/platform-lab/src/mobile/season-model.ts';
 
 function flight(id: string, registration: string | null, minutes: number | null): Flight {
   return { id, date: '2026-06-01', start: null, landing: null, time_basis: null, minutes,
@@ -41,4 +41,18 @@ test('empty, unknown-only and zero-time snapshots have no fabricated duration ar
   assert.equal(shares[0]?.knownMinutes, null);
   assert.equal(shares[1]?.knownMinutes, 0);
   assert.equal(seasonRingSlices(shares, 'count').reduce((sum, slice) => sum + slice.sweep, 0), 360);
+});
+
+test('season differences retain exact signed starts/minutes and never convert unknown totals to zero', () => {
+  assert.deepEqual(seasonDifference(7, 3, 'starts'), { value: 4, direction: 'up', text: '+4' });
+  assert.deepEqual(seasonDifference(3, 7, 'starts'), { value: -4, direction: 'down', text: '−4' });
+  assert.deepEqual(seasonDifference(300, 60, 'minutes'), { value: 240, direction: 'up', text: '+4 h' });
+  assert.deepEqual(seasonDifference(65, 60, 'minutes'), { value: 5, direction: 'up', text: '+0:05 h' });
+  assert.deepEqual(seasonDifference(60, 125, 'minutes'), { value: -65, direction: 'down', text: '−1:05 h' });
+  assert.deepEqual(seasonDifference(0, 0, 'minutes'), { value: 0, direction: 'equal', text: '0 h' });
+  assert.deepEqual(seasonDifference(5, 5, 'starts'), { value: 0, direction: 'equal', text: '0' });
+  for (const [current, previous] of [[null, 5], [5, null], [null, null]] as const)
+    assert.deepEqual(seasonDifference(current, previous, 'minutes'), { value: null, direction: 'unknown', text: '—' });
+  for (const value of [-1, .5, Infinity, NaN, Number.MAX_SAFE_INTEGER + 1])
+    assert.throws(() => seasonDifference(value, 0, 'minutes'), /Unsafe/);
 });

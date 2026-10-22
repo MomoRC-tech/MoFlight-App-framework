@@ -155,7 +155,7 @@ test('app headers retain Data and Medical with a separate profile action on ever
     f.press('Pressable', title);
     const controls = f.nodes().filter(n => n.type === 'DataUpdateIndicator' || n.type === 'MedicalIndicator' || n.props.accessibilityLabel === 'Profil & Einstellungen öffnen');
     assert.deepEqual(controls.map(n => n.type), ['DataUpdateIndicator', 'MedicalIndicator', 'Pressable']);
-    assert.equal(f.headers()[0]!.props.profile, controls[2], 'Profile stays in the header’s dedicated lower-right slot');
+    assert.equal(f.headers()[0]!.props.profile, controls[2], 'Profile stays in the header’s dedicated upper-right slot');
   }
   assert.deepEqual(f.calls, []);
 });
@@ -521,4 +521,52 @@ test('Verein uses selected account sources in overview and detail routes',()=>{
  assert.equal(f.find('ClubEvents').props.information,information);assert.equal(f.find('ClubEvents').props.readFailed,true);
  f.find('ClubEvents').props.onOpen();f.render();assert.equal(f.find('ClubEvents').props.compact,false);
  assert.equal(f.nodes().some(n=>n.type==='ClubDocumentNotices'),false);
+});
+
+test('actual header groups title and actions beside branding, with Profile above actions and preserved Back',()=>{
+  const headerSource = ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/mobile/AppHeader.tsx', import.meta.url), 'utf8'), {
+    compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.React, esModuleInterop: false },
+  }).outputText;
+  const react = { createElement: (type: unknown, props: Element['props'], ...children: unknown[]): Element => ({type,props:props??{},children:children.flat(Infinity)}) };
+  const style = (node: Element) => Object.assign({}, ...[node.props.style].flat().filter(Boolean));
+  for (const [width,fontScale] of [[360,1],[390,1],[600,1],[360,1.6]] as const) {
+    const exports = {} as { AppHeader: (props: Record<string,unknown>) => Element };
+    const modules: Record<string,unknown> = {
+      react: {default:react}, 'react-native': {
+        Image:'Image',Pressable:'Pressable',Text:'Text',View:'View',StyleSheet:{create:(styles:unknown)=>styles},useWindowDimensions:()=>({width,fontScale}),
+      }, './theme':{colors:{}},'./SymbolIcon':{SymbolIcon:'SymbolIcon'},'./FlightScene':{FlightScene:'FlightScene'},
+    };
+    runInNewContext(headerSource,{exports,require:(name:string)=>name.startsWith('../../assets/')?name:modules[name]});
+    const controls = react.createElement('Controls',{}), profile = react.createElement('Profile',{});
+    let backCalls = 0;
+    for (const hasBack of [false,true]) {
+      const back = () => {backCalls++;};
+      const tree = exports.AppHeader({title:hasBack?'Profil & Einstellungen':'Übersicht',children:controls,profile,back:hasBack?back:undefined,backDisabled:hasBack});
+      const row = tree.children.find((node:any)=>node?.type==='View') as Element;
+      const [branding,body] = row.children as Element[];
+      const [titleRow,actionRow] = body!.children as Element[];
+      assert.equal(style(row).flexDirection,'row');
+      assert.equal(style(body!).minWidth,0,'The text/action column can shrink at phone widths');
+      assert.ok(actionRow!.children.includes(controls));
+      assert.ok((titleRow!.children[1] as Element).children.includes(profile));
+      assert.equal(style(titleRow!.children[1] as Element).alignSelf,'flex-start');
+      const title = (titleRow!.children[0] as Element).children[0] as Element;
+      assert.equal(title.props.accessibilityRole,'header');
+      assert.equal(title.props.numberOfLines,undefined);
+      assert.notEqual(title.props.allowFontScaling,false);
+      assert.equal(style(actionRow!).flexWrap,'wrap');
+      assert.equal(style(body!).height,undefined,'Enlarged text can grow instead of clipping');
+      if (hasBack) {
+        assert.equal(branding!.props.accessibilityLabel,'Zur vorherigen App-Ansicht');
+        assert.equal(branding!.props.disabled,true);
+        assert.equal(branding!.props.onPress,back);
+        assert.ok(style(branding!).width>=48&&style(branding!).height>=48);
+      } else {
+        assert.equal(branding!.props.accessibilityLabel,'MoFlight Thermik Logo');
+        assert.equal(style(branding!).width,88);
+        assert.equal(style(branding!).height,88);
+      }
+    }
+    assert.equal(backCalls,0,'Rendering cannot navigate');
+  }
 });

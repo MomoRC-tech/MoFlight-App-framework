@@ -9,7 +9,7 @@ import type { RealFlightListItem } from '../vereinsflieger/real-flight-library';
 import { latestSavedFlights, abbreviatedCrew, monthlySeasonForCoverage, flightRelativeAge } from './season-dashboard-model';
 import { FlightScene } from './FlightScene';
 import { SeasonRing } from './SeasonRing';
-import { seasonRingSlices } from './season-model';
+import { seasonRingSlices, seasonDifference } from './season-model';
 import { SeasonMonthlyCharts } from './SeasonMonthlyCharts';
 import { planFlightRetrieval, type FlightRetrievalWindow, type SavedFlightRetrieval } from '../vereinsflieger/retrieval-policy';
 const emptyStatistics = summarizeRealFlights([]);
@@ -46,15 +46,19 @@ export function Dashboard({ ownFlights, ownFlightPhase, pending, fontScale, onPa
       </Pressable>;
     })():<Label muted>Noch keine datierten gespeicherten Flüge.</Label>}
     <View style={[styles.rings,fontScale>1.3&&{flexDirection:'column'}]}>
-      <SeasonRing label="Flugstunden · h bekannt" layers={seasons.map((item,index)=>({
+      <SeasonRing label="Flugzeit · h bekannt" difference={seasonDifference(
+        season.knownDurationCount && !season.unknownDurationCount ? season.knownMinutes : null,
+        seasons[1]!.knownDurationCount && !seasons[1]!.unknownDurationCount ? seasons[1]!.knownMinutes : null, 'minutes',
+      )} layers={seasons.map((item,index)=>({
         year:year-index, slices:seasonRingSlices(item.aircraft,'knownMinutes'), value:item.knownDurationCount?formatReportedMinutes(item.knownMinutes):'—',
         description:`${year-index}: ${item.knownDurationCount?formatReportedMinutes(item.knownMinutes)+' Stunden bekannt':'Flugzeit unbekannt'}, ${item.unknownDurationCount} Zeiten unbekannt/strittig. Flugzeit nach Flugzeug: ${item.aircraft.map(a=>`${a.aircraft}: ${a.knownMinutes===null?'unbekannt':formatReportedMinutes(a.knownMinutes)+' h'}`).join(', ')}`,
       }))} />
-      <SeasonRing label="Starts" layers={seasons.map((item,index)=>({
+      <SeasonRing label="Starts" difference={seasonDifference(season.count, seasons[1]!.count, 'starts')} layers={seasons.map((item,index)=>({
         year:year-index, slices:seasonRingSlices(item.aircraft,'count'), value:String(item.count),
         description:`${year-index}: ${item.count} Starts nach Flugzeug: ${item.aircraft.map(a=>`${a.aircraft}: ${a.count}`).join(', ')}`,
       }))} />
     </View>
+    <Label muted style={styles.small}>Differenz gespeicherter Jahreswerte · Zeiträume können unterschiedlich oder unvollständig sein.</Label>
     {seasons[1]!.unknownDurationCount>0&&<Label muted style={styles.small}>{year-1}: {seasons[1]!.unknownDurationCount} Zeiten unbekannt/strittig</Label>}
     {season.unknownDurationCount>0&&<Label muted style={styles.small}>{season.unknownDurationCount} Saisonzeiten unbekannt/strittig</Label>}
     {(processed?.statistics.unknownDateCount??0)>0&&<Label muted style={styles.small}>{processed?.statistics.unknownDateCount} Flüge mit unbekanntem Datum nicht zugeordnet.</Label>}

@@ -167,4 +167,50 @@ test('each concentric comparison keeps current outside and prior inside without 
  assert.deepEqual(rings.map(n=>Array.from(n.props.layers,(l:any)=>[l.year,l.value])),[[[2026,'1:35'],[2025,'0:30']],[[2026,'1'],[2025,'1']]]);
  assert.equal(rings[0]!.props.layers[0].slices[0].color,rings[0]!.props.layers[1].slices[0].color);
  assert.match(rings[0]!.props.layers[0].description,/2026.*1:35/);
+ assert.deepEqual(rings.map(ring=>ring.props.difference),[season.seasonDifference(95,30,'minutes'),season.seasonDifference(1,1,'starts')]);
+ const unknown=structuredClone(first);unknown.flightId='unknown';unknown.facts.assessment.durations.flight={state:'unknown',minutes:null,evidence:[]};
+ const partial=render([first,unknown,prior]);
+ assert.equal(partial.nodes.find(n=>n.type==='SeasonRing')!.props.difference.value,null,'A partly unknown year cannot produce a flight-time delta');
+ assert.match(partial.text,/Zeiträume können unterschiedlich oder unvollständig sein/);
+});
+
+test('shared starts and time ring renderer fades only the prior year while preserving hues and unknown tracks',()=>{
+ const ringSource=ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/mobile/SeasonRing.tsx',import.meta.url),'utf8'),{
+   compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.React,esModuleInterop:false},
+ }).outputText;
+ const react={createElement:(type:string,props:Element['props'],...children:any[]):Element=>({type,props:props??{},children:children.flat(Infinity)})};
+ let fontScale=1;
+ const modules:Record<string,unknown>={react:{default:react,memo:(component:unknown)=>component},'react-native':{View:'View',StyleSheet:{create:(s:unknown)=>s,absoluteFill:{position:'absolute'}},useWindowDimensions:()=>({fontScale})},'./theme':{Label:'Label',colors:{border:'#334455'}}};
+ const exports:any={};runInNewContext(ringSource,{exports,require:(name:string)=>modules[name]});
+ const style=(node:Element)=>Object.assign({},...[node.props.style].flat().filter(Boolean));
+ const colors=['#46ccff','#f9b65b'];
+ const slices=colors.map((color,index)=>({color,start:-90+index*180,sweep:180}));
+ for(const scale of [1,1.6]) for(const label of ['Starts','Flugzeit']) {
+   fontScale=scale;
+   const layers=[2026,2025].map(year=>({year,slices,value:'2',description:`${year}: 2 ${label}`}));
+   const before=JSON.stringify(layers);
+   const difference=season.seasonDifference(300,60,label==='Starts'?'starts':'minutes');
+   const tree=exports.SeasonRing({layers,label,difference}) as Element;
+   const body=tree.children[1] as Element, ring=body.children[0] as Element;
+   const [outer,inner]=ring.children as Element[];
+   assert.equal(style(outer!).opacity??1,1);
+   assert.ok(style(inner!).opacity>0&&style(inner!).opacity<1,'Prior year remains visible but subdued');
+   assert.equal(inner!.props.needsOffscreenAlphaCompositing,true,'Overlapping strips fade together without seams');
+   for(const layer of [outer!,inner!]) assert.deepEqual([...new Set(layer.children.slice(1).map((arc:Element)=>style(arc).backgroundColor))],colors);
+   assert.match(tree.props.accessibilityLabel,/Außen, Wert in der Mitte 2026.*Innen 2025/);
+   const center=ring.children[2] as Element, outside=body.children[1] as Element;
+   assert.equal(center.children[0].children[0],2026);
+   assert.equal(center.children[1].children[0],'2');
+   assert.equal(style(center).position,'absolute');
+   assert.equal(style(ring).width,88*scale,'The center grows with system text size');
+   assert.equal(outside.children[0].children[0],2025);
+   assert.equal(outside.children[1].children[0],'2');
+   assert.equal(outside.children[2].children.join(''),'↑ '+difference.text);
+   assert.equal(outside.children.some((node:Element)=>node.props.numberOfLines),false);
+   assert.equal(JSON.stringify(layers),before,'Visual emphasis cannot change share data or aircraft colors');
+   const unknown=exports.SeasonRing({layers:layers.map(layer=>({...layer,slices:[],value:'—',description:`${layer.year}: unbekannt`})),label,difference:season.seasonDifference(null,null,'minutes')}) as Element;
+   const unknownRing=(unknown.children[1] as Element).children[0] as Element;
+   assert.ok(unknownRing.children.slice(0,2).every((layer:Element)=>layer.children.length===1),'Unknown values retain unfilled tracks');
+   assert.match(unknown.props.accessibilityLabel,/unbekannt/);
+ }
 });

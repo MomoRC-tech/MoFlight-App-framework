@@ -1,9 +1,8 @@
 import React, { memo } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, useWindowDimensions } from 'react-native';
 import { Label, colors } from './theme';
-import type { RingSlice } from './season-model';
+import type { RingSlice, SeasonDifference } from './season-model';
 
-const size = 64;
 const thickness = 5;
 
 interface SeasonRingLayer {
@@ -11,18 +10,23 @@ interface SeasonRingLayer {
 }
 
 /** Two aircraft-share distributions share a centre; outer is current, inner is prior year. */
-export const SeasonRing = memo(function SeasonRing({ layers, label }: {
-  layers: readonly SeasonRingLayer[]; label: string;
+export const SeasonRing = memo(function SeasonRing({ layers, label, difference }: {
+  layers: readonly SeasonRingLayer[]; label: string; difference: SeasonDifference;
 }) {
-  return <View accessible accessibilityLabel={`${label}. ${layers.map((layer, index) => `${index === 0 ? 'Außen' : 'Innen'} ${layer.description}`).join('; ')}`} style={styles.group}>
+  const { fontScale } = useWindowDimensions();
+  const scale = Math.max(1, fontScale), size = 88 * scale;
+  const symbol = { up: '↑', down: '↓', equal: '↔', unknown: 'Δ' }[difference.direction];
+  return <View accessible accessibilityLabel={`${label}. ${layers.map((layer, index) => `${index === 0 ? 'Außen, Wert in der Mitte' : 'Innen'} ${layer.description}`).join('; ')}. Differenz gespeicherter Jahreswerte: ${difference.value === null ? 'unbekannt' : difference.text}. Zeiträume können unterschiedlich oder unvollständig sein.`} style={styles.group}>
     <Label muted style={styles.label}>{label}</Label>
     <View style={styles.body}>
-      <View style={styles.ring}>
+      <View style={[styles.ring, { width: size, height: size }]}>
         {layers.map((layer, layerIndex) => {
-          const diameter = size - layerIndex * 18;
+          const diameter = size - layerIndex * 18 * scale;
           const radius = (diameter - thickness) / 2;
           const inset = (size - diameter) / 2;
-          return <View key={layer.year} style={StyleSheet.absoluteFill}>
+          // Fade the composed prior-year ring, preserving aircraft hues and
+          // avoiding visible overlap seams between its small arc strips.
+          return <View key={layer.year} needsOffscreenAlphaCompositing={layerIndex > 0} style={[StyleSheet.absoluteFill, layerIndex > 0 && styles.priorYear]}>
             <View style={[styles.track, { left: inset, top: inset, width: diameter, height: diameter, borderRadius: diameter / 2 }]} />
             {layer.slices.flatMap((slice, sliceIndex) => {
               const gap = layer.slices.length > 1 ? Math.min(2, slice.sweep / 5) : 0;
@@ -45,22 +49,31 @@ export const SeasonRing = memo(function SeasonRing({ layers, label }: {
             })}
           </View>;
         })}
+        <View style={[styles.center, { left: 18 * scale, right: 18 * scale, top: 18 * scale, bottom: 18 * scale }]}>
+          <Label muted style={styles.year}>{layers[0]?.year}</Label>
+          <Label style={styles.currentValue}>{layers[0]?.value ?? '—'}</Label>
+        </View>
       </View>
-      <View style={styles.values}>{layers.map((layer, index) => <View key={layer.year}>
-        <Label muted style={styles.year}>{layer.year} · {index === 0 ? 'außen' : 'innen'}</Label>
-        <Label style={styles.value}>{layer.value}</Label>
-      </View>)}</View>
+      <View style={[styles.values, { minWidth: 40 * scale }]}>
+        <Label muted style={styles.year}>{layers[1]?.year ?? 'Vorjahr'}</Label>
+        <Label style={styles.value}>{layers[1]?.value ?? '—'}</Label>
+        <Label style={styles.difference}>{symbol} {difference.text}</Label>
+      </View>
     </View>
   </View>;
 });
 
 const styles = StyleSheet.create({
   group: { flex: 1, minWidth: 0, gap: 4 },
-  body: { flexDirection: 'row', alignItems: 'center', gap: 7 },
-  ring: { width: size, height: size, flexShrink: 0 },
+  body: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 7 },
+  ring: { flexShrink: 0 },
   track: { position: 'absolute', borderWidth: thickness, borderColor: colors.border },
-  values: { flex: 1, minWidth: 0, gap: 3 },
-  value: { fontSize: 16, lineHeight: 21, fontWeight: '700' },
+  priorYear: { opacity: .5 },
+  center: { position: 'absolute', alignItems: 'center', justifyContent: 'center' },
+  currentValue: { fontSize: 14, lineHeight: 19, fontWeight: '700', textAlign: 'center' },
+  values: { flex: 1, gap: 2 },
+  value: { fontSize: 14, lineHeight: 19, fontWeight: '600' },
+  difference: { fontSize: 12, lineHeight: 17, fontWeight: '600' },
   year: { fontSize: 10, lineHeight: 14 },
   label: { fontSize: 12, lineHeight: 18, fontWeight: '600' },
 });
