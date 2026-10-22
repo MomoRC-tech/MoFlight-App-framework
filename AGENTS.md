@@ -1,5 +1,10 @@
 # Agent rules for MoFlight
 
+## Delivery and verification preferences
+
+- Manuel requested on 22 October 2026 that completed work be committed and pushed, and APK deliveries always include a downloadable GitHub Release ZIP link. Publish only the intended APK and sanitized build metadata; local workspace links are insufficient for delivery. Keep the APK's actual source commit explicit.
+- Spoken accessibility trials are the last verification priority, deferred behind core functionality, UI simplification and targeted regression checks. Do not run extended screen-reader trials routinely or treat them as a blocker for the current packages; retain their untested status accurately.
+
 ## Project map and sources of truth
 
 - [README](README.md) is the central project documentation. Keep requirements, architecture, status and meaningful test evidence aligned with code.
