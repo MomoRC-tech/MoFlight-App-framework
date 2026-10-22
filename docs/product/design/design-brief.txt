@@ -87,7 +87,7 @@ The initial [flight-scene.svg](flight-scene.svg), [flight-scene.png](../../../ap
 
 ### Header artwork generation prompt
 
-Built-in image tool, opaque background, original output2048×683; no API/CLI fallback or private image input. Final prompt:
+Built-in image tool, opaque background, original PNG2172×724 (measured file dimensions); no API/CLI fallback or private image input. Final prompt:
 
 > Use case: photorealistic-natural. Asset type: extremely wide, low-height banner background for a compact dark navy personal sailplane flight-log app header. Generate a new original, highly realistic aviation photograph/visualization, landscape aspect ratio 3:1, approximately 1536 x 512. No text, no logos, no frame, no UI. Scene: a white fiberglass Schleicher ASK-21-like two-seat training sailplane genuinely soaring in a gentle coordinated bank above hazy forested hills, seen from a nearby aircraft, slightly above and ahead of its left side. Accurate recognizable ASK-21 proportions: substantial rounded tandem two-seat nose, long clearly divided two-piece canopy, mid-mounted long straight double-tapered wings with blunt simple tips and NO winglets, slender rear fuselage, proper vertical fin with T-tail horizontal stabilizer. Small red-orange nose/wingtip safety accents. Not a generic extreme racing glider, not a jet, not a toy, no propeller, no steep aerobatics. Composition critical: place the complete aircraft exclusively in the RIGHT HALF of the wide image, wingspan about 40 percent of canvas width; fuselage diagonally nose toward lower-left, tail upper-right, wings foreshortened naturally. Aircraft must read at a very small UI size. Keep the LEFT 45 percent mostly clean, very dark navy #0b141c with a gentle atmospheric fade for a separate existing logo and screen title; keep bottom 25 percent dark and quiet for separate controls. Cool blue hour, realistic white fiberglass reflections and translucent smoky canopy, subtle terrain far below to establish a believable in-flight situation. Add just 4 to 6 fine semi-transparent cyan-white aerodynamic visualization streamlines following the SAME local relative-wind direction from ahead of nose past wings toward the tail and downstream; they should gently deflect around the aircraft and indicate a restrained downstream wingtip wake. Thin, elegant, physically coherent, no big random crossing swooshes, no neon ribbons, no contrails or smoke. These are illustrative airflow overlays, not literal visible wind or CFD evidence. Photographic realism with understated airflow graphics. Preserve quiet navy background and complete aircraft visibility.
 
@@ -761,16 +761,19 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DutyRoster.tsx](.
 
 ## FlightScene.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/FlightScene.tsx](../../../apps/platform-lab/src/mobile/FlightScene.tsx); normalized SHA-256 `0e1a9553495c891c610ebf239bc84c828407520ddbdc94745bd006a2498eafce`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/FlightScene.tsx](../../../apps/platform-lab/src/mobile/FlightScene.tsx); normalized SHA-256 `0dcd75dc424826930477a07fc1c402de789273e4a7bd5f6f6a001197d25c550f`.
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `height: '100%'` | 20, 22 |
+| `height: '100%'` | 22 |
 | `height: 44` | 21 |
+| `height: 64` | 20 |
 | `height: 80` | 19 |
 | `width: '100%'` | 22 |
+| `width: 192` | 20 |
+| `width: 240` | 19 |
 | `width: 88` | 21 |
 
 ## ImportPreview.tsx

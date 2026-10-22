@@ -359,16 +359,19 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DutyRoster.tsx](.
 
 ## FlightScene.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/FlightScene.tsx](../../../apps/platform-lab/src/mobile/FlightScene.tsx); normalized SHA-256 `0e1a9553495c891c610ebf239bc84c828407520ddbdc94745bd006a2498eafce`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/FlightScene.tsx](../../../apps/platform-lab/src/mobile/FlightScene.tsx); normalized SHA-256 `0dcd75dc424826930477a07fc1c402de789273e4a7bd5f6f6a001197d25c550f`.
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `height: '100%'` | 20, 22 |
+| `height: '100%'` | 22 |
 | `height: 44` | 21 |
+| `height: 64` | 20 |
 | `height: 80` | 19 |
 | `width: '100%'` | 22 |
+| `width: 192` | 20 |
+| `width: 240` | 19 |
 | `width: 88` | 21 |
 
 ## ImportPreview.tsx

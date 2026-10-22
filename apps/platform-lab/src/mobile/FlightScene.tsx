@@ -16,8 +16,8 @@ const styles = StyleSheet.create({
   full: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, overflow: 'hidden' },
   // Art stays within the existing header. Contain preserves the complete wings
   // and T-tail even in the shallow one-row tablet header.
-  headerImage: { position: 'absolute', right: 0, top: 0, height: 80, aspectRatio: 3 },
-  wideImage: { right: 236, height: '100%' },
+  headerImage: { position: 'absolute', right: 0, top: 0, width: 240, height: 80 },
+  wideImage: { right: 280, width: 192, height: 64 },
   compact: { width: 88, height: 44 },
   image: { width: '100%', height: '100%' },
 });
