@@ -34,7 +34,7 @@ export function Dashboard({ ownFlights, ownFlightPhase, pending, fontScale, onPa
   const time = season.knownDurationCount ? formatReportedMinutes(season.knownMinutes) : '—';
   const showRings = fontScale <= 1.3 && String(season.count).length <= 5 && time.length <= 5;
   const latest = processed?.latest ?? [];
-  if (ownFlightPhase === 'loading') return <Card style={styles.dashboard}><View accessibilityLiveRegion="polite" accessibilityState={{busy:true}} style={ui.row}><ActivityIndicator color={colors.cyan} /><Label>Gespeicherte Flugdaten werden vorbereitet …</Label></View><Label muted>Deine Saisonübersicht erscheint gleich.</Label></Card>;
+  if (ownFlightPhase === 'loading') return <Card style={styles.dashboard}><View accessibilityLiveRegion="polite" accessibilityState={{busy:true}} style={ui.row}><ActivityIndicator color={colors.cyan} /><Label style={{flex:1}}>Gespeicherte Flugdaten werden vorbereitet …</Label></View><Label muted>Deine Saisonübersicht erscheint gleich.</Label></Card>;
   if (ownFlightPhase !== 'ready' || !ownFlights?.snapshot.account) return null;
   return <View style={styles.dashboard}><Card style={styles.season}>
     <View style={ui.section}><Section title="Meine Saison" /><View style={styles.yearBadge}><Label style={styles.small}>{year}</Label></View></View>
