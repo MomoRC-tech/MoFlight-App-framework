@@ -1,5 +1,7 @@
 # MoFlight project plan
 
+**Phone confirmation — 22 October 2026:** Manuel reports login now works after the latest delivery; record as user-reported physical login success, without inferring flight retrieval/save. The meaning of the header connection symbol is unclear; clarification/proposed simpler labeling is tracked under #22 and is not yet approved/implemented. [Evidence and remaining gates](verification/2026-10-21-simple-flight-loading.md#user-phone-confirmation-and-header-feedback--22-october-2026). This supersedes earlier unverified-login status below only for the reported login.
+
 **22 October phone follow-up (#42):** the prior shared-connection APK still reset during credential activities. Source `7afe69d` corrects the reproduced protected-URL login-form assumption using read-only form observation and retained return. 765 mobile/110 Python/types/lint/fixtures/exports/committed Release and scoped native synthetic Autofill/return assertions plus exact-session diagnostics pass; composite-helper limits remain explicit. [Replacement APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/lab-2026-10-22-inline-login/MoFlight-Android-inline-login.zip). Actual Google valid-account phone login and authenticated retrieval remain open. [One evidence section](verification/2026-10-21-simple-flight-loading.md#inline-login-form-and-credential-return-correction--22-october-2026).
 
 ## Ordered open-issue implementation plan — review, 21 October 2026
