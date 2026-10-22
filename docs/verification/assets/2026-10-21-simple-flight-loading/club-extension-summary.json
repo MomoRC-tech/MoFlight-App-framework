@@ -1,0 +1,227 @@
+{
+  "application_source": "8376a387acc9abf298b04a118a99cbc383c55787",
+  "apk_sha256": "956ff4ec1a47d11cbf4865ec573a844bee249a25689eda1159edf2241c10bc34",
+  "host": {
+    "mobile_tests": 864,
+    "python_tests": 110,
+    "typecheck": "passed",
+    "lint": "passed",
+    "fixtures": "passed",
+    "bundles": [
+      "android",
+      "ios"
+    ]
+  },
+  "native": {
+    "android_api": 37,
+    "live_checks": [
+      "Returning authenticated session automatically turns green without extra verification action",
+      "One update automatically saved and returned to Start",
+      "Receipt contains no failed optional source",
+      "All seven optional jobs explicitly succeeded in the scrolled final receipt",
+      "Header remains verified after 102 seconds without action, beyond 90-second proof expiry",
+      "Real offline process restart retains season and does not claim a verified connection or open login",
+      "Annual EUR/hours summary and raw work entries reopen offline after process death",
+      "Verified own/open task empty state reopens offline",
+      "Verified empty selected calendar slice reopens offline after completed local loading",
+      "Document notices reopen offline with partial-source labelling"
+    ],
+    "combined_seconds": 174.52,
+    "account_scope": "Retained authorized session; no fresh credentials, second live account, data clearing or seeding",
+    "ui_source": "c129a6d3e4c6067b3efebd1c5576c0a0817193e6",
+    "ui_checks": [
+      {
+        "viewport": "main",
+        "dp": [
+          390,
+          900
+        ],
+        "density": 160,
+        "font_scale": 1,
+        "logo": [
+          14,
+          28,
+          102,
+          116
+        ],
+        "title": [
+          112,
+          31,
+          322,
+          65
+        ],
+        "controls": {
+          "sync": [
+            112,
+            72,
+            233,
+            120
+          ],
+          "medical": [
+            239,
+            72,
+            336,
+            120
+          ],
+          "profile": [
+            328,
+            24,
+            376,
+            72
+          ]
+        }
+      },
+      "main Profile opens and Back returns",
+      {
+        "viewport": "min",
+        "dp": [
+          360,
+          900
+        ],
+        "density": 160,
+        "font_scale": 1,
+        "logo": [
+          14,
+          28,
+          102,
+          116
+        ],
+        "title": [
+          112,
+          31,
+          292,
+          65
+        ],
+        "controls": {
+          "sync": [
+            112,
+            72,
+            233,
+            120
+          ],
+          "medical": [
+            239,
+            72,
+            336,
+            120
+          ],
+          "profile": [
+            298,
+            24,
+            346,
+            72
+          ]
+        }
+      },
+      {
+        "viewport": "enlarged",
+        "dp": [
+          360,
+          900
+        ],
+        "density": 160,
+        "font_scale": 1.6,
+        "logo": [
+          14,
+          59,
+          102,
+          147
+        ],
+        "title": [
+          112,
+          30,
+          292,
+          66
+        ],
+        "controls": {
+          "sync": [
+            112,
+            72,
+            283,
+            124
+          ],
+          "medical": [
+            112,
+            130,
+            242,
+            182
+          ],
+          "profile": [
+            298,
+            24,
+            346,
+            72
+          ]
+        }
+      },
+      "enlarged Profile opens and Back returns",
+      {
+        "viewport": "wide",
+        "dp": [
+          800,
+          600
+        ],
+        "density": 160,
+        "font_scale": 1,
+        "logo": [
+          14,
+          29,
+          102,
+          117
+        ],
+        "title": [
+          112,
+          24,
+          732,
+          58
+        ],
+        "controls": {
+          "sync": [
+            112,
+            74,
+            233,
+            122
+          ],
+          "medical": [
+            239,
+            74,
+            336,
+            122
+          ],
+          "profile": [
+            738,
+            24,
+            786,
+            72
+          ]
+        }
+      },
+      "Both synthetic preview rings visible for parent review of faded prior-year colours",
+      "Enlarged 360dp/font1.6 populated time and starts rings individually visible"
+    ],
+    "ui_reuse": "Header/ring files unchanged in final source; final commit changes controller admission refs and tests only",
+    "task_filter": "Successful guarded task job requires source-scope restoration check before saving",
+    "offline_helper_limit": "The first offline helper passes receipt, minute check and restart, then its edge swipe triggers Android Back. Only those named passes are reused; a corrected inner-content gesture continuation checks work summary/entries/tasks, then asserts calendar before local loading completes. The final continuation waits for completed loading and checks calendar/documents. Only preceding named passes are reused from failed helpers.",
+    "failed_trials": "59be9e4 and 497c36d saved flights/Medical and returned but optional sources failed; complete success is claimed only for 8376a38"
+  },
+  "cleanup": {
+    "status": "passed",
+    "provider_baseline_apk_restored": true,
+    "provider_display_radios_running_restored": true,
+    "provider_session_data_not_cleared": true,
+    "owned_provider_emulator_stopped": true,
+    "synthetic_baseline_apk_display_radios_restored": true,
+    "owned_synthetic_emulator_stopped": true,
+    "remaining_provider_forwards": false,
+    "scope": "Selected APK/settings restored; no full original-data byte-equality claim. Authorized new saved captures are preserved."
+  },
+  "remaining": [
+    "Fresh physical-phone login/credential submission",
+    "Live second-account switching and forged identity native checks",
+    "Complete source history/paging and positive own tasks/news",
+    "Activities current-day completeness, airborne status, delay and identity",
+    "iOS runtime",
+    "Spoken accessibility",
+    "Full-user backup and populated supported/skipped-version beta migration"
+  ]
+}
