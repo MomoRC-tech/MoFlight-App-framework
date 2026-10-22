@@ -1,5 +1,24 @@
 # Vereinsflieger verified retrieval and local import contract
 
+## Alternative-branch source integration — 22 October 2026
+
+Manuel's tested feedback explicitly selects attaching supported sources to the visible features, tracked in [#56](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/56) alongside #55/#42/#45. On `ui/alternative-flight-experience`, this supersedes the Medical-only selection and manual completion acknowledgement below. It does not adopt the alternative into main or approve guessed source semantics.
+
+| Source | Automatic job and local feature | Current evidence boundary |
+| --- | --- | --- |
+| Own flights | Existing verified retrieval/save; Start, statistics and ordinary flights | Existing source/receipt/account invariants remain |
+| Own Medical | Existing own-profile capture; header and details | Original class/expiry text; unknown remains unknown |
+| Supported duties | Existing bounded own/club duty readers; duty roster | Partial source coverage, active account/club scope and freshness guards |
+| Events | Existing appointment-page reader; Verein → Termine | Selected visible calendar date/view filters; partial capture, unsupported empty source stays unavailable |
+| Document notices | Existing overview notice reader; Verein → Dokumente | Original notice/title/date text only; no download or news contract |
+| Populated club news | No automatic reader or populated news UI | Unverified; retained as an open source-discovery gate in #56/#10 |
+
+The single explicit update runs flights first, then independent Medical/duty/event/document jobs sequentially through the retained WebView. Failure preserves saved flights and prior source captures; it cannot label an unavailable source as empty or complete. Fresh before/after account observations, selected-owner lease and stored connection scope remain mandatory. Same-URL login observation starts fresh account proof; absence of a login form alone never authenticates an account.
+
+After completion and safe saves/recovery, the app returns to Start once and displays a dismissible owner-scoped receipt with failed/skipped sources retained in Details. Close stops remaining optional jobs and waits for an active save; the explicit per-source Skip still continues subsequent jobs. Ordinary tabs reuse the local projection. Real foreground/provider-return performs guarded revalidation; no unscoped persistent cache or background retrieval is added.
+
+These source captures remain separately stored; this work adds no backup expansion, schema migration, billing/training/weather/AI integration or provider write. Host contract/reader/controller and synthetic native presentation evidence is in the [single package report](../verification/2026-10-22-alternative-ui.md#tested-feedback-revision). The complete authenticated native source sequence and full provider coverage remain unverified.
+
 ## Separate retrieval jobs — 21 October 2026
 
 **Approved foreground-return refinement — 21 October:** before flight retrieval begins, a still-owned guided login may resume after foreground return while preserving its loaded original form. Existing context/navigation observations are invalidated; authenticated navigation must produce fresh matching account/club proof. An unfinished document starts a fresh profile check. Dismissal or owner change revokes this intent; retrieval/save never resumes from stale proof. Interactive sign-in wait is excluded from the outer flight-response deadline, while provider-response deadlines remain bounded. One progress screen retains flight/Medical outcomes until acknowledgement, with session presentation invalidated on backgrounding. [Implementation and platform limits](../verification/2026-10-21-simple-flight-loading.md#persistent-login-to-data-progress--21-october-2026).
