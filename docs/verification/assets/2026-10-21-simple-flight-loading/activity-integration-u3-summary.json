@@ -99,5 +99,28 @@
       "build-metadata.json"
     ],
     "source_and_hashes_match": true
+  },
+  "unclear_date_acknowledgment_followup": {
+    "source_commit": "20ade40b04460172daafab0d8c104e97929c181d",
+    "focused_tests": 25,
+    "types": "passed",
+    "affected_lint": "passed",
+    "apk_sha256": "57004c60e380532bedd700e3cceddb65b4ea5086f850f17ef501e8face37dae2",
+    "zip_sha256": "43488b590b8b3881954ab11f041847b7b1a1c0a07e67890a322847e46daf1ae1",
+    "build_seconds": 284.4350677,
+    "gradle_seconds": 283.0615833,
+    "offline_startup": "passed on exact installed Release",
+    "native_seconds": 17.11,
+    "baseline_hash_first_install_settings_restored": true,
+    "ui_source_evidence_reused": "7086f96 activity indicator preview only",
+    "provider_reads": 0,
+    "model_ui_trials": 0,
+    "limits": [
+      "Actual live changed-record acknowledgment not tested",
+      "Physical phone and iOS runtime not tested"
+    ],
+    "release_url": "https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/activity-ack-2026-10-23-20ade40/MoFlight-Android-20ade40.zip",
+    "public_download_source_hashes_verified": true,
+    "task_emulator_stopped": true
   }
 }
