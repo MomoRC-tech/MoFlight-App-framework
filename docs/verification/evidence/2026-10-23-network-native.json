@@ -1,0 +1,168 @@
+{
+  "status": "passed",
+  "serial": "emulator-5570",
+  "proof": {
+    "apk_sha256": "7fd8cca56582949073f2a485adeef4fbf46e3ff703b71a27d5338a1e6ce874c9",
+    "apk_bytes": 54331014,
+    "embedded_javascript": true,
+    "architectures": [
+      "arm64-v8a",
+      "x86_64"
+    ]
+  },
+  "original_sha256": "311b767bb9a53a8a4e75fccfafc7a9b52fcaf9d8515348e3e59d8208b66137a5",
+  "checks": [
+    {
+      "name": "healthy-real-WebView-request",
+      "passed": true,
+      "saved": [
+        21,
+        1
+      ]
+    },
+    {
+      "name": "drop-headers-stage-1",
+      "passed": true,
+      "seconds": 2.22,
+      "saved": [
+        21,
+        1
+      ],
+      "requests": [
+        "/member/profile/viewprofile"
+      ]
+    },
+    {
+      "name": "explicit-recovery-drop-headers-1",
+      "passed": true,
+      "saved": [
+        22,
+        2
+      ]
+    },
+    {
+      "name": "drop-body-stage-2",
+      "passed": true,
+      "seconds": 2.17,
+      "saved": [
+        22,
+        2
+      ],
+      "requests": [
+        "/member/profile/viewprofile",
+        "/member/profile/flightlog.php"
+      ]
+    },
+    {
+      "name": "explicit-recovery-drop-body-2",
+      "passed": true,
+      "saved": [
+        23,
+        3
+      ]
+    },
+    {
+      "name": "drop-body-stage-4",
+      "passed": true,
+      "seconds": 2.16,
+      "saved": [
+        23,
+        3
+      ],
+      "requests": [
+        "/member/profile/viewprofile",
+        "/member/profile/flightlog.php",
+        "/member/profile/myservices.php",
+        "/member/profile/viewprofile"
+      ]
+    },
+    {
+      "name": "explicit-recovery-drop-body-4",
+      "passed": true,
+      "saved": [
+        24,
+        4
+      ]
+    },
+    {
+      "name": "stall-headers-stage-2",
+      "passed": true,
+      "seconds": 11.53,
+      "saved": [
+        24,
+        4
+      ],
+      "requests": [
+        "/member/profile/viewprofile",
+        "/member/profile/flightlog.php"
+      ]
+    },
+    {
+      "name": "explicit-recovery-stall-headers-2",
+      "passed": true,
+      "saved": [
+        25,
+        5
+      ]
+    },
+    {
+      "name": "stall-body-stage-2",
+      "passed": true,
+      "seconds": 11.53,
+      "saved": [
+        25,
+        5
+      ],
+      "requests": [
+        "/member/profile/viewprofile",
+        "/member/profile/flightlog.php"
+      ]
+    },
+    {
+      "name": "explicit-recovery-stall-body-2",
+      "passed": true,
+      "saved": [
+        26,
+        6
+      ]
+    },
+    {
+      "name": "connection-unavailable-before-request",
+      "passed": true,
+      "saved": [
+        26,
+        6
+      ]
+    },
+    {
+      "name": "saved-snapshot-survives-unavailable-network-process-restart",
+      "passed": true,
+      "saved": [
+        26,
+        6
+      ]
+    },
+    {
+      "name": "slow-stream-success-after-reconnect",
+      "passed": true
+    }
+  ],
+  "android_api": "37",
+  "android_release": "17",
+  "network_settings_before": {
+    "airplane_mode_on": "1",
+    "wifi_on": "2",
+    "mobile_data": "1"
+  },
+  "started_at": "2026-10-23T22:27:20.473882+02:00",
+  "boundary": "Actual WebView TCP/stream/10-second timeout via ADB reverse; no radio handover, live provider, normal coordinator, physical Android or iOS",
+  "original_apk_restored_exactly": true,
+  "original_running_state_restored": true,
+  "network_settings_unchanged": true,
+  "reverse_mappings_restored": true,
+  "cleanup_errors": [],
+  "proof_source_commit": "17c616555391a184089ffd2d9f4bb706d1641f37",
+  "runner_source_commit": "8aba289",
+  "build_entry_override": "registerRootComponent(AndroidNetworkProof); production index and manifest restored after build",
+  "test_only_cleartext": true
+}
