@@ -38,7 +38,7 @@ The purple/orange exports describe accent families; actual dashboard cards use l
 | Recorded role pill | Fill `#064240`, border `#227f87`, general cyan text | Recorded role, not qualification/completion. MobileApp badge. |
 | AI welcome badge | Fill `#78efdc`, dark contrast duotone sparkle | Category decoration, not AI availability. MobileApp aiBadge. |
 
-No automatic stale-time threshold is selected for the connection mark. Session evidence, saved-flight freshness, provisional association and MoFlight identity are separate. See catalogue H03/S01–S05.
+The ordinary header green ✓ requires matching confirmed proof younger than 90 seconds; identical previous scope/account/club/timestamp proof may retain its display during checking within that limit. This presentation never changes canonical authentication. Saved-flight freshness stays separate: steady amber recommends synchronization strictly after 72 hours, independent of login. The provider panel retains separately scoped session/recovery presentation. See catalogue H03/S01–S05.
 
 ## Gradients, overlays and shadows
 
@@ -87,8 +87,8 @@ Use the documented component context. The branch uses 18 dp page spacing, shared
 | Shared card | Radius 22; border 1; padding 18; gap 12 | Most cards; flight rows override radius/padding. |
 | Shared action | Radius 16; minimum height 52; padding 18 horizontal / 12 vertical | Secondary adds border 1. |
 | Chip face / target | Radius 14; face minimum 66 × 40; target minimum height 48 | Year/training/club scope. |
-| Header icon / Back | Profile 48 × 48, radius14; Data/Medical faces minimum40, radius12, within minimum48 targets; Back 48 × 48, radius 16 | Artwork size and target differ. |
-| Medical group | Minimum 72 × 48, radius 12; grows with text | Icon beside Med/date text; 40-unit face within minimum48 target. |
+| Header icon / Back | Profile 48 × 48, radius14; Data/Medical faces minimum 40 dp, radius 12, within minimum 48 dp targets; Back 48 × 48, radius 16 | Artwork size and target differ. |
+| Medical group | Minimum 72 × 48, radius 12; grows with text | Icon beside Med/date text; 40-unit face within minimum 48 dp target. |
 | Field / composer | Profile radius 12, minimum height 48; provider radius 10; composer radius 20 | Context-specific forms. |
 | Tab / artwork | Tab minimum height 68, radius 16; artwork 28 in soft tile 36 / radius 12; label 12 | Five equal destinations. |
 | Season comparison | Season card padding14; concentric outer88/inner70 at font scale1, thickness5; current value centered, prior/delta outside and shared aircraft legend | Prior ring50% opacity; geometry grows with font scale. Exact numeric saved-year differences retain unknown/unequal-period limits; see the alternative contract. |
@@ -117,4 +117,4 @@ The header uses the approved original realistic ASK-21-like raster artwork. The 
 
 The HTML guide embeds original reference and symbol/brand images unchanged. Component examples are schematic CSS explanations with synthetic labels, not new app screenshots or replacement artwork.
 
-The 22 October header data-update amendment reuses `#74dfba` for saved data received less than one hour ago and `#ffc477` for older saved data, accompanied by visible relative age. These header colors describe saved flight-data age; the same provider-panel colors retain their separate session meanings. Neutral `colors.muted` indicates an unknown timestamp.
+The U1 header uses neutral saved-age text independently of session state, with a small green `#74dfba` ✓ for recent matching confirmed proof, amber `#ffc477` → for required login, and muted ?/! for unknown/mismatch/error. Saved flight receipt age strictly greater than 72 hours adds a steady `#ffc477` border, subtle `#ffc47712` surface and age !; exactly 72 hours does not. This recommendation is independent of session colour. Checks/login/failure never renew the durable successful flight receipt. The former one-hour age-colour policy is superseded. Provider-panel session colours retain their own meanings.

@@ -11,6 +11,8 @@ MoFlight is a mobile app in development for glider pilots, students and instruct
 
 ## Current delivery
 
+**Current source increment — U1, 23 October:** permanent saved-flight age, a stable independent login indicator, amber sync advice strictly after three days and a compact result line are implemented with focused host verification. Native layout/Release checks are deferred to the combined next-step checkpoint; the APK below predates U1. Manuel's proceed decision is required before season/club changes. [Scope, checks and limits](docs/verification/2026-10-21-simple-flight-loading.md#urgent-sync-feedback-u1--23-october-2026).
+
 Manuel selected the modern UI as the new main baseline on **22 October 2026**. It combines the ASK-21-like header, compact latest flight, concentric current/prior-year aircraft-share rings and a current/prior-year Jan–Dec chart that fits on screen. The Daten action continues automatically after verified login; returning from another app retains verified content during guarded local revalidation.
 
 **Latest delivery — 23 October:** [download APK ZIP — source `766b719`](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/backup-statistics-2026-10-23-766b719/MoFlight-Android-766b719.zip). Adds the saved-local statistics overlay and supported-user same-installation backup including Medical. Full host checks, both exports, Android Release and the scoped native backup round-trip pass. Further device testing was reduced at Manuel’s request; statistics visual acceptance, populated upgrade/performance and the deferred phone test remain open. [Evidence and limits](docs/verification/2026-10-21-simple-flight-loading.md#supported-user-backup-continuation--23-october-2026).
