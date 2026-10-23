@@ -53,7 +53,7 @@ function fixture({providerAllowed=true,deferRead=false,startUpdate=false,root=fa
     ports:any;
     async readStored(){if(deferRead)await storedRead;return {snapshot,flights:saved?[{},{},{}]:[]};}
     async recoverPending(){return {status:'none'};}
-    async retrieveUpdate(){if(deferSource)await new Promise<void>(resolve=>{admitSource=resolve;});abort=new AbortController();if(deferProvider)c.viewReady=false;const value=await this.ports.retrieve({from:'2025-01-01',to:'2026-10-21'},abort.signal);return {state:'confirm-account',source:value};}
+    async retrieveUpdate(){if(deferSource)await new Promise<void>(resolve=>{admitSource=resolve;});abort=new AbortController();if(deferProvider)c.viewReady=false;const value=await this.ports.retrieve({from:'2025-01-01',to:'2026-10-21'},abort.signal);return {state:'confirm-account',accountRef:'101',source:value};}
     async saveVerifiedReview(_review:any,context:any){assert.equal(context.accountNumber,'101');calls.push('save');saved=true;return {counts:{added:2,changed:1,pending:0}};}
     cancelReview(){abort?.abort();}
     dispose(){this.cancelReview();}
@@ -127,6 +127,8 @@ test('opening options does no retrieval; one explicit action verifies, loads, sa
     assert.ok(f.nodes().some(n=>n.type==='ScrollView'&&n.props.importantForAccessibility==='no-hide-descendants'&&n.props.style?.display==='none'));
     await f.flush();
     assert.equal(f.closed.length,1);assert.equal(f.closed[0].added,2);assert.equal(f.closed[0].from,'2025-01-01');assert.equal(f.closed[0].dutyStatus,'partial');assert.equal(f.journal.snapshot().at(-1)!.outcome,'success');
+    assert.equal(f.closed[0].ownerId,'owner');assert.equal(f.closed[0].storeId,'store');assert.equal(f.closed[0].accountRef,'101');
+    assert.equal(new Date(f.closed[0].completedAt).toISOString(),f.closed[0].completedAt,'The coordinator records an actual completion time');
   }finally{f.dispose();}
 });
 

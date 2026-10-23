@@ -5,7 +5,10 @@ import * as SecureStore from 'expo-secure-store';
 import { nextStartBoundary, readReminderSnooze, type ReminderSnooze } from './start-clock';
 
 export function useStartClock(deadlines: readonly number[]) {
-  const [now, setNow] = useState(Date.now);
+  const [, setNow] = useState(Date.now);
+  // Provider observations can arrive between timer ticks. Use this render's
+  // wall clock so a new proof is not mistaken for a future timestamp.
+  const now = Date.now();
   const boundary = nextStartBoundary(now, deadlines);
   useEffect(() => {
     const timer = setTimeout(() => setNow(Date.now()), Math.max(1, boundary - Date.now()));

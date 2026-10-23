@@ -9,7 +9,8 @@ import { medicalSource } from '../../apps/platform-lab/src/mobile/medical-source
 import { ownFlightConnectionState } from '../../apps/platform-lab/src/mobile/connection-guidance.ts';
 import * as dutyModel from '../../apps/platform-lab/src/vereinsflieger/duties';
 const unknownProviderStatus={connection:{phase:'unknown',confirmed:false,observed:null,lastCheckedAt:null},browserActive:false};
-import { dataUpdateStatus, DATA_UPDATE_FRESH_MS } from '../../apps/platform-lab/src/mobile/data-freshness.ts';
+import { dataUpdateStatus, DATA_FRESHNESS_REMINDER_MS, DATA_UPDATE_FRESH_MS } from '../../apps/platform-lab/src/mobile/data-freshness.ts';
+import { SESSION_DISPLAY_FRESH_MS } from '../../apps/platform-lab/src/mobile/data-update-presentation.ts';
 import { planFlightRetrieval } from '../../apps/platform-lab/src/vereinsflieger/retrieval-policy';
 
 interface Element { type: unknown; props: Record<string, any>; children: unknown[] }
@@ -65,7 +66,7 @@ function fixture(width = 390, fontScale = 1, root = false) {
     './DesignPreview':leaves(['DesignPreview']),'./Diagnostics': leaves(['Diagnostics']), './diagnostics-native': {initializeDiagnostics() {}}, '../diagnostics': diagnostics,
     './ProfileSettings': { ProfileSettings: 'ProfileSettings', SyntheticProfileSettings:'SyntheticProfileSettings' }, '../book-storage': { PILOT: 'synthetic-pilot' },
     '../vereinsflieger/use-access-controller': { useAccessController: () => controller },
-    './ProviderConnection': {...leaves(['ProviderConnection', 'ConnectionIndicator']),unknownProviderStatus}, './DataUpdateIndicator':leaves(['DataUpdateIndicator']), './UpdateDialog':leaves(['UpdateDialog']), './data-freshness':{DATA_UPDATE_FRESH_MS}, './AppHeader': { AppHeader: 'AppHeader' },
+    './ProviderConnection': {...leaves(['ProviderConnection', 'ConnectionIndicator']),unknownProviderStatus}, './DataUpdateIndicator':leaves(['DataUpdateIndicator']), './UpdateDialog':leaves(['UpdateDialog']), './data-freshness':{DATA_FRESHNESS_REMINDER_MS,DATA_UPDATE_FRESH_MS}, './AppHeader': { AppHeader: 'AppHeader' },
     './MedicalStatus': leaves(['MedicalIndicator', 'MedicalDetails']),
     './DevelopmentHub': leaves(['DevelopmentHub', 'DevelopmentNotice']),
     './LibraryBackup': leaves(['LibraryBackup']), './PaperStatus': leaves(['PaperStatus']),
@@ -77,6 +78,7 @@ function fixture(width = 390, fontScale = 1, root = false) {
     './UpdateResult':leaves(['UpdateResult']), './ClubInformation':leaves(['ClubEvents','ClubDocumentNotices']),
     './ConnectionSummary': leaves(['ConnectionSummary']), './medical-source': { medicalSource },
     './connection-guidance': { ownFlightConnectionState },
+    './data-update-presentation': { SESSION_DISPLAY_FRESH_MS },
     '../vereinsflieger/duties': dutyModel, './DutyRoster':leaves(['DutyRoster']),
     '../vereinsflieger/retrieval-policy':{planFlightRetrieval},
     './use-start-clock':{useStartClock:(deadlines:readonly number[])=>{clockDeadlines=deadlines;return clockNow;},useReminderSnooze:()=>({snooze:null,error:false,save:()=>{}})},
@@ -122,6 +124,9 @@ test('header age comes from the selected saved retrieval independently of provid
   f.showLoad(result,view);
   assert.equal(status().state,'fresh');assert.equal(status().caption,'vor 20 Min.');
   assert.ok(f.clockDeadlines().includes(Date.parse(at)+DATA_UPDATE_FRESH_MS),'The existing local clock schedules the exact one-hour transition');
+  assert.ok(f.clockDeadlines().includes(Date.parse(at)+DATA_FRESHNESS_REMINDER_MS+1),'Advice starts strictly after the 72-hour boundary');
+  assert.ok(f.clockDeadlines().includes(now+SESSION_DISPLAY_FRESH_MS),'A pending check cannot display proof indefinitely');
+  assert.ok(f.find('DataUpdateIndicator').props.scopeKey.includes('real-owner'));
   f.setTime(now+40*60_000);assert.equal(status().state,'older');f.setTime(now);
   f.press('Pressable','Profil & Einstellungen öffnen');
   assert.equal(f.find('ProfileSettings').props.connectionSummary.props.controller.connection.lastCheckedAt,state.lastCheckedAt);
@@ -521,12 +526,24 @@ test('a completed update returns Start once, retains source failures and scopes 
  f.showLoad(result,view);
  assert.equal(f.headers()[0]!.props.title,'Übersicht');assert.equal(f.nodes().some(n=>n.type==='ProfileSettings'),false);
  assert.equal(f.find('UpdateResult').props.result.eventsStatus,'failed');
+ let ancestor=f.parent(f.find('UpdateResult'));
+ while(ancestor){assert.notEqual(ancestor.type,'ScrollView','The receipt stays beneath the header when Start scrolls');ancestor=f.parent(ancestor);}
  f.find('UpdateResult').props.onDetails();f.render();assert.ok(f.nodes().some(n=>n.type==='UpdateResult'&&n.props.detail));
  f.headers().at(-1)!.props.back();f.render();f.find('UpdateResult').props.onDismiss();f.render();
  assert.equal(f.nodes().some(n=>n.type==='UpdateResult'),false);
  f.press('Pressable','Flüge');f.showLoad(result,view);assert.equal(f.find('OwnFlights').props.active,true,'Same result cannot repeatedly force Start');
  f.showLoad(result,{snapshot:{ownerId:'owner-b',account:{accountRef:'102'}}});
  assert.equal(f.nodes().some(n=>n.type==='UpdateResult'),false,'Never show another owner update receipt');
+});
+
+test('new sync receipts do not cross a same-owner store or account switch',()=>{
+ const f=fixture(),result={ownerId:'owner',storeId:'store-a',accountRef:'101',added:0,changed:0,pending:0};
+ f.showLoad(result,{snapshot:{ownerId:'owner',storeId:'store-a',account:{accountRef:'101'}}});
+ assert.ok(f.nodes().some(n=>n.type==='UpdateResult'));
+ f.showLoad(result,{snapshot:{ownerId:'owner',storeId:'store-b',account:{accountRef:'101'}}});
+ assert.equal(f.nodes().some(n=>n.type==='UpdateResult'),false);
+ f.showLoad(result,{snapshot:{ownerId:'owner',storeId:'store-a',account:{accountRef:'102'}}});
+ assert.equal(f.nodes().some(n=>n.type==='UpdateResult'),false);
 });
 
 test('Verein uses selected account sources in overview and detail routes',()=>{

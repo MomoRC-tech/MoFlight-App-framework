@@ -3,12 +3,14 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { runInNewContext } from 'node:vm';
 import ts from 'typescript';
-import { dataUpdateStatus, DATA_UPDATE_FRESH_MS } from '../../apps/platform-lab/src/mobile/data-freshness.ts';
+import { dataFreshness, dataUpdateStatus, DATA_FRESHNESS_REMINDER_MS, DATA_UPDATE_FRESH_MS } from '../../apps/platform-lab/src/mobile/data-freshness.ts';
+import { createSessionPresentation } from '../../apps/platform-lab/src/mobile/data-update-presentation.ts';
+import { ConnectionSession, type ConnectionState } from '../../apps/platform-lab/src/vereinsflieger/connection-state.ts';
 import { nextStartBoundary } from '../../apps/platform-lab/src/mobile/start-clock.ts';
 import { planFlightRetrieval } from '../../apps/platform-lab/src/vereinsflieger/retrieval-policy.ts';
 
 const at = '2026-10-22T12:00:00.000Z', received = Date.parse(at);
-test('data age switches from green to older exactly one hour after the saved retrieval', () => {
+test('saved age changes units without conflating it with a login or a sync recommendation', () => {
   assert.equal(dataUpdateStatus(at, 'ready', received).caption, 'gerade');
   assert.equal(dataUpdateStatus(at, 'ready', received + DATA_UPDATE_FRESH_MS - 1).state, 'fresh');
   assert.deepEqual(dataUpdateStatus(at, 'ready', received + DATA_UPDATE_FRESH_MS), {
@@ -36,38 +38,119 @@ test('a durably saved empty or unchanged retrieval advances data age without dep
   assert.equal(dataUpdateStatus(planFlightRetrieval([], new Date(received)).lastSuccessfulRetrievalAt, 'ready', received).state, 'unknown');
 });
 
-test('update control labels the action and saved time, with an explicit login-if-needed hint', () => {
+function fixture() {
   const source = ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/mobile/DataUpdateIndicator.tsx', import.meta.url), 'utf8'), {
     compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.React, esModuleInterop: false },
   }).outputText;
-  const react = { createElement: (type: unknown, props: any, ...children: any[]) => ({ type, props: props ?? {}, children }) };
+  let presentation: ReturnType<typeof createSessionPresentation> | undefined;
+  const react = { createElement: (type: unknown, props: any, ...children: any[]) => ({ type, props: props ?? {}, children }),
+    useMemo: (make: () => ReturnType<typeof createSessionPresentation>) => presentation ??= make() };
   const modules: Record<string, unknown> = {
-    react: { default: react }, 'react-native': { Pressable: 'Pressable', View: 'View', StyleSheet: { create: (v: unknown) => v } },
-    './theme': { Label: 'Label', colors: { muted: '#adbed5' } }, './SymbolIcon': { SymbolIcon: 'SymbolIcon' }, './data-freshness': { dataUpdateStatus },
+    react: { default: react, ...react }, 'react-native': { Pressable: 'Pressable', View: 'View', StyleSheet: { create: (v: unknown) => v } },
+    './theme': { Label: 'Label', colors: { muted: '#adbed5' } }, './SymbolIcon': { SymbolIcon: 'SymbolIcon' }, './data-freshness': { dataFreshness, dataUpdateStatus },
+    './data-update-presentation': { createSessionPresentation },
   };
   const exports: any = {};
   runInNewContext(source, { exports, require: (name: string) => { assert.ok(name in modules, name); return modules[name]; } });
+  return exports.DataUpdateIndicator as (props: Record<string, unknown>) => any;
+}
+const text = (node: any): string => typeof node === 'string' ? node : (node?.children ?? []).map(text).join(' ').replace(/\s+/g, ' ');
+const context = { accountNumber: '123', clubLabel: 'Synthetic', clubIdentity: 'display-label-only', verification: 'observed-profile-number' } as const;
+const proof: ConnectionState = { phase: 'observed', confirmed: true, observed: context, lastCheckedAt: at };
+
+test('header visibly shows saved age and retains one accessible sync action', () => {
+  const render = fixture();
   let calls = 0;
   for (const disabled of [false, true]) {
-    const tree = exports.DataUpdateIndicator({ receivedAt: at, readState: 'ready', now: received, disabled, onPress: () => calls++ });
+    const tree = render({ receivedAt: at, readState: 'ready', now: received + 3_600_000, disabled, onPress: () => calls++ });
     assert.match(tree.props.accessibilityLabel, /^Daten synchronisieren\./);
     assert.ok(tree.props.accessibilityLabel.includes(new Date(received).toLocaleString('de-DE')));
     assert.match(tree.props.accessibilityHint, /Falls nötig.*Anmeldung/);
     assert.equal(tree.props.disabled, disabled);
     assert.equal(tree.props.accessibilityState.disabled, disabled);
+    assert.match(text(tree), /Daten.*vor 1 Std\./);
     if (!disabled) tree.props.onPress();
   }
   assert.equal(calls, 1);
-  const proof={phase:'observed',confirmed:true,observed:{accountNumber:'123'},lastCheckedAt:at};
-  for(const [connection,now,green] of [
-    [undefined,received,false],[proof,received,true],[proof,received+90_000,false],
-    [{...proof,confirmed:false},received,false],[{...proof,phase:'error'},received,false],
-    [{...proof,phase:'login-required'},received,false],[{...proof,phase:'checking'},received,false],
-  ] as const){
-    const tree=exports.DataUpdateIndicator({connection,receivedAt:at,readState:'ready',now,onPress(){}});
-    assert.equal(tree.children[0].children[1].children[1].props.style[1].color,green?'#74dfba':'#adbed5');
-    assert.equal(tree.props.accessibilityLabel.startsWith('Daten synchronisieren'),true);
-    assert.equal(tree.children[0].children[1].children[1].children[0],'synchronisieren');
-    assert.ok(tree.props.accessibilityLabel.includes(dataUpdateStatus(at,'ready',now).description));
+});
+
+test('a real session recheck keeps its bounded display proof without restoring authorization', () => {
+  const display = createSessionPresentation(), session = new ConnectionSession();
+  session.restoreAssociation(context);
+  session.start('initial'); session.observe('initial', context, at);
+  assert.equal(display('owner/store/123', session.state, received).state, 'connected');
+  for (const minute of [1, 2]) {
+    const now = received + minute * 60_000;
+    session.start(`check-${minute}`);
+    assert.equal(session.state.confirmed, false);
+    assert.equal(display('owner/store/123', session.state, now).state, 'connected');
+    assert.equal(session.state.confirmed, false, 'Presentation must never grant controller authorization');
+    session.observe(`check-${minute}`, context, new Date(now).toISOString());
+    assert.equal(display('owner/store/123', session.state, now).state, 'connected');
   }
+});
+
+test('checking alone, prior unconfirmed evidence, invalid time and expired proof cannot claim login', () => {
+  const checking: ConnectionState = { ...proof, phase: 'checking', confirmed: false };
+  assert.equal(createSessionPresentation()('scope', checking, received).state, 'unknown');
+  const display = createSessionPresentation();
+  display('scope', { ...proof, confirmed: false }, received);
+  assert.equal(display('scope', checking, received).state, 'unknown');
+  for (const now of [received - 1, received + 90_000, NaN]) {
+    const display = createSessionPresentation(); display('scope', proof, received);
+    assert.equal(display('scope', checking, now).state, 'unknown');
+  }
+  for (const lastCheckedAt of [null, 'invalid', at.replace('.000Z', 'Z')]) {
+    assert.equal(createSessionPresentation()('scope', { ...proof, lastCheckedAt }, received).state, 'unknown');
+  }
+});
+
+test('scope, club, timestamp and terminal state changes revoke cached session display', () => {
+  const checking: ConnectionState = { ...proof, phase: 'checking', confirmed: false };
+  for (const state of ['unknown', 'disconnected', 'error', 'mismatch', 'login-required'] as const) {
+    const display = createSessionPresentation(); display('scope', proof, received);
+    assert.notEqual(display('scope', { ...proof, phase: state }, received).state, 'connected');
+    assert.equal(display('scope', checking, received).state, 'unknown');
+  }
+  for (const changed of [
+    { ...checking, observed: { ...context, clubLabel: 'Other club' } },
+    { ...checking, observed: { ...context, accountNumber: '456' } },
+    { ...checking, lastCheckedAt: new Date(received + 1).toISOString() },
+  ]) {
+    const display = createSessionPresentation(); display('scope', proof, received);
+    assert.equal(display('scope', changed, received + 2).state, 'unknown');
+  }
+  for (const scope of ['other-owner/store/123', 'owner/other-store/123', 'owner/store/456', null]) {
+    const display = createSessionPresentation(); display('owner/store/123', proof, received);
+    assert.equal(display(scope, checking, received).state, 'unknown');
+  }
+});
+
+test('amber advice starts strictly after 72 hours and can coexist with a green login', () => {
+  const render = fixture(), now = received + DATA_FRESHNESS_REMINDER_MS;
+  const currentProof = { ...proof, lastCheckedAt: new Date(now).toISOString() };
+  const props = { scopeKey: 'owner/store/123', connection: currentProof, receivedAt: at, readState: 'ready', onPress() {} };
+  assert.doesNotMatch(render({ ...props, now }).props.accessibilityLabel, /Synchronisieren empfohlen/);
+  const tree = render({ ...props, now: now + 1 });
+  assert.match(tree.props.accessibilityLabel, /Angemeldet.*Synchronisieren empfohlen/);
+  assert.match(text(tree), /vor 3 Tg\. !/);
+  assert.match(text(tree), /Daten ✓/);
+  const loggedOut = render({ ...props, now: now + 1, connection: { ...currentProof, phase: 'login-required' } });
+  assert.match(loggedOut.props.accessibilityLabel, /Anmeldung erforderlich.*Synchronisieren empfohlen/);
+  assert.match(text(loggedOut), /→.*vor 3 Tg\. !/);
+});
+
+test('rendering a newly received proof uses current wall time between timer ticks', () => {
+  const source = ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/mobile/use-start-clock.ts', import.meta.url), 'utf8'), {
+    compilerOptions: { module: ts.ModuleKind.CommonJS },
+  }).outputText;
+  let now = received;
+  const exports: any = {};
+  const modules: Record<string, unknown> = { react: { useState: () => [received, () => {}], useEffect() {} },
+    'react-native': {}, 'expo-crypto': {}, 'expo-secure-store': {}, './start-clock': { nextStartBoundary } };
+  class Clock extends Date { static now() { return now; } }
+  runInNewContext(source, { exports, Date: Clock, require: (name: string) => { assert.ok(name in modules, name); return modules[name]; } });
+  assert.equal(exports.useStartClock([]), received);
+  now += 12_000;
+  assert.equal(exports.useStartClock([]), now, 'A status-triggered render must not reuse the last timer tick');
 });

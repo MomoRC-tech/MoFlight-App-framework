@@ -19,7 +19,8 @@ import { diagnosticJournal } from '../diagnostics';
 import { unknownProviderStatus, type ProviderStatus } from './ProviderConnection';
 import { DataUpdateIndicator } from './DataUpdateIndicator';
 import { UpdateDialog } from './UpdateDialog';
-import { DATA_UPDATE_FRESH_MS } from './data-freshness';
+import { DATA_FRESHNESS_REMINDER_MS, DATA_UPDATE_FRESH_MS } from './data-freshness';
+import { SESSION_DISPLAY_FRESH_MS } from './data-update-presentation';
 import { AppHeader } from './AppHeader';
 import { MedicalDetails, MedicalIndicator } from './MedicalStatus';
 import { DevelopmentHub, DevelopmentNotice } from './DevelopmentHub';
@@ -105,7 +106,9 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
   const library = useLibrary(coreFlightsOpen || toolsOpen || sheet === 'backup');
   const ownFlights = useOwnFlights(ownFlightReadPorts, !coreFlightsOpen, flightReload);
   const [dismissedUpdate, setDismissedUpdate] = useState<FlightLoadResult|null>(null);
-  const updateForOwner=(lastLoad?.ownerId??lastLoad?.verifiedConnection?.ownerId)===ownFlights.view?.snapshot.ownerId && !!ownFlights.view?.snapshot.ownerId ? lastLoad : null;
+  const updateForOwner=(lastLoad?.ownerId??lastLoad?.verifiedConnection?.ownerId)===ownFlights.view?.snapshot.ownerId && !!ownFlights.view?.snapshot.ownerId &&
+    (!lastLoad?.storeId || lastLoad.storeId===ownFlights.view?.snapshot.storeId) &&
+    (!lastLoad?.accountRef || lastLoad.accountRef===ownFlights.view?.snapshot.account?.accountRef) ? lastLoad : null;
   const medical=ownFlights.view?.medical??null;
   const selected=ownFlights.view;
   const statisticsScopeKey = canonical([selected?.snapshot.ownerId ?? null, selected?.snapshot.storeId ?? null, selected?.snapshot.account?.accountRef ?? null]);
@@ -113,15 +116,16 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
   const rosterExpiry=selected?.duties?.snapshot?dutySnapshotExpiresAt(selected.duties.snapshot):NaN;
   const receivedAt=retrievalPlan.lastSuccessfulRetrievalAt;
   const receivedTime=Date.parse(receivedAt??'');
-  const now=useStartClock([rosterExpiry,Date.parse(providerStatus.connection.lastCheckedAt??'')+90_000,
-    receivedTime+DATA_UPDATE_FRESH_MS,Number.isFinite(receivedTime)?Math.floor(Date.now()/60_000)*60_000+60_000:NaN]);
+  const now=useStartClock([rosterExpiry,Date.parse(providerStatus.connection.lastCheckedAt??'')+SESSION_DISPLAY_FRESH_MS,
+    receivedTime+DATA_UPDATE_FRESH_MS,receivedTime+DATA_FRESHNESS_REMINDER_MS+1,
+    Number.isFinite(receivedTime)?Math.floor(Date.now()/60_000)*60_000+60_000:NaN]);
   const clock=new Date(now),today=`${clock.getFullYear()}-${String(clock.getMonth()+1).padStart(2,'0')}-${String(clock.getDate()).padStart(2,'0')}`;
   const rosterExpired=Number.isFinite(rosterExpiry)&&now>=rosterExpiry;
   const dutyOverview=useMemo(()=>selected?.duties?buildDutyOverview(selected.duties.scope,selected.duties.snapshot,today,now):null,[selected?.duties,today,rosterExpired]);
   const openDuties=()=>{setClubSection('Dienste');setTab('club');};
   const dutyContent=(expanded=false)=>dutyOverview?<DutyRoster overview={dutyOverview} expanded={expanded} onOpen={openDuties}/>:<Card style={{width:'100%',maxWidth:520,alignSelf:'center'}}><Section title="Verein" icon="duty"/><Label muted>{selected?.dutiesReadFailed?'Gespeicherte Dienstquelle konnte nicht gelesen werden.':'Dienstplan noch nicht verfügbar.'}</Label><Label muted>Daten aktualisieren lädt unterstützte Dienstquellen. Vollständigkeit bleibt bis zur Quellenprüfung unbekannt.</Label>{!expanded&&<Action secondary onPress={openDuties}>Alle Dienste ansehen</Action>}</Card>;
   const sameProviderOwner=providerStatus.ownerId===selected?.snapshot.ownerId&&!!providerStatus.ownerId;
-  const sameProviderAccount=!selected?.snapshot.account||providerStatus.connection.observed?.accountNumber===selected.snapshot.account.accountRef;
+  const sameProviderAccount=!!selected?.snapshot.account?.accountRef&&(!providerStatus.connection.observed||providerStatus.connection.observed.accountNumber===selected.snapshot.account.accountRef);
   const flightStatusController=sameProviderOwner&&sameProviderAccount?providerStatus:unknownProviderStatus;
   useEffect(() => {
     if (!lastLoad) return;
@@ -181,7 +185,7 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
   };
   const pageTitle = tabs.find(item => item.id === tab)!.title;
   const statusControls = <>
-    <DataUpdateIndicator connection={flightStatusController.connection} receivedAt={receivedAt} readState={ownFlights.phase==='failed'?'failed':ownFlights.phase==='loading'?'loading':'ready'}
+    <DataUpdateIndicator scopeKey={selected?.snapshot.account?.accountRef?statisticsScopeKey:null} connection={flightStatusController.connection} receivedAt={receivedAt} readState={ownFlights.phase==='failed'?'failed':ownFlights.phase==='loading'?'loading':'ready'}
       now={now} disabled={screenBusy} onPress={() => openFlightFlow('update')} />
     <MedicalIndicator capture={medical} now={now} active={sheet === 'medical'} disabled={screenBusy} onPress={() => openHeaderSheet('medical')} />
 
@@ -194,10 +198,10 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
     <View collapsable={false} style={[{ flex: 1 }, overlayOpen && sheet !== 'statistics' && s.hidden, sheet === 'statistics' && s.dimmed]} pointerEvents={overlayOpen ? 'none' : 'auto'} aria-hidden={overlayOpen} accessibilityElementsHidden={overlayOpen} importantForAccessibility={overlayOpen ? 'no-hide-descendants' : 'auto'}>
     <StatusBar barStyle="light-content" backgroundColor={colors.background} />
     {header}
+    {tab==='home' && updateForOwner && dismissedUpdate !== updateForOwner && <View style={{paddingHorizontal:18,paddingBottom:8}}><UpdateResult result={updateForOwner} onDetails={() => openHeaderSheet('status')} onDismiss={() => setDismissedUpdate(updateForOwner)} /></View>}
     <View style={[s.content, wide && { maxWidth: 960 }, tablet && !wide && { maxWidth: 600 }]}>
       <View style={[s.page, tab !== 'home' && s.hidden]} accessibilityElementsHidden={tab !== 'home'} importantForAccessibility={tab === 'home' ? 'auto' : 'no-hide-descendants'}>
         <ScrollView contentContainerStyle={s.canvas} keyboardShouldPersistTaps="handled">
-          {updateForOwner && dismissedUpdate !== updateForOwner && <UpdateResult result={updateForOwner} onDetails={() => openHeaderSheet('status')} onDismiss={() => setDismissedUpdate(updateForOwner)} />}
           <View style={{width:'100%',maxWidth:wide?920:520,alignSelf:'center',flexDirection:wide?'row':'column',alignItems:'flex-start',gap:18}}>
           <View style={{width:'100%',flex:wide?1:undefined}}><Dashboard now={now} ownFlights={ownFlights.view} ownFlightPhase={ownFlights.phase} pending={null} width={width} fontScale={fontScale} onFlight={flightId=>{setFlightRequest({year:null,flightId});setTab('flights');}} onPaper={() => openHeaderSheet('paperInfo')} onStatistics={() => { ownFlights.clearDetail(); openHeaderSheet('statistics'); }} onFlights={() => { overlayHistory.current=[]; setDetail(null); setSheet(null); setFlightRequest({year:null}); setTab('flights'); }} /></View>
           {ownFlights.phase==='ready'&&!!selected?.snapshot.account&&<View style={{width:'100%',flex:wide?1:undefined}}>{dutyContent()}</View>}

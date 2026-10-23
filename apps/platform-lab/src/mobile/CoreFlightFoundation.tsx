@@ -34,7 +34,7 @@ import { getPendingUserBackupRestoreNative, restoreUserBackupFromPickerNative, s
 import type { UserBackupRestoreOperation } from '../user-backup-restore-journal';
 
 export type ConnectionIntent = 'connect'|'update'|'options'|'development';
-export interface FlightLoadResult { ownerId?:string; added: number; changed: number; pending: number; from: string; to: string;
+export interface FlightLoadResult { ownerId?:string; storeId?:string; accountRef?:string; completedAt?:string; added: number; changed: number; pending: number; from: string; to: string;
   verifiedConnection?: OwnFlightConnectionEvidence; medicalStatus?: MedicalJobStatus; dutyStatus?:DutyJobStatus; eventsStatus?:FeatureJobStatus; documentNoticesStatus?:FeatureJobStatus; workSummaryStatus?:FeatureJobStatus; workHoursStatus?:FeatureJobStatus; tasksStatus?:FeatureJobStatus }
 function featureJobResult(label:string,status:FeatureJobStatus) {
   return status==='partial'?`${label}: Quelle erfasst · Vollständigkeit ungeprüft.`:status==='failed'?`${label}: Abruf fehlgeschlagen · gespeicherte Angaben bleiben erhalten.`:`${label}: nicht abgeschlossen · gespeicherte Angaben bleiben erhalten.`;
@@ -332,7 +332,7 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,open=true,requestI
     const optionalSourceStatuses=[completed.otherData.medical,completed.otherData.duties,completed.otherData.events,completed.otherData.documentNotices,completed.otherData.workSummary,completed.otherData.workHours,completed.otherData.tasks];
     const optionalSourceIncomplete=optionalSourceStatuses.some(status=>status==='failed'||status==='skipped');
     diagnosis.current?.finish(optionalSourceIncomplete?'partial':'success',completed.otherData.medical==='failed'?'medical-failed':completed.otherData.medical==='skipped'?'medical-skipped':completed.otherData.duties==='failed'?'duties-failed':completed.otherData.duties==='skipped'?'duties-skipped':completed.otherData.events==='failed'||completed.otherData.documentNotices==='failed'||completed.otherData.workSummary==='failed'||completed.otherData.workHours==='failed'||completed.otherData.tasks==='failed'?'operation-failed':'none');
-    if(alive.current){setLoadStage('done');setStep('Fertig.');setCompleted({ownerId:lease.ownerId,added:result.counts.added,changed:result.counts.changed,pending:result.counts.pending,
+    if(alive.current){setLoadStage('done');setStep('Fertig.');setCompleted({ownerId:lease.ownerId,storeId:lease.storeId,accountRef:next.accountRef,completedAt:new Date().toISOString(),added:result.counts.added,changed:result.counts.changed,pending:result.counts.pending,
       from:next.source.requestedWindow.from,to:next.source.requestedWindow.to,
       verifiedConnection:foreground.current&&!stopRemainingJobs.current&&verified.confirmed?{ownerId:lease.ownerId,state:verified}:undefined,medicalStatus:completed.otherData.medical,dutyStatus:completed.otherData.duties,eventsStatus:completed.otherData.events,documentNoticesStatus:completed.otherData.documentNotices,workSummaryStatus:completed.otherData.workSummary,workHoursStatus:completed.otherData.workHours,tasksStatus:completed.otherData.tasks});}
   }
