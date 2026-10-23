@@ -1,0 +1,103 @@
+{
+  "date": "2026-10-23",
+  "application_source_commit": "f6d7d8f41069f572a592a8db5f4ff9c21db77118",
+  "apk_sha256": "62b0c9f01b23f900270a9d2cf48b5077c47232151b7908b2c4a37d6a7ae2b89c",
+  "apk_bytes": 53838682,
+  "zip_sha256": "fa59bf1a8cf7bc3439001961ae544823c5a6e2be5e3a3011fa234215e11e25e3",
+  "release_url": "https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/activity-advice-2026-10-23-f6d7d8f/MoFlight-Android-f6d7d8f.zip",
+  "environment": {
+    "os": "Windows",
+    "node": "24.18.0",
+    "pnpm": "11.25.0",
+    "python": "3.12.10",
+    "jdk": "17"
+  },
+  "focused_tests": {
+    "total_incremental_passes": 303,
+    "groups": {
+      "parser": 8,
+      "ledger": 6,
+      "source_acknowledgment": 6,
+      "request": 9,
+      "indicator": 12,
+      "access_information_controller": 136,
+      "combined_pipeline": 39,
+      "scoped_sqlite": 3,
+      "shell": 35,
+      "information_import": 44,
+      "preview": 5
+    },
+    "pure_rules_unchanged_reused": 18,
+    "full_suite_repeated": false,
+    "model_inference_calls": 0,
+    "types": "passed",
+    "affected_lint": "passed"
+  },
+  "live_reader": {
+    "elapsed_ms": 842,
+    "explicit_gets": 4,
+    "supported_sources": [
+      "flights",
+      "own-duties"
+    ],
+    "absolute_window_proved": false,
+    "instrument_application_source": "248305a",
+    "production_loop_native_acceptance": false,
+    "provider_data_mutated": false
+  },
+  "android": {
+    "final_build_seconds": 67.153158,
+    "final_gradle_seconds": 66.2077631,
+    "offline_restart": {
+      "source": "f6d7d8f41069f572a592a8db5f4ff9c21db77118",
+      "status": "passed",
+      "elapsed_seconds": 18.17
+    },
+    "unchanged_ui_source": "7086f9638d213a83c8ebd88d46cb19396a868c6b",
+    "preview_viewports": [
+      {
+        "width_dp": 390,
+        "height_dp": 900,
+        "density_dpi": 160,
+        "font_scale": 1.0
+      },
+      {
+        "width_dp": 360,
+        "height_dp": 900,
+        "density_dpi": 160,
+        "font_scale": 1.0
+      },
+      {
+        "width_dp": 360,
+        "height_dp": 900,
+        "density_dpi": 160,
+        "font_scale": 1.6
+      }
+    ],
+    "preview_review": "passed, once per state; component preview only",
+    "cache_inspection": "not tested: Release sandbox access unavailable; no final APK installed/provider request in this attempt"
+  },
+  "ios": "export passed on7086f96; runtime not tested",
+  "cleanup": {
+    "synthetic_baseline_hash_first_install_settings_restored": true,
+    "provider_baseline_hash_first_install_settings_stopped_state_restored": true,
+    "private_data_cleared": false,
+    "temporary_forwards_removed": true,
+    "task_emulators_stopped": true
+  },
+  "limits": [
+    "Unbounded/uncovered/configuration-changed advice may remain after a bounded source sync",
+    "Actual changed live records and compatible canonical acknowledgment untested",
+    "Production-loop native hourly-cache restart untested",
+    "Real second account, populated ordinary header, physical phone and iOS runtime untested",
+    "Spoken accessibility deferred"
+  ],
+  "public_download_verification": {
+    "anonymous_download": "passed",
+    "exact_files": [
+      "app-release.apk",
+      "build-metadata.json"
+    ],
+    "source_and_hashes_match": true
+  }
+}
