@@ -5,6 +5,8 @@
 
 **23 October U1 refinement (#42/#22):** permanent Daten/saved flight age and one Daten synchronisieren action; an independent small session mark; steady amber recommendation strictly after 72 hours or a scoped changed activity count (U3); activity advice adds **Änderungen möglich**, independently of age/login. Display retention during checking is scoped and never authentication evidence. The compact receipt sits below the header outside Start scrolling, with counts/source caveats in Details. See the [current contract](alternative-ui.md#connection-action--23-october-2026).
 
+**Planned header progress amendment (23 October, #42/#22/#20):** [the new contract](alternative-ui.md#header-sync-progress--planned-amendment-23-october-2026) replaces ordinary C08/C17 progress/results with a header-attached two-row roll-down box and moving shine on C06 during sync. Only necessary login uses the retained popup; matching verification closes it automatically. Confirmed success hides the box completely. This is planned, not implemented; the component inventory below describes current runtime.
+
 ## Component map
 
 **Approved #9 implementation slice (23 October):** Meine Saison now opens a read-only C08-style statistics frame. Host regressions and a synthetic Development preview cover the component/navigation contract; the preview is not saved-real-flight native acceptance. See the [current design contract](alternative-ui.md#statistics-overlay--approved-implementation-scope-23-october-2026) and [package report](../../verification/2026-10-20-real-flight-statistics.md#meine-saison-statistics-overlay--23-october-2026).

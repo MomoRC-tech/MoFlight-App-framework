@@ -3,6 +3,8 @@
 > The [22 October modern UI contract](alternative-ui.md) is selected as the main baseline. It supersedes conflicting earlier appearance/composition descriptions for C01–C09, typography, surfaces, Start and flight browsing. Data and acceptance boundaries retain their separate contracts.
 [Handbook entry point](README.md). These patterns describe the branch alternative and preserved data/navigation boundaries; main adoption was selected on 22 October. Behavior remains governed by journey/provider/book contracts.
 
+**Planned sync exception to the current popup pattern (23 October):** [header sync progress](alternative-ui.md#header-sync-progress--planned-amendment-23-october-2026) keeps ordinary progress directly below the header, preserves saved-page use/tab navigation and opens a popup only when login is needed. Last completed/current rows replace a growing log; successful completion hides the box without acknowledgement. Real failure stays steady and actionable. This planning amendment is not implemented or platform-verified; existing route descriptions below remain the runtime baseline.
+
 ## Screen composition
 
 **23 October approved implementation:** the [statistics overlay contract](alternative-ui.md#statistics-overlay--approved-implementation-scope-23-october-2026) replaces inline Saison im Detail with a labelled season-heading action and framed local overlay. Preserve the selected Start while navigating its sections, period-scoped contributor routes and saved-flight details; contextual Back returns through the overlay before Close returns to Start. The synthetic Development preview is not saved-real-flight acceptance.
