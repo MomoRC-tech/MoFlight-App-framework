@@ -4,6 +4,7 @@ These records are retained for provenance and earlier decisions. They are not cu
 
 | Archived record | Why it moved | Current source |
 | --- | --- | --- |
+| [Statistics Issue history before cleanup, 23 October](planning/2026-10-23-statistics-issue-history.md) | Repeated dated delivery/next-action prose obscured the current statistics scope; exact earlier body retained | [Issue #9](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/9), [active requirements and overlay plan](../product/2026-10-13-journey-information-map.md#understand-my-flying) |
 | [Planning/delivery checkpoints, 16–22 October](planning/2026-10-22-checkpoints.md) | Superseded next-action sequences and release/design proposals overwhelmed the current roadmap | [Current plan](../project-plan.md) |
 | [Rejected Figma arrangements](design/2026-10-13-rough-figma-wireframes.md) | Both early arrangements were rejected | [Selected modern UI](../product/design/alternative-ui.md) |
 | [Early dark-concept review](design/2026-10-13-dark-concept-review.md) | Design discovery preceded the now-selected native baseline | [Design handbook](../product/design/README.md) |

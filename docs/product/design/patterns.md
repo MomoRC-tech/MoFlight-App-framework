@@ -5,6 +5,8 @@
 
 ## Screen composition
 
+**23 October planning override, not implemented:** the [statistics overlay proposal](alternative-ui.md#statistics-overlay-proposal--23-october-2026) replaces the planned inline Saison im Detail route with a labelled season-heading action and framed overlay. Preserve period/section/scroll through supporting-flight details and Back; Close returns to Start. Existing presentation remains as documented below until implementation approval and delivery.
+
 | Destination | Current presentation |
 | --- | --- |
 | Übersicht | Meine Saison leads with four current/prior-year time/starts rings and one latest dated flight opening its exact saved identity. Saison im Detail reveals one combined, fully visible Jan–Dec chart without horizontal scrolling. Empty/error states point to the header Daten action; the permanent connection/reminder box is removed. A compact Verein source summary remains. Detailed counts/freshness stay in Profile/Flüge. No empty first-use dashboard, invented coverage or automatic full retrieval. |

@@ -7,6 +7,8 @@
 
 ## Component map
 
+**Planned statistics extension (#9), awaiting implementation approval:** a labelled chart action in Meine Saison opens a read-only C08-style statistics frame, replacing inline Saison im Detail. See the [proposal](alternative-ui.md#statistics-overlay-proposal--23-october-2026) for placement, blueprint decoration and bounded scrolling. The map below describes existing components, not a delivered statistics overlay.
+
 | ID | Component / shape | Geometry / presentation | Function / source |
 | --- | --- | --- | --- |
 | C01 | Content card | Opaque panel, radius 22, border 1, padding 18 | Group coherent facts/actions; pressable only with an action. theme Card. |

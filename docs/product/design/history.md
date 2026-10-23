@@ -2,6 +2,8 @@
 
 ## Selected modern main — 22 October 2026
 
+**23 October statistics planning:** Manuel requested cleanup and a statistics overlay/technical drawing proposal, followed by implementation approval. The [proposal](alternative-ui.md#statistics-overlay-proposal--23-october-2026) under #9 is recorded; no statistics UI, artwork generation or native acceptance follows from this documentation change. Historical inline/swipe routes are superseded for planning only.
+
 Manuel explicitly instructed merging the alternative branch because “this branch is the new main.” The [modern UI contract](alternative-ui.md) supersedes conflicting earlier canvas/layout, header, reminder, latest-flight and chart decisions below: compact ASK-21 scene, consistent status controls, no leading Start box, one latest-flight row, four season rings and one fully visible Jan–Dec paired-year chart. Original logo and selected symbol family remain. Automatic post-login completion and quiet app-switch retention keep their separately verified data/ownership boundaries. Earlier dated sections retain historical evidence; adoption does not establish physical/iOS/live-source or populated-performance acceptance. [Integration and source-specific evidence](../../verification/2026-10-22-alternative-ui.md).
 
 

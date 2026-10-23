@@ -106,7 +106,7 @@ See [product scope](docs/product/moflight-feature-scope.md), [writing presentati
 | UI design | Modern alternative selected as the main baseline on 22 October: compact ASK-21 header, season rings, single-row paired-year chart and retained five-tab navigation; scoped device evidence is in the design report |
 | Native foundation | Expo/React Native lab with local SQLite, backup and bounded Android evidence |
 | Vereinsflieger access | Verified account-scoped own-flight storage and ordinary Flüge delivered within bounded Android evidence; broader source/account/platform gates remain open |
-| Statistics and books | Real-library Start counts/time/year/registration/coverage implemented; scoped populated Android ring/year-navigation checks pass; broader statistics/platform acceptance open. Real book assignment is deferred; multi-book proofs remain synthetic |
+| Statistics and books | Real-library Start counts/time/year/registration/coverage implemented; scoped populated Android ring/year-navigation checks pass. [Meine Saison statistics overlay plan](docs/product/2026-10-13-journey-information-map.md#statistics-overlay-plan--23-october-2026) awaits implementation approval under #9; broader statistics/platform acceptance open. Real book assignment is deferred; multi-book proofs remain synthetic |
 | Photo-to-writing | Product journey and format work exist; real recognition and full phone/print acceptance remain open |
 | iOS | Intended platform, currently deferred; exports do not establish runtime acceptance |
 
