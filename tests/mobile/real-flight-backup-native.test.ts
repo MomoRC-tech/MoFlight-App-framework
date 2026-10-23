@@ -389,7 +389,7 @@ test('SQLite empty-to-populated-to-empty restore reports review without claiming
     authorize,hash,uuid:() => commandId(nextId++),now:() => at,
     retrieve:async () => { throw new Error('No provider retrieval in rollback verification'); },
     journal:async () => ({pending:async () => null,close:async () => {},
-      prepare:async () => assert.fail('no save command may be prepared'),resolve:async () => assert.fail('no command to resolve')}),
+      supersede:async()=>assert.fail('no command to supersede'),prepare:async () => assert.fail('no save command may be prepared'),resolve:async () => assert.fail('no command to resolve')}),
     repository:async () => {
       const journal = await deps.native.openRealFlightSelection(scope);
       assert.ok(journal);

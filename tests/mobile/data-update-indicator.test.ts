@@ -47,7 +47,7 @@ function fixture() {
     useMemo: (make: () => ReturnType<typeof createSessionPresentation>) => presentation ??= make() };
   const modules: Record<string, unknown> = {
     react: { default: react, ...react }, 'react-native': { Pressable: 'Pressable', View: 'View', StyleSheet: { create: (v: unknown) => v } },
-    './theme': { Label: 'Label', colors: { muted: '#adbed5' } }, './SymbolIcon': { SymbolIcon: 'SymbolIcon' }, './data-freshness': { dataFreshness, dataUpdateStatus },
+    './theme': { Label: 'Label', colors: { muted: '#adbed5' } }, './SyncProgress':{SyncShine:'SyncShine'},'./SymbolIcon': { SymbolIcon: 'SymbolIcon' }, './data-freshness': { dataFreshness, dataUpdateStatus },
     './data-update-presentation': { createSessionPresentation },
   };
   const exports: any = {};

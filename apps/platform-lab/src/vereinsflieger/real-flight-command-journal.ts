@@ -9,7 +9,7 @@ import { realFlightBoundedJson, realFlightExactKeys, realFlightRequire, realFlig
   type RealFlightCommand } from './real-flight-library-model';
 
 export const REAL_FLIGHT_COMMAND_JOURNAL_FAMILY = 'moflight-real-flight-command-journal';
-export type RealFlightCommandResolutionOutcome = 'committed' | 'not-committed';
+export type RealFlightCommandResolutionOutcome = 'committed' | 'not-committed' | 'superseded';
 
 export interface RealFlightCommandJournalPermit {
   ownerId: string; storeId: string; leaseId: string; writable: boolean;
@@ -59,6 +59,10 @@ const schemaObjects: { name: string; sql: string }[] = [
 
 /** Exact v1 schema for one native journal shared by multiple owner/store scopes. */
 export const REAL_FLIGHT_COMMAND_JOURNAL_SCHEMA = [...schemaObjects.map(object => object.sql), 'PRAGMA user_version=1'].join(';\n') + ';';
+// Version 2 extends only resolution metadata. Original commands/receipts stay intact.
+const schemaObjectsV2 = schemaObjects.map(object => ({...object,sql:object.sql
+  .replace("('committed','not-committed')", "('committed','not-committed','superseded')")
+  .replace("r.outcome='committed'", "r.outcome IN ('committed','superseded')")}));
 const normalizeSql = (sql: string) => sql.trim().replace(/\s+/g, ' ');
 
 function timestamp(value: unknown): asserts value is string {
@@ -194,11 +198,11 @@ export class RealFlightCommandJournal {
   private async checkSchema(tx: Connection): Promise<void> {
     await this.access(false);
     const version = await tx.first<{user_version:number}>('PRAGMA user_version');
-    realFlightRequire(version?.user_version === 1, 'Unsupported real flight command journal version; preserved.');
+    realFlightRequire(version?.user_version === 1 || version?.user_version === 2, 'Unsupported real flight command journal version; preserved.');
     await this.access(false);
     const actual = await tx.all<{name:string;sql:string}>("SELECT name,sql FROM sqlite_master WHERE sql IS NOT NULL AND name NOT LIKE 'sqlite_%' ORDER BY name");
     const byName = (a:{name:string},b:{name:string}) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
-    const expected = [...schemaObjects].sort(byName).map(item=>({name:item.name,sql:normalizeSql(item.sql)}));
+    const expected = [...(version.user_version===2?schemaObjectsV2:schemaObjects)].sort(byName).map(item=>({name:item.name,sql:normalizeSql(item.sql)}));
     realFlightRequire(canonical(actual.map(item=>({name:item.name,sql:normalizeSql(item.sql)})).sort(byName)) === canonical(expected),
       'Unsupported real flight command journal schema; preserved.');
     await this.access(false);
@@ -254,15 +258,15 @@ export class RealFlightCommandJournal {
         'Invalid scoped real flight command resolution identity.');
       priorResolutionSeq = row.seq;
       realHistoryUuid(row.command_id); timestamp(row.resolved_at);
-      realFlightRequire(row.outcome === 'committed' || row.outcome === 'not-committed', 'Invalid real flight command resolution outcome.');
+      realFlightRequire(row.outcome === 'committed' || row.outcome === 'not-committed' || row.outcome === 'superseded', 'Invalid real flight command resolution outcome.');
       const command = byId.get(row.command_id);
       realFlightRequire(command, 'Foreign or orphan real flight command resolution.');
-      realFlightRequire(command.latestOutcome === null || (command.latestOutcome === 'not-committed' && row.outcome === 'committed'),
+      realFlightRequire(command.latestOutcome === null && row.outcome!=='superseded' || (command.latestOutcome === 'not-committed' && (row.outcome === 'committed'||row.outcome==='superseded')),
         'Invalid real flight command resolution history.');
       command.latestOutcome = row.outcome;
     }
 
-    const pending = commands.filter(command => command.latestOutcome !== 'committed');
+    const pending = commands.filter(command => command.latestOutcome !== 'committed' && command.latestOutcome !== 'superseded');
     realFlightRequire(pending.length <= 1 && (!pending.length || commands.at(-1) === pending[0]),
       'Invalid unresolved real flight command sequence.');
     await this.access(writeAccess);
@@ -283,6 +287,7 @@ export class RealFlightCommandJournal {
     const state = await this.readState(this.db, true);
     if (global) {
       const previous = state.commands.find(item => item.row.command_id === validated.command.commandId);
+      realFlightRequire(previous?.latestOutcome!=='superseded','A superseded command cannot be replayed.');
       realFlightRequire(previous && previous.request === validated.request && previous.requestSha256 === validated.requestSha256,
         'Real flight command ID reused with different input.');
       await this.access(true);
@@ -302,6 +307,7 @@ export class RealFlightCommandJournal {
             'Real flight command ID is already used outside this owner/store.');
           const current = await this.readState(tx, true);
           const previous = current.commands.find(item => item.row.command_id === validated.command.commandId);
+          realFlightRequire(previous?.latestOutcome!=='superseded','A superseded command cannot be replayed.');
           realFlightRequire(previous && previous.request === validated.request && previous.requestSha256 === validated.requestSha256,
             'Real flight command ID reused with different input.');
         } else {
@@ -343,10 +349,33 @@ export class RealFlightCommandJournal {
     await this.resolveValidated(commandId, outcome, command.latestOutcome);
   }
 
+  /** Only after a writable selected library proves this command has no receipt. */
+  async supersede(commandId: string): Promise<void> {
+    await this.access(true);
+    await this.db.transaction(async tx => {
+      await this.access(true);
+      const state=await this.readState(tx,true), command=state.commands.find(c=>c.command.commandId===commandId);
+      realFlightRequire(command?.latestOutcome==='not-committed'||command?.latestOutcome==='superseded','Only a confirmed uncommitted command can be superseded.');
+      if(command.latestOutcome==='superseded')return;
+      const version=await tx.first<{user_version:number}>('PRAGMA user_version');
+      if(version?.user_version===1){
+        const rows=await tx.all<ResolutionRow>('SELECT * FROM real_flight_command_resolutions ORDER BY seq');
+        await tx.exec('DROP TRIGGER real_flight_commands_one_pending; DROP TABLE real_flight_command_resolutions;');
+        for(const object of schemaObjectsV2.filter(o=>o.sql.includes('real_flight_command_resolutions')))await tx.exec(object.sql);
+        for(const row of rows)await tx.run('INSERT INTO real_flight_command_resolutions(seq,owner_id,store_id,command_id,outcome,resolved_at) VALUES (?,?,?,?,?,?)',row.seq,row.owner_id,row.store_id,row.command_id,row.outcome,row.resolved_at);
+        await tx.exec('PRAGMA user_version=2;');
+      }
+      await this.access(true);
+      await tx.run('INSERT INTO real_flight_command_resolutions(owner_id,store_id,command_id,outcome,resolved_at) VALUES (?,?,?,?,?)',this.ownerId,this.storeId,commandId,'superseded',new Date().toISOString());
+      await this.access(true);
+    });
+    await this.access(true);
+  }
+
   private async resolveValidated(commandId: string, outcome: RealFlightCommandResolutionOutcome,
     existingOutcome: RealFlightCommandResolutionOutcome | null): Promise<void> {
     if (existingOutcome === outcome) { await this.access(true); return; }
-    realFlightRequire(existingOutcome !== 'committed', 'A committed real flight command cannot be downgraded.');
+    realFlightRequire(existingOutcome !== 'committed' && existingOutcome !== 'superseded', 'A committed or superseded real flight command cannot be downgraded.');
     const resolvedAt = new Date().toISOString();
     let completed = false;
     try {
@@ -358,7 +387,7 @@ export class RealFlightCommandJournal {
         if (command.latestOutcome === outcome) {
           await this.access(true); completed = true; return;
         }
-        realFlightRequire(command.latestOutcome !== 'committed', 'A committed real flight command cannot be downgraded.');
+        realFlightRequire(command.latestOutcome !== 'committed' && command.latestOutcome !== 'superseded', 'A committed or superseded real flight command cannot be downgraded.');
         await this.access(true);
         await tx.run('INSERT INTO real_flight_command_resolutions(owner_id,store_id,command_id,outcome,resolved_at) VALUES (?,?,?,?,?)',
           this.ownerId, this.storeId, commandId, outcome, resolvedAt);

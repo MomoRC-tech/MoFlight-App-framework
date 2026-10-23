@@ -1,4 +1,18 @@
+import * as syncProgress from '../../apps/platform-lab/src/mobile/sync-progress.ts';
 import { DiagnosticJournal } from '../../apps/platform-lab/src/diagnostics';
+
+test('ordinary sync reports actual stages while login is minimal and completion runs once',async()=>{
+  const f=fixture({intent:'update'});try{
+    f.render();await f.flush();assert.ok(f.progressUpdates.some(p=>p.last==='prepare'),'Local preparation is the first confirmed row');f.verify();await f.flush();
+    assert.equal(f.nodes().find(n=>n.type==='ProviderConnection')!.props.minimal,true);
+    assert.ok(f.progressUpdates.some(p=>p.current==='flights'));
+    assert.ok(!f.progressUpdates.some(p=>p.last==='save'),'No confirmed save before source completion');
+    f.complete();await f.flush();
+    assert.equal(f.closed.length,1);
+    const events=f.journal.journey().filter(e=>e.kind==='sync').map(e=>e.target);
+    assert.ok(events.includes('sync-flights'));assert.ok(events.includes('sync-save'));assert.ok(events.includes('sync-success'));
+  }finally{f.dispose();}
+});
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -34,7 +48,7 @@ const fixtureActivityLedger={
 
 // Real screen effects and handlers; SQLite and provider behavior have their own
 // integration tests. These ports control timing to exercise the screen coordinator.
-function fixture({providerAllowed=true,deferRead=false,startUpdate=false,root=false,readOnly=false,deferReservation=false,deferActivityCancel=false,deferActivityWrite=false,failStartup=false,medicalFailure=false,loginPending=false,deferProvider=false,quietResume=false,deferSource=false,sameWindow=false,deferVerification=false,priorConnection='unknown',existingOwner=false,pendingRestore=false,cancelRestore=false,initialOpen=true,activityEnabled=false,activityBaselineCount=1,activityResultCount=2,onStatus:statusCallback=undefined as ((status:any)=>void)|undefined,intent:requestedIntent=undefined as string|undefined}={}) {
+function fixture({providerAllowed=true,deferRead=false,startUpdate=false,root=false,readOnly=false,deferReservation=false,deferActivityCancel=false,deferActivityWrite=false,failStartup=false,medicalFailure=false,loginPending=false,deferProvider=false,quietResume=false,deferSource=false,sameWindow=false,deferVerification=false,priorConnection='unknown',existingOwner=false,pendingRestore=false,cancelRestore=false,initialOpen=true,unactivatedPreparation=false,activityEnabled=false,activityBaselineCount=1,activityResultCount=2,onStatus:statusCallback=undefined as ((status:any)=>void)|undefined,intent:requestedIntent=undefined as string|undefined}={}) {
   let panelOpen=initialOpen,requestId=0;
   const journal=new DiagnosticJournal(), diagnosis={current:journal.begin(startUpdate?'update-flights':'open-flight-tools')};
   const hooks:any[]=[],effects:(()=>void)[]=[],calls:string[]=[],activityOrder:string[]=[],closed:any[]=[];
@@ -82,6 +96,7 @@ function fixture({providerAllowed=true,deferRead=false,startUpdate=false,root=fa
     ports:any;
     async readStored(){activityOrder.push('refresh-read');if(deferRead)await storedRead;return {snapshot,flights:saved?[{},{},{}]:[]};}
     async recoverPending(){return {status:'none'};}
+    async prepareFreshFetch(){return {status:'none'};}
     async retrieveUpdate(){if(deferSource)await new Promise<void>(resolve=>{admitSource=resolve;});abort=new AbortController();if(deferProvider)c.viewReady=false;const value=await this.ports.retrieve({from:'2025-01-01',to:'2026-10-21'},abort.signal);return {state:'confirm-account',accountRef:'101',source:value};}
     async saveVerifiedReview(_review:any,context:any){assert.equal(context.accountNumber,'101');calls.push('save');saved=true;return {counts:{added:2,changed:1,pending:0}};}
     cancelReview(){abort?.abort();}
@@ -98,7 +113,7 @@ function fixture({providerAllowed=true,deferRead=false,startUpdate=false,root=fa
   const modules:Record<string,any>={react:{default:react,...react},
     '../user-backup-native':{getPendingUserBackupRestoreNative:async()=>{pendingRestoreChecks++;return pendingRestore?{operationId:'pending',ownerId:'owner',storeId:'store'}:null;},
       restoreUserBackupFromPickerNative:async(_scope:any,_gate:any,id:string)=>{calls.push('resume-'+id);if(cancelRestore)return {state:'cancelled'};pendingRestore=false;return {state:'restored'};}},
-    './session-monitor':{startSessionMonitor},
+    './sync-progress':syncProgress,'./session-monitor':{startSessionMonitor},
     './activity-ledger':fixtureActivityLedger,
     './activity-sync':activitySync,
     '../vereinsflieger/scoped-storage':{
@@ -113,21 +128,23 @@ function fixture({providerAllowed=true,deferRead=false,startUpdate=false,root=fa
     'react-native-safe-area-context':leaves(['SafeAreaView']), 'expo-crypto':{randomUUID:()=> 'uuid'},'../storage':{hash:async()=>''},
     '../vereinsflieger/flight-diagnostics':{timeFlightStage:(_:string,work:()=>unknown)=>work()},
     '../vereinsflieger/use-access-controller':{useAccessController:()=>({...c})},
-    '../vereinsflieger/real-flight-native':{openOwnerRegistry:async()=>{calls.push('registry');if(failStartup)throw new Error('Startup interrupted');return registry;},openRealFlightSelection:async()=>({listRestorePreparations:async()=>[],close:async()=>{}})},
+    '../vereinsflieger/real-flight-native':{openOwnerRegistry:async()=>{calls.push('registry');if(failStartup)throw new Error('Startup interrupted');return registry;},openRealFlightSelection:async()=>({listRestorePreparations:async()=>unactivatedPreparation?[{operationId:"prepared",status:"pending"}]:[],close:async()=>{}})},
     '../vereinsflieger/real-flight-owner-setup':{continueRealFlightOwnerSetup:async()=>true},
     '../vereinsflieger/real-flight-service':{RealFlightService:Service,PendingRealFlightOperation:class extends Error{}},
     './core-flight-review-policy':policy,'../vereinsflieger/real-flight-backup-native':{},
     './own-flight-reader-native':{ownFlightReadPorts:{suspend:async()=>{calls.push('reserve');if(deferReservation)await reservation;return ()=>calls.push('release');}}},
-    './ProviderConnection':leaves(['ProviderConnection']),'./theme':{...leaves(['Action','Card','Label','Section']),colors:{}},
+    './ConnectionSettings':{ConnectionSettings:'ConnectionSettings'},'./ProviderConnection':leaves(['ProviderConnection']),'./theme':{...leaves(['Action','Card','Label','Section']),colors:{}},
     '../vereinsflieger/retrieval-policy':{planFlightRetrieval},'./data-freshness':{dataFreshness},
   };
+  c.beginFreshFlightConnection=()=>{c.beginGuidedFlightConnection();return true;};
+  const progressUpdates:syncProgress.SyncProgress[]=[];
   const exports:any={};runInNewContext(source,{exports,require:(name:string)=>{assert.ok(name in modules,name);return modules[name];},setTimeout:(fn:()=>void)=>{timers.set(++timerId,fn);return timerId;},clearTimeout:(id:number)=>timers.delete(id),console,Error});
-  function render(){dirty=false;index=0;tree=root?exports.CoreFlightFoundation({providerEntryAllowed:providerAllowed,startUpdate,intent:requestedIntent,open:panelOpen,requestId,close:(v:any)=>closed.push(v),onStatus:statusCallback}):exports.OwnerFlightLibrary({providerEntryAllowed:providerAllowed,lease,registry,startUpdate,intent:requestedIntent,open:panelOpen,requestId,close:(v:any)=>closed.push(v),onStatus:(status:any)=>{statusUpdates.push(cloneJson(status));statusCallback?.(status);},takeInitialRepository:()=>null,diagnosis});while(effects.length)effects.shift()!();return tree;}
+  function render(){dirty=false;index=0;tree=root?exports.CoreFlightFoundation({providerEntryAllowed:providerAllowed,startUpdate,intent:requestedIntent,open:panelOpen,requestId,onProgress:(value:syncProgress.SyncProgress)=>progressUpdates.push(value),close:(v:any)=>closed.push(v),onStatus:statusCallback}):exports.OwnerFlightLibrary({providerEntryAllowed:providerAllowed,lease,registry,startUpdate,intent:requestedIntent,open:panelOpen,requestId,onProgress:(value:syncProgress.SyncProgress)=>progressUpdates.push(value),close:(v:any)=>closed.push(v),onStatus:(status:any)=>{statusUpdates.push(cloneJson(status));statusCallback?.(status);},takeInitialRepository:()=>null,diagnosis});while(effects.length)effects.shift()!();return tree;}
   async function flush(){for(let n=0;n<12;n++){if(dirty)render();await new Promise<void>(resolve=>{setImmediate(resolve);});}if(dirty)render();}
   function nodes(){const result:Element[]=[];function visit(value:any){if(value&&typeof value==='object'&&'children'in value){result.push(value);value.children.forEach(visit);if(value.props.progress)visit(value.props.progress);}}visit(tree);return result;}
   const text=(node:any):string=>node&&typeof node==='object'&&'children'in node?node.children.map(text).join(''):typeof node==='string'?node:'';
   function press(label:string){const node=nodes().find(n=>n.type==='Action'&&text(n)===label);assert.ok(node,label);assert.ok(!node.props.disabled,label);node.props.onPress();}
-  return {journal,render,flush,c,calls,closed,nodes,activityChecks:()=>activityChecks,activityWriteCalls:()=>activityWriteCalls,pendingRestoreChecks:()=>pendingRestoreChecks,activityLedgerSaves:()=>activityLedgerSaves.map(cloneJson),savedActivityLedger:()=>savedActivityLedger===null?null:cloneJson(savedActivityLedger),statusUpdates,changeSelection:()=>{selectedHead++;},setOpen:(value:boolean)=>{panelOpen=value;if(value)requestId++;dirty=true;},text:()=>text(tree),progressText:()=>text(nodes().find(n=>n.type==='ProviderConnection')?.props.progress),press,finishReservation,background:()=>listeners.forEach(f=>f('background')),resume:()=>listeners.forEach(f=>f('active')),
+  return {progressUpdates,journal,render,flush,c,calls,closed,nodes,activityChecks:()=>activityChecks,activityWriteCalls:()=>activityWriteCalls,pendingRestoreChecks:()=>pendingRestoreChecks,activityLedgerSaves:()=>activityLedgerSaves.map(cloneJson),savedActivityLedger:()=>savedActivityLedger===null?null:cloneJson(savedActivityLedger),statusUpdates,changeSelection:()=>{selectedHead++;},setOpen:(value:boolean)=>{panelOpen=value;if(value)requestId++;dirty=true;},text:()=>text(tree),progressText:()=>text(nodes().find(n=>n.type==='ProviderConnection')?.props.progress),press,finishReservation,background:()=>listeners.forEach(f=>f('background')),resume:()=>listeners.forEach(f=>f('active')),
     verify:()=>{c.visible=false;c.connection={phase:'observed',confirmed:true,observed:{accountNumber:'101',clubLabel:'Example'}};dirty=true;},
     pendingTimers:()=>timers.size,expire:()=>{for(const [id,fn] of timers){timers.delete(id);fn();}},
     finishRead:()=>finishRead(),
@@ -587,4 +604,13 @@ test('cancelling the pending aggregate picker retains the recovery screen',async
     assert.match(f.text(),/Eine Datensicherung wird noch wiederhergestellt/);
     assert.ok(!f.calls.includes('create'));
   }finally{f.dispose();}
+});
+
+
+test('an unactivated backup candidate cannot block fresh sync against a verified writable active library',async()=>{
+ const f=fixture({intent:'update',unactivatedPreparation:true});try{
+  f.render();await f.flush();assert.ok(f.calls.includes('session'));
+  assert.ok(!f.progressUpdates.some(p=>p.state==='failed'));
+  f.verify();await f.flush();f.complete();await f.flush();assert.equal(f.closed.length,1);
+ }finally{f.dispose();}
 });

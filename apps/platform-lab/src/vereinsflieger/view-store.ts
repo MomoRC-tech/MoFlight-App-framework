@@ -21,3 +21,16 @@ export async function forgetView(db: Connection, expected: ViewPreferences) {
   await db.run('DELETE FROM provider_view_recovery WHERE id=1 AND payload=?', JSON.stringify(validateView(expected)));
   if (await pendingView(db)) throw new Error('Provider view recovery could not be cleared.');
 }
+
+/** Called in a scoped transaction after fresh matching-account proof. Never replay stale preferences. */
+export async function supersedeView(db: Connection, expected: ViewPreferences | null) {
+  const current=await pendingView(db);
+  if(JSON.stringify(current)!==JSON.stringify(expected))throw new Error('Provider view changed before fresh attempt.');
+  if(!current)return;
+  await db.exec('CREATE TABLE IF NOT EXISTS provider_view_superseded_v1(payload TEXT PRIMARY KEY,reason TEXT NOT NULL CHECK(reason=\'fresh-fetch\'));');
+  const payload=JSON.stringify(current);
+  await db.run('INSERT OR IGNORE INTO provider_view_superseded_v1(payload,reason) VALUES (?,?)',payload,'fresh-fetch');
+  const retained=await db.first<{payload:string}>('SELECT payload FROM provider_view_superseded_v1 WHERE payload=?',payload);
+  if(retained?.payload!==payload)throw new Error('Previous view evidence could not be retained.');
+  await forgetView(db,current);
+}

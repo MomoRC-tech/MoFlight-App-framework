@@ -18,6 +18,8 @@ import { initializeDiagnostics } from './diagnostics-native';
 import { diagnosticJournal } from '../diagnostics';
 import { unknownProviderStatus, type ProviderStatus } from './ProviderConnection';
 import { DataUpdateIndicator } from './DataUpdateIndicator';
+import {SyncProgress} from './SyncProgress';
+import {idleSyncProgress,type SyncProgress as SyncProgressState} from './sync-progress';
 import { UpdateDialog } from './UpdateDialog';
 import { DATA_FRESHNESS_REMINDER_MS, DATA_UPDATE_FRESH_MS } from './data-freshness';
 import { SESSION_DISPLAY_FRESH_MS } from './data-update-presentation';
@@ -28,7 +30,7 @@ import { LibraryBackup } from './LibraryBackup';
 import { PaperStatus } from './PaperStatus';
 import { ImportPreview } from './ImportPreview';
 import type { PreviewSession } from '../import-preview';
-import { CoreFlightFoundation, type FlightLoadResult, type ConnectionIntent } from './CoreFlightFoundation';
+import { CoreFlightFoundation, type FlightLoadResult, type ConnectionIntent,type SyncControls } from './CoreFlightFoundation';
 import { UpdateResult } from './UpdateResult';
 import { ClubEvents, ClubDocumentNotices, ClubWorkSummary, ClubOwnTasks } from './ClubInformation';
 import { ConnectionSummary } from './ConnectionSummary';
@@ -57,12 +59,25 @@ export default function MobileApp() {
   const [lastLoad,setLastLoad] = useState<FlightLoadResult|null>(null);
   const [flightReload,setFlightReload] = useState(0);
   const [providerStatus,setProviderStatus] = useState<ProviderStatus>(unknownProviderStatus);
+  const [syncProgress,setSyncProgress]=useState<SyncProgressState>(idleSyncProgress);
+  const syncLock=useRef(false);
+  const [syncControls,setSyncControls]=useState<SyncControls|null>(null);
+  const syncRunning=!!entry?.open&&entry.intent==='update';
+  const modalOpen=!!entry?.open&&(entry.intent!=='update'||!!providerStatus.loginVisible);
+  useEffect(()=>{if(syncProgress.state==='failed'||syncProgress.state==='partial')syncLock.current=false;},[syncProgress.state]);
+  useEffect(()=>{diagnosticJournal.record('sync',modalOpen?'sync-popup-open':'sync-popup-hidden');},[modalOpen]);
   return <SafeAreaProvider><View style={{flex:1}}>
-    <View style={{flex:1}} pointerEvents={entry?.open?'none':'auto'} aria-hidden={!!entry?.open} accessibilityElementsHidden={!!entry?.open} importantForAccessibility={entry?.open?'no-hide-descendants':'auto'}><Shell coreFlightsOpen={!!entry?.open} flightReload={flightReload} lastLoad={lastLoad} providerStatus={providerStatus} onCoreFlights={(intent='options',development=false)=>{setLastLoad(null);setEntry(previous=>({intent:intent==='update'?'update':'options',development,open:true,requestId:(previous?.requestId??0)+1}));}}/></View>
-    {entry&&<UpdateDialog open={entry.open} expanded={entry.intent==='update'&&!!providerStatus.loginVisible}>{windowTop=><CoreFlightFoundation dialogTop={windowTop} providerEntryAllowed={entry.intent==='update'} open={entry.open} requestId={entry.requestId} intent={entry.intent} onStatus={setProviderStatus} developmentRecoveryCheckpoints={entry.development} close={result=>{setEntry(previous=>previous?{...previous,open:false}:null);if(result)setLastLoad(result);setFlightReload(value=>value+1);}}/>}</UpdateDialog>}
+    <View style={{flex:1}} pointerEvents={modalOpen?'none':'auto'} aria-hidden={modalOpen} accessibilityElementsHidden={modalOpen} importantForAccessibility={modalOpen?'no-hide-descendants':'auto'}><Shell syncControls={syncControls} syncRunning={syncRunning} syncProgress={syncProgress} coreFlightsOpen={!!entry?.open} flightReload={flightReload} lastLoad={lastLoad} providerStatus={providerStatus} onCoreFlights={(intent='options',development=false)=>{
+      if(syncLock.current){diagnosticJournal.record('sync','sync-duplicate-ignored');return;}
+      syncLock.current=intent==='update';if(intent==='update'){diagnosticJournal.record('sync','sync-requested');setSyncProgress({...idleSyncProgress,state:'active',current:'prepare'});}setLastLoad(null);setEntry(previous=>({intent:intent==='update'?'update':'options',development,open:true,requestId:(previous?.requestId??0)+1}));}}/></View>
+    {entry&&<UpdateDialog open={modalOpen} expanded={entry.intent==='update'&&!!providerStatus.loginVisible}>{windowTop=><CoreFlightFoundation dialogTop={windowTop} providerEntryAllowed={entry.intent==='update'} open={entry.open} requestId={entry.requestId} intent={entry.intent} onProgress={setSyncProgress} onControls={setSyncControls} onStatus={setProviderStatus} developmentRecoveryCheckpoints={entry.development} close={result=>{syncLock.current=false;
+      if(result){const partial=[result.medicalStatus,result.dutyStatus,result.eventsStatus,result.documentNoticesStatus,result.workSummaryStatus,result.workHoursStatus,result.tasksStatus].some(status=>status==='failed'||status==='skipped')||result.pending>0||result.cleanupPending;
+        setSyncProgress(partial?{state:'partial',last:'save',current:null,message:'Teilweise synchronisiert. Gespeicherte Daten bleiben verfügbar.'}:idleSyncProgress);
+      }else if(syncRunning)setSyncProgress(previous=>previous.state==='failed'?previous:{...previous,state:'failed',message:'Synchronisierung abgebrochen. Gespeicherte Daten bleiben verfügbar.'});
+      setEntry(previous=>previous?{...previous,open:false}:null);if(result)setLastLoad(result);setFlightReload(value=>value+1);}}/>}</UpdateDialog>}
   </View></SafeAreaProvider>;
 }
-function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLoad=null,providerStatus=unknownProviderStatus}:{onCoreFlights?:(intent?:ConnectionIntent,developmentRecoveryCheckpoints?:boolean)=>void;coreFlightsOpen?:boolean;flightReload?:number;lastLoad?:FlightLoadResult|null;providerStatus?:ProviderStatus}={}) {
+function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLoad=null,providerStatus=unknownProviderStatus,syncRunning=false,syncControls=null,syncProgress=idleSyncProgress}:{onCoreFlights?:(intent?:ConnectionIntent,developmentRecoveryCheckpoints?:boolean)=>void;coreFlightsOpen?:boolean;flightReload?:number;lastLoad?:FlightLoadResult|null;providerStatus?:ProviderStatus;syncRunning?:boolean;syncControls?:SyncControls|null;syncProgress?:SyncProgressState}={}) {
   const [tab, setTab] = useState<Tab>('home');
   const [sheet, setSheet] = useState<Sheet>(null);
   const [detail, setDetail] = useState<Flight | null>(null);
@@ -105,8 +120,7 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
   activeTab.current = tab;
   const toolsOpen = sheet === 'bookLab' || sheet === 'flightLab';
   const library = useLibrary(coreFlightsOpen || toolsOpen || sheet === 'backup');
-  const ownFlights = useOwnFlights(ownFlightReadPorts, !coreFlightsOpen, flightReload);
-  const [dismissedUpdate, setDismissedUpdate] = useState<FlightLoadResult|null>(null);
+  const ownFlights = useOwnFlights(ownFlightReadPorts, !coreFlightsOpen, flightReload,syncRunning);
   const updateForOwner=(lastLoad?.ownerId??lastLoad?.verifiedConnection?.ownerId)===ownFlights.view?.snapshot.ownerId && !!ownFlights.view?.snapshot.ownerId &&
     (!lastLoad?.storeId || lastLoad.storeId===ownFlights.view?.snapshot.storeId) &&
     (!lastLoad?.accountRef || lastLoad.accountRef===ownFlights.view?.snapshot.account?.accountRef) ? lastLoad : null;
@@ -128,11 +142,6 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
   const sameProviderOwner=providerStatus.ownerId===selected?.snapshot.ownerId&&!!providerStatus.ownerId;
   const sameProviderAccount=!!selected?.snapshot.account?.accountRef&&(!providerStatus.connection.observed||providerStatus.connection.observed.accountNumber===selected.snapshot.account.accountRef);
   const flightStatusController=sameProviderOwner&&sameProviderAccount?providerStatus:unknownProviderStatus;
-  useEffect(() => {
-    if (!lastLoad) return;
-    overlayHistory.current = [];
-    setDetail(null); setSheet(null); setTab('home');
-  }, [lastLoad]);
   const libraryRevision = canonical([library.bookId, library.flights]);
   useEffect(() => { setProfileNameDraft(library.displayName); }, [library.displayName]);
   const { width, height, fontScale } = useWindowDimensions();
@@ -187,7 +196,7 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
   const pageTitle = tabs.find(item => item.id === tab)!.title;
   const statusControls = <>
     <DataUpdateIndicator activityChanged={!!flightStatusController.activity?.changed&&flightStatusController.activity.storeId===selected?.snapshot.storeId&&flightStatusController.activity.accountRef===selected?.snapshot.account?.accountRef} scopeKey={selected?.snapshot.account?.accountRef?statisticsScopeKey:null} connection={flightStatusController.connection} receivedAt={receivedAt} readState={ownFlights.phase==='failed'?'failed':ownFlights.phase==='loading'?'loading':'ready'}
-      now={now} disabled={screenBusy} onPress={() => openFlightFlow('update')} />
+      now={now} syncing={syncProgress.state==='active'||syncProgress.state==='waiting'} disabled={screenBusy} onPress={() => openFlightFlow('update')} />
     <MedicalIndicator capture={medical} now={now} active={sheet === 'medical'} disabled={screenBusy} onPress={() => openHeaderSheet('medical')} />
 
   </>;
@@ -199,7 +208,7 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
     <View collapsable={false} style={[{ flex: 1 }, overlayOpen && sheet !== 'statistics' && s.hidden, sheet === 'statistics' && s.dimmed]} pointerEvents={overlayOpen ? 'none' : 'auto'} aria-hidden={overlayOpen} accessibilityElementsHidden={overlayOpen} importantForAccessibility={overlayOpen ? 'no-hide-descendants' : 'auto'}>
     <StatusBar barStyle="light-content" backgroundColor={colors.background} />
     {header}
-    {tab==='home' && updateForOwner && dismissedUpdate !== updateForOwner && <View style={{paddingHorizontal:18,paddingBottom:8}}><UpdateResult result={updateForOwner} onDetails={() => openHeaderSheet('status')} onDismiss={() => setDismissedUpdate(updateForOwner)} /></View>}
+    <SyncProgress cancel={syncControls?.cancel} canCancel={syncControls?.canCancel} progress={syncProgress} retry={()=>openFlightFlow('update')} details={()=>openHeaderSheet('status')}/>
     <View style={[s.content, wide && { maxWidth: 960 }, tablet && !wide && { maxWidth: 600 }]}>
       <View style={[s.page, tab !== 'home' && s.hidden]} accessibilityElementsHidden={tab !== 'home'} importantForAccessibility={tab === 'home' ? 'auto' : 'no-hide-descendants'}>
         <ScrollView contentContainerStyle={s.canvas} keyboardShouldPersistTaps="handled">
@@ -210,7 +219,7 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
         </ScrollView>
       </View>
       <View style={[s.page, tab !== 'flights' && s.hidden]} accessibilityElementsHidden={tab !== 'flights'} importantForAccessibility={tab === 'flights' ? 'auto' : 'no-hide-descendants'}>
-        <OwnFlights active={tab === 'flights' && !coreFlightsOpen} data={ownFlights} filterRequest={flightRequest} onHeaderChange={setFlightHeader}
+        <OwnFlights active={tab === 'flights'} data={ownFlights} filterRequest={flightRequest} onHeaderChange={setFlightHeader}
           />
       </View>
       <View style={[s.page, tab !== 'logbook' && s.hidden]} accessibilityElementsHidden={tab !== 'logbook'} importantForAccessibility={tab === 'logbook' ? 'auto' : 'no-hide-descendants'}>
@@ -253,14 +262,16 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
     </View>
     {overlayOpen && <View style={[StyleSheet.absoluteFill, s.modal, sheet === 'statistics' && s.statisticsScrim]} accessibilityViewIsModal>
       {sheet === 'statistics' ? <View style={[s.statisticsFrame, { width: Math.max(0, Math.min(width - 24, 720)) }]}>
-        <AppHeader back={closeOverlay} backDisabled={screenBusy} title="Flugstatistik" subtitle="Meine Saison">{null}</AppHeader>
+        <AppHeader back={closeOverlay} backDisabled={screenBusy} title="Flugstatistik" subtitle="Meine Saison">{statusControls}</AppHeader>
+        <SyncProgress cancel={syncControls?.cancel} canCancel={syncControls?.canCancel} progress={syncProgress} retry={()=>openFlightFlow('update')} details={()=>openHeaderSheet('status')}/>
         <KeyboardAvoidingView style={{ flex: 1, minHeight: 0 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
           <StatisticsOverlay key={statisticsScopeKey} data={ownFlights} today={today} fontScale={fontScale} onBackHandler={handler => { statisticsBack.current = handler; }} />
         </KeyboardAvoidingView>
       </View> : <>
       <AppHeader profile={profileControl} source={mountain} back={closeOverlay} backDisabled={screenBusy} title={detail ? 'Flugdetails' : sheet === 'paper' || sheet === 'paperInfo' ? 'Papierflugbuch' : sheet === 'development' ? 'Entwicklung' : sheet === 'importPreview' ? 'Importvorschau' : sheet === 'flightLab' ? 'Datensatztest' : sheet === 'bookLab' ? 'Flugbuchtest' : sheet === 'backup' ? 'Sicherung' : sheet === 'designPreview' ? 'Designvorschau' : sheet === 'diagnostics' ? 'Diagnose' : sheet === 'profile' ? 'Profil & Einstellungen' : sheet === 'medical' ? 'Medical' : 'MoFlight'}>{statusControls}</AppHeader>
+        <SyncProgress cancel={syncControls?.cancel} canCancel={syncControls?.canCancel} progress={syncProgress} retry={()=>openFlightFlow('update')} details={()=>openHeaderSheet('status')}/>
         {sheet === 'designPreview' ? <DesignPreview/> : sheet === 'flightLab' ? <><DevelopmentNotice /><LabApp providerOwned={true} embedded onBusyChange={setScreenBusy} /></> : sheet === 'bookLab' ? <><DevelopmentNotice /><BookLab close={closeOverlay} onBusyChange={setScreenBusy} /></> : <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}><ScrollView ref={overlayScroll} key={overlayKey} contentOffset={{ x: 0, y: overlayOffsets.current[overlayKey] ?? 0 }} onScroll={event => { overlayOffsets.current[overlayKey] = event.nativeEvent.contentOffset.y; }} scrollEventThrottle={32} contentContainerStyle={s.canvas} keyboardShouldPersistTaps="handled">
-          {sheet === 'profile' && <ProfileSettings connectionSummary={<ConnectionSummary controller={flightStatusController} ownFlights={ownFlights.view} phase={ownFlights.phase} />} onTools={() => openHeaderSheet('development')} onBackup={() => openFlightFlow('options')} onDiagnostics={() => openHeaderSheet('diagnostics')} onStatus={() => openHeaderSheet('status')} onCredits={() => openHeaderSheet('credits')} onBooks={() => openHeaderSheet('selectBook')} displayName={library.displayName} nameDraft={profileNameDraft} onNameDraftChange={setProfileNameDraft} busy={library.busy} error={library.error} onSaveName={library.saveDisplayName} onRetry={() => void library.reload()} />}
+          {sheet === 'profile' && <ProfileSettings connectionSummary={<ConnectionSummary controller={flightStatusController} ownFlights={ownFlights.view} phase={ownFlights.phase} />} onTools={() => openHeaderSheet('development')} onConnections={()=>openFlightFlow('options')} onBackup={() => openFlightFlow('options')} onDiagnostics={() => openHeaderSheet('diagnostics')} onStatus={() => openHeaderSheet('status')} onCredits={() => openHeaderSheet('credits')} onBooks={() => openHeaderSheet('selectBook')} displayName={library.displayName} nameDraft={profileNameDraft} onNameDraftChange={setProfileNameDraft} busy={library.busy} error={library.error} onSaveName={library.saveDisplayName} onRetry={() => void library.reload()} />}
           {sheet === 'development' && <DevelopmentHub onDesignPreview={()=>openHeaderSheet('designPreview')} onPaper={openBooks} profileTools={<SyntheticProfileSettings displayName={library.displayName} nameDraft={profileNameDraft} onNameDraftChange={setProfileNameDraft} busy={library.busy} error={library.error} onSaveName={library.saveDisplayName} onRetry={() => void library.reload()} />} onSelectBook={() => openHeaderSheet('selectBook')} onBackup={() => openHeaderSheet('backup')} onFlights={() => openHeaderSheet('flightLab')} onBooks={() => openHeaderSheet('bookLab')} onImportPreview={() => openHeaderSheet('importPreview')} onCoreFlights={()=>onCoreFlights('options',true)} />}
           {sheet === 'importPreview' && <ImportPreview session={importPreview} onChange={setImportPreview} onNavigate={() => { overlayOffsets.current.importPreview = 0; overlayScroll.current?.scrollTo({ y: 0, animated: false }); }} />}
           {sheet === 'diagnostics' && <Diagnostics />}

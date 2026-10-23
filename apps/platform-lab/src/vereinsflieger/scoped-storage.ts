@@ -3,7 +3,7 @@ import { openDriver } from '../storage';
 import { authorizeScope, bindScope, readScope, SCOPE_SCHEMA, type ProviderScope } from './scope-store';
 import type { ObservedContext } from './context';
 import { CAPTURE_SCHEMA, persistCapture, readLatestCapture } from './capture-store';
-import { VIEW_SCHEMA, rememberView, pendingView, forgetView } from './view-store';
+import { VIEW_SCHEMA, rememberView, pendingView, forgetView, supersedeView } from './view-store';
 import type { ProbeSnapshot } from './probe';
 import type { ViewPreferences } from './view';
 import { LEGACY_RECOVERY_SCHEMA, readLegacyCopy, prepareLegacyCopy, preserveLegacySafety, legacyResolved, resolveLegacyCopy } from './legacy-recovery-store';
@@ -34,6 +34,7 @@ export async function saveScopedCapture(scope: ProviderScope, value: ProbeSnapsh
 export async function loadScopedView(scope: ProviderScope) { const db = await scoped(scope); try { return await pendingView(db); } finally { await db.close(); } }
 export async function saveScopedView(scope: ProviderScope, value: ViewPreferences) { const db = await scoped(scope); try { await rememberView(db, value); } finally { await db.close(); } }
 export async function clearScopedView(scope: ProviderScope, value: ViewPreferences) { const db = await scoped(scope); try { await forgetView(db, value); } finally { await db.close(); } }
+export async function supersedeScopedView(scope: ProviderScope, value: ViewPreferences | null) { const db=await scoped(scope);try{await db.transaction(tx=>supersedeView(tx,value));}finally{await db.close();} }
 /** Optional advisory cache, separate from canonical flights/receipts and excluded from backups. */
 export async function loadScopedActivity(scope: ProviderScope, store: string): Promise<unknown | null> {
   if (!store || store.length > 200) throw new Error('Invalid activity library scope.');

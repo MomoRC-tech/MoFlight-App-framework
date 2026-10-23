@@ -42,7 +42,7 @@ Keep German labels beside important navigation/status symbols. Show saved facts 
 11. Manuel's **23 October connection instruction and U1 refinement (#42/#22)** retain permanent Daten/saved age with one login/synchronize action, independent recent-session mark and steady amber recommendation when saved flight receipt age exceeds 72 hours. The implemented U3 heuristic also permits the same amber face for a scoped changed count, with **Änderungen möglich**; saved age and session mark remain independent. Checks are foreground-only and hourly at most, and never change authentication or saved age. The compact result sits below the header outside Start scrolling, with recorded completion time and Details/close. See the [current contract](alternative-ui.md#connection-action--23-october-2026) and [U3 evidence/limits](../../verification/2026-10-21-simple-flight-loading.md#guarded-activity-advice-integration--23-october-2026).
 12. Manuel's **23 October U2 implementation instruction** removes the permanent season coverage paragraph while retaining a short caveat in Statistics detail and accessible ring descriptions. The compact club card uses the saved club name, an honest unknown-name fallback, decorative airfield art within the existing title bounds and raised subgroup headings. The [U2 contract](alternative-ui.md#season-and-club-refinement-u2--23-october-2026) records implementation and the combined U1/U2 native/Release checkpoint, which is delivered within its recorded scope. U3 provider/count integration is separately implemented and its native presentation preview is recorded in the current U3 report.
 12. Manuel's **23 October #9 decision** approves the saved-local statistics overlay, year/all/custom periods, exact contributor navigation and decorative blueprint within the [bounded contract](alternative-ui.md#statistics-overlay--approved-implementation-scope-23-october-2026). Unverified launch mapping remains unavailable; broader identity and platform gates remain open.
-13. Manuel's **23 October sync planning instruction (#42/#22/#20)** specifies a [header-attached two-row progress box](alternative-ui.md#header-sync-progress--planned-amendment-23-october-2026), moving button shine, login popup only when required with automatic close, and complete progress-box removal after confirmed success. His subsequent instruction makes [manual login almost entirely the original WebView](alternative-ui.md#login-only-when-necessary), with minimal provider/Close/conditional Back chrome and existing settings/diagnostics elsewhere. This is planned, not implemented or accepted on a device; it supersedes ordinary setup/progress/result popup presentation for the planned replacement. The fresh-fetch persistence proposal remains separate from this planning instruction.
+13. Manuel's **23 October sync planning instruction (#42/#22/#20)** specifies a [header-attached two-row progress box](alternative-ui.md#header-sync-progress--planned-amendment-23-october-2026), moving button shine, login popup only when required with automatic close, and complete progress-box removal after confirmed success. His subsequent instruction makes [manual login almost entirely the original WebView](alternative-ui.md#login-only-when-necessary), with minimal provider/Close/conditional Back chrome and existing settings/diagnostics elsewhere. His subsequent explicit implementation instruction selects this scope plus file diagnostics. It is implemented in source with native acceptance pending; it supersedes ordinary setup/progress/result popup presentation for the planned replacement. The bounded fresh-fetch coordinator/persistence work is also selected; local-only recovery boundaries remain separate.
 14. This handbook consolidates those decisions. Earlier prototype choices apply only where explicitly carried forward. Code values record implementation and cannot approve an unresolved visual difference.
 
 Manuel owns design decisions. Priorities, journeys and account/book behavior remain in the [project plan](../../project-plan.md), [journey map](../2026-10-13-journey-information-map.md) and feature contracts. Link those contracts rather than duplicating them here.
@@ -70,7 +70,7 @@ Manuel authorized an alternative native implementation and verification. On 22 O
 
 ## Header sync progress — planned amendment, 23 October 2026
 
-**Status:** Manuel requested this interaction be reasoned through and added to the plan. It is planned behavior, not implemented or verified, and is not an instruction to implement. [#42 package contract](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/42#issuecomment-6372565189), coordinated with #22/#20. It supersedes the ordinary setup/progress/result popup and persistent completion receipt for this planned journey; existing runtime descriptions below remain implementation history until the replacement ships. Header-only sync admission, account isolation and saved-data meanings remain.
+**Status:** Manuel subsequently instructed implementing this reviewed plan, including file diagnostics. The header progress, retained root sync, minimal login, automatic interrupted-import supersession and scoped prior-view evidence retention are implemented in source; committed-source Android acceptance is pending. [#42 package contract](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/42#issuecomment-6372797891), coordinated with #22/#17/#20. The dated heading/links retain planning provenance. This replaces the ordinary setup/progress/result popup and completion acknowledgement; older runtime descriptions below are historical for that scope. Genuine unreadable/divergent local-only histories and partially activated full-user restores remain protected, separately actionable exceptions.
 
 ### One action and two progress rows
 
@@ -85,17 +85,17 @@ A verified retained session produces no popup. If original-provider login is nee
 
 **Minimal manual-login surface — subsequent 23 October instruction:** the original WebView should occupy almost the entire popup. Keep only a compact provider identity derived from the validated destination, one accessible Close action, and provider Back when actual history needs it. Leave the provider's own fields, sign-in/password-recovery controls and **Angemeldet bleiben** intact. An app-owned inline error appears only for an actual blocked/failed state and gives the immediate corrective action. Do not repeat progress, reassuring paragraphs, account/session cards, saved-age summaries, connection symbols, manual verification/continue buttons, source/date-window choices, raw-data tools, recovery administration or settings in the ordinary login popup. Existing app-owned account preferences and credential administration belong in the existing user-settings connection section; diagnostic/raw/test tools stay in Development and data/backup tools in existing maintenance. Relocate existing functions without creating a new credential policy or storage mechanism. Do not rewrite/remove provider-owned form content to achieve a minimal app shell. See the [review and Issue coordination](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/42#issuecomment-6372692631).
 
-The header box remains the single progress surface; avoid a second progress card inside login. While the modal is visible, its background stays inert and accessibility focus stays in the login; the header status is informational. Preserve keyboard space, password-manager handoff and the native browser parent. **Automatic hide after matching proof and explicit user Close are different events:** hiding the authenticated popup must not cancel the root-owned attempt, revoke its foreground admission or remount the browser. Explicit Close/back cancellation still stops further work safely. Review recommendation: after completion preserve the user's current tab rather than forcing Start after allowing navigation during sync.
+The header box remains the single progress surface; avoid a second progress card inside login. While the modal is visible, its background stays inert and accessibility focus stays in the login; the header status is informational. Preserve keyboard space, password-manager handoff and the native browser parent. **Automatic hide after matching proof and explicit user Close are different events:** hiding the authenticated popup must not cancel the root-owned attempt, revoke its foreground admission or remount the browser. Explicit Close/back cancellation still stops further work safely. The implementation preserves the user's current tab rather than forcing Start after allowing navigation during sync.
 
 ### Completion, exceptions and motion
 
-After all requested jobs settle successfully and required local saves/readbacks are confirmed, roll the box up completely, stop the button shine and return the button/status to its steady state. No permanent result card or success-dismissal step remains. Keep saved freshness and per-source outcomes in existing data details; a finished button does not invent valid live-session proof. Partial failure, cancellation or interruption stops the animation and leaves a short steady status with **Erneut versuchen** or **Details** where needed. Successful source results and prior offline data remain available. This exception behavior avoids hiding a failed sync as if it succeeded; it introduces no routine recovery popup. Backgrounding stops foreground work/animation and shows the actual paused/interrupted state on return.
+After all requested jobs settle successfully and required local saves/readbacks are confirmed, roll the box up completely, stop the button shine and return the button/status to its steady state. No permanent result card or success-dismissal step remains. Keep saved freshness and per-source outcomes in existing data details; a finished button does not invent valid live-session proof. A compact accessible cancel control in the progress box preserves interruption without adding a dialog; it is disabled through atomic save/readback. Partial failure, cancellation or interruption stops the animation and leaves a short steady status with **Erneut versuchen** or **Details** where needed. Successful source results and prior offline data remain available. This exception behavior avoids hiding a failed sync as if it succeeded; it introduces no routine recovery popup. Backgrounding stops foreground work/animation and shows the actual paused/interrupted state on return.
 
 Use slow, restrained opacity/shine motion, never full text disappearance or rapid flashing (at most three flashes per second). Reduced-motion mode uses steady readable status and a busy cue, with immediate show/hide. Announce each real stage transition once through a polite status region, not each animation cycle. The two semantic rows may wrap at narrow widths or enlarged text; do not force tiny text, cap system scaling or clip steps to preserve two physical lines. Keep login/keyboard and saved-content layout usable when the box grows.
 
-**Reasoning and dependencies:** the header provides one stable place for both the action and its progress. Two rows show what just worked and what is happening now without covering the app or making the user manage internal recovery. This depends on the [fresh-fetch proposal](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/42#issuecomment-6365324128): automatically resolve/supersede interrupted provider imports, separate provider-view cleanup from validated data, and preserve local-only books/photos/paper work. Changing presentation alone does not remove the present recovery gate. Provider authority applies only to validated data in the successfully retrieved scope, not partial/error responses or unrelated local state.
+**Reasoning and implementation boundaries:** the header provides one stable place for both the action and its progress. Two rows show what just worked and what is happening now without covering the app or making the user manage internal recovery. The implementation follows the [fresh-fetch proposal](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/42#issuecomment-6365324128): automatically resolve/supersede interrupted provider imports, separate provider-view cleanup from validated data, and preserve local-only books/photos/paper work. Changing presentation alone does not remove the present recovery gate. Provider authority applies only to validated data in the successfully retrieved scope, not partial/error responses or unrelated local state.
 
-**Acceptance when implemented:** header-to-coordinator tests for immediate busy/duplicate tap, real stage promotion, verified-session no-popup, required-login automatic close/continuation, foreign account, partial failure/retry, cancellation/background/restart and confirmed save before completion. Verify the ordinary popup has only justified chrome, original WebView and a necessary transient error; no settings/debug/progress cards or second verification tap. Test automatic hide separately from user cancellation through the real shell/controller, with retained browser identity, same-document/redirect login, password-manager return and tab navigation. Inspect this affected surface at MIN360, MAIN390–412, 600+ wide/landscape, enlarged text, keyboard and reduced motion. Run one committed-source Android interrupted-attempt → single sync tap → automatic completion → offline reopen trial. Physical/iOS acceptance remains separate; spoken trials stay last. This planning amendment has documentation checks only.
+**Acceptance and evidence:** header-to-coordinator tests for immediate busy/duplicate tap, real stage promotion, verified-session no-popup, required-login automatic close/continuation, foreign account, partial failure/retry, cancellation/background/restart and confirmed save before completion. Verify the ordinary popup has only justified chrome, original WebView and a necessary transient error; no settings/debug/progress cards or second verification tap. Test automatic hide separately from user cancellation through the real shell/controller, with retained browser identity, same-document/redirect login, password-manager return and tab navigation. Inspect this affected surface at MIN360, MAIN390–412, 600+ wide/landscape, enlarged text, keyboard and reduced motion. Run one committed-source Android interrupted-attempt → single sync tap → automatic completion → offline reopen trial. Physical/iOS acceptance remains separate; spoken trials stay last. Current scoped verification and remaining gates are recorded in the [single package report](../../verification/2026-10-21-simple-flight-loading.md#fresh-fetch-header-progress-and-minimal-login--23-october-2026).
 
 ## Statistics overlay — approved implementation scope, 23 October 2026
 
@@ -306,9 +306,9 @@ The U1/U3 header uses neutral saved-age text independently of session state, wit
 > The [22 October modern UI contract](alternative-ui.md) is selected as the main baseline. It supersedes conflicting earlier appearance/composition descriptions for C01–C09, typography, surfaces, Start and flight browsing. Data and acceptance boundaries retain their separate contracts.
 [Handbook entry point](README.md). This catalogue records branch implementation; main adoption was selected on 22 October. The portable guide includes schematic examples; source values and native evidence remain authoritative. Example labels/data are synthetic.
 
-**23 October U1 refinement (#42/#22):** permanent Daten/saved flight age and one Daten synchronisieren action; an independent small session mark; steady amber recommendation strictly after 72 hours or a scoped changed activity count (U3); activity advice adds **Änderungen möglich**, independently of age/login. Display retention during checking is scoped and never authentication evidence. The compact receipt sits below the header outside Start scrolling, with counts/source caveats in Details. See the [current contract](alternative-ui.md#connection-action--23-october-2026).
+**23 October U1 refinement (#42/#22):** permanent Daten/saved flight age and one Daten synchronisieren action; an independent small session mark; steady amber recommendation strictly after 72 hours or a scoped changed activity count (U3); activity advice adds **Änderungen möglich**, independently of age/login. Display retention during checking is scoped and never authentication evidence. The earlier compact completion receipt is superseded by the header-progress amendment below; counts/source caveats remain in Details. See the [current contract](alternative-ui.md#connection-action--23-october-2026).
 
-**Planned header progress amendment (23 October, #42/#22/#20):** [the new contract](alternative-ui.md#header-sync-progress--planned-amendment-23-october-2026) replaces ordinary C08/C17 progress/results with a header-attached two-row roll-down box and moving shine on C06 during sync. Only necessary login uses the retained popup; matching verification closes it automatically. The planned login popup is almost entirely the original WebView with compact validated-provider/Close/conditional Back chrome, and a transient error only when needed; existing settings, diagnostics and duplicate progress belong elsewhere. Auto-hide must not cancel root-owned sync or replace the native browser parent. Confirmed success hides the box completely. This is planned, not implemented; the component inventory below describes current runtime.
+**Implemented header progress amendment (23 October, #42/#22/#20):** [the new contract](alternative-ui.md#header-sync-progress--planned-amendment-23-october-2026) replaces ordinary C08/C17 progress/results with a header-attached two-row roll-down box and moving shine on C06 during sync. Only necessary login uses the retained popup; matching verification closes it automatically. The login popup is almost entirely the original WebView with compact validated-provider/Close/conditional Back chrome, and a transient error only when needed; existing settings, diagnostics and duplicate progress belong elsewhere. Auto-hide must not cancel root-owned sync or replace the native browser parent. Confirmed success hides the box completely. Implementation is selected and present in source; native acceptance is recorded separately in the [package report](../../verification/2026-10-21-simple-flight-loading.md#fresh-fetch-header-progress-and-minimal-login--23-october-2026).
 
 ## Component map
 
@@ -323,7 +323,7 @@ The U1/U3 header uses neutral saved-age text independently of session state, wit
 | C05 | Shared header | Cropped navy ASK-21 artwork, unchanged logo88 at left; beside it title28/34 above Data/Medical; padding14 horizontal | Profile at the upper-right edge; title row minimum 48 dp and controls minimum 48 dp give roughly logo-height composition. Enlarged text wraps/grows; contextual Back and disabled guards preserved. AppHeader / FlightScene. |
 | C06 | Header data/status group | Data/Medical 24-unit icons beside two-line labels, minimum 40 dp faces in minimum 48 dp targets; Profile48 | Smaller faces retain full touch targets and scaled text. Red Medical cross is decorative; age/date captions retain separate semantic colours. |
 | C07 | Bottom navigation | Attached dark bar, five equal destinations, minimum target height 68; three-column wrapping below 600 dp with font scale above 1.3 | Icon above full system-scaled German label; final two wrapping items center. Standard text/width retains one row; raised selected tile and bold mint label. MobileApp. |
-| C08 | Update popup / app overlays | Bounded centered navy update frame, radius22, border1, dim scrim; one active dialog, retained native child tree | UpdateDialog frames setup/login/progress/results; underlying page is visible but inert. Other app sheets keep their existing layout. ProviderConnection retains its toolbar/history inside the popup. |
+| C08 | Conditional login / app overlays | Bounded centered navy frame, radius22, border1, dim scrim and retained native child tree | Ordinary sync opens this frame only for necessary original-provider login. Essential provider/Close/conditional Back chrome and a real transient error; no progress/settings/debug cards. Auto-hide after matching proof does not cancel root-owned sync. Other overlays keep their scoped contracts. |
 | C09 | Flight row | Padding 18, radius 20; date/reported duration, registration/model, route and detail chevron | Whole row opens selected-account saved source facts. Source reference/revision/original fields and absent-track context stay in details. Original fields use eight-field pages with concise Zurück / Weiter captions and full provider-field accessibility labels; first/last guards and contextual list return remain. [OwnFlights](../../../apps/platform-lab/src/mobile/OwnFlights.tsx); no inferred role or book assignment. |
 | C10 | AI question / composer | Question radius 18; composer radius 20; send face 48 × 48; input max height 150 | Local questions calculate deterministically; free-text service unavailable. MobileApp. |
 | C11 | Quiet paper entry | Minimum-height 48 row with paper-tone logbook symbol and detail chevron | Associated-account Start offers Papierflugbuch später einrichten and opens the deferred-setup explanation. The former photographic hero remains in the original reference. Synthetic saved paper status stays under Development; viewing never confirms copying. Dashboard / PaperStatus. |
@@ -332,7 +332,7 @@ The U1/U3 header uses neutral saved-age text independently of session state, wit
 | C14 | Synthetic import review | Shared C01/C02/C03 cards/actions/choice chips, centered group capped at 520 dp | Development-only comparison, source variants and explicit book choice; [ImportPreview](../../../apps/platform-lab/src/mobile/ImportPreview.tsx). No saved-library import. |
 | C15 | Captured flight review | Shared cards/actions in the connection panel's centered 520 dp group; five records per page, eight original fields per detail page | [CapturedFlights](../../../apps/platform-lab/src/mobile/CapturedFlights.tsx) reads owner-scoped saved evidence without requiring provider login. Dates/clocks, reported duration, aircraft and separate crew fields retain unknown/invalid/conflict states; original field text is selectable and untruncated. No book membership or canonical import. |
 | C16 | Information source review | Shared C01/C02 controls in the connection panel's centered 520 dp group; five raw rows per page, one immutable snapshot at a time | [InformationReview](../../../apps/platform-lab/src/mobile/InformationReview.tsx) shows retrieval time and recorded coverage, with older/newer controls available offline. Category counts use the latest snapshot. Blank extracted text stays unknown; known date-only document snapshots are marked incomplete. No canonical history or cross-snapshot aggregation. |
-| C17 | Own-flight loading | Shared C01/C02 controls, centered 520 dp groups; ordinary progress and secondary details | [CoreFlightFoundation](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx) coordinates one explicit action through internal fresh storage, original-provider authentication, verified retrieval and local save. A verified retained session avoids login; valid rows need no routine review/save tap. Source/account/recovery checks remain; unresolved recovery is visible outside the details disclosure. Custom period, raw review and real-history backup remain under Details & weitere Optionen. The header data-update entry runs the combined update in the shared selected-owner panel, with login only when needed and contextual return. Only the header admits provider work. Start/Flüge/Profile/status/Development retain passive guidance; non-header backup/library routes cannot open login. The same native browser remains mounted above tab navigation after closing; advanced library options are secondary. Original-login exposure comes from the explicit connection flow, without an outer login-enabled override. On Android, the measured keyboard frame caps progress and reserves the same retained browser viewport above the IME. The combined flow retains one progress card through original-provider sign-in, verification, flights/save and separate Medical, supported duty, calendar-entry and document-notice jobs. Settled automatic completion returns to Start once with a dismissible owner-scoped receipt, including optional failures. Blocking errors/recovery stay actionable in the popup; supported source coverage remains partial under #56. Opening options alone creates/retrieves nothing. |
+| C17 | Single-action sync | Header-attached two semantic progress rows; compact scaled text, moving C06 shine, reduced-motion/static fallback | CoreFlightFoundation retains one explicit account-scoped job across tabs and login visibility. Last confirmed/current step; safe cancel disabled through save/readback. Confirmed success hides progress without acknowledgement; failures remain steady/actionable. Local reads retain the last verified view and defer fresh detail access until write admission releases. Settings/backup/Development stay outside login. Native/live acceptance is separate. |
 | C18 | Connection/data summary | Profile/status data summary; earlier conditional Start placement is superseded on this branch | [ConnectionSummary](../../../apps/platform-lab/src/mobile/ConnectionSummary.tsx) uses successful saved-retrieval time in Profile/status. Its retained compact reminder logic is not mounted on alternative Start; that page uses season empty/error guidance instead. Only the header admits full updates. Explicit update coordinates flights and separate supported information jobs; optional failures do not undo flight saves. Automatic latest-flight retrieval remains unavailable. U3 separately performs only guarded, read-only flight/own-duty footer-count checks while foreground, no more often than hourly. |
 | C19 | Support diagnostics | Shared C01/C02 cards/actions and selectable report text in a centered 520 dp group | [Diagnostics](../../../apps/platform-lab/src/mobile/Diagnostics.tsx) via Settings; paged technical/action histories and protected failures; observed navigation transitions without inferred intent. Explicit full JSON-file sharing, bounded short text copying and diagnostic-only clearing; 1 MB total managed storage cap. No automatic transmission. |
 | C20 | Meine Saison statistics overlay | Centered navy frame, radius 22, subtle border, safe-area bounds and maximum width 720 dp; fixed title over one scrolling content region | [StatisticsOverlay](../../../apps/platform-lab/src/mobile/StatisticsOverlay.tsx) reads saved local flights, applies year/all/custom date filters, and opens exact contributor/detail routes with contextual Back. Unverified launch mapping stays unavailable; source conflicts are excluded. No provider retrieval or durable filter store. |
@@ -404,7 +404,7 @@ The implemented U3 count advice adds a compact amber **Änderungen möglich** th
 > The [22 October modern UI contract](alternative-ui.md) is selected as the main baseline. It supersedes conflicting earlier appearance/composition descriptions for C01–C09, typography, surfaces, Start and flight browsing. Data and acceptance boundaries retain their separate contracts.
 [Handbook entry point](README.md). These patterns describe the branch alternative and preserved data/navigation boundaries; main adoption was selected on 22 October. Behavior remains governed by journey/provider/book contracts.
 
-**Planned sync exception to the current popup pattern (23 October):** [header sync progress](alternative-ui.md#header-sync-progress--planned-amendment-23-october-2026) keeps ordinary progress directly below the header, preserves saved-page use/tab navigation and opens a popup only when login is needed. Last completed/current rows replace a growing log; successful completion hides the box without acknowledgement. Real failure stays steady and actionable. This planning amendment is not implemented or platform-verified; existing route descriptions below remain the runtime baseline.
+**Implemented sync exception to the current popup pattern (23 October):** [header sync progress](alternative-ui.md#header-sync-progress--planned-amendment-23-october-2026) keeps ordinary progress directly below the header, preserves saved-page use/tab navigation and opens a popup only when login is needed. Last completed/current rows replace a growing log; successful completion hides the box without acknowledgement. Real failure stays steady and actionable. Manuel subsequently selected implementation. Source integration is complete; the [package report](../../verification/2026-10-21-simple-flight-loading.md#fresh-fetch-header-progress-and-minimal-login--23-october-2026) owns native evidence/limits. Earlier all-purpose popup descriptions below remain historical for ordinary sync.
 
 ## Screen composition
 
@@ -503,7 +503,7 @@ Use only the header “Daten” button for new provider data and login. Start em
 
 [Handbook entry point](README.md). Generated by `python scripts/design_handbook.py`; do not hand-edit.
 
-Scope: 71 product mobile TypeScript/model and app-owned TSX UI/adapter files; 64 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.
+Scope: 74 product mobile TypeScript/model and app-owned TSX UI/adapter files; 66 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.
 
 ## App.tsx
 
@@ -744,17 +744,17 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ConnectionSummary
 
 ## CoreFlightFoundation.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `fed0e057f5deec3f9ad3b636d38fbce822108fd8e8eaecf08ad16a5100a9d860`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `3ad3551786236ce2955dc2e9e86a81e907a67b3896ed2bee1e68669d4be91dad`.
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `gap: 10` | 165, 173, 174, 672 |
-| `gap: 8` | 698, 724, 734 |
-| `maxWidth: 520` | 165, 174, 672 |
-| `padding: 12` | 165, 173, 672 |
-| `width: '100%'` | 165, 174, 672 |
+| `gap: 10` | 172, 180, 181, 718 |
+| `gap: 8` | 745, 771, 781 |
+| `maxWidth: 520` | 172, 181, 718 |
+| `padding: 12` | 172, 180, 718 |
+| `width: '100%'` | 172, 181, 718 |
 
 ## Dashboard.tsx
 
@@ -808,75 +808,76 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](..
 
 ## DataUpdateIndicator.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DataUpdateIndicator.tsx](../../../apps/platform-lab/src/mobile/DataUpdateIndicator.tsx); normalized SHA-256 `fd9235143012d334aafcd8bd31268cf0c296c6abd6d06366cc1f3f66718b5270`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DataUpdateIndicator.tsx](../../../apps/platform-lab/src/mobile/DataUpdateIndicator.tsx); normalized SHA-256 `7420b4897f41422afe8df023aeb4d84d7ce0e25dd8cca3e958e46c89c1e9d5a6`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#74dfba` | 20 |
-| `#ffc477` | 20, 29, 37, 43 |
-| `#ffc47712` | 37 |
+| `#74dfba` | 21 |
+| `#ffc477` | 21, 30, 38, 44 |
+| `#ffc47712` | 38 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 10` | 43 |
-| `fontSize: 11` | 40, 42 |
-| `fontSize: 12` | 41 |
-| `fontWeight: '600'` | 41 |
-| `fontWeight: '700'` | 40 |
-| `lineHeight: 14` | 43 |
-| `lineHeight: 15` | 42 |
-| `lineHeight: 16` | 40, 41 |
+| `fontSize: 10` | 44 |
+| `fontSize: 11` | 41, 43 |
+| `fontSize: 12` | 42 |
+| `fontWeight: '600'` | 42 |
+| `fontWeight: '700'` | 41 |
+| `lineHeight: 14` | 44 |
+| `lineHeight: 15` | 43 |
+| `lineHeight: 16` | 41, 42 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 36 |
-| `borderWidth: 1` | 36 |
-| `gap: 4` | 39 |
-| `gap: 5` | 36 |
-| `maxWidth: 150` | 35 |
-| `minHeight: 40` | 36 |
-| `minHeight: 48` | 35 |
-| `minWidth: 0` | 38 |
-| `minWidth: 94` | 35 |
-| `opacity: .5` | 25 |
-| `paddingHorizontal: 8` | 36 |
-| `paddingVertical: 2` | 36 |
+| `borderRadius: 12` | 37 |
+| `borderWidth: 1` | 37 |
+| `gap: 4` | 40 |
+| `gap: 5` | 37 |
+| `maxWidth: 150` | 36 |
+| `minHeight: 40` | 37 |
+| `minHeight: 48` | 36 |
+| `minWidth: 0` | 39 |
+| `minWidth: 94` | 36 |
+| `opacity: .5` | 26 |
+| `paddingHorizontal: 8` | 37 |
+| `paddingVertical: 2` | 37 |
 
 ## DesignPreview.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DesignPreview.tsx](../../../apps/platform-lab/src/mobile/DesignPreview.tsx); normalized SHA-256 `7b99694f7668b9708b556afb28b701595ff38401810463cc121e30be6f4d789e`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DesignPreview.tsx](../../../apps/platform-lab/src/mobile/DesignPreview.tsx); normalized SHA-256 `1059c523a92e0d9f08e835905dd933a927710c7b7e2131486cbc526fdcf86ad9`.
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 13` | 100 |
-| `lineHeight: 19` | 100 |
+| `fontSize: 13` | 116 |
+| `lineHeight: 19` | 116 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 14` | 101 |
-| `borderRadius: 22` | 105 |
-| `borderWidth: 1` | 101, 105 |
-| `gap: 16` | 103 |
-| `gap: 4` | 99 |
-| `gap: 8` | 100 |
-| `maxWidth: 600` | 103 |
-| `maxWidth: 720` | 105 |
-| `minHeight: 48` | 101, 104 |
-| `padding: 18` | 103 |
-| `paddingHorizontal: 12` | 101 |
-| `paddingHorizontal: 18` | 99, 104 |
-| `paddingVertical: 10` | 101, 104 |
-| `width: '100%'` | 103, 105 |
+| `borderRadius: 14` | 117 |
+| `borderRadius: 22` | 121 |
+| `borderWidth: 1` | 117, 121 |
+| `gap: 12` | 52 |
+| `gap: 16` | 119 |
+| `gap: 4` | 115 |
+| `gap: 8` | 116 |
+| `maxWidth: 600` | 119 |
+| `maxWidth: 720` | 121 |
+| `minHeight: 48` | 117, 120 |
+| `padding: 18` | 52, 119 |
+| `paddingHorizontal: 12` | 117 |
+| `paddingHorizontal: 18` | 115, 120 |
+| `paddingVertical: 10` | 117, 120 |
+| `width: '100%'` | 119, 121 |
 
 ## DevelopmentHub.tsx
 
@@ -1041,119 +1042,118 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MedicalStatus.tsx
 
 ## MobileApp.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `5febf08fa569d07e425bf06b8ef07411eccd2590c185387dd303986c9206554c`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `b1738286f4be22e81630e7fb8840b6bb3328f86b4f5f149e6ad370cdffbb8d04`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#000712bd` | 302 |
-| `#00c8ff` | 252 |
-| `#064240` | 296 |
-| `#10282d` | 296 |
-| `#11263a` | 295 |
-| `#152d42` | 297 |
-| `#1b344a` | 300 |
-| `#227f87` | 296 |
-| `#78efdc` | 298 |
-| `#8ba4bc` | 251, 293 |
+| `#000712bd` | 313 |
+| `#00c8ff` | 261 |
+| `#064240` | 307 |
+| `#10282d` | 307 |
+| `#11263a` | 306 |
+| `#152d42` | 308 |
+| `#1b344a` | 311 |
+| `#227f87` | 307 |
+| `#78efdc` | 309 |
+| `#8ba4bc` | 260, 304 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 10` | 240, 251, 293 |
-| `fontSize: 11` | 245, 294 |
-| `fontSize: 12` | 296, 301 |
-| `fontSize: 13` | 241, 295 |
-| `fontSize: 16` | 300 |
-| `fontSize: 20` | 294 |
-| `fontSize: 23` | 299 |
-| `fontSize: 25` | 301 |
-| `fontWeight: '600'` | 294, 296 |
-| `fontWeight: '700'` | 301 |
-| `letterSpacing: .6` | 293 |
-| `lineHeight: 16` | 251, 293, 294 |
-| `lineHeight: 17` | 296 |
-| `lineHeight: 18` | 301 |
-| `lineHeight: 25` | 294 |
-| `lineHeight: 29` | 301 |
+| `fontSize: 10` | 249, 260, 304 |
+| `fontSize: 11` | 254, 305 |
+| `fontSize: 12` | 307, 312 |
+| `fontSize: 13` | 250, 306 |
+| `fontSize: 16` | 311 |
+| `fontSize: 20` | 305 |
+| `fontSize: 23` | 310 |
+| `fontSize: 25` | 312 |
+| `fontWeight: '600'` | 305, 307 |
+| `fontWeight: '700'` | 312 |
+| `letterSpacing: .6` | 304 |
+| `lineHeight: 16` | 260, 304, 305 |
+| `lineHeight: 17` | 307 |
+| `lineHeight: 18` | 312 |
+| `lineHeight: 25` | 305 |
+| `lineHeight: 29` | 312 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 296 |
-| `borderRadius: 13` | 296 |
-| `borderRadius: 14` | 291 |
-| `borderRadius: 15` | 298 |
-| `borderRadius: 16` | 300, 301 |
-| `borderRadius: 17` | 297 |
-| `borderRadius: 18` | 299 |
-| `borderRadius: 2` | 301 |
-| `borderRadius: 20` | 300 |
-| `borderRadius: 22` | 295, 303 |
-| `borderRadius: 24` | 295 |
-| `borderRadius: 9` | 296 |
-| `borderWidth: 1` | 295, 296, 299, 300, 303 |
-| `gap: 1` | 294 |
-| `gap: 10` | 218 |
-| `gap: 18` | 206, 290, 298 |
-| `gap: 2` | 301 |
-| `gap: 3` | 293, 296 |
-| `gap: 4` | 301 |
-| `gap: 5` | 295 |
-| `gap: 6` | 299, 300 |
-| `gap: 7` | 295, 298 |
-| `gap: 8` | 272, 274, 297, 300 |
-| `height: 2` | 301 |
-| `height: 30` | 298 |
-| `height: 48` | 291, 300 |
-| `maxHeight: 150` | 300 |
-| `maxWidth: 480` | 218 |
-| `maxWidth: 520` | 127, 272, 274, 298 |
-| `maxWidth: 599` | 289, 301 |
-| `maxWidth: 600` | 203, 252 |
-| `maxWidth: 720` | 238 |
-| `maxWidth: 960` | 203, 252 |
-| `minHeight: 0` | 257, 303 |
-| `minHeight: 126` | 298 |
-| `minHeight: 34` | 297 |
-| `minHeight: 36` | 292 |
-| `minHeight: 40` | 295 |
-| `minHeight: 48` | 295, 297 |
-| `minHeight: 52` | 300 |
-| `minHeight: 64` | 296 |
-| `minHeight: 66` | 296 |
-| `minHeight: 68` | 301 |
-| `minHeight: 86` | 299 |
-| `minWidth: 0` | 294, 295 |
-| `opacity: .45` | 243 |
-| `opacity: .8` | 302 |
-| `padding: 0` | 297 |
-| `padding: 10` | 290 |
-| `padding: 16` | 299 |
-| `padding: 18` | 290 |
-| `padding: 4` | 293, 300 |
-| `padding: 6` | 301 |
-| `padding: 7` | 296 |
-| `paddingHorizontal: 12` | 295, 302 |
-| `paddingHorizontal: 16` | 297 |
-| `paddingHorizontal: 18` | 202 |
-| `paddingHorizontal: 6` | 296 |
-| `paddingHorizontal: 7` | 296 |
-| `paddingHorizontal: 8` | 300 |
-| `paddingVertical: 10` | 296, 302 |
-| `paddingVertical: 4` | 295 |
-| `paddingVertical: 8` | 301 |
-| `width: '100%'` | 127, 206, 207, 208, 218, 251, 272, 274, 289, 297, 298, 301 |
-| `width: '32%'` | 301 |
-| `width: '49.2%'` | 297 |
-| `width: 24` | 301 |
-| `width: 30` | 298 |
-| `width: 42` | 295 |
-| `width: 48` | 291, 300 |
-| `width: 64` | 296 |
+| `borderRadius: 12` | 307 |
+| `borderRadius: 13` | 307 |
+| `borderRadius: 14` | 302 |
+| `borderRadius: 15` | 309 |
+| `borderRadius: 16` | 311, 312 |
+| `borderRadius: 17` | 308 |
+| `borderRadius: 18` | 310 |
+| `borderRadius: 2` | 312 |
+| `borderRadius: 20` | 311 |
+| `borderRadius: 22` | 306, 314 |
+| `borderRadius: 24` | 306 |
+| `borderRadius: 9` | 307 |
+| `borderWidth: 1` | 306, 307, 310, 311, 314 |
+| `gap: 1` | 305 |
+| `gap: 10` | 227 |
+| `gap: 18` | 215, 301, 309 |
+| `gap: 2` | 312 |
+| `gap: 3` | 304, 307 |
+| `gap: 4` | 312 |
+| `gap: 5` | 306 |
+| `gap: 6` | 310, 311 |
+| `gap: 7` | 306, 309 |
+| `gap: 8` | 283, 285, 308, 311 |
+| `height: 2` | 312 |
+| `height: 30` | 309 |
+| `height: 48` | 302, 311 |
+| `maxHeight: 150` | 311 |
+| `maxWidth: 480` | 227 |
+| `maxWidth: 520` | 141, 283, 285, 309 |
+| `maxWidth: 599` | 300, 312 |
+| `maxWidth: 600` | 212, 261 |
+| `maxWidth: 720` | 247 |
+| `maxWidth: 960` | 212, 261 |
+| `minHeight: 0` | 267, 314 |
+| `minHeight: 126` | 309 |
+| `minHeight: 34` | 308 |
+| `minHeight: 36` | 303 |
+| `minHeight: 40` | 306 |
+| `minHeight: 48` | 306, 308 |
+| `minHeight: 52` | 311 |
+| `minHeight: 64` | 307 |
+| `minHeight: 66` | 307 |
+| `minHeight: 68` | 312 |
+| `minHeight: 86` | 310 |
+| `minWidth: 0` | 305, 306 |
+| `opacity: .45` | 252 |
+| `opacity: .8` | 313 |
+| `padding: 0` | 308 |
+| `padding: 10` | 301 |
+| `padding: 16` | 310 |
+| `padding: 18` | 301 |
+| `padding: 4` | 304, 311 |
+| `padding: 6` | 312 |
+| `padding: 7` | 307 |
+| `paddingHorizontal: 12` | 306, 313 |
+| `paddingHorizontal: 16` | 308 |
+| `paddingHorizontal: 6` | 307 |
+| `paddingHorizontal: 7` | 307 |
+| `paddingHorizontal: 8` | 311 |
+| `paddingVertical: 10` | 307, 313 |
+| `paddingVertical: 4` | 306 |
+| `paddingVertical: 8` | 312 |
+| `width: '100%'` | 141, 215, 216, 217, 227, 260, 283, 285, 300, 308, 309, 312 |
+| `width: '32%'` | 312 |
+| `width: '49.2%'` | 308 |
+| `width: 24` | 312 |
+| `width: 30` | 309 |
+| `width: 42` | 306 |
+| `width: 48` | 302, 311 |
+| `width: 64` | 307 |
 
 ## OwnFlights.tsx
 
@@ -1214,47 +1214,47 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/PaperStatus.tsx](
 
 ## ProfileSettings.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProfileSettings.tsx](../../../apps/platform-lab/src/mobile/ProfileSettings.tsx); normalized SHA-256 `9ec04fb403abad8b137729c8c99b8de35556f0605f1598e6cc37b87a69d1ee32`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProfileSettings.tsx](../../../apps/platform-lab/src/mobile/ProfileSettings.tsx); normalized SHA-256 `381c3d5bfd9254b6e492251f9a6d02732220682f239348cd6969ff15ad9adff1`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#ffba9b` | 67 |
+| `#ffba9b` | 68 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 13` | 68 |
-| `fontSize: 16` | 78 |
-| `fontWeight: '600'` | 77 |
-| `lineHeight: 18` | 68 |
+| `fontSize: 13` | 69 |
+| `fontSize: 16` | 79 |
+| `fontWeight: '600'` | 78 |
+| `lineHeight: 18` | 69 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 78 |
-| `borderWidth: 1` | 78 |
-| `gap: 12` | 76 |
-| `maxWidth: 480` | 76 |
-| `minHeight: 48` | 78 |
-| `paddingHorizontal: 12` | 78 |
-| `paddingVertical: 10` | 78 |
-| `width: '100%'` | 76 |
+| `borderRadius: 12` | 79 |
+| `borderWidth: 1` | 79 |
+| `gap: 12` | 77 |
+| `maxWidth: 480` | 77 |
+| `minHeight: 48` | 79 |
+| `paddingHorizontal: 12` | 79 |
+| `paddingVertical: 10` | 79 |
+| `width: '100%'` | 77 |
 
 ## ProviderConnection.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProviderConnection.tsx](../../../apps/platform-lab/src/mobile/ProviderConnection.tsx); normalized SHA-256 `bf82e934165038f96948d776b0c12b4273c1b2d3023b160d06f75fba83b3732f`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProviderConnection.tsx](../../../apps/platform-lab/src/mobile/ProviderConnection.tsx); normalized SHA-256 `6e53d2efe1097decdd06b56a967156facc5077189d8039ad22ccf25d62b68c1a`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#102d47aa` | 208 |
+| `#102d47aa` | 209 |
 | `#ffb39e` | 29 |
-| `white` | 211 |
+| `white` | 212 |
 
 ### Typography declarations
 
@@ -1269,32 +1269,32 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProviderConnectio
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 10` | 218 |
-| `borderRadius: 14` | 208 |
-| `borderRadius: 7` | 210 |
-| `borderRadius: 8` | 209 |
-| `borderWidth: 1` | 218 |
-| `borderWidth: 2` | 210 |
-| `gap: 10` | 217 |
-| `gap: 12` | 213 |
+| `borderRadius: 10` | 219 |
+| `borderRadius: 14` | 209 |
+| `borderRadius: 7` | 211 |
+| `borderRadius: 8` | 210 |
+| `borderWidth: 1` | 219 |
+| `borderWidth: 2` | 211 |
+| `gap: 10` | 218 |
+| `gap: 12` | 214 |
 | `gap: 4` | 79, 81 |
-| `gap: 6` | 88, 98, 214 |
-| `height: 12` | 210 |
-| `height: 16` | 209 |
-| `height: 48` | 208 |
-| `maxWidth: 520` | 217 |
-| `maxWidth: 800` | 211 |
-| `minHeight: 48` | 216, 218 |
-| `minHeight: 68` | 213 |
-| `minWidth: 16` | 209 |
-| `opacity: 0` | 212 |
-| `padding: 10` | 213, 214, 217, 218 |
+| `gap: 6` | 88, 98, 215 |
+| `height: 12` | 211 |
+| `height: 16` | 210 |
+| `height: 48` | 208, 209 |
+| `maxWidth: 520` | 218 |
+| `maxWidth: 800` | 212 |
+| `minHeight: 48` | 217, 219 |
+| `minHeight: 68` | 214 |
+| `minWidth: 16` | 210 |
+| `opacity: 0` | 213 |
+| `padding: 10` | 214, 215, 218, 219 |
 | `paddingHorizontal: 12` | 79 |
-| `paddingHorizontal: 8` | 216 |
-| `paddingVertical: 10` | 216 |
-| `width: '100%'` | 211, 217 |
-| `width: 18` | 210 |
-| `width: 48` | 208 |
+| `paddingHorizontal: 8` | 217 |
+| `paddingVertical: 10` | 217 |
+| `width: '100%'` | 212, 218 |
+| `width: 18` | 211 |
+| `width: 48` | 208, 209 |
 
 ## RawCaptureReview.tsx
 
@@ -1487,6 +1487,39 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/SymbolIcon.tsx](.
 | --- | --- |
 | `borderRadius: 12` | 22 |
 | `borderWidth: 1` | 22 |
+
+## SyncProgress.tsx
+
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/SyncProgress.tsx](../../../apps/platform-lab/src/mobile/SyncProgress.tsx); normalized SHA-256 `01f1330507260b721ceef9d69382bdaba7824fd6ce92d06ce7c4c6d6bc8d053f`.
+
+### Literal colors
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `#baf9e436` | 50 |
+| `#d5ffee70` | 50 |
+
+### Typography declarations
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `fontSize: 11` | 47 |
+| `fontSize: 12` | 47 |
+| `lineHeight: 16` | 47 |
+| `lineHeight: 18` | 47 |
+
+### Geometry / opacity declarations
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `gap: 12` | 48 |
+| `maxWidth: 960` | 46 |
+| `minHeight: 48` | 48, 49 |
+| `paddingHorizontal: 18` | 46 |
+| `paddingVertical: 6` | 46 |
+| `width: '100%'` | 46 |
+| `width: 28` | 50 |
+| `width: 48` | 49 |
 
 ## theme.tsx
 
@@ -1723,7 +1756,7 @@ Manuel explicitly instructed merging the alternative branch because “this bran
 
 | Date / owner | Scope / status | Implementation / evidence |
 | --- | --- | --- |
-| 23 Oct 2026 / Manuel | Requested plan amendment: two-row header-attached sync progress, moving button shine, conditional login with automatic close, no success acknowledgement; subsequent instruction minimizes manual login to the original WebView and essential chrome, with existing settings elsewhere | [Contract](alternative-ui.md#header-sync-progress--planned-amendment-23-october-2026), [initial #42 scope](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/42#issuecomment-6372565189), [minimal-login/related-Issue review](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/42#issuecomment-6372692631). Planned only; supersedes ordinary progress/result popup presentation when implemented. Persistence proposal remains separately unimplemented; documentation checks establish no runtime acceptance. |
+| 23 Oct 2026 / Manuel | Requested plan amendment: two-row header-attached sync progress, moving button shine, conditional login with automatic close, no success acknowledgement; subsequent instruction minimizes manual login to the original WebView and essential chrome, with existing settings elsewhere | [Contract](alternative-ui.md#header-sync-progress--planned-amendment-23-october-2026), [initial #42 scope](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/42#issuecomment-6372565189), [minimal-login/related-Issue review](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/42#issuecomment-6372692631). Subsequent explicit implementation instruction selects this slice and bounded persistence/coordinator repair with file diagnostics. Source implementation is complete; [integration evidence/remaining gates](../../verification/2026-10-21-simple-flight-loading.md#fresh-fetch-header-progress-and-minimal-login--23-october-2026) remain separate from selection. |
 | 22 Oct 2026 / Manuel, alternative-branch feedback | Requested denser source-driven Start, integrated latest flight/PIC/relative date, restored current/prior aircraft-share time/starts rings, single-row Jan–Dec chart and flight artwork; remove permanent first connection box | Implemented on the alternative branch under [#55](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/55); [current contract](alternative-ui.md), [verification and remaining gates](../../verification/2026-10-22-alternative-ui.md). Supersedes the initial alternative's KPIs, separate recent-flight card and wrapped month chart on this branch only. Main adoption remains separate. |
 | 22 Oct 2026 / Manuel | Selected alternative Start: KPIs replace rings, compact flights/aircraft, Alle anzeigen into Flüge, responsive month chart/lower legend, smaller header logo | [Selection](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/20#issuecomment-6340199647); [verification and limits](../../verification/2026-10-21-simple-flight-loading.md#alternative-start-layout--22-october-2026). Supersedes scoped ring/layout values only. |
 | 13 Oct 2026 / Manuel | Approved Thermik dark/light logos and icon artwork | Dark header logo implemented; the later #25 package integrates the approved square AI icon. [Brand record](../../assets/branding/README.md). |

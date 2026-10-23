@@ -13,12 +13,15 @@ import { StatisticsOverlay } from './StatisticsOverlay';
 import { DutyRoster } from './DutyRoster';
 import { DataUpdateIndicator } from './DataUpdateIndicator';
 import { UpdateResult } from './UpdateResult';
+import {SyncProgress} from './SyncProgress';
+import {idleSyncProgress,type SyncProgress as Progress} from './sync-progress';
 
 /** Mount directly in the shell's flex content area; OwnFlights owns its list scrolling. */
 export function DesignPreview() {
   const fixture = useMemo(createDesignPreviewData, []);
   const emptyView = useMemo(() => ({ ...fixture.view, flights: [] }), [fixture]);
-  const [page, setPage] = useState<'start' | 'flights' | 'club'>('start');
+  const [page, setPage] = useState<'start' | 'flights' | 'club' | 'sync'>('start');
+  const [progress,setProgress]=useState<Progress>({state:'active',last:'account',current:'flights'});
   const [mode, setMode] = useState<'populated' | 'empty' | 'error'>('populated');
   const [request, setRequest] = useState<OwnFlightRequest | null>(null);
   const [detail, setDetail] = useState<RealFlightDetail | null>(null);
@@ -43,6 +46,18 @@ export function DesignPreview() {
     detailError: mode === 'error' ? 'Synthetischer Lesefehler für die UI-Vorschau. Erneut prüfen zeigt wieder die erfundenen Flüge; echte Daten bleiben unberührt.' : null,
     openDetail, clearDetail, reload,
   };
+  if(page==='sync')return <View style={styles.root}>
+    <AppHeader title="Synchronisierung" back={()=>setPage('start')}><DataUpdateIndicator receivedAt="2026-10-18T12:00:00.000Z" readState="ready" now={DESIGN_PREVIEW_NOW} syncing={progress.state==='active'||progress.state==='waiting'} onPress={()=>setProgress({state:'active',last:'account',current:'flights'})}/></AppHeader>
+    <SyncProgress progress={progress} retry={()=>setProgress({state:'active',last:null,current:'account'})} details={()=>setProgress({state:'partial',last:'save',current:null,message:'Eine Quelle konnte nicht aktualisiert werden.'})}/>
+    <ScrollView contentContainerStyle={{padding:18,gap:12}}>
+      <Label muted>Synthetische UI-Vorschau · keine Speicherung</Label>
+      <Action onPress={()=>setProgress({state:'active',last:'account',current:'flights'})}>Vorschau: Flüge abrufen</Action>
+      <Action onPress={()=>setProgress({state:'active',last:'flights',current:'save'})}>Vorschau: Flüge speichern</Action>
+      <Action onPress={()=>setProgress({state:'waiting',last:'prepare',current:'sign-in'})}>Vorschau: Anmeldung erforderlich</Action>
+      <Action onPress={()=>setProgress({state:'failed',last:'account',current:'flights',message:'Synchronisierung nicht abgeschlossen. Gespeicherte Daten bleiben verfügbar.'})}>Vorschau: Fehler</Action>
+      <Action onPress={()=>setProgress(idleSyncProgress)}>Vorschau: Fertig</Action>
+    </ScrollView>
+  </View>;
   if (statisticsOpen) return <View style={styles.root}>
     <View style={styles.statisticsFrame}>
       <AppHeader title="Vorschau Flugstatistik" back={() => { if (!statisticsBack.current()) setStatisticsOpen(false); }}>
@@ -70,6 +85,7 @@ export function DesignPreview() {
     <View style={styles.toolbar}>
       <Label muted style={styles.notice}>Synthetische UI-Vorschau · keine Speicherung</Label>
       <View style={styles.tabs}>
+        <Pressable accessibilityRole="button" accessibilityLabel="Vorschau Synchronisierung" onPress={()=>setPage('sync')} style={styles.tab}><Label>Vorschau Sync</Label></Pressable>
         <Pressable accessibilityRole="button" accessibilityLabel="Vorschau Start" accessibilityState={{ selected: page === 'start' }} onPress={() => setPage('start')} style={[styles.tab, page === 'start' && styles.selected]}><Label>Vorschau Start</Label></Pressable>
         <Pressable accessibilityRole="button" accessibilityLabel="Vorschau Flüge" accessibilityState={{ selected: page === 'flights' }} onPress={() => showFlights()} style={[styles.tab, page === 'flights' && styles.selected]}><Label>Vorschau Flüge</Label></Pressable>
         <Pressable accessibilityRole="button" accessibilityLabel="Vorschau Verein" accessibilityState={{ selected: page === 'club' }} onPress={() => setPage('club')} style={[styles.tab, page === 'club' && styles.selected]}><Label>Vorschau Verein</Label></Pressable>

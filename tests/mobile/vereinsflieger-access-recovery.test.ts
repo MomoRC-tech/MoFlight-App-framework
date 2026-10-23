@@ -159,6 +159,7 @@ function fixture(options: { panel?:boolean; developmentRecoveryCheckpoints?: boo
       confirmProviderScope: async (owner: string, context: unknown) => { scopeWrites++; if (options.deferBinding) await bindingWrite; if (options.failBinding) throw new Error('Synthetic binding failure'); return { version: 1, owner, connectionId: 'synthetic-connection', context }; },
       loadScopedView: async () => { pending = options.scopedView ?? null; return pending; }, loadScopedCapture: async () => savedCapture,
       saveScopedView: (value: unknown, v: ViewPreferences) => (modules['./storage'] as any).saveOriginalView(v),
+      supersedeScopedView:async (_scope:unknown,expected:ViewPreferences|null)=>{assert.deepEqual(expected,pending);pending=null;},
       clearScopedView: (value: unknown, v: ViewPreferences) => (modules['./storage'] as any).clearOriginalView(v),
       saveScopedCapture: (value: unknown, v: probe.ProbeSnapshot) => (modules['./storage'] as any).saveCapture(v),
     },
@@ -340,6 +341,27 @@ function fixture(options: { panel?:boolean; developmentRecoveryCheckpoints?: boo
 }
 
 const observedContext = { accountNumber: '123', clubLabel: 'Synthetic Club', clubIdentity: 'display-label-only', verification: 'observed-profile-number' } as const;
+
+test('explicit fresh sync retains prior scoped view evidence without replay and automatically clears the gate after matching proof',async()=>{
+  const f=fixture({product:true,persistedScope:{version:1,owner:'synthetic-pilot',connectionId:'prior',context:observedContext},scopedView:original});
+  f.render();await f.settle(original);await f.flush();
+  assert.equal(f.controller().recovery,true);
+  assert.equal(f.controller().beginFreshFlightConnection(),true);
+  await f.loadPage(context.PROFILE_URL);await f.contextMessage(observedContext);await f.flush();
+  assert.equal(f.controller().connection.confirmed,true);assert.equal(f.controller().visible,false);
+  assert.equal(f.controller().recovery,false);assert.equal(f.pending(),null);
+  assert.ok(f.providerEvents.includes('provider-previous-view-retained'));
+  assert.ok(!f.injections.some(script=>script.includes('"restore"')),'No stale preference replay');
+  f.unmount();
+});
+
+test('fresh sync never supersedes provider-view evidence for a different verified account',async()=>{
+  const f=fixture({product:true,persistedScope:{version:1,owner:'synthetic-pilot',connectionId:'prior',context:observedContext},scopedView:original});
+  f.render();await f.settle(original);await f.flush();f.controller().beginFreshFlightConnection();
+  await f.loadPage(context.PROFILE_URL);await f.contextMessage({...observedContext,accountNumber:'456'});await f.flush();
+  assert.equal(f.controller().connection.phase,'mismatch');assert.deepEqual(f.pending(),original);
+  assert.ok(!f.providerEvents.includes('provider-previous-view-retained'));f.unmount();
+});
 
 test('first-document diagnostics work when native start and script injection precede React rerender',async()=>{
   const f=fixture({product:true});f.render();await f.settle(null);await f.flush();

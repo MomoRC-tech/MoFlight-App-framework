@@ -18,6 +18,37 @@ const storeA = '22222222-2222-4222-8222-222222222222';
 const ownerB = '33333333-3333-4333-8333-333333333333';
 const storeB = '44444444-4444-4444-8444-444444444444';
 const commandId = (n: number) => `00000000-0000-4000-8000-${n.toString(16).padStart(12, '0')}`;
+
+test('fresh-attempt resolution migrates v1 atomically, retains exact intent and refuses stale replay',async t=>{
+  const path=tempDb(t),first=await openJournal(t,path,ownerA,storeA,true),command=bindCommand(91);
+  await first.journal.prepare(command);
+  await assert.rejects(first.journal.supersede(command.commandId),/confirmed uncommitted/);
+  await first.journal.resolve(command.commandId,'not-committed');
+  await first.journal.supersede(command.commandId);await first.journal.close();
+  const reopened=await openJournal(t,path);
+  assert.equal(await reopened.journal.pending(),null);
+  await reopened.journal.supersede(command.commandId);
+  await assert.rejects(reopened.journal.prepare(command),/cannot be replayed/);
+  await assert.rejects(reopened.journal.resolve(command.commandId,'committed'),/cannot be downgraded/);
+  await reopened.journal.prepare(bindCommand(92));
+  const db=trackedDriver(t,path);
+  assert.equal((await db.first<{user_version:number}>('PRAGMA user_version'))!.user_version,2);
+  const retained=await db.first<{request_json:string}>('SELECT request_json FROM real_flight_commands WHERE command_id=?',command.commandId);
+  assert.deepEqual(JSON.parse(retained!.request_json),command);
+  assert.deepEqual((await db.all<{outcome:string}>('SELECT outcome FROM real_flight_command_resolutions WHERE command_id=? ORDER BY seq',command.commandId)).map(row=>row.outcome),['not-committed','superseded']);
+});
+
+test('interrupted supersession rolls back the complete schema transition and leaves the original attempt retryable',async t=>{
+  const path=tempDb(t),seeded=await openJournal(t,path,ownerA,storeA,true),command=bindCommand(93);
+  await seeded.journal.prepare(command);await seeded.journal.resolve(command.commandId,'not-committed');await seeded.journal.close();
+  const raw=trackedDriver(t,path),auth=authorizeFor(ownerA,storeA,'migration-interruption');
+  const interrupted:Driver={...raw,transaction:work=>raw.transaction(async tx=>{await work(tx);throw new Error('Interrupted migration');})};
+  const journal=await RealFlightCommandJournal.open(interrupted,ownerA,storeA,auth.authorize,hash);
+  await assert.rejects(journal.supersede(command.commandId),/Interrupted migration/);await journal.close();
+  const reopened=await openJournal(t,path);assert.deepEqual(await reopened.journal.pending(),command);
+  const db=trackedDriver(t,path);assert.equal((await db.first<{user_version:number}>('PRAGMA user_version'))!.user_version,1);
+  await reopened.journal.supersede(command.commandId);assert.equal(await reopened.journal.pending(),null);
+});
 const headers = ['Datum','Lfz.','Start','Landung','Flugzeit','Pilot'];
 const context = { accountNumber: '10101', clubLabel: 'Example Gliding Club', clubIdentity: 'display-label-only' as const,
   verification: 'observed-profile-number' as const };

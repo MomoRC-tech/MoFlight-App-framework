@@ -16,13 +16,22 @@ type Controller = ReturnType<typeof useAccessController>;
 interface Element { type: unknown; props: Record<string, any>; children: unknown[] }
 const observed = { accountNumber: '123', clubLabel: 'Synthetic club', clubIdentity: 'display-label-only', verification: 'observed-profile-number' } as const;
 const at = '2026-10-18T07:00:00.000Z';
+
+test('manual sync login shows original WebView and essential chrome without app progress or administration',()=>{
+  const progress:Element={type:'Label',props:{},children:['Internal progress that must stay outside login']};
+  const f=fixture({visible:true,browserActive:true,url:'https://vereinsflieger.de/'},false,'own-flight-library',true,progress,false,40,true);
+  assert.ok(f.nodes().some(n=>n.type==='retained-browser'));
+  assert.match(f.text(),/vereinsflieger\.de/);
+  for(const unwanted of ['Internal progress','Zugangsdaten nur','Sitzungsdetails','Wiederherstellung nötig','Anmeldung prüfen','Rohbelege'])assert.ok(!f.text().includes(unwanted),unwanted);
+  f.button('Anmeldung schließen').props.onPress();assert.deepEqual(f.calls,['dismiss','close']);
+});
 const source = ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/mobile/ProviderConnection.tsx', import.meta.url), 'utf8'), {
   compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.React, esModuleInterop: false },
 }).outputText;
 
 // Run the real component/handlers; native rendering and leaf controls are the
 // only replacements. Disclosure tests make no provider/storage implementation.
-function fixture(overrides: Partial<Controller> = {}, development = false, purpose: 'existing-captures'|'own-flight-library' = 'existing-captures', guided = false, progress?: Element, developmentRecoveryCheckpoints = false, dialogTop?: number) {
+function fixture(overrides: Partial<Controller> = {}, development = false, purpose: 'existing-captures'|'own-flight-library' = 'existing-captures', guided = false, progress?: Element, developmentRecoveryCheckpoints = false, dialogTop?: number,minimal=false) {
   let index = 0;
   const keyboardListeners:Record<string,(event:unknown)=>void>={};
   const hooks: unknown[] = [], effects: (() => void)[] = [], calls: string[] = [];
@@ -77,7 +86,7 @@ function fixture(overrides: Partial<Controller> = {}, development = false, purpo
   let tree: Element;
   function render(open = true) {
     index = 0;
-    tree = exports.ProviderConnection!({dialogTop, controller, open, development, developmentRecoveryCheckpoints, purpose, guided, progress, closeDisabled:controller.informationSaving, close: () => calls.push('close') });
+    tree = exports.ProviderConnection!({minimal,dialogTop, controller, open, development, developmentRecoveryCheckpoints, purpose, guided, progress, closeDisabled:controller.informationSaving, close: () => calls.push('close') });
     while (effects.length) effects.shift()!();
     return tree;
   }

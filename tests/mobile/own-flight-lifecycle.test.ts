@@ -19,6 +19,7 @@ const source=ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/sr
 function deferred<T>() { let resolve!:(value:T)=>void;const promise=new Promise<T>(done=>{resolve=done;});return {promise,resolve}; }
 function host(withPresentation = false) {
   const f=ownFlightFixture(),hooks:any[]=[],effects:(()=>void)[]=[],cleanups:(()=>void)[]=[];
+  let retainWhilePaused=false;
   let index=0,active=true,revision=0,listener!:(state:string)=>void;
   let flightsActive=true,filterRequest:flightModel.OwnFlightRequest|null=null;
   const react={
@@ -52,12 +53,12 @@ function host(withPresentation = false) {
     runInNewContext(component,{exports:presentation,require:(name:string)=>{assert.ok(name in modules,name);return modules[name];}});
   }
   let result:any;
-  function render(){index=0;result=exports.useOwnFlights(f.ports,active,revision);if(withPresentation)presentation.OwnFlights({active:flightsActive,data:result,filterRequest,onHeaderChange});effects.splice(0).forEach(fn=>fn());return result;}
+  function render(){index=0;result=exports.useOwnFlights(f.ports,active,revision,retainWhilePaused);if(withPresentation)presentation.OwnFlights({active:flightsActive,data:result,filterRequest,onHeaderChange});effects.splice(0).forEach(fn=>fn());return result;}
   async function flush(){for(let i=0;i<3;i++){await new Promise<void>(done=>{setImmediate(done);});render();}return result;}
   render();return{...f,render,flush,background:()=>listener('background'),foreground:()=>listener('active'),
     setFlightsActive:(value:boolean)=>{flightsActive=value;render();},
     requestFlight:(flightId:string)=>{filterRequest={year:null,flightId};flightsActive=true;render();},
-    setActive:(value:boolean)=>{active=value;render();},reload:()=>{revision++;render();},unmount:()=>cleanups.forEach(fn=>fn())};
+    pauseForSync:()=>{retainWhilePaused=true;active=false;render();},setActive:(value:boolean)=>{active=value;render();},reload:()=>{revision++;render();},unmount:()=>cleanups.forEach(fn=>fn())};
 }
 
 test('latest recent-flight request survives a busy local detail read through the real presentation and reader',async()=>{
@@ -231,4 +232,15 @@ test('unmount while a resume refresh has a queued detail never opens it',async()
  h.session.service.readStored=()=>pending.promise;h.session.service.detail=async()=>{details++;return h.detail;};
  h.background();h.foreground();await h.flush();await h.render().openDetail(h.flights[0]!);h.unmount();
  pending.resolve({snapshot:h.snapshot,flights:h.flights});await h.flush();assert.equal(details,0);
+});
+
+
+test('an explicit sync pause retains verified content and queues a detail until the writer releases',async()=>{
+ const h=host();let state=await h.flush();const saved=state.view;let detailReads=0;
+ const detail=h.session.service.detail;h.session.service.detail=async id=>{detailReads++;return detail(id);};
+ try{
+  h.pauseForSync();state=h.render();assert.equal(state.view,saved);assert.equal(state.phase,'ready');
+  await state.openDetail(h.flights[0]);state=h.render();assert.equal(state.detailBusy,true);assert.equal(detailReads,0);
+  h.setActive(true);state=await h.flush();assert.equal(state.view,saved);assert.equal(state.detail.flightId,h.flights[0]!.flightId);assert.equal(detailReads,1);
+ }finally{h.unmount();}
 });

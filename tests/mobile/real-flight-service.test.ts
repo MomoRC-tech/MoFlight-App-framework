@@ -96,9 +96,36 @@ test('combined save preserves uncertain rows separately and blocks a new load af
     assert.equal((await service.list()).length,1);assert.equal((await service.snapshot()).pending.length,1);
     const review=await service.reviewSource(source('response-lost'));f.setFailure('after-commit');
     await assert.rejects(service.saveVerifiedReview(review,{accountNumber:'101',clubLabel:'Example club'}),PendingRealFlightOperation);
-    await assert.rejects(service.retrieveUpdate(),PendingRealFlightOperation);
     f.setFailure('');assert.equal((await service.recoverPending()).status,'committed');
     assert.equal((await service.list()).length,1);
+  }finally{service.dispose();await f.cleanup();}
+});
+
+test('fresh update supersedes a proven uncommitted import and uses a new capture after restart',async()=>{
+  const f=await fixture();let service=f.make();
+  try{
+    const {service:bound,review}=await ready(f);service.dispose();service=bound;
+    f.setFailure('before-commit');
+    await assert.rejects(service.saveUnassigned(review),PendingRealFlightOperation);
+    service.dispose();service=f.make();f.setFailure('');
+    const fresh=source('new-authoritative-capture');fresh.capture.rows[0]!.values[4]='1:15';f.setSource(fresh);
+    const next=await service.retrieveUpdate();
+    await service.saveVerifiedReview(next,{accountNumber:'101',clubLabel:'Example club'});
+    assert.equal((await service.list()).length,1);
+    assert.equal((await service.detail((await service.list())[0]!.flightId))!.factHistory.length,1);
+    assert.equal((await service.recoverPending()).status,'none');
+  }finally{service.dispose();await f.cleanup();}
+});
+
+test('fresh update resolves committed response loss without repeating the original command',async()=>{
+  const f=await fixture();let service=f.make();
+  try{
+    f.setFailure('after-commit');
+    await assert.rejects(service.saveVerifiedReview(await service.reviewSource(source()),{accountNumber:'101',clubLabel:'Example club'}),PendingRealFlightOperation);
+    service.dispose();service=f.make();f.setFailure('');
+    await service.retrieveUpdate();
+    assert.equal((await service.recoverPending()).status,'none');
+    assert.equal((await service.snapshot()).generation,1);
   }finally{service.dispose();await f.cleanup();}
 });
 

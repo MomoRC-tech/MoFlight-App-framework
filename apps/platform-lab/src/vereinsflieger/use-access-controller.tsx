@@ -17,7 +17,7 @@ import { Retrieval } from './retrieval';
 import { PROFILE_URL, contextScript, loginRequiredScript, loginDocumentScript, sameContext, scopedBridge, validateContext, type ObservedContext } from './context';
 import { ConnectionSession } from './connection-state';
 import { connectionFlow, type ConnectionFlow } from './connection-flow';
-import { loadProviderScope, confirmProviderScope, loadScopedCapture, loadScopedView, saveScopedCapture, saveScopedView, clearScopedView, prepareScopedLegacy, saveLegacySafety, legacyQuarantined, finishScopedLegacy } from './scoped-storage';
+import { loadProviderScope, confirmProviderScope, loadScopedCapture, loadScopedView, saveScopedCapture, saveScopedView, clearScopedView, supersedeScopedView, prepareScopedLegacy, saveLegacySafety, legacyQuarantined, finishScopedLegacy } from './scoped-storage';
 import { clearProviderStore, proveSyntheticStore, sessionClearingAvailable, sessionProofAvailable, legacyRecoveryAvailable, legacyRecoveryFingerprint, readReviewedRecovery } from './session-store';
 import type { ProviderScope } from './scope-store';
 import { useInformationController, type FeatureInformationCategory } from './use-information-controller';
@@ -87,6 +87,8 @@ export function useAccessController(product = false, localOwner?: string, develo
   const original = useRef<ViewPreferences | null>(null), viewPhase = useRef<ViewPhase | null>(null), restoring = useRef(false), restoreSteps = useRef(0), outcome = useRef('');
   const restorationOnly = useRef(false);
   const [recovery, setRecovery] = useState(false), [viewReady, setViewReady] = useState(false);
+  const freshFlightAttempt=useRef(false);
+  const [viewReadFailed,setViewReadFailed]=useState(false);
   const [viewStrategy, setViewStrategy] = useState<'reset' | 'reserved backup' | null>(null);
   const [captureRequest] = useState(() => product ? recentCaptureRequest() : calendarYearRequest());
   const [from, setFrom] = useState(captureRequest.from), [to, setTo] = useState(captureRequest.to);
@@ -211,7 +213,7 @@ export function useAccessController(product = false, localOwner?: string, develo
     original.current = v; recoveryKnown.current = true; setRecovery(!!v || legacyPending.current);
     setViewStrategy(v ? v.reset ? 'reset' : 'reserved backup' : null); setViewReady(true);
     if (v || legacyPending.current) setStatus('An earlier export left view restoration pending. Sign into the same provider account, then restore the original view before another export.');
-  })().catch(() => { if(active) { information.initialLoadFailed(initialInformationRequest); setCaptureLoadState(state => state === 'ready' ? state : 'failed'); setRecovery(true); setStatus('Original view recovery could not be opened. Exports are blocked to preserve preferences.'); } }); return () => { active = false; }; }, [localOwner]);
+  })().catch(() => { if(active) { information.initialLoadFailed(initialInformationRequest); setCaptureLoadState(state => state === 'ready' ? state : 'failed'); setViewReadFailed(true);setRecovery(true); setStatus('Original view recovery could not be opened. Exports are blocked to preserve preferences.'); } }); return () => { active = false; }; }, [localOwner]);
   useEffect(() => {
     if (!product || localOwner === owner.current) return;
     activityRequest.current?.abandon();
@@ -267,8 +269,8 @@ export function useAccessController(product = false, localOwner?: string, develo
       const unresolved = fallbackPending || await legacyQuarantined(scope.current, fingerprint);
       if (!mounted.current || owner.current !== activeOwner.current) return;
       legacyFingerprint.current = fingerprint; legacyPending.current = unresolved;
-      original.current = saved; recoveryKnown.current = true; setRecovery(!!saved || unresolved); setViewReady(true);
-    } catch { if (mounted.current) setRecovery(true); }
+      original.current = saved; recoveryKnown.current = true;setViewReadFailed(false); setRecovery(!!saved || unresolved); setViewReady(true);
+    } catch { if (mounted.current) {setViewReadFailed(true);setRecovery(true);} }
   }
   function syncConnection() { const next=session.current.state;if(next.phase!=='checking'){contextTiming.current?.(next.phase==='observed');contextTiming.current=null;}setConnection(next);setFlow(previous=>connectionFlow(previous,{type:'proof',state:next})); }
   function endDisconnect(verdict: 'verified' | 'failed' | 'cancelled' = 'cancelled') {
@@ -387,16 +389,22 @@ export function useAccessController(product = false, localOwner?: string, develo
       clearContextRequest();pendingNavigation.current=null;web.current?.stopLoading();epoch.current++;setGeneration(epoch.current);
       session.current.invalidate();syncConnection();
     }
-    if (!product || !viewReady || !foreground.current || contextRequest.current || busy || saving || recovery || bindingBusy.current || clearingStore.current || disconnectMode.current) return;
+    if (!product || !viewReady || !foreground.current || contextRequest.current || busy || saving || recovery&&!freshFlightAttempt.current || bindingBusy.current || clearingStore.current || disconnectMode.current) return;
     guidedLoginResume.current = null; guidedFlightLogin.current = true;
     clearCompletedFlightSource(); setResult('none');
     if (scope.current&&session.current.state.phase!=='login-required') checkConnection();
     else connect();
   }
-  function endGuidedFlightConnection() { guidedFlightLogin.current = false; guidedLoginResume.current = null; loginObservation.current = null; }
+  function beginFreshFlightConnection() {
+    if(!product||!recoveryKnown.current||!viewReady||!foreground.current||busy||saving||bindingBusy.current||clearingStore.current||disconnectMode.current)return false;
+    freshFlightAttempt.current=true;
+    recordProviderEvent('provider-fresh-attempt');
+    beginGuidedFlightConnection();return true;
+  }
+  function endGuidedFlightConnection() { freshFlightAttempt.current=false; guidedFlightLogin.current = false; guidedLoginResume.current = null; loginObservation.current = null; }
   function continueGuidedLogin() {
     if (!guidedFlightLogin.current || !product || !foreground.current || owner.current !== activeOwner.current ||
-        contextRequest.current || busy || saving || recovery || bindingBusy.current || clearingStore.current ||
+        contextRequest.current || busy || saving || recovery&&!freshFlightAttempt.current || bindingBusy.current || clearingStore.current ||
         disconnectMode.current || retrieval.current.state.phase !== 'idle' || !providerUrl(currentUrl.current)) return;
     setVisible(true);
     // Returning from a credential Activity is never itself a reason to navigate.
@@ -424,7 +432,7 @@ export function useAccessController(product = false, localOwner?: string, develo
     if(guidedFlightLogin.current)return true;
     const paused = guidedLoginResume.current;
     if (!paused || paused.owner !== owner.current || owner.current !== activeOwner.current || !product || !viewReady || !foreground.current ||
-        contextRequest.current || busy || saving || recovery || bindingBusy.current || clearingStore.current || disconnectMode.current ||
+        contextRequest.current || busy || saving || recovery&&!freshFlightAttempt.current || bindingBusy.current || clearingStore.current || disconnectMode.current ||
         retrieval.current.state.phase !== 'idle') return false;
     guidedLoginResume.current = null; guidedFlightLogin.current = true;
     clearCompletedFlightSource(); setResult('none');
@@ -568,6 +576,15 @@ export function useAccessController(product = false, localOwner?: string, develo
       if (guidedFlightLogin.current && request.action === 'check') {
         // observe() already fences a different persisted account or club.
         if (!session.current.state.confirmed) await confirmConnection();
+        if(freshFlightAttempt.current){
+          const started=epoch.current,bound=requireScope();
+          if(!foreground.current||!session.current.state.confirmed)throw new Error('Fresh context unavailable.');
+          // Archive old scoped evidence locally; do not replay preferences into the provider.
+          await supersedeScopedView(bound,original.current);
+          if(!mounted.current||!foreground.current||epoch.current!==started||scope.current!==bound||!session.current.state.confirmed)throw new Error('Fresh attempt superseded.');
+          original.current=null;legacyPending.current=false;setRecovery(false);
+          recordProviderEvent('provider-previous-view-retained');
+        }
         guidedFlightLogin.current = false;
       }
       if (request.action === 'capture') {
@@ -969,6 +986,10 @@ export function useAccessController(product = false, localOwner?: string, develo
       const sourceInput = product ? makeFlightSourceInput(attempt, observedAfter, data) : null;
       pendingFlightSource.current = sourceInput && attempt ? { owner: attempt.owner, input: sourceInput } : null;
       flightSourceAttempt.current = null;
+      if(freshFlightAttempt.current&&sourceInput&&foreground.current&&owner.current===activeOwner.current){
+        completedFlightSourceRef.current=sourceInput;setCompletedFlightSource(sourceInput);
+        recordProviderEvent('provider-capture-before-cleanup');
+      }
       setSnapshot(data); setCaptureLoadState('ready'); captureSaved.current = true;
       if (product) setLastSuccessfulCaptureAt(data.retrievedAt);
       finish(`Saved ${data.rows.length} flights across ${data.exportContext?.pageCount} pages for the requested period. Account identity and time basis remain unverified.`, nonce);
@@ -1026,5 +1047,5 @@ export function useAccessController(product = false, localOwner?: string, develo
   }, retrieveMedical: async () => {
     try { return await information.public.retrieveMedical(); }
     catch(error) { session.current.invalidate(); syncConnection(); throw error; }
-  }, checkActivity, cancelActivity: () => activityRequest.current!.cancel(), activityChecking, activityScope: scope.current, checkSession, developmentCheckpoint, armDevelopmentJournalCheckpoint: () => armDevelopmentCheckpoint('journal'), armDevelopmentRecoveryCheckpoint: () => armDevelopmentCheckpoint('recovery'), beginGuidedFlightConnection, resumeGuidedFlightConnection, endGuidedFlightConnection, captureLoadState, canGoBack, backWithinProvider, legacyChoice, requestLegacyRecovery, legacyRecoveryAvailable, clearing, clearNotice, proofNotice, clearLocalSession, sessionClearingAvailable, sessionProofAvailable, binding, legacyRecovery: legacyPending.current, loginNotice, disconnectNotice, credentialNotice, startDisconnect, checkDisconnection, disconnecting, disconnectedAt, refreshRecovery, connection, checkConnection, connect, suspendBrowserForOwnerSwitch, dismissLogin, confirmConnection, lastSuccessfulCaptureAt, result, browser, showRun, setShowRun, showWindow, setShowWindow, viewReady, recovery, original, editingLogin, loginBusy, username, setUsername, password, setPassword, saveLogin, setEditingLogin, providerExpanded, visible, status, busy, openCaptureLab, pauseEnabled, toggleTestPause, preBackupPause, togglePreBackupPause, from, setFrom, to, setTo, saving, restoring, navigate, setVisible, cancelRetrieval, retrieve, hasLogin, useLogin, forgetLogin, recoverView, paused, continueTestRetrieval, viewStrategy, url, toggleProviderPage, browserActive, snapshot: product && owner.current !== localOwner ? null : snapshot, completedFlightSource: product && owner.current === localOwner && !busy && !recovery ? completedFlightSource : null, setProviderExpanded, flow, web, currentUrl, retrieval, loaded, source, generation, epoch };
+  }, checkActivity, cancelActivity: () => activityRequest.current!.cancel(), activityChecking, activityScope: scope.current, checkSession, developmentCheckpoint, armDevelopmentJournalCheckpoint: () => armDevelopmentCheckpoint('journal'), armDevelopmentRecoveryCheckpoint: () => armDevelopmentCheckpoint('recovery'), viewReadFailed,beginFreshFlightConnection, beginGuidedFlightConnection, resumeGuidedFlightConnection, endGuidedFlightConnection, captureLoadState, canGoBack, backWithinProvider, legacyChoice, requestLegacyRecovery, legacyRecoveryAvailable, clearing, clearNotice, proofNotice, clearLocalSession, sessionClearingAvailable, sessionProofAvailable, binding, legacyRecovery: legacyPending.current, loginNotice, disconnectNotice, credentialNotice, startDisconnect, checkDisconnection, disconnecting, disconnectedAt, refreshRecovery, connection, checkConnection, connect, suspendBrowserForOwnerSwitch, dismissLogin, confirmConnection, lastSuccessfulCaptureAt, result, browser, showRun, setShowRun, showWindow, setShowWindow, viewReady, recovery, original, editingLogin, loginBusy, username, setUsername, password, setPassword, saveLogin, setEditingLogin, providerExpanded, visible, status, busy, openCaptureLab, pauseEnabled, toggleTestPause, preBackupPause, togglePreBackupPause, from, setFrom, to, setTo, saving, restoring, navigate, setVisible, cancelRetrieval, retrieve, hasLogin, useLogin, forgetLogin, recoverView, paused, continueTestRetrieval, viewStrategy, url, toggleProviderPage, browserActive, snapshot: product && owner.current !== localOwner ? null : snapshot, completedFlightSource: product && owner.current === localOwner && !busy && (!recovery||freshFlightAttempt.current) ? completedFlightSource : null, setProviderExpanded, flow, web, currentUrl, retrieval, loaded, source, generation, epoch };
 }

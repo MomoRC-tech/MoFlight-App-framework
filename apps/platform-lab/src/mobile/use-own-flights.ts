@@ -5,7 +5,7 @@ import { reuseEqualData } from './processed-result';
 import type { RealFlightDetail, RealFlightListItem } from '../vereinsflieger/real-flight-library';
 import { readOwnFlightDetail, readOwnFlightView, OwnFlightChangedError, type OwnFlightReadPorts, type OwnFlightView } from './own-flight-reader';
 
-export function useOwnFlights(ports: OwnFlightReadPorts, active: boolean, reloadKey: number) {
+export function useOwnFlights(ports: OwnFlightReadPorts, active: boolean, reloadKey: number, retainWhilePaused=false) {
   const processedView = useRef<OwnFlightView | null>(null);
   const [view, setView] = useState<OwnFlightView | null>(null);
   const [phase, setPhase] = useState<'loading' | 'ready' | 'missing' | 'failed'>('loading');
@@ -15,6 +15,7 @@ export function useOwnFlights(ports: OwnFlightReadPorts, active: boolean, reload
   const sequence = useRef(0), locked = useRef(false), queued = useRef(false);
   const queuedQuiet = useRef(false), readingDetail = useRef(false);
   const pendingDetail = useRef<RealFlightListItem | null>(null);
+  const retainedPause=useRef(false);
   const detailReader = useRef<(selected: RealFlightListItem) => Promise<void>>(async () => {});
   enabled.current = active;
   const current = (id: number) => alive.current && enabled.current && foreground.current && sequence.current === id;
@@ -58,7 +59,11 @@ export function useOwnFlights(ports: OwnFlightReadPorts, active: boolean, reload
   }, [ports]);
   const openDetail = async (selected: RealFlightListItem) => {
     const latest = processedView.current;
-    if (!alive.current || !enabled.current || !foreground.current) return;
+    if (!alive.current || !foreground.current) return;
+    if(!enabled.current){
+      if(retainedPause.current){pendingDetail.current=selected;setDetail(null);setDetailBusy(true);setDetailError(null);}
+      return;
+    }
     if (!latest ||
       !latest.flights.some(f => f.flightId === selected.flightId && f.accountRef === selected.accountRef &&
         f.bindingId === selected.bindingId && f.sourceFlightRef === selected.sourceFlightRef && f.factsRevision === selected.factsRevision)) { setDetailBusy(false); return; }
@@ -105,8 +110,11 @@ export function useOwnFlights(ports: OwnFlightReadPorts, active: boolean, reload
     return () => { alive.current = false; sequence.current++; queued.current = false; pendingDetail.current = null; subscription.remove(); };
   }, [reload]);
   useEffect(() => {
-    if (active) void reload();
+    const returning=retainedPause.current;
+    retainedPause.current=!active&&retainWhilePaused;
+    if (active) void reload(returning);
+    else if(retainWhilePaused){sequence.current++;setDetailBusy(false);}
     else { sequence.current++; processedView.current = null; pendingDetail.current = null; setView(null); setDetail(null); setDetailBusy(false); setPhase('loading'); }
-  }, [active, reloadKey, reload]);
+  }, [active, reloadKey, reload,retainWhilePaused]);
   return { view, phase, detail, detailBusy, detailError, openDetail, clearDetail, reload };
 }

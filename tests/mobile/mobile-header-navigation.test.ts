@@ -1,4 +1,5 @@
 import * as diagnostics from '../../apps/platform-lab/src/diagnostics';
+import * as syncProgress from '../../apps/platform-lab/src/mobile/sync-progress.ts';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -57,6 +58,7 @@ function fixture(width = 390, fontScale = 1, root = false) {
     'react-native-safe-area-context': leaves(['SafeAreaProvider', 'SafeAreaView']),
     '../App': { default: 'LabApp' }, '../BookLab': { BookLab: 'BookLab' },
     '@moflight/flight-logbook': { canonical },
+    './sync-progress':syncProgress,'./SyncProgress':{SyncProgress:'SyncProgress'},
     './theme': { ...leaves(['Action', 'Card', 'Chip', 'ClubMark', 'Empty', 'GliderMark', 'IconLabel', 'Label', 'Photo', 'Section']), colors: {}, ui: {} },
     './SymbolIcon': { SymbolIcon: 'SymbolIcon' },
     './use-library': { useLibrary: (value: boolean) => { suspended = value; return library; } },
@@ -171,7 +173,7 @@ test('only the header starts update/login; other pages retain guidance and offli
   assert.equal(f.nodes().some(n=>n.type==='ConnectionSummary'),false,'Start has no permanent connection introduction');
   assert.equal(f.find('OwnFlights').props.onUpdate,undefined);
   f.press('Pressable','Profil & Einstellungen öffnen');
-  assert.equal(f.find('ProfileSettings').props.onConnections,undefined);
+  assert.equal(typeof f.find('ProfileSettings').props.onConnections,'function');
   const summary=f.find('ProfileSettings').props.connectionSummary as Element;
   assert.equal(summary.props.onUpdate,undefined);assert.equal(summary.props.onOpen,undefined);
   f.find('ProfileSettings').props.onTools();f.render();
@@ -337,7 +339,7 @@ test('Development has offline library tools while update/login remains on the he
 test('ordinary backup cannot request a provider entry', () => {
   const f=fixture();f.press('Pressable','Profil & Einstellungen öffnen');f.find('ProfileSettings').props.onBackup();
   assert.deepEqual(f.coreRoutes,[{intent:'options',developmentRecoveryCheckpoints:false}]);
-  assert.equal(f.find('ProfileSettings').props.onConnections,undefined);
+  f.find('ProfileSettings').props.onConnections();assert.equal(f.coreRoutes.at(-1)!.intent,'options');
 });
 
 test('advanced library tools retain the Profile draft without a browser handoff', () => {
@@ -478,7 +480,11 @@ test('app root retains the provider host across close/tab entry and hides covere
   assert.equal(f.find('CoreFlightFoundation').props.providerEntryAllowed,false,'Startup cannot start retrieval or interactive login');
   shell().props.onCoreFlights('update');f.render();
   const first=f.find('CoreFlightFoundation');assert.equal(first.props.intent,'update');assert.equal(first.props.providerEntryAllowed,true);assert.equal(first.props.open,true);
-  assert.equal(f.parent(shell()).props.pointerEvents,'none');assert.equal(f.parent(shell()).props.accessibilityElementsHidden,true);assert.ok(f.find('UpdateDialog'));
+  assert.equal(f.parent(shell()).props.pointerEvents,'auto');assert.equal(f.find('UpdateDialog').props.open,false,'Retained session work has no popup');
+  first.props.onStatus({...unknownProviderStatus,loginVisible:true});f.render();
+  assert.equal(f.find('UpdateDialog').props.open,true);assert.equal(f.parent(shell()).props.pointerEvents,'none');
+  first.props.onStatus({...unknownProviderStatus,loginVisible:false});f.render();
+  assert.equal(f.find('UpdateDialog').props.open,false);assert.equal(f.find('CoreFlightFoundation').props.open,true,'Auto-hide retains the admitted job');
   first.props.close();f.render();
   const retained=f.find('CoreFlightFoundation');assert.equal(retained.props.open,false);assert.equal(retained.props.requestId,first.props.requestId);
   assert.equal(f.parent(shell()).props.pointerEvents,'auto');
@@ -519,28 +525,23 @@ test('design preview is an explicit Development route and Back restores settings
 });
 
 
-test('a completed update returns Start once, retains source failures and scopes its receipt to the owner',()=>{
- const f=fixture();f.press('Pressable','Flüge');f.openOwnDetail();
- f.press('Pressable','Profil & Einstellungen öffnen');
- const result={added:1,changed:0,pending:0,from:'2026-01-01',to:'2026-10-22',eventsStatus:'failed',verifiedConnection:{ownerId:'owner-a',state:unknownProviderStatus.connection}};
- const view={snapshot:{ownerId:'owner-a',account:{accountRef:'101'}}};
+test('completion preserves the current tab and source results live only in scoped Details',()=>{
+ const f=fixture();f.press('Pressable','Flüge');
+ const result={ownerId:'owner-a',storeId:'store-a',accountRef:'101',added:1,changed:0,pending:0,from:'2026-01-01',to:'2026-10-22',eventsStatus:'failed'};
+ const view={snapshot:{ownerId:'owner-a',storeId:'store-a',account:{accountRef:'101'}}};
  f.showLoad(result,view);
- assert.equal(f.headers()[0]!.props.title,'Übersicht');assert.equal(f.nodes().some(n=>n.type==='ProfileSettings'),false);
- assert.equal(f.find('UpdateResult').props.result.eventsStatus,'failed');
- let ancestor=f.parent(f.find('UpdateResult'));
- while(ancestor){assert.notEqual(ancestor.type,'ScrollView','The receipt stays beneath the header when Start scrolls');ancestor=f.parent(ancestor);}
- f.find('UpdateResult').props.onDetails();f.render();assert.ok(f.nodes().some(n=>n.type==='UpdateResult'&&n.props.detail));
- f.headers().at(-1)!.props.back();f.render();f.find('UpdateResult').props.onDismiss();f.render();
+ assert.equal(f.find('OwnFlights').props.active,true);
+ assert.equal(f.nodes().some(n=>n.type==='UpdateResult'),false,'No completion acknowledgement');
+ f.find('SyncProgress').props.details();f.render();
+ assert.equal(f.find('UpdateResult').props.detail,true);assert.equal(f.find('UpdateResult').props.result.eventsStatus,'failed');
+ f.showLoad(result,{snapshot:{ownerId:'owner-b',storeId:'store-a',account:{accountRef:'102'}}});
  assert.equal(f.nodes().some(n=>n.type==='UpdateResult'),false);
- f.press('Pressable','Flüge');f.showLoad(result,view);assert.equal(f.find('OwnFlights').props.active,true,'Same result cannot repeatedly force Start');
- f.showLoad(result,{snapshot:{ownerId:'owner-b',account:{accountRef:'102'}}});
- assert.equal(f.nodes().some(n=>n.type==='UpdateResult'),false,'Never show another owner update receipt');
 });
 
-test('new sync receipts do not cross a same-owner store or account switch',()=>{
+test('Details never exposes results across a same-owner store or account switch',()=>{
  const f=fixture(),result={ownerId:'owner',storeId:'store-a',accountRef:'101',added:0,changed:0,pending:0};
  f.showLoad(result,{snapshot:{ownerId:'owner',storeId:'store-a',account:{accountRef:'101'}}});
- assert.ok(f.nodes().some(n=>n.type==='UpdateResult'));
+ f.find('SyncProgress').props.details();f.render();assert.ok(f.nodes().some(n=>n.type==='UpdateResult'));
  f.showLoad(result,{snapshot:{ownerId:'owner',storeId:'store-b',account:{accountRef:'101'}}});
  assert.equal(f.nodes().some(n=>n.type==='UpdateResult'),false);
  f.showLoad(result,{snapshot:{ownerId:'owner',storeId:'store-a',account:{accountRef:'102'}}});

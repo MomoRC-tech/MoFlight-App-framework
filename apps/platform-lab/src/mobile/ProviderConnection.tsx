@@ -31,10 +31,10 @@ export function ConnectionIndicator({ controller: c, onPress }: { controller: Pr
 }
 
 /** The browser keeps this exact native parent whether login, progress or tabs are visible. */
-export function ProviderConnection({ controller: c, open, close, development = false, developmentRecoveryCheckpoints = false, guided = false, progress, title, closeDisabled = false, purpose = 'existing-captures', dialogTop }: { controller: Controller; open: boolean; close: () => void; development?: boolean; developmentRecoveryCheckpoints?: boolean; guided?: boolean; progress?: React.ReactNode; title?:string; closeDisabled?: boolean; purpose?: 'existing-captures' | 'own-flight-library'; dialogTop?:number }) {
+export function ProviderConnection({ controller: c, open, close, development = false, developmentRecoveryCheckpoints = false, guided = false, progress, title, closeDisabled = false, purpose = 'existing-captures', dialogTop, minimal=false }: { controller: Controller; open: boolean; close: () => void; development?: boolean; developmentRecoveryCheckpoints?: boolean; guided?: boolean; progress?: React.ReactNode; title?:string; closeDisabled?: boolean; purpose?: 'existing-captures' | 'own-flight-library'; dialogTop?:number;minimal?:boolean }) {
   const safeInsets = useSafeAreaInsets();
   const insets = dialogTop===undefined?safeInsets:{top:0,bottom:0};
-  const [barHeight, setBarHeight] = useState(68), [loginHeight, setLoginHeight] = useState(132);
+  const [barHeight, setBarHeight] = useState(68), [loginHeight, setLoginHeight] = useState(minimal?0:132);
   const [panelHeight, setPanelHeight] = useState(800);
   const [keyboardTop,setKeyboardTop]=useState<number|null>(null);
   useEffect(()=>{
@@ -72,9 +72,9 @@ export function ProviderConnection({ controller: c, open, close, development = f
     </View>
     <View style={{flex:1,display:open?'flex':'none'}}>
     <View style={styles.bar} onLayout={event => setBarHeight(event.nativeEvent.layout.height)}>
-      <Action secondary icon="close" label={title==='Vereinsflieger'?'Verbindung schließen und zur App zurückkehren':progress ? 'Datenabruf schließen oder abbrechen' : 'Verbindungen schließen und zur App zurückkehren'} disabled={closeDisabled || guided && (c.saving || c.restoring.current)} onPress={dismiss}>Schließen</Action>
-      <Label style={{ flex: 1, fontWeight: '600' }}>{title??(progress ? 'Daten laden' : login ? c.disconnecting ? 'Bei Vereinsflieger abmelden' : 'Bei Vereinsflieger anmelden' : guided ? 'Daten laden' : 'Verbindungen')}</Label>
-      <ConnectionIndicator controller={c} onPress={login && !progress ? c.dismissLogin : undefined} />
+      {minimal?<Pressable accessibilityRole="button" accessibilityLabel="Anmeldung schließen" accessibilityState={{disabled:closeDisabled||c.saving||c.restoring.current}} disabled={closeDisabled||c.saving||c.restoring.current} onPress={dismiss} style={styles.minimalAction}><SymbolIcon name="close" size={24}/></Pressable>:<Action secondary icon="close" label={title==='Vereinsflieger'?'Verbindung schließen und zur App zurückkehren':progress ? 'Datenabruf schließen oder abbrechen' : 'Verbindungen schließen und zur App zurückkehren'} disabled={closeDisabled || guided && (c.saving || c.restoring.current)} onPress={dismiss}>Schließen</Action>}
+      <Label style={{ flex: 1, fontWeight: '600' }}>{minimal?(providerUrl(c.url)?new URL(c.url).host:'Anbieteradresse nicht bestätigt'):title??(progress ? 'Daten laden' : login ? c.disconnecting ? 'Bei Vereinsflieger abmelden' : 'Bei Vereinsflieger anmelden' : guided ? 'Daten laden' : 'Verbindungen')}</Label>
+      {minimal?c.canGoBack&&<Pressable accessibilityRole="button" accessibilityLabel="Auf der Vereinsflieger-Seite zurück" disabled={locked} onPress={c.backWithinProvider} style={styles.minimalAction}><SymbolIcon name="back" size={24}/></Pressable>:<ConnectionIndicator controller={c} onPress={login && !progress ? c.dismissLogin : undefined} />}
     </View>
     {developmentRecoveryCheckpoints && <View onLayout={event => setDevelopmentHeight(event.nativeEvent.layout.height)} style={{paddingHorizontal:12,paddingBottom:8,gap:4}}>
       <View accessible testID="development-provider-checkpoint" accessibilityLabel={developmentMarker} accessibilityLiveRegion="polite"><Label>{developmentMarker}</Label></View>
@@ -83,7 +83,7 @@ export function ProviderConnection({ controller: c, open, close, development = f
         <Action secondary testID="development-arm-provider-recovery" disabled={locked || !c.recovery || c.legacyRecovery || !c.original.current || !!c.developmentCheckpoint} onPress={c.armDevelopmentRecoveryCheckpoint}>Testpause vor Wiederherstellung vormerken</Action>
       </View>
     </View>}
-    {progress ? <ScrollView style={login ? {maxHeight: progressHeight, flexGrow: 0} : {flex:1}} onLayout={event => setLoginHeight(event.nativeEvent.layout.height)} contentContainerStyle={styles.canvas} keyboardShouldPersistTaps="handled"><View style={styles.group}>
+    {minimal ? <View onLayout={event=>setLoginHeight(event.nativeEvent.layout.height)}>{loginFeedback&&<Label>{loginFeedback}</Label>}</View> : progress ? <ScrollView style={login ? {maxHeight: progressHeight, flexGrow: 0} : {flex:1}} onLayout={event => setLoginHeight(event.nativeEvent.layout.height)} contentContainerStyle={styles.canvas} keyboardShouldPersistTaps="handled"><View style={styles.group}>
       {progress}
       {login && <View style={{gap:6}}>
         <Label muted>{providerUrl(c.url) ? new URL(c.url).origin : 'Anbieteradresse nicht bestätigt'} · Zugangsdaten nur auf der Originalseite eingeben.</Label>
@@ -205,6 +205,7 @@ export function ProviderConnection({ controller: c, open, close, development = f
   </View>;
 }
 const styles = StyleSheet.create({
+  minimalAction:{width:48,height:48,alignItems:'center',justifyContent:'center'},
   indicator: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center', borderRadius: 14, backgroundColor: '#102d47aa' },
   mark: { position: 'absolute', right: 0, bottom: 1, minWidth: 16, height: 16, borderRadius: 8, backgroundColor: colors.background, alignItems: 'center', justifyContent: 'center' },
   link: { position: 'absolute', width: 18, height: 12, borderWidth: 2, borderRadius: 7, transform: [{ rotate: '-45deg' }] },

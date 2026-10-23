@@ -3,6 +3,18 @@ import assert from 'node:assert/strict';
 import { DiagnosticJournal, diagnosticStages, DIAGNOSTIC_FILE_BYTES, DIAGNOSTIC_STORAGE_BYTES, DIAGNOSTIC_RETENTION_MS, utf8Bytes } from '../../apps/platform-lab/src/diagnostics';
 
 const wall=2_000_000_000_000;
+
+test('sync causes, native/provider lifecycle and source stages survive file persistence without private text',async()=>{
+ const f=fixture();f.journal.connect(f.storage);const op=f.journal.begin('update-flights');
+ op.note('library','ready');op.note('view','pending');op.note('restore','ready');
+ for(const target of ['sync-requested','sync-prepare','sync-block-save','sync-previous-save-superseded','provider-previous-view-retained','sync-popup-hidden','sync-work-hours','sync-partial'] as const)f.journal.record('sync',target);
+ const span=op.span('work-hours');f.now(500);span(false);op.finish('partial','source-failed');await f.journal.flush();
+ const reopened=new DiagnosticJournal(()=>1000,()=>wall);reopened.connect({read:f.saved,write:()=>{}});
+ const report=JSON.parse(reopened.export());assert.equal(report.entries[0].observedState.view,'pending');
+ assert.equal(report.entries[0].stages[0].name,'work-hours');assert.ok(report.events.some((e:any)=>e.target==='sync-previous-save-superseded'));
+ assert.deepEqual(report.diagnosticStorage,{connected:true,failed:false});
+ f.journal.record('sync','password=private-secret' as never);assert.ok(!f.journal.export().includes('private-secret'));
+});
 function fixture() { let now=0, date=wall, saved:string|null=null; const journal=new DiagnosticJournal(()=>now,()=>date); const storage={read:()=>saved,write:(text:string)=>{saved=text;}}; return {journal,storage,now:(v:number)=>{now=v;},date:(v:number)=>{date=v;},saved:()=>saved}; }
 
 test('retains hundreds of operations rather than five, with detached timing and phase maxima',()=>{

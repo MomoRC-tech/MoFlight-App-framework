@@ -14,7 +14,7 @@ function fixture() {
     'react-native': { View: 'View', Text: 'Text', Image: 'Image', StyleSheet: { create: (value: unknown) => value, absoluteFill: { position: 'absolute' }, absoluteFillObject: { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 } } },
     './theme': { Card: 'Card', Label: 'Label', Section: 'Section', Action: 'Action', colors: { text: 'text', raised: 'raised', border: 'border' } },
     './SymbolIcon': { SymbolIcon: 'SymbolIcon' },
-    '../../assets/aviation/club-heading-airfield.png': 'decorative-airfield',
+    '../../assets/aviation/club-heading-airfield-v2.png': 'decorative-airfield',
   };
   function load(name: string) {
     const source = ts.transpileModule(readFileSync(new URL(`../../apps/platform-lab/src/mobile/${name}.tsx`, import.meta.url), 'utf8'), {

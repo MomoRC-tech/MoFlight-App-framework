@@ -8,7 +8,7 @@ export const DIAGNOSTIC_STORAGE_BYTES = 1_000_000;
 export const DIAGNOSTIC_FILE_BYTES = 490_000;
 export const DIAGNOSTIC_RETENTION_MS = 14 * 86_400_000;
 type Counter = { calls: number; failures: number; milliseconds: number };
-const stateNames = ['library','save','provider'] as const;
+const stateNames = ['library','save','provider','restore','view'] as const;
 const stateValues = ['unknown','ready','read-only','pending','receipt-confirmed','account-verified','failed'] as const;
 type ObservedState = Partial<Record<typeof stateNames[number], typeof stateValues[number]>>;
 type Checkpoint = { name: DiagnosticStage; state: 'start' | 'success' | 'failed'; offset: number };
@@ -154,7 +154,7 @@ export class DiagnosticJournal {
     for (const event of this.journey()) { if(event.kind==='lifecycle'){previous=null;continue;} if (event.kind === 'screen') { if (previous && previous.session === event.session && previous.target !== event.target) { const path = `${previous.target} → ${event.target}`, known = paths.get(path); if (known) known.occurrences++; else paths.set(path, { path, occurrences: 1 }); } previous = event; } }
     return [...paths.values()].sort((a,b) => b.occurrences - a.occurrences).slice(0,20);
   }
-  private report() { return { format: 'MoFlight support diagnostics', version: 2, timing: 'milliseconds; session-relative offsets; nested/counter measurements overlap; no wall-clock timestamps', context: this.context,
+  private report() { return { format: 'MoFlight support diagnostics', version: 2, timing: 'milliseconds; session-relative offsets; nested/counter measurements overlap; no wall-clock timestamps', context: this.context, diagnosticStorage:{connected:!!this.storage,failed:this.storageFailed},
     entries: this.snapshot(), events: this.journey(), failures: this.failureSnapshot(), sessions:this.contexts.map(({session,context})=>({session,context})), observedTransitions: this.journeySummary() }; }
   export() { const text = JSON.stringify(this.report()); if (utf8Bytes(text) > DIAGNOSTIC_FILE_BYTES) throw new Error('Diagnostic export limit'); return text; }
   shortReport() {

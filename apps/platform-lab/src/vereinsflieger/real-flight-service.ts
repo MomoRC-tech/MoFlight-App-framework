@@ -7,12 +7,14 @@ import { latestRealFlightValues, type RealFlightCommand, type RealFlightImportPl
   type RealFlightGraph, type StoredBinding, type StoredCapture, type StoredCoverage, type StoredPending } from './real-flight-library-model';
 import { planFlightRetrieval, type SavedFlightRetrieval } from './retrieval-policy';
 import { timeFlightStage } from './flight-diagnostics';
+import { diagnosticJournal } from '../diagnostics';
 
 export const REAL_FLIGHT_SERVICE_VERSION = 1;
 export interface RealFlightOperationJournal {
   prepare(command: RealFlightCommand): Promise<void>;
   pending(): Promise<RealFlightCommand | null>;
   resolve(commandId: string, outcome: 'committed' | 'not-committed'): Promise<void>;
+  supersede(commandId: string): Promise<void>;
   close(): Promise<void>;
 }
 export interface RealFlightRepositorySession {
@@ -99,6 +101,7 @@ export class RealFlightService {
     } finally { if (this.controller === controller) this.controller = null; }
   }
   async retrieveUpdate(now = new Date()): Promise<RealFlightReview> {
+    await timeFlightStage('receipt-recovery',()=>this.prepareFreshFetch());
     const snapshot = await this.snapshot();
     return this.retrieve(planFlightRetrieval(snapshot.savedRetrievals, now).request);
   }
@@ -185,6 +188,19 @@ export class RealFlightService {
       await this.withJournal(journal=>journal.resolve(command.commandId,'not-committed'));
       return {status:'not-committed',commandId:command.commandId};
     });
+  }
+  /** Fresh provider observations replace a proven-uncommitted attempt, never an uncertain branch. */
+  async prepareFreshFetch(): Promise<RealFlightRecovery> {
+    this.allowed(true);
+    const result=await this.recoverPending();
+    if(result.status==='recovery-required')throw new PendingRealFlightOperation(result.commandId);
+    if(result.status==='not-committed'){
+      await this.withJournal(journal=>journal.supersede(result.commandId));
+      diagnosticJournal.record('sync','sync-previous-save-superseded');
+      return {status:'none'};
+    }
+    if(result.status==='committed')diagnosticJournal.record('sync','sync-previous-save-resolved');
+    return result;
   }
   async retryPending(): Promise<RealFlightResult> {
     this.allowed(true); if (this.dispatching || this.writing) throw new Error('A save command is already in progress.');
