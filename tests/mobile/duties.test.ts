@@ -76,7 +76,11 @@ test('all custom duty names and overlapping full intervals retained once; three 
 
 test('name abbreviations are display-only, no same-name ownership or cross-row partner inference', () => {
   assert.equal(abbreviateDutyName('Ada Synthetic'), 'Ada S.');
-  assert.equal(abbreviateDutyName('Synthetic'), 'S.');
+  assert.equal(abbreviateDutyName('Ada'), 'Ada');
+  assert.equal(abbreviateDutyName('Anna-Lena'), 'Anna-Lena');
+  assert.equal(abbreviateDutyName('Éva'), 'Éva');
+  assert.equal(abbreviateDutyName('A.'), 'A.');
+  assert.equal(abbreviateDutyName(''), 'Name unbekannt');
   assert.equal(abbreviateDutyName('Synthetic, Ada'), 'Ada S.');
   assert.equal(abbreviateDutyName('Synthetic, Ada\nBob Example'), 'Ada S. · Bob E.');
   assert.equal(abbreviateDutyName('  Ada\tSynthetic\r\n\r\n Example, Bob  '), 'Ada S. · Bob E.');

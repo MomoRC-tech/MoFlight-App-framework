@@ -49,7 +49,7 @@ Medical source-date reminders use `#ff7777` for recorded past expiry and `#f9b65
 | Shared card | Opaque colors.card; no gradient | theme ui.card: subtle depth within a bounded card. |
 | Selected chip | Opaque colors.blue fill/border; no glow | theme ui.chipSelected: selected query scope. |
 | Photo shade | Retained Photo default `#00102277`; ordinary header uses the decorative flight illustration | theme Photo: check retained photo text against the displayed crop. |
-| Club heading artwork | Approved brighter v2 image at full opacity; leading `#14232f66` shade and title shadow, with no overall navy wash | ClubHeading: decorative image is clipped behind the wrapping title, with no layout height of its own. |
+| Club heading artwork | Approved brighter v2 image covering the full header; `#14232f88` readability shade and title shadow | ClubHeading: decorative image is clipped at the card borders behind a wrapping title in a minimum88 dp header (24 October refinement). |
 
 The 21 October selected Start simplification removes the photographic paper hero and purple AI promotion; their former local gradients are not current dashboard treatments. The original approved reference/artwork stays preserved. The quiet paper entry retains the paper-tone symbol; other shared palette/category roles remain unchanged.
 

@@ -7,6 +7,7 @@ import { runInNewContext } from 'node:vm';
 import ts from 'typescript';
 import * as statistics from '../../apps/platform-lab/src/mobile/real-flight-statistics.ts';
 import * as season from '../../apps/platform-lab/src/mobile/season-model.ts';
+import * as workHours from '../../apps/platform-lab/src/mobile/season-work-hours.ts';
 import { planFlightRetrieval } from '../../apps/platform-lab/src/vereinsflieger/retrieval-policy.ts';
 import { dataFreshness } from '../../apps/platform-lab/src/mobile/data-freshness.ts';
 import { ownFlightFixture } from './own-flight-fixture.ts';
@@ -22,7 +23,8 @@ function render(flights:any[], phase='ready', fontScale=1) {
   let hookIndex=0; const memos:{deps:unknown[];value:unknown}[]=[];
   const useMemo=(fn:()=>unknown,deps:unknown[])=>{const i=hookIndex++;if(!memos[i]||deps.some((v,n)=>v!==memos[i]!.deps[n]))memos[i]={deps,value:fn()};return memos[i]!.value;};
   const states:any[]=[];let stateIndex=0;const useState=(initial:any)=>{const i=stateIndex++;if(!(i in states))states[i]=initial;return [states[i],(value:any)=>{states[i]=value;}];};
-  const modules:Record<string,unknown>={react:{default:react,useMemo,useState},'react-native':{...leaves(['ActivityIndicator','Pressable','Text','View']),StyleSheet:{create:(x:unknown)=>x}},
+  const modules:Record<string,unknown>={react:{default:react,useMemo,useState},'react-native':{...leaves(['ActivityIndicator','Pressable','ScrollView','Text','View']),StyleSheet:{create:(x:unknown)=>x}},
+    './season-work-hours':workHours,
     './theme':{...leaves(['Action','Card','GliderMark','IconLabel','Label','Photo','Section']),colors:{},ui:{}},'./SymbolIcon':leaves(['SymbolIcon']),
     './FlightScene':leaves(['FlightScene']),'./SeasonMonthlyCharts':leaves(['SeasonMonthlyCharts']), './season-dashboard-model':{...dashboardModel,monthlySeasonForCoverage:(...args:Parameters<typeof dashboardModel.monthlySeasonForCoverage>)=>{monthlyCalculations++;return dashboardModel.monthlySeasonForCoverage(...args);}}, './SeasonRing':leaves(['SeasonRing']),'./season-model':season,'./real-flight-statistics':{...statistics,summarizeRealFlights:(...args:Parameters<typeof statistics.summarizeRealFlights>)=>{calculations++;return statistics.summarizeRealFlights(...args);}},
     './processed-result':processedResults,'./data-freshness':{dataFreshness},'../vereinsflieger/retrieval-policy':{planFlightRetrieval}};
@@ -45,6 +47,20 @@ test('Start routes saved analytics to the overlay and keeps it available before 
    const state=render([],phase);
    assert.ok(state.nodes.some(n=>n.type==='Pressable'&&n.props.accessibilityLabel==='Statistik'),`${phase} state keeps the statistics route available`);
  }
+});
+
+test('work hours accompany both season rings, use only current selected data and clear on account change',()=>{
+ const f=render(ownFlightFixture().flights);
+ const view={...f.view(),featureInformation:{workSummary:{status:'partial',items:[{period:'2026',hours:'07:25',obligation:'90,00 €'}]}}};
+ const tree=f.changeView(view);
+ const row=tree.children[0].children.find((n:any)=>n?.type==='ScrollView');
+ assert.equal(row.children.filter((n:any)=>n.type==='SeasonRing').length,2);
+ const metric=row.children.find((n:any)=>n.props.accessibilityLabel?.startsWith('Arbeitsstunden'));
+ assert.match(metric.props.accessibilityLabel,/7:25 Stunden geleistet.*Notwendige Stunden unbekannt/);
+ assert.doesNotMatch(JSON.stringify(metric),/90,00/);
+ const next=f.changeView({...f.view(),snapshot:{...f.view().snapshot,ownerId:'other'},featureInformation:undefined});
+ assert.match(JSON.stringify(next),/geleistete Stunden unbekannt/);
+ assert.doesNotMatch(JSON.stringify(next),/7:25/);
 });
 
 test('season rings deduplicate flights and retain aircraft/unknown-time totals',()=>{

@@ -68,13 +68,13 @@ test('unknown club names use an honest qualifier without inventing a club or loc
   }
 });
 
-test('compact duties preserve grouping, source uncertainty, assignees and the detail action', () => {
+test('compact duties show grouped facts and names with technical source notes confined to details', () => {
   const f = fixture(); let opened = 0;
   const view = f.roster.DutyRoster!({ overview: overview(), onOpen: () => opened++ });
   const text = f.text(view);
   for (const expected of ['Mein Verein: Synthetic soaring club', 'Eigene Dienste', 'Weitere Vereinsdienste', 'Synthetic own', 'Synthetic club',
-    '24.10.2026 09:00 - 24.10.2026 17:00', 'A. Example', 'Personen unbekannt', 'Zuordnung unbekannt', 'Zuordnung vorläufig',
-    'Teilansicht · Dienstplan unvollständig', '1 Quellzeilen mit ungeklärtem Zeitraum', 'Teilansicht; Vollständigkeit und Partner ungeprüft.']) assert.ok(text.includes(expected), expected);
+    '24.10.2026 09:00 - 24.10.2026 17:00', 'A. Example', 'Personen unbekannt']) assert.ok(text.includes(expected), expected);
+  assert.doesNotMatch(text, /Personen laut Quellzeile|Zuordnung|Teilansicht|Quellenstand|Quellzeilen|Partner ungeprüft|Verein laut Quelle/);
   assert.doesNotMatch(text, /Synthetic later/);
   const action = f.nodes(view).find(node => node.type === 'Action')!;
   assert.equal(f.text(action), 'Alle Dienste ansehen'); action.props.onPress(); assert.equal(opened, 1);

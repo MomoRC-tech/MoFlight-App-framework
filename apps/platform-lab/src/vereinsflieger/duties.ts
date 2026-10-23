@@ -73,7 +73,12 @@ export function dutyWindow(today: string) {
 }
 /** Display abbreviation only; never used to match people or establish ownership. */
 export function abbreviateDutyName(raw: string) {
-  return abbreviatedMemberName(raw) || 'Name unbekannt';
+  return raw.split(/\r?\n/).map(line => {
+    const text = line.replace(/\s+/g, ' ').trim();
+    // A single source name must not collapse to one initial. Never expand an
+    // initial or use this display label to infer identity or ownership.
+    return /^[^\s,]+$/.test(text) ? text : abbreviatedMemberName(text);
+  }).filter(Boolean).join(' · ') || 'Name unbekannt';
 }
 export function createDutyRosterSnapshot(scope: ProviderScope, captures: InformationCapture[], retrievedAt: string): DutyRosterSnapshot {
   return validateDutyRosterSnapshot({ version: 1, scope, captures, retrievedAt });

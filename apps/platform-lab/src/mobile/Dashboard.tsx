@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
+import React, { useMemo, useState } from 'react';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Card, Label, Section, colors, ui } from './theme';
 import type { OwnFlightView } from './own-flight-reader';
 import { formatReportedMinutes, summarizeRealFlights } from './real-flight-statistics';
@@ -10,12 +10,13 @@ import { latestSavedFlights, abbreviatedCrew, flightRelativeAge } from './season
 import { FlightScene } from './FlightScene';
 import { SeasonRing } from './SeasonRing';
 import { seasonRingSlices, seasonDifference } from './season-model';
+import { seasonWorkHours } from './season-work-hours';
 const emptyStatistics = summarizeRealFlights([]);
 interface Props {
   ownFlights: OwnFlightView | null; ownFlightPhase: 'loading' | 'ready' | 'missing' | 'failed'; pending: number | null; width: number; fontScale: number;
   onPaper: () => void; onFlights: () => void; onFlight?: (flightId: string) => void; onStatistics?: () => void; now?: number;
 }
-export function Dashboard({ ownFlights, ownFlightPhase, pending, fontScale, onPaper, onFlights, onFlight, onStatistics, now = Date.now() }: Props) {
+export function Dashboard({ ownFlights, ownFlightPhase, pending, width, fontScale, onPaper, onFlights, onFlight, onStatistics, now = Date.now() }: Props) {
   const clock = new Date(now), year = clock.getFullYear();
   const today = `${year}-${String(clock.getMonth()+1).padStart(2,'0')}-${String(clock.getDate()).padStart(2,'0')}`;
   const scope = ownFlights ? JSON.stringify([ownFlights.snapshot.ownerId, ownFlights.snapshot.storeId, ownFlights.snapshot.account?.accountRef]) : null;
@@ -27,6 +28,9 @@ export function Dashboard({ ownFlights, ownFlightPhase, pending, fontScale, onPa
   const season = (processed?.statistics ?? emptyStatistics).season;
   const latest = processed?.latest[0];
   const seasons = [season, processed?.prior ?? emptyStatistics.season];
+  const [metricsWidth, setMetricsWidth] = useState(0);
+  const rowWidth = Math.max(metricsWidth || Math.min(490, width - 64), 3 * 88 * Math.max(1, fontScale) + 16);
+  const workHours = seasonWorkHours(ownFlights?.featureInformation?.workSummary, year);
   if (ownFlightPhase === 'loading') return <Card style={styles.dashboard}><View accessibilityLiveRegion="polite" accessibilityState={{busy:true}} style={ui.row}><ActivityIndicator color={colors.cyan} /><Label style={{flex:1}}>Gespeicherte Flugdaten werden vorbereitet …</Label></View><Label muted>Deine Saisonübersicht erscheint gleich.</Label>{onStatistics&&<StatisticsEntry onPress={onStatistics}/>}</Card>;
   if (ownFlightPhase !== 'ready' || !ownFlights?.snapshot.account) return <Card style={styles.dashboard}><View style={styles.emptyHeading}><Section title="Meine Saison" />{onStatistics&&<StatisticsEntry onPress={onStatistics}/>}</View><Label muted>{ownFlightPhase==='failed'?'Gespeicherte Flugdaten konnten nicht geprüft werden.':'Deine Saison erscheint, sobald eigene Flüge gespeichert sind.'}</Label><Label muted style={styles.small}>Über die Verbindung oben kannst du deine Flüge laden.</Label></Card>;
   return <View style={styles.dashboard}><Card style={styles.season}>
@@ -38,7 +42,7 @@ export function Dashboard({ ownFlights, ownFlightPhase, pending, fontScale, onPa
         {ownFlights.flights.some(f=>f.facts.assessment.date.value===day&&f.facts.assessment.clocks.start.state!=='parsed')&&<Label muted style={styles.small}>Reihenfolge am selben Tag unbekannt.</Label>}
       </Pressable>;
     })():<Label muted>Noch keine datierten gespeicherten Flüge.</Label>}
-    <View style={[styles.rings,fontScale>1.3&&{flexDirection:'column'}]}>
+    <ScrollView horizontal showsHorizontalScrollIndicator onLayout={event => setMetricsWidth(event.nativeEvent.layout.width)} contentContainerStyle={[styles.rings,{width:rowWidth}]}>
       <SeasonRing label="Flugzeit · h bekannt" difference={seasonDifference(
         season.knownDurationCount && !season.unknownDurationCount ? season.knownMinutes : null,
         seasons[1]!.knownDurationCount && !seasons[1]!.unknownDurationCount ? seasons[1]!.knownMinutes : null, 'minutes',
@@ -50,7 +54,15 @@ export function Dashboard({ ownFlights, ownFlightPhase, pending, fontScale, onPa
         year:year-index, slices:seasonRingSlices(item.aircraft,'count'), value:String(item.count),
         description:`${year-index}: ${item.count} Starts nach Flugzeug: ${item.aircraft.map(a=>`${a.aircraft}: ${a.count}`).join(', ')}`,
       }))} />
-    </View>
+      <View accessible accessibilityLabel={`Arbeitsstunden ${year}: ${workHours === null ? 'geleistete Stunden unbekannt' : workHours + ' Stunden geleistet'}. Notwendige Stunden unbekannt.`} style={styles.workMetric}>
+        <Label muted style={[styles.metricLabel,{minHeight:36*Math.max(1,fontScale)}]}>Arbeitsstunden</Label>
+        <View style={[styles.workSymbol,{height:88*Math.max(1,fontScale)}]}><SymbolIcon name="duty" size={38}/></View>
+        <Label style={styles.workValue}>{workHours ?? '—'} h</Label>
+        <Label muted style={styles.metricLabel}>geleistet</Label>
+        <Label style={styles.workValue}>— h</Label>
+        <Label muted style={styles.metricLabel}>notwendig</Label>
+      </View>
+    </ScrollView>
     {seasons[1]!.unknownDurationCount>0&&<Label muted style={styles.small}>{year-1}: {seasons[1]!.unknownDurationCount} Zeiten unbekannt/strittig</Label>}
     {season.unknownDurationCount>0&&<Label muted style={styles.small}>{season.unknownDurationCount} Saisonzeiten unbekannt/strittig</Label>}
     {(processed?.statistics.unknownDateCount??0)>0&&<Label muted style={styles.small}>{processed?.statistics.unknownDateCount} Flüge mit unbekanntem Datum nicht zugeordnet.</Label>}
@@ -74,7 +86,9 @@ const styles=StyleSheet.create({
   paperLink:{minHeight:48,paddingHorizontal:11,flexDirection:'row',alignItems:'center',gap:8},
   small:{fontSize:12,lineHeight:18},season:{minWidth:0,gap:10,padding:14,borderColor:'#67533c',overflow:'hidden'},
   heading:{minHeight:88,marginHorizontal:-14,marginTop:-14,overflow:'hidden',justifyContent:'center'},headingText:{flex:1,minWidth:0,paddingHorizontal:14,paddingVertical:14},
-  rings:{flexDirection:'row',gap:12},
+  rings:{flexDirection:'row',gap:8},
+  workMetric:{flex:1,minWidth:0,gap:4},workSymbol:{alignItems:'center',justifyContent:'center'},
+  metricLabel:{fontSize:12,lineHeight:18,fontWeight:'600'},workValue:{fontSize:14,lineHeight:19,fontWeight:'600',color:colors.cyan},
   legend:{flexDirection:'row',flexWrap:'wrap',gap:10},allFlights:{minHeight:44,flexDirection:'row',alignItems:'center',justifyContent:'space-between'},
   aircraftBadge:{flexDirection:'row',alignItems:'center',gap:5},aircraftKey:{width:7,height:7,borderRadius:4},
   latestFlight:{gap:4,paddingBottom:10,borderBottomWidth:1,borderColor:colors.border},

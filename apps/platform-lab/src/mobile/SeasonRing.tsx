@@ -17,7 +17,7 @@ export const SeasonRing = memo(function SeasonRing({ layers, label, difference }
   const scale = Math.max(1, fontScale), size = 88 * scale;
   const symbol = { up: '↑', down: '↓', equal: '↔', unknown: 'Δ' }[difference.direction];
   return <View accessible accessibilityLabel={`${label}. ${layers.map((layer, index) => `${index === 0 ? 'Außen, Wert in der Mitte' : 'Innen'} ${layer.description}`).join('; ')}. Differenz gespeicherter Jahreswerte: ${difference.value === null ? 'unbekannt' : difference.text}. Zeiträume können unterschiedlich oder unvollständig sein.`} style={styles.group}>
-    <Label muted style={styles.label}>{label}</Label>
+    <Label muted style={[styles.label,{minHeight:36*scale}]}>{label}</Label>
     <View style={styles.body}>
       <View style={[styles.ring, { width: size, height: size }]}>
         {layers.map((layer, layerIndex) => {
