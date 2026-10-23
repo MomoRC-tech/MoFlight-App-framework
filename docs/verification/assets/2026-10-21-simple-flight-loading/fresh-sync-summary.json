@@ -121,5 +121,93 @@
       "No authenticated provider submission, actual phone retry, real second account or iOS",
       "The partial-banner preview is synthetic; the actual controller source handoff is host-tested"
     ]
+  },
+  "returning_session_admission": {
+    "source_commit": "256aa3f4d35f143da6515a0e1446d0712b187474",
+    "apk_sha256": "d5927b0ac986be404ec1591b9f52fdfbc39317c7a750e569de408aaa922def61",
+    "zip_sha256": "4b790aeb1df34b723d089104f79d833411a6c3097dd7cb8f8fd218f3d70b4c5f",
+    "public_download_verified": true,
+    "host_checks": {
+      "mobile_tests": 1008,
+      "python_tests": 114,
+      "types_lint_fixtures": "passed",
+      "final_focused_tests": 205,
+      "clean_head_run": false
+    },
+    "exports": [
+      "android",
+      "ios"
+    ],
+    "live_native": {
+      "avd": "MoFlight_API37",
+      "read_only_overlay": true,
+      "source_apk_hash_verified": true,
+      "credentials_entered": false,
+      "consecutive_same_session_operations": [
+        {
+          "outcome": "success",
+          "code": "none",
+          "milliseconds": 89612,
+          "observedState": {
+            "restore": "ready",
+            "library": "ready",
+            "save": "ready",
+            "view": "ready",
+            "provider": "account-verified"
+          }
+        },
+        {
+          "outcome": "success",
+          "code": "none",
+          "milliseconds": 87803,
+          "observedState": {
+            "restore": "ready",
+            "library": "ready",
+            "save": "ready",
+            "view": "ready",
+            "provider": "account-verified"
+          }
+        }
+      ],
+      "preparation_stage_passes": [
+        {
+          "name": "provider-view-supersede",
+          "failures": 0,
+          "milliseconds": 67
+        },
+        {
+          "name": "provider-view-supersede",
+          "failures": 0,
+          "milliseconds": 92
+        }
+      ],
+      "offline_saved_dashboard": true,
+      "display": {
+        "width_dp": 390,
+        "height_dp": 900,
+        "density_dpi": 160,
+        "font_scale": 1
+      },
+      "evidence_scope": "Same retained session, matching proof, canonical capture/save/readback and all selected optional jobs; bounded excerpts independently verified by source/session/increasing sequence",
+      "harness_limit": "Original composite expected two operations in one bounded excerpt. First and second saved excerpts independently verify source/session/increasing sequence and success."
+    },
+    "cleanup": {
+      "read_only_overlay": true,
+      "baseline_apk_hash_restored": true,
+      "restored": {
+        "size": "Physical size: 1080x1920\nOverride size: 480x800",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1.0",
+        "motion": "null",
+        "transition": "1.0",
+        "wifi": "1"
+      },
+      "owned_serial_absent": true
+    },
+    "limits": [
+      "Physical phone replacement not yet accepted",
+      "Real second account and iOS runtime not tested",
+      "No full-history/remote-view byte-equality claim"
+    ]
   }
 }
