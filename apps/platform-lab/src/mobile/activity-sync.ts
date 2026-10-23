@@ -40,7 +40,9 @@ function flightParticipationCovers(actual: string | undefined, tracked: string |
  * captures also cover the narrower Pilot and Fluglehrer participation views.
  * A partial or filtered
  * export must not call this API under the flight contract. Configuration hashes
- * alone do not establish this coverage. Unbounded tracked views remain pending.
+ * alone do not establish this coverage. By the selected advisory policy, a
+ * successful compatible flight sync also acknowledges a tracked view without
+ * proven date bounds. This clears a recommendation, not a completeness claim.
  *
  * Duty page captures require the SAME verified configuration and matching markers
  * from the actual saved/read-back capture; a later quick check is insufficient.
@@ -58,8 +60,9 @@ export function acknowledgeActivitySync(ledger: ActivityLedger, evidence: Activi
         evidence.capturedAt < signal.hintSince || evidence.capturedAt < signal.baseline.observedAt ||
         signal.settledAt !== null && evidence.capturedAt < signal.settledAt) return entry;
     if (evidence.source === 'flights') {
-      if (!bounded(evidence.window) || !bounded(entry.window) ||
-          evidence.window.from > entry.window.from || evidence.window.to < entry.window.to ||
+      if (!bounded(evidence.window) ||
+          entry.window !== undefined && (!bounded(entry.window) ||
+            evidence.window.from > entry.window.from || evidence.window.to < entry.window.to) ||
           !flightParticipationCovers(evidence.participation, entry.participation)) return entry;
     } else {
       if (!evidence.configuration || evidence.configuration !== signal.context.configuration ||

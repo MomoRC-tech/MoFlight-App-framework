@@ -31,7 +31,7 @@ test('complete saved flight window settles matching filtered view inclusively an
   }
 });
 
-test('unknown, unbounded, outside-window, foreign-source and role evidence never clear hints', () => {
+test('missing or invalid saved bounds, uncovered known bounds, foreign source and role evidence never clear hints', () => {
   const initial = pending();
   for (const evidence of [
     { ...saved, window: undefined }, { ...saved, window: { from: '2026-02-01', to: '2026-12-31' } },
@@ -41,8 +41,25 @@ test('unknown, unbounded, outside-window, foreign-source and role evidence never
     { ...saved, participation: undefined }, { ...saved, participation: 'Pilot' }, { ...saved, participation: 'Begleiter' },
     { ...saved, source: 'own-duties' as const },
   ]) assert.deepEqual(acknowledgeActivitySync(initial, evidence, 5_000), initial);
+});
+
+test('successful compatible flight sync clears unknown-window advice and a later count change can advise again', () => {
   const { window: _window, ...unknownWindow } = flight;
-  assert.equal(hint(acknowledgeActivitySync(pending(unknownWindow), saved, 5_000)), 2_000);
+  const initial = pending(unknownWindow);
+  const next = acknowledgeActivitySync(initial, saved, 5_000);
+  assert.equal(hint(next), null, 'Successful flight sync acknowledges the heuristic even without proven tracked bounds');
+  assert.equal(next.entries[0]!.window, undefined, 'Acknowledgment must not invent source coverage');
+  assert.equal(next.entries[0]!.signal.settledAt, 4_000);
+  assert.deepEqual(next.entries[0]!.signal.baseline?.markers, { count: 2 });
+  assert.deepEqual(decodeActivityLedger(JSON.stringify(next), identity), next);
+  const unchanged = observeActivityLedger(next, [{ ...unknownWindow, markers: { count: 2 } }], 6_000, 6_000);
+  assert.equal(hint(unchanged), null, 'The acknowledged count does not immediately alert again');
+  const changed = observeActivityLedger(unchanged, [{ ...unknownWindow, markers: { count: 3 } }], 7_000, 7_000);
+  assert.equal(hint(changed), 7_000);
+  for (const evidence of [
+    { ...saved, window: undefined }, { ...saved, participation: 'Pilot' },
+    { ...saved, source: 'own-duties' as const }, { ...saved, capturedAt: 1_999 },
+  ]) assert.deepEqual(acknowledgeActivitySync(initial, evidence, 5_000), initial);
 });
 
 test('capture, commit and clock ordering preserve late or newer observations', () => {
