@@ -3,7 +3,7 @@ param(
     [Parameter(Mandatory)][string]$BuildDirectory,
     [Parameter(Mandatory)][string]$OutputDirectory,
     [string]$SourceRef = 'HEAD',
-    [ValidateSet('Recovery', 'Responsiveness')][string]$Proof = 'Recovery',
+    [ValidateSet('Recovery', 'Responsiveness', 'Network')][string]$Proof = 'Recovery',
     [ValidatePattern('^[a-z][a-z0-9-]{0,39}$')][string]$RecoveryNamespace
 )
 
@@ -21,7 +21,9 @@ Copy-Item -LiteralPath $manifest.apk -Destination $normal
 if ((Get-FileHash -LiteralPath $normal -Algorithm SHA256).Hash.ToLowerInvariant() -ne $manifest.apk_sha256) { throw 'Normal APK manifest mismatch.' }
 $entry = Join-Path $checkout 'apps/platform-lab/index.ts'
 $original = [IO.File]::ReadAllBytes($entry)
-$module = if ($Proof -eq 'Responsiveness') { 'android-flight-responsiveness-poc' } else { 'android-core-recovery-poc' }
+$module = switch ($Proof) { 'Responsiveness' { 'android-flight-responsiveness-poc' } 'Network' { 'android-network-poc' } default { 'android-core-recovery-poc' } }
+$androidManifest = Join-Path $checkout 'apps/platform-lab/android/app/src/main/AndroidManifest.xml'
+$originalManifest = [IO.File]::ReadAllBytes($androidManifest)
 $override = "import { registerRootComponent } from 'expo';`nimport ProofComponent from './src/development/$module';`nregisterRootComponent(ProofComponent);`n"
 if ($RecoveryNamespace) {
     $override = "import { registerRootComponent } from 'expo';`nimport ProofComponent, { setRecoveryNamespace } from './src/development/$module';`nsetRecoveryNamespace('$RecoveryNamespace');`nregisterRootComponent(ProofComponent);`n"
@@ -34,12 +36,18 @@ $env:NODE_ENV = 'production'
 $env:PATH = "$JavaHome/bin;$env:PATH"
 try {
     [IO.File]::WriteAllBytes($entry, $overrideBytes)
+    if ($Proof -eq 'Network') {
+        # Local HTTP is allowed in this fixture APK only; production manifest is restored.
+        $manifestText = [Text.Encoding]::UTF8.GetString($originalManifest)
+        if ($manifestText -match 'android:usesCleartextTraffic=') { throw 'Review existing cleartext policy before overriding it.' }
+        [IO.File]::WriteAllText($androidManifest, $manifestText.Replace('<application ', '<application android:usesCleartextTraffic="true" '), [Text.UTF8Encoding]::new($false))
+    }
     Push-Location (Join-Path $checkout 'apps/platform-lab/android')
     try {
         & ./gradlew.bat :app:assembleRelease '-PreactNativeArchitectures=arm64-v8a,x86_64' --max-workers=2 *> (Join-Path $evidence 'proof-build.log')
         if ($LASTEXITCODE) { throw 'Recovery proof build failed.' }
     } finally { Pop-Location }
-    $proofName = if ($Proof -eq 'Recovery') { 'core-recovery-poc.apk' } else { 'flight-responsiveness-poc.apk' }
+    $proofName = switch ($Proof) { 'Recovery' { 'core-recovery-poc.apk' } 'Network' { 'network-poc.apk' } default { 'flight-responsiveness-poc.apk' } }
     $proofApk = Join-Path $evidence $proofName
     Copy-Item -LiteralPath $manifest.apk -Destination $proofApk
     [IO.File]::WriteAllText((Join-Path $evidence 'entry-override.ts'), $override)
@@ -47,6 +55,7 @@ try {
         kind = if ($Proof -eq 'Recovery') { 'synthetic-android-process-death-poc' } else { $module }
         source_commit = $manifest.source_commit
         entry_override = $override
+        test_only_cleartext = ($Proof -eq 'Network')
         recovery_namespace = $RecoveryNamespace
         proof_apk_sha256 = (Get-FileHash -LiteralPath $proofApk -Algorithm SHA256).Hash.ToLowerInvariant()
         normal_apk_sha256 = $manifest.apk_sha256
@@ -55,6 +64,7 @@ try {
     $provenance | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $evidence 'provenance.json') -Encoding utf8
 } finally {
     [IO.File]::WriteAllBytes($entry, $original)
+    [IO.File]::WriteAllBytes($androidManifest, $originalManifest)
     Copy-Item -LiteralPath $normal -Destination $manifest.apk
     if (git -C $checkout status --porcelain) { throw 'Build checkout source restoration requires review.' }
 }
