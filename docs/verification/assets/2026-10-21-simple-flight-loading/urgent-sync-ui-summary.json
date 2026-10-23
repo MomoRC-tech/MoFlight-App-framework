@@ -1,0 +1,102 @@
+{
+  "source_commit": "7580b6716900b60fb33d02393ab0657e090c19e7",
+  "apk_sha256": "04d6640e56f09de2ef119a8be3e237c55198c1898ebfe24c06e19e196828541d",
+  "zip_sha256": "71c5d854d1e4e55a97f157a58d5178c30ef18c505955d3117f8b15ad809fa1be",
+  "focused_host_tests": 59,
+  "native_checks": [
+    {
+      "name": "main-sync-and-club",
+      "viewport": {
+        "width_dp": 390,
+        "height_dp": 900,
+        "density_dpi": 160,
+        "font_scale": 1.0
+      },
+      "status": "native assertions passed",
+      "visual_review": "Blank PNG excluded; same-source MAIN visual reviewed from initial-selector-failure.png"
+    },
+    {
+      "name": "receipt-detail-dismiss",
+      "viewport": null,
+      "status": "passed",
+      "visual_review": "not separately reviewed"
+    },
+    {
+      "name": "main-club",
+      "viewport": {
+        "width_dp": 390,
+        "height_dp": 900,
+        "density_dpi": 160,
+        "font_scale": 1.0
+      },
+      "status": "native assertions passed",
+      "visual_review": "pending"
+    },
+    {
+      "name": "min-club",
+      "viewport": {
+        "width_dp": 360,
+        "height_dp": 900,
+        "density_dpi": 160,
+        "font_scale": 1.0
+      },
+      "status": "native assertions passed",
+      "visual_review": "passed: targeted parent review"
+    },
+    {
+      "name": "min-season",
+      "viewport": {
+        "width_dp": 360,
+        "height_dp": 900,
+        "density_dpi": 160,
+        "font_scale": 1.0
+      },
+      "status": "native assertions passed",
+      "visual_review": "passed: targeted parent review"
+    },
+    {
+      "name": "large-club",
+      "viewport": {
+        "width_dp": 360,
+        "height_dp": 900,
+        "density_dpi": 160,
+        "font_scale": 1.6
+      },
+      "status": "native assertions passed",
+      "visual_review": "passed: targeted parent review"
+    },
+    {
+      "name": "wide-club",
+      "viewport": {
+        "width_dp": 800,
+        "height_dp": 600,
+        "density_dpi": 160,
+        "font_scale": 1.0
+      },
+      "status": "native assertions passed",
+      "visual_review": "passed: targeted parent review"
+    },
+    {
+      "name": "actual-offline-process-restart",
+      "viewport": null,
+      "status": "passed",
+      "visual_review": "not separately reviewed"
+    }
+  ],
+  "scope": "Synthetic component preview; ordinary offline startup. No live provider/physical/iOS acceptance.",
+  "evidence_reuse": "Same-source MAIN/MIN reused after driver alignment failure; blank MAIN PNG excluded and valid earlier diagnostic frame used.",
+  "cleanup": {
+    "previous_published_apk_restored": true,
+    "settings_restored": true,
+    "first_install_preserved": true,
+    "emulator_stopped": true,
+    "errors": []
+  },
+  "delivery": {
+    "anonymous_download_verified": true,
+    "files": [
+      "app-release.apk",
+      "build-metadata.json"
+    ]
+  }
+}

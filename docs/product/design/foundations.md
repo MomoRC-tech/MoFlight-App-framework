@@ -49,6 +49,7 @@ Medical source-date reminders use `#ff7777` for recorded past expiry and `#f9b65
 | Shared card | Opaque colors.card; no gradient | theme ui.card: subtle depth within a bounded card. |
 | Selected chip | Opaque colors.blue fill/border; no glow | theme ui.chipSelected: selected query scope. |
 | Photo shade | Retained Photo default `#00102277`; ordinary header uses the decorative flight illustration | theme Photo: check retained photo text against the displayed crop. |
+| Club heading artwork | Image opacity .65; navy `#14232fb8` wash and leading `#14232f66` shade | ClubHeading: decorative image is clipped behind the wrapping title, with no layout height of its own. |
 
 The 21 October selected Start simplification removes the photographic paper hero and purple AI promotion; their former local gradients are not current dashboard treatments. The original approved reference/artwork stays preserved. The quiet paper entry retains the paper-tone symbol; other shared palette/category roles remain unchanged.
 
@@ -69,6 +70,7 @@ The native shell uses the platform default family; it does not configure Inter. 
 | Shared title declaration | 26 / platform default | 700, letter spacing −0.6; not every screen uses this style. |
 | Fixed header title | 28 / 34 | 700; destination row precedes controls on phones. |
 | Section heading | 19 / 26 | 600. |
+| Compact club heading / subgroup | 18 / 26 and 14 / 22 | 600; full source names wrap and system text scaling remains enabled. |
 | Body / action label | 15 / 22 | Regular / 600 for actions. |
 | Profile name input | 16 / platform default | System-scaled editable text. |
 | Dashboard / summary value | Ring center14/19; prior value14/19; difference12/17 | Current700/prior600; native text scales and ring geometry grows with it. |
@@ -114,6 +116,8 @@ Generated ratios use standard sRGB relative luminance on fully opaque pairs. The
 Preserve the [approved Thermik artwork](../../assets/branding/README.md). The native header uses the unchanged dark square logo at 88 × 88 with original aspect ratio on this alternative branch. The approved square AI icon now supplies the [platform launcher exports](../../../apps/platform-lab/assets/branding/launcher/README.md): opaque iOS/legacy artwork, a padded white adaptive/themed silhouette and teal background. Source originals are unchanged. [Package evidence and platform limits](../../verification/2026-10-18-launcher-icon.md) distinguish configuration, generated assets and installed Release acceptance.
 
 The header uses the approved original realistic ASK-21-like raster artwork. The season heading reuses it at full width beneath the text with a warm amber/brown wash. Original bitmap and logo files remain unchanged; these are native layout/overlay treatments, not a new generated photo. [Provenance and the selected refinement](alternative-ui.md) remain explicit. Artwork is decorative, not weather, location or measured-flight evidence.
+
+U2 uses a separate original generated [club airfield scene](../../../apps/platform-lab/assets/aviation/club-heading-airfield.png) behind the compact club title. The bitmap is unchanged; its absolute160×54 dp crop at right0/top−14 and navy overlays add no flow height. The fictional field, aircraft and windsock identify no real club or current conditions. Generation provenance is maintained in the [aviation asset notes](../../../apps/platform-lab/assets/aviation/README.md).
 
 The HTML guide embeds original reference and symbol/brand images unchanged. Component examples are schematic CSS explanations with synthetic labels, not new app screenshots or replacement artwork.
 

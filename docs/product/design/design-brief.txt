@@ -39,7 +39,8 @@ Keep German labels beside important navigation/status symbols. Show saved facts 
 8. Manuel's **22 October implement instruction** selects the alternative Start layout under [#20](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/20#issuecomment-6340199647): count/known-time KPIs replace rings, compact aircraft/recent-flight rows, a general Alle anzeigen route to Flüge, responsive month chart/lower legend and a 40 dp header logo. This supersedes those scoped ring/layout values; status meanings and five tabs remain.
 9. Manuel's **22 October data-update header instruction (#22)** supersedes the ordinary header connection/session symbol with an explicit data-fetch action and durable received-age display: its earlier one-hour colour policy is superseded by the 23 October U1 refinement below; login opens only when an update needs it. Provider-panel verification remains separate.
 10. Manuel's **22 October popup/header-only instruction (#22)** places the complete update journey, including original login when required, in a bounded rounded navy frame over a dimmed inert page. Only the header data button opens provider update/login; other pages give passive header guidance and retain offline administration. The retained browser parent and credential-activity behavior remain protected.
-11. Manuel's **23 October connection instruction and U1 refinement (#42/#22)** retain permanent Daten/saved age with one login/synchronize action, independent recent-session mark and steady amber recommendation only when saved flight receipt age exceeds 72 hours. Foreground checks and strictly scoped display retention never change authentication. The compact result sits below the header outside Start scrolling, with recorded completion time and Details/close. See the [current contract](alternative-ui.md#connection-action--23-october-2026); U2 statistics/club changes remain pending.
+11. Manuel's **23 October connection instruction and U1 refinement (#42/#22)** retain permanent Daten/saved age with one login/synchronize action, independent recent-session mark and steady amber recommendation only when saved flight receipt age exceeds 72 hours. Foreground checks and strictly scoped display retention never change authentication. The compact result sits below the header outside Start scrolling, with recorded completion time and Details/close. See the [current contract](alternative-ui.md#connection-action--23-october-2026).
+12. Manuel's **23 October U2 implementation instruction** removes the permanent season coverage paragraph while retaining a short caveat in Statistics detail and accessible ring descriptions. The compact club card uses the saved club name, an honest unknown-name fallback, decorative airfield art within the existing title bounds and raised subgroup headings. The [U2 contract](alternative-ui.md#season-and-club-refinement-u2--23-october-2026) records implementation and the combined U1/U2 native/Release checkpoint, which is still in progress. U3 remains unstarted.
 12. Manuel's **23 October #9 decision** approves the saved-local statistics overlay, year/all/custom periods, exact contributor navigation and decorative blueprint within the [bounded contract](alternative-ui.md#statistics-overlay--approved-implementation-scope-23-october-2026). Unverified launch mapping remains unavailable; broader identity and platform gates remain open.
 13. This handbook consolidates those decisions. Earlier prototype choices apply only where explicitly carried forward. Code values record implementation and cannot approve an unresolved visual difference.
 
@@ -80,17 +81,25 @@ An original, faint glider blueprint uses muted cyan/grey outlines, sparse constr
 
 Manuel requests one useful action and automatic login continuation under [#42](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/42) and [#22](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/22). The U1 refinement keeps permanent **Daten** and the Modern Duotone refresh symbol in every session state; its action and accessible name remain **Daten synchronisieren**. The second line describes the selected library's last successfully saved flight retrieval: **gerade**, **vor N Min.**, **vor N Std.**, **vor N Tg.**, or **Noch nie**. Loading/invalid/unreadable timestamps remain explicit. Session checks, login, failed or cancelled retrieval never renew saved age. A successful empty/no-change retrieval counts. A small independent session mark shows green **✓** for matching confirmed proof younger than 90 seconds, **→** when login is required, **?** for unknown/checking without retained proof, and **!** for mismatch/error. Saved flight receipt age strictly greater than 72 hours adds a steady amber border, subtle amber surface and **!** beside its age, regardless of login; exactly 72 hours does not. Other saved-age text stays neutral through login/error. No flashing or optional new-data probe is introduced. This replaces earlier whole-control session or one-hour age colouring.
 
-The same complete guarded sync journey starts in every state. Local preparation stays in the sync frame; legacy connect requests continue through supported jobs without a second tap. Successful login verifies the account, hides the original page, retrieves/saves requested data and returns to Start without a manual verification control. The combined result is a compact bordered row immediately below the header, outside Start's scrolling content: shared refresh glyph, **Synchronisiert · 14:32** or **Teilweise · 14:32**, **Details**, and close glyph. Details/close have minimum 48 dp targets; the row wraps and grows with system text scaling. Time is recorded when combined jobs finish and omitted when unavailable/invalid, never fabricated at render. Added/changed/pending counts, independent source outcomes and partial-coverage caveats live in Details. Failed/skipped sources or pending observations yield Teilweise; stored partial sources retain explicit caveats in Details. Statistics and club presentation remain unchanged; U2 is pending.
+The same complete guarded sync journey starts in every state. Local preparation stays in the sync frame; legacy connect requests continue through supported jobs without a second tap. Successful login verifies the account, hides the original page, retrieves/saves requested data and returns to Start without a manual verification control. The combined result is a compact bordered row immediately below the header, outside Start's scrolling content: shared refresh glyph, **Synchronisiert · 14:32** or **Teilweise · 14:32**, **Details**, and close glyph. Details/close have minimum 48 dp targets; the row wraps and grows with system text scaling. Time is recorded when combined jobs finish and omitted when unavailable/invalid, never fabricated at render. Added/changed/pending counts, independent source outcomes and partial-coverage caveats live in Details. Failed/skipped sources or pending observations yield Teilweise; stored partial sources retain explicit caveats in Details. U2 adds the scoped season/club presentation below without changing this journey.
 
 The retained selected-owner browser checks an existing association on foreground startup and approximately every minute while the update dialog is closed. Checks pause in the background and never interrupt login, retrieval, saving or recovery; they do not download flights or create an account association. During checking, a display-only cache may retain the immediately previous confirmed mark only for identical owner/store scope, account, club and last-check timestamp while that proof remains younger than 90 seconds. Changed scope/identity/timestamp, expiry or errors clear this presentation. This cache never authorizes retrieval or changes canonical authentication. Explicit user interaction takes priority over quiet checking. Unknown or foreign account proof never authorizes retrieval. Cancellation and necessary recovery/account decisions remain available.
 
-Implementation and source-specific verification are recorded in the [loading report](../../verification/2026-10-21-simple-flight-loading.md#automatic-login-and-foreground-session-status--23-october-2026). U1 is a host-verified intermediate implementation; its native visual/build checkpoint is deferred to U2 to avoid repeated builds/UI runs. It has no new APK handoff or native acceptance claim. A host regression is not proof of the reported physical-phone cause or successful live login.
+Earlier connection verification remains in the [loading report](../../verification/2026-10-21-simple-flight-loading.md#automatic-login-and-foreground-session-status--23-october-2026). The [combined U1/U2 checkpoint](../../verification/2026-10-21-simple-flight-loading.md#urgent-season-and-club-u2--23-october-2026) now records committed-source Release, synthetic component/layout and ordinary offline-startup evidence for application `7580b67`. This is not a new actual-provider session-cycle, populated-history or physical-phone acceptance.
+
+## Season and club refinement U2 — 23 October 2026
+
+The authorized second increment removes the permanent saved-year coverage paragraph from Meine Saison. Statistics detail retains a short explicit caveat that saved annual coverage may differ or remain incomplete; ring accessibility descriptions retain the same limit. Ring values, unknown/partial markers, data selection and statistics navigation are unchanged. U3 remains unstarted.
+
+The compact duty card now uses **Mein Verein: saved club label**. Missing/blank labels show exactly **Mein Verein**, with **Vereinsname unbekannt** separately. The reusable [ClubHeading](../../../apps/platform-lab/src/mobile/ClubHeading.tsx) also serves the shell's missing-duty-source card. Text uses18/26 at ordinary size, wraps without a line cap and follows system scaling. The separate fictional [airfield artwork](../../../apps/platform-lab/assets/aviation/club-heading-airfield.png) is an unchanged original built-in image-generation output,2172×724 pixels. Its absolute right-aligned160×54 dp layer at top−14 is clipped within the title bounds beneath navy overlays; it adds no flow height and establishes no actual club/location/conditions. The [asset notes](../../../apps/platform-lab/assets/aviation/README.md) retain provenance and the generation prompt.
+
+[DutyRoster](../../../apps/platform-lab/src/mobile/DutyRoster.tsx) uses raised-navy semibold subgroup headings with small maintained duotone glyphs for own/other duties and expanded later/unplaced groups. Expanded view retains **Dienstübersicht** and the saved club's provisional source qualification. Full raw periods, abbreviated assignees, unknown membership/date/name states, partial coverage and the existing **Alle Dienste ansehen** route remain. This changes presentation without new source/group semantics or provider operations. The [U2 checkpoint](../../verification/2026-10-21-simple-flight-loading.md#urgent-season-and-club-u2--23-october-2026) distinguishes host checks, synthetic native presentation and untested live/physical/iOS boundaries.
 
 ## Start/header refinement — 23 October 2026
 
 Manuel requested the following refinement under [#20](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/20#issuecomment-6352511938), then corrected the header composition on 23 October: the unchanged 88 dp Thermik logo spans the compact header's left side. Beside it, the title sits above the synchronization/Medical row; those two rows together are roughly the logo's height at ordinary text size. Profile occupies the upper-right edge. This supersedes the preceding lower-right Profile and separate full-width controls row. Data and Medical use compact 40 dp faces inside minimum 48 dp targets, icons beside two-line labels, and system-scaled text. Long titles and enlarged text may grow and wrap the header. Medical's cross is red in the maintained SVG and generated native family; it is decorative and does not change source-date status meaning.
 
-Meine Saison uses the same realistic artwork across its complete heading width, beneath the text, with a warm amber/brown overlay instead of the former small schematic image. The ordinary latest-flight summary has two rows: date/age and duration, then aircraft and recorded PIC. Long source text and enlarged text may reflow; the same-day ambiguity warning remains separate. Each measure has one concentric comparison: current year outside, prior year inside, with stable aircraft colours. Manuel's further 23 October instructions put the current-year number and small year label in the center, with a small prior-year label/value and signed difference outside. Both starts and flight time use ↑ for an increase, ↓ for a decrease and ↔ for no change; exact time differences use hours or hours:minutes, such as +4 h or +0:05 h. Differences come from numeric saved totals, never parsed display strings. Missing or partly unknown time yields Δ —, not invented zero. A visible saved-year-values note and accessible descriptions retain unequal/incomplete-period uncertainty; no like-for-like performance claim is made.
+Meine Saison uses the same realistic artwork across its complete heading width, beneath the text, with a warm amber/brown overlay instead of the former small schematic image. The ordinary latest-flight summary has two rows: date/age and duration, then aircraft and recorded PIC. Long source text and enlarged text may reflow; the same-day ambiguity warning remains separate. Each measure has one concentric comparison: current year outside, prior year inside, with stable aircraft colours. Manuel's further 23 October instructions put the current-year number and small year label in the center, with a small prior-year label/value and signed difference outside. Both starts and flight time use ↑ for an increase, ↓ for a decrease and ↔ for no change; exact time differences use hours or hours:minutes, such as +4 h or +0:05 h. Differences come from numeric saved totals, never parsed display strings. Missing or partly unknown time yields Δ —, not invented zero. U2 moves the permanent saved-year-values paragraph into a short Statistics-detail caveat; accessible ring descriptions also retain unequal/incomplete-period uncertainty. No like-for-like performance claim is made.
 
 The shared renderer uses outer88/inner70 dp rings at ordinary text size and grows their geometry with system font scaling; enlarged-text comparisons stack as before. The inner prior-year ring is composited at 50% opacity, retaining the same aircraft hues. Outer current-year colors and aircraft legend mapping stay unchanged. The circles describe each year's aircraft shares, not comparative total magnitude. Empty/unknown time retains an unfilled track. Hours and starts remain separate.
 
@@ -129,7 +138,7 @@ The shell retains Start and its processed selectors across ordinary tab navigati
 
 ## Synthetic design preview
 
-Profile → Development → Designvorschau opens the real Dashboard/OwnFlights components with eight fictional in-memory observations and a fixed 22 October 2026 clock. The Verein preview shows actual source cards with three fictional events and two document notices. Start-footer actions show empty and read-failure states; retry and the Flights preview tab restore the populated projection. No provider call, database mutation or account activation occurs. This is a repeatable visual aid, not native storage acceptance.
+Profile → Development → Designvorschau opens the real Dashboard/OwnFlights components with eight fictional in-memory observations and a fixed 22 October 2026 clock. The Verein preview shows the actual DutyRoster with fictional partial own/other/later/unplaced duties, three fictional events and two document notices. It also exercises U1 with a green session mark independent of a four-day amber saved-age recommendation, plus compact receipt, Details and dismissal. Start-footer actions show empty and read-failure states; retry and the Flights preview tab restore the populated projection. No provider call, database mutation or account activation occurs. This is a repeatable visual aid, not native storage acceptance.
 
 ## Acceptance boundary
 
@@ -186,6 +195,7 @@ Medical source-date reminders use `#ff7777` for recorded past expiry and `#f9b65
 | Shared card | Opaque colors.card; no gradient | theme ui.card: subtle depth within a bounded card. |
 | Selected chip | Opaque colors.blue fill/border; no glow | theme ui.chipSelected: selected query scope. |
 | Photo shade | Retained Photo default `#00102277`; ordinary header uses the decorative flight illustration | theme Photo: check retained photo text against the displayed crop. |
+| Club heading artwork | Image opacity .65; navy `#14232fb8` wash and leading `#14232f66` shade | ClubHeading: decorative image is clipped behind the wrapping title, with no layout height of its own. |
 
 The 21 October selected Start simplification removes the photographic paper hero and purple AI promotion; their former local gradients are not current dashboard treatments. The original approved reference/artwork stays preserved. The quiet paper entry retains the paper-tone symbol; other shared palette/category roles remain unchanged.
 
@@ -206,6 +216,7 @@ The native shell uses the platform default family; it does not configure Inter. 
 | Shared title declaration | 26 / platform default | 700, letter spacing −0.6; not every screen uses this style. |
 | Fixed header title | 28 / 34 | 700; destination row precedes controls on phones. |
 | Section heading | 19 / 26 | 600. |
+| Compact club heading / subgroup | 18 / 26 and 14 / 22 | 600; full source names wrap and system text scaling remains enabled. |
 | Body / action label | 15 / 22 | Regular / 600 for actions. |
 | Profile name input | 16 / platform default | System-scaled editable text. |
 | Dashboard / summary value | Ring center14/19; prior value14/19; difference12/17 | Current700/prior600; native text scales and ring geometry grows with it. |
@@ -252,6 +263,8 @@ Preserve the [approved Thermik artwork](../../assets/branding/README.md). The na
 
 The header uses the approved original realistic ASK-21-like raster artwork. The season heading reuses it at full width beneath the text with a warm amber/brown wash. Original bitmap and logo files remain unchanged; these are native layout/overlay treatments, not a new generated photo. [Provenance and the selected refinement](alternative-ui.md) remain explicit. Artwork is decorative, not weather, location or measured-flight evidence.
 
+U2 uses a separate original generated [club airfield scene](../../../apps/platform-lab/assets/aviation/club-heading-airfield.png) behind the compact club title. The bitmap is unchanged; its absolute160×54 dp crop at right0/top−14 and navy overlays add no flow height. The fictional field, aircraft and windsock identify no real club or current conditions. Generation provenance is maintained in the [aviation asset notes](../../../apps/platform-lab/assets/aviation/README.md).
+
 The HTML guide embeds original reference and symbol/brand images unchanged. Component examples are schematic CSS explanations with synthetic labels, not new app screenshots or replacement artwork.
 
 The U1 header uses neutral saved-age text independently of session state, with a small green `#74dfba` ✓ for recent matching confirmed proof, amber `#ffc477` → for required login, and muted ?/! for unknown/mismatch/error. Saved flight receipt age strictly greater than 72 hours adds a steady `#ffc477` border, subtle `#ffc47712` surface and age !; exactly 72 hours does not. This recommendation is independent of session colour. Checks/login/failure never renew the durable successful flight receipt. The former one-hour age-colour policy is superseded. Provider-panel session colours retain their own meanings.
@@ -289,6 +302,7 @@ The U1 header uses neutral saved-age text independently of session state, with a
 | C18 | Connection/data summary | Profile/status data summary; earlier conditional Start placement is superseded on this branch | [ConnectionSummary](../../../apps/platform-lab/src/mobile/ConnectionSummary.tsx) uses successful saved-retrieval time in Profile/status. Its retained compact reminder logic is not mounted on alternative Start; that page uses season empty/error guidance instead. Only the header admits updates. Explicit update coordinates flights and separate supported information jobs; optional failures do not undo flight saves. Startup latest-flight observation is unavailable; no automatic provider request is enabled. |
 | C19 | Support diagnostics | Shared C01/C02 cards/actions and selectable report text in a centered 520 dp group | [Diagnostics](../../../apps/platform-lab/src/mobile/Diagnostics.tsx) via Settings; paged technical/action histories and protected failures; observed navigation transitions without inferred intent. Explicit full JSON-file sharing, bounded short text copying and diagnostic-only clearing; 1 MB total managed storage cap. No automatic transmission. |
 | C20 | Meine Saison statistics overlay | Centered navy frame, radius 22, subtle border, safe-area bounds and maximum width 720 dp; fixed title over one scrolling content region | [StatisticsOverlay](../../../apps/platform-lab/src/mobile/StatisticsOverlay.tsx) reads saved local flights, applies year/all/custom date filters, and opens exact contributor/detail routes with contextual Back. Unverified launch mapping stays unavailable; source conflicts are excluded. No provider retrieval or durable filter store. |
+| C21 | Club card heading / subgroups | System-scaled title 18/26, weight600; decorative right-aligned image160×54 at top−14, clipped by the title bounds; subgroup raised navy, radius8, title14/22 and glyph16 | [ClubHeading](../../../apps/platform-lab/src/mobile/ClubHeading.tsx) shows Mein Verein: plus the full saved club label, or Mein Verein with Vereinsname unbekannt. No fixed title height or line cap. [DutyRoster](../../../apps/platform-lab/src/mobile/DutyRoster.tsx) separates own/other, later and unplaced groups without changing source membership. Expanded title remains Dienstübersicht with source qualification. The shell's missing-source card reuses the same heading. |
 
 Sources: [theme](../../../apps/platform-lab/src/mobile/theme.tsx), [MobileApp](../../../apps/platform-lab/src/mobile/MobileApp.tsx), [Dashboard](../../../apps/platform-lab/src/mobile/Dashboard.tsx), [AppHeader](../../../apps/platform-lab/src/mobile/AppHeader.tsx), [ProviderConnection](../../../apps/platform-lab/src/mobile/ProviderConnection.tsx), [MedicalStatus](../../../apps/platform-lab/src/mobile/MedicalStatus.tsx), [ProfileSettings](../../../apps/platform-lab/src/mobile/ProfileSettings.tsx), [SeasonRing](../../../apps/platform-lab/src/mobile/SeasonRing.tsx) and [StatisticsOverlay](../../../apps/platform-lab/src/mobile/StatisticsOverlay.tsx).
 
@@ -343,7 +357,7 @@ Historical main-branch amendment, superseded on this branch by [alternative UI](
 
 The ordinary header uses [DataUpdateIndicator](../../../apps/platform-lab/src/mobile/DataUpdateIndicator.tsx): unchanged refresh 24 dp artwork, permanent **Daten** label and scaled saved-age second line (**gerade**, **vor N Min./Std./Tg.**, **Noch nie**; loading/unclear states explicit). Its minimum 40 dp face, radius 12 and border sit inside a minimum 48 dp target. Small independent green ✓/amber →/muted ? or ! describe session evidence. Green requires recent matching confirmed proof younger than 90 seconds. Age stays neutral through login/error except that saved receipt age strictly greater than 72 hours adds steady amber border/surface and age !, regardless of login. Exactly 72 hours stays quiet. Durable successful flight retrieval time survives restart; login/checks/failure/cancellation never renew it. Empty/no-change success counts; other sources retain independent times. During checking only identical previous scope/account/club/timestamp proof younger than 90 seconds may retain its display; canonical authentication stays unchanged. There is no optional new-data probe.
 
-[UpdateResult](../../../apps/platform-lab/src/mobile/UpdateResult.tsx) places the dismissible combined receipt directly below the header outside Start scrolling: one bordered row, shared refresh 24 dp glyph, Synchronisiert/Teilweise and recorded completion HH:mm when valid, Details and close 20 dp. Both controls have minimum 48 dp targets. Wrapping and uncapped system text scaling preserve enlarged text. Completion time is recorded after combined jobs finish with no render-time fallback. Counts, source outcomes and partial-coverage caveats stay in Details; failed/skipped sources or pending observations yield Teilweise. U1 leaves statistics/club unchanged; U2 remains pending.
+[UpdateResult](../../../apps/platform-lab/src/mobile/UpdateResult.tsx) places the dismissible combined receipt directly below the header outside Start scrolling: one bordered row, shared refresh 24 dp glyph, Synchronisiert/Teilweise and recorded completion HH:mm when valid, Details and close 20 dp. Both controls have minimum 48 dp targets. Wrapping and uncapped system text scaling preserve enlarged text. Completion time is recorded after combined jobs finish with no render-time fallback. Counts, source outcomes and partial-coverage caveats stay in Details; failed/skipped sources or pending observations yield Teilweise. U2 adds the C21 club treatment and moves the permanent season paragraph into a short Statistics-detail caveat; the combined native/Release checkpoint is in progress.
 
 ### Header-only update popup — 22 October 2026
 
@@ -398,7 +412,7 @@ The Start summary reads committed-library freshness, independently of raw captur
 
 ## Header, overlays and navigation
 
-**22 October alternative branch (#55), revised feedback, with the 23 October #9 addition:** Meine Saison is the first Start group; the permanent leading connection/reminder box is removed. The compact card contains one latest saved flight with date/relative age, recorded PIC and aircraft, plus current/prior-year time/starts rings split by aircraft. Its row opens the exact saved identity; Alle Flüge ansehen opens the general list. The **Statistik** action opens the bounded saved-local overlay for date periods, annual/monthly comparison and supported aircraft/duration facts. Unknown dates/times, ambiguous same-day chronology, source conflicts and incomplete coverage remain explicit. Empty/error states keep passive header guidance. The compact Verein card and source-expiry Medical states remain. See the [alternative contract](alternative-ui.md) for scoped authority, illustration provenance and acceptance limits.
+**22 October alternative branch (#55), revised feedback, with the 23 October #9 addition:** Meine Saison is the first Start group; the permanent leading connection/reminder box is removed. The compact card contains one latest saved flight with date/relative age, recorded PIC and aircraft, plus current/prior-year time/starts rings split by aircraft. Its row opens the exact saved identity; Alle Flüge ansehen opens the general list. The **Statistik** action opens the bounded saved-local overlay for date periods, annual/monthly comparison and supported aircraft/duration facts. Unknown dates/times, ambiguous same-day chronology, source conflicts and incomplete coverage remain explicit. Empty/error states keep passive header guidance. The compact Verein card now names the saved source club through ClubHeading, or shows Mein Verein with Vereinsname unbekannt. Its decorative cropped airfield adds no heading height; long names and enlarged text wrap. Raised-navy duty subgroups retain partial/unknown evidence and existing routes. Source-expiry Medical states remain. See the [alternative contract](alternative-ui.md) for scoped authority, illustration provenance and acceptance limits.
 
 Start remains mounted under the statistics frame, retaining its scroll position and season projection. The overlay keeps the selected period and section through contributor/detail Back; it resets when owner/store/account scope changes. Identical inputs do not recompute season summaries and tab return does not itself reload storage. Duplicate active notifications are ignored; real background/foreground and provider closure still require guarded local revalidation. Ordinary app-switch revalidation retains the last verified screen and completed detail quietly; equal results reuse references, changed evidence invalidates detail, and missing/failed validation removes retained data. Provider/writer admission clears retained data through the active boundary. Never show an unconfirmed owner's cached data. These host-tested boundaries are not proof that every reported native reload has been resolved.
 
@@ -427,7 +441,7 @@ Respect safe areas/system bars. Current AI layout accounts for keyboard overlap,
 
 - Provider tick: previous matching check, not continuing login, imported-data freshness or cloud sync.
 - Med: earliest recorded source expiry including past entries; explicit unknown/partial warnings, red past/amber through six calendar months inclusive/quiet later. No invented date or fit-to-fly status.
-- Season rings: saved calendar-year counts/known reported minutes, no missing-time-as-zero. Unknown dates, durations and coverage remain explicit. Latest PIC is the recorded PIC slot only; another crew slot never supplies a missing PIC.
+- Season rings: saved calendar-year counts/known reported minutes, no missing-time-as-zero. The permanent Start coverage paragraph is removed in U2; the short Statistics-detail caveat and accessible ring descriptions retain unequal/incomplete-year limits. Unknown dates, durations and coverage remain explicit. Latest PIC is the recorded PIC slot only; another crew slot never supplies a missing PIC.
 - No-track: missing track evidence; no decorative measured route. Cloud/weather and club photographs are category/decorative elements.
 - Preserve clear empty/error/retry wording, scoped selection and pending work. Simplification must not hide required ownership/recovery/confirmation decisions.
 
@@ -445,13 +459,13 @@ Header order is data update → Medical → Profile. Permanent Daten and saved-f
 
 ### One update/login entry — 22 October popup amendment
 
-Use only the header “Daten” button for new provider data and login. Start empty/error states, empty Flüge, Profile, status and Development give passive guidance. Keep local reload, filters, diagnostics and offline backup independent. The complete journey stays in a persistent framed popup over the dimmed inert page; retain the native WebView parent during Android credential activities. Retry, recovery and optional source jobs stay in the frame. Settled automatic completion returns to Start with a compact bordered receipt immediately below the header outside scrolling content, needing no routine acknowledgement in the popup. Shared refresh, recorded completion HH:mm when valid, Details and close use minimum 48 dp targets and wrapping for enlarged text. Counts, source outcomes and coverage caveats stay in Details. Completion time is recorded after combined jobs finish, never fabricated at render. Close/Back retain cancellation/save guards and contextual return. U1 leaves statistics/club unchanged; U2 is pending.
+Use only the header “Daten” button for new provider data and login. Start empty/error states, empty Flüge, Profile, status and Development give passive guidance. Keep local reload, filters, diagnostics and offline backup independent. The complete journey stays in a persistent framed popup over the dimmed inert page; retain the native WebView parent during Android credential activities. Retry, recovery and optional source jobs stay in the frame. Settled automatic completion returns to Start with a compact bordered receipt immediately below the header outside scrolling content, needing no routine acknowledgement in the popup. Shared refresh, recorded completion HH:mm when valid, Details and close use minimum 48 dp targets and wrapping for enlarged text. Counts, source outcomes and coverage caveats stay in Details. Completion time is recorded after combined jobs finish, never fabricated at render. Close/Back retain cancellation/save guards and contextual return. U2 adds the compact saved-name club heading and duty subgroup hierarchy, and moves the permanent season paragraph into a short Statistics-detail caveat. The combined U1/U2 native/Release checkpoint is in progress; U3 remains unstarted.
 
 # Platform-lab UI implementation inventory
 
 [Handbook entry point](README.md). Generated by `python scripts/design_handbook.py`; do not hand-edit.
 
-Scope: 67 product mobile TypeScript/model and app-owned TSX UI/adapter files; 63 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.
+Scope: 68 product mobile TypeScript/model and app-owned TSX UI/adapter files; 65 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.
 
 ## App.tsx
 
@@ -603,6 +617,42 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CapturedFlights.t
 | `gap: 10` | 34 |
 | `gap: 2` | 57 |
 
+## ClubHeading.tsx
+
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ClubHeading.tsx](../../../apps/platform-lab/src/mobile/ClubHeading.tsx); normalized SHA-256 `7ec06c6364fa4a0c70935a787ab6d424f0b7e4641e3529c167bedb627a4dcfef`.
+
+### Literal colors
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `#14232f66` | 32 |
+| `#14232fb8` | 31 |
+
+### Typography declarations
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `fontSize: 14` | 35 |
+| `fontSize: 18` | 33 |
+| `fontWeight: '600'` | 33, 35 |
+| `lineHeight: 22` | 35 |
+| `lineHeight: 26` | 33 |
+
+### Geometry / opacity declarations
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `borderRadius: 8` | 34 |
+| `gap: 7` | 34 |
+| `gap: 8` | 29 |
+| `height: 54` | 30 |
+| `minWidth: 0` | 33, 35 |
+| `opacity: .65` | 30 |
+| `paddingHorizontal: 10` | 34 |
+| `paddingHorizontal: 18` | 29 |
+| `paddingVertical: 6` | 34 |
+| `width: 160` | 30 |
+
 ## ClubInformation.tsx
 
 Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ClubInformation.tsx](../../../apps/platform-lab/src/mobile/ClubInformation.tsx); normalized SHA-256 `2054ab877aeedd126d22d6a902405f6e693ad25af4e055fc93f0027f5d0b6bdc`.
@@ -669,53 +719,53 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundat
 
 ## Dashboard.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](../../../apps/platform-lab/src/mobile/Dashboard.tsx); normalized SHA-256 `36d701beecfe0bddaad62edfb0f334a650ffb1bbca0a743be5b162e9935daf47`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](../../../apps/platform-lab/src/mobile/Dashboard.tsx); normalized SHA-256 `57d60d972572180c162c1ee6a0c13b7657a0daeef3bfa9f0df6f4f545f2327cc`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#67533c` | 76 |
+| `#67533c` | 75 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 12` | 76, 82, 83 |
-| `fontSize: 13` | 83 |
-| `fontSize: 14` | 74 |
-| `fontWeight: '600'` | 74, 83 |
-| `lineHeight: 18` | 76, 82, 83 |
-| `lineHeight: 20` | 74 |
+| `fontSize: 12` | 75, 81, 82 |
+| `fontSize: 13` | 82 |
+| `fontSize: 14` | 73 |
+| `fontWeight: '600'` | 73, 82 |
+| `lineHeight: 18` | 75, 81, 82 |
+| `lineHeight: 20` | 73 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 14` | 73 |
-| `borderRadius: 4` | 80 |
-| `borderWidth: 1` | 73 |
-| `gap: 10` | 76, 79 |
-| `gap: 12` | 70, 78 |
-| `gap: 4` | 81 |
-| `gap: 5` | 73, 80 |
-| `gap: 6` | 71, 72 |
-| `gap: 7` | 82 |
-| `gap: 8` | 75 |
-| `height: 7` | 80 |
-| `maxWidth: 520` | 70 |
-| `minHeight: 44` | 79 |
-| `minHeight: 48` | 73, 75 |
-| `minHeight: 88` | 77 |
-| `minWidth: 0` | 76, 77 |
-| `minWidth: 94` | 73 |
-| `padding: 14` | 76 |
-| `paddingHorizontal: 10` | 73 |
-| `paddingHorizontal: 11` | 75 |
-| `paddingHorizontal: 14` | 77 |
-| `paddingVertical: 14` | 77 |
-| `width: '100%'` | 70 |
-| `width: 7` | 80 |
+| `borderRadius: 14` | 72 |
+| `borderRadius: 4` | 79 |
+| `borderWidth: 1` | 72 |
+| `gap: 10` | 75, 78 |
+| `gap: 12` | 69, 77 |
+| `gap: 4` | 80 |
+| `gap: 5` | 72, 79 |
+| `gap: 6` | 70, 71 |
+| `gap: 7` | 81 |
+| `gap: 8` | 74 |
+| `height: 7` | 79 |
+| `maxWidth: 520` | 69 |
+| `minHeight: 44` | 78 |
+| `minHeight: 48` | 72, 74 |
+| `minHeight: 88` | 76 |
+| `minWidth: 0` | 75, 76 |
+| `minWidth: 94` | 72 |
+| `padding: 14` | 75 |
+| `paddingHorizontal: 10` | 72 |
+| `paddingHorizontal: 11` | 74 |
+| `paddingHorizontal: 14` | 76 |
+| `paddingVertical: 14` | 76 |
+| `width: '100%'` | 69 |
+| `width: 7` | 79 |
 
 ## DataUpdateIndicator.tsx
 
@@ -757,33 +807,33 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DataUpdateIndicat
 
 ## DesignPreview.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DesignPreview.tsx](../../../apps/platform-lab/src/mobile/DesignPreview.tsx); normalized SHA-256 `f52752daff45230515bad3f56bab660cde0acab16fa9c931b1bbb2098603a5a9`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DesignPreview.tsx](../../../apps/platform-lab/src/mobile/DesignPreview.tsx); normalized SHA-256 `c2644734c908ce9e8520e6ec51396593f69ce27b0d956661f64451b85f79e144`.
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 13` | 83 |
-| `lineHeight: 19` | 83 |
+| `fontSize: 13` | 100 |
+| `lineHeight: 19` | 100 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 14` | 84 |
-| `borderRadius: 22` | 88 |
-| `borderWidth: 1` | 84, 88 |
-| `gap: 16` | 86 |
-| `gap: 4` | 82 |
-| `gap: 8` | 83 |
-| `maxWidth: 600` | 86 |
-| `maxWidth: 720` | 88 |
-| `minHeight: 48` | 84, 87 |
-| `padding: 18` | 86 |
-| `paddingHorizontal: 12` | 84 |
-| `paddingHorizontal: 18` | 82, 87 |
-| `paddingVertical: 10` | 84, 87 |
-| `width: '100%'` | 86, 88 |
+| `borderRadius: 14` | 101 |
+| `borderRadius: 22` | 105 |
+| `borderWidth: 1` | 101, 105 |
+| `gap: 16` | 103 |
+| `gap: 4` | 99 |
+| `gap: 8` | 100 |
+| `maxWidth: 600` | 103 |
+| `maxWidth: 720` | 105 |
+| `minHeight: 48` | 101, 104 |
+| `padding: 18` | 103 |
+| `paddingHorizontal: 12` | 101 |
+| `paddingHorizontal: 18` | 99, 104 |
+| `paddingVertical: 10` | 101, 104 |
+| `width: '100%'` | 103, 105 |
 
 ## DevelopmentHub.tsx
 
@@ -813,15 +863,23 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Diagnostics.tsx](
 
 ## DutyRoster.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DutyRoster.tsx](../../../apps/platform-lab/src/mobile/DutyRoster.tsx); normalized SHA-256 `b8ee189f0d54ba773e184e5743e298c0e6b5c023f47cac039d1316f9a511b14c`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DutyRoster.tsx](../../../apps/platform-lab/src/mobile/DutyRoster.tsx); normalized SHA-256 `f58820c125419d1458e60c8cfcb179575f977e91dd133986557d756f7a3635fb`.
+
+### Typography declarations
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `fontWeight: '600'` | 47 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `gap: 4` | 7 |
-| `maxWidth: 480` | 18 |
-| `width: '100%'` | 18 |
+| `gap: 4` | 46 |
+| `gap: 8` | 45 |
+| `maxWidth: 480` | 19 |
+| `paddingHorizontal: 2` | 46 |
+| `width: '100%'` | 19 |
 
 ## FlightScene.tsx
 
@@ -940,119 +998,119 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MedicalStatus.tsx
 
 ## MobileApp.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `72276a32eb2d68dadce396b0e664f71c3bc9aac487841cae279b60a36b3e740a`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `4d30ff2665df87118c3113d851010fc9f42dc8d1b2b7bf75f4d6db0af0b6b72f`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#000712bd` | 301 |
-| `#00c8ff` | 251 |
-| `#064240` | 295 |
-| `#10282d` | 295 |
-| `#11263a` | 294 |
-| `#152d42` | 296 |
-| `#1b344a` | 299 |
-| `#227f87` | 295 |
-| `#78efdc` | 297 |
-| `#8ba4bc` | 250, 292 |
+| `#000712bd` | 302 |
+| `#00c8ff` | 252 |
+| `#064240` | 296 |
+| `#10282d` | 296 |
+| `#11263a` | 295 |
+| `#152d42` | 297 |
+| `#1b344a` | 300 |
+| `#227f87` | 296 |
+| `#78efdc` | 298 |
+| `#8ba4bc` | 251, 293 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 10` | 239, 250, 292 |
-| `fontSize: 11` | 244, 293 |
-| `fontSize: 12` | 295, 300 |
-| `fontSize: 13` | 240, 294 |
-| `fontSize: 16` | 299 |
-| `fontSize: 20` | 293 |
-| `fontSize: 23` | 298 |
-| `fontSize: 25` | 300 |
-| `fontWeight: '600'` | 293, 295 |
-| `fontWeight: '700'` | 300 |
-| `letterSpacing: .6` | 292 |
-| `lineHeight: 16` | 250, 292, 293 |
-| `lineHeight: 17` | 295 |
-| `lineHeight: 18` | 300 |
-| `lineHeight: 25` | 293 |
-| `lineHeight: 29` | 300 |
+| `fontSize: 10` | 240, 251, 293 |
+| `fontSize: 11` | 245, 294 |
+| `fontSize: 12` | 296, 301 |
+| `fontSize: 13` | 241, 295 |
+| `fontSize: 16` | 300 |
+| `fontSize: 20` | 294 |
+| `fontSize: 23` | 299 |
+| `fontSize: 25` | 301 |
+| `fontWeight: '600'` | 294, 296 |
+| `fontWeight: '700'` | 301 |
+| `letterSpacing: .6` | 293 |
+| `lineHeight: 16` | 251, 293, 294 |
+| `lineHeight: 17` | 296 |
+| `lineHeight: 18` | 301 |
+| `lineHeight: 25` | 294 |
+| `lineHeight: 29` | 301 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 295 |
-| `borderRadius: 13` | 295 |
-| `borderRadius: 14` | 290 |
-| `borderRadius: 15` | 297 |
-| `borderRadius: 16` | 299, 300 |
-| `borderRadius: 17` | 296 |
-| `borderRadius: 18` | 298 |
-| `borderRadius: 2` | 300 |
-| `borderRadius: 20` | 299 |
-| `borderRadius: 22` | 294, 302 |
-| `borderRadius: 24` | 294 |
-| `borderRadius: 9` | 295 |
-| `borderWidth: 1` | 294, 295, 298, 299, 302 |
-| `gap: 1` | 293 |
-| `gap: 10` | 217 |
-| `gap: 18` | 205, 289, 297 |
-| `gap: 2` | 300 |
-| `gap: 3` | 292, 295 |
-| `gap: 4` | 300 |
-| `gap: 5` | 294 |
-| `gap: 6` | 298, 299 |
-| `gap: 7` | 294, 297 |
-| `gap: 8` | 271, 273, 296, 299 |
-| `height: 2` | 300 |
-| `height: 30` | 297 |
-| `height: 48` | 290, 299 |
-| `maxHeight: 150` | 299 |
-| `maxWidth: 480` | 217 |
-| `maxWidth: 520` | 126, 271, 273, 297 |
-| `maxWidth: 599` | 288, 300 |
-| `maxWidth: 600` | 202, 251 |
-| `maxWidth: 720` | 237 |
-| `maxWidth: 960` | 202, 251 |
-| `minHeight: 0` | 256, 302 |
-| `minHeight: 126` | 297 |
-| `minHeight: 34` | 296 |
-| `minHeight: 36` | 291 |
-| `minHeight: 40` | 294 |
-| `minHeight: 48` | 294, 296 |
-| `minHeight: 52` | 299 |
-| `minHeight: 64` | 295 |
-| `minHeight: 66` | 295 |
-| `minHeight: 68` | 300 |
-| `minHeight: 86` | 298 |
-| `minWidth: 0` | 293, 294 |
-| `opacity: .45` | 242 |
-| `opacity: .8` | 301 |
-| `padding: 0` | 296 |
-| `padding: 10` | 289 |
-| `padding: 16` | 298 |
-| `padding: 18` | 289 |
-| `padding: 4` | 292, 299 |
-| `padding: 6` | 300 |
-| `padding: 7` | 295 |
-| `paddingHorizontal: 12` | 294, 301 |
-| `paddingHorizontal: 16` | 296 |
-| `paddingHorizontal: 18` | 201 |
-| `paddingHorizontal: 6` | 295 |
-| `paddingHorizontal: 7` | 295 |
-| `paddingHorizontal: 8` | 299 |
-| `paddingVertical: 10` | 295, 301 |
-| `paddingVertical: 4` | 294 |
-| `paddingVertical: 8` | 300 |
-| `width: '100%'` | 126, 205, 206, 207, 217, 250, 271, 273, 288, 296, 297, 300 |
-| `width: '32%'` | 300 |
-| `width: '49.2%'` | 296 |
-| `width: 24` | 300 |
-| `width: 30` | 297 |
-| `width: 42` | 294 |
-| `width: 48` | 290, 299 |
-| `width: 64` | 295 |
+| `borderRadius: 12` | 296 |
+| `borderRadius: 13` | 296 |
+| `borderRadius: 14` | 291 |
+| `borderRadius: 15` | 298 |
+| `borderRadius: 16` | 300, 301 |
+| `borderRadius: 17` | 297 |
+| `borderRadius: 18` | 299 |
+| `borderRadius: 2` | 301 |
+| `borderRadius: 20` | 300 |
+| `borderRadius: 22` | 295, 303 |
+| `borderRadius: 24` | 295 |
+| `borderRadius: 9` | 296 |
+| `borderWidth: 1` | 295, 296, 299, 300, 303 |
+| `gap: 1` | 294 |
+| `gap: 10` | 218 |
+| `gap: 18` | 206, 290, 298 |
+| `gap: 2` | 301 |
+| `gap: 3` | 293, 296 |
+| `gap: 4` | 301 |
+| `gap: 5` | 295 |
+| `gap: 6` | 299, 300 |
+| `gap: 7` | 295, 298 |
+| `gap: 8` | 272, 274, 297, 300 |
+| `height: 2` | 301 |
+| `height: 30` | 298 |
+| `height: 48` | 291, 300 |
+| `maxHeight: 150` | 300 |
+| `maxWidth: 480` | 218 |
+| `maxWidth: 520` | 127, 272, 274, 298 |
+| `maxWidth: 599` | 289, 301 |
+| `maxWidth: 600` | 203, 252 |
+| `maxWidth: 720` | 238 |
+| `maxWidth: 960` | 203, 252 |
+| `minHeight: 0` | 257, 303 |
+| `minHeight: 126` | 298 |
+| `minHeight: 34` | 297 |
+| `minHeight: 36` | 292 |
+| `minHeight: 40` | 295 |
+| `minHeight: 48` | 295, 297 |
+| `minHeight: 52` | 300 |
+| `minHeight: 64` | 296 |
+| `minHeight: 66` | 296 |
+| `minHeight: 68` | 301 |
+| `minHeight: 86` | 299 |
+| `minWidth: 0` | 294, 295 |
+| `opacity: .45` | 243 |
+| `opacity: .8` | 302 |
+| `padding: 0` | 297 |
+| `padding: 10` | 290 |
+| `padding: 16` | 299 |
+| `padding: 18` | 290 |
+| `padding: 4` | 293, 300 |
+| `padding: 6` | 301 |
+| `padding: 7` | 296 |
+| `paddingHorizontal: 12` | 295, 302 |
+| `paddingHorizontal: 16` | 297 |
+| `paddingHorizontal: 18` | 202 |
+| `paddingHorizontal: 6` | 296 |
+| `paddingHorizontal: 7` | 296 |
+| `paddingHorizontal: 8` | 300 |
+| `paddingVertical: 10` | 296, 302 |
+| `paddingVertical: 4` | 295 |
+| `paddingVertical: 8` | 301 |
+| `width: '100%'` | 127, 206, 207, 208, 218, 251, 272, 274, 289, 297, 298, 301 |
+| `width: '32%'` | 301 |
+| `width: '49.2%'` | 297 |
+| `width: 24` | 301 |
+| `width: 30` | 298 |
+| `width: 42` | 295 |
+| `width: 48` | 291, 300 |
+| `width: 64` | 296 |
 
 ## OwnFlights.tsx
 
@@ -1293,68 +1351,68 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/SeasonRing.tsx](.
 
 ## StatisticsOverlay.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/StatisticsOverlay.tsx](../../../apps/platform-lab/src/mobile/StatisticsOverlay.tsx); normalized SHA-256 `cb9af29eacfb63b353560386b0d7512025ee5ebff2870b24b9c9c21c1da9639c`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/StatisticsOverlay.tsx](../../../apps/platform-lab/src/mobile/StatisticsOverlay.tsx); normalized SHA-256 `8ea16a687cab86ab9f9b92f4018605cb23edf04babed1387b475ad54688e7c9f`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#0b141c3b` | 260 |
-| `#0e202c` | 260 |
+| `#0b141c3b` | 261 |
+| `#0e202c` | 261 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 11` | 260 |
-| `fontSize: 16` | 261 |
-| `fontSize: 17` | 262 |
-| `fontSize: 19` | 262 |
-| `fontSize: 22` | 263 |
-| `fontWeight: '700'` | 260, 262, 263 |
-| `letterSpacing: 1.2` | 260 |
-| `lineHeight: 16` | 260 |
-| `lineHeight: 23` | 262 |
-| `lineHeight: 25` | 262 |
-| `lineHeight: 30` | 263 |
+| `fontSize: 11` | 261 |
+| `fontSize: 16` | 262 |
+| `fontSize: 17` | 263 |
+| `fontSize: 19` | 263 |
+| `fontSize: 22` | 264 |
+| `fontWeight: '700'` | 261, 263, 264 |
+| `letterSpacing: 1.2` | 261 |
+| `lineHeight: 16` | 261 |
+| `lineHeight: 23` | 263 |
+| `lineHeight: 25` | 263 |
+| `lineHeight: 30` | 264 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 261 |
-| `borderRadius: 13` | 262 |
-| `borderRadius: 16` | 262 |
-| `borderRadius: 18` | 261 |
-| `borderRadius: 20` | 260 |
-| `borderRadius: 5` | 262 |
-| `borderWidth: 1` | 260, 261, 262 |
-| `gap: 12` | 259 |
-| `gap: 2` | 262, 263 |
-| `gap: 3` | 261 |
-| `gap: 5` | 261, 262 |
-| `gap: 6` | 260, 261, 262 |
-| `gap: 8` | 261, 262, 263 |
-| `height: 10` | 262 |
-| `maxWidth: 720` | 259 |
-| `minHeight: 0` | 259 |
-| `minHeight: 142` | 260 |
-| `minHeight: 48` | 262 |
-| `minHeight: 50` | 261 |
-| `minWidth: 102` | 263 |
-| `minWidth: 72` | 262 |
-| `minWidth: 90` | 262 |
-| `minWidth: 95` | 262 |
-| `opacity: .55` | 262 |
-| `opacity: .72` | 260 |
-| `padding: 13` | 262 |
-| `padding: 14` | 259, 261 |
-| `padding: 16` | 260 |
-| `paddingHorizontal: 10` | 259 |
-| `paddingHorizontal: 12` | 261 |
-| `paddingHorizontal: 8` | 262 |
-| `width: '100%'` | 259 |
-| `width: 10` | 262 |
+| `borderRadius: 12` | 262 |
+| `borderRadius: 13` | 263 |
+| `borderRadius: 16` | 263 |
+| `borderRadius: 18` | 262 |
+| `borderRadius: 20` | 261 |
+| `borderRadius: 5` | 263 |
+| `borderWidth: 1` | 261, 262, 263 |
+| `gap: 12` | 260 |
+| `gap: 2` | 263, 264 |
+| `gap: 3` | 262 |
+| `gap: 5` | 262, 263 |
+| `gap: 6` | 261, 262, 263 |
+| `gap: 8` | 262, 263, 264 |
+| `height: 10` | 263 |
+| `maxWidth: 720` | 260 |
+| `minHeight: 0` | 260 |
+| `minHeight: 142` | 261 |
+| `minHeight: 48` | 263 |
+| `minHeight: 50` | 262 |
+| `minWidth: 102` | 264 |
+| `minWidth: 72` | 263 |
+| `minWidth: 90` | 263 |
+| `minWidth: 95` | 263 |
+| `opacity: .55` | 263 |
+| `opacity: .72` | 261 |
+| `padding: 13` | 263 |
+| `padding: 14` | 260, 262 |
+| `padding: 16` | 261 |
+| `paddingHorizontal: 10` | 260 |
+| `paddingHorizontal: 12` | 262 |
+| `paddingHorizontal: 8` | 263 |
+| `width: '100%'` | 260 |
+| `width: 10` | 263 |
 
 ## SymbolIcon.tsx
 
@@ -1734,12 +1792,12 @@ duotone-assets.ts; symbols/glyphs.svg #book
 N04 · Current native UI · selected duotone
 Club / Verein
 Appearance: Selected soft-filled cyan/slate duotone club silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
-Where: Bottom navigation, Verein.
-Meaning: Club overview, duties, appointments and notices.
-Function / action: Tap switches to Verein.
-States / limits: Selected / inactive. The sections currently show missing-source states; no live club feed is implied.
-Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
-duotone-assets.ts; symbols/glyphs.svg #club
+Where: Bottom navigation, Verein; decorative compact ClubHeading and Weitere Vereinsdienste subgroup.
+Meaning: Club overview and saved source club label; duties, appointments and notices.
+Function / action: The bottom tab switches to Verein. Heading and subgroup glyphs are decorative; Alle Dienste ansehen opens the existing duty view.
+States / limits: Selected/inactive tab. Saved partial club sources and explicit missing-source states remain distinct. An unknown heading reads Mein Verein with Vereinsname unbekannt; artwork establishes no actual club/location.
+Source: apps/platform-lab/src/mobile/ClubHeading.tsx
+ClubHeading; ClubSubheading; MobileApp navigation; duotone-assets.ts #club
 
 N05 · Current native UI · selected duotone
 AI assistant / AI
@@ -1923,7 +1981,7 @@ Appearance: Current-year value centered in concentric aircraft-share rings; prio
 Where: Dashboard Meine Saison, Starts comparison.
 Meaning: Deduplicated saved selected-account flight count for the current season.
 Function / action: Read-only; Alle Flüge ansehen opens the general Flüge view.
-States / limits: Saved yearly counts may cover unequal/incomplete periods. Measures stack and rings grow at enlarged text; shared aircraft legend remains. No performance or complete-year claim.
+States / limits: Saved yearly counts may cover unequal/incomplete periods. Measures stack and rings grow at enlarged text; shared aircraft legend remains. No performance or complete-year claim. U2 removes the permanent Start coverage paragraph; a short Statistics-detail caveat and accessible ring descriptions retain the saved-period limitation.
 Source: apps/platform-lab/src/mobile/Dashboard.tsx
 SeasonRing; seasonRingSlices; real-flight-statistics.summarizeRealFlights
 
@@ -1933,7 +1991,7 @@ Appearance: Current-year time centered in concentric aircraft-share rings; prior
 Where: Dashboard Meine Saison, known-hours comparison.
 Meaning: Known reported flight minutes for the saved selected-account season.
 Function / action: Read-only; Alle Flüge ansehen opens the general Flüge view.
-States / limits: Missing or partly unknown durations cannot become a numeric delta. Saved years may cover unequal/incomplete periods. Measures stack and rings grow at enlarged text; shared aircraft legend remains.
+States / limits: Missing or partly unknown durations cannot become a numeric delta. Saved years may cover unequal/incomplete periods. Measures stack and rings grow at enlarged text; shared aircraft legend remains. U2 removes the permanent Start coverage paragraph; a short Statistics-detail caveat and accessible ring descriptions retain the saved-period limitation.
 Source: apps/platform-lab/src/mobile/Dashboard.tsx
 SeasonRing; seasonRingSlices; real-flight-statistics.summarizeRealFlights
 
@@ -1948,14 +2006,14 @@ Source: apps/platform-lab/src/mobile/Dashboard.tsx
 StatisticsEntry; duotone-assets.ts; symbols/glyphs.svg #chart
 
 K01 · Current native UI · selected duotone
-Next club duty
+Club duty groups
 Appearance: Selected soft-filled cyan/slate duotone duty silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
-Where: Verein card heading Nächster Dienst.
-Meaning: Duty/assignment section marker.
-Function / action: The symbol is decorative; Details anzeigen opens the status sheet in the current implementation.
-States / limits: No duty assignment is currently available. Avoid interpreting this generic square as a checkbox or confirmed duty.
-Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
-duotone-assets.ts; symbols/glyphs.svg #duty
+Where: Expanded Dienstübersicht and raised-navy own, period, later and unplaced duty subgroup headings.
+Meaning: Duty/assignment section marker; no checkbox or confirmation meaning.
+Function / action: Decorative. Alle Dienste ansehen opens the existing duty view; grouping changes no source membership.
+States / limits: Partial captured duties retain provisional membership, unknown periods/people, raw dates and coverage warnings. The compact title uses the club glyph and full saved label; missing club names remain explicit.
+Source: apps/platform-lab/src/mobile/DutyRoster.tsx
+DutyRoster; ClubSubheading; duotone-assets.ts #duty
 
 K02 · Current native UI · selected duotone
 Upcoming club appointments

@@ -51,12 +51,12 @@
           "status": "Current native UI · selected duotone",
           "sample": "<img src=\"asset:apps/platform-lab/assets/icons/duotone/club-default.png\" alt=\"Selected duotone club\">",
           "appearance": "Selected soft-filled cyan/slate duotone club silhouette; local RGBA PNG from the editable SVG master. default palette in this context.",
-          "where": "Bottom navigation, Verein.",
-          "meaning": "Club overview, duties, appointments and notices.",
-          "behavior": "Tap switches to Verein.",
-          "states": "Selected / inactive. The sections currently show missing-source states; no live club feed is implied.",
-          "file": "apps/platform-lab/src/mobile/SymbolIcon.tsx",
-          "locator": "duotone-assets.ts; symbols/glyphs.svg #club"
+          "where": "Bottom navigation, Verein; decorative compact ClubHeading and Weitere Vereinsdienste subgroup.",
+          "meaning": "Club overview and saved source club label; duties, appointments and notices.",
+          "behavior": "The bottom tab switches to Verein. Heading and subgroup glyphs are decorative; Alle Dienste ansehen opens the existing duty view.",
+          "states": "Selected/inactive tab. Saved partial club sources and explicit missing-source states remain distinct. An unknown heading reads Mein Verein with Vereinsname unbekannt; artwork establishes no actual club/location.",
+          "file": "apps/platform-lab/src/mobile/ClubHeading.tsx",
+          "locator": "ClubHeading; ClubSubheading; MobileApp navigation; duotone-assets.ts #club"
         },
         {
           "id": "N05",
@@ -300,7 +300,7 @@
           "where": "Dashboard Meine Saison, Starts comparison.",
           "meaning": "Deduplicated saved selected-account flight count for the current season.",
           "behavior": "Read-only; Alle Flüge ansehen opens the general Flüge view.",
-          "states": "Saved yearly counts may cover unequal/incomplete periods. Measures stack and rings grow at enlarged text; shared aircraft legend remains. No performance or complete-year claim.",
+          "states": "Saved yearly counts may cover unequal/incomplete periods. Measures stack and rings grow at enlarged text; shared aircraft legend remains. No performance or complete-year claim. U2 removes the permanent Start coverage paragraph; a short Statistics-detail caveat and accessible ring descriptions retain the saved-period limitation.",
           "file": "apps/platform-lab/src/mobile/Dashboard.tsx",
           "locator": "SeasonRing; seasonRingSlices; real-flight-statistics.summarizeRealFlights"
         },
@@ -313,7 +313,7 @@
           "where": "Dashboard Meine Saison, known-hours comparison.",
           "meaning": "Known reported flight minutes for the saved selected-account season.",
           "behavior": "Read-only; Alle Flüge ansehen opens the general Flüge view.",
-          "states": "Missing or partly unknown durations cannot become a numeric delta. Saved years may cover unequal/incomplete periods. Measures stack and rings grow at enlarged text; shared aircraft legend remains.",
+          "states": "Missing or partly unknown durations cannot become a numeric delta. Saved years may cover unequal/incomplete periods. Measures stack and rings grow at enlarged text; shared aircraft legend remains. U2 removes the permanent Start coverage paragraph; a short Statistics-detail caveat and accessible ring descriptions retain the saved-period limitation.",
           "file": "apps/platform-lab/src/mobile/Dashboard.tsx",
           "locator": "SeasonRing; seasonRingSlices; real-flight-statistics.summarizeRealFlights"
         },
@@ -332,16 +332,16 @@
         },
         {
           "id": "K01",
-          "title": "Next club duty",
+          "title": "Club duty groups",
           "status": "Current native UI · selected duotone",
           "sample": "<img src=\"asset:apps/platform-lab/assets/icons/duotone/duty-default.png\" alt=\"Selected duotone duty\">",
           "appearance": "Selected soft-filled cyan/slate duotone duty silhouette; local RGBA PNG from the editable SVG master. default palette in this context.",
-          "where": "Verein card heading Nächster Dienst.",
-          "meaning": "Duty/assignment section marker.",
-          "behavior": "The symbol is decorative; Details anzeigen opens the status sheet in the current implementation.",
-          "states": "No duty assignment is currently available. Avoid interpreting this generic square as a checkbox or confirmed duty.",
-          "file": "apps/platform-lab/src/mobile/SymbolIcon.tsx",
-          "locator": "duotone-assets.ts; symbols/glyphs.svg #duty"
+          "where": "Expanded Dienstübersicht and raised-navy own, period, later and unplaced duty subgroup headings.",
+          "meaning": "Duty/assignment section marker; no checkbox or confirmation meaning.",
+          "behavior": "Decorative. Alle Dienste ansehen opens the existing duty view; grouping changes no source membership.",
+          "states": "Partial captured duties retain provisional membership, unknown periods/people, raw dates and coverage warnings. The compact title uses the club glyph and full saved label; missing club names remain explicit.",
+          "file": "apps/platform-lab/src/mobile/DutyRoster.tsx",
+          "locator": "DutyRoster; ClubSubheading; duotone-assets.ts #duty"
         },
         {
           "id": "K02",
