@@ -633,3 +633,14 @@ test('an explicit sync cancellation is recorded as cancellation rather than an u
   assert.equal(operation.outcome,'cancelled');assert.equal(operation.code,'cancelled');
  }finally{f.dispose();}
 });
+
+test('cancel then reopening with a renewed owner cannot consume the new attempt using old ready state',async()=>{
+ const f=fixture({intent:'update',loginPending:true});try{
+  f.render();await f.flush();assert.equal(f.calls.filter(v=>v==='session').length,1);
+  f.nodes().find(n=>n.type==='ProviderConnection')!.props.close();await f.flush();
+  f.setOpen(false);await f.flush();const retryProgress=f.progressUpdates.length;f.setOpen(true);f.render();f.renewLease();await f.flush();
+  assert.ok(!f.progressUpdates.slice(retryProgress).some(p=>p.state==='failed'),'The previous cancellation cannot be forwarded as failure of the new root attempt');
+  assert.equal(f.calls.filter(v=>v==='session').length,2,'New preparation must finish before consuming the initiating action');
+  assert.equal(f.c.visible,true);
+ }finally{f.dispose();}
+});

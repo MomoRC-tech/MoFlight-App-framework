@@ -315,10 +315,6 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,open=true,requestI
   // is never an intermediate user destination.
   const syncEntry=intent==='update'||intent==='connect';
   useEffect(()=>{if(!onStatus)return;onStatus({activity:{storeId:lease.storeId,accountRef:c.activityScope?.context.accountNumber??null,changed:activityChanged},loginVisible:c.visible,ownerId:lease.ownerId,connection:c.connection,browserActive:c.browserActive,clearing:c.clearing,binding:c.binding,busy:c.busy,loginBusy:c.loginBusy,disconnecting:c.disconnecting,saving:c.saving,recovery:c.recovery,restoring:{current:c.restoring.current}});},[onStatus,lease.ownerId,activityChanged,c.activityScope,c.visible,c.connection,c.browserActive,c.clearing,c.binding,c.busy,c.loginBusy,c.disconnecting,c.saving,c.recovery,c.restoring.current]);
-  useEffect(()=>{
-    if(!open||!syncEntry)return;
-    onProgress?.(syncProgress);
-  },[syncProgress,onProgress,open,syncEntry]);
   const scope=useMemo<RealFlightNativeScope>(()=>({registry,lease,authorize:()=>alive.current ? {ownerId:lease.ownerId,storeId:lease.storeId,leaseId:lease.leaseId,writable:foreground.current&&panelActive.current} : null}),[registry,lease]);
   function finishSource(error?:Error,source?:RealFlightSourceInput) {
     const pending=waiting.current;if(!pending)return;waiting.current=null;if(pending.timer)clearTimeout(pending.timer);pending.signal.removeEventListener('abort',pending.abort);
@@ -524,14 +520,21 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,open=true,requestI
       subscription.remove();
     };
   },[service]);
-  const entryPreparation=useRef<{started:boolean;current:boolean;deferred:boolean}|null>(null);
+  const entryPreparation=useRef<{started:boolean;current:boolean;deferred:boolean;ready:boolean;previousProgress:SyncProgress}|null>(null);
   useEffect(()=>{
-    const preparation={started:false,current:true,deferred:false};entryPreparation.current=preparation;
-    initialUpdate.current=false;if(open&&syncEntry){startStage('prepare');controller.current.setEditingLogin?.(false);}setEntryReady(false);automatic.current=false;setCompleted(null);setFlightSaved(null);setFailed(false);setMessage('');
+    const preparation={started:false,current:true,deferred:false,ready:false,previousProgress:syncProgress};entryPreparation.current=preparation;
+    initialUpdate.current=false;if(open&&syncEntry){reportedStage.current='prepare';diagnosticJournal.record('sync','sync-prepare');setSyncProgress({state:'active',last:null,current:'prepare'});controller.current.setEditingLogin?.(false);}setEntryReady(false);automatic.current=false;setCompleted(null);setFlightSaved(null);setFailed(false);setMessage('');
     setProviderOpen(providerEntryAllowed&&open&&intent!=='options');
     if(!open){if(waiting.current)abandonSource('Sync surface closed.');return;}
     return()=>{preparation.current=false;};
   },[open,requestId,service]);
+  useEffect(()=>{
+    // Opening/renewing an attempt resets local progress in the preceding effect.
+    // Do not publish the previous cancelled result before that reset renders:
+    // the root would otherwise release this new attempt's reservation.
+    if(!open||!syncEntry||syncProgress===entryPreparation.current?.previousProgress)return;
+    onProgress?.(syncProgress);
+  },[syncProgress,onProgress,open,syncEntry,requestId,service]);
   useEffect(()=>{
     const preparation=entryPreparation.current;
     if(!open||!preparation?.current||preparation.started)return;
@@ -542,7 +545,7 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,open=true,requestI
       await controller.current.cancelActivity();if(!current())return;
       if(controller.current.viewReadFailed)await controller.current.refreshRecovery();
       await Promise.allSettled([...activityWrites.current]);if(!current())return;
-      await refresh();if(current())setEntryReady(true);
+      await refresh();if(current()){preparation.ready=true;setEntryReady(true);}
     },'library-operation',true,current);
   },[open,requestId,service,busy]);
   useEffect(()=>{
@@ -551,7 +554,7 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,open=true,requestI
     setSyncProgress(previous=>({...previous,state:'failed',message:'Anbieterstatus konnte nicht sicher gelesen werden. Gespeicherte Daten bleiben erhalten.'}));
   },[open,syncEntry,c.viewReadFailed]);
   useEffect(()=>{
-    if(!providerEntryAllowed||!open||!entryReady||initialUpdate.current||busy||!snapshot||!c.viewReady)return;
+    if(!providerEntryAllowed||!open||!entryReady||!entryPreparation.current?.ready||initialUpdate.current||busy||!snapshot||!c.viewReady)return;
     initialUpdate.current=true;
     if(!syncEntry)return;
     if(snapshot.recovery.readOnly||recovery.status==='recovery-required'){
