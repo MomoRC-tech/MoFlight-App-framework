@@ -15,15 +15,15 @@ export function DataUpdateIndicator({ connection, receivedAt, readState, now, di
   const connected=connection?.phase==='observed'&&connection.confirmed&&!!connection.observed&&age>=0&&age<90_000;
   const checking=connection?.phase==='checking';
   const tint=connected?'#74dfba':colors.muted;
-  const action=connected?'Daten synchronisieren':'Bei Vereinsflieger anmelden';
+  const action='Daten synchronisieren';
   return <Pressable accessibilityRole="button" accessibilityLabel={`${action}. ${connected?'Verbunden.':checking?'Verbindung wird geprüft.':'Verbindung nicht bestätigt.'} ${status.description}`}
-    accessibilityHint="Lädt neue Daten. Falls nötig, öffnet sich die Anmeldung."
+    accessibilityHint="Synchronisiert alle unterstützten Daten. Falls nötig, öffnet sich die Anmeldung."
     accessibilityState={{ disabled }} disabled={disabled} onPress={onPress}
     style={[styles.button, disabled && { opacity: .5 }]}>
-    <View style={styles.face}><View><SymbolIcon name={connected?'refresh':'chain'} size={24} tone={connected?'default':'muted'} />
+    <View style={styles.face}><View><SymbolIcon name="refresh" size={24} tone={connected?'default':'muted'} />
       {connected&&<View testID="verified-connection" style={{position:'absolute',right:-2,bottom:-2,width:8,height:8,borderRadius:4,backgroundColor:tint}}/>}</View>
-    <View accessible={false} style={styles.copy}><Label style={styles.title}>{connected?'Daten':'Vereinsflieger'}</Label>
-      <Label style={[styles.age, { color: tint }]}>{connected?'synchronisieren':checking?'Verbinden …':'Anmelden'}</Label></View></View>
+    <View accessible={false} style={styles.copy}><Label style={styles.title}>Daten</Label>
+      <Label style={[styles.age, { color: tint }]}>synchronisieren</Label></View></View>
   </Pressable>;
 }
 

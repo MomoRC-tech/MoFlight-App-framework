@@ -68,7 +68,7 @@
 <p>Use the C08 framed popup treatment over dimmed inert Start: navy surface, radius22, subtle border, safe-area bounds, proposed720 dp maximum width, fixed title/Close and scrollable sections. Reuse shell history/local readers without disturbing the provider WebView. Close/Back restore context; account changes revoke old statistics. Detailed saved-flight evidence stays within the overlay&#x27;s contextual navigation. Reuse the selected duotone icon family; if no chart glyph exists, extend that SVG family rather than adding an icon dependency.</p>
 <p>Proposed artwork is an original faint glider technical drawing with muted cyan/grey outlines, sparse construction lines and grid, limited to header/free margins and fading away from opaque chart/data panels. No dimensions, measured tracks or flight-data implication. Keep the existing season photo/logo. An editable vector plus local raster export can use the existing pipeline; no asset generation or app implementation is performed by this documentation package. Native MIN/MAIN/WIDE/enlarged checks will settle crop, opacity and readability after approval.</p>
 <h3 id="chapter-alternative-ui-connection-action--23-october-2026">Connection action — 23 October 2026</h3>
-<p>Manuel requests one useful action and automatic login continuation under <a href="https://github.com/MomoRC-tech/MoFlight-App-framework/issues/42">#42</a> and <a href="https://github.com/MomoRC-tech/MoFlight-App-framework/issues/22">#22</a>. This supersedes the earlier received-age colour meaning of the Data header control: green now requires recent matching-account session proof. Connected users see <strong>Daten synchronisieren</strong>; otherwise the same control starts the guarded login/update journey. Saved-data age remains independent in data details and the accessible description. A successful login automatically verifies the account, hides the original page, retrieves/saves requested data and returns to Start. Ordinary login has no manual verification button.</p>
+<p>Manuel requests one useful action and automatic login continuation under <a href="https://github.com/MomoRC-tech/MoFlight-App-framework/issues/42">#42</a> and <a href="https://github.com/MomoRC-tech/MoFlight-App-framework/issues/22">#22</a>. This supersedes the earlier received-age colour meaning of the Data header control: green now requires recent matching-account session proof. The action is always <strong>Daten synchronisieren</strong>, including unknown, expired, checking and logged-out states; it never uses the provider name or asks the user to verify a connection. It starts the same complete guarded sync journey in every state. Local preparation must remain in the sync frame and cannot fall through to connection-management controls. Legacy connect requests also continue through all supported data jobs without a second tap. Saved-data age remains independent in data details and the accessible description. A successful login automatically verifies the account, hides the original page, retrieves/saves requested data and returns to Start. Ordinary login has no manual verification button. Start then shows a brief combined result (for example, “Synchronisiert · 2 neue Flüge · 1 geändert”), with failures/pending items identified and per-source details behind Details.</p>
 <p>The retained selected-owner browser checks an existing association on foreground startup and approximately every minute while the update dialog is closed. Checks pause in the background and never interrupt login, retrieval, saving or recovery; they do not download flights or create an account association. Expired/unverified/error states cannot stay green. Explicit user interaction takes priority over a pending quiet check. Unknown or foreign account proof never authorizes retrieval. Cancellation and necessary recovery/account decisions remain available.</p>
 <p>Implementation and source-specific verification are recorded in the <a href="../../verification/2026-10-21-simple-flight-loading.md#automatic-login-and-foreground-session-status--23-october-2026">loading report</a>. A host regression is not proof of the reported physical-phone cause or successful live login.</p>
 <h3 id="chapter-alternative-ui-startheader-refinement--23-october-2026">Start/header refinement — 23 October 2026</h3>
@@ -187,7 +187,7 @@
 <p>The 22 October header data-update amendment reuses <i class="swatch" style="background:#74dfba" aria-hidden="true"></i><code>#74dfba</code> for saved data received less than one hour ago and <i class="swatch" style="background:#ffc477" aria-hidden="true"></i><code>#ffc477</code> for older saved data, accompanied by visible relative age. These header colors describe saved flight-data age; the same provider-panel colors retain their separate session meanings. Neutral <code>colors.muted</code> indicates an unknown timestamp.</p></section>
 <section class="chapter" id="chapter-components"><h2 id="chapter-components-components-symbols-and-shapes">Components, symbols and shapes</h2>
 <p>&gt; The <a href="#chapter-alternative-ui">22 October modern UI contract</a> is selected as the main baseline. It supersedes conflicting earlier appearance/composition descriptions for C01–C09, typography, surfaces, Start and flight browsing. Data and acceptance boundaries retain their separate contracts. <a href="#chapter-overview">Handbook entry point</a>. This catalogue records branch implementation; main adoption was selected on 22 October. The portable guide includes schematic examples; source values and native evidence remain authoritative. Example labels/data are synthetic.</p>
-<p><strong>23 October connection override (#42/#22):</strong> the ordinary header has one connection-aware login/synchronize action. Green represents recent matching session proof; saved-age colouring in older descriptions below is superseded. Foreground minute checks are silent and defer to login/jobs. Guided login has no manual verification control. See the <a href="#chapter-alternative-ui-connection-action--23-october-2026">current contract</a>.</p>
+<p><strong>23 October connection override (#42/#22):</strong> the ordinary header always labels its single action Daten synchronisieren; connection state changes only its status indication. Green represents recent matching session proof; saved-age colouring in older descriptions below is superseded. Foreground minute checks are silent and defer to login/jobs. Guided login has no manual verification control. See the <a href="#chapter-alternative-ui-connection-action--23-october-2026">current contract</a>.</p>
 <h3 id="chapter-components-component-map">Component map</h3>
 <p><strong>Planned statistics extension (#9), awaiting implementation approval:</strong> a labelled chart action in Meine Saison opens a read-only C08-style statistics frame, replacing inline Saison im Detail. See the <a href="#chapter-alternative-ui-statistics-overlay-proposal--23-october-2026">proposal</a> for placement, blueprint decoration and bounded scrolling. The map below describes existing components, not a delivered statistics overlay.</p>
 <div class="table-wrap"><table><thead><tr><th>ID</th><th>Component / shape</th><th>Geometry / presentation</th><th>Function / source</th></tr></thead><tbody>
@@ -477,7 +477,7 @@
 <tr><td><code>width: &#x27;100%&#x27;</code></td><td>42, 49, 54, 60, 66</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-coreflightfoundationtsx">CoreFlightFoundation.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx">apps/platform-lab/src/mobile/CoreFlightFoundation.tsx</a>; normalized SHA-256 <code>c61cacaf614dae77eaf918931271763813fcd5041d16a9d0322682661f05f188</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx">apps/platform-lab/src/mobile/CoreFlightFoundation.tsx</a>; normalized SHA-256 <code>fefdb0262e44f3353b762db69b2516e04c30d753495afa466674a3ca2ebaf7fb</code>.</p>
 <h4 id="chapter-implementation-inventory-geometry--opacity-declarations-7">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>gap: 10</code></td><td>139, 140, 556</td></tr>
@@ -523,7 +523,7 @@
 <tr><td><code>width: 7</code></td><td>81</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-dataupdateindicatortsx">DataUpdateIndicator.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/DataUpdateIndicator.tsx">apps/platform-lab/src/mobile/DataUpdateIndicator.tsx</a>; normalized SHA-256 <code>20980a9ebe71fda784060d8e896301bff5a90921bbaa415d15075d86ac1101c2</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/DataUpdateIndicator.tsx">apps/platform-lab/src/mobile/DataUpdateIndicator.tsx</a>; normalized SHA-256 <code>b86fd37933425337035ad2860fe50263db0e187229831aa48d891ac726463f15</code>.</p>
 <h4 id="chapter-implementation-inventory-literal-colors-5">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><i class="swatch" style="background:#74dfba" aria-hidden="true"></i><code>#74dfba</code></td><td>17</td></tr>
@@ -1077,7 +1077,7 @@
 <tr><td><code>shadowOpacity: .5</code></td><td>29</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-updateresulttsx">UpdateResult.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/UpdateResult.tsx">apps/platform-lab/src/mobile/UpdateResult.tsx</a>; normalized SHA-256 <code>101d4d00ee6162607207a9c4145d2cc4d0149372b2532895fbde1783db0b9b34</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/UpdateResult.tsx">apps/platform-lab/src/mobile/UpdateResult.tsx</a>; normalized SHA-256 <code>6dc1be243bfdd0962eb6dbdf55ec24759bf326642c293ee226feb01dfa712a76</code>.</p>
 <h4 id="chapter-implementation-inventory-geometry--opacity-declarations-30">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>gap: 20</code></td><td>24</td></tr>
@@ -1642,7 +1642,7 @@ Proposed artwork is an original faint glider technical drawing with muted cyan/g
 
 ## Connection action — 23 October 2026
 
-Manuel requests one useful action and automatic login continuation under [#42](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/42) and [#22](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/22). This supersedes the earlier received-age colour meaning of the Data header control: green now requires recent matching-account session proof. Connected users see **Daten synchronisieren**; otherwise the same control starts the guarded login/update journey. Saved-data age remains independent in data details and the accessible description. A successful login automatically verifies the account, hides the original page, retrieves/saves requested data and returns to Start. Ordinary login has no manual verification button.
+Manuel requests one useful action and automatic login continuation under [#42](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/42) and [#22](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/22). This supersedes the earlier received-age colour meaning of the Data header control: green now requires recent matching-account session proof. The action is always **Daten synchronisieren**, including unknown, expired, checking and logged-out states; it never uses the provider name or asks the user to verify a connection. It starts the same complete guarded sync journey in every state. Local preparation must remain in the sync frame and cannot fall through to connection-management controls. Legacy connect requests also continue through all supported data jobs without a second tap. Saved-data age remains independent in data details and the accessible description. A successful login automatically verifies the account, hides the original page, retrieves/saves requested data and returns to Start. Ordinary login has no manual verification button. Start then shows a brief combined result (for example, “Synchronisiert · 2 neue Flüge · 1 geändert”), with failures/pending items identified and per-source details behind Details.
 
 The retained selected-owner browser checks an existing association on foreground startup and approximately every minute while the update dialog is closed. Checks pause in the background and never interrupt login, retrieval, saving or recovery; they do not download flights or create an account association. Expired/unverified/error states cannot stay green. Explicit user interaction takes priority over a pending quiet check. Unknown or foreign account proof never authorizes retrieval. Cancellation and necessary recovery/account decisions remain available.
 
@@ -1823,7 +1823,7 @@ The 22 October header data-update amendment reuses `#74dfba` for saved data rece
 &gt; The [22 October modern UI contract](alternative-ui.md) is selected as the main baseline. It supersedes conflicting earlier appearance/composition descriptions for C01–C09, typography, surfaces, Start and flight browsing. Data and acceptance boundaries retain their separate contracts.
 [Handbook entry point](README.md). This catalogue records branch implementation; main adoption was selected on 22 October. The portable guide includes schematic examples; source values and native evidence remain authoritative. Example labels/data are synthetic.
 
-**23 October connection override (#42/#22):** the ordinary header has one connection-aware login/synchronize action. Green represents recent matching session proof; saved-age colouring in older descriptions below is superseded. Foreground minute checks are silent and defer to login/jobs. Guided login has no manual verification control. See the [current contract](alternative-ui.md#connection-action--23-october-2026).
+**23 October connection override (#42/#22):** the ordinary header always labels its single action Daten synchronisieren; connection state changes only its status indication. Green represents recent matching session proof; saved-age colouring in older descriptions below is superseded. Foreground minute checks are silent and defer to login/jobs. Guided login has no manual verification control. See the [current contract](alternative-ui.md#connection-action--23-october-2026).
 
 ## Component map
 
@@ -2214,7 +2214,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ConnectionSummary
 
 ## CoreFlightFoundation.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `c61cacaf614dae77eaf918931271763813fcd5041d16a9d0322682661f05f188`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `fefdb0262e44f3353b762db69b2516e04c30d753495afa466674a3ca2ebaf7fb`.
 
 ### Geometry / opacity declarations
 
@@ -2272,7 +2272,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](..
 
 ## DataUpdateIndicator.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DataUpdateIndicator.tsx](../../../apps/platform-lab/src/mobile/DataUpdateIndicator.tsx); normalized SHA-256 `20980a9ebe71fda784060d8e896301bff5a90921bbaa415d15075d86ac1101c2`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DataUpdateIndicator.tsx](../../../apps/platform-lab/src/mobile/DataUpdateIndicator.tsx); normalized SHA-256 `b86fd37933425337035ad2860fe50263db0e187229831aa48d891ac726463f15`.
 
 ### Literal colors
 
@@ -2960,7 +2960,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/UpdateDialog.tsx]
 
 ## UpdateResult.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/UpdateResult.tsx](../../../apps/platform-lab/src/mobile/UpdateResult.tsx); normalized SHA-256 `101d4d00ee6162607207a9c4145d2cc4d0149372b2532895fbde1783db0b9b34`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/UpdateResult.tsx](../../../apps/platform-lab/src/mobile/UpdateResult.tsx); normalized SHA-256 `6dc1be243bfdd0962eb6dbdf55ec24759bf326642c293ee226feb01dfa712a76`.
 
 ### Geometry / opacity declarations
 
@@ -3652,7 +3652,7 @@ States / limits: Recreated approved variant, not a byte-identical copy of an old
 Source: docs/assets/branding/moflight-app-icon-ai.png
 docs/assets/branding/README.md; app.json
 </textarea></section>
-<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: 387d620acb1f20f7297d7599019f769f7633053808780638a568b3f2055ca186. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
+<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: 8e3481414a7d8eb8ace1ff6eb476a37a7a08b476c5713260e653dc50c9efd8ed. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
 </main><script>
 'use strict';
 const brief = document.querySelector('#brief');

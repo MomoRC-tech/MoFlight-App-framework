@@ -206,7 +206,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ConnectionSummary
 
 ## CoreFlightFoundation.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `c61cacaf614dae77eaf918931271763813fcd5041d16a9d0322682661f05f188`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `fefdb0262e44f3353b762db69b2516e04c30d753495afa466674a3ca2ebaf7fb`.
 
 ### Geometry / opacity declarations
 
@@ -264,7 +264,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](..
 
 ## DataUpdateIndicator.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DataUpdateIndicator.tsx](../../../apps/platform-lab/src/mobile/DataUpdateIndicator.tsx); normalized SHA-256 `20980a9ebe71fda784060d8e896301bff5a90921bbaa415d15075d86ac1101c2`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DataUpdateIndicator.tsx](../../../apps/platform-lab/src/mobile/DataUpdateIndicator.tsx); normalized SHA-256 `b86fd37933425337035ad2860fe50263db0e187229831aa48d891ac726463f15`.
 
 ### Literal colors
 
@@ -952,7 +952,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/UpdateDialog.tsx]
 
 ## UpdateResult.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/UpdateResult.tsx](../../../apps/platform-lab/src/mobile/UpdateResult.tsx); normalized SHA-256 `101d4d00ee6162607207a9c4145d2cc4d0149372b2532895fbde1783db0b9b34`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/UpdateResult.tsx](../../../apps/platform-lab/src/mobile/UpdateResult.tsx); normalized SHA-256 `6dc1be243bfdd0962eb6dbdf55ec24759bf326642c293ee226feb01dfa712a76`.
 
 ### Geometry / opacity declarations
 

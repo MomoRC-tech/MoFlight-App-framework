@@ -28,3 +28,12 @@ test('new optional-source receipt rows appear only when their combined refresh j
  const detail=text(exports.UpdateResult({result,detail:true}));assert.match(detail,/Arbeitsstunden · Jahresübersicht\s*: sichtbare Quelle gespeichert/);assert.match(detail,/Erfasste Arbeitsstunden\s*: Abruf fehlgeschlagen/);assert.match(detail,/Eigene Aufgaben\s*: nicht aktualisiert/);
 });
 
+
+test('compact receipt summarizes the whole sync and leaves per-source results behind Details',()=>{
+ const result={added:2,changed:1,pending:0,medicalStatus:'updated',dutyStatus:'partial',eventsStatus:'partial',documentNoticesStatus:'partial',workSummaryStatus:'partial',workHoursStatus:'partial',tasksStatus:'partial'};
+ const compact=text(exports.UpdateResult({result,onDetails(){},onDismiss(){}}));
+ assert.match(compact,/Synchronisiert · 2 neue Flüge · 1 geändert/);
+ assert.doesNotMatch(compact,/Medical|Dienste|Arbeitsstunden|Aufgaben|Zeitraum/);
+ assert.match(compact,/Details/);
+ assert.match(text(exports.UpdateResult({result:{...result,tasksStatus:'failed'}})),/Teilweise synchronisiert/);
+});

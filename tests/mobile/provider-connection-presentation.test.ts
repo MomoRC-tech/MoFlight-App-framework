@@ -400,3 +400,15 @@ test('popup keyboard reservation includes its window offset and avoids double sh
   assert.equal(frame().props.style[1].bottom,0,'System resize already places the frame above the keyboard');
   f.keyboard(null);assert.equal(frame().props.style[1].bottom,0);
 });
+
+test('sync preparation and recovery progress never fall through to manual connection actions',()=>{
+ const progress:Element={type:'Label',props:{},children:['Synchronisierung wird vorbereitet …']};
+ for(const phase of ['unknown','checking','login-required','mismatch','error'] as const){
+  for(const recovery of [false,true]){
+   const f=fixture({connection:{phase,confirmed:false,observed:null,lastCheckedAt:null},recovery},false,'own-flight-library',true,progress);
+   assert.match(f.text(),/Synchronisierung wird vorbereitet/);
+   assert.doesNotMatch(f.text(),/Sitzung erneut prüfen|Anmeldung prüfen|Informationsimport|Eigenes Anbieter-Konto bestätigen/);
+   assert.deepEqual(f.calls,[]);
+  }
+ }
+});

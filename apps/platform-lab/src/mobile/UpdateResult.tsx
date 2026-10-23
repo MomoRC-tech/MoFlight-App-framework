@@ -17,7 +17,7 @@ export function UpdateResult({ result, detail = false, onDetails, onDismiss }: {
 }) {
   const sources = updateSourceResults(result), incomplete = sources.filter(source => source.incomplete).length;
   return <View accessibilityLiveRegion="polite" style={{ width: '100%', maxWidth: 520, alignSelf: 'center', gap: 5, paddingVertical: 8 }}>
-    <Label style={{ color: colors.cyan }}>Flüge gespeichert · {result.added} neu · {result.changed} aktualisiert</Label>
+    <Label style={{ color: colors.cyan }}>{incomplete||result.pending?'Teilweise synchronisiert':'Synchronisiert'} · {result.added} neue Flüge · {result.changed} geändert</Label>
     {!!result.pending && <Label>{result.pending} ungeklärte Beobachtungen</Label>}
     {!!incomplete && <Label>{incomplete} {incomplete === 1 ? 'Quelle nicht aktualisiert' : 'Quellen nicht aktualisiert'}</Label>}
     {detail && <><Label muted>Zeitraum: {result.from} bis {result.to}</Label>{sources.map(source => <Label key={source.name} muted={!source.incomplete}>{source.name}: {source.text}</Label>)}</>}

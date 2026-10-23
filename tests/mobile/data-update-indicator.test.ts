@@ -50,7 +50,7 @@ test('update control labels the action and saved time, with an explicit login-if
   let calls = 0;
   for (const disabled of [false, true]) {
     const tree = exports.DataUpdateIndicator({ receivedAt: at, readState: 'ready', now: received, disabled, onPress: () => calls++ });
-    assert.match(tree.props.accessibilityLabel, /Bei Vereinsflieger anmelden/);
+    assert.match(tree.props.accessibilityLabel, /^Daten synchronisieren\./);
     assert.ok(tree.props.accessibilityLabel.includes(new Date(received).toLocaleString('de-DE')));
     assert.match(tree.props.accessibilityHint, /Falls nötig.*Anmeldung/);
     assert.equal(tree.props.disabled, disabled);
@@ -66,8 +66,8 @@ test('update control labels the action and saved time, with an explicit login-if
   ] as const){
     const tree=exports.DataUpdateIndicator({connection,receivedAt:at,readState:'ready',now,onPress(){}});
     assert.equal(tree.children[0].children[1].children[1].props.style[1].color,green?'#74dfba':'#adbed5');
-    assert.equal(tree.props.accessibilityLabel.startsWith('Daten synchronisieren'),green);
-    assert.equal(tree.children[0].children[1].children[1].children[0],green?'synchronisieren':connection?.phase==='checking'?'Verbinden …':'Anmelden');
+    assert.equal(tree.props.accessibilityLabel.startsWith('Daten synchronisieren'),true);
+    assert.equal(tree.children[0].children[1].children[1].children[0],'synchronisieren');
     assert.ok(tree.props.accessibilityLabel.includes(dataUpdateStatus(at,'ready',now).description));
   }
 });
