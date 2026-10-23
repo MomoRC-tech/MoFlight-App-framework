@@ -34,7 +34,7 @@ const fixtureActivityLedger={
 
 // Real screen effects and handlers; SQLite and provider behavior have their own
 // integration tests. These ports control timing to exercise the screen coordinator.
-function fixture({providerAllowed=true,deferRead=false,startUpdate=false,root=false,readOnly=false,deferReservation=false,deferActivityCancel=false,failStartup=false,medicalFailure=false,loginPending=false,deferProvider=false,quietResume=false,deferSource=false,sameWindow=false,deferVerification=false,priorConnection='unknown',existingOwner=false,pendingRestore=false,cancelRestore=false,initialOpen=true,activityEnabled=false,activityBaselineCount=1,activityResultCount=2,onStatus:statusCallback=undefined as ((status:any)=>void)|undefined,intent:requestedIntent=undefined as string|undefined}={}) {
+function fixture({providerAllowed=true,deferRead=false,startUpdate=false,root=false,readOnly=false,deferReservation=false,deferActivityCancel=false,deferActivityWrite=false,failStartup=false,medicalFailure=false,loginPending=false,deferProvider=false,quietResume=false,deferSource=false,sameWindow=false,deferVerification=false,priorConnection='unknown',existingOwner=false,pendingRestore=false,cancelRestore=false,initialOpen=true,activityEnabled=false,activityBaselineCount=1,activityResultCount=2,onStatus:statusCallback=undefined as ((status:any)=>void)|undefined,intent:requestedIntent=undefined as string|undefined}={}) {
   let panelOpen=initialOpen,requestId=0;
   const journal=new DiagnosticJournal(), diagnosis={current:journal.begin(startUpdate?'update-flights':'open-flight-tools')};
   const hooks:any[]=[],effects:(()=>void)[]=[],calls:string[]=[],activityOrder:string[]=[],closed:any[]=[];
@@ -43,6 +43,8 @@ function fixture({providerAllowed=true,deferRead=false,startUpdate=false,root=fa
   const storedRead=new Promise<void>(resolve=>{finishRead=resolve;});
   let finishActivityCancel!:()=>void;
   const activityCancel=new Promise<void>(resolve=>{finishActivityCancel=resolve;});
+  let finishActivityWrite!:()=>void;
+  const activityWrite=new Promise<void>(resolve=>{finishActivityWrite=resolve;});
   let finishReservation!:()=>void;
   const reservation=new Promise<void>(resolve=>{finishReservation=resolve;});
   const listeners=new Set<(state:string)=>void>();
@@ -50,6 +52,7 @@ function fixture({providerAllowed=true,deferRead=false,startUpdate=false,root=fa
   const timers=new Map<number,()=>void>();
   let admitSource!:()=>void;
   let activityChecks=0,pendingRestoreChecks=0;
+  let activityWriteCalls=0;
   const activityLedgerSaves:unknown[]=[],statusUpdates:any[]=[];
   const initialActivityAt=Date.now()-1000;
   const trackedActivity=[{source:'flights' as const,configuration:fixtureActivityConfiguration,markers:{count:activityBaselineCount},window:fixtureActivityWindow,participation:'Pilot oder Fluglehrer'}];
@@ -100,7 +103,7 @@ function fixture({providerAllowed=true,deferRead=false,startUpdate=false,root=fa
     './activity-sync':activitySync,
     '../vereinsflieger/scoped-storage':{
       loadScopedActivity:async()=>{activityOrder.push('activity-cache-load');return savedActivityLedger===null?null:cloneJson(savedActivityLedger);},
-      saveScopedActivity:async(_scope:any,_store:string,value:unknown,gate:()=>void)=>{gate();activityOrder.push('activity-cache-save');savedActivityLedger=cloneJson(value);activityLedgerSaves.push(cloneJson(value));gate();},
+      saveScopedActivity:async(_scope:any,_store:string,value:unknown,gate:()=>void)=>{gate();const write=++activityWriteCalls;if(deferActivityWrite&&write===1)activityOrder.push('activity-cache-save-pending');if(deferActivityWrite&&write===1)await activityWrite;gate();activityOrder.push('activity-cache-save');savedActivityLedger=cloneJson(value);activityLedgerSaves.push(cloneJson(value));gate();},
     },
     '@moflight/flight-logbook':{canonical},
     './account-retrieval-jobs':accountJobs, '../diagnostics':{diagnosticJournal:journal},
@@ -124,11 +127,11 @@ function fixture({providerAllowed=true,deferRead=false,startUpdate=false,root=fa
   function nodes(){const result:Element[]=[];function visit(value:any){if(value&&typeof value==='object'&&'children'in value){result.push(value);value.children.forEach(visit);if(value.props.progress)visit(value.props.progress);}}visit(tree);return result;}
   const text=(node:any):string=>node&&typeof node==='object'&&'children'in node?node.children.map(text).join(''):typeof node==='string'?node:'';
   function press(label:string){const node=nodes().find(n=>n.type==='Action'&&text(n)===label);assert.ok(node,label);assert.ok(!node.props.disabled,label);node.props.onPress();}
-  return {journal,render,flush,c,calls,closed,nodes,activityChecks:()=>activityChecks,pendingRestoreChecks:()=>pendingRestoreChecks,activityLedgerSaves:()=>activityLedgerSaves.map(cloneJson),savedActivityLedger:()=>savedActivityLedger===null?null:cloneJson(savedActivityLedger),statusUpdates,changeSelection:()=>{selectedHead++;},setOpen:(value:boolean)=>{panelOpen=value;if(value)requestId++;dirty=true;},text:()=>text(tree),progressText:()=>text(nodes().find(n=>n.type==='ProviderConnection')?.props.progress),press,finishReservation,background:()=>listeners.forEach(f=>f('background')),resume:()=>listeners.forEach(f=>f('active')),
+  return {journal,render,flush,c,calls,closed,nodes,activityChecks:()=>activityChecks,activityWriteCalls:()=>activityWriteCalls,pendingRestoreChecks:()=>pendingRestoreChecks,activityLedgerSaves:()=>activityLedgerSaves.map(cloneJson),savedActivityLedger:()=>savedActivityLedger===null?null:cloneJson(savedActivityLedger),statusUpdates,changeSelection:()=>{selectedHead++;},setOpen:(value:boolean)=>{panelOpen=value;if(value)requestId++;dirty=true;},text:()=>text(tree),progressText:()=>text(nodes().find(n=>n.type==='ProviderConnection')?.props.progress),press,finishReservation,background:()=>listeners.forEach(f=>f('background')),resume:()=>listeners.forEach(f=>f('active')),
     verify:()=>{c.visible=false;c.connection={phase:'observed',confirmed:true,observed:{accountNumber:'101',clubLabel:'Example'}};dirty=true;},
     pendingTimers:()=>timers.size,expire:()=>{for(const [id,fn] of timers){timers.delete(id);fn();}},
     finishRead:()=>finishRead(),
-    finishActivityCancel:()=>finishActivityCancel(),activityOrder,
+    finishActivityCancel:()=>finishActivityCancel(),finishActivityWrite:()=>finishActivityWrite(),activityOrder,
     admitSource:()=>admitSource(),
     complete:()=>{c.busy=false;c.result='captured';c.completedFlightSource=input;dirty=true;},
     dispose:()=>{for(const hook of hooks)hook?.cleanup?.();},
@@ -174,6 +177,26 @@ test('library refresh waits for an activity request to cancel before reading or 
     assert.equal(f.activityOrder.includes('refresh-read'),false,'Stored flight state must not be read while provider activity still owns the browser');
     f.finishActivityCancel(); await f.flush();
     assert.deepEqual(f.activityOrder.slice(0,3),['cancel-start','cancel-finish','refresh-read']);
+  } finally { f.dispose(); }
+});
+
+test('explicit entry waits for a pending quiet-activity cache write before reading stored flights', async () => {
+  const f=fixture({initialOpen:false,priorConnection:'verified',activityEnabled:true,activityBaselineCount:3,activityResultCount:4,deferActivityWrite:true});
+  try {
+    f.render(); await f.flush();
+    assert.equal(f.activityChecks(),1,'The confirmed, bound quiet pipeline starts its baseline comparison');
+    assert.equal(f.activityWriteCalls(),1,'The hourly-attempt cache write is still pending');
+    assert.deepEqual(f.activityOrder,['activity-cache-load','activity-probe','activity-cache-save-pending']);
+
+    f.setOpen(true); await f.flush();
+    assert.ok(f.activityOrder.includes('cancel-finish'),'Explicit entry completes provider cancellation');
+    assert.equal(f.activityOrder.includes('refresh-read'),false,'Stored state must wait for the pending native cache write even after cancellation resolves');
+
+    f.finishActivityWrite(); await f.flush();
+    const cacheWriteDone=f.activityOrder.indexOf('activity-cache-save');
+    const refreshRead=f.activityOrder.indexOf('refresh-read');
+    assert.ok(cacheWriteDone>=0,'The deferred scoped cache write completes after release');
+    assert.ok(refreshRead>cacheWriteDone,'Stored flights are read only after the in-flight activity write settles');
   } finally { f.dispose(); }
 });
 
