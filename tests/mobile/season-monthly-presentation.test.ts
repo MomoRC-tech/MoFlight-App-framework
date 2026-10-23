@@ -72,17 +72,19 @@ test('current and previous years share each month and one comparison scale',()=>
 });
 
 
-test('bar values preserve known zero, exact hours, partial and unknown values while future months stay blank',()=>{
+test('bar labels omit zero while accessible months retain it and unknown, partial and future states remain distinct',()=>{
  const f=fixture();
  Object.assign(f.series[0]![0]!,{count:4,knownMinutes:95,covered:false});
  Object.assign(f.series[1]![0]!,{count:0,knownMinutes:0,covered:true});
  Object.assign(f.series[0]![1]!,{count:null,knownMinutes:null,covered:false});
  const values=(nodes:Element[],month:string)=>nodes.find(n=>n.props.accessibilityLabel?.startsWith(month+':'))!.children[0].children.map((slot:Element)=>slot.children[1]);
- const captions=(nodes:Element[],month:string)=>values(nodes,month).map((v:Element)=>v?.children.filter((c:any)=>typeof c==='string').join(''));
- const counts=f.render();assert.deepEqual(captions(counts,'Jan'),['4·','0']);assert.equal(captions(counts,'Feb')[0],'?');
+ const captions=(nodes:Element[],month:string)=>values(nodes,month).map((v:Element)=>v ? v.children.filter((c:any)=>typeof c==='string').join('') : undefined);
+ const counts=f.render();assert.deepEqual(captions(counts,'Jan'),['4·',undefined]);assert.equal(captions(counts,'Feb')[0],'?');
+ assert.match(counts.find(n=>n.props.accessibilityLabel?.startsWith('Jan:'))!.props.accessibilityLabel,/2025: 0 Flüge/);
  assert.ok(values(counts,'Nov').every((v:any)=>!v),'Future months show no numeric label');
  counts.find(n=>n.type==='Chip'&&n.props.title==='Flugstunden')!.props.onPress();
- const hours=f.render();assert.deepEqual(captions(hours,'Jan'),['1:35·','0:00']);
- assert.ok(values(hours,'Jan').every((v:Element)=>v.props.maxFontSizeMultiplier===1));
+ const hours=f.render();assert.deepEqual(captions(hours,'Jan'),['1:35·',undefined]);
+ assert.match(hours.find(n=>n.props.accessibilityLabel?.startsWith('Jan:'))!.props.accessibilityLabel,/2025: 0 Flüge, 0:00 h bekannt/);
+ assert.ok(values(hours,'Jan').filter(Boolean).every((v:Element)=>v.props.maxFontSizeMultiplier===1));
  assert.match(JSON.stringify(hours),/Stunden:Minuten/);
 });

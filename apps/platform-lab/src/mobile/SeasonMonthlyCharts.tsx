@@ -20,7 +20,7 @@ export function SeasonMonthlyCharts({ series }: { series: SeasonMonth[][]; fontS
             const caption=value===null?'?':metric==='count'?String(value):formatReportedMinutes(value);
             return <View key={m.year} style={s.slot}>
               <View style={[s.bar,{height,backgroundColor:year===series[0]?colors.cyan:'#7194be'},!m.covered&&s.partial]} />
-              {!m.future&&<Text maxFontSizeMultiplier={1} style={[s.barValue,{bottom:height+19}]}>{caption}{value!==null&&!m.covered?'·':''}</Text>}
+              {!m.future&&value!==0&&<Text maxFontSizeMultiplier={1} style={[s.barValue,{bottom:height+19}]}>{caption}{value!==null&&!m.covered?'·':''}</Text>}
             </View>;
           })}</View><Text maxFontSizeMultiplier={1} style={s.monthLabel}>{name}</Text>
 
