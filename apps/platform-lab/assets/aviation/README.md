@@ -45,3 +45,11 @@ Combined total for all five photographs: 518,767 bytes (about 507 KiB).
 `statistics-glider-blueprint.svg` is an original editable vector drawing of a generic glider plan view and side elevation over a sparse construction grid. `statistics-glider-blueprint.png` is its local transparent app raster, generated with the already used CairoSVG tool. It is decorative only: no dimensions, measured track, flight identity, or performance data is represented. The overlay confines it to a small header panel that fades into opaque data cards; it adds no runtime or icon dependency.
 
 In-app credit for `mountain-header-v2.jpg`: **L293D / Glider (sailplane).jpg / Wikimedia Commons — CC0 1.0. Resized and recompressed for app display.** The source depicts a sailplane against the French Alps in daylight; it provides the requested visible mountain skyline and glider, though it does not have sunset lighting.
+
+## Brighter club heading airfield — 23 October 2026
+
+`club-heading-airfield-v2.png` is the exact built-in image-generation edit approved by Manuel after inline review. The original `club-heading-airfield.png` remains preserved. It depicts a fictional airfield, not the user's club. No private input or runtime image service is used.
+
+Edit request: preserve the panoramic composition, gliders, powered aircraft, hangar and windsock; change lighting/exposure to substantially brighter natural early-morning daylight, lift shadows, show white aircraft and natural green grass clearly, retain a subdued cool left side for text, and avoid the heavy navy wash, vignette or faded appearance. No text, logos or UI. The generated PNG is copied byte-for-byte from the reviewed output.
+
+The app uses full image opacity, no overall navy wash, a leading shade and a small title shadow. UI testing was explicitly excluded for this follow-up.
