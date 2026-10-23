@@ -1,13 +1,15 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { ClubEvents, ClubDocumentNotices } from './ClubInformation';
 import { Dashboard } from './Dashboard';
+import { AppHeader } from './AppHeader';
 import { OwnFlights, type OwnFlightHeader } from './OwnFlights';
 import { Action, Card, Label, colors } from './theme';
 import { createDesignPreviewData, DESIGN_PREVIEW_NOW } from './design-preview-data';
 import type { useOwnFlights } from './use-own-flights';
 import type { OwnFlightRequest } from './own-flight-model';
 import type { RealFlightDetail, RealFlightListItem } from '../vereinsflieger/real-flight-library';
+import { StatisticsOverlay } from './StatisticsOverlay';
 
 /** Mount directly in the shell's flex content area; OwnFlights owns its list scrolling. */
 export function DesignPreview() {
@@ -19,6 +21,8 @@ export function DesignPreview() {
   const [detail, setDetail] = useState<RealFlightDetail | null>(null);
   const [header, setHeader] = useState<OwnFlightHeader>({ title: 'Flüge' });
   const [paper, setPaper] = useState(false);
+  const [statisticsOpen, setStatisticsOpen] = useState(false);
+  const statisticsBack = useRef<() => boolean>(() => false);
   const { width, fontScale } = useWindowDimensions();
   const clearDetail = useCallback(() => setDetail(null), []);
   const openDetail = useCallback(async (selected: RealFlightListItem) => {
@@ -33,6 +37,14 @@ export function DesignPreview() {
     detailError: mode === 'error' ? 'Synthetischer Lesefehler für die UI-Vorschau. Erneut prüfen zeigt wieder die erfundenen Flüge; echte Daten bleiben unberührt.' : null,
     openDetail, clearDetail, reload,
   };
+  if (statisticsOpen) return <View style={styles.root}>
+    <View style={styles.statisticsFrame}>
+      <AppHeader title="Vorschau Flugstatistik" back={() => { if (!statisticsBack.current()) setStatisticsOpen(false); }}>
+        <Label muted>Synthetische UI-Vorschau · keine Speicherung</Label>
+      </AppHeader>
+      <StatisticsOverlay data={data} today="2026-10-22" fontScale={fontScale} onBackHandler={handler => { statisticsBack.current = handler; }} />
+    </View>
+  </View>;
   const showFlights = (flightId?: string) => {
     setMode('populated');
     clearDetail(); setRequest({ year: null, ...(flightId ? { flightId } : {}) }); setPage('flights');
@@ -52,7 +64,7 @@ export function DesignPreview() {
     {page === 'start' ? <ScrollView contentContainerStyle={styles.canvas}>
       <Label muted>Festes Demo-Datum: 22.10.2026 · alle Flüge und Belege erfunden.</Label>
       <Dashboard ownFlights={fixture.view} ownFlightPhase="ready" pending={null} width={width} fontScale={fontScale}
-        now={DESIGN_PREVIEW_NOW} onPaper={() => setPaper(!paper)} onFlights={() => showFlights()} onFlight={showFlights} />
+        now={DESIGN_PREVIEW_NOW} onPaper={() => setPaper(!paper)} onFlights={() => showFlights()} onFlight={showFlights} onStatistics={() => setStatisticsOpen(true)} />
       {paper && <Card><Label>Papierflugbuch später einrichten</Label><Label muted>Diese Vorschau zeigt nur erfundene Flugdaten. Es wird kein Flugbuch angelegt.</Label></Card>}
       <Action secondary onPress={() => showState('empty')}>Leere Liste ansehen</Action>
       <Action secondary onPress={() => showState('error')}>Lesefehler ansehen</Action>
@@ -73,4 +85,5 @@ const styles = StyleSheet.create({
   selected: { backgroundColor: colors.raised, borderColor: colors.cyan },
   canvas: { padding: 18, paddingBottom: 28, gap: 16, width: '100%', maxWidth: 600, alignSelf: 'center' },
   back: { minHeight: 48, paddingHorizontal: 18, paddingVertical: 10, justifyContent: 'center' },
+  statisticsFrame: { flex: 1, alignSelf: 'center', width: '100%', maxWidth: 720, marginVertical: 8, borderWidth: 1, borderColor: colors.border, borderRadius: 22, backgroundColor: colors.background, overflow: 'hidden' },
 });

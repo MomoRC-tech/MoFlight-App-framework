@@ -26,12 +26,12 @@ MAPPING = {
     'H01': None, 'H02': 'back', 'H03': 'chain', 'H04': 'medical-card', 'H05': 'profile',
     'S01': 'chain', 'S02': 'chain', 'S03': 'chain', 'S04': 'chain', 'S05': None,
     'D01': 'logbook', 'D02': 'sparkle', 'D03': 'glider', 'D04': 'clock',
-    'D05': 'location', 'D06': 'weather', 'D07': None, 'D08': None,
+    'D05': 'location', 'D06': 'weather', 'D07': None, 'D08': None, 'D09': 'chart',
     'K01': 'duty', 'K02': 'calendar-neutral', 'K03': 'messages',
     'A01': 'search', 'A02': 'filter', 'A03': 'down', 'A04': 'refresh',
     'A05': 'info', 'A06': 'right', 'A07': 'arrow', 'A08': 'arrow',
     'A09': 'send', 'A10': 'check', 'A11': 'plus', 'A12': 'back',
-    'T01': None, 'T02': None, 'T03': None, 'T04': None, 'T05': None, 'T06': None,
+    'T01': None, 'T02': None, 'T03': None, 'T04': None, 'T05': None, 'T06': None, 'T07': None,
     'B01': None, 'B02': None, 'B03': None,
 }
 

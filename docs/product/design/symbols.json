@@ -318,6 +318,19 @@
           "locator": "SeasonRing; seasonRingSlices; real-flight-statistics.summarizeRealFlights"
         },
         {
+          "id": "D09",
+          "title": "Meine Saison statistics",
+          "status": "Approved native UI · selected duotone",
+          "sample": "<img src=\"asset:apps/platform-lab/assets/icons/duotone/chart-default.png\" alt=\"Statistics chart symbol\">",
+          "appearance": "Selected cyan/slate chart silhouette from the editable local SVG family; default palette.",
+          "where": "Upper-right of the Meine Saison heading; opens Flugstatistik.",
+          "meaning": "Open saved-local statistics for the currently selected own-flight library.",
+          "behavior": "Opens the framed Statistik overlay. Back returns through contributing-flight details and sections; at the overview it returns to Start.",
+          "states": "Read-only. Account/library changes invalidate prior statistics. The glyph is not a trend or completeness claim.",
+          "file": "apps/platform-lab/src/mobile/Dashboard.tsx",
+          "locator": "StatisticsEntry; duotone-assets.ts; symbols/glyphs.svg #chart"
+        },
+        {
           "id": "K01",
           "title": "Next club duty",
           "status": "Current native UI · selected duotone",
@@ -497,8 +510,8 @@
           "title": "Expand / collapse details",
           "status": "Current native UI · selected duotone",
           "sample": "<img src=\"asset:apps/platform-lab/assets/icons/duotone/plus-default.png\" alt=\"Selected duotone plus\"><img src=\"asset:apps/platform-lab/assets/icons/duotone/minus-default.png\" alt=\"Collapse details\">",
-          "appearance": "Selected soft-filled cyan/slate duotone plus silhouette; local RGBA PNG from the editable SVG master. default palette in this context. The alternative Start disclosure also uses text + / − beside its label.",
-          "where": "Verbindungen: Sitzungsdetails & weitere Optionen; Rohbelege & begrenzter Abruf. Alternative Start: Saison im Detail (Dashboard.tsx).",
+          "appearance": "Selected soft-filled cyan/slate duotone plus silhouette; local RGBA PNG from the editable SVG master. default palette in this context.",
+          "where": "Verbindungen: Sitzungsdetails & weitere Optionen; Rohbelege & begrenzter Abruf. Statistics now opens from the Meine Saison chart action.",
           "meaning": "Show or hide optional detail/tool sections.",
           "behavior": "Tap toggles the corresponding disclosure and accessible expanded state.",
           "states": "No creation, addition, deletion or subtraction of user data. Collapses when the connection panel closes.",
@@ -601,6 +614,19 @@
           "states": "It is not a three-dot options button. Busy operations use explicit text/spinner S05.",
           "file": "apps/platform-lab/src/mobile/MobileApp.tsx",
           "locator": "search/composer placeholders; connection-guidance working text"
+        },
+        {
+          "id": "T07",
+          "title": "Negative sign / signed value",
+          "status": "Current native UI",
+          "sample": "<span class=\"glyph\" aria-hidden=\"true\">−</span>",
+          "appearance": "− (U+2212): mathematical minus sign.",
+          "where": "Season comparison deltas and relative saved-flight date ages.",
+          "meaning": "A negative change from the comparison value, or elapsed time before the present, as stated by its label.",
+          "behavior": "Read-only numeric/date notation; no independent action.",
+          "states": "Keep distinct from T01's em dash for an unknown or unavailable value and from a hyphen used in prose.",
+          "file": "apps/platform-lab/src/mobile/season-model.ts",
+          "locator": "formatSignedPercentage; season-dashboard-model.formatDateAge"
         }
       ]
     },

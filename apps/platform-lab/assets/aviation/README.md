@@ -32,4 +32,8 @@ In-app credit: **Anne Burgess / Clubhouse at Dusk / Geograph, via Wikimedia Comm
 
 Combined total for all five photographs: 518,767 bytes (about 507 KiB).
 
+## Statistics overlay blueprint
+
+`statistics-glider-blueprint.svg` is an original editable vector drawing of a generic glider plan view and side elevation over a sparse construction grid. `statistics-glider-blueprint.png` is its local transparent app raster, generated with the already used CairoSVG tool. It is decorative only: no dimensions, measured track, flight identity, or performance data is represented. The overlay confines it to a small header panel that fades into opaque data cards; it adds no runtime or icon dependency.
+
 In-app credit for `mountain-header-v2.jpg`: **L293D / Glider (sailplane).jpg / Wikimedia Commons — CC0 1.0. Resized and recompressed for app display.** The source depicts a sailplane against the French Alps in daylight; it provides the requested visible mountain skyline and glider, though it does not have sunset lighting.

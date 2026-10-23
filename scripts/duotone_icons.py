@@ -24,7 +24,7 @@ GLYPHS = ['home', 'flight-paper-plane', 'book', 'club', 'sparkle', 'back', 'chai
           'medical-card', 'profile', 'logbook', 'glider', 'clock', 'location',
           'weather', 'duty', 'calendar-neutral', 'messages', 'search', 'filter',
           'down', 'refresh', 'info', 'right', 'arrow', 'send', 'check', 'plus',
-          'minus', 'close']
+          'minus', 'close', 'chart']
 TONES = {
     'default': ['#32f1ef', '#00d9e8', '#00b9df', '#8caac1', '#7094b1', '#46688b'],
     'muted': ['#b6c8d8', '#99b0c6', '#7d98af', '#839fb7', '#67859f', '#46627b'],

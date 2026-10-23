@@ -203,6 +203,13 @@ export const duotoneAssets = {
     assistant: require('../../assets/icons/duotone/close-assistant.png'),
     contrast: require('../../assets/icons/duotone/close-contrast.png'),
   },
+  'chart': {
+    default: require('../../assets/icons/duotone/chart-default.png'),
+    muted: require('../../assets/icons/duotone/chart-muted.png'),
+    paper: require('../../assets/icons/duotone/chart-paper.png'),
+    assistant: require('../../assets/icons/duotone/chart-assistant.png'),
+    contrast: require('../../assets/icons/duotone/chart-contrast.png'),
+  },
 } as const;
 export type SymbolName = keyof typeof duotoneAssets;
 export type SymbolTone = keyof typeof duotoneAssets['home'];

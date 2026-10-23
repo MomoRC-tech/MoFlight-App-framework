@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 440">
+  <defs>
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M32 0H0V32" fill="none" stroke="#6cb9c5" stroke-width="1" opacity=".15"/>
+    </pattern>
+    <pattern id="major-grid" width="160" height="160" patternUnits="userSpaceOnUse">
+      <path d="M160 0H0V160" fill="none" stroke="#84cbd4" stroke-width="1.2" opacity=".19"/>
+    </pattern>
+    <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="white" stop-opacity=".85"/>
+      <stop offset=".55" stop-color="white" stop-opacity=".55"/>
+      <stop offset="1" stop-color="white" stop-opacity=".02"/>
+    </linearGradient>
+    <mask id="fade-mask"><rect width="960" height="440" fill="url(#fade)"/></mask>
+  </defs>
+  <g mask="url(#fade-mask)">
+    <rect width="960" height="440" fill="url(#grid)"/>
+    <rect width="960" height="440" fill="url(#major-grid)"/>
+    <g fill="none" stroke="#86d5df" stroke-linecap="round" stroke-linejoin="round" opacity=".43">
+      <!-- Plan view: clean glider outline, no dimensional or measurement claim. -->
+      <g stroke-width="2.8">
+        <path d="M485 38c-5 29-7 64-8 96l-286 8-25 12 25 11 286-8 3 48-22 19v8l27-5 27 5v-8l-22-19 3-48 286 8 25-11-25-12-286-8c-1-32-3-67-8-96-4-21-11-38-20-48-9 10-16 27-20 48z"/>
+        <path d="M478 136h26m-25 20h24m-22 48h20" opacity=".72"/>
+        <path d="M480 34h18m-9-9v18M480 190h18m-9-9v18M184 148h18m-9-9v18M758 148h18m-9-9v18" stroke-width="1.4" opacity=".65"/>
+      </g>
+      <!-- Side elevation and quiet center/construction axes. -->
+      <g stroke-width="2.2" opacity=".68">
+        <path d="M116 304c80-5 156-11 238-13l41-7 35-15 14-1 9 18 89 9 151 7 13 8-162 2-91 12-27 19h-7l12-23-155 1-41 12-11-2 23-16-131-2z"/>
+        <path d="M431 278l11-23 10 23m-21 2h22M446 286v53m-310-24h622" stroke-width="1.2" stroke-dasharray="7 9" opacity=".6"/>
+        <path d="M100 265v82m760-82v82M90 265h18m-18 82h18m750-82h18m-18 82h18" stroke-width="1.1" opacity=".52"/>
+      </g>
+      <circle cx="490" cy="147" r="122" stroke-width="1.2" stroke-dasharray="3 9" opacity=".38"/>
+    </g>
+  </g>
+</svg>

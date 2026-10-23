@@ -58,7 +58,7 @@ The [first-use journey added on 18 October](docs/product/2026-10-13-journey-info
 
 ### Your flying, at a glance
 
-The selected Start shows two concentric aircraft-share comparisons for time/starts across the current and previous calendar years, one compact latest-flight row, and a combined Jan–Dec monthly chart behind a disclosure. All twelve months fit without horizontal scrolling. The latest-flight row opens its saved detail. Broader person/role/distribution queries remain under #9.
+The selected Start shows two concentric aircraft-share comparisons for time/starts across the current and previous calendar years, one compact latest-flight row and a labelled **Statistik** entry. That entry opens a saved-local overlay for year/all/custom periods, coverage-aware annual/monthly comparisons, aircraft registrations and reported-duration bands. Startarten stays unavailable until its source mapping is verified. The latest-flight row opens its saved detail; the overlay opens exact contributing saved flights. Broader person/role, launch mapping and platform acceptance gates remain under #9.
 
 Unknown durations stay unknown. Incomplete history is shown as incomplete; a partial year must not look like a complete lifetime record.
 
@@ -108,7 +108,7 @@ See [product scope](docs/product/moflight-feature-scope.md), [writing presentati
 | UI design | Modern alternative selected as the main baseline on 22 October: compact ASK-21 header, season rings, single-row paired-year chart and retained five-tab navigation; scoped device evidence is in the design report |
 | Native foundation | Expo/React Native lab with local SQLite, backup and bounded Android evidence |
 | Vereinsflieger access | Verified account-scoped own-flight storage and ordinary Flüge delivered within bounded Android evidence; broader source/account/platform gates remain open |
-| Statistics and books | Real-library Start counts/time/year/registration/coverage implemented; scoped populated Android ring/year-navigation checks pass. [Meine Saison statistics overlay plan](docs/product/2026-10-13-journey-information-map.md#statistics-overlay-plan--23-october-2026) awaits implementation approval under #9; broader statistics/platform acceptance open. Real book assignment is deferred; multi-book proofs remain synthetic |
+| Statistics and books | Approved saved-local Meine Saison overlay is implemented in the working tree; focused host tests and typecheck pass. [Package contract/evidence](docs/product/2026-10-13-journey-information-map.md#statistics-overlay-plan--23-october-2026); committed-source native/release and broader source-mapping acceptance remain open under #9. Real book assignment is deferred; multi-book proofs remain synthetic |
 | Photo-to-writing | Product journey and format work exist; real recognition and full phone/print acceptance remain open |
 | iOS | Intended platform, currently deferred; exports do not establish runtime acceptance |
 

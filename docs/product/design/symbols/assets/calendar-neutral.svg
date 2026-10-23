@@ -8,4 +8,4 @@
     <filter id="o2-lift" x="-35%" y="-25%" width="170%" height="180%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="3" stdDeviation="2.2" flood-color="#000b19" flood-opacity="0.5" /></filter>
   </defs>
   <g><rect x="10" y="18" width="76" height="72" rx="9" fill="url(#o2-slate)" /><path d="M19 18h58a9 9 0 0 1 9 9v10H10V27a9 9 0 0 1 9-9" fill="url(#o2-cyan)" /><path d="M28 13v10m40-10v10" stroke="#193b51" stroke-width="10" stroke-linecap="round" /><path d="M28 13v10m40-10v10" stroke="url(#o2-slate)" stroke-width="6" stroke-linecap="round" /><g fill="#1b425b"><rect x="25" y="48" width="9" height="9" rx="2" /><rect x="43" y="48" width="9" height="9" rx="2" /><rect x="61" y="48" width="9" height="9" rx="2" /><rect x="25" y="67" width="9" height="9" rx="2" /><rect x="43" y="67" width="9" height="9" rx="2" /></g><rect x="61" y="67" width="9" height="9" rx="2" fill="url(#o2-cyan)" /></g>
-</svg>
+  </svg>

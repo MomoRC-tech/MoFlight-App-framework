@@ -143,6 +143,11 @@
       "title": "Season known flight time",
       "status": "preserved"
     },
+    "D09": {
+      "glyph": "chart",
+      "title": "Meine Saison statistics",
+      "status": "selected"
+    },
     "K01": {
       "glyph": "duty",
       "title": "Next club duty",
@@ -248,6 +253,11 @@
       "title": "Prompt / working-text ellipsis",
       "status": "preserved"
     },
+    "T07": {
+      "glyph": null,
+      "title": "Negative sign / signed value",
+      "status": "preserved"
+    },
     "B01": {
       "glyph": null,
       "title": "Approved light Thermik logo",
@@ -270,6 +280,7 @@
     "assets/book.svg",
     "assets/calendar-neutral.svg",
     "assets/chain.svg",
+    "assets/chart.svg",
     "assets/check.svg",
     "assets/clock.svg",
     "assets/close.svg",

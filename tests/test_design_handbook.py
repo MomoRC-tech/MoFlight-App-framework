@@ -11,12 +11,12 @@ from scripts import design_handbook as guide
 class HandbookGenerationTests(unittest.TestCase):
     def test_full_handoff_preserves_all_symbol_ids_and_matches_html(self):
         outputs,report=guide.build()
-        self.assertEqual(report['symbols'],47)
+        self.assertEqual(report['symbols'],49)
         self.assertEqual(report['html_pages'],2)
         self.assertIn(guide.asset_uri(Path('apps/platform-lab/assets/icons/duotone/medical-card-default.png')),outputs[guide.DESIGN/'design-guide.html'])
         self.assertIn(guide.asset_uri(Path('apps/platform-lab/assets/icons/duotone/flight-paper-plane-default.png')),outputs[guide.DESIGN/'design-guide.html'])
         text=outputs[guide.DESIGN/'design-brief.txt']
-        for ident in ['N01','N05','H04','S02','A12','T06','B03']:
+        for ident in ['N01','N05','H04','S02','A12','T06','T07','D09','B03']:
             self.assertIn(ident+' · ',text)
         self.assertIn('Selected',text)
         self.assertNotIn('base64,',text)

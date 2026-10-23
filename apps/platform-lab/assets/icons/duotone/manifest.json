@@ -1,6 +1,6 @@
 {
   "config": {
-    "master_sha256": "9f565fce7633943c3b65cb9a0882eff188672d8f845315d2fadbfc2e907b9f25",
+    "master_sha256": "c0cc56a8a1aba222f5e3a1727795494d5766ac5a7e6486e9388d1d8c2dc476dd",
     "glyphs": [
       "home",
       "flight-paper-plane",
@@ -30,7 +30,8 @@
       "check",
       "plus",
       "minus",
-      "close"
+      "close",
+      "chart"
     ],
     "tones": {
       "default": [
@@ -661,6 +662,26 @@
     },
     "close-contrast.png": {
       "sha256": "cfd144e922c4d3a71299c85169060860fc2bd880b0b88c9c9f7bea68cd5a432f",
+      "size_px": 192
+    },
+    "chart-default.png": {
+      "sha256": "9a82d91bb6780f5ec7fff1bd75ea00d0f1bfba4bb06a1a675529e1fbd97aea8e",
+      "size_px": 192
+    },
+    "chart-muted.png": {
+      "sha256": "821cb2726ecc9c1eda920a821f04ff6c6d30dc0ec1182da8eb2a8d9ce3dfe31a",
+      "size_px": 192
+    },
+    "chart-paper.png": {
+      "sha256": "29a3da2ba5e8fad2c9384162d05f326e66701a548687b4e6638d29fded99d81a",
+      "size_px": 192
+    },
+    "chart-assistant.png": {
+      "sha256": "ee6a8da96757c9213e5fd2b477be0071a6e1498231722f3d1018cdf32d5903db",
+      "size_px": 192
+    },
+    "chart-contrast.png": {
+      "sha256": "ea9104b1611fff80d68619635df1b747dfb7e4d3030921c747d87542c20d82a6",
       "size_px": 192
     }
   }

@@ -28,26 +28,23 @@ function render(flights:any[], phase='ready', fontScale=1) {
     './processed-result':processedResults,'./data-freshness':{dataFreshness},'../vereinsflieger/retrieval-policy':{planFlightRetrieval}};
   const exports:any={};runInNewContext(source,{exports,Date:class extends Date {getFullYear(){return 2026;}},require:(name:string)=>{
     if(name.startsWith('../../assets/'))return name;assert.ok(name in modules,name);return modules[name];}});
-  const calls:(number|undefined)[]=[];const opened:string[]=[];
+  const calls:(number|undefined)[]=[];const opened:string[]=[];const statisticsCalls:number[]=[];
   const props:any={ownFlights:{flights,snapshot:{account:{accountRef:'101'},savedRetrievals:[]}},ownFlightPhase:phase,pending:null,width:390,fontScale,now:Date.parse('2026-10-22T12:00:00Z'),
-    onFlight:(id:string)=>opened.push(id),onFlights:(year?:number)=>calls.push(year)};
+    onFlight:(id:string)=>opened.push(id),onFlights:(year?:number)=>calls.push(year),onStatistics:()=>statisticsCalls.push(statisticsCalls.length+1)};
   const tree=exports.Dashboard(props);
-  const nodes:Element[]=[];function visit(n:any){if(n?.children){nodes.push(n);n.children.forEach(visit);}}visit(tree);
-  return {nodes,calls,opened,text:JSON.stringify(tree), calculations:()=>calculations, monthlyCalculations:()=>monthlyCalculations, rerender(nextFlights=flights){hookIndex=0;stateIndex=0;if(nextFlights!==props.ownFlights.flights)props.ownFlights={...props.ownFlights,flights:nextFlights};return exports.Dashboard(props);}, changeView(next:any){hookIndex=0;stateIndex=0;props.ownFlights=next;return exports.Dashboard(props);}, view:()=>props.ownFlights};
+  const nodes:Element[]=[];function visit(n:any){if(n?.type?.name==='StatisticsEntry'){visit(n.type(n.props));return;}if(n?.children){nodes.push(n);n.children.forEach(visit);}}visit(tree);
+  return {nodes,calls,opened,statisticsCalls,text:JSON.stringify(tree), calculations:()=>calculations, monthlyCalculations:()=>monthlyCalculations, rerender(nextFlights=flights){hookIndex=0;stateIndex=0;if(nextFlights!==props.ownFlights.flights)props.ownFlights={...props.ownFlights,flights:nextFlights};return exports.Dashboard(props);}, changeView(next:any){hookIndex=0;stateIndex=0;props.ownFlights=next;return exports.Dashboard(props);}, view:()=>props.ownFlights};
 }
 
-test('identical refresh receipt timestamps do not recalculate monthly statistics; coverage and facts changes do',()=>{
+test('Start routes saved analytics to the overlay and keeps it available before and after flights load',()=>{
  const f=render(ownFlightFixture().flights);
- const receipt={from:'2026-01-01',to:'2026-10-21',retrievedAt:'2026-10-21T00:00:00.000Z',savedAt:'2026-10-21T00:00:00.000Z'};
- const view={...f.view(),snapshot:{...f.view().snapshot,savedRetrievals:[receipt]}};
- f.changeView(view);const initial=f.monthlyCalculations();
- const sameCoverage={...view,snapshot:{...view.snapshot,savedRetrievals:[receipt,{...receipt,retrievedAt:'2026-10-22T00:00:00.000Z',savedAt:'2026-10-22T01:00:00.000Z'}]}};
- f.changeView(sameCoverage);assert.equal(f.monthlyCalculations(),initial);
- f.changeView({...sameCoverage,medical:{updated:true}});assert.equal(f.monthlyCalculations(),initial);
- const changedCoverage={...view,snapshot:{...view.snapshot,savedRetrievals:[{...receipt,to:'2026-10-22'}]}};
- f.changeView(changedCoverage);assert.equal(f.monthlyCalculations(),initial+1);
- const flights=structuredClone(view.flights);flights[0].facts.assessment.durations.flight={state:'known',minutes:999,evidence:[]};
- f.changeView({...changedCoverage,flights});assert.equal(f.monthlyCalculations(),initial+2);
+ assert.equal(f.monthlyCalculations(),0,'Date-window calculations belong to the Statistics overlay');
+ const entry=f.nodes.find(n=>n.type==='Pressable'&&n.props.accessibilityLabel==='Statistik')!;
+ assert.ok(entry);entry.props.onPress();assert.deepEqual(f.statisticsCalls,[1]);
+ for(const phase of ['loading','missing','failed']) {
+   const state=render([],phase);
+   assert.ok(state.nodes.some(n=>n.type==='Pressable'&&n.props.accessibilityLabel==='Statistik'),`${phase} state keeps the statistics route available`);
+ }
 });
 
 test('season rings deduplicate flights and retain aircraft/unknown-time totals',()=>{
@@ -140,14 +137,15 @@ test('latest summary prioritizes recorded PIC without displaying companion as PI
  assert.equal(f.nodes.filter(n=>n.type==='Pressable'&&n.props.accessibilityLabel?.startsWith('Flug ')).length,1);
 });
 
-test('recent flight opens its exact saved identity and secondary statistics expand without a provider operation',()=>{
+test('recent flight opens its exact saved identity and Statistics opens the shell route without provider work',()=>{
  const f=render(ownFlightFixture().flights);
  const expected=dashboardModel.latestSavedFlights(ownFlightFixture().flights);
  const rows=f.nodes.filter(n=>n.type==='Pressable'&&n.props.accessibilityLabel?.startsWith('Flug '));
  assert.equal(rows.length,1);rows[0]!.props.onPress();assert.deepEqual(f.opened,[expected[0]!.flightId]);assert.deepEqual(f.calls,[]);
  assert.ok(!f.nodes.some(n=>n.type==='SeasonMonthlyCharts'));
- const expand=f.nodes.find(n=>n.props.accessibilityLabel==='Saison im Detail')!;assert.equal(expand.props.accessibilityState.expanded,false);
- expand.props.onPress();const expanded=JSON.stringify(f.rerender());assert.match(expanded,/SeasonMonthlyCharts/);
+ f.nodes.find(n=>n.type==='Pressable'&&n.props.accessibilityLabel==='Statistik')!.props.onPress();
+ assert.deepEqual(f.statisticsCalls,[1]);
+ assert.ok(!JSON.stringify(f.rerender()).includes('Saison im Detail'));
 });
 
 test('ordinary retained Start rerenders preserve summary and monthly computations',()=>{

@@ -34,6 +34,7 @@ import { ConnectionSummary } from './ConnectionSummary';
 import { OwnFlights, type OwnFlightHeader } from './OwnFlights';
 import type { OwnFlightRequest } from './own-flight-model';
 import { useOwnFlights } from './use-own-flights';
+import { StatisticsOverlay } from './StatisticsOverlay';
 import { ownFlightReadPorts } from './own-flight-reader-native';
 import { buildDutyOverview, dutySnapshotExpiresAt } from '../vereinsflieger/duties';
 import { DutyRoster } from './DutyRoster';
@@ -45,7 +46,7 @@ const clubAirfield = require('../../assets/aviation/club-airfield.jpg');
 const tabs = [{ id: 'home', title: 'Übersicht' }, { id: 'flights', title: 'Flüge' }, { id: 'logbook', title: 'Flugbuch' }, { id: 'club', title: 'Verein' }, { id: 'ai', title: 'AI' }] as const;
 type Tab = typeof tabs[number]['id'];
 type ClubSection = 'Übersicht' | 'Termine' | 'Dienste' | 'Dokumente' | 'Arbeitsstunden' | 'Aufgaben';
-type Sheet = 'designPreview' | 'diagnostics' | 'paper' | 'paperInfo' | 'development' | 'importPreview' | 'flightLab' | 'bookLab' | 'backup' | 'selectBook' | 'unsupported' | 'credits' | 'status' | 'profile' | 'medical' | null;
+type Sheet = 'designPreview' | 'diagnostics' | 'paper' | 'paperInfo' | 'development' | 'importPreview' | 'flightLab' | 'bookLab' | 'backup' | 'selectBook' | 'unsupported' | 'credits' | 'status' | 'profile' | 'medical' | 'statistics' | null;
 const dateText = (date: string | null) => date ? new Date(date + 'T12:00:00Z').toLocaleDateString('de-DE', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' }) : 'Datum unbekannt';
 
 export default function MobileApp() {
@@ -67,6 +68,7 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
   const [profileNameDraft, setProfileNameDraft] = useState('');
   const [importPreview, setImportPreview] = useState<PreviewSession | null>(null);
   const overlayHistory = useRef<{ sheet: Sheet; detail: Flight | null }[]>([]);
+  const statisticsBack = useRef<() => boolean>(() => false);
   const overlayOffsets = useRef<Record<string, number>>({});
   const overlayScroll = useRef<ScrollView>(null);
   const overlayKey = detail ? `detail:${detail.id}` : sheet ?? 'none';
@@ -81,8 +83,10 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
   };
   const closeOverlay = () => {
     if (screenBusy) return;
+    if (sheet === 'statistics' && statisticsBack.current()) return;
     diagnosticJournal.record('back', detail ? 'flight-detail' : sheet ?? 'close');
     Keyboard.dismiss();
+    if (sheet === 'statistics') ownFlights.clearDetail();
     const previous = overlayHistory.current.pop();
     setDetail(previous?.detail ?? null); setSheet(previous?.sheet ?? null);
   };
@@ -98,12 +102,13 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
   const activeTab = useRef(tab);
   activeTab.current = tab;
   const toolsOpen = sheet === 'bookLab' || sheet === 'flightLab';
-  const library = useLibrary(toolsOpen || sheet === 'backup');
+  const library = useLibrary(coreFlightsOpen || toolsOpen || sheet === 'backup');
   const ownFlights = useOwnFlights(ownFlightReadPorts, !coreFlightsOpen, flightReload);
   const [dismissedUpdate, setDismissedUpdate] = useState<FlightLoadResult|null>(null);
   const updateForOwner=(lastLoad?.ownerId??lastLoad?.verifiedConnection?.ownerId)===ownFlights.view?.snapshot.ownerId && !!ownFlights.view?.snapshot.ownerId ? lastLoad : null;
   const medical=ownFlights.view?.medical??null;
   const selected=ownFlights.view;
+  const statisticsScopeKey = canonical([selected?.snapshot.ownerId ?? null, selected?.snapshot.storeId ?? null, selected?.snapshot.account?.accountRef ?? null]);
   const retrievalPlan=useMemo(()=>planFlightRetrieval(selected?.snapshot.savedRetrievals??[]),[selected?.snapshot.savedRetrievals]);
   const rosterExpiry=selected?.duties?.snapshot?dutySnapshotExpiresAt(selected.duties.snapshot):NaN;
   const receivedAt=retrievalPlan.lastSuccessfulRetrievalAt;
@@ -186,7 +191,7 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
     subtitle={tab === 'home' ? 'Guten Tag!' : tab === 'ai' ? 'Dein Segelflug-Assistent' : 'MoFlight'}>{statusControls}</AppHeader>;
   return <SafeAreaView edges={['top', 'left', 'right', 'bottom']} style={[s.root, keyboardOverlap > 0 && { paddingBottom: keyboardOverlap }]}>
     <View collapsable={false} style={{ flex: 1 }}>
-    <View collapsable={false} style={[{ flex: 1 }, overlayOpen && s.hidden]} aria-hidden={overlayOpen} accessibilityElementsHidden={overlayOpen} importantForAccessibility={overlayOpen ? 'no-hide-descendants' : 'auto'}>
+    <View collapsable={false} style={[{ flex: 1 }, overlayOpen && sheet !== 'statistics' && s.hidden, sheet === 'statistics' && s.dimmed]} pointerEvents={overlayOpen ? 'none' : 'auto'} aria-hidden={overlayOpen} accessibilityElementsHidden={overlayOpen} importantForAccessibility={overlayOpen ? 'no-hide-descendants' : 'auto'}>
     <StatusBar barStyle="light-content" backgroundColor={colors.background} />
     {header}
     <View style={[s.content, wide && { maxWidth: 960 }, tablet && !wide && { maxWidth: 600 }]}>
@@ -194,7 +199,7 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
         <ScrollView contentContainerStyle={s.canvas} keyboardShouldPersistTaps="handled">
           {updateForOwner && dismissedUpdate !== updateForOwner && <UpdateResult result={updateForOwner} onDetails={() => openHeaderSheet('status')} onDismiss={() => setDismissedUpdate(updateForOwner)} />}
           <View style={{width:'100%',maxWidth:wide?920:520,alignSelf:'center',flexDirection:wide?'row':'column',alignItems:'flex-start',gap:18}}>
-          <View style={{width:'100%',flex:wide?1:undefined}}><Dashboard now={now} ownFlights={ownFlights.view} ownFlightPhase={ownFlights.phase} pending={null} width={width} fontScale={fontScale} onFlight={flightId=>{setFlightRequest({year:null,flightId});setTab('flights');}} onPaper={() => openHeaderSheet('paperInfo')} onFlights={() => { overlayHistory.current=[]; setDetail(null); setSheet(null); setFlightRequest({year:null}); setTab('flights'); }} /></View>
+          <View style={{width:'100%',flex:wide?1:undefined}}><Dashboard now={now} ownFlights={ownFlights.view} ownFlightPhase={ownFlights.phase} pending={null} width={width} fontScale={fontScale} onFlight={flightId=>{setFlightRequest({year:null,flightId});setTab('flights');}} onPaper={() => openHeaderSheet('paperInfo')} onStatistics={() => { ownFlights.clearDetail(); openHeaderSheet('statistics'); }} onFlights={() => { overlayHistory.current=[]; setDetail(null); setSheet(null); setFlightRequest({year:null}); setTab('flights'); }} /></View>
           {ownFlights.phase==='ready'&&!!selected?.snapshot.account&&<View style={{width:'100%',flex:wide?1:undefined}}>{dutyContent()}</View>}
           </View>
         </ScrollView>
@@ -241,7 +246,13 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
     {!aiKeyboard && <Label style={{ width: '100%', textAlign: 'center', color: '#8ba4bc', fontSize: 10, lineHeight: 16 }}>Entwicklungsversion</Label>}
     <View style={[s.nav, wrapTabs && s.navWrap, wide && { maxWidth: 960 }, tablet && !wide && { maxWidth: 600 }, aiKeyboard && s.hidden]} accessibilityRole="tablist">{tabs.map(item => <Pressable key={item.id} testID={`tab-${item.id}`} accessibilityRole="tab" accessibilityLabel={item.title} accessibilityState={{ selected: tab === item.id }} onPress={() => { diagnosticJournal.record('action',item.id);setTab(item.id); }} style={({ pressed }) => [s.navItem, tab === item.id && s.navSelected, wrapTabs && s.navItemWrap, pressed && ui.pressed]}>{item.id === 'flights' ? <PlaneIcon color={tab === item.id ? '#00c8ff' : colors.muted} /> : item.id === 'logbook' ? <BookIcon color={tab === item.id ? '#00c8ff' : colors.muted} /> : item.id === 'club' ? <ClubMark color={tab === item.id ? '#00c8ff' : colors.muted} /> : <SymbolIcon name={item.id === 'home' ? 'home' : 'sparkle'} size={28} tone={tab === item.id ? 'default' : 'muted'} tile />}<Text style={[s.navLabel, tab === item.id && s.active]}>{item.title}</Text></Pressable>)}</View>
     </View>
-    {overlayOpen && <View style={[StyleSheet.absoluteFill, s.modal]} accessibilityViewIsModal>
+    {overlayOpen && <View style={[StyleSheet.absoluteFill, s.modal, sheet === 'statistics' && s.statisticsScrim]} accessibilityViewIsModal>
+      {sheet === 'statistics' ? <View style={[s.statisticsFrame, { width: Math.max(0, Math.min(width - 24, 720)) }]}>
+        <AppHeader back={closeOverlay} backDisabled={screenBusy} title="Flugstatistik" subtitle="Meine Saison">{null}</AppHeader>
+        <KeyboardAvoidingView style={{ flex: 1, minHeight: 0 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+          <StatisticsOverlay key={statisticsScopeKey} data={ownFlights} today={today} fontScale={fontScale} onBackHandler={handler => { statisticsBack.current = handler; }} />
+        </KeyboardAvoidingView>
+      </View> : <>
       <AppHeader profile={profileControl} source={mountain} back={closeOverlay} backDisabled={screenBusy} title={detail ? 'Flugdetails' : sheet === 'paper' || sheet === 'paperInfo' ? 'Papierflugbuch' : sheet === 'development' ? 'Entwicklung' : sheet === 'importPreview' ? 'Importvorschau' : sheet === 'flightLab' ? 'Datensatztest' : sheet === 'bookLab' ? 'Flugbuchtest' : sheet === 'backup' ? 'Sicherung' : sheet === 'designPreview' ? 'Designvorschau' : sheet === 'diagnostics' ? 'Diagnose' : sheet === 'profile' ? 'Profil & Einstellungen' : sheet === 'medical' ? 'Medical' : 'MoFlight'}>{statusControls}</AppHeader>
         {sheet === 'designPreview' ? <DesignPreview/> : sheet === 'flightLab' ? <><DevelopmentNotice /><LabApp providerOwned={true} embedded onBusyChange={setScreenBusy} /></> : sheet === 'bookLab' ? <><DevelopmentNotice /><BookLab close={closeOverlay} onBusyChange={setScreenBusy} /></> : <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}><ScrollView ref={overlayScroll} key={overlayKey} contentOffset={{ x: 0, y: overlayOffsets.current[overlayKey] ?? 0 }} onScroll={event => { overlayOffsets.current[overlayKey] = event.nativeEvent.contentOffset.y; }} scrollEventThrottle={32} contentContainerStyle={s.canvas} keyboardShouldPersistTaps="handled">
           {sheet === 'profile' && <ProfileSettings connectionSummary={<ConnectionSummary controller={flightStatusController} ownFlights={ownFlights.view} phase={ownFlights.phase} />} onTools={() => openHeaderSheet('development')} onBackup={() => openFlightFlow('options')} onDiagnostics={() => openHeaderSheet('diagnostics')} onStatus={() => openHeaderSheet('status')} onCredits={() => openHeaderSheet('credits')} onBooks={() => openHeaderSheet('selectBook')} displayName={library.displayName} nameDraft={profileNameDraft} onNameDraftChange={setProfileNameDraft} busy={library.busy} error={library.error} onSaveName={library.saveDisplayName} onRetry={() => void library.reload()} />}
@@ -264,6 +275,7 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
             ['Anne Burgess · Clubhouse at Dusk · Geograph, via Wikimedia Commons', 'CC BY-SA 2.0', 'https://commons.wikimedia.org/wiki/File:Clubhouse_at_Dusk_-_geograph.org.uk_-_6960024.jpg', 'https://creativecommons.org/licenses/by-sa/2.0/'],
           ].map(([author, license, source, licenseUrl]) => <Card key={author}><Label>{author}</Label><Action secondary onPress={() => { void Linking.openURL(source!); }}>Original & Urheber</Action><Action secondary onPress={() => { void Linking.openURL(licenseUrl!); }}>{license}</Action></Card>)}</>}
         </ScrollView></KeyboardAvoidingView>}
+      </>}
     </View>}
     </View>
   </SafeAreaView>;
@@ -282,5 +294,6 @@ const s = StyleSheet.create({
   questionGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 }, question: { minHeight: 86, borderWidth: 1, borderColor: colors.border, borderRadius: 18, padding: 16, paddingRight: 18, backgroundColor: colors.card, justifyContent: 'center' }, questionArrow: { position: 'absolute', right: 8, top: '40%', color: colors.muted, fontSize: 23 },
   composer: { borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, borderRadius: 20, padding: 4, flexDirection: 'row', alignItems: 'center', gap: 6 }, messageInput: { flex: 1, minHeight: 52, maxHeight: 150, color: colors.text, fontSize: 16, paddingHorizontal: 8 }, send: { width: 48, height: 48, borderRadius: 16, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.blue }, recent: { borderTopWidth: 1, borderTopColor: '#1b344a', paddingTop: 10, gap: 8 },
   nav: { flexDirection: 'row', borderTopWidth: 1, borderTopColor: colors.border, backgroundColor: colors.background, padding: 6, gap: 2, alignSelf: 'center', width: '100%', maxWidth: 599 }, navWrap: { flexWrap: 'wrap', justifyContent: 'center' }, navItemWrap: { flex: 0, width: '32%' }, navItem: { flex: 1, minHeight: 68, justifyContent: 'center', alignItems: 'center', paddingVertical: 8, gap: 4, borderRadius: 16 }, navIcon: { fontSize: 25, lineHeight: 29, color: colors.muted }, navSelected: {backgroundColor: colors.raised}, navLabel: { fontSize: 12, textAlign: 'center', width: '100%', lineHeight: 18, color: colors.muted }, active: { color: colors.cyan, fontWeight: '700' }, activeLine: { height: 2, width: 24, backgroundColor: colors.cyan, position: 'absolute', top: 0, borderRadius: 2 },
-  modal: { backgroundColor: colors.background },
+  modal: { backgroundColor: colors.background }, dimmed: { opacity: .8 }, statisticsScrim: { backgroundColor: '#000712bd', justifyContent: 'center', paddingHorizontal: 12, paddingVertical: 10 },
+  statisticsFrame: { flex: 1, minHeight: 0, alignSelf: 'center', borderWidth: 1, borderColor: colors.border, borderRadius: 22, backgroundColor: colors.background, overflow: 'hidden' },
 });

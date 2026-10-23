@@ -61,7 +61,7 @@ function fixture(width = 390, fontScale = 1, root = false) {
     './use-library': { useLibrary: (value: boolean) => { suspended = value; return library; } },
     './flight-model': { flightYears: () => [2026], selectFlights: () => library.flights, summarizeFlights: () => ({ count: 1, knownMinutes: 30 }), formatDuration: () => '0:30' },
     './local-insights': { localQuestions: [], localInsight: () => '' },
-    './Dashboard': { Dashboard: 'Dashboard' }, './ShellIcons': leaves(['PlaneIcon', 'ProfileIcon', 'BookIcon']),
+    './Dashboard': { Dashboard: 'Dashboard' }, './StatisticsOverlay': { StatisticsOverlay: 'StatisticsOverlay' }, './ShellIcons': leaves(['PlaneIcon', 'ProfileIcon', 'BookIcon']),
     './DesignPreview':leaves(['DesignPreview']),'./Diagnostics': leaves(['Diagnostics']), './diagnostics-native': {initializeDiagnostics() {}}, '../diagnostics': diagnostics,
     './ProfileSettings': { ProfileSettings: 'ProfileSettings', SyntheticProfileSettings:'SyntheticProfileSettings' }, '../book-storage': { PILOT: 'synthetic-pilot' },
     '../vereinsflieger/use-access-controller': { useAccessController: () => controller },
@@ -72,7 +72,7 @@ function fixture(width = 390, fontScale = 1, root = false) {
     './ImportPreview': leaves(['ImportPreview']),
     './CoreFlightFoundation': leaves(['CoreFlightFoundation']),
     './OwnFlights': leaves(['OwnFlights']),
-    './use-own-flights': { useOwnFlights: (_ports:unknown,active:boolean) => {readEnabled.push(active);return { view: ownView, phase: ownView?'ready':'missing' };} },
+    './use-own-flights': { useOwnFlights: (_ports:unknown,active:boolean) => {readEnabled.push(active);return { view: ownView, phase: ownView?'ready':'missing', detail:null, detailBusy:false, detailError:null, openDetail:async()=>{}, clearDetail:()=>calls.push('clear-own-flight-detail'), reload:async()=>{} };} },
     './own-flight-reader-native': { ownFlightReadPorts: {} },
     './UpdateResult':leaves(['UpdateResult']), './ClubInformation':leaves(['ClubEvents','ClubDocumentNotices']),
     './ConnectionSummary': leaves(['ConnectionSummary']), './medical-source': { medicalSource },
@@ -380,6 +380,20 @@ test('Start offers the general Flüge route without provider work', () => {
   assert.equal(f.find('OwnFlights').props.active,true);
   assert.deepEqual(f.calls,[]);
   assert.ok(f.readEnabled.every(Boolean), 'Tab changes must not suspend or restart the reader');
+});
+
+test('Meine Saison opens a framed local statistics overlay whose Back first restores its internal route',()=>{
+ const f=fixture(390);f.find('Dashboard').props.onStatistics();f.render();
+ const overlay=f.find('StatisticsOverlay');
+ assert.equal(f.headers().at(-1)!.props.title,'Flugstatistik');
+ assert.equal(overlay.props.data.phase,'missing');assert.equal(typeof overlay.props.onBackHandler,'function');
+ assert.equal(f.parent(overlay).type,'KeyboardAvoidingView');
+ const shell=f.nodes().find(n=>n.type==='View'&&n.props['aria-hidden']===true)!;
+ assert.equal(shell.props.pointerEvents,'none');assert.equal(shell.props.style.some((item:any)=>item?.opacity===.8),true,'Underlying Start remains mounted and lightly dimmed beneath the C08 scrim');
+ overlay.props.onBackHandler(()=>true);f.headers().at(-1)!.props.back();f.render();assert.ok(f.find('StatisticsOverlay'),'Inner detail/filter route remains open after contextual Back');
+ f.find('StatisticsOverlay').props.onBackHandler(()=>false);f.headers().at(-1)!.props.back();f.render();
+ assert.equal(f.nodes().some(n=>n.type==='StatisticsOverlay'),false);assert.ok(f.calls.includes('clear-own-flight-detail'));
+ assert.deepEqual(f.coreRoutes,[]);
 });
 
 test('tab round trips retain the same shell flight projection for Start and flights',()=>{
