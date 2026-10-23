@@ -1,0 +1,60 @@
+{
+  "source_commit": "1b70080503a6f4d3db5a7b416b78260021908652",
+  "apk_sha256": "b152379c365e0c58d2e786b89cdaf90f312de4874db0a8e7e6aa1ff0db9dceee",
+  "zip_sha256": "65639f1761d69d90921c77bdef962950e60ab96721d5800d9391c2121c77805d",
+  "public_download_verified": true,
+  "final_focused_tests": 117,
+  "typecheck": "passed",
+  "affected_lint": "passed",
+  "exports": [
+    "android",
+    "ios"
+  ],
+  "native": [
+    {
+      "name": "final-source-install-upgrade-and-offline-start",
+      "status": "passed",
+      "seconds": 10.33
+    },
+    {
+      "name": "final-public-login-cancel-one-tap-retry-return-and-offline-restart",
+      "status": "passed",
+      "seconds": 57.33
+    },
+    {
+      "name": "final-persisted-diagnostic-file-export",
+      "status": "passed",
+      "seconds": 32.27
+    }
+  ],
+  "native_export": "OS chooser displays named JSON file; byte/privacy/persistence contracts additionally host-tested",
+  "reused_native_evidence": [
+    {
+      "source": "026f8159fb1ad2e358e36f58d08292c7f331139d",
+      "scope": "Header stages, moving shine, reduced motion, success-hide and 360/390/800dp geometry; corrected setup run passed"
+    },
+    {
+      "source": "1a856b95bc3b8647de1650dff513fbf61d569bf6",
+      "scope": "Short busy-label MAIN390 and MIN360/font1.6; its cancel/retry failed and is not counted as current acceptance"
+    }
+  ],
+  "cleanup": {
+    "serial": "emulator-5570",
+    "read_only_overlay": true,
+    "errors": [],
+    "baseline_apk_hash_restored": true,
+    "display": {
+      "size": "Physical size: 1080x1920",
+      "density": "Physical density: 420",
+      "font": "1.0",
+      "motion": "null",
+      "transition": "1.0",
+      "wifi": "0"
+    },
+    "owned_serial_absent": true
+  },
+  "limits": [
+    "No authenticated provider submission, real second account, physical phone or iOS",
+    "Native matrix is synthetic presentation; interrupted SQLite/process boundaries are host-tested"
+  ]
+}
