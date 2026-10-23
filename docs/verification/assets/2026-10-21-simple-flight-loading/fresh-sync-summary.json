@@ -56,5 +56,70 @@
   "limits": [
     "No authenticated provider submission, real second account, physical phone or iOS",
     "Native matrix is synthetic presentation; interrupted SQLite/process boundaries are host-tested"
-  ]
+  ],
+  "phone_handoff_followup": {
+    "source_commit": "438ece978c0d9b2e72a382411858c30ea4cbf8f7",
+    "apk_sha256": "0c366f4a02a6c232d9cc8103fb2d45eb25c9cf7b631592b31da79cd3696d15d5",
+    "zip_sha256": "6738bde94751761472f948d06679d2a34ba216f0077efd42520329f8ec65bd00",
+    "public_download_verified": true,
+    "phone_report": {
+      "source_commit": "1b70080503a6f4d3db5a7b416b78260021908652",
+      "result": "Flights/Medical/duties saved, events failed; later jobs succeeded",
+      "scope": "Supplied diagnostic evidence; no replacement-phone acceptance"
+    },
+    "host_checks": {
+      "mobile_tests": 1004,
+      "python_tests": 114,
+      "typecheck": "passed",
+      "lint": "passed",
+      "fixtures": "passed",
+      "focused_tests": 250,
+      "clean_head_run": false,
+      "source": "Implementation working tree subsequently committed as438ece9"
+    },
+    "exports": [
+      "android",
+      "ios"
+    ],
+    "native_checks": [
+      {
+        "name": "exact-source-install-upgrade-offline-start",
+        "status": "passed",
+        "seconds": 18.33
+      },
+      {
+        "name": "named-partial-source-main-and-enlarged-min",
+        "status": "passed",
+        "seconds": 114.94
+      },
+      {
+        "name": "public-login-keyboard-return-cancel-retry-offline-restart",
+        "status": "passed",
+        "seconds": 65.78
+      },
+      {
+        "name": "persisted-diagnostic-json-export",
+        "status": "passed",
+        "seconds": 35.39
+      }
+    ],
+    "native_ui_scope": "Synthetic completed-flight/calendar-failure copy at390x900dp/font1 and360x900dp/font1.6, density160; both visually reviewed; Retry and completion hide pass",
+    "cleanup": {
+      "read_only_overlay": true,
+      "baseline_apk_hash_restored": true,
+      "restored": {
+        "size": "Physical size: 1080x1920",
+        "density": "Physical density: 420",
+        "font": "1.0",
+        "motion": "null",
+        "transition": "1.0",
+        "wifi": "0"
+      },
+      "owned_serial_absent": true
+    },
+    "limits": [
+      "No authenticated provider submission, actual phone retry, real second account or iOS",
+      "The partial-banner preview is synthetic; the actual controller source handoff is host-tested"
+    ]
+  }
 }
