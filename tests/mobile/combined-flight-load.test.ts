@@ -71,7 +71,7 @@ function fixture({providerAllowed=true,deferRead=false,startUpdate=false,root=fa
   const initialActivityAt=Date.now()-1000;
   const trackedActivity=[{source:'flights' as const,configuration:fixtureActivityConfiguration,markers:{count:activityBaselineCount},window:fixtureActivityWindow,participation:'Pilot oder Fluglehrer'}];
   let savedActivityLedger:unknown=activityEnabled?activityLedger.observeActivityLedger(activityLedger.createActivityLedger(fixtureActivityIdentity),trackedActivity,initialActivityAt,initialActivityAt+1):null;
-  const lease={ownerId:'owner',storeId:'store',leaseId:'lease'};
+  let lease={ownerId:'owner',storeId:'store',leaseId:'lease'};
   let ownerProof=0,selectedHead=1;
   const registry={currentOwner:async()=>existingOwner?{...lease,selectionSeq:selectedHead,leaseId:'proof-'+(++ownerProof)}:null,createFreshOwner:async()=>{calls.push('create');return lease;},assertCurrent:async()=>{},close:async()=>{}};
   const snapshot={account:null,savedRetrievals:[],coverage:[],pending:[],recovery:{readOnly}};
@@ -92,6 +92,7 @@ function fixture({providerAllowed=true,deferRead=false,startUpdate=false,root=fa
     dismissLogin:()=>{c.visible=false;c.busy=false;dirty=true;},backWithinProvider:()=>false,cancelRetrieval:()=>{c.busy=false;dirty=true;},
   };
   class Service {
+    disposed=false;
     constructor(...args:any[]) { this.ports=args[3]; }
     ports:any;
     async readStored(){activityOrder.push('refresh-read');if(deferRead)await storedRead;return {snapshot,flights:saved?[{},{},{}]:[]};}
@@ -100,7 +101,7 @@ function fixture({providerAllowed=true,deferRead=false,startUpdate=false,root=fa
     async retrieveUpdate(){if(deferSource)await new Promise<void>(resolve=>{admitSource=resolve;});abort=new AbortController();if(deferProvider)c.viewReady=false;const value=await this.ports.retrieve({from:'2025-01-01',to:'2026-10-21'},abort.signal);return {state:'confirm-account',accountRef:'101',source:value};}
     async saveVerifiedReview(_review:any,context:any){assert.equal(context.accountNumber,'101');calls.push('save');saved=true;return {counts:{added:2,changed:1,pending:0}};}
     cancelReview(){abort?.abort();}
-    dispose(){this.cancelReview();}
+    dispose(){this.disposed=true;this.cancelReview();}
   }
   const react={
     createElement:(type:string,props:any,...children:unknown[]):Element=>({type,props:props??{},children:children.flat(Infinity)}),
@@ -144,7 +145,7 @@ function fixture({providerAllowed=true,deferRead=false,startUpdate=false,root=fa
   function nodes(){const result:Element[]=[];function visit(value:any){if(value&&typeof value==='object'&&'children'in value){result.push(value);value.children.forEach(visit);if(value.props.progress)visit(value.props.progress);}}visit(tree);return result;}
   const text=(node:any):string=>node&&typeof node==='object'&&'children'in node?node.children.map(text).join(''):typeof node==='string'?node:'';
   function press(label:string){const node=nodes().find(n=>n.type==='Action'&&text(n)===label);assert.ok(node,label);assert.ok(!node.props.disabled,label);node.props.onPress();}
-  return {progressUpdates,journal,render,flush,c,calls,closed,nodes,activityChecks:()=>activityChecks,activityWriteCalls:()=>activityWriteCalls,pendingRestoreChecks:()=>pendingRestoreChecks,activityLedgerSaves:()=>activityLedgerSaves.map(cloneJson),savedActivityLedger:()=>savedActivityLedger===null?null:cloneJson(savedActivityLedger),statusUpdates,changeSelection:()=>{selectedHead++;},setOpen:(value:boolean)=>{panelOpen=value;if(value)requestId++;dirty=true;},text:()=>text(tree),progressText:()=>text(nodes().find(n=>n.type==='ProviderConnection')?.props.progress),press,finishReservation,background:()=>listeners.forEach(f=>f('background')),resume:()=>listeners.forEach(f=>f('active')),
+  return {renewLease:()=>{lease={...lease,leaseId:'renewed'};dirty=true;},progressUpdates,journal,render,flush,c,calls,closed,nodes,activityChecks:()=>activityChecks,activityWriteCalls:()=>activityWriteCalls,pendingRestoreChecks:()=>pendingRestoreChecks,activityLedgerSaves:()=>activityLedgerSaves.map(cloneJson),savedActivityLedger:()=>savedActivityLedger===null?null:cloneJson(savedActivityLedger),statusUpdates,changeSelection:()=>{selectedHead++;},setOpen:(value:boolean)=>{panelOpen=value;if(value)requestId++;dirty=true;},text:()=>text(tree),progressText:()=>text(nodes().find(n=>n.type==='ProviderConnection')?.props.progress),press,finishReservation,background:()=>listeners.forEach(f=>f('background')),resume:()=>listeners.forEach(f=>f('active')),
     verify:()=>{c.visible=false;c.connection={phase:'observed',confirmed:true,observed:{accountNumber:'101',clubLabel:'Example'}};dirty=true;},
     pendingTimers:()=>timers.size,expire:()=>{for(const [id,fn] of timers){timers.delete(id);fn();}},
     finishRead:()=>finishRead(),
@@ -612,5 +613,14 @@ test('an unactivated backup candidate cannot block fresh sync against a verified
   f.render();await f.flush();assert.ok(f.calls.includes('session'));
   assert.ok(!f.progressUpdates.some(p=>p.state==='failed'));
   f.verify();await f.flush();f.complete();await f.flush();assert.equal(f.closed.length,1);
+ }finally{f.dispose();}
+});
+
+
+test('a renewed lease during deferred preparation waits for the obsolete service and starts exactly one current login',async()=>{
+ const f=fixture({intent:'update',deferRead:true,loginPending:true});try{
+  f.render();await f.flush();f.renewLease();await f.flush();f.finishRead();await f.flush();
+  assert.equal(f.calls.filter(v=>v==='session').length,1,'Current preparation must restart after the old locked operation settles');
+  assert.equal(f.c.visible,true);assert.ok(!f.progressUpdates.some(p=>p.state==='failed'),'An obsolete preparation failure cannot fail the new attempt');
  }finally{f.dispose();}
 });

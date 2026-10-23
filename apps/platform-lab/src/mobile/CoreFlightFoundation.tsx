@@ -487,11 +487,11 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,open=true,requestI
     setSyncProgress(previous=>({state:'active',last:previous.last,current:'account'}));automatic.current=true;returnedResult.current=false;stopRemainingJobs.current=false;interruption.current=null;setCompleted(null);setFlightSaved(null);setLoginPaused(false);setLoadStage('verify');setProviderOpen(true);setStep('Anmeldung wird geprüft …');
     void run(()=>finishAutomaticLoad(async()=>saveFlightReview(await service.retrieveUpdate())),'update-flights');
   }
-  async function run(work:()=>Promise<unknown>, action:DiagnosticAction='library-operation', initial=false) {
+  async function run(work:()=>Promise<unknown>, action:DiagnosticAction='library-operation', initial=false,isCurrent:()=>boolean=()=>true) {
     if(lock.current||!alive.current)return;lock.current=true;setBusy(true);setFailed(false);setMessage('');
     if(!initial&&!diagnosis.current?.running())diagnosis.current=diagnosticJournal.begin(action);
     const operation=diagnosis.current;
-    try{await work();if(!initial||!startUpdate)operation?.finish('success');}catch(error){operation?.finish(error instanceof PendingRealFlightOperation?'blocked':'failed',error instanceof PendingRealFlightOperation?'recovery-required':controller.current.connection.phase==='mismatch'?'account-mismatch':'operation-failed');if(alive.current){
+    try{await work();if(isCurrent()&&(!initial||!startUpdate))operation?.finish('success');}catch(error){if(!isCurrent()){diagnosticJournal.record('sync','sync-preparation-superseded');return;}operation?.finish(error instanceof PendingRealFlightOperation?'blocked':'failed',error instanceof PendingRealFlightOperation?'recovery-required':controller.current.connection.phase==='mismatch'?'account-mismatch':'operation-failed');if(alive.current){
       setSyncProgress(previous=>({...previous,state:'failed',message:controller.current.connection.phase==='mismatch'?'Bitte mit dem bisherigen Vereinsflieger-Konto anmelden.':'Synchronisierung nicht abgeschlossen. Gespeicherte Daten bleiben verfügbar.'}));diagnosticJournal.record('sync','sync-failed');setFailed(true);setLoginPaused(false);
       setMessage(error instanceof PendingRealFlightOperation?'Der gespeicherte Auftrag muss zuerst über seinen Beleg geprüft werden. Kein neuer Auftrag wurde gestartet.':controller.current.connection.phase==='mismatch'?'Ein anderes Vereinsflieger-Konto oder ein anderer Verein ist angemeldet. Bitte melde dich mit dem bisherigen Konto an. Deine gespeicherten Flüge bleiben erhalten.':interruption.current==='background'?'Abruf unterbrochen, weil die App verlassen wurde. Bitte erneut versuchen. Gespeicherte Daten bleiben erhalten.':interruption.current==='cancelled'?'Vorgang abgebrochen. Gespeicherte Daten bleiben erhalten.':interruption.current==='timeout'?'Der Datenabruf hat zu lange gedauert. Bitte erneut versuchen. Gespeicherte Daten bleiben erhalten.':controller.current.connection.phase==='error'?'Die Anmeldung konnte nicht bestätigt werden. Bitte erneut versuchen. Gespeicherte Daten bleiben erhalten.':controller.current.result==='failed'?retrievalFailureHint(controller.current.status):'Dieser Schritt wurde nicht bestätigt. Bitte erneut versuchen. Gespeicherte Daten und Belege bleiben erhalten.');
       if(error instanceof PendingRealFlightOperation){try{await refresh();}catch{/* Keep the failure and original journal visible. */}}
@@ -524,14 +524,27 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,open=true,requestI
       subscription.remove();
     };
   },[service]);
+  const entryPreparation=useRef<{started:boolean;current:boolean;deferred:boolean}|null>(null);
   useEffect(()=>{
+    const preparation={started:false,current:true,deferred:false};entryPreparation.current=preparation;
     initialUpdate.current=false;if(open&&syncEntry){startStage('prepare');controller.current.setEditingLogin?.(false);}setEntryReady(false);automatic.current=false;setCompleted(null);setFlightSaved(null);setFailed(false);setMessage('');
     setProviderOpen(providerEntryAllowed&&open&&intent!=='options');
     if(!open){if(waiting.current)abandonSource('Sync surface closed.');return;}
-    let current=true;
-    void run(async()=>{await controller.current.cancelActivity();if(controller.current.viewReadFailed)await controller.current.refreshRecovery();await Promise.allSettled([...activityWrites.current]);await refresh();if(current)setEntryReady(true);},'library-operation',true);
-    return()=>{current=false;};
+    return()=>{preparation.current=false;};
   },[open,requestId,service]);
+  useEffect(()=>{
+    const preparation=entryPreparation.current;
+    if(!open||!preparation?.current||preparation.started)return;
+    if(busy||lock.current){if(!preparation.deferred){preparation.deferred=true;diagnosticJournal.record('sync','sync-preparation-deferred');}return;}
+    preparation.started=true;
+    const current=()=>preparation.current&&entryPreparation.current===preparation;
+    void run(async()=>{
+      await controller.current.cancelActivity();if(!current())return;
+      if(controller.current.viewReadFailed)await controller.current.refreshRecovery();
+      await Promise.allSettled([...activityWrites.current]);if(!current())return;
+      await refresh();if(current())setEntryReady(true);
+    },'library-operation',true,current);
+  },[open,requestId,service,busy]);
   useEffect(()=>{
     if(!open||!syncEntry||!c.viewReadFailed)return;
     diagnosticJournal.record('sync','sync-block-view');diagnosis.current?.note('view','failed');diagnosis.current?.finish('blocked','recovery-required');
