@@ -19,7 +19,7 @@ import { diagnosticJournal } from '../diagnostics';
 import { unknownProviderStatus, type ProviderStatus } from './ProviderConnection';
 import { DataUpdateIndicator } from './DataUpdateIndicator';
 import {SyncProgress} from './SyncProgress';
-import {idleSyncProgress,type SyncProgress as SyncProgressState} from './sync-progress';
+import {idleSyncProgress,completedSyncProgress,type SyncProgress as SyncProgressState} from './sync-progress';
 import { UpdateDialog } from './UpdateDialog';
 import { DATA_FRESHNESS_REMINDER_MS, DATA_UPDATE_FRESH_MS } from './data-freshness';
 import { SESSION_DISPLAY_FRESH_MS } from './data-update-presentation';
@@ -78,8 +78,8 @@ export default function MobileApp() {
       if(syncLock.current){diagnosticJournal.record('sync','sync-duplicate-ignored');return;}
       syncLock.current=intent==='update';if(intent==='update'){diagnosticJournal.record('sync','sync-requested');setSyncProgress({...idleSyncProgress,state:'active',current:'prepare'});}setLastLoad(null);setEntry(previous=>({intent:intent==='update'?'update':'options',development,open:true,requestId:(previous?.requestId??0)+1}));}}/></View>
     {entry&&<UpdateDialog open={modalOpen} expanded={entry.intent==='update'&&!!providerStatus.loginVisible}>{windowTop=><CoreFlightFoundation dialogTop={windowTop} providerEntryAllowed={entry.intent==='update'} open={entry.open} requestId={entry.requestId} intent={entry.intent} onProgress={setSyncProgress} onControls={setSyncControls} onStatus={setProviderStatus} developmentRecoveryCheckpoints={entry.development} close={result=>{syncLock.current=false;
-      if(result){const partial=[result.medicalStatus,result.dutyStatus,result.eventsStatus,result.documentNoticesStatus,result.workSummaryStatus,result.workHoursStatus,result.tasksStatus].some(status=>status==='failed'||status==='skipped')||result.pending>0||result.cleanupPending;
-        setSyncProgress(partial?{state:'partial',last:'save',current:null,message:'Teilweise synchronisiert. Gespeicherte Daten bleiben verfügbar.'}:idleSyncProgress);
+      if(result){
+        setSyncProgress(completedSyncProgress(result));
       }else if(syncRunning)setSyncProgress(previous=>previous.state==='failed'?previous:{...previous,state:'failed',message:'Synchronisierung abgebrochen. Gespeicherte Daten bleiben verfügbar.'});
       setEntry(previous=>previous?{...previous,open:false}:null);if(result)setLastLoad(result);setFlightReload(value=>value+1);}}/>}</UpdateDialog>}
   </View></SafeAreaProvider>;

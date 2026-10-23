@@ -273,8 +273,17 @@ test('annual work refresh failure leaves the saved flight receipt intact and doe
     assert.deepEqual(f.calls,['session','retrieve','save','medical','events','document-notices','work-summary','work-hours','tasks']);
     assert.equal(f.closed.length,1);assert.equal(f.closed[0].added,2);assert.equal(f.closed[0].workSummaryStatus,'failed');assert.equal(f.closed[0].workHoursStatus,'partial');assert.equal(f.closed[0].tasksStatus,'partial');
     assert.match(f.progressText(),/Arbeitsstunden · Jahresübersicht: Abruf fehlgeschlagen/);assert.match(f.progressText(),/Erfasste Arbeitsstunden: Quelle erfasst/);assert.match(f.progressText(),/Eigene Aufgaben: Quelle erfasst/);
-    assert.equal(f.journal.snapshot().at(-1)!.outcome,'partial');assert.equal(f.journal.snapshot().at(-1)!.code,'operation-failed');
+    assert.equal(f.journal.snapshot().at(-1)!.outcome,'partial');assert.equal(f.journal.snapshot().at(-1)!.code,'work-summary-failed');
   }finally{f.dispose();}
+});
+
+test('a calendar failure names Termine in header progress and diagnostics while later jobs retain their saves',async()=>{
+ const f=fixture({intent:'update'});try{
+  f.c.retrieveFeatureInformation=async(category:string)=>{f.calls.push(category);if(category==='events')throw new Error('Synthetic unavailable');return {rows:[]};};
+  f.render();await f.flush();f.verify();await f.flush();f.complete();await f.flush();
+  assert.equal(f.closed.length,1);assert.equal(f.closed[0].added,2);assert.equal(f.closed[0].eventsStatus,'failed');assert.equal(f.closed[0].tasksStatus,'partial');
+  assert.equal(f.progressUpdates.at(-1)!.message,'Nicht aktualisiert: Termine.');assert.equal(f.journal.snapshot().at(-1)!.code,'events-failed');
+ }finally{f.dispose();}
 });
 
 test('cancelled, backgrounded and mismatched load cannot save a late capture',async()=>{

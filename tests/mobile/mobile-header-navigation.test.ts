@@ -513,6 +513,14 @@ test('a failed attempt keeps its header result but releases the database reserva
   assert.equal(f.find('CoreFlightFoundation').props.requestId,first.props.requestId+1);
 });
 
+test('the retained root preserves the failed calendar name when a saved-flight result closes',()=>{
+  const f=fixture(390,1,true),shell=()=>f.nodes().find(n=>typeof n.type==='function'&&(n.type as Function).name==='Shell')!;
+  shell().props.onCoreFlights('update');f.render();
+  f.find('CoreFlightFoundation').props.close({pending:0,medicalStatus:'updated',dutyStatus:'partial',eventsStatus:'failed',documentNoticesStatus:'partial'});f.render();f.render();
+  assert.equal(shell().props.syncProgress.message,'Nicht aktualisiert: Termine.');
+  assert.equal(shell().props.syncProgress.last,'save');assert.equal(f.find('CoreFlightFoundation').props.open,false);
+});
+
 
 test('recent-flight entry carries exact identity into the ordinary list and does not open provider UI',()=>{
  const f=fixture();f.find('Dashboard').props.onFlight('saved-flight-123');f.render();

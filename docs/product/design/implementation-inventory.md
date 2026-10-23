@@ -253,7 +253,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ConnectionSummary
 
 ## CoreFlightFoundation.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `332ed821e7520f20dac391605d6d2c7fb795efd2d4c5298bc10ac84b88a2d7ac`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `e553da2e5cd8f386cf48959561afe5709cccc0d31377e34e4dd1a2c5a0e45d40`.
 
 ### Geometry / opacity declarations
 
@@ -359,7 +359,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DataUpdateIndicat
 
 ## DesignPreview.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DesignPreview.tsx](../../../apps/platform-lab/src/mobile/DesignPreview.tsx); normalized SHA-256 `1059c523a92e0d9f08e835905dd933a927710c7b7e2131486cbc526fdcf86ad9`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DesignPreview.tsx](../../../apps/platform-lab/src/mobile/DesignPreview.tsx); normalized SHA-256 `0be9d4a2e60380feb1f4132b9b6203420d100a32a1dd6d7f35acb25db193692c`.
 
 ### Typography declarations
 
@@ -551,7 +551,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MedicalStatus.tsx
 
 ## MobileApp.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `aa13247dea0ac4b7bf5cb7753f45dfae8a98aa9c2758832e9f71fc4ad73ac819`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `9b01f513eafb65ef1199902960ad2f5602cb7515fd4ffa42c14bf86b1b008dac`.
 
 ### Literal colors
 

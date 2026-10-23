@@ -23,3 +23,15 @@ export function startSyncStage(previous:SyncProgress,current:SyncStage):SyncProg
 export function finishSyncStage(previous:SyncProgress,stage:SyncStage):SyncProgress{
   return previous.current!==stage?previous:{...previous,last:stage,current:null};
 }
+
+type CompletedSync={pending:number;cleanupPending?:boolean;medicalStatus?:string;dutyStatus?:string;eventsStatus?:string;documentNoticesStatus?:string;workSummaryStatus?:string;workHoursStatus?:string;tasksStatus?:string};
+/** A visible-page capture is usable; failed/skipped jobs remain named and actionable. */
+export function completedSyncProgress(result:CompletedSync):SyncProgress{
+  const labels={medicalStatus:'Medical',dutyStatus:'Dienste',eventsStatus:'Termine',documentNoticesStatus:'Dokumenthinweise',workSummaryStatus:'Arbeitsstundenübersicht',workHoursStatus:'Arbeitsstunden',tasksStatus:'Aufgaben'} as const;
+  const missing=Object.entries(labels).filter(([key])=>['failed','skipped'].includes(result[key as keyof typeof labels]??'')).map(([,label])=>label);
+  const messages=[];
+  if(missing.length)messages.push(`Nicht aktualisiert: ${missing.join(', ')}.`);
+  if(result.pending>0)messages.push('Einige Flüge benötigen eine Prüfung.');
+  if(result.cleanupPending)messages.push('Die Anbieteransicht benötigt eine Prüfung in den Einstellungen.');
+  return messages.length?{state:'partial',last:'save',current:null,message:messages.join(' ')}:idleSyncProgress;
+}

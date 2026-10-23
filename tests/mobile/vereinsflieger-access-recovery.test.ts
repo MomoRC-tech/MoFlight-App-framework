@@ -2435,6 +2435,27 @@ const oneDutyPage = { category:'duties',path:'/member/profile/myservices.php',
   rows:[{position:1,values:['Synthetic duty','22.10.2026 - 25.10.2026','Ada Example']}],filters:[],empty:false,
   coverage:{kind:'visible-page',truncated:false,pagination:'unverified'} };
 
+test('a combined duty completion leaves the proven document settled before calendar selection starts', async()=>{
+  const f=fixture({product:true});f.render();await f.settle(null);await establishProductAssociation(f);
+  try {
+    const duty=f.controller().retrieveDutyPage('own');await f.flush();
+    await f.loadPage(context.PROFILE_URL);await f.contextMessage(observedContext);
+    const url='https://vereinsflieger.de/member/profile/myservices.php';await f.loadPage(url);
+    const web=f.find(f.render(),e=>e.type==='WebView')!;
+    (web.props.onMessage as (event:unknown)=>void)({nativeEvent:{url,data:JSON.stringify({kind:'vf-information-v1',nonce:f.lastIssuedNonce()+'-read',url,page:oneDutyPage})}});
+    await f.flush();await f.loadPage(context.PROFILE_URL);
+    const provenDocument=f.controller().epoch.current;
+    await f.contextMessage(observedContext);await duty;
+    assert.ok(f.providerEvents.includes('provider-information-complete'));
+    assert.equal(f.controller().epoch.current,provenDocument,'A resolved hidden job must not queue a trailing return-page navigation that can finish inside the next job');
+    const calendar=f.controller().retrieveFeatureInformation('events');const cancelled=assert.rejects(calendar);await f.flush();
+    const selected='https://vereinsflieger.de/member/community/appointment/';await f.loadPage(selected);
+    assert.equal(f.controller().informationBusy,true);assert.match(f.injections.at(-1)!,/vf-information-selection-v1/);
+    assert.equal(f.controller().connection.confirmed,true);
+    f.controller().stopInformation();await cancelled;
+  }finally{f.unmount();}
+});
+
 test('own-duty activity metadata needs the normal read nonce and source, and is exposed once after matching profile proof', async () => {
   const f=fixture({product:true}); f.render(); await f.settle(null); await establishProductAssociation(f);
   try {

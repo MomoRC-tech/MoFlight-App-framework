@@ -14,7 +14,7 @@ import { DutyRoster } from './DutyRoster';
 import { DataUpdateIndicator } from './DataUpdateIndicator';
 import { UpdateResult } from './UpdateResult';
 import {SyncProgress} from './SyncProgress';
-import {idleSyncProgress,type SyncProgress as Progress} from './sync-progress';
+import {idleSyncProgress,completedSyncProgress,type SyncProgress as Progress} from './sync-progress';
 
 /** Mount directly in the shell's flex content area; OwnFlights owns its list scrolling. */
 export function DesignPreview() {
@@ -54,7 +54,7 @@ export function DesignPreview() {
       <Action onPress={()=>setProgress({state:'active',last:'account',current:'flights'})}>Vorschau: Flüge abrufen</Action>
       <Action onPress={()=>setProgress({state:'active',last:'flights',current:'save'})}>Vorschau: Flüge speichern</Action>
       <Action onPress={()=>setProgress({state:'waiting',last:'prepare',current:'sign-in'})}>Vorschau: Anmeldung erforderlich</Action>
-      <Action onPress={()=>setProgress({state:'failed',last:'account',current:'flights',message:'Synchronisierung nicht abgeschlossen. Gespeicherte Daten bleiben verfügbar.'})}>Vorschau: Fehler</Action>
+      <Action onPress={()=>setProgress(completedSyncProgress({pending:0,medicalStatus:'updated',dutyStatus:'partial',eventsStatus:'failed'}))}>Vorschau: Fehler</Action>
       <Action onPress={()=>setProgress(idleSyncProgress)}>Vorschau: Fertig</Action>
     </ScrollView>
   </View>;

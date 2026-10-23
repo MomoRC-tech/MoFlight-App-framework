@@ -7,6 +7,7 @@ import type { ProviderScope } from './scope-store';
 import { INFORMATION_TYPES, retrievableInformationCategories, informationRouteShape, informationScript,
   informationSelectionScript, taskSelectionScript, OWN_OPEN_TASKS_URL, type InformationCategory, type InformationCapture, type InformationHistory } from './information';
 import { InformationRun } from './information-run';
+import { recordProviderEvent } from './provider-diagnostics';
 import { loadInformation, readInformationCapture, readInformationHistory, saveInformation } from './information-native';
 
 export type FeatureInformationCategory = 'events' | 'document-notices' | 'work-summary' | 'work-hours' | 'tasks';
@@ -56,7 +57,7 @@ export function useInformationController(ports: InformationControllerPorts) {
     const pending=featureRequest.current;featureRequest.current=null;
     if(error)pending?.reject(error);else if(capture)pending?.resolve(capture);
   }
-  const dutyRequest=useRef<{run:InformationRun;returnUrl:string;resolve:(capture:InformationCapture)=>void;reject:(error:Error)=>void}|null>(null);
+  const dutyRequest=useRef<{run:InformationRun;resolve:(capture:InformationCapture)=>void;reject:(error:Error)=>void}|null>(null);
   function finishDuty(error?:Error,capture?:InformationCapture) {
     const pending=dutyRequest.current;dutyRequest.current=null;
     if(error)pending?.reject(error);else if(capture)pending?.resolve(capture);
@@ -147,7 +148,7 @@ export function useInformationController(ports: InformationControllerPorts) {
     if (restoreTaskUrl && ports.mounted() && ports.ownerCurrent()) ports.navigate(restoreTaskUrl);
   }
   function beginInformation(retry = false, medical = false, dutyUrl?:string, feature?:FeatureInformationCategory): InformationRun | null {
-    if (!(medical||dutyUrl||feature?ports.canStartMedical():ports.canStart(retry)) || informationRun.current || informationHistoryBusy || informationUncertain.current) return null;
+    if (!(medical||dutyUrl||feature?ports.canStartMedical():ports.canStart(retry)) || informationRun.current || informationHistoryBusy || informationUncertain.current) {recordProviderEvent('provider-information-admission-blocked');return null;}
     try {
       const selectedScope = ports.scope(), target = retry ? informationRetry.current : null;
       if (retry && (!informationRetryReady || !target || target.category !== informationCategory || target.scopeKey !== canonical(selectedScope))) return null;
@@ -157,7 +158,7 @@ export function useInformationController(ports: InformationControllerPorts) {
       informationLoadRequest.current++; setInformationLoading(false);
       clearInformationNavigation();
       informationRun.current = run; setInformationBusy(true); ports.setBusy(true); setInformationNotice('Konto wird vor und nach der Erfassung geprüft…');
-      informationTimer.current = setTimeout(() => stopInformation('Informationsabruf hat das Zeitlimit erreicht. Gespeicherte Belege bleiben erhalten. Quelle und Anmeldung prüfen und erneut versuchen.', true), 90_000);
+      informationTimer.current = setTimeout(() => {recordProviderEvent('provider-information-timeout');stopInformation('Informationsabruf hat das Zeitlimit erreicht. Gespeicherte Belege bleiben erhalten. Quelle und Anmeldung prüfen und erneut versuchen.', true);}, 90_000);
       if (run.stage === 'selection' && ports.currentUrl() === run.url) void ports.loadPage(run.url);
       else if (run.stage === 'selection') ports.navigate(run.url);
       else {
@@ -166,6 +167,7 @@ export function useInformationController(ports: InformationControllerPorts) {
       }
       return run;
     } catch {
+      recordProviderEvent('provider-information-route-rejected');
       console.info('MoFlight information route shape', JSON.stringify(informationRouteShape(ports.currentUrl())));
       setInformationNotice('Diese Quellseite kann nicht erfasst werden. Erst auf der Originalseite zum ausgewählten Bereich wechseln.');
       return null;
@@ -182,11 +184,10 @@ export function useInformationController(ports: InformationControllerPorts) {
   /** Explicit combined update only. No filters, forms, pagination or provider writes. */
   function retrieveDutyPage(source:'own'|'club'):Promise<InformationCapture> {
     return new Promise((resolve,reject)=>{
-      const returnUrl=ports.currentUrl();
       const url='https://vereinsflieger.de'+(source==='own'?'/member/profile/myservices.php':'/member/community/serviceshedulelist.php');
       const run=beginInformation(false,false,url);
       if(!run){reject(new Error('Duty capture is unavailable.'));return;}
-      dutyRequest.current={run,returnUrl,resolve,reject};
+      dutyRequest.current={run,resolve,reject};
     });
   }
   /** Bounded existing readers only; original selection and fresh account checks remain mandatory. */
@@ -226,11 +227,12 @@ export function useInformationController(ports: InformationControllerPorts) {
         const capture=run.capture(new Date().toISOString());gate();
         const activity = dutyActivityByRun.current.get(run);
         if (activity) { savedDutyActivity.current.clear(); savedDutyActivity.current.set(capture.id,activity); }
-        const returnUrl=dutyRequest.current.returnUrl;
         run.stage='done';informationRun.current=null;informationRetry.current=null;setInformationRetryReady(false);
         clearInformationNavigation(run);
         setInformationBusy(false);setInformationSaving(false);ports.setBusy(false);ports.setVisible(false);
-        finishDuty(undefined,capture);ports.navigate(returnUrl);return;
+        // Combined jobs already finished on a freshly proven profile. A return
+        // navigation after resolving can arrive during the next source job.
+        recordProviderEvent('provider-information-complete');finishDuty(undefined,capture);return;
       }
       informationUncertain.current = run.nonce;
       await saveInformation(run.scope, run.capture(new Date().toISOString()), gate);
@@ -242,13 +244,18 @@ export function useInformationController(ports: InformationControllerPorts) {
       clearInformationNavigation(run);
       setInformationBusy(false); setInformationSaving(false); ports.setBusy(false); ports.setVisible(false);
       setInformationNotice(`${INFORMATION_TYPES[run.category].title}: lokal gespeichert. Nur die sichtbare Quellseite, keine vollständige Historie.`);
+      const combined=medicalRequest.current?.run===run||featureRequest.current?.run===run;
+      recordProviderEvent('provider-information-complete');
       if(medicalRequest.current?.run===run)finishMedical(undefined,records.find(record=>record.id===run.nonce)!);
       if(featureRequest.current?.run===run)finishFeature(undefined,records.find(record=>record.id===run.nonce)!);
-      ports.navigate(run.resultUrl);
+      // Keep manual source browsing; hidden combined requests need no extra
+      // result navigation. Task preference restoration was verified before save.
+      if(!combined)ports.navigate(run.resultUrl);
     } catch {
       // A commit may precede readback/lease failure. Do not claim rollback or publish old-owner rows.
       if (informationRun.current === run) {
         const uncertain = !!informationUncertain.current;
+        recordProviderEvent(uncertain?'provider-information-save-unconfirmed':'provider-information-validation-failed');
         const restoreTaskUrl = run.stage !== 'restore' && run.taskRestoreAuthorized ? run.taskRestoreUrl : null;
         const taskRestoreFailed = run.category === 'tasks' && run.stage === 'restore';
         run.stage = 'cancelled'; informationRun.current = null;
@@ -312,7 +319,7 @@ export function useInformationController(ports: InformationControllerPorts) {
   function pageLoaded(page: string): boolean {
     const run = informationRun.current;
     if (!run) return false;
-    if (page !== run.url) { stopInformation('Quellseite oder Anmeldung nicht verfügbar. Gespeicherte Informationen bleiben erhalten.', true); return true; }
+    if (page !== run.url) { recordProviderEvent('provider-information-unexpected-document');stopInformation('Quellseite oder Anmeldung nicht verfügbar. Gespeicherte Informationen bleiben erhalten.', true); return true; }
     // A previous same-URL load-end cannot advance a new request without its own load-start.
     if (run.stage !== 'selection' && (informationNavigation.current?.run !== run || informationNavigation.current.nonce !== run.messageNonce)) return true;
     run.observeNavigation(page);
@@ -330,6 +337,7 @@ export function useInformationController(ports: InformationControllerPorts) {
   function pageFailed(url?: string, recordProfileFailure = false): boolean {
     const run = informationRun.current;
     if (!run) return false;
+    recordProviderEvent('provider-information-page-failed');
     if (run.category === 'tasks' && run.stage === 'restore') {
       stopInformation('Der vorherige Aufgabenfilter konnte nicht bestätigt werden. Aufgabenfilter auf der Vereinsflieger-Seite prüfen. Gespeicherte Belege bleiben erhalten.'); return true;
     }

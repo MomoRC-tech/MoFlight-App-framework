@@ -1,4 +1,4 @@
-import {idleSyncProgress,startSyncStage,finishSyncStage,type SyncProgress,type SyncStage} from './sync-progress';
+import {idleSyncProgress,startSyncStage,finishSyncStage,completedSyncProgress,type SyncProgress,type SyncStage} from './sync-progress';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, AppState, BackHandler, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -435,7 +435,7 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,open=true,requestI
     const verified=controller.current.connection;
     const optionalSourceStatuses=[completed.otherData.medical,completed.otherData.duties,completed.otherData.events,completed.otherData.documentNotices,completed.otherData.workSummary,completed.otherData.workHours,completed.otherData.tasks];
     const optionalSourceIncomplete=optionalSourceStatuses.some(status=>status==='failed'||status==='skipped');
-    diagnosis.current?.finish(optionalSourceIncomplete?'partial':'success',completed.otherData.medical==='failed'?'medical-failed':completed.otherData.medical==='skipped'?'medical-skipped':completed.otherData.duties==='failed'?'duties-failed':completed.otherData.duties==='skipped'?'duties-skipped':completed.otherData.events==='failed'||completed.otherData.documentNotices==='failed'||completed.otherData.workSummary==='failed'||completed.otherData.workHours==='failed'||completed.otherData.tasks==='failed'?'operation-failed':'none');
+    diagnosis.current?.finish(optionalSourceIncomplete?'partial':'success',completed.otherData.medical==='failed'?'medical-failed':completed.otherData.medical==='skipped'?'medical-skipped':completed.otherData.duties==='failed'?'duties-failed':completed.otherData.duties==='skipped'?'duties-skipped':completed.otherData.events==='failed'?'events-failed':completed.otherData.documentNotices==='failed'?'documents-failed':completed.otherData.workSummary==='failed'?'work-summary-failed':completed.otherData.workHours==='failed'?'work-hours-failed':completed.otherData.tasks==='failed'?'tasks-failed':'none');
     if(alive.current){setLoadStage('done');setStep('Fertig.');setCompleted({ownerId:lease.ownerId,storeId:lease.storeId,accountRef:next.accountRef,completedAt:new Date().toISOString(),added:result.counts.added,changed:result.counts.changed,pending:result.counts.pending,
       from:next.source.requestedWindow.from,to:next.source.requestedWindow.to,
       verifiedConnection:foreground.current&&!stopRemainingJobs.current&&verified.confirmed?{ownerId:lease.ownerId,state:verified}:undefined,medicalStatus:completed.otherData.medical,dutyStatus:completed.otherData.duties,eventsStatus:completed.otherData.events,documentNoticesStatus:completed.otherData.documentNotices,workSummaryStatus:completed.otherData.workSummary,workHoursStatus:completed.otherData.workHours,tasksStatus:completed.otherData.tasks,cleanupPending:controller.current.recovery});}
@@ -645,9 +645,9 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,open=true,requestI
   useEffect(()=>{
     if(!automatic.current||!completed||returnedResult.current||!open||!foreground.current||busy||c.busy||c.saving||c.restoring.current||c.informationSaving)return;
     returnedResult.current=true;
-    const incomplete=[completed.medicalStatus,completed.dutyStatus,completed.eventsStatus,completed.documentNoticesStatus,completed.workSummaryStatus,completed.workHoursStatus,completed.tasksStatus].some(status=>status==='failed'||status==='skipped')||completed.pending>0||c.recovery;
-    setSyncProgress(incomplete?{state:'partial',last:'save',current:null,message:'Teilweise synchronisiert. Gespeicherte Daten bleiben verfügbar.'}:idleSyncProgress);
-    diagnosticJournal.record('sync',incomplete?'sync-partial':'sync-success');close(completed);
+    const progress=completedSyncProgress({...completed,cleanupPending:!!c.recovery});
+    setSyncProgress(progress);
+    diagnosticJournal.record('sync',progress.state==='partial'?'sync-partial':'sync-success');close(completed);
   },[completed,open,busy,c.busy,c.saving,c.restoring.current,c.informationSaving,c.recovery,close]);
   function cancelSync(){
     interruption.current='cancelled';stopRemainingJobs.current=true;diagnosticJournal.record('sync','sync-cancelled');
