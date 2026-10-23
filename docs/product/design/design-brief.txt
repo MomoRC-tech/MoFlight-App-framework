@@ -907,34 +907,34 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DataUpdateIndicat
 
 ## DesignPreview.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DesignPreview.tsx](../../../apps/platform-lab/src/mobile/DesignPreview.tsx); normalized SHA-256 `f4f354cd1ce6b8854b8ce878cf4e0a16b4fc87ac26e68ec7ff87923b37b6dbd6`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DesignPreview.tsx](../../../apps/platform-lab/src/mobile/DesignPreview.tsx); normalized SHA-256 `47de54d43502c511a2e32ceca0e1c55c7e339cb91f0a82a7cc7585061f2ea3c2`.
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 13` | 120 |
-| `lineHeight: 19` | 120 |
+| `fontSize: 13` | 121 |
+| `lineHeight: 19` | 121 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 14` | 121 |
-| `borderRadius: 22` | 125 |
-| `borderWidth: 1` | 121, 125 |
+| `borderRadius: 14` | 122 |
+| `borderRadius: 22` | 126 |
+| `borderWidth: 1` | 122, 126 |
 | `gap: 12` | 55 |
-| `gap: 16` | 123 |
-| `gap: 4` | 119 |
-| `gap: 8` | 120 |
-| `maxWidth: 600` | 123 |
-| `maxWidth: 720` | 125 |
-| `minHeight: 48` | 121, 124 |
-| `padding: 18` | 55, 123 |
-| `paddingHorizontal: 12` | 121 |
-| `paddingHorizontal: 18` | 119, 124 |
-| `paddingVertical: 10` | 121, 124 |
-| `width: '100%'` | 123, 125 |
+| `gap: 16` | 124 |
+| `gap: 4` | 120 |
+| `gap: 8` | 121 |
+| `maxWidth: 600` | 124 |
+| `maxWidth: 720` | 126 |
+| `minHeight: 48` | 122, 125 |
+| `padding: 18` | 55, 124 |
+| `paddingHorizontal: 12` | 122 |
+| `paddingHorizontal: 18` | 120, 125 |
+| `paddingVertical: 10` | 122, 125 |
+| `width: '100%'` | 124, 126 |
 
 ## DevelopmentHub.tsx
 
@@ -1119,118 +1119,118 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MedicalStatus.tsx
 
 ## MobileApp.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `e7dfc68243178b80f7ed1c746cf7a8c54380c8092ad6caba8f24e95d609b0909`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `65a117528a79f4d836f5586d2a01b0c4caae5fcb652db0ca9c31e5cdc1747c0e`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#000712bd` | 324 |
-| `#064240` | 318 |
-| `#10282d` | 318 |
-| `#11263a` | 317 |
-| `#152d42` | 319 |
-| `#1b344a` | 322 |
-| `#227f87` | 318 |
-| `#78efdc` | 320 |
-| `#8ba4bc` | 270, 315 |
+| `#000712bd` | 325 |
+| `#064240` | 319 |
+| `#10282d` | 319 |
+| `#11263a` | 318 |
+| `#152d42` | 320 |
+| `#1b344a` | 323 |
+| `#227f87` | 319 |
+| `#78efdc` | 321 |
+| `#8ba4bc` | 271, 316 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 10` | 259, 270, 315 |
-| `fontSize: 11` | 264, 316 |
-| `fontSize: 12` | 220, 318, 323 |
-| `fontSize: 13` | 260, 317 |
-| `fontSize: 16` | 322 |
-| `fontSize: 20` | 316 |
-| `fontSize: 23` | 321 |
-| `fontSize: 25` | 323 |
-| `fontWeight: '600'` | 316, 318 |
-| `fontWeight: '700'` | 323 |
-| `letterSpacing: .6` | 315 |
-| `lineHeight: 16` | 270, 315, 316 |
-| `lineHeight: 17` | 318 |
-| `lineHeight: 18` | 220, 323 |
-| `lineHeight: 25` | 316 |
-| `lineHeight: 29` | 323 |
+| `fontSize: 10` | 260, 271, 316 |
+| `fontSize: 11` | 265, 317 |
+| `fontSize: 12` | 221, 319, 324 |
+| `fontSize: 13` | 261, 318 |
+| `fontSize: 16` | 323 |
+| `fontSize: 20` | 317 |
+| `fontSize: 23` | 322 |
+| `fontSize: 25` | 324 |
+| `fontWeight: '600'` | 317, 319 |
+| `fontWeight: '700'` | 324 |
+| `letterSpacing: .6` | 316 |
+| `lineHeight: 16` | 271, 316, 317 |
+| `lineHeight: 17` | 319 |
+| `lineHeight: 18` | 221, 324 |
+| `lineHeight: 25` | 317 |
+| `lineHeight: 29` | 324 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 312, 318 |
-| `borderRadius: 13` | 318 |
-| `borderRadius: 14` | 313 |
-| `borderRadius: 15` | 320 |
-| `borderRadius: 16` | 322, 323 |
-| `borderRadius: 17` | 319 |
-| `borderRadius: 18` | 321 |
-| `borderRadius: 2` | 323 |
-| `borderRadius: 20` | 322 |
-| `borderRadius: 22` | 317, 325 |
-| `borderRadius: 24` | 317 |
-| `borderRadius: 9` | 318 |
-| `borderWidth: 1` | 312, 317, 318, 321, 322, 323, 325 |
-| `gap: 1` | 316 |
-| `gap: 10` | 226, 237 |
-| `gap: 12` | 225, 311 |
-| `gap: 18` | 320 |
-| `gap: 2` | 323 |
-| `gap: 3` | 315, 318 |
-| `gap: 4` | 323 |
-| `gap: 5` | 317 |
-| `gap: 6` | 321, 322 |
-| `gap: 7` | 317, 320 |
-| `gap: 8` | 293, 295, 312, 319, 322 |
-| `height: 2` | 323 |
-| `height: 30` | 320 |
-| `height: 48` | 313, 322 |
-| `maxHeight: 150` | 322 |
-| `maxWidth: 480` | 237 |
-| `maxWidth: 520` | 151, 293, 295, 320 |
-| `maxWidth: 599` | 310, 323 |
-| `maxWidth: 600` | 222, 271 |
-| `maxWidth: 720` | 257 |
-| `maxWidth: 960` | 222, 271 |
-| `minHeight: 0` | 277, 325 |
-| `minHeight: 126` | 320 |
-| `minHeight: 34` | 319 |
-| `minHeight: 36` | 314 |
-| `minHeight: 40` | 317 |
-| `minHeight: 48` | 312, 317, 319 |
-| `minHeight: 52` | 322 |
-| `minHeight: 60` | 323 |
-| `minHeight: 64` | 318 |
-| `minHeight: 66` | 318 |
-| `minHeight: 86` | 321 |
-| `minWidth: 0` | 316, 317 |
-| `opacity: .45` | 262 |
-| `opacity: .8` | 324 |
-| `padding: 0` | 319 |
-| `padding: 10` | 311 |
-| `padding: 12` | 311 |
-| `padding: 16` | 321 |
-| `padding: 4` | 315, 322 |
-| `padding: 6` | 323 |
-| `padding: 7` | 318 |
-| `paddingHorizontal: 12` | 312, 317, 324 |
-| `paddingHorizontal: 16` | 319 |
-| `paddingHorizontal: 6` | 318 |
-| `paddingHorizontal: 7` | 318 |
-| `paddingHorizontal: 8` | 322 |
-| `paddingVertical: 10` | 318, 324 |
-| `paddingVertical: 4` | 317 |
-| `paddingVertical: 8` | 323 |
-| `width: '100%'` | 151, 225, 226, 227, 237, 270, 293, 295, 310, 319, 320, 323 |
-| `width: '32%'` | 323 |
-| `width: '49.2%'` | 319 |
-| `width: 24` | 323 |
-| `width: 30` | 320 |
-| `width: 42` | 317 |
-| `width: 48` | 313, 322 |
-| `width: 64` | 318 |
+| `borderRadius: 12` | 313, 319 |
+| `borderRadius: 13` | 319 |
+| `borderRadius: 14` | 314 |
+| `borderRadius: 15` | 321 |
+| `borderRadius: 16` | 323, 324 |
+| `borderRadius: 17` | 320 |
+| `borderRadius: 18` | 322 |
+| `borderRadius: 2` | 324 |
+| `borderRadius: 20` | 323 |
+| `borderRadius: 22` | 318, 326 |
+| `borderRadius: 24` | 318 |
+| `borderRadius: 9` | 319 |
+| `borderWidth: 1` | 313, 318, 319, 322, 323, 324, 326 |
+| `gap: 1` | 317 |
+| `gap: 10` | 227, 238 |
+| `gap: 12` | 226, 312 |
+| `gap: 18` | 321 |
+| `gap: 2` | 324 |
+| `gap: 3` | 316, 319 |
+| `gap: 4` | 324 |
+| `gap: 5` | 318 |
+| `gap: 6` | 322, 323 |
+| `gap: 7` | 318, 321 |
+| `gap: 8` | 294, 296, 313, 320, 323 |
+| `height: 2` | 324 |
+| `height: 30` | 321 |
+| `height: 48` | 314, 323 |
+| `maxHeight: 150` | 323 |
+| `maxWidth: 480` | 238 |
+| `maxWidth: 520` | 151, 294, 296, 321 |
+| `maxWidth: 599` | 311, 324 |
+| `maxWidth: 600` | 223, 272 |
+| `maxWidth: 720` | 258 |
+| `maxWidth: 960` | 223, 272 |
+| `minHeight: 0` | 278, 326 |
+| `minHeight: 126` | 321 |
+| `minHeight: 34` | 320 |
+| `minHeight: 36` | 315 |
+| `minHeight: 40` | 318 |
+| `minHeight: 48` | 313, 318, 320 |
+| `minHeight: 52` | 323 |
+| `minHeight: 60` | 324 |
+| `minHeight: 64` | 319 |
+| `minHeight: 66` | 319 |
+| `minHeight: 86` | 322 |
+| `minWidth: 0` | 317, 318 |
+| `opacity: .45` | 263 |
+| `opacity: .8` | 325 |
+| `padding: 0` | 320 |
+| `padding: 10` | 312 |
+| `padding: 12` | 312 |
+| `padding: 16` | 322 |
+| `padding: 4` | 316, 323 |
+| `padding: 6` | 324 |
+| `padding: 7` | 319 |
+| `paddingHorizontal: 12` | 313, 318, 325 |
+| `paddingHorizontal: 16` | 320 |
+| `paddingHorizontal: 6` | 319 |
+| `paddingHorizontal: 7` | 319 |
+| `paddingHorizontal: 8` | 323 |
+| `paddingVertical: 10` | 319, 325 |
+| `paddingVertical: 4` | 318 |
+| `paddingVertical: 8` | 324 |
+| `width: '100%'` | 151, 226, 227, 228, 238, 271, 294, 296, 311, 320, 321, 324 |
+| `width: '32%'` | 324 |
+| `width: '49.2%'` | 320 |
+| `width: 24` | 324 |
+| `width: 30` | 321 |
+| `width: 42` | 318 |
+| `width: 48` | 314, 323 |
+| `width: 64` | 319 |
 
 ## OverviewTiles.tsx
 

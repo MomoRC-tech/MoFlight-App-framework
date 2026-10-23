@@ -152,6 +152,7 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
   const sameProviderOwner=providerStatus.ownerId===selected?.snapshot.ownerId&&!!providerStatus.ownerId;
   const sameProviderAccount=!!selected?.snapshot.account?.accountRef&&(!providerStatus.connection.observed||providerStatus.connection.observed.accountNumber===selected.snapshot.account.accountRef);
   const flightStatusController=sameProviderOwner&&sameProviderAccount?providerStatus:unknownProviderStatus;
+  const activityChanged=!!flightStatusController.activity?.changed&&flightStatusController.activity.storeId===selected?.snapshot.storeId&&flightStatusController.activity.accountRef===selected?.snapshot.account?.accountRef;
   const libraryRevision = canonical([library.bookId, library.flights]);
   useEffect(() => { setProfileNameDraft(library.displayName); }, [library.displayName]);
   const { width, height, fontScale } = useWindowDimensions();
@@ -205,7 +206,7 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
   };
   const pageTitle = tabs.find(item => item.id === tab)!.title;
   const statusControls = <>
-    <DataUpdateIndicator activityChanged={!!flightStatusController.activity?.changed&&flightStatusController.activity.storeId===selected?.snapshot.storeId&&flightStatusController.activity.accountRef===selected?.snapshot.account?.accountRef} scopeKey={selected?.snapshot.account?.accountRef?statisticsScopeKey:null} connection={flightStatusController.connection} receivedAt={receivedAt} readState={ownFlights.phase==='failed'?'failed':ownFlights.phase==='loading'?'loading':'ready'}
+    <DataUpdateIndicator activityChanged={activityChanged} scopeKey={selected?.snapshot.account?.accountRef?statisticsScopeKey:null} connection={flightStatusController.connection} receivedAt={receivedAt} readState={ownFlights.phase==='failed'?'failed':ownFlights.phase==='loading'?'loading':'ready'}
       now={now} syncing={syncProgress.state==='active'||syncProgress.state==='waiting'} disabled={screenBusy} onPress={() => openFlightFlow('update')} />
 
   </>;
@@ -217,7 +218,7 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
     <View collapsable={false} style={[{ flex: 1 }, overlayOpen && sheet !== 'statistics' && s.hidden, sheet === 'statistics' && s.dimmed]} pointerEvents={overlayOpen ? 'none' : 'auto'} aria-hidden={overlayOpen} accessibilityElementsHidden={overlayOpen} importantForAccessibility={overlayOpen ? 'no-hide-descendants' : 'auto'}>
     <StatusBar barStyle="light-content" backgroundColor={colors.background} />
     {header}
-    {syncProgress.state==='idle'&&(receivedAt||ownFlights.phase==='failed'||!!flightStatusController.activity?.changed)&&<Pressable accessibilityRole="button" accessibilityLabel="Gespeicherten Datenstand und Sync-Details öffnen" onPress={()=>openHeaderSheet('status')} style={s.savedStatus}><SymbolIcon name="refresh" size={18}/><Label muted style={{flex:1,fontSize:12,lineHeight:18}}>Stand {dataUpdateStatus(receivedAt,ownFlights.phase==='failed'?'failed':'ready',now).caption}{flightStatusController.activity?.changed?' · Änderungen möglich':''}</Label><SymbolIcon name="right" size={16}/></Pressable>}
+    {syncProgress.state==='idle'&&(receivedAt||ownFlights.phase==='failed'||activityChanged)&&<Pressable accessibilityRole="button" accessibilityLabel="Gespeicherten Datenstand und Sync-Details öffnen" onPress={()=>openHeaderSheet('status')} style={s.savedStatus}><SymbolIcon name="refresh" size={18}/><Label muted style={{flex:1,fontSize:12,lineHeight:18}}>Stand {dataUpdateStatus(receivedAt,ownFlights.phase==='failed'?'failed':'ready',now).caption}{activityChanged?' · Änderungen möglich':''}</Label><SymbolIcon name="right" size={16}/></Pressable>}
     <SyncProgress cancel={syncControls?.cancel} canCancel={syncControls?.canCancel} progress={syncProgress} retry={()=>openFlightFlow('update')} details={()=>openHeaderSheet('status')}/>
     <View style={[s.content, wide && { maxWidth: 960 }, tablet && !wide && { maxWidth: 600 }]}>
       <View style={[s.page, tab !== 'home' && s.hidden]} accessibilityElementsHidden={tab !== 'home'} importantForAccessibility={tab === 'home' ? 'auto' : 'no-hide-descendants'}>

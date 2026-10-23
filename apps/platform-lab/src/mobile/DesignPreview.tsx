@@ -64,8 +64,9 @@ export function DesignPreview({onClose=()=>{}}:{onClose?:()=>void}={}) {
   if (statisticsOpen) return <View style={styles.root}>
     <View style={styles.statisticsFrame}>
       <AppHeader title="Vorschau Flugstatistik" back={() => { if (!statisticsBack.current()) setStatisticsOpen(false); }}>
-        <Label muted>Synthetische UI-Vorschau · keine Speicherung</Label>
+        {null}
       </AppHeader>
+      <Label muted style={styles.notice}>Synthetische UI-Vorschau · keine Speicherung</Label>
       <StatisticsOverlay data={data} today="2026-10-22" fontScale={fontScale} onBackHandler={handler => { statisticsBack.current = handler; }} />
     </View>
   </View>;

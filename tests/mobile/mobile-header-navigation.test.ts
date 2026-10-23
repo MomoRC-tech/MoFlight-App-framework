@@ -611,3 +611,11 @@ test('activity advice is shown only for the selected owner library and provider 
 test('overview-selected year opens Statistics in that same season',()=>{
  const f=fixture();f.find('Dashboard').props.onStatistics(2025);f.render();assert.equal(f.find('StatisticsOverlay').props.initialYear,2025);assert.deepEqual(f.coreRoutes,[]);
 });
+
+
+test('saved-status activity row excludes a foreign store or provider account',()=>{
+ const f=fixture();f.showLoad(null,{snapshot:{ownerId:'owner',storeId:'store',account:{accountRef:'101'}}});
+ const row=()=>f.nodes().find(n=>n.props.accessibilityLabel==='Gespeicherten Datenstand und Sync-Details öffnen');
+ for(const activity of [{changed:true,storeId:'foreign',accountRef:'101'},{changed:true,storeId:'store',accountRef:'102'}]){f.setProviderStatus({...unknownProviderStatus,ownerId:'owner',activity});assert.equal(row(),undefined);}
+ f.setProviderStatus({...unknownProviderStatus,ownerId:'owner',activity:{changed:true,storeId:'store',accountRef:'101'}});assert.ok(row());
+});
