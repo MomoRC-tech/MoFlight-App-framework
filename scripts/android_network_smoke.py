@@ -104,7 +104,8 @@ def run(apk, serial, output):
     require_synthetic('adb', serial)
     smoke = Smoke(output, serial, 'MoFlight_Synthetic_API37')
     mapping = f'tcp:{PORT}'
-    if any(mapping in line.split() for line in smoke.adb('reverse', '--list').stdout.splitlines()):
+    reverse_before = smoke.adb('reverse', '--list').stdout.splitlines()
+    if any(mapping in line.split() for line in reverse_before):
         raise RuntimeError('Proof port already forwarded; preserve the existing mapping')
     remote = smoke.shell('pm', 'path', PACKAGE).splitlines()[0].removeprefix('package:')
     if not remote.startswith('/data/app/') or not remote.endswith('/base.apk'):
@@ -112,8 +113,13 @@ def run(apk, serial, output):
     original = output / 'original-installed.apk'
     smoke.adb('pull', remote, str(original.resolve()))
     running = bool(smoke.shell('pidof', PACKAGE, check=False))
+    network_before = {key: smoke.shell('settings', 'get', 'global', key)
+                      for key in ('airplane_mode_on', 'wifi_on', 'mobile_data')}
     report = {'status': 'running', 'serial': serial, 'proof': check_apk(apk),
               'original_sha256': digest(original), 'checks': [],
+              'android_api': smoke.shell('getprop', 'ro.build.version.sdk'),
+              'android_release': smoke.shell('getprop', 'ro.build.version.release'),
+              'network_settings_before': network_before,
               'started_at': datetime.now(timezone.utc).isoformat(),
               'boundary': 'Actual WebView TCP/stream/10-second timeout via ADB reverse; no radio handover, live provider, normal coordinator, physical Android or iOS'}
     installed = forwarded = False
@@ -209,15 +215,18 @@ def run(apk, serial, output):
         assert state('SUCCESS') == (baseline[0] + 1, baseline[1] + 1)
         record('slow-stream-success-after-reconnect')
         report['status'] = 'passed'
-    except Exception as error:
+    except BaseException as error:
         report.update(status='failed', error=str(error))
         raise
     finally:
         cleanup_errors = []
         if server:
-            server.release.set()
-            server.shutdown()
-            server.server_close()
+            try:
+                server.release.set()
+                server.shutdown()
+                server.server_close()
+            except Exception as error:
+                cleanup_errors.append('fixture server: ' + str(error))
         if forwarded:
             try:
                 smoke.adb('reverse', '--remove', mapping)
@@ -238,6 +247,14 @@ def run(apk, serial, output):
                 report['original_running_state_restored'] = True
             except Exception as error:
                 cleanup_errors.append('installed APK: ' + str(error))
+        try:
+            network_after = {key: smoke.shell('settings', 'get', 'global', key) for key in network_before}
+            assert network_after == network_before, 'Network settings changed'
+            assert smoke.adb('reverse', '--list').stdout.splitlines() == reverse_before, 'Reverse mappings changed'
+            report['network_settings_unchanged'] = True
+            report['reverse_mappings_restored'] = True
+        except Exception as error:
+            cleanup_errors.append('device settings: ' + str(error))
         report['cleanup_errors'] = cleanup_errors
         if cleanup_errors:
             report['status'] = 'failed'
