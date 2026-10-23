@@ -624,3 +624,12 @@ test('a renewed lease during deferred preparation waits for the obsolete service
   assert.equal(f.c.visible,true);assert.ok(!f.progressUpdates.some(p=>p.state==='failed'),'An obsolete preparation failure cannot fail the new attempt');
  }finally{f.dispose();}
 });
+
+
+test('an explicit sync cancellation is recorded as cancellation rather than an unexplained failure',async()=>{
+ const f=fixture({startUpdate:true,loginPending:true});try{
+  f.render();await f.flush();f.nodes().find(n=>n.type==='ProviderConnection')!.props.close();await f.flush();
+  const operation=f.journal.snapshot().find(entry=>entry.action==='update-flights')!;
+  assert.equal(operation.outcome,'cancelled');assert.equal(operation.code,'cancelled');
+ }finally{f.dispose();}
+});
