@@ -25,7 +25,7 @@ export function DataUpdateIndicator({ connection, scopeKey = null, receivedAt, r
     accessibilityState={{ disabled:disabled||syncing,busy:syncing }} disabled={disabled||syncing} onPress={onPress}
     style={[styles.button, disabled && { opacity: .5 }]}>
     <View style={[styles.face, amber && styles.amber]}><SyncShine active={syncing}/><SymbolIcon name="refresh" size={24} />
-    <View accessible={false} style={styles.copy}><View style={styles.titleRow}><Label style={styles.title}>{syncing?'Synchronisiert …':'Daten'}</Label>
+    <View accessible={false} style={styles.copy}><View style={styles.titleRow}><Label style={styles.title}>{syncing?'Lädt …':'Daten'}</Label>
       <Label style={[styles.session, { color: tint }]}>{session.mark}</Label></View>
       <Label style={[styles.age, recommended && { color: '#ffc477' }]}>{status.caption}{recommended ? ' !' : ''}</Label>
       {activityChanged && <Label style={styles.activity}>Änderungen möglich</Label>}</View></View>

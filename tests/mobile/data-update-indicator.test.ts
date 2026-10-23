@@ -56,6 +56,13 @@ function fixture() {
 }
 const text = (node: any): string => typeof node === 'string' ? node : (node?.children ?? []).map(text).join(' ').replace(/\s+/g, ' ');
 const context = { accountNumber: '123', clubLabel: 'Synthetic', clubIdentity: 'display-label-only', verification: 'observed-profile-number' } as const;
+
+test('active sync has a short busy label, blocks duplicate taps and preserves saved-data age',()=>{
+ const render=fixture(),button=render({scopeKey:'scope',receivedAt:at,readState:'ready',now:received+60000,syncing:true,onPress(){assert.fail('disabled');}});
+ assert.match(text(button),/Lädt/);assert.match(text(button),/vor 1 Min/);
+ assert.equal(button.props.accessibilityState.busy,true);assert.equal(button.props.disabled,true);
+ assert.match(button.props.accessibilityLabel,/Daten synchronisieren/);
+});
 const proof: ConnectionState = { phase: 'observed', confirmed: true, observed: context, lastCheckedAt: at };
 
 test('header visibly shows saved age and retains one accessible sync action', () => {

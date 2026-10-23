@@ -808,7 +808,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](..
 
 ## DataUpdateIndicator.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DataUpdateIndicator.tsx](../../../apps/platform-lab/src/mobile/DataUpdateIndicator.tsx); normalized SHA-256 `7420b4897f41422afe8df023aeb4d84d7ce0e25dd8cca3e958e46c89c1e9d5a6`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DataUpdateIndicator.tsx](../../../apps/platform-lab/src/mobile/DataUpdateIndicator.tsx); normalized SHA-256 `fd29c4178bbf0d47b1013f33ee5c2810b2a7decad97559a78cd3f3a60b63f4b4`.
 
 ### Literal colors
 
