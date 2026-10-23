@@ -3,12 +3,14 @@ import { loadProviderScope } from './scoped-storage';
 import { createDutyRosterSnapshot } from './duties';
 import { loadDutyRoster, saveDutyRoster } from './duty-native';
 import type { InformationCapture } from './information';
+import { assertNoPendingUserBackupRestore } from '../user-backup-restore-journal-native';
 
 /** Explicit foreground update. Unsupported/failed pages leave the prior cache intact. */
 export async function refreshDutyRoster(owner: string, accountRef: string, ports: {
   active(): boolean;
   readPage(source: 'own' | 'club'): Promise<InformationCapture>;
 }) {
+  await assertNoPendingUserBackupRestore();
   const scope = await loadProviderScope(owner);
   if (!scope || scope.owner !== owner || scope.context.accountNumber !== accountRef) throw new Error('Duty scope unavailable');
   const gate = () => { if (!ports.active()) throw new Error('Duty update expired'); };

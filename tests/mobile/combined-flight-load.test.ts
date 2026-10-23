@@ -18,7 +18,7 @@ const source=ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/sr
 
 // Real screen effects and handlers; SQLite and provider behavior have their own
 // integration tests. These ports control timing to exercise the screen coordinator.
-function fixture({providerAllowed=true,deferRead=false,startUpdate=false,root=false,readOnly=false,deferReservation=false,failStartup=false,medicalFailure=false,loginPending=false,deferProvider=false,quietResume=false,deferSource=false,sameWindow=false,deferVerification=false,priorConnection='unknown',existingOwner=false,intent:requestedIntent=undefined as string|undefined}={}) {
+function fixture({providerAllowed=true,deferRead=false,startUpdate=false,root=false,readOnly=false,deferReservation=false,failStartup=false,medicalFailure=false,loginPending=false,deferProvider=false,quietResume=false,deferSource=false,sameWindow=false,deferVerification=false,priorConnection='unknown',existingOwner=false,pendingRestore=false,cancelRestore=false,intent:requestedIntent=undefined as string|undefined}={}) {
   let panelOpen=true,requestId=0;
   const journal=new DiagnosticJournal(), diagnosis={current:journal.begin(startUpdate?'update-flights':'open-flight-tools')};
   const hooks:any[]=[],effects:(()=>void)[]=[],calls:string[]=[],closed:any[]=[];
@@ -67,6 +67,8 @@ function fixture({providerAllowed=true,deferRead=false,startUpdate=false,root=fa
   };
   const leaves=(names:string[])=>Object.fromEntries(names.map(name=>[name,name]));
   const modules:Record<string,any>={react:{default:react,...react},
+    '../user-backup-native':{getPendingUserBackupRestoreNative:async()=>pendingRestore?{operationId:'pending',ownerId:'owner',storeId:'store'}:null,
+      restoreUserBackupFromPickerNative:async(_scope:any,_gate:any,id:string)=>{calls.push('resume-'+id);if(cancelRestore)return {state:'cancelled'};pendingRestore=false;return {state:'restored'};}},
     './session-monitor':{startSessionMonitor},
     './account-retrieval-jobs':accountJobs, '../diagnostics':{diagnosticJournal:journal},
     '../vereinsflieger/duty-refresh-native':{refreshDutyRoster:async()=>({rows:[],partial:true})},
@@ -463,5 +465,28 @@ test('explicit per-source skip still continues the other supported sources',asyn
     assert.ok(skip);skip.props.onPress();await f.flush();
     assert.deepEqual(f.calls,['session','retrieve','save','medical','events','document-notices','work-summary','work-hours','tasks']);
     assert.equal(f.closed.length,1);assert.equal(f.closed[0].medicalStatus,'failed');assert.equal(f.closed[0].eventsStatus,'partial');
+  }finally{f.dispose();}
+});
+
+
+test('pending aggregate restore is reachable before owner setup and cannot create a replacement owner',async()=>{
+  const f=fixture({root:true,existingOwner:true,pendingRestore:true});
+  try {
+    f.render();await f.flush();
+    assert.match(f.text(),/Eine Datensicherung wird noch wiederhergestellt/);
+    assert.doesNotMatch(f.text(),/neue lokale Bibliothek/);
+    assert.ok(!f.calls.includes('create'));
+    f.press('Sicherungsdatei auswählen und fortsetzen');await f.flush();
+    assert.ok(f.calls.includes('resume-pending'));
+    assert.doesNotMatch(f.text(),/Eine Datensicherung wird noch wiederhergestellt/);
+  }finally{f.dispose();}
+});
+
+test('cancelling the pending aggregate picker retains the recovery screen',async()=>{
+  const f=fixture({root:true,existingOwner:true,pendingRestore:true,cancelRestore:true});
+  try {
+    f.render();await f.flush();f.press('Sicherungsdatei auswählen und fortsetzen');await f.flush();
+    assert.match(f.text(),/Eine Datensicherung wird noch wiederhergestellt/);
+    assert.ok(!f.calls.includes('create'));
   }finally{f.dispose();}
 });

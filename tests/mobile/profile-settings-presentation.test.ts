@@ -22,12 +22,12 @@ function fixture(){
 test('ordinary settings exposes real administration and backup exclusions while synthetic editing stays in Development',()=>{
  const f=fixture(),ordinary=f.nodes(f.ordinary),synthetic=f.nodes(f.synthetic);
  assert.equal(ordinary.some(n=>n.type==='TextInput'),false);
- const text=f.text(f.ordinary);assert.ok(text.includes('Medical-Angaben'));assert.ok(text.includes('nicht enthalten'));
+ const text=f.text(f.ordinary);assert.ok(text.includes('einschließlich Medical'));assert.ok(text.includes('Dienstpläne und temporäre Dateien sind ausgeschlossen'));
  assert.equal(ordinary.some(n=>n.type==='Section'&&n.props.title==='Lokales Demoprofil'),false);
  assert.equal(synthetic.find(n=>n.type==='TextInput')!.props.value,'Retained draft');
  assert.ok(synthetic.some(n=>n.type==='Section'&&n.props.title==='Lokales Demoprofil'));
  assert.deepEqual(f.calls,[]);
- ordinary.find(n=>n.type==='Action'&&f.text(n)==='Flugbibliothek sichern & wiederherstellen')!.props.onPress();
+ ordinary.find(n=>n.type==='Action'&&f.text(n)==='Daten sichern & wiederherstellen')!.props.onPress();
  ordinary.find(n=>n.props.testID==='diagnostics-entry')!.props.onPress();
  ordinary.find(n=>n.props.testID==='development-entry')!.props.onPress();
  assert.deepEqual(f.calls,['backup','diagnostics','development']);

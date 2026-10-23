@@ -139,6 +139,7 @@ function loadAdapter(behavior: { events: string[]; fileExists?: Record<string, b
     'expo-crypto': { randomUUID: () => '55555555-5555-4555-8555-555555555555' },
     'expo-file-system': { File: class {} },
     'expo-sqlite': { defaultDatabaseDirectory: 'file:///mock/sqlite' },
+    '../user-backup-restore-journal-native': { assertNoPendingUserBackupRestore: async () => {} },
     '../storage': {
       hash: async () => 'a'.repeat(64),
       openDriver: async (name: string) => {

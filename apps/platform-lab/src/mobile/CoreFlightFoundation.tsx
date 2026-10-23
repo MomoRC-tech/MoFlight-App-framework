@@ -30,6 +30,8 @@ import { retrieveOtherAccountData, runAccountRetrievalJobs, type MedicalJobStatu
 import { refreshDutyRoster } from '../vereinsflieger/duty-refresh-native';
 import { retrievalFailureHint } from '../vereinsflieger/connection-state';
 import { startSessionMonitor } from './session-monitor';
+import { getPendingUserBackupRestoreNative, restoreUserBackupFromPickerNative, saveUserBackupToFolder } from '../user-backup-native';
+import type { UserBackupRestoreOperation } from '../user-backup-restore-journal';
 
 export type ConnectionIntent = 'connect'|'update'|'options'|'development';
 export interface FlightLoadResult { ownerId?:string; added: number; changed: number; pending: number; from: string; to: string;
@@ -47,6 +49,7 @@ export function CoreFlightFoundation({ close, startUpdate = false, intent = star
   const [loading,setLoading] = useState(true), [error,setError] = useState(false);
   const setupStarted = useRef(false);
   const [admitted,setAdmitted] = useState(false);
+  const [pendingUserRestore,setPendingUserRestore] = useState<UserBackupRestoreOperation|null>(null);
 
   async function finishOwnerSetup(selected: RealOwnerLease, current: RealOwnerRegistry, createMissing: boolean) {
     const scope: RealFlightNativeScope = {
@@ -95,6 +98,10 @@ export function CoreFlightFoundation({ close, startUpdate = false, intent = star
       if(!current)return;
       if(!selected||!opened){setLease(null);return;}
       const unused=takeInitialRepository();await unused?.close();
+      const pending=await getPendingUserBackupRestoreNative({registry:opened,lease:selected,authorize:()=>alive.current?{...selected,writable:false}:null});
+      if(!current)return;
+      setPendingUserRestore(pending);
+      if(pending){setSetupLease(selected);setLease(null);return;}
       let ready=false;
       try{ready=await timeFlightStage('owner-setup',()=>finishOwnerSetup(selected,opened,false));}catch{/* Preserve existing files and offer recovery. */}
       if(!current)return;
@@ -120,6 +127,20 @@ export function CoreFlightFoundation({ close, startUpdate = false, intent = star
     } catch {diagnosis.current?.finish('failed','owner-setup');if(alive.current){setSetupLease(selected);setError(true);}}
     finally {lock.current=false;if(alive.current)setLoading(false);}
   }
+  async function resumeUserRestore() {
+    const selected=setupLease,current=registry.current,pending=pendingUserRestore;
+    if(lock.current||!selected||!current||!pending)return;
+    lock.current=true;setLoading(true);setError(false);
+    const scope:RealFlightNativeScope={registry:current,lease:selected,authorize:()=>alive.current?{...selected,writable:AppState.currentState==='active'}:null};
+    try {
+      const result=await restoreUserBackupFromPickerNative(scope,async()=>{if(!alive.current)throw new Error('Closed.');await current.assertCurrent(selected);},pending.operationId);
+      if(result.state==='restored'||result.state==='already-restored'){
+        if(!await finishOwnerSetup(selected,current,false))throw new Error('Restored library unavailable.');
+        if(alive.current){setPendingUserRestore(null);setSetupLease(null);setLease(selected);}
+      }else if(result.state==='recovery-required'&&alive.current)setError(true);
+    }catch{if(alive.current)setError(true);}
+    finally{lock.current=false;if(alive.current)setLoading(false);}
+  }
   async function createFreshOwner() {
     if(lock.current)return; lock.current=true;setLoading(true);setError(false);
     if(!diagnosis.current?.running())diagnosis.current=diagnosticJournal.begin('update-flights');
@@ -136,6 +157,14 @@ export function CoreFlightFoundation({ close, startUpdate = false, intent = star
     if(open&&admitted&&requestedUpdate&&!loading&&!lease&&!error&&!setupLease&&!setupStarted.current){setupStarted.current=true;void createFreshOwner();}
   },[open,admitted,requestedUpdate,loading,lease,error,setupLease]);
   if(lease&&registry.current)return <OwnerFlightLibrary providerEntryAllowed={providerEntryAllowed} dialogTop={dialogTop} developmentRecoveryCheckpoints={developmentRecoveryCheckpoints} key={`${lease.ownerId}:${lease.storeId}:${lease.selectionSeq}`} lease={lease} registry={registry.current} close={close} open={open&&admitted} requestId={requestId} intent={intent} onStatus={onStatus} startUpdate={intent==='update'} takeInitialRepository={takeInitialRepository} diagnosis={diagnosis}/>;
+  if(pendingUserRestore)return <SafeAreaView edges={dialogTop===undefined?undefined:[]} style={{flex:1,backgroundColor:colors.background}}><ScrollView contentContainerStyle={{padding:12,gap:10}}><View style={{width:'100%',maxWidth:520,alignSelf:'center',gap:10}}>
+    <Section title="Wiederherstellung fortsetzen" icon="book"/>
+    <Card><Label>Eine Datensicherung wird noch wiederhergestellt.</Label><Label muted>Wähle dieselbe Sicherungsdatei erneut. Bis alle Teile geprüft und aktiviert sind, bleibt der Zugriff auf die Bibliotheken gesperrt. Vorherige Dateien bleiben erhalten.</Label></Card>
+    {error&&<Label>Die Wiederherstellung konnte noch nicht abgeschlossen werden. Bitte mit derselben Datei erneut versuchen.</Label>}
+    {loading&&<ActivityIndicator color={colors.cyan}/>}
+    <Action disabled={loading} onPress={()=>void resumeUserRestore()}>Sicherungsdatei auswählen und fortsetzen</Action>
+    <Action secondary disabled={loading} onPress={close}>Zur App zurück</Action>
+  </View></ScrollView></SafeAreaView>;
   return <SafeAreaView edges={dialogTop===undefined?undefined:[]} style={{flex:1,backgroundColor:colors.background}}><ScrollView contentContainerStyle={{padding:12,gap:10}}>
     <View style={{width:'100%',maxWidth:520,alignSelf:'center',gap:10}}>
       <Section title={intent==='options'?"Deine Flüge":"Vereinsflieger"} icon={intent==='options'?"flight-paper-plane":"chain"}/>
@@ -173,6 +202,7 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,open=true,requestI
   const [review,setReview]=useState<RealFlightReview|null>(null),[flights,setFlights]=useState<RealFlightListItem[]>([]),[page,setPage]=useState(0);
   const [snapshot,setSnapshot]=useState<OwnFlightStoredSnapshot|null>(null),[detail,setDetail]=useState<RealFlightDetail|null>(null),[recovery,setRecovery]=useState<RealFlightRecovery>({status:'none'});
   const [restorePreparations,setRestorePreparations]=useState<RealFlightRestorePreparation[]>([]),[restoreReadWarning,setRestoreReadWarning]=useState<string|null>(null);
+  const [userRestoreId,setUserRestoreId]=useState<string|null>(null);
   const handledCapture=useRef<string|null>(null);
   const [reviewRow,setReviewRow]=useState<number|null>(null);
   const [advanced,setAdvanced]=useState(false),[step,setStep]=useState('Gespeicherte Flüge werden geprüft …');
@@ -621,7 +651,20 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,open=true,requestI
         {detail.facts.assessment.observation.headers.map((header,index)=>header?<Label key={index}>{header}: {detail.facts.assessment.observation.row.values[index]||'unbekannt / leer'}</Label>:null)}
         <Action secondary onPress={()=>setDetail(null)}>Flugdetails schließen</Action>
       </Card>}</>}
-      {(advanced||restoreReadOnly)&&<Card><Section title="Sicherung dieser Flugbibliothek" icon="book"/><Label muted>Enthält eigene gespeicherte Flüge, Originalbelege, Fassungen und Importbelege. Unverschlüsselt. Alte Teststände, Medical-Quellenangaben, andere Rohbelege und Anmeldungen sind nicht enthalten.</Label>
+      {(advanced||restoreReadOnly)&&<Card><Section title="Datensicherung" icon="book"/><Label muted>Enthält eigene Flüge und Belege, lokale Flugbücher und Profil sowie unterstützte eigene Vereinsflieger-Quellen einschließlich Medical. Unverschlüsselt. Anmeldungen, Dienstpläne mit anderen Personen und temporäre Dateien sind ausgeschlossen. Wiederherstellung nur für dieselbe lokale Kontozuordnung.</Label>
+        <Action disabled={busy||restoreReadOnly||!!userRestoreId} onPress={()=>void run(async()=>{const result=await saveUserBackupToFolder(scope,service,gate);setMessage(result.state==='saved'?'Datensicherung gespeichert und zurückgelesen.':'Ordnerauswahl abgebrochen.');})}>Daten in Geräteordner sichern</Action>
+        <Action secondary disabled={busy} onPress={()=>void run(async()=>{
+          try {
+            const result=await restoreUserBackupFromPickerNative(scope,gate,userRestoreId??undefined);
+            if(result.state==='recovery-required'){setUserRestoreId(result.operationId);setSnapshot(null);setFlights([]);setMessage('Bitte dieselbe Datei erneut auswählen, um die Wiederherstellung abzuschließen.');}
+            else if(result.state==='cancelled')setMessage('Dateiauswahl abgebrochen.');
+            else {setUserRestoreId(null);service.cancelReview();setReview(null);await refresh();setMessage('Datensicherung geprüft und aktiviert. Vorherige Dateien bleiben erhalten.');}
+          } finally {
+            const pending=await getPendingUserBackupRestoreNative(scope);if(pending){setUserRestoreId(pending.operationId);setSnapshot(null);setFlights([]);}
+          }
+        })}>{userRestoreId?'Datensicherung fortsetzen':'Datensicherung wiederherstellen'}</Action>
+      </Card>}
+      {(advanced||restoreReadOnly)&&!userRestoreId&&<Card><Section title="Ältere Flugbibliothek-Sicherung" icon="book"/><Label muted>Dieses ältere Format enthält nur eigene gespeicherte Flüge, Originalbelege, Fassungen und Importbelege. Unverschlüsselt. Andere Daten sind nicht enthalten.</Label>
         <Action disabled={busy||restoreReadOnly} onPress={()=>void run(async()=>{const result=await saveRealFlightBackupToFolder(service,gate);setMessage(result.state==='saved'?'Sicherung im gewählten Ordner gespeichert und zurückgelesen.':'Ordnerauswahl abgebrochen.');})}>Flugbibliothek in Geräteordner sichern</Action>
         <Action secondary disabled={busy} onPress={()=>void run(async()=>{await showRestoreResult(await restoreRealFlightBackup(scope,gate));})}>Sicherung dieser Bibliothek wiederherstellen</Action>
       </Card>}

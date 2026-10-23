@@ -12,17 +12,22 @@ test('missing capture history authorizes first, opens no capture database and cr
   const modules = {
     'expo-file-system': { File: class { get exists() { events.push('file-check'); return false; } } },
     'expo-sqlite': { defaultDatabaseDirectory: 'file:///synthetic' },
+    'expo-crypto': { randomUUID: () => '55555555-5555-4555-8555-555555555555' },
+    '../user-backup-restore-journal-native': { assertNoPendingUserBackupRestore: async () => {} },
     '../storage': { openDriver: async (name: string) => { assert.equal(name, 'vereinsflieger-owner-registry.sqlite'); events.push('registry-open'); return { close: async () => { events.push('registry-close'); } }; } },
     './scope-store': { validateScope, authorizeScope: async () => { events.push('authorized'); } },
     './information-store': { InformationStore: class { constructor() { throw new Error('Missing-file history must not construct a store'); } } },
     './information': { informationCategories },
+    './information-selection': { INFORMATION_SELECTION_FILE_NAME: 'information-selection.sqlite', informationStoreName: () => 'synthetic-information.sqlite', withInformationMutation: (work: () => Promise<unknown>) => work() },
+    './information-backup-service': { restoreInformationBackup: async () => { throw new Error('Restore is outside this read test.'); } },
   };
   const exports = {} as typeof import('../../apps/platform-lab/src/vereinsflieger/information-native.ts');
   runInNewContext(source, { exports, require: (name: keyof typeof modules) => { assert.ok(name in modules, name); return modules[name]; } });
   const scope: ProviderScope = { version: 1, owner: 'synthetic-owner', connectionId: 'synthetic-history', context: { accountNumber: '123', clubLabel: 'Synthetic club', clubIdentity: 'display-label-only', verification: 'observed-profile-number' } };
   const value = await exports.readInformationHistory(scope, 'work-hours', 0, () => {});
   assert.deepEqual(JSON.parse(JSON.stringify(value)), { category: 'work-hours', index: 0, total: 0, capture: null });
-  assert.ok(events.indexOf('authorized') < events.indexOf('file-check')); assert.equal(events.filter(x => x === 'registry-close').length, 1);
+  assert.ok(events.indexOf('authorized') < events.indexOf('file-check'));
+  assert.equal(events.filter(x => x === 'registry-close').length, events.filter(x => x === 'registry-open').length);
   await assert.rejects(exports.readInformationHistory(scope, 'work-hours', 1, () => {}));
   await assert.rejects(exports.readInformationHistory(scope, 'work-hours', 0, () => { throw new Error('Expired owner'); }));
   assert.equal(await exports.readInformationCapture(scope, 'uncertain-capture', () => {}), null);

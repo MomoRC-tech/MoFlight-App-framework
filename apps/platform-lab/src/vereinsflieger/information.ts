@@ -22,6 +22,13 @@ export const INFORMATION_TYPES = {
 } as const;
 export type InformationCategory = keyof typeof INFORMATION_TYPES;
 export const informationCategories = Object.keys(INFORMATION_TYPES) as InformationCategory[];
+/** Categories approved for the supported owner-bound backup; sensitive group/billing/training captures stay local. */
+export const informationBackupCategories = [
+  'work-hours', 'work-summary', 'tasks', 'document-notices', 'news', 'own-reservations', 'events', 'own-profile', 'licence-metadata', 'medical',
+] as const satisfies readonly InformationCategory[];
+/** Explicitly excluded because they can include other members, instructors or billing/member-account details. */
+export const informationBackupExcludedCategories: readonly InformationCategory[] = informationCategories
+  .filter(category => !(informationBackupCategories as readonly InformationCategory[]).includes(category));
 // Invoice retrieval is deferred; retain its schema for previously saved evidence.
 export const retrievableInformationCategories: InformationCategory[] = informationCategories.filter(category => category !== 'invoices');
 /** Loaded-page bounds; neither a provider-page count nor a completeness claim. */

@@ -13,6 +13,7 @@ import { realHistoryUuid, validateRealHistoryCandidateName, validateRealHistoryM
 import { RealFlightSelection, type RealCandidateOpener, type RealSelectionGate,
   type RealSelectionAuthorization } from './real-flight-selection';
 import { RealOwnerRegistry, type RealOwnerLease, type RealOwnerUuidSource } from './real-owner-registry';
+import { assertNoPendingUserBackupRestore } from '../user-backup-restore-journal-native';
 
 export const REAL_OWNER_REGISTRY_FILE_NAME = 'moflight-real-owner-registry-v1.sqlite';
 export const REAL_FLIGHT_SELECTION_FILE_NAME = 'moflight-real-history-selection-v1.sqlite';
@@ -43,6 +44,8 @@ export interface RealFlightNativeScope {
   authorize: RealFlightNativeAuthorization;
   /** Optional active-selection guard used by selected-candidate operations. */
   selectionGate?: RealSelectionGate;
+  /** Internal aggregate restore permit, bound to its durable pending journal row. */
+  backupRestoreOperationId?: string;
 }
 
 export interface RealFlightNativeFile {
@@ -113,6 +116,9 @@ function readPermit(scope: RealFlightNativeScope, authorize: RealFlightNativeAut
 
 async function assertScope(scope: RealFlightNativeScope, authorize: RealFlightNativeAuthorization,
   write: boolean, selectionGate?: RealSelectionGate): Promise<RealFlightNativePermit> {
+  await assertNoPendingUserBackupRestore(scope.backupRestoreOperationId ? {
+    operationId: scope.backupRestoreOperationId, ownerId: scope.lease.ownerId, storeId: scope.lease.storeId,
+  } : undefined);
   const before = readPermit(scope, authorize, write);
   await flightDiagnostics.measure('ownerGuard',()=>scope.registry.assertCurrent(scope.lease as RealOwnerLease, before.ownerId, before.storeId));
   if (selectionGate) await selectionGate(write);

@@ -18,6 +18,7 @@ test('native Medical and feature reads share only their admitted session and rej
    '../vereinsflieger/scoped-storage':{loadProviderScope:async()=>selected},
    '../vereinsflieger/information-native':{loadInformation:async()=>{reads++;return [];}},
    './medical-source':{medicalSource:()=>null},'../vereinsflieger/duty-native':{},
+   '../user-backup-restore-journal-native':{assertNoPendingUserBackupRestore:async()=>{}},
   };
   const exports:Record<string,any>={};runInNewContext(compiled,{exports,require:(id:string)=>{if(!(id in modules))throw new Error(id);return modules[id];}});
   const session=await exports.ownFlightReadPorts.open();await session.readMedical('101');

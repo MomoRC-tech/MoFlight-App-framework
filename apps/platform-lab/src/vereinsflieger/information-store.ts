@@ -1,7 +1,7 @@
 import { canonical } from '@moflight/flight-logbook';
-import type { Driver } from '@moflight/local-data';
+import type { Driver, Hash } from '@moflight/local-data';
 import { validateScope, type ProviderScope } from './scope-store';
-import { informationCategories, validateInformationCapture, type InformationCapture, type InformationCategory, type InformationHistory } from './information';
+import { informationBackupCategories, informationBackupExcludedCategories, informationCategories, validateInformationCapture, type InformationCapture, type InformationCategory, type InformationHistory } from './information';
 
 type SavedInformation = { id: string; category: string; retrieved_at: string; payload: string };
 
@@ -13,6 +13,64 @@ CREATE TRIGGER information_no_delete BEFORE DELETE ON information_captures BEGIN
 CREATE TRIGGER information_manifest_no_update BEFORE UPDATE ON information_manifest BEGIN SELECT RAISE(ABORT,'Immutable information manifest'); END;
 CREATE TRIGGER information_manifest_no_delete BEFORE DELETE ON information_manifest BEGIN SELECT RAISE(ABORT,'Immutable information manifest'); END;
 PRAGMA user_version=1;`;
+
+export const INFORMATION_BACKUP_FORMAT = 'moflight-information-capture-backup';
+export const INFORMATION_BACKUP_VERSION = 1;
+export const INFORMATION_BACKUP_LIMIT = 128 * 1024 * 1024;
+
+interface InformationBackupPayload {
+  version: 1;
+  scope: ProviderScope;
+  includedCategories: readonly InformationCategory[];
+  excludedCategories: readonly InformationCategory[];
+  captures: InformationCapture[];
+}
+
+const bytes = (value: string) => new TextEncoder().encode(value).length;
+function exact(value: unknown, keys: readonly string[]) {
+  if (!value || typeof value !== 'object' || Array.isArray(value) ||
+      canonical(Object.keys(value).sort()) !== canonical([...keys].sort())) throw new Error('Invalid information backup fields.');
+}
+function timestamp(value: unknown): asserts value is string {
+  if (typeof value !== 'string' || !/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z$/.test(value) ||
+      !Number.isFinite(Date.parse(value)) || new Date(value).toISOString() !== value) throw new Error('Invalid information backup timestamp.');
+}
+
+/** Validate a self-contained information history snapshot against its existing owner/connection scope. */
+export async function validateInformationBackup(text: string, scopeInput: ProviderScope, hash: Hash): Promise<InformationBackupPayload> {
+  if (typeof text !== 'string' || bytes(text) > INFORMATION_BACKUP_LIMIT) throw new Error('Information backup size limit exceeded.');
+  const scope = validateScope(scopeInput);
+  const envelope: unknown = JSON.parse(text);
+  exact(envelope, ['format', 'version', 'payload', 'checksum']);
+  const e = envelope as Record<string, unknown>;
+  if (e.format !== INFORMATION_BACKUP_FORMAT || e.version !== INFORMATION_BACKUP_VERSION || typeof e.payload !== 'string' ||
+      typeof e.checksum !== 'string' || !/^[0-9a-f]{64}$/.test(e.checksum) || await hash(e.payload) !== e.checksum ||
+      bytes(e.payload) > INFORMATION_BACKUP_LIMIT) throw new Error('Unsupported or corrupt information backup.');
+  if (canonical(e) !== text) throw new Error('Noncanonical information backup envelope.');
+  const payloadValue: unknown = JSON.parse(e.payload);
+  exact(payloadValue, ['version', 'scope', 'includedCategories', 'excludedCategories', 'captures']);
+  const p = payloadValue as Record<string, unknown>;
+  if (p.version !== 1 || canonical(p) !== e.payload || canonical(validateScope(p.scope)) !== canonical(scope) ||
+      canonical(p.includedCategories) !== canonical(informationBackupCategories) ||
+      canonical(p.excludedCategories) !== canonical(informationBackupExcludedCategories) || !Array.isArray(p.captures)) {
+    throw new Error('Foreign or unsupported information backup.');
+  }
+  const seen = new Set<string>();
+  const captures = p.captures.map(input => {
+    const capture = validateInformationCapture(input);
+    if (capture.owner !== scope.owner || capture.connectionId !== scope.connectionId || seen.has(capture.id) ||
+        !(informationBackupCategories as readonly InformationCategory[]).includes(capture.category)) throw new Error('Foreign, excluded or duplicate information capture.');
+    timestamp(capture.retrievedAt);
+    if (bytes(canonical(capture)) > 1_000_000) throw new Error('Information backup capture size limit exceeded.');
+    seen.add(capture.id);
+    return capture;
+  });
+  if (canonical({ version: 1, scope, includedCategories: informationBackupCategories,
+    excludedCategories: informationBackupExcludedCategories, captures }) !== e.payload) throw new Error('Noncanonical information backup payload.');
+  return { version: 1, scope, includedCategories: informationBackupCategories,
+    excludedCategories: informationBackupExcludedCategories, captures };
+}
+
 /** One provisional scope per private source-capture file; no production selection/migration. */
 export class InformationStore {
   readonly scope: ProviderScope;
@@ -91,5 +149,57 @@ export class InformationStore {
     await this.allowed();
     if (!result) throw new Error('Saved information unavailable');
     return result;
+  }
+
+  /** Export only explicitly supported owner-scoped categories, including Medical; other captures remain local. */
+  async exportBackup(hash: Hash): Promise<string> {
+    await this.allowed();
+    let captures: InformationCapture[] = [];
+    await this.db.transaction(async tx => {
+      await this.allowed();
+      const rows = await tx.all<SavedInformation>('SELECT * FROM information_captures ORDER BY rowid');
+      captures = rows.map(row => this.decode(row));
+      captures = captures.filter(row => (informationBackupCategories as readonly InformationCategory[]).includes(row.category));
+      await this.allowed();
+    });
+    const payload = canonical({ version: 1, scope: this.scope, includedCategories: informationBackupCategories,
+      excludedCategories: informationBackupExcludedCategories, captures });
+    const text = canonical({ format: INFORMATION_BACKUP_FORMAT, version: INFORMATION_BACKUP_VERSION,
+      payload, checksum: await hash(payload) });
+    await validateInformationBackup(text, this.scope, hash);
+    await this.allowed();
+    return text;
+  }
+
+  /** Restore only supported categories into a fresh candidate for this exact owner/connection. */
+  async restoreBackup(text: string, hash: Hash, fault: (stage: 'before-capture' | 'after-capture') => Promise<void> = async () => {}): Promise<void> {
+    await this.allowed();
+    const backup = await validateInformationBackup(text, this.scope, hash);
+    await this.db.transaction(async tx => {
+      await this.allowed();
+      const count = await tx.first<{ count: number }>('SELECT count(*) AS count FROM information_captures');
+      if (!count || count.count !== 0) throw new Error('Restore into an empty information candidate only.');
+      for (const capture of backup.captures) {
+        await fault('before-capture');
+        await this.allowed();
+        const payload = canonical(capture);
+        await tx.run('INSERT INTO information_captures VALUES (?,?,?,?)', capture.id, capture.category, capture.retrievedAt, payload);
+        await fault('after-capture');
+      }
+      await this.allowed();
+    });
+    await this.allowed();
+    await this.verifyBackup(text, hash);
+  }
+
+  /** Verify every candidate row, including that no excluded source category was smuggled into it. */
+  async verifyBackup(text: string, hash: Hash): Promise<void> {
+    await this.allowed();
+    const expected = await validateInformationBackup(text, this.scope, hash);
+    const actual = await this.db.all<SavedInformation>('SELECT * FROM information_captures ORDER BY rowid');
+    const captures = actual.map(row => this.decode(row));
+    if (captures.some(capture => !(informationBackupCategories as readonly InformationCategory[]).includes(capture.category)) ||
+        canonical(captures) !== canonical(expected.captures)) throw new Error('Information candidate failed exact verification.');
+    await this.allowed();
   }
 }

@@ -8,10 +8,12 @@ import { loadProviderScope } from '../vereinsflieger/scoped-storage';
 import { loadInformation } from '../vereinsflieger/information-native';
 import { medicalSource } from './medical-source';
 import { loadDutyRoster } from '../vereinsflieger/duty-native';
+import { assertNoPendingUserBackupRestore } from '../user-backup-restore-journal-native';
 
 /** Read the selected real owner. Missing files stay missing; no fallback to the lab library. */
 export const ownFlightReadPorts = serializeOwnFlightReads({
   async open() {
+    await assertNoPendingUserBackupRestore();
     const registry = await openOwnerRegistry(false);
     if (!registry) return null;
     try {

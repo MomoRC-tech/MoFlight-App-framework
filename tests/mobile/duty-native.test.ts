@@ -7,7 +7,7 @@ import { validateScope, type ProviderScope } from '../../apps/platform-lab/src/v
 import { createDutyRosterSnapshot } from '../../apps/platform-lab/src/vereinsflieger/duties.ts';
 
 const scope: ProviderScope = { version: 1, owner: 'synthetic', connectionId: 'synthetic-club', context: { accountNumber: '123', clubLabel: 'Synthetic club', clubIdentity: 'display-label-only', verification: 'observed-profile-number' } };
-function nativeHarness(exists: boolean, failSave = false) {
+function nativeHarness(exists: boolean, failSave = false, pendingRestore = false) {
   const events: string[] = [];
   const source = ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/vereinsflieger/duty-native.ts', import.meta.url), 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS } }).outputText;
   const modules = {
@@ -25,6 +25,7 @@ function nativeHarness(exists: boolean, failSave = false) {
       return { exec: async (sql: string) => { assert.match(sql, /secure_delete=ON/); events.push('secure-delete'); }, close: async () => { events.push('closed'); } };
     } },
     './scope-store': { validateScope, authorizeScope: async () => { events.push('authorized'); } },
+    '../user-backup-restore-journal-native': { assertNoPendingUserBackupRestore: async () => { if (pendingRestore) throw new Error('Restore is pending'); } },
     './duty-store': { DutyRosterStore: class {
       constructor() { events.push('store'); }
       async initialize() { events.push('initialize'); }
@@ -52,4 +53,10 @@ test('native roster opens OS cache outside backed-up databases, enables secure d
   assert.deepEqual(events.slice(-4), ['store', 'initialize', 'save', 'closed']);
   assert.ok(events.indexOf('authorized') < events.indexOf('cache-open'));
   assert.ok(events.includes('secure-delete'));
+});
+
+test('pending aggregate restore blocks direct roster cache reads before authorization or file access', async () => {
+  const { exports, events } = nativeHarness(true, false, true);
+  await assert.rejects(exports.loadDutyRoster(scope), /Restore is pending/);
+  assert.deepEqual(events, []);
 });

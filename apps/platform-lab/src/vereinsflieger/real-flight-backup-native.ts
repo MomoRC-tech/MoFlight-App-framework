@@ -86,7 +86,7 @@ async function assertRestoreScope(scope: RealFlightNativeScope, write: boolean):
   await scope.registry.assertCurrent(scope.lease, after.ownerId, after.storeId);
 }
 
-async function defaultDependencies(): Promise<RealFlightBackupDependencies> {
+export async function createRealFlightBackupDependencies(): Promise<RealFlightBackupDependencies> {
   const native = await import('./real-flight-native');
   return {
     native,
@@ -129,7 +129,7 @@ async function defaultDependencies(): Promise<RealFlightBackupDependencies> {
 /** Save a validated current library backup to one explicitly selected SAF folder. */
 export async function saveRealFlightBackupToFolder(service: RealFlightBackupService, gate: RealFlightBackupGate,
   dependencies?: RealFlightBackupDependencies): Promise<SaveRealFlightBackupResult> {
-  const deps = dependencies ?? await defaultDependencies();
+  const deps = dependencies ?? await createRealFlightBackupDependencies();
   await gate('before-picker');
   const permission = await deps.io.requestDirectory();
   await gate('after-picker');
@@ -217,7 +217,7 @@ async function assertNoPendingCommand(scope: RealFlightNativeScope, deps: RealFl
  */
 export async function restoreRealFlightBackup(scope: RealFlightNativeScope, gate: RealFlightBackupGate,
   dependencies?: RealFlightBackupDependencies, resumeOperationId?: string): Promise<RestoreRealFlightBackupResult> {
-  const deps = dependencies ?? await defaultDependencies();
+  const deps = dependencies ?? await createRealFlightBackupDependencies();
   if (resumeOperationId !== undefined) realHistoryUuid(resumeOperationId);
   await gate('before-picker');
   await assertRestoreScope(scope, true);
