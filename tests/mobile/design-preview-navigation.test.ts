@@ -10,6 +10,7 @@ test('Verein preview selects actual source components with synthetic data and pr
  const hooks:unknown[]=[];let index=0;
  const react={createElement:(type:unknown,props:any,...children:any[]):Element=>({type,props:props??{},children:children.flat(Infinity)}),useMemo:(fn:()=>unknown)=>fn(),useCallback:(fn:unknown)=>fn,useState:(initial:unknown)=>{const i=index++;if(!(i in hooks))hooks[i]=initial;return [hooks[i],(value:unknown)=>{hooks[i]=value;}];},useRef:(initial:unknown)=>{const i=index++;if(!(i in hooks))hooks[i]={current:initial};return hooks[i];}};
  const modules:Record<string,unknown>={react:{default:react,...react},'react-native':{Pressable:'Pressable',ScrollView:'ScrollView',View:'View',StyleSheet:{create:(value:unknown)=>value},useWindowDimensions:()=>({width:390,fontScale:1})},'./Dashboard':{Dashboard:'Dashboard'},'./OwnFlights':{OwnFlights:'OwnFlights'},'./AppHeader':{AppHeader:'AppHeader'},'./StatisticsOverlay':{StatisticsOverlay:'StatisticsOverlay'},'./ClubInformation':{ClubEvents:'ClubEvents',ClubDocumentNotices:'ClubDocumentNotices'},'./theme':{Action:'Action',Card:'Card',Label:'Label',colors:{}},'./design-preview-data':{createDesignPreviewData,DESIGN_PREVIEW_NOW}};
+ Object.assign(modules,{'./DutyRoster':{DutyRoster:'DutyRoster'},'./DataUpdateIndicator':{DataUpdateIndicator:'DataUpdateIndicator'},'./UpdateResult':{UpdateResult:'UpdateResult'}});
  const exports:Record<string,()=>Element>={};runInNewContext(code,{exports,require:(id:string)=>{assert.ok(id in modules,'Unexpected dependency '+id);return modules[id];}});
  const render=()=>{index=0;return exports.DesignPreview!();};
  const nodes=(n:any):Element[]=>!n||typeof n!=='object'?[]:[n,...(n.children??[]).flatMap(nodes)];
@@ -19,6 +20,14 @@ test('Verein preview selects actual source components with synthetic data and pr
  const events=club.find(n=>n.type==='ClubEvents')!,documents=club.find(n=>n.type==='ClubDocumentNotices')!;
  assert.equal(events.props.information.events.items.length,3);assert.equal(documents.props.information.documentNotices.items.length,2);assert.equal(events.props.information,documents.props.information);
  assert.equal(club.some(n=>n.type==='OwnFlights'||n.type==='Dashboard'),false);
+ const duties=club.find(n=>n.type==='DutyRoster')!;assert.equal(duties.props.overview.clubLabel,'Demo Segelflugverein Talwiese');
+ assert.equal(duties.props.overview.ownItems.length,1);assert.equal(duties.props.overview.status,'partial');
+ const sync=club.find(n=>n.type==='DataUpdateIndicator')!;assert.equal(sync.props.now,DESIGN_PREVIEW_NOW);assert.equal(sync.props.receivedAt,'2026-10-18T12:00:00.000Z');
+ const receipt=club.find(n=>n.type==='UpdateResult')!;receipt.props.onDetails();
+ assert.equal(nodes(render()).find(n=>n.type==='UpdateResult')!.props.detail,true);
+ nodes(render()).find(n=>n.type==='Action'&&n.children.includes('Vorschau Syncdetails schließen'))!.props.onPress();
+ nodes(render()).find(n=>n.type==='UpdateResult')!.props.onDismiss();assert.equal(nodes(render()).some(n=>n.type==='UpdateResult'),false);
+ nodes(render()).find(n=>n.type==='DataUpdateIndicator')!.props.onPress();assert.equal(nodes(render()).some(n=>n.type==='UpdateResult'),true);
  press('Vorschau Fl\u00fcge');assert.ok(nodes(render()).some(n=>n.type==='OwnFlights'));
  press('Vorschau Start');assert.ok(nodes(render()).some(n=>n.type==='Dashboard'));
  const start=nodes(render()).find(n=>n.type==='Dashboard')!;start.props.onStatistics();

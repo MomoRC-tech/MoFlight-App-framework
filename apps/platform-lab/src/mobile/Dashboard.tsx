@@ -51,7 +51,6 @@ export function Dashboard({ ownFlights, ownFlightPhase, pending, fontScale, onPa
         description:`${year-index}: ${item.count} Starts nach Flugzeug: ${item.aircraft.map(a=>`${a.aircraft}: ${a.count}`).join(', ')}`,
       }))} />
     </View>
-    <Label muted style={styles.small}>Differenz gespeicherter Jahreswerte · Zeiträume können unterschiedlich oder unvollständig sein.</Label>
     {seasons[1]!.unknownDurationCount>0&&<Label muted style={styles.small}>{year-1}: {seasons[1]!.unknownDurationCount} Zeiten unbekannt/strittig</Label>}
     {season.unknownDurationCount>0&&<Label muted style={styles.small}>{season.unknownDurationCount} Saisonzeiten unbekannt/strittig</Label>}
     {(processed?.statistics.unknownDateCount??0)>0&&<Label muted style={styles.small}>{processed?.statistics.unknownDateCount} Flüge mit unbekanntem Datum nicht zugeordnet.</Label>}

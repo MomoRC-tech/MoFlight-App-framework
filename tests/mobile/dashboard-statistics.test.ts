@@ -169,7 +169,7 @@ test('each concentric comparison keeps current outside and prior inside without 
  const unknown=structuredClone(first);unknown.flightId='unknown';unknown.facts.assessment.durations.flight={state:'unknown',minutes:null,evidence:[]};
  const partial=render([first,unknown,prior]);
  assert.equal(partial.nodes.find(n=>n.type==='SeasonRing')!.props.difference.value,null,'A partly unknown year cannot produce a flight-time delta');
- assert.match(partial.text,/Zeiträume können unterschiedlich oder unvollständig sein/);
+ assert.doesNotMatch(partial.text,/Differenz gespeicherter Jahreswerte|Zeiträume können unterschiedlich oder unvollständig sein/);
 });
 
 test('shared starts and time ring renderer fades only the prior year while preserving hues and unknown tracks',()=>{
@@ -196,6 +196,7 @@ test('shared starts and time ring renderer fades only the prior year while prese
    assert.equal(inner!.props.needsOffscreenAlphaCompositing,true,'Overlapping strips fade together without seams');
    for(const layer of [outer!,inner!]) assert.deepEqual([...new Set(layer.children.slice(1).map((arc:Element)=>style(arc).backgroundColor))],colors);
    assert.match(tree.props.accessibilityLabel,/Außen, Wert in der Mitte 2026.*Innen 2025/);
+   assert.match(tree.props.accessibilityLabel,/Differenz gespeicherter Jahreswerte.*Zeiträume können unterschiedlich oder unvollständig sein/);
    const center=ring.children[2] as Element, outside=body.children[1] as Element;
    assert.equal(center.children[0].children[0],2026);
    assert.equal(center.children[1].children[0],'2');

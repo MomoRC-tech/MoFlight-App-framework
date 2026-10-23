@@ -10,6 +10,9 @@ import type { useOwnFlights } from './use-own-flights';
 import type { OwnFlightRequest } from './own-flight-model';
 import type { RealFlightDetail, RealFlightListItem } from '../vereinsflieger/real-flight-library';
 import { StatisticsOverlay } from './StatisticsOverlay';
+import { DutyRoster } from './DutyRoster';
+import { DataUpdateIndicator } from './DataUpdateIndicator';
+import { UpdateResult } from './UpdateResult';
 
 /** Mount directly in the shell's flex content area; OwnFlights owns its list scrolling. */
 export function DesignPreview() {
@@ -22,6 +25,9 @@ export function DesignPreview() {
   const [header, setHeader] = useState<OwnFlightHeader>({ title: 'Flüge' });
   const [paper, setPaper] = useState(false);
   const [statisticsOpen, setStatisticsOpen] = useState(false);
+  const [syncDetails, setSyncDetails] = useState(false);
+  const [syncReceiptVisible, setSyncReceiptVisible] = useState(true);
+  const [dutiesExpanded, setDutiesExpanded] = useState(false);
   const statisticsBack = useRef<() => boolean>(() => false);
   const { width, fontScale } = useWindowDimensions();
   const clearDetail = useCallback(() => setDetail(null), []);
@@ -52,6 +58,14 @@ export function DesignPreview() {
   const showState = (next: 'empty' | 'error') => {
     clearDetail(); setMode(next); setRequest({ year: null }); setPage('flights');
   };
+  const syncPreview = <>
+    <View style={{alignItems:'flex-start'}}><DataUpdateIndicator scopeKey="synthetic-preview-only" receivedAt="2026-10-18T12:00:00.000Z" readState="ready" now={DESIGN_PREVIEW_NOW}
+      connection={{phase:'observed',confirmed:true,lastCheckedAt:'2026-10-22T12:00:00.000Z',observed:{accountNumber:'990001',clubLabel:'Demo Segelflugverein Talwiese',clubIdentity:'display-label-only',verification:'observed-profile-number'}}}
+      onPress={()=>{setSyncReceiptVisible(true);setSyncDetails(false);}}/></View>
+    {syncReceiptVisible&&<UpdateResult result={{ownerId:'synthetic-preview-only',added:2,changed:1,pending:0,from:'2025-01-01',to:'2026-10-22',completedAt:'2026-10-22T12:00:00.000Z',medicalStatus:'updated',dutyStatus:'partial'}}
+      detail={syncDetails} onDetails={()=>setSyncDetails(true)} onDismiss={()=>setSyncReceiptVisible(false)}/>}
+    {syncDetails&&<Action secondary onPress={()=>setSyncDetails(false)}>Vorschau Syncdetails schließen</Action>}
+  </>;
   return <View style={styles.root}>
     <View style={styles.toolbar}>
       <Label muted style={styles.notice}>Synthetische UI-Vorschau · keine Speicherung</Label>
@@ -69,7 +83,10 @@ export function DesignPreview() {
       <Action secondary onPress={() => showState('empty')}>Leere Liste ansehen</Action>
       <Action secondary onPress={() => showState('error')}>Lesefehler ansehen</Action>
     </ScrollView> : page === 'club' ? <ScrollView contentContainerStyle={styles.canvas}>
-      <Label muted>Erfundene Termine und Dokumentenhinweise. Fester Demo-Abruf: 22.10.2026.</Label>
+      <Label muted>Erfundene Dienste, Termine und Dokumentenhinweise. Fester Demo-Abruf: 22.10.2026.</Label>
+      {syncPreview}
+      <DutyRoster overview={fixture.dutyOverview} expanded={dutiesExpanded} onOpen={()=>setDutiesExpanded(true)}/>
+      {dutiesExpanded&&<Action secondary onPress={()=>setDutiesExpanded(false)}>Zurück zur Vorschau Verein</Action>}
       <ClubEvents information={fixture.view.featureInformation} />
       <ClubDocumentNotices information={fixture.view.featureInformation} />
     </ScrollView> : <View style={styles.root}>

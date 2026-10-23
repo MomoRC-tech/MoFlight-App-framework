@@ -79,7 +79,7 @@ function fixture(width = 390, fontScale = 1, root = false) {
     './ConnectionSummary': leaves(['ConnectionSummary']), './medical-source': { medicalSource },
     './connection-guidance': { ownFlightConnectionState },
     './data-update-presentation': { SESSION_DISPLAY_FRESH_MS },
-    '../vereinsflieger/duties': dutyModel, './DutyRoster':leaves(['DutyRoster']),
+    '../vereinsflieger/duties': dutyModel, './DutyRoster':leaves(['DutyRoster']), './ClubHeading':leaves(['ClubHeading']),
     '../vereinsflieger/retrieval-policy':{planFlightRetrieval},
     './use-start-clock':{useStartClock:(deadlines:readonly number[])=>{clockDeadlines=deadlines;return clockNow;},useReminderSnooze:()=>({snooze:null,error:false,save:()=>{}})},
   };

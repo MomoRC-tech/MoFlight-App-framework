@@ -39,6 +39,7 @@ import { StatisticsOverlay } from './StatisticsOverlay';
 import { ownFlightReadPorts } from './own-flight-reader-native';
 import { buildDutyOverview, dutySnapshotExpiresAt } from '../vereinsflieger/duties';
 import { DutyRoster } from './DutyRoster';
+import { ClubHeading } from './ClubHeading';
 import { planFlightRetrieval } from '../vereinsflieger/retrieval-policy';
 import { useStartClock } from './use-start-clock';
 
@@ -123,7 +124,7 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
   const rosterExpired=Number.isFinite(rosterExpiry)&&now>=rosterExpiry;
   const dutyOverview=useMemo(()=>selected?.duties?buildDutyOverview(selected.duties.scope,selected.duties.snapshot,today,now):null,[selected?.duties,today,rosterExpired]);
   const openDuties=()=>{setClubSection('Dienste');setTab('club');};
-  const dutyContent=(expanded=false)=>dutyOverview?<DutyRoster overview={dutyOverview} expanded={expanded} onOpen={openDuties}/>:<Card style={{width:'100%',maxWidth:520,alignSelf:'center'}}><Section title="Verein" icon="duty"/><Label muted>{selected?.dutiesReadFailed?'Gespeicherte Dienstquelle konnte nicht gelesen werden.':'Dienstplan noch nicht verfügbar.'}</Label><Label muted>Daten aktualisieren lädt unterstützte Dienstquellen. Vollständigkeit bleibt bis zur Quellenprüfung unbekannt.</Label>{!expanded&&<Action secondary onPress={openDuties}>Alle Dienste ansehen</Action>}</Card>;
+  const dutyContent=(expanded=false)=>dutyOverview?<DutyRoster overview={dutyOverview} expanded={expanded} onOpen={openDuties}/>:<Card style={{width:'100%',maxWidth:520,alignSelf:'center'}}><ClubHeading/><Label muted>{selected?.dutiesReadFailed?'Gespeicherte Dienstquelle konnte nicht gelesen werden.':'Dienstplan noch nicht verfügbar.'}</Label><Label muted>Daten aktualisieren lädt unterstützte Dienstquellen. Vollständigkeit bleibt bis zur Quellenprüfung unbekannt.</Label>{!expanded&&<Action secondary onPress={openDuties}>Alle Dienste ansehen</Action>}</Card>;
   const sameProviderOwner=providerStatus.ownerId===selected?.snapshot.ownerId&&!!providerStatus.ownerId;
   const sameProviderAccount=!!selected?.snapshot.account?.accountRef&&(!providerStatus.connection.observed||providerStatus.connection.observed.accountNumber===selected.snapshot.account.accountRef);
   const flightStatusController=sameProviderOwner&&sameProviderAccount?providerStatus:unknownProviderStatus;

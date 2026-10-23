@@ -2,6 +2,7 @@ import { adaptHistoryFacts } from '../vereinsflieger/history-facts';
 import type { RealFlightDetail } from '../vereinsflieger/real-flight-library';
 import type { FeatureInformation } from './feature-information';
 import type { OwnFlightView } from './own-flight-reader';
+import type { DutyItem, DutyOverview } from '../vereinsflieger/duties';
 
 export const DESIGN_PREVIEW_NOW = Date.parse('2026-10-22T12:00:00.000Z');
 export const DESIGN_PREVIEW_SCOPE = {
@@ -10,7 +11,7 @@ export const DESIGN_PREVIEW_SCOPE = {
 } as const;
 
 /** Presentation-only facts. No storage, service, session, or provider is opened. */
-export function createDesignPreviewData(): { view: OwnFlightView; details: RealFlightDetail[] } {
+export function createDesignPreviewData(): { view: OwnFlightView; details: RealFlightDetail[]; dutyOverview: DutyOverview } {
   const headers = ['Datum', 'Lfz.', 'Start', 'Landung', 'Flugzeit', 'Lfz.-Muster', 'Pilot', 'PIC', 'Begleiter/FI', 'Startort', 'Landeort', 'Bemerkung'];
   const rows = [
     ['21.10.2026', 'D-SYN1', '12:10', '13:35', '85', 'ASK 21 · Demo', 'Demo Pilot A', 'Demo Pilot A', 'Demo Trainer', 'Demo Talwiese', 'Demo Talwiese', 'Synthetischer Übungsflug'],
@@ -44,7 +45,15 @@ export function createDesignPreviewData(): { view: OwnFlightView; details: RealF
     documentNotices: { status: 'partial', retrievedAt: '2026-10-22T10:00:00.000Z', filters: [], truncated: false,
       items: [{ key: 'synthetic-document-1', text: 'Demo Winterprogramm 20.10.2026' }, { key: 'synthetic-document-2', text: 'Demo Werkstattplan 18.10.2026' }] },
   };
-  return { details, view: { featureInformation, featureInformationReadFailed: false, flights, pendingCommand: false, snapshot: {
+  const ownDuty: DutyItem = { key: 'synthetic-own-duty', duty: 'Demo Flugleitung', period: '24.10.2026 · 09:00–18:00',
+    start: '2026-10-24', end: '2026-10-24', people: ['Demo Pilot A.'], ownState: 'own', coAssignees: [],
+    sourcePath: '/member/profile/myservices.php', identity: 'source-row-only', periodBasis: 'displayed-calendar-days' };
+  const clubDuty: DutyItem = { ...ownDuty, key: 'synthetic-club-duty', duty: 'Demo Windenbetrieb', period: '25.10.2026 · 09:00–18:00',
+    start: '2026-10-25', end: '2026-10-25', people: ['Demo Pilot B.'], ownState: 'unknown', sourcePath: '/member/community/serviceshedulelist.php' };
+  const dutyOverview: DutyOverview = { status: 'partial', window: { start: '2026-10-22', end: '2026-11-01' },
+    clubLabel: 'Demo Segelflugverein Talwiese', retrievedAt: '2026-10-22T10:00:00.000Z', items: [ownDuty, clubDuty],
+    ownItems: [ownDuty], laterOwn: [], unplaced: [], coverageMessage: 'Erfundener Seitenausschnitt · Vollständigkeit und Partner ungeprüft.' };
+  return { details, dutyOverview, view: { featureInformation, featureInformationReadFailed: false, flights, pendingCommand: false, snapshot: {
     version: 1, ownerId: DESIGN_PREVIEW_SCOPE.ownerId, storeId: DESIGN_PREVIEW_SCOPE.storeId, generation: 1,
     account: { provider: 'vereinsflieger', accountRef: DESIGN_PREVIEW_SCOPE.accountRef }, coverage: [],
     savedRetrievals: [{ from: '2025-01-01', to: '2025-12-31', retrievedAt: '2026-10-22T10:00:00.000Z', savedAt: '2026-10-22T10:01:00.000Z' },

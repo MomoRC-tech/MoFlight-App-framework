@@ -44,7 +44,9 @@ test('preview factories are fresh in-memory data and expose no persistence capab
   first.view.snapshot.savedRetrievals.length = 0;
   assert.equal(second.view.flights.length, 8);
   assert.equal(second.view.snapshot.savedRetrievals.length, 2);
-  assert.deepEqual(Object.keys(first).sort(), ['details', 'view']);
+  assert.deepEqual(Object.keys(first).sort(), ['details', 'dutyOverview', 'view']);
+  first.dutyOverview.ownItems[0]!.people.push('changed');
+  assert.deepEqual(second.dutyOverview.ownItems[0]!.people, ['Demo Pilot A.']);
   assert.equal(first.view.pendingCommand, false);
 });
 
