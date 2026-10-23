@@ -13,7 +13,9 @@ MoFlight is a mobile app in development for glider pilots, students and instruct
 
 Manuel selected the modern UI as the new main baseline on **22 October 2026**. It combines the ASK-21-like header, compact latest flight, concentric current/prior-year aircraft-share rings and a current/prior-year Jan–Dec chart that fits on screen. The Daten action continues automatically after verified login; returning from another app retains verified content during guarded local revalidation.
 
-**Latest delivery — 23 October:** [download ZIP — source `248305a`](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/single-sync-2026-10-23-248305a/MoFlight-Android-248305a.zip). The header always says **Daten synchronisieren**. One tap checks the connection internally, opens the original login only when required, continues through all supported data jobs and returns to Start with a brief result. Local preparation and legacy connection entry no longer expose manual verification or a second sync step. API37 public-login entry/cancel, retained-session full sync and offline restart pass; fresh physical-phone credential submission remains open. [Verification and limits](docs/verification/2026-10-21-simple-flight-loading.md#single-action-sync-correction--23-october-2026).
+**Latest delivery — 23 October:** [download APK ZIP — source `766b719`](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/backup-statistics-2026-10-23-766b719/MoFlight-Android-766b719.zip). Adds the saved-local statistics overlay and supported-user same-installation backup including Medical. Full host checks, both exports, Android Release and the scoped native backup round-trip pass. Further device testing was reduced at Manuel’s request; statistics visual acceptance, populated upgrade/performance and the deferred phone test remain open. [Evidence and limits](docs/verification/2026-10-21-simple-flight-loading.md#supported-user-backup-continuation--23-october-2026).
+
+**Previous sync delivery — 23 October:** [download ZIP — source `248305a`](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/single-sync-2026-10-23-248305a/MoFlight-Android-248305a.zip). The header always says **Daten synchronisieren**. One tap checks the connection internally, opens the original login only when required, continues through all supported data jobs and returns to Start with a brief result. Local preparation and legacy connection entry no longer expose manual verification or a second sync step. API37 public-login entry/cancel, retained-session full sync and offline restart pass; fresh physical-phone credential submission remains open. [Verification and limits](docs/verification/2026-10-21-simple-flight-loading.md#single-action-sync-correction--23-october-2026).
 
 Includes the previous combined club extension: annual work summary, raw work entries and own/open tasks alongside flights, Medical, duties, selected calendar entries and document notices. Foreground minute session checks stay silent; connection proof and saved-data age remain separate.
 
@@ -26,7 +28,7 @@ The integration also preserves main's filtered-flight known/unknown-time summary
 | Account-scoped saved flights, list/detail/filters and offline reads | Fresh authenticated phone journey and a real second-account boundary |
 | Current/prior season rings, one-row monthly comparisons, latest-flight detail | Populated phone responsiveness after tab/app switching and broader analytics |
 | Automatic flights/Medical/duty/calendar/document/work-summary/work-entry/own-task sequence | Full live source coverage, populated news, paging and source semantics |
-| Flight/book portable backups and bounded update/recovery proof | Full-user backup, supported populated beta upgrades and actual Android system restore |
+| Supported-user v1 backup: selected books/profile, real flights and allowlisted information including Medical; same-owner candidate recovery | Replacement-device/full-user recovery, complete supported beta upgrade matrix and actual Android system restore |
 | Selected modern native UI with scoped Android size/interaction evidence | Physical/iOS runtime and deferred spoken accessibility trials |
 
 This is a development delivery, not full product or beta acceptance. Unknown and partial data remain explicit. No cloud Auth, real photo-to-writing or commercial release is implied.
@@ -108,7 +110,7 @@ See [product scope](docs/product/moflight-feature-scope.md), [writing presentati
 | UI design | Modern alternative selected as the main baseline on 22 October: compact ASK-21 header, season rings, single-row paired-year chart and retained five-tab navigation; scoped device evidence is in the design report |
 | Native foundation | Expo/React Native lab with local SQLite, backup and bounded Android evidence |
 | Vereinsflieger access | Verified account-scoped own-flight storage and ordinary Flüge delivered within bounded Android evidence; broader source/account/platform gates remain open |
-| Statistics and books | Approved saved-local Meine Saison overlay is implemented in the working tree; focused host tests and typecheck pass. [Package contract/evidence](docs/product/2026-10-13-journey-information-map.md#statistics-overlay-plan--23-october-2026); committed-source native/release and broader source-mapping acceptance remain open under #9. Real book assignment is deferred; multi-book proofs remain synthetic |
+| Statistics and books | Approved saved-local Meine Saison overlay is committed; complete host checks and platform exports pass. [Package contract/evidence](docs/product/2026-10-13-journey-information-map.md#statistics-overlay-plan--23-october-2026); committed-source native/release and broader source-mapping acceptance remain open under #9. Real book assignment is deferred; multi-book proofs remain synthetic |
 | Photo-to-writing | Product journey and format work exist; real recognition and full phone/print acceptance remain open |
 | iOS | Intended platform, currently deferred; exports do not establish runtime acceptance |
 
@@ -129,7 +131,7 @@ Writing assistance has immediate product value; its place in the smallest useful
 
 ## Next action and unresolved decisions
 
-Follow the [current next actions](docs/project-plan.md#next-executable-packages) and [complete issue map](docs/project-plan.md#complete-ordered-issue-map). Fresh authenticated phone retrieval, populated app-switch responsiveness and complete supported-source coverage remain open. Full-user backup and supported beta upgrades retain separate acceptance gates. Main adoption is selected; it does not establish those untested outcomes.
+Follow the [current next actions](docs/project-plan.md#next-executable-packages) and [complete issue map](docs/project-plan.md#complete-ordered-issue-map). Fresh authenticated phone retrieval, populated app-switch responsiveness and complete supported-source coverage remain open. The supported-user archive extends backup coverage; replacement-device/full-user recovery and complete supported beta upgrades retain separate acceptance gates. Main adoption is selected; it does not establish those untested outcomes.
 
 Superseded prototype comparisons and design-review instructions are in the [documentation archive](docs/archive/README.md). Current appearance is governed by the [design handbook](docs/product/design/README.md).
 

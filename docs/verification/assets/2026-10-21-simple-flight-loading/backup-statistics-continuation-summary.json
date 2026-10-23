@@ -1,0 +1,36 @@
+{
+  "source_commit": "766b71944c28c899cdf7d6a76e198cec58f0d82f",
+  "apk_sha256": "b548f8ec6a63c83f14b316cb84a8a365497e75fe70c13bee62fda658f6ded2d0",
+  "zip_sha256": "377656c871eaa52d96a9fc5fe64a2dd9aa76d9f6844d1bddd2d201fe5f6991cd",
+  "host": {
+    "mobile": 897,
+    "python": 110,
+    "types": true,
+    "lint": true,
+    "fixtures": true
+  },
+  "android_ios_exports": true,
+  "release_build": true,
+  "native_backup": {
+    "status": "passed",
+    "source": "766b71944c28c899cdf7d6a76e198cec58f0d82f",
+    "offline": true,
+    "native_external_save_restore_restart_reexport": true,
+    "exact_included_sections": true,
+    "pilot_books": 4,
+    "pilot_sources": 7,
+    "real_flight_records": 0,
+    "information_present": false,
+    "limits": "Native selected real library empty and no information scope; populated real/information interruption semantics tested on host. Synthetic original candidates and exported files retained."
+  },
+  "cleanup": {
+    "status": "passed",
+    "errors": [],
+    "baseline_apk_restored": true,
+    "settings_restored": true,
+    "task_started_emulator_stop_requested": true,
+    "original_data_and_candidates_preserved": true,
+    "new_synthetic_restore_candidates_and_external_backups_retained": true
+  },
+  "deferred": "Further testing stopped at user request. Statistics visual matrix, populated update/performance, physical phone, real second account and iOS remain open."
+}
