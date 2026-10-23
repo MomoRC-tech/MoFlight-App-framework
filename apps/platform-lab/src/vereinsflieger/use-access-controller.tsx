@@ -326,7 +326,12 @@ export function useAccessController(product = false, localOwner?: string, develo
       document: currentUrl.current === PROFILE_URL ? 'profile' : loginPage(currentUrl.current) ? 'login' : flightUrl(currentUrl.current) ? 'flight-list' : providerUrl(currentUrl.current) ? 'other-provider' : 'other',
       navigationObserved: request?.navigationObserved ?? false }));
     endDisconnect('failed'); afterConfirmation.current = null;
-    if (request) session.current.fail(request.nonce, loginRequired ? 'login-required' : 'error');
+    if (request) {
+      // The browser reservation can outlive observe() while local preparation
+      // finishes. Publish its failure even though observe released session ownership.
+      if(!session.current.owns(request.nonce))session.current.start(request.nonce);
+      session.current.fail(request.nonce, loginRequired ? 'login-required' : 'error');
+    }
     else session.current.invalidate();
     clearContextRequest(); pendingCapture.current = null; flightSourceAttempt.current = null; pendingFlightSource.current = null; syncConnection();
     if (loginRequired) { signInDocument.current = currentUrl.current; setVisible(request?.action!=='status'); if(request?.action!=='status')continueGuidedLogin(); }
@@ -531,6 +536,7 @@ export function useAccessController(product = false, localOwner?: string, develo
   }
   async function receiveContext(event: WebViewMessageEvent) {
     const request = contextRequest.current;
+    const requestEpoch = epoch.current;
     const expected = loginPage(currentUrl.current) ? LOGIN_URL : PROFILE_URL;
     if (!request || !request.navigationObserved || !session.current.owns(request.nonce) || !scopedBridge(event.nativeEvent.url, currentUrl.current, expected) || event.nativeEvent.data.length > 2000) return;
     try {
@@ -554,8 +560,12 @@ export function useAccessController(product = false, localOwner?: string, develo
       if (expected !== PROFILE_URL && message.context?.error !== 'session-required') { contextFailed(); return; }
       if (message.context?.error === 'session-required') { contextFailed(true); return; }
       const accepted = session.current.observe(request.nonce, message.context, new Date().toISOString());
-      clearContextRequest(); syncConnection();
+      // Matching proof can render before local fresh-attempt preparation ends.
+      // Retain the request's browser admission until that preparation completes.
+      if(contextTimer.current)clearTimeout(contextTimer.current);contextTimer.current=null;
+      syncConnection();
       if (!accepted) {
+        clearContextRequest();
         endGuidedFlightConnection();
         pendingCapture.current = null; flightSourceAttempt.current = null; pendingFlightSource.current = null;
         if (session.current.state.phase === 'mismatch') clearCompletedFlightSource();
@@ -580,13 +590,17 @@ export function useAccessController(product = false, localOwner?: string, develo
           const started=epoch.current,bound=requireScope();
           if(!foreground.current||!session.current.state.confirmed)throw new Error('Fresh context unavailable.');
           // Archive old scoped evidence locally; do not replay preferences into the provider.
-          await supersedeScopedView(bound,original.current);
+          const finishPreparation=startFlightSpan('provider-view-supersede');
+          try{await supersedeScopedView(bound,original.current);finishPreparation(true);}
+          catch(error){finishPreparation(false);throw error;}
           if(!mounted.current||!foreground.current||epoch.current!==started||scope.current!==bound||!session.current.state.confirmed)throw new Error('Fresh attempt superseded.');
           original.current=null;legacyPending.current=false;setRecovery(false);
           recordProviderEvent('provider-previous-view-retained');
         }
         guidedFlightLogin.current = false;
       }
+      if(contextRequest.current!==request||epoch.current!==requestEpoch)return;
+      clearContextRequest();syncConnection();
       if (request.action === 'capture') {
         const captured = pendingCapture.current; pendingCapture.current = null;
         if (!captured || !session.current.state.confirmed) { finish('Provider association not confirmed. Capture rejected.'); return; }
@@ -600,7 +614,11 @@ export function useAccessController(product = false, localOwner?: string, develo
         if (session.current.state.confirmed) { if (request.action === 'retrieve') retrieve(); else recoverView(); }
         else afterConfirmation.current = request.action;
       }
-    } catch { contextFailed(); }
+    } catch {
+      // A cancelled/superseded async preparation must not fail a newer request.
+      if(contextRequest.current===request)contextFailed();
+      else recordProviderEvent('provider-verification-superseded');
+    }
   }
   useEffect(() => {
     if (!product) return;

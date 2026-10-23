@@ -50,8 +50,10 @@ const savedLoginSource = ts.transpileModule(readFileSync(new URL('../../apps/pla
 const informationControllerSource = ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/vereinsflieger/use-information-controller.ts', import.meta.url), 'utf8'), {
   compilerOptions: { module: ts.ModuleKind.CommonJS, esModuleInterop: false },
 }).outputText;
-function fixture(options: { panel?:boolean; developmentRecoveryCheckpoints?: boolean; noNativeRecovery?: boolean; failLegacyRead?: boolean; failSafety?: boolean; deferSafety?: boolean; failReceipt?: boolean; deferClear?: boolean; failClear?: boolean; persistedScope?: ProviderScope; scopedView?: ViewPreferences; deferBinding?: boolean; failBinding?: boolean; priorCapture?: probe.ProbeSnapshot; deferJournalSave?: boolean; deferCaptureSave?: boolean; product?: boolean; deferLoginRead?: boolean; failLoginRead?: boolean; savedLogin?: { username: string; password: string } | null; failLoginForget?: boolean; deferLoginForget?: boolean } = {}) {
+function fixture(options: { panel?:boolean; deferViewSupersession?:boolean; failViewSupersession?:boolean; developmentRecoveryCheckpoints?: boolean; noNativeRecovery?: boolean; failLegacyRead?: boolean; failSafety?: boolean; deferSafety?: boolean; failReceipt?: boolean; deferClear?: boolean; failClear?: boolean; persistedScope?: ProviderScope; scopedView?: ViewPreferences; deferBinding?: boolean; failBinding?: boolean; priorCapture?: probe.ProbeSnapshot; deferJournalSave?: boolean; deferCaptureSave?: boolean; product?: boolean; deferLoginRead?: boolean; failLoginRead?: boolean; savedLogin?: { username: string; password: string } | null; failLoginForget?: boolean; deferLoginForget?: boolean } = {}) {
   let resolveJournal!: (view: ViewPreferences | null) => void, rejectJournal!: (error: Error) => void;
+  let finishViewSupersession!:()=>void;
+  const viewSupersession=new Promise<void>(resolve=>{finishViewSupersession=resolve;});
   const journal = new Promise<ViewPreferences | null>((resolve, reject) => { resolveJournal = resolve; rejectJournal = reject; });
   const diagnosticPhases:{name:string;result:boolean|null}[]=[];
   const providerEvents:string[]=[];
@@ -159,7 +161,7 @@ function fixture(options: { panel?:boolean; developmentRecoveryCheckpoints?: boo
       confirmProviderScope: async (owner: string, context: unknown) => { scopeWrites++; if (options.deferBinding) await bindingWrite; if (options.failBinding) throw new Error('Synthetic binding failure'); return { version: 1, owner, connectionId: 'synthetic-connection', context }; },
       loadScopedView: async () => { pending = options.scopedView ?? null; return pending; }, loadScopedCapture: async () => savedCapture,
       saveScopedView: (value: unknown, v: ViewPreferences) => (modules['./storage'] as any).saveOriginalView(v),
-      supersedeScopedView:async (_scope:unknown,expected:ViewPreferences|null)=>{assert.deepEqual(expected,pending);pending=null;},
+      supersedeScopedView:async (_scope:unknown,expected:ViewPreferences|null)=>{if(options.deferViewSupersession)await viewSupersession;if(options.failViewSupersession)throw new Error('Synthetic archival failure');assert.deepEqual(expected,pending);pending=null;},
       clearScopedView: (value: unknown, v: ViewPreferences) => (modules['./storage'] as any).clearOriginalView(v),
       saveScopedCapture: (value: unknown, v: probe.ProbeSnapshot) => (modules['./storage'] as any).saveCapture(v),
     },
@@ -319,7 +321,7 @@ function fixture(options: { panel?:boolean; developmentRecoveryCheckpoints?: boo
       data: JSON.stringify({ kind: 'vf-login-result-v1', nonce, url: probe.LOGIN_URL, result }) } });
     return flush();
   }
-  return { setPanelOpen:(value:boolean)=>{panelOpen=value;render();}, diagnosticPhases, providerEvents, verificationDiagnostics, render, button, press, settle, find, flush, loadPage, loadFlight, message, currentCommand, writes, injections,
+  return { finishViewSupersession, setPanelOpen:(value:boolean)=>{panelOpen=value;render();}, diagnosticPhases, providerEvents, verificationDiagnostics, render, button, press, settle, find, flush, loadPage, loadFlight, message, currentCommand, writes, injections,
     setInformationReader: (reader: typeof informationReader) => { informationReader = reader; }, informationReads: () => informationReads, savedInformation: () => savedInformation,
     setInformationCaptureReader: (reader: typeof informationCaptureReader) => { informationCaptureReader = reader; },
     setInformationHistoryReader: (reader: typeof informationHistoryReader) => { informationHistoryReader = reader; },
@@ -361,6 +363,74 @@ test('fresh sync never supersedes provider-view evidence for a different verifie
   await f.loadPage(context.PROFILE_URL);await f.contextMessage({...observedContext,accountNumber:'456'});await f.flush();
   assert.equal(f.controller().connection.phase,'mismatch');assert.deepEqual(f.pending(),original);
   assert.ok(!f.providerEvents.includes('provider-previous-view-retained'));f.unmount();
+});
+
+test('retained matching proof cannot admit retrieval until fresh-attempt view preparation completes',async()=>{
+  const f=fixture({product:true,deferViewSupersession:true,persistedScope:{version:1,owner:'synthetic-pilot',connectionId:'prior',context:observedContext}});
+  f.render();await f.settle(null);await f.flush();f.controller().beginFreshFlightConnection();
+  try{
+    await f.loadPage(context.PROFILE_URL);await f.contextMessage(observedContext);
+    assert.equal(f.controller().checkConnection('retrieve'),false,'Published proof cannot release the browser while local preparation still owns its request');
+    f.finishViewSupersession();await f.flush();
+    assert.ok(f.providerEvents.includes('provider-previous-view-retained'));
+    assert.ok(f.diagnosticPhases.some(p=>p.name==='provider-view-supersede'&&p.result===true));
+    assert.equal(f.controller().connection.confirmed,true);
+    assert.equal(f.controller().checkConnection('retrieve'),true,'The completion render must release the next fresh check');
+    await f.loadPage(context.PROFILE_URL);await f.contextMessage(observedContext);
+    assert.equal(f.controller().connection.confirmed,true);assert.equal(f.controller().busy,true);
+    assert.ok(!f.providerEvents.includes('provider-verification-context-response'));
+  }finally{f.finishViewSupersession();f.unmount();}
+});
+
+test('a cancelled preparation cannot fail a newer check when its local archive completes late',async()=>{
+  const f=fixture({product:true,deferViewSupersession:true,persistedScope:{version:1,owner:'synthetic-pilot',connectionId:'prior',context:observedContext}});
+  f.render();await f.settle(null);await f.flush();f.controller().beginFreshFlightConnection();
+  try{
+    await f.loadPage(context.PROFILE_URL);await f.contextMessage(observedContext);
+    f.controller().dismissLogin();await f.flush();assert.equal(f.controller().checkConnection(),true);
+    f.finishViewSupersession();await f.flush();
+    assert.equal(f.controller().connection.phase,'checking');assert.ok(f.providerEvents.includes('provider-verification-superseded'));
+    await f.loadPage(context.PROFILE_URL);await f.contextMessage(observedContext);
+    assert.equal(f.controller().connection.confirmed,true);assert.ok(!f.providerEvents.includes('provider-verification-context-response'));
+  }finally{f.finishViewSupersession();f.unmount();}
+});
+
+test('failed local fresh-attempt preparation preserves its view evidence and blocks capture after matching proof',async()=>{
+  const f=fixture({product:true,failViewSupersession:true,scopedView:original,persistedScope:{version:1,owner:'synthetic-pilot',connectionId:'prior',context:observedContext}});
+  f.render();await f.settle(original);await f.flush();f.controller().beginFreshFlightConnection();
+  try{
+    await f.loadPage(context.PROFILE_URL);await f.contextMessage(observedContext);
+    assert.equal(f.controller().connection.phase,'error');assert.equal(f.controller().connection.confirmed,false);
+    assert.deepEqual(f.pending(),original);assert.ok(!f.providerEvents.includes('provider-previous-view-retained'));
+    assert.ok(f.diagnosticPhases.some(p=>p.name==='provider-view-supersede'&&p.result===false));
+    assert.equal(f.controller().busy,false);assert.ok(!f.writes.includes('capture-saved'));
+  }finally{f.unmount();}
+});
+
+test('a native page failure during local proof preparation cannot retain a confirmed observation',async()=>{
+  const f=fixture({product:true,deferViewSupersession:true,persistedScope:{version:1,owner:'synthetic-pilot',connectionId:'prior',context:observedContext}});
+  f.render();await f.settle(null);await f.flush();f.controller().beginFreshFlightConnection();
+  try{
+    await f.loadPage(context.PROFILE_URL);await f.contextMessage(observedContext);
+    const web=f.find(f.render(),e=>e.type==='WebView')!;
+    (web.props.onError as (event:unknown)=>void)({nativeEvent:{url:context.PROFILE_URL}});await f.flush();
+    assert.equal(f.controller().connection.phase,'error');assert.equal(f.controller().connection.confirmed,false);
+    f.finishViewSupersession();await f.flush();assert.equal(f.controller().connection.confirmed,false);
+    assert.ok(!f.providerEvents.includes('provider-previous-view-retained'));
+  }finally{f.finishViewSupersession();f.unmount();}
+});
+
+test('background and owner changes revoke an outstanding fresh-attempt archive without publishing readiness',async()=>{
+  for(const boundary of ['background','owner'] as const){
+    const f=fixture({product:true,deferViewSupersession:true,persistedScope:{version:1,owner:'synthetic-pilot',connectionId:'prior',context:observedContext}});
+    f.render();await f.settle(null);await f.flush();f.controller().beginFreshFlightConnection();
+    try{
+      await f.loadPage(context.PROFILE_URL);await f.contextMessage(observedContext);
+      if(boundary==='background')f.appState('background');else f.changeOwner('foreign-owner');
+      f.finishViewSupersession();await f.flush();
+      assert.ok(!f.providerEvents.includes('provider-previous-view-retained'));assert.equal(f.controller().connection.confirmed,false);assert.equal(f.controller().busy,false);
+    }finally{f.finishViewSupersession();f.unmount();}
+  }
 });
 
 test('first-document diagnostics work when native start and script injection precede React rerender',async()=>{

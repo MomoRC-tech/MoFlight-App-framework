@@ -9,11 +9,13 @@ test('sync causes, native/provider lifecycle and source stages survive file pers
  op.note('library','ready');op.note('view','pending');op.note('restore','ready');
  for(const target of ['sync-requested','sync-prepare','sync-block-save','sync-previous-save-superseded','provider-previous-view-retained','sync-popup-hidden','sync-work-hours','sync-partial'] as const)f.journal.record('sync',target);
  f.journal.record('provider','provider-information-unexpected-document');
+ f.journal.record('provider','provider-verification-superseded');
  const span=op.span('work-hours');f.now(500);span(false);op.finish('partial','events-failed');await f.journal.flush();
  const reopened=new DiagnosticJournal(()=>1000,()=>wall);reopened.connect({read:f.saved,write:()=>{}});
  const report=JSON.parse(reopened.export());assert.equal(report.entries[0].observedState.view,'pending');
  assert.equal(report.entries[0].stages[0].name,'work-hours');assert.ok(report.events.some((e:any)=>e.target==='sync-previous-save-superseded'));
  assert.equal(report.entries[0].code,'events-failed');assert.ok(report.events.some((e:any)=>e.target==='provider-information-unexpected-document'));
+ assert.ok(report.events.some((e:any)=>e.target==='provider-verification-superseded'));
  assert.deepEqual(report.diagnosticStorage,{connected:true,failed:false});
  f.journal.record('sync','password=private-secret' as never);assert.ok(!f.journal.export().includes('private-secret'));
 });
