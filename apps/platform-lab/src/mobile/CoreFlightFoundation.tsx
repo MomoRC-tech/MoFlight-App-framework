@@ -204,6 +204,7 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,open=true,requestI
   const alive=useRef(true),foreground=useRef(AppState.currentState==='active'),lock=useRef(false),waiting=useRef<WaitingSource|null>(null);
   const activityLedger = useRef<ActivityLedger | null>(null), activityLock = useRef(false);
   const activityLoad = useRef<{key:string;promise:Promise<ActivityLedger|null>}|null>(null);
+  const activityWrites = useRef(new Set<Promise<void>>());
   const [activityChanged, setActivityChanged] = useState(false);
   const activityIdentity = (): ActivityIdentity | null => {
     const bound = controller.current.activityScope;
@@ -233,7 +234,10 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,open=true,requestI
     };
     if (!bound) throw new Error('Activity scope unavailable.');
     gate(); await registry.assertCurrent(lease); gate();
-    await saveScopedActivity(bound, lease.storeId, decodeActivityLedger(next, next.identity), gate); gate();
+    const write = saveScopedActivity(bound, lease.storeId, decodeActivityLedger(next, next.identity), gate);
+    activityWrites.current.add(write);
+    try { await write; } finally { activityWrites.current.delete(write); }
+    gate();
     activityLedger.current = next; setActivityChanged(activityLedgerChanged(next));
   }
   async function acknowledgeActivity(evidence: ActivitySyncEvidence) {
@@ -503,7 +507,7 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,open=true,requestI
     setProviderOpen(providerEntryAllowed&&open&&intent!=='options');
     if(!open){if(waiting.current)abandonSource('Sync surface closed.');return;}
     let current=true;
-    void run(async()=>{await controller.current.cancelActivity();await refresh();if(current)setEntryReady(true);},'library-operation',true);
+    void run(async()=>{await controller.current.cancelActivity();await Promise.allSettled([...activityWrites.current]);await refresh();if(current)setEntryReady(true);},'library-operation',true);
     return()=>{current=false;};
   },[open,requestId,service]);
   useEffect(()=>{

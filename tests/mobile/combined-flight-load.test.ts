@@ -18,11 +18,24 @@ interface Element { type: string; props: Record<string, any>; children: unknown[
 const source=ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx',import.meta.url),'utf8'),{
   compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.React,esModuleInterop:false},
 }).outputText+'\nexports.OwnerFlightLibrary=OwnerFlightLibrary;';
+const fixtureActivityScope={version:1 as const,owner:'owner',connectionId:'connection',context:{accountNumber:'101',clubLabel:'Example',clubIdentity:'display-label-only' as const,verification:'observed-profile-number' as const}};
+const fixtureActivityIdentity={owner:'owner',store:'store',connection:'connection',account:'101',club:'Example'};
+const fixtureActivityConfiguration=`activity-v1:sha256:${'c'.repeat(64)}`;
+const fixtureActivityWindow={from:'2025-01-01',to:'2026-10-21'};
+const cloneJson=<T>(value:T):T=>JSON.parse(JSON.stringify(value)) as T;
+const fixtureActivityLedger={
+  createActivityLedger:(identity:unknown)=>activityLedger.createActivityLedger(cloneJson(identity) as any),
+  decodeActivityLedger:(value:unknown,identity:unknown)=>activityLedger.decodeActivityLedger(cloneJson(value),cloneJson(identity) as any),
+  activityCheckDue:(ledger:unknown,now:number)=>activityLedger.activityCheckDue(cloneJson(ledger) as any,now),
+  recordActivityAttempt:(ledger:unknown,now:number)=>activityLedger.recordActivityAttempt(cloneJson(ledger) as any,now),
+  observeActivityLedger:(ledger:unknown,sources:unknown,observedAt:number,now:number)=>activityLedger.observeActivityLedger(cloneJson(ledger) as any,cloneJson(sources) as any,observedAt,now),
+  activityLedgerChanged:(ledger:unknown)=>activityLedger.activityLedgerChanged(cloneJson(ledger) as any),
+};
 
 // Real screen effects and handlers; SQLite and provider behavior have their own
 // integration tests. These ports control timing to exercise the screen coordinator.
-function fixture({providerAllowed=true,deferRead=false,startUpdate=false,root=false,readOnly=false,deferReservation=false,deferActivityCancel=false,failStartup=false,medicalFailure=false,loginPending=false,deferProvider=false,quietResume=false,deferSource=false,sameWindow=false,deferVerification=false,priorConnection='unknown',existingOwner=false,pendingRestore=false,cancelRestore=false,intent:requestedIntent=undefined as string|undefined}={}) {
-  let panelOpen=true,requestId=0;
+function fixture({providerAllowed=true,deferRead=false,startUpdate=false,root=false,readOnly=false,deferReservation=false,deferActivityCancel=false,failStartup=false,medicalFailure=false,loginPending=false,deferProvider=false,quietResume=false,deferSource=false,sameWindow=false,deferVerification=false,priorConnection='unknown',existingOwner=false,pendingRestore=false,cancelRestore=false,initialOpen=true,activityEnabled=false,activityBaselineCount=1,activityResultCount=2,onStatus:statusCallback=undefined as ((status:any)=>void)|undefined,intent:requestedIntent=undefined as string|undefined}={}) {
+  let panelOpen=initialOpen,requestId=0;
   const journal=new DiagnosticJournal(), diagnosis={current:journal.begin(startUpdate?'update-flights':'open-flight-tools')};
   const hooks:any[]=[],effects:(()=>void)[]=[],calls:string[]=[],activityOrder:string[]=[],closed:any[]=[];
   let index=0,dirty=true,tree:Element,abort:AbortController|null=null;
@@ -36,14 +49,21 @@ function fixture({providerAllowed=true,deferRead=false,startUpdate=false,root=fa
   let saved=false,timerId=0;
   const timers=new Map<number,()=>void>();
   let admitSource!:()=>void;
+  let activityChecks=0,pendingRestoreChecks=0;
+  const activityLedgerSaves:unknown[]=[],statusUpdates:any[]=[];
+  const initialActivityAt=Date.now()-1000;
+  const trackedActivity=[{source:'flights' as const,configuration:fixtureActivityConfiguration,markers:{count:activityBaselineCount},window:fixtureActivityWindow,participation:'Pilot oder Fluglehrer'}];
+  let savedActivityLedger:unknown=activityEnabled?activityLedger.observeActivityLedger(activityLedger.createActivityLedger(fixtureActivityIdentity),trackedActivity,initialActivityAt,initialActivityAt+1):null;
   const lease={ownerId:'owner',storeId:'store',leaseId:'lease'};
   let ownerProof=0,selectedHead=1;
   const registry={currentOwner:async()=>existingOwner?{...lease,selectionSeq:selectedHead,leaseId:'proof-'+(++ownerProof)}:null,createFreshOwner:async()=>{calls.push('create');return lease;},assertCurrent:async()=>{},close:async()=>{}};
   const snapshot={account:null,savedRetrievals:[],coverage:[],pending:[],recovery:{readOnly}};
   const input={capture:{captureId:'fresh',rows:[]},requestedWindow:{from:'2025-01-01',to:'2026-10-21'}};
   const c:any={viewReady:true,browserActive:false,from:sameWindow?'2025-01-01':'',to:sameWindow?'2026-10-21':'',connection:priorConnection==='verified'?{phase:'observed',confirmed:true,observed:{accountNumber:'101',clubLabel:'Example'}}:{phase:priorConnection,confirmed:false},
+    activityScope:activityEnabled?fixtureActivityScope:undefined,
     busy:false,saving:false,restoring:{current:false},visible:false,recovery:false,result:'none',completedFlightSource:null,
     retrieval:{current:{state:{phase:'idle'}}},checkSession:()=>calls.push('quiet-session'),
+    checkActivity:async(beforeStart:()=>Promise<void>)=>{activityChecks++;activityOrder.push('activity-probe');await beforeStart();return {observedAt:Date.now(),sources:[{source:'flights',configuration:fixtureActivityConfiguration,markers:{count:activityResultCount},window:fixtureActivityWindow,participation:'Pilot oder Fluglehrer'}]};},
     setFrom:(v:string)=>{if(c.from!==v){c.from=v;dirty=true;}},setTo:(v:string)=>{if(c.to!==v){c.to=v;dirty=true;}},
     beginGuidedFlightConnection:()=>{calls.push('session');c.result='none';if(deferVerification)c.connection={phase:'checking',confirmed:false};else if(loginPending)c.visible=true;else c.connection={phase:'observed',confirmed:true,observed:{accountNumber:'101',clubLabel:'Example'}};dirty=true;},
     resumeGuidedFlightConnection:()=>{calls.push('resume');if(!quietResume){c.connection={phase:'unknown',confirmed:false};c.visible=true;dirty=true;}return true;},
@@ -73,14 +93,14 @@ function fixture({providerAllowed=true,deferRead=false,startUpdate=false,root=fa
   };
   const leaves=(names:string[])=>Object.fromEntries(names.map(name=>[name,name]));
   const modules:Record<string,any>={react:{default:react,...react},
-    '../user-backup-native':{getPendingUserBackupRestoreNative:async()=>pendingRestore?{operationId:'pending',ownerId:'owner',storeId:'store'}:null,
+    '../user-backup-native':{getPendingUserBackupRestoreNative:async()=>{pendingRestoreChecks++;return pendingRestore?{operationId:'pending',ownerId:'owner',storeId:'store'}:null;},
       restoreUserBackupFromPickerNative:async(_scope:any,_gate:any,id:string)=>{calls.push('resume-'+id);if(cancelRestore)return {state:'cancelled'};pendingRestore=false;return {state:'restored'};}},
     './session-monitor':{startSessionMonitor},
-    './activity-ledger':activityLedger,
+    './activity-ledger':fixtureActivityLedger,
     './activity-sync':activitySync,
     '../vereinsflieger/scoped-storage':{
-      loadScopedActivity:async()=>null,
-      saveScopedActivity:async(_scope:any,_store:string,_value:unknown,gate:()=>void)=>{gate();gate();},
+      loadScopedActivity:async()=>{activityOrder.push('activity-cache-load');return savedActivityLedger===null?null:cloneJson(savedActivityLedger);},
+      saveScopedActivity:async(_scope:any,_store:string,value:unknown,gate:()=>void)=>{gate();activityOrder.push('activity-cache-save');savedActivityLedger=cloneJson(value);activityLedgerSaves.push(cloneJson(value));gate();},
     },
     '@moflight/flight-logbook':{canonical},
     './account-retrieval-jobs':accountJobs, '../diagnostics':{diagnosticJournal:journal},
@@ -99,12 +119,12 @@ function fixture({providerAllowed=true,deferRead=false,startUpdate=false,root=fa
     '../vereinsflieger/retrieval-policy':{planFlightRetrieval},'./data-freshness':{dataFreshness},
   };
   const exports:any={};runInNewContext(source,{exports,require:(name:string)=>{assert.ok(name in modules,name);return modules[name];},setTimeout:(fn:()=>void)=>{timers.set(++timerId,fn);return timerId;},clearTimeout:(id:number)=>timers.delete(id),console,Error});
-  function render(){dirty=false;index=0;tree=root?exports.CoreFlightFoundation({providerEntryAllowed:providerAllowed,startUpdate,intent:requestedIntent,open:panelOpen,requestId,close:(v:any)=>closed.push(v)}):exports.OwnerFlightLibrary({providerEntryAllowed:providerAllowed,lease,registry,startUpdate,intent:requestedIntent,open:panelOpen,requestId,close:(v:any)=>closed.push(v),takeInitialRepository:()=>null,diagnosis});while(effects.length)effects.shift()!();return tree;}
+  function render(){dirty=false;index=0;tree=root?exports.CoreFlightFoundation({providerEntryAllowed:providerAllowed,startUpdate,intent:requestedIntent,open:panelOpen,requestId,close:(v:any)=>closed.push(v),onStatus:statusCallback}):exports.OwnerFlightLibrary({providerEntryAllowed:providerAllowed,lease,registry,startUpdate,intent:requestedIntent,open:panelOpen,requestId,close:(v:any)=>closed.push(v),onStatus:(status:any)=>{statusUpdates.push(cloneJson(status));statusCallback?.(status);},takeInitialRepository:()=>null,diagnosis});while(effects.length)effects.shift()!();return tree;}
   async function flush(){for(let n=0;n<12;n++){if(dirty)render();await new Promise<void>(resolve=>{setImmediate(resolve);});}if(dirty)render();}
   function nodes(){const result:Element[]=[];function visit(value:any){if(value&&typeof value==='object'&&'children'in value){result.push(value);value.children.forEach(visit);if(value.props.progress)visit(value.props.progress);}}visit(tree);return result;}
   const text=(node:any):string=>node&&typeof node==='object'&&'children'in node?node.children.map(text).join(''):typeof node==='string'?node:'';
   function press(label:string){const node=nodes().find(n=>n.type==='Action'&&text(n)===label);assert.ok(node,label);assert.ok(!node.props.disabled,label);node.props.onPress();}
-  return {journal,render,flush,c,calls,closed,nodes,changeSelection:()=>{selectedHead++;},setOpen:(value:boolean)=>{panelOpen=value;if(value)requestId++;dirty=true;},text:()=>text(tree),progressText:()=>text(nodes().find(n=>n.type==='ProviderConnection')?.props.progress),press,finishReservation,background:()=>listeners.forEach(f=>f('background')),resume:()=>listeners.forEach(f=>f('active')),
+  return {journal,render,flush,c,calls,closed,nodes,activityChecks:()=>activityChecks,pendingRestoreChecks:()=>pendingRestoreChecks,activityLedgerSaves:()=>activityLedgerSaves.map(cloneJson),savedActivityLedger:()=>savedActivityLedger===null?null:cloneJson(savedActivityLedger),statusUpdates,changeSelection:()=>{selectedHead++;},setOpen:(value:boolean)=>{panelOpen=value;if(value)requestId++;dirty=true;},text:()=>text(tree),progressText:()=>text(nodes().find(n=>n.type==='ProviderConnection')?.props.progress),press,finishReservation,background:()=>listeners.forEach(f=>f('background')),resume:()=>listeners.forEach(f=>f('active')),
     verify:()=>{c.visible=false;c.connection={phase:'observed',confirmed:true,observed:{accountNumber:'101',clubLabel:'Example'}};dirty=true;},
     pendingTimers:()=>timers.size,expire:()=>{for(const [id,fn] of timers){timers.delete(id);fn();}},
     finishRead:()=>finishRead(),
@@ -154,6 +174,34 @@ test('library refresh waits for an activity request to cancel before reading or 
     assert.equal(f.activityOrder.includes('refresh-read'),false,'Stored flight state must not be read while provider activity still owns the browser');
     f.finishActivityCancel(); await f.flush();
     assert.deepEqual(f.activityOrder.slice(0,3),['cancel-start','cancel-finish','refresh-read']);
+  } finally { f.dispose(); }
+});
+
+test('quiet activity observation updates the scoped ledger and reports a later count change', async () => {
+  const f=fixture({initialOpen:false,priorConnection:'verified',activityEnabled:true,activityBaselineCount:3,activityResultCount:4});
+  try {
+    f.render(); await f.flush();
+    assert.equal(f.pendingRestoreChecks(),1);
+    assert.equal(f.activityChecks(),1);
+    assert.deepEqual(f.activityOrder.slice(0,4),['activity-cache-load','activity-probe','activity-cache-save','activity-cache-save']);
+    assert.equal(f.activityLedgerSaves().length,2,'The hourly attempt and resulting observation are both persisted in the scoped cache');
+    const ledger=activityLedger.decodeActivityLedger(f.savedActivityLedger(),fixtureActivityIdentity);
+    assert.equal(ledger.entries.length,1);
+    assert.equal(ledger.entries[0]!.signal.baseline?.markers.count,4);
+    assert.notEqual(ledger.entries[0]!.signal.hintSince,null,'A later count difference becomes an advisory hint');
+    assert.equal(f.statusUpdates[0]?.activity.changed,false);
+    assert.equal(f.statusUpdates.some(status=>status.activity.changed===true),true,'The later hint change is published through provider status');
+  } finally { f.dispose(); }
+});
+
+test('pending user-backup restore blocks the quiet activity probe for a confirmed session', async () => {
+  const f=fixture({initialOpen:false,priorConnection:'verified',activityEnabled:true,pendingRestore:true});
+  try {
+    f.render(); await f.flush();
+    assert.equal(f.pendingRestoreChecks(),1,'The Core guard checks the owner-scoped pending restore before asking the provider');
+    assert.equal(f.activityChecks(),0,'A confirmed session still cannot start a quiet probe during restore');
+    assert.equal(f.activityLedgerSaves().length,0,'No hourly-attempt or observation state is saved when restore blocks admission');
+    assert.equal(f.statusUpdates.some(status=>status.activity.changed===true),false);
   } finally { f.dispose(); }
 });
 
