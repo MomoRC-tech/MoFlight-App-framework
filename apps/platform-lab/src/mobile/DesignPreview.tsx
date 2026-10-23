@@ -15,9 +15,11 @@ import { DataUpdateIndicator } from './DataUpdateIndicator';
 import { UpdateResult } from './UpdateResult';
 import {SyncProgress} from './SyncProgress';
 import {idleSyncProgress,completedSyncProgress,type SyncProgress as Progress} from './sync-progress';
+import { CockpitPreview } from './CockpitPreview';
 
 /** Mount directly in the shell's flex content area; OwnFlights owns its list scrolling. */
-export function DesignPreview() {
+export function DesignPreview({onClose=()=>{}}:{onClose?:()=>void}={}) {
+  const [cockpit,setCockpit]=useState(false);
   const fixture = useMemo(createDesignPreviewData, []);
   const emptyView = useMemo(() => ({ ...fixture.view, flights: [] }), [fixture]);
   const [page, setPage] = useState<'start' | 'flights' | 'club' | 'sync'>('start');
@@ -46,6 +48,7 @@ export function DesignPreview() {
     detailError: mode === 'error' ? 'Synthetischer Lesefehler für die UI-Vorschau. Erneut prüfen zeigt wieder die erfundenen Flüge; echte Daten bleiben unberührt.' : null,
     openDetail, clearDetail, reload,
   };
+  if(cockpit)return <CockpitPreview onClose={()=>setCockpit(false)} onFlights={()=>{setCockpit(false);setPage('flights');}} onStatistics={()=>{setCockpit(false);setStatisticsOpen(true);}}/>;
   if(page==='sync')return <View style={styles.root}>
     <AppHeader title="Synchronisierung" back={()=>setPage('start')}><DataUpdateIndicator receivedAt="2026-10-18T12:00:00.000Z" readState="ready" now={DESIGN_PREVIEW_NOW} syncing={progress.state==='active'||progress.state==='waiting'} onPress={()=>setProgress({state:'active',last:'account',current:'flights'})}/></AppHeader>
     <SyncProgress progress={progress} retry={()=>setProgress({state:'active',last:null,current:'account'})} details={()=>setProgress({state:'partial',last:'save',current:null,message:'Eine Quelle konnte nicht aktualisiert werden.'})}/>
@@ -82,6 +85,7 @@ export function DesignPreview() {
     {syncDetails&&<Action secondary onPress={()=>setSyncDetails(false)}>Vorschau Syncdetails schließen</Action>}
   </>;
   return <View style={styles.root}>
+    <AppHeader title="Designvorschau" back={onClose}><Action secondary onPress={()=>setCockpit(true)}>Cockpit</Action></AppHeader>
     <View style={styles.toolbar}>
       <Label muted style={styles.notice}>Synthetische UI-Vorschau · keine Speicherung</Label>
       <View style={styles.tabs}>

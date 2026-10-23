@@ -1,5 +1,7 @@
 # Decisions, history and known gaps
 
+> **Current appearance authority — 24 October 2026:** [Dark Compact Cockpit](compact-cockpit.md) and its approved reference supersede conflicting older appearance/composition statements below. Data, feature and verification boundaries retain their scope.
+
 ## Selected modern main — 22 October 2026
 
 **23 October statistics overlay — #9:** Manuel requested cleanup and a technical drawing proposal, then explicitly approved the bounded implementation. Meine Saison now opens a read-only saved-local overview with year/month scopes and aircraft, duration, verified-launch sections; contributing-flight details return to their scoped list. The [current contract](alternative-ui.md#statistics-overlay--approved-implementation-scope-23-october-2026) records exclusions and identity gates. Older inline/swipe routes are superseded; native populated-data acceptance remains open. See the [package report](../../verification/2026-10-20-real-flight-statistics.md#meine-saison-statistics-overlay--23-october-2026).

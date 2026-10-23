@@ -1,5 +1,7 @@
 # Visual foundations
 
+> **Current appearance authority — 24 October 2026:** [Dark Compact Cockpit](compact-cockpit.md) and its approved reference supersede conflicting older appearance/composition statements below. Data, feature and verification boundaries retain their scope.
+
 > The [22 October modern UI contract](alternative-ui.md) is selected as the main baseline. It supersedes conflicting earlier appearance/composition descriptions for C01–C09, typography, surfaces, Start and flight browsing. Data and acceptance boundaries retain their separate contracts.
 [Handbook entry point](README.md). Branch implementation is summarized here; numeric values are the current implementation snapshot, not a new independent selection of every token. Layout lengths are React Native logical units; text follows platform scaling. Browser examples use CSS pixels for explanation.
 
@@ -10,14 +12,14 @@ Keep surface, text, action, state and chart roles consistent, including foregrou
 <!-- generated:theme:start -->
 | Semantic role / code key | Value | Allowed/current use | Pairing context |
 | --- | --- | --- | --- |
-| surface.canvas / `background` | `#0b141c` | Primary dark canvas | text / muted |
-| surface.card / `card` | `#14232f` | Opaque shared content panel | text / muted |
-| surface.raised / `raised` | `#1d3242` | Raised / secondary action surface | text |
-| stroke.default / `border` | `#304653` | Shared card/control outlines | dark surfaces |
-| text.primary / `text` | `#f4f7f8` | Primary readable text | background / card / raised |
-| text.secondary / `muted` | `#b0c1cd` | Supporting text and inactive symbols | dark surfaces |
-| action.primary / `blue` | `#76dfc6` | Mint filled action and selected-chip base; legacy code key | #031326 action text |
-| accent.general / `cyan` | `#8be8d2` | Mint links, metrics and selected navigation labels; legacy code key | dark surfaces |
+| surface.canvas / `background` | `#001b29` | Primary dark canvas | text / muted |
+| surface.card / `card` | `#062331` | Opaque shared content panel | text / muted |
+| surface.raised / `raised` | `#0c3041` | Raised / secondary action surface | text |
+| stroke.default / `border` | `#183d50` | Shared card/control outlines | dark surfaces |
+| text.primary / `text` | `#f4f8fc` | Primary readable text | background / card / raised |
+| text.secondary / `muted` | `#a9bed3` | Supporting text and inactive symbols | dark surfaces |
+| action.primary / `blue` | `#27d3d2` | Mint filled action and selected-chip base; legacy code key | #031326 action text |
+| accent.general / `cyan` | `#27d3d2` | Mint links, metrics and selected navigation labels; legacy code key | dark surfaces |
 | accent.assistant.family / `purple` | `#231e63` | Retained assistant-family token; not a shared panel fill | light text; check displayed panel |
 | accent.paper.family / `orange` | `#fc6a2d` | Retained paper-family token; no photographic paper hero | dark action text in context |
 | feedback.saved / `green` | `#48dba5` | Local profile saved text; also a chart-palette color | dark surfaces; meaning needs text |
@@ -104,11 +106,11 @@ Generated ratios use standard sRGB relative luminance on fully opaque pairs. The
 <!-- generated:contrast:start -->
 | Opaque pair | Foreground | Background | Calculated ratio |
 | --- | --- | --- | --- |
-| Primary text / canvas | `#f4f7f8` | `#0b141c` | 17.25:1 |
-| Muted text / card | `#b0c1cd` | `#14232f` | 8.66:1 |
-| Action label / mint action | `#031326` | `#76dfc6` | 11.68:1 |
-| General mint accent / canvas | `#8be8d2` | `#0b141c` | 12.88:1 |
-| Brightest Back arrow gradient stop / opaque Back face | `#123a50` | `#76dfc6` | 7.52:1 |
+| Primary text / canvas | `#f4f8fc` | `#001b29` | 16.55:1 |
+| Muted text / card | `#a9bed3` | `#062331` | 8.51:1 |
+| Action label / mint action | `#031326` | `#27d3d2` | 10.08:1 |
+| General mint accent / canvas | `#27d3d2` | `#001b29` | 9.53:1 |
+| Brightest Back arrow gradient stop / opaque Back face | `#123a50` | `#27d3d2` | 6.49:1 |
 <!-- generated:contrast:end -->
 
 ## Branding and photography

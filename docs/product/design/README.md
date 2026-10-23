@@ -1,5 +1,7 @@
 # MoFlight UI design handbook
 
+> **Current appearance authority — 24 October 2026:** [Dark Compact Cockpit](compact-cockpit.md) and its approved reference supersede conflicting older appearance/composition statements below. Data, feature and verification boundaries retain their scope.
+
 > **Selected main UI — 22 October 2026, [#55](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/55).** Manuel explicitly selected the modern alternative as the new main and requested its merge. The [modern UI contract](alternative-ui.md) now overrides conflicting earlier appearance/composition rules. Integration verification is recorded in the [single report](../../verification/2026-10-22-alternative-ui.md); this decision does not pass remaining live/physical/iOS gates.
 
 This is the current starting point for MoFlight's visual design. Use it when enhancing screens, reviewing symbols or proposing a change to the overall appearance. Manuel authorized this consolidation on 18 October 2026 under [#23](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/23). The later selected duotone symbol family, M2 Medical card and supplied folded paper plane were approved for guide/app integration on 18 October 2026 under #20. Other layout and data decisions retain their scope.
@@ -8,6 +10,7 @@ This is the current starting point for MoFlight's visual design. Use it when enh
 
 | Chapter | Responsibility |
 | --- | --- |
+| [Compact Cockpit](compact-cockpit.md) | Current approved visual implementation and preserved feature/data inventory. |
 | [Alternative branch contract](alternative-ui.md) | Selected main design and scoped acceptance boundary. |
 | [Foundations](foundations.md) | Color roles/pairings, typography, spacing, geometry, effects, photography and branding. |
 | [Components and shapes](components.md) | Cards, controls, headers, navigation, sheets, badges and charts, with relevant states and source locations. |
@@ -21,7 +24,7 @@ This is the current starting point for MoFlight's visual design. Use it when enh
 
 ## Current visual direction
 
-This branch uses matte navy, opaque panels, mint actions, a larger destination heading and a calmer reading order. A compact season card uses full-width warm-tinted realistic artwork, a two-row latest flight and concentric current/prior-year aircraft-share rings. A labelled **Statistik** action opens the approved saved-local frame; the former inline monthly disclosure is removed. The leading connection box remains removed and decorative flight artwork supports the header/season heading. Preserve selected duotone symbols and the Thermik logo. The [selected modern contract](alternative-ui.md) takes precedence for its named changes; the authority list below preserves earlier decisions outside that scope.
+The current app uses the approved dark Compact Cockpit: a compact branded toolbar, unified photographic three-metric season card, Medical/paper tiles, compact club header with its retained body, outlined symbols and five labelled bottom destinations. Shared tokens carry the navy/teal language across existing routes. Preserve the original Thermik logo.
 
 Keep German labels beside important navigation/status symbols. Show saved facts and explicit unknown/unavailable states. Decorative photographs and illustrative design examples do not establish weather, tracks, source freshness or copied paper entries.
 

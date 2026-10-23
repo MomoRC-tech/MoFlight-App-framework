@@ -1,5 +1,7 @@
 # MoFlight
 
+**24 October Compact Cockpit — implementation checkpoint in progress:** Manuel approved the final dark design and superseded older appearance instructions. [Current contract and preserved route inventory](docs/product/design/compact-cockpit.md) · [#61](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/61). Native acceptance/delivery are recorded in the [package report](docs/verification/2026-10-24-compact-cockpit.md).
+
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/assets/branding/moflight-ai-logo-dark.png">

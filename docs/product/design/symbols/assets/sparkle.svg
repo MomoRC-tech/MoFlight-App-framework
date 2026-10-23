@@ -7,5 +7,5 @@
     <radialGradient id="o2-sheen" cx="0.28" cy="0" r="0.95"><stop stop-color="#d4efff" stop-opacity="0.22" /><stop offset="0.7" stop-color="#bddfff" stop-opacity="0" /></radialGradient>
     <filter id="o2-lift" x="-35%" y="-25%" width="170%" height="180%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="3" stdDeviation="2.2" flood-color="#000b19" flood-opacity="0.5" /></filter>
   </defs>
-  <g><path d="M43 13c7 25 12 30 36 36-24 6-29 11-36 36-6-25-11-30-35-36 24-6 29-11 35-36" fill="url(#o2-cyan)" /><path d="M76 6c3 12 6 15 17 18-11 3-14 6-17 18-3-12-6-15-17-18 11-3 14-6 17-18" fill="url(#o2-slate)" /></g>
+  <g><g transform="scale(4)" fill="none" stroke="#32f1ef" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m13 2 2.5 7.5L23 12l-7.5 2.5L13 22l-2.5-7.5L3 12l7.5-2.5L13 2Z M4 2v4 M2 4h4" /></g></g>
   </svg>

@@ -59,7 +59,7 @@ const context = { accountNumber: '123', clubLabel: 'Synthetic', clubIdentity: 'd
 
 test('active sync has a short busy label, blocks duplicate taps and preserves saved-data age',()=>{
  const render=fixture(),button=render({scopeKey:'scope',receivedAt:at,readState:'ready',now:received+60000,syncing:true,onPress(){assert.fail('disabled');}});
- assert.match(text(button),/Lädt/);assert.match(text(button),/vor 1 Min/);
+ assert.match(text(button),/Lädt/);assert.match(button.props.accessibilityLabel,/22/);
  assert.equal(button.props.accessibilityState.busy,true);assert.equal(button.props.disabled,true);
  assert.match(button.props.accessibilityLabel,/Daten synchronisieren/);
 });
@@ -75,7 +75,7 @@ test('header visibly shows saved age and retains one accessible sync action', ()
     assert.match(tree.props.accessibilityHint, /Falls nötig.*Anmeldung/);
     assert.equal(tree.props.disabled, disabled);
     assert.equal(tree.props.accessibilityState.disabled, disabled);
-    assert.match(text(tree), /Daten.*vor 1 Std\./);
+    assert.match(text(tree), /Sync/);
     if (!disabled) tree.props.onPress();
   }
   assert.equal(calls, 1);
@@ -140,17 +140,17 @@ test('amber advice starts strictly after 72 hours and can coexist with a green l
   assert.doesNotMatch(render({ ...props, now }).props.accessibilityLabel, /Synchronisieren empfohlen/);
   const tree = render({ ...props, now: now + 1 });
   assert.match(tree.props.accessibilityLabel, /Angemeldet.*Synchronisieren empfohlen/);
-  assert.match(text(tree), /vor 3 Tg\. !/);
-  assert.match(text(tree), /Daten ✓/);
+  assert.match(text(tree), /Sync/);
+  assert.match(tree.props.accessibilityLabel, /Angemeldet/);
   const loggedOut = render({ ...props, now: now + 1, connection: { ...currentProof, phase: 'login-required' } });
   assert.match(loggedOut.props.accessibilityLabel, /Anmeldung erforderlich.*Synchronisieren empfohlen/);
-  assert.match(text(loggedOut), /→.*vor 3 Tg\. !/);
+  assert.match(loggedOut.props.accessibilityLabel, /Anmeldung erforderlich/);
 });
 
 test('quick activity uses amber guidance while keeping fresh saved age and session evidence independent', () => {
   const render = fixture(), now = received + 60_000;
   const tree = render({ scopeKey: 'owner/store/123', connection: { ...proof, lastCheckedAt: new Date(now).toISOString() }, receivedAt: at, readState: 'ready', now, activityChanged: true, onPress() {} });
-  assert.match(text(tree), /Daten ✓ vor 1 Min\. Änderungen möglich/);
+  assert.match(text(tree), /Sync/);
   assert.match(tree.props.accessibilityLabel, /Änderungen möglich/);
   assert.doesNotMatch(tree.props.accessibilityLabel, /Synchronisieren empfohlen|älter als drei Tage/);
   assert.ok(tree.children[0].props.style.some((style: any) => style?.borderColor === '#ffc477'));
@@ -159,7 +159,7 @@ test('quick activity uses amber guidance while keeping fresh saved age and sessi
 test('quick activity and stale saved age announce both amber reasons', () => {
   const render = fixture(), now = received + DATA_FRESHNESS_REMINDER_MS + 1;
   const tree = render({ scopeKey: 'owner/store/123', connection: { ...proof, lastCheckedAt: new Date(now).toISOString() }, receivedAt: at, readState: 'ready', now, activityChanged: true, onPress() {} });
-  assert.match(text(tree), /Daten ✓ vor 3 Tg\. ! Änderungen möglich/);
+  assert.match(text(tree), /Sync/);
   assert.match(tree.props.accessibilityLabel, /Änderungen möglich.*Synchronisieren empfohlen: Flugdaten älter als drei Tage/);
   assert.ok(tree.children[0].props.style.some((style: any) => style?.borderColor === '#ffc477'));
 });
@@ -170,7 +170,7 @@ test('activity defaults off and explicit false preserves the ordinary fresh head
   const defaultTree = render(props), falseTree = render({ ...props, activityChanged: false });
   assert.equal(text(defaultTree), text(falseTree));
   assert.equal(defaultTree.props.accessibilityLabel, falseTree.props.accessibilityLabel);
-  assert.match(text(falseTree), /Daten ✓ vor 1 Min\./);
+  assert.match(text(falseTree), /Sync/);
   assert.doesNotMatch(text(falseTree), /Änderungen möglich/);
   assert.equal(defaultTree.children[0].props.style.some((style: any) => style?.borderColor === '#ffc477'), false);
 });

@@ -25,16 +25,14 @@ export function DataUpdateIndicator({ connection, scopeKey = null, receivedAt, r
     accessibilityState={{ disabled:disabled||syncing,busy:syncing }} disabled={disabled||syncing} onPress={onPress}
     style={[styles.button, disabled && { opacity: .5 }]}>
     <View style={[styles.face, amber && styles.amber]}><SyncShine active={syncing}/><SymbolIcon name="refresh" size={24} />
-    <View accessible={false} style={styles.copy}><View style={styles.titleRow}><Label style={styles.title}>{syncing?'Lädt …':'Daten'}</Label>
-      <Label style={[styles.session, { color: tint }]}>{session.mark}</Label></View>
-      <Label style={[styles.age, recommended && { color: '#ffc477' }]}>{status.caption}{recommended ? ' !' : ''}</Label>
-      {activityChanged && <Label style={styles.activity}>Änderungen möglich</Label>}</View></View>
+      <Label style={[styles.session, { color: tint }]}>{session.mark}</Label>
+    </View><Label style={styles.title}>{syncing?'Lädt …':'Sync'}</Label>
   </Pressable>;
 }
 
 const styles = StyleSheet.create({
-  button: { minWidth: 94, maxWidth: 150, minHeight: 48, justifyContent: 'center', flexShrink: 1 },
-  face: { overflow:'hidden', minHeight: 40, paddingHorizontal: 8, paddingVertical: 2, borderRadius: 12, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, flexDirection: 'row', gap: 5, alignItems: 'center', justifyContent: 'center' },
+  button: { minWidth: 48, minHeight: 48, alignItems: 'center', justifyContent: 'center' },
+  face: { overflow:'hidden', width: 44, minHeight: 38, borderRadius: 20, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, flexDirection: 'row', gap: 1, alignItems: 'center', justifyContent: 'center' },
   amber: { borderColor: '#ffc477', backgroundColor: '#ffc47712' },
   copy: { flexShrink: 1, minWidth: 0 },
   titleRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },

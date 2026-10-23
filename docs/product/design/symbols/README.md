@@ -1,5 +1,7 @@
 # MoFlight symbols — Modern Duotone & Soft-Filled Glyphs
 
+> The [24 October Compact Cockpit](../compact-cockpit.md) supersedes the earlier duotone appearance with one outlined family using these same semantic IDs, SVG masters, palettes and native PNG pipeline. The original logo and historical source images are preserved. Earlier selection notes below are provenance.
+
 [Open the symbol library](index.html) · [Editable masters](glyphs.svg) · [Asset/ID manifest](manifest.json) · [Design handbook](../README.md)
 
 This is MoFlight's **default symbol family**, approved by Manuel on 18 October 2026: cyan/slate duotone silhouettes, rounded terminals and soft translucent tiles. **M2 Medical card** and the **supplied folded paper plane** are the Medical and Flüge symbols. The app uses this family throughout navigation, headers, dashboard, club and actions. [Default/removal authorization](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/20#issuecomment-6250110588).

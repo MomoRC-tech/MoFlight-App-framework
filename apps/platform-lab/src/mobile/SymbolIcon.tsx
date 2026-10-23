@@ -15,7 +15,7 @@ export function SymbolIcon({ name, size = 24, tone = 'default', tile = false }: 
 }
 
 export function legacyIconTone(color?: string): SymbolTone {
-  return !color || ['#f5f7ff', '#00c8ff', '#46ccff', '#f4f7f8', '#8be8d2'].includes(color) ? 'default' : 'muted';
+  return !color || ['#f5f7ff', '#00c8ff', '#46ccff', '#f4f7f8', '#8be8d2', '#27d3d2', '#f4f8fc'].includes(color) ? 'default' : 'muted';
 }
 
 const styles = StyleSheet.create({

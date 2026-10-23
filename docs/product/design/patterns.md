@@ -1,5 +1,7 @@
 # Layout and presentation patterns
 
+> **Current appearance authority — 24 October 2026:** [Dark Compact Cockpit](compact-cockpit.md) and its approved reference supersede conflicting older appearance/composition statements below. Data, feature and verification boundaries retain their scope.
+
 > The [22 October modern UI contract](alternative-ui.md) is selected as the main baseline. It supersedes conflicting earlier appearance/composition descriptions for C01–C09, typography, surfaces, Start and flight browsing. Data and acceptance boundaries retain their separate contracts.
 [Handbook entry point](README.md). These patterns describe the branch alternative and preserved data/navigation boundaries; main adoption was selected on 22 October. Behavior remains governed by journey/provider/book contracts.
 

@@ -1,5 +1,7 @@
 # Components, symbols and shapes
 
+> **Current appearance authority — 24 October 2026:** [Dark Compact Cockpit](compact-cockpit.md) and its approved reference supersede conflicting older appearance/composition statements below. Data, feature and verification boundaries retain their scope.
+
 > The [22 October modern UI contract](alternative-ui.md) is selected as the main baseline. It supersedes conflicting earlier appearance/composition descriptions for C01–C09, typography, surfaces, Start and flight browsing. Data and acceptance boundaries retain their separate contracts.
 [Handbook entry point](README.md). This catalogue records branch implementation; main adoption was selected on 22 October. The portable guide includes schematic examples; source values and native evidence remain authoritative. Example labels/data are synthetic.
 

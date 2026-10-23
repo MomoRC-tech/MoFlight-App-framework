@@ -11,7 +11,7 @@ function fixture() {
     ? type({ ...props, children }) : { type, props: props ?? {}, children: children.flat(Infinity) } };
   const modules: Record<string, unknown> = {
     react: { default: react, ...react },
-    'react-native': { View: 'View', Text: 'Text', Image: 'Image', StyleSheet: { create: (value: unknown) => value, absoluteFill: { position: 'absolute' }, absoluteFillObject: { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 } } },
+    'react-native': { Pressable:'Pressable', View: 'View', Text: 'Text', Image: 'Image', StyleSheet: { create: (value: unknown) => value, absoluteFill: { position: 'absolute' }, absoluteFillObject: { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 } } },
     './theme': { Card: 'Card', Label: 'Label', Section: 'Section', Action: 'Action', colors: { text: 'text', raised: 'raised', border: 'border' } },
     './SymbolIcon': { SymbolIcon: 'SymbolIcon' },
     '../../assets/aviation/club-heading-airfield-v2.png': 'decorative-airfield',
@@ -49,13 +49,12 @@ test('club heading uses the saved full name and allows long names to wrap withou
   for (const clubLabel of ['Synthetic soaring club', name]) {
     const view = f.heading.ClubHeading!({ clubLabel });
     const title = f.nodes(view).find(node => node.props.accessibilityRole === 'header')!;
-    assert.equal(f.text(title), `Mein Verein: ${clubLabel}`);
+    assert.equal(f.text(title), clubLabel);
     assert.equal(title.props.numberOfLines, undefined);
     assert.equal(title.props.allowFontScaling, undefined);
     assert.equal(title.props.adjustsFontSizeToFit, undefined);
-    const decoration = f.nodes(view).find(node => node.props.accessibilityElementsHidden)!;
-    assert.equal(decoration.props.pointerEvents, 'none');
-    assert.equal(decoration.props.style.position, 'absolute');
+    const photo=f.nodes(view).find(node=>node.type==='Image')!;assert.equal(photo.props.accessible,false);
+    assert.match(f.text(view),/Ort unbekannt/);
   }
 });
 
@@ -63,7 +62,7 @@ test('unknown club names use an honest qualifier without inventing a club or loc
   const f = fixture();
   for (const clubLabel of [undefined, null, '', '  ']) {
     const view = f.heading.ClubHeading!({ clubLabel });
-    assert.equal(f.text(f.nodes(view).find(node => node.props.accessibilityRole === 'header')), 'Mein Verein');
+    assert.equal(f.text(f.nodes(view).find(node => node.props.accessibilityRole === 'header')), 'Vereinsname unbekannt');
     assert.match(f.text(view), /Vereinsname unbekannt/);
   }
 });
@@ -72,7 +71,7 @@ test('compact duties show grouped facts and names with technical source notes co
   const f = fixture(); let opened = 0;
   const view = f.roster.DutyRoster!({ overview: overview(), onOpen: () => opened++ });
   const text = f.text(view);
-  for (const expected of ['Mein Verein: Synthetic soaring club', 'Eigene Dienste', 'Weitere Vereinsdienste', 'Synthetic own', 'Synthetic club',
+  for (const expected of ['Synthetic soaring club', 'Eigene Dienste', 'Weitere Vereinsdienste', 'Synthetic own', 'Synthetic club',
     '24.10.2026 09:00 - 24.10.2026 17:00', 'A. Example', 'Personen unbekannt']) assert.ok(text.includes(expected), expected);
   assert.doesNotMatch(text, /Personen laut Quellzeile|Zuordnung|Teilansicht|Quellenstand|Quellzeilen|Partner ungeprüft|Verein laut Quelle/);
   assert.doesNotMatch(text, /Synthetic later/);

@@ -1,5 +1,7 @@
 # Alternative UI — 22 October 2026
 
+> **Current appearance authority — 24 October 2026:** [Dark Compact Cockpit](compact-cockpit.md) and its approved reference supersede conflicting older appearance/composition statements below. Data, feature and verification boundaries retain their scope.
+
 [Handbook](README.md) · [#55](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/55) · branch `ui/alternative-flight-experience`.
 
 Manuel authorized an alternative native implementation and verification. On 22 October Manuel explicitly selected it as the new main and requested merging the branch. The integration preserves newer main safeguards; selection is separate from the remaining acceptance gates. M4 presentation reuses existing M2/M3 saved-data and provider boundaries. This visual contract adds no services, migrations or real-book activation. Provider retrieval changes are tracked separately and do not follow from appearance approval.

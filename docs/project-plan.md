@@ -1,5 +1,7 @@
 # MoFlight project plan
 
+**24 October Compact Cockpit — implementation checkpoint in progress:** Manuel approved the final dark design and superseded older appearance instructions. [Current contract and preserved route inventory](product/design/compact-cockpit.md) · [#61](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/61). Native acceptance/delivery are recorded in the [package report](verification/2026-10-24-compact-cockpit.md).
+
 ## Urgent sync and Start refinement — plan requested 23 October 2026
 
 **Selected follow-up:** Manuel approved clearing unclear-date flight advice after successful sync. Source `20ade40b04460172daafab0d8c104e97929c181d` retains complete capture, durable save/readback, role/scope/time and known bounded-view checks; only the missing tracked-window barrier is removed. Independent duty hints remain. [Current APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/activity-ack-2026-10-23-20ade40/MoFlight-Android-20ade40.zip); [follow-up evidence](verification/2026-10-21-simple-flight-loading.md#unclear-date-flight-advice-acknowledgment--23-october-2026). The earlier integration evidence below remains source-specific.

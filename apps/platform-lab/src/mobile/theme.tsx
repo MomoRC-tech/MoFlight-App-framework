@@ -3,12 +3,12 @@ import { ImageBackground, Pressable, StyleSheet, Text, View, type ImageSourcePro
 import { SymbolIcon, legacyIconTone, type SymbolName, type SymbolTone } from './SymbolIcon';
 
 // Branch alternative: quiet surfaces, one action color, strong reading hierarchy.
-export const colors = { background: '#0b141c', card: '#14232f', raised: '#1d3242', border: '#304653', text: '#f4f7f8', muted: '#b0c1cd', blue: '#76dfc6', cyan: '#8be8d2', purple: '#231e63', orange: '#fc6a2d', green: '#48dba5' };
+export const colors = { background: '#001b29', card: '#062331', raised: '#0c3041', border: '#183d50', text: '#f4f8fc', muted: '#a9bed3', blue: '#27d3d2', cyan: '#27d3d2', purple: '#231e63', orange: '#fc6a2d', green: '#48dba5' };
 export function GliderMark({ color = colors.text, large = false }: { color?: string; large?: boolean }) {
   return <SymbolIcon name="glider" size={large ? 68 : 28} tone={legacyIconTone(color)} />;
 }
 export function ClubMark({ color = colors.muted }: { color?: string }) {
-  return <SymbolIcon name="club" size={28} tone={legacyIconTone(color)} tile />;
+  return <SymbolIcon name="club" size={28} tone={legacyIconTone(color)} />;
 }
 export function IconLabel({ name, children, size = 18, tone = 'default', muted = false, style }: {
   name: SymbolName; children: React.ReactNode; size?: number; tone?: SymbolTone; muted?: boolean; style?: StyleProp<import('react-native').TextStyle>;
@@ -44,7 +44,7 @@ export const ui = StyleSheet.create({
   text: { color: colors.text, fontSize: 15, lineHeight: 22 }, muted: { color: colors.muted },
   title: { color: colors.text, fontSize: 26, fontWeight: '700', letterSpacing: -.6 },
   heading: { color: colors.text, fontSize: 19, lineHeight: 26, fontWeight: '600' },
-  card: { backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border, borderRadius: 22, padding: 18, gap: 12, overflow: 'hidden' },
+  card: { backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border, borderRadius: 16, padding: 16, gap: 10, overflow: 'hidden' },
   row: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   grid: { flexDirection: 'row', gap: 8, alignItems: 'stretch' },
   column: { flex: 1, minWidth: 0, gap: 8 },

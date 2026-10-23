@@ -33,6 +33,7 @@ export function SyncProgress({progress,retry,details,cancel,canCancel=false}:{pr
   if(!mounted)return null;
   const failed=progress.state==='failed'||progress.state==='partial';
   const current=progress.message??(progress.current?syncLabels[progress.current].active:'Wird fortgesetzt …');
+  if(failed)return <View style={[styles.box,{borderRadius:12,marginHorizontal:12,width:undefined,alignSelf:'stretch',borderWidth:1}]}><Pressable accessibilityRole="button" accessibilityLabel={`Sync unvollständig. ${current} Details öffnen`} onPress={details} style={{minHeight:48,flexDirection:'row',alignItems:'center',gap:8}}><Label style={{color:'#ffc477'}}>●</Label><Label style={[styles.current,{flex:1,color:'#ffc477'}]}>Sync unvollständig</Label><SymbolIcon name="right" size={18}/></Pressable><View style={styles.actions}><Pressable accessibilityRole="button" onPress={retry} style={styles.action}><Label style={{color:colors.cyan}}>Erneut versuchen</Label></Pressable></View></View>;
   return <Animated.View testID="sync-progress" style={[styles.box,{opacity:reveal,transform:[{translateY:reveal.interpolate({inputRange:[0,1],outputRange:[-12,0]})}]}]}>
     <View style={cancel&&!failed?{paddingRight:48}:undefined} accessibilityLiveRegion="polite" accessible accessibilityLabel={`${progress.last?syncLabels[progress.last].done+' ':''}${current}`}>
       <Label style={styles.previous}>{progress.last?`✓ ${syncLabels[progress.last].done}`:' '}</Label>

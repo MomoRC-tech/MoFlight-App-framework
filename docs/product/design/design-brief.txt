@@ -2,6 +2,8 @@ MOFLIGHT — CURRENT UI DESIGN HANDBOOK AND AI HANDOFF
 
 # MoFlight UI design handbook
 
+> **Current appearance authority — 24 October 2026:** [Dark Compact Cockpit](compact-cockpit.md) and its approved reference supersede conflicting older appearance/composition statements below. Data, feature and verification boundaries retain their scope.
+
 > **Selected main UI — 22 October 2026, [#55](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/55).** Manuel explicitly selected the modern alternative as the new main and requested its merge. The [modern UI contract](alternative-ui.md) now overrides conflicting earlier appearance/composition rules. Integration verification is recorded in the [single report](../../verification/2026-10-22-alternative-ui.md); this decision does not pass remaining live/physical/iOS gates.
 
 This is the current starting point for MoFlight's visual design. Use it when enhancing screens, reviewing symbols or proposing a change to the overall appearance. Manuel authorized this consolidation on 18 October 2026 under [#23](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/23). The later selected duotone symbol family, M2 Medical card and supplied folded paper plane were approved for guide/app integration on 18 October 2026 under #20. Other layout and data decisions retain their scope.
@@ -10,6 +12,7 @@ This is the current starting point for MoFlight's visual design. Use it when enh
 
 | Chapter | Responsibility |
 | --- | --- |
+| [Compact Cockpit](compact-cockpit.md) | Current approved visual implementation and preserved feature/data inventory. |
 | [Alternative branch contract](alternative-ui.md) | Selected main design and scoped acceptance boundary. |
 | [Foundations](foundations.md) | Color roles/pairings, typography, spacing, geometry, effects, photography and branding. |
 | [Components and shapes](components.md) | Cards, controls, headers, navigation, sheets, badges and charts, with relevant states and source locations. |
@@ -23,7 +26,7 @@ This is the current starting point for MoFlight's visual design. Use it when enh
 
 ## Current visual direction
 
-This branch uses matte navy, opaque panels, mint actions, a larger destination heading and a calmer reading order. A compact season card uses full-width warm-tinted realistic artwork, a two-row latest flight and concentric current/prior-year aircraft-share rings. A labelled **Statistik** action opens the approved saved-local frame; the former inline monthly disclosure is removed. The leading connection box remains removed and decorative flight artwork supports the header/season heading. Preserve selected duotone symbols and the Thermik logo. The [selected modern contract](alternative-ui.md) takes precedence for its named changes; the authority list below preserves earlier decisions outside that scope.
+The current app uses the approved dark Compact Cockpit: a compact branded toolbar, unified photographic three-metric season card, Medical/paper tiles, compact club header with its retained body, outlined symbols and five labelled bottom destinations. Shared tokens carry the navy/teal language across existing routes. Preserve the original Thermik logo.
 
 Keep German labels beside important navigation/status symbols. Show saved facts and explicit unknown/unavailable states. Decorative photographs and illustrative design examples do not establish weather, tracks, source freshness or copied paper entries.
 
@@ -63,6 +66,8 @@ Markdown chapters, [color-roles.json](color-roles.json), [symbols.json](symbols.
 The generator uses Python's standard library and repository files only: no network, installs, model calls or app builds. Supported chapter Markdown includes headings, paragraphs, links/images, emphasis, lists, tables and fenced code; unsupported raw HTML is rejected. Examples are assembled from the maintained catalogue/template.
 
 # Alternative UI — 22 October 2026
+
+> **Current appearance authority — 24 October 2026:** [Dark Compact Cockpit](compact-cockpit.md) and its approved reference supersede conflicting older appearance/composition statements below. Data, feature and verification boundaries retain their scope.
 
 [Handbook](README.md) · [#55](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/55) · branch `ui/alternative-flight-experience`.
 
@@ -182,6 +187,8 @@ Approved under [#20](https://github.com/MomoRC-tech/MoFlight-App-framework/issue
 
 # Visual foundations
 
+> **Current appearance authority — 24 October 2026:** [Dark Compact Cockpit](compact-cockpit.md) and its approved reference supersede conflicting older appearance/composition statements below. Data, feature and verification boundaries retain their scope.
+
 > The [22 October modern UI contract](alternative-ui.md) is selected as the main baseline. It supersedes conflicting earlier appearance/composition descriptions for C01–C09, typography, surfaces, Start and flight browsing. Data and acceptance boundaries retain their separate contracts.
 [Handbook entry point](README.md). Branch implementation is summarized here; numeric values are the current implementation snapshot, not a new independent selection of every token. Layout lengths are React Native logical units; text follows platform scaling. Browser examples use CSS pixels for explanation.
 
@@ -192,14 +199,14 @@ Keep surface, text, action, state and chart roles consistent, including foregrou
 <!-- generated:theme:start -->
 | Semantic role / code key | Value | Allowed/current use | Pairing context |
 | --- | --- | --- | --- |
-| surface.canvas / `background` | `#0b141c` | Primary dark canvas | text / muted |
-| surface.card / `card` | `#14232f` | Opaque shared content panel | text / muted |
-| surface.raised / `raised` | `#1d3242` | Raised / secondary action surface | text |
-| stroke.default / `border` | `#304653` | Shared card/control outlines | dark surfaces |
-| text.primary / `text` | `#f4f7f8` | Primary readable text | background / card / raised |
-| text.secondary / `muted` | `#b0c1cd` | Supporting text and inactive symbols | dark surfaces |
-| action.primary / `blue` | `#76dfc6` | Mint filled action and selected-chip base; legacy code key | #031326 action text |
-| accent.general / `cyan` | `#8be8d2` | Mint links, metrics and selected navigation labels; legacy code key | dark surfaces |
+| surface.canvas / `background` | `#001b29` | Primary dark canvas | text / muted |
+| surface.card / `card` | `#062331` | Opaque shared content panel | text / muted |
+| surface.raised / `raised` | `#0c3041` | Raised / secondary action surface | text |
+| stroke.default / `border` | `#183d50` | Shared card/control outlines | dark surfaces |
+| text.primary / `text` | `#f4f8fc` | Primary readable text | background / card / raised |
+| text.secondary / `muted` | `#a9bed3` | Supporting text and inactive symbols | dark surfaces |
+| action.primary / `blue` | `#27d3d2` | Mint filled action and selected-chip base; legacy code key | #031326 action text |
+| accent.general / `cyan` | `#27d3d2` | Mint links, metrics and selected navigation labels; legacy code key | dark surfaces |
 | accent.assistant.family / `purple` | `#231e63` | Retained assistant-family token; not a shared panel fill | light text; check displayed panel |
 | accent.paper.family / `orange` | `#fc6a2d` | Retained paper-family token; no photographic paper hero | dark action text in context |
 | feedback.saved / `green` | `#48dba5` | Local profile saved text; also a chart-palette color | dark surfaces; meaning needs text |
@@ -286,11 +293,11 @@ Generated ratios use standard sRGB relative luminance on fully opaque pairs. The
 <!-- generated:contrast:start -->
 | Opaque pair | Foreground | Background | Calculated ratio |
 | --- | --- | --- | --- |
-| Primary text / canvas | `#f4f7f8` | `#0b141c` | 17.25:1 |
-| Muted text / card | `#b0c1cd` | `#14232f` | 8.66:1 |
-| Action label / mint action | `#031326` | `#76dfc6` | 11.68:1 |
-| General mint accent / canvas | `#8be8d2` | `#0b141c` | 12.88:1 |
-| Brightest Back arrow gradient stop / opaque Back face | `#123a50` | `#76dfc6` | 7.52:1 |
+| Primary text / canvas | `#f4f8fc` | `#001b29` | 16.55:1 |
+| Muted text / card | `#a9bed3` | `#062331` | 8.51:1 |
+| Action label / mint action | `#031326` | `#27d3d2` | 10.08:1 |
+| General mint accent / canvas | `#27d3d2` | `#001b29` | 9.53:1 |
+| Brightest Back arrow gradient stop / opaque Back face | `#123a50` | `#27d3d2` | 6.49:1 |
 <!-- generated:contrast:end -->
 
 ## Branding and photography
@@ -306,6 +313,8 @@ The HTML guide embeds original reference and symbol/brand images unchanged. Comp
 The U1/U3 header uses neutral saved-age text independently of session state, with a small green `#74dfba` ✓ for recent matching confirmed proof, amber `#ffc477` → for required login, and muted ?/! for unknown/mismatch/error. Saved flight receipt age strictly greater than 72 hours adds a steady `#ffc477` border, subtle `#ffc47712` surface and age !; exactly 72 hours does not. The same amber face also signals a scope-matched activity-count change. These recommendation cues are independent of session colour and saved age; when both apply, both descriptions remain visible. Checks/login/failure never renew the durable successful flight receipt. The former one-hour age-colour policy is superseded. Provider-panel session colours retain their own meanings.
 
 # Components, symbols and shapes
+
+> **Current appearance authority — 24 October 2026:** [Dark Compact Cockpit](compact-cockpit.md) and its approved reference supersede conflicting older appearance/composition statements below. Data, feature and verification boundaries retain their scope.
 
 > The [22 October modern UI contract](alternative-ui.md) is selected as the main baseline. It supersedes conflicting earlier appearance/composition descriptions for C01–C09, typography, surfaces, Start and flight browsing. Data and acceptance boundaries retain their separate contracts.
 [Handbook entry point](README.md). This catalogue records branch implementation; main adoption was selected on 22 October. The portable guide includes schematic examples; source values and native evidence remain authoritative. Example labels/data are synthetic.
@@ -404,6 +413,8 @@ The implemented U3 count advice adds a compact amber **Änderungen möglich** th
 [UpdateDialog](../../../apps/platform-lab/src/mobile/UpdateDialog.tsx) supplies a centered frame capped at720dp wide,420dp high for setup/progress/results and900dp high while the login is visible. It uses12dp outer margin below600dp and24dp at wider widths, safe-area bounds,22dp corners, slate border and deep navy scrim/surface. The original login website remains an external white surface inside this frame. Setup, progress, error/retry and completion stay in the same frame; visibility and resizing never replace its native child parent. The background route stays visible but cannot receive pointer/accessibility interaction. Outside taps do not bypass cancellation/write safeguards. The inner provider panel uses zero additional safe-area padding and its frame's actual window offset when reserving space above Android IME; a system-resized frame is not shrunk twice. Only the header data action opens provider work; all other data summaries are read-only and point to it. Local reload and offline backup/restore remain available.
 
 # Layout and presentation patterns
+
+> **Current appearance authority — 24 October 2026:** [Dark Compact Cockpit](compact-cockpit.md) and its approved reference supersede conflicting older appearance/composition statements below. Data, feature and verification boundaries retain their scope.
 
 > The [22 October modern UI contract](alternative-ui.md) is selected as the main baseline. It supersedes conflicting earlier appearance/composition descriptions for C01–C09, typography, surfaces, Start and flight browsing. Data and acceptance boundaries retain their separate contracts.
 [Handbook entry point](README.md). These patterns describe the branch alternative and preserved data/navigation boundaries; main adoption was selected on 22 October. Behavior remains governed by journey/provider/book contracts.
@@ -507,7 +518,7 @@ Use only the header “Daten” button for new provider data and login. Start em
 
 [Handbook entry point](README.md). Generated by `python scripts/design_handbook.py`; do not hand-edit.
 
-Scope: 76 product mobile TypeScript/model and app-owned TSX UI/adapter files; 66 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.
+Scope: 80 product mobile TypeScript/model and app-owned TSX UI/adapter files; 67 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.
 
 ## App.tsx
 
@@ -617,46 +628,37 @@ Retained app-owned lab/adapter surface; document its existing appearance as an e
 
 ## AppHeader.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/AppHeader.tsx](../../../apps/platform-lab/src/mobile/AppHeader.tsx); normalized SHA-256 `c17ddd974fc8e9b95e53dfd7558eac761f03148e6fced788c67c9e72260d2806`.
-
-### Literal colors
-
-| Value / declaration | Source line(s) |
-| --- | --- |
-| `#26444b` | 35 |
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/AppHeader.tsx](../../../apps/platform-lab/src/mobile/AppHeader.tsx); normalized SHA-256 `0421a968a434441e37d8f978c3c9ce456adf6f6ad9216d63db6e4d71c478310e`.
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 11` | 44 |
-| `fontSize: 28` | 43 |
-| `fontWeight: '700'` | 43 |
-| `letterSpacing: -.7` | 43 |
-| `lineHeight: 16` | 44 |
-| `lineHeight: 34` | 43 |
+| `fontSize: 12` | 23 |
+| `fontSize: 13` | 22 |
+| `fontSize: 19` | 22 |
+| `fontWeight: '700'` | 22 |
+| `lineHeight: 18` | 23 |
+| `lineHeight: 25` | 22 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 10` | 45 |
-| `borderRadius: 16` | 46 |
-| `gap: 0` | 36 |
-| `gap: 10` | 37 |
-| `gap: 6` | 39, 40 |
-| `height: 48` | 46 |
-| `height: 88` | 45 |
-| `maxWidth: 960` | 35 |
-| `minHeight: 48` | 39 |
-| `minHeight: 64` | 36 |
-| `minHeight: 88` | 37 |
-| `minWidth: 0` | 38, 40, 42 |
-| `opacity: .5` | 19 |
-| `paddingHorizontal: 14` | 36 |
-| `width: '100%'` | 35 |
-| `width: 48` | 46 |
-| `width: 88` | 45 |
+| `borderRadius: 14` | 24 |
+| `borderRadius: 8` | 23 |
+| `borderWidth: 1` | 24 |
+| `gap: 6` | 21 |
+| `gap: 8` | 20 |
+| `height: 48` | 23, 24 |
+| `maxWidth: 960` | 19 |
+| `minHeight: 60` | 20 |
+| `minWidth: 0` | 21 |
+| `opacity: .5` | 12 |
+| `paddingHorizontal: 12` | 19 |
+| `paddingVertical: 6` | 19 |
+| `width: '100%'` | 19 |
+| `width: 48` | 23, 24 |
 
 ## CapturedFlights.tsx
 
@@ -671,42 +673,42 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CapturedFlights.t
 
 ## ClubHeading.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ClubHeading.tsx](../../../apps/platform-lab/src/mobile/ClubHeading.tsx); normalized SHA-256 `d440fa75136d0b1585f7ac3829117c308012b06709ff7901c161a453962abccb`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ClubHeading.tsx](../../../apps/platform-lab/src/mobile/ClubHeading.tsx); normalized SHA-256 `1a0106d5dfb2583c5a3d61bddadf4bcaea4ba2254022c6a199c10e3edb6f1793`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#14232f` | 31 |
-| `#14232f88` | 30 |
+| `#14232f88` | 24 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 14` | 33 |
-| `fontSize: 18` | 31 |
-| `fontWeight: '600'` | 31, 33 |
-| `lineHeight: 22` | 33 |
-| `lineHeight: 26` | 31 |
+| `fontSize: 11` | 9 |
+| `fontSize: 12` | 9 |
+| `fontSize: 14` | 27 |
+| `fontSize: 15` | 25 |
+| `fontWeight: '600'` | 25, 27 |
+| `lineHeight: 16` | 9 |
+| `lineHeight: 18` | 9 |
+| `lineHeight: 21` | 25 |
+| `lineHeight: 22` | 27 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 8` | 32 |
-| `gap: 7` | 32 |
-| `gap: 8` | 28 |
-| `height: '100%'` | 29 |
-| `height: 1` | 31 |
-| `minHeight: 88` | 28 |
-| `minWidth: 0` | 31, 33 |
-| `paddingHorizontal: 10` | 32 |
-| `paddingHorizontal: 18` | 28 |
-| `paddingVertical: 18` | 28 |
-| `paddingVertical: 6` | 32 |
-| `width: '100%'` | 29 |
-| `width: 0` | 31 |
+| `borderRadius: 10` | 23 |
+| `borderRadius: 8` | 26 |
+| `gap: 7` | 26 |
+| `gap: 8` | 22 |
+| `height: 48` | 23 |
+| `minHeight: 72` | 22 |
+| `minWidth: 0` | 9, 27 |
+| `paddingHorizontal: 10` | 26 |
+| `paddingVertical: 6` | 26 |
+| `width: 64` | 23 |
 
 ## ClubInformation.tsx
 
@@ -733,6 +735,34 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ClubInformation.t
 | `gap: 8` | 143, 149 |
 | `minWidth: 0` | 138, 144 |
 | `padding: 16` | 134 |
+
+## CockpitPreview.tsx
+
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CockpitPreview.tsx](../../../apps/platform-lab/src/mobile/CockpitPreview.tsx); normalized SHA-256 `ccb8599915cc83b0f44bf165690f802229b0273846ad17da6cac1fe4580fc843`.
+
+### Typography declarations
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `fontSize: 11` | 46 |
+| `lineHeight: 17` | 46 |
+
+### Geometry / opacity declarations
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `borderRadius: 14` | 46 |
+| `gap: 10` | 27 |
+| `gap: 12` | 28 |
+| `gap: 4` | 46 |
+| `maxWidth: 520` | 27 |
+| `minHeight: 48` | 25 |
+| `minHeight: 60` | 46 |
+| `minWidth: 0` | 46 |
+| `minWidth: 48` | 25 |
+| `padding: 12` | 27 |
+| `padding: 6` | 44 |
+| `width: '100%'` | 27 |
 
 ## connection-guidance.ts
 
@@ -774,129 +804,136 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundat
 
 ## Dashboard.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](../../../apps/platform-lab/src/mobile/Dashboard.tsx); normalized SHA-256 `859fc4f9660cb2ad07d0d8377a38b92cac1a47715ec4ccb6fa9606249933a59a`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](../../../apps/platform-lab/src/mobile/Dashboard.tsx); normalized SHA-256 `5e41f253e2cd22a5d5d1f90a97787c6430db4307870a43285a56e42e8252c674`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#67533c` | 87 |
+| `#001b2955` | 69 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 12` | 87, 91, 95, 96 |
-| `fontSize: 13` | 96 |
-| `fontSize: 14` | 85, 91 |
-| `fontWeight: '600'` | 85, 91, 96 |
-| `lineHeight: 18` | 87, 91, 95, 96 |
-| `lineHeight: 19` | 91 |
-| `lineHeight: 20` | 85 |
+| `fontSize: 11` | 73 |
+| `fontSize: 12` | 73, 75 |
+| `fontSize: 14` | 71, 75 |
+| `fontSize: 16` | 75 |
+| `fontSize: 18` | 70 |
+| `fontSize: 22` | 73 |
+| `fontSize: 27` | 73 |
+| `fontWeight: '600'` | 63, 75 |
+| `fontWeight: '700'` | 70, 73, 75 |
+| `lineHeight: 17` | 73 |
+| `lineHeight: 18` | 73, 75 |
+| `lineHeight: 20` | 71, 75 |
+| `lineHeight: 22` | 75 |
+| `lineHeight: 25` | 70 |
+| `lineHeight: 34` | 73 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 14` | 84 |
-| `borderRadius: 4` | 93 |
-| `borderWidth: 1` | 84 |
-| `gap: 10` | 87, 92 |
-| `gap: 12` | 81 |
-| `gap: 4` | 90, 94 |
-| `gap: 5` | 84, 93 |
-| `gap: 6` | 82, 83 |
-| `gap: 7` | 95 |
-| `gap: 8` | 86, 89 |
-| `height: 7` | 93 |
-| `height: 88` | 59 |
-| `maxWidth: 520` | 81 |
-| `minHeight: 36` | 58 |
-| `minHeight: 44` | 92 |
-| `minHeight: 48` | 84, 86 |
-| `minHeight: 88` | 88 |
-| `minWidth: 0` | 87, 88, 90 |
-| `minWidth: 94` | 84 |
-| `padding: 14` | 87 |
-| `paddingHorizontal: 10` | 84 |
-| `paddingHorizontal: 11` | 86 |
-| `paddingHorizontal: 14` | 88 |
-| `paddingVertical: 14` | 88 |
-| `width: '100%'` | 81 |
-| `width: 7` | 93 |
+| `borderRadius: 18` | 75 |
+| `borderWidth: 1` | 75 |
+| `gap: 0` | 68 |
+| `gap: 3` | 59, 72 |
+| `gap: 6` | 70 |
+| `gap: 8` | 69, 75 |
+| `gap: 9` | 74 |
+| `maxWidth: '35%'` | 71 |
+| `maxWidth: 520` | 68 |
+| `minHeight: 48` | 70, 71, 76, 77 |
+| `minHeight: 80` | 74 |
+| `minWidth: 0` | 59, 70 |
+| `minWidth: 330` | 41 |
+| `minWidth: 48` | 77 |
+| `minWidth: 90` | 72 |
+| `opacity: .4` | 40 |
+| `opacity: .44` | 34 |
+| `padding: 0` | 68 |
+| `padding: 12` | 74 |
+| `paddingHorizontal: 10` | 75 |
+| `paddingHorizontal: 12` | 69, 74 |
+| `paddingHorizontal: 2` | 71 |
+| `paddingHorizontal: 5` | 72 |
+| `paddingHorizontal: 8` | 77 |
+| `paddingVertical: 10` | 74 |
+| `paddingVertical: 3` | 75 |
+| `width: '100%'` | 68, 69 |
 
 ## DataUpdateIndicator.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DataUpdateIndicator.tsx](../../../apps/platform-lab/src/mobile/DataUpdateIndicator.tsx); normalized SHA-256 `fd29c4178bbf0d47b1013f33ee5c2810b2a7decad97559a78cd3f3a60b63f4b4`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DataUpdateIndicator.tsx](../../../apps/platform-lab/src/mobile/DataUpdateIndicator.tsx); normalized SHA-256 `fe8f619786958c6b350b48cacb8dfe197d86a4791118e2f44161d17a6cddfc1f`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
 | `#74dfba` | 21 |
-| `#ffc477` | 21, 30, 38, 44 |
-| `#ffc47712` | 38 |
+| `#ffc477` | 21, 36, 42 |
+| `#ffc47712` | 36 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 10` | 44 |
-| `fontSize: 11` | 41, 43 |
-| `fontSize: 12` | 42 |
-| `fontWeight: '600'` | 42 |
-| `fontWeight: '700'` | 41 |
-| `lineHeight: 14` | 44 |
-| `lineHeight: 15` | 43 |
-| `lineHeight: 16` | 41, 42 |
+| `fontSize: 10` | 42 |
+| `fontSize: 11` | 39, 41 |
+| `fontSize: 12` | 40 |
+| `fontWeight: '600'` | 40 |
+| `fontWeight: '700'` | 39 |
+| `lineHeight: 14` | 42 |
+| `lineHeight: 15` | 41 |
+| `lineHeight: 16` | 39, 40 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 37 |
-| `borderWidth: 1` | 37 |
-| `gap: 4` | 40 |
-| `gap: 5` | 37 |
-| `maxWidth: 150` | 36 |
-| `minHeight: 40` | 37 |
-| `minHeight: 48` | 36 |
-| `minWidth: 0` | 39 |
-| `minWidth: 94` | 36 |
+| `borderRadius: 20` | 35 |
+| `borderWidth: 1` | 35 |
+| `gap: 1` | 35 |
+| `gap: 4` | 38 |
+| `minHeight: 38` | 35 |
+| `minHeight: 48` | 34 |
+| `minWidth: 0` | 37 |
+| `minWidth: 48` | 34 |
 | `opacity: .5` | 26 |
-| `paddingHorizontal: 8` | 37 |
-| `paddingVertical: 2` | 37 |
+| `width: 44` | 35 |
 
 ## DesignPreview.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DesignPreview.tsx](../../../apps/platform-lab/src/mobile/DesignPreview.tsx); normalized SHA-256 `0be9d4a2e60380feb1f4132b9b6203420d100a32a1dd6d7f35acb25db193692c`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DesignPreview.tsx](../../../apps/platform-lab/src/mobile/DesignPreview.tsx); normalized SHA-256 `f4f354cd1ce6b8854b8ce878cf4e0a16b4fc87ac26e68ec7ff87923b37b6dbd6`.
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 13` | 116 |
-| `lineHeight: 19` | 116 |
+| `fontSize: 13` | 120 |
+| `lineHeight: 19` | 120 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 14` | 117 |
-| `borderRadius: 22` | 121 |
-| `borderWidth: 1` | 117, 121 |
-| `gap: 12` | 52 |
-| `gap: 16` | 119 |
-| `gap: 4` | 115 |
-| `gap: 8` | 116 |
-| `maxWidth: 600` | 119 |
-| `maxWidth: 720` | 121 |
-| `minHeight: 48` | 117, 120 |
-| `padding: 18` | 52, 119 |
-| `paddingHorizontal: 12` | 117 |
-| `paddingHorizontal: 18` | 115, 120 |
-| `paddingVertical: 10` | 117, 120 |
-| `width: '100%'` | 119, 121 |
+| `borderRadius: 14` | 121 |
+| `borderRadius: 22` | 125 |
+| `borderWidth: 1` | 121, 125 |
+| `gap: 12` | 55 |
+| `gap: 16` | 123 |
+| `gap: 4` | 119 |
+| `gap: 8` | 120 |
+| `maxWidth: 600` | 123 |
+| `maxWidth: 720` | 125 |
+| `minHeight: 48` | 121, 124 |
+| `padding: 18` | 55, 123 |
+| `paddingHorizontal: 12` | 121 |
+| `paddingHorizontal: 18` | 119, 124 |
+| `paddingVertical: 10` | 121, 124 |
+| `width: '100%'` | 123, 125 |
 
 ## DevelopmentHub.tsx
 
@@ -926,7 +963,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Diagnostics.tsx](
 
 ## DutyRoster.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DutyRoster.tsx](../../../apps/platform-lab/src/mobile/DutyRoster.tsx); normalized SHA-256 `8f5e8bf3422b2eeb0c06127317bc3dccb1c190af3a6b919318b8471e338da446`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DutyRoster.tsx](../../../apps/platform-lab/src/mobile/DutyRoster.tsx); normalized SHA-256 `9a9c8f1a8fe00f810ee17e73ee69647630e81abb63fd7c3e0723c1a2849e183d`.
 
 ### Typography declarations
 
@@ -943,6 +980,26 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DutyRoster.tsx](.
 | `maxWidth: 520` | 19 |
 | `paddingHorizontal: 2` | 47 |
 | `width: '100%'` | 19 |
+
+## DutyTarget.tsx
+
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DutyTarget.tsx](../../../apps/platform-lab/src/mobile/DutyTarget.tsx); normalized SHA-256 `82b8b9def97fca8f16f669e5d272221b83b8254e0c945ca49eafaaaa4ec26da3`.
+
+### Typography declarations
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `fontSize: 16` | 52 |
+
+### Geometry / opacity declarations
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `borderRadius: 12` | 52 |
+| `borderWidth: 1` | 52 |
+| `gap: 8` | 50 |
+| `minHeight: 48` | 52 |
+| `padding: 10` | 52 |
 
 ## FlightScene.tsx
 
@@ -1061,118 +1118,154 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MedicalStatus.tsx
 
 ## MobileApp.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `fe042166ed8e50aee1df6049c13a36b65ea96ecf0935240ad13b92c960157438`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `44b5931c336b7253008808b530364bd9b579f4ef735a5e5e7ca2c2337fe77b2c`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#000712bd` | 320 |
-| `#00c8ff` | 268 |
-| `#064240` | 314 |
-| `#10282d` | 314 |
-| `#11263a` | 313 |
-| `#152d42` | 315 |
-| `#1b344a` | 318 |
-| `#227f87` | 314 |
-| `#78efdc` | 316 |
-| `#8ba4bc` | 267, 311 |
+| `#000712bd` | 323 |
+| `#064240` | 317 |
+| `#10282d` | 317 |
+| `#11263a` | 316 |
+| `#152d42` | 318 |
+| `#1b344a` | 321 |
+| `#227f87` | 317 |
+| `#78efdc` | 319 |
+| `#8ba4bc` | 269, 314 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 10` | 256, 267, 311 |
-| `fontSize: 11` | 261, 312 |
-| `fontSize: 12` | 314, 319 |
-| `fontSize: 13` | 257, 313 |
-| `fontSize: 16` | 318 |
-| `fontSize: 20` | 312 |
-| `fontSize: 23` | 317 |
-| `fontSize: 25` | 319 |
-| `fontWeight: '600'` | 312, 314 |
-| `fontWeight: '700'` | 319 |
-| `letterSpacing: .6` | 311 |
-| `lineHeight: 16` | 267, 311, 312 |
-| `lineHeight: 17` | 314 |
-| `lineHeight: 18` | 319 |
-| `lineHeight: 25` | 312 |
-| `lineHeight: 29` | 319 |
+| `fontSize: 10` | 258, 269, 314 |
+| `fontSize: 11` | 263, 315 |
+| `fontSize: 12` | 219, 317, 322 |
+| `fontSize: 13` | 259, 316 |
+| `fontSize: 16` | 321 |
+| `fontSize: 20` | 315 |
+| `fontSize: 23` | 320 |
+| `fontSize: 25` | 322 |
+| `fontWeight: '600'` | 315, 317 |
+| `fontWeight: '700'` | 322 |
+| `letterSpacing: .6` | 314 |
+| `lineHeight: 16` | 269, 314, 315 |
+| `lineHeight: 17` | 317 |
+| `lineHeight: 18` | 219, 322 |
+| `lineHeight: 25` | 315 |
+| `lineHeight: 29` | 322 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 314 |
-| `borderRadius: 13` | 314 |
-| `borderRadius: 14` | 309 |
-| `borderRadius: 15` | 316 |
-| `borderRadius: 16` | 318, 319 |
-| `borderRadius: 17` | 315 |
-| `borderRadius: 18` | 317 |
-| `borderRadius: 2` | 319 |
-| `borderRadius: 20` | 318 |
-| `borderRadius: 22` | 313, 321 |
-| `borderRadius: 24` | 313 |
-| `borderRadius: 9` | 314 |
-| `borderWidth: 1` | 313, 314, 317, 318, 321 |
-| `gap: 1` | 312 |
-| `gap: 10` | 234 |
-| `gap: 18` | 222, 308, 316 |
-| `gap: 2` | 319 |
-| `gap: 3` | 311, 314 |
-| `gap: 4` | 319 |
-| `gap: 5` | 313 |
-| `gap: 6` | 317, 318 |
-| `gap: 7` | 313, 316 |
-| `gap: 8` | 290, 292, 315, 318 |
-| `height: 2` | 319 |
-| `height: 30` | 316 |
-| `height: 48` | 309, 318 |
-| `maxHeight: 150` | 318 |
-| `maxWidth: 480` | 234 |
-| `maxWidth: 520` | 148, 290, 292, 316 |
-| `maxWidth: 599` | 307, 319 |
-| `maxWidth: 600` | 219, 268 |
-| `maxWidth: 720` | 254 |
-| `maxWidth: 960` | 219, 268 |
-| `minHeight: 0` | 274, 321 |
-| `minHeight: 126` | 316 |
-| `minHeight: 34` | 315 |
-| `minHeight: 36` | 310 |
-| `minHeight: 40` | 313 |
-| `minHeight: 48` | 313, 315 |
-| `minHeight: 52` | 318 |
-| `minHeight: 64` | 314 |
-| `minHeight: 66` | 314 |
-| `minHeight: 68` | 319 |
-| `minHeight: 86` | 317 |
-| `minWidth: 0` | 312, 313 |
-| `opacity: .45` | 259 |
-| `opacity: .8` | 320 |
-| `padding: 0` | 315 |
-| `padding: 10` | 308 |
-| `padding: 16` | 317 |
-| `padding: 18` | 308 |
-| `padding: 4` | 311, 318 |
-| `padding: 6` | 319 |
-| `padding: 7` | 314 |
-| `paddingHorizontal: 12` | 313, 320 |
-| `paddingHorizontal: 16` | 315 |
-| `paddingHorizontal: 6` | 314 |
-| `paddingHorizontal: 7` | 314 |
-| `paddingHorizontal: 8` | 318 |
-| `paddingVertical: 10` | 314, 320 |
-| `paddingVertical: 4` | 313 |
-| `paddingVertical: 8` | 319 |
-| `width: '100%'` | 148, 222, 223, 224, 234, 267, 290, 292, 307, 315, 316, 319 |
-| `width: '32%'` | 319 |
-| `width: '49.2%'` | 315 |
-| `width: 24` | 319 |
-| `width: 30` | 316 |
-| `width: 42` | 313 |
-| `width: 48` | 309, 318 |
-| `width: 64` | 314 |
+| `borderRadius: 12` | 311, 317 |
+| `borderRadius: 13` | 317 |
+| `borderRadius: 14` | 312 |
+| `borderRadius: 15` | 319 |
+| `borderRadius: 16` | 321, 322 |
+| `borderRadius: 17` | 318 |
+| `borderRadius: 18` | 320 |
+| `borderRadius: 2` | 322 |
+| `borderRadius: 20` | 321 |
+| `borderRadius: 22` | 316, 324 |
+| `borderRadius: 24` | 316 |
+| `borderRadius: 9` | 317 |
+| `borderWidth: 1` | 311, 316, 317, 320, 321, 322, 324 |
+| `gap: 1` | 315 |
+| `gap: 10` | 225, 236 |
+| `gap: 12` | 224, 310 |
+| `gap: 18` | 319 |
+| `gap: 2` | 322 |
+| `gap: 3` | 314, 317 |
+| `gap: 4` | 322 |
+| `gap: 5` | 316 |
+| `gap: 6` | 320, 321 |
+| `gap: 7` | 316, 319 |
+| `gap: 8` | 292, 294, 311, 318, 321 |
+| `height: 2` | 322 |
+| `height: 30` | 319 |
+| `height: 48` | 312, 321 |
+| `maxHeight: 150` | 321 |
+| `maxWidth: 480` | 236 |
+| `maxWidth: 520` | 150, 292, 294, 319 |
+| `maxWidth: 599` | 309, 322 |
+| `maxWidth: 600` | 221, 270 |
+| `maxWidth: 720` | 256 |
+| `maxWidth: 960` | 221, 270 |
+| `minHeight: 0` | 276, 324 |
+| `minHeight: 126` | 319 |
+| `minHeight: 34` | 318 |
+| `minHeight: 36` | 313 |
+| `minHeight: 40` | 316 |
+| `minHeight: 48` | 311, 316, 318 |
+| `minHeight: 52` | 321 |
+| `minHeight: 60` | 322 |
+| `minHeight: 64` | 317 |
+| `minHeight: 66` | 317 |
+| `minHeight: 86` | 320 |
+| `minWidth: 0` | 315, 316 |
+| `opacity: .45` | 261 |
+| `opacity: .8` | 323 |
+| `padding: 0` | 318 |
+| `padding: 10` | 310 |
+| `padding: 12` | 310 |
+| `padding: 16` | 320 |
+| `padding: 4` | 314, 321 |
+| `padding: 6` | 322 |
+| `padding: 7` | 317 |
+| `paddingHorizontal: 12` | 311, 316, 323 |
+| `paddingHorizontal: 16` | 318 |
+| `paddingHorizontal: 6` | 317 |
+| `paddingHorizontal: 7` | 317 |
+| `paddingHorizontal: 8` | 321 |
+| `paddingVertical: 10` | 317, 323 |
+| `paddingVertical: 4` | 316 |
+| `paddingVertical: 8` | 322 |
+| `width: '100%'` | 150, 224, 225, 226, 236, 269, 292, 294, 309, 318, 319, 322 |
+| `width: '32%'` | 322 |
+| `width: '49.2%'` | 318 |
+| `width: 24` | 322 |
+| `width: 30` | 319 |
+| `width: 42` | 316 |
+| `width: 48` | 312, 321 |
+| `width: 64` | 317 |
+
+## OverviewTiles.tsx
+
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OverviewTiles.tsx](../../../apps/platform-lab/src/mobile/OverviewTiles.tsx); normalized SHA-256 `c01081eb68e75513af12bf84653b74f4e400839754234fcfdbf1b715e5dfa3d5`.
+
+### Literal colors
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `#f9b65b` | 14 |
+| `#ff7777` | 14 |
+
+### Typography declarations
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `fontSize: 12` | 24 |
+| `fontSize: 14` | 24 |
+| `fontWeight: '600'` | 24 |
+| `lineHeight: 18` | 24 |
+| `lineHeight: 20` | 24 |
+
+### Geometry / opacity declarations
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `borderRadius: 16` | 23 |
+| `borderWidth: 1` | 23 |
+| `gap: 2` | 24 |
+| `gap: 8` | 22, 23 |
+| `maxWidth: 520` | 22 |
+| `minHeight: 100` | 23 |
+| `minWidth: 0` | 23 |
+| `minWidth: 90` | 24 |
+| `padding: 12` | 23 |
+| `width: '100%'` | 22 |
 
 ## OwnFlights.tsx
 
@@ -1479,13 +1572,14 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/StatisticsOverlay
 
 ## SymbolIcon.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/SymbolIcon.tsx](../../../apps/platform-lab/src/mobile/SymbolIcon.tsx); normalized SHA-256 `e831bc49e9d8fb846893a5011f828e458f78feae6e0b8d350a4464db96a639f4`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/SymbolIcon.tsx](../../../apps/platform-lab/src/mobile/SymbolIcon.tsx); normalized SHA-256 `015563842cc1e1fbc57f47a64256f4ce815bedc5a54715e19da57c3de635a5c3`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
 | `#00c8ff` | 18 |
+| `#27d3d2` | 18 |
 | `#46ccff` | 18 |
 | `#7497bf12` | 23 |
 | `#8ba9c01a` | 22 |
@@ -1493,6 +1587,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/SymbolIcon.tsx](.
 | `#9ab8d333` | 22 |
 | `#b9dcf52b` | 23 |
 | `#f4f7f8` | 18 |
+| `#f4f8fc` | 18 |
 | `#f5f7ff` | 18 |
 
 ### Gradients
@@ -1510,58 +1605,61 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/SymbolIcon.tsx](.
 
 ## SyncProgress.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/SyncProgress.tsx](../../../apps/platform-lab/src/mobile/SyncProgress.tsx); normalized SHA-256 `01f1330507260b721ceef9d69382bdaba7824fd6ce92d06ce7c4c6d6bc8d053f`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/SyncProgress.tsx](../../../apps/platform-lab/src/mobile/SyncProgress.tsx); normalized SHA-256 `7cbbe1590130fe9362cd927a87e25c43487a3d56453084501ea317941ee8e208`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#baf9e436` | 50 |
-| `#d5ffee70` | 50 |
+| `#baf9e436` | 51 |
+| `#d5ffee70` | 51 |
+| `#ffc477` | 36 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 11` | 47 |
-| `fontSize: 12` | 47 |
-| `lineHeight: 16` | 47 |
-| `lineHeight: 18` | 47 |
+| `fontSize: 11` | 48 |
+| `fontSize: 12` | 48 |
+| `lineHeight: 16` | 48 |
+| `lineHeight: 18` | 48 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `gap: 12` | 48 |
-| `maxWidth: 960` | 46 |
-| `minHeight: 48` | 48, 49 |
-| `paddingHorizontal: 18` | 46 |
-| `paddingVertical: 6` | 46 |
-| `width: '100%'` | 46 |
-| `width: 28` | 50 |
-| `width: 48` | 49 |
+| `borderRadius: 12` | 36 |
+| `borderWidth: 1` | 36 |
+| `gap: 12` | 49 |
+| `gap: 8` | 36 |
+| `maxWidth: 960` | 47 |
+| `minHeight: 48` | 36, 49, 50 |
+| `paddingHorizontal: 18` | 47 |
+| `paddingVertical: 6` | 47 |
+| `width: '100%'` | 47 |
+| `width: 28` | 51 |
+| `width: 48` | 50 |
 
 ## theme.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/theme.tsx](../../../apps/platform-lab/src/mobile/theme.tsx); normalized SHA-256 `376416f3732682abf99fbf3fd660328aae53c07365fd04e9b7f089d10a8085e5`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/theme.tsx](../../../apps/platform-lab/src/mobile/theme.tsx); normalized SHA-256 `f4738e0df0eb78633e1eda9bf651848fce9c72baafa37029ab069481c149de04`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
 | `#00102277` | 62 |
+| `#001b29` | 6 |
 | `#031326` | 31, 52 |
-| `#0b141c` | 6 |
-| `#14232f` | 6 |
+| `#062331` | 6 |
+| `#0c3041` | 6 |
 | `#162a42` | 61 |
-| `#1d3242` | 6 |
+| `#183d50` | 6 |
 | `#231e63` | 6 |
-| `#304653` | 6 |
+| `#27d3d2` | 6 |
 | `#48dba5` | 6 |
-| `#76dfc6` | 6 |
-| `#8be8d2` | 6 |
-| `#b0c1cd` | 6 |
-| `#f4f7f8` | 6 |
+| `#a9bed3` | 6 |
+| `#f4f8fc` | 6 |
 | `#fc6a2d` | 6 |
 
 ### Typography declarations
@@ -1584,11 +1682,9 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/theme.tsx](../../
 | Value / declaration | Source line(s) |
 | --- | --- |
 | `borderRadius: 14` | 56 |
-| `borderRadius: 16` | 51, 61 |
-| `borderRadius: 22` | 47 |
+| `borderRadius: 16` | 47, 51, 61 |
 | `borderWidth: 1` | 47, 54, 56 |
-| `gap: 10` | 48 |
-| `gap: 12` | 47 |
+| `gap: 10` | 47, 48 |
 | `gap: 4` | 60 |
 | `gap: 5` | 16 |
 | `gap: 6` | 53, 62 |
@@ -1602,7 +1698,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/theme.tsx](../../
 | `opacity: .5` | 26 |
 | `opacity: .72` | 60 |
 | `padding: 12` | 62 |
-| `padding: 18` | 47 |
+| `padding: 16` | 47 |
 | `paddingHorizontal: 14` | 56 |
 | `paddingHorizontal: 18` | 51 |
 | `paddingHorizontal: 4` | 59 |
@@ -1762,6 +1858,8 @@ Retained app-owned lab/adapter surface; document its existing appearance as an e
 
 # Decisions, history and known gaps
 
+> **Current appearance authority — 24 October 2026:** [Dark Compact Cockpit](compact-cockpit.md) and its approved reference supersede conflicting older appearance/composition statements below. Data, feature and verification boundaries retain their scope.
+
 ## Selected modern main — 22 October 2026
 
 **23 October statistics overlay — #9:** Manuel requested cleanup and a technical drawing proposal, then explicitly approved the bounded implementation. Meine Saison now opens a read-only saved-local overview with year/month scopes and aircraft, duration, verified-launch sections; contributing-flight details return to their scoped list. The [current contract](alternative-ui.md#statistics-overlay--approved-implementation-scope-23-october-2026) records exclusions and identity gates. Older inline/swipe routes are superseded; native populated-data acceptance remains open. See the [package report](../../verification/2026-10-20-real-flight-statistics.md#meine-saison-statistics-overlay--23-october-2026).
@@ -1858,11 +1956,11 @@ SYMBOLS, ICONS AND STATE MARKS
 Modern Duotone is the default symbol family, including M2 Medical card and the folded paper plane. Preserve current stable IDs, labels, meanings, actions, states and approved Thermik branding. Retired icon designs have been removed. Samples are schematic except unchanged source images.
 
 Main navigation
-Five persistent destinations. Selected icons use cyan/slate duotone; inactive ones use the muted duotone variant. Labels retain #00c8ff / #adbed5. The tab label and accessible selected state carry meaning too.
+Five persistent destinations. Selected icons use cyan/slate duotone; inactive ones use the muted duotone variant. Labels retain #00c8ff / #adbed5. The tab label and accessible selected state carry meaning too. Compact Cockpit retains labelled navigation. Supporting textual cues: ↗●. Current textual direction/status cues: ×.
 
 N01 · Current native UI · selected duotone
 Home / Übersicht
-Appearance: Selected soft-filled cyan/slate duotone home silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
+Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
 Where: Bottom navigation, Übersicht.
 Meaning: The dashboard: paper-logbook work, season summary, latest flight, AI entry, club and weather panels.
 Function / action: Tap switches to Übersicht.
@@ -1872,7 +1970,7 @@ duotone-assets.ts; symbols/glyphs.svg #home
 
 N02 · Current native UI · selected duotone
 Flights / Flüge
-Appearance: Selected soft-filled cyan/slate duotone flight-paper-plane silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
+Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
 Where: Bottom navigation, Flüge.
 Meaning: Saved searchable flight history for the selected book.
 Function / action: Tap switches to Flüge; existing year/search/training state is retained.
@@ -1882,7 +1980,7 @@ duotone-assets.ts; symbols/glyphs.svg #flight-paper-plane
 
 N03 · Current native UI · selected duotone
 Logbook / Flugbuch
-Appearance: Selected soft-filled cyan/slate duotone book silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
+Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
 Where: Bottom navigation, Flugbuch.
 Meaning: Selected book, saved synthetic paper status and ordinary library backup/restore. Full writing remains M5.
 Function / action: Tap switches to Flugbuch.
@@ -1892,7 +1990,7 @@ duotone-assets.ts; symbols/glyphs.svg #book
 
 N04 · Current native UI · selected duotone
 Club / Verein
-Appearance: Selected soft-filled cyan/slate duotone club silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
+Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
 Where: Bottom navigation, Verein; decorative compact ClubHeading and Weitere Vereinsdienste subgroup.
 Meaning: Club overview and saved source club label; duties, appointments and notices.
 Function / action: The bottom tab switches to Verein. Heading and subgroup glyphs are decorative; Alle Dienste ansehen opens the existing duty view.
@@ -1902,7 +2000,7 @@ ClubHeading; ClubSubheading; MobileApp navigation; duotone-assets.ts #club
 
 N05 · Current native UI · selected duotone
 AI assistant / AI
-Appearance: Selected soft-filled cyan/slate duotone sparkle silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
+Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
 Where: Bottom navigation; AI welcome card.
 Meaning: Entry to MoFlight AI and available deterministic local flight questions.
 Function / action: Tab tap opens AI. The welcome-card sparkle is decorative.
@@ -1925,7 +2023,7 @@ brandLogo; header Image
 
 H02 · Current native UI · selected duotone
 App Back
-Appearance: Selected soft-filled cyan/slate duotone back silhouette; local RGBA PNG from the editable SVG master. contrast palette in this context.
+Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
 Where: Leading side of app-sheet and flight-detail headers.
 Meaning: Return through MoFlight navigation history.
 Function / action: Returns to the prior app overlay or page, preserving its state. Choosing a different book clears old flight-detail history.
@@ -1935,7 +2033,7 @@ duotone-assets.ts; symbols/glyphs.svg #back
 
 H03 · Current native UI · selected duotone
 Provider connection
-Appearance: Selected soft-filled cyan/slate duotone chain silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
+Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
 Where: Provider panel/toolbar only; the ordinary header uses S01 permanent Daten and independent session mark.
 Meaning: Evidence about the Vereinsflieger session and provisional account association.
 Function / action: Informational provider-panel session control; during visible login, tapping it dismisses the login page back to the panel. New ordinary update/login begins only through header Daten.
@@ -1955,7 +2053,7 @@ duotone-assets.ts; symbols/glyphs.svg #medical-card
 
 H05 · Current native UI · selected duotone
 Profile and settings
-Appearance: Selected soft-filled cyan/slate duotone profile silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
+Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
 Where: Far-right app-header action.
 Meaning: Local demo profile and app settings/tools.
 Function / action: Opens Profil & Einstellungen: local display-name draft, books/data and backup, connections, appearance/credits and the separate Development hub.
@@ -1975,7 +2073,7 @@ DataUpdateIndicator; dataUpdateStatus; dataFreshness; createSessionPresentation;
 
 S02 · Current native UI · selected duotone
 Last confirmed session check
-Appearance: Selected soft-filled cyan/slate duotone chain silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
+Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
 Where: Provider connection panel. Its original chain/spinner presentation remains separate from S01 header session marks and saved-flight age.
 Meaning: A previous session check matched the provisional account association.
 Function / action: Open details to read the last-check time and available next action.
@@ -1985,7 +2083,7 @@ duotone-assets.ts; symbols/glyphs.svg #chain
 
 S03 · Current native UI · selected duotone
 Provider login required
-Appearance: Selected soft-filled cyan/slate duotone chain silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
+Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
 Where: Provider connection panel. Its original chain/spinner presentation remains separate from S01 header session marks and saved-flight age.
 Meaning: Login on the original Vereinsflieger page is required.
 Function / action: The ordinary header Daten action opens the complete synchronization journey, showing original-provider login when needed. The panel badge does not submit credentials.
@@ -1995,7 +2093,7 @@ duotone-assets.ts; symbols/glyphs.svg #chain
 
 S04 · Current native UI · selected duotone
 Connection attention / blocked
-Appearance: Selected soft-filled cyan/slate duotone chain silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
+Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
 Where: Provider connection panel. Its original chain/spinner presentation remains separate from S01 header session marks and saved-flight age.
 Meaning: Something needs review: account/club mismatch, failed checking, association confirmation, or recovery blocking retrieval.
 Function / action: Open details to understand the specific reason and next action.
@@ -2018,7 +2116,7 @@ Samples reproduce text glyphs and existing image assets. Native View-based marks
 
 D01 · Current native UI · selected duotone
 Paper logbook work
-Appearance: Selected soft-filled cyan/slate duotone logbook silhouette; local RGBA PNG from the editable SVG master. paper palette in this context.
+Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
 Where: Papierstand ansehen hero; Als Nächstes paper-status item.
 Meaning: Read-only saved paper evidence/status for the selected synthetic logbook.
 Function / action: Opens PaperStatus; no fixture creation, writing preparation or copied-entry confirmation. The complete paper journey remains M5.
@@ -2028,7 +2126,7 @@ duotone-assets.ts; symbols/glyphs.svg #logbook
 
 D02 · Current native UI · selected duotone
 AI suggestion
-Appearance: Selected soft-filled cyan/slate duotone sparkle silhouette; local RGBA PNG from the editable SVG master. assistant palette in this context.
+Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
 Where: Dashboard MoFlight AI card.
 Meaning: Shortcut to a sample flight-history question.
 Function / action: Tap the card to open AI and prefill the most-frequently-flown-aircraft question; it does not automatically send it.
@@ -2038,7 +2136,7 @@ duotone-assets.ts; symbols/glyphs.svg #sparkle
 
 D03 · Current native UI · selected duotone
 Glider / no flight track
-Appearance: Selected soft-filled cyan/slate duotone glider silhouette; local RGBA PNG from the editable SVG master. muted palette in this context.
+Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
 Where: Latest-flight dashboard tile; flight-list thumbnail beside Kein Track.
 Meaning: Aviation marker and placeholder when no flight track is available.
 Function / action: No independent action. The latest-flight card or flight row opens flight details.
@@ -2048,7 +2146,7 @@ duotone-assets.ts; symbols/glyphs.svg #glider
 
 D04 · Current native UI · selected duotone
 Time / duration
-Appearance: Selected soft-filled cyan/slate duotone clock silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
+Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
 Where: Flight rows/latest flight; club duty card before Zeit.
 Meaning: Flight duration in flight contexts; scheduled time in duty context.
 Function / action: Read-only field marker; any navigation belongs to the surrounding card.
@@ -2058,7 +2156,7 @@ duotone-assets.ts; symbols/glyphs.svg #clock
 
 D05 · Current native UI · selected duotone
 Location / start field
-Appearance: Selected soft-filled cyan/slate duotone location silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
+Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
 Where: Dashboard club tile and club duty card before Startplatz.
 Meaning: The start-field/location field of the club item.
 Function / action: Read-only field marker; card actions navigate separately.
@@ -2068,7 +2166,7 @@ duotone-assets.ts; symbols/glyphs.svg #location
 
 D06 · Current native UI · selected duotone
 Weather
-Appearance: Selected soft-filled cyan/slate duotone weather silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
+Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
 Where: Dashboard Wetter & Platz card.
 Meaning: Weather information category.
 Function / action: Tap the card to view the status explanation.
@@ -2108,7 +2206,7 @@ StatisticsEntry; duotone-assets.ts; symbols/glyphs.svg #chart
 
 K01 · Current native UI · selected duotone
 Club duties and work hours
-Appearance: Selected soft-filled cyan/slate duotone duty silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
+Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
 Where: Expanded Dienstübersicht and raised-navy own, period, later and unplaced duty subgroup headings; Meine Saison work-hours metric.
 Meaning: Duty/assignment or work-hours marker; no checkbox, quota completion or confirmation meaning.
 Function / action: Decorative. Alle Dienste ansehen opens the existing duty view; grouping changes no source membership.
@@ -2118,7 +2216,7 @@ DutyRoster; ClubSubheading; duotone-assets.ts #duty
 
 K02 · Current native UI · selected duotone
 Upcoming club appointments
-Appearance: Selected soft-filled cyan/slate duotone calendar-neutral silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
+Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
 Where: Verein overview heading Kommende Termine.
 Meaning: Club events/calendar category.
 Function / action: The symbol is decorative. Alle anzeigen switches the club subsection to Termine.
@@ -2128,7 +2226,7 @@ duotone-assets.ts; symbols/glyphs.svg #calendar-neutral
 
 K03 · Current native UI · selected duotone
 Club notices
-Appearance: Selected soft-filled cyan/slate duotone messages silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
+Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
 Where: Verein heading Aktuelle Mitteilungen.
 Meaning: Club notices, news or documents category.
 Function / action: The symbol is decorative. Alle anzeigen switches to Mitteilungen.
@@ -2141,7 +2239,7 @@ Several repeated characters have different meanings by context. Redesign each se
 
 A01 · Current native UI · selected duotone
 Search flights
-Appearance: Selected soft-filled cyan/slate duotone search silhouette; local RGBA PNG from the editable SVG master. default palette in this context. The alternative ordinary flight search adds a labelled × clear control when text is present.
+Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
 Where: Inside the Flüge search field.
 Meaning: Search saved flights.
 Function / action: The glyph is decorative; editing the field filters local flights alongside year and training-role selections. Clear search removes only the text query and preserves the selected year/aircraft scope; reset-all is separate.
@@ -2151,7 +2249,7 @@ duotone-assets.ts; symbols/glyphs.svg #search
 
 A02 · Current native UI · selected duotone
 Open flight filters
-Appearance: Selected soft-filled cyan/slate duotone filter silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
+Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
 Where: Button beside flight search.
 Meaning: Additional controls for filtering saved flights.
 Function / action: Tap opens Flugfilter; existing year, search and training filters work together.
@@ -2161,7 +2259,7 @@ duotone-assets.ts; symbols/glyphs.svg #filter
 
 A03 · Current native UI · selected duotone
 Choose logbook
-Appearance: Selected soft-filled cyan/slate duotone down silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
+Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
 Where: Selected-book label in the flight header and synthetic-library banner.
 Meaning: An expandable choice of local logbooks.
 Function / action: Tap the containing button opens Flugbuch auswählen.
@@ -2171,7 +2269,7 @@ duotone-assets.ts; symbols/glyphs.svg #down
 
 A04 · Current native UI · selected duotone
 Reload local data
-Appearance: Selected soft-filled cyan/slate duotone refresh silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
+Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
 Where: Synthetic-library banner next to Aktualisieren.
 Meaning: Reload the saved local library into the UI.
 Function / action: Tap calls library.reload().
@@ -2181,7 +2279,7 @@ duotone-assets.ts; symbols/glyphs.svg #refresh
 
 A05 · Current native UI · selected duotone
 Unavailable classification information
-Appearance: Selected soft-filled cyan/slate duotone info silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
+Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
 Where: Strecke and Platzrunden chips in Flüge.
 Meaning: This classification is not supported by the stored flight contract.
 Function / action: Tap opens Klassifikation nicht verfügbar and preserves the active filter.
@@ -2191,7 +2289,7 @@ duotone-assets.ts; symbols/glyphs.svg #info
 
 A06 · Current native UI · selected duotone
 Open row / supporting destination
-Appearance: Selected soft-filled cyan/slate duotone right silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
+Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
 Where: Flight rows, AI example questions and supporting club/status links.
 Meaning: The containing row leads to details or another destination.
 Function / action: Flight row opens details; AI question runs a supported local calculation and fills the draft; status/club links open their named destination.
@@ -2201,7 +2299,7 @@ duotone-assets.ts; symbols/glyphs.svg #right
 
 A07 · Current native UI · selected duotone
 Forward / continue action
-Appearance: Selected soft-filled cyan/slate duotone arrow silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
+Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
 Where: Paper CTA, AI dashboard shortcut, duty Details anzeigen, saved-flights links.
 Meaning: Continue to the action/destination named by the adjacent text.
 Function / action: Invokes the named destination: saved paper status, AI draft, current data status or saved-flight list.
@@ -2211,7 +2309,7 @@ duotone-assets.ts; symbols/glyphs.svg #arrow
 
 A08 · Current native UI · selected duotone
 Departure to arrival
-Appearance: Selected soft-filled cyan/slate duotone arrow silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
+Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
 Where: Latest-flight tile; flight rows.
 Meaning: Direction of the recorded departure-to-arrival relationship.
 Function / action: Read-only separator inside flight information; no independent navigation.
@@ -2221,7 +2319,7 @@ duotone-assets.ts; symbols/glyphs.svg #arrow
 
 A09 · Current native UI · selected duotone
 Send AI message
-Appearance: Selected soft-filled cyan/slate duotone send silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
+Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
 Where: AI composer send button.
 Meaning: Submit the typed question to the AI interaction.
 Function / action: Current handler reports that the AI service is unavailable and retains the draft; no message is sent.
@@ -2231,7 +2329,7 @@ duotone-assets.ts; symbols/glyphs.svg #send
 
 A10 · Current native UI · selected duotone
 Selected logbook
-Appearance: Selected soft-filled cyan/slate duotone check silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
+Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
 Where: Flugbuch auswählen sheet.
 Meaning: This book is the active local selection.
 Function / action: Tap a book row selects it and closes the sheet. The tick itself is not a separate button.
@@ -2241,7 +2339,7 @@ duotone-assets.ts; symbols/glyphs.svg #check
 
 A11 · Current native UI · selected duotone
 Expand / collapse details
-Appearance: Selected soft-filled cyan/slate duotone plus silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
+Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
 Where: Verbindungen: Sitzungsdetails & weitere Optionen; Rohbelege & begrenzter Abruf. Statistics now opens from the Meine Saison chart action.
 Meaning: Show or hide optional detail/tool sections.
 Function / action: Tap toggles the corresponding disclosure and accessible expanded state.
@@ -2251,7 +2349,7 @@ duotone-assets.ts; symbols/glyphs.svg #plus
 
 A12 · Current native UI · selected duotone
 Back inside provider webpage
-Appearance: Selected soft-filled cyan/slate duotone back silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
+Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
 Where: Original-provider login toolbar.
 Meaning: Move backward in the embedded Vereinsflieger webpage history.
 Function / action: Tap calls backWithinProvider().

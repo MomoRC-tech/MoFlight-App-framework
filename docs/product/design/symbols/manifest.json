@@ -80,7 +80,7 @@
     },
     "S01": {
       "glyph": "chain",
-      "title": "Update Vereinsflieger data",
+      "title": "Synchronize data / Daten",
       "status": "selected"
     },
     "S02": {
@@ -150,7 +150,7 @@
     },
     "K01": {
       "glyph": "duty",
-      "title": "Next club duty",
+      "title": "Club duties and work hours",
       "status": "selected"
     },
     "K02": {

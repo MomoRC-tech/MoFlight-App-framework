@@ -17,7 +17,7 @@ export function DutyRoster({ overview, expanded = false, onOpen }: { overview: D
   const own = overview.ownItems.length ? overview.ownItems.slice(0, 2) : overview.laterOwn.slice(0, 1);
   const club = overview.items.filter(item => item.ownState === 'unknown').slice(0, 3);
   return <Card style={{ width: '100%', maxWidth: 520, alignSelf: 'center' }}>
-    {expanded ? <Section title="Dienstübersicht" icon="duty" /> : <ClubHeading clubLabel={overview.clubLabel} />}
+    {expanded ? <Section title="Dienstübersicht" icon="duty" /> : <ClubHeading clubLabel={overview.clubLabel} onOpen={onOpen} />}
     {expanded && <>
     <Label>{overview.window.start} bis {overview.window.end}</Label>
     <Label muted>Verein laut Quelle: {overview.clubLabel.trim() || 'Name unbekannt'} · Zuordnung vorläufig</Label>
