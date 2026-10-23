@@ -1042,118 +1042,118 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MedicalStatus.tsx
 
 ## MobileApp.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `b1738286f4be22e81630e7fb8840b6bb3328f86b4f5f149e6ad370cdffbb8d04`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `aa13247dea0ac4b7bf5cb7753f45dfae8a98aa9c2758832e9f71fc4ad73ac819`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#000712bd` | 313 |
-| `#00c8ff` | 261 |
-| `#064240` | 307 |
-| `#10282d` | 307 |
-| `#11263a` | 306 |
-| `#152d42` | 308 |
-| `#1b344a` | 311 |
-| `#227f87` | 307 |
-| `#78efdc` | 309 |
-| `#8ba4bc` | 260, 304 |
+| `#000712bd` | 320 |
+| `#00c8ff` | 268 |
+| `#064240` | 314 |
+| `#10282d` | 314 |
+| `#11263a` | 313 |
+| `#152d42` | 315 |
+| `#1b344a` | 318 |
+| `#227f87` | 314 |
+| `#78efdc` | 316 |
+| `#8ba4bc` | 267, 311 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 10` | 249, 260, 304 |
-| `fontSize: 11` | 254, 305 |
-| `fontSize: 12` | 307, 312 |
-| `fontSize: 13` | 250, 306 |
-| `fontSize: 16` | 311 |
-| `fontSize: 20` | 305 |
-| `fontSize: 23` | 310 |
-| `fontSize: 25` | 312 |
-| `fontWeight: '600'` | 305, 307 |
-| `fontWeight: '700'` | 312 |
-| `letterSpacing: .6` | 304 |
-| `lineHeight: 16` | 260, 304, 305 |
-| `lineHeight: 17` | 307 |
-| `lineHeight: 18` | 312 |
-| `lineHeight: 25` | 305 |
-| `lineHeight: 29` | 312 |
+| `fontSize: 10` | 256, 267, 311 |
+| `fontSize: 11` | 261, 312 |
+| `fontSize: 12` | 314, 319 |
+| `fontSize: 13` | 257, 313 |
+| `fontSize: 16` | 318 |
+| `fontSize: 20` | 312 |
+| `fontSize: 23` | 317 |
+| `fontSize: 25` | 319 |
+| `fontWeight: '600'` | 312, 314 |
+| `fontWeight: '700'` | 319 |
+| `letterSpacing: .6` | 311 |
+| `lineHeight: 16` | 267, 311, 312 |
+| `lineHeight: 17` | 314 |
+| `lineHeight: 18` | 319 |
+| `lineHeight: 25` | 312 |
+| `lineHeight: 29` | 319 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 307 |
-| `borderRadius: 13` | 307 |
-| `borderRadius: 14` | 302 |
-| `borderRadius: 15` | 309 |
-| `borderRadius: 16` | 311, 312 |
-| `borderRadius: 17` | 308 |
-| `borderRadius: 18` | 310 |
-| `borderRadius: 2` | 312 |
-| `borderRadius: 20` | 311 |
-| `borderRadius: 22` | 306, 314 |
-| `borderRadius: 24` | 306 |
-| `borderRadius: 9` | 307 |
-| `borderWidth: 1` | 306, 307, 310, 311, 314 |
-| `gap: 1` | 305 |
-| `gap: 10` | 227 |
-| `gap: 18` | 215, 301, 309 |
-| `gap: 2` | 312 |
-| `gap: 3` | 304, 307 |
-| `gap: 4` | 312 |
-| `gap: 5` | 306 |
-| `gap: 6` | 310, 311 |
-| `gap: 7` | 306, 309 |
-| `gap: 8` | 283, 285, 308, 311 |
-| `height: 2` | 312 |
-| `height: 30` | 309 |
-| `height: 48` | 302, 311 |
-| `maxHeight: 150` | 311 |
-| `maxWidth: 480` | 227 |
-| `maxWidth: 520` | 141, 283, 285, 309 |
-| `maxWidth: 599` | 300, 312 |
-| `maxWidth: 600` | 212, 261 |
-| `maxWidth: 720` | 247 |
-| `maxWidth: 960` | 212, 261 |
-| `minHeight: 0` | 267, 314 |
-| `minHeight: 126` | 309 |
-| `minHeight: 34` | 308 |
-| `minHeight: 36` | 303 |
-| `minHeight: 40` | 306 |
-| `minHeight: 48` | 306, 308 |
-| `minHeight: 52` | 311 |
-| `minHeight: 64` | 307 |
-| `minHeight: 66` | 307 |
-| `minHeight: 68` | 312 |
-| `minHeight: 86` | 310 |
-| `minWidth: 0` | 305, 306 |
-| `opacity: .45` | 252 |
-| `opacity: .8` | 313 |
-| `padding: 0` | 308 |
-| `padding: 10` | 301 |
-| `padding: 16` | 310 |
-| `padding: 18` | 301 |
-| `padding: 4` | 304, 311 |
-| `padding: 6` | 312 |
-| `padding: 7` | 307 |
-| `paddingHorizontal: 12` | 306, 313 |
-| `paddingHorizontal: 16` | 308 |
-| `paddingHorizontal: 6` | 307 |
-| `paddingHorizontal: 7` | 307 |
-| `paddingHorizontal: 8` | 311 |
-| `paddingVertical: 10` | 307, 313 |
-| `paddingVertical: 4` | 306 |
-| `paddingVertical: 8` | 312 |
-| `width: '100%'` | 141, 215, 216, 217, 227, 260, 283, 285, 300, 308, 309, 312 |
-| `width: '32%'` | 312 |
-| `width: '49.2%'` | 308 |
-| `width: 24` | 312 |
-| `width: 30` | 309 |
-| `width: 42` | 306 |
-| `width: 48` | 302, 311 |
-| `width: 64` | 307 |
+| `borderRadius: 12` | 314 |
+| `borderRadius: 13` | 314 |
+| `borderRadius: 14` | 309 |
+| `borderRadius: 15` | 316 |
+| `borderRadius: 16` | 318, 319 |
+| `borderRadius: 17` | 315 |
+| `borderRadius: 18` | 317 |
+| `borderRadius: 2` | 319 |
+| `borderRadius: 20` | 318 |
+| `borderRadius: 22` | 313, 321 |
+| `borderRadius: 24` | 313 |
+| `borderRadius: 9` | 314 |
+| `borderWidth: 1` | 313, 314, 317, 318, 321 |
+| `gap: 1` | 312 |
+| `gap: 10` | 234 |
+| `gap: 18` | 222, 308, 316 |
+| `gap: 2` | 319 |
+| `gap: 3` | 311, 314 |
+| `gap: 4` | 319 |
+| `gap: 5` | 313 |
+| `gap: 6` | 317, 318 |
+| `gap: 7` | 313, 316 |
+| `gap: 8` | 290, 292, 315, 318 |
+| `height: 2` | 319 |
+| `height: 30` | 316 |
+| `height: 48` | 309, 318 |
+| `maxHeight: 150` | 318 |
+| `maxWidth: 480` | 234 |
+| `maxWidth: 520` | 148, 290, 292, 316 |
+| `maxWidth: 599` | 307, 319 |
+| `maxWidth: 600` | 219, 268 |
+| `maxWidth: 720` | 254 |
+| `maxWidth: 960` | 219, 268 |
+| `minHeight: 0` | 274, 321 |
+| `minHeight: 126` | 316 |
+| `minHeight: 34` | 315 |
+| `minHeight: 36` | 310 |
+| `minHeight: 40` | 313 |
+| `minHeight: 48` | 313, 315 |
+| `minHeight: 52` | 318 |
+| `minHeight: 64` | 314 |
+| `minHeight: 66` | 314 |
+| `minHeight: 68` | 319 |
+| `minHeight: 86` | 317 |
+| `minWidth: 0` | 312, 313 |
+| `opacity: .45` | 259 |
+| `opacity: .8` | 320 |
+| `padding: 0` | 315 |
+| `padding: 10` | 308 |
+| `padding: 16` | 317 |
+| `padding: 18` | 308 |
+| `padding: 4` | 311, 318 |
+| `padding: 6` | 319 |
+| `padding: 7` | 314 |
+| `paddingHorizontal: 12` | 313, 320 |
+| `paddingHorizontal: 16` | 315 |
+| `paddingHorizontal: 6` | 314 |
+| `paddingHorizontal: 7` | 314 |
+| `paddingHorizontal: 8` | 318 |
+| `paddingVertical: 10` | 314, 320 |
+| `paddingVertical: 4` | 313 |
+| `paddingVertical: 8` | 319 |
+| `width: '100%'` | 148, 222, 223, 224, 234, 267, 290, 292, 307, 315, 316, 319 |
+| `width: '32%'` | 319 |
+| `width: '49.2%'` | 315 |
+| `width: 24` | 319 |
+| `width: 30` | 316 |
+| `width: 42` | 313 |
+| `width: 48` | 309, 318 |
+| `width: 64` | 314 |
 
 ## OwnFlights.tsx
 

@@ -64,7 +64,14 @@ export default function MobileApp() {
   const [syncControls,setSyncControls]=useState<SyncControls|null>(null);
   const syncRunning=!!entry?.open&&entry.intent==='update';
   const modalOpen=!!entry?.open&&(entry.intent!=='update'||!!providerStatus.loginVisible);
-  useEffect(()=>{if(syncProgress.state==='failed'||syncProgress.state==='partial')syncLock.current=false;},[syncProgress.state]);
+  useEffect(()=>{
+    if(syncProgress.state==='failed'||syncProgress.state==='partial')syncLock.current=false;
+    if(syncProgress.state==='failed'){
+      // Keep the actionable header result, but release the finished job's read reservation.
+      setEntry(previous=>previous?.open&&previous.intent==='update'?{...previous,open:false}:previous);
+      setFlightReload(value=>value+1);
+    }
+  },[syncProgress.state]);
   useEffect(()=>{diagnosticJournal.record('sync',modalOpen?'sync-popup-open':'sync-popup-hidden');},[modalOpen]);
   return <SafeAreaProvider><View style={{flex:1}}>
     <View style={{flex:1}} pointerEvents={modalOpen?'none':'auto'} aria-hidden={modalOpen} accessibilityElementsHidden={modalOpen} importantForAccessibility={modalOpen?'no-hide-descendants':'auto'}><Shell syncControls={syncControls} syncRunning={syncRunning} syncProgress={syncProgress} coreFlightsOpen={!!entry?.open} flightReload={flightReload} lastLoad={lastLoad} providerStatus={providerStatus} onCoreFlights={(intent='options',development=false)=>{

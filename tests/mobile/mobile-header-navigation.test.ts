@@ -501,6 +501,18 @@ test('non-header legacy connection intents are normalized to offline administrat
   assert.equal(f.find('CoreFlightFoundation').props.providerEntryAllowed,false);
 });
 
+test('a failed attempt keeps its header result but releases the database reservation before the next one-tap retry',()=>{
+  const f=fixture(390,1,true),shell=()=>f.nodes().find(n=>typeof n.type==='function'&&(n.type as Function).name==='Shell')!;
+  shell().props.onCoreFlights('update');f.render();const first=f.find('CoreFlightFoundation');
+  first.props.onProgress({state:'failed',last:'account',current:'flights',message:'Retry'});f.render();f.render();
+  assert.equal(f.find('CoreFlightFoundation').props.open,false);
+  assert.equal(shell().props.coreFlightsOpen,false);
+  assert.equal(shell().props.syncProgress.state,'failed');
+  shell().props.onCoreFlights('update');f.render();
+  assert.equal(f.find('CoreFlightFoundation').props.open,true);
+  assert.equal(f.find('CoreFlightFoundation').props.requestId,first.props.requestId+1);
+});
+
 
 test('recent-flight entry carries exact identity into the ordinary list and does not open provider UI',()=>{
  const f=fixture();f.find('Dashboard').props.onFlight('saved-flight-123');f.render();
