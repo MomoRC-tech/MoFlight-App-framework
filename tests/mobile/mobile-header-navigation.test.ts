@@ -110,6 +110,7 @@ function fixture(width = 390, fontScale = 1, root = false) {
   render(); render();
   return { render, nodes, find, resize:(nextWidth:number,nextFontScale:number)=>{width=nextWidth;fontScale=nextFontScale;render();}, headers, parent, press, openOwnDetail, flight, library, controller, calls, coreRoutes, readEnabled, suspended: () => suspended, hardwareBack: () => hardwareBack!(),
     showLoad:(result:any,view:any)=>{providerStatus=result?.verifiedConnection?{...unknownProviderStatus,ownerId:result.verifiedConnection.ownerId,connection:result.verifiedConnection.state}:unknownProviderStatus;lastLoad=result;ownView=view;render();render();},
+    setProviderStatus:(status:any)=>{providerStatus=status;render();render();},
     setTime:(time:number)=>{clockNow=time;render();}, clockDeadlines:()=>clockDeadlines,
     appState:(state:string)=>{if(state!=='active')providerStatus=unknownProviderStatus;appStateListener?.(state);render();} };
 }
@@ -600,4 +601,18 @@ test('actual header groups title and actions beside branding, with Profile above
     }
     assert.equal(backCalls,0,'Rendering cannot navigate');
   }
+});
+
+
+test('activity advice is shown only for the selected owner library and provider account',()=>{
+  const f=fixture();
+  f.showLoad(null,{snapshot:{ownerId:'real-owner',storeId:'library-a',account:{accountRef:'101'}}});
+  const activity={storeId:'library-a',accountRef:'101',changed:true};
+  const status={...unknownProviderStatus,ownerId:'real-owner',activity};
+  f.setProviderStatus(status);assert.equal(f.find('DataUpdateIndicator').props.activityChanged,true);
+  for(const foreign of [{...status,ownerId:'foreign-owner'},{...status,activity:{...activity,storeId:'library-b'}},{...status,activity:{...activity,accountRef:'102'}}]){
+    f.setProviderStatus(foreign);assert.equal(f.find('DataUpdateIndicator').props.activityChanged,false);
+  }
+  f.setProviderStatus({...status,activity:{...activity,changed:false}});
+  assert.equal(f.find('DataUpdateIndicator').props.activityChanged,false);
 });

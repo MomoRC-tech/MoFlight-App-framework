@@ -264,6 +264,7 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,open=true,requestI
       activityLock.current = true;
       try {
         await registry.assertCurrent(lease);
+        if (await getPendingUserBackupRestoreNative(scope)) return;
         if (!current || panelActive.current) return;
         const result = await controller.current.checkActivity(async () => {
           if (!current || panelActive.current) throw new Error('Activity check superseded.');
