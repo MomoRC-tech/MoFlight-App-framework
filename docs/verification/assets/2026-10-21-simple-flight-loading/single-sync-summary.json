@@ -1,0 +1,46 @@
+{
+  "application_source": "248305a98767baedda3374c8d567ecd425bacb06",
+  "apk_sha256": "bf5f2c1e1dbbe296d3c80a745771afd9a0ebaf7ca75a47616ef54133da094a4b",
+  "host": {
+    "mobile_tests": 868,
+    "python_tests": 110,
+    "focused_tests": 225,
+    "typecheck": "passed",
+    "lint": "passed",
+    "fixtures": "passed",
+    "bundles": [
+      "android",
+      "ios"
+    ]
+  },
+  "native": {
+    "android_api": 37,
+    "viewport_dp": [
+      390,
+      900
+    ],
+    "density": 160,
+    "font_scale": 1,
+    "live_checks": [
+      "Observed sync entry and preparation contain no manual connection/check/confirm action",
+      "One header tap on retained account runs sync and returns to Start with brief successful summary",
+      "Details confirm all seven optional sources, without additional sync actions",
+      "Offline process restart preserves season and the same sync action without claiming a verified connection"
+    ],
+    "login_checks": [
+      "Observed sync entry and preparation contain no manual connection/check/confirm action",
+      "Logged-out header tap automatically opens original login form; no check or second sync control",
+      "Login cancellation remains safe and returns to the app"
+    ],
+    "combined_seconds": 148.86,
+    "parent_visual_review": "Actual public login frame and populated preparation frame inspected; no manual check control.",
+    "cleanup": "Both original APK/display/font/radio/running settings independently verified, both owned emulators stopped, no debug forwards. Provider session and saved data preserved; no full original-data byte-equality claim."
+  },
+  "remaining": [
+    "Fresh credential submission on the physical phone",
+    "Live second-account boundary",
+    "iOS runtime",
+    "Spoken accessibility",
+    "Full provider coverage and Activities current-day/airborne semantics"
+  ]
+}
