@@ -126,7 +126,7 @@ export function StatisticsOverlay({ data, today, fontScale, onBackHandler, initi
           </View>}
           <Label muted>{periodLabel}</Label>
           {bounds && <Label muted>{statisticsCoverageComplete(saved, bounds.from, bounds.to) ? 'Gespeicherte Abrufe decken diesen Zeitraum vollständig ab.' : 'Die gespeicherten Abrufe decken diesen Zeitraum nicht vollständig ab.'}</Label>}
-          <Label muted>Die Saisonringe auf Start zeigen gespeicherte Jahreswerte; die Abdeckung kann je Jahr abweichen oder unvollständig sein.</Label>
+          <Label muted>Die Saisonwerte auf Übersicht zeigen gespeicherte Jahreswerte; die Abdeckung kann je Jahr abweichen oder unvollständig sein.</Label>
           {period.kind === 'all' && <Label muted>Der gespeicherte Bestand belegt keine vollständige Fluggeschichte.</Label>}
         </View>
         <View style={styles.sectionTabs} accessibilityRole="tablist">

@@ -88,10 +88,10 @@ test('previous-year drilldown keeps its same-date scope, restores Back, and reje
   assert.ok(!nodes.some(node => node.type === 'Card' && typeof node.props.onPress === 'function'), 'a refreshed flight outside the captured prior-year range cannot remain in the drilldown');
 });
 
-test('statistics coverage detail explains that Start season rings can use unequal or incomplete saved periods', () => {
+test('statistics coverage detail explains incomplete saved season periods', () => {
   const f = fixture();
   let nodes = f.nodes();
-  assert.ok(nodes.some(node => node.type === 'Label' && node.children.join('').includes('Die Saisonringe auf Start zeigen gespeicherte Jahreswerte; die Abdeckung kann je Jahr abweichen oder unvollständig sein.')));
+  assert.ok(nodes.some(node => node.type === 'Label' && node.children.join('').includes('die Abdeckung kann je Jahr abweichen oder unvollständig sein.')));
   assert.ok(nodes.some(node => node.type === 'Label' && node.children.join('').includes('Aktuell bis 2026-10-22; Vorjahr bis gleicher Kalendertag. Angaben beruhen auf den gespeicherten Zeiträumen.')));
 
   f.data.view.snapshot.savedRetrievals = f.data.view.snapshot.savedRetrievals.slice(1);

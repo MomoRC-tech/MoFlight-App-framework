@@ -738,7 +738,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ClubInformation.t
 
 ## CockpitPreview.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CockpitPreview.tsx](../../../apps/platform-lab/src/mobile/CockpitPreview.tsx); normalized SHA-256 `ccb8599915cc83b0f44bf165690f802229b0273846ad17da6cac1fe4580fc843`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CockpitPreview.tsx](../../../apps/platform-lab/src/mobile/CockpitPreview.tsx); normalized SHA-256 `3e308a0f2017849d34a32735349303ab266308464e273110fc4f6c6c230733a3`.
 
 ### Typography declarations
 
@@ -804,7 +804,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundat
 
 ## Dashboard.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](../../../apps/platform-lab/src/mobile/Dashboard.tsx); normalized SHA-256 `95eb6de21baf9c0ad881ff73dbabec85283d3c8c5c534a39ae0266e53ed968d6`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](../../../apps/platform-lab/src/mobile/Dashboard.tsx); normalized SHA-256 `a46a98f9022c0496e9c7a24ec3c47caf423609de79d179242dc2dfaa8a9fa572`.
 
 ### Literal colors
 
@@ -844,6 +844,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](..
 | `gap: 8` | 70, 76 |
 | `gap: 9` | 75 |
 | `maxWidth: '35%'` | 72 |
+| `maxWidth: '45%'` | 38 |
 | `maxWidth: 520` | 69 |
 | `minHeight: 48` | 71, 72, 77, 78 |
 | `minHeight: 80` | 75 |
@@ -1507,7 +1508,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/SeasonRing.tsx](.
 
 ## StatisticsOverlay.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/StatisticsOverlay.tsx](../../../apps/platform-lab/src/mobile/StatisticsOverlay.tsx); normalized SHA-256 `628c851cc7715062db1417fc845881f8ab7b0e3d05be47b4a00bcbb8e5638b1d`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/StatisticsOverlay.tsx](../../../apps/platform-lab/src/mobile/StatisticsOverlay.tsx); normalized SHA-256 `2ab334608a6c4f70efcc609ae516e0f8867bbe91d254f99baebc62a97854a1ea`.
 
 ### Literal colors
 
