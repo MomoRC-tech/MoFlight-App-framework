@@ -1,0 +1,62 @@
+{
+  "source_commit": "6e26bf90201e6b6410df474876c89533f6a2d1eb",
+  "apk_sha256": "583065c300ad559a7f39f0b24be7a62cbb1ca3391fa73361f5b026fbc7742721",
+  "zip_sha256": "6b123f5e6d6df1b5c0610b3a077b246358ee0db93b57535067034496695c8eed",
+  "host": {
+    "mobile_tests": 1012,
+    "python_tests": 114,
+    "typecheck": true,
+    "lint": true,
+    "fixture_parity": true
+  },
+  "platform_exports": [
+    "android",
+    "ios"
+  ],
+  "native": {
+    "avd": "MoFlight_Synthetic_API37",
+    "source_apk_hash_reread": true,
+    "read_only_synthetic_overlay": true,
+    "checks": [
+      {
+        "width_dp": 390,
+        "height_dp": 1000,
+        "density": 160,
+        "font_scale": 1,
+        "season_and_compact_club": "passed"
+      },
+      {
+        "width_dp": 360,
+        "height_dp": 1000,
+        "density": 160,
+        "font_scale": 1,
+        "season_and_compact_club": "passed"
+      },
+      {
+        "width_dp": 360,
+        "height_dp": 1000,
+        "density": 160,
+        "font_scale": 1.6,
+        "season_and_compact_club": "passed"
+      },
+      {
+        "width_dp": 800,
+        "height_dp": 700,
+        "density": 160,
+        "font_scale": 1,
+        "season_and_compact_club": "passed"
+      }
+    ],
+    "enlarged_values_scrolled": "passed",
+    "baseline_apk_restored": true,
+    "settings_restored": true,
+    "owned_serial_absent": true
+  },
+  "limits": [
+    "No required-hours source; financial obligation remains EUR",
+    "No new provider capture or sync change",
+    "UI not accepted on physical phone or iOS",
+    "Names do not establish identity or partner linkage"
+  ],
+  "anonymous_public_download_verified": true
+}

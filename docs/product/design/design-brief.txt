@@ -2107,10 +2107,10 @@ Source: apps/platform-lab/src/mobile/Dashboard.tsx
 StatisticsEntry; duotone-assets.ts; symbols/glyphs.svg #chart
 
 K01 · Current native UI · selected duotone
-Club duty groups
+Club duties and work hours
 Appearance: Selected soft-filled cyan/slate duotone duty silhouette; local RGBA PNG from the editable SVG master. default palette in this context.
-Where: Expanded Dienstübersicht and raised-navy own, period, later and unplaced duty subgroup headings.
-Meaning: Duty/assignment section marker; no checkbox or confirmation meaning.
+Where: Expanded Dienstübersicht and raised-navy own, period, later and unplaced duty subgroup headings; Meine Saison work-hours metric.
+Meaning: Duty/assignment or work-hours marker; no checkbox, quota completion or confirmation meaning.
 Function / action: Decorative. Alle Dienste ansehen opens the existing duty view; grouping changes no source membership.
 States / limits: Partial captured duties retain provisional membership, unknown periods/people, raw dates and coverage warnings. The compact title uses the club glyph and full saved label; missing club names remain explicit.
 Source: apps/platform-lab/src/mobile/DutyRoster.tsx
