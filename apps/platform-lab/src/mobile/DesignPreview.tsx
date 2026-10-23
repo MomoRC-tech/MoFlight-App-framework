@@ -59,7 +59,7 @@ export function DesignPreview() {
     clearDetail(); setMode(next); setRequest({ year: null }); setPage('flights');
   };
   const syncPreview = <>
-    <View style={{alignItems:'flex-start'}}><DataUpdateIndicator scopeKey="synthetic-preview-only" receivedAt="2026-10-18T12:00:00.000Z" readState="ready" now={DESIGN_PREVIEW_NOW}
+    <View style={{alignItems:'flex-start'}}><DataUpdateIndicator activityChanged scopeKey="synthetic-preview-only" receivedAt="2026-10-18T12:00:00.000Z" readState="ready" now={DESIGN_PREVIEW_NOW}
       connection={{phase:'observed',confirmed:true,lastCheckedAt:'2026-10-22T12:00:00.000Z',observed:{accountNumber:'990001',clubLabel:'Demo Segelflugverein Talwiese',clubIdentity:'display-label-only',verification:'observed-profile-number'}}}
       onPress={()=>{setSyncReceiptVisible(true);setSyncDetails(false);}}/></View>
     {syncReceiptVisible&&<UpdateResult result={{ownerId:'synthetic-preview-only',added:2,changed:1,pending:0,from:'2025-01-01',to:'2026-10-22',completedAt:'2026-10-22T12:00:00.000Z',medicalStatus:'updated',dutyStatus:'partial'}}

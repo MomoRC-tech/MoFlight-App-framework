@@ -186,7 +186,7 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
   };
   const pageTitle = tabs.find(item => item.id === tab)!.title;
   const statusControls = <>
-    <DataUpdateIndicator scopeKey={selected?.snapshot.account?.accountRef?statisticsScopeKey:null} connection={flightStatusController.connection} receivedAt={receivedAt} readState={ownFlights.phase==='failed'?'failed':ownFlights.phase==='loading'?'loading':'ready'}
+    <DataUpdateIndicator activityChanged={!!flightStatusController.activity?.changed&&flightStatusController.activity.storeId===selected?.snapshot.storeId&&flightStatusController.activity.accountRef===selected?.snapshot.account?.accountRef} scopeKey={selected?.snapshot.account?.accountRef?statisticsScopeKey:null} connection={flightStatusController.connection} receivedAt={receivedAt} readState={ownFlights.phase==='failed'?'failed':ownFlights.phase==='loading'?'loading':'ready'}
       now={now} disabled={screenBusy} onPress={() => openFlightFlow('update')} />
     <MedicalIndicator capture={medical} now={now} active={sheet === 'medical'} disabled={screenBusy} onPress={() => openHeaderSheet('medical')} />
 

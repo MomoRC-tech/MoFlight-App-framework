@@ -23,6 +23,8 @@ import { captureFixture } from './capture-review-fixture.ts';
 import * as information from '../../apps/platform-lab/src/vereinsflieger/information.ts';
 import * as providerDiagnostics from '../../apps/platform-lab/src/vereinsflieger/provider-diagnostics.ts';
 import { InformationRun } from '../../apps/platform-lab/src/vereinsflieger/information-run.ts';
+import { ActivityRequest } from '../../apps/platform-lab/src/vereinsflieger/activity-request.ts';
+import * as activityProbe from '../../apps/platform-lab/src/vereinsflieger/activity-probe.ts';
 const { FLIGHT_URL } = probe;
 
 const original: ViewPreferences = {
@@ -59,6 +61,16 @@ function fixture(options: { panel?:boolean; developmentRecoveryCheckpoints?: boo
   const issuedNonces: string[] = [];
   let savedCapture = options.priorCapture ?? null;
   const writes: string[] = [], injections: string[] = [], timers = new Map<number, () => void>();
+  const activityTimers = new Map<ReturnType<typeof setTimeout>, () => void>();
+  let activityTimerId = 0;
+  class FixtureActivityRequest extends ActivityRequest {
+    constructor(ports: ConstructorParameters<typeof ActivityRequest>[0]) {
+      super({ ...ports,
+        schedule: callback => { const id = ++activityTimerId as unknown as ReturnType<typeof setTimeout>; activityTimers.set(id, callback); return id; },
+        clear: id => { activityTimers.delete(id); },
+      });
+    }
+  }
   let appStateListener: ((state: string) => void) | undefined;
   let finishJournalSave!: () => void, finishCaptureSave!: () => void;
   let clearCalls = 0;
@@ -119,6 +131,8 @@ function fixture(options: { panel?:boolean; developmentRecoveryCheckpoints?: boo
     'react-native': { AppState: { currentState: 'active', addEventListener: (_: string, listener: (state: string) => void) => { appStateListener = listener; return { remove() { appStateListener = undefined; } }; } }, StyleSheet: { create: (value: unknown) => value }, View: 'View', Text: 'Text', FlatList: 'FlatList' },
     'react-native-webview': { WebView: 'WebView' }, 'expo-crypto': { randomUUID: () => { const nonce = `fixture-${++nextId}`; issuedNonces.push(nonce); return nonce; } },
     './probe': probe,
+    './activity-request': { ActivityRequest: FixtureActivityRequest },
+    './activity-probe': activityProbe,
     './storage': {
       readOriginalView: () => journal, latestCapture: async () => savedCapture,
       async saveOriginalView(value: ViewPreferences) {
@@ -283,6 +297,21 @@ function fixture(options: { panel?:boolean; developmentRecoveryCheckpoints?: boo
     (web.props.onMessage as (event: unknown) => void)({ nativeEvent: { url: sender, data: JSON.stringify({ kind, nonce: token, url: documentUrl, context: observed }) } });
     return flush();
   }
+  function activityNonce() {
+    const script = [...injections].reverse().find(value => value.includes("kind:'vf-activity-v1'"));
+    assert.ok(script, 'No scoped activity probe was issued');
+    const nonce = /\}\)\("([a-zA-Z0-9-]+)"/.exec(script)?.[1]; assert.ok(nonce, 'Missing activity request nonce'); return nonce;
+  }
+  async function activityMessage(nonce: string, sender = context.PROFILE_URL, documentUrl = context.PROFILE_URL, sources: unknown[] = []) {
+    const web = find(render(), element => element.type === 'WebView'); assert.ok(web);
+    const currentUrl = controller.currentUrl, previousDocument = currentUrl.current;
+    currentUrl.current = documentUrl;
+    try {
+      (web.props.onMessage as (event: unknown) => void)({ nativeEvent: { url: sender,
+        data: JSON.stringify({ kind: 'vf-activity-v1', nonce, url: documentUrl, sources }) } });
+    } finally { currentUrl.current = previousDocument; }
+    return flush();
+  }
   async function loginMessage(result: string, nonce = issuedNonces.at(-1), sender = probe.LOGIN_URL) {
     const web = find(render(), element => element.type === 'WebView'); assert.ok(web);
     (web.props.onMessage as (event: unknown) => void)({ nativeEvent: { url: sender,
@@ -295,6 +324,7 @@ function fixture(options: { panel?:boolean; developmentRecoveryCheckpoints?: boo
     setInformationHistoryReader: (reader: typeof informationHistoryReader) => { informationHistoryReader = reader; },
     contextMessage, loginMessage, history, historyBacks: () => historyBacks, nativeReloads: () => nativeReloads,
     allowNavigation, startPage, finishPage, nativeStops: () => nativeStops, lastIssuedNonce: () => issuedNonces.at(-1),
+    activityNonce, activityMessage, activityTimerCount: () => activityTimers.size,
     setNativeLoginForm: (present: boolean | undefined) => { nativeLoginForm = present; },
     setAutomaticLoginObservation: (enabled: boolean) => { automaticLoginObservation = enabled; },
     unmount: () => { for (const hook of hooks) if (hook && typeof hook === 'object' && 'cleanup' in hook && typeof hook.cleanup === 'function') hook.cleanup(); },
@@ -894,6 +924,107 @@ async function establishProductAssociation(f: ReturnType<typeof fixture>) {
   f.controller().checkConnection(); await f.loadPage(context.PROFILE_URL);
   await f.contextMessage(observedContext); await f.controller().confirmConnection();
 }
+
+const activityEvidence = [{ source: 'flights', configuration: `activity-v1:sha256:${'a'.repeat(64)}`, markers: { count: 1 } }];
+
+test('activity check requires a confirmed, recovery-free foreground profile and refuses during provider work', async () => {
+  {
+    const unauthenticated = fixture({ product: true }); unauthenticated.render(); await unauthenticated.settle(null); await unauthenticated.flush();
+    assert.equal(await unauthenticated.controller().checkActivity(), null);
+    assert.equal(unauthenticated.injections.some(script => script.includes("kind:'vf-activity-v1'")), false);
+    unauthenticated.unmount();
+  }
+  {
+    const unconfirmed = fixture({ product: true, persistedScope: { version: 1, owner: 'synthetic-pilot', connectionId: 'prior', context: observedContext } });
+    unconfirmed.render(); await unconfirmed.settle(null); await unconfirmed.flush();
+    assert.equal(unconfirmed.controller().activityScope?.connectionId, 'prior');
+    assert.equal(unconfirmed.controller().connection.confirmed, false);
+    assert.equal(await unconfirmed.controller().checkActivity(), null);
+    assert.equal(unconfirmed.injections.some(script => script.includes("kind:'vf-activity-v1'")), false);
+    unconfirmed.unmount();
+  }
+  {
+    const recovery = fixture({ product: true,
+      persistedScope: { version: 1, owner: 'synthetic-pilot', connectionId: 'prior', context: observedContext }, scopedView: original });
+    recovery.render(); await recovery.settle(null); await recovery.flush();
+    assert.equal(recovery.controller().recovery, true);
+    assert.equal(recovery.controller().checkConnection(), true);
+    await recovery.loadPage(context.PROFILE_URL); await recovery.contextMessage(observedContext); await recovery.controller().confirmConnection();
+    assert.equal(recovery.controller().connection.confirmed, true);
+    assert.equal(await recovery.controller().checkActivity(), null, 'Pending original-view recovery blocks advisory checks even after profile confirmation');
+    assert.equal(recovery.injections.some(script => script.includes("kind:'vf-activity-v1'")), false);
+    recovery.unmount();
+  }
+  {
+    const busy = fixture({ product: true }); busy.render(); await busy.settle(null); await establishProductAssociation(busy);
+    assert.equal(busy.controller().loaded, true);
+    busy.controller().retrieve();
+    assert.equal(busy.controller().busy, true);
+    assert.equal(await busy.controller().checkActivity(), null);
+    assert.equal(busy.injections.some(script => script.includes("kind:'vf-activity-v1'")), false);
+    busy.unmount();
+  }
+  {
+    const background = fixture({ product: true }); background.render(); await background.settle(null); await establishProductAssociation(background);
+    background.appState('background');
+    assert.equal(background.controller().connection.confirmed, false);
+    assert.equal(await background.controller().checkActivity(), null);
+    assert.equal(background.injections.some(script => script.includes("kind:'vf-activity-v1'")), false);
+    background.unmount();
+  }
+});
+
+test('a fresh profile activity request reserves provider access until its matching aborted reply', async () => {
+  const f = fixture({ product: true }); f.render(); await f.settle(null); await establishProductAssociation(f);
+  try {
+    assert.equal(f.controller().loaded, true);
+    assert.equal(f.controller().currentUrl.current, context.PROFILE_URL);
+    const pending = f.controller().checkActivity();
+    await f.flush();
+    const nonce = f.activityNonce();
+    assert.equal(f.activityTimerCount(), 1);
+    assert.equal(f.controller().checkConnection(), false, 'Session verification cannot overlap an activity request');
+    assert.equal(f.controller().checkSession(), false, 'The minute session check cannot overlap an activity request');
+    assert.equal(await f.controller().checkActivity(), null, 'A second activity request cannot overlap the reservation');
+    const cancelled = f.controller().cancelActivity();
+    assert.match(f.injections.at(-1)!, /__moflightActivityAbort/);
+
+    await f.activityMessage('forged-nonce');
+    await f.activityMessage(nonce, 'https://vereinsflieger.de/member/flightlog.php');
+    await f.activityMessage(nonce, context.PROFILE_URL, 'https://vereinsflieger.de/member/profile/viewprofile?foreign=1');
+    assert.equal(f.activityTimerCount(), 1, 'Forged and foreign-document messages cannot release the reservation');
+    assert.equal(f.controller().activityChecking, true);
+    assert.equal(f.controller().checkConnection(), false);
+
+    await f.activityMessage(nonce, context.PROFILE_URL, context.PROFILE_URL, activityEvidence);
+    await cancelled;
+    assert.equal(await pending, null, 'A matching reply after cancellation settles without publishing observations');
+    assert.equal(f.activityTimerCount(), 0);
+    assert.equal(f.controller().activityChecking, false);
+    assert.equal(f.controller().checkConnection(), true, 'Provider access is released after the matching cancellation reply');
+  } finally { f.unmount(); }
+});
+
+test('background and owner revocation abandon activity checks without late publication', async () => {
+  for (const revoke of ['background', 'owner'] as const) {
+    const f = fixture({ product: true }); f.render(); await f.settle(null); await establishProductAssociation(f);
+    try {
+      const before = f.controller(), oldBrowser = before.browser;
+      const pending = before.checkActivity(); await f.flush();
+      const nonce = f.activityNonce();
+      assert.equal(f.activityTimerCount(), 1);
+      if (revoke === 'background') f.appState('background'); else f.changeOwner('another-local-pilot');
+      assert.equal(await pending, null);
+      assert.equal(f.activityTimerCount(), 0);
+      assert.ok(oldBrowser);
+      (oldBrowser.props.onMessage as (event: unknown) => void)({ nativeEvent: { url: context.PROFILE_URL,
+        data: JSON.stringify({ kind: 'vf-activity-v1', nonce, url: context.PROFILE_URL, sources: activityEvidence }) } });
+      await f.flush();
+      assert.equal(f.controller().activityChecking, false);
+      assert.equal(f.activityTimerCount(), 0);
+    } finally { f.unmount(); }
+  }
+});
 
 async function reachPostCaptureCheck(f: ReturnType<typeof fixture>) {
   await establishProductAssociation(f);
@@ -2272,6 +2403,64 @@ test('explicit duty jobs verify both contexts and return only an expiring-cache 
     f.unmount();
   }
 });
+
+const validOwnDutyActivity = {
+  source: 'own-duties', configuration: `activity-v1:sha256:${'b'.repeat(64)}`,
+  markers: { count: 1 }, participation: 'Meine Dienste',
+};
+const oneDutyPage = { category:'duties',path:'/member/profile/myservices.php',
+  columns:[{key:'duty',label:'Dienst',index:0},{key:'period',label:'Zeitraum',index:1},{key:'people',label:'Person(en)',index:2}],
+  rows:[{position:1,values:['Synthetic duty','22.10.2026 - 25.10.2026','Ada Example']}],filters:[],empty:false,
+  coverage:{kind:'visible-page',truncated:false,pagination:'unverified'} };
+
+test('own-duty activity metadata needs the normal read nonce and source, and is exposed once after matching profile proof', async () => {
+  const f=fixture({product:true}); f.render(); await f.settle(null); await establishProductAssociation(f);
+  try {
+    const work=f.controller().retrieveDutyPage('own'); await f.flush();
+    await f.loadPage(context.PROFILE_URL); await f.contextMessage(observedContext);
+    const runId=f.lastIssuedNonce()!;
+    await f.loadPage('https://vereinsflieger.de/member/profile/myservices.php');
+    const sendRead=(nativeUrl:string,nonce:string)=>{
+      const web=f.find(f.render(),e=>e.type==='WebView')!;
+      (web.props.onMessage as (event:unknown)=>void)({nativeEvent:{url:nativeUrl,data:JSON.stringify({
+        kind:'vf-information-v1',nonce,url:'https://vereinsflieger.de/member/profile/myservices.php',page:oneDutyPage,activity:validOwnDutyActivity,
+      })}});
+    };
+    sendRead('https://vereinsflieger.de/member/profile/myservices.php',runId+'-forged-read'); await f.flush();
+    sendRead(context.PROFILE_URL,runId+'-read'); await f.flush();
+    assert.equal(f.controller().currentUrl.current,'https://vereinsflieger.de/member/profile/myservices.php',
+      'Wrong nonce or native source must not advance the duty read or attach metadata');
+    assert.equal(f.controller().takeDutyActivity(runId),null);
+
+    sendRead('https://vereinsflieger.de/member/profile/myservices.php',runId+'-read'); await f.flush();
+    assert.equal(f.controller().currentUrl.current,context.PROFILE_URL,'Accepted source data still requires the second protected-profile proof');
+    assert.equal(f.controller().takeDutyActivity(runId),null,'Metadata is not published before the after-profile proof');
+    await f.loadPage(context.PROFILE_URL); await f.contextMessage(observedContext);
+    const capture=await work;
+    assert.deepEqual(f.controller().takeDutyActivity(capture.id),validOwnDutyActivity);
+    assert.equal(f.controller().takeDutyActivity(capture.id),null,'A saved marker is consumable once');
+    assert.equal(f.writes.includes('information-saved'),false);
+  } finally { f.unmount(); }
+});
+
+test('forged after-profile duty context cannot expose captured activity metadata or a roster capture', async () => {
+  const f=fixture({product:true}); f.render(); await f.settle(null); await establishProductAssociation(f);
+  try {
+    const work=f.controller().retrieveDutyPage('own'), rejected=assert.rejects(work); await f.flush();
+    await f.loadPage(context.PROFILE_URL); await f.contextMessage(observedContext);
+    const runId=f.lastIssuedNonce()!;
+    await f.loadPage('https://vereinsflieger.de/member/profile/myservices.php');
+    const web=f.find(f.render(),e=>e.type==='WebView')!;
+    (web.props.onMessage as (event:unknown)=>void)({nativeEvent:{url:'https://vereinsflieger.de/member/profile/myservices.php',data:JSON.stringify({
+      kind:'vf-information-v1',nonce:runId+'-read',url:'https://vereinsflieger.de/member/profile/myservices.php',page:oneDutyPage,activity:validOwnDutyActivity,
+    })}});
+    await f.flush(); await f.loadPage(context.PROFILE_URL); await f.contextMessage({...observedContext,accountNumber:'999'});
+    await rejected; await f.flush();
+    assert.equal(f.controller().takeDutyActivity(runId),null);
+    assert.equal(f.writes.includes('information-saved'),false);
+  } finally { f.unmount(); }
+});
+
 test('duty read rejects foreign context or lifecycle cancellation without a saved roster',async()=>{
   for(const mode of ['foreign','background','owner','unmount'] as const){
     const f=fixture({product:true});f.render();await f.settle(null);await establishProductAssociation(f);

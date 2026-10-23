@@ -1,3 +1,4 @@
+import { ACTIVITY_SOURCE_INSPECTOR } from './activity-probe';
 import { providerUrl } from './probe';
 
 /** Source observations only. No canonical flights, credits or stable-identity attestation. */
@@ -490,5 +491,15 @@ export const INFORMATION_READER_SOURCE = String.raw`(category, config) => {
   return {category,path:u.pathname,columns,rows,filters,empty:!rows.length,coverage:{kind:'visible-page',truncated,pagination:'unverified'}};
 }`;
 export function informationScript(category: InformationCategory, nonce: string) {
+  if (category === 'duties') return `(async()=>{let timer;try{
+    const url=location.href,page=(${INFORMATION_READER_SOURCE})('duties',${JSON.stringify(INFORMATION_TYPES.duties)});
+    let activity=null;
+    if(location.pathname==='/member/profile/myservices.php'){
+      try{activity=await Promise.race([(${ACTIVITY_SOURCE_INSPECTOR})(document,'own-duties'),new Promise(resolve=>{timer=setTimeout(()=>resolve(null),250);})]);}catch{}
+    }
+    if(location.href!==url)return;
+    window.ReactNativeWebView?.postMessage(JSON.stringify({kind:'vf-information-v1',nonce:${JSON.stringify(nonce)},url,page,...(activity?{activity}:{})}));
+  }catch{window.ReactNativeWebView?.postMessage(JSON.stringify({kind:'vf-information-v1',nonce:${JSON.stringify(nonce)},url:location.href,page:{error:'unsupported-source'}}));}finally{if(timer)clearTimeout(timer);}})();true;`;
+
   return `try { window.ReactNativeWebView?.postMessage(JSON.stringify({kind:'vf-information-v1',nonce:${JSON.stringify(nonce)},url:location.href,page:(${INFORMATION_READER_SOURCE})(${JSON.stringify(category)},${JSON.stringify(INFORMATION_TYPES[category])})})); } catch { window.ReactNativeWebView?.postMessage(JSON.stringify({kind:'vf-information-v1',nonce:${JSON.stringify(nonce)},url:location.href,page:{error:'unsupported-source'}})); } true;`;
 }

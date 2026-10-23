@@ -1,3 +1,4 @@
+import { decodeActivityProbe, type ActivityProbeSource } from './activity-probe';
 import { useEffect, useRef, useState } from 'react';
 import type { WebViewMessageEvent } from 'react-native-webview';
 import { canonical } from '@moflight/flight-logbook';
@@ -43,6 +44,12 @@ export interface InformationControllerPorts {
 /** Owns information requests and results; browser/account admission stays with the parent. */
 export function useInformationController(ports: InformationControllerPorts) {
   const informationRun = useRef<InformationRun | null>(null);
+  const dutyActivityByRun = useRef(new WeakMap<InformationRun, ActivityProbeSource>());
+  const savedDutyActivity = useRef(new Map<string, ActivityProbeSource>());
+  function takeDutyActivity(id:string): ActivityProbeSource | null {
+    const value = ports.ownerCurrent() ? savedDutyActivity.current.get(id) ?? null : null;
+    savedDutyActivity.current.delete(id); return value;
+  }
   const medicalRequest=useRef<{run:InformationRun;resolve:(capture:InformationCapture)=>void;reject:(error:Error)=>void}|null>(null);
   const featureRequest=useRef<{run:InformationRun;resolve:(capture:InformationCapture)=>void;reject:(error:Error)=>void}|null>(null);
   function finishFeature(error?:Error,capture?:InformationCapture) {
@@ -200,7 +207,15 @@ export function useInformationController(ports: InformationControllerPorts) {
       run.assertScope(ports.scope());
     };
     try {
-      gate(); const action = run.accept(event.nativeEvent.url, ports.currentUrl(), JSON.parse(event.nativeEvent.data));
+      gate(); const message = JSON.parse(event.nativeEvent.data), wasRead = run.stage === 'read';
+      const action = run.accept(event.nativeEvent.url, ports.currentUrl(), message);
+      if (wasRead && action === 'navigate' && dutyRequest.current?.run === run && message.activity) {
+        try {
+          const metadata = decodeActivityProbe({kind:'vf-activity-v1',nonce:'duty-metadata',sources:[message.activity]}).sources[0];
+          if (metadata && metadata.source === 'own-duties' && run.sourceUrl === 'https://vereinsflieger.de/member/profile/myservices.php')
+            dutyActivityByRun.current.set(run,metadata);
+        } catch { /* Optional metadata never changes the canonical capture outcome. */ }
+      }
       if (action === 'navigate') { ports.navigate(run.url); return; }
       if (action !== 'save') return;
       if (informationTimer.current) clearTimeout(informationTimer.current);
@@ -209,6 +224,8 @@ export function useInformationController(ports: InformationControllerPorts) {
         // The expiring duty cache is deliberately separate from immutable
         // information history, which cannot honour the selected 30-day policy.
         const capture=run.capture(new Date().toISOString());gate();
+        const activity = dutyActivityByRun.current.get(run);
+        if (activity) { savedDutyActivity.current.clear(); savedDutyActivity.current.set(capture.id,activity); }
         const returnUrl=dutyRequest.current.returnUrl;
         run.stage='done';informationRun.current=null;informationRetry.current=null;setInformationRetryReady(false);
         clearInformationNavigation(run);
@@ -333,7 +350,7 @@ export function useInformationController(ports: InformationControllerPorts) {
     beginInitialLoad, loadInitial, initialLoadFailed, ownerChanged, backgrounded, active, pageLoaded, loadStarted,
     navigationStarted, pageFailed, dismiss, running: () => !!informationRun.current, receiveInformation,
     public: {
-      retrieveMedical, retrieveDutyPage, retrieveFeatureInformation, retryInformation, informationRetryReady: informationRetryReady && ports.ownerCurrent(), informationNeedsReload,
+      takeDutyActivity, retrieveMedical, retrieveDutyPage, retrieveFeatureInformation, retryInformation, informationRetryReady: informationRetryReady && ports.ownerCurrent(), informationNeedsReload,
       reloadInformation, informationLoading, informationCanReload: canReload(),
       informationHistory: ports.ownerCurrent() ? informationHistory : null, informationHistoryBusy, informationHistoryNotice,
       loadInformationHistory, informationCategory, informationCaptures: ports.ownerCurrent() ? informationCaptures : [],

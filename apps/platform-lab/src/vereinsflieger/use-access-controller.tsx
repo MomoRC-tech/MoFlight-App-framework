@@ -1,3 +1,4 @@
+import { ActivityRequest } from './activity-request';
 import React, { useEffect, useRef, useState } from 'react';
 import { AppState } from 'react-native';
 import { WebView, type WebViewMessageEvent } from 'react-native-webview';
@@ -34,6 +35,13 @@ type DevelopmentCheckpoint = 'journal-armed' | 'journal-paused' | 'recovery-arme
 export function useAccessController(product = false, localOwner?: string, developmentRecoveryCheckpoints = false) {
   const activeOwner = useRef(localOwner); activeOwner.current = localOwner;
   const owner = useRef(localOwner), scope = useRef<ProviderScope | null>(null);
+  const [activityChecking, setActivityChecking] = useState(false);
+  const activityRequest = useRef<ActivityRequest | null>(null);
+  if (!activityRequest.current) activityRequest.current = new ActivityRequest({
+    inject: script => { if (!web.current) throw new Error('Provider document unavailable.'); web.current.injectJavaScript(script); },
+    uuid: Crypto.randomUUID, now: Date.now, changed: active => { if (mounted.current) setActivityChecking(active); },
+  });
+  useEffect(() => () => activityRequest.current?.abandon(), []);
   const clearingStore = useRef(false), documentDetached = useRef<(() => void) | null>(null);
   const [clearing, setClearing] = useState(false), [clearNotice, setClearNotice] = useState<'none' | 'cleared' | 'failed'>('none');
   const [proofNotice, setProofNotice] = useState<'none' | 'passed' | 'failed'>('none');
@@ -141,7 +149,7 @@ export function useAccessController(product = false, localOwner?: string, develo
   const login = useSavedLogin({
     product,
     canStart: action => owner.current === activeOwner.current && !clearingStore.current && !bindingBusy.current &&
-      !contextRequest.current && !disconnectMode.current && retrieval.current.state.phase === 'idle' &&
+      !activityRequest.current?.active() && !contextRequest.current && !disconnectMode.current && retrieval.current.state.phase === 'idle' &&
       (action !== 'forget' || !busy && !saving) && (action !== 'use' || foreground.current && !busy),
     isCurrent: pageEpoch => mounted.current && pageEpoch === epoch.current,
     currentUrl: () => currentUrl.current,
@@ -154,12 +162,12 @@ export function useAccessController(product = false, localOwner?: string, develo
   const information = useInformationController({
     product, mounted: () => mounted.current, foreground: () => foreground.current,
     ownerCurrent: () => owner.current === activeOwner.current, scope: requireScope,
-    canStart: retry => product && visible && (loaded || retry) && foreground.current && !busyRef.current && !savingRef.current && !loginBusy &&
+    canStart: retry => !activityRequest.current?.active() && product && visible && (loaded || retry) && foreground.current && !busyRef.current && !savingRef.current && !loginBusy &&
       !contextRequest.current && !recovery && viewReady && !disconnectMode.current,
     // A failed optional source invalidates the cached session observation. Each
     // independent job must still be allowed to obtain its own fresh profile
     // proof; InformationRun verifies the saved scope before and after reading.
-    canStartMedical: () => product && mounted.current && owner.current===activeOwner.current && foreground.current &&
+    canStartMedical: () => !activityRequest.current?.active() && product && mounted.current && owner.current===activeOwner.current && foreground.current &&
       !!scope.current && scope.current.owner===owner.current && !busyRef.current && !savingRef.current && !loginBusy && !loginStorageBusy.current && !loginAttempt.current &&
       !contextRequest.current && !recovery && viewReady && !disconnectMode.current && !clearingStore.current && !bindingBusy.current &&
       retrieval.current.state.phase==='idle',
@@ -206,6 +214,7 @@ export function useAccessController(product = false, localOwner?: string, develo
   })().catch(() => { if(active) { information.initialLoadFailed(initialInformationRequest); setCaptureLoadState(state => state === 'ready' ? state : 'failed'); setRecovery(true); setStatus('Original view recovery could not be opened. Exports are blocked to preserve preferences.'); } }); return () => { active = false; }; }, [localOwner]);
   useEffect(() => {
     if (!product || localOwner === owner.current) return;
+    activityRequest.current?.abandon();
     clearDevelopmentCheckpoints();
     endGuidedFlightConnection();
     clearContextRequest(); afterConfirmation.current = null; pendingCapture.current = null; pendingNavigation.current = null;
@@ -323,7 +332,7 @@ export function useAccessController(product = false, localOwner?: string, develo
     if (active.phase === 'loading') stop('Provider context unavailable. Earlier captures and recovery journal retained.', active.nonce);
   }
   function checkConnection(action: 'status' | 'check' | 'retrieve' | 'capture' | 'recover' | 'restored' | 'disconnect' | 'legacy' = 'check') {
-    if (owner.current !== activeOwner.current || clearingStore.current || bindingBusy.current || !foreground.current || loginBusy || loginStorageBusy.current || loginAttempt.current || disconnectMode.current !== (action === 'disconnect') || contextRequest.current || !viewReady || saving || busy && action !== 'capture' && action !== 'restored') return false;
+    if (activityRequest.current?.active() || owner.current !== activeOwner.current || clearingStore.current || bindingBusy.current || !foreground.current || loginBusy || loginStorageBusy.current || loginAttempt.current || disconnectMode.current !== (action === 'disconnect') || contextRequest.current || !viewReady || saving || busy && action !== 'capture' && action !== 'restored') return false;
     // An already observed, loaded profile needs a real new native request.
     // Android may not produce fresh document callbacks for same-URL JS assign.
     const reloadObservedProfile=product&&browserActive&&loaded&&currentUrl.current===PROFILE_URL&&session.current.state.phase==='observed';
@@ -339,8 +348,26 @@ export function useAccessController(product = false, localOwner?: string, develo
     if(reloadObservedProfile&&pendingNavigation.current?.url===PROFILE_URL)pendingNavigation.current.nativeReload=true;
     return true;
   }
+  function checkActivity(beforeStart?: () => Promise<void>) {
+    const bound = scope.current, ownedEpoch = epoch.current;
+    const current = () => !!bound && scope.current === bound && epoch.current === ownedEpoch && product && mounted.current &&
+      owner.current === activeOwner.current && bound.owner === owner.current && foreground.current && recoveryKnown.current &&
+      viewReady && browserActive && loaded && currentUrl.current === PROFILE_URL && !pendingNavigation.current &&
+      !visible && !guidedFlightLogin.current && !guidedLoginResume.current && !recovery && !original.current && !restoring.current &&
+      !information.active() && !editingLogin && !clearingStore.current && !bindingBusy.current && !contextRequest.current &&
+      !busyRef.current && !savingRef.current && !loginBusy && !loginStorageBusy.current && !loginAttempt.current && !disconnectMode.current &&
+      retrieval.current.state.phase === 'idle' && session.current.state.phase === 'observed' && session.current.state.confirmed &&
+      !!session.current.state.observed && sameContext(session.current.state.observed!, bound.context) &&
+      Date.now() >= Date.parse(session.current.state.lastCheckedAt ?? '') && Date.now() - Date.parse(session.current.state.lastCheckedAt ?? '') < 90_000;
+    if (!bound || !current()) return Promise.resolve(null);
+    return activityRequest.current!.start(bound.context, { current, beforeStart, terminate: () => {
+      if (epoch.current !== ownedEpoch) return;
+      try { web.current?.stopLoading(); } finally { epoch.current++; setGeneration(epoch.current); setLoaded(false);
+        session.current.invalidate(); syncConnection(); }
+    } });
+  }
   function checkSession() {
-    if(!product||!mounted.current||!scope.current||!recoveryKnown.current||visible||guidedFlightLogin.current||guidedLoginResume.current||
+    if(activityRequest.current?.active()||!product||!mounted.current||!scope.current||!recoveryKnown.current||visible||guidedFlightLogin.current||guidedLoginResume.current||
       recovery||original.current||restoring.current||information.active()||editingLogin||retrieval.current.state.phase!=='idle')return false;
     return checkConnection('status');
   }
@@ -582,7 +609,7 @@ export function useAccessController(product = false, localOwner?: string, develo
       clearContextRequest(); pendingNavigation.current = null; pendingCapture.current = null; afterConfirmation.current = null; endDisconnect(); session.current.invalidate(); syncConnection();
       flightSourceAttempt.current = null; pendingFlightSource.current = null;
       if (web.current) recordProviderEvent(retainLoginDocument ? 'provider-keep-background' : 'provider-stop-background');
-      if (!retainLoginDocument) { web.current?.stopLoading(); epoch.current++; setGeneration(epoch.current); }
+      if (!retainLoginDocument) { web.current?.stopLoading(); epoch.current++; setGeneration(epoch.current); activityRequest.current?.abandon(); }
       if (loginAttempt.current) endLogin('App left the foreground. Sign-in stopped; retry explicitly.', 'cancelled');
       if (retrieval.current.state.phase === 'loading') finish('App left the foreground. Recovery may be required.');
     });
@@ -978,6 +1005,7 @@ export function useAccessController(product = false, localOwner?: string, develo
           if (generation !== epoch.current) return;
           const observation = readLoginDiagnostic(event.nativeEvent.url, currentUrl.current, event.nativeEvent.data, generation);
           if (observation) { if (diagnosticMessages.current++ < 32) recordProviderEvent(observation); return; }
+          if (activityRequest.current?.receive(event.nativeEvent.url, currentUrl.current, event.nativeEvent.data)) return;
           if (receiveLoginDocument(event)) return;
           if (information.running()) { void information.receiveInformation(event); return; }
           if (product && contextRequest.current) { void receiveContext(event); return; }
@@ -998,5 +1026,5 @@ export function useAccessController(product = false, localOwner?: string, develo
   }, retrieveMedical: async () => {
     try { return await information.public.retrieveMedical(); }
     catch(error) { session.current.invalidate(); syncConnection(); throw error; }
-  }, checkSession, developmentCheckpoint, armDevelopmentJournalCheckpoint: () => armDevelopmentCheckpoint('journal'), armDevelopmentRecoveryCheckpoint: () => armDevelopmentCheckpoint('recovery'), beginGuidedFlightConnection, resumeGuidedFlightConnection, endGuidedFlightConnection, captureLoadState, canGoBack, backWithinProvider, legacyChoice, requestLegacyRecovery, legacyRecoveryAvailable, clearing, clearNotice, proofNotice, clearLocalSession, sessionClearingAvailable, sessionProofAvailable, binding, legacyRecovery: legacyPending.current, loginNotice, disconnectNotice, credentialNotice, startDisconnect, checkDisconnection, disconnecting, disconnectedAt, refreshRecovery, connection, checkConnection, connect, suspendBrowserForOwnerSwitch, dismissLogin, confirmConnection, lastSuccessfulCaptureAt, result, browser, showRun, setShowRun, showWindow, setShowWindow, viewReady, recovery, original, editingLogin, loginBusy, username, setUsername, password, setPassword, saveLogin, setEditingLogin, providerExpanded, visible, status, busy, openCaptureLab, pauseEnabled, toggleTestPause, preBackupPause, togglePreBackupPause, from, setFrom, to, setTo, saving, restoring, navigate, setVisible, cancelRetrieval, retrieve, hasLogin, useLogin, forgetLogin, recoverView, paused, continueTestRetrieval, viewStrategy, url, toggleProviderPage, browserActive, snapshot: product && owner.current !== localOwner ? null : snapshot, completedFlightSource: product && owner.current === localOwner && !busy && !recovery ? completedFlightSource : null, setProviderExpanded, flow, web, currentUrl, retrieval, loaded, source, generation, epoch };
+  }, checkActivity, cancelActivity: () => activityRequest.current!.cancel(), activityChecking, activityScope: scope.current, checkSession, developmentCheckpoint, armDevelopmentJournalCheckpoint: () => armDevelopmentCheckpoint('journal'), armDevelopmentRecoveryCheckpoint: () => armDevelopmentCheckpoint('recovery'), beginGuidedFlightConnection, resumeGuidedFlightConnection, endGuidedFlightConnection, captureLoadState, canGoBack, backWithinProvider, legacyChoice, requestLegacyRecovery, legacyRecoveryAvailable, clearing, clearNotice, proofNotice, clearLocalSession, sessionClearingAvailable, sessionProofAvailable, binding, legacyRecovery: legacyPending.current, loginNotice, disconnectNotice, credentialNotice, startDisconnect, checkDisconnection, disconnecting, disconnectedAt, refreshRecovery, connection, checkConnection, connect, suspendBrowserForOwnerSwitch, dismissLogin, confirmConnection, lastSuccessfulCaptureAt, result, browser, showRun, setShowRun, showWindow, setShowWindow, viewReady, recovery, original, editingLogin, loginBusy, username, setUsername, password, setPassword, saveLogin, setEditingLogin, providerExpanded, visible, status, busy, openCaptureLab, pauseEnabled, toggleTestPause, preBackupPause, togglePreBackupPause, from, setFrom, to, setTo, saving, restoring, navigate, setVisible, cancelRetrieval, retrieve, hasLogin, useLogin, forgetLogin, recoverView, paused, continueTestRetrieval, viewStrategy, url, toggleProviderPage, browserActive, snapshot: product && owner.current !== localOwner ? null : snapshot, completedFlightSource: product && owner.current === localOwner && !busy && !recovery ? completedFlightSource : null, setProviderExpanded, flow, web, currentUrl, retrieval, loaded, source, generation, epoch };
 }

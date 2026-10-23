@@ -39,8 +39,8 @@ Keep German labels beside important navigation/status symbols. Show saved facts 
 8. Manuel's **22 October implement instruction** selects the alternative Start layout under [#20](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/20#issuecomment-6340199647): count/known-time KPIs replace rings, compact aircraft/recent-flight rows, a general Alle anzeigen route to Flüge, responsive month chart/lower legend and a 40 dp header logo. This supersedes those scoped ring/layout values; status meanings and five tabs remain.
 9. Manuel's **22 October data-update header instruction (#22)** supersedes the ordinary header connection/session symbol with an explicit data-fetch action and durable received-age display: its earlier one-hour colour policy is superseded by the 23 October U1 refinement below; login opens only when an update needs it. Provider-panel verification remains separate.
 10. Manuel's **22 October popup/header-only instruction (#22)** places the complete update journey, including original login when required, in a bounded rounded navy frame over a dimmed inert page. Only the header data button opens provider update/login; other pages give passive header guidance and retain offline administration. The retained browser parent and credential-activity behavior remain protected.
-11. Manuel's **23 October connection instruction and U1 refinement (#42/#22)** retain permanent Daten/saved age with one login/synchronize action, independent recent-session mark and steady amber recommendation only when saved flight receipt age exceeds 72 hours. Foreground checks and strictly scoped display retention never change authentication. The compact result sits below the header outside Start scrolling, with recorded completion time and Details/close. See the [current contract](alternative-ui.md#connection-action--23-october-2026).
-12. Manuel's **23 October U2 implementation instruction** removes the permanent season coverage paragraph while retaining a short caveat in Statistics detail and accessible ring descriptions. The compact club card uses the saved club name, an honest unknown-name fallback, decorative airfield art within the existing title bounds and raised subgroup headings. The [U2 contract](alternative-ui.md#season-and-club-refinement-u2--23-october-2026) records implementation and the combined U1/U2 native/Release checkpoint, which is still in progress. U3 remains unstarted.
+11. Manuel's **23 October connection instruction and U1 refinement (#42/#22)** retain permanent Daten/saved age with one login/synchronize action, independent recent-session mark and steady amber recommendation when saved flight receipt age exceeds 72 hours; the subsequently selected U3 heuristic also permits amber for a scoped activity-count change, with **Änderungen möglich**. Foreground checks and strictly scoped display retention never change authentication. The compact result sits below the header outside Start scrolling, with recorded completion time and Details/close. See the [current contract](alternative-ui.md#connection-action--23-october-2026).
+12. Manuel's **23 October U2 implementation instruction** removes the permanent season coverage paragraph while retaining a short caveat in Statistics detail and accessible ring descriptions. The compact club card uses the saved club name, an honest unknown-name fallback, decorative airfield art within the existing title bounds and raised subgroup headings. The [U2 contract](alternative-ui.md#season-and-club-refinement-u2--23-october-2026) records implementation and the combined U1/U2 native/Release checkpoint, which is delivered within its recorded scope. U3 provider/count integration is selected and implemented with native verification pending.
 12. Manuel's **23 October #9 decision** approves the saved-local statistics overlay, year/all/custom periods, exact contributor navigation and decorative blueprint within the [bounded contract](alternative-ui.md#statistics-overlay--approved-implementation-scope-23-october-2026). Unverified launch mapping remains unavailable; broader identity and platform gates remain open.
 13. This handbook consolidates those decisions. Earlier prototype choices apply only where explicitly carried forward. Code values record implementation and cannot approve an unresolved visual difference.
 
@@ -79,7 +79,7 @@ An original, faint glider blueprint uses muted cyan/grey outlines, sparse constr
 
 ## Connection action — 23 October 2026
 
-Manuel requests one useful action and automatic login continuation under [#42](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/42) and [#22](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/22). The U1 refinement keeps permanent **Daten** and the Modern Duotone refresh symbol in every session state; its action and accessible name remain **Daten synchronisieren**. The second line describes the selected library's last successfully saved flight retrieval: **gerade**, **vor N Min.**, **vor N Std.**, **vor N Tg.**, or **Noch nie**. Loading/invalid/unreadable timestamps remain explicit. Session checks, login, failed or cancelled retrieval never renew saved age. A successful empty/no-change retrieval counts. A small independent session mark shows green **✓** for matching confirmed proof younger than 90 seconds, **→** when login is required, **?** for unknown/checking without retained proof, and **!** for mismatch/error. Saved flight receipt age strictly greater than 72 hours adds a steady amber border, subtle amber surface and **!** beside its age, regardless of login; exactly 72 hours does not. Other saved-age text stays neutral through login/error. No flashing or optional new-data probe is introduced. This replaces earlier whole-control session or one-hour age colouring.
+Manuel requests one useful action and automatic login continuation under [#42](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/42) and [#22](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/22). The U1 refinement keeps permanent **Daten** and the Modern Duotone refresh symbol in every session state; its action and accessible name remain **Daten synchronisieren**. The second line describes the selected library's last successfully saved flight retrieval: **gerade**, **vor N Min.**, **vor N Std.**, **vor N Tg.**, or **Noch nie**. Loading/invalid/unreadable timestamps remain explicit. Session checks, login, failed or cancelled retrieval never renew saved age. A successful empty/no-change retrieval counts. A small independent session mark shows green **✓** for matching confirmed proof younger than 90 seconds, **→** when login is required, **?** for unknown/checking without retained proof, and **!** for mismatch/error. Saved flight receipt age strictly greater than 72 hours adds a steady amber border, subtle amber surface and **!** beside its age, regardless of login; exactly 72 hours does not. Other saved-age text stays neutral through login/error. No flashing is introduced. The subsequently approved U3 integration also uses the same amber face for a scoped changed count marker, with a compact **Änderungen möglich** third line; saved age and the session mark remain visible and independent. The control caps at 150 dp and permits wrapping rather than clipping. An unchanged or unavailable check never means all data is current; older-detail edits are deliberately ignored. Native verification for this integration is pending. This replaces earlier whole-control session or one-hour age colouring.
 
 The same complete guarded sync journey starts in every state. Local preparation stays in the sync frame; legacy connect requests continue through supported jobs without a second tap. Successful login verifies the account, hides the original page, retrieves/saves requested data and returns to Start without a manual verification control. The combined result is a compact bordered row immediately below the header, outside Start's scrolling content: shared refresh glyph, **Synchronisiert · 14:32** or **Teilweise · 14:32**, **Details**, and close glyph. Details/close have minimum 48 dp targets; the row wraps and grows with system text scaling. Time is recorded when combined jobs finish and omitted when unavailable/invalid, never fabricated at render. Added/changed/pending counts, independent source outcomes and partial-coverage caveats live in Details. Failed/skipped sources or pending observations yield Teilweise; stored partial sources retain explicit caveats in Details. U2 adds the scoped season/club presentation below without changing this journey.
 
@@ -138,7 +138,7 @@ The shell retains Start and its processed selectors across ordinary tab navigati
 
 ## Synthetic design preview
 
-Profile → Development → Designvorschau opens the real Dashboard/OwnFlights components with eight fictional in-memory observations and a fixed 22 October 2026 clock. The Verein preview shows the actual DutyRoster with fictional partial own/other/later/unplaced duties, three fictional events and two document notices. It also exercises U1 with a green session mark independent of a four-day amber saved-age recommendation, plus compact receipt, Details and dismissal. Start-footer actions show empty and read-failure states; retry and the Flights preview tab restore the populated projection. No provider call, database mutation or account activation occurs. This is a repeatable visual aid, not native storage acceptance.
+Profile → Development → Designvorschau opens the real Dashboard/OwnFlights components with eight fictional in-memory observations and a fixed 22 October 2026 clock. The Verein preview shows the actual DutyRoster with fictional partial own/other/later/unplaced duties, three fictional events and two document notices. It also exercises the data action with a green session mark, independent four-day saved-age recommendation and synthetic **Änderungen möglich** hint, plus compact receipt, Details and dismissal. Start-footer actions show empty and read-failure states; retry and the Flights preview tab restore the populated projection. No provider call, database mutation or account activation occurs. This is a repeatable visual aid, not native storage acceptance.
 
 ## Acceptance boundary
 
@@ -274,7 +274,7 @@ The U1 header uses neutral saved-age text independently of session state, with a
 > The [22 October modern UI contract](alternative-ui.md) is selected as the main baseline. It supersedes conflicting earlier appearance/composition descriptions for C01–C09, typography, surfaces, Start and flight browsing. Data and acceptance boundaries retain their separate contracts.
 [Handbook entry point](README.md). This catalogue records branch implementation; main adoption was selected on 22 October. The portable guide includes schematic examples; source values and native evidence remain authoritative. Example labels/data are synthetic.
 
-**23 October U1 refinement (#42/#22):** permanent Daten/saved flight age and one Daten synchronisieren action; an independent small session mark; steady amber recommendation strictly after 72 hours. Display retention during checking is scoped and never authentication evidence. The compact receipt sits below the header outside Start scrolling, with counts/source caveats in Details. See the [current contract](alternative-ui.md#connection-action--23-october-2026).
+**23 October U1 refinement (#42/#22):** permanent Daten/saved flight age and one Daten synchronisieren action; an independent small session mark; steady amber recommendation strictly after 72 hours or a scoped changed activity count (U3); activity advice adds **Änderungen möglich**, independently of age/login. Display retention during checking is scoped and never authentication evidence. The compact receipt sits below the header outside Start scrolling, with counts/source caveats in Details. See the [current contract](alternative-ui.md#connection-action--23-october-2026).
 
 ## Component map
 
@@ -356,6 +356,8 @@ Historical main-branch amendment, superseded on this branch by [alternative UI](
 ### Header data update — selected 22 October 2026
 
 The ordinary header uses [DataUpdateIndicator](../../../apps/platform-lab/src/mobile/DataUpdateIndicator.tsx): unchanged refresh 24 dp artwork, permanent **Daten** label and scaled saved-age second line (**gerade**, **vor N Min./Std./Tg.**, **Noch nie**; loading/unclear states explicit). Its minimum 40 dp face, radius 12 and border sit inside a minimum 48 dp target. Small independent green ✓/amber →/muted ? or ! describe session evidence. Green requires recent matching confirmed proof younger than 90 seconds. Age stays neutral through login/error except that saved receipt age strictly greater than 72 hours adds steady amber border/surface and age !, regardless of login. Exactly 72 hours stays quiet. Durable successful flight retrieval time survives restart; login/checks/failure/cancellation never renew it. Empty/no-change success counts; other sources retain independent times. During checking only identical previous scope/account/club/timestamp proof younger than 90 seconds may retain its display; canonical authentication stays unchanged. There is no optional new-data probe.
+
+The selected U3 count heuristic can add a compact amber **Änderungen möglich** third line in the same face (maximum width 150 dp, wrapping allowed). Accessible text names the activity reason independently of the >72-hour reason. No animation, new icon, automatic login or claim of complete freshness. Provider and saved-source boundaries remain in the source contract; a synthetic Designvorschau state exercises this appearance. Native verification is pending for U3.
 
 [UpdateResult](../../../apps/platform-lab/src/mobile/UpdateResult.tsx) places the dismissible combined receipt directly below the header outside Start scrolling: one bordered row, shared refresh 24 dp glyph, Synchronisiert/Teilweise and recorded completion HH:mm when valid, Details and close 20 dp. Both controls have minimum 48 dp targets. Wrapping and uncapped system text scaling preserve enlarged text. Completion time is recorded after combined jobs finish with no render-time fallback. Counts, source outcomes and partial-coverage caveats stay in Details; failed/skipped sources or pending observations yield Teilweise. U2 adds the C21 club treatment and moves the permanent season paragraph into a short Statistics-detail caveat; the combined native/Release checkpoint is in progress.
 
@@ -465,7 +467,7 @@ Use only the header “Daten” button for new provider data and login. Start em
 
 [Handbook entry point](README.md). Generated by `python scripts/design_handbook.py`; do not hand-edit.
 
-Scope: 68 product mobile TypeScript/model and app-owned TSX UI/adapter files; 65 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.
+Scope: 71 product mobile TypeScript/model and app-owned TSX UI/adapter files; 65 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.
 
 ## App.tsx
 
@@ -705,17 +707,17 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ConnectionSummary
 
 ## CoreFlightFoundation.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `c22dd74232f31b638b76f210a63a5138187002db20ceaac7e0e46240c0676d0a`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `d2de97360fbf512f0b23533040114c3faba5bc44726010e0c4dc90af9ff34596`.
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `gap: 10` | 160, 168, 169, 586 |
-| `gap: 8` | 612, 638, 648 |
-| `maxWidth: 520` | 160, 169, 586 |
-| `padding: 12` | 160, 168, 586 |
-| `width: '100%'` | 160, 169, 586 |
+| `gap: 10` | 165, 173, 174, 667 |
+| `gap: 8` | 693, 719, 729 |
+| `maxWidth: 520` | 165, 174, 667 |
+| `padding: 12` | 165, 173, 667 |
+| `width: '100%'` | 165, 174, 667 |
 
 ## Dashboard.tsx
 
@@ -769,45 +771,49 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](..
 
 ## DataUpdateIndicator.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DataUpdateIndicator.tsx](../../../apps/platform-lab/src/mobile/DataUpdateIndicator.tsx); normalized SHA-256 `a37cac74212b745a3cd3206b7b4347b4ab968e680cbf788533483b7e3c02b12f`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DataUpdateIndicator.tsx](../../../apps/platform-lab/src/mobile/DataUpdateIndicator.tsx); normalized SHA-256 `fd9235143012d334aafcd8bd31268cf0c296c6abd6d06366cc1f3f66718b5270`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#74dfba` | 19 |
-| `#ffc477` | 19, 28, 35 |
-| `#ffc47712` | 35 |
+| `#74dfba` | 20 |
+| `#ffc477` | 20, 29, 37, 43 |
+| `#ffc47712` | 37 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 11` | 38, 40 |
-| `fontSize: 12` | 39 |
-| `fontWeight: '600'` | 39 |
-| `fontWeight: '700'` | 38 |
-| `lineHeight: 15` | 40 |
-| `lineHeight: 16` | 38, 39 |
+| `fontSize: 10` | 43 |
+| `fontSize: 11` | 40, 42 |
+| `fontSize: 12` | 41 |
+| `fontWeight: '600'` | 41 |
+| `fontWeight: '700'` | 40 |
+| `lineHeight: 14` | 43 |
+| `lineHeight: 15` | 42 |
+| `lineHeight: 16` | 40, 41 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 34 |
-| `borderWidth: 1` | 34 |
-| `gap: 4` | 37 |
-| `gap: 5` | 34 |
-| `minHeight: 40` | 34 |
-| `minHeight: 48` | 33 |
-| `minWidth: 94` | 33 |
-| `opacity: .5` | 24 |
-| `paddingHorizontal: 8` | 34 |
-| `paddingVertical: 2` | 34 |
+| `borderRadius: 12` | 36 |
+| `borderWidth: 1` | 36 |
+| `gap: 4` | 39 |
+| `gap: 5` | 36 |
+| `maxWidth: 150` | 35 |
+| `minHeight: 40` | 36 |
+| `minHeight: 48` | 35 |
+| `minWidth: 0` | 38 |
+| `minWidth: 94` | 35 |
+| `opacity: .5` | 25 |
+| `paddingHorizontal: 8` | 36 |
+| `paddingVertical: 2` | 36 |
 
 ## DesignPreview.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DesignPreview.tsx](../../../apps/platform-lab/src/mobile/DesignPreview.tsx); normalized SHA-256 `c2644734c908ce9e8520e6ec51396593f69ce27b0d956661f64451b85f79e144`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DesignPreview.tsx](../../../apps/platform-lab/src/mobile/DesignPreview.tsx); normalized SHA-256 `7b99694f7668b9708b556afb28b701595ff38401810463cc121e30be6f4d789e`.
 
 ### Typography declarations
 
@@ -998,7 +1004,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MedicalStatus.tsx
 
 ## MobileApp.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `4d30ff2665df87118c3113d851010fc9f42dc8d1b2b7bf75f4d6db0af0b6b72f`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `5febf08fa569d07e425bf06b8ef07411eccd2590c185387dd303986c9206554c`.
 
 ### Literal colors
 
@@ -1203,7 +1209,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProfileSettings.t
 
 ## ProviderConnection.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProviderConnection.tsx](../../../apps/platform-lab/src/mobile/ProviderConnection.tsx); normalized SHA-256 `46f70df3ba2c92affef358544e2afc625d3ebc2f7ce410324f44d67b4b54d979`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProviderConnection.tsx](../../../apps/platform-lab/src/mobile/ProviderConnection.tsx); normalized SHA-256 `bf82e934165038f96948d776b0c12b4273c1b2d3023b160d06f75fba83b3732f`.
 
 ### Literal colors
 

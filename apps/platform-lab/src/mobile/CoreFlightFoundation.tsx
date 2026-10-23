@@ -30,6 +30,11 @@ import { retrieveOtherAccountData, runAccountRetrievalJobs, type MedicalJobStatu
 import { refreshDutyRoster } from '../vereinsflieger/duty-refresh-native';
 import { retrievalFailureHint } from '../vereinsflieger/connection-state';
 import { startSessionMonitor } from './session-monitor';
+import { createActivityLedger, decodeActivityLedger, activityCheckDue, recordActivityAttempt, observeActivityLedger,
+  activityLedgerChanged, type ActivityLedger, type ActivityIdentity } from './activity-ledger';
+import { loadScopedActivity, saveScopedActivity } from '../vereinsflieger/scoped-storage';
+import { acknowledgeActivitySync, type ActivitySyncEvidence } from './activity-sync';
+import { canonical as activityCanonical } from '@moflight/flight-logbook';
 import { getPendingUserBackupRestoreNative, restoreUserBackupFromPickerNative, saveUserBackupToFolder } from '../user-backup-native';
 import type { UserBackupRestoreOperation } from '../user-backup-restore-journal';
 
@@ -197,6 +202,81 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,open=true,requestI
     });
   },[open,c.viewReady,registry,lease]);
   const alive=useRef(true),foreground=useRef(AppState.currentState==='active'),lock=useRef(false),waiting=useRef<WaitingSource|null>(null);
+  const activityLedger = useRef<ActivityLedger | null>(null), activityLock = useRef(false);
+  const activityLoad = useRef<{key:string;promise:Promise<ActivityLedger|null>}|null>(null);
+  const [activityChanged, setActivityChanged] = useState(false);
+  const activityIdentity = (): ActivityIdentity | null => {
+    const bound = controller.current.activityScope;
+    return bound?.owner === lease.ownerId ? { owner: lease.ownerId, store: lease.storeId, connection: bound.connectionId,
+      account: bound.context.accountNumber, club: bound.context.clubLabel } : null;
+  };
+  async function currentActivityLedger() {
+    const bound = controller.current.activityScope, identity = activityIdentity();
+    if (!bound || !identity) return null;
+    if (activityLedger.current && activityCanonical(activityLedger.current.identity) === activityCanonical(identity)) return activityLedger.current;
+    const key = activityCanonical(identity);
+    if (activityLoad.current?.key === key) return activityLoad.current.promise;
+    const promise = (async () => {
+      const saved = await loadScopedActivity(bound, lease.storeId);
+      if (!alive.current || activityCanonical(activityIdentity()) !== key) return null;
+      activityLedger.current = saved === null ? createActivityLedger(identity) : decodeActivityLedger(saved, identity);
+      setActivityChanged(activityLedgerChanged(activityLedger.current));
+      return activityLedger.current;
+    })();
+    activityLoad.current = {key,promise};
+    try { return await promise; } finally { if (activityLoad.current?.promise === promise) activityLoad.current = null; }
+  }
+  async function persistActivity(next: ActivityLedger) {
+    const bound = controller.current.activityScope;
+    const gate = () => {
+      if (!alive.current || activityCanonical(activityIdentity()) !== activityCanonical(next.identity)) throw new Error('Activity scope expired.');
+    };
+    if (!bound) throw new Error('Activity scope unavailable.');
+    gate(); await registry.assertCurrent(lease); gate();
+    await saveScopedActivity(bound, lease.storeId, decodeActivityLedger(next, next.identity), gate); gate();
+    activityLedger.current = next; setActivityChanged(activityLedgerChanged(next));
+  }
+  async function acknowledgeActivity(evidence: ActivitySyncEvidence) {
+    try {
+      const ledger = await currentActivityLedger(); if (!ledger) return;
+      const next = acknowledgeActivitySync(ledger, evidence, Date.now());
+      if (activityCanonical(next) !== activityCanonical(ledger)) await persistActivity(next);
+    } catch { /* Advisory failure cannot undo or misreport an already committed source sync. */ }
+  }
+  async function refreshDuties(account: string, active: () => boolean) {
+    const captures: { marker: import('../vereinsflieger/activity-probe').ActivityProbeSource; capturedAt:number }[] = [];
+    const result = await refreshDutyRoster(lease.ownerId, account, {active, readPage: async source => {
+      const capture = await controller.current.retrieveDutyPage(source);
+      const marker = controller.current.takeDutyActivity(capture.id);
+      if (marker && !capture.coverage.truncated && marker.markers.count === capture.rows.length)
+        captures.push({marker,capturedAt:Date.parse(capture.retrievedAt)});
+      return capture;
+    }});
+    for (const {marker,capturedAt} of captures) await acknowledgeActivity({...marker,capturedAt,committedAt:Date.now()});
+    return result;
+  }
+  useEffect(() => {
+    if (!c.viewReady) return;
+    let current = true;
+    void currentActivityLedger().then(async ledger => {
+      if (!current || !ledger || open || activityLock.current || lock.current || AppState.currentState !== 'active' ||
+        c.connection.phase !== 'observed' || !c.connection.confirmed || !activityCheckDue(ledger, Date.now())) return;
+      activityLock.current = true;
+      try {
+        await registry.assertCurrent(lease);
+        if (!current || panelActive.current) return;
+        const result = await controller.current.checkActivity(async () => {
+          if (!current || panelActive.current) throw new Error('Activity check superseded.');
+          await persistActivity(recordActivityAttempt(ledger, Date.now()));
+        });
+        if (!current || !result || panelActive.current) return;
+        const latest = activityLedger.current;
+        if (latest) await persistActivity(observeActivityLedger(latest, result.sources, result.observedAt, Date.now()));
+      } catch { /* Unavailable means no new signal. Existing scoped hints stay intact. */ }
+      finally { activityLock.current = false; }
+    }).catch(() => { /* An unreadable cache is preserved, never overwritten by an empty baseline. */ });
+    return () => { current = false; };
+  }, [open, c.viewReady, c.connection, lease]);
   const reviewGeneration=useRef(0),directAdmission=useRef<CoreFlightReviewAdmission|null>(null),invalidatedRetrievals=useRef(new Set<string>());
   const [busy,setBusy]=useState(false),[providerOpen,setProviderOpen]=useState(false),[message,setMessage]=useState(''),[failed,setFailed]=useState(false);
   const [review,setReview]=useState<RealFlightReview|null>(null),[flights,setFlights]=useState<RealFlightListItem[]>([]),[page,setPage]=useState(0);
@@ -217,7 +297,7 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,open=true,requestI
   // Legacy connect requests share the complete sync journey; connection proof
   // is never an intermediate user destination.
   const syncEntry=intent==='update'||intent==='connect';
-  useEffect(()=>{if(!onStatus)return;onStatus({loginVisible:c.visible,ownerId:lease.ownerId,connection:c.connection,browserActive:c.browserActive,clearing:c.clearing,binding:c.binding,busy:c.busy,loginBusy:c.loginBusy,disconnecting:c.disconnecting,saving:c.saving,recovery:c.recovery,restoring:{current:c.restoring.current}});},[onStatus,lease.ownerId,c.visible,c.connection,c.browserActive,c.clearing,c.binding,c.busy,c.loginBusy,c.disconnecting,c.saving,c.recovery,c.restoring.current]);
+  useEffect(()=>{if(!onStatus)return;onStatus({activity:{storeId:lease.storeId,accountRef:c.activityScope?.context.accountNumber??null,changed:activityChanged},loginVisible:c.visible,ownerId:lease.ownerId,connection:c.connection,browserActive:c.browserActive,clearing:c.clearing,binding:c.binding,busy:c.busy,loginBusy:c.loginBusy,disconnecting:c.disconnecting,saving:c.saving,recovery:c.recovery,restoring:{current:c.restoring.current}});},[onStatus,lease.ownerId,activityChanged,c.activityScope,c.visible,c.connection,c.browserActive,c.clearing,c.binding,c.busy,c.loginBusy,c.disconnecting,c.saving,c.recovery,c.restoring.current]);
   const scope=useMemo<RealFlightNativeScope>(()=>({registry,lease,authorize:()=>alive.current ? {ownerId:lease.ownerId,storeId:lease.storeId,leaseId:lease.leaseId,writable:foreground.current&&panelActive.current} : null}),[registry,lease]);
   function finishSource(error?:Error,source?:RealFlightSourceInput) {
     const pending=waiting.current;if(!pending)return;waiting.current=null;if(pending.timer)clearTimeout(pending.timer);pending.signal.removeEventListener('abort',pending.abort);
@@ -308,6 +388,8 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,open=true,requestI
     const result=await service.saveVerifiedReview(next,selected.observed);
     diagnosis.current?.note('save','receipt-confirmed');
     const total=await timeFlightStage('return-readback',refresh);setFlightSaved(total);
+    if (next.source.capture.coverage === 'complete-requested-list') await acknowledgeActivity({source:'flights',capturedAt:Date.parse(next.source.capture.retrievedAt),
+      committedAt:Date.now(),window:next.source.requestedWindow,participation:next.source.requestedWindow.participation});
     return {result,source:next};
   }
   async function finishAutomaticLoad(flights:()=>ReturnType<typeof saveFlightReview>) {
@@ -317,8 +399,7 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,open=true,requestI
         duties:()=>{setStep('Flüge gespeichert. Dienste werden geladen …');
           const account=controller.current.connection.observed?.accountNumber;
           if(!account)return Promise.reject(new Error('Verified duty account unavailable'));
-          return timeFlightStage('duties',()=>refreshDutyRoster(lease.ownerId,account,{active,
-            readPage:source=>controller.current.retrieveDutyPage(source)}));},
+          return timeFlightStage('duties',()=>refreshDuties(account,active));},
         events:()=>{setStep('Termine werden geladen …');return controller.current.retrieveFeatureInformation('events');},
         documentNotices:()=>{setStep('Dokumenthinweise werden geladen …');return controller.current.retrieveFeatureInformation('document-notices');},
         workSummary:()=>{setStep('Arbeitsstunden · Jahresübersicht wird geladen …');return controller.current.retrieveFeatureInformation('work-summary');},
@@ -354,7 +435,7 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,open=true,requestI
         }else{
           const account=current.connection.observed?.accountNumber;
           if(!account)throw new Error('Verified duty account unavailable.');
-          await timeFlightStage('duties',()=>refreshDutyRoster(lease.ownerId,account,{active:()=>alive.current&&foreground.current&&panelActive.current,readPage:source=>controller.current.retrieveDutyPage(source)}));
+          await timeFlightStage('duties',()=>refreshDuties(account,()=>alive.current&&foreground.current&&panelActive.current));
           setCompleted(previous=>previous?{...previous,dutyStatus:'partial'}:previous);
         }
         setMessage('');
@@ -421,7 +502,7 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,open=true,requestI
     setProviderOpen(providerEntryAllowed&&open&&intent!=='options');
     if(!open){if(waiting.current)abandonSource('Sync surface closed.');return;}
     let current=true;
-    void run(async()=>{await refresh();if(current)setEntryReady(true);},'library-operation',true);
+    void run(async()=>{await controller.current.cancelActivity();await refresh();if(current)setEntryReady(true);},'library-operation',true);
     return()=>{current=false;};
   },[open,requestId,service]);
   useEffect(()=>{

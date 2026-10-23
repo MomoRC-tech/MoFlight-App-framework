@@ -140,6 +140,34 @@ test('amber advice starts strictly after 72 hours and can coexist with a green l
   assert.match(text(loggedOut), /→.*vor 3 Tg\. !/);
 });
 
+test('quick activity uses amber guidance while keeping fresh saved age and session evidence independent', () => {
+  const render = fixture(), now = received + 60_000;
+  const tree = render({ scopeKey: 'owner/store/123', connection: { ...proof, lastCheckedAt: new Date(now).toISOString() }, receivedAt: at, readState: 'ready', now, activityChanged: true, onPress() {} });
+  assert.match(text(tree), /Daten ✓ vor 1 Min\. Änderungen möglich/);
+  assert.match(tree.props.accessibilityLabel, /Änderungen möglich/);
+  assert.doesNotMatch(tree.props.accessibilityLabel, /Synchronisieren empfohlen|älter als drei Tage/);
+  assert.ok(tree.children[0].props.style.some((style: any) => style?.borderColor === '#ffc477'));
+});
+
+test('quick activity and stale saved age announce both amber reasons', () => {
+  const render = fixture(), now = received + DATA_FRESHNESS_REMINDER_MS + 1;
+  const tree = render({ scopeKey: 'owner/store/123', connection: { ...proof, lastCheckedAt: new Date(now).toISOString() }, receivedAt: at, readState: 'ready', now, activityChanged: true, onPress() {} });
+  assert.match(text(tree), /Daten ✓ vor 3 Tg\. ! Änderungen möglich/);
+  assert.match(tree.props.accessibilityLabel, /Änderungen möglich.*Synchronisieren empfohlen: Flugdaten älter als drei Tage/);
+  assert.ok(tree.children[0].props.style.some((style: any) => style?.borderColor === '#ffc477'));
+});
+
+test('activity defaults off and explicit false preserves the ordinary fresh header', () => {
+  const render = fixture(), now = received + 60_000;
+  const props = { scopeKey: 'owner/store/123', connection: { ...proof, lastCheckedAt: new Date(now).toISOString() }, receivedAt: at, readState: 'ready', now, onPress() {} };
+  const defaultTree = render(props), falseTree = render({ ...props, activityChanged: false });
+  assert.equal(text(defaultTree), text(falseTree));
+  assert.equal(defaultTree.props.accessibilityLabel, falseTree.props.accessibilityLabel);
+  assert.match(text(falseTree), /Daten ✓ vor 1 Min\./);
+  assert.doesNotMatch(text(falseTree), /Änderungen möglich/);
+  assert.equal(defaultTree.children[0].props.style.some((style: any) => style?.borderColor === '#ffc477'), false);
+});
+
 test('rendering a newly received proof uses current wall time between timer ticks', () => {
   const source = ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/mobile/use-start-clock.ts', import.meta.url), 'utf8'), {
     compilerOptions: { module: ts.ModuleKind.CommonJS },

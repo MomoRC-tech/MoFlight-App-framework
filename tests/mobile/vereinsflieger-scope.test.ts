@@ -80,6 +80,16 @@ test('native scoped adapter reopens separate owner journals and rejects forged f
     assert.equal((await storage.loadScopedView(a))?.accountLabel, view.accountLabel);
     assert.equal((await storage.loadScopedView(b))?.accountLabel, 'Synthetic account B');
     assert.deepEqual(await storage.loadProviderScope('pilot-a'), a);
+    const activity = {version:1,synthetic:'private advisory state'};
+    assert.equal(await storage.loadScopedActivity(a, 'library-a'), null);
+    await storage.saveScopedActivity(a, 'library-a', activity, () => {});
+    assert.deepEqual(JSON.parse(JSON.stringify(await storage.loadScopedActivity(a, 'library-a'))), activity);
+    assert.equal(await storage.loadScopedActivity(a, 'library-b'), null);
+    assert.equal(await storage.loadScopedActivity(b, 'library-a'), null);
+    await assert.rejects(storage.loadScopedActivity({...a, connectionId:b.connectionId}, 'library-a'));
+    await assert.rejects(storage.saveScopedActivity({...a, owner:b.owner}, 'library-a', activity, () => {}));
+    await assert.rejects(storage.saveScopedActivity(a, 'library-a', {changed:true}, () => {throw new Error('Revoked');}));
+    assert.deepEqual(JSON.parse(JSON.stringify(await storage.loadScopedActivity(a, 'library-a'))), activity);
     const capture = captureFixture(6);
     assert.equal(await storage.loadScopedCapture(a), null);
     await storage.saveScopedCapture(a, capture);

@@ -8,8 +8,11 @@ import * as policy from '../../apps/platform-lab/src/mobile/core-flight-review-p
 import { planFlightRetrieval } from '../../apps/platform-lab/src/vereinsflieger/retrieval-policy.ts';
 import { dataFreshness } from '../../apps/platform-lab/src/mobile/data-freshness.ts';
 import * as accountJobs from '../../apps/platform-lab/src/mobile/account-retrieval-jobs.ts';
+import * as activityLedger from '../../apps/platform-lab/src/mobile/activity-ledger.ts';
+import * as activitySync from '../../apps/platform-lab/src/mobile/activity-sync.ts';
 import { retrievalFailureHint } from '../../apps/platform-lab/src/vereinsflieger/connection-state.ts';
 import { startSessionMonitor } from '../../apps/platform-lab/src/mobile/session-monitor.ts';
+import { canonical } from '../../packages/flight-logbook/src/index.ts';
 
 interface Element { type: string; props: Record<string, any>; children: unknown[] }
 const source=ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx',import.meta.url),'utf8'),{
@@ -18,13 +21,15 @@ const source=ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/sr
 
 // Real screen effects and handlers; SQLite and provider behavior have their own
 // integration tests. These ports control timing to exercise the screen coordinator.
-function fixture({providerAllowed=true,deferRead=false,startUpdate=false,root=false,readOnly=false,deferReservation=false,failStartup=false,medicalFailure=false,loginPending=false,deferProvider=false,quietResume=false,deferSource=false,sameWindow=false,deferVerification=false,priorConnection='unknown',existingOwner=false,pendingRestore=false,cancelRestore=false,intent:requestedIntent=undefined as string|undefined}={}) {
+function fixture({providerAllowed=true,deferRead=false,startUpdate=false,root=false,readOnly=false,deferReservation=false,deferActivityCancel=false,failStartup=false,medicalFailure=false,loginPending=false,deferProvider=false,quietResume=false,deferSource=false,sameWindow=false,deferVerification=false,priorConnection='unknown',existingOwner=false,pendingRestore=false,cancelRestore=false,intent:requestedIntent=undefined as string|undefined}={}) {
   let panelOpen=true,requestId=0;
   const journal=new DiagnosticJournal(), diagnosis={current:journal.begin(startUpdate?'update-flights':'open-flight-tools')};
-  const hooks:any[]=[],effects:(()=>void)[]=[],calls:string[]=[],closed:any[]=[];
+  const hooks:any[]=[],effects:(()=>void)[]=[],calls:string[]=[],activityOrder:string[]=[],closed:any[]=[];
   let index=0,dirty=true,tree:Element,abort:AbortController|null=null;
   let finishRead!:()=>void;
   const storedRead=new Promise<void>(resolve=>{finishRead=resolve;});
+  let finishActivityCancel!:()=>void;
+  const activityCancel=new Promise<void>(resolve=>{finishActivityCancel=resolve;});
   let finishReservation!:()=>void;
   const reservation=new Promise<void>(resolve=>{finishReservation=resolve;});
   const listeners=new Set<(state:string)=>void>();
@@ -45,13 +50,14 @@ function fixture({providerAllowed=true,deferRead=false,startUpdate=false,root=fa
     endGuidedFlightConnection:()=>{},connect:()=>calls.push('login'),
     retrieveFeatureInformation:async(category:string)=>{calls.push(category);return {rows:[{}]};},
     retrieveMedical:async()=>{calls.push('medical');if(medicalFailure)throw new Error('Synthetic Medical failure');return {rows:[{}]};},
+    cancelActivity:async()=>{activityOrder.push('cancel-start');if(deferActivityCancel)await activityCancel;activityOrder.push('cancel-finish');},
     checkConnection:(action?:string)=>{if(action==='check'){calls.push('verify-job');c.connection={phase:'checking',confirmed:false};}else{calls.push('retrieve');c.busy=true;}dirty=true;return true;},
     dismissLogin:()=>{c.visible=false;c.busy=false;dirty=true;},backWithinProvider:()=>false,cancelRetrieval:()=>{c.busy=false;dirty=true;},
   };
   class Service {
     constructor(...args:any[]) { this.ports=args[3]; }
     ports:any;
-    async readStored(){if(deferRead)await storedRead;return {snapshot,flights:saved?[{},{},{}]:[]};}
+    async readStored(){activityOrder.push('refresh-read');if(deferRead)await storedRead;return {snapshot,flights:saved?[{},{},{}]:[]};}
     async recoverPending(){return {status:'none'};}
     async retrieveUpdate(){if(deferSource)await new Promise<void>(resolve=>{admitSource=resolve;});abort=new AbortController();if(deferProvider)c.viewReady=false;const value=await this.ports.retrieve({from:'2025-01-01',to:'2026-10-21'},abort.signal);return {state:'confirm-account',accountRef:'101',source:value};}
     async saveVerifiedReview(_review:any,context:any){assert.equal(context.accountNumber,'101');calls.push('save');saved=true;return {counts:{added:2,changed:1,pending:0}};}
@@ -70,6 +76,13 @@ function fixture({providerAllowed=true,deferRead=false,startUpdate=false,root=fa
     '../user-backup-native':{getPendingUserBackupRestoreNative:async()=>pendingRestore?{operationId:'pending',ownerId:'owner',storeId:'store'}:null,
       restoreUserBackupFromPickerNative:async(_scope:any,_gate:any,id:string)=>{calls.push('resume-'+id);if(cancelRestore)return {state:'cancelled'};pendingRestore=false;return {state:'restored'};}},
     './session-monitor':{startSessionMonitor},
+    './activity-ledger':activityLedger,
+    './activity-sync':activitySync,
+    '../vereinsflieger/scoped-storage':{
+      loadScopedActivity:async()=>null,
+      saveScopedActivity:async(_scope:any,_store:string,_value:unknown,gate:()=>void)=>{gate();gate();},
+    },
+    '@moflight/flight-logbook':{canonical},
     './account-retrieval-jobs':accountJobs, '../diagnostics':{diagnosticJournal:journal},
     '../vereinsflieger/duty-refresh-native':{refreshDutyRoster:async()=>({rows:[],partial:true})},
     '../vereinsflieger/connection-state':{retrievalFailureHint},
@@ -95,6 +108,7 @@ function fixture({providerAllowed=true,deferRead=false,startUpdate=false,root=fa
     verify:()=>{c.visible=false;c.connection={phase:'observed',confirmed:true,observed:{accountNumber:'101',clubLabel:'Example'}};dirty=true;},
     pendingTimers:()=>timers.size,expire:()=>{for(const [id,fn] of timers){timers.delete(id);fn();}},
     finishRead:()=>finishRead(),
+    finishActivityCancel:()=>finishActivityCancel(),activityOrder,
     admitSource:()=>admitSource(),
     complete:()=>{c.busy=false;c.result='captured';c.completedFlightSource=input;dirty=true;},
     dispose:()=>{for(const hook of hooks)hook?.cleanup?.();},
@@ -130,6 +144,17 @@ test('opening options does no retrieval; one explicit action verifies, loads, sa
     assert.equal(f.closed[0].ownerId,'owner');assert.equal(f.closed[0].storeId,'store');assert.equal(f.closed[0].accountRef,'101');
     assert.equal(new Date(f.closed[0].completedAt).toISOString(),f.closed[0].completedAt,'The coordinator records an actual completion time');
   }finally{f.dispose();}
+});
+
+test('library refresh waits for an activity request to cancel before reading or updating', async () => {
+  const f=fixture({deferActivityCancel:true});
+  try {
+    f.render(); await f.flush();
+    assert.deepEqual(f.activityOrder,['cancel-start']);
+    assert.equal(f.activityOrder.includes('refresh-read'),false,'Stored flight state must not be read while provider activity still owns the browser');
+    f.finishActivityCancel(); await f.flush();
+    assert.deepEqual(f.activityOrder.slice(0,3),['cancel-start','cancel-finish','refresh-read']);
+  } finally { f.dispose(); }
 });
 
 test('combined entry starts once, while read-only recovery prevents automatic work',async()=>{
