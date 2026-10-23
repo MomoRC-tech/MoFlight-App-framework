@@ -606,3 +606,8 @@ test('activity advice is shown only for the selected owner library and provider 
   f.setProviderStatus({...status,activity:{...activity,changed:false}});
   assert.equal(f.find('DataUpdateIndicator').props.activityChanged,false);
 });
+
+
+test('overview-selected year opens Statistics in that same season',()=>{
+ const f=fixture();f.find('Dashboard').props.onStatistics(2025);f.render();assert.equal(f.find('StatisticsOverlay').props.initialYear,2025);assert.deepEqual(f.coreRoutes,[]);
+});

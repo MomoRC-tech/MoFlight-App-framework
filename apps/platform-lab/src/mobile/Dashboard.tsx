@@ -12,7 +12,7 @@ import type { RealFlightListItem } from '../vereinsflieger/real-flight-library';
 import { DutyTargetEditor, useDutyTarget } from './DutyTarget';
 interface Props {
   ownFlights: OwnFlightView | null; ownFlightPhase: 'loading' | 'ready' | 'missing' | 'failed'; pending: number | null; width: number; fontScale: number;
-  onPaper: () => void; onFlights: () => void; onFlight?: (flightId: string) => void; onStatistics?: () => void; now?: number;
+  onPaper: () => void; onFlights: () => void; onFlight?: (flightId: string) => void; onStatistics?: (year: number) => void; now?: number;
 }
 export function Dashboard({ ownFlights, ownFlightPhase, onFlights, onFlight, onStatistics, fontScale, now = Date.now() }: Props) {
   const clock = new Date(now), currentYear = clock.getFullYear();
@@ -35,7 +35,7 @@ export function Dashboard({ ownFlights, ownFlightPhase, onFlights, onFlight, onS
       <View style={styles.shade}>
         <View style={styles.heading}>
           <Pressable accessibilityRole="button" accessibilityLabel={`Saison ${year} auswählen`} accessibilityState={{expanded:yearOpen}} onPress={()=>setYearOpen(!yearOpen)} style={styles.seasonTitle}><Label style={styles.title}>Meine Saison · {year}</Label></Pressable>
-          {onStatistics&&<Pressable accessibilityRole="button" accessibilityLabel="Statistik" onPress={onStatistics} style={styles.statistics}><Label style={styles.statisticsText}>Statistik ↗</Label></Pressable>}
+          {onStatistics&&<Pressable accessibilityRole="button" accessibilityLabel="Statistik" onPress={()=>onStatistics(year)} style={styles.statistics}><Label style={[styles.statisticsText,{flexShrink:1}]}>Statistik</Label><View style={{transform:[{rotate:'-45deg'}]}}><SymbolIcon name="arrow" size={16}/></View></Pressable>}
         </View>
         {yearOpen&&<View style={styles.yearControls}><Pressable accessibilityRole="button" accessibilityLabel="Vorherige Saison" onPress={()=>setSelection({scope,year:Math.max(1901,year-1)})} style={styles.yearButton}><Label>‹ {year-1}</Label></Pressable><Label muted>Saison wählen</Label><Pressable accessibilityRole="button" accessibilityLabel="Nächste Saison" disabled={year>=currentYear} onPress={()=>setSelection({scope,year:year+1})} style={[styles.yearButton,year>=currentYear&&{opacity:.4}]}><Label>{year+1} ›</Label></Pressable></View>}
         <ScrollView horizontal showsHorizontalScrollIndicator contentContainerStyle={[styles.metrics,fontScale>1.3&&{minWidth:330*fontScale}]}>
@@ -58,7 +58,8 @@ export function Dashboard({ ownFlights, ownFlightPhase, onFlights, onFlight, onS
         <SymbolIcon name="logbook" size={22} tone="muted"/>
         <View style={{flex:1,minWidth:0,gap:3}}><Label muted style={styles.small}>Letzter Flug</Label><View style={styles.flightRow}><Label style={styles.date}>{a.date.value?.split('-').reverse().join('.')??'Datum unbekannt'}</Label><View style={styles.duration}><Label style={styles.durationText}>{a.durations.flight.state==='known'?`${formatReportedMinutes(a.durations.flight.minutes)} h`:'— h'}</Label></View></View><Label muted style={styles.small}>{raw('model')} · {raw('registration')} · PIC {abbreviatedCrew(a.fields.pic)}</Label></View><SymbolIcon name="right" size={18}/>
       </Pressable>:<Label muted>Noch keine datierten gespeicherten Flüge.</Label>}
-      {ready&&facts.current.season.unknownDurationCount>0&&<Label muted style={styles.small}>{facts.current.season.unknownDurationCount} Saisonzeiten unbekannt/strittig · Flugzeit zeigt bekannte Werte.</Label>}
+      {ready&&facts.current.season.unknownDurationCount>0&&<Label muted style={styles.small}>{facts.current.season.unknownDurationCount} Saisonzeiten unbekannt · bekannte Flugzeit</Label>}
+      {ready&&facts.prior.season.unknownDurationCount>0&&<Label muted style={styles.small}>{year-1}: {facts.prior.season.unknownDurationCount} Zeiten unbekannt · bekannte Flugzeit</Label>}
       {ready&&facts.current.unknownDateCount>0&&<Label muted style={styles.small}>{facts.current.unknownDateCount} Flüge ohne zugeordnetes Datum.</Label>}
       <Pressable accessibilityRole="button" onPress={onFlights} style={styles.allFlights}><Label style={{color:colors.cyan,fontWeight:'600'}}>Alle Flüge</Label><SymbolIcon name="right" size={24}/></Pressable>
     </View>
@@ -68,8 +69,8 @@ const styles=StyleSheet.create({
   season:{width:'100%',maxWidth:520,alignSelf:'center',padding:0,gap:0},
   photo:{width:'100%'},shade:{backgroundColor:'#001b2955',paddingHorizontal:12,paddingBottom:12,gap:8},
   heading:{flexDirection:'row',alignItems:'center',gap:6},seasonTitle:{flex:1,minWidth:0,minHeight:48,justifyContent:'center'},title:{fontSize:18,lineHeight:25,fontWeight:'700'},
-  statistics:{minHeight:48,justifyContent:'center',paddingHorizontal:2,maxWidth:'35%'},statisticsText:{color:colors.cyan,fontSize:14,lineHeight:20},
-  metrics:{flexGrow:1,flexDirection:'row',paddingTop:14},metric:{flex:1,minWidth:90,alignItems:'center',justifyContent:'flex-start',gap:3,paddingHorizontal:5},divider:{borderLeftWidth:1,borderColor:colors.border},
+  statistics:{minHeight:48,justifyContent:'center',alignItems:'center',flexDirection:'row',gap:3,paddingHorizontal:2,maxWidth:'35%'},statisticsText:{color:colors.cyan,fontSize:14,lineHeight:20},
+  metrics:{flexGrow:1,flexDirection:'row',paddingTop:4},metric:{flex:1,minWidth:90,alignItems:'center',justifyContent:'flex-start',gap:3,paddingHorizontal:5},divider:{borderLeftWidth:1,borderColor:colors.border},
   value:{fontSize:27,lineHeight:34,fontWeight:'700',textAlign:'center',fontVariant:['tabular-nums']},workValue:{fontSize:22,lineHeight:34},metricLabel:{fontSize:12,lineHeight:18,textAlign:'center'},prior:{fontSize:11,lineHeight:17,textAlign:'center'},
   body:{paddingHorizontal:12},inset:{padding:12},latest:{flexDirection:'row',alignItems:'center',gap:9,minHeight:80,paddingVertical:10,borderTopWidth:1,borderColor:colors.border},
   flightRow:{flexDirection:'row',flexWrap:'wrap',alignItems:'center',gap:8},date:{fontSize:16,lineHeight:22,fontWeight:'700',flexGrow:1},duration:{backgroundColor:colors.raised,borderWidth:1,borderColor:colors.border,borderRadius:18,paddingHorizontal:10,paddingVertical:3},durationText:{color:colors.cyan,fontSize:14,lineHeight:20,fontWeight:'600'},small:{fontSize:12,lineHeight:18},

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { Label, colors, ui } from './theme';
 import { SymbolIcon } from './SymbolIcon';
 import { medicalExpiry } from './medical-expiry';
@@ -9,11 +9,12 @@ export function OverviewTiles({medical = null, now, onMedical, onPaper, pending 
   medical?: InformationCapture | null; now: number; onMedical: () => void; onPaper: () => void; pending?: number | null; bookName?: string | null;
 }) {
   const assessment = medicalExpiry(medical, now);
-  return <View style={styles.row}>
-    <Pressable accessibilityRole="button" accessibilityLabel={`Medical. ${assessment.date ? `Erfasstes Ablaufdatum ${assessment.date}` : 'Ablaufdatum unbekannt'}. Details öffnen`} onPress={onMedical} style={({pressed})=>[styles.tile,pressed&&ui.pressed]}>
+  const {fontScale}=useWindowDimensions();
+  return <View style={[styles.row,fontScale>1.3&&{flexDirection:'column'}]}>
+    <Pressable accessibilityRole="button" accessibilityLabel={`Medical. ${assessment.date ? `Erfasstes Ablaufdatum ${assessment.date}` : 'Ablaufdatum unbekannt'}. Details öffnen`} onPress={onMedical} style={({pressed})=>[styles.tile,fontScale>1.3&&{flex:0,width:'100%'},pressed&&ui.pressed]}>
       <SymbolIcon name="medical-card" size={28}/><View style={styles.copy}><Label style={styles.title}>Medical</Label><Label muted style={styles.small}>{assessment.date?'Erfasst bis':'Status unbekannt'}</Label>{assessment.date&&<Label style={[styles.value,{color:assessment.state==='expired'?'#ff7777':assessment.state==='soon'?'#f9b65b':colors.text}]}>{assessment.date}{assessment.issues.length?'*':''}</Label>}<Label style={styles.link}>Details ›</Label></View>
     </Pressable>
-    <Pressable accessibilityRole="button" accessibilityLabel={`Papierflugbuch. ${bookName ? `${bookName}, ${pending === null ? 'Papierstand unbekannt' : pending+' Flüge offen'}` : 'Einrichtung in Vorbereitung'}. Öffnen`} onPress={onPaper} style={({pressed})=>[styles.tile,pressed&&ui.pressed]}>
+    <Pressable accessibilityRole="button" accessibilityLabel={`Papierflugbuch. ${bookName ? `${bookName}, ${pending === null ? 'Papierstand unbekannt' : pending+' Flüge offen'}` : 'Einrichtung in Vorbereitung'}. Öffnen`} onPress={onPaper} style={({pressed})=>[styles.tile,fontScale>1.3&&{flex:0,width:'100%'},pressed&&ui.pressed]}>
       <SymbolIcon name="book" size={28}/><View style={styles.copy}><Label style={styles.title}>Papierflugbuch</Label><Label muted style={styles.small}>{bookName??'Noch nicht eingerichtet'}</Label><Label style={styles.link}>{bookName?(pending===null?'Stand ansehen ›':`${pending} offen ›`):'In Vorbereitung ›'}</Label></View>
     </Pressable>
   </View>;

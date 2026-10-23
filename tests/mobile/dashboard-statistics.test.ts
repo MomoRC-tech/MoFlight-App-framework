@@ -33,7 +33,7 @@ function render(flights:any[], phase='ready', fontScale=1) {
     if(name.startsWith('../../assets/'))return name;assert.ok(name in modules,name);return modules[name];}});
   const calls:(number|undefined)[]=[];const opened:string[]=[];const statisticsCalls:number[]=[];
   const props:any={ownFlights:{flights,snapshot:{account:{accountRef:'101'},savedRetrievals:[]}},ownFlightPhase:phase,pending:null,width:390,fontScale,now:Date.parse('2026-10-22T12:00:00Z'),
-    onFlight:(id:string)=>opened.push(id),onFlights:(year?:number)=>calls.push(year),onStatistics:()=>statisticsCalls.push(statisticsCalls.length+1)};
+    onFlight:(id:string)=>opened.push(id),onFlights:(year?:number)=>calls.push(year),onStatistics:(year:number)=>statisticsCalls.push(year)};
   const tree=exports.Dashboard(props);
   const nodes:Element[]=[];function visit(n:any){if(n?.type?.name==='StatisticsEntry'){visit(n.type(n.props));return;}if(n?.children){nodes.push(n);n.children.forEach(visit);}}visit(tree);
   return {nodes,calls,opened,statisticsCalls,text:JSON.stringify(tree), calculations:()=>calculations, monthlyCalculations:()=>monthlyCalculations, rerender(nextFlights=flights){hookIndex=0;stateIndex=0;if(nextFlights!==props.ownFlights.flights)props.ownFlights={...props.ownFlights,flights:nextFlights};return exports.Dashboard(props);}, changeView(next:any){hookIndex=0;stateIndex=0;props.ownFlights=next;return exports.Dashboard(props);}, view:()=>props.ownFlights};
@@ -43,7 +43,7 @@ test('Start routes saved analytics to the overlay and keeps it available before 
  const f=render(ownFlightFixture().flights);
  assert.equal(f.monthlyCalculations(),0,'Date-window calculations belong to the Statistics overlay');
  const entry=f.nodes.find(n=>n.type==='Pressable'&&n.props.accessibilityLabel==='Statistik')!;
- assert.ok(entry);entry.props.onPress();assert.deepEqual(f.statisticsCalls,[1]);
+ assert.ok(entry);entry.props.onPress();assert.deepEqual(f.statisticsCalls,[2026]);
  for(const phase of ['loading','missing','failed']) {
    const state=render([],phase);
    assert.ok(state.nodes.some(n=>n.type==='Pressable'&&n.props.accessibilityLabel==='Statistik'),`${phase} state keeps the statistics route available`);

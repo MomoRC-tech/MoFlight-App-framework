@@ -23,10 +23,10 @@ type Route =
   | { kind: 'flights'; title: string; ids: string[]; scope: StatisticsPeriod; key: string }
   | { kind: 'detail'; flightId: string; key: string };
 
-export function StatisticsOverlay({ data, today, fontScale, onBackHandler }: {
-  data: FlightData; today: string; fontScale: number; onBackHandler: (handler: () => boolean) => void;
+export function StatisticsOverlay({ data, today, fontScale, onBackHandler, initialYear }: {
+  data: FlightData; today: string; fontScale: number; onBackHandler: (handler: () => boolean) => void; initialYear?: number;
 }) {
-  const [period, setPeriod] = useState<StatisticsPeriod>({ kind: 'year', year: Number(today.slice(0, 4)) });
+  const [period, setPeriod] = useState<StatisticsPeriod>({ kind: 'year', year: initialYear ?? Number(today.slice(0, 4)) });
   const [fromDraft, setFromDraft] = useState(`${today.slice(0, 4)}-01-01`);
   const [toDraft, setToDraft] = useState(today);
   const [customOpen, setCustomOpen] = useState(false);
