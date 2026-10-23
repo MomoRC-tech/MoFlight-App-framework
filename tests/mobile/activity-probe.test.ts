@@ -6,8 +6,11 @@ import { ACTIVITY_READER_SOURCE, ACTIVITY_SOURCE_INSPECTOR, activityProbeScript,
 
 const expected = { accountNumber: '123', clubLabel: 'Synthetic club', clubIdentity: 'display-label-only', verification: 'observed-profile-number' } as const;
 const text = (textContent: string) => ({ textContent });
+type NetworkFault = { at: number; kind: 'offline' | 'body-disconnect' | 'stalled-fetch' | 'stalled-body' | 'non-html' | 401 | 403 | 429 | 500 | 503 };
 type FixtureOptions = { count?: number; footer?: string; ownCount?: number; foreignAfter?: boolean; login?: boolean; layout?: boolean; role?: string; filter?: string; period?: string; header?: string; detail?: string; oversized?: boolean; redirect?: boolean; cancelAt?: number; changedUrl?: boolean; badFilter?: boolean; emptyOwnRows?: boolean; timeout?: boolean; sort?: string; frozenAt?: string; layoutRow?: boolean };
-function fixture(options: FixtureOptions = {}) {
+function fixture(options: FixtureOptions = {}, networkFault?: NetworkFault) {
+  let reachedStall!: () => void;
+  const stalledResponse = new Promise<void>(resolve => { reachedStall = resolve; });
   const paths: string[] = [], messages: unknown[] = [], headers = ['Datum', 'Lfz.', 'Start', 'Landung', 'Flugzeit'];
   const location = new URL('https://vereinsflieger.de/member/profile/viewprofile');
   const window: any = { ReactNativeWebView: { postMessage: (m: string) => messages.push(JSON.parse(m)) } }; window.top = window;
@@ -35,20 +38,48 @@ function fixture(options: FixtureOptions = {}) {
   const fetcher = async (url: string, init: RequestInit) => {
     const path = new URL(url).pathname; paths.push(path);
     assert.equal(init.method, 'GET'); assert.equal(init.redirect, 'error'); assert.equal(init.cache, 'no-store'); assert.equal(init.credentials, 'same-origin');
+    const fault = paths.length === networkFault?.at ? networkFault.kind : undefined;
+    if (fault === 'offline') throw new TypeError('Synthetic private transport detail: connection lost');
+    if (fault === 'stalled-fetch') await new Promise<void>((_resolve, reject) => {
+      init.signal!.addEventListener('abort', () => reject(new Error('Synthetic private transport detail: request aborted')), { once: true });
+      reachedStall();
+    });
     if (options.cancelAt === paths.length) window.__moflightActivityAbort();
     if (options.changedUrl) location.pathname = '/member/profile/flightlog.php';
     const key = String(paths.length); documents.set(key, path.endsWith('viewprofile') ? profile(options.foreignAfter && paths.length > 1) : doc(path.endsWith('myservices.php')));
-    return { ok: true, url: options.redirect ? 'https://other.test/' : url, headers: new Headers({ 'content-type': 'text/html; charset=utf-8' }),
-      body: new ReadableStream<Uint8Array>({ start(c) { c.enqueue(options.oversized ? new Uint8Array(1_000_001) : new TextEncoder().encode(key)); c.close(); } }) };
+    let delivered = false;
+    return { ok: typeof fault !== 'number', status: typeof fault === 'number' ? fault : 200,
+      url: options.redirect ? 'https://other.test/' : url, headers: new Headers({ 'content-type': fault === 'non-html' ? 'application/json' : 'text/html; charset=utf-8' }),
+      body: new ReadableStream<Uint8Array>({ pull(c) {
+        if (delivered) {
+          if (fault === 'stalled-body') return new Promise<void>(resolve => {
+            init.signal!.addEventListener('abort', () => { c.error(new Error('Synthetic private transport detail: body aborted')); resolve(); }, { once: true });
+            reachedStall();
+          });
+          if (fault === 'body-disconnect') c.error(new TypeError('Synthetic private transport detail: truncated response'));
+          else c.close();
+          return;
+        }
+        delivered = true;
+        c.enqueue(options.oversized ? new Uint8Array(1_000_001) : new TextEncoder().encode(key));
+      } }) };
   };
   const instant = Date.parse(options.frozenAt ?? '2026-10-23T12:00:00.000Z');
   class FrozenDate extends Date { constructor(value?: string | number) { super(value ?? instant); } static now() { return instant; } }
+  let expireNetwork: (() => void) | undefined;
+  const stalled = networkFault?.kind === 'stalled-fetch' || networkFault?.kind === 'stalled-body';
   const sandbox = { window, document: profile(), location, URL, AbortController, Date: FrozenDate, TextEncoder, TextDecoder, Uint8Array, crypto: webcrypto, setTimeout: options.timeout ? (callback: () => void) => { queueMicrotask(callback); return 0; } : setTimeout, clearTimeout,
     fetch: fetcher, DOMParser: class { parseFromString(key: string) { return documents.get(key); } } };
   const execute = () => runInNewContext(`(${ACTIVITY_READER_SOURCE})('test-nonce',${JSON.stringify(expected)})`, sandbox) as Promise<void>;
   const inspect = (source: string, guard?: () => void) => runInNewContext(`(${ACTIVITY_SOURCE_INSPECTOR})(sourceDocument,source,guard)`,
     { ...sandbox, sourceDocument: doc(source === 'own-duties'), source, guard }) as Promise<ActivityProbeSource | null>;
-  return { execute, paths, messages, window, sandbox, inspect };
+  if (stalled) {
+    sandbox.setTimeout = ((callback: () => void, delay: number) => {
+      assert.equal(delay, 10000); expireNetwork = callback; return 0;
+    }) as typeof setTimeout;
+    sandbox.clearTimeout = (() => { expireNetwork = undefined; }) as typeof clearTimeout;
+  }
+  return { execute, paths, messages, window, sandbox, inspect, stalledResponse, expireNetwork: () => { assert.ok(expireNetwork); expireNetwork(); } };
 }
 function payload(sources: unknown[]) { return { kind: 'vf-activity-v1', nonce: 'test-nonce', sources }; }
 
@@ -91,6 +122,51 @@ test('auth/identity/URL/size/cancellation failures reject the complete observati
     assert.ok(f.paths.length <= 4);
   }
 });
+
+for (const kind of ['offline', 'body-disconnect', 'non-html', 401, 403, 429, 500, 503] as const) {
+  test(`network fault ${kind} rejects incomplete activity evidence at every request stage; a fresh request recovers`, async () => {
+    for (const at of [1, 2, 3, 4]) {
+      // One injected fault, including failure of the final identity check after
+      // both source pages have arrived. Reuse this renderer for the next attempt.
+      const f = fixture({}, { at, kind });
+      await f.execute();
+      assert.equal(f.messages.length, 1);
+      assert.throws(() => decodeActivityProbe(f.messages[0]));
+      assert.equal('sources' in (f.messages[0] as object), false, 'Partial observations must not escape');
+      assert.ok(!JSON.stringify(f.messages[0]).includes('Synthetic private transport detail'));
+      assert.equal(f.paths.length, at, 'No automatic retry or further source request after failure');
+      assert.equal(f.window.__moflightActivityAbort, undefined, 'Failure releases the renderer reservation');
+
+      await f.execute();
+      assert.equal(f.messages.length, 2);
+      assert.equal(f.paths.length, at + 4, 'Explicit recovery performs all four guarded requests again');
+      const recovered = decodeActivityProbe(f.messages[1]);
+      assert.deepEqual(recovered.sources.map(s => [s.source, s.markers.count]), [['flights', 20], ['own-duties', 0]]);
+      assert.equal(f.window.__moflightActivityAbort, undefined);
+    }
+  });
+}
+
+for (const kind of ['stalled-fetch', 'stalled-body'] as const) {
+  test(`${kind} times out and releases ownership at every request stage, then allows recovery`, { timeout: 5000 }, async () => {
+    for (const at of [1, 2, 3, 4]) {
+      const f = fixture({}, { at, kind });
+      const pending = f.execute();
+      await f.stalledResponse;
+      assert.equal(f.paths.length, at);
+      assert.equal(f.messages.length, 0, 'A pending response cannot report success');
+      f.expireNetwork();
+      await pending;
+      assert.equal(f.messages.length, 1);
+      assert.throws(() => decodeActivityProbe(f.messages[0]));
+      assert.ok(!JSON.stringify(f.messages[0]).includes('Synthetic private transport detail'));
+      assert.equal(f.window.__moflightActivityAbort, undefined);
+      await f.execute();
+      assert.equal(decodeActivityProbe(f.messages[1]).sources.length, 2);
+      assert.equal(f.paths.length, at + 4);
+    }
+  });
+}
 
 test('concurrent injection cannot replace a running cancellation owner', async () => {
   const f = fixture(); const owner = () => {}; f.window.__moflightActivityAbort = owner;

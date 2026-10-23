@@ -2333,14 +2333,14 @@ test('saved owner-scoped review loads offline before recovery is ready and survi
 });
 
 test('cancelled and failed live attempts retain the previously reopened readable capture', async () => {
-  for (const outcome of ['cancel', 'failure'] as const) {
+  for (const outcome of ['cancel', 'onError', 'onHttpError'] as const) {
     const capture = captureFixture();
     const f = fixture({ product: true, priorCapture: capture, persistedScope: { version: 1, owner: 'synthetic-pilot', connectionId: 'prior', context: observedContext } });
     f.render(); await f.settle(null); for (let i = 0; i < 4; i++) await f.flush();
     await establishProductAssociation(f);
     f.controller().retrieve(); await f.loadFlight();
     if (outcome === 'cancel') f.controller().cancelRetrieval();
-    else (f.find(f.render(), element => element.type === 'WebView')!.props.onError as () => void)();
+    else (f.find(f.render(), element => element.type === 'WebView')!.props[outcome] as () => void)();
     await f.flush();
     assert.equal(f.controller().snapshot, capture); assert.equal(f.savedCapture(), capture);
     assert.equal(f.controller().captureLoadState, 'ready');
