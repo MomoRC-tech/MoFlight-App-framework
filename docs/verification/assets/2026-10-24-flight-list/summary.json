@@ -1,0 +1,86 @@
+{
+  "source_commit": "7b3c594d3078bbdd08019b338288e9e089c3d2aa",
+  "apk_sha256": "bb1c3bc75e84a2f2164d2148e0b9c59fd63ac49e162ae9be87f35de53388a218",
+  "build": {
+    "configuration": "Release",
+    "embedded_javascript": true,
+    "architectures": [
+      "arm64-v8a",
+      "x86_64"
+    ],
+    "total_seconds": 253.938
+  },
+  "device": {
+    "avd": "MoFlight_Synthetic_API37",
+    "android_api": 37,
+    "density_dpi": 160
+  },
+  "native_status": "passed",
+  "native_checkpoints": [
+    "main-390",
+    "fixed-filter-after-scroll",
+    "active-period-aircraft",
+    "raw-detail",
+    "detail-return-preserves-filters",
+    "active-search-collapsed",
+    "empty-filter-result",
+    "width-360-height-900-font-1",
+    "width-600-height-1100-font-1",
+    "width-840-height-600-font-1",
+    "width-360-height-900-font-1.6",
+    "search-keyboard-390",
+    "offline-force-stop-reopen"
+  ],
+  "viewports": [
+    {
+      "width_dp": 390,
+      "height_dp": 900,
+      "font_scale": 1
+    },
+    {
+      "width_dp": 360,
+      "height_dp": 900,
+      "font_scale": 1
+    },
+    {
+      "width_dp": 600,
+      "height_dp": 1100,
+      "font_scale": 1
+    },
+    {
+      "width_dp": 840,
+      "height_dp": 600,
+      "font_scale": 1
+    },
+    {
+      "width_dp": 360,
+      "height_dp": 900,
+      "font_scale": 1.6
+    }
+  ],
+  "restored_display_and_radios": true,
+  "inputs": "In-memory fictional DesignPreview; no provider or private data",
+  "publication": "No release or binary upload, as requested",
+  "limits": [
+    "No physical phone, iOS runtime, spoken accessibility, live Solo-source mapping or new persisted-library acceptance",
+    "Preview restart is reconstructed in-memory data; existing persistence behavior is unchanged"
+  ],
+  "screenshots": [
+    {
+      "file": "main-390.png",
+      "sha256": "03e2f0520a8004047c8c9f52de04651184e64f5967bcf0dcda4026aa1e5250d3"
+    },
+    {
+      "file": "active-filters.png",
+      "sha256": "fc2683883a1bd403eb0d5372abf762957961271fc2462dfaf1163ae47ae0f61f"
+    },
+    {
+      "file": "large-text-360.png",
+      "sha256": "80c12b898369c47f0e5c4ff097db227014aac769ab968631a7e853a0b353c68b"
+    },
+    {
+      "file": "landscape-840.png",
+      "sha256": "4e8d3236d88d1005f55a91f1661f5a71b8f5527e64948c3857a37d10293344a2"
+    }
+  ]
+}
