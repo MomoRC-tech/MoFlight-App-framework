@@ -171,14 +171,14 @@
 <dt>Where</dt><dd>Compact Cockpit season card, Starts column.</dd>
 <dt>Meaning</dt><dd>Deduplicated saved selected-account flight count for the current season.</dd>
 <dt>Function / action</dt><dd>Read-only value. Season title changes the year; Statistik opens detailed comparisons; Alle Flüge opens the full saved list.</dd>
-<dt>States / limits</dt><dd>Missing season value is —; confirmed zero requires coverage and no unresolved date ambiguity. Open #62 records the current false-zero gap. Prior year derives from selected year. Enlarged metrics scroll horizontally.</dd>
+<dt>States / limits</dt><dd>Missing season value is —; confirmed zero requires coverage and no unresolved date ambiguity. Unassigned dates prevent a confirmed empty season even with retrieval coverage. Prior year derives from selected year. Enlarged metrics scroll horizontally.</dd>
 <dt>Source</dt><dd><a href="../../apps/platform-lab/src/mobile/Dashboard.tsx">apps/platform-lab/src/mobile/Dashboard.tsx</a><br>cockpit-season.cockpitSeasonValues; real-flight-statistics.summarizeRealFlights</dd></dl></article>
 <article class="entry" id="D08"><div class="entry-head"><div class="sample" role="img" aria-label="Season known flight time sample"><span><strong>4:30 h</strong><small> bekannt</small></span></div><div><p class="eyebrow">D08 · Current native UI</p><h4>Season known flight time</h4></div></div><dl>
 <dt>Appearance</dt><dd>Large reported h:min in the left metric column, with the prior selected-year value below; no rings or signed delta on the overview.</dd>
 <dt>Where</dt><dd>Compact Cockpit season card, Flugzeit column.</dd>
 <dt>Meaning</dt><dd>Known reported flight minutes for the saved selected-account season.</dd>
 <dt>Function / action</dt><dd>Read-only value; Statistik exposes detailed comparisons and aircraft breakdowns.</dd>
-<dt>States / limits</dt><dd>Unknown time is —; known zero remains 0:00. Partly unknown durations have a separate notice. Open #62 records the undated-flight zero gap. Saved periods need not be complete/comparable; enlarged metrics scroll horizontally.</dd>
+<dt>States / limits</dt><dd>Unknown time is —; known zero remains 0:00. Partly unknown durations have a separate notice. Unassigned dates prevent a confirmed empty season even with retrieval coverage. Saved periods need not be complete/comparable; enlarged metrics scroll horizontally.</dd>
 <dt>Source</dt><dd><a href="../../apps/platform-lab/src/mobile/Dashboard.tsx">apps/platform-lab/src/mobile/Dashboard.tsx</a><br>cockpit-season.cockpitSeasonValues; real-flight-statistics.summarizeRealFlights</dd></dl></article>
 <article class="entry" id="D09"><div class="entry-head"><div class="sample" role="img" aria-label="Meine Saison statistics sample"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAYAAABS3GwHAAAABmJLR0QA/wD/AP+gvaeTAAAFN0lEQVR4nO3aQU4jVxSF4XNrGikusgaU0EObpZCFdECJiJRZtxLUKJCFwFLAU5B6DU0VC/DNACfdYGOXXa+w7nv/N0NtXtfg/LjKIAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADsl1fALbgXk3adiybHTx9Xd3djkZTmc12fGXhEEAw46Y5MvMzSfsv/umzu51O6/p6F9cVFQEEctg+fHDpj5Uvcj+/rX/47Y0uKTwCCGL+k/+qy2tNurgZ7Z0MfU05qHZ9AejAvZrf9nR7uXR82D78PeQl5YIAApi07ViL9/wrEUE3BBCBzd5t820uHU/ah8vUl5MTAojBe3zveyJ4HQFE4NVdzxPeczu0HJ8CReBeTR6be234HPASnw4t4h0gArOZu532PYYH40UEEMS0rq/lft73HCJ4jlugYMaPzZ/m/nuCo/65He39kuCc0AggICJIhwCCIoI0CCAwIuiPAIIjgn4IIANEsD0CyAQRbIcAMkIEmyOAzBDBZgggQ0TQHQFkigi6IYCMEcF6BJA5IliNAApABK8jgEIQwXIEUBAiWEQAhSGC5wigQETwFQEUigieEEDBiIAAild6BASAoiMgAEgqNwICwP9KjIAA8ExpERAAFpQUAQFgqVIiIAC8qoQICAAr5R4BAWCtnCMgAHSSawQEgM5yjIAAsJHcIiAAbCynCAgAW8klAgLA1nKIgADQS/QICAC9RY6AAJBE1AgIAMlEjIAAkFS0CAgAyUWKgAAwiCgREAAGEyGCYQJwryZtO5bNDuTVd4P8HwjBzE9c+rH3OdLFzWjvJMU1vTg3rXHTHJn5maT91GejbENEUKU87LB9+GDmV2L8GIBLx5Pmy6eUZyZ7B5j/5L9KdR7wGnf7eVrX1ynOSvMO4F7Nb3uAwZn5mdyTbDfJIZO2HYvbHryd/fnmekvzDmCzgyTnAF0l2lzSh2DgrZjkKc5J9AxQ3SU5B+jIvbpPcU6aT4Hcq8ljcy+eA/A2Pt9+X/8ks1nfgxI9A9jM3U6TnAWs4W6nKcYvJXwGmNb1tUkfU50HLOV+nup3ABJ/CoFAhvhTCP4YDoMq7o/hgP+MH5u/zD3Fs+Hl7WjvOME5CwgAg4gwfokAMIAo45cIAIlFGr9EAEgo2vglAkAiEccvEQASiDp+iQDQU+TxSwSAHqKPXyIAbCmH8UsEgC3kMn6JALChnMYvEQA2kNv4JQJARzmOXyIAdJDr+CUCwBo5j18iAKyQ+/glAsArShi/RABYopTxSwSAF0oav0QA+EZp45cIAHMljl8iAKjc8UsEULySxy8RQNFKH79EAMVi/E8IoECM/ysCKAzjf44ACsL4FxFAIRj/cgRQAMb/OgLIHONfjQAyxvjXI4BMMf5uCCBDjL87AsgM498MAWSE8W+OADLB+LdDABlg/NsjgOAYfz8EEBjj748AgmL8aRBAQIw/HQIIhvGnRQCBTJovn2T2a99zTLq4Ge2dpLim6AggiHHTHJn5Vd9zGP9z1a4vAB24V2Z+1vcYxr+IAAKYtO1Y0n6fMxj/cgQQgc3e9TzhkvEvRwAxeI/v5dOeFQggAq/utvk2ky4Y/2p8ChSBezV5bO61wXMA9/zd8A4QgdnM3Tr/8ovxd0cAQUzr+tqkj2tf6H7O+LvjFiiY+S/EzrR4O/TZ3U6ndX29i+uKigAicq8mbTuWzQ6evq7ubkejqcxmO74yAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAN/6F/XyXF47JC/vAAAAAElFTkSuQmCC" alt="Statistics action arrow" style="transform:rotate(-45deg)"></div><div><p class="eyebrow">D09 · Approved native UI · outlined family</p><h4>Meine Saison statistics</h4></div></div><dl>
 <dt>Appearance</dt><dd>Teal Statistik text with the current outlined arrow rotated diagonally upward.</dd>
@@ -602,7 +602,7 @@ Appearance: Large selected-year starts value in the middle metric column, with t
 Where: Compact Cockpit season card, Starts column.
 Meaning: Deduplicated saved selected-account flight count for the current season.
 Function / action: Read-only value. Season title changes the year; Statistik opens detailed comparisons; Alle Flüge opens the full saved list.
-States / limits: Missing season value is —; confirmed zero requires coverage and no unresolved date ambiguity. Open #62 records the current false-zero gap. Prior year derives from selected year. Enlarged metrics scroll horizontally.
+States / limits: Missing season value is —; confirmed zero requires coverage and no unresolved date ambiguity. Unassigned dates prevent a confirmed empty season even with retrieval coverage. Prior year derives from selected year. Enlarged metrics scroll horizontally.
 Source: apps/platform-lab/src/mobile/Dashboard.tsx
 cockpit-season.cockpitSeasonValues; real-flight-statistics.summarizeRealFlights
 
@@ -612,7 +612,7 @@ Appearance: Large reported h:min in the left metric column, with the prior selec
 Where: Compact Cockpit season card, Flugzeit column.
 Meaning: Known reported flight minutes for the saved selected-account season.
 Function / action: Read-only value; Statistik exposes detailed comparisons and aircraft breakdowns.
-States / limits: Unknown time is —; known zero remains 0:00. Partly unknown durations have a separate notice. Open #62 records the undated-flight zero gap. Saved periods need not be complete/comparable; enlarged metrics scroll horizontally.
+States / limits: Unknown time is —; known zero remains 0:00. Partly unknown durations have a separate notice. Unassigned dates prevent a confirmed empty season even with retrieval coverage. Saved periods need not be complete/comparable; enlarged metrics scroll horizontally.
 Source: apps/platform-lab/src/mobile/Dashboard.tsx
 cockpit-season.cockpitSeasonValues; real-flight-statistics.summarizeRealFlights
 
@@ -885,7 +885,7 @@ States / limits: Recreated approved variant, not a byte-identical copy of an old
 Source: docs/assets/branding/moflight-app-icon-ai.png
 docs/assets/branding/README.md; app.json
 </textarea></section>
-<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: 3d02b0337c9b613fcca22ea450f1c8f20c24f3f63b87189b777eff662cf279b4. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
+<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: ca5adffd5a4e7778292771d794e724164147a46740cbe63f2e66a2a5486cd097. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
 </main><script>
 'use strict';
 const brief = document.querySelector('#brief');

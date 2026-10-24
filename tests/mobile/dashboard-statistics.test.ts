@@ -93,6 +93,24 @@ test('latest flight and statistics preserve exact destinations without provider 
  assert.match(f.text,/PIC/);assert.doesNotMatch(f.text,/Kein gespeicherter Track/);
 });
 
+test('latest-flight card discloses ambiguous same-day starts without losing exact navigation',()=>{
+  const a=structuredClone(ownFlightFixture().flights[0]!);a.flightId='a';
+  a.facts.assessment.date={...a.facts.assessment.date,state:'parsed',value:'2026-10-01'};
+  a.facts.assessment.clocks.start={...a.facts.assessment.clocks.start,state:'parsed',value:'09:00'};
+  const b=structuredClone(a);b.flightId='z';
+  for(const start of [{source:{state:'blank',label:'Start',raw:''},state:'blank',value:null},{...a.facts.assessment.clocks.start}] as const){
+    b.facts.assessment.clocks.start=start;
+    const f=render([b,a]);assert.match(f.text,/Reihenfolge am selben Tag unbekannt/);
+    const row=f.nodes.find(n=>n.props.accessibilityLabel?.startsWith('Letzten Flug'))!;
+    assert.match(row.props.accessibilityLabel,/Reihenfolge am selben Tag unbekannt/);
+    row.props.onPress();assert.deepEqual(f.opened,['a']);
+  }
+  b.facts.assessment.clocks.start={...a.facts.assessment.clocks.start,state:'parsed',value:'10:00'};
+  const ordered=render([a,b]);assert.doesNotMatch(ordered.text,/Reihenfolge am selben Tag unbekannt/);
+  ordered.nodes.find(n=>n.props.accessibilityLabel?.startsWith('Letzten Flug'))!.props.onPress();assert.deepEqual(ordered.opened,['z']);
+  assert.doesNotMatch(render([a,a]).text,/Reihenfolge am selben Tag unbekannt/);
+});
+
 test('shared starts and time ring renderer fades only the prior year while preserving hues and unknown tracks',()=>{
  const ringSource=ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/mobile/SeasonRing.tsx',import.meta.url),'utf8'),{
    compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.React,esModuleInterop:false},

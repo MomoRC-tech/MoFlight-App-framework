@@ -22,3 +22,19 @@ test('provisional target accepts explicit zero and decimal hours without interpr
   for(const [input,expected] of [['0',0],['25',25],['12,50',12.5],[' 12.5 ',12.5]] as const)assert.equal(parseDutyTarget(input),expected);
   for(const input of ['','-1','1000','25 €','25:00','NaN','Infinity','1.234'])assert.equal(parseDutyTarget(input),null);
 });
+
+test('complete retrieval coverage cannot confirm an empty season while dates are unassigned',()=>{
+  const undated=ownFlightFixture().flights[2]!;
+  const coverage=[saved('2025-01-01','2026-10-24')];
+  for(const year of [2025,2026]){
+    const value=cockpitSeason([undated],coverage,year,'2026-10-24');
+    assert.equal(value.starts,'—');assert.equal(value.time,'—');assert.equal(value.unknownDateCount,1);
+    const empty=cockpitSeason([],coverage,year,'2026-10-24');
+    assert.equal(empty.starts,'0');assert.equal(empty.time,'0:00');
+  }
+  const known=structuredClone(ownFlightFixture().flights[0]!);
+  known.facts.assessment.date={...known.facts.assessment.date,state:'parsed',value:'2026-04-01'};
+  known.facts.assessment.durations.flight={state:'known',minutes:0,evidence:[]};
+  const partial=cockpitSeason([known,undated],coverage,2026,'2026-10-24');
+  assert.equal(partial.starts,'1');assert.equal(partial.time,'0:00');assert.equal(partial.unknownDateCount,1);
+});

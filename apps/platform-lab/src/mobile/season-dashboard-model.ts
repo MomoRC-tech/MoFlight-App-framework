@@ -51,6 +51,18 @@ export function latestSavedFlights(flights: readonly RealFlightListItem[]): Real
     return clock || a.flightId.localeCompare(b.flightId);
   }).slice(0,2);
 }
+/** Stable ID ordering is not evidence of which flight happened last that day. */
+export function latestFlightOrderUnknown(flights: readonly RealFlightListItem[], latest: RealFlightListItem | undefined): boolean {
+  if (!latest) return false;
+  const day = latest.facts.assessment.date.value;
+  const rows = new Map<string, RealFlightListItem>();
+  for (const flight of flights) {
+    if (flight.facts.assessment.date.state === 'parsed' && flight.facts.assessment.date.value === day && !rows.has(flight.flightId)) rows.set(flight.flightId, flight);
+  }
+  if (rows.size < 2) return false;
+  return [...rows.values()].some(flight => flight.facts.assessment.clocks.start.state !== 'parsed'
+    || flight.flightId !== latest.flightId && flight.facts.assessment.clocks.start.value === latest.facts.assessment.clocks.start.value);
+}
 /** Abbreviate display text only; no identity or role is inferred. */
 export function abbreviatedCrew(field: RawField): string {
   if (field.state !== 'value') return 'unbekannt';

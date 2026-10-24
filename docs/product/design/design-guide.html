@@ -79,11 +79,11 @@
 <tr><td>Profile / nested sheets</td><td>Connection preferences, local maintenance, imports/exports, backup/restore, diagnostics, credits and existing synthetic tools. Sync retains its root coordinator, matching-account proof, duplicate guard, cancel/retry and source-specific details.</td></tr>
 </tbody></table></div>
 <h3 id="chapter-compact-cockpit-data-limits-and-notation">Data limits and notation</h3>
-<p>Current/prior season derives from the selected year. Time is known reported h:min, with explicit unknown-duration notice; starts and known time use existing deterministic calculations. Missing values are —. Confirmed empty years require saved retrieval coverage for the whole relevant season through today (past years through December 31) and no unresolved date ambiguity. The current implementation fails the latter case; <a href="https://github.com/MomoRC-tech/MoFlight-App-framework/issues/62">#62</a> tracks the false-zero defect. No complete-history claim follows from positive cached values.</p>
+<p>Current/prior season derives from the selected year. Time is known reported h:min, with explicit unknown-duration notice; starts and known time use existing deterministic calculations. Missing values are —. Confirmed empty years require saved retrieval coverage for the whole relevant season through today (past years through December 31) and no unresolved date ambiguity. The #62 fix preserves — when saved records have unassigned dates, even with complete retrieval coverage. No complete-history claim follows from positive cached values.</p>
 <p>Completed duty hours require exactly one valid annual work-summary row for the selected year. Unknown remains —; no sum of a partial list. The captured Pflicht/Geleistet money amounts are EUR and cannot establish an hour requirement. The local provisional target starts at 25 h, always labelled <strong>Soll vorläufig</strong>; tap that metric to change it for this account/store/year. It is a UI preference, not a confirmed club policy, and is excluded from existing MoFlight manual backup archives. No new external integration, production schema or provider write is introduced.</p>
 <p>Club location has no verified field in the current projection: <strong>Ort unbekannt</strong> remains explicit; the reused thumbnail is decorative. Medical displays a recorded expiry/unknown reminder, never a fitness certificate. Real paper setup is not implemented: its tile accurately says <strong>In Vorbereitung</strong> instead of offering a nonfunctional setup. Already configured synthetic books remain accessible under Development; the preview exercises a configured tile without asserting real activation.</p>
-<p>The Development cockpit currently uses the same target-preference hook with a fictional account: explicitly saving its target persists a synthetic local setting across restart. This contradicts the Development entry&#x27;s no-storage notice; <a href="https://github.com/MomoRC-tech/MoFlight-App-framework/issues/65">#65</a> remains open. Simulated states do not invoke provider retrieval or mutate real flight records.</p>
-<p>The <a href="../../verification/2026-10-24-compact-cockpit.md#code-review--24-october-2026">24 October code review</a> also records open latest-flight ordering and obsolete target-save completion defects (#63/#64). These findings qualify implementation acceptance; they do not change the approved appearance.</p>
+<p>Both Development previews opt out of duty-target file reads and writes. Edits stay in memory for the mounted overview and reset when it is left/reopened or the app restarts. Existing synthetic preference files from older versions are ignored and preserved. Simulated states do not invoke provider retrieval or mutate real flight records.</p>
+<p>The <a href="../../verification/2026-10-24-compact-cockpit.md#code-review--24-october-2026">24 October code review</a> records the source c643d9d defects (#62–#65). The fix restores a visible/accessibility cue for uncertain latest-day ordering, invalidates obsolete target operations across key changes/unmount, and guards editor-close callbacks. The same report distinguishes host regression and native acceptance of the follow-up; approved appearance is unchanged.</p>
 <p>Implementation is recorded separately from native acceptance in <a href="../../verification/2026-10-24-compact-cockpit.md">one package report</a>. Android, physical-phone, iOS and spoken accessibility evidence must be distinguished.</p></section>
 <section class="chapter" id="chapter-alternative-ui"><h2 id="chapter-alternative-ui-alternative-ui--22-october-2026">Alternative UI — 22 October 2026</h2>
 <p>&gt; <strong>Current appearance authority — 24 October 2026:</strong> <a href="#chapter-compact-cockpit">Dark Compact Cockpit</a> and its approved reference supersede conflicting older appearance/composition statements below. Data, feature and verification boundaries retain their scope.</p>
@@ -556,26 +556,26 @@
 <tr><td><code>padding: 16</code></td><td>134</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-cockpitpreviewtsx">CockpitPreview.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/CockpitPreview.tsx">apps/platform-lab/src/mobile/CockpitPreview.tsx</a>; normalized SHA-256 <code>3e308a0f2017849d34a32735349303ab266308464e273110fc4f6c6c230733a3</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/CockpitPreview.tsx">apps/platform-lab/src/mobile/CockpitPreview.tsx</a>; normalized SHA-256 <code>d007c56710460620dc09d86fd7cdbc3c206781b98dc6082150dcece8b55d4d73</code>.</p>
 <h4 id="chapter-implementation-inventory-typography-declarations-5">Typography declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>fontSize: 11</code></td><td>46</td></tr>
-<tr><td><code>lineHeight: 17</code></td><td>46</td></tr>
+<tr><td><code>fontSize: 11</code></td><td>49</td></tr>
+<tr><td><code>lineHeight: 17</code></td><td>49</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-geometry--opacity-declarations-8">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>borderRadius: 14</code></td><td>46</td></tr>
-<tr><td><code>gap: 10</code></td><td>27</td></tr>
-<tr><td><code>gap: 12</code></td><td>28</td></tr>
-<tr><td><code>gap: 4</code></td><td>46</td></tr>
-<tr><td><code>maxWidth: 520</code></td><td>27</td></tr>
-<tr><td><code>minHeight: 48</code></td><td>25</td></tr>
-<tr><td><code>minHeight: 60</code></td><td>46</td></tr>
-<tr><td><code>minWidth: 0</code></td><td>46</td></tr>
-<tr><td><code>minWidth: 48</code></td><td>25</td></tr>
-<tr><td><code>padding: 12</code></td><td>27</td></tr>
-<tr><td><code>padding: 6</code></td><td>44</td></tr>
-<tr><td><code>width: &#x27;100%&#x27;</code></td><td>27</td></tr>
+<tr><td><code>borderRadius: 14</code></td><td>49</td></tr>
+<tr><td><code>gap: 10</code></td><td>28</td></tr>
+<tr><td><code>gap: 12</code></td><td>29</td></tr>
+<tr><td><code>gap: 4</code></td><td>49</td></tr>
+<tr><td><code>maxWidth: 520</code></td><td>28</td></tr>
+<tr><td><code>minHeight: 48</code></td><td>26</td></tr>
+<tr><td><code>minHeight: 60</code></td><td>49</td></tr>
+<tr><td><code>minWidth: 0</code></td><td>49</td></tr>
+<tr><td><code>minWidth: 48</code></td><td>26</td></tr>
+<tr><td><code>padding: 12</code></td><td>28</td></tr>
+<tr><td><code>padding: 6</code></td><td>47</td></tr>
+<tr><td><code>width: &#x27;100%&#x27;</code></td><td>28</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-connection-guidancets">connection-guidance.ts</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/connection-guidance.ts">apps/platform-lab/src/mobile/connection-guidance.ts</a>; normalized SHA-256 <code>b5a3a99a64f395c0c6383c857eaa0d6fd924108a69f6a8336262a72027849cf8</code>.</p>
@@ -604,59 +604,59 @@
 <tr><td><code>width: &#x27;100%&#x27;</code></td><td>172, 181, 734</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-dashboardtsx">Dashboard.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/Dashboard.tsx">apps/platform-lab/src/mobile/Dashboard.tsx</a>; normalized SHA-256 <code>a46a98f9022c0496e9c7a24ec3c47caf423609de79d179242dc2dfaa8a9fa572</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/Dashboard.tsx">apps/platform-lab/src/mobile/Dashboard.tsx</a>; normalized SHA-256 <code>db6d064ee77afa8aca03f66b72f21c1cfabe10adbf0a3e6c66f96d97d5dd56d8</code>.</p>
 <h4 id="chapter-implementation-inventory-literal-colors-4">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><i class="swatch" style="background:#001b2955" aria-hidden="true"></i><code>#001b2955</code></td><td>70</td></tr>
+<tr><td><i class="swatch" style="background:#001b2955" aria-hidden="true"></i><code>#001b2955</code></td><td>73</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-typography-declarations-6">Typography declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>fontSize: 11</code></td><td>74</td></tr>
-<tr><td><code>fontSize: 12</code></td><td>74, 76</td></tr>
-<tr><td><code>fontSize: 14</code></td><td>72, 76</td></tr>
-<tr><td><code>fontSize: 16</code></td><td>76</td></tr>
-<tr><td><code>fontSize: 18</code></td><td>71</td></tr>
-<tr><td><code>fontSize: 22</code></td><td>74</td></tr>
-<tr><td><code>fontSize: 27</code></td><td>74</td></tr>
-<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>64, 76</td></tr>
-<tr><td><code>fontWeight: &#x27;700&#x27;</code></td><td>71, 74, 76</td></tr>
-<tr><td><code>lineHeight: 17</code></td><td>74</td></tr>
-<tr><td><code>lineHeight: 18</code></td><td>74, 76</td></tr>
-<tr><td><code>lineHeight: 20</code></td><td>72, 76</td></tr>
-<tr><td><code>lineHeight: 22</code></td><td>76</td></tr>
-<tr><td><code>lineHeight: 25</code></td><td>71</td></tr>
-<tr><td><code>lineHeight: 34</code></td><td>74</td></tr>
+<tr><td><code>fontSize: 11</code></td><td>77</td></tr>
+<tr><td><code>fontSize: 12</code></td><td>77, 79</td></tr>
+<tr><td><code>fontSize: 14</code></td><td>75, 79</td></tr>
+<tr><td><code>fontSize: 16</code></td><td>79</td></tr>
+<tr><td><code>fontSize: 18</code></td><td>74</td></tr>
+<tr><td><code>fontSize: 22</code></td><td>77</td></tr>
+<tr><td><code>fontSize: 27</code></td><td>77</td></tr>
+<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>67, 79</td></tr>
+<tr><td><code>fontWeight: &#x27;700&#x27;</code></td><td>74, 77, 79</td></tr>
+<tr><td><code>lineHeight: 17</code></td><td>77</td></tr>
+<tr><td><code>lineHeight: 18</code></td><td>77, 79</td></tr>
+<tr><td><code>lineHeight: 20</code></td><td>75, 79</td></tr>
+<tr><td><code>lineHeight: 22</code></td><td>79</td></tr>
+<tr><td><code>lineHeight: 25</code></td><td>74</td></tr>
+<tr><td><code>lineHeight: 34</code></td><td>77</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-geometry--opacity-declarations-11">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>borderRadius: 18</code></td><td>76</td></tr>
-<tr><td><code>borderWidth: 1</code></td><td>76</td></tr>
-<tr><td><code>gap: 0</code></td><td>69</td></tr>
-<tr><td><code>gap: 3</code></td><td>59, 72, 73</td></tr>
-<tr><td><code>gap: 6</code></td><td>71</td></tr>
-<tr><td><code>gap: 8</code></td><td>70, 76</td></tr>
-<tr><td><code>gap: 9</code></td><td>75</td></tr>
-<tr><td><code>maxWidth: &#x27;35%&#x27;</code></td><td>72</td></tr>
-<tr><td><code>maxWidth: &#x27;45%&#x27;</code></td><td>38</td></tr>
-<tr><td><code>maxWidth: 520</code></td><td>69</td></tr>
-<tr><td><code>minHeight: 48</code></td><td>71, 72, 77, 78</td></tr>
-<tr><td><code>minHeight: 80</code></td><td>75</td></tr>
-<tr><td><code>minWidth: 0</code></td><td>59, 71</td></tr>
-<tr><td><code>minWidth: 330</code></td><td>41</td></tr>
-<tr><td><code>minWidth: 48</code></td><td>78</td></tr>
-<tr><td><code>minWidth: 90</code></td><td>73</td></tr>
-<tr><td><code>opacity: .4</code></td><td>40</td></tr>
-<tr><td><code>opacity: .44</code></td><td>34</td></tr>
-<tr><td><code>padding: 0</code></td><td>69</td></tr>
-<tr><td><code>padding: 12</code></td><td>75</td></tr>
-<tr><td><code>paddingHorizontal: 10</code></td><td>76</td></tr>
-<tr><td><code>paddingHorizontal: 12</code></td><td>70, 75</td></tr>
-<tr><td><code>paddingHorizontal: 2</code></td><td>72</td></tr>
-<tr><td><code>paddingHorizontal: 5</code></td><td>73</td></tr>
-<tr><td><code>paddingHorizontal: 8</code></td><td>78</td></tr>
-<tr><td><code>paddingVertical: 10</code></td><td>75</td></tr>
-<tr><td><code>paddingVertical: 3</code></td><td>76</td></tr>
-<tr><td><code>width: &#x27;100%&#x27;</code></td><td>69, 70</td></tr>
+<tr><td><code>borderRadius: 18</code></td><td>79</td></tr>
+<tr><td><code>borderWidth: 1</code></td><td>79</td></tr>
+<tr><td><code>gap: 0</code></td><td>72</td></tr>
+<tr><td><code>gap: 3</code></td><td>62, 75, 76</td></tr>
+<tr><td><code>gap: 6</code></td><td>74</td></tr>
+<tr><td><code>gap: 8</code></td><td>73, 79</td></tr>
+<tr><td><code>gap: 9</code></td><td>78</td></tr>
+<tr><td><code>maxWidth: &#x27;35%&#x27;</code></td><td>75</td></tr>
+<tr><td><code>maxWidth: &#x27;45%&#x27;</code></td><td>41</td></tr>
+<tr><td><code>maxWidth: 520</code></td><td>72</td></tr>
+<tr><td><code>minHeight: 48</code></td><td>74, 75, 80, 81</td></tr>
+<tr><td><code>minHeight: 80</code></td><td>78</td></tr>
+<tr><td><code>minWidth: 0</code></td><td>62, 74</td></tr>
+<tr><td><code>minWidth: 330</code></td><td>44</td></tr>
+<tr><td><code>minWidth: 48</code></td><td>81</td></tr>
+<tr><td><code>minWidth: 90</code></td><td>76</td></tr>
+<tr><td><code>opacity: .4</code></td><td>43</td></tr>
+<tr><td><code>opacity: .44</code></td><td>37</td></tr>
+<tr><td><code>padding: 0</code></td><td>72</td></tr>
+<tr><td><code>padding: 12</code></td><td>78</td></tr>
+<tr><td><code>paddingHorizontal: 10</code></td><td>79</td></tr>
+<tr><td><code>paddingHorizontal: 12</code></td><td>73, 78</td></tr>
+<tr><td><code>paddingHorizontal: 2</code></td><td>75</td></tr>
+<tr><td><code>paddingHorizontal: 5</code></td><td>76</td></tr>
+<tr><td><code>paddingHorizontal: 8</code></td><td>81</td></tr>
+<tr><td><code>paddingVertical: 10</code></td><td>78</td></tr>
+<tr><td><code>paddingVertical: 3</code></td><td>79</td></tr>
+<tr><td><code>width: &#x27;100%&#x27;</code></td><td>72, 73</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-dataupdateindicatortsx">DataUpdateIndicator.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/DataUpdateIndicator.tsx">apps/platform-lab/src/mobile/DataUpdateIndicator.tsx</a>; normalized SHA-256 <code>fe8f619786958c6b350b48cacb8dfe197d86a4791118e2f44161d17a6cddfc1f</code>.</p>
@@ -691,7 +691,7 @@
 <tr><td><code>width: 44</code></td><td>35</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-designpreviewtsx">DesignPreview.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/DesignPreview.tsx">apps/platform-lab/src/mobile/DesignPreview.tsx</a>; normalized SHA-256 <code>47de54d43502c511a2e32ceca0e1c55c7e339cb91f0a82a7cc7585061f2ea3c2</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/DesignPreview.tsx">apps/platform-lab/src/mobile/DesignPreview.tsx</a>; normalized SHA-256 <code>e2dbf57dfaaa515111eca4b8eee6865d47b25a5d3f8375e38fd39f81e8a1d470</code>.</p>
 <h4 id="chapter-implementation-inventory-typography-declarations-8">Typography declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>fontSize: 13</code></td><td>121</td></tr>
@@ -748,18 +748,18 @@
 <tr><td><code>width: &#x27;100%&#x27;</code></td><td>19</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-dutytargettsx">DutyTarget.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/DutyTarget.tsx">apps/platform-lab/src/mobile/DutyTarget.tsx</a>; normalized SHA-256 <code>82b8b9def97fca8f16f669e5d272221b83b8254e0c945ca49eafaaaa4ec26da3</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/DutyTarget.tsx">apps/platform-lab/src/mobile/DutyTarget.tsx</a>; normalized SHA-256 <code>24b6acebd2608c232d23439cfae766d16968fa4cb36ad24981bb77a3797f365b</code>.</p>
 <h4 id="chapter-implementation-inventory-typography-declarations-10">Typography declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>fontSize: 16</code></td><td>52</td></tr>
+<tr><td><code>fontSize: 16</code></td><td>70</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-geometry--opacity-declarations-17">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>borderRadius: 12</code></td><td>52</td></tr>
-<tr><td><code>borderWidth: 1</code></td><td>52</td></tr>
-<tr><td><code>gap: 8</code></td><td>50</td></tr>
-<tr><td><code>minHeight: 48</code></td><td>52</td></tr>
-<tr><td><code>padding: 10</code></td><td>52</td></tr>
+<tr><td><code>borderRadius: 12</code></td><td>70</td></tr>
+<tr><td><code>borderWidth: 1</code></td><td>70</td></tr>
+<tr><td><code>gap: 8</code></td><td>68</td></tr>
+<tr><td><code>minHeight: 48</code></td><td>70</td></tr>
+<tr><td><code>padding: 10</code></td><td>70</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-flightscenetsx">FlightScene.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/FlightScene.tsx">apps/platform-lab/src/mobile/FlightScene.tsx</a>; normalized SHA-256 <code>2293f0030da3794c0e2b2753b1cd865cdde5684527e8ce36cd448cb89f218a8e</code>.</p>
@@ -1677,14 +1677,14 @@
 <dt>Where</dt><dd>Compact Cockpit season card, Starts column.</dd>
 <dt>Meaning</dt><dd>Deduplicated saved selected-account flight count for the current season.</dd>
 <dt>Function / action</dt><dd>Read-only value. Season title changes the year; Statistik opens detailed comparisons; Alle Flüge opens the full saved list.</dd>
-<dt>States / limits</dt><dd>Missing season value is —; confirmed zero requires coverage and no unresolved date ambiguity. Open #62 records the current false-zero gap. Prior year derives from selected year. Enlarged metrics scroll horizontally.</dd>
+<dt>States / limits</dt><dd>Missing season value is —; confirmed zero requires coverage and no unresolved date ambiguity. Unassigned dates prevent a confirmed empty season even with retrieval coverage. Prior year derives from selected year. Enlarged metrics scroll horizontally.</dd>
 <dt>Source</dt><dd><a href="../../../apps/platform-lab/src/mobile/Dashboard.tsx">apps/platform-lab/src/mobile/Dashboard.tsx</a><br>cockpit-season.cockpitSeasonValues; real-flight-statistics.summarizeRealFlights</dd></dl></article>
 <article class="entry" id="D08"><div class="entry-head"><div class="sample" role="img" aria-label="Season known flight time sample"><span><strong>4:30 h</strong><small> bekannt</small></span></div><div><p class="eyebrow">D08 · Current native UI</p><h4>Season known flight time</h4></div></div><dl>
 <dt>Appearance</dt><dd>Large reported h:min in the left metric column, with the prior selected-year value below; no rings or signed delta on the overview.</dd>
 <dt>Where</dt><dd>Compact Cockpit season card, Flugzeit column.</dd>
 <dt>Meaning</dt><dd>Known reported flight minutes for the saved selected-account season.</dd>
 <dt>Function / action</dt><dd>Read-only value; Statistik exposes detailed comparisons and aircraft breakdowns.</dd>
-<dt>States / limits</dt><dd>Unknown time is —; known zero remains 0:00. Partly unknown durations have a separate notice. Open #62 records the undated-flight zero gap. Saved periods need not be complete/comparable; enlarged metrics scroll horizontally.</dd>
+<dt>States / limits</dt><dd>Unknown time is —; known zero remains 0:00. Partly unknown durations have a separate notice. Unassigned dates prevent a confirmed empty season even with retrieval coverage. Saved periods need not be complete/comparable; enlarged metrics scroll horizontally.</dd>
 <dt>Source</dt><dd><a href="../../../apps/platform-lab/src/mobile/Dashboard.tsx">apps/platform-lab/src/mobile/Dashboard.tsx</a><br>cockpit-season.cockpitSeasonValues; real-flight-statistics.summarizeRealFlights</dd></dl></article>
 <article class="entry" id="D09"><div class="entry-head"><div class="sample" role="img" aria-label="Meine Saison statistics sample"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAYAAABS3GwHAAAABmJLR0QA/wD/AP+gvaeTAAAFN0lEQVR4nO3aQU4jVxSF4XNrGikusgaU0EObpZCFdECJiJRZtxLUKJCFwFLAU5B6DU0VC/DNACfdYGOXXa+w7nv/N0NtXtfg/LjKIAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADsl1fALbgXk3adiybHTx9Xd3djkZTmc12fGXhEEAw46Y5MvMzSfsv/umzu51O6/p6F9cVFQEEctg+fHDpj5Uvcj+/rX/47Y0uKTwCCGL+k/+qy2tNurgZ7Z0MfU05qHZ9AejAvZrf9nR7uXR82D78PeQl5YIAApi07ViL9/wrEUE3BBCBzd5t820uHU/ah8vUl5MTAojBe3zveyJ4HQFE4NVdzxPeczu0HJ8CReBeTR6be234HPASnw4t4h0gArOZu532PYYH40UEEMS0rq/lft73HCJ4jlugYMaPzZ/m/nuCo/65He39kuCc0AggICJIhwCCIoI0CCAwIuiPAIIjgn4IIANEsD0CyAQRbIcAMkIEmyOAzBDBZgggQ0TQHQFkigi6IYCMEcF6BJA5IliNAApABK8jgEIQwXIEUBAiWEQAhSGC5wigQETwFQEUigieEEDBiIAAild6BASAoiMgAEgqNwICwP9KjIAA8ExpERAAFpQUAQFgqVIiIAC8qoQICAAr5R4BAWCtnCMgAHSSawQEgM5yjIAAsJHcIiAAbCynCAgAW8klAgLA1nKIgADQS/QICAC9RY6AAJBE1AgIAMlEjIAAkFS0CAgAyUWKgAAwiCgREAAGEyGCYQJwryZtO5bNDuTVd4P8HwjBzE9c+rH3OdLFzWjvJMU1vTg3rXHTHJn5maT91GejbENEUKU87LB9+GDmV2L8GIBLx5Pmy6eUZyZ7B5j/5L9KdR7wGnf7eVrX1ynOSvMO4F7Nb3uAwZn5mdyTbDfJIZO2HYvbHryd/fnmekvzDmCzgyTnAF0l2lzSh2DgrZjkKc5J9AxQ3SU5B+jIvbpPcU6aT4Hcq8ljcy+eA/A2Pt9+X/8ks1nfgxI9A9jM3U6TnAWs4W6nKcYvJXwGmNb1tUkfU50HLOV+nup3ABJ/CoFAhvhTCP4YDoMq7o/hgP+MH5u/zD3Fs+Hl7WjvOME5CwgAg4gwfokAMIAo45cIAIlFGr9EAEgo2vglAkAiEccvEQASiDp+iQDQU+TxSwSAHqKPXyIAbCmH8UsEgC3kMn6JALChnMYvEQA2kNv4JQJARzmOXyIAdJDr+CUCwBo5j18iAKyQ+/glAsArShi/RABYopTxSwSAF0oav0QA+EZp45cIAHMljl8iAKjc8UsEULySxy8RQNFKH79EAMVi/E8IoECM/ysCKAzjf44ACsL4FxFAIRj/cgRQAMb/OgLIHONfjQAyxvjXI4BMMf5uCCBDjL87AsgM498MAWSE8W+OADLB+LdDABlg/NsjgOAYfz8EEBjj748AgmL8aRBAQIw/HQIIhvGnRQCBTJovn2T2a99zTLq4Ge2dpLim6AggiHHTHJn5Vd9zGP9z1a4vAB24V2Z+1vcYxr+IAAKYtO1Y0n6fMxj/cgQQgc3e9TzhkvEvRwAxeI/v5dOeFQggAq/utvk2ky4Y/2p8ChSBezV5bO61wXMA9/zd8A4QgdnM3Tr/8ovxd0cAQUzr+tqkj2tf6H7O+LvjFiiY+S/EzrR4O/TZ3U6ndX29i+uKigAicq8mbTuWzQ6evq7ubkejqcxmO74yAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAN/6F/XyXF47JC/vAAAAAElFTkSuQmCC" alt="Statistics action arrow" style="transform:rotate(-45deg)"></div><div><p class="eyebrow">D09 · Approved native UI · outlined family</p><h4>Meine Saison statistics</h4></div></div><dl>
 <dt>Appearance</dt><dd>Teal Statistik text with the current outlined arrow rotated diagonally upward.</dd>
@@ -1964,15 +1964,15 @@ The overview uses one horizontal original-logo/wordmark/destination toolbar, Syn
 
 ## Data limits and notation
 
-Current/prior season derives from the selected year. Time is known reported h:min, with explicit unknown-duration notice; starts and known time use existing deterministic calculations. Missing values are —. Confirmed empty years require saved retrieval coverage for the whole relevant season through today (past years through December 31) and no unresolved date ambiguity. The current implementation fails the latter case; [#62](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/62) tracks the false-zero defect. No complete-history claim follows from positive cached values.
+Current/prior season derives from the selected year. Time is known reported h:min, with explicit unknown-duration notice; starts and known time use existing deterministic calculations. Missing values are —. Confirmed empty years require saved retrieval coverage for the whole relevant season through today (past years through December 31) and no unresolved date ambiguity. The #62 fix preserves — when saved records have unassigned dates, even with complete retrieval coverage. No complete-history claim follows from positive cached values.
 
 Completed duty hours require exactly one valid annual work-summary row for the selected year. Unknown remains —; no sum of a partial list. The captured Pflicht/Geleistet money amounts are EUR and cannot establish an hour requirement. The local provisional target starts at 25 h, always labelled **Soll vorläufig**; tap that metric to change it for this account/store/year. It is a UI preference, not a confirmed club policy, and is excluded from existing MoFlight manual backup archives. No new external integration, production schema or provider write is introduced.
 
 Club location has no verified field in the current projection: **Ort unbekannt** remains explicit; the reused thumbnail is decorative. Medical displays a recorded expiry/unknown reminder, never a fitness certificate. Real paper setup is not implemented: its tile accurately says **In Vorbereitung** instead of offering a nonfunctional setup. Already configured synthetic books remain accessible under Development; the preview exercises a configured tile without asserting real activation.
 
-The Development cockpit currently uses the same target-preference hook with a fictional account: explicitly saving its target persists a synthetic local setting across restart. This contradicts the Development entry&#x27;s no-storage notice; [#65](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/65) remains open. Simulated states do not invoke provider retrieval or mutate real flight records.
+Both Development previews opt out of duty-target file reads and writes. Edits stay in memory for the mounted overview and reset when it is left/reopened or the app restarts. Existing synthetic preference files from older versions are ignored and preserved. Simulated states do not invoke provider retrieval or mutate real flight records.
 
-The [24 October code review](../../verification/2026-10-24-compact-cockpit.md#code-review--24-october-2026) also records open latest-flight ordering and obsolete target-save completion defects (#63/#64). These findings qualify implementation acceptance; they do not change the approved appearance.
+The [24 October code review](../../verification/2026-10-24-compact-cockpit.md#code-review--24-october-2026) records the source c643d9d defects (#62–#65). The fix restores a visible/accessibility cue for uncertain latest-day ordering, invalidates obsolete target operations across key changes/unmount, and guards editor-close callbacks. The same report distinguishes host regression and native acceptance of the follow-up; approved appearance is unchanged.
 
 Implementation is recorded separately from native acceptance in [one package report](../../verification/2026-10-24-compact-cockpit.md). Android, physical-phone, iOS and spoken accessibility evidence must be distinguished.
 
@@ -2649,31 +2649,31 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ClubInformation.t
 
 ## CockpitPreview.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CockpitPreview.tsx](../../../apps/platform-lab/src/mobile/CockpitPreview.tsx); normalized SHA-256 `3e308a0f2017849d34a32735349303ab266308464e273110fc4f6c6c230733a3`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CockpitPreview.tsx](../../../apps/platform-lab/src/mobile/CockpitPreview.tsx); normalized SHA-256 `d007c56710460620dc09d86fd7cdbc3c206781b98dc6082150dcece8b55d4d73`.
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 11` | 46 |
-| `lineHeight: 17` | 46 |
+| `fontSize: 11` | 49 |
+| `lineHeight: 17` | 49 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 14` | 46 |
-| `gap: 10` | 27 |
-| `gap: 12` | 28 |
-| `gap: 4` | 46 |
-| `maxWidth: 520` | 27 |
-| `minHeight: 48` | 25 |
-| `minHeight: 60` | 46 |
-| `minWidth: 0` | 46 |
-| `minWidth: 48` | 25 |
-| `padding: 12` | 27 |
-| `padding: 6` | 44 |
-| `width: &#x27;100%&#x27;` | 27 |
+| `borderRadius: 14` | 49 |
+| `gap: 10` | 28 |
+| `gap: 12` | 29 |
+| `gap: 4` | 49 |
+| `maxWidth: 520` | 28 |
+| `minHeight: 48` | 26 |
+| `minHeight: 60` | 49 |
+| `minWidth: 0` | 49 |
+| `minWidth: 48` | 26 |
+| `padding: 12` | 28 |
+| `padding: 6` | 47 |
+| `width: &#x27;100%&#x27;` | 28 |
 
 ## connection-guidance.ts
 
@@ -2715,66 +2715,66 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundat
 
 ## Dashboard.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](../../../apps/platform-lab/src/mobile/Dashboard.tsx); normalized SHA-256 `a46a98f9022c0496e9c7a24ec3c47caf423609de79d179242dc2dfaa8a9fa572`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](../../../apps/platform-lab/src/mobile/Dashboard.tsx); normalized SHA-256 `db6d064ee77afa8aca03f66b72f21c1cfabe10adbf0a3e6c66f96d97d5dd56d8`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#001b2955` | 70 |
+| `#001b2955` | 73 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 11` | 74 |
-| `fontSize: 12` | 74, 76 |
-| `fontSize: 14` | 72, 76 |
-| `fontSize: 16` | 76 |
-| `fontSize: 18` | 71 |
-| `fontSize: 22` | 74 |
-| `fontSize: 27` | 74 |
-| `fontWeight: &#x27;600&#x27;` | 64, 76 |
-| `fontWeight: &#x27;700&#x27;` | 71, 74, 76 |
-| `lineHeight: 17` | 74 |
-| `lineHeight: 18` | 74, 76 |
-| `lineHeight: 20` | 72, 76 |
-| `lineHeight: 22` | 76 |
-| `lineHeight: 25` | 71 |
-| `lineHeight: 34` | 74 |
+| `fontSize: 11` | 77 |
+| `fontSize: 12` | 77, 79 |
+| `fontSize: 14` | 75, 79 |
+| `fontSize: 16` | 79 |
+| `fontSize: 18` | 74 |
+| `fontSize: 22` | 77 |
+| `fontSize: 27` | 77 |
+| `fontWeight: &#x27;600&#x27;` | 67, 79 |
+| `fontWeight: &#x27;700&#x27;` | 74, 77, 79 |
+| `lineHeight: 17` | 77 |
+| `lineHeight: 18` | 77, 79 |
+| `lineHeight: 20` | 75, 79 |
+| `lineHeight: 22` | 79 |
+| `lineHeight: 25` | 74 |
+| `lineHeight: 34` | 77 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 18` | 76 |
-| `borderWidth: 1` | 76 |
-| `gap: 0` | 69 |
-| `gap: 3` | 59, 72, 73 |
-| `gap: 6` | 71 |
-| `gap: 8` | 70, 76 |
-| `gap: 9` | 75 |
-| `maxWidth: &#x27;35%&#x27;` | 72 |
-| `maxWidth: &#x27;45%&#x27;` | 38 |
-| `maxWidth: 520` | 69 |
-| `minHeight: 48` | 71, 72, 77, 78 |
-| `minHeight: 80` | 75 |
-| `minWidth: 0` | 59, 71 |
-| `minWidth: 330` | 41 |
-| `minWidth: 48` | 78 |
-| `minWidth: 90` | 73 |
-| `opacity: .4` | 40 |
-| `opacity: .44` | 34 |
-| `padding: 0` | 69 |
-| `padding: 12` | 75 |
-| `paddingHorizontal: 10` | 76 |
-| `paddingHorizontal: 12` | 70, 75 |
-| `paddingHorizontal: 2` | 72 |
-| `paddingHorizontal: 5` | 73 |
-| `paddingHorizontal: 8` | 78 |
-| `paddingVertical: 10` | 75 |
-| `paddingVertical: 3` | 76 |
-| `width: &#x27;100%&#x27;` | 69, 70 |
+| `borderRadius: 18` | 79 |
+| `borderWidth: 1` | 79 |
+| `gap: 0` | 72 |
+| `gap: 3` | 62, 75, 76 |
+| `gap: 6` | 74 |
+| `gap: 8` | 73, 79 |
+| `gap: 9` | 78 |
+| `maxWidth: &#x27;35%&#x27;` | 75 |
+| `maxWidth: &#x27;45%&#x27;` | 41 |
+| `maxWidth: 520` | 72 |
+| `minHeight: 48` | 74, 75, 80, 81 |
+| `minHeight: 80` | 78 |
+| `minWidth: 0` | 62, 74 |
+| `minWidth: 330` | 44 |
+| `minWidth: 48` | 81 |
+| `minWidth: 90` | 76 |
+| `opacity: .4` | 43 |
+| `opacity: .44` | 37 |
+| `padding: 0` | 72 |
+| `padding: 12` | 78 |
+| `paddingHorizontal: 10` | 79 |
+| `paddingHorizontal: 12` | 73, 78 |
+| `paddingHorizontal: 2` | 75 |
+| `paddingHorizontal: 5` | 76 |
+| `paddingHorizontal: 8` | 81 |
+| `paddingVertical: 10` | 78 |
+| `paddingVertical: 3` | 79 |
+| `width: &#x27;100%&#x27;` | 72, 73 |
 
 ## DataUpdateIndicator.tsx
 
@@ -2818,7 +2818,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DataUpdateIndicat
 
 ## DesignPreview.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DesignPreview.tsx](../../../apps/platform-lab/src/mobile/DesignPreview.tsx); normalized SHA-256 `47de54d43502c511a2e32ceca0e1c55c7e339cb91f0a82a7cc7585061f2ea3c2`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DesignPreview.tsx](../../../apps/platform-lab/src/mobile/DesignPreview.tsx); normalized SHA-256 `e2dbf57dfaaa515111eca4b8eee6865d47b25a5d3f8375e38fd39f81e8a1d470`.
 
 ### Typography declarations
 
@@ -2895,23 +2895,23 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DutyRoster.tsx](.
 
 ## DutyTarget.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DutyTarget.tsx](../../../apps/platform-lab/src/mobile/DutyTarget.tsx); normalized SHA-256 `82b8b9def97fca8f16f669e5d272221b83b8254e0c945ca49eafaaaa4ec26da3`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DutyTarget.tsx](../../../apps/platform-lab/src/mobile/DutyTarget.tsx); normalized SHA-256 `24b6acebd2608c232d23439cfae766d16968fa4cb36ad24981bb77a3797f365b`.
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 16` | 52 |
+| `fontSize: 16` | 70 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 52 |
-| `borderWidth: 1` | 52 |
-| `gap: 8` | 50 |
-| `minHeight: 48` | 52 |
-| `padding: 10` | 52 |
+| `borderRadius: 12` | 70 |
+| `borderWidth: 1` | 70 |
+| `gap: 8` | 68 |
+| `minHeight: 48` | 70 |
+| `padding: 10` | 70 |
 
 ## FlightScene.tsx
 
@@ -4093,7 +4093,7 @@ Appearance: Large selected-year starts value in the middle metric column, with t
 Where: Compact Cockpit season card, Starts column.
 Meaning: Deduplicated saved selected-account flight count for the current season.
 Function / action: Read-only value. Season title changes the year; Statistik opens detailed comparisons; Alle Flüge opens the full saved list.
-States / limits: Missing season value is —; confirmed zero requires coverage and no unresolved date ambiguity. Open #62 records the current false-zero gap. Prior year derives from selected year. Enlarged metrics scroll horizontally.
+States / limits: Missing season value is —; confirmed zero requires coverage and no unresolved date ambiguity. Unassigned dates prevent a confirmed empty season even with retrieval coverage. Prior year derives from selected year. Enlarged metrics scroll horizontally.
 Source: apps/platform-lab/src/mobile/Dashboard.tsx
 cockpit-season.cockpitSeasonValues; real-flight-statistics.summarizeRealFlights
 
@@ -4103,7 +4103,7 @@ Appearance: Large reported h:min in the left metric column, with the prior selec
 Where: Compact Cockpit season card, Flugzeit column.
 Meaning: Known reported flight minutes for the saved selected-account season.
 Function / action: Read-only value; Statistik exposes detailed comparisons and aircraft breakdowns.
-States / limits: Unknown time is —; known zero remains 0:00. Partly unknown durations have a separate notice. Open #62 records the undated-flight zero gap. Saved periods need not be complete/comparable; enlarged metrics scroll horizontally.
+States / limits: Unknown time is —; known zero remains 0:00. Partly unknown durations have a separate notice. Unassigned dates prevent a confirmed empty season even with retrieval coverage. Saved periods need not be complete/comparable; enlarged metrics scroll horizontally.
 Source: apps/platform-lab/src/mobile/Dashboard.tsx
 cockpit-season.cockpitSeasonValues; real-flight-statistics.summarizeRealFlights
 
@@ -4376,7 +4376,7 @@ States / limits: Recreated approved variant, not a byte-identical copy of an old
 Source: docs/assets/branding/moflight-app-icon-ai.png
 docs/assets/branding/README.md; app.json
 </textarea></section>
-<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: 3d02b0337c9b613fcca22ea450f1c8f20c24f3f63b87189b777eff662cf279b4. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
+<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: ca5adffd5a4e7778292771d794e724164147a46740cbe63f2e66a2a5486cd097. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
 </main><script>
 'use strict';
 const brief = document.querySelector('#brief');

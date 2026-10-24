@@ -300,7 +300,7 @@
           "where": "Compact Cockpit season card, Starts column.",
           "meaning": "Deduplicated saved selected-account flight count for the current season.",
           "behavior": "Read-only value. Season title changes the year; Statistik opens detailed comparisons; Alle Flüge opens the full saved list.",
-          "states": "Missing season value is —; confirmed zero requires coverage and no unresolved date ambiguity. Open #62 records the current false-zero gap. Prior year derives from selected year. Enlarged metrics scroll horizontally.",
+          "states": "Missing season value is —; confirmed zero requires coverage and no unresolved date ambiguity. Unassigned dates prevent a confirmed empty season even with retrieval coverage. Prior year derives from selected year. Enlarged metrics scroll horizontally.",
           "file": "apps/platform-lab/src/mobile/Dashboard.tsx",
           "locator": "cockpit-season.cockpitSeasonValues; real-flight-statistics.summarizeRealFlights"
         },
@@ -313,7 +313,7 @@
           "where": "Compact Cockpit season card, Flugzeit column.",
           "meaning": "Known reported flight minutes for the saved selected-account season.",
           "behavior": "Read-only value; Statistik exposes detailed comparisons and aircraft breakdowns.",
-          "states": "Unknown time is —; known zero remains 0:00. Partly unknown durations have a separate notice. Open #62 records the undated-flight zero gap. Saved periods need not be complete/comparable; enlarged metrics scroll horizontally.",
+          "states": "Unknown time is —; known zero remains 0:00. Partly unknown durations have a separate notice. Unassigned dates prevent a confirmed empty season even with retrieval coverage. Saved periods need not be complete/comparable; enlarged metrics scroll horizontally.",
           "file": "apps/platform-lab/src/mobile/Dashboard.tsx",
           "locator": "cockpit-season.cockpitSeasonValues; real-flight-statistics.summarizeRealFlights"
         },

@@ -98,7 +98,7 @@ export function DesignPreview({onClose=()=>{}}:{onClose?:()=>void}={}) {
     </View>
     {page === 'start' ? <ScrollView contentContainerStyle={styles.canvas}>
       <Label muted>Festes Demo-Datum: 22.10.2026 · alle Flüge und Belege erfunden.</Label>
-      <Dashboard ownFlights={fixture.view} ownFlightPhase="ready" pending={null} width={width} fontScale={fontScale}
+      <Dashboard persistDutyTarget={false} ownFlights={fixture.view} ownFlightPhase="ready" pending={null} width={width} fontScale={fontScale}
         now={DESIGN_PREVIEW_NOW} onPaper={() => setPaper(!paper)} onFlights={() => showFlights()} onFlight={showFlights} onStatistics={() => setStatisticsOpen(true)} />
       {paper && <Card><Label>Papierflugbuch später einrichten</Label><Label muted>Diese Vorschau zeigt nur erfundene Flugdaten. Es wird kein Flugbuch angelegt.</Label></Card>}
       <Action secondary onPress={() => showState('empty')}>Leere Liste ansehen</Action>

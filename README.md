@@ -2,7 +2,7 @@
 
 **24 October Compact Cockpit — delivered:** the approved dark UI is implemented with the original logo and existing workflows. [Download APK ZIP — source `c643d9d`](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/compact-cockpit-2026-10-24-c643d9d/MoFlight-Android-c643d9d.zip) · [contract and route inventory](docs/product/design/compact-cockpit.md) · [verification, screenshots and limits](docs/verification/2026-10-24-compact-cockpit.md) · [#61](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/61).
 
-**24 October code review:** four open defects are tracked in [#62](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/62), [#63](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/63), [#64](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/64) and [#65](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/65): confirmed-zero ambiguity, latest-flight ordering, obsolete target-save completion and preview persistence wording. The review does not fix them or change the delivered APK. [Findings, reproduction and verification limits](docs/verification/2026-10-24-compact-cockpit.md#code-review--24-october-2026).
+**24 October review fixes — in progress:** Manuel authorized fixes for #62–#65. Unknown-season zeros, latest-flight ordering cues, scoped save completion and memory-only previews are implemented with 71 affected tests passing. Committed-source Android/native delivery remains pending. [One follow-up evidence section](docs/verification/2026-10-24-compact-cockpit.md#review-fixes--24-october-2026).
 
 <p align="center">
   <picture>

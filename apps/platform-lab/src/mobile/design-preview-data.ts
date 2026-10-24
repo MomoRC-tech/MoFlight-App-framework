@@ -11,9 +11,9 @@ export const DESIGN_PREVIEW_SCOPE = {
 } as const;
 
 /** Presentation-only facts. No storage, service, session, or provider is opened. */
-export function createDesignPreviewData(): { view: OwnFlightView; details: RealFlightDetail[]; dutyOverview: DutyOverview } {
+export function createDesignPreviewData(scenario: 'default' | 'undated' | 'same-day' = 'default'): { view: OwnFlightView; details: RealFlightDetail[]; dutyOverview: DutyOverview } {
   const headers = ['Datum', 'Lfz.', 'Start', 'Landung', 'Flugzeit', 'Lfz.-Muster', 'Pilot', 'PIC', 'Begleiter/FI', 'Startort', 'Landeort', 'Bemerkung'];
-  const rows = [
+  let rows = [
     ['21.10.2026', 'D-SYN1', '12:10', '13:35', '85', 'ASK 21 · Demo', 'Demo Pilot A', 'Demo Pilot A', 'Demo Trainer', 'Demo Talwiese', 'Demo Talwiese', 'Synthetischer Übungsflug'],
     ['18.10.2026', 'D-SYN2', '11:00', '11:00', '0', 'LS4 · Demo', 'Demo Pilot A', 'Demo Pilot A', '', 'Demo Höhenfeld', 'Demo Höhenfeld', 'Explizit gemeldete Nullzeit'],
     ['03.09.2026', 'D-SYN1', '10:15', '12:00', '', 'ASK 21 · Demo', 'Demo Pilot A', '', 'Demo Trainer', 'Demo Talwiese', 'Demo Nordplatz', 'Flugzeit unbekannt; nicht aus Uhrzeiten ableiten'],
@@ -23,6 +23,13 @@ export function createDesignPreviewData(): { view: OwnFlightView; details: RealF
     ['16.08.2025', 'D-SYN3', '10:00', '12:05', '125', 'Discus · Demo', 'Demo Pilot A', 'Demo Pilot A', '', 'Demo Nordplatz', 'Demo Nordplatz', 'Synthetischer Vorjahresflug'],
     ['20.04.2025', 'D-SYN2', '13:00', '13:30', '', 'LS4 · Demo', 'Demo Pilot A', '', '', 'Demo Talwiese', 'Demo Talwiese', 'Unbekannte gemeldete Dauer'],
   ];
+  if (scenario === 'undated') rows = [[...rows[0]!]];
+  if (scenario === 'undated') rows[0]![0] = '';
+  if (scenario === 'same-day') {
+    rows = [[...rows[0]!], [...rows[1]!]];
+    rows[1]![0] = rows[0]![0]!;
+    rows[1]![2] = '';
+  }
   const capture = { captureId: 'synthetic-design-capture', headers,
     rows: rows.map((values, index) => ({ values, sourceFlightId: String(990001 + index) })) };
   const flights = capture.rows.map((row, index) => ({

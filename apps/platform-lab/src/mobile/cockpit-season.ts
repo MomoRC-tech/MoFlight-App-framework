@@ -11,7 +11,7 @@ export function cockpitSeason(flights: readonly RealFlightListItem[], saved: rea
 export function cockpitSeasonValues(summary: ReturnType<typeof summarizeRealFlights>, saved: readonly SavedFlightRetrieval[], year: number, today: string) {
   const season = summary.season;
   const from = `${year}-01-01`, to = year === Number(today.slice(0, 4)) ? today : `${year}-12-31`;
-  const confirmedEmpty = season.count === 0 && statisticsCoverageComplete(saved, from, to);
+  const confirmedEmpty = season.count === 0 && summary.unknownDateCount === 0 && statisticsCoverageComplete(saved, from, to);
   return { ...summary, starts: season.count > 0 || confirmedEmpty ? String(season.count) : '—',
     time: season.knownDurationCount > 0 ? formatReportedMinutes(season.knownMinutes) : confirmedEmpty ? '0:00' : '—' };
 }

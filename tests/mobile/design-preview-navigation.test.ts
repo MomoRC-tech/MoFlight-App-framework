@@ -31,10 +31,31 @@ test('Verein preview selects actual source components with synthetic data and pr
  nodes(render()).find(n=>n.type==='DataUpdateIndicator')!.props.onPress();assert.equal(nodes(render()).some(n=>n.type==='UpdateResult'),true);
  press('Vorschau Fl\u00fcge');assert.ok(nodes(render()).some(n=>n.type==='OwnFlights'));
  press('Vorschau Start');assert.ok(nodes(render()).some(n=>n.type==='Dashboard'));
- const start=nodes(render()).find(n=>n.type==='Dashboard')!;start.props.onStatistics();
+ const start=nodes(render()).find(n=>n.type==='Dashboard')!;assert.equal(start.props.persistDutyTarget,false);start.props.onStatistics();
  const stats=nodes(render());const overlay=stats.find(n=>n.type==='StatisticsOverlay')!;
  assert.equal(overlay.props.data.phase,'ready');assert.equal(overlay.props.data.view.flights.length,createDesignPreviewData().view.flights.length);
  assert.equal(overlay.props.today,'2026-10-22');assert.equal(stats.find(n=>n.type==='AppHeader')!.props.title,'Vorschau Flugstatistik');
  assert.ok(JSON.stringify(stats).includes('Synthetische UI-Vorschau'));
  stats.find(n=>n.type==='AppHeader')!.props.back();assert.ok(nodes(render()).some(n=>n.type==='Dashboard'));
+});
+
+
+test('cockpit preview opts out of target persistence in every synthetic facts scenario',()=>{
+ const code=ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/mobile/CockpitPreview.tsx',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.React}}).outputText;
+ const states:any[]=[];let index=0;
+ const react={createElement:(type:any,props:any,...children:any[])=>({type,props:props??{},children:children.flat(Infinity)}),useMemo:(fn:()=>any)=>fn(),useState:(initial:any)=>{const i=index++;if(!(i in states))states[i]=initial;return [states[i],(v:any)=>{states[i]=v;}];}};
+ const modules:any={react:{default:react,...react},'react-native':{Pressable:'Pressable',ScrollView:'ScrollView',View:'View',useWindowDimensions:()=>({width:390,fontScale:1})},'./design-preview-data':{createDesignPreviewData,DESIGN_PREVIEW_NOW},'./sync-progress':syncProgress};
+ for(const id of ['AppHeader','Dashboard','OverviewTiles','DutyRoster','DataUpdateIndicator','SymbolIcon','SyncProgress'])modules['./'+id]={[id]:id};
+ modules['./theme']={Action:'Action',Label:'Label',colors:{}};
+ const exports:any={};runInNewContext(code,{exports,require:(id:string)=>{assert.ok(id in modules,id);return modules[id];}});
+ const render=()=>{index=0;return exports.CockpitPreview({onClose:()=>{},onFlights:()=>{},onStatistics:()=>{}});};
+ const nodes=(n:any):any[]=>!n||typeof n!=='object'?[]:[n,...(n.children??[]).flatMap(nodes)];
+ const dashboard=()=>nodes(render()).find(n=>n.type==='Dashboard')!.props;
+ assert.equal(dashboard().persistDutyTarget,false);
+ nodes(render()).find(n=>n.type==='Action'&&n.children.includes('Vorschau: Flüge ohne Datum')).props.onPress();
+ assert.equal(dashboard().persistDutyTarget,false);assert.equal(dashboard().ownFlights.flights.length,1);assert.notEqual(dashboard().ownFlights.flights[0].facts.assessment.date.state,'parsed');
+ nodes(render()).find(n=>n.type==='Action'&&n.children.includes('Vorschau: Unklare Reihenfolge')).props.onPress();
+ const view=dashboard();assert.equal(view.persistDutyTarget,false);assert.equal(view.ownFlights.flights.length,2);
+ assert.equal(view.ownFlights.flights[0].facts.assessment.date.value,view.ownFlights.flights[1].facts.assessment.date.value);
+ assert.equal(view.ownFlights.flights[1].facts.assessment.clocks.start.state,'blank');
 });

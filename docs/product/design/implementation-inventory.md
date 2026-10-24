@@ -222,31 +222,31 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ClubInformation.t
 
 ## CockpitPreview.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CockpitPreview.tsx](../../../apps/platform-lab/src/mobile/CockpitPreview.tsx); normalized SHA-256 `3e308a0f2017849d34a32735349303ab266308464e273110fc4f6c6c230733a3`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CockpitPreview.tsx](../../../apps/platform-lab/src/mobile/CockpitPreview.tsx); normalized SHA-256 `d007c56710460620dc09d86fd7cdbc3c206781b98dc6082150dcece8b55d4d73`.
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 11` | 46 |
-| `lineHeight: 17` | 46 |
+| `fontSize: 11` | 49 |
+| `lineHeight: 17` | 49 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 14` | 46 |
-| `gap: 10` | 27 |
-| `gap: 12` | 28 |
-| `gap: 4` | 46 |
-| `maxWidth: 520` | 27 |
-| `minHeight: 48` | 25 |
-| `minHeight: 60` | 46 |
-| `minWidth: 0` | 46 |
-| `minWidth: 48` | 25 |
-| `padding: 12` | 27 |
-| `padding: 6` | 44 |
-| `width: '100%'` | 27 |
+| `borderRadius: 14` | 49 |
+| `gap: 10` | 28 |
+| `gap: 12` | 29 |
+| `gap: 4` | 49 |
+| `maxWidth: 520` | 28 |
+| `minHeight: 48` | 26 |
+| `minHeight: 60` | 49 |
+| `minWidth: 0` | 49 |
+| `minWidth: 48` | 26 |
+| `padding: 12` | 28 |
+| `padding: 6` | 47 |
+| `width: '100%'` | 28 |
 
 ## connection-guidance.ts
 
@@ -288,66 +288,66 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundat
 
 ## Dashboard.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](../../../apps/platform-lab/src/mobile/Dashboard.tsx); normalized SHA-256 `a46a98f9022c0496e9c7a24ec3c47caf423609de79d179242dc2dfaa8a9fa572`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](../../../apps/platform-lab/src/mobile/Dashboard.tsx); normalized SHA-256 `db6d064ee77afa8aca03f66b72f21c1cfabe10adbf0a3e6c66f96d97d5dd56d8`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#001b2955` | 70 |
+| `#001b2955` | 73 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 11` | 74 |
-| `fontSize: 12` | 74, 76 |
-| `fontSize: 14` | 72, 76 |
-| `fontSize: 16` | 76 |
-| `fontSize: 18` | 71 |
-| `fontSize: 22` | 74 |
-| `fontSize: 27` | 74 |
-| `fontWeight: '600'` | 64, 76 |
-| `fontWeight: '700'` | 71, 74, 76 |
-| `lineHeight: 17` | 74 |
-| `lineHeight: 18` | 74, 76 |
-| `lineHeight: 20` | 72, 76 |
-| `lineHeight: 22` | 76 |
-| `lineHeight: 25` | 71 |
-| `lineHeight: 34` | 74 |
+| `fontSize: 11` | 77 |
+| `fontSize: 12` | 77, 79 |
+| `fontSize: 14` | 75, 79 |
+| `fontSize: 16` | 79 |
+| `fontSize: 18` | 74 |
+| `fontSize: 22` | 77 |
+| `fontSize: 27` | 77 |
+| `fontWeight: '600'` | 67, 79 |
+| `fontWeight: '700'` | 74, 77, 79 |
+| `lineHeight: 17` | 77 |
+| `lineHeight: 18` | 77, 79 |
+| `lineHeight: 20` | 75, 79 |
+| `lineHeight: 22` | 79 |
+| `lineHeight: 25` | 74 |
+| `lineHeight: 34` | 77 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 18` | 76 |
-| `borderWidth: 1` | 76 |
-| `gap: 0` | 69 |
-| `gap: 3` | 59, 72, 73 |
-| `gap: 6` | 71 |
-| `gap: 8` | 70, 76 |
-| `gap: 9` | 75 |
-| `maxWidth: '35%'` | 72 |
-| `maxWidth: '45%'` | 38 |
-| `maxWidth: 520` | 69 |
-| `minHeight: 48` | 71, 72, 77, 78 |
-| `minHeight: 80` | 75 |
-| `minWidth: 0` | 59, 71 |
-| `minWidth: 330` | 41 |
-| `minWidth: 48` | 78 |
-| `minWidth: 90` | 73 |
-| `opacity: .4` | 40 |
-| `opacity: .44` | 34 |
-| `padding: 0` | 69 |
-| `padding: 12` | 75 |
-| `paddingHorizontal: 10` | 76 |
-| `paddingHorizontal: 12` | 70, 75 |
-| `paddingHorizontal: 2` | 72 |
-| `paddingHorizontal: 5` | 73 |
-| `paddingHorizontal: 8` | 78 |
-| `paddingVertical: 10` | 75 |
-| `paddingVertical: 3` | 76 |
-| `width: '100%'` | 69, 70 |
+| `borderRadius: 18` | 79 |
+| `borderWidth: 1` | 79 |
+| `gap: 0` | 72 |
+| `gap: 3` | 62, 75, 76 |
+| `gap: 6` | 74 |
+| `gap: 8` | 73, 79 |
+| `gap: 9` | 78 |
+| `maxWidth: '35%'` | 75 |
+| `maxWidth: '45%'` | 41 |
+| `maxWidth: 520` | 72 |
+| `minHeight: 48` | 74, 75, 80, 81 |
+| `minHeight: 80` | 78 |
+| `minWidth: 0` | 62, 74 |
+| `minWidth: 330` | 44 |
+| `minWidth: 48` | 81 |
+| `minWidth: 90` | 76 |
+| `opacity: .4` | 43 |
+| `opacity: .44` | 37 |
+| `padding: 0` | 72 |
+| `padding: 12` | 78 |
+| `paddingHorizontal: 10` | 79 |
+| `paddingHorizontal: 12` | 73, 78 |
+| `paddingHorizontal: 2` | 75 |
+| `paddingHorizontal: 5` | 76 |
+| `paddingHorizontal: 8` | 81 |
+| `paddingVertical: 10` | 78 |
+| `paddingVertical: 3` | 79 |
+| `width: '100%'` | 72, 73 |
 
 ## DataUpdateIndicator.tsx
 
@@ -391,7 +391,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DataUpdateIndicat
 
 ## DesignPreview.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DesignPreview.tsx](../../../apps/platform-lab/src/mobile/DesignPreview.tsx); normalized SHA-256 `47de54d43502c511a2e32ceca0e1c55c7e339cb91f0a82a7cc7585061f2ea3c2`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DesignPreview.tsx](../../../apps/platform-lab/src/mobile/DesignPreview.tsx); normalized SHA-256 `e2dbf57dfaaa515111eca4b8eee6865d47b25a5d3f8375e38fd39f81e8a1d470`.
 
 ### Typography declarations
 
@@ -468,23 +468,23 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DutyRoster.tsx](.
 
 ## DutyTarget.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DutyTarget.tsx](../../../apps/platform-lab/src/mobile/DutyTarget.tsx); normalized SHA-256 `82b8b9def97fca8f16f669e5d272221b83b8254e0c945ca49eafaaaa4ec26da3`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DutyTarget.tsx](../../../apps/platform-lab/src/mobile/DutyTarget.tsx); normalized SHA-256 `24b6acebd2608c232d23439cfae766d16968fa4cb36ad24981bb77a3797f365b`.
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 16` | 52 |
+| `fontSize: 16` | 70 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 52 |
-| `borderWidth: 1` | 52 |
-| `gap: 8` | 50 |
-| `minHeight: 48` | 52 |
-| `padding: 10` | 52 |
+| `borderRadius: 12` | 70 |
+| `borderWidth: 1` | 70 |
+| `gap: 8` | 68 |
+| `minHeight: 48` | 70 |
+| `padding: 10` | 70 |
 
 ## FlightScene.tsx
 
