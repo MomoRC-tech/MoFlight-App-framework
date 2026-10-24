@@ -58,5 +58,5 @@ const styles = StyleSheet.create({
   row: { gap: 4, paddingHorizontal: 2, paddingBottom: 8, borderBottomWidth: 1, borderBottomColor: colors.border },
   heading: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', gap: 8 },
   duty: { fontWeight: '600', flexShrink: 1 },
-  dates: { fontSize: 12, lineHeight: 20, textAlign: 'right', flexShrink: 1 },
+  dates: { fontSize: 12, lineHeight: 20, textAlign: 'right', flexShrink: 0, maxWidth: '65%' },
 });

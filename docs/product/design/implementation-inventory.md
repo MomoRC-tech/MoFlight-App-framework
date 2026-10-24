@@ -423,7 +423,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Diagnostics.tsx](
 
 ## DutyRoster.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DutyRoster.tsx](../../../apps/platform-lab/src/mobile/DutyRoster.tsx); normalized SHA-256 `119227cc9694991db087eff77ec68395daab95b528456a6314007c1f8450c6f9`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DutyRoster.tsx](../../../apps/platform-lab/src/mobile/DutyRoster.tsx); normalized SHA-256 `8807e415adeaa055251167a9f4ac05151f358cad4e59c89e7c518068a2e33b91`.
 
 ### Typography declarations
 
@@ -439,6 +439,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DutyRoster.tsx](.
 | --- | --- |
 | `gap: 4` | 58 |
 | `gap: 8` | 57, 59 |
+| `maxWidth: '65%'` | 61 |
 | `maxWidth: 520` | 30 |
 | `paddingHorizontal: 2` | 58 |
 | `width: '100%'` | 30 |
