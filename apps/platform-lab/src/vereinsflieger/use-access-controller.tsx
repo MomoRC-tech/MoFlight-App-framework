@@ -22,6 +22,7 @@ import { clearProviderStore, proveSyntheticStore, sessionClearingAvailable, sess
 import type { ProviderScope } from './scope-store';
 import { useInformationController, type FeatureInformationCategory } from './use-information-controller';
 import type { RealFlightSourceInput } from './real-flight-source';
+import { rememberAuthenticatedProfileNative } from '../ai/historical-provider-identity-native';
 
 type FlightSourceAttempt = {
   owner: string;
@@ -511,6 +512,28 @@ export function useAccessController(product = false, localOwner?: string, develo
     if (invalidate) session.current.cancel();
     syncConnection();setFlow(previous=>connectionFlow(previous,{type:'cancel'}));
   }
+  async function rememberHistoricalProfile(observed: ObservedContext, at: string, started: number) {
+    if (!product) return;
+    const savedOwner = owner.current;
+    const gate = async () => {
+      const current = session.current.state;
+      if (!savedOwner || !mounted.current || !foreground.current || clearingStore.current ||
+          owner.current !== savedOwner || activeOwner.current !== savedOwner || epoch.current !== started ||
+          current.phase !== 'observed' || !current.confirmed || current.lastCheckedAt !== at ||
+          !current.observed || !sameContext(current.observed, observed) || scope.current?.owner !== savedOwner ||
+          !sameContext(scope.current.context, observed)) throw new Error('Historical profile observation superseded');
+    };
+    try {
+      await gate(); await rememberAuthenticatedProfileNative(savedOwner!, observed, at, gate);
+    } catch {
+      // AI attribution failure must not destroy a valid provider association.
+      // AI admission later reads only a persisted receipt, never this UI state.
+      recordProviderEvent('provider-historical-identity-save-failed');
+      if (mounted.current && owner.current === savedOwner && epoch.current === started) {
+        setStatus('Historical AI account evidence could not be saved. Provider data is preserved.');
+      }
+    }
+  }
   async function confirmConnection() {
     const observed = session.current.state.observed;
     if (owner.current !== activeOwner.current || clearingStore.current || bindingBusy.current || disconnectMode.current || !foreground.current || !viewReady || !observed || session.current.state.phase !== 'observed') return;
@@ -527,6 +550,8 @@ export function useAccessController(product = false, localOwner?: string, develo
       if (!mounted.current || owner.current !== activeOwner.current || started !== epoch.current || !foreground.current) return;
       if (!session.current.confirm()) return;
       syncConnection();
+      await rememberHistoricalProfile(observed, session.current.state.lastCheckedAt!, started);
+      if (!mounted.current || owner.current !== activeOwner.current || started !== epoch.current || !foreground.current) return;
       bindingBusy.current = false; setBinding(false);
       const next = afterConfirmation.current; afterConfirmation.current = null;
       if (next === 'retrieve') retrieve();
@@ -581,6 +606,10 @@ export function useAccessController(product = false, localOwner?: string, develo
              !sameContext(completedFlightSourceRef.current.contextAfter, acceptedContext))) clearCompletedFlightSource();
         if (pendingFlightSource.current && !sameContext(pendingFlightSource.current.input.contextAfter, acceptedContext)) pendingFlightSource.current = null;
         if (flightSourceAttempt.current && !sameContext(flightSourceAttempt.current.contextBefore, acceptedContext)) flightSourceAttempt.current = null;
+      }
+      if (acceptedContext && session.current.state.confirmed) {
+        await rememberHistoricalProfile(acceptedContext, session.current.state.lastCheckedAt!, requestEpoch);
+        if (contextRequest.current !== request || epoch.current !== requestEpoch) return;
       }
       setVisible(false);
       if (guidedFlightLogin.current && request.action === 'check') {

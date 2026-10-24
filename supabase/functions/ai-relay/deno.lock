@@ -1,0 +1,16 @@
+{
+  "version": "5",
+  "specifiers": {
+    "npm:openai@7.43.0": "7.43.0"
+  },
+  "npm": {
+    "openai@7.43.0": {
+      "integrity": "sha512-fBjKaDFG8AVfkGYoIo/E+xNRlNk7nx2nQ9GoQtXfePzPjg4QcT6nejkhXayJnEwSpFGfthOrAPI2KXj5yAqg9A=="
+    }
+  },
+  "workspace": {
+    "dependencies": [
+      "npm:openai@7.43.0"
+    ]
+  }
+}

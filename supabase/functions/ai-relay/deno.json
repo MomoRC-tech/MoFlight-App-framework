@@ -1,0 +1,9 @@
+{
+  "imports": { "openai": "npm:openai@7.43.0" },
+  "nodeModulesDir": "none",
+  "compilerOptions": { "strict": true, "noUncheckedIndexedAccess": true },
+  "tasks": {
+    "check": "deno check sdk-adapter.ts sdk-adapter.test.ts",
+    "test": "deno test --no-prompt sdk-adapter.test.ts"
+  }
+}

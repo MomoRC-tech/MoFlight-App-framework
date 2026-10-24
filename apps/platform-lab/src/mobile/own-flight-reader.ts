@@ -7,7 +7,7 @@ import type { ProviderScope } from '../vereinsflieger/scope-store';
 
 export interface OwnFlightScope { ownerId: string; storeId: string }
 export interface OwnFlightReadSession extends OwnFlightScope {
-  service: Pick<RealFlightService, 'readStored' | 'detail'> & Partial<Pick<RealFlightService, 'readReviewEvidence'>>;
+  service: Pick<RealFlightService, 'readStored' | 'detail'> & Partial<Pick<RealFlightService, 'readReviewEvidence' | 'readBindingEvidence'>>;
   assertCurrent(): Promise<void>;
   pendingCommand(): Promise<boolean>;
   readFeatureInformation?(accountRef:string):Promise<{scope:ProviderScope;captures:InformationCapture[]}|null>;

@@ -229,6 +229,10 @@ export class RealFlightService {
       return collectSavedSourceReview(graph);
     });
   }
+  /** Local-only verified binding provenance for historical identity migration. */
+  async readBindingEvidence(): Promise<RealFlightGraph> {
+    return this.withRepository(async ({ library }) => (await library.readStored()).graph);
+  }
   private storedSnapshot(graph:RealFlightGraph,writable:boolean,warning:string|null):OwnFlightStoredSnapshot {
       if (graph.manifest.owner_id !== this.ownerId || graph.manifest.store_id !== this.storeId) throw new Error('Foreign own-flight repository graph.');
       const binding = latestRealFlightValues<StoredBinding>(graph.records,'binding')[0];

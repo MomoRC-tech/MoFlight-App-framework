@@ -46,6 +46,12 @@ export async function readOwnerChatArchiveNative(scope: RealFlightNativeScope, g
   if (!store) return emptyUserChatArchive(scope.lease.ownerId);
   try { return await store.archive(); } finally { await store.close(); }
 }
+/** Explicit owner-local write admission; never creates/selects a real owner. */
+export async function openOwnerChatStoreNative(scope: RealFlightNativeScope, gate: () => Promise<void>): Promise<ChatStore> {
+  const store = await openOwnerChats(scope, true, gate);
+  if (!store) throw new Error('Chat storage unavailable');
+  return store;
+}
 /** Called only behind the aggregate restore's exact durable operation permit. */
 export async function restoreOwnerChatsNative(scope: RealFlightNativeScope, archive: ChatArchive, gate: () => Promise<void>): Promise<void> {
   const parsed = validateChatArchive(archive, scope.lease.ownerId, { interruptActive: true });

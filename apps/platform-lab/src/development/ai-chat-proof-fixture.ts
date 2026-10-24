@@ -1,6 +1,7 @@
 import { canonical } from '@moflight/flight-logbook';
 import { PilotBooks } from '../../../../packages/local-data/src/books';
 import { ChatStore } from '../ai/chat-store';
+import { rememberHistoricalIdentity } from '../ai/historical-provider-identity';
 import { decodeChatArchive, encodeChatArchive, type ChatMessage } from '../ai/chat-model';
 import { restoreUserBackup, type UserBackupServicePorts } from '../user-backup-service';
 import { createUserBackup, validateUserBackup, type UserBackupPayloadV1, type UserBackupPayloadV2 } from '../user-backup';
@@ -93,7 +94,7 @@ async function saveSeedChats(p: UpdateProofPorts): Promise<{ a: string; b: strin
   const a = account('a');
   const aStore = await openChat(p, a);
   try {
-    await aStore.saveIdentity(identity(a));
+    await rememberHistoricalIdentity(aStore, identity(a), async () => {});
     for (let index = 0; index < 50; index++) {
       const id = `old-${index}`;
       await aStore.saveDraft(id, `Conversation ${index}`, `Draft ${index}`, null, UPDATE_AT);
@@ -107,7 +108,7 @@ async function saveSeedChats(p: UpdateProofPorts): Promise<{ a: string; b: strin
   const b = account('b');
   const bStore = await openChat(p, b);
   try {
-    await bStore.saveIdentity(identity(b));
+    await rememberHistoricalIdentity(bStore, identity(b), async () => {});
     await bStore.saveDraft('old-0', 'Account B conversation', 'Different owner, account and draft', null, UPDATE_AT);
   } finally { await bStore.close(); }
 

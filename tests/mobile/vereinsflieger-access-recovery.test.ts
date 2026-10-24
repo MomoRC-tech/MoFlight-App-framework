@@ -50,7 +50,7 @@ const savedLoginSource = ts.transpileModule(readFileSync(new URL('../../apps/pla
 const informationControllerSource = ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/vereinsflieger/use-information-controller.ts', import.meta.url), 'utf8'), {
   compilerOptions: { module: ts.ModuleKind.CommonJS, esModuleInterop: false },
 }).outputText;
-function fixture(options: { panel?:boolean; deferViewSupersession?:boolean; failViewSupersession?:boolean; developmentRecoveryCheckpoints?: boolean; noNativeRecovery?: boolean; failLegacyRead?: boolean; failSafety?: boolean; deferSafety?: boolean; failReceipt?: boolean; deferClear?: boolean; failClear?: boolean; persistedScope?: ProviderScope; scopedView?: ViewPreferences; deferBinding?: boolean; failBinding?: boolean; priorCapture?: probe.ProbeSnapshot; deferJournalSave?: boolean; deferCaptureSave?: boolean; product?: boolean; deferLoginRead?: boolean; failLoginRead?: boolean; savedLogin?: { username: string; password: string } | null; failLoginForget?: boolean; deferLoginForget?: boolean } = {}) {
+function fixture(options: { deferIdentity?: boolean; failIdentity?: boolean; panel?:boolean; deferViewSupersession?:boolean; failViewSupersession?:boolean; developmentRecoveryCheckpoints?: boolean; noNativeRecovery?: boolean; failLegacyRead?: boolean; failSafety?: boolean; deferSafety?: boolean; failReceipt?: boolean; deferClear?: boolean; failClear?: boolean; persistedScope?: ProviderScope; scopedView?: ViewPreferences; deferBinding?: boolean; failBinding?: boolean; priorCapture?: probe.ProbeSnapshot; deferJournalSave?: boolean; deferCaptureSave?: boolean; product?: boolean; deferLoginRead?: boolean; failLoginRead?: boolean; savedLogin?: { username: string; password: string } | null; failLoginForget?: boolean; deferLoginForget?: boolean } = {}) {
   let resolveJournal!: (view: ViewPreferences | null) => void, rejectJournal!: (error: Error) => void;
   let finishViewSupersession!:()=>void;
   const viewSupersession=new Promise<void>(resolve=>{finishViewSupersession=resolve;});
@@ -87,6 +87,9 @@ function fixture(options: { panel?:boolean; deferViewSupersession?:boolean; fail
   const safetyWrite = new Promise<void>(resolve => { finishSafety = resolve; });
   let finishClear!: () => void;
   const clearWrite = new Promise<void>(resolve => { finishClear = resolve; });
+  const identities: {ownerId:string;context:unknown;at:string}[]=[];
+  let finishIdentity!:()=>void;
+  const identityWrite=new Promise<void>(resolve=>{finishIdentity=resolve;});
   let scopeWrites = 0;
   let finishBinding!: () => void;
   const bindingWrite = new Promise<void>(resolve => { finishBinding = resolve; });
@@ -126,6 +129,7 @@ function fixture(options: { panel?:boolean; deferViewSupersession?:boolean; fail
   function CaptureRun() {}
   function WindowCapture() {}
   const modules: Record<string, unknown> = {
+    '../ai/historical-provider-identity-native': { rememberAuthenticatedProfileNative: async (ownerId:string,context:unknown,at:string,gate:()=>Promise<void>) => { await gate(); if(options.deferIdentity)await identityWrite; await gate(); if(options.failIdentity)throw new Error('Synthetic identity failure'); identities.push({ownerId,context,at}); } },
     './provider-diagnostics': { ...providerDiagnostics, recordProviderEvent(event:string) {providerEvents.push(event);}, recordProviderDocument() {} },
     './flight-diagnostics': { startFlightSpan:(name:string)=>{const phase={name,result:null as boolean|null};diagnosticPhases.push(phase);return(result:boolean)=>{if(phase.result===null)phase.result=result;};} },
     '@moflight/flight-logbook': { canonical }, './legacy-recovery-store': legacyStore,
@@ -321,7 +325,7 @@ function fixture(options: { panel?:boolean; deferViewSupersession?:boolean; fail
       data: JSON.stringify({ kind: 'vf-login-result-v1', nonce, url: probe.LOGIN_URL, result }) } });
     return flush();
   }
-  return { finishViewSupersession, setPanelOpen:(value:boolean)=>{panelOpen=value;render();}, diagnosticPhases, providerEvents, verificationDiagnostics, render, button, press, settle, find, flush, loadPage, loadFlight, message, currentCommand, writes, injections,
+  return { identities, finishIdentity, finishViewSupersession, setPanelOpen:(value:boolean)=>{panelOpen=value;render();}, diagnosticPhases, providerEvents, verificationDiagnostics, render, button, press, settle, find, flush, loadPage, loadFlight, message, currentCommand, writes, injections,
     setInformationReader: (reader: typeof informationReader) => { informationReader = reader; }, informationReads: () => informationReads, savedInformation: () => savedInformation,
     setInformationCaptureReader: (reader: typeof informationCaptureReader) => { informationCaptureReader = reader; },
     setInformationHistoryReader: (reader: typeof informationHistoryReader) => { informationHistoryReader = reader; },
@@ -343,6 +347,44 @@ function fixture(options: { panel?:boolean; deferViewSupersession?:boolean; fail
 }
 
 const observedContext = { accountNumber: '123', clubLabel: 'Synthetic Club', clubIdentity: 'display-label-only', verification: 'observed-profile-number' } as const;
+
+test('accepted first and returning protected profiles persist historical identity without importing flights', async () => {
+  const f = fixture({ product: true }); f.render(); await f.settle(null); await f.flush();
+  assert.equal(f.identities.length, 0);
+  f.controller().beginGuidedFlightConnection(); await f.loadPage('https://vereinsflieger.de/member/index.php'); await f.loadPage(context.PROFILE_URL); await f.contextMessage(observedContext); await f.flush();
+  assert.equal(f.identities.length, 1); assert.equal(f.savedCapture(), null);
+  assert.equal((f.identities[0]!.context as typeof observedContext).accountNumber, '123');
+  f.controller().beginGuidedFlightConnection(); await f.loadPage(context.PROFILE_URL); await f.contextMessage(observedContext); await f.flush();
+  assert.equal(f.identities.length, 2); assert.equal(f.scopeWrites(), 1);
+  f.controller().beginGuidedFlightConnection(); await f.loadPage(context.PROFILE_URL); await f.contextMessage({...observedContext, accountNumber:'456'}); await f.flush();
+  assert.equal(f.identities.length, 2); assert.equal(f.controller().connection.phase, 'mismatch'); f.unmount();
+});
+
+test('background, unmount and owner switch fence deferred historical profile writes', async () => {
+  for (const change of ['background', 'unmount', 'owner'] as const) {
+    const f = fixture({ product:true, deferIdentity:true }); f.render(); await f.settle(null); await f.flush();
+    f.controller().beginGuidedFlightConnection(); await f.loadPage('https://vereinsflieger.de/member/index.php'); await f.loadPage(context.PROFILE_URL); await f.contextMessage(observedContext); await f.flush();
+    if (change === 'background') f.appState('background');
+    else if (change === 'unmount') f.unmount(); else f.changeOwner('different-owner');
+    f.finishIdentity(); await f.flush(); assert.equal(f.identities.length, 0, change); f.unmount();
+  }
+});
+
+test('identity persistence failure preserves confirmed provider association and records only a fixed diagnostic', async () => {
+  const f=fixture({product:true,failIdentity:true}); f.render(); await f.settle(null); await f.flush();
+  f.controller().beginGuidedFlightConnection(); await f.loadPage('https://vereinsflieger.de/member/index.php'); await f.loadPage(context.PROFILE_URL); await f.contextMessage(observedContext); await f.flush();
+  assert.equal(f.identities.length,0); assert.equal(f.controller().connection.confirmed,true);
+  assert.ok(f.providerEvents.includes('provider-historical-identity-save-failed')); f.unmount();
+});
+
+test('expired and malformed protected profiles never establish historical AI evidence', async () => {
+  for (const result of [{error:'session-required'},{...observedContext,accountNumber:'member-123'}]) {
+    const f=fixture({product:true,persistedScope:{version:1,owner:'synthetic-pilot',connectionId:'prior',context:observedContext}});
+    f.render();await f.settle(null);await f.flush();f.controller().beginGuidedFlightConnection();
+    await f.loadPage(context.PROFILE_URL);await f.contextMessage(result);await f.flush();
+    assert.equal(f.identities.length,0);assert.equal(f.controller().connection.confirmed,false);f.unmount();
+  }
+});
 
 test('explicit fresh sync retains prior scoped view evidence without replay and automatically clears the gate after matching proof',async()=>{
   const f=fixture({product:true,persistedScope:{version:1,owner:'synthetic-pilot',connectionId:'prior',context:observedContext},scopedView:original});

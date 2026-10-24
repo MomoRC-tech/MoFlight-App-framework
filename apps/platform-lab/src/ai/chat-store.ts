@@ -225,6 +225,18 @@ export class ChatStore {
       return { result: undefined, changed: true };
     });
   }
+  /** Atomic first historical receipt; concurrent observations cannot replace another account. */
+  async rememberIdentity(identity: HistoricalProviderIdentity): Promise<HistoricalProviderIdentity> {
+    const parsed = validateHistoricalProviderIdentity(identity, this.ownerId);
+    return this.transact(archive => {
+      if (archive.identity) {
+        if (archive.identity.accountRef !== parsed.accountRef) throw new Error('Historical provider account changed');
+        return { result: validateHistoricalProviderIdentity(archive.identity, this.ownerId), changed: false };
+      }
+      archive.identity = parsed;
+      return { result: validateHistoricalProviderIdentity(parsed, this.ownerId), changed: true };
+    });
+  }
 
   async saveDraft(idValue: string, titleValue: string, textValue: string, contextValue: AiContext | null, atValue: string): Promise<void> {
     const conversationId = id(idValue);
