@@ -1,0 +1,67 @@
+<div id="moflight-dense-c">
+  <style>
+    #moflight-dense-c { --mf-canvas:#001b29; --mf-panel:#062331; --mf-border:#183d50; --mf-text:#f4f8fc; --mf-muted:#a9bed3; --mf-teal:#27d3d2; }
+    #moflight-dense-c * { box-sizing:border-box; }
+    #moflight-dense-c .mf-stage { display:flex; justify-content:center; padding:12px 0; }
+    #moflight-dense-c .mf-sample { width:390px; max-width:100%; padding:10px; border-radius:14px; background:var(--mf-canvas); color:var(--mf-text); font-family:system-ui,-apple-system,"Segoe UI",sans-serif; font-size:14px; line-height:1.35; }
+    #moflight-dense-c .mf-heading { display:flex; align-items:baseline; flex-wrap:wrap; gap:6px 12px; justify-content:space-between; margin:0 2px 8px; font-size:15px; font-weight:600; }
+    #moflight-dense-c .mf-heading small { font-size:11px; font-weight:400; color:var(--mf-muted); }
+    #moflight-dense-c .mf-stack { display:grid; gap:5px; }
+    #moflight-dense-c .mf-flight { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; column-gap:8px; padding:7px 10px; border:1px solid var(--mf-border); border-radius:10px; background:var(--mf-panel); }
+    #moflight-dense-c .mf-info { display:grid; gap:2px; min-width:0; }
+    #moflight-dense-c .mf-identity { display:flex; flex-wrap:wrap; align-items:baseline; gap:3px 7px; }
+    #moflight-dense-c .mf-date, #moflight-dense-c .mf-model, #moflight-dense-c .mf-route { color:var(--mf-muted); font-size:12px; }
+    #moflight-dense-c .mf-registration { font-size:14px; font-weight:600; }
+    #moflight-dense-c .mf-crew { display:flex; flex-wrap:wrap; align-items:center; gap:2px 9px; font-size:13px; overflow-wrap:anywhere; }
+    #moflight-dense-c .mf-person { min-width:0; }
+    #moflight-dense-c .mf-role { font-size:11px; color:var(--mf-muted); margin-right:3px; }
+    #moflight-dense-c .mf-route { overflow-wrap:anywhere; }
+    #moflight-dense-c .mf-duration { display:flex; align-items:baseline; gap:3px; white-space:nowrap; font-size:20px; font-weight:600; font-variant-numeric:tabular-nums; }
+    #moflight-dense-c .mf-unit { font-size:11px; font-weight:400; color:var(--mf-muted); }
+    #moflight-dense-c .mf-solo { font-size:11px; color:var(--mf-teal); border:1px solid var(--mf-border); border-radius:4px; padding:0 4px; }
+    #moflight-dense-c .mf-large .mf-identity, #moflight-dense-c .mf-large .mf-crew { font-size:18px; }
+    #moflight-dense-c .mf-large .mf-registration { font-size:19px; }
+    #moflight-dense-c .mf-large .mf-date, #moflight-dense-c .mf-large .mf-model, #moflight-dense-c .mf-large .mf-route { font-size:16px; }
+    #moflight-dense-c .mf-large .mf-role, #moflight-dense-c .mf-large .mf-solo { font-size:14px; }
+  </style>
+  <div class="mf-stage viz-dotted-background">
+    <section class="mf-sample" aria-label="C compact refinement with synthetic crew and solo examples">
+      <div class="mf-heading">C · Compact refinement <small>Beispieldaten</small></div>
+      <div class="mf-stack">
+        <article class="mf-flight" aria-label="24 October 2026, D-1234 ASK 21, pilot Jonas W., companion Lea B., departure 14:10 from Musterfeld to Beispielort, reported duration 42 minutes">
+          <div class="mf-info">
+            <div class="mf-identity"><span class="mf-date">24.10.26</span><span class="mf-registration">D-1234</span><span class="mf-model">ASK 21</span></div>
+            <div class="mf-crew"><span class="mf-person"><span class="mf-role">Pilot</span><span data-person="pilot">Jonas W.</span></span><span class="mf-person"><span class="mf-role">Begl.</span><span data-person="companion">Lea B.</span></span></div>
+            <div class="mf-route">14:10 · Musterfeld → Beispielort</div>
+          </div>
+          <div class="mf-duration">0:42<span class="mf-unit">h</span></div>
+        </article>
+        <article class="mf-flight" aria-label="23 October 2026, D-5678 LS4, confirmed solo pilot Mira K., departure 11:35 from Musterfeld to Musterfeld, reported duration 78 minutes">
+          <div class="mf-info">
+            <div class="mf-identity"><span class="mf-date">23.10.26</span><span class="mf-registration">D-5678</span><span class="mf-model">LS4</span></div>
+            <div class="mf-crew"><span class="mf-person"><span class="mf-role">Pilot</span><span data-person="solo">Mira K.</span></span><span class="mf-solo">Solo</span></div>
+            <div class="mf-route">11:35 · Musterfeld → Musterfeld</div>
+          </div>
+          <div class="mf-duration">1:18<span class="mf-unit">h</span></div>
+        </article>
+      </div>
+    </section>
+  </div>
+  <script>
+    (() => {
+      const root = document.getElementById('moflight-dense-c');
+      const controls = { longNames:false, largerText:false };
+      function render() {
+        const names = controls.longNames ? { pilot:'Jonas Alexander W.', companion:'Lea Marie B.', solo:'Mira Johanna K.' } : { pilot:'Jonas W.', companion:'Lea B.', solo:'Mira K.' };
+        root.querySelectorAll('[data-person]').forEach(element => { element.textContent = names[element.dataset.person]; });
+        root.querySelector('.mf-sample').classList.toggle('mf-large', controls.largerText);
+      }
+      render();
+      if (globalThis.Tweak) {
+        const tweak = new Tweak({ container:root, onChange:render });
+        tweak.addToggle(controls, 'longNames', { label:'Longer crew names' });
+        tweak.addToggle(controls, 'largerText', { label:'Larger text preview' });
+      }
+    })();
+  </script>
+</div>

@@ -1,6 +1,6 @@
 # Compact flight cards and fixed filters — proposal, 24 October 2026
 
-Requested by Manuel; tracked in [#70](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/70). **Proposal only: card choice and application implementation are pending.** M1 presentation over the existing M3 saved-flight list. The [Compact Cockpit contract](../compact-cockpit.md) supplies the visual foundation.
+Requested by Manuel; tracked in [#70](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/70). **Proposal only: Manuel prefers C and requests a denser refinement; final layout acceptance and application implementation remain pending.** M1 presentation over the existing M3 saved-flight list. The [Compact Cockpit contract](../compact-cockpit.md) supplies the visual foundation.
 
 ## Card choice
 
@@ -8,11 +8,15 @@ The [inline comparison source](2026-10-24-flight-cards.html) contains three layo
 
 | Variant | Layout | Tradeoff |
 | --- | --- | --- |
-| Inline crew — recommended | Date/start and duration; aircraft; compact labelled pilot/Begleiter line; route. | Lowest text overhead with clear crew roles. Long crew names wrap. |
+| Inline crew | Date/start and duration; aircraft; compact labelled pilot/Begleiter line; route. | Lowest text overhead with clear crew roles. Long crew names wrap. |
 | Crew columns | Same facts, with separate Pilot/Begleiter columns and labels above names. | Clearest crew distinction, slightly taller. Columns stack at larger text. |
 | Duration rail | Date/aircraft/route on the left, larger duration on the right, crew across the bottom. | Strong duration scanning and a distinct layout; less horizontal room for route text. |
 
 Proposed common geometry: 10–12 logical-unit padding, radius 12, 6–8 between cards, readable system text, whole-card detail target. These are proposed values, not selected native measurements. Keep all supplied given names plus family-name initial; full source names remain in details. Extra companions wrap without silently disappearing. Unknown/conflicting crew stays explicit. A missing Begleiter field alone does not establish Solo: implementation must first verify that the saved source establishes a single-pilot flight. The paired and solo records in the comparison are synthetic known states.
+
+## C density refinement
+
+Manuel prefers C's duration emphasis but considers its remaining whitespace excessive. The [refined C preview](2026-10-24-flight-cards-dense-c.html) proposes three lines beside the duration: date/registration/model; labelled pilot/Begleiter or Solo; departure time/route. Short dates use `dd.mm.yy`; full dates remain in accessible labels/details. Padding becomes 7 vertical / 10 horizontal, line gaps 2, inter-card gap 5, radius 10. Both internal separators and the repeated chevron are removed. The entire card remains the proposed detail target. Existing text sizes are retained; long content and larger text wrap rather than clipping or enforcing a fixed card height. These values refine the proposal only; they do not change the app or grant implementation approval.
 
 ## Screen recommendation
 
@@ -29,3 +33,5 @@ This package changes proposal documentation only. Node 24.18.0 script syntax and
 No application tests, builds, APK or device trials were run or needed for this proposal. Browser dimensions are CSS pixels and do not establish native logical dp, font-scale behavior, accessibility or source-data acceptance. After selection and implementation approval, extend relevant list/filter regressions and inspect the affected native screen under the repository workflow.
 
 **Visibility correction:** repeated the same browser width/name/text checks with all three layouts visible at once; no horizontal overflow or script errors. Visually inspected the complete A/B/C comparison. This changes preview presentation only; card choice remains pending.
+
+**C density refinement verification:** Node syntax, renderer and local headless Edge checks passed at 320/360/390/736 CSS-pixel frame widths, with no horizontal overflow or script errors. Both synthetic cards measured 72.9 CSS px high, compared with 112 px for the original C examples (about 35% shorter); text sizes were preserved. Longer names plus larger text at 320 also passed. The refined preview was visually inspected. Local diagnostics: `local-data/flight-card-proposal/dense-c-verification.json` and `verify-dense-c.cjs` (ignored). These are browser measurements, not native acceptance; no application tests/builds/devices were run.
