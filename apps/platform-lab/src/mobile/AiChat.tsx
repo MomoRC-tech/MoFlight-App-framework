@@ -12,6 +12,8 @@ export interface AiChatProps {
   loading: boolean;
   notice: string | null;
   usage: AiBudget | null;
+  usageAt?:string|null;
+  usageStale?:boolean;
   feature: AiFeature;
   onCreate(): void;
   onSelect(id: string): void;
@@ -122,7 +124,7 @@ function MessageEvidence({ message, onEvidence }: {
 
 export function AiChat({
   conversations, selectedId, enabled, busy, loading, notice, usage, feature,
-  onCreate, onSelect, onDelete, onDraft, onSend, onCancel, onToggle, onFeature, onEvidence,
+  onCreate, onSelect, onDelete, onDraft, onSend, onCancel, onToggle, onFeature, onEvidence,usageAt,usageStale,
 }: AiChatProps) {
   const selected = conversations.find(conversation => conversation.id === selectedId) ?? null;
   const draft = selected?.draft ?? '';
@@ -134,7 +136,7 @@ export function AiChat({
 
       <Card style={styles.card}>
         <Section title="Dienst und Datenschutz" />
-        <Label>Der KI-Serverdienst ist derzeit nicht verfügbar. Zurzeit wird keine Modellanfrage ausgeführt.</Label>
+        <Label>{enabled?'Freigegeben. Eine Modellanfrage beginnt nur durch Senden.':'KI-Anfragen sind ausgeschaltet. Dein Entwurf bleibt lokal.'}</Label>
         <Label muted>Deine Unterhaltungen und Entwürfe bleiben lokal gespeichert. Wenn Anfragen verfügbar sind, können deine Frage und die für die Antwort benötigten Flugdaten an das MoFlight-Relay auf Supabase, OpenRouter und den freigegebenen Azure-Endpunkt übermittelt werden.</Label>
         <Label muted>Das persönliche Nutzungslimit beträgt 1,00 EUR je Kalendermonat (Europe/Berlin). Es gibt keine automatische Aufladung.</Label>
         <Label muted>KI-Chats und Entwürfe sind in manuellen Sicherungen enthalten. Sicherungen sind unverschlüsselt.</Label>
@@ -165,6 +167,7 @@ export function AiChat({
         <Card style={styles.card}>
           <Section title="KI-Nutzung" />
           <Label muted>Zeitraum: {usage.period} · {usage.timezone}</Label>
+          <Label muted>{usageAt?`Abgerufen: ${usageAt}`:'Stand unbekannt'}{usageStale?' · Aktualisierung nicht verfügbar':''}</Label>
           <View style={styles.budgetRows}>
             <View style={styles.budgetRow}><Label style={styles.budgetName}>Limit</Label><Label>{formatEuro(usage.capMicroEur)}</Label></View>
             <View style={styles.budgetRow}><Label style={styles.budgetName}>Abgerechnet</Label><Label>{formatEuro(usage.settledMicroEur)}</Label></View>

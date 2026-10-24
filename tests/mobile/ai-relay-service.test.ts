@@ -81,3 +81,8 @@ test('HTTP boundary defaults closed and enforces JSON shape, byte bounds, quota 
   admit=false;assert.equal((await handler(make({action:'round',accountRef:'101',payload:start}))).status,429);admit=true;
   const foreign=await handler(make({action:'round',accountRef:'102',payload:start}));assert.equal(foreign.status,503);assert.deepEqual(await foreign.json(),{error:'unavailable'});assert.equal(f.bodies.length,0);
 });
+
+test('usage reads only personal counters without inference or a reservation',async()=>{
+  const f=await fixture();assert.deepEqual(await f.service.usage('101'),budget);
+  assert.deepEqual(f.calls.map(c=>c.name),['moflight_ai_usage']);assert.equal(f.bodies.length,0);
+});

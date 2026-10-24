@@ -21,6 +21,7 @@ export function createRelayService(ports:RelayServicePorts) {
   async function finish(accountRef:string,attemptId:string,runId:string){await ledger.finish(accountRef,attemptId,runId);}
   return {
     async capabilities(accountRef:string,clientVersion:number,toolVersion:number) {const snapshot=await ledger.snapshot(accountRef);return publicCapabilities(snapshot.policy,snapshot.enabled,clientVersion,toolVersion);},
+    async usage(accountRef:string) {return ledger.usage(accountRef);},
     async stop(accountRef:string,capability:string) {const run=await codec.openRun(capability);if(run.accountRef!==accountRef)throw new Error('Foreign AI status');await finish(accountRef,run.attemptId,run.runId);},
     async reconcile(accountRef:string,capability:string) {
       const run=await codec.openRun(capability);if(run.accountRef!==accountRef)throw new Error('Foreign AI status');

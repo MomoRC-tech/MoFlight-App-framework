@@ -3,7 +3,7 @@
   "nodeModulesDir": "none",
   "compilerOptions": { "strict": true, "noUncheckedIndexedAccess": true },
   "tasks": {
-    "check": "deno check sdk-adapter.ts sdk-adapter.test.ts policy.ts money.ts ledger.ts continuity.ts relay-service.ts http-handler.ts",
-    "test": "deno test --no-prompt sdk-adapter.test.ts"
+    "check": "deno check sdk-adapter.ts sdk-adapter.test.ts policy.ts money.ts ledger.ts continuity.ts relay-service.ts http-handler.ts runtime.ts runtime.test.ts",
+    "test": "deno test --no-prompt sdk-adapter.test.ts runtime.test.ts"
   }
 }

@@ -28,6 +28,7 @@ export function createAiHttpHandler(service:ReturnType<typeof createRelayService
         const args=object(p.payload,['clientVersion','toolVersion']);
         return response(200,await service.capabilities(accountRef,integer(args.clientVersion,1,1),integer(args.toolVersion,1,1)));
       }
+      if(p.action==='usage') {object(p.payload,[]);return response(200,await service.usage(accountRef));}
       if(p.action==='round') {
         if(!p.payload||typeof p.payload!=='object'||Object.getOwnPropertyDescriptor(p.payload,'accountRef')?.value!==accountRef)throw new Error('Foreign AI account');
         return response(200,await service.round(p.payload,request.signal));

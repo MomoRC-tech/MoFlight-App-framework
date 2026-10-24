@@ -1,4 +1,4 @@
-import {AI_LIMITS,validateAiCapabilities,validateAiRequest,type AiRequest} from '../../../../packages/ai-contracts/src/index.ts';
+import {AI_LIMITS,validateAiBudget,validateAiCapabilities,validateAiRequest,type AiRequest} from '../../../../packages/ai-contracts/src/index.ts';
 import {object,text} from '../../../../packages/ai-contracts/src/shape.ts';
 /** Transport factory only. Ordinary composition deliberately supplies no endpoint until live gates pass. */
 export function createAiRelayClient(endpoint:string,fetcher:typeof fetch,timeoutMs=45000) {
@@ -21,6 +21,7 @@ export function createAiRelayClient(endpoint:string,fetcher:typeof fetch,timeout
   }
   return {
     async configuration(accountRef:string) {return validateAiCapabilities(await post('capabilities',accountRef,{clientVersion:1,toolVersion:1}));},
+    async usage(accountRef:string) {return validateAiBudget(await post('usage',accountRef,{}));},
     async transmit(value:AiRequest,signal:AbortSignal) {
       const request=validateAiRequest(value),p=object(await post('round',request.accountRef,request,signal),['reply','continuation','runCapability']);
       if(p.runCapability!==null){if(handles.size>=50&&!handles.has(key(request.attemptId,request.runId)))throw new Error('AI handles exceed bound');handles.set(key(request.attemptId,request.runId),{accountRef:request.accountRef,capability:text(p.runCapability,2048)});}

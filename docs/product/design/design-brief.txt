@@ -740,51 +740,51 @@ Retained app-owned lab/adapter surface; document its existing appearance as an e
 
 ## AiChat.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/AiChat.tsx](../../../apps/platform-lab/src/mobile/AiChat.tsx); normalized SHA-256 `dd378948fdb0560b745c1df3fb3153e4a8246a1473a414d86b563aaa34a1b65c`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/AiChat.tsx](../../../apps/platform-lab/src/mobile/AiChat.tsx); normalized SHA-256 `1e2b83fbe007b38513fef10f877063158b61c1b77e817ddd6c37f1c838b7bd53`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#031326` | 318 |
+| `#031326` | 321 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 14` | 317 |
-| `fontSize: 16` | 330 |
-| `fontWeight: '600'` | 307, 322 |
-| `fontWeight: '700'` | 318 |
-| `lineHeight: 20` | 317 |
-| `lineHeight: 24` | 330 |
+| `fontSize: 14` | 320 |
+| `fontSize: 16` | 333 |
+| `fontWeight: '600'` | 310, 325 |
+| `fontWeight: '700'` | 321 |
+| `lineHeight: 20` | 320 |
+| `lineHeight: 24` | 333 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 14` | 313 |
-| `borderRadius: 20` | 328 |
-| `borderWidth: 1` | 313, 328 |
-| `gap: 10` | 304, 320 |
-| `gap: 12` | 303 |
-| `gap: 4` | 323, 324 |
-| `gap: 6` | 319 |
-| `gap: 8` | 306, 308, 310, 321, 325 |
-| `maxWidth: '100%'` | 312 |
-| `maxWidth: 520` | 303 |
-| `minHeight: 120` | 328 |
-| `minHeight: 48` | 312 |
-| `minWidth: 120` | 326 |
-| `minWidth: 140` | 309 |
-| `minWidth: 160` | 307 |
-| `minWidth: 66` | 312 |
-| `paddingHorizontal: 12` | 303 |
-| `paddingHorizontal: 14` | 313 |
-| `paddingHorizontal: 16` | 329 |
-| `paddingVertical: 14` | 329 |
-| `paddingVertical: 8` | 303, 313 |
-| `width: '100%'` | 303, 304, 305, 320, 321, 328 |
+| `borderRadius: 14` | 316 |
+| `borderRadius: 20` | 331 |
+| `borderWidth: 1` | 316, 331 |
+| `gap: 10` | 307, 323 |
+| `gap: 12` | 306 |
+| `gap: 4` | 326, 327 |
+| `gap: 6` | 322 |
+| `gap: 8` | 309, 311, 313, 324, 328 |
+| `maxWidth: '100%'` | 315 |
+| `maxWidth: 520` | 306 |
+| `minHeight: 120` | 331 |
+| `minHeight: 48` | 315 |
+| `minWidth: 120` | 329 |
+| `minWidth: 140` | 312 |
+| `minWidth: 160` | 310 |
+| `minWidth: 66` | 315 |
+| `paddingHorizontal: 12` | 306 |
+| `paddingHorizontal: 14` | 316 |
+| `paddingHorizontal: 16` | 332 |
+| `paddingVertical: 14` | 332 |
+| `paddingVertical: 8` | 306, 316 |
+| `width: '100%'` | 306, 307, 308, 323, 324, 331 |
 
 ## AppHeader.tsx
 
