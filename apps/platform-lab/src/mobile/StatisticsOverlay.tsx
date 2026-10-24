@@ -112,7 +112,7 @@ export function StatisticsOverlay({ data, today, fontScale, onBackHandler, initi
       {route.kind === 'section' && <>
         <Section title={titleForSection(route.section)}/>
         <View style={styles.periodPanel}>
-          <Section title="Zeitraum" action={informationOpen?'Details schließen':'Datenstand'} onPress={()=>setInformationOpen(!informationOpen)}/>
+          <View style={{flexDirection:'row',flexWrap:'wrap',alignItems:'center',justifyContent:'space-between',gap:6}}><Section title="Zeitraum"/><Pressable accessibilityRole="button" accessibilityLabel="Statistikdatenstand" accessibilityState={{expanded:informationOpen}} onPress={()=>setInformationOpen(!informationOpen)} style={{minHeight:48,maxWidth:'100%',justifyContent:'center'}}><Label style={{color:colors.cyan}}>{informationOpen?'Details schließen':'Datenstand'}</Label></Pressable></View>
           <View style={[styles.chipRow,{flexDirection:'row',flexWrap:'wrap'}]}>
             {years.map(year => <Chip key={year} title={String(year)} selected={period.kind === 'year' && period.year === year} onPress={() => setPeriod({ kind: 'year', year })} />)}
             <Chip title="Alle Jahre" selected={period.kind === 'all'} onPress={() => setPeriod({ kind: 'all' })} />
@@ -141,9 +141,9 @@ export function StatisticsOverlay({ data, today, fontScale, onBackHandler, initi
           <Card>
             <Section title="Gespeicherte Flüge" />
             <View style={styles.metrics}>
-              <View style={styles.metric}><Label style={styles.metricValue}>{summary.count}</Label><Label muted>Flüge</Label></View>
-              <View style={styles.metric}><Label style={styles.metricValue}>{minutesLabel(summary.knownDurationCount ? summary.knownMinutes : null, summary.knownDurationCount, summary.count)}</Label><Label muted>Flugzeit bekannt</Label></View>
-              <View style={styles.metric}><Label style={styles.metricValue}>{summary.unknownDurationCount}</Label><Label muted>unbekannte Zeiten</Label></View>
+              <View style={[styles.metric,fontScale>1.3&&{minWidth:'45%'}]}><Label style={styles.metricValue}>{summary.count}</Label><Label muted>Flüge</Label></View>
+              <View style={[styles.metric,fontScale>1.3&&{minWidth:'45%'}]}><Label style={styles.metricValue}>{minutesLabel(summary.knownDurationCount ? summary.knownMinutes : null, summary.knownDurationCount, summary.count)}</Label><Label muted>Flugzeit bekannt</Label></View>
+              <View style={[styles.metric,fontScale>1.3&&{minWidth:'45%'}]}><Label style={styles.metricValue}>{summary.unknownDurationCount}</Label><Label muted>unbekannte Zeiten</Label></View>
             </View>
             {summary.unknownDateCount > 0 && <Label muted>{summary.unknownDateCount} undatierte Flüge sind nicht in Jahres- oder Zeitraumwerten enthalten.</Label>}
             {summary.conflictingIds.length > 0 && <Label muted>{summary.conflictingIds.length} widersprüchliche Flug-Identität(en) wurden nicht doppelt gezählt.</Label>}

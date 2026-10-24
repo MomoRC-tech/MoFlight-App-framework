@@ -95,7 +95,7 @@ test('previous-year drilldown keeps its same-date scope, restores Back, and reje
 test('statistics coverage detail explains incomplete saved season periods', () => {
   const f = fixture();
   let nodes = f.nodes();
-  nodes.find(node=>node.type==='Section'&&node.props.title==='Zeitraum')!.props.onPress();
+  nodes.find(node=>node.props.accessibilityLabel==='Statistikdatenstand')!.props.onPress();
   nodes=f.nodes();
   assert.ok(nodes.some(node => node.type === 'Label' && node.children.join('').includes('die Abdeckung kann je Jahr abweichen oder unvollständig sein.')));
   assert.ok(nodes.some(node => node.type === 'Label' && node.children.join('').includes('Aktuell bis 2026-10-22; Vorjahr bis gleicher Kalendertag. Angaben beruhen auf den gespeicherten Zeiträumen.')));
