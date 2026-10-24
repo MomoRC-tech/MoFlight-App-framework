@@ -66,6 +66,7 @@ class BuildAndArtifactTests(unittest.TestCase):
                  patch.object(android_build, 'os', SimpleNamespace(name='posix', environ={'ANDROID_HOME': str(sdk)})), \
                  patch.object(android_build.shutil, 'which', return_value='/tool/pnpm'), \
                  patch.object(android_build, 'identity', return_value='synthetic-source'), \
+                 patch.object(android_build, 'inspect_layout'), \
                  patch.object(android_build, 'run', side_effect=result):
                 self.assertEqual(android_build.main(['--output', str(root / 'output')]), 0)
             manifest = json.loads((root / 'output/build.json').read_text())

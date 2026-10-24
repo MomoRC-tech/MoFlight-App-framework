@@ -50,12 +50,15 @@ $timer = [Diagnostics.Stopwatch]::StartNew()
 Push-Location $build
 try {
     Invoke-Checked pnpm @('install', '--frozen-lockfile', '--node-linker=hoisted')
+    $dependencyState = & python (Join-Path $PSScriptRoot 'dependency_layout.py') --root $build --native
+    if ($LASTEXITCODE -ne 0) { throw 'Native dependency validation failed; the checkout was preserved. See the recovery message above.' }
     $app = Join-Path $build 'apps/platform-lab'
     $android = Join-Path $app 'android'
     # Only regenerate native files when their inputs change; preserve native caches.
     $nativeInputs = @('package.json', 'pnpm-lock.yaml', 'pnpm-workspace.yaml', '.npmrc', 'apps/platform-lab/package.json', 'apps/platform-lab/app.json', 'scripts/configure-windows-native-build.ps1')
     $nativeInputs += @((Read-Git $build @('ls-files', '**/package.json', 'apps/platform-lab/app.config.*', 'apps/platform-lab/plugins', 'apps/platform-lab/modules')) -split "`n" | Where-Object { $_ })
     $fingerprint = Read-Git $build (@('ls-tree', '-r', 'HEAD', '--') + $nativeInputs)
+    $fingerprint += "`n" + ($dependencyState -join "`n")
     $stamp = Join-Path $build 'local-data/native-inputs.txt'
     $regenerate = -not (Test-Path -LiteralPath "$android/gradlew.bat") -or -not (Test-Path -LiteralPath $stamp)
     if (-not $regenerate) { $regenerate = [IO.File]::ReadAllText($stamp) -ne $fingerprint }

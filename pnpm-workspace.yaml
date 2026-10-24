@@ -1,5 +1,8 @@
 packages:
   - apps/*
   - packages/*
+# Validation/exec must never reinstall a configured native checkout implicitly.
+# Dependency installation is an explicit frozen-lockfile step.
+verifyDepsBeforeRun: false
 allowBuilds:
   esbuild: true

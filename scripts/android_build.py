@@ -10,6 +10,11 @@ import subprocess
 import sys
 import time
 
+try:
+    from scripts.dependency_layout import inspect_layout
+except ModuleNotFoundError:
+    from dependency_layout import inspect_layout
+
 ROOT = Path(__file__).resolve().parents[1]
 TOOLCHAIN = json.loads((ROOT / 'scripts/android-toolchain.json').read_text())
 
@@ -66,6 +71,7 @@ def main(argv=None):
         if args.source_ref or args.build_directory:
             raise RuntimeError('On Linux/macOS check out the desired commit in a clean checkout before building.')
         commit = identity()
+        inspect_layout(ROOT, native=True)
         os.environ['EXPO_PUBLIC_MOFLIGHT_SOURCE'] = commit
         sdk = os.environ.get('ANDROID_HOME') or os.environ.get('ANDROID_SDK_ROOT')
         if not sdk or not Path(sdk).is_dir():

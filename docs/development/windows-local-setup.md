@@ -20,6 +20,8 @@ pnpm --filter @moflight/platform-lab prebuild:check
 
 `pnpm check` needs the installed Node/pnpm/Python runtimes, not Android tooling. It reports all five host checks concisely and saves diagnostics in ignored `build/host-checks/`; use focused commands for smaller edits as described in the [workflow](verification-workflow.md#local-checks-without-model-calls).
 
+The workspace disables pnpm's implicit pre-script install so `pnpm check`/`pnpm exec` preserve the existing dependency layout. Install explicitly after dependency changes; use `--node-linker=hoisted` in the short Windows native checkout and the ordinary frozen install in the primary host checkout. Read-only validation rejects broken workspace aliases. Native validation also rejects lingering `.pnpm` paths in generated autolinking/CMake files: preserve that checkout and choose a new short build directory instead of resetting it. See the [portable runbook](portable-ci.md) for the guard and image-only bundle inputs.
+
 The environment script changes only the current terminal session. Its default portable JDK location is the checkout's sibling `dev-tools\jdk17\jdk-17.0.20.1+1`; pass `-JavaHome` for another JDK 17 installation. It checks the Java major version and warns if ADB is absent. SDK default is `%LOCALAPPDATA%\Android\Sdk`. Pinned fixture bytes include their original line endings; `.gitattributes` disables Git text conversion for these fixtures. Do not regenerate fixtures to compensate for checkout conversion.
 
 ## Finish Android tooling

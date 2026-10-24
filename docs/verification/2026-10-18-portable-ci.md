@@ -1,6 +1,18 @@
-# Portable CI/testing implementation — 18 October 2026
+# Portable CI/testing implementation and maintenance
 
 Tracking: [#6 package contract](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/6#issuecomment-6247224733). Scope and operating procedures: [portable CI runbook](../development/portable-ci.md).
+
+## Build-tool relevance and repair — 24 October 2026
+
+Manuel selected planning reconciliation first, then completion of [#32](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/32)/[#33](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/33) after checking current relevance. The planning increment is `096f667`; concurrent duty-name delivery `105dae9` is preserved. Scope is M1 platform maintenance supporting M2–M4 delivery, without app behavior/appearance, dependency versions, private sessions or paid execution changes. Per Manuel's follow-up, development uses focused tests followed by one combined final checkpoint.
+
+**Relevance:** #32's original cross-commit case is already mitigated by `08e2403`'s public source-revision input and Metro cache identity. The installed React Native bundle task still tracks only JS/TS sources, so image-only edits at the same source revision remain outside its inputs. The init script now also tracks the app-owned assets tree. #33 remains reproducible on pinned pnpm 11.25.0: a minimal offline four-package workspace installed hoisted changes to isolated when ordinary `pnpm check` runs. The new regression fails before the configuration fix. Workspace `verifyDepsBeforeRun: false` disables that implicit installer; deliberate frozen installs retain their existing role.
+
+**Repair/protection:** [read-only layout validation](../../scripts/dependency_layout.py) accepts isolated/hoisted host layouts and verifies both workspace aliases. Windows native builds require hoisted roots, check physical expo-modules-core resolution and reject old `.pnpm` references in generated autolinking/CMake files with a preserve-and-use-a-new-directory recovery message. Resolved layout/roots join the native-generation fingerprint. No cache cleanup, automatic repair, new dependency or provider action is introduced. Historical committed refs remain buildable through the current helper's guard.
+
+**Focused verification:** [pnpm/layout regression](../../tests/test_dependency_layout.py) proves metadata bytes, both aliases and a generated-file witness survive ordinary check and exec, with read-only failure cases for missing/unsupported state and stale native paths. Seven portable-builder/device-safety tests pass. [Real Gradle input regression](../../tests/test_android_asset_inputs.py), enabled by `MOFLIGHT_TEST_GRADLE`, proves image-only invalidation and unchanged-input UP-TO-DATE behavior without an Android project. Its first Windows invocation timed out while capturing daemon pipes; file-backed output fixes that harness issue and the focused test passes in 30.47 s. Test selection is behavioral: existing app tests are reused because runtime code is unchanged. No emulator/visual matrix is needed for build-tool-only changes.
+
+**Final checkpoint:** pending one combined host check and committed-source local Android build/resource/cache verification. Detailed ignored evidence is under `build/tooling-32-33/`. Source, actual results and limitations will be recorded here before closure; no Android/iOS/live/phone acceptance is inferred from these tooling checks.
 
 ## Scope and environment
 

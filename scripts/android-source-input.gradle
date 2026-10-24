@@ -3,6 +3,11 @@ gradle.projectsEvaluated {
     allprojects {
         tasks.matching { it.name.startsWith('createBundle') && it.name.endsWith('JsAndAssets') }.configureEach {
             inputs.property('moflightSource', System.getenv('EXPO_PUBLIC_MOFLIGHT_SOURCE') ?: 'unversioned')
+            // React Native's default bundle inputs include JS/TS, not images.
+            // Track app-owned assets even when building twice at the same ref.
+            inputs.files(rootProject.fileTree(new File(rootProject.projectDir.parentFile, 'assets')))
+                .withPropertyName('moflightAppAssets')
+                .withPathSensitivity(PathSensitivity.RELATIVE)
         }
     }
 }

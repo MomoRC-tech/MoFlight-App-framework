@@ -84,6 +84,17 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', type=Path, help='New log directory; existing directories are refused.')
     args = parser.parse_args(argv)
+    # The workspace disables pnpm's implicit installer. Reject broken aliases
+    # before checks, without repairing links or changing the installed layout.
+    try:
+        from scripts.dependency_layout import inspect_layout
+    except ModuleNotFoundError:
+        from dependency_layout import inspect_layout
+    try:
+        inspect_layout(ROOT)
+    except RuntimeError as error:
+        print(f'Host checks refused: {error}', file=sys.stderr)
+        return 1
     stamp = datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')
     output = args.output or ROOT / 'build' / 'host-checks' / f'{stamp}-{uuid.uuid4().hex[:8]}'
     report = run_checks(default_checks(), output, source=source_identity(ROOT))
