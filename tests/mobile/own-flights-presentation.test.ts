@@ -108,7 +108,7 @@ test('ordinary flight rows expose useful saved facts while technical provenance 
   f.data.detail={...item,factHistory:[item.facts],pending:[]};
   f.data.detail.facts.assessment.fields.instructorTime={...f.data.detail.facts.assessment.fields.instructorTime,state:'not-captured'};
   const detailText=visibleText(f.render()).replace(/\s+/g,' ');
-  assert.ok(detailText.includes('Lehrer-Zeit:'));assert.ok(!detailText.includes('instructorTime:'));
+  assert.match(detailText,/Lehrer-Zeit\s*:/);assert.doesNotMatch(detailText,/instructorTime\s*:/);
   assert.ok(detailText.includes(item.sourceFlightRef));assert.ok(detailText.includes('Fassung 1'));
   assert.ok(detailText.includes('Kein gespeicherter Track'));assert.ok(f.nodes().some(n=>n.type==='Section'&&n.props.title==='Originale Anbieterfelder'));assert.ok(detailText.includes(item.facts.assessment.observation.row.values[0]));
 });
