@@ -1,10 +1,61 @@
 import type { RealFlightListItem } from '../vereinsflieger/real-flight-library';
 import type { RawField } from '../vereinsflieger/fields';
+import { formatReportedMinutes } from './real-flight-statistics';
 
 export interface OwnFlightRequest { year: number | null; dateRange?: {from:string;to:string} | null; flightId?: string }
 export interface OwnFlightFilters { dateRange?: {from:string;to:string} | null; search: string; year: number | null; registration: string | null | undefined }
 export const allOwnFlights: OwnFlightFilters = { search: '', year: null, registration: undefined };
 export const ownRawValue = (field: RawField): string | null => field.state === 'value' ? field.raw : null;
+
+export type OwnFlightFilterKey = 'year' | 'dateRange' | 'registration' | 'search';
+export function ownFlightFilterTags(filters: OwnFlightFilters): { key: OwnFlightFilterKey; label: string }[] {
+  return [
+    ...(filters.year !== null ? [{ key: 'year' as const, label: String(filters.year) }] : []),
+    ...(filters.dateRange ? [{ key: 'dateRange' as const, label: `${filters.dateRange.from} – ${filters.dateRange.to}` }] : []),
+    ...(filters.registration !== undefined ? [{ key: 'registration' as const, label: filters.registration ?? 'Kennzeichen unbekannt' }] : []),
+    ...(filters.search.trim() ? [{ key: 'search' as const, label: `Suche: ${filters.search.trim()}` }] : []),
+  ];
+}
+export function removeOwnFlightFilter(filters: OwnFlightFilters, key: OwnFlightFilterKey): OwnFlightFilters {
+  return { ...filters, [key]: key === 'search' ? '' : key === 'registration' ? undefined : null };
+}
+
+/** Display only: retain all given names, abbreviate the family name; never match identities. */
+function crewName(field: RawField): string {
+  if (field.state !== 'value') return 'unbekannt';
+  return field.raw.split(/\r?\n/).map(line => {
+    const text = line.replace(/\s+/g, ' ').trim();
+    const comma = text.split(',').map(part => part.trim());
+    if (comma.length === 2 && comma.every(Boolean)) return `${comma[1]} ${[...comma[0]!][0]}.`;
+    if (comma.length > 1) return 'Name unklar';
+    const words = text.split(' ');
+    return words.length > 1 ? `${words.slice(0, -1).join(' ')} ${[...words.at(-1)!][0]}.` : text;
+  }).filter(Boolean).join(' · ') || 'unbekannt';
+}
+
+/** Raw flight mode/type must explicitly say solo. Empty or missing crew never proves it. */
+export function ownFlightCard(flight: RealFlightListItem) {
+  const a = flight.facts.assessment, fields = a.fields;
+  const companions = [fields.companion, fields.companion2, fields.companion3].filter(field => field.state === 'value');
+  const explicitSolo = [fields.flightMode, fields.flightType].some(field => field.state === 'value' && /^(solo|alleinflug)$/i.test(field.raw.trim()));
+  const differentPic = fields.pic.state === 'value' && (fields.pilot.state !== 'value' || fields.pic.raw.trim() !== fields.pilot.raw.trim());
+  const solo = explicitSolo && fields.pilot.state === 'value' && !companions.length && fields.sic.state !== 'value' && !differentPic;
+  const crew = [{ role: 'Pilot', name: crewName(fields.pilot) },
+    ...(differentPic ? [{ role: 'PIC', name: crewName(fields.pic) }] : []),
+    ...(!solo ? [{ role: 'Begl.', name: companions.length ? companions.map(crewName).join(' · ') : 'unbekannt' }] : []),
+    ...(fields.sic.state === 'value' ? [{ role: 'SIC', name: crewName(fields.sic) }] : []),
+  ];
+  const raw = (field: RawField, unknown: string) => ownRawValue(field) ?? unknown;
+  const duration = a.durations.flight;
+  return {
+    date: a.date.state === 'parsed' ? `${a.date.value.slice(8)}.${a.date.value.slice(5, 7)}.${a.date.value.slice(2, 4)}` : 'Datum unklar',
+    registration: raw(fields.registration, 'Kennzeichen unbekannt'), model: raw(fields.model, 'Muster unbekannt'),
+    start: a.clocks.start.state === 'parsed' ? a.clocks.start.value : 'Start unbekannt',
+    route: `${raw(fields.departure, 'Ort unbekannt')} → ${raw(fields.arrival, 'Ort unbekannt')}`,
+    duration: duration.state === 'known' ? formatReportedMinutes(duration.minutes) : duration.state === 'unknown' ? '—' : 'Zeit unklar',
+    knownDuration: duration.state === 'known', solo, crew,
+  };
+}
 export function ownFlightYears(flights: readonly RealFlightListItem[]): number[] {
   return [...new Set(flights.flatMap(f => f.facts.assessment.date.value ? [Number(f.facts.assessment.date.value.slice(0, 4))] : []))].sort((a,b)=>b-a);
 }

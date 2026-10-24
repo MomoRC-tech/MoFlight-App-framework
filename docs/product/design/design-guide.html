@@ -90,7 +90,11 @@
 <p>Sync and Profile share the same transparent 48×48 logical-pixel touch area, with no visible box/frame or Sync/Lädt caption. Icons are 28 units; the original logo stays unchanged. Accessible labels still explain the action, actual busy state, saved age, session proof and advice. A session mark and separate amber dot retain independent login/advice/incomplete-sync meaning, and motion indicates actual work with reduced-motion/foreground protection. Busy disables duplicate sync taps. The conditional status row and details/retry remain available.</p>
 <p>Season and club photography use the shared <code>cockpitImage</code> opacity .82 and <code>cockpitShade</code> navy overlay <i class="swatch" style="background:#001b2944" aria-hidden="true"></i><code>#001b2944</code>, preserving cover cropping and native text. The season photo remains shallow behind the heading/metrics. Club art fills only the compact header up to its divider; all duty body/actions remain below. Long names can wrap; no fixed screen height or scenic spacer is added. <a href="../../verification/2026-10-24-compact-cockpit.md#phone-feedback-follow-up--24-october-2026">Phone follow-up evidence</a>.</p>
 <p><strong>24 October duty-row refinement — [#69](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/69):</strong> both compact and expanded rosters use two logical rows: duty title left / date(s) right, then people. Calendar dates omit clock times and compress shared month/year in ranges. Names retain all supplied given names and abbreviate the family name; single source names stay intact. Unknown periods/people stay explicit. Larger text may wrap naturally without clipping. Raw source periods/names, ownership and partial-coverage qualifications remain unchanged.</p>
-<p><strong>Duty name source correction:</strong> the club source hides separator spans, so whole-cell rendered text can concatenate different people. The reader preserves each observed leaf name span separately before abbreviation. Previously concatenated cached names cannot be reconstructed safely: show <strong>Namen unklar · bitte synchronisieren</strong> until the user explicitly synchronizes. The Development preview now uses raw fictional capture labels through the real duty projection, rather than preformatted names. No identity matching or automatic retrieval is added.</p></section>
+<p><strong>Duty name source correction:</strong> the club source hides separator spans, so whole-cell rendered text can concatenate different people. The reader preserves each observed leaf name span separately before abbreviation. Previously concatenated cached names cannot be reconstructed safely: show <strong>Namen unklar · bitte synchronisieren</strong> until the user explicitly synchronizes. The Development preview now uses raw fictional capture labels through the real duty projection, rather than preformatted names. No identity matching or automatic retrieval is added.</p>
+<h3 id="chapter-compact-cockpit-compact-flights-screen--approved-24-october-2026">Compact Flights screen — approved 24 October 2026</h3>
+<p>Manuel explicitly selected implementation of the full <a href="https://github.com/MomoRC-tech/MoFlight-App-framework/issues/70">#70</a> screen proposal and its <a href="proposals/2026-10-24-flight-cards-dense-c.html">refined C layout</a>. This supersedes C09&#x27;s earlier tall flight row and the scrolling search/summary header. A compact period/aircraft/search bar sits outside list scrolling. Selected controls and removable actual-value tags use teal with textual values and close marks; Reset appears only with active filters. Search opens a content-sized editor. Year/aircraft choices and actions wrap at their intrinsic sizes. The default is all selected-account saved flights; explicit dashboard period requests remain visible as filters.</p>
+<p>Cards use 7 vertical / 10 horizontal padding, radius 10, 5 between rows and 2 between information lines. Date/registration/model share the first line, labelled pilot/Begleiter the second, and source start/route the third; reported h:min remains prominent at right. Content and system text can wrap, with no forced height, separators or repeated chevron. Names preserve supplied given names and abbreviate the family name for display; raw names remain in details. Extra companions/PIC/SIC stay labelled. Solo is shown only for an explicit saved <code>Solo</code>/<code>Alleinflug</code> flight-mode/type value with a recorded pilot and no contradictory additional crew; missing/blank crew alone never establishes it. No unverified source-code or legal-role mapping is added.</p>
+<p>One compact line shows filtered/saved count, known reported time and any unknown-time count. Coverage, retrieval age and explanation move behind the information action; real recovery/error states remain visible. Detail/Back preserves list position and filters; account/store changes clear them. Phone and 600+ dp single-column lists cap at 480 dp; from 840 dp at ordinary text size, two columns fit within 960 dp. Verification and platform limits are recorded in the <a href="../../verification/2026-10-24-flight-list.md">package report</a>.</p></section>
 <section class="chapter" id="chapter-alternative-ui"><h2 id="chapter-alternative-ui-alternative-ui--22-october-2026">Alternative UI — 22 October 2026</h2>
 <p>&gt; <strong>Current appearance authority — 24 October 2026:</strong> <a href="#chapter-compact-cockpit">Dark Compact Cockpit</a> and its approved reference supersede conflicting older appearance/composition statements below. Data, feature and verification boundaries retain their scope.</p>
 <p><a href="#chapter-overview">Handbook</a> · <a href="https://github.com/MomoRC-tech/MoFlight-App-framework/issues/55">#55</a> · branch <code>ui/alternative-flight-experience</code>.</p>
@@ -264,7 +268,7 @@
 <tr><td>C06</td><td>Header sync/profile</td><td>Shared transparent 48×48 targets; outlined28 icons, no box borders/backgrounds or Sync/Lädt caption</td><td>Independent session glyph and amber advice/incomplete dot, accessible saved age/status, reduced-motion-aware work shine, duplicate-sync guard. Medical is in the overview tile.</td></tr>
 <tr><td>C07</td><td>Bottom navigation</td><td>Attached dark bar, five equal destinations, minimum target height 68; three-column wrapping below 600 dp with font scale above 1.3</td><td>Icon above full system-scaled German label; final two wrapping items center. Standard text/width retains one row; raised selected tile and bold mint label. MobileApp.</td></tr>
 <tr><td>C08</td><td>Conditional login / app overlays</td><td>Bounded centered navy frame, radius22, border1, dim scrim and retained native child tree</td><td>Ordinary sync opens this frame only for necessary original-provider login. Essential provider/Close/conditional Back chrome and a real transient error; no progress/settings/debug cards. Auto-hide after matching proof does not cancel root-owned sync. Other overlays keep their scoped contracts.</td></tr>
-<tr><td>C09</td><td>Flight row</td><td>Padding 18, radius 20; date/reported duration, registration/model, route and detail chevron</td><td>Whole row opens selected-account saved source facts. Source reference/revision/original fields and absent-track context stay in details. Original fields use eight-field pages with concise Zurück / Weiter captions and full provider-field accessibility labels; first/last guards and contextual list return remain. <a href="../../../apps/platform-lab/src/mobile/OwnFlights.tsx">OwnFlights</a>; no inferred role or book assignment.</td></tr>
+<tr><td>C09</td><td>Dense flight row / fixed filters</td><td>Refined C: 7 vertical/10 horizontal padding, radius10, gap5; date/aircraft, labelled crew, start/route beside prominent reported h:min. Fixed compact filter bar with removable teal values.</td><td>Whole card opens selected-account source facts; no fixed card height. Extra crew/unknowns remain visible; Solo requires explicit saved evidence without contradictory crew. Raw fields/evidence remain in details; content-sized paged actions and filter/scroll return stay intact. <a href="../../../apps/platform-lab/src/mobile/OwnFlights.tsx">OwnFlights</a>, <a href="#chapter-compact-cockpit-compact-flights-screen--approved-24-october-2026">approved contract</a>. No role credit/book assignment.</td></tr>
 <tr><td>C10</td><td>AI question / composer</td><td>Question radius 18; composer radius 20; send face 48 × 48; input max height 150</td><td>Local questions calculate deterministically; free-text service unavailable. MobileApp.</td></tr>
 <tr><td>C11</td><td>Paper/Medical entry</td><td>Two compact side-by-side navy tiles, stacked at enlarged text</td><td>Recorded Medical expiry/details and honest deferred production-paper status; synthetic configured books stay in Development. OverviewTiles.</td></tr>
 <tr><td>C12</td><td>Season metrics</td><td>Unified shallow photographic header with three metric columns, prior-year values below time/starts, then latest flight/Alle Flüge</td><td>Shared photo opacity .82/navy overlay; known reported h:min, starts, selected annual work hours/provisional target. Unknown-date coverage cannot confirm zero. Enlarged metrics scroll horizontally. Detailed comparisons/aircraft remain in Statistics.</td></tr>
@@ -969,43 +973,66 @@
 <tr><td><code>width: &#x27;100%&#x27;</code></td><td>14, 17, 23</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-ownflightstsx">OwnFlights.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/OwnFlights.tsx">apps/platform-lab/src/mobile/OwnFlights.tsx</a>; normalized SHA-256 <code>419fce4b11bcf4509a367f70ad51db822bfb2ce95c886bf41f1c76b90015acc7</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/OwnFlights.tsx">apps/platform-lab/src/mobile/OwnFlights.tsx</a>; normalized SHA-256 <code>eceaf04b5ad9544b470eb6bb63ee16b60468a2f27765e255be17ef293c2b2740</code>.</p>
+<h4 id="chapter-implementation-inventory-literal-colors-8">Literal colors</h4>
+<div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
+<tr><td><i class="swatch" style="background:#031326" aria-hidden="true"></i><code>#031326</code></td><td>154, 157</td></tr>
+</tbody></table></div>
 <h4 id="chapter-implementation-inventory-typography-declarations-15">Typography declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>fontSize: 16</code></td><td>146</td></tr>
-<tr><td><code>fontSize: 20</code></td><td>96</td></tr>
-<tr><td><code>fontSize: 22</code></td><td>123</td></tr>
-<tr><td><code>fontSize: 30</code></td><td>122</td></tr>
-<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>96</td></tr>
-<tr><td><code>fontWeight: &#x27;700&#x27;</code></td><td>122</td></tr>
-<tr><td><code>lineHeight: 27</code></td><td>96</td></tr>
-<tr><td><code>lineHeight: 30</code></td><td>123</td></tr>
-<tr><td><code>lineHeight: 38</code></td><td>122</td></tr>
+<tr><td><code>fontSize: 11</code></td><td>164, 165</td></tr>
+<tr><td><code>fontSize: 12</code></td><td>163, 166</td></tr>
+<tr><td><code>fontSize: 13</code></td><td>157, 164</td></tr>
+<tr><td><code>fontSize: 14</code></td><td>154, 163</td></tr>
+<tr><td><code>fontSize: 16</code></td><td>168</td></tr>
+<tr><td><code>fontSize: 20</code></td><td>166</td></tr>
+<tr><td><code>fontSize: 22</code></td><td>131</td></tr>
+<tr><td><code>fontSize: 30</code></td><td>130</td></tr>
+<tr><td><code>fontWeight: &#x27;400&#x27;</code></td><td>166</td></tr>
+<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>163, 166</td></tr>
+<tr><td><code>fontWeight: &#x27;700&#x27;</code></td><td>130</td></tr>
+<tr><td><code>lineHeight: 16</code></td><td>164, 165</td></tr>
+<tr><td><code>lineHeight: 17</code></td><td>163, 166</td></tr>
+<tr><td><code>lineHeight: 18</code></td><td>157, 164</td></tr>
+<tr><td><code>lineHeight: 19</code></td><td>163</td></tr>
+<tr><td><code>lineHeight: 20</code></td><td>154</td></tr>
+<tr><td><code>lineHeight: 28</code></td><td>166</td></tr>
+<tr><td><code>lineHeight: 30</code></td><td>131</td></tr>
+<tr><td><code>lineHeight: 38</code></td><td>130</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-geometry--opacity-declarations-25">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>borderRadius: 16</code></td><td>145, 146</td></tr>
-<tr><td><code>borderRadius: 20</code></td><td>144</td></tr>
-<tr><td><code>borderWidth: 1</code></td><td>145</td></tr>
-<tr><td><code>gap: 12</code></td><td>142, 144</td></tr>
-<tr><td><code>gap: 16</code></td><td>142</td></tr>
-<tr><td><code>gap: 2</code></td><td>132</td></tr>
-<tr><td><code>gap: 5</code></td><td>60</td></tr>
-<tr><td><code>gap: 6</code></td><td>143</td></tr>
-<tr><td><code>gap: 7</code></td><td>145</td></tr>
-<tr><td><code>gap: 8</code></td><td>90</td></tr>
-<tr><td><code>height: 7</code></td><td>102</td></tr>
-<tr><td><code>maxWidth: &#x27;50%&#x27;</code></td><td>93</td></tr>
-<tr><td><code>maxWidth: 600</code></td><td>142</td></tr>
-<tr><td><code>maxWidth: 960</code></td><td>142</td></tr>
-<tr><td><code>minHeight: 48</code></td><td>143</td></tr>
-<tr><td><code>minHeight: 52</code></td><td>146</td></tr>
-<tr><td><code>minWidth: 0</code></td><td>145</td></tr>
-<tr><td><code>minWidth: 48</code></td><td>143</td></tr>
-<tr><td><code>padding: 18</code></td><td>142, 144</td></tr>
-<tr><td><code>paddingVertical: 8</code></td><td>143, 146</td></tr>
-<tr><td><code>width: &#x27;100%&#x27;</code></td><td>142</td></tr>
-<tr><td><code>width: 52</code></td><td>146</td></tr>
+<tr><td><code>borderRadius: 10</code></td><td>156, 161</td></tr>
+<tr><td><code>borderRadius: 12</code></td><td>153, 155, 167</td></tr>
+<tr><td><code>borderRadius: 4</code></td><td>165</td></tr>
+<tr><td><code>borderWidth: 1</code></td><td>153, 165, 167</td></tr>
+<tr><td><code>gap: 0</code></td><td>160</td></tr>
+<tr><td><code>gap: 12</code></td><td>150</td></tr>
+<tr><td><code>gap: 16</code></td><td>150</td></tr>
+<tr><td><code>gap: 2</code></td><td>140, 152, 162</td></tr>
+<tr><td><code>gap: 5</code></td><td>152</td></tr>
+<tr><td><code>gap: 6</code></td><td>153, 158</td></tr>
+<tr><td><code>gap: 7</code></td><td>162</td></tr>
+<tr><td><code>gap: 8</code></td><td>84, 161</td></tr>
+<tr><td><code>height: 5</code></td><td>98</td></tr>
+<tr><td><code>maxWidth: &#x27;100%&#x27;</code></td><td>156, 167</td></tr>
+<tr><td><code>maxWidth: &#x27;32%&#x27;</code></td><td>166</td></tr>
+<tr><td><code>maxWidth: &#x27;50%&#x27;</code></td><td>87</td></tr>
+<tr><td><code>maxWidth: 600</code></td><td>150, 152</td></tr>
+<tr><td><code>maxWidth: 960</code></td><td>150, 151</td></tr>
+<tr><td><code>minHeight: 48</code></td><td>153, 155, 156, 157, 158, 159, 161, 168</td></tr>
+<tr><td><code>minWidth: 0</code></td><td>158, 162, 168</td></tr>
+<tr><td><code>minWidth: 48</code></td><td>155, 157, 158, 159</td></tr>
+<tr><td><code>padding: 18</code></td><td>150</td></tr>
+<tr><td><code>paddingHorizontal: 10</code></td><td>156, 161</td></tr>
+<tr><td><code>paddingHorizontal: 12</code></td><td>151, 153, 160</td></tr>
+<tr><td><code>paddingHorizontal: 4</code></td><td>165</td></tr>
+<tr><td><code>paddingHorizontal: 6</code></td><td>157</td></tr>
+<tr><td><code>paddingVertical: 5</code></td><td>156</td></tr>
+<tr><td><code>paddingVertical: 6</code></td><td>168</td></tr>
+<tr><td><code>paddingVertical: 7</code></td><td>161</td></tr>
+<tr><td><code>width: &#x27;100%&#x27;</code></td><td>150, 151, 152</td></tr>
+<tr><td><code>width: 280</code></td><td>167</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-paperstatustsx">PaperStatus.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/PaperStatus.tsx">apps/platform-lab/src/mobile/PaperStatus.tsx</a>; normalized SHA-256 <code>d030bb2911e9f988f450f9ae521677534c839dba425b0b4b24c7791015d14aa9</code>.</p>
@@ -1017,7 +1044,7 @@
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-profilesettingstsx">ProfileSettings.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/ProfileSettings.tsx">apps/platform-lab/src/mobile/ProfileSettings.tsx</a>; normalized SHA-256 <code>381c3d5bfd9254b6e492251f9a6d02732220682f239348cd6969ff15ad9adff1</code>.</p>
-<h4 id="chapter-implementation-inventory-literal-colors-8">Literal colors</h4>
+<h4 id="chapter-implementation-inventory-literal-colors-9">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><i class="swatch" style="background:#ffba9b" aria-hidden="true"></i><code>#ffba9b</code></td><td>68</td></tr>
 </tbody></table></div>
@@ -1041,7 +1068,7 @@
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-providerconnectiontsx">ProviderConnection.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/ProviderConnection.tsx">apps/platform-lab/src/mobile/ProviderConnection.tsx</a>; normalized SHA-256 <code>6e53d2efe1097decdd06b56a967156facc5077189d8039ad22ccf25d62b68c1a</code>.</p>
-<h4 id="chapter-implementation-inventory-literal-colors-9">Literal colors</h4>
+<h4 id="chapter-implementation-inventory-literal-colors-10">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><i class="swatch" style="background:#102d47aa" aria-hidden="true"></i><code>#102d47aa</code></td><td>209</td></tr>
 <tr><td><i class="swatch" style="background:#ffb39e" aria-hidden="true"></i><code>#ffb39e</code></td><td>29</td></tr>
@@ -1091,7 +1118,7 @@
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-season-modelts">season-model.ts</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/season-model.ts">apps/platform-lab/src/mobile/season-model.ts</a>; normalized SHA-256 <code>c50b9ebf0f5e04ccd8d109547636d587c0bc5e19d0479912d4b1395b8702cdc1</code>.</p>
-<h4 id="chapter-implementation-inventory-literal-colors-10">Literal colors</h4>
+<h4 id="chapter-implementation-inventory-literal-colors-11">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><i class="swatch" style="background:#3595fe" aria-hidden="true"></i><code>#3595fe</code></td><td>3</td></tr>
 <tr><td><i class="swatch" style="background:#46ccff" aria-hidden="true"></i><code>#46ccff</code></td><td>3</td></tr>
@@ -1102,7 +1129,7 @@
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-seasonmonthlychartstsx">SeasonMonthlyCharts.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/SeasonMonthlyCharts.tsx">apps/platform-lab/src/mobile/SeasonMonthlyCharts.tsx</a>; normalized SHA-256 <code>539eca3aec1d463a9502c5d6781bf90ad25ff4539318d61b872e0e99f981e9fa</code>.</p>
-<h4 id="chapter-implementation-inventory-literal-colors-11">Literal colors</h4>
+<h4 id="chapter-implementation-inventory-literal-colors-12">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><i class="swatch" style="background:#7194be" aria-hidden="true"></i><code>#7194be</code></td><td>22, 29</td></tr>
 </tbody></table></div>
@@ -1160,7 +1187,7 @@
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-statisticsoverlaytsx">StatisticsOverlay.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/StatisticsOverlay.tsx">apps/platform-lab/src/mobile/StatisticsOverlay.tsx</a>; normalized SHA-256 <code>2ab334608a6c4f70efcc609ae516e0f8867bbe91d254f99baebc62a97854a1ea</code>.</p>
-<h4 id="chapter-implementation-inventory-literal-colors-12">Literal colors</h4>
+<h4 id="chapter-implementation-inventory-literal-colors-13">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><i class="swatch" style="background:#0b141c3b" aria-hidden="true"></i><code>#0b141c3b</code></td><td>261</td></tr>
 <tr><td><i class="swatch" style="background:#0e202c" aria-hidden="true"></i><code>#0e202c</code></td><td>261</td></tr>
@@ -1217,7 +1244,7 @@
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-symbolicontsx">SymbolIcon.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/SymbolIcon.tsx">apps/platform-lab/src/mobile/SymbolIcon.tsx</a>; normalized SHA-256 <code>015563842cc1e1fbc57f47a64256f4ce815bedc5a54715e19da57c3de635a5c3</code>.</p>
-<h4 id="chapter-implementation-inventory-literal-colors-13">Literal colors</h4>
+<h4 id="chapter-implementation-inventory-literal-colors-14">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><i class="swatch" style="background:#00c8ff" aria-hidden="true"></i><code>#00c8ff</code></td><td>18</td></tr>
 <tr><td><i class="swatch" style="background:#27d3d2" aria-hidden="true"></i><code>#27d3d2</code></td><td>18</td></tr>
@@ -1242,7 +1269,7 @@
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-syncprogresstsx">SyncProgress.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/SyncProgress.tsx">apps/platform-lab/src/mobile/SyncProgress.tsx</a>; normalized SHA-256 <code>9376b3d9b78b685ac62bf1e7263a975a2ada02b42f6c7fb6bb441e32c34e3987</code>.</p>
-<h4 id="chapter-implementation-inventory-literal-colors-14">Literal colors</h4>
+<h4 id="chapter-implementation-inventory-literal-colors-15">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><i class="swatch" style="background:#baf9e436" aria-hidden="true"></i><code>#baf9e436</code></td><td>51</td></tr>
 <tr><td><i class="swatch" style="background:#d5ffee70" aria-hidden="true"></i><code>#d5ffee70</code></td><td>51</td></tr>
@@ -1272,7 +1299,7 @@
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-themetsx">theme.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/theme.tsx">apps/platform-lab/src/mobile/theme.tsx</a>; normalized SHA-256 <code>34aaac4287c49060b933e6367b4fa3043427ec6e603d34c1c8cca0a0b8288cf5</code>.</p>
-<h4 id="chapter-implementation-inventory-literal-colors-15">Literal colors</h4>
+<h4 id="chapter-implementation-inventory-literal-colors-16">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><i class="swatch" style="background:#00102277" aria-hidden="true"></i><code>#00102277</code></td><td>65</td></tr>
 <tr><td><i class="swatch" style="background:#001b29" aria-hidden="true"></i><code>#001b29</code></td><td>6</td></tr>
@@ -1336,7 +1363,7 @@
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-updatedialogtsx">UpdateDialog.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/UpdateDialog.tsx">apps/platform-lab/src/mobile/UpdateDialog.tsx</a>; normalized SHA-256 <code>d0ac36b132634a9d956aef345f02db1f351a388073c07436e934320f2f2829a4</code>.</p>
-<h4 id="chapter-implementation-inventory-literal-colors-16">Literal colors</h4>
+<h4 id="chapter-implementation-inventory-literal-colors-17">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><i class="swatch" style="background:#000000" aria-hidden="true"></i><code>#000000</code></td><td>29</td></tr>
 <tr><td><i class="swatch" style="background:#000712bd" aria-hidden="true"></i><code>#000712bd</code></td><td>27</td></tr>
@@ -1372,7 +1399,7 @@
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-accessprobetsx">AccessProbe.tsx</h3>
 <p>Retained app-owned lab/adapter surface; document its existing appearance as an exception. Source: <a href="../../../apps/platform-lab/src/vereinsflieger/AccessProbe.tsx">apps/platform-lab/src/vereinsflieger/AccessProbe.tsx</a>; normalized SHA-256 <code>5b64a01f9baeb968fb58ee20855e1694e2c53b06f6348f1c4e36dad3377239ff</code>.</p>
-<h4 id="chapter-implementation-inventory-literal-colors-17">Literal colors</h4>
+<h4 id="chapter-implementation-inventory-literal-colors-18">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><i class="swatch" style="background:#173a57" aria-hidden="true"></i><code>#173a57</code></td><td>50</td></tr>
 <tr><td><i class="swatch" style="background:#174c72" aria-hidden="true"></i><code>#174c72</code></td><td>50</td></tr>
@@ -1407,7 +1434,7 @@
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-captureruntsx">CaptureRun.tsx</h3>
 <p>Retained app-owned lab/adapter surface; document its existing appearance as an exception. Source: <a href="../../../apps/platform-lab/src/vereinsflieger/CaptureRun.tsx">apps/platform-lab/src/vereinsflieger/CaptureRun.tsx</a>; normalized SHA-256 <code>d06673feadf63177de982d7a1dec91de596b9ff548b5a8acd35f436ec8c24d6a</code>.</p>
-<h4 id="chapter-implementation-inventory-literal-colors-18">Literal colors</h4>
+<h4 id="chapter-implementation-inventory-literal-colors-19">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><i class="swatch" style="background:#174c72" aria-hidden="true"></i><code>#174c72</code></td><td>52</td></tr>
 <tr><td><code>white</code></td><td>11</td></tr>
@@ -1428,7 +1455,7 @@
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-windowcapturetsx">WindowCapture.tsx</h3>
 <p>Retained app-owned lab/adapter surface; document its existing appearance as an exception. Source: <a href="../../../apps/platform-lab/src/vereinsflieger/WindowCapture.tsx">apps/platform-lab/src/vereinsflieger/WindowCapture.tsx</a>; normalized SHA-256 <code>fb270278f16b64123b91586bd254dec10f4ea5c97c72627114a399971d0fe6db</code>.</p>
-<h4 id="chapter-implementation-inventory-literal-colors-19">Literal colors</h4>
+<h4 id="chapter-implementation-inventory-literal-colors-20">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><i class="swatch" style="background:#174c72" aria-hidden="true"></i><code>#174c72</code></td><td>80</td></tr>
 <tr><td><code>white</code></td><td>12</td></tr>
@@ -1447,6 +1474,7 @@
 <tr><td><code>padding: 12</code></td><td>80</td></tr>
 </tbody></table></div></section>
 <section class="chapter" id="chapter-history"><h2 id="chapter-history-decisions-history-and-known-gaps">Decisions, history and known gaps</h2>
+<p><strong>24 October Flights rework — #70:</strong> Manuel selected C, requested less whitespace, then explicitly authorized the entire Flights cleanup including the denser three-line refinement. The <a href="#chapter-compact-cockpit-compact-flights-screen--approved-24-october-2026">current contract</a> supersedes the tall C09 card and scrolling filter/summary header. Fixed compact controls, visible removable active values, content-sized actions and source-labelled crew retain existing data/return boundaries. <a href="../../verification/2026-10-24-flight-list.md">Verification and platform limits</a> are separate from design selection.</p>
 <p>&gt; <strong>Current appearance authority — 24 October 2026:</strong> <a href="#chapter-compact-cockpit">Dark Compact Cockpit</a> and its approved reference supersede conflicting older appearance/composition statements below. Data, feature and verification boundaries retain their scope.</p>
 <h3 id="chapter-history-selected-modern-main--22-october-2026">Selected modern main — 22 October 2026</h3>
 <p><strong>23 October statistics overlay — #9:</strong> Manuel requested cleanup and a technical drawing proposal, then explicitly approved the bounded implementation. Meine Saison now opens a read-only saved-local overview with year/month scopes and aircraft, duration, verified-launch sections; contributing-flight details return to their scoped list. The <a href="#chapter-alternative-ui-statistics-overlay--approved-implementation-scope-23-october-2026">current contract</a> records exclusions and identity gates. Older inline/swipe routes are superseded; native populated-data acceptance remains open. See the <a href="../../verification/2026-10-20-real-flight-statistics.md#meine-saison-statistics-overlay--23-october-2026">package report</a>.</p>
@@ -1979,6 +2007,14 @@ Season and club photography use the shared `cockpitImage` opacity .82 and `cockp
 
 **Duty name source correction:** the club source hides separator spans, so whole-cell rendered text can concatenate different people. The reader preserves each observed leaf name span separately before abbreviation. Previously concatenated cached names cannot be reconstructed safely: show **Namen unklar · bitte synchronisieren** until the user explicitly synchronizes. The Development preview now uses raw fictional capture labels through the real duty projection, rather than preformatted names. No identity matching or automatic retrieval is added.
 
+## Compact Flights screen — approved 24 October 2026
+
+Manuel explicitly selected implementation of the full [#70](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/70) screen proposal and its [refined C layout](proposals/2026-10-24-flight-cards-dense-c.html). This supersedes C09&#x27;s earlier tall flight row and the scrolling search/summary header. A compact period/aircraft/search bar sits outside list scrolling. Selected controls and removable actual-value tags use teal with textual values and close marks; Reset appears only with active filters. Search opens a content-sized editor. Year/aircraft choices and actions wrap at their intrinsic sizes. The default is all selected-account saved flights; explicit dashboard period requests remain visible as filters.
+
+Cards use 7 vertical / 10 horizontal padding, radius 10, 5 between rows and 2 between information lines. Date/registration/model share the first line, labelled pilot/Begleiter the second, and source start/route the third; reported h:min remains prominent at right. Content and system text can wrap, with no forced height, separators or repeated chevron. Names preserve supplied given names and abbreviate the family name for display; raw names remain in details. Extra companions/PIC/SIC stay labelled. Solo is shown only for an explicit saved `Solo`/`Alleinflug` flight-mode/type value with a recorded pilot and no contradictory additional crew; missing/blank crew alone never establishes it. No unverified source-code or legal-role mapping is added.
+
+One compact line shows filtered/saved count, known reported time and any unknown-time count. Coverage, retrieval age and explanation move behind the information action; real recovery/error states remain visible. Detail/Back preserves list position and filters; account/store changes clear them. Phone and 600+ dp single-column lists cap at 480 dp; from 840 dp at ordinary text size, two columns fit within 960 dp. Verification and platform limits are recorded in the [package report](../../verification/2026-10-24-flight-list.md).
+
 # Alternative UI — 22 October 2026
 
 &gt; **Current appearance authority — 24 October 2026:** [Dark Compact Cockpit](compact-cockpit.md) and its approved reference supersede conflicting older appearance/composition statements below. Data, feature and verification boundaries retain their scope.
@@ -2251,7 +2287,7 @@ The U1/U3 header uses neutral saved-age text independently of session state, wit
 | C06 | Header sync/profile | Shared transparent 48×48 targets; outlined28 icons, no box borders/backgrounds or Sync/Lädt caption | Independent session glyph and amber advice/incomplete dot, accessible saved age/status, reduced-motion-aware work shine, duplicate-sync guard. Medical is in the overview tile. |
 | C07 | Bottom navigation | Attached dark bar, five equal destinations, minimum target height 68; three-column wrapping below 600 dp with font scale above 1.3 | Icon above full system-scaled German label; final two wrapping items center. Standard text/width retains one row; raised selected tile and bold mint label. MobileApp. |
 | C08 | Conditional login / app overlays | Bounded centered navy frame, radius22, border1, dim scrim and retained native child tree | Ordinary sync opens this frame only for necessary original-provider login. Essential provider/Close/conditional Back chrome and a real transient error; no progress/settings/debug cards. Auto-hide after matching proof does not cancel root-owned sync. Other overlays keep their scoped contracts. |
-| C09 | Flight row | Padding 18, radius 20; date/reported duration, registration/model, route and detail chevron | Whole row opens selected-account saved source facts. Source reference/revision/original fields and absent-track context stay in details. Original fields use eight-field pages with concise Zurück / Weiter captions and full provider-field accessibility labels; first/last guards and contextual list return remain. [OwnFlights](../../../apps/platform-lab/src/mobile/OwnFlights.tsx); no inferred role or book assignment. |
+| C09 | Dense flight row / fixed filters | Refined C: 7 vertical/10 horizontal padding, radius10, gap5; date/aircraft, labelled crew, start/route beside prominent reported h:min. Fixed compact filter bar with removable teal values. | Whole card opens selected-account source facts; no fixed card height. Extra crew/unknowns remain visible; Solo requires explicit saved evidence without contradictory crew. Raw fields/evidence remain in details; content-sized paged actions and filter/scroll return stay intact. [OwnFlights](../../../apps/platform-lab/src/mobile/OwnFlights.tsx), [approved contract](compact-cockpit.md#compact-flights-screen--approved-24-october-2026). No role credit/book assignment. |
 | C10 | AI question / composer | Question radius 18; composer radius 20; send face 48 × 48; input max height 150 | Local questions calculate deterministically; free-text service unavailable. MobileApp. |
 | C11 | Paper/Medical entry | Two compact side-by-side navy tiles, stacked at enlarged text | Recorded Medical expiry/details and honest deferred production-paper status; synthetic configured books stay in Development. OverviewTiles. |
 | C12 | Season metrics | Unified shallow photographic header with three metric columns, prior-year values below time/starts, then latest flight/Alle Flüge | Shared photo opacity .82/navy overlay; known reported h:min, starts, selected annual work hours/provisional target. Unknown-date coverage cannot confirm zero. Enlarged metrics scroll horizontally. Detailed comparisons/aircraft remain in Statistics. |
@@ -3161,48 +3197,73 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OverviewTiles.tsx
 
 ## OwnFlights.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OwnFlights.tsx](../../../apps/platform-lab/src/mobile/OwnFlights.tsx); normalized SHA-256 `419fce4b11bcf4509a367f70ad51db822bfb2ce95c886bf41f1c76b90015acc7`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OwnFlights.tsx](../../../apps/platform-lab/src/mobile/OwnFlights.tsx); normalized SHA-256 `eceaf04b5ad9544b470eb6bb63ee16b60468a2f27765e255be17ef293c2b2740`.
+
+### Literal colors
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `#031326` | 154, 157 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 16` | 146 |
-| `fontSize: 20` | 96 |
-| `fontSize: 22` | 123 |
-| `fontSize: 30` | 122 |
-| `fontWeight: &#x27;600&#x27;` | 96 |
-| `fontWeight: &#x27;700&#x27;` | 122 |
-| `lineHeight: 27` | 96 |
-| `lineHeight: 30` | 123 |
-| `lineHeight: 38` | 122 |
+| `fontSize: 11` | 164, 165 |
+| `fontSize: 12` | 163, 166 |
+| `fontSize: 13` | 157, 164 |
+| `fontSize: 14` | 154, 163 |
+| `fontSize: 16` | 168 |
+| `fontSize: 20` | 166 |
+| `fontSize: 22` | 131 |
+| `fontSize: 30` | 130 |
+| `fontWeight: &#x27;400&#x27;` | 166 |
+| `fontWeight: &#x27;600&#x27;` | 163, 166 |
+| `fontWeight: &#x27;700&#x27;` | 130 |
+| `lineHeight: 16` | 164, 165 |
+| `lineHeight: 17` | 163, 166 |
+| `lineHeight: 18` | 157, 164 |
+| `lineHeight: 19` | 163 |
+| `lineHeight: 20` | 154 |
+| `lineHeight: 28` | 166 |
+| `lineHeight: 30` | 131 |
+| `lineHeight: 38` | 130 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 16` | 145, 146 |
-| `borderRadius: 20` | 144 |
-| `borderWidth: 1` | 145 |
-| `gap: 12` | 142, 144 |
-| `gap: 16` | 142 |
-| `gap: 2` | 132 |
-| `gap: 5` | 60 |
-| `gap: 6` | 143 |
-| `gap: 7` | 145 |
-| `gap: 8` | 90 |
-| `height: 7` | 102 |
-| `maxWidth: &#x27;50%&#x27;` | 93 |
-| `maxWidth: 600` | 142 |
-| `maxWidth: 960` | 142 |
-| `minHeight: 48` | 143 |
-| `minHeight: 52` | 146 |
-| `minWidth: 0` | 145 |
-| `minWidth: 48` | 143 |
-| `padding: 18` | 142, 144 |
-| `paddingVertical: 8` | 143, 146 |
-| `width: &#x27;100%&#x27;` | 142 |
-| `width: 52` | 146 |
+| `borderRadius: 10` | 156, 161 |
+| `borderRadius: 12` | 153, 155, 167 |
+| `borderRadius: 4` | 165 |
+| `borderWidth: 1` | 153, 165, 167 |
+| `gap: 0` | 160 |
+| `gap: 12` | 150 |
+| `gap: 16` | 150 |
+| `gap: 2` | 140, 152, 162 |
+| `gap: 5` | 152 |
+| `gap: 6` | 153, 158 |
+| `gap: 7` | 162 |
+| `gap: 8` | 84, 161 |
+| `height: 5` | 98 |
+| `maxWidth: &#x27;100%&#x27;` | 156, 167 |
+| `maxWidth: &#x27;32%&#x27;` | 166 |
+| `maxWidth: &#x27;50%&#x27;` | 87 |
+| `maxWidth: 600` | 150, 152 |
+| `maxWidth: 960` | 150, 151 |
+| `minHeight: 48` | 153, 155, 156, 157, 158, 159, 161, 168 |
+| `minWidth: 0` | 158, 162, 168 |
+| `minWidth: 48` | 155, 157, 158, 159 |
+| `padding: 18` | 150 |
+| `paddingHorizontal: 10` | 156, 161 |
+| `paddingHorizontal: 12` | 151, 153, 160 |
+| `paddingHorizontal: 4` | 165 |
+| `paddingHorizontal: 6` | 157 |
+| `paddingVertical: 5` | 156 |
+| `paddingVertical: 6` | 168 |
+| `paddingVertical: 7` | 161 |
+| `width: &#x27;100%&#x27;` | 150, 151, 152 |
+| `width: 280` | 167 |
 
 ## PaperStatus.tsx
 
@@ -3754,6 +3815,8 @@ Retained app-owned lab/adapter surface; document its existing appearance as an e
 | `padding: 12` | 80 |
 
 # Decisions, history and known gaps
+
+**24 October Flights rework — #70:** Manuel selected C, requested less whitespace, then explicitly authorized the entire Flights cleanup including the denser three-line refinement. The [current contract](compact-cockpit.md#compact-flights-screen--approved-24-october-2026) supersedes the tall C09 card and scrolling filter/summary header. Fixed compact controls, visible removable active values, content-sized actions and source-labelled crew retain existing data/return boundaries. [Verification and platform limits](../../verification/2026-10-24-flight-list.md) are separate from design selection.
 
 &gt; **Current appearance authority — 24 October 2026:** [Dark Compact Cockpit](compact-cockpit.md) and its approved reference supersede conflicting older appearance/composition statements below. Data, feature and verification boundaries retain their scope.
 
@@ -4360,7 +4423,7 @@ States / limits: Recreated approved variant, not a byte-identical copy of an old
 Source: docs/assets/branding/moflight-app-icon-ai.png
 docs/assets/branding/README.md; app.json
 </textarea></section>
-<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: 31a721180239097510bd4abbeae7c2384bdd12035ba6e7824967335931233e16. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
+<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: 8c595c63e66a95d135535cc263ef5da49f8f8266d00c514fa1de5d53e9afdb14. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
 </main><script>
 'use strict';
 const brief = document.querySelector('#brief');

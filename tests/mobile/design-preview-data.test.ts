@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createDesignPreviewData, DESIGN_PREVIEW_NOW, DESIGN_PREVIEW_SCOPE } from '../../apps/platform-lab/src/mobile/design-preview-data.ts';
 import { summarizeRealFlights } from '../../apps/platform-lab/src/mobile/real-flight-statistics.ts';
-import { requestedOwnFlight } from '../../apps/platform-lab/src/mobile/own-flight-model.ts';
+import { requestedOwnFlight, ownFlightCard } from '../../apps/platform-lab/src/mobile/own-flight-model.ts';
 
 test('design fixture keeps known, explicit zero and unknown durations distinct across years', () => {
   const { view } = createDesignPreviewData();
@@ -35,6 +35,15 @@ test('preview scopes and exact detail identities never borrow a selected account
   }
   assert.equal(requestedOwnFlight(view.flights, { year: null, flightId: 'foreign-flight' }), null);
   assert.equal(view.snapshot.savedRetrievals.length, 2);
+});
+
+test('flight preview exercises explicit solo, multiple companions and unknown crew through the real card projection',()=>{
+  const {view}=createDesignPreviewData();
+  assert.equal(ownFlightCard(view.flights[0]!).solo,false);
+  assert.equal(ownFlightCard(view.flights[1]!).solo,true);
+  assert.ok(ownFlightCard(view.flights[2]!).crew.some(person=>person.name.includes('Alexandra Marie B.')));
+  assert.equal(ownFlightCard(view.flights[7]!).solo,false);
+  assert.ok(ownFlightCard(view.flights[7]!).crew.some(person=>person.name==='unbekannt'));
 });
 
 test('preview factories are fresh in-memory data and expose no persistence capability', () => {

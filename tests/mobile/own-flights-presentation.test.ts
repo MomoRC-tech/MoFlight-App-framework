@@ -39,7 +39,8 @@ function fixture() {
   function render(){index=0;tree=exports.OwnFlights({active,filterRequest,data,onUpdate:()=>false,onHeaderChange:header});effects.splice(0).forEach(fn=>fn());return tree;}
   function nodes(){const result:Element[]=[];const visit=(n:any)=>{if(n?.children){result.push(n);n.children.forEach(visit);if(n.type==='FlatList')visit(n.props.ListHeaderComponent);}};visit(tree);return result;}
   function find(type:string,label?:string){const node=nodes().find(n=>n.type===type&&(!label||n.props.accessibilityLabel===label));assert.ok(node,`${type} ${label}`);return node;}
-  render();return{data,render,find,nodes,restores,request:(year:number|null, extras:Partial<model.OwnFlightRequest>={})=>{filterRequest={year,...extras};render();render();},setActive:(value:boolean)=>{active=value;render();}};
+  const search=()=>{if(!nodes().some(n=>n.type==='TextInput'&&n.props.accessibilityLabel==='Flüge durchsuchen')){find('Pressable','Flugsuche öffnen').props.onPress();render();}return find('TextInput','Flüge durchsuchen');};
+  render();return{data,render,find,nodes,restores,search,request:(year:number|null, extras:Partial<model.OwnFlightRequest>={})=>{filterRequest={year,...extras};render();render();},setActive:(value:boolean)=>{active=value;render();}};
 }
 test('native zero-offset events while loading, hidden or inactive cannot erase the saved list return position',()=>{
   const f=fixture(),view=f.data.view;
@@ -52,21 +53,21 @@ test('native zero-offset events while loading, hidden or inactive cannot erase t
 });
 test('changing the search deliberately resets position and combines with the saved source projection',()=>{
   const f=fixture();f.find('FlatList').props.onScroll({nativeEvent:{contentOffset:{y:240}}});
-  f.find('TextInput','Flüge durchsuchen').props.onChangeText('D-T001');f.render();
+  f.search().props.onChangeText('D-T001');f.render();
   assert.equal(f.restores.at(-1),0);assert.deepEqual(f.find('FlatList').props.data.map((x:any)=>x.flightId),['flight-1']);
 });
 
 test('season drill-down replaces stale filters, repeats after edits and survives ordinary tab return',()=>{
   const f=fixture();
-  f.find('TextInput','Flüge durchsuchen').props.onChangeText('no match');f.render();
+  f.search().props.onChangeText('no match');f.render();
   f.request(2025);
-  assert.equal(f.find('TextInput','Flüge durchsuchen').props.value,'');
+  assert.equal(f.search().props.value,'');
   assert.deepEqual(f.find('FlatList').props.data.map((x:any)=>x.flightId),['flight-1']);
-  f.find('TextInput','Flüge durchsuchen').props.onChangeText('no match');f.render();
+  f.search().props.onChangeText('no match');f.render();
   f.request(2025);assert.equal(f.find('FlatList').props.data.length,1);
-  f.find('TextInput','Flüge durchsuchen').props.onChangeText('no match');f.render();
+  f.search().props.onChangeText('no match');f.render();
   f.setActive(false);f.setActive(true);f.render();
-  assert.equal(f.find('TextInput','Flüge durchsuchen').props.value,'no match');
+  assert.equal(f.search().props.value,'no match');
   f.request(2099);assert.equal(f.find('FlatList').props.data.length,0);
   f.request(null);assert.equal(f.find('FlatList').props.data.length,3);
 });
@@ -81,7 +82,7 @@ test('deferred season request applies after loading, but consumed requests canno
 
 
 test('actual filter controls record action kinds without search text, year or registration values',()=>{
- diagnostics.diagnosticJournal.clear();const f=fixture();f.find('TextInput','Flüge durchsuchen').props.onChangeText('Private secret crew D-PRIVATE');f.render();
+ diagnostics.diagnosticJournal.clear();const f=fixture();f.search().props.onChangeText('Private secret crew D-PRIVATE');f.render();
  f.find('Pressable','Flugfilter öffnen').props.onPress();f.render();
  const report=diagnostics.diagnosticJournal.export();assert.ok(!report.includes('Private secret crew'));assert.ok(!report.includes('D-PRIVATE'));
  assert.ok(diagnostics.diagnosticJournal.journey().some(e=>e.kind==='filter'&&e.target==='search'));assert.ok(diagnostics.diagnosticJournal.journey().some(e=>e.kind==='screen'&&e.target==='flight-filter'));
@@ -94,9 +95,11 @@ function visibleText(node:any):string {
 test('ordinary flight rows expose useful saved facts while technical provenance and absent-track explanation remain in detail',()=>{
   const f=fixture(),list=f.find('FlatList'),item=f.data.view.flights[0];
   const row=list.props.renderItem({item});const text=visibleText(row);
-  assert.ok(text.includes(review.reviewParsedField(item.facts.assessment.date)));
-  for(const field of ['registration','departure','arrival'])assert.ok(text.includes(review.reviewRawField(item.facts.assessment.fields[field])));
-  assert.ok(text.includes(review.reviewDuration(item.facts.assessment.durations.flight)));
+  const card=model.ownFlightCard(item);
+  assert.ok(text.includes(card.date));
+  for(const fact of [card.registration,card.model,card.start,card.route,...card.crew.map(person=>person.name)])assert.ok(text.includes(fact));
+  assert.ok(text.includes(card.duration));
+  assert.ok(row.props.label.includes(review.reviewParsedField(item.facts.assessment.date)));
   assert.ok(!/Quellflug|Fassung|Track/.test(text));
   f.data.detail={...item,factHistory:[item.facts],pending:[]};
   const detailText=visibleText(f.render()).replace(/\s+/g,' ');
@@ -106,7 +109,7 @@ test('ordinary flight rows expose useful saved facts while technical provenance 
 
 test('original provider fields paginate across three pages and return to the filtered list',()=>{
   const f=fixture();
-  f.find('TextInput','Flüge durchsuchen').props.onChangeText('D-T001');f.render();
+  f.search().props.onChangeText('D-T001');f.render();
   const item=f.find('FlatList').props.data[0];
   const total=19;
   const headers=Array.from({length:total},(_,i)=>`Synthetic provider field ${i+1}`);
@@ -144,9 +147,9 @@ test('original provider fields paginate across three pages and return to the fil
   assertRange(9,16);
   action('Zur gefilterten Flugliste').props.onPress();
   const listText=detailText();
-  assert.ok(f.nodes().some(n=>n.type==='Section'&&n.props.title==='Eigene gespeicherte Flüge'));
+  assert.ok(f.nodes().some(n=>n.props.testID==='flight-filter-bar'));
   assert.ok(!listText.includes('Originale Anbieterfelder'));
-  assert.equal(f.find('TextInput','Flüge durchsuchen').props.value,'D-T001');
+  assert.equal(f.search().props.value,'D-T001');
   assert.deepEqual(f.find('FlatList').props.data.map((flight:any)=>flight.flightId),['flight-1']);
 
   f.data.detail=makeDetail();
@@ -160,7 +163,7 @@ test('month request clears stale search and opens only the exact saved identity 
   const other=structuredClone(chosen);other.flightId='same-provider-reference';
   f.data.view={...f.data.view,flights:[...f.data.view.flights,other]};f.render();
   const opened:any[]=[];f.data.openDetail=(flight:any)=>opened.push(flight);
-  f.find('TextInput','Flüge durchsuchen').props.onChangeText('no match');f.render();
+  f.search().props.onChangeText('no match');f.render();
   f.request(2025,{dateRange:{from:day,to:day},flightId:chosen.flightId});
   assert.deepEqual(f.find('FlatList').props.data.map((flight:any)=>flight.flightId),[chosen.flightId,other.flightId]);
   assert.deepEqual(opened.map(flight=>flight.flightId),[chosen.flightId]);
@@ -173,9 +176,9 @@ test('month request clears stale search and opens only the exact saved identity 
 
 test('search clear preserves year; one-step filter reset restores all saved rows',()=>{
  const f=fixture();f.request(2025);
- f.find('TextInput','Flüge durchsuchen').props.onChangeText('absent');f.render();assert.equal(f.find('FlatList').props.data.length,0);
+ f.search().props.onChangeText('absent');f.render();assert.equal(f.find('FlatList').props.data.length,0);
  f.find('Pressable','Suche löschen').props.onPress();f.render();assert.equal(f.find('FlatList').props.data.length,1);
- const reset=f.nodes().find(n=>n.type==='Action'&&visibleText(n).includes('Alle Filter zurücksetzen'));assert.ok(reset);reset.props.onPress();f.render();assert.equal(f.find('FlatList').props.data.length,f.data.view.flights.length);
+ const reset=f.nodes().find(n=>n.type==='Pressable'&&n.props.accessibilityLabel==='Alle Filter zurücksetzen');assert.ok(reset);reset.props.onPress();f.render();assert.equal(f.find('FlatList').props.data.length,f.data.view.flights.length);
  assert.ok(!f.nodes().some(n=>n.props.accessibilityLabel==='Suche löschen'));
 });
 
@@ -197,22 +200,62 @@ test('visible filtered totals follow exact rows, distinguish zero/unknown/empty 
   f.data.view.flights[1].facts.assessment.durations.flight={state:'known',minutes:0};
   f.data.view.flights[2].facts.assessment.durations.flight={state:'unknown',minutes:null};
   const summary=()=>{f.render();return visibleText(f.nodes().find(n=>n.props.testID==='filtered-flight-summary')).replace(/\s+/g,' ');};
-  assert.match(summary(),/Bekannte Flugzeit: 1:15 h/);assert.match(summary(),/1 Flug\/Flüge ohne bekannte Flugzeit/);
-  f.request(2025);assert.match(summary(),/Bekannte Flugzeit: 0:00 h/);assert.ok(!summary().includes('ohne bekannte'));
-  f.find('TextInput','Flüge durchsuchen').props.onChangeText('absent query');assert.match(summary(),/Bekannte Flugzeit: —/);
+  assert.match(summary(),/1:15 h/);assert.match(summary(),/1× Zeit unbekannt/);
+  f.request(2025);assert.match(summary(),/0:00 h/);assert.ok(!summary().includes('× Zeit unbekannt'));
+  f.search().props.onChangeText('absent query');assert.match(summary(),/Flüge · —/);
   assert.equal(f.find('FlatList').props.data.length,0);
   f.find('Pressable','Suche löschen').props.onPress();
-  assert.match(summary(),/Bekannte Flugzeit: 0:00 h/);
+  assert.match(summary(),/0:00 h/);
   assert.equal(f.find('FlatList').props.data.length,1,'search clear retains the selected year and its known-zero total');
-  const reset=f.nodes().find(n=>n.type==='Action'&&visibleText(n).includes('Alle Filter zurücksetzen'));
+  const reset=f.nodes().find(n=>n.type==='Pressable'&&n.props.accessibilityLabel==='Alle Filter zurücksetzen');
   assert.ok(reset);reset.props.onPress();
-  assert.match(summary(),/Bekannte Flugzeit: 1:15 h/);
-  assert.match(summary(),/1 Flug\/Flüge ohne bekannte Flugzeit/);
+  assert.match(summary(),/1:15 h/);
+  assert.match(summary(),/1× Zeit unbekannt/);
   assert.equal(f.find('FlatList').props.data.length,3);
-  assert.ok(!f.nodes().some(n=>n.type==='Action'&&visibleText(n).includes('Alle Filter zurücksetzen')));
-  f.find('TextInput','Flüge durchsuchen').props.onChangeText('absent query');summary();
+  assert.ok(!f.nodes().some(n=>n.type==='Pressable'&&n.props.accessibilityLabel==='Alle Filter zurücksetzen'));
+  f.search().props.onChangeText('absent query');summary();
   f.data.view={...f.data.view,snapshot:{...f.data.view.snapshot,ownerId:'new-owner',storeId:'new-store'},flights:[f.data.view.flights[2]]};
-  f.render();assert.match(summary(),/Bekannte Flugzeit: unbekannt/);
-  assert.equal(f.find('TextInput','Flüge durchsuchen').props.value,'');
+  f.render();assert.match(summary(),/Zeit unbekannt/);
+  assert.equal(f.search().props.value,'');
   assert.equal(f.find('FlatList').props.data.length,1);
+});
+
+test('filter bar remains outside list scrolling; active values persist when search is collapsed',()=>{
+  const f=fixture();
+  assert.equal(f.find('FlatList').props.ListHeaderComponent,undefined);
+  assert.ok(f.nodes().some(node=>node.props.testID==='flight-filter-bar'));
+  assert.ok(!f.nodes().some(node=>node.type==='TextInput'));
+  f.search().props.onChangeText('D-T001');f.render();
+  f.find('Pressable','Flugsuche öffnen').props.onPress();f.render();
+  assert.ok(!f.nodes().some(node=>node.type==='TextInput'));
+  assert.ok(f.nodes().some(node=>node.props.accessibilityLabel==='Suche: D-T001 entfernen'));
+  assert.deepEqual(f.find('FlatList').props.data.map((flight:any)=>flight.flightId),['flight-1']);
+  f.find('Pressable','Suche: D-T001 entfernen').props.onPress();f.render();
+  assert.equal(f.find('FlatList').props.data.length,3);
+});
+
+test('chooser combines period and aircraft, individual tag removal retains the other filter',()=>{
+  const f=fixture();f.find('Pressable','Flugfilter öffnen').props.onPress();f.render();
+  f.nodes().find(node=>node.type==='Chip'&&node.props.title==='2025')!.props.onPress();f.render();
+  f.nodes().find(node=>node.type==='Chip'&&node.props.title==='D-T001')!.props.onPress();f.render();
+  f.nodes().find(node=>node.type==='Action'&&visibleText(node)==='Anzeigen')!.props.onPress();f.render();
+  assert.deepEqual(f.find('FlatList').props.data.map((flight:any)=>flight.flightId),['flight-1']);
+  assert.equal(f.find('Pressable','Flugfilter öffnen').props.accessibilityState.selected,true);
+  assert.equal(f.find('Pressable','Flugzeugfilter öffnen').props.accessibilityState.selected,true);
+  f.find('Pressable','2025 entfernen').props.onPress();f.render();
+  assert.equal(f.find('Pressable','Flugfilter öffnen').props.accessibilityState.selected,false);
+  assert.equal(f.find('Pressable','Flugzeugfilter öffnen').props.accessibilityState.selected,true);
+  assert.ok(f.nodes().some(node=>node.props.accessibilityLabel==='D-T001 entfernen'));
+});
+
+test('information is opt-in and preserves list position and filters on return',()=>{
+  const f=fixture();f.request(2025);
+  f.find('FlatList').props.onScroll({nativeEvent:{contentOffset:{y:240}}});
+  assert.ok(!visibleText(f.render()).includes('keine Rollen-Anrechnung'));
+  f.find('Pressable','Abdeckung & Datenstand').props.onPress();f.render();
+  assert.ok(visibleText(f.render()).includes('keine Rollen-Anrechnung'));
+  f.find('FlatList').props.onScroll({nativeEvent:{contentOffset:{y:0}}});
+  f.nodes().find(node=>node.type==='Action'&&visibleText(node)==='Zurück')!.props.onPress();f.render();
+  f.find('FlatList').props.onContentSizeChange();assert.equal(f.restores.at(-1),240);
+  assert.deepEqual(f.find('FlatList').props.data.map((flight:any)=>flight.flightId),['flight-1']);
 });

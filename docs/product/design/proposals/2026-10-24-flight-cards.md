@@ -1,6 +1,6 @@
 # Compact flight cards and fixed filters — proposal, 24 October 2026
 
-Requested by Manuel; tracked in [#70](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/70). **Proposal only: Manuel prefers C and requests a denser refinement; final layout acceptance and application implementation remain pending.** M1 presentation over the existing M3 saved-flight list. The [Compact Cockpit contract](../compact-cockpit.md) supplies the visual foundation.
+Requested by Manuel; tracked in [#70](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/70). **Selected for implementation:** Manuel preferred C, requested the denser refinement, then explicitly authorized all screen changes including that layout. This document preserves the proposal sequence; the [current implementation contract](../compact-cockpit.md#compact-flights-screen--approved-24-october-2026) and [verification report](../../../verification/2026-10-24-flight-list.md) own current behavior and acceptance. M1 presentation over the existing M3 saved-flight list.
 
 ## Card choice
 
@@ -16,7 +16,7 @@ Proposed common geometry: 10–12 logical-unit padding, radius 12, 6–8 between
 
 ## C density refinement
 
-Manuel prefers C's duration emphasis but considers its remaining whitespace excessive. The [refined C preview](2026-10-24-flight-cards-dense-c.html) proposes three lines beside the duration: date/registration/model; labelled pilot/Begleiter or Solo; departure time/route. Short dates use `dd.mm.yy`; full dates remain in accessible labels/details. Padding becomes 7 vertical / 10 horizontal, line gaps 2, inter-card gap 5, radius 10. Both internal separators and the repeated chevron are removed. The entire card remains the proposed detail target. Existing text sizes are retained; long content and larger text wrap rather than clipping or enforcing a fixed card height. These values refine the proposal only; they do not change the app or grant implementation approval.
+Manuel preferred C's duration emphasis but considered its remaining whitespace excessive. The subsequently approved [refined C preview](2026-10-24-flight-cards-dense-c.html) uses three lines beside the duration: date/registration/model; labelled pilot/Begleiter or Solo; departure time/route. Short dates use `dd.mm.yy`; full dates remain in accessible labels/details. Padding becomes 7 vertical / 10 horizontal, line gaps 2, inter-card gap 5, radius 10. Both internal separators and the repeated chevron are removed. The entire card remains the detail target. Existing text sizes are retained; long content and larger text wrap rather than clipping or enforcing a fixed card height. The later explicit implementation instruction selects this refinement and the screen recommendation below.
 
 ## Screen recommendation
 

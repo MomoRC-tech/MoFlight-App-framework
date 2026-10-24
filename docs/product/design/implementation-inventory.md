@@ -731,48 +731,73 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OverviewTiles.tsx
 
 ## OwnFlights.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OwnFlights.tsx](../../../apps/platform-lab/src/mobile/OwnFlights.tsx); normalized SHA-256 `419fce4b11bcf4509a367f70ad51db822bfb2ce95c886bf41f1c76b90015acc7`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OwnFlights.tsx](../../../apps/platform-lab/src/mobile/OwnFlights.tsx); normalized SHA-256 `eceaf04b5ad9544b470eb6bb63ee16b60468a2f27765e255be17ef293c2b2740`.
+
+### Literal colors
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `#031326` | 154, 157 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 16` | 146 |
-| `fontSize: 20` | 96 |
-| `fontSize: 22` | 123 |
-| `fontSize: 30` | 122 |
-| `fontWeight: '600'` | 96 |
-| `fontWeight: '700'` | 122 |
-| `lineHeight: 27` | 96 |
-| `lineHeight: 30` | 123 |
-| `lineHeight: 38` | 122 |
+| `fontSize: 11` | 164, 165 |
+| `fontSize: 12` | 163, 166 |
+| `fontSize: 13` | 157, 164 |
+| `fontSize: 14` | 154, 163 |
+| `fontSize: 16` | 168 |
+| `fontSize: 20` | 166 |
+| `fontSize: 22` | 131 |
+| `fontSize: 30` | 130 |
+| `fontWeight: '400'` | 166 |
+| `fontWeight: '600'` | 163, 166 |
+| `fontWeight: '700'` | 130 |
+| `lineHeight: 16` | 164, 165 |
+| `lineHeight: 17` | 163, 166 |
+| `lineHeight: 18` | 157, 164 |
+| `lineHeight: 19` | 163 |
+| `lineHeight: 20` | 154 |
+| `lineHeight: 28` | 166 |
+| `lineHeight: 30` | 131 |
+| `lineHeight: 38` | 130 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 16` | 145, 146 |
-| `borderRadius: 20` | 144 |
-| `borderWidth: 1` | 145 |
-| `gap: 12` | 142, 144 |
-| `gap: 16` | 142 |
-| `gap: 2` | 132 |
-| `gap: 5` | 60 |
-| `gap: 6` | 143 |
-| `gap: 7` | 145 |
-| `gap: 8` | 90 |
-| `height: 7` | 102 |
-| `maxWidth: '50%'` | 93 |
-| `maxWidth: 600` | 142 |
-| `maxWidth: 960` | 142 |
-| `minHeight: 48` | 143 |
-| `minHeight: 52` | 146 |
-| `minWidth: 0` | 145 |
-| `minWidth: 48` | 143 |
-| `padding: 18` | 142, 144 |
-| `paddingVertical: 8` | 143, 146 |
-| `width: '100%'` | 142 |
-| `width: 52` | 146 |
+| `borderRadius: 10` | 156, 161 |
+| `borderRadius: 12` | 153, 155, 167 |
+| `borderRadius: 4` | 165 |
+| `borderWidth: 1` | 153, 165, 167 |
+| `gap: 0` | 160 |
+| `gap: 12` | 150 |
+| `gap: 16` | 150 |
+| `gap: 2` | 140, 152, 162 |
+| `gap: 5` | 152 |
+| `gap: 6` | 153, 158 |
+| `gap: 7` | 162 |
+| `gap: 8` | 84, 161 |
+| `height: 5` | 98 |
+| `maxWidth: '100%'` | 156, 167 |
+| `maxWidth: '32%'` | 166 |
+| `maxWidth: '50%'` | 87 |
+| `maxWidth: 600` | 150, 152 |
+| `maxWidth: 960` | 150, 151 |
+| `minHeight: 48` | 153, 155, 156, 157, 158, 159, 161, 168 |
+| `minWidth: 0` | 158, 162, 168 |
+| `minWidth: 48` | 155, 157, 158, 159 |
+| `padding: 18` | 150 |
+| `paddingHorizontal: 10` | 156, 161 |
+| `paddingHorizontal: 12` | 151, 153, 160 |
+| `paddingHorizontal: 4` | 165 |
+| `paddingHorizontal: 6` | 157 |
+| `paddingVertical: 5` | 156 |
+| `paddingVertical: 6` | 168 |
+| `paddingVertical: 7` | 161 |
+| `width: '100%'` | 150, 151, 152 |
+| `width: 280` | 167 |
 
 ## PaperStatus.tsx
 
