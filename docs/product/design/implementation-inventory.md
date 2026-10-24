@@ -101,7 +101,7 @@ Retained app-owned lab/adapter surface; document its existing appearance as an e
 
 ## android-ai-screen-poc.tsx
 
-Retained app-owned lab/adapter surface; document its existing appearance as an exception. Source: [apps/platform-lab/src/development/android-ai-screen-poc.tsx](../../../apps/platform-lab/src/development/android-ai-screen-poc.tsx); normalized SHA-256 `2dfabe2cbe7276832c4cda6baa4edfb7ffa5763d294b7ccff48a021c1da6ef98`.
+Retained app-owned lab/adapter surface; document its existing appearance as an exception. Source: [apps/platform-lab/src/development/android-ai-screen-poc.tsx](../../../apps/platform-lab/src/development/android-ai-screen-poc.tsx); normalized SHA-256 `57d94fe7c677d4d166f100316e7a26c7b3438b4ccac89600602ae768c532805e`.
 
 ### Typography declarations
 
