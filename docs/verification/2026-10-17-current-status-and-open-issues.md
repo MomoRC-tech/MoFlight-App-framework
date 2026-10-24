@@ -1,4 +1,12 @@
-# Implementation and open-issue reviews — 17–22 October 2026
+# Implementation and open-issue reviews — 17–24 October 2026
+
+## 24 October review — current planning and selected build-tool follow-up
+
+Manuel requested the planning update first, then completion of #32/#33 after checking whether the current build paths still exhibit their reported problems. Baseline main is `5a2320d03ae664bd372bc26960c773d907ca78a3`, matching origin/main; an unrelated uncommitted duty-name verification extension is preserved. The live 45-open-Issue inventory is reconciled with the [primary roadmap map](../project-plan.md#complete-ordered-issue-map), including #57/#59/#60 and reopened #69. Category prefixes/labels remain unchanged.
+
+The plan now records this bounded tooling selection, the undelivered #69 correction separately from its earlier APK, implemented Statistics/ordinary club/activity-advice slices separately from remaining acceptance, and native same-installation backup evidence separately from populated/replacement-device gates. The recommended later core sequence is phone/source/populated responsiveness acceptance followed by populated update/backup safety; no new feature or broader parent closure is selected. Fresh credentials, real second-account, physical/iOS and source-completeness limits remain explicit; spoken accessibility stays last. Earlier dated review prose retains its historical scope.
+
+Planning verification: all 45 current open Issues have one primary roadmap row; changed documentation links/anchors, category consistency, status/selection claims and whitespace are checked. No application tests, builds, device/provider actions or paid execution are part of this documentation-only increment. #12 remains the audit umbrella; #32/#33 now record the explicit selected relevance-check/repair scope before implementation. Detailed local inventory/check output: ignored `build/tooling-32-33/planning-check.json`.
 
 ## 22 October review — post-archive plan and Issue reconciliation
 
