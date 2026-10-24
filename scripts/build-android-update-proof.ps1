@@ -42,12 +42,13 @@ try {
         & ./gradlew.bat :app:assembleRelease '-PreactNativeArchitectures=arm64-v8a,x86_64' --max-workers=2 --init-script (Join-Path $checkout 'scripts/android-source-input.gradle') *> (Join-Path $evidence 'proof-build.log')
         if ($LASTEXITCODE) { throw 'Upgrade proof build failed.' }
     } finally { Pop-Location }
-    $proof = Join-Path $evidence 'update-proof.apk'
-    Copy-Item -LiteralPath $manifest.apk -Destination $proof
+    $proofApk = Join-Path $evidence 'update-proof.apk'
+    Copy-Item -LiteralPath $manifest.apk -Destination $proofApk
     $hashes = @{}
     foreach ($relative in $overrides.Keys) { $hashes[$relative] = (Get-FileHash -LiteralPath (Join-Path $checkout $relative) -Algorithm SHA256).Hash.ToLowerInvariant() }
     [ordered]@{ source_commit=$manifest.source_commit; namespace=$Namespace; mode=$Mode; proof=$Proof; test_only_overrides=$hashes;
-        apk_sha256=(Get-FileHash -LiteralPath $proof -Algorithm SHA256).Hash.ToLowerInvariant();
+        builder_sha256=(Get-FileHash -LiteralPath $PSCommandPath -Algorithm SHA256).Hash.ToLowerInvariant();
+        apk_sha256=(Get-FileHash -LiteralPath $proofApk -Algorithm SHA256).Hash.ToLowerInvariant();
         boundary='Historical/current production storage modules with explicit synthetic entry/fixture overrides; no ordinary app or provider acceptance' } |
         ConvertTo-Json | Set-Content -LiteralPath (Join-Path $evidence 'provenance.json') -Encoding utf8
 } finally {
