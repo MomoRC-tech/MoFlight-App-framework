@@ -1,0 +1,74 @@
+{
+  "application": "MoFlight Android lab",
+  "source_commit": "c643d9da076d588675eecbc690a94c619e9528a0",
+  "configuration": "Release (development signing)",
+  "built_at_utc": "2026-10-23T23:51:09.856446+00:00",
+  "apk_sha256": "e33edc9b8e33ff611f82fe3023f91a80940500108313976b4ff90ea87ff36c8c",
+  "architectures": [
+    "arm64-v8a",
+    "x86_64"
+  ],
+  "embedded_javascript": true,
+  "zip_sha256": "956dbf0c0d9f990cc79cb7d302461b2daf1be9782083338fc6a74bceb195a932",
+  "original_logo_unchanged": true,
+  "host": {
+    "mobile_tests": 1013,
+    "python_tests": 114,
+    "types": "passed",
+    "lint": "passed",
+    "fixtures": "passed"
+  },
+  "android": {
+    "api": 37,
+    "density_dpi": 160,
+    "matrix": [
+      {
+        "source": "010af4a",
+        "dp": "390x900 / 360x900 / 800x700",
+        "font_scale": 1
+      },
+      {
+        "source": "4974ae7",
+        "dp": "360x900",
+        "font_scale": 1.6
+      },
+      {
+        "source": "c643d9d",
+        "dp": "390x900",
+        "font_scale": 1,
+        "checks": "five tabs, profile, overview, statistics, aircraft, flights, details, filter, AI keyboard/error draft, installed APK readback"
+      }
+    ]
+  },
+  "screenshots": {
+    "overview.png": {
+      "source": "c643d9d",
+      "sha256": "ba66cb9d986faba2f756a9df5933eef9b6590ed7238f4e71ca528bb8f5a53ae1"
+    },
+    "statistics.png": {
+      "source": "c643d9d",
+      "sha256": "54508f8cf7110020f7ea53ec4920814f5e459c3229c2301b5a026ae29034d72c"
+    },
+    "flights.png": {
+      "source": "c643d9d",
+      "sha256": "9d116ade0f620396776ff191e75ecbe5ef071dc6044f20ce27241a21e0392708"
+    },
+    "profile.png": {
+      "source": "c643d9d",
+      "sha256": "736e28bc9726c13b189c139d2dbe1ff81017773cfcca44ccccc18fc997f862d0"
+    },
+    "large-text.png": {
+      "source": "4974ae7",
+      "sha256": "e5fe8a5311a776834efbe7c628172862353ba48281680b934261f695bd0f160d"
+    },
+    "landscape.png": {
+      "source": "010af4a",
+      "sha256": "bfbf9b98da3c46b21741d029976c98a668dd4b98a583ab83e8953648692efee1"
+    }
+  },
+  "limits": [
+    "Synthetic UI/read-model evidence; no new live-provider, phone, iOS runtime or spoken accessibility acceptance",
+    "Normal-motion progress inspected by screenshot because hierarchy wait did not settle",
+    "Annual duty requirement and club location unavailable from current source; actual production paper setup remains deferred"
+  ]
+}

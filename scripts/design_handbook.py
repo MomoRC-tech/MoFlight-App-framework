@@ -24,7 +24,7 @@ from urllib.parse import unquote, urlsplit
 ROOT = Path(__file__).resolve().parents[1]
 DESIGN = Path('docs/product/design')
 MOBILE = Path('apps/platform-lab/src/mobile')
-CHAPTERS = ['README.md', 'alternative-ui.md', 'foundations.md', 'components.md', 'patterns.md', 'implementation-inventory.md', 'history.md']
+CHAPTERS = ['README.md', 'compact-cockpit.md', 'alternative-ui.md', 'foundations.md', 'components.md', 'patterns.md', 'implementation-inventory.md', 'history.md']
 HEX = re.compile(r'#[0-9a-fA-F]{8}\b|#[0-9a-fA-F]{6}\b|#[0-9a-fA-F]{4}\b|#[0-9a-fA-F]{3}\b')
 MD_LINK = re.compile(r'(!?)\[([^\]]+)\]\(([^)]+)\)')
 
@@ -296,7 +296,7 @@ def load_catalogue(root: Path = ROOT) -> dict:
 
 def render_catalogue(data: dict, output: Path, root: Path = ROOT) -> tuple[str,str]:
     html=['<section id="symbol-catalogue"><h2>Symbols, icons and state marks</h2><p>Maintained source: symbols.json. Original assets are embedded unchanged. Native View marks are schematic SVG redraws, enlarged on neutral tiles; glyph rendering depends on fonts. Browser samples do not establish native acceptance.</p>']
-    brief=['SYMBOLS, ICONS AND STATE MARKS\nModern Duotone is the default symbol family, including M2 Medical card and the folded paper plane. Preserve current stable IDs, labels, meanings, actions, states and approved Thermik branding. Retired icon designs have been removed. Samples are schematic except unchanged source images.']
+    brief=['SYMBOLS, ICONS AND STATE MARKS\nCompact Cockpit uses outlined symbols in the existing SVG/PNG pipeline and semantic IDs. Preserve current stable IDs, labels, meanings, actions, states and approved Thermik branding. Retired icon designs have been removed. Samples are schematic except unchanged source images.']
     for group in data['groups']:
         html += [f'<h3>{escape(group["title"])}</h3><p>{escape(group["intro"])}</p><div class="entries">']
         brief += [group['title']+'\n'+group['intro']]
@@ -399,7 +399,7 @@ def build(root: Path = ROOT) -> tuple[dict[Path,str],dict]:
     cat_html,cat_brief=render_catalogue(catalogue,full,root)
     full_brief='MOFLIGHT — CURRENT UI DESIGN HANDBOOK AND AI HANDOFF\n\n'+'\n\n'.join(chapters[name].strip() for name in CHAPTERS)+'\n\n'+cat_brief+'\n'
     # Embed the approved design evidence unchanged; it is not application artwork.
-    reference='<section id="approved-reference"><h2>Approved main-branch visual baseline</h2><p>Historical authority for main; this branch explores the separately authorized alternative in the handbook. 16 October supplied reference; illustrative data. Original bytes embedded unchanged.</p><img class="reference" alt="Approved four-screen MoFlight visual baseline" src="'+asset_uri(Path('docs/product/design-sources/2026-10-16-four-screen/reference.png'),root)+'"></section>'
+    reference='<section id="approved-reference"><h2>Approved Dark Compact Cockpit</h2><p>24 October final approved reference. Original bytes embedded unchanged; example values and system chrome are illustrative. Earlier sources are preserved in the linked history.</p><img class="reference" alt="Approved dark Compact Cockpit MoFlight reference" src="'+asset_uri(Path('docs/product/design-sources/2026-10-24-compact-cockpit/reference.jpg'),root)+'"></section>'
     body=[]
     for name in CHAPTERS:
         body.append(f'<section class="chapter" id="{chapter_id(name)}">'+render_markdown(chapters[name],DESIGN/name,full,root)+'</section>')
@@ -412,7 +412,7 @@ def build(root: Path = ROOT) -> tuple[dict[Path,str],dict]:
     outputs[DESIGN/'design-brief.txt']=full_brief
     compat=Path('docs/product/symbol-reference.html')
     cat_html,cat_brief=render_catalogue(catalogue,compat,root)
-    context='MOFLIGHT — CURRENT SYMBOL CATALOGUE\n\nModern Duotone is the default app family, including M2 Medical card and the folded paper plane. Preserve each current ID, label, meaning, function, state and approved Thermik branding. Superseded icon designs have been removed. This artwork establishes no medical/AI/weather evidence or provider integration. Read the current handbook for complete direction, colors, geometry and change authority.\n\n'
+    context='MOFLIGHT — CURRENT SYMBOL CATALOGUE\n\nCompact Cockpit is the current outlined app family, using the retained SVG/PNG pipeline and semantic IDs. Preserve each current ID, label, meaning, function, state and approved Thermik branding. Superseded icon designs have been removed. This artwork establishes no medical/AI/weather evidence or provider integration. Read the current handbook for complete direction, colors, geometry and change authority.\n\n'
     count=sum(len(g['entries']) for g in catalogue['groups'])
     outputs[compat]=fill_template(template,{**common,'TITLE':'MoFlight symbol catalogue','LEAD':f'The same maintained {count}-entry symbol catalogue used by the complete UI design handbook.','NAV':'<a href="design/design-guide.html">Complete handbook</a> <a href="#symbol-catalogue">Catalogue</a> <a href="#copy-area">Copy text</a>','BODY':cat_html,'BRIEF':escape(context+cat_brief+'\n'),'DOWNLOAD':'moflight-symbol-brief.txt','HOME':'design/README.md'})
     virtual={DESIGN/name:text for name,text in chapters.items()};virtual.update(outputs)
