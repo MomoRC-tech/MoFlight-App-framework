@@ -11,6 +11,8 @@
 
 ## Component map
 
+**Secondary interactions, 24 October (#82):** the [current amendment](compact-cockpit.md#secondary-interaction-refinement-approved-24-october-2026) governs direct backup/settings tasks, targeted filters, compact Statistics and contextual club return. [FlightCard](../../../apps/platform-lab/src/mobile/FlightCard.tsx) and [FlightDetails](../../../apps/platform-lab/src/mobile/FlightDetails.tsx) now own shared list/detail presentation for ordinary Flights and Statistics; OwnFlights retains filtering/scroll state and Statistics retains contributor routing. Maintenance frames expand within the viewport, while the ordinary login retains its minimal original-provider chrome.
+
 **Approved #9 implementation slice (23 October):** Meine Saison now opens a read-only C08-style statistics frame. Host regressions and a synthetic Development preview cover the component/navigation contract; the preview is not saved-real-flight native acceptance. See the [current design contract](alternative-ui.md#statistics-overlay--approved-implementation-scope-23-october-2026) and [package report](../../verification/2026-10-20-real-flight-statistics.md#meine-saison-statistics-overlay--23-october-2026).
 
 | ID | Component / shape | Geometry / presentation | Function / source |

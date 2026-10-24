@@ -1,0 +1,95 @@
+{
+  "initial_source": "255e209d0649633b33a4ca4ecc86f739008fff8c",
+  "final_source": "f223390178460fe0073454c8e0108be3ec96c759",
+  "initial_checkpoints": 18,
+  "final_checkpoints": 11,
+  "accepted_checkpoints": 29,
+  "device": {
+    "avd": "MoFlight_Synthetic_API37",
+    "api": 37,
+    "mode": "task-owned read-only",
+    "density_dpi": 160,
+    "logical_viewports": [
+      [
+        390,
+        900
+      ],
+      [
+        360,
+        900
+      ],
+      [
+        600,
+        1100
+      ],
+      [
+        840,
+        600
+      ]
+    ],
+    "font_scales": [
+      1,
+      1.6
+    ]
+  },
+  "restored_all_recorded_settings": true,
+  "owned_emulator_stopped_and_adb_empty": true,
+  "builder_left_clean": true,
+  "inference_or_provider_operations": false,
+  "release_publication": false,
+  "limitations": [
+    "Actual provider sign-out/session clearing not executed",
+    "Native target editor was missing-account state; configured save/busy Back covered by host tests",
+    "No physical phone/iOS/spoken acceptance",
+    "AI integration has separate source/native acceptance"
+  ],
+  "helper_corrections": [
+    "Initial exact-label lookup corrected; original settings restored",
+    "Profile retained scroll required reopening from top for settings entry",
+    "Final helper expected a configured target editor on an unbound account; preserved seven valid checkpoints and verified missing-account Back plus remaining four checks separately"
+  ],
+  "screenshots": [
+    {
+      "file": "backup.png",
+      "source_commit": "255e209d0649633b33a4ca4ecc86f739008fff8c",
+      "apk_sha256": "a3eafe0d5de68ed4c5446fbd391b97d78cb0f7d37dddc19fc4ad91f79d52cbc0",
+      "sha256": "3ac265f71b32f49cf1b392d17876cba6d3b07743883aaad435135efc3fe4f608",
+      "data": "Fictional Development preview or synthetic-device maintenance UI; no credentials/private source input."
+    },
+    {
+      "file": "filters.png",
+      "source_commit": "255e209d0649633b33a4ca4ecc86f739008fff8c",
+      "apk_sha256": "a3eafe0d5de68ed4c5446fbd391b97d78cb0f7d37dddc19fc4ad91f79d52cbc0",
+      "sha256": "11672db922a2ad988b8f27178b1d0fca32c83aa1819e0c12adb90a97729a03ef",
+      "data": "Fictional Development preview or synthetic-device maintenance UI; no credentials/private source input."
+    },
+    {
+      "file": "statistics-large.png",
+      "source_commit": "f223390178460fe0073454c8e0108be3ec96c759",
+      "apk_sha256": "e60229a510660c0f76d97a5ec5d56b5bd4a7f7354b3f62953e9be77ff2b4da02",
+      "sha256": "d7be60ee13c5e98023a3ed4c893d62dde13c93fc4ffd8bfc4d07e5b8c90e7dbf",
+      "data": "Fictional Development preview or synthetic-device maintenance UI; no credentials/private source input."
+    },
+    {
+      "file": "settings.png",
+      "source_commit": "f223390178460fe0073454c8e0108be3ec96c759",
+      "apk_sha256": "e60229a510660c0f76d97a5ec5d56b5bd4a7f7354b3f62953e9be77ff2b4da02",
+      "sha256": "08be57d82f8a059677a9b7cc77a20320e2700ed40d9eb60093238eaf8f9f8c87",
+      "data": "Fictional Development preview or synthetic-device maintenance UI; no credentials/private source input."
+    },
+    {
+      "file": "flight-source-fields.png",
+      "source_commit": "f223390178460fe0073454c8e0108be3ec96c759",
+      "apk_sha256": "e60229a510660c0f76d97a5ec5d56b5bd4a7f7354b3f62953e9be77ff2b4da02",
+      "sha256": "a03731e5783351869ccf8b908ce763556c875fded859703290b9f37c56f57255",
+      "data": "Fictional Development preview or synthetic-device maintenance UI; no credentials/private source input."
+    },
+    {
+      "file": "statistics-wide.png",
+      "source_commit": "f223390178460fe0073454c8e0108be3ec96c759",
+      "apk_sha256": "e60229a510660c0f76d97a5ec5d56b5bd4a7f7354b3f62953e9be77ff2b4da02",
+      "sha256": "a5cb997e0f7a871101ff351ca7373cac6f96b9d88e9df4cb12bfe427b2d41fb7",
+      "data": "Fictional Development preview or synthetic-device maintenance UI; no credentials/private source input."
+    }
+  ]
+}

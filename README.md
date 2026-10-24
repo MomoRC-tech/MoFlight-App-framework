@@ -1,6 +1,6 @@
 # MoFlight
 
-**24 October UI review:** [Complete interaction tree, routing findings and design consistency assessment](docs/verification/2026-10-24-ui-interaction-review.md), reviewed application source `99900c2`, tracked by [#81](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/81). Review only; follow-up proposals do not change app behavior or approve implementation.
+**24 October secondary UI — implemented:** direct whole-user backup, reachable session settings, targeted flight filters, compact shared flight/Statistics details, contextual club return, discoverable season/target editing and less repeated status copy. [Interaction tree, dispositions and source-specific verification](docs/verification/2026-10-24-ui-interaction-review.md#implementation-follow-up) · [#82](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/82). Internal Android verification only; no new release. Concurrent AI screen integration is tracked separately in #78.
 
 **24 October populated-update safety — verified on main, no release:** fixes late-phase backup recovery and adds historical/current populated-store preservation checks. The bounded signed synthetic Android update preserves 15 namespaced files, completes recovery and reopens offline; beta/full-user/platform limits remain open. **No new APK release was created.** [Source-specific evidence and limits](docs/verification/2026-10-21-simple-flight-loading.md#populated-update-and-late-phase-recovery--24-october-2026) · #34/#29.
 

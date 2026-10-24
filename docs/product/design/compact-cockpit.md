@@ -1,5 +1,23 @@
 # Dark Compact Cockpit — approved 24 October 2026
 
+## Secondary interaction refinement approved 24 October 2026
+
+Manuel selected all dispositions from the [complete interaction review](../../verification/2026-10-24-ui-interaction-review.md) with “implement all”; [#82](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/82), coordinated with #29/#16/#9/#78. The following amendments supersede conflicting older secondary-screen presentation/routing descriptions, preserving data/identity/recovery contracts and the original logo.
+
+- Ordinary Profile and Status use one direct **Datensicherung** destination for whole-user save/restore. It omits credentials, raw-flight lists and the extra Details prerequisite. Compatible older flight-library restore stays behind an explicitly named disclosure; synthetic backup stays under Development. Missing-owner setup remains explicit and never silently creates a replacement identity.
+- Connection settings separately expose provider sign-out, supported local browser-session clearing and saved-credential management. Explicit sign-out uses original-provider content with compact host/Close/history chrome and a separate verification action. It cannot start flight retrieval. Busy save/restore/recovery guards and the distinction between session, credentials and saved flights remain.
+- Maintenance frames use the expanded viewport-bounded layout; forms/details stay centered and capped. Nested sheets name their task; the Profile page omits its redundant Profile control. Statistics retains its deliberate Back/Sync toolbar, so opening unrelated sheets cannot discard its contributor context.
+- Period and aircraft buttons each open their own chooser, with immediate-selection wording. Back preserves changes; the return action says **Zur Flugliste**. Search, active tags and list-return position retain their contract.
+- Ordinary Flights and Statistics contributors share dense `FlightCard` presentation and `FlightDetails`, including all source facts and eight-field original-data paging. Statistics removes the tall decorative hero; period choices wrap, and expanded coverage detail is opt-in. Unknown counts and blocked comparisons stay explicit.
+- The overview paper tile opens the existing Flugbuch tab; no duplicate placeholder sheet or real-paper activation. Club subsection headers provide contextual Back to its overview and restore per-section scrolling. Compact source summaries retain uncertainty/truncation/read-failure text while placing filters/retrieval age behind **Quellendetails**.
+- Season selection has a visible dropdown cue and direct saved-year choices as well as bounded previous/next controls. **Soll anpassen** identifies the provisional target editor. Android Back closes inline editors before leaving the page and respects a pending save.
+- Passive saved age/activity advice stays in the Sync control's accessible status and Profile/Status information rather than a repeated full-width strip. Local read failures, active progress and failed/partial synchronization remain visible and actionable.
+- Pale English labs remain explicit Development-only proofs. They are not promoted or restyled as ordinary product flows. AI findings F04/F05 are handled by the concurrent #78 integration; this package does not select a new service or authorize inference.
+
+Implementation source **255e209** and acceptance are recorded in the [review follow-up](../../verification/2026-10-24-ui-interaction-review.md#implementation-follow-up). Native build/test results remain separate from implementation status.
+
+## Original approval
+
 Manuel explicitly authorized implementation in the existing app, preserving its original logo. [Approved reference](../design-sources/2026-10-24-compact-cockpit/reference.jpg) · [provenance](../design-sources/2026-10-24-compact-cockpit/README.md) · [#61](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/61). This contract supersedes conflicting earlier overview preservation, large destination title, scenic toolbar, ring composition, full-bleed club heading and duotone appearance instructions. Existing feature/data/authorization contracts remain in force.
 
 **Phone-feedback amendment — 24 October 2026, [#68](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/68):** Manuel requests clearer season photography, a club photograph fitted as a full-width header background using the same treatment, and equal icon-only Sync/Profile controls without visible container borders/backgrounds. These explicit changes supersede the reference's thumbnail/boxed-control details within this scope. Keep the original approved image and original logo; the supplied real phone screenshot/support report stay private in ignored local storage.

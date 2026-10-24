@@ -1,5 +1,7 @@
 # Layout and presentation patterns
 
+**24 October secondary-interaction amendment (#82):** [current contract](compact-cockpit.md#secondary-interaction-refinement-approved-24-october-2026). Normal Profile/Status enter whole-user backup directly; settings separately administer provider sessions with explicit original-page verification. Both tasks use expanded viewport-bounded maintenance frames. Paper tile uses the existing tab; club sections have contextual Back and individual scroll state; year/target editors consume Back before page exit. Targeted flight pickers apply changes immediately, and Statistics shares compact cards/paged details with Flights. Passive age/advice remains in the header's accessible status and information pages; real failures remain visible. These statements supersede conflicting older routing/placement prose below without weakening recovery/identity/coverage contracts.
+
 > **Current appearance authority — 24 October 2026:** [Dark Compact Cockpit](compact-cockpit.md) and its approved reference supersede conflicting older appearance/composition statements below. Data, feature and verification boundaries retain their scope.
 
 > The [22 October modern UI contract](alternative-ui.md) is selected as the main baseline. It supersedes conflicting earlier appearance/composition descriptions for C01–C09, typography, surfaces, Start and flight browsing. Data and acceptance boundaries retain their separate contracts.

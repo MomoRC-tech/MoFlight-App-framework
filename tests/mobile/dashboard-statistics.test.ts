@@ -24,8 +24,9 @@ function render(flights:any[], phase='ready', fontScale=1) {
   let hookIndex=0; const memos:{deps:unknown[];value:unknown}[]=[];
   const useMemo=(fn:()=>unknown,deps:unknown[])=>{const i=hookIndex++;if(!memos[i]||deps.some((v,n)=>v!==memos[i]!.deps[n]))memos[i]={deps,value:fn()};return memos[i]!.value;};
   const states:any[]=[];let stateIndex=0;const useState=(initial:any)=>{const i=stateIndex++;if(!(i in states))states[i]=initial;return [states[i],(value:any)=>{states[i]=value;}];};
+  const target={hours:25,busy:false};let inlineBack=()=>false;
   const modules:Record<string,unknown>={react:{default:react,useMemo,useState},'react-native':{...leaves(['ActivityIndicator','ImageBackground','Pressable','ScrollView','Text','View']),StyleSheet:{create:(x:unknown)=>x}},
-    './season-work-hours':workHours, './cockpit-season':cockpit,'./DutyTarget':{useDutyTarget:()=>({hours:25}),DutyTargetEditor:'DutyTargetEditor'},
+    './season-work-hours':workHours, './cockpit-season':cockpit,'./DutyTarget':{useDutyTarget:()=>target,DutyTargetEditor:'DutyTargetEditor'},
     './theme':{...leaves(['Action','Card','GliderMark','IconLabel','Label','Photo','Section']),colors:{},ui:{}},'./SymbolIcon':leaves(['SymbolIcon']),
     './FlightScene':leaves(['FlightScene']),'./SeasonMonthlyCharts':leaves(['SeasonMonthlyCharts']), './season-dashboard-model':{...dashboardModel,monthlySeasonForCoverage:(...args:Parameters<typeof dashboardModel.monthlySeasonForCoverage>)=>{monthlyCalculations++;return dashboardModel.monthlySeasonForCoverage(...args);}}, './SeasonRing':leaves(['SeasonRing']),'./season-model':season,'./real-flight-statistics':{...statistics,summarizeRealFlights:(...args:Parameters<typeof statistics.summarizeRealFlights>)=>{calculations++;return statistics.summarizeRealFlights(...args);}},
     './processed-result':processedResults,'./data-freshness':{dataFreshness},'../vereinsflieger/retrieval-policy':{planFlightRetrieval}};
@@ -33,10 +34,10 @@ function render(flights:any[], phase='ready', fontScale=1) {
     if(name.startsWith('../../assets/'))return name;assert.ok(name in modules,name);return modules[name];}});
   const calls:(number|undefined)[]=[];const opened:string[]=[];const statisticsCalls:number[]=[];
   const props:any={ownFlights:{flights,snapshot:{account:{accountRef:'101'},savedRetrievals:[]}},ownFlightPhase:phase,pending:null,width:390,fontScale,now:Date.parse('2026-10-22T12:00:00Z'),
-    onFlight:(id:string)=>opened.push(id),onFlights:(year?:number)=>calls.push(year),onStatistics:(year:number)=>statisticsCalls.push(year)};
+    onBackHandler:(handler:()=>boolean)=>{inlineBack=handler;},onFlight:(id:string)=>opened.push(id),onFlights:(year?:number)=>calls.push(year),onStatistics:(year:number)=>statisticsCalls.push(year)};
   const tree=exports.Dashboard(props);
   const nodes:Element[]=[];function visit(n:any){if(n?.type?.name==='StatisticsEntry'){visit(n.type(n.props));return;}if(n?.children){nodes.push(n);n.children.forEach(visit);}}visit(tree);
-  return {nodes,calls,opened,statisticsCalls,text:JSON.stringify(tree), calculations:()=>calculations, monthlyCalculations:()=>monthlyCalculations, rerender(nextFlights=flights){hookIndex=0;stateIndex=0;if(nextFlights!==props.ownFlights.flights)props.ownFlights={...props.ownFlights,flights:nextFlights};return exports.Dashboard(props);}, changeView(next:any){hookIndex=0;stateIndex=0;props.ownFlights=next;return exports.Dashboard(props);}, view:()=>props.ownFlights};
+  return {nodes,calls,opened,statisticsCalls,target,inlineBack:()=>inlineBack(),text:JSON.stringify(tree), calculations:()=>calculations, monthlyCalculations:()=>monthlyCalculations, rerender(nextFlights=flights){hookIndex=0;stateIndex=0;if(nextFlights!==props.ownFlights.flights)props.ownFlights={...props.ownFlights,flights:nextFlights};return exports.Dashboard(props);}, changeView(next:any){hookIndex=0;stateIndex=0;props.ownFlights=next;return exports.Dashboard(props);}, view:()=>props.ownFlights};
 }
 
 test('Start routes saved analytics to the overlay and keeps it available before and after flights load',()=>{
@@ -151,4 +152,20 @@ test('shared starts and time ring renderer fades only the prior year while prese
    assert.ok(unknownRing.children.slice(0,2).every((layer:Element)=>layer.children.length===1),'Unknown values retain unfilled tracks');
    assert.match(unknown.props.accessibilityLabel,/unbekannt/);
  }
+});
+
+
+test('inline season and target editors consume Back and a pending target save cannot be dismissed',()=>{
+ const f=render(ownFlightFixture().flights);
+ const nodes=(value:any):any[]=>value?.children?[value,...value.children.flatMap(nodes)]:[];
+ assert.equal(f.inlineBack(),false);
+ f.nodes.find(n=>n.props.accessibilityLabel==='Saison 2026 auswählen')!.props.onPress();f.rerender();
+ assert.equal(f.inlineBack(),true);let tree=f.rerender();
+ assert.ok(!nodes(tree).some(n=>n.props.accessibilityLabel==='Vorherige Saison'));
+ f.nodes.find(n=>String(n.props.accessibilityLabel).includes('Soll anpassen'))!.props.onPress();tree=f.rerender();
+ assert.ok(nodes(tree).some(n=>n.type==='DutyTargetEditor'));
+ f.target.busy=true;f.rerender();assert.equal(f.inlineBack(),true);
+ tree=f.rerender();assert.ok(nodes(tree).some(n=>n.type==='DutyTargetEditor'));
+ f.target.busy=false;f.rerender();assert.equal(f.inlineBack(),true);
+ tree=f.rerender();assert.ok(!nodes(tree).some(n=>n.type==='DutyTargetEditor'));assert.equal(f.inlineBack(),false);
 });
