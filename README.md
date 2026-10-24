@@ -190,6 +190,8 @@ AI may suggest handwriting transcriptions, matches and explanations. Determinist
 
 On 24 October, Manuel selected the [first AI-chat requirements](docs/architecture/logbook-chat-discovery.md#first-version-product-decisions--24-october-2026): saved-flight/statistics questions and aviation-term explanations, supporting-record navigation, separate local chats with backup, manual sending after offline drafts, OpenRouter and a EUR 1/calendar-month personal planning ceiling. Keep at most 50 chats; creating another automatically removes the least recently active. The first evaluation candidate is GPT-6 Luna with explicit Max reasoning and zero-retention inference. Photos and web lookup are outside the first version. Runtime remains deferred M5; exact upstream/gateway, privacy/service/cost controls and quality evaluation are still open. The ceiling does not authorize spending.
 
+Initial personal access uses Manuel's OpenRouter account. A [benchmark against Mistral Small and two strong low-cost Chinese model candidates](docs/architecture/logbook-chat-discovery.md#requested-four-model-benchmark--24-october-2026) is requested; exact Chinese model IDs and evaluation funding remain open. No benchmark has run.
+
 Read [ADR 0002: approved lab stack](docs/adr/0002-phase1-technology-proposal.md), [ADR 0007: proposed book/format architecture](docs/adr/0007-multiple-logbooks-and-formats.md), [ADR 0008: evidence/AI boundary](docs/adr/0008-logbook-ai-and-deterministic-boundary.md), [import contract](docs/architecture/vereinsflieger-import-contract.md) and [state/query semantics](docs/product/flight-logbook-state-and-queries.md).
 
 ## Proposed repository layout
