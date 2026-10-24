@@ -215,3 +215,46 @@ test('foreign-owner archive is rejected before the aggregate journal or any stor
     assert.deepEqual(state.events, []);
   } finally { await rm(directory, { recursive: true, force: true }); }
 });
+
+for (const phase of ['real-flight', 'information', 'pilot'] as const) {
+  test(`a restarted aggregate restore resumes after durable ${phase} progress without regressing its journal`, async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'moflight-user-backup-progress-'));
+    try {
+      const text = await archive(), ports = makePorts(directory, text);
+      const open = ports.openJournal;
+      let interrupted = false;
+      ports.openJournal = async create => {
+        const journal = await open(create);
+        if (!journal) return null;
+        const advance = journal.advance.bind(journal);
+        journal.advance = async (...args) => {
+          const result = await advance(...args);
+          if (args[1] === phase && !interrupted) {
+            interrupted = true;
+            throw new Error('Synthetic lost acknowledgement after durable restore phase');
+          }
+          return result;
+        };
+        return journal;
+      };
+      assert.deepEqual(await restoreUserBackup(ownerId, storeId, async () => {}, ports),
+        { state: 'recovery-required', operationId: uuid(1), phase });
+      await assert.rejects(assertUserBackupReadAllowed(() => ports.openJournal(false)), /incomplete/);
+
+      if (phase !== 'real-flight') {
+        const guarded = await open(false);
+        assert.ok(guarded);
+        try { await assert.rejects(guarded.advance(uuid(1), 'real-flight', at), /cannot move backwards/); }
+        finally { await guarded.close(); }
+      }
+
+      // Recreate ports too: no in-memory completion flags survive this restart.
+      const restarted = makePorts(directory, text);
+      assert.deepEqual(await restoreUserBackup(ownerId, storeId, async () => {}, restarted, uuid(1)),
+        { state: 'restored', operationId: uuid(1) });
+      await assertUserBackupReadAllowed(() => restarted.openJournal(false));
+      assert.deepEqual(await restoreUserBackup(ownerId, storeId, async () => {}, restarted, uuid(1)),
+        { state: 'already-restored', operationId: uuid(1) });
+    } finally { await rm(directory, { recursive: true, force: true }); }
+  });
+}

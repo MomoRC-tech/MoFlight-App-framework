@@ -25,7 +25,8 @@ PRAGMA user_version=1;`;
 
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const sha = /^[0-9a-f]{64}$/;
-const phases = ['prepared', 'real-flight', 'information', 'pilot', 'complete'] as const;
+export const USER_BACKUP_RESTORE_PHASES = ['prepared', 'real-flight', 'information', 'pilot', 'complete'] as const;
+const phases = USER_BACKUP_RESTORE_PHASES;
 type Phase = typeof phases[number];
 const time = (value: string) => /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z$/.test(value) &&
   Number.isFinite(Date.parse(value)) && new Date(value).toISOString() === value;

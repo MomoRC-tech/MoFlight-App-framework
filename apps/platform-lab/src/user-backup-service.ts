@@ -2,7 +2,7 @@ import { canonical } from '@moflight/flight-logbook';
 import type { Hash } from '../../../packages/local-data/src/index';
 import type { RealFlightBackupIo } from './vereinsflieger/real-flight-backup-native';
 import { USER_BACKUP_LIMIT, validateUserBackup } from './user-backup';
-import { UserBackupRestoreJournal, type PrepareUserBackupRestore, type UserBackupRestoreOperation } from './user-backup-restore-journal';
+import { USER_BACKUP_RESTORE_PHASES, UserBackupRestoreJournal, type PrepareUserBackupRestore, type UserBackupRestoreOperation } from './user-backup-restore-journal';
 import type { ProviderScope } from './vereinsflieger/scope-store';
 
 export type UserBackupGate = () => Promise<void>;
@@ -160,6 +160,13 @@ export async function restoreUserBackup(ownerId: string, storeId: string, gate: 
 async function recordPhase(ports: UserBackupServicePorts, operationId: string, phase: UserBackupRestoreOperation['phase']) {
   const journal = await ports.openJournal(false);
   if (!journal) throw new Error('Aggregate user restore journal disappeared.');
-  try { await journal.advance(operationId, phase, ports.now()); }
+  try {
+    const current = await journal.get(operationId);
+    if (!current) throw new Error('Aggregate user restore progress disappeared.');
+    // A restarted restore revalidates each store idempotently. Its durable
+    // progress may already be later than that repeated store acknowledgement.
+    if (USER_BACKUP_RESTORE_PHASES.indexOf(current.phase) > USER_BACKUP_RESTORE_PHASES.indexOf(phase)) return;
+    await journal.advance(operationId, phase, ports.now());
+  }
   finally { await journal.close(); }
 }
