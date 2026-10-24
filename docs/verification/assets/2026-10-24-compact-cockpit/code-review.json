@@ -1,0 +1,58 @@
+{
+  "date": "2026-10-24",
+  "reviewedSource": "c643d9da076d588675eecbc690a94c619e9528a0",
+  "kind": "synthetic host review; bugs remain unfixed",
+  "focusedTests": {
+    "passed": 69,
+    "failed": 0
+  },
+  "probes": [
+    {
+      "issue": 62,
+      "input": "ownFlightFixture().flights[2], complete 2026 coverage through 2026-10-24",
+      "observed": {
+        "starts": "0",
+        "time": "0:00",
+        "unknownDateCount": 1
+      }
+    },
+    {
+      "issue": 63,
+      "input": "same-day IDs a (09:00) and z (blank start)",
+      "observed": {
+        "selectedFlightId": "a",
+        "orderingWarning": false
+      }
+    },
+    {
+      "issue": 64,
+      "input": "save 30 in 2026, pause readback, switch to 2025, finish readback",
+      "observed": {
+        "reportedSuccess": true,
+        "incomingHours": 25,
+        "oldKeyFiles": 1
+      }
+    }
+  ],
+  "sourceOnlyFinding": {
+    "issue": 65,
+    "observation": "CockpitPreview uses production duty-target persistence despite no-storage entry notice",
+    "reusedNativeEvidence": "4974ae7 synthetic target save/restart from the original package"
+  },
+  "limits": [
+    "No runtime source change or new APK",
+    "No new native/provider/physical/iOS/spoken trial",
+    "Controlled hook/file and component stubs do not establish native behavior"
+  ],
+  "documentationChecks": {
+    "handbookTestsPassed": 10,
+    "symbolLibraryTestsPassed": 6,
+    "markdownFiles": 7,
+    "localLinksAndAnchors": 477,
+    "generatorsFresh": [
+      "design_handbook.py",
+      "symbol_library.py"
+    ],
+    "whitespace": "pass"
+  }
+}

@@ -13,12 +13,12 @@ This is the current starting point for MoFlight's visual design. Use it when enh
 | Chapter | Responsibility |
 | --- | --- |
 | [Compact Cockpit](compact-cockpit.md) | Current approved visual implementation and preserved feature/data inventory. |
-| [Alternative branch contract](alternative-ui.md) | Selected main design and scoped acceptance boundary. |
+| [Alternative implementation foundation](alternative-ui.md) | Earlier selected main and retained feature/sync contracts; Compact Cockpit overrides conflicting appearance. |
 | [Foundations](foundations.md) | Color roles/pairings, typography, spacing, geometry, effects, photography and branding. |
 | [Components and shapes](components.md) | Cards, controls, headers, navigation, sheets, badges and charts, with relevant states and source locations. |
 | [Layout and presentation patterns](patterns.md) | Composition, responsive widths, navigation, keyboard, accessibility and honest data presentation. |
 | [Symbols and icons](../symbol-reference.html) | Current 49-entry catalogue: appearance, meaning, action, states and editable asset paths. |
-| [Default symbol family: Modern Duotone](symbols/index.html) | The 30 current glyphs, compact specimens and current ID mapping. M2 Medical card + supplied paper plane are the defaults. Superseded icon designs and comparison pages have been removed. [Source notes](symbols/README.md); app integration and native evidence are recorded separately. |
+| [Current outlined symbol family](symbols/index.html) | Thirty glyphs using the existing IDs, palettes and legacy `duotone` asset paths. [Source notes](symbols/README.md) distinguish the current masters from historical selections and specimens. |
 | [Implementation inventory](implementation-inventory.md) | Generated complete literal-color map, gradients, typography/geometry declarations and source fingerprints, including retained lab/adapter exceptions. |
 | [Decisions, history and known gaps](history.md) | Authority, overrides, superseded prototypes, unresolved differences and platform evidence. |
 | [Complete standalone HTML guide](design-guide.html) | All chapters, schematic component examples, approved reference and the same catalogue, with full text copy/download for another AI chat. Download/open the HTML to use its controls. |
@@ -31,6 +31,8 @@ The current app uses the approved dark Compact Cockpit: a compact branded toolba
 Keep German labels beside important navigation/status symbols. Show saved facts and explicit unknown/unavailable states. Decorative photographs and illustrative design examples do not establish weather, tracks, source freshness or copied paper entries.
 
 ## Authority and scope
+
+The **24 October [Compact Cockpit](compact-cockpit.md)** is the current appearance authority. The dated sequence below is provenance; it does not reinstate superseded rings, header Medical controls, icon tiles or scenic toolbar geometry. Open implementation defects are in the [package review](../../verification/2026-10-24-compact-cockpit.md#code-review--24-october-2026).
 
 1. The [approved four-screen image](../design-sources/2026-10-16-four-screen/reference.png) controls baseline layout, cards, colors, buttons and spacing. Its sample data is illustrative; see its [source record](../design-sources/2026-10-16-four-screen/README.md).
 2. The [17 October shell corrections](../2026-10-17-native-shell-corrections.md) amend that baseline with Übersicht, Flüge, Flugbuch, Verein and AI; the compact fixed branded/profile header; and aircraft-share rings.
@@ -84,11 +86,15 @@ The overview uses one horizontal original-logo/wordmark/destination toolbar, Syn
 
 ## Data limits and notation
 
-Current/prior season derives from the selected year. Time is known reported h:min, with explicit unknown-duration notice; starts and known time use existing deterministic calculations. Missing values are —. Empty cached years become 0 / 0:00 only with saved retrieval coverage for the whole relevant season through today (past years through December 31). No complete-history claim follows from positive cached values.
+Current/prior season derives from the selected year. Time is known reported h:min, with explicit unknown-duration notice; starts and known time use existing deterministic calculations. Missing values are —. Confirmed empty years require saved retrieval coverage for the whole relevant season through today (past years through December 31) and no unresolved date ambiguity. The current implementation fails the latter case; [#62](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/62) tracks the false-zero defect. No complete-history claim follows from positive cached values.
 
 Completed duty hours require exactly one valid annual work-summary row for the selected year. Unknown remains —; no sum of a partial list. The captured Pflicht/Geleistet money amounts are EUR and cannot establish an hour requirement. The local provisional target starts at 25 h, always labelled **Soll vorläufig**; tap that metric to change it for this account/store/year. It is a UI preference, not a confirmed club policy, and is excluded from existing MoFlight manual backup archives. No new external integration, production schema or provider write is introduced.
 
 Club location has no verified field in the current projection: **Ort unbekannt** remains explicit; the reused thumbnail is decorative. Medical displays a recorded expiry/unknown reminder, never a fitness certificate. Real paper setup is not implemented: its tile accurately says **In Vorbereitung** instead of offering a nonfunctional setup. Already configured synthetic books remain accessible under Development; the preview exercises a configured tile without asserting real activation.
+
+The Development cockpit currently uses the same target-preference hook with a fictional account: explicitly saving its target persists a synthetic local setting across restart. This contradicts the Development entry's no-storage notice; [#65](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/65) remains open. Simulated states do not invoke provider retrieval or mutate real flight records.
+
+The [24 October code review](../../verification/2026-10-24-compact-cockpit.md#code-review--24-october-2026) also records open latest-flight ordering and obsolete target-save completion defects (#63/#64). These findings qualify implementation acceptance; they do not change the approved appearance.
 
 Implementation is recorded separately from native acceptance in [one package report](../../verification/2026-10-24-compact-cockpit.md). Android, physical-phone, iOS and spoken accessibility evidence must be distinguished.
 
@@ -1985,9 +1991,9 @@ SYMBOLS, ICONS AND STATE MARKS
 Compact Cockpit uses outlined symbols in the existing SVG/PNG pipeline and semantic IDs. Preserve current stable IDs, labels, meanings, actions, states and approved Thermik branding. Retired icon designs have been removed. Samples are schematic except unchanged source images.
 
 Main navigation
-Five persistent destinations. Selected icons use cyan/slate duotone; inactive ones use the muted duotone variant. Labels retain #00c8ff / #adbed5. The tab label and accessible selected state carry meaning too. Compact Cockpit retains labelled navigation. Supporting textual cues: ↗●. Current textual direction/status cues: ×.
+Five persistent destinations: Übersicht, Flüge, Flugbuch, Verein and AI. Selected outlined icons/labels use teal #27d3d2; inactive labels use #a9bed3. A raised selected tab surface and accessible selected state carry meaning too. Legacy duotone asset paths are retained. Retained textual cues include ↗, ●, ×, ↑, ↓, ↔ and Δ in their status/detail contexts.
 
-N01 · Current native UI · selected duotone
+N01 · Current native UI · outlined family
 Home / Übersicht
 Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
 Where: Bottom navigation, Übersicht.
@@ -1997,17 +2003,17 @@ States / limits: Selected / inactive. This is navigation, not an indicator that 
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
 duotone-assets.ts; symbols/glyphs.svg #home
 
-N02 · Current native UI · selected duotone
+N02 · Current native UI · outlined family
 Flights / Flüge
 Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
 Where: Bottom navigation, Flüge.
 Meaning: Saved searchable flight history for the selected book.
 Function / action: Tap switches to Flüge; existing year/search/training state is retained.
-States / limits: Selected / inactive using independent cyan/slate and muted duotone assets. Supplied folded paper plane selected on 18 October 2026, superseding side-view B.
+States / limits: Selected / inactive using independent teal and muted outlined assets. Supplied folded paper plane selected on 18 October 2026, superseding side-view B.
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
 duotone-assets.ts; symbols/glyphs.svg #flight-paper-plane
 
-N03 · Current native UI · selected duotone
+N03 · Current native UI · outlined family
 Logbook / Flugbuch
 Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
 Where: Bottom navigation, Flugbuch.
@@ -2017,7 +2023,7 @@ States / limits: Selected / inactive. Distinguish the destination from the orang
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
 duotone-assets.ts; symbols/glyphs.svg #book
 
-N04 · Current native UI · selected duotone
+N04 · Current native UI · outlined family
 Club / Verein
 Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
 Where: Bottom navigation, Verein; decorative compact ClubHeading and Weitere Vereinsdienste subgroup.
@@ -2027,7 +2033,7 @@ States / limits: Selected/inactive tab. Saved partial club sources and explicit 
 Source: apps/platform-lab/src/mobile/ClubHeading.tsx
 ClubHeading; ClubSubheading; MobileApp navigation; duotone-assets.ts #club
 
-N05 · Current native UI · selected duotone
+N05 · Current native UI · outlined family
 AI assistant / AI
 Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
 Where: Bottom navigation; AI welcome card.
@@ -2038,7 +2044,7 @@ Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
 duotone-assets.ts; symbols/glyphs.svg #sparkle
 
 Header and provider-session states
-The ordinary app header order is data update → Med → Profile. App overlays keep one active accessible header. The provider panel retains separate account/session indicators and Close/provider-history Back controls.
+The ordinary Compact Cockpit toolbar places Sync immediately before Profile, with the original logo and destination on the left. Medical is an overview tile. App overlays keep one active accessible header. Provider-panel account/session indicators and Close/provider-history Back remain separate.
 
 H01 · Current native UI
 MoFlight Thermik brand
@@ -2050,7 +2056,7 @@ States / limits: Approved existing artwork. Preserve it in this symbol-redesign 
 Source: apps/platform-lab/src/mobile/AppHeader.tsx
 brandLogo; header Image
 
-H02 · Current native UI · selected duotone
+H02 · Current native UI · outlined family
 App Back
 Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
 Where: Leading side of app-sheet and flight-detail headers.
@@ -2060,27 +2066,27 @@ States / limits: Shown on app overlays; disabled during active backup/proof work
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
 duotone-assets.ts; symbols/glyphs.svg #back
 
-H03 · Current native UI · selected duotone
+H03 · Current native UI · outlined family
 Provider connection
 Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
-Where: Provider panel/toolbar only; the ordinary header uses S01 permanent Daten and independent session mark.
+Where: Provider panel/toolbar only; the ordinary header uses S01 Sync and independent session mark.
 Meaning: Evidence about the Vereinsflieger session and provisional account association.
 Function / action: Informational provider-panel session control; during visible login, tapping it dismisses the login page back to the panel. New ordinary update/login begins only through header Daten.
 States / limits: See S01–S05. Saved-flight freshness, MoFlight identity and provider-session status are separate.
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
 duotone-assets.ts; symbols/glyphs.svg #chain
 
-H04 · Current native UI · selected duotone
-Medical / Med
-Appearance: Selected M2 Medical card: rounded credential card, cyan top band, red medical cross and slate document fields. Med with earliest strictly parsed recorded expiry, or unbekannt; partial source warnings remain visible.
-Where: App header beside Data below the title, alongside the logo; Profile is at the upper right.
+H04 · Current native UI · outlined family
+Medical overview tile
+Appearance: Current outlined medical-card glyph, with recorded expiry or explicit unknown status. Partial source issues remain available in read-only details.
+Where: Compact overview tile beside Papierflugbuch; stacked at enlarged text.
 Meaning: Availability of saved own Medical source text; never a validity or fitness verdict.
 Function / action: Tap opens read-only original class/expiry text with source and retrieval time, or an unknown-state explanation.
-States / limits: Source-date reminder: earliest recorded expiry including expired; red for past, amber through six calendar months inclusive, quiet later. Missing/ambiguous/partial source explicit; raw text retained. No fitness or legal eligibility judgment. Selected state follows the open sheet.
+States / limits: Source-date reminder: earliest recorded expiry including expired; red for past, amber through six calendar months inclusive, quiet later. Missing/ambiguous/partial source explicit; raw text retained. No fitness or legal eligibility judgment. No fitness verdict follows from icon color.
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
 duotone-assets.ts; symbols/glyphs.svg #medical-card
 
-H05 · Current native UI · selected duotone
+H05 · Current native UI · outlined family
 Profile and settings
 Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
 Where: Far-right app-header action.
@@ -2090,17 +2096,17 @@ States / limits: No avatar, provider identity or authenticated MoFlight-account 
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
 duotone-assets.ts; symbols/glyphs.svg #profile
 
-S01 · Current native UI · selected duotone
-Synchronize data / Daten
-Appearance: Unchanged Modern Duotone refresh 24 dp symbol, permanent Daten and saved-flight age: gerade, vor N Min./Std./Tg., or Noch nie. Independent small green ✓, amber → or muted ?/!. Minimum40 face/radius 12 within minimum 48 dp target.
+S01 · Current native UI · outlined family
+Synchronize data / Sync
+Appearance: Outlined refresh at 24 dp, independent session mark and Sync/Lädt caption. The circular face is 44 dp wide and at least 38 dp high inside a target of at least 48 dp. A conditional status row below the toolbar exposes saved age/details; the accessible button label retains age and state.
 Where: Ordinary app header; separate from provider-panel session indicators.
 Meaning: One complete guarded synchronization action. Saved successful flight receipt age, recent session proof and synchronization recommendation have independent cues; none establishes complete source coverage.
 Function / action: The header is the only entry to provider update/login. Tap opens the whole update journey in a retained centered popup frame; original login appears only if needed. Other pages provide passive guidance. Contextual return is preserved.
-States / limits: Green ✓ requires matching confirmed proof younger than 90 seconds. During checking only identical previous owner/store scope, account, club and last-check timestamp may retain display within 90 seconds; canonical authentication stays unchanged. → means login required; ? unknown/checking without retained proof; ! mismatch/error. Saved age stays neutral through login/error except a steady amber border/surface and age ! strictly after 72 hours, regardless of session; exactly 72 hours stays quiet. Login/checks/failure/cancellation never renew receipt age. No optional new-data probe.
+States / limits: Green ✓ requires matching confirmed proof younger than 90 seconds. During checking only identical previous owner/store scope, account, club and last-check timestamp may retain display within 90 seconds; canonical authentication stays unchanged. → means login required; ? unknown/checking without retained proof; ! mismatch/error. Saved age stays neutral through login/error except a steady amber border/surface and age ! strictly after 72 hours, regardless of session; exactly 72 hours stays quiet. Login/checks/failure/cancellation never renew receipt age. Scoped changed-count activity advice may independently recommend sync. It is foreground-only, hourly at most, and cannot advance saved receipt age.
 Source: apps/platform-lab/src/mobile/DataUpdateIndicator.tsx
 DataUpdateIndicator; dataUpdateStatus; dataFreshness; createSessionPresentation; glyphs.svg #refresh
 
-S02 · Current native UI · selected duotone
+S02 · Current native UI · outlined family
 Last confirmed session check
 Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
 Where: Provider connection panel. Its original chain/spinner presentation remains separate from S01 header session marks and saved-flight age.
@@ -2110,7 +2116,7 @@ States / limits: Requires observed + confirmed + observed identity + lastChecked
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
 duotone-assets.ts; symbols/glyphs.svg #chain
 
-S03 · Current native UI · selected duotone
+S03 · Current native UI · outlined family
 Provider login required
 Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
 Where: Provider connection panel. Its original chain/spinner presentation remains separate from S01 header session marks and saved-flight age.
@@ -2120,7 +2126,7 @@ States / limits: Login-required state. Keep distinct from the same arrow used fo
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
 duotone-assets.ts; symbols/glyphs.svg #chain
 
-S04 · Current native UI · selected duotone
+S04 · Current native UI · outlined family
 Connection attention / blocked
 Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
 Where: Provider connection panel. Its original chain/spinner presentation remains separate from S01 header session marks and saved-flight age.
@@ -2143,37 +2149,37 @@ ConnectionIndicator.pending/operation; MobileApp; ProfileSettings
 Dashboard, flight information and club headings
 Samples reproduce text glyphs and existing image assets. Native View-based marks and chart examples are schematic browser redraws, not screenshots. Chart values below are synthetic examples.
 
-D01 · Current native UI · selected duotone
+D01 · Current native UI · outlined family
 Paper logbook work
 Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
-Where: Papierstand ansehen hero; Als Nächstes paper-status item.
+Where: Retained synthetic PaperStatus tools under Development; the current overview paper tile uses the book glyph and opens the deferred-paper explanation.
 Meaning: Read-only saved paper evidence/status for the selected synthetic logbook.
 Function / action: Opens PaperStatus; no fixture creation, writing preparation or copied-entry confirmation. The complete paper journey remains M5.
 States / limits: Smaller/larger instances share the same meaning. Pending count may be unknown or zero; the glyph alone is not proof that an entry has been copied.
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
 duotone-assets.ts; symbols/glyphs.svg #logbook
 
-D02 · Current native UI · selected duotone
+D02 · Historical dashboard shortcut; retained glyph in current AI UI
 AI suggestion
 Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
-Where: Dashboard MoFlight AI card.
+Where: Earlier dashboard card; current AI tab/navigation uses the same semantic family.
 Meaning: Shortcut to a sample flight-history question.
 Function / action: Tap the card to open AI and prefill the most-frequently-flown-aircraft question; it does not automatically send it.
 States / limits: Same semantic family as N05, with a different current glyph. External AI service remains unconnected.
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
 duotone-assets.ts; symbols/glyphs.svg #sparkle
 
-D03 · Current native UI · selected duotone
+D03 · Retained illustrative flight artwork
 Glider / no flight track
 Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
-Where: Latest-flight dashboard tile; flight-list thumbnail beside Kein Track.
+Where: Flight thumbnail specimens; current cockpit latest-flight row uses the logbook glyph instead.
 Meaning: Aviation marker and placeholder when no flight track is available.
 Function / action: No independent action. The latest-flight card or flight row opens flight details.
 States / limits: Not a GPS route, map, live aircraft position or additional flight category.
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
 duotone-assets.ts; symbols/glyphs.svg #glider
 
-D04 · Current native UI · selected duotone
+D04 · Current native UI · outlined family
 Time / duration
 Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
 Where: Flight rows/latest flight; club duty card before Zeit.
@@ -2183,20 +2189,20 @@ States / limits: May sit beside an unknown value (—). A clock does not mean th
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
 duotone-assets.ts; symbols/glyphs.svg #clock
 
-D05 · Current native UI · selected duotone
+D05 · Current native UI · outlined family
 Location / start field
 Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
-Where: Dashboard club tile and club duty card before Startplatz.
+Where: Retained departure/airfield category glyph; current compact club heading uses the club glyph and decorative thumbnail.
 Meaning: The start-field/location field of the club item.
 Function / action: Read-only field marker; card actions navigate separately.
 States / limits: Currently paired with an unknown value. No current GPS location or location permission is implied.
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
 duotone-assets.ts; symbols/glyphs.svg #location
 
-D06 · Current native UI · selected duotone
+D06 · Retained category artwork; no current overview weather card
 Weather
 Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
-Where: Dashboard Wetter & Platz card.
+Where: Historical Wetter & Platz card; absent from the current Compact Cockpit overview.
 Meaning: Weather information category.
 Function / action: Tap the card to view the status explanation.
 States / limits: Currently Kein Wetterbericht / no dated source. The cloud is a placeholder category icon, not a measured cloudy-weather report.
@@ -2205,35 +2211,35 @@ duotone-assets.ts; symbols/glyphs.svg #weather
 
 D07 · Current native UI
 Season flight count
-Appearance: Current-year value centered in concentric aircraft-share rings; prior-year label/value outside. Prior inner ring uses the same hues at50% opacity. ↑/↓/↔ indicate positive/negative/zero signed saved-count difference.
-Where: Dashboard Meine Saison, Starts comparison.
+Appearance: Large selected-year starts value in the middle metric column, with the previous selected year immediately below; no rings or numeric delta on the overview.
+Where: Compact Cockpit season card, Starts column.
 Meaning: Deduplicated saved selected-account flight count for the current season.
-Function / action: Read-only; Alle Flüge ansehen opens the general Flüge view.
-States / limits: Saved yearly counts may cover unequal/incomplete periods. Measures stack and rings grow at enlarged text; shared aircraft legend remains. No performance or complete-year claim. U2 removes the permanent Start coverage paragraph; a short Statistics-detail caveat and accessible ring descriptions retain the saved-period limitation.
+Function / action: Read-only value. Season title changes the year; Statistik opens detailed comparisons; Alle Flüge opens the full saved list.
+States / limits: Missing season value is —; confirmed zero requires coverage and no unresolved date ambiguity. Open #62 records the current false-zero gap. Prior year derives from selected year. Enlarged metrics scroll horizontally.
 Source: apps/platform-lab/src/mobile/Dashboard.tsx
-SeasonRing; seasonRingSlices; real-flight-statistics.summarizeRealFlights
+cockpit-season.cockpitSeasonValues; real-flight-statistics.summarizeRealFlights
 
 D08 · Current native UI
 Season known flight time
-Appearance: Current-year time centered in concentric aircraft-share rings; prior-year label/value outside. Prior inner ring uses the same hues at50% opacity. ↑/↓/↔ accompany exact signed hour/minute differences; Δ — means unavailable difference.
-Where: Dashboard Meine Saison, known-hours comparison.
+Appearance: Large reported h:min in the left metric column, with the prior selected-year value below; no rings or signed delta on the overview.
+Where: Compact Cockpit season card, Flugzeit column.
 Meaning: Known reported flight minutes for the saved selected-account season.
-Function / action: Read-only; Alle Flüge ansehen opens the general Flüge view.
-States / limits: Missing or partly unknown durations cannot become a numeric delta. Saved years may cover unequal/incomplete periods. Measures stack and rings grow at enlarged text; shared aircraft legend remains. U2 removes the permanent Start coverage paragraph; a short Statistics-detail caveat and accessible ring descriptions retain the saved-period limitation.
+Function / action: Read-only value; Statistik exposes detailed comparisons and aircraft breakdowns.
+States / limits: Unknown time is —; known zero remains 0:00. Partly unknown durations have a separate notice. Open #62 records the undated-flight zero gap. Saved periods need not be complete/comparable; enlarged metrics scroll horizontally.
 Source: apps/platform-lab/src/mobile/Dashboard.tsx
-SeasonRing; seasonRingSlices; real-flight-statistics.summarizeRealFlights
+cockpit-season.cockpitSeasonValues; real-flight-statistics.summarizeRealFlights
 
-D09 · Approved native UI · selected duotone
+D09 · Approved native UI · outlined family
 Meine Saison statistics
-Appearance: Selected cyan/slate chart silhouette from the editable local SVG family; default palette.
+Appearance: Teal Statistik text with the current outlined arrow rotated diagonally upward.
 Where: Upper-right of the Meine Saison heading; opens Flugstatistik.
 Meaning: Open saved-local statistics for the currently selected own-flight library.
-Function / action: Opens the framed Statistik overlay. Back returns through contributing-flight details and sections; at the overview it returns to Start.
+Function / action: Opens the framed statistics overlay in the selected season. Back returns through contributing-flight details and sections, then to Übersicht.
 States / limits: Read-only. Account/library changes invalidate prior statistics. The glyph is not a trend or completeness claim.
 Source: apps/platform-lab/src/mobile/Dashboard.tsx
-StatisticsEntry; duotone-assets.ts; symbols/glyphs.svg #chart
+Dashboard statistics action; symbols/glyphs.svg #arrow
 
-K01 · Current native UI · selected duotone
+K01 · Current native UI · outlined family
 Club duties and work hours
 Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
 Where: Expanded Dienstübersicht and raised-navy own, period, later and unplaced duty subgroup headings; Meine Saison work-hours metric.
@@ -2243,7 +2249,7 @@ States / limits: Partial captured duties retain provisional membership, unknown 
 Source: apps/platform-lab/src/mobile/DutyRoster.tsx
 DutyRoster; ClubSubheading; duotone-assets.ts #duty
 
-K02 · Current native UI · selected duotone
+K02 · Current native UI · outlined family
 Upcoming club appointments
 Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
 Where: Verein overview heading Kommende Termine.
@@ -2253,7 +2259,7 @@ States / limits: No calendar source is connected. This glyph is not the current 
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
 duotone-assets.ts; symbols/glyphs.svg #calendar-neutral
 
-K03 · Current native UI · selected duotone
+K03 · Current native UI · outlined family
 Club notices
 Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
 Where: Verein heading Aktuelle Mitteilungen.
@@ -2266,7 +2272,7 @@ duotone-assets.ts; symbols/glyphs.svg #messages
 Actions and navigation cues
 Several repeated characters have different meanings by context. Redesign each semantic role, while keeping related navigation controls visually consistent.
 
-A01 · Current native UI · selected duotone
+A01 · Current native UI · outlined family
 Search flights
 Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
 Where: Inside the Flüge search field.
@@ -2276,7 +2282,7 @@ States / limits: Search is scoped to the selected book. No provider lookup is tr
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
 duotone-assets.ts; symbols/glyphs.svg #search
 
-A02 · Current native UI · selected duotone
+A02 · Current native UI · outlined family
 Open flight filters
 Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
 Where: Button beside flight search.
@@ -2286,7 +2292,7 @@ States / limits: The current glyph has no active-filter dot/count. Do not invent
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
 duotone-assets.ts; symbols/glyphs.svg #filter
 
-A03 · Current native UI · selected duotone
+A03 · Current native UI · outlined family
 Choose logbook
 Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
 Where: Selected-book label in the flight header and synthetic-library banner.
@@ -2296,7 +2302,7 @@ States / limits: Current selection is shown by name and tick A10. Selection resp
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
 duotone-assets.ts; symbols/glyphs.svg #down
 
-A04 · Current native UI · selected duotone
+A04 · Current native UI · outlined family
 Reload local data
 Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
 Where: Synthetic-library banner next to Aktualisieren.
@@ -2306,7 +2312,7 @@ States / limits: Disabled while the library is busy. This control does not retri
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
 duotone-assets.ts; symbols/glyphs.svg #refresh
 
-A05 · Current native UI · selected duotone
+A05 · Current native UI · outlined family
 Unavailable classification information
 Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
 Where: Strecke and Platzrunden chips in Flüge.
@@ -2316,7 +2322,7 @@ States / limits: Informational, not a working route/circuit filter. It does not 
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
 duotone-assets.ts; symbols/glyphs.svg #info
 
-A06 · Current native UI · selected duotone
+A06 · Current native UI · outlined family
 Open row / supporting destination
 Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
 Where: Flight rows, AI example questions and supporting club/status links.
@@ -2326,7 +2332,7 @@ States / limits: No separate control inside the row. Preserve the surrounding ac
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
 duotone-assets.ts; symbols/glyphs.svg #right
 
-A07 · Current native UI · selected duotone
+A07 · Current native UI · outlined family
 Forward / continue action
 Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
 Where: Paper CTA, AI dashboard shortcut, duty Details anzeigen, saved-flights links.
@@ -2336,7 +2342,7 @@ States / limits: No automatic completion, upload or import is implied. Same char
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
 duotone-assets.ts; symbols/glyphs.svg #arrow
 
-A08 · Current native UI · selected duotone
+A08 · Current native UI · outlined family
 Departure to arrival
 Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
 Where: Latest-flight tile; flight rows.
@@ -2346,7 +2352,7 @@ States / limits: Either endpoint may be unknown. It does not represent a measure
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
 duotone-assets.ts; symbols/glyphs.svg #arrow
 
-A09 · Current native UI · selected duotone
+A09 · Current native UI · outlined family
 Send AI message
 Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
 Where: AI composer send button.
@@ -2356,7 +2362,7 @@ States / limits: Disabled for blank input or while sending; dimmed when blank. P
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
 duotone-assets.ts; symbols/glyphs.svg #send
 
-A10 · Current native UI · selected duotone
+A10 · Current native UI · outlined family
 Selected logbook
 Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
 Where: Flugbuch auswählen sheet.
@@ -2366,7 +2372,7 @@ States / limits: Selection marker, not provider-session confirmation, paper-entr
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
 duotone-assets.ts; symbols/glyphs.svg #check
 
-A11 · Current native UI · selected duotone
+A11 · Current native UI · outlined family
 Expand / collapse details
 Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
 Where: Verbindungen: Sitzungsdetails & weitere Optionen; Rohbelege & begrenzter Abruf. Statistics now opens from the Meine Saison chart action.
@@ -2376,7 +2382,7 @@ States / limits: No creation, addition, deletion or subtraction of user data. Co
 Source: apps/platform-lab/src/mobile/SymbolIcon.tsx
 duotone-assets.ts; symbols/glyphs.svg #plus
 
-A12 · Current native UI · selected duotone
+A12 · Current native UI · outlined family
 Back inside provider webpage
 Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
 Where: Original-provider login toolbar.

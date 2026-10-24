@@ -11,12 +11,12 @@ This is the current starting point for MoFlight's visual design. Use it when enh
 | Chapter | Responsibility |
 | --- | --- |
 | [Compact Cockpit](compact-cockpit.md) | Current approved visual implementation and preserved feature/data inventory. |
-| [Alternative branch contract](alternative-ui.md) | Selected main design and scoped acceptance boundary. |
+| [Alternative implementation foundation](alternative-ui.md) | Earlier selected main and retained feature/sync contracts; Compact Cockpit overrides conflicting appearance. |
 | [Foundations](foundations.md) | Color roles/pairings, typography, spacing, geometry, effects, photography and branding. |
 | [Components and shapes](components.md) | Cards, controls, headers, navigation, sheets, badges and charts, with relevant states and source locations. |
 | [Layout and presentation patterns](patterns.md) | Composition, responsive widths, navigation, keyboard, accessibility and honest data presentation. |
 | [Symbols and icons](../symbol-reference.html) | Current 49-entry catalogue: appearance, meaning, action, states and editable asset paths. |
-| [Default symbol family: Modern Duotone](symbols/index.html) | The 30 current glyphs, compact specimens and current ID mapping. M2 Medical card + supplied paper plane are the defaults. Superseded icon designs and comparison pages have been removed. [Source notes](symbols/README.md); app integration and native evidence are recorded separately. |
+| [Current outlined symbol family](symbols/index.html) | Thirty glyphs using the existing IDs, palettes and legacy `duotone` asset paths. [Source notes](symbols/README.md) distinguish the current masters from historical selections and specimens. |
 | [Implementation inventory](implementation-inventory.md) | Generated complete literal-color map, gradients, typography/geometry declarations and source fingerprints, including retained lab/adapter exceptions. |
 | [Decisions, history and known gaps](history.md) | Authority, overrides, superseded prototypes, unresolved differences and platform evidence. |
 | [Complete standalone HTML guide](design-guide.html) | All chapters, schematic component examples, approved reference and the same catalogue, with full text copy/download for another AI chat. Download/open the HTML to use its controls. |
@@ -29,6 +29,8 @@ The current app uses the approved dark Compact Cockpit: a compact branded toolba
 Keep German labels beside important navigation/status symbols. Show saved facts and explicit unknown/unavailable states. Decorative photographs and illustrative design examples do not establish weather, tracks, source freshness or copied paper entries.
 
 ## Authority and scope
+
+The **24 October [Compact Cockpit](compact-cockpit.md)** is the current appearance authority. The dated sequence below is provenance; it does not reinstate superseded rings, header Medical controls, icon tiles or scenic toolbar geometry. Open implementation defects are in the [package review](../../verification/2026-10-24-compact-cockpit.md#code-review--24-october-2026).
 
 1. The [approved four-screen image](../design-sources/2026-10-16-four-screen/reference.png) controls baseline layout, cards, colors, buttons and spacing. Its sample data is illustrative; see its [source record](../design-sources/2026-10-16-four-screen/README.md).
 2. The [17 October shell corrections](../2026-10-17-native-shell-corrections.md) amend that baseline with Übersicht, Flüge, Flugbuch, Verein and AI; the compact fixed branded/profile header; and aircraft-share rings.

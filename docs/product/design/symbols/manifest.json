@@ -70,7 +70,7 @@
     },
     "H04": {
       "glyph": "medical-card",
-      "title": "Medical / Med",
+      "title": "Medical overview tile",
       "status": "selected"
     },
     "H05": {
@@ -80,7 +80,7 @@
     },
     "S01": {
       "glyph": "chain",
-      "title": "Synchronize data / Daten",
+      "title": "Synchronize data / Sync",
       "status": "selected"
     },
     "S02": {

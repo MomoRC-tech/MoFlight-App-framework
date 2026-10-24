@@ -1,20 +1,20 @@
-# MoFlight symbols — Modern Duotone & Soft-Filled Glyphs
+# MoFlight symbols — Compact Cockpit outlined family
 
 > The [24 October Compact Cockpit](../compact-cockpit.md) supersedes the earlier duotone appearance with one outlined family using these same semantic IDs, SVG masters, palettes and native PNG pipeline. The original logo and historical source images are preserved. Earlier selection notes below are provenance.
 
 [Open the symbol library](index.html) · [Editable masters](glyphs.svg) · [Asset/ID manifest](manifest.json) · [Design handbook](../README.md)
 
-This is MoFlight's **default symbol family**, approved by Manuel on 18 October 2026: cyan/slate duotone silhouettes, rounded terminals and soft translucent tiles. **M2 Medical card** and the **supplied folded paper plane** are the Medical and Flüge symbols. The app uses this family throughout navigation, headers, dashboard, club and actions. [Default/removal authorization](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/20#issuecomment-6250110588).
+The **18 October selection** established the earlier family: cyan/slate duotone silhouettes, rounded terminals and soft translucent tiles. **M2 Medical card** and the **supplied folded paper plane** are the Medical and Flüge symbols. The current app uses the outlined replacements throughout navigation, headers, dashboard, club and actions; legacy `duotone` asset paths and semantic IDs remain for compatibility. [Default/removal authorization](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/20#issuecomment-6250110588).
 
-Previous aircraft assets, unselected proposals and comparison pages have been removed. The active catalogue contains 49 current entries; retired IDs X01–X03 and B04 are not reused. Approved Thermik branding, text/status notation and native busy indicators retain their identity. D07/D08 describe concentric current/prior-year aircraft-share rings under the 23 October refinement. D09 opens the saved-local statistics overlay; T07 records the mathematical minus sign separately from unknown-value notation. The Medical cross is red; its decorative colour does not establish source status.
+Previous aircraft assets, unselected proposals and comparison pages have been removed. The active catalogue contains 49 current entries; retired IDs X01–X03 and B04 are not reused. Approved Thermik branding, text/status notation and native busy indicators retain their identity. D07/D08 now document the current three-column season values; earlier ring specimens remain historical where retained in the handbook. D09 opens the saved-local statistics overlay; T07 records the mathematical minus sign separately from unknown-value notation. Decorative glyph colour does not establish source status.
 
 ## Family and use
 
 - 30 authored SVG masters on a 96-unit optical grid, each with a standalone transparent SVG in `assets/`.
 - 35 artwork mappings and 14 preserved branding/data/text entries in [symbols.json](../symbols.json). IDs retain their meanings, actions and state contracts.
 - Base cyan: `#32f1ef` → `#00d9e8` → `#00b9df`; slate: `#8caac1` → `#7094b1` → `#46688b`. Native assets have explicit default, muted, paper, assistant and dark contrast palettes; runtime tint does not flatten their duotone structure. The complete handbook embeds actual native PNGs; standalone SVG downloads use the base palette.
-- Compact tile specimens pair 40/48/56 px tiles with 12/14/16 px corners. Artwork sizes are context-specific; artwork bounds never define effective touch targets. Native navigation uses 28-unit artwork in 36-unit tiles with radius 12; header controls retain 48-unit targets.
-- Medical shows **Med** with the earliest recorded expiry or **unbekannt**. Connection badges retain ?, ✓, → and ! with explicit wording. Category art establishes no date, forecast, track, qualification or verified session. Neutral calendar cells avoid a fictional date.
+- Compact tile specimens pair 40/48/56 px tiles with 12/14/16 px corners. Artwork sizes are context-specific; artwork bounds never define effective touch targets. Current native navigation uses 28-unit artwork without a separate icon tile, inside the selected tab surface; header controls retain 48-unit targets. The tile specimens describe earlier variants.
+- Current Medical is an overview tile showing recorded expiry or explicit unknown status and opening read-only details; the earlier header **Med** control is superseded. Connection badges retain ?, ✓, → and ! with explicit wording. Category art establishes no date, forecast, track, qualification or verified session. Neutral calendar cells avoid a fictional date.
 
 ## Original references
 
