@@ -1,0 +1,60 @@
+{
+  "source": "22e64e3607a2d825301364eed9ff80e48cf575b2",
+  "status": "passed",
+  "fixture": "fictional Development Cockpit preview; no provider calls or user-record writes",
+  "checks": [
+    {
+      "name": "duty-overview-390",
+      "status": "passed",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 390x900",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1"
+      }
+    },
+    {
+      "name": "duty-expanded-390",
+      "status": "passed",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 390x900",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1"
+      }
+    },
+    {
+      "name": "duty-overview-360-font1.6",
+      "status": "passed",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 360x900",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1.6"
+      }
+    },
+    {
+      "name": "duty-expanded-360-font1.6",
+      "status": "passed",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 360x900",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1.6"
+      }
+    }
+  ],
+  "display_font_motion_restored": true,
+  "owned_read_only_synthetic_emulator_stopped": true,
+  "limits": [
+    "No physical phone or iOS runtime trial",
+    "No new live-provider or spoken accessibility trial",
+    "Unknown/range/name edge cases use deterministic host tests"
+  ],
+  "screenshots": [
+    {
+      "file": "duty-overview.png",
+      "sha256": "0997502c1c3a9b52f12e737cd6e36abf45fe7484366b761fa020056be9dbb4d5"
+    },
+    {
+      "file": "duty-expanded-large-text.png",
+      "sha256": "c8c7a9607fe19fbdb60ea2b6275eee9241607b680c4176628c45df9c94566ceb"
+    }
+  ]
+}
