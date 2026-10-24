@@ -1,0 +1,153 @@
+{
+  "source_commit": "8eb300f39946d86999e31c640c810aa04b4880c5",
+  "apk_sha256": "a94c2ce2e45a3d4c16a186c5b38fc431d6d6f3b69dfaf13473eb6cda95fd6052",
+  "zip_sha256": "0e32a9fdf8adc628311ef48c9d48b26335ca39afa64ef15e7a7a3077a3958617",
+  "date": "2026-10-24",
+  "host": {
+    "mobileSQLiteTestsPassed": 1024,
+    "typecheck": "pass",
+    "lint": "pass",
+    "fixtures": "pass",
+    "pythonCheckpoint": {
+      "cases": 114,
+      "passed": 111,
+      "handbookErrors": 3,
+      "resolution": "obsolete removed colors corrected; all 10 focused handbook cases then pass"
+    },
+    "finalFocusedMobileTests": 108,
+    "generatorFreshness": "both pass"
+  },
+  "syntheticAndroid": {
+    "checks": [
+      {
+        "name": "phone-main-header",
+        "status": "passed",
+        "viewport": {
+          "size": "Physical size: 1080x1920\nOverride size: 390x900",
+          "density": "Physical density: 420\nOverride density: 160",
+          "font": "1"
+        }
+      },
+      {
+        "name": "phone-overview-390",
+        "status": "passed",
+        "viewport": {
+          "size": "Physical size: 1080x1920\nOverride size: 390x900",
+          "density": "Physical density: 420\nOverride density: 160",
+          "font": "1"
+        }
+      },
+      {
+        "name": "phone-club-body",
+        "status": "passed",
+        "viewport": {
+          "size": "Physical size: 1080x1920\nOverride size: 390x900",
+          "density": "Physical density: 420\nOverride density: 160",
+          "font": "1"
+        }
+      },
+      {
+        "name": "phone-sync-incomplete",
+        "status": "passed",
+        "viewport": {
+          "size": "Physical size: 1080x1920\nOverride size: 390x900",
+          "density": "Physical density: 420\nOverride density: 160",
+          "font": "1"
+        }
+      },
+      {
+        "name": "phone-overview-360-font1.6",
+        "status": "passed",
+        "viewport": {
+          "size": "Physical size: 1080x1920\nOverride size: 360x900",
+          "density": "Physical density: 420\nOverride density: 160",
+          "font": "1.6"
+        }
+      },
+      {
+        "name": "phone-club-360-font1.6",
+        "status": "passed",
+        "viewport": {
+          "size": "Physical size: 1080x1920\nOverride size: 360x900",
+          "density": "Physical density: 420\nOverride density: 160",
+          "font": "1.6"
+        }
+      },
+      {
+        "name": "phone-overview-800-font1",
+        "status": "passed",
+        "viewport": {
+          "size": "Physical size: 1080x1920\nOverride size: 800x700",
+          "density": "Physical density: 420\nOverride density: 160",
+          "font": "1.0"
+        }
+      },
+      {
+        "name": "phone-club-800-font1",
+        "status": "passed",
+        "viewport": {
+          "size": "Physical size: 1080x1920\nOverride size: 800x700",
+          "density": "Physical density: 420\nOverride density: 160",
+          "font": "1.0"
+        }
+      }
+    ],
+    "status": "passed",
+    "allFiveTabsAndEqual48DpControls": true,
+    "displayMotionRestored": true,
+    "ownedEmulatorStopped": true
+  },
+  "liveAndroid": {
+    "normalRelease": true,
+    "status": "passed",
+    "retainedSession": true,
+    "combinedOperationMilliseconds": 85189,
+    "eventsStage": {
+      "name": "events",
+      "failures": 0,
+      "milliseconds": 2416
+    },
+    "completedHoursKnown": true,
+    "offlineHoursKnown": true,
+    "credentialsEntered": false,
+    "originalApkRestored": true,
+    "displayMotionRadiosRestored": true,
+    "forwardsRemoved": true,
+    "ownedEmulatorStopped": true
+  },
+  "screenshots": [
+    {
+      "file": "phone-overview.png",
+      "sha256": "f053425b421f2948ee315c06d7eca68a4477224bebacdacda9ff9169e8085f47",
+      "viewport": "390x900 dp / density160 / font1",
+      "data": "fictional Development preview"
+    },
+    {
+      "file": "phone-club-large-text.png",
+      "sha256": "87ebf79ae4edf7f7d37773c7ab76a5f7056d436d929818e56a1427888cb3aae2",
+      "viewport": "360x900 dp / density160 / font1.6",
+      "data": "fictional Development preview"
+    },
+    {
+      "file": "phone-wide.png",
+      "sha256": "ee5f448abc1cbb70dd11089cf81bb20bcb392fab7fdc7bd8c3a74a657e0bd95d",
+      "viewport": "800x700 dp / density160 / font1",
+      "data": "fictional Development preview"
+    }
+  ],
+  "limits": [
+    "The supplied report has generic events-failed; precise birthday empty-state cause was established separately on retained same-origin HTML replay.",
+    "Initial work-hours assertion ran during local post-sync loading; later known-hours and offline checks passed without another sync.",
+    "Live source confirms selected one-day empty Termine, not full calendar/history or every positive event shape.",
+    "Physical phone, real second account, iOS runtime and spoken accessibility not tested.",
+    "Private attachments/source captures/screenshots and user values remain ignored/local."
+  ],
+  "release": {
+    "url": "https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/cockpit-phone-feedback-2026-10-24-8eb300f/MoFlight-Android-8eb300f.zip",
+    "publicDownloadVerified": true,
+    "entries": [
+      "app-release.apk",
+      "build-info.json"
+    ]
+  }
+}
