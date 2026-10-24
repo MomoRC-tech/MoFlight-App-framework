@@ -1,0 +1,143 @@
+{
+  "source_commit": "7ab13a6648465b3219121abca7447b2545ca1dfc",
+  "apk_sha256": "645b69b1fd20e130e0ab98b5147b29a5832a5fc9b4f5c9a46e108510b176316b",
+  "date": "2026-10-24",
+  "host": {
+    "mobileSQLiteTests": 1021,
+    "pythonTests": 114,
+    "typecheck": "pass",
+    "lint": "pass",
+    "fixtureParity": "pass",
+    "focusedTests": 71,
+    "redRegressionCases": 6
+  },
+  "exports": {
+    "Android": "Hermes export passed",
+    "iOS": "Hermes export passed; runtime not tested"
+  },
+  "native": {
+    "status": "passed",
+    "environment": "Android API37 x86_64 synthetic AVD, offline",
+    "checks": [
+      {
+        "name": "fix-overview",
+        "status": "passed",
+        "viewport": {
+          "size": "Physical size: 1080x1920\nOverride size: 390x900",
+          "density": "Physical density: 420\nOverride density: 160",
+          "font": "1.0"
+        }
+      },
+      {
+        "name": "fix-undated-current",
+        "status": "passed",
+        "viewport": {
+          "size": "Physical size: 1080x1920\nOverride size: 390x900",
+          "density": "Physical density: 420\nOverride density: 160",
+          "font": "1.0"
+        }
+      },
+      {
+        "name": "fix-undated-prior",
+        "status": "passed",
+        "viewport": {
+          "size": "Physical size: 1080x1920\nOverride size: 390x900",
+          "density": "Physical density: 420\nOverride density: 160",
+          "font": "1.0"
+        }
+      },
+      {
+        "name": "fix-order-390",
+        "status": "passed",
+        "viewport": {
+          "size": "Physical size: 1080x1920\nOverride size: 390x900",
+          "density": "Physical density: 420\nOverride density: 160",
+          "font": "1.0"
+        }
+      },
+      {
+        "name": "fix-preview-30",
+        "status": "passed",
+        "viewport": {
+          "size": "Physical size: 1080x1920\nOverride size: 390x900",
+          "density": "Physical density: 420\nOverride density: 160",
+          "font": "1.0"
+        }
+      },
+      {
+        "name": "fix-incoming-year-editor",
+        "status": "passed",
+        "viewport": {
+          "size": "Physical size: 1080x1920\nOverride size: 390x900",
+          "density": "Physical density: 420\nOverride density: 160",
+          "font": "1.0"
+        }
+      },
+      {
+        "name": "fix-preview-reopened-25",
+        "status": "passed",
+        "viewport": {
+          "size": "Physical size: 1080x1920\nOverride size: 390x900",
+          "density": "Physical density: 420\nOverride density: 160",
+          "font": "1.0"
+        }
+      },
+      {
+        "name": "fix-preview-restart-25",
+        "status": "passed",
+        "viewport": {
+          "size": "Physical size: 1080x1920\nOverride size: 390x900",
+          "density": "Physical density: 420\nOverride density: 160",
+          "font": "1.0"
+        }
+      },
+      {
+        "name": "fix-order-360-font1.6",
+        "status": "passed",
+        "viewport": {
+          "size": "Physical size: 1080x1920\nOverride size: 360x900",
+          "density": "Physical density: 420\nOverride density: 160",
+          "font": "1.6"
+        }
+      }
+    ],
+    "displayFontAnimationsRestored": true,
+    "ownedEmulatorStopped": true
+  },
+  "screenshots": [
+    {
+      "file": "fix-undated.png",
+      "sha256": "e6d8bbef4cbdf749e0c4ae99a1ae265d927a726ed0df9ff46bab5495c9c0fd3d",
+      "viewport": "390x900 dp / density160 / font1.0",
+      "data": "fictional Development preview"
+    },
+    {
+      "file": "fix-order.png",
+      "sha256": "dc7c42b3dfc413e07a315001342581df94c77e48ffcdbc0364890e7b5b0109d4",
+      "viewport": "390x900 dp / density160 / font1.0",
+      "data": "fictional Development preview"
+    },
+    {
+      "file": "fix-order-large-text.png",
+      "sha256": "155ebc8d6f155e868b9ffc272326fb421160646fbf5cec3ba1c369e05df49c94",
+      "viewport": "360x900 dp / density160 / font1.6",
+      "data": "fictional Development preview"
+    }
+  ],
+  "limits": [
+    "Controlled asynchronous hash/readback races are deterministic host tests, not timed native race trials.",
+    "Native editor/reset tests exercise CockpitPreview; the legacy preview opt-out is component-covered.",
+    "Production preference file format is unchanged; production persistence is host-covered with prior native adapter evidence reused.",
+    "No fresh provider, real second-account, physical-phone, iOS runtime or spoken accessibility trial.",
+    "Earlier full layout/tab/workflow evidence remains source-specific; no repeated whole-app visual matrix."
+  ],
+  "release": {
+    "url": "https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/compact-cockpit-fixes-2026-10-24-7ab13a6/MoFlight-Android-7ab13a6.zip",
+    "zip_sha256": "ed3fa66e3df626b91676674436c72d542161e739fae39d50bf8ad17bf9b725b5",
+    "publicDownloadVerified": true,
+    "entries": [
+      "app-release.apk",
+      "build-info.json"
+    ]
+  }
+}
