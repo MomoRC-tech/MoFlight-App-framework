@@ -1,5 +1,7 @@
 # MoFlight
 
+**24 October UI review:** [Complete interaction tree, routing findings and design consistency assessment](docs/verification/2026-10-24-ui-interaction-review.md), reviewed application source `99900c2`, tracked by [#81](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/81). Review only; follow-up proposals do not change app behavior or approve implementation.
+
 **24 October populated-update safety — verified on main, no release:** fixes late-phase backup recovery and adds historical/current populated-store preservation checks. The bounded signed synthetic Android update preserves 15 namespaced files, completes recovery and reopens offline; beta/full-user/platform limits remain open. **No new APK release was created.** [Source-specific evidence and limits](docs/verification/2026-10-21-simple-flight-loading.md#populated-update-and-late-phase-recovery--24-october-2026) · #34/#29.
 
 **24 October Flights cleanup — implemented and verified on main:** fixed compact filters, visible removable active values and dense C crew cards. Full host checks, platform exports and 13 internal synthetic Android checkpoints pass. **No release was published, as requested; prior APKs below do not include this change.** [Current contract](docs/product/design/compact-cockpit.md#compact-flights-screen--approved-24-october-2026) · [Evidence, screenshots and platform/source limits](docs/verification/2026-10-24-flight-list.md) · [#70](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/70).
