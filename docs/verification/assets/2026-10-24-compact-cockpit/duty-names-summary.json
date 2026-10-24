@@ -1,0 +1,82 @@
+{
+  "source": "5a2320d03ae664bd372bc26960c773d907ca78a3",
+  "status": "passed",
+  "fixture": "Raw fictional capture labels through buildDutyOverview; no provider calls or user-record writes during visual tests",
+  "checks": [
+    {
+      "name": "duty-overview-390",
+      "status": "passed",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 390x900",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1"
+      }
+    },
+    {
+      "name": "duty-expanded-390",
+      "status": "passed",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 390x900",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1"
+      }
+    },
+    {
+      "name": "duty-overview-360-font1.6",
+      "status": "passed",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 360x900",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1.6"
+      }
+    },
+    {
+      "name": "duty-expanded-360-font1.6",
+      "status": "passed",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 360x900",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1.6"
+      }
+    }
+  ],
+  "liveSourceReaderAndLocalProjection": {
+    "sourceRows": 10,
+    "independentlyComparedPeople": 20,
+    "inWindowProjectedRows": 2,
+    "actualRenderedHiddenSeparator": true,
+    "rawCaptureAndExpectedValuesPrivate": true,
+    "status": "passed"
+  },
+  "display_font_motion_restored": true,
+  "owned_read_only_emulators_stopped": true,
+  "limits": [
+    "No physical phone, fresh login, real second account or iOS runtime trial",
+    "Existing retained-session source only; no complete-roster acceptance",
+    "Old concatenated name caches require one explicit synchronization"
+  ],
+  "screenshots": [
+    {
+      "file": "duty-names-overview.png",
+      "sha256": "9e38223df38ac78715dde19396d37e21a258fc39270eda69ac5b73bafca39334"
+    },
+    {
+      "file": "duty-names-large-text.png",
+      "sha256": "e374f5b282dd1e6c84060ec515a20c128cfdef6d277aa57165e6fd7816b850da"
+    }
+  ],
+  "rebuiltApkLiveTrial": {
+    "source": "5a2320d03ae664bd372bc26960c773d907ca78a3",
+    "status": "passed",
+    "syncSeconds": 88.97,
+    "updatedOverviewLabelCount": 2,
+    "clubLabelCount": 2,
+    "offlineRestartLabelCount": 2,
+    "cleanup": {
+      "originalApkHashRestored": true,
+      "settingsRestored": true,
+      "noDataClearOrProviderWrite": true,
+      "noDebugForwards": true
+    }
+  }
+}
