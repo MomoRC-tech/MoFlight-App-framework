@@ -1,0 +1,112 @@
+<div id="moflight-flight-cards">
+  <style>
+    #moflight-flight-cards { --mf-canvas:#001b29; --mf-panel:#062331; --mf-raised:#0c3041; --mf-border:#183d50; --mf-text:#f4f8fc; --mf-muted:#a9bed3; --mf-teal:#27d3d2; }
+    #moflight-flight-cards * { box-sizing:border-box; }
+    #moflight-flight-cards .mf-stage { min-height:420px; padding:24px 10px; display:flex; align-items:flex-start; justify-content:center; }
+    #moflight-flight-cards .mf-sample { width:390px; max-width:100%; padding:16px; background:var(--mf-canvas); color:var(--mf-text); border-radius:20px; font-family:system-ui,-apple-system,"Segoe UI",sans-serif; font-size:14px; line-height:1.4; }
+    #moflight-flight-cards .mf-caption { display:flex; justify-content:space-between; flex-wrap:wrap; align-items:baseline; gap:8px; margin-bottom:14px; }
+    #moflight-flight-cards .mf-caption strong { font-size:18px; font-weight:600; }
+    #moflight-flight-cards .mf-caption small { color:var(--mf-muted); font-size:12px; }
+    #moflight-flight-cards .mf-stack { display:grid; gap:8px; }
+    #moflight-flight-cards .mf-flight { background:var(--mf-panel); border:1px solid var(--mf-border); border-radius:12px; padding:10px 12px; display:grid; gap:5px; text-align:left; }
+    #moflight-flight-cards .mf-top { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; color:var(--mf-muted); font-size:12px; }
+    #moflight-flight-cards .mf-duration { display:inline-flex; align-items:center; gap:7px; color:var(--mf-text); font-variant-numeric:tabular-nums; white-space:nowrap; font-size:14px; font-weight:600; }
+    #moflight-flight-cards .mf-chevron { color:var(--mf-muted); font-weight:400; font-size:18px; }
+    #moflight-flight-cards .mf-aircraft { display:flex; flex-wrap:wrap; gap:6px; align-items:baseline; font-weight:600; }
+    #moflight-flight-cards .mf-model { color:var(--mf-muted); font-size:12px; font-weight:400; }
+    #moflight-flight-cards .mf-route { color:var(--mf-muted); font-size:12px; overflow-wrap:anywhere; }
+    #moflight-flight-cards .mf-crew { display:flex; gap:4px 12px; flex-wrap:wrap; align-items:center; font-size:13px; overflow-wrap:anywhere; }
+    #moflight-flight-cards .mf-person { min-width:0; }
+    #moflight-flight-cards .mf-role { color:var(--mf-muted); font-size:11px; margin-right:4px; }
+    #moflight-flight-cards .mf-solo { color:var(--mf-teal); background:var(--mf-raised); border:1px solid var(--mf-border); border-radius:5px; font-size:11px; padding:1px 5px; line-height:1.3; }
+    #moflight-flight-cards .mf-columns .mf-crew { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    #moflight-flight-cards .mf-columns .mf-role { display:block; margin:0 0 1px; }
+    #moflight-flight-cards .mf-rail-top { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:8px; }
+    #moflight-flight-cards .mf-rail-info { display:grid; gap:3px; }
+    #moflight-flight-cards .mf-date { font-size:12px; color:var(--mf-muted); font-variant-numeric:tabular-nums; }
+    #moflight-flight-cards .mf-rail .mf-duration { border-left:1px solid var(--mf-border); padding-left:12px; font-size:20px; }
+    #moflight-flight-cards .mf-unit { font-size:12px; font-weight:400; color:var(--mf-muted); }
+    #moflight-flight-cards .mf-rail .mf-crew { border-top:1px solid var(--mf-border); padding-top:6px; margin-top:1px; }
+    #moflight-flight-cards .mf-large { font-size:18px; }
+    #moflight-flight-cards .mf-large .mf-top, #moflight-flight-cards .mf-large .mf-date, #moflight-flight-cards .mf-large .mf-route, #moflight-flight-cards .mf-large .mf-model { font-size:16px; }
+    #moflight-flight-cards .mf-large .mf-crew, #moflight-flight-cards .mf-large .mf-duration { font-size:18px; }
+    #moflight-flight-cards .mf-large .mf-role, #moflight-flight-cards .mf-large .mf-solo { font-size:14px; }
+    #moflight-flight-cards .mf-large .mf-columns .mf-crew { grid-template-columns:1fr; gap:5px; }
+    #moflight-flight-cards .mf-large .mf-rail-top { grid-template-columns:1fr; }
+    #moflight-flight-cards .mf-large .mf-rail .mf-duration { border:0; padding:0; }
+    @media (max-width:360px) { #moflight-flight-cards .mf-stage { padding:16px 0; } #moflight-flight-cards .mf-sample { padding:12px; } #moflight-flight-cards .mf-columns .mf-crew { gap:8px; } }
+  </style>
+  <div class="viz-carousel viz-dotted-background" aria-label="Flight card layout proposals">
+    <section data-variant="Inline crew" aria-label="Inline crew layout">
+      <div class="mf-stage"><div class="mf-sample" aria-label="Inline crew card options">
+        <div class="mf-caption"><strong>Flüge</strong><small>Layoutvorschlag · Beispieldaten</small></div>
+        <div class="mf-stack">
+          <article class="mf-flight" aria-label="Example flight with pilot and companion">
+            <div class="mf-top"><span>24.10.2026 · 14:10</span><span class="mf-duration">0:42 h <span class="mf-chevron" aria-hidden="true">›</span></span></div>
+            <div class="mf-aircraft">D-1234 <span class="mf-model">· ASK 21</span></div>
+            <div class="mf-crew"><span class="mf-person"><span class="mf-role">Pilot</span><span data-person="pilot">Jonas W.</span></span><span class="mf-person"><span class="mf-role">Begl.</span><span data-person="companion">Lea B.</span></span></div>
+            <div class="mf-route">Musterfeld → Beispielort</div>
+          </article>
+          <article class="mf-flight" aria-label="Example confirmed solo flight">
+            <div class="mf-top"><span>23.10.2026 · 11:35</span><span class="mf-duration">1:18 h <span class="mf-chevron" aria-hidden="true">›</span></span></div>
+            <div class="mf-aircraft">D-5678 <span class="mf-model">· LS4</span></div>
+            <div class="mf-crew"><span class="mf-person"><span class="mf-role">Pilot</span><span data-person="solo">Mira K.</span></span><span class="mf-solo">Solo</span></div>
+            <div class="mf-route">Musterfeld → Musterfeld</div>
+          </article>
+        </div>
+      </div></div>
+    </section>
+    <section data-variant="Crew columns" aria-label="Crew columns layout" hidden>
+      <div class="mf-stage"><div class="mf-sample" aria-label="Crew columns card options">
+        <div class="mf-caption"><strong>Flüge</strong><small>Layoutvorschlag · Beispieldaten</small></div>
+        <div class="mf-stack mf-columns">
+          <article class="mf-flight" aria-label="Example flight with separate crew columns">
+            <div class="mf-top"><span>24.10.2026 · 14:10</span><span class="mf-duration">0:42 h <span class="mf-chevron" aria-hidden="true">›</span></span></div>
+            <div class="mf-aircraft">D-1234 <span class="mf-model">· ASK 21</span></div>
+            <div class="mf-crew"><span class="mf-person"><span class="mf-role">Pilot</span><span data-person="pilot">Jonas W.</span></span><span class="mf-person"><span class="mf-role">Begleiter</span><span data-person="companion">Lea B.</span></span></div>
+            <div class="mf-route">Musterfeld → Beispielort</div>
+          </article>
+          <article class="mf-flight" aria-label="Example confirmed solo flight with crew columns">
+            <div class="mf-top"><span>23.10.2026 · 11:35</span><span class="mf-duration">1:18 h <span class="mf-chevron" aria-hidden="true">›</span></span></div>
+            <div class="mf-aircraft">D-5678 <span class="mf-model">· LS4</span><span class="mf-solo">Solo</span></div>
+            <div class="mf-crew"><span class="mf-person"><span class="mf-role">Pilot</span><span data-person="solo">Mira K.</span></span></div>
+            <div class="mf-route">Musterfeld → Musterfeld</div>
+          </article>
+        </div>
+      </div></div>
+    </section>
+    <section data-variant="Duration rail" aria-label="Duration rail layout" hidden>
+      <div class="mf-stage"><div class="mf-sample" aria-label="Duration rail card options">
+        <div class="mf-caption"><strong>Flüge</strong><small>Layoutvorschlag · Beispieldaten</small></div>
+        <div class="mf-stack mf-rail">
+          <article class="mf-flight" aria-label="Example flight emphasizing duration">
+            <div class="mf-rail-top"><div class="mf-rail-info"><div class="mf-date">24.10.2026 · 14:10</div><div class="mf-aircraft">D-1234 <span class="mf-model">· ASK 21</span></div><div class="mf-route">Musterfeld → Beispielort</div></div><span class="mf-duration">0:42<span class="mf-unit">h</span><span class="mf-chevron" aria-hidden="true">›</span></span></div>
+            <div class="mf-crew"><span class="mf-person"><span class="mf-role">Pilot</span><span data-person="pilot">Jonas W.</span></span><span class="mf-person"><span class="mf-role">Begl.</span><span data-person="companion">Lea B.</span></span></div>
+          </article>
+          <article class="mf-flight" aria-label="Example confirmed solo flight emphasizing duration">
+            <div class="mf-rail-top"><div class="mf-rail-info"><div class="mf-date">23.10.2026 · 11:35</div><div class="mf-aircraft">D-5678 <span class="mf-model">· LS4</span></div><div class="mf-route">Musterfeld → Musterfeld</div></div><span class="mf-duration">1:18<span class="mf-unit">h</span><span class="mf-chevron" aria-hidden="true">›</span></span></div>
+            <div class="mf-crew"><span class="mf-person"><span class="mf-role">Pilot</span><span data-person="solo">Mira K.</span></span><span class="mf-solo">Solo</span></div>
+          </article>
+        </div>
+      </div></div>
+    </section>
+  </div>
+  <script>
+    (() => {
+      const root = document.getElementById('moflight-flight-cards');
+      const controls = { longNames:false, largerText:false };
+      function render() {
+        const names = controls.longNames ? { pilot:'Jonas Alexander W.', companion:'Lea Marie B.', solo:'Mira Johanna K.' } : { pilot:'Jonas W.', companion:'Lea B.', solo:'Mira K.' };
+        root.querySelectorAll('[data-person]').forEach(element => { element.textContent = names[element.dataset.person]; });
+        root.querySelectorAll('.mf-sample').forEach(element => { element.classList.toggle('mf-large', controls.largerText); });
+        root.querySelectorAll('.mf-stage').forEach(element => { element.style.minHeight = controls.largerText ? '670px' : '420px'; });
+      }
+      render();
+      if (globalThis.Tweak) {
+        const tweak = new Tweak({ container:root, onChange:render });
+        tweak.addToggle(controls, 'longNames', { label:'Longer crew names' });
+        tweak.addToggle(controls, 'largerText', { label:'Larger text preview' });
+      }
+    })();
+  </script>
+</div>
