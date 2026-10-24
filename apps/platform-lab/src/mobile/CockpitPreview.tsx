@@ -4,7 +4,7 @@ import { AppHeader } from './AppHeader';
 import { Dashboard } from './Dashboard';
 import { OverviewTiles } from './OverviewTiles';
 import { DutyRoster } from './DutyRoster';
-import { Action, Label, colors } from './theme';
+import { Action, Label, colors, ui } from './theme';
 import { createDesignPreviewData, DESIGN_PREVIEW_NOW } from './design-preview-data';
 import { DataUpdateIndicator } from './DataUpdateIndicator';
 import { SymbolIcon } from './SymbolIcon';
@@ -23,7 +23,7 @@ export function CockpitPreview({onClose,onFlights,onStatistics}: {onClose:()=>vo
   const [sync,setSync]=useState<Progress>({state:'idle',last:null,current:null});
   const [page,setPage]=useState<'home'|'club'|'ai'>('home');
   return <View style={{flex:1,backgroundColor:colors.background}}>
-    <AppHeader title="Übersicht · Demo" profile={<Pressable accessibilityRole="button" accessibilityLabel="Cockpit-Vorschau schließen" onPress={onClose} style={{minWidth:48,minHeight:48,alignItems:'center',justifyContent:'center'}}><SymbolIcon name="profile" size={28}/></Pressable>}><DataUpdateIndicator now={DESIGN_PREVIEW_NOW} receivedAt="2026-10-22T10:00:00.000Z" readState="ready" syncing={sync.state==='active'} onPress={()=>setSync({state:'active',last:'account',current:'flights'})}/></AppHeader>
+    <AppHeader title="Übersicht · Demo" profile={<Pressable accessibilityRole="button" accessibilityLabel="Cockpit-Vorschau schließen" onPress={onClose} style={ui.headerAction}><SymbolIcon name="profile" size={28}/></Pressable>}><DataUpdateIndicator incomplete={sync.state==='failed'||sync.state==='partial'} now={DESIGN_PREVIEW_NOW} receivedAt="2026-10-22T10:00:00.000Z" readState="ready" syncing={sync.state==='active'} onPress={()=>setSync({state:'active',last:'account',current:'flights'})}/></AppHeader>
     <SyncProgress progress={sync} retry={()=>setSync({state:'active',last:'account',current:'flights'})} details={()=>setSync({state:'failed',last:'account',current:null,message:'Synthetischer Fehler. Keine Quelle wurde abgerufen.'})}/>
     <ScrollView contentContainerStyle={{padding:12,gap:10,alignSelf:'center',width:'100%',maxWidth:520}}>
       {page==='ai'?<View style={{gap:12}}><Label>MoFlight AI · Demo</Label><Label muted>Der AI-Dienst ist nicht verbunden.</Label><Action secondary onPress={()=>setPage('home')}>Zur Übersicht</Action></View>:page==='club'?<DutyRoster overview={fixture.dutyOverview} expanded/>:<>

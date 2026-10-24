@@ -44,7 +44,7 @@ export function createDesignPreviewData(scenario: 'default' | 'undated' | 'same-
   }));
   const featureInformation: FeatureInformation = {
     workSummary: { status: 'partial', retrievedAt: '2026-10-22T10:00:00.000Z', filters: [], truncated: false,
-      items: [{key:'synthetic-work-2026',period:'2026',obligation:'90,00 \u20ac',performed:'21,50 \u20ac',hours:'07:25'}] },
+      items: [{key:'synthetic-work-2026',period:'Jahr 2026',obligation:'90,00 \u20ac',performed:'21,50 \u20ac',hours:'07:25'}] },
     events: { status: 'partial', retrievedAt: '2026-10-22T10:00:00.000Z', filters: ['Quellkategorie: Termine', 'Ab 22.10.2026', 'Ansicht: 3 Monate'], truncated: false,
       items: [
         { key: 'synthetic-event-1', date: '24.10.2026', time: '10:00', kind: 'Termine', title: 'Demo Saisonabschluss', location: 'Demo Talwiese' },

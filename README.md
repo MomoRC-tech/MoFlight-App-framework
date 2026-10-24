@@ -1,5 +1,7 @@
 # MoFlight
 
+**24 October phone feedback — in progress:** #66/#67/#68 repair one-day empty Termine and the observed annual work-hours label, clarify season/club photography and make Sync/Profile equal transparent icon-only controls. [Source findings and verification](docs/verification/2026-10-24-compact-cockpit.md#phone-feedback-follow-up--24-october-2026).
+
 **24 October Compact Cockpit review fixes — delivered:** all four review defects are fixed; the approved dark UI retains its original logo and existing workflows. [Download APK ZIP — source `7ab13a6`](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/compact-cockpit-fixes-2026-10-24-7ab13a6/MoFlight-Android-7ab13a6.zip) · [contract and route inventory](docs/product/design/compact-cockpit.md) · [verification, screenshots and limits](docs/verification/2026-10-24-compact-cockpit.md) · [#61](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/61).
 
 **24 October review fixes — verified:** #62–#65 are fixed: unknown-season zeros, latest-flight ordering cues, scoped save completion and memory-only previews. Host checks, committed-source Release and nine focused synthetic Android checks pass; physical/iOS/live-provider limits remain explicit. [One follow-up evidence section](docs/verification/2026-10-24-compact-cockpit.md#review-fixes--24-october-2026).

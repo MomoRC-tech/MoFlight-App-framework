@@ -52,7 +52,7 @@ test('Start routes saved analytics to the overlay and keeps it available before 
 
 test('compact metrics use selected annual hours and keep financial values out of the target',()=>{
  const f=render(ownFlightFixture().flights);
- const tree=f.changeView({...f.view(),featureInformation:{workSummary:{status:'partial',items:[{period:'2026',hours:'07:25',obligation:'90,00 EUR'}]}}});
+ const tree=f.changeView({...f.view(),featureInformation:{workSummary:{status:'partial',items:[{period:'Jahr 2026',hours:'07:25',obligation:'90,00 EUR'}]}}});
  assert.match(JSON.stringify(tree),/7:25 geleistet/);assert.match(JSON.stringify(tree),/Soll vorläufig 25/);assert.doesNotMatch(JSON.stringify(tree),/90,00/);
  const next=f.changeView({...f.view(),snapshot:{...f.view().snapshot,ownerId:'other'},featureInformation:undefined});assert.doesNotMatch(JSON.stringify(next),/7:25/);
 });

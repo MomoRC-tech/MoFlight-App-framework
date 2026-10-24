@@ -1,43 +1,37 @@
 import {SyncShine} from './SyncProgress';
 import React, { useMemo } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
-import { Label, colors } from './theme';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { colors, ui } from './theme';
 import { SymbolIcon } from './SymbolIcon';
 import { dataFreshness, dataUpdateStatus, type CaptureReadState } from './data-freshness';
 import type { ConnectionState } from '../vereinsflieger/connection-state';
 import { createSessionPresentation } from './data-update-presentation';
 
 /** One action; saved age, session evidence and sync advice have separate cues. */
-export function DataUpdateIndicator({ connection, scopeKey = null, receivedAt, readState, now, disabled = false, activityChanged = false, syncing=false, onPress }: {
+export function DataUpdateIndicator({ connection, scopeKey = null, receivedAt, readState, now, disabled = false, activityChanged = false, syncing=false, incomplete=false, onPress }: {
   connection?: ConnectionState;
   scopeKey?: string | null;
-  receivedAt: string | null; readState: CaptureReadState; now: number; disabled?: boolean; activityChanged?: boolean; syncing?:boolean; onPress: () => void;
+  receivedAt: string | null; readState: CaptureReadState; now: number; disabled?: boolean; activityChanged?: boolean; syncing?:boolean; incomplete?:boolean; onPress: () => void;
 }) {
   const status = dataUpdateStatus(receivedAt, readState, now);
   const sessionPresentation = useMemo(createSessionPresentation, []);
   const session = sessionPresentation(scopeKey, connection, now);
   const recommended = dataFreshness(receivedAt, readState, now).reminder;
-  const amber = recommended || activityChanged;
+  const amber = recommended || activityChanged || incomplete;
   const tint = session.state === 'connected' ? '#74dfba' : session.state === 'login-required' ? '#ffc477' : colors.muted;
   const action='Daten synchronisieren';
-  return <Pressable accessibilityRole="button" accessibilityLabel={`${action}. ${session.description} ${status.description}${activityChanged ? ' Änderungen möglich.' : ''}${recommended ? ' Synchronisieren empfohlen: Flugdaten älter als drei Tage.' : ''}`}
+  return <Pressable accessibilityRole="button" accessibilityLabel={`${action}. ${syncing?'Synchronisierung läuft. ':''}${session.description} ${status.description}${incomplete?' Letzte Synchronisierung unvollständig.':''}${activityChanged ? ' Änderungen möglich.' : ''}${recommended ? ' Synchronisieren empfohlen: Flugdaten älter als drei Tage.' : ''}`}
     accessibilityHint="Synchronisiert alle unterstützten Daten. Falls nötig, öffnet sich die Anmeldung."
     accessibilityState={{ disabled:disabled||syncing,busy:syncing }} disabled={disabled||syncing} onPress={onPress}
-    style={[styles.button, disabled && { opacity: .5 }]}>
-    <View style={[styles.face, amber && styles.amber]}><SyncShine active={syncing}/><SymbolIcon name="refresh" size={24} />
-      <Label style={[styles.session, { color: tint }]}>{session.mark}</Label>
-    </View><Label style={styles.title}>{syncing?'Lädt …':'Sync'}</Label>
+    style={[ui.headerAction, disabled && { opacity: .5 }]}>
+    <View accessible={false} importantForAccessibility="no-hide-descendants" style={styles.face}><SyncShine active={syncing}/><SymbolIcon name="refresh" size={28} /></View>
+    <View accessible={false} importantForAccessibility="no-hide-descendants" style={styles.session}><Text allowFontScaling={false} style={{fontSize:11,lineHeight:16,fontWeight:'700',color:tint}}>{session.mark}</Text></View>
+    {(amber||readState==='failed')&&<View testID="sync-advice" accessible={false} style={styles.advice}/>}
   </Pressable>;
 }
 
 const styles = StyleSheet.create({
-  button: { minWidth: 48, minHeight: 48, alignItems: 'center', justifyContent: 'center' },
-  face: { overflow:'hidden', width: 44, minHeight: 38, borderRadius: 20, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, flexDirection: 'row', gap: 1, alignItems: 'center', justifyContent: 'center' },
-  amber: { borderColor: '#ffc477', backgroundColor: '#ffc47712' },
-  copy: { flexShrink: 1, minWidth: 0 },
-  titleRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  session: { fontSize: 11, lineHeight: 16, fontWeight: '700' },
-  title: { fontSize: 12, lineHeight: 16, fontWeight: '600' },
-  age: { fontSize: 11, lineHeight: 15, color: colors.muted },
-  activity: { fontSize: 10, lineHeight: 14, color: '#ffc477' },
+  face: { overflow:'hidden', width:32, height:32, alignItems:'center', justifyContent:'center' },
+  session: { position:'absolute',right:0,bottom:0 },
+  advice: { position:'absolute',right:3,top:3,width:7,height:7,borderRadius:4,backgroundColor:'#ffc477' },
 });

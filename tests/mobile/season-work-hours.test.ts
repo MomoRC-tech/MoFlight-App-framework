@@ -17,3 +17,12 @@ test('missing, invalid, duplicate or unavailable annual hours remain unknown',()
   assert.equal(seasonWorkHours({...source(),empty:true},2026),null);
   assert.equal(seasonWorkHours(source([item(),item()]),2026),null);
 });
+
+
+test('observed Jahr prefix selects annual hours without treating arbitrary periods as a year',()=>{
+  assert.equal(seasonWorkHours(source([item('Jahr 2026','7.50')]),2026),'7,50');
+  assert.equal(seasonWorkHours(source([item('  Jahr\u00a02026  ','0.00')]),2026),'0,00');
+  assert.equal(seasonWorkHours(source([item('Jahr 2025','88'),item('Jahr 2026','7:25')]),2026),'7:25');
+  for(const period of ['Jahr 2026/2027','01.01.2026 - 31.12.2026','Geschäftsjahr 2026','2026 Summe'])assert.equal(seasonWorkHours(source([item(period)]),2026),null);
+  assert.equal(seasonWorkHours(source([item('Jahr 2026'),item('2026')]),2026),null);
+});

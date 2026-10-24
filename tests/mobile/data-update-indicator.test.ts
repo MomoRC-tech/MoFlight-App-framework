@@ -46,8 +46,8 @@ function fixture() {
   const react = { createElement: (type: unknown, props: any, ...children: any[]) => ({ type, props: props ?? {}, children }),
     useMemo: (make: () => ReturnType<typeof createSessionPresentation>) => presentation ??= make() };
   const modules: Record<string, unknown> = {
-    react: { default: react, ...react }, 'react-native': { Pressable: 'Pressable', View: 'View', StyleSheet: { create: (v: unknown) => v } },
-    './theme': { Label: 'Label', colors: { muted: '#adbed5' } }, './SyncProgress':{SyncShine:'SyncShine'},'./SymbolIcon': { SymbolIcon: 'SymbolIcon' }, './data-freshness': { dataFreshness, dataUpdateStatus },
+    react: { default: react, ...react }, 'react-native': { Pressable: 'Pressable', Text:'Text', View: 'View', StyleSheet: { create: (v: unknown) => v } },
+    './theme': { Label: 'Label', colors: { muted: '#adbed5' }, ui:{headerAction:{width:48,height:48}} }, './SyncProgress':{SyncShine:'SyncShine'},'./SymbolIcon': { SymbolIcon: 'SymbolIcon' }, './data-freshness': { dataFreshness, dataUpdateStatus },
     './data-update-presentation': { createSessionPresentation },
   };
   const exports: any = {};
@@ -57,15 +57,15 @@ function fixture() {
 const text = (node: any): string => typeof node === 'string' ? node : (node?.children ?? []).map(text).join(' ').replace(/\s+/g, ' ');
 const context = { accountNumber: '123', clubLabel: 'Synthetic', clubIdentity: 'display-label-only', verification: 'observed-profile-number' } as const;
 
-test('active sync has a short busy label, blocks duplicate taps and preserves saved-data age',()=>{
+test('icon-only active sync blocks duplicate taps and preserves accessible activity/age',()=>{
  const render=fixture(),button=render({scopeKey:'scope',receivedAt:at,readState:'ready',now:received+60000,syncing:true,onPress(){assert.fail('disabled');}});
- assert.match(text(button),/Lädt/);assert.match(button.props.accessibilityLabel,/22/);
+ assert.doesNotMatch(text(button),/Lädt|Sync/);assert.match(button.props.accessibilityLabel,/Synchronisierung läuft/);assert.match(button.props.accessibilityLabel,/22/);
  assert.equal(button.props.accessibilityState.busy,true);assert.equal(button.props.disabled,true);
  assert.match(button.props.accessibilityLabel,/Daten synchronisieren/);
 });
 const proof: ConnectionState = { phase: 'observed', confirmed: true, observed: context, lastCheckedAt: at };
 
-test('header visibly shows saved age and retains one accessible sync action', () => {
+test('header keeps age in its accessible sync action without visible text', () => {
   const render = fixture();
   let calls = 0;
   for (const disabled of [false, true]) {
@@ -75,7 +75,7 @@ test('header visibly shows saved age and retains one accessible sync action', ()
     assert.match(tree.props.accessibilityHint, /Falls nötig.*Anmeldung/);
     assert.equal(tree.props.disabled, disabled);
     assert.equal(tree.props.accessibilityState.disabled, disabled);
-    assert.match(text(tree), /Sync/);
+    assert.doesNotMatch(text(tree), /Sync|Lädt/);
     if (!disabled) tree.props.onPress();
   }
   assert.equal(calls, 1);
@@ -140,7 +140,7 @@ test('amber advice starts strictly after 72 hours and can coexist with a green l
   assert.doesNotMatch(render({ ...props, now }).props.accessibilityLabel, /Synchronisieren empfohlen/);
   const tree = render({ ...props, now: now + 1 });
   assert.match(tree.props.accessibilityLabel, /Angemeldet.*Synchronisieren empfohlen/);
-  assert.match(text(tree), /Sync/);
+  assert.doesNotMatch(text(tree), /Sync|Lädt/);
   assert.match(tree.props.accessibilityLabel, /Angemeldet/);
   const loggedOut = render({ ...props, now: now + 1, connection: { ...currentProof, phase: 'login-required' } });
   assert.match(loggedOut.props.accessibilityLabel, /Anmeldung erforderlich.*Synchronisieren empfohlen/);
@@ -150,18 +150,18 @@ test('amber advice starts strictly after 72 hours and can coexist with a green l
 test('quick activity uses amber guidance while keeping fresh saved age and session evidence independent', () => {
   const render = fixture(), now = received + 60_000;
   const tree = render({ scopeKey: 'owner/store/123', connection: { ...proof, lastCheckedAt: new Date(now).toISOString() }, receivedAt: at, readState: 'ready', now, activityChanged: true, onPress() {} });
-  assert.match(text(tree), /Sync/);
+  assert.doesNotMatch(text(tree), /Sync|Lädt/);
   assert.match(tree.props.accessibilityLabel, /Änderungen möglich/);
   assert.doesNotMatch(tree.props.accessibilityLabel, /Synchronisieren empfohlen|älter als drei Tage/);
-  assert.ok(tree.children[0].props.style.some((style: any) => style?.borderColor === '#ffc477'));
+  assert.ok(tree.children.flat().some((node:any)=>node?.props?.testID==='sync-advice'));
 });
 
 test('quick activity and stale saved age announce both amber reasons', () => {
   const render = fixture(), now = received + DATA_FRESHNESS_REMINDER_MS + 1;
   const tree = render({ scopeKey: 'owner/store/123', connection: { ...proof, lastCheckedAt: new Date(now).toISOString() }, receivedAt: at, readState: 'ready', now, activityChanged: true, onPress() {} });
-  assert.match(text(tree), /Sync/);
+  assert.doesNotMatch(text(tree), /Sync|Lädt/);
   assert.match(tree.props.accessibilityLabel, /Änderungen möglich.*Synchronisieren empfohlen: Flugdaten älter als drei Tage/);
-  assert.ok(tree.children[0].props.style.some((style: any) => style?.borderColor === '#ffc477'));
+  assert.ok(tree.children.flat().some((node:any)=>node?.props?.testID==='sync-advice'));
 });
 
 test('activity defaults off and explicit false preserves the ordinary fresh header', () => {
@@ -170,9 +170,9 @@ test('activity defaults off and explicit false preserves the ordinary fresh head
   const defaultTree = render(props), falseTree = render({ ...props, activityChanged: false });
   assert.equal(text(defaultTree), text(falseTree));
   assert.equal(defaultTree.props.accessibilityLabel, falseTree.props.accessibilityLabel);
-  assert.match(text(falseTree), /Sync/);
+  assert.doesNotMatch(text(falseTree), /Sync|Lädt/);
   assert.doesNotMatch(text(falseTree), /Änderungen möglich/);
-  assert.equal(defaultTree.children[0].props.style.some((style: any) => style?.borderColor === '#ffc477'), false);
+  assert.equal(defaultTree.children.flat().some((node:any)=>node?.props?.testID==='sync-advice'),false);
 });
 
 test('rendering a newly received proof uses current wall time between timer ticks', () => {
@@ -188,4 +188,12 @@ test('rendering a newly received proof uses current wall time between timer tick
   assert.equal(exports.useStartClock([]), received);
   now += 12_000;
   assert.equal(exports.useStartClock([]), now, 'A status-triggered render must not reuse the last timer tick');
+});
+
+
+test('partial-sync dot does not erase matching login proof or add visible button text',()=>{
+ const tree=fixture()({scopeKey:'scope',connection:proof,receivedAt:at,readState:'ready',now:received,incomplete:true,onPress(){}});
+ assert.match(tree.props.accessibilityLabel,/Angemeldet.*Letzte Synchronisierung unvollständig/);
+ assert.ok(tree.children.flat().some((n:any)=>n?.props?.testID==='sync-advice'));
+ assert.match(text(tree),/✓/);assert.doesNotMatch(text(tree),/Sync|Lädt/);assert.equal(tree.props.disabled,false);
 });

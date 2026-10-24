@@ -206,11 +206,11 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
   };
   const pageTitle = tabs.find(item => item.id === tab)!.title;
   const statusControls = <>
-    <DataUpdateIndicator activityChanged={activityChanged} scopeKey={selected?.snapshot.account?.accountRef?statisticsScopeKey:null} connection={flightStatusController.connection} receivedAt={receivedAt} readState={ownFlights.phase==='failed'?'failed':ownFlights.phase==='loading'?'loading':'ready'}
+    <DataUpdateIndicator incomplete={syncProgress.state==='failed'||syncProgress.state==='partial'} activityChanged={activityChanged} scopeKey={selected?.snapshot.account?.accountRef?statisticsScopeKey:null} connection={flightStatusController.connection} receivedAt={receivedAt} readState={ownFlights.phase==='failed'?'failed':ownFlights.phase==='loading'?'loading':'ready'}
       now={now} syncing={syncProgress.state==='active'||syncProgress.state==='waiting'} disabled={screenBusy} onPress={() => openFlightFlow('update')} />
 
   </>;
-  const profileControl = <Pressable accessibilityRole="button" accessibilityLabel="Profil & Einstellungen öffnen" accessibilityState={{ disabled: screenBusy }} disabled={screenBusy} onPress={() => openHeaderSheet('profile')} style={s.profileButton}><ProfileIcon /></Pressable>;
+  const profileControl = <Pressable accessibilityRole="button" accessibilityLabel="Profil & Einstellungen öffnen" accessibilityState={{ disabled: screenBusy }} disabled={screenBusy} onPress={() => openHeaderSheet('profile')} style={ui.headerAction}><ProfileIcon /></Pressable>;
   const header = <AppHeader profile={profileControl} source={tab === 'club' ? clubAirfield : mountain} title={tab === 'ai' ? 'MoFlight AI' : tab === 'flights' ? flightHeader.title : pageTitle} back={tab === 'flights' ? flightHeader.back : undefined}
     subtitle={tab === 'home' ? 'Guten Tag!' : tab === 'ai' ? 'Dein Segelflug-Assistent' : 'MoFlight'}>{statusControls}</AppHeader>;
   return <SafeAreaView edges={['top', 'left', 'right', 'bottom']} style={[s.root, keyboardOverlap > 0 && { paddingBottom: keyboardOverlap }]}>
@@ -311,7 +311,6 @@ const s = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.background }, content: { flex: 1, alignSelf: 'center', width: '100%', maxWidth: 599 },
   page: { flex: 1 }, hidden: { display: 'none' }, canvas: { padding: 12, paddingTop: 6, gap: 12, paddingBottom: 28 }, flightCanvas: { padding: 10, paddingTop: 0, paddingBottom: 20 },
   savedStatus: { marginHorizontal:12,marginBottom:6,minHeight:48,paddingHorizontal:12,flexDirection:'row',alignItems:'center',gap:8,borderWidth:1,borderColor:colors.border,borderRadius:12 },
-  profileButton: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center', borderRadius: 14, backgroundColor: colors.card },
   headerBook: { minHeight: 36, justifyContent: 'center', alignSelf: 'flex-start' },
   stateBanner: { gap: 3, padding: 4, marginTop: 8 }, provenance: { fontSize: 10, lineHeight: 16, color: '#8ba4bc', letterSpacing: .6 },
   metric: { flex: 1, minWidth: 0, alignItems: 'center', gap: 1 }, metricValue: { color: colors.cyan, fontSize: 20, lineHeight: 25, fontWeight: '600' }, metricLabel: { fontSize: 11, textAlign: 'center', lineHeight: 16 },

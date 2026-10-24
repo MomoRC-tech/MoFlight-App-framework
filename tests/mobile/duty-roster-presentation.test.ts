@@ -11,8 +11,8 @@ function fixture() {
     ? type({ ...props, children }) : { type, props: props ?? {}, children: children.flat(Infinity) } };
   const modules: Record<string, unknown> = {
     react: { default: react, ...react },
-    'react-native': { Pressable:'Pressable', View: 'View', Text: 'Text', Image: 'Image', StyleSheet: { create: (value: unknown) => value, absoluteFill: { position: 'absolute' }, absoluteFillObject: { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 } } },
-    './theme': { Card: 'Card', Label: 'Label', Section: 'Section', Action: 'Action', colors: { text: 'text', raised: 'raised', border: 'border' } },
+    'react-native': { Pressable:'Pressable', View: 'View', Text: 'Text', ImageBackground: 'ImageBackground', StyleSheet: { create: (value: unknown) => value, absoluteFill: { position: 'absolute' }, absoluteFillObject: { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 } } },
+    './theme': { Card: 'Card', Label: 'Label', Section: 'Section', Action: 'Action', ui:{cockpitImage:{},cockpitShade:{}}, colors: { text: 'text', raised: 'raised', border: 'border' } },
     './SymbolIcon': { SymbolIcon: 'SymbolIcon' },
     '../../assets/aviation/club-heading-airfield-v2.png': 'decorative-airfield',
   };
@@ -53,7 +53,7 @@ test('club heading uses the saved full name and allows long names to wrap withou
     assert.equal(title.props.numberOfLines, undefined);
     assert.equal(title.props.allowFontScaling, undefined);
     assert.equal(title.props.adjustsFontSizeToFit, undefined);
-    const photo=f.nodes(view).find(node=>node.type==='Image')!;assert.equal(photo.props.accessible,false);
+    const photo=f.nodes(view).find(node=>node.type==='ImageBackground')!;assert.equal(photo.props.accessible,false);
     assert.match(f.text(view),/Ort unbekannt/);
   }
 });

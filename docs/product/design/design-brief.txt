@@ -71,6 +71,8 @@ The generator uses Python's standard library and repository files only: no netwo
 
 Manuel explicitly authorized implementation in the existing app, preserving its original logo. [Approved reference](../design-sources/2026-10-24-compact-cockpit/reference.jpg) · [provenance](../design-sources/2026-10-24-compact-cockpit/README.md) · [#61](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/61). This contract supersedes conflicting earlier overview preservation, large destination title, scenic toolbar, ring composition, full-bleed club heading and duotone appearance instructions. Existing feature/data/authorization contracts remain in force.
 
+**Phone-feedback amendment — 24 October 2026, [#68](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/68):** Manuel requests clearer season photography, a club photograph fitted as a full-width header background using the same treatment, and equal icon-only Sync/Profile controls without visible container borders/backgrounds. These explicit changes supersede the reference's thumbnail/boxed-control details within this scope. Keep the original approved image and original logo; the supplied real phone screenshot/support report stay private in ignored local storage.
+
 The overview uses one horizontal original-logo/wordmark/destination toolbar, Sync immediately before Profile, conditional saved/sync status, one darkened photographic season card with three high metric columns, latest flight and Alle Flüge, side-by-side Medical/paper tiles, and a compact club heading above its retained duty body. Navy canvas/panels, subtle blue outlines, teal actions, white/blue-gray text and consistent outlined icons also apply to existing lists, details, forms, dialogs and states. The existing SVG/PNG icon pipeline and semantic IDs are reused; original logo bytes and historical references remain unchanged. Native text scales; metrics can scroll horizontally at enlarged text, Medical/paper tiles stack when enlarged, and all page content scrolls vertically. No mockup system chrome or fixed empty area is reproduced.
 
 ## Preserved implementation inventory
@@ -88,15 +90,21 @@ The overview uses one horizontal original-logo/wordmark/destination toolbar, Syn
 
 Current/prior season derives from the selected year. Time is known reported h:min, with explicit unknown-duration notice; starts and known time use existing deterministic calculations. Missing values are —. Confirmed empty years require saved retrieval coverage for the whole relevant season through today (past years through December 31) and no unresolved date ambiguity. The #62 fix preserves — when saved records have unassigned dates, even with complete retrieval coverage. No complete-history claim follows from positive cached values.
 
-Completed duty hours require exactly one valid annual work-summary row for the selected year. Unknown remains —; no sum of a partial list. The captured Pflicht/Geleistet money amounts are EUR and cannot establish an hour requirement. The local provisional target starts at 25 h, always labelled **Soll vorläufig**; tap that metric to change it for this account/store/year. It is a UI preference, not a confirmed club policy, and is excluded from existing MoFlight manual backup archives. No new external integration, production schema or provider write is introduced.
+Completed duty hours require exactly one valid annual work-summary row for the selected year, accepting the observed `Jahr YYYY` label as well as a bare year. Mixed/ambiguous periods and duplicate matching rows remain unknown; no arbitrary year extraction. Unknown remains —; no sum of a partial list. The captured Pflicht/Geleistet money amounts are EUR and cannot establish an hour requirement. The local provisional target starts at 25 h, always labelled **Soll vorläufig**; tap that metric to change it for this account/store/year. It is a UI preference, not a confirmed club policy, and is excluded from existing MoFlight manual backup archives. No new external integration, production schema or provider write is introduced.
 
-Club location has no verified field in the current projection: **Ort unbekannt** remains explicit; the reused thumbnail is decorative. Medical displays a recorded expiry/unknown reminder, never a fitness certificate. Real paper setup is not implemented: its tile accurately says **In Vorbereitung** instead of offering a nonfunctional setup. Already configured synthetic books remain accessible under Development; the preview exercises a configured tile without asserting real activation.
+Club location has no verified field in the current projection: **Ort unbekannt** remains explicit; the reused club header photograph is decorative. Medical displays a recorded expiry/unknown reminder, never a fitness certificate. Real paper setup is not implemented: its tile accurately says **In Vorbereitung** instead of offering a nonfunctional setup. Already configured synthetic books remain accessible under Development; the preview exercises a configured tile without asserting real activation.
 
 Both Development previews opt out of duty-target file reads and writes. Edits stay in memory for the mounted overview and reset when it is left/reopened or the app restarts. Existing synthetic preference files from older versions are ignored and preserved. Simulated states do not invoke provider retrieval or mutate real flight records.
 
 The [24 October code review](../../verification/2026-10-24-compact-cockpit.md#code-review--24-october-2026) records the source c643d9d defects (#62–#65). The fix restores a visible/accessibility cue for uncertain latest-day ordering, invalidates obsolete target operations across key changes/unmount, and guards editor-close callbacks. The same report distinguishes host regression and native acceptance of the follow-up; approved appearance is unchanged.
 
 Implementation is recorded separately from native acceptance in [one package report](../../verification/2026-10-24-compact-cockpit.md). Android, physical-phone, iOS and spoken accessibility evidence must be distinguished.
+
+## Current header and photography
+
+Sync and Profile share the same transparent 48×48 logical-pixel touch area, with no visible box/frame or Sync/Lädt caption. Icons are 28 units; the original logo stays unchanged. Accessible labels still explain the action, actual busy state, saved age, session proof and advice. A session mark and separate amber dot retain independent login/advice/incomplete-sync meaning, and motion indicates actual work with reduced-motion/foreground protection. Busy disables duplicate sync taps. The conditional status row and details/retry remain available.
+
+Season and club photography use the shared `cockpitImage` opacity .82 and `cockpitShade` navy overlay `#001b2944`, preserving cover cropping and native text. The season photo remains shallow behind the heading/metrics. Club art fills only the compact header up to its divider; all duty body/actions remain below. Long names can wrap; no fixed screen height or scenic spacer is added. [Phone follow-up evidence](../../verification/2026-10-24-compact-cockpit.md#phone-feedback-follow-up--24-october-2026).
 
 # Alternative UI — 22 October 2026
 
@@ -255,7 +263,7 @@ The purple/orange exports describe accent families; actual dashboard cards use l
 | Last confirmed session check | `#74dfba` | Prior matching observation, ✓ and last-check wording; dark badge. [connection-guidance](../../../apps/platform-lab/src/mobile/connection-guidance.ts), S02. |
 | Login required | `#ffc477` | Original-provider sign-in required, →; dark badge. Same source, S03. |
 | Attention / recovery | `#ffb39e` | Error/mismatch/unconfirmed association/recovery; ! and a specific explanation. Same source and [ProviderConnection](../../../apps/platform-lab/src/mobile/ProviderConnection.tsx), S04. |
-| Unknown / header control | `colors.muted`; opaque `colors.card` | Neutral ?, or Med / unbekannt. The ordinary header uses opaque controls. ProviderConnection / [MedicalStatus](../../../apps/platform-lab/src/mobile/MedicalStatus.tsx). |
+| Unknown / header control | `colors.muted`; opaque `colors.card` | Neutral ? and explicit unknown Medical tile. Sync/Profile use equal transparent targets; source/status detail remains accessible. ProviderConnection / [MedicalStatus](../../../apps/platform-lab/src/mobile/MedicalStatus.tsx). |
 | App Back | Fill `colors.blue`, no separate border, dark contrast duotone arrow (brightest stop `#123a50`) | Contextual return, distinct from the dark header. [AppHeader](../../../apps/platform-lab/src/mobile/AppHeader.tsx). |
 | Recorded role pill | Fill `#064240`, border `#227f87`, general cyan text | Recorded role, not qualification/completion. MobileApp badge. |
 | AI welcome badge | Fill `#78efdc`, dark contrast duotone sparkle | Category decoration, not AI availability. MobileApp aiBadge. |
@@ -271,7 +279,7 @@ Medical source-date reminders use `#ff7777` for recorded past expiry and `#f9b65
 | Shared card | Opaque colors.card; no gradient | theme ui.card: subtle depth within a bounded card. |
 | Selected chip | Opaque colors.blue fill/border; no glow | theme ui.chipSelected: selected query scope. |
 | Photo shade | Retained Photo default `#00102277`; ordinary header uses the decorative flight illustration | theme Photo: check retained photo text against the displayed crop. |
-| Club heading artwork | Approved brighter v2 image covering the full header; `#14232f88` readability shade and title shadow | ClubHeading: decorative image is clipped at the card borders behind a wrapping title in a minimum88 dp header (24 October refinement). |
+| Club heading artwork | Approved brighter v2 image covering the full header; shared `#001b2944` readability shade and title shadow | ClubHeading: decorative image is clipped at the card borders behind a wrapping title in a minimum80 dp header (24 October phone-feedback amendment). |
 
 The 21 October selected Start simplification removes the photographic paper hero and purple AI promotion; their former local gradients are not current dashboard treatments. The original approved reference/artwork stays preserved. The quiet paper entry retains the paper-tone symbol; other shared palette/category roles remain unchanged.
 
@@ -343,7 +351,7 @@ U2 uses a separate original generated [club airfield scene](../../../apps/platfo
 
 The HTML guide embeds original reference and symbol/brand images unchanged. Component examples are schematic CSS explanations with synthetic labels, not new app screenshots or replacement artwork.
 
-The U1/U3 header uses neutral saved-age text independently of session state, with a small green `#74dfba` ✓ for recent matching confirmed proof, amber `#ffc477` → for required login, and muted ?/! for unknown/mismatch/error. Saved flight receipt age strictly greater than 72 hours adds a steady `#ffc477` border, subtle `#ffc47712` surface and age !; exactly 72 hours does not. The same amber face also signals a scope-matched activity-count change. These recommendation cues are independent of session colour and saved age; when both apply, both descriptions remain visible. Checks/login/failure never renew the durable successful flight receipt. The former one-hour age-colour policy is superseded. Provider-panel session colours retain their own meanings.
+The U1/U3 header uses neutral saved-age text independently of session state, with a small green `#74dfba` ✓ for recent matching confirmed proof, amber `#ffc477` → for required login, and muted ?/! for unknown/mismatch/error. Saved flight receipt age strictly greater than 72 hours adds a small `#ffc477` dot on the otherwise transparent icon-only control; exactly 72 hours does not. The same dot also signals a scope-matched activity-count change or incomplete sync, with distinct accessible wording and retained details/retry. These recommendation cues are independent of session colour and saved age; when both apply, both descriptions remain in the accessible action and status detail. Checks/login/failure never renew the durable successful flight receipt. The former one-hour age-colour policy is superseded. Provider-panel session colours retain their own meanings.
 
 # Components, symbols and shapes
 
@@ -362,18 +370,18 @@ The U1/U3 header uses neutral saved-age text independently of session state, wit
 
 | ID | Component / shape | Geometry / presentation | Function / source |
 | --- | --- | --- | --- |
-| C01 | Content card | Opaque panel, radius 22, border 1, padding 18 | Group coherent facts/actions; pressable only with an action. theme Card. |
+| C01 | Content card | Opaque navy panel, radius16, border1, padding16 | Group coherent facts/actions; pressable only with an action. theme Card. |
 | C02 | Primary / secondary action | Mint or raised bordered face, radius 16, minimum height 52 | Explicit action label; disabled opacity .5, pressed .72. theme Action. |
 | C03 | Scope chip | Radius 14; face minimum 66 × 40 in a minimum-48-height target | Selected opaque mint fill; selected/disabled semantics. theme Chip. |
 | C04 | Search / input | Ordinary flight search radius 16/minimum height 52; profile radius 12 and font 16; provider radius 10 | Operate on named scope. MobileApp / ProfileSettings / ProviderConnection. |
-| C05 | Shared header | Cropped navy ASK-21 artwork, unchanged logo88 at left; beside it title28/34 above Data/Medical; padding14 horizontal | Profile at the upper-right edge; title row minimum 48 dp and controls minimum 48 dp give roughly logo-height composition. Enlarged text wraps/grows; contextual Back and disabled guards preserved. AppHeader / FlightScene. |
-| C06 | Header data/status group | Data/Medical 24-unit icons beside two-line labels, minimum 40 dp faces in minimum 48 dp targets; Profile48 | Smaller faces retain full touch targets and scaled text. Red Medical cross is decorative; age/date captions retain separate semantic colours. |
+| C05 | Shared header | Original logo48, wordmark19/25, destination12/18; compact flowing row, maximum960 | No separate large title or scenic toolbar. Sync immediately before Profile; contextual Back and existing disabled guards remain. AppHeader. |
+| C06 | Header sync/profile | Shared transparent 48×48 targets; outlined28 icons, no box borders/backgrounds or Sync/Lädt caption | Independent session glyph and amber advice/incomplete dot, accessible saved age/status, reduced-motion-aware work shine, duplicate-sync guard. Medical is in the overview tile. |
 | C07 | Bottom navigation | Attached dark bar, five equal destinations, minimum target height 68; three-column wrapping below 600 dp with font scale above 1.3 | Icon above full system-scaled German label; final two wrapping items center. Standard text/width retains one row; raised selected tile and bold mint label. MobileApp. |
 | C08 | Conditional login / app overlays | Bounded centered navy frame, radius22, border1, dim scrim and retained native child tree | Ordinary sync opens this frame only for necessary original-provider login. Essential provider/Close/conditional Back chrome and a real transient error; no progress/settings/debug cards. Auto-hide after matching proof does not cancel root-owned sync. Other overlays keep their scoped contracts. |
 | C09 | Flight row | Padding 18, radius 20; date/reported duration, registration/model, route and detail chevron | Whole row opens selected-account saved source facts. Source reference/revision/original fields and absent-track context stay in details. Original fields use eight-field pages with concise Zurück / Weiter captions and full provider-field accessibility labels; first/last guards and contextual list return remain. [OwnFlights](../../../apps/platform-lab/src/mobile/OwnFlights.tsx); no inferred role or book assignment. |
 | C10 | AI question / composer | Question radius 18; composer radius 20; send face 48 × 48; input max height 150 | Local questions calculate deterministically; free-text service unavailable. MobileApp. |
-| C11 | Quiet paper entry | Minimum-height 48 row with paper-tone logbook symbol and detail chevron | Associated-account Start offers Papierflugbuch später einrichten and opens the deferred-setup explanation. The former photographic hero remains in the original reference. Synthetic saved paper status stays under Development; viewing never confirms copying. Dashboard / PaperStatus. |
-| C12 | Season comparisons | Two concentric aircraft-share charts, outer88/inner70 at font scale1, thickness5; current-year value centered; prior-year label/value and exact signed delta outside; third symbol/text work-hours metric in the same row | Ring geometry grows with system text; the three-metric row scrolls horizontally when needed. Prior inner ring at50% opacity; current outer hues and legend stable. Both time/starts use ↑/↓/↔; unavailable time delta is Δ —. Saved-period uncertainty and unknown tracks remain. SeasonRing / Dashboard. |
+| C11 | Paper/Medical entry | Two compact side-by-side navy tiles, stacked at enlarged text | Recorded Medical expiry/details and honest deferred production-paper status; synthetic configured books stay in Development. OverviewTiles. |
+| C12 | Season metrics | Unified shallow photographic header with three metric columns, prior-year values below time/starts, then latest flight/Alle Flüge | Shared photo opacity .82/navy overlay; known reported h:min, starts, selected annual work hours/provisional target. Unknown-date coverage cannot confirm zero. Enlarged metrics scroll horizontally. Detailed comparisons/aircraft remain in Statistics. |
 | C13 | Badges / disclosures | Role pill radius 12; session badge minimum 16; details + / − | Role, session evidence and expansion remain separate meanings. MobileApp / ProviderConnection. |
 | C14 | Synthetic import review | Shared C01/C02/C03 cards/actions/choice chips, centered group capped at 520 dp | Development-only comparison, source variants and explicit book choice; [ImportPreview](../../../apps/platform-lab/src/mobile/ImportPreview.tsx). No saved-library import. |
 | C15 | Captured flight review | Shared cards/actions in the connection panel's centered 520 dp group; five records per page, eight original fields per detail page | [CapturedFlights](../../../apps/platform-lab/src/mobile/CapturedFlights.tsx) reads owner-scoped saved evidence without requiring provider login. Dates/clocks, reported duration, aircraft and separate crew fields retain unknown/invalid/conflict states; original field text is selectable and untruncated. No book membership or canonical import. |
@@ -551,7 +559,7 @@ Use only the header “Daten” button for new provider data and login. Start em
 
 [Handbook entry point](README.md). Generated by `python scripts/design_handbook.py`; do not hand-edit.
 
-Scope: 80 product mobile TypeScript/model and app-owned TSX UI/adapter files; 67 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.
+Scope: 80 product mobile TypeScript/model and app-owned TSX UI/adapter files; 65 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.
 
 ## App.tsx
 
@@ -706,25 +714,17 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CapturedFlights.t
 
 ## ClubHeading.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ClubHeading.tsx](../../../apps/platform-lab/src/mobile/ClubHeading.tsx); normalized SHA-256 `1a0106d5dfb2583c5a3d61bddadf4bcaea4ba2254022c6a199c10e3edb6f1793`.
-
-### Literal colors
-
-| Value / declaration | Source line(s) |
-| --- | --- |
-| `#14232f88` | 24 |
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ClubHeading.tsx](../../../apps/platform-lab/src/mobile/ClubHeading.tsx); normalized SHA-256 `4d3d14a1de8be1a94de450727a4b7b8fa097b2cc3e4d8fbce69ffae77b93936f`.
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 11` | 9 |
-| `fontSize: 12` | 9 |
+| `fontSize: 12` | 24 |
 | `fontSize: 14` | 27 |
 | `fontSize: 15` | 25 |
 | `fontWeight: '600'` | 25, 27 |
-| `lineHeight: 16` | 9 |
-| `lineHeight: 18` | 9 |
+| `lineHeight: 18` | 24 |
 | `lineHeight: 21` | 25 |
 | `lineHeight: 22` | 27 |
 
@@ -732,16 +732,18 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ClubHeading.tsx](
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 10` | 23 |
 | `borderRadius: 8` | 26 |
 | `gap: 7` | 26 |
-| `gap: 8` | 22 |
-| `height: 48` | 23 |
-| `minHeight: 72` | 22 |
+| `gap: 8` | 23 |
+| `height: 1` | 24, 25 |
+| `minHeight: 80` | 23 |
 | `minWidth: 0` | 9, 27 |
 | `paddingHorizontal: 10` | 26 |
+| `paddingHorizontal: 16` | 23 |
+| `paddingVertical: 12` | 23 |
 | `paddingVertical: 6` | 26 |
-| `width: 64` | 23 |
+| `width: '100%'` | 9 |
+| `width: 0` | 24, 25 |
 
 ## ClubInformation.tsx
 
@@ -771,7 +773,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ClubInformation.t
 
 ## CockpitPreview.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CockpitPreview.tsx](../../../apps/platform-lab/src/mobile/CockpitPreview.tsx); normalized SHA-256 `d007c56710460620dc09d86fd7cdbc3c206781b98dc6082150dcece8b55d4d73`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CockpitPreview.tsx](../../../apps/platform-lab/src/mobile/CockpitPreview.tsx); normalized SHA-256 `fa23dd43ace13eb08a1437a710ba4349db363fd22fc13ead3937aeb2a679c55a`.
 
 ### Typography declarations
 
@@ -789,10 +791,8 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CockpitPreview.ts
 | `gap: 12` | 29 |
 | `gap: 4` | 49 |
 | `maxWidth: 520` | 28 |
-| `minHeight: 48` | 26 |
 | `minHeight: 60` | 49 |
 | `minWidth: 0` | 49 |
-| `minWidth: 48` | 26 |
 | `padding: 12` | 28 |
 | `padding: 6` | 47 |
 | `width: '100%'` | 28 |
@@ -837,13 +837,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundat
 
 ## Dashboard.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](../../../apps/platform-lab/src/mobile/Dashboard.tsx); normalized SHA-256 `db6d064ee77afa8aca03f66b72f21c1cfabe10adbf0a3e6c66f96d97d5dd56d8`.
-
-### Literal colors
-
-| Value / declaration | Source line(s) |
-| --- | --- |
-| `#001b2955` | 73 |
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](../../../apps/platform-lab/src/mobile/Dashboard.tsx); normalized SHA-256 `39abb8a1c2d268d1a1d3cb08b924476b44d426c65d018dc9b442cc44fbdb2a3c`.
 
 ### Typography declarations
 
@@ -886,7 +880,6 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](..
 | `minWidth: 48` | 81 |
 | `minWidth: 90` | 76 |
 | `opacity: .4` | 43 |
-| `opacity: .44` | 37 |
 | `padding: 0` | 72 |
 | `padding: 12` | 78 |
 | `paddingHorizontal: 10` | 79 |
@@ -900,43 +893,33 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](..
 
 ## DataUpdateIndicator.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DataUpdateIndicator.tsx](../../../apps/platform-lab/src/mobile/DataUpdateIndicator.tsx); normalized SHA-256 `fe8f619786958c6b350b48cacb8dfe197d86a4791118e2f44161d17a6cddfc1f`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DataUpdateIndicator.tsx](../../../apps/platform-lab/src/mobile/DataUpdateIndicator.tsx); normalized SHA-256 `e3d07f6a0aec27999709b89c09679d4bd92f31ccabe266aa71bfb95af2a93d15`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
 | `#74dfba` | 21 |
-| `#ffc477` | 21, 36, 42 |
-| `#ffc47712` | 36 |
+| `#ffc477` | 21, 36 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 10` | 42 |
-| `fontSize: 11` | 39, 41 |
-| `fontSize: 12` | 40 |
-| `fontWeight: '600'` | 40 |
-| `fontWeight: '700'` | 39 |
-| `lineHeight: 14` | 42 |
-| `lineHeight: 15` | 41 |
-| `lineHeight: 16` | 39, 40 |
+| `fontSize: 11` | 28 |
+| `fontWeight: '700'` | 28 |
+| `lineHeight: 16` | 28 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 20` | 35 |
-| `borderWidth: 1` | 35 |
-| `gap: 1` | 35 |
-| `gap: 4` | 38 |
-| `minHeight: 38` | 35 |
-| `minHeight: 48` | 34 |
-| `minWidth: 0` | 37 |
-| `minWidth: 48` | 34 |
+| `borderRadius: 4` | 36 |
+| `height: 32` | 34 |
+| `height: 7` | 36 |
 | `opacity: .5` | 26 |
-| `width: 44` | 35 |
+| `width: 32` | 34 |
+| `width: 7` | 36 |
 
 ## DesignPreview.tsx
 
@@ -1152,118 +1135,117 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MedicalStatus.tsx
 
 ## MobileApp.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `65a117528a79f4d836f5586d2a01b0c4caae5fcb652db0ca9c31e5cdc1747c0e`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `d99a5529fc3b32cef1576c9d0b534d88e2776a98e9f182dd0dcbee9b32e72a6f`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#000712bd` | 325 |
-| `#064240` | 319 |
-| `#10282d` | 319 |
-| `#11263a` | 318 |
-| `#152d42` | 320 |
-| `#1b344a` | 323 |
-| `#227f87` | 319 |
-| `#78efdc` | 321 |
-| `#8ba4bc` | 271, 316 |
+| `#000712bd` | 324 |
+| `#064240` | 318 |
+| `#10282d` | 318 |
+| `#11263a` | 317 |
+| `#152d42` | 319 |
+| `#1b344a` | 322 |
+| `#227f87` | 318 |
+| `#78efdc` | 320 |
+| `#8ba4bc` | 271, 315 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 10` | 260, 271, 316 |
-| `fontSize: 11` | 265, 317 |
-| `fontSize: 12` | 221, 319, 324 |
-| `fontSize: 13` | 261, 318 |
-| `fontSize: 16` | 323 |
-| `fontSize: 20` | 317 |
-| `fontSize: 23` | 322 |
-| `fontSize: 25` | 324 |
-| `fontWeight: '600'` | 317, 319 |
-| `fontWeight: '700'` | 324 |
-| `letterSpacing: .6` | 316 |
-| `lineHeight: 16` | 271, 316, 317 |
-| `lineHeight: 17` | 319 |
-| `lineHeight: 18` | 221, 324 |
-| `lineHeight: 25` | 317 |
-| `lineHeight: 29` | 324 |
+| `fontSize: 10` | 260, 271, 315 |
+| `fontSize: 11` | 265, 316 |
+| `fontSize: 12` | 221, 318, 323 |
+| `fontSize: 13` | 261, 317 |
+| `fontSize: 16` | 322 |
+| `fontSize: 20` | 316 |
+| `fontSize: 23` | 321 |
+| `fontSize: 25` | 323 |
+| `fontWeight: '600'` | 316, 318 |
+| `fontWeight: '700'` | 323 |
+| `letterSpacing: .6` | 315 |
+| `lineHeight: 16` | 271, 315, 316 |
+| `lineHeight: 17` | 318 |
+| `lineHeight: 18` | 221, 323 |
+| `lineHeight: 25` | 316 |
+| `lineHeight: 29` | 323 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 313, 319 |
-| `borderRadius: 13` | 319 |
-| `borderRadius: 14` | 314 |
-| `borderRadius: 15` | 321 |
-| `borderRadius: 16` | 323, 324 |
-| `borderRadius: 17` | 320 |
-| `borderRadius: 18` | 322 |
-| `borderRadius: 2` | 324 |
-| `borderRadius: 20` | 323 |
-| `borderRadius: 22` | 318, 326 |
-| `borderRadius: 24` | 318 |
-| `borderRadius: 9` | 319 |
-| `borderWidth: 1` | 313, 318, 319, 322, 323, 324, 326 |
-| `gap: 1` | 317 |
+| `borderRadius: 12` | 313, 318 |
+| `borderRadius: 13` | 318 |
+| `borderRadius: 15` | 320 |
+| `borderRadius: 16` | 322, 323 |
+| `borderRadius: 17` | 319 |
+| `borderRadius: 18` | 321 |
+| `borderRadius: 2` | 323 |
+| `borderRadius: 20` | 322 |
+| `borderRadius: 22` | 317, 325 |
+| `borderRadius: 24` | 317 |
+| `borderRadius: 9` | 318 |
+| `borderWidth: 1` | 313, 317, 318, 321, 322, 323, 325 |
+| `gap: 1` | 316 |
 | `gap: 10` | 227, 238 |
 | `gap: 12` | 226, 312 |
-| `gap: 18` | 321 |
-| `gap: 2` | 324 |
-| `gap: 3` | 316, 319 |
-| `gap: 4` | 324 |
-| `gap: 5` | 318 |
-| `gap: 6` | 322, 323 |
-| `gap: 7` | 318, 321 |
-| `gap: 8` | 294, 296, 313, 320, 323 |
-| `height: 2` | 324 |
-| `height: 30` | 321 |
-| `height: 48` | 314, 323 |
-| `maxHeight: 150` | 323 |
+| `gap: 18` | 320 |
+| `gap: 2` | 323 |
+| `gap: 3` | 315, 318 |
+| `gap: 4` | 323 |
+| `gap: 5` | 317 |
+| `gap: 6` | 321, 322 |
+| `gap: 7` | 317, 320 |
+| `gap: 8` | 294, 296, 313, 319, 322 |
+| `height: 2` | 323 |
+| `height: 30` | 320 |
+| `height: 48` | 322 |
+| `maxHeight: 150` | 322 |
 | `maxWidth: 480` | 238 |
-| `maxWidth: 520` | 151, 294, 296, 321 |
-| `maxWidth: 599` | 311, 324 |
+| `maxWidth: 520` | 151, 294, 296, 320 |
+| `maxWidth: 599` | 311, 323 |
 | `maxWidth: 600` | 223, 272 |
 | `maxWidth: 720` | 258 |
 | `maxWidth: 960` | 223, 272 |
-| `minHeight: 0` | 278, 326 |
-| `minHeight: 126` | 321 |
-| `minHeight: 34` | 320 |
-| `minHeight: 36` | 315 |
-| `minHeight: 40` | 318 |
-| `minHeight: 48` | 313, 318, 320 |
-| `minHeight: 52` | 323 |
-| `minHeight: 60` | 324 |
-| `minHeight: 64` | 319 |
-| `minHeight: 66` | 319 |
-| `minHeight: 86` | 322 |
-| `minWidth: 0` | 317, 318 |
+| `minHeight: 0` | 278, 325 |
+| `minHeight: 126` | 320 |
+| `minHeight: 34` | 319 |
+| `minHeight: 36` | 314 |
+| `minHeight: 40` | 317 |
+| `minHeight: 48` | 313, 317, 319 |
+| `minHeight: 52` | 322 |
+| `minHeight: 60` | 323 |
+| `minHeight: 64` | 318 |
+| `minHeight: 66` | 318 |
+| `minHeight: 86` | 321 |
+| `minWidth: 0` | 316, 317 |
 | `opacity: .45` | 263 |
-| `opacity: .8` | 325 |
-| `padding: 0` | 320 |
+| `opacity: .8` | 324 |
+| `padding: 0` | 319 |
 | `padding: 10` | 312 |
 | `padding: 12` | 312 |
-| `padding: 16` | 322 |
-| `padding: 4` | 316, 323 |
-| `padding: 6` | 324 |
-| `padding: 7` | 319 |
-| `paddingHorizontal: 12` | 313, 318, 325 |
-| `paddingHorizontal: 16` | 320 |
-| `paddingHorizontal: 6` | 319 |
-| `paddingHorizontal: 7` | 319 |
-| `paddingHorizontal: 8` | 323 |
-| `paddingVertical: 10` | 319, 325 |
-| `paddingVertical: 4` | 318 |
-| `paddingVertical: 8` | 324 |
-| `width: '100%'` | 151, 226, 227, 228, 238, 271, 294, 296, 311, 320, 321, 324 |
-| `width: '32%'` | 324 |
-| `width: '49.2%'` | 320 |
-| `width: 24` | 324 |
-| `width: 30` | 321 |
-| `width: 42` | 318 |
-| `width: 48` | 314, 323 |
-| `width: 64` | 319 |
+| `padding: 16` | 321 |
+| `padding: 4` | 315, 322 |
+| `padding: 6` | 323 |
+| `padding: 7` | 318 |
+| `paddingHorizontal: 12` | 313, 317, 324 |
+| `paddingHorizontal: 16` | 319 |
+| `paddingHorizontal: 6` | 318 |
+| `paddingHorizontal: 7` | 318 |
+| `paddingHorizontal: 8` | 322 |
+| `paddingVertical: 10` | 318, 324 |
+| `paddingVertical: 4` | 317 |
+| `paddingVertical: 8` | 323 |
+| `width: '100%'` | 151, 226, 227, 228, 238, 271, 294, 296, 311, 319, 320, 323 |
+| `width: '32%'` | 323 |
+| `width: '49.2%'` | 319 |
+| `width: 24` | 323 |
+| `width: 30` | 320 |
+| `width: 42` | 317 |
+| `width: 48` | 322 |
+| `width: 64` | 318 |
 
 ## OverviewTiles.tsx
 
@@ -1677,18 +1659,19 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/SyncProgress.tsx]
 
 ## theme.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/theme.tsx](../../../apps/platform-lab/src/mobile/theme.tsx); normalized SHA-256 `f4738e0df0eb78633e1eda9bf651848fce9c72baafa37029ab069481c149de04`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/theme.tsx](../../../apps/platform-lab/src/mobile/theme.tsx); normalized SHA-256 `34aaac4287c49060b933e6367b4fa3043427ec6e603d34c1c8cca0a0b8288cf5`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#00102277` | 62 |
+| `#00102277` | 65 |
 | `#001b29` | 6 |
-| `#031326` | 31, 52 |
+| `#001b2944` | 50 |
+| `#031326` | 31, 55 |
 | `#062331` | 6 |
 | `#0c3041` | 6 |
-| `#162a42` | 61 |
+| `#162a42` | 64 |
 | `#183d50` | 6 |
 | `#231e63` | 6 |
 | `#27d3d2` | 6 |
@@ -1701,47 +1684,50 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/theme.tsx](../../
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 14` | 57 |
-| `fontSize: 15` | 44, 52 |
+| `fontSize: 14` | 60 |
+| `fontSize: 15` | 44, 55 |
 | `fontSize: 19` | 46 |
 | `fontSize: 26` | 45 |
-| `fontWeight: '600'` | 37, 46, 52 |
+| `fontWeight: '600'` | 37, 46, 55 |
 | `fontWeight: '700'` | 31, 45 |
 | `letterSpacing: -.6` | 45 |
-| `lineHeight: 20` | 57 |
-| `lineHeight: 22` | 44, 52 |
+| `lineHeight: 20` | 60 |
+| `lineHeight: 22` | 44, 55 |
 | `lineHeight: 26` | 46 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 14` | 56 |
-| `borderRadius: 16` | 47, 51, 61 |
-| `borderWidth: 1` | 47, 54, 56 |
-| `gap: 10` | 47, 48 |
-| `gap: 4` | 60 |
+| `borderRadius: 14` | 59 |
+| `borderRadius: 16` | 47, 54, 64 |
+| `borderWidth: 1` | 47, 57, 59 |
+| `gap: 10` | 47, 51 |
+| `gap: 4` | 63 |
 | `gap: 5` | 16 |
-| `gap: 6` | 53, 62 |
-| `gap: 8` | 49, 50, 58 |
-| `minHeight: 40` | 56 |
-| `minHeight: 48` | 55, 59 |
-| `minHeight: 52` | 51 |
-| `minWidth: 0` | 34, 50 |
-| `minWidth: 66` | 56 |
+| `gap: 6` | 56, 65 |
+| `gap: 8` | 52, 53, 61 |
+| `height: 48` | 48 |
+| `minHeight: 40` | 59 |
+| `minHeight: 48` | 58, 62 |
+| `minHeight: 52` | 54 |
+| `minWidth: 0` | 34, 53 |
+| `minWidth: 66` | 59 |
 | `opacity: .45` | 31 |
 | `opacity: .5` | 26 |
-| `opacity: .72` | 60 |
-| `padding: 12` | 62 |
+| `opacity: .72` | 63 |
+| `opacity: .82` | 49 |
+| `padding: 12` | 65 |
 | `padding: 16` | 47 |
-| `paddingHorizontal: 14` | 56 |
-| `paddingHorizontal: 18` | 51 |
-| `paddingHorizontal: 4` | 59 |
-| `paddingVertical: 12` | 51 |
-| `paddingVertical: 5` | 60 |
-| `paddingVertical: 8` | 56 |
+| `paddingHorizontal: 14` | 59 |
+| `paddingHorizontal: 18` | 54 |
+| `paddingHorizontal: 4` | 62 |
+| `paddingVertical: 12` | 54 |
+| `paddingVertical: 5` | 63 |
+| `paddingVertical: 8` | 59 |
 | `width: '100%'` | 34 |
 | `width: '40%'` | 34 |
+| `width: 48` | 48 |
 
 ## UpdateDialog.tsx
 
@@ -2088,7 +2074,7 @@ duotone-assets.ts; symbols/glyphs.svg #medical-card
 
 H05 · Current native UI · outlined family
 Profile and settings
-Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
+Appearance: Current outlined profile glyph at 28 dp in the shared transparent 48×48 dp header target, without visible box/frame/background.
 Where: Far-right app-header action.
 Meaning: Local demo profile and app settings/tools.
 Function / action: Opens Profil & Einstellungen: local display-name draft, books/data and backup, connections, appearance/credits and the separate Development hub.
@@ -2098,11 +2084,11 @@ duotone-assets.ts; symbols/glyphs.svg #profile
 
 S01 · Current native UI · outlined family
 Synchronize data / Sync
-Appearance: Outlined refresh at 24 dp, independent session mark and Sync/Lädt caption. The circular face is 44 dp wide and at least 38 dp high inside a target of at least 48 dp. A conditional status row below the toolbar exposes saved age/details; the accessible button label retains age and state.
+Appearance: Outlined refresh at 28 dp within the same transparent 48×48 dp target as Profile. No visible border, container background or Sync/Lädt caption. Independent session glyph and amber advice/incomplete dot; foreground work motion respects reduced motion. Saved age remains in the conditional status row and accessible action label.
 Where: Ordinary app header; separate from provider-panel session indicators.
 Meaning: One complete guarded synchronization action. Saved successful flight receipt age, recent session proof and synchronization recommendation have independent cues; none establishes complete source coverage.
 Function / action: The header is the only entry to provider update/login. Tap opens the whole update journey in a retained centered popup frame; original login appears only if needed. Other pages provide passive guidance. Contextual return is preserved.
-States / limits: Green ✓ requires matching confirmed proof younger than 90 seconds. During checking only identical previous owner/store scope, account, club and last-check timestamp may retain display within 90 seconds; canonical authentication stays unchanged. → means login required; ? unknown/checking without retained proof; ! mismatch/error. Saved age stays neutral through login/error except a steady amber border/surface and age ! strictly after 72 hours, regardless of session; exactly 72 hours stays quiet. Login/checks/failure/cancellation never renew receipt age. Scoped changed-count activity advice may independently recommend sync. It is foreground-only, hourly at most, and cannot advance saved receipt age.
+States / limits: Green ✓ requires matching confirmed proof younger than 90 seconds. During checking only identical previous owner/store scope, account, club and last-check timestamp may retain display within 90 seconds; canonical authentication stays unchanged. → means login required; ? unknown/checking without retained proof; ! mismatch/error. Saved age stays neutral through login/error except a small amber dot strictly after 72 hours, regardless of session; exactly 72 hours stays quiet. Login/checks/failure/cancellation never renew receipt age. Scoped changed-count activity advice may independently recommend sync; incomplete sync has the same dot with distinct accessible wording and a details/retry row. It is foreground-only, hourly at most, and cannot advance saved receipt age.
 Source: apps/platform-lab/src/mobile/DataUpdateIndicator.tsx
 DataUpdateIndicator; dataUpdateStatus; dataFreshness; createSessionPresentation; glyphs.svg #refresh
 
@@ -2192,7 +2178,7 @@ duotone-assets.ts; symbols/glyphs.svg #clock
 D05 · Current native UI · outlined family
 Location / start field
 Appearance: Compact Cockpit outlined symbol from the maintained SVG master and generated native RGBA palettes. Its labelled parent retains action and state semantics.
-Where: Retained departure/airfield category glyph; current compact club heading uses the club glyph and decorative thumbnail.
+Where: Retained departure/airfield category glyph; current compact club heading uses the club glyph and decorative full-width header background.
 Meaning: The start-field/location field of the club item.
 Function / action: Read-only field marker; card actions navigate separately.
 States / limits: Currently paired with an unknown value. No current GPS location or location permission is implied.

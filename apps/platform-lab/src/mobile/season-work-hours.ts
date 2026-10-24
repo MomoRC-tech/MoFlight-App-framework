@@ -3,7 +3,10 @@ import type { FeatureSource, WorkSummaryItem } from './feature-information';
 /** One explicit annual source row, never a sum of a partial list or a EUR conversion. */
 export function seasonWorkHours(source: FeatureSource<WorkSummaryItem> | undefined, year: number): string | null {
   if (source?.status !== 'partial' || source.empty) return null;
-  const rows = source.items.filter(item => item.period.trim() === String(year));
+  const rows = source.items.filter(item => {
+    const period = item.period.trim().replace(/\s+/g, ' ');
+    return period === String(year) || period === `Jahr ${year}`;
+  });
   if (rows.length !== 1) return null;
   const hours = rows[0]!.hours.trim();
   const clock = /^(\d{1,5}):([0-5]\d)$/.exec(hours);

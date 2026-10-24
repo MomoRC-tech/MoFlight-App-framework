@@ -75,3 +75,14 @@ test('event operation binds initial date/view before profile navigation and refu
     }
   }
 });
+
+
+test('one-day birthday rows can prove no Termine without reading names, times or details',()=>{
+ const birthday=row(['','Sa','24.10.2026','','Geburtstage','']);
+ for(const i of [0,1,3,5])for(const property of ['innerText','textContent'])Object.defineProperty(birthday.cells[i]!,property,{get(){throw new Error('Unselected birthday information read');}});
+ const page=validateInformationPage(fixture({date:'24.10.2026',view:'1 Tag',rows:[header(),birthday,row(['','','','','Fremde Dienste',''])]}).read());
+ assert.equal(page.empty,true);assert.equal(page.rows.length,0);assert.deepEqual(page.filters,['Quellkategorie: Termine','Ab 24.10.2026','Ansicht: 1 Tag']);
+ for(const options of [{date:'25.10.2026',view:'1 Tag'},{date:'24.10.2026',view:'1 Woche'}])assert.throws(()=>validateInformationPage(fixture({...options,rows:[header(),birthday]}).read()));
+ const unknown=row(['','','24.10.2026','','Unverified category','']);
+ assert.throws(()=>validateInformationPage(fixture({date:'24.10.2026',view:'1 Tag',rows:[header(),unknown]}).read()));
+});

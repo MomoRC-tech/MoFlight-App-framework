@@ -34,8 +34,8 @@ export function Dashboard({ ownFlights, ownFlightPhase, onFlights, onFlight, onS
   const latest=facts.latest, a=latest?.facts.assessment;
   const raw=(field:'registration'|'model')=>a?.fields[field].state==='value'?a.fields[field].raw:'—';
   return <Card style={styles.season}>
-    <ImageBackground source={require('../../assets/aviation/ask21-flight-header-v2.png')} resizeMode="cover" imageStyle={{opacity:.44}} style={styles.photo}>
-      <View style={styles.shade}>
+    <ImageBackground source={require('../../assets/aviation/ask21-flight-header-v2.png')} resizeMode="cover" imageStyle={ui.cockpitImage} style={styles.photo}>
+      <View style={[ui.cockpitShade,styles.shade]}>
         <View style={styles.heading}>
           <Pressable accessibilityRole="button" accessibilityLabel={`Saison ${year} auswählen`} accessibilityState={{expanded:yearOpen}} onPress={()=>setYearOpen(!yearOpen)} style={styles.seasonTitle}><Label style={styles.title}>Meine Saison · {year}</Label></Pressable>
           {onStatistics&&<Pressable accessibilityRole="button" accessibilityLabel="Statistik" onPress={()=>onStatistics(year)} style={[styles.statistics,fontScale>1.3&&{maxWidth:'45%'}]}><Label style={[styles.statisticsText,{flexShrink:1}]}>Statistik</Label><View style={{transform:[{rotate:'-45deg'}]}}><SymbolIcon name="arrow" size={16}/></View></Pressable>}
@@ -70,7 +70,7 @@ export function Dashboard({ ownFlights, ownFlightPhase, onFlights, onFlight, onS
 }
 const styles=StyleSheet.create({
   season:{width:'100%',maxWidth:520,alignSelf:'center',padding:0,gap:0},
-  photo:{width:'100%'},shade:{backgroundColor:'#001b2955',paddingHorizontal:12,paddingBottom:12,gap:8},
+  photo:{width:'100%'},shade:{paddingHorizontal:12,paddingBottom:12,gap:8},
   heading:{flexDirection:'row',alignItems:'center',gap:6},seasonTitle:{flex:1,minWidth:0,minHeight:48,justifyContent:'center'},title:{fontSize:18,lineHeight:25,fontWeight:'700'},
   statistics:{minHeight:48,justifyContent:'center',alignItems:'center',flexDirection:'row',gap:3,paddingHorizontal:2,maxWidth:'35%'},statisticsText:{color:colors.cyan,fontSize:14,lineHeight:20},
   metrics:{flexGrow:1,flexDirection:'row',paddingTop:4},metric:{flex:1,minWidth:90,alignItems:'center',justifyContent:'flex-start',gap:3,paddingHorizontal:5},divider:{borderLeftWidth:1,borderColor:colors.border},

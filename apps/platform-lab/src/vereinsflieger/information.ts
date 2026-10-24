@@ -318,7 +318,7 @@ export const INFORMATION_READER_SOURCE = String.raw`(category, config) => {
       const kind=norm(cells[4].innerText);
       if(kind!=='Termine') {
         otherRows++;
-        if(!['Fremde Dienste','Fremde Reservierungen','Flugzeugsperren'].includes(kind)) unsupportedOtherKind=true;
+        if(!['Fremde Dienste','Fremde Reservierungen','Flugzeugsperren','Geburtstage'].includes(kind)) unsupportedOtherKind=true;
         continue;
       }
       if(!date || [cells[3],cells[4],cells[5]].some(c=>c.querySelector('table,input,button,select,textarea,iframe,object,embed'))) return unsupported(4,date?1:0);
