@@ -4,7 +4,7 @@ import * as Crypto from 'expo-crypto';
 import {AiChat} from './AiChat';
 import {AiRunController} from '../ai/run-controller';
 import {openAiWorkspaceNative,type AiNativeWorkspace} from '../ai/workspace-native';
-import type {ChatArchive,ChatMessage} from '../ai/chat-model';
+import {chatDraftTitle,type ChatArchive,type ChatMessage} from '../ai/chat-model';
 import type {AiBudget,AiFeature} from '../../../../packages/ai-contracts/src/index';
 
 const unavailable='Der AI-Dienst ist noch nicht freigeschaltet. Entwürfe und Gespräche bleiben lokal; es wird nichts gesendet.';
@@ -49,7 +49,7 @@ export function AiChatRoute({active,reload,onEvidence}:{active:boolean;reload:nu
     setArchive(previous=>previous?{...previous,conversations:previous.conversations.some(c=>c.id===conversationId)?previous.conversations.map(c=>c.id===conversationId?{...c,draft:value}:c):[
       {version:1,id:conversationId,ownerId:previous.ownerId,title:'Neues Gespräch',draft:value,context:null,messages:[],activitySequence:0,updatedAt:new Date().toISOString()},...previous.conversations]}:previous);
     mutate(async w=>{const current=await w.store.archive(),conversation=current.conversations.find(c=>c.id===conversationId);
-      await w.store.saveDraft(conversationId,conversation?.title??'Neues Gespräch',value,conversation?.context??null,new Date().toISOString());
+      await w.store.saveDraft(conversationId,chatDraftTitle(value,conversation),value,conversation?.context??null,new Date().toISOString());
       // Refresh only the latest edit, avoiding older write acknowledgements replacing new text.
       if(sequence===draftSequence.current){unsavedDraft.current=false;await refresh(w,sequence);}},false);
   };

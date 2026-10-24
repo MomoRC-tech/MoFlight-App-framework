@@ -52,6 +52,12 @@ export interface ChatArchive {
 
 export interface ChatArchiveOptions { interruptActive?: boolean }
 
+/** Give unsent conversations a useful local title; later drafts retain their history title. */
+export function chatDraftTitle(input:string,current?:Pick<ChatConversation,'title'|'messages'>):string {
+  if(current?.messages.length||!input.trim())return current?.title||'Neues Gespräch';
+  return input.trim().split(/\r?\n/,1)[0]!.slice(0,80);
+}
+
 export const CHAT_LIMITS = Object.freeze({
   archiveBytes: 16 * 1024 * 1024,
   conversations: 50,
