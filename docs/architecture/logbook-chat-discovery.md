@@ -1,8 +1,8 @@
 # In-app AI chat: first-version requirements and later discovery
 
-**Current status — 2026-10-24:** Manuel selected the first-version choices below, OpenRouter and GPT-6 Luna with Max/ZDR-only inference as the evaluation candidate, followed by SDK Responses/short-relay implementation and historical verified Vereinsflieger-ID admission. The [execution plan](../development/ai-chat-implementation-plan.md) defines packages, dependencies, trust limits and Luna Max delegation. Runtime remains M5; this planning turn does not start implementation or reorder core priorities. Actual service/route/model/native acceptance, personal-data transfer and paid execution remain open.
+**Current status — 2026-10-24:** Manuel selected the first-version choices below, OpenRouter and GPT-6 Luna with Max/ZDR-only inference as the evaluation candidate, followed by SDK Responses/short-relay implementation and historical verified Vereinsflieger-ID admission. The [execution plan](../development/ai-chat-implementation-plan.md) defines packages, dependencies, trust limits and Luna Max delegation. Manuel subsequently authorized implementation according to that plan; AI00/AI01 local work has started. Runtime integration remains M5; no broader acceptance follows. Actual service/route/model/native acceptance, personal-data transfer and paid execution remain open.
 
-Original discovery: 2026-10-11, Europe/Berlin; first-version decisions: 2026-10-24. Status: selected product requirements and evaluation candidate with technical/privacy/evaluation contracts still open. No LLM implementation, API-key provisioning, private-data transfer, paid call or evaluation execution is authorized. Retrieval and provider-view preservation retain priority.
+Original discovery: 2026-10-11, Europe/Berlin; first-version decisions: 2026-10-24. Status: selected product requirements and evaluation candidate with technical/privacy/evaluation contracts still open. Local implementation is now authorized by the subsequent instruction to implement the execution plan. API-key provisioning, private-data transfer, paid calls and actual model evaluation remain gated. Retrieval and provider-view preservation retain priority.
 
 Tracking: [#13](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/13) owns conversational scope; [#72](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/72) owns centralized live AI configuration and owner controls.
 
@@ -53,7 +53,7 @@ Documentation verification for this package: consistency with #13, ADR 0008 and 
 
 ### Technical closure proposal — 24 October 2026
 
-**Status: proposed, awaiting package review.** This is a concrete design for the selected personal first version, not permission to implement, provision, deploy, upload private inputs or make paid calls. Existing accepted ADRs remain binding; this proposal makes no production book-schema expansion or automatic monitoring a prerequisite.
+**Status: reviewed local implementation defaults selected through Manuel’s subsequent instruction to implement the execution plan.** Exact benchmark candidates/funding and actual service/input eligibility remain separate gates. This selects local implementation, not provisioning, deployment, private-input transfer or paid calls. Existing accepted ADRs remain binding; this proposal makes no production book-schema expansion or automatic monitoring a prerequisite.
 
 | ID | Proposed decision |
 | --- | --- |

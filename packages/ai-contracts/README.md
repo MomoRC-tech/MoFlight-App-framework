@@ -1,0 +1,15 @@
+# AI contracts v1
+
+Vendor-free TypeScript DTOs and strict parsers shared by the future phone coordinator and relay. No SDK, network, secrets, storage migration or dispatch implementation is included. Consumers can import `src/index.ts`; runtime installation/composition follows the dependent packages.
+
+Use `parseAiRequest`/`parseAiReply` at JSON wire boundaries: they impose the 512,000-byte envelope ceiling before JSON parsing. In-process validators reject extra fields, unsupported versions, non-JSON properties and invalid bounds, and construct fresh values. Request history contains plain user/assistant text pairs, never caller-selected privileged roles. Continuation strings are opaque, untrusted envelopes: AI04/AI07 must authenticate and bind their content, pending tool IDs and replay digest before using them. Passing a shape check is insufficient.
+
+Local `AiContext` includes owner, account, context version, store, generation and snapshot revision. Source references also pin facts revision. Keep this context and source-reference map on the phone; `AiToolResult` carries bounded aliases/evidence tokens and no provider ID, raw source row, remarks or excluded categories. `assertAiContext` checks exact current context; the coordinator must recheck selection before tools and publication. Pagination, aliases, references and metric grants must be scoped to the active run. Shape validation cannot detect an alias whose string contains a real identifier: projection/privacy review remains required.
+
+`validateAiReply` requires locally issued evidence and exact deterministic metric grants. It rejects invented structured values and navigation actions; it does not prove narrative correctness. Render answer text as plain text. Never execute model URLs, HTML or code. App-owned navigation resolves references locally.
+
+Policy v1 pins Luna Max, Azure-only ZDR routes, no storage/retries and maximum plan limits. Lower numeric limits are allowed. Initial operator policy must remain disabled until runtime, retention, route and funding gates pass. A valid policy is not dispatch authorization. Budget projection uses integer EUR micro-units; unknown exposure is separate from reserved exposure and both reduce remaining allowance. Overage remains visible with zero remaining. Atomic accounting, server calendar and reconciliation belong to AI06.
+
+Storage versions are frozen for the upcoming packages: chat/identity v1, supported aggregate backup v2 with backward input support for v1. This package does not change the existing backup writer (still v1). Historical-ID provenance describes local evidence, not cryptographic authentication. Never forward the raw provider account ID to inference, treat it as a secret or use it as operator authority.
+
+Focused checks: `node --import tsx --test tests/mobile/ai-contracts.test.ts tests/mobile/ai-fixtures.test.ts`, then `pnpm typecheck`. Frozen fixtures support later tools/model evaluation without making model calls. Live/provider/native acceptance remains separate.
