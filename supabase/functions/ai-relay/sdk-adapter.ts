@@ -3,6 +3,8 @@ import type { Response, ResponseCreateParamsNonStreaming, ResponseInput } from '
 import { validateAiRequest, validateAiPolicy, type AiPolicy, type AiRequest } from '../../../packages/ai-contracts/src/index.ts';
 import { opaqueBillingTag } from './admission.ts';
 import { responseTools } from './tool-definitions.ts';
+import type { buildRoundBody } from './round-body.ts';
+import type { RelayModelResponse } from './relay-service.ts';
 
 export const SERVER_SDK_VERSION = '7.43.0';
 const BASE_URL = 'https://openrouter.ai/api/v1';
@@ -66,5 +68,19 @@ export function createServerResponsesAdapter(options:ServerResponsesOptions) {
         return {state:'unknown',reason:signal?.aborted?'cancelled':error instanceof OpenAI.APIConnectionTimeoutError?'timeout':'upstream'};
       }
     },
+  };
+}
+
+/** Server composition port for createRelayService only. The service owns admission/intent
+ * and reconstructs the body; never expose this function directly as an HTTP route. */
+export function createSdkRoundSubmitter(options:Omit<ServerResponsesOptions,'beforeDispatch'>) {
+  const timeout=options.timeoutMs??40000;
+  if(!Number.isSafeInteger(timeout)||timeout<1||timeout>45000||typeof options.apiKey!=='string'||!options.apiKey.trim()||typeof options.fetch!=='function')throw new Error('Invalid server transport configuration');
+  const sdk=new OpenAI({apiKey:options.apiKey,baseURL:BASE_URL,fetch:options.fetch,maxRetries:0,timeout,organization:null,project:null,webhookSecret:null,
+    logLevel:'off',logger:{debug(){},info(){},warn(){},error(){}}});
+  return async(body:ReturnType<typeof buildRoundBody>,signal?:AbortSignal):Promise<RelayModelResponse>=>{
+    const response=await sdk.responses.create(body as unknown as ResponseCreateParamsNonStreaming,{signal});
+    if(response.status!=='completed'&&response.status!=='incomplete')throw new Error('Nonterminal AI response');
+    return {id:response.id,status:response.status,output:response.output};
   };
 }

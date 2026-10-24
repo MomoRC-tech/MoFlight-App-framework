@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
-import { createServerResponsesAdapter, initialResponseBody } from './sdk-adapter.ts';
+import { createServerResponsesAdapter, initialResponseBody,createSdkRoundSubmitter } from './sdk-adapter.ts';
+import {buildRoundBody} from './round-body.ts';
 import type { AiPolicy } from '../../../packages/ai-contracts/src/index.ts';
 
 const policy:AiPolicy={version:1,id:'policy-1',enabled:true,model:'openai/gpt-6-luna',reasoning:'max',zdrOnly:true,store:false,automaticRetries:0,routes:['azure'],
@@ -18,6 +19,15 @@ function transport(response:()=>Promise<Response>=async()=>reply()){
   const fetcher:typeof fetch=async(input,init)=>{requests.push({url:String(input),body:JSON.parse(String(init?.body))});return response();};
   return {requests,fetcher};
 }
+Deno.test('prepared SDK continuation preserves complete ordered reasoning, function and output items without hosted state',async()=>{
+  const wire=transport(),submit=createSdkRoundSubmitter({apiKey:'synthetic-test-key',fetch:wire.fetcher});
+  const {text:_,history:__,...base}=start;
+  const request={...base,kind:'continue',round:1,policyId:policy.id,runCapability:'a'.repeat(43),continuation:'synthetic-sealed',outputs:[{callId:'call-1',payload:'{}'}]};
+  const previous=[{role:'user',content:'Synthetic question'},...output,{type:'function_call_output',call_id:'call-1',output:'{}'}];
+  const body=buildRoundBody(request,policy,tag,previous);await submit(body);
+  assert.deepEqual(wire.requests[0]!.body.input,previous);assert.equal(wire.requests[0]!.body.store,false);
+  assert.equal('previous_response_id' in wire.requests[0]!.body,false);assert.equal(wire.requests.length,1);
+});
 Deno.test('real server SDK serializes pinned policy/Max/ZDR controls and opaque tag, retaining all output items',async()=>{
   const wire=transport();let intents=0;
   const adapter=createServerResponsesAdapter({apiKey:'synthetic-test-key',fetch:wire.fetcher,beforeDispatch:async intent=>{intents++;assert.equal(intent.attemptId,'attempt-1');}});

@@ -96,7 +96,7 @@ test('public capabilities expose only the approved client projection', () => {
 
   assert.deepEqual(Object.keys(capabilities).sort(), [
     'enabled', 'features', 'inputTokens', 'model', 'outputTokens', 'personalCapMicroEur',
-    'policyId', 'reasoning', 'routes', 'rowsPerRead', 'tools', 'version', 'zdrOnly',
+    'policyId', 'questionTools', 'questionTurns', 'reasoning', 'reviewTools', 'reviewTurns', 'routes', 'rowsPerRead', 'tools', 'version', 'zdrOnly',
   ]);
   for (const forbidden of [
     'systemPrompt', 'billingTag', 'provider', 'globalCapMicroEur', 'settledMicroEur',

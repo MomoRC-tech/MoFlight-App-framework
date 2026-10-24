@@ -7,7 +7,9 @@ import { BookLab } from '../BookLab';
 import { Action, Card, Chip, ClubMark, Empty, IconLabel, Label, Photo, Section, colors, ui } from './theme';
 import { useLibrary } from './use-library';
 import { formatDuration } from './flight-model';
-import { localQuestions, localInsight } from './local-insights';
+import { AiChatRoute } from './AiChatRoute';
+import { openAiWorkspaceNative } from '../ai/workspace-native';
+import { aiAnswerFlightIds } from '../ai/answer-navigation';
 import { Dashboard } from './Dashboard';
 import { PlaneIcon, ProfileIcon, BookIcon } from './ShellIcons';
 import { SymbolIcon } from './SymbolIcon';
@@ -123,10 +125,6 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
   const dashboardBack=useRef<()=>boolean>(()=>false);
   const [flightRequest, setFlightRequest] = useState<OwnFlightRequest | null>(null);
   const [flightHeader, setFlightHeader] = useState<OwnFlightHeader>({title:'Flüge'});
-  const [draft, setDraft] = useState('');
-  const [aiError, setAiError] = useState(false);
-  const [sending, setSending] = useState(false);
-  const [localAnswer, setLocalAnswer] = useState<string | null>(null);
   const [keyboardTop, setKeyboardTop] = useState<number | null>(null);
   const aiScroll = useRef<ScrollView>(null);
   const activeTab = useRef(tab);
@@ -181,7 +179,7 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
     // A reload with identical saved facts must not erase the return path. When
     // facts/book do change, discard stale details but retain named tool/settings paths.
     overlayHistory.current = overlayHistory.current.filter(previous => !previous.detail);
-    setDetail(null); setLocalAnswer(null);
+    setDetail(null);
   }, [libraryRevision]);
   useEffect(() => {
     const listener = BackHandler.addEventListener('hardwareBackPress', () => {
@@ -197,18 +195,6 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
   useEffect(() => { diagnosticJournal.record('screen', coreFlightsOpen ? 'provider-options' : detail ? 'flight-detail' : sheet ?? tab); }, [tab,sheet,detail,coreFlightsOpen]);
   useEffect(() => { const listener=AppState.addEventListener('change',state=>{if(state==='active'||state==='background'||state==='inactive')diagnosticJournal.record('lifecycle',state);});return()=>listener.remove(); }, []);
   const openBooks = () => openHeaderSheet('paper');
-  const quickQuestions = localQuestions;
-  const localQuery = (index: number) => {
-    diagnosticJournal.record('action','local-query');
-    setDraft(quickQuestions[index]!); setAiError(false);
-    setLocalAnswer(localInsight(library.flights, index, currentYear));
-  };
-  const send = () => {
-    diagnosticJournal.record('action','send-query');
-    if (!draft.trim() || sending) return;
-    // No gateway exists: report a real unavailable state; never manufacture a response.
-    setSending(true); setAiError(true); setSending(false);
-  };
   const pageTitle = tabs.find(item => item.id === tab)!.title;
   const statusControls = <>
     <DataUpdateIndicator incomplete={syncProgress.state==='failed'||syncProgress.state==='partial'} activityChanged={activityChanged} scopeKey={selected?.snapshot.account?.accountRef?statisticsScopeKey:null} connection={flightStatusController.connection} receivedAt={receivedAt} readState={ownFlights.phase==='failed'?'failed':ownFlights.phase==='loading'?'loading':'ready'}
@@ -260,16 +246,13 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
       </View>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={[s.page, tab !== 'ai' && s.hidden]} accessibilityElementsHidden={tab !== 'ai'} importantForAccessibility={tab === 'ai' ? 'auto' : 'no-hide-descendants'}>
         <ScrollView ref={aiScroll} contentContainerStyle={s.canvas} keyboardShouldPersistTaps="handled" onContentSizeChange={() => { if (aiKeyboard) aiScroll.current?.scrollToEnd({ animated: false }); }}>
-          <View style={[s.aiBody, tablet && { maxWidth: 720 }]}>
-          <Card style={s.welcome}><View style={ui.row}><View style={s.aiBadge}><SymbolIcon name="sparkle" size={24} tone="contrast" /></View><Section title="Dein Assistent" /></View><Label>Fragen zu deinen Flugdaten, Auswertungen und Planungen – an einem Ort.</Label><Label muted>Die Beispiele verwenden ein synthetisches Testflugbuch. Deine echten Flüge findest du unter Flüge. Der AI-Dienst ist noch nicht verbunden.</Label></Card>
-          <View style={ui.section}><Section title="Beispiel-Fragen" /><Label muted style={{ fontSize: 10 }}>Lokal · ohne AI-Dienst</Label></View>
-          <View style={s.questionGrid}>{quickQuestions.map((question, index) => <Pressable key={question} accessibilityRole="button" accessibilityLabel={`${question} Lokal auswerten`} onPress={() => localQuery(index)} style={({ pressed }) => [s.question, { width: compact ? '100%' : tablet ? '32%' : '48.5%' }, pressed && ui.pressed]}><Label style={{ fontSize: 13 }}>{question}</Label><SymbolIcon name="right" size={20} /></Pressable>)}</View>
-          {localAnswer && <Card><Section title="Lokale Auswertung" /><Label>{localAnswer}</Label><Label muted>Deterministisch berechnet · keine generierte AI-Antwort · nur ausgewähltes synthetisches Flugbuch.</Label><Action secondary onPress={() => setTab('logbook')}>Flugbuch öffnen</Action></Card>}
-          <View style={s.composer}><TextInput accessibilityLabel="Nachricht an MoFlight AI" value={draft} onChangeText={value => { setDraft(value); setAiError(false); }} placeholder="Frage mich etwas …" placeholderTextColor={colors.muted} multiline maxLength={4000} style={s.messageInput} /><Pressable accessibilityRole="button" accessibilityLabel="Nachricht senden" hitSlop={3} accessibilityState={{ disabled: !draft.trim() || sending }} disabled={!draft.trim() || sending} onPress={send} style={[s.send, !draft.trim() && { opacity: .45 }]}><SymbolIcon name="send" size={24} tone="contrast" /></Pressable></View>
-          {aiError && <Card><View accessibilityLiveRegion="polite"><Label>Der AI-Dienst ist noch nicht verbunden. Deine Frage wurde nicht gesendet und bleibt im Eingabefeld.</Label></View><Action secondary onPress={send}>Erneut versuchen</Action></Card>}
-          <View style={s.recent}><Section title="Letzte Anfragen" /><Label muted>Noch keine gespeicherten Anfragen.</Label><Label muted style={{ fontSize: 11 }}>Ein Gesprächsverlauf wird derzeit nicht gespeichert.</Label></View>
-          <Pressable accessibilityRole="button" onPress={() => setTab('flights')} style={ui.smallAction}><IconLabel name="arrow" size={16} style={{ color: colors.cyan }}>Gespeicherte Flüge ansehen</IconLabel></Pressable>
-          </View>
+          <AiChatRoute active={tab==='ai'&&!overlayOpen&&!coreFlightsOpen} reload={flightReload+':'+statisticsScopeKey} onEvidence={async(message,referenceIds)=>{
+            const w=await openAiWorkspaceNative(async()=>{if(activeTab.current!=='ai'||AppState.currentState!=='active')throw new Error('AI navigation inactive');});if(!w)throw new Error('AI owner unavailable');
+            try {const identity=await w.identity();if(!identity)throw new Error('AI identity unavailable');const tools=await w.tools(identity,1);
+              try {await tools.assertCurrent();const ids=aiAnswerFlightIds(message,referenceIds,tools.context,tools.references);setFlightRequest({year:null,flightId:ids.length===1?ids[0]:undefined,flightIds:ids});setTab('flights');}
+              finally{tools.dispose();}
+            }finally{await w.close();}
+          }}/>
         </ScrollView>
       </KeyboardAvoidingView>
     </View>

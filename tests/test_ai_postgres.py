@@ -127,7 +127,8 @@ class AiPostgres(unittest.TestCase):
         type(self).database = 'ai_' + uuid.uuid4().hex
         result = self.sql('create database ' + self.database, database='postgres')
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.ok(MIGRATION.read_text(encoding='utf-8'))
+        for migration in sorted(MIGRATION.parent.glob('*_ai_*.sql')):
+            self.ok(migration.read_text(encoding='utf-8'))
 
     def setup_policy(self, **changes):
         self.policy = base_policy(**changes)
@@ -271,6 +272,22 @@ class AiPostgres(unittest.TestCase):
         self.denied("select public.moflight_ai_settle('102','a2','r2',0,20000000,'usage-1')")
         self.assertEqual(self.ok('select count(*) from moflight_ai.rounds'),'2')
         self.assertEqual(self.ok("select reserved from moflight_ai.period_totals where scope='*'"),'40000')
+
+    def test_response_binding_protected_status_and_request_limits(self):
+        self.setup_policy();self.account('102');self.ok(self.reserve())
+        for role in ('anon','authenticated'):
+            self.denied(f"set role {role}; select public.moflight_ai_status('101','a1','r1')")
+            self.denied(f"set role {role}; select public.moflight_ai_record_response('101','a1','r1',0,'response1')")
+        self.ok("select public.moflight_ai_record_response('101','a1','r1',0,'response1')")
+        self.ok("select public.moflight_ai_record_response('101','a1','r1',0,'response1')")
+        self.denied("select public.moflight_ai_record_response('101','a1','r1',0,'changed')")
+        self.denied("select public.moflight_ai_record_response('102','a1','r1',0,'foreign')")
+        status=json.loads(self.ok("select public.moflight_ai_status('101','a1','r1')"));self.assertEqual(status['rounds'][0]['responseId'],'response1')
+        self.denied("select public.moflight_ai_status('102','a1','r1')")
+        for _ in range(30):self.assertEqual(self.ok("select public.moflight_ai_request_admit('101')"),'t')
+        self.assertEqual(self.ok("select public.moflight_ai_request_admit('101')"),'f')
+        self.assertEqual(self.ok("select public.moflight_ai_request_admit('102')"),'t')
+        self.assertEqual(self.ok("select public.moflight_ai_request_admit('999')"),'f')
 
     def test_personal_exhaustion_does_not_spend_other_account_allowance(self):
         self.setup_policy(personalCapMicroEur=50000,reviewCapMicroEur=50000);self.account('102')

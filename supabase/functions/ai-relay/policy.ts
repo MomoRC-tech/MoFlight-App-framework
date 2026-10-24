@@ -16,5 +16,6 @@ export function publicCapabilities(value:unknown,enabled:boolean,clientVersion:n
   if(clientVersion!==1 || toolVersion!==1)throw new Error('AI client update required');
   return {version:1 as const,policyId:policy.id,enabled:enabled===true&&policy.enabled,model:policy.model,reasoning:policy.reasoning,
     routes:[...policy.routes],zdrOnly:true as const,features:[...policy.features],tools:[...policy.tools],
-    inputTokens:policy.inputTokens,outputTokens:policy.outputTokens,rowsPerRead:policy.rowsPerRead,personalCapMicroEur:policy.personalCapMicroEur};
+    inputTokens:policy.inputTokens,outputTokens:policy.outputTokens,rowsPerRead:policy.rowsPerRead,personalCapMicroEur:policy.personalCapMicroEur,
+    questionTurns:policy.questionTurns,reviewTurns:policy.reviewTurns,questionTools:policy.questionTools,reviewTools:policy.reviewTools};
 }

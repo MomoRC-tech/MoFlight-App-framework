@@ -48,14 +48,14 @@ export function OwnFlights({ active, data, filterRequest, onHeaderChange }: {
     // lock. Consuming it early would cancel the old read and silently lose the new one.
     if (!active || data.phase !== 'ready' || data.detailBusy || !data.view || !filterRequest || appliedRequest.current === filterRequest) return;
     appliedRequest.current = filterRequest;
-    setFilters({ ...allOwnFlights, year: filterRequest.year, dateRange: filterRequest.dateRange });
+    setFilters({ ...allOwnFlights, year: filterRequest.year, dateRange: filterRequest.dateRange,flightIds:filterRequest.flightIds });
     offset.current = 0;
     list.current?.scrollToOffset({ offset: 0, animated: false });
     setFilterOpen(false); setStatusOpen(false); setSearchOpen(false); setRawPage(0); data.clearDetail();
     const requested = requestedOwnFlight(flights, filterRequest);
     if (requested) void data.openDetail(requested);
   }, [active, data.phase, data.detailBusy, data.view, filterRequest, data.clearDetail]);
-  const changeFilters = (next: OwnFlightFilters) => { if(next.search!==filters.search)diagnosticJournal.record('filter','search');if(next.year!==filters.year)diagnosticJournal.record('filter','year');if(next.registration!==filters.registration)diagnosticJournal.record('filter','registration'); offset.current = 0; list.current?.scrollToOffset({ offset: 0, animated: false }); setFilters(next); };
+  const changeFilters = (next: OwnFlightFilters) => { if(next.search!==filters.search)diagnosticJournal.record('filter','search');if(next.year!==filters.year)diagnosticJournal.record('filter','year');if(next.registration!==filters.registration)diagnosticJournal.record('filter','registration'); offset.current = 0; list.current?.scrollToOffset({ offset: 0, animated: false }); setFilters({...next,flightIds:undefined}); };
   const openFilters = (section:'period'|'aircraft') => { Keyboard.dismiss(); diagnosticJournal.record('action','flight-filter'); setFilterSection(section);setFilterOpen(true); };
   const header = <View style={s.filterGroup}>
     <View style={s.controls}>

@@ -1,5 +1,5 @@
 import { validateAiBudget, validateAiPolicy, validateAiRequest, type AiPolicy } from '../../../packages/ai-contracts/src/index.ts';
-import { account, choice, id, integer, literal, object, tag, text } from '../../../packages/ai-contracts/src/shape.ts';
+import { account, array, choice, id, integer, literal, object, tag, text } from '../../../packages/ai-contracts/src/shape.ts';
 import { opaqueBillingTag } from './admission.ts';
 import type { PolicySnapshot } from './policy.ts';
 import { usdToNanoUsd } from './money.ts';
@@ -30,6 +30,18 @@ export function createAiLedger(port:AiRpcPort) {
     return {account_id:account(accountId),attempt_id:id(attemptId),run_id:id(runId),round_number:integer(roundNumber,15)};
   }
   return {
+    async admitRequest(accountId:unknown) {const allowed=await call('request_admit',{account_id:account(accountId)});if(typeof allowed!=='boolean')throw new Error('Invalid AI request admission');return allowed;},
+    async bindResponse(accountId:unknown,attemptId:unknown,runId:unknown,roundNumber:unknown,responseId:unknown) {
+      await call('record_response',{...round(accountId,attemptId,runId,roundNumber),response_id:id(responseId)});
+    },
+    async status(accountId:unknown,attemptId:unknown,runId:unknown) {
+      const p=object(await call('status',{account_id:account(accountId),attempt_id:id(attemptId),run_id:id(runId)}),['attemptId','runId','active','rounds']);
+      if(typeof p.active!=='boolean')throw new Error('Invalid AI attempt status');
+      return {attemptId:literal(p.attemptId,id(attemptId)),runId:literal(p.runId,id(runId)),active:p.active,
+        rounds:array(p.rounds,16).map(value=>{const r=object(value,['round','state','responseId','actualMicroEur']);return {
+          round:integer(r.round,15),state:choice(r.state,['intent','unknown','settled'] as const),responseId:r.responseId===null?null:id(r.responseId),
+          actualMicroEur:r.actualMicroEur===null?null:integer(r.actualMicroEur,Number.MAX_SAFE_INTEGER)};})};
+    },
     async snapshot(accountId:unknown):Promise<PolicySnapshot> {
       const p=object(await call('snapshot',{account_id:account(accountId)}),['policy','billingTag','enabled','epoch']);
       if(typeof p.enabled!=='boolean')throw new Error('Invalid AI enablement');

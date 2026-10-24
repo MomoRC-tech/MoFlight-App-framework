@@ -83,8 +83,10 @@ export function validateAiRequest(value: unknown): AiRequest {
     history: array(v.history, L.historyExchanges).map(item => { const h = object(item, ['user', 'assistant']); return { user: text(h.user), assistant: text(h.assistant) }; }) };
   const outputs = array(v.outputs, common.feature === 'question' || common.feature === 'term' ? L.questionTools : L.reviewTools, 1).map(item => { const o = object(item, ['callId', 'payload']); return { callId: id(o.callId), payload: text(o.payload, L.protocolChars) }; });
   unique(outputs.map(o => o.callId));
-  const runCapability = text(v.runCapability, 128);
-  if (!/^[A-Za-z0-9_-]{43,128}$/.test(runCapability)) throw new Error('Invalid AI capability');
+  const runCapability = text(v.runCapability, 2048);
+  // Compact synthetic/opaque handles remain parseable; real sealed run claims use
+  // the bounded v1 envelope. Shape never authenticates either representation.
+  if (!/^[A-Za-z0-9_-]{43,128}$/.test(runCapability) && !/^v1\.[A-Za-z0-9_-]{16}\.[A-Za-z0-9_-]{32,2000}$/.test(runCapability)) throw new Error('Invalid AI capability');
   return { ...common, kind: literal(v.kind, 'continue'), round: integer(v.round, common.feature === 'question' || common.feature === 'term' ? L.questionTurns - 1 : L.reviewTurns - 1, 1),
     policyId: id(v.policyId), runCapability, continuation: text(v.continuation, L.protocolChars), outputs };
 }
