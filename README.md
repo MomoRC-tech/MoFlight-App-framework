@@ -188,6 +188,8 @@ flowchart TB
 
 AI may suggest handwriting transcriptions, matches and explanations. Deterministic code owns flight minutes, roles, counts, numbering and totals. AI suggestions cannot silently become confirmed facts. A bounded, approved handwriting evaluation is required before the real photo-to-writing journey is accepted; no model/provider or paid budget is selected here.
 
+On 24 October, Manuel selected the [first AI-chat requirements](docs/architecture/logbook-chat-discovery.md#first-version-product-decisions--24-october-2026): saved-flight/statistics questions and aviation-term explanations, supporting-record navigation, separate local chats with backup, manual sending after offline drafts and a EUR 3/month personal planning ceiling. Photos and web lookup are outside the first version. Runtime remains deferred M5; provider, concrete privacy/service/cost controls and quality evaluation are still open. The ceiling does not authorize spending.
+
 Read [ADR 0002: approved lab stack](docs/adr/0002-phase1-technology-proposal.md), [ADR 0007: proposed book/format architecture](docs/adr/0007-multiple-logbooks-and-formats.md), [ADR 0008: evidence/AI boundary](docs/adr/0008-logbook-ai-and-deterministic-boundary.md), [import contract](docs/architecture/vereinsflieger-import-contract.md) and [state/query semantics](docs/product/flight-logbook-state-and-queries.md).
 
 ## Proposed repository layout
