@@ -1,0 +1,11 @@
+{
+  "name": "moflight-ai-harness-comparison",
+  "private": true,
+  "type": "module",
+  "scripts": { "test": "node --test comparison.test.mjs" },
+  "dependencies": {
+    "@genkit-ai/compat-oai": "1.43.0",
+    "genkit": "1.43.0",
+    "openai": "7.43.0"
+  }
+}
