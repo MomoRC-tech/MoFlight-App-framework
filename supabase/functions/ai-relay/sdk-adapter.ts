@@ -44,7 +44,9 @@ export function createServerResponsesAdapter(options:ServerResponsesOptions) {
   const timeout=options.timeoutMs ?? 40_000;
   if (!Number.isSafeInteger(timeout) || timeout<1 || timeout>45_000 ||
       typeof options.apiKey!=='string' || !options.apiKey.trim() || typeof options.fetch!=='function' || typeof options.beforeDispatch!=='function') throw new Error('Invalid server transport configuration');
-  const sdk=new OpenAI({apiKey:options.apiKey,baseURL:BASE_URL,fetch:options.fetch,maxRetries:0,timeout});
+  const sdk=new OpenAI({apiKey:options.apiKey,baseURL:BASE_URL,fetch:options.fetch,maxRetries:0,timeout,
+    organization:null,project:null,webhookSecret:null,logLevel:'off',
+    logger:{debug(){},info(){},warn(){},error(){}}});
   return {
     async start(value:unknown, rawPolicy:AiPolicy, billingTag:string, signal?:AbortSignal):Promise<ServerModelOutcome> {
       // Parse/detach before asynchronous admission; callers cannot change pinned policy/input.
