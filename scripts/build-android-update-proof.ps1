@@ -5,7 +5,7 @@ param(
     [Parameter(Mandatory)][string]$SourceRef,
     [Parameter(Mandatory)][ValidatePattern('^[a-z][a-z0-9-]{0,30}$')][string]$Namespace,
     [Parameter(Mandatory)][ValidateSet('seed','verify')][string]$Mode,
-    [ValidateSet('Update','AiChat')][string]$Proof = 'Update'
+    [ValidateSet('Update','AiChat','AiChatScreen')][string]$Proof = 'Update'
 )
 $ErrorActionPreference = 'Stop'
 $evidence = [IO.Path]::GetFullPath($OutputDirectory)
@@ -18,11 +18,11 @@ $manifest = Get-Content -LiteralPath (Join-Path $checkout 'local-data/build-rele
 $normal = Join-Path $evidence 'normal-app.apk'
 Copy-Item -LiteralPath $manifest.apk -Destination $normal
 $root = Split-Path $PSScriptRoot -Parent
-$proofModule = if ($Proof -eq 'AiChat') { 'android-ai-chat-poc' } else { 'android-update-preservation-poc' }
+$proofModule = if ($Proof -eq 'AiChatScreen') { 'android-ai-screen-poc' } elseif ($Proof -eq 'AiChat') { 'android-ai-chat-poc' } else { 'android-update-preservation-poc' }
 $overrides = @{
     'apps/platform-lab/index.ts' = "import { registerRootComponent } from 'expo';`nimport Proof, { configureUpdateProof } from './src/development/$proofModule';`nconfigureUpdateProof('$Namespace','$Mode');`nregisterRootComponent(Proof);`n"
 }
-$proofSources = if ($Proof -eq 'AiChat') { @() } else { @('apps/platform-lab/src/development/update-preservation-fixture.ts','apps/platform-lab/src/development/android-update-preservation-poc.tsx') }
+$proofSources = if ($Proof -ne 'Update') { @() } else { @('apps/platform-lab/src/development/update-preservation-fixture.ts','apps/platform-lab/src/development/android-update-preservation-poc.tsx') }
 foreach ($relative in $proofSources) {
     $overrides[$relative] = [IO.File]::ReadAllText((Join-Path $root $relative))
 }
