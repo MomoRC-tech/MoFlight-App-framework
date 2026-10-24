@@ -80,6 +80,7 @@ Implementation references: [real native ownership/selection](../../apps/platform
 | Real-history SQL/payload v1 and real-history backup v1 | Current read/write and exact populated synthetic restore; interrupted writes/restore, restart/retry and no duplicate effects tested on real host SQLite. |
 | Unsupported SQL v2 or backup v2; malformed/foreign backup | Refuse opening/restoring; original database and command-journal bytes preserved. No reset or silent downgrade. |
 | Legacy synthetic backup → pilot proof v1 | Existing explicit migration tests; not real production book migration. |
+| Historical storage writers `766b719` / `20ade40` → `109d5a9` | Populated host read/recovery skips intermediate sources; current formats stay unchanged. Namespaced signed Android `766b719`→`109d5a9` preserves 15 files before reads, resumes recovery and reopens offline. Explicit synthetic fixture/entry overrides; not an ordinary registry/SAF or beta-platform matrix. |
 | Signed Android `cf59bde` → current review-package Release | Bounded native in-place witness and offline reopening recorded in the [package report](../verification/2026-10-21-simple-flight-loading.md#review-continuation--22-october-2026). No format change in this package. |
 | Skipped beta releases, future schema migration, all development installations, binary downgrade and iOS | Not accepted. Select supported beta starting versions and exercise populated multi-account/book/attachment/pending-state paths before beta. Restoring a test's prior APK is cleanup, not downgrade support. |
 

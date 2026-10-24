@@ -1,0 +1,99 @@
+{
+  "current_source": "109d5a97ef3306f3b07342d77889a4cd304ee01a",
+  "fix_source": "cae0775",
+  "host": {
+    "node": "24.18.0",
+    "pnpm": "11.25.0",
+    "python": "3.12.10",
+    "typecheck": "passed",
+    "lint": "passed",
+    "mobile": {
+      "total": 1045,
+      "pass": 1043,
+      "skipped_historical_cases": 2,
+      "historical_cases_separately_passed": 2
+    },
+    "python_tests": {
+      "total": 119,
+      "skipped_opt_in_gradle": 1
+    },
+    "fixtures": "passed",
+    "android_ios_exports": "passed",
+    "whole_suite_runs": 1
+  },
+  "historical_host_writers": [
+    "766b71944c28c899cdf7d6a76e198cec58f0d82f",
+    "20ade40b04460172daafab0d8c104e97929c181d"
+  ],
+  "native": {
+    "status": "passed",
+    "old_apk": {
+      "apk_sha256": "31dfe4794becbb8e2130bd5008119b4a43856ece6acadfd42fff023587d26aaa",
+      "apk_bytes": 50973598,
+      "embedded_javascript": true,
+      "architectures": [
+        "arm64-v8a",
+        "x86_64"
+      ]
+    },
+    "new_apk": {
+      "apk_sha256": "07918efd5452c50d99683763d840b050cd5ef2c6857992ec3d3215f47d686cc9",
+      "apk_bytes": 52610358,
+      "embedded_javascript": true,
+      "architectures": [
+        "arm64-v8a",
+        "x86_64"
+      ]
+    },
+    "boundary": "Synthetic entry overrides; production storage modules, not ordinary app selection/provider/physical/iOS acceptance",
+    "seed": "UPDATE_PROOF_SEEDED owners=2 books=4 flights=4 pending=2 attachments=2",
+    "verify": "UPDATE_PROOF_PASSED files=15 owners=2 books=4 flights=4 pending=2 attachments=2 recovery=complete",
+    "offline_restart": "UPDATE_PROOF_REOPENED owners=2 books=4 flights=4 pending=2 attachments=2",
+    "same_installation": true,
+    "radios_restored": true,
+    "original_apk_restored": true
+  },
+  "old_proof": {
+    "source_commit": "766b71944c28c899cdf7d6a76e198cec58f0d82f",
+    "namespace": "p20261024a",
+    "mode": "seed",
+    "test_only_overrides": {
+      "apps/platform-lab/index.ts": "e0eed6d22b4897d8899c6140f5b711866faa19164dc10898f17b8d7f44b69417",
+      "apps/platform-lab/src/development/update-preservation-fixture.ts": "a821d1efc53dbee3c729bba8bea288342fafec6a42c80ca12c6a4f96f9575127",
+      "apps/platform-lab/src/development/android-update-preservation-poc.tsx": "42a09a4dd91abf83a820b2bee6d25925425b109ff7fafea3e8ee8d81992a594f"
+    },
+    "apk_sha256": "31dfe4794becbb8e2130bd5008119b4a43856ece6acadfd42fff023587d26aaa",
+    "boundary": "Historical/current production storage modules with explicit synthetic entry/fixture overrides; no ordinary app or provider acceptance"
+  },
+  "current_proof": {
+    "source_commit": "109d5a97ef3306f3b07342d77889a4cd304ee01a",
+    "namespace": "p20261024a",
+    "mode": "verify",
+    "test_only_overrides": {
+      "apps/platform-lab/index.ts": "150ae6d8b07c9c98e39fa43acd8abf8c76b48438b5cd8fc3c510fe9ff49ed191",
+      "apps/platform-lab/src/development/update-preservation-fixture.ts": "a821d1efc53dbee3c729bba8bea288342fafec6a42c80ca12c6a4f96f9575127",
+      "apps/platform-lab/src/development/android-update-preservation-poc.tsx": "42a09a4dd91abf83a820b2bee6d25925425b109ff7fafea3e8ee8d81992a594f"
+    },
+    "apk_sha256": "07918efd5452c50d99683763d840b050cd5ef2c6857992ec3d3215f47d686cc9",
+    "boundary": "Historical/current production storage modules with explicit synthetic entry/fixture overrides; no ordinary app or provider acceptance"
+  },
+  "environment": {
+    "abi": "x86_64",
+    "release": "17",
+    "api": "37"
+  },
+  "cleanup": {
+    "owned_read_only_emulator_stopped": true,
+    "original_apk_restored": true,
+    "radios_restored": true,
+    "isolated_build_source_restored": true,
+    "private_provider_avds_untouched": true
+  },
+  "release_created": false,
+  "limits": [
+    "Test-entry and fixture-port update proof; ordinary owner/selection registry and populated SAF not accepted",
+    "Not a beta starting-version decision or complete user/replacement-device backup",
+    "Opaque attachment/settings sentinels, not a production photo lifecycle or complete portable inclusion",
+    "No physical power-loss/disk-full, system restore, downgrade, phone or iOS runtime acceptance"
+  ]
+}
