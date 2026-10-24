@@ -1,0 +1,84 @@
+{
+  "status": "passed",
+  "source_commit": "bca4682d6c5629ab03e252a4b6fd2ef3725490c6",
+  "host": "Windows / Node 24.18.0 / pnpm 11.25.0 / JDK 17",
+  "baseline_apk_sha256": "147da1224e664e89aab4b5a761d4ddd03fd48ea82d0712af0c8815c999dc6adf",
+  "baseline_committed_pixels": {
+    "entry": "res/Lp.png",
+    "size": [
+      192,
+      192
+    ],
+    "rgba_sha256": "71c4a526898ccf190102a40aa5047cc616e09a218d5b6df93995c17c369040ab"
+  },
+  "old_rule_stale_pixels_reproduced": {
+    "entry": "res/Lp.png",
+    "size": [
+      192,
+      192
+    ],
+    "rgba_sha256": "71c4a526898ccf190102a40aa5047cc616e09a218d5b6df93995c17c369040ab"
+  },
+  "fixed_packaged_pixels": {
+    "entry": "res/Lp.png",
+    "size": [
+      192,
+      192
+    ],
+    "rgba_sha256": "5e954e68c9481e531bd9f353014db56a1877c3d1eff47d518e4c71ef7d39b789"
+  },
+  "runs": [
+    {
+      "name": "old-rule-baseline",
+      "seconds": 48.438,
+      "bundle_cached": false,
+      "log": "old-rule-baseline.log"
+    },
+    {
+      "name": "old-rule-image-only",
+      "seconds": 13.609,
+      "bundle_cached": true,
+      "log": "old-rule-image-only.log"
+    },
+    {
+      "name": "fixed-image-only",
+      "seconds": 62.984,
+      "bundle_cached": false,
+      "log": "fixed-image-only.log"
+    },
+    {
+      "name": "fixed-noop",
+      "seconds": 36.36,
+      "bundle_cached": true,
+      "log": "fixed-noop.log"
+    }
+  ],
+  "native_hoisted_metadata_bytes_preserved": true,
+  "workspace_aliases_validated": true,
+  "synthetic_override": "Only home-default.png in isolated checkout; same source label throughout the pixel experiment",
+  "limits": [
+    "No emulator/device/provider/iOS runtime trial; build and resource acceptance only",
+    "Intermediate synthetic APKs are not delivery artifacts"
+  ],
+  "isolated_source_and_original_apk_restored": true,
+  "host_verification": {
+    "source_commit": "bca4682d6c5629ab03e252a4b6fd2ef3725490c6",
+    "typecheck": "passed",
+    "lint": "passed",
+    "python_cases": 117,
+    "python_skipped_opt_in_gradle": 1,
+    "focused_real_gradle": "passed",
+    "fixtures": "passed",
+    "mobile_initial": {
+      "passed": 1027,
+      "failed": 1
+    },
+    "test_only_correction": "60f37c2",
+    "corrected_file_focused_tests": {
+      "passed": 4,
+      "failed": 0
+    },
+    "full_suite_repeated": false,
+    "note": "Only failure was a stale fictional-name expectation after #69; original failed host report retained"
+  }
+}
