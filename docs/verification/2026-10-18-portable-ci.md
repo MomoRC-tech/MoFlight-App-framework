@@ -18,7 +18,7 @@ Manuel selected planning reconciliation first, then completion of [#32](https://
 
 One [sanitized verification summary](evidence/tooling-2026-10-24/summary.json) records source, host reconciliation and the native/cache results. Detailed ignored logs and intermediate evidence remain in `build/tooling-32-33/`. #32/#33 scoped tooling acceptance is complete; no device, emulator, live-provider, phone, iOS runtime or whole-product acceptance is claimed. No visual matrix, paid/hosted dispatch or repeated whole suite was needed. App runtime is unchanged, so this tooling task has no new APK handoff; the baseline APK is build evidence only.
 
-Final documentation verification: 42 unique primary rows after scoped #32/#33 closure and the independent #69 closure; 373 local links/anchors across the five maintained planning/runbook/report files, status/source consistency and whitespace pass. The initial 45-Issue planning checkpoint remains dated evidence rather than a current inventory.
+Documentation closeout first checked 42 unique primary rows and 373 local links/anchors after scoped #32/#33 and independent #69 closure. Concurrent proposal #70 then appeared before handoff; a bounded final reconciliation adds its primary row with card choice/implementation still pending, leaving 43 live open Issues. The initial 45-Issue planning checkpoint and 42-row intermediate check remain dated evidence rather than current inventory. No runtime checks are repeated for this documentation-only delta.
 
 ## Scope and environment
 
