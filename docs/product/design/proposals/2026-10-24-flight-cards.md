@@ -4,7 +4,7 @@ Requested by Manuel; tracked in [#70](https://github.com/MomoRC-tech/MoFlight-Ap
 
 ## Card choice
 
-The [inline comparison source](2026-10-24-flight-cards.html) contains three layouts using identical fictional paired/confirmed-solo examples. It is a conversation visualization fragment, not a standalone application screen. The carousel selects a preview only; Manuel's explicit choice remains necessary. Optional design controls show longer names and larger text without changing source data.
+The [inline comparison source](2026-10-24-flight-cards.html) contains three layouts using identical fictional paired/confirmed-solo examples. All three are visible together in a vertical comparison labelled A/B/C, following Manuel's report that only one proposal was visible in the original carousel. It is a conversation visualization fragment, not a standalone application screen. Manuel's explicit choice remains necessary. Optional design controls show longer names and larger text without changing source data.
 
 | Variant | Layout | Tradeoff |
 | --- | --- | --- |
@@ -27,3 +27,5 @@ Proposed common geometry: 10–12 logical-unit padding, radius 12, 6–8 between
 This package changes proposal documentation only. Node 24.18.0 script syntax and the bundled visualization renderer passed. A headless local Microsoft Edge preview checked all three carousel choices at 320/360/390/736 CSS-pixel frame widths, with no card/surface horizontal overflow or browser script errors; a 320-width longer-name/larger-text stress check also passed. The Inline crew preview was visually inspected. Detailed reproducible local diagnostics are ignored in `local-data/flight-card-proposal/verification.json` and `verify.cjs`; they contain only synthetic examples. Git whitespace and local proposal links were checked.
 
 No application tests, builds, APK or device trials were run or needed for this proposal. Browser dimensions are CSS pixels and do not establish native logical dp, font-scale behavior, accessibility or source-data acceptance. After selection and implementation approval, extend relevant list/filter regressions and inspect the affected native screen under the repository workflow.
+
+**Visibility correction:** repeated the same browser width/name/text checks with all three layouts visible at once; no horizontal overflow or script errors. Visually inspected the complete A/B/C comparison. This changes preview presentation only; card choice remains pending.

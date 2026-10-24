@@ -2,7 +2,8 @@
   <style>
     #moflight-flight-cards { --mf-canvas:#001b29; --mf-panel:#062331; --mf-raised:#0c3041; --mf-border:#183d50; --mf-text:#f4f8fc; --mf-muted:#a9bed3; --mf-teal:#27d3d2; }
     #moflight-flight-cards * { box-sizing:border-box; }
-    #moflight-flight-cards .mf-stage { min-height:420px; padding:24px 10px; display:flex; align-items:flex-start; justify-content:center; }
+    #moflight-flight-cards .mf-comparison { display:grid; gap:16px; padding:12px 0; }
+    #moflight-flight-cards .mf-stage { padding:0 10px; display:flex; align-items:flex-start; justify-content:center; }
     #moflight-flight-cards .mf-sample { width:390px; max-width:100%; padding:16px; background:var(--mf-canvas); color:var(--mf-text); border-radius:20px; font-family:system-ui,-apple-system,"Segoe UI",sans-serif; font-size:14px; line-height:1.4; }
     #moflight-flight-cards .mf-caption { display:flex; justify-content:space-between; flex-wrap:wrap; align-items:baseline; gap:8px; margin-bottom:14px; }
     #moflight-flight-cards .mf-caption strong { font-size:18px; font-weight:600; }
@@ -34,12 +35,12 @@
     #moflight-flight-cards .mf-large .mf-columns .mf-crew { grid-template-columns:1fr; gap:5px; }
     #moflight-flight-cards .mf-large .mf-rail-top { grid-template-columns:1fr; }
     #moflight-flight-cards .mf-large .mf-rail .mf-duration { border:0; padding:0; }
-    @media (max-width:360px) { #moflight-flight-cards .mf-stage { padding:16px 0; } #moflight-flight-cards .mf-sample { padding:12px; } #moflight-flight-cards .mf-columns .mf-crew { gap:8px; } }
+    @media (max-width:360px) { #moflight-flight-cards .mf-stage { padding:0; } #moflight-flight-cards .mf-sample { padding:12px; } #moflight-flight-cards .mf-columns .mf-crew { gap:8px; } }
   </style>
-  <div class="viz-carousel viz-dotted-background" aria-label="Flight card layout proposals">
+  <div class="mf-comparison viz-dotted-background" aria-label="All three flight card layout proposals">
     <section data-variant="Inline crew" aria-label="Inline crew layout">
       <div class="mf-stage"><div class="mf-sample" aria-label="Inline crew card options">
-        <div class="mf-caption"><strong>Flüge</strong><small>Layoutvorschlag · Beispieldaten</small></div>
+        <div class="mf-caption"><strong>A · Inline crew</strong><small>Beispieldaten</small></div>
         <div class="mf-stack">
           <article class="mf-flight" aria-label="Example flight with pilot and companion">
             <div class="mf-top"><span>24.10.2026 · 14:10</span><span class="mf-duration">0:42 h <span class="mf-chevron" aria-hidden="true">›</span></span></div>
@@ -56,9 +57,9 @@
         </div>
       </div></div>
     </section>
-    <section data-variant="Crew columns" aria-label="Crew columns layout" hidden>
+    <section data-variant="Crew columns" aria-label="Crew columns layout">
       <div class="mf-stage"><div class="mf-sample" aria-label="Crew columns card options">
-        <div class="mf-caption"><strong>Flüge</strong><small>Layoutvorschlag · Beispieldaten</small></div>
+        <div class="mf-caption"><strong>B · Crew columns</strong><small>Beispieldaten</small></div>
         <div class="mf-stack mf-columns">
           <article class="mf-flight" aria-label="Example flight with separate crew columns">
             <div class="mf-top"><span>24.10.2026 · 14:10</span><span class="mf-duration">0:42 h <span class="mf-chevron" aria-hidden="true">›</span></span></div>
@@ -75,9 +76,9 @@
         </div>
       </div></div>
     </section>
-    <section data-variant="Duration rail" aria-label="Duration rail layout" hidden>
+    <section data-variant="Duration rail" aria-label="Duration rail layout">
       <div class="mf-stage"><div class="mf-sample" aria-label="Duration rail card options">
-        <div class="mf-caption"><strong>Flüge</strong><small>Layoutvorschlag · Beispieldaten</small></div>
+        <div class="mf-caption"><strong>C · Duration rail</strong><small>Beispieldaten</small></div>
         <div class="mf-stack mf-rail">
           <article class="mf-flight" aria-label="Example flight emphasizing duration">
             <div class="mf-rail-top"><div class="mf-rail-info"><div class="mf-date">24.10.2026 · 14:10</div><div class="mf-aircraft">D-1234 <span class="mf-model">· ASK 21</span></div><div class="mf-route">Musterfeld → Beispielort</div></div><span class="mf-duration">0:42<span class="mf-unit">h</span><span class="mf-chevron" aria-hidden="true">›</span></span></div>
@@ -99,7 +100,6 @@
         const names = controls.longNames ? { pilot:'Jonas Alexander W.', companion:'Lea Marie B.', solo:'Mira Johanna K.' } : { pilot:'Jonas W.', companion:'Lea B.', solo:'Mira K.' };
         root.querySelectorAll('[data-person]').forEach(element => { element.textContent = names[element.dataset.person]; });
         root.querySelectorAll('.mf-sample').forEach(element => { element.classList.toggle('mf-large', controls.largerText); });
-        root.querySelectorAll('.mf-stage').forEach(element => { element.style.minHeight = controls.largerText ? '670px' : '420px'; });
       }
       render();
       if (globalThis.Tweak) {
