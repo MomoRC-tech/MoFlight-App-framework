@@ -1,5 +1,5 @@
 import React,{useEffect,useRef,useState} from 'react';
-import {KeyboardAvoidingView,Platform,ScrollView,Text,View} from 'react-native';
+import {Keyboard,KeyboardAvoidingView,Platform,ScrollView,Text,View,useWindowDimensions} from 'react-native';
 import * as SQLite from 'expo-sqlite';
 import * as Crypto from 'expo-crypto';
 import {File,Paths} from 'expo-file-system';
@@ -17,6 +17,9 @@ export function configureUpdateProof(value:string,operation:'seed'|'verify') {
 const owner='ai-screen-synthetic',at='2026-10-24T12:00:00.000Z',draft='Synthetic native draft, preserved offline.';
 export default function AiScreenProof() {
   const [status,setStatus]=useState('UPDATE_PROOF_STARTING'),[archive,setArchive]=useState<ChatArchive|null>(null),[selected,setSelected]=useState('chat1'),[notice,setNotice]=useState<string|null>('Synthetic isolated UI. No model or provider connection.');
+  const scroll=useRef<ScrollView|null>(null),[keyboardTop,setKeyboardTop]=useState<number|null>(null);const {height}=useWindowDimensions();
+  const overlap=Platform.OS==='android'&&keyboardTop!==null?Math.max(0,height-keyboardTop):0;
+  useEffect(()=>{let timer:ReturnType<typeof setTimeout>|undefined;const show=Keyboard.addListener('keyboardDidShow',event=>{setKeyboardTop(event.endCoordinates.screenY);timer=setTimeout(()=>scroll.current?.scrollToEnd({animated:true}),120);});const hide=Keyboard.addListener('keyboardDidHide',()=>{setKeyboardTop(null);clearTimeout(timer);});return()=>{show.remove();hide.remove();clearTimeout(timer);};},[]);
   const store=useRef<ChatStore|null>(null),writes=useRef(Promise.resolve()),running=useRef(false);
   useEffect(()=>{
     if(running.current)return;running.current=true;
@@ -50,9 +53,9 @@ export default function AiScreenProof() {
     return()=>{void writes.current.finally(async()=>{await store.current?.close();store.current=null;});};
   },[]);
   function mutate(work:(chat:ChatStore)=>Promise<void>) {writes.current=writes.current.then(async()=>{const chat=store.current;if(!chat)return;await work(chat);setArchive(await chat.archive());}).catch(()=>setNotice('Synthetic draft save failed.'));}
-  return <KeyboardAvoidingView behavior={Platform.OS==='ios'?'padding':undefined} style={{flex:1,backgroundColor:colors.background,paddingTop:28}}>
+  return <KeyboardAvoidingView behavior={Platform.OS==='ios'?'padding':undefined} style={{flex:1,backgroundColor:colors.background,paddingTop:28,paddingBottom:overlap}}>
     <Text accessibilityLabel={status} style={{color:colors.text,fontSize:10,padding:6}}>{status}</Text>
-    <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{padding:16}}>
+    <ScrollView ref={scroll} onContentSizeChange={()=>{if(keyboardTop!==null)scroll.current?.scrollToEnd({animated:false});}} keyboardShouldPersistTaps="handled" contentContainerStyle={{padding:16}}>
       {archive&&<View><AiChat conversations={archive.conversations} selectedId={selected} enabled={false} busy={false} loading={false} notice={notice} usage={null} feature="question"
         onCreate={()=>{const next=Crypto.randomUUID();setSelected(next);mutate(chat=>chat.saveDraft(next,'New synthetic draft','Synthetic draft',null,at));}}
         onSelect={setSelected} onDelete={conversationId=>mutate(chat=>chat.delete(conversationId))} onDraft={value=>mutate(async chat=>{await chat.saveDraft(selected,'Offline draft',value,null,at);if(selected==='chat1'){const marker=new File(Paths.document,`ai-proof-${namespace}-screen.json`);marker.write(JSON.stringify({phase:'seeded',draftSha256:await Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256,value)}));}})}

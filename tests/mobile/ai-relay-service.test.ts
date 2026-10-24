@@ -18,6 +18,7 @@ async function fixture() {
     const p={error:null,data:null as unknown};
     if(name.endsWith('snapshot'))p.data={policy,billingTag:'mf_'+'a'.repeat(43),epoch:3,enabled};
     if(name.endsWith('usage'))p.data=budget;
+    if(name.endsWith('status'))p.data={attemptId:'a1',runId:'r1',active:true,rounds:[{round:0,state:'unknown',responseId:'response-1',actualMicroEur:null}]};
     if(name.endsWith('reserve')){const round=args.round_number as number,existing=admitted.has(round);admitted.add(round);p.data=existing?{disposition:'existing',state:'settled',boundMicroEur:1000,policyId:'p1',period:'2026-10'}:{disposition:'new',state:'intent',boundMicroEur:1000,policyId:'p1',period:'2026-10',priceId:'synthetic',policy};}
     if(name.endsWith('settle'))p.data={actualMicroEur:500,halted:false};if(name.endsWith('finish'))p.data=true;
     return p;
@@ -27,7 +28,7 @@ async function fixture() {
   const service=createRelayService({ledger,codec,now:()=>1000000,inputTokenUpperBound:async()=>tokenBound,
     submit:async body=>{bodies.push(structuredClone(body));if(fail)throw new Error('PRIVATE_UPSTREAM_ERROR');return upstream;},
     verifiedCost:async responseId=>cost?{responseId,receiptId:'usage-'+responseId,usdDecimal:'0.0005'}:null});
-  return {service,calls,bodies,setOutput:(v:RelayModelResponse)=>{upstream=v;},costMissing:()=>{cost=false;},fail:()=>{fail=true;},tokens:(n:number)=>{tokenBound=n;},disable:()=>{enabled=false;}};
+  return {service,codec,calls,bodies,setOutput:(v:RelayModelResponse)=>{upstream=v;},costMissing:()=>{cost=false;},fail:()=>{fail=true;},tokens:(n:number)=>{tokenBound=n;},disable:()=>{enabled=false;}};
 }
 test('short relay reserves exact digest before submission, uses server-only privileges and settles independently verified cost',async()=>{
   const f=await fixture(),out=await f.service.round(start);
@@ -85,4 +86,14 @@ test('HTTP boundary defaults closed and enforces JSON shape, byte bounds, quota 
 test('usage reads only personal counters without inference or a reservation',async()=>{
   const f=await fixture();assert.deepEqual(await f.service.usage('101'),budget);
   assert.deepEqual(f.calls.map(c=>c.name),['moflight_ai_usage']);assert.equal(f.bodies.length,0);
+});
+
+test('reconciliation requires a bound run handle and only settles recorded response metadata without inference',async()=>{
+ const f=await fixture();const handle=await f.codec.sealRun({accountRef:'101',attemptId:'a1',runId:'r1',conversationId:'c1',messageId:'m1',feature:'question',policyId:'p1',expiresAt:1100000});
+ await assert.rejects(f.service.reconcile('102',handle),/Foreign/);assert.equal(f.calls.length,0);
+ const result=await f.service.reconcile('101',handle);assert.deepEqual(result,{budget,active:true});
+ assert.equal(f.bodies.length,0);assert.equal(f.calls.some(c=>c.name==='moflight_ai_reserve'),false);
+ assert.equal(f.calls.filter(c=>c.name==='moflight_ai_settle').length,1);
+ f.calls.length=0;f.costMissing();await f.service.reconcile('101',handle);
+ assert.equal(f.calls.some(c=>c.name==='moflight_ai_settle'),false);assert.equal(f.bodies.length,0);
 });
