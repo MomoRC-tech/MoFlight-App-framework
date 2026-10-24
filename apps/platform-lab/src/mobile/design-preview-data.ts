@@ -2,7 +2,7 @@ import { adaptHistoryFacts } from '../vereinsflieger/history-facts';
 import type { RealFlightDetail } from '../vereinsflieger/real-flight-library';
 import type { FeatureInformation } from './feature-information';
 import type { OwnFlightView } from './own-flight-reader';
-import type { DutyItem, DutyOverview } from '../vereinsflieger/duties';
+import { buildDutyOverview, type DutyOverview, type DutyRosterSnapshot } from '../vereinsflieger/duties';
 
 export const DESIGN_PREVIEW_NOW = Date.parse('2026-10-22T12:00:00.000Z');
 export const DESIGN_PREVIEW_SCOPE = {
@@ -54,14 +54,18 @@ export function createDesignPreviewData(scenario: 'default' | 'undated' | 'same-
     documentNotices: { status: 'partial', retrievedAt: '2026-10-22T10:00:00.000Z', filters: [], truncated: false,
       items: [{ key: 'synthetic-document-1', text: 'Demo Winterprogramm 20.10.2026' }, { key: 'synthetic-document-2', text: 'Demo Werkstattplan 18.10.2026' }] },
   };
-  const ownDuty: DutyItem = { key: 'synthetic-own-duty', duty: 'Demo Flugleitung', period: '24.10.2026 · 09:00–18:00',
-    start: '2026-10-24', end: '2026-10-24', people: ['Demo Pilot A.'], ownState: 'own', coAssignees: [],
-    sourcePath: '/member/profile/myservices.php', identity: 'source-row-only', periodBasis: 'displayed-calendar-days' };
-  const clubDuty: DutyItem = { ...ownDuty, key: 'synthetic-club-duty', duty: 'Demo Windenbetrieb', period: '25.10.2026 · 09:00–18:00',
-    start: '2026-10-25', end: '2026-10-25', people: ['Demo Pilot B.'], ownState: 'unknown', sourcePath: '/member/community/serviceshedulelist.php' };
-  const dutyOverview: DutyOverview = { status: 'partial', window: { start: '2026-10-22', end: '2026-11-01' },
-    clubLabel: 'Demo Segelflugverein Talwiese', retrievedAt: '2026-10-22T10:00:00.000Z', items: [ownDuty, clubDuty],
-    ownItems: [ownDuty], laterOwn: [], unplaced: [], coverageMessage: 'Erfundener Seitenausschnitt · Vollständigkeit und Partner ungeprüft.' };
+  // Raw fictional capture labels exercise the real display projection, rather
+  // than bypassing it with preformatted names in visual acceptance checks.
+  const dutySnapshot: DutyRosterSnapshot = {version:1,retrievedAt:'2026-10-22T10:00:00.000Z',
+    scope:{version:1,owner:'synthetic-design-owner',connectionId:'synthetic-design-duty',context:{accountNumber:'1001',clubLabel:'Demo Segelflugverein Talwiese',clubIdentity:'display-label-only',verification:'observed-profile-number'}},
+    captures:[]};
+  dutySnapshot.captures = [
+    {path:'/member/profile/myservices.php',duty:'Demo Flugleitung',period:'24.10.2026 09:00 - 24.10.2026 18:00',people:'Example, Merlin'},
+    {path:'/member/community/serviceshedulelist.php',duty:'Demo Windenbetrieb',period:'25.10.2026 09:00 - 25.10.2026 18:00',people:'Synthetic, Anna Maria\nExample, Emil'},
+  ].map((row,index)=>({version:1,id:`synthetic-duty-${index}`,owner:dutySnapshot.scope.owner,connectionId:dutySnapshot.scope.connectionId,retrievedAt:dutySnapshot.retrievedAt,sourceIdentity:'provisional-observed-profile',category:'duties',path:row.path,
+    columns:[{key:'duty',label:'Dienst',index:0},{key:'period',label:'Zeitraum',index:1},{key:'people',label:'Person(en)',index:2}],
+    rows:[{position:0,values:[row.duty,row.period,row.people]}],filters:[],empty:false,coverage:{kind:'visible-page',truncated:false,pagination:'unverified'}}));
+  const dutyOverview=buildDutyOverview(dutySnapshot.scope,dutySnapshot,'2026-10-22',DESIGN_PREVIEW_NOW);
   return { details, dutyOverview, view: { featureInformation, featureInformationReadFailed: false, flights, pendingCommand: false, snapshot: {
     version: 1, ownerId: DESIGN_PREVIEW_SCOPE.ownerId, storeId: DESIGN_PREVIEW_SCOPE.storeId, generation: 1,
     account: { provider: 'vereinsflieger', accountRef: DESIGN_PREVIEW_SCOPE.accountRef }, coverage: [],

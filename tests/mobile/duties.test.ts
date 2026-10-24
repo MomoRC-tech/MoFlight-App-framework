@@ -82,6 +82,8 @@ test('name abbreviations are display-only, no same-name ownership or cross-row p
   assert.equal(abbreviateDutyName('A.'), 'A.');
   assert.equal(abbreviateDutyName(''), 'Name unbekannt');
   assert.equal(abbreviateDutyName('Synthetic, Ada'), 'Ada S.');
+  assert.equal(abbreviateDutyName('Synthetic, Merlin + Example, Anna Maria'), 'Merlin S. · Anna Maria E.');
+  assert.equal(abbreviateDutyName('Synthetic, MerlinExample, Anna Maria'), 'Namen unklar · bitte synchronisieren');
   assert.equal(abbreviateDutyName('Synthetic, Merlin'), 'Merlin S.');
   assert.equal(abbreviateDutyName('Synthetic, Anna Maria'), 'Anna Maria S.');
   assert.equal(abbreviateDutyName('Anna Maria Synthetic'), 'Anna Maria S.');
@@ -96,6 +98,15 @@ test('name abbreviations are display-only, no same-name ownership or cross-row p
   assert.equal(overview.items[0]!.identity, 'source-row-only');
   assert.deepEqual(overview.items[0]!.coAssignees, []);
   assert.match(overview.coverageMessage, /Partner ungeprüft/);
+});
+
+test('old collapsed people stay explicit until refresh and are never guessed into different identities', () => {
+  const raw='Synthetic, MerlinExample, Anna Maria';
+  const snapshot=createDutyRosterSnapshot(scope,[capture([['Synthetic duty','22.10.2026 - 25.10.2026 23:59',raw]])],at);
+  const overview=buildDutyOverview(scope,snapshot,'2026-10-22',time);
+  assert.deepEqual(overview.items[0]!.people,['Namen unklar · bitte synchronisieren']);
+  assert.equal(snapshot.captures[0]!.rows[0]!.values[2],raw);
+  assert.equal(overview.items[0]!.ownState,'own');
 });
 
 test('missing, empty, truncated and expired evidence cannot become complete or no-duties', () => {

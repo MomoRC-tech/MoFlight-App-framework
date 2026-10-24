@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 import { runInNewContext } from 'node:vm';
 import ts from 'typescript';
 import type { DutyItem, DutyOverview } from '../../apps/platform-lab/src/vereinsflieger/duties';
+import { createDesignPreviewData } from '../../apps/platform-lab/src/mobile/design-preview-data';
 
 type Element = { type: unknown; props: Record<string, any>; children: any[] };
 function fixture() {
@@ -109,4 +110,16 @@ test('duty dates omit clocks, retain full intervals and show unknown rather than
     ['2026-12-31', '2027-01-01', '31.12.2026–01.01.2027'],
     [null, null, 'Zeitraum unbekannt'], ['2026-10-24', null, 'Zeitraum unbekannt'],
   ]) assert.equal(f.roster.dutyDates!({ start, end }), expected);
+});
+
+test('native preview feeds raw fictional capture names through the real projection into both roster views', () => {
+  const f=fixture(),data=createDesignPreviewData().dutyOverview;
+  assert.deepEqual(data.ownItems[0]!.people,['Merlin E.']);
+  assert.deepEqual(data.items[1]!.people,['Anna Maria S.','Emil E.']);
+  for(const expanded of [false,true]) {
+    const text=f.text(f.roster.DutyRoster!({overview:data,expanded}));
+    assert.ok(text.includes('Merlin E.'));
+    assert.ok(text.includes('Anna Maria S. · Emil E.'));
+    assert.doesNotMatch(text,/Example,|Synthetic,|Demo Pilot [AB]\./);
+  }
 });

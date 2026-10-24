@@ -456,7 +456,22 @@ export const INFORMATION_READER_SOURCE = String.raw`(category, config) => {
       if(cells.some(c=>/^Gesamt\b/.test(norm(c.textContent)))) continue;
       if(cells.length!==t.width || cells.some(c=>(c.colSpan || 1)!==1 || (c.rowSpan || 1)!==1)) return {error:'row-shape'};
       if(rows.length===rowLimit) {truncated=true;break;}
-      rows.push({position:i,values:columns.map(c=>cells[c.index].innerText ?? cells[c.index].textContent ?? '')});
+      rows.push({position:i,values:columns.map(c=>{
+        const cell=cells[c.index];
+        if(category==='duties' && c.key==='people') {
+          // The club roster hides its '+' separator spans. Cell innerText then
+          // concatenates adjacent people. Retain each evidenced leaf name span
+          // separately; read no links, attributes or other member fields.
+          const children=Array.from(cell.children || []), group=children[0];
+          const spans=Array.from(group?.children || []);
+          if(children.length===1 && group.tagName==='DIV' && spans.length%2===1 &&
+            spans.every((span,index)=>span.tagName==='SPAN' && !span.children.length &&
+              (index%2 ? norm(span.textContent)==='+' : !!norm(span.textContent)))) {
+            return spans.filter((_,index)=>index%2===0).map(span=>span.textContent).join('\n');
+          }
+        }
+        return cell.innerText ?? cell.textContent ?? '';
+      })});
     }
     if(category==='tasks' && !rows.length && !empty && t.header===0 && t.all.length===1) {
       // Observed 19 October: this list's empty message is in its paired footer,

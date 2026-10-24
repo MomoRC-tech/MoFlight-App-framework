@@ -108,6 +108,8 @@ Season and club photography use the shared `cockpitImage` opacity .82 and `cockp
 
 **24 October duty-row refinement — [#69](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/69):** both compact and expanded rosters use two logical rows: duty title left / date(s) right, then people. Calendar dates omit clock times and compress shared month/year in ranges. Names retain all supplied given names and abbreviate the family name; single source names stay intact. Unknown periods/people stay explicit. Larger text may wrap naturally without clipping. Raw source periods/names, ownership and partial-coverage qualifications remain unchanged.
 
+**Duty name source correction:** the club source hides separator spans, so whole-cell rendered text can concatenate different people. The reader preserves each observed leaf name span separately before abbreviation. Previously concatenated cached names cannot be reconstructed safely: show **Namen unklar · bitte synchronisieren** until the user explicitly synchronizes. The Development preview now uses raw fictional capture labels through the real duty projection, rather than preformatted names. No identity matching or automatic retrieval is added.
+
 # Alternative UI — 22 October 2026
 
 > **Current appearance authority — 24 October 2026:** [Dark Compact Cockpit](compact-cockpit.md) and its approved reference supersede conflicting older appearance/composition statements below. Data, feature and verification boundaries retain their scope.

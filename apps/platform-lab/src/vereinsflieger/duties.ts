@@ -1,5 +1,4 @@
 import { canonical } from '@moflight/flight-logbook';
-import { abbreviatedMemberName } from '../provider/member-name';
 import { validateInformationCapture, type InformationCapture } from './information';
 import { validateScope, type ProviderScope } from './scope-store';
 
@@ -73,7 +72,7 @@ export function dutyWindow(today: string) {
 }
 /** Display abbreviation only; never used to match people or establish ownership. */
 export function abbreviateDutyName(raw: string) {
-  return raw.split(/\r?\n/).map(line => {
+  return raw.split(/\r?\n|\s+\+\s+/).map(line => {
     const text = line.replace(/\s+/g, ' ').trim();
     if (!text) return '';
     // A single source name must not collapse to one initial. Never expand an
@@ -81,7 +80,9 @@ export function abbreviateDutyName(raw: string) {
     if (/^[^\s,]+$/.test(text)) return text;
     const comma = text.split(',').map(part => part.trim());
     if (comma.length === 2 && comma.every(Boolean)) return `${comma[1]} ${[...comma[0]!][0]}.`;
-    if (comma.length > 1) return abbreviatedMemberName(text);
+    // Older rendered captures can have lost the separator between people.
+    // They cannot be reconstructed safely from the concatenated names.
+    if (comma.length > 1) return 'Namen unklar · bitte synchronisieren';
     const words = text.split(' ');
     return `${words.slice(0, -1).join(' ')} ${[...words.at(-1)!][0]}.`;
   }).filter(Boolean).join(' · ') || 'Name unbekannt';

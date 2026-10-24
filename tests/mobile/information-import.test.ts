@@ -10,6 +10,7 @@ import { InformationRun } from '../../apps/platform-lab/src/vereinsflieger/infor
 import { PROFILE_URL } from '../../apps/platform-lab/src/vereinsflieger/context.ts';
 import { nodeDriver } from './sqlite-driver.ts';
 import type { ProviderScope } from '../../apps/platform-lab/src/vereinsflieger/scope-store.ts';
+import { buildDutyOverview, createDutyRosterSnapshot } from '../../apps/platform-lab/src/vereinsflieger/duties.ts';
 
 const url = 'https://vereinsflieger.de/member/profile/workhours/list?year=2026';
 const ledgerUrl = 'https://vereinsflieger.de/member/profile/account.php?caid=synthetic-account';
@@ -152,6 +153,21 @@ test('historical multi-person duty period remains one source row with raw end/pe
   assignment.cells[2]!.querySelector = ((selector: string) => selector === 'table' ? {} : null) as any;
   const p = validateInformationPage(read('duties', [row(['Dienst', 'Zeitraum', 'Person(en)']), assignment]));
   assert.equal(p.rows.length, 1); assert.equal(p.rows[0]!.values[1], '01.09.2026 -\n07.09.2026 23:59'); assert.equal(p.rows[0]!.values[2], 'Synthetic A\nSynthetic B');
+});
+test('hidden club separator spans retain separate people through reader, saved snapshot and duty projection', () => {
+  const names=['Synthetic, Merlin','Example, Anna Maria'];
+  const span=(textContent:string)=>({tagName:'SPAN',textContent,children:[]});
+  const assignment=row(['Synthetic duty','19.10.2026 - 25.10.2026 23:59',names.join('')]);
+  Object.assign(assignment.cells[2]!, {textContent:names.join(' + '),children:[{tagName:'DIV',children:[span(names[0]!),span(' + '),span(names[1]!)]}]});
+  const page=validateInformationPage(read('duties',[row(['Dienst','Zeitraum','Person(en)']),assignment],undefined,undefined,undefined,{url:'https://vereinsflieger.de/member/community/serviceshedulelist.php'}));
+  assert.equal(page.rows[0]!.values[2],names.join('\n'));
+  const capture=validateInformationCapture({...page,version:1,id:'synthetic-span-duty',retrievedAt:at,owner:scope.owner,connectionId:scope.connectionId,sourceIdentity:'provisional-observed-profile'});
+  const snapshot=createDutyRosterSnapshot(scope,[capture],at);
+  const overview=buildDutyOverview(scope,snapshot,'2026-10-19',Date.parse(at));
+  assert.deepEqual(overview.items[0]!.people,['Merlin S.','Anna Maria E.']);
+  assert.equal(overview.items[0]!.ownState,'unknown');
+  assert.deepEqual(overview.items[0]!.coAssignees,[]);
+  assert.equal(snapshot.captures[0]!.rows[0]!.values[2],names.join('\n'));
 });
 test('ledger charges/credits/opening balance stay signed raw observations, never computed cost totals', () => {
   const p = validateInformationPage(read('ledger', [row(['Datum', 'BuchungsNr.', 'Abrechnung', 'Informationen', 'Wert (EUR)', 'Saldo (EUR)']), row(['01.01.2026', '', '', 'Anfangsbestand', '', '0,00']), row(['02.01.2026', '123', '456', 'Synthetic charge', '-12,50', '-12,50']), row(['03.01.2026', '124', '', 'Kontoausgleich', '12,50', '0,00'])]));
