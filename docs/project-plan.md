@@ -98,6 +98,8 @@ The [post-archive reconciliation](verification/2026-10-17-current-status-and-ope
 
 ### Next executable packages
 
+**Selected 24 October populated-update package (#34/#29):** Manuel instructed implementation of the bounded preservation continuation, **without creating a release**. `cae0775` fixes a reproduced late-phase aggregate recovery loop; strict journal monotonicity is retained. A common synthetic fixture and historical writer/current reader matrix cover populated accounts/books/evidence/pending work/settings/opaque attachments. Complete the one combined host/native in-place/offline checkpoint, then record exact source and remaining beta/full-user/platform gates. No cloud/system restore, new schema, paid execution or binding beta starting-version choice is selected.
+
 **Completed 24 October continuation:** Manuel requested planning first, then **[#32 image-only Release inputs](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/32) and [#33 host/native dependency-layout preservation](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/33) after checking current relevance**. Both remaining gaps reproduced in isolation and are repaired in `bca4682`; actual packaged-pixel change/no-op caching, hoisted-layout preservation and native build/lint pass. The [single tooling report](verification/2026-10-18-portable-ci.md#build-tool-relevance-and-repair--24-october-2026) records the one combined host run, its test-only #69 expectation correction in `60f37c2`, focused evidence and limits. Pinned dependencies, existing checkouts and private sessions are preserved; no new feature or paid execution was selected.
 
 After that bounded tooling package, the recommended core sequence remains:
