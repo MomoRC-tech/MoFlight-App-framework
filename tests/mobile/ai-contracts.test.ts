@@ -160,9 +160,9 @@ test('validators reject accessors, hidden fields, symbols, sparse arrays and cla
   assert.equal(context.flights.state, 'available');
 });
 
-const coverage = { state: 'partial', requestedFrom: '2026-01-01', requestedTo: '2026-10-24', observedFrom: '2026-08-01', observedTo: '2026-10-20', referenceDate: '2026-10-24', timezone: 'Europe/Berlin', totalRows: 3, suppliedRows: 2, omittedRows: 1, unknownDateRows: 1, unknownDurationRows: 1, conflictingRows: 0 };
+const coverage = { state: 'partial', requestedFrom: '2026-01-01', requestedTo: '2026-10-24', observedFrom: '2026-08-01', observedTo: '2026-10-20', referenceDate: '2026-10-24', timezone: 'Europe/Berlin', totalRows: 3, suppliedRows: 2, omittedRows: 1, unknownDateRows: 1, unknownDurationRows: 1, unknownCrewRows: 1, unknownRegistrationRows: 1, conflictingRows: 0 };
 test('tool projection admits only bounded aliased flight fields and coverage, never source payloads', () => {
-  const row = { referenceId: 'e1', date: '2026-10-20', registrationAlias: 'aircraft-1', knownMinutes: 60, durationState: 'known', crew: [{ alias: 'person-1', slot: 'pilot' }] };
+  const row = { referenceId: 'e1', date: '2026-10-20', registrationAlias: 'aircraft-1', startTime: '10:00', landingTime: '11:00', knownMinutes: 60, durationState: 'known', crew: [{ alias: 'person-1', slot: 'pilot' }] };
   const result = { version: 1, callId: 'c1', name: 'queryFlights', coverage, rows: [row], candidates: [], metrics: [], nextPageToken: null };
   assert.deepEqual(validateAiToolResult(result), result);
   for (const field of ['remarks', 'rawCapture', 'medical', 'password', 'accountRef', 'flightId', 'registration', 'crewName']) {
@@ -170,6 +170,7 @@ test('tool projection admits only bounded aliased flight fields and coverage, ne
     assert.throws(() => validateAiToolResult({ ...result, [field]: 'private' }), field);
   }
   assert.throws(() => validateAiToolResult({ ...result, rows: [{ ...row, knownMinutes: null }] }));
+  assert.throws(() => validateAiToolResult({ ...result, rows: [{ ...row, startTime: '25:00' }] }));
   assert.throws(() => validateAiToolResult({ ...result, rows: [{ ...row, durationState: 'conflict' }] }));
   assert.throws(() => validateAiToolResult({ ...result, rows: [{ ...row, crew: [...row.crew, ...row.crew] }] }));
   assert.throws(() => validateAiToolResult({ ...result, rows: [row, row] }));

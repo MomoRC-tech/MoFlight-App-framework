@@ -78,10 +78,11 @@ export interface AiCoverage {
   observedFrom: string | null; observedTo: string | null;
   referenceDate: string; timezone: 'Europe/Berlin';
   totalRows: number; suppliedRows: number; omittedRows: number;
-  unknownDateRows: number; unknownDurationRows: number; conflictingRows: number;
+  unknownDateRows: number; unknownDurationRows: number; unknownCrewRows: number; unknownRegistrationRows: number; conflictingRows: number;
 }
 export interface AiProjectedFlight {
   referenceId: string; date: string | null; registrationAlias: string | null;
+  startTime: string | null; landingTime: string | null;
   knownMinutes: number | null; durationState: 'known' | 'unknown' | 'conflict';
   crew: { alias: string; slot: typeof CREW_SLOTS[number] }[];
 }

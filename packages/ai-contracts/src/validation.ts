@@ -154,7 +154,7 @@ export function validateAiReply(value: unknown, authority: AiReplyAuthority): Ai
 export function parseAiReply(json: string, authority: AiReplyAuthority): AiReply { return validateAiReply(wire(json), authority); }
 
 export function validateAiCoverage(value: unknown): AiCoverage {
-  const v = object(value, ['state', 'requestedFrom', 'requestedTo', 'observedFrom', 'observedTo', 'referenceDate', 'timezone', 'totalRows', 'suppliedRows', 'omittedRows', 'unknownDateRows', 'unknownDurationRows', 'conflictingRows']);
+  const v = object(value, ['state', 'requestedFrom', 'requestedTo', 'observedFrom', 'observedTo', 'referenceDate', 'timezone', 'totalRows', 'suppliedRows', 'omittedRows', 'unknownDateRows', 'unknownDurationRows', 'unknownCrewRows', 'unknownRegistrationRows', 'conflictingRows']);
   const requestedFrom = nullable(v.requestedFrom, date), requestedTo = nullable(v.requestedTo, date), observedFrom = nullable(v.observedFrom, date), observedTo = nullable(v.observedTo, date);
   if (requestedFrom && requestedTo && requestedFrom > requestedTo || observedFrom && observedTo && observedFrom > observedTo) throw new Error('Invalid AI coverage range');
   const totalRows = integer(v.totalRows, Number.MAX_SAFE_INTEGER), suppliedRows = integer(v.suppliedRows, totalRows), omittedRows = integer(v.omittedRows, totalRows);
@@ -162,20 +162,21 @@ export function validateAiCoverage(value: unknown): AiCoverage {
   const state = choice(v.state, ['complete', 'partial', 'empty', 'unavailable']);
   if ((state === 'empty' || state === 'unavailable') && (totalRows !== 0 || observedFrom !== null || observedTo !== null)) throw new Error('Invalid empty AI coverage');
   return { state, requestedFrom, requestedTo, observedFrom, observedTo, referenceDate: date(v.referenceDate), timezone: literal(v.timezone, 'Europe/Berlin'), totalRows, suppliedRows, omittedRows,
-    unknownDateRows: integer(v.unknownDateRows, totalRows), unknownDurationRows: integer(v.unknownDurationRows, totalRows), conflictingRows: integer(v.conflictingRows, totalRows) };
+    unknownDateRows: integer(v.unknownDateRows, totalRows), unknownDurationRows: integer(v.unknownDurationRows, totalRows), unknownCrewRows: integer(v.unknownCrewRows, totalRows), unknownRegistrationRows: integer(v.unknownRegistrationRows, totalRows), conflictingRows: integer(v.conflictingRows, totalRows) };
 }
 // This projection is the only structured local tool payload admitted upstream.
 // Numeric/source equality remains the deterministic adapter's responsibility.
 export function validateAiToolResult(value: unknown): AiToolResult {
   const v = object(value, ['version', 'callId', 'name', 'coverage', 'rows', 'candidates', 'metrics', 'nextPageToken']);
   const rows = array(v.rows, L.rows).map(item => {
-    const r = object(item, ['referenceId', 'date', 'registrationAlias', 'knownMinutes', 'durationState', 'crew']);
+    const r = object(item, ['referenceId', 'date', 'registrationAlias', 'startTime', 'landingTime', 'knownMinutes', 'durationState', 'crew']);
     const durationState = choice(r.durationState, ['known', 'unknown', 'conflict']);
     const knownMinutes = nullable(r.knownMinutes, value => integer(value, Number.MAX_SAFE_INTEGER));
     if ((durationState === 'known') !== (knownMinutes !== null)) throw new Error('Inconsistent AI duration');
     const crew = array(r.crew, 6).map(item => { const c = object(item, ['alias', 'slot']); return { alias: id(c.alias), slot: choice(c.slot, CREW_SLOTS) }; });
     unique(crew.map(c => c.slot));
-    return { referenceId: id(r.referenceId), date: nullable(r.date, date), registrationAlias: nullable(r.registrationAlias, id), knownMinutes, durationState, crew };
+    const clock = (value: unknown) => { const result = text(value, 5); if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(result)) throw new Error('Invalid AI source clock'); return result; };
+    return { referenceId: id(r.referenceId), date: nullable(r.date, date), registrationAlias: nullable(r.registrationAlias, id), startTime: nullable(r.startTime, clock), landingTime: nullable(r.landingTime, clock), knownMinutes, durationState, crew };
   });
   unique(rows.map(r => r.referenceId));
   const candidates = array(v.candidates, L.rows).map(item => { const c = object(item, ['alias', 'kind', 'match']); return { alias: id(c.alias), kind: choice(c.kind, ['crew', 'registration']), match: choice(c.match, ['exact', 'candidate']) }; });

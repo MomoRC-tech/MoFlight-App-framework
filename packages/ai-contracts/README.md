@@ -12,4 +12,6 @@ Policy v1 pins Luna Max, Azure-only ZDR routes, no storage/retries and maximum p
 
 Storage versions are frozen for the upcoming packages: chat/identity v1, supported aggregate backup v2 with backward input support for v1. This package does not change the existing backup writer (still v1). Historical-ID provenance describes local evidence, not cryptographic authentication. Never forward the raw provider account ID to inference, treat it as a secret or use it as operator authority.
 
+Before any deployed v1 consumer, AI02 added parsed source `startTime`/`landingTime` and explicit unknown crew/registration coverage counts. These clocks retain the source's unknown time basis and landing-day offset. Coverage counters describe the inspected dataset and supplied/omitted rows, while metrics describe the selected filter. Missing identity/date/crew fields conservatively prevent exhaustive matching claims. See the [implementation report](../../docs/verification/2026-10-24-ai-chat-implementation.md#ai02-first-local-source-tool-increment) for remaining source-tool acceptance.
+
 Focused checks: `node --import tsx --test tests/mobile/ai-contracts.test.ts tests/mobile/ai-fixtures.test.ts`, then `pnpm typecheck`. Frozen fixtures support later tools/model evaluation without making model calls. Live/provider/native acceptance remains separate.
