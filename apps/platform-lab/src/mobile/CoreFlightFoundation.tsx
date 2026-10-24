@@ -38,6 +38,7 @@ import { loadScopedActivity, saveScopedActivity } from '../vereinsflieger/scoped
 import { acknowledgeActivitySync, type ActivitySyncEvidence } from './activity-sync';
 import { canonical as activityCanonical } from '@moflight/flight-logbook';
 import { getPendingUserBackupRestoreNative, restoreUserBackupFromPickerNative, saveUserBackupToFolder } from '../user-backup-native';
+import { AI_BACKUP_NOTICE } from '../ai/backup-notice';
 import type { UserBackupRestoreOperation } from '../user-backup-restore-journal';
 
 export type SyncControls={cancel:()=>void;canCancel:boolean};
@@ -801,6 +802,7 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,open=true,requestI
         <Action secondary onPress={()=>setDetail(null)}>Flugdetails schließen</Action>
       </Card>}</>}
       {(advanced||restoreReadOnly)&&<Card><Section title="Datensicherung" icon="book"/><Label muted>Enthält eigene Flüge und Belege, lokale Flugbücher und Profil sowie unterstützte eigene Vereinsflieger-Quellen einschließlich Medical. Unverschlüsselt. Anmeldungen, Dienstpläne mit anderen Personen und temporäre Dateien sind ausgeschlossen. Wiederherstellung nur für dieselbe lokale Kontozuordnung.</Label>
+        <Label muted>{AI_BACKUP_NOTICE}</Label>
         <Action disabled={busy||restoreReadOnly||!!userRestoreId} onPress={()=>void run(async()=>{const result=await saveUserBackupToFolder(scope,service,gate);setMessage(result.state==='saved'?'Datensicherung gespeichert und zurückgelesen.':'Ordnerauswahl abgebrochen.');})}>Daten in Geräteordner sichern</Action>
         <Action secondary disabled={busy} onPress={()=>void run(async()=>{
           try {

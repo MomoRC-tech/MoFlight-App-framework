@@ -8,6 +8,7 @@ import { latestRealFlightValues, type RealFlightCommand, type RealFlightImportPl
 import { planFlightRetrieval, type SavedFlightRetrieval } from './retrieval-policy';
 import { timeFlightStage } from './flight-diagnostics';
 import { diagnosticJournal } from '../diagnostics';
+import { collectSavedSourceReview, type SavedSourceReview } from './real-flight-review-evidence';
 
 export const REAL_FLIGHT_SERVICE_VERSION = 1;
 export interface RealFlightOperationJournal {
@@ -221,6 +222,12 @@ export class RealFlightService {
       const {graph,flights}=await library.readStored();
       return {snapshot:this.storedSnapshot(graph,writable,warning),flights};
     }, initialSession);
+  }
+  async readReviewEvidence(): Promise<SavedSourceReview> {
+    return this.withRepository(async ({library}) => {
+      const { graph } = await library.readStored();
+      return collectSavedSourceReview(graph);
+    });
   }
   private storedSnapshot(graph:RealFlightGraph,writable:boolean,warning:string|null):OwnFlightStoredSnapshot {
       if (graph.manifest.owner_id !== this.ownerId || graph.manifest.store_id !== this.storeId) throw new Error('Foreign own-flight repository graph.');

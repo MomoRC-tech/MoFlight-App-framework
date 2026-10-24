@@ -4,7 +4,8 @@ param(
     [Parameter(Mandatory)][string]$OutputDirectory,
     [Parameter(Mandatory)][string]$SourceRef,
     [Parameter(Mandatory)][ValidatePattern('^[a-z][a-z0-9-]{0,30}$')][string]$Namespace,
-    [Parameter(Mandatory)][ValidateSet('seed','verify')][string]$Mode
+    [Parameter(Mandatory)][ValidateSet('seed','verify')][string]$Mode,
+    [ValidateSet('Update','AiChat')][string]$Proof = 'Update'
 )
 $ErrorActionPreference = 'Stop'
 $evidence = [IO.Path]::GetFullPath($OutputDirectory)
@@ -17,10 +18,12 @@ $manifest = Get-Content -LiteralPath (Join-Path $checkout 'local-data/build-rele
 $normal = Join-Path $evidence 'normal-app.apk'
 Copy-Item -LiteralPath $manifest.apk -Destination $normal
 $root = Split-Path $PSScriptRoot -Parent
+$proofModule = if ($Proof -eq 'AiChat') { 'android-ai-chat-poc' } else { 'android-update-preservation-poc' }
 $overrides = @{
-    'apps/platform-lab/index.ts' = "import { registerRootComponent } from 'expo';`nimport Proof, { configureUpdateProof } from './src/development/android-update-preservation-poc';`nconfigureUpdateProof('$Namespace','$Mode');`nregisterRootComponent(Proof);`n"
+    'apps/platform-lab/index.ts' = "import { registerRootComponent } from 'expo';`nimport Proof, { configureUpdateProof } from './src/development/$proofModule';`nconfigureUpdateProof('$Namespace','$Mode');`nregisterRootComponent(Proof);`n"
 }
-foreach ($relative in @('apps/platform-lab/src/development/update-preservation-fixture.ts','apps/platform-lab/src/development/android-update-preservation-poc.tsx')) {
+$proofSources = if ($Proof -eq 'AiChat') { @() } else { @('apps/platform-lab/src/development/update-preservation-fixture.ts','apps/platform-lab/src/development/android-update-preservation-poc.tsx') }
+foreach ($relative in $proofSources) {
     $overrides[$relative] = [IO.File]::ReadAllText((Join-Path $root $relative))
 }
 $originals = @{}
@@ -43,7 +46,7 @@ try {
     Copy-Item -LiteralPath $manifest.apk -Destination $proof
     $hashes = @{}
     foreach ($relative in $overrides.Keys) { $hashes[$relative] = (Get-FileHash -LiteralPath (Join-Path $checkout $relative) -Algorithm SHA256).Hash.ToLowerInvariant() }
-    [ordered]@{ source_commit=$manifest.source_commit; namespace=$Namespace; mode=$Mode; test_only_overrides=$hashes;
+    [ordered]@{ source_commit=$manifest.source_commit; namespace=$Namespace; mode=$Mode; proof=$Proof; test_only_overrides=$hashes;
         apk_sha256=(Get-FileHash -LiteralPath $proof -Algorithm SHA256).Hash.ToLowerInvariant();
         boundary='Historical/current production storage modules with explicit synthetic entry/fixture overrides; no ordinary app or provider acceptance' } |
         ConvertTo-Json | Set-Content -LiteralPath (Join-Path $evidence 'provenance.json') -Encoding utf8

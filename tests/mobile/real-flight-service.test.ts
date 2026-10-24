@@ -13,6 +13,8 @@ import { RealFlightSelection } from '../../apps/platform-lab/src/vereinsflieger/
 import { continueRealFlightOwnerSetup } from '../../apps/platform-lab/src/vereinsflieger/real-flight-owner-setup.ts';
 import { realHistoryCandidateName } from '../../apps/platform-lab/src/vereinsflieger/real-history-contract.ts';
 import type { RealFlightRepositorySession } from '../../apps/platform-lab/src/vereinsflieger/real-flight-service.ts';
+import { readAiFlightSnapshot } from '../../apps/platform-lab/src/ai/flight-context.ts';
+import { AiFlightTools } from '../../apps/platform-lab/src/ai/flight-tools.ts';
 
 const ownerId = '11111111-1111-4111-8111-111111111111', storeId = '22222222-2222-4222-8222-222222222222';
 const at = '2026-10-20T10:00:00.000Z';
@@ -55,6 +57,42 @@ async function ready(f: Awaited<ReturnType<typeof fixture>>) {
   const service=f.make();const review=await service.reviewSource(source());assert.equal(review.state,'confirm-account');
   const bound=await service.confirmAccount(review);assert.equal(bound.state,'ready');return {service,review:bound};
 }
+
+test('saved SQLite source issues reach bounded AI evidence without changing the source or counting pending rows as flights', async () => {
+  const f = await fixture(), service = f.make();
+  try {
+    const input = source('source-issues');
+    const row = input.capture.rows[0]!;
+    input.capture.rows = [row, structuredClone(row), { sourceFlightId: '9002', values: [...row.values.slice(0, 4), '35', row.values[5]!] },
+      { sourceFlightId: '9002', values: [...row.values.slice(0, 4), '52', row.values[5]!] },
+      { sourceFlightId: null, values: [...row.values.slice(0, 4), '99', row.values[5]!] }];
+    input.capture.exportContext!.recordCount = 5;
+    await service.saveVerifiedReview(await service.reviewSource(input), { accountNumber: '101', clubLabel: 'Example club' });
+    const before = await service.exportBackup();
+    let closed = 0;
+    const snapshot = await readAiFlightSnapshot({ currentOwner: async () => ownerId, flights: { open: async () => ({
+      ownerId, storeId, service, assertCurrent: async () => {}, pendingCommand: async () => false, close: async () => { closed++; },
+    }) } }, { version: 1, localOwnerId: ownerId, provider: 'vereinsflieger', accountRef: '101', observedAt: at,
+      provenance: { kind: 'authenticated-profile', verification: 'observed-profile-number' } }, 1);
+    assert.equal(closed, 1); assert.equal(snapshot.projection?.rows.length, 1);
+    const tools = new AiFlightTools(snapshot, { assertCurrent: async () => {}, token: () => 'a'.repeat(43) }, '2026-10-24');
+    const description = await tools.execute({ id: 'c1', name: 'describeDataset', arguments: {} });
+    assert.deepEqual(new Set(description.sourceReview.issues.map(i => i.kind)), new Set(['duplicate-source-row', 'conflicting-source-row', 'missing-source-reference']));
+    const conflict = description.sourceReview.issues.find(i => i.kind === 'conflicting-source-row')!;
+    const evidence = await tools.execute({ id: 'c2', name: 'getFlightEvidence', arguments: { referenceIds: conflict.referenceIds } });
+    assert.deepEqual(evidence.sourceRows.map(row => row.knownMinutes), [35, 52]);
+    assert.equal(evidence.rows.length, 0); assert.equal(evidence.coverage.state, 'partial');
+    const json = JSON.stringify([description, evidence]);
+    for (const raw of ['Example pilot', 'D-TEST', '9002', 'rawCapture', 'accountRef', 'captureSha256']) assert.equal(json.includes(raw), false, raw);
+    assert.equal(await service.exportBackup(), before);
+    const capped = await f.ports.repository();
+    try {
+      const { collectSavedSourceReview } = await import('../../apps/platform-lab/src/vereinsflieger/real-flight-review-evidence.ts');
+      const review = collectSavedSourceReview(await capped.library.snapshot(), 2);
+      assert.equal(review.rows.length, 2); assert.ok(review.omittedRows > 0);
+    } finally { await capped.close(); }
+  } finally { service.dispose(); await f.cleanup(); }
+});
 
 test('combined load binds a fresh verified account and saves valid flights, repeats and corrections without curation',async()=>{
   const f=await fixture();const service=f.make();

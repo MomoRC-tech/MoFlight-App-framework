@@ -48,7 +48,11 @@ export class AiFlightTools {
   }
   private coverage(selected: readonly AiProjectedFlight[], filter: FlightFilter, suppliedRows: number): AiCoverage {
     const p = this.data.projection;
-    const dates = selected.flatMap(row => row.date ? [row.date] : []).sort();
+    const windows = this.data.coverageWindows.map(window => ({
+      from: filter.from && filter.from > window.from ? filter.from : window.from,
+      to: filter.to && filter.to < window.to ? filter.to : window.to,
+    })).filter(window => window.from <= window.to);
+    const coveredStarts = windows.map(window => window.from).sort(), coveredEnds = windows.map(window => window.to).sort();
     // Unknown dates cannot establish no matches in a bounded period. Retain their
     // count even though they cannot enter that period's arithmetic denominator.
     const unknownDateRows = p?.rows.filter(row => row.date === null).length ?? 0;
@@ -57,7 +61,7 @@ export class AiFlightTools {
     const complete = !!p && filter.from !== null && filter.to !== null && unknownDateRows === 0 && (!filter.crewAlias || unknownCrewRows === 0) && (!filter.registrationAlias || unknownRegistrationRows === 0) && this.data.pendingIssueCount === 0 && statisticsCoverageComplete(this.data.coverageWindows, filter.from, filter.to);
     const totalRows = p?.rows.length ?? 0;
     return validateAiCoverage({ state: !p ? 'unavailable' : !totalRows && complete ? 'empty' : complete ? 'complete' : 'partial',
-      requestedFrom: filter.from, requestedTo: filter.to, observedFrom: dates[0] ?? null, observedTo: dates.at(-1) ?? null,
+      requestedFrom: filter.from, requestedTo: filter.to, observedFrom: p ? coveredStarts[0] ?? null : null, observedTo: p ? coveredEnds.at(-1) ?? null : null,
       referenceDate: this.referenceDate, timezone: 'Europe/Berlin', totalRows,
       suppliedRows, omittedRows: totalRows - suppliedRows,
       unknownDateRows, unknownDurationRows: selected.filter(row => row.durationState !== 'known').length, unknownCrewRows, unknownRegistrationRows,
@@ -76,7 +80,7 @@ export class AiFlightTools {
     const emptyFilter: FlightFilter = { from: null, to: null, registrationAlias: null, crewAlias: null, crewSlot: null };
     const filter = 'filter' in call.arguments ? validateFlightFilter(call.arguments.filter) : emptyFilter;
     const selected = this.select(filter), p = this.data.projection;
-    let rows: AiProjectedFlight[] = [], candidates: AiToolResult['candidates'] = [], metrics: AiToolResult['metrics'] = [], nextPageToken: string | null = null;
+    let rows: AiProjectedFlight[] = [], sourceRows: AiProjectedFlight[] = [], candidates: AiToolResult['candidates'] = [], metrics: AiToolResult['metrics'] = [], nextPageToken: string | null = null;
     let suppliedRows = 0;
     if (p && call.name === 'resolveEntities') {
       const { kind, text } = call.arguments;
@@ -95,7 +99,11 @@ export class AiFlightTools {
       rows = selected.slice(offset, offset + call.arguments.limit); suppliedRows = rows.length;
       if (offset + rows.length < selected.length) nextPageToken = this.page(query, offset + rows.length);
     } else if (p && call.name === 'getFlightEvidence') {
-      rows = call.arguments.referenceIds.map(ref => { const row = p.rows.find(row => row.referenceId === ref); if (!row) throw new Error('Foreign AI evidence'); return row; });
+      for (const ref of call.arguments.referenceIds) {
+        const saved = p.rows.find(row => row.referenceId === ref);
+        const source = this.data.sourceReview?.rows.find(row => row.referenceId === ref);
+        if (saved) rows.push(saved); else if (source) sourceRows.push(source); else throw new Error('Foreign AI evidence');
+      }
       suppliedRows = rows.length;
     } else if (p && call.name === 'aggregateFlights') {
       const source = selected.map(row => { const source = p.sourceByReference.get(row.referenceId); if (!source) throw new Error('Missing AI source'); return source; });
@@ -106,7 +114,10 @@ export class AiFlightTools {
       suppliedRows = selected.length;
     }
     const result = validateAiToolResult({ version: 1, callId: call.id, name: call.name,
-      coverage: this.coverage(selected, filter, suppliedRows), rows, candidates, metrics, nextPageToken });
+      coverage: this.coverage(selected, filter, suppliedRows), rows, sourceRows,
+      sourceReview: this.data.sourceReview ? { ...this.data.sourceReview.summary,
+        issues: call.name === 'describeDataset' ? this.data.sourceReview.summary.issues : [] }
+        : { state: 'unavailable', totalRows: 0, omittedRows: 0, totalIssues: 0, issues: [] }, candidates, metrics, nextPageToken });
     // Recheck after every async boundary and before granting output. The caller
     // must similarly check before publishing an eventual model answer.
     await this.current();

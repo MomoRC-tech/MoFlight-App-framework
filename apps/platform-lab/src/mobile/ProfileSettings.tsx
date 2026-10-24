@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Keyboard, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Action, Card, Label, Section, colors } from './theme';
+import { AI_BACKUP_NOTICE } from '../ai/backup-notice';
 
 export interface ProfileSettingsProps {
   connectionSummary?: React.ReactNode;
@@ -25,6 +26,7 @@ export function ProfileSettings({ connectionSummary, onBackup, onDiagnostics, on
     {onConnections&&<Card><Section title="Verbindung"/><Action secondary onPress={onConnections}>Vereinsflieger-Einstellungen</Action></Card>}
     <Card><Section title="Sicherung" icon="book" />
       <Label muted>Sichert eigene Flüge und Belege, die ausgewählte lokale Flugbuchbibliothek mit Profil sowie unterstützte eigene Quellen einschließlich Medical. Unverschlüsselt; Anmeldungen, Dienstpläne und temporäre Dateien sind ausgeschlossen.</Label>
+      <Label muted>{AI_BACKUP_NOTICE}</Label>
       <Action secondary icon="book" onPress={onBackup}>Daten sichern & wiederherstellen</Action>
       <Label muted>Die Sicherungsaktionen findest du unter „Details & weitere Optionen“.</Label>
     </Card>

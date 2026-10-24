@@ -145,6 +145,14 @@ test('all failure and clarification statuses are explicit; tool declarations obe
   assert.throws(() => validateAiReply({ ...reply, status: 'success' }, authority));
 });
 
+test('source observations can be cited but cannot impersonate a saved-flight navigation target', () => {
+  const source = { kind: 'source-row' as const, id: 's1', captureId: 'capture-1', captureSha256: 'a'.repeat(64), rowIndex: 0, context };
+  const sourceAnswer = { ...reply, answer: { text: 'Suspected source conflict, no correction made.', evidenceIds: ['s1'], actions: [], metrics: [] } };
+  assert.equal(validateAiReply(sourceAnswer, { ...authority, references: [source] }).status, 'answer');
+  assert.throws(() => validateAiReply({ ...sourceAnswer, answer: { ...sourceAnswer.answer, actions: [{ kind: 'open-flight', referenceIds: ['s1'] }] } }, { ...authority, references: [source] }));
+  assert.throws(() => validateAiReply(sourceAnswer, { ...authority, references: [{ ...source, context: { ...context, localOwnerId: 'foreign' } }] }));
+});
+
 test('validators reject accessors, hidden fields, symbols, sparse arrays and class instances without executing getters', () => {
   let invoked = false;
   const accessor = { ...start }; Object.defineProperty(accessor, 'kind', { enumerable: true, get() { invoked = true; throw new Error('getter executed'); } });
@@ -163,7 +171,7 @@ test('validators reject accessors, hidden fields, symbols, sparse arrays and cla
 const coverage = { state: 'partial', requestedFrom: '2026-01-01', requestedTo: '2026-10-24', observedFrom: '2026-08-01', observedTo: '2026-10-20', referenceDate: '2026-10-24', timezone: 'Europe/Berlin', totalRows: 3, suppliedRows: 2, omittedRows: 1, unknownDateRows: 1, unknownDurationRows: 1, unknownCrewRows: 1, unknownRegistrationRows: 1, conflictingRows: 0 };
 test('tool projection admits only bounded aliased flight fields and coverage, never source payloads', () => {
   const row = { referenceId: 'e1', date: '2026-10-20', registrationAlias: 'aircraft-1', startTime: '10:00', landingTime: '11:00', knownMinutes: 60, durationState: 'known', crew: [{ alias: 'person-1', slot: 'pilot' }] };
-  const result = { version: 1, callId: 'c1', name: 'queryFlights', coverage, rows: [row], candidates: [], metrics: [], nextPageToken: null };
+  const result = { version: 1, callId: 'c1', name: 'queryFlights', coverage, rows: [row], sourceRows: [], sourceReview: { state: 'available', totalRows: 0, omittedRows: 0, totalIssues: 0, issues: [] }, candidates: [], metrics: [], nextPageToken: null };
   assert.deepEqual(validateAiToolResult(result), result);
   for (const field of ['remarks', 'rawCapture', 'medical', 'password', 'accountRef', 'flightId', 'registration', 'crewName']) {
     assert.throws(() => validateAiToolResult({ ...result, rows: [{ ...row, [field]: 'private' }] }), field);
@@ -184,7 +192,7 @@ test('tool projection admits only bounded aliased flight fields and coverage, ne
 });
 
 test('tool metric schema preserves null unknowns and exact count/minute units', () => {
-  const base = { version: 1, callId: 'c1', name: 'aggregateFlights', coverage, rows: [], candidates: [], metrics: [{ referenceId: 'm1', measure: 'averageKnownMinutes', value: null, unit: 'minutes' }], nextPageToken: null };
+  const base = { version: 1, callId: 'c1', name: 'aggregateFlights', coverage, rows: [], sourceRows: [], sourceReview: { state: 'available', totalRows: 0, omittedRows: 0, totalIssues: 0, issues: [] }, candidates: [], metrics: [{ referenceId: 'm1', measure: 'averageKnownMinutes', value: null, unit: 'minutes' }], nextPageToken: null };
   assert.deepEqual(validateAiToolResult(base), base);
   assert.equal(validateAiToolResult({ ...base, metrics: [{ ...base.metrics[0], value: 67.5 }] }).metrics[0]?.value, 67.5);
   for (const change of [{ measure: 'count', value: 1.5, unit: 'flights' }, { measure: 'knownMinutes', value: 1.5 }, { value: Infinity }, { value: -1 }, { unit: 'hours' }, { measure: 'skill' }]) assert.throws(() => validateAiToolResult({ ...base, metrics: [{ ...base.metrics[0], ...change }] }));

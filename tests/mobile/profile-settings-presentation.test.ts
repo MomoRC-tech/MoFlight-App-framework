@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { runInNewContext } from 'node:vm';
 import ts from 'typescript';
+import { AI_BACKUP_NOTICE } from '../../apps/platform-lab/src/ai/backup-notice';
 
 interface Element {type:string;props:Record<string,any>;children:any[]}
 const source=ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/mobile/ProfileSettings.tsx',import.meta.url),'utf8'),{
@@ -12,7 +13,7 @@ function fixture(){
  const calls:string[]=[],exports:any={};
  const react={createElement:(type:string,props:any,...children:any[]):Element=>({type,props:props??{},children:children.flat(Infinity)}),useEffect:()=>{},useRef:(value:any)=>({current:value}),useState:(value:any)=>[value,()=>{}]};
  const leaves=(names:string[])=>Object.fromEntries(names.map(n=>[n,n]));
- const modules:Record<string,any>={react:{default:react,...react},'react-native':{...leaves(['ActivityIndicator','Text','TextInput','View']),Keyboard:{dismiss(){}},StyleSheet:{create:(x:unknown)=>x}},'./theme':{...leaves(['Action','Card','Label','Section']),colors:{}}};
+ const modules:Record<string,any>={'../ai/backup-notice':{AI_BACKUP_NOTICE},react:{default:react,...react},'react-native':{...leaves(['ActivityIndicator','Text','TextInput','View']),Keyboard:{dismiss(){}},StyleSheet:{create:(x:unknown)=>x}},'./theme':{...leaves(['Action','Card','Label','Section']),colors:{}}};
  runInNewContext(source,{exports,require:(name:string)=>{assert.ok(name in modules,name);return modules[name];}});
  const props={displayName:'Synthetic saved name',nameDraft:'Retained draft',busy:false,error:null,onNameDraftChange:()=>{},onSaveName:async()=>true,onRetry:()=>{},onConnections:()=>calls.push('connection'),onBackup:()=>calls.push('backup'),onDiagnostics:()=>calls.push('diagnostics'),onCredits:()=>calls.push('credits'),onTools:()=>calls.push('development')};
  const nodes=(tree:any)=>{const result:Element[]=[];const visit=(n:any)=>{if(n?.children){result.push(n);n.children.forEach(visit);}};visit(tree);return result;};
@@ -23,6 +24,9 @@ test('ordinary settings exposes real administration and backup exclusions while 
  const f=fixture(),ordinary=f.nodes(f.ordinary),synthetic=f.nodes(f.synthetic);
  assert.equal(ordinary.some(n=>n.type==='TextInput'),false);
  const text=f.text(f.ordinary);assert.ok(text.includes('einschließlich Medical'));assert.ok(text.includes('Dienstpläne und temporäre Dateien sind ausgeschlossen'));
+ assert.ok(text.includes(AI_BACKUP_NOTICE));
+ assert.ok(text.indexOf(AI_BACKUP_NOTICE)<text.indexOf('Daten sichern & wiederherstellen'));
+ for(const term of ['unverschlüsselte','KI-Chats','Entwürfe','Vereinsflieger-Kennungen','serverseitige Budget'])assert.ok(AI_BACKUP_NOTICE.includes(term));
  assert.equal(ordinary.some(n=>n.type==='Section'&&n.props.title==='Lokales Demoprofil'),false);
  assert.equal(synthetic.find(n=>n.type==='TextInput')!.props.value,'Retained draft');
  assert.ok(synthetic.some(n=>n.type==='Section'&&n.props.title==='Lokales Demoprofil'));

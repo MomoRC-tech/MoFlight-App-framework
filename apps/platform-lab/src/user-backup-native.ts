@@ -11,6 +11,9 @@ import { restoreUserBackup, type UserBackupGate, type UserBackupServicePorts } f
 import { openUserBackupRestoreJournal } from './user-backup-restore-journal-native';
 import type { UserBackupRestoreOperation } from './user-backup-restore-journal';
 import type { RealFlightNativeScope } from './vereinsflieger/real-flight-native';
+import { readOwnerChatArchiveNative, restoreOwnerChatsNative } from './ai/chat-native';
+import { encodeChatArchive } from './ai/chat-model';
+import { assertNoPendingUserBackupRestore } from './user-backup-restore-journal-native';
 
 const directory = SQLite.defaultDatabaseDirectory;
 const databaseFile = (name: string) => new File(directory.startsWith('file:') ? directory : 'file://' + directory, name);
@@ -26,6 +29,7 @@ function sameOwnerScope(scope: RealFlightNativeScope, writable: boolean): void {
 /** Aggregate selected local profile, selected real flight owner, and supported same-owner information. */
 export async function exportUserBackupNative(scope: RealFlightNativeScope, service: RealFlightBackupService,
   gate: UserBackupGate): Promise<string> {
+  await assertNoPendingUserBackupRestore();
   await gate(); sameOwnerScope(scope, false);
   if (service.ownerId !== scope.lease.ownerId || service.storeId !== scope.lease.storeId) throw new Error('Foreign real flight backup service.');
   const { lib, name } = await loadBooks();
@@ -43,10 +47,12 @@ export async function exportUserBackupNative(scope: RealFlightNativeScope, servi
   const selectedScope = await loadProviderScope(scope.lease.ownerId);
   if (selectedScope && selectedScope.owner !== scope.lease.ownerId) throw new Error('Foreign selected information scope.');
   const informationBackup = selectedScope ? await exportInformationBackup(selectedScope) : null;
+  const aiArchive = await readOwnerChatArchiveNative(scope, gate);
   await gate(); sameOwnerScope(scope, false);
   return createUserBackup({ createdAt: new Date().toISOString(), ownerId: scope.lease.ownerId, storeId: scope.lease.storeId,
     pilot, realFlights: { backup: realFlights },
-    information: selectedScope && informationBackup !== null ? { scope: selectedScope, backup: informationBackup } : null }, hash);
+    information: selectedScope && informationBackup !== null ? { scope: selectedScope, backup: informationBackup } : null,
+    ai: { archive: encodeChatArchive(aiArchive) } }, hash);
 }
 
 export type SaveUserBackupResult = { state: 'cancelled' } | { state: 'saved'; fileName: string; sha256: string };
@@ -143,6 +149,10 @@ async function createNativeRestorePorts(scope: RealFlightNativeScope, gate: User
         async () => { await ownerGate(); await gate(); }, input.operationId, ownerGate);
       if (result.state === 'restored' || result.state === 'already-activated') return 'already-activated';
       throw new Error('Information restore requires recovery.');
+    },
+    async restoreAi(input, ownerGate) {
+      await restoreOwnerChatsNative({ ...scope, backupRestoreOperationId: input.permit.operationId }, input.archive,
+        async () => { await ownerGate(); await gate(); });
     },
   };
   return ports;

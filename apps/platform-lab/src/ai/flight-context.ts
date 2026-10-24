@@ -3,6 +3,7 @@ import { assertAiContext, validateAiContext, validateHistoricalProviderIdentity,
 import type { OwnFlightReadPorts } from '../mobile/own-flight-reader.ts';
 import { projectAiFlights, type AiProjection } from './projection.ts';
 import type { SavedFlightRetrieval } from '../vereinsflieger/retrieval-policy.ts';
+import { projectAiSourceReview, type AiSourceReview } from './source-review';
 
 export interface AiFlightContextPorts {
   flights: OwnFlightReadPorts;
@@ -14,6 +15,7 @@ export interface AiFlightSnapshot {
   coverageWindows: SavedFlightRetrieval[];
   pendingIssueCount: number;
   unavailableReason: 'no-flight-binding' | 'recovery' | 'read-failed' | null;
+  sourceReview?: AiSourceReview;
 }
 export class AiContextChanged extends Error {
   constructor() { super('AI source context changed. Start a new explicit message.'); }
@@ -61,12 +63,18 @@ export async function readAiFlightSnapshot(ports: AiFlightContextPorts, receipt:
       accountRef: identity.accountRef, contextVersion, flights: { state: 'available', storeId: session.storeId,
         generation: snapshot.generation, snapshotRevision: `generation-${snapshot.generation}` } });
     const projection = projectAiFlights(flights, context);
+    let sourceReview: AiSourceReview | undefined;
+    if (session.service.readReviewEvidence) {
+      const review = await session.service.readReviewEvidence();
+      await session.assertCurrent();
+      sourceReview = projectAiSourceReview(review, projection, context);
+    }
     const coverageWindows = snapshot.savedRetrievals.map(window => ({ ...window }));
     const pendingIssueCount = snapshot.pending.reduce((sum, pending) => sum + pending.issues.length, 0);
     if (!Number.isSafeInteger(pendingIssueCount)) throw new Error('Invalid pending AI source count');
     await session.assertCurrent();
     if (await ports.currentOwner() !== identity.localOwnerId) throw new AiContextChanged();
-    return { context, projection, coverageWindows, pendingIssueCount, unavailableReason: null };
+    return { context, projection, coverageWindows, pendingIssueCount, unavailableReason: null, sourceReview };
   } finally { await session.close(); }
 }
 

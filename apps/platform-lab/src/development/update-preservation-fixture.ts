@@ -173,6 +173,11 @@ export async function verifyUpdateProof(p: UpdateProofPorts, recover = true): Pr
     async activatePilot() {
       await p.write('recovered-selection.json', canonical({ ownerId: a.ownerId, storeId: a.storeId, selectedBook: payload.pilot.selectedBookId }));
     },
+    async restoreAi(input) {
+      // This historical-writer proof has no AI store. Keep the overlay usable
+      // on old source checkouts which predate the AI modules.
+      if (input.archive.conversations.length || input.archive.identity) throw new Error('Historical fixture has unexpected AI content.');
+    },
   };
   const result = await restoreUserBackup(a.ownerId, a.storeId, async () => {}, ports, updateId(201));
   if (result.state !== 'restored') throw new Error('Late-phase aggregate recovery remains incomplete.');

@@ -1,3 +1,4 @@
+import { AI_BACKUP_NOTICE } from '../../apps/platform-lab/src/ai/backup-notice';
 import * as syncProgress from '../../apps/platform-lab/src/mobile/sync-progress.ts';
 import { DiagnosticJournal } from '../../apps/platform-lab/src/diagnostics';
 
@@ -112,6 +113,7 @@ function fixture({providerAllowed=true,deferRead=false,startUpdate=false,root=fa
   };
   const leaves=(names:string[])=>Object.fromEntries(names.map(name=>[name,name]));
   const modules:Record<string,any>={react:{default:react,...react},
+    '../ai/backup-notice':{AI_BACKUP_NOTICE},
     '../user-backup-native':{getPendingUserBackupRestoreNative:async()=>{pendingRestoreChecks++;return pendingRestore?{operationId:'pending',ownerId:'owner',storeId:'store'}:null;},
       restoreUserBackupFromPickerNative:async(_scope:any,_gate:any,id:string)=>{calls.push('resume-'+id);if(cancelRestore)return {state:'cancelled'};pendingRestore=false;return {state:'restored'};}},
     './sync-progress':syncProgress,'./session-monitor':{startSessionMonitor},

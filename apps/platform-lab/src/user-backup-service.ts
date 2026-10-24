@@ -1,7 +1,8 @@
 import { canonical } from '@moflight/flight-logbook';
 import type { Hash } from '../../../packages/local-data/src/index';
 import type { RealFlightBackupIo } from './vereinsflieger/real-flight-backup-native';
-import { USER_BACKUP_LIMIT, validateUserBackup } from './user-backup';
+import { USER_BACKUP_LIMIT, validateUserBackup, emptyUserChatArchive } from './user-backup';
+import { decodeChatArchive, type ChatArchive } from './ai/chat-model';
 import { USER_BACKUP_RESTORE_PHASES, UserBackupRestoreJournal, type PrepareUserBackupRestore, type UserBackupRestoreOperation } from './user-backup-restore-journal';
 import type { ProviderScope } from './vereinsflieger/scope-store';
 
@@ -24,6 +25,7 @@ export interface UserBackupServicePorts {
   stagePilot(input: { backup: string; displayName: string; selectedBookId: string | null; candidateName: string; permit: { operationId: string; ownerId: string; storeId: string } }): Promise<void>;
   activatePilot(input: { candidateName: string; permit: { operationId: string; ownerId: string; storeId: string } }): Promise<void>;
   restoreInformation(input: { scope: ProviderScope; backup: string; operationId: string }, gate: UserBackupGate): Promise<'restored' | 'already-activated'>;
+  restoreAi(input: { archive: ChatArchive; permit: { operationId: string; ownerId: string; storeId: string } }, gate: UserBackupGate): Promise<void>;
 }
 
 const byteLength = (text: string) => new TextEncoder().encode(text).length;
@@ -70,6 +72,7 @@ export async function restoreUserBackup(ownerId: string, storeId: string, gate: 
   const informationScope = await ports.currentInformationScope(ownerId);
   const payload = await validateUserBackup(text, { ownerId, storeId, informationScope }, ports.hash);
   const archiveSha256 = await ports.hash(text);
+  const aiArchive = payload.version === 2 ? decodeChatArchive(payload.ai.archive, ownerId, { interruptActive: true }) : emptyUserChatArchive(ownerId);
   if (!/^[0-9a-f]{64}$/.test(archiveSha256)) throw new Error('Invalid user backup archive digest.');
   if (prior && (prior.archiveSha256 !== archiveSha256 || canonical(prior.informationScope) !== canonical(payload.information?.scope ?? null))) {
     throw new Error('Selected archive differs from the pending aggregate restore.');
@@ -133,6 +136,11 @@ export async function restoreUserBackup(ownerId: string, storeId: string, gate: 
         backup: payload.information.backup, operationId: informationOperationId }, gate);
       if (infoResult !== 'restored' && infoResult !== 'already-activated') throw new Error('Information restore remains incomplete.');
     }
+    // Auxiliary stores share this durable checkpoint. Chat replacement is one
+    // validated SQLite transaction; lost acknowledgements safely repeat it.
+    // The aggregate read gate blocks all stores until pilot + completion commit.
+    await gate();
+    await ports.restoreAi({ archive: aiArchive, permit }, gate);
     await recordPhase(ports, prepared.operationId, 'information');
     await gate();
 

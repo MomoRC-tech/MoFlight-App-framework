@@ -1,6 +1,6 @@
 import { AI_LIMITS as L, AI_TOOLS, CREW_SLOTS, type AiContext, type HistoricalProviderIdentity,
   type FlightReference, type FlightFilter, type AiToolCall, type AiRequest, type AiReply,
-  type AiBudget, type AiPolicy, type AiAnswer, type AiReceipt, type AiCoverage, type AiToolResult } from './types.ts';
+  type AiBudget, type AiPolicy, type AiAnswer, type AiReceipt, type AiCoverage, type AiToolResult, type AiEvidenceReference } from './types.ts';
 import { object, array, text, id, account, integer, literal, choice, nullable, date, unique, wire, tag } from './shape.ts';
 
 export function validateAiContext(value: unknown): AiContext {
@@ -33,6 +33,15 @@ export function validateFlightReference(value: unknown, context: AiContext): Fli
   assertAiContext(parsed, context);
   if (parsed.flights.state !== 'available') throw new Error('AI flights unavailable');
   return { id: id(v.id), flightId: id(v.flightId), factsRevision: id(v.factsRevision), context: parsed };
+}
+export function validateAiEvidenceReference(value: unknown, context: AiContext): AiEvidenceReference {
+  if (value && typeof value === 'object' && Object.hasOwn(value, 'kind')) {
+    const v = object(value, ['kind', 'id', 'captureId', 'captureSha256', 'rowIndex', 'context']);
+    const parsed = validateAiContext(v.context); assertAiContext(parsed, context);
+    if (parsed.flights.state !== 'available' || typeof v.captureSha256 !== 'string' || !/^[0-9a-f]{64}$/.test(v.captureSha256)) throw new Error('Invalid AI source evidence');
+    return { kind: literal(v.kind, 'source-row'), id: id(v.id), captureId: id(v.captureId), captureSha256: v.captureSha256, rowIndex: integer(v.rowIndex, Number.MAX_SAFE_INTEGER), context: parsed };
+  }
+  return validateFlightReference(value, context);
 }
 export function validateFlightFilter(value: unknown): FlightFilter {
   const v = object(value, ['from', 'to', 'registrationAlias', 'crewAlias', 'crewSlot']);
@@ -112,18 +121,20 @@ export interface AiReplyAuthority {
   context: AiContext; policy: AiPolicy; attemptId: string; runId: string; round: number;
   // Local maps built by deterministic tools. Model-supplied references/metrics cannot
   // enlarge these grants; check current context again immediately before rendering.
-  references: readonly FlightReference[];
+  references: readonly AiEvidenceReference[];
   metrics: ReadonlyMap<string, { measure: 'count' | 'knownMinutes' | 'averageKnownMinutes'; value: number | null; unit: 'flights' | 'minutes' }>;
 }
 function answer(value: unknown, authority: AiReplyAuthority): AiAnswer {
   const v = object(value, ['text', 'evidenceIds', 'actions', 'metrics']);
-  const refs = new Set(unique(authority.references.map(r => validateFlightReference(r, authority.context).id)));
+  const parsedReferences = authority.references.map(r => validateAiEvidenceReference(r, authority.context));
+  const refs = new Set(unique(parsedReferences.map(r => r.id)));
+  const navigable = new Set(parsedReferences.filter(r => !('kind' in r)).map(r => r.id));
   const reference = (value: unknown): string => { const key = id(value); if (!refs.has(key)) throw new Error('Unknown AI evidence'); return key; };
   const evidenceIds = unique(array(v.evidenceIds, L.rows).map(reference));
   const actions = array(v.actions, 20).map(item => {
     const a = object(item, ['kind', 'referenceIds']), kind = choice(a.kind, ['open-flight', 'show-flights']);
     const referenceIds = unique(array(a.referenceIds, kind === 'open-flight' ? 1 : L.rows, 1).map(reference));
-    if (referenceIds.some(ref => !evidenceIds.includes(ref))) throw new Error('Uncited AI action');
+    if (referenceIds.some(ref => !evidenceIds.includes(ref) || !navigable.has(ref))) throw new Error('Uncited or non-flight AI action');
     return { kind, referenceIds };
   });
   const metrics = array(v.metrics, 30).map(item => {
@@ -160,15 +171,15 @@ export function validateAiCoverage(value: unknown): AiCoverage {
   const totalRows = integer(v.totalRows, Number.MAX_SAFE_INTEGER), suppliedRows = integer(v.suppliedRows, totalRows), omittedRows = integer(v.omittedRows, totalRows);
   if (suppliedRows + omittedRows !== totalRows) throw new Error('Inconsistent AI coverage');
   const state = choice(v.state, ['complete', 'partial', 'empty', 'unavailable']);
-  if ((state === 'empty' || state === 'unavailable') && (totalRows !== 0 || observedFrom !== null || observedTo !== null)) throw new Error('Invalid empty AI coverage');
+  if (state === 'empty' && totalRows !== 0 || state === 'unavailable' && (totalRows !== 0 || observedFrom !== null || observedTo !== null)) throw new Error('Invalid empty AI coverage');
   return { state, requestedFrom, requestedTo, observedFrom, observedTo, referenceDate: date(v.referenceDate), timezone: literal(v.timezone, 'Europe/Berlin'), totalRows, suppliedRows, omittedRows,
     unknownDateRows: integer(v.unknownDateRows, totalRows), unknownDurationRows: integer(v.unknownDurationRows, totalRows), unknownCrewRows: integer(v.unknownCrewRows, totalRows), unknownRegistrationRows: integer(v.unknownRegistrationRows, totalRows), conflictingRows: integer(v.conflictingRows, totalRows) };
 }
 // This projection is the only structured local tool payload admitted upstream.
 // Numeric/source equality remains the deterministic adapter's responsibility.
 export function validateAiToolResult(value: unknown): AiToolResult {
-  const v = object(value, ['version', 'callId', 'name', 'coverage', 'rows', 'candidates', 'metrics', 'nextPageToken']);
-  const rows = array(v.rows, L.rows).map(item => {
+  const v = object(value, ['version', 'callId', 'name', 'coverage', 'rows', 'sourceRows', 'sourceReview', 'candidates', 'metrics', 'nextPageToken']);
+  const projectedRows = (value: unknown) => array(value, L.rows).map(item => {
     const r = object(item, ['referenceId', 'date', 'registrationAlias', 'startTime', 'landingTime', 'knownMinutes', 'durationState', 'crew']);
     const durationState = choice(r.durationState, ['known', 'unknown', 'conflict']);
     const knownMinutes = nullable(r.knownMinutes, value => integer(value, Number.MAX_SAFE_INTEGER));
@@ -178,7 +189,21 @@ export function validateAiToolResult(value: unknown): AiToolResult {
     const clock = (value: unknown) => { const result = text(value, 5); if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(result)) throw new Error('Invalid AI source clock'); return result; };
     return { referenceId: id(r.referenceId), date: nullable(r.date, date), registrationAlias: nullable(r.registrationAlias, id), startTime: nullable(r.startTime, clock), landingTime: nullable(r.landingTime, clock), knownMinutes, durationState, crew };
   });
-  unique(rows.map(r => r.referenceId));
+  const rows = projectedRows(v.rows), sourceRows = projectedRows(v.sourceRows);
+  if (rows.length + sourceRows.length > L.rows) throw new Error('AI evidence read exceeds row bound');
+  unique([...rows, ...sourceRows].map(r => r.referenceId));
+  const sr = object(v.sourceReview, ['state', 'totalRows', 'omittedRows', 'totalIssues', 'issues']);
+  const totalRows = integer(sr.totalRows, Number.MAX_SAFE_INTEGER), omittedRows = integer(sr.omittedRows, totalRows), totalIssues = integer(sr.totalIssues, totalRows);
+  const state = choice(sr.state, ['available', 'partial', 'unavailable']);
+  if (state === 'unavailable' && (totalRows || omittedRows || totalIssues) || state === 'available' && omittedRows || state === 'partial' && !omittedRows) throw new Error('Invalid AI source-review coverage');
+  const issues = array(sr.issues, L.rows).map(item => {
+    const i = object(item, ['id', 'kind', 'referenceIds', 'rowCount']);
+    const referenceIds = unique(array(i.referenceIds, L.rows, 1).map(id));
+    const rowCount = integer(i.rowCount, totalRows, referenceIds.length);
+    return { id: id(i.id), kind: choice(i.kind, ['duplicate-source-row', 'conflicting-source-row', 'missing-source-reference']), referenceIds, rowCount };
+  });
+  unique(issues.map(i => i.id));
+  if (issues.length > totalIssues || issues.flatMap(i => i.referenceIds).length > L.rows || sourceRows.length > totalRows - omittedRows) throw new Error('Invalid AI source-review bounds');
   const candidates = array(v.candidates, L.rows).map(item => { const c = object(item, ['alias', 'kind', 'match']); return { alias: id(c.alias), kind: choice(c.kind, ['crew', 'registration']), match: choice(c.match, ['exact', 'candidate']) }; });
   unique(candidates.map(c => c.alias));
   const metrics = array(v.metrics, 30).map(item => {
@@ -195,6 +220,6 @@ export function validateAiToolResult(value: unknown): AiToolResult {
   const coverage = validateAiCoverage(v.coverage);
   if (coverage.suppliedRows < rows.length) throw new Error('Invalid AI supplied coverage');
   const name = choice(v.name, AI_TOOLS), nextPageToken = nullable(v.nextPageToken, value => text(value, 2048));
-  if (name !== 'queryFlights' && nextPageToken !== null || name !== 'resolveEntities' && candidates.length || name !== 'aggregateFlights' && metrics.length || !['queryFlights', 'getFlightEvidence'].includes(name) && rows.length) throw new Error('Invalid AI tool result fields');
-  return { version: literal(v.version, 1), callId: id(v.callId), name, coverage, rows, candidates, metrics, nextPageToken };
+  if (name !== 'queryFlights' && nextPageToken !== null || name !== 'resolveEntities' && candidates.length || name !== 'aggregateFlights' && metrics.length || !['queryFlights', 'getFlightEvidence'].includes(name) && rows.length || name !== 'getFlightEvidence' && sourceRows.length || name !== 'describeDataset' && issues.length) throw new Error('Invalid AI tool result fields');
+  return { version: literal(v.version, 1), callId: id(v.callId), name, coverage, rows, sourceRows, sourceReview: { state, totalRows, omittedRows, totalIssues, issues }, candidates, metrics, nextPageToken };
 }

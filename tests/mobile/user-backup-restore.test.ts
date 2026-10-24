@@ -14,7 +14,9 @@ import type { RealFlightSourceInput } from '../../apps/platform-lab/src/vereinsf
 import { InformationStore } from '../../apps/platform-lab/src/vereinsflieger/information-store.ts';
 import { validateInformationCapture } from '../../apps/platform-lab/src/vereinsflieger/information.ts';
 import type { ProviderScope } from '../../apps/platform-lab/src/vereinsflieger/scope-store.ts';
-import { createUserBackup, selectedPilotBookForBackup } from '../../apps/platform-lab/src/user-backup.ts';
+import { createUserBackup, validateUserBackup, selectedPilotBookForBackup, emptyUserChatArchive } from '../../apps/platform-lab/src/user-backup.ts';
+import { ChatStore } from '../../apps/platform-lab/src/ai/chat-store.ts';
+import { encodeChatArchive, decodeChatArchive, type ChatArchive } from '../../apps/platform-lab/src/ai/chat-model.ts';
 import { restoreUserBackup, type UserBackupServicePorts } from '../../apps/platform-lab/src/user-backup-service.ts';
 import { USER_BACKUP_RESTORE_JOURNAL_FILE_NAME, UserBackupRestoreJournal, assertUserBackupReadAllowed } from '../../apps/platform-lab/src/user-backup-restore-journal.ts';
 import { nodeDriver } from './sqlite-driver.ts';
@@ -76,17 +78,19 @@ function realSource(captureId: string): RealFlightSourceInput {
         columnIds: ['1', '2', '3', '4', '5', '6'], adapterVersion: 2 } } };
 }
 
-async function archive() {
+async function archive(ai?: ChatArchive, withFlights = true) {
   const permit: RealFlightPermit = { ownerId, storeId, leaseId: '44444444-4444-4444-8444-444444444444', writable: true };
   const real = await RealFlightLibrary.create(nodeDriver(':memory:'), manifest, hash, () => permit);
   let realBackup = '';
   try {
-    const binding = realSource('binding-capture');
-    await real.bindAccount({ kind: 'bind', commandId: uuid(100), baseGeneration: 0, source: binding, at });
-    const input = realSource('flight-capture');
-    const plan = await real.prepareImport(input);
-    await real.saveUnassigned({ kind: 'import-unassigned', commandId: uuid(101), baseGeneration: plan.baseGeneration,
-      bindingId: plan.bindingId, source: input, planToken: plan.planToken, at });
+    if (withFlights) {
+      const binding = realSource('binding-capture');
+      await real.bindAccount({ kind: 'bind', commandId: uuid(100), baseGeneration: 0, source: binding, at });
+      const input = realSource('flight-capture');
+      const plan = await real.prepareImport(input);
+      await real.saveUnassigned({ kind: 'import-unassigned', commandId: uuid(101), baseGeneration: plan.baseGeneration,
+        bindingId: plan.bindingId, source: input, planToken: plan.planToken, at });
+    }
     realBackup = await real.exportBackup();
   } finally { await real.close(); }
 
@@ -112,7 +116,17 @@ async function archive() {
   const infoBackup = await info.exportBackup(hash); await info.db.close();
   return createUserBackup({ createdAt: at, ownerId, storeId,
     pilot: { ownerId: 'synthetic-pilot', backup: pilotBackup, displayName: 'Synthetic pilot', selectedBookId: 'book-one' },
-    realFlights: { backup: realBackup }, information: { scope, backup: infoBackup } }, hash);
+    realFlights: { backup: realBackup }, information: { scope, backup: infoBackup }, ...(ai ? { ai: { archive: encodeChatArchive(ai) } } : {}) }, hash);
+}
+
+function chatArchive(): ChatArchive {
+  const context = { version: 1 as const, localOwnerId: ownerId, provider: 'vereinsflieger' as const, accountRef: '12345', contextVersion: 1,
+    flights: { state: 'available' as const, storeId, generation: 2, snapshotRevision: 'generation-2' } };
+  return { version: 1, ownerId, activitySequence: 1, identity: { version: 1, localOwnerId: ownerId, provider: 'vereinsflieger', accountRef: '12345',
+    observedAt: at, provenance: { kind: 'authenticated-profile', verification: 'observed-profile-number' } },
+    conversations: [{ version: 1, id: 'chat-one', ownerId, title: 'Synthetic conversation', draft: 'Durable offline draft', context, activitySequence: 1, updatedAt: at,
+      messages: [{ id: 'question-one', input: 'How many saved flights?', context, status: 'running', answer: null,
+        attempt: { attemptId: 'attempt-one', runId: 'run-one', policyId: 'policy-one', round: 1 }, createdAt: at }] }] };
 }
 
 function makePorts(directory: string, text: string, failAfterReal = false): UserBackupServicePorts {
@@ -148,6 +162,7 @@ function makePorts(directory: string, text: string, failAfterReal = false): User
       infoActive = true; return 'restored';
     },
     async activatePilot() { assert.equal(pilotCandidate, true); events.push('pilot-active'); pilotActive = true; },
+    async restoreAi(input) { assert.equal(input.archive.ownerId, ownerId); events.push('ai'); },
   };
   Object.defineProperty(ports, 'testState', { get: () => ({ events, realActive, pilotCandidate, pilotActive, infoActive }) });
   return ports;
@@ -171,7 +186,7 @@ test('aggregate restore blocks all readers after a partial activation and resume
     assert.deepEqual(repeated, { state: 'already-restored', operationId: uuid(1) });
     const state = (ports as UserBackupServicePorts & { testState: { events: string[]; realActive: boolean; pilotCandidate: boolean; pilotActive: boolean; infoActive: boolean } }).testState;
     assert.equal(state.realActive, true); assert.equal(state.pilotCandidate, true); assert.equal(state.pilotActive, true); assert.equal(state.infoActive, true);
-    assert.deepEqual(state.events, ['pilot-candidate', 'real', 'pilot-candidate', 'real', 'information', 'pilot-active']);
+    assert.deepEqual(state.events, ['pilot-candidate', 'real', 'pilot-candidate', 'real', 'information', 'ai', 'pilot-active']);
     await assertUserBackupReadAllowed(() => ports.openJournal(false));
   } finally { await rm(directory, { recursive: true, force: true }); }
 });
@@ -258,3 +273,89 @@ for (const phase of ['real-flight', 'information', 'pilot'] as const) {
     } finally { await rm(directory, { recursive: true, force: true }); }
   });
 }
+
+test('v2 aggregate chat restore survives lost acknowledgement, gates all readers and restores active work as interrupted', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'moflight-chat-aggregate-'));
+  try {
+    const text = await archive(chatArchive()), payload = await validateUserBackup(text, { ownerId, storeId, informationScope: scope }, hash);
+    assert.equal(payload.version, 2);
+    const path = join(directory, 'chats.sqlite');
+    const original = await ChatStore.open(nodeDriver(path), ownerId, async () => {});
+    await original.saveDraft('original', 'Original', 'Preserved until valid restore', null, at); await original.close();
+    let acknowledgementLost = false;
+    const make = () => {
+      const ports = makePorts(directory, text);
+      ports.restoreAi = async input => {
+        const store = await ChatStore.open(nodeDriver(path), ownerId, () => assertUserBackupReadAllowed(() => ports.openJournal(false), input.permit));
+        try {
+          await store.restore(input.archive);
+          assert.equal(encodeChatArchive(await store.archive()), encodeChatArchive(input.archive));
+        } finally { await store.close(); }
+        if (!acknowledgementLost) { acknowledgementLost = true; throw new Error('Lost chat activation acknowledgement'); }
+      };
+      return ports;
+    };
+    const ports = make(), first = await restoreUserBackup(ownerId, storeId, async () => {}, ports);
+    assert.equal(first.state, 'recovery-required');
+    await assert.rejects(assertUserBackupReadAllowed(() => ports.openJournal(false)), /incomplete/);
+    await assert.rejects(ChatStore.open(nodeDriver(path), ownerId, () => assertUserBackupReadAllowed(() => ports.openJournal(false))), /incomplete/);
+    const restarted = make();
+    assert.equal((await restoreUserBackup(ownerId, storeId, async () => {}, restarted, uuid(1))).state, 'restored');
+    await assertUserBackupReadAllowed(() => restarted.openJournal(false));
+    const restored = await ChatStore.open(nodeDriver(path), ownerId, async () => {});
+    try {
+      const result = await restored.archive();
+      assert.equal(result.conversations.length, 1); assert.equal(result.conversations[0]?.id, 'chat-one');
+      assert.equal(result.conversations[0]?.draft, 'Durable offline draft');
+      assert.equal(result.conversations[0]?.messages[0]?.status, 'interrupted');
+      assert.equal(result.identity?.accountRef, '12345');
+      assert.equal(JSON.stringify(result).includes('runCapability'), false);
+      assert.equal(JSON.stringify(result).includes('budget'), false);
+    } finally { await restored.close(); }
+    assert.equal((await restoreUserBackup(ownerId, storeId, async () => {}, restarted, uuid(1))).state, 'already-restored');
+  } finally { await rm(directory, { recursive: true, force: true }); }
+});
+
+test('v1 backups remain readable and explicitly restore zero chats with no new historical receipt', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'moflight-chat-v1-'));
+  try {
+    const text = await archive(), payload = await validateUserBackup(text, { ownerId, storeId, informationScope: scope }, hash);
+    assert.equal(payload.version, 1);
+    const ports = makePorts(directory, text); let restored: ChatArchive | null = null;
+    ports.restoreAi = async input => { restored = input.archive; };
+    assert.equal((await restoreUserBackup(ownerId, storeId, async () => {}, ports)).state, 'restored');
+    assert.deepEqual(restored, emptyUserChatArchive(ownerId));
+  } finally { await rm(directory, { recursive: true, force: true }); }
+});
+
+test('invalid/foreign/over-cap v2 chat sections preserve current bytes before any aggregate staging or activation', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'moflight-chat-invalid-'));
+  try {
+    const valid = await archive(chatArchive());
+    const path = join(directory, 'chats.sqlite'), existing = await ChatStore.open(nodeDriver(path), ownerId, async () => {});
+    await existing.saveDraft('original', 'Original', 'Keep these bytes', null, at);
+    const before = encodeChatArchive(await existing.archive());
+    for (const mutate of [
+      (data: any) => { data.ownerId = uuid(999); },
+      (data: any) => { data.identity.accountRef = '98765'; data.conversations = []; },
+      (data: any) => { data.runCapability = 'not-backed-up'; },
+      (data: any) => { data.conversations = Array.from({ length: 51 }, (_, i) => ({ ...data.conversations[0], id: `chat-${i}`, messages: [] })); },
+    ]) {
+      const envelope = JSON.parse(valid), body = JSON.parse(envelope.payload), chat = JSON.parse(body.ai.archive);
+      mutate(chat); body.ai.archive = canonical(chat); envelope.payload = canonical(body); envelope.checksum = await hash(envelope.payload);
+      const ports = makePorts(directory, canonical(envelope));
+      await assert.rejects(restoreUserBackup(ownerId, storeId, async () => {}, ports));
+      assert.equal(encodeChatArchive(await existing.archive()), before);
+      assert.equal(existsSync(join(directory, USER_BACKUP_RESTORE_JOURNAL_FILE_NAME)), false);
+      assert.deepEqual((ports as UserBackupServicePorts & { testState: { events: string[] } }).testState.events, []);
+    }
+    await existing.close();
+    const noFlightsReceipt = emptyUserChatArchive(ownerId); noFlightsReceipt.identity = chatArchive().identity;
+    assert.equal(decodeChatArchive(encodeChatArchive(noFlightsReceipt), ownerId).identity?.accountRef, '12345');
+    const noFlightsBackup = await archive(noFlightsReceipt, false);
+    const validated = await validateUserBackup(noFlightsBackup, { ownerId, storeId, informationScope: scope }, hash);
+    assert.equal(validated.version, 2);
+    if (validated.version !== 2) throw new Error('Expected v2');
+    assert.equal(decodeChatArchive(validated.ai.archive, ownerId).identity?.accountRef, '12345');
+  } finally { await rm(directory, { recursive: true, force: true }); }
+});

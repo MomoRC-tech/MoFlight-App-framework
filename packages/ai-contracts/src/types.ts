@@ -25,6 +25,8 @@ export interface HistoricalProviderIdentity {
     | { kind: 'verified-saved-binding'; storeId: string; sourceRevision: string };
 }
 export interface FlightReference { id: string; flightId: string; factsRevision: string; context: AiContext }
+export interface SourceRowReference { kind: 'source-row'; id: string; captureId: string; captureSha256: string; rowIndex: number; context: AiContext }
+export type AiEvidenceReference = FlightReference | SourceRowReference;
 export interface FlightFilter {
   from: string | null; to: string | null; registrationAlias: string | null;
   crewAlias: string | null; crewSlot: typeof CREW_SLOTS[number] | null;
@@ -91,6 +93,11 @@ export interface AiToolResult {
   // Context remains local. Neither provider ID nor local source IDs occur here.
   coverage: AiCoverage;
   rows: AiProjectedFlight[];
+  sourceRows: AiProjectedFlight[];
+  sourceReview: {
+    state: 'available' | 'partial' | 'unavailable'; totalRows: number; omittedRows: number; totalIssues: number;
+    issues: { id: string; kind: 'duplicate-source-row' | 'conflicting-source-row' | 'missing-source-reference'; referenceIds: string[]; rowCount: number }[];
+  };
   candidates: { alias: string; kind: 'crew' | 'registration'; match: 'exact' | 'candidate' }[];
   metrics: { referenceId: string; measure: 'count' | 'knownMinutes' | 'averageKnownMinutes'; value: number | null; unit: 'flights' | 'minutes' }[];
   nextPageToken: string | null;
