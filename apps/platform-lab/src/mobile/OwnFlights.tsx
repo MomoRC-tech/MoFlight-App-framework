@@ -1,6 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, FlatList, Keyboard, Pressable, ScrollView, StyleSheet, TextInput, View, useWindowDimensions } from 'react-native';
 import { Action, Card, Chip, Empty, Label, Section, colors, ui } from './theme';
+import { FlightCard } from './FlightCard';
+import { FlightDetails } from './FlightDetails';
 import { diagnosticJournal } from '../diagnostics';
 import { SymbolIcon } from './SymbolIcon';
 import type { useOwnFlights } from './use-own-flights';
@@ -17,6 +19,7 @@ export function OwnFlights({ active, data, filterRequest, onHeaderChange }: {
 }) {
   const [filters, setFilters] = useState<OwnFlightFilters>(allOwnFlights);
   const [filterOpen, setFilterOpen] = useState(false);
+  const [filterSection,setFilterSection]=useState<'period'|'aircraft'>('period');
   const [searchOpen, setSearchOpen] = useState(false);
   const [rawPage, setRawPage] = useState(0), [statusOpen, setStatusOpen] = useState(false);
   const list = useRef<FlatList>(null), offset = useRef(0), scope = useRef<string | null>(null);
@@ -32,7 +35,7 @@ export function OwnFlights({ active, data, filterRequest, onHeaderChange }: {
   const detailOpen = !!data.detail || data.detailBusy;
   const tags = ownFlightFilterTags(filters), hasFilters = tags.length > 0;
   const back = useCallback(() => { diagnosticJournal.record('back','flights');Keyboard.dismiss(); setFilterOpen(false); setStatusOpen(false); setRawPage(0); data.clearDetail(); }, [data.clearDetail]);
-  useEffect(() => { onHeaderChange({ title: filterOpen ? 'Flugfilter' : detailOpen ? 'Flugdetails' : statusOpen ? 'Datenstand' : 'Flüge', back: filterOpen || detailOpen || statusOpen ? back : undefined }); }, [filterOpen, detailOpen, statusOpen, back, onHeaderChange]);
+  useEffect(() => { onHeaderChange({ title: filterOpen ? filterSection==='period'?'Zeitraum wählen':'Flugzeug wählen' : detailOpen ? 'Flugdetails' : statusOpen ? 'Datenstand' : 'Flüge', back: filterOpen || detailOpen || statusOpen ? back : undefined }); }, [filterOpen,filterSection, detailOpen, statusOpen, back, onHeaderChange]);
   useEffect(() => {
     if (!data.view) return;
     const key = `${data.view.snapshot.ownerId}:${data.view.snapshot.storeId}`;
@@ -53,11 +56,11 @@ export function OwnFlights({ active, data, filterRequest, onHeaderChange }: {
     if (requested) void data.openDetail(requested);
   }, [active, data.phase, data.detailBusy, data.view, filterRequest, data.clearDetail]);
   const changeFilters = (next: OwnFlightFilters) => { if(next.search!==filters.search)diagnosticJournal.record('filter','search');if(next.year!==filters.year)diagnosticJournal.record('filter','year');if(next.registration!==filters.registration)diagnosticJournal.record('filter','registration'); offset.current = 0; list.current?.scrollToOffset({ offset: 0, animated: false }); setFilters(next); };
-  const openFilters = () => { Keyboard.dismiss(); diagnosticJournal.record('action','flight-filter'); setFilterOpen(true); };
+  const openFilters = (section:'period'|'aircraft') => { Keyboard.dismiss(); diagnosticJournal.record('action','flight-filter'); setFilterSection(section);setFilterOpen(true); };
   const header = <View style={s.filterGroup}>
     <View style={s.controls}>
-      <Pressable accessibilityRole="button" accessibilityLabel="Flugfilter öffnen" accessibilityState={{selected:filters.year !== null || !!filters.dateRange}} onPress={openFilters} style={[s.picker, (filters.year !== null || !!filters.dateRange) && s.pickerActive]}><Label style={[s.controlText, (filters.year !== null || !!filters.dateRange) && s.activeText]}>Zeitraum</Label><SymbolIcon name="down" size={14} tone={filters.year!==null||filters.dateRange?'contrast':'muted'}/></Pressable>
-      <Pressable accessibilityRole="button" accessibilityLabel="Flugzeugfilter öffnen" accessibilityState={{selected:filters.registration !== undefined}} onPress={openFilters} style={[s.picker, filters.registration !== undefined && s.pickerActive]}><Label style={[s.controlText, filters.registration !== undefined && s.activeText]}>Flugzeug</Label><SymbolIcon name="down" size={14} tone={filters.registration!==undefined?'contrast':'muted'}/></Pressable>
+      <Pressable accessibilityRole="button" accessibilityLabel="Flugfilter öffnen" accessibilityState={{selected:filters.year !== null || !!filters.dateRange}} onPress={()=>openFilters('period')} style={[s.picker, (filters.year !== null || !!filters.dateRange) && s.pickerActive]}><Label style={[s.controlText, (filters.year !== null || !!filters.dateRange) && s.activeText]}>Zeitraum</Label><SymbolIcon name="down" size={14} tone={filters.year!==null||filters.dateRange?'contrast':'muted'}/></Pressable>
+      <Pressable accessibilityRole="button" accessibilityLabel="Flugzeugfilter öffnen" accessibilityState={{selected:filters.registration !== undefined}} onPress={()=>openFilters('aircraft')} style={[s.picker, filters.registration !== undefined && s.pickerActive]}><Label style={[s.controlText, filters.registration !== undefined && s.activeText]}>Flugzeug</Label><SymbolIcon name="down" size={14} tone={filters.registration!==undefined?'contrast':'muted'}/></Pressable>
       <Pressable accessibilityRole="button" accessibilityLabel="Flugsuche öffnen" accessibilityState={{expanded:searchOpen,selected:!!filters.search.trim()}} onPress={()=>{Keyboard.dismiss();setSearchOpen(!searchOpen);}} style={[s.searchToggle, !!filters.search.trim() && s.pickerActive]}><SymbolIcon name="search" size={20} tone={filters.search.trim()?'contrast':'default'}/></Pressable>
     </View>
     {searchOpen && <View style={s.searchBox}><TextInput
@@ -83,15 +86,7 @@ export function OwnFlights({ active, data, filterRequest, onHeaderChange }: {
       <View testID="flight-filter-bar" style={s.bar}>{header}</View>
       <FlatList ref={list} key={tablet ? 'wide' : 'phone'} numColumns={tablet ? 2 : 1} columnWrapperStyle={tablet ? { gap: 8 } : undefined}
         data={selected} keyExtractor={flight => flight.flightId}
-        renderItem={({ item }) => { const a = item.facts.assessment, card = ownFlightCard(item); return <Card onPress={() => { Keyboard.dismiss();diagnosticJournal.record('action','flight-detail');setRawPage(0); void data.openDetail(item); }}
-          label={`${reviewParsedField(a.date)}, ${card.registration}, Start ${card.start}, ${card.route}, ${reviewDuration(a.durations.flight)}, Pilot: ${reviewRawField(a.fields.pilot)}, Begleiter: ${[a.fields.companion,a.fields.companion2,a.fields.companion3].map(reviewRawField).join(' · ')}${card.solo?', Solo im Anbieterbeleg':''}, ansehen`} style={[s.row, tablet && { flex: 1, maxWidth: '50%' }]}>
-          <View style={s.flightInfo}>
-            <View style={s.identity}><Label muted style={s.smallText}>{card.date}</Label><Label style={s.registration}>{card.registration}</Label><Label muted style={s.smallText}>{card.model}</Label></View>
-            <View style={s.crew}>{card.crew.map((person,index)=><Label key={index} style={s.crewText}><Label muted style={s.role}>{person.role} </Label>{person.name}</Label>)}{card.solo&&<Label style={s.solo}>Solo</Label>}</View>
-            <Label muted style={s.smallText}>{card.start} · {card.route}</Label>
-          </View>
-          <Label style={[s.duration,!card.knownDuration&&s.unclearDuration]}>{card.duration}{card.knownDuration&&<Label muted style={s.role}> h</Label>}</Label>
-        </Card>; }}
+        renderItem={({item})=><FlightCard flight={item} onPress={()=>{Keyboard.dismiss();diagnosticJournal.record('action','flight-detail');setRawPage(0);void data.openDetail(item);}} style={tablet?{flex:1,maxWidth:'50%'}:undefined}/>}
         ListEmptyComponent={<Card><Empty title={flights.length ? 'Keine passenden Flüge' : 'Noch keine gespeicherten Flüge'}>{flights.length ? 'Suchbegriff oder Filter ändern. Ein leeres Ergebnis ist keine Aussage über die gesamte Fluggeschichte.' : 'Über die Verbindung oben in der Kopfzeile eigene Flüge laden. Ein Flugbuch wird dafür nicht benötigt.'}</Empty></Card>}
         onScroll={event => { if (active && data.phase === 'ready' && !filterOpen && !detailOpen && !statusOpen) offset.current = event.nativeEvent.contentOffset.y; }} scrollEventThrottle={32}
         onContentSizeChange={() => { if (data.phase === 'ready') list.current?.scrollToOffset({ offset: offset.current, animated: false }); }}
@@ -105,15 +100,15 @@ export function OwnFlights({ active, data, filterRequest, onHeaderChange }: {
         <View style={s.controls}><Action secondary onPress={() => void data.reload()}>Gespeicherte Flüge erneut prüfen</Action></View><Label muted>Neue Daten und Anmeldung erreichst du über die Verbindung oben in der Kopfzeile.</Label>
       </>}
     </Card></View></ScrollView>}
-    {filterOpen && <ScrollView contentContainerStyle={s.canvas}><View style={s.group}><Card><Section title="Zeitraum" />
+    {filterOpen && <ScrollView contentContainerStyle={s.canvas}><View style={s.group}><Card><Label muted>Änderungen gelten sofort. Zurück behält deine Auswahl.</Label>{filterSection==='period'&&<><Section title="Zeitraum" />
       <View style={s.controls}><Chip title="Alle Jahre" selected={filters.year === null && !filters.dateRange} onPress={() => changeFilters({ ...filters, year: null, dateRange:null })} />
       {(filters.year !== null && !years.includes(filters.year) ? [filters.year, ...years] : years).map(year => <Chip key={year} title={String(year)} selected={filters.year === year && !filters.dateRange} onPress={() => changeFilters({ ...filters, year, dateRange:null })} />)}</View>
       {filters.dateRange&&<Label>{filters.dateRange.from} – {filters.dateRange.to}</Label>}
-      <Section title="Flugzeug" />
+      </>}{filterSection==='aircraft'&&<><Section title="Flugzeug" />
       <View style={s.controls}><Chip title="Alle Kennzeichen" selected={filters.registration === undefined} onPress={() => changeFilters({ ...filters, registration: undefined })} />
       {registrations.map(registration => <Chip key={registration} title={registration} selected={filters.registration === registration} onPress={() => changeFilters({ ...filters, registration })} />)}
       {flights.some(f => ownRawValue(f.facts.assessment.fields.registration) === null) && <Chip title="Kennzeichen unbekannt" selected={filters.registration === null} onPress={() => changeFilters({ ...filters, registration: null })} />}
-      </View><View style={s.controls}><Action secondary onPress={() => {diagnosticJournal.record('filter','filter-reset');changeFilters(allOwnFlights);}}>Zurücksetzen</Action><Action onPress={back}>Anzeigen</Action></View>
+      </View></>}<View style={s.controls}><Action secondary onPress={() => {diagnosticJournal.record('filter','filter-reset');changeFilters(allOwnFlights);}}>Zurücksetzen</Action><Action onPress={back}>Zur Flugliste</Action></View>
     </Card></View></ScrollView>}
     {statusOpen && <ScrollView contentContainerStyle={s.canvas}><View style={s.group}><Card><Section title="Abdeckung & Datenstand"/>
       <Label muted>{freshness.label}</Label>{freshness.reminder&&<Label muted>{freshness.note}</Label>}
@@ -127,21 +122,7 @@ export function OwnFlights({ active, data, filterRequest, onHeaderChange }: {
     {detailOpen && <ScrollView key={detail?.flightId ?? 'loading-detail'} contentContainerStyle={s.canvas}><View style={s.group}>
       {data.detailBusy && <ActivityIndicator color={colors.cyan} accessibilityLabel="Gespeicherte Flugdetails laden" />}
       {detail && assessment && <>
-        <Card><Section title="Gespeicherter Flug" /><Label style={{fontSize:30,lineHeight:38,fontWeight:'700'}}>{reviewRawField(assessment.fields.registration)}</Label>
-          <Label style={{color:colors.cyan,fontSize:22,lineHeight:30}}>{reviewDuration(assessment.durations.flight)}</Label>
-          <Label selectable>Datum: {reviewParsedField(assessment.date)}</Label><Label selectable>Kennzeichen: {reviewRawField(assessment.fields.registration)}</Label>
-          <Label selectable>Muster: {reviewRawField(assessment.fields.model)}</Label><Label selectable>Startort: {reviewRawField(assessment.fields.departure)}</Label><Label selectable>Landeort: {reviewRawField(assessment.fields.arrival)}</Label>
-          <Label selectable>Start: {reviewParsedField(assessment.clocks.start)} · Landung: {reviewParsedField(assessment.clocks.landing)}</Label><Label selectable>Flugzeit: {reviewDuration(assessment.durations.flight)}</Label>
-          <Label muted>Uhrzeitbasis und Landetag sind ungeprüft. Dauer wird nicht aus Uhrzeiten berechnet. Crew-Felder sind Quellenangaben, keine Rollen- oder Buchanrechnung.</Label>
-          {(['pilot','pic','companion','companion2','companion3','sic'] as const).map(field => <Label key={field} selectable>{assessment.fields[field].state === 'not-captured' ? field : assessment.fields[field].label}: {reviewRawField(assessment.fields[field])}</Label>)}
-          {!!detail.pending.length && <Label>{detail.pending.length} ungeklärte Beobachtung(en) bleiben zur Prüfung erhalten.</Label>}
-        </Card>
-        <Card><Section title="Originale Anbieterfelder" /><Label>Fassung {detail.factsRevision} · {detail.factHistory.length} gespeicherte Fassung(en)</Label><Label selectable>Quellflug: {detail.sourceFlightRef}</Label><Label muted>Kein gespeicherter Track. Distanz und Flugweg sind nicht verifiziert.</Label>
-          {assessment.observation.headers.slice(rawPage * 8, rawPage * 8 + 8).map((h,i) => <View key={rawPage * 8 + i} style={{ gap: 2 }}><Label muted>{h || '(ohne Überschrift)'}</Label><Label selectable>{assessment.observation.row.values[rawPage * 8 + i] || 'Leer im Anbieterbeleg'}</Label></View>)}
-          <Label muted>Felder {rawPage * 8 + 1}–{Math.min(rawPage * 8 + 8, assessment.observation.headers.length)} von {assessment.observation.headers.length}</Label>
-          <View style={s.controls}><Action secondary label="Vorherige Anbieterfelder" disabled={rawPage === 0} onPress={() => setRawPage(rawPage - 1)}>Zurück</Action>
-          <Action secondary label="Weitere Anbieterfelder" disabled={(rawPage + 1) * 8 >= assessment.observation.headers.length} onPress={() => setRawPage(rawPage + 1)}>Weiter</Action></View>
-        </Card><View style={s.controls}><Action secondary onPress={back}>Zur gefilterten Flugliste</Action></View>
+        <FlightDetails key={detail.flightId} detail={detail} rawPage={rawPage} onRawPage={setRawPage}/><View style={s.controls}><Action secondary onPress={back}>Zur gefilterten Flugliste</Action></View>
       </>}
     </View></ScrollView>}
   </View>;

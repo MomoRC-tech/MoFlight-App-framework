@@ -12,9 +12,9 @@ import type { RealFlightListItem } from '../vereinsflieger/real-flight-library';
 import { DutyTargetEditor, useDutyTarget } from './DutyTarget';
 interface Props {
   ownFlights: OwnFlightView | null; ownFlightPhase: 'loading' | 'ready' | 'missing' | 'failed'; pending: number | null; width: number; fontScale: number;
-  onPaper: () => void; onFlights: () => void; onFlight?: (flightId: string) => void; onStatistics?: (year: number) => void; now?: number; persistDutyTarget?: boolean;
+  onPaper: () => void; onFlights: () => void; onFlight?: (flightId: string) => void; onStatistics?: (year: number) => void; now?: number; persistDutyTarget?: boolean; onBackHandler?:(handler:()=>boolean)=>void;
 }
-export function Dashboard({ ownFlights, ownFlightPhase, onFlights, onFlight, onStatistics, fontScale, now = Date.now(), persistDutyTarget = true }: Props) {
+export function Dashboard({ ownFlights, ownFlightPhase, onFlights, onFlight, onStatistics, fontScale, now = Date.now(), persistDutyTarget = true,onBackHandler }: Props) {
   const clock = new Date(now), currentYear = clock.getFullYear();
   const today = `${currentYear}-${String(clock.getMonth()+1).padStart(2,'0')}-${String(clock.getDate()).padStart(2,'0')}`;
   const scope = ownFlights?.snapshot.account ? JSON.stringify([ownFlights.snapshot.ownerId, ownFlights.snapshot.storeId, ownFlights.snapshot.account?.accountRef]) : null;
@@ -22,6 +22,12 @@ export function Dashboard({ ownFlights, ownFlightPhase, onFlights, onFlight, onS
   const year = selection?.scope === scope ? selection.year : currentYear;
   const [yearOpen,setYearOpen] = useState(false), [targetOpen,setTargetOpen] = useState(false);
   const target = useDutyTarget(scope,year,persistDutyTarget);
+  onBackHandler?.(()=>{
+    if(targetOpen){if(!target.busy)setTargetOpen(false);return true;}
+    if(yearOpen){setYearOpen(false);return true;}
+    return false;
+  });
+  const years=[...new Set([currentYear,...(ownFlights?.flights??[]).map(f=>Number(f.facts.assessment.date.value?.slice(0,4))).filter(y=>Number.isInteger(y)&&y>=1901&&y<=currentYear)])].sort((a,b)=>b-a);
   const processFlights=useMemo(()=>createProcessedSelector(({flights,year}:{flights:RealFlightListItem[];year:number})=>{
     const latest=latestSavedFlights(flights)[0];
     return {current:summarizeRealFlights(flights,year),prior:summarizeRealFlights(flights,year-1),latest,orderUnknown:latestFlightOrderUnknown(flights,latest)};
@@ -37,10 +43,10 @@ export function Dashboard({ ownFlights, ownFlightPhase, onFlights, onFlight, onS
     <ImageBackground source={require('../../assets/aviation/ask21-flight-header-v2.png')} resizeMode="cover" imageStyle={ui.cockpitImage} style={styles.photo}>
       <View style={[ui.cockpitShade,styles.shade]}>
         <View style={styles.heading}>
-          <Pressable accessibilityRole="button" accessibilityLabel={`Saison ${year} auswählen`} accessibilityState={{expanded:yearOpen}} onPress={()=>setYearOpen(!yearOpen)} style={styles.seasonTitle}><Label style={styles.title}>Meine Saison · {year}</Label></Pressable>
+          <Pressable accessibilityRole="button" accessibilityLabel={`Saison ${year} auswählen`} accessibilityState={{expanded:yearOpen}} onPress={()=>setYearOpen(!yearOpen)} style={styles.seasonTitle}><View style={ui.row}><Label style={[styles.title,{flexShrink:1}]}>Meine Saison · {year}</Label><SymbolIcon name="down" size={16}/></View></Pressable>
           {onStatistics&&<Pressable accessibilityRole="button" accessibilityLabel="Statistik" onPress={()=>onStatistics(year)} style={[styles.statistics,fontScale>1.3&&{maxWidth:'45%'}]}><Label style={[styles.statisticsText,{flexShrink:1}]}>Statistik</Label><View style={{transform:[{rotate:'-45deg'}]}}><SymbolIcon name="arrow" size={16}/></View></Pressable>}
         </View>
-        {yearOpen&&<View style={styles.yearControls}><Pressable accessibilityRole="button" accessibilityLabel="Vorherige Saison" onPress={()=>setSelection({scope,year:Math.max(1901,year-1)})} style={styles.yearButton}><Label>‹ {year-1}</Label></Pressable><Label muted>Saison wählen</Label><Pressable accessibilityRole="button" accessibilityLabel="Nächste Saison" disabled={year>=currentYear} onPress={()=>setSelection({scope,year:year+1})} style={[styles.yearButton,year>=currentYear&&{opacity:.4}]}><Label>{year+1} ›</Label></Pressable></View>}
+        {yearOpen&&<View><ScrollView horizontal contentContainerStyle={{gap:6}}>{years.map(y=><Pressable key={y} accessibilityRole="button" accessibilityLabel={`Saison ${y}`} accessibilityState={{selected:year===y}} onPress={()=>{setSelection({scope,year:y});setYearOpen(false);}} style={[styles.yearButton,year===y&&{backgroundColor:colors.raised,borderRadius:10}]}><Label>{y}</Label></Pressable>)}</ScrollView><View style={styles.yearControls}><Pressable accessibilityRole="button" accessibilityLabel="Vorherige Saison" disabled={year<=1901} onPress={()=>setSelection({scope,year:Math.max(1901,year-1)})} style={styles.yearButton}><Label>‹ {Math.max(1901,year-1)}</Label></Pressable><Pressable accessibilityRole="button" accessibilityLabel="Nächste Saison" disabled={year>=currentYear} onPress={()=>setSelection({scope,year:year+1})} style={[styles.yearButton,year>=currentYear&&{opacity:.4}]}><Label>{year+1} ›</Label></Pressable><Pressable accessibilityRole="button" accessibilityLabel="Saisonauswahl schließen" onPress={()=>setYearOpen(false)} style={styles.yearButton}><SymbolIcon name="close" size={18}/></Pressable></View></View>}
         <ScrollView horizontal showsHorizontalScrollIndicator contentContainerStyle={[styles.metrics,fontScale>1.3&&{minWidth:330*fontScale}]}>
           <View style={styles.metric} accessible accessibilityLabel={`Flugzeit ${year}: ${ready?facts.current.time:'unbekannt'} Stunden und Minuten. ${year-1}: ${ready?facts.prior.time:'unbekannt'}.`}>
             <Label style={styles.value}>{ready?facts.current.time:'—'}</Label><Label muted style={styles.metricLabel}>Flugzeit · h:min</Label><Label muted style={styles.prior}>{year-1}: {ready?facts.prior.time:'—'}</Label>
@@ -49,7 +55,7 @@ export function Dashboard({ ownFlights, ownFlightPhase, onFlights, onFlight, onS
             <Label style={styles.value}>{ready?facts.current.starts:'—'}</Label><Label muted style={styles.metricLabel}>Starts</Label><Label muted style={styles.prior}>{year-1}: {ready?facts.prior.starts:'—'}</Label>
           </View>
           <Pressable accessibilityRole="button" accessibilityLabel={`Arbeitsstunden ${year}: ${ready?(workHours??'unbekannt'):'unbekannt'} geleistet. Soll vorläufig ${target.hours} Stunden. Soll anpassen`} onPress={()=>setTargetOpen(!targetOpen)} style={[styles.metric,styles.divider]}>
-            <Label style={[styles.value,styles.workValue]}>{ready?(workHours??'—'):'—'} / {String(target.hours).replace('.',',')} h</Label><Label muted style={styles.metricLabel}>Arbeitsstunden</Label><Label muted style={styles.prior}>Soll vorläufig</Label>
+            <Label style={[styles.value,styles.workValue]}>{ready?(workHours??'—'):'—'} / {String(target.hours).replace('.',',')} h</Label><Label muted style={styles.metricLabel}>Arbeitsstunden</Label><Label style={[styles.prior,{color:colors.cyan}]}>Soll anpassen</Label><Label muted style={styles.prior}>Soll vorläufig</Label>
           </Pressable>
         </ScrollView>
       </View>

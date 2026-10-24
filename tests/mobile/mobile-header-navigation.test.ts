@@ -39,6 +39,7 @@ function fixture(width = 390, fontScale = 1, root = false) {
   const controller = { visible: false, informationCaptures: [], connection: { phase: 'unknown' }, refreshRecovery: () => calls.push('refresh-recovery'), dismissLogin() {}, backWithinProvider: () => false, suspendBrowserForOwnerSwitch: () => true };
   const calls: string[] = [];
   const coreRoutes: {intent:string;developmentRecoveryCheckpoints:boolean}[] = [];
+  const destinations:string[]=[];
   const readEnabled:boolean[]=[];
   let suspended = false;
   let clockNow=Date.UTC(2026,9,22,12),clockDeadlines:readonly number[]=[];
@@ -65,6 +66,7 @@ function fixture(width = 390, fontScale = 1, root = false) {
     './flight-model': { flightYears: () => [2026], selectFlights: () => library.flights, summarizeFlights: () => ({ count: 1, knownMinutes: 30 }), formatDuration: () => '0:30' },
     './local-insights': { localQuestions: [], localInsight: () => '' },
     './Dashboard': { Dashboard: 'Dashboard' }, './StatisticsOverlay': { StatisticsOverlay: 'StatisticsOverlay' }, './ShellIcons': leaves(['PlaneIcon', 'ProfileIcon', 'BookIcon']),
+    './AiChatRoute':leaves(['AiChatRoute']), '../ai/workspace-native':{openAiWorkspaceNative:async()=>null}, '../ai/answer-navigation':{aiAnswerFlightIds:()=>[]},
     './DesignPreview':leaves(['DesignPreview']),'./Diagnostics': leaves(['Diagnostics']), './diagnostics-native': {initializeDiagnostics() {}}, '../diagnostics': diagnostics,
     './ProfileSettings': { ProfileSettings: 'ProfileSettings', SyntheticProfileSettings:'SyntheticProfileSettings' }, '../book-storage': { PILOT: 'synthetic-pilot' },
     '../vereinsflieger/use-access-controller': { useAccessController: () => controller },
@@ -91,7 +93,7 @@ function fixture(width = 390, fontScale = 1, root = false) {
     assert.ok(name in modules, name); return modules[name];
   } });
   let tree: Element;
-  function render() { index = 0; tree = root?(exports as any).default():(exports.Shell as (props:unknown)=>Element)({lastLoad,providerStatus,onCoreFlights:(intent='connect',developmentRecoveryCheckpoints=false)=>{coreRoutes.push({intent,developmentRecoveryCheckpoints});calls.push(intent==='update'?'core-load':intent==='development'?'core-development-route':intent==='options'?'core-library-route':'core-connect');}}); effects.splice(0).forEach(effect => effect()); return tree; }
+  function render() { index = 0; tree = root?(exports as any).default():(exports.Shell as (props:unknown)=>Element)({lastLoad,providerStatus,onCoreFlights:(intent='connect',developmentRecoveryCheckpoints=false,destination='settings')=>{destinations.push(destination);coreRoutes.push({intent,developmentRecoveryCheckpoints});calls.push(intent==='update'?'core-load':intent==='development'?'core-development-route':intent==='options'?'core-library-route':'core-connect');}}); effects.splice(0).forEach(effect => effect()); return tree; }
   function nodes() {
     const found: Element[] = [];
     const visit = (value: unknown) => { if (value && typeof value === 'object' && 'children' in value) { const node = value as Element; found.push(node); node.children.forEach(visit); if (node.type === 'AppHeader') visit(node.props.profile); if (node.type === 'FlatList') visit(node.props.ListHeaderComponent); } };
@@ -110,7 +112,7 @@ function fixture(width = 390, fontScale = 1, root = false) {
     render();
   }
   render(); render();
-  return { render, nodes, find, resize:(nextWidth:number,nextFontScale:number)=>{width=nextWidth;fontScale=nextFontScale;render();}, headers, parent, press, openOwnDetail, flight, library, controller, calls, coreRoutes, readEnabled, suspended: () => suspended, hardwareBack: () => hardwareBack!(),
+  return { render, nodes, find, resize:(nextWidth:number,nextFontScale:number)=>{width=nextWidth;fontScale=nextFontScale;render();}, headers, parent, press, openOwnDetail, flight, library, controller, calls, coreRoutes,destinations, readEnabled, suspended: () => suspended, hardwareBack: () => hardwareBack!(),
     showLoad:(result:any,view:any)=>{providerStatus=result?.verifiedConnection?{...unknownProviderStatus,ownerId:result.verifiedConnection.ownerId,connection:result.verifiedConnection.state}:unknownProviderStatus;lastLoad=result;ownView=view;render();render();},
     setProviderStatus:(status:any)=>{providerStatus=status;render();render();},
     setTime:(time:number)=>{clockNow=time;render();}, clockDeadlines:()=>clockDeadlines,
@@ -204,12 +206,12 @@ test('synthetic import preview opens without seeding or provider work, retains i
   assert.deepEqual(f.calls, []);
 });
 
-test('Start paper information explains deferred setup without showing synthetic book progress',()=>{
+test('Start paper tile uses the existing product tab without duplicate sheet or synthetic progress',()=>{
   const f=fixture();f.find('Dashboard').props.onPaper();f.render();
   assert.equal(f.nodes().some(n=>n.type==='PaperStatus'),false);
   assert.ok(f.nodes().some(n=>n.type==='Section'&&n.props.title==='Dein Papierflugbuch'));
-  assert.equal(f.headers().at(-1)!.props.title,'Papierflugbuch');assert.deepEqual(f.calls,[]);
-  f.headers().at(-1)!.props.back();f.render();assert.equal(f.headers().at(-1)!.props.title,'Übersicht');
+  assert.equal(f.headers().at(-1)!.props.title,'Flugbuch');assert.deepEqual(f.calls,[]);
+  f.hardwareBack();f.render();assert.equal(f.headers().at(-1)!.props.title,'Übersicht');
 });
 
 test('Medical opens without provider work and returns through nested overlays', () => {
@@ -354,7 +356,7 @@ test('nested settings preserve the unsaved profile draft and each sheet scroll o
   const f = fixture();
   f.press('Pressable', 'Profil & Einstellungen öffnen');
   f.find('ProfileSettings').props.onNameDraftChange('Unsaved synthetic draft'); f.render();
-  const scroll = () => f.nodes().find(n => n.type === 'ScrollView' && n.props.onScroll)!;
+  const scroll = () => f.nodes().filter(n => n.type === 'ScrollView' && n.props.onScroll).at(-1)!;
   scroll().props.onScroll({ nativeEvent: { contentOffset: { y: 320 } } });
   f.find('ProfileSettings').props.onTools(); f.render();
   assert.equal(scroll().props.contentOffset.y, 0);
@@ -613,9 +615,31 @@ test('overview-selected year opens Statistics in that same season',()=>{
 });
 
 
-test('saved-status activity row excludes a foreign store or provider account',()=>{
+test('passive status stays in scoped header and details rather than a repeated row',()=>{
  const f=fixture();f.showLoad(null,{snapshot:{ownerId:'owner',storeId:'store',account:{accountRef:'101'}}});
  const row=()=>f.nodes().find(n=>n.props.accessibilityLabel==='Gespeicherten Datenstand und Sync-Details öffnen');
  for(const activity of [{changed:true,storeId:'foreign',accountRef:'101'},{changed:true,storeId:'store',accountRef:'102'}]){f.setProviderStatus({...unknownProviderStatus,ownerId:'owner',activity});assert.equal(row(),undefined);}
- f.setProviderStatus({...unknownProviderStatus,ownerId:'owner',activity:{changed:true,storeId:'store',accountRef:'101'}});assert.ok(row());
+ f.setProviderStatus({...unknownProviderStatus,ownerId:'owner',activity:{changed:true,storeId:'store',accountRef:'101'}});assert.equal(row(),undefined);assert.equal(f.find('DataUpdateIndicator').props.activityChanged,true);
+});
+
+
+test('Profile and ordinary Status share the direct whole-user backup destination',()=>{
+ const f=fixture();f.press('Pressable','Profil & Einstellungen öffnen');
+ f.find('ProfileSettings').props.onBackup();assert.deepEqual(f.destinations,['backup']);
+ f.find('ProfileSettings').props.onStatus();f.render();
+ assert.equal(f.headers().at(-1)!.props.title,'Verbindung & Datenstatus');
+ const backup=f.nodes().find(n=>n.type==='Action'&&n.children.includes('Daten sichern & wiederherstellen'))!;
+ backup.props.onPress();assert.deepEqual(f.destinations,['backup','backup']);
+ assert.ok(!f.nodes().some(n=>n.type==='LibraryBackup'));
+});
+test('club expansion restores overview scroll on both toolbar and Android Back',()=>{
+ const f=fixture();f.press('Pressable','Verein');
+ const scroll=()=>f.nodes().find(n=>n.type==='ScrollView'&&n.props.onScroll&&n.props.key==='Übersicht')!;
+ scroll().props.onScroll({nativeEvent:{contentOffset:{y:240}}});
+ f.find('ClubEvents').props.onOpen();f.render();
+ assert.equal(f.headers()[0]!.props.title,'Verein · Termine');
+ f.hardwareBack();f.render();assert.equal(f.headers()[0]!.props.title,'Verein');
+ assert.equal(scroll().props.contentOffset.y,240);
+ f.find('ClubEvents').props.onOpen();f.render();f.headers()[0]!.props.back();f.render();
+ assert.equal(scroll().props.contentOffset.y,240);
 });

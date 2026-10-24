@@ -20,15 +20,14 @@ export interface ProfileSettingsProps {
   onBackup: () => void;
   onDiagnostics: () => void;
 }
-export function ProfileSettings({ connectionSummary, onBackup, onDiagnostics, onCredits, onTools,onConnections }: ProfileSettingsProps) {
+export function ProfileSettings({ connectionSummary, onBackup, onDiagnostics, onCredits, onTools,onConnections,onStatus }: ProfileSettingsProps) {
   return <View style={styles.content}>
-    {connectionSummary ?? <Card><Section title="Vereinsflieger & Daten" /><Label muted>Neue Daten und Anmeldung erreichst du über die Verbindung oben in der Kopfzeile.</Label></Card>}
+    <View style={{gap:6}}>{connectionSummary ?? <Card><Section title="Vereinsflieger & Daten" /><Label muted>Neue Daten und Anmeldung erreichst du über die Verbindung oben in der Kopfzeile.</Label></Card>}<Action secondary onPress={onStatus}>Verbindung & Datenstatus</Action></View>
     {onConnections&&<Card><Section title="Verbindung"/><Action secondary onPress={onConnections}>Vereinsflieger-Einstellungen</Action></Card>}
     <Card><Section title="Sicherung" icon="book" />
       <Label muted>Sichert eigene Flüge und Belege, die ausgewählte lokale Flugbuchbibliothek mit Profil sowie unterstützte eigene Quellen einschließlich Medical. Unverschlüsselt; Anmeldungen, Dienstpläne und temporäre Dateien sind ausgeschlossen.</Label>
       <Label muted>{AI_BACKUP_NOTICE}</Label>
       <Action secondary icon="book" onPress={onBackup}>Daten sichern & wiederherstellen</Action>
-      <Label muted>Die Sicherungsaktionen findest du unter „Details & weitere Optionen“.</Label>
     </Card>
     <Card><Section title="Support & Über MoFlight" />
       <Action testID="diagnostics-entry" secondary icon="info" onPress={onDiagnostics}>Diagnose öffnen</Action>

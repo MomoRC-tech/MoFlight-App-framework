@@ -49,7 +49,7 @@ const fixtureActivityLedger={
 
 // Real screen effects and handlers; SQLite and provider behavior have their own
 // integration tests. These ports control timing to exercise the screen coordinator.
-function fixture({providerAllowed=true,deferRead=false,startUpdate=false,root=false,readOnly=false,deferReservation=false,deferActivityCancel=false,deferActivityWrite=false,failStartup=false,medicalFailure=false,loginPending=false,deferProvider=false,quietResume=false,deferSource=false,sameWindow=false,deferVerification=false,priorConnection='unknown',existingOwner=false,pendingRestore=false,cancelRestore=false,initialOpen=true,unactivatedPreparation=false,activityEnabled=false,activityBaselineCount=1,activityResultCount=2,onStatus:statusCallback=undefined as ((status:any)=>void)|undefined,intent:requestedIntent=undefined as string|undefined}={}) {
+function fixture({destination='sources',providerAllowed=true,deferRead=false,startUpdate=false,root=false,readOnly=false,deferReservation=false,deferActivityCancel=false,deferActivityWrite=false,failStartup=false,medicalFailure=false,loginPending=false,deferProvider=false,quietResume=false,deferSource=false,sameWindow=false,deferVerification=false,priorConnection='unknown',existingOwner=false,pendingRestore=false,cancelRestore=false,initialOpen=true,unactivatedPreparation=false,activityEnabled=false,activityBaselineCount=1,activityResultCount=2,onStatus:statusCallback=undefined as ((status:any)=>void)|undefined,intent:requestedIntent=undefined as string|undefined}={}) {
   let panelOpen=initialOpen,requestId=0;
   const journal=new DiagnosticJournal(), diagnosis={current:journal.begin(startUpdate?'update-flights':'open-flight-tools')};
   const hooks:any[]=[],effects:(()=>void)[]=[],calls:string[]=[],activityOrder:string[]=[],closed:any[]=[];
@@ -142,7 +142,7 @@ function fixture({providerAllowed=true,deferRead=false,startUpdate=false,root=fa
   c.beginFreshFlightConnection=()=>{c.beginGuidedFlightConnection();return true;};
   const progressUpdates:syncProgress.SyncProgress[]=[];
   const exports:any={};runInNewContext(source,{exports,require:(name:string)=>{assert.ok(name in modules,name);return modules[name];},setTimeout:(fn:()=>void)=>{timers.set(++timerId,fn);return timerId;},clearTimeout:(id:number)=>timers.delete(id),console,Error});
-  function render(){dirty=false;index=0;tree=root?exports.CoreFlightFoundation({providerEntryAllowed:providerAllowed,startUpdate,intent:requestedIntent,open:panelOpen,requestId,onProgress:(value:syncProgress.SyncProgress)=>progressUpdates.push(value),close:(v:any)=>closed.push(v),onStatus:statusCallback}):exports.OwnerFlightLibrary({providerEntryAllowed:providerAllowed,lease,registry,startUpdate,intent:requestedIntent,open:panelOpen,requestId,onProgress:(value:syncProgress.SyncProgress)=>progressUpdates.push(value),close:(v:any)=>closed.push(v),onStatus:(status:any)=>{statusUpdates.push(cloneJson(status));statusCallback?.(status);},takeInitialRepository:()=>null,diagnosis});while(effects.length)effects.shift()!();return tree;}
+  function render(){dirty=false;index=0;tree=root?exports.CoreFlightFoundation({destination,providerEntryAllowed:providerAllowed,startUpdate,intent:requestedIntent,open:panelOpen,requestId,onProgress:(value:syncProgress.SyncProgress)=>progressUpdates.push(value),close:(v:any)=>closed.push(v),onStatus:statusCallback}):exports.OwnerFlightLibrary({destination,providerEntryAllowed:providerAllowed,lease,registry,startUpdate,intent:requestedIntent,open:panelOpen,requestId,onProgress:(value:syncProgress.SyncProgress)=>progressUpdates.push(value),close:(v:any)=>closed.push(v),onStatus:(status:any)=>{statusUpdates.push(cloneJson(status));statusCallback?.(status);},takeInitialRepository:()=>null,diagnosis});while(effects.length)effects.shift()!();return tree;}
   async function flush(){for(let n=0;n<12;n++){if(dirty)render();await new Promise<void>(resolve=>{setImmediate(resolve);});}if(dirty)render();}
   function nodes(){const result:Element[]=[];function visit(value:any){if(value&&typeof value==='object'&&'children'in value){result.push(value);value.children.forEach(visit);if(value.props.progress)visit(value.props.progress);}}visit(tree);return result;}
   const text=(node:any):string=>node&&typeof node==='object'&&'children'in node?node.children.map(text).join(''):typeof node==='string'?node:'';
@@ -654,4 +654,36 @@ test('cancel then reopening with a renewed owner cannot consume the new attempt 
   assert.equal(f.calls.filter(v=>v==='session').length,2,'New preparation must finish before consuming the initiating action');
   assert.equal(f.c.visible,true);
  }finally{f.dispose();}
+});
+
+
+test('dedicated backup opens whole-user actions immediately without credentials or old-format export',async()=>{
+  const f=fixture({providerAllowed:false,destination:'backup'});
+  try{
+    f.render();await f.flush();
+    assert.ok(f.text().includes('Daten in Geräteordner sichern'));
+    assert.ok(f.text().includes('Datensicherung wiederherstellen'));
+    assert.ok(!f.text().includes('Details & weitere Optionen'));
+    assert.ok(!f.nodes().some(n=>n.type==='ConnectionSettings'));
+    assert.ok(!f.text().includes('Flugbibliothek in Geräteordner sichern'));
+    assert.ok(!f.calls.some(call=>['login','retrieve','save'].includes(call)));
+    f.press('Ältere Flugbibliothek-Sicherung wiederherstellen');await f.flush();
+    assert.ok(f.text().includes('Sicherung dieser Bibliothek wiederherstellen'));
+    assert.ok(!f.text().includes('Flugbibliothek in Geräteordner sichern'));
+  }finally{f.dispose();}
+});
+test('settings admits only an explicit administration surface and returns after verified sign-out',async()=>{
+  const f=fixture({providerAllowed:false,destination:'settings'});
+  try{
+    f.render();await f.flush();
+    assert.equal(f.nodes().find(n=>n.type==='ProviderConnection')!.props.open,false);
+    f.c.startDisconnect=()=>{f.c.visible=true;f.c.disconnecting=true;f.calls.push('signout');};f.render();
+    f.nodes().find(n=>n.type==='ConnectionSettings')!.props.onSignOut();f.render();
+    const provider=f.nodes().find(n=>n.type==='ProviderConnection')!;
+    assert.equal(provider.props.open,true);assert.equal(provider.props.administration,true);assert.equal(provider.props.minimal,true);
+    assert.ok(!f.calls.includes('retrieve'));
+    f.c.visible=false;f.c.disconnecting=false;f.render();await f.flush();
+    assert.equal(f.nodes().find(n=>n.type==='ProviderConnection')!.props.open,false);
+    assert.ok(f.nodes().some(n=>n.type==='ConnectionSettings'));
+  }finally{f.dispose();}
 });

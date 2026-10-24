@@ -1,5 +1,7 @@
 import React, { useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, ImageBackground, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { FlightCard } from './FlightCard';
+import { FlightDetails } from './FlightDetails';
 import type { RealFlightDetail, RealFlightListItem } from '../vereinsflieger/real-flight-library';
 import { reviewDuration, reviewParsedField, reviewRawField } from '../vereinsflieger/capture-review';
 import { Action, Card, Chip, Empty, Label, Section, colors, ui } from './theme';
@@ -30,6 +32,8 @@ export function StatisticsOverlay({ data, today, fontScale, onBackHandler, initi
   const [fromDraft, setFromDraft] = useState(`${today.slice(0, 4)}-01-01`);
   const [toDraft, setToDraft] = useState(today);
   const [customOpen, setCustomOpen] = useState(false);
+  const [informationOpen,setInformationOpen]=useState(false);
+  const [rawPage,setRawPage]=useState(0);
   const [routes, setRoutes] = useState<Route[]>([{ kind: 'section', section: 'overview', key: 'overview' }]);
   const routeSequence = useRef(0);
   const scrollOffsets = useRef<Record<string, number>>({});
@@ -77,6 +81,7 @@ export function StatisticsOverlay({ data, today, fontScale, onBackHandler, initi
     setRoutes(previous => [...previous, { kind: 'flights', title, ids: filteredIds, scope, key }]);
   };
   const openFlight = (flight: RealFlightListItem) => {
+    setRawPage(0);
     const key = `detail-${++routeSequence.current}`;
     setRoutes(previous => [...previous, { kind: 'detail', flightId: flight.flightId, key }]);
     void data.openDetail(flight);
@@ -105,19 +110,14 @@ export function StatisticsOverlay({ data, today, fontScale, onBackHandler, initi
       onContentSizeChange={() => scroll.current?.scrollTo({ y: scrollOffsets.current[routeKey] ?? 0, animated: false })}
       keyboardShouldPersistTaps="handled" contentContainerStyle={[styles.canvas, fontScale > 1.3 && styles.canvasLarge]}>
       {route.kind === 'section' && <>
-        <ImageBackground source={blueprint} resizeMode="cover" imageStyle={styles.blueprintImage} style={styles.hero}>
-          <View style={styles.heroShade} />
-          <Label style={styles.heroEyebrow}>MEINE SAISON</Label>
-          <Section title={titleForSection(route.section)} />
-          <Label muted>Aus den lokal gespeicherten Flügen · keine neuen Datenabrufe</Label>
-        </ImageBackground>
+        <Section title={titleForSection(route.section)}/>
         <View style={styles.periodPanel}>
-          <Section title="Zeitraum" />
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow}>
+          <Section title="Zeitraum" action={informationOpen?'Details schließen':'Datenstand'} onPress={()=>setInformationOpen(!informationOpen)}/>
+          <View style={[styles.chipRow,{flexDirection:'row',flexWrap:'wrap'}]}>
             {years.map(year => <Chip key={year} title={String(year)} selected={period.kind === 'year' && period.year === year} onPress={() => setPeriod({ kind: 'year', year })} />)}
             <Chip title="Alle Jahre" selected={period.kind === 'all'} onPress={() => setPeriod({ kind: 'all' })} />
             <Chip title="Eigener Zeitraum" selected={period.kind === 'custom'} onPress={() => setCustomOpen(open => !open)} />
-          </ScrollView>
+          </View>
           {customOpen && <View style={styles.customRange}>
             <View style={styles.dateField}><Label muted>Von · JJJJ-MM-TT</Label><TextInput accessibilityLabel="Zeitraum von" value={fromDraft} onChangeText={setFromDraft} placeholder="2026-01-01" placeholderTextColor={colors.muted} autoCorrect={false} autoCapitalize="none" keyboardType="numbers-and-punctuation" style={styles.dateInput} /></View>
             <View style={styles.dateField}><Label muted>Bis · JJJJ-MM-TT</Label><TextInput accessibilityLabel="Zeitraum bis" value={toDraft} onChangeText={setToDraft} placeholder="2026-10-23" placeholderTextColor={colors.muted} autoCorrect={false} autoCapitalize="none" keyboardType="numbers-and-punctuation" style={styles.dateInput} /></View>
@@ -125,9 +125,9 @@ export function StatisticsOverlay({ data, today, fontScale, onBackHandler, initi
             {!validStatisticsRange(fromDraft, toDraft) && <Label muted>Bitte gültige Kalendertage in aufsteigender Reihenfolge eingeben.</Label>}
           </View>}
           <Label muted>{periodLabel}</Label>
-          {bounds && <Label muted>{statisticsCoverageComplete(saved, bounds.from, bounds.to) ? 'Gespeicherte Abrufe decken diesen Zeitraum vollständig ab.' : 'Die gespeicherten Abrufe decken diesen Zeitraum nicht vollständig ab.'}</Label>}
+          {informationOpen&&<>{bounds && <Label muted>{statisticsCoverageComplete(saved, bounds.from, bounds.to) ? 'Gespeicherte Abrufe decken diesen Zeitraum vollständig ab.' : 'Die gespeicherten Abrufe decken diesen Zeitraum nicht vollständig ab.'}</Label>}
           <Label muted>Die Saisonwerte auf Übersicht zeigen gespeicherte Jahreswerte; die Abdeckung kann je Jahr abweichen oder unvollständig sein.</Label>
-          {period.kind === 'all' && <Label muted>Der gespeicherte Bestand belegt keine vollständige Fluggeschichte.</Label>}
+          {period.kind === 'all' && <Label muted>Der gespeicherte Bestand belegt keine vollständige Fluggeschichte.</Label>}</>}
         </View>
         <View style={styles.sectionTabs} accessibilityRole="tablist">
           {(['overview', 'aircraft', 'duration', 'launch'] as const).map(section => <Chip key={section} title={titleForSection(section)} selected={route.section === section} onPress={() => openSection(section)} />)}
@@ -208,56 +208,24 @@ export function StatisticsOverlay({ data, today, fontScale, onBackHandler, initi
       </>}
 
       {route.kind === 'flights' && <>
-        <ImageBackground source={blueprint} resizeMode="cover" imageStyle={styles.blueprintImage} style={styles.hero}>
-          <View style={styles.heroShade} /><Label style={styles.heroEyebrow}>BEITRAGENDE FLÜGE</Label><Section title={route.title} /><Label muted>{routeItems.length} gespeicherte Flugbelege · gefiltert nach {routeScopeLabel}</Label>
-        </ImageBackground>
+        <Section title={route.title}/><Label muted>{routeItems.length} gespeicherte Flugbelege · gefiltert nach {routeScopeLabel}</Label>
         {routeItems.length === 0 && <Empty title="Keine passenden Flüge">Die gespeicherten Belege haben sich geändert oder sind nicht mehr verfügbar. Zurück zur Statistik.</Empty>}
-        {routeItems.map(flight => {
-          const assessment = flight.facts.assessment;
-          const registration = reviewRawField(assessment.fields.registration);
-          const date = reviewParsedField(assessment.date);
-          return <Card key={`${flight.flightId}:${flight.factsRevision}`} onPress={() => openFlight(flight)} label={`${date} · ${registration} · Details ansehen`}>
-            <View style={styles.aircraftHeading}><View style={{ flex: 1 }}><Label style={styles.aircraftName}>{registration}</Label><Label muted>{reviewParsedField(assessment.date)} · {reviewRawField(assessment.fields.model)}</Label></View><Label style={styles.flightTime}>{reviewDuration(assessment.durations.flight)}</Label></View>
-            <Label>{reviewRawField(assessment.fields.departure)} → {reviewRawField(assessment.fields.arrival)}</Label>
-          </Card>;
-        })}
+        <View style={{gap:5}}>{routeItems.map(flight=><FlightCard key={`${flight.flightId}:${flight.factsRevision}`} flight={flight} onPress={()=>openFlight(flight)}/>)}</View>
       </>}
 
-      {route.kind === 'detail' && <StatisticsFlightDetails detail={detail} loading={data.detailBusy} error={detailError ? data.detailError : null} />}
+      {route.kind === 'detail' && <StatisticsFlightDetails detail={detail} loading={data.detailBusy} error={detailError ? data.detailError : null} rawPage={rawPage} onRawPage={setRawPage} />}
     </ScrollView>
   </View>;
 }
 
-function StatisticsFlightDetails({ detail, loading, error }: { detail: RealFlightDetail | null; loading: boolean; error: string | null }) {
+function StatisticsFlightDetails({ detail, loading, error,rawPage,onRawPage }: { detail: RealFlightDetail | null; loading: boolean; error: string | null;rawPage:number;onRawPage:(page:number)=>void }) {
   if (loading) return <Card><ActivityIndicator color={colors.cyan} accessibilityLabel="Gespeicherte Flugdetails werden geprüft" /><Label muted>Flugdetails werden lokal geprüft.</Label></Card>;
   if (!detail) return <Card><Empty title="Flugdetails nicht verfügbar">{error ?? 'Die aktuelle gespeicherte Auswahl konnte nicht bestätigt werden. Kehre zur Statistik zurück und öffne den Flug erneut.'}</Empty></Card>;
-  const assessment = detail.facts.assessment;
-  return <>
-    <ImageBackground source={blueprint} resizeMode="cover" imageStyle={styles.blueprintImage} style={styles.hero}>
-      <View style={styles.heroShade} /><Label style={styles.heroEyebrow}>GESPEICHERTER FLUG</Label><Section title={reviewRawField(assessment.fields.registration)} /><Label muted>{reviewParsedField(assessment.date)}</Label>
-    </ImageBackground>
-    <Card>
-      <Label style={styles.detailDuration}>{reviewDuration(assessment.durations.flight)}</Label>
-      {([['model', 'Muster'], ['departure', 'Abflug'], ['arrival', 'Ankunft'], ['start', 'Startzeit'], ['landing', 'Landezeit'], ['offBlock', 'Off-Block'], ['onBlock', 'On-Block']] as const).map(([field, label]) => {
-        const value = assessment.fields[field];
-        return <View key={field} style={styles.detailRow}><Label muted style={styles.detailLabel}>{label}</Label><Label selectable style={{ flex: 1 }}>{field === 'start' || field === 'landing' || field === 'offBlock' || field === 'onBlock' ? reviewParsedField(assessment.clocks[field]) : reviewRawField(value)}</Label></View>;
-      })}
-      <Label muted>Flugzeit wird nicht aus Uhrzeiten berechnet. Crew-Felder sind Anbieterangaben, keine bestätigte Personenidentität oder Rollen-Anrechnung.</Label>
-      {([['pilot', 'Pilot · Quellfeld'], ['pic', 'PIC · Quellfeld'], ['companion', 'Begleitung · Quellfeld'], ['companion2', 'Begleitung 2 · Quellfeld'], ['companion3', 'Begleitung 3 · Quellfeld'], ['sic', 'SIC · Quellfeld'], ['picTime', 'PIC-Zeit · Quellfeld'], ['dualTime', 'Doppelsteuer-Zeit · Quellfeld'], ['instructorTime', 'Lehrer-Zeit · Quellfeld']] as const).map(([field, label]) => <Label key={field} selectable>{label}: {reviewRawField(assessment.fields[field])}</Label>)}
-      <Label muted>Startart-Zählung bleibt wegen der ungeklärten Feldbedeutung deaktiviert.</Label>
-    </Card>
-    <Card>
-      <Section title="Originale Anbieterfelder" />
-      <Label>Fassung {detail.factsRevision} · {detail.factHistory.length} gespeicherte Fassung(en)</Label>
-      <Label selectable>Quellflug: {detail.sourceFlightRef}</Label>
-      <Label muted>Track und Distanz sind nicht gespeichert/verifiziert. Originalfelder bleiben Quellbelege, keine bestätigten Rollen oder Identitäten.</Label>
-      {assessment.observation.headers.map((header, index) => <View key={`${index}:${header}`} style={styles.sourceRow}><Label muted>{header || '(ohne Überschrift)'}</Label><Label selectable>{assessment.observation.row.values[index] || 'Leer im Anbieterbeleg'}</Label></View>)}
-    </Card>
-  </>;
+  return <FlightDetails detail={detail} rawPage={rawPage} onRawPage={onRawPage}/>;
 }
 
 const styles = StyleSheet.create({
-  content: { flex: 1, minHeight: 0, width: '100%' }, canvas: { width: '100%', maxWidth: 720, alignSelf: 'center', padding: 14, paddingBottom: 26, gap: 12 }, canvasLarge: { paddingHorizontal: 10, paddingBottom: 22 },
+  content: { flex: 1, minHeight: 0, width: '100%' }, canvas: { width: '100%', maxWidth: 600, alignSelf: 'center', padding: 12, paddingBottom: 26, gap: 12 }, canvasLarge: { paddingHorizontal: 10, paddingBottom: 22 },
   hero: { minHeight: 142, borderRadius: 20, overflow: 'hidden', backgroundColor: '#0e202c', padding: 16, justifyContent: 'flex-end', gap: 6, borderWidth: 1, borderColor: colors.border }, blueprintImage: { opacity: .72 }, heroShade: { ...StyleSheet.absoluteFill, backgroundColor: '#0b141c3b' }, heroEyebrow: { color: colors.cyan, fontSize: 11, lineHeight: 16, letterSpacing: 1.2, fontWeight: '700' },
   periodPanel: { gap: 8, backgroundColor: colors.card, borderRadius: 18, padding: 14, borderWidth: 1, borderColor: colors.border }, chipRow: { gap: 5, paddingRight: 6 }, customRange: { gap: 8 }, dateField: { gap: 3 }, dateInput: { minHeight: 50, color: colors.text, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.raised, borderRadius: 12, paddingHorizontal: 12, fontSize: 16 }, sectionTabs: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
   metrics: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 }, metric: { flex: 1, minWidth: 90, gap: 2 }, metricValue: { color: colors.cyan, fontSize: 19, lineHeight: 25, fontWeight: '700' }, compareRow: { flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' }, compareValue: { color: colors.cyan, minWidth: 72, textAlign: 'right' }, monthButtons: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 }, monthButton: { flexGrow: 1, flexBasis: '30%', minWidth: 95, minHeight: 48, borderRadius: 13, justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: colors.border, backgroundColor: colors.raised, paddingHorizontal: 8 }, monthButtonText: { color: colors.text, textAlign: 'center' }, disabled: { opacity: .55 }, aircraftRow: { padding: 13, gap: 5, borderRadius: 16 }, bandRow: { padding: 13, gap: 5, borderRadius: 16 }, aircraftHeading: { flexDirection: 'row', alignItems: 'center', gap: 8 }, aircraftSwatch: { width: 10, height: 10, borderRadius: 5 }, aircraftName: { fontWeight: '700', fontSize: 17, lineHeight: 23 }, flightTime: { color: colors.cyan, flexShrink: 1 },

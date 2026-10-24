@@ -1,5 +1,5 @@
-import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import React, { useState } from 'react';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { Card, Label, Section, colors } from './theme';
 import type { FeatureInformation, FeatureSource, OwnTaskItem, WorkHourItem, WorkSummaryItem } from './feature-information';
 
@@ -9,14 +9,16 @@ export interface ClubInformationProps {
   compact?: boolean;
   onOpen?: () => void;
 }
-function SourceNote({ source, readFailed }: { source?: FeatureSource<unknown>; readFailed?: boolean }) {
+function SourceNote({ source, readFailed,compact=false }: { source?: FeatureSource<unknown>; readFailed?: boolean;compact?:boolean }) {
+  const [expanded,setExpanded]=useState(false);
   const available = source?.status === 'partial';
   return <View style={styles.notes}>
     {readFailed && <Label muted style={styles.note}>Lokales Laden fehlgeschlagen. {available ? 'Der zuletzt geladene Stand bleibt sichtbar.' : 'Gespeicherte Daten konnten nicht angezeigt werden.'}</Label>}
     {available && <>
       <Label muted style={styles.note}>Seitenausschnitt{source.truncated ? ' · am Erfassungslimit gekürzt' : ''} · Vollständigkeit ungeprüft</Label>
-      {source.filters.map(filter => <Label muted style={styles.note} key={filter}>{filter}</Label>)}
-      <Label muted style={styles.note}>Abruf: {source.retrievedAt ? source.retrievedAt.replace('T', ' ').replace('.000Z', ' UTC') : 'unbekannt'}</Label>
+      {compact&&<Pressable accessibilityRole="button" accessibilityLabel="Quellendetails" accessibilityState={{expanded}} onPress={()=>setExpanded(!expanded)} style={{minHeight:48,justifyContent:'center'}}><Label style={{color:colors.cyan,fontSize:13}}>{expanded?'Quellendetails schließen':'Quellendetails'}</Label></Pressable>}
+      {(!compact||expanded)&&<>{source.filters.map(filter => <Label muted style={styles.note} key={filter}>{filter}</Label>)}
+      <Label muted style={styles.note}>Abruf: {source.retrievedAt ? source.retrievedAt.replace('T', ' ').replace('.000Z', ' UTC') : 'unbekannt'}</Label></>}
     </>}
   </View>;
 }
@@ -37,7 +39,7 @@ export function ClubEvents({ information, readFailed, compact = false, onOpen }:
       <View style={styles.content}><Label style={styles.title}>{item.title}</Label>{item.location && <Label muted>{item.location}</Label>}<Label muted style={styles.note}>{item.kind}</Label></View>
     </View>)}
     {shown.length < items.length && <Label muted style={styles.note}>{shown.length} von {items.length} erfassten Terminen</Label>}
-    <SourceNote source={source} readFailed={readFailed} />
+    <SourceNote source={source} readFailed={readFailed} compact={compact} />
   </Card>;
 }
 
@@ -51,7 +53,7 @@ export function ClubDocumentNotices({ information, readFailed, compact = false, 
     {!shown.length && <Label muted>Dokumentenhinweise unbekannt. Noch keine unterstützte Quelle verfügbar.</Label>}
     {shown.map(item => <View key={item.key} style={styles.document}><Label selectable style={styles.title}>{item.text}</Label></View>)}
     {shown.length < items.length && <Label muted style={styles.note}>{shown.length} von {items.length} erfassten Hinweisen</Label>}
-    <SourceNote source={source} readFailed={readFailed} />
+    <SourceNote source={source} readFailed={readFailed} compact={compact} />
   </Card>;
 }
 
@@ -67,7 +69,7 @@ export function ClubWorkSummary({ information, readFailed, compact = false, onOp
     {source?.status === 'partial' && !source.empty && !items.length && <Label muted>Jahreszeilen unbekannt.</Label>}
     {shown.map(item => <WorkSummaryRow key={item.key} item={item} />)}
     {shown.length < items.length && <Label muted style={styles.note}>{shown.length} von {items.length} erfassten Jahreszeilen</Label>}
-    <SourceNote source={source} readFailed={readFailed} />
+    <SourceNote source={source} readFailed={readFailed} compact={compact} />
     {!compact && <WorkHourEntries source={information?.workHours} readFailed={readFailed} />}
   </Card>;
 }
@@ -115,7 +117,7 @@ export function ClubOwnTasks({ information, readFailed, compact = false, onOpen 
     {source?.status === 'partial' && !source.empty && !items.length && <Label muted>Eigene offene Aufgaben unbekannt.</Label>}
     {shown.map(item => <OwnTaskRow key={item.key} item={item} />)}
     {shown.length < items.length && <Label muted style={styles.note}>{shown.length} von {items.length} erfassten Aufgaben</Label>}
-    <SourceNote source={source} readFailed={readFailed} />
+    <SourceNote source={source} readFailed={readFailed} compact={compact} />
   </Card>;
 }
 

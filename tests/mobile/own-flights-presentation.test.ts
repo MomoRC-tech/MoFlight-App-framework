@@ -1,4 +1,6 @@
 import * as diagnostics from '../../apps/platform-lab/src/diagnostics';
+import { loadFlightPresentation } from './flight-presentation-fixture';
+import * as ownFlightModel from '../../apps/platform-lab/src/mobile/own-flight-model';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -19,7 +21,8 @@ function fixture() {
   const f=ownFlightFixture(),data:any={view:{snapshot:f.snapshot,flights:f.flights,pendingCommand:false},phase:'ready',detail:null,detailBusy:false,clearDetail(){},reload(){},openDetail(){}};
   let index=0,active=true;let filterRequest:model.OwnFlightRequest|null=null;const hooks:any[]=[],effects:(()=>void)[]=[],restores:number[]=[];
   const react={
-    createElement:(type:string,props:Element['props'],...children:any[]):Element=>{
+    createElement:(type:any,props:Element['props'],...children:any[]):Element=>{
+      if(typeof type==='function')return type({...props,children});
       if(type==='FlatList'&&props?.ref)props.ref.current={scrollToOffset:({offset}:{offset:number})=>restores.push(offset)};
       return{type,props:props??{},children:children.flat(Infinity)};
     },
@@ -34,6 +37,7 @@ function fixture() {
   },'./theme':{...leaves(['Action','Card','Chip','Empty','GliderMark','IconLabel','Label','Section']),colors:{},ui:{}},'./SymbolIcon':leaves(['SymbolIcon']),
   './use-own-flights':{useOwnFlights:()=>{throw new Error('Presentation must reuse the shell reader');}},'./own-flight-reader-native':{ownFlightReadPorts:{}},'./own-flight-model':model,
   '../vereinsflieger/retrieval-policy':{planFlightRetrieval},'./data-freshness':{dataFreshness},'../vereinsflieger/capture-review':review,'./real-flight-statistics':statistics};
+  Object.assign(modules,loadFlightPresentation(modules));
   const exports:any={};runInNewContext(source,{exports,require:(name:string)=>{assert.ok(name in modules,name);return modules[name];}});
   let tree:Element;const header=()=>{};
   function render(){index=0;tree=exports.OwnFlights({active,filterRequest,data,onUpdate:()=>false,onHeaderChange:header});effects.splice(0).forEach(fn=>fn());return tree;}
@@ -234,11 +238,15 @@ test('filter bar remains outside list scrolling; active values persist when sear
   assert.equal(f.find('FlatList').props.data.length,3);
 });
 
-test('chooser combines period and aircraft, individual tag removal retains the other filter',()=>{
+test('chooser targets the requested filter and immediate changes retain other filters',()=>{
   const f=fixture();f.find('Pressable','Flugfilter öffnen').props.onPress();f.render();
   f.nodes().find(node=>node.type==='Chip'&&node.props.title==='2025')!.props.onPress();f.render();
+  assert.ok(!f.nodes().some(n=>n.type==='Section'&&n.props.title==='Flugzeug'));
+  f.nodes().find(node=>node.type==='Action'&&visibleText(node)==='Zur Flugliste')!.props.onPress();f.render();
+  f.find('Pressable','Flugzeugfilter öffnen').props.onPress();f.render();
+  assert.ok(!f.nodes().some(n=>n.type==='Section'&&n.props.title==='Zeitraum'));
   f.nodes().find(node=>node.type==='Chip'&&node.props.title==='D-T001')!.props.onPress();f.render();
-  f.nodes().find(node=>node.type==='Action'&&visibleText(node)==='Anzeigen')!.props.onPress();f.render();
+  f.nodes().find(node=>node.type==='Action'&&visibleText(node)==='Zur Flugliste')!.props.onPress();f.render();
   assert.deepEqual(f.find('FlatList').props.data.map((flight:any)=>flight.flightId),['flight-1']);
   assert.equal(f.find('Pressable','Flugfilter öffnen').props.accessibilityState.selected,true);
   assert.equal(f.find('Pressable','Flugzeugfilter öffnen').props.accessibilityState.selected,true);

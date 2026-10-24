@@ -1,3 +1,5 @@
+import { loadFlightPresentation } from './flight-presentation-fixture';
+import * as ownFlightModel from '../../apps/platform-lab/src/mobile/own-flight-model';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -19,7 +21,7 @@ function fixture() {
   let index = 0;
   const hooks: any[] = [];
   const react = {
-    createElement: (type: unknown, props: Record<string, any>, ...children: unknown[]): Element => ({ type, props: props ?? {}, children: children.flat(Infinity) }),
+    createElement: (type: unknown, props: Record<string, any>, ...children: unknown[]): Element => typeof type==='function'?type({...props,children}):({ type, props: props ?? {}, children: children.flat(Infinity) }),
     useMemo: (make: () => unknown) => { index++; return make(); },
     useState: (initial: unknown) => { const i = index++; if (!(i in hooks)) hooks[i] = initial; return [hooks[i], (value: unknown) => { hooks[i] = typeof value === 'function' ? (value as (previous: unknown) => unknown)(hooks[i]) : value; }]; },
     useRef: (initial: unknown) => { const i = index++; if (!(i in hooks)) hooks[i] = { current: initial }; return hooks[i]; },
@@ -35,6 +37,8 @@ function fixture() {
     './season-dashboard-model': { monthlySeasonForCoverage }, '../vereinsflieger/retrieval-policy': { planFlightRetrieval },
     './statistics-overlay-model': statisticsModel,
   };
+  modules['./own-flight-model']=ownFlightModel;
+  Object.assign(modules,loadFlightPresentation(modules));
   const exports: Record<string, any> = {};
   runInNewContext(source, { exports, require: (name: string) => {
     if (name.startsWith('../../assets/')) return name;
@@ -91,6 +95,8 @@ test('previous-year drilldown keeps its same-date scope, restores Back, and reje
 test('statistics coverage detail explains incomplete saved season periods', () => {
   const f = fixture();
   let nodes = f.nodes();
+  nodes.find(node=>node.type==='Section'&&node.props.title==='Zeitraum')!.props.onPress();
+  nodes=f.nodes();
   assert.ok(nodes.some(node => node.type === 'Label' && node.children.join('').includes('die Abdeckung kann je Jahr abweichen oder unvollständig sein.')));
   assert.ok(nodes.some(node => node.type === 'Label' && node.children.join('').includes('Aktuell bis 2026-10-22; Vorjahr bis gleicher Kalendertag. Angaben beruhen auf den gespeicherten Zeiträumen.')));
 

@@ -31,7 +31,7 @@ const source = ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/
 
 // Run the real component/handlers; native rendering and leaf controls are the
 // only replacements. Disclosure tests make no provider/storage implementation.
-function fixture(overrides: Partial<Controller> = {}, development = false, purpose: 'existing-captures'|'own-flight-library' = 'existing-captures', guided = false, progress?: Element, developmentRecoveryCheckpoints = false, dialogTop?: number,minimal=false) {
+function fixture(overrides: Partial<Controller> = {}, development = false, purpose: 'existing-captures'|'own-flight-library' = 'existing-captures', guided = false, progress?: Element, developmentRecoveryCheckpoints = false, dialogTop?: number,minimal=false,administration=false) {
   let index = 0;
   const keyboardListeners:Record<string,(event:unknown)=>void>={};
   const hooks: unknown[] = [], effects: (() => void)[] = [], calls: string[] = [];
@@ -86,7 +86,7 @@ function fixture(overrides: Partial<Controller> = {}, development = false, purpo
   let tree: Element;
   function render(open = true) {
     index = 0;
-    tree = exports.ProviderConnection!({minimal,dialogTop, controller, open, development, developmentRecoveryCheckpoints, purpose, guided, progress, closeDisabled:controller.informationSaving, close: () => calls.push('close') });
+    tree = exports.ProviderConnection!({minimal,administration,dialogTop, controller, open, development, developmentRecoveryCheckpoints, purpose, guided, progress, closeDisabled:controller.informationSaving, close: () => calls.push('close') });
     while (effects.length) effects.shift()!();
     return tree;
   }
@@ -420,4 +420,14 @@ test('sync preparation and recovery progress never fall through to manual connec
    assert.deepEqual(f.calls,[]);
   }
  }
+});
+
+
+test('minimal administration exposes an enabled explicit sign-out verification action',()=>{
+ let checked=0;
+ const f=fixture({visible:true,browserActive:true,loaded:true,disconnecting:true,checkDisconnection:()=>{checked++;},url:'https://vereinsflieger.de/'},false,'own-flight-library',false,undefined,false,40,true,true);
+ assert.equal(f.button('Abmeldung prüfen').props.disabled,false);
+ f.button('Abmeldung prüfen').props.onPress();assert.equal(checked,1);
+ assert.ok(f.text().includes('Schließen allein meldet dich nicht ab'));
+ f.controller.saving=true;f.render();assert.equal(f.button('Abmeldung prüfen').props.disabled,true);
 });
