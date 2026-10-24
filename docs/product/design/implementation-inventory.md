@@ -423,23 +423,25 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Diagnostics.tsx](
 
 ## DutyRoster.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DutyRoster.tsx](../../../apps/platform-lab/src/mobile/DutyRoster.tsx); normalized SHA-256 `9a9c8f1a8fe00f810ee17e73ee69647630e81abb63fd7c3e0723c1a2849e183d`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DutyRoster.tsx](../../../apps/platform-lab/src/mobile/DutyRoster.tsx); normalized SHA-256 `119227cc9694991db087eff77ec68395daab95b528456a6314007c1f8450c6f9`.
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontWeight: '600'` | 48 |
+| `fontSize: 12` | 61 |
+| `fontWeight: '600'` | 60 |
+| `lineHeight: 20` | 61 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `gap: 4` | 47 |
-| `gap: 8` | 46 |
-| `maxWidth: 520` | 19 |
-| `paddingHorizontal: 2` | 47 |
-| `width: '100%'` | 19 |
+| `gap: 4` | 58 |
+| `gap: 8` | 57, 59 |
+| `maxWidth: 520` | 30 |
+| `paddingHorizontal: 2` | 58 |
+| `width: '100%'` | 30 |
 
 ## DutyTarget.tsx
 

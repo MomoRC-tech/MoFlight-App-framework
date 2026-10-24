@@ -88,7 +88,8 @@
 <p>Implementation is recorded separately from native acceptance in <a href="../../verification/2026-10-24-compact-cockpit.md">one package report</a>. Android, physical-phone, iOS and spoken accessibility evidence must be distinguished.</p>
 <h3 id="chapter-compact-cockpit-current-header-and-photography">Current header and photography</h3>
 <p>Sync and Profile share the same transparent 48×48 logical-pixel touch area, with no visible box/frame or Sync/Lädt caption. Icons are 28 units; the original logo stays unchanged. Accessible labels still explain the action, actual busy state, saved age, session proof and advice. A session mark and separate amber dot retain independent login/advice/incomplete-sync meaning, and motion indicates actual work with reduced-motion/foreground protection. Busy disables duplicate sync taps. The conditional status row and details/retry remain available.</p>
-<p>Season and club photography use the shared <code>cockpitImage</code> opacity .82 and <code>cockpitShade</code> navy overlay <i class="swatch" style="background:#001b2944" aria-hidden="true"></i><code>#001b2944</code>, preserving cover cropping and native text. The season photo remains shallow behind the heading/metrics. Club art fills only the compact header up to its divider; all duty body/actions remain below. Long names can wrap; no fixed screen height or scenic spacer is added. <a href="../../verification/2026-10-24-compact-cockpit.md#phone-feedback-follow-up--24-october-2026">Phone follow-up evidence</a>.</p></section>
+<p>Season and club photography use the shared <code>cockpitImage</code> opacity .82 and <code>cockpitShade</code> navy overlay <i class="swatch" style="background:#001b2944" aria-hidden="true"></i><code>#001b2944</code>, preserving cover cropping and native text. The season photo remains shallow behind the heading/metrics. Club art fills only the compact header up to its divider; all duty body/actions remain below. Long names can wrap; no fixed screen height or scenic spacer is added. <a href="../../verification/2026-10-24-compact-cockpit.md#phone-feedback-follow-up--24-october-2026">Phone follow-up evidence</a>.</p>
+<p><strong>24 October duty-row refinement — [#69](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/69):</strong> both compact and expanded rosters use two logical rows: duty title left / date(s) right, then people. Calendar dates omit clock times and compress shared month/year in ranges. Names retain all supplied given names and abbreviate the family name; single source names stay intact. Unknown periods/people stay explicit. Larger text may wrap naturally without clipping. Raw source periods/names, ownership and partial-coverage qualifications remain unchanged.</p></section>
 <section class="chapter" id="chapter-alternative-ui"><h2 id="chapter-alternative-ui-alternative-ui--22-october-2026">Alternative UI — 22 October 2026</h2>
 <p>&gt; <strong>Current appearance authority — 24 October 2026:</strong> <a href="#chapter-compact-cockpit">Dark Compact Cockpit</a> and its approved reference supersede conflicting older appearance/composition statements below. Data, feature and verification boundaries retain their scope.</p>
 <p><a href="#chapter-overview">Handbook</a> · <a href="https://github.com/MomoRC-tech/MoFlight-App-framework/issues/55">#55</a> · branch <code>ui/alternative-flight-experience</code>.</p>
@@ -274,7 +275,7 @@
 <tr><td>C18</td><td>Connection/data summary</td><td>Profile/status data summary; earlier conditional Start placement is superseded on this branch</td><td><a href="../../../apps/platform-lab/src/mobile/ConnectionSummary.tsx">ConnectionSummary</a> uses successful saved-retrieval time in Profile/status. Its retained compact reminder logic is not mounted on alternative Start; that page uses season empty/error guidance instead. Only the header admits full updates. Explicit update coordinates flights and separate supported information jobs; optional failures do not undo flight saves. Automatic latest-flight retrieval remains unavailable. U3 separately performs only guarded, read-only flight/own-duty footer-count checks while foreground, no more often than hourly.</td></tr>
 <tr><td>C19</td><td>Support diagnostics</td><td>Shared C01/C02 cards/actions and selectable report text in a centered 520 dp group</td><td><a href="../../../apps/platform-lab/src/mobile/Diagnostics.tsx">Diagnostics</a> via Settings; paged technical/action histories and protected failures; observed navigation transitions without inferred intent. Explicit full JSON-file sharing, bounded short text copying and diagnostic-only clearing; 1 MB total managed storage cap. No automatic transmission.</td></tr>
 <tr><td>C20</td><td>Meine Saison statistics overlay</td><td>Centered navy frame, radius 22, subtle border, safe-area bounds and maximum width 720 dp; fixed title over one scrolling content region</td><td><a href="../../../apps/platform-lab/src/mobile/StatisticsOverlay.tsx">StatisticsOverlay</a> reads saved local flights, applies year/all/custom date filters, and opens exact contributor/detail routes with contextual Back. Unverified launch mapping stays unavailable; source conflicts are excluded. No provider retrieval or durable filter store.</td></tr>
-<tr><td>C21</td><td>Club card heading / subgroups</td><td>System-scaled title 18/26, weight600; decorative full-bleed image to top/side card borders, header minimum88 dp with navy shade; subgroup raised navy, radius8, title14/22 and glyph16</td><td><a href="../../../apps/platform-lab/src/mobile/ClubHeading.tsx">ClubHeading</a> shows Mein Verein: plus the full saved club label, or Mein Verein with Vereinsname unbekannt. No fixed title height or line cap. <a href="../../../apps/platform-lab/src/mobile/DutyRoster.tsx">DutyRoster</a> separates own/other, later and unplaced groups without changing source membership. Compact rows omit technical explanations; expanded title remains Dienstübersicht with source qualification. Single-word source names remain intact without identity inference. The shell&#x27;s missing-source card reuses the same heading.</td></tr>
+<tr><td>C21</td><td>Club card heading / subgroups</td><td>System-scaled title 18/26, weight600; decorative full-bleed image to top/side card borders, header minimum88 dp with navy shade; subgroup raised navy, radius8, title14/22 and glyph16</td><td><a href="../../../apps/platform-lab/src/mobile/ClubHeading.tsx">ClubHeading</a> shows Mein Verein: plus the full saved club label, or Mein Verein with Vereinsname unbekannt. No fixed title height or line cap. <a href="../../../apps/platform-lab/src/mobile/DutyRoster.tsx">DutyRoster</a> separates own/other, later and unplaced groups without changing source membership. Compact rows omit technical explanations; expanded title remains Dienstübersicht with source qualification. Each entry uses a duty/date row and a people row, without clocks; full supplied given names and a family-name initial are shown. Text can wrap at larger sizes. Single-word source names remain intact without identity inference. The shell&#x27;s missing-source card reuses the same heading.</td></tr>
 </tbody></table></div>
 <p>Sources: <a href="../../../apps/platform-lab/src/mobile/theme.tsx">theme</a>, <a href="../../../apps/platform-lab/src/mobile/MobileApp.tsx">MobileApp</a>, <a href="../../../apps/platform-lab/src/mobile/Dashboard.tsx">Dashboard</a>, <a href="../../../apps/platform-lab/src/mobile/AppHeader.tsx">AppHeader</a>, <a href="../../../apps/platform-lab/src/mobile/ProviderConnection.tsx">ProviderConnection</a>, <a href="../../../apps/platform-lab/src/mobile/MedicalStatus.tsx">MedicalStatus</a>, <a href="../../../apps/platform-lab/src/mobile/ProfileSettings.tsx">ProfileSettings</a>, <a href="../../../apps/platform-lab/src/mobile/SeasonRing.tsx">SeasonRing</a> and <a href="../../../apps/platform-lab/src/mobile/StatisticsOverlay.tsx">StatisticsOverlay</a>.</p>
 <p>The Development entry for the own-flight library additionally exposes two one-shot recovery test pauses in the same owner-scoped controller: after the original view is saved locally, and after matching recovery admission before replay. Their fixed phase labels and actions sit outside the retained browser/body branches, with their measured height reserved above the browser. Ordinary login, update and backup routes omit these controls. Home, dismissal, owner change and unmount revoke them; resumption requires the existing explicit recovery action. These are development verification controls, not user-facing recovery choices or evidence of native acceptance.</p>
@@ -338,7 +339,7 @@
 <tr><td>Übersicht</td><td>Meine Saison leads with current/prior-year time/starts rings, one latest dated flight opening its exact saved identity, and <strong>Statistik</strong>. The framed overlay provides year/all/custom saved-local overview, monthly/annual comparison, aircraft registrations and reported-duration bands. Startarten stays explicitly unavailable until its source mapping is verified. Empty/error states point to the header Daten action; no invented coverage or automatic full retrieval.</td></tr>
 <tr><td>Flüge</td><td>Selected real account’s locally saved flights without a required book: date, aircraft, route/duration rows; source-date/year, text and exact registration filters. Source IDs/revisions/original fields and absent-track context stay in details. Collapsible coverage/freshness and passive header-update guidance remain; no training or book inference.</td></tr>
 <tr><td>Flugbuch</td><td>Concise deferred real-book/setup explanation and Flüge ansehen. Existing synthetic book/paper/backup tools remain under Development. Full reconciliation/writing remains M5; book identity differs from account/format.</td></tr>
-<tr><td>Verein</td><td>Real account/club-context duty source pages with abbreviated names and full raw periods; visible-page coverage remains partial. Separate 30-day backup-excluded cache. Supported visible calendar entries and document notices use saved partial source projections; unsupported or unreadable pages stay unknown. Populated club news has no verified reader. Broader coverage remains open under #56.</td></tr>
+<tr><td>Verein</td><td>Real account/club-context duty source pages with full supplied given names, abbreviated family names and date-only periods in two logical rows; visible-page coverage remains partial. Separate 30-day backup-excluded cache. Supported visible calendar entries and document notices use saved partial source projections; unsupported or unreadable pages stay unknown. Populated club news has no verified reader. Broader coverage remains open under #56.</td></tr>
 <tr><td>AI</td><td>Welcome, supported local questions/results, composer and unavailable free-text state. Sparkles identify the category.</td></tr>
 </tbody></table></div>
 <p>The <a href="../design-sources/2026-10-16-four-screen/reference.png">approved reference</a> retains main-branch authority; this branch follows the <a href="#chapter-alternative-ui">alternative contract</a>. Later five-tab changes add Flugbuch and retain AI. Older Wetter-tab, goals, monthly-chart and synthetic Medical-expiry prototypes remain historical.</p>
@@ -717,18 +718,20 @@
 <tr><td><code>width: &#x27;100%&#x27;</code></td><td>26</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-dutyrostertsx">DutyRoster.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/DutyRoster.tsx">apps/platform-lab/src/mobile/DutyRoster.tsx</a>; normalized SHA-256 <code>9a9c8f1a8fe00f810ee17e73ee69647630e81abb63fd7c3e0723c1a2849e183d</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/DutyRoster.tsx">apps/platform-lab/src/mobile/DutyRoster.tsx</a>; normalized SHA-256 <code>119227cc9694991db087eff77ec68395daab95b528456a6314007c1f8450c6f9</code>.</p>
 <h4 id="chapter-implementation-inventory-typography-declarations-9">Typography declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>48</td></tr>
+<tr><td><code>fontSize: 12</code></td><td>61</td></tr>
+<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>60</td></tr>
+<tr><td><code>lineHeight: 20</code></td><td>61</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-geometry--opacity-declarations-16">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>gap: 4</code></td><td>47</td></tr>
-<tr><td><code>gap: 8</code></td><td>46</td></tr>
-<tr><td><code>maxWidth: 520</code></td><td>19</td></tr>
-<tr><td><code>paddingHorizontal: 2</code></td><td>47</td></tr>
-<tr><td><code>width: &#x27;100%&#x27;</code></td><td>19</td></tr>
+<tr><td><code>gap: 4</code></td><td>58</td></tr>
+<tr><td><code>gap: 8</code></td><td>57, 59</td></tr>
+<tr><td><code>maxWidth: 520</code></td><td>30</td></tr>
+<tr><td><code>paddingHorizontal: 2</code></td><td>58</td></tr>
+<tr><td><code>width: &#x27;100%&#x27;</code></td><td>30</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-dutytargettsx">DutyTarget.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/DutyTarget.tsx">apps/platform-lab/src/mobile/DutyTarget.tsx</a>; normalized SHA-256 <code>24b6acebd2608c232d23439cfae766d16968fa4cb36ad24981bb77a3797f365b</code>.</p>
@@ -1970,6 +1973,8 @@ Sync and Profile share the same transparent 48×48 logical-pixel touch area, wit
 
 Season and club photography use the shared `cockpitImage` opacity .82 and `cockpitShade` navy overlay `#001b2944`, preserving cover cropping and native text. The season photo remains shallow behind the heading/metrics. Club art fills only the compact header up to its divider; all duty body/actions remain below. Long names can wrap; no fixed screen height or scenic spacer is added. [Phone follow-up evidence](../../verification/2026-10-24-compact-cockpit.md#phone-feedback-follow-up--24-october-2026).
 
+**24 October duty-row refinement — [#69](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/69):** both compact and expanded rosters use two logical rows: duty title left / date(s) right, then people. Calendar dates omit clock times and compress shared month/year in ranges. Names retain all supplied given names and abbreviate the family name; single source names stay intact. Unknown periods/people stay explicit. Larger text may wrap naturally without clipping. Raw source periods/names, ownership and partial-coverage qualifications remain unchanged.
+
 # Alternative UI — 22 October 2026
 
 &gt; **Current appearance authority — 24 October 2026:** [Dark Compact Cockpit](compact-cockpit.md) and its approved reference supersede conflicting older appearance/composition statements below. Data, feature and verification boundaries retain their scope.
@@ -2254,7 +2259,7 @@ The U1/U3 header uses neutral saved-age text independently of session state, wit
 | C18 | Connection/data summary | Profile/status data summary; earlier conditional Start placement is superseded on this branch | [ConnectionSummary](../../../apps/platform-lab/src/mobile/ConnectionSummary.tsx) uses successful saved-retrieval time in Profile/status. Its retained compact reminder logic is not mounted on alternative Start; that page uses season empty/error guidance instead. Only the header admits full updates. Explicit update coordinates flights and separate supported information jobs; optional failures do not undo flight saves. Automatic latest-flight retrieval remains unavailable. U3 separately performs only guarded, read-only flight/own-duty footer-count checks while foreground, no more often than hourly. |
 | C19 | Support diagnostics | Shared C01/C02 cards/actions and selectable report text in a centered 520 dp group | [Diagnostics](../../../apps/platform-lab/src/mobile/Diagnostics.tsx) via Settings; paged technical/action histories and protected failures; observed navigation transitions without inferred intent. Explicit full JSON-file sharing, bounded short text copying and diagnostic-only clearing; 1 MB total managed storage cap. No automatic transmission. |
 | C20 | Meine Saison statistics overlay | Centered navy frame, radius 22, subtle border, safe-area bounds and maximum width 720 dp; fixed title over one scrolling content region | [StatisticsOverlay](../../../apps/platform-lab/src/mobile/StatisticsOverlay.tsx) reads saved local flights, applies year/all/custom date filters, and opens exact contributor/detail routes with contextual Back. Unverified launch mapping stays unavailable; source conflicts are excluded. No provider retrieval or durable filter store. |
-| C21 | Club card heading / subgroups | System-scaled title 18/26, weight600; decorative full-bleed image to top/side card borders, header minimum88 dp with navy shade; subgroup raised navy, radius8, title14/22 and glyph16 | [ClubHeading](../../../apps/platform-lab/src/mobile/ClubHeading.tsx) shows Mein Verein: plus the full saved club label, or Mein Verein with Vereinsname unbekannt. No fixed title height or line cap. [DutyRoster](../../../apps/platform-lab/src/mobile/DutyRoster.tsx) separates own/other, later and unplaced groups without changing source membership. Compact rows omit technical explanations; expanded title remains Dienstübersicht with source qualification. Single-word source names remain intact without identity inference. The shell&#x27;s missing-source card reuses the same heading. |
+| C21 | Club card heading / subgroups | System-scaled title 18/26, weight600; decorative full-bleed image to top/side card borders, header minimum88 dp with navy shade; subgroup raised navy, radius8, title14/22 and glyph16 | [ClubHeading](../../../apps/platform-lab/src/mobile/ClubHeading.tsx) shows Mein Verein: plus the full saved club label, or Mein Verein with Vereinsname unbekannt. No fixed title height or line cap. [DutyRoster](../../../apps/platform-lab/src/mobile/DutyRoster.tsx) separates own/other, later and unplaced groups without changing source membership. Compact rows omit technical explanations; expanded title remains Dienstübersicht with source qualification. Each entry uses a duty/date row and a people row, without clocks; full supplied given names and a family-name initial are shown. Text can wrap at larger sizes. Single-word source names remain intact without identity inference. The shell&#x27;s missing-source card reuses the same heading. |
 
 Sources: [theme](../../../apps/platform-lab/src/mobile/theme.tsx), [MobileApp](../../../apps/platform-lab/src/mobile/MobileApp.tsx), [Dashboard](../../../apps/platform-lab/src/mobile/Dashboard.tsx), [AppHeader](../../../apps/platform-lab/src/mobile/AppHeader.tsx), [ProviderConnection](../../../apps/platform-lab/src/mobile/ProviderConnection.tsx), [MedicalStatus](../../../apps/platform-lab/src/mobile/MedicalStatus.tsx), [ProfileSettings](../../../apps/platform-lab/src/mobile/ProfileSettings.tsx), [SeasonRing](../../../apps/platform-lab/src/mobile/SeasonRing.tsx) and [StatisticsOverlay](../../../apps/platform-lab/src/mobile/StatisticsOverlay.tsx).
 
@@ -2335,7 +2340,7 @@ The implemented U3 count advice adds a compact amber **Änderungen möglich** th
 | Übersicht | Meine Saison leads with current/prior-year time/starts rings, one latest dated flight opening its exact saved identity, and **Statistik**. The framed overlay provides year/all/custom saved-local overview, monthly/annual comparison, aircraft registrations and reported-duration bands. Startarten stays explicitly unavailable until its source mapping is verified. Empty/error states point to the header Daten action; no invented coverage or automatic full retrieval. |
 | Flüge | Selected real account’s locally saved flights without a required book: date, aircraft, route/duration rows; source-date/year, text and exact registration filters. Source IDs/revisions/original fields and absent-track context stay in details. Collapsible coverage/freshness and passive header-update guidance remain; no training or book inference. |
 | Flugbuch | Concise deferred real-book/setup explanation and Flüge ansehen. Existing synthetic book/paper/backup tools remain under Development. Full reconciliation/writing remains M5; book identity differs from account/format. |
-| Verein | Real account/club-context duty source pages with abbreviated names and full raw periods; visible-page coverage remains partial. Separate 30-day backup-excluded cache. Supported visible calendar entries and document notices use saved partial source projections; unsupported or unreadable pages stay unknown. Populated club news has no verified reader. Broader coverage remains open under #56. |
+| Verein | Real account/club-context duty source pages with full supplied given names, abbreviated family names and date-only periods in two logical rows; visible-page coverage remains partial. Separate 30-day backup-excluded cache. Supported visible calendar entries and document notices use saved partial source projections; unsupported or unreadable pages stay unknown. Populated club news has no verified reader. Broader coverage remains open under #56. |
 | AI | Welcome, supported local questions/results, composer and unavailable free-text state. Sparkles identify the category. |
 
 The [approved reference](../design-sources/2026-10-16-four-screen/reference.png) retains main-branch authority; this branch follows the [alternative contract](alternative-ui.md). Later five-tab changes add Flugbuch and retain AI. Older Wetter-tab, goals, monthly-chart and synthetic Medical-expiry prototypes remain historical.
@@ -2844,23 +2849,25 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Diagnostics.tsx](
 
 ## DutyRoster.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DutyRoster.tsx](../../../apps/platform-lab/src/mobile/DutyRoster.tsx); normalized SHA-256 `9a9c8f1a8fe00f810ee17e73ee69647630e81abb63fd7c3e0723c1a2849e183d`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DutyRoster.tsx](../../../apps/platform-lab/src/mobile/DutyRoster.tsx); normalized SHA-256 `119227cc9694991db087eff77ec68395daab95b528456a6314007c1f8450c6f9`.
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontWeight: &#x27;600&#x27;` | 48 |
+| `fontSize: 12` | 61 |
+| `fontWeight: &#x27;600&#x27;` | 60 |
+| `lineHeight: 20` | 61 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `gap: 4` | 47 |
-| `gap: 8` | 46 |
-| `maxWidth: 520` | 19 |
-| `paddingHorizontal: 2` | 47 |
-| `width: &#x27;100%&#x27;` | 19 |
+| `gap: 4` | 58 |
+| `gap: 8` | 57, 59 |
+| `maxWidth: 520` | 30 |
+| `paddingHorizontal: 2` | 58 |
+| `width: &#x27;100%&#x27;` | 30 |
 
 ## DutyTarget.tsx
 
@@ -4348,7 +4355,7 @@ States / limits: Recreated approved variant, not a byte-identical copy of an old
 Source: docs/assets/branding/moflight-app-icon-ai.png
 docs/assets/branding/README.md; app.json
 </textarea></section>
-<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: c9cbc6483b976b5b64fc7ca3f8a17ec64df2eeeb02432ff6d5afe0ad2e1d10c0. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
+<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: 26c580ef9e76f293ee1f1ee80556b542232e2001033a998379c6f8602cb7f491. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
 </main><script>
 'use strict';
 const brief = document.querySelector('#brief');

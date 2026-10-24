@@ -4,12 +4,23 @@ import { Action, Card, Label, Section, colors } from './theme';
 import { ClubHeading, ClubSubheading } from './ClubHeading';
 import type { DutyItem, DutyOverview } from '../vereinsflieger/duties';
 
-function DutyRow({ item, expanded = false }: { item: DutyItem; expanded?: boolean }) {
+/** Calendar-day projection only; the original period, including clocks, stays in source evidence. */
+export function dutyDates(item: Pick<DutyItem, 'start' | 'end'>): string {
+  if (!item.start || !item.end) return 'Zeitraum unbekannt';
+  const [year, month, day] = item.start.split('-');
+  const [endYear, endMonth, endDay] = item.end.split('-');
+  const end = `${endDay}.${endMonth}.${endYear}`;
+  if (item.start === item.end) return end;
+  const start = year !== endYear ? `${day}.${month}.${year}` : month !== endMonth ? `${day}.${month}.` : `${day}.`;
+  return `${start}–${end}`;
+}
+function DutyRow({ item }: { item: DutyItem }) {
   return <View style={styles.row}>
-    <Label style={styles.duty}>{item.duty.trim() || 'Dienstname unbekannt'}{expanded && item.ownState === 'own' ? ' · eigener Dienst' : ''}</Label>
-    <Label>{item.period.trim() || 'Zeitraum unbekannt'}</Label>
+    <View style={styles.heading}>
+      <Label style={styles.duty}>{item.duty.trim() || 'Dienstname unbekannt'}</Label>
+      <Label style={styles.dates}>{dutyDates(item)}</Label>
+    </View>
     <Label muted>{item.people.length ? item.people.join(' · ') : 'Personen unbekannt'}</Label>
-    {!item.start && <Label muted>Zeitraum kann nicht sicher eingeordnet werden.</Label>}
   </View>;
 }
 /** Reuses maintained cards/type. No sharing/export or person identity inference. */
@@ -25,7 +36,7 @@ export function DutyRoster({ overview, expanded = false, onOpen }: { overview: D
     {overview.retrievedAt && <Label muted>Quellenstand: {new Date(overview.retrievedAt).toLocaleString('de-DE')}</Label>}
     </>}
     {!expanded && overview.status === 'unavailable' && <Label muted>Dienstplan unbekannt</Label>}
-    {expanded ? <View style={styles.group}><ClubSubheading title="Dienste im Zeitraum" />{overview.items.map(item => <DutyRow key={item.key} item={item} expanded />)}</View> : <>
+    {expanded ? <View style={styles.group}><ClubSubheading title="Dienste im Zeitraum" />{overview.items.map(item => <DutyRow key={item.key} item={item} />)}</View> : <>
       <View style={styles.group}>
         <ClubSubheading title="Eigene Dienste" />
         {own.length ? own.map(item => <DutyRow key={item.key} item={item} />) : <Label muted>Eigene Dienste im Zeitraum unbekannt.</Label>}
@@ -36,8 +47,8 @@ export function DutyRoster({ overview, expanded = false, onOpen }: { overview: D
       </View>
     </>}
     {expanded && !overview.items.length && overview.status === 'partial' && <Label>Keine zeitlich passenden Dienste im erfassten Ausschnitt. Weitere Dienste sind unbekannt.</Label>}
-    {expanded && !!overview.laterOwn.length && <View style={styles.group}><ClubSubheading title="Spätere eigene Dienste · bis zu drei aus dem Ausschnitt" />{overview.laterOwn.map(item => <DutyRow key={item.key} item={item} expanded />)}</View>}
-    {expanded && !!overview.unplaced.length && <View style={styles.group}><ClubSubheading title="Zeitraum ungeklärt" />{overview.unplaced.map(item => <DutyRow key={item.key} item={item} expanded />)}</View>}
+    {expanded && !!overview.laterOwn.length && <View style={styles.group}><ClubSubheading title="Spätere eigene Dienste · bis zu drei aus dem Ausschnitt" />{overview.laterOwn.map(item => <DutyRow key={item.key} item={item} />)}</View>}
+    {expanded && !!overview.unplaced.length && <View style={styles.group}><ClubSubheading title="Zeitraum ungeklärt" />{overview.unplaced.map(item => <DutyRow key={item.key} item={item} />)}</View>}
     {expanded && <Label muted>{overview.coverageMessage}</Label>}
     {!expanded && onOpen && <Action secondary onPress={onOpen}>Alle Dienste ansehen</Action>}
   </Card>;
@@ -45,5 +56,7 @@ export function DutyRoster({ overview, expanded = false, onOpen }: { overview: D
 const styles = StyleSheet.create({
   group: { gap: 8 },
   row: { gap: 4, paddingHorizontal: 2, paddingBottom: 8, borderBottomWidth: 1, borderBottomColor: colors.border },
-  duty: { fontWeight: '600' },
+  heading: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', gap: 8 },
+  duty: { fontWeight: '600', flexShrink: 1 },
+  dates: { fontSize: 12, lineHeight: 20, textAlign: 'right', flexShrink: 1 },
 });

@@ -75,9 +75,15 @@ export function dutyWindow(today: string) {
 export function abbreviateDutyName(raw: string) {
   return raw.split(/\r?\n/).map(line => {
     const text = line.replace(/\s+/g, ' ').trim();
+    if (!text) return '';
     // A single source name must not collapse to one initial. Never expand an
     // initial or use this display label to infer identity or ownership.
-    return /^[^\s,]+$/.test(text) ? text : abbreviatedMemberName(text);
+    if (/^[^\s,]+$/.test(text)) return text;
+    const comma = text.split(',').map(part => part.trim());
+    if (comma.length === 2 && comma.every(Boolean)) return `${comma[1]} ${[...comma[0]!][0]}.`;
+    if (comma.length > 1) return abbreviatedMemberName(text);
+    const words = text.split(' ');
+    return `${words.slice(0, -1).join(' ')} ${[...words.at(-1)!][0]}.`;
   }).filter(Boolean).join(' · ') || 'Name unbekannt';
 }
 export function createDutyRosterSnapshot(scope: ProviderScope, captures: InformationCapture[], retrievedAt: string): DutyRosterSnapshot {

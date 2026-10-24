@@ -20,7 +20,7 @@ function fixture() {
     const source = ts.transpileModule(readFileSync(new URL(`../../apps/platform-lab/src/mobile/${name}.tsx`, import.meta.url), 'utf8'), {
       compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.React },
     }).outputText;
-    const exports: Record<string, (props: any) => Element> = {};
+    const exports: Record<string, (props: any) => any> = {};
     runInNewContext(source, { exports, require: (id: string) => { assert.ok(id in modules, id); return modules[id]; } });
     return exports;
   }
@@ -34,7 +34,7 @@ function fixture() {
 
 const item = (key: string, overrides: Partial<DutyItem> = {}): DutyItem => ({
   key, duty: `Synthetic ${key}`, period: '24.10.2026 09:00 - 24.10.2026 17:00', start: '2026-10-24', end: '2026-10-24',
-  people: ['A. Example'], ownState: 'own', coAssignees: [], sourcePath: '/synthetic', identity: 'source-row-only', periodBasis: 'displayed-calendar-days', ...overrides,
+  people: ['Merlin E.', 'Anna Maria S.'], ownState: 'own', coAssignees: [], sourcePath: '/synthetic', identity: 'source-row-only', periodBasis: 'displayed-calendar-days', ...overrides,
 });
 function overview(): DutyOverview {
   const own = item('own'), club = item('club', { ownState: 'unknown', people: [] });
@@ -72,7 +72,12 @@ test('compact duties show grouped facts and names with technical source notes co
   const view = f.roster.DutyRoster!({ overview: overview(), onOpen: () => opened++ });
   const text = f.text(view);
   for (const expected of ['Synthetic soaring club', 'Eigene Dienste', 'Weitere Vereinsdienste', 'Synthetic own', 'Synthetic club',
-    '24.10.2026 09:00 - 24.10.2026 17:00', 'A. Example', 'Personen unbekannt']) assert.ok(text.includes(expected), expected);
+    '24.10.2026', 'Merlin E. · Anna Maria S.', 'Personen unbekannt']) assert.ok(text.includes(expected), expected);
+  assert.doesNotMatch(text, /\d{2}:\d{2}/);
+  const duty = f.nodes(view).find(node => node.type === 'View' && node.children.length === 2 && f.text(node.children[0]) === 'Synthetic own 24.10.2026')!;
+  assert.ok(duty, 'entry has a title/date row followed by its people row');
+  assert.equal(f.text(duty.children[1]), 'Merlin E. · Anna Maria S.');
+  for (const label of f.nodes(duty).filter(node => node.type === 'Label')) assert.equal(label.props.numberOfLines, undefined, 'large fonts remain readable');
   assert.doesNotMatch(text, /Personen laut Quellzeile|Zuordnung|Teilansicht|Quellenstand|Quellzeilen|Partner ungeprüft|Verein laut Quelle/);
   assert.doesNotMatch(text, /Synthetic later/);
   const action = f.nodes(view).find(node => node.type === 'Action')!;
@@ -85,7 +90,7 @@ test('expanded duties retain later and unplaced evidence while unavailable data 
   assert.equal(f.nodes(view).find(node => node.type === 'Section')!.props.title, 'Dienstübersicht');
   const text = f.text(view);
   for (const expected of ['Verein laut Quelle: Synthetic soaring club', 'Dienste im Zeitraum', 'Spätere eigene Dienste · bis zu drei aus dem Ausschnitt',
-    'Synthetic later', 'Zeitraum ungeklärt', 'Dienstname unbekannt', 'Zeitraum unbekannt', 'Zeitraum kann nicht sicher eingeordnet werden.', data.coverageMessage]) assert.ok(text.includes(expected), expected);
+    'Synthetic later', 'Zeitraum ungeklärt', 'Dienstname unbekannt', 'Zeitraum unbekannt', data.coverageMessage]) assert.ok(text.includes(expected), expected);
   assert.equal(f.nodes(view).some(node => node.type === 'Action'), false);
   const unavailable = f.text(f.roster.DutyRoster!({ overview: { ...data, status: 'unavailable', clubLabel: '', items: [], ownItems: [], laterOwn: [], unplaced: [], retrievedAt: null } }));
   assert.match(unavailable, /Dienstplan unbekannt/);
@@ -93,4 +98,15 @@ test('expanded duties retain later and unplaced evidence while unavailable data 
   assert.match(unavailable, /Weitere Vereinsdienste unbekannt/);
   assert.match(unavailable, /Vereinsname unbekannt/);
   assert.doesNotMatch(unavailable, /Keine Dienste/);
+});
+
+test('duty dates omit clocks, retain full intervals and show unknown rather than parsing raw evidence again', () => {
+  const f = fixture();
+  for (const [start, end, expected] of [
+    ['2026-10-24', '2026-10-24', '24.10.2026'],
+    ['2026-10-24', '2026-10-25', '24.–25.10.2026'],
+    ['2026-10-31', '2026-11-01', '31.10.–01.11.2026'],
+    ['2026-12-31', '2027-01-01', '31.12.2026–01.01.2027'],
+    [null, null, 'Zeitraum unbekannt'], ['2026-10-24', null, 'Zeitraum unbekannt'],
+  ]) assert.equal(f.roster.dutyDates!({ start, end }), expected);
 });
