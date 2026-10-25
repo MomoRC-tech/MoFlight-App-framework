@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sync states — proposal for #83</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#001b29;color:#f4f8fc;font:16px/1.5 system-ui,sans-serif;padding:24px}main{max-width:1240px;margin:auto}h1{font-size:26px}p{max-width:850px;color:#a9bed3}a{color:#27d3d2}.grid{display:flex;flex-wrap:wrap;gap:24px;align-items:start}.sample{width:390px;max-width:100%;border:1px solid #183d50;border-radius:16px;overflow:hidden}h2{font-size:16px;margin:12px}.header{display:flex;align-items:center;gap:8px;padding:6px 12px;min-height:72px}.logo{width:48px;height:48px;object-fit:contain}.brand{flex:1;min-width:0;font-weight:700;font-size:19px}.brand small{display:block;color:#a9bed3;font-size:12px;font-weight:400}.brand em{font-size:13px;color:#27d3d2;font-style:normal}.control{width:48px;height:48px;display:grid;place-items:center;position:relative;flex-shrink:0}.control img{width:28px;height:28px}.attention::after{content:'!';position:absolute;right:0;top:0;color:#ffc477;font-weight:bold;font-size:16px}.row{padding:6px 12px;background:#062331;display:flex;align-items:center;gap:8px;flex-wrap:wrap}.copy{flex:1;min-width:140px;font-size:14px}.link{min-height:48px;display:flex;align-items:center;color:#27d3d2;font-size:14px}.note{font-size:13px;padding:0 12px 12px;margin:12px 0 0}.amber{color:#ffc477}.progress{padding:8px 18px;background:#062331;font-size:14px}.progress small{display:block;color:#a9bed3}.busy img{animation:turn 2.2s linear infinite}@keyframes turn{to{transform:rotate(360deg)}}@media(prefers-reduced-motion:reduce){.busy img{animation:none}}footer{margin-top:24px;max-width:850px;color:#a9bed3}
+</style>
+<main><h1>Sync states · proposed, not implemented</h1>
+<p>Review recommendation for <a href="https://github.com/MomoRC-tech/MoFlight-App-framework/issues/83">#83</a>. Each specimen is 390 CSS pixels wide; these are browser sketches, not measured native screens. Original logo and existing icons, equal transparent 48 px targets. German product copy; synthetic states only. Icons and links below are illustrations and perform no action.</p>
+<div class="grid" id="states"></div>
+<footer>Recommendation: retain the refresh action in every state; replace the ambiguous dot with a readable attention mark and explain actionable states below the header. Move the tiny session submark to accessible status and Profile/Status, where its timestamp stays independent of saved data age. This departure from the approved session submark and quiet passive-advice layout needs Manuel's selection. Busy uses the existing native work animation, with a static reduced-motion fallback; the rotating sketch only illustrates activity. No provider, authentication, timestamp, retry or save-admission policy changes.</footer>
+</main>
+<script>
+const base='../../../../apps/platform-lab/assets/';
+const states=[
+ ['Saved, quiet idle','','','Saved data exists; no current advice or failed result. No success banner. Session proof and saved age remain in accessible status and Profile/Status.'],
+ ['Never synchronized','Noch keine Flugdaten','Details','Header Sync starts the existing explicit journey; login opens only if required. No invented freshness.'],
+ ['Actual work','Flüge werden abgerufen …','busy','The previous completed step and current operation remain visible. Duplicate Sync is disabled. Existing safe Cancel remains available only where admitted.'],
+ ['Older than 72 hours','Aktualisierung empfohlen','Details','Details: the saved flight receipt is older than three days. Exactly 72 hours stays quiet.'],
+ ['Possible source changes','Änderungen möglich','Details','A scoped observed count changed. This is advice, not proof of new flights; if age advice also applies, Details explains both.'],
+ ['Partial optional-source result','Teilweise aktualisiert','Details','Details identifies saved flights and each failed/skipped optional source; retain the existing separate retry action. No all-sources success claim.'],
+ ['Local read failure','Gespeicherte Daten nicht lesbar','Details','Keep the last verified data/receipt where available; Details offers the existing local recovery path. Do not replace local read retry with an automatic provider sync.'],
+ ['Login needed during requested sync','Anmeldung erforderlich','Details','The existing original-provider login opens for requested work. When no sync is requested, login status stays passive in Profile/Status.']
+];
+const container=document.getElementById('states');
+for(const [title,copy,action,note] of states){
+ const card=document.createElement('section');card.className='sample';
+ const heading=document.createElement('h2');heading.textContent=title;card.append(heading);
+ const header=document.createElement('div');header.className='header';
+ const logo=document.createElement('img');logo.src=base+'branding/moflight-ai-logo-dark.png';logo.alt='Original MoFlight logo';logo.className='logo';header.append(logo);
+ const brand=document.createElement('div');brand.className='brand';brand.innerHTML='MoFlight <em>AI</em><small>Übersicht</small>';header.append(brand);
+ for(const name of ['refresh','profile']){const control=document.createElement('span');control.className='control'+(name==='refresh'&&copy?(action==='busy'?' busy':' attention'):'');const icon=document.createElement('img');icon.src=base+'icons/duotone/'+name+'-default.png';icon.alt=name==='refresh'?'Daten synchronisieren':'Profil';control.append(icon);header.append(control)}card.append(header);
+ if(action==='busy'){const progress=document.createElement('div');progress.className='progress';progress.innerHTML='<small>✓ Anmeldung bestätigt.</small>';progress.append(document.createTextNode(copy));card.append(progress)}
+ else if(copy){const row=document.createElement('div');row.className='row';const text=document.createElement('span');text.className='copy amber';text.textContent=copy;const link=document.createElement('span');link.className='link';link.textContent=action;row.append(text,link);card.append(row)}
+ const description=document.createElement('p');description.className='note';description.textContent=note;card.append(description);container.append(card);
+}
+</script></html>

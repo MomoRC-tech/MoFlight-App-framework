@@ -125,6 +125,8 @@ Writing assistance has immediate product value; its place in the smallest useful
 
 ## Next action and unresolved decisions
 
+The [25 October bounded continuation](docs/verification/2026-10-17-current-status-and-open-issues.md#25-october-bounded-continuation--sync-and-preservation) adds sync-return and aggregate-backup regression coverage, inventories settings gaps and provides a concrete Sync-state proposal. App behavior and the latest APK are unchanged; Sync presentation, duty-target backup inclusion and beta starting versions still need their recorded selections.
+
 Follow the [current next actions](docs/project-plan.md#next-executable-packages) and [complete issue map](docs/project-plan.md#complete-ordered-issue-map). Fresh authenticated phone retrieval, populated app-switch responsiveness and complete supported-source coverage remain open. The supported-user archive extends backup coverage; replacement-device/full-user recovery and complete supported beta upgrades retain separate acceptance gates. Main adoption is selected; it does not establish those untested outcomes.
 
 Superseded prototype comparisons and design-review instructions are in the [documentation archive](docs/archive/README.md). Current appearance is governed by the [design handbook](docs/product/design/README.md).

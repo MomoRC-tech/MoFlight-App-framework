@@ -1,5 +1,49 @@
 # Implementation and open-issue reviews — 17–25 October 2026
 
+## 25 October bounded continuation — sync and preservation
+
+Baseline `bbea491`: clean main, fetched and synchronized with origin. Read current #83/#8/#29/#34/#86 and relevant source/evidence. The selected batch adds regression coverage and a reviewable Sync proposal; no application behavior, archive schema, provider access or AI activation changes. Two independent workers used the requested `gpt-6.1-sol`, medium reasoning and fresh context, with separate test-file ownership; the parent reviewed their changes and owns this record.
+
+### Sync recommendation awaiting selection — #83
+
+[Concrete browser specimens](../product/design/proposals/2026-10-25-sync-states.html) show eight synthetic states at 390 CSS pixels, using the existing original logo and icon assets. Recommend a stable refresh action with a readable attention mark, a short actionable row with explicit Details, and session proof in accessible/Profile status. Quiet saved idle has no row; age advice says **Aktualisierung empfohlen**, changed-count advice **Änderungen möglich**, partial results **Teilweise aktualisiert**, and local read failure **Gespeicherte Daten nicht lesbar**. Keep existing source-specific details and retry, one-tap Sync, safe cancellation, reduced-motion/foreground behavior and disabled duplicate taps.
+
+Precedence: current work replaces an older failed result and keeps its actual current operation; at rest show local read failure, then failed/partial sync, then advice, then quiet idle. A blocking read/save guard still prevents inadmissible work. Login-required during a requested operation keeps the existing original-provider login; passive login state alone does not create a warning row or renew saved age. Successful flight save never implies that every optional source succeeded.
+
+This is a proposal, not implementation approval: moving the session submark and exposing age/change advice would amend #68/#82. Native MAIN/MIN/large-text/WIDE checks remain conditional on selection and implementation. The HTML is a schematic review artifact, not an app or native layout pass.
+
+### Populated sync and return — #8 / P2
+
+Added [retained-sync-pause regressions](../../tests/mobile/own-flight-lifecycle.test.ts): changed flight revision, changed owner or store, and failed/missing resumed readback clear queued detail state safely; explicit local retry does not replay an abandoned request. Three tests cover five variants. No production defect reproduced. Existing background-return tests and coordinator/source persistence tests remain applicable.
+
+| Remaining integrated case | Existing evidence to reuse | Next acceptance boundary |
+| --- | --- | --- |
+| Populated sync → ordinary filtered list/detail → tabs/background → offline restart on current source | Separate lifecycle, filters and native source reports | One committed-source composition with receipt, filters/scroll, current details and measured responsiveness |
+| Optional failure → explicit retry → offline source reopening | Coordinator independent-job and retry tests; partial-state previews | Native persistence of each source outcome/age; do not infer it from a preview |
+| Interruption during durable save/readback and exact retry | Real SQLite response-loss/recovery tests | Native interrupted-SQL/recovery observation; no duplicate receipt or dropped prior data |
+| Fresh first-use, actual second account, iOS | Host foreign-owner checks; one-account Android evidence | Their actual account/platform prerequisites; no inferred acceptance |
+
+The [loading report](2026-10-21-simple-flight-loading.md#returning-session-verification-admission--23-october-2026) already records source `256aa3f` two actual retained-account emulator syncs and offline force-stop/reopen. Preserve that scoped evidence; the new gap is current integrated composition, not an entirely untested happy path. Later physical success is user-reported and not a structured all-case pass.
+
+### Settings and archive inventory — #29/#34 / P3
+
+| State | Current preservation and limit |
+| --- | --- |
+| Synthetic pilot display name, selected book, books/writing state | Exported/restored by aggregate native orchestration; pending pilot state is embedded in its archive |
+| Selected real-flight history; allowlisted information including Medical | Included; exact selected owner/store/provider boundary remains required |
+| Owner chats/drafts and historical provider identity | Already included in v2; v1 restores an empty chat archive; enablement/protocol/credentials excluded |
+| Annual provisional duty target | Explicitly excluded today; `DutyTarget` stores document files keyed by owner/store/account/year. It survives ordinary file-preserving updates but has no manual archive restore path |
+| Provider sessions, credentials, activity-advice cache, registries/unresolved journals | Excluded from aggregate archive; system-backup rules and pending-restore admission have separate contracts |
+| Reminder snooze | Durable helper exists but no current caller was found; not an active setting to claim as exported |
+
+Added [aggregate native orchestration tests](../../tests/mobile/user-backup-native.test.ts) using real populated pilot/flight/Medical exports, real aggregate codec and synthetic AI draft/identity, with mocked native platform leaves. Six tests cover exact section preservation, pending/foreign/revoked access refusal, library closure on read failure, cancelled/missing folder, successful exact readback/hash, corrupt readback rejection and preservation of a prior saved file. Existing aggregate restore/AI recovery suites supply restore coverage; these new tests do not exercise an actual OS chooser or external device file.
+
+**Decisions still needed:** select duty-target inclusion before adding a new versioned settings section, including owner/account/year isolation, all-year inventory, older v1/v2 absence semantics and interrupted restore. Do not extend exact-schema v2 silently. Select beta starting/skipped versions before a supported ordinary-app update matrix. Portable identity adoption and replacement-device recovery remain separate. #86's official REST review found no verified annual-hours target; member-facing source investigation remains open, with no currency conversion or change to the provisional target.
+
+### Verification for this batch
+
+Windows, Node 24.18.0, pnpm 11.25.0, Python 3.12.10. Focused lifecycle **24/24**, aggregate/AI suites **21/21** (new native orchestration **6/6**); affected lint and TypeScript pass. Combined `pnpm check`: **5/5 passed**, including 1,263 mobile tests passed / two skipped, working tree based on `bbea491`, with both final test files; ignored logs `build/host-checks/20261025T100256Z-6be679eb/`. Eleven added local references/anchors, three proposal assets, proposal JavaScript syntax and Git whitespace check pass; no rendered-browser/native visual acceptance is claimed. No app code changed, so no bundle, native rebuild, device run or new APK is required by this test/documentation increment. Existing APK `dd99265` remains the delivery. Physical/iOS/live-source and ordinary SAF/full-user recovery remain open; no Issue is closed by this increment.
+
 ## 25 October review — modern-phone usability and executable continuation
 
 **Scope/source:** requested code/documentation/Issue review and plan improvement, not application implementation. Inspected clean main `f1d51da` (current APK source `bc9d2ff`), current open/closed Issue bodies, roadmap/feature/acceptance registers, design authority/foundations/components/patterns, and relevant delivery/interaction/AI/preservation evidence. Source review focused on `MobileApp`, `DataUpdateIndicator`, `OwnFlights`, shared `FlightCard`, `useOwnFlights` and `AiChatRoute`; this is not an exhaustive security or line-by-line repository audit. Live GitHub inventory contained 51 open Issues before two new UI proposals, 53 after. No source runtime was changed.

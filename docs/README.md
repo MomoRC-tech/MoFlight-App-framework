@@ -7,6 +7,7 @@
 | What should the app do? | [Product contracts](product/README.md) |
 | What should it look like? | [Selected design handbook](product/design/README.md) |
 | Where is the latest project/phone review? | [25 October findings and continuation](verification/2026-10-17-current-status-and-open-issues.md#25-october-review--modern-phone-usability-and-executable-continuation) |
+| What did the next bounded roadmap batch establish? | [Sync/backup regressions, proposal and remaining decisions](verification/2026-10-17-current-status-and-open-issues.md#25-october-bounded-continuation--sync-and-preservation) |
 | Where is the complete UI interaction and consistency review? | [24 October interaction tree and findings](verification/2026-10-24-ui-interaction-review.md) |
 | How do we implement the first AI chat version? | [AI execution plan and Luna delegation](development/ai-chat-implementation-plan.md), [requirements](architecture/logbook-chat-discovery.md) and [#13](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/13) |
 | How do we build and check it? | [Lab runbook](../apps/platform-lab/README.md), [verification workflow](development/verification-workflow.md) |

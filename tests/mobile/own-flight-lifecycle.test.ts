@@ -246,3 +246,52 @@ test('an explicit sync pause retains verified content and queues a detail until 
   h.setActive(true);state=await h.flush();assert.equal(state.view,saved);assert.equal(state.detail.flightId,h.flights[0]!.flightId);assert.equal(detailReads,1);
  }finally{h.unmount();}
 });
+
+test('sync readback with a changed flight revision rejects the queued old detail',async()=>{
+ const h=host();const saved=(await h.flush()).view,pending=deferred<any>();let detailReads=0;
+ h.session.service.readStored=()=>pending.promise;
+ h.session.service.detail=async()=>{detailReads++;return h.detail;};
+ try{
+  h.pauseForSync();await h.render().openDetail(h.flights[0]!);
+  h.setActive(true);await h.flush();assert.equal(h.render().view,saved);assert.equal(detailReads,0);
+  const flights=h.flights.map((flight,index)=>index===0?{...flight,factsRevision:2}:flight);
+  pending.resolve({snapshot:{...h.snapshot,generation:3},flights});const state=await h.flush();
+  assert.equal(state.phase,'ready');assert.equal(state.view.flights[0].factsRevision,2);
+  assert.equal(state.detail,null);assert.equal(state.detailBusy,false);assert.equal(detailReads,0);
+ }finally{pending.resolve({snapshot:h.snapshot,flights:h.flights});h.unmount();}
+});
+
+test('sync readback cannot open a queued detail under a changed owner or store',async()=>{
+ for(const scope of [{ownerId:'owner-b',storeId:'store'},{ownerId:'owner',storeId:'store-b'}]){
+  const h=host();await h.flush();const pending=deferred<any>();let detailReads=0;
+  h.session.service.readStored=()=>pending.promise;
+  h.session.service.detail=async()=>{detailReads++;return h.detail;};
+  try{
+   h.pauseForSync();await h.render().openDetail(h.flights[0]!);h.setActive(true);await h.flush();
+   Object.assign(h.session,scope);pending.resolve({snapshot:{...h.snapshot,...scope},flights:h.flights});
+   const state=await h.flush();assert.equal(state.phase,'ready');
+   assert.equal(state.view.snapshot.ownerId,scope.ownerId);assert.equal(state.view.snapshot.storeId,scope.storeId);
+   assert.equal(state.detail,null);assert.equal(state.detailBusy,false);assert.equal(detailReads,0);
+  }finally{pending.resolve({snapshot:h.snapshot,flights:h.flights});h.unmount();}
+ }
+});
+
+test('failed or missing sync readback clears retained content and queued detail before local retry',async()=>{
+ for(const mode of ['failed','missing'] as const){
+  const h=host();const saved=(await h.flush()).view;const originalOpen=h.ports.open;
+  let detailReads=0;
+  h.session.service.detail=async()=>{detailReads++;return h.detail;};
+  try{
+   h.pauseForSync();await h.render().openDetail(h.flights[0]!);assert.equal(h.render().view,saved);
+   if(mode==='failed')h.session.assertCurrent=async()=>{throw new Error('Synthetic expired sync lease');};
+   else h.ports.open=async()=>null;
+   h.setActive(true);let state=await h.flush();
+   assert.equal(state.phase,mode==='failed'?'failed':'missing');assert.equal(state.view,null);
+   assert.equal(state.detail,null);assert.equal(state.detailBusy,false);assert.equal(detailReads,0);
+   h.session.assertCurrent=async()=>{};h.ports.open=originalOpen;
+   await state.reload();state=await h.flush();assert.equal(state.phase,'ready');
+   assert.equal(state.view.flights.length,3);assert.equal(state.detail,null);assert.equal(state.detailBusy,false);
+   assert.equal(detailReads,0,'local retry must not replay the abandoned detail request');
+  }finally{h.unmount();}
+ }
+});
