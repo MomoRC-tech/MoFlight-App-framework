@@ -544,6 +544,7 @@ test('all recent flights replaces the previous detail request with a fresh unfil
 test('design preview is an explicit Development route and Back restores settings without provider work',()=>{
  const f=fixture();f.press('Pressable','Profil & Einstellungen öffnen');f.find('ProfileSettings').props.onTools();f.render();
  assert.ok(!f.nodes().some(n=>n.type==='DesignPreview'));f.find('DevelopmentHub').props.onDesignPreview();f.render();
+ assert.equal(f.nodes().filter(n=>n.type==='SyncProgress').length,1,'Only the covered main page retains real account progress; the preview overlay is isolated');
  assert.equal(typeof f.find('DesignPreview').props.onClose,'function');assert.ok(f.nodes().some(n=>n.type==='DesignPreview'));assert.deepEqual(f.coreRoutes,[]);
  f.find('DesignPreview').props.onClose();f.render();assert.ok(f.nodes().some(n=>n.type==='DevelopmentHub'));
 });
