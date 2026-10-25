@@ -26,7 +26,7 @@ test('ordinary settings exposes real administration and backup exclusions while 
  const text=f.text(f.ordinary);assert.ok(text.includes('einschließlich Medical'));assert.ok(text.includes('Dienstpläne und temporäre Dateien sind ausgeschlossen'));
  assert.ok(text.includes(AI_BACKUP_NOTICE));
  assert.ok(text.indexOf(AI_BACKUP_NOTICE)<text.indexOf('Daten sichern & wiederherstellen'));
- for(const term of ['unverschlüsselte','KI-Chats','Entwürfe','Vereinsflieger-Kennungen','serverseitige Budget'])assert.ok(AI_BACKUP_NOTICE.includes(term));
+ for(const term of ['unverschlüsselte','KI-Chats','Entwürfe','Vereinsflieger-Kennungen','Foto- und Anhangdateien werden nicht gesichert','Textverweise darauf können enthalten sein','serverseitige Budget'])assert.ok(AI_BACKUP_NOTICE.includes(term));
  assert.equal(ordinary.some(n=>n.type==='Section'&&n.props.title==='Lokales Demoprofil'),false);
  assert.equal(synthetic.find(n=>n.type==='TextInput')!.props.value,'Retained draft');
  assert.ok(synthetic.some(n=>n.type==='Section'&&n.props.title==='Lokales Demoprofil'));

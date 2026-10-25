@@ -34,6 +34,7 @@ async function fixture() {
     for (const id of ['first', 'selected']) await pilot.createBook({ id, owner: 'synthetic-pilot', name: id,
       format: 'synthetic-powered-five-row-v1', classes: ['glider'], from: '2020-01-01', through: null });
     await pilot.saveState('selected', 'pending', { draft: 'Synthetic pending writing' });
+    await pilot.saveState('selected', 'photo', { reference: 'local-photo.jpg' });
     pilotBackup = await pilot.backup();
   } finally { await pilot.db.close(); }
   const permit = { ownerId, storeId, leaseId: connectionId, writable: true };
@@ -133,6 +134,9 @@ test('native aggregate export preserves selected profile/book, pending state, Me
   assert.equal(value.pilot.displayName, 'Synthetic custom name');
   assert.equal(value.pilot.selectedBookId, 'selected');
   assert.equal(value.pilot.backup, f.pilotBackup);
+  const pilot = JSON.parse(JSON.parse(value.pilot.backup).payload) as { state: Array<{ kind: string; payload: string }> };
+  assert.deepEqual(JSON.parse(pilot.state.find(row => row.kind === 'photo')!.payload), { reference: 'local-photo.jpg' },
+    'the JSON archive retains only the existing text reference, not the external photo file');
   assert.equal(value.realFlights.backup, f.realBackup);
   assert.equal(value.information?.backup, f.infoBackup);
   assert.equal(value.version === 3 && value.ai.archive, encodeChatArchive(f.chat));

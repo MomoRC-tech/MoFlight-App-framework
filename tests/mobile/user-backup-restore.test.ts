@@ -196,6 +196,40 @@ test('aggregate restore blocks all readers after a partial activation and resume
   } finally { await rm(directory, { recursive: true, force: true }); }
 });
 
+test('cancelled or different-file retry preserves a pending v3 restore until the identical archive resumes', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'moflight-user-backup-pending-file-'));
+  try {
+    const text = await archiveV3(), ports = makePorts(directory, text, true);
+    assert.deepEqual(await restoreUserBackup(ownerId, storeId, async () => {}, ports),
+      { state: 'recovery-required', operationId: uuid(1), phase: 'prepared' });
+    const state = (ports as UserBackupServicePorts & { testState: { events: string[] } }).testState;
+    const before = [...state.events];
+    ports.io.pickBackup = async () => ({ canceled: true, assets: [] });
+    assert.deepEqual(await restoreUserBackup(ownerId, storeId, async () => {}, ports, uuid(1)), { state: 'cancelled' });
+    assert.deepEqual(state.events, before);
+    await assert.rejects(assertUserBackupReadAllowed(() => ports.openJournal(false)), /incomplete/);
+
+    const changed = JSON.parse(text) as { format: string; version: number; payload: string; checksum: string };
+    const payload = JSON.parse(changed.payload) as { createdAt: string };
+    payload.createdAt = '2026-10-25T11:00:00.000Z';
+    changed.payload = canonical(payload); changed.checksum = await hash(changed.payload);
+    const otherText = canonical(changed);
+    ports.io.pickBackup = async () => ({ canceled: false, assets: [{ uri: 'other.json', size: Buffer.byteLength(otherText) }] });
+    ports.io.readPickedFile = async () => otherText;
+    await assert.rejects(restoreUserBackup(ownerId, storeId, async () => {}, ports, uuid(1)), /differs from the pending aggregate restore/);
+    assert.deepEqual(state.events, before);
+    const journal = await ports.openJournal(false); assert.ok(journal);
+    try { assert.equal((await journal.pending())?.archiveSha256, await hash(text)); }
+    finally { await journal.close(); }
+
+    ports.io.pickBackup = async () => ({ canceled: false, assets: [{ uri: 'backup.json', size: Buffer.byteLength(text) }] });
+    ports.io.readPickedFile = async () => text;
+    assert.deepEqual(await restoreUserBackup(ownerId, storeId, async () => {}, ports, uuid(1)),
+      { state: 'restored', operationId: uuid(1) });
+    await assertUserBackupReadAllowed(() => ports.openJournal(false));
+  } finally { await rm(directory, { recursive: true, force: true }); }
+});
+
 test('deeply malformed pilot records fail before the aggregate journal or real-flight activation', async () => {
   const directory = await mkdtemp(join(tmpdir(), 'moflight-user-backup-pilot-invalid-'));
   try {
