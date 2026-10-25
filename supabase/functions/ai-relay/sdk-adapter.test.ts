@@ -1,3 +1,4 @@
+import {aviationInstructions} from './domain-instructions.ts';
 import assert from 'node:assert/strict';
 import { createServerResponsesAdapter, initialResponseBody,createSdkRoundSubmitter } from './sdk-adapter.ts';
 import {buildRoundBody} from './round-body.ts';
@@ -37,7 +38,7 @@ Deno.test('real server SDK serializes pinned policy/Max/ZDR controls and opaque 
   assert.equal(request.body.store,false);assert.equal(request.body.stream,false);assert.equal(request.body.background,false);
   assert.deepEqual(request.body.reasoning,{effort:'max'});assert.deepEqual(request.body.provider,{only:['azure'],allow_fallbacks:false,require_parameters:true,zdr:true});
   assert.equal(request.body.max_output_tokens,16384);assert.equal(request.body.user,tag);assert.equal(JSON.stringify(request.body).includes('12345'),false);
-  assert.equal(request.body.instructions,policy.systemPrompt);assert.equal(request.body.truncation,'disabled');
+  assert.equal(request.body.instructions,aviationInstructions(policy.systemPrompt));assert.equal(request.body.truncation,'disabled');
   assert.deepEqual(request.body.include,['reasoning.encrypted_content']);
   assert.deepEqual((request.body.input as {role:string}[]).map(item=>item.role),['user','assistant','user']);
   assert.equal(result.state,'received');if(result.state==='received')assert.deepEqual(result.response.output,output);
@@ -81,6 +82,6 @@ Deno.test('policy/request and transient admission copies cannot change the seria
     changedPolicy.systemPrompt='Changed after pinning';changedRequest.text='Changed after pinning';intent.input.length=0;
   }});
   await adapter.start(changedRequest,changedPolicy,tag);
-  assert.equal(wire.requests[0]!.body.instructions,policy.systemPrompt);
+  assert.equal(wire.requests[0]!.body.instructions,aviationInstructions(policy.systemPrompt));
   assert.equal((wire.requests[0]!.body.input as {content:string}[]).at(-1)!.content,start.text);
 });

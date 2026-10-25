@@ -5,6 +5,7 @@ import { opaqueBillingTag } from './admission.ts';
 import { responseTools } from './tool-definitions.ts';
 import type { buildRoundBody } from './round-body.ts';
 import type { RelayModelResponse } from './relay-service.ts';
+import { aviationInstructions } from './domain-instructions.ts';
 
 export const SERVER_SDK_VERSION = '7.43.0';
 const BASE_URL = 'https://openrouter.ai/api/v1';
@@ -32,7 +33,7 @@ export function initialResponseBody(value: unknown, rawPolicy: unknown, rawBilli
   const input:ResponseInput=[];
   for (const exchange of request.history) input.push({role:'user',content:exchange.user},{role:'assistant',content:exchange.assistant});
   input.push({role:'user',content:request.text});
-  return { model:policy.model,instructions:policy.systemPrompt,input,
+  return { model:policy.model,instructions:aviationInstructions(policy.systemPrompt),input,
     reasoning:{effort:policy.reasoning},store:false,stream:false,background:false,
     include:['reasoning.encrypted_content'],max_output_tokens:policy.outputTokens,
     truncation:'disabled',parallel_tool_calls:false,user:billingTag,

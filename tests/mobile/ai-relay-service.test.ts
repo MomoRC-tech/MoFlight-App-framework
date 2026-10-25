@@ -1,3 +1,4 @@
+import {aviationInstructions} from '../../supabase/functions/ai-relay/domain-instructions.ts';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {createAiLedger} from '../../supabase/functions/ai-relay/ledger.ts';
@@ -13,22 +14,22 @@ const budget={period:'2026-10',timezone:'Europe/Berlin',capMicroEur:1000000,sett
 const answer=():RelayModelResponse=>({id:'response-1',status:'completed',output:[{type:'message',role:'assistant',content:[{type:'output_text',text:JSON.stringify({status:'answer',answer:{text:'Synthetic answer',evidenceIds:[],actions:[],metrics:[]}})}]}]});
 async function fixture() {
   const calls:{name:string;args:Record<string,unknown>}[]=[],bodies:unknown[]=[];
-  const admitted=new Set<number>();let upstream:RelayModelResponse=answer(),cost=true,fail=false,tokenBound=100,enabled=true;
+  const admitted=new Set<number>();let upstream:RelayModelResponse=answer(),cost=true,fail=false,tokenBound=100,enabled=true,reservationDenied=false;let boundedBody='';
   const ledger=createAiLedger({async rpc(name,args){calls.push({name,args});
     const p={error:null,data:null as unknown};
     if(name.endsWith('snapshot'))p.data={policy,billingTag:'mf_'+'a'.repeat(43),epoch:3,enabled};
     if(name.endsWith('usage'))p.data=budget;
     if(name.endsWith('status'))p.data={attemptId:'a1',runId:'r1',active:true,rounds:[{round:0,state:'unknown',responseId:'response-1',actualMicroEur:null}]};
-    if(name.endsWith('reserve')){const round=args.round_number as number,existing=admitted.has(round);admitted.add(round);p.data=existing?{disposition:'existing',state:'settled',boundMicroEur:1000,policyId:'p1',period:'2026-10'}:{disposition:'new',state:'intent',boundMicroEur:1000,policyId:'p1',period:'2026-10',priceId:'synthetic',policy};}
+    if(name.endsWith('reserve')){if(reservationDenied)return {error:{message:'budget exhausted'},data:null};const round=args.round_number as number,existing=admitted.has(round);admitted.add(round);p.data=existing?{disposition:'existing',state:'settled',boundMicroEur:1000,policyId:'p1',period:'2026-10'}:{disposition:'new',state:'intent',boundMicroEur:1000,policyId:'p1',period:'2026-10',priceId:'synthetic',policy};}
     if(name.endsWith('settle'))p.data={actualMicroEur:500,halted:false};if(name.endsWith('finish'))p.data=true;
     return p;
   }});
   const key=await crypto.subtle.generateKey({name:'AES-GCM',length:256},false,['encrypt','decrypt']);
   const codec=createContinuityCodec(key,()=>1000000);
-  const service=createRelayService({ledger,codec,now:()=>1000000,inputTokenUpperBound:async()=>tokenBound,
+  const service=createRelayService({ledger,codec,now:()=>1000000,inputTokenUpperBound:async body=>{boundedBody=body;return tokenBound;},
     submit:async body=>{bodies.push(structuredClone(body));if(fail)throw new Error('PRIVATE_UPSTREAM_ERROR');return upstream;},
     verifiedCost:async responseId=>cost?{responseId,receiptId:'usage-'+responseId,usdDecimal:'0.0005'}:null});
-  return {service,codec,calls,bodies,setOutput:(v:RelayModelResponse)=>{upstream=v;},costMissing:()=>{cost=false;},fail:()=>{fail=true;},tokens:(n:number)=>{tokenBound=n;},disable:()=>{enabled=false;}};
+  return {service,codec,calls,bodies,boundedBody:()=>boundedBody,denyReservation:()=>{reservationDenied=true;},setOutput:(v:RelayModelResponse)=>{upstream=v;},costMissing:()=>{cost=false;},fail:()=>{fail=true;},tokens:(n:number)=>{tokenBound=n;},disable:()=>{enabled=false;}};
 }
 test('short relay reserves exact digest before submission, uses server-only privileges and settles independently verified cost',async()=>{
   const f=await fixture(),out=await f.service.round(start);
@@ -36,7 +37,7 @@ test('short relay reserves exact digest before submission, uses server-only priv
   const names=f.calls.map(c=>c.name);assert.ok(names.indexOf('moflight_ai_reserve')<names.indexOf('moflight_ai_settle'));
   const reservation=f.calls.find(c=>c.name==='moflight_ai_reserve')!;assert.match(reservation.args.request_digest as string,/^[a-f0-9]{64}$/);
   assert.equal(JSON.stringify(reservation).includes(start.text),false);
-  const body=f.bodies[0] as Record<string,unknown>;assert.equal(body.instructions,policy.systemPrompt);assert.equal(body.store,false);assert.equal(JSON.stringify(body).includes('accountRef'),false);
+  const body=f.bodies[0] as Record<string,unknown>;assert.equal(body.instructions,aviationInstructions(policy.systemPrompt));assert.equal(f.boundedBody(),JSON.stringify(body));assert.equal(body.store,false);assert.equal(JSON.stringify(body).includes('accountRef'),false);
   await assert.rejects(f.service.round(start),/never resubmit/);assert.equal(f.bodies.length,1);
 });
 test('sealed tool continuation preserves every reasoning/item in order and accepts outputs only for pending calls',async()=>{
@@ -50,7 +51,7 @@ test('sealed tool continuation preserves every reasoning/item in order and accep
   await assert.rejects(f.service.round({...next,accountRef:'102'}),/Foreign/);
   await assert.rejects(f.service.round({...next,outputs:[{callId:'foreign',payload:JSON.stringify(result)}]}),/Foreign/);
   assert.equal(f.bodies.length,1);f.setOutput({...answer(),id:'response-2'});
-  await f.service.round(next);const body=f.bodies[1] as {input:unknown[]};assert.deepEqual(body.input.slice(1,3),items);
+  await f.service.round(next);const body=f.bodies[1] as {input:unknown[];instructions:string};assert.equal(body.instructions,aviationInstructions(policy.systemPrompt));assert.deepEqual(body.input.slice(1,3),items);
   assert.deepEqual(body.input.at(-1),{type:'function_call_output',call_id:'call1',output:JSON.stringify(result)});
 });
 test('disabled, unsupported, oversized token bounds or tampered client privileges submit nothing',async()=>{
@@ -96,4 +97,22 @@ test('reconciliation requires a bound run handle and only settles recorded respo
  assert.equal(f.calls.filter(c=>c.name==='moflight_ai_settle').length,1);
  f.calls.length=0;f.costMissing();await f.service.reconcile('101',handle);
  assert.equal(f.calls.some(c=>c.name==='moflight_ai_settle'),false);assert.equal(f.bodies.length,0);
+});
+
+
+test('budget reservation refusal and oversized user input never reach the model',async()=>{
+  const denied=await fixture();denied.denyReservation();
+  await assert.rejects(denied.service.round(start));assert.equal(denied.bodies.length,0);
+  const oversized=await fixture();
+  await assert.rejects(oversized.service.round({...start,text:'x'.repeat(16001)}));
+  assert.equal(oversized.bodies.length,0);assert.equal(oversized.calls.length,0);
+});
+
+test('a synthetic scope refusal uses the normal answer contract without evidence or tool continuation',async()=>{
+  const f=await fixture();const refusal={text:'I can help with flying and MoFlight. Please ask a related question.',evidenceIds:[],actions:[],metrics:[]};
+  f.setOutput({id:'response-1',status:'completed',output:[{type:'message',role:'assistant',content:[{type:'output_text',text:JSON.stringify({status:'answer',answer:refusal})}]}]});
+  const out=await f.service.round({...start,text:'Write a restaurant business plan.'});
+  assert.equal(out.reply.status,'answer');assert.ok('answer' in out.reply);assert.deepEqual(out.reply.answer,refusal);
+  assert.equal(out.continuation,null);assert.equal(f.bodies.length,1);
+  assert.ok(f.calls.some(c=>c.name==='moflight_ai_settle'));
 });
