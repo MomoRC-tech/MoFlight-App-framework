@@ -19,7 +19,8 @@ test('failure diagnostics retain only stages and bounded lifetime ordinals, pres
     assert.ok(!/private|SELECT|secret/.test(text));
     const report = JSON.parse(output.at(-1)!.slice('MoFlight local-read diagnostic '.length));
     assert.equal(report.stage, 'restore-gate'); assert.equal(report.code, 'released-object');
-    assert.ok(report.lifetime.length <= 48);
+    assert.ok(report.lifetime.length <= 24);
+    assert.ok(Buffer.byteLength(output.at(-1)!, 'utf8') < 4000, 'keep each native warning below the logcat line limit');
     assert.ok(report.lifetime.every((event: { connection: unknown }) => typeof event.connection === 'number'));
   } finally { console.warn = warn; }
 });
@@ -30,6 +31,8 @@ test('lifetime observation preserves outstanding work, close identity and succes
   const close = Promise.resolve();
   const db = diagnoseLocalDriver({ first: () => work, close: () => close } as unknown as Driver, 'real-flight');
   const reading = db.first('unused');
+  assert.equal(reading, work);
+  assert.equal(traceLocalRead('stored-view', () => reading), work);
   assert.equal(db.close(), close);
   finish(null); assert.equal(await reading, null);
 });
