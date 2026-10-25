@@ -14,6 +14,8 @@
 
 - [First use — guided start and trust, added 2026-10-18](2026-10-13-journey-information-map.md#first-use--guided-start-and-trust): requested first-open/login/retrieval/tile-help journey with proposed skippable contextual guidance; #22 tracks the broader journey: ordinary header loading and automatic continuation are implemented; remaining contextual guidance and source-specific acceptance stay separately scoped in the project plan.
 
+- [Help system concept, 2026-10-25](help-system-concept.md): proposed offline-first contextual and answer bubbles, Help entry/search, editorial/AI boundaries and [visual sketch](design/proposals/2026-10-25-help-system.html) for #31; awaiting owner selection, not implemented.
+
 - [Flight-logbook user stories and continuation workflow](flight-logbook-user-stories.md): product source, prototype provenance, acceptance criteria and Issue mapping.
 
 - [MoFlight feature scope and later aircraft-class support](moflight-feature-scope.md): confirmed 2026-10-10 product direction, possible additional features, packaging decision and unverified provider-schema assumption.
