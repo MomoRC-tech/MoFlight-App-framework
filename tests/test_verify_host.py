@@ -1,5 +1,5 @@
 """Runner failures must reach callers while preserving full diagnostics."""
-from contextlib import redirect_stdout
+from contextlib import redirect_stderr, redirect_stdout
 import io
 import json
 from pathlib import Path
@@ -7,6 +7,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 from scripts import verify_host
 
@@ -16,6 +17,39 @@ def command(code):
 
 
 class HostCheckTests(unittest.TestCase):
+    def test_legacy_console_preserves_unicode_evidence_and_completes_checks(self):
+        diagnostic = 'Synthetic failure \u2716 \u822a'
+        with tempfile.TemporaryDirectory() as folder:
+            output = Path(folder) / 'logs-\u822a'
+            console_bytes = io.BytesIO()
+            with io.TextIOWrapper(console_bytes, encoding='cp1252', errors='strict') as terminal:
+                checks = [('broken', command(f'print({diagnostic!r}); raise SystemExit(7)')),
+                          ('last-\u822a', command("print('still executed')"))]
+                with redirect_stdout(terminal):
+                    report = verify_host.run_checks(checks, output)
+                self.assertEqual(terminal.encoding, 'cp1252')
+                self.assertEqual(terminal.errors, 'strict')
+                console = console_bytes.getvalue().decode('cp1252')
+            self.assertEqual(report['status'], 'failed')
+            self.assertEqual([check['exit_code'] for check in report['checks']], [7, 0])
+            self.assertEqual(json.loads((output / 'report.json').read_text(encoding='utf-8')), report)
+            self.assertIn(diagnostic, (output / '01.log').read_text(encoding='utf-8'))
+            self.assertIn('still executed', (output / '02.log').read_text(encoding='utf-8'))
+            self.assertIn('Synthetic failure \\u2716 \\u822a', console)
+            self.assertIn('PASS last-\\u822a', console)
+            self.assertIn('1/2 host checks passed.', console)
+            self.assertIn('logs-\\u822a', console)
+
+    def test_legacy_console_reports_layout_refusal_with_failure_exit(self):
+        console_bytes = io.BytesIO()
+        with io.TextIOWrapper(console_bytes, encoding='cp1252', errors='strict') as terminal:
+            with patch('scripts.dependency_layout.inspect_layout',
+                       side_effect=RuntimeError('missing-\u822a')), redirect_stderr(terminal):
+                exit_code = verify_host.main([])
+            self.assertEqual(exit_code, 1)
+            self.assertIn('Host checks refused: missing-\\u822a',
+                          console_bytes.getvalue().decode('cp1252'))
+
     def test_failure_is_preserved_after_later_success_and_output_is_bounded(self):
         with tempfile.TemporaryDirectory() as folder:
             output = Path(folder) / 'logs'

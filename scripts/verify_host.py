@@ -14,6 +14,15 @@ import uuid
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def console_print(message, *, file=None):
+    stream = sys.stdout if file is None else file
+    encoding = getattr(stream, 'encoding', None)
+    if encoding:
+        # Escape only for display; keep child logs and structured evidence intact.
+        message = message.encode(encoding, errors='backslashreplace').decode(encoding)
+    print(message, file=stream, flush=True)
+
+
 def default_checks():
     pnpm = shutil.which('pnpm') or 'pnpm'
     return [
@@ -67,16 +76,16 @@ def run_checks(checks, output, *, cwd=ROOT, source=None, timeout=180):
                                  'exit_code': exit_code, 'seconds': elapsed,
                                  'log': log_path.name})
         report_path.write_text(json.dumps(report, indent=2) + '\n', encoding='utf-8')
-        print(f'{"PASS" if passed else "FAIL"} {name} ({elapsed:.2f}s)', flush=True)
+        console_print(f'{"PASS" if passed else "FAIL"} {name} ({elapsed:.2f}s)')
         if not passed:
             with log_path.open(encoding='utf-8', errors='replace') as log:
                 for line in deque(log, maxlen=12):
-                    print(f'  {line.rstrip()}', flush=True)
+                    console_print(f'  {line.rstrip()}')
     passed = bool(report['checks']) and all(check['status'] == 'passed' for check in report['checks'])
     report['status'] = 'passed' if passed else 'failed'
     report_path.write_text(json.dumps(report, indent=2) + '\n', encoding='utf-8')
     count = sum(check['status'] == 'passed' for check in report['checks'])
-    print(f'{count}/{len(report["checks"])} host checks passed. Logs: {output}', flush=True)
+    console_print(f'{count}/{len(report["checks"])} host checks passed. Logs: {output}')
     return report
 
 
@@ -93,7 +102,7 @@ def main(argv=None):
     try:
         inspect_layout(ROOT)
     except RuntimeError as error:
-        print(f'Host checks refused: {error}', file=sys.stderr)
+        console_print(f'Host checks refused: {error}', file=sys.stderr)
         return 1
     stamp = datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')
     output = args.output or ROOT / 'build' / 'host-checks' / f'{stamp}-{uuid.uuid4().hex[:8]}'

@@ -1,7 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { existsSync } from 'node:fs';
+import { existsSync, readdirSync, statSync, writeFileSync } from 'node:fs';
+import { runInNewContext } from 'node:vm';
+import ts from 'typescript';
+import * as dutyTargets from '../../apps/platform-lab/src/duty-target.ts';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -413,4 +416,82 @@ test('v3 scope/year/value/coverage tampering fails complete archive validation b
       assert.deepEqual((ports as UserBackupServicePorts & {testState:{events:string[]}}).testState.events,[]);
     }
   } finally { await rm(directory,{recursive:true,force:true}); }
+});
+
+// Production target algorithms + durable journal; only Expo's file API is adapted to host disk.
+const targetSource = ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/duty-target-native.ts', import.meta.url), 'utf8'), {
+  compilerOptions: { module: ts.ModuleKind.CommonJS },
+}).outputText;
+function diskTargetPorts(directory: string, ports: UserBackupServicePorts) {
+  let writesUntilFailure = 0;
+  class File {
+    readonly path: string;
+    constructor(_root: unknown, readonly name: string) { this.path = join(directory, name); }
+    get exists() { return existsSync(this.path); }
+    get size() { return this.exists ? statSync(this.path).size : 0; }
+    async text() { return readFileSync(this.path, 'utf8'); }
+    write(text: string) {
+      if (this.name.endsWith('.json') && writesUntilFailure && --writesUntilFailure === 0) {
+        writeFileSync(this.path, '{partial', 'utf8'); throw Error('Injected partial target write');
+      }
+      writeFileSync(this.path, text, 'utf8');
+    }
+  }
+  class Directory { list() { return readdirSync(directory).map(name => new File(directory, name)); } }
+  const modules: Record<string, unknown> = {
+    'expo-file-system': { File, Directory, Paths: { document: directory } }, './storage': { hash }, './duty-target': dutyTargets,
+    './user-backup-restore-journal-native': {
+      assertNoPendingUserBackupRestore: (allowed?: Parameters<typeof assertUserBackupReadAllowed>[1]) =>
+        assertUserBackupReadAllowed(() => ports.openJournal(false), allowed),
+    },
+  };
+  const api = {} as typeof import('../../apps/platform-lab/src/duty-target-native.ts');
+  runInNewContext(targetSource, { exports: api, require: (id: string) => { assert.ok(id in modules, id); return modules[id]; } });
+  ports.preflightDutyTargets = (archive, gate) => api.preflightDutyTargetsNative(archive, gate);
+  ports.restoreDutyTargets = (input, gate) => api.restoreDutyTargetsNative(input.archive, input.permit, gate);
+  return { api, interruptWrite: (nth: number) => { writesUntilFailure = nth; } };
+}
+const diskTargetKey = (year: number, accountRef = '12345') =>
+  dutyTargets.dutyTargetKey(dutyTargets.dutyTargetScopeKey({ ownerId, storeId, accountRef }), year);
+const diskTargetName = async (year: number, accountRef = '12345') => `cockpit-duty-${await hash(diskTargetKey(year, accountRef))}.json`;
+
+test('v3 aggregate journal hides partial disk targets across fresh runtime reopen until same-archive replay', async () => {
+  for (const failedWrite of [1, 2]) {
+    const directory = await mkdtemp(join(tmpdir(), 'moflight-v3-disk-recovery-'));
+    try {
+      const text = await archiveV3(), ports = makePorts(directory, text), first = diskTargetPorts(directory, ports);
+      for (const [year, hours, account] of [[2024, 12, '12345'], [2025, 44, '12345'], [2026, 99, '99999']] as const)
+        await first.api.saveDutyTargetNative(diskTargetKey(year, account), hours, () => true);
+      const originalName = await diskTargetName(2025), absentName = await diskTargetName(2026);
+      const original = readFileSync(join(directory, originalName), 'utf8');
+      const untouched = new Map(await Promise.all([[2024, '12345'], [2026, '99999']].map(async ([year, account]) => {
+        const name = await diskTargetName(Number(year), String(account)); return [name, readFileSync(join(directory, name), 'utf8')] as const;
+      })));
+      first.interruptWrite(failedWrite);
+      const failed = await first.api.withDutyTargetLock(() => restoreUserBackup(ownerId, storeId, async () => {}, ports));
+      assert.equal(failed.state, 'recovery-required');
+      const corruptName = failedWrite === 1 ? originalName : absentName;
+      assert.equal(readFileSync(join(directory, corruptName), 'utf8'), '{partial');
+      assert.equal(readFileSync(join(directory, `${originalName}.restore-${uuid(1)}.original`), 'utf8'), original);
+      assert.equal(readFileSync(join(directory, `${absentName}.restore-${uuid(1)}.original`), 'utf8'), 'absent');
+
+      // Fresh helper closure and new journal connections discard all in-memory locks/flags.
+      const reopenedPorts = makePorts(directory, text), reopened = diskTargetPorts(directory, reopenedPorts);
+      await assert.rejects(reopened.api.readDutyTargetNative(diskTargetKey(2025)), /incomplete/);
+      await assert.rejects(reopened.api.saveDutyTargetNative(diskTargetKey(2024), 88, () => true), /incomplete/);
+      await assert.rejects(assertUserBackupReadAllowed(() => reopenedPorts.openJournal(false),
+        { operationId: uuid(1), ownerId, storeId: connectionId }), /incomplete/);
+      reopenedPorts.preflightDutyTargets = async () => { throw Error('Replay must not revalidate partially written destinations as originals'); };
+      const restored = await reopened.api.withDutyTargetLock(() => restoreUserBackup(ownerId, storeId, async () => {}, reopenedPorts, uuid(1)));
+      assert.equal(restored.state, 'restored');
+      assert.equal(await reopened.api.readDutyTargetNative(diskTargetKey(2025)), 0);
+      assert.equal(await reopened.api.readDutyTargetNative(diskTargetKey(2026)), 37.5);
+      for (const [name, before] of untouched) assert.equal(readFileSync(join(directory, name), 'utf8'), before);
+      assert.equal(readFileSync(join(directory, `${originalName}.restore-${uuid(1)}.original`), 'utf8'), original);
+      assert.equal(readFileSync(join(directory, `${absentName}.restore-${uuid(1)}.original`), 'utf8'), 'absent');
+      reopenedPorts.restoreDutyTargets = async () => { throw Error('Completed replay must not rewrite target files'); };
+      assert.equal((await reopened.api.withDutyTargetLock(() => restoreUserBackup(ownerId, storeId, async () => {}, reopenedPorts, uuid(1)))).state, 'already-restored');
+      await assertUserBackupReadAllowed(() => reopenedPorts.openJournal(false));
+    } finally { await rm(directory, { recursive: true, force: true }); }
+  }
 });
