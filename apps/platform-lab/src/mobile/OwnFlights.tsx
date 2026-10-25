@@ -109,7 +109,7 @@ export function OwnFlights({ active, data, filterRequest, onHeaderChange }: {
       </>}{filterSection==='aircraft'&&<><Section title="Luftfahrzeugart" />
       <View style={s.controls}><Chip title="Alle Kategorien" selected={filters.aircraftCategory === undefined} onPress={()=>changeFilters({...filters,aircraftCategory:undefined})}/>
       {classificationOptions.categories.map(option=><Chip key={option.key} title={option.label} selected={filters.aircraftCategory===option.key} onPress={()=>changeFilters({...filters,aircraftCategory:option.key})}/>)}</View>
-      <Section title="Startart"/><View style={s.controls}><Chip title="Alle Startarten" selected={filters.launchMethod===undefined} onPress={()=>changeFilters({...filters,launchMethod:undefined})}/>
+      <Section title="Startart"/><View style={s.controls}><Chip title="Alle Starts" selected={filters.launchMethod===undefined} onPress={()=>changeFilters({...filters,launchMethod:undefined})}/>
       {classificationOptions.launches.map(option=><Chip key={option.key} title={option.label} selected={filters.launchMethod===option.key} onPress={()=>changeFilters({...filters,launchMethod:option.key})}/>)}</View>
       <Section title="Kennzeichen" />
       <View style={s.controls}><Chip title="Alle Kennzeichen" selected={filters.registration === undefined} onPress={() => changeFilters({ ...filters, registration: undefined })} />

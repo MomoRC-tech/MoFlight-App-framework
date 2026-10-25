@@ -37,3 +37,8 @@ All five `pnpm check` host checks passed (types, lint, mobile/SQLite, Python and
 ## C3 required-hours finding
 
 REST pages 23–24 document work entries and categories, not an annual obligation. Member custom properties on page 17 require member-edit permission and have no standard quota semantics here. Existing captured monetary Pflicht cannot be converted to hours without an explicit valid rule. The editable provisional target is unchanged. #86 remains open for a permitted member-facing explicit annual source, year/unit/person/club meaning and any source/manual precedence decision. Absence from this specification does not establish that Vereinsflieger cannot store such a target.
+
+
+### Integration follow-up
+
+At committed source `f4e12ae`, Android/iOS Hermes exports and the standalone Android Release build passed. The first 390 dp native inspection found a clipped long all-launches label; it is shortened to **Alle Starts** before delivery. Synthetic flight cards, classification chooser, combined Winde filtering and source details were inspected. The first navigation helper used the outer preview Close instead of the preview's contextual list Back; that helper failure does not establish a product navigation defect. The corrected final-source run is recorded separately below.
