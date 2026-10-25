@@ -1,0 +1,30 @@
+{
+  "status": "partial",
+  "checks": [
+    "12 ordinary saved flights and exact known-time total",
+    "scrolled detail Back preserves visible flight",
+    "tab return preserves scrolled flight list",
+    "year and registration filter gives exact three flights and 121 minutes",
+    "background and foreground return retain selected detail",
+    "detail return retains combined filters",
+    "explicit local retry recovered all12 flights and unchanged receipt after offline restart failure",
+    "reapplied combined filter after recovery returns exact three flights"
+  ],
+  "failed": "first ordinary read after offline force-stop restart: released SQLite shared object; recovered by explicit local retry",
+  "issue": 89,
+  "source": "bf600898109d561d58d2fcb4d0add6a1ba152d53",
+  "radios": {
+    "airplane_mode_on": "1",
+    "wifi_on": "0",
+    "mobile_data": "0"
+  },
+  "viewport": "390x900 dp, density160, font1",
+  "limit": "Synthetic restored saved-local path only; no live retrieval, persisted optional-source retry, physical phone or iOS. No latency measurement.",
+  "fixture_sha256": "9df28aa687437ee68d8833860f41c3c49e77971bd5c58f884463e710ec3d272c",
+  "apk_sha256": "1d0f7db28fe9e9b8379f115de20b3fbb713e930c933fec3b7a569cc3b394ed2f",
+  "cleanup": {
+    "displayAndNetworkRestored": true,
+    "emulatorStopped": true,
+    "sourceAvdPreserved": "read-only COW instance, no snapshot saved"
+  }
+}

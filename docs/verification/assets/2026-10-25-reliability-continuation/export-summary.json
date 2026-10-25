@@ -1,0 +1,10 @@
+{
+  "format": 3,
+  "flightCount": 12,
+  "realFlightGraphExact": true,
+  "pilotProfileBookSelectionExact": true,
+  "informationAndAiUnchanged": true,
+  "selectedAccountTargetsEmpty": true,
+  "externalSha256": "39ee0c27c8224ec969c40fd2619345e11a3f2d09b47c29fe4dfd389ee998e94b",
+  "nativeSaveAndReadback": true
+}

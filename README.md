@@ -15,6 +15,8 @@ MoFlight is a mobile app in development for glider pilots, students and instruct
 
 Source `bf600898109d561d58d2fcb4d0add6a1ba152d53` adds Sync clarity and annual-target backup v3 to the existing phone-usability, aircraft/launch and populated-update safeguards. [Download APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/sync-target-backup-2026-10-25-bf60089/MoFlight-Android-bf60089.zip) and [evidence/limits](docs/verification/2026-10-25-sync-and-target-backup.md). Extract the ZIP and install `app-release.apk`. Development-signed standalone lab build; no new physical-phone or iOS runtime acceptance. AI requests remain disabled in the ordinary app. Earlier releases retain their source-specific evidence.
 
+**Known startup issue:** a subsequent synthetic offline-restart trial of this APK hit a released SQLite handle and showed unreadable flights. Explicit local retry recovered the saved data in that trial. [#89](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/89) remains open; [the reliability report](docs/verification/2026-10-25-reliability-continuation.md) separates successful local/export checks from this failed startup acceptance.
+
 The approved dark Compact Cockpit is the current visual baseline. Ordinary saved flights, compact filters/details, Statistics and supported club sources work offline after capture. Sync remains one explicit header action; independent optional-source failures do not erase saved flights.
 
 | Delivered within recorded scope | Still incomplete or unaccepted |

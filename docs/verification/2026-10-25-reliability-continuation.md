@@ -1,0 +1,30 @@
+# Reliability continuation — 25 October 2026
+
+M2–M3, #8/#29, plus the independent #88 verification-tooling defect. Baseline `a1d254a`, clean and synchronized main; implementation/test commit `cd3a9c3`. The user authorized continuation. No product/archive/storage policy, app behavior, provider access, service activation or beta-version selection changes in this package.
+
+## Host implementation and evidence
+
+The host reporter now escapes only console characters unsupported by the output encoding. Unicode child logs and structured evidence remain intact. Deterministic strict-cp1252 tests prove that Unicode failure diagnostics do not stop later checks, the final report is `failed`, and dependency-layout refusal exits with failure. #88 uses no new dependency or permanent environment override.
+
+The v3 recovery integration uses production aggregate restore, target-file helpers, and an actual SQLite recovery journal with real temporary disk files. Two interruption positions partially write either the first or second target. Fresh helper instances and reopened journal connections still block reads/edits; a forged foreign-store recovery permit is rejected. Explicit same-archive replay repairs both targets, preserves confirmed zero, original bytes/absence, unarchived years and foreign-account bytes, and repeated completion avoids rewriting targets. The Expo file adapter and other aggregate section-activation ports remain host substitutes: this is not device process-death, SAF or complete multi-store recovery acceptance.
+
+Focused results: 7/7 reporter tests and 17/17 aggregate recovery tests. Combined `pnpm check` passed 5/5 stages: types, lint, 1,288 mobile tests passed / 2 skipped, 136 Python tests / 16 skipped, fixture parity. Windows, Node 24.18.0, pnpm 11.25.0, Python 3.12.10. Logs: `build/host-checks/20261025T120329Z-c56e51a2/`. No application build was needed because application source is unchanged.
+
+Two independent workers used the requested GPT-6.1 Sol/medium/fresh context: one owned reporter implementation/tests, one performed read-only discovery for the ordinary offline checkpoint. The parent reviewed changes, implemented the composed recovery regression and owns native execution/evidence.
+
+## Saved-local Android checkpoint
+
+Normal released source `bf600898109d561d58d2fcb4d0add6a1ba152d53`, installed APK SHA-256 `1d0f7db28fe9e9b8379f115de20b3fbb713e930c933fec3b7a569cc3b394ed2f`. Reused the existing Release because application source is unchanged. Parent-owned deterministic ADB harness on a read-only/COW `MoFlight_Synthetic_API37` instance, Android API 37, 390×900 dp, density 160, font 1. Airplane mode 1, Wi-Fi 0, mobile data 0 were verified before restart. No provider/session emulator was touched.
+
+Ordinary v3 folder export first supplied the current empty selected manifest. A historical fixture had a different manifest and was correctly refused; the generic background-interruption message did not identify the mismatch. No picker lifecycle defect was established and no foreground guard was changed. A new synthetic 12-flight fixture was generated from the current manifest using production library export/validation/replay and restored through the ordinary legacy-library picker. The initial force-stop/reopen then showed all 12 flights, 478 known minutes and one unknown duration.
+
+Eight affirmative journey assertions cover saved count/known-time total, scrolled detail Back, tab return, exact year 2026 + D-EXA filtering (three flights, 121 minutes), Home/background detail return, retained combined filters, explicit local recovery after restart failure, and identical reapplied filter after recovery. The three filtered dates are 12 September, 16 May and 24 January 2026. Process-local filters/scroll are not promised across process death.
+
+**Failed acceptance:** a subsequent actual offline force-stop restart showed “Flüge nicht lesbar.” Logcat reported `NativeDatabase.prepareAsync` / `NativeStatement` / `Cannot use shared object that was already released`. Explicit local retry recovered all 12 flights with the unchanged saved receipt, and reapplied filters returned the same exact three rows. This is a partial checkpoint, not a clean offline-start acceptance. [#89](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/89) owns the reproduced startup lifetime defect. Real-flight drivers already use independent handles; a shared generic journal opener is a source-review candidate, not a confirmed root cause. No blind retry or weakened guard was introduced.
+
+The fixture proves ordinary saved-local reading/lifecycle only. Live sync, independently persisted optional-source failure/retry, actual second-account isolation, full-user aggregate restore, physical phone and iOS remain open. No interaction latency measurement was made; harness duration is not responsiveness. #34 beta-version selection and #86 provider-required-hours discovery remain unchanged.
+
+
+Ordinary populated v3 export then passed the real Android folder picker, write and app readback. The pulled external file passed the production aggregate validator; its complete real-flight graph exactly matches the independently generated 12-flight fixture. Pilot profile/book selection, information and AI sections match the earlier export; this selected account has no configured targets. This adds ordinary save/readback evidence, not full-user restore or target-inclusive native aggregate recovery. [Export summary](assets/2026-10-25-reliability-continuation/export-summary.json).
+
+[Sanitized journey summary](assets/2026-10-25-reliability-continuation/summary.json) records eight affirmative assertions and the failed restart. Exact display/network settings were restored and the agent-started emulator was stopped, discarding only its temporary overlay. Original AVD data and provider sessions remain preserved. No new APK was built or published: the [existing release](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/tag/sync-target-backup-2026-10-25-bf60089) retains its exact application source. New host tooling/tests are committed separately.
