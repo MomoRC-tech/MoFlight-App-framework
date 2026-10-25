@@ -23,7 +23,7 @@ The approved dark Compact Cockpit is the current visual baseline. Ordinary saved
 | --- | --- |
 | Account-scoped flights, compact list/filter/detail and saved-local Statistics | Broader fresh-login/second-account/source coverage and populated phone responsiveness |
 | Combined flights/Medical/duties/calendar/documents/work/tasks capture | Positive-source/completeness cases and current physical/iOS acceptance |
-| Aggregate backup v3 including local AI chats/drafts and annual targets; bounded populated update/recovery proof | Complete settings/attachment inventory, ordinary external restore, replacement-device/system restore and selected beta-version matrix |
+| Aggregate backup v3 including local AI chats/drafts and annual targets; bounded populated update/recovery proof | Complete settings inventory and ordinary external same-install restore; identify/test the selected first-beta update baseline. Replacement-device/system restore is separate |
 | Local AI screen, tools/history and disabled service foundations | Ordinary end-to-end service integration and approved actual model evaluation |
 | Synthetic book/format/writing proofs under Development | Real paper setup, assignments, photo-to-writing and cloud accounts/sync |
 
@@ -123,13 +123,13 @@ The earlier Figma transfer encountered a Starter tool-call limit; it is historic
 | M4 | Reviewed initial analytics | Real-library Start slice implemented; broader measures, presentation and native acceptance open |
 | M5 | Writing expansion and further features | Deferred |
 
-Writing assistance has immediate product value; its place in the smallest useful release needs an explicit review rather than automatic milestone reordering.
+Writing assistance has immediate product value but is outside the selected flight-library-first beta; production paper books and writing need later format and release decisions under #11/#7.
 
 ## Next action and unresolved decisions
 
-The [25 October bounded continuation](docs/verification/2026-10-17-current-status-and-open-issues.md#25-october-bounded-continuation--sync-and-preservation) adds sync-return and aggregate-backup regression coverage, inventories settings gaps and provides a concrete Sync-state proposal. App behavior and the latest APK are unchanged; Sync presentation, duty-target backup inclusion and beta starting versions still need their recorded selections.
+The [25 October bounded continuation](docs/verification/2026-10-17-current-status-and-open-issues.md#25-october-bounded-continuation--sync-and-preservation) adds sync-return and aggregate-backup regression coverage and inventories settings gaps. Later packages delivered Sync presentation and duty-target backup. Manuel selected one signed first-beta build as the supported update starting point and same-install manual JSON restore for that beta; the exact baseline and ordinary populated acceptance are still open under [#34](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/34) and [#29](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/29).
 
-Follow the [current next actions](docs/project-plan.md#next-executable-packages) and [complete issue map](docs/project-plan.md#complete-ordered-issue-map). Fresh authenticated phone retrieval, populated app-switch responsiveness and complete supported-source coverage remain open. The supported-user archive extends backup coverage; replacement-device/full-user recovery and complete supported beta upgrades retain separate acceptance gates. Main adoption is selected; it does not establish those untested outcomes.
+Follow the [current next actions](docs/project-plan.md#next-executable-packages) and [complete issue map](docs/project-plan.md#complete-ordered-issue-map). Fresh authenticated phone retrieval, populated app-switch responsiveness and complete supported-source coverage remain open. The supported-user archive extends backup coverage within the selected same-install scope; replacement-device/system restore and supported beta upgrades retain separate acceptance gates. Main adoption is selected; it does not establish those untested outcomes.
 
 Superseded prototype comparisons and design-review instructions are in the [documentation archive](docs/archive/README.md). Current appearance is governed by the [design handbook](docs/product/design/README.md).
 
