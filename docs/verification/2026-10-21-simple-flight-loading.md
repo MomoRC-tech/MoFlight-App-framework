@@ -1,6 +1,6 @@
 # Single-action flight loading — 21 October 2026
 
-**Latest main-branch checkpoint:** [Review continuation — 22 October](#review-continuation--22-october-2026), APK source `e1f90b6`, published ZIP and 780 mobile/110 Python plus scoped Android evidence. Earlier sections are dated source-specific records; their test counts, pending states and release links describe those checkpoints. The latest physical-phone journey remains **not tested yet**.
+This report accumulates dated, source-specific checkpoints. Earlier test counts, pending states and release links describe their original sources; later sections supersede only the scope they explicitly recheck. The [current roadmap](../project-plan.md#next-executable-packages) tracks open acceptance and next actions.
 
 ## Automatic sign-in response race — 22 October 2026
 
@@ -817,3 +817,11 @@ The initial composite repeat helper wrongly expected both update operations in o
 Documentation checkpoint: 5 changed Markdown files /593 local references and anchors, sanitized source/hash/live-summary consistency, regenerated handbook freshness and Git whitespace checks pass. No application rerun for documentation-only finalization.
 
 **Physical-device feedback — 24 October 2026:** Manuel reported “works” for the delivered replacement (APK source `256aa3f4d35f143da6515a0e1446d0712b187474`). This records user-reported success in addition to the emulator/live evidence above. The phone source was not independently reread in this feedback turn; second-account, fresh Google first-use and iOS acceptance remain separate. Subsequent work is the [club/season UI refinement](2026-10-24-club-season-refinement.md), not another sync change.
+
+### First-use and recovery guidance — 25 October 2026
+
+**Scope (#22, P1c):** application source `c0168c9` adds a shared local-state guidance rule for Start, Flights and connection status. No associated account points to the existing header Sync and conditional original-provider login. An associated account without a confirmed retrieval gets a distinct first-load instruction. A confirmed zero is explicitly limited to the captured period, while populated saved flights suppress onboarding and remain described as readable offline. Filter-empty stays distinct from source-empty. Cancellation points back to Sync; partial completion identifies confirmed saved flights and the existing targeted retry/Details paths. No extra login, book gate, automatic retry, new help screen or provider/data contract was added. This wording can inform the broader [#31 help system](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/31), which remains open.
+
+**Verification:** Windows host, Node 24.18.0 / pnpm 11.25.0, synthetic fixtures. The shared-rule and affected Start/Flights/status/returning-reader/combined-flow suites pass 108/108. One complete `pnpm check` passes all five stages (TypeScript, lint, mobile tests, Python tests, fixtures); detailed ignored logs are in `build/host-checks/20261025T131421Z-abe11249/`. The first broad run failed three presentation-harness cases because its module map lacked the newly imported rule; after updating that test harness, the affected suite and complete host check passed. The compact connection status remains quiet for populated recent flights, while the full status explains offline reading. Existing controller/account/recovery guards were unchanged.
+
+**Limits:** this is host-verified presentation guidance, not a new native, live-provider, physical-phone or iOS acceptance checkpoint. There is no APK from `c0168c9`; the previously published ZIPs retain their recorded source commits. Actual first-use, cancelled and partial presentation on a device, the wider #22 journey and #31 help design remain open. No paid service or private flight data was used.
