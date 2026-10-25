@@ -1,24 +1,27 @@
 import type { RealFlightListItem } from '../vereinsflieger/real-flight-library';
 import type { RawField } from '../vereinsflieger/fields';
 import { formatReportedMinutes } from './real-flight-statistics';
+import { aircraftCategoryLabels, launchMethodLabels, classifyAircraft, classifyLaunch, type AircraftCategory, type LaunchMethod } from './flight-classification';
 
 export interface OwnFlightRequest { year: number | null; dateRange?: {from:string;to:string} | null; flightId?: string; flightIds?:readonly string[] }
-export interface OwnFlightFilters { dateRange?: {from:string;to:string} | null; flightIds?:readonly string[]; search: string; year: number | null; registration: string | null | undefined }
+export interface OwnFlightFilters { dateRange?: {from:string;to:string} | null; flightIds?:readonly string[]; search: string; year: number | null; registration: string | null | undefined; aircraftCategory?: AircraftCategory; launchMethod?: LaunchMethod }
 export const allOwnFlights: OwnFlightFilters = { search: '', year: null, registration: undefined };
 export const ownRawValue = (field: RawField): string | null => field.state === 'value' ? field.raw : null;
 
-export type OwnFlightFilterKey = 'year' | 'dateRange' | 'registration' | 'search' | 'flightIds';
+export type OwnFlightFilterKey = 'year' | 'dateRange' | 'registration' | 'search' | 'flightIds' | 'aircraftCategory' | 'launchMethod';
 export function ownFlightFilterTags(filters: OwnFlightFilters): { key: OwnFlightFilterKey; label: string }[] {
   return [
     ...(filters.flightIds ? [{key:'flightIds' as const,label:`AI-Belege: ${filters.flightIds.length}`}] : []),
     ...(filters.year !== null ? [{ key: 'year' as const, label: String(filters.year) }] : []),
     ...(filters.dateRange ? [{ key: 'dateRange' as const, label: `${filters.dateRange.from} – ${filters.dateRange.to}` }] : []),
     ...(filters.registration !== undefined ? [{ key: 'registration' as const, label: filters.registration ?? 'Kennzeichen unbekannt' }] : []),
+    ...(filters.aircraftCategory !== undefined ? [{ key: 'aircraftCategory' as const, label: aircraftCategoryLabels[filters.aircraftCategory] }] : []),
+    ...(filters.launchMethod !== undefined ? [{ key: 'launchMethod' as const, label: launchMethodLabels[filters.launchMethod] }] : []),
     ...(filters.search.trim() ? [{ key: 'search' as const, label: `Suche: ${filters.search.trim()}` }] : []),
   ];
 }
 export function removeOwnFlightFilter(filters: OwnFlightFilters, key: OwnFlightFilterKey): OwnFlightFilters {
-  return { ...filters, [key]: key === 'search' ? '' : key === 'registration'||key==='flightIds' ? undefined : null };
+  return { ...filters, [key]: key === 'search' ? '' : key === 'year'||key==='dateRange' ? null : undefined };
 }
 
 /** Display only: retain all given names, abbreviate the family name; never match identities. */
@@ -75,6 +78,8 @@ export function selectOwnFlights(flights: readonly RealFlightListItem[], filters
     if (filters.dateRange && (a.date.state !== 'parsed' || a.date.value < filters.dateRange.from || a.date.value > filters.dateRange.to)) return false;
     if (filters.year !== null && (a.date.state !== 'parsed' || a.date.value.slice(0,4) !== String(filters.year))) return false;
     if (filters.registration !== undefined && ownRawValue(a.fields.registration) !== filters.registration) return false;
+    if (filters.aircraftCategory !== undefined && classifyAircraft(a).key !== filters.aircraftCategory) return false;
+    if (filters.launchMethod !== undefined && classifyLaunch(a).key !== filters.launchMethod) return false;
     return !needle || [flight.sourceFlightRef, a.date.value, ...a.observation.row.values]
       .some(value => value?.toLocaleLowerCase('de-DE').includes(needle));
   }).sort((a,b)=>(b.facts.assessment.date.value ?? '').localeCompare(a.facts.assessment.date.value ?? ''));

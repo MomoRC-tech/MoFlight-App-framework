@@ -96,3 +96,10 @@ Implemented: isolated native raw snapshots (`headers`, aligned row strings, cand
 Observed in desktop browser: current list fields, two own-flight detail patterns/cost-section structure, repeat bounded references, a date-specific empty view and catalogue classes. Detail bulk/native retrieval, verified account/club identity, complete paging/history, catalogue matching/cache, cost storage and canonical multi-book persistence remain unimplemented/unverified as specified in the linked reports. No production schema or ADR approval is claimed.
 
 Verification for this document: every current list-inspector label is represented in the field inventory; local Markdown destinations and whitespace checked before publication. No application change or new runtime test is part of this model presentation.
+
+
+## Read-only aircraft and launch projection — 25 October 2026
+
+Requested implementation [#85](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/85) introduces a separate display/query projection, [flight-classification](../../apps/platform-lab/src/mobile/flight-classification.ts), over the preserved observation. It does not change serialized `vf-history-facts-v1`, source evidence keys, aircraft-class verification, book eligibility or credit. Current C1 supports explicit full-word categories and launch labels; missing, blank, unrecognized and conflicting values retain distinct states and original labelled evidence. Aliases `S.-Art`, `S-Art` and `Startart` are read in this projection only; simultaneous aliases must agree. Short/numeric launch codes await verified provider mapping.
+
+Motorsegler and explicitly recorded TMG remain separate. No type is inferred from registration, model, engine time or launch method. Explicit flight category is the first source; later catalogue enrichment requires unique scope/association and historical applicability. Provider code dictionaries/API definitions can inform mapping but do not authorize a REST transport switch or prove current member access. [Plan and evidence](../verification/2026-10-25-flight-classification.md).

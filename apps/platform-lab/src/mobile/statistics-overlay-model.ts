@@ -2,6 +2,7 @@ import { annualFlightComparison, canonical, durationDistribution, type Flight } 
 import type { RealFlightListItem } from '../vereinsflieger/real-flight-library';
 import type { SavedFlightRetrieval } from '../vereinsflieger/retrieval-policy';
 import { colorForAircraft } from './season-model';
+import { aircraftCategoryLabels, launchMethodLabels, classifyAircraft, classifyLaunch } from './flight-classification';
 
 export type StatisticsPeriod =
   | { kind: 'year'; year: number }
@@ -182,6 +183,26 @@ export function rankStatisticsAircraft(flights: readonly RealFlightListItem[], s
     if (b.registration === null) return -1;
     return a.registration.localeCompare(b.registration, 'de-DE');
   });
+}
+
+/** Same conflict/identity and known-duration rules as the existing Statistics. */
+export function groupStatisticsClassification(flights: readonly RealFlightListItem[], dimension: 'aircraftCategory' | 'launchMethod') {
+  const distinct = distinctRecords(flights);
+  const groups = new Map<string, { key: string; label: string; rows: RealFlightListItem[] }>();
+  for (const flight of distinct.flights) {
+    const classification = dimension === 'aircraftCategory'
+      ? classifyAircraft(flight.facts.assessment) : classifyLaunch(flight.facts.assessment);
+    const label = dimension === 'aircraftCategory'
+      ? aircraftCategoryLabels[classifyAircraft(flight.facts.assessment).key]
+      : launchMethodLabels[classifyLaunch(flight.facts.assessment).key];
+    const group = groups.get(classification.key) ?? { key: classification.key, label, rows: [] };
+    group.rows.push(flight); groups.set(group.key, group);
+  }
+  return {
+    groups: [...groups.values()].map(({ key, label, rows }) => ({ key, label, ...summarizeStatisticsFlights(rows) }))
+      .sort((a, b) => a.key === 'unknown' ? 1 : b.key === 'unknown' ? -1 : b.count - a.count || a.label.localeCompare(b.label, 'de-DE')),
+    conflictingIds: distinct.conflictingIds,
+  };
 }
 
 export function statisticsDurationGroups(flights: readonly RealFlightListItem[]) {
