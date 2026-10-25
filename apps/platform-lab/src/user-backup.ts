@@ -1,3 +1,4 @@
+import { validateDutyTargetArchive, type DutyTargetArchive } from './duty-target';
 import { canonical } from '@moflight/flight-logbook';
 import type { Hash } from '@moflight/local-data';
 import { normalizedDisplayName } from './mobile/local-profile';
@@ -10,7 +11,7 @@ import { latestRealFlightValues, type StoredBinding } from './vereinsflieger/rea
 import { validateRealFlightBackup } from './vereinsflieger/real-flight-library-model';
 
 export const USER_BACKUP_FORMAT = 'moflight-supported-user-backup';
-export const USER_BACKUP_VERSION = 2;
+export const USER_BACKUP_VERSION = 3;
 export const USER_BACKUP_LIMIT = 260 * 1024 * 1024;
 export const USER_BACKUP_INCLUDED_V1 = [
   'the synthetic pilot library: books, sources, memberships, writing state and snapshots',
@@ -28,10 +29,13 @@ export const USER_BACKUP_EXCLUSIONS_V1 = [
   'unresolved command journals',
 ] as const;
 
-export const USER_BACKUP_INCLUDED = [...USER_BACKUP_INCLUDED_V1,
+export const USER_BACKUP_INCLUDED_V2 = [...USER_BACKUP_INCLUDED_V1,
   'owner-scoped AI conversations, drafts and historical provider identity metadata'] as const;
-export const USER_BACKUP_EXCLUSIONS = [...USER_BACKUP_EXCLUSIONS_V1,
+export const USER_BACKUP_EXCLUSIONS_V2 = [...USER_BACKUP_EXCLUSIONS_V1,
   'AI run capabilities, protocol state, raw reasoning, enablement and server allowances'] as const;
+
+export const USER_BACKUP_INCLUDED = [...USER_BACKUP_INCLUDED_V2, 'provisional annual duty-hour targets for the selected owner/store/provider account'] as const;
+export const USER_BACKUP_EXCLUSIONS = USER_BACKUP_EXCLUSIONS_V2;
 
 export function selectedPilotBookForBackup(books: readonly { id: string }[], remembered: string | null): string | null {
   if (!books.length) return null;
@@ -51,7 +55,9 @@ export interface UserBackupInputV1 {
 export interface UserBackupPayloadV1 extends UserBackupInputV1 { version: 1 }
 export interface UserBackupInputV2 extends UserBackupInputV1 { ai: { archive: string } }
 export interface UserBackupPayloadV2 extends UserBackupInputV2 { version: 2 }
-export type UserBackupPayload = UserBackupPayloadV1 | UserBackupPayloadV2;
+export interface UserBackupInputV3 extends UserBackupInputV2 { dutyTargets: DutyTargetArchive }
+export interface UserBackupPayloadV3 extends UserBackupInputV3 { version: 3 }
+export type UserBackupPayload = UserBackupPayloadV1 | UserBackupPayloadV2 | UserBackupPayloadV3;
 export function emptyUserChatArchive(ownerId: string): ChatArchive {
   return { version: 1, ownerId, activitySequence: 0, identity: null, conversations: [] };
 }
@@ -101,9 +107,9 @@ async function validatePilotBackup(text: string, selectedBookId: string | null, 
  * Build the currently supported owner-bound archive from already captured store snapshots.
  * The caller must hold the app's owner/write guard while reading all included stores.
  */
-export async function createUserBackup(input: UserBackupInputV1 | UserBackupInputV2, hash: Hash): Promise<string> {
-  const version = Object.hasOwn(input, 'ai') ? 2 : 1;
-  exact(input, ['createdAt', 'ownerId', 'storeId', 'pilot', 'realFlights', 'information', ...(version === 2 ? ['ai'] : [])], 'user backup input');
+export async function createUserBackup(input: UserBackupInputV1 | UserBackupInputV2 | UserBackupInputV3, hash: Hash): Promise<string> {
+  const version = Object.hasOwn(input, 'dutyTargets') ? 3 : Object.hasOwn(input, 'ai') ? 2 : 1;
+  exact(input, ['createdAt', 'ownerId', 'storeId', 'pilot', 'realFlights', 'information', ...(version >= 2 ? ['ai'] : []), ...(version === 3 ? ['dutyTargets'] : [])], 'user backup input');
   timestamp(input.createdAt); uuid(input.ownerId, 'owner'); uuid(input.storeId, 'store');
   exact(input.pilot, ['ownerId', 'backup', 'displayName', 'selectedBookId'], 'pilot backup section');
   exact(input.realFlights, ['backup'], 'real flight backup section');
@@ -126,19 +132,20 @@ export async function createUserBackup(input: UserBackupInputV1 | UserBackupInpu
     information = { scope, backup: input.information.backup };
   }
   let ai: { archive: string } | null = null;
-  if (version === 2) {
+  if (version >= 2) {
     const section = (input as UserBackupInputV2).ai;
     exact(section, ['archive'], 'AI backup section');
     await validateAiSection(section.archive, input.ownerId, input.storeId, input.realFlights.backup, hash);
     ai = { archive: section.archive };
   }
-  const payload = canonical({ version, includes: version === 1 ? USER_BACKUP_INCLUDED_V1 : USER_BACKUP_INCLUDED,
+  const dutyTargets = version === 3 ? await validateDutySection((input as UserBackupInputV3).dutyTargets, input.ownerId, input.storeId, input.realFlights.backup, hash) : null;
+  const payload = canonical({ version, includes: version === 1 ? USER_BACKUP_INCLUDED_V1 : version === 2 ? USER_BACKUP_INCLUDED_V2 : USER_BACKUP_INCLUDED,
     excludes: version === 1 ? USER_BACKUP_EXCLUSIONS_V1 : USER_BACKUP_EXCLUSIONS,
     informationCategories: { included: informationBackupCategories, excluded: informationBackupExcludedCategories },
     createdAt: input.createdAt, ownerId: input.ownerId, storeId: input.storeId,
     pilot: { ownerId: input.pilot.ownerId, backup: input.pilot.backup,
       displayName: normalizedDisplayName(input.pilot.displayName), selectedBookId: input.pilot.selectedBookId },
-    realFlights: { backup: input.realFlights.backup }, information, ...(ai ? { ai } : {}) });
+    realFlights: { backup: input.realFlights.backup }, information, ...(ai ? { ai } : {}), ...(dutyTargets ? { dutyTargets } : {}) });
   const text = canonical({ format: USER_BACKUP_FORMAT, version, payload, checksum: await hash(payload) });
   if (bytes(text) > USER_BACKUP_LIMIT) throw new Error('User backup size limit exceeded.');
   await validateUserBackup(text, { ownerId: input.ownerId, storeId: input.storeId,
@@ -153,13 +160,13 @@ export async function validateUserBackup(text: string, target: { ownerId: string
   const envelope: unknown = JSON.parse(text);
   exact(envelope, ['format', 'version', 'payload', 'checksum'], 'user backup envelope');
   const e = envelope as Record<string, unknown>;
-  if (e.format !== USER_BACKUP_FORMAT || !([1, USER_BACKUP_VERSION] as unknown[]).includes(e.version) || typeof e.payload !== 'string' ||
+  if (e.format !== USER_BACKUP_FORMAT || !([1, 2, USER_BACKUP_VERSION] as unknown[]).includes(e.version) || typeof e.payload !== 'string' ||
       typeof e.checksum !== 'string' || !/^[0-9a-f]{64}$/.test(e.checksum) || await hash(e.payload) !== e.checksum ||
       bytes(e.payload) > USER_BACKUP_LIMIT || canonical(e) !== text) throw new Error('Unsupported or corrupt user backup.');
   const value: unknown = JSON.parse(e.payload);
-  exact(value, ['version', 'includes', 'excludes', 'informationCategories', 'createdAt', 'ownerId', 'storeId', 'pilot', 'realFlights', 'information', ...(e.version === 2 ? ['ai'] : [])], 'user backup payload');
+  exact(value, ['version', 'includes', 'excludes', 'informationCategories', 'createdAt', 'ownerId', 'storeId', 'pilot', 'realFlights', 'information', ...((e.version as number) >= 2 ? ['ai'] : []), ...(e.version === 3 ? ['dutyTargets'] : [])], 'user backup payload');
   const p = value as Record<string, unknown>;
-  if (p.version !== e.version || canonical(p) !== e.payload || canonical(p.includes) !== canonical(e.version === 1 ? USER_BACKUP_INCLUDED_V1 : USER_BACKUP_INCLUDED) ||
+  if (p.version !== e.version || canonical(p) !== e.payload || canonical(p.includes) !== canonical(e.version === 1 ? USER_BACKUP_INCLUDED_V1 : e.version === 2 ? USER_BACKUP_INCLUDED_V2 : USER_BACKUP_INCLUDED) ||
       canonical(p.excludes) !== canonical(e.version === 1 ? USER_BACKUP_EXCLUSIONS_V1 : USER_BACKUP_EXCLUSIONS)) throw new Error('Unsupported user backup payload version or coverage.');
   exact(p.informationCategories, ['included', 'excluded'], 'information category coverage');
   const categoryCoverage = p.informationCategories as Record<string, unknown>;
@@ -193,11 +200,12 @@ export async function validateUserBackup(text: string, target: { ownerId: string
     pilot: { ownerId: 'synthetic-pilot', backup: pilot.backup, displayName: normalizedDisplayName(pilot.displayName),
       selectedBookId: pilot.selectedBookId as string | null },
     realFlights: { backup: realFlights.backup }, information };
-  if (e.version === 2) {
+  if (e.version === 2 || e.version === 3) {
     exact(p.ai, ['archive'], 'AI backup section');
     const section = p.ai as Record<string, unknown>;
     if (typeof section.archive !== 'string') throw new Error('Invalid AI backup archive');
     await validateAiSection(section.archive, target.ownerId, target.storeId, realFlights.backup, hash);
+    if (e.version === 3) return { ...base, version: 3, ai: { archive: section.archive }, dutyTargets: await validateDutySection(p.dutyTargets, target.ownerId, target.storeId, realFlights.backup, hash) };
     return { ...base, version: 2, ai: { archive: section.archive } };
   }
   return { ...base, version: 1 };
@@ -211,4 +219,10 @@ async function validateAiSection(text: string, ownerId: string, storeId: string,
       archive.conversations.some(chat => chat.context && chat.context.accountRef !== binding.accountRef))) {
     throw new Error('AI backup identity differs from the saved provider binding');
   }
+}
+
+async function validateDutySection(value: unknown, ownerId: string, storeId: string, realBackup: string, hash: Hash): Promise<DutyTargetArchive> {
+  const graph = await validateRealFlightBackup(realBackup, ownerId, storeId, hash);
+  const binding = latestRealFlightValues<StoredBinding>(graph.records, 'binding')[0];
+  return validateDutyTargetArchive(value, ownerId, storeId, binding?.accountRef ?? null);
 }

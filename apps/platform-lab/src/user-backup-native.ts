@@ -1,3 +1,5 @@
+import { exportDutyTargetsNative, notifyDutyTargetsChanged, preflightDutyTargetsNative, restoreDutyTargetsNative, withDutyTargetLock } from './duty-target-native';
+import { latestRealFlightValues, validateRealFlightBackup, type StoredBinding } from './vereinsflieger/real-flight-library-model';
 import { File } from 'expo-file-system';
 import * as SQLite from 'expo-sqlite';
 import { hash } from './storage';
@@ -29,6 +31,7 @@ function sameOwnerScope(scope: RealFlightNativeScope, writable: boolean): void {
 /** Aggregate selected local profile, selected real flight owner, and supported same-owner information. */
 export async function exportUserBackupNative(scope: RealFlightNativeScope, service: RealFlightBackupService,
   gate: UserBackupGate): Promise<string> {
+  return withDutyTargetLock(async () => {
   await assertNoPendingUserBackupRestore();
   await gate(); sameOwnerScope(scope, false);
   if (service.ownerId !== scope.lease.ownerId || service.storeId !== scope.lease.storeId) throw new Error('Foreign real flight backup service.');
@@ -44,6 +47,9 @@ export async function exportUserBackupNative(scope: RealFlightNativeScope, servi
   await gate();
   const realFlights = await service.exportBackup();
   await gate();
+  const graph = await validateRealFlightBackup(realFlights, scope.lease.ownerId, scope.lease.storeId, hash);
+  const binding = latestRealFlightValues<StoredBinding>(graph.records, 'binding')[0];
+  const dutyTargets = await exportDutyTargetsNative(binding ? { ownerId: scope.lease.ownerId, storeId: scope.lease.storeId, accountRef: binding.accountRef } : null, gate);
   const selectedScope = await loadProviderScope(scope.lease.ownerId);
   if (selectedScope && selectedScope.owner !== scope.lease.ownerId) throw new Error('Foreign selected information scope.');
   const informationBackup = selectedScope ? await exportInformationBackup(selectedScope) : null;
@@ -52,7 +58,8 @@ export async function exportUserBackupNative(scope: RealFlightNativeScope, servi
   return createUserBackup({ createdAt: new Date().toISOString(), ownerId: scope.lease.ownerId, storeId: scope.lease.storeId,
     pilot, realFlights: { backup: realFlights },
     information: selectedScope && informationBackup !== null ? { scope: selectedScope, backup: informationBackup } : null,
-    ai: { archive: encodeChatArchive(aiArchive) } }, hash);
+    ai: { archive: encodeChatArchive(aiArchive) }, dutyTargets }, hash);
+  });
 }
 
 export type SaveUserBackupResult = { state: 'cancelled' } | { state: 'saved'; fileName: string; sha256: string };
@@ -150,6 +157,10 @@ async function createNativeRestorePorts(scope: RealFlightNativeScope, gate: User
       if (result.state === 'restored' || result.state === 'already-activated') return 'already-activated';
       throw new Error('Information restore requires recovery.');
     },
+    async preflightDutyTargets(archive, ownerGate) { await preflightDutyTargetsNative(archive, async () => { await ownerGate(); await gate(); }); },
+    async restoreDutyTargets(input, ownerGate) {
+      await restoreDutyTargetsNative(input.archive, input.permit, async () => { await ownerGate(); await gate(); sameOwnerScope(scope, true); });
+    },
     async restoreAi(input, ownerGate) {
       await restoreOwnerChatsNative({ ...scope, backupRestoreOperationId: input.permit.operationId }, input.archive,
         async () => { await ownerGate(); await gate(); });
@@ -182,5 +193,7 @@ export async function restoreUserBackupFromPickerNative(scope: RealFlightNativeS
   resumeOperationId?: string) {
   await gate(); sameOwnerScope(scope, true);
   const ports = await createNativeRestorePorts(scope, gate);
-  return restoreUserBackup(scope.lease.ownerId, scope.lease.storeId, gate, ports, resumeOperationId);
+  const result = await withDutyTargetLock(() => restoreUserBackup(scope.lease.ownerId, scope.lease.storeId, gate, ports, resumeOperationId));
+  if (result.state === 'restored' || result.state === 'already-restored') notifyDutyTargetsChanged();
+  return result;
 }

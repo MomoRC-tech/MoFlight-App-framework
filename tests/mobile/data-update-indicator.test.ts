@@ -191,9 +191,31 @@ test('rendering a newly received proof uses current wall time between timer tick
 });
 
 
-test('partial-sync dot does not erase matching login proof or add visible button text',()=>{
+test('partial-sync attention keeps accessible session proof without a tiny visible session mark',()=>{
  const tree=fixture()({scopeKey:'scope',connection:proof,receivedAt:at,readState:'ready',now:received,incomplete:true,onPress(){}});
  assert.match(tree.props.accessibilityLabel,/Angemeldet.*Letzte Synchronisierung unvollständig/);
  assert.ok(tree.children.flat().some((n:any)=>n?.props?.testID==='sync-advice'));
- assert.match(text(tree),/✓/);assert.doesNotMatch(text(tree),/Sync|Lädt/);assert.equal(tree.props.disabled,false);
+ assert.match(text(tree),/!/);assert.doesNotMatch(text(tree),/✓|→|\?|Sync|Lädt/);assert.equal(tree.props.disabled,false);
+});
+
+test('local read failure retains the verified receipt age and explicitly announces the read problem',()=>{
+ const now=received+4*86_400_000;
+ const status=dataUpdateStatus(at,'failed',now);
+ assert.equal(status.caption,dataUpdateStatus(at,'ready',now).caption);
+ assert.match(status.description,/22.*nicht erneut gelesen.*Frühere Daten bleiben erhalten/);
+ const button=fixture()({receivedAt:at,readState:'failed',now,onPress(){}});
+ assert.match(button.props.accessibilityLabel,/nicht erneut gelesen/);
+});
+
+test('attention is visible for never, invalid and unreadable data and suppressed during actual work',()=>{
+ const render=fixture();
+ for(const props of [{receivedAt:null,readState:'ready'},{receivedAt:'invalid',readState:'ready'},{receivedAt:at,readState:'failed'},{receivedAt:at,readState:'ready',incomplete:true}]){
+   const button=render({...props,now:received,onPress(){}});
+   const mark=button.children.flat().find((n:any)=>n?.props?.testID==='sync-advice');
+   assert.equal(text(mark),'!');
+   const busy=render({...props,now:received,syncing:true,onPress(){}});
+   assert.equal(busy.children.flat().some((n:any)=>n?.props?.testID==='sync-advice'),false);
+   assert.equal(busy.props.accessibilityState.busy,true);
+ }
+ assert.doesNotMatch(text(render({receivedAt:null,readState:'loading',now:received,onPress(){}})),/!/);
 });

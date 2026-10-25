@@ -1,5 +1,7 @@
 # Components, symbols and shapes
 
+**25 October selected C06/C17 amendment (#83):** the [current Sync contract](compact-cockpit.md#sync-clarity-and-target-preservation--selected-25-october-2026) replaces the dot/session submark with a readable attention mark and visible Details notices, while keeping actual progress/cancel and independent session/receipt evidence. This supersedes the earlier C06/C17 presentation inventory below within that scope.
+
 > **Current appearance authority — 24 October 2026:** [Dark Compact Cockpit](compact-cockpit.md) and its approved reference supersede conflicting older appearance/composition statements below. Data, feature and verification boundaries retain their scope.
 
 > The [22 October modern UI contract](alternative-ui.md) is selected as the main baseline. It supersedes conflicting earlier appearance/composition descriptions for C01–C09, typography, surfaces, Start and flight browsing. Data and acceptance boundaries retain their separate contracts.

@@ -15,7 +15,7 @@ export function dataUpdateStatus(receivedAt: string | null, readState: CaptureRe
   const caption = age < 60_000 ? 'gerade' : age < DATA_UPDATE_FRESH_MS ? `vor ${Math.floor(age / 60_000)} Min.` :
     age < 24 * DATA_UPDATE_FRESH_MS ? `vor ${Math.floor(age / DATA_UPDATE_FRESH_MS)} Std.` : `vor ${Math.floor(age / (24 * DATA_UPDATE_FRESH_MS))} Tg.`;
   return { state: age < DATA_UPDATE_FRESH_MS ? 'fresh' as const : 'older' as const, caption,
-    description: `Letzter gespeicherter Flugdatenabruf von Vereinsflieger: ${new Date(time).toLocaleString('de-DE')}.` };
+    description: `Letzter gespeicherter Flugdatenabruf von Vereinsflieger: ${new Date(time).toLocaleString('de-DE')}.${readState === 'failed' ? ' Gespeicherter Datenstand konnte nicht erneut gelesen werden. Frühere Daten bleiben erhalten.' : ''}` };
 }
 
 /** Successful capture time only. A session check or failed refresh cannot renew it. */

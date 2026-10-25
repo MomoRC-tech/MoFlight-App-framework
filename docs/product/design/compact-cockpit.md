@@ -1,5 +1,13 @@
 # Dark Compact Cockpit — approved 24 October 2026
 
+## Sync clarity and target preservation — selected 25 October 2026
+
+Manuel explicitly selected the [#83 Sync proposal](proposals/2026-10-25-sync-states.html) and [#29](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/29) annual-target backup inclusion. These scoped amendments supersede the tiny session submark, ambiguous advice dot, passive-advice-only placement and target-backup exclusion below; other decisions remain.
+
+Sync keeps its original refresh action, work animation, transparent 48 dp target and original logo. A readable attention mark replaces the dot; session proof and its timestamp remain in accessible status and visible Profile/Status content, separate from the saved receipt. Quiet saved idle has no strip. Never-synchronized, unknown saved time, age beyond 72 hours and scoped possible changes have a short visible notice with **Details**. Failed and partial results have distinct captions plus the existing separate retry. Local read failure takes precedence at rest and opens local-read recovery in Details; current work supersedes old results/advice. Success does not leave an acknowledgement banner, and flight-save success never implies optional-source success. Text wraps/scales, controls stay at least 48 dp, and existing cancellation/save/admission/reduced-motion boundaries remain.
+
+Manual archive v3 includes configured provisional annual targets for the selected owner/store/provider account across years. Restore replaces only included years, preserves other years/accounts, and older v1/v2 archives leave existing targets untouched. Values remain provisional preferences, not verified club policy; #86 source research remains open. Guarded export/restore, validation, preserved originals and replay protect target files. This selection does not approve beta starting versions or portable identity adoption. Implementation and source-specific acceptance are recorded in the [package report](../../verification/2026-10-25-sync-and-target-backup.md).
+
 ## Secondary interaction refinement approved 24 October 2026
 
 Manuel selected all dispositions from the [complete interaction review](../../verification/2026-10-24-ui-interaction-review.md) with “implement all”; [#82](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/82), coordinated with #29/#16/#9/#78. The following amendments supersede conflicting older secondary-screen presentation/routing descriptions, preserving data/identity/recovery contracts and the original logo.

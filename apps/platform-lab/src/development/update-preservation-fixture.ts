@@ -173,6 +173,8 @@ export async function verifyUpdateProof(p: UpdateProofPorts, recover = true): Pr
     async activatePilot() {
       await p.write('recovered-selection.json', canonical({ ownerId: a.ownerId, storeId: a.storeId, selectedBook: payload.pilot.selectedBookId }));
     },
+    async preflightDutyTargets() { throw new Error('This bounded fixture uses backup v1/v2 only.'); },
+    async restoreDutyTargets() { throw new Error('This bounded fixture uses backup v1/v2 only.'); },
     async restoreAi(input) {
       // This historical-writer proof has no AI store. Keep the overlay usable
       // on old source checkouts which predate the AI modules.

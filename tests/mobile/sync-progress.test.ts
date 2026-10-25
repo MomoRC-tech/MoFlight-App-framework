@@ -1,6 +1,31 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {idleSyncProgress,startSyncStage,finishSyncStage,completedSyncProgress} from '../../apps/platform-lab/src/mobile/sync-progress.ts';
+import {idleSyncProgress,idleSyncNotice,startSyncStage,finishSyncStage,completedSyncProgress} from '../../apps/platform-lab/src/mobile/sync-progress.ts';
+
+test('idle notices distinguish loading, first use, failed reads and invalid receipts',()=>{
+  const now=Date.parse('2026-10-25T12:00:00.000Z');
+  const props={receivedAt:null,readState:'ready' as const,now};
+  assert.equal(idleSyncNotice({...props,readState:'loading',activityChanged:true}),null);
+  assert.equal(idleSyncNotice(props)?.caption,'Noch keine Flugdaten');
+  for(const receivedAt of [null,'invalid','2026-10-26T12:00:00.000Z']){
+    assert.equal(idleSyncNotice({...props,receivedAt,readState:'failed'})?.kind,'read-error');
+  }
+  for(const receivedAt of ['invalid','2026-10-26T12:00:00.000Z','2026-10-25T12:00:00Z']){
+    assert.equal(idleSyncNotice({...props,receivedAt})?.caption,'Datenstand unklar');
+  }
+});
+
+test('idle advice applies strictly after 72 hours and explains independent change evidence',()=>{
+  const receivedAt='2026-10-22T12:00:00.000Z',boundary=Date.parse(receivedAt)+72*60*60*1000;
+  const props={receivedAt,readState:'ready' as const,now:boundary};
+  assert.equal(idleSyncNotice(props),null);
+  assert.equal(idleSyncNotice({...props,now:boundary+1})?.caption,'Aktualisierung empfohlen');
+  const changed=idleSyncNotice({...props,activityChanged:true});
+  assert.equal(changed?.caption,'Änderungen möglich');assert.doesNotMatch(changed!.description,/drei Tage/);
+  const both=idleSyncNotice({...props,now:boundary+1,activityChanged:true});
+  assert.equal(both?.caption,'Änderungen möglich');assert.match(both!.description,/Anzahl.*nicht bestätigt.*drei Tage/);
+  assert.equal(idleSyncNotice({...props,readState:'failed',activityChanged:true})?.kind,'read-error');
+});
 
 test('two progress rows promote confirmed completion and never invent success on a start or failure',()=>{
   let progress=startSyncStage(idleSyncProgress,'account');

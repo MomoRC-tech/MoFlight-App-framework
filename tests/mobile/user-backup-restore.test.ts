@@ -162,6 +162,8 @@ function makePorts(directory: string, text: string, failAfterReal = false): User
       infoActive = true; return 'restored';
     },
     async activatePilot() { assert.equal(pilotCandidate, true); events.push('pilot-active'); pilotActive = true; },
+    async preflightDutyTargets() {},
+    async restoreDutyTargets() { events.push('duty-targets'); },
     async restoreAi(input) { assert.equal(input.archive.ownerId, ownerId); events.push('ai'); },
   };
   Object.defineProperty(ports, 'testState', { get: () => ({ events, realActive, pilotCandidate, pilotActive, infoActive }) });
@@ -358,4 +360,57 @@ test('invalid/foreign/over-cap v2 chat sections preserve current bytes before an
     if (validated.version !== 2) throw new Error('Expected v2');
     assert.equal(decodeChatArchive(validated.ai.archive, ownerId).identity?.accountRef, '12345');
   } finally { await rm(directory, { recursive: true, force: true }); }
+});
+
+async function archiveV3() {
+  const old = await validateUserBackup(await archive(chatArchive()), { ownerId, storeId, informationScope:scope },hash);
+  if (old.version !== 2) throw Error('Expected v2 fixture');
+  return createUserBackup({ createdAt:old.createdAt,ownerId,storeId,pilot:old.pilot,realFlights:old.realFlights,information:old.information,ai:old.ai,
+    dutyTargets:{scope:{ownerId,storeId,accountRef:'12345'},targets:[{year:2025,hours:0},{year:2026,hours:37.5}]} },hash);
+}
+test('v3 target restore resumes after lost acknowledgement, retains gate and does not repeat initial preflight',async()=>{
+  const directory=await mkdtemp(join(tmpdir(),'moflight-user-backup-v3-'));
+  try {
+    const text=await archiveV3(),ports=makePorts(directory,text);let preflights=0,attempts=0;const restored=new Map<number,number>();
+    ports.preflightDutyTargets=async()=>{preflights++;};
+    ports.restoreDutyTargets=async(input)=>{ for(const row of input.archive.targets)restored.set(row.year,row.hours);if(++attempts===1)throw Error('lost target acknowledgement'); };
+    assert.equal((await restoreUserBackup(ownerId,storeId,async()=>{},ports)).state,'recovery-required');
+    await assert.rejects(assertUserBackupReadAllowed(()=>ports.openJournal(false)),/incomplete/);
+    assert.equal((await restoreUserBackup(ownerId,storeId,async()=>{},ports,uuid(1))).state,'restored');
+    assert.equal(preflights,1);assert.equal(attempts,2);assert.deepEqual([...restored],[[2025,0],[2026,37.5]]);
+    await assertUserBackupReadAllowed(()=>ports.openJournal(false));
+  } finally { await rm(directory,{recursive:true,force:true}); }
+});
+test('v3 corrupt target destination preflight refuses before journal or selected-store activation',async()=>{
+  const directory=await mkdtemp(join(tmpdir(),'moflight-user-backup-v3-preflight-'));
+  try {
+    const ports=makePorts(directory,await archiveV3());ports.preflightDutyTargets=async()=>{throw Error('corrupt destination');};
+    await assert.rejects(restoreUserBackup(ownerId,storeId,async()=>{},ports),/corrupt destination/);
+    assert.equal(await ports.openJournal(false),null);
+    const state=(ports as UserBackupServicePorts & {testState:{realActive:boolean;events:string[]}}).testState;
+    assert.equal(state.realActive,false);assert.ok(!state.events.includes('duty-targets'));
+  } finally { await rm(directory,{recursive:true,force:true}); }
+});
+test('v1/v2 restore never reads or writes provisional targets or invents defaults',async()=>{
+  for(const text of [await archive(),await archive(chatArchive())]){
+    const directory=await mkdtemp(join(tmpdir(),'moflight-user-backup-legacy-targets-'));
+    try {
+      const ports=makePorts(directory,text);ports.preflightDutyTargets=ports.restoreDutyTargets=async()=>{throw Error('Legacy archive touched target files');};
+      assert.equal((await restoreUserBackup(ownerId,storeId,async()=>{},ports)).state,'restored');
+    }finally{await rm(directory,{recursive:true,force:true});}
+  }
+});
+test('v3 scope/year/value/coverage tampering fails complete archive validation before staging',async()=>{
+  const text=await archiveV3();
+  const directory=await mkdtemp(join(tmpdir(),'moflight-user-backup-v3-invalid-'));
+  try {
+    for(const mutate of [(p:any)=>p.dutyTargets.scope.accountRef='99999',(p:any)=>p.dutyTargets.targets.push({year:2026,hours:1}),
+      (p:any)=>p.dutyTargets.targets[0].year=1900,(p:any)=>p.dutyTargets.targets[0].hours=1.234,(p:any)=>p.includes.pop()]){
+      const envelope=JSON.parse(text),payload=JSON.parse(envelope.payload);mutate(payload);envelope.payload=canonical(payload);envelope.checksum=await hash(envelope.payload);
+      const ports=makePorts(directory,canonical(envelope));
+      await assert.rejects(restoreUserBackup(ownerId,storeId,async()=>{},ports));
+      assert.equal(await ports.openJournal(false),null);
+      assert.deepEqual((ports as UserBackupServicePorts & {testState:{events:string[]}}).testState.events,[]);
+    }
+  } finally { await rm(directory,{recursive:true,force:true}); }
 });

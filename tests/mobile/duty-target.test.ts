@@ -11,13 +11,13 @@ function deferred() {
   return {promise,release};
 }
 function fixture(files=new Map<string,string>()) {
-  const hooks:any[]=[];
+  const hooks:any[]=[],listeners=new Set<()=>void>();
   let index=0,failWrite=false,corruptRead=false,fileAccess=0;
   let nextRead:ReturnType<typeof deferred>|null=null;
   const effects:(()=>void)[]=[],cleanups=new Map<number,()=>void>();
   const react={createElement:(type:any,props:any,...children:any[])=>({type,props:props??{},children:children.flat(Infinity)}),
     useRef:(value:any)=>{const i=index++;return hooks[i]??={current:value};},
-    useState:(value:any)=>{const i=index++;if(!(i in hooks))hooks[i]=value;return [hooks[i],(next:any)=>{hooks[i]=next;}];},
+    useState:(value:any)=>{const i=index++;if(!(i in hooks))hooks[i]=value;return [hooks[i],(next:any)=>{hooks[i]=typeof next==='function'?next(hooks[i]):next;}];},
     useEffect:(effect:()=>any,deps:any[])=>{const i=index++;if(!hooks[i]||deps.some((v,n)=>v!==hooks[i][n])){hooks[i]=deps;effects.push(()=>{cleanups.get(i)?.();cleanups.set(i,effect());});}}};
   class File {
     name:string;constructor(_root:any,name:string){fileAccess++;this.name=name;}
@@ -26,11 +26,14 @@ function fixture(files=new Map<string,string>()) {
     write(value:string){if(failWrite)throw Error('disk');files.set(this.name,value);}
   }
   const source=ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/mobile/DutyTarget.tsx',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.React}}).outputText;
-  const modules:any={react:{default:react,...react},'react-native':{View:'View',TextInput:'TextInput'},'./theme':{Action:'Action',Label:'Label',colors:{}},'expo-file-system':{File,Paths:{document:'synthetic'}},'../storage':{hash:async(value:string)=>Buffer.from(value).toString('hex')},'./cockpit-season':model};
+  const modules:any={react:{default:react,...react},'react-native':{View:'View',TextInput:'TextInput'},'./theme':{Action:'Action',Label:'Label',colors:{}},'expo-file-system':{File,Paths:{document:'synthetic'}},'../duty-target-native':{ subscribeDutyTargets:(listener:()=>void)=>{listeners.add(listener);return()=>listeners.delete(listener);},
+    async readDutyTargetNative(key:string) { const file=new File('synthetic',`cockpit-duty-${Buffer.from(key).toString('hex')}.json`); if(!file.exists)return null; const value=JSON.parse(await file.text());if(value.key!==key)throw Error('foreign');return value.hours; },
+    async saveDutyTargetNative(key:string,hours:number,current:()=>boolean) { await Promise.resolve(); if(!current())return false; const file=new File('synthetic',`cockpit-duty-${Buffer.from(key).toString('hex')}.json`); const payload=JSON.stringify({version:1,key,hours});file.write(payload);if(await file.text()!==payload)throw Error('readback');return current(); }
+  },'./cockpit-season':model};
   const exports:any={};runInNewContext(source,{exports,require:(id:string)=>{assert.ok(id in modules);return modules[id];}});
   const flush=()=>effects.splice(0).forEach(fn=>fn());
   const render=(scope:string|null='owner/store/account',year=2026,persistent=true)=>{index=0;const result=exports.useDutyTarget(scope,year,persistent);flush();return result;};
-  return {render,files,fail:(value=true)=>{failWrite=value;},
+  return {render,files,notify:()=>{listeners.forEach(listener=>listener());},fail:(value=true)=>{failWrite=value;},
     pauseRead:()=>{const gate=deferred();nextRead=gate;return gate.release;},corrupt:()=>{corruptRead=true;},accesses:()=>fileAccess,
     unmount:()=>{cleanups.forEach(fn=>fn?.());cleanups.clear();},
     editor:(target:any,onClose:()=>void)=>{index=0;const tree=exports.DutyTargetEditor({target,onClose});flush();return tree;}};
@@ -92,4 +95,11 @@ test('closing an editor prevents its pending save callback from closing the next
   const tree=f.editor({persistent:true,hours:25,busy:false,error:null,save:async()=>{await gate.promise;return true;}},()=>closed++);
   tree.children.find((n:any)=>n?.type==='Action'&&n.children.includes('Soll lokal speichern')).props.onPress();
   f.unmount();gate.release();await settle();assert.equal(closed,0);
+});
+
+test('subscribed reload clears an obsolete read error and refreshes restored or absent preferences',async()=>{
+  const f=fixture();f.render();await settle();assert.equal(await f.render().save('37.5'),true);
+  const reopened=fixture(f.files);reopened.corrupt();reopened.render();await settle();assert.match(reopened.render().error,/nicht gelesen/);
+  reopened.notify();reopened.render();await settle();assert.equal(reopened.render().hours,37.5);assert.equal(reopened.render().error,null);
+  reopened.files.clear();reopened.notify();reopened.render();await settle();assert.equal(reopened.render().hours,25);assert.equal(reopened.render().configured,false);assert.equal(reopened.render().error,null);
 });

@@ -9,6 +9,7 @@ import { RealFlightLibrary } from '../../apps/platform-lab/src/vereinsflieger/re
 import { InformationStore } from '../../apps/platform-lab/src/vereinsflieger/information-store.ts';
 import { validateInformationCapture } from '../../apps/platform-lab/src/vereinsflieger/information.ts';
 import type { ProviderScope } from '../../apps/platform-lab/src/vereinsflieger/scope-store.ts';
+import * as realModel from '../../apps/platform-lab/src/vereinsflieger/real-flight-library-model.ts';
 import * as backup from '../../apps/platform-lab/src/user-backup.ts';
 import { encodeChatArchive, type ChatArchive } from '../../apps/platform-lab/src/ai/chat-model.ts';
 import { nodeDriver } from './sqlite-driver.ts';
@@ -86,6 +87,8 @@ async function fixture() {
   };
   const modules: Record<string, unknown> = {
     'expo-file-system': { File: class {} }, 'expo-sqlite': { defaultDatabaseDirectory: 'synthetic:' },
+    './duty-target-native': { withDutyTargetLock: (work:()=>Promise<unknown>) => work(), async exportDutyTargetsNative(scope:unknown) { return {scope,targets:[{year:2025,hours:0},{year:2026,hours:37.5}]}; } },
+    './vereinsflieger/real-flight-library-model': realModel,
     './storage': { hash }, './user-backup': backup, './user-backup-service': {},
     './book-storage': {
       async loadBooks() {
@@ -121,17 +124,18 @@ async function fixture() {
   return { api, scope, service, state, files, pilotBackup, realBackup, infoBackup, chat };
 }
 
-test('native aggregate export preserves selected profile/book, pending state, Medical and v2 AI sections', async () => {
+test('native aggregate export preserves selected profile/book, pending state, Medical, AI and v3 duty targets', async () => {
   const f = await fixture();
   const text = await f.api.exportUserBackupNative(f.scope, f.service, async () => {});
   const value = await backup.validateUserBackup(text, { ownerId, storeId, informationScope: providerScope }, hash);
-  assert.equal(value.version, 2);
+  assert.equal(value.version, 3);
+  if (value.version === 3) assert.deepEqual(JSON.parse(JSON.stringify(value.dutyTargets.targets)), [{year:2025,hours:0},{year:2026,hours:37.5}]);
   assert.equal(value.pilot.displayName, 'Synthetic custom name');
   assert.equal(value.pilot.selectedBookId, 'selected');
   assert.equal(value.pilot.backup, f.pilotBackup);
   assert.equal(value.realFlights.backup, f.realBackup);
   assert.equal(value.information?.backup, f.infoBackup);
-  assert.equal(value.version === 2 && value.ai.archive, encodeChatArchive(f.chat));
+  assert.equal(value.version === 3 && value.ai.archive, encodeChatArchive(f.chat));
   assert.equal(f.state.closes, 1);
 });
 
@@ -182,7 +186,7 @@ test('external aggregate save reports success only after exact file readback and
   if (result.state !== 'saved') throw new Error('Expected external save');
   const text = f.files.get(`folder:/${result.fileName}`)!;
   assert.equal(result.sha256, await hash(text));
-  assert.equal((await backup.validateUserBackup(text, { ownerId, storeId, informationScope: providerScope }, hash)).version, 2);
+  assert.equal((await backup.validateUserBackup(text, { ownerId, storeId, informationScope: providerScope }, hash)).version, 3);
   f.state.corruptReadback = true;
   await assert.rejects(f.api.saveUserBackupToFolder(f.scope, f.service, async () => {}), /External user backup verification failed/);
   assert.equal(f.files.size, 2);

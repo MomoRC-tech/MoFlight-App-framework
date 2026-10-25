@@ -1,8 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { TextInput, View } from 'react-native';
 import { Action, Label, colors } from './theme';
-import { File, Paths } from 'expo-file-system';
-import { hash } from '../storage';
+import { readDutyTargetNative, saveDutyTargetNative, subscribeDutyTargets } from '../duty-target-native';
 import { parseDutyTarget, PROVISIONAL_DUTY_HOURS } from './cockpit-season';
 
 interface TargetContext { key: string | null; persistent: boolean; active: boolean }
@@ -17,6 +16,8 @@ export function useDutyTarget(scope: string | null, year: number, persistent = t
   const [saved, setSaved] = useState<{context: TargetContext; hours: number} | null>(null);
   const [failure, setFailure] = useState<{context: TargetContext; message: string} | null>(null);
   const [busy, setBusy] = useState(false);
+  const [storageVersion,setStorageVersion] = useState(0);
+  useEffect(() => persistent ? subscribeDutyTargets(() => setStorageVersion(value => value + 1)) : undefined, [persistent]);
   const memory = useRef(new Map<string,number>());
   const saving = useRef(false), revision = useRef(0);
   const isCurrent = () => current.current === context && context.active;
@@ -27,17 +28,15 @@ export function useDutyTarget(scope: string | null, year: number, persistent = t
       if (hours !== undefined) setSaved({context,hours});
     } else if (key) void (async () => {
       try {
-        const name = `cockpit-duty-${await hash(key)}.json`;
-        if (!alive || !isCurrent()) return;
-        const file = new File(Paths.document, name);
-        if (!file.exists) return;
-        const value = JSON.parse(await file.text());
-        if (value.version !== 1 || value.key !== key || typeof value.hours !== 'number' || parseDutyTarget(String(value.hours)) === null) throw new Error('Invalid target');
-        if (alive && isCurrent() && revision.current===started) setSaved({context, hours:value.hours});
+        const hours = await readDutyTargetNative(key);
+        if (alive && isCurrent() && revision.current===started) {
+          setSaved(hours === null ? null : {context, hours});
+          setFailure(null);
+        }
       } catch { if (alive && isCurrent() && revision.current===started) setFailure({context,message:'Lokales Soll konnte nicht gelesen werden. 25 h bleiben vorläufig.'}); }
     })();
     return () => { alive = false; context.active=false; };
-  }, [context]);
+  }, [context,storageVersion]);
   const hours = saved?.context === context ? saved.hours : PROVISIONAL_DUTY_HOURS;
   const save = async (draft: string) => {
     const value = parseDutyTarget(draft);
@@ -46,13 +45,7 @@ export function useDutyTarget(scope: string | null, year: number, persistent = t
     saving.current=true; revision.current++; setBusy(true); setFailure(null);
     try {
       if (persistent) {
-        const name = `cockpit-duty-${await hash(key)}.json`;
-        if (!isCurrent()) return false;
-        const file = new File(Paths.document, name);
-        const payload = JSON.stringify({version:1,key,hours:value});
-        file.write(payload);
-        if (await file.text() !== payload) throw new Error('Readback failed');
-        if (!isCurrent()) return false;
+        if (!await saveDutyTargetNative(key,value,isCurrent)) return false;
       } else memory.current.set(key,value);
       setSaved({context,hours:value});
       return true;
@@ -66,7 +59,7 @@ export function DutyTargetEditor({target, onClose}: {target: ReturnType<typeof u
   const live=useRef(true);
   useEffect(()=>{live.current=true;return()=>{live.current=false;};},[]);
   return <View style={{gap:8}}><Label>Vorläufiges Jahres-Soll · Stunden</Label>
-    <Label muted>{target.persistent?'Keine bestätigte Vereinsvorgabe. Gilt lokal für dieses Konto und die gewählte Saison; nicht Teil der Datensicherung.':'Synthetische Vorschau. Änderungen werden nur in dieser Ansicht angezeigt und nicht gespeichert.'}</Label>
+    <Label muted>{target.persistent?'Keine bestätigte Vereinsvorgabe. Gilt lokal für dieses Konto und die gewählte Saison; in neuen Datensicherungen enthalten. Ältere Sicherungen ändern das lokale Soll nicht.':'Synthetische Vorschau. Änderungen werden nur in dieser Ansicht angezeigt und nicht gespeichert.'}</Label>
     <TextInput accessibilityLabel="Vorläufiges Jahres-Soll in Stunden" keyboardType="decimal-pad" value={draft} onChangeText={setDraft} editable={!target.busy} style={{minHeight:48,borderWidth:1,borderColor:colors.border,borderRadius:12,padding:10,color:colors.text,fontSize:16}} />
     {target.error && <View accessibilityLiveRegion="polite"><Label>{target.error}</Label></View>}
     <Action disabled={target.busy} onPress={()=>void target.save(draft).then(ok=>{if(ok&&live.current)onClose();})}>{target.persistent?'Soll lokal speichern':'Soll für Vorschau übernehmen'}</Action>

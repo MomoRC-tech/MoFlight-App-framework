@@ -59,7 +59,7 @@ function fixture(width = 390, fontScale = 1, root = false) {
     'react-native-safe-area-context': leaves(['SafeAreaProvider', 'SafeAreaView']),
     '../App': { default: 'LabApp' }, '../BookLab': { BookLab: 'BookLab' },
     '@moflight/flight-logbook': { canonical },
-    './sync-progress':syncProgress,'./SyncProgress':{SyncProgress:'SyncProgress'},
+    './SyncStatusDetails':{SyncStatusDetails:'SyncStatusDetails'},'./sync-progress':syncProgress,'./SyncProgress':{SyncProgress:'SyncProgress'},
     './theme': { ...leaves(['Action', 'Card', 'Chip', 'ClubMark', 'Empty', 'GliderMark', 'IconLabel', 'Label', 'Photo', 'Section']), colors: {}, ui: {} },
     './SymbolIcon': { SymbolIcon: 'SymbolIcon' },
     './use-library': { useLibrary: (value: boolean) => { suspended = value; return library; } },
@@ -134,7 +134,9 @@ test('header age comes from the selected saved retrieval independently of provid
   assert.ok(f.find('DataUpdateIndicator').props.scopeKey.includes('real-owner'));
   f.setTime(now+40*60_000);assert.equal(status().state,'older');f.setTime(now);
   f.press('Pressable','Profil & Einstellungen öffnen');
-  assert.equal(f.find('ProfileSettings').props.connectionSummary.props.controller.connection.lastCheckedAt,state.lastCheckedAt);
+  const summary=f.find('ProfileSettings').props.connectionSummary;
+  assert.equal(summary.children.find((n:Element)=>n.type==='SyncStatusDetails').props.connection.lastCheckedAt,state.lastCheckedAt);
+  assert.equal(summary.children.find((n:Element)=>n.type==='ConnectionSummary').props.controller.connection.lastCheckedAt,state.lastCheckedAt);
   f.headers().at(-1)!.props.back();f.render();
   assert.deepEqual(f.calls,[]);
   f.appState('background');f.appState('active');
@@ -615,11 +617,16 @@ test('overview-selected year opens Statistics in that same season',()=>{
 });
 
 
-test('passive status stays in scoped header and details rather than a repeated row',()=>{
- const f=fixture();f.showLoad(null,{snapshot:{ownerId:'owner',storeId:'store',account:{accountRef:'101'}}});
- const row=()=>f.nodes().find(n=>n.props.accessibilityLabel==='Gespeicherten Datenstand und Sync-Details öffnen');
- for(const activity of [{changed:true,storeId:'foreign',accountRef:'101'},{changed:true,storeId:'store',accountRef:'102'}]){f.setProviderStatus({...unknownProviderStatus,ownerId:'owner',activity});assert.equal(row(),undefined);}
- f.setProviderStatus({...unknownProviderStatus,ownerId:'owner',activity:{changed:true,storeId:'store',accountRef:'101'}});assert.equal(row(),undefined);assert.equal(f.find('DataUpdateIndicator').props.activityChanged,true);
+test('visible sync advice is scoped and Details opens status without provider work',()=>{
+ const f=fixture();const at='2026-10-22T12:00:00.000Z';
+ f.showLoad(null,{snapshot:{ownerId:'owner',storeId:'store',account:{accountRef:'101'},savedRetrievals:[{from:'2026-01-01',to:'2026-10-22',retrievedAt:at,savedAt:at}]}});
+ for(const activity of [{changed:true,storeId:'foreign',accountRef:'101'},{changed:true,storeId:'store',accountRef:'102'}]){
+  f.setProviderStatus({...unknownProviderStatus,ownerId:'owner',activity});assert.equal(f.find('SyncProgress').props.notice,null);
+ }
+ f.setProviderStatus({...unknownProviderStatus,ownerId:'owner',activity:{changed:true,storeId:'store',accountRef:'101'}});
+ assert.equal(f.find('SyncProgress').props.notice.caption,'Änderungen möglich');
+ f.find('SyncProgress').props.details();f.render();assert.equal(f.headers().at(-1)!.props.title,'Verbindung & Datenstatus');
+ assert.equal(f.find('SyncStatusDetails').props.activityChanged,true);assert.deepEqual(f.coreRoutes,[]);
 });
 
 

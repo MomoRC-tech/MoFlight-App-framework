@@ -1,14 +1,27 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import { View } from 'react-native';
 import { Action, Card, Label, Section } from './theme';
 
-export function DevelopmentHub({ onFlights, onBooks, onImportPreview, onCoreFlights, profileTools, onSelectBook, onBackup, onPaper, onDesignPreview }: { onDesignPreview?: () => void; onPaper: () => void; profileTools?: React.ReactNode; onSelectBook: () => void; onBackup: () => void; onFlights: () => void; onBooks: () => void; onProvider?: () => void; onImportPreview: () => void; onCoreFlights: () => void }) {
+export function DevelopmentHub({ onFlights, onBooks, onImportPreview, onCoreFlights, profileTools, onSelectBook, onBackup, onPaper, onDesignPreview, onBusyChange }: { onBusyChange?: (busy:boolean)=>void; onDesignPreview?: () => void; onPaper: () => void; profileTools?: React.ReactNode; onSelectBook: () => void; onBackup: () => void; onFlights: () => void; onBooks: () => void; onProvider?: () => void; onImportPreview: () => void; onCoreFlights: () => void }) {
+  const [targetProof,setTargetProof]=useState<string|null>(null),[proofBusy,setProofBusy]=useState(false);
+  const running=useRef(false);
+  const runTargetProof=async()=>{
+    if(running.current)return;
+    running.current=true;setProofBusy(true);onBusyChange?.(true);setTargetProof(null);
+    try {
+      const {runDutyTargetBackupFixture}=await import('../development/duty-target-backup-fixture');
+      const result=await runDutyTargetBackupFixture();
+      setTargetProof(`Sollstunden-Nachweis bestanden: ${result.checks.length} Prüfungen. ${result.limitation}`);
+    } catch(error){setTargetProof(`Sollstunden-Nachweis fehlgeschlagen: ${error instanceof Error?error.message:String(error)}`);}
+    finally{running.current=false;setProofBusy(false);onBusyChange?.(false);}
+  };
   return <View style={{ width: '100%', maxWidth: 520, alignSelf: 'center', gap: 10 }}>
     <Card><Section title="Entwicklung" icon="info" />
       <Label>Testwerkzeuge dieses experimentellen Lab-Builds</Label>
       <Label muted>Hier sind synthetische Testdaten und ältere Funktionsnachweise gebündelt. Öffnen allein lädt keine Fixtures und startet keinen Anbieterabruf. Diese Seite ist keine Zugriffssperre und keine Freigabe für eine spätere Produktversion.</Label>
     </Card>
     {onDesignPreview&&<Card><Section title="Designvorschau" icon="glider"/><Label muted>Fiktive Flüge, leere Listen und Fehlerzustände. Keine Speicherung und kein Anbieterzugriff.</Label><Action onPress={onDesignPreview}>Designvorschau öffnen</Action></Card>}
+    <Card><Section title="Sollstunden-Dateinachweis"/><Label muted>Nur fest abgegrenzte synthetische Konten. Prüft lokale Dateien und stellt deren vorherigen Inhalt wieder her; keine Anbieterabfrage.</Label><Action disabled={proofBusy} onPress={()=>void runTargetProof()}>Sollstunden-Dateinachweis starten</Action>{targetProof&&<Label selectable>{targetProof}</Label>}</Card>
     <Card><Section title="Eigene Flugbibliothek" icon="flight-paper-plane" />
       <Label muted>Neue lokale Bibliothek für eigene Vereinsflieger-Flüge. Abruf prüfen, ausdrücklich ohne Buchzuordnung speichern und offline wieder öffnen. Bestehende Belege und Teststände bleiben getrennt.</Label>
       <Action testID="development-own-flight-library" icon="flight-paper-plane" onPress={onCoreFlights}>Eigene Flugbibliothek öffnen</Action>

@@ -1,3 +1,17 @@
+import {dataFreshness,dataUpdateStatus,type CaptureReadState} from './data-freshness';
+
+export type IdleSyncNotice={kind:'read-error'|'advice'|'never'|'unknown';caption:string;description:string};
+/** Advice uses committed receipt evidence and never starts work or changes its age. */
+export function idleSyncNotice({receivedAt,readState,now,activityChanged=false}:{receivedAt:string|null;readState:CaptureReadState;now:number;activityChanged?:boolean}):IdleSyncNotice|null{
+  if(readState==='loading')return null;
+  if(readState==='failed')return {kind:'read-error',caption:'Gespeicherte Daten nicht lesbar',description:'Gespeicherte Daten konnten nicht erneut gelesen werden. Frühere Daten bleiben erhalten. Details öffnen die lokale Wiederherstellung.'};
+  if(receivedAt===null)return {kind:'never',caption:'Noch keine Flugdaten',description:'Noch keine Flugdaten empfangen. Über die Synchronisierung im Kopfbereich kannst du Flugdaten abrufen.'};
+  if(dataUpdateStatus(receivedAt,readState,now).state==='unknown')return {kind:'unknown',caption:'Datenstand unklar',description:'Der Zeitpunkt des letzten gespeicherten Flugdatenabrufs ist unklar.'};
+  const older=dataFreshness(receivedAt,readState,now).reminder;
+  if(!older&&!activityChanged)return null;
+  return {kind:'advice',caption:activityChanged?'Änderungen möglich':'Aktualisierung empfohlen',description:[activityChanged?'Eine beobachtete Anzahl hat sich geändert. Neue Flüge sind damit nicht bestätigt.':'',older?'Der letzte gespeicherte Flugdatenabruf liegt mehr als drei Tage zurück.':''].filter(Boolean).join(' ')};
+}
+
 export const syncStages=['prepare','account','sign-in','flights','save','medical','duties','events','documents','work-summary','work-hours','tasks'] as const;
 export type SyncStage=typeof syncStages[number];
 export type SyncProgress={state:'idle'|'active'|'waiting'|'failed'|'partial';last:SyncStage|null;current:SyncStage|null;message?:string};

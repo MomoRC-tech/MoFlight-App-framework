@@ -14,7 +14,7 @@ import { DutyRoster } from './DutyRoster';
 import { DataUpdateIndicator } from './DataUpdateIndicator';
 import { UpdateResult } from './UpdateResult';
 import {SyncProgress} from './SyncProgress';
-import {idleSyncProgress,completedSyncProgress,type SyncProgress as Progress} from './sync-progress';
+import {idleSyncProgress,idleSyncNotice,completedSyncProgress,type SyncProgress as Progress} from './sync-progress';
 import { CockpitPreview } from './CockpitPreview';
 
 /** Mount directly in the shell's flex content area; OwnFlights owns its list scrolling. */
@@ -31,6 +31,7 @@ export function DesignPreview({onClose=()=>{}}:{onClose?:()=>void}={}) {
   const [paper, setPaper] = useState(false);
   const [statisticsOpen, setStatisticsOpen] = useState(false);
   const [syncDetails, setSyncDetails] = useState(false);
+  const [syncState,setSyncState]=useState<'saved'|'never'|'age'|'changed'|'read-error'>('saved');
   const [syncReceiptVisible, setSyncReceiptVisible] = useState(true);
   const [dutiesExpanded, setDutiesExpanded] = useState(false);
   const statisticsBack = useRef<() => boolean>(() => false);
@@ -49,16 +50,22 @@ export function DesignPreview({onClose=()=>{}}:{onClose?:()=>void}={}) {
     openDetail, clearDetail, reload,
   };
   if(cockpit)return <CockpitPreview onClose={()=>setCockpit(false)} onFlights={()=>{setCockpit(false);setPage('flights');}} onStatistics={()=>{setCockpit(false);setStatisticsOpen(true);}}/>;
+  const syncReceived=syncState==='never'?null:syncState==='age'?'2026-10-18T12:00:00.000Z':new Date(DESIGN_PREVIEW_NOW).toISOString();
+  const syncRead=syncState==='read-error'?'failed':'ready';
+  const syncNotice=idleSyncNotice({receivedAt:syncReceived,readState:syncRead,now:DESIGN_PREVIEW_NOW,activityChanged:syncState==='changed'});
   if(page==='sync')return <View style={styles.root}>
-    <AppHeader title="Synchronisierung" back={()=>setPage('start')}><DataUpdateIndicator receivedAt="2026-10-18T12:00:00.000Z" readState="ready" now={DESIGN_PREVIEW_NOW} syncing={progress.state==='active'||progress.state==='waiting'} onPress={()=>setProgress({state:'active',last:'account',current:'flights'})}/></AppHeader>
-    <SyncProgress progress={progress} retry={()=>setProgress({state:'active',last:null,current:'account'})} details={()=>setProgress({state:'partial',last:'save',current:null,message:'Eine Quelle konnte nicht aktualisiert werden.'})}/>
+    <AppHeader title="Synchronisierung" back={()=>setPage('start')}><DataUpdateIndicator receivedAt={syncReceived} readState={syncRead} activityChanged={syncState==='changed'} incomplete={progress.state==='failed'||progress.state==='partial'} now={DESIGN_PREVIEW_NOW} syncing={progress.state==='active'||progress.state==='waiting'} onPress={()=>setProgress({state:'active',last:'account',current:'flights'})}/></AppHeader>
+    <SyncProgress notice={syncNotice} progress={progress} retry={()=>setProgress({state:'active',last:null,current:'account'})} details={()=>setSyncDetails(!syncDetails)}/>
     <ScrollView contentContainerStyle={{padding:18,gap:12}}>
       <Label muted>Synthetische UI-Vorschau · keine Speicherung</Label>
+      {syncDetails&&<Label>{syncNotice?.description??progress.message??'Synthetische Sync-Details. Keine Quelle wurde abgerufen.'}</Label>}
+      {([ ['saved','Gespeichert'],['never','Noch nie'],['age','Älter als drei Tage'],['changed','Änderungen möglich'],['read-error','Lesefehler'] ] as const).map(([value,label])=><Action key={value} secondary onPress={()=>{setSyncState(value);setProgress(idleSyncProgress);setSyncDetails(false);}}>Vorschau: {label}</Action>)}
       <Action onPress={()=>setProgress({state:'active',last:'account',current:'flights'})}>Vorschau: Flüge abrufen</Action>
       <Action onPress={()=>setProgress({state:'active',last:'flights',current:'save'})}>Vorschau: Flüge speichern</Action>
       <Action onPress={()=>setProgress({state:'waiting',last:'prepare',current:'sign-in'})}>Vorschau: Anmeldung erforderlich</Action>
-      <Action onPress={()=>setProgress(completedSyncProgress({pending:0,medicalStatus:'updated',dutyStatus:'partial',eventsStatus:'failed'}))}>Vorschau: Fehler</Action>
-      <Action onPress={()=>setProgress(idleSyncProgress)}>Vorschau: Fertig</Action>
+      <Action onPress={()=>{setSyncState('saved');setProgress(completedSyncProgress({pending:0,medicalStatus:'updated',dutyStatus:'partial',eventsStatus:'failed'}));}}>Vorschau: Teilweise</Action>
+      <Action onPress={()=>{setSyncState('saved');setProgress({state:'failed',last:'account',current:null,message:'Synthetischer Abruffehler. Gespeicherte Daten bleiben verfügbar.'});}}>Vorschau: Fehler</Action>
+      <Action onPress={()=>{setSyncState('saved');setProgress(idleSyncProgress);}}>Vorschau: Fertig</Action>
     </ScrollView>
   </View>;
   if (statisticsOpen) return <View style={styles.root}>

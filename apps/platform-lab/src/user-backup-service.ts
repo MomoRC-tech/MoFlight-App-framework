@@ -1,3 +1,4 @@
+import type { DutyTargetArchive } from './duty-target';
 import { canonical } from '@moflight/flight-logbook';
 import type { Hash } from '../../../packages/local-data/src/index';
 import type { RealFlightBackupIo } from './vereinsflieger/real-flight-backup-native';
@@ -25,6 +26,8 @@ export interface UserBackupServicePorts {
   stagePilot(input: { backup: string; displayName: string; selectedBookId: string | null; candidateName: string; permit: { operationId: string; ownerId: string; storeId: string } }): Promise<void>;
   activatePilot(input: { candidateName: string; permit: { operationId: string; ownerId: string; storeId: string } }): Promise<void>;
   restoreInformation(input: { scope: ProviderScope; backup: string; operationId: string }, gate: UserBackupGate): Promise<'restored' | 'already-activated'>;
+  preflightDutyTargets(archive: DutyTargetArchive, gate: UserBackupGate): Promise<void>;
+  restoreDutyTargets(input: { archive: DutyTargetArchive; permit: { operationId: string; ownerId: string; storeId: string } }, gate: UserBackupGate): Promise<void>;
   restoreAi(input: { archive: ChatArchive; permit: { operationId: string; ownerId: string; storeId: string } }, gate: UserBackupGate): Promise<void>;
 }
 
@@ -72,7 +75,7 @@ export async function restoreUserBackup(ownerId: string, storeId: string, gate: 
   const informationScope = await ports.currentInformationScope(ownerId);
   const payload = await validateUserBackup(text, { ownerId, storeId, informationScope }, ports.hash);
   const archiveSha256 = await ports.hash(text);
-  const aiArchive = payload.version === 2 ? decodeChatArchive(payload.ai.archive, ownerId, { interruptActive: true }) : emptyUserChatArchive(ownerId);
+  const aiArchive = payload.version >= 2 && 'ai' in payload ? decodeChatArchive(payload.ai.archive, ownerId, { interruptActive: true }) : emptyUserChatArchive(ownerId);
   if (!/^[0-9a-f]{64}$/.test(archiveSha256)) throw new Error('Invalid user backup archive digest.');
   if (prior && (prior.archiveSha256 !== archiveSha256 || canonical(prior.informationScope) !== canonical(payload.information?.scope ?? null))) {
     throw new Error('Selected archive differs from the pending aggregate restore.');
@@ -105,6 +108,8 @@ export async function restoreUserBackup(ownerId: string, storeId: string, gate: 
     selectedBookId: payload.pilot.selectedBookId, candidateName: operation.pilotCandidateName,
     permit: { operationId: operation.operationId, ownerId, storeId } });
   await gate();
+
+  if (!prior && payload.version === 3) { await ports.preflightDutyTargets(payload.dutyTargets, gate); await gate(); }
 
   journal = await ports.openJournal(true);
   if (!journal) throw new Error('Aggregate user restore journal is unavailable.');
@@ -141,6 +146,10 @@ export async function restoreUserBackup(ownerId: string, storeId: string, gate: 
     // The aggregate read gate blocks all stores until pilot + completion commit.
     await gate();
     await ports.restoreAi({ archive: aiArchive, permit }, gate);
+    if (payload.version === 3) {
+      await gate();
+      await ports.restoreDutyTargets({ archive: payload.dutyTargets, permit }, gate);
+    }
     await recordPhase(ports, prepared.operationId, 'information');
     await gate();
 

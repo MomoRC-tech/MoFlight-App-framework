@@ -223,6 +223,8 @@ function createRestorePorts(p: UpdateProofPorts, text: string, scope: ProviderSc
       await p.write(SELECTION, canonical({ ownerId: input.permit.ownerId, storeId: input.permit.storeId,
         selectedBookId: backupBody.pilot.selectedBookId }));
     },
+    async preflightDutyTargets() { throw new Error('This bounded fixture uses backup v1/v2 only.'); },
+    async restoreDutyTargets() { throw new Error('This bounded fixture uses backup v1/v2 only.'); },
     async restoreAi(input, gate) {
       const allowed = () => assertUserBackupReadAllowed(() => openJournal(p), input.permit);
       const store = await ChatStore.open(await p.open('a-chats.sqlite'), input.permit.ownerId, allowed);

@@ -1,5 +1,7 @@
 # Decisions, history and known gaps
 
+**25 October Sync and target backup selection — #83/#29:** Manuel selected the prepared Sync proposal and inclusion of provisional annual targets in a new archive version. The [scoped amendment](compact-cockpit.md#sync-clarity-and-target-preservation--selected-25-october-2026) records exactly which earlier header and backup-exclusion rules it supersedes. Older v1/v2 restores preserve existing targets; beta starting versions and portable identity remain separate. [Implementation/evidence](../../verification/2026-10-25-sync-and-target-backup.md) does not infer physical/iOS or full-user acceptance.
+
 **24 October Flights rework — #70:** Manuel selected C, requested less whitespace, then explicitly authorized the entire Flights cleanup including the denser three-line refinement. The [current contract](compact-cockpit.md#compact-flights-screen--approved-24-october-2026) supersedes the tall C09 card and scrolling filter/summary header. Fixed compact controls, visible removable active values, content-sized actions and source-labelled crew retain existing data/return boundaries. [Verification and platform limits](../../verification/2026-10-24-flight-list.md) are separate from design selection.
 
 > **Current appearance authority — 24 October 2026:** [Dark Compact Cockpit](compact-cockpit.md) and its approved reference supersede conflicting older appearance/composition statements below. Data, feature and verification boundaries retain their scope.
