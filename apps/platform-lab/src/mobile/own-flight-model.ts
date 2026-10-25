@@ -52,27 +52,54 @@ function crewName(field: RawField): string {
   }).filter(Boolean).join(' · ') || 'unbekannt';
 }
 
-/** Raw flight mode/type must explicitly say solo. Empty or missing crew never proves it. */
+/** Read-only display grouping by full source name, never by initials or a cross-flight identity. */
+export function ownFlightCrew(flight: RealFlightListItem) {
+  const { fields, observation } = flight.facts.assessment;
+  const people = new Map<string, { full: string; roles: Set<string> }>();
+  const canonical = (value: string) => {
+    const parts=value.normalize('NFC').trim().replace(/\s+/g,' ').split(',').map(v=>v.trim());
+    return parts.length===2 && parts.every(Boolean) ? `${parts[1]} ${parts[0]}` : parts.join(', ');
+  };
+  const add = (raw: string, role: string) => {
+    for(const line of raw.split(/\r?\n/).filter(v=>v.trim())) {
+      const full=canonical(line), key=full.toLocaleLowerCase('de-DE');
+      const person=people.get(key)??{full,roles:new Set<string>()};person.roles.add(role);people.set(key,person);
+    }
+  };
+  for(const [field,role] of [[fields.pic,'PIC'],[fields.sic,'SIC'],[fields.pilot,'Pilot'],[fields.companion,'Begl.'],[fields.companion2,'Begl.'],[fields.companion3,'Begl.']] as const) {
+    if(field.state==='value')add(field.raw,role);
+  }
+  // Only an explicitly named instructor field proves FI; Begleiter/FI and FI-Time do not.
+  observation.headers.forEach((label,index)=>{if(['FI','Fluglehrer','Instructor'].includes(label))add(observation.row.values[index]??'','FI');});
+  const values=[...people.values()];
+  const explicitSolo=[fields.flightMode,fields.flightType].some(f=>f.state==='value'&&/^(solo|alleinflug)$/i.test(f.raw.trim()));
+  const companions=[fields.companion,fields.companion2,fields.companion3].some(f=>f.state==='value'&&!!f.raw.trim());
+  const sole=values.length===1?values[0]:undefined;
+  const solo=!!sole&&!companions&&!sole.roles.has('SIC')&&(sole.roles.has('PIC')||explicitSolo);
+  const short=(full:string)=>crewName({state:'value',label:'display',raw:full});
+  const crew=values.map(person=>{
+    const roles=['PIC','FI','SIC','Pilot','Begl.'].filter(role=>person.roles.has(role));
+    const specific=roles.filter(role=>!['Pilot','Begl.'].includes(role));
+    const abbreviation=short(person.full);
+    return {role:(specific.length?specific:roles.includes('Pilot')?['Pilot']:['Begl.']).join('/'),name:values.some(other=>other!==person&&short(other.full)===abbreviation)?person.full:abbreviation};
+  });
+
+  return {crew,solo,soloSource:solo?(explicitSolo?'explicit':'one-pic') : null,
+    picKnown:values.some(p=>p.roles.has('PIC')),instructor:values.some(p=>p.roles.has('FI'))?'recorded':solo?'none-recorded':'unknown'} as const;
+}
+
 export function ownFlightCard(flight: RealFlightListItem) {
   const a = flight.facts.assessment, fields = a.fields;
-  const companions = [fields.companion, fields.companion2, fields.companion3].filter(field => field.state === 'value');
-  const explicitSolo = [fields.flightMode, fields.flightType].some(field => field.state === 'value' && /^(solo|alleinflug)$/i.test(field.raw.trim()));
-  const differentPic = fields.pic.state === 'value' && (fields.pilot.state !== 'value' || fields.pic.raw.trim() !== fields.pilot.raw.trim());
-  const solo = explicitSolo && fields.pilot.state === 'value' && !companions.length && fields.sic.state !== 'value' && !differentPic;
-  const crew = [{ role: 'Pilot', name: crewName(fields.pilot) },
-    ...(differentPic ? [{ role: 'PIC', name: crewName(fields.pic) }] : []),
-    ...(!solo ? [{ role: 'Begl.', name: companions.length ? companions.map(crewName).join(' · ') : 'unbekannt' }] : []),
-    ...(fields.sic.state === 'value' ? [{ role: 'SIC', name: crewName(fields.sic) }] : []),
-  ];
+  const {crew,solo,soloSource,picKnown,instructor}=ownFlightCrew(flight);
   const raw = (field: RawField, unknown: string) => ownRawValue(field) ?? unknown;
   const duration = a.durations.flight;
   return {
-    date: a.date.state === 'parsed' ? `${a.date.value.slice(8)}.${a.date.value.slice(5, 7)}.${a.date.value.slice(2, 4)}` : 'Datum unklar',
-    registration: raw(fields.registration, 'Kennzeichen unbekannt'), model: raw(fields.model, 'Muster unbekannt'),
-    start: a.clocks.start.state === 'parsed' ? a.clocks.start.value : 'Start unbekannt',
-    route: `${raw(fields.departure, 'Ort unbekannt')} → ${raw(fields.arrival, 'Ort unbekannt')}`,
-    duration: duration.state === 'known' ? formatReportedMinutes(duration.minutes) : duration.state === 'unknown' ? '—' : 'Zeit unklar',
-    knownDuration: duration.state === 'known', solo, crew,
+    date: a.date.state === 'parsed' ? `${a.date.value.slice(8)}.${a.date.value.slice(5, 7)}.${a.date.value.slice(2, 4)}` : '',
+    registration: raw(fields.registration, ''), model: raw(fields.model, ''),
+    start: a.clocks.start.state === 'parsed' ? a.clocks.start.value : '',
+    route: [ownRawValue(fields.departure),ownRawValue(fields.arrival)].filter(Boolean).join(' → '),
+    duration: duration.state === 'known' ? formatReportedMinutes(duration.minutes) : '',
+    knownDuration: duration.state === 'known', solo, crew, soloSource, picKnown, instructor,
   };
 }
 export function ownFlightYears(flights: readonly RealFlightListItem[]): number[] {

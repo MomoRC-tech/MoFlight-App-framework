@@ -1,10 +1,12 @@
-import React from 'react';
-import { Pressable, StyleSheet, TextInput, View } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { Keyboard, KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import type { AiBudget, AiFeature } from '../../../../packages/ai-contracts/src/index.ts';
 import type { ChatConversation, ChatMessage } from '../ai/chat-model';
 import { Action, Card, Chip, Empty, Label, Section, colors, ui } from './theme';
+import { SymbolIcon } from './SymbolIcon';
 
 export interface AiChatProps {
+  active?: boolean;
   conversations: ChatConversation[];
   selectedId: string | null;
   enabled: boolean;
@@ -123,18 +125,61 @@ function MessageEvidence({ message, onEvidence }: {
 }
 
 export function AiChat({
-  conversations, selectedId, enabled, busy, loading, notice, usage, feature,
+  conversations, selectedId, enabled, busy, loading, notice, usage, feature, active=true,
   onCreate, onSelect, onDelete, onDraft, onSend, onCancel, onToggle, onFeature, onEvidence,usageAt,usageStale,
 }: AiChatProps) {
-  const selected = conversations.find(conversation => conversation.id === selectedId) ?? null;
-  const draft = selected?.draft ?? '';
-  const canSend = draft.trim().length > 0 && !busy;
-
-  return (
-    <View style={styles.root}>
-      <Section title="MoFlight AI" />
-
-      <Card style={styles.card}>
+  const selected=conversations.find(c=>c.id===selectedId)??null;
+  const draft=selected?.draft??'';
+  const [sheet,setSheet]=useState<'history'|'options'|'privacy'|'usage'|'tasks'|null>(null);
+  const [query,setQuery]=useState(''),[inputHeight,setInputHeight]=useState(44),[showLatest,setShowLatest]=useState(false);
+  const transcript=useRef<ScrollView>(null),positions=useRef<Record<string,number>>({}),follow=useRef(true);
+  const key=selectedId??'new';
+  useEffect(()=>{follow.current=positions.current[key]===undefined;setShowLatest(false);setInputHeight(44);},[key]);
+  useEffect(()=>{if(!active){setSheet(null);Keyboard.dismiss();}},[active]);
+  const open=(next:NonNullable<typeof sheet>)=>{Keyboard.dismiss();setQuery('');setSheet(next);};
+  const create=()=>{setSheet(null);follow.current=true;onCreate();};
+  const bottom=()=>{follow.current=true;setShowLatest(false);transcript.current?.scrollToEnd({animated:false});};
+  const menuAction=(title:string,action:()=>void,label=title)=><Pressable accessibilityRole="button" accessibilityLabel={label} onPress={action} style={styles.menuRow}><Label>{title}</Label></Pressable>;
+  return <View style={styles.root}>
+    <View style={styles.toolbar}>
+      <Pressable accessibilityRole="button" accessibilityLabel="Chats öffnen" onPress={()=>open('history')} style={styles.iconButton}><SymbolIcon name="messages" size={22}/></Pressable>
+      <Text numberOfLines={1} style={styles.chatTitle}>{selected?.title||'Neuer Chat'}</Text>
+      <Pressable accessibilityRole="button" accessibilityLabel="Neue Unterhaltung erstellen" disabled={busy} onPress={create} style={styles.iconButton}><SymbolIcon name="plus" size={22}/></Pressable>
+      <Pressable accessibilityRole="button" accessibilityLabel="Chatoptionen öffnen" onPress={()=>open('options')} style={styles.iconButton}><Text style={styles.icon}>…</Text></Pressable>
+    </View>
+    <ScrollView key={key} ref={transcript} testID="ai-transcript" style={styles.transcript} contentContainerStyle={styles.messages} contentOffset={{x:0,y:positions.current[key]??0}} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag"
+      onScroll={event=>{const {contentOffset,contentSize,layoutMeasurement}=event.nativeEvent;positions.current[key]=contentOffset.y;follow.current=contentSize.height-contentOffset.y-layoutMeasurement.height<64;setShowLatest(!follow.current);}} scrollEventThrottle={32}
+      onContentSizeChange={()=>{if(follow.current)transcript.current?.scrollToEnd({animated:false});}} onLayout={()=>{if(follow.current)transcript.current?.scrollToEnd({animated:false});}}>
+      {loading&&<Label muted>Unterhaltungen werden geladen …</Label>}
+      {!selected?.messages.length&&<View style={styles.welcome}><Label>Was möchtest du über deine Flüge wissen?</Label><Label muted>Schreibe eine Frage. Dein Entwurf bleibt lokal.</Label></View>}
+      {selected?.messages.map(message=><View key={message.id} style={styles.exchange}>
+        <View style={styles.userMessage}><Label selectable>{message.input}</Label></View>
+        {message.status!=='complete'&&<Label muted style={styles.messageHeading}>{statusLabels[message.status]}</Label>}
+        {message.answer&&<View style={styles.answer}><Label muted style={styles.messageHeading}>MoFlight AI</Label><Label selectable>{message.answer.text}</Label>
+          {message.answer.metrics.length>0&&<View style={styles.metricRows}>{message.answer.metrics.map(metric=><View key={metric.referenceId} style={styles.budgetRow}><Label muted style={styles.budgetName}>{metricLabels[metric.measure]}</Label><Label>{formatMetric(metric.value,metric.unit)}</Label></View>)}</View>}
+          <MessageEvidence message={message} onEvidence={onEvidence}/>
+        </View>}
+      </View>)}
+    </ScrollView>
+    {showLatest&&<Pressable accessibilityRole="button" accessibilityLabel="Zur neuesten Nachricht" onPress={bottom} style={styles.latest}><Label>Neueste Nachricht ↓</Label></Pressable>}
+    {(notice||!enabled)&&<Pressable accessibilityRole="button" accessibilityLabel="KI-Status und Details öffnen" onPress={()=>open('options')} style={styles.status}><Text accessibilityLiveRegion="polite" numberOfLines={2} style={styles.statusText}>{notice||'KI-Anfragen aus · Entwurf bleibt lokal'}</Text></Pressable>}
+    <View testID="ai-composer" style={styles.composerPanel}>
+      {feature!=='question'&&<Pressable accessibilityRole="button" accessibilityLabel="Aufgabe ändern" onPress={()=>open('tasks')} style={styles.mode}><Label muted>{features.find(f=>f.id===feature)?.title} · ändern</Label></Pressable>}
+      <View style={styles.composerRow}>
+        <Pressable accessibilityRole="button" accessibilityLabel="Chatwerkzeuge öffnen" onPress={()=>open('tasks')} style={styles.iconButton}><SymbolIcon name="plus" size={22}/></Pressable>
+        <TextInput accessibilityLabel="Frage oder Nachrichtenentwurf" accessibilityHint="Wird lokal gespeichert. Senden erfolgt nur mit der Sendetaste." editable={!busy} maxLength={16000} multiline scrollEnabled value={draft} onChangeText={onDraft} placeholder="Nachricht …" placeholderTextColor={colors.muted} selectionColor={colors.cyan} onContentSizeChange={e=>setInputHeight(Math.max(44,Math.min(112,e.nativeEvent.contentSize.height)))} style={[styles.composer,{height:inputHeight}]}/>
+        {busy?<Pressable accessibilityRole="button" accessibilityLabel="Laufende Antwort abbrechen" onPress={onCancel} style={styles.iconButton}><SymbolIcon name="close" size={22}/></Pressable>:<Pressable accessibilityRole="button" accessibilityLabel="Nachricht senden" disabled={!draft.trim()} accessibilityState={{disabled:!draft.trim()}} onPress={()=>{bottom();onSend();}} style={[styles.iconButton,!draft.trim()&&{opacity:.4}]}><SymbolIcon name="send" size={24}/></Pressable>}
+      </View>
+    </View>
+    {sheet&&active&&<Modal transparent animationType="slide" onRequestClose={()=>setSheet(null)}><KeyboardAvoidingView behavior={Platform.OS==='ios'?'padding':'height'} style={styles.scrim}>
+      <Pressable accessibilityRole="button" accessibilityLabel="Chatmenü schließen" onPress={()=>setSheet(null)} style={StyleSheet.absoluteFill}/>
+      <View accessibilityViewIsModal style={styles.sheet}>
+        <View style={styles.toolbar}><Text style={styles.chatTitle}>{({history:'Chats',options:'Chatoptionen',privacy:'Dienst und Datenschutz',usage:'KI-Nutzung',tasks:'Chatwerkzeuge'})[sheet]}</Text><Pressable accessibilityRole="button" accessibilityLabel="Chatmenü schließen" onPress={()=>setSheet(null)} style={styles.iconButton}><Text style={styles.icon}>×</Text></Pressable></View>
+        {sheet==='history'&&<TextInput accessibilityLabel="Chats suchen" placeholder="Chats suchen …" value={query} onChangeText={setQuery} placeholderTextColor={colors.muted} style={styles.historySearch}/>}
+        <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.sheetBody}>
+          {sheet==='history'&&<>{menuAction('Neuer Chat',create,'Neue Unterhaltung erstellen')}{conversations.filter(c=>c.title.toLocaleLowerCase('de-DE').includes(query.toLocaleLowerCase('de-DE'))).map(c=><ConversationChoice key={c.id} conversation={c} selected={c.id===selectedId} onPress={()=>{onSelect(c.id);setSheet(null);}}/>)}{!conversations.length&&<Label muted>Noch keine gespeicherten Chats</Label>}</>}
+          {sheet==='options'&&<>{notice&&<Label>{notice}</Label>}{menuAction('Dienst und Datenschutz',()=>setSheet('privacy'))}{menuAction('Nutzung und Limit',()=>setSheet('usage'))}{selected&&menuAction('Unterhaltung löschen',()=>{setSheet(null);onDelete(selected.id);},'Ausgewählte Unterhaltung löschen')}</>}
+          {sheet==='privacy'&&<>      <Card style={styles.card}>
         <Section title="Dienst und Datenschutz" />
         <Label>{enabled?'Freigegeben. Eine Modellanfrage beginnt nur durch Senden.':'KI-Anfragen sind ausgeschaltet. Dein Entwurf bleibt lokal.'}</Label>
         <Label muted>Deine Unterhaltungen und Entwürfe bleiben lokal gespeichert. Wenn Anfragen verfügbar sind, können deine Frage und die für die Antwort benötigten Flugdaten an das MoFlight-Relay auf Supabase, OpenRouter und den freigegebenen Azure-Endpunkt übermittelt werden.</Label>
@@ -155,15 +200,8 @@ export function AiChat({
         </View>
       </Card>
 
-      {notice !== null && (
-        <Card style={styles.noticeCard}>
-          <View accessibilityLiveRegion="polite">
-            <Label>{notice}</Label>
-          </View>
-        </Card>
-      )}
-
-      {usage !== null && (
+</>}
+          {sheet==='usage'&&<>      {usage !== null && (
         <Card style={styles.card}>
           <Section title="KI-Nutzung" />
           <Label muted>Zeitraum: {usage.period} · {usage.timezone}</Label>
@@ -178,158 +216,18 @@ export function AiChat({
         </Card>
       )}
 
-      <Card style={styles.card}>
-        <Section title="Unterhaltungen" />
-        {loading && <Label muted>Unterhaltungen werden geladen …</Label>}
-        {!loading && conversations.length === 0 && (
-          <Empty title="Noch keine Unterhaltung">Erstelle eine Unterhaltung, um einen lokalen Entwurf zu beginnen.</Empty>
-        )}
-        {conversations.length > 0 && (
-          <View style={styles.conversationChoices}>
-            {conversations.map(conversation => (
-              <ConversationChoice
-                key={conversation.id}
-                conversation={conversation}
-                selected={conversation.id === selectedId}
-                onPress={() => onSelect(conversation.id)}
-              />
-            ))}
-          </View>
-        )}
-        <View style={styles.actionList}>
-          <View style={styles.actionCell}>
-            <Action label="Neue Unterhaltung erstellen" onPress={onCreate}>Neue Unterhaltung</Action>
-          </View>
-          <View style={styles.actionCell}>
-            <Action
-              secondary
-              disabled={selected === null}
-              label="Ausgewählte Unterhaltung löschen"
-              onPress={() => { if (selected) onDelete(selected.id); }}
-            >
-              Unterhaltung löschen
-            </Action>
-          </View>
-        </View>
-        {selectedId !== null && selected === null && <Label muted>Die ausgewählte Unterhaltung ist nicht verfügbar.</Label>}
-      </Card>
-
-      <Card style={styles.card}>
-        <Section title="Aufgabe auswählen" />
-        <View style={styles.featureChoices}>
-          {features.map(item => (
-            <Chip
-              key={item.id}
-              title={item.title}
-              selected={feature === item.id}
-              onPress={() => onFeature(item.id)}
-            />
-          ))}
-        </View>
-      </Card>
-
-      {selected && (
-        <>
-          <View style={styles.transcript}>
-            {selected.messages.length === 0 && (
-              <Card style={styles.card}>
-                <Empty title="Noch keine Nachrichten">Deine Frage und Antwort erscheinen hier.</Empty>
-              </Card>
-            )}
-            {selected.messages.map(message => (
-              <Card key={message.id} style={styles.messageCard}>
-                <Label muted style={styles.messageHeading}>Du · {statusLabels[message.status]}</Label>
-                <Label selectable>{message.input}</Label>
-                {message.answer && (
-                  <>
-                    <Label muted style={styles.messageHeading}>MoFlight AI</Label>
-                    <Label selectable>{message.answer.text}</Label>
-                    {message.answer.metrics.length > 0 && (
-                      <View style={styles.metricRows}>
-                        {message.answer.metrics.map(metric => (
-                          <View key={metric.referenceId} style={styles.budgetRow}>
-                            <Label muted style={styles.budgetName}>{metricLabels[metric.measure]}</Label>
-                            <Label>{formatMetric(metric.value, metric.unit)}</Label>
-                          </View>
-                        ))}
-                      </View>
-                    )}
-                    <MessageEvidence message={message} onEvidence={onEvidence} />
-                  </>
-                )}
-              </Card>
-            ))}
-          </View>
-
-          <Card style={styles.card}>
-            <Section title="Dein Entwurf" />
-            {busy && <Label muted>Antwort wird verarbeitet. Du kannst den Vorgang abbrechen.</Label>}
-            <TextInput
-              accessibilityLabel="Frage oder Nachrichtenentwurf"
-              accessibilityHint="Der Entwurf wird in der ausgewählten Unterhaltung lokal gespeichert."
-              editable={!busy}
-              maxLength={16000}
-              multiline
-              scrollEnabled={false}
-              value={draft}
-              onChangeText={onDraft}
-              placeholder="Schreibe deine Frage …"
-              placeholderTextColor={colors.muted}
-              selectionColor={colors.cyan}
-              style={styles.composer}
-            />
-            <View style={styles.actionList}>
-              <View style={styles.actionCell}>
-                <Action disabled={!canSend} label="Nachricht senden" onPress={onSend}>Senden</Action>
-              </View>
-              {busy && (
-                <View style={styles.actionCell}>
-                  <Action secondary label="Laufende Antwort abbrechen" onPress={onCancel}>Antwort abbrechen</Action>
-                </View>
-              )}
-            </View>
-          </Card>
-        </>
-      )}
-
-      {!selected && (
-        <Card style={styles.card}>
-          <Empty title="Wähle eine Unterhaltung">Erstelle eine neue Unterhaltung, um deinen Entwurf lokal zu speichern.</Empty>
-          {busy && <Action secondary label="Laufende Antwort abbrechen" onPress={onCancel}>Antwort abbrechen</Action>}
-        </Card>
-      )}
-    </View>
-  );
+{usage===null&&<Label muted>Nutzungsstand nicht verfügbar. Es wird kein Guthaben angenommen.</Label>}</>}
+          {sheet==='tasks'&&<>{features.map(f=><Pressable key={f.id} accessibilityRole="button" accessibilityLabel={f.title} accessibilityState={{selected:feature===f.id}} onPress={()=>{onFeature(f.id);setSheet(null);}} style={styles.menuRow}><Label>{f.title}{feature===f.id?' ✓':''}</Label></Pressable>)}</>}
+        </ScrollView>
+      </View>
+    </KeyboardAvoidingView></Modal>}
+  </View>;
 }
 
-const styles = StyleSheet.create({
-  root: { width: '100%', maxWidth: 520, alignSelf: 'center', paddingHorizontal: 12, paddingVertical: 8, gap: 12 },
-  card: { width: '100%', gap: 10 },
-  noticeCard: { width: '100%', borderColor: colors.cyan },
-  toggleRow: { flexDirection: 'row', alignItems: 'stretch', flexWrap: 'wrap', gap: 8 },
-  toggleState: { flex: 1, minWidth: 160, alignSelf: 'center', fontWeight: '600' },
-  actionList: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  actionCell: { flexGrow: 1, flexBasis: 160, minWidth: 140 },
-  conversationChoices: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'stretch', gap: 8 },
-  conversationChoice: {
-    minHeight: 48, minWidth: 66, maxWidth: '100%', alignSelf: 'flex-start', justifyContent: 'center',
-    borderWidth: 1, borderColor: colors.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 8,
-    backgroundColor: colors.card,
-  },
-  conversationChoiceSelected: { backgroundColor: colors.blue, borderColor: colors.blue },
-  conversationChoiceText: { flexShrink: 1, fontSize: 14, lineHeight: 20 },
-  conversationChoiceTextSelected: { color: '#031326', fontWeight: '700' },
-  featureChoices: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
-  transcript: { width: '100%', gap: 10 },
-  messageCard: { width: '100%', gap: 8 },
-  messageHeading: { fontWeight: '600' },
-  metricRows: { gap: 4, paddingTop: 4 },
-  budgetRows: { gap: 4 },
-  budgetRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'baseline', gap: 8 },
-  budgetName: { flex: 1, minWidth: 120 },
-  composer: {
-    width: '100%', minHeight: 120, borderWidth: 1, borderColor: colors.border, borderRadius: 20,
-    backgroundColor: colors.background, paddingHorizontal: 16, paddingVertical: 14,
-    color: colors.text, fontSize: 16, lineHeight: 24, textAlignVertical: 'top',
-  },
+const styles=StyleSheet.create({
+ root:{flex:1,minHeight:0,width:'100%',maxWidth:600,alignSelf:'center'},toolbar:{flexDirection:'row',alignItems:'center',gap:4,minHeight:48,paddingHorizontal:6},chatTitle:{flex:1,minWidth:0,fontSize:15,fontWeight:'600',color:colors.text},iconButton:{minWidth:48,minHeight:48,alignItems:'center',justifyContent:'center'},icon:{fontSize:23,color:colors.text},sendIcon:{fontSize:25,color:colors.cyan},
+ transcript:{flex:1,minHeight:0},messages:{padding:14,gap:18},welcome:{paddingVertical:24,gap:8},exchange:{gap:8},userMessage:{alignSelf:'flex-end',maxWidth:'90%',backgroundColor:colors.raised,borderRadius:16,padding:12},answer:{gap:8},messageHeading:{fontSize:12,lineHeight:18},
+ status:{paddingHorizontal:14,paddingVertical:4},statusText:{fontSize:12,lineHeight:17,color:colors.muted},composerPanel:{paddingHorizontal:6,paddingBottom:6,borderTopWidth:1,borderColor:colors.border},composerRow:{flexDirection:'row',alignItems:'flex-end'},composer:{flex:1,minWidth:0,minHeight:44,maxHeight:112,paddingHorizontal:10,paddingVertical:10,color:colors.text,fontSize:16,lineHeight:22,backgroundColor:colors.card,borderRadius:14,textAlignVertical:'top'},mode:{minHeight:48,justifyContent:'center',paddingHorizontal:10},latest:{alignSelf:'center',paddingHorizontal:12,minHeight:48,justifyContent:'center',borderRadius:16,backgroundColor:colors.raised},
+ scrim:{flex:1,justifyContent:'flex-end',backgroundColor:'#00000088',padding:12},sheet:{maxHeight:'80%',width:'100%',maxWidth:600,alignSelf:'center',backgroundColor:colors.card,borderRadius:20,paddingBottom:12},sheetBody:{padding:12,gap:8},historySearch:{minHeight:48,color:colors.text,paddingHorizontal:16,fontSize:16},menuRow:{minHeight:48,justifyContent:'center',paddingHorizontal:8,paddingVertical:8,borderBottomWidth:1,borderColor:colors.border},
+ card:{gap:10},toggleRow:{gap:8},toggleState:{fontWeight:'600'},actionList:{flexDirection:'row',flexWrap:'wrap',gap:8},actionCell:{flexGrow:1,flexBasis:160,minWidth:140},conversationChoice:{minHeight:48,justifyContent:'center',paddingVertical:10,paddingHorizontal:8,borderBottomWidth:1,borderColor:colors.border},conversationChoiceSelected:{backgroundColor:colors.raised},conversationChoiceText:{fontSize:15,lineHeight:22},conversationChoiceTextSelected:{color:colors.cyan},metricRows:{gap:4},budgetRows:{gap:4},budgetRow:{flexDirection:'row',flexWrap:'wrap',justifyContent:'space-between',gap:8},budgetName:{flex:1,minWidth:120},
 });

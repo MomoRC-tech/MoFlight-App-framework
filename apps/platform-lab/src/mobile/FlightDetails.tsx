@@ -3,11 +3,11 @@ import { View } from 'react-native';
 import type { RealFlightDetail } from '../vereinsflieger/real-flight-library';
 import { reviewDuration, reviewParsedField, reviewRawField } from '../vereinsflieger/capture-review';
 import { Action, Card, Label, Section, colors } from './theme';
-import { ownFlightClassification } from './own-flight-model';
+import { ownFlightClassification, ownFlightCrew } from './own-flight-model';
 
 /** Shared source presentation; callers own identity validation and return state. */
 export function FlightDetails({detail,rawPage,onRawPage}:{detail:RealFlightDetail;rawPage:number;onRawPage:(page:number)=>void}) {
-  const classification=ownFlightClassification(detail);
+  const classification=ownFlightClassification(detail), crew=ownFlightCrew(detail);
   const a=detail.facts.assessment, page=Math.max(0,Math.min(rawPage,Math.max(0,Math.ceil(a.observation.headers.length/8)-1)));
   const labels={pilot:'Pilot',pic:'PIC',companion:'Begleitung',companion2:'Begleitung 2',companion3:'Begleitung 3',sic:'SIC',picTime:'PIC-Zeit',dualTime:'Doppelsteuer-Zeit',instructorTime:'Lehrer-Zeit'};
   return <>
@@ -20,7 +20,10 @@ export function FlightDetails({detail,rawPage,onRawPage}:{detail:RealFlightDetai
       <Label selectable>Start: {reviewParsedField(a.clocks.start)} · Landung: {reviewParsedField(a.clocks.landing)}</Label>
       {(['offBlock','onBlock'] as const).map(field=><Label key={field} selectable>{field==='offBlock'?'Off-Block':'On-Block'}: {reviewParsedField(a.clocks[field])}</Label>)}
       <Label muted>Uhrzeitbasis und Landetag sind ungeprüft. Dauer wird nicht aus Uhrzeiten berechnet. Crew-Felder sind Quellenangaben, keine Rollen- oder Buchanrechnung.</Label>
-      {(['pilot','pic','companion','companion2','companion3','sic','picTime','dualTime','instructorTime'] as const).map(field=><Label key={field} selectable>{a.fields[field].state==='not-captured'?labels[field]:a.fields[field].label}: {reviewRawField(a.fields[field])}</Label>)}
+      {crew.crew.map((person,index)=><Label key={index} selectable>{person.role}: {person.name}</Label>)}
+      {!crew.picKnown&&<Label muted>PIC nicht angegeben</Label>}
+      <Label muted>{crew.solo?'Solo':crew.instructor==='recorded'?'Fluglehrer an Bord':'Fluglehrer: nicht eindeutig angegeben'}{crew.soloSource==='one-pic'?' · ein PIC, keine Begleitung erfasst':''}</Label>
+      {(['picTime','dualTime','instructorTime'] as const).map(field=><Label key={field} selectable>{labels[field]}: {reviewRawField(a.fields[field])}</Label>)}
       {!!detail.pending.length&&<Label>{detail.pending.length} ungeklärte Beobachtung(en) bleiben zur Prüfung erhalten.</Label>}
     </Card>
     <Card><Section title="Originale Anbieterfelder"/>

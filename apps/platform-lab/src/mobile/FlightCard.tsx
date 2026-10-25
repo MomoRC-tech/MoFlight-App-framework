@@ -1,20 +1,20 @@
 import React from 'react';
 import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import type { RealFlightListItem } from '../vereinsflieger/real-flight-library';
-import { reviewParsedField, reviewRawField } from '../vereinsflieger/capture-review';
 import { ownFlightCard, ownFlightClassification } from './own-flight-model';
 import { Card, Label, colors } from './theme';
 
 export function FlightCard({flight,onPress,style}:{flight:RealFlightListItem;onPress:()=>void;style?:StyleProp<ViewStyle>}) {
-  const a=flight.facts.assessment,card=ownFlightCard(flight);
+  const card=ownFlightCard(flight);
   const classification=ownFlightClassification(flight);
-  return <Card onPress={onPress} label={`${reviewParsedField(a.date)}, ${card.registration}, Start ${card.start}, ${card.route}, ${card.duration}, ${classification.categoryLabel}, ${classification.launchLabel}, Pilot: ${reviewRawField(a.fields.pilot)}, Begleiter: ${[a.fields.companion,a.fields.companion2,a.fields.companion3].map(reviewRawField).join(' · ')}${card.solo?', Solo im Anbieterbeleg':''}, ansehen`} style={[s.row,style]}>
+  const label=[flight.facts.assessment.date.value,card.registration,card.start&&`Start ${card.start}`,card.route,card.duration,classification.category.key==='unknown'?'':classification.categoryLabel,classification.launch.key==='unknown'?'':classification.launchLabel,...card.crew.map(person=>`${person.role}: ${person.name}`),card.solo?'Solo':'','ansehen'].filter(Boolean).join(', ');
+  return <Card onPress={onPress} label={label} style={[s.row,style]}>
     <View style={s.info}><View style={s.identity}><Label muted style={s.small}>{card.date}</Label><Label style={s.registration}>{card.registration}</Label><Label muted style={s.small}>{card.model}</Label></View>
-      <View style={s.identity}><Label style={s.category}>{classification.categoryLabel}</Label><Label muted style={s.small}>{classification.launchLabel}</Label></View>
-      <View style={s.crew}>{card.crew.map((person,index)=><Label key={index} style={s.person}><Label muted style={s.role}>{person.role} </Label>{person.name}</Label>)}{card.solo&&<Label style={s.solo}>Solo</Label>}</View>
-      <Label muted style={s.small}>{card.start} · {card.route}</Label>
+      {(classification.category.key!=='unknown'||classification.launch.key!=='unknown')&&<View style={s.identity}>{classification.category.key!=='unknown'&&<Label style={s.category}>{classification.categoryLabel}</Label>}{classification.launch.key!=='unknown'&&<Label muted style={s.small}>{classification.launchLabel}</Label>}</View>}
+      {card.crew.length>0&&<View style={s.crew}>{card.crew.map((person,index)=><Label key={index} style={s.person}><Label muted style={s.role}>{person.role} </Label>{person.name}</Label>)}{card.solo&&<Label style={s.solo}>Solo</Label>}</View>}
+      {(card.start||card.route)&&<Label muted style={s.small}>{[card.start,card.route].filter(Boolean).join(' · ')}</Label>}
     </View>
-    <Label style={[s.duration,!card.knownDuration&&s.unclearDuration]}>{card.duration}{card.knownDuration&&<Label muted style={s.role}> h</Label>}</Label>
+    {card.knownDuration&&<Label style={s.duration}>{card.duration}<Label muted style={s.role}> h</Label></Label>}
   </Card>;
 }
 const s=StyleSheet.create({

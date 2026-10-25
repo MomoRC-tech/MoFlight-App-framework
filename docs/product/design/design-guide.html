@@ -107,12 +107,19 @@
 <p><strong>24 October duty-row refinement — [#69](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/69):</strong> both compact and expanded rosters use two logical rows: duty title left / date(s) right, then people. Calendar dates omit clock times and compress shared month/year in ranges. Names retain all supplied given names and abbreviate the family name; single source names stay intact. Unknown periods/people stay explicit. Larger text may wrap naturally without clipping. Raw source periods/names, ownership and partial-coverage qualifications remain unchanged.</p>
 <p><strong>Duty name source correction:</strong> the club source hides separator spans, so whole-cell rendered text can concatenate different people. The reader preserves each observed leaf name span separately before abbreviation. Previously concatenated cached names cannot be reconstructed safely: show <strong>Namen unklar · bitte synchronisieren</strong> until the user explicitly synchronizes. The Development preview now uses raw fictional capture labels through the real duty projection, rather than preformatted names. No identity matching or automatic retrieval is added.</p>
 <h3 id="chapter-compact-cockpit-compact-flights-screen--approved-24-october-2026">Compact Flights screen — approved 24 October 2026</h3>
+<p>The 25 October phone-usability amendment below supersedes this section&#x27;s filter-chip layout, explicit-Solo-only rule and overview unknown notices. Historical evidence retains its original source scope.</p>
 <p>Manuel explicitly selected implementation of the full <a href="https://github.com/MomoRC-tech/MoFlight-App-framework/issues/70">#70</a> screen proposal and its <a href="proposals/2026-10-24-flight-cards-dense-c.html">refined C layout</a>. This supersedes C09&#x27;s earlier tall flight row and the scrolling search/summary header. A compact period/aircraft/search bar sits outside list scrolling. Selected controls and removable actual-value tags use teal with textual values and close marks; Reset appears only with active filters. Search opens a content-sized editor. Year/aircraft choices and actions wrap at their intrinsic sizes. The default is all selected-account saved flights; explicit dashboard period requests remain visible as filters.</p>
 <p>Cards use 7 vertical / 10 horizontal padding, radius 10, 5 between rows and 2 between information lines. Date/registration/model share the first line, labelled pilot/Begleiter the second, and source start/route the third; reported h:min remains prominent at right. Content and system text can wrap, with no forced height, separators or repeated chevron. Names preserve supplied given names and abbreviate the family name for display; raw names remain in details. Extra companions/PIC/SIC stay labelled. Solo is shown only for an explicit saved <code>Solo</code>/<code>Alleinflug</code> flight-mode/type value with a recorded pilot and no contradictory additional crew; missing/blank crew alone never establishes it. No unverified source-code or legal-role mapping is added.</p>
 <p>One compact line shows filtered/saved count, known reported time and any unknown-time count. Coverage, retrieval age and explanation move behind the information action; real recovery/error states remain visible. Detail/Back preserves list position and filters; account/store changes clear them. Phone and 600+ dp single-column lists cap at 480 dp; from 840 dp at ordinary text size, two columns fit within 960 dp. Verification and platform limits are recorded in the <a href="../../verification/2026-10-24-flight-list.md">package report</a>.</p>
 <h3 id="chapter-compact-cockpit-flight-classification--requested-25-october-2026">Flight classification — requested 25 October 2026</h3>
 <p>Under <a href="https://github.com/MomoRC-tech/MoFlight-App-framework/issues/85">#85</a>, Manuel requested aircraft category labels and launch-method filters/statistics and instructed implementation. Shared ordinary/Statistics flight rows add a small outlined text category badge and a readable launch label, with wrapping and explicit unknowns; no new icon family. Details retain original field/value evidence. The existing aircraft chooser becomes Flugzeug &amp; Start, grouping category, launch and registration choices without another permanent toolbar row. Only categories/methods present in the owner&#x27;s saved list are offered. Active tags remain individually removable; an empty filtered list offers reset. Statistics groups open exact contributing flights within the selected period. Existing account/Back/scroll and known/unknown-time boundaries remain.</p>
-<p>Implemented in source; <a href="../../verification/2026-10-25-flight-classification.md">verification and remaining native acceptance</a> are separate from this requested scope. This amends the earlier unavailable launch-statistics placeholder only where mapped source evidence exists.</p></section>
+<p>Implemented in source; <a href="../../verification/2026-10-25-flight-classification.md">verification and remaining native acceptance</a> are separate from this requested scope. This amends the earlier unavailable launch-statistics placeholder only where mapped source evidence exists.</p>
+<h3 id="chapter-compact-cockpit-phone-usability-amendment--approved-25-october-2026">Phone-usability amendment — approved 25 October 2026</h3>
+<p>Manuel approved implementation of the combined <a href="https://github.com/MomoRC-tech/MoFlight-App-framework/issues/84">#84</a>, <a href="https://github.com/MomoRC-tech/MoFlight-App-framework/issues/87">#87</a> and <a href="https://github.com/MomoRC-tech/MoFlight-App-framework/issues/78">#78</a> proposal, then explicitly requested no unknowns in the Flights overview. These changes are implemented; <a href="../../verification/2026-10-25-phone-usability.md">package evidence</a> distinguishes host and native acceptance.</p>
+<p><strong>Flights:</strong> one 48 dp expandable filter header with active count, a selected-value summary, Search and information. Count/known time sits below; there are no duplicate chip rows. The expanded form contains search and four compact selectors in two columns (period/category, registration/launch), Reset and collapse/show results. Each selector opens a single checked-choice sheet; registrations are searchable. Changes apply immediately. Expanded controls have a bounded scroll fallback at large font/keyboard/landscape, and large text uses one column. Existing exact contributor/custom period constraints, list return and account reset remain. Touch targets stay at least 48 dp; visual compactness comes from reduced chrome.</p>
+<p><strong>Crew and missing data:</strong> group matching full source names within each flight, normalizing whitespace/case and comma name order. Do not match initials or infer person identity across flights. Show one name with explicit PIC/FI/SIC roles; a generic Pilot/Begleiter label does not repeat a more specific role. Different full names with colliding abbreviations display in full. Begleiter/FI and instructor time alone do not establish an instructor; an explicit named FI/Fluglehrer/Instructor field does. One recorded PIC without companions is Solo under Manuel&#x27;s selected display rule; additional people or SIC conflict block it. An uncontradicted explicit Solo/Alleinflug is also retained. This is a display projection, not legal flight credit or a change to raw facts.</p>
+<p>Overview rows omit missing date, registration/model, crew, category, launch, clock, route endpoints and duration placeholders. Known zero duration remains <code>0:00</code>; details preserve unknown/conflicting values and original evidence. No inferred values fill the space. The count line qualifies partial time as known rather than listing unknown counts. Missing-data filters remain available deliberately inside their selectors.</p>
+<p><strong>AI:</strong> compact chat toolbar, independently scrolling transcript and a pinned composer growing from one line to a bounded multiline editor. Local chat history/search/New chat appears in a bottom sheet; usage, service/privacy disclosure and deletion are secondary menu content. Optional task modes sit behind the composer plus action. Availability/errors use a short actionable status, with full detail in the menu. Send is explicit, running work can be cancelled, and merely opening a menu never enables requests. Older messages are not forced to the bottom; a latest-message action restores following. Owner changes clear transient view state. Existing local drafts, evidence navigation, confirmation and service/funding boundaries remain.</p></section>
 <section class="chapter" id="chapter-alternative-ui"><h2 id="chapter-alternative-ui-alternative-ui--22-october-2026">Alternative UI — 22 October 2026</h2>
 <p>&gt; <strong>Current appearance authority — 24 October 2026:</strong> <a href="#chapter-compact-cockpit">Dark Compact Cockpit</a> and its approved reference supersede conflicting older appearance/composition statements below. Data, feature and verification boundaries retain their scope.</p>
 <p><a href="#chapter-overview">Handbook</a> · <a href="https://github.com/MomoRC-tech/MoFlight-App-framework/issues/55">#55</a> · branch <code>ui/alternative-flight-experience</code>.</p>
@@ -416,7 +423,7 @@
 <p>Use only the header “Daten” button for new provider data and login. Start empty/error states, empty Flüge, Profile, status and Development give passive guidance. Keep local reload, filters, diagnostics and offline backup independent. The complete journey stays in a persistent framed popup over the dimmed inert page; retain the native WebView parent during Android credential activities. Retry, recovery and optional source jobs stay in the frame. Settled automatic completion returns to Start with a compact bordered receipt immediately below the header outside scrolling content, needing no routine acknowledgement in the popup. Shared refresh, recorded completion HH:mm when valid, Details and close use minimum 48 dp targets and wrapping for enlarged text. Counts, source outcomes and coverage caveats stay in Details. Completion time is recorded after combined jobs finish, never fabricated at render. Close/Back retain cancellation/save guards and contextual return. U2 adds the compact saved-name club heading and duty subgroup hierarchy, and moves the permanent season paragraph into a short Statistics-detail caveat. The U1/U2 native/Release checkpoint is delivered; U3 adds the independently scoped <strong>Änderungen möglich</strong> header hint without altering the sync receipt. See the <a href="../../verification/2026-10-21-simple-flight-loading.md#guarded-activity-advice-integration--23-october-2026">U3 evidence and remaining gates</a>.</p></section>
 <section class="chapter" id="chapter-implementation-inventory"><h2 id="chapter-implementation-inventory-platform-lab-ui-implementation-inventory">Platform-lab UI implementation inventory</h2>
 <p><a href="#chapter-overview">Handbook entry point</a>. Generated by <code>python scripts/design_handbook.py</code>; do not hand-edit.</p>
-<p>Scope: 88 product mobile TypeScript/model and app-owned TSX UI/adapter files; 65 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.</p>
+<p>Scope: 88 product mobile TypeScript/model and app-owned TSX UI/adapter files; 66 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.</p>
 <h3 id="chapter-implementation-inventory-apptsx">App.tsx</h3>
 <p>Retained app-owned lab/adapter surface; document its existing appearance as an exception. Source: <a href="../../../apps/platform-lab/src/App.tsx">apps/platform-lab/src/App.tsx</a>; normalized SHA-256 <code>00e90dbdf13115e9cffa98b6123f015dc87f095cdd8736daa20f73edab02e7e6</code>.</p>
 <h4 id="chapter-implementation-inventory-literal-colors">Literal colors</h4>
@@ -523,44 +530,57 @@
 <tr><td><code>padding: 24</code></td><td>77</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-aichattsx">AiChat.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/AiChat.tsx">apps/platform-lab/src/mobile/AiChat.tsx</a>; normalized SHA-256 <code>1e2b83fbe007b38513fef10f877063158b61c1b77e817ddd6c37f1c838b7bd53</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/AiChat.tsx">apps/platform-lab/src/mobile/AiChat.tsx</a>; normalized SHA-256 <code>ba2fb5b0b4b9e76b4785fc67f66787a0b1d7b0119976922809e5e0c2017f0343</code>.</p>
 <h4 id="chapter-implementation-inventory-literal-colors-2">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><i class="swatch" style="background:#031326" aria-hidden="true"></i><code>#031326</code></td><td>321</td></tr>
+<tr><td><i class="swatch" style="background:#00000088" aria-hidden="true"></i><code>#00000088</code></td><td>231</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-typography-declarations-3">Typography declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>fontSize: 14</code></td><td>320</td></tr>
-<tr><td><code>fontSize: 16</code></td><td>333</td></tr>
-<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>310, 325</td></tr>
-<tr><td><code>fontWeight: &#x27;700&#x27;</code></td><td>321</td></tr>
-<tr><td><code>lineHeight: 20</code></td><td>320</td></tr>
-<tr><td><code>lineHeight: 24</code></td><td>333</td></tr>
+<tr><td><code>fontSize: 12</code></td><td>229, 230</td></tr>
+<tr><td><code>fontSize: 15</code></td><td>228, 232</td></tr>
+<tr><td><code>fontSize: 16</code></td><td>230, 231</td></tr>
+<tr><td><code>fontSize: 23</code></td><td>228</td></tr>
+<tr><td><code>fontSize: 25</code></td><td>228</td></tr>
+<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>228, 232</td></tr>
+<tr><td><code>lineHeight: 17</code></td><td>230</td></tr>
+<tr><td><code>lineHeight: 18</code></td><td>229</td></tr>
+<tr><td><code>lineHeight: 22</code></td><td>230, 232</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-geometry--opacity-declarations-7">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>borderRadius: 14</code></td><td>316</td></tr>
-<tr><td><code>borderRadius: 20</code></td><td>331</td></tr>
-<tr><td><code>borderWidth: 1</code></td><td>316, 331</td></tr>
-<tr><td><code>gap: 10</code></td><td>307, 323</td></tr>
-<tr><td><code>gap: 12</code></td><td>306</td></tr>
-<tr><td><code>gap: 4</code></td><td>326, 327</td></tr>
-<tr><td><code>gap: 6</code></td><td>322</td></tr>
-<tr><td><code>gap: 8</code></td><td>309, 311, 313, 324, 328</td></tr>
-<tr><td><code>maxWidth: &#x27;100%&#x27;</code></td><td>315</td></tr>
-<tr><td><code>maxWidth: 520</code></td><td>306</td></tr>
-<tr><td><code>minHeight: 120</code></td><td>331</td></tr>
-<tr><td><code>minHeight: 48</code></td><td>315</td></tr>
-<tr><td><code>minWidth: 120</code></td><td>329</td></tr>
-<tr><td><code>minWidth: 140</code></td><td>312</td></tr>
-<tr><td><code>minWidth: 160</code></td><td>310</td></tr>
-<tr><td><code>minWidth: 66</code></td><td>315</td></tr>
-<tr><td><code>paddingHorizontal: 12</code></td><td>306</td></tr>
-<tr><td><code>paddingHorizontal: 14</code></td><td>316</td></tr>
-<tr><td><code>paddingHorizontal: 16</code></td><td>332</td></tr>
-<tr><td><code>paddingVertical: 14</code></td><td>332</td></tr>
-<tr><td><code>paddingVertical: 8</code></td><td>306, 316</td></tr>
-<tr><td><code>width: &#x27;100%&#x27;</code></td><td>306, 307, 308, 323, 324, 331</td></tr>
+<tr><td><code>borderRadius: 14</code></td><td>230</td></tr>
+<tr><td><code>borderRadius: 16</code></td><td>229, 230</td></tr>
+<tr><td><code>borderRadius: 20</code></td><td>231</td></tr>
+<tr><td><code>gap: 10</code></td><td>232</td></tr>
+<tr><td><code>gap: 18</code></td><td>229</td></tr>
+<tr><td><code>gap: 4</code></td><td>228, 232</td></tr>
+<tr><td><code>gap: 8</code></td><td>229, 231, 232</td></tr>
+<tr><td><code>maxHeight: &#x27;80%&#x27;</code></td><td>231</td></tr>
+<tr><td><code>maxHeight: 112</code></td><td>230</td></tr>
+<tr><td><code>maxWidth: &#x27;90%&#x27;</code></td><td>229</td></tr>
+<tr><td><code>maxWidth: 600</code></td><td>228, 231</td></tr>
+<tr><td><code>minHeight: 0</code></td><td>228, 229</td></tr>
+<tr><td><code>minHeight: 44</code></td><td>230</td></tr>
+<tr><td><code>minHeight: 48</code></td><td>228, 230, 231, 232</td></tr>
+<tr><td><code>minWidth: 0</code></td><td>228, 230</td></tr>
+<tr><td><code>minWidth: 120</code></td><td>232</td></tr>
+<tr><td><code>minWidth: 140</code></td><td>232</td></tr>
+<tr><td><code>minWidth: 48</code></td><td>228</td></tr>
+<tr><td><code>opacity: .4</code></td><td>171</td></tr>
+<tr><td><code>padding: 12</code></td><td>229, 231</td></tr>
+<tr><td><code>padding: 14</code></td><td>229</td></tr>
+<tr><td><code>paddingHorizontal: 10</code></td><td>230</td></tr>
+<tr><td><code>paddingHorizontal: 12</code></td><td>230</td></tr>
+<tr><td><code>paddingHorizontal: 14</code></td><td>230</td></tr>
+<tr><td><code>paddingHorizontal: 16</code></td><td>231</td></tr>
+<tr><td><code>paddingHorizontal: 6</code></td><td>228, 230</td></tr>
+<tr><td><code>paddingHorizontal: 8</code></td><td>231, 232</td></tr>
+<tr><td><code>paddingVertical: 10</code></td><td>230, 232</td></tr>
+<tr><td><code>paddingVertical: 24</code></td><td>229</td></tr>
+<tr><td><code>paddingVertical: 4</code></td><td>230</td></tr>
+<tr><td><code>paddingVertical: 8</code></td><td>231</td></tr>
+<tr><td><code>width: &#x27;100%&#x27;</code></td><td>228, 231</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-appheadertsx">AppHeader.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/AppHeader.tsx">apps/platform-lab/src/mobile/AppHeader.tsx</a>; normalized SHA-256 <code>0421a968a434441e37d8f978c3c9ce456adf6f6ad9216d63db6e4d71c478310e</code>.</p>
@@ -849,7 +869,7 @@
 <tr><td><code>padding: 10</code></td><td>70</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-flightcardtsx">FlightCard.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/FlightCard.tsx">apps/platform-lab/src/mobile/FlightCard.tsx</a>; normalized SHA-256 <code>0caf6e37a21a991d324046becdcae9d6285d4fa6db16dd579608fcac3ae488f2</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/FlightCard.tsx">apps/platform-lab/src/mobile/FlightCard.tsx</a>; normalized SHA-256 <code>97a74c622b0235f4efe3600dcbc81d694b403c24e843f1a4c1a2c3971f7ec705</code>.</p>
 <h4 id="chapter-implementation-inventory-typography-declarations-13">Typography declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>fontSize: 11</code></td><td>24, 25, 26</td></tr>
@@ -881,7 +901,7 @@
 <tr><td><code>paddingVertical: 7</code></td><td>21</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-flightdetailstsx">FlightDetails.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/FlightDetails.tsx">apps/platform-lab/src/mobile/FlightDetails.tsx</a>; normalized SHA-256 <code>8d7a3580a29e9711f3b48418411b7f6a4ac8295c773da55eceec71a654bce502</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/FlightDetails.tsx">apps/platform-lab/src/mobile/FlightDetails.tsx</a>; normalized SHA-256 <code>e92f03e59265607c278238d4c32691015000bd9aac1089b838c38e8bfbf4809a</code>.</p>
 <h4 id="chapter-implementation-inventory-typography-declarations-14">Typography declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>fontSize: 22</code></td><td>15</td></tr>
@@ -891,8 +911,8 @@
 <h4 id="chapter-implementation-inventory-geometry--opacity-declarations-24">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>gap: 10</code></td><td>15</td></tr>
-<tr><td><code>gap: 2</code></td><td>29</td></tr>
-<tr><td><code>gap: 6</code></td><td>31</td></tr>
+<tr><td><code>gap: 2</code></td><td>32</td></tr>
+<tr><td><code>gap: 6</code></td><td>34</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-flightscenetsx">FlightScene.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/FlightScene.tsx">apps/platform-lab/src/mobile/FlightScene.tsx</a>; normalized SHA-256 <code>2293f0030da3794c0e2b2753b1cd865cdde5684527e8ce36cd448cb89f218a8e</code>.</p>
@@ -980,108 +1000,108 @@
 <tr><td><code>width: &#x27;100%&#x27;</code></td><td>56</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-mobileapptsx">MobileApp.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/MobileApp.tsx">apps/platform-lab/src/mobile/MobileApp.tsx</a>; normalized SHA-256 <code>c0144714b6b6c243afdcb41b7f41a3cf1af02697fd5fea8810fc7e651e247b73</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/MobileApp.tsx">apps/platform-lab/src/mobile/MobileApp.tsx</a>; normalized SHA-256 <code>317ab350b50b885afd3551c22799bce9b535fd9f6f7189f788849b51751e13ca</code>.</p>
 <h4 id="chapter-implementation-inventory-literal-colors-7">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><i class="swatch" style="background:#000712bd" aria-hidden="true"></i><code>#000712bd</code></td><td>311</td></tr>
-<tr><td><i class="swatch" style="background:#064240" aria-hidden="true"></i><code>#064240</code></td><td>305</td></tr>
-<tr><td><i class="swatch" style="background:#10282d" aria-hidden="true"></i><code>#10282d</code></td><td>305</td></tr>
-<tr><td><i class="swatch" style="background:#11263a" aria-hidden="true"></i><code>#11263a</code></td><td>304</td></tr>
-<tr><td><i class="swatch" style="background:#152d42" aria-hidden="true"></i><code>#152d42</code></td><td>306</td></tr>
-<tr><td><i class="swatch" style="background:#1b344a" aria-hidden="true"></i><code>#1b344a</code></td><td>309</td></tr>
-<tr><td><i class="swatch" style="background:#227f87" aria-hidden="true"></i><code>#227f87</code></td><td>305</td></tr>
-<tr><td><i class="swatch" style="background:#78efdc" aria-hidden="true"></i><code>#78efdc</code></td><td>307</td></tr>
-<tr><td><i class="swatch" style="background:#8ba4bc" aria-hidden="true"></i><code>#8ba4bc</code></td><td>259, 302</td></tr>
+<tr><td><i class="swatch" style="background:#000712bd" aria-hidden="true"></i><code>#000712bd</code></td><td>308</td></tr>
+<tr><td><i class="swatch" style="background:#064240" aria-hidden="true"></i><code>#064240</code></td><td>302</td></tr>
+<tr><td><i class="swatch" style="background:#10282d" aria-hidden="true"></i><code>#10282d</code></td><td>302</td></tr>
+<tr><td><i class="swatch" style="background:#11263a" aria-hidden="true"></i><code>#11263a</code></td><td>301</td></tr>
+<tr><td><i class="swatch" style="background:#152d42" aria-hidden="true"></i><code>#152d42</code></td><td>303</td></tr>
+<tr><td><i class="swatch" style="background:#1b344a" aria-hidden="true"></i><code>#1b344a</code></td><td>306</td></tr>
+<tr><td><i class="swatch" style="background:#227f87" aria-hidden="true"></i><code>#227f87</code></td><td>302</td></tr>
+<tr><td><i class="swatch" style="background:#78efdc" aria-hidden="true"></i><code>#78efdc</code></td><td>304</td></tr>
+<tr><td><i class="swatch" style="background:#8ba4bc" aria-hidden="true"></i><code>#8ba4bc</code></td><td>256, 299</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-typography-declarations-17">Typography declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>fontSize: 10</code></td><td>259, 302</td></tr>
-<tr><td><code>fontSize: 11</code></td><td>303</td></tr>
-<tr><td><code>fontSize: 12</code></td><td>212, 305, 310</td></tr>
-<tr><td><code>fontSize: 13</code></td><td>304</td></tr>
-<tr><td><code>fontSize: 16</code></td><td>309</td></tr>
-<tr><td><code>fontSize: 20</code></td><td>303</td></tr>
-<tr><td><code>fontSize: 23</code></td><td>308</td></tr>
-<tr><td><code>fontSize: 25</code></td><td>310</td></tr>
-<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>303, 305</td></tr>
-<tr><td><code>fontWeight: &#x27;700&#x27;</code></td><td>310</td></tr>
-<tr><td><code>letterSpacing: .6</code></td><td>302</td></tr>
-<tr><td><code>lineHeight: 16</code></td><td>259, 302, 303</td></tr>
-<tr><td><code>lineHeight: 17</code></td><td>305</td></tr>
-<tr><td><code>lineHeight: 18</code></td><td>212, 310</td></tr>
-<tr><td><code>lineHeight: 25</code></td><td>303</td></tr>
-<tr><td><code>lineHeight: 29</code></td><td>310</td></tr>
+<tr><td><code>fontSize: 10</code></td><td>256, 299</td></tr>
+<tr><td><code>fontSize: 11</code></td><td>300</td></tr>
+<tr><td><code>fontSize: 12</code></td><td>209, 302, 307</td></tr>
+<tr><td><code>fontSize: 13</code></td><td>301</td></tr>
+<tr><td><code>fontSize: 16</code></td><td>306</td></tr>
+<tr><td><code>fontSize: 20</code></td><td>300</td></tr>
+<tr><td><code>fontSize: 23</code></td><td>305</td></tr>
+<tr><td><code>fontSize: 25</code></td><td>307</td></tr>
+<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>300, 302</td></tr>
+<tr><td><code>fontWeight: &#x27;700&#x27;</code></td><td>307</td></tr>
+<tr><td><code>letterSpacing: .6</code></td><td>299</td></tr>
+<tr><td><code>lineHeight: 16</code></td><td>256, 299, 300</td></tr>
+<tr><td><code>lineHeight: 17</code></td><td>302</td></tr>
+<tr><td><code>lineHeight: 18</code></td><td>209, 307</td></tr>
+<tr><td><code>lineHeight: 25</code></td><td>300</td></tr>
+<tr><td><code>lineHeight: 29</code></td><td>307</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-geometry--opacity-declarations-30">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>borderRadius: 12</code></td><td>300, 305</td></tr>
-<tr><td><code>borderRadius: 13</code></td><td>305</td></tr>
-<tr><td><code>borderRadius: 15</code></td><td>307</td></tr>
-<tr><td><code>borderRadius: 16</code></td><td>309, 310</td></tr>
-<tr><td><code>borderRadius: 17</code></td><td>306</td></tr>
-<tr><td><code>borderRadius: 18</code></td><td>308</td></tr>
-<tr><td><code>borderRadius: 2</code></td><td>310</td></tr>
-<tr><td><code>borderRadius: 20</code></td><td>309</td></tr>
-<tr><td><code>borderRadius: 22</code></td><td>304, 312</td></tr>
-<tr><td><code>borderRadius: 24</code></td><td>304</td></tr>
-<tr><td><code>borderRadius: 9</code></td><td>305</td></tr>
-<tr><td><code>borderWidth: 1</code></td><td>300, 304, 305, 308, 309, 310, 312</td></tr>
-<tr><td><code>gap: 1</code></td><td>303</td></tr>
-<tr><td><code>gap: 10</code></td><td>218, 229</td></tr>
-<tr><td><code>gap: 12</code></td><td>217, 299</td></tr>
-<tr><td><code>gap: 18</code></td><td>307</td></tr>
-<tr><td><code>gap: 2</code></td><td>310</td></tr>
-<tr><td><code>gap: 3</code></td><td>302, 305</td></tr>
-<tr><td><code>gap: 4</code></td><td>310</td></tr>
-<tr><td><code>gap: 5</code></td><td>304</td></tr>
-<tr><td><code>gap: 6</code></td><td>308, 309</td></tr>
-<tr><td><code>gap: 7</code></td><td>304, 307</td></tr>
-<tr><td><code>gap: 8</code></td><td>281, 283, 300, 306, 309</td></tr>
-<tr><td><code>height: 2</code></td><td>310</td></tr>
-<tr><td><code>height: 30</code></td><td>307</td></tr>
-<tr><td><code>height: 48</code></td><td>309</td></tr>
-<tr><td><code>maxHeight: 150</code></td><td>309</td></tr>
-<tr><td><code>maxWidth: 480</code></td><td>229</td></tr>
-<tr><td><code>maxWidth: 520</code></td><td>152, 281, 283, 307</td></tr>
-<tr><td><code>maxWidth: 599</code></td><td>298, 310</td></tr>
-<tr><td><code>maxWidth: 600</code></td><td>214, 260, 272</td></tr>
-<tr><td><code>maxWidth: 960</code></td><td>214, 260</td></tr>
-<tr><td><code>minHeight: 0</code></td><td>266, 312</td></tr>
-<tr><td><code>minHeight: 126</code></td><td>307</td></tr>
-<tr><td><code>minHeight: 34</code></td><td>306</td></tr>
-<tr><td><code>minHeight: 36</code></td><td>301</td></tr>
-<tr><td><code>minHeight: 40</code></td><td>304</td></tr>
-<tr><td><code>minHeight: 48</code></td><td>300, 304, 306</td></tr>
-<tr><td><code>minHeight: 52</code></td><td>309</td></tr>
-<tr><td><code>minHeight: 60</code></td><td>310</td></tr>
-<tr><td><code>minHeight: 64</code></td><td>305</td></tr>
-<tr><td><code>minHeight: 66</code></td><td>305</td></tr>
-<tr><td><code>minHeight: 86</code></td><td>308</td></tr>
-<tr><td><code>minWidth: 0</code></td><td>303, 304</td></tr>
-<tr><td><code>opacity: .8</code></td><td>311</td></tr>
-<tr><td><code>padding: 0</code></td><td>306</td></tr>
-<tr><td><code>padding: 10</code></td><td>299</td></tr>
-<tr><td><code>padding: 12</code></td><td>299</td></tr>
-<tr><td><code>padding: 16</code></td><td>308</td></tr>
-<tr><td><code>padding: 4</code></td><td>302, 309</td></tr>
-<tr><td><code>padding: 6</code></td><td>310</td></tr>
-<tr><td><code>padding: 7</code></td><td>305</td></tr>
-<tr><td><code>paddingHorizontal: 12</code></td><td>300, 304, 311</td></tr>
-<tr><td><code>paddingHorizontal: 16</code></td><td>306</td></tr>
-<tr><td><code>paddingHorizontal: 6</code></td><td>305</td></tr>
-<tr><td><code>paddingHorizontal: 7</code></td><td>305</td></tr>
-<tr><td><code>paddingHorizontal: 8</code></td><td>309</td></tr>
-<tr><td><code>paddingVertical: 10</code></td><td>305, 311</td></tr>
-<tr><td><code>paddingVertical: 4</code></td><td>304</td></tr>
-<tr><td><code>paddingVertical: 8</code></td><td>310</td></tr>
-<tr><td><code>width: &#x27;100%&#x27;</code></td><td>152, 217, 218, 219, 229, 259, 272, 281, 283, 298, 306, 307, 310</td></tr>
-<tr><td><code>width: &#x27;32%&#x27;</code></td><td>310</td></tr>
-<tr><td><code>width: &#x27;49.2%&#x27;</code></td><td>306</td></tr>
-<tr><td><code>width: 24</code></td><td>310</td></tr>
-<tr><td><code>width: 30</code></td><td>307</td></tr>
-<tr><td><code>width: 42</code></td><td>304</td></tr>
-<tr><td><code>width: 48</code></td><td>309</td></tr>
-<tr><td><code>width: 64</code></td><td>305</td></tr>
+<tr><td><code>borderRadius: 12</code></td><td>297, 302</td></tr>
+<tr><td><code>borderRadius: 13</code></td><td>302</td></tr>
+<tr><td><code>borderRadius: 15</code></td><td>304</td></tr>
+<tr><td><code>borderRadius: 16</code></td><td>306, 307</td></tr>
+<tr><td><code>borderRadius: 17</code></td><td>303</td></tr>
+<tr><td><code>borderRadius: 18</code></td><td>305</td></tr>
+<tr><td><code>borderRadius: 2</code></td><td>307</td></tr>
+<tr><td><code>borderRadius: 20</code></td><td>306</td></tr>
+<tr><td><code>borderRadius: 22</code></td><td>301, 309</td></tr>
+<tr><td><code>borderRadius: 24</code></td><td>301</td></tr>
+<tr><td><code>borderRadius: 9</code></td><td>302</td></tr>
+<tr><td><code>borderWidth: 1</code></td><td>297, 301, 302, 305, 306, 307, 309</td></tr>
+<tr><td><code>gap: 1</code></td><td>300</td></tr>
+<tr><td><code>gap: 10</code></td><td>215, 226</td></tr>
+<tr><td><code>gap: 12</code></td><td>214, 296</td></tr>
+<tr><td><code>gap: 18</code></td><td>304</td></tr>
+<tr><td><code>gap: 2</code></td><td>307</td></tr>
+<tr><td><code>gap: 3</code></td><td>299, 302</td></tr>
+<tr><td><code>gap: 4</code></td><td>307</td></tr>
+<tr><td><code>gap: 5</code></td><td>301</td></tr>
+<tr><td><code>gap: 6</code></td><td>305, 306</td></tr>
+<tr><td><code>gap: 7</code></td><td>301, 304</td></tr>
+<tr><td><code>gap: 8</code></td><td>278, 280, 297, 303, 306</td></tr>
+<tr><td><code>height: 2</code></td><td>307</td></tr>
+<tr><td><code>height: 30</code></td><td>304</td></tr>
+<tr><td><code>height: 48</code></td><td>306</td></tr>
+<tr><td><code>maxHeight: 150</code></td><td>306</td></tr>
+<tr><td><code>maxWidth: 480</code></td><td>226</td></tr>
+<tr><td><code>maxWidth: 520</code></td><td>151, 278, 280, 304</td></tr>
+<tr><td><code>maxWidth: 599</code></td><td>295, 307</td></tr>
+<tr><td><code>maxWidth: 600</code></td><td>211, 257, 269</td></tr>
+<tr><td><code>maxWidth: 960</code></td><td>211, 257</td></tr>
+<tr><td><code>minHeight: 0</code></td><td>245, 263, 309</td></tr>
+<tr><td><code>minHeight: 126</code></td><td>304</td></tr>
+<tr><td><code>minHeight: 34</code></td><td>303</td></tr>
+<tr><td><code>minHeight: 36</code></td><td>298</td></tr>
+<tr><td><code>minHeight: 40</code></td><td>301</td></tr>
+<tr><td><code>minHeight: 48</code></td><td>297, 301, 303</td></tr>
+<tr><td><code>minHeight: 52</code></td><td>306</td></tr>
+<tr><td><code>minHeight: 60</code></td><td>307</td></tr>
+<tr><td><code>minHeight: 64</code></td><td>302</td></tr>
+<tr><td><code>minHeight: 66</code></td><td>302</td></tr>
+<tr><td><code>minHeight: 86</code></td><td>305</td></tr>
+<tr><td><code>minWidth: 0</code></td><td>300, 301</td></tr>
+<tr><td><code>opacity: .8</code></td><td>308</td></tr>
+<tr><td><code>padding: 0</code></td><td>303</td></tr>
+<tr><td><code>padding: 10</code></td><td>296</td></tr>
+<tr><td><code>padding: 12</code></td><td>296</td></tr>
+<tr><td><code>padding: 16</code></td><td>305</td></tr>
+<tr><td><code>padding: 4</code></td><td>299, 306</td></tr>
+<tr><td><code>padding: 6</code></td><td>307</td></tr>
+<tr><td><code>padding: 7</code></td><td>302</td></tr>
+<tr><td><code>paddingHorizontal: 12</code></td><td>297, 301, 308</td></tr>
+<tr><td><code>paddingHorizontal: 16</code></td><td>303</td></tr>
+<tr><td><code>paddingHorizontal: 6</code></td><td>302</td></tr>
+<tr><td><code>paddingHorizontal: 7</code></td><td>302</td></tr>
+<tr><td><code>paddingHorizontal: 8</code></td><td>306</td></tr>
+<tr><td><code>paddingVertical: 10</code></td><td>302, 308</td></tr>
+<tr><td><code>paddingVertical: 4</code></td><td>301</td></tr>
+<tr><td><code>paddingVertical: 8</code></td><td>307</td></tr>
+<tr><td><code>width: &#x27;100%&#x27;</code></td><td>151, 214, 215, 216, 226, 256, 269, 278, 280, 295, 303, 304, 307</td></tr>
+<tr><td><code>width: &#x27;32%&#x27;</code></td><td>307</td></tr>
+<tr><td><code>width: &#x27;49.2%&#x27;</code></td><td>303</td></tr>
+<tr><td><code>width: 24</code></td><td>307</td></tr>
+<tr><td><code>width: 30</code></td><td>304</td></tr>
+<tr><td><code>width: 42</code></td><td>301</td></tr>
+<tr><td><code>width: 48</code></td><td>306</td></tr>
+<tr><td><code>width: 64</code></td><td>302</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-overviewtilestsx">OverviewTiles.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/OverviewTiles.tsx">apps/platform-lab/src/mobile/OverviewTiles.tsx</a>; normalized SHA-256 <code>3383b2e4aeedf2b6682d90817cf5ac74de0092a9cba9d7c0f14d915c20b8acbb</code>.</p>
@@ -1112,61 +1132,71 @@
 <tr><td><code>width: &#x27;100%&#x27;</code></td><td>14, 17, 23</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-ownflightstsx">OwnFlights.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/OwnFlights.tsx">apps/platform-lab/src/mobile/OwnFlights.tsx</a>; normalized SHA-256 <code>ac43aa68dc8d094ed2650b6cd5980f2dacf418df57842d0bf55c86a0d55fd446</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/OwnFlights.tsx">apps/platform-lab/src/mobile/OwnFlights.tsx</a>; normalized SHA-256 <code>40d1efcf2ae8f39e6902dea69c696ff47b22700c588eaf397ecdecb2e3278a51</code>.</p>
 <h4 id="chapter-implementation-inventory-literal-colors-9">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><i class="swatch" style="background:#031326" aria-hidden="true"></i><code>#031326</code></td><td>142, 145</td></tr>
+<tr><td><i class="swatch" style="background:#00000088" aria-hidden="true"></i><code>#00000088</code></td><td>141</td></tr>
+<tr><td><i class="swatch" style="background:#031326" aria-hidden="true"></i><code>#031326</code></td><td>147, 150</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-typography-declarations-19">Typography declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>fontSize: 11</code></td><td>152, 153</td></tr>
-<tr><td><code>fontSize: 12</code></td><td>151, 154</td></tr>
-<tr><td><code>fontSize: 13</code></td><td>145, 152</td></tr>
-<tr><td><code>fontSize: 14</code></td><td>142, 151</td></tr>
-<tr><td><code>fontSize: 16</code></td><td>156</td></tr>
-<tr><td><code>fontSize: 20</code></td><td>154</td></tr>
-<tr><td><code>fontWeight: &#x27;400&#x27;</code></td><td>154</td></tr>
-<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>151, 154</td></tr>
-<tr><td><code>lineHeight: 16</code></td><td>152, 153</td></tr>
-<tr><td><code>lineHeight: 17</code></td><td>151, 154</td></tr>
-<tr><td><code>lineHeight: 18</code></td><td>145, 152</td></tr>
-<tr><td><code>lineHeight: 19</code></td><td>151</td></tr>
-<tr><td><code>lineHeight: 20</code></td><td>142</td></tr>
-<tr><td><code>lineHeight: 28</code></td><td>154</td></tr>
+<tr><td><code>fontSize: 11</code></td><td>140, 157, 158</td></tr>
+<tr><td><code>fontSize: 12</code></td><td>139, 156, 159</td></tr>
+<tr><td><code>fontSize: 13</code></td><td>150, 157</td></tr>
+<tr><td><code>fontSize: 14</code></td><td>140, 147, 156</td></tr>
+<tr><td><code>fontSize: 16</code></td><td>161</td></tr>
+<tr><td><code>fontSize: 20</code></td><td>159</td></tr>
+<tr><td><code>fontWeight: &#x27;400&#x27;</code></td><td>159</td></tr>
+<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>116, 156, 159</td></tr>
+<tr><td><code>lineHeight: 16</code></td><td>140, 157, 158</td></tr>
+<tr><td><code>lineHeight: 17</code></td><td>156, 159</td></tr>
+<tr><td><code>lineHeight: 18</code></td><td>139, 150, 157</td></tr>
+<tr><td><code>lineHeight: 19</code></td><td>156</td></tr>
+<tr><td><code>lineHeight: 20</code></td><td>140, 147</td></tr>
+<tr><td><code>lineHeight: 28</code></td><td>159</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-geometry--opacity-declarations-32">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>borderRadius: 10</code></td><td>144, 149</td></tr>
-<tr><td><code>borderRadius: 12</code></td><td>141, 143, 155</td></tr>
-<tr><td><code>borderRadius: 4</code></td><td>153</td></tr>
-<tr><td><code>borderWidth: 1</code></td><td>141, 153, 155</td></tr>
-<tr><td><code>gap: 0</code></td><td>148</td></tr>
-<tr><td><code>gap: 12</code></td><td>138</td></tr>
-<tr><td><code>gap: 16</code></td><td>138</td></tr>
-<tr><td><code>gap: 2</code></td><td>140, 150</td></tr>
-<tr><td><code>gap: 5</code></td><td>140</td></tr>
-<tr><td><code>gap: 6</code></td><td>141, 146</td></tr>
-<tr><td><code>gap: 7</code></td><td>150</td></tr>
-<tr><td><code>gap: 8</code></td><td>89, 149</td></tr>
-<tr><td><code>height: 5</code></td><td>95</td></tr>
-<tr><td><code>maxWidth: &#x27;100%&#x27;</code></td><td>144, 155</td></tr>
-<tr><td><code>maxWidth: &#x27;32%&#x27;</code></td><td>154</td></tr>
-<tr><td><code>maxWidth: &#x27;50%&#x27;</code></td><td>91</td></tr>
-<tr><td><code>maxWidth: 600</code></td><td>138, 140</td></tr>
-<tr><td><code>maxWidth: 960</code></td><td>138, 139</td></tr>
-<tr><td><code>minHeight: 48</code></td><td>141, 143, 144, 145, 146, 147, 149, 156</td></tr>
-<tr><td><code>minWidth: 0</code></td><td>146, 150, 156</td></tr>
-<tr><td><code>minWidth: 48</code></td><td>143, 145, 146, 147</td></tr>
-<tr><td><code>padding: 18</code></td><td>138</td></tr>
-<tr><td><code>paddingHorizontal: 10</code></td><td>144, 149</td></tr>
-<tr><td><code>paddingHorizontal: 12</code></td><td>139, 141, 148</td></tr>
-<tr><td><code>paddingHorizontal: 4</code></td><td>153</td></tr>
-<tr><td><code>paddingHorizontal: 6</code></td><td>145</td></tr>
-<tr><td><code>paddingVertical: 5</code></td><td>144</td></tr>
-<tr><td><code>paddingVertical: 6</code></td><td>156</td></tr>
-<tr><td><code>paddingVertical: 7</code></td><td>149</td></tr>
-<tr><td><code>width: &#x27;100%&#x27;</code></td><td>138, 139, 140</td></tr>
-<tr><td><code>width: 280</code></td><td>155</td></tr>
+<tr><td><code>borderRadius: 10</code></td><td>149, 154</td></tr>
+<tr><td><code>borderRadius: 12</code></td><td>146, 148, 160</td></tr>
+<tr><td><code>borderRadius: 18</code></td><td>141</td></tr>
+<tr><td><code>borderRadius: 4</code></td><td>158</td></tr>
+<tr><td><code>borderWidth: 1</code></td><td>146, 158, 160</td></tr>
+<tr><td><code>gap: 0</code></td><td>153</td></tr>
+<tr><td><code>gap: 12</code></td><td>143</td></tr>
+<tr><td><code>gap: 16</code></td><td>143</td></tr>
+<tr><td><code>gap: 2</code></td><td>145, 155</td></tr>
+<tr><td><code>gap: 4</code></td><td>138, 140</td></tr>
+<tr><td><code>gap: 5</code></td><td>145</td></tr>
+<tr><td><code>gap: 6</code></td><td>79, 146, 151</td></tr>
+<tr><td><code>gap: 7</code></td><td>155</td></tr>
+<tr><td><code>gap: 8</code></td><td>99, 141, 154</td></tr>
+<tr><td><code>height: 5</code></td><td>105</td></tr>
+<tr><td><code>maxHeight: &#x27;70%&#x27;</code></td><td>141</td></tr>
+<tr><td><code>maxWidth: &#x27;100%&#x27;</code></td><td>149, 160</td></tr>
+<tr><td><code>maxWidth: &#x27;32%&#x27;</code></td><td>159</td></tr>
+<tr><td><code>maxWidth: &#x27;50%&#x27;</code></td><td>101</td></tr>
+<tr><td><code>maxWidth: 520</code></td><td>141</td></tr>
+<tr><td><code>maxWidth: 600</code></td><td>143, 145</td></tr>
+<tr><td><code>maxWidth: 960</code></td><td>143, 144</td></tr>
+<tr><td><code>minHeight: 48</code></td><td>74, 138, 141, 146, 148, 149, 150, 151, 152, 154, 161</td></tr>
+<tr><td><code>minHeight: 52</code></td><td>140</td></tr>
+<tr><td><code>minWidth: 0</code></td><td>74, 151, 155, 161</td></tr>
+<tr><td><code>minWidth: 48</code></td><td>148, 150, 151, 152</td></tr>
+<tr><td><code>padding: 12</code></td><td>141</td></tr>
+<tr><td><code>padding: 18</code></td><td>143</td></tr>
+<tr><td><code>paddingHorizontal: 10</code></td><td>149, 154</td></tr>
+<tr><td><code>paddingHorizontal: 12</code></td><td>144, 146, 153</td></tr>
+<tr><td><code>paddingHorizontal: 4</code></td><td>138, 158</td></tr>
+<tr><td><code>paddingHorizontal: 6</code></td><td>150</td></tr>
+<tr><td><code>paddingHorizontal: 8</code></td><td>141</td></tr>
+<tr><td><code>paddingVertical: 4</code></td><td>140</td></tr>
+<tr><td><code>paddingVertical: 5</code></td><td>149</td></tr>
+<tr><td><code>paddingVertical: 6</code></td><td>161</td></tr>
+<tr><td><code>paddingVertical: 7</code></td><td>154</td></tr>
+<tr><td><code>paddingVertical: 8</code></td><td>141</td></tr>
+<tr><td><code>width: &#x27;100%&#x27;</code></td><td>63, 141, 143, 144, 145, 160</td></tr>
+<tr><td><code>width: &#x27;48%&#x27;</code></td><td>140</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-paperstatustsx">PaperStatus.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/PaperStatus.tsx">apps/platform-lab/src/mobile/PaperStatus.tsx</a>; normalized SHA-256 <code>d030bb2911e9f988f450f9ae521677534c839dba425b0b4b24c7791015d14aa9</code>.</p>
@@ -2165,6 +2195,8 @@ Season and club photography use the shared `cockpitImage` opacity .82 and `cockp
 
 ## Compact Flights screen — approved 24 October 2026
 
+The 25 October phone-usability amendment below supersedes this section&#x27;s filter-chip layout, explicit-Solo-only rule and overview unknown notices. Historical evidence retains its original source scope.
+
 Manuel explicitly selected implementation of the full [#70](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/70) screen proposal and its [refined C layout](proposals/2026-10-24-flight-cards-dense-c.html). This supersedes C09&#x27;s earlier tall flight row and the scrolling search/summary header. A compact period/aircraft/search bar sits outside list scrolling. Selected controls and removable actual-value tags use teal with textual values and close marks; Reset appears only with active filters. Search opens a content-sized editor. Year/aircraft choices and actions wrap at their intrinsic sizes. The default is all selected-account saved flights; explicit dashboard period requests remain visible as filters.
 
 Cards use 7 vertical / 10 horizontal padding, radius 10, 5 between rows and 2 between information lines. Date/registration/model share the first line, labelled pilot/Begleiter the second, and source start/route the third; reported h:min remains prominent at right. Content and system text can wrap, with no forced height, separators or repeated chevron. Names preserve supplied given names and abbreviate the family name for display; raw names remain in details. Extra companions/PIC/SIC stay labelled. Solo is shown only for an explicit saved `Solo`/`Alleinflug` flight-mode/type value with a recorded pilot and no contradictory additional crew; missing/blank crew alone never establishes it. No unverified source-code or legal-role mapping is added.
@@ -2176,6 +2208,18 @@ One compact line shows filtered/saved count, known reported time and any unknown
 Under [#85](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/85), Manuel requested aircraft category labels and launch-method filters/statistics and instructed implementation. Shared ordinary/Statistics flight rows add a small outlined text category badge and a readable launch label, with wrapping and explicit unknowns; no new icon family. Details retain original field/value evidence. The existing aircraft chooser becomes Flugzeug &amp; Start, grouping category, launch and registration choices without another permanent toolbar row. Only categories/methods present in the owner&#x27;s saved list are offered. Active tags remain individually removable; an empty filtered list offers reset. Statistics groups open exact contributing flights within the selected period. Existing account/Back/scroll and known/unknown-time boundaries remain.
 
 Implemented in source; [verification and remaining native acceptance](../../verification/2026-10-25-flight-classification.md) are separate from this requested scope. This amends the earlier unavailable launch-statistics placeholder only where mapped source evidence exists.
+
+## Phone-usability amendment — approved 25 October 2026
+
+Manuel approved implementation of the combined [#84](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/84), [#87](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/87) and [#78](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/78) proposal, then explicitly requested no unknowns in the Flights overview. These changes are implemented; [package evidence](../../verification/2026-10-25-phone-usability.md) distinguishes host and native acceptance.
+
+**Flights:** one 48 dp expandable filter header with active count, a selected-value summary, Search and information. Count/known time sits below; there are no duplicate chip rows. The expanded form contains search and four compact selectors in two columns (period/category, registration/launch), Reset and collapse/show results. Each selector opens a single checked-choice sheet; registrations are searchable. Changes apply immediately. Expanded controls have a bounded scroll fallback at large font/keyboard/landscape, and large text uses one column. Existing exact contributor/custom period constraints, list return and account reset remain. Touch targets stay at least 48 dp; visual compactness comes from reduced chrome.
+
+**Crew and missing data:** group matching full source names within each flight, normalizing whitespace/case and comma name order. Do not match initials or infer person identity across flights. Show one name with explicit PIC/FI/SIC roles; a generic Pilot/Begleiter label does not repeat a more specific role. Different full names with colliding abbreviations display in full. Begleiter/FI and instructor time alone do not establish an instructor; an explicit named FI/Fluglehrer/Instructor field does. One recorded PIC without companions is Solo under Manuel&#x27;s selected display rule; additional people or SIC conflict block it. An uncontradicted explicit Solo/Alleinflug is also retained. This is a display projection, not legal flight credit or a change to raw facts.
+
+Overview rows omit missing date, registration/model, crew, category, launch, clock, route endpoints and duration placeholders. Known zero duration remains `0:00`; details preserve unknown/conflicting values and original evidence. No inferred values fill the space. The count line qualifies partial time as known rather than listing unknown counts. Missing-data filters remain available deliberately inside their selectors.
+
+**AI:** compact chat toolbar, independently scrolling transcript and a pinned composer growing from one line to a bounded multiline editor. Local chat history/search/New chat appears in a bottom sheet; usage, service/privacy disclosure and deletion are secondary menu content. Optional task modes sit behind the composer plus action. Availability/errors use a short actionable status, with full detail in the menu. Send is explicit, running work can be cancelled, and merely opening a menu never enables requests. Older messages are not forced to the bottom; a latest-message action restores following. Owner changes clear transient view state. Existing local drafts, evidence navigation, confirmation and service/funding boundaries remain.
 
 # Alternative UI — 22 October 2026
 
@@ -2634,7 +2678,7 @@ Use only the header “Daten” button for new provider data and login. Start em
 
 [Handbook entry point](README.md). Generated by `python scripts/design_handbook.py`; do not hand-edit.
 
-Scope: 88 product mobile TypeScript/model and app-owned TSX UI/adapter files; 65 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.
+Scope: 88 product mobile TypeScript/model and app-owned TSX UI/adapter files; 66 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.
 
 ## App.tsx
 
@@ -2781,51 +2825,64 @@ Retained app-owned lab/adapter surface; document its existing appearance as an e
 
 ## AiChat.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/AiChat.tsx](../../../apps/platform-lab/src/mobile/AiChat.tsx); normalized SHA-256 `1e2b83fbe007b38513fef10f877063158b61c1b77e817ddd6c37f1c838b7bd53`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/AiChat.tsx](../../../apps/platform-lab/src/mobile/AiChat.tsx); normalized SHA-256 `ba2fb5b0b4b9e76b4785fc67f66787a0b1d7b0119976922809e5e0c2017f0343`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#031326` | 321 |
+| `#00000088` | 231 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 14` | 320 |
-| `fontSize: 16` | 333 |
-| `fontWeight: &#x27;600&#x27;` | 310, 325 |
-| `fontWeight: &#x27;700&#x27;` | 321 |
-| `lineHeight: 20` | 320 |
-| `lineHeight: 24` | 333 |
+| `fontSize: 12` | 229, 230 |
+| `fontSize: 15` | 228, 232 |
+| `fontSize: 16` | 230, 231 |
+| `fontSize: 23` | 228 |
+| `fontSize: 25` | 228 |
+| `fontWeight: &#x27;600&#x27;` | 228, 232 |
+| `lineHeight: 17` | 230 |
+| `lineHeight: 18` | 229 |
+| `lineHeight: 22` | 230, 232 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 14` | 316 |
-| `borderRadius: 20` | 331 |
-| `borderWidth: 1` | 316, 331 |
-| `gap: 10` | 307, 323 |
-| `gap: 12` | 306 |
-| `gap: 4` | 326, 327 |
-| `gap: 6` | 322 |
-| `gap: 8` | 309, 311, 313, 324, 328 |
-| `maxWidth: &#x27;100%&#x27;` | 315 |
-| `maxWidth: 520` | 306 |
-| `minHeight: 120` | 331 |
-| `minHeight: 48` | 315 |
-| `minWidth: 120` | 329 |
-| `minWidth: 140` | 312 |
-| `minWidth: 160` | 310 |
-| `minWidth: 66` | 315 |
-| `paddingHorizontal: 12` | 306 |
-| `paddingHorizontal: 14` | 316 |
-| `paddingHorizontal: 16` | 332 |
-| `paddingVertical: 14` | 332 |
-| `paddingVertical: 8` | 306, 316 |
-| `width: &#x27;100%&#x27;` | 306, 307, 308, 323, 324, 331 |
+| `borderRadius: 14` | 230 |
+| `borderRadius: 16` | 229, 230 |
+| `borderRadius: 20` | 231 |
+| `gap: 10` | 232 |
+| `gap: 18` | 229 |
+| `gap: 4` | 228, 232 |
+| `gap: 8` | 229, 231, 232 |
+| `maxHeight: &#x27;80%&#x27;` | 231 |
+| `maxHeight: 112` | 230 |
+| `maxWidth: &#x27;90%&#x27;` | 229 |
+| `maxWidth: 600` | 228, 231 |
+| `minHeight: 0` | 228, 229 |
+| `minHeight: 44` | 230 |
+| `minHeight: 48` | 228, 230, 231, 232 |
+| `minWidth: 0` | 228, 230 |
+| `minWidth: 120` | 232 |
+| `minWidth: 140` | 232 |
+| `minWidth: 48` | 228 |
+| `opacity: .4` | 171 |
+| `padding: 12` | 229, 231 |
+| `padding: 14` | 229 |
+| `paddingHorizontal: 10` | 230 |
+| `paddingHorizontal: 12` | 230 |
+| `paddingHorizontal: 14` | 230 |
+| `paddingHorizontal: 16` | 231 |
+| `paddingHorizontal: 6` | 228, 230 |
+| `paddingHorizontal: 8` | 231, 232 |
+| `paddingVertical: 10` | 230, 232 |
+| `paddingVertical: 24` | 229 |
+| `paddingVertical: 4` | 230 |
+| `paddingVertical: 8` | 231 |
+| `width: &#x27;100%&#x27;` | 228, 231 |
 
 ## AppHeader.tsx
 
@@ -3199,7 +3256,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DutyTarget.tsx](.
 
 ## FlightCard.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/FlightCard.tsx](../../../apps/platform-lab/src/mobile/FlightCard.tsx); normalized SHA-256 `0caf6e37a21a991d324046becdcae9d6285d4fa6db16dd579608fcac3ae488f2`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/FlightCard.tsx](../../../apps/platform-lab/src/mobile/FlightCard.tsx); normalized SHA-256 `97a74c622b0235f4efe3600dcbc81d694b403c24e843f1a4c1a2c3971f7ec705`.
 
 ### Typography declarations
 
@@ -3237,7 +3294,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/FlightCard.tsx](.
 
 ## FlightDetails.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/FlightDetails.tsx](../../../apps/platform-lab/src/mobile/FlightDetails.tsx); normalized SHA-256 `8d7a3580a29e9711f3b48418411b7f6a4ac8295c773da55eceec71a654bce502`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/FlightDetails.tsx](../../../apps/platform-lab/src/mobile/FlightDetails.tsx); normalized SHA-256 `e92f03e59265607c278238d4c32691015000bd9aac1089b838c38e8bfbf4809a`.
 
 ### Typography declarations
 
@@ -3252,8 +3309,8 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/FlightDetails.tsx
 | Value / declaration | Source line(s) |
 | --- | --- |
 | `gap: 10` | 15 |
-| `gap: 2` | 29 |
-| `gap: 6` | 31 |
+| `gap: 2` | 32 |
+| `gap: 6` | 34 |
 
 ## FlightScene.tsx
 
@@ -3372,115 +3429,115 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MedicalStatus.tsx
 
 ## MobileApp.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `c0144714b6b6c243afdcb41b7f41a3cf1af02697fd5fea8810fc7e651e247b73`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `317ab350b50b885afd3551c22799bce9b535fd9f6f7189f788849b51751e13ca`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#000712bd` | 311 |
-| `#064240` | 305 |
-| `#10282d` | 305 |
-| `#11263a` | 304 |
-| `#152d42` | 306 |
-| `#1b344a` | 309 |
-| `#227f87` | 305 |
-| `#78efdc` | 307 |
-| `#8ba4bc` | 259, 302 |
+| `#000712bd` | 308 |
+| `#064240` | 302 |
+| `#10282d` | 302 |
+| `#11263a` | 301 |
+| `#152d42` | 303 |
+| `#1b344a` | 306 |
+| `#227f87` | 302 |
+| `#78efdc` | 304 |
+| `#8ba4bc` | 256, 299 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 10` | 259, 302 |
-| `fontSize: 11` | 303 |
-| `fontSize: 12` | 212, 305, 310 |
-| `fontSize: 13` | 304 |
-| `fontSize: 16` | 309 |
-| `fontSize: 20` | 303 |
-| `fontSize: 23` | 308 |
-| `fontSize: 25` | 310 |
-| `fontWeight: &#x27;600&#x27;` | 303, 305 |
-| `fontWeight: &#x27;700&#x27;` | 310 |
-| `letterSpacing: .6` | 302 |
-| `lineHeight: 16` | 259, 302, 303 |
-| `lineHeight: 17` | 305 |
-| `lineHeight: 18` | 212, 310 |
-| `lineHeight: 25` | 303 |
-| `lineHeight: 29` | 310 |
+| `fontSize: 10` | 256, 299 |
+| `fontSize: 11` | 300 |
+| `fontSize: 12` | 209, 302, 307 |
+| `fontSize: 13` | 301 |
+| `fontSize: 16` | 306 |
+| `fontSize: 20` | 300 |
+| `fontSize: 23` | 305 |
+| `fontSize: 25` | 307 |
+| `fontWeight: &#x27;600&#x27;` | 300, 302 |
+| `fontWeight: &#x27;700&#x27;` | 307 |
+| `letterSpacing: .6` | 299 |
+| `lineHeight: 16` | 256, 299, 300 |
+| `lineHeight: 17` | 302 |
+| `lineHeight: 18` | 209, 307 |
+| `lineHeight: 25` | 300 |
+| `lineHeight: 29` | 307 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 300, 305 |
-| `borderRadius: 13` | 305 |
-| `borderRadius: 15` | 307 |
-| `borderRadius: 16` | 309, 310 |
-| `borderRadius: 17` | 306 |
-| `borderRadius: 18` | 308 |
-| `borderRadius: 2` | 310 |
-| `borderRadius: 20` | 309 |
-| `borderRadius: 22` | 304, 312 |
-| `borderRadius: 24` | 304 |
-| `borderRadius: 9` | 305 |
-| `borderWidth: 1` | 300, 304, 305, 308, 309, 310, 312 |
-| `gap: 1` | 303 |
-| `gap: 10` | 218, 229 |
-| `gap: 12` | 217, 299 |
-| `gap: 18` | 307 |
-| `gap: 2` | 310 |
-| `gap: 3` | 302, 305 |
-| `gap: 4` | 310 |
-| `gap: 5` | 304 |
-| `gap: 6` | 308, 309 |
-| `gap: 7` | 304, 307 |
-| `gap: 8` | 281, 283, 300, 306, 309 |
-| `height: 2` | 310 |
-| `height: 30` | 307 |
-| `height: 48` | 309 |
-| `maxHeight: 150` | 309 |
-| `maxWidth: 480` | 229 |
-| `maxWidth: 520` | 152, 281, 283, 307 |
-| `maxWidth: 599` | 298, 310 |
-| `maxWidth: 600` | 214, 260, 272 |
-| `maxWidth: 960` | 214, 260 |
-| `minHeight: 0` | 266, 312 |
-| `minHeight: 126` | 307 |
-| `minHeight: 34` | 306 |
-| `minHeight: 36` | 301 |
-| `minHeight: 40` | 304 |
-| `minHeight: 48` | 300, 304, 306 |
-| `minHeight: 52` | 309 |
-| `minHeight: 60` | 310 |
-| `minHeight: 64` | 305 |
-| `minHeight: 66` | 305 |
-| `minHeight: 86` | 308 |
-| `minWidth: 0` | 303, 304 |
-| `opacity: .8` | 311 |
-| `padding: 0` | 306 |
-| `padding: 10` | 299 |
-| `padding: 12` | 299 |
-| `padding: 16` | 308 |
-| `padding: 4` | 302, 309 |
-| `padding: 6` | 310 |
-| `padding: 7` | 305 |
-| `paddingHorizontal: 12` | 300, 304, 311 |
-| `paddingHorizontal: 16` | 306 |
-| `paddingHorizontal: 6` | 305 |
-| `paddingHorizontal: 7` | 305 |
-| `paddingHorizontal: 8` | 309 |
-| `paddingVertical: 10` | 305, 311 |
-| `paddingVertical: 4` | 304 |
-| `paddingVertical: 8` | 310 |
-| `width: &#x27;100%&#x27;` | 152, 217, 218, 219, 229, 259, 272, 281, 283, 298, 306, 307, 310 |
-| `width: &#x27;32%&#x27;` | 310 |
-| `width: &#x27;49.2%&#x27;` | 306 |
-| `width: 24` | 310 |
-| `width: 30` | 307 |
-| `width: 42` | 304 |
-| `width: 48` | 309 |
-| `width: 64` | 305 |
+| `borderRadius: 12` | 297, 302 |
+| `borderRadius: 13` | 302 |
+| `borderRadius: 15` | 304 |
+| `borderRadius: 16` | 306, 307 |
+| `borderRadius: 17` | 303 |
+| `borderRadius: 18` | 305 |
+| `borderRadius: 2` | 307 |
+| `borderRadius: 20` | 306 |
+| `borderRadius: 22` | 301, 309 |
+| `borderRadius: 24` | 301 |
+| `borderRadius: 9` | 302 |
+| `borderWidth: 1` | 297, 301, 302, 305, 306, 307, 309 |
+| `gap: 1` | 300 |
+| `gap: 10` | 215, 226 |
+| `gap: 12` | 214, 296 |
+| `gap: 18` | 304 |
+| `gap: 2` | 307 |
+| `gap: 3` | 299, 302 |
+| `gap: 4` | 307 |
+| `gap: 5` | 301 |
+| `gap: 6` | 305, 306 |
+| `gap: 7` | 301, 304 |
+| `gap: 8` | 278, 280, 297, 303, 306 |
+| `height: 2` | 307 |
+| `height: 30` | 304 |
+| `height: 48` | 306 |
+| `maxHeight: 150` | 306 |
+| `maxWidth: 480` | 226 |
+| `maxWidth: 520` | 151, 278, 280, 304 |
+| `maxWidth: 599` | 295, 307 |
+| `maxWidth: 600` | 211, 257, 269 |
+| `maxWidth: 960` | 211, 257 |
+| `minHeight: 0` | 245, 263, 309 |
+| `minHeight: 126` | 304 |
+| `minHeight: 34` | 303 |
+| `minHeight: 36` | 298 |
+| `minHeight: 40` | 301 |
+| `minHeight: 48` | 297, 301, 303 |
+| `minHeight: 52` | 306 |
+| `minHeight: 60` | 307 |
+| `minHeight: 64` | 302 |
+| `minHeight: 66` | 302 |
+| `minHeight: 86` | 305 |
+| `minWidth: 0` | 300, 301 |
+| `opacity: .8` | 308 |
+| `padding: 0` | 303 |
+| `padding: 10` | 296 |
+| `padding: 12` | 296 |
+| `padding: 16` | 305 |
+| `padding: 4` | 299, 306 |
+| `padding: 6` | 307 |
+| `padding: 7` | 302 |
+| `paddingHorizontal: 12` | 297, 301, 308 |
+| `paddingHorizontal: 16` | 303 |
+| `paddingHorizontal: 6` | 302 |
+| `paddingHorizontal: 7` | 302 |
+| `paddingHorizontal: 8` | 306 |
+| `paddingVertical: 10` | 302, 308 |
+| `paddingVertical: 4` | 301 |
+| `paddingVertical: 8` | 307 |
+| `width: &#x27;100%&#x27;` | 151, 214, 215, 216, 226, 256, 269, 278, 280, 295, 303, 304, 307 |
+| `width: &#x27;32%&#x27;` | 307 |
+| `width: &#x27;49.2%&#x27;` | 303 |
+| `width: 24` | 307 |
+| `width: 30` | 304 |
+| `width: 42` | 301 |
+| `width: 48` | 306 |
+| `width: 64` | 302 |
 
 ## OverviewTiles.tsx
 
@@ -3520,68 +3577,78 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OverviewTiles.tsx
 
 ## OwnFlights.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OwnFlights.tsx](../../../apps/platform-lab/src/mobile/OwnFlights.tsx); normalized SHA-256 `ac43aa68dc8d094ed2650b6cd5980f2dacf418df57842d0bf55c86a0d55fd446`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OwnFlights.tsx](../../../apps/platform-lab/src/mobile/OwnFlights.tsx); normalized SHA-256 `40d1efcf2ae8f39e6902dea69c696ff47b22700c588eaf397ecdecb2e3278a51`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#031326` | 142, 145 |
+| `#00000088` | 141 |
+| `#031326` | 147, 150 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 11` | 152, 153 |
-| `fontSize: 12` | 151, 154 |
-| `fontSize: 13` | 145, 152 |
-| `fontSize: 14` | 142, 151 |
-| `fontSize: 16` | 156 |
-| `fontSize: 20` | 154 |
-| `fontWeight: &#x27;400&#x27;` | 154 |
-| `fontWeight: &#x27;600&#x27;` | 151, 154 |
-| `lineHeight: 16` | 152, 153 |
-| `lineHeight: 17` | 151, 154 |
-| `lineHeight: 18` | 145, 152 |
-| `lineHeight: 19` | 151 |
-| `lineHeight: 20` | 142 |
-| `lineHeight: 28` | 154 |
+| `fontSize: 11` | 140, 157, 158 |
+| `fontSize: 12` | 139, 156, 159 |
+| `fontSize: 13` | 150, 157 |
+| `fontSize: 14` | 140, 147, 156 |
+| `fontSize: 16` | 161 |
+| `fontSize: 20` | 159 |
+| `fontWeight: &#x27;400&#x27;` | 159 |
+| `fontWeight: &#x27;600&#x27;` | 116, 156, 159 |
+| `lineHeight: 16` | 140, 157, 158 |
+| `lineHeight: 17` | 156, 159 |
+| `lineHeight: 18` | 139, 150, 157 |
+| `lineHeight: 19` | 156 |
+| `lineHeight: 20` | 140, 147 |
+| `lineHeight: 28` | 159 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 10` | 144, 149 |
-| `borderRadius: 12` | 141, 143, 155 |
-| `borderRadius: 4` | 153 |
-| `borderWidth: 1` | 141, 153, 155 |
-| `gap: 0` | 148 |
-| `gap: 12` | 138 |
-| `gap: 16` | 138 |
-| `gap: 2` | 140, 150 |
-| `gap: 5` | 140 |
-| `gap: 6` | 141, 146 |
-| `gap: 7` | 150 |
-| `gap: 8` | 89, 149 |
-| `height: 5` | 95 |
-| `maxWidth: &#x27;100%&#x27;` | 144, 155 |
-| `maxWidth: &#x27;32%&#x27;` | 154 |
-| `maxWidth: &#x27;50%&#x27;` | 91 |
-| `maxWidth: 600` | 138, 140 |
-| `maxWidth: 960` | 138, 139 |
-| `minHeight: 48` | 141, 143, 144, 145, 146, 147, 149, 156 |
-| `minWidth: 0` | 146, 150, 156 |
-| `minWidth: 48` | 143, 145, 146, 147 |
-| `padding: 18` | 138 |
-| `paddingHorizontal: 10` | 144, 149 |
-| `paddingHorizontal: 12` | 139, 141, 148 |
-| `paddingHorizontal: 4` | 153 |
-| `paddingHorizontal: 6` | 145 |
-| `paddingVertical: 5` | 144 |
-| `paddingVertical: 6` | 156 |
-| `paddingVertical: 7` | 149 |
-| `width: &#x27;100%&#x27;` | 138, 139, 140 |
-| `width: 280` | 155 |
+| `borderRadius: 10` | 149, 154 |
+| `borderRadius: 12` | 146, 148, 160 |
+| `borderRadius: 18` | 141 |
+| `borderRadius: 4` | 158 |
+| `borderWidth: 1` | 146, 158, 160 |
+| `gap: 0` | 153 |
+| `gap: 12` | 143 |
+| `gap: 16` | 143 |
+| `gap: 2` | 145, 155 |
+| `gap: 4` | 138, 140 |
+| `gap: 5` | 145 |
+| `gap: 6` | 79, 146, 151 |
+| `gap: 7` | 155 |
+| `gap: 8` | 99, 141, 154 |
+| `height: 5` | 105 |
+| `maxHeight: &#x27;70%&#x27;` | 141 |
+| `maxWidth: &#x27;100%&#x27;` | 149, 160 |
+| `maxWidth: &#x27;32%&#x27;` | 159 |
+| `maxWidth: &#x27;50%&#x27;` | 101 |
+| `maxWidth: 520` | 141 |
+| `maxWidth: 600` | 143, 145 |
+| `maxWidth: 960` | 143, 144 |
+| `minHeight: 48` | 74, 138, 141, 146, 148, 149, 150, 151, 152, 154, 161 |
+| `minHeight: 52` | 140 |
+| `minWidth: 0` | 74, 151, 155, 161 |
+| `minWidth: 48` | 148, 150, 151, 152 |
+| `padding: 12` | 141 |
+| `padding: 18` | 143 |
+| `paddingHorizontal: 10` | 149, 154 |
+| `paddingHorizontal: 12` | 144, 146, 153 |
+| `paddingHorizontal: 4` | 138, 158 |
+| `paddingHorizontal: 6` | 150 |
+| `paddingHorizontal: 8` | 141 |
+| `paddingVertical: 4` | 140 |
+| `paddingVertical: 5` | 149 |
+| `paddingVertical: 6` | 161 |
+| `paddingVertical: 7` | 154 |
+| `paddingVertical: 8` | 141 |
+| `width: &#x27;100%&#x27;` | 63, 141, 143, 144, 145, 160 |
+| `width: &#x27;48%&#x27;` | 140 |
 
 ## PaperStatus.tsx
 
@@ -4745,7 +4812,7 @@ States / limits: Recreated approved variant, not a byte-identical copy of an old
 Source: docs/assets/branding/moflight-app-icon-ai.png
 docs/assets/branding/README.md; app.json
 </textarea></section>
-<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: c7c187eda9b1364cf02c554e303526e6f1887864b2738e7700816d7e3c4b42fc. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
+<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: 458b6bc9a01dffdeec67ebc15631b3f781306088e657bccf886b340600414706. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
 </main><script>
 'use strict';
 const brief = document.querySelector('#brief');

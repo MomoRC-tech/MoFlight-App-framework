@@ -43,7 +43,7 @@ test('flight preview exercises explicit solo, multiple companions and unknown cr
   assert.equal(ownFlightCard(view.flights[1]!).solo,true);
   assert.ok(ownFlightCard(view.flights[2]!).crew.some(person=>person.name.includes('Alexandra Marie B.')));
   assert.equal(ownFlightCard(view.flights[7]!).solo,false);
-  assert.ok(ownFlightCard(view.flights[7]!).crew.some(person=>person.name==='unbekannt'));
+  assert.deepEqual(ownFlightCard(view.flights[7]!).crew,[{role:'Pilot',name:'Jonas W.'}]);
 });
 
 test('preview factories are fresh in-memory data and expose no persistence capability', () => {

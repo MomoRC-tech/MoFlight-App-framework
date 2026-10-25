@@ -130,6 +130,8 @@ Season and club photography use the shared `cockpitImage` opacity .82 and `cockp
 
 ## Compact Flights screen — approved 24 October 2026
 
+The 25 October phone-usability amendment below supersedes this section's filter-chip layout, explicit-Solo-only rule and overview unknown notices. Historical evidence retains its original source scope.
+
 Manuel explicitly selected implementation of the full [#70](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/70) screen proposal and its [refined C layout](proposals/2026-10-24-flight-cards-dense-c.html). This supersedes C09's earlier tall flight row and the scrolling search/summary header. A compact period/aircraft/search bar sits outside list scrolling. Selected controls and removable actual-value tags use teal with textual values and close marks; Reset appears only with active filters. Search opens a content-sized editor. Year/aircraft choices and actions wrap at their intrinsic sizes. The default is all selected-account saved flights; explicit dashboard period requests remain visible as filters.
 
 Cards use 7 vertical / 10 horizontal padding, radius 10, 5 between rows and 2 between information lines. Date/registration/model share the first line, labelled pilot/Begleiter the second, and source start/route the third; reported h:min remains prominent at right. Content and system text can wrap, with no forced height, separators or repeated chevron. Names preserve supplied given names and abbreviate the family name for display; raw names remain in details. Extra companions/PIC/SIC stay labelled. Solo is shown only for an explicit saved `Solo`/`Alleinflug` flight-mode/type value with a recorded pilot and no contradictory additional crew; missing/blank crew alone never establishes it. No unverified source-code or legal-role mapping is added.
@@ -141,6 +143,18 @@ One compact line shows filtered/saved count, known reported time and any unknown
 Under [#85](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/85), Manuel requested aircraft category labels and launch-method filters/statistics and instructed implementation. Shared ordinary/Statistics flight rows add a small outlined text category badge and a readable launch label, with wrapping and explicit unknowns; no new icon family. Details retain original field/value evidence. The existing aircraft chooser becomes Flugzeug & Start, grouping category, launch and registration choices without another permanent toolbar row. Only categories/methods present in the owner's saved list are offered. Active tags remain individually removable; an empty filtered list offers reset. Statistics groups open exact contributing flights within the selected period. Existing account/Back/scroll and known/unknown-time boundaries remain.
 
 Implemented in source; [verification and remaining native acceptance](../../verification/2026-10-25-flight-classification.md) are separate from this requested scope. This amends the earlier unavailable launch-statistics placeholder only where mapped source evidence exists.
+
+## Phone-usability amendment — approved 25 October 2026
+
+Manuel approved implementation of the combined [#84](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/84), [#87](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/87) and [#78](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/78) proposal, then explicitly requested no unknowns in the Flights overview. These changes are implemented; [package evidence](../../verification/2026-10-25-phone-usability.md) distinguishes host and native acceptance.
+
+**Flights:** one 48 dp expandable filter header with active count, a selected-value summary, Search and information. Count/known time sits below; there are no duplicate chip rows. The expanded form contains search and four compact selectors in two columns (period/category, registration/launch), Reset and collapse/show results. Each selector opens a single checked-choice sheet; registrations are searchable. Changes apply immediately. Expanded controls have a bounded scroll fallback at large font/keyboard/landscape, and large text uses one column. Existing exact contributor/custom period constraints, list return and account reset remain. Touch targets stay at least 48 dp; visual compactness comes from reduced chrome.
+
+**Crew and missing data:** group matching full source names within each flight, normalizing whitespace/case and comma name order. Do not match initials or infer person identity across flights. Show one name with explicit PIC/FI/SIC roles; a generic Pilot/Begleiter label does not repeat a more specific role. Different full names with colliding abbreviations display in full. Begleiter/FI and instructor time alone do not establish an instructor; an explicit named FI/Fluglehrer/Instructor field does. One recorded PIC without companions is Solo under Manuel's selected display rule; additional people or SIC conflict block it. An uncontradicted explicit Solo/Alleinflug is also retained. This is a display projection, not legal flight credit or a change to raw facts.
+
+Overview rows omit missing date, registration/model, crew, category, launch, clock, route endpoints and duration placeholders. Known zero duration remains `0:00`; details preserve unknown/conflicting values and original evidence. No inferred values fill the space. The count line qualifies partial time as known rather than listing unknown counts. Missing-data filters remain available deliberately inside their selectors.
+
+**AI:** compact chat toolbar, independently scrolling transcript and a pinned composer growing from one line to a bounded multiline editor. Local chat history/search/New chat appears in a bottom sheet; usage, service/privacy disclosure and deletion are secondary menu content. Optional task modes sit behind the composer plus action. Availability/errors use a short actionable status, with full detail in the menu. Send is explicit, running work can be cancelled, and merely opening a menu never enables requests. Older messages are not forced to the bottom; a latest-message action restores following. Owner changes clear transient view state. Existing local drafts, evidence navigation, confirmation and service/funding boundaries remain.
 
 # Alternative UI — 22 October 2026
 
@@ -599,7 +613,7 @@ Use only the header “Daten” button for new provider data and login. Start em
 
 [Handbook entry point](README.md). Generated by `python scripts/design_handbook.py`; do not hand-edit.
 
-Scope: 88 product mobile TypeScript/model and app-owned TSX UI/adapter files; 65 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.
+Scope: 88 product mobile TypeScript/model and app-owned TSX UI/adapter files; 66 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.
 
 ## App.tsx
 
@@ -746,51 +760,64 @@ Retained app-owned lab/adapter surface; document its existing appearance as an e
 
 ## AiChat.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/AiChat.tsx](../../../apps/platform-lab/src/mobile/AiChat.tsx); normalized SHA-256 `1e2b83fbe007b38513fef10f877063158b61c1b77e817ddd6c37f1c838b7bd53`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/AiChat.tsx](../../../apps/platform-lab/src/mobile/AiChat.tsx); normalized SHA-256 `ba2fb5b0b4b9e76b4785fc67f66787a0b1d7b0119976922809e5e0c2017f0343`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#031326` | 321 |
+| `#00000088` | 231 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 14` | 320 |
-| `fontSize: 16` | 333 |
-| `fontWeight: '600'` | 310, 325 |
-| `fontWeight: '700'` | 321 |
-| `lineHeight: 20` | 320 |
-| `lineHeight: 24` | 333 |
+| `fontSize: 12` | 229, 230 |
+| `fontSize: 15` | 228, 232 |
+| `fontSize: 16` | 230, 231 |
+| `fontSize: 23` | 228 |
+| `fontSize: 25` | 228 |
+| `fontWeight: '600'` | 228, 232 |
+| `lineHeight: 17` | 230 |
+| `lineHeight: 18` | 229 |
+| `lineHeight: 22` | 230, 232 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 14` | 316 |
-| `borderRadius: 20` | 331 |
-| `borderWidth: 1` | 316, 331 |
-| `gap: 10` | 307, 323 |
-| `gap: 12` | 306 |
-| `gap: 4` | 326, 327 |
-| `gap: 6` | 322 |
-| `gap: 8` | 309, 311, 313, 324, 328 |
-| `maxWidth: '100%'` | 315 |
-| `maxWidth: 520` | 306 |
-| `minHeight: 120` | 331 |
-| `minHeight: 48` | 315 |
-| `minWidth: 120` | 329 |
-| `minWidth: 140` | 312 |
-| `minWidth: 160` | 310 |
-| `minWidth: 66` | 315 |
-| `paddingHorizontal: 12` | 306 |
-| `paddingHorizontal: 14` | 316 |
-| `paddingHorizontal: 16` | 332 |
-| `paddingVertical: 14` | 332 |
-| `paddingVertical: 8` | 306, 316 |
-| `width: '100%'` | 306, 307, 308, 323, 324, 331 |
+| `borderRadius: 14` | 230 |
+| `borderRadius: 16` | 229, 230 |
+| `borderRadius: 20` | 231 |
+| `gap: 10` | 232 |
+| `gap: 18` | 229 |
+| `gap: 4` | 228, 232 |
+| `gap: 8` | 229, 231, 232 |
+| `maxHeight: '80%'` | 231 |
+| `maxHeight: 112` | 230 |
+| `maxWidth: '90%'` | 229 |
+| `maxWidth: 600` | 228, 231 |
+| `minHeight: 0` | 228, 229 |
+| `minHeight: 44` | 230 |
+| `minHeight: 48` | 228, 230, 231, 232 |
+| `minWidth: 0` | 228, 230 |
+| `minWidth: 120` | 232 |
+| `minWidth: 140` | 232 |
+| `minWidth: 48` | 228 |
+| `opacity: .4` | 171 |
+| `padding: 12` | 229, 231 |
+| `padding: 14` | 229 |
+| `paddingHorizontal: 10` | 230 |
+| `paddingHorizontal: 12` | 230 |
+| `paddingHorizontal: 14` | 230 |
+| `paddingHorizontal: 16` | 231 |
+| `paddingHorizontal: 6` | 228, 230 |
+| `paddingHorizontal: 8` | 231, 232 |
+| `paddingVertical: 10` | 230, 232 |
+| `paddingVertical: 24` | 229 |
+| `paddingVertical: 4` | 230 |
+| `paddingVertical: 8` | 231 |
+| `width: '100%'` | 228, 231 |
 
 ## AppHeader.tsx
 
@@ -1164,7 +1191,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DutyTarget.tsx](.
 
 ## FlightCard.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/FlightCard.tsx](../../../apps/platform-lab/src/mobile/FlightCard.tsx); normalized SHA-256 `0caf6e37a21a991d324046becdcae9d6285d4fa6db16dd579608fcac3ae488f2`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/FlightCard.tsx](../../../apps/platform-lab/src/mobile/FlightCard.tsx); normalized SHA-256 `97a74c622b0235f4efe3600dcbc81d694b403c24e843f1a4c1a2c3971f7ec705`.
 
 ### Typography declarations
 
@@ -1202,7 +1229,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/FlightCard.tsx](.
 
 ## FlightDetails.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/FlightDetails.tsx](../../../apps/platform-lab/src/mobile/FlightDetails.tsx); normalized SHA-256 `8d7a3580a29e9711f3b48418411b7f6a4ac8295c773da55eceec71a654bce502`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/FlightDetails.tsx](../../../apps/platform-lab/src/mobile/FlightDetails.tsx); normalized SHA-256 `e92f03e59265607c278238d4c32691015000bd9aac1089b838c38e8bfbf4809a`.
 
 ### Typography declarations
 
@@ -1217,8 +1244,8 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/FlightDetails.tsx
 | Value / declaration | Source line(s) |
 | --- | --- |
 | `gap: 10` | 15 |
-| `gap: 2` | 29 |
-| `gap: 6` | 31 |
+| `gap: 2` | 32 |
+| `gap: 6` | 34 |
 
 ## FlightScene.tsx
 
@@ -1337,115 +1364,115 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MedicalStatus.tsx
 
 ## MobileApp.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `c0144714b6b6c243afdcb41b7f41a3cf1af02697fd5fea8810fc7e651e247b73`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `317ab350b50b885afd3551c22799bce9b535fd9f6f7189f788849b51751e13ca`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#000712bd` | 311 |
-| `#064240` | 305 |
-| `#10282d` | 305 |
-| `#11263a` | 304 |
-| `#152d42` | 306 |
-| `#1b344a` | 309 |
-| `#227f87` | 305 |
-| `#78efdc` | 307 |
-| `#8ba4bc` | 259, 302 |
+| `#000712bd` | 308 |
+| `#064240` | 302 |
+| `#10282d` | 302 |
+| `#11263a` | 301 |
+| `#152d42` | 303 |
+| `#1b344a` | 306 |
+| `#227f87` | 302 |
+| `#78efdc` | 304 |
+| `#8ba4bc` | 256, 299 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 10` | 259, 302 |
-| `fontSize: 11` | 303 |
-| `fontSize: 12` | 212, 305, 310 |
-| `fontSize: 13` | 304 |
-| `fontSize: 16` | 309 |
-| `fontSize: 20` | 303 |
-| `fontSize: 23` | 308 |
-| `fontSize: 25` | 310 |
-| `fontWeight: '600'` | 303, 305 |
-| `fontWeight: '700'` | 310 |
-| `letterSpacing: .6` | 302 |
-| `lineHeight: 16` | 259, 302, 303 |
-| `lineHeight: 17` | 305 |
-| `lineHeight: 18` | 212, 310 |
-| `lineHeight: 25` | 303 |
-| `lineHeight: 29` | 310 |
+| `fontSize: 10` | 256, 299 |
+| `fontSize: 11` | 300 |
+| `fontSize: 12` | 209, 302, 307 |
+| `fontSize: 13` | 301 |
+| `fontSize: 16` | 306 |
+| `fontSize: 20` | 300 |
+| `fontSize: 23` | 305 |
+| `fontSize: 25` | 307 |
+| `fontWeight: '600'` | 300, 302 |
+| `fontWeight: '700'` | 307 |
+| `letterSpacing: .6` | 299 |
+| `lineHeight: 16` | 256, 299, 300 |
+| `lineHeight: 17` | 302 |
+| `lineHeight: 18` | 209, 307 |
+| `lineHeight: 25` | 300 |
+| `lineHeight: 29` | 307 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 300, 305 |
-| `borderRadius: 13` | 305 |
-| `borderRadius: 15` | 307 |
-| `borderRadius: 16` | 309, 310 |
-| `borderRadius: 17` | 306 |
-| `borderRadius: 18` | 308 |
-| `borderRadius: 2` | 310 |
-| `borderRadius: 20` | 309 |
-| `borderRadius: 22` | 304, 312 |
-| `borderRadius: 24` | 304 |
-| `borderRadius: 9` | 305 |
-| `borderWidth: 1` | 300, 304, 305, 308, 309, 310, 312 |
-| `gap: 1` | 303 |
-| `gap: 10` | 218, 229 |
-| `gap: 12` | 217, 299 |
-| `gap: 18` | 307 |
-| `gap: 2` | 310 |
-| `gap: 3` | 302, 305 |
-| `gap: 4` | 310 |
-| `gap: 5` | 304 |
-| `gap: 6` | 308, 309 |
-| `gap: 7` | 304, 307 |
-| `gap: 8` | 281, 283, 300, 306, 309 |
-| `height: 2` | 310 |
-| `height: 30` | 307 |
-| `height: 48` | 309 |
-| `maxHeight: 150` | 309 |
-| `maxWidth: 480` | 229 |
-| `maxWidth: 520` | 152, 281, 283, 307 |
-| `maxWidth: 599` | 298, 310 |
-| `maxWidth: 600` | 214, 260, 272 |
-| `maxWidth: 960` | 214, 260 |
-| `minHeight: 0` | 266, 312 |
-| `minHeight: 126` | 307 |
-| `minHeight: 34` | 306 |
-| `minHeight: 36` | 301 |
-| `minHeight: 40` | 304 |
-| `minHeight: 48` | 300, 304, 306 |
-| `minHeight: 52` | 309 |
-| `minHeight: 60` | 310 |
-| `minHeight: 64` | 305 |
-| `minHeight: 66` | 305 |
-| `minHeight: 86` | 308 |
-| `minWidth: 0` | 303, 304 |
-| `opacity: .8` | 311 |
-| `padding: 0` | 306 |
-| `padding: 10` | 299 |
-| `padding: 12` | 299 |
-| `padding: 16` | 308 |
-| `padding: 4` | 302, 309 |
-| `padding: 6` | 310 |
-| `padding: 7` | 305 |
-| `paddingHorizontal: 12` | 300, 304, 311 |
-| `paddingHorizontal: 16` | 306 |
-| `paddingHorizontal: 6` | 305 |
-| `paddingHorizontal: 7` | 305 |
-| `paddingHorizontal: 8` | 309 |
-| `paddingVertical: 10` | 305, 311 |
-| `paddingVertical: 4` | 304 |
-| `paddingVertical: 8` | 310 |
-| `width: '100%'` | 152, 217, 218, 219, 229, 259, 272, 281, 283, 298, 306, 307, 310 |
-| `width: '32%'` | 310 |
-| `width: '49.2%'` | 306 |
-| `width: 24` | 310 |
-| `width: 30` | 307 |
-| `width: 42` | 304 |
-| `width: 48` | 309 |
-| `width: 64` | 305 |
+| `borderRadius: 12` | 297, 302 |
+| `borderRadius: 13` | 302 |
+| `borderRadius: 15` | 304 |
+| `borderRadius: 16` | 306, 307 |
+| `borderRadius: 17` | 303 |
+| `borderRadius: 18` | 305 |
+| `borderRadius: 2` | 307 |
+| `borderRadius: 20` | 306 |
+| `borderRadius: 22` | 301, 309 |
+| `borderRadius: 24` | 301 |
+| `borderRadius: 9` | 302 |
+| `borderWidth: 1` | 297, 301, 302, 305, 306, 307, 309 |
+| `gap: 1` | 300 |
+| `gap: 10` | 215, 226 |
+| `gap: 12` | 214, 296 |
+| `gap: 18` | 304 |
+| `gap: 2` | 307 |
+| `gap: 3` | 299, 302 |
+| `gap: 4` | 307 |
+| `gap: 5` | 301 |
+| `gap: 6` | 305, 306 |
+| `gap: 7` | 301, 304 |
+| `gap: 8` | 278, 280, 297, 303, 306 |
+| `height: 2` | 307 |
+| `height: 30` | 304 |
+| `height: 48` | 306 |
+| `maxHeight: 150` | 306 |
+| `maxWidth: 480` | 226 |
+| `maxWidth: 520` | 151, 278, 280, 304 |
+| `maxWidth: 599` | 295, 307 |
+| `maxWidth: 600` | 211, 257, 269 |
+| `maxWidth: 960` | 211, 257 |
+| `minHeight: 0` | 245, 263, 309 |
+| `minHeight: 126` | 304 |
+| `minHeight: 34` | 303 |
+| `minHeight: 36` | 298 |
+| `minHeight: 40` | 301 |
+| `minHeight: 48` | 297, 301, 303 |
+| `minHeight: 52` | 306 |
+| `minHeight: 60` | 307 |
+| `minHeight: 64` | 302 |
+| `minHeight: 66` | 302 |
+| `minHeight: 86` | 305 |
+| `minWidth: 0` | 300, 301 |
+| `opacity: .8` | 308 |
+| `padding: 0` | 303 |
+| `padding: 10` | 296 |
+| `padding: 12` | 296 |
+| `padding: 16` | 305 |
+| `padding: 4` | 299, 306 |
+| `padding: 6` | 307 |
+| `padding: 7` | 302 |
+| `paddingHorizontal: 12` | 297, 301, 308 |
+| `paddingHorizontal: 16` | 303 |
+| `paddingHorizontal: 6` | 302 |
+| `paddingHorizontal: 7` | 302 |
+| `paddingHorizontal: 8` | 306 |
+| `paddingVertical: 10` | 302, 308 |
+| `paddingVertical: 4` | 301 |
+| `paddingVertical: 8` | 307 |
+| `width: '100%'` | 151, 214, 215, 216, 226, 256, 269, 278, 280, 295, 303, 304, 307 |
+| `width: '32%'` | 307 |
+| `width: '49.2%'` | 303 |
+| `width: 24` | 307 |
+| `width: 30` | 304 |
+| `width: 42` | 301 |
+| `width: 48` | 306 |
+| `width: 64` | 302 |
 
 ## OverviewTiles.tsx
 
@@ -1485,68 +1512,78 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OverviewTiles.tsx
 
 ## OwnFlights.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OwnFlights.tsx](../../../apps/platform-lab/src/mobile/OwnFlights.tsx); normalized SHA-256 `ac43aa68dc8d094ed2650b6cd5980f2dacf418df57842d0bf55c86a0d55fd446`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OwnFlights.tsx](../../../apps/platform-lab/src/mobile/OwnFlights.tsx); normalized SHA-256 `40d1efcf2ae8f39e6902dea69c696ff47b22700c588eaf397ecdecb2e3278a51`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#031326` | 142, 145 |
+| `#00000088` | 141 |
+| `#031326` | 147, 150 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 11` | 152, 153 |
-| `fontSize: 12` | 151, 154 |
-| `fontSize: 13` | 145, 152 |
-| `fontSize: 14` | 142, 151 |
-| `fontSize: 16` | 156 |
-| `fontSize: 20` | 154 |
-| `fontWeight: '400'` | 154 |
-| `fontWeight: '600'` | 151, 154 |
-| `lineHeight: 16` | 152, 153 |
-| `lineHeight: 17` | 151, 154 |
-| `lineHeight: 18` | 145, 152 |
-| `lineHeight: 19` | 151 |
-| `lineHeight: 20` | 142 |
-| `lineHeight: 28` | 154 |
+| `fontSize: 11` | 140, 157, 158 |
+| `fontSize: 12` | 139, 156, 159 |
+| `fontSize: 13` | 150, 157 |
+| `fontSize: 14` | 140, 147, 156 |
+| `fontSize: 16` | 161 |
+| `fontSize: 20` | 159 |
+| `fontWeight: '400'` | 159 |
+| `fontWeight: '600'` | 116, 156, 159 |
+| `lineHeight: 16` | 140, 157, 158 |
+| `lineHeight: 17` | 156, 159 |
+| `lineHeight: 18` | 139, 150, 157 |
+| `lineHeight: 19` | 156 |
+| `lineHeight: 20` | 140, 147 |
+| `lineHeight: 28` | 159 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 10` | 144, 149 |
-| `borderRadius: 12` | 141, 143, 155 |
-| `borderRadius: 4` | 153 |
-| `borderWidth: 1` | 141, 153, 155 |
-| `gap: 0` | 148 |
-| `gap: 12` | 138 |
-| `gap: 16` | 138 |
-| `gap: 2` | 140, 150 |
-| `gap: 5` | 140 |
-| `gap: 6` | 141, 146 |
-| `gap: 7` | 150 |
-| `gap: 8` | 89, 149 |
-| `height: 5` | 95 |
-| `maxWidth: '100%'` | 144, 155 |
-| `maxWidth: '32%'` | 154 |
-| `maxWidth: '50%'` | 91 |
-| `maxWidth: 600` | 138, 140 |
-| `maxWidth: 960` | 138, 139 |
-| `minHeight: 48` | 141, 143, 144, 145, 146, 147, 149, 156 |
-| `minWidth: 0` | 146, 150, 156 |
-| `minWidth: 48` | 143, 145, 146, 147 |
-| `padding: 18` | 138 |
-| `paddingHorizontal: 10` | 144, 149 |
-| `paddingHorizontal: 12` | 139, 141, 148 |
-| `paddingHorizontal: 4` | 153 |
-| `paddingHorizontal: 6` | 145 |
-| `paddingVertical: 5` | 144 |
-| `paddingVertical: 6` | 156 |
-| `paddingVertical: 7` | 149 |
-| `width: '100%'` | 138, 139, 140 |
-| `width: 280` | 155 |
+| `borderRadius: 10` | 149, 154 |
+| `borderRadius: 12` | 146, 148, 160 |
+| `borderRadius: 18` | 141 |
+| `borderRadius: 4` | 158 |
+| `borderWidth: 1` | 146, 158, 160 |
+| `gap: 0` | 153 |
+| `gap: 12` | 143 |
+| `gap: 16` | 143 |
+| `gap: 2` | 145, 155 |
+| `gap: 4` | 138, 140 |
+| `gap: 5` | 145 |
+| `gap: 6` | 79, 146, 151 |
+| `gap: 7` | 155 |
+| `gap: 8` | 99, 141, 154 |
+| `height: 5` | 105 |
+| `maxHeight: '70%'` | 141 |
+| `maxWidth: '100%'` | 149, 160 |
+| `maxWidth: '32%'` | 159 |
+| `maxWidth: '50%'` | 101 |
+| `maxWidth: 520` | 141 |
+| `maxWidth: 600` | 143, 145 |
+| `maxWidth: 960` | 143, 144 |
+| `minHeight: 48` | 74, 138, 141, 146, 148, 149, 150, 151, 152, 154, 161 |
+| `minHeight: 52` | 140 |
+| `minWidth: 0` | 74, 151, 155, 161 |
+| `minWidth: 48` | 148, 150, 151, 152 |
+| `padding: 12` | 141 |
+| `padding: 18` | 143 |
+| `paddingHorizontal: 10` | 149, 154 |
+| `paddingHorizontal: 12` | 144, 146, 153 |
+| `paddingHorizontal: 4` | 138, 158 |
+| `paddingHorizontal: 6` | 150 |
+| `paddingHorizontal: 8` | 141 |
+| `paddingVertical: 4` | 140 |
+| `paddingVertical: 5` | 149 |
+| `paddingVertical: 6` | 161 |
+| `paddingVertical: 7` | 154 |
+| `paddingVertical: 8` | 141 |
+| `width: '100%'` | 63, 141, 143, 144, 145, 160 |
+| `width: '48%'` | 140 |
 
 ## PaperStatus.tsx
 

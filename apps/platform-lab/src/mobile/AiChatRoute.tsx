@@ -65,7 +65,7 @@ export function AiChatRoute({active,reload,onEvidence,client}:{active:boolean;re
       // Refresh only the latest edit, avoiding older write acknowledgements replacing new text.
       if(sequence===draftSequence.current){unsavedDraft.current=false;await refresh(w,sequence);}},false);
   };
-  return <AiChat conversations={archive?.conversations??[]} selectedId={selected} enabled={enabled} busy={busy} loading={loading} notice={notice} usage={usage} usageAt={usageAt} usageStale={usageStale} feature={feature}
+  return <AiChat key={archive?.ownerId??'no-owner'} active={active} conversations={archive?.conversations??[]} selectedId={selected} enabled={enabled} busy={busy} loading={loading} notice={notice} usage={usage} usageAt={usageAt} usageStale={usageStale} feature={feature}
     onCreate={()=>{const conversationId=Crypto.randomUUID();setSelected(conversationId);setArchive(previous=>previous?{...previous,conversations:[{version:1,id:conversationId,ownerId:previous.ownerId,title:'Neues Gespräch',draft:'',context:null,messages:[],activitySequence:0,updatedAt:new Date().toISOString()},...previous.conversations]}:previous);setNotice('Schreibe die erste Nachricht für ein neues Gespräch.');}}
     onSelect={conversationId=>{setSelected(conversationId);mutate(w=>w.store.touch(conversationId,new Date().toISOString()));}}
     onDelete={conversationId=>{Alert.alert('Gespräch löschen?','Der lokale Verlauf und Entwurf werden gelöscht. Bereits exportierte Sicherungen bleiben bestehen.',[

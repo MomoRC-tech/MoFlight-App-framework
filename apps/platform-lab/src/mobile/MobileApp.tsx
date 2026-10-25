@@ -126,7 +126,6 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
   const [flightRequest, setFlightRequest] = useState<OwnFlightRequest | null>(null);
   const [flightHeader, setFlightHeader] = useState<OwnFlightHeader>({title:'Flüge'});
   const [keyboardTop, setKeyboardTop] = useState<number | null>(null);
-  const aiScroll = useRef<ScrollView>(null);
   const activeTab = useRef(tab);
   activeTab.current = tab;
   const toolsOpen = sheet === 'bookLab' || sheet === 'flightLab';
@@ -166,13 +165,11 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
   const currentYear = new Date().getFullYear();
   const book = library.books.find(b => b.id === library.bookId);
   useEffect(() => {
-    let timer: ReturnType<typeof setTimeout> | undefined;
     const show = Keyboard.addListener('keyboardDidShow', event => {
       setKeyboardTop(event.endCoordinates.screenY);
-      if (activeTab.current === 'ai') timer = setTimeout(() => aiScroll.current?.scrollToEnd({ animated: true }), 120);
     });
-    const hide = Keyboard.addListener('keyboardDidHide', () => { setKeyboardTop(null); clearTimeout(timer); });
-    return () => { show.remove(); hide.remove(); clearTimeout(timer); };
+    const hide = Keyboard.addListener('keyboardDidHide', () => { setKeyboardTop(null); });
+    return () => { show.remove(); hide.remove(); };
   }, []);
   useEffect(() => { Keyboard.dismiss(); }, [tab]);
   useEffect(() => {
@@ -245,7 +242,7 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
         </ScrollView>
       </View>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={[s.page, tab !== 'ai' && s.hidden]} accessibilityElementsHidden={tab !== 'ai'} importantForAccessibility={tab === 'ai' ? 'auto' : 'no-hide-descendants'}>
-        <ScrollView ref={aiScroll} contentContainerStyle={s.canvas} keyboardShouldPersistTaps="handled" onContentSizeChange={() => { if (aiKeyboard) aiScroll.current?.scrollToEnd({ animated: false }); }}>
+        <View style={{flex:1,minHeight:0}}>
           <AiChatRoute active={tab==='ai'&&!overlayOpen&&!coreFlightsOpen} reload={flightReload+':'+statisticsScopeKey} onEvidence={async(message,referenceIds)=>{
             const w=await openAiWorkspaceNative(async()=>{if(activeTab.current!=='ai'||AppState.currentState!=='active')throw new Error('AI navigation inactive');});if(!w)throw new Error('AI owner unavailable');
             try {const identity=await w.identity();if(!identity)throw new Error('AI identity unavailable');const tools=await w.tools(identity,1);
@@ -253,7 +250,7 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
               finally{tools.dispose();}
             }finally{await w.close();}
           }}/>
-        </ScrollView>
+        </View>
       </KeyboardAvoidingView>
     </View>
     {!aiKeyboard && <Label style={{ width: '100%', textAlign: 'center', color: '#8ba4bc', fontSize: 10, lineHeight: 16 }}>Entwicklungsversion</Label>}

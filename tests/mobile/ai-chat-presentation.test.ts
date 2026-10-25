@@ -28,7 +28,7 @@ function message(id: string, status: string, input: string, answer: any = null):
 }
 
 function fixture(overrides: Record<string, unknown> = {}) {
-  const calls = { create: 0, select: [] as string[], remove: [] as string[], drafts: [] as string[], send: 0, cancel: 0, toggle: [] as boolean[], feature: [] as string[], evidence: [] as { message: any; ids: string[] }[] };
+  const calls = { bottom:0, create: 0, select: [] as string[], remove: [] as string[], drafts: [] as string[], send: 0, cancel: 0, toggle: [] as boolean[], feature: [] as string[], evidence: [] as { message: any; ids: string[] }[] };
   const selected = conversation('chat-one', 'Saved chat', 'Durable draft');
   const props: any = {
     conversations: [selected], selectedId: selected.id, enabled: true, busy: false, loading: false,
@@ -45,15 +45,21 @@ function fixture(overrides: Record<string, unknown> = {}) {
     ...overrides,
   };
 
-  const react: any = { Fragment: 'Fragment' };
+  let hookIndex=0;const hooks:any[]=[];const effects:(()=>void)[]=[];
+  const react: any = { Fragment: 'Fragment',
+    useState(initial:any){const i=hookIndex++;if(!(i in hooks))hooks[i]=initial;return[hooks[i],(value:any)=>{hooks[i]=typeof value==='function'?value(hooks[i]):value;}];},
+    useRef(initial:any){const i=hookIndex++;if(!(i in hooks))hooks[i]={current:initial};return hooks[i];},
+    useEffect(fn:()=>void,deps:any[]){const i=hookIndex++;if(!hooks[i]||deps.some((v,n)=>v!==hooks[i][n])){hooks[i]=deps;effects.push(fn);}}
+  };
   react.createElement = (type: any, propsValue: any, ...children: any[]): Element => ({
     type, props: propsValue ?? {}, children: children.flat(Infinity),
   });
   const leaves = (names: string[]) => Object.fromEntries(names.map(name => [name, name]));
   const modules: Record<string, any> = {
+    './SymbolIcon': {SymbolIcon:'SymbolIcon'},
     react: { default: react, ...react },
     'react-native': {
-      ...leaves(['Pressable', 'TextInput', 'View']),
+      ...leaves(['Pressable', 'TextInput', 'Text', 'View','ScrollView','Modal','KeyboardAvoidingView']),Keyboard:{dismiss(){}},Platform:{OS:'android'},
       StyleSheet: { create: (value: unknown) => value },
     },
     './theme': {
@@ -74,11 +80,14 @@ function fixture(overrides: Record<string, unknown> = {}) {
     if (node === null || node === undefined || typeof node !== 'object' || !('type' in node)) return [node];
     if (node.type === react.Fragment) return node.children.flatMap(render);
     if (typeof node.type === 'function') return render(node.type({ ...node.props, children: node.children }));
+    if(node.props.testID==='ai-transcript')node.props.ref.current={scrollToEnd:()=>{calls.bottom++;}};
     const result = { ...node, children: node.children.flatMap(render) };
     rendered.push(result);
     return [result];
   };
-  const tree = render(context.exports.AiChat(props));
+  let tree:any;
+  const rerender=()=>{hookIndex=0;rendered.length=0;tree=render(context.exports.AiChat(props));effects.splice(0).forEach(fn=>fn());};
+  rerender();
   const text = (node: any): string => Array.isArray(node)
     ? node.map(text).join('')
     : node?.children ? node.children.map(text).join('')
@@ -88,7 +97,7 @@ function fixture(overrides: Record<string, unknown> = {}) {
   const requireNode = (type: string, predicate: (node: Element) => boolean = () => true) =>
     required(rendered.find(node => node.type === type && predicate(node)), `node ${type}`);
 
-  return { calls, props, selected, tree, nodes: rendered, text: (node: any = tree) => text(node), find, requireNode, context };
+  return { rerender, open:(label:string)=>{requireNode('Pressable',n=>n.props.accessibilityLabel===label).props.onPress();rerender();}, calls, props, selected, tree, nodes: rendered, text: (node: any = tree) => text(node), find, requireNode, context };
 }
 
 test('composer restores the selected conversation draft and declares its contract limit', () => {
@@ -104,7 +113,7 @@ test('sending and cancellation are explicit actions with no automatic dispatch',
   const f = fixture();
   const input = f.requireNode('TextInput');
   assert.equal(f.calls.send, 0);
-  const send = f.requireNode('Action', node => node.props.label === 'Nachricht senden');
+  const send = f.requireNode('Pressable', node => node.props.accessibilityLabel === 'Nachricht senden');
   assert.equal(send.props.disabled, false);
   input.props.onChangeText('A revised draft');
   assert.deepEqual(f.calls.drafts, ['A revised draft']);
@@ -113,8 +122,8 @@ test('sending and cancellation are explicit actions with no automatic dispatch',
   assert.equal(f.calls.send, 1);
 
   const busy = fixture({ busy: true });
-  assert.equal(busy.requireNode('Action', node => node.props.label === 'Nachricht senden').props.disabled, true);
-  busy.requireNode('Action', node => node.props.label === 'Laufende Antwort abbrechen').props.onPress();
+  assert.equal(busy.find('Pressable',node=>node.props.accessibilityLabel==='Nachricht senden').length,0);
+  busy.requireNode('Pressable', node => node.props.accessibilityLabel === 'Laufende Antwort abbrechen').props.onPress();
   assert.equal(busy.calls.cancel, 1);
   assert.equal(busy.calls.send, 0);
 });
@@ -122,11 +131,11 @@ test('sending and cancellation are explicit actions with no automatic dispatch',
 test('conversation controls select, create and delete through their supplied callbacks', () => {
   const second = conversation('chat-two', 'Second chat', 'Second draft');
   const f = fixture({ conversations: [conversation('chat-one', 'Saved chat', ''), second] });
+  f.open('Chats öffnen');
   const secondChoice = f.requireNode('Pressable', node => node.props.accessibilityLabel === 'Second chat, auswählen');
   secondChoice.props.onPress();
   assert.deepEqual(f.calls.select, ['chat-two']);
-  f.requireNode('Action', node => node.props.label === 'Neue Unterhaltung erstellen').props.onPress();
-  f.requireNode('Action', node => node.props.label === 'Ausgewählte Unterhaltung löschen').props.onPress();
+  f.rerender();f.open('Neue Unterhaltung erstellen');f.open('Chatoptionen öffnen');f.open('Ausgewählte Unterhaltung löschen');
   assert.equal(f.calls.create, 1);
   assert.deepEqual(f.calls.remove, ['chat-one']);
 });
@@ -180,7 +189,7 @@ test('null usage shows no fabricated balance or cost fields', () => {
 });
 
 test('disclosure identifies recipients, monthly EUR limit, unencrypted backup and read-only boundary', () => {
-  const f = fixture();
+  const f = fixture();f.open('Chatoptionen öffnen');f.open('Dienst und Datenschutz');
   const transcript = f.text();
   for (const expected of ['Supabase', 'OpenRouter', 'Azure', '1,00 EUR je Kalendermonat', 'KI-Chats und Entwürfe', 'Sicherungen sind unverschlüsselt', 'keine Schreibaktionen im Web, bei Vereinsflieger oder in deinem Flugbuch']) {
     assert.ok(transcript.includes(expected), `missing disclosure: ${expected}`);
@@ -190,10 +199,28 @@ test('disclosure identifies recipients, monthly EUR limit, unencrypted backup an
 test('loading and service-unavailable notices do not disable an existing local draft', () => {
   const f = fixture({ loading: true, enabled: false, notice: 'Dienst vorübergehend nicht verfügbar.' });
   const input = f.requireNode('TextInput');
-  const send = f.requireNode('Action', node => node.props.label === 'Nachricht senden');
+  const send = f.requireNode('Pressable', node => node.props.accessibilityLabel === 'Nachricht senden');
   assert.equal(input.props.value, 'Durable draft');
   assert.equal(input.props.editable, true);
   assert.equal(send.props.disabled, false);
   assert.ok(f.text().includes('Dienst vorübergehend nicht verfügbar.'));
   assert.equal(f.calls.send, 0);
+});
+
+
+test('chat is ready to type without a conversation and administration stays in dismissible menus',()=>{
+ const f=fixture({conversations:[],selectedId:null});
+ assert.ok(f.requireNode('TextInput',n=>n.props.accessibilityLabel==='Frage oder Nachrichtenentwurf'));
+ assert.equal(f.find('Section').length,0);assert.equal(f.find('Modal').length,0);
+ f.open('Chatoptionen öffnen');f.open('Dienst und Datenschutz');assert.ok(f.text().includes('Supabase'));
+ f.requireNode('Modal').props.onRequestClose();f.rerender();assert.equal(f.find('Modal').length,0);
+ assert.equal(f.calls.toggle.length,0);
+});
+test('reading older messages blocks auto-follow and jumping to latest resumes it',()=>{
+ const f=fixture();const scroll=()=>f.requireNode('ScrollView',n=>n.props.testID==='ai-transcript');
+ scroll().props.onContentSizeChange();assert.equal(f.calls.bottom,1);
+ scroll().props.onScroll({nativeEvent:{contentOffset:{y:80},contentSize:{height:1500},layoutMeasurement:{height:500}}});f.rerender();
+ scroll().props.onContentSizeChange();assert.equal(f.calls.bottom,1);
+ f.open('Zur neuesten Nachricht');assert.equal(f.calls.bottom,2);
+ scroll().props.onContentSizeChange();assert.equal(f.calls.bottom,3);
 });
