@@ -1,3 +1,4 @@
+import { localReadFailureCode } from '../local-read-diagnostics';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AppState } from 'react-native';
 import { diagnosticJournal } from '../diagnostics';
@@ -50,7 +51,7 @@ export function useOwnFlights(ports: OwnFlightReadPorts, active: boolean, reload
       }
     } catch (error) {
       stage(false); diagnosis.finish(current(id)?'failed':'cancelled',current(id)?'operation-failed':'stale-selection');
-      if (current(id)) { console.warn('Own-flight local read failed', error instanceof Error ? error.message : 'Unknown read failure'); processedView.current = null; pendingDetail.current = null; setView(null); setDetail(null); setDetailBusy(false); setPhase('failed'); }
+      if (current(id)) { console.warn('Own-flight local read failed', localReadFailureCode(error)); processedView.current = null; pendingDetail.current = null; setView(null); setDetail(null); setDetailBusy(false); setPhase('failed'); }
     } finally {
       locked.current = false;
       if (queued.current && alive.current && enabled.current && foreground.current) void reload(queuedQuiet.current);
@@ -82,7 +83,7 @@ export function useOwnFlights(ports: OwnFlightReadPorts, active: boolean, reload
     } catch (error) {
       stage(false); diagnosis.finish(current(id)?'failed':'cancelled',error instanceof OwnFlightChangedError?'stale-selection':'operation-failed');
       if (current(id)) {
-        console.warn('Own-flight local detail failed', error instanceof Error ? error.message : 'Unknown detail failure');
+        console.warn('Own-flight local detail failed', localReadFailureCode(error));
         // No previous owner's detail survives an unconfirmed or changed scope.
         setDetail(null); processedView.current = null; setView(null); setPhase('failed');
         setDetailError(error instanceof OwnFlightChangedError ? 'Die gespeicherte Auswahl hat sich geändert. Bitte die lokale Liste erneut laden.' : 'Flugdetails konnten nicht geprüft werden. Gespeicherte Daten bleiben erhalten.');

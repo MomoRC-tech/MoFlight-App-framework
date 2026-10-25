@@ -1,3 +1,4 @@
+import { traceLocalRead } from '../local-read-diagnostics';
 import type { RealFlightDetail, RealFlightListItem } from '../vereinsflieger/real-flight-library';
 import type { OwnFlightStoredSnapshot, RealFlightService } from '../vereinsflieger/real-flight-service';
 import type { InformationCapture } from '../vereinsflieger/information';
@@ -52,13 +53,13 @@ export class OwnFlightChangedError extends Error {
 
 /** No provider, creation, migration or receipt resolution occurs on this path. */
 export async function readOwnFlightView(ports: OwnFlightReadPorts): Promise<OwnFlightView | null> {
-  const session = await ports.open();
+  const session = await traceLocalRead('session-open', () => ports.open());
   if (!session) return null;
   try {
-    await session.assertCurrent();
-    const pendingCommand = await session.pendingCommand();
-    const result = await session.service.readStored();
-    await session.assertCurrent();
+    await traceLocalRead('owner-check', () => session.assertCurrent());
+    const pendingCommand = await traceLocalRead('pending-command', () => session.pendingCommand());
+    const result = await traceLocalRead('stored-view', () => session.service.readStored());
+    await traceLocalRead('owner-check', () => session.assertCurrent());
     if (result.snapshot.ownerId !== session.ownerId || result.snapshot.storeId !== session.storeId ||
       result.flights.some(flight => flight.accountRef !== result.snapshot.account?.accountRef)) {
       throw new Error('Foreign own-flight projection.');
@@ -70,7 +71,7 @@ export async function readOwnFlightView(ports: OwnFlightReadPorts): Promise<OwnF
         if(medical&&(medical.owner!==session.ownerId||medical.category!=='medical'))throw new Error('Foreign Medical projection.');
       } catch { medical=null;medicalReadFailed=true; }
     }
-    await session.assertCurrent();
+    await traceLocalRead('owner-check', () => session.assertCurrent());
     let duties:OwnFlightView['duties']=null,dutiesReadFailed=false;
     if(result.snapshot.account&&session.readDuties){
       try{
@@ -78,7 +79,7 @@ export async function readOwnFlightView(ports: OwnFlightReadPorts): Promise<OwnF
         if(duties&&(duties.scope.owner!==session.ownerId||duties.scope.context.accountNumber!==result.snapshot.account.accountRef))throw new Error('Foreign duty projection');
       }catch{duties=null;dutiesReadFailed=true;}
     }
-    await session.assertCurrent();
+    await traceLocalRead('owner-check', () => session.assertCurrent());
     let featureInformation:FeatureInformation|null=null,featureInformationReadFailed=false;
     if(result.snapshot.account&&session.readFeatureInformation){
       try {
@@ -88,23 +89,23 @@ export async function readOwnFlightView(ports: OwnFlightReadPorts): Promise<OwnF
           featureInformation=buildFeatureInformation(source.scope,source.captures);
         }
       } catch { featureInformation=null;featureInformationReadFailed=true; }
-      await session.assertCurrent();
+      await traceLocalRead('owner-check', () => session.assertCurrent());
     }
     return { ...result, pendingCommand,medical,medicalReadFailed,duties,dutiesReadFailed,featureInformation,featureInformationReadFailed };
-  } finally { await session.close(); }
+  } finally { await traceLocalRead('session-close', () => session.close()); }
 }
 
 export async function readOwnFlightDetail(ports: OwnFlightReadPorts, scope: OwnFlightScope,
   selected: RealFlightListItem): Promise<RealFlightDetail> {
-  const session = await ports.open();
+  const session = await traceLocalRead('session-open', () => ports.open());
   if (!session) throw new OwnFlightChangedError();
   try {
-    await session.assertCurrent();
+    await traceLocalRead('owner-check', () => session.assertCurrent());
     if (session.ownerId !== scope.ownerId || session.storeId !== scope.storeId) throw new OwnFlightChangedError();
-    const detail = await session.service.detail(selected.flightId);
-    await session.assertCurrent();
+    const detail = await traceLocalRead('detail', () => session.service.detail(selected.flightId));
+    await traceLocalRead('owner-check', () => session.assertCurrent());
     if (!detail || detail.flightId !== selected.flightId || detail.accountRef !== selected.accountRef ||
       detail.bindingId !== selected.bindingId || detail.sourceFlightRef !== selected.sourceFlightRef || detail.factsRevision !== selected.factsRevision) throw new OwnFlightChangedError();
     return detail;
-  } finally { await session.close(); }
+  } finally { await traceLocalRead('session-close', () => session.close()); }
 }

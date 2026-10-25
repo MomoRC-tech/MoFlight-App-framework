@@ -1,3 +1,4 @@
+import * as localDiagnostics from '../../apps/platform-lab/src/local-read-diagnostics';
 import * as diagnostics from '../../apps/platform-lab/src/diagnostics';
 import {loadFlightPresentation} from './flight-presentation-fixture';
 import * as processedResults from '../../apps/platform-lab/src/mobile/processed-result.ts';
@@ -33,7 +34,7 @@ function host(withPresentation = false) {
   };
   const exports:any={};runInNewContext(source,{exports,require:(name:string)=>name==='react'?react:name==='react-native'?{
     AppState:{currentState:'active',addEventListener:(_:string,fn:typeof listener)=>{listener=fn;return{remove(){}};}},
-  }:name==='../diagnostics'?diagnostics:name==='./processed-result'?processedResults:reader});
+  }:name==='../local-read-diagnostics'?localDiagnostics:name==='../diagnostics'?diagnostics:name==='./processed-result'?processedResults:reader});
   const presentation:any={};
   const onHeaderChange=()=>{};
   if(withPresentation){
@@ -109,7 +110,7 @@ test('Back cancels a late detail and a changed revision fails closed before loca
 test('unmount during read still releases the session and prevents late publication',async()=>{
   const h=host();await h.flush();const pending=deferred<any>();h.session.service.readStored=async()=>pending.promise;
   h.reload();h.unmount();const before=h.closes();pending.resolve({snapshot:h.snapshot,flights:h.flights});
-  for(let i=0;i<10;i++)await Promise.resolve();assert.equal(h.closes(),before+1);
+  await h.flush();assert.equal(h.closes(),before+1);
 });
 
 test('a failed local read removes prior content and explicit retry returns the current stored view',async()=>{

@@ -1,3 +1,4 @@
+import { diagnoseLocalDriver } from '../local-read-diagnostics';
 import type { Bind, Connection, Driver } from '@moflight/local-data';
 
 export interface RealFlightNativeDatabase {
@@ -74,7 +75,7 @@ export async function openRealFlightNativeDriver(name: string, openDatabase: Rea
     transactionDb = null;
     await current?.closeAsync();
   }
-  return {
+  return diagnoseLocalDriver({
     exec: sql => schedule(() => db.execAsync(sql)),
     run: (sql, ...params: Bind[]) => schedule(async () => { await db.runAsync(sql, ...params); }),
     all: <T>(sql: string, ...params: Bind[]) => schedule(() => db.getAllAsync<T>(sql, ...params)),
@@ -109,5 +110,5 @@ export async function openRealFlightNativeDriver(name: string, openDatabase: Rea
         }
       });
     },
-  };
+  }, 'real-flight');
 }

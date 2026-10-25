@@ -1,3 +1,4 @@
+import { traceLocalRead } from '../local-read-diagnostics';
 import { canonical } from '@moflight/flight-logbook';
 import * as Crypto from 'expo-crypto';
 import { hash } from '../storage';
@@ -13,8 +14,8 @@ import { assertNoPendingUserBackupRestore } from '../user-backup-restore-journal
 /** Read the selected real owner. Missing files stay missing; no fallback to the lab library. */
 export const ownFlightReadPorts = serializeOwnFlightReads({
   async open() {
-    await assertNoPendingUserBackupRestore();
-    const registry = await openOwnerRegistry(false);
+    await traceLocalRead('restore-gate', () => assertNoPendingUserBackupRestore());
+    const registry = await traceLocalRead('registry-open', () => openOwnerRegistry(false));
     if (!registry) return null;
     try {
       const lease = await registry.currentOwner();

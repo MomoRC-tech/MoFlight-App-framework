@@ -1,3 +1,4 @@
+import { diagnoseLocalDriver } from './local-read-diagnostics';
 import * as SQLite from 'expo-sqlite';
 import * as Crypto from 'expo-crypto';
 import { File, Paths } from 'expo-file-system';
@@ -15,7 +16,7 @@ function connection(db: SQLite.SQLiteDatabase): Connection {
 }
 export async function openDriver(name: string, directory?: string): Promise<Driver> {
   const db = await SQLite.openDatabaseAsync(name, undefined, directory);
-  return { ...connection(db), close: () => db.closeAsync(), transaction: work => db.withExclusiveTransactionAsync(async tx => { await work(connection(tx)); }) };
+  return diagnoseLocalDriver({ ...connection(db), close: () => db.closeAsync(), transaction: work => db.withExclusiveTransactionAsync(async tx => { await work(connection(tx)); }) }, 'generic');
 }
 export const hash = (text: string) => Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256, text);
 const selected = new File(Paths.document, 'moflight-lab-selection.json');
