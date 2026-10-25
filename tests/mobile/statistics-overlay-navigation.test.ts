@@ -11,6 +11,7 @@ import { formatReportedMinutes } from '../../apps/platform-lab/src/mobile/real-f
 import { planFlightRetrieval } from '../../apps/platform-lab/src/vereinsflieger/retrieval-policy.ts';
 import * as captureReview from '../../apps/platform-lab/src/vereinsflieger/capture-review.ts';
 import { ownFlightFixture } from './own-flight-fixture.ts';
+import * as helpCatalog from '../../apps/platform-lab/src/mobile/help-catalog.ts';
 
 interface Element { type: unknown; props: Record<string, any>; children: any[] }
 const source = ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/mobile/StatisticsOverlay.tsx', import.meta.url), 'utf8'), {
@@ -34,6 +35,8 @@ function fixture() {
     './theme': { ...leaf(['Action', 'Card', 'Chip', 'Empty', 'Label', 'Section']), colors, ui: { pressed: { opacity: .72 } } },
     './real-flight-statistics': { formatReportedMinutes }, './SeasonMonthlyCharts': leaf(['SeasonMonthlyCharts']),
     '../vereinsflieger/capture-review': captureReview,
+    './SymbolIcon': { SymbolIcon: 'SymbolIcon' },
+    './help-catalog': helpCatalog,
     './season-dashboard-model': { monthlySeasonForCoverage }, '../vereinsflieger/retrieval-policy': { planFlightRetrieval },
     './statistics-overlay-model': statisticsModel,
   };

@@ -20,7 +20,7 @@ Keep the five labeled tabs, header, colors, symbols and season rings. Remove una
 
 Flüge rows emphasize date, aircraft, route and reported duration; original IDs/revisions/fields and missing-track context remain in details. Keep collapsed coverage, actionable recovery warnings, account isolation and offline/error/retry states. Rendering/navigating does not trigger provider retrieval. These are selected behavior/composition changes, not full native, physical, spoken-accessibility or iOS acceptance.
 
-For #31's bounded help review, prefer contextual explanations beside unfamiliar app states and a small maintained offline glossary/FAQ if separately selected. This keeps help available without a service or personal-history upload. The “What is PIC?” example would explain the term with source/context and return to the original screen; it must not infer credited roles or alter records. No glossary content set, new Help destination, AI backend/model/budget or implementation beyond the selected existing-screen copy is chosen here.
+For #31's bounded help review, prefer contextual explanations beside unfamiliar app states and a small maintained offline glossary/FAQ if separately selected. This keeps help available without a service or personal-history upload. The “What is PIC?” example would explain the term with source/context and return to the original screen; it must not infer credited roles or alter records. **Subsequent selection, 25 October:** Manuel selected the [offline Help concept](help-system-concept.md); its first source slice is implemented, with [native/editorial gates](../verification/2026-10-25-offline-help.md) still open. No AI help service, model or budget was selected.
 
 ## Start data updates only on relevant change — 21 October 2026
 

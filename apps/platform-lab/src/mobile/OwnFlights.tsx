@@ -12,11 +12,13 @@ import { dataFreshness } from './data-freshness';
 import { flightStartGuidance } from './flight-start-guidance';
 import { summarizeRealFlights, formatReportedMinutes } from './real-flight-statistics';
 import { reviewDuration, reviewParsedField, reviewRawField } from '../vereinsflieger/capture-review';
+import { hasSeenFlightHelpHint, markFlightHelpHintSeen } from './help-preferences-native';
 
 export interface OwnFlightHeader { title: string; back?: () => void }
-export function OwnFlights({ active, data, filterRequest, onHeaderChange }: {
+export function OwnFlights({ active, data, filterRequest, onHeaderChange, onHelp, replayHintToken = 0, helpEnabled = true }: {
   active: boolean; data: ReturnType<typeof useOwnFlights>; filterRequest?: OwnFlightRequest | null; onUpdate?: () => boolean;
   onHeaderChange: (header: OwnFlightHeader) => void;
+  onHelp?: (entryId: string) => void; replayHintToken?: number; helpEnabled?: boolean;
 }) {
   const [filters, setFilters] = useState<OwnFlightFilters>(allOwnFlights);
   const [filterOpen, setFilterOpen] = useState(false);
@@ -24,6 +26,10 @@ export function OwnFlights({ active, data, filterRequest, onHeaderChange }: {
   const [optionQuery,setOptionQuery]=useState('');
   const [searchOpen, setSearchOpen] = useState(false);
   const [rawPage, setRawPage] = useState(0), [statusOpen, setStatusOpen] = useState(false);
+  const [picHelpOpen, setPicHelpOpen] = useState(false);
+  const [introHintOpen, setIntroHintOpen] = useState(false);
+  const [hintSeen, setHintSeen] = useState<boolean | null>(null);
+  const replayed = useRef(replayHintToken);
   const list = useRef<FlatList>(null), offset = useRef(0), scope = useRef<string | null>(null);
   const { width, height, fontScale } = useWindowDimensions();
   const tablet = width >= 840 && fontScale <= 1.3;
@@ -39,8 +45,25 @@ export function OwnFlights({ active, data, filterRequest, onHeaderChange }: {
   const startGuidance = flightStartGuidance({phase:data.phase,accountAssociated:!!data.view?.snapshot.account,
     successfulRetrieval:!!plan.lastSuccessfulRetrievalAt,savedFlights:flights.length});
   const detailOpen = !!data.detail || data.detailBusy;
+  useEffect(() => { if (!helpEnabled) { setIntroHintOpen(false); setPicHelpOpen(false); } }, [helpEnabled]);
+  useEffect(() => {
+    let mounted = true;
+    void hasSeenFlightHelpHint().then(seen => { if (mounted) setHintSeen(current => current === true ? true : seen); });
+    return () => { mounted = false; };
+  }, []);
+  useEffect(() => {
+    if (replayed.current === replayHintToken || !helpEnabled) return;
+    replayed.current = replayHintToken;
+    setHintSeen(true); setIntroHintOpen(true); setPicHelpOpen(false);
+    data.clearDetail(); setStatusOpen(false); setFilterOpen(false);
+  }, [replayHintToken, helpEnabled]);
+  useEffect(() => {
+    if (helpEnabled && active && data.phase === 'ready' && flights.length > 0 && hintSeen === false && !detailOpen && !statusOpen) {
+      setHintSeen(true); setIntroHintOpen(true);
+    }
+  }, [helpEnabled, active, data.phase, flights.length, hintSeen, detailOpen, statusOpen]);
   const tags = ownFlightFilterTags(filters), hasFilters = tags.length > 0;
-  const back = useCallback(() => { diagnosticJournal.record('back','flights');Keyboard.dismiss(); setPicker(null); setFilterOpen(false); setStatusOpen(false); setRawPage(0); data.clearDetail(); }, [data.clearDetail]);
+  const back = useCallback(() => { diagnosticJournal.record('back','flights');Keyboard.dismiss(); setPicker(null); setFilterOpen(false); setStatusOpen(false); setRawPage(0); setPicHelpOpen(false); data.clearDetail(); }, [data.clearDetail]);
   useEffect(() => { onHeaderChange({ title: detailOpen ? 'Flugdetails' : statusOpen ? 'Datenstand' : 'Flüge', back: detailOpen || statusOpen || filterOpen ? back : undefined }); }, [filterOpen, detailOpen, statusOpen, back, onHeaderChange]);
   useEffect(() => {
     if (!data.view) return;
@@ -101,12 +124,18 @@ export function OwnFlights({ active, data, filterRequest, onHeaderChange }: {
       <View testID="flight-filter-bar" style={s.bar}>{header}</View>
       <FlatList ref={list} key={tablet ? 'wide' : 'phone'} numColumns={tablet ? 2 : 1} columnWrapperStyle={tablet ? { gap: 8 } : undefined}
         data={selected} keyExtractor={flight => flight.flightId}
-        renderItem={({item})=><FlightCard flight={item} onPress={()=>{Keyboard.dismiss();diagnosticJournal.record('action','flight-detail');setRawPage(0);void data.openDetail(item);}} style={tablet?{flex:1,maxWidth:'50%'}:undefined}/>}
-        ListEmptyComponent={<Card><Empty title={flights.length ? 'Keine passenden Flüge' : startGuidance?.title ?? 'Noch keine gespeicherten Flüge'}>{flights.length ? 'Suchbegriff oder Filter ändern. Ein leeres Ergebnis ist keine Aussage über die gesamte Fluggeschichte.' : startGuidance?.message}</Empty>{hasFilters && <Action secondary onPress={()=>changeFilters(allOwnFlights)}>Alle Filter zurücksetzen</Action>}</Card>}
+        renderItem={({item})=><FlightCard flight={item} onPress={()=>{Keyboard.dismiss();diagnosticJournal.record('action','flight-detail');setIntroHintOpen(false);setPicHelpOpen(false);setRawPage(0);void data.openDetail(item);}} style={tablet?{flex:1,maxWidth:'50%'}:undefined}/>}
+        ListEmptyComponent={<Card><Empty title={flights.length ? 'Keine passenden Flüge' : startGuidance?.title ?? 'Noch keine gespeicherten Flüge'}>{flights.length ? 'Suchbegriff oder Filter ändern. Ein leeres Ergebnis ist keine Aussage über die gesamte Fluggeschichte.' : startGuidance?.message}</Empty>{hasFilters && <Action secondary onPress={()=>changeFilters(allOwnFlights)}>Alle Filter zurücksetzen</Action>}{helpEnabled && !flights.length && <Action secondary onPress={()=>onHelp?.('empty-flights')}>Warum sehe ich keine Flüge?</Action>}</Card>}
         onScroll={event => { if (active && data.phase === 'ready' && !detailOpen && !statusOpen) offset.current = event.nativeEvent.contentOffset.y; }} scrollEventThrottle={32}
         onContentSizeChange={() => { if (data.phase === 'ready') list.current?.scrollToOffset({ offset: offset.current, animated: false }); }}
         contentContainerStyle={[s.canvas,s.flightCanvas,{maxWidth:tablet?960:480}]} ItemSeparatorComponent={() => <View style={{ height: 5 }} />} initialNumToRender={10} maxToRenderPerBatch={10} windowSize={7} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag" />
     </View>
+    {helpEnabled && active && introHintOpen && !detailOpen && !statusOpen && data.phase === 'ready' && <View style={s.hintBubble} accessibilityLiveRegion="polite">
+      <Label style={{fontWeight:'700'}}>Hier findest du deine Flüge</Label>
+      <Label>Öffne einen Flug für Quellenangaben und Details. Filter zeigen nur gespeicherte Flüge.</Label>
+      <View style={s.controls}><Action secondary onPress={()=>setIntroHintOpen(false)}>Später</Action><Action secondary onPress={()=>{setIntroHintOpen(false);onHelp?.('flight-details');}}>Hilfe öffnen</Action></View>
+      <Action onPress={()=>{setIntroHintOpen(false);void markFlightHelpHintSeen();}}>Verstanden</Action>
+    </View>}
     {data.phase !== 'ready' && <ScrollView contentContainerStyle={s.canvas}><View style={s.group}><Card>
 
       <Section title={data.phase === 'loading' ? 'Gespeicherte Flüge laden' : data.phase === 'missing' ? 'Eigene Flüge einrichten' : 'Flüge nicht lesbar'} icon="flight-paper-plane" />
@@ -132,7 +161,7 @@ export function OwnFlights({ active, data, filterRequest, onHeaderChange }: {
     {detailOpen && <ScrollView key={detail?.flightId ?? 'loading-detail'} contentContainerStyle={s.canvas}><View style={s.group}>
       {data.detailBusy && <ActivityIndicator color={colors.cyan} accessibilityLabel="Gespeicherte Flugdetails laden" />}
       {detail && assessment && <>
-        <FlightDetails key={detail.flightId} detail={detail} rawPage={rawPage} onRawPage={setRawPage}/><View style={s.controls}><Action secondary onPress={back}>Zur gefilterten Flugliste</Action></View>
+        <FlightDetails key={detail.flightId} detail={detail} rawPage={rawPage} onRawPage={setRawPage} picHelpOpen={picHelpOpen} onTogglePicHelp={helpEnabled?()=>setPicHelpOpen(value=>!value):undefined} onMorePicHelp={helpEnabled?()=>{setPicHelpOpen(false);onHelp?.('pic');}:undefined}/><View style={s.controls}><Action secondary onPress={back}>Zur gefilterten Flugliste</Action></View>
       </>}
     </View></ScrollView>}
   </View>;
@@ -162,4 +191,5 @@ const s = StyleSheet.create({
   duration:{fontSize:20,lineHeight:28,fontWeight:'600',fontVariant:['tabular-nums'],maxWidth:'32%'},unclearDuration:{fontSize:12,lineHeight:17,fontWeight:'400'},
   searchBox: { width:'100%',maxWidth:'100%',flexDirection:'row',alignItems:'center',borderWidth:1,borderColor:colors.border,borderRadius:12,backgroundColor:colors.card,paddingLeft:10 },
   search: { flex:1,minWidth:0,minHeight:48,color:colors.text,fontSize:16,paddingVertical:6 },
+  hintBubble: { width:'100%',maxWidth:520,alignSelf:'center',gap:8,padding:14,margin:10,backgroundColor:colors.raised,borderWidth:1,borderLeftWidth:3,borderColor:'#296879',borderLeftColor:colors.cyan,borderRadius:18 },
 });

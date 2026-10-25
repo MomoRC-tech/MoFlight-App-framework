@@ -41,6 +41,7 @@ function fixture(width = 390, fontScale = 1, root = false) {
   const coreRoutes: {intent:string;developmentRecoveryCheckpoints:boolean}[] = [];
   const destinations:string[]=[];
   const readEnabled:boolean[]=[];
+  let persistedHelp = true, failHelpSave = false;
   let suspended = false;
   let clockNow=Date.UTC(2026,9,22,12),clockDeadlines:readonly number[]=[];
   let providerStatus:any=unknownProviderStatus, lastLoad:any=null, ownView:any=null, appStateListener:((state:string)=>void)|undefined;
@@ -69,6 +70,8 @@ function fixture(width = 390, fontScale = 1, root = false) {
     './AiChatRoute':leaves(['AiChatRoute']), '../ai/workspace-native':{openAiWorkspaceNative:async()=>null}, '../ai/answer-navigation':{aiAnswerFlightIds:()=>[]},
     './DesignPreview':leaves(['DesignPreview']),'./Diagnostics': leaves(['Diagnostics']), './diagnostics-native': {initializeDiagnostics() {}}, '../diagnostics': diagnostics,
     './ProfileSettings': { ProfileSettings: 'ProfileSettings', SyntheticProfileSettings:'SyntheticProfileSettings' }, '../book-storage': { PILOT: 'synthetic-pilot' },
+    './HelpScreen': { HelpScreen: 'HelpScreen' },
+    './help-preferences-native': { readContextHelpEnabled: async () => persistedHelp, saveContextHelpEnabled: async (enabled:boolean) => { if (failHelpSave) return false; persistedHelp=enabled; return true; } },
     '../vereinsflieger/use-access-controller': { useAccessController: () => controller },
     './ProviderConnection': {...leaves(['ProviderConnection', 'ConnectionIndicator']),unknownProviderStatus}, './DataUpdateIndicator':leaves(['DataUpdateIndicator']), './UpdateDialog':leaves(['UpdateDialog']), './data-freshness':{DATA_FRESHNESS_REMINDER_MS,DATA_UPDATE_FRESH_MS,dataUpdateStatus}, './AppHeader': { AppHeader: 'AppHeader' },
     './MedicalStatus': leaves(['MedicalIndicator', 'MedicalDetails']), './OverviewTiles':leaves(['OverviewTiles']),
@@ -113,11 +116,58 @@ function fixture(width = 390, fontScale = 1, root = false) {
   }
   render(); render();
   return { render, nodes, find, resize:(nextWidth:number,nextFontScale:number)=>{width=nextWidth;fontScale=nextFontScale;render();}, headers, parent, press, openOwnDetail, flight, library, controller, calls, coreRoutes,destinations, readEnabled, suspended: () => suspended, hardwareBack: () => hardwareBack!(),
+    helpPreference:()=>persistedHelp, failHelpSaving:(value:boolean)=>{failHelpSave=value;},
     showLoad:(result:any,view:any)=>{providerStatus=result?.verifiedConnection?{...unknownProviderStatus,ownerId:result.verifiedConnection.ownerId,connection:result.verifiedConnection.state}:unknownProviderStatus;lastLoad=result;ownView=view;render();render();},
     setProviderStatus:(status:any)=>{providerStatus=status;render();render();},
     setTime:(time:number)=>{clockNow=time;render();}, clockDeadlines:()=>clockDeadlines,
     appState:(state:string)=>{if(state!=='active')providerStatus=unknownProviderStatus;appStateListener?.(state);render();} };
 }
+
+test('Profile switch gates contextual Help while retaining manual Help and handles save failure', async () => {
+  const f=fixture();await Promise.resolve();f.render();
+  f.press('Pressable','Profil & Einstellungen öffnen');
+  assert.equal(f.find('ProfileSettings').props.helpEnabled,true);
+  f.find('ProfileSettings').props.onToggleHelp();await new Promise(resolve=>{ setImmediate(resolve); });f.render();
+  assert.equal(f.helpPreference(),false);
+  assert.equal(f.find('ProfileSettings').props.helpEnabled,false);
+  assert.equal(f.find('OwnFlights').props.helpEnabled,false);
+  f.find('ProfileSettings').props.onHelp();f.render();
+  assert.equal(f.find('HelpScreen').props.helpEnabled,false);
+  f.find('HelpScreen').props.onReturn();f.render();
+  f.failHelpSaving(true);f.find('ProfileSettings').props.onToggleHelp();await new Promise(resolve=>{ setImmediate(resolve); });f.render();
+  assert.equal(f.find('ProfileSettings').props.helpEnabled,false);
+  assert.equal(f.find('ProfileSettings').props.helpError,true);
+  f.failHelpSaving(false);f.find('ProfileSettings').props.onToggleHelp();await new Promise(resolve=>{ setImmediate(resolve); });f.render();
+  assert.equal(f.helpPreference(),true);
+  assert.equal(f.find('OwnFlights').props.helpEnabled,true);
+});
+
+test('offline Help nests under Profile and flight routes; Back restores prior state without provider work',()=>{
+  const f=fixture();
+  f.press('Pressable','Profil & Einstellungen öffnen');
+  f.find('ProfileSettings').props.onNameDraftChange('Unsaved profile draft');f.render();
+  f.find('ProfileSettings').props.onHelp();f.render();
+  assert.equal(f.headers().at(-1)!.props.title,'Hilfe & Einführung');
+  assert.equal(f.find('HelpScreen').props.entryId,null);
+  assert.deepEqual(f.coreRoutes,[]);
+  f.find('HelpScreen').props.onEntry('pic');f.render();
+  assert.equal(f.find('HelpScreen').props.entryId,'pic');
+  f.hardwareBack();f.render();assert.equal(f.find('HelpScreen').props.entryId,null);
+  f.find('HelpScreen').props.onEntry('empty-flights');f.render();
+  f.find('HelpScreen').props.onStatus();f.render();
+  assert.equal(f.headers().at(-1)!.props.title,'Verbindung & Datenstatus');
+  f.hardwareBack();f.render();assert.equal(f.find('HelpScreen').props.entryId,'empty-flights');
+  f.find('HelpScreen').props.onReturn();f.render();
+  assert.equal(f.find('ProfileSettings').props.nameDraft,'Unsaved profile draft');
+  assert.deepEqual(f.coreRoutes,[]);
+  f.headers().at(-1)!.props.back();f.render();
+  f.press('Pressable','Flüge');
+  f.find('OwnFlights').props.onHelp('pic');f.render();
+  assert.equal(f.find('HelpScreen').props.returnLabel,'Zurück zu Flüge');
+  f.find('HelpScreen').props.onReturn();f.render();
+  assert.equal(f.find('OwnFlights').props.active,true);
+  assert.deepEqual(f.coreRoutes,[]);
+});
 
 test('header age comes from the selected saved retrieval independently of provider session and failed updates',()=>{
   const f=fixture();

@@ -15,10 +15,10 @@ function fixture(){
  const leaves=(names:string[])=>Object.fromEntries(names.map(n=>[n,n]));
  const modules:Record<string,any>={'../ai/backup-notice':{AI_BACKUP_NOTICE},react:{default:react,...react},'react-native':{...leaves(['ActivityIndicator','Text','TextInput','View']),Keyboard:{dismiss(){}},StyleSheet:{create:(x:unknown)=>x}},'./theme':{...leaves(['Action','Card','Label','Section']),colors:{}}};
  runInNewContext(source,{exports,require:(name:string)=>{assert.ok(name in modules,name);return modules[name];}});
- const props={displayName:'Synthetic saved name',nameDraft:'Retained draft',busy:false,error:null,onNameDraftChange:()=>{},onSaveName:async()=>true,onRetry:()=>{},onConnections:()=>calls.push('connection'),onBackup:()=>calls.push('backup'),onDiagnostics:()=>calls.push('diagnostics'),onCredits:()=>calls.push('credits'),onTools:()=>calls.push('development')};
+ const props={displayName:'Synthetic saved name',nameDraft:'Retained draft',busy:false,error:null,onNameDraftChange:()=>{},onSaveName:async()=>true,onRetry:()=>{},onConnections:()=>calls.push('connection'),onBackup:()=>calls.push('backup'),onDiagnostics:()=>calls.push('diagnostics'),onHelp:(id?:string)=>calls.push('help:'+id),helpEnabled:true,helpSaving:false,helpError:false,onToggleHelp:()=>calls.push('toggle-help'),onCredits:()=>calls.push('credits'),onTools:()=>calls.push('development')};
  const nodes=(tree:any)=>{const result:Element[]=[];const visit=(n:any)=>{if(n?.children){result.push(n);n.children.forEach(visit);}};visit(tree);return result;};
  const text=(n:any):string=>n?.children?n.children.map(text).join(''):typeof n==='string'?n:'';
- return {calls,props,nodes,text,ordinary:exports.ProfileSettings(props),synthetic:exports.SyntheticProfileSettings(props)};
+ return {calls,props,nodes,text,renderOrdinary:()=>exports.ProfileSettings(props),ordinary:exports.ProfileSettings(props),synthetic:exports.SyntheticProfileSettings(props)};
 }
 test('ordinary settings exposes real administration and backup exclusions while synthetic editing stays in Development',()=>{
  const f=fixture(),ordinary=f.nodes(f.ordinary),synthetic=f.nodes(f.synthetic);
@@ -32,7 +32,19 @@ test('ordinary settings exposes real administration and backup exclusions while 
  assert.ok(synthetic.some(n=>n.type==='Section'&&n.props.title==='Lokales Demoprofil'));
  assert.deepEqual(f.calls,[]);
  ordinary.find(n=>n.type==='Action'&&f.text(n)==='Daten sichern & wiederherstellen')!.props.onPress();
+ ordinary.find(n=>n.type==='Action'&&f.text(n)==='Was wird gesichert?')!.props.onPress();
+ ordinary.find(n=>n.props.testID==='help-entry')!.props.onPress();
  ordinary.find(n=>n.props.testID==='diagnostics-entry')!.props.onPress();
  ordinary.find(n=>n.props.testID==='development-entry')!.props.onPress();
- assert.deepEqual(f.calls,['backup','diagnostics','development']);
+ assert.deepEqual(f.calls,['backup','help:backup','help:undefined','diagnostics','development']);
+});
+test('Profile keeps Help available when contextual guidance is disabled',()=>{
+ const f=fixture();f.props.helpEnabled=false;
+ const off=f.nodes(f.renderOrdinary());
+ assert.ok(off.some(n=>n.props.testID==='help-entry'));
+ assert.ok(off.some(n=>n.props.testID==='help-toggle'));
+ assert.equal(off.some(n=>n.type==='Action'&&f.text(n)==='Was wird gesichert?'),false);
+ assert.match(f.text(f.renderOrdinary()),/Kontexthilfe: Aus/);
+ off.find(n=>n.props.testID==='help-toggle')!.props.onPress();
+ assert.deepEqual(f.calls,['toggle-help']);
 });

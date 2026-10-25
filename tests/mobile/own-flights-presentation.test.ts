@@ -13,21 +13,22 @@ import { planFlightRetrieval } from '../../apps/platform-lab/src/vereinsflieger/
 import { dataFreshness } from '../../apps/platform-lab/src/mobile/data-freshness.ts';
 import { ownFlightFixture } from './own-flight-fixture.ts';
 import * as statistics from '../../apps/platform-lab/src/mobile/real-flight-statistics.ts';
+import * as helpCatalog from '../../apps/platform-lab/src/mobile/help-catalog.ts';
 
 interface Element {type:string;props:Record<string,any>;children:any[]}
 const source=ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/mobile/OwnFlights.tsx',import.meta.url),'utf8'),{
   compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.React,esModuleInterop:false},
 }).outputText;
-function fixture() {
+function fixture(seenHint = true) {
   const f=ownFlightFixture(),data:any={view:{snapshot:f.snapshot,flights:f.flights,pendingCommand:false},phase:'ready',detail:null,detailBusy:false,clearDetail(){},reload(){},openDetail(){}};
-  let index=0,active=true;let filterRequest:model.OwnFlightRequest|null=null;const hooks:any[]=[],effects:(()=>void)[]=[],restores:number[]=[];
+  let index=0,active=true,replayHintToken=0,helpEnabled=true;let filterRequest:model.OwnFlightRequest|null=null;const hooks:any[]=[],effects:(()=>void)[]=[],restores:number[]=[],help:string[]=[],hintMarks:string[]=[];
   const react={
     createElement:(type:any,props:Element['props'],...children:any[]):Element=>{
       if(typeof type==='function')return type({...props,children});
       if(type==='FlatList'&&props?.ref)props.ref.current={scrollToOffset:({offset}:{offset:number})=>restores.push(offset)};
       return{type,props:props??{},children:children.flat(Infinity)};
     },
-    useState(initial:unknown){const i=index++;if(!(i in hooks))hooks[i]=initial;return[hooks[i],(next:unknown)=>{hooks[i]=next;}];},
+    useState(initial:unknown){const i=index++;if(!(i in hooks))hooks[i]=initial;return[hooks[i],(next:unknown)=>{hooks[i]=typeof next==='function'?(next as (old:unknown)=>unknown)(hooks[i]):next;}];},
     useRef(initial:unknown){const i=index++;if(!(i in hooks))hooks[i]={current:initial};return hooks[i];},
     useMemo(fn:()=>unknown){return fn();},useCallback(fn:unknown){return fn;},
     useEffect(fn:()=>void,deps:unknown[]){const i=index++;if(!hooks[i]||deps.some((v,n)=>v!==hooks[i][n])){hooks[i]=deps;effects.push(fn);}},
@@ -37,17 +38,18 @@ function fixture() {
     ...leaves(['ActivityIndicator','FlatList','KeyboardAvoidingView','Modal','Pressable','ScrollView','Text','TextInput','View']),Platform:{OS:'android'},Keyboard:{dismiss(){}},StyleSheet:{create:(x:unknown)=>x},useWindowDimensions:()=>({width:390,height:800,fontScale:1}),
   },'./theme':{...leaves(['Action','Card','Chip','Empty','GliderMark','IconLabel','Label','Section']),colors:{},ui:{}},'./SymbolIcon':leaves(['SymbolIcon']),
   './use-own-flights':{useOwnFlights:()=>{throw new Error('Presentation must reuse the shell reader');}},'./own-flight-reader-native':{ownFlightReadPorts:{}},'./own-flight-model':model,
-  '../vereinsflieger/retrieval-policy':{planFlightRetrieval},'./flight-start-guidance':flightStartGuidance,'./data-freshness':{dataFreshness},'../vereinsflieger/capture-review':review,'./real-flight-statistics':statistics};
+  '../vereinsflieger/retrieval-policy':{planFlightRetrieval},'./flight-start-guidance':flightStartGuidance,'./data-freshness':{dataFreshness},'../vereinsflieger/capture-review':review,'./real-flight-statistics':statistics,'./help-catalog':helpCatalog};
+  modules['./help-preferences-native']={hasSeenFlightHelpHint:async()=>seenHint,markFlightHelpHintSeen:async()=>{hintMarks.push('seen');}};
   Object.assign(modules,loadFlightPresentation(modules));
   const exports:any={};runInNewContext(source,{exports,require:(name:string)=>{assert.ok(name in modules,name);return modules[name];}});
   let tree:Element;const header=()=>{};
-  function render(){index=0;tree=exports.OwnFlights({active,filterRequest,data,onUpdate:()=>false,onHeaderChange:header});effects.splice(0).forEach(fn=>fn());return tree;}
+  function render(){index=0;tree=exports.OwnFlights({active,filterRequest,data,onUpdate:()=>false,onHeaderChange:header,onHelp:(id:string)=>help.push(id),replayHintToken,helpEnabled});effects.splice(0).forEach(fn=>fn());return tree;}
   function nodes(){const result:Element[]=[];const visit=(n:any)=>{if(n?.children){result.push(n);n.children.forEach(visit);if(n.type==='FlatList')visit(n.props.ListHeaderComponent);}};visit(tree);return result;}
   function find(type:string,label?:string){const node=nodes().find(n=>n.type===type&&(!label||n.props.accessibilityLabel===label));assert.ok(node,`${type} ${label}`);return node;}
   const search=()=>{if(!nodes().some(n=>n.type==='TextInput'&&n.props.accessibilityLabel==='Flüge durchsuchen')){find('Pressable','Flugsuche öffnen').props.onPress();render();}return find('TextInput','Flüge durchsuchen');};
   const expand=()=>{if(!find('Pressable','Flugfilter öffnen').props.accessibilityState.expanded){find('Pressable','Flugfilter öffnen').props.onPress();render();}};
   const pick=(field:string,option:string)=>{expand();const control=nodes().find(n=>n.type==='Pressable'&&n.props.accessibilityLabel?.startsWith(`${field}:`));assert.ok(control,field);control.props.onPress();render();find('Pressable',option).props.onPress();render();};
-  render();return{data,render,find,nodes,restores,search,expand,pick,request:(year:number|null, extras:Partial<model.OwnFlightRequest>={})=>{filterRequest={year,...extras};render();render();},setActive:(value:boolean)=>{active=value;render();}};
+  render();return{data,render,find,nodes,restores,help,hintMarks,search,expand,pick,replayHint:()=>{replayHintToken++;render();render();},setHelpEnabled:(value:boolean)=>{helpEnabled=value;render();render();},request:(year:number|null, extras:Partial<model.OwnFlightRequest>={})=>{filterRequest={year,...extras};render();render();},setActive:(value:boolean)=>{active=value;render();}};
 }
 test('native zero-offset events while loading, hidden or inactive cannot erase the saved list return position',()=>{
   const f=fixture(),view=f.data.view;
@@ -99,6 +101,42 @@ function visibleText(node:any):string {
   if(node?.children)return node.children.map(visibleText).join(' ');
   return typeof node==='string'||typeof node==='number'?String(node):'';
 }
+test('PIC context bubble opens curated Help and replayed guidance leaves flight data untouched',()=>{
+  const f=fixture(),item=f.data.view.flights[0];
+  f.data.detail={...item,factHistory:[item.facts],pending:[]};f.render();
+  f.find('Pressable','Info zu PIC').props.onPress();f.render();
+  assert.match(visibleText(f.render()),/PIC · Pilot-in-command/);
+  assert.match(visibleText(f.render()),/keine Flugbuch-Anrechnung/);
+  f.nodes().find(n=>n.type==='Action'&&visibleText(n).includes('Mehr erfahren'))!.props.onPress();f.render();
+  assert.deepEqual(f.help,['pic']);
+  f.data.detail=null;f.render();f.replayHint();
+  assert.match(visibleText(f.render()),/Hier findest du deine Flüge/);
+  f.nodes().find(n=>n.type==='Action'&&visibleText(n).includes('Hilfe öffnen'))!.props.onPress();f.render();
+  assert.deepEqual(f.help,['pic','flight-details']);
+  assert.equal(f.data.view.flights[0],item);
+});
+test('first populated flight visit shows one dismissible local hint and Verstanden records installation preference',async()=>{
+  const f=fixture(false);
+  await Promise.resolve();f.render();f.render();
+  assert.match(visibleText(f.render()),/Hier findest du deine Flüge/);
+  assert.deepEqual(f.hintMarks,[]);
+  f.nodes().find(n=>n.type==='Action'&&visibleText(n).includes('Verstanden'))!.props.onPress();f.render();
+  assert.equal(visibleText(f.render()).includes('Hier findest du deine Flüge'),false);
+  assert.deepEqual(f.hintMarks,['seen']);
+  f.setActive(false);f.setActive(true);
+  assert.equal(visibleText(f.render()).includes('Hier findest du deine Flüge'),false);
+});
+test('global Help switch suppresses the first-use hint and PIC entry, then allows guidance again', async () => {
+  const f=fixture(false);
+  f.setHelpEnabled(false);
+  await Promise.resolve();f.render();f.render();
+  assert.equal(visibleText(f.render()).includes('Hier findest du deine Flüge'),false);
+  assert.deepEqual(f.hintMarks,[]);
+  const item=f.data.view.flights[0];f.data.detail={...item,factHistory:[item.facts],pending:[]};f.render();
+  assert.equal(f.nodes().some(n=>n.props.accessibilityLabel==='Info zu PIC'),false);
+  f.data.detail=null;f.render();f.setHelpEnabled(true);
+  assert.match(visibleText(f.render()),/Hier findest du deine Flüge/);
+});
 test('overview omits unavailable facts while details retain source uncertainty',()=>{
   const f=fixture(),item=structuredClone(f.data.view.flights[0]),a=item.facts.assessment;
   for(const key of Object.keys(a.fields))a.fields[key]={state:'not-captured'};

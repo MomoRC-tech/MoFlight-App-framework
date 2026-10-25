@@ -14,6 +14,9 @@ import { Dashboard } from './Dashboard';
 import { PlaneIcon, ProfileIcon, BookIcon } from './ShellIcons';
 import { SymbolIcon } from './SymbolIcon';
 import { ProfileSettings, SyntheticProfileSettings } from './ProfileSettings';
+import { HelpScreen } from './HelpScreen';
+import { readContextHelpEnabled, saveContextHelpEnabled } from './help-preferences-native';
+import type { HelpCategory } from './help-catalog';
 import { DesignPreview } from './DesignPreview';
 import { Diagnostics } from './Diagnostics';
 import { initializeDiagnostics } from './diagnostics-native';
@@ -54,7 +57,7 @@ const clubAirfield = require('../../assets/aviation/club-airfield.jpg');
 const tabs = [{ id: 'home', title: 'Übersicht' }, { id: 'flights', title: 'Flüge' }, { id: 'logbook', title: 'Flugbuch' }, { id: 'club', title: 'Verein' }, { id: 'ai', title: 'AI' }] as const;
 type Tab = typeof tabs[number]['id'];
 type ClubSection = 'Übersicht' | 'Termine' | 'Dienste' | 'Dokumente' | 'Arbeitsstunden' | 'Aufgaben';
-type Sheet = 'designPreview' | 'diagnostics' | 'paper' | 'development' | 'importPreview' | 'flightLab' | 'bookLab' | 'backup' | 'selectBook' | 'unsupported' | 'credits' | 'status' | 'profile' | 'medical' | 'statistics' | null;
+type Sheet = 'designPreview' | 'diagnostics' | 'paper' | 'development' | 'importPreview' | 'flightLab' | 'bookLab' | 'backup' | 'selectBook' | 'unsupported' | 'credits' | 'status' | 'profile' | 'medical' | 'statistics' | 'help' | null;
 const dateText = (date: string | null) => date ? new Date(date + 'T12:00:00Z').toLocaleDateString('de-DE', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' }) : 'Datum unbekannt';
 
 export default function MobileApp() {
@@ -95,12 +98,31 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
   const [detail, setDetail] = useState<Flight | null>(null);
   const [screenBusy, setScreenBusy] = useState(false);
   const [profileNameDraft, setProfileNameDraft] = useState('');
+  const [helpEntryId, setHelpEntryId] = useState<string | null>(null);
+  const [helpQuery, setHelpQuery] = useState('');
+  const [helpCategory, setHelpCategory] = useState<HelpCategory | null>(null);
+  const [helpReturnLabel, setHelpReturnLabel] = useState('Zurück zum Profil');
+  const [replayHintToken, setReplayHintToken] = useState(0);
+  const [helpEnabled, setHelpEnabled] = useState<boolean | null>(null);
+  const [helpSaving, setHelpSaving] = useState(false);
+  const [helpPreferenceError, setHelpPreferenceError] = useState(false);
+  const helpSaveLock = useRef(false);
+  useEffect(() => { let mounted = true; void readContextHelpEnabled().then(enabled => { if (mounted) setHelpEnabled(enabled); }); return () => { mounted = false; }; }, []);
+  const toggleHelp = async () => {
+    if (helpEnabled === null || helpSaveLock.current) return;
+    helpSaveLock.current = true; setHelpSaving(true); setHelpPreferenceError(false);
+    const next = !helpEnabled;
+    const saved = await saveContextHelpEnabled(next);
+    if (saved) setHelpEnabled(next);
+    else setHelpPreferenceError(true);
+    helpSaveLock.current = false; setHelpSaving(false);
+  };
   const [importPreview, setImportPreview] = useState<PreviewSession | null>(null);
   const overlayHistory = useRef<{ sheet: Sheet; detail: Flight | null }[]>([]);
   const statisticsBack = useRef<() => boolean>(() => false);
   const overlayOffsets = useRef<Record<string, number>>({});
   const overlayScroll = useRef<ScrollView>(null);
-  const overlayKey = detail ? `detail:${detail.id}` : sheet ?? 'none';
+  const overlayKey = detail ? `detail:${detail.id}` : sheet === 'help' ? `help:${helpEntryId ?? 'home'}` : sheet ?? 'none';
   const overlayOpen = sheet !== null || detail !== null;
   const openHeaderSheet = (next: Sheet) => {
     if (screenBusy) return;
@@ -110,7 +132,7 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
     if (overlayOpen) overlayHistory.current.push({ sheet, detail });
     setDetail(null); setSheet(next);
   };
-  const closeOverlay = () => {
+  const popOverlay = () => {
     if (screenBusy) return;
     if (sheet === 'statistics' && statisticsBack.current()) return;
     diagnosticJournal.record('back', detail ? 'flight-detail' : sheet ?? 'close');
@@ -119,6 +141,17 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
     const previous = overlayHistory.current.pop();
     setDetail(previous?.detail ?? null); setSheet(previous?.sheet ?? null);
   };
+  const closeOverlay = () => {
+    if (sheet === 'help' && helpEntryId) { setHelpEntryId(null); Keyboard.dismiss(); return; }
+    popOverlay();
+  };
+  const openHelp = (entryId: string | null, fromFlight: boolean) => {
+    setHelpEntryId(entryId); setHelpQuery(''); setHelpCategory(null);
+    setHelpReturnLabel(fromFlight ? (ownFlights.detail ? 'Zurück zum Flug' : 'Zurück zu Flüge') : 'Zurück zum Profil');
+    overlayOffsets.current[`help:${entryId ?? 'home'}`] = 0;
+    openHeaderSheet('help');
+  };
+  const leaveHelp = () => { setHelpEntryId(null); popOverlay(); };
   const [clubSection, setClubSection] = useState<ClubSection>('Übersicht');
   const clubOffsets=useRef<Partial<Record<ClubSection,number>>>({});
   const openClubSection=(section:ClubSection)=>{Keyboard.dismiss();setClubSection(section);};
@@ -187,7 +220,7 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
       if (tab !== 'home') { setTab('home'); return true; }
       return false;
     }); return () => listener.remove();
-  }, [detail, sheet, tab, screenBusy, flightHeader,clubSection]);
+  }, [detail, sheet, helpEntryId, tab, screenBusy, flightHeader,clubSection]);
   const openFlightFlow = (intent:ConnectionIntent='options',destination:OptionsDestination='settings') => { diagnosticJournal.record('action',intent==='update'?'update-flights':'open-flight-tools'); onCoreFlights(intent,false,destination); return true; };
   useEffect(() => { diagnosticJournal.record('screen', coreFlightsOpen ? 'provider-options' : detail ? 'flight-detail' : sheet ?? tab); }, [tab,sheet,detail,coreFlightsOpen]);
   useEffect(() => { const listener=AppState.addEventListener('change',state=>{if(state==='active'||state==='background'||state==='inactive')diagnosticJournal.record('lifecycle',state);});return()=>listener.remove(); }, []);
@@ -220,7 +253,7 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
         </ScrollView>
       </View>
       <View style={[s.page, tab !== 'flights' && s.hidden]} accessibilityElementsHidden={tab !== 'flights'} importantForAccessibility={tab === 'flights' ? 'auto' : 'no-hide-descendants'}>
-        <OwnFlights active={tab === 'flights'} data={ownFlights} filterRequest={flightRequest} onHeaderChange={setFlightHeader}
+        <OwnFlights active={tab === 'flights'} data={ownFlights} filterRequest={flightRequest} onHeaderChange={setFlightHeader} onHelp={entryId=>openHelp(entryId,true)} replayHintToken={replayHintToken} helpEnabled={helpEnabled === true}
           />
       </View>
       <View style={[s.page, tab !== 'logbook' && s.hidden]} accessibilityElementsHidden={tab !== 'logbook'} importantForAccessibility={tab === 'logbook' ? 'auto' : 'no-hide-descendants'}>
@@ -266,10 +299,11 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
           <StatisticsOverlay initialYear={statisticsYear} key={statisticsScopeKey} data={ownFlights} today={today} fontScale={fontScale} onBackHandler={handler => { statisticsBack.current = handler; }} />
         </KeyboardAvoidingView>
       </View> : <>
-      {sheet !== 'designPreview'&&<AppHeader profile={sheet==='profile'?undefined:profileControl} source={mountain} back={closeOverlay} backDisabled={screenBusy} title={detail ? 'Flugdetails' : sheet === 'paper' ? 'Papierflugbuch' : sheet === 'development' ? 'Entwicklung' : sheet === 'importPreview' ? 'Importvorschau' : sheet === 'flightLab' ? 'Datensatztest' : sheet === 'bookLab' ? 'Flugbuchtest' : sheet === 'backup' ? 'Synthetische Sicherung' : sheet === 'diagnostics' ? 'Diagnose' : sheet === 'profile' ? 'Profil & Einstellungen' : sheet === 'medical' ? 'Medical' : sheet==='status'?'Verbindung & Datenstatus':sheet==='selectBook'?'Synthetisches Flugbuch':sheet==='credits'?'Bildnachweise & Lizenzen':'MoFlight'}>{statusControls}</AppHeader>}
+      {sheet !== 'designPreview'&&<AppHeader profile={sheet==='profile'?undefined:profileControl} source={mountain} back={closeOverlay} backDisabled={screenBusy} title={detail ? 'Flugdetails' : sheet === 'paper' ? 'Papierflugbuch' : sheet === 'development' ? 'Entwicklung' : sheet === 'importPreview' ? 'Importvorschau' : sheet === 'flightLab' ? 'Datensatztest' : sheet === 'bookLab' ? 'Flugbuchtest' : sheet === 'backup' ? 'Synthetische Sicherung' : sheet === 'diagnostics' ? 'Diagnose' : sheet === 'profile' ? 'Profil & Einstellungen' : sheet === 'help' ? 'Hilfe & Einführung' : sheet === 'medical' ? 'Medical' : sheet==='status'?'Verbindung & Datenstatus':sheet==='selectBook'?'Synthetisches Flugbuch':sheet==='credits'?'Bildnachweise & Lizenzen':'MoFlight'}>{statusControls}</AppHeader>}
         {sheet !== 'designPreview' && <SyncProgress notice={notice} cancel={syncControls?.cancel} canCancel={syncControls?.canCancel} progress={syncProgress} retry={()=>openFlightFlow('update')} details={()=>openHeaderSheet('status')}/>}
         {sheet === 'designPreview' ? <DesignPreview onClose={closeOverlay}/> : sheet === 'flightLab' ? <><DevelopmentNotice /><LabApp providerOwned={true} embedded onBusyChange={setScreenBusy} /></> : sheet === 'bookLab' ? <><DevelopmentNotice /><BookLab close={closeOverlay} onBusyChange={setScreenBusy} /></> : <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}><ScrollView ref={overlayScroll} key={overlayKey} contentOffset={{ x: 0, y: overlayOffsets.current[overlayKey] ?? 0 }} onScroll={event => { overlayOffsets.current[overlayKey] = event.nativeEvent.contentOffset.y; }} scrollEventThrottle={32} contentContainerStyle={[s.canvas,{width:'100%',maxWidth:600,alignSelf:'center'}]} keyboardShouldPersistTaps="handled">
-          {sheet === 'profile' && <ProfileSettings connectionSummary={<>{statusDetails}<ConnectionSummary compact controller={flightStatusController} ownFlights={ownFlights.view} phase={ownFlights.phase} /></>} onTools={() => openHeaderSheet('development')} onConnections={()=>openFlightFlow('options')} onBackup={() => openFlightFlow('options','backup')} onDiagnostics={() => openHeaderSheet('diagnostics')} onStatus={() => openHeaderSheet('status')} onCredits={() => openHeaderSheet('credits')} onBooks={() => openHeaderSheet('selectBook')} displayName={library.displayName} nameDraft={profileNameDraft} onNameDraftChange={setProfileNameDraft} busy={library.busy} error={library.error} onSaveName={library.saveDisplayName} onRetry={() => void library.reload()} />}
+          {sheet === 'profile' && <ProfileSettings connectionSummary={<>{statusDetails}<ConnectionSummary compact controller={flightStatusController} ownFlights={ownFlights.view} phase={ownFlights.phase} /></>} onTools={() => openHeaderSheet('development')} onConnections={()=>openFlightFlow('options')} onBackup={() => openFlightFlow('options','backup')} onDiagnostics={() => openHeaderSheet('diagnostics')} onHelp={id => openHelp(id??null,false)} helpEnabled={helpEnabled} helpSaving={helpSaving} helpError={helpPreferenceError} onToggleHelp={()=>void toggleHelp()} onStatus={() => openHeaderSheet('status')} onCredits={() => openHeaderSheet('credits')} onBooks={() => openHeaderSheet('selectBook')} displayName={library.displayName} nameDraft={profileNameDraft} onNameDraftChange={setProfileNameDraft} busy={library.busy} error={library.error} onSaveName={library.saveDisplayName} onRetry={() => void library.reload()} />}
+          {sheet === 'help' && <HelpScreen entryId={helpEntryId} query={helpQuery} category={helpCategory} onQuery={setHelpQuery} onCategory={setHelpCategory} onEntry={id=>{overlayOffsets.current[`help:${id ?? 'home'}`]=0;setHelpEntryId(id);Keyboard.dismiss();}} onReturn={leaveHelp} onReplay={()=>{if(helpEnabled !== true)return;Keyboard.dismiss();overlayHistory.current=[];setHelpEntryId(null);setDetail(null);setSheet(null);ownFlights.clearDetail();setFlightRequest(null);setTab('flights');setReplayHintToken(value=>value+1);}} onStatus={()=>openHeaderSheet('status')} returnLabel={helpReturnLabel} helpEnabled={helpEnabled === true} />}
           {sheet === 'development' && <DevelopmentHub onBusyChange={setScreenBusy} onDesignPreview={()=>openHeaderSheet('designPreview')} onPaper={openBooks} profileTools={<SyntheticProfileSettings displayName={library.displayName} nameDraft={profileNameDraft} onNameDraftChange={setProfileNameDraft} busy={library.busy} error={library.error} onSaveName={library.saveDisplayName} onRetry={() => void library.reload()} />} onSelectBook={() => openHeaderSheet('selectBook')} onBackup={() => openHeaderSheet('backup')} onFlights={() => openHeaderSheet('flightLab')} onBooks={() => openHeaderSheet('bookLab')} onImportPreview={() => openHeaderSheet('importPreview')} onCoreFlights={()=>onCoreFlights('options',true,'sources')} />}
           {sheet === 'importPreview' && <ImportPreview session={importPreview} onChange={setImportPreview} onNavigate={() => { overlayOffsets.current.importPreview = 0; overlayScroll.current?.scrollTo({ y: 0, animated: false }); }} />}
           {sheet === 'diagnostics' && <Diagnostics />}

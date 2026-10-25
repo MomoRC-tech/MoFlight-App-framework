@@ -1,5 +1,9 @@
 # Dark Compact Cockpit — approved 24 October 2026
 
+## Offline Help — selected 25 October 2026
+
+Manuel selected the [#31 offline Help concept](../help-system-concept.md) and requested implementation. Profile's Support group opens a searchable, locally bundled **Hilfe & Einführung** sheet and offers an installation-wide Kontexthilfe off/on setting. Off suppresses automatic hints and contextual Info/Help actions; deliberate Help lookup remains available in Profile. The sheet uses the existing app overlay header, contextual Back, centered 520 dp content and Compact Cockpit surfaces. A PIC Info target in ordinary saved-flight details opens one inline explanation bubble; **Mehr erfahren** opens a sourced question/answer bubble and returns to the same flight. Empty-Flüge and backup-scope explanations link directly to their curated entries when guidance is on. A generic populated-Flüge hint is shown on first visit, can be dismissed or reopened from Help, and has a versioned installation-local preference. No extra tab, floating chat button, provider call or AI request is added. The [implementation report](../../verification/2026-10-25-offline-help.md) records host checks and the remaining native/editorial gates; the original [browser sketch](proposals/2026-10-25-help-system.html) is illustrative.
+
 ## Sync clarity and target preservation — selected 25 October 2026
 
 Manuel explicitly selected the [#83 Sync proposal](proposals/2026-10-25-sync-states.html) and [#29](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/29) annual-target backup inclusion. These scoped amendments supersede the tiny session submark, ambiguous advice dot, passive-advice-only placement and target-backup exclusion below; other decisions remain.

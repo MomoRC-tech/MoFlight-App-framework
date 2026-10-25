@@ -19,8 +19,13 @@ export interface ProfileSettingsProps {
   onBooks: () => void;
   onBackup: () => void;
   onDiagnostics: () => void;
+  onHelp: (entryId?: string) => void;
+  helpEnabled: boolean | null;
+  helpSaving: boolean;
+  helpError: boolean;
+  onToggleHelp: () => void;
 }
-export function ProfileSettings({ connectionSummary, onBackup, onDiagnostics, onCredits, onTools,onConnections,onStatus }: ProfileSettingsProps) {
+export function ProfileSettings({ connectionSummary, onBackup, onDiagnostics, onHelp, helpEnabled, helpSaving, helpError, onToggleHelp, onCredits, onTools,onConnections,onStatus }: ProfileSettingsProps) {
   return <View style={styles.content}>
     <View style={{gap:6}}>{connectionSummary ?? <Card><Section title="Vereinsflieger & Daten" /><Label muted>Neue Daten und Anmeldung erreichst du über die Verbindung oben in der Kopfzeile.</Label></Card>}<Action secondary onPress={onStatus}>Verbindung & Datenstatus</Action></View>
     {onConnections&&<Card><Section title="Verbindung"/><Action secondary onPress={onConnections}>Vereinsflieger-Einstellungen</Action></Card>}
@@ -28,8 +33,13 @@ export function ProfileSettings({ connectionSummary, onBackup, onDiagnostics, on
       <Label muted>Sichert eigene Flüge und Belege, die ausgewählte lokale Flugbuchbibliothek mit Profil sowie unterstützte eigene Quellen einschließlich Medical. Unverschlüsselt; Anmeldungen, Dienstpläne und temporäre Dateien sind ausgeschlossen.</Label>
       <Label muted>{AI_BACKUP_NOTICE}</Label>
       <Action secondary icon="book" onPress={onBackup}>Daten sichern & wiederherstellen</Action>
+      {helpEnabled && <Action secondary onPress={() => onHelp('backup')}>Was wird gesichert?</Action>}
     </Card>
     <Card><Section title="Support & Über MoFlight" />
+      <Action testID="help-entry" secondary icon="info" onPress={() => onHelp()}>Hilfe & Einführung</Action>
+      <Label muted>Kontexthilfe: {helpEnabled === null ? 'wird geladen' : helpEnabled ? 'Ein' : 'Aus'}. Die Hilfethemen bleiben hier immer erreichbar.</Label>
+      <Action testID="help-toggle" secondary onPress={onToggleHelp} disabled={helpEnabled === null || helpSaving}>{helpEnabled ? 'Automatische Hinweise und Info-Bubbles ausschalten' : 'Kontexthilfe einschalten'}</Action>
+      {helpError && <Label>Die Einstellung konnte nicht gespeichert werden. Bitte erneut versuchen.</Label>}
       <Action testID="diagnostics-entry" secondary icon="info" onPress={onDiagnostics}>Diagnose öffnen</Action>
       <Action secondary onPress={onCredits}>Bildnachweise & Lizenzen</Action>
       <Label muted>Sprache: Deutsch · Textgröße nach Geräteeinstellung.</Label>

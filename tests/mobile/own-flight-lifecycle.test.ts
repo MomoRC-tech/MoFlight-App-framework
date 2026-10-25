@@ -15,6 +15,7 @@ import * as flightModel from '../../apps/platform-lab/src/mobile/own-flight-mode
 import * as captureReview from '../../apps/platform-lab/src/vereinsflieger/capture-review.ts';
 import { planFlightRetrieval } from '../../apps/platform-lab/src/vereinsflieger/retrieval-policy.ts';
 import { dataFreshness } from '../../apps/platform-lab/src/mobile/data-freshness.ts';
+import * as helpCatalog from '../../apps/platform-lab/src/mobile/help-catalog.ts';
 
 const source=ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/mobile/use-own-flights.ts',import.meta.url),'utf8'),{
   compilerOptions:{module:ts.ModuleKind.CommonJS},
@@ -49,6 +50,8 @@ function host(withPresentation = false) {
       './SymbolIcon':leaves(['SymbolIcon']),'./own-flight-model':flightModel,
       '../vereinsflieger/retrieval-policy':{planFlightRetrieval},'./flight-start-guidance':flightStartGuidance,'./data-freshness':{dataFreshness},
       '../vereinsflieger/capture-review':captureReview,'./real-flight-statistics':statistics,
+      './help-catalog':helpCatalog,
+      './help-preferences-native':{hasSeenFlightHelpHint:async()=>true,markFlightHelpHintSeen:async()=>{}},
     };
     Object.assign(modules,loadFlightPresentation(modules));
     const component=ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/mobile/OwnFlights.tsx',import.meta.url),'utf8'),{

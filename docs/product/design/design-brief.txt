@@ -69,6 +69,10 @@ The generator uses Python's standard library and repository files only: no netwo
 
 # Dark Compact Cockpit — approved 24 October 2026
 
+## Offline Help — selected 25 October 2026
+
+Manuel selected the [#31 offline Help concept](../help-system-concept.md) and requested implementation. Profile's Support group opens a searchable, locally bundled **Hilfe & Einführung** sheet and offers an installation-wide Kontexthilfe off/on setting. Off suppresses automatic hints and contextual Info/Help actions; deliberate Help lookup remains available in Profile. The sheet uses the existing app overlay header, contextual Back, centered 520 dp content and Compact Cockpit surfaces. A PIC Info target in ordinary saved-flight details opens one inline explanation bubble; **Mehr erfahren** opens a sourced question/answer bubble and returns to the same flight. Empty-Flüge and backup-scope explanations link directly to their curated entries when guidance is on. A generic populated-Flüge hint is shown on first visit, can be dismissed or reopened from Help, and has a versioned installation-local preference. No extra tab, floating chat button, provider call or AI request is added. The [implementation report](../../verification/2026-10-25-offline-help.md) records host checks and the remaining native/editorial gates; the original [browser sketch](proposals/2026-10-25-help-system.html) is illustrative.
+
 ## Sync clarity and target preservation — selected 25 October 2026
 
 Manuel explicitly selected the [#83 Sync proposal](proposals/2026-10-25-sync-states.html) and [#29](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/29) annual-target backup inclusion. These scoped amendments supersede the tiny session submark, ambiguous advice dot, passive-advice-only placement and target-backup exclusion below; other decisions remain.
@@ -453,6 +457,7 @@ The U1/U3 header uses neutral saved-age text independently of session state, wit
 | C19 | Support diagnostics | Shared C01/C02 cards/actions and selectable report text in a centered 520 dp group | [Diagnostics](../../../apps/platform-lab/src/mobile/Diagnostics.tsx) via Settings; paged technical/action histories and protected failures; observed navigation transitions without inferred intent. Explicit full JSON-file sharing, bounded short text copying and diagnostic-only clearing; 1 MB total managed storage cap. No automatic transmission. |
 | C20 | Meine Saison statistics overlay | Centered navy frame, radius 22, subtle border, safe-area bounds and maximum width 720 dp; fixed title over one scrolling content region | [StatisticsOverlay](../../../apps/platform-lab/src/mobile/StatisticsOverlay.tsx) reads saved local flights, applies year/all/custom date filters, and opens exact contributor/detail routes with contextual Back. Unverified launch mapping stays unavailable; source conflicts are excluded. No provider retrieval or durable filter store. |
 | C21 | Club card heading / subgroups | System-scaled title 18/26, weight600; decorative full-bleed image to top/side card borders, header minimum88 dp with navy shade; subgroup raised navy, radius8, title14/22 and glyph16 | [ClubHeading](../../../apps/platform-lab/src/mobile/ClubHeading.tsx) shows Mein Verein: plus the full saved club label, or Mein Verein with Vereinsname unbekannt. No fixed title height or line cap. [DutyRoster](../../../apps/platform-lab/src/mobile/DutyRoster.tsx) separates own/other, later and unplaced groups without changing source membership. Compact rows omit technical explanations; expanded title remains Dienstübersicht with source qualification. Each entry uses a duty/date row and a people row, without clocks; full supplied given names and a family-name initial are shown. Text can wrap at larger sizes. Single-word source names remain intact without identity inference. The shell's missing-source card reuses the same heading. |
+| C22 | Offline Help bubbles and sheet | 48 dp PIC Info target; inline raised navy bubble; searchable app sheet with centered 520 dp group, category chips and distinct question/answer bubbles | [HelpScreen](../../../apps/platform-lab/src/mobile/HelpScreen.tsx) and [bundled catalogue](../../../apps/platform-lab/src/mobile/help-catalog.ts) answer without provider/model work. Profile, empty Flüge and backup scope link to Help; populated Flüge offers a dismissible/replayable hint. Source/credit boundaries remain visible. [Selected contract](compact-cockpit.md#offline-help--selected-25-october-2026), [evidence](../../verification/2026-10-25-offline-help.md). |
 
 Sources: [theme](../../../apps/platform-lab/src/mobile/theme.tsx), [MobileApp](../../../apps/platform-lab/src/mobile/MobileApp.tsx), [Dashboard](../../../apps/platform-lab/src/mobile/Dashboard.tsx), [AppHeader](../../../apps/platform-lab/src/mobile/AppHeader.tsx), [ProviderConnection](../../../apps/platform-lab/src/mobile/ProviderConnection.tsx), [MedicalStatus](../../../apps/platform-lab/src/mobile/MedicalStatus.tsx), [ProfileSettings](../../../apps/platform-lab/src/mobile/ProfileSettings.tsx), [SeasonRing](../../../apps/platform-lab/src/mobile/SeasonRing.tsx) and [StatisticsOverlay](../../../apps/platform-lab/src/mobile/StatisticsOverlay.tsx).
 
@@ -546,7 +551,7 @@ Development surfaces are explicit visual exceptions: [App.tsx](../../../apps/pla
 
 Settings → **Diagnose öffnen** opens a separate scrollable support screen with contextual Back. Reuse C01/C02 and a centered 520 dp group; page through technical operations, action/navigation events and protected failures (ten per page). The journey view shows observed transitions and explicitly avoids inferring intentions. Full sharing opens the OS chooser for a JSON file; a bounded short report can be shared/copied as text. Clearing affects the journal and managed export file only. Storage is capped at 1 MB total and 14 days, with earlier byte/count limits. [Contract and evidence](../../verification/2026-10-21-diagnostics.md).
 
-Settings groups connection/data administration, **Flugbibliothek sichern & wiederherstellen**, support/about and **Entwicklung öffnen**. The ordinary backup action opens existing real-flight options; explain the Details & weitere Optionen disclosure and exclusions, including Medical. [DevelopmentHub](../../../apps/platform-lab/src/mobile/DevelopmentHub.tsx) retains synthetic profile editing, selected books, paper status/backup, dataset/flight and book/paper proofs, and provider diagnostics. Entry alone runs no fixture or provider operation. These retained experimental tools are no security boundary or approval for a future production build.
+Settings groups connection/data administration, **Flugbibliothek sichern & wiederherstellen**, support/about and **Entwicklung öffnen**. The ordinary backup action opens existing real-flight options; explain the Details & weitere Optionen disclosure and exclusions, including Medical. Support now includes [offline Hilfe & Einführung](compact-cockpit.md#offline-help--selected-25-october-2026): local search, category and sourced answer bubbles, contextual PIC and backup entry, and replayable Flüge guidance. It uses the existing app Back/overlay stack and preserves the underlying flight/filter/scroll/profile state. It does not start Sync, AI or provider work. [DevelopmentHub](../../../apps/platform-lab/src/mobile/DevelopmentHub.tsx) retains synthetic profile editing, selected books, paper status/backup, dataset/flight and book/paper proofs, and provider diagnostics. Entry alone runs no fixture or provider operation. These retained experimental tools are no security boundary or approval for a future production build.
 
 Maintenance uses dark C01/C02 cards/actions and selected Modern Duotone symbols. Development's [LibraryBackup](../../../apps/platform-lab/src/mobile/LibraryBackup.tsx) explains synthetic-library scope, unencrypted lab format/2 MB restore limit, exclusions, picker cancellation and the difference between sharing and verified external saving. Restore validates a new library and selected book before activating it; previous stores remain. [PaperStatus](../../../apps/platform-lab/src/mobile/PaperStatus.tsx) shows saved synthetic facts/unknowns and the unfinished M5 boundary. These groups cap and center at 520 dp. Ordinary account-flight backup and synthetic-library backup are distinct.
 
@@ -623,7 +628,7 @@ Use only the header “Daten” button for new provider data and login. Start em
 
 [Handbook entry point](README.md). Generated by `python scripts/design_handbook.py`; do not hand-edit.
 
-Scope: 89 product mobile TypeScript/model and app-owned TSX UI/adapter files; 66 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.
+Scope: 93 product mobile TypeScript/model and app-owned TSX UI/adapter files; 67 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.
 
 ## App.tsx
 
@@ -989,85 +994,85 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ConnectionSetting
 
 ## ConnectionSummary.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ConnectionSummary.tsx](../../../apps/platform-lab/src/mobile/ConnectionSummary.tsx); normalized SHA-256 `8126e8144c87d3ac96448d8b623eb01cffb225c72d28eb323a4bb2dfbe3803a5`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ConnectionSummary.tsx](../../../apps/platform-lab/src/mobile/ConnectionSummary.tsx); normalized SHA-256 `5e384aead02444df6667a55d7f9516149070fb8d739c4ce794d5c0f2f3c315b2`.
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `maxWidth: 520` | 42, 49, 54, 60, 66 |
-| `width: '100%'` | 42, 49, 54, 60, 66 |
+| `maxWidth: 520` | 45, 52, 57, 63, 69 |
+| `width: '100%'` | 45, 52, 57, 63, 69 |
 
 ## CoreFlightFoundation.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `18fa1df3aca9d35c9eced35a3a568d4df7c234982860cc556dc0a0103c935700`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `493c83e7f875eb13b088f5c24dc3e951a2b8f7a959825d1e5161b297c6474a3c`.
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `gap: 10` | 174, 182, 183, 738 |
-| `gap: 8` | 765, 791, 801 |
-| `maxWidth: 520` | 174, 183, 738 |
-| `padding: 12` | 174, 182, 738 |
-| `width: '100%'` | 174, 183, 738 |
+| `gap: 10` | 174, 182, 183, 739 |
+| `gap: 8` | 766, 792, 802 |
+| `maxWidth: 520` | 174, 183, 739 |
+| `padding: 12` | 174, 182, 739 |
+| `width: '100%'` | 174, 183, 739 |
 
 ## Dashboard.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](../../../apps/platform-lab/src/mobile/Dashboard.tsx); normalized SHA-256 `0517d726bffb8fa9eefae07dda02a107d6e913e9bd97a8b50c468f57d04274e1`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](../../../apps/platform-lab/src/mobile/Dashboard.tsx); normalized SHA-256 `050af8cc85a9b0496921e8429c054e756db24401e2c5ca7aa11c857d72fe17c2`.
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 11` | 83 |
-| `fontSize: 12` | 83, 85 |
-| `fontSize: 14` | 81, 85 |
-| `fontSize: 16` | 85 |
-| `fontSize: 18` | 80 |
-| `fontSize: 22` | 83 |
-| `fontSize: 27` | 83 |
-| `fontWeight: '600'` | 73, 85 |
-| `fontWeight: '700'` | 80, 83, 85 |
-| `lineHeight: 17` | 83 |
-| `lineHeight: 18` | 83, 85 |
-| `lineHeight: 20` | 81, 85 |
-| `lineHeight: 22` | 85 |
-| `lineHeight: 25` | 80 |
-| `lineHeight: 34` | 83 |
+| `fontSize: 11` | 87 |
+| `fontSize: 12` | 87, 89 |
+| `fontSize: 14` | 85, 89 |
+| `fontSize: 16` | 89 |
+| `fontSize: 18` | 84 |
+| `fontSize: 22` | 87 |
+| `fontSize: 27` | 87 |
+| `fontWeight: '600'` | 77, 89 |
+| `fontWeight: '700'` | 84, 87, 89 |
+| `lineHeight: 17` | 87 |
+| `lineHeight: 18` | 87, 89 |
+| `lineHeight: 20` | 85, 89 |
+| `lineHeight: 22` | 89 |
+| `lineHeight: 25` | 84 |
+| `lineHeight: 34` | 87 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 10` | 49 |
-| `borderRadius: 18` | 85 |
-| `borderWidth: 1` | 85 |
-| `gap: 0` | 78 |
-| `gap: 3` | 68, 81, 82 |
-| `gap: 6` | 49, 80 |
-| `gap: 8` | 79, 85 |
-| `gap: 9` | 84 |
-| `maxWidth: '35%'` | 81 |
-| `maxWidth: '45%'` | 47 |
-| `maxWidth: 520` | 78 |
-| `minHeight: 48` | 80, 81, 86, 87 |
-| `minHeight: 80` | 84 |
-| `minWidth: 0` | 68, 80 |
-| `minWidth: 330` | 50 |
-| `minWidth: 48` | 87 |
-| `minWidth: 90` | 82 |
-| `opacity: .4` | 49 |
-| `padding: 0` | 78 |
-| `padding: 12` | 84 |
-| `paddingHorizontal: 10` | 85 |
-| `paddingHorizontal: 12` | 79, 84 |
-| `paddingHorizontal: 2` | 81 |
-| `paddingHorizontal: 5` | 82 |
-| `paddingHorizontal: 8` | 87 |
-| `paddingVertical: 10` | 84 |
-| `paddingVertical: 3` | 85 |
-| `width: '100%'` | 78, 79 |
+| `borderRadius: 10` | 53 |
+| `borderRadius: 18` | 89 |
+| `borderWidth: 1` | 89 |
+| `gap: 0` | 82 |
+| `gap: 3` | 72, 85, 86 |
+| `gap: 6` | 53, 84 |
+| `gap: 8` | 83, 89 |
+| `gap: 9` | 88 |
+| `maxWidth: '35%'` | 85 |
+| `maxWidth: '45%'` | 51 |
+| `maxWidth: 520` | 82 |
+| `minHeight: 48` | 84, 85, 90, 91 |
+| `minHeight: 80` | 88 |
+| `minWidth: 0` | 72, 84 |
+| `minWidth: 330` | 54 |
+| `minWidth: 48` | 91 |
+| `minWidth: 90` | 86 |
+| `opacity: .4` | 53 |
+| `padding: 0` | 82 |
+| `padding: 12` | 88 |
+| `paddingHorizontal: 10` | 89 |
+| `paddingHorizontal: 12` | 83, 88 |
+| `paddingHorizontal: 2` | 85 |
+| `paddingHorizontal: 5` | 86 |
+| `paddingHorizontal: 8` | 91 |
+| `paddingVertical: 10` | 88 |
+| `paddingVertical: 3` | 89 |
+| `width: '100%'` | 82, 83 |
 
 ## DataUpdateIndicator.tsx
 
@@ -1235,23 +1240,36 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/FlightCard.tsx](.
 
 ## FlightDetails.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/FlightDetails.tsx](../../../apps/platform-lab/src/mobile/FlightDetails.tsx); normalized SHA-256 `e92f03e59265607c278238d4c32691015000bd9aac1089b838c38e8bfbf4809a`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/FlightDetails.tsx](../../../apps/platform-lab/src/mobile/FlightDetails.tsx); normalized SHA-256 `cc1ecbba442f71541fce8d23182b4ca2e66724ff916079ce69f32fc420062861`.
+
+### Literal colors
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `#296879` | 53 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 22` | 15 |
-| `fontWeight: '700'` | 15 |
-| `lineHeight: 30` | 15 |
+| `fontSize: 22` | 19 |
+| `fontWeight: '700'` | 19, 31 |
+| `lineHeight: 30` | 19 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `gap: 10` | 15 |
-| `gap: 2` | 32 |
-| `gap: 6` | 34 |
+| `borderRadius: 18` | 53 |
+| `borderWidth: 1` | 53 |
+| `gap: 10` | 19 |
+| `gap: 2` | 45 |
+| `gap: 6` | 47 |
+| `gap: 7` | 52 |
+| `gap: 8` | 53, 54 |
+| `minHeight: 48` | 52 |
+| `padding: 14` | 53 |
+| `paddingHorizontal: 6` | 52 |
 
 ## FlightScene.tsx
 
@@ -1288,6 +1306,57 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/FlightScene.tsx](
 | `width: '100%'` | 37 |
 | `width: 330` | 28 |
 | `width: 420` | 29 |
+
+## HelpScreen.tsx
+
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/HelpScreen.tsx](../../../apps/platform-lab/src/mobile/HelpScreen.tsx); normalized SHA-256 `663df73e78a286fa3ec1c28e1508931d398182fdfacc090557c9fccccc978b09`.
+
+### Literal colors
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `#064240` | 70 |
+| `#227f87` | 70 |
+| `#296879` | 72 |
+
+### Typography declarations
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `fontSize: 12` | 63, 75, 77 |
+| `fontSize: 16` | 65 |
+| `fontSize: 24` | 69 |
+| `fontWeight: '600'` | 68, 71, 76 |
+| `fontWeight: '700'` | 63, 73 |
+| `letterSpacing: .8` | 63 |
+| `lineHeight: 18` | 63, 75, 77 |
+
+### Geometry / opacity declarations
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `borderRadius: 14` | 64 |
+| `borderRadius: 18` | 70, 72 |
+| `borderRadius: 8` | 74 |
+| `borderWidth: 1` | 64, 70, 72 |
+| `gap: 12` | 62 |
+| `gap: 2` | 68 |
+| `gap: 6` | 66 |
+| `gap: 8` | 67 |
+| `gap: 9` | 72 |
+| `maxWidth: '100%'` | 72 |
+| `maxWidth: '86%'` | 70 |
+| `maxWidth: 520` | 62 |
+| `minHeight: 48` | 64, 65, 76 |
+| `minHeight: 60` | 67 |
+| `minWidth: 0` | 68 |
+| `padding: 10` | 74 |
+| `padding: 16` | 72 |
+| `paddingHorizontal: 12` | 64 |
+| `paddingHorizontal: 14` | 70 |
+| `paddingVertical: 10` | 67 |
+| `paddingVertical: 11` | 70 |
+| `width: '100%'` | 62 |
 
 ## ImportPreview.tsx
 
@@ -1370,115 +1439,115 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MedicalStatus.tsx
 
 ## MobileApp.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `b2a4ed9477bb34a58bf81bb5d31d05d11d067b377cf6f40e5cf386fee4cb05c5`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `bdaa603d0343a304107009e2f38441e6fc66014b1dcf921e53efd7ed417a5818`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#000712bd` | 309 |
-| `#064240` | 303 |
-| `#10282d` | 303 |
-| `#11263a` | 302 |
-| `#152d42` | 304 |
-| `#1b344a` | 307 |
-| `#227f87` | 303 |
-| `#78efdc` | 305 |
-| `#8ba4bc` | 258, 300 |
+| `#000712bd` | 343 |
+| `#064240` | 337 |
+| `#10282d` | 337 |
+| `#11263a` | 336 |
+| `#152d42` | 338 |
+| `#1b344a` | 341 |
+| `#227f87` | 337 |
+| `#78efdc` | 339 |
+| `#8ba4bc` | 291, 334 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 10` | 258, 300 |
-| `fontSize: 11` | 301 |
-| `fontSize: 12` | 303, 308 |
-| `fontSize: 13` | 302 |
-| `fontSize: 16` | 307 |
-| `fontSize: 20` | 301 |
-| `fontSize: 23` | 306 |
-| `fontSize: 25` | 308 |
-| `fontWeight: '600'` | 301, 303 |
-| `fontWeight: '700'` | 308 |
-| `letterSpacing: .6` | 300 |
-| `lineHeight: 16` | 258, 300, 301 |
-| `lineHeight: 17` | 303 |
-| `lineHeight: 18` | 308 |
-| `lineHeight: 25` | 301 |
-| `lineHeight: 29` | 308 |
+| `fontSize: 10` | 291, 334 |
+| `fontSize: 11` | 335 |
+| `fontSize: 12` | 337, 342 |
+| `fontSize: 13` | 336 |
+| `fontSize: 16` | 341 |
+| `fontSize: 20` | 335 |
+| `fontSize: 23` | 340 |
+| `fontSize: 25` | 342 |
+| `fontWeight: '600'` | 335, 337 |
+| `fontWeight: '700'` | 342 |
+| `letterSpacing: .6` | 334 |
+| `lineHeight: 16` | 291, 334, 335 |
+| `lineHeight: 17` | 337 |
+| `lineHeight: 18` | 342 |
+| `lineHeight: 25` | 335 |
+| `lineHeight: 29` | 342 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 303 |
-| `borderRadius: 13` | 303 |
-| `borderRadius: 15` | 305 |
-| `borderRadius: 16` | 307, 308 |
-| `borderRadius: 17` | 304 |
-| `borderRadius: 18` | 306 |
-| `borderRadius: 2` | 308 |
-| `borderRadius: 20` | 307 |
-| `borderRadius: 22` | 302, 310 |
-| `borderRadius: 24` | 302 |
-| `borderRadius: 9` | 303 |
-| `borderWidth: 1` | 302, 303, 306, 307, 308, 310 |
-| `gap: 1` | 301 |
-| `gap: 10` | 217, 228 |
-| `gap: 12` | 216, 298 |
-| `gap: 18` | 305 |
-| `gap: 2` | 308 |
-| `gap: 3` | 300, 303 |
-| `gap: 4` | 308 |
-| `gap: 5` | 302 |
-| `gap: 6` | 306, 307 |
-| `gap: 7` | 302, 305 |
-| `gap: 8` | 280, 282, 304, 307 |
-| `height: 2` | 308 |
-| `height: 30` | 305 |
-| `height: 48` | 307 |
-| `maxHeight: 150` | 307 |
-| `maxWidth: 480` | 228 |
-| `maxWidth: 520` | 151, 280, 282, 305 |
-| `maxWidth: 599` | 297, 308 |
-| `maxWidth: 600` | 213, 259, 271 |
-| `maxWidth: 960` | 213, 259 |
-| `minHeight: 0` | 247, 265, 310 |
-| `minHeight: 126` | 305 |
-| `minHeight: 34` | 304 |
-| `minHeight: 36` | 299 |
-| `minHeight: 40` | 302 |
-| `minHeight: 48` | 302, 304 |
-| `minHeight: 52` | 307 |
-| `minHeight: 60` | 308 |
-| `minHeight: 64` | 303 |
-| `minHeight: 66` | 303 |
-| `minHeight: 86` | 306 |
-| `minWidth: 0` | 301, 302 |
-| `opacity: .8` | 309 |
-| `padding: 0` | 304 |
-| `padding: 10` | 298 |
-| `padding: 12` | 298 |
-| `padding: 16` | 306 |
-| `padding: 4` | 300, 307 |
-| `padding: 6` | 308 |
-| `padding: 7` | 303 |
-| `paddingHorizontal: 12` | 302, 309 |
-| `paddingHorizontal: 16` | 304 |
-| `paddingHorizontal: 6` | 303 |
-| `paddingHorizontal: 7` | 303 |
-| `paddingHorizontal: 8` | 307 |
-| `paddingVertical: 10` | 303, 309 |
-| `paddingVertical: 4` | 302 |
-| `paddingVertical: 8` | 308 |
-| `width: '100%'` | 151, 216, 217, 218, 228, 258, 271, 280, 282, 297, 304, 305, 308 |
-| `width: '32%'` | 308 |
-| `width: '49.2%'` | 304 |
-| `width: 24` | 308 |
-| `width: 30` | 305 |
-| `width: 42` | 302 |
-| `width: 48` | 307 |
-| `width: 64` | 303 |
+| `borderRadius: 12` | 337 |
+| `borderRadius: 13` | 337 |
+| `borderRadius: 15` | 339 |
+| `borderRadius: 16` | 341, 342 |
+| `borderRadius: 17` | 338 |
+| `borderRadius: 18` | 340 |
+| `borderRadius: 2` | 342 |
+| `borderRadius: 20` | 341 |
+| `borderRadius: 22` | 336, 344 |
+| `borderRadius: 24` | 336 |
+| `borderRadius: 9` | 337 |
+| `borderWidth: 1` | 336, 337, 340, 341, 342, 344 |
+| `gap: 1` | 335 |
+| `gap: 10` | 250, 261 |
+| `gap: 12` | 249, 332 |
+| `gap: 18` | 339 |
+| `gap: 2` | 342 |
+| `gap: 3` | 334, 337 |
+| `gap: 4` | 342 |
+| `gap: 5` | 336 |
+| `gap: 6` | 340, 341 |
+| `gap: 7` | 336, 339 |
+| `gap: 8` | 314, 316, 338, 341 |
+| `height: 2` | 342 |
+| `height: 30` | 339 |
+| `height: 48` | 341 |
+| `maxHeight: 150` | 341 |
+| `maxWidth: 480` | 261 |
+| `maxWidth: 520` | 184, 314, 316, 339 |
+| `maxWidth: 599` | 331, 342 |
+| `maxWidth: 600` | 246, 292, 304 |
+| `maxWidth: 960` | 246, 292 |
+| `minHeight: 0` | 280, 298, 344 |
+| `minHeight: 126` | 339 |
+| `minHeight: 34` | 338 |
+| `minHeight: 36` | 333 |
+| `minHeight: 40` | 336 |
+| `minHeight: 48` | 336, 338 |
+| `minHeight: 52` | 341 |
+| `minHeight: 60` | 342 |
+| `minHeight: 64` | 337 |
+| `minHeight: 66` | 337 |
+| `minHeight: 86` | 340 |
+| `minWidth: 0` | 335, 336 |
+| `opacity: .8` | 343 |
+| `padding: 0` | 338 |
+| `padding: 10` | 332 |
+| `padding: 12` | 332 |
+| `padding: 16` | 340 |
+| `padding: 4` | 334, 341 |
+| `padding: 6` | 342 |
+| `padding: 7` | 337 |
+| `paddingHorizontal: 12` | 336, 343 |
+| `paddingHorizontal: 16` | 338 |
+| `paddingHorizontal: 6` | 337 |
+| `paddingHorizontal: 7` | 337 |
+| `paddingHorizontal: 8` | 341 |
+| `paddingVertical: 10` | 337, 343 |
+| `paddingVertical: 4` | 336 |
+| `paddingVertical: 8` | 342 |
+| `width: '100%'` | 184, 249, 250, 251, 261, 291, 304, 314, 316, 331, 338, 339, 342 |
+| `width: '32%'` | 342 |
+| `width: '49.2%'` | 338 |
+| `width: 24` | 342 |
+| `width: 30` | 339 |
+| `width: 42` | 336 |
+| `width: 48` | 341 |
+| `width: 64` | 337 |
 
 ## OverviewTiles.tsx
 
@@ -1518,79 +1587,82 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OverviewTiles.tsx
 
 ## OwnFlights.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OwnFlights.tsx](../../../apps/platform-lab/src/mobile/OwnFlights.tsx); normalized SHA-256 `c7c491838e337d1df06c40e23c7872e5ab3606a46363abf1babe81d5002aae3e`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OwnFlights.tsx](../../../apps/platform-lab/src/mobile/OwnFlights.tsx); normalized SHA-256 `ba1188f8d959e430163b4100fc608ebe89015ac52da9d5cb48355717d413f6e0`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#00000088` | 141 |
-| `#031326` | 147, 150 |
+| `#00000088` | 173 |
+| `#031326` | 179, 182 |
+| `#296879` | 194 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 11` | 140, 157, 158 |
-| `fontSize: 12` | 139, 156, 159 |
-| `fontSize: 13` | 150, 157 |
-| `fontSize: 14` | 140, 147, 156 |
-| `fontSize: 16` | 161 |
-| `fontSize: 20` | 159 |
-| `fontWeight: '400'` | 159 |
-| `fontWeight: '600'` | 116, 156, 159 |
-| `lineHeight: 16` | 140, 157, 158 |
-| `lineHeight: 17` | 156, 159 |
-| `lineHeight: 18` | 139, 150, 157 |
-| `lineHeight: 19` | 156 |
-| `lineHeight: 20` | 140, 147 |
-| `lineHeight: 28` | 159 |
+| `fontSize: 11` | 172, 189, 190 |
+| `fontSize: 12` | 171, 188, 191 |
+| `fontSize: 13` | 182, 189 |
+| `fontSize: 14` | 172, 179, 188 |
+| `fontSize: 16` | 193 |
+| `fontSize: 20` | 191 |
+| `fontWeight: '400'` | 191 |
+| `fontWeight: '600'` | 148, 188, 191 |
+| `fontWeight: '700'` | 134 |
+| `lineHeight: 16` | 172, 189, 190 |
+| `lineHeight: 17` | 188, 191 |
+| `lineHeight: 18` | 171, 182, 189 |
+| `lineHeight: 19` | 188 |
+| `lineHeight: 20` | 172, 179 |
+| `lineHeight: 28` | 191 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 10` | 149, 154 |
-| `borderRadius: 12` | 146, 148, 160 |
-| `borderRadius: 18` | 141 |
-| `borderRadius: 4` | 158 |
-| `borderWidth: 1` | 146, 158, 160 |
-| `gap: 0` | 153 |
-| `gap: 12` | 143 |
-| `gap: 16` | 143 |
-| `gap: 2` | 145, 155 |
-| `gap: 4` | 138, 140 |
-| `gap: 5` | 145 |
-| `gap: 6` | 79, 146, 151 |
-| `gap: 7` | 155 |
-| `gap: 8` | 99, 141, 154 |
-| `height: 5` | 105 |
-| `maxHeight: '70%'` | 141 |
-| `maxHeight: '85%'` | 144 |
-| `maxWidth: '100%'` | 149, 160 |
-| `maxWidth: '32%'` | 159 |
-| `maxWidth: '50%'` | 101 |
-| `maxWidth: 520` | 141 |
-| `maxWidth: 600` | 143, 145 |
-| `maxWidth: 960` | 143, 144 |
-| `minHeight: 48` | 74, 138, 141, 146, 148, 149, 150, 151, 152, 154, 161 |
-| `minHeight: 52` | 140 |
-| `minWidth: 0` | 74, 151, 155, 161 |
-| `minWidth: 48` | 148, 150, 151, 152 |
-| `padding: 12` | 141 |
-| `padding: 18` | 143 |
-| `paddingHorizontal: 10` | 149, 154 |
-| `paddingHorizontal: 12` | 144, 146, 153 |
-| `paddingHorizontal: 4` | 138, 158 |
-| `paddingHorizontal: 6` | 150 |
-| `paddingHorizontal: 8` | 141 |
-| `paddingVertical: 4` | 140 |
-| `paddingVertical: 5` | 149 |
-| `paddingVertical: 6` | 161 |
-| `paddingVertical: 7` | 154 |
-| `paddingVertical: 8` | 141 |
-| `width: '100%'` | 63, 141, 143, 144, 145, 160 |
-| `width: '48%'` | 140 |
+| `borderRadius: 10` | 181, 186 |
+| `borderRadius: 12` | 178, 180, 192 |
+| `borderRadius: 18` | 173, 194 |
+| `borderRadius: 4` | 190 |
+| `borderWidth: 1` | 178, 190, 192, 194 |
+| `gap: 0` | 185 |
+| `gap: 12` | 175 |
+| `gap: 16` | 175 |
+| `gap: 2` | 177, 187 |
+| `gap: 4` | 170, 172 |
+| `gap: 5` | 177 |
+| `gap: 6` | 105, 178, 183 |
+| `gap: 7` | 187 |
+| `gap: 8` | 125, 173, 186, 194 |
+| `height: 5` | 131 |
+| `maxHeight: '70%'` | 173 |
+| `maxHeight: '85%'` | 176 |
+| `maxWidth: '100%'` | 181, 192 |
+| `maxWidth: '32%'` | 191 |
+| `maxWidth: '50%'` | 127 |
+| `maxWidth: 520` | 173, 194 |
+| `maxWidth: 600` | 175, 177 |
+| `maxWidth: 960` | 175, 176 |
+| `minHeight: 48` | 100, 170, 173, 178, 180, 181, 182, 183, 184, 186, 193 |
+| `minHeight: 52` | 172 |
+| `minWidth: 0` | 100, 183, 187, 193 |
+| `minWidth: 48` | 180, 182, 183, 184 |
+| `padding: 12` | 173 |
+| `padding: 14` | 194 |
+| `padding: 18` | 175 |
+| `paddingHorizontal: 10` | 181, 186 |
+| `paddingHorizontal: 12` | 176, 178, 185 |
+| `paddingHorizontal: 4` | 170, 190 |
+| `paddingHorizontal: 6` | 182 |
+| `paddingHorizontal: 8` | 173 |
+| `paddingVertical: 4` | 172 |
+| `paddingVertical: 5` | 181 |
+| `paddingVertical: 6` | 193 |
+| `paddingVertical: 7` | 186 |
+| `paddingVertical: 8` | 173 |
+| `width: '100%'` | 89, 173, 175, 176, 177, 192, 194 |
+| `width: '48%'` | 172 |
 
 ## PaperStatus.tsx
 
@@ -1606,36 +1678,36 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/PaperStatus.tsx](
 
 ## ProfileSettings.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProfileSettings.tsx](../../../apps/platform-lab/src/mobile/ProfileSettings.tsx); normalized SHA-256 `a2b103f2c126d496a557b21a8b5940e4dc86016493effe645e80eeeabc69a85f`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProfileSettings.tsx](../../../apps/platform-lab/src/mobile/ProfileSettings.tsx); normalized SHA-256 `fe257af7525a4972d16c20a3b251f2fc94f8e8c0aa58e315938cf589cd0ddb30`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#ffba9b` | 69 |
+| `#ffba9b` | 79 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 13` | 70 |
-| `fontSize: 16` | 80 |
-| `fontWeight: '600'` | 79 |
-| `lineHeight: 18` | 70 |
+| `fontSize: 13` | 80 |
+| `fontSize: 16` | 90 |
+| `fontWeight: '600'` | 89 |
+| `lineHeight: 18` | 80 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 80 |
-| `borderWidth: 1` | 80 |
-| `gap: 12` | 78 |
-| `gap: 6` | 25 |
-| `maxWidth: 480` | 78 |
-| `minHeight: 48` | 80 |
-| `paddingHorizontal: 12` | 80 |
-| `paddingVertical: 10` | 80 |
-| `width: '100%'` | 78 |
+| `borderRadius: 12` | 90 |
+| `borderWidth: 1` | 90 |
+| `gap: 12` | 88 |
+| `gap: 6` | 30 |
+| `maxWidth: 480` | 88 |
+| `minHeight: 48` | 90 |
+| `paddingHorizontal: 12` | 90 |
+| `paddingVertical: 10` | 90 |
+| `width: '100%'` | 88 |
 
 ## ProviderConnection.tsx
 
