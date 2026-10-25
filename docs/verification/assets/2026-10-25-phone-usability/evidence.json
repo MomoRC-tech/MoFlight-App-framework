@@ -1,0 +1,354 @@
+{
+  "delivery_source": "dd992655b7d5f42dde1402870dba9b207bb963f6",
+  "apk_sha256": "3a98bea3295c8cc0304ba0688776c74985840ab8aa78bb65a0a2f731691d4fda",
+  "initial_source": "ceaed6fc4690df7ef54b8d7d3cb4b662b540ff39",
+  "runs": {
+    "initial": {
+      "status": "passed",
+      "checks": [
+        {
+          "name": "flights-390-font1",
+          "status": "passed",
+          "viewport": {
+            "size": "Physical size: 1080x1920\nOverride size: 390x900",
+            "density": "Physical density: 420\nOverride density: 160",
+            "font": "1"
+          }
+        },
+        {
+          "name": "filters-390-font1",
+          "status": "passed",
+          "viewport": {
+            "size": "Physical size: 1080x1920\nOverride size: 390x900",
+            "density": "Physical density: 420\nOverride density: 160",
+            "font": "1"
+          }
+        },
+        {
+          "name": "filtered-winch",
+          "status": "passed",
+          "viewport": {
+            "size": "Physical size: 1080x1920\nOverride size: 390x900",
+            "density": "Physical density: 420\nOverride density: 160",
+            "font": "1"
+          }
+        },
+        {
+          "name": "flight-details",
+          "status": "passed",
+          "viewport": {
+            "size": "Physical size: 1080x1920\nOverride size: 390x900",
+            "density": "Physical density: 420\nOverride density: 160",
+            "font": "1"
+          }
+        },
+        {
+          "name": "empty-combination",
+          "status": "passed",
+          "viewport": {
+            "size": "Physical size: 1080x1920\nOverride size: 390x900",
+            "density": "Physical density: 420\nOverride density: 160",
+            "font": "1"
+          }
+        },
+        {
+          "name": "ai-390-font1",
+          "status": "passed",
+          "viewport": {
+            "size": "Physical size: 1080x1920\nOverride size: 390x900",
+            "density": "Physical density: 420\nOverride density: 160",
+            "font": "1"
+          }
+        },
+        {
+          "name": "ai-history-390-font1",
+          "status": "passed",
+          "viewport": {
+            "size": "Physical size: 1080x1920\nOverride size: 390x900",
+            "density": "Physical density: 420\nOverride density: 160",
+            "font": "1"
+          }
+        },
+        {
+          "name": "ai-privacy-390-font1",
+          "status": "passed",
+          "viewport": {
+            "size": "Physical size: 1080x1920\nOverride size: 390x900",
+            "density": "Physical density: 420\nOverride density: 160",
+            "font": "1"
+          }
+        },
+        {
+          "name": "ai-keyboard-390-font1",
+          "status": "passed",
+          "viewport": {
+            "size": "Physical size: 1080x1920\nOverride size: 390x900",
+            "density": "Physical density: 420\nOverride density: 160",
+            "font": "1"
+          }
+        },
+        {
+          "name": "flights-360-font1.6",
+          "status": "passed",
+          "viewport": {
+            "size": "Physical size: 1080x1920\nOverride size: 360x900",
+            "density": "Physical density: 420\nOverride density: 160",
+            "font": "1.6"
+          }
+        },
+        {
+          "name": "filters-360-font1.6",
+          "status": "passed",
+          "viewport": {
+            "size": "Physical size: 1080x1920\nOverride size: 360x900",
+            "density": "Physical density: 420\nOverride density: 160",
+            "font": "1.6"
+          }
+        },
+        {
+          "name": "ai-360-font1.6",
+          "status": "passed",
+          "viewport": {
+            "size": "Physical size: 1080x1920\nOverride size: 360x900",
+            "density": "Physical density: 420\nOverride density: 160",
+            "font": "1.6"
+          }
+        },
+        {
+          "name": "ai-history-360-font1.6",
+          "status": "passed",
+          "viewport": {
+            "size": "Physical size: 1080x1920\nOverride size: 360x900",
+            "density": "Physical density: 420\nOverride density: 160",
+            "font": "1.6"
+          }
+        },
+        {
+          "name": "ai-privacy-360-font1.6",
+          "status": "passed",
+          "viewport": {
+            "size": "Physical size: 1080x1920\nOverride size: 360x900",
+            "density": "Physical density: 420\nOverride density: 160",
+            "font": "1.6"
+          }
+        },
+        {
+          "name": "ai-keyboard-360-font1.6",
+          "status": "passed",
+          "viewport": {
+            "size": "Physical size: 1080x1920\nOverride size: 360x900",
+            "density": "Physical density: 420\nOverride density: 160",
+            "font": "1.6"
+          }
+        },
+        {
+          "name": "flights-800-font1",
+          "status": "passed",
+          "viewport": {
+            "size": "Physical size: 1080x1920\nOverride size: 800x700",
+            "density": "Physical density: 420\nOverride density: 160",
+            "font": "1.0"
+          }
+        },
+        {
+          "name": "filters-800-font1",
+          "status": "passed",
+          "viewport": {
+            "size": "Physical size: 1080x1920\nOverride size: 800x700",
+            "density": "Physical density: 420\nOverride density: 160",
+            "font": "1.0"
+          }
+        },
+        {
+          "name": "ai-800-font1",
+          "status": "passed",
+          "viewport": {
+            "size": "Physical size: 1080x1920\nOverride size: 800x700",
+            "density": "Physical density: 420\nOverride density: 160",
+            "font": "1.0"
+          }
+        },
+        {
+          "name": "ai-history-800-font1",
+          "status": "passed",
+          "viewport": {
+            "size": "Physical size: 1080x1920\nOverride size: 800x700",
+            "density": "Physical density: 420\nOverride density: 160",
+            "font": "1.0"
+          }
+        },
+        {
+          "name": "ai-privacy-800-font1",
+          "status": "passed",
+          "viewport": {
+            "size": "Physical size: 1080x1920\nOverride size: 800x700",
+            "density": "Physical density: 420\nOverride density: 160",
+            "font": "1.0"
+          }
+        },
+        {
+          "name": "ai-keyboard-800-font1",
+          "status": "passed",
+          "viewport": {
+            "size": "Physical size: 1080x1920\nOverride size: 800x700",
+            "density": "Physical density: 420\nOverride density: 160",
+            "font": "1.0"
+          }
+        }
+      ],
+      "original": {
+        "size": "Physical size: 1080x1920",
+        "density": "Physical density: 420",
+        "font": "null",
+        "window": "1.0",
+        "transition": "1.0",
+        "animator": "null"
+      },
+      "restored": {
+        "size": "Physical size: 1080x1920",
+        "density": "Physical density: 420",
+        "font": "null",
+        "window": "1.0",
+        "transition": "1.0",
+        "animator": "null"
+      }
+    },
+    "draft": {
+      "status": "passed-after-selector-correction",
+      "checks": [
+        {
+          "name": "typed-local-draft",
+          "status": "passed"
+        },
+        {
+          "name": "tab-return-draft",
+          "status": "passed"
+        },
+        {
+          "name": "restart-draft",
+          "status": "passed"
+        },
+        {
+          "name": "synthetic-chat-deleted",
+          "status": "passed"
+        }
+      ],
+      "original": {
+        "size": "Physical size: 1080x1920",
+        "density": "Physical density: 420"
+      },
+      "restored": {
+        "size": "Physical size: 1080x1920",
+        "density": "Physical density: 420"
+      }
+    },
+    "delivery": {
+      "status": "passed",
+      "checks": [
+        {
+          "name": "flights-390-font1",
+          "status": "passed",
+          "viewport": {
+            "size": "Physical size: 1080x1920\nOverride size: 390x900",
+            "density": "Physical density: 420\nOverride density: 160",
+            "font": "1"
+          }
+        },
+        {
+          "name": "filters-390-font1",
+          "status": "passed",
+          "viewport": {
+            "size": "Physical size: 1080x1920\nOverride size: 390x900",
+            "density": "Physical density: 420\nOverride density: 160",
+            "font": "1"
+          }
+        },
+        {
+          "name": "registration-keyboard",
+          "status": "passed",
+          "viewport": {
+            "size": "Physical size: 1080x1920\nOverride size: 390x900",
+            "density": "Physical density: 420\nOverride density: 160",
+            "font": "1"
+          }
+        },
+        {
+          "name": "registration-result",
+          "status": "passed",
+          "viewport": {
+            "size": "Physical size: 1080x1920\nOverride size: 390x900",
+            "density": "Physical density: 420\nOverride density: 160",
+            "font": "1"
+          }
+        },
+        {
+          "name": "flights-360-font1.6",
+          "status": "passed",
+          "viewport": {
+            "size": "Physical size: 1080x1920\nOverride size: 360x900",
+            "density": "Physical density: 420\nOverride density: 160",
+            "font": "1.6"
+          }
+        },
+        {
+          "name": "filters-360-font1.6",
+          "status": "passed",
+          "viewport": {
+            "size": "Physical size: 1080x1920\nOverride size: 360x900",
+            "density": "Physical density: 420\nOverride density: 160",
+            "font": "1.6"
+          }
+        },
+        {
+          "name": "large-text-filter-footer",
+          "status": "passed",
+          "viewport": {
+            "size": "Physical size: 1080x1920\nOverride size: 360x900",
+            "density": "Physical density: 420\nOverride density: 160",
+            "font": "1.6"
+          }
+        },
+        {
+          "name": "flights-800-font1",
+          "status": "passed",
+          "viewport": {
+            "size": "Physical size: 1080x1920\nOverride size: 800x700",
+            "density": "Physical density: 420\nOverride density: 160",
+            "font": "1.0"
+          }
+        },
+        {
+          "name": "filters-800-font1",
+          "status": "passed",
+          "viewport": {
+            "size": "Physical size: 1080x1920\nOverride size: 800x700",
+            "density": "Physical density: 420\nOverride density: 160",
+            "font": "1.0"
+          }
+        }
+      ],
+      "original": {
+        "size": "Physical size: 1080x1920",
+        "density": "Physical density: 420",
+        "font": "null",
+        "window": "1.0",
+        "transition": "1.0",
+        "animator": "null"
+      },
+      "restored": {
+        "size": "Physical size: 1080x1920",
+        "density": "Physical density: 420",
+        "font": "null",
+        "window": "1.0",
+        "transition": "1.0",
+        "animator": "null"
+      }
+    }
+  },
+  "limits": [
+    "Synthetic Android API37 emulator; no physical/iOS acceptance",
+    "No live model or provider calls",
+    "Initial filter viewport/picker failures corrected and selectively rechecked; unchanged AI evidence reused",
+    "Draft cleanup needed a case-correct native confirmation selector"
+  ]
+}

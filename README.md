@@ -1,6 +1,6 @@
 # MoFlight
 
-**25 October aircraft/start release — delivered:** [Download APK ZIP — source `947fcb8`](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/flight-types-2026-10-25-947fcb8/MoFlight-Android-947fcb8.zip). Adds aircraft category badges, launch labels, combined filters and exact Statistics contributor groups. [Verification and limits](docs/verification/2026-10-25-flight-classification.md). Crew role simplification and the selected Solo rule are next in #87.
+**25 October phone-usability release:** [Download APK ZIP — source `dd99265`](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/phone-usability-2026-10-25-dd99265/MoFlight-Android-dd99265.zip). Compact expandable filters, chat-first AI with a pinned composer, deduplicated PIC/instructor crew and the selected Solo rule. Unknown values are omitted from flight rows and retained in details. [Verification and limits](docs/verification/2026-10-25-phone-usability.md).
 
 <p align="center">
   <picture>
@@ -13,7 +13,7 @@ MoFlight is a mobile app in development for glider pilots, students and instruct
 
 ## Current delivery
 
-Source `947fcb85400bea101cbfb6ee35a201dd89c66fa3` adds aircraft/launch classification to the existing Compact Cockpit, populated-update safety and local AI screen. [Download APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/flight-types-2026-10-25-947fcb8/MoFlight-Android-947fcb8.zip) and [evidence/limits](docs/verification/2026-10-25-flight-classification.md). Extract the ZIP and install `app-release.apk`. Development-signed standalone lab build; no new physical-phone or iOS runtime acceptance. Crew deduplication and the revised Solo rule are planned in #87. Earlier releases retain their source-specific evidence.
+Source `dd992655b7d5f42dde1402870dba9b207bb963f6` adds the phone-usability package to the existing aircraft/launch classification, Compact Cockpit and populated-update safety. [Download APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/phone-usability-2026-10-25-dd99265/MoFlight-Android-dd99265.zip) and [evidence/limits](docs/verification/2026-10-25-phone-usability.md). Extract the ZIP and install `app-release.apk`. Development-signed standalone lab build; no new physical-phone or iOS runtime acceptance. AI requests remain disabled in the ordinary app. Earlier releases retain their source-specific evidence.
 
 The approved dark Compact Cockpit is the current visual baseline. Ordinary saved flights, compact filters/details, Statistics and supported club sources work offline after capture. Sync remains one explicit header action; independent optional-source failures do not erase saved flights.
 
@@ -25,7 +25,7 @@ The approved dark Compact Cockpit is the current visual baseline. Ordinary saved
 | Local AI screen, tools/history and disabled service foundations | Ordinary end-to-end service integration and approved actual model evaluation |
 | Synthetic book/format/writing proofs under Development | Real paper setup, assignments, photo-to-writing and cloud accounts/sync |
 
-This is a development delivery, not full product/beta acceptance. [Current review and next packages](docs/project-plan.md#next-executable-packages) prioritize modern-phone sync/filter clarity and core reliability/preservation. New UI refinements are proposals awaiting selection; the review does not activate AI or other services. Earlier release/decision records remain in the [planning archive](docs/archive/planning/2026-10-25-superseded-continuation.md) and their linked verification reports.
+This is a development delivery, not full product/beta acceptance. [Current review and next packages](docs/project-plan.md#next-executable-packages) distinguish the delivered filter/chat package from proposed Sync refinements and remaining core reliability/preservation work. This release does not activate AI or other services. Earlier release/decision records remain in the [planning archive](docs/archive/planning/2026-10-25-superseded-continuation.md) and their linked verification reports.
 
 ## Find the right document
 
