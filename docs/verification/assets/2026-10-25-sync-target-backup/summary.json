@@ -1,0 +1,216 @@
+{
+  "status": "passed",
+  "checks": [
+    {
+      "name": "ordinary-header-main",
+      "status": "passed",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 390x900",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1"
+      }
+    },
+    {
+      "name": "profile-session-evidence",
+      "status": "passed",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 390x900",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1"
+      }
+    },
+    {
+      "name": "native-target-files",
+      "status": "passed",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 390x900",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1"
+      }
+    },
+    {
+      "name": "busy-390-font1",
+      "status": "passed",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 390x900",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1"
+      }
+    },
+    {
+      "name": "never-synced",
+      "status": "passed",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 390x900",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1"
+      }
+    },
+    {
+      "name": "age-advice",
+      "status": "passed",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 390x900",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1"
+      }
+    },
+    {
+      "name": "activity-advice",
+      "status": "passed",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 390x900",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1"
+      }
+    },
+    {
+      "name": "read-error-390",
+      "status": "passed",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 390x900",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1"
+      }
+    },
+    {
+      "name": "partial-390",
+      "status": "passed",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 390x900",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1"
+      }
+    },
+    {
+      "name": "retry-active",
+      "status": "passed",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 390x900",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1"
+      }
+    },
+    {
+      "name": "login-required",
+      "status": "passed",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 390x900",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1"
+      }
+    },
+    {
+      "name": "failed",
+      "status": "passed",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 390x900",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1"
+      }
+    },
+    {
+      "name": "quiet-idle-390",
+      "status": "passed",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 390x900",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1"
+      }
+    },
+    {
+      "name": "busy-360-font1.6",
+      "status": "passed",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 360x900",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1.6"
+      }
+    },
+    {
+      "name": "read-error-360",
+      "status": "passed",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 360x900",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1.6"
+      }
+    },
+    {
+      "name": "partial-360",
+      "status": "passed",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 360x900",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1.6"
+      }
+    },
+    {
+      "name": "quiet-idle-360",
+      "status": "passed",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 360x900",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1.6"
+      }
+    },
+    {
+      "name": "busy-800-font1",
+      "status": "passed",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 800x700",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1.0"
+      }
+    },
+    {
+      "name": "read-error-800",
+      "status": "passed",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 800x700",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1.0"
+      }
+    },
+    {
+      "name": "partial-800",
+      "status": "passed",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 800x700",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1.0"
+      }
+    },
+    {
+      "name": "quiet-idle-800",
+      "status": "passed",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 800x700",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1.0"
+      }
+    }
+  ],
+  "boundary": "Synthetic Sync presentation and native target-file leaf operations only; no provider retrieval, SAF, aggregate device recovery, physical phone or iOS.",
+  "source": "bf600898109d561d58d2fcb4d0add6a1ba152d53",
+  "original": {
+    "size": "Physical size: 1080x1920",
+    "density": "Physical density: 420",
+    "font": "1.0",
+    "window": "1.0",
+    "transition": "1.0",
+    "animator": "null"
+  },
+  "restored": {
+    "size": "Physical size: 1080x1920",
+    "density": "Physical density: 420",
+    "font": "1.0",
+    "window": "1.0",
+    "transition": "1.0",
+    "animator": "null"
+  },
+  "device": "MoFlight_Synthetic_API37, Android API 37, read-only emulator instance",
+  "apk_sha256": "1d0f7db28fe9e9b8379f115de20b3fbb713e930c933fec3b7a569cc3b394ed2f",
+  "native_target_file_checks": 4,
+  "emulator_stopped": true
+}

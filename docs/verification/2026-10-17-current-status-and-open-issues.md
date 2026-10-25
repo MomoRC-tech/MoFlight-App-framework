@@ -2,6 +2,8 @@
 
 ## 25 October bounded continuation — sync and preservation
 
+**Subsequent selection:** Manuel approved the Sync proposal and target inclusion. The [follow-up implementation and evidence](2026-10-25-sync-and-target-backup.md) supersedes the awaiting-selection and target-exclusion status below; this section preserves the earlier baseline.
+
 Baseline `bbea491`: clean main, fetched and synchronized with origin. Read current #83/#8/#29/#34/#86 and relevant source/evidence. The selected batch adds regression coverage and a reviewable Sync proposal; no application behavior, archive schema, provider access or AI activation changes. Two independent workers used the requested `gpt-6.1-sol`, medium reasoning and fresh context, with separate test-file ownership; the parent reviewed their changes and owns this record.
 
 ### Sync recommendation awaiting selection — #83
