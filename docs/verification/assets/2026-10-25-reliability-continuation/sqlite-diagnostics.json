@@ -1,0 +1,58 @@
+{
+  "issue": 89,
+  "status": "diagnostics implemented; cause unconfirmed",
+  "baseline": {
+    "source": "25cd315cf9fbbe68da3c3861bfd1b8e9f358f4f0",
+    "apk_sha256": "6dd0a4d2289a55c41e15b119c673cf35057a97ae9bee4a7eb37ef2672ea8acbd",
+    "completedRestartCycles": 10,
+    "journeyChecks": [
+      "12 ordinary saved flights and exact known-time total",
+      "scrolled detail Back preserves visible flight",
+      "tab return preserves scrolled flight list",
+      "year and registration filter gives exact three flights and 121 minutes",
+      "background and foreground return retain selected detail",
+      "detail return retains combined filters",
+      "actual offline force-stop restart reloads count total and unchanged receipt",
+      "same combined filter after restart reproduces exact saved flights"
+    ]
+  },
+  "final": {
+    "source": "861083b24da019d7bbd4884197c986262e8024c7",
+    "apk_sha256": "c097302ab7a5519bba05788d4862fdafe7bb6d2d8c833aba3ddc857cceac04ce",
+    "completedRestartCycles": 4,
+    "cycles": [
+      {
+        "cycle": 1,
+        "status": "passed",
+        "device_start_epoch": "1792933303"
+      },
+      {
+        "cycle": 2,
+        "status": "passed",
+        "device_start_epoch": "1792933319"
+      },
+      {
+        "cycle": 3,
+        "status": "passed",
+        "device_start_epoch": "1792933336"
+      },
+      {
+        "cycle": 4,
+        "status": "passed",
+        "device_start_epoch": "1792933352"
+      }
+    ],
+    "runShortenedAtUserRequest": true
+  },
+  "viewport": "390x900 dp; density 160; font scale 1; Android API 37",
+  "network": {
+    "airplane_mode_on": "1",
+    "wifi_on": "0",
+    "mobile_data": "0"
+  },
+  "cleanup": {
+    "displayAndNetworkRestored": true,
+    "agentStartedEmulatorStopped": true
+  },
+  "limits": "No reproduced failure in these bounded runs; no lifetime fix or closure. Diagnostic driver events do not identify native statement release. Physical/iOS/live-provider/full-user restore remain open."
+}
