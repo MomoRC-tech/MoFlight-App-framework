@@ -76,7 +76,7 @@ export function OwnFlights({ active, data, filterRequest, onHeaderChange }: {
       <Pressable accessibilityRole="button" accessibilityLabel="Abdeckung & Datenstand" onPress={()=>{Keyboard.dismiss();setStatusOpen(true);}} style={s.info}><SymbolIcon name="info" size={18} tone="muted"/></Pressable>
     </View>
     <View testID="filtered-flight-summary"><Text style={s.summaryCaption}>{hasFilters?`${summary.count}/${flights.length}`:summary.count} Flüge · {summary.count===0?'—':summary.knownDurationCount?`${formatReportedMinutes(summary.knownMinutes)} h`:'— h'}{summary.unknownDurationCount&&summary.knownDurationCount?' bekannt':''}</Text></View>
-    {filterOpen?<ScrollView keyboardShouldPersistTaps="handled" style={{maxHeight:Math.max(180,(height||800)*.48)}} contentContainerStyle={{gap:6,paddingTop:6,paddingBottom:4}}>
+    {filterOpen?<ScrollView keyboardShouldPersistTaps="handled" style={{flexShrink:1,maxHeight:Math.max(180,(height||800)*.48)}} contentContainerStyle={{gap:6,paddingTop:6,paddingBottom:4}}>
       {search}
       <View style={s.fields}>
         {field('Zeitraum',filters.dateRange?`${filters.dateRange.from} – ${filters.dateRange.to}`:filters.year===null?'Alle Jahre':String(filters.year),'year')}
@@ -141,8 +141,8 @@ const s = StyleSheet.create({
   scrim:{flex:1,justifyContent:'flex-end',backgroundColor:'#00000088',padding:12},optionSheet:{maxHeight:'70%',width:'100%',maxWidth:520,alignSelf:'center',padding:12,borderRadius:18,backgroundColor:colors.card},option:{minHeight:48,flexDirection:'row',alignItems:'center',gap:8,borderBottomWidth:1,borderColor:colors.border,paddingHorizontal:8,paddingVertical:8},
 
   hidden: { display: 'none' }, canvas: { padding: 18, paddingBottom: 28, gap: 16, width:'100%',maxWidth:960,alignSelf:'center' }, group: { width: '100%', maxWidth: 600, alignSelf: 'center', gap: 12 },
-  bar:{width:'100%',maxWidth:960,alignSelf:'center',paddingHorizontal:12,paddingTop:4,paddingBottom:2,borderBottomWidth:1,borderBottomColor:colors.border},
-  filterGroup:{width:'100%',maxWidth:600,alignSelf:'center',gap:2},controls:{flexDirection:'row',flexWrap:'wrap',alignItems:'center',gap:5},
+  bar:{width:'100%',maxWidth:960,maxHeight:'85%',alignSelf:'center',paddingHorizontal:12,paddingTop:4,paddingBottom:2,borderBottomWidth:1,borderBottomColor:colors.border},
+  filterGroup:{width:'100%',maxWidth:600,flexShrink:1,alignSelf:'center',gap:2},controls:{flexDirection:'row',flexWrap:'wrap',alignItems:'center',gap:5},
   picker:{minHeight:48,paddingHorizontal:12,flexDirection:'row',alignItems:'center',gap:6,justifyContent:'center',borderRadius:12,borderWidth:1,borderColor:colors.border,backgroundColor:colors.card},
   pickerActive:{backgroundColor:colors.cyan,borderColor:colors.cyan},activeText:{color:'#031326'},controlText:{fontSize:14,lineHeight:20},
   searchToggle:{minWidth:48,minHeight:48,alignItems:'center',justifyContent:'center',borderRadius:12},
