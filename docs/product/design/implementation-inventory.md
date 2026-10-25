@@ -1147,7 +1147,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/SeasonRing.tsx](.
 
 ## StatisticsOverlay.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/StatisticsOverlay.tsx](../../../apps/platform-lab/src/mobile/StatisticsOverlay.tsx); normalized SHA-256 `381b0138beaf18e51f78efc2c36664dff28e00be41687b32ce8196e7b097731d`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/StatisticsOverlay.tsx](../../../apps/platform-lab/src/mobile/StatisticsOverlay.tsx); normalized SHA-256 `d055e48ac999d1966c5f1e8c59eeb1c585f15a0d8c0cb03e520eaaac2da2b3bc`.
 
 ### Literal colors
 

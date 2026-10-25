@@ -181,7 +181,7 @@ export function StatisticsOverlay({ data, today, fontScale, onBackHandler, initi
 
         {data.phase === 'ready' && data.view?.snapshot.account && route.section === 'aircraft' && <Card>
           <Section title="Luftfahrzeugarten" />
-          {categories.map(row=><Card key={row.key} onPress={()=>openFlights(row.label,row.supportingIds)} label={`${row.label} · ${row.count} Flüge ansehen`} style={styles.bandRow}><Label>{row.label} · {row.count}</Label><Label muted>{minutesLabel(row.knownDurationCount ? row.knownMinutes : null,row.knownDurationCount,row.count)} bekannt · {row.unknownDurationCount} unbekannte Zeiten</Label></Card>)}
+          {categories.map(row=><Card key={row.key} onPress={()=>openFlights(row.label,row.supportingIds)} label={`${row.label} · ${row.count} Flüge ansehen`} style={styles.bandRow}><Label>{row.label} · {row.count}</Label><Label muted>{row.knownDurationCount ? `${formatReportedMinutes(row.knownMinutes)} h bekannt${row.unknownDurationCount ? ` · ${row.unknownDurationCount}× Zeit unbekannt` : ''}` : `${row.unknownDurationCount}× Zeit unbekannt`}</Label></Card>)}
           <Section title="Flüge nach Kennzeichen" />
           {aircraft.length === 0 && <Empty title="Keine Flugzeuge im Zeitraum">Für die aktuelle Auswahl liegen keine konfliktfrei identifizierten Flüge vor.</Empty>}
           {aircraft.map(row => <Card key={row.registration ?? 'unknown'} onPress={row.supportingIds.length ? () => openFlights(row.registration ?? 'Kennzeichen unbekannt', row.supportingIds) : undefined} label={`${row.registration ?? 'Kennzeichen unbekannt'} · ${row.count} Flüge ansehen`} style={styles.aircraftRow}>
@@ -207,7 +207,7 @@ export function StatisticsOverlay({ data, today, fontScale, onBackHandler, initi
         {data.phase === 'ready' && data.view?.snapshot.account && route.section === 'launch' && <Card>
           <Section title="Startarten" />
           {launches.length===0&&<Empty title="Keine Flüge im Zeitraum">Wähle einen anderen Zeitraum.</Empty>}
-          {launches.map(row=><Card key={row.key} onPress={()=>openFlights(row.label,row.supportingIds)} label={`${row.label} · ${row.count} Flüge ansehen`} style={styles.bandRow}><Label>{row.label} · {row.count}</Label><Label muted>{minutesLabel(row.knownDurationCount ? row.knownMinutes : null,row.knownDurationCount,row.count)} bekannt · {row.unknownDurationCount} unbekannte Zeiten</Label></Card>)}
+          {launches.map(row=><Card key={row.key} onPress={()=>openFlights(row.label,row.supportingIds)} label={`${row.label} · ${row.count} Flüge ansehen`} style={styles.bandRow}><Label>{row.label} · {row.count}</Label><Label muted>{row.knownDurationCount ? `${formatReportedMinutes(row.knownMinutes)} h bekannt${row.unknownDurationCount ? ` · ${row.unknownDurationCount}× Zeit unbekannt` : ''}` : `${row.unknownDurationCount}× Zeit unbekannt`}</Label></Card>)}
           <Label muted>Ein Flug zählt einmal nach seiner gespeicherten Startart. Fehlende, widersprüchliche oder nicht zugeordnete Angaben bleiben unbekannt; Rohwerte stehen in den Flugdetails.</Label>
         </Card>}
       </>}

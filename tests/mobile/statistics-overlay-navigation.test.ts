@@ -123,3 +123,12 @@ test('launch and category groups navigate only to their exact period-scoped cont
     f.back();f.render();f.back();f.render();
   }
 });
+
+
+test('an all-unknown classification group never labels its missing time as known',()=>{
+  const f=fixture();f.flights[0]!.facts.assessment.durations.flight={state:'unknown',minutes:null,evidence:[]};
+  f.nodes().find(n=>n.type==='Chip'&&n.props.title==='Startarten')!.props.onPress();
+  const labels=f.nodes().filter(n=>n.type==='Label').flatMap(n=>n.children).filter(value=>typeof value==='string');
+  assert.ok(labels.includes('1× Zeit unbekannt'));
+  assert.ok(!labels.some(label=>label.includes('unbekannt bekannt')));
+});
