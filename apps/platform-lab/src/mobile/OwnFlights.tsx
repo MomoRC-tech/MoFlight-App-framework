@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, FlatList, Keyboard, Modal, Pressable, Text, ScrollView, StyleSheet, TextInput, View, useWindowDimensions } from 'react-native';
+import { ActivityIndicator, FlatList, Keyboard, KeyboardAvoidingView, Modal, Platform, Pressable, Text, ScrollView, StyleSheet, TextInput, View, useWindowDimensions } from 'react-native';
 import { Action, Card, Chip, Empty, Label, Section, colors, ui } from './theme';
 import { FlightCard } from './FlightCard';
 import { FlightDetails } from './FlightDetails';
@@ -61,7 +61,7 @@ export function OwnFlights({ active, data, filterRequest, onHeaderChange }: {
   const changeFilters = (next: OwnFlightFilters) => { if(next.search!==filters.search)diagnosticJournal.record('filter','search');if(next.year!==filters.year)diagnosticJournal.record('filter','year');if(next.registration!==filters.registration)diagnosticJournal.record('filter','registration'); offset.current = 0; list.current?.scrollToOffset({ offset: 0, animated: false }); setFilters({...next,flightIds:undefined}); };
   const openPicker = (kind: NonNullable<typeof picker>) => {Keyboard.dismiss();setOptionQuery('');setPicker(kind);};
   const field=(title:string,value:string,kind:NonNullable<typeof picker>)=><Pressable key={kind} accessibilityRole="button" accessibilityLabel={`${title}: ${value}, auswählen`} onPress={()=>openPicker(kind)} style={[s.field,fontScale>1.3&&{width:'100%'}]}><Text style={s.fieldLabel}>{title}</Text><View style={s.fieldValue}><Text numberOfLines={1} style={s.fieldText}>{value}</Text><SymbolIcon name="down" size={12} tone="muted"/></View></Pressable>;
-  const pick=(next:OwnFlightFilters)=>{changeFilters(next);setPicker(null);};
+  const pick=(next:OwnFlightFilters)=>{Keyboard.dismiss();changeFilters(next);setPicker(null);};
   const options:{id:string;label:string;selected:boolean;choose:()=>void}[]=picker==='year'?
     [{id:'all',label:'Alle Jahre',selected:filters.year===null&&!filters.dateRange,choose:()=>pick({...filters,year:null,dateRange:null})},...years.map(year=>({id:String(year),label:String(year),selected:filters.year===year,choose:()=>pick({...filters,year,dateRange:null})}))]:picker==='category'?
     [{id:'all',label:'Alle Kategorien',selected:filters.aircraftCategory===undefined,choose:()=>pick({...filters,aircraftCategory:undefined})},...classificationOptions.categories.map(o=>({id:o.key,label:o.label,selected:filters.aircraftCategory===o.key,choose:()=>pick({...filters,aircraftCategory:o.key})}))]:picker==='launch'?
@@ -112,11 +112,11 @@ export function OwnFlights({ active, data, filterRequest, onHeaderChange }: {
         <View style={s.controls}><Action secondary onPress={() => void data.reload()}>Gespeicherte Flüge erneut prüfen</Action></View><Label muted>Neue Daten und Anmeldung erreichst du über die Verbindung oben in der Kopfzeile.</Label>
       </>}
     </Card></View></ScrollView>}
-    {picker&&active&&<Modal transparent animationType="fade" onRequestClose={()=>setPicker(null)}><View style={s.scrim}><Pressable accessibilityRole="button" accessibilityLabel="Auswahl schließen" onPress={()=>setPicker(null)} style={StyleSheet.absoluteFill}/><View accessibilityViewIsModal style={s.optionSheet}>
+    {picker&&active&&<Modal transparent animationType="fade" onRequestClose={()=>setPicker(null)}><KeyboardAvoidingView behavior={Platform.OS==='ios'?'padding':'height'} style={s.scrim}><Pressable accessibilityRole="button" accessibilityLabel="Auswahl schließen" onPress={()=>setPicker(null)} style={StyleSheet.absoluteFill}/><View accessibilityViewIsModal style={s.optionSheet}>
       <View style={s.compactHeader}><Label style={{flex:1,fontWeight:'600'}}>{({year:'Zeitraum',category:'Luftfahrzeugart',registration:'Kennzeichen',launch:'Startart'})[picker]}</Label><Pressable accessibilityRole="button" accessibilityLabel="Auswahl schließen" onPress={()=>setPicker(null)} style={s.clear}><Label>×</Label></Pressable></View>
       {picker==='registration'&&<TextInput accessibilityLabel="Kennzeichen suchen" placeholder="Kennzeichen suchen …" placeholderTextColor={colors.muted} value={optionQuery} onChangeText={setOptionQuery} style={s.search}/>}
       <ScrollView keyboardShouldPersistTaps="handled">{options.filter(o=>o.label.toLocaleLowerCase('de-DE').includes(optionQuery.trim().toLocaleLowerCase('de-DE'))).map(o=><Pressable key={o.id} accessibilityRole="button" accessibilityLabel={o.label} accessibilityState={{selected:o.selected}} onPress={o.choose} style={s.option}><Label style={{flex:1}}>{o.label}</Label>{o.selected&&<Label style={{color:colors.cyan}}>✓</Label>}</Pressable>)}</ScrollView>
-    </View></View></Modal>}
+    </View></KeyboardAvoidingView></Modal>}
     {statusOpen && <ScrollView contentContainerStyle={s.canvas}><View style={s.group}><Card><Section title="Abdeckung & Datenstand"/>
       <Label muted>{freshness.label}</Label>{freshness.reminder&&<Label muted>{freshness.note}</Label>}
       <Label muted>{plan.lastSavedAt?`Gespeichert: ${new Date(plan.lastSavedAt).toLocaleString('de-DE')}`:'Noch kein vollständiger Abruf gespeichert.'}</Label>

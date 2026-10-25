@@ -1512,7 +1512,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OverviewTiles.tsx
 
 ## OwnFlights.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OwnFlights.tsx](../../../apps/platform-lab/src/mobile/OwnFlights.tsx); normalized SHA-256 `29aefbc4222c5800f0a40c7ad9309ceb6016219d9016b86477e0d45d65efc940`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OwnFlights.tsx](../../../apps/platform-lab/src/mobile/OwnFlights.tsx); normalized SHA-256 `c7c491838e337d1df06c40e23c7872e5ab3606a46363abf1babe81d5002aae3e`.
 
 ### Literal colors
 

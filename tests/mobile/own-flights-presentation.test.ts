@@ -33,7 +33,7 @@ function fixture() {
   };
   const leaves=(names:string[])=>Object.fromEntries(names.map(n=>[n,n]));
   const modules:Record<string,unknown>={'../diagnostics':diagnostics,react:{default:react,...react},'react-native':{
-    ...leaves(['ActivityIndicator','FlatList','Modal','Pressable','ScrollView','Text','TextInput','View']),Keyboard:{dismiss(){}},StyleSheet:{create:(x:unknown)=>x},useWindowDimensions:()=>({width:390,height:800,fontScale:1}),
+    ...leaves(['ActivityIndicator','FlatList','KeyboardAvoidingView','Modal','Pressable','ScrollView','Text','TextInput','View']),Platform:{OS:'android'},Keyboard:{dismiss(){}},StyleSheet:{create:(x:unknown)=>x},useWindowDimensions:()=>({width:390,height:800,fontScale:1}),
   },'./theme':{...leaves(['Action','Card','Chip','Empty','GliderMark','IconLabel','Label','Section']),colors:{},ui:{}},'./SymbolIcon':leaves(['SymbolIcon']),
   './use-own-flights':{useOwnFlights:()=>{throw new Error('Presentation must reuse the shell reader');}},'./own-flight-reader-native':{ownFlightReadPorts:{}},'./own-flight-model':model,
   '../vereinsflieger/retrieval-policy':{planFlightRetrieval},'./data-freshness':{dataFreshness},'../vereinsflieger/capture-review':review,'./real-flight-statistics':statistics};
