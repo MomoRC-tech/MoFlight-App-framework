@@ -7,6 +7,8 @@ import { SymbolIcon } from './SymbolIcon';
 import { latestSavedFlights, latestFlightOrderUnknown, abbreviatedCrew } from './season-dashboard-model';
 import { seasonWorkHours } from './season-work-hours';
 import { cockpitSeasonValues } from './cockpit-season';
+import { flightStartGuidance } from './flight-start-guidance';
+import { planFlightRetrieval } from '../vereinsflieger/retrieval-policy';
 import { createProcessedSelector } from './processed-result';
 import type { RealFlightListItem } from '../vereinsflieger/real-flight-library';
 import { DutyTargetEditor, useDutyTarget } from './DutyTarget';
@@ -37,6 +39,8 @@ export function Dashboard({ ownFlights, ownFlightPhase, onFlights, onFlight, onS
   const facts={current:cockpitSeasonValues(processed?.current??empty,saved,year,today),prior:cockpitSeasonValues(processed?.prior??empty,saved,year-1,today),latest:processed?.latest};
   const workHours=seasonWorkHours(ownFlights?.featureInformation?.workSummary,year);
   const ready=ownFlightPhase==='ready'&&!!ownFlights?.snapshot.account;
+  const startGuidance=flightStartGuidance({phase:ownFlightPhase,accountAssociated:!!ownFlights?.snapshot.account,
+    successfulRetrieval:!!planFlightRetrieval(saved).lastSuccessfulRetrievalAt,savedFlights:ownFlights?.flights.length??0});
   const latest=facts.latest, a=latest?.facts.assessment;
   const raw=(field:'registration'|'model')=>a?.fields[field].state==='value'?a.fields[field].raw:'—';
   return <Card style={styles.season}>
@@ -63,10 +67,10 @@ export function Dashboard({ ownFlights, ownFlightPhase, onFlights, onFlight, onS
     {targetOpen&&<View style={styles.inset}>{scope?<DutyTargetEditor key={`${scope}:${year}`} target={target} onClose={()=>setTargetOpen(false)}/>:<Label muted>Ein lokales Soll lässt sich nach Auswahl eines Kontos speichern.</Label>}</View>}
     {!targetOpen&&target.error&&<Label muted style={styles.inset}>{target.error}</Label>}
     <View style={styles.body}>
-      {ownFlightPhase==='loading'?<View accessibilityLiveRegion="polite" accessibilityState={{busy:true}} style={ui.row}><ActivityIndicator color={colors.cyan}/><Label style={{flex:1}}>Gespeicherte Flugdaten werden vorbereitet …</Label></View>:!ready?<Label muted>{ownFlightPhase==='failed'?'Gespeicherte Flugdaten konnten nicht geprüft werden.':'Deine Saison erscheint, sobald eigene Flüge gespeichert sind.'} Über Sync oben kannst du deine Flüge laden.</Label>:latest&&a?<Pressable accessibilityRole="button" accessibilityLabel={`Letzten Flug vom ${a.date.value?.split('-').reverse().join('.')} ansehen${processed?.orderUnknown?'. Reihenfolge am selben Tag unbekannt.':''}`} onPress={()=>onFlight?onFlight(latest.flightId):onFlights()} style={({pressed})=>[styles.latest,pressed&&ui.pressed]}>
+      {ownFlightPhase==='loading'?<View accessibilityLiveRegion="polite" accessibilityState={{busy:true}} style={ui.row}><ActivityIndicator color={colors.cyan}/><Label style={{flex:1}}>Gespeicherte Flugdaten werden vorbereitet …</Label></View>:!ready?<Label muted>{ownFlightPhase==='failed'?'Gespeicherte Flugdaten konnten nicht geprüft werden. Bitte die lokale Liste erneut prüfen.':startGuidance?.message}</Label>:latest&&a?<Pressable accessibilityRole="button" accessibilityLabel={`Letzten Flug vom ${a.date.value?.split('-').reverse().join('.')} ansehen${processed?.orderUnknown?'. Reihenfolge am selben Tag unbekannt.':''}`} onPress={()=>onFlight?onFlight(latest.flightId):onFlights()} style={({pressed})=>[styles.latest,pressed&&ui.pressed]}>
         <SymbolIcon name="logbook" size={22} tone="muted"/>
         <View style={{flex:1,minWidth:0,gap:3}}><Label muted style={styles.small}>Letzter Flug</Label><View style={styles.flightRow}><Label style={styles.date}>{a.date.value?.split('-').reverse().join('.')??'Datum unbekannt'}</Label><View style={styles.duration}><Label style={styles.durationText}>{a.durations.flight.state==='known'?`${formatReportedMinutes(a.durations.flight.minutes)} h`:'— h'}</Label></View></View><Label muted style={styles.small}>{raw('model')} · {raw('registration')} · PIC {abbreviatedCrew(a.fields.pic)}</Label>{processed?.orderUnknown&&<Label muted style={styles.small}>Reihenfolge am selben Tag unbekannt.</Label>}</View><SymbolIcon name="right" size={18}/>
-      </Pressable>:<Label muted>Noch keine datierten gespeicherten Flüge.</Label>}
+      </Pressable>:<Label muted>{startGuidance?.message ?? 'Noch keine datierten gespeicherten Flüge.'}</Label>}
       {ready&&facts.current.season.unknownDurationCount>0&&<Label muted style={styles.small}>{facts.current.season.unknownDurationCount} Saisonzeiten unbekannt · bekannte Flugzeit</Label>}
       {ready&&facts.prior.season.unknownDurationCount>0&&<Label muted style={styles.small}>{year-1}: {facts.prior.season.unknownDurationCount} Zeiten unbekannt · bekannte Flugzeit</Label>}
       {ready&&facts.current.unknownDateCount>0&&<Label muted style={styles.small}>{facts.current.unknownDateCount} Flüge ohne zugeordnetes Datum.</Label>}

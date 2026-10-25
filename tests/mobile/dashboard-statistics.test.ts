@@ -1,3 +1,4 @@
+import * as flightStartGuidance from '../../apps/platform-lab/src/mobile/flight-start-guidance.ts';
 import * as dashboardModel from '../../apps/platform-lab/src/mobile/season-dashboard-model.ts';
 import * as processedResults from '../../apps/platform-lab/src/mobile/processed-result.ts';
 import test from 'node:test';
@@ -29,7 +30,7 @@ function render(flights:any[], phase='ready', fontScale=1) {
     './season-work-hours':workHours, './cockpit-season':cockpit,'./DutyTarget':{useDutyTarget:()=>target,DutyTargetEditor:'DutyTargetEditor'},
     './theme':{...leaves(['Action','Card','GliderMark','IconLabel','Label','Photo','Section']),colors:{},ui:{}},'./SymbolIcon':leaves(['SymbolIcon']),
     './FlightScene':leaves(['FlightScene']),'./SeasonMonthlyCharts':leaves(['SeasonMonthlyCharts']), './season-dashboard-model':{...dashboardModel,monthlySeasonForCoverage:(...args:Parameters<typeof dashboardModel.monthlySeasonForCoverage>)=>{monthlyCalculations++;return dashboardModel.monthlySeasonForCoverage(...args);}}, './SeasonRing':leaves(['SeasonRing']),'./season-model':season,'./real-flight-statistics':{...statistics,summarizeRealFlights:(...args:Parameters<typeof statistics.summarizeRealFlights>)=>{calculations++;return statistics.summarizeRealFlights(...args);}},
-    './processed-result':processedResults,'./data-freshness':{dataFreshness},'../vereinsflieger/retrieval-policy':{planFlightRetrieval}};
+    './processed-result':processedResults,'./flight-start-guidance':flightStartGuidance,'./data-freshness':{dataFreshness},'../vereinsflieger/retrieval-policy':{planFlightRetrieval}};
   const exports:any={};runInNewContext(source,{exports,Date:class extends Date {getFullYear(){return 2026;}},require:(name:string)=>{
     if(name.startsWith('../../assets/'))return name;assert.ok(name in modules,name);return modules[name];}});
   const calls:(number|undefined)[]=[];const opened:string[]=[];const statisticsCalls:number[]=[];
@@ -66,6 +67,9 @@ test('compact season deduplicates flights and keeps missing durations explicit',
 test('unknown cached season remains unknown and loading never publishes cached totals',()=>{
  for(const scale of [1,1.6]){
   const empty=render([],'ready',scale);assert.match(empty.text,/Starts 2026: —/);
+  assert.match(empty.text,/noch keine Flugdaten bestätigt gespeichert/);
+  const retrieved=empty.changeView({...empty.view(),snapshot:{...empty.view().snapshot,savedRetrievals:[{from:'2025-01-01',to:'2026-10-22',retrievedAt:'2026-10-22T11:00:00.000Z',savedAt:'2026-10-22T11:00:00.000Z'}]}});
+  assert.match(JSON.stringify(retrieved),/nicht erfasste Zeiträume bleiben unbekannt/);
   const loading=render(ownFlightFixture().flights,'loading',scale);assert.match(loading.text,/werden vorbereitet/);assert.ok(loading.nodes.some(n=>n.props.accessibilityState?.busy));
  }
 });

@@ -9,6 +9,7 @@ import type { useOwnFlights } from './use-own-flights';
 import { allOwnFlights, ownFlightClassificationOptions, ownFlightYears, ownFlightRegistrations, ownRawValue, ownFlightCard, ownFlightFilterTags, removeOwnFlightFilter, selectOwnFlights, requestedOwnFlight, type OwnFlightRequest, type OwnFlightFilters } from './own-flight-model';
 import { planFlightRetrieval } from '../vereinsflieger/retrieval-policy';
 import { dataFreshness } from './data-freshness';
+import { flightStartGuidance } from './flight-start-guidance';
 import { summarizeRealFlights, formatReportedMinutes } from './real-flight-statistics';
 import { reviewDuration, reviewParsedField, reviewRawField } from '../vereinsflieger/capture-review';
 
@@ -35,6 +36,8 @@ export function OwnFlights({ active, data, filterRequest, onHeaderChange }: {
   const aircraftFiltered = filters.registration !== undefined || filters.aircraftCategory !== undefined || filters.launchMethod !== undefined;
   const plan = useMemo(() => planFlightRetrieval(data.view?.snapshot.savedRetrievals ?? []), [data.view?.snapshot.savedRetrievals]);
   const freshness = dataFreshness(plan.lastSuccessfulRetrievalAt, data.phase === 'ready' ? 'ready' : 'loading');
+  const startGuidance = flightStartGuidance({phase:data.phase,accountAssociated:!!data.view?.snapshot.account,
+    successfulRetrieval:!!plan.lastSuccessfulRetrievalAt,savedFlights:flights.length});
   const detailOpen = !!data.detail || data.detailBusy;
   const tags = ownFlightFilterTags(filters), hasFilters = tags.length > 0;
   const back = useCallback(() => { diagnosticJournal.record('back','flights');Keyboard.dismiss(); setPicker(null); setFilterOpen(false); setStatusOpen(false); setRawPage(0); data.clearDetail(); }, [data.clearDetail]);
@@ -99,7 +102,7 @@ export function OwnFlights({ active, data, filterRequest, onHeaderChange }: {
       <FlatList ref={list} key={tablet ? 'wide' : 'phone'} numColumns={tablet ? 2 : 1} columnWrapperStyle={tablet ? { gap: 8 } : undefined}
         data={selected} keyExtractor={flight => flight.flightId}
         renderItem={({item})=><FlightCard flight={item} onPress={()=>{Keyboard.dismiss();diagnosticJournal.record('action','flight-detail');setRawPage(0);void data.openDetail(item);}} style={tablet?{flex:1,maxWidth:'50%'}:undefined}/>}
-        ListEmptyComponent={<Card><Empty title={flights.length ? 'Keine passenden Flüge' : 'Noch keine gespeicherten Flüge'}>{flights.length ? 'Suchbegriff oder Filter ändern. Ein leeres Ergebnis ist keine Aussage über die gesamte Fluggeschichte.' : 'Über die Verbindung oben in der Kopfzeile eigene Flüge laden. Ein Flugbuch wird dafür nicht benötigt.'}</Empty>{hasFilters && <Action secondary onPress={()=>changeFilters(allOwnFlights)}>Alle Filter zurücksetzen</Action>}</Card>}
+        ListEmptyComponent={<Card><Empty title={flights.length ? 'Keine passenden Flüge' : startGuidance?.title ?? 'Noch keine gespeicherten Flüge'}>{flights.length ? 'Suchbegriff oder Filter ändern. Ein leeres Ergebnis ist keine Aussage über die gesamte Fluggeschichte.' : startGuidance?.message}</Empty>{hasFilters && <Action secondary onPress={()=>changeFilters(allOwnFlights)}>Alle Filter zurücksetzen</Action>}</Card>}
         onScroll={event => { if (active && data.phase === 'ready' && !detailOpen && !statusOpen) offset.current = event.nativeEvent.contentOffset.y; }} scrollEventThrottle={32}
         onContentSizeChange={() => { if (data.phase === 'ready') list.current?.scrollToOffset({ offset: offset.current, animated: false }); }}
         contentContainerStyle={[s.canvas,s.flightCanvas,{maxWidth:tablet?960:480}]} ItemSeparatorComponent={() => <View style={{ height: 5 }} />} initialNumToRender={10} maxToRenderPerBatch={10} windowSize={7} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag" />

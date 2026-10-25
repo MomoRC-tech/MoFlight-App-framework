@@ -2,6 +2,7 @@ import * as localDiagnostics from '../../apps/platform-lab/src/local-read-diagno
 import * as diagnostics from '../../apps/platform-lab/src/diagnostics';
 import {loadFlightPresentation} from './flight-presentation-fixture';
 import * as processedResults from '../../apps/platform-lab/src/mobile/processed-result.ts';
+import * as flightStartGuidance from '../../apps/platform-lab/src/mobile/flight-start-guidance.ts';
 import * as statistics from '../../apps/platform-lab/src/mobile/real-flight-statistics.ts';
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -46,7 +47,7 @@ function host(withPresentation = false) {
       },'../diagnostics':diagnostics,
       './theme':{...leaves(['Action','Card','Chip','Empty','IconLabel','Label','Section']),colors:{},ui:{}},
       './SymbolIcon':leaves(['SymbolIcon']),'./own-flight-model':flightModel,
-      '../vereinsflieger/retrieval-policy':{planFlightRetrieval},'./data-freshness':{dataFreshness},
+      '../vereinsflieger/retrieval-policy':{planFlightRetrieval},'./flight-start-guidance':flightStartGuidance,'./data-freshness':{dataFreshness},
       '../vereinsflieger/capture-review':captureReview,'./real-flight-statistics':statistics,
     };
     Object.assign(modules,loadFlightPresentation(modules));

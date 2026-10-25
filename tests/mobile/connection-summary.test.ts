@@ -1,3 +1,4 @@
+import * as flightStartGuidance from '../../apps/platform-lab/src/mobile/flight-start-guidance.ts';
 import * as processedResults from '../../apps/platform-lab/src/mobile/processed-result.ts';
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -21,7 +22,7 @@ function render(ownFlights:any, options:{phase?:string;compact?:boolean;now?:num
   const calls:any[]=[],exports:any={};
   const react={createElement:(type:string,props:any,...children:any[]):Element=>({type,props:props??{},children:children.flat(Infinity)})};
   const modules:Record<string,any>={react:{default:react,useMemo:(fn:()=>unknown)=>fn()},'./theme':{Action:'Action',Card:'Card',Label:'Label',Section:'Section'},
-    './processed-result':processedResults,'./data-freshness':{dataFreshness},'./flight-reminder':{flightReminder,snoozeFlightReminder},
+    './processed-result':processedResults,'./flight-start-guidance':flightStartGuidance,'./data-freshness':{dataFreshness},'./flight-reminder':{flightReminder,snoozeFlightReminder},
     '../vereinsflieger/retrieval-policy':{planFlightRetrieval},'./connection-guidance':{connectionGuidance}};
   runInNewContext(source,{exports,require:(name:string)=>{assert.ok(name in modules,name);return modules[name];}});
   const tree:Element|null=exports.ConnectionSummary({ownFlights,phase:options.phase??'ready',compact:options.compact??false,now:options.now??now,
@@ -45,15 +46,16 @@ test('profile summary uses committed library freshness and the shared 72-hour po
 test('first use points to the header without a login action; compact loading stays absent',()=>{
   const f=render(null,{phase:'missing',compact:true});
   assert.equal(f.nodes.filter(n=>n.type==='Action').length,0);assert.match(f.text,/Kopfzeile/);assert.ok(!f.text.includes('Bibliothek anlegen'));
-  assert.ok(f.text.includes('Bei Bedarf meldest du dich auf der Originalseite von Vereinsflieger an.'));
-  assert.ok(f.text.includes('Medical-Angaben')&&f.text.includes('Offline-Nutzung'));
+  assert.ok(f.text.includes('Falls nötig, meldest du dich auf der Originalseite von Vereinsflieger an.'));
+  assert.ok(f.text.includes('auf diesem Gerät gespeichert'));
   assert.equal(f.button('Anmelden & Daten laden'),undefined);assert.match(f.text,/Kopfzeile/);assert.deepEqual(f.calls,[]);
   assert.equal(render(null,{phase:'loading',compact:true}).tree,null);
 });
 
 test('an associated account with no successful retrieval still offers its first data load',()=>{
   const f=render({flights:[],snapshot:{ownerId:'owner-1',storeId:'store-1',account:{accountRef:'101'},savedRetrievals:[]}}, {phase:'ready',compact:true});
-  assert.ok(f.text.includes('Für dieses zugeordnete Konto wurden noch keine Flugdaten gespeichert.'));
+  assert.ok(f.text.includes('noch keine Flugdaten bestätigt gespeichert'));
+  assert.ok(f.text.includes('sobald du Internet hast'));
   assert.equal(f.button('Daten laden'),undefined);assert.match(f.text,/Kopfzeile/);
   assert.equal(f.nodes.some(n=>n.type==='Action'&&f.text.includes('Anmelden & Daten laden')),false);
 });
@@ -95,4 +97,13 @@ test('fresh data stays quiet unless there is a positive new or changed observati
   assert.ok(changed.text.includes('Neue oder geänderte Fluginformationen wurden erkannt.'));
   const oldLocalSave=render(accountView('2026-10-22T11:00:00.000Z','2026-10-01T12:00:00.000Z'),{compact:true});
   assert.equal(oldLocalSave.tree,null);
+});
+
+test('confirmed zero stays scoped to captured time while saved flights remain quiet and readable offline',()=>{
+  const empty=render(accountView('2026-10-22T11:00:00.000Z',undefined,{flights:[]}),{compact:true});
+  assert.match(empty.text,/keine Flüge gespeichert/);
+  assert.match(empty.text,/nicht erfasste Zeiträume bleiben unbekannt/);
+  const saved=render(accountView(),{compact:true});
+  assert.equal(saved.tree,null);
+  assert.match(render(accountView()).text,/ohne Internet ansehen/);
 });

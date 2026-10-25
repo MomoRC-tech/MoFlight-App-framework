@@ -1,3 +1,4 @@
+import * as flightStartGuidance from '../../apps/platform-lab/src/mobile/flight-start-guidance.ts';
 import * as diagnostics from '../../apps/platform-lab/src/diagnostics';
 import { loadFlightPresentation } from './flight-presentation-fixture';
 import * as ownFlightModel from '../../apps/platform-lab/src/mobile/own-flight-model';
@@ -36,7 +37,7 @@ function fixture() {
     ...leaves(['ActivityIndicator','FlatList','KeyboardAvoidingView','Modal','Pressable','ScrollView','Text','TextInput','View']),Platform:{OS:'android'},Keyboard:{dismiss(){}},StyleSheet:{create:(x:unknown)=>x},useWindowDimensions:()=>({width:390,height:800,fontScale:1}),
   },'./theme':{...leaves(['Action','Card','Chip','Empty','GliderMark','IconLabel','Label','Section']),colors:{},ui:{}},'./SymbolIcon':leaves(['SymbolIcon']),
   './use-own-flights':{useOwnFlights:()=>{throw new Error('Presentation must reuse the shell reader');}},'./own-flight-reader-native':{ownFlightReadPorts:{}},'./own-flight-model':model,
-  '../vereinsflieger/retrieval-policy':{planFlightRetrieval},'./data-freshness':{dataFreshness},'../vereinsflieger/capture-review':review,'./real-flight-statistics':statistics};
+  '../vereinsflieger/retrieval-policy':{planFlightRetrieval},'./flight-start-guidance':flightStartGuidance,'./data-freshness':{dataFreshness},'../vereinsflieger/capture-review':review,'./real-flight-statistics':statistics};
   Object.assign(modules,loadFlightPresentation(modules));
   const exports:any={};runInNewContext(source,{exports,require:(name:string)=>{assert.ok(name in modules,name);return modules[name];}});
   let tree:Element;const header=()=>{};
@@ -299,4 +300,15 @@ test('category and launch controls combine, recover empty results and clear on a
   f.data.view={...f.data.view,snapshot:{...f.data.view.snapshot,ownerId:'other'}};f.render();f.render();
   assert.equal(f.find('FlatList').props.data.length,3);
   assert.equal(f.find('Pressable','Flugfilter öffnen').props.accessibilityState.selected,false);
+});
+
+test('empty own flights distinguish first retrieval from confirmed zero',()=>{
+  const f=fixture(),base=f.data.view;
+  f.data.view={...base,flights:[],snapshot:{...base.snapshot,savedRetrievals:[]}};f.render();
+  const first=JSON.stringify(f.find('FlatList').props.ListEmptyComponent);
+  assert.match(first,/noch keine Flugdaten bestätigt gespeichert/);
+  f.data.view={...base,flights:[],snapshot:{...base.snapshot,savedRetrievals:[{from:'2025-01-01',to:'2026-10-22',retrievedAt:'2026-10-22T11:00:00.000Z',savedAt:'2026-10-22T11:00:00.000Z'}]}};f.render();
+  const captured=JSON.stringify(f.find('FlatList').props.ListEmptyComponent);
+  assert.match(captured,/nicht erfasste Zeiträume bleiben unbekannt/);
+  assert.doesNotMatch(captured,/gesamte Fluggeschichte vollständig/);
 });
