@@ -1,0 +1,130 @@
+{
+  "source": "c7c5779cc2f6120211d91950c884d1865756a52d",
+  "native_status": "passed",
+  "checks": [
+    {
+      "name": "flights-390-font1",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 390x900",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1"
+      }
+    },
+    {
+      "name": "filters-390-font1",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 390x900",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1"
+      }
+    },
+    {
+      "name": "filtered-winch",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 390x900",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1"
+      }
+    },
+    {
+      "name": "flight-details",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 390x900",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1"
+      }
+    },
+    {
+      "name": "empty-combination",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 390x900",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1"
+      }
+    },
+    {
+      "name": "flights-360-font1.6",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 360x900",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1.6"
+      }
+    },
+    {
+      "name": "filters-360-font1.6",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 360x900",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1.6"
+      }
+    },
+    {
+      "name": "flights-800-font1",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 800x700",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1.0"
+      }
+    },
+    {
+      "name": "filters-800-font1",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 800x700",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1.0"
+      }
+    },
+    {
+      "name": "launch-statistics",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 390x900",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1"
+      }
+    },
+    {
+      "name": "launch-contributors",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 390x900",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1"
+      }
+    },
+    {
+      "name": "category-statistics",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 390x900",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1"
+      }
+    }
+  ],
+  "settings_restored": true,
+  "data": "synthetic in-memory Development preview; no live provider calls",
+  "host": {
+    "typescript_mobile_passed": 1243,
+    "typescript_mobile_skipped": 2,
+    "python_cases": 134,
+    "python_skipped": 16,
+    "typecheck": "passed",
+    "lint": "passed",
+    "fixture_parity": "passed"
+  },
+  "limits": [
+    "No physical phone or iOS runtime acceptance",
+    "Synthetic preview is not live capture or production persistence acceptance",
+    "Crew role deduplication and revised Solo rule are planned in #87, not in this APK"
+  ],
+  "delivery": {
+    "source": "947fcb85400bea101cbfb6ee35a201dd89c66fa3",
+    "apk_sha256": "4dfb4cb30b6396619a0df52189cb2edca5600f191ccbb1d642011c18d45b8ac3",
+    "zip_sha256": "48018e80ca96671c6fe272b389362593cd532d3bb70338fdef8b3d2f99899bde",
+    "zip": "MoFlight-Android-947fcb8.zip"
+  },
+  "final_wording_check": {
+    "source": "947fcb85400bea101cbfb6ee35a201dd89c66fa3",
+    "status": "passed",
+    "settings_restored": true
+  },
+  "earlier_evidence_reused": "c7c5779 full classification UI matrix; final source changes only classification time wording with targeted native and host checks"
+}

@@ -26,6 +26,8 @@ Launching or reviewing checks through an assistant still uses conversation token
 
 ## Work in bounded packages
 
+**25 October refinement from Manuel:** gather related small increments and UI corrections before extensive testing. Do not turn each wording/presentation adjustment into its own Release/native cycle. Focused checks during editing and one broader checkpoint for the stable package are the default; repeat only checks justified by changed behavior, a failure or material risk. The classification package's repeated wording/build cycles prompted this clarification.
+
 1. Read current authorization and relevant source/evidence. Reuse the matching GitHub Issue; capture distinct work before implementing it.
 2. Record a short contract in that Issue: **scope / exclusions / acceptance**, including milestone, dependencies, affected requirement/story/scenario IDs and the test assessment below. Add a separate specification only when the contract or decision needs it.
 3. Implement several small, traceable commits with useful affected tests and TypeScript. Keep logic behind application contracts; use existing development-client/Metro tooling when interactive iteration helps. Do not rebuild a standalone APK for each commit.

@@ -1,6 +1,6 @@
 # MoFlight
 
-**25 October Android release — delivered:** [Download APK ZIP — source `bc9d2ff`](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/ui-ai-2026-10-25-bc9d2ff/MoFlight-Android-bc9d2ff.zip). Includes secondary UI refinement, Flights cleanup, populated-update safety and the local AI screen. AI service activation/inference remain gated. Fresh local Release, signature, ZIP and anonymous download checks pass; existing source-specific host/native evidence is reused. [Verification and limits](docs/verification/2026-10-25-android-release.md).
+**25 October aircraft/start release — delivered:** [Download APK ZIP — source `947fcb8`](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/flight-types-2026-10-25-947fcb8/MoFlight-Android-947fcb8.zip). Adds aircraft category badges, launch labels, combined filters and exact Statistics contributor groups. [Verification and limits](docs/verification/2026-10-25-flight-classification.md). Crew role simplification and the selected Solo rule are next in #87.
 
 <p align="center">
   <picture>
@@ -13,7 +13,7 @@ MoFlight is a mobile app in development for glider pilots, students and instruct
 
 ## Current delivery
 
-Source `bc9d2ffdadb21bff63ae15c36e8e93bdaf2efdf2` combines the secondary UI refinement, compact Flights cleanup, populated-update safety, local AI conversation screen and prior Compact Cockpit/duty corrections. [Download APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/ui-ai-2026-10-25-bc9d2ff/MoFlight-Android-bc9d2ff.zip) and [release evidence/limits](docs/verification/2026-10-25-android-release.md). Extract the ZIP and install `app-release.apk`. This is a development-signed standalone lab build. AI service deployment and paid inference remain separately gated; physical-phone/iOS acceptance is not established by this packaging increment. Earlier deliveries below retain their source-specific evidence.
+Source `947fcb85400bea101cbfb6ee35a201dd89c66fa3` adds aircraft/launch classification to the existing Compact Cockpit, populated-update safety and local AI screen. [Download APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/flight-types-2026-10-25-947fcb8/MoFlight-Android-947fcb8.zip) and [evidence/limits](docs/verification/2026-10-25-flight-classification.md). Extract the ZIP and install `app-release.apk`. Development-signed standalone lab build; no new physical-phone or iOS runtime acceptance. Crew deduplication and the revised Solo rule are planned in #87. Earlier releases retain their source-specific evidence.
 
 The approved dark Compact Cockpit is the current visual baseline. Ordinary saved flights, compact filters/details, Statistics and supported club sources work offline after capture. Sync remains one explicit header action; independent optional-source failures do not erase saved flights.
 

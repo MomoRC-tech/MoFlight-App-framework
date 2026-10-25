@@ -2,6 +2,8 @@
 
 ## Delivery and verification preferences
 
+- Manuel requested on 25 October 2026 that small increments be gathered before extensive testing. Batch related implementation and UI corrections into a coherent package; use focused checks during editing, then one broader host/native checkpoint. Do not rebuild or repeat the visual matrix for each wording or presentation adjustment. Repeat only affected checks when a failure or material risk requires it, and reuse valid source-specific evidence.
+
 - Manuel requested on 22 October 2026 that completed work be committed and pushed, and APK deliveries always include a downloadable GitHub Release ZIP link. Publish only the intended APK and sanitized build metadata; local workspace links are insufficient for delivery. Keep the APK's actual source commit explicit.
 - Spoken accessibility trials are the last verification priority, deferred behind core functionality, UI simplification and targeted regression checks. Do not run extended screen-reader trials routinely or treat them as a blocker for the current packages; retain their untested status accurately.
 
