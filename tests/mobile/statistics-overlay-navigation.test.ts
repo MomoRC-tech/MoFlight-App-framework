@@ -104,3 +104,22 @@ test('statistics coverage detail explains incomplete saved season periods', () =
   nodes = f.nodes();
   assert.ok(nodes.some(node => node.type === 'Label' && node.children.join('').includes('Vergleich nicht berechnet: gespeicherte Abrufe decken beide Zeiträume nicht vollständig ab.')));
 });
+
+
+test('launch and category groups navigate only to their exact period-scoped contributors',()=>{
+  const f=fixture();
+  for(const flight of f.flights){
+    flight.facts.assessment.observation.headers.push('Luftfahrzeugart','S-Art');
+    flight.facts.assessment.observation.row.values.push('Segelflugzeug','W');
+  }
+  const openTab=(title:string)=>f.nodes().find(n=>n.type==='Chip'&&n.props.title===title)!.props.onPress();
+  for(const [tab,label] of [['Startarten','Winde'],['Flugzeuge','Segelflugzeug']]){
+    openTab(tab!);
+    const group=f.nodes().find(n=>n.type==='Card'&&n.props.label===`${label} · 1 Flüge ansehen`);
+    assert.ok(group);group.props.onPress();
+    const rows=f.nodes().filter(n=>n.type==='Card'&&n.props.onPress);
+    assert.equal(rows.length,1);rows[0]!.props.onPress();
+    assert.equal(f.opened.at(-1),f.flights[0]!.flightId);
+    f.back();f.render();f.back();f.render();
+  }
+});

@@ -9,7 +9,7 @@ export const aircraftCategoryLabels = {
 } as const;
 export const launchMethodLabels = {
   winch: 'Winde', aerotow: 'F-Schlepp', self: 'Selbststart',
-  autoTow: 'Autoschlepp', unknown: 'Startart unbekannt',
+  autoTow: 'Fahrzeugschlepp', bungee: 'Gummiseil', unknown: 'Startart unbekannt',
 } as const;
 export type AircraftCategory = keyof typeof aircraftCategoryLabels;
 export type LaunchMethod = keyof typeof launchMethodLabels;
@@ -24,10 +24,12 @@ const categoryNames: Record<string, Exclude<AircraftCategory, 'unknown'>> = {
   tmg: 'tmg', reisemotorsegler: 'tmg', 'touring motor glider': 'tmg',
   motorflugzeug: 'powered', ultraleicht: 'ultralight', ultraleichtflugzeug: 'ultralight', hubschrauber: 'helicopter',
 };
-// Abbreviated provider codes deliberately await a verified code dictionary.
+// REST specification 12 May 2026, pp. 8–11: E/W/F. Numeric API read
+// enums belong to a different source contract and are not browser cell aliases.
 const launchNames: Record<string, Exclude<LaunchMethod, 'unknown'>> = {
   winde: 'winch', windenstart: 'winch', 'f-schlepp': 'aerotow', flugzeugschlepp: 'aerotow',
-  eigenstart: 'self', selbststart: 'self', autoschlepp: 'autoTow',
+  eigenstart: 'self', selbststart: 'self', autoschlepp: 'autoTow', fahrzeug: 'autoTow', fahrzeugschlepp: 'autoTow',
+  gummiseil: 'bungee', w: 'winch', f: 'aerotow', e: 'self',
 };
 
 function classify<K extends string>(assessment: SourceFlightAssessment, labels: readonly string[], names: Record<string, K>): Classification<K> {

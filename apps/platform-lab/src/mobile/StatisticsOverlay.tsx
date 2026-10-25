@@ -11,7 +11,7 @@ import { monthlySeasonForCoverage } from './season-dashboard-model';
 import { planFlightRetrieval } from '../vereinsflieger/retrieval-policy';
 import type { useOwnFlights } from './use-own-flights';
 import {
-  annualStatisticsComparison, monthFlightIds, rankStatisticsAircraft,
+  annualStatisticsComparison, groupStatisticsClassification, monthFlightIds, rankStatisticsAircraft,
   selectStatisticsFlights, statisticsCoverageComplete, statisticsDurationGroups,
   statisticsPeriodBounds, statisticsYears, summarizeStatisticsFlights, validStatisticsRange,
   type StatisticsPeriod, type StatisticsSection,
@@ -46,6 +46,8 @@ export function StatisticsOverlay({ data, today, fontScale, onBackHandler, initi
   const selected = selection.flights;
   const summary = useMemo(() => summarizeStatisticsFlights(selected), [selected]);
   const aircraft = useMemo(() => rankStatisticsAircraft(selected, 'flights'), [selected]);
+  const categories = useMemo(() => groupStatisticsClassification(selected, 'aircraftCategory').groups, [selected]);
+  const launches = useMemo(() => groupStatisticsClassification(selected, 'launchMethod').groups, [selected]);
   const duration = useMemo(() => statisticsDurationGroups(selected), [selected]);
   const years = useMemo(() => statisticsYears(flights, saved, today), [flights, saved, today]);
   const allUnique = useMemo(() => selectStatisticsFlights(flights, { kind: 'all' }, today).flights, [flights, today]);
@@ -178,6 +180,8 @@ export function StatisticsOverlay({ data, today, fontScale, onBackHandler, initi
         </>}
 
         {data.phase === 'ready' && data.view?.snapshot.account && route.section === 'aircraft' && <Card>
+          <Section title="Luftfahrzeugarten" />
+          {categories.map(row=><Card key={row.key} onPress={()=>openFlights(row.label,row.supportingIds)} label={`${row.label} · ${row.count} Flüge ansehen`} style={styles.bandRow}><Label>{row.label} · {row.count}</Label><Label muted>{minutesLabel(row.knownDurationCount ? row.knownMinutes : null,row.knownDurationCount,row.count)} bekannt · {row.unknownDurationCount} unbekannte Zeiten</Label></Card>)}
           <Section title="Flüge nach Kennzeichen" />
           {aircraft.length === 0 && <Empty title="Keine Flugzeuge im Zeitraum">Für die aktuelle Auswahl liegen keine konfliktfrei identifizierten Flüge vor.</Empty>}
           {aircraft.map(row => <Card key={row.registration ?? 'unknown'} onPress={row.supportingIds.length ? () => openFlights(row.registration ?? 'Kennzeichen unbekannt', row.supportingIds) : undefined} label={`${row.registration ?? 'Kennzeichen unbekannt'} · ${row.count} Flüge ansehen`} style={styles.aircraftRow}>
@@ -202,8 +206,9 @@ export function StatisticsOverlay({ data, today, fontScale, onBackHandler, initi
 
         {data.phase === 'ready' && data.view?.snapshot.account && route.section === 'launch' && <Card>
           <Section title="Startarten" />
-          <Empty title="Keine verifizierte Zuordnung">Die gespeicherten Startfelder haben noch keine bestätigte Bedeutung für eine Statistik. Deshalb werden keine Startarten gezählt.</Empty>
-          <Label muted>Rohwerte bleiben in den jeweiligen Flugdaten erhalten. Rolle, Flugzeugklasse oder eine ähnliche Spalte ersetzen keine verifizierte Startart.</Label>
+          {launches.length===0&&<Empty title="Keine Flüge im Zeitraum">Wähle einen anderen Zeitraum.</Empty>}
+          {launches.map(row=><Card key={row.key} onPress={()=>openFlights(row.label,row.supportingIds)} label={`${row.label} · ${row.count} Flüge ansehen`} style={styles.bandRow}><Label>{row.label} · {row.count}</Label><Label muted>{minutesLabel(row.knownDurationCount ? row.knownMinutes : null,row.knownDurationCount,row.count)} bekannt · {row.unknownDurationCount} unbekannte Zeiten</Label></Card>)}
+          <Label muted>Ein Flug zählt einmal nach seiner gespeicherten Startart. Fehlende, widersprüchliche oder nicht zugeordnete Angaben bleiben unbekannt; Rohwerte stehen in den Flugdetails.</Label>
         </Card>}
       </>}
 

@@ -14,3 +14,7 @@
 | Where are past plans and rejected designs? | [Archive](archive/README.md) |
 
 The project plan owns priorities, Issues own package contracts, product/architecture documents own behavior and decisions, and verification reports own source-specific evidence. Historical records preserve provenance rather than competing with current instructions. Move superseded prose into the archive when useful; keep live requirements, unresolved decisions and evidence supporting open acceptance gates accessible.
+
+## Provider reference
+
+[Vereinsflieger REST specification, 12 May 2026](reference/vereinsflieger/README.md): unchanged user-supplied PDF, provenance and field/access interpretation.

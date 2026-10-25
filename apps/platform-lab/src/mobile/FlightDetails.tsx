@@ -3,15 +3,19 @@ import { View } from 'react-native';
 import type { RealFlightDetail } from '../vereinsflieger/real-flight-library';
 import { reviewDuration, reviewParsedField, reviewRawField } from '../vereinsflieger/capture-review';
 import { Action, Card, Label, Section, colors } from './theme';
+import { ownFlightClassification } from './own-flight-model';
 
 /** Shared source presentation; callers own identity validation and return state. */
 export function FlightDetails({detail,rawPage,onRawPage}:{detail:RealFlightDetail;rawPage:number;onRawPage:(page:number)=>void}) {
+  const classification=ownFlightClassification(detail);
   const a=detail.facts.assessment, page=Math.max(0,Math.min(rawPage,Math.max(0,Math.ceil(a.observation.headers.length/8)-1)));
   const labels={pilot:'Pilot',pic:'PIC',companion:'Begleitung',companion2:'Begleitung 2',companion3:'Begleitung 3',sic:'SIC',picTime:'PIC-Zeit',dualTime:'Doppelsteuer-Zeit',instructorTime:'Lehrer-Zeit'};
   return <>
     <Card><Section title="Gespeicherter Flug"/>
       <View style={{flexDirection:'row',flexWrap:'wrap',alignItems:'baseline',gap:10}}><Label style={{fontSize:22,lineHeight:30,fontWeight:'700'}}>{reviewRawField(a.fields.registration)}</Label><Label style={{color:colors.cyan,fontSize:22,lineHeight:30}}>{reviewDuration(a.durations.flight)}</Label></View>
       <Label selectable>Datum: {reviewParsedField(a.date)} · {reviewRawField(a.fields.model)}</Label>
+      <Label selectable>Luftfahrzeugart: {classification.categoryLabel} · Startart: {classification.launchLabel}</Label>
+      <Label muted selectable>Quelle: {[...classification.category.evidence,...classification.launch.evidence].map(item=>`${item.label}: ${item.raw || '(leer)'}`).join(' · ') || 'Nicht erfasst'}. Unbekannte oder widersprüchliche Angaben bleiben ungeklärt.</Label>
       <Label selectable>Startort: {reviewRawField(a.fields.departure)} · Landeort: {reviewRawField(a.fields.arrival)}</Label>
       <Label selectable>Start: {reviewParsedField(a.clocks.start)} · Landung: {reviewParsedField(a.clocks.landing)}</Label>
       {(['offBlock','onBlock'] as const).map(field=><Label key={field} selectable>{field==='offBlock'?'Off-Block':'On-Block'}: {reviewParsedField(a.clocks[field])}</Label>)}

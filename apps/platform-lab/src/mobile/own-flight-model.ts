@@ -8,6 +8,21 @@ export interface OwnFlightFilters { dateRange?: {from:string;to:string} | null; 
 export const allOwnFlights: OwnFlightFilters = { search: '', year: null, registration: undefined };
 export const ownRawValue = (field: RawField): string | null => field.state === 'value' ? field.raw : null;
 
+export function ownFlightClassification(flight: RealFlightListItem) {
+  const a = flight.facts.assessment;
+  const category = classifyAircraft(a), launch = classifyLaunch(a);
+  return { category, launch, categoryLabel: aircraftCategoryLabels[category.key], launchLabel: launchMethodLabels[launch.key] };
+}
+/** Options come from this owner's entire saved list, independent of active filters. */
+export function ownFlightClassificationOptions(flights: readonly RealFlightListItem[]) {
+  const categories = new Set(flights.map(f => classifyAircraft(f.facts.assessment).key));
+  const launches = new Set(flights.map(f => classifyLaunch(f.facts.assessment).key));
+  return {
+    categories: (Object.keys(aircraftCategoryLabels) as AircraftCategory[]).filter(key => categories.has(key)).map(key => ({ key, label: aircraftCategoryLabels[key] })),
+    launches: (Object.keys(launchMethodLabels) as LaunchMethod[]).filter(key => launches.has(key)).map(key => ({ key, label: launchMethodLabels[key] })),
+  };
+}
+
 export type OwnFlightFilterKey = 'year' | 'dateRange' | 'registration' | 'search' | 'flightIds' | 'aircraftCategory' | 'launchMethod';
 export function ownFlightFilterTags(filters: OwnFlightFilters): { key: OwnFlightFilterKey; label: string }[] {
   return [

@@ -30,7 +30,7 @@ export function createDesignPreviewData(scenario: 'default' | 'undated' | 'same-
     rows[1]![0] = rows[0]![0]!;
     rows[1]![2] = '';
   }
-  const capture = { captureId: 'synthetic-design-capture', headers:[...headers,'Flugmodus','Begleiter 2','Begleiter 3','SIC'],
+  const capture = { captureId: 'synthetic-design-capture', headers:[...headers,'Flugmodus','Begleiter 2','Begleiter 3','SIC','Luftfahrzeugart','S-Art'],
     rows: rows.map((values, index) => {
       const display=[...values];
       display[5]=display[5]!.replace(' · Demo','');
@@ -38,7 +38,7 @@ export function createDesignPreviewData(scenario: 'default' | 'undated' | 'same-
       if(display[7])display[7]=display[6]!;
       if(display[8])display[8]='Lea Berger';
       display[9]='Musterfeld';display[10]=index===2?'Beispielort':'Musterfeld';
-      return { values:[...display,[1,3,4,6].includes(index)?'Solo':'',index===2?'Alexandra Marie Beispiel':'','',''],sourceFlightId:String(990001+index) };
+      return { values:[...display,[1,3,4,6].includes(index)?'Solo':'',index===2?'Alexandra Marie Beispiel':'','','',index===2?'':'Segelflugzeug',index===2?'?':index%2?'F':'W'],sourceFlightId:String(990001+index) };
     }) };
   const flights = capture.rows.map((row, index) => ({
     flightId: `synthetic-design-flight-${index + 1}`, bindingId: DESIGN_PREVIEW_SCOPE.bindingId,

@@ -269,3 +269,25 @@ test('information is opt-in and preserves list position and filters on return',(
   f.find('FlatList').props.onContentSizeChange();assert.equal(f.restores.at(-1),240);
   assert.deepEqual(f.find('FlatList').props.data.map((flight:any)=>flight.flightId),['flight-1']);
 });
+
+
+test('category and launch controls combine, recover empty results and clear on account switch',()=>{
+  const f=fixture();
+  for (const [index,flight] of f.data.view.flights.entries()) {
+    const observation=flight.facts.assessment.observation;
+    observation.headers.push('Luftfahrzeugart','S-Art');
+    observation.row.values.push(index===0?'Segelflugzeug':'Motorsegler',index===0?'W':'E');
+  }
+  f.render();f.find('Pressable','Flugzeugfilter öffnen').props.onPress();f.render();
+  const choose=(title:string)=>{f.nodes().find(n=>n.type==='Chip'&&n.props.title===title)!.props.onPress();f.render();};
+  choose('Segelflugzeug');choose('Winde');
+  assert.deepEqual(f.find('FlatList').props.data.map((flight:any)=>flight.flightId),['flight-0']);
+  choose('Selbststart');assert.equal(f.find('FlatList').props.data.length,0);
+  const empty=f.find('FlatList').props.ListEmptyComponent;
+  const reset=empty.children.find((n:any)=>n?.type==='Action');assert.ok(reset);reset.props.onPress();f.render();
+  assert.equal(f.find('FlatList').props.data.length,3);
+  choose('Segelflugzeug');choose('Winde');
+  f.data.view={...f.data.view,snapshot:{...f.data.view.snapshot,ownerId:'other'}};f.render();f.render();
+  assert.equal(f.find('FlatList').props.data.length,3);
+  assert.equal(f.find('Pressable','Flugzeugfilter öffnen').props.accessibilityState.selected,false);
+});

@@ -35,20 +35,20 @@ test('explicit aircraft category is independent of model, launch and legal book 
   assert.equal(classifyAircraft(flight('a', { Luftfahrzeugart: 'Segelflugzeug mit Hilfsmotor' }).facts.assessment).key, 'unknown');
 });
 
-test('launch full-word aliases normalize, while unverified codes and conflicting columns stay unknown', () => {
+test('launch names and documented letter codes normalize, while numeric browser codes and conflicting columns stay unknown', () => {
   for (const label of ['S.-Art', 'S-Art', 'Startart']) {
-    for (const [raw, expected] of [['Windenstart', 'winch'], ['F-Schlepp', 'aerotow'], ['Eigenstart', 'self'], ['Selbststart', 'self'], ['Autoschlepp', 'autoTow']]) {
+    for (const [raw, expected] of [['Windenstart', 'winch'], ['F-Schlepp', 'aerotow'], ['Eigenstart', 'self'], ['Selbststart', 'self'], ['Autoschlepp', 'autoTow'], ['W', 'winch'], ['F', 'aerotow'], ['E', 'self'], ['Gummiseil', 'bungee'], ['Fahrzeug', 'autoTow']]) {
       const f = flight('a', { [label]: raw! });
       assert.equal(classifyLaunch(f.facts.assessment).key, expected);
     }
   }
-  for (const raw of ['W', 'F', 'E', '1', 'unknown', '__proto__']) {
+  for (const raw of ['1', '3', '5', '7', '9', 'unknown', '__proto__']) {
     const c = classifyLaunch(flight('a', { 'S-Art': raw }).facts.assessment);
     assert.equal(c.key, 'unknown'); assert.equal(c.state, 'unrecognized'); assert.equal(c.evidence[0]?.raw, raw);
   }
   const agreeing = classifyLaunch(flight('a', { 'S-Art': 'Winde', Startart: 'Windenstart' }).facts.assessment);
   assert.equal(agreeing.key, 'winch');
-  for (const other of ['F-Schlepp', '', 'W']) {
+  for (const other of ['F-Schlepp', '', 'unverified']) {
     assert.equal(classifyLaunch(flight('a', { 'S-Art': 'Winde', Startart: other }).facts.assessment).state, 'conflict');
   }
 });
@@ -84,7 +84,7 @@ test('category and launch combine with period, search, registration and exact ID
 
 test('statistics count unique contributing flights, preserve unknown durations/categories and exclude conflicts', () => {
   const a = flight('a', { Luftfahrzeugart: 'Segelflugzeug', 'S-Art': 'Winde' });
-  const b = flight('b', { Luftfahrzeugart: '', 'S-Art': 'W' });
+  const b = flight('b', { Luftfahrzeugart: '', 'S-Art': '?'  });
   b.facts.assessment.durations.flight = { state: 'unknown', minutes: null, evidence: [] };
   const c = flight('c', { Luftfahrzeugart: 'Motorflugzeug', 'S-Art': 'Eigenstart' });
   const changed = structuredClone(c); changed.facts.assessment.fields.model = { state: 'blank', label: 'Lfz.-Muster', raw: '' };
