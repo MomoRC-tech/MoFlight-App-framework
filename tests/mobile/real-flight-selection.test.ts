@@ -29,7 +29,7 @@ class Candidate {
 async function fixture(fault: (stage: string) => Promise<void> = async () => {}, databasePath = ':memory:') {
   const db = nodeDriver(databasePath);
   let permit: {ownerId:string;storeId:string;leaseId:string;writable:boolean} | null = {ownerId:owner,storeId:store,leaseId:'lease-one',writable:true};
-  let expireAfterAuthorize = false, expireAtOpenIndex = -1;
+  let expireAfterAuthorize = false, snapshotCount = 0, expireAtSnapshot = -1;
   const authorize: RealSelectionAuthorization = () => {
     const current = permit;
     if (expireAfterAuthorize) { expireAfterAuthorize = false; permit = null; }
@@ -39,7 +39,7 @@ async function fixture(fault: (stage: string) => Promise<void> = async () => {},
   const opened: Candidate[] = [];
   const opener = async (name: string, auth: RealSelectionAuthorization, gate?: RealSelectionGate) => {
     const graph = files.get(name); if (!graph) throw new Error('Missing or unreadable retained candidate');
-    const expire = opened.length === expireAtOpenIndex ? () => { expireAfterAuthorize = true; } : undefined;
+    const expire = () => { if (++snapshotCount === expireAtSnapshot) expireAfterAuthorize = true; };
     const candidate = new Candidate(graph,auth,gate,expire); opened.push(candidate); return candidate;
   };
   const journal = await RealFlightSelection.open(db,owner,store,authorize,opener,hash,true,fault);
@@ -50,7 +50,7 @@ async function fixture(fault: (stage: string) => Promise<void> = async () => {},
     await journal.close();
     return RealFlightSelection.open(nodeDriver(databasePath),owner,store,authorize,opener,hash,false,fault);
   }
-  return {db,journal,authorize,opener,files,opened,file,reopen,expireAfterNextFinalCheck:()=>{expireAtOpenIndex=opened.length+1;},
+  return {db,journal,authorize,opener,files,opened,file,reopen,expireAfterNextFinalCheck:()=>{expireAtSnapshot=snapshotCount+2;},
     switchOwner:()=>{permit={ownerId:id(99),storeId:store,leaseId:'lease-two',writable:true};},revoke:()=>{permit=null;}};
 }
 
@@ -257,7 +257,7 @@ test('older candidate with a divergent record is still selected read-only', asyn
   } finally { await f.journal.close(); }
 });
 
-test('selection must close the reopened candidate when the owner lease expires before publication', async () => {
+test('selection must close the retained candidate when the owner lease expires before publication', async () => {
   const f = await fixture();
   try {
     const name = f.file(1); await f.journal.activate(id(11),name,null,at);

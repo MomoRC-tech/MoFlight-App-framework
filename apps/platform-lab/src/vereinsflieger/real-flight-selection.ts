@@ -149,12 +149,15 @@ export class RealFlightSelection<T extends RealSelectionCandidate> {
     this.allowed(); this.validateRow(row,rows);
     const candidate = await this.opener(row.candidate_name,authorize,gate);
     try {
-      const snapshot = fullGraph(await candidate.snapshot()), manifest = snapshot.manifest;
-      requireValue(manifest.owner_id === this.ownerId && manifest.store_id === this.storeId &&
-        await this.hash(canonical(manifest)) === row.manifest_sha256 && snapshot.generation >= row.validated_generation,
-        'Selected candidate identity or generation mismatch');
-      this.allowed(); return {candidate,snapshot};
+      return {candidate,snapshot:await this.checkedSnapshot(candidate,row)};
     } catch (error) { await candidate.close(); throw error; }
+  }
+  private async checkedSnapshot(candidate: T, row: SelectionRow): Promise<RealSelectionSnapshot> {
+    const snapshot = fullGraph(await candidate.snapshot()), manifest = snapshot.manifest;
+    requireValue(manifest.owner_id === this.ownerId && manifest.store_id === this.storeId &&
+      await this.hash(canonical(manifest)) === row.manifest_sha256 && snapshot.generation >= row.validated_generation,
+      'Selected candidate identity or generation mismatch');
+    this.allowed(); return snapshot;
   }
   private preparationView(row: RestorePreparationRow, rows: SelectionRow[]): RealFlightRestorePreparation {
     this.validatePreparation(row,rows);
@@ -297,28 +300,40 @@ export class RealFlightSelection<T extends RealSelectionCandidate> {
   async select(): Promise<RealFlightSelectionResult<T>> {
     this.allowed(); const rows = await this.rows(); if (!rows.length) throw new NoActiveRealFlightSelection();
     const readable = new Map<string,RealSelectionSnapshot>(), unreadable = new Set<string>();
-    let selected: {row: SelectionRow; snapshot: RealSelectionSnapshot} | undefined;
-    for (const row of rows) {
-      if (readable.has(row.candidate_name) || unreadable.has(row.candidate_name)) continue;
-      try {
-        const opened = await this.checked(row,rows); await opened.candidate.close(); readable.set(row.candidate_name,opened.snapshot);
-        selected ??= {row,snapshot:opened.snapshot};
-      } catch { this.allowed(); unreadable.add(row.candidate_name); }
-    }
-    if (!selected) throw new NoReadableRealFlightSelection();
-    const chosen = selected.snapshot;
-    const recoveryRequired = unreadable.size > 0 || [...readable.values()].some(graph => !isGraphPrefix(graph,chosen));
-    const guarded: RealSelectionAuthorization = () => { const permit = this.allowed(); return {...permit,writable:permit.writable && !recoveryRequired}; };
+    let selected: {row: SelectionRow; candidate: T} | undefined;
+    let admitted = false, recoveryRequired = true;
+    // Open the eventual selected handle with its final, live guards from the
+    // outset. Inspection is read-only until every retained branch is checked.
+    const guarded: RealSelectionAuthorization = () => { const permit = this.allowed(); return {...permit,writable:permit.writable && admitted && !recoveryRequired}; };
     const selectedSequence = rows[0]!.seq;
     const gate: RealSelectionGate = async write => {
       this.allowed(write); requireValue((await this.rows())[0]?.seq === selectedSequence,'Active real history changed; reopen required');
-      requireValue(!write || !recoveryRequired,'Read-only real history recovery');
+      requireValue(!write || admitted && !recoveryRequired,'Read-only real history recovery');
     };
-    const reopened = await this.checked(selected.row,rows,guarded,gate);
-    try { this.allowed(); }
-    catch (error) { await reopened.candidate.close(); throw error; }
-    return {candidate:reopened.candidate,name:selected.row.candidate_name,sequence:selected.row.seq,selectedAt:selected.row.activated_at,recoveryRequired,
-      warning:recoveryRequired || selected.row.seq !== selectedSequence ? 'Recovery required; retained candidates and pending receipts are preserved.' : null};
+    try {
+      for (const row of rows) {
+        if (readable.has(row.candidate_name) || unreadable.has(row.candidate_name)) continue;
+        try {
+          const opened = await this.checked(row,rows,guarded,gate);
+          if (!selected) selected = {row,candidate:opened.candidate};
+          else await opened.candidate.close();
+          readable.set(row.candidate_name,opened.snapshot);
+        } catch { this.allowed(); unreadable.add(row.candidate_name); }
+      }
+      if (!selected) throw new NoReadableRealFlightSelection();
+      // Keep the final fresh schema/byte/identity/generation read. The retained
+      // library can reuse replay only for exact bytes it already validated;
+      // changed bytes are fully validated before recovery classification.
+      const chosen = await this.checkedSnapshot(selected.candidate,selected.row);
+      recoveryRequired = unreadable.size > 0 || [...readable.values()].some(graph => !isGraphPrefix(graph,chosen));
+      admitted = true;
+      await gate(false); this.allowed();
+      return {candidate:selected.candidate,name:selected.row.candidate_name,sequence:selected.row.seq,selectedAt:selected.row.activated_at,recoveryRequired,
+        warning:recoveryRequired || selected.row.seq !== selectedSequence ? 'Recovery required; retained candidates and pending receipts are preserved.' : null};
+    } catch (error) {
+      try { await selected?.candidate.close(); } catch { /* Preserve the selection failure after attempting handle cleanup. */ }
+      throw error;
+    }
   }
   async inspect(): Promise<RealFlightSelectionInspection<T>> {
     this.allowed(); const preparations = await this.listRestorePreparations();
