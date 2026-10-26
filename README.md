@@ -1,6 +1,6 @@
 # MoFlight
 
-**26 October Sync recovery release:** [Download Android APK ZIP — source `c3b7275`](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/sync-recovery-2026-10-26-c3b7275/moflight-sync-recovery-c3b7275.zip). An interrupted explicit Sync can be continued after app return or restart. [Verification and limits](docs/verification/2026-10-26-sync-recovery.md).
+**26 October combined Sync release:** [Download Android APK ZIP — source `18eae2e`](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/sync-progress-500-2026-10-26-18eae2e/moflight-sync-progress-500-18eae2e.zip). Exact detail counts, learned approximate progress, measured local optimization and 500-row retrieval with preference recovery. [Verification and limits](docs/verification/2026-10-26-sync-counts.md#completion-after-review--26-october-2026).
 
 <p align="center">
   <picture>
@@ -13,7 +13,7 @@ MoFlight is a mobile app in development for glider pilots, students and instruct
 
 ## Current delivery
 
-Application source `c3b7275dde3b562e22a2a52db0400d2a9d682b19` adds foreground recovery to the earlier Sync and offline Help package. [Download the APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/sync-recovery-2026-10-26-c3b7275/moflight-sync-recovery-c3b7275.zip) and see [recovery evidence/limits](docs/verification/2026-10-26-sync-recovery.md). Extract the ZIP and install `app-release.apk`. It is a development-signed standalone lab build; physical-phone, authenticated recovery and iOS runtime acceptance remain open. AI requests remain disabled in the ordinary app. The [earlier Help release](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/tag/help-offline-2026-10-26-4ce0a9d) retains its own source-specific evidence.
+Application source `18eae2e80b961c8a213fc579af93a227bd2a4366` combines Sync progress/timing and safe local optimization with 500-row retrieval and original page-size recovery. [Download the APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/sync-progress-500-2026-10-26-18eae2e/moflight-sync-progress-500-18eae2e.zip) and see [source-specific evidence/limits](docs/verification/2026-10-26-sync-counts.md#completion-after-review--26-october-2026). Extract the ZIP and install `app-release.apk`. It is a development-signed standalone lab build; full live-provider prediction, native 500-row retrieval/restoration, physical-phone and iOS acceptance remain open. AI requests remain disabled in the ordinary app. The [earlier recovery release](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/tag/sync-recovery-2026-10-26-c3b7275) retains its own source-specific evidence.
 
 **Startup investigation concluded for now:** a synthetic offline-restart trial of the earlier `bf60089` APK hit a released SQLite handle and showed unreadable flights. Explicit local retry recovered the saved data in that trial. [#89](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/89) is closed at Manuel’s direction after bounded follow-up runs did not reproduce it; revisit only on recurrence or concrete new evidence. No root-cause fix is claimed; [the reliability report](docs/verification/2026-10-25-reliability-continuation.md) separates successful local/export checks from this failed startup acceptance.
 
