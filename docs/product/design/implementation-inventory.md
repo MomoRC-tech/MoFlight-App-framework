@@ -379,39 +379,40 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ConnectionSummary
 
 ## CoreFlightFoundation.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `373b0c82eef513ff0c45a74733e137e2ea0928ff454ae23e344d9a1f1c23d925`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `2562658834955536d4aec163e2b4a486f7491076fde673ab57ddc1fafeda7a16`.
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `gap: 10` | 177, 185, 186, 797 |
-| `gap: 8` | 824, 850, 860 |
-| `maxWidth: 520` | 177, 186, 797 |
-| `padding: 12` | 177, 185, 797 |
-| `width: '100%'` | 177, 186, 797 |
+| `gap: 10` | 177, 185, 186, 809 |
+| `gap: 8` | 836, 862, 872 |
+| `maxWidth: 520` | 177, 186, 809 |
+| `padding: 12` | 177, 185, 809 |
+| `width: '100%'` | 177, 186, 809 |
 
 ## Dashboard.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](../../../apps/platform-lab/src/mobile/Dashboard.tsx); normalized SHA-256 `400e7478611638b5aaebb9b0d390599ee82fbd6eef4b40f3e98d3ef75509ee14`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](../../../apps/platform-lab/src/mobile/Dashboard.tsx); normalized SHA-256 `149a60d8de4ba6d6ceff97861897e66e9f7cc36e62ab4925d56e9b09b0cee1dc`.
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
 | `fontSize: 11` | 100 |
-| `fontSize: 12` | 100, 102 |
-| `fontSize: 14` | 98, 102 |
-| `fontSize: 16` | 102 |
+| `fontSize: 12` | 100, 103 |
+| `fontSize: 14` | 98, 103 |
+| `fontSize: 15` | 101 |
+| `fontSize: 16` | 103 |
 | `fontSize: 18` | 97 |
 | `fontSize: 22` | 100 |
 | `fontSize: 27` | 100 |
-| `fontWeight: '600'` | 90, 102 |
-| `fontWeight: '700'` | 97, 100, 102 |
+| `fontWeight: '600'` | 90, 103 |
+| `fontWeight: '700'` | 97, 100, 103 |
 | `lineHeight: 17` | 100 |
-| `lineHeight: 18` | 100, 102 |
-| `lineHeight: 20` | 98, 102 |
-| `lineHeight: 22` | 102 |
+| `lineHeight: 18` | 100, 101, 103 |
+| `lineHeight: 20` | 98, 103 |
+| `lineHeight: 22` | 103 |
 | `lineHeight: 25` | 97 |
 | `lineHeight: 34` | 100 |
 
@@ -420,32 +421,35 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](..
 | Value / declaration | Source line(s) |
 | --- | --- |
 | `borderRadius: 10` | 55 |
-| `borderRadius: 18` | 102 |
-| `borderWidth: 1` | 102 |
+| `borderRadius: 18` | 103 |
+| `borderWidth: 1` | 103 |
 | `gap: 0` | 95 |
 | `gap: 3` | 85, 98, 99 |
+| `gap: 4` | 101 |
 | `gap: 6` | 55, 97 |
-| `gap: 8` | 96, 102 |
-| `gap: 9` | 101 |
+| `gap: 8` | 96, 103 |
+| `gap: 9` | 102 |
 | `maxWidth: '35%'` | 98 |
 | `maxWidth: '45%'` | 53 |
 | `maxWidth: 520` | 95 |
-| `minHeight: 48` | 97, 98, 103, 104 |
-| `minHeight: 80` | 101 |
+| `minHeight: 48` | 97, 98, 104, 105 |
+| `minHeight: 72` | 101 |
+| `minHeight: 80` | 102 |
 | `minWidth: 0` | 85, 97 |
+| `minWidth: 116` | 101 |
 | `minWidth: 330` | 56 |
-| `minWidth: 48` | 104 |
+| `minWidth: 48` | 105 |
 | `minWidth: 90` | 99 |
 | `opacity: .4` | 55 |
 | `padding: 0` | 95 |
-| `padding: 12` | 101 |
-| `paddingHorizontal: 10` | 102 |
-| `paddingHorizontal: 12` | 96, 101 |
+| `padding: 12` | 102 |
+| `paddingHorizontal: 10` | 103 |
+| `paddingHorizontal: 12` | 96, 102 |
 | `paddingHorizontal: 2` | 98 |
 | `paddingHorizontal: 5` | 99 |
-| `paddingHorizontal: 8` | 104 |
-| `paddingVertical: 10` | 101 |
-| `paddingVertical: 3` | 102 |
+| `paddingHorizontal: 8` | 105 |
+| `paddingVertical: 10` | 102 |
+| `paddingVertical: 3` | 103 |
 | `width: '100%'` | 95, 96 |
 
 ## DataUpdateIndicator.tsx
@@ -799,7 +803,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MedicalStatus.tsx
 
 ## MobileApp.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `c5932564b614af769cfafa9e31f3f6058193006ace524e7f3f242f01e19a5cf3`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `55ea7870f687c4c8c0d47472ae797274a627c6346dec7badda780b12e0f5e054`.
 
 ### Literal colors
 
@@ -911,7 +915,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](..
 
 ## OverviewTiles.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OverviewTiles.tsx](../../../apps/platform-lab/src/mobile/OverviewTiles.tsx); normalized SHA-256 `144369ad0ac4094086f854939b602ca717a9f6f0aa5aabacf225b6c71cccf04b`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OverviewTiles.tsx](../../../apps/platform-lab/src/mobile/OverviewTiles.tsx); normalized SHA-256 `9a51c0a1cff094c17f6141dca1e68f8495d659b4889eb524cf0e9c3941af9233`.
 
 ### Literal colors
 
@@ -924,10 +928,10 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OverviewTiles.tsx
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 12` | 34 |
+| `fontSize: 12` | 34, 36 |
 | `fontSize: 14` | 34 |
-| `fontWeight: '600'` | 34 |
-| `lineHeight: 18` | 34 |
+| `fontWeight: '600'` | 34, 36 |
+| `lineHeight: 18` | 34, 36 |
 | `lineHeight: 20` | 34 |
 
 ### Geometry / opacity declarations
@@ -937,13 +941,15 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OverviewTiles.tsx
 | `borderRadius: 16` | 33 |
 | `borderWidth: 1` | 33 |
 | `gap: 2` | 34 |
+| `gap: 4` | 35, 36 |
+| `gap: 6` | 35 |
 | `gap: 8` | 32, 33 |
 | `maxWidth: 520` | 32 |
 | `minHeight: 100` | 33 |
-| `minWidth: 0` | 33 |
+| `minWidth: 0` | 33, 35, 36 |
 | `minWidth: 90` | 34 |
 | `padding: 12` | 33 |
-| `width: '100%'` | 23, 26, 32 |
+| `width: '100%'` | 23, 26, 32, 35 |
 
 ## OwnFlights.tsx
 
@@ -1071,7 +1077,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProfileSettings.t
 
 ## ProviderConnection.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProviderConnection.tsx](../../../apps/platform-lab/src/mobile/ProviderConnection.tsx); normalized SHA-256 `b49f79c3740d4f3c2abb1dbd73272e914d6aea9229c6802dc57d0d17bc70197f`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ProviderConnection.tsx](../../../apps/platform-lab/src/mobile/ProviderConnection.tsx); normalized SHA-256 `7b16a3f735a5561b0c5b1e91e9deeb44586704599852c2b5b15998774ba50493`.
 
 ### Literal colors
 
@@ -1353,7 +1359,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/SymbolIcon.tsx](.
 
 ## SyncProgress.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/SyncProgress.tsx](../../../apps/platform-lab/src/mobile/SyncProgress.tsx); normalized SHA-256 `b640eab1dd28dd5979e9646919c13147ba280a355dc62f5f4e32a4910796afc8`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/SyncProgress.tsx](../../../apps/platform-lab/src/mobile/SyncProgress.tsx); normalized SHA-256 `5f76b5ebf9a4a44320ce36bc8e8b6fbb5e4bdbc7c981882d705507bae712e41e`.
 
 ### Literal colors
 

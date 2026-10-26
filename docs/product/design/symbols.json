@@ -627,6 +627,19 @@
           "states": "Keep distinct from T01's em dash for an unknown or unavailable value and from a hyphen used in prose.",
           "file": "apps/platform-lab/src/mobile/season-model.ts",
           "locator": "formatSignedPercentage; season-dashboard-model.formatDateAge"
+        },
+        {
+          "id": "T08",
+          "title": "Edit local work-hour target",
+          "status": "Requested 26 October; native rendering pending",
+          "sample": "<span class=\"glyph\" aria-hidden=\"true\">✎</span>",
+          "appearance": "Small cyan pencil, U+270E, beside the local target hours.",
+          "where": "Meine Saison Arbeitsstunden metric.",
+          "meaning": "The local annual target can be edited.",
+          "behavior": "Decorative cue inside the whole metric action; tap opens the existing target editor.",
+          "states": "Parent owns the accessible edit label and expanded state. No separate small touch target; no verified club-policy claim.",
+          "file": "apps/platform-lab/src/mobile/Dashboard.tsx",
+          "locator": "workTarget / editCue"
         }
       ]
     },

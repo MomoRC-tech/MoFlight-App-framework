@@ -60,8 +60,8 @@ export function Dashboard({ ownFlights, ownFlightPhase, onFlights, onFlight, onS
           <View style={[styles.metric,styles.divider]} accessible accessibilityLabel={`Starts ${year}: ${ready?facts.current.starts:'unbekannt'}. ${year-1}: ${ready?facts.prior.starts:'unbekannt'}.`}>
             <Label style={styles.value}>{ready?facts.current.starts:'—'}</Label><Label muted style={styles.metricLabel}>Starts</Label><Label muted style={styles.prior}>{year-1}: {ready?facts.prior.starts:'—'}</Label>
           </View>
-          <Pressable accessibilityRole="button" accessibilityLabel={`Arbeitsstunden ${year}: ${ready?(workHours??'unbekannt'):'unbekannt'} geleistet. Soll vorläufig ${target.hours} Stunden. Soll anpassen`} onPress={()=>setTargetOpen(!targetOpen)} style={[styles.metric,styles.divider]}>
-            <Label style={[styles.value,styles.workValue]}>{ready?(workHours??'—'):'—'} / {String(target.hours).replace('.',',')} h</Label><Label muted style={styles.metricLabel}>Arbeitsstunden</Label><Label style={[styles.prior,{color:colors.cyan}]}>Soll anpassen</Label><Label muted style={styles.prior}>Soll vorläufig</Label>
+          <Pressable accessibilityRole="button" accessibilityLabel={`Arbeitsstunden ${year}: ${ready?(workHours??'unbekannt'):'unbekannt'} geleistet. Lokale Sollstunden ${target.hours}. Sollstunden bearbeiten`} accessibilityState={{expanded:targetOpen}} onPress={()=>setTargetOpen(!targetOpen)} style={[styles.metric,styles.divider,styles.workMetric]}>
+            <Label style={[styles.value,styles.workValue]}>{ready?(workHours??'—'):'—'} h</Label><Label muted style={styles.metricLabel}>Arbeitsstunden · Ist</Label><View style={styles.workTarget}><Label style={styles.prior}>Soll {String(target.hours).replace('.',',')} h</Label><Label style={styles.editCue}>✎</Label></View>
           </Pressable>
           {(['solo','dualInstruction','picWithCompanion'] as const).map(key=>{
             const group=processed?.roles.find(item=>item.key===key),label=flightRoleShortLabels[key];
@@ -98,6 +98,7 @@ const styles=StyleSheet.create({
   statistics:{minHeight:48,justifyContent:'center',alignItems:'center',flexDirection:'row',gap:3,paddingHorizontal:2,maxWidth:'35%'},statisticsText:{color:colors.cyan,fontSize:14,lineHeight:20},
   metrics:{flexGrow:1,flexDirection:'row',paddingTop:4},metric:{flex:1,minWidth:90,alignItems:'center',justifyContent:'flex-start',gap:3,paddingHorizontal:5},divider:{borderLeftWidth:1,borderColor:colors.border},
   value:{fontSize:27,lineHeight:34,fontWeight:'700',textAlign:'center',fontVariant:['tabular-nums']},workValue:{fontSize:22,lineHeight:34},roleValue:{fontSize:22},metricLabel:{fontSize:12,lineHeight:18,textAlign:'center'},prior:{fontSize:11,lineHeight:17,textAlign:'center'},
+  workMetric:{minWidth:116,minHeight:72},workTarget:{flexDirection:'row',alignItems:'center',justifyContent:'center',gap:4},editCue:{fontSize:15,lineHeight:18,color:colors.cyan},
   body:{paddingHorizontal:12},inset:{padding:12},latest:{flexDirection:'row',alignItems:'center',gap:9,minHeight:80,paddingVertical:10,borderTopWidth:1,borderColor:colors.border},
   flightRow:{flexDirection:'row',flexWrap:'wrap',alignItems:'center',gap:8},date:{fontSize:16,lineHeight:22,fontWeight:'700',flexGrow:1},duration:{backgroundColor:colors.raised,borderWidth:1,borderColor:colors.border,borderRadius:18,paddingHorizontal:10,paddingVertical:3},durationText:{color:colors.cyan,fontSize:14,lineHeight:20,fontWeight:'600'},small:{fontSize:12,lineHeight:18},
   allFlights:{minHeight:48,flexDirection:'row',alignItems:'center',justifyContent:'space-between',borderTopWidth:1,borderColor:colors.border},

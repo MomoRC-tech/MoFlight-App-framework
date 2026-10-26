@@ -56,7 +56,7 @@ test('Start routes saved analytics to the overlay and keeps it available before 
 test('compact metrics use selected annual hours and keep financial values out of the target',()=>{
  const f=render(ownFlightFixture().flights);
  const tree=f.changeView({...f.view(),featureInformation:{workSummary:{status:'partial',items:[{period:'Jahr 2026',hours:'07:25',obligation:'90,00 EUR'}]}}});
- assert.match(JSON.stringify(tree),/7:25 geleistet/);assert.match(JSON.stringify(tree),/Soll vorläufig 25/);assert.doesNotMatch(JSON.stringify(tree),/90,00/);
+ assert.match(JSON.stringify(tree),/7:25 geleistet/);assert.match(JSON.stringify(tree),/Lokale Sollstunden 25/);assert.doesNotMatch(JSON.stringify(tree),/90,00/);
  const next=f.changeView({...f.view(),snapshot:{...f.view().snapshot,ownerId:'other'},featureInformation:undefined});assert.doesNotMatch(JSON.stringify(next),/7:25/);
 });
 test('Solo, Dual and PIC+ share the existing horizontal metric row and open role analysis',()=>{
@@ -189,10 +189,27 @@ test('inline season and target editors consume Back and a pending target save ca
  f.nodes.find(n=>n.props.accessibilityLabel==='Saison 2026 auswählen')!.props.onPress();f.rerender();
  assert.equal(f.inlineBack(),true);let tree=f.rerender();
  assert.ok(!nodes(tree).some(n=>n.props.accessibilityLabel==='Vorherige Saison'));
- f.nodes.find(n=>String(n.props.accessibilityLabel).includes('Soll anpassen'))!.props.onPress();tree=f.rerender();
+ f.nodes.find(n=>String(n.props.accessibilityLabel).includes('Sollstunden bearbeiten'))!.props.onPress();tree=f.rerender();
  assert.ok(nodes(tree).some(n=>n.type==='DutyTargetEditor'));
  f.target.busy=true;f.rerender();assert.equal(f.inlineBack(),true);
  tree=f.rerender();assert.ok(nodes(tree).some(n=>n.type==='DutyTargetEditor'));
  f.target.busy=false;f.rerender();assert.equal(f.inlineBack(),true);
  tree=f.rerender();assert.ok(!nodes(tree).some(n=>n.type==='DutyTargetEditor'));assert.equal(f.inlineBack(),false);
+});
+
+test('work hours separate actual hours and editable target without the redundant captions',()=>{
+ const f=render(ownFlightFixture().flights);
+ const tree=f.changeView({...f.view(),featureInformation:{workSummary:{status:'partial',items:[{period:'Jahr 2026',hours:'12,5'}]}}});
+ const nodes:Element[]=[];const visit=(node:any)=>{if(node?.children){nodes.push(node);node.children.forEach(visit);}};visit(tree);
+ const control=nodes.find(n=>n.type==='Pressable'&&String(n.props.accessibilityLabel).includes('Sollstunden bearbeiten'))!;
+ const labels=nodes.filter(n=>n.type==='Label').map(n=>n.children.join(''));
+ assert.ok(labels.includes('12,5 h'));assert.ok(labels.includes('Arbeitsstunden · Ist'));assert.ok(labels.includes('Soll 25 h'));assert.ok(labels.includes('✎'));
+ assert.equal(labels.some(label=>/Soll anpassen|Soll vorläufig/.test(label)),false);
+ assert.equal(control.props.accessibilityState.expanded,false);
+ control.props.onPress();assert.match(JSON.stringify(f.rerender()),/DutyTargetEditor/);
+ for(const phase of ['missing','loading','failed']) {
+   const unknown=render([],phase);
+   assert.match(unknown.text,/unbekannt.*geleistet/);
+   assert.doesNotMatch(unknown.text,/0 h/);
+ }
 });
