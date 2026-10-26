@@ -192,7 +192,7 @@ test('header age comes from the selected saved retrieval independently of provid
   f.press('Pressable','Profil & Einstellungen öffnen');
   const summary=f.find('ProfileSettings').props.connectionSummary;
   assert.equal(summary.children.find((n:Element)=>n.type==='SyncStatusDetails').props.connection.lastCheckedAt,state.lastCheckedAt);
-  assert.equal(summary.children.find((n:Element)=>n.type==='ConnectionSummary').props.controller.connection.lastCheckedAt,state.lastCheckedAt);
+  assert.equal(summary.children.some((n:Element)=>n?.type==='ConnectionSummary'),false,'Settings does not repeat the full connection introduction');
   f.headers().at(-1)!.props.back();f.render();
   assert.deepEqual(f.calls,[]);
   f.appState('background');f.appState('active');
@@ -656,6 +656,33 @@ test('compact toolbar preserves brand, sync/profile order, growing destination t
   if(hasBack){assert.equal(brand.props.disabled,true);assert.equal(brand.props.onPress,back);}else{assert.equal(brand.props.accessibilityLabel,'MoFlight Thermik Logo');assert.ok(brand.props.source.endsWith('moflight-ai-logo-dark.png'));}
  }
  assert.equal(calls,0);
+ const back=()=>calls++;
+ const page=exports.AppHeader({title:'Profil & Einstellungen',children:controls,back,variant:'page'});
+ const [pageBack,pageBody,pageActions]=page.children[0].children;
+ assert.equal(pageBody.children[0],false,'The child page omits the repeated brand line');
+ assert.equal(pageBody.children[1].props.accessibilityRole,'header');
+ assert.equal(pageBody.children[1].children[0],'Profil & Einstellungen');
+ assert.equal(pageBody.children[1].props.numberOfLines,undefined);
+ assert.equal(pageActions.children[0],controls,'Sync remains the same action');
+ pageBack.props.onPress();assert.equal(calls,1);
+});
+
+test('Settings uses a child-page header and keeps caller context and recovery evidence',()=>{
+ const f=fixture();
+ assert.equal(f.headers()[0]!.props.variant,undefined,'Start retains its original header');
+ f.showLoad(null,{snapshot:{ownerId:'owner',storeId:'store',account:{accountRef:'101'},recovery:{readOnly:true}},pendingCommand:null});
+ f.press('Pressable','Profil & Einstellungen öffnen');
+ assert.equal(f.headers().at(-1)!.props.variant,'page');
+ const summary=f.find('ProfileSettings').props.connectionSummary as Element;
+ assert.ok((summary.children as Element[]).some(n=>n?.type==='SyncStatusDetails'));
+ assert.ok((summary.children as Element[]).some(n=>n?.type==='Label'&&n.children.join('').includes('Wiederherstellung muss geprüft')));
+ f.find('ProfileSettings').props.onStatus();f.render();
+ assert.equal(f.headers().at(-1)!.props.variant,'branded');
+ f.headers().at(-1)!.props.back();f.render();
+ assert.ok(f.find('ProfileSettings'));assert.equal(f.headers().at(-1)!.props.variant,'page');
+ assert.deepEqual(f.calls,[],'Browsing Settings and Status starts no provider operation');
+ f.headers().at(-1)!.props.back();f.render();
+ assert.equal(f.headers()[0]!.props.variant,undefined);
 });
 
 

@@ -2,6 +2,8 @@
 
 ## Current baseline — 26 October 2026
 
+**#94 first implementation increment:** ordinary Settings now uses grouped navigation, a native Help switch, backup disclosure and a prominent child-page header in the existing Cockpit colors. Start and provider/navigation contracts are preserved. [50 focused checks, TypeScript and focused lint pass](verification/2026-10-26-material-settings.md); native dark presentation remains for the next batched checkpoint. This is source implementation, not yet included in the current APK or completion of the broader redesign.
+
 **#41 local-read simplification (26 October):** approved implementation reuses displayed-list evidence for flight details with fresh owner/lease/selection guards, and shares Medical/information and duty save/readback sessions. Full integrity/recovery remains on fresh reads and writes. [Review and verification](verification/2026-10-21-simple-flight-loading.md#shared-local-reads-and-displayed-flight-details--26-october-2026). Native/phone acceptance is pending; not in the published APK.
 
 **Latest #94 boundary:** preserve the current Start screen, allowing only small, specific corrections. Rework other pages/dialogs/navigation around the existing vivid navy/cyan character; the muted Glacial recommendation was rejected. Shared-component/token changes must not indirectly redesign Start. The [updated proposal](product/design/material-system-proposal.md) records the current-color Cockpit reference.
@@ -195,6 +197,8 @@ Implementation and acceptance are separate. Use the current delivery/order above
 | Member privacy/name display | Bounded duty/name policy implemented; broader permission/legal basis unresolved | Necessary fields, broader use, cache/retention/sharing and source-specific risk dispositions | Scoped policy; remaining review | [#15](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/15) |
 
 ### 2.1 Acceptance traceability
+
+**#94 / #31 Settings and return paths:** [component checks](../tests/mobile/profile-settings-presentation.test.ts) cover switch loading/saving/error and existing navigation/backup disclosure; [shell checks](../tests/mobile/mobile-header-navigation.test.ts) cover the opt-in child header, retained source/session/recovery evidence, unchanged Start header and return/provider-admission contracts. [Evidence](verification/2026-10-26-material-settings.md) records 50 passing focused checks and pending dark native acceptance; light is deferred to beta.
 
 **25 October aircraft/start classification — R04/R12, FL-03/10/11, E07/E09:** [#85](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/85), [classification/filter/group regressions](../tests/mobile/flight-classification.test.ts) and [C1 evidence](verification/2026-10-25-flight-classification.md) cover source labels/aliases, unknown/conflicting values, exact contributing IDs and unchanged persisted assessment validation. C2 presentation and E/W/F mapping are implemented; scoped native acceptance is recorded in the package report; [#86](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/86) owns required-hours discovery. No new real-book or legal-credit acceptance.
 

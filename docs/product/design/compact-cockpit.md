@@ -1,5 +1,13 @@
 # Dark Compact Cockpit — approved 24 October 2026
 
+## Material Settings — selected 26 October 2026
+
+Manuel accepted the revised current-color Cockpit direction and instructed implementation to proceed under [#94](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/94). The first bounded increment changes ordinary Settings: existing navy/cyan colors, grouped navigation rows, a native contextual-help switch, an always-available backup-scope disclosure and a prominent child-page title. All administration/Help/diagnostics/Development destinations retain their existing callbacks. Loading/saving disables the switch; failed saves remain visible. Backup disclosure retains encryption/exclusion and AI-data notices even with contextual help disabled.
+
+Only Settings opts into the page header; other headers and Start retain their appearance. Settings retains Sync as the established update/login entry, Back to its caller, independent saved/session evidence and pending-save/read-only recovery guidance. The navigation host is retained; the full route/modal migration remains staged work. [Material component guidance](https://developer.android.com/design/ui/mobile/guides/components/material-overview) informs the list/switch hierarchy; original branding and source semantics are MoFlight-specific constraints. [Verification and pending native checkpoint](../../verification/2026-10-26-material-settings.md).
+
+Dark is master/default; light is an explicit future option. Until beta preparation, checks are brief, affected-screen and dark-only. Shared styles must not indirectly change Start; only separately identified small corrections belong there. Other [Material proposals](material-system-proposal.md) are not claims of app-wide implementation.
+
 ## Individual Medical rows — selected 26 October 2026
 
 Manuel requested implementation under [#20](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/20#issuecomment-6413680688), then refined it in the [same-day follow-up](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/20#issuecomment-6416351997): the Start Medical tile lists every saved source row on one line, with its name left and date right, omitting both “Erfasst bis” and “bis”. The icon sits beside the heading so records use the full tile width. Dates retain tabular numerals and their own expiry color; long names ellipsize while full names remain accessible and in Details. Missing/invalid dates read `unbekannt`; missing names remain explicit. Source warnings retain the asterisk and accessible explanation. Enlarged text retains stacked tiles.

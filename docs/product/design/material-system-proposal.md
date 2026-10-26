@@ -2,7 +2,7 @@
 
 26 October 2026 · [#94](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/94) · M1 / P1 design definition under #20.
 
-**Status:** design-definition work is authorized. Manuel selected dark as the master/default theme, light as an explicit option, and exploration beyond navy/teal while preserving the original logo. His later theme instruction supersedes the earlier same-session device-following choice. No particular palette, navigation change, component library or app implementation is selected. The [Compact Cockpit](compact-cockpit.md) remains the implemented appearance authority until specific amendments are selected. This document is the handbook's temporary decision proposal; incorporate selected rules into the maintained chapters and move superseded material into history after selection.
+**Status:** design-definition work is authorized. Manuel selected dark as the master/default theme, light as an explicit option, and exploration beyond navy/teal while preserving the original logo. His later theme instruction supersedes the earlier same-session device-following choice. Manuel subsequently accepted the revised current-color Cockpit direction and instructed implementation to proceed. The first bounded Settings increment is selected and implemented in source; broader navigation, component-library and light-mode decisions remain staged. The [Compact Cockpit](compact-cockpit.md) remains the implemented appearance authority until specific amendments are selected. This document is the handbook's temporary decision proposal; incorporate selected rules into the maintained chapters and move superseded material into history after selection.
 
 ## Outcome to decide
 
@@ -109,7 +109,7 @@ Provider integration retains one owner-scoped browser/controller and its native 
 4. Migrate Statistics/detail context, then contextual choices/dialogs and remaining Club/logbook/AI surfaces in reviewable packages. Preserve the current Start composition and appearance, including when changing shared tokens; only separately identified small corrections belong there.
 5. Verify changed logic and route context with focused checks. Until beta preparation, use dark mode only, brief affected-screen checks and valid existing evidence; check narrow/wide/keyboard/enlarged-text states only where the changed behavior warrants them. Light-theme acceptance waits for beta. Physical/iOS and spoken-accessibility limits stay explicit. Do not rebuild the app for this documentation/proposal increment.
 
-The first increment is complete when the reviewed source inventory, palette alternatives, representative browser examples and open decisions are saved and linked in #94. Palette/layout selection and app implementation remain subsequent gates.
+The first increment is complete when the reviewed source inventory, palette alternatives, representative browser examples and open decisions are saved and linked in #94. The revised Cockpit direction and first Settings increment are now selected; subsequent migration packages and native acceptance remain open. See the current Settings amendment in Compact Cockpit and its verification report.
 
 ## Verification summary — design proposal only
 
