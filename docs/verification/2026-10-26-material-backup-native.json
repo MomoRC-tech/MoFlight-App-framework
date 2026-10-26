@@ -1,0 +1,57 @@
+{
+  "source_commit": "72214e1782e923037571a7bac7c699e9f234f4e5",
+  "apk_sha256": "dec19801823f176e6c1d325e4e907287956487f4cea9771dd79b9eff669b4ef0",
+  "installed_apk_hash_verified": true,
+  "avd": "MoFlight_Synthetic_API37",
+  "android_api": 37,
+  "dark_mode": true,
+  "font_scale": 1.0,
+  "widths_dp": [
+    411.43,
+    360
+  ],
+  "height_dp": 731.43,
+  "checks": [
+    {
+      "name": "backup-page-main",
+      "status": "passed"
+    },
+    {
+      "name": "restore-confirmation",
+      "status": "passed"
+    },
+    {
+      "name": "android-back-dismisses-only-confirmation",
+      "status": "passed"
+    },
+    {
+      "name": "confirmed-system-picker-cancel-returns-to-backup",
+      "status": "passed"
+    },
+    {
+      "name": "header-sync-cancel-preserves-backup-page",
+      "status": "passed"
+    },
+    {
+      "name": "scope-disclosure",
+      "status": "passed"
+    },
+    {
+      "name": "android-back-restores-settings",
+      "status": "passed"
+    },
+    {
+      "name": "backup-page-360dp",
+      "status": "passed"
+    },
+    {
+      "name": "backup-main-settled",
+      "status": "passed"
+    }
+  ],
+  "visual_review": "Parent inspected all five captures. Settled MAIN and 360 dp page, disclosure and dark confirmation are readable. Earliest MAIN capture omitted title paint; subsequent settled captures show the title.",
+  "display_and_offline_state_restored": true,
+  "data_boundary": "Existing empty local owner; no app-data reset, fixture seeding, provider work, export or restore activation. OS picker cancelled.",
+  "limits": "Positive save/restore, pending-restore native layout, header Sync Start/provider transition, wide/enlarged text, physical phone, iOS and light remain untested in this package.",
+  "status": "passed"
+}
