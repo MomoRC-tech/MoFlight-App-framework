@@ -2,6 +2,7 @@
 
 ## Delivery and verification preferences
 
+- Manuel requested on 26 October 2026 that every layout/design request consult current Google Material 3 guidance at https://m3.material.io for examples and proposals. Use relevant component guidance alongside the approved MoFlight design contract, identify adaptations, and keep proposal selection separate from implementation approval.
 - Manuel requested on 25 October 2026 that small increments be gathered before extensive testing. Batch related implementation and UI corrections into a coherent package; use focused checks during editing, then one broader host/native checkpoint. Do not rebuild or repeat the visual matrix for each wording or presentation adjustment. Repeat only affected checks when a failure or material risk requires it, and reuse valid source-specific evidence.
 
 - Manuel requested on 22 October 2026 that completed work be committed and pushed, and APK deliveries always include a downloadable GitHub Release ZIP link. Publish only the intended APK and sanitized build metadata; local workspace links are insufficient for delivery. Keep the APK's actual source commit explicit.
