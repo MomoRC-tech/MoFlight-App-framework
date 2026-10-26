@@ -2,6 +2,9 @@ import type { SourceFlightAssessment } from '../vereinsflieger/source-assessment
 import type { RawField } from '../vereinsflieger/fields';
 
 export type FlightRoleMetric = 'dualInstruction' | 'solo' | 'picWithCompanion' | 'unresolved';
+export const flightRoleShortLabels: Record<FlightRoleMetric, string> = {
+  solo: 'Solo', dualInstruction: 'Dual', picWithCompanion: 'PIC+', unresolved: 'Prüfen',
+};
 export interface FlightRoleResult {
   key: FlightRoleMetric;
   soloWithPermission: boolean;

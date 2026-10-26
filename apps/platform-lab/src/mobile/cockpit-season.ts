@@ -1,5 +1,5 @@
 import { summarizeRealFlights, formatReportedMinutes } from './real-flight-statistics';
-import { statisticsCoverageComplete } from './statistics-overlay-model';
+import { groupStatisticsFlightRoles, selectStatisticsFlights, statisticsCoverageComplete } from './statistics-overlay-model';
 import type { RealFlightListItem } from '../vereinsflieger/real-flight-library';
 import type { SavedFlightRetrieval } from '../vereinsflieger/retrieval-policy';
 
@@ -14,6 +14,12 @@ export function cockpitSeasonValues(summary: ReturnType<typeof summarizeRealFlig
   const confirmedEmpty = season.count === 0 && summary.unknownDateCount === 0 && statisticsCoverageComplete(saved, from, to);
   return { ...summary, starts: season.count > 0 || confirmedEmpty ? String(season.count) : '—',
     time: season.knownDurationCount > 0 ? formatReportedMinutes(season.knownMinutes) : confirmedEmpty ? '0:00' : '—' };
+}
+
+/** Selected-year saved facts only; unknown durations never become zero minutes. */
+export function cockpitRoleMetrics(flights: readonly RealFlightListItem[], year: number, today: string) {
+  const selected = selectStatisticsFlights(flights, { kind: 'year', year }, today);
+  return groupStatisticsFlightRoles(selected.flights).groups.filter(group => group.key !== 'unresolved');
 }
 
 export const PROVISIONAL_DUTY_HOURS = 25;

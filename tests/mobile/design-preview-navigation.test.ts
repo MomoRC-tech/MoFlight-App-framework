@@ -31,10 +31,10 @@ test('Verein preview selects actual source components with synthetic data and pr
  nodes(render()).find(n=>n.type==='DataUpdateIndicator')!.props.onPress();assert.equal(nodes(render()).some(n=>n.type==='UpdateResult'),true);
  press('Vorschau Fl\u00fcge');assert.ok(nodes(render()).some(n=>n.type==='OwnFlights'));
  press('Vorschau Start');assert.ok(nodes(render()).some(n=>n.type==='Dashboard'));
- const start=nodes(render()).find(n=>n.type==='Dashboard')!;assert.equal(start.props.persistDutyTarget,false);start.props.onStatistics();
+ const start=nodes(render()).find(n=>n.type==='Dashboard')!;assert.equal(start.props.persistDutyTarget,false);start.props.onStatistics(2026,'roles');
  const stats=nodes(render());const overlay=stats.find(n=>n.type==='StatisticsOverlay')!;
  assert.equal(overlay.props.data.phase,'ready');assert.equal(overlay.props.data.view.flights.length,createDesignPreviewData().view.flights.length);
- assert.equal(overlay.props.today,'2026-10-22');assert.equal(stats.find(n=>n.type==='AppHeader')!.props.title,'Vorschau Flugstatistik');
+ assert.equal(overlay.props.today,'2026-10-22');assert.equal(overlay.props.initialSection,'roles');assert.equal(stats.find(n=>n.type==='AppHeader')!.props.title,'Vorschau Flugstatistik');
  assert.ok(JSON.stringify(stats).includes('Synthetische UI-Vorschau'));
  stats.find(n=>n.type==='AppHeader')!.props.back();assert.ok(nodes(render()).some(n=>n.type==='Dashboard'));
 });

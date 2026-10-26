@@ -207,9 +207,9 @@ export function groupStatisticsClassification(flights: readonly RealFlightListIt
 }
 
 export const flightRoleMetricLabels: Record<FlightRoleMetric, string> = {
-  dualInstruction: 'DI',
+  dualInstruction: 'Dual',
   solo: 'Solo',
-  picWithCompanion: 'PIC mit Begleitperson(en)',
+  picWithCompanion: 'PIC+ · Begleitperson(en)',
   unresolved: 'Andere / ungeklärt',
 };
 

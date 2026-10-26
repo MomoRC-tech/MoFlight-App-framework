@@ -18,7 +18,7 @@ const source = ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/
   compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.React, esModuleInterop: false },
 }).outputText;
 
-function fixture() {
+function fixture(initialSection: statisticsModel.StatisticsSection = 'overview') {
   let index = 0;
   const hooks: any[] = [];
   const react = {
@@ -65,7 +65,7 @@ function fixture() {
     clearDetail() {}, reload: async () => {},
   };
   let back = () => false;
-  const render = () => { index = 0; const tree = exports.StatisticsOverlay({ data, today: '2026-10-22', fontScale: 1, onBackHandler: (handler: () => boolean) => { back = handler; } }); return tree as Element; };
+  const render = () => { index = 0; const tree = exports.StatisticsOverlay({ data, today: '2026-10-22', fontScale: 1, initialSection, onBackHandler: (handler: () => boolean) => { back = handler; } }); return tree as Element; };
   const nodes = (tree: Element) => {
     const found: Element[] = [];
     const visit = (value: any) => { if (!value || typeof value !== 'object' || !('children' in value)) return; found.push(value); value.children.forEach(visit); };
@@ -73,6 +73,14 @@ function fixture() {
   };
   return { data, flights, opened, render, nodes: () => nodes(render()), back: () => back() };
 }
+
+test('Start role metrics enter the role section for the selected year',()=>{
+  const f=fixture('roles');
+  const sections=f.nodes().filter(node=>node.type==='Section').map(node=>node.props.title);
+  assert.ok(sections.includes('Ausbildung & Besatzung'));
+  assert.ok(!sections.includes('Jahresvergleich'));
+  assert.ok(f.nodes().some(node=>node.type==='Chip'&&node.props.title==='Flugrollen'&&node.props.selected));
+});
 
 test('previous-year drilldown keeps its same-date scope, restores Back, and rejects facts moved outside that scope', () => {
   const f = fixture();

@@ -3,6 +3,15 @@ import assert from 'node:assert/strict';
 import { createDesignPreviewData, DESIGN_PREVIEW_NOW, DESIGN_PREVIEW_SCOPE } from '../../apps/platform-lab/src/mobile/design-preview-data.ts';
 import { summarizeRealFlights } from '../../apps/platform-lab/src/mobile/real-flight-statistics.ts';
 import { requestedOwnFlight, ownFlightCard } from '../../apps/platform-lab/src/mobile/own-flight-model.ts';
+import { cockpitRoleMetrics } from '../../apps/platform-lab/src/mobile/cockpit-season.ts';
+
+test('synthetic Start preview includes each short role metric with honest time',()=>{
+  const {view}=createDesignPreviewData();
+  const groups=cockpitRoleMetrics(view.flights,2026,'2026-10-22');
+  assert.deepEqual(groups.map(group=>[group.key,group.count,group.knownMinutes,group.unknownDurationCount]),[
+    ['dualInstruction',1,85,0],['solo',3,235,0],['picWithCompanion',1,0,1],
+  ]);
+});
 
 test('design fixture keeps known, explicit zero and unknown durations distinct across years', () => {
   const { view } = createDesignPreviewData();

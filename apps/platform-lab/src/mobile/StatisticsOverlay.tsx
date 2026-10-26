@@ -25,8 +25,8 @@ type Route =
   | { kind: 'flights'; title: string; ids: string[]; scope: StatisticsPeriod; key: string }
   | { kind: 'detail'; flightId: string; key: string };
 
-export function StatisticsOverlay({ data, today, fontScale, onBackHandler, initialYear }: {
-  data: FlightData; today: string; fontScale: number; onBackHandler: (handler: () => boolean) => void; initialYear?: number;
+export function StatisticsOverlay({ data, today, fontScale, onBackHandler, initialYear, initialSection = 'overview' }: {
+  data: FlightData; today: string; fontScale: number; onBackHandler: (handler: () => boolean) => void; initialYear?: number; initialSection?: StatisticsSection;
 }) {
   const [period, setPeriod] = useState<StatisticsPeriod>({ kind: 'year', year: initialYear ?? Number(today.slice(0, 4)) });
   const [fromDraft, setFromDraft] = useState(`${today.slice(0, 4)}-01-01`);
@@ -34,7 +34,7 @@ export function StatisticsOverlay({ data, today, fontScale, onBackHandler, initi
   const [customOpen, setCustomOpen] = useState(false);
   const [informationOpen,setInformationOpen]=useState(false);
   const [rawPage,setRawPage]=useState(0);
-  const [routes, setRoutes] = useState<Route[]>([{ kind: 'section', section: 'overview', key: 'overview' }]);
+  const [routes, setRoutes] = useState<Route[]>([{ kind: 'section', section: initialSection, key: `section-${initialSection}` }]);
   const routeSequence = useRef(0);
   const scrollOffsets = useRef<Record<string, number>>({});
   const scroll = useRef<ScrollView>(null);
@@ -214,7 +214,7 @@ export function StatisticsOverlay({ data, today, fontScale, onBackHandler, initi
 
         {data.phase === 'ready' && data.view?.snapshot.account && route.section === 'roles' && <Card>
           <Section title="Ausbildung & Besatzung" />
-          <Label muted>DI: du als SIC, Begleiter als PIC und positive Dual-Zeit. Solo: du als PIC ohne Begleiter. Jeder Flug zählt genau einmal; unvollständige Angaben bleiben zur Prüfung offen.</Label>
+          <Label muted>Dual: du als SIC, Begleiter als PIC und positive Dual-Zeit. Solo: du als PIC ohne Begleiter. PIC+: du als PIC mit Begleitperson(en), ohne SIC oder Dual-Zeit. Jeder Flug zählt genau einmal.</Label>
           {roles.groups.map(row => <Card key={row.key} onPress={row.count ? () => openFlights(row.label, row.supportingIds) : undefined} label={`${row.label} · ${row.count} Flüge ansehen`} style={styles.bandRow}>
             <View style={styles.aircraftHeading}><Label style={{flex:1}}>{row.label}</Label><Label style={styles.metricValue}>{row.count}</Label></View>
             <Label muted>{row.knownDurationCount ? `${formatReportedMinutes(row.knownMinutes)} h bekannt` : 'Flugzeit unbekannt'}{row.unknownDurationCount ? ` · ${row.unknownDurationCount}× Zeit unbekannt` : ''}</Label>

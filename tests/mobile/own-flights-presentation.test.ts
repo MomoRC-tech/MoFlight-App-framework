@@ -340,6 +340,28 @@ test('category and launch controls combine, recover empty results and clear on a
   assert.equal(f.find('Pressable','Flugfilter öffnen').props.accessibilityState.selected,false);
 });
 
+test('Flugtyp picker combines source role with year and resets on account switch',()=>{
+  const f=fixture();
+  for(const [index,row] of f.data.view.flights.entries()) {
+    const fields=row.facts.assessment.fields;
+    fields.pilot={state:'value',label:'Pilot',raw:'Student Example'};
+    fields.pic={state:'value',label:'PIC',raw:index===0?'Instructor Example':'Student Example'};
+    fields.companion={state:index===1?'blank':'value',label:'Begleiter/FI',raw:index===1?'':index===2?'Companion Example':'Instructor Example'};
+    fields.sic={state:index===0?'value':'blank',label:'SIC',raw:index===0?'Student Example':''};
+    fields.dualTime={state:index===0?'value':'blank',label:'Dual-Time',raw:index===0?'00:12':''};
+    fields.picTime={state:'blank',label:'PIC-Time',raw:''};
+  }
+  f.render();
+  f.pick('Flugtyp','Dual');assert.deepEqual(f.find('FlatList').props.data.map((row:any)=>row.flightId),['flight-0']);
+  f.pick('Flugtyp','Solo');assert.deepEqual(f.find('FlatList').props.data.map((row:any)=>row.flightId),['flight-1']);
+  f.pick('Zeitraum','2026');assert.equal(f.find('FlatList').props.data.length,0);
+  f.pick('Flugtyp','PIC+');assert.equal(f.find('FlatList').props.data.length,0,'period remains active');
+  f.pick('Zeitraum','Alle Jahre');assert.deepEqual(f.find('FlatList').props.data.map((row:any)=>row.flightId),['flight-2']);
+  f.data.view={...f.data.view,snapshot:{...f.data.view.snapshot,ownerId:'other'}};f.render();f.render();
+  assert.equal(f.find('FlatList').props.data.length,3);
+  assert.equal(f.find('Pressable','Flugfilter öffnen').props.accessibilityState.selected,false);
+});
+
 test('empty own flights distinguish first retrieval from confirmed zero',()=>{
   const f=fixture(),base=f.data.view;
   f.data.view={...base,flights:[],snapshot:{...base.snapshot,savedRetrievals:[]}};f.render();

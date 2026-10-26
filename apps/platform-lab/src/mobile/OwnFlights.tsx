@@ -6,7 +6,7 @@ import { FlightDetails } from './FlightDetails';
 import { diagnosticJournal } from '../diagnostics';
 import { SymbolIcon } from './SymbolIcon';
 import type { useOwnFlights } from './use-own-flights';
-import { allOwnFlights, ownFlightClassificationOptions, ownFlightYears, ownFlightRegistrations, ownRawValue, ownFlightCard, ownFlightFilterTags, removeOwnFlightFilter, selectOwnFlights, requestedOwnFlight, type OwnFlightRequest, type OwnFlightFilters } from './own-flight-model';
+import { allOwnFlights, ownFlightClassificationOptions, ownFlightRoleOptions, ownFlightYears, ownFlightRegistrations, ownRawValue, ownFlightCard, ownFlightFilterTags, removeOwnFlightFilter, selectOwnFlights, requestedOwnFlight, type OwnFlightRequest, type OwnFlightFilters } from './own-flight-model';
 import { planFlightRetrieval } from '../vereinsflieger/retrieval-policy';
 import { dataFreshness } from './data-freshness';
 import { flightStartGuidance } from './flight-start-guidance';
@@ -22,7 +22,7 @@ export function OwnFlights({ active, data, filterRequest, onHeaderChange, onHelp
 }) {
   const [filters, setFilters] = useState<OwnFlightFilters>(allOwnFlights);
   const [filterOpen, setFilterOpen] = useState(false);
-  const [picker,setPicker]=useState<'year'|'category'|'registration'|'launch'|null>(null);
+  const [picker,setPicker]=useState<'year'|'category'|'registration'|'launch'|'role'|null>(null);
   const [optionQuery,setOptionQuery]=useState('');
   const [searchOpen, setSearchOpen] = useState(false);
   const [rawPage, setRawPage] = useState(0), [statusOpen, setStatusOpen] = useState(false);
@@ -39,6 +39,7 @@ export function OwnFlights({ active, data, filterRequest, onHeaderChange, onHelp
   const years = useMemo(() => ownFlightYears(flights), [flights]);
   const registrations = useMemo(() => ownFlightRegistrations(flights), [flights]);
   const classificationOptions = useMemo(() => ownFlightClassificationOptions(flights), [flights]);
+  const roleOptions = useMemo(() => ownFlightRoleOptions(flights), [flights]);
   const aircraftFiltered = filters.registration !== undefined || filters.aircraftCategory !== undefined || filters.launchMethod !== undefined;
   const plan = useMemo(() => planFlightRetrieval(data.view?.snapshot.savedRetrievals ?? []), [data.view?.snapshot.savedRetrievals]);
   const freshness = dataFreshness(plan.lastSuccessfulRetrievalAt, data.phase === 'ready' ? 'ready' : 'loading');
@@ -84,7 +85,7 @@ export function OwnFlights({ active, data, filterRequest, onHeaderChange, onHelp
     const requested = requestedOwnFlight(flights, filterRequest);
     if (requested) void data.openDetail(requested);
   }, [active, data.phase, data.detailBusy, data.view, filterRequest, data.clearDetail]);
-  const changeFilters = (next: OwnFlightFilters) => { if(next.search!==filters.search)diagnosticJournal.record('filter','search');if(next.year!==filters.year)diagnosticJournal.record('filter','year');if(next.registration!==filters.registration)diagnosticJournal.record('filter','registration'); offset.current = 0; list.current?.scrollToOffset({ offset: 0, animated: false }); setFilters({...next,flightIds:undefined}); };
+  const changeFilters = (next: OwnFlightFilters) => { if(next.search!==filters.search)diagnosticJournal.record('filter','search');if(next.year!==filters.year)diagnosticJournal.record('filter','year');if(next.registration!==filters.registration)diagnosticJournal.record('filter','registration');if(next.flightRole!==filters.flightRole)diagnosticJournal.record('filter','flight-filter'); offset.current = 0; list.current?.scrollToOffset({ offset: 0, animated: false }); setFilters({...next,flightIds:undefined}); };
   const openPicker = (kind: NonNullable<typeof picker>) => {Keyboard.dismiss();setOptionQuery('');setPicker(kind);};
   const field=(title:string,value:string,kind:NonNullable<typeof picker>)=><Pressable key={kind} accessibilityRole="button" accessibilityLabel={`${title}: ${value}, auswählen`} onPress={()=>openPicker(kind)} style={[s.field,fontScale>1.3&&{width:'100%'}]}><Text style={s.fieldLabel}>{title}</Text><View style={s.fieldValue}><Text numberOfLines={1} style={s.fieldText}>{value}</Text><SymbolIcon name="down" size={12} tone="muted"/></View></Pressable>;
   const pick=(next:OwnFlightFilters)=>{Keyboard.dismiss();changeFilters(next);setPicker(null);};
@@ -92,7 +93,8 @@ export function OwnFlights({ active, data, filterRequest, onHeaderChange, onHelp
     [{id:'all',label:'Alle Jahre',selected:filters.year===null&&!filters.dateRange,choose:()=>pick({...filters,year:null,dateRange:null})},...years.map(year=>({id:String(year),label:String(year),selected:filters.year===year,choose:()=>pick({...filters,year,dateRange:null})}))]:picker==='category'?
     [{id:'all',label:'Alle Kategorien',selected:filters.aircraftCategory===undefined,choose:()=>pick({...filters,aircraftCategory:undefined})},...classificationOptions.categories.map(o=>({id:o.key,label:o.label,selected:filters.aircraftCategory===o.key,choose:()=>pick({...filters,aircraftCategory:o.key})}))]:picker==='launch'?
     [{id:'all',label:'Alle Startarten',selected:filters.launchMethod===undefined,choose:()=>pick({...filters,launchMethod:undefined})},...classificationOptions.launches.map(o=>({id:o.key,label:o.label,selected:filters.launchMethod===o.key,choose:()=>pick({...filters,launchMethod:o.key})}))]:picker==='registration'?
-    [{id:'all',label:'Alle Kennzeichen',selected:filters.registration===undefined,choose:()=>pick({...filters,registration:undefined})},...registrations.map(registration=>({id:'reg-'+registration,label:registration,selected:filters.registration===registration,choose:()=>pick({...filters,registration})})),...(flights.some(f=>ownRawValue(f.facts.assessment.fields.registration)===null)?[{id:'unknown',label:'Kennzeichen unbekannt',selected:filters.registration===null,choose:()=>pick({...filters,registration:null})}]:[])]:[];
+    [{id:'all',label:'Alle Kennzeichen',selected:filters.registration===undefined,choose:()=>pick({...filters,registration:undefined})},...registrations.map(registration=>({id:'reg-'+registration,label:registration,selected:filters.registration===registration,choose:()=>pick({...filters,registration})})),...(flights.some(f=>ownRawValue(f.facts.assessment.fields.registration)===null)?[{id:'unknown',label:'Kennzeichen unbekannt',selected:filters.registration===null,choose:()=>pick({...filters,registration:null})}]:[])]:picker==='role'?
+    [{id:'all',label:'Alle Flugtypen',selected:filters.flightRole===undefined,choose:()=>pick({...filters,flightRole:undefined})},...roleOptions.map(o=>({id:o.key,label:o.label,selected:filters.flightRole===o.key,choose:()=>pick({...filters,flightRole:o.key})}))]:[];
   const search=<View style={s.searchBox}><TextInput accessibilityLabel="Flüge durchsuchen" placeholder="Kennzeichen, Ort, Crew …" placeholderTextColor={colors.muted} value={filters.search} onChangeText={search=>changeFilters({...filters,search})} onSubmitEditing={Keyboard.dismiss} autoCorrect={false} returnKeyType="search" style={s.search}/>{filters.search.length>0&&<Pressable accessibilityRole="button" accessibilityLabel="Suche löschen" onPress={()=>changeFilters({...filters,search:''})} style={s.clear}><Label>×</Label></Pressable>}</View>;
   const header=<View style={s.filterGroup}>
     <View style={s.compactHeader}>
@@ -109,6 +111,7 @@ export function OwnFlights({ active, data, filterRequest, onHeaderChange, onHelp
         {field('Kategorie',classificationOptions.categories.find(o=>o.key===filters.aircraftCategory)?.label??'Alle Kategorien','category')}
         {field('Kennzeichen',filters.registration===undefined?'Alle':filters.registration??'Unbekannt','registration')}
         {field('Startart',classificationOptions.launches.find(o=>o.key===filters.launchMethod)?.label??'Alle Startarten','launch')}
+        {field('Flugtyp',roleOptions.find(o=>o.key===filters.flightRole)?.label??'Alle Flugtypen','role')}
       </View>
       {filters.flightIds&&<Pressable accessibilityRole="button" accessibilityLabel="Belegfilter entfernen" style={s.filterToggle} onPress={()=>changeFilters({...filters,flightIds:undefined})}><Label muted>Belege: {filters.flightIds.length} · entfernen ×</Label></Pressable>}
       <View style={s.compactHeader}><Pressable accessibilityRole="button" accessibilityLabel="Alle Filter zurücksetzen" onPress={()=>changeFilters(allOwnFlights)} style={s.filterToggle}><Label muted>Zurücksetzen</Label></Pressable><View style={{flex:1}}/><Pressable accessibilityRole="button" accessibilityLabel="Filter schließen" onPress={()=>{Keyboard.dismiss();setFilterOpen(false);setSearchOpen(false);}} style={s.filterToggle}><Label style={{color:colors.cyan}}>{summary.count} Flüge anzeigen ↑</Label></Pressable></View>
@@ -145,7 +148,7 @@ export function OwnFlights({ active, data, filterRequest, onHeaderChange, onHelp
       </>}
     </Card></View></ScrollView>}
     {picker&&active&&<Modal transparent animationType="fade" onRequestClose={()=>setPicker(null)}><KeyboardAvoidingView behavior={Platform.OS==='ios'?'padding':'height'} style={s.scrim}><Pressable accessibilityRole="button" accessibilityLabel="Auswahl schließen" onPress={()=>setPicker(null)} style={StyleSheet.absoluteFill}/><View accessibilityViewIsModal style={s.optionSheet}>
-      <View style={s.compactHeader}><Label style={{flex:1,fontWeight:'600'}}>{({year:'Zeitraum',category:'Luftfahrzeugart',registration:'Kennzeichen',launch:'Startart'})[picker]}</Label><Pressable accessibilityRole="button" accessibilityLabel="Auswahl schließen" onPress={()=>setPicker(null)} style={s.clear}><Label>×</Label></Pressable></View>
+      <View style={s.compactHeader}><Label style={{flex:1,fontWeight:'600'}}>{({year:'Zeitraum',category:'Luftfahrzeugart',registration:'Kennzeichen',launch:'Startart',role:'Flugtyp'})[picker]}</Label><Pressable accessibilityRole="button" accessibilityLabel="Auswahl schließen" onPress={()=>setPicker(null)} style={s.clear}><Label>×</Label></Pressable></View>
       {picker==='registration'&&<TextInput accessibilityLabel="Kennzeichen suchen" placeholder="Kennzeichen suchen …" placeholderTextColor={colors.muted} value={optionQuery} onChangeText={setOptionQuery} style={s.search}/>}
       <ScrollView keyboardShouldPersistTaps="handled">{options.filter(o=>o.label.toLocaleLowerCase('de-DE').includes(optionQuery.trim().toLocaleLowerCase('de-DE'))).map(o=><Pressable key={o.id} accessibilityRole="button" accessibilityLabel={o.label} accessibilityState={{selected:o.selected}} onPress={o.choose} style={s.option}><Label style={{flex:1}}>{o.label}</Label>{o.selected&&<Label style={{color:colors.cyan}}>✓</Label>}</Pressable>)}</ScrollView>
     </View></KeyboardAvoidingView></Modal>}

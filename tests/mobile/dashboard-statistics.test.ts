@@ -9,6 +9,7 @@ import ts from 'typescript';
 import * as statistics from '../../apps/platform-lab/src/mobile/real-flight-statistics.ts';
 import * as season from '../../apps/platform-lab/src/mobile/season-model.ts';
 import * as cockpit from '../../apps/platform-lab/src/mobile/cockpit-season.ts';
+import * as roles from '../../apps/platform-lab/src/mobile/flight-role-metric.ts';
 import * as workHours from '../../apps/platform-lab/src/mobile/season-work-hours.ts';
 import { planFlightRetrieval } from '../../apps/platform-lab/src/vereinsflieger/retrieval-policy.ts';
 import { dataFreshness } from '../../apps/platform-lab/src/mobile/data-freshness.ts';
@@ -27,18 +28,18 @@ function render(flights:any[], phase='ready', fontScale=1) {
   const states:any[]=[];let stateIndex=0;const useState=(initial:any)=>{const i=stateIndex++;if(!(i in states))states[i]=initial;return [states[i],(value:any)=>{states[i]=value;}];};
   const target={hours:25,busy:false};let inlineBack=()=>false;
   const modules:Record<string,unknown>={react:{default:react,useMemo,useState},'react-native':{...leaves(['ActivityIndicator','ImageBackground','Pressable','ScrollView','Text','View']),StyleSheet:{create:(x:unknown)=>x}},
-    './season-work-hours':workHours, './cockpit-season':cockpit,'./DutyTarget':{useDutyTarget:()=>target,DutyTargetEditor:'DutyTargetEditor'},
+    './season-work-hours':workHours, './cockpit-season':cockpit, './flight-role-metric':roles, './DutyTarget':{useDutyTarget:()=>target,DutyTargetEditor:'DutyTargetEditor'},
     './theme':{...leaves(['Action','Card','GliderMark','IconLabel','Label','Photo','Section']),colors:{},ui:{}},'./SymbolIcon':leaves(['SymbolIcon']),
     './FlightScene':leaves(['FlightScene']),'./SeasonMonthlyCharts':leaves(['SeasonMonthlyCharts']), './season-dashboard-model':{...dashboardModel,monthlySeasonForCoverage:(...args:Parameters<typeof dashboardModel.monthlySeasonForCoverage>)=>{monthlyCalculations++;return dashboardModel.monthlySeasonForCoverage(...args);}}, './SeasonRing':leaves(['SeasonRing']),'./season-model':season,'./real-flight-statistics':{...statistics,summarizeRealFlights:(...args:Parameters<typeof statistics.summarizeRealFlights>)=>{calculations++;return statistics.summarizeRealFlights(...args);}},
     './processed-result':processedResults,'./flight-start-guidance':flightStartGuidance,'./data-freshness':{dataFreshness},'../vereinsflieger/retrieval-policy':{planFlightRetrieval}};
   const exports:any={};runInNewContext(source,{exports,Date:class extends Date {getFullYear(){return 2026;}},require:(name:string)=>{
     if(name.startsWith('../../assets/'))return name;assert.ok(name in modules,name);return modules[name];}});
-  const calls:(number|undefined)[]=[];const opened:string[]=[];const statisticsCalls:number[]=[];
+  const calls:(number|undefined)[]=[];const opened:string[]=[];const statisticsCalls:number[]=[];const roleCalls:string[]=[];
   const props:any={ownFlights:{flights,snapshot:{account:{accountRef:'101'},savedRetrievals:[]}},ownFlightPhase:phase,pending:null,width:390,fontScale,now:Date.parse('2026-10-22T12:00:00Z'),
-    onBackHandler:(handler:()=>boolean)=>{inlineBack=handler;},onFlight:(id:string)=>opened.push(id),onFlights:(year?:number)=>calls.push(year),onStatistics:(year:number)=>statisticsCalls.push(year)};
+    onBackHandler:(handler:()=>boolean)=>{inlineBack=handler;},onFlight:(id:string)=>opened.push(id),onFlights:(year?:number)=>calls.push(year),onStatistics:(year:number,section?:string)=>{statisticsCalls.push(year);if(section)roleCalls.push(section);}};
   const tree=exports.Dashboard(props);
   const nodes:Element[]=[];function visit(n:any){if(n?.type?.name==='StatisticsEntry'){visit(n.type(n.props));return;}if(n?.children){nodes.push(n);n.children.forEach(visit);}}visit(tree);
-  return {nodes,calls,opened,statisticsCalls,target,inlineBack:()=>inlineBack(),text:JSON.stringify(tree), calculations:()=>calculations, monthlyCalculations:()=>monthlyCalculations, rerender(nextFlights=flights){hookIndex=0;stateIndex=0;if(nextFlights!==props.ownFlights.flights)props.ownFlights={...props.ownFlights,flights:nextFlights};return exports.Dashboard(props);}, changeView(next:any){hookIndex=0;stateIndex=0;props.ownFlights=next;return exports.Dashboard(props);}, view:()=>props.ownFlights};
+  return {nodes,calls,opened,statisticsCalls,roleCalls,target,inlineBack:()=>inlineBack(),text:JSON.stringify(tree), calculations:()=>calculations, monthlyCalculations:()=>monthlyCalculations, rerender(nextFlights=flights){hookIndex=0;stateIndex=0;if(nextFlights!==props.ownFlights.flights)props.ownFlights={...props.ownFlights,flights:nextFlights};return exports.Dashboard(props);}, changeView(next:any){hookIndex=0;stateIndex=0;props.ownFlights=next;return exports.Dashboard(props);}, view:()=>props.ownFlights};
 }
 
 test('Start routes saved analytics to the overlay and keeps it available before and after flights load',()=>{
@@ -57,6 +58,28 @@ test('compact metrics use selected annual hours and keep financial values out of
  const tree=f.changeView({...f.view(),featureInformation:{workSummary:{status:'partial',items:[{period:'Jahr 2026',hours:'07:25',obligation:'90,00 EUR'}]}}});
  assert.match(JSON.stringify(tree),/7:25 geleistet/);assert.match(JSON.stringify(tree),/Soll vorläufig 25/);assert.doesNotMatch(JSON.stringify(tree),/90,00/);
  const next=f.changeView({...f.view(),snapshot:{...f.view().snapshot,ownerId:'other'},featureInformation:undefined});assert.doesNotMatch(JSON.stringify(next),/7:25/);
+});
+test('Solo, Dual and PIC+ share the existing horizontal metric row and open role analysis',()=>{
+ const dual=structuredClone(ownFlightFixture().flights[0]!);
+ dual.facts.assessment.date={...dual.facts.assessment.date,state:'parsed',value:'2026-06-18'};
+ dual.facts.assessment.durations.flight={state:'known',minutes:12,evidence:[]};
+ const fields=dual.facts.assessment.fields;
+ fields.pilot={state:'value',label:'Pilot',raw:'Student Example'};
+ fields.sic={state:'value',label:'SIC',raw:'Student Example'};
+ fields.pic={state:'value',label:'PIC',raw:'Instructor Example'};
+ fields.companion={state:'value',label:'Begleiter/FI',raw:'Instructor Example'};
+ fields.dualTime={state:'value',label:'Dual-Time',raw:'00:12'};
+ fields.picTime={state:'blank',label:'PIC-Time',raw:''};
+ const f=render([dual]);
+ const row=f.nodes.find(n=>n.type==='ScrollView'&&n.props.horizontal);
+ assert.ok(row);assert.equal(row.children.length,6,'three role tiles follow three existing tiles at the same row height');
+ const metrics=f.nodes.filter(n=>n.type==='Pressable'&&/^(Solo|Dual|PIC\+) 2026:/.test(n.props.accessibilityLabel??''));
+ assert.deepEqual(metrics.map(n=>n.props.accessibilityLabel.split(' ')[0]),['Solo','Dual','PIC+']);
+ assert.match(metrics[1]!.props.accessibilityLabel,/1 gespeicherte Flüge, 0:12/);
+ metrics[1]!.props.onPress();assert.deepEqual(f.roleCalls,['roles']);assert.deepEqual(f.statisticsCalls,[2026]);
+ const unavailable=render([],'loading');
+ assert.equal(unavailable.nodes.filter(n=>n.type==='Pressable'&&/^(Solo|Dual|PIC\+) 2026:/.test(n.props.accessibilityLabel??'')).length,3);
+ assert.match(unavailable.text,/Solo 2026: — gespeicherte Flüge/);
 });
 test('compact season deduplicates flights and keeps missing durations explicit',()=>{
  const a=structuredClone(ownFlightFixture().flights[0]!);a.facts.assessment.date={...a.facts.assessment.date,state:'parsed',value:'2026-01-01'};a.facts.assessment.durations.flight={state:'known',minutes:90,evidence:[]};

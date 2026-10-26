@@ -10,6 +10,7 @@ import type { useOwnFlights } from './use-own-flights';
 import type { OwnFlightRequest } from './own-flight-model';
 import type { RealFlightDetail, RealFlightListItem } from '../vereinsflieger/real-flight-library';
 import { StatisticsOverlay } from './StatisticsOverlay';
+import type { StatisticsSection } from './statistics-overlay-model';
 import { DutyRoster } from './DutyRoster';
 import { DataUpdateIndicator } from './DataUpdateIndicator';
 import { UpdateResult } from './UpdateResult';
@@ -30,6 +31,8 @@ export function DesignPreview({onClose=()=>{}}:{onClose?:()=>void}={}) {
   const [header, setHeader] = useState<OwnFlightHeader>({ title: 'Flüge' });
   const [paper, setPaper] = useState(false);
   const [statisticsOpen, setStatisticsOpen] = useState(false);
+  const [statisticsSection,setStatisticsSection]=useState<StatisticsSection>('overview');
+  const [statisticsYear,setStatisticsYear]=useState(2026);
   const [syncDetails, setSyncDetails] = useState(false);
   const [syncState,setSyncState]=useState<'saved'|'never'|'age'|'changed'|'read-error'>('saved');
   const [syncReceiptVisible, setSyncReceiptVisible] = useState(true);
@@ -49,7 +52,7 @@ export function DesignPreview({onClose=()=>{}}:{onClose?:()=>void}={}) {
     detailError: mode === 'error' ? 'Synthetischer Lesefehler für die UI-Vorschau. Erneut prüfen zeigt wieder die erfundenen Flüge; echte Daten bleiben unberührt.' : null,
     openDetail, clearDetail, reload,
   };
-  if(cockpit)return <CockpitPreview onClose={()=>setCockpit(false)} onFlights={()=>{setCockpit(false);setPage('flights');}} onStatistics={()=>{setCockpit(false);setStatisticsOpen(true);}}/>;
+  if(cockpit)return <CockpitPreview onClose={()=>setCockpit(false)} onFlights={()=>{setCockpit(false);setPage('flights');}} onStatistics={(year,section='overview')=>{setStatisticsYear(year);setStatisticsSection(section);setCockpit(false);setStatisticsOpen(true);}}/>;
   const syncReceived=syncState==='never'?null:syncState==='age'?'2026-10-18T12:00:00.000Z':new Date(DESIGN_PREVIEW_NOW).toISOString();
   const syncRead=syncState==='read-error'?'failed':'ready';
   const syncNotice=idleSyncNotice({receivedAt:syncReceived,readState:syncRead,now:DESIGN_PREVIEW_NOW,activityChanged:syncState==='changed'});
@@ -74,7 +77,7 @@ export function DesignPreview({onClose=()=>{}}:{onClose?:()=>void}={}) {
         {null}
       </AppHeader>
       <Label muted style={styles.notice}>Synthetische UI-Vorschau · keine Speicherung</Label>
-      <StatisticsOverlay data={data} today="2026-10-22" fontScale={fontScale} onBackHandler={handler => { statisticsBack.current = handler; }} />
+      <StatisticsOverlay initialYear={statisticsYear} initialSection={statisticsSection} data={data} today="2026-10-22" fontScale={fontScale} onBackHandler={handler => { statisticsBack.current = handler; }} />
     </View>
   </View>;
   const showFlights = (flightId?: string) => {
@@ -106,7 +109,7 @@ export function DesignPreview({onClose=()=>{}}:{onClose?:()=>void}={}) {
     {page === 'start' ? <ScrollView contentContainerStyle={styles.canvas}>
       <Label muted>Festes Demo-Datum: 22.10.2026 · alle Flüge und Belege erfunden.</Label>
       <Dashboard persistDutyTarget={false} ownFlights={fixture.view} ownFlightPhase="ready" pending={null} width={width} fontScale={fontScale}
-        now={DESIGN_PREVIEW_NOW} onPaper={() => setPaper(!paper)} onFlights={() => showFlights()} onFlight={showFlights} onStatistics={() => setStatisticsOpen(true)} />
+        now={DESIGN_PREVIEW_NOW} onPaper={() => setPaper(!paper)} onFlights={() => showFlights()} onFlight={showFlights} onStatistics={(year,section='overview') => {setStatisticsYear(year);setStatisticsSection(section);setStatisticsOpen(true);}} />
       {paper && <Card><Label>Papierflugbuch später einrichten</Label><Label muted>Diese Vorschau zeigt nur erfundene Flugdaten. Es wird kein Flugbuch angelegt.</Label></Card>}
       <Action secondary onPress={() => showState('empty')}>Leere Liste ansehen</Action>
       <Action secondary onPress={() => showState('error')}>Lesefehler ansehen</Action>

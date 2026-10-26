@@ -40,8 +40,8 @@ The overview uses one horizontal original-logo/wordmark/destination toolbar, Syn
 
 | Surface | Existing data and actions retained |
 | --- | --- |
-| Overview | Selected-account saved flights; year selection via season title; Statistics overlay; exact latest-flight identity and all-flight route; Medical source details; deferred paper entry; saved club duties and complete duty action. |
-| Flüge / Statistics | Existing filters, saved summary, detail/back state, year/all/custom periods, aircraft breakdowns, comparisons, duration groups and exact contributors. |
+| Overview | Selected-account saved flights; year selection via season title; existing horizontally scrolling season metrics plus Solo/Dual/PIC+ count and known h:min tiles at the same row height; Statistics overlay; exact latest-flight identity and all-flight route; Medical source details; deferred paper entry; saved club duties and complete duty action. |
+| Flüge / Statistics | Existing filters plus Flugtyp, saved summary, detail/back state, year/all/custom periods, aircraft breakdowns, comparisons, duration and role groups, and exact contributors. |
 | Flugbuch / Development | Existing deferred production journey; separate synthetic multi-book selection, paper evidence and writing tools remain in Development. No real paper book is activated by this redesign. |
 | Verein | Overview, duties, events, document notices, annual work rows, individual work entries and own tasks with existing source/unknown/error states. |
 | AI | Existing local questions, draft/keyboard handling and explicit unavailable service/retry; no paid/model call added. |
@@ -102,3 +102,5 @@ Overview rows omit missing date, registration/model, crew, category, launch, clo
 ### Statistics flight roles — selected 26 October 2026
 
 The existing compact Statistics frame adds a Flugrollen section with the same contributor cards. It shows DI, Solo, PIC with one or more companions and review as exclusive groups, with count, known reported duration and exact-flight drilldown. DI follows Manuel's saved-training source rule: Pilot=SIC, companion=PIC and positive Dual-Time. Solo is Pilot=PIC with no companion; recorded flight permission is a separate Solo subset. PIC with companions requires no SIC or Dual-Time, and a companion is not automatically a verified passenger. There is no probability label. Missing or conflicting evidence remains visible for review, and no legal credit is asserted.
+
+**Start and filter follow-up:** Manuel selected short labels **Solo**, **Dual**, **PIC+** for the three additional saved-flight metrics. They sit after the existing three metrics inside the same horizontal scroller; each uses the selected year, shows a flight count and known reported h:min without increasing the row height, and opens Flugrollen for that year. The Flüge selector **Flugtyp** offers these groups and **Prüfen** where source evidence is incomplete; it combines with the existing filters. PIC+ is source-based Pilot-as-PIC with companions, not proof of passenger status. An unknown duration remains unknown, and a zero group is shown only against an available saved season; incomplete history is not represented as complete.

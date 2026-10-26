@@ -30,15 +30,16 @@ export function createDesignPreviewData(scenario: 'default' | 'undated' | 'same-
     rows[1]![0] = rows[0]![0]!;
     rows[1]![2] = '';
   }
-  const capture = { captureId: 'synthetic-design-capture', headers:[...headers,'Flugmodus','Begleiter 2','Begleiter 3','SIC','Luftfahrzeugart','S-Art'],
+  const capture = { captureId: 'synthetic-design-capture', headers:[...headers,'Flugmodus','Begleiter 2','Begleiter 3','SIC','Luftfahrzeugart','S-Art','Dual-Time'],
     rows: rows.map((values, index) => {
       const display=[...values];
       display[5]=display[5]!.replace(' · Demo','');
       display[6]=index===1?'Mira Koch':'Jonas Winter';
-      if(display[7])display[7]=display[6]!;
+      if(display[7])display[7]=index===0?'Lea Berger':display[6]!;
+      if(index===2)display[7]=display[6]!;
       if(display[8])display[8]='Lea Berger';
       display[9]='Musterfeld';display[10]=index===2?'Beispielort':'Musterfeld';
-      return { values:[...display,[1,3,4,6].includes(index)?'Solo':'',index===2?'Alexandra Marie Beispiel':'','','',index===2?'':'Segelflugzeug',index===2?'?':index%2?'F':'W'],sourceFlightId:String(990001+index) };
+      return { values:[...display,[1,3,4,6].includes(index)?'Solo':'',index===2?'Alexandra Marie Beispiel':'','',index===0?display[6]!:'',index===2?'':'Segelflugzeug',index===2?'?':index%2?'F':'W',index===0?'01:25':''],sourceFlightId:String(990001+index) };
     }) };
   const flights = capture.rows.map((row, index) => ({
     flightId: `synthetic-design-flight-${index + 1}`, bindingId: DESIGN_PREVIEW_SCOPE.bindingId,

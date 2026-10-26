@@ -6,7 +6,9 @@ import { formatReportedMinutes, summarizeRealFlights } from './real-flight-stati
 import { SymbolIcon } from './SymbolIcon';
 import { latestSavedFlights, latestFlightOrderUnknown, abbreviatedCrew } from './season-dashboard-model';
 import { seasonWorkHours } from './season-work-hours';
-import { cockpitSeasonValues } from './cockpit-season';
+import { cockpitRoleMetrics, cockpitSeasonValues } from './cockpit-season';
+import { flightRoleShortLabels } from './flight-role-metric';
+import type { StatisticsSection } from './statistics-overlay-model';
 import { flightStartGuidance } from './flight-start-guidance';
 import { planFlightRetrieval } from '../vereinsflieger/retrieval-policy';
 import { createProcessedSelector } from './processed-result';
@@ -14,7 +16,7 @@ import type { RealFlightListItem } from '../vereinsflieger/real-flight-library';
 import { DutyTargetEditor, useDutyTarget } from './DutyTarget';
 interface Props {
   ownFlights: OwnFlightView | null; ownFlightPhase: 'loading' | 'ready' | 'missing' | 'failed'; pending: number | null; width: number; fontScale: number;
-  onPaper: () => void; onFlights: () => void; onFlight?: (flightId: string) => void; onStatistics?: (year: number) => void; now?: number; persistDutyTarget?: boolean; onBackHandler?:(handler:()=>boolean)=>void;
+  onPaper: () => void; onFlights: () => void; onFlight?: (flightId: string) => void; onStatistics?: (year: number, section?: StatisticsSection) => void; now?: number; persistDutyTarget?: boolean; onBackHandler?:(handler:()=>boolean)=>void;
 }
 export function Dashboard({ ownFlights, ownFlightPhase, onFlights, onFlight, onStatistics, fontScale, now = Date.now(), persistDutyTarget = true,onBackHandler }: Props) {
   const clock = new Date(now), currentYear = clock.getFullYear();
@@ -30,11 +32,11 @@ export function Dashboard({ ownFlights, ownFlightPhase, onFlights, onFlight, onS
     return false;
   });
   const years=[...new Set([currentYear,...(ownFlights?.flights??[]).map(f=>Number(f.facts.assessment.date.value?.slice(0,4))).filter(y=>Number.isInteger(y)&&y>=1901&&y<=currentYear)])].sort((a,b)=>b-a);
-  const processFlights=useMemo(()=>createProcessedSelector(({flights,year}:{flights:RealFlightListItem[];year:number})=>{
+  const processFlights=useMemo(()=>createProcessedSelector(({flights,year,today}:{flights:RealFlightListItem[];year:number;today:string})=>{
     const latest=latestSavedFlights(flights)[0];
-    return {current:summarizeRealFlights(flights,year),prior:summarizeRealFlights(flights,year-1),latest,orderUnknown:latestFlightOrderUnknown(flights,latest)};
+    return {current:summarizeRealFlights(flights,year),prior:summarizeRealFlights(flights,year-1),roles:cockpitRoleMetrics(flights,year,today),latest,orderUnknown:latestFlightOrderUnknown(flights,latest)};
   }),[]);
-  const processed=processFlights(scope,ownFlights?{flights:ownFlights.flights,year}:null);
+  const processed=processFlights(scope,ownFlights?{flights:ownFlights.flights,year,today}:null);
   const empty=useMemo(()=>summarizeRealFlights([]),[]),saved=ownFlights?.snapshot.savedRetrievals??[];
   const facts={current:cockpitSeasonValues(processed?.current??empty,saved,year,today),prior:cockpitSeasonValues(processed?.prior??empty,saved,year-1,today),latest:processed?.latest};
   const workHours=seasonWorkHours(ownFlights?.featureInformation?.workSummary,year);
@@ -61,6 +63,16 @@ export function Dashboard({ ownFlights, ownFlightPhase, onFlights, onFlight, onS
           <Pressable accessibilityRole="button" accessibilityLabel={`Arbeitsstunden ${year}: ${ready?(workHours??'unbekannt'):'unbekannt'} geleistet. Soll vorläufig ${target.hours} Stunden. Soll anpassen`} onPress={()=>setTargetOpen(!targetOpen)} style={[styles.metric,styles.divider]}>
             <Label style={[styles.value,styles.workValue]}>{ready?(workHours??'—'):'—'} / {String(target.hours).replace('.',',')} h</Label><Label muted style={styles.metricLabel}>Arbeitsstunden</Label><Label style={[styles.prior,{color:colors.cyan}]}>Soll anpassen</Label><Label muted style={styles.prior}>Soll vorläufig</Label>
           </Pressable>
+          {(['solo','dualInstruction','picWithCompanion'] as const).map(key=>{
+            const group=processed?.roles.find(item=>item.key===key),label=flightRoleShortLabels[key];
+            const groupCount=group?.count??0,known=ready&&!!group?.knownDurationCount;
+            const confirmedZero=ready&&groupCount===0&&facts.current.starts!=='—';
+            const time=known?formatReportedMinutes(group!.knownMinutes):confirmedZero?'0:00':'—';
+            const count=ready&&(groupCount>0||facts.current.starts!=='—')?String(groupCount):'—';
+            return <Pressable key={key} accessibilityRole="button" accessibilityLabel={`${label} ${year}: ${count} gespeicherte Flüge, ${known?`${time} Stunden und Minuten bekannte Flugzeit`:confirmedZero?'0:00 Stunden und Minuten gespeicherte Flugzeit':'Flugzeit unbekannt'}${group?.unknownDurationCount?`, ${group.unknownDurationCount} ohne bekannte Dauer`:''}. Statistik öffnen`} onPress={()=>onStatistics?.(year,'roles')} style={[styles.metric,styles.divider]}>
+              <Label style={[styles.value,styles.roleValue]}>{ready?time:'—'}</Label><Label muted style={styles.metricLabel}>{label} · h:min</Label><Label muted style={styles.prior}>{ready?count:'—'} Flüge</Label>
+            </Pressable>;
+          })}
         </ScrollView>
       </View>
     </ImageBackground>
@@ -84,7 +96,7 @@ const styles=StyleSheet.create({
   heading:{flexDirection:'row',alignItems:'center',gap:6},seasonTitle:{flex:1,minWidth:0,minHeight:48,justifyContent:'center'},title:{fontSize:18,lineHeight:25,fontWeight:'700'},
   statistics:{minHeight:48,justifyContent:'center',alignItems:'center',flexDirection:'row',gap:3,paddingHorizontal:2,maxWidth:'35%'},statisticsText:{color:colors.cyan,fontSize:14,lineHeight:20},
   metrics:{flexGrow:1,flexDirection:'row',paddingTop:4},metric:{flex:1,minWidth:90,alignItems:'center',justifyContent:'flex-start',gap:3,paddingHorizontal:5},divider:{borderLeftWidth:1,borderColor:colors.border},
-  value:{fontSize:27,lineHeight:34,fontWeight:'700',textAlign:'center',fontVariant:['tabular-nums']},workValue:{fontSize:22,lineHeight:34},metricLabel:{fontSize:12,lineHeight:18,textAlign:'center'},prior:{fontSize:11,lineHeight:17,textAlign:'center'},
+  value:{fontSize:27,lineHeight:34,fontWeight:'700',textAlign:'center',fontVariant:['tabular-nums']},workValue:{fontSize:22,lineHeight:34},roleValue:{fontSize:22},metricLabel:{fontSize:12,lineHeight:18,textAlign:'center'},prior:{fontSize:11,lineHeight:17,textAlign:'center'},
   body:{paddingHorizontal:12},inset:{padding:12},latest:{flexDirection:'row',alignItems:'center',gap:9,minHeight:80,paddingVertical:10,borderTopWidth:1,borderColor:colors.border},
   flightRow:{flexDirection:'row',flexWrap:'wrap',alignItems:'center',gap:8},date:{fontSize:16,lineHeight:22,fontWeight:'700',flexGrow:1},duration:{backgroundColor:colors.raised,borderWidth:1,borderColor:colors.border,borderRadius:18,paddingHorizontal:10,paddingVertical:3},durationText:{color:colors.cyan,fontSize:14,lineHeight:20,fontWeight:'600'},small:{fontSize:12,lineHeight:18},
   allFlights:{minHeight:48,flexDirection:'row',alignItems:'center',justifyContent:'space-between',borderTopWidth:1,borderColor:colors.border},

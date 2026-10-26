@@ -4,6 +4,8 @@ import { adaptHistoryFacts } from '../../apps/platform-lab/src/vereinsflieger/hi
 import type { RealFlightListItem } from '../../apps/platform-lab/src/vereinsflieger/real-flight-library.ts';
 import { classifyFlightRoleMetric } from '../../apps/platform-lab/src/mobile/flight-role-metric.ts';
 import { groupStatisticsFlightRoles, selectStatisticsFlights } from '../../apps/platform-lab/src/mobile/statistics-overlay-model.ts';
+import { cockpitRoleMetrics } from '../../apps/platform-lab/src/mobile/cockpit-season.ts';
+import { allOwnFlights, ownFlightFilterTags, ownFlightRoleOptions, removeOwnFlightFilter, selectOwnFlights } from '../../apps/platform-lab/src/mobile/own-flight-model.ts';
 import { captureFixture } from './capture-review-fixture.ts';
 
 interface CrewEvidence { pilot?: string; pic?: string; companion?: string; dual?: string; picTime?: string; permission?: string; extra?: string; extra3?: string; sic?: string; fi?: string }
@@ -70,4 +72,32 @@ test('selected-period role groups are exclusive, deduplicated and drill down to 
   const withoutConflict = groupStatisticsFlightRoles(rows);
   assert.deepEqual(withoutConflict.groups.map(group => group.count), [1, 1, 1, 1]);
   assert.deepEqual(withoutConflict.soloWithPermission.supportingIds, ['flight-2']);
+});
+
+test('Start role hours and counts use selected saved year, distinct IDs and known duration only', () => {
+  const dual=flight(1,{sic:'Student Example'}),solo=flight(2,{pic:'Student Example',companion:'',dual:''});
+  const accompanied=flight(3,{pic:'Student Example',dual:'',extra:'Third Person'}),prior=flight(4,{sic:'Student Example'});
+  for(const row of [dual,solo,accompanied,prior]) row.facts.assessment.date={...row.facts.assessment.date,state:'parsed',value:row===prior?'2025-08-01':'2026-08-01'};
+  dual.facts.assessment.durations.flight={state:'known',minutes:12,evidence:[]};
+  solo.facts.assessment.durations.flight={state:'known',minutes:6,evidence:[]};
+  accompanied.facts.assessment.durations.flight={state:'unknown',minutes:null,evidence:[]};
+  const groups=cockpitRoleMetrics([dual,dual,solo,accompanied,prior],2026,'2026-10-26');
+  assert.deepEqual(groups.map(group=>[group.key,group.count,group.knownMinutes,group.unknownDurationCount]),[
+    ['dualInstruction',1,12,0],['solo',1,6,0],['picWithCompanion',1,0,1],
+  ]);
+  assert.deepEqual(cockpitRoleMetrics([dual,prior],2025,'2026-10-26').map(group=>group.count),[1,0,0]);
+});
+
+test('ordinary role filter combines with year and clears without changing other filters', () => {
+  const dual=flight(1,{sic:'Student Example'}),solo=flight(2,{pic:'Student Example',companion:'',dual:''});
+  const accompanied=flight(3,{pic:'Student Example',dual:'',extra:'Third Person'}),review=flight(4,{dual:''});
+  const rows=[dual,solo,accompanied,review];
+  assert.deepEqual(ownFlightRoleOptions(rows).map(option=>option.label),['Solo','Dual','PIC+','Prüfen']);
+  const filters={...allOwnFlights,year:2026,flightRole:'picWithCompanion' as const};
+  assert.deepEqual(selectOwnFlights(rows,filters).map(row=>row.flightId),['flight-3']);
+  assert.ok(ownFlightFilterTags(filters).some(tag=>tag.key==='flightRole'&&tag.label==='PIC+'));
+  const cleared=removeOwnFlightFilter(filters,'flightRole');
+  assert.equal(cleared.year,2026);assert.equal(cleared.flightRole,undefined);
+  assert.equal(selectOwnFlights(rows,{...filters,flightRole:'unresolved'}).length,1);
+  assert.equal(selectOwnFlights(rows,{...filters,year:2025}).length,0);
 });
