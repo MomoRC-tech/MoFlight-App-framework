@@ -580,7 +580,9 @@ test('ordinary backup uses a full page while retaining the provider host and con
   shell.props.onCoreFlights('options',false,'backup');f.render();
   const backup=f.find('CoreFlightFoundation');
   assert.equal(f.find('UpdateDialog').props.fullPage,true);assert.equal(backup.props.providerEntryAllowed,false);
+  assert.equal(f.parent(f.nodes().find(n=>typeof n.type==='function'&&(n.type as Function).name==='Shell')!).props.style[1].display,'none','The mounted caller is hidden from native layout while backup covers it');
   backup.props.close();f.render();assert.equal(f.find('CoreFlightFoundation').type,backup.type);assert.equal(f.find('CoreFlightFoundation').props.open,false);
+  assert.equal(f.parent(f.nodes().find(n=>typeof n.type==='function'&&(n.type as Function).name==='Shell')!).props.style[1],false,'Back restores caller layout');
   backup.props.onRequestSync();f.render();assert.equal(f.find('CoreFlightFoundation').props.open,false,'A stale header cannot start Sync after Back');
   shell.props.onCoreFlights('options',false,'backup');f.render();
   f.find('CoreFlightFoundation').props.onRequestSync();f.render();

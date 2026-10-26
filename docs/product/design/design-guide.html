@@ -73,7 +73,7 @@
 <h3 id="chapter-compact-cockpit-backup-child-page--selected-26-october-2026">Backup child page — selected 26 October 2026</h3>
 <p>Manuel selected the <a href="proposals/2026-10-26-backup-page.html">dark backup-page proposal</a>, including the short confirmation before the OS file picker, and requested implementation and handbook updates under <a href="https://github.com/MomoRC-tech/MoFlight-App-framework/issues/94#issuecomment-6424883125">#94</a>. Ordinary <strong>Profil &amp; Einstellungen / Status → Datensicherung</strong> now uses a full child page with a contextual Back/Sync top app bar, one scrolling content column capped at 520 dp, separate save/restore cards, and independently expandable <strong>Inhalt und Ausschlüsse</strong> and older-format sections. The unchanged vivid navy/cyan roles and existing React Native controls adapt Material app-bar, containment and dialog patterns. Start and shared tokens are outside this amendment.</p>
 <p>Restore first presents a short dark <strong>Abbrechen / Datei auswählen</strong> decision; Cancel, outside tap, Android Back, background and a changed/opened request invalidate it. Only the current one-use confirmation can call the existing owner-scoped picker/validation/activation operation. Pending aggregate restore instead places <strong>Datensicherung fortsetzen</strong> first and requires the same file; cancellation retains the journal and blocked-library explanation. Missing owner, unreadable/read-only library, saved-command recovery and older-format preparations remain explicit. Opening backup creates no identity and starts no provider work. Scope/encryption/AI-data disclosures remain available with contextual help disabled.</p>
-<p>The existing host/controller and provider browser parent stay mounted; only the host presentation expands to a page. Closing reveals the same calling Settings/Status state. Shell Back defers to the active task; uncancellable work blocks task Back and competing actions. Header Sync uses the existing short Sync decision, fresh selected-owner verification and the same retained root coordinator; it is disabled during local work/recovery. Backup errors do not mark synchronization as failed. Provider login/administration keeps its separately selected framed presentation. This supersedes earlier maintenance-frame wording for ordinary backup only; archive formats, identity policy and storage safeguards are unchanged.</p>
+<p>The existing host/controller and provider browser parent stay mounted; only the host presentation expands to a page. The covered Shell remains mounted but is hidden from native layout and interaction. Closing restores the same calling Settings/Status state. Shell Back defers to the active task; uncancellable work blocks task Back and competing actions. Header Sync uses the existing short Sync decision, fresh selected-owner verification and the same retained root coordinator; it is disabled during local work/recovery. Backup errors do not mark synchronization as failed. Provider login/administration keeps its separately selected framed presentation. This supersedes earlier maintenance-frame wording for ordinary backup only; archive formats, identity policy and storage safeguards are unchanged.</p>
 <p><a href="../../verification/2026-10-26-material-settings.md#backup-child-page--26-october-2026">Source-specific verification and remaining native gates</a>. Light acceptance remains deferred to beta.</p>
 <h3 id="chapter-compact-cockpit-statistics-child-page--selected-26-october-2026">Statistics child page — selected 26 October 2026</h3>
 <p>Manuel selected the <a href="material-system-proposal.md#statistics-route-amendment--selected-26-october-2026">Material Statistics amendment</a> under #94. The former dimmed, rounded Statistics frame is replaced by a full child page with a contextual top app bar and horizontally scrolling sibling sections. Back returns through exact contributors and saved flight detail to the mounted Start. Existing vivid navy/cyan roles, saved-local values, unknown/coverage caveats and header Sync entry remain; Start itself is unchanged. This section supersedes later historical references to a compact Statistics frame in presentation only. Source implementation and focused host checks are complete; native acceptance is reported separately.</p>
@@ -1172,107 +1172,107 @@
 <tr><td><code>width: &#x27;100%&#x27;</code></td><td>71</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-mobileapptsx">MobileApp.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/MobileApp.tsx">apps/platform-lab/src/mobile/MobileApp.tsx</a>; normalized SHA-256 <code>109e960df09b293350754d22797d0529d80f96e5ecddc5b4e22ccd34ca91b574</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/MobileApp.tsx">apps/platform-lab/src/mobile/MobileApp.tsx</a>; normalized SHA-256 <code>50bb1074392ccc79a888948a67151851f8ff6278afd1f7dda45bbaf15a8ebdb2</code>.</p>
 <h4 id="chapter-implementation-inventory-literal-colors-10">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><i class="swatch" style="background:#064240" aria-hidden="true"></i><code>#064240</code></td><td>398</td></tr>
-<tr><td><i class="swatch" style="background:#10282d" aria-hidden="true"></i><code>#10282d</code></td><td>398</td></tr>
-<tr><td><i class="swatch" style="background:#11263a" aria-hidden="true"></i><code>#11263a</code></td><td>397</td></tr>
-<tr><td><i class="swatch" style="background:#152d42" aria-hidden="true"></i><code>#152d42</code></td><td>399</td></tr>
-<tr><td><i class="swatch" style="background:#1b344a" aria-hidden="true"></i><code>#1b344a</code></td><td>402</td></tr>
-<tr><td><i class="swatch" style="background:#227f87" aria-hidden="true"></i><code>#227f87</code></td><td>398</td></tr>
-<tr><td><i class="swatch" style="background:#78efdc" aria-hidden="true"></i><code>#78efdc</code></td><td>400</td></tr>
-<tr><td><i class="swatch" style="background:#8ba4bc" aria-hidden="true"></i><code>#8ba4bc</code></td><td>339, 395</td></tr>
+<tr><td><i class="swatch" style="background:#064240" aria-hidden="true"></i><code>#064240</code></td><td>399</td></tr>
+<tr><td><i class="swatch" style="background:#10282d" aria-hidden="true"></i><code>#10282d</code></td><td>399</td></tr>
+<tr><td><i class="swatch" style="background:#11263a" aria-hidden="true"></i><code>#11263a</code></td><td>398</td></tr>
+<tr><td><i class="swatch" style="background:#152d42" aria-hidden="true"></i><code>#152d42</code></td><td>400</td></tr>
+<tr><td><i class="swatch" style="background:#1b344a" aria-hidden="true"></i><code>#1b344a</code></td><td>403</td></tr>
+<tr><td><i class="swatch" style="background:#227f87" aria-hidden="true"></i><code>#227f87</code></td><td>399</td></tr>
+<tr><td><i class="swatch" style="background:#78efdc" aria-hidden="true"></i><code>#78efdc</code></td><td>401</td></tr>
+<tr><td><i class="swatch" style="background:#8ba4bc" aria-hidden="true"></i><code>#8ba4bc</code></td><td>340, 396</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-typography-declarations-20">Typography declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>fontSize: 10</code></td><td>339, 395</td></tr>
-<tr><td><code>fontSize: 11</code></td><td>396</td></tr>
-<tr><td><code>fontSize: 12</code></td><td>398, 403</td></tr>
-<tr><td><code>fontSize: 13</code></td><td>397</td></tr>
-<tr><td><code>fontSize: 16</code></td><td>402</td></tr>
-<tr><td><code>fontSize: 20</code></td><td>396</td></tr>
-<tr><td><code>fontSize: 23</code></td><td>401</td></tr>
-<tr><td><code>fontSize: 25</code></td><td>403</td></tr>
-<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>396, 398</td></tr>
-<tr><td><code>fontWeight: &#x27;700&#x27;</code></td><td>403</td></tr>
-<tr><td><code>letterSpacing: .6</code></td><td>395</td></tr>
-<tr><td><code>lineHeight: 16</code></td><td>339, 395, 396</td></tr>
-<tr><td><code>lineHeight: 17</code></td><td>398</td></tr>
-<tr><td><code>lineHeight: 18</code></td><td>403</td></tr>
-<tr><td><code>lineHeight: 25</code></td><td>396</td></tr>
-<tr><td><code>lineHeight: 29</code></td><td>403</td></tr>
+<tr><td><code>fontSize: 10</code></td><td>340, 396</td></tr>
+<tr><td><code>fontSize: 11</code></td><td>397</td></tr>
+<tr><td><code>fontSize: 12</code></td><td>399, 404</td></tr>
+<tr><td><code>fontSize: 13</code></td><td>398</td></tr>
+<tr><td><code>fontSize: 16</code></td><td>403</td></tr>
+<tr><td><code>fontSize: 20</code></td><td>397</td></tr>
+<tr><td><code>fontSize: 23</code></td><td>402</td></tr>
+<tr><td><code>fontSize: 25</code></td><td>404</td></tr>
+<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>397, 399</td></tr>
+<tr><td><code>fontWeight: &#x27;700&#x27;</code></td><td>404</td></tr>
+<tr><td><code>letterSpacing: .6</code></td><td>396</td></tr>
+<tr><td><code>lineHeight: 16</code></td><td>340, 396, 397</td></tr>
+<tr><td><code>lineHeight: 17</code></td><td>399</td></tr>
+<tr><td><code>lineHeight: 18</code></td><td>404</td></tr>
+<tr><td><code>lineHeight: 25</code></td><td>397</td></tr>
+<tr><td><code>lineHeight: 29</code></td><td>404</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-geometry--opacity-declarations-35">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>borderRadius: 12</code></td><td>398</td></tr>
-<tr><td><code>borderRadius: 13</code></td><td>398</td></tr>
-<tr><td><code>borderRadius: 15</code></td><td>400</td></tr>
-<tr><td><code>borderRadius: 16</code></td><td>402, 403</td></tr>
-<tr><td><code>borderRadius: 17</code></td><td>399</td></tr>
-<tr><td><code>borderRadius: 18</code></td><td>401</td></tr>
-<tr><td><code>borderRadius: 2</code></td><td>403</td></tr>
-<tr><td><code>borderRadius: 20</code></td><td>402</td></tr>
-<tr><td><code>borderRadius: 22</code></td><td>397</td></tr>
-<tr><td><code>borderRadius: 24</code></td><td>397</td></tr>
-<tr><td><code>borderRadius: 9</code></td><td>398</td></tr>
-<tr><td><code>borderWidth: 1</code></td><td>397, 398, 401, 402, 403</td></tr>
-<tr><td><code>gap: 1</code></td><td>396</td></tr>
-<tr><td><code>gap: 10</code></td><td>298, 309</td></tr>
-<tr><td><code>gap: 12</code></td><td>297, 393</td></tr>
-<tr><td><code>gap: 16</code></td><td>361</td></tr>
-<tr><td><code>gap: 18</code></td><td>400</td></tr>
-<tr><td><code>gap: 2</code></td><td>403</td></tr>
-<tr><td><code>gap: 3</code></td><td>395, 398</td></tr>
-<tr><td><code>gap: 4</code></td><td>403</td></tr>
-<tr><td><code>gap: 5</code></td><td>397</td></tr>
-<tr><td><code>gap: 6</code></td><td>401, 402</td></tr>
-<tr><td><code>gap: 7</code></td><td>397, 400</td></tr>
-<tr><td><code>gap: 8</code></td><td>359, 367, 368, 399, 402</td></tr>
-<tr><td><code>height: 2</code></td><td>403</td></tr>
-<tr><td><code>height: 30</code></td><td>400</td></tr>
-<tr><td><code>height: 48</code></td><td>402</td></tr>
-<tr><td><code>maxHeight: 150</code></td><td>402</td></tr>
-<tr><td><code>maxWidth: 480</code></td><td>309</td></tr>
-<tr><td><code>maxWidth: 520</code></td><td>209, 359, 361, 400</td></tr>
-<tr><td><code>maxWidth: 599</code></td><td>392, 403</td></tr>
-<tr><td><code>maxWidth: 600</code></td><td>294, 340, 349</td></tr>
-<tr><td><code>maxWidth: 960</code></td><td>294, 340</td></tr>
-<tr><td><code>minHeight: 0</code></td><td>328, 343</td></tr>
-<tr><td><code>minHeight: 126</code></td><td>400</td></tr>
-<tr><td><code>minHeight: 34</code></td><td>399</td></tr>
-<tr><td><code>minHeight: 36</code></td><td>394</td></tr>
-<tr><td><code>minHeight: 40</code></td><td>397</td></tr>
-<tr><td><code>minHeight: 48</code></td><td>397, 399</td></tr>
-<tr><td><code>minHeight: 52</code></td><td>402</td></tr>
-<tr><td><code>minHeight: 60</code></td><td>403</td></tr>
-<tr><td><code>minHeight: 64</code></td><td>398</td></tr>
-<tr><td><code>minHeight: 66</code></td><td>398</td></tr>
-<tr><td><code>minHeight: 86</code></td><td>401</td></tr>
-<tr><td><code>minWidth: 0</code></td><td>396, 397</td></tr>
-<tr><td><code>padding: 0</code></td><td>399</td></tr>
-<tr><td><code>padding: 10</code></td><td>393</td></tr>
-<tr><td><code>padding: 12</code></td><td>393</td></tr>
-<tr><td><code>padding: 16</code></td><td>401</td></tr>
-<tr><td><code>padding: 4</code></td><td>395, 402</td></tr>
-<tr><td><code>padding: 6</code></td><td>403</td></tr>
-<tr><td><code>padding: 7</code></td><td>398</td></tr>
-<tr><td><code>paddingHorizontal: 12</code></td><td>397</td></tr>
-<tr><td><code>paddingHorizontal: 16</code></td><td>399</td></tr>
-<tr><td><code>paddingHorizontal: 6</code></td><td>398</td></tr>
-<tr><td><code>paddingHorizontal: 7</code></td><td>398</td></tr>
-<tr><td><code>paddingHorizontal: 8</code></td><td>402</td></tr>
-<tr><td><code>paddingVertical: 10</code></td><td>398</td></tr>
-<tr><td><code>paddingVertical: 4</code></td><td>397</td></tr>
-<tr><td><code>paddingVertical: 8</code></td><td>403</td></tr>
-<tr><td><code>width: &#x27;100%&#x27;</code></td><td>209, 297, 298, 299, 309, 339, 349, 359, 361, 392, 399, 400, 403</td></tr>
-<tr><td><code>width: &#x27;32%&#x27;</code></td><td>403</td></tr>
-<tr><td><code>width: &#x27;49.2%&#x27;</code></td><td>399</td></tr>
-<tr><td><code>width: 24</code></td><td>403</td></tr>
-<tr><td><code>width: 30</code></td><td>400</td></tr>
-<tr><td><code>width: 42</code></td><td>397</td></tr>
-<tr><td><code>width: 48</code></td><td>402</td></tr>
-<tr><td><code>width: 64</code></td><td>398</td></tr>
+<tr><td><code>borderRadius: 12</code></td><td>399</td></tr>
+<tr><td><code>borderRadius: 13</code></td><td>399</td></tr>
+<tr><td><code>borderRadius: 15</code></td><td>401</td></tr>
+<tr><td><code>borderRadius: 16</code></td><td>403, 404</td></tr>
+<tr><td><code>borderRadius: 17</code></td><td>400</td></tr>
+<tr><td><code>borderRadius: 18</code></td><td>402</td></tr>
+<tr><td><code>borderRadius: 2</code></td><td>404</td></tr>
+<tr><td><code>borderRadius: 20</code></td><td>403</td></tr>
+<tr><td><code>borderRadius: 22</code></td><td>398</td></tr>
+<tr><td><code>borderRadius: 24</code></td><td>398</td></tr>
+<tr><td><code>borderRadius: 9</code></td><td>399</td></tr>
+<tr><td><code>borderWidth: 1</code></td><td>398, 399, 402, 403, 404</td></tr>
+<tr><td><code>gap: 1</code></td><td>397</td></tr>
+<tr><td><code>gap: 10</code></td><td>299, 310</td></tr>
+<tr><td><code>gap: 12</code></td><td>298, 394</td></tr>
+<tr><td><code>gap: 16</code></td><td>362</td></tr>
+<tr><td><code>gap: 18</code></td><td>401</td></tr>
+<tr><td><code>gap: 2</code></td><td>404</td></tr>
+<tr><td><code>gap: 3</code></td><td>396, 399</td></tr>
+<tr><td><code>gap: 4</code></td><td>404</td></tr>
+<tr><td><code>gap: 5</code></td><td>398</td></tr>
+<tr><td><code>gap: 6</code></td><td>402, 403</td></tr>
+<tr><td><code>gap: 7</code></td><td>398, 401</td></tr>
+<tr><td><code>gap: 8</code></td><td>360, 368, 369, 400, 403</td></tr>
+<tr><td><code>height: 2</code></td><td>404</td></tr>
+<tr><td><code>height: 30</code></td><td>401</td></tr>
+<tr><td><code>height: 48</code></td><td>403</td></tr>
+<tr><td><code>maxHeight: 150</code></td><td>403</td></tr>
+<tr><td><code>maxWidth: 480</code></td><td>310</td></tr>
+<tr><td><code>maxWidth: 520</code></td><td>210, 360, 362, 401</td></tr>
+<tr><td><code>maxWidth: 599</code></td><td>393, 404</td></tr>
+<tr><td><code>maxWidth: 600</code></td><td>295, 341, 350</td></tr>
+<tr><td><code>maxWidth: 960</code></td><td>295, 341</td></tr>
+<tr><td><code>minHeight: 0</code></td><td>329, 344</td></tr>
+<tr><td><code>minHeight: 126</code></td><td>401</td></tr>
+<tr><td><code>minHeight: 34</code></td><td>400</td></tr>
+<tr><td><code>minHeight: 36</code></td><td>395</td></tr>
+<tr><td><code>minHeight: 40</code></td><td>398</td></tr>
+<tr><td><code>minHeight: 48</code></td><td>398, 400</td></tr>
+<tr><td><code>minHeight: 52</code></td><td>403</td></tr>
+<tr><td><code>minHeight: 60</code></td><td>404</td></tr>
+<tr><td><code>minHeight: 64</code></td><td>399</td></tr>
+<tr><td><code>minHeight: 66</code></td><td>399</td></tr>
+<tr><td><code>minHeight: 86</code></td><td>402</td></tr>
+<tr><td><code>minWidth: 0</code></td><td>397, 398</td></tr>
+<tr><td><code>padding: 0</code></td><td>400</td></tr>
+<tr><td><code>padding: 10</code></td><td>394</td></tr>
+<tr><td><code>padding: 12</code></td><td>394</td></tr>
+<tr><td><code>padding: 16</code></td><td>402</td></tr>
+<tr><td><code>padding: 4</code></td><td>396, 403</td></tr>
+<tr><td><code>padding: 6</code></td><td>404</td></tr>
+<tr><td><code>padding: 7</code></td><td>399</td></tr>
+<tr><td><code>paddingHorizontal: 12</code></td><td>398</td></tr>
+<tr><td><code>paddingHorizontal: 16</code></td><td>400</td></tr>
+<tr><td><code>paddingHorizontal: 6</code></td><td>399</td></tr>
+<tr><td><code>paddingHorizontal: 7</code></td><td>399</td></tr>
+<tr><td><code>paddingHorizontal: 8</code></td><td>403</td></tr>
+<tr><td><code>paddingVertical: 10</code></td><td>399</td></tr>
+<tr><td><code>paddingVertical: 4</code></td><td>398</td></tr>
+<tr><td><code>paddingVertical: 8</code></td><td>404</td></tr>
+<tr><td><code>width: &#x27;100%&#x27;</code></td><td>210, 298, 299, 300, 310, 340, 350, 360, 362, 393, 400, 401, 404</td></tr>
+<tr><td><code>width: &#x27;32%&#x27;</code></td><td>404</td></tr>
+<tr><td><code>width: &#x27;49.2%&#x27;</code></td><td>400</td></tr>
+<tr><td><code>width: 24</code></td><td>404</td></tr>
+<tr><td><code>width: 30</code></td><td>401</td></tr>
+<tr><td><code>width: 42</code></td><td>398</td></tr>
+<tr><td><code>width: 48</code></td><td>403</td></tr>
+<tr><td><code>width: 64</code></td><td>399</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-overviewtilestsx">OverviewTiles.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/OverviewTiles.tsx">apps/platform-lab/src/mobile/OverviewTiles.tsx</a>; normalized SHA-256 <code>9f6dd21a39b8ba1a538b169c60d92aed5719e0b76bd485340213a93bca20992b</code>.</p>
@@ -2418,7 +2418,7 @@ Manuel selected the [dark backup-page proposal](proposals/2026-10-26-backup-page
 
 Restore first presents a short dark **Abbrechen / Datei auswählen** decision; Cancel, outside tap, Android Back, background and a changed/opened request invalidate it. Only the current one-use confirmation can call the existing owner-scoped picker/validation/activation operation. Pending aggregate restore instead places **Datensicherung fortsetzen** first and requires the same file; cancellation retains the journal and blocked-library explanation. Missing owner, unreadable/read-only library, saved-command recovery and older-format preparations remain explicit. Opening backup creates no identity and starts no provider work. Scope/encryption/AI-data disclosures remain available with contextual help disabled.
 
-The existing host/controller and provider browser parent stay mounted; only the host presentation expands to a page. Closing reveals the same calling Settings/Status state. Shell Back defers to the active task; uncancellable work blocks task Back and competing actions. Header Sync uses the existing short Sync decision, fresh selected-owner verification and the same retained root coordinator; it is disabled during local work/recovery. Backup errors do not mark synchronization as failed. Provider login/administration keeps its separately selected framed presentation. This supersedes earlier maintenance-frame wording for ordinary backup only; archive formats, identity policy and storage safeguards are unchanged.
+The existing host/controller and provider browser parent stay mounted; only the host presentation expands to a page. The covered Shell remains mounted but is hidden from native layout and interaction. Closing restores the same calling Settings/Status state. Shell Back defers to the active task; uncancellable work blocks task Back and competing actions. Header Sync uses the existing short Sync decision, fresh selected-owner verification and the same retained root coordinator; it is disabled during local work/recovery. Backup errors do not mark synchronization as failed. Provider login/administration keeps its separately selected framed presentation. This supersedes earlier maintenance-frame wording for ordinary backup only; archive formats, identity policy and storage safeguards are unchanged.
 
 [Source-specific verification and remaining native gates](../../verification/2026-10-26-material-settings.md#backup-child-page--26-october-2026). Light acceptance remains deferred to beta.
 
@@ -3950,114 +3950,114 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MedicalStatus.tsx
 
 ## MobileApp.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `109e960df09b293350754d22797d0529d80f96e5ecddc5b4e22ccd34ca91b574`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `50bb1074392ccc79a888948a67151851f8ff6278afd1f7dda45bbaf15a8ebdb2`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#064240` | 398 |
-| `#10282d` | 398 |
-| `#11263a` | 397 |
-| `#152d42` | 399 |
-| `#1b344a` | 402 |
-| `#227f87` | 398 |
-| `#78efdc` | 400 |
-| `#8ba4bc` | 339, 395 |
+| `#064240` | 399 |
+| `#10282d` | 399 |
+| `#11263a` | 398 |
+| `#152d42` | 400 |
+| `#1b344a` | 403 |
+| `#227f87` | 399 |
+| `#78efdc` | 401 |
+| `#8ba4bc` | 340, 396 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 10` | 339, 395 |
-| `fontSize: 11` | 396 |
-| `fontSize: 12` | 398, 403 |
-| `fontSize: 13` | 397 |
-| `fontSize: 16` | 402 |
-| `fontSize: 20` | 396 |
-| `fontSize: 23` | 401 |
-| `fontSize: 25` | 403 |
-| `fontWeight: &#x27;600&#x27;` | 396, 398 |
-| `fontWeight: &#x27;700&#x27;` | 403 |
-| `letterSpacing: .6` | 395 |
-| `lineHeight: 16` | 339, 395, 396 |
-| `lineHeight: 17` | 398 |
-| `lineHeight: 18` | 403 |
-| `lineHeight: 25` | 396 |
-| `lineHeight: 29` | 403 |
+| `fontSize: 10` | 340, 396 |
+| `fontSize: 11` | 397 |
+| `fontSize: 12` | 399, 404 |
+| `fontSize: 13` | 398 |
+| `fontSize: 16` | 403 |
+| `fontSize: 20` | 397 |
+| `fontSize: 23` | 402 |
+| `fontSize: 25` | 404 |
+| `fontWeight: &#x27;600&#x27;` | 397, 399 |
+| `fontWeight: &#x27;700&#x27;` | 404 |
+| `letterSpacing: .6` | 396 |
+| `lineHeight: 16` | 340, 396, 397 |
+| `lineHeight: 17` | 399 |
+| `lineHeight: 18` | 404 |
+| `lineHeight: 25` | 397 |
+| `lineHeight: 29` | 404 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 398 |
-| `borderRadius: 13` | 398 |
-| `borderRadius: 15` | 400 |
-| `borderRadius: 16` | 402, 403 |
-| `borderRadius: 17` | 399 |
-| `borderRadius: 18` | 401 |
-| `borderRadius: 2` | 403 |
-| `borderRadius: 20` | 402 |
-| `borderRadius: 22` | 397 |
-| `borderRadius: 24` | 397 |
-| `borderRadius: 9` | 398 |
-| `borderWidth: 1` | 397, 398, 401, 402, 403 |
-| `gap: 1` | 396 |
-| `gap: 10` | 298, 309 |
-| `gap: 12` | 297, 393 |
-| `gap: 16` | 361 |
-| `gap: 18` | 400 |
-| `gap: 2` | 403 |
-| `gap: 3` | 395, 398 |
-| `gap: 4` | 403 |
-| `gap: 5` | 397 |
-| `gap: 6` | 401, 402 |
-| `gap: 7` | 397, 400 |
-| `gap: 8` | 359, 367, 368, 399, 402 |
-| `height: 2` | 403 |
-| `height: 30` | 400 |
-| `height: 48` | 402 |
-| `maxHeight: 150` | 402 |
-| `maxWidth: 480` | 309 |
-| `maxWidth: 520` | 209, 359, 361, 400 |
-| `maxWidth: 599` | 392, 403 |
-| `maxWidth: 600` | 294, 340, 349 |
-| `maxWidth: 960` | 294, 340 |
-| `minHeight: 0` | 328, 343 |
-| `minHeight: 126` | 400 |
-| `minHeight: 34` | 399 |
-| `minHeight: 36` | 394 |
-| `minHeight: 40` | 397 |
-| `minHeight: 48` | 397, 399 |
-| `minHeight: 52` | 402 |
-| `minHeight: 60` | 403 |
-| `minHeight: 64` | 398 |
-| `minHeight: 66` | 398 |
-| `minHeight: 86` | 401 |
-| `minWidth: 0` | 396, 397 |
-| `padding: 0` | 399 |
-| `padding: 10` | 393 |
-| `padding: 12` | 393 |
-| `padding: 16` | 401 |
-| `padding: 4` | 395, 402 |
-| `padding: 6` | 403 |
-| `padding: 7` | 398 |
-| `paddingHorizontal: 12` | 397 |
-| `paddingHorizontal: 16` | 399 |
-| `paddingHorizontal: 6` | 398 |
-| `paddingHorizontal: 7` | 398 |
-| `paddingHorizontal: 8` | 402 |
-| `paddingVertical: 10` | 398 |
-| `paddingVertical: 4` | 397 |
-| `paddingVertical: 8` | 403 |
-| `width: &#x27;100%&#x27;` | 209, 297, 298, 299, 309, 339, 349, 359, 361, 392, 399, 400, 403 |
-| `width: &#x27;32%&#x27;` | 403 |
-| `width: &#x27;49.2%&#x27;` | 399 |
-| `width: 24` | 403 |
-| `width: 30` | 400 |
-| `width: 42` | 397 |
-| `width: 48` | 402 |
-| `width: 64` | 398 |
+| `borderRadius: 12` | 399 |
+| `borderRadius: 13` | 399 |
+| `borderRadius: 15` | 401 |
+| `borderRadius: 16` | 403, 404 |
+| `borderRadius: 17` | 400 |
+| `borderRadius: 18` | 402 |
+| `borderRadius: 2` | 404 |
+| `borderRadius: 20` | 403 |
+| `borderRadius: 22` | 398 |
+| `borderRadius: 24` | 398 |
+| `borderRadius: 9` | 399 |
+| `borderWidth: 1` | 398, 399, 402, 403, 404 |
+| `gap: 1` | 397 |
+| `gap: 10` | 299, 310 |
+| `gap: 12` | 298, 394 |
+| `gap: 16` | 362 |
+| `gap: 18` | 401 |
+| `gap: 2` | 404 |
+| `gap: 3` | 396, 399 |
+| `gap: 4` | 404 |
+| `gap: 5` | 398 |
+| `gap: 6` | 402, 403 |
+| `gap: 7` | 398, 401 |
+| `gap: 8` | 360, 368, 369, 400, 403 |
+| `height: 2` | 404 |
+| `height: 30` | 401 |
+| `height: 48` | 403 |
+| `maxHeight: 150` | 403 |
+| `maxWidth: 480` | 310 |
+| `maxWidth: 520` | 210, 360, 362, 401 |
+| `maxWidth: 599` | 393, 404 |
+| `maxWidth: 600` | 295, 341, 350 |
+| `maxWidth: 960` | 295, 341 |
+| `minHeight: 0` | 329, 344 |
+| `minHeight: 126` | 401 |
+| `minHeight: 34` | 400 |
+| `minHeight: 36` | 395 |
+| `minHeight: 40` | 398 |
+| `minHeight: 48` | 398, 400 |
+| `minHeight: 52` | 403 |
+| `minHeight: 60` | 404 |
+| `minHeight: 64` | 399 |
+| `minHeight: 66` | 399 |
+| `minHeight: 86` | 402 |
+| `minWidth: 0` | 397, 398 |
+| `padding: 0` | 400 |
+| `padding: 10` | 394 |
+| `padding: 12` | 394 |
+| `padding: 16` | 402 |
+| `padding: 4` | 396, 403 |
+| `padding: 6` | 404 |
+| `padding: 7` | 399 |
+| `paddingHorizontal: 12` | 398 |
+| `paddingHorizontal: 16` | 400 |
+| `paddingHorizontal: 6` | 399 |
+| `paddingHorizontal: 7` | 399 |
+| `paddingHorizontal: 8` | 403 |
+| `paddingVertical: 10` | 399 |
+| `paddingVertical: 4` | 398 |
+| `paddingVertical: 8` | 404 |
+| `width: &#x27;100%&#x27;` | 210, 298, 299, 300, 310, 340, 350, 360, 362, 393, 400, 401, 404 |
+| `width: &#x27;32%&#x27;` | 404 |
+| `width: &#x27;49.2%&#x27;` | 400 |
+| `width: 24` | 404 |
+| `width: 30` | 401 |
+| `width: 42` | 398 |
+| `width: 48` | 403 |
+| `width: 64` | 399 |
 
 ## OverviewTiles.tsx
 
@@ -5454,7 +5454,7 @@ States / limits: Recreated approved variant, not a byte-identical copy of an old
 Source: docs/assets/branding/moflight-app-icon-ai.png
 docs/assets/branding/README.md; app.json
 </textarea></section>
-<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: 51f8258b4180b6e5c6ad6b03cf574641a974f620d0b5f6b411cfe0a5ae8d0171. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
+<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: df48ea92114e7984da17f109d414ad6974c2165730cee7c4ddf593d3621cd4d6. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
 </main><script>
 'use strict';
 const brief = document.querySelector('#brief');
