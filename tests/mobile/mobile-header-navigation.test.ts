@@ -1,3 +1,5 @@
+import { syncStatus } from '../../apps/platform-lab/src/mobile/sync-status.ts';
+import { createSyncConfirmation } from '../../apps/platform-lab/src/mobile/sync-confirmation.ts';
 import * as diagnostics from '../../apps/platform-lab/src/diagnostics';
 import * as syncProgress from '../../apps/platform-lab/src/mobile/sync-progress.ts';
 import { test } from 'node:test';
@@ -11,7 +13,7 @@ import { ownFlightConnectionState } from '../../apps/platform-lab/src/mobile/con
 import * as dutyModel from '../../apps/platform-lab/src/vereinsflieger/duties';
 const unknownProviderStatus={connection:{phase:'unknown',confirmed:false,observed:null,lastCheckedAt:null},browserActive:false};
 import { dataUpdateStatus, DATA_FRESHNESS_REMINDER_MS, DATA_UPDATE_FRESH_MS } from '../../apps/platform-lab/src/mobile/data-freshness.ts';
-import { SESSION_DISPLAY_FRESH_MS } from '../../apps/platform-lab/src/mobile/data-update-presentation.ts';
+import { SESSION_DISPLAY_FRESH_MS, createSessionPresentation } from '../../apps/platform-lab/src/mobile/data-update-presentation.ts';
 import { planFlightRetrieval } from '../../apps/platform-lab/src/vereinsflieger/retrieval-policy';
 
 interface Element { type: unknown; props: Record<string, any>; children: unknown[] }
@@ -38,6 +40,7 @@ function fixture(width = 390, fontScale = 1, root = false) {
   const library = { flights: [flight], books: [{ id: 'synthetic-book', name: 'Synthetic book' }], bookId: 'synthetic-book', pending: 0, displayName: 'Synthetic pilot' };
   const controller = { visible: false, informationCaptures: [], connection: { phase: 'unknown' }, refreshRecovery: () => calls.push('refresh-recovery'), dismissLogin() {}, backWithinProvider: () => false, suspendBrowserForOwnerSwitch: () => true };
   const calls: string[] = [];
+  const dialogs:any[]=[];
   const coreRoutes: {intent:string;developmentRecoveryCheckpoints:boolean}[] = [];
   const destinations:string[]=[];
   const readEnabled:boolean[]=[];
@@ -51,6 +54,7 @@ function fixture(width = 390, fontScale = 1, root = false) {
   const modules: Record<string, unknown> = {
     react: { default: react, ...react },
     'react-native': { ...leaves(['ActivityIndicator', 'FlatList', 'KeyboardAvoidingView', 'Pressable', 'ScrollView', 'StatusBar', 'Text', 'TextInput', 'View']),
+      Alert: {alert:(title:string,message:string,buttons:any[],options:any)=>dialogs.push({title,message,buttons,options})},
       Keyboard: { addListener: () => ({ remove() {} }), dismiss() {} },
       AppState: { addEventListener: (_:string,handler:(state:string)=>void) => {appStateListener=handler;return {remove(){}};} },
       BackHandler: { addEventListener: (_: string, handler: () => boolean) => { hardwareBack = handler; return { remove() {} }; } },
@@ -85,7 +89,8 @@ function fixture(width = 390, fontScale = 1, root = false) {
     './UpdateResult':leaves(['UpdateResult']), './ClubInformation':leaves(['ClubEvents','ClubDocumentNotices']),
     './ConnectionSummary': leaves(['ConnectionSummary']), './medical-source': { medicalSource },
     './connection-guidance': { ownFlightConnectionState },
-    './data-update-presentation': { SESSION_DISPLAY_FRESH_MS },
+    './data-update-presentation': { SESSION_DISPLAY_FRESH_MS, createSessionPresentation },
+    './StatusBadge':leaves(['StatusBadge']),'./sync-status':{syncStatus},'./sync-confirmation':{createSyncConfirmation},
     '../vereinsflieger/duties': dutyModel, './DutyRoster':leaves(['DutyRoster']), './ClubHeading':leaves(['ClubHeading']),
     '../vereinsflieger/retrieval-policy':{planFlightRetrieval},
     './use-start-clock':{useStartClock:(deadlines:readonly number[])=>{clockDeadlines=deadlines;return clockNow;},useReminderSnooze:()=>({snooze:null,error:false,save:()=>{}})},
@@ -115,7 +120,7 @@ function fixture(width = 390, fontScale = 1, root = false) {
     render();
   }
   render(); render();
-  return { render, nodes, find, resize:(nextWidth:number,nextFontScale:number)=>{width=nextWidth;fontScale=nextFontScale;render();}, headers, parent, press, openOwnDetail, flight, library, controller, calls, coreRoutes,destinations, readEnabled, suspended: () => suspended, hardwareBack: () => hardwareBack!(),
+  return { dialogs, confirm:()=>{dialogs.at(-1).buttons.find((b:any)=>b.text==='Starten').onPress();render();}, render, nodes, find, resize:(nextWidth:number,nextFontScale:number)=>{width=nextWidth;fontScale=nextFontScale;render();}, headers, parent, press, openOwnDetail, flight, library, controller, calls, coreRoutes,destinations, readEnabled, suspended: () => suspended, hardwareBack: () => hardwareBack!(),
     helpPreference:()=>persistedHelp, failHelpSaving:(value:boolean)=>{failHelpSave=value;},
     showLoad:(result:any,view:any)=>{providerStatus=result?.verifiedConnection?{...unknownProviderStatus,ownerId:result.verifiedConnection.ownerId,connection:result.verifiedConnection.state}:unknownProviderStatus;lastLoad=result;ownView=view;render();render();},
     setProviderStatus:(status:any)=>{providerStatus=status;render();render();},
@@ -233,7 +238,7 @@ test('only the header starts update/login; other pages retain guidance and offli
   f.find('ProfileSettings').props.onTools();f.render();
   assert.equal(f.find('DevelopmentHub').props.onProvider,undefined);
   assert.deepEqual(f.calls,[]);
-  f.press('DataUpdateIndicator');assert.deepEqual(f.calls,['core-load']);
+  f.press('DataUpdateIndicator');f.confirm();assert.deepEqual(f.calls,['core-load']);
 });
 
 test('synthetic import preview opens without seeding or provider work, retains its session and returns to the same detail', () => {
@@ -274,7 +279,7 @@ test('Medical opens without provider work and returns through nested overlays', 
   assert.equal(f.headers().at(-1)!.props.title, 'Medical');
   assert.ok(f.find('MedicalDetails'));
   assert.ok(f.find('MedicalDetails'));
-  f.press('DataUpdateIndicator');
+  f.press('DataUpdateIndicator');f.confirm();
   f.render();
   assert.equal(f.headers().at(-1)!.props.title, 'Medical');
   f.headers().at(-1)!.props.back(); f.render();
@@ -300,10 +305,10 @@ test('details and sheets retain one active header; profile Back restores details
   assert.equal(f.parent(f.headers()[0]!).props.accessibilityElementsHidden, false);
 });
 
-test('header data update opens the combined flow directly and preserves the invoking sheet', () => {
+test('header data update opens the combined flow after confirmation and preserves the invoking sheet', () => {
   const f=fixture();f.press('Pressable','Profil & Einstellungen öffnen');
   f.find('ProfileSettings').props.onNameDraftChange('Retained draft');f.render();
-  f.press('DataUpdateIndicator');
+  f.press('DataUpdateIndicator');f.confirm();
   assert.deepEqual(f.coreRoutes,[{intent:'update',developmentRecoveryCheckpoints:false}]);
   assert.equal(f.find('ProfileSettings').props.nameDraft,'Retained draft');
   assert.equal(f.nodes().some(n=>n.type==='ProviderConnection'),false,'The shell cannot create a competing browser');
@@ -327,7 +332,7 @@ test('synthetic book changes preserve independent own-flight details through pro
 
 test('shell Back remains contextual after requesting the shared connection', () => {
   const f=fixture();f.press('Pressable','Flüge');f.openOwnDetail();
-  f.press('Pressable','Profil & Einstellungen öffnen');f.press('DataUpdateIndicator');
+  f.press('Pressable','Profil & Einstellungen öffnen');f.press('DataUpdateIndicator');f.confirm();
   assert.equal(f.headers().at(-1)!.props.title,'Profil & Einstellungen');
   f.hardwareBack();f.render();assert.equal(f.headers().at(-1)!.props.title,'Flugdetails');
 });
@@ -386,7 +391,7 @@ test('Development is read-only on entry; proof work guards Back and a reload pre
 test('Development has offline library tools while update/login remains on the header', () => {
   const f=fixture();f.press('Pressable','Profil & Einstellungen öffnen');f.find('ProfileSettings').props.onTools();f.render();
   assert.equal(f.find('DevelopmentHub').props.onProvider,undefined);
-  f.find('DevelopmentHub').props.onCoreFlights();f.render();f.press('DataUpdateIndicator');
+  f.find('DevelopmentHub').props.onCoreFlights();f.render();f.press('DataUpdateIndicator');f.confirm();
   assert.deepEqual(f.coreRoutes,[{intent:'options',developmentRecoveryCheckpoints:true},{intent:'update',developmentRecoveryCheckpoints:false}]);
 });
 
@@ -429,7 +434,7 @@ test('nested settings preserve the unsaved profile draft and each sheet scroll o
   assert.equal(f.nodes().some(n=>n.type==='Label' && n.children.includes('Entwicklung · synthetische lokale Bibliothek')),false);
   assert.equal(f.nodes().some(n=>n.type==='FlatList'),false);
 
-  assert.equal(f.find('OwnFlights').props.onUpdate,undefined);f.press('DataUpdateIndicator');assert.deepEqual(f.calls,['core-load']);
+  assert.equal(f.find('OwnFlights').props.onUpdate,undefined);f.press('DataUpdateIndicator');f.confirm();assert.deepEqual(f.calls,['core-load']);
   let back=0;f.find('OwnFlights').props.onHeaderChange({title:'Flugdetails',back:()=>back++});f.render();
   assert.equal(f.headers()[0]!.props.title,'Flugdetails');f.hardwareBack();assert.equal(back,1);
   f.press('Pressable','Verein');assert.equal(f.find('OwnFlights').props.active,false);
@@ -700,4 +705,25 @@ test('club expansion restores overview scroll on both toolbar and Android Back',
  assert.equal(scroll().props.contentOffset.y,240);
  f.find('ClubEvents').props.onOpen();f.render();f.headers()[0]!.props.back();f.render();
  assert.equal(scroll().props.contentOffset.y,240);
+});
+
+
+test('header and retry require confirmation; cancel, dismiss and background cannot start provider work',()=>{
+ for(const trigger of ['header','retry'])for(const cancel of ['button','dismiss','background']){
+  const f=fixture();
+  const start=()=>trigger==='header'?f.press('DataUpdateIndicator'):f.find('SyncProgress').props.retry();
+  start();start();assert.equal(f.dialogs.length,1);assert.deepEqual(f.calls,[]);
+  const dialog=f.dialogs[0];assert.equal(dialog.title,'Daten synchronisieren?');
+  if(cancel==='button')dialog.buttons[0].onPress();
+  if(cancel==='dismiss')dialog.options.onDismiss();
+  if(cancel==='background')f.appState('background');
+  dialog.buttons[1].onPress();assert.deepEqual(f.calls,[]);
+  f.appState('active');start();f.confirm();f.confirm();assert.deepEqual(f.calls,['core-load']);
+ }
+});
+
+test('account change rejects a pending sync confirmation',()=>{
+ const f=fixture();f.press('DataUpdateIndicator');
+ f.showLoad(null,{snapshot:{ownerId:'other',storeId:'other-store',account:{accountRef:'other-account'},savedRetrievals:[]},flights:[]});
+ f.confirm();assert.deepEqual(f.calls,[]);
 });

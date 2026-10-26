@@ -10,7 +10,7 @@ export function useReducedMotion(){
     const sub=AccessibilityInfo.addEventListener('reduceMotionChanged',setReduced);return()=>{current=false;sub.remove();};},[]);
   return reduced;
 }
-function useForeground(){
+export function useForeground(){
   const [foreground,setForeground]=useState(AppState.currentState==='active');
   useEffect(()=>{const sub=AppState.addEventListener('change',state=>setForeground(state==='active'));return()=>sub.remove();},[]);
   return foreground;
@@ -21,6 +21,12 @@ export function SyncShine({active}:{active:boolean}){
   useEffect(()=>{position.setValue(0);if(!active||reduced)return;const animation=Animated.loop(Animated.timing(position,{toValue:1,duration:2200,easing:Easing.linear,useNativeDriver:true}));animation.start();return()=>animation.stop();},[active,reduced,position]);
   if(!active||reduced)return null;
   return <Animated.View pointerEvents="none" accessible={false} style={[styles.shine,{transform:[{translateX:position.interpolate({inputRange:[0,1],outputRange:[-60,170]})},{skewX:'-20deg'}]}]}/>;
+}
+/** Flat indeterminate progress in the action; static arc with reduced motion. */
+export function SyncActivityIndicator(){
+  const reduced=useReducedMotion(),foreground=useForeground(),rotation=useRef(new Animated.Value(0)).current;
+  useEffect(()=>{rotation.setValue(0);if(reduced||!foreground)return;const animation=Animated.loop(Animated.timing(rotation,{toValue:1,duration:1200,easing:Easing.linear,useNativeDriver:true}));animation.start();return()=>animation.stop();},[reduced,foreground,rotation]);
+  return <Animated.View testID="sync-activity-ring" accessible={false} importantForAccessibility="no" style={[styles.ring,{transform:[{rotate:rotation.interpolate({inputRange:[0,1],outputRange:['0deg','360deg']})}]}]}/>;
 }
 /** Work retains two semantic rows; settled advice has explicit Details and no acknowledgement. */
 export function SyncProgress({progress,notice=null,retry,details,cancel,canCancel=false}:{progress:Progress;notice?:IdleSyncNotice|null;retry:()=>void;details:()=>void;cancel?:()=>void;canCancel?:boolean}){
@@ -63,4 +69,5 @@ const styles=StyleSheet.create({
   action:{minWidth:48,minHeight:48,alignItems:'center',justifyContent:'center'},
   cancel:{position:'absolute',right:4,top:0,width:48,minHeight:48,alignItems:'center',justifyContent:'center'},
   shine:{position:'absolute',top:0,bottom:0,width:28,backgroundColor:'#baf9e436',borderLeftWidth:1,borderRightWidth:1,borderColor:'#d5ffee70'},
+  ring:{width:32,height:32,borderRadius:16,borderWidth:3,borderColor:colors.cyan,borderRightColor:'transparent',borderBottomColor:'transparent'},
 });

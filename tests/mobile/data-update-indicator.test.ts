@@ -1,4 +1,6 @@
 import test from 'node:test';
+import { syncStatus } from '../../apps/platform-lab/src/mobile/sync-status.ts';
+import { idleSyncProgress } from '../../apps/platform-lab/src/mobile/sync-progress.ts';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { runInNewContext } from 'node:vm';
@@ -47,7 +49,7 @@ function fixture() {
     useMemo: (make: () => ReturnType<typeof createSessionPresentation>) => presentation ??= make() };
   const modules: Record<string, unknown> = {
     react: { default: react, ...react }, 'react-native': { Pressable: 'Pressable', Text:'Text', View: 'View', StyleSheet: { create: (v: unknown) => v } },
-    './theme': { Label: 'Label', colors: { muted: '#adbed5' }, ui:{headerAction:{width:48,height:48}} }, './SyncProgress':{SyncShine:'SyncShine'},'./SymbolIcon': { SymbolIcon: 'SymbolIcon' }, './data-freshness': { dataFreshness, dataUpdateStatus },
+    './theme': { Label: 'Label', colors: { muted: '#adbed5' }, ui:{headerAction:{width:48,height:48}} }, './SyncProgress':{SyncActivityIndicator:'SyncActivityIndicator'}, './StatusBadge':{StatusBadge:'StatusBadge'}, './sync-status':{syncStatus}, './sync-progress':{idleSyncProgress},'./SymbolIcon': { SymbolIcon: 'SymbolIcon' }, './data-freshness': { dataFreshness, dataUpdateStatus },
     './data-update-presentation': { createSessionPresentation },
   };
   const exports: any = {};
@@ -139,11 +141,11 @@ test('amber advice starts strictly after 72 hours and can coexist with a green l
   const props = { scopeKey: 'owner/store/123', connection: currentProof, receivedAt: at, readState: 'ready', onPress() {} };
   assert.doesNotMatch(render({ ...props, now }).props.accessibilityLabel, /Synchronisieren empfohlen/);
   const tree = render({ ...props, now: now + 1 });
-  assert.match(tree.props.accessibilityLabel, /Angemeldet.*Synchronisieren empfohlen/);
+  assert.match(tree.props.accessibilityLabel, /Synchronisieren empfohlen.*Angemeldet/);
   assert.doesNotMatch(text(tree), /Sync|Lädt/);
   assert.match(tree.props.accessibilityLabel, /Angemeldet/);
   const loggedOut = render({ ...props, now: now + 1, connection: { ...currentProof, phase: 'login-required' } });
-  assert.match(loggedOut.props.accessibilityLabel, /Anmeldung erforderlich.*Synchronisieren empfohlen/);
+  assert.match(loggedOut.props.accessibilityLabel, /Synchronisieren empfohlen.*Anmeldung erforderlich/);
   assert.match(loggedOut.props.accessibilityLabel, /Anmeldung erforderlich/);
 });
 
@@ -153,7 +155,7 @@ test('quick activity uses amber guidance while keeping fresh saved age and sessi
   assert.doesNotMatch(text(tree), /Sync|Lädt/);
   assert.match(tree.props.accessibilityLabel, /Änderungen möglich/);
   assert.doesNotMatch(tree.props.accessibilityLabel, /Synchronisieren empfohlen|älter als drei Tage/);
-  assert.ok(tree.children.flat().some((node:any)=>node?.props?.testID==='sync-advice'));
+  assert.ok(tree.children.flat().some((node:any)=>node?.props?.testID==='sync-status-badge'));
 });
 
 test('quick activity and stale saved age announce both amber reasons', () => {
@@ -161,7 +163,7 @@ test('quick activity and stale saved age announce both amber reasons', () => {
   const tree = render({ scopeKey: 'owner/store/123', connection: { ...proof, lastCheckedAt: new Date(now).toISOString() }, receivedAt: at, readState: 'ready', now, activityChanged: true, onPress() {} });
   assert.doesNotMatch(text(tree), /Sync|Lädt/);
   assert.match(tree.props.accessibilityLabel, /Änderungen möglich.*Synchronisieren empfohlen: Flugdaten älter als drei Tage/);
-  assert.ok(tree.children.flat().some((node:any)=>node?.props?.testID==='sync-advice'));
+  assert.ok(tree.children.flat().some((node:any)=>node?.props?.testID==='sync-status-badge'));
 });
 
 test('activity defaults off and explicit false preserves the ordinary fresh header', () => {
@@ -172,7 +174,7 @@ test('activity defaults off and explicit false preserves the ordinary fresh head
   assert.equal(defaultTree.props.accessibilityLabel, falseTree.props.accessibilityLabel);
   assert.doesNotMatch(text(falseTree), /Sync|Lädt/);
   assert.doesNotMatch(text(falseTree), /Änderungen möglich/);
-  assert.equal(defaultTree.children.flat().some((node:any)=>node?.props?.testID==='sync-advice'),false);
+  assert.equal(defaultTree.children.flat().find((node:any)=>node?.props?.testID==='sync-status-badge').props.mark,'✓');
 });
 
 test('rendering a newly received proof uses current wall time between timer ticks', () => {
@@ -193,9 +195,9 @@ test('rendering a newly received proof uses current wall time between timer tick
 
 test('partial-sync attention keeps accessible session proof without a tiny visible session mark',()=>{
  const tree=fixture()({scopeKey:'scope',connection:proof,receivedAt:at,readState:'ready',now:received,incomplete:true,onPress(){}});
- assert.match(tree.props.accessibilityLabel,/Angemeldet.*Letzte Synchronisierung unvollständig/);
- assert.ok(tree.children.flat().some((n:any)=>n?.props?.testID==='sync-advice'));
- assert.match(text(tree),/!/);assert.doesNotMatch(text(tree),/✓|→|\?|Sync|Lädt/);assert.equal(tree.props.disabled,false);
+ assert.match(tree.props.accessibilityLabel,/Teilweise aktualisiert.*Angemeldet/);
+ assert.ok(tree.children.flat().some((n:any)=>n?.props?.testID==='sync-status-badge'));
+ assert.equal(tree.children.flat().find((n:any)=>n?.props?.testID==='sync-status-badge').props.mark,'!');assert.doesNotMatch(text(tree),/✓|→|\?|Sync|Lädt/);assert.equal(tree.props.disabled,false);
 });
 
 test('local read failure retains the verified receipt age and explicitly announces the read problem',()=>{
@@ -211,10 +213,10 @@ test('attention is visible for never, invalid and unreadable data and suppressed
  const render=fixture();
  for(const props of [{receivedAt:null,readState:'ready'},{receivedAt:'invalid',readState:'ready'},{receivedAt:at,readState:'failed'},{receivedAt:at,readState:'ready',incomplete:true}]){
    const button=render({...props,now:received,onPress(){}});
-   const mark=button.children.flat().find((n:any)=>n?.props?.testID==='sync-advice');
-   assert.equal(text(mark),'!');
+   const mark=button.children.flat().find((n:any)=>n?.props?.testID==='sync-status-badge');
+   assert.equal(mark.props.mark,props.readState==='failed'||props.incomplete?'!':'?');
    const busy=render({...props,now:received,syncing:true,onPress(){}});
-   assert.equal(busy.children.flat().some((n:any)=>n?.props?.testID==='sync-advice'),false);
+   assert.equal(busy.children.flat().find((n:any)=>n?.props?.testID==='sync-status-badge').props.mark,'');
    assert.equal(busy.props.accessibilityState.busy,true);
  }
  assert.doesNotMatch(text(render({receivedAt:null,readState:'loading',now:received,onPress(){}})),/!/);

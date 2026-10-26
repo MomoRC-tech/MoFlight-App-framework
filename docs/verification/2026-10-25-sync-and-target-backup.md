@@ -35,3 +35,14 @@ MAIN covered ordinary header, Profile session evidence, never-synced, age and ch
 ## Remaining gates
 
 #83's selected presentation scope is complete. #8 still owns the current populated sync→filtered list/detail→background→offline restart composition, independent persisted source outcomes/retry and actual second-account/platform cases. #29 retains ordinary populated external save/readback/full-user restore, portable identity and attachment inventory. #34 retains beta starting/skipped-version selection and ordinary in-place update acceptance. #86 still needs a verified annual required-hours source; manual targets remain provisional, with no EUR conversion. Physical phone, iOS runtime, live-provider coverage, process-death/full-aggregate target recovery, power-loss/storage-exhaustion and spoken accessibility were not established by this package. No paid execution or live-AI activation occurred.
+
+
+## Separate status controls and Sync confirmation — 26 October 2026
+
+M1 presentation over the existing M2 coordinator; #83, R01/R04/R12, FL-03/10/11 and E07/E09/E11. Manuel approved Separate controls and a short pre-sync confirmation. Two 48 dp targets now carry independent sync/result and login badges; actual work uses a circular indicator respecting foreground/reduced motion. No key button, dependency, provider/schema change, background service or performance optimization. Ordinary Sync/retry asks “Daten synchronisieren?” with “Abbrechen” / “Starten”. Fixed badge-reason and confirmation events support #90's future phone analysis.
+
+Full-job success requires the current session's scoped completed result and a usable saved receipt. Restored flight evidence alone has a neutral saved badge; no new durable full-job outcome is claimed. Current work precedes old errors, read errors precede settled partial/failed results, and advice precedes success. Existing Details/source limitations remain. Profile opens existing account/settings and shows independent bounded session proof.
+
+Focused checks cover state priority, honest receipt/result distinction, independent session evidence, cancel/dismiss/background, duplicate and late callbacks, and account change. New deterministic tests exercise behavior rather than pixels; native checks own layout/Android dialog acceptance. Checkpoint and release results will be added after execution; implementation alone does not establish device acceptance.
+
+Host checkpoint: Windows, Node 24.18.0, pnpm 11.25.0; focused package 116/116 passed, then `pnpm check` passed all five stages (types, lint, mobile tests, Python tests, fixture parity). Logs: `build/host-checks/20261026T094800Z-37ff5e40/`, `build/sync-badges-focused.log`. Android and iOS bundle exports passed (`build/sync-badges-bundle.log`); this is not iOS runtime acceptance. Generated handbook freshness/link coverage and `git diff --check` passed. The native checkpoint remains pending at this implementation commit.

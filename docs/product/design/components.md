@@ -1,5 +1,7 @@
 # Components, symbols and shapes
 
+**26 October selected C06/C17 amendment (#83):** [Separate Sync and Profile status](compact-cockpit.md#separate-sync-and-profile-status--selected-26-october-2026) uses one circular work indicator/result badge on Sync and one independent login badge on Profile. No key control. Ordinary Sync/retry requires a short native Cancel/Start decision. This supersedes conflicting earlier inventory notes below.
+
 **25 October selected C06/C17 amendment (#83):** the [current Sync contract](compact-cockpit.md#sync-clarity-and-target-preservation--selected-25-october-2026) replaces the dot/session submark with a readable attention mark and visible Details notices, while keeping actual progress/cancel and independent session/receipt evidence. This supersedes the earlier C06/C17 presentation inventory below within that scope.
 
 > **Current appearance authority — 24 October 2026:** [Dark Compact Cockpit](compact-cockpit.md) and its approved reference supersede conflicting older appearance/composition statements below. Data, feature and verification boundaries retain their scope.

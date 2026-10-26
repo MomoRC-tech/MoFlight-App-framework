@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { AppState, BackHandler, Keyboard, KeyboardAvoidingView, Linking, Platform, Pressable, ScrollView, StatusBar, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
+import { Alert, AppState, BackHandler, Keyboard, KeyboardAvoidingView, Linking, Platform, Pressable, ScrollView, StatusBar, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { canonical, type Flight } from '@moflight/flight-logbook';
 import LabApp from '../App';
@@ -28,7 +28,10 @@ import {SyncStatusDetails} from './SyncStatusDetails';
 import {idleSyncProgress,idleSyncNotice,completedSyncProgress,type SyncProgress as SyncProgressState} from './sync-progress';
 import { UpdateDialog } from './UpdateDialog';
 import { DATA_FRESHNESS_REMINDER_MS, DATA_UPDATE_FRESH_MS } from './data-freshness';
-import { SESSION_DISPLAY_FRESH_MS } from './data-update-presentation';
+import { SESSION_DISPLAY_FRESH_MS, createSessionPresentation } from './data-update-presentation';
+import { StatusBadge } from './StatusBadge';
+import { syncStatus } from './sync-status';
+import { createSyncConfirmation } from './sync-confirmation';
 import { AppHeader } from './AppHeader';
 import { MedicalDetails } from './MedicalStatus';
 import { OverviewTiles } from './OverviewTiles';
@@ -84,7 +87,7 @@ export default function MobileApp() {
   return <SafeAreaProvider><View style={{flex:1}}>
     <View style={{flex:1}} pointerEvents={modalOpen?'none':'auto'} aria-hidden={modalOpen} accessibilityElementsHidden={modalOpen} importantForAccessibility={modalOpen?'no-hide-descendants':'auto'}><Shell syncControls={syncControls} syncRunning={syncRunning} syncProgress={syncProgress} coreFlightsOpen={!!entry?.open} flightReload={flightReload} lastLoad={lastLoad} providerStatus={providerStatus} onCoreFlights={(intent='options',development=false,destination='settings')=>{
       if(syncLock.current){diagnosticJournal.record('sync','sync-duplicate-ignored');return;}
-      syncLock.current=intent==='update';if(intent==='update'){diagnosticJournal.record('sync','sync-requested');setSyncProgress({...idleSyncProgress,state:'active',current:'prepare'});}setLastLoad(null);setEntry(previous=>({intent:intent==='update'?'update':'options',development,destination,open:true,requestId:(previous?.requestId??0)+1}));}}/></View>
+      syncLock.current=intent==='update';if(intent==='update'){diagnosticJournal.record('sync','sync-requested');setSyncProgress({...idleSyncProgress,state:'active',current:'prepare'});}if(intent==='update')setLastLoad(null);setEntry(previous=>({intent:intent==='update'?'update':'options',development,destination,open:true,requestId:(previous?.requestId??0)+1}));}}/></View>
     {entry&&<UpdateDialog open={modalOpen} expanded={entry.intent!=='update'||!!providerStatus.loginVisible}>{windowTop=><CoreFlightFoundation destination={entry.destination} dialogTop={windowTop} providerEntryAllowed={entry.intent==='update'} open={entry.open} requestId={entry.requestId} intent={entry.intent} onProgress={setSyncProgress} onControls={setSyncControls} onStatus={setProviderStatus} developmentRecoveryCheckpoints={entry.development} close={result=>{syncLock.current=false;
       if(result){
         setSyncProgress(completedSyncProgress(result));
@@ -109,6 +112,9 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
   const [helpSaving, setHelpSaving] = useState(false);
   const [helpPreferenceError, setHelpPreferenceError] = useState(false);
   const helpSaveLock = useRef(false);
+  const syncConfirmation = useRef(createSyncConfirmation()).current;
+  const syncAdmission = useRef({scope:'',allowed:false});
+  useEffect(()=>()=>syncConfirmation.invalidate(),[syncConfirmation]);
   useEffect(() => { let mounted = true; void readContextHelpEnabled().then(enabled => { if (mounted) setHelpEnabled(enabled); }); return () => { mounted = false; }; }, []);
   const toggleHelp = async () => {
     if (helpEnabled === null || helpSaveLock.current) return;
@@ -172,6 +178,8 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
   const medical=ownFlights.view?.medical??null;
   const selected=ownFlights.view;
   const statisticsScopeKey = canonical([selected?.snapshot.ownerId ?? null, selected?.snapshot.storeId ?? null, selected?.snapshot.account?.accountRef ?? null]);
+  syncAdmission.current={scope:statisticsScopeKey,allowed:!screenBusy&&!coreFlightsOpen&&!syncRunning&&syncProgress.state!=='active'&&syncProgress.state!=='waiting'};
+  useEffect(()=>{syncConfirmation.invalidate();},[statisticsScopeKey,syncConfirmation]);
   const retrievalPlan=useMemo(()=>planFlightRetrieval(selected?.snapshot.savedRetrievals??[]),[selected?.snapshot.savedRetrievals]);
   const rosterExpiry=selected?.duties?.snapshot?dutySnapshotExpiresAt(selected.duties.snapshot):NaN;
   const receivedAt=retrievalPlan.lastSuccessfulRetrievalAt;
@@ -223,20 +231,40 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
       return false;
     }); return () => listener.remove();
   }, [detail, sheet, helpEntryId, tab, screenBusy, flightHeader,clubSection]);
-  const openFlightFlow = (intent:ConnectionIntent='options',destination:OptionsDestination='settings') => { diagnosticJournal.record('action',intent==='update'?'update-flights':'open-flight-tools'); onCoreFlights(intent,false,destination); return true; };
+  const openFlightFlow = (intent:ConnectionIntent='options',destination:OptionsDestination='settings') => {
+    if(intent!=='update'){diagnosticJournal.record('action','open-flight-tools');onCoreFlights(intent,false,destination);return true;}
+    const ticket=syncConfirmation.request(syncAdmission.current.scope,syncAdmission.current.allowed);
+    if(!ticket)return false;
+    diagnosticJournal.record('sync','sync-confirmation-open');
+    Alert.alert('Daten synchronisieren?','Jetzt die Daten von Vereinsflieger aktualisieren?',[
+      {text:'Abbrechen',style:'cancel',onPress:()=>{ticket.cancel();diagnosticJournal.record('sync','sync-confirmation-cancelled');}},
+      {text:'Starten',onPress:()=>{
+        if(!ticket.confirm(syncAdmission.current.scope,syncAdmission.current.allowed))return;
+        syncAdmission.current.allowed=false;
+        diagnosticJournal.record('sync','sync-confirmation-accepted');
+        diagnosticJournal.record('action','update-flights');onCoreFlights('update',false,destination);
+      }},
+    ],{cancelable:true,onDismiss:()=>ticket.cancel()});
+    return true;
+  };
   useEffect(() => { diagnosticJournal.record('screen', coreFlightsOpen ? 'provider-options' : detail ? 'flight-detail' : sheet ?? tab); }, [tab,sheet,detail,coreFlightsOpen]);
-  useEffect(() => { const listener=AppState.addEventListener('change',state=>{if(state==='active'||state==='background'||state==='inactive')diagnosticJournal.record('lifecycle',state);});return()=>listener.remove(); }, []);
+  useEffect(() => { const listener=AppState.addEventListener('change',state=>{if(state!=='active')syncConfirmation.invalidate();if(state==='active'||state==='background'||state==='inactive')diagnosticJournal.record('lifecycle',state);});return()=>listener.remove(); }, []);
   const openBooks = () => openHeaderSheet('paper');
   const pageTitle = tabs.find(item => item.id === tab)!.title;
   const readState=ownFlights.phase==='failed'?'failed':ownFlights.phase==='loading'?'loading':'ready';
   const notice=idleSyncNotice({receivedAt,readState,now,activityChanged});
-  const statusDetails=<SyncStatusDetails scopeKey={selected?.snapshot.account?.accountRef?statisticsScopeKey:null} connection={flightStatusController.connection} receivedAt={receivedAt} readState={readState} now={now} activityChanged={activityChanged}/>;
+  const completed=!!updateForOwner&&completedSyncProgress(updateForOwner).state==='idle';
+  const indicatorStatus=syncStatus({receivedAt,readState,now,activityChanged,completed,progress:syncProgress});
+  useEffect(()=>{diagnosticJournal.record('sync',`sync-status-${indicatorStatus.reason}`);},[indicatorStatus.reason]);
+  const presentSession=useMemo(createSessionPresentation,[]);
+  const loginStatus=presentSession(selected?.snapshot.account?.accountRef?statisticsScopeKey:null,flightStatusController.connection,now);
+  const statusDetails=<SyncStatusDetails status={indicatorStatus} scopeKey={selected?.snapshot.account?.accountRef?statisticsScopeKey:null} connection={flightStatusController.connection} receivedAt={receivedAt} readState={readState} now={now} activityChanged={activityChanged}/>;
   const statusControls = <>
-    <DataUpdateIndicator incomplete={syncProgress.state==='failed'||syncProgress.state==='partial'} activityChanged={activityChanged} scopeKey={selected?.snapshot.account?.accountRef?statisticsScopeKey:null} connection={flightStatusController.connection} receivedAt={receivedAt} readState={ownFlights.phase==='failed'?'failed':ownFlights.phase==='loading'?'loading':'ready'}
+    <DataUpdateIndicator progress={syncProgress} completed={completed} incomplete={syncProgress.state==='failed'||syncProgress.state==='partial'} activityChanged={activityChanged} scopeKey={selected?.snapshot.account?.accountRef?statisticsScopeKey:null} connection={flightStatusController.connection} receivedAt={receivedAt} readState={ownFlights.phase==='failed'?'failed':ownFlights.phase==='loading'?'loading':'ready'}
       now={now} syncing={syncProgress.state==='active'||syncProgress.state==='waiting'} disabled={screenBusy} onPress={() => openFlightFlow('update')} />
 
   </>;
-  const profileControl = <Pressable accessibilityRole="button" accessibilityLabel="Profil & Einstellungen öffnen" accessibilityState={{ disabled: screenBusy }} disabled={screenBusy} onPress={() => openHeaderSheet('profile')} style={ui.headerAction}><ProfileIcon /></Pressable>;
+  const profileControl = <Pressable accessibilityRole="button" accessibilityLabel="Profil & Einstellungen öffnen" accessibilityValue={{text:loginStatus.description}} accessibilityState={{ disabled: screenBusy }} disabled={screenBusy} onPress={() => openHeaderSheet('profile')} style={ui.headerAction}><ProfileIcon /><StatusBadge testID="login-status-badge" mark={loginStatus.mark} tone={loginStatus.state==='connected'?'success':loginStatus.state==='login-required'?'advice':loginStatus.mark==='!'?'error':'neutral'}/></Pressable>;
   const header = <AppHeader profile={profileControl} source={tab === 'club' ? clubAirfield : mountain} title={tab === 'ai' ? 'MoFlight AI' : tab === 'flights' ? flightHeader.title : tab==='club'&&clubSection!=='Übersicht'?`Verein · ${clubSection}`:pageTitle} back={tab === 'flights' ? flightHeader.back : tab==='club'&&clubSection!=='Übersicht'?()=>openClubSection('Übersicht'):undefined}
     subtitle={tab === 'home' ? 'Guten Tag!' : tab === 'ai' ? 'Dein Segelflug-Assistent' : 'MoFlight'}>{statusControls}</AppHeader>;
   return <SafeAreaView edges={['top', 'left', 'right', 'bottom']} style={[s.root, keyboardOverlap > 0 && { paddingBottom: keyboardOverlap }]}>
