@@ -4,9 +4,9 @@ import { SymbolIcon, type SymbolName } from './SymbolIcon';
 import { Label, colors, ui } from './theme';
 
 /** Saved source label only; the airfield is decorative, never a club/location claim. */
-export function ClubHeading({ clubLabel, location, onOpen }: { clubLabel?: string | null; location?: string | null; onOpen?: () => void }) {
+export function ClubHeading({ clubLabel, onOpen }: { clubLabel?: string | null; onOpen?: () => void }) {
   const name=clubLabel?.trim();
-  const content=<ImageBackground accessible={false} source={require('../../assets/aviation/club-heading-airfield-v2.png')} resizeMode="cover" imageStyle={ui.cockpitImage} style={{width:'100%'}}><View style={[ui.cockpitShade,styles.heading]}><SymbolIcon name="club" size={24}/><View style={{flex:1,minWidth:0}}><Label muted style={styles.caption}>Mein Verein</Label><Text accessibilityRole="header" style={styles.title}>{name||'Vereinsname unbekannt'}</Text><Label muted style={styles.caption}>{location||'Ort unbekannt'}</Label></View>{onOpen&&<SymbolIcon name="right" size={18}/>}</View></ImageBackground>;
+  const content=<ImageBackground accessible={false} source={require('../../assets/aviation/club-heading-airfield-v2.png')} resizeMode="cover" imageStyle={ui.cockpitImage} style={{width:'100%'}}><View style={[ui.cockpitShade,styles.heading]}><SymbolIcon name="club" size={24}/><View style={{flex:1,minWidth:0}}><Label muted style={styles.caption}>Mein Verein</Label><Text accessibilityRole="header" style={styles.title}>{name||'Vereinsname unbekannt'}</Text></View>{onOpen&&<SymbolIcon name="right" size={18}/>}</View></ImageBackground>;
   return onOpen?<Pressable accessibilityRole="button" accessibilityLabel={`Mein Verein: ${name||'Name unbekannt'}. Vereinsübersicht öffnen`} onPress={onOpen} style={styles.frame}>{content}</Pressable>:<View style={styles.frame}>{content}</View>;
 }
 

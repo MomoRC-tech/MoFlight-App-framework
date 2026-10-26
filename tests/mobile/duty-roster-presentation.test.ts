@@ -55,7 +55,7 @@ test('club heading uses the saved full name and allows long names to wrap withou
     assert.equal(title.props.allowFontScaling, undefined);
     assert.equal(title.props.adjustsFontSizeToFit, undefined);
     const photo=f.nodes(view).find(node=>node.type==='ImageBackground')!;assert.equal(photo.props.accessible,false);
-    assert.match(f.text(view),/Ort unbekannt/);
+    assert.doesNotMatch(f.text(view),/Ort unbekannt/);
   }
 });
 
@@ -65,6 +65,7 @@ test('unknown club names use an honest qualifier without inventing a club or loc
     const view = f.heading.ClubHeading!({ clubLabel });
     assert.equal(f.text(f.nodes(view).find(node => node.props.accessibilityRole === 'header')), 'Vereinsname unbekannt');
     assert.match(f.text(view), /Vereinsname unbekannt/);
+    assert.doesNotMatch(f.text(view), /Ort unbekannt/);
   }
 });
 
