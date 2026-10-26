@@ -1,0 +1,21 @@
+{
+  "source_commit": "4f59f70d180cd231011f447b67fe91c6d8eff00b",
+  "apk_sha256": "19ea41e6fb870da26018cefc277809e1027d8257b187f1fa86bb6842ab73fa9a",
+  "size": "Physical size: 1080x1920",
+  "density": "Physical density: 420",
+  "font_scale": "1.0",
+  "checks": [
+    "medical",
+    "status",
+    "status-limits",
+    "help",
+    "help-answer",
+    "returned-to-start"
+  ],
+  "limits": "Dark only, existing empty synthetic data; populated Medical, light, other sizes, physical devices and iOS untested.",
+  "status": "passed",
+  "installed_apk_hash_verified": true,
+  "offline_preserved": true,
+  "display_unchanged": true,
+  "visual_review": "Parent inspected all five PNGs: readable hierarchy, no observed text overlap. Initial loading-label selector missed before any navigation; retry used stable Medical prefix."
+}

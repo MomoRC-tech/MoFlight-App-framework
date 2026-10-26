@@ -2,7 +2,7 @@
 
 ## Current baseline — 26 October 2026
 
-**#94 secondary-page continuation:** Help, Medical and Status now share a child-page header and clearer topic/source/status groups. Start and global colors remain unchanged. Focused host tests (76), TypeScript, scoped lint and Android/iOS bundles pass; committed-source Release and a brief dark native checkpoint are pending. [Package evidence](verification/2026-10-26-material-settings.md#secondary-page-continuation). Broader dialogs/navigation and light-theme acceptance remain open.
+**#94 secondary-page continuation:** Help, Medical and Status now share a child-page header and clearer topic/source/status groups. Start and global colors remain unchanged. Focused host tests (76), TypeScript, scoped lint, Android/iOS bundles, committed-source Release and a brief dark native checkpoint pass in APK `4f59f70` (Medical empty state, Status, Help and Back). [Package evidence](verification/2026-10-26-material-settings.md#secondary-page-continuation). Broader dialogs/navigation and light-theme acceptance remain open.
 
 **#94 first implementation increment:** ordinary Settings uses grouped navigation, a native Help switch, backup disclosure and a prominent child-page header in the existing Cockpit colors. Included in APK `9eccbf7`. [Host checks and brief dark native Settings/Back check pass](verification/2026-10-26-material-settings.md); Help/recovery navigation was controller-blocked. Broader redesign, expanded disclosure and enlarged-text acceptance remain open.
 

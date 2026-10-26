@@ -42,4 +42,12 @@ Verification on Windows / Node 24.18.0 / pnpm 11.25.0:
 - Six focused suites (header navigation, Settings presentation, Help, Medical status, expiry and overview): **76/76 pass**.
 - TypeScript and scoped ESLint: pass.
 - Android and iOS production bundles: pass; this is host evidence, not native acceptance.
-- Committed-source Release and brief dark native inspection are pending. Existing Settings native evidence above remains source-specific; no light, physical-device, iOS or extended accessibility acceptance is claimed.
+- Committed-source Release and brief dark native inspection passed as recorded below. Existing Settings evidence above remains source-specific; no light, physical-device, iOS or extended accessibility acceptance is claimed.
+
+### Secondary-page Release and native checkpoint
+
+[Download APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/material-pages-2026-10-26-4f59f70/MoFlight-Android-4f59f70.zip), actual application source `4f59f70d180cd231011f447b67fe91c6d8eff00b`. Local committed-source Release passed, with embedded JavaScript and arm64-v8a/x86_64 libraries. SHA-256 `19ea41e6fb870da26018cefc277809e1027d8257b187f1fa86bb6842ab73fa9a` matches the installed APK. ZIP contains only the APK and sanitized build metadata; development-signed lab build.
+
+Parent performed a bounded offline dark native check on `MoFlight_Synthetic_API37`, Android API 37, physical 1080 × 1920 at density 420 (411.43 × 731.43 dp), font scale 1. Medical empty/unknown state and caveat, Status groups and scrolling to source limits, Help list and an answer with source/boundary were readable with no observed text overlap. Header Back returned from Medical to Start, Status to Settings, and Help answer through the list and Settings to Start. All five PNGs were visually inspected. No provider action, preference change, data clearing or display/network change was performed.
+
+[Sanitized native result](2026-10-26-material-pages-native.json); local captures and XML are in `build/material-pages-native/`. The initial script expected the settled Medical label while startup still showed loading; it stopped before navigation and was corrected to use the stable Medical prefix. This is a selector miss, not an app failure. Populated Medical/source rows, update receipts, keyboard/enlarged-text/other-width layouts, physical phones, iOS runtime and light remain untested. Broader dialogs/navigation remain open in #94.
