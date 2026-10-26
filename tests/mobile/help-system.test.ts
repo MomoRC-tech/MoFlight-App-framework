@@ -24,7 +24,7 @@ interface Element { type: string; props: Record<string, any>; children: any[] }
 const source = ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/mobile/HelpScreen.tsx', import.meta.url), 'utf8'), {
   compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.React, esModuleInterop: false },
 }).outputText;
-function fixture(entryId: string | null, helpEnabled = true) {
+function fixture(entryId: string | null, helpEnabled = true, query = '', category: catalog.HelpCategory | null = null) {
   const calls: string[] = [], links: string[] = [];
   const react = { createElement: (type: string, props: Record<string, any>, ...children: any[]): Element => ({ type, props: props ?? {}, children: children.flat(Infinity) }) };
   const leaves = (names: string[]) => Object.fromEntries(names.map(name => [name, name]));
@@ -37,7 +37,7 @@ function fixture(entryId: string | null, helpEnabled = true) {
   };
   const exports: Record<string, any> = {};
   runInNewContext(source, { exports, require: (name: string) => { assert.ok(name in modules, name); return modules[name]; } });
-  const props = { entryId, query: '', category: null, onQuery: (value: string) => calls.push(`query:${value}`), onCategory: (value: string) => calls.push(`category:${value}`), onEntry: (value: string | null) => calls.push(`entry:${value}`), onReturn: () => calls.push('return'), onReplay: () => calls.push('replay'), onStatus: () => calls.push('status'), returnLabel: 'Zurück zum Flug', helpEnabled };
+  const props = { entryId, query, category, onQuery: (value: string) => calls.push(`query:${value}`), onCategory: (value: string) => calls.push(`category:${value}`), onEntry: (value: string | null) => calls.push(`entry:${value}`), onReturn: () => calls.push('return'), onReplay: () => calls.push('replay'), onStatus: () => calls.push('status'), returnLabel: 'Zurück zum Flug', helpEnabled };
   const tree: Element = exports.HelpScreen(props);
   const nodes: Element[] = [];
   const visit = (node: any) => { if (node?.children) { nodes.push(node); node.children.forEach(visit); } };
@@ -61,11 +61,44 @@ test('PIC answer displays source and credit boundary; external source opens only
   const f = fixture('pic'), text = f.text(f.tree);
   assert.match(text, /HILFE · OFFLINE/); assert.match(text, /keine automatische Anrechnung/);
   assert.match(text, /EASA/); assert.deepEqual(f.links, []);
+  assert.equal(f.nodes.filter(node => node.type === 'Section' && node.props.title === catalog.helpEntry('pic')!.title).length, 1);
+  assert.equal(f.nodes.some(node => node.type === 'Label' && f.text(node) === catalog.helpEntry('pic')!.title), false);
+  assert.match(text, /Internet erforderlich/);
   const sourceLink = f.nodes.find(node => node.type === 'Pressable' && node.props.accessibilityRole === 'link')!;
   sourceLink.props.onPress(); await Promise.resolve();
   assert.deepEqual(f.links, [catalog.helpEntry('pic')!.sourceUrl]);
   f.nodes.find(node => node.type === 'Action' && f.text(node).includes('Zurück zum Flug'))!.props.onPress();
   assert.deepEqual(f.calls, ['return']);
+});
+
+test('Help list renders the active search/category and preserves their controlled state on entry selection', () => {
+  const f = fixture(null, true, 'papier', 'Flugbuch');
+  assert.equal(f.nodes.find(node => node.props.testID === 'help-search')!.props.value, 'papier');
+  assert.equal(f.nodes.find(node => node.type === 'Chip' && node.props.title === 'Flugbuch')!.props.selected, true);
+  const topics = f.nodes.filter(node => node.type === 'Pressable' && node.props.accessibilityRole === 'button');
+  assert.deepEqual(topics.map(node => node.props.accessibilityLabel), ['Was kann ich im Flugbuch schon tun?']);
+  topics[0]!.props.onPress();
+  assert.deepEqual(f.calls, ['entry:paper-book']);
+  assert.deepEqual(f.links, []);
+  const empty = fixture(null, true, 'PIC', 'Flugbuch');
+  assert.match(empty.text(empty.tree), /Keine geprüfte Hilfe gefunden/);
+  assert.equal(empty.nodes.some(node => node.type === 'Pressable' && node.props.accessibilityRole === 'button'), false);
+  empty.nodes.find(node => node.type === 'Chip' && node.props.title === 'Alle')!.props.onPress();
+  assert.deepEqual(empty.calls, ['category:null']);
+});
+
+test('answer routes back to topics or the caller and opens status only for relevant data answers', () => {
+  for (const id of ['empty-flights', 'partial-update']) {
+    const f = fixture(id, false, 'daten', 'Flüge & Daten');
+    f.nodes.find(node => node.type === 'Action' && f.text(node) === 'Datenstatus öffnen')!.props.onPress();
+    f.nodes.find(node => node.type === 'Action' && f.text(node) === 'Alle Hilfethemen')!.props.onPress();
+    f.nodes.find(node => node.type === 'Action' && f.text(node) === 'Zurück zum Flug')!.props.onPress();
+    assert.deepEqual(f.calls, ['status', 'entry:null', 'return']);
+    assert.deepEqual(f.links, []);
+    assert.match(f.text(f.tree), new RegExp(catalog.helpEntry(id)!.updatedAt));
+  }
+  const pic = fixture('pic');
+  assert.equal(pic.nodes.some(node => node.type === 'Action' && pic.text(node) === 'Datenstatus öffnen'), false);
 });
 
 test('unknown entry fails closed with an explicit no-answer state', () => {

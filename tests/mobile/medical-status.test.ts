@@ -19,7 +19,7 @@ const modules: Record<string, unknown> = {
   './theme': { ...leaves(['Card', 'Label', 'Section']), colors: { muted: '#adbed5', text: '#f5f7ff' } },
   './medical-expiry': { medicalExpiry, medicalExpiryStatusText },
 };
-const component = {} as { MedicalIndicator: (p: { onPress: () => void; active?: boolean; disabled?: boolean; capture?: InformationCapture; now?: number }) => Element; MedicalDetails: (p?: {capture?: InformationCapture; needsReload?: boolean; now?: number}) => Element };
+const component = {} as { MedicalIndicator: (p: { onPress: () => void; active?: boolean; disabled?: boolean; capture?: InformationCapture; now?: number }) => Element; MedicalDetails: (p?: {capture?: InformationCapture; loading?: boolean; needsReload?: boolean; refreshFailed?: boolean; now?: number}) => Element };
 runInNewContext(source, { exports: component, require: (name: string) => { assert.ok(name in modules, `Unexpected data/service dependency: ${name}`); return modules[name]; } });
 function nodes(tree: Element): Element[] {
   const result: Element[] = [];
@@ -67,8 +67,42 @@ test('saved Medical shows the earliest source date, raw fields and explicit unkn
   assert.match(text(details), /unvollständig/);
   assert.match(text(details), /erneut geladen/);
   assert.match(text(details), /Quelle: Vereinsflieger/);
+  assert.match(text(details), /keine Bestätigung der Flugtauglichkeit oder einer Flugberechtigung/);
+  assert.equal(nodes(details).some(n => n.type === 'Section' && n.props.title === 'Medical'), false, 'The parent page owns the Medical title');
+  const sourceCards = nodes(details).filter(n => n.type === 'Card' && nodes(n).some(child => child.type === 'Section' && /^Quelleneintrag /.test(child.props.title)));
+  assert.equal(sourceCards.length, 2, 'Each preserved source record remains a distinct group');
+  assert.match(text(sourceCards[0]!), /Medical-Art Synthetic class Gültig bis · Originaltext 31.12.2027 · source reference/);
+  assert.doesNotMatch(text(sourceCards[0]!), /Synthetic second class/);
+  assert.match(text(sourceCards[1]!), /Medical-Art Synthetic second class Gültig bis · Originaltext Unbekannt \/ leer in der Quelle/);
+  assert.deepEqual(sourceCards.map(card => nodes(card).filter(n => n.type === 'Label' && n.props.selectable).length), [2, 2]);
   assert.equal(nodes(details).some(n => ['TextInput', 'Action', 'Pressable'].includes(n.type)), false);
   assert.match(text(component.MedicalIndicator({capture:{...capture,rows:[],empty:true},onPress(){}})), /unbekannt/);
+});
+
+test('Medical details retain loading, stale-source and failed-refresh explanations alongside saved facts', () => {
+  const loading = text(component.MedicalDetails({loading:true,needsReload:true,refreshFailed:true}));
+  assert.match(loading, /Gespeicherte Angaben werden geladen/);
+  assert.match(loading, /erneut geladen/);
+  assert.match(loading, /beim letzten Abruf nicht aktualisiert/);
+  assert.doesNotMatch(loading, /Status unbekannt|noch keine Medical-Quellenangaben/);
+  assert.match(loading, /keine Bestätigung der Flugtauglichkeit/);
+  const capture: InformationCapture = {version:1,id:'synthetic-medical',owner:'synthetic-owner',connectionId:'synthetic-connection',retrievedAt:'2026-10-01T12:00:00.000Z',
+    sourceIdentity:'provisional-observed-profile',category:'medical',path:'/member/profile/viewprofile',
+    columns:[{key:'expiry',label:'Originaldatum',index:7},{key:'kind',label:'Originalart',index:2}],
+    rows:[{position:4,values:['31.02.2027','Synthetic class']}],filters:[],empty:false,
+    coverage:{kind:'visible-page',truncated:false,pagination:'unverified'}};
+  const original = structuredClone(capture);
+  const details = component.MedicalDetails({capture,loading:true,needsReload:true,refreshFailed:true});
+  assert.match(text(details), /Kein eindeutig lesbares Datum · Einordnung unbekannt/);
+  assert.match(text(details), /Originaldatum 31.02.2027 Originalart Synthetic class/);
+  assert.match(text(details), /kein unterstütztes Datumsformat/);
+  assert.match(text(details), /werden geladen/);
+  assert.match(text(details), /erneut geladen/);
+  assert.match(text(details), /beim letzten Abruf nicht aktualisiert/);
+  assert.match(text(details), /Vollständigkeit und Gültigkeit sind nicht bestätigt/);
+  assert.deepEqual(capture, original);
+  const empty = text(component.MedicalDetails({capture:{...capture,rows:[],empty:true}}));
+  assert.match(empty, /keine Medical-Angaben gefunden. Der Status bleibt unbekannt/);
 });
 
 test('medical header date receives expired, near-term and quiet text colors from the supplied local date', () => {

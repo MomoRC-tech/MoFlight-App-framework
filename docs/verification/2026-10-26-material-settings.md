@@ -30,3 +30,16 @@ Source `9eccbf7082ca2a4a4217c4233d8ad961e782550d` includes Settings `e1b8747`. F
 Brief dark-only native inspection on offline `MoFlight_Synthetic_API37`, API 37, 411.43 × 731.43 dp, font scale 1: grouped Settings rows and the enabled native Help switch are readable, with no observed text overlap. Header Back returned to Start twice. Parent independently inspected both Settings captures. No preference was changed. Controller session `build/ui-agent/20261026T170654Z-2fa0c847/` contains worker results, screenshots/XML and cleanup report; original display, offline state and install identity were preserved with no cleanup errors. Worker used the explicitly requested GPT-6.1 Sol Medium.
 
 The earlier session `20261026T170239Z-41eb1964` was blocked entering Settings by the exact-label allowlist and cleaned up. A separate corrected session reached Settings, but Help and recovery entries were still refused by the controller; those journeys remain untested, not failed app behavior. This bounded checkpoint does not accept expanded disclosure, switch persistence, enlarged text, other widths, physical-phone, iOS or spoken accessibility.
+
+## Secondary-page continuation
+
+Scope: Help, Medical and Status under #94, following the selected Settings direction. Start, global tokens, provider lifecycle and existing Back/Sync routes are preserved. Help has a plain topic list and single answer heading; Medical separates expiry summary, source records and caveats; Status groups current state, update receipt, stored-flight coverage and source limits. Material [top app bars](https://m3.material.io/components/top-app-bar/overview), [lists](https://m3.material.io/components/lists/overview) and [cards](https://m3.material.io/components/cards/guidelines) guide hierarchy; existing React Native components and the vivid Cockpit palette are product-specific adaptations.
+
+Two independent component subtasks used GPT-6.1 Sol Medium as requested; parent integrated navigation and Status. Meaningful existing coverage was extended for retained source/unknown cautions, Help content and contextual return paths without provider work.
+
+Verification on Windows / Node 24.18.0 / pnpm 11.25.0:
+
+- Six focused suites (header navigation, Settings presentation, Help, Medical status, expiry and overview): **76/76 pass**.
+- TypeScript and scoped ESLint: pass.
+- Android and iOS production bundles: pass; this is host evidence, not native acceptance.
+- Committed-source Release and brief dark native inspection are pending. Existing Settings native evidence above remains source-specific; no light, physical-device, iOS or extended accessibility acceptance is claimed.

@@ -25,26 +25,41 @@ export function MedicalIndicator({ onPress, active = false, disabled = false, ca
 
 export function MedicalDetails({ capture = null, loading = false, needsReload = false, refreshFailed = false, now = Date.now() }: { capture?: InformationCapture | null; loading?: boolean; needsReload?: boolean; refreshFailed?:boolean; now?: number } = {}) {
   const assessment = medicalExpiry(capture, now);
-  return <Card style={styles.details}>
-    <Section title="Medical" />
-    <Label style={{ fontWeight: '600' }}>Erfasstes Ablaufdatum</Label>
-    {capture && (assessment.date ? <Label style={{ color: dateColor(assessment.state) }}>
-      {assessment.date}{assessment.issues.length ? '*' : ''} · {medicalExpiryStatusText(assessment.state)}
-    </Label> : <Label style={{ color: colors.muted }}>Kein eindeutig lesbares Datum · Einordnung unbekannt</Label>)}
-    {capture && assessment.issues.map((issue, index) => <Label key={`issue-${index}`} style={{ color: '#f9b65b' }}>{issue}</Label>)}
-    {loading && <Label muted>Gespeicherte Angaben werden geladen…</Label>}
-    {needsReload && <Label muted>Der neueste gespeicherte Stand muss erneut geladen werden. Vorhandene Angaben bleiben lesbar.</Label>}
-    {refreshFailed && <Label muted>Medical konnte beim letzten Abruf nicht aktualisiert werden. Angezeigt wird die gespeicherte Quelle, sofern vorhanden.</Label>}
+  return <View style={styles.details}>
+    <Card>
+      <Section title="Erfasstes Ablaufdatum" />
+      {capture && (assessment.date ? <>
+        <Label style={[styles.expiryDate, { color: dateColor(assessment.state) }]}>{assessment.date}{assessment.issues.length ? '*' : ''}</Label>
+        <Label muted>{medicalExpiryStatusText(assessment.state)}</Label>
+      </> : <Label muted>Kein eindeutig lesbares Datum · Einordnung unbekannt</Label>)}
+      {!capture && !loading && <><Label>Status unbekannt</Label><Label muted>In dieser lokalen Ansicht sind noch keine Medical-Quellenangaben verfügbar.</Label></>}
+      {loading && <Label muted>Gespeicherte Angaben werden geladen…</Label>}
+      {needsReload && <Label muted>Der neueste gespeicherte Stand muss erneut geladen werden. Vorhandene Angaben bleiben lesbar.</Label>}
+      {refreshFailed && <Label muted>Medical konnte beim letzten Abruf nicht aktualisiert werden. Angezeigt wird die gespeicherte Quelle, sofern vorhanden.</Label>}
+      {capture && assessment.issues.length > 0 && <View style={styles.notices}>
+        {assessment.issues.map((issue, index) => <Label key={`issue-${index}`} style={{ color: '#f9b65b' }}>{issue}</Label>)}
+      </View>}
+    </Card>
     {capture ? <>
-      <Label muted>Quelle: Vereinsflieger · eigene Profilseite · abgerufen am {new Date(capture.retrievedAt).toLocaleString('de-DE')}</Label>
-      {capture.rows.map(row => <View key={row.position} style={{ gap: 4 }}>
-        {capture.columns.map((column, index) => <Label selectable key={column.key}>{column.label}: {row.values[index]?.trim() ? row.values[index] : 'Unbekannt / leer in der Quelle'}</Label>)}
-      </View>)}
+      <View style={styles.sourceHeading}>
+        <Section title="Gespeicherte Quelle" />
+        <Label muted>Quelle: Vereinsflieger · eigene Profilseite · abgerufen am {new Date(capture.retrievedAt).toLocaleString('de-DE')}</Label>
+      </View>
+      {capture.rows.map((row, rowIndex) => <Card key={row.position}>
+        <Section title={`Quelleneintrag ${rowIndex + 1}`} />
+        {capture.columns.map((column, index) => <View key={column.key} style={styles.sourceFact}>
+          <Label muted style={styles.factLabel}>{column.label}</Label>
+          <Label selectable style={styles.factValue}>{row.values[index]?.trim() ? row.values[index] : 'Unbekannt / leer in der Quelle'}</Label>
+        </View>)}
+      </Card>)}
       {!capture.rows.length && <Label>Im erfassten Seitenausschnitt wurden keine Medical-Angaben gefunden. Der Status bleibt unbekannt.</Label>}
-      <Label muted>{capture.coverage.truncated ? 'Der erfasste Ausschnitt ist unvollständig. ' : ''}Originalangaben aus dem gespeicherten Seitenausschnitt; Vollständigkeit und Gültigkeit sind nicht bestätigt.</Label>
-    </> : !loading && <><Label>Status unbekannt</Label><Label>In dieser lokalen Ansicht sind noch keine Medical-Quellenangaben verfügbar.</Label></>}
-    <Label muted>Diese Quellangaben sind keine Bestätigung der Flugtauglichkeit oder einer Flugberechtigung.</Label>
-  </Card>;
+    </> : null}
+    <View style={styles.caveats}>
+      <Section title="Einordnung der Angaben" />
+      {capture && <Label muted>{capture.coverage.truncated ? 'Der erfasste Ausschnitt ist unvollständig. ' : ''}Originalangaben aus dem gespeicherten Seitenausschnitt; Vollständigkeit und Gültigkeit sind nicht bestätigt.</Label>}
+      <Label muted>Diese Quellangaben sind keine Bestätigung der Flugtauglichkeit oder einer Flugberechtigung.</Label>
+    </View>
+  </View>;
 }
 
 const styles = StyleSheet.create({
@@ -53,5 +68,12 @@ const styles = StyleSheet.create({
   copy: { flexShrink: 1 },
   label: { color: colors.text, fontSize: 12, lineHeight: 16, fontWeight: '600' },
   status: { color: colors.muted, fontSize: 11, lineHeight: 15 },
-  details: { width: '100%', maxWidth: 480, alignSelf: 'center' },
+  details: { width: '100%', maxWidth: 480, alignSelf: 'center', gap: 16 },
+  expiryDate: { fontSize: 24, lineHeight: 32, fontWeight: '600' },
+  notices: { gap: 8, borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 12 },
+  sourceHeading: { gap: 8, paddingTop: 8 },
+  sourceFact: { gap: 4 },
+  factLabel: { fontSize: 14, lineHeight: 20 },
+  factValue: { fontSize: 16, lineHeight: 24 },
+  caveats: { gap: 8, paddingVertical: 8 },
 });

@@ -2,6 +2,8 @@
 
 ## Current baseline — 26 October 2026
 
+**#94 secondary-page continuation:** Help, Medical and Status now share a child-page header and clearer topic/source/status groups. Start and global colors remain unchanged. Focused host tests (76), TypeScript, scoped lint and Android/iOS bundles pass; committed-source Release and a brief dark native checkpoint are pending. [Package evidence](verification/2026-10-26-material-settings.md#secondary-page-continuation). Broader dialogs/navigation and light-theme acceptance remain open.
+
 **#94 first implementation increment:** ordinary Settings uses grouped navigation, a native Help switch, backup disclosure and a prominent child-page header in the existing Cockpit colors. Included in APK `9eccbf7`. [Host checks and brief dark native Settings/Back check pass](verification/2026-10-26-material-settings.md); Help/recovery navigation was controller-blocked. Broader redesign, expanded disclosure and enlarged-text acceptance remain open.
 
 **#41 local-read simplification (26 October):** delivered in APK `9eccbf7`: displayed-list evidence serves flight details with fresh owner/lease/selection guards; Medical/information and duty save/readback share sessions. Full integrity/recovery remains on fresh reads and writes. [Host and synthetic native evidence](verification/2026-10-21-simple-flight-loading.md#shared-local-reads-and-displayed-flight-details--26-october-2026). Five paired offline-reopen samples measured detail-read medians of 1,885.91 ms fresh and 61.08 ms retained. Phone tap-to-visible, live journeys and iOS remain open.

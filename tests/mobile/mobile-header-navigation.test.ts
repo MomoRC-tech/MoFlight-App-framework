@@ -677,12 +677,32 @@ test('Settings uses a child-page header and keeps caller context and recovery ev
  assert.ok((summary.children as Element[]).some(n=>n?.type==='SyncStatusDetails'));
  assert.ok((summary.children as Element[]).some(n=>n?.type==='Label'&&n.children.join('').includes('Wiederherstellung muss geprüft')));
  f.find('ProfileSettings').props.onStatus();f.render();
- assert.equal(f.headers().at(-1)!.props.variant,'branded');
+ assert.equal(f.headers().at(-1)!.props.variant,'page');
  f.headers().at(-1)!.props.back();f.render();
  assert.ok(f.find('ProfileSettings'));assert.equal(f.headers().at(-1)!.props.variant,'page');
  assert.deepEqual(f.calls,[],'Browsing Settings and Status starts no provider operation');
  f.headers().at(-1)!.props.back();f.render();
  assert.equal(f.headers()[0]!.props.variant,undefined);
+});
+
+test('Help, Medical and Status share child-page headers and return without provider work',()=>{
+ const f=fixture();
+ f.find('OverviewTiles').props.onMedical();f.render();
+ assert.equal(f.headers().at(-1)!.props.variant,'page');
+ assert.equal(f.headers().at(-1)!.props.title,'Medical');
+ assert.equal(f.headers().at(-1)!.props.profile,undefined);
+ f.headers().at(-1)!.props.back();f.render();
+ f.press('Pressable','Profil & Einstellungen öffnen');
+ f.find('ProfileSettings').props.onHelp();f.render();
+ assert.equal(f.headers().at(-1)!.props.variant,'page');
+ assert.equal(f.headers().at(-1)!.props.profile,undefined);
+ f.find('HelpScreen').props.onStatus();f.render();
+ assert.equal(f.headers().at(-1)!.props.variant,'page');
+ assert.ok(f.nodes().some(n=>n.type==='Section'&&n.props.title==='Quellen & Grenzen'));
+ f.headers().at(-1)!.props.back();f.render();
+ assert.ok(f.find('HelpScreen'));assert.equal(f.headers().at(-1)!.props.variant,'page');
+ f.headers().at(-1)!.props.back();f.render();assert.ok(f.find('ProfileSettings'));
+ assert.deepEqual(f.calls,[]);
 });
 
 
