@@ -1,5 +1,9 @@
 # Measured Sync detail counts - 26 October 2026
 
+### Timing correction release
+
+The current [APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/sync-timing-2026-10-26-8d9ff10/moflight-sync-timing-8d9ff10.zip) is built from `8d9ff10f8b5a60c6f37d35f2442fc180aa9085c1`, including timing correction `1a9ace7`. It supersedes the delivery below. Reused full host evidence for unchanged code and all 52 affected correction tests (`build/start-final-review.log`). Two offline normal launches passed on this exact Release with preserved synthetic data and restored settings (`build/sync-timing-delivery/combined-startup/report.json`). The published ZIP was downloaded and its APK, source metadata and exact two entries verified. APK SHA-256: `00811a738b476806f028baed63a84e83895bd8cfc933d85b6878287b0ac658fe`. The correction does not establish populated Start timing, physical-phone speed, live-provider or iOS runtime acceptance.
+
 ### Combined release delivery
 
 The parallel chat subsequently committed timing-only correction `1a9ace7` (automatic Start trigger classification and retained-value versus loading-refresh timing). It is not in the `cd2f6cc` APK; see the Start report for its host evidence. This does not change the release's Sync feature scope.
