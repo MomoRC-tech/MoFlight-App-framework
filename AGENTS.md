@@ -2,6 +2,8 @@
 
 ## Delivery and verification preferences
 
+- Manuel selected on 26 October 2026 that dark is the master/default theme; light is an explicit optional switch, not automatic device-theme selection. Until beta preparation, verify/test UI in dark mode only, using brief checks of affected screens and reusing valid evidence. Defer light-theme acceptance to the beta checkpoint; do not expand routine verification into long theme/device matrices.
+
 - Manuel requested on 26 October 2026 that every layout/design request consult current Google Material 3 guidance at https://m3.material.io for examples and proposals. Use relevant component guidance alongside the approved MoFlight design contract, identify adaptations, and keep proposal selection separate from implementation approval.
 - Manuel requested on 25 October 2026 that small increments be gathered before extensive testing. Batch related implementation and UI corrections into a coherent package; use focused checks during editing, then one broader host/native checkpoint. Do not rebuild or repeat the visual matrix for each wording or presentation adjustment. Repeat only affected checks when a failure or material risk requires it, and reuse valid source-specific evidence.
 

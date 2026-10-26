@@ -1,0 +1,135 @@
+<div id="moflight-material-review" class="viz-dotted-background">
+  <div class="mm-caption">DESIGN PROPOSAL · SYNTHETIC EXAMPLE</div>
+  <section class="mm-phone" aria-label="MoFlight proposed design system">
+    <div class="mm-screen"></div>
+    <div class="mm-layer" hidden></div>
+  </section>
+</div>
+<style>
+#moflight-material-review{padding:24px 10px;display:grid;grid-template-columns:minmax(0,1fr);justify-items:center;gap:12px;width:100%;min-width:0}
+#moflight-material-review .mm-caption{font:500 11px/1.5 system-ui;letter-spacing:.12em;color:light-dark(#43545e,#b8cad3);text-align:center}
+#moflight-material-review .mm-phone{--mm-bg:#f8faff;--mm-card:#eef2f8;--mm-high:#e1e8f1;--mm-primary:#24589d;--mm-on:#fff;--mm-text:#17202c;--mm-muted:#465365;--mm-outline:#6b798d;--mm-container:#d7e3ff;--mm-on-container:#001b3e;position:relative;width:100%;max-width:390px;min-width:0;min-height:690px;border:1px solid var(--mm-outline);border-radius:28px;background:var(--mm-bg);color:var(--mm-text);font:400 15px/1.45 system-ui,-apple-system,sans-serif;overflow:hidden;box-shadow:0 12px 32px #00000012}
+#moflight-material-review .mm-phone.mm-large{font-size:18px}
+#moflight-material-review .mm-screen{min-height:690px;padding-bottom:24px}
+#moflight-material-review *{box-sizing:border-box}
+#moflight-material-review button,#moflight-material-review input,#moflight-material-review select{font:inherit}
+#moflight-material-review button{color:inherit;min-height:48px;border:0;background:transparent;text-align:left}
+#moflight-material-review button:focus-visible,#moflight-material-review input:focus-visible,#moflight-material-review select:focus-visible{outline:3px solid var(--mm-primary);outline-offset:2px}
+#moflight-material-review .mm-top{padding:22px 16px 12px;display:flex;align-items:center;gap:12px;border-bottom:1px solid color-mix(in srgb,var(--mm-outline) 25%,transparent)}
+#moflight-material-review .mm-icon{width:48px;min-width:48px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+#moflight-material-review .mm-top h2{font-size:20px;font-weight:500;margin:0;flex:1}
+#moflight-material-review .mm-top svg{width:22px;height:22px}
+#moflight-material-review .mm-body{padding:20px 16px;display:grid;gap:22px}
+#moflight-material-review h3{font-size:13px;font-weight:500;letter-spacing:.04em;margin:0 12px 8px;color:var(--mm-muted)}
+#moflight-material-review p{margin:0}
+#moflight-material-review .mm-summary{padding:16px;background:var(--mm-card);border-radius:20px;display:flex;gap:12px;align-items:flex-start}
+#moflight-material-review .mm-summary>svg{color:var(--mm-primary);width:22px;min-width:22px;margin-top:2px}
+#moflight-material-review .mm-note{font-size:.84em;color:var(--mm-muted);margin-top:4px}
+#moflight-material-review .mm-group{background:var(--mm-card);border-radius:20px;overflow:hidden}
+#moflight-material-review .mm-row{padding:13px 16px;display:flex;align-items:center;gap:14px;width:100%;min-height:66px}
+#moflight-material-review .mm-row+.mm-row{border-top:1px solid color-mix(in srgb,var(--mm-outline) 22%,transparent)}
+#moflight-material-review .mm-row>svg:first-child{width:21px;min-width:21px;color:var(--mm-muted)}
+#moflight-material-review .mm-row>svg:last-child{width:18px;min-width:18px;color:var(--mm-muted)}
+#moflight-material-review .mm-row .mm-copy{flex:1;min-width:0}
+#moflight-material-review .mm-row:hover,#moflight-material-review .mm-icon:hover{background:var(--mm-high)}
+#moflight-material-review .mm-switch{appearance:none;position:relative;width:52px;min-width:52px;height:32px;margin:0;border:2px solid var(--mm-outline);border-radius:20px;background:var(--mm-high)}
+#moflight-material-review .mm-switch:before{content:'';position:absolute;width:16px;height:16px;left:6px;top:6px;border-radius:50%;background:var(--mm-outline)}
+#moflight-material-review .mm-switch:checked{background:var(--mm-primary);border-color:var(--mm-primary)}
+#moflight-material-review .mm-switch:checked:before{width:24px;height:24px;left:22px;top:2px;background:var(--mm-on)}
+#moflight-material-review .mm-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+#moflight-material-review .mm-chip{border:1px solid var(--mm-outline);border-radius:12px;padding:8px 14px;min-height:48px}
+#moflight-material-review .mm-chip[aria-pressed=true]{background:var(--mm-container);color:var(--mm-on-container);border-color:var(--mm-container)}
+#moflight-material-review .mm-primary{background:var(--mm-primary);color:var(--mm-on);padding:12px 20px;border-radius:24px;text-align:center}
+#moflight-material-review .mm-textbutton{padding:10px 16px;color:var(--mm-primary);border-radius:24px}
+#moflight-material-review .mm-period{font-size:.84em;color:var(--mm-muted);margin:12px 0 0}
+#moflight-material-review .mm-metrics{display:flex;gap:12px;padding:18px;background:var(--mm-card);border-radius:20px}
+#moflight-material-review .mm-metrics>div{flex:1}
+#moflight-material-review .mm-number{font-size:28px;font-weight:500;font-variant-numeric:tabular-nums}
+#moflight-material-review .mm-bar{height:10px;background:var(--mm-high);border-radius:8px;margin:10px 0 20px;overflow:hidden}
+#moflight-material-review .mm-bar span{display:block;height:100%;background:var(--mm-primary);border-radius:8px}
+#moflight-material-review .mm-flight{display:grid;gap:5px;width:100%;padding:15px 16px;background:var(--mm-card);border-radius:18px}
+#moflight-material-review .mm-flight+.mm-flight{margin-top:8px}
+#moflight-material-review .mm-flex{display:flex;gap:10px;justify-content:space-between;align-items:center;flex-wrap:wrap}
+#moflight-material-review .mm-label{color:var(--mm-muted);font-size:.84em}
+#moflight-material-review .mm-detail{display:grid;grid-template-columns:1fr 1fr;gap:18px;padding:18px;background:var(--mm-card);border-radius:20px}
+#moflight-material-review .mm-detail p{overflow-wrap:anywhere}
+#moflight-material-review .mm-layer{position:absolute;inset:0;background:#00000066;z-index:3;display:flex;align-items:flex-end}
+#moflight-material-review .mm-layer[hidden]{display:none}
+#moflight-material-review .mm-sheet{position:relative;background:var(--mm-high);padding:12px 20px 24px;border-radius:28px 28px 0 0;width:100%;box-shadow:0 -5px 25px #00000015}
+#moflight-material-review .mm-handle{width:32px;height:4px;border-radius:5px;background:var(--mm-outline);margin:0 auto 8px}
+#moflight-material-review .mm-sheet h2,#moflight-material-review .mm-dialog h2{font-size:22px;font-weight:500;margin:8px 0 14px}
+#moflight-material-review .mm-option{width:100%;display:flex;align-items:center;justify-content:space-between;border-radius:12px;padding:12px}
+#moflight-material-review .mm-option[aria-pressed=true]{color:var(--mm-primary);background:var(--mm-high)}
+#moflight-material-review .mm-dialog{background:var(--mm-high);border-radius:28px;padding:24px;margin:20px;width:calc(100% - 40px)}
+#moflight-material-review .mm-layer.mm-center{align-items:center}
+#moflight-material-review .mm-dialog>svg{display:block;width:26px;height:26px;color:var(--mm-primary);margin:0 auto 16px}
+#moflight-material-review .mm-dialog .mm-actions{justify-content:flex-end;margin-top:20px}
+#moflight-material-review .mm-pill{font-size:.8em;color:var(--mm-primary);background:var(--mm-card);padding:6px 10px;border-radius:10px}
+#moflight-material-review .mm-input{display:block;width:100%;border:1px solid var(--mm-outline);border-radius:12px;padding:12px;color:var(--mm-text);background:var(--mm-bg);margin:10px 0;font-size:16px}
+@media(max-width:360px){#moflight-material-review{padding:16px 4px}#moflight-material-review .mm-body{padding:16px 12px}#moflight-material-review .mm-row{padding:12px;gap:10px}#moflight-material-review .mm-top{padding:18px 10px 10px}}
+</style>
+<script>
+(()=>{
+const root=document.getElementById('moflight-material-review'),phone=root.querySelector('.mm-phone'),screen=root.querySelector('.mm-screen'),layer=root.querySelector('.mm-layer');
+const defaults={palette:'Glacial',appearance:'Dark',example:'Settings',enlarged:false};
+const saved=window.openai?.widgetState;
+const design={...defaults,...(saved?.modelContent?.design||{})};
+let ui={page:'settings',history:[],period:'2026',filter:'Alle Jahre',help:true,modal:null,flight:'SYN-026',notice:'',...(saved?.privateContent?.ui||{})};
+const palettes={Coastal:{dark:['#071C25','#102731','#1B323C','#63D8D5','#003735','#E3F0F6','#B8CAD3','#82959E'],light:['#F5FAFC','#EAF1F5','#DCE7ED','#00696B','#FFFFFF','#14232B','#43545E','#697B85']},Glacial:{dark:['#111820','#1A232E','#26323F','#AAC7FF','#082D62','#E5EDF8','#BDC7D7','#8B98AA'],light:['#F8FAFF','#EEF2F8','#E1E8F1','#24589D','#FFFFFF','#17202C','#465365','#6B798D']},Mineral:{dark:['#19171F','#24212B','#302C38','#D0BCFF','#381E72','#F2EDF7','#CEC4D5','#9A90A2'],light:['#FFFBFF','#F5EFF8','#E9E1EE','#6750A4','#FFFFFF','#231F29','#504757','#7E7487']}};
+const containers={Coastal:{light:['#9EF2EE','#00201F'],dark:['#00504F','#A0F0EB']},Glacial:{light:['#D7E3FF','#001B3E'],dark:['#214478','#D5E3FF']},Mineral:{light:['#EADDFF','#21005D'],dark:['#4F378B','#EADDFF']}};
+let renderedModal=null,returnAction=null;
+const examples={Settings:'settings',Statistics:'statistics',Filters:'flights','Sync confirmation':'sync'};
+const icon=n=>`<i data-lucide="${n}" aria-hidden="true"></i>`;
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const row=(title,sub,action,ico='chevron-right')=>`<button class="mm-row" data-go="${action}"><span class="mm-copy">${title}${sub?`<div class="mm-note">${sub}</div>`:''}</span>${icon(ico)}</button>`;
+const header=(title,back=true)=>`<header class="mm-top">${back?`<button class="mm-icon" data-act="back" aria-label="Zurück">${icon('arrow-left')}</button>`:''}<h2>${title}</h2></header>`;
+const flights=[{id:'SYN-026',date:'18.10.2026',reg:'D-1234',route:'Musterfeld → Musterfeld',minutes:'0:42'},{id:'SYN-025',date:'12.10.2026',reg:'D-5678',route:'Musterfeld → Beispielhausen',minutes:'1:18'},{id:'SYN-014',date:'21.09.2025',reg:'D-1234',route:'Musterfeld → Musterfeld',minutes:'0:35'}];
+const selected=()=>flights.filter(f=>ui.period==='Alle Jahre'||f.date.endsWith(ui.period));
+function flightRows(items){return items.map(f=>`<button class="mm-flight" data-flight="${f.id}"><span class="mm-flex"><span>${f.date}</span><span>${f.reg}</span></span><span class="mm-note">${f.route}</span><span class="mm-flex"><span class="mm-label">${f.id}</span><span>${f.minutes} h</span></span></button>`).join('');}
+function persist(){window.openai?.setWidgetState?.({modelContent:{design:{...design},previewPage:ui.page,period:ui.period},privateContent:{ui}})?.catch(()=>{});}
+function navigate(page){ui.history.push(ui.page);ui.page=page;ui.modal=null;ui.notice='';render();persist();}
+function back(){if(ui.modal){ui.modal=null;}else{ui.page=ui.history.pop()||'overview';}render();persist();}
+function applyDesign(){
+ const p=palettes[design.palette]||palettes.Glacial;const c=containers[design.palette]||containers.Glacial;const keys=['bg','card','high','primary','on','text','muted','outline'];
+ const mode=['Light','Dark'].includes(design.appearance)?design.appearance:'Dark';
+ phone.style.colorScheme=mode.toLowerCase();
+ keys.forEach((key,i)=>phone.style.setProperty('--mm-'+key,p[mode.toLowerCase()][i]));
+ ['container','on-container'].forEach((key,i)=>phone.style.setProperty('--mm-'+key,c[mode.toLowerCase()][i]));
+ phone.style.setProperty('--mm-error',mode==='Light'?'#BA1A1A':'#FFB4AB');
+ phone.classList.toggle('mm-large',!!design.enlarged);
+}
+function render(){applyDesign();let out='';
+ if(ui.page==='settings')out=header('Einstellungen')+`<div class="mm-body"><div class="mm-summary">${icon('database')}<div>Deine Daten sind lokal verfügbar<p class="mm-note">Zuletzt gespeichert: heute, 09:42<br>Anbieter-Sitzung: nicht geprüft</p></div></div><section><h3>DATEN & VERBINDUNG</h3><div class="mm-group">${row('Verbindung & Datenstatus','Gespeicherte Quellen und letzte Aktualisierung','status')}${row('Vereinsflieger','Sitzung und Zugangsdaten verwalten','provider')}${row('Sichern & wiederherstellen','Sicherungsumfang und lokale Dateien','backup')}</div></section><section><h3>HILFE & INFORMATIONEN</h3><div class="mm-group">${row('Hilfe & Einführung','Offline suchen und nachlesen','help')}<label class="mm-row"><span class="mm-copy">Kontexthilfe<div class="mm-note">Hinweise direkt am passenden Ort</div></span><input class="mm-switch" type="checkbox" role="switch" aria-label="Kontexthilfe" ${ui.help?'checked':''}></label>${row('Diagnose','Lokalen Bericht ansehen','diagnostics')}${row('Über MoFlight','Bildnachweise und Lizenzen','about')}</div></section></div>`;
+ else if(ui.page==='statistics')out=header('Flugstatistik')+`<div class="mm-body"><section><h3>ZEITRAUM</h3><div class="mm-actions">${['2026','2025','Alle Jahre'].map(y=>`<button class="mm-chip" data-period="${y}" aria-pressed="${ui.period===y}">${y}</button>`).join('')}</div><p class="mm-period">${ui.period==='Alle Jahre'?'Gesamter synthetischer Bestand':`01.01.${ui.period} – 31.12.${ui.period}`}</p></section><div class="mm-metrics"><div><div class="mm-number">${selected().length}</div><span class="mm-label">Flüge</span></div><div><div class="mm-number">${ui.period==='2025'?'0:35':ui.period==='2026'?'2:00':'2:35'}</div><span class="mm-label">Bekannte Zeit · h:min</span></div></div><section><h3>FLÜGE NACH FLUGZEUG</h3><div class="mm-flex"><span>D-1234</span><span>${selected().filter(f=>f.reg==='D-1234').length}</span></div><div class="mm-bar"><span style="width:${selected().filter(f=>f.reg==='D-1234').length/selected().length*100}%"></span></div>${ui.period!=='2025'?`<div class="mm-flex"><span>D-5678</span><span>1</span></div><div class="mm-bar"><span style="width:${selected().filter(f=>f.reg==='D-5678').length/selected().length*100}%"></span></div>`:''}<button class="mm-textbutton" data-go="contributors">Beitragende Flüge ansehen →</button></section><p class="mm-note">Gespeicherte Anbieterwerte. Ein Bestand belegt keine vollständige Fluggeschichte.</p></div>`;
+ else if(ui.page==='contributors')out=header('Beitragende Flüge')+`<div class="mm-body"><p class="mm-label">${esc(ui.period)} · exakte Auswahl der Statistik</p><div>${flightRows(selected())}</div></div>`;
+ else if(ui.page==='detail'){const f=flights.find(f=>f.id===ui.flight)||flights[0];out=header('Flugdetails')+`<div class="mm-body"><div><span class="mm-label">${f.id} · gespeicherter Beleg</span><h2 style="font-weight:500;margin:8px 0">${f.reg}</h2><p>${f.date} · ${f.route}</p></div><div class="mm-detail">${[['Flugdauer',f.minutes+' h'],['Startart','Winde'],['Rolle','PIC · Anbieterangabe'],['Quelle','Synthetischer Beleg']].map(([a,b])=>`<div><p class="mm-label">${a}</p><p>${b}</p></div>`).join('')}</div><p class="mm-note">Keine Zeitberechnung aus Uhrzeiten. Die Auswahl und der Zeitraum bleiben beim Zurückgehen erhalten.</p></div>`;}
+ else if(ui.page==='flights')out=header('Flüge')+`<div class="mm-body"><div class="mm-actions"><button class="mm-chip" data-act="filter">${esc(ui.filter)} ${icon('chevron-down')}</button><span class="mm-pill">${ui.filter==='2025'?1:ui.filter==='2026'?2:3} gespeichert</span></div><div>${flightRows(flights.filter(f=>ui.filter==='Alle Jahre'||f.date.endsWith(ui.filter)))}</div><p class="mm-note" aria-live="polite">${esc(ui.notice||'Die Jahresauswahl wirkt sofort auf diese Liste.')}</p></div>`;
+ else if(ui.page==='sync')out=header('Übersicht')+`<div class="mm-body"><div class="mm-summary">${icon('database')}<div>Gespeicherte Flüge<p class="mm-note">Heute um 09:42 lokal gespeichert</p></div></div><button class="mm-primary" data-act="confirm">Daten synchronisieren</button><p class="mm-note" aria-live="polite">${esc(ui.notice||'Synchronisierung wird erst nach Bestätigung gestartet.')}</p></div>`;
+ else if(ui.page==='overview')out=header('Übersicht',false)+`<div class="mm-body"><div class="mm-summary">${icon('plane')}<div>MoFlight<p class="mm-note">Lokaler Vorschau-Startpunkt</p></div></div><div class="mm-group">${row('Einstellungen','','settings')}${row('Flugstatistik','','statistics')}${row('Flüge','','flights')}</div><button class="mm-textbutton" data-go="sync">Synchronisierung ansehen</button></div>`;
+ else {const stubs={status:['Verbindung & Datenstatus','Eigene Flüge: lokal gespeichert','Letzter Eingang: heute, 09:42. Anbieter-Sitzung ungeprüft. Diese Vorschau liest keine echte Verbindung.'],provider:['Vereinsflieger','Sitzung verwalten','In der App führt eine ausdrückliche Aktion zur Originalseite. Schließen meldet dich nicht ab. Die Vorschau öffnet keinen Anbieter.'],backup:['Sichern & wiederherstellen','Deine lokale Sicherung','In der App folgen Umfang, Dateiauswahl und geprüfte Wiederherstellung. Diese Vorschau erstellt und verändert keine Dateien.'],help:['Hilfe & Einführung','Offline-Hilfe','Lokales Beispiel: Synchronisierung startet nur nach deiner Bestätigung. Gespeicherte Flüge bleiben offline lesbar.'],diagnostics:['Diagnose','Lokaler Supportbericht','Hier würdest du gespeicherte Vorgänge prüfen und einen Bericht bewusst teilen. Diese Vorschau enthält keine Diagnosedaten.'],about:['Über MoFlight','MoFlight','Designvorschlag für die vorhandene App. Bildnachweise und Lizenzen gehören auf diese Informationsseite.']};const x=stubs[ui.page]||stubs.help;out=header(x[0])+`<div class="mm-body"><div class="mm-summary">${icon('info')}<div>${x[1]}<p class="mm-note">${x[2]}</p></div></div><p class="mm-label">Verkürztes Navigationsbeispiel</p><button class="mm-textbutton" data-act="back">Zurück zu ${ui.history.at(-1)==='settings'?'Einstellungen':'vorheriger Seite'}</button></div>`;}
+ screen.innerHTML=out;
+ layer.classList.toggle('mm-center',ui.modal==='sync');layer.hidden=!ui.modal;
+ if(ui.modal==='filter')layer.innerHTML=`<section class="mm-sheet" role="dialog" aria-modal="true" aria-label="Zeitraum auswählen"><div class="mm-handle"></div><div class="mm-flex"><h2>Zeitraum</h2><button class="mm-icon" data-act="dismiss" aria-label="Auswahl schließen">${icon('x')}</button></div><p class="mm-note">Eine Auswahl wird sofort übernommen.</p><div style="margin-top:14px">${['Alle Jahre','2026','2025'].map(y=>`<button class="mm-option" data-filter="${y}" aria-pressed="${ui.filter===y}"><span>${y}</span>${ui.filter===y?icon('check'):''}</button>`).join('')}</div></section>`;
+ else if(ui.modal==='sync')layer.innerHTML=`<section class="mm-dialog" role="dialog" aria-modal="true" aria-labelledby="mm-sync-title">${icon('refresh-cw')}<h2 id="mm-sync-title">Daten synchronisieren?</h2><p>Jetzt die Daten von Vereinsflieger aktualisieren?</p><p class="mm-note" style="margin-top:12px">In dieser Vorschau wird nur der lokale Startzustand gezeigt.</p><div class="mm-actions"><button class="mm-textbutton" data-act="dismiss">Abbrechen</button><button class="mm-primary" data-act="start">Starten</button></div></section>`;
+ else layer.innerHTML='';
+ screen.inert=!!ui.modal;
+ root.querySelectorAll('button,input').forEach(el=>el.classList.add('cursor-interaction'));
+ if(globalThis.lucide)lucide.createIcons({attrs:{width:20,height:20}});
+ if(ui.modal&&renderedModal!==ui.modal){returnAction=ui.modal==='filter'?'filter':'confirm';layer.querySelector('button')?.focus();}
+ else if(!ui.modal&&renderedModal){screen.querySelector(`[data-act="${returnAction}"]`)?.focus();}
+ renderedModal=ui.modal;
+}
+root.addEventListener('click',e=>{const b=e.target.closest('button');if(!b){if(e.target===layer){ui.modal=null;render();persist();}return;}
+ if(b.dataset.go)navigate(b.dataset.go);
+ else if(b.dataset.flight){ui.flight=b.dataset.flight;navigate('detail');}
+ else if(b.dataset.period){ui.period=b.dataset.period;render();persist();}
+ else if(b.dataset.filter){ui.filter=b.dataset.filter;ui.notice='Zeitraum übernommen: '+ui.filter;ui.modal=null;render();persist();}
+ else {const a=b.dataset.act;if(a==='back')back();else if(a==='filter'||a==='confirm'){ui.modal=a==='filter'?'filter':'sync';render();persist();layer.querySelector('button')?.focus();}else if(a==='dismiss'){ui.modal=null;ui.notice=ui.page==='sync'?'Abgebrochen. Kein Vorgang gestartet.':ui.notice;render();persist();}else if(a==='start'){ui.modal=null;ui.notice='Lokale Vorschau: Start bestätigt. Kein Anbieteraufruf und keine Datenänderung.';render();persist();}}
+});
+root.addEventListener('change',e=>{if(e.target.matches('.mm-switch')){ui.help=e.target.checked;persist();}});
+root.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();back();}else if(e.key==='Tab'&&ui.modal){const controls=[...layer.querySelectorAll('button,input,select,textarea,a[href]')].filter(el=>!el.disabled);const first=controls[0],last=controls.at(-1);if(e.shiftKey&&(document.activeElement===first||!layer.contains(document.activeElement))){e.preventDefault();last?.focus();}else if(!e.shiftKey&&(document.activeElement===last||!layer.contains(document.activeElement))){e.preventDefault();first?.focus();}}});
+window.addEventListener('openai:set_globals',e=>{const s=e.detail?.globals?.widgetState;if(s?.modelContent?.design)Object.assign(design,s.modelContent.design);if(s?.privateContent?.ui)ui={...ui,...s.privateContent.ui};render();});
+render();
+if(globalThis.Tweak){let lastExample=design.example;const tweak=new Tweak({container:phone,onChange:()=>{if(lastExample!==design.example){lastExample=design.example;ui={...ui,page:examples[design.example]||'settings',history:[],modal:design.example==='Filters'?'filter':design.example==='Sync confirmation'?'sync':null,notice:''};}render();persist();}});tweak.addSelect(design,'palette',{label:'Palette',options:['Coastal','Glacial','Mineral']});tweak.addSelect(design,'appearance',{label:'Appearance',options:['Dark','Light']});tweak.addSelect(design,'example',{label:'Example',options:['Settings','Statistics','Filters','Sync confirmation']});tweak.addToggle(design,'enlarged',{label:'Enlarged text'});}
+})();
+</script>
