@@ -1,0 +1,19 @@
+{
+  "source_commit": "16390a13e65744b52aff1d8754adf6c63a22b2fc",
+  "apk_sha256": "94ab72daf6d29dc5e89310f206425bfad8aa917835edff97c9507eb490776d46",
+  "installed_apk_hash_verified": true,
+  "avd": "MoFlight_Synthetic_API37",
+  "android_api": 37,
+  "dark_mode": true,
+  "font_scale": 1.0,
+  "widths_dp": [411.43, 360],
+  "height_dp": 731.43,
+  "checks": {
+    "empty_page": "passed: contextual header, period, horizontal sections and explicit empty explanation readable at both widths",
+    "section": "passed: Flugzeuge selected in native accessibility tree",
+    "android_back": "passed: returns from Statistics section to Start"
+  },
+  "limits": "No saved flights on this emulator; populated charts, contributor/detail native return and custom-period keyboard were not exercised. Wide, light, physical-phone and iOS presentation not checked.",
+  "display_and_offline_state_restored": true,
+  "status": "passed"
+}
