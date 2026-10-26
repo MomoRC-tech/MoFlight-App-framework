@@ -1,0 +1,28 @@
+{
+  "status": "passed",
+  "source_commit": "13568852def58efc1d8d6bbc7d1a03179d5059ad",
+  "apk_sha256": "eb93b25e05cb3eec8f9db1fd87ed532c7b2d9baa195542af4ed7c4e70a988271",
+  "installed_apk_hash_verified": true,
+  "avd": "MoFlight_Synthetic_API37",
+  "android_api": 37,
+  "dark_mode": true,
+  "font_scale": 1.0,
+  "widths_dp": [411.43, 360],
+  "height_dp": 731.43,
+  "density_dpi": 420,
+  "checks": [
+    { "name": "provider-settings-main", "status": "passed" },
+    { "name": "header-sync-cancel-retains-settings", "status": "passed" },
+    { "name": "credential-editor-keyboard", "status": "passed" },
+    { "name": "focused-credential-field-inside-keyboard-reduced-viewport", "status": "passed" },
+    { "name": "credential-editor-focus-and-keyboard-back-preserves-page", "status": "passed" },
+    { "name": "credential-editor-closes-without-save", "status": "passed" },
+    { "name": "android-back-restores-calling-settings", "status": "passed" },
+    { "name": "provider-settings-360dp", "status": "passed" },
+    { "name": "page-header-back-restores-settings", "status": "passed" }
+  ],
+  "visual_review": "Parent inspected MAIN, credential-keyboard and 360 dp captures. Concise title is readable; the focused username field is visible above the keyboard; both page groups remain scrollable.",
+  "display_and_offline_state_restored": true,
+  "data_boundary": "Existing local owner retained; no reset, seeding, provider action or credential/session mutation.",
+  "limits": "Username focus/keyboard inspected without editing. Actual provider sign-out, session clearing, credential save/forget, Sync Start, pending-recovery presentation, wide/enlarged text, physical phone, iOS, spoken accessibility and light acceptance remain untested here. Existing host controller/isolation evidence is reused."
+}
