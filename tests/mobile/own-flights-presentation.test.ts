@@ -306,6 +306,37 @@ test('compact selectors apply immediately, retain other filters and dismiss with
   assert.ok(!f.nodes().some(n=>n.type==='Modal'),'hidden tabs do not retain a native modal');
 });
 
+test('filter sheet exposes the current choice and Close or scrim preserves filters and list position',()=>{
+  const f=fixture();f.pick('Zeitraum','2025');
+  const open=()=>{f.nodes().find(n=>n.props.accessibilityLabel==='Zeitraum: 2025, auswählen')!.props.onPress();f.render();};
+  f.find('FlatList').props.onScroll({nativeEvent:{contentOffset:{y:240}}});
+  open();
+  assert.equal(f.find('Pressable','2025').props.accessibilityRole,'radio');
+  assert.equal(f.find('Pressable','2025').props.accessibilityState.checked,true);
+  assert.equal(f.find('Pressable','Alle Jahre').props.accessibilityState.checked,false);
+  assert.ok(visibleText(f.render()).includes('Eine Auswahl wird sofort übernommen.'));
+  f.find('Pressable','Auswahl schließen').props.onPress();f.render();
+  assert.ok(!f.nodes().some(n=>n.type==='Modal'));
+  open();f.nodes().find(n=>n.props.testID==='flight-filter-scrim')!.props.onPress();f.render();
+  assert.ok(!f.nodes().some(n=>n.type==='Modal'));
+  assert.deepEqual(f.find('FlatList').props.data.map((flight:any)=>flight.flightId),['flight-1']);
+  f.find('FlatList').props.onContentSizeChange();assert.equal(f.restores.at(-1),240);
+});
+
+test('registration search reports no matches, clears locally and selection still applies immediately',()=>{
+  const f=fixture();f.pick('Zeitraum','2025');f.expand();
+  f.nodes().find(n=>n.props.accessibilityLabel?.startsWith('Kennzeichen:'))!.props.onPress();f.render();
+  f.find('TextInput','Kennzeichen suchen').props.onChangeText('no-such-registration');f.render();
+  assert.ok(visibleText(f.render()).includes('Kein passendes Kennzeichen'));
+  assert.deepEqual(f.find('FlatList').props.data.map((flight:any)=>flight.flightId),['flight-1']);
+  f.find('Pressable','Kennzeichensuche löschen').props.onPress();f.render();
+  assert.equal(f.find('TextInput','Kennzeichen suchen').props.value,'');
+  f.find('Pressable','D-T001').props.onPress();f.render();
+  assert.ok(!f.nodes().some(n=>n.type==='Modal'));
+  assert.ok(f.nodes().some(n=>n.props.accessibilityLabel==='Zeitraum: 2025, auswählen'));
+  assert.ok(f.nodes().some(n=>n.props.accessibilityLabel==='Kennzeichen: D-T001, auswählen'));
+});
+
 test('information is opt-in and preserves list position and filters on return',()=>{
   const f=fixture();f.request(2025);
   f.find('FlatList').props.onScroll({nativeEvent:{contentOffset:{y:240}}});

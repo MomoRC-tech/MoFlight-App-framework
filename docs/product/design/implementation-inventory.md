@@ -129,7 +129,7 @@ Retained app-owned lab/adapter surface; document its existing appearance as an e
 
 ## android-flight-responsiveness-poc.tsx
 
-Retained app-owned lab/adapter surface; document its existing appearance as an exception. Source: [apps/platform-lab/src/development/android-flight-responsiveness-poc.tsx](../../../apps/platform-lab/src/development/android-flight-responsiveness-poc.tsx); normalized SHA-256 `8634ffe0167b0ec99d62e49fca08428cc49b9ce9fff76719fa5f8f9a7abe6251`.
+Retained app-owned lab/adapter surface; document its existing appearance as an exception. Source: [apps/platform-lab/src/development/android-flight-responsiveness-poc.tsx](../../../apps/platform-lab/src/development/android-flight-responsiveness-poc.tsx); normalized SHA-256 `effad4df25eda928fd4d001f249b7c37e35d7a5d625c41c7dbccd17776ff2300`.
 
 ### Geometry / opacity declarations
 
@@ -980,82 +980,96 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OverviewTiles.tsx
 
 ## OwnFlights.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OwnFlights.tsx](../../../apps/platform-lab/src/mobile/OwnFlights.tsx); normalized SHA-256 `49ee31e5d9e0aef61dc24cca17bb5082d4decafd30c27a193b0856014a50ceec`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OwnFlights.tsx](../../../apps/platform-lab/src/mobile/OwnFlights.tsx); normalized SHA-256 `81f78d3ed3a4cbfdcfb1351279a9ca55790d6391694342fc2e797521a0401210`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#00000088` | 176 |
-| `#031326` | 182, 185 |
-| `#296879` | 197 |
+| `#000712bd` | 180 |
+| `#031326` | 192, 195 |
+| `#296879` | 207 |
+| `#82959e` | 183 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 11` | 175, 192, 193 |
-| `fontSize: 12` | 174, 191, 194 |
-| `fontSize: 13` | 185, 192 |
-| `fontSize: 14` | 175, 182, 191 |
-| `fontSize: 16` | 196 |
-| `fontSize: 20` | 194 |
-| `fontWeight: '400'` | 194 |
-| `fontWeight: '600'` | 151, 191, 194 |
-| `fontWeight: '700'` | 137 |
-| `lineHeight: 16` | 175, 192, 193 |
-| `lineHeight: 17` | 191, 194 |
-| `lineHeight: 18` | 174, 185, 192 |
-| `lineHeight: 19` | 191 |
-| `lineHeight: 20` | 175, 182 |
-| `lineHeight: 28` | 194 |
+| `fontSize: 11` | 179, 202, 203 |
+| `fontSize: 12` | 178, 201, 204 |
+| `fontSize: 13` | 195, 202 |
+| `fontSize: 14` | 179, 182, 183, 192, 201 |
+| `fontSize: 16` | 185, 206 |
+| `fontSize: 20` | 204 |
+| `fontSize: 22` | 182 |
+| `fontWeight: '400'` | 204 |
+| `fontWeight: '600'` | 182, 201, 204 |
+| `fontWeight: '700'` | 138 |
+| `lineHeight: 16` | 179, 202, 203 |
+| `lineHeight: 17` | 201, 204 |
+| `lineHeight: 18` | 178, 195, 202 |
+| `lineHeight: 19` | 201 |
+| `lineHeight: 20` | 179, 182, 183, 192 |
+| `lineHeight: 24` | 185 |
+| `lineHeight: 28` | 182, 204 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 10` | 184, 189 |
-| `borderRadius: 12` | 181, 183, 195 |
-| `borderRadius: 18` | 176, 197 |
-| `borderRadius: 4` | 193 |
-| `borderWidth: 1` | 181, 193, 195, 197 |
-| `gap: 0` | 188 |
-| `gap: 12` | 178 |
-| `gap: 16` | 178 |
-| `gap: 2` | 180, 190 |
-| `gap: 4` | 173, 175 |
-| `gap: 5` | 180 |
-| `gap: 6` | 107, 181, 186 |
-| `gap: 7` | 190 |
-| `gap: 8` | 128, 176, 189, 197 |
-| `height: 5` | 134 |
-| `maxHeight: '70%'` | 176 |
-| `maxHeight: '85%'` | 179 |
-| `maxWidth: '100%'` | 184, 195 |
-| `maxWidth: '32%'` | 194 |
-| `maxWidth: '50%'` | 130 |
-| `maxWidth: 520` | 176, 197 |
-| `maxWidth: 600` | 178, 180 |
-| `maxWidth: 960` | 178, 179 |
-| `minHeight: 48` | 102, 173, 176, 181, 183, 184, 185, 186, 187, 189, 196 |
-| `minHeight: 52` | 175 |
-| `minWidth: 0` | 102, 186, 190, 196 |
-| `minWidth: 48` | 183, 185, 186, 187 |
-| `padding: 12` | 176 |
-| `padding: 14` | 197 |
-| `padding: 18` | 178 |
-| `paddingHorizontal: 10` | 184, 189 |
-| `paddingHorizontal: 12` | 179, 181, 188 |
-| `paddingHorizontal: 4` | 173, 193 |
-| `paddingHorizontal: 6` | 185 |
-| `paddingHorizontal: 8` | 176 |
-| `paddingVertical: 4` | 175 |
-| `paddingVertical: 5` | 184 |
-| `paddingVertical: 6` | 196 |
-| `paddingVertical: 7` | 189 |
-| `paddingVertical: 8` | 176 |
-| `width: '100%'` | 90, 176, 178, 179, 180, 195, 197 |
-| `width: '48%'` | 175 |
+| `borderRadius: 10` | 186, 194, 199 |
+| `borderRadius: 12` | 183, 185, 191, 193, 205 |
+| `borderRadius: 18` | 207 |
+| `borderRadius: 28` | 181 |
+| `borderRadius: 4` | 203 |
+| `borderRadius: 5` | 186 |
+| `borderWidth: 1` | 183, 191, 203, 205, 207 |
+| `borderWidth: 2` | 186 |
+| `gap: 0` | 198 |
+| `gap: 12` | 188 |
+| `gap: 16` | 185, 188 |
+| `gap: 2` | 190, 200 |
+| `gap: 4` | 177, 179, 184 |
+| `gap: 5` | 190 |
+| `gap: 6` | 108, 191, 196 |
+| `gap: 7` | 200 |
+| `gap: 8` | 129, 183, 184, 199, 207 |
+| `height: 10` | 186 |
+| `height: 20` | 186 |
+| `height: 5` | 135 |
+| `maxHeight: '85%'` | 189 |
+| `maxHeight: '90%'` | 181 |
+| `maxWidth: '100%'` | 194, 205 |
+| `maxWidth: '32%'` | 204 |
+| `maxWidth: '50%'` | 131 |
+| `maxWidth: 520` | 207 |
+| `maxWidth: 600` | 188, 190 |
+| `maxWidth: 640` | 181 |
+| `maxWidth: 960` | 188, 189 |
+| `minHeight: 48` | 103, 177, 182, 191, 193, 194, 195, 196, 197, 199, 206 |
+| `minHeight: 52` | 179 |
+| `minHeight: 56` | 185 |
+| `minWidth: 0` | 103, 196, 200, 206 |
+| `minWidth: 48` | 182, 193, 195, 196, 197 |
+| `padding: 14` | 207 |
+| `padding: 18` | 188 |
+| `padding: 24` | 180 |
+| `paddingHorizontal: 10` | 194, 199 |
+| `paddingHorizontal: 12` | 189, 191, 198 |
+| `paddingHorizontal: 16` | 181, 185 |
+| `paddingHorizontal: 4` | 177, 203 |
+| `paddingHorizontal: 6` | 195 |
+| `paddingHorizontal: 8` | 182 |
+| `paddingVertical: 12` | 185 |
+| `paddingVertical: 16` | 184 |
+| `paddingVertical: 4` | 179 |
+| `paddingVertical: 5` | 194 |
+| `paddingVertical: 6` | 206 |
+| `paddingVertical: 7` | 199 |
+| `width: '100%'` | 91, 181, 188, 189, 190, 205, 207 |
+| `width: '48%'` | 179 |
+| `width: 10` | 186 |
+| `width: 20` | 186 |
 
 ## PaperStatus.tsx
 
