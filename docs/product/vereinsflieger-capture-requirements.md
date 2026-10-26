@@ -36,6 +36,7 @@ The [read-only saved-source review](../verification/2026-10-26-instructor-pic-so
 | Explicit `PIC` names the `Pilot` while another person is confirmed as FI | Preserve the different recorded PIC and FI; review the uncommon combination instead of replacing PIC with FI. |
 | `Begleiter/FI` is populated, or `Dual-Time` is nonzero, without verified FI role evidence | Accompanied or dual-time evidence; instructor identity/status is unresolved. Do not turn the combined heading into an FI credential. |
 | `Flugart` is `S`, with no companion shown | The code alone does not establish an instructor on board. If `PIC` matches `Pilot`, show that recorded PIC; ground supervision remains possible. |
+| `Fluggenehmigung von` is filled, with no companion shown and `PIC` matching `Pilot` | Preserve the flight-permission person separately. Do not turn assignment/permission evidence into an onboard FI or replace the recorded pilot PIC. |
 | `PIC` is missing, conflicting or only matched by an ambiguous display name | Recorded PIC is unresolved; do not infer command from `Pilot`, `Begleiter/FI`, flight type, seat or time columns. |
 
 A “flight with an instructor on board” filter or paper-writing decision requires flight-linked explicit FI evidence or a reviewed provider/club mapping tied to the person. Keep legal command, instructor function and PIC/Dual/FI time distinct. The historical prototype rule that always places `Begleiter/FI` in PIC is superseded for current source interpretation; its original snapshot remains unchanged.
