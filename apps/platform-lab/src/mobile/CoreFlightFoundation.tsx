@@ -458,20 +458,23 @@ function OwnerFlightLibrary({syncStartedAt,lease,registry,close,startUpdate,open
       catch { if(alive.current)setRestoreReadWarning('Der Status vorbereiteter Wiederherstellungen konnte nicht sicher geschlossen werden. Vorherige Hinweise bleiben erhalten.'); }
     }
   }
-  async function refresh(stored?: Awaited<ReturnType<RealFlightService['readStored']>>) {
-    const initial=takeInitialRepository();
-    try {
-    // Keep restore recovery discoverable even when opening the selected graph fails.
-    await timeFlightStage('restore-inspection',refreshRestorePreparations);
-    const pending=await timeFlightStage('receipt-recovery',()=>syncEntry?service.prepareFreshFetch():service.recoverPending());
-    const view=stored&&pending.status==='none'?stored:await timeFlightStage('stored-view',()=>service.readStored(initial??undefined));
+  function applyStoredView(view:Awaited<ReturnType<RealFlightService['readStored']>>,pending:RealFlightRecovery,interrupted:SyncRecoveryRecord|null) {
     const {snapshot:next,flights:rows}=view;
-    const interrupted=await readSyncRecovery(scope);
     storedEstimateContext.current={mode:next.account?'repeat':'first',volume:syncEstimateVolume(null,rows.length)};
     diagnosis.current?.note('library',next.recovery.readOnly?'read-only':'ready');diagnosis.current?.note('save',pending.status==='none'?'ready':pending.status==='committed'?'receipt-confirmed':'pending');
     if(alive.current){setSnapshot(next);setFlights(rows);setRecovery(pending);setSavedSync(interrupted);syncRecord.current=interrupted;
       setPage(current=>Math.min(current,Math.max(0,Math.ceil(rows.length/5)-1)));}
     return {...view,interrupted};
+  }
+  async function refresh() {
+    const initial=takeInitialRepository();
+    try {
+    // Keep restore recovery discoverable even when opening the selected graph fails.
+    await timeFlightStage('restore-inspection',refreshRestorePreparations);
+    const pending=await timeFlightStage('receipt-recovery',()=>syncEntry?service.prepareFreshFetch():service.recoverPending());
+    const view=await timeFlightStage('stored-view',()=>service.readStored(initial??undefined));
+    const interrupted=await readSyncRecovery(scope);
+    return applyStoredView(view,pending,interrupted);
     } finally { await initial?.close(); }
   }
   async function prepareSourceReview(next:RealFlightReview) {
@@ -502,9 +505,15 @@ function OwnerFlightLibrary({syncStartedAt,lease,registry,close,startUpdate,open
     setSyncProgress(previous=>updateSyncCount(previous,'flights',count));
     finishStage(estimate.current?.current==='review'?'review':'flights');startStage('save');
     setSyncProgress(previous=>updateSyncCount(previous,'save',{...count,done:0}));setLoadStage('save');setStep('Flüge werden gespeichert …');
-    const {result,stored}=await service.saveVerifiedReviewWithStoredReadback(next,verified);
+    let interrupted:SyncRecoveryRecord|null=null;
+    const {result,stored}=await service.saveVerifiedReviewWithStoredReadback(next,verified,async()=>{
+      await timeFlightStage('restore-inspection',refreshRestorePreparations);
+      interrupted=await readSyncRecovery(scope);
+    });
+    // The selected session performs its final fresh graph/selection checks after
+    // those local awaits. Publish synchronously: no stale projection across waits.
     diagnosis.current?.note('save','receipt-confirmed');
-    const refreshed=await timeFlightStage('return-readback',()=>refresh(stored));setFlightSaved(refreshed.flights.length);finishStage('save');
+    applyStoredView(stored,{status:'none'},interrupted);setFlightSaved(stored.flights.length);finishStage('save');
     if (next.source.capture.coverage === 'complete-requested-list') await acknowledgeActivity({source:'flights',capturedAt:Date.parse(next.source.capture.retrievedAt),
       committedAt:Date.now(),window:next.source.requestedWindow,participation:next.source.requestedWindow.participation});
     return {result,accountRef:next.accountRef,from:next.source.requestedWindow.from,to:next.source.requestedWindow.to};

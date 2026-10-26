@@ -149,6 +149,75 @@ for(const failure of ['read-error','foreign-owner','tamper'])test(`post-save fre
   }finally{service.dispose();await f.cleanup();}
 });
 
+test('metadata callback runs before the final same-selection read and a real same-owner head change rejects publication',async()=>{
+  const f=await fixture(),{service,review}=await ready(f),name=realHistoryCandidateName(randomUUID());
+  const selection=await RealFlightSelection.open(nodeDriver(join(f.directory,'callback-selection.sqlite')),ownerId,storeId,f.authorize,
+    async(candidate,authorize,gate)=>{
+      assert.equal(candidate,name);
+      return RealFlightLibrary.open(nodeDriver(f.path),ownerId,storeId,hash,authorize,async()=>{},gate);
+    },hash,true);
+  let closes=0,readbacks=0;
+  try{
+    await selection.activate(randomUUID(),name,null,at);
+    f.ports.repository=async()=>{
+      const selected=await selection.select(),read=selected.candidate.readStored.bind(selected.candidate);
+      selected.candidate.readStored=async timing=>{readbacks++;return read(timing);};
+      return {library:selected.candidate,writable:!selected.recoveryRequired,warning:selected.warning,
+        close:async()=>{closes++;await selected.candidate.close();}};
+    };
+    await assert.rejects(service.saveVerifiedReviewWithStoredReadback(review,{accountNumber:'101',clubLabel:'Example club'},async()=>{
+      assert.equal(closes,0,'the selected save session remains open during bounded local metadata work');
+      assert.equal(readbacks,0,'projection is read after metadata, not reused from before it');
+      const journal=await f.ports.journal();try{assert.equal(await journal.pending(),null);}finally{await journal.close();}
+      await selection.activate(randomUUID(),name,1,at);
+    }),/Active real history changed/);
+    assert.equal(readbacks,1);assert.equal(closes,1);
+    const current=await service.readStored();assert.equal(current.snapshot.generation,2);assert.equal(current.flights.length,1);
+    await assert.rejects(service.saveVerifiedReviewWithStoredReadback(review,{accountNumber:'101',clubLabel:'Example club'}),/Review changed/);
+  }finally{service.dispose();await selection.close();await f.cleanup();}
+});
+
+for(const failure of ['same-generation','callback-error','cancelled','pending'] as const)test(`metadata callback ${failure} preserves committed results and fails before publishing a reused view`,async()=>{
+  const f=await fixture(),{service,review}=await ready(f),repository=f.ports.repository;
+  let closes=0,readbacks=0;const unexpectedId=randomUUID();
+  f.ports.repository=async timing=>{
+    const session=await repository(timing),read=session.library.readStored.bind(session.library);
+    session.library.readStored=async span=>{readbacks++;return read(span);};
+    return {...session,close:async()=>{closes++;await session.close();}};
+  };
+  try{
+    const callback=async()=>{
+      assert.equal(closes,0);assert.equal(readbacks,0);
+      if(failure==='callback-error')throw new Error('Local metadata unavailable');
+      if(failure==='cancelled'){service.cancelReview();return;}
+      if(failure==='pending'){
+        const journal=await f.ports.journal();
+        try{await journal.prepare({version:1,kind:'bind',commandId:unexpectedId,baseGeneration:2,ownerId,storeId,source:source('unexpected-pending'),at});}
+        finally{await journal.close();}
+        return;
+      }
+      const db=nodeDriver(f.path);
+      try{
+        const trigger=await db.first<{name:string;sql:string}>("SELECT name,sql FROM sqlite_master WHERE type='trigger' AND name LIKE '%records%update'");assert.ok(trigger);assert.match(trigger.name,/^[a-z_]+$/);
+        await db.exec(`DROP TRIGGER ${trigger.name}`);await db.run("UPDATE real_history_records SET payload=replace(payload,'D-TEST','D-FORGED') WHERE kind='facts'");await db.exec(trigger.sql);
+      }finally{await db.close();}
+    };
+    const action=service.saveVerifiedReviewWithStoredReadback(review,{accountNumber:'101',clubLabel:'Example club'},callback);
+    if(failure==='pending')await assert.rejects(action,error=>error instanceof PendingRealFlightOperation&&error.commandId===unexpectedId);
+    else await assert.rejects(action,/record graph|Local metadata unavailable|Superseded/);
+    assert.equal(closes,1);assert.equal(readbacks,failure==='same-generation'?1:0);
+    f.ports.repository=repository;
+    const journal=await f.ports.journal();
+    try{assert.equal((await journal.pending())?.commandId??null,failure==='pending'?unexpectedId:null);}
+    finally{await journal.close();}
+    const db=nodeDriver(f.path);
+    try{assert.equal((await db.first<{count:number}>("SELECT count(*) AS count FROM real_history_receipts WHERE kind='import-unassigned'"))?.count,1);}
+    finally{await db.close();}
+    await assert.rejects(service.saveVerifiedReviewWithStoredReadback(review,{accountNumber:'101',clubLabel:'Example club'}),/Review changed/);
+    if(failure==='callback-error')assert.equal((await service.readStored()).snapshot.generation,2);
+  }finally{service.dispose();await f.cleanup();}
+});
+
 test('review start follows live source retrieval, skips binding rebuild and keeps attempt timings across awaits',async()=>{
   const f=await fixture(),service=f.make(),journal=new DiagnosticJournal(()=>0),first=journal.begin('update-flights');
   let reviewStarts=0,release!:()=>void;f.ports.onReviewStart=()=>{reviewStarts++;};

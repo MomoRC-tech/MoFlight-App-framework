@@ -114,7 +114,7 @@ function fixture({destination='sources',providerAllowed=true,deferRead=false,def
     async recoverPending(){return {status:'none'};}
     async prepareFreshFetch(){return {status:'none'};}
     async retrieveUpdate(){if(deferSource)await new Promise<void>(resolve=>{admitSource=resolve;});abort=new AbortController();if(deferProvider)c.viewReady=false;const value=await this.ports.retrieve({from:'2025-01-01',to:'2026-10-21'},abort.signal);if(!abort.signal.aborted)this.ports.onReviewStart?.();await new Promise<void>(resolve=>{setImmediate(resolve);});return {state:'confirm-account',accountRef:'101',source:value};}
-    async saveVerifiedReviewWithStoredReadback(_review:any,context:any){assert.equal(context.accountNumber,'101');calls.push('save');saved=true;return {result:{counts:{added:2,changed:1,pending:pendingFlightCount}},stored:{snapshot:await this.storedSnapshot(),flights:[{},{},{}]}};}
+    async saveVerifiedReviewWithStoredReadback(_review:any,context:any,beforeReadback?:()=>Promise<void>){assert.equal(context.accountNumber,'101');calls.push('save');saved=true;await beforeReadback?.();return {result:{counts:{added:2,changed:1,pending:pendingFlightCount}},stored:{snapshot:await this.storedSnapshot(),flights:[{},{},{}]}};}
     cancelReview(){abort?.abort();}
     dispose(){this.disposed=true;this.cancelReview();}
   }
