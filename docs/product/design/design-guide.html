@@ -108,7 +108,7 @@
 <h3 id="chapter-compact-cockpit-data-limits-and-notation">Data limits and notation</h3>
 <p>Current/prior season derives from the selected year. Time is known reported h:min, with explicit unknown-duration notice; starts and known time use existing deterministic calculations. Missing values are —. Confirmed empty years require saved retrieval coverage for the whole relevant season through today (past years through December 31) and no unresolved date ambiguity. The #62 fix preserves — when saved records have unassigned dates, even with complete retrieval coverage. No complete-history claim follows from positive cached values.</p>
 <p>Completed duty hours require exactly one valid annual work-summary row for the selected year, accepting the observed <code>Jahr YYYY</code> label as well as a bare year. Mixed/ambiguous periods and duplicate matching rows remain unknown; no arbitrary year extraction. Unknown remains —; no sum of a partial list. The captured Pflicht/Geleistet money amounts are EUR and cannot establish an hour requirement. The local provisional target starts at 25 h, always labelled <strong>Soll vorläufig</strong>; tap that metric to change it for this account/store/year. It is a UI preference, not a confirmed club policy, and is excluded from existing MoFlight manual backup archives. No new external integration, production schema or provider write is introduced.</p>
-<p>Club location has no verified field in the current projection: <strong>Ort unbekannt</strong> remains explicit; the reused club header photograph is decorative. Medical displays a recorded expiry/unknown reminder, never a fitness certificate. Real paper setup is not implemented: its tile accurately says <strong>In Vorbereitung</strong> instead of offering a nonfunctional setup. Already configured synthetic books remain accessible under Development; the preview exercises a configured tile without asserting real activation.</p>
+<p>Club location has no verified field in the current projection. Manuel requested removal of the irrelevant location line on 26 October 2026 (<a href="https://github.com/MomoRC-tech/MoFlight-App-framework/issues/20#issuecomment-6413350010">#20</a>); the club header shows no location row, and its photograph remains decorative. This adapts <a href="https://m3.material.io/components/cards/guidelines">Material 3 card guidance</a> by omitting irrelevant supporting text within the existing Compact Cockpit card. Medical displays a recorded expiry/unknown reminder, never a fitness certificate. Real paper setup is not implemented: its tile accurately says <strong>In Vorbereitung</strong> instead of offering a nonfunctional setup. Already configured synthetic books remain accessible under Development; the preview exercises a configured tile without asserting real activation.</p>
 <p>Both Development previews opt out of duty-target file reads and writes. Edits stay in memory for the mounted overview and reset when it is left/reopened or the app restarts. Existing synthetic preference files from older versions are ignored and preserved. Simulated states do not invoke provider retrieval or mutate real flight records.</p>
 <p>The <a href="../../verification/2026-10-24-compact-cockpit.md#code-review--24-october-2026">24 October code review</a> records the source c643d9d defects (#62–#65). The fix restores a visible/accessibility cue for uncertain latest-day ordering, invalidates obsolete target operations across key changes/unmount, and guards editor-close callbacks. The same report distinguishes host regression and native acceptance of the follow-up; approved appearance is unchanged.</p>
 <p>Implementation is recorded separately from native acceptance in <a href="../../verification/2026-10-24-compact-cockpit.md">one package report</a>. Android, physical-phone, iOS and spoken accessibility evidence must be distinguished.</p>
@@ -635,7 +635,7 @@
 <tr><td><code>gap: 2</code></td><td>57</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-clubheadingtsx">ClubHeading.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/ClubHeading.tsx">apps/platform-lab/src/mobile/ClubHeading.tsx</a>; normalized SHA-256 <code>4d3d14a1de8be1a94de450727a4b7b8fa097b2cc3e4d8fbce69ffae77b93936f</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/ClubHeading.tsx">apps/platform-lab/src/mobile/ClubHeading.tsx</a>; normalized SHA-256 <code>66dd6252b1c3a1f47a98bb26eab527e55c1a579a0cbc41644da1b47782369327</code>.</p>
 <h4 id="chapter-implementation-inventory-typography-declarations-5">Typography declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>fontSize: 12</code></td><td>24</td></tr>
@@ -2287,7 +2287,7 @@ Current/prior season derives from the selected year. Time is known reported h:mi
 
 Completed duty hours require exactly one valid annual work-summary row for the selected year, accepting the observed `Jahr YYYY` label as well as a bare year. Mixed/ambiguous periods and duplicate matching rows remain unknown; no arbitrary year extraction. Unknown remains —; no sum of a partial list. The captured Pflicht/Geleistet money amounts are EUR and cannot establish an hour requirement. The local provisional target starts at 25 h, always labelled **Soll vorläufig**; tap that metric to change it for this account/store/year. It is a UI preference, not a confirmed club policy, and is excluded from existing MoFlight manual backup archives. No new external integration, production schema or provider write is introduced.
 
-Club location has no verified field in the current projection: **Ort unbekannt** remains explicit; the reused club header photograph is decorative. Medical displays a recorded expiry/unknown reminder, never a fitness certificate. Real paper setup is not implemented: its tile accurately says **In Vorbereitung** instead of offering a nonfunctional setup. Already configured synthetic books remain accessible under Development; the preview exercises a configured tile without asserting real activation.
+Club location has no verified field in the current projection. Manuel requested removal of the irrelevant location line on 26 October 2026 ([#20](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/20#issuecomment-6413350010)); the club header shows no location row, and its photograph remains decorative. This adapts [Material 3 card guidance](https://m3.material.io/components/cards/guidelines) by omitting irrelevant supporting text within the existing Compact Cockpit card. Medical displays a recorded expiry/unknown reminder, never a fitness certificate. Real paper setup is not implemented: its tile accurately says **In Vorbereitung** instead of offering a nonfunctional setup. Already configured synthetic books remain accessible under Development; the preview exercises a configured tile without asserting real activation.
 
 Both Development previews opt out of duty-target file reads and writes. Edits stay in memory for the mounted overview and reset when it is left/reopened or the app restarts. Existing synthetic preference files from older versions are ignored and preserved. Simulated states do not invoke provider retrieval or mutate real flight records.
 
@@ -3054,7 +3054,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CapturedFlights.t
 
 ## ClubHeading.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ClubHeading.tsx](../../../apps/platform-lab/src/mobile/ClubHeading.tsx); normalized SHA-256 `4d3d14a1de8be1a94de450727a4b7b8fa097b2cc3e4d8fbce69ffae77b93936f`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ClubHeading.tsx](../../../apps/platform-lab/src/mobile/ClubHeading.tsx); normalized SHA-256 `66dd6252b1c3a1f47a98bb26eab527e55c1a579a0cbc41644da1b47782369327`.
 
 ### Typography declarations
 
@@ -5023,7 +5023,7 @@ States / limits: Recreated approved variant, not a byte-identical copy of an old
 Source: docs/assets/branding/moflight-app-icon-ai.png
 docs/assets/branding/README.md; app.json
 </textarea></section>
-<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: ee16e691195628aeafb6df5d56afff8f09b86af5766b60983d7bd526787d7311. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
+<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: 1d0ab39bf4a8bd4e4444b7fd52059182317277b96931f61cb97833d4924c846b. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
 </main><script>
 'use strict';
 const brief = document.querySelector('#brief');

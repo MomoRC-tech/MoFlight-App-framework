@@ -132,7 +132,7 @@ Current/prior season derives from the selected year. Time is known reported h:mi
 
 Completed duty hours require exactly one valid annual work-summary row for the selected year, accepting the observed `Jahr YYYY` label as well as a bare year. Mixed/ambiguous periods and duplicate matching rows remain unknown; no arbitrary year extraction. Unknown remains —; no sum of a partial list. The captured Pflicht/Geleistet money amounts are EUR and cannot establish an hour requirement. The local provisional target starts at 25 h, always labelled **Soll vorläufig**; tap that metric to change it for this account/store/year. It is a UI preference, not a confirmed club policy, and is excluded from existing MoFlight manual backup archives. No new external integration, production schema or provider write is introduced.
 
-Club location has no verified field in the current projection: **Ort unbekannt** remains explicit; the reused club header photograph is decorative. Medical displays a recorded expiry/unknown reminder, never a fitness certificate. Real paper setup is not implemented: its tile accurately says **In Vorbereitung** instead of offering a nonfunctional setup. Already configured synthetic books remain accessible under Development; the preview exercises a configured tile without asserting real activation.
+Club location has no verified field in the current projection. Manuel requested removal of the irrelevant location line on 26 October 2026 ([#20](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/20#issuecomment-6413350010)); the club header shows no location row, and its photograph remains decorative. This adapts [Material 3 card guidance](https://m3.material.io/components/cards/guidelines) by omitting irrelevant supporting text within the existing Compact Cockpit card. Medical displays a recorded expiry/unknown reminder, never a fitness certificate. Real paper setup is not implemented: its tile accurately says **In Vorbereitung** instead of offering a nonfunctional setup. Already configured synthetic books remain accessible under Development; the preview exercises a configured tile without asserting real activation.
 
 Both Development previews opt out of duty-target file reads and writes. Edits stay in memory for the mounted overview and reset when it is left/reopened or the app restarts. Existing synthetic preference files from older versions are ignored and preserved. Simulated states do not invoke provider retrieval or mutate real flight records.
 
@@ -899,7 +899,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CapturedFlights.t
 
 ## ClubHeading.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ClubHeading.tsx](../../../apps/platform-lab/src/mobile/ClubHeading.tsx); normalized SHA-256 `4d3d14a1de8be1a94de450727a4b7b8fa097b2cc3e4d8fbce69ffae77b93936f`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ClubHeading.tsx](../../../apps/platform-lab/src/mobile/ClubHeading.tsx); normalized SHA-256 `66dd6252b1c3a1f47a98bb26eab527e55c1a579a0cbc41644da1b47782369327`.
 
 ### Typography declarations
 

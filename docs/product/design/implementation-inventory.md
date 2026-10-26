@@ -255,7 +255,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CapturedFlights.t
 
 ## ClubHeading.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ClubHeading.tsx](../../../apps/platform-lab/src/mobile/ClubHeading.tsx); normalized SHA-256 `4d3d14a1de8be1a94de450727a4b7b8fa097b2cc3e4d8fbce69ffae77b93936f`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ClubHeading.tsx](../../../apps/platform-lab/src/mobile/ClubHeading.tsx); normalized SHA-256 `66dd6252b1c3a1f47a98bb26eab527e55c1a579a0cbc41644da1b47782369327`.
 
 ### Typography declarations
 
