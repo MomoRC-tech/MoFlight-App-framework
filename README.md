@@ -1,6 +1,6 @@
 # MoFlight
 
-**26 October combined Sync and saved-Start improvements:** [Download Android APK ZIP — source `8d9ff10`](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/sync-timing-2026-10-26-8d9ff10/moflight-sync-timing-8d9ff10.zip). Wavy progress, clearer interrupted-Sync choices, hidden single-item counters, shared save/readback and progressive saved-Start loading. [Verification and limits](docs/verification/2026-10-26-sync-counts.md#timing-correction-release).
+**26 October shared reads and Settings:** [Download Android APK ZIP — source `9eccbf7`](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/shared-reads-settings-2026-10-26-9eccbf7/MoFlight-Android-9eccbf7.zip). Flight details reuse verified list evidence; Medical/duty save-readback shares sessions. Includes grouped Settings and prior Sync/saved-Start improvements. [Measured results and limits](docs/verification/2026-10-21-simple-flight-loading.md#shared-local-reads-and-displayed-flight-details--26-october-2026).
 
 <p align="center">
   <picture>
@@ -11,13 +11,13 @@
 
 MoFlight is a mobile app in development for glider pilots, students and instructors. It brings saved flight history, season comparisons and supported club information together, with offline local data. Paper-logbook assistance is a later journey; Android is the current focus and iOS runtime acceptance remains deferred.
 
-**Implemented after the current APK:** [shared local reads](docs/verification/2026-10-21-simple-flight-loading.md#shared-local-reads-and-displayed-flight-details--26-october-2026) remove repeated flight-history validation from detail navigation and share Medical/duty save-readback sessions. Native acceptance and phone timing remain for the next batched checkpoint.
+**Shared local reads delivered:** detail navigation avoids repeated flight-history validation while retaining current selection guards. Synthetic Android offline seed/reopen checks pass; physical-phone timing remains open.
 
 ## Current delivery
 
-**Settings refinement in source (#94):** grouped navigation, a native contextual-help switch and clearer child-page header preserve the current Start and Cockpit palette. [Focused checks and pending dark native checkpoint](docs/verification/2026-10-26-material-settings.md). This increment is not yet in the linked APK.
+**Settings refinement (#94):** grouped navigation, a native contextual-help switch and clearer child-page header preserve Start and the Cockpit palette. Included in this APK; [scoped verification](docs/verification/2026-10-26-material-settings.md).
 
-Application source `8d9ff10f8b5a60c6f37d35f2442fc180aa9085c1` combines the Sync follow-up, parallel saved-Start loading package and final timing correction, retaining previous interruption and 500-row retrieval changes. [Download the APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/sync-timing-2026-10-26-8d9ff10/moflight-sync-timing-8d9ff10.zip) and see [source-specific evidence/limits](docs/verification/2026-10-26-sync-counts.md#timing-correction-release). Extract the ZIP and install `app-release.apk`. Development-signed standalone lab build. Host checks, both JavaScript bundles and two offline Android launches passed. Visual evidence applies to unchanged indicator/dialog components. Authenticated interruption/recovery, full live-provider prediction, native 500-row retrieval/restoration, physical-phone speed and iOS runtime acceptance remain open. Keep the app visible during Sync. No whole-Sync or populated-Start phone speed gain is claimed. AI requests remain disabled in the ordinary app.
+Application source `9eccbf7082ca2a4a4217c4233d8ad961e782550d` includes shared reads and Settings, retaining prior Sync and saved-Start improvements. Extract the linked ZIP and install `app-release.apk`. Development-signed standalone lab build. Full host checks and synthetic Android detail/source offline-reopen checks passed. Authenticated interruption/recovery, live-provider behavior, native 500-row retrieval/restoration, physical-phone speed and iOS runtime acceptance remain open. Keep the app visible during Sync. No whole-Sync or populated-Start phone speed gain is claimed. AI requests remain disabled in the ordinary app.
 
 **Startup investigation concluded for now:** a synthetic offline-restart trial of the earlier `bf60089` APK hit a released SQLite handle and showed unreadable flights. Explicit local retry recovered the saved data in that trial. [#89](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/89) is closed at Manuel’s direction after bounded follow-up runs did not reproduce it; revisit only on recurrence or concrete new evidence. No root-cause fix is claimed; [the reliability report](docs/verification/2026-10-25-reliability-continuation.md) separates successful local/export checks from this failed startup acceptance.
 

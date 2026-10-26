@@ -1,0 +1,286 @@
+{
+  "source_commit": "9eccbf7082ca2a4a4217c4233d8ad961e782550d",
+  "normal_apk_sha256": "8f1a3a93bf7271d6585d84ddc15be1af8bd5a48773ba49a42c39c7480addbdda",
+  "proof_apk_sha256": "110b61938aa5e9851fcd547144238a560619b399eabd8f7424116d6755dae76f",
+  "status": "passed",
+  "environment": {
+    "device": "MoFlight_Synthetic_API37",
+    "api": 37,
+    "physicalPixels": [
+      1080,
+      1920
+    ],
+    "densityDpi": 420,
+    "logicalDp": [
+      411.42857142857144,
+      731.4285714285714
+    ],
+    "fontScale": 1,
+    "offline": true
+  },
+  "runs": [
+    {
+      "mode": "seed",
+      "initialGeneration": 6,
+      "finalGeneration": 7,
+      "flightCount": 101,
+      "changedSelectionRejected": true,
+      "refreshedListChanged": true,
+      "persistedReadback": null,
+      "maxHeartbeatIntervalMilliseconds": 322.85579999908805,
+      "samples": [
+        {
+          "index": 1,
+          "fullDetailEqual": true,
+          "fresh": {
+            "milliseconds": 1451.345300000161,
+            "hashCalls": 355,
+            "render": {
+              "renderCommitMilliseconds": 34.65109999850392,
+              "nextFrameCallbackMilliseconds": 77.17369999736547
+            }
+          },
+          "retained": {
+            "milliseconds": 66.97489999979734,
+            "hashCalls": 0,
+            "guardChecks": 2,
+            "render": {
+              "renderCommitMilliseconds": 7.511900000274181,
+              "nextFrameCallbackMilliseconds": 51.864000000059605
+            }
+          }
+        },
+        {
+          "index": 2,
+          "fullDetailEqual": true,
+          "fresh": {
+            "milliseconds": 1328.6142999976873,
+            "hashCalls": 355,
+            "render": {
+              "renderCommitMilliseconds": 4.8719999976456165,
+              "nextFrameCallbackMilliseconds": 40.87570000067353
+            }
+          },
+          "retained": {
+            "milliseconds": 48.60040000081062,
+            "hashCalls": 0,
+            "guardChecks": 2,
+            "render": {
+              "renderCommitMilliseconds": 4.042199999094009,
+              "nextFrameCallbackMilliseconds": 18.26920000091195
+            }
+          }
+        },
+        {
+          "index": 3,
+          "fullDetailEqual": true,
+          "fresh": {
+            "milliseconds": 1264.1983000002801,
+            "hashCalls": 355,
+            "render": {
+              "renderCommitMilliseconds": 7.146200001239777,
+              "nextFrameCallbackMilliseconds": 19.68080000206828
+            }
+          },
+          "retained": {
+            "milliseconds": 58.62829999998212,
+            "hashCalls": 0,
+            "guardChecks": 2,
+            "render": {
+              "renderCommitMilliseconds": 3.8506000004708767,
+              "nextFrameCallbackMilliseconds": 26.973899997770786
+            }
+          }
+        },
+        {
+          "index": 4,
+          "fullDetailEqual": true,
+          "fresh": {
+            "milliseconds": 1251.9824999980628,
+            "hashCalls": 355,
+            "render": {
+              "renderCommitMilliseconds": 5.73590000346303,
+              "nextFrameCallbackMilliseconds": 27.326400000602007
+            }
+          },
+          "retained": {
+            "milliseconds": 44.371399998664856,
+            "hashCalls": 0,
+            "guardChecks": 2,
+            "render": {
+              "renderCommitMilliseconds": 3.7357999980449677,
+              "nextFrameCallbackMilliseconds": 23.94029999896884
+            }
+          }
+        },
+        {
+          "index": 5,
+          "fullDetailEqual": true,
+          "fresh": {
+            "milliseconds": 1223.8741999976337,
+            "hashCalls": 355,
+            "render": {
+              "renderCommitMilliseconds": 8.1351000033319,
+              "nextFrameCallbackMilliseconds": 25.6385000012815
+            }
+          },
+          "retained": {
+            "milliseconds": 48.08880000188947,
+            "hashCalls": 0,
+            "guardChecks": 2,
+            "render": {
+              "renderCommitMilliseconds": 3.842399999499321,
+              "nextFrameCallbackMilliseconds": 14.141699999570847
+            }
+          }
+        }
+      ],
+      "sourceChecks": [
+        "actual saveAndLoadInformation committed payload and fresh-open equality",
+        "actual saveAndLoadDutyRoster committed payload and fresh-open equality",
+        "foreign observed account and cancelled gate rejected; committed synthetic data unchanged",
+        "native duty expiry removes only synthetic cache; Medical evidence retained"
+      ]
+    },
+    {
+      "mode": "reopen",
+      "initialGeneration": 7,
+      "finalGeneration": 8,
+      "flightCount": 101,
+      "changedSelectionRejected": true,
+      "refreshedListChanged": true,
+      "persistedReadback": true,
+      "maxHeartbeatIntervalMilliseconds": 271.6262999996543,
+      "samples": [
+        {
+          "index": 1,
+          "fullDetailEqual": true,
+          "fresh": {
+            "milliseconds": 1934.9724999964237,
+            "hashCalls": 463,
+            "render": {
+              "renderCommitMilliseconds": 28.625300001353025,
+              "nextFrameCallbackMilliseconds": 72.99330000206828
+            }
+          },
+          "retained": {
+            "milliseconds": 66.29800000041723,
+            "hashCalls": 0,
+            "guardChecks": 2,
+            "render": {
+              "renderCommitMilliseconds": 5.726300001144409,
+              "nextFrameCallbackMilliseconds": 63.57840000092983
+            }
+          }
+        },
+        {
+          "index": 2,
+          "fullDetailEqual": true,
+          "fresh": {
+            "milliseconds": 1827.7774000018835,
+            "hashCalls": 463,
+            "render": {
+              "renderCommitMilliseconds": 6.023400001227856,
+              "nextFrameCallbackMilliseconds": 47.247999999672174
+            }
+          },
+          "retained": {
+            "milliseconds": 51.046999998390675,
+            "hashCalls": 0,
+            "guardChecks": 2,
+            "render": {
+              "renderCommitMilliseconds": 3.939699999988079,
+              "nextFrameCallbackMilliseconds": 43.163099996745586
+            }
+          }
+        },
+        {
+          "index": 3,
+          "fullDetailEqual": true,
+          "fresh": {
+            "milliseconds": 1968.9407000020146,
+            "hashCalls": 463,
+            "render": {
+              "renderCommitMilliseconds": 4.370799999684095,
+              "nextFrameCallbackMilliseconds": 30.53500000014901
+            }
+          },
+          "retained": {
+            "milliseconds": 61.082499999552965,
+            "hashCalls": 0,
+            "guardChecks": 2,
+            "render": {
+              "renderCommitMilliseconds": 3.914799999445677,
+              "nextFrameCallbackMilliseconds": 37.09450000151992
+            }
+          }
+        },
+        {
+          "index": 4,
+          "fullDetailEqual": true,
+          "fresh": {
+            "milliseconds": 1885.9131999984384,
+            "hashCalls": 463,
+            "render": {
+              "renderCommitMilliseconds": 5.2829000018537045,
+              "nextFrameCallbackMilliseconds": 27.508300002664328
+            }
+          },
+          "retained": {
+            "milliseconds": 58.4792999997735,
+            "hashCalls": 0,
+            "guardChecks": 2,
+            "render": {
+              "renderCommitMilliseconds": 5.317100003361702,
+              "nextFrameCallbackMilliseconds": 50.45619999989867
+            }
+          }
+        },
+        {
+          "index": 5,
+          "fullDetailEqual": true,
+          "fresh": {
+            "milliseconds": 1789.8462000004947,
+            "hashCalls": 463,
+            "render": {
+              "renderCommitMilliseconds": 4.369800001382828,
+              "nextFrameCallbackMilliseconds": 26.00730000063777
+            }
+          },
+          "retained": {
+            "milliseconds": 62.70840000361204,
+            "hashCalls": 0,
+            "guardChecks": 2,
+            "render": {
+              "renderCommitMilliseconds": 4.115499999374151,
+              "nextFrameCallbackMilliseconds": 46.263300001621246
+            }
+          }
+        }
+      ],
+      "sourceChecks": [
+        "actual saveAndLoadInformation committed payload and fresh-open equality",
+        "actual saveAndLoadDutyRoster committed payload and fresh-open equality",
+        "foreign observed account and cancelled gate rejected; committed synthetic data unchanged",
+        "native duty expiry removes only synthetic cache; Medical evidence retained"
+      ]
+    }
+  ],
+  "normalAppRestored": true,
+  "networkRestored": {
+    "airplane_mode_on": "1",
+    "wifi_on": "0",
+    "mobile_data": "0"
+  },
+  "limits": [
+    "Synthetic owner lease; no production owner registry timing",
+    "Actual selected-history SQLite guards and source readback helpers",
+    "No private/live provider or physical phone",
+    "Layout effect and RAF are scheduling proxies, not tap-to-visible",
+    "PSS is whole-process after proof completion; not isolated graph memory or leak analysis"
+  ],
+  "processMemoryPssKiB": {
+    "initial": 176750,
+    "offline-reopen": 153778
+  }
+}

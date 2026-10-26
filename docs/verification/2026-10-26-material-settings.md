@@ -21,4 +21,12 @@ The component harness executes real component/shell functions with native leaves
 
 ## Remaining work
 
-Inspect actual dark Settings, backup disclosure and affected enlarged-text layout at the batched native checkpoint. Continue other child-page/temporary-surface work under #94, preserving Start and provider lifecycle. Source implementation is complete for this increment; the overall redesign and native acceptance remain open.
+Expanded backup disclosure and affected enlarged-text layout remain unchecked. Continue other child-page/temporary-surface work under #94, preserving Start and provider lifecycle. Source implementation is complete for this increment; the overall redesign and remaining native acceptance stay open.
+
+## Combined Release checkpoint
+
+Source `9eccbf7082ca2a4a4217c4233d8ad961e782550d` includes Settings `e1b8747`. Full host check passed (1,489 mobile tests/two skipped, 136 Python/16 skipped, types/lint/fixtures); committed-source Android Release build passed. [APK delivery and combined evidence](2026-10-21-simple-flight-loading.md#shared-local-reads-and-displayed-flight-details--26-october-2026).
+
+Brief dark-only native inspection on offline `MoFlight_Synthetic_API37`, API 37, 411.43 × 731.43 dp, font scale 1: grouped Settings rows and the enabled native Help switch are readable, with no observed text overlap. Header Back returned to Start twice. Parent independently inspected both Settings captures. No preference was changed. Controller session `build/ui-agent/20261026T170654Z-2fa0c847/` contains worker results, screenshots/XML and cleanup report; original display, offline state and install identity were preserved with no cleanup errors. Worker used the explicitly requested GPT-6.1 Sol Medium.
+
+The earlier session `20261026T170239Z-41eb1964` was blocked entering Settings by the exact-label allowlist and cleaned up. A separate corrected session reached Settings, but Help and recovery entries were still refused by the controller; those journeys remain untested, not failed app behavior. This bounded checkpoint does not accept expanded disclosure, switch persistence, enlarged text, other widths, physical-phone, iOS or spoken accessibility.
