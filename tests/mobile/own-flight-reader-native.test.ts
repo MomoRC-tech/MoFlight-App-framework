@@ -7,11 +7,17 @@ import * as reader from '../../apps/platform-lab/src/mobile/own-flight-reader.ts
 import * as trace from '../../apps/platform-lab/src/local-read-diagnostics.ts';
 import * as medical from '../../apps/platform-lab/src/mobile/medical-source.ts';
 import { DiagnosticJournal } from '../../apps/platform-lab/src/diagnostics.ts';
+import { mkdtemp, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { RealOwnerRegistry } from '../../apps/platform-lab/src/vereinsflieger/real-owner-registry.ts';
+import { nodeDriver } from './sqlite-driver.ts';
+import { ownFlightFixture } from './own-flight-fixture.ts';
 
 test('native read binds selection timings to its originating operation and shares information loading across sections',async()=>{
   const journal=new DiagnosticJournal(),operation=journal.begin('read-flights');
   const scope={owner:'owner',connectionId:'connection',context:{accountNumber:'101'}};
-  const lease={ownerId:'owner',storeId:'store',leaseId:'lease'};
+  const lease={ownerId:'owner',storeId:'store',leaseId:'lease',selectionSeq:1};
   let informationLoads=0,registryCloses=0,selectedTiming:unknown,servicePorts:any;
   class Service { constructor(...args:any[]){servicePorts=args[3];} dispose(){} }
   const modules:Record<string,unknown>={
@@ -44,17 +50,19 @@ test('native read binds selection timings to its originating operation and share
   assert.ok(journal.snapshot()[0]?.stages.some(stage=>stage.name==='local-information-load'));
 });
 
-function detailGuardFixture() {
-  const lease={ownerId:'owner',storeId:'store',leaseId:'lease'};
+function detailGuardFixture(openRegistry?: () => Promise<RealOwnerRegistry>) {
+  const lease={ownerId:'owner',storeId:'store',leaseId:'lease',selectionSeq:1};
+  const flights=ownFlightFixture();
   const calls={restore:0,owner:0,selectionOpens:0,selects:0,identities:[] as string[],selectionCloses:0,registryCloses:0,candidateCloses:0,disposes:0};
   const state={failRestoreAt:0,failOwnerAt:0,failSelection:false,missingSelection:false,failClose:false};
   const evidenceFlags:boolean[]=[];
   class Service {
-    constructor(_owner:unknown,_store:unknown,_lease:unknown,private readonly ports:any){}
+    constructor(private readonly owner:string,private readonly store:string,_lease:unknown,private readonly ports:any){}
     async readStored(_initial:unknown,_span:unknown,includeEvidence:boolean){
       evidenceFlags.push(includeEvidence);
       const repository=await this.ports.repository();
-      try{return {snapshot:{},flights:[]};}finally{await repository.close();}
+      try{return {snapshot:{...flights.snapshot,ownerId:this.owner,storeId:this.store},flights:flights.flights,
+        detailSource:{detail:()=>structuredClone(flights.detail)}};}finally{await repository.close();}
     }
     dispose(){calls.disposes++;}
   }
@@ -69,9 +77,10 @@ function detailGuardFixture() {
       if(++calls.restore===state.failRestoreAt)throw new Error('Pending restore');
     }},
     '../vereinsflieger/real-flight-native':{
-      openOwnerRegistry:async()=>({currentOwner:async()=>lease,assertCurrent:async()=>{
+      openRealFlightCommandJournal:async()=>({pending:async()=>null,close:async()=>{}}),
+      openOwnerRegistry:openRegistry??(async()=>({currentOwner:async()=>lease,assertCurrent:async()=>{
         if(++calls.owner===state.failOwnerAt)throw new Error('Owner lease changed');
-      },close:async()=>{calls.registryCloses++;}}),
+      },close:async()=>{calls.registryCloses++;}})),
       openRealFlightSelection:async()=>{
         calls.selectionOpens++;
         if(state.missingSelection)return null;
@@ -90,6 +99,38 @@ function detailGuardFixture() {
   return {ports:exports.ownFlightReadPorts,calls,state,evidenceFlags};
 }
 
+test('native displayed detail survives fresh owner leases and rejects owner switches including away and back',async()=>{
+  const directory=await mkdtemp(join(tmpdir(),'moflight-detail-lifecycle-')),path=join(directory,'registry.sqlite');
+  let nextUuid=1;
+  const uuid=()=>`00000000-0000-4000-8000-${(nextUuid++).toString(16).padStart(12,'0')}`;
+  const at='2026-10-26T10:00:00.000Z';
+  const registry=await RealOwnerRegistry.create(nodeDriver(path),uuid,at);
+  const first=await registry.createFreshOwner(at);
+  const issued:string[]=[];
+  const f=detailGuardFixture(async()=>{
+    const opened=await RealOwnerRegistry.open(nodeDriver(path),uuid);
+    const currentOwner=opened.currentOwner.bind(opened);
+    opened.currentOwner=async()=>{const lease=await currentOwner();if(lease)issued.push(lease.leaseId);return lease;};
+    return opened;
+  });
+  try{
+    const view=await reader.readOwnFlightView(f.ports);assert.ok(view?.detailContext);
+    const selected=view.flights[0]!;
+    assert.equal(issued.length,1);
+    for(let attempt=0;attempt<3;attempt++){
+      assert.equal((await reader.readOwnFlightDetail(f.ports,view.snapshot,selected,view)).flightId,selected.flightId);
+    }
+    assert.equal(new Set(issued).size,4,'list and every detail must use separately issued registry leases');
+    assert.equal(f.calls.selects,1,'retained details must not reopen or validate the full candidate');
+    const second=await registry.createFreshOwner(at);
+    await assert.rejects(reader.readOwnFlightDetail(f.ports,view.snapshot,selected,view),reader.OwnFlightChangedError);
+    await registry.selectOwner(first.ownerId,at,second);
+    await assert.rejects(reader.readOwnFlightDetail(f.ports,view.snapshot,selected,view),/owner selection changed/);
+    const refreshed=await reader.readOwnFlightView(f.ports);assert.ok(refreshed);
+    assert.equal((await reader.readOwnFlightDetail(f.ports,refreshed.snapshot,refreshed.flights[0]!,refreshed)).flightId,selected.flightId);
+  }finally{await registry.close();await rm(directory,{recursive:true,force:true});}
+});
+
 test('native list opts into snapshot evidence and captures the selected activation context',async()=>{
   const f=detailGuardFixture(),session=await f.ports.open();
   try{
@@ -97,7 +138,7 @@ test('native list opts into snapshot evidence and captures the selected activati
     await session.service.readStored();
     assert.deepEqual(f.evidenceFlags,[true]);
     const context=session.detailContext();
-    assert.equal(context.leaseId,'lease');assert.equal(context.selectionIdentity,'verified-activation-chain');
+    assert.equal(context.ownerSelectionSeq,1);assert.equal(context.selectionIdentity,'verified-activation-chain');
     assert.equal(f.calls.selects,1);assert.equal(f.calls.selectionOpens,1);
     assert.equal(f.calls.candidateCloses,1);assert.equal(f.calls.selectionCloses,1);
   }finally{await session.close();}
@@ -106,7 +147,7 @@ test('native list opts into snapshot evidence and captures the selected activati
 
 test('native detail guards reuse one journal across pre/post checks without selecting or opening a candidate',async()=>{
   const f=detailGuardFixture(),session=await f.ports.open();
-  const context={leaseId:'lease',selectionIdentity:'verified-activation-chain'};
+  const context={ownerSelectionSeq:1,selectionIdentity:'verified-activation-chain'};
   try{
     await session.assertDetailContext(context);
     await session.assertDetailContext(context);
@@ -119,10 +160,10 @@ test('native detail guards reuse one journal across pre/post checks without sele
   assert.equal(f.calls.selectionCloses,1);assert.equal(f.calls.registryCloses,1);assert.equal(f.calls.disposes,1);
 });
 
-for(const mode of ['lease','owner-before','owner-after','restore-before','restore-after','selection','missing-selection'] as const)
+for(const mode of ['owner-selection','owner-before','owner-after','restore-before','restore-after','selection','missing-selection'] as const)
 test(`native detail context rejects ${mode} and cleans up`,async()=>{
   const f=detailGuardFixture(),session=await f.ports.open();
-  const context={leaseId:mode==='lease'?'other-lease':'lease',selectionIdentity:'verified-activation-chain'};
+  const context={ownerSelectionSeq:mode==='owner-selection'?2:1,selectionIdentity:'verified-activation-chain'};
   if(mode==='owner-before')f.state.failOwnerAt=1;
   if(mode==='owner-after')f.state.failOwnerAt=2;
   if(mode==='restore-before')f.state.failRestoreAt=2;
@@ -130,9 +171,9 @@ test(`native detail context rejects ${mode} and cleans up`,async()=>{
   if(mode==='selection')f.state.failSelection=true;
   if(mode==='missing-selection')f.state.missingSelection=true;
   try{
-    await assert.rejects(session.assertDetailContext(context),/lease changed|Pending restore|Selection changed|selection is unavailable/);
+    await assert.rejects(session.assertDetailContext(context),/lease changed|owner selection changed|Pending restore|Selection changed|selection is unavailable/);
     assert.equal(f.calls.selects,0);assert.equal(f.calls.candidateCloses,0);
-    const rejectedBeforeOpen=['lease','owner-before','restore-before'].includes(mode);
+    const rejectedBeforeOpen=['owner-selection','owner-before','restore-before'].includes(mode);
     assert.equal(f.calls.selectionOpens,rejectedBeforeOpen?0:1);
   }finally{await session.close();}
   assert.equal(f.calls.selectionCloses,f.calls.selectionOpens&&mode!=='missing-selection'?1:0);
@@ -141,7 +182,7 @@ test(`native detail context rejects ${mode} and cleans up`,async()=>{
 
 test('native second detail context check rejects a selection change while retaining one guard journal',async()=>{
   const f=detailGuardFixture(),session=await f.ports.open();
-  const context={leaseId:'lease',selectionIdentity:'verified-activation-chain'};
+  const context={ownerSelectionSeq:1,selectionIdentity:'verified-activation-chain'};
   try{
     await session.assertDetailContext(context);f.state.failSelection=true;
     await assert.rejects(session.assertDetailContext(context),/Selection changed/);
@@ -152,7 +193,7 @@ test('native second detail context check rejects a selection change while retain
 
 test('native guard journal close failure still closes registry and releases serialized read admission',async()=>{
   const f=detailGuardFixture(),session=await f.ports.open();
-  await session.assertDetailContext({leaseId:'lease',selectionIdentity:'verified-activation-chain'});
+  await session.assertDetailContext({ownerSelectionSeq:1,selectionIdentity:'verified-activation-chain'});
   f.state.failClose=true;
   await assert.rejects(session.close(),/Selection close failed/);
   assert.equal(f.calls.registryCloses,1);

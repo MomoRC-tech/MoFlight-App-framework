@@ -4,7 +4,7 @@ import * as Crypto from 'expo-crypto';
 import { hash } from '../storage';
 import { openOwnerRegistry, openRealFlightSelection, openRealFlightCommandJournal } from '../vereinsflieger/real-flight-native';
 import { RealFlightService } from '../vereinsflieger/real-flight-service';
-import { serializeOwnFlightReads, type OwnFlightDetailContext } from './own-flight-reader';
+import { assertOwnFlightDetailOwner, serializeOwnFlightReads, type OwnFlightDetailContext } from './own-flight-reader';
 import { loadProviderScope } from '../vereinsflieger/scoped-storage';
 import { loadInformation } from '../vereinsflieger/information-native';
 import { medicalSource } from './medical-source';
@@ -45,7 +45,7 @@ export const ownFlightReadPorts = serializeOwnFlightReads({
           if (!selection) throw new Error('Own-flight selection is unavailable.');
           try {
             const selected = await selection.select();
-            detailContext = {leaseId: lease.leaseId, selectionIdentity: selected.selectionIdentity};
+            detailContext = {ownerSelectionSeq: lease.selectionSeq, selectionIdentity: selected.selectionIdentity};
             return { library: selected.candidate, writable: !selected.recoveryRequired, warning: selected.warning,
               close: async () => { try { await selected.candidate.close(); } finally { await selection.close(); } } };
           } catch (error) { await selection.close(); throw error; }
@@ -82,7 +82,8 @@ export const ownFlightReadPorts = serializeOwnFlightReads({
         assertDetailContext: async context => {
           await assertNoPendingUserBackupRestore();
           await registry.assertCurrent(lease);
-          if (closed || context.leaseId !== lease.leaseId) throw new Error('Displayed flight owner lease changed');
+          if (closed) throw new Error('Displayed flight reader closed');
+          assertOwnFlightDetailOwner(context, lease.selectionSeq);
           detailSelection ??= await openRealFlightSelection(scope, false);
           if (!detailSelection) throw new Error('Displayed flight selection is unavailable');
           await detailSelection.assertIdentity(context.selectionIdentity);

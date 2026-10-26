@@ -185,7 +185,7 @@ test('feature information is scoped to the selected account and isolated failure
 
 test('displayed detail uses retained evidence only after fresh pre/post context checks',async()=>{
   const f=ownFlightFixture();let contexts=0,freshReads=0;
-  const context={leaseId:'lease',selectionIdentity:'selection'};
+  const context={ownerSelectionSeq:1,selectionIdentity:'selection'};
   f.session.assertDetailContext=async value=>{assert.equal(value,context);contexts++;};
   f.session.service.detail=async()=>{freshReads++;throw new Error('Must not reopen history');};
   const detailSource={detail:()=>structuredClone(f.detail)} as unknown as NonNullable<import('../../apps/platform-lab/src/mobile/own-flight-reader.ts').OwnFlightView['detailSource']>;

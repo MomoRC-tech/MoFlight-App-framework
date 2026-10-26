@@ -26,11 +26,13 @@ test('paired production detail reads preserve full evidence, reject reactivation
       assert.ok(report.samples.every(sample => sample.fresh.hashCalls > sample.retained.hashCalls));
       assert.ok(report.samples.every(sample => sample.fresh.milliseconds >= 0 && sample.retained.milliseconds >= 0));
       assert.equal(report.changedSelectionRejected, true);
+      assert.equal(report.changedOwnerSelectionRejected, true);
+      assert.ok(report.distinctReadLeases >= 15,'each list/detail session issues its own actual registry lease');
       assert.equal(report.refreshedListChanged, true);
       assert.equal(report.persistedReadback, seed ? null : true);
     }
     assert.deepEqual(displayed, Array.from({length: 2}, () => Array.from({length: 5}, (_, i) => [`fresh-${i + 1}`, `retained-${i + 1}`]).flat()).flat());
-    assert.equal(names.size, 3);
+    assert.equal(names.size, 4);
     assert.ok([...names].every(name => name.includes(id)));
     await assert.rejects(runFlightDetailProof(ports, '../foreign', true));
   } finally { await rm(directory, {recursive: true, force: true}); }

@@ -7,7 +7,13 @@ import { buildFeatureInformation, type FeatureInformation } from './feature-info
 import type { ProviderScope } from '../vereinsflieger/scope-store';
 import type { DiagnosticOperation, DiagnosticStage, DiagnosticSpanStarter } from '../diagnostics';
 
-export interface OwnFlightDetailContext { leaseId: string; selectionIdentity: string }
+export interface OwnFlightDetailContext { ownerSelectionSeq: number; selectionIdentity: string }
+/** Registry leases expire at session close; the append-only selection survives reopening. */
+export function assertOwnFlightDetailOwner(context: OwnFlightDetailContext, selectionSeq: number): void {
+  if (!Number.isSafeInteger(context.ownerSelectionSeq) || context.ownerSelectionSeq < 1 || context.ownerSelectionSeq !== selectionSeq) {
+    throw new Error('Displayed flight owner selection changed');
+  }
+}
 export interface OwnFlightScope { ownerId: string; storeId: string }
 export interface OwnFlightReadSession extends OwnFlightScope {
   service: Pick<RealFlightService, 'readStored' | 'detail'> & Partial<Pick<RealFlightService, 'readReviewEvidence' | 'readBindingEvidence'>>;

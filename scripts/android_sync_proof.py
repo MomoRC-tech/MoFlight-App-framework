@@ -87,6 +87,7 @@ def main():
                         assert result['sampleCount'] == len(samples) == 5
                         assert all(sample['fullDetailEqual'] and sample['retained']['guardChecks'] == 2 for sample in samples)
                         assert result['changedSelectionRejected'] and result['refreshedListChanged']
+                        assert result['changedOwnerSelectionRejected'] and result['distinctReadLeases'] >= 10
                         assert result['mode'] == 'seed' or result['persistedReadback'] is True
                         if report['detailRuns']:
                             assert result['mode'] == 'reopen'

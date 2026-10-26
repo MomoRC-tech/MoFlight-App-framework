@@ -27,7 +27,7 @@ export default function AndroidFlightResponsivenessPoc() {
     const timer={last:performance.now(),maximum:0};
     const heartbeat=setInterval(()=>{const now=performance.now();timer.maximum=Math.max(timer.maximum,now-timer.last);timer.last=now;},50);
     void (async()=>{
-      const marker=new File(Paths.document,'native-detail-reuse-v1-run.txt');
+      const marker=new File(Paths.document,'native-detail-reuse-v2-run.txt');
       const seed=!marker.exists, runId=seed?Crypto.randomUUID():(await marker.text()).trim();
       realHistoryUuid(runId);
       if(seed){marker.create({overwrite:false});marker.write(runId);}
@@ -40,7 +40,7 @@ export default function AndroidFlightResponsivenessPoc() {
       // Let the heartbeat observe any final synchronous work before summarizing.
       await new Promise(resolve=>{setTimeout(resolve,60);});
       const result={...report,sourceReadback,maxHeartbeatIntervalMilliseconds:timer.maximum};
-      const file=new File(Paths.document,`native-detail-v1-${report.mode}-${Crypto.randomUUID()}.json`);
+      const file=new File(Paths.document,`native-detail-v2-${report.mode}-${Crypto.randomUUID()}.json`);
       file.create({overwrite:false});file.write(JSON.stringify(result));
       for(const sample of report.samples)console.info('MOFLIGHT_PROBE_SAMPLE '+JSON.stringify(sample));
       const {samples,...summary}=result;

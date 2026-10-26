@@ -327,7 +327,7 @@ test('unchanged visible data gets a retained-data timing marker without waiting 
 
 test('refresh replaces displayed detail evidence even when visible facts are unchanged',async()=>{
   const h=host();await h.flush();
-  const context={leaseId:'lease',selectionIdentity:'selection'};
+  const context={ownerSelectionSeq:1,selectionIdentity:'selection'};
   // Class instances model the opaque source: structural view reuse must not merge private evidence.
   class Source { constructor(private readonly count:number) {} sameEvidence(other:Source){return this.count===other.count;} detail(){return {...h.detail,pending:Array.from({length:this.count},()=>({captureId:'pending',issue:{}}))};} }
   let evidence=new Source(1);
