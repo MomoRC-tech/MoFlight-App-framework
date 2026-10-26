@@ -26,6 +26,20 @@ Capture relevant available evidence once, independently of the destination book.
 
 Sources: [EASA Sailplane Rule Book, Part-DEF point 16 and AMC1 SFCL.050](https://www.easa.europa.eu/sites/default/files/dfu/Sailplane%20Rule%20Book.pdf), [LuftVZO Anlage 1, registration classes](https://www.gesetze-im-internet.de/luftvzo/anlage_1.html), provider [flight entry manual 5001](https://vereinsflieger.de/member/help/index.php?hid=5001) and [aircraft manual 4001](https://vereinsflieger.de/member/help/index.php?hid=4001). The [requirements research](logbook-requirements-and-routing.md) records authority guidance and regulatory scope; this review does not certify a universal EASA/NfL schema or establish national UL credit rules by analogy.
 
+### Instructor presence and recorded PIC — 26 October 2026
+
+The [read-only saved-source review](../verification/2026-10-26-instructor-pic-source-review.md) found both accompanied and unaccompanied flights under the same raw `Flugart` code `S`. Use the unambiguous explicit `PIC` field for **Vereinsflieger's recorded PIC**, while preserving `Pilot`, `Begleiter/FI` and role-time cells independently. The provider-recorded PIC is not independent proof of the legally designated commander or of logbook credit.
+
+| Source evidence | Safe interpretation |
+| --- | --- |
+| Explicit `PIC` matches a separately identified, confirmed FI on this flight | The source records that instructor as PIC; retain the FI function and any role-time evidence separately. |
+| Explicit `PIC` names the `Pilot` while another person is confirmed as FI | Preserve the different recorded PIC and FI; review the uncommon combination instead of replacing PIC with FI. |
+| `Begleiter/FI` is populated, or `Dual-Time` is nonzero, without verified FI role evidence | Accompanied or dual-time evidence; instructor identity/status is unresolved. Do not turn the combined heading into an FI credential. |
+| `Flugart` is `S`, with no companion shown | The code alone does not establish an instructor on board. If `PIC` matches `Pilot`, show that recorded PIC; ground supervision remains possible. |
+| `PIC` is missing, conflicting or only matched by an ambiguous display name | Recorded PIC is unresolved; do not infer command from `Pilot`, `Begleiter/FI`, flight type, seat or time columns. |
+
+A “flight with an instructor on board” filter or paper-writing decision requires flight-linked explicit FI evidence or a reviewed provider/club mapping tied to the person. Keep legal command, instructor function and PIC/Dual/FI time distinct. The historical prototype rule that always places `Begleiter/FI` in PIC is superseded for current source interpretation; its original snapshot remains unchanged.
+
 ## Capture inventory
 
 “Core” means prioritize obtaining and verifying the field, not reject a raw observation if it is absent. Availability below distinguishes displayed values from configuration/manual evidence. Catalogue examples do not prove cross-class flight mapping. No actual export bytes have yet been inspected.
