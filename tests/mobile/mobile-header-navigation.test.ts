@@ -544,6 +544,10 @@ test('app root retains the provider host across close/tab entry and hides covere
   assert.equal(f.find('UpdateDialog').props.open,true);assert.equal(f.parent(shell()).props.pointerEvents,'none');
   first.props.onStatus({...unknownProviderStatus,loginVisible:false});f.render();
   assert.equal(f.find('UpdateDialog').props.open,false);assert.equal(f.find('CoreFlightFoundation').props.open,true,'Auto-hide retains the admitted job');
+  first.props.onProgress({state:'waiting',last:'prepare',current:null,message:'Saved Sync can continue'});f.render();
+  assert.equal(f.find('UpdateDialog').props.open,true,'An interrupted Sync must show its Continue action');
+  first.props.onProgress({state:'active',last:'prepare',current:'flights'});f.render();
+  assert.equal(f.find('UpdateDialog').props.open,false,'Retrieval returns to the compact header state');
   first.props.close();f.render();
   const retained=f.find('CoreFlightFoundation');assert.equal(retained.props.open,false);assert.equal(retained.props.requestId,first.props.requestId);
   assert.equal(f.parent(shell()).props.pointerEvents,'auto');

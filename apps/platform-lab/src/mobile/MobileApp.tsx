@@ -74,7 +74,7 @@ export default function MobileApp() {
   const syncLock=useRef(false);
   const [syncControls,setSyncControls]=useState<SyncControls|null>(null);
   const syncRunning=!!entry?.open&&entry.intent==='update';
-  const modalOpen=!!entry?.open&&(entry.intent!=='update'||!!providerStatus.loginVisible);
+  const modalOpen=!!entry?.open&&(entry.intent!=='update'||!!providerStatus.loginVisible||syncProgress.state==='waiting');
   useEffect(()=>{
     if(syncProgress.state==='failed'||syncProgress.state==='partial')syncLock.current=false;
     if(syncProgress.state==='failed'){
