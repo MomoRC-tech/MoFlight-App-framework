@@ -178,3 +178,21 @@ Final host checkpoint passed all five groups, including 1,406 mobile tests (2 sk
 Final APK SHA-256: `7c542e940bb42e5bfcdc47b4b2e745b0f4b01584a0300fb17d2d42002beaef29`. [Download the combined APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/sync-progress-500-2026-10-26-18eae2e/moflight-sync-progress-500-18eae2e.zip). Only the normal development-signed APK and sanitized metadata are published; proof APKs, private reports and local logs remain local.
 
 Selected P1–P4 implementation and the bounded P5 host/synthetic-native checkpoint are complete. Remaining acceptance is explicitly **not established**: full live Sync prediction accuracy, changed native/live 500-row retrieval and original-size restoration, real resumed-Sync/cold-launch timing, physical-phone and iOS execution. Existing host account/scope/corruption/rollback/legacy-journal tests and the three native storage recovery cases support their named boundaries only. #90/#41/#92 retain the relevant wider acceptance work; no whole-journey closure or further functionality tradeoff is claimed.
+
+### Successful foreground report follow-up — 26 October 2026
+
+Under #41/#90, Manuel supplied a further private support report from Android source `18eae2e` and confirmed Sync worked when the app stayed visible. One complete foreground run took **216.853 seconds**, compared with **139.548 seconds** in the earlier `ad4b7bd` report. These are observations from different runs, not a controlled regression benchmark: accumulated receipt history, device conditions and provider/network latency are not matched.
+
+The following disjoint windows use operation/event boundaries; they sum to each complete run. Nested diagnostic spans must not be added to these totals.
+
+| Window | Earlier report, seconds | Latest report, seconds |
+| --- | ---: | ---: |
+| Preparation and account checking, before flight retrieval | 33.812 | 59.330 |
+| Flight retrieval and review | 27.263 | 41.337 |
+| Saving and return readback | 56.118 | 94.531 |
+| Optional sources and completion | 22.355 | 21.655 |
+| Total | 139.548 | 216.853 |
+
+The latest run records 12 graph-validation calls totaling 113.851 seconds inclusively, and four repository-open calls totaling 89.195 seconds inclusively. These overlap other stages. Repeated local validation is a concrete investigation target; these measurements do not prove which change caused the increase. The earlier approximately 10% synthetic import improvement bypassed the full selected-owner coordinator path and cannot establish a whole-Sync speed improvement.
+
+Code inspection identifies a bounded duplicate: selection inspects and closes each candidate, then reopens the chosen candidate, causing another full validation replay. The next approved increment retains the chosen handle only within selection, denies writes until recovery classification, and freshly checks graph bytes, manifest/generation and current selection head before returning it. Changed bytes must still validate; account/lease, retained-history recovery and cleanup rules remain enforced. Service-level session consolidation remains deferred. Regression and platform evidence for this increment will be recorded below; no measured speed benefit is claimed yet.
