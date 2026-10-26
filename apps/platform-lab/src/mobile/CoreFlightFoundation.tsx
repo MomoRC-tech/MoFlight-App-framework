@@ -414,7 +414,7 @@ function OwnerFlightLibrary({syncStartedAt,lease,registry,close,startUpdate,open
     },
     journal:async()=>{const journal=await openRealFlightCommandJournal(scope);if(!journal)throw new Error('Prepared-save journal unavailable.');return journal;},
     retrieve:async(request,signal)=>new Promise((resolve,reject)=>{
-      if(!providerEntryAllowed||waiting.current||signal.aborted){reject(new Error('Source request unavailable.'));return;}
+      if(!providerEntryAllowed||waiting.current||signal.aborted||automatic.current&&stopRemainingJobs.current){reject(new Error('Source request unavailable.'));return;}
       let pending:WaitingSource|null=null;
       const abort=()=>{
         if(!pending)return;pending.suppressReview=true;
@@ -534,6 +534,7 @@ function OwnerFlightLibrary({syncStartedAt,lease,registry,close,startUpdate,open
     if(!remainingSyncSources(syncRecord.current?.sources??{})){
       await clearSyncRecovery(scope);syncRecord.current=null;setSavedSync(null);
     }
+    if(!active()&&interruption.current==='background')throw new Error('Sync was interrupted.');
     const partial=completedSyncProgress({pending:result.counts.pending,cleanupPending:!!controller.current.recovery,
       medicalStatus:completed.otherData.medical,dutyStatus:completed.otherData.duties,eventsStatus:completed.otherData.events,
       documentNoticesStatus:completed.otherData.documentNotices,workSummaryStatus:completed.otherData.workSummary,
@@ -543,6 +544,7 @@ function OwnerFlightLibrary({syncStartedAt,lease,registry,close,startUpdate,open
       estimateSaved.current=true;estimateHistory.current=learnSyncEstimate(estimateHistory.current,estimate.current,storedEstimateContext.current??undefined);
       try{await saveSyncEstimateHistory(scope,estimateHistory.current);}catch{/* Only timing hints are lost; saved source results stay authoritative. */}
     }
+    if(!active()&&interruption.current==='background')throw new Error('Sync was interrupted.');
     diagnosis.current?.finish(partial?'partial':'success',completed.otherData.medical==='failed'?'medical-failed':completed.otherData.medical==='skipped'?'medical-skipped':completed.otherData.duties==='failed'?'duties-failed':completed.otherData.duties==='skipped'?'duties-skipped':completed.otherData.events==='failed'?'events-failed':completed.otherData.documentNotices==='failed'?'documents-failed':completed.otherData.workSummary==='failed'?'work-summary-failed':completed.otherData.workHours==='failed'?'work-hours-failed':completed.otherData.tasks==='failed'?'tasks-failed':'none');
     if(alive.current){setLoadStage('done');setStep('Fertig.');setCompleted({ownerId:lease.ownerId,storeId:lease.storeId,accountRef,completedAt:new Date().toISOString(),added:result.counts.added,changed:result.counts.changed,pending:result.counts.pending,
       from,to,
@@ -594,8 +596,12 @@ function OwnerFlightLibrary({syncStartedAt,lease,registry,close,startUpdate,open
       const record:SyncRecoveryRecord={version:1,ownerId:lease.ownerId,storeId:lease.storeId,accountRef:snapshot?.account?.accountRef??null,
         clubLabel:null,startedAt:new Date().toISOString(),flightCaptureId:null,sources:{}};
       await saveSyncRecovery(scope,record);syncRecord.current=record;setSavedSync(record);
+      assertSyncActive();
       await finishAutomaticLoad(async()=>saveFlightReview(await service.retrieveUpdate()));
     },'update-flights');
+  }
+  function assertSyncActive() {
+    if(!alive.current||!foreground.current||!panelActive.current||stopRemainingJobs.current)throw new Error('Sync was interrupted.');
   }
   function continueSync() {
     if(lock.current||!foreground.current||!savedSync||!providerEntryAllowed)return;
@@ -607,15 +613,19 @@ function OwnerFlightLibrary({syncStartedAt,lease,registry,close,startUpdate,open
       prepareEstimate('resume',storedEstimateContext.current?.volume??syncEstimateVolume(null,flights.length),syncEstimateNow(),true,
         savedSync.flightCaptureId?remainingEstimateStages(savedSync.sources):undefined);
       await refresh();
+      assertSyncActive();
       const record=await readSyncRecovery(scope);
+      assertSyncActive();
       if(!record)throw new Error('Saved Sync progress is unavailable.');
       syncRecord.current=record;
       const stored=await service.snapshot();
+      assertSyncActive();
       const flight=recoveredFlight(record,stored);
       if(!flight){
         beginEstimate('resume');
         const restart={...record,accountRef:stored.account?.accountRef??null,clubLabel:null,flightCaptureId:null,sources:{}};
         await saveSyncRecovery(scope,restart);syncRecord.current=restart;setSavedSync(restart);
+        assertSyncActive();
         await finishAutomaticLoad(async()=>saveFlightReview(await service.retrieveUpdate()));return;
       }
       beginEstimate('resume',remainingEstimateStages(record.sources));
@@ -623,11 +633,13 @@ function OwnerFlightLibrary({syncStartedAt,lease,registry,close,startUpdate,open
         jobVerification.current={previous:controller.current.connection,resolve,reject};
         if(!controller.current.checkConnection('check')){jobVerification.current=null;reject(new Error('Account verification unavailable.'));}
       });
+      assertSyncActive();
       if(!foreground.current||controller.current.connection.observed?.accountNumber!==flight.accountRef||
           controller.current.connection.observed?.clubLabel!==record.clubLabel||!controller.current.connection.confirmed)
         throw new Error('Saved Sync account could not be verified.');
       finishStage('account');
       setFlightSaved((await service.list()).length);
+      assertSyncActive();
       await finishAutomaticLoad(async()=>flight,record.sources);
     },'update-flights');
   }
@@ -659,7 +671,12 @@ function OwnerFlightLibrary({syncStartedAt,lease,registry,close,startUpdate,open
           if(pending.timer)clearTimeout(pending.timer);pending.timer=null;
           setLoginPaused(true);setStep('Anmeldung pausiert. Nach der Rückkehr wird sicher fortgesetzt.');return;
         }
-        if(lock.current)interruption.current='background';
+        if(lock.current){
+          interruption.current='background';
+          // Foreground return must not reactivate this explicit attempt while
+          // its local reads, provider work or durable-save cleanup settle.
+          if(automatic.current)stopRemainingJobs.current=true;
+        }
         estimateEvent({type:'terminal',outcome:'cancelled'});stageTiming.current?.end(false);stageTiming.current=null;
         diagnosis.current?.finish('cancelled','background');
         reviewGeneration.current++;
