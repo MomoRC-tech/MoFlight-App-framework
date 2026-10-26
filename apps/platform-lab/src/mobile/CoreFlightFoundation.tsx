@@ -40,6 +40,9 @@ import { canonical as activityCanonical } from '@moflight/flight-logbook';
 import { getPendingUserBackupRestoreNative, restoreUserBackupFromPickerNative, saveUserBackupToFolder } from '../user-backup-native';
 import { AI_BACKUP_NOTICE } from '../ai/backup-notice';
 import type { UserBackupRestoreOperation } from '../user-backup-restore-journal';
+import { recoveredFlight, remainingSyncSources, type SyncRecoveryRecord } from './sync-recovery';
+import { clearSyncRecovery, readSyncRecovery, saveSyncRecovery } from './sync-recovery-native';
+import type { OtherAccountDataResult } from './account-retrieval-jobs';
 
 export type SyncControls={cancel:()=>void;canCancel:boolean};
 export type OptionsDestination = 'settings'|'backup'|'sources';
@@ -300,6 +303,7 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,open=true,requestI
   const [busy,setBusy]=useState(false),[providerOpen,setProviderOpen]=useState(false),[message,setMessage]=useState(''),[failed,setFailed]=useState(false);
   const [review,setReview]=useState<RealFlightReview|null>(null),[flights,setFlights]=useState<RealFlightListItem[]>([]),[page,setPage]=useState(0);
   const [snapshot,setSnapshot]=useState<OwnFlightStoredSnapshot|null>(null),[detail,setDetail]=useState<RealFlightDetail|null>(null),[recovery,setRecovery]=useState<RealFlightRecovery>({status:'none'});
+  const [savedSync,setSavedSync]=useState<SyncRecoveryRecord|null>(null),syncRecord=useRef<SyncRecoveryRecord|null>(null);
   const [restorePreparations,setRestorePreparations]=useState<RealFlightRestorePreparation[]>([]),[restoreReadWarning,setRestoreReadWarning]=useState<string|null>(null);
   const [userRestoreId,setUserRestoreId]=useState<string|null>(null);
   const handledCapture=useRef<string|null>(null);
@@ -386,8 +390,10 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,open=true,requestI
     await timeFlightStage('restore-inspection',refreshRestorePreparations);
     const {snapshot:next,flights:rows}=await timeFlightStage('stored-view',()=>service.readStored(initial??undefined)),
       pending=await timeFlightStage('receipt-recovery',()=>syncEntry?service.prepareFreshFetch():service.recoverPending());
+    const interrupted=await readSyncRecovery(scope);
     diagnosis.current?.note('library',next.recovery.readOnly?'read-only':'ready');diagnosis.current?.note('save',pending.status==='none'?'ready':pending.status==='committed'?'receipt-confirmed':'pending');
-    if(alive.current){setSnapshot(next);setFlights(rows);setRecovery(pending);setPage(current=>Math.min(current,Math.max(0,Math.ceil(rows.length/5)-1)));}
+    if(alive.current){setSnapshot(next);setFlights(rows);setRecovery(pending);setSavedSync(interrupted);syncRecord.current=interrupted;
+      setPage(current=>Math.min(current,Math.max(0,Math.ceil(rows.length/5)-1)));}
     return rows.length;
     } finally { await initial?.close(); }
   }
@@ -410,6 +416,10 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,open=true,requestI
     const verified=selected.confirmed&&selected.observed?selected.observed:
       captured&&handledCapture.current===next.source.capture.captureId&&captured.capture.captureId===next.source.capture.captureId&&selected.phase!=='mismatch'?captured.contextAfter:null;
     if(!verified||!foreground.current)throw new Error('Fresh account verification required.');
+    if(syncRecord.current){
+      const updated={...syncRecord.current,accountRef:next.accountRef,clubLabel:verified.clubLabel,flightCaptureId:next.source.capture.captureId};
+      await saveSyncRecovery(scope,updated);syncRecord.current=updated;setSavedSync(updated);
+    }
     diagnosis.current?.note('provider','account-verified');diagnosis.current?.note('save','pending');
     finishStage('flights');startStage('save');setLoadStage('save');setStep('Flüge werden gespeichert …');
     const result=await service.saveVerifiedReview(next,verified);
@@ -417,12 +427,16 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,open=true,requestI
     const total=await timeFlightStage('return-readback',refresh);setFlightSaved(total);finishStage('save');
     if (next.source.capture.coverage === 'complete-requested-list') await acknowledgeActivity({source:'flights',capturedAt:Date.parse(next.source.capture.retrievedAt),
       committedAt:Date.now(),window:next.source.requestedWindow,participation:next.source.requestedWindow.participation});
-    return {result,source:next};
+    return {result,accountRef:next.accountRef,from:next.source.requestedWindow.from,to:next.source.requestedWindow.to};
   }
-  async function finishAutomaticLoad(flights:()=>ReturnType<typeof saveFlightReview>) {
+  async function finishAutomaticLoad(flights:()=>ReturnType<typeof saveFlightReview>,previous:Partial<OtherAccountDataResult>={}) {
     const active=()=>alive.current&&foreground.current&&panelActive.current&&!stopRemainingJobs.current;
     const completed=await runAccountRetrievalJobs({flights,active,
-      otherData:()=>retrieveOtherAccountData({active,medical:()=>syncStage('medical',()=>timeFlightStage('medical',()=>controller.current.retrieveMedical())),
+      otherData:()=>retrieveOtherAccountData({active,previous,onResult:async(key,status)=>{
+        if(!active()||!['updated','empty','partial'].includes(status)||!syncRecord.current)return;
+        const updated={...syncRecord.current,sources:{...syncRecord.current.sources,[key]:status}} as SyncRecoveryRecord;
+        await saveSyncRecovery(scope,updated);syncRecord.current=updated;setSavedSync(updated);
+      },medical:()=>syncStage('medical',()=>timeFlightStage('medical',()=>controller.current.retrieveMedical())),
         duties:()=>{setStep('Flüge gespeichert. Dienste werden geladen …');
           const account=controller.current.connection.observed?.accountNumber;
           if(!account)return Promise.reject(new Error('Verified duty account unavailable'));
@@ -435,13 +449,17 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,open=true,requestI
       }),
       stage:stage=>{if(stage==='other-data'){setLoadStage('medical');setStep('Flüge gespeichert. Medical wird geladen …');}},
     });
-    const {result,source:next}=completed.flights;
+    if(!active()&&interruption.current==='background')throw new Error('Sync was interrupted.');
+    const {result,accountRef,from,to}=completed.flights;
     const verified=controller.current.connection;
     const optionalSourceStatuses=[completed.otherData.medical,completed.otherData.duties,completed.otherData.events,completed.otherData.documentNotices,completed.otherData.workSummary,completed.otherData.workHours,completed.otherData.tasks];
     const optionalSourceIncomplete=optionalSourceStatuses.some(status=>status==='failed'||status==='skipped');
     diagnosis.current?.finish(optionalSourceIncomplete?'partial':'success',completed.otherData.medical==='failed'?'medical-failed':completed.otherData.medical==='skipped'?'medical-skipped':completed.otherData.duties==='failed'?'duties-failed':completed.otherData.duties==='skipped'?'duties-skipped':completed.otherData.events==='failed'?'events-failed':completed.otherData.documentNotices==='failed'?'documents-failed':completed.otherData.workSummary==='failed'?'work-summary-failed':completed.otherData.workHours==='failed'?'work-hours-failed':completed.otherData.tasks==='failed'?'tasks-failed':'none');
-    if(alive.current){setLoadStage('done');setStep('Fertig.');setCompleted({ownerId:lease.ownerId,storeId:lease.storeId,accountRef:next.accountRef,completedAt:new Date().toISOString(),added:result.counts.added,changed:result.counts.changed,pending:result.counts.pending,
-      from:next.source.requestedWindow.from,to:next.source.requestedWindow.to,
+    if(!remainingSyncSources(syncRecord.current?.sources??{})){
+      await clearSyncRecovery(scope);syncRecord.current=null;setSavedSync(null);
+    }
+    if(alive.current){setLoadStage('done');setStep('Fertig.');setCompleted({ownerId:lease.ownerId,storeId:lease.storeId,accountRef,completedAt:new Date().toISOString(),added:result.counts.added,changed:result.counts.changed,pending:result.counts.pending,
+      from,to,
       verifiedConnection:foreground.current&&!stopRemainingJobs.current&&verified.confirmed?{ownerId:lease.ownerId,state:verified}:undefined,medicalStatus:completed.otherData.medical,dutyStatus:completed.otherData.duties,eventsStatus:completed.otherData.events,documentNoticesStatus:completed.otherData.documentNotices,workSummaryStatus:completed.otherData.workSummary,workHoursStatus:completed.otherData.workHours,tasksStatus:completed.otherData.tasks,cleanupPending:controller.current.recovery});}
   }
   function retryOtherJob(job:'medical'|'duties') {
@@ -485,15 +503,50 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,open=true,requestI
     if(lock.current)return;
     if(!foreground.current)return;
     setSyncProgress(previous=>({state:'active',last:previous.last,current:'account'}));automatic.current=true;returnedResult.current=false;stopRemainingJobs.current=false;interruption.current=null;setCompleted(null);setFlightSaved(null);setLoginPaused(false);setLoadStage('verify');setProviderOpen(true);setStep('Anmeldung wird geprüft …');
-    void run(()=>finishAutomaticLoad(async()=>saveFlightReview(await service.retrieveUpdate())),'update-flights');
+    void run(async()=>{
+      const record:SyncRecoveryRecord={version:1,ownerId:lease.ownerId,storeId:lease.storeId,accountRef:snapshot?.account?.accountRef??null,
+        clubLabel:null,startedAt:new Date().toISOString(),flightCaptureId:null,sources:{}};
+      await saveSyncRecovery(scope,record);syncRecord.current=record;setSavedSync(record);
+      await finishAutomaticLoad(async()=>saveFlightReview(await service.retrieveUpdate()));
+    },'update-flights');
+  }
+  function continueSync() {
+    if(lock.current||!foreground.current||!savedSync||!providerEntryAllowed)return;
+    setSyncProgress(previous=>({state:'active',last:previous.last,current:'account'}));automatic.current=true;returnedResult.current=false;
+    stopRemainingJobs.current=false;interruption.current=null;setCompleted(null);setFlightSaved(null);setLoginPaused(false);
+    setLoadStage('verify');setStep('Gespeicherten Fortschritt und Anmeldung prüfen …');setProviderOpen(true);
+    void run(async()=>{
+      await refresh();
+      const record=await readSyncRecovery(scope);
+      if(!record)throw new Error('Saved Sync progress is unavailable.');
+      syncRecord.current=record;
+      const stored=await service.snapshot();
+      const flight=recoveredFlight(record,stored);
+      if(!flight){
+        const restart={...record,accountRef:stored.account?.accountRef??null,clubLabel:null,flightCaptureId:null,sources:{}};
+        await saveSyncRecovery(scope,restart);syncRecord.current=restart;setSavedSync(restart);
+        await finishAutomaticLoad(async()=>saveFlightReview(await service.retrieveUpdate()));return;
+      }
+      await new Promise<void>((resolve,reject)=>{
+        jobVerification.current={previous:controller.current.connection,resolve,reject};
+        if(!controller.current.checkConnection('check')){jobVerification.current=null;reject(new Error('Account verification unavailable.'));}
+      });
+      if(!foreground.current||controller.current.connection.observed?.accountNumber!==flight.accountRef||
+          controller.current.connection.observed?.clubLabel!==record.clubLabel||!controller.current.connection.confirmed)
+        throw new Error('Saved Sync account could not be verified.');
+      setFlightSaved((await service.list()).length);
+      await finishAutomaticLoad(async()=>flight,record.sources);
+    },'update-flights');
   }
   async function run(work:()=>Promise<unknown>, action:DiagnosticAction='library-operation', initial=false,isCurrent:()=>boolean=()=>true) {
     if(lock.current||!alive.current)return;lock.current=true;setBusy(true);setFailed(false);setMessage('');
     if(!initial&&!diagnosis.current?.running())diagnosis.current=diagnosticJournal.begin(action);
     const operation=diagnosis.current;
-    try{await work();if(isCurrent()&&(!initial||!startUpdate))operation?.finish('success');}catch(error){if(!isCurrent()){diagnosticJournal.record('sync','sync-preparation-superseded');return;}operation?.finish(interruption.current==='cancelled'?'cancelled':error instanceof PendingRealFlightOperation?'blocked':'failed',interruption.current==='cancelled'?'cancelled':error instanceof PendingRealFlightOperation?'recovery-required':controller.current.connection.phase==='mismatch'?'account-mismatch':'operation-failed');if(alive.current){
-      setSyncProgress(previous=>({...previous,state:'failed',message:interruption.current==='cancelled'?'Synchronisierung abgebrochen. Gespeicherte Daten bleiben verfügbar.':controller.current.connection.phase==='mismatch'?'Bitte mit dem bisherigen Vereinsflieger-Konto anmelden.':'Synchronisierung nicht abgeschlossen. Gespeicherte Daten bleiben verfügbar.'}));diagnosticJournal.record('sync','sync-failed');setFailed(true);setLoginPaused(false);
-      setMessage(error instanceof PendingRealFlightOperation?'Der gespeicherte Auftrag muss zuerst über seinen Beleg geprüft werden. Kein neuer Auftrag wurde gestartet.':controller.current.connection.phase==='mismatch'?'Ein anderes Vereinsflieger-Konto oder ein anderer Verein ist angemeldet. Bitte melde dich mit dem bisherigen Konto an. Deine gespeicherten Flüge bleiben erhalten.':interruption.current==='background'?'Abruf unterbrochen, weil die App verlassen wurde. Bitte erneut versuchen. Gespeicherte Daten bleiben erhalten.':interruption.current==='cancelled'?'Vorgang abgebrochen. Gespeicherte Daten bleiben erhalten. Über Sync kannst du später erneut beginnen.':interruption.current==='timeout'?'Der Datenabruf hat zu lange gedauert. Bitte erneut versuchen. Gespeicherte Daten bleiben erhalten.':controller.current.connection.phase==='error'?'Die Anmeldung konnte nicht bestätigt werden. Bitte erneut versuchen. Gespeicherte Daten bleiben erhalten.':controller.current.result==='failed'?retrievalFailureHint(controller.current.status):'Dieser Schritt wurde nicht bestätigt. Bitte erneut versuchen. Gespeicherte Daten und Belege bleiben erhalten.');
+    try{await work();if(isCurrent()&&(!initial||!startUpdate))operation?.finish('success');}catch(error){if(!isCurrent()){diagnosticJournal.record('sync','sync-preparation-superseded');return;}
+      const accountBlocked=controller.current.connection.phase==='mismatch'||error instanceof Error&&error.message==='Saved Sync account could not be verified.';
+      operation?.finish(interruption.current==='cancelled'?'cancelled':error instanceof PendingRealFlightOperation?'blocked':'failed',interruption.current==='cancelled'?'cancelled':error instanceof PendingRealFlightOperation?'recovery-required':accountBlocked?'account-mismatch':'operation-failed');if(alive.current){
+      setSyncProgress(previous=>({...previous,state:'failed',message:interruption.current==='cancelled'?'Synchronisierung abgebrochen. Gespeicherte Daten bleiben verfügbar.':accountBlocked?'Bitte mit dem bisherigen Vereinsflieger-Konto anmelden.':'Synchronisierung nicht abgeschlossen. Gespeicherte Daten bleiben verfügbar.'}));diagnosticJournal.record('sync','sync-failed');setFailed(true);setLoginPaused(false);
+      setMessage(error instanceof PendingRealFlightOperation?'Der gespeicherte Auftrag muss zuerst über seinen Beleg geprüft werden. Kein neuer Auftrag wurde gestartet.':accountBlocked?'Das bisherige Vereinsflieger-Konto konnte nicht bestätigt werden. Bitte mit dem bisherigen Konto anmelden. Gespeicherte Daten bleiben erhalten.':interruption.current==='background'?'Abruf unterbrochen, weil die App verlassen wurde. Nach der Rückkehr kannst du gespeicherten Fortschritt fortsetzen.':interruption.current==='cancelled'?'Vorgang abgebrochen. Gespeicherte Daten bleiben erhalten. Über Sync kannst du später erneut beginnen.':interruption.current==='timeout'?'Der Datenabruf hat zu lange gedauert. Bitte erneut versuchen. Gespeicherte Daten bleiben erhalten.':controller.current.connection.phase==='error'?'Die Anmeldung konnte nicht bestätigt werden. Bitte erneut versuchen. Gespeicherte Daten bleiben erhalten.':controller.current.result==='failed'?retrievalFailureHint(controller.current.status):'Dieser Schritt wurde nicht bestätigt. Bitte erneut versuchen. Gespeicherte Daten und Belege bleiben erhalten.');
       if(error instanceof PendingRealFlightOperation){try{await refresh();}catch{/* Keep the failure and original journal visible. */}}
     }}
     finally{lock.current=false;if(alive.current)setBusy(false);}
@@ -567,8 +620,9 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,open=true,requestI
       setSyncProgress(previous=>({...previous,state:'failed',message:snapshot.recovery.readOnly?'Lokale Daten benötigen eine Prüfung in den Einstellungen. Vorhandene Daten bleiben erhalten.':'Eine begonnene Sicherung oder Speicherung muss in den Einstellungen geprüft werden.'}));return;
     }
     finishStage('prepare');
+    if(savedSync){setSyncProgress(previous=>({...previous,state:'waiting',current:null,message:'Unterbrochene Synchronisierung kann nach Anmeldung fortgesetzt werden.'}));return;}
     loadFlights();
-  },[open,entryReady,intent,requestId,busy,snapshot,c.viewReady,restoreReadWarning,restorePreparations,recovery]);
+  },[open,entryReady,intent,requestId,busy,snapshot,c.viewReady,restoreReadWarning,restorePreparations,recovery,savedSync]);
   useEffect(()=>{
     const subscription=BackHandler.addEventListener('hardwareBackPress',()=>{
       if(!panelActive.current)return false;
@@ -577,7 +631,7 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,open=true,requestI
       if(providerOpen&&waiting.current){
         if(!canCancelCoreFlightSource(controller.current.retrieval.current.state.phase,controller.current.saving,controller.current.restoring.current))return true;
         if(controller.current.visible&&controller.current.backWithinProvider())return true;
-        interruption.current='cancelled';abandonSource('Source closed.');controller.current.dismissLogin();if(!automatic.current)setProviderOpen(false);return true;
+        cancelSync();if(!automatic.current)setProviderOpen(false);return true;
       }
       if(lock.current||controller.current.busy||controller.current.clearing||controller.current.saving||controller.current.restoring.current)return true;
       if(providerOpen){
@@ -655,6 +709,7 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,open=true,requestI
   },[completed,open,busy,c.busy,c.saving,c.restoring.current,c.informationSaving,c.recovery,close]);
   function cancelSync(){
     interruption.current='cancelled';stopRemainingJobs.current=true;diagnosticJournal.record('sync','sync-cancelled');
+    syncRecord.current=null;setSavedSync(null);void clearSyncRecovery(scope).catch(()=>{diagnosticJournal.record('sync','sync-failed');});
     if(waiting.current){abandonSource('Cancelled.');controller.current.dismissLogin();}
     else if(controller.current.informationBusy&&!controller.current.informationSaving)controller.current.stopInformation();
     else if(!busy)close(completed??undefined);
@@ -700,9 +755,11 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,open=true,requestI
   // generic provider panel exposed manual verification before automatic became true.
   const preparationProgress=syncEntry?<Card>
     <Section title="Daten synchronisieren" icon="refresh"/>
-    <Label>{blockedSync?'Eine Wiederherstellung muss zuerst abgeschlossen werden. Gespeicherte Daten bleiben erhalten.':failed?message:'Synchronisierung wird vorbereitet …'}</Label>
-    {!blockedSync&&!failed&&<ActivityIndicator color={colors.cyan}/>}
+    <Label>{blockedSync?'Eine Wiederherstellung muss zuerst abgeschlossen werden. Gespeicherte Daten bleiben erhalten.':failed?message:savedSync&&entryReady?'Gespeicherter Fortschritt wartet auf deine Fortsetzung. Das bisherige Konto wird vorher geprüft.':'Synchronisierung wird vorbereitet …'}</Label>
+    {!blockedSync&&!failed&&!savedSync&&<ActivityIndicator color={colors.cyan}/>}
     {blockedSync&&<Action secondary onPress={()=>setProviderOpen(false)}>Wiederherstellung ansehen</Action>}
+    {savedSync&&entryReady&&!blockedSync&&!failed&&<Action disabled={busy} onPress={continueSync}>Fortsetzen</Action>}
+    {savedSync&&entryReady&&!blockedSync&&!failed&&<Action secondary disabled={busy} onPress={loadFlights}>Neu synchronisieren</Action>}
     {failed&&!blockedSync&&<Action disabled={busy} onPress={()=>void run(async()=>{await refresh();setEntryReady(true);})}>Erneut versuchen</Action>}
   </Card>:undefined;
   const progress=automatic.current&&c.visible&&!failed?<Card><Label>{loginPaused?'Anmeldung pausiert. Nach der Rückkehr geht es weiter.':'Bitte anmelden. Danach werden alle unterstützten Daten automatisch synchronisiert.'}</Label></Card>:automatic.current?<Card>
@@ -728,7 +785,8 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,open=true,requestI
       {['failed','skipped'].includes(completed.dutyStatus??'')&&<Action secondary disabled={busy||c.recovery} onPress={()=>retryOtherJob('duties')}>Nur Dienste erneut laden</Action>}
       <Action disabled={busy} onPress={()=>close(completed)}>{partial?'Zur Übersicht':'Fertig'}</Action>
     </>:failed?<>
-      <Action disabled={busy||restoreReadOnly||c.recovery||recovery.status==='not-committed'||recovery.status==='recovery-required'} onPress={loadFlights}>Erneut versuchen</Action>
+      {savedSync&&<Action disabled={busy||restoreReadOnly||c.recovery||recovery.status==='recovery-required'} onPress={continueSync}>Gespeicherten Fortschritt fortsetzen</Action>}
+      <Action secondary={!!savedSync} disabled={busy||restoreReadOnly||c.recovery||recovery.status==='not-committed'||recovery.status==='recovery-required'} onPress={loadFlights}>Neu synchronisieren</Action>
       {(restoreReadOnly||c.recovery||c.connection.phase==='mismatch'||recovery.status==='not-committed'||recovery.status==='recovery-required')&&<Action secondary disabled={busy} onPress={()=>{automatic.current=false;setProviderOpen(false);}}>Verbindung & Wiederherstellung prüfen</Action>}
     </>:<>
       {loginPaused&&<Label muted>Bitte zur App zurückkehren. Es wurde noch kein Flugabruf gestartet.</Label>}
@@ -829,7 +887,7 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,open=true,requestI
         foreground guards still suspend verification, retrieval and writes until return. */}
     <ProviderConnection minimal={syncEntry||destination==='settings'} administration={destination==='settings'} dialogTop={dialogTop} developmentRecoveryCheckpoints={developmentRecoveryCheckpoints} controller={c} open={open&&providerOpen&&(providerEntryAllowed||destination==='settings'&&c.visible)} development={intent==='development'} guided={syncEntry||automatic.current} title={syncEntry?'Daten synchronisieren':undefined} progress={progress??preparationProgress} closeDisabled={automatic.current&&busy&&(loadStage==='save'||c.saving||c.restoring.current)} purpose="own-flight-library" close={()=>{
       if(automatic.current){
-        if(waiting.current){interruption.current='cancelled';abandonSource('Source closed.');c.dismissLogin();return;}
+        if(waiting.current){cancelSync();return;}
         if(busy){
           if(jobVerification.current){const pending=jobVerification.current;jobVerification.current=null;pending.reject(new Error('Verification cancelled.'));c.dismissLogin();}
           else if(loadStage==='medical'){

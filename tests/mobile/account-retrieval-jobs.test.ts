@@ -77,3 +77,22 @@ test('all supported optional sources run once independently and interruption ski
     assert.deepEqual(result,{medical:'failed',duties:'partial',events:interrupt?'skipped':'failed',documentNotices:interrupt?'skipped':'partial',workSummary:interrupt?'skipped':'failed',workHours:interrupt?'skipped':'partial',tasks:interrupt?'skipped':'partial'});
   }
 });
+
+test('resumed optional Sync skips saved sources and retries only unfinished sources',async()=>{
+  const calls:string[]=[],receipts:string[]=[];
+  const result=await retrieveOtherAccountData({active:()=>true,
+    previous:{medical:'updated',duties:'partial',events:'partial'},
+    onResult:async(key,status)=>{receipts.push(`${key}:${status}`);},
+    medical:async()=>{calls.push('medical');return {rows:[]};},
+    duties:async()=>{calls.push('duties');return {rows:[],partial:true};},
+    events:async()=>{calls.push('events');return {rows:[]};},
+    documentNotices:async()=>{calls.push('documents');return {rows:[]};},
+    workSummary:async()=>{calls.push('work-summary');throw new Error('offline');},
+    workHours:async()=>{calls.push('work-hours');return {rows:[]};},
+    tasks:async()=>{calls.push('tasks');return {rows:[]};},
+  });
+  assert.deepEqual(calls,['documents','work-summary','work-hours','tasks']);
+  assert.deepEqual(receipts,['documentNotices:partial','workSummary:failed','workHours:partial','tasks:partial']);
+  assert.equal(result.medical,'updated');assert.equal(result.duties,'partial');assert.equal(result.events,'partial');
+  assert.equal(result.workSummary,'failed');
+});

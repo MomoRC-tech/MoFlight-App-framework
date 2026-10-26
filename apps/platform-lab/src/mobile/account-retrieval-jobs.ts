@@ -13,17 +13,24 @@ export async function retrieveOtherAccountData(ports:{
   workHours?:()=>Promise<{rows:readonly unknown[]}>;
   tasks?:()=>Promise<{rows:readonly unknown[]}>;
   active:()=>boolean;
+  previous?:Partial<OtherAccountDataResult>;
+  onResult?:(key:keyof OtherAccountDataResult,status:MedicalJobStatus|DutyJobStatus|FeatureJobStatus)=>Promise<void>;
 }):Promise<OtherAccountDataResult> {
-  const result:OtherAccountDataResult={medical:'skipped'};
-  if(ports.active())try {
-    const capture=await ports.medical();
-    result.medical=ports.active()?(capture.rows.length?'updated':'empty'):'skipped';
-  } catch { result.medical=ports.active()?'failed':'skipped'; }
+  const result:OtherAccountDataResult={medical:'skipped',...ports.previous};
+  if(!['updated','empty'].includes(result.medical)){
+    if(ports.active())try {
+      const capture=await ports.medical();
+      result.medical=ports.active()?(capture.rows.length?'updated':'empty'):'skipped';
+    } catch { result.medical=ports.active()?'failed':'skipped'; }
+    if(ports.active())await ports.onResult?.('medical',result.medical);
+  }
   for(const key of ['duties','events','documentNotices','workSummary','workHours','tasks'] as const){
     const job=ports[key];if(!job)continue;
+    if(result[key]==='partial')continue;
     result[key]='skipped';if(!ports.active())continue;
     try { await job();result[key]=ports.active()?'partial':'skipped'; }
     catch { result[key]=ports.active()?'failed':'skipped'; }
+    if(ports.active())await ports.onResult?.(key,result[key]);
   }
   return result;
 }
