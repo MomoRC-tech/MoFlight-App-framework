@@ -536,6 +536,16 @@ test('a restarted Sync reads durable progress, skips committed flights and saved
   }finally{f.dispose();}
 });
 
+test('header Sync opens the recovery offer even though ordinary Settings keeps its provider hidden',async()=>{
+  const progress:syncRecovery.SyncRecoveryRecord={version:1,ownerId:'owner',storeId:'store',accountRef:'101',clubLabel:'Example',
+    startedAt:'2026-10-26T10:00:00Z',flightCaptureId:'fresh',sources:{medical:'updated'}};
+  const f=fixture({intent:'update',destination:'settings',initialFlightsSaved:true,initialSavedSync:progress});try{
+    f.render();await f.flush();
+    const panel=f.nodes().find(n=>n.type==='ProviderConnection')!;
+    assert.equal(panel.props.open,true);assert.match(f.progressText(),/Fortsetzen/);
+  }finally{f.dispose();}
+});
+
 test('a changed provider account blocks saved-flight continuation and optional retrieval',async()=>{
   const progress:syncRecovery.SyncRecoveryRecord={version:1,ownerId:'owner',storeId:'store',accountRef:'101',clubLabel:'Example',
     startedAt:'2026-10-26T10:00:00Z',flightCaptureId:'fresh',sources:{medical:'updated'}};

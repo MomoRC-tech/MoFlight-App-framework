@@ -1,4 +1,4 @@
-import {idleSyncProgress,startSyncStage,finishSyncStage,completedSyncProgress,type SyncProgress,type SyncStage} from './sync-progress';
+import {idleSyncProgress,updateSyncCount,startSyncStage,finishSyncStage,completedSyncProgress,type SyncProgress,type SyncStage} from './sync-progress';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, AppState, BackHandler, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -260,9 +260,11 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,open=true,requestI
     } catch { /* Advisory failure cannot undo or misreport an already committed source sync. */ }
   }
   async function refreshDuties(account: string, active: () => boolean) {
+    let pagesDone=0;
     const captures: { marker: import('../vereinsflieger/activity-probe').ActivityProbeSource; capturedAt:number }[] = [];
     const result = await refreshDutyRoster(lease.ownerId, account, {active, readPage: async source => {
       const capture = await controller.current.retrieveDutyPage(source);
+      if(active())setSyncProgress(previous=>updateSyncCount(previous,'duties',{done:++pagesDone,total:2,unit:'requests'}));
       const marker = controller.current.takeDutyActivity(capture.id);
       if (marker && !capture.coverage.truncated && marker.markers.count === capture.rows.length)
         captures.push({marker,capturedAt:Date.parse(capture.retrievedAt)});
@@ -296,6 +298,10 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,open=true,requestI
   }, [open, c.viewReady, c.connection, lease]);
   const reviewGeneration=useRef(0),directAdmission=useRef<CoreFlightReviewAdmission|null>(null),invalidatedRetrievals=useRef(new Set<string>());
   const [syncProgress,setSyncProgress]=useState<SyncProgress>(intent==='update'||intent==='connect'?{state:'active',last:null,current:'prepare'}:idleSyncProgress);
+  useEffect(()=>{
+    if(!c.flightProgress||!open||!foreground.current)return;
+    setSyncProgress(previous=>updateSyncCount(previous,'flights',{...c.flightProgress!,unit:'flights'}));
+  },[c.flightProgress,open]);
   const reportedStage=useRef<SyncStage|null>(null);
   function startStage(stage:SyncStage){if(reportedStage.current!==stage){reportedStage.current=stage;diagnosticJournal.record('sync',`sync-${stage}`);}setSyncProgress(previous=>startSyncStage(previous,stage));}
   function finishStage(stage:SyncStage){diagnosticJournal.record('sync','sync-stage-finished');setSyncProgress(previous=>finishSyncStage(previous,stage));}
@@ -321,7 +327,10 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,open=true,requestI
   // is never an intermediate user destination.
   const syncEntry=intent==='update'||intent==='connect';
   useEffect(()=>{setAdvanced(false);},[destination,requestId]);
-  useEffect(()=>{if(destination==='settings'&&!c.visible&&!c.disconnecting)setProviderOpen(false);},[destination,c.visible,c.disconnecting]);
+  useEffect(()=>{
+    if(destination==='settings'&&!c.visible&&!c.disconnecting&&!automatic.current)
+      setProviderOpen(syncEntry&&!!savedSync);
+  },[destination,c.visible,c.disconnecting,syncEntry,savedSync]);
   useEffect(()=>{if(!onStatus)return;onStatus({activity:{storeId:lease.storeId,accountRef:c.activityScope?.context.accountNumber??null,changed:activityChanged},loginVisible:c.visible,ownerId:lease.ownerId,connection:c.connection,browserActive:c.browserActive,clearing:c.clearing,binding:c.binding,busy:c.busy,loginBusy:c.loginBusy,disconnecting:c.disconnecting,saving:c.saving,recovery:c.recovery,restoring:{current:c.restoring.current}});},[onStatus,lease.ownerId,activityChanged,c.activityScope,c.visible,c.connection,c.browserActive,c.clearing,c.binding,c.busy,c.loginBusy,c.disconnecting,c.saving,c.recovery,c.restoring.current]);
   const scope=useMemo<RealFlightNativeScope>(()=>({registry,lease,authorize:()=>alive.current ? {ownerId:lease.ownerId,storeId:lease.storeId,leaseId:lease.leaseId,writable:foreground.current&&panelActive.current} : null}),[registry,lease]);
   function finishSource(error?:Error,source?:RealFlightSourceInput) {
@@ -421,7 +430,10 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,open=true,requestI
       await saveSyncRecovery(scope,updated);syncRecord.current=updated;setSavedSync(updated);
     }
     diagnosis.current?.note('provider','account-verified');diagnosis.current?.note('save','pending');
-    finishStage('flights');startStage('save');setLoadStage('save');setStep('Flüge werden gespeichert …');
+    const count={done:next.source.capture.rows.length,total:next.source.capture.rows.length,unit:'flights' as const};
+    setSyncProgress(previous=>updateSyncCount(previous,'flights',count));
+    finishStage('flights');startStage('save');
+    setSyncProgress(previous=>updateSyncCount(previous,'save',{...count,done:0}));setLoadStage('save');setStep('Flüge werden gespeichert …');
     const result=await service.saveVerifiedReview(next,verified);
     diagnosis.current?.note('save','receipt-confirmed');
     const total=await timeFlightStage('return-readback',refresh);setFlightSaved(total);finishStage('save');
