@@ -84,6 +84,42 @@ test('library phase hooks measure actual replay, derivation, writes and fresh du
  assert.deepEqual(await f.library.snapshot(),before);op.finish('success');failed.finish('failed');
 });
 
+test('save reuses exact pre-write evidence but validates new bytes and idempotent retries still reread', async t => {
+  const f = await setup(t);
+  await bind(f.library);
+  const input = source('prewrite-reuse', [row('101')]);
+  const plan = await f.library.prepareImport(input);
+  const command = {version:1 as const,kind:'import-unassigned' as const,ownerId:ownerA,storeId:storeA,
+    commandId:commandId(2),baseGeneration:plan.baseGeneration,bindingId:plan.bindingId,source:input,planToken:plan.planToken,at};
+  const journal = new DiagnosticJournal(), first = journal.begin('update-flights');
+  const saved = await f.library.commit(command, first.span); first.finish('success');
+  assert.equal(journal.snapshot()[0]!.stages.find(stage => stage.name === 'graph-validation')?.calls, 1,
+    'only the changed post-write graph needs full replay');
+  const before = await f.library.snapshot(), retry = journal.begin('update-flights');
+  assert.deepEqual(await f.library.commit(command, retry.span), saved); retry.finish('success');
+  const stages = journal.snapshot().at(-1)!.stages;
+  assert.ok(stages.some(stage => stage.name === 'graph-read'));
+  assert.ok(!stages.some(stage => stage.name === 'graph-validation' || stage.name === 'graph-writes'));
+  assert.deepEqual(await f.library.snapshot(), before);
+});
+
+test('save replays a valid graph changed by another handle before writing', async t => {
+  const f = await setup(t);
+  await bind(f.library);
+  const writer = await RealFlightLibrary.open(f.db, ownerA, storeA, hash, f.authorize);
+  await save(writer, source('external-write', [row('101')]), 2);
+  const input = source('after-external-write', [row('101','14')]);
+  const plan = await writer.prepareImport(input);
+  const journal = new DiagnosticJournal(), op = journal.begin('update-flights');
+  await f.library.commit({version:1,kind:'import-unassigned',ownerId:ownerA,storeId:storeA,
+    commandId:commandId(3),baseGeneration:plan.baseGeneration,bindingId:plan.bindingId,
+    source:input,planToken:plan.planToken,at},op.span); op.finish('success');
+  assert.equal(journal.snapshot()[0]!.stages.find(stage => stage.name === 'graph-validation')?.calls,2,
+    'both externally changed pre-write bytes and our new post-write bytes require replay');
+  assert.equal((await f.library.snapshot()).generation,3);
+  assert.equal((await f.library.list())[0]!.facts.assessment.durations.flight.minutes,14);
+});
+
 test('committed readback reuses validated bytes while unchanged captures still append receipts and evidence', async t => {
   let calls = 0, beforeReadback = -1;
   const counted: Hash = async value => { calls++; return hash(value); };
@@ -199,7 +235,14 @@ test('same-generation forged records and failed replay cannot populate exact-gra
     });
   t.after(()=>library.close());
   await bind(library);await save(library,source('cached-records',[row('101')]),2);
-  await library.snapshot();corrupt=true;
+  await library.snapshot();
+  const input=source('reject-prewrite-corruption',[row('101','14')]),plan=await library.prepareImport(input);
+  const command={kind:'import-unassigned' as const,commandId:commandId(3),baseGeneration:plan.baseGeneration,
+    bindingId:plan.bindingId,source:input,planToken:plan.planToken,at};
+  corrupt=true;
+  await assert.rejects(library.saveUnassigned(command),/record graph/);
+  assert.equal((await db.first<{count:number}>('SELECT COUNT(*) AS count FROM real_history_receipts'))!.count,2,
+    'same-generation corruption is rejected before a receipt is appended');
   for(let attempt=0;attempt<2;attempt++){
     const before=calls;await assert.rejects(library.readStored(),/record graph/);
     assert.ok(calls>before,'a rejected graph is never memoized');

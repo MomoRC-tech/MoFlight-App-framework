@@ -292,12 +292,17 @@ export class RealFlightLibrary {
       await this.db.transaction(async tx => {
         this.allowed(true); await checkSchema(tx);
         const graph = await measured('graph-read',timing,()=>authorizedGraph(tx,this.allowed(true)));
-        await measured('graph-validation',timing,()=>validateRealFlightGraph(graph,this.hash));
+        // As on reads, reuse replay only for exact bytes this handle already
+        // validated. The transactional reread and post-write replay remain fresh.
+        const text = measuredValue('graph-canonicalization',timing,()=>canonical(graph));
+        if (text !== this.validatedGraphText) {
+          await measured('graph-validation',timing,()=>validateRealFlightGraph(graph,this.hash));
+        }
         realFlightRequire(canonical(graph.manifest) === canonical(this.manifest), 'Real flight history manifest changed.');
         const old = graph.receipts.find(receipt => receipt.command_id === command.commandId);
         if (old) {
           realFlightRequire(old.request_json === request, 'Real flight history idempotency ID reused with different input.');
-          validatedText = measuredValue('graph-canonicalization',timing,()=>canonical(graph));
+          validatedText = text;
           result = JSON.parse(old.result_json) as RealFlightResult; alreadyCommitted = true; completed = true; return;
         }
         const next = await measured('import-derivation',timing,()=>deriveRealFlightCommand(graph,command,this.hash)); result = next.result;
