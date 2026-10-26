@@ -1,0 +1,166 @@
+{
+  "source_commit": "9eccbf7082ca2a4a4217c4233d8ad961e782550d",
+  "evidence_kind": "user-supplied Android report; one session, unmatched input; no speedup ratio",
+  "operations": [
+    {
+      "sequence": 5846,
+      "action": "start-screen",
+      "outcome": "success",
+      "code": "none",
+      "offset": 0,
+      "milliseconds": 12679
+    },
+    {
+      "sequence": 5849,
+      "action": "read-flights",
+      "outcome": "success",
+      "code": "none",
+      "offset": 194,
+      "milliseconds": 12488
+    },
+    {
+      "sequence": 5862,
+      "action": "start-presentation",
+      "outcome": "success",
+      "code": "none",
+      "offset": 11670,
+      "milliseconds": 634
+    },
+    {
+      "sequence": 5866,
+      "action": "read-flight-detail",
+      "outcome": "failed",
+      "code": "operation-failed",
+      "offset": 21809,
+      "milliseconds": 278
+    },
+    {
+      "sequence": 5872,
+      "action": "read-flights",
+      "outcome": "success",
+      "code": "none",
+      "offset": 47113,
+      "milliseconds": 12597
+    },
+    {
+      "sequence": 5874,
+      "action": "start-presentation",
+      "outcome": "cancelled",
+      "code": "stale-selection",
+      "offset": 58652,
+      "milliseconds": 17852
+    },
+    {
+      "sequence": 5885,
+      "action": "read-flight-detail",
+      "outcome": "failed",
+      "code": "operation-failed",
+      "offset": 64753,
+      "milliseconds": 316
+    },
+    {
+      "sequence": 5901,
+      "action": "update-flights",
+      "outcome": "success",
+      "code": "none",
+      "offset": 76516,
+      "milliseconds": 104761
+    },
+    {
+      "sequence": 6103,
+      "action": "read-flights",
+      "outcome": "success",
+      "code": "none",
+      "offset": 181336,
+      "milliseconds": 13431
+    },
+    {
+      "sequence": 6113,
+      "action": "start-presentation",
+      "outcome": "success",
+      "code": "none",
+      "offset": 193683,
+      "milliseconds": 10206
+    },
+    {
+      "sequence": 6119,
+      "action": "read-flight-detail",
+      "outcome": "failed",
+      "code": "operation-failed",
+      "offset": 207876,
+      "milliseconds": 328
+    }
+  ],
+  "status_events": [
+    {
+      "sequence": 5851,
+      "offset": 196,
+      "target": "sync-status-unknown"
+    },
+    {
+      "sequence": 5863,
+      "offset": 12305,
+      "target": "sync-status-saved"
+    },
+    {
+      "sequence": 5869,
+      "offset": 22110,
+      "target": "sync-status-read-error"
+    },
+    {
+      "sequence": 5873,
+      "offset": 47203,
+      "target": "sync-status-unknown"
+    },
+    {
+      "sequence": 5875,
+      "offset": 59010,
+      "target": "sync-status-saved"
+    },
+    {
+      "sequence": 5888,
+      "offset": 65093,
+      "target": "sync-status-read-error"
+    },
+    {
+      "sequence": 5900,
+      "offset": 76516,
+      "target": "sync-status-active"
+    },
+    {
+      "sequence": 5912,
+      "offset": 102047,
+      "target": "sync-status-waiting"
+    },
+    {
+      "sequence": 5947,
+      "offset": 110589,
+      "target": "sync-status-active"
+    },
+    {
+      "sequence": 6102,
+      "offset": 181315,
+      "target": "sync-success"
+    },
+    {
+      "sequence": 6105,
+      "offset": 181366,
+      "target": "sync-status-read-error"
+    },
+    {
+      "sequence": 6114,
+      "offset": 194060,
+      "target": "sync-status-success"
+    },
+    {
+      "sequence": 6122,
+      "offset": 208234,
+      "target": "sync-status-read-error"
+    }
+  ],
+  "limits": [
+    "No underlying exception text in exported detail failure. Root cause established separately through code/regression.",
+    "Successful Sync terminal does not imply every intermediate provider attempt succeeded.",
+    "Start timings are JS/render proxies, not native launch-to-pixels."
+  ]
+}

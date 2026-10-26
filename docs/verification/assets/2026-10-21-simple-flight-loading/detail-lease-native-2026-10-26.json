@@ -1,0 +1,289 @@
+{
+  "source_commit": "78748e15ec78646857d42d8ff3c8e9f7fe9d6227",
+  "apk_sha256": "dde2d8f840054db40402e975d872c1fd86dda65969d3f3c772290c5eb4b4a2aa",
+  "status": "passed",
+  "normalApkRestored": true,
+  "environment": {
+    "airplane_mode_on": "1",
+    "wifi_on": "0",
+    "mobile_data": "0",
+    "size": "Physical size: 1080x1920",
+    "density": "Physical density: 420",
+    "font": "1.0"
+  },
+  "runs": [
+    {
+      "result": {
+        "version": 1,
+        "mode": "seed",
+        "initialGeneration": 6,
+        "finalGeneration": 7,
+        "flightCount": 101,
+        "changedSelectionRejected": true,
+        "refreshedListChanged": true,
+        "persistedReadback": null,
+        "distinctReadLeases": 16,
+        "changedOwnerSelectionRejected": true,
+        "renderMetric": "diagnostic React layout effect and following requestAnimationFrame callback; not tap-to-visible or physical frame presentation",
+        "sourceReadback": {
+          "checks": [
+            "actual saveAndLoadInformation committed payload and fresh-open equality",
+            "actual saveAndLoadDutyRoster committed payload and fresh-open equality",
+            "foreign observed account and cancelled gate rejected; committed synthetic data unchanged",
+            "native duty expiry removes only synthetic cache; Medical evidence retained"
+          ],
+          "syntheticOwner": "native-readback-9edeab8d-bdec-4359-a1ed-7dd8d9acb068",
+          "limitation": "Synthetic native helper proof only; no live provider, process restart, UI journey or iOS acceptance. One unique synthetic provider registry row and information/cache files remain; existing rows and selected owner are preserved."
+        },
+        "maxHeartbeatIntervalMilliseconds": 269.838700003922,
+        "sampleCount": 5
+      },
+      "samples": [
+        {
+          "index": 1,
+          "fullDetailEqual": true,
+          "fresh": {
+            "milliseconds": 1318.2458999976516,
+            "hashCalls": 355,
+            "render": {
+              "renderCommitMilliseconds": 25.08839999884367,
+              "nextFrameCallbackMilliseconds": 63.72140000015497
+            }
+          },
+          "retained": {
+            "milliseconds": 147.1355000063777,
+            "hashCalls": 0,
+            "guardChecks": 2,
+            "render": {
+              "renderCommitMilliseconds": 4.7976000010967255,
+              "nextFrameCallbackMilliseconds": 43.03310000151396
+            }
+          }
+        },
+        {
+          "index": 2,
+          "fullDetailEqual": true,
+          "fresh": {
+            "milliseconds": 1341.674699999392,
+            "hashCalls": 355,
+            "render": {
+              "renderCommitMilliseconds": 3.6942999958992004,
+              "nextFrameCallbackMilliseconds": 40.24960000067949
+            }
+          },
+          "retained": {
+            "milliseconds": 137.0925000011921,
+            "hashCalls": 0,
+            "guardChecks": 2,
+            "render": {
+              "renderCommitMilliseconds": 4.856499999761581,
+              "nextFrameCallbackMilliseconds": 35.1554000005126
+            }
+          }
+        },
+        {
+          "index": 3,
+          "fullDetailEqual": true,
+          "fresh": {
+            "milliseconds": 1204.996299996972,
+            "hashCalls": 355,
+            "render": {
+              "renderCommitMilliseconds": 4.576799996197224,
+              "nextFrameCallbackMilliseconds": 52.025600001215935
+            }
+          },
+          "retained": {
+            "milliseconds": 135.36910000443459,
+            "hashCalls": 0,
+            "guardChecks": 2,
+            "render": {
+              "renderCommitMilliseconds": 4.84570000320673,
+              "nextFrameCallbackMilliseconds": 36.417500004172325
+            }
+          }
+        },
+        {
+          "index": 4,
+          "fullDetailEqual": true,
+          "fresh": {
+            "milliseconds": 1341.0235000029206,
+            "hashCalls": 355,
+            "render": {
+              "renderCommitMilliseconds": 3.7821000069379807,
+              "nextFrameCallbackMilliseconds": 43.31680000573397
+            }
+          },
+          "retained": {
+            "milliseconds": 149.35280000418425,
+            "hashCalls": 0,
+            "guardChecks": 2,
+            "render": {
+              "renderCommitMilliseconds": 4.004700005054474,
+              "nextFrameCallbackMilliseconds": 39.06989999860525
+            }
+          }
+        },
+        {
+          "index": 5,
+          "fullDetailEqual": true,
+          "fresh": {
+            "milliseconds": 1298.342699997127,
+            "hashCalls": 355,
+            "render": {
+              "renderCommitMilliseconds": 4.498599998652935,
+              "nextFrameCallbackMilliseconds": 36.821299999952316
+            }
+          },
+          "retained": {
+            "milliseconds": 133.92899999767542,
+            "hashCalls": 0,
+            "guardChecks": 2,
+            "render": {
+              "renderCommitMilliseconds": 3.6350999996066093,
+              "nextFrameCallbackMilliseconds": 42.73430000245571
+            }
+          }
+        }
+      ]
+    },
+    {
+      "result": {
+        "version": 1,
+        "mode": "reopen",
+        "initialGeneration": 7,
+        "finalGeneration": 8,
+        "flightCount": 101,
+        "changedSelectionRejected": true,
+        "refreshedListChanged": true,
+        "persistedReadback": true,
+        "distinctReadLeases": 16,
+        "changedOwnerSelectionRejected": true,
+        "renderMetric": "diagnostic React layout effect and following requestAnimationFrame callback; not tap-to-visible or physical frame presentation",
+        "sourceReadback": {
+          "checks": [
+            "actual saveAndLoadInformation committed payload and fresh-open equality",
+            "actual saveAndLoadDutyRoster committed payload and fresh-open equality",
+            "foreign observed account and cancelled gate rejected; committed synthetic data unchanged",
+            "native duty expiry removes only synthetic cache; Medical evidence retained"
+          ],
+          "syntheticOwner": "native-readback-afbfa1f5-3e0f-467c-bcc2-8c1504b9716e",
+          "limitation": "Synthetic native helper proof only; no live provider, process restart, UI journey or iOS acceptance. One unique synthetic provider registry row and information/cache files remain; existing rows and selected owner are preserved."
+        },
+        "maxHeartbeatIntervalMilliseconds": 256.05889999866486,
+        "sampleCount": 5
+      },
+      "samples": [
+        {
+          "index": 1,
+          "fullDetailEqual": true,
+          "fresh": {
+            "milliseconds": 1836.0033000037074,
+            "hashCalls": 463,
+            "render": {
+              "renderCommitMilliseconds": 25.60310000181198,
+              "nextFrameCallbackMilliseconds": 66.06669999659061
+            }
+          },
+          "retained": {
+            "milliseconds": 185.45000000298023,
+            "hashCalls": 0,
+            "guardChecks": 2,
+            "render": {
+              "renderCommitMilliseconds": 6.626900002360344,
+              "nextFrameCallbackMilliseconds": 47.16149999946356
+            }
+          }
+        },
+        {
+          "index": 2,
+          "fullDetailEqual": true,
+          "fresh": {
+            "milliseconds": 1792.6955999955535,
+            "hashCalls": 463,
+            "render": {
+              "renderCommitMilliseconds": 3.989999994635582,
+              "nextFrameCallbackMilliseconds": 38.80249999463558
+            }
+          },
+          "retained": {
+            "milliseconds": 126.84779999405146,
+            "hashCalls": 0,
+            "guardChecks": 2,
+            "render": {
+              "renderCommitMilliseconds": 5.325500003993511,
+              "nextFrameCallbackMilliseconds": 49.756999999284744
+            }
+          }
+        },
+        {
+          "index": 3,
+          "fullDetailEqual": true,
+          "fresh": {
+            "milliseconds": 1813.9253999963403,
+            "hashCalls": 463,
+            "render": {
+              "renderCommitMilliseconds": 3.776399999856949,
+              "nextFrameCallbackMilliseconds": 52.7597000002861
+            }
+          },
+          "retained": {
+            "milliseconds": 191.97330000251532,
+            "hashCalls": 0,
+            "guardChecks": 2,
+            "render": {
+              "renderCommitMilliseconds": 4.506899997591972,
+              "nextFrameCallbackMilliseconds": 51.09440000355244
+            }
+          }
+        },
+        {
+          "index": 4,
+          "fullDetailEqual": true,
+          "fresh": {
+            "milliseconds": 1883.5059999972582,
+            "hashCalls": 463,
+            "render": {
+              "renderCommitMilliseconds": 3.7109000012278557,
+              "nextFrameCallbackMilliseconds": 50.19839999824762
+            }
+          },
+          "retained": {
+            "milliseconds": 144.71180000156164,
+            "hashCalls": 0,
+            "guardChecks": 2,
+            "render": {
+              "renderCommitMilliseconds": 3.6547000035643578,
+              "nextFrameCallbackMilliseconds": 40.437200002372265
+            }
+          }
+        },
+        {
+          "index": 5,
+          "fullDetailEqual": true,
+          "fresh": {
+            "milliseconds": 1713.5547000020742,
+            "hashCalls": 463,
+            "render": {
+              "renderCommitMilliseconds": 3.811700001358986,
+              "nextFrameCallbackMilliseconds": 32.16290000081062
+            }
+          },
+          "retained": {
+            "milliseconds": 157.12100000679493,
+            "hashCalls": 0,
+            "guardChecks": 2,
+            "render": {
+              "renderCommitMilliseconds": 3.825100004673004,
+              "nextFrameCallbackMilliseconds": 25.502400003373623
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "limits": [
+    "Synthetic Android isolated registry and shared production owner guard; production native adapter separately host tested",
+    "Not physical phone or live-provider acceptance",
+    "First attempt stopped before proof: no pid after launch; cleanup passed. Bounded retry recorded here."
+  ]
+}

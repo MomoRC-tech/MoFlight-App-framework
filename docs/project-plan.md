@@ -2,6 +2,8 @@
 
 ## Current baseline — 26 October 2026
 
+**#41 phone regression corrected:** APK 9eccbf7 rejected every detail because it compared temporary leases across separate read sessions. Correction 78748e1 compares durable owner-selection sequence while preserving current authorization and selection guards. Real-registry host regression and enhanced Android offline seed/reopen pass; phone retest remains open. [Evidence and corrected APK](verification/2026-10-21-simple-flight-loading.md#phone-detail-regression--26-october-2026). The reported transient Sync warning was prior local-read failure pending successful list refresh; Sync itself completed successfully.
+
 **#94 flight-filter sheet, source increment:** temporary selectors now have a raised sheet, explicit title/Close, visible radio choice and empty registration-search feedback. Immediate application, dismissal without changes, other filters and list position remain covered by 50 focused presentation/lifecycle checks. TypeScript and scoped lint pass. Native/keyboard acceptance is batched with the next coherent UI package; the current APK remains `4f59f70`. [Evidence](verification/2026-10-26-material-settings.md#flight-filter-sheet-source-increment).
 
 **#94 secondary-page continuation:** Help, Medical and Status now share a child-page header and clearer topic/source/status groups. Start and global colors remain unchanged. Focused host tests (76), TypeScript, scoped lint, Android/iOS bundles, committed-source Release and a brief dark native checkpoint pass in APK `4f59f70` (Medical empty state, Status, Help and Back). [Package evidence](verification/2026-10-26-material-settings.md#secondary-page-continuation). Broader dialogs/navigation and light-theme acceptance remain open.
