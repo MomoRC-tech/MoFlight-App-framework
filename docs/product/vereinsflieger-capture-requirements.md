@@ -40,6 +40,8 @@ The [read-only saved-source review](../verification/2026-10-26-instructor-pic-so
 
 A “flight with an instructor on board” filter or paper-writing decision requires flight-linked explicit FI evidence or a reviewed provider/club mapping tied to the person. Keep legal command, instructor function and PIC/Dual/FI time distinct. The historical prototype rule that always places `Begleiter/FI` in PIC is superseded for current source interpretation; its original snapshot remains unchanged.
 
+The provider's preserved [REST specification](../reference/vereinsflieger/rest-api-2026-05-12.pdf) distinguishes `uidattendant` (companion / FI) from `uidfi` / `finame` (instructor for/from a flight assignment). The latter does not establish onboard presence. Its flight read response documents no PIC or role-time field. Its person-flight lists say they include pilot and FI flights but document no per-row role or reason for inclusion. These are useful identity/role leads, not a complete command rule; the [source review](../verification/2026-10-26-instructor-pic-source-review.md#rest-specification-cross-check--26-october-2026) records the exact pages and limits. REST activation and live-response validation remain separate.
+
 ## Capture inventory
 
 “Core” means prioritize obtaining and verifying the field, not reject a raw observation if it is absent. Availability below distinguishes displayed values from configuration/manual evidence. Catalogue examples do not prove cross-class flight mapping. No actual export bytes have yet been inspected.
