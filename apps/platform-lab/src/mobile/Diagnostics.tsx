@@ -4,7 +4,7 @@ import { diagnosticJournal, type DiagnosticAction, type DiagnosticOutcome } from
 import { shareDiagnosticFile } from './diagnostics-native';
 import { Action, Card, Label, Section } from './theme';
 
-const actions: Record<DiagnosticAction, string> = { 'start-screen': 'Start � JavaScript bis Datenanzeige', 'start-presentation': 'Start � React-Anzeige', 'update-flights': 'Flüge laden / aktualisieren', 'open-flight-tools': 'Flugdaten öffnen', 'library-operation': 'Bibliotheksaktion', 'read-flights': 'Gespeicherte Flüge laden', 'read-flight-detail': 'Flugdetails öffnen' };
+const actions: Record<DiagnosticAction, string> = { 'start-screen': 'Start · JavaScript bis Datenanzeige', 'start-presentation': 'Start · React-Anzeige', 'update-flights': 'Flüge laden / aktualisieren', 'open-flight-tools': 'Flugdaten öffnen', 'library-operation': 'Bibliotheksaktion', 'read-flights': 'Gespeicherte Flüge laden', 'read-flight-detail': 'Flugdetails öffnen' };
 const outcomes: Record<DiagnosticOutcome, string> = { running: 'Läuft', success: 'Erfolgreich', partial: 'Teilweise erfolgreich', failed: 'Fehlgeschlagen', blocked: 'Gesperrt', cancelled: 'Abgebrochen', interrupted: 'Unterbrochen' };
 export function Diagnostics() {
   const [, update] = useState(0);
