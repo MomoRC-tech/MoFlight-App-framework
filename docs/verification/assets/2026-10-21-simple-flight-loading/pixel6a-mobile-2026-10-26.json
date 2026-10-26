@@ -1,0 +1,168 @@
+{
+  "version": 1,
+  "units": "milliseconds",
+  "source": "cdd2adb271b0a29f7ebac9103d3ace9cfbea131b",
+  "provenance": "User-supplied diagnostic report, session 28 only; earlier sources excluded.",
+  "environment": {
+    "phoneModelUserReported": "Pixel 6a",
+    "networkUserReported": "mobile data",
+    "recordedAndroidApi": 37,
+    "recordedBuildMode": "release",
+    "recordedWebView": "155.0.8059.43",
+    "dataSize": "not recorded",
+    "viewportDensityFont": "not recorded",
+    "installedApkHash": "not independently read from phone"
+  },
+  "limits": [
+    "Inclusive overlapping stages must not be summed.",
+    "Local reads finish at requested state publication, not visible frame.",
+    "Background-cancelled operations can receive late spans and miss final success.",
+    "Concurrent provider checks can be attributed to a local-read operation.",
+    "Medical/duty spans are nested twice; aggregate duration is not source wall time.",
+    "One complete sync and two successful local reads; no representative distribution or optimization claim."
+  ],
+  "operations": [
+    {
+      "sequence": 3569,
+      "action": "read-flights",
+      "outcome": "success",
+      "code": "none",
+      "offset": 1021,
+      "milliseconds": 13501,
+      "selectedInclusiveStagesMs": {
+        "local-session-open": 245,
+        "local-owner-check": 415,
+        "local-pending-command": 2117,
+        "local-stored-view": 10488,
+        "local-medical-read": 50,
+        "local-duties-read": 61,
+        "local-information-read": 16,
+        "local-session-close": 3,
+        "local-view-reuse": 1,
+        "local-read": 13460
+      }
+    },
+    {
+      "sequence": 3614,
+      "action": "update-flights",
+      "outcome": "success",
+      "code": "none",
+      "offset": 161062,
+      "milliseconds": 129980,
+      "selectedInclusiveStagesMs": {
+        "owner-setup": 11026,
+        "receipt-recovery": 6191,
+        "source-retrieval": 22259,
+        "source-review": 13027,
+        "command-prepare": 3077,
+        "explicit-save": 15792,
+        "command-resolve": 3641,
+        "return-readback": 13791
+      }
+    },
+    {
+      "sequence": 3821,
+      "action": "read-flights",
+      "outcome": "cancelled",
+      "code": "stale-selection",
+      "offset": 291211,
+      "milliseconds": 16449,
+      "selectedInclusiveStagesMs": {
+        "local-session-open": 547,
+        "local-owner-check": 325,
+        "local-pending-command": 2740,
+        "local-stored-view": 12536,
+        "local-medical-read": 41,
+        "local-duties-read": 47,
+        "local-information-read": 14,
+        "local-session-close": 70,
+        "local-read": 16381
+      }
+    },
+    {
+      "sequence": 3836,
+      "action": "update-flights",
+      "outcome": "cancelled",
+      "code": "background",
+      "offset": 303186,
+      "milliseconds": 52653,
+      "selectedInclusiveStagesMs": {
+        "owner-setup": 12202,
+        "receipt-recovery": 4154,
+        "source-retrieval": 11486,
+        "source-review": 50905
+      }
+    },
+    {
+      "sequence": 3893,
+      "action": "read-flights",
+      "outcome": "cancelled",
+      "code": "stale-selection",
+      "offset": 401071,
+      "milliseconds": 15229,
+      "selectedInclusiveStagesMs": {
+        "local-session-open": 346,
+        "local-owner-check": 468,
+        "local-pending-command": 2542,
+        "local-stored-view": 11251,
+        "local-medical-read": 52,
+        "local-duties-read": 60,
+        "local-information-read": 146,
+        "local-session-close": 122,
+        "local-read": 15148
+      }
+    },
+    {
+      "sequence": 3903,
+      "action": "update-flights",
+      "outcome": "cancelled",
+      "code": "background",
+      "offset": 406630,
+      "milliseconds": 10818,
+      "selectedInclusiveStagesMs": {
+        "owner-setup": 64633
+      }
+    },
+    {
+      "sequence": 3916,
+      "action": "update-flights",
+      "outcome": "cancelled",
+      "code": "background",
+      "offset": 483577,
+      "milliseconds": 6689,
+      "selectedInclusiveStagesMs": {
+        "receipt-recovery": 2175
+      }
+    },
+    {
+      "sequence": 4074,
+      "action": "read-flights",
+      "outcome": "success",
+      "code": "none",
+      "offset": 659656,
+      "milliseconds": 15964,
+      "selectedInclusiveStagesMs": {
+        "local-session-open": 460,
+        "local-owner-check": 397,
+        "local-pending-command": 2496,
+        "local-stored-view": 12304,
+        "local-medical-read": 50,
+        "local-duties-read": 66,
+        "local-information-read": 19,
+        "local-session-close": 2,
+        "local-view-reuse": 32,
+        "local-read": 15895
+      }
+    }
+  ],
+  "firstSuccessfulRequestToSuccessMs": 130202,
+  "lastRequestToSuccessIncludingBackgroundMs": 253013,
+  "longBackgroundIntervalsMs": [
+    41038,
+    58370,
+    75327
+  ],
+  "finalSyncEvent": "sync-success",
+  "finalLocalReadOutcome": "success",
+  "attentionBadgeReason": "not recorded"
+}

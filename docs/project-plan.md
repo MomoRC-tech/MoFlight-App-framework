@@ -77,7 +77,7 @@ Snapshot: **53 open Issues on 25 October after #83/#88 completion and owner-dire
 | --- | --- | --- |
 | P0 and release traceability | #12 | Ongoing audit umbrella; this review is a bounded completed increment. |
 | P1 phone experience | #17, #20, #22, #31 | Remaining UI/guidance; completed #83/#84/#87 are excluded. |
-| P2 retrieval/identity/performance | #2, #16, #19, #41, #42, #43, #44, #45, #57 | Substantial implementation delivered; #89 investigation closed for now by owner decision; named source/account/performance gates remain. |
+| P2 retrieval/identity/performance | #2, #16, #19, #41, #42, #43, #44, #45, #57, #90 | Substantial implementation delivered; #89 investigation closed for now by owner decision. [Pixel 6a/mobile-data timings](verification/2026-10-21-simple-flight-loading.md#pixel-6a-mobile-data-benchmark--26-october-2026): one complete Sync 129.980 s; two local reads 13.501/15.964 s. #90 tracks repeat results and background timing gaps; #41 owns the local-view/repeated-read investigation. Visible-frame and comparable before/after acceptance remain open. |
 | P3 preservation | #29, #34, #37 | Backup/update foundations delivered; ordinary populated/replacement-device acceptance remains. |
 | P4 sources/analytics and selected C1–C3 | #9, #10, #15, #35, #56, #85, #86 | Complete bounded source semantics, membership/privacy and analytics evidence before expansion. |
 | P5 AI | #13, #72, #74, #75, #76, #77, #78, #79 | Local implementation authorized/present; ordinary integration and live/funding/model gates remain. #73 is closed. |
