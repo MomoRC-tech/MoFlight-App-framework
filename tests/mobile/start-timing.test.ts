@@ -11,7 +11,7 @@ test('Start records JS data, commit proxy and settlement independently and survi
   now=15;initialization(true);start.shell();now=80;start.data();now=84;start.commit();
   assert.equal(journal.snapshot()[0]?.outcome,'running');
   now=120;start.settled(true);
-  const operation=journal.snapshot()[0]!;assert.equal(operation.outcome,'partial');
+  const operation=journal.snapshot()[0]!;assert.equal(operation.outcome,'partial');assert.equal(operation.trigger,'automatic');
   const projected=summarizeDiagnosticTiming(JSON.parse(journal.export())).operations[0]!;
   assert.deepEqual(projected.timeline?.milestones?.map(point=>[point.name,point.milliseconds]),[
     ['start-js-to-shell',15],['start-js-to-data',80],['start-js-to-commit',84],['start-js-to-settled',120]]);

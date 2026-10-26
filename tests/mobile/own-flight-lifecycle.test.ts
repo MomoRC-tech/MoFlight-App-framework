@@ -318,7 +318,7 @@ test('failed or missing sync readback clears retained content and queued detail 
 
 
 test('unchanged visible data gets a retained-data timing marker without waiting for a nonexistent React change',async()=>{
-  const h=host();await h.flush();h.reload();await h.flush();
+  const h=host();await h.flush();await h.render().reload(true);await h.flush();
   const presentation=diagnostics.diagnosticJournal.snapshot().filter(entry=>entry.action==='start-presentation').at(-1)!;
   assert.equal(presentation.outcome,'success');assert.ok(presentation.stages.some(stage=>stage.name==='start-retained-data'));
   h.unmount();

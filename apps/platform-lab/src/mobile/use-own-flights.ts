@@ -60,7 +60,7 @@ export function useOwnFlights(ports: OwnFlightReadPorts, active: boolean, reload
           processedView.current = shared;
           if (shared && !presentation.current && presented.current !== id) {
             const operation = diagnosticJournal.begin('start-presentation', diagnosis.reference());
-            const retained=shared===prior && visible.current && presented.current>=0;
+            const retained=quiet && shared===prior && visible.current && presented.current>=0;
             presentation.current = { id, view: shared, operation, finish: operation.span(retained?'start-retained-data':'start-render-wait') };
             if(retained){presentation.current.finish(true);operation.finish('success');presentation.current=null;presented.current=id;}
             startTiming.data();
