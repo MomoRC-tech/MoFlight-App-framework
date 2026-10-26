@@ -51,7 +51,7 @@ const fixtureActivityLedger={
 
 // Real screen effects and handlers; SQLite and provider behavior have their own
 // integration tests. These ports control timing to exercise the screen coordinator.
-function fixture({destination='sources',providerAllowed=true,deferRead=false,deferRecoveryClear=false,startUpdate=false,root=false,readOnly=false,deferReservation=false,deferActivityCancel=false,deferActivityWrite=false,failStartup=false,medicalFailure=false,pendingFlightCount=0,cleanupAfterTasks=false,loginPending=false,deferProvider=false,quietResume=false,deferSource=false,sameWindow=false,deferVerification=false,priorConnection='unknown',existingOwner=false,pendingRestore=false,cancelRestore=false,initialOpen=true,initialFlightsSaved=false,initialSavedSync=null as syncRecovery.SyncRecoveryRecord|null,initialEstimateHistory=null as unknown,unactivatedPreparation=false,activityEnabled=false,activityBaselineCount=1,activityResultCount=2,onStatus:statusCallback=undefined as ((status:any)=>void)|undefined,intent:requestedIntent=undefined as string|undefined}={}) {
+function fixture({backupFails=false,destination='sources',providerAllowed=true,deferRead=false,deferRecoveryClear=false,startUpdate=false,root=false,readOnly=false,deferReservation=false,deferActivityCancel=false,deferActivityWrite=false,failStartup=false,medicalFailure=false,pendingFlightCount=0,cleanupAfterTasks=false,loginPending=false,deferProvider=false,quietResume=false,deferSource=false,sameWindow=false,deferVerification=false,priorConnection='unknown',existingOwner=false,pendingRestore=false,cancelRestore=false,initialOpen=true,initialFlightsSaved=false,initialSavedSync=null as syncRecovery.SyncRecoveryRecord|null,initialEstimateHistory=null as unknown,unactivatedPreparation=false,activityEnabled=false,activityBaselineCount=1,activityResultCount=2,onStatus:statusCallback=undefined as ((status:any)=>void)|undefined,intent:requestedIntent=undefined as string|undefined}={}) {
   let panelOpen=initialOpen,requestId=0;
   const journal=new DiagnosticJournal(), diagnosis={current:journal.begin(startUpdate?'update-flights':'open-flight-tools')};
   const hooks:any[]=[],effects:(()=>void)[]=[],calls:string[]=[],activityOrder:string[]=[],closed:any[]=[];
@@ -64,7 +64,7 @@ function fixture({destination='sources',providerAllowed=true,deferRead=false,def
   const activityWrite=new Promise<void>(resolve=>{finishActivityWrite=resolve;});
   let finishReservation!:()=>void;
   const reservation=new Promise<void>(resolve=>{finishReservation=resolve;});
-  const listeners=new Set<(state:string)=>void>();
+  const listeners=new Set<(state:string)=>void>(),backListeners=new Set<()=>boolean>();
   let saved=initialFlightsSaved,timerId=0,holdNextRead=false;
   let finishRecoveryClear!:()=>void;
   const recoveryClear=new Promise<void>(resolve=>{finishRecoveryClear=resolve;});
@@ -129,7 +129,8 @@ function fixture({destination='sources',providerAllowed=true,deferRead=false,def
   const modules:Record<string,any>={react:{default:react,...react},
     '../ai/backup-notice':{AI_BACKUP_NOTICE},
     '../user-backup-native':{getPendingUserBackupRestoreNative:async()=>{pendingRestoreChecks++;return pendingRestore?{operationId:'pending',ownerId:'owner',storeId:'store'}:null;},
-      restoreUserBackupFromPickerNative:async(_scope:any,_gate:any,id:string)=>{calls.push('resume-'+id);if(cancelRestore)return {state:'cancelled'};pendingRestore=false;return {state:'restored'};}},
+      saveUserBackupToFolder:async()=>{calls.push('backup-save');if(backupFails)throw new Error('Synthetic backup failure');return {state:'saved'};},
+      restoreUserBackupFromPickerNative:async(_scope:any,_gate:any,id?:string)=>{calls.push(id?'resume-'+id:'restore-whole');if(cancelRestore)return {state:'cancelled'};pendingRestore=false;return {state:'restored'};}},
     './sync-progress':syncProgress,'./session-monitor':{startSessionMonitor},
     './sync-estimate':{...syncEstimate,syncEstimateNow:()=>{estimateClock+=10;return estimateClock;}},
     './sync-estimate-native':{
@@ -152,7 +153,7 @@ function fixture({destination='sources',providerAllowed=true,deferRead=false,def
     './account-retrieval-jobs':accountJobs, '../diagnostics':{diagnosticJournal:journal},
     '../vereinsflieger/duty-refresh-native':{refreshDutyRoster:async()=>({rows:[],partial:true})},
     '../vereinsflieger/connection-state':{retrievalFailureHint},
-    'react-native':{...leaves(['ActivityIndicator','ScrollView','View']),AppState:{currentState:'active',addEventListener:(_:string,f:(state:string)=>void)=>{listeners.add(f);return {remove:()=>listeners.delete(f)};}},BackHandler:{addEventListener:()=>({remove(){}})}},
+    'react-native':{...leaves(['ActivityIndicator','Pressable','ScrollView','Text','View']),AppState:{currentState:'active',addEventListener:(_:string,f:(state:string)=>void)=>{listeners.add(f);return {remove:()=>listeners.delete(f)};}},BackHandler:{addEventListener:(_:string,f:()=>boolean)=>{backListeners.add(f);return {remove:()=>backListeners.delete(f)};}}},
     'react-native-safe-area-context':leaves(['SafeAreaView']), 'expo-crypto':{randomUUID:()=> 'uuid'},'../storage':{hash:async()=>''},
     '../vereinsflieger/flight-diagnostics':{timeFlightStage:(_:string,work:()=>unknown)=>work()},
     '../vereinsflieger/use-access-controller':{useAccessController:()=>({...c})},
@@ -161,6 +162,7 @@ function fixture({destination='sources',providerAllowed=true,deferRead=false,def
     '../vereinsflieger/real-flight-service':{RealFlightService:Service,PendingRealFlightOperation:class extends Error{}},
     './core-flight-review-policy':policy,'../vereinsflieger/real-flight-backup-native':{},
     './own-flight-reader-native':{ownFlightReadPorts:{suspend:async()=>{calls.push('reserve');if(deferReservation)await reservation;return ()=>calls.push('release');}}},
+    './BackupPageHeader':leaves(['BackupPageHeader']),'./BackupRestoreConfirmationDialog':leaves(['BackupRestoreConfirmationDialog']),
     './ConnectionSettings':{ConnectionSettings:'ConnectionSettings'},'./ProviderConnection':leaves(['ProviderConnection']),'./theme':{...leaves(['Action','Card','Label','Section']),colors:{}},
     '../vereinsflieger/retrieval-policy':{planFlightRetrieval},'./data-freshness':{dataFreshness},
   };
@@ -179,6 +181,7 @@ function fixture({destination='sources',providerAllowed=true,deferRead=false,def
     finishActivityCancel:()=>finishActivityCancel(),finishActivityWrite:()=>finishActivityWrite(),activityOrder,
     admitSource:()=>admitSource(),
     complete:()=>{c.busy=false;c.result='captured';c.completedFlightSource=input;dirty=true;},
+    hardwareBack:()=>[...backListeners].reverse().some(handler=>handler()),
     dispose:()=>{for(const hook of hooks)hook?.cleanup?.();},
   };
 }
@@ -737,16 +740,88 @@ test('dedicated backup opens whole-user actions immediately without credentials 
   const f=fixture({providerAllowed:false,destination:'backup'});
   try{
     f.render();await f.flush();
-    assert.ok(f.text().includes('Daten in Geräteordner sichern'));
-    assert.ok(f.text().includes('Datensicherung wiederherstellen'));
+    assert.ok(f.text().includes('In Geräteordner sichern'));
+    assert.ok(f.text().includes('Sicherungsdatei auswählen'));
+    assert.ok(f.nodes().some(n=>n.type==='BackupPageHeader'));
     assert.ok(!f.text().includes('Details & weitere Optionen'));
     assert.ok(!f.nodes().some(n=>n.type==='ConnectionSettings'));
     assert.ok(!f.text().includes('Flugbibliothek in Geräteordner sichern'));
     assert.ok(!f.calls.some(call=>['login','retrieve','save'].includes(call)));
-    f.press('Ältere Flugbibliothek-Sicherung wiederherstellen');await f.flush();
+    f.nodes().find(n=>n.props.accessibilityLabel==='Ältere Flugbibliothek-Sicherung')!.props.onPress();await f.flush();
     assert.ok(f.text().includes('Sicherung dieser Bibliothek wiederherstellen'));
     assert.ok(!f.text().includes('Flugbibliothek in Geräteordner sichern'));
   }finally{f.dispose();}
+});
+
+test('backup restore requires a current one-use confirmation; Cancel and Back never open the picker',async()=>{
+  const f=fixture({providerAllowed:false,destination:'backup',cancelRestore:true});
+  try{
+    f.render();await f.flush();
+    f.press('Sicherungsdatei auswählen');f.render();
+    const cancelled=f.nodes().find(n=>n.type==='BackupRestoreConfirmationDialog')!;
+    assert.ok(cancelled);assert.ok(!f.calls.includes('restore-whole'));
+    cancelled.props.onCancel();f.render();cancelled.props.onConfirm();await f.flush();
+    assert.ok(!f.calls.includes('restore-whole'));
+    f.press('Sicherungsdatei auswählen');f.render();
+    const backDismissed=f.nodes().find(n=>n.type==='BackupRestoreConfirmationDialog')!;
+    assert.equal(f.hardwareBack(),true);f.render();
+    assert.equal(f.closed.length,0);backDismissed.props.onConfirm();await f.flush();
+    assert.ok(!f.calls.includes('restore-whole'));
+    f.press('Sicherungsdatei auswählen');f.render();
+    const current=f.nodes().find(n=>n.type==='BackupRestoreConfirmationDialog')!;
+    cancelled.props.onConfirm();await f.flush();assert.ok(!f.calls.includes('restore-whole'));
+    current.props.onConfirm();current.props.onConfirm();await f.flush();
+    assert.equal(f.calls.filter(call=>call==='restore-whole').length,1);
+    assert.match(f.text(),/Dateiauswahl abgebrochen/);
+    assert.equal(f.closed.length,0);
+    assert.ok(!f.progressUpdates.some(p=>p.state==='failed'),'Picker cancellation does not become a Sync failure');
+    f.hardwareBack();assert.equal(f.closed.length,1,'A second Back returns to the calling page');
+  }finally{f.dispose();}
+});
+
+test('backup confirmation is invalidated by background and close/reopen',async()=>{
+  const f=fixture({providerAllowed:false,destination:'backup'});
+  try{
+    f.render();await f.flush();f.press('Sicherungsdatei auswählen');f.render();
+    const old=f.nodes().find(n=>n.type==='BackupRestoreConfirmationDialog')!;
+    f.background();f.render();f.resume();old.props.onConfirm();await f.flush();
+    assert.ok(!f.calls.includes('restore-whole'));
+    f.press('Sicherungsdatei auswählen');f.render();
+    const closed=f.nodes().find(n=>n.type==='BackupRestoreConfirmationDialog')!;
+    f.setOpen(false);await f.flush();f.setOpen(true);await f.flush();closed.props.onConfirm();await f.flush();
+    assert.ok(!f.calls.includes('restore-whole'));
+  }finally{f.dispose();}
+});
+
+test('backup disclosure remains available without contextual help and no-owner backup creates no identity',async()=>{
+  const f=fixture({providerAllowed:false,destination:'backup'});
+  try{
+    f.render();await f.flush();
+    const disclosure=f.nodes().find(n=>n.props.accessibilityLabel==='Inhalt und Ausschlüsse')!;
+    assert.equal(disclosure.props.accessibilityState.expanded,false);disclosure.props.onPress();f.render();
+    assert.match(f.text(),/KI-Chats/);assert.match(f.text(),/Foto- und Anhangdateien werden nicht gesichert/);
+  }finally{f.dispose();}
+  const empty=fixture({root:true,providerAllowed:false,destination:'backup'});
+  try{empty.render();await empty.flush();assert.match(empty.text(),/Noch keine eigene lokale Bibliothek/);assert.ok(!empty.calls.includes('create'));assert.ok(!empty.text().includes('neue lokale Bibliothek anlegen'));assert.ok(empty.nodes().some(n=>n.type==='BackupPageHeader'));}finally{empty.dispose();}
+});
+
+test('backup pending-restore page resumes the same operation and retains it after picker cancellation',async()=>{
+  const f=fixture({root:true,existingOwner:true,providerAllowed:false,destination:'backup',pendingRestore:true,cancelRestore:true});
+  try{
+    f.render();await f.flush();
+    const header=f.nodes().find(n=>n.type==='BackupPageHeader')!;assert.equal(header.props.syncDisabled,true);
+    f.press('Datensicherung fortsetzen');await f.flush();assert.ok(f.calls.includes('resume-pending'));
+    assert.match(f.text(),/Eine Datensicherung wird noch wiederhergestellt/);
+    assert.ok(!f.nodes().some(n=>n.type==='BackupRestoreConfirmationDialog'));
+    assert.ok(!f.calls.includes('create'));
+  }finally{f.dispose();}
+});
+
+test('backup preparation guards Back and a failed export stays a backup error rather than a Sync failure',async()=>{
+  const preparing=fixture({providerAllowed:false,destination:'backup',deferRead:true});
+  try{preparing.render();await preparing.flush();assert.equal(preparing.nodes().find(n=>n.type==='BackupPageHeader')!.props.busy,true);preparing.hardwareBack();assert.equal(preparing.closed.length,0);preparing.finishRead();await preparing.flush();preparing.hardwareBack();assert.equal(preparing.closed.length,1);}finally{preparing.dispose();}
+  const failed=fixture({providerAllowed:false,destination:'backup',backupFails:true});
+  try{failed.render();await failed.flush();failed.press('In Geräteordner sichern');await failed.flush();assert.ok(failed.calls.includes('backup-save'));assert.match(failed.text(),/Dieser Schritt wurde nicht bestätigt/);assert.ok(!failed.progressUpdates.some(p=>p.state==='failed'));assert.equal(failed.closed.length,0);}finally{failed.dispose();}
 });
 test('settings admits only an explicit administration surface and returns after verified sign-out',async()=>{
   const f=fixture({providerAllowed:false,destination:'settings'});

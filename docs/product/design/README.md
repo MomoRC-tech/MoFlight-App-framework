@@ -2,6 +2,8 @@
 
 **Design definition in progress — 26 October 2026, [#94](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/94):** review the [Material 3 system proposal](material-system-proposal.md) for palette alternatives, page/sheet/dialog rules and representative interactive examples. Manuel selected dark as the master/default theme, light as an explicit option, and color exploration beyond navy/teal while preserving the original logo. Until beta preparation, UI verification is brief, affected-screen and dark-only; light acceptance is deferred. The later current-color Cockpit direction and first Settings increment are selected; see the Material Settings amendment in Compact Cockpit. Broader migration remains staged and Start is preserved except for small, specific corrections.
 
+The [Backup child-page amendment](compact-cockpit.md#backup-child-page--selected-26-october-2026) is selected and implemented in source: separate save/restore tasks, short restore confirmation, explicit recovery and retained caller/provider context. [Verification](../../verification/2026-10-26-material-settings.md#backup-child-page--26-october-2026) keeps host results and native acceptance separate.
+
 The [Statistics child-page amendment](material-system-proposal.md#statistics-route-amendment--selected-26-october-2026) is also selected and implemented in source. It replaces the former framed presentation while preserving the saved-local statistics and exact contributor route; native acceptance is tracked separately.
 
 > **Current appearance authority — 24 October 2026:** [Dark Compact Cockpit](compact-cockpit.md) and its approved reference supersede conflicting older appearance/composition statements below. Data, feature and verification boundaries retain their scope.

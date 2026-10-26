@@ -70,6 +70,10 @@ Follow the [Material component roles](https://developer.android.com/design/ui/mo
 - Empty/offline/error states explain the situation and available action without invented success or redundant technical paragraphs. A failed operation remains visible until resolved; transient acknowledgements do not replace recovery.
 - On phones, support 360 dp and prioritize 390–412 dp. At 600+ dp, adapt navigation and content, cap focused forms/dialogs and use panes where useful. Do not merely stretch phone cards. Large text may stack rows; keyboard space must not hide task actions.
 
+## Backup route amendment — selected 26 October 2026
+
+Manuel selected the [dedicated Backup child-page example](proposals/2026-10-26-backup-page.html), including its short pre-picker decision. The [current implemented contract](compact-cockpit.md#backup-child-page--selected-26-october-2026) governs this scope: separate save/restore, scope and older-format disclosures, visible recovery, caller Back and confirmed header Sync, while the retained provider parent and all owner/storage safeguards remain. [Evidence and remaining gates](../../verification/2026-10-26-material-settings.md#backup-child-page--26-october-2026). Other route proposals below keep their own selection status.
+
 ## Proposed route and surface inventory
 
 | Current destination/task | Proposed surface | Return/state contract |

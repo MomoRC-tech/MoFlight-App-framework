@@ -29,5 +29,11 @@ test('update popup stays within safe bounds and keeps its native child parent ac
       if(expanded&&height===900)assert.ok(layout.height>420,'The same frame grows for the original login');
       assert.equal(tree.children[0].props.accessible,false,'Scrim has no extra dismiss action that could bypass save guards');
     }
+    const page=exports.UpdateDialog({open:true,fullPage:true,children:child}),frame=page.children[1];
+    assert.equal(frame.children[0],browser,'The full-page task retains the same native child');
+    assert.equal(frame.type,'View');assert.equal(frame.props.testID,'backup-page-host');
+    assert.equal(frame.props.style.flex,1);assert.equal(frame.props.style.borderRadius,undefined);
+    assert.equal(suppliedTop,undefined,'A full page delegates system insets to its SafeAreaView');
+    assert.equal(page.children[0],false,'A child page has no dimmed background/scrim');
   }
 });

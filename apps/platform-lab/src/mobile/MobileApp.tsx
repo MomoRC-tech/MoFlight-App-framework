@@ -70,6 +70,7 @@ const dateText = (date: string | null) => date ? new Date(date + 'T12:00:00Z').t
 export default function MobileApp() {
   useEffect(() => { const finish = startTiming.initialization(); try { initializeDiagnostics(); finish(true); } catch { finish(false); } startTiming.shell(); }, []);
   const [entry,setEntry] = useState<{intent:ConnectionIntent;requestId:number;open:boolean;development:boolean;destination:OptionsDestination}|null>({intent:'options',requestId:0,open:false,development:false,destination:'settings'});
+  const activeEntry=useRef(entry);activeEntry.current=entry;
   const [lastLoad,setLastLoad] = useState<FlightLoadResult|null>(null);
   const [flightReload,setFlightReload] = useState(0);
   const [providerStatus,setProviderStatus] = useState<ProviderStatus>(unknownProviderStatus);
@@ -91,7 +92,13 @@ export default function MobileApp() {
     <View style={{flex:1}} pointerEvents={modalOpen?'none':'auto'} aria-hidden={modalOpen} accessibilityElementsHidden={modalOpen} importantForAccessibility={modalOpen?'no-hide-descendants':'auto'}><Shell syncControls={syncControls} syncRunning={syncRunning} syncProgress={syncProgress} coreFlightsOpen={!!entry?.open} flightReload={flightReload} lastLoad={lastLoad} providerStatus={providerStatus} onCoreFlights={(intent='options',development=false,destination='settings')=>{
       if(syncLock.current){diagnosticJournal.record('sync','sync-duplicate-ignored');return;}
       syncLock.current=intent==='update';if(intent==='update'){diagnosticJournal.record('sync','sync-requested');setSyncProgress({...idleSyncProgress,state:'active',current:'prepare'});}if(intent==='update')setLastLoad(null);setEntry(previous=>({intent:intent==='update'?'update':'options',development,destination,open:true,requestId:(previous?.requestId??0)+1}));}}/></View>
-    {entry&&<UpdateDialog open={modalOpen} expanded={entry.intent!=='update'||!!providerStatus.loginVisible}>{windowTop=><CoreFlightFoundation destination={entry.destination} dialogTop={windowTop} providerEntryAllowed={entry.intent==='update'} open={entry.open} requestId={entry.requestId} intent={entry.intent} onProgress={setSyncProgress} onControls={setSyncControls} onStatus={setProviderStatus} developmentRecoveryCheckpoints={entry.development} close={result=>{syncLock.current=false;
+    {entry&&<UpdateDialog open={modalOpen} expanded={entry.intent!=='update'||!!providerStatus.loginVisible} fullPage={entry.intent==='options'&&entry.destination==='backup'}>{windowTop=><CoreFlightFoundation destination={entry.destination} dialogTop={windowTop} providerEntryAllowed={entry.intent==='update'} open={entry.open} requestId={entry.requestId} intent={entry.intent} onProgress={setSyncProgress} onControls={setSyncControls} onStatus={setProviderStatus} developmentRecoveryCheckpoints={entry.development} onRequestSync={()=>{
+      const current=activeEntry.current;
+      if(!current?.open||current.intent!=='options'||current.destination!=='backup'||current.requestId!==entry.requestId||syncLock.current)return;
+      diagnosticJournal.record('sync','sync-requested');diagnosticJournal.record('action','update-flights');
+      syncLock.current=true;setSyncProgress({...idleSyncProgress,state:'active',current:'prepare'});setLastLoad(null);
+      setEntry({...current,intent:'update',destination:'settings',requestId:current.requestId+1});
+    }} close={result=>{syncLock.current=false;
       if(result){
         setSyncProgress(completedSyncProgress(result));
       }else if(syncRunning)setSyncProgress(previous=>previous.state==='failed'?previous:{...previous,state:'failed',message:'Synchronisierung abgebrochen. Gespeicherte Daten bleiben verfügbar.'});
@@ -231,6 +238,7 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
   }, [libraryRevision]);
   useEffect(() => {
     const listener = BackHandler.addEventListener('hardwareBackPress', () => {
+      if (coreFlightsOpen) return false;
       if (detail || sheet) { closeOverlay(); return true; }
       if (tab === 'flights' && flightHeader.back) { flightHeader.back(); return true; }
       if (tab === 'club' && clubSection !== 'Übersicht') { openClubSection('Übersicht'); return true; }
@@ -238,7 +246,7 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
       if (tab !== 'home') { setTab('home'); return true; }
       return false;
     }); return () => listener.remove();
-  }, [detail, sheet, helpEntryId, tab, screenBusy, flightHeader,clubSection]);
+  }, [detail, sheet, helpEntryId, tab, screenBusy, flightHeader,clubSection,coreFlightsOpen]);
   const openFlightFlow = (intent:ConnectionIntent='options',destination:OptionsDestination='settings') => {
     if(intent!=='update'){diagnosticJournal.record('action','open-flight-tools');onCoreFlights(intent,false,destination);return true;}
     const ticket=syncConfirmation.request(syncAdmission.current.scope,syncAdmission.current.allowed);

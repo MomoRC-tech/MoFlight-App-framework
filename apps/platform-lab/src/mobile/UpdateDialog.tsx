@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from './theme';
 
 /** Keep the same frame/native child tree while closed or during credential activities. */
-export function UpdateDialog({ open, expanded = false, children }: { open: boolean; expanded?: boolean; children: (windowTop: number) => React.ReactNode }) {
+export function UpdateDialog({ open, expanded = false, fullPage = false, children }: { open: boolean; expanded?: boolean; fullPage?: boolean; children: (windowTop?: number) => React.ReactNode }) {
   const { width, height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const margin = width >= 600 ? 24 : 12;
@@ -16,9 +16,9 @@ export function UpdateDialog({ open, expanded = false, children }: { open: boole
   return <View pointerEvents={open ? 'auto' : 'none'} accessibilityElementsHidden={!open} aria-hidden={!open}
     importantForAccessibility={open ? 'auto' : 'no-hide-descendants'} accessibilityViewIsModal={open}
     style={[StyleSheet.absoluteFill, { opacity: open ? 1 : 0, zIndex: open ? 20 : -1 }]}>
-    <Pressable accessible={false} importantForAccessibility="no" onPress={() => {}} style={[StyleSheet.absoluteFill, styles.scrim]} />
-    <View testID="data-update-dialog" style={[styles.frame, { left, top, width: frameWidth, height: frameHeight }]}>
-      {children(top)}
+    {!fullPage && <Pressable accessible={false} importantForAccessibility="no" onPress={() => {}} style={[StyleSheet.absoluteFill, styles.scrim]} />}
+    <View testID={fullPage ? 'backup-page-host' : 'data-update-dialog'} style={fullPage ? styles.page : [styles.frame, { left, top, width: frameWidth, height: frameHeight }]}>
+      {children(fullPage ? undefined : top)}
     </View>
   </View>;
 }
@@ -27,4 +27,5 @@ const styles = StyleSheet.create({
   scrim: { backgroundColor: '#000712bd' },
   frame: { position: 'absolute', overflow: 'hidden', borderRadius: 22, borderWidth: 1, borderColor: '#426783',
     backgroundColor: colors.background, elevation: 18, shadowColor: '#000000', shadowOpacity: .5, shadowRadius: 20 },
+  page: { flex: 1, backgroundColor: colors.background },
 });

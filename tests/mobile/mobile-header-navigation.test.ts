@@ -45,7 +45,7 @@ function fixture(width = 390, fontScale = 1, root = false) {
   const destinations:string[]=[];
   const readEnabled:boolean[]=[];
   let persistedHelp = true, failHelpSave = false;
-  let suspended = false;
+  let suspended = false, coreOpen = false;
   let clockNow=Date.UTC(2026,9,22,12),clockDeadlines:readonly number[]=[];
   let providerStatus:any=unknownProviderStatus, lastLoad:any=null, ownView:any=null, appStateListener:((state:string)=>void)|undefined;
   Object.assign(controller, { connect: () => calls.push('connect'), checkConnection: () => calls.push('check'), retrieve: () => calls.push('retrieve') });
@@ -101,7 +101,7 @@ function fixture(width = 390, fontScale = 1, root = false) {
     assert.ok(name in modules, name); return modules[name];
   } });
   let tree: Element;
-  function render() { index = 0; tree = root?(exports as any).default():(exports.Shell as (props:unknown)=>Element)({lastLoad,providerStatus,onCoreFlights:(intent='connect',developmentRecoveryCheckpoints=false,destination='settings')=>{destinations.push(destination);coreRoutes.push({intent,developmentRecoveryCheckpoints});calls.push(intent==='update'?'core-load':intent==='development'?'core-development-route':intent==='options'?'core-library-route':'core-connect');}}); effects.splice(0).forEach(effect => effect()); return tree; }
+  function render() { index = 0; tree = root?(exports as any).default():(exports.Shell as (props:unknown)=>Element)({coreFlightsOpen:coreOpen,lastLoad,providerStatus,onCoreFlights:(intent='connect',developmentRecoveryCheckpoints=false,destination='settings')=>{destinations.push(destination);coreRoutes.push({intent,developmentRecoveryCheckpoints});calls.push(intent==='update'?'core-load':intent==='development'?'core-development-route':intent==='options'?'core-library-route':'core-connect');}}); effects.splice(0).forEach(effect => effect()); return tree; }
   function nodes() {
     const found: Element[] = [];
     const visit = (value: unknown) => { if (value && typeof value === 'object' && 'children' in value) { const node = value as Element; found.push(node); node.children.forEach(visit); if (node.type === 'AppHeader') visit(node.props.profile); if (node.type === 'FlatList') visit(node.props.ListHeaderComponent); } };
@@ -120,7 +120,7 @@ function fixture(width = 390, fontScale = 1, root = false) {
     render();
   }
   render(); render();
-  return { confirm:()=>{nodes().find(n=>n.type==='SyncConfirmationDialog')?.props.onConfirm();render();}, render, nodes, find, resize:(nextWidth:number,nextFontScale:number)=>{width=nextWidth;fontScale=nextFontScale;render();}, headers, parent, press, openOwnDetail, flight, library, controller, calls, coreRoutes,destinations, readEnabled, suspended: () => suspended, hardwareBack: () => hardwareBack!(),
+  return { setCoreOpen:(open:boolean)=>{coreOpen=open;render();}, confirm:()=>{nodes().find(n=>n.type==='SyncConfirmationDialog')?.props.onConfirm();render();}, render, nodes, find, resize:(nextWidth:number,nextFontScale:number)=>{width=nextWidth;fontScale=nextFontScale;render();}, headers, parent, press, openOwnDetail, flight, library, controller, calls, coreRoutes,destinations, readEnabled, suspended: () => suspended, hardwareBack: () => hardwareBack!(),
     helpPreference:()=>persistedHelp, failHelpSaving:(value:boolean)=>{failHelpSave=value;},
     showLoad:(result:any,view:any)=>{providerStatus=result?.verifiedConnection?{...unknownProviderStatus,ownerId:result.verifiedConnection.ownerId,connection:result.verifiedConnection.state}:unknownProviderStatus;lastLoad=result;ownView=view;render();render();},
     setProviderStatus:(status:any)=>{providerStatus=status;render();render();},
@@ -572,6 +572,28 @@ test('app root retains the provider host across close/tab entry and hides covere
   shell().props.onCoreFlights('update');f.render();
   const reopened=f.find('CoreFlightFoundation');assert.equal(reopened.type,retained.type);assert.equal(reopened.props.open,true);
   assert.equal(reopened.props.requestId,first.props.requestId+1);assert.equal(reopened.props.intent,'update');
+});
+
+test('ordinary backup uses a full page while retaining the provider host and confirms its header Sync separately',()=>{
+  const f=fixture(390,1,true);
+  const shell=f.nodes().find(n=>typeof n.type==='function'&&(n.type as Function).name==='Shell')!;
+  shell.props.onCoreFlights('options',false,'backup');f.render();
+  const backup=f.find('CoreFlightFoundation');
+  assert.equal(f.find('UpdateDialog').props.fullPage,true);assert.equal(backup.props.providerEntryAllowed,false);
+  backup.props.close();f.render();assert.equal(f.find('CoreFlightFoundation').type,backup.type);assert.equal(f.find('CoreFlightFoundation').props.open,false);
+  backup.props.onRequestSync();f.render();assert.equal(f.find('CoreFlightFoundation').props.open,false,'A stale header cannot start Sync after Back');
+  shell.props.onCoreFlights('options',false,'backup');f.render();
+  f.find('CoreFlightFoundation').props.onRequestSync();f.render();
+  assert.equal(f.find('CoreFlightFoundation').props.intent,'update');assert.equal(f.find('CoreFlightFoundation').props.providerEntryAllowed,true);
+  assert.equal(f.find('UpdateDialog').props.fullPage,false,'Only offline backup uses the full-page presentation');
+});
+
+test('covered Settings never consumes Android Back on behalf of the backup task',()=>{
+  const f=fixture();f.press('Pressable','Profil & Einstellungen öffnen');
+  f.find('ProfileSettings').props.onBackup();f.setCoreOpen(true);
+  assert.equal(f.hardwareBack(),false,'The active foundation owns Back, regardless of listener registration order');
+  assert.equal(f.headers().at(-1)!.props.title,'Profil & Einstellungen');
+  f.setCoreOpen(false);f.hardwareBack();f.render();assert.equal(f.headers()[0]!.props.title,'Übersicht');
 });
 
 test('non-header legacy connection intents are normalized to offline administration without provider admission',()=>{
