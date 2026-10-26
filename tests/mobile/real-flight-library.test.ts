@@ -8,6 +8,7 @@ import { REAL_HISTORY_BACKUP_LIMIT, REAL_HISTORY_COMMAND_LIMIT, type RealHistory
 import { RealFlightLibrary, IndeterminateRealFlightCommit, type RealFlightPermit } from '../../apps/platform-lab/src/vereinsflieger/real-flight-library.ts';
 import type { RealFlightSourceInput } from '../../apps/platform-lab/src/vereinsflieger/real-flight-source.ts';
 import type { RealFlightGraph, RealFlightRecord } from '../../apps/platform-lab/src/vereinsflieger/real-flight-library-model.ts';
+import { DiagnosticJournal } from '../../apps/platform-lab/src/diagnostics.ts';
 
 const hash: Hash = async value => createHash('sha256').update(value, 'utf8').digest('hex');
 const at = '2026-10-20T10:00:00.000Z';
@@ -60,6 +61,28 @@ async function save(library: RealFlightLibrary, input: RealFlightSourceInput, id
     bindingId: plan.bindingId, source: input, planToken: plan.planToken, at: atTime });
   return { plan, result };
 }
+
+test('library phase hooks measure actual replay, derivation, writes and fresh durable readback',async t=>{
+ const f=await setup(t),journal=new DiagnosticJournal(),op=journal.begin('update-flights');
+ const command={version:1 as const,kind:'bind' as const,ownerId:ownerA,storeId:storeA,commandId:commandId(91),baseGeneration:0,at,source:source('timed-binding',[row('101')])};
+ await f.library.commit(command,op.span);
+ const entry=journal.snapshot()[0]!,names=entry.stages.map(stage=>stage.name);
+ for(const name of ['graph-read','graph-canonicalization','graph-validation','import-derivation','graph-writes','save-readback'])assert.ok(names.includes(name as typeof names[number]),name);
+ const readback=entry.checkpoints.find(point=>point.name==='save-readback'&&point.state==='start')!;
+ const children=entry.checkpoints.filter(point=>point.parentSpanId===readback.spanId);
+ assert.ok(children.some(point=>point.name==='graph-read'));
+ assert.ok(children.some(point=>point.name==='graph-canonicalization'));
+ assert.ok(!children.some(point=>point.name==='graph-validation'),'Exact validated committed bytes skip replay but still reread');
+ const before=await f.library.snapshot();
+ const reviewed=await f.library.prepareReview(source('timed-review',[row('101')]),op.span);
+ assert.deepEqual(reviewed.graph,before);assert.ok(reviewed.plan);
+ assert.ok(!journal.export().includes('timed-binding'));assert.ok(!journal.export().includes(ownerA));
+ const failed=journal.begin('update-flights');
+ await assert.rejects(f.library.commit({...command,commandId:commandId(92),baseGeneration:99},failed.span));
+ assert.ok(journal.snapshot().at(-1)!.stages.some(stage=>stage.name==='import-derivation'&&stage.failures===1));
+ assert.ok(!journal.snapshot().at(-1)!.stages.some(stage=>stage.name==='graph-writes'||stage.name==='save-readback'));
+ assert.deepEqual(await f.library.snapshot(),before);op.finish('success');failed.finish('failed');
+});
 
 test('committed readback reuses validated bytes while unchanged captures still append receipts and evidence', async t => {
   let calls = 0, beforeReadback = -1;

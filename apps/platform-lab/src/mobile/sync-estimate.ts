@@ -1,14 +1,15 @@
 import {syncStages,type SyncStage} from './sync-progress';
 
 /** Disposable local performance hints; increment after changing timing boundaries. */
-export const SYNC_ESTIMATE_MODEL_VERSION=1;
+export const SYNC_ESTIMATE_MODEL_VERSION=2;
 /** Shared monotonic clock for runtime events; deterministic callers inject their own timestamps. */
 export const syncEstimateNow=()=>performance.now();
 export type SyncEstimateStage=Exclude<SyncStage,'sign-in'>|'review';
 export type SyncEstimateMode='first'|'repeat'|'resume';
 export type SyncEstimateVolume='unknown'|'small'|'medium'|'large';
 type Sample={mode:SyncEstimateMode;volume:SyncEstimateVolume;stage:SyncEstimateStage;durationsMs:number[]};
-export type SyncEstimateHistory={version:number;scope:string;samples:Sample[]};
+export type SyncEstimateContext={mode:'first'|'repeat';volume:SyncEstimateVolume};
+export type SyncEstimateHistory={version:number;scope:string;samples:Sample[];context?:SyncEstimateContext};
 const stages:readonly string[]=[...new Set([...syncStages.filter(stage=>stage!=='sign-in'),'review'])];
 const modes:readonly string[]=['first','repeat','resume'];
 const volumes:readonly string[]=['unknown','small','medium','large'];
@@ -42,14 +43,16 @@ export function parseSyncEstimateHistory(value:unknown,scope:string):SyncEstimat
     const key=`${sample.mode}/${sample.volume}/${sample.stage}`,previous=groups.get(key);
     groups.set(key,{...sample,durationsMs:[...(previous?.durationsMs??[]),...durationsMs].slice(-MAX_SAMPLES)});
   }
-  return {...empty,samples:[...groups.values()]};
+  const context=record(value.context)&&['first','repeat'].includes(String(value.context.mode))&&typeof value.context.mode==='string'&&typeof value.context.volume==='string'&&volumes.includes(value.context.volume)?
+    {mode:value.context.mode as 'first'|'repeat',volume:value.context.volume as SyncEstimateVolume}:undefined;
+  return {...empty,samples:[...groups.values()],...(context?{context}:{})};
 }
 
 type Unit={stage:SyncEstimateStage;expectedMs:number|null;elapsedMs:number;done:boolean;count?:{done:number;total:number}};
 export type SyncEstimateStatus='active'|'paused'|'success'|'partial'|'failed'|'cancelled';
 export type SyncEstimateState={
   runId:string;scope:string;mode:SyncEstimateMode;volume:SyncEstimateVolume;units:Unit[];
-  current:SyncEstimateStage|null;status:SyncEstimateStatus;now:number;fraction:number|null;learnable:boolean;
+  current:SyncEstimateStage|null;status:SyncEstimateStatus;now:number;fraction:number|null;learnable:boolean;contextVerified:boolean;
 };
 export type SyncEstimateEvent={runId:string;at:number}&(
   {type:'start'|'finish';stage:SyncEstimateStage}|
@@ -65,9 +68,9 @@ function median(values:readonly number[]):number{
 }
 
 /** Plans only remaining units for resume. Missing comparable history means indeterminate, never equal invented weights. */
-export function createSyncEstimate({runId,scope,mode,volume,stages:planned,history,now}:{
+export function createSyncEstimate({runId,scope,mode,volume,stages:planned,history,now,provisional=false}:{
   runId:string;scope:string;mode:SyncEstimateMode;volume:SyncEstimateVolume;
-  stages:readonly (SyncEstimateStage|'sign-in')[];history?:unknown;now:number;
+  stages:readonly (SyncEstimateStage|'sign-in')[];history?:unknown;now:number;provisional?:boolean;
 }):SyncEstimateState{
   if(!runId||!scope||scope.length>128||!validTime(now))throw new Error('Invalid Sync estimate context');
   const samples=parseSyncEstimateHistory(history,scope).samples;
@@ -75,7 +78,18 @@ export function createSyncEstimate({runId,scope,mode,volume,stages:planned,histo
     const sample=samples.find(item=>item.mode===mode&&item.volume===volume&&item.stage===stage);
     return {stage,expectedMs:sample?median(sample.durationsMs):null,elapsedMs:0,done:false};
   });
-  return {runId,scope,mode,volume,units,current:null,status:'active',now,fraction:units.length&&units.every(unit=>unit.expectedMs!==null)?0:null,learnable:true};
+  return {runId,scope,mode,volume,units,current:null,status:'active',now,fraction:units.length&&units.every(unit=>unit.expectedMs!==null)?0:null,learnable:true,contextVerified:!provisional};
+}
+
+/** Cached context only selects provisional hints. Existing business reads must confirm it before learning. */
+export function confirmSyncEstimateContext(state:SyncEstimateState,context:{mode:SyncEstimateMode;volume:SyncEstimateVolume},remaining?:readonly SyncEstimateStage[]):SyncEstimateState{
+  const planned=remaining?['prepare','account',...remaining]:state.units.map(unit=>unit.stage);
+  const changed=state.mode!==context.mode||state.volume!==context.volume;
+  const next:SyncEstimateState={...state,...context,contextVerified:true,units:planned.map(stage=>{
+    const existing=state.units.find(unit=>unit.stage===stage);
+    return existing?{...existing,expectedMs:changed?null:existing.expectedMs}:{stage:stage as SyncEstimateStage,expectedMs:null,elapsedMs:0,done:false};
+  }),fraction:changed?null:state.fraction};
+  return {...next,fraction:projectedFraction(next)};
 }
 
 function projectedFraction(state:SyncEstimateState):number|null{
@@ -124,13 +138,15 @@ export function snapshotSyncEstimate(state:SyncEstimateState):{fraction:number|n
 }
 
 /** Call once for a terminal attempt. Failed/partial/cancelled/background runs cannot train hints. */
-export function learnSyncEstimate(history:unknown,state:SyncEstimateState):SyncEstimateHistory{
+export function learnSyncEstimate(history:unknown,state:SyncEstimateState,context?:SyncEstimateContext):SyncEstimateHistory{
   const parsed=parseSyncEstimateHistory(history,state.scope);
-  if(state.status!=='success'||!state.learnable||!state.units.length||state.units.some(unit=>!unit.done||unit.elapsedMs>MAX_DURATION))return parsed;
+  if(state.status!=='success'||!state.learnable||!state.contextVerified||!state.units.length||state.units.some(unit=>!unit.done||unit.elapsedMs>MAX_DURATION))return parsed;
   for(const unit of state.units){
     const previous=parsed.samples.find(sample=>sample.mode===state.mode&&sample.volume===state.volume&&sample.stage===unit.stage);
     if(previous)previous.durationsMs=[...previous.durationsMs,Math.max(1,unit.elapsedMs)].slice(-MAX_SAMPLES);
     else parsed.samples.push({mode:state.mode,volume:state.volume,stage:unit.stage,durationsMs:[Math.max(1,unit.elapsedMs)]});
   }
+  if(context)parsed.context={...context};
+  else if(state.mode!=='resume')parsed.context={mode:state.mode,volume:state.volume};
   return parsed;
 }

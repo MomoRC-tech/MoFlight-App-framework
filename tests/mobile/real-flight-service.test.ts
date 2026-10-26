@@ -71,7 +71,8 @@ test('review start follows live source retrieval, skips binding rebuild and keep
     const measured=journal.snapshot();assert.ok(measured[0]!.stages.some(stage=>stage.name==='source-review'));
     assert.deepEqual(measured[1]!.stages,[]);
     const reviewPoint=measured[0]!.checkpoints.find(point=>point.name==='source-review'&&point.state==='start')!;
-    assert.ok(measured[0]!.checkpoints.some(point=>point.name==='import-derivation'&&point.parentSpanId===reviewPoint.spanId));
+    assert.ok(measured[0]!.checkpoints.some(point=>point.name==='graph-read'&&point.parentSpanId===reviewPoint.spanId));
+    assert.ok(!measured[0]!.checkpoints.some(point=>point.name==='import-derivation'),'Unbound review has no import derivation to measure');
     await service.confirmAccount(review);assert.equal(reviewStarts,1);
     await service.reviewSource(source('second-capture'));assert.equal(reviewStarts,2);
     first.finish('success');other.finish('success');

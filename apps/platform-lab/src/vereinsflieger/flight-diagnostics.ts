@@ -29,6 +29,7 @@ export class FlightDiagnostics {
   }
 }
 export const flightDiagnostics=new FlightDiagnostics();
+export const captureFlightTiming=()=>diagnosticJournal.captureSpan();
 export function startFlightSpan(name:string,span:DiagnosticSpanStarter=diagnosticJournal.captureSpan()) {
   if(name==='user-sign-in-wait')diagnosticJournal.record('screen','provider-login');
   const journalSpan=span(name);

@@ -8,6 +8,7 @@ import type { Bind, Driver } from '../../packages/local-data/src/index.ts';
 import { openRealFlightNativeDriver, type RealFlightNativeDatabase, type RealFlightNativeDatabaseOptions }
   from '../../apps/platform-lab/src/vereinsflieger/real-flight-native-driver.ts';
 import { RealOwnerRegistry } from '../../apps/platform-lab/src/vereinsflieger/real-owner-registry.ts';
+import { DiagnosticJournal } from '../../apps/platform-lab/src/diagnostics.ts';
 
 interface OpenedConnection {
   database: DatabaseSync;
@@ -57,6 +58,22 @@ function uuidSource(start = 1) {
   let value = start;
   return () => '00000000-0000-4000-8000-' + (value++).toString(16).padStart(12, '0');
 }
+
+test('queue wait ends at admission and stays bound to the original operation',async()=>{
+ const {directory,path}=temporaryPath(),factory=sqliteOpener(path);let now=0;
+ const journal=new DiagnosticJournal(()=>now),op=journal.begin('update-flights'),timing=op.span;
+ const driver=await openRealFlightNativeDriver('private-queue-name.sqlite',factory.open,()=>timing('queue-wait'));
+ let release!:()=>void,started!:()=>void;
+ const entered=new Promise<void>(resolve=>{started=resolve;});
+ try{
+  const first=driver.transaction(async()=>{started();await new Promise<void>(resolve=>{release=resolve;});});
+  await entered;const second=driver.first('SELECT 1 AS value');const other=journal.begin('read-flights');
+  now=100;release();await first;await second;
+  const waits=journal.snapshot()[0]!.stages.find(stage=>stage.name==='queue-wait')!;
+  assert.equal(waits.maximum,100);assert.deepEqual(journal.snapshot()[1]!.stages,[]);
+  assert.ok(!journal.export().includes('private-queue-name'));other.finish('success');
+ }finally{await driver.close();op.finish('success');rmSync(directory,{recursive:true,force:true});}
+});
 
 test('fresh-owner registry create, selection and reopen work with independent native transaction connections', async () => {
   const { directory, path } = temporaryPath(), factory = sqliteOpener(path);

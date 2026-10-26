@@ -222,7 +222,17 @@ export class DiagnosticJournal {
     if (entry && name) this.spanSequences.set(entry, spanId);
     const start = this.now(); let finished = false;
     const operationStart=entry?this.starts.get(entry)??start:start;
-    const checkpoint = (state: Checkpoint['state']) => { if (!entry || !name) return; entry.checkpoints.push({ name, state, offset: number(this.now() - operationStart), spanId, ...(parentSpanId === undefined ? {} : { parentSpanId }) }); entry.checkpoints = entry.checkpoints.slice(-DIAGNOSTIC_CHECKPOINT_LIMIT); this.sizes.delete(entry); };
+    const checkpoint = (state: Checkpoint['state']) => {
+      if (!entry || !name) return;
+      entry.checkpoints.push({name,state,offset:number(this.now()-operationStart),spanId,...(parentSpanId===undefined?{}:{parentSpanId})});
+      if(entry.checkpoints.length>DIAGNOSTIC_CHECKPOINT_LIMIT){
+        // Technical details can flood during paging and SQLite guards. Preserve
+        // the bounded foreground stage/wait timeline before retaining details.
+        const detail=entry.checkpoints.findIndex(point=>!point.name.startsWith('sync-')&&point.name!=='user-sign-in-wait');
+        entry.checkpoints.splice(detail<0?0:detail,1);
+      }
+      this.sizes.delete(entry);
+    };
     if (entry && name) { entry.activeStages.push(name); entry.activeStages = entry.activeStages.slice(-8); checkpoint('start'); const immediate=this.now()-this.lastCheckpointWrite>=100;if(immediate)this.lastCheckpointWrite=this.now();this.changed(immediate); }
     const finish: DiagnosticSpanFinish = (succeeded: boolean, counters?: unknown) => {
       if (finished) return; finished = true; if (!entry || !name || entry.outcome !== 'running' || !this.entries.includes(entry)) return;
@@ -232,7 +242,7 @@ export class DiagnosticJournal {
       if (counters) { stage.counters ??= {}; for (const [key, value] of Object.entries(cleanCounters(counters))) { const name = key as typeof counterNames[number], prior = stage.counters[name] ?? { calls: 0, failures: 0, milliseconds: 0 }; stage.counters[name] = { calls: number(prior.calls + value.calls), failures: number(prior.failures + value.failures), milliseconds: number(prior.milliseconds + value.milliseconds) }; } }
       checkpoint(succeeded ? 'success' : 'failed'); this.sizes.delete(entry); if (failures.includes(entry.outcome)) this.protect(entry); this.changed(false);
     };
-    finish.span = name => this.openSpan(name, finished ? undefined : entry, spanId);
+    finish.span = childName => this.openSpan(childName, finished || !name ? undefined : entry, spanId);
     return finish;
   }
   private emit() { for (const listener of this.listeners) listener(); }

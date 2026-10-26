@@ -2,7 +2,7 @@ import { canonical } from '@moflight/flight-logbook';
 import type { Hash } from '@moflight/local-data';
 import { realHistoryUuid } from './real-history-contract';
 import { createRealFlightSourceObservation, type RealFlightSourceInput } from './real-flight-source';
-import type { RealFlightAuthorization, RealFlightLibrary, RealFlightListItem, RealFlightDetail } from './real-flight-library';
+import type { RealFlightAuthorization, RealFlightLibrary, RealFlightListItem, RealFlightDetail, RealFlightTiming } from './real-flight-library';
 import { latestRealFlightValues, type RealFlightCommand, type RealFlightImportPlan, type RealFlightResult,
   type RealFlightGraph, type StoredBinding, type StoredCapture, type StoredCoverage, type StoredPending } from './real-flight-library-model';
 import { planFlightRetrieval, type SavedFlightRetrieval } from './retrieval-policy';
@@ -26,7 +26,7 @@ export interface RealFlightRepositorySession {
 }
 export interface RealFlightServicePorts {
   authorize: RealFlightAuthorization;
-  repository(): Promise<RealFlightRepositorySession>;
+  repository(timing?: RealFlightTiming): Promise<RealFlightRepositorySession>;
   journal(): Promise<RealFlightOperationJournal>;
   retrieve(request: {from: string; to: string}, signal: AbortSignal): Promise<RealFlightSourceInput>;
   onReviewStart?(): void;
@@ -81,10 +81,12 @@ export class RealFlightService {
     // A durable prepared command is deliberately retained; cancellation is not rollback.
   }
   dispose() { this.cancelReview(); this.disposed = true; }
-  private async withRepository<T>(work: (session: RealFlightRepositorySession) => Promise<T>, supplied?: RealFlightRepositorySession, span: DiagnosticSpanStarter = diagnosticJournal.captureSpan()): Promise<T> {
+  private async withRepository<T>(work: (session: RealFlightRepositorySession, timing: DiagnosticSpanStarter) => Promise<T>, supplied?: RealFlightRepositorySession, span: DiagnosticSpanStarter = diagnosticJournal.captureSpan()): Promise<T> {
     if (!supplied) this.allowed();
-    const session = supplied ?? await timeFlightStage('repository-open',()=>this.ports.repository(),span);
-    try { this.allowed(); const result = await work(session); this.allowed(); return result; }
+    // The repository owns a handle used after open finishes; bind its driver
+    // observations to this operation rather than an already completed open span.
+    const session = supplied ?? await timeFlightStage('repository-open',()=>this.ports.repository(span),span);
+    try { this.allowed(); const result = await work(session,span); this.allowed(); return result; }
     finally { await session.close(); }
   }
   private async withJournal<T>(work: (journal: RealFlightOperationJournal) => Promise<T>): Promise<T> {
@@ -106,7 +108,7 @@ export class RealFlightService {
   async retrieveUpdate(now = new Date()): Promise<RealFlightReview> {
     const span=diagnosticJournal.captureSpan();
     await timeFlightStage('receipt-recovery',nested=>this.prepareFreshFetch(nested),span);
-    const snapshot = await this.withRepository(async ({library,writable,warning})=>this.storedSnapshot(await library.snapshot(),writable,warning),undefined,span);
+    const snapshot = await this.withRepository(async ({library,writable,warning})=>this.storedSnapshot(await library.snapshot(span),writable,warning),undefined,span);
     return this.retrieve(planFlightRetrieval(snapshot.savedRetrievals, now).request,span);
   }
   async reviewSource(source: RealFlightSourceInput): Promise<RealFlightReview> {
@@ -121,7 +123,7 @@ export class RealFlightService {
     const pending = await this.withJournal(journal=>journal.pending()); this.live(sequence);
     if (pending) throw new PendingRealFlightOperation(pending.commandId);
     const review = await this.withRepository(async ({library}) => {
-      const {graph,plan} = await timeFlightStage('import-derivation',()=>library.prepareReview(source),span); this.live(sequence);
+      const {graph,plan} = await library.prepareReview(source,span); this.live(sequence);
       const reviewId = this.ports.uuid(); realHistoryUuid(reviewId);
       const base = {version:1 as const,reviewId,ownerId:this.ownerId,storeId:this.storeId,accountRef:observation.binding.accountRef,source};
       if (!graph.records.some(row=>row.kind === 'binding')) return {...base,state:'confirm-account' as const,sourceSha256:observation.capture.rawCaptureSha256};
@@ -141,7 +143,7 @@ export class RealFlightService {
     try {
       await this.withRepository(async session => {
         if (!session.writable) throw new Error('Read-only library recovery must be resolved before binding.');
-        const graph = await session.library.snapshot(); this.live(sequence);
+        const graph = await session.library.snapshot(span); this.live(sequence);
         await this.execute({version:1,kind:'bind',ownerId:this.ownerId,storeId:this.storeId,commandId:this.ports.uuid(),
           baseGeneration:graph.generation,at:this.ports.now(),source:review.source},session,sequence,span);
       },undefined,span);
@@ -176,7 +178,7 @@ export class RealFlightService {
     try {
       try {
         await timeFlightStage('command-prepare',()=>this.withJournal(journal=>journal.prepare(command)),span); this.live(sequence); this.allowed(true);
-        const result = await timeFlightStage('explicit-save',()=>session.library.commit(command),span); this.allowed();
+        const result = await timeFlightStage('explicit-save',nested=>session.library.commit(command,nested),span); this.allowed();
         await timeFlightStage('command-resolve',()=>this.withJournal(journal=>journal.resolve(command.commandId,'committed')),span); this.allowed(); return result;
       } catch (error) { throw new PendingRealFlightOperation(command.commandId,{cause:error}); }
     } finally { this.writing = false; }
@@ -220,13 +222,13 @@ export class RealFlightService {
     } finally { this.dispatching = false; }
   }
   async snapshot(): Promise<OwnFlightStoredSnapshot> {
-    return this.withRepository(async ({library,writable,warning})=>{
-      return this.storedSnapshot(await library.snapshot(),writable,warning);
+    return this.withRepository(async ({library,writable,warning},timing)=>{
+      return this.storedSnapshot(await library.snapshot(timing),writable,warning);
     });
   }
   async readStored(initialSession?: RealFlightRepositorySession): Promise<{snapshot: OwnFlightStoredSnapshot; flights: RealFlightListItem[]}> {
-    return this.withRepository(async ({library,writable,warning})=>{
-      const {graph,flights}=await library.readStored();
+    return this.withRepository(async ({library,writable,warning},timing)=>{
+      const {graph,flights}=await library.readStored(timing);
       return {snapshot:this.storedSnapshot(graph,writable,warning),flights};
     }, initialSession);
   }

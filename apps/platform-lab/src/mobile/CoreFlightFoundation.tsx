@@ -43,11 +43,13 @@ import type { UserBackupRestoreOperation } from '../user-backup-restore-journal'
 import { recoveredFlight, remainingSyncSources, type SyncRecoveryRecord } from './sync-recovery';
 import { clearSyncRecovery, readSyncRecovery, saveSyncRecovery } from './sync-recovery-native';
 import type { OtherAccountDataResult } from './account-retrieval-jobs';
-import {createSyncEstimate,reduceSyncEstimate,learnSyncEstimate,parseSyncEstimateHistory,syncEstimateVolume,syncEstimateNow,type SyncEstimateState,type SyncEstimateEvent,type SyncEstimateMode,type SyncEstimateStage} from './sync-estimate';
+import {createSyncEstimate,confirmSyncEstimateContext,reduceSyncEstimate,learnSyncEstimate,parseSyncEstimateHistory,syncEstimateVolume,syncEstimateNow,type SyncEstimateState,type SyncEstimateEvent,type SyncEstimateMode,type SyncEstimateStage,type SyncEstimateContext} from './sync-estimate';
 import {readSyncEstimateHistory,saveSyncEstimateHistory} from './sync-estimate-native';
 
 const ESTIMATE_CONTEXT='sync-local-replay-v1';
 const optionalEstimateStages=['medical','duties','events','documents','work-summary','work-hours','tasks'] as const;
+const sourceEstimateStages={medical:'medical',duties:'duties',events:'events',documentNotices:'documents',workSummary:'work-summary',workHours:'work-hours',tasks:'tasks'} as const;
+const remainingEstimateStages=(sources:SyncRecoveryRecord['sources'])=>Object.entries(sourceEstimateStages).filter(([key])=>!['updated','empty','partial'].includes(sources[key as keyof typeof sources]??'')).map(([,stage])=>stage);
 type EstimateAction<T=SyncEstimateEvent>=T extends SyncEstimateEvent?Omit<T,'runId'|'at'>:never;
 
 export type SyncControls={cancel:()=>void;canCancel:boolean};
@@ -314,23 +316,29 @@ function OwnerFlightLibrary({syncStartedAt,lease,registry,close,startUpdate,open
   const estimateTainted=useRef(false),estimateSaved=useRef(false);
   const preparationStarted=useRef(syncStartedAt??syncEstimateNow());
   const preparationInterrupted=useRef(false);
+  const storedEstimateContext=useRef<SyncEstimateContext|null>(null);
   const stageTiming=useRef<{stage:SyncStage;end:(success:boolean)=>void}|null>(null);
   function estimateEvent(event:EstimateAction){
     const current=estimate.current;
     if(current)estimate.current=reduceSyncEstimate(current,{...event,runId:current.runId,at:syncEstimateNow()} as SyncEstimateEvent);
   }
+  function prepareEstimate(mode:SyncEstimateMode,volume:SyncEstimateContext['volume'],start:number,provisional=false,remaining:readonly SyncEstimateStage[]=['flights','review','save',...optionalEstimateStages]){
+    estimateTainted.current=false;estimateSaved.current=false;
+    let value=createSyncEstimate({runId:`${estimateInstance.current}:${requestId}:${++estimateSequence.current}`,scope:ESTIMATE_CONTEXT,mode,volume,
+      stages:['prepare','account',...remaining],history:estimateHistory.current,now:start,provisional});
+    value=reduceSyncEstimate(value,{runId:value.runId,type:'start',stage:'prepare',at:start});
+    if(preparationInterrupted.current)value={...value,learnable:false};
+    estimate.current=value;
+    setSyncProgress(previous=>({...previous,state:'active',current:'prepare'}));
+  }
   function beginEstimate(mode:SyncEstimateMode,remaining:readonly SyncEstimateStage[]=['flights','review','save',...optionalEstimateStages]){
     const now=syncEstimateNow();
-    estimateTainted.current=false;estimateSaved.current=false;
-    // Preparation is included when it belongs to this fresh explicit request; a
-    // manual continuation excludes time spent waiting for the user's decision.
-    const start=mode==='resume'||estimate.current!==null?now:preparationStarted.current;
-    let value=createSyncEstimate({runId:`${estimateInstance.current}:${requestId}:${++estimateSequence.current}`,scope:ESTIMATE_CONTEXT,mode,
-      volume:syncEstimateVolume(null,flights.length),stages:['prepare','account',...remaining],history:estimateHistory.current,now:start});
-    value=reduceSyncEstimate(value,{runId:value.runId,type:'start',stage:'prepare',at:start});
-    value=reduceSyncEstimate(value,{runId:value.runId,type:'finish',stage:'prepare',at:now});
-    if(start!==now&&preparationInterrupted.current)value={...value,learnable:false};
-    estimate.current=value;
+    if(!estimate.current||!['active','paused'].includes(estimate.current.status)){
+      prepareEstimate(mode,syncEstimateVolume(null,flights.length),estimate.current!==null?now:preparationStarted.current);
+    }
+    estimate.current=confirmSyncEstimateContext(estimate.current!,{mode,volume:storedEstimateContext.current?.volume??syncEstimateVolume(null,flights.length)},remaining);
+    if(estimate.current.status==='paused')estimateEvent({type:'resume'});
+    estimateEvent({type:'finish',stage:'prepare'});
     startStage('account');
   }
   useEffect(()=>{
@@ -396,8 +404,8 @@ function OwnerFlightLibrary({syncStartedAt,lease,registry,close,startUpdate,open
       if(rows!==undefined)setSyncProgress(previous=>updateSyncCount(previous,'flights',{done:rows,total:rows,unit:'flights'}));
       finishStage('flights');startStage('review');
     },
-    repository:async()=>{
-      const journal=await openRealFlightSelection(scope);if(!journal)throw new Error('No selected own-flight library.');
+    repository:async timing=>{
+      const journal=await openRealFlightSelection(scope,false,undefined,timing);if(!journal)throw new Error('No selected own-flight library.');
       try {
         const selected=await journal.select();return {library:selected.candidate,writable:!selected.recoveryRequired,warning:selected.warning,
           close:async()=>{await selected.candidate.close();await journal.close();}};
@@ -457,6 +465,7 @@ function OwnerFlightLibrary({syncStartedAt,lease,registry,close,startUpdate,open
     const {snapshot:next,flights:rows}=await timeFlightStage('stored-view',()=>service.readStored(initial??undefined)),
       pending=await timeFlightStage('receipt-recovery',()=>syncEntry?service.prepareFreshFetch():service.recoverPending());
     const interrupted=await readSyncRecovery(scope);
+    storedEstimateContext.current={mode:next.account?'repeat':'first',volume:syncEstimateVolume(null,rows.length)};
     diagnosis.current?.note('library',next.recovery.readOnly?'read-only':'ready');diagnosis.current?.note('save',pending.status==='none'?'ready':pending.status==='committed'?'receipt-confirmed':'pending');
     if(alive.current){setSnapshot(next);setFlights(rows);setRecovery(pending);setSavedSync(interrupted);syncRecord.current=interrupted;
       setPage(current=>Math.min(current,Math.max(0,Math.ceil(rows.length/5)-1)));}
@@ -521,17 +530,19 @@ function OwnerFlightLibrary({syncStartedAt,lease,registry,close,startUpdate,open
     if(!active()&&interruption.current==='background')throw new Error('Sync was interrupted.');
     const {result,accountRef,from,to}=completed.flights;
     const verified=controller.current.connection;
-    const optionalSourceStatuses=[completed.otherData.medical,completed.otherData.duties,completed.otherData.events,completed.otherData.documentNotices,completed.otherData.workSummary,completed.otherData.workHours,completed.otherData.tasks];
-    const optionalSourceIncomplete=optionalSourceStatuses.some(status=>status==='failed'||status==='skipped');
-    diagnosis.current?.finish(optionalSourceIncomplete?'partial':'success',completed.otherData.medical==='failed'?'medical-failed':completed.otherData.medical==='skipped'?'medical-skipped':completed.otherData.duties==='failed'?'duties-failed':completed.otherData.duties==='skipped'?'duties-skipped':completed.otherData.events==='failed'?'events-failed':completed.otherData.documentNotices==='failed'?'documents-failed':completed.otherData.workSummary==='failed'?'work-summary-failed':completed.otherData.workHours==='failed'?'work-hours-failed':completed.otherData.tasks==='failed'?'tasks-failed':'none');
     if(!remainingSyncSources(syncRecord.current?.sources??{})){
       await clearSyncRecovery(scope);syncRecord.current=null;setSavedSync(null);
     }
-    estimateEvent({type:'terminal',outcome:optionalSourceIncomplete||estimateTainted.current?'partial':'success'});
+    const partial=completedSyncProgress({pending:result.counts.pending,cleanupPending:!!controller.current.recovery,
+      medicalStatus:completed.otherData.medical,dutyStatus:completed.otherData.duties,eventsStatus:completed.otherData.events,
+      documentNoticesStatus:completed.otherData.documentNotices,workSummaryStatus:completed.otherData.workSummary,
+      workHoursStatus:completed.otherData.workHours,tasksStatus:completed.otherData.tasks}).state==='partial';
+    estimateEvent({type:'terminal',outcome:partial||estimateTainted.current?'partial':'success'});
     if(active()&&estimate.current?.status==='success'&&!estimateSaved.current){
-      estimateSaved.current=true;estimateHistory.current=learnSyncEstimate(estimateHistory.current,estimate.current);
+      estimateSaved.current=true;estimateHistory.current=learnSyncEstimate(estimateHistory.current,estimate.current,storedEstimateContext.current??undefined);
       try{await saveSyncEstimateHistory(scope,estimateHistory.current);}catch{/* Only timing hints are lost; saved source results stay authoritative. */}
     }
+    diagnosis.current?.finish(partial?'partial':'success',completed.otherData.medical==='failed'?'medical-failed':completed.otherData.medical==='skipped'?'medical-skipped':completed.otherData.duties==='failed'?'duties-failed':completed.otherData.duties==='skipped'?'duties-skipped':completed.otherData.events==='failed'?'events-failed':completed.otherData.documentNotices==='failed'?'documents-failed':completed.otherData.workSummary==='failed'?'work-summary-failed':completed.otherData.workHours==='failed'?'work-hours-failed':completed.otherData.tasks==='failed'?'tasks-failed':'none');
     if(alive.current){setLoadStage('done');setStep('Fertig.');setCompleted({ownerId:lease.ownerId,storeId:lease.storeId,accountRef,completedAt:new Date().toISOString(),added:result.counts.added,changed:result.counts.changed,pending:result.counts.pending,
       from,to,
       verifiedConnection:foreground.current&&!stopRemainingJobs.current&&verified.confirmed?{ownerId:lease.ownerId,state:verified}:undefined,medicalStatus:completed.otherData.medical,dutyStatus:completed.otherData.duties,eventsStatus:completed.otherData.events,documentNoticesStatus:completed.otherData.documentNotices,workSummaryStatus:completed.otherData.workSummary,workHoursStatus:completed.otherData.workHours,tasksStatus:completed.otherData.tasks,cleanupPending:controller.current.recovery});}
@@ -591,6 +602,9 @@ function OwnerFlightLibrary({syncStartedAt,lease,registry,close,startUpdate,open
     stopRemainingJobs.current=false;interruption.current=null;setCompleted(null);setFlightSaved(null);setLoginPaused(false);
     setLoadStage('verify');setStep('Gespeicherten Fortschritt und Anmeldung prüfen …');setProviderOpen(true);
     void run(async()=>{
+      preparationInterrupted.current=false;
+      prepareEstimate('resume',storedEstimateContext.current?.volume??syncEstimateVolume(null,flights.length),syncEstimateNow(),true,
+        savedSync.flightCaptureId?remainingEstimateStages(savedSync.sources):undefined);
       await refresh();
       const record=await readSyncRecovery(scope);
       if(!record)throw new Error('Saved Sync progress is unavailable.');
@@ -603,8 +617,7 @@ function OwnerFlightLibrary({syncStartedAt,lease,registry,close,startUpdate,open
         await saveSyncRecovery(scope,restart);syncRecord.current=restart;setSavedSync(restart);
         await finishAutomaticLoad(async()=>saveFlightReview(await service.retrieveUpdate()));return;
       }
-      const sourceStages={medical:'medical',duties:'duties',events:'events',documentNotices:'documents',workSummary:'work-summary',workHours:'work-hours',tasks:'tasks'} as const;
-      beginEstimate('resume',Object.entries(sourceStages).filter(([key])=>!['updated','empty','partial'].includes(record.sources[key as keyof typeof record.sources]??'')).map(([,stage])=>stage));
+      beginEstimate('resume',remainingEstimateStages(record.sources));
       await new Promise<void>((resolve,reject)=>{
         jobVerification.current={previous:controller.current.connection,resolve,reject};
         if(!controller.current.checkConnection('check')){jobVerification.current=null;reject(new Error('Account verification unavailable.'));}
@@ -689,7 +702,10 @@ function OwnerFlightLibrary({syncStartedAt,lease,registry,close,startUpdate,open
       await controller.current.cancelActivity();if(!current())return;
       if(controller.current.viewReadFailed)await controller.current.refreshRecovery();
       await Promise.allSettled([...activityWrites.current]);if(!current())return;
-      try{const hints=await readSyncEstimateHistory(scope,ESTIMATE_CONTEXT);if(current())estimateHistory.current=hints;}catch{/* Disposable hints never block Sync. */}
+      try{const hints=await readSyncEstimateHistory(scope,ESTIMATE_CONTEXT);if(current()){
+        estimateHistory.current=hints;
+        if(syncEntry&&hints.context)prepareEstimate(hints.context.mode,hints.context.volume,preparationStarted.current,true);
+      }}catch{/* Disposable hints never block Sync. */}
       await refresh();if(current()){preparation.ready=true;setEntryReady(true);}
     },'library-operation',true,current);
   },[open,requestId,service,busy]);
@@ -707,8 +723,9 @@ function OwnerFlightLibrary({syncStartedAt,lease,registry,close,startUpdate,open
       diagnosticJournal.record('sync',reason);diagnosis.current?.finish('blocked','recovery-required');
       setSyncProgress(previous=>({...previous,state:'failed',message:snapshot.recovery.readOnly?'Lokale Daten benötigen eine Prüfung in den Einstellungen. Vorhandene Daten bleiben erhalten.':'Eine begonnene Sicherung oder Speicherung muss in den Einstellungen geprüft werden.'}));return;
     }
+    if(savedSync){estimateEvent({type:'terminal',outcome:'cancelled'});estimate.current=null;finishStage('prepare');setSyncProgress(previous=>({...previous,state:'waiting',current:null,message:'Unterbrochene Synchronisierung kann nach Anmeldung fortgesetzt werden.'}));return;}
+    if(estimate.current)estimate.current=confirmSyncEstimateContext(estimate.current,{mode:snapshot.account?'repeat':'first',volume:syncEstimateVolume(null,flights.length)});
     finishStage('prepare');
-    if(savedSync){setSyncProgress(previous=>({...previous,state:'waiting',current:null,message:'Unterbrochene Synchronisierung kann nach Anmeldung fortgesetzt werden.'}));return;}
     loadFlights();
   },[open,entryReady,intent,requestId,busy,snapshot,c.viewReady,restoreReadWarning,restorePreparations,recovery,savedSync]);
   useEffect(()=>{

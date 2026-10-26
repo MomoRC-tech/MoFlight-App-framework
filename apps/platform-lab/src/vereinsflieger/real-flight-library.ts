@@ -15,6 +15,17 @@ export interface RealFlightPermit { ownerId: string; storeId: string; leaseId: s
 export type RealFlightAuthorization = () => RealFlightPermit | null;
 export type RealFlightFault = (stage: string) => Promise<void>;
 export type RealFlightAccessGate = (write: boolean) => Promise<void>;
+export type RealFlightTimingStage = 'graph-read' | 'graph-canonicalization' | 'graph-validation' | 'import-derivation' | 'graph-writes' | 'save-readback' | 'queue-wait';
+/** Fixed structural observer: no app dependency, identifiers or graph contents. */
+export type RealFlightTiming = (stage: RealFlightTimingStage) => ((success: boolean) => void) & {span?: RealFlightTiming};
+async function measured<T>(stage: RealFlightTimingStage, timing: RealFlightTiming | undefined, work: (nested?: RealFlightTiming) => Promise<T>): Promise<T> {
+  const end=timing?.(stage);let success=false;
+  try{const result=await work(end?.span??timing);success=true;return result;}finally{end?.(success);}
+}
+function measuredValue<T>(stage: RealFlightTimingStage, timing: RealFlightTiming | undefined, work: () => T): T {
+  const end=timing?.(stage);let success=false;
+  try{const result=work();success=true;return result;}finally{end?.(success);}
+}
 
 const SCHEMA_VERSION = 1;
 const normalizeSql = (sql: string) => sql.trim().replace(/\s*;\s*/g, '; ').replace(/\s+/g, ' ').replace(/; $/, '');
@@ -113,7 +124,7 @@ export class RealFlightLibrary {
 
   private constructor(private readonly db: Driver, readonly manifest: Readonly<RealHistoryManifest>,
     private readonly hash: Hash, private readonly authorize: RealFlightAuthorization, private readonly leaseId: string,
-    private readonly fault: RealFlightFault, private readonly gate: RealFlightAccessGate = async () => {}) {}
+    private readonly fault: RealFlightFault, private readonly gate: RealFlightAccessGate = async () => {}, private readonly timing?: RealFlightTiming) {}
 
   private static permit(authorize: RealFlightAuthorization, ownerId: string, storeId: string, write = false): RealFlightPermit {
     const value = authorize();
@@ -131,7 +142,7 @@ export class RealFlightLibrary {
   }
 
   static async create(db: Driver, manifest: RealHistoryManifest, hash: Hash, authorize: RealFlightAuthorization,
-    fault: RealFlightFault = async () => {}, gate: RealFlightAccessGate = async () => {}): Promise<RealFlightLibrary> {
+    fault: RealFlightFault = async () => {}, gate: RealFlightAccessGate = async () => {}, timing?: RealFlightTiming): Promise<RealFlightLibrary> {
     manifest = realFlightClone(manifest); validateRealHistoryManifest(manifest);
     const initial = this.permit(authorize, manifest.owner_id, manifest.store_id, true);
     await gate(true);
@@ -155,12 +166,12 @@ export class RealFlightLibrary {
     await gate(true);
     const afterPublication = this.permit(authorize, manifest.owner_id, manifest.store_id, true);
     realFlightRequire(afterPublication.leaseId === initial.leaseId, 'Real flight history creation lease changed after publication.');
-    const library = new RealFlightLibrary(db, Object.freeze(realFlightClone(manifest)), hash, authorize, initial.leaseId, fault, gate);
-    await library.snapshot(); await gate(true); library.allowed(true); return library;
+    const library = new RealFlightLibrary(db, Object.freeze(realFlightClone(manifest)), hash, authorize, initial.leaseId, fault, gate,timing);
+    await library.snapshot(timing); await gate(true); library.allowed(true); return library;
   }
 
   static async open(db: Driver, ownerId: string, storeId: string, hash: Hash, authorize: RealFlightAuthorization,
-    fault: RealFlightFault = async () => {}, gate: RealFlightAccessGate = async () => {}): Promise<RealFlightLibrary> {
+    fault: RealFlightFault = async () => {}, gate: RealFlightAccessGate = async () => {}, timing?: RealFlightTiming): Promise<RealFlightLibrary> {
     const initial = this.permit(authorize, ownerId, storeId);
     await gate(false);
     const permit = this.permit(authorize, ownerId, storeId);
@@ -171,11 +182,12 @@ export class RealFlightLibrary {
       await gate(false);
       const current = this.permit(authorize, ownerId, storeId);
       realFlightRequire(current.leaseId === permit.leaseId, 'Real flight history lease changed during open.');
-      await checkSchema(tx); graph = await authorizedGraph(tx, current); await validateRealFlightGraph(graph, hash);
+      graph = await measured('graph-read',timing,async()=>{await checkSchema(tx);return authorizedGraph(tx,current);});
+      await measured('graph-validation',timing,()=>validateRealFlightGraph(graph,hash));
     });
     realFlightRequire(graph.manifest.owner_id === ownerId && graph.manifest.store_id === storeId, 'Foreign real flight history file.');
-    const library = new RealFlightLibrary(db, Object.freeze(realFlightClone(graph.manifest)), hash, authorize, permit.leaseId, fault, gate);
-    library.validatedGraphText = canonical(graph);
+    const library = new RealFlightLibrary(db, Object.freeze(realFlightClone(graph.manifest)), hash, authorize, permit.leaseId, fault, gate,timing);
+    library.validatedGraphText = measuredValue('graph-canonicalization',timing,()=>canonical(graph));
     await gate(false);
     const afterReplay = library.allowed();
     realFlightRequire(afterReplay.leaseId === permit.leaseId, 'Real flight history lease changed after open.');
@@ -184,7 +196,7 @@ export class RealFlightLibrary {
 
   async close(): Promise<void> { if (!this.closed) { this.closed = true; this.validatedGraphText = null; await this.db.close(); } }
 
-  async snapshot(): Promise<RealFlightGraph> {
+  async snapshot(timing: RealFlightTiming | undefined = this.timing): Promise<RealFlightGraph> {
     const before = this.allowed(); await this.gate(false);
     const ready = this.allowed();
     realFlightRequire(ready.leaseId === before.leaseId, 'Real flight history lease changed before read.');
@@ -192,13 +204,13 @@ export class RealFlightLibrary {
     await this.db.transaction(async tx => {
       const current = this.allowed();
       realFlightRequire(current.leaseId === ready.leaseId, 'Real flight history lease changed during read.');
-      await checkSchema(tx); graph = await authorizedGraph(tx, current);
+      graph = await measured('graph-read',timing,async()=>{await checkSchema(tx);return authorizedGraph(tx,current);});
       // The current graph is still read and checked in this transaction. Reuse
       // replay only for exact bytes already validated by this same handle;
       // generation/count equality alone never establishes integrity.
-      const text = canonical(graph);
+      const text = measuredValue('graph-canonicalization',timing,()=>canonical(graph));
       if (text !== this.validatedGraphText) {
-        await validateRealFlightGraph(graph, this.hash);
+        await measured('graph-validation',timing,()=>validateRealFlightGraph(graph,this.hash));
       }
       validatedText = text;
     });
@@ -215,17 +227,17 @@ export class RealFlightLibrary {
     return this.commit(command);
   }
 
-  async prepareImport(source: RealFlightSourceInput): Promise<RealFlightImportPlan> {
-    const { plan } = await this.prepareReview(source);
+  async prepareImport(source: RealFlightSourceInput, timing?: RealFlightTiming): Promise<RealFlightImportPlan> {
+    const { plan } = await this.prepareReview(source,timing);
     realFlightRequire(plan, 'Bind the observed provider account before preparing a flight import.');
     return plan;
   }
 
   /** Binding state and import plan share one fresh, authorized graph read. */
-  async prepareReview(source: RealFlightSourceInput): Promise<{graph: RealFlightGraph; plan: RealFlightImportPlan | null}> {
-    const before = this.allowed(); await this.gate(false); const graph = await this.snapshot();
+  async prepareReview(source: RealFlightSourceInput, timing: RealFlightTiming | undefined = this.timing): Promise<{graph: RealFlightGraph; plan: RealFlightImportPlan | null}> {
+    const before = this.allowed(); await this.gate(false); const graph = await this.snapshot(timing);
     const binding = latestRealFlightValues<StoredBinding>(graph.records, 'binding')[0];
-    const plan = binding ? await prepareRealFlightImport(graph, binding.bindingId, source, this.hash) : null;
+    const plan = binding ? await measured('import-derivation',timing,()=>prepareRealFlightImport(graph,binding.bindingId,source,this.hash)) : null;
     await this.gate(false); const after = this.allowed();
     realFlightRequire(after.leaseId === before.leaseId, 'Real flight history lease changed during review.');
     return { graph, plan };
@@ -236,7 +248,7 @@ export class RealFlightLibrary {
     return this.commit(command);
   }
 
-  async commit(input: RealFlightCommand): Promise<RealFlightResult> {
+  async commit(input: RealFlightCommand, timing: RealFlightTiming | undefined = this.timing): Promise<RealFlightResult> {
     this.allowed(true); await this.gate(true);
     realFlightRequire(input.ownerId === this.manifest.owner_id && input.storeId === this.manifest.store_id,
       'Foreign real flight history command.');
@@ -248,17 +260,19 @@ export class RealFlightLibrary {
       await this.fault('before-transaction');
       await this.db.transaction(async tx => {
         this.allowed(true); await checkSchema(tx);
-        const graph = await authorizedGraph(tx, this.allowed(true)); await validateRealFlightGraph(graph, this.hash);
+        const graph = await measured('graph-read',timing,()=>authorizedGraph(tx,this.allowed(true)));
+        await measured('graph-validation',timing,()=>validateRealFlightGraph(graph,this.hash));
         realFlightRequire(canonical(graph.manifest) === canonical(this.manifest), 'Real flight history manifest changed.');
         const old = graph.receipts.find(receipt => receipt.command_id === command.commandId);
         if (old) {
           realFlightRequire(old.request_json === request, 'Real flight history idempotency ID reused with different input.');
-          validatedText = canonical(graph);
+          validatedText = measuredValue('graph-canonicalization',timing,()=>canonical(graph));
           result = JSON.parse(old.result_json) as RealFlightResult; alreadyCommitted = true; completed = true; return;
         }
-        const next = await deriveRealFlightCommand(graph, command, this.hash); result = next.result;
+        const next = await measured('import-derivation',timing,()=>deriveRealFlightCommand(graph,command,this.hash)); result = next.result;
         await this.fault('before-receipt');
         const receipt = next.receipt;
+        await measured('graph-writes',timing,async()=>{
         await tx.run('INSERT INTO real_history_receipts VALUES (?,?,?,?,?,?,?,?,?)', receipt.command_id, receipt.owner_id, receipt.kind,
           receipt.base_generation, receipt.generation, receipt.request_json, receipt.request_sha256, receipt.result_json, receipt.committed_at);
         await this.fault('after-receipt');
@@ -267,9 +281,10 @@ export class RealFlightLibrary {
             row.revision, row.generation, row.payload, row.payload_sha256);
           await this.fault('after-' + row.kind);
         }
-        const writtenGraph = await graphFrom(tx);
-        await validateRealFlightGraph(writtenGraph, this.hash);
-        validatedText = canonical(writtenGraph);
+        });
+        const writtenGraph = await measured('graph-read',timing,()=>graphFrom(tx));
+        await measured('graph-validation',timing,()=>validateRealFlightGraph(writtenGraph,this.hash));
+        validatedText = measuredValue('graph-canonicalization',timing,()=>canonical(writtenGraph));
         this.allowed(true); await this.fault('before-commit'); await this.gate(true);
         await authorizedGraph(tx, this.allowed(true)); completed = true;
       });
@@ -281,8 +296,10 @@ export class RealFlightLibrary {
       await this.gate(true); this.allowed(true);
       if (!alreadyCommitted) await this.fault('after-commit');
       await this.fault('before-readback');
-      const graph = await this.snapshot(); const receipt = graph.receipts.find(row => row.command_id === command.commandId);
-      realFlightRequire(receipt?.request_json === request && receipt.result_json === canonical(result), 'Real flight history receipt readback failed.');
+      await measured('save-readback',timing,async nested=>{
+        const graph = await this.snapshot(nested); const receipt = graph.receipts.find(row => row.command_id === command.commandId);
+        realFlightRequire(receipt?.request_json === request && receipt.result_json === canonical(result), 'Real flight history receipt readback failed.');
+      });
       await this.gate(true); this.allowed(true); return realFlightClone(result);
     } catch (error) {
       if (committed || completed) throw new IndeterminateRealFlightCommit(command.commandId, { cause: error });
@@ -302,8 +319,8 @@ export class RealFlightLibrary {
   }
 
   /** Summary and rows share one fully validated transaction snapshot. */
-  async readStored(): Promise<{graph: RealFlightGraph; flights: RealFlightListItem[]}> {
-    const graph = await this.snapshot(), binding = latestRealFlightValues<StoredBinding>(graph.records, 'binding')[0];
+  async readStored(timing?: RealFlightTiming): Promise<{graph: RealFlightGraph; flights: RealFlightListItem[]}> {
+    const graph = await this.snapshot(timing), binding = latestRealFlightValues<StoredBinding>(graph.records, 'binding')[0];
     if (!binding) return {graph,flights:[]};
     const rows: RealFlightListItem[] = [];
     for (const flightRow of latestRealFlightRecords(graph.records, 'flight')) {

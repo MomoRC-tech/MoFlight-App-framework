@@ -4,9 +4,9 @@ import * as SQLite from 'expo-sqlite';
 import type { Hash } from '@moflight/local-data';
 import { canonical } from '@moflight/flight-logbook';
 import { hash, openDriver } from '../storage';
-import { flightDiagnostics } from './flight-diagnostics';
+import { flightDiagnostics, captureFlightTiming } from './flight-diagnostics';
 import { RealFlightCommandJournal } from './real-flight-command-journal';
-import { RealFlightLibrary, type RealFlightAccessGate, type RealFlightAuthorization, type RealFlightFault } from './real-flight-library';
+import { RealFlightLibrary, type RealFlightAccessGate, type RealFlightAuthorization, type RealFlightFault, type RealFlightTiming } from './real-flight-library';
 import { validateRealFlightBackup } from './real-flight-library-model';
 import { realHistoryUuid, validateRealHistoryCandidateName, validateRealHistoryManifest,
   type RealHistoryManifest } from './real-history-contract';
@@ -56,7 +56,7 @@ export interface RealFlightNativeFile {
 export interface RealFlightNativeDependencies {
   defaultDatabaseDirectory: string;
   file(directory: string, name: string): RealFlightNativeFile;
-  openDriver(name: string): ReturnType<typeof openDriver>;
+  openDriver(name: string, timing?: RealFlightTiming): ReturnType<typeof openDriver>;
   hash: Hash;
   uuid: RealOwnerUuidSource;
   now(): string;
@@ -72,9 +72,9 @@ export interface RealFlightNativeAdapter {
   openRealFlightCandidate(scope: RealFlightNativeScope, name: string,
     selectionGate?: RealSelectionGate): Promise<RealFlightLibrary>;
   resumeInitialRealFlightCandidate(scope: RealFlightNativeScope): Promise<RealFlightLibrary>;
-  createRealFlightCandidateOpener(scope: RealFlightNativeScope): RealCandidateOpener<RealFlightLibrary>;
+  createRealFlightCandidateOpener(scope: RealFlightNativeScope, timing?: RealFlightTiming): RealCandidateOpener<RealFlightLibrary>;
   openRealFlightSelection(scope: RealFlightNativeScope, createExplicitly?: boolean,
-    fault?: (stage: string) => Promise<void>): Promise<RealFlightSelection<RealFlightLibrary> | null>;
+    fault?: (stage: string) => Promise<void>, timing?: RealFlightTiming): Promise<RealFlightSelection<RealFlightLibrary> | null>;
   openRealFlightCommandJournal(scope: RealFlightNativeScope,
     createExplicitly?: boolean): Promise<RealFlightCommandJournal | null>;
 }
@@ -85,8 +85,8 @@ const defaultDependencies: RealFlightNativeDependencies = {
     const base = directory.startsWith('file:') ? directory : 'file://' + directory;
     return new File(base, name);
   },
-  openDriver: async name => flightDiagnostics.driver(await flightDiagnostics.measure('databaseOpen',()=>import('./real-flight-native-driver').then(({ openRealFlightNativeDriver }) =>
-    openRealFlightNativeDriver(name, (databaseName, options) => SQLite.openDatabaseAsync(databaseName, options))))),
+  openDriver: async (name,timing) => flightDiagnostics.driver(await flightDiagnostics.measure('databaseOpen',()=>import('./real-flight-native-driver').then(({ openRealFlightNativeDriver }) =>
+    openRealFlightNativeDriver(name, (databaseName, options) => SQLite.openDatabaseAsync(databaseName, options), timing?()=>timing('queue-wait'):undefined)))),
   hash:text=>flightDiagnostics.measure('hash',()=>hash(text)),
   uuid: Crypto.randomUUID,
   now: () => new Date().toISOString(),
@@ -184,6 +184,7 @@ export function createRealFlightNativeAdapter(
 
   async function createRealFlightCandidate(scope: RealFlightNativeScope, name: string, manifest: RealHistoryManifest,
     fault: RealFlightFault = async () => {}, selectionGate = scope.selectionGate): Promise<RealFlightLibrary> {
+    const timing=captureFlightTiming();
     validateRealHistoryCandidateName(name);
     const validatedManifest = validateRealHistoryManifest(manifest);
     const permit = await assertScope(scope, scope.authorize, true, selectionGate);
@@ -199,11 +200,11 @@ export function createRealFlightNativeAdapter(
     let db: Awaited<ReturnType<typeof openDriver>> | null = null;
     let library: RealFlightLibrary | null = null;
     try {
-      db = await dependencies.openDriver(name);
+      db = await dependencies.openDriver(name,timing);
       await assertScope(scope, scope.authorize, true, selectionGate);
       const gate = candidateGate(scope, scope.authorize, selectionGate);
       library = await RealFlightLibrary.create(db, validatedManifest, dependencies.hash,
-        scope.authorize as RealFlightAuthorization, fault, gate);
+        scope.authorize as RealFlightAuthorization, fault, gate,timing);
       await assertScope(scope, scope.authorize, true, selectionGate);
       return library;
     } catch (error) {
@@ -245,7 +246,7 @@ export function createRealFlightNativeAdapter(
   }
 
   async function openCandidateWith(scope: RealFlightNativeScope, name: string,
-    authorize: RealFlightNativeAuthorization, selectionGate?: RealSelectionGate): Promise<RealFlightLibrary> {
+    authorize: RealFlightNativeAuthorization, selectionGate?: RealSelectionGate, timing: RealFlightTiming = captureFlightTiming()): Promise<RealFlightLibrary> {
     validateRealHistoryCandidateName(name);
     await assertScope(scope, authorize, false, selectionGate);
     const file = databaseFile(dependencies, name);
@@ -254,13 +255,13 @@ export function createRealFlightNativeAdapter(
     let db: Awaited<ReturnType<typeof openDriver>> | null = null;
     let library: RealFlightLibrary | null = null;
     try {
-      db = await dependencies.openDriver(name);
+      db = await dependencies.openDriver(name,timing);
       await assertScope(scope, authorize, false, selectionGate);
       if (await emptyDatabase(db)) throw new RealFlightUninitializedStoreError(name);
       const gate = candidateGate(scope, authorize, selectionGate);
       const permit = readPermit(scope, authorize, false);
       library = await RealFlightLibrary.open(db, permit.ownerId, permit.storeId, dependencies.hash,
-        authorize as RealFlightAuthorization, async () => {}, gate);
+        authorize as RealFlightAuthorization, async () => {}, gate, timing);
       await assertScope(scope, authorize, false, selectionGate);
       return library;
     } catch (error) {
@@ -341,12 +342,12 @@ export function createRealFlightNativeAdapter(
     } finally { if (db) await db.close(); }
   }
 
-  function createRealFlightCandidateOpener(scope: RealFlightNativeScope): RealCandidateOpener<RealFlightLibrary> {
-    return (name, authorize, selectionGate) => openCandidateWith(scope, name, authorize, selectionGate);
+  function createRealFlightCandidateOpener(scope: RealFlightNativeScope, timing?: RealFlightTiming): RealCandidateOpener<RealFlightLibrary> {
+    return (name, authorize, selectionGate) => openCandidateWith(scope, name, authorize, selectionGate, timing);
   }
 
   async function openRealFlightSelection(scope: RealFlightNativeScope, createExplicitly = false,
-    fault: (stage: string) => Promise<void> = async () => {}): Promise<RealFlightSelection<RealFlightLibrary> | null> {
+    fault: (stage: string) => Promise<void> = async () => {}, timing: RealFlightTiming = captureFlightTiming()): Promise<RealFlightSelection<RealFlightLibrary> | null> {
     if (typeof createExplicitly !== 'boolean') throw new Error('Invalid selection journal open mode.');
     const permit = await assertScope(scope, scope.authorize, createExplicitly, scope.selectionGate);
     const file = databaseFile(dependencies, REAL_FLIGHT_SELECTION_FILE_NAME);
@@ -358,10 +359,10 @@ export function createRealFlightNativeAdapter(
     let db: Awaited<ReturnType<typeof openDriver>> | null = null;
     let selection: RealFlightSelection<RealFlightLibrary> | null = null;
     try {
-      db = await dependencies.openDriver(REAL_FLIGHT_SELECTION_FILE_NAME);
+      db = await dependencies.openDriver(REAL_FLIGHT_SELECTION_FILE_NAME,timing);
       await assertScope(scope, scope.authorize, createExplicitly, scope.selectionGate);
       selection = await RealFlightSelection.open(db, permit.ownerId, permit.storeId,
-        nativeSelectionAuthorization(scope.authorize), createRealFlightCandidateOpener(scope), dependencies.hash,
+        nativeSelectionAuthorization(scope.authorize), createRealFlightCandidateOpener(scope,timing), dependencies.hash,
         await initializeMode(db, REAL_FLIGHT_SELECTION_FILE_NAME, existed, createExplicitly), fault);
       await assertScope(scope, scope.authorize, createExplicitly, scope.selectionGate);
       return selection;
@@ -420,6 +421,6 @@ export const resumeInitialRealFlightCandidate = (scope: RealFlightNativeScope) =
 export const createRealFlightCandidateOpener = (scope: RealFlightNativeScope) =>
   defaultAdapter.createRealFlightCandidateOpener(scope);
 export const openRealFlightSelection = (scope: RealFlightNativeScope, createExplicitly = false,
-  fault?: (stage: string) => Promise<void>) => defaultAdapter.openRealFlightSelection(scope, createExplicitly, fault);
+  fault?: (stage: string) => Promise<void>, timing?: RealFlightTiming) => defaultAdapter.openRealFlightSelection(scope, createExplicitly, fault, timing);
 export const openRealFlightCommandJournal = (scope: RealFlightNativeScope, createExplicitly = false) =>
   defaultAdapter.openRealFlightCommandJournal(scope, createExplicitly);

@@ -16,8 +16,9 @@ export type RealFlightNativeDatabaseOpener =
 // root reads and close, not only BEGIN, in the same file's operation queue.
 // Only scheduling is shared: connections, leases and validation stay private.
 const databaseWork = new Map<string, Promise<void>>();
-function serialize<T>(name: string, work: () => Promise<T>): Promise<T> {
-  const result = (databaseWork.get(name) ?? Promise.resolve()).then(work);
+function serialize<T>(name: string, work: () => Promise<T>, observeWait?: () => (success: boolean) => void): Promise<T> {
+  const preceding=databaseWork.get(name),endWait=preceding?observeWait?.():undefined;
+  const result = (preceding ?? Promise.resolve()).then(()=>{endWait?.(true);return work();});
   const settled = result.then(() => {}, () => {});
   databaseWork.set(name, settled);
   void settled.then(() => {
@@ -51,7 +52,7 @@ async function configure(db: RealFlightNativeDatabase): Promise<void> {
  * Same-file operations across drivers serialize without sharing connection or
  * authorization state. Transaction callbacks must use their supplied connection.
  */
-export async function openRealFlightNativeDriver(name: string, openDatabase: RealFlightNativeDatabaseOpener): Promise<Driver> {
+export async function openRealFlightNativeDriver(name: string, openDatabase: RealFlightNativeDatabaseOpener, observeWait?: () => (success: boolean) => void): Promise<Driver> {
   // Expo's default cache can share the underlying root with another driver.
   // Each driver closes its own handles; closing a concurrent inspector must
   // never invalidate a retained selection's root connection.
@@ -62,13 +63,13 @@ export async function openRealFlightNativeDriver(name: string, openDatabase: Rea
       try { await opened.closeAsync(); } catch { /* Preserve the original connection setup failure. */ }
       throw error;
     }
-  });
+  },observeWait);
   let transactionDb: RealFlightNativeDatabase | null = null;
   let closing: Promise<void> | null = null;
   function allowed() { if (closing) throw new Error('Real flight SQLite driver closed.'); }
   async function schedule<T>(work: () => Promise<T>): Promise<T> {
     allowed();
-    return serialize(name, work);
+    return serialize(name, work, observeWait);
   }
   async function discardTransaction() {
     const current = transactionDb;
@@ -84,7 +85,7 @@ export async function openRealFlightNativeDriver(name: string, openDatabase: Rea
       closing ??= serialize(name, async () => {
         try { await discardTransaction(); }
         finally { await db.closeAsync(); }
-      });
+      },observeWait);
       return closing;
     },
     transaction: async work => {

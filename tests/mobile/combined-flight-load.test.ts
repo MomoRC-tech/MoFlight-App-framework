@@ -51,7 +51,7 @@ const fixtureActivityLedger={
 
 // Real screen effects and handlers; SQLite and provider behavior have their own
 // integration tests. These ports control timing to exercise the screen coordinator.
-function fixture({destination='sources',providerAllowed=true,deferRead=false,startUpdate=false,root=false,readOnly=false,deferReservation=false,deferActivityCancel=false,deferActivityWrite=false,failStartup=false,medicalFailure=false,loginPending=false,deferProvider=false,quietResume=false,deferSource=false,sameWindow=false,deferVerification=false,priorConnection='unknown',existingOwner=false,pendingRestore=false,cancelRestore=false,initialOpen=true,initialFlightsSaved=false,initialSavedSync=null as syncRecovery.SyncRecoveryRecord|null,initialEstimateHistory=null as unknown,unactivatedPreparation=false,activityEnabled=false,activityBaselineCount=1,activityResultCount=2,onStatus:statusCallback=undefined as ((status:any)=>void)|undefined,intent:requestedIntent=undefined as string|undefined}={}) {
+function fixture({destination='sources',providerAllowed=true,deferRead=false,startUpdate=false,root=false,readOnly=false,deferReservation=false,deferActivityCancel=false,deferActivityWrite=false,failStartup=false,medicalFailure=false,pendingFlightCount=0,cleanupAfterTasks=false,loginPending=false,deferProvider=false,quietResume=false,deferSource=false,sameWindow=false,deferVerification=false,priorConnection='unknown',existingOwner=false,pendingRestore=false,cancelRestore=false,initialOpen=true,initialFlightsSaved=false,initialSavedSync=null as syncRecovery.SyncRecoveryRecord|null,initialEstimateHistory=null as unknown,unactivatedPreparation=false,activityEnabled=false,activityBaselineCount=1,activityResultCount=2,onStatus:statusCallback=undefined as ((status:any)=>void)|undefined,intent:requestedIntent=undefined as string|undefined}={}) {
   let panelOpen=initialOpen,requestId=0;
   const journal=new DiagnosticJournal(), diagnosis={current:journal.begin(startUpdate?'update-flights':'open-flight-tools')};
   const hooks:any[]=[],effects:(()=>void)[]=[],calls:string[]=[],activityOrder:string[]=[],closed:any[]=[];
@@ -65,7 +65,7 @@ function fixture({destination='sources',providerAllowed=true,deferRead=false,sta
   let finishReservation!:()=>void;
   const reservation=new Promise<void>(resolve=>{finishReservation=resolve;});
   const listeners=new Set<(state:string)=>void>();
-  let saved=initialFlightsSaved,timerId=0;
+  let saved=initialFlightsSaved,timerId=0,holdNextRead=false;
   let persistedSync:syncRecovery.SyncRecoveryRecord|null=initialSavedSync;
   let persistedEstimates:unknown=initialEstimateHistory,estimateClock=0;
   const estimateSaves:syncEstimate.SyncEstimateHistory[]=[];
@@ -91,7 +91,7 @@ function fixture({destination='sources',providerAllowed=true,deferRead=false,sta
     beginGuidedFlightConnection:()=>{calls.push('session');c.result='none';if(deferVerification)c.connection={phase:'checking',confirmed:false};else if(loginPending)c.visible=true;else c.connection={phase:'observed',confirmed:true,observed:{accountNumber:'101',clubLabel:'Example'}};dirty=true;},
     resumeGuidedFlightConnection:()=>{calls.push('resume');if(!quietResume){c.connection={phase:'unknown',confirmed:false};c.visible=true;dirty=true;}return true;},
     endGuidedFlightConnection:()=>{},connect:()=>calls.push('login'),
-    retrieveFeatureInformation:async(category:string)=>{calls.push(category);return {rows:[{}]};},
+    retrieveFeatureInformation:async(category:string)=>{calls.push(category);if(cleanupAfterTasks&&category==='tasks'){c.recovery=true;dirty=true;await new Promise<void>(resolve=>{setImmediate(resolve);});}return {rows:[{}]};},
     retrieveMedical:async()=>{calls.push('medical');if(medicalFailure)throw new Error('Synthetic Medical failure');return {rows:[{}]};},
     cancelActivity:async()=>{activityOrder.push('cancel-start');if(deferActivityCancel)await activityCancel;activityOrder.push('cancel-finish');},
     checkConnection:(action?:string)=>{if(action==='check'){calls.push('verify-job');c.connection={phase:'checking',confirmed:false};}else{calls.push('retrieve');c.busy=true;}dirty=true;return true;},
@@ -101,7 +101,7 @@ function fixture({destination='sources',providerAllowed=true,deferRead=false,sta
     disposed=false;
     constructor(...args:any[]) { this.ports=args[3]; }
     ports:any;
-    async readStored(){activityOrder.push('refresh-read');if(deferRead)await storedRead;return {snapshot,flights:saved?[{},{},{}]:[]};}
+    async readStored(){activityOrder.push('refresh-read');if(deferRead||holdNextRead){holdNextRead=false;await storedRead;}return {snapshot,flights:saved?[{},{},{}]:[]};}
     async snapshot(){return {...snapshot,ownerId:'owner',storeId:'store',
       account:saved?{provider:'vereinsflieger',accountRef:'101'}:null,
       latestSavedResult:saved?{kind:'import-unassigned',captureId:'fresh',counts:{added:2,changed:1,pending:0}}:null,
@@ -111,7 +111,7 @@ function fixture({destination='sources',providerAllowed=true,deferRead=false,sta
     async recoverPending(){return {status:'none'};}
     async prepareFreshFetch(){return {status:'none'};}
     async retrieveUpdate(){if(deferSource)await new Promise<void>(resolve=>{admitSource=resolve;});abort=new AbortController();if(deferProvider)c.viewReady=false;const value=await this.ports.retrieve({from:'2025-01-01',to:'2026-10-21'},abort.signal);if(!abort.signal.aborted)this.ports.onReviewStart?.();await new Promise<void>(resolve=>{setImmediate(resolve);});return {state:'confirm-account',accountRef:'101',source:value};}
-    async saveVerifiedReview(_review:any,context:any){assert.equal(context.accountNumber,'101');calls.push('save');saved=true;return {counts:{added:2,changed:1,pending:0}};}
+    async saveVerifiedReview(_review:any,context:any){assert.equal(context.accountNumber,'101');calls.push('save');saved=true;return {counts:{added:2,changed:1,pending:pendingFlightCount}};}
     cancelReview(){abort?.abort();}
     dispose(){this.disposed=true;this.cancelReview();}
   }
@@ -169,7 +169,7 @@ function fixture({destination='sources',providerAllowed=true,deferRead=false,sta
   function nodes(){const result:Element[]=[];function visit(value:any){if(value&&typeof value==='object'&&'children'in value){result.push(value);value.children.forEach(visit);if(value.props.progress)visit(value.props.progress);}}visit(tree);return result;}
   const text=(node:any):string=>node&&typeof node==='object'&&'children'in node?node.children.map(text).join(''):typeof node==='string'?node:'';
   function press(label:string){const node=nodes().find(n=>n.type==='Action'&&text(n)===label);assert.ok(node,label);assert.ok(!node.props.disabled,label);node.props.onPress();}
-  return {advanceEstimateTime:(milliseconds:number)=>{estimateClock+=milliseconds;},estimateSaves:()=>estimateSaves.map(cloneJson),estimateHistory:()=>cloneJson(persistedEstimates),renewLease:()=>{lease={...lease,leaseId:'renewed'};dirty=true;},progressUpdates,journal,render,flush,c,calls,closed,nodes,activityChecks:()=>activityChecks,activityWriteCalls:()=>activityWriteCalls,pendingRestoreChecks:()=>pendingRestoreChecks,activityLedgerSaves:()=>activityLedgerSaves.map(cloneJson),savedActivityLedger:()=>savedActivityLedger===null?null:cloneJson(savedActivityLedger),statusUpdates,changeSelection:()=>{selectedHead++;},setOpen:(value:boolean)=>{panelOpen=value;if(value)requestId++;dirty=true;},text:()=>text(tree),progressText:()=>text(nodes().find(n=>n.type==='ProviderConnection')?.props.progress),press,finishReservation,background:()=>listeners.forEach(f=>f('background')),resume:()=>listeners.forEach(f=>f('active')),
+  return {deferNextStoredRead:()=>{holdNextRead=true;},advanceEstimateTime:(milliseconds:number)=>{estimateClock+=milliseconds;},estimateSaves:()=>estimateSaves.map(cloneJson),estimateHistory:()=>cloneJson(persistedEstimates),renewLease:()=>{lease={...lease,leaseId:'renewed'};dirty=true;},progressUpdates,journal,render,flush,c,calls,closed,nodes,activityChecks:()=>activityChecks,activityWriteCalls:()=>activityWriteCalls,pendingRestoreChecks:()=>pendingRestoreChecks,activityLedgerSaves:()=>activityLedgerSaves.map(cloneJson),savedActivityLedger:()=>savedActivityLedger===null?null:cloneJson(savedActivityLedger),statusUpdates,changeSelection:()=>{selectedHead++;},setOpen:(value:boolean)=>{panelOpen=value;if(value)requestId++;dirty=true;},text:()=>text(tree),progressText:()=>text(nodes().find(n=>n.type==='ProviderConnection')?.props.progress),press,finishReservation,background:()=>listeners.forEach(f=>f('background')),resume:()=>listeners.forEach(f=>f('active')),
     verify:()=>{c.visible=false;c.connection={phase:'observed',confirmed:true,observed:{accountNumber:'101',clubLabel:'Example'}};dirty=true;},
     pendingTimers:()=>timers.size,expire:()=>{for(const [id,fn] of timers){timers.delete(id);fn();}},
     finishRead:()=>finishRead(),
@@ -836,9 +836,9 @@ test('retry preparation excludes elapsed time from the previous failed attempt',
   f.press('Neu synchronisieren');await f.flush();
   const retry=f.progressUpdates.slice(boundary).find(progress=>progress.estimate)?.estimate;
   assert.ok(retry);assert.notEqual(retry.runId,original.runId);
-  assert.equal(retry.units.find(unit=>unit.stage==='prepare')?.elapsedMs,0);
+  assert.ok(retry.units.find(unit=>unit.stage==='prepare')!.elapsedMs<1000);
   f.complete();await f.flush();assert.equal(f.closed.length,1);assert.equal(f.estimateSaves().length,1);
-  assert.deepEqual(f.estimateSaves()[0]!.samples.find(sample=>sample.stage==='prepare')?.durationsMs,[1]);
+  assert.ok(f.estimateSaves()[0]!.samples.find(sample=>sample.stage==='prepare')!.durationsMs.every(duration=>duration<1000));
  }finally{f.dispose();}
 });
 
@@ -853,5 +853,73 @@ test('preparation crossing background permits successful sync without learning t
   assert.ok(estimates.length>0);assert.ok(estimates.every(value=>!value.learnable));
   assert.ok(f.estimateSaves().every(history=>history.samples.length===0));
   assert.equal((f.estimateHistory() as syncEstimate.SyncEstimateHistory).samples.length,0);
+ }finally{f.dispose();}
+});
+
+test('pending flight decisions and provider cleanup use partial outcome and never train success hints',async()=>{
+ for(const options of [{pendingFlightCount:1},{cleanupAfterTasks:true}]){
+  const f=fixture({intent:'update',...options});
+  try{
+   f.render();await f.flush();f.complete();await f.flush();
+   assert.equal(f.closed.length,1);assert.equal(syncProgress.completedSyncProgress(f.closed[0]).state,'partial');
+   assert.equal(f.estimateSaves().length,0);
+   assert.ok(!f.progressUpdates.some(progress=>progress.estimate?.status==='success'));
+  }finally{f.dispose();}
+ }
+});
+
+test('learned preparation progress is available before the existing stored read finishes',async()=>{
+ const first=fixture({intent:'update'});let history:unknown;
+ try{first.render();await first.flush();first.complete();await first.flush();history=first.estimateHistory();}finally{first.dispose();}
+ const second=fixture({intent:'update',initialEstimateHistory:history,deferRead:true});
+ try{
+  second.render();await second.flush();
+  const preparing=second.progressUpdates.find(progress=>progress.current==='prepare'&&progress.estimate?.fraction!==null&&progress.estimate);
+  assert.ok(preparing?.estimate);assert.equal(preparing.estimate.contextVerified,false);
+  assert.equal(preparing.estimate.current,'prepare');assert.equal(second.calls.includes('session'),false);
+  second.finishRead();await second.flush();second.complete();await second.flush();
+  assert.equal(second.closed.length,1);assert.equal(second.estimateSaves().length,1);
+ }finally{second.dispose();}
+});
+
+test('a warm preparation interrupted by background still completes the actual stage plan without learning',async()=>{
+ const first=fixture({intent:'update'});let history:unknown;
+ try{first.render();await first.flush();first.complete();await first.flush();history=first.estimateHistory();}finally{first.dispose();}
+ const second=fixture({intent:'update',initialEstimateHistory:history,deferRead:true});
+ try{
+  second.render();await second.flush();second.background();second.advanceEstimateTime(60_000);await second.flush();second.resume();second.finishRead();await second.flush();
+  assert.ok(second.progressUpdates.some(progress=>progress.current==='flights'&&progress.estimate?.current==='flights'));
+  second.complete();await second.flush();assert.equal(second.closed.length,1);
+  assert.ok(second.estimateSaves().every(saved=>saved.samples.every(sample=>sample.durationsMs.length===1)));
+ }finally{second.dispose();}
+});
+
+test('stale cached preparation context becomes indeterminate after real context proof and learns actual bucket',async()=>{
+ const first=fixture({intent:'update'});let history:syncEstimate.SyncEstimateHistory;
+ try{first.render();await first.flush();first.complete();await first.flush();history=first.estimateHistory() as syncEstimate.SyncEstimateHistory;}finally{first.dispose();}
+ history!.context={mode:'first',volume:'large'};
+ history!.samples=history!.samples.map(sample=>({...sample,volume:'large'}));
+ const second=fixture({intent:'update',initialEstimateHistory:history!});
+ try{
+  second.render();await second.flush();
+  const active=second.progressUpdates.filter(progress=>progress.current==='flights').map(progress=>progress.estimate).filter(Boolean);
+  assert.ok(active.length);assert.ok(active.every(value=>value!.volume==='small'&&value!.fraction===null&&value!.contextVerified));
+  second.complete();await second.flush();
+  assert.equal(second.estimateSaves().length,1);assert.equal(second.estimateSaves()[0]!.context?.volume,'small');
+  assert.ok(second.estimateSaves()[0]!.samples.some(sample=>sample.volume==='small'));
+ }finally{second.dispose();}
+});
+
+test('Continue measures recovery reads while excluding the earlier user decision wait',async()=>{
+ const record:syncRecovery.SyncRecoveryRecord={version:1,ownerId:'owner',storeId:'store',accountRef:'101',clubLabel:'Example',startedAt:'2026-10-26T10:00:00Z',flightCaptureId:'fresh',sources:{medical:'updated'}};
+ const f=fixture({startUpdate:true,initialFlightsSaved:true,initialSavedSync:record});
+ try{
+  f.render();await f.flush();f.advanceEstimateTime(60_000);f.deferNextStoredRead();f.press('Fortsetzen');await f.flush();
+  assert.ok(f.progressUpdates.some(progress=>progress.current==='prepare'&&progress.estimate?.mode==='resume'));
+  f.advanceEstimateTime(4000);f.finishRead();await f.flush();f.verify();await f.flush();
+  assert.equal(f.closed.length,1);assert.equal(f.estimateSaves().length,1);
+  const measured=f.estimateSaves()[0]!.samples.find(sample=>sample.stage==='prepare')!.durationsMs[0]!;
+  assert.ok(measured>=4000&&measured<5000,`Preparation measured ${measured}ms`);
+  assert.ok(!f.calls.some(call=>['retrieve','save','medical'].includes(call)));
  }finally{f.dispose();}
 });

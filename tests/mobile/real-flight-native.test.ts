@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import { runInNewContext } from 'node:vm';
 import test from 'node:test';
 import ts from 'typescript';
+import type { RealFlightTiming } from '../../apps/platform-lab/src/vereinsflieger/real-flight-library.ts';
 
 const ownerId = '11111111-1111-4111-8111-111111111111';
 const storeId = '22222222-2222-4222-8222-222222222222';
@@ -16,7 +17,7 @@ type NativeTestAdapter = {
   openRealFlightCandidate(scope: unknown, name: string, selectionGate?: (write: boolean) => Promise<void>): Promise<unknown>;
   resumeInitialRealFlightCandidate(scope: unknown): Promise<unknown>;
   resumePreparedRealFlightCandidate(scope: unknown, operationId: string, text: string): Promise<unknown>;
-  openRealFlightSelection(scope: unknown, createExplicitly?: boolean): Promise<unknown>;
+  openRealFlightSelection(scope: unknown, createExplicitly?: boolean, fault?: unknown, timing?: RealFlightTiming): Promise<unknown>;
   openRealFlightCommandJournal(scope: unknown, createExplicitly?: boolean): Promise<unknown>;
 };
 type NativeTestDependencies = {
@@ -37,8 +38,15 @@ const manifest = {
   created_at: '2026-10-20T10:00:00.000Z',
 };
 
+test('selection forwards one bound timing observer through the native candidate opener',async()=>{
+ const timing:RealFlightTiming=()=>()=>{};let received:RealFlightTiming|undefined;
+ const state=loadAdapter({events:[],fileExists:{'moflight-real-history-selection-v1.sqlite':true,[candidateName]:true},onLibraryOpen:value=>{received=value;}});
+ const selection=await state.adapter.openRealFlightSelection(state.scope,false,undefined,timing) as {select():Promise<{close():Promise<void>}>;close():Promise<void>};
+ const library=await selection.select();assert.equal(received,timing);await library.close();await selection.close();
+});
+
 function loadAdapter(behavior: { events: string[]; fileExists?: Record<string, boolean>; emptyFiles?: Record<string, boolean>; onOpenDriver?: (name: string) => void;
-  onLibraryOpen?: () => void; onLibraryCreate?: () => void; onSelectionOpen?: () => void; onJournalOpen?: () => void;
+  onLibraryOpen?: (timing?: RealFlightTiming) => void; onLibraryCreate?: () => void; onSelectionOpen?: () => void; onJournalOpen?: () => void;
   registryError?: Error; selectionError?: Error; journalError?: Error; backupError?: Error; restoreError?: Error;
   preparation?: { operationId: string; candidateName: string; expectedGraphSha256: string; status: string };
   onBackupValidate?: () => void } = { events: [] }) {
@@ -79,11 +87,11 @@ function loadAdapter(behavior: { events: string[]; fileExists?: Record<string, b
       return handle;
     }
     static async open(_db: unknown, openOwnerId: string, openStoreId: string, _hash: unknown,
-      _authorize: unknown, _fault: unknown, gate: (write: boolean) => Promise<void>) {
+      _authorize: unknown, _fault: unknown, gate: (write: boolean) => Promise<void>,timing?:RealFlightTiming) {
       events.push('library-open');
       libraryCalls.push({ mode: 'open', ownerId: openOwnerId, storeId: openStoreId });
       await gate(false);
-      behavior.onLibraryOpen?.();
+      behavior.onLibraryOpen?.(timing);
       const handle = { close: async () => { events.push('library-close'); } };
       libraries.push(handle);
       return handle;
@@ -114,12 +122,12 @@ function loadAdapter(behavior: { events: string[]; fileExists?: Record<string, b
   }
   class FakeSelection {
     static async open(db: unknown, openOwnerId: string, openStoreId: string, _authorize: unknown,
-      _opener: unknown, _hash: unknown, create: boolean) {
+      _opener: (name:string,authorize:()=>unknown,gate:(write:boolean)=>Promise<void>)=>Promise<unknown>, _hash: unknown, create: boolean) {
       events.push('selection-open'); selectionCalls.push(create);
       assert.equal(openOwnerId, ownerId); assert.equal(openStoreId, storeId);
       if (behavior.selectionError) throw behavior.selectionError;
       behavior.onSelectionOpen?.();
-      return { db, getRestorePreparation: async (id: string) => behavior.preparation?.operationId === id ? behavior.preparation : null,
+      return { db, select:()=>_opener(candidateName,()=>permit,async()=>{}),getRestorePreparation: async (id: string) => behavior.preparation?.operationId === id ? behavior.preparation : null,
         close: async () => { events.push('selection-close'); await (db as { close(): Promise<void> }).close(); } };
     }
   }
@@ -154,7 +162,7 @@ function loadAdapter(behavior: { events: string[]; fileExists?: Record<string, b
       },
     },
     './real-flight-command-journal': { RealFlightCommandJournal: FakeCommandJournal },
-    './flight-diagnostics': { flightDiagnostics: { measure: async (_key:string,work:()=>Promise<unknown>)=>work(), driver:(db:unknown)=>db } },
+    './flight-diagnostics': { captureFlightTiming:()=>()=>()=>{},flightDiagnostics: { measure: async (_key:string,work:()=>Promise<unknown>)=>work(), driver:(db:unknown)=>db } },
     './real-flight-library': { RealFlightLibrary: FakeLibrary },
     './real-flight-library-model': {
       validateRealFlightBackup: async (text: string, expectedOwnerId: string, expectedStoreId: string) => {

@@ -120,6 +120,13 @@ test('captured starters and nested same-name spans retain operation and parent i
  assert.deepEqual(f.journal.snapshot(),frozen);assert.deepEqual(f.journal.snapshot()[1]!.stages,[]);second.finish('success');
 });
 
+test('rejected parent stages leave their nested subtree inert instead of emitting a self-reference',()=>{
+ const f=fixture(),op=f.journal.begin('update-flights'),unknown=op.span('private@example.test');
+ unknown.span('graph-read')(true);unknown(true);op.span('graph-read')(true);op.finish('success');
+ assert.deepEqual(f.journal.snapshot()[0]!.checkpoints.map(point=>[point.spanId,point.parentSpanId]),[[1,undefined],[1,undefined]]);
+ assert.ok(!f.journal.export().includes('private@example.test'));
+});
+
 test('span identities persist within bounds while legacy v2 checkpoints remain readable',async()=>{
  const f=fixture();f.journal.connect(f.storage);const op=f.journal.begin('update-flights'),outer=op.span('repository-open'),child=outer.span('graph-read');child(true);outer(true);op.finish('success');await f.journal.flush();
  const raw=JSON.parse(f.saved()!);raw.entries[0].checkpoints.push({name:'source-review',state:'start',offset:2,spanId:'private@example.test',parentSpanId:Infinity,private:'token-secret'});
@@ -137,13 +144,34 @@ test('complete sync stage windows and nested details fit the bounded checkpoint 
  const f=fixture(),op=f.journal.begin('update-flights');
  const stages=diagnosticStages.filter(stage=>stage.startsWith('sync-'));
  for(const [index,name]of stages.entries()){
-  f.now(index*100);const stage=op.span(name);const detail=stage.span('repository-open');f.now(index*100+50);detail(true);f.now((index+1)*100);stage(true);
+  f.now(index*100);const stage=op.span(name);
+  for(let nested=0;nested<20;nested++){const detail=stage.span('graph-read');detail(true);}
+  f.now((index+1)*100);stage(true);
  }
  op.finish('success');const entry=f.journal.snapshot()[0]!;
  const windows=entry.checkpoints.filter(point=>point.name.startsWith('sync-'));
  assert.equal(windows.length,stages.length*2);assert.equal(windows[0]!.name,'sync-prepare');
  assert.equal(windows.at(-1)!.offset,entry.milliseconds);
  assert.equal(windows.filter(point=>point.state==='success').reduce((total,point,index)=>total+point.offset-windows[index*2]!.offset,0),entry.milliseconds);
+});
+
+test('operation wall time reconciles with nonoverlapping top stages, explicit gaps and nested user wait',()=>{
+ const f=fixture(),op=f.journal.begin('update-flights');
+ f.now(10);const prepare=op.span('sync-prepare');f.now(30);prepare(true);
+ f.now(40);const account=op.span('sync-account');f.now(50);const wait=account.span('user-sign-in-wait');f.now(70);wait(true);f.now(80);account(true);
+ f.now(90);const save=op.span('sync-save');f.now(100);save(true);f.now(110);op.finish('success');
+ const entry=f.journal.snapshot()[0]!,points=entry.checkpoints;
+ const windows=points.filter(point=>point.state==='start').map(start=>{
+  const end=points.find(point=>point.spanId===start.spanId&&point.state==='success')!;
+  return {name:start.name,start:start.offset,end:end.offset};
+ });
+ const top=windows.filter(window=>window.name.startsWith('sync-'));
+ let cursor=0,gaps=0,covered=0;
+ for(const window of top){assert.ok(window.start>=cursor);gaps+=window.start-cursor;covered+=window.end-window.start;cursor=window.end;}
+ gaps+=entry.milliseconds-cursor;
+ const waiting=windows.filter(window=>window.name==='user-sign-in-wait').reduce((sum,window)=>sum+window.end-window.start,0);
+ assert.deepEqual({covered,gaps,waiting,knownActive:covered-waiting},{covered:70,gaps:40,waiting:20,knownActive:50});
+ assert.equal(covered+gaps,entry.milliseconds);
 });
 
 

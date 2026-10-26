@@ -5,12 +5,12 @@ import { runInNewContext } from 'node:vm';
 import ts from 'typescript';
 import { nodeDriver } from './sqlite-driver.ts';
 import * as store from '../../apps/platform-lab/src/mobile/sync-estimate-store.ts';
-import { type SyncEstimateHistory } from '../../apps/platform-lab/src/mobile/sync-estimate.ts';
+import { SYNC_ESTIMATE_MODEL_VERSION, type SyncEstimateHistory } from '../../apps/platform-lab/src/mobile/sync-estimate.ts';
 import type { RealFlightNativeScope } from '../../apps/platform-lab/src/vereinsflieger/real-flight-native.ts';
 
 const source = readFileSync('apps/platform-lab/src/mobile/sync-estimate-native.ts', 'utf8');
 const code = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
-const history: SyncEstimateHistory = { version: 1, scope: 'context', samples: [{ stage: 'save', mode: 'repeat', volume: 'small', durationsMs: [50] }] };
+const history: SyncEstimateHistory = { version: SYNC_ESTIMATE_MODEL_VERSION, scope: 'context', samples: [{ stage: 'save', mode: 'repeat', volume: 'small', durationsMs: [50] }] };
 
 function adapter(options: { unavailable?: boolean; revokeAfterSave?: boolean } = {}) {
   const db = nodeDriver(':memory:');

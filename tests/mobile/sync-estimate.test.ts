@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   createSyncEstimate,reduceSyncEstimate,snapshotSyncEstimate,learnSyncEstimate,parseSyncEstimateHistory,syncEstimateVolume,
-  SYNC_ESTIMATE_MODEL_VERSION,type SyncEstimateStage,type SyncEstimateEvent,type SyncEstimateMode,
+  SYNC_ESTIMATE_MODEL_VERSION,confirmSyncEstimateContext,type SyncEstimateStage,type SyncEstimateEvent,type SyncEstimateMode,
 } from '../../apps/platform-lab/src/mobile/sync-estimate.ts';
 
 const scope='synthetic-device/model-boundary-1';
@@ -167,4 +167,18 @@ test('history sanitizes malformed/version/scope inputs, retains five samples and
   assert.deepEqual(learnSyncEstimate(parsed,run.state).samples[0]!.durationsMs,[110,120,130,100_000,140]);
   assert.equal(syncEstimateVolume(null),'unknown');assert.equal(syncEstimateVolume(0),'small');
   assert.equal(syncEstimateVolume(100,101),'medium');assert.equal(syncEstimateVolume(1,1001),'large');
+});
+
+test('provisional cached context cannot train before actual context confirmation',()=>{
+ let state=createSyncEstimate({runId:'provisional',scope,mode:'repeat',volume:'small',stages:['save'],history:history({save:100}),now:0,provisional:true});
+ state=reduceSyncEstimate(state,{type:'start',stage:'save',runId:state.runId,at:0});
+ state=reduceSyncEstimate(state,{type:'finish',stage:'save',runId:state.runId,at:100});
+ state=reduceSyncEstimate(state,{type:'terminal',outcome:'success',runId:state.runId,at:101});
+ assert.deepEqual(learnSyncEstimate(null,state).samples,[]);
+ const confirmed=confirmSyncEstimateContext(state,{mode:'repeat',volume:'large'});
+ assert.equal(confirmed.fraction,1,'Terminal success remains confirmed regardless of hint quality');
+ const learned=learnSyncEstimate(null,confirmed,{mode:'repeat',volume:'large'});
+ assert.equal(learned.samples[0]!.volume,'large');assert.deepEqual(learned.context,{mode:'repeat',volume:'large'});
+ const parsed=parseSyncEstimateHistory({...learned,context:{mode:'invalid',volume:'large'}},scope);
+ assert.equal(parsed.context,undefined);
 });
