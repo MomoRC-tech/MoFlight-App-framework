@@ -1,6 +1,6 @@
 # MoFlight
 
-**25 October Sync/backup release:** [Download APK ZIP — source `bf60089`](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/sync-target-backup-2026-10-25-bf60089/MoFlight-Android-bf60089.zip). Clear Sync attention and Details, separate session/receipt evidence, and provisional annual duty-hour targets in backup v3. Older v1/v2 restores preserve existing targets. [Verification and limits](docs/verification/2026-10-25-sync-and-target-backup.md).
+**26 October offline Help release:** [Download Android APK ZIP — source `4ce0a9d`](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/help-offline-2026-10-26-4ce0a9d/MoFlight-Android-help-4ce0a9d.zip). Adds searchable offline Help, contextual PIC/first-flight guidance and a global contextual-help switch to the earlier Sync/backup build. [Verification and limits](docs/verification/2026-10-25-offline-help.md).
 
 <p align="center">
   <picture>
@@ -13,9 +13,9 @@ MoFlight is a mobile app in development for glider pilots, students and instruct
 
 ## Current delivery
 
-Source `bf600898109d561d58d2fcb4d0add6a1ba152d53` adds Sync clarity and annual-target backup v3 to the existing phone-usability, aircraft/launch and populated-update safeguards. [Download APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/sync-target-backup-2026-10-25-bf60089/MoFlight-Android-bf60089.zip) and [evidence/limits](docs/verification/2026-10-25-sync-and-target-backup.md). Extract the ZIP and install `app-release.apk`. Development-signed standalone lab build; no new physical-phone or iOS runtime acceptance. AI requests remain disabled in the ordinary app. Earlier releases retain their source-specific evidence.
+Application source `4ce0a9d28b26b978a3d524e7fac70af7e17ed20c` adds offline Help and global contextual guidance to the earlier Sync clarity and annual-target backup v3 package. [Download the APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/help-offline-2026-10-26-4ce0a9d/MoFlight-Android-help-4ce0a9d.zip) and see [Help evidence/limits](docs/verification/2026-10-25-offline-help.md). Extract the ZIP and install `app-release.apk`. It is a development-signed standalone lab build; physical-phone and iOS runtime acceptance remain open. AI requests remain disabled in the ordinary app. Later main commits through `b669510` change documentation only; earlier releases retain their source-specific evidence.
 
-**Startup investigation concluded for now:** a subsequent synthetic offline-restart trial of this APK hit a released SQLite handle and showed unreadable flights. Explicit local retry recovered the saved data in that trial. [#89](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/89) is closed at Manuel’s direction after bounded follow-up runs did not reproduce it; revisit only on recurrence or concrete new evidence. No root-cause fix is claimed; [the reliability report](docs/verification/2026-10-25-reliability-continuation.md) separates successful local/export checks from this failed startup acceptance.
+**Startup investigation concluded for now:** a synthetic offline-restart trial of the earlier `bf60089` APK hit a released SQLite handle and showed unreadable flights. Explicit local retry recovered the saved data in that trial. [#89](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/89) is closed at Manuel’s direction after bounded follow-up runs did not reproduce it; revisit only on recurrence or concrete new evidence. No root-cause fix is claimed; [the reliability report](docs/verification/2026-10-25-reliability-continuation.md) separates successful local/export checks from this failed startup acceptance.
 
 The approved dark Compact Cockpit is the current visual baseline. Ordinary saved flights, compact filters/details, Statistics and supported club sources work offline after capture. Sync remains one explicit header action; independent optional-source failures do not erase saved flights.
 
@@ -24,6 +24,7 @@ The approved dark Compact Cockpit is the current visual baseline. Ordinary saved
 | Account-scoped flights, compact list/filter/detail and saved-local Statistics | Broader fresh-login/second-account/source coverage and populated phone responsiveness |
 | Combined flights/Medical/duties/calendar/documents/work/tasks capture | Positive-source/completeness cases and current physical/iOS acceptance |
 | Aggregate backup v3 including local AI chats/drafts and annual targets; bounded populated update/recovery proof | Complete settings inventory and ordinary external same-install restore; identify/test the selected first-beta update baseline. Replacement-device/system restore is separate |
+| Searchable offline Help, contextual PIC/first-flight guidance and global on/off setting | Ordinary populated-flight Help handoff, preview-only inert Help buttons, named content review and wider platform/accessibility checks under #31 |
 | Local AI screen, tools/history and disabled service foundations | Ordinary end-to-end service integration and approved actual model evaluation |
 | Synthetic book/format/writing proofs under Development | Real paper setup, assignments, photo-to-writing and cloud accounts/sync |
 
