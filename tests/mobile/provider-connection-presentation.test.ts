@@ -25,6 +25,16 @@ test('manual sync login shows original WebView and essential chrome without app 
   for(const unwanted of ['Internal progress','Zugangsdaten nur','Sitzungsdetails','Wiederherstellung nötig','Anmeldung prüfen','Rohbelege'])assert.ok(!f.text().includes(unwanted),unwanted);
   f.button('Anmeldung schließen').props.onPress();assert.deepEqual(f.calls,['dismiss','close']);
 });
+test('minimal Sync shows recovery choices once the original login is closed',()=>{
+  const progress:Element={type:'Action',props:{},children:['Fortsetzen']};
+  const f=fixture({visible:false,browserActive:true,url:'https://vereinsflieger.de/'},false,'own-flight-library',true,progress,false,40,true);
+  assert.match(f.text(),/Fortsetzen/);
+  assert.ok(f.nodes().some(n=>n.type==='ScrollView'&&n.props.style.flex===1));
+  assert.equal(f.nodes().filter(n=>n===f.browser).length,1);
+  f.controller.visible=true;f.render();
+  assert.ok(!f.text().includes('Fortsetzen'));
+  assert.equal(f.nodes().filter(n=>n===f.browser).length,1);
+});
 const source = ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/mobile/ProviderConnection.tsx', import.meta.url), 'utf8'), {
   compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.React, esModuleInterop: false },
 }).outputText;

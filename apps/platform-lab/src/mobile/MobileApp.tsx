@@ -75,7 +75,6 @@ export default function MobileApp() {
   const [syncControls,setSyncControls]=useState<SyncControls|null>(null);
   const syncRunning=!!entry?.open&&entry.intent==='update';
   const modalOpen=!!entry?.open&&(entry.intent!=='update'||!!providerStatus.loginVisible||syncProgress.state==='waiting');
-  if(syncProgress.state==='waiting')console.warn('MF recovery root',!!entry?.open,modalOpen,!!providerStatus.loginVisible);
   useEffect(()=>{
     if(syncProgress.state==='failed'||syncProgress.state==='partial')syncLock.current=false;
     if(syncProgress.state==='failed'){
