@@ -37,6 +37,8 @@ Use slow, restrained opacity/shine motion, never full text disappearance or rapi
 
 ## Statistics overlay — approved implementation scope, 23 October 2026
 
+**Presentation superseded on 26 October:** the [selected Statistics child-page amendment](material-system-proposal.md#statistics-route-amendment--selected-26-october-2026) replaces the frame/scrim and gives each route a contextual page header. The saved-local data and exact contributor/Back contract below remain active.
+
 Manuel approved implementation of the saved-local slice under [#9](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/9). The [package contract and acceptance plan](../2026-10-13-journey-information-map.md#statistics-overlay-plan--23-october-2026) are the source for scope. The app now places a chart symbol and **Statistik** action in Meine Saison (minimum 48 dp), replacing the inline **Saison im Detail** disclosure. It remains available during loading, empty and failed states.
 
 The C08-style frame is centered over dimmed, inert Start, with a navy surface, radius 22, subtle border, safe-area bounds and a 720 dp maximum width. **Flugstatistik** stays fixed above scrolling sections. Shell history preserves Start; the overlay keeps its own section, contributing-flight and detail routes with route-specific scroll offsets. Back steps through that context before closing. Owner/store changes reset the overlay, and opening, filtering and drilling down do not retrieve provider data.

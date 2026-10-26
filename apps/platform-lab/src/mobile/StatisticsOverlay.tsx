@@ -2,6 +2,8 @@ import React, { useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, ImageBackground, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { FlightCard } from './FlightCard';
 import { FlightDetails } from './FlightDetails';
+import { AppHeader } from './AppHeader';
+import { ownFlightCard } from './own-flight-model';
 import type { RealFlightDetail, RealFlightListItem } from '../vereinsflieger/real-flight-library';
 import { reviewDuration, reviewParsedField, reviewRawField } from '../vereinsflieger/capture-review';
 import { Action, Card, Chip, Empty, Label, Section, colors, ui } from './theme';
@@ -23,10 +25,11 @@ type FlightData = ReturnType<typeof useOwnFlights>;
 type Route =
   | { kind: 'section'; section: StatisticsSection; key: string }
   | { kind: 'flights'; title: string; ids: string[]; scope: StatisticsPeriod; key: string }
-  | { kind: 'detail'; flightId: string; key: string };
+  | { kind: 'detail'; flightId: string; title: string; key: string };
 
-export function StatisticsOverlay({ data, today, fontScale, onBackHandler, initialYear, initialSection = 'overview' }: {
-  data: FlightData; today: string; fontScale: number; onBackHandler: (handler: () => boolean) => void; initialYear?: number; initialSection?: StatisticsSection;
+export function StatisticsOverlay({ data, today, fontScale, onBackHandler, onClose, headerActions, feedback, initialYear, initialSection = 'overview' }: {
+  data: FlightData; today: string; fontScale: number; onBackHandler: (handler: () => boolean) => void; onClose: () => void;
+  headerActions?: React.ReactNode; feedback?: React.ReactNode; initialYear?: number; initialSection?: StatisticsSection;
 }) {
   const [period, setPeriod] = useState<StatisticsPeriod>({ kind: 'year', year: initialYear ?? Number(today.slice(0, 4)) });
   const [fromDraft, setFromDraft] = useState(`${today.slice(0, 4)}-01-01`);
@@ -74,7 +77,6 @@ export function StatisticsOverlay({ data, today, fontScale, onBackHandler, initi
 
   const openSection = (section: StatisticsSection) => {
     setRoutes([{ kind: 'section', section, key: `section-${section}` }]);
-    scrollOffsets.current[`section-${section}`] = 0;
   };
   const openFlights = (title: string, ids: readonly string[], scope: StatisticsPeriod = period) => {
     const knownIds = new Set(selectStatisticsFlights(allUnique, scope, today).flights.map(flight => flight.flightId));
@@ -86,7 +88,9 @@ export function StatisticsOverlay({ data, today, fontScale, onBackHandler, initi
   const openFlight = (flight: RealFlightListItem) => {
     setRawPage(0);
     const key = `detail-${++routeSequence.current}`;
-    setRoutes(previous => [...previous, { kind: 'detail', flightId: flight.flightId, key }]);
+    const card = ownFlightCard(flight);
+    const title = [card.date, card.registration].filter(Boolean).join(' · ') || 'Flugdetails';
+    setRoutes(previous => [...previous, { kind: 'detail', flightId: flight.flightId, title, key }]);
     void data.openDetail(flight);
   };
   const periodLabel = period.kind === 'all' ? 'Gesamter gespeicherter Bestand' : period.kind === 'year'
@@ -107,7 +111,10 @@ export function StatisticsOverlay({ data, today, fontScale, onBackHandler, initi
   const routeScopeLabel = route.kind === 'flights' ? route.scope.kind === 'all' ? 'dem gesamten gespeicherten Bestand'
     : (() => { const range = statisticsPeriodBounds(route.scope, today); return range ? `${range.from} bis ${range.to}` : 'dem gewählten Zeitraum'; })() : '';
 
+  const routeTitle = route.kind === 'section' ? 'Flugstatistik' : route.title;
   return <View style={styles.content}>
+    <AppHeader variant="page" back={() => { if (!back()) onClose(); }} title={routeTitle}>{headerActions}</AppHeader>
+    {feedback}
     <ScrollView ref={scroll} key={routeKey} contentOffset={{ x: 0, y: scrollOffsets.current[routeKey] ?? 0 }}
       onScroll={event => { scrollOffsets.current[routeKey] = event.nativeEvent.contentOffset.y; }} scrollEventThrottle={32}
       onContentSizeChange={() => scroll.current?.scrollTo({ y: scrollOffsets.current[routeKey] ?? 0, animated: false })}
@@ -132,9 +139,9 @@ export function StatisticsOverlay({ data, today, fontScale, onBackHandler, initi
           <Label muted>Die Saisonwerte auf Übersicht zeigen gespeicherte Jahreswerte; die Abdeckung kann je Jahr abweichen oder unvollständig sein.</Label>
           {period.kind === 'all' && <Label muted>Der gespeicherte Bestand belegt keine vollständige Fluggeschichte.</Label>}</>}
         </View>
-        <View style={styles.sectionTabs} accessibilityRole="tablist">
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} accessibilityRole="tablist" contentContainerStyle={styles.sectionTabs}>
           {(['overview', 'aircraft', 'duration', 'launch', 'roles'] as const).map(section => <Chip key={section} title={titleForSection(section)} selected={route.section === section} onPress={() => openSection(section)} />)}
-        </View>
+        </ScrollView>
 
         {data.phase === 'loading' && <Card><ActivityIndicator color={colors.cyan} accessibilityLabel="Gespeicherte Flugstatistik wird geprüft" /><Label muted>Gespeicherte Flüge werden lokal geprüft.</Label></Card>}
         {data.phase === 'failed' && <Card><Empty title="Statistik nicht lesbar">Die gespeicherte Flugauswahl konnte nicht geprüft werden. Vorhandene Daten bleiben erhalten.</Empty><Action secondary onPress={() => void data.reload()}>Gespeicherte Flüge erneut prüfen</Action></Card>}
@@ -226,7 +233,7 @@ export function StatisticsOverlay({ data, today, fontScale, onBackHandler, initi
       </>}
 
       {route.kind === 'flights' && <>
-        <Section title={route.title}/><Label muted>{routeItems.length} gespeicherte Flugbelege · gefiltert nach {routeScopeLabel}</Label>
+        <Label muted>{routeItems.length} gespeicherte Flugbelege · gefiltert nach {routeScopeLabel}</Label>
         {routeItems.length === 0 && <Empty title="Keine passenden Flüge">Die gespeicherten Belege haben sich geändert oder sind nicht mehr verfügbar. Zurück zur Statistik.</Empty>}
         <View style={{gap:5}}>{routeItems.map(flight=><FlightCard key={`${flight.flightId}:${flight.factsRevision}`} flight={flight} onPress={()=>openFlight(flight)}/>)}</View>
       </>}
@@ -245,7 +252,7 @@ function StatisticsFlightDetails({ detail, loading, error,rawPage,onRawPage }: {
 const styles = StyleSheet.create({
   content: { flex: 1, minHeight: 0, width: '100%' }, canvas: { width: '100%', maxWidth: 600, alignSelf: 'center', padding: 12, paddingBottom: 26, gap: 12 }, canvasLarge: { paddingHorizontal: 10, paddingBottom: 22 },
   hero: { minHeight: 142, borderRadius: 20, overflow: 'hidden', backgroundColor: '#0e202c', padding: 16, justifyContent: 'flex-end', gap: 6, borderWidth: 1, borderColor: colors.border }, blueprintImage: { opacity: .72 }, heroShade: { ...StyleSheet.absoluteFill, backgroundColor: '#0b141c3b' }, heroEyebrow: { color: colors.cyan, fontSize: 11, lineHeight: 16, letterSpacing: 1.2, fontWeight: '700' },
-  periodPanel: { gap: 8, backgroundColor: colors.card, borderRadius: 18, padding: 14, borderWidth: 1, borderColor: colors.border }, chipRow: { gap: 5, paddingRight: 6 }, customRange: { gap: 8 }, dateField: { gap: 3 }, dateInput: { minHeight: 50, color: colors.text, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.raised, borderRadius: 12, paddingHorizontal: 12, fontSize: 16 }, sectionTabs: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+  periodPanel: { gap: 8, backgroundColor: colors.card, borderRadius: 18, padding: 14, borderWidth: 1, borderColor: colors.border }, chipRow: { gap: 5, paddingRight: 6 }, customRange: { gap: 8 }, dateField: { gap: 3 }, dateInput: { minHeight: 50, color: colors.text, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.raised, borderRadius: 12, paddingHorizontal: 12, fontSize: 16 }, sectionTabs: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingRight: 12 },
   metrics: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 }, metric: { flex: 1, minWidth: 90, gap: 2 }, metricValue: { color: colors.cyan, fontSize: 19, lineHeight: 25, fontWeight: '700' }, compareRow: { flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' }, compareValue: { color: colors.cyan, minWidth: 72, textAlign: 'right' }, monthButtons: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 }, monthButton: { flexGrow: 1, flexBasis: '30%', minWidth: 95, minHeight: 48, borderRadius: 13, justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: colors.border, backgroundColor: colors.raised, paddingHorizontal: 8 }, monthButtonText: { color: colors.text, textAlign: 'center' }, disabled: { opacity: .55 }, aircraftRow: { padding: 13, gap: 5, borderRadius: 16 }, bandRow: { padding: 13, gap: 5, borderRadius: 16 }, aircraftHeading: { flexDirection: 'row', alignItems: 'center', gap: 8 }, aircraftSwatch: { width: 10, height: 10, borderRadius: 5 }, aircraftName: { fontWeight: '700', fontSize: 17, lineHeight: 23 }, flightTime: { color: colors.cyan, flexShrink: 1 },
   detailDuration: { color: colors.cyan, fontSize: 22, lineHeight: 30, fontWeight: '700' }, detailRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 }, detailLabel: { minWidth: 102 }, sourceRow: { borderTopWidth: 1, borderColor: colors.border, paddingTop: 6, gap: 2 },
 });

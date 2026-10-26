@@ -63,7 +63,7 @@ The [first-use journey added on 18 October](docs/product/2026-10-13-journey-info
 
 ### Your flying, at a glance
 
-The selected Start shows compact current/prior-calendar-year time/start metrics, one compact latest-flight row and a labelled **Statistik** entry. That entry opens a saved-local overlay for year/all/custom periods, coverage-aware annual/monthly comparisons, aircraft registrations and reported-duration bands. Startarten stays unavailable until its source mapping is verified. The latest-flight row opens its saved detail; the overlay opens exact contributing saved flights. Broader person/role, launch mapping and platform acceptance gates remain under #9.
+The selected Start shows compact current/prior-calendar-year time/start metrics, one compact latest-flight row and a labelled **Statistik** entry. That entry opens a saved-local child page for year/all/custom periods, coverage-aware annual/monthly comparisons, aircraft registrations, duration bands and supported classification/role groups. Unknown or conflicting source facts stay explicit. The latest-flight row opens its saved detail; Statistics opens exact contributing saved flights and returns through its own Back path to the unchanged Start. Broader source semantics and platform acceptance gates remain under #9 and the [Material route amendment](docs/product/design/material-system-proposal.md#statistics-route-amendment--selected-26-october-2026).
 
 Unknown durations stay unknown. Incomplete history is shown as incomplete; a partial year must not look like a complete lifetime record.
 

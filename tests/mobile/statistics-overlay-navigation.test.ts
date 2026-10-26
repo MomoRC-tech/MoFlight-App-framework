@@ -36,6 +36,7 @@ function fixture(initialSection: statisticsModel.StatisticsSection = 'overview')
     './real-flight-statistics': { formatReportedMinutes }, './SeasonMonthlyCharts': leaf(['SeasonMonthlyCharts']),
     '../vereinsflieger/capture-review': captureReview,
     './SymbolIcon': { SymbolIcon: 'SymbolIcon' },
+    './AppHeader': leaf(['AppHeader']),
     './help-catalog': helpCatalog,
     './season-dashboard-model': { monthlySeasonForCoverage }, '../vereinsflieger/retrieval-policy': { planFlightRetrieval },
     './statistics-overlay-model': statisticsModel,
@@ -58,20 +59,23 @@ function fixture(initialSection: statisticsModel.StatisticsSection = 'overview')
     { from: '2026-01-01', to: '2026-10-22', retrievedAt: '2026-10-22T10:00:00.000Z', savedAt: '2026-10-22T10:00:00.000Z' },
   ];
   const opened: string[] = [];
+  const events: string[] = [];
+  const headerActions: Element = { type: 'HeaderActions', props: {}, children: [] };
+  const feedback: Element = { type: 'SyncFeedback', props: {}, children: [] };
   const data: any = {
     view: { flights, snapshot: { ownerId: 'owner', storeId: 'store', account: { accountRef: 'account' }, savedRetrievals } },
     phase: 'ready', detail: null, detailBusy: false, detailError: null,
     openDetail: async (flight: { flightId: string }) => { opened.push(flight.flightId); },
-    clearDetail() {}, reload: async () => {},
+    clearDetail() { events.push('clear-detail'); }, reload: async () => {},
   };
   let back = () => false;
-  const render = () => { index = 0; const tree = exports.StatisticsOverlay({ data, today: '2026-10-22', fontScale: 1, initialSection, onBackHandler: (handler: () => boolean) => { back = handler; } }); return tree as Element; };
+  const render = () => { index = 0; const tree = exports.StatisticsOverlay({ data, today: '2026-10-22', fontScale: 1, initialSection, onClose: () => events.push('close'), headerActions, feedback, onBackHandler: (handler: () => boolean) => { back = handler; } }); return tree as Element; };
   const nodes = (tree: Element) => {
     const found: Element[] = [];
     const visit = (value: any) => { if (!value || typeof value !== 'object' || !('children' in value)) return; found.push(value); value.children.forEach(visit); };
     visit(tree); return found;
   };
-  return { data, flights, opened, render, nodes: () => nodes(render()), back: () => back() };
+  return { data, flights, opened, events, headerActions, feedback, render, nodes: () => nodes(render()), back: () => back() };
 }
 
 test('Start role metrics enter the role section for the selected year',()=>{
@@ -90,7 +94,7 @@ test('previous-year drilldown keeps its same-date scope, restores Back, and reje
   assert.ok(previous);
   previous.props.onPress();
   let nodes = f.nodes();
-  assert.ok(nodes.some(node => node.type === 'Section' && node.props.title === 'Flüge 2025'));
+  assert.equal(nodes.find(node => node.type === 'AppHeader')!.props.title, 'Flüge 2025');
   assert.ok(nodes.some(node => node.type === 'Label' && node.children.join('').includes('gefiltert nach 2025-01-01 bis 2025-10-22')));
   const flightCard = nodes.find(node => node.type === 'Card' && typeof node.props.onPress === 'function')!;
   flightCard.props.onPress();
@@ -142,4 +146,57 @@ test('an all-unknown classification group never labels its missing time as known
   const labels=f.nodes().filter(n=>n.type==='Label').flatMap(n=>n.children).filter(value=>typeof value==='string');
   assert.ok(labels.includes('1× Zeit unbekannt'));
   assert.ok(!labels.some(label=>label.includes('unbekannt bekannt')));
+});
+
+
+test('Statistics owns its child-page header, local section navigation and sync feedback',()=>{
+ const f=fixture();
+ let nodes=f.nodes();
+ const header=nodes.find(node=>node.type==='AppHeader')!;
+ assert.equal(header.props.variant,'page');
+ assert.equal(header.props.title,'Flugstatistik');
+ assert.equal(header.props.profile,undefined);
+ assert.ok(header.children.includes(f.headerActions));
+ assert.ok(nodes.includes(f.feedback));
+ const tabs=nodes.find(node=>node.props.accessibilityRole==='tablist')!;
+ assert.equal(tabs.type,'ScrollView');assert.equal(tabs.props.horizontal,true);
+ assert.deepEqual(tabs.children.map((node:Element)=>node.props.title),['Überblick','Flugzeuge','Flugdauer','Startarten','Flugrollen']);
+ tabs.children.at(-1)!.props.onPress();nodes=f.nodes();
+ assert.ok(nodes.some(node=>node.type==='Chip'&&node.props.title==='Flugrollen'&&node.props.selected));
+ assert.equal(nodes.find(node=>node.type==='AppHeader')!.props.title,'Flugstatistik');
+ assert.equal(f.back(),false,'A section has no hidden intermediate route');
+ nodes.find(node=>node.type==='AppHeader')!.props.back();
+ assert.deepEqual(f.events,['close'],'Toolbar Back closes Statistics at its root');
+});
+
+test('Statistics contributor and detail headers restore the exact route and saved scroll position',()=>{
+ const f=fixture();
+ const content=()=>f.nodes().find(node=>node.type==='ScrollView'&&node.props.onScroll)!;
+ const header=()=>f.nodes().find(node=>node.type==='AppHeader')!;
+ content().props.onScroll({nativeEvent:{contentOffset:{y:216}}});
+ f.nodes().find(node=>node.type==='Action'&&node.children.includes('Vorjahresflüge ansehen'))!.props.onPress();
+ assert.equal(header().props.title,'Flüge 2025');
+ content().props.onScroll({nativeEvent:{contentOffset:{y:84}}});
+ f.nodes().find(node=>node.type==='Card'&&typeof node.props.onPress==='function')!.props.onPress();
+ assert.equal(header().props.title,'18.06.25 · D-T001');
+ assert.equal(f.back(),true,'Android Back leaves detail before closing its contributor route');
+ assert.equal(header().props.title,'Flüge 2025');assert.equal(content().props.contentOffset.y,84);
+ assert.deepEqual(f.events,['clear-detail']);
+ header().props.back();
+ assert.equal(header().props.title,'Flugstatistik');assert.equal(content().props.contentOffset.y,216);
+ assert.deepEqual(f.events,['clear-detail'],'Toolbar Back returns to the section without closing Statistics');
+ header().props.back();assert.deepEqual(f.events,['clear-detail','close']);
+});
+
+
+test('switching Statistics sections restores each section scroll offset',()=>{
+ const f=fixture();
+ const content=()=>f.nodes().find(node=>node.type==='ScrollView'&&node.props.onScroll)!;
+ const section=(title:string)=>f.nodes().find(node=>node.type==='Chip'&&node.props.title===title)!.props.onPress();
+ content().props.onScroll({nativeEvent:{contentOffset:{y:312}}});
+ section('Flugzeuge');assert.equal(content().props.contentOffset.y,0);
+ content().props.onScroll({nativeEvent:{contentOffset:{y:96}}});
+ section('Überblick');assert.equal(content().props.contentOffset.y,312);
+ section('Flugzeuge');assert.equal(content().props.contentOffset.y,96);
+ assert.deepEqual(f.events,[]);
 });

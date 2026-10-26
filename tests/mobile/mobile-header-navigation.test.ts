@@ -448,17 +448,35 @@ test('Start offers the general Flüge route without provider work', () => {
   assert.ok(f.readEnabled.every(Boolean), 'Tab changes must not suspend or restart the reader');
 });
 
-test('Meine Saison opens a framed local statistics overlay whose Back first restores its internal route',()=>{
- const f=fixture(390);f.find('Dashboard').props.onStatistics();f.render();
- const overlay=f.find('StatisticsOverlay');
- assert.equal(f.headers().at(-1)!.props.title,'Flugstatistik');
- assert.equal(overlay.props.data.phase,'missing');assert.equal(typeof overlay.props.onBackHandler,'function');
- assert.equal(f.parent(overlay).type,'KeyboardAvoidingView');
+test('Meine Saison opens a full child page, hides Start, and restores nested Back without provider work',()=>{
+ const f=fixture(390);const dashboard=f.find('Dashboard');dashboard.props.onStatistics();f.render();
+ const page=f.find('StatisticsOverlay');
+ assert.equal(page.props.data.phase,'missing');assert.equal(typeof page.props.onBackHandler,'function');
+ assert.equal(typeof page.props.onClose,'function');
+ assert.equal(f.parent(page).type,'KeyboardAvoidingView');
  const shell=f.nodes().find(n=>n.type==='View'&&n.props['aria-hidden']===true)!;
- assert.equal(shell.props.pointerEvents,'none');assert.equal(shell.props.style.some((item:any)=>item?.opacity===.8),true,'Underlying Start remains mounted and lightly dimmed beneath the C08 scrim');
- overlay.props.onBackHandler(()=>true);f.headers().at(-1)!.props.back();f.render();assert.ok(f.find('StatisticsOverlay'),'Inner detail/filter route remains open after contextual Back');
- f.find('StatisticsOverlay').props.onBackHandler(()=>false);f.headers().at(-1)!.props.back();f.render();
+ assert.equal(shell.props.pointerEvents,'none');
+ assert.equal(shell.props.importantForAccessibility,'no-hide-descendants');
+ assert.ok(shell.props.style.some((item:any)=>item?.display==='none'),'Start remains mounted and fully hidden while Statistics owns the viewport');
+ assert.ok(!shell.props.style.some((item:any)=>item?.opacity!==undefined),'Start is not dimmed beneath a scrim');
+ assert.equal(f.find('Dashboard').props.ownFlights,dashboard.props.ownFlights);
+ for(let ancestor=f.parent(page);ancestor;ancestor=f.parent(ancestor)){
+  const styles=[ancestor.props.style].flat(Infinity).filter(Boolean);
+  assert.ok(!styles.some((style:any)=>style.borderRadius||style.borderWidth||style.paddingHorizontal),'The Statistics page has no framed outer container');
+ }
+ assert.equal(page.props.headerActions,f.headers()[0]!.children[0],'Statistics receives the same data action as Start');
+ assert.equal(page.props.feedback.type,'SyncProgress');
+ page.props.onBackHandler(()=>true);assert.equal(f.hardwareBack(),true);f.render();assert.ok(f.find('StatisticsOverlay'),'Android Back first delegates to the internal route');
+ f.find('StatisticsOverlay').props.feedback.props.details();f.render();
+ assert.equal(f.headers().at(-1)!.props.title,'Verbindung & Datenstatus');
+ assert.ok(f.find('StatisticsOverlay'),'Opening Status preserves the mounted Statistics route');
+ assert.equal(f.find('StatisticsOverlay').props.key,page.props.key,'Nested Status retains the Statistics component identity');
+ assert.equal(f.parent(f.find('StatisticsOverlay')).props.accessibilityElementsHidden,true);
+ assert.ok(f.parent(f.find('StatisticsOverlay')).props.style.some((style:any)=>style?.display==='none'));
+ f.headers().at(-1)!.props.back();f.render();assert.ok(f.find('StatisticsOverlay'));
+ f.find('StatisticsOverlay').props.onBackHandler(()=>false);f.find('StatisticsOverlay').props.onClose();f.render();
  assert.equal(f.nodes().some(n=>n.type==='StatisticsOverlay'),false);assert.ok(f.calls.includes('clear-own-flight-detail'));
+ assert.equal(f.headers()[0]!.props.variant,undefined,'Returning to Start preserves its header');
  assert.deepEqual(f.coreRoutes,[]);
 });
 

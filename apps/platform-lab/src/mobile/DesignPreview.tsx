@@ -78,13 +78,7 @@ export function DesignPreview({onClose=()=>{}}:{onClose?:()=>void}={}) {
     </ScrollView>
   </View>;
   if (statisticsOpen) return <View style={styles.root}>
-    <View style={styles.statisticsFrame}>
-      <AppHeader title="Vorschau Flugstatistik" back={() => { if (!statisticsBack.current()) setStatisticsOpen(false); }}>
-        {null}
-      </AppHeader>
-      <Label muted style={styles.notice}>Synthetische UI-Vorschau · keine Speicherung</Label>
-      <StatisticsOverlay initialYear={statisticsYear} initialSection={statisticsSection} data={data} today="2026-10-22" fontScale={fontScale} onBackHandler={handler => { statisticsBack.current = handler; }} />
-    </View>
+    <StatisticsOverlay initialYear={statisticsYear} initialSection={statisticsSection} data={data} today="2026-10-22" fontScale={fontScale} onBackHandler={handler => { statisticsBack.current = handler; }} onClose={() => setStatisticsOpen(false)} feedback={<Label muted style={styles.notice}>Synthetische UI-Vorschau · keine Speicherung</Label>} />
   </View>;
   const showFlights = (flightId?: string) => {
     setMode('populated');
@@ -139,5 +133,4 @@ const styles = StyleSheet.create({
   selected: { backgroundColor: colors.raised, borderColor: colors.cyan },
   canvas: { padding: 18, paddingBottom: 28, gap: 16, width: '100%', maxWidth: 600, alignSelf: 'center' },
   back: { minHeight: 48, paddingHorizontal: 18, paddingVertical: 10, justifyContent: 'center' },
-  statisticsFrame: { flex: 1, alignSelf: 'center', width: '100%', maxWidth: 720, marginVertical: 8, borderWidth: 1, borderColor: colors.border, borderRadius: 22, backgroundColor: colors.background, overflow: 'hidden' },
 });

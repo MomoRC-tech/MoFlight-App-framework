@@ -1,5 +1,9 @@
 # Dark Compact Cockpit — approved 24 October 2026
 
+## Statistics child page — selected 26 October 2026
+
+Manuel selected the [Material Statistics amendment](material-system-proposal.md#statistics-route-amendment--selected-26-october-2026) under #94. The former dimmed, rounded Statistics frame is replaced by a full child page with a contextual top app bar and horizontally scrolling sibling sections. Back returns through exact contributors and saved flight detail to the mounted Start. Existing vivid navy/cyan roles, saved-local values, unknown/coverage caveats and header Sync entry remain; Start itself is unchanged. This section supersedes later historical references to a compact Statistics frame in presentation only. Source implementation and focused host checks are complete; native acceptance is reported separately.
+
 ## Material Settings — selected 26 October 2026
 
 **Flight-filter continuation:** single-filter choices use a bottom-aligned raised navy sheet on compact windows and a centered, capped surface from 600 dp. A dimmed background, 22/28 title, explicit Close, radio selection mark and immediate-apply hint make the temporary task clear. Registration search has a stronger input outline, clear control and an explained empty result. Close, outside tap and Android dismissal preserve filters; choosing an option retains existing immediate-apply behavior. No drag handle is shown because dragging is not implemented. Source implementation is complete; affected native layout/keyboard acceptance is batched with the next UI checkpoint. This adapts the reviewed Material bottom-sheet example without new dependencies or shared-token/Start changes.
