@@ -155,7 +155,7 @@ export class RealFlightService {
     return this.saveReviewed(review,span,async result=>result);
   }
   private async saveReviewed<T>(review: RealFlightReview, span: DiagnosticSpanStarter,
-    afterSave: (result: RealFlightResult, session: RealFlightRepositorySession) => Promise<T>): Promise<T> {
+    afterSave: (result: RealFlightResult, session: RealFlightRepositorySession, sequence: number) => Promise<T>): Promise<T> {
     this.selected(review); if (review.state !== 'ready') throw new Error('Confirm the source account before saving.');
     const sequence = ++this.operation; this.dispatching = true;
     try {
@@ -164,7 +164,7 @@ export class RealFlightService {
         const saved = await this.execute({version:1,kind:'import-unassigned',ownerId:this.ownerId,storeId:this.storeId,
           commandId:this.ports.uuid(),baseGeneration:review.plan.baseGeneration,at:this.ports.now(),bindingId:review.plan.bindingId,
           planToken:review.plan.planToken,source:review.source},session,sequence,span);
-        return afterSave(saved,session);
+        return afterSave(saved,session,sequence);
       },undefined,span);
       this.live(sequence); this.currentReview = null; return result;
     } finally { this.dispatching = false; }
@@ -174,14 +174,20 @@ export class RealFlightService {
     const span=diagnosticJournal.captureSpan();
     return this.saveUnassigned(await this.verifiedReview(review,verified,span),span);
   }
-  /** Save and fresh stored projection share one short selected session after binding. */
-  async saveVerifiedReviewWithStoredReadback(review: RealFlightReview, verified: {accountNumber: string; clubLabel: string}):
+  /** Local metadata checks and final fresh projection share the selected save session. No provider/user waits belong in beforeReadback. */
+  async saveVerifiedReviewWithStoredReadback(review: RealFlightReview, verified: {accountNumber: string; clubLabel: string}, beforeReadback?: () => Promise<void>):
     Promise<{result: RealFlightResult; stored: OwnFlightStoredReadback}> {
     const span=diagnosticJournal.captureSpan(),ready=await this.verifiedReview(review,verified,span);
-    return this.saveReviewed(ready,span,async(result,{library,writable,warning})=>{
+    return this.saveReviewed(ready,span,async(result,{library,writable,warning},sequence)=>{
       // Commit and journal resolution succeeded. A failed projection must not
       // make this already consumed review available for another save command.
       this.currentReview=null;
+      this.live(sequence);
+      await beforeReadback?.();
+      this.live(sequence);
+      const pending=await this.withJournal(journal=>journal.pending());
+      this.live(sequence);
+      if(pending)throw new PendingRealFlightOperation(pending.commandId);
       const stored=await timeFlightStage('return-readback',async timing=>{
         const {graph,flights}=await library.readStored(timing);
         if (!graph.receipts.some(receipt=>receipt.command_id===result.commandId&&receipt.result_json===canonical(result))) {
