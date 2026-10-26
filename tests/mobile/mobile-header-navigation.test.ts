@@ -64,6 +64,7 @@ function fixture(width = 390, fontScale = 1, root = false) {
     '../App': { default: 'LabApp' }, '../BookLab': { BookLab: 'BookLab' },
     '@moflight/flight-logbook': { canonical },
     './SyncStatusDetails':{SyncStatusDetails:'SyncStatusDetails'},'./sync-progress':syncProgress,'./SyncProgress':{SyncProgress:'SyncProgress'},
+    './SyncKeepAwake':{SyncKeepAwake:'SyncKeepAwake'},
     './theme': { ...leaves(['Action', 'Card', 'Chip', 'ClubMark', 'Empty', 'GliderMark', 'IconLabel', 'Label', 'Photo', 'Section']), colors: {}, ui: {} },
     './SymbolIcon': { SymbolIcon: 'SymbolIcon' },
     './use-library': { useLibrary: (value: boolean) => { suspended = value; return library; } },

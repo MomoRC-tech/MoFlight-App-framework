@@ -25,6 +25,7 @@ import { diagnosticJournal } from '../diagnostics';
 import { unknownProviderStatus, type ProviderStatus } from './ProviderConnection';
 import { DataUpdateIndicator } from './DataUpdateIndicator';
 import {SyncProgress} from './SyncProgress';
+import {SyncKeepAwake} from './SyncKeepAwake';
 import {SyncStatusDetails} from './SyncStatusDetails';
 import {idleSyncProgress,idleSyncNotice,completedSyncProgress,type SyncProgress as SyncProgressState} from './sync-progress';
 import { UpdateDialog } from './UpdateDialog';
@@ -86,7 +87,7 @@ export default function MobileApp() {
     }
   },[syncProgress.state]);
   useEffect(()=>{diagnosticJournal.record('sync',modalOpen?'sync-popup-open':'sync-popup-hidden');},[modalOpen]);
-  return <SafeAreaProvider><View style={{flex:1}}>
+  return <SafeAreaProvider><SyncKeepAwake active={syncProgress.state==='active'||syncProgress.state==='waiting'}/><View style={{flex:1}}>
     <View style={{flex:1}} pointerEvents={modalOpen?'none':'auto'} aria-hidden={modalOpen} accessibilityElementsHidden={modalOpen} importantForAccessibility={modalOpen?'no-hide-descendants':'auto'}><Shell syncControls={syncControls} syncRunning={syncRunning} syncProgress={syncProgress} coreFlightsOpen={!!entry?.open} flightReload={flightReload} lastLoad={lastLoad} providerStatus={providerStatus} onCoreFlights={(intent='options',development=false,destination='settings')=>{
       if(syncLock.current){diagnosticJournal.record('sync','sync-duplicate-ignored');return;}
       syncLock.current=intent==='update';if(intent==='update'){diagnosticJournal.record('sync','sync-requested');setSyncProgress({...idleSyncProgress,state:'active',current:'prepare'});}if(intent==='update')setLastLoad(null);setEntry(previous=>({intent:intent==='update'?'update':'options',development,destination,open:true,requestId:(previous?.requestId??0)+1}));}}/></View>
