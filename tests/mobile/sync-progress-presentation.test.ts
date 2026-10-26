@@ -145,3 +145,11 @@ test('leaf timers advance only foreground determinate work, exclude hidden time 
   assert.equal(render({...nextRun,now:600,fraction:.1}).fraction,.45,'Delayed same-run evidence cannot move the visual estimate backwards');
   assert.equal(render(undefined),null);assert.equal(timers.size,0);
 });
+
+test('single-item counts are absent from both visible and spoken progress rows',()=>{
+  const tree=fixture()({progress:{state:'active',last:'prepare',lastCount:{done:1,total:1,unit:'steps'},current:'medical',count:{done:0,total:1,unit:'requests'}},retry(){},details(){}});
+  assert.match(text(tree),/Vorbereitung abgeschlossen.*Medical wird abgerufen/);
+  assert.doesNotMatch(text(tree),/\([01]\/1/);
+  const spoken=nodes(tree).find(n=>n.props.accessibilityLiveRegion==='polite').props.accessibilityLabel;
+  assert.doesNotMatch(spoken,/\([01]\/1/);
+});

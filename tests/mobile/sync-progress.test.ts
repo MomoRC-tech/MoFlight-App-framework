@@ -65,8 +65,16 @@ test('measured progress preserves unknown and empty totals, resets stages and re
   progress=updateSyncCount(progress,'save',{done:0,total:0,unit:'flights'});
   assert.match(syncStageText('save',true,finishSyncStage(progress,'save').lastCount),/\(0\/0\)$/);
   for(const stage of syncStages){
-    assert.match(syncStageText(stage,false),/\(0\/(?:\?|1|2)(?: Schritt| Anfrage[n]?)?\)$/);
+    if(['flights','save','duties'].includes(stage))assert.match(syncStageText(stage,false),/\(0\/(?:\?|2)(?: Anfragen)?\)$/);
+    else assert.doesNotMatch(syncStageText(stage,false),/[()]/);
     const finished=finishSyncStage(startSyncStage(idleSyncProgress,stage),stage);
     if(!['flights','save'].includes(stage))assert.equal(finished.lastCount?.done,stage==='duties'?2:1);
+  }
+});
+
+test('single-item status counts are omitted for active and completed work in every unit',()=>{
+  for(const unit of ['flights','requests','steps'] as const)for(const done of [false,true]){
+    assert.doesNotMatch(syncStageText('flights',done,{done:done?1:0,total:1,unit}),/[()]/);
+    assert.match(syncStageText('flights',done,{done:done?2:0,total:2,unit}),/\([02]\/2/);
   }
 });

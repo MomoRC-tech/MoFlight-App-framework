@@ -52,7 +52,8 @@ export function updateSyncCount(previous:SyncProgress,stage:SyncStage,count:Sync
 }
 export function syncStageText(stage:SyncStage,done:boolean,count?:SyncCount):string{
   const value=count??defaultSyncCount(stage);
-  const units=value.unit==='flights'?'':value.unit==='steps'?' Schritt':value.total===1?' Anfrage':' Anfragen';
+  if(value.total===1)return syncLabels[stage][done?'done':'active'].replace(/[. …]+$/u,'');
+  const units=value.unit==='flights'?'':value.unit==='steps'?' Schritt':' Anfragen';
   return `${syncLabels[stage][done?'done':'active'].replace(/[. …]+$/u,'')} (${done&&!count?(value.total??'?'):value.done}/${value.total??'?'}${units})`;
 }
 export function finishSyncStage(previous:SyncProgress,stage:SyncStage):SyncProgress{
