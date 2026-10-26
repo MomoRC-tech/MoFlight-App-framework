@@ -27,3 +27,16 @@ test('rejects malformed, unsupported, duplicate, unbounded and unsafe timing fie
   for (const stage of [{...entry.stages[0],calls:0},{...entry.stages[0],failures:2},{...entry.stages[0],maximum:11},{...entry.stages[0],name:'private value'}]) assert.throws(()=>summarizeDiagnosticTiming({...report,entries:[{...entry,stages:[stage]}]}));
   assert.deepEqual(summarizeDiagnosticTiming({...report,entries:[]}).operations, []);
 });
+
+test('bounded span correlation survives timing projection without arbitrary checkpoint fields',()=>{
+ const journal=new DiagnosticJournal(()=>0),op=journal.begin('update-flights'),outer=op.span('graph-validation'),inner=outer.span('graph-validation');inner(true);outer(true);op.finish('success');
+ const raw=JSON.parse(journal.export());raw.entries[0].checkpoints[0].source='private@example.test';
+ const result=summarizeDiagnosticTiming(raw).operations[0]!;
+ assert.deepEqual(result.checkpoints?.map(point=>[point.spanId,point.parentSpanId]),[[1,undefined],[2,1],[2,1],[1,undefined]]);
+ assert.ok(!JSON.stringify(result).includes('private@example.test'));
+ for(const patch of [{spanId:'secret'},{spanId:1_000_001},{spanId:2,parentSpanId:2},{spanId:2,parentSpanId:-1},{offset:Infinity}]){
+  const invalid=JSON.parse(JSON.stringify(raw));Object.assign(invalid.entries[0].checkpoints[0],patch);assert.throws(()=>summarizeDiagnosticTiming(invalid));
+ }
+ const legacy=JSON.parse(JSON.stringify(raw));delete legacy.entries[0].checkpoints;
+ assert.equal(summarizeDiagnosticTiming(legacy).operations[0]!.checkpoints,undefined);
+});

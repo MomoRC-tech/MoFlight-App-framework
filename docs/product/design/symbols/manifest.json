@@ -258,6 +258,11 @@
       "title": "Negative sign / signed value",
       "status": "preserved"
     },
+    "T08": {
+      "glyph": null,
+      "title": "Edit local work-hour target",
+      "status": "preserved"
+    },
     "B01": {
       "glyph": null,
       "title": "Approved light Thermik logo",

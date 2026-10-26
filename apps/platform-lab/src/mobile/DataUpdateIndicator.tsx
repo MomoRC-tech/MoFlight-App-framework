@@ -28,7 +28,7 @@ export function DataUpdateIndicator({ connection, scopeKey = null, receivedAt, r
     accessibilityHint="Fragt vor dem Start nach. Falls nötig, öffnet sich danach die Anmeldung."
     accessibilityState={{ disabled:disabled||busy,busy }} disabled={disabled||busy} onPress={onPress}
     style={[ui.headerAction, disabled && { opacity: .5 }]}>
-    <View accessible={false} importantForAccessibility="no-hide-descendants" style={styles.face}>{presentation.reason==='active'?<SyncActivityIndicator/>:<SymbolIcon name="refresh" size={28} />}</View>
+    <View accessible={false} importantForAccessibility="no-hide-descendants" style={styles.face}>{presentation.reason==='active'?<SyncActivityIndicator progress={effectiveProgress}/>:<SymbolIcon name="refresh" size={28} />}</View>
     <StatusBadge testID="sync-status-badge" mark={presentation.mark} tone={presentation.tone}/>
   </Pressable>;
 }

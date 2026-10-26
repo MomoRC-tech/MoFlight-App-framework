@@ -69,7 +69,7 @@ This increment is analysis/documentation only. Arithmetic, stage order, absence 
 
 ## Proposed implementation packages and speed investigation
 
-Requested 26 October 2026; **plan only, implementation not yet selected**. Source inspection: `92a51ba`; measured source remains `ad4b7bd` above. P2 / M2-M4. #90 owns measurement, #41 performance changes, #92 estimated progress, and #45 dependent Start/readback behavior. Use these matching Issues rather than a parallel backlog.
+Requested 26 October 2026; subsequently selected for implementation by Manuel. The plan below records the intended sequence; implemented scope and remaining acceptance are recorded separately below. Source inspection: `92a51ba`; measured source remains `ad4b7bd` above. P2 / M2-M4. #90 owns measurement, #41 performance changes, #92 estimated progress, and #45 dependent Start/readback behavior. Use these matching Issues rather than a parallel backlog.
 
 ### Where time could be saved
 
@@ -94,3 +94,22 @@ Counter interpretation matters: explicit-save reports 18.585 s inside transactio
 **Recommended selection:** P1, then the narrow P2 proof, then P3/P4 calibrated against the optimized path, followed by P5. Broader journal/storage changes depend on P1/P2 evidence. No new dependency, cloud service, paid execution, persistent cross-process validation cache, schema migration or background sync is proposed. Fresh account checks, foreign-object protection, corruption detection and uncertain-save recovery remain acceptance requirements. The current log supports priorities, but not an honest seconds-saved promise or delivery-time estimate.
 
 Planning verification: read the current service/library/journal/coordinator/driver and existing #41/#45/#90/#92 contracts; cross-checked quoted timings against the supplied report, distinguished UI windows from inclusive spans, and checked documentation whitespace/references. No application changes or runtime tests were made for this plan.
+
+## Implementation — 26 October 2026
+
+Manuel authorized implementation with existing functionality preserved, and requested GPT-6.1 Sol / medium subagents for independent easier tasks. This package implements P1's bounded diagnostic improvements, narrow P2, and P3/P4. It does not complete every proposed profiling boundary or P5's native/live acceptance.
+
+- Diagnostics capture attempt-bound parent/child span IDs, repository opening, import derivation and explicit Sync review. Finished operations reject late callbacks. Checkpoints remain bounded (128 with existing export byte limits); old reports remain readable. Internal graph/replay attribution and complete gap reconciliation remain open under #90.
+- Library review takes one fresh snapshot. Validated canonical graph bytes are cached only after successful transactions, including commit/readback. Every subsequent read still checks fresh bytes; changed data is revalidated. Rollback, corrupt same-generation data, scope checks, receipts and durability remain covered. No journal recovery, provider job, source coverage or feature was removed.
+- The pure estimator freezes rolling median weights from up to five successful comparable foreground runs. First/repeat/resume and broad existing-library volume buckets remain separate. Exact flight counts drive retrieval; opaque stages use capped elapsed estimates. Missing comparable history stays indeterminate. Login pauses, cancellation, errors, background interruption and obsolete callbacks cannot produce false successful learning. Resume plans remaining work only. Initial incoming volume is not known, so prediction accuracy across large incoming-volume changes remains unproven.
+- Disposable bounded hints are owner/store scoped in platform cache storage, excluded from business backups and Android system backup. Missing/evicted/unavailable cache does not fail Sync. The existing ring and current detail row display approximate progress; display ticks are isolated from library rendering. Confirmed completion alone reaches 100%.
+
+### Verification and measurement limits
+
+Focused host checks cover coordinator success/retry/recovery/optional failure, estimator timing and presentation, cache scope/rollback, exact-byte validation and diagnostic correlation. Evidence is local and synthetic; it does not establish live-provider, Android rendering, physical-phone or iOS acceptance.
+
+Host checkpoint: Node 24.18.0 / pnpm 11.25.0 / Python 3.12.10, baseline `3cc0c41` plus this package. `pnpm check` passed TypeScript, ESLint, mobile tests and fixture parity (`build/host-checks/20261026T125333Z-10c699f0`). Python's only remaining failure was the concurrent T08 catalogue addition versus an outdated preserved-symbol count; the mapping/count maintenance fix then passed all 6 symbol-library and 10 handbook tests. Other Python tests from that checkpoint are reused (16 platform-dependent skips). Android/iOS bundle export passed (`build/sync-estimate-bundle.log`); this is not native runtime acceptance. Handbook and symbol generation checks are current. Coordinator coverage includes 57 tests, with retry waiting excluded and background-interrupted preparation excluded from learning.
+
+The 101-flight, three-import synthetic storage sequence produced baseline times 543/786/979 ms and integrated candidate times 504/737/877 ms; reopened snapshot 129 versus 127 ms. Hash calls fell from 1460/2858/3663 to 1142/2438/3136; reopened validation stayed 527. Local logs: `build/p2-storage-before-20261026a/report.json` and `build/p2-storage-integrated-after-20261026a/report.json`. These are single sequences with accumulating receipts and changed instrumentation, **not** five independent equivalent trials or a causal/device speed claim. They support reduced duplicate work, not a promised seconds-saved result.
+
+Remaining acceptance: committed-source native checkpoint for the fractional ring/cache path and real offline restart; comparable repeated device trials, earlier-sample prediction error/cap time, live-provider retry/conflicts/delete/reinitialization/independent filters and iOS. Broader repository/journal/provider optimization remains deferred pending measurements and any necessary product decision. No additional functionality tradeoff was made.

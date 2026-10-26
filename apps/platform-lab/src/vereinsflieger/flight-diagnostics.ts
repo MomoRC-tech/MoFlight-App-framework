@@ -1,5 +1,5 @@
 import type { Bind, Connection, Driver } from '@moflight/local-data';
-import { diagnosticJournal } from '../diagnostics';
+import { diagnosticJournal, diagnosticStages, type DiagnosticSpanStarter } from '../diagnostics';
 
 type Counter = 'ownerGuard'|'sql'|'transaction'|'hash'|'databaseOpen';
 type Totals = Record<Counter,{calls:number;milliseconds:number;failures:number}>;
@@ -29,14 +29,17 @@ export class FlightDiagnostics {
   }
 }
 export const flightDiagnostics=new FlightDiagnostics();
-export function startFlightSpan(name:string):(succeeded:boolean)=>void {
+export function startFlightSpan(name:string,span:DiagnosticSpanStarter=diagnosticJournal.captureSpan()) {
   if(name==='user-sign-in-wait')diagnosticJournal.record('screen','provider-login');
-  const journalSpan=diagnosticJournal.span(name);
+  const journalSpan=span(name);
+  const stageName=diagnosticStages.find(stage=>stage===name)??(name.startsWith('provider-')?'provider-other-stage':null);
   const start=performance.now(),before=flightDiagnostics.snapshot();let finished=false;
-  return succeeded=>{if(finished)return;finished=true;const counters=flightDiagnostics.difference(before);journalSpan(succeeded,counters);console.info('MOFLIGHT_STORED_READ_STAGE '+JSON.stringify({name,milliseconds:performance.now()-start,succeeded,
+  const finish=(succeeded:boolean)=>{if(finished)return;finished=true;const counters=flightDiagnostics.difference(before);journalSpan(succeeded,counters);if(stageName)console.info('MOFLIGHT_STORED_READ_STAGE '+JSON.stringify({name:stageName,milliseconds:performance.now()-start,succeeded,
     inclusiveCounters:counters}));};
+  finish.span=journalSpan.span??span;
+  return finish;
 }
-export async function timeFlightStage<T>(name:string,work:()=>Promise<T>):Promise<T> {
-  const finish=startFlightSpan(name);let succeeded=false;
-  try{const result=await work();succeeded=true;return result;}finally{finish(succeeded);}
+export async function timeFlightStage<T>(name:string,work:(span:DiagnosticSpanStarter)=>Promise<T>,span?:DiagnosticSpanStarter):Promise<T> {
+  const finish=startFlightSpan(name,span);let succeeded=false;
+  try{const result=await work(finish.span);succeeded=true;return result;}finally{finish(succeeded);}
 }

@@ -1,4 +1,5 @@
 import {dataFreshness,dataUpdateStatus,type CaptureReadState} from './data-freshness';
+import type {SyncEstimateState} from './sync-estimate';
 
 export type IdleSyncNotice={kind:'read-error'|'advice'|'never'|'unknown';caption:string;description:string};
 /** Advice uses committed receipt evidence and never starts work or changes its age. */
@@ -12,16 +13,17 @@ export function idleSyncNotice({receivedAt,readState,now,activityChanged=false}:
   return {kind:'advice',caption:activityChanged?'Änderungen möglich':'Aktualisierung empfohlen',description:[activityChanged?'Eine beobachtete Anzahl hat sich geändert. Neue Flüge sind damit nicht bestätigt.':'',older?'Der letzte gespeicherte Flugdatenabruf liegt mehr als drei Tage zurück.':''].filter(Boolean).join(' ')};
 }
 
-export const syncStages=['prepare','account','sign-in','flights','save','medical','duties','events','documents','work-summary','work-hours','tasks'] as const;
+export const syncStages=['prepare','account','sign-in','flights','review','save','medical','duties','events','documents','work-summary','work-hours','tasks'] as const;
 export type SyncStage=typeof syncStages[number];
 export type SyncCount={done:number;total:number|null;unit:'flights'|'requests'|'steps'};
-export type SyncProgress={state:'idle'|'active'|'waiting'|'failed'|'partial';last:SyncStage|null;current:SyncStage|null;message?:string;count?:SyncCount;lastCount?:SyncCount};
+export type SyncProgress={state:'idle'|'active'|'waiting'|'failed'|'partial';last:SyncStage|null;current:SyncStage|null;message?:string;count?:SyncCount;lastCount?:SyncCount;estimate?:SyncEstimateState};
 export const idleSyncProgress:SyncProgress={state:'idle',last:null,current:null};
 export const syncLabels:Record<SyncStage,{active:string;done:string}>={
   prepare:{active:'Synchronisierung wird vorbereitet …',done:'Vorbereitung abgeschlossen.'},
   account:{active:'Anmeldung wird geprüft …',done:'Anmeldung bestätigt.'},
   'sign-in':{active:'Anmeldung erforderlich …',done:'Anmeldung bestätigt.'},
   flights:{active:'Flüge werden abgerufen …',done:'Flüge abgerufen.'},
+  review:{active:'Flüge werden geprüft …',done:'Flüge geprüft.'},
   save:{active:'Flüge werden gespeichert …',done:'Flüge gespeichert.'},
   medical:{active:'Medical wird abgerufen …',done:'Medical verarbeitet.'},
   duties:{active:'Dienste werden abgerufen …',done:'Dienste verarbeitet.'},
@@ -37,7 +39,7 @@ export function startSyncStage(previous:SyncProgress,current:SyncStage):SyncProg
 }
 export function defaultSyncCount(stage:SyncStage):SyncCount{
   return stage==='flights'||stage==='save'?{done:0,total:null,unit:'flights'}:
-    {done:0,total:stage==='duties'?2:1,unit:['prepare','account','sign-in'].includes(stage)?'steps':'requests'};
+    {done:0,total:stage==='duties'?2:1,unit:['prepare','account','sign-in','review'].includes(stage)?'steps':'requests'};
 }
 /** Late, cancelled and invalid updates cannot advance another stage. */
 export function updateSyncCount(previous:SyncProgress,stage:SyncStage,count:SyncCount):SyncProgress{

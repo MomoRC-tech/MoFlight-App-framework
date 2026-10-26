@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { FlightDiagnostics, timeFlightStage } from '../../apps/platform-lab/src/vereinsflieger/flight-diagnostics';
-import { diagnosticJournal } from '../../apps/platform-lab/src/diagnostics';
+import { DiagnosticJournal, diagnosticJournal } from '../../apps/platform-lab/src/diagnostics';
 import { nodeDriver } from './sqlite-driver';
 
 test('existing timed flight stages feed the support operation without capturing results or errors',async()=>{
@@ -41,4 +41,13 @@ test('profiled driver preserves transactions, rollback, parameter binding and cl
     const report=metrics.snapshot();assert.equal(report.transaction.calls,2);assert.equal(report.transaction.failures,1);
     assert.equal(report.sql.calls,5);assert.ok(!JSON.stringify(report).includes('synthetic value'));
   }finally{await db.close();}
+});
+
+test('explicit flight stage starter stays with captured operation across awaits and cancellation',async()=>{
+ const journal=new DiagnosticJournal(()=>0),first=journal.begin('update-flights'),bound=journal.captureSpan();
+ let release!:()=>void;const work=new Promise<void>(resolve=>{release=resolve;});
+ const stage=timeFlightStage('save-readback',()=>work,bound);first.finish('cancelled');
+ const second=journal.begin('update-flights'),before=journal.snapshot();release();await stage;
+ await timeFlightStage('graph-read',async()=>42,bound);
+ assert.deepEqual(journal.snapshot(),before);second.finish('success');
 });

@@ -1,5 +1,7 @@
 # Components, symbols and shapes
 
+**26 October selected estimated Sync progress (#92):** the existing 32 dp ring becomes determinate only with comparable local timing samples. The current status row retains exact counts and adds `Gesamt ca. N %`; review has its own step. Unknown timings remain indeterminate, waits freeze, overruns explain the delay, and only confirmed completion reaches 100%. Samples distinguish first/repeat/resumed work; elapsed fractions are estimates. Control size, reduced motion, cancellation and independent source results remain unchanged. [Implementation and acceptance limits](../../verification/2026-10-26-sync-counts.md#implementation--26-october-2026).
+
 **26 October selected C06/C17 amendment (#83):** [Separate Sync and Profile status](compact-cockpit.md#separate-sync-and-profile-status--selected-26-october-2026) uses one circular work indicator/result badge on Sync and one independent login badge on Profile. No key control. Ordinary Sync/retry requires a short native Cancel/Start decision. This supersedes conflicting earlier inventory notes below.
 
 **25 October selected C06/C17 amendment (#83):** the [current Sync contract](compact-cockpit.md#sync-clarity-and-target-preservation--selected-25-october-2026) replaces the dot/session submark with a readable attention mark and visible Details notices, while keeping actual progress/cancel and independent session/receipt evidence. This supersedes the earlier C06/C17 presentation inventory below within that scope.

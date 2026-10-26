@@ -61,6 +61,80 @@ async function save(library: RealFlightLibrary, input: RealFlightSourceInput, id
   return { plan, result };
 }
 
+test('committed readback reuses validated bytes while unchanged captures still append receipts and evidence', async t => {
+  let calls = 0, beforeReadback = -1;
+  const counted: Hash = async value => { calls++; return hash(value); };
+  const db = nodeDriver(':memory:');
+  const library = await RealFlightLibrary.create(db, manifest(ownerA, storeA), counted,
+    () => ({ ownerId: ownerA, storeId: storeA, leaseId: 'commit-cache', writable: true }), async stage => {
+      if (stage === 'before-readback') beforeReadback = calls;
+    });
+  t.after(() => library.close());
+  await bind(library);
+  assert.equal(calls, beforeReadback, 'binding readback uses the graph validated inside the committed transaction');
+  for (const [id, captureId, duration, expected] of [
+    [2, 'commit-first', '12', 'added'], [3, 'commit-unchanged', '12', 'unchanged'], [4, 'commit-changed', '14', 'changed'],
+  ] as const) {
+    const { result } = await save(library, source(captureId, [row('101', duration)]), id);
+    assert.equal(result.counts[expected], 1);
+    assert.equal(calls, beforeReadback, 'fresh receipt readback does not replay an exact validated graph');
+    const graph = await library.snapshot();
+    assert.equal(graph.generation, id);
+    assert.equal(graph.receipts.length, id);
+    assert.ok(graph.records.some(record => record.kind === 'capture' && record.id === captureId));
+    assert.equal((await library.recoverReceipt(commandId(id))).status, 'found');
+  }
+  const detail = await library.detail((await library.list())[0]!.flightId);
+  assert.equal(detail?.factHistory.length, 2);
+  assert.equal(detail?.facts.assessment.durations.flight.minutes, 14);
+});
+
+test('driver failure after transaction work rolls back without publishing its validated candidate', async t => {
+  const db = nodeDriver(':memory:'), transaction = db.transaction.bind(db);
+  let failCommit = false, calls = 0;
+  db.transaction = work => transaction(async tx => {
+    const result = await work(tx);
+    if (failCommit) { failCommit = false; throw new Error('injected commit failure'); }
+    return result;
+  });
+  const counted: Hash = async value => { calls++; return hash(value); };
+  const library = await RealFlightLibrary.create(db, manifest(ownerA, storeA), counted,
+    () => ({ ownerId: ownerA, storeId: storeA, leaseId: 'rollback-cache', writable: true }));
+  t.after(() => library.close());
+  await bind(library); await save(library, source('rollback-existing', [row('101')]), 2);
+  const before = await library.snapshot(), input = source('rollback-candidate', [row('101', '14')]);
+  const plan = await library.prepareImport(input);
+  const command = { kind: 'import-unassigned' as const, commandId: commandId(3), baseGeneration: plan.baseGeneration,
+    bindingId: plan.bindingId, source: input, planToken: plan.planToken, at };
+  failCommit = true;
+  await assert.rejects(library.saveUnassigned(command), IndeterminateRealFlightCommit);
+  const afterFailure = calls;
+  assert.deepEqual(await library.snapshot(), before);
+  assert.equal(calls, afterFailure, 'rollback preserves trust only in the previously committed exact graph');
+  assert.equal((await library.recoverReceipt(command.commandId)).status, 'not-found');
+  assert.equal((await library.saveUnassigned(command)).counts.changed, 1);
+});
+
+test('review prepares binding state and plan from one fresh protected snapshot', async t => {
+  const { library, db, setPermit } = await setup(t);
+  const transaction = db.transaction.bind(db); let reads = 0;
+  db.transaction = work => { reads++; return transaction(work); };
+  const input = source('review-single-read', [row('101')]);
+  const unbound = await library.prepareReview(input);
+  assert.equal(unbound.plan, null); assert.equal(unbound.graph.generation, 0); assert.equal(reads, 1);
+  await assert.rejects(library.prepareImport(input), /Bind the observed provider account/);
+  await bind(library); reads = 0;
+  const reviewed = await library.prepareReview(input);
+  assert.equal(reads, 1); assert.equal(reviewed.graph.generation, reviewed.plan?.baseGeneration);
+  assert.equal(reviewed.plan?.counts.added, 1);
+  const recordCount = reviewed.graph.records.length;
+  reviewed.graph.records.length = 0;
+  assert.equal((await library.snapshot()).records.length, recordCount, 'returned graph cannot change storage or cached validation');
+  await assert.rejects(library.prepareReview(source('review-foreign', [row('101')], '20202')), /expected provider account|differs from the immutable/);
+  setPermit({ ownerId: ownerA, storeId: storeA, leaseId: 'foreign-review-lease', writable: true });
+  await assert.rejects(library.prepareReview(input), /lease/);
+});
+
 test('same-handle exact graph replay reuse preserves changed-graph, fresh-handle and lease validation',async t=>{
   let calls=0;
   const counted:Hash=async value=>{calls++;return hash(value);};
@@ -86,7 +160,7 @@ test('same-handle exact graph replay reuse preserves changed-graph, fresh-handle
 });
 
 test('same-generation forged records and failed replay cannot populate exact-graph trust',async t=>{
-  const db=nodeDriver(':memory:');let corrupt=false,calls=0;
+  const db=nodeDriver(':memory:');let corrupt=false,corruptReadback=false,calls=0;
   const transaction=db.transaction.bind(db);
   db.transaction=work=>transaction(tx=>work({...tx,all:async<T>(sql:string,...params:Bind[])=>{
     const rows=await tx.all<T>(sql,...params);
@@ -97,7 +171,9 @@ test('same-generation forged records and failed replay cannot populate exact-gra
   }}));
   const counted:Hash=async value=>{calls++;return hash(value);};
   const library=await RealFlightLibrary.create(db,manifest(ownerA,storeA),counted,
-    ()=>({ownerId:ownerA,storeId:storeA,leaseId:'same-generation',writable:true}));
+    ()=>({ownerId:ownerA,storeId:storeA,leaseId:'same-generation',writable:true}), async stage=>{
+      if(stage==='before-readback'&&corruptReadback)corrupt=true;
+    });
   t.after(()=>library.close());
   await bind(library);await save(library,source('cached-records',[row('101')]),2);
   await library.snapshot();corrupt=true;
@@ -106,6 +182,10 @@ test('same-generation forged records and failed replay cannot populate exact-gra
     assert.ok(calls>before,'a rejected graph is never memoized');
   }
   corrupt=false;assert.equal((await library.readStored()).flights[0]!.sourceFlightRef,'101');
+  corruptReadback=true;
+  await assert.rejects(save(library,source('corrupt-committed-readback',[row('101','14')]),3),IndeterminateRealFlightCommit);
+  corrupt=false;corruptReadback=false;
+  assert.equal((await library.recoverReceipt(commandId(3))).status,'found','fresh readback rejects altered bytes without losing the durable receipt');
 });
 async function reEnvelope(graph: RealFlightGraph, change: (graph: RealFlightGraph & { version: number }) => void) {
   const body = { version: 1, ...structuredClone(graph) };

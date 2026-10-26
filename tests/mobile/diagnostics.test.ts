@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { DiagnosticJournal, diagnosticStages, DIAGNOSTIC_FILE_BYTES, DIAGNOSTIC_STORAGE_BYTES, DIAGNOSTIC_RETENTION_MS, utf8Bytes } from '../../apps/platform-lab/src/diagnostics';
+import { DiagnosticJournal, diagnosticStages, DIAGNOSTIC_FILE_BYTES, DIAGNOSTIC_STORAGE_BYTES, DIAGNOSTIC_RETENTION_MS, DIAGNOSTIC_CHECKPOINT_LIMIT, utf8Bytes } from '../../apps/platform-lab/src/diagnostics';
 
 const wall=2_000_000_000_000;
 
@@ -101,9 +101,49 @@ test('a failed child read before storage initialization keeps its handle and pro
  assert.equal(f.journal.failureSnapshot().length,2);assert.ok(f.journal.failureSnapshot().some(v=>v.operation.action==='read-flights'&&v.preceding.some(e=>e.target==='home')));
 });
 
-test('late span completion preserves its original operation-relative checkpoint offset',()=>{
+test('terminal operations remain frozen when late spans, notes and new spans arrive',()=>{
  const f=fixture(),op=f.journal.begin('update-flights');f.now(20);const stage=op.span('source-retrieval');f.now(50);op.finish('cancelled','cancelled');f.now(100);stage(false);
- assert.equal(f.journal.snapshot()[0]!.checkpoints.at(-1)!.offset,100);assert.equal(f.journal.snapshot()[0]!.stages[0]!.milliseconds,80);
+ const frozen=f.journal.snapshot()[0]!;
+ op.note('view','ready');op.span('explicit-save')(true);stage(true);
+ assert.deepEqual(f.journal.snapshot()[0],frozen);
+ assert.equal(frozen.milliseconds,50);assert.equal(frozen.checkpoints.at(-1)!.offset,20);assert.deepEqual(frozen.stages,[]);
+});
+
+test('captured starters and nested same-name spans retain operation and parent identity',()=>{
+ const f=fixture(),first=f.journal.begin('update-flights'),bound=f.journal.captureSpan();
+ const outer=bound('graph-validation');f.now(10);const inner=outer.span('graph-validation');
+ const second=f.journal.begin('read-flights');f.now(30);inner(true);f.now(40);outer(true);
+ const points=f.journal.snapshot()[0]!.checkpoints;
+ assert.deepEqual(points.map(p=>[p.state,p.spanId,p.parentSpanId,p.offset]),[['start',1,undefined,0],['start',2,1,10],['success',2,1,30],['success',1,undefined,40]]);
+ assert.equal(f.journal.snapshot()[0]!.stages[0]!.milliseconds,60);
+ first.finish('success');const frozen=f.journal.snapshot();bound('source-review')(true);outer.span('graph-read')(true);
+ assert.deepEqual(f.journal.snapshot(),frozen);assert.deepEqual(f.journal.snapshot()[1]!.stages,[]);second.finish('success');
+});
+
+test('span identities persist within bounds while legacy v2 checkpoints remain readable',async()=>{
+ const f=fixture();f.journal.connect(f.storage);const op=f.journal.begin('update-flights'),outer=op.span('repository-open'),child=outer.span('graph-read');child(true);outer(true);op.finish('success');await f.journal.flush();
+ const raw=JSON.parse(f.saved()!);raw.entries[0].checkpoints.push({name:'source-review',state:'start',offset:2,spanId:'private@example.test',parentSpanId:Infinity,private:'token-secret'});
+ raw.entries[0].checkpoints.push({name:'source-review',state:'success',offset:3});
+ const reopened=new DiagnosticJournal(()=>0,()=>wall);reopened.connect({read:()=>JSON.stringify(raw),write:()=>{}});
+ const points=reopened.snapshot()[0]!.checkpoints;
+ assert.equal(points[1]!.parentSpanId,points[0]!.spanId);assert.equal(points.at(-1)!.spanId,undefined);
+ assert.ok(!reopened.export().includes('private@example.test'));assert.ok(!reopened.export().includes('token-secret'));
+ const bounded=reopened.begin('update-flights');
+ for(let i=0;i<100;i++)bounded.span('queue-wait')(true);
+ assert.equal(reopened.snapshot().at(-1)!.checkpoints.length,DIAGNOSTIC_CHECKPOINT_LIMIT);
+});
+
+test('complete sync stage windows and nested details fit the bounded checkpoint timeline',()=>{
+ const f=fixture(),op=f.journal.begin('update-flights');
+ const stages=diagnosticStages.filter(stage=>stage.startsWith('sync-'));
+ for(const [index,name]of stages.entries()){
+  f.now(index*100);const stage=op.span(name);const detail=stage.span('repository-open');f.now(index*100+50);detail(true);f.now((index+1)*100);stage(true);
+ }
+ op.finish('success');const entry=f.journal.snapshot()[0]!;
+ const windows=entry.checkpoints.filter(point=>point.name.startsWith('sync-'));
+ assert.equal(windows.length,stages.length*2);assert.equal(windows[0]!.name,'sync-prepare');
+ assert.equal(windows.at(-1)!.offset,entry.milliseconds);
+ assert.equal(windows.filter(point=>point.state==='success').reduce((total,point,index)=>total+point.offset-windows[index*2]!.offset,0),entry.milliseconds);
 });
 
 

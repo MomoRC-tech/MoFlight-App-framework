@@ -3,6 +3,7 @@ import {AccessibilityInfo,AppState,Animated,Easing,Pressable,StyleSheet,View} fr
 import {Label,colors} from './theme';
 import {SymbolIcon} from './SymbolIcon';
 import {syncStageText,type SyncProgress as Progress,type IdleSyncNotice} from './sync-progress';
+import {reduceSyncEstimate,snapshotSyncEstimate,syncEstimateNow,type SyncEstimateState} from './sync-estimate';
 
 export function useReducedMotion(){
   const [reduced,setReduced]=useState(true);
@@ -22,11 +23,57 @@ export function SyncShine({active}:{active:boolean}){
   if(!active||reduced)return null;
   return <Animated.View pointerEvents="none" accessible={false} style={[styles.shine,{transform:[{translateX:position.interpolate({inputRange:[0,1],outputRange:[-60,170]})},{skewX:'-20deg'}]}]}/>;
 }
-/** Flat indeterminate progress in the action; static arc with reduced motion. */
-export function SyncActivityIndicator(){
+/** The only timer lives in these small display leaves, never in the library coordinator. */
+export function useSyncEstimateDisplay(estimate:SyncEstimateState|undefined,foreground:boolean){
+  const [local,setLocal]=useState({source:estimate,value:estimate});
+  const current=local.source===estimate?local.value:estimate;
+  // Count evidence may replace an elapsed projection with a smaller fraction.
+  // Keep that correction in the model while preserving the already displayed
+  // estimate for this attempt; it must never alter learned duration samples.
+  const displayed=useRef<{runId:string;scope:string;fraction:number}|null>(null);
+  if(!current||current.fraction===null)displayed.current=null;
+  else displayed.current={runId:current.runId,scope:current.scope,fraction:
+    displayed.current?.runId===current.runId&&displayed.current.scope===current.scope?Math.max(displayed.current.fraction,current.fraction):current.fraction};
+  const latest=useRef(current);latest.current=current;
+  useEffect(()=>{
+    const initial=latest.current;
+    if(!foreground||!initial||initial.status!=='active'||initial.fraction===null)return;
+    const startedAt=syncEstimateNow();let current=true;
+    const timer=setInterval(()=>{if(!current)return;setLocal(previous=>{
+      const value=previous.source===estimate?previous.value:estimate;
+      return {source:estimate,value:value?reduceSyncEstimate(value,{type:'tick',runId:value.runId,at:initial.now+Math.max(0,syncEstimateNow()-startedAt)}):value};
+    });},500);
+    return()=>{current=false;clearInterval(timer);};
+  },[estimate,foreground]);
+  return current?{...snapshotSyncEstimate(current),fraction:displayed.current?.fraction??current.fraction}:null;
+}
+function estimateText(value:ReturnType<typeof snapshotSyncEstimate>|null){
+  return value?.estimated&&value.fraction!==null?`Gesamt ca. ${Math.floor(value.fraction*100)} %${value.overrun?' · Dauert länger als erwartet':''}`:'';
+}
+/** Native clipped semicircles keep the existing 32dp ring without adding a graphics dependency. */
+function DeterminateRing({fraction}:{fraction:number}){
+  return <View testID="sync-estimated-ring" accessible={false} importantForAccessibility="no" style={styles.ringFrame}>
+    <View style={styles.ringTrack}/>
+    {([0,1] as const).map(half=>{
+      const portion=Math.max(0,Math.min(1,fraction*2-half));
+      return portion>0?<View key={half} style={[styles.ringClip,{left:half===0?16:0}]}>
+        <View style={[styles.ringHalf,{left:half===0?-16:0,transform:[{rotate:`${225+180*portion+180*half}deg`}]}]}/>
+      </View>:null;
+    })}
+  </View>;
+}
+/** Unknown work rotates an arc; learned progress uses a static, actual fractional ring. */
+export function SyncActivityIndicator({progress}:{progress?:Progress}={}){
   const reduced=useReducedMotion(),foreground=useForeground(),rotation=useRef(new Animated.Value(0)).current;
-  useEffect(()=>{rotation.setValue(0);if(reduced||!foreground)return;const animation=Animated.loop(Animated.timing(rotation,{toValue:1,duration:1200,easing:Easing.linear,useNativeDriver:true}));animation.start();return()=>animation.stop();},[reduced,foreground,rotation]);
+  const estimate=useSyncEstimateDisplay(progress?.estimate,foreground&&(!progress||progress.state==='active'));
+  const fraction=estimate?.fraction??null,working=!progress||progress.state==='active';
+  useEffect(()=>{rotation.setValue(0);if(reduced||!foreground||!working||fraction!==null)return;const animation=Animated.loop(Animated.timing(rotation,{toValue:1,duration:1200,easing:Easing.linear,useNativeDriver:true}));animation.start();return()=>animation.stop();},[reduced,foreground,working,fraction,rotation]);
+  if(fraction!==null)return <DeterminateRing fraction={Math.max(0,Math.min(estimate?.status==='success'?1:.99,fraction))}/>;
   return <Animated.View testID="sync-activity-ring" accessible={false} importantForAccessibility="no" style={[styles.ring,{transform:[{rotate:rotation.interpolate({inputRange:[0,1],outputRange:['0deg','360deg']})}]}]}/>;
+}
+function SyncCurrentLine({current,estimate,active}:{current:string;estimate?:SyncEstimateState;active:boolean}){
+  const value=useSyncEstimateDisplay(estimate,active),suffix=estimateText(value);
+  return <View accessible={false} accessibilityElementsHidden importantForAccessibility="no-hide-descendants"><Label style={styles.current}>{current}{suffix?` · ${suffix}`:''}</Label></View>;
 }
 /** Work retains two semantic rows; settled advice has explicit Details and no acknowledgement. */
 export function SyncProgress({progress,notice=null,retry,details,cancel,canCancel=false}:{progress:Progress;notice?:IdleSyncNotice|null;retry:()=>void;details:()=>void;cancel?:()=>void;canCancel?:boolean}){
@@ -40,6 +87,7 @@ export function SyncProgress({progress,notice=null,retry,details,cancel,canCance
   if(!mounted)return null;
   const failed=progress.state==='failed'||progress.state==='partial';
   const current=progress.message??(progress.current?syncStageText(progress.current,false,progress.count):'Wird fortgesetzt …');
+  const spokenEstimate=estimateText(progress.estimate?snapshotSyncEstimate(progress.estimate):null);
   if(!working){
     const localFailure=notice?.kind==='read-error';
     const caption=localFailure?notice.caption:failed?(progress.state==='partial'?'Teilweise aktualisiert':'Synchronisierung fehlgeschlagen'):notice?.caption;
@@ -52,9 +100,9 @@ export function SyncProgress({progress,notice=null,retry,details,cancel,canCance
     </View>;
   }
   return <Animated.View testID="sync-progress" style={[styles.box,{opacity:reveal,transform:[{translateY:reveal.interpolate({inputRange:[0,1],outputRange:[-12,0]})}]}]}>
-    <View style={cancel?{paddingRight:48}:undefined} accessibilityLiveRegion="polite" accessible accessibilityLabel={`${progress.last?syncStageText(progress.last,true,progress.lastCount)+' ':''}${current}`}>
+    <View style={cancel?{paddingRight:48}:undefined} accessibilityLiveRegion="polite" accessible accessibilityLabel={`${progress.last?syncStageText(progress.last,true,progress.lastCount)+' ':''}${current}${spokenEstimate?`. ${spokenEstimate}`:''}`}>
       <Label style={styles.previous}>{progress.last?`✓ ${syncStageText(progress.last,true,progress.lastCount)}`:' '}</Label>
-      <Animated.View style={{opacity:pulse}}><Label style={styles.current}>{current}</Label></Animated.View>
+      <Animated.View style={{opacity:pulse}}><SyncCurrentLine current={current} estimate={progress.estimate} active={active}/></Animated.View>
     </View>
     {cancel&&<Pressable accessibilityRole="button" accessibilityLabel="Synchronisierung abbrechen" disabled={!canCancel} accessibilityState={{disabled:!canCancel}} onPress={cancel} style={styles.cancel}><SymbolIcon name="close" size={20}/></Pressable>}
   </Animated.View>;
@@ -70,4 +118,7 @@ const styles=StyleSheet.create({
   cancel:{position:'absolute',right:4,top:0,width:48,minHeight:48,alignItems:'center',justifyContent:'center'},
   shine:{position:'absolute',top:0,bottom:0,width:28,backgroundColor:'#baf9e436',borderLeftWidth:1,borderRightWidth:1,borderColor:'#d5ffee70'},
   ring:{width:32,height:32,borderRadius:16,borderWidth:3,borderColor:colors.cyan,borderRightColor:'transparent',borderBottomColor:'transparent'},
+  ringFrame:{width:32,height:32},ringTrack:{position:'absolute',width:32,height:32,borderRadius:16,borderWidth:3,borderColor:colors.border},
+  ringClip:{position:'absolute',top:0,width:16,height:32,overflow:'hidden'},
+  ringHalf:{position:'absolute',top:0,width:32,height:32,borderRadius:16,borderWidth:3,borderColor:'transparent',borderTopColor:colors.cyan,borderRightColor:colors.cyan},
 });

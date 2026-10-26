@@ -188,7 +188,7 @@ export class RealFlightLibrary {
     const before = this.allowed(); await this.gate(false);
     const ready = this.allowed();
     realFlightRequire(ready.leaseId === before.leaseId, 'Real flight history lease changed before read.');
-    let graph!: RealFlightGraph;
+    let graph!: RealFlightGraph, validatedText!: string;
     await this.db.transaction(async tx => {
       const current = this.allowed();
       realFlightRequire(current.leaseId === ready.leaseId, 'Real flight history lease changed during read.');
@@ -199,9 +199,10 @@ export class RealFlightLibrary {
       const text = canonical(graph);
       if (text !== this.validatedGraphText) {
         await validateRealFlightGraph(graph, this.hash);
-        this.validatedGraphText = text;
       }
+      validatedText = text;
     });
+    this.validatedGraphText = validatedText;
     realFlightRequire(graph.manifest.owner_id === before.ownerId && graph.manifest.store_id === before.storeId,
       'Foreign real flight history file.');
     await this.gate(false); const after = this.allowed();
@@ -215,13 +216,19 @@ export class RealFlightLibrary {
   }
 
   async prepareImport(source: RealFlightSourceInput): Promise<RealFlightImportPlan> {
+    const { plan } = await this.prepareReview(source);
+    realFlightRequire(plan, 'Bind the observed provider account before preparing a flight import.');
+    return plan;
+  }
+
+  /** Binding state and import plan share one fresh, authorized graph read. */
+  async prepareReview(source: RealFlightSourceInput): Promise<{graph: RealFlightGraph; plan: RealFlightImportPlan | null}> {
     const before = this.allowed(); await this.gate(false); const graph = await this.snapshot();
     const binding = latestRealFlightValues<StoredBinding>(graph.records, 'binding')[0];
-    realFlightRequire(binding, 'Bind the observed provider account before preparing a flight import.');
-    const plan = await prepareRealFlightImport(graph, binding.bindingId, source, this.hash);
+    const plan = binding ? await prepareRealFlightImport(graph, binding.bindingId, source, this.hash) : null;
     await this.gate(false); const after = this.allowed();
     realFlightRequire(after.leaseId === before.leaseId, 'Real flight history lease changed during review.');
-    return plan;
+    return { graph, plan };
   }
 
   async saveUnassigned(input: Omit<ImportUnassignedCommand, 'version'|'ownerId'|'storeId'>): Promise<RealFlightResult> {
@@ -236,6 +243,7 @@ export class RealFlightLibrary {
     const request = realFlightBoundedJson(input, REAL_HISTORY_BACKUP_LIMIT);
     const command = JSON.parse(request) as RealFlightCommand;
     let completed = false, committed = false, alreadyCommitted = false, result!: RealFlightResult;
+    let validatedText!: string;
     try {
       await this.fault('before-transaction');
       await this.db.transaction(async tx => {
@@ -245,6 +253,7 @@ export class RealFlightLibrary {
         const old = graph.receipts.find(receipt => receipt.command_id === command.commandId);
         if (old) {
           realFlightRequire(old.request_json === request, 'Real flight history idempotency ID reused with different input.');
+          validatedText = canonical(graph);
           result = JSON.parse(old.result_json) as RealFlightResult; alreadyCommitted = true; completed = true; return;
         }
         const next = await deriveRealFlightCommand(graph, command, this.hash); result = next.result;
@@ -258,11 +267,17 @@ export class RealFlightLibrary {
             row.revision, row.generation, row.payload, row.payload_sha256);
           await this.fault('after-' + row.kind);
         }
-        await validateRealFlightGraph(await graphFrom(tx), this.hash);
+        const writtenGraph = await graphFrom(tx);
+        await validateRealFlightGraph(writtenGraph, this.hash);
+        validatedText = canonical(writtenGraph);
         this.allowed(true); await this.fault('before-commit'); await this.gate(true);
         await authorizedGraph(tx, this.allowed(true)); completed = true;
       });
       committed = true;
+      // Publish trust only after the driver confirms COMMIT. Readback below
+      // still reads the database and checks exact bytes, schema and ownership;
+      // changed bytes take the complete replay path, even at the same generation.
+      this.validatedGraphText = validatedText;
       await this.gate(true); this.allowed(true);
       if (!alreadyCommitted) await this.fault('after-commit');
       await this.fault('before-readback');

@@ -15,6 +15,7 @@ import { realHistoryCandidateName } from '../../apps/platform-lab/src/vereinsfli
 import type { RealFlightRepositorySession } from '../../apps/platform-lab/src/vereinsflieger/real-flight-service.ts';
 import { readAiFlightSnapshot } from '../../apps/platform-lab/src/ai/flight-context.ts';
 import { AiFlightTools } from '../../apps/platform-lab/src/ai/flight-tools.ts';
+import { DiagnosticJournal } from '../../apps/platform-lab/src/diagnostics.ts';
 
 const ownerId = '11111111-1111-4111-8111-111111111111', storeId = '22222222-2222-4222-8222-222222222222';
 const at = '2026-10-20T10:00:00.000Z';
@@ -57,6 +58,25 @@ async function ready(f: Awaited<ReturnType<typeof fixture>>) {
   const service=f.make();const review=await service.reviewSource(source());assert.equal(review.state,'confirm-account');
   const bound=await service.confirmAccount(review);assert.equal(bound.state,'ready');return {service,review:bound};
 }
+
+test('review start follows live source retrieval, skips binding rebuild and keeps attempt timings across awaits',async()=>{
+  const f=await fixture(),service=f.make(),journal=new DiagnosticJournal(()=>0),first=journal.begin('update-flights');
+  let reviewStarts=0,release!:()=>void;f.ports.onReviewStart=()=>{reviewStarts++;};
+  f.ports.retrieve=async()=>{await new Promise<void>(resolve=>{release=resolve;});return source();};
+  try {
+    const retrieved=service.retrieve({from:'2026-10-01',to:'2026-10-20'},journal.captureSpan());
+    while(!release)await new Promise<void>(resolve=>{setImmediate(resolve);});
+    const other=journal.begin('read-flights');assert.equal(reviewStarts,0);release();
+    const review=await retrieved;assert.equal(reviewStarts,1);
+    const measured=journal.snapshot();assert.ok(measured[0]!.stages.some(stage=>stage.name==='source-review'));
+    assert.deepEqual(measured[1]!.stages,[]);
+    const reviewPoint=measured[0]!.checkpoints.find(point=>point.name==='source-review'&&point.state==='start')!;
+    assert.ok(measured[0]!.checkpoints.some(point=>point.name==='import-derivation'&&point.parentSpanId===reviewPoint.spanId));
+    await service.confirmAccount(review);assert.equal(reviewStarts,1);
+    await service.reviewSource(source('second-capture'));assert.equal(reviewStarts,2);
+    first.finish('success');other.finish('success');
+  }finally{service.dispose();await f.cleanup();}
+});
 
 test('saved SQLite source issues reach bounded AI evidence without changing the source or counting pending rows as flights', async () => {
   const f = await fixture(), service = f.make();

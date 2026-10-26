@@ -1,6 +1,6 @@
-import { diagnosticActions, diagnosticCodes, diagnosticStages, journeyKinds, journeyTargets, counterNames, outcomes, member, boundedNumber as number, object, array, utf8Bytes,
+import { diagnosticActions, diagnosticCodes, diagnosticStages, journeyKinds, journeyTargets, counterNames, outcomes, member, boundedNumber as number, object, array, utf8Bytes, DIAGNOSTIC_CHECKPOINT_LIMIT,
   type DiagnosticAction, type DiagnosticCode, type DiagnosticStage, type DiagnosticOutcome } from './diagnostic-vocabulary';
-export { diagnosticActions, diagnosticCodes, diagnosticStages, journeyKinds, journeyTargets, counterNames, utf8Bytes } from './diagnostic-vocabulary';
+export { diagnosticActions, diagnosticCodes, diagnosticStages, journeyKinds, journeyTargets, counterNames, utf8Bytes, DIAGNOSTIC_CHECKPOINT_LIMIT } from './diagnostic-vocabulary';
 export type { DiagnosticAction, DiagnosticCode, DiagnosticStage, DiagnosticOutcome } from './diagnostic-vocabulary';
 
 /** Decimal MB, across journal and managed export; no temporary file duplication. */
@@ -11,7 +11,13 @@ type Counter = { calls: number; failures: number; milliseconds: number };
 const stateNames = ['library','save','provider','restore','view'] as const;
 const stateValues = ['unknown','ready','read-only','pending','receipt-confirmed','account-verified','failed'] as const;
 type ObservedState = Partial<Record<typeof stateNames[number], typeof stateValues[number]>>;
-type Checkpoint = { name: DiagnosticStage; state: 'start' | 'success' | 'failed'; offset: number };
+type Checkpoint = { name: DiagnosticStage; state: 'start' | 'success' | 'failed'; offset: number; spanId?: number; parentSpanId?: number };
+/** Local numeric correlation only; callers cannot supply source identifiers. */
+export interface DiagnosticSpanFinish {
+  (succeeded: boolean, counters?: unknown): void;
+  span(name: string): DiagnosticSpanFinish;
+}
+export type DiagnosticSpanStarter = (name: string) => ((succeeded: boolean, counters?: unknown) => void) & { span?: DiagnosticSpanStarter };
 export interface DiagnosticEntry {
   sequence: number; session: number; action: DiagnosticAction; outcome: DiagnosticOutcome; code: DiagnosticCode; milliseconds: number;
   trigger: 'user' | 'automatic'; offset: number;
@@ -25,7 +31,7 @@ interface Failure { operation: DiagnosticEntry; preceding: JourneyEvent[] }
 export interface DiagnosticOperation {
   running(): boolean;
   finish(outcome: Exclude<DiagnosticOutcome, 'running'>, code?: DiagnosticCode): void;
-  span(name: string): (succeeded: boolean, counters?: unknown) => void;
+  span: DiagnosticSpanStarter;
   note(key: typeof stateNames[number], state: typeof stateValues[number]): void;
 }
 interface Storage { read(): string | null; write(text: string): void | Promise<void>; clearExport?(): void | Promise<void> }
@@ -52,6 +58,7 @@ export class DiagnosticJournal {
   private events: Dated<JourneyEvent>[] = [];
   private protectedFailures: Dated<Failure>[] = [];
   private starts = new Map<DiagnosticEntry, number>();
+  private spanSequences = new WeakMap<DiagnosticEntry, number>();
   private sizes = new WeakMap<object, number>();
   private sequence = 0; private session = 1; private origin: number;
   private foreground = true;
@@ -85,7 +92,16 @@ export class DiagnosticJournal {
       stages.push({ name: s.name, calls: number(s.calls), failures: number(s.failures), milliseconds: number(s.milliseconds), maximum: number(s.maximum), counters: cleanCounters(s.counters) });
     }
     const checkpoints: Checkpoint[] = [];
-    for (const item of array(raw.checkpoints).slice(-32)) { const c = object(item); if (member(diagnosticStages, c.name) && member(['start','success','failed'], c.state)) checkpoints.push({ name: c.name, state: c.state, offset: number(c.offset) }); }
+    for (const item of array(raw.checkpoints).slice(-DIAGNOSTIC_CHECKPOINT_LIMIT)) {
+      const c = object(item);
+      if (!member(diagnosticStages, c.name) || !member(['start','success','failed'], c.state)) continue;
+      const checkpoint: Checkpoint = { name: c.name, state: c.state, offset: number(c.offset) };
+      if (typeof c.spanId === 'number' && Number.isSafeInteger(c.spanId) && c.spanId > 0 && c.spanId <= 1_000_000) {
+        checkpoint.spanId = c.spanId;
+        if (typeof c.parentSpanId === 'number' && Number.isSafeInteger(c.parentSpanId) && c.parentSpanId > 0 && c.parentSpanId < c.spanId) checkpoint.parentSpanId = c.parentSpanId;
+      }
+      checkpoints.push(checkpoint);
+    }
     const observedState: ObservedState={}, states=object(raw.observedState);
     for(const key of stateNames)if(member(stateValues,states[key]))observedState[key]=states[key];
     return { sequence: number(raw.sequence, 1e12), session: number(raw.session, 1e12), action: raw.action, outcome: raw.outcome === 'running' ? 'interrupted' : raw.outcome,
@@ -182,32 +198,42 @@ export class DiagnosticJournal {
     try { const result = this.storage?.clearExport?.(); if (result) void result.catch(() => { this.exportClearFailed=true;this.storageFailed = true; this.emit(); }); } catch { this.exportClearFailed=true;this.storageFailed = true; }
     this.changed(true);
   }
-  begin(action: DiagnosticAction): DiagnosticOperation {
+  begin(action: DiagnosticAction) {
     if (!member(diagnosticActions, action)) throw new Error('Unsupported diagnostic action');
     const entry: Dated<DiagnosticEntry> = { sequence: ++this.sequence, session: this.session, action, outcome: 'running', code: 'none', milliseconds: 0, stages: [], activeStages: [], checkpoints: [], observedState:{}, offset: number(this.now() - this.origin), trigger: action.startsWith('read-') ? 'automatic' : 'user', retainedAt: this.wall() };
     this.entries.push(entry); this.starts.set(entry, this.now()); this.changed(true);
-    return { running: () => this.entries.includes(entry) && entry.outcome === 'running', span: name => this.openSpan(name, entry), note:(key,state)=>{if(!this.entries.includes(entry)||!member(stateNames,key)||!member(stateValues,state))return;entry.observedState[key]=state;this.sizes.delete(entry);this.changed(false);}, finish: (outcome, code = 'none') => {
+    return { running: () => this.entries.includes(entry) && entry.outcome === 'running', span: (name: string) => this.openSpan(name, entry), note:(key: typeof stateNames[number],state: typeof stateValues[number])=>{if(!this.entries.includes(entry)||entry.outcome!=='running'||!member(stateNames,key)||!member(stateValues,state))return;entry.observedState[key]=state;this.sizes.delete(entry);this.changed(false);}, finish: (outcome: Exclude<DiagnosticOutcome, 'running'>, code: DiagnosticCode = 'none') => {
       if (!this.entries.includes(entry) || entry.outcome !== 'running' || !member(['success','partial','failed','blocked','cancelled','interrupted'], outcome)) return;
       entry.milliseconds = number(this.now() - this.starts.get(entry)!); this.starts.delete(entry); entry.outcome = outcome; entry.code = member(diagnosticCodes, code) ? code : 'operation-failed';
       if (failures.includes(outcome)) this.protect(entry); this.sizes.delete(entry); this.changed(true);
     } };
   }
   span(name: string) { return this.openSpan(name, [...this.entries].reverse().find(entry => entry.outcome === 'running')); }
-  private openSpan(rawName: string, entry?: Dated<DiagnosticEntry>) {
-    if(entry?.outcome!=='running')entry=undefined;
+  /** Capture once before awaiting work; an obsolete callback never targets a newer action. */
+  captureSpan(): (name: string) => DiagnosticSpanFinish {
+    const entry = [...this.entries].reverse().find(entry => entry.outcome === 'running');
+    return name => this.openSpan(name, entry);
+  }
+  private openSpan(rawName: string, entry?: Dated<DiagnosticEntry>, parentSpanId?: number): DiagnosticSpanFinish {
+    if(entry?.outcome!=='running'||!this.entries.includes(entry))entry=undefined;
     const name = member(diagnosticStages, rawName) ? rawName : rawName.startsWith('provider-') ? 'provider-other-stage' : null;
+    const spanId = (entry ? this.spanSequences.get(entry) ?? 0 : 0) + 1;
+    if (spanId > 1_000_000) entry = undefined;
+    if (entry && name) this.spanSequences.set(entry, spanId);
     const start = this.now(); let finished = false;
     const operationStart=entry?this.starts.get(entry)??start:start;
-    const checkpoint = (state: Checkpoint['state']) => { if (!entry || !name) return; entry.checkpoints.push({ name, state, offset: number(this.now() - operationStart) }); entry.checkpoints = entry.checkpoints.slice(-32); this.sizes.delete(entry); };
+    const checkpoint = (state: Checkpoint['state']) => { if (!entry || !name) return; entry.checkpoints.push({ name, state, offset: number(this.now() - operationStart), spanId, ...(parentSpanId === undefined ? {} : { parentSpanId }) }); entry.checkpoints = entry.checkpoints.slice(-DIAGNOSTIC_CHECKPOINT_LIMIT); this.sizes.delete(entry); };
     if (entry && name) { entry.activeStages.push(name); entry.activeStages = entry.activeStages.slice(-8); checkpoint('start'); const immediate=this.now()-this.lastCheckpointWrite>=100;if(immediate)this.lastCheckpointWrite=this.now();this.changed(immediate); }
-    return (succeeded: boolean, counters?: unknown) => {
-      if (finished) return; finished = true; if (!entry || !name || !this.entries.includes(entry)) return;
+    const finish: DiagnosticSpanFinish = (succeeded: boolean, counters?: unknown) => {
+      if (finished) return; finished = true; if (!entry || !name || entry.outcome !== 'running' || !this.entries.includes(entry)) return;
       const at = entry.activeStages.indexOf(name); if (at >= 0) entry.activeStages.splice(at,1);
       let stage = entry.stages.find(s => s.name === name); if (!stage) { stage = { name, calls: 0, failures: 0, milliseconds: 0, maximum: 0 }; entry.stages.push(stage); }
       const elapsed = number(this.now() - start); stage.calls = number(stage.calls + 1); stage.failures = number(stage.failures + (succeeded ? 0 : 1)); stage.milliseconds = number(stage.milliseconds + elapsed); stage.maximum = Math.max(stage.maximum, elapsed);
       if (counters) { stage.counters ??= {}; for (const [key, value] of Object.entries(cleanCounters(counters))) { const name = key as typeof counterNames[number], prior = stage.counters[name] ?? { calls: 0, failures: 0, milliseconds: 0 }; stage.counters[name] = { calls: number(prior.calls + value.calls), failures: number(prior.failures + value.failures), milliseconds: number(prior.milliseconds + value.milliseconds) }; } }
       checkpoint(succeeded ? 'success' : 'failed'); this.sizes.delete(entry); if (failures.includes(entry.outcome)) this.protect(entry); this.changed(false);
     };
+    finish.span = name => this.openSpan(name, finished ? undefined : entry, spanId);
+    return finish;
   }
   private emit() { for (const listener of this.listeners) listener(); }
   private persist() {

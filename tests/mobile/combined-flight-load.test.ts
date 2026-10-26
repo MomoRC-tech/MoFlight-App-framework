@@ -1,5 +1,6 @@
 import { AI_BACKUP_NOTICE } from '../../apps/platform-lab/src/ai/backup-notice';
 import * as syncProgress from '../../apps/platform-lab/src/mobile/sync-progress.ts';
+import * as syncEstimate from '../../apps/platform-lab/src/mobile/sync-estimate.ts';
 import { DiagnosticJournal } from '../../apps/platform-lab/src/diagnostics';
 
 test('ordinary sync reports actual stages while login is minimal and completion runs once',async()=>{
@@ -50,7 +51,7 @@ const fixtureActivityLedger={
 
 // Real screen effects and handlers; SQLite and provider behavior have their own
 // integration tests. These ports control timing to exercise the screen coordinator.
-function fixture({destination='sources',providerAllowed=true,deferRead=false,startUpdate=false,root=false,readOnly=false,deferReservation=false,deferActivityCancel=false,deferActivityWrite=false,failStartup=false,medicalFailure=false,loginPending=false,deferProvider=false,quietResume=false,deferSource=false,sameWindow=false,deferVerification=false,priorConnection='unknown',existingOwner=false,pendingRestore=false,cancelRestore=false,initialOpen=true,initialFlightsSaved=false,initialSavedSync=null as syncRecovery.SyncRecoveryRecord|null,unactivatedPreparation=false,activityEnabled=false,activityBaselineCount=1,activityResultCount=2,onStatus:statusCallback=undefined as ((status:any)=>void)|undefined,intent:requestedIntent=undefined as string|undefined}={}) {
+function fixture({destination='sources',providerAllowed=true,deferRead=false,startUpdate=false,root=false,readOnly=false,deferReservation=false,deferActivityCancel=false,deferActivityWrite=false,failStartup=false,medicalFailure=false,loginPending=false,deferProvider=false,quietResume=false,deferSource=false,sameWindow=false,deferVerification=false,priorConnection='unknown',existingOwner=false,pendingRestore=false,cancelRestore=false,initialOpen=true,initialFlightsSaved=false,initialSavedSync=null as syncRecovery.SyncRecoveryRecord|null,initialEstimateHistory=null as unknown,unactivatedPreparation=false,activityEnabled=false,activityBaselineCount=1,activityResultCount=2,onStatus:statusCallback=undefined as ((status:any)=>void)|undefined,intent:requestedIntent=undefined as string|undefined}={}) {
   let panelOpen=initialOpen,requestId=0;
   const journal=new DiagnosticJournal(), diagnosis={current:journal.begin(startUpdate?'update-flights':'open-flight-tools')};
   const hooks:any[]=[],effects:(()=>void)[]=[],calls:string[]=[],activityOrder:string[]=[],closed:any[]=[];
@@ -66,6 +67,8 @@ function fixture({destination='sources',providerAllowed=true,deferRead=false,sta
   const listeners=new Set<(state:string)=>void>();
   let saved=initialFlightsSaved,timerId=0;
   let persistedSync:syncRecovery.SyncRecoveryRecord|null=initialSavedSync;
+  let persistedEstimates:unknown=initialEstimateHistory,estimateClock=0;
+  const estimateSaves:syncEstimate.SyncEstimateHistory[]=[];
   const timers=new Map<number,()=>void>();
   let admitSource!:()=>void;
   let activityChecks=0,pendingRestoreChecks=0;
@@ -107,7 +110,7 @@ function fixture({destination='sources',providerAllowed=true,deferRead=false,sta
     async list(){return saved?[{},{},{}]:[];}
     async recoverPending(){return {status:'none'};}
     async prepareFreshFetch(){return {status:'none'};}
-    async retrieveUpdate(){if(deferSource)await new Promise<void>(resolve=>{admitSource=resolve;});abort=new AbortController();if(deferProvider)c.viewReady=false;const value=await this.ports.retrieve({from:'2025-01-01',to:'2026-10-21'},abort.signal);return {state:'confirm-account',accountRef:'101',source:value};}
+    async retrieveUpdate(){if(deferSource)await new Promise<void>(resolve=>{admitSource=resolve;});abort=new AbortController();if(deferProvider)c.viewReady=false;const value=await this.ports.retrieve({from:'2025-01-01',to:'2026-10-21'},abort.signal);if(!abort.signal.aborted)this.ports.onReviewStart?.();await new Promise<void>(resolve=>{setImmediate(resolve);});return {state:'confirm-account',accountRef:'101',source:value};}
     async saveVerifiedReview(_review:any,context:any){assert.equal(context.accountNumber,'101');calls.push('save');saved=true;return {counts:{added:2,changed:1,pending:0}};}
     cancelReview(){abort?.abort();}
     dispose(){this.disposed=true;this.cancelReview();}
@@ -125,6 +128,11 @@ function fixture({destination='sources',providerAllowed=true,deferRead=false,sta
     '../user-backup-native':{getPendingUserBackupRestoreNative:async()=>{pendingRestoreChecks++;return pendingRestore?{operationId:'pending',ownerId:'owner',storeId:'store'}:null;},
       restoreUserBackupFromPickerNative:async(_scope:any,_gate:any,id:string)=>{calls.push('resume-'+id);if(cancelRestore)return {state:'cancelled'};pendingRestore=false;return {state:'restored'};}},
     './sync-progress':syncProgress,'./session-monitor':{startSessionMonitor},
+    './sync-estimate':{...syncEstimate,syncEstimateNow:()=>{estimateClock+=10;return estimateClock;}},
+    './sync-estimate-native':{
+      readSyncEstimateHistory:async(_scope:unknown,context:string)=>syncEstimate.parseSyncEstimateHistory(cloneJson(persistedEstimates),context),
+      saveSyncEstimateHistory:async(_scope:unknown,history:syncEstimate.SyncEstimateHistory)=>{persistedEstimates=cloneJson(history);estimateSaves.push(cloneJson(history));},
+    },
     './sync-recovery':syncRecovery,
     './sync-recovery-native':{
       readSyncRecovery:async()=>persistedSync===null?null:cloneJson(persistedSync),
@@ -161,7 +169,7 @@ function fixture({destination='sources',providerAllowed=true,deferRead=false,sta
   function nodes(){const result:Element[]=[];function visit(value:any){if(value&&typeof value==='object'&&'children'in value){result.push(value);value.children.forEach(visit);if(value.props.progress)visit(value.props.progress);}}visit(tree);return result;}
   const text=(node:any):string=>node&&typeof node==='object'&&'children'in node?node.children.map(text).join(''):typeof node==='string'?node:'';
   function press(label:string){const node=nodes().find(n=>n.type==='Action'&&text(n)===label);assert.ok(node,label);assert.ok(!node.props.disabled,label);node.props.onPress();}
-  return {renewLease:()=>{lease={...lease,leaseId:'renewed'};dirty=true;},progressUpdates,journal,render,flush,c,calls,closed,nodes,activityChecks:()=>activityChecks,activityWriteCalls:()=>activityWriteCalls,pendingRestoreChecks:()=>pendingRestoreChecks,activityLedgerSaves:()=>activityLedgerSaves.map(cloneJson),savedActivityLedger:()=>savedActivityLedger===null?null:cloneJson(savedActivityLedger),statusUpdates,changeSelection:()=>{selectedHead++;},setOpen:(value:boolean)=>{panelOpen=value;if(value)requestId++;dirty=true;},text:()=>text(tree),progressText:()=>text(nodes().find(n=>n.type==='ProviderConnection')?.props.progress),press,finishReservation,background:()=>listeners.forEach(f=>f('background')),resume:()=>listeners.forEach(f=>f('active')),
+  return {advanceEstimateTime:(milliseconds:number)=>{estimateClock+=milliseconds;},estimateSaves:()=>estimateSaves.map(cloneJson),estimateHistory:()=>cloneJson(persistedEstimates),renewLease:()=>{lease={...lease,leaseId:'renewed'};dirty=true;},progressUpdates,journal,render,flush,c,calls,closed,nodes,activityChecks:()=>activityChecks,activityWriteCalls:()=>activityWriteCalls,pendingRestoreChecks:()=>pendingRestoreChecks,activityLedgerSaves:()=>activityLedgerSaves.map(cloneJson),savedActivityLedger:()=>savedActivityLedger===null?null:cloneJson(savedActivityLedger),statusUpdates,changeSelection:()=>{selectedHead++;},setOpen:(value:boolean)=>{panelOpen=value;if(value)requestId++;dirty=true;},text:()=>text(tree),progressText:()=>text(nodes().find(n=>n.type==='ProviderConnection')?.props.progress),press,finishReservation,background:()=>listeners.forEach(f=>f('background')),resume:()=>listeners.forEach(f=>f('active')),
     verify:()=>{c.visible=false;c.connection={phase:'observed',confirmed:true,observed:{accountNumber:'101',clubLabel:'Example'}};dirty=true;},
     pendingTimers:()=>timers.size,expire:()=>{for(const [id,fn] of timers){timers.delete(id);fn();}},
     finishRead:()=>finishRead(),
@@ -764,4 +772,86 @@ test('Sync forwards measured flight counts and ignores late updates after cancel
     assert.notEqual(f.progressUpdates.at(-1)?.count?.done,101);
     assert.ok(!f.progressUpdates.some(p=>p.last==='flights'));
   }finally{f.dispose();}
+});
+
+test('a complete sync learns local stage hints and the next comparable attempt has an estimate',async()=>{
+ const first=fixture({intent:'update'});let history:unknown;
+ try{
+  first.render();await first.flush();first.complete();await first.flush();
+  assert.equal(first.closed.length,1);assert.equal(first.estimateSaves().length,1);
+  history=first.estimateHistory();const saved=first.estimateSaves()[0]!;
+  assert.ok(saved.samples.some(sample=>sample.stage==='review'));
+  assert.ok(first.progressUpdates.some(progress=>progress.current==='review'));
+  assert.ok(first.journal.journey().some(event=>event.target==='sync-review'));
+  assert.ok(saved.samples.every(sample=>sample.durationsMs.length===1&&sample.durationsMs[0]!>=1));
+ }finally{first.dispose();}
+ const second=fixture({intent:'update',initialEstimateHistory:history});
+ try{
+  second.render();await second.flush();
+  const estimated=second.progressUpdates.map(progress=>progress.estimate).filter((value):value is syncEstimate.SyncEstimateState=>!!value);
+  assert.ok(estimated.length>0);assert.ok(estimated.some(value=>value.fraction!==null));
+  assert.ok(estimated.every(value=>value.units.every(unit=>unit.expectedMs!==null)));
+  second.complete();await second.flush();assert.equal(second.estimateSaves().length,1);
+  assert.ok(second.estimateSaves()[0]!.samples.every(sample=>sample.durationsMs.length===2));
+ }finally{second.dispose();}
+});
+
+test('failed and background-interrupted sync attempts never train duration hints',async()=>{
+ for(const mode of ['failure','background'] as const){
+  const f=fixture({intent:'update',medicalFailure:mode==='failure'});
+  try{
+   f.render();await f.flush();
+   if(mode==='background'){f.background();await f.flush();}
+   f.complete();await f.flush();
+   assert.equal(f.estimateSaves().length,0,mode);assert.equal(f.estimateHistory(),null,mode);
+   if(mode==='failure')assert.equal(f.closed[0]?.medicalStatus,'failed');
+   else assert.equal(f.closed.length,0);
+  }finally{f.dispose();}
+ }
+});
+
+test('recovered sync estimates only remaining sources and never relearns committed flights',async()=>{
+ const record:syncRecovery.SyncRecoveryRecord={version:1,ownerId:'owner',storeId:'store',accountRef:'101',clubLabel:'Example',
+  startedAt:'2026-10-26T10:00:00Z',flightCaptureId:'fresh',sources:{medical:'updated'}};
+ const f=fixture({startUpdate:true,initialFlightsSaved:true,initialSavedSync:record});
+ try{
+  f.render();await f.flush();f.press('Fortsetzen');await f.flush();f.verify();await f.flush();
+  assert.equal(f.closed.length,1);assert.ok(!f.calls.some(call=>['retrieve','save','medical'].includes(call)));
+  const estimates=f.progressUpdates.map(progress=>progress.estimate).filter((value):value is syncEstimate.SyncEstimateState=>!!value);
+  assert.ok(estimates.length>0);assert.ok(estimates.every(value=>value.mode==='resume'));
+  assert.ok(estimates.every(value=>value.units.every(unit=>!['flights','review','save','medical'].includes(unit.stage))));
+  assert.equal(f.estimateSaves().length,1);
+  assert.ok(f.estimateSaves()[0]!.samples.every(sample=>sample.mode==='resume'&&!['flights','review','save','medical'].includes(sample.stage)));
+ }finally{f.dispose();}
+});
+
+test('retry preparation excludes elapsed time from the previous failed attempt',async()=>{
+ const f=fixture({intent:'update'});
+ try{
+  f.render();await f.flush();const original=f.progressUpdates.find(progress=>progress.estimate)?.estimate;
+  assert.ok(original);f.expire();await f.flush();assert.equal(f.estimateSaves().length,0);
+  // The real provider settles cancellation before admitting another capture.
+  f.c.busy=false;f.render();await f.flush();
+  f.advanceEstimateTime(60_000);const boundary=f.progressUpdates.length;
+  f.press('Neu synchronisieren');await f.flush();
+  const retry=f.progressUpdates.slice(boundary).find(progress=>progress.estimate)?.estimate;
+  assert.ok(retry);assert.notEqual(retry.runId,original.runId);
+  assert.equal(retry.units.find(unit=>unit.stage==='prepare')?.elapsedMs,0);
+  f.complete();await f.flush();assert.equal(f.closed.length,1);assert.equal(f.estimateSaves().length,1);
+  assert.deepEqual(f.estimateSaves()[0]!.samples.find(sample=>sample.stage==='prepare')?.durationsMs,[1]);
+ }finally{f.dispose();}
+});
+
+test('preparation crossing background permits successful sync without learning the paused duration',async()=>{
+ const f=fixture({intent:'update',deferRead:true});
+ try{
+  f.render();await f.flush();assert.equal(f.calls.includes('session'),false);
+  f.background();f.advanceEstimateTime(60_000);await f.flush();f.resume();await f.flush();
+  f.finishRead();await f.flush();f.complete();await f.flush();
+  assert.equal(f.closed.length,1);assert.ok(f.calls.includes('save'));
+  const estimates=f.progressUpdates.map(progress=>progress.estimate).filter((value):value is syncEstimate.SyncEstimateState=>!!value);
+  assert.ok(estimates.length>0);assert.ok(estimates.every(value=>!value.learnable));
+  assert.ok(f.estimateSaves().every(history=>history.samples.length===0));
+  assert.equal((f.estimateHistory() as syncEstimate.SyncEstimateHistory).samples.length,0);
+ }finally{f.dispose();}
 });
