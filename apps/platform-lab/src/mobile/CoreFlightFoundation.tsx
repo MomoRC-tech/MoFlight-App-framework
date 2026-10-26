@@ -749,7 +749,7 @@ function OwnerFlightLibrary({syncStartedAt,lease,registry,close,startUpdate,open
       diagnosticJournal.record('sync',reason);diagnosis.current?.finish('blocked','recovery-required');
       setSyncProgress(previous=>({...previous,state:'failed',message:snapshot.recovery.readOnly?'Lokale Daten benötigen eine Prüfung in den Einstellungen. Vorhandene Daten bleiben erhalten.':'Eine begonnene Sicherung oder Speicherung muss in den Einstellungen geprüft werden.'}));return;
     }
-    if(savedSync){estimateEvent({type:'terminal',outcome:'cancelled'});estimate.current=null;finishStage('prepare');setSyncProgress(previous=>({...previous,state:'waiting',current:null,message:'Unterbrochene Synchronisierung kann nach Anmeldung fortgesetzt werden.'}));return;}
+    if(savedSync){estimateEvent({type:'terminal',outcome:'cancelled'});estimate.current=null;finishStage('prepare');setSyncProgress(previous=>({...previous,state:'waiting',current:null,message:'Synchronisierung unterbrochen. Fortsetzen oder alle Daten erneut abrufen.'}));return;}
     if(estimate.current)estimate.current=confirmSyncEstimateContext(estimate.current,{mode:snapshot.account?'repeat':'first',volume:syncEstimateVolume(null,flights.length)});
     finishStage('prepare');
     loadFlights();
