@@ -16,7 +16,7 @@ def main():
     parser.add_argument('--serial', required=True)
     parser.add_argument('--proof', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
-    parser.add_argument('--mode', choices=['benchmark', 'progress'], required=True)
+    parser.add_argument('--mode', choices=['benchmark', 'progress', 'detail'], required=True)
     args = parser.parse_args()
     args.output.mkdir(parents=True, exist_ok=False)
 
@@ -27,7 +27,7 @@ def main():
 
     assert adb('emu', 'avd', 'name').splitlines()[0] == 'MoFlight_Synthetic_API37', 'Only designated synthetic AVD'
     provenance = json.loads((args.proof / 'provenance.json').read_text(encoding='utf-8-sig'))
-    apk = args.proof / ('sync-benchmark-poc.apk' if args.mode == 'benchmark' else 'sync-progress-poc.apk')
+    apk = args.proof / {'benchmark': 'sync-benchmark-poc.apk', 'progress': 'sync-progress-poc.apk', 'detail': 'flight-responsiveness-poc.apk'}[args.mode]
     assert hashlib.sha256(apk.read_bytes()).hexdigest() == provenance['proof_apk_sha256']
     normal = args.proof / 'normal-app.apk'
     assert hashlib.sha256(normal.read_bytes()).hexdigest() == provenance['normal_apk_sha256']
@@ -66,7 +66,44 @@ def main():
         adb('shell', 'svc', 'wifi', 'disable')
         adb('shell', 'svc', 'data', 'disable')
         adb('install', '-r', str(apk))
-        if args.mode == 'benchmark':
+        if args.mode == 'detail':
+            log_file = (args.output / 'native.log').open('wb')
+            log = subprocess.Popen(['adb', '-s', args.serial, 'logcat', '-v', 'brief', '-T', '1',
+                                    'ReactNativeJS:I', '*:S'], stdout=log_file, stderr=subprocess.STDOUT)
+            report['detailRuns'] = []
+            for phase in ['initial', 'offline-reopen']:
+                launch()
+                pid = adb('shell', 'pidof', PACKAGE)
+                deadline = time.monotonic() + 600
+                while time.monotonic() < deadline:
+                    text = (args.output / 'native.log').read_text(encoding='utf-8', errors='replace')
+                    lines = [line for line in text.splitlines() if re.search(r'\(\s*' + re.escape(pid) + r'\)', line)]
+                    failures = [line for line in lines if 'MOFLIGHT_PROBE_FAILED' in line]
+                    assert not failures, failures[-1:]
+                    completed = [line for line in lines if 'MOFLIGHT_PROBE_RESULT ' in line]
+                    if completed:
+                        result = json.loads(completed[-1].split('MOFLIGHT_PROBE_RESULT ', 1)[1])
+                        samples = [json.loads(line.split('MOFLIGHT_PROBE_SAMPLE ', 1)[1]) for line in lines if 'MOFLIGHT_PROBE_SAMPLE ' in line]
+                        assert result['sampleCount'] == len(samples) == 5
+                        assert all(sample['fullDetailEqual'] and sample['retained']['guardChecks'] == 2 for sample in samples)
+                        assert result['changedSelectionRejected'] and result['refreshedListChanged']
+                        assert result['mode'] == 'seed' or result['persistedReadback'] is True
+                        if report['detailRuns']:
+                            assert result['mode'] == 'reopen'
+                            assert result['initialGeneration'] == report['detailRuns'][-1]['result']['finalGeneration']
+                        report['detailRuns'].append({'phase': phase, 'result': result, 'samples': samples})
+                        break
+                    time.sleep(2)
+                else:
+                    raise AssertionError('Detail proof timeout: ' + phase)
+                wait_marker('PROBE_PASSED')
+                (args.output / (phase + '.png')).write_bytes(adb('exec-out', 'screencap', '-p', binary=True))
+                (args.output / (phase + '-memory.txt')).write_text(adb('shell', 'dumpsys', 'meminfo', PACKAGE), encoding='utf-8')
+            report['renderSamples'] = [json.loads(line.split('MOFLIGHT_PROBE_RENDER ', 1)[1])
+                                       for line in (args.output / 'native.log').read_text(encoding='utf-8', errors='replace').splitlines()
+                                       if 'MOFLIGHT_PROBE_RENDER ' in line]
+            report['memoryBoundary'] = 'Single process snapshots after proof completion, not isolated detail heap cost or leak evidence'
+        elif args.mode == 'benchmark':
             log_file = (args.output / 'native.log').open('wb')
             log = subprocess.Popen(['adb', '-s', args.serial, 'logcat', '-v', 'brief', '-T', '1',
                                     'ReactNativeJS:I', '*:S'], stdout=log_file, stderr=subprocess.STDOUT)
