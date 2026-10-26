@@ -421,7 +421,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/connection-guidan
 
 ## ConnectionSettings.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ConnectionSettings.tsx](../../../apps/platform-lab/src/mobile/ConnectionSettings.tsx); normalized SHA-256 `19d1108890654c75440d4d919230b0ed30dd35d3bfe0a44b1db4bfba7cc1f80d`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ConnectionSettings.tsx](../../../apps/platform-lab/src/mobile/ConnectionSettings.tsx); normalized SHA-256 `9f2b24751654937a82e53d32770a01d934a072b9f757198a214b59bf122ff31e`.
 
 ### Literal colors
 
@@ -454,34 +454,35 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ConnectionSummary
 
 ## CoreFlightFoundation.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `458b6492a166053974e02ec2976df5c9798242c2f2b190f41c7fb5b1ce7578e1`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `390d3df360985fef4b4b14eb45ee3b6da33c67bc0e88c07e0f01de8fdf581ad9`.
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 12` | 1022 |
-| `fontSize: 16` | 1022, 1027, 1031 |
-| `fontSize: 22` | 1027, 1031 |
-| `fontWeight: '600'` | 1022, 1027, 1031 |
-| `fontWeight: '700'` | 1022 |
-| `letterSpacing: .6` | 1022 |
-| `lineHeight: 24` | 1022, 1027, 1031 |
+| `fontSize: 12` | 1023 |
+| `fontSize: 16` | 1023, 1028, 1032 |
+| `fontSize: 22` | 1028, 1032 |
+| `fontWeight: '600'` | 1023, 1028, 1032 |
+| `fontWeight: '700'` | 1023 |
+| `letterSpacing: .6` | 1023 |
+| `lineHeight: 24` | 1023, 1028, 1032 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 16` | 1026, 1031 |
-| `borderWidth: 1` | 1026, 1031 |
-| `gap: 10` | 192, 200, 201, 951, 1028 |
-| `gap: 12` | 1027, 1031 |
-| `gap: 8` | 978, 1004, 1014, 1022 |
-| `maxWidth: 520` | 192, 201, 951 |
-| `minHeight: 56` | 1027, 1031 |
-| `padding: 16` | 1027, 1031 |
-| `paddingHorizontal: 16` | 1028 |
-| `width: '100%'` | 192, 201, 951 |
+| `borderRadius: 16` | 1027, 1032 |
+| `borderWidth: 1` | 1027, 1032 |
+| `gap: 10` | 192, 200, 201, 952, 1029 |
+| `gap: 12` | 1028, 1032 |
+| `gap: 8` | 979, 1005, 1015, 1023 |
+| `maxWidth: 520` | 192, 201, 952 |
+| `minHeight: 0` | 951 |
+| `minHeight: 56` | 1028, 1032 |
+| `padding: 16` | 1028, 1032 |
+| `paddingHorizontal: 16` | 1029 |
+| `width: '100%'` | 192, 201, 952 |
 
 ## Dashboard.tsx
 

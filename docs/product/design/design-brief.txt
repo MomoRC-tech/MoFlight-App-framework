@@ -79,7 +79,7 @@ The generator uses Python's standard library and repository files only: no netwo
 
 ## Vereinsflieger Settings child page — authorized 26 October 2026
 
-Manuel requested direct implementation of the next provider-settings package (“I don't want to review. implement”), using the established child-page design. Under [#94](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/94#issuecomment-6425957114), ordinary **Profil & Einstellungen → Vereinsflieger-Einstellungen** is a full child page with contextual Back and confirmed Sync. Its 520 dp capped scrolling column separates **Anbietersitzung** from **Gespeicherte Zugangsdaten**. Each action explains its scope nearby: original-page sign-out requires verification; local clearing removes this app browser's cookies/storage; forgetting removes only MoFlight's saved credentials. These actions preserve saved flights. Credential editing stays inline, password masked, and existing busy/recovery/capability locks and notices remain.
+Manuel requested direct implementation of the next provider-settings package (“I don't want to review. implement”), using the established child-page design. Under [#94](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/94#issuecomment-6425957114), ordinary **Profil & Einstellungen → Vereinsflieger-Einstellungen** is a full child page with contextual Back and confirmed Sync. The concise app-bar title is **Vereinsflieger**; the longer Settings route label remains in the parent. Its keyboard-avoiding, 520 dp capped scrolling column separates **Anbietersitzung** from **Gespeicherte Zugangsdaten**. Each action explains its scope nearby: original-page sign-out requires verification; local clearing removes this app browser's cookies/storage; forgetting removes only MoFlight's saved credentials. These actions preserve saved flights. Credential editing stays inline, password masked, and existing busy/recovery/capability locks and notices remain.
 
 This adapts Google's [top app bar](https://m3.material.io/components/app-bars/guidelines), [list grouping](https://m3.material.io/components/lists/guidelines) and [secondary action placement](https://developer.android.com/design/ui/mobile/guides/layout-and-content/layout-and-nav-patterns) to the existing React Native components and vivid navy/cyan palette. No Compose migration, new dependency, shared-token restyle or Start change is included. Dark remains master/default; light acceptance waits until beta.
 
@@ -489,7 +489,7 @@ The U1/U3 header uses neutral saved-age text independently of session state, wit
 
 # Components, symbols and shapes
 
-**26 October provider settings continuation (#94):** ordinary Vereinsflieger administration is a full child page. Shared `MaintenancePageHeader` supplies Back/confirmed Sync to Backup and provider Settings; the retained `UpdateDialog` switches to a bounded frame only for actual provider interaction. Separate session/credential cards place consequences beside each action; inline password editing uses masked text, 48 dp fields and the stronger existing outline color. Existing disabled/recovery/unavailable states and local notices are retained. [Contract](compact-cockpit.md#vereinsflieger-settings-child-page--authorized-26-october-2026).
+**26 October provider settings continuation (#94):** ordinary Vereinsflieger administration is a full child page. Shared `MaintenancePageHeader` supplies Back/confirmed Sync to Backup and provider Settings; the retained `UpdateDialog` switches to a bounded frame only for actual provider interaction. Separate session/credential cards place consequences beside each action; inline password editing uses masked text, 48 dp fields and the stronger existing outline color. The provider page uses the concise app-bar title **Vereinsflieger**. Its scrolling body avoids the credential keyboard; the provider browser remains a sibling under its existing parent. Existing disabled/recovery/unavailable states and local notices are retained. [Contract](compact-cockpit.md#vereinsflieger-settings-child-page--authorized-26-october-2026).
 
 **26 October selected Backup page (#94):** [current contract](compact-cockpit.md#backup-child-page--selected-26-october-2026). The retained `UpdateDialog` host has a full-page presentation for ordinary backup and provider Settings. A page app bar, separate save/restore cards, expanded-state disclosure rows and short dark `BackupRestoreConfirmationDialog` replace its former maintenance frame. Pending restore retains its resume operation; provider and OS surfaces retain their own lifecycle. [Verification](../../verification/2026-10-26-material-settings.md#backup-child-page--26-october-2026).
 
@@ -1139,7 +1139,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/connection-guidan
 
 ## ConnectionSettings.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ConnectionSettings.tsx](../../../apps/platform-lab/src/mobile/ConnectionSettings.tsx); normalized SHA-256 `19d1108890654c75440d4d919230b0ed30dd35d3bfe0a44b1db4bfba7cc1f80d`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ConnectionSettings.tsx](../../../apps/platform-lab/src/mobile/ConnectionSettings.tsx); normalized SHA-256 `9f2b24751654937a82e53d32770a01d934a072b9f757198a214b59bf122ff31e`.
 
 ### Literal colors
 
@@ -1172,34 +1172,35 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ConnectionSummary
 
 ## CoreFlightFoundation.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `458b6492a166053974e02ec2976df5c9798242c2f2b190f41c7fb5b1ce7578e1`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `390d3df360985fef4b4b14eb45ee3b6da33c67bc0e88c07e0f01de8fdf581ad9`.
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 12` | 1022 |
-| `fontSize: 16` | 1022, 1027, 1031 |
-| `fontSize: 22` | 1027, 1031 |
-| `fontWeight: '600'` | 1022, 1027, 1031 |
-| `fontWeight: '700'` | 1022 |
-| `letterSpacing: .6` | 1022 |
-| `lineHeight: 24` | 1022, 1027, 1031 |
+| `fontSize: 12` | 1023 |
+| `fontSize: 16` | 1023, 1028, 1032 |
+| `fontSize: 22` | 1028, 1032 |
+| `fontWeight: '600'` | 1023, 1028, 1032 |
+| `fontWeight: '700'` | 1023 |
+| `letterSpacing: .6` | 1023 |
+| `lineHeight: 24` | 1023, 1028, 1032 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 16` | 1026, 1031 |
-| `borderWidth: 1` | 1026, 1031 |
-| `gap: 10` | 192, 200, 201, 951, 1028 |
-| `gap: 12` | 1027, 1031 |
-| `gap: 8` | 978, 1004, 1014, 1022 |
-| `maxWidth: 520` | 192, 201, 951 |
-| `minHeight: 56` | 1027, 1031 |
-| `padding: 16` | 1027, 1031 |
-| `paddingHorizontal: 16` | 1028 |
-| `width: '100%'` | 192, 201, 951 |
+| `borderRadius: 16` | 1027, 1032 |
+| `borderWidth: 1` | 1027, 1032 |
+| `gap: 10` | 192, 200, 201, 952, 1029 |
+| `gap: 12` | 1028, 1032 |
+| `gap: 8` | 979, 1005, 1015, 1023 |
+| `maxWidth: 520` | 192, 201, 952 |
+| `minHeight: 0` | 951 |
+| `minHeight: 56` | 1028, 1032 |
+| `padding: 16` | 1028, 1032 |
+| `paddingHorizontal: 16` | 1029 |
+| `width: '100%'` | 192, 201, 952 |
 
 ## Dashboard.tsx
 

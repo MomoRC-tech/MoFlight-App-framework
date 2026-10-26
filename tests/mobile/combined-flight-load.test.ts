@@ -153,7 +153,7 @@ function fixture({backupFails=false,destination='sources',providerAllowed=true,d
     './account-retrieval-jobs':accountJobs, '../diagnostics':{diagnosticJournal:journal},
     '../vereinsflieger/duty-refresh-native':{refreshDutyRoster:async()=>({rows:[],partial:true})},
     '../vereinsflieger/connection-state':{retrievalFailureHint},
-    'react-native':{...leaves(['ActivityIndicator','Pressable','ScrollView','Text','View']),AppState:{currentState:'active',addEventListener:(_:string,f:(state:string)=>void)=>{listeners.add(f);return {remove:()=>listeners.delete(f)};}},BackHandler:{addEventListener:(_:string,f:()=>boolean)=>{backListeners.add(f);return {remove:()=>backListeners.delete(f)};}}},
+    'react-native':{...leaves(['ActivityIndicator','KeyboardAvoidingView','Pressable','ScrollView','Text','View']),Platform:{OS:'android'},AppState:{currentState:'active',addEventListener:(_:string,f:(state:string)=>void)=>{listeners.add(f);return {remove:()=>listeners.delete(f)};}},BackHandler:{addEventListener:(_:string,f:()=>boolean)=>{backListeners.add(f);return {remove:()=>backListeners.delete(f)};}}},
     'react-native-safe-area-context':leaves(['SafeAreaView']), 'expo-crypto':{randomUUID:()=> 'uuid'},'../storage':{hash:async()=>''},
     '../vereinsflieger/flight-diagnostics':{timeFlightStage:(_:string,work:()=>unknown)=>work()},
     '../vereinsflieger/use-access-controller':{useAccessController:()=>({...c})},
@@ -828,8 +828,9 @@ test('settings admits only an explicit administration surface and returns after 
   try{
     f.render();await f.flush();
     assert.equal(f.nodes().find(n=>n.type==='ProviderConnection')!.props.open,false);
-    assert.equal(f.nodes().find(n=>n.type==='MaintenancePageHeader')!.props.title,'Vereinsflieger-Einstellungen');
+    assert.equal(f.nodes().find(n=>n.type==='MaintenancePageHeader')!.props.title,'Vereinsflieger');
     assert.equal(f.calls.length,0);
+    assert.equal(f.nodes().find(n=>n.type==='KeyboardAvoidingView')!.props.enabled,true);
     f.c.startDisconnect=()=>{f.c.visible=true;f.c.disconnecting=true;f.calls.push('signout');};f.render();
     f.nodes().find(n=>n.type==='ConnectionSettings')!.props.onSignOut();f.render();
     const provider=f.nodes().find(n=>n.type==='ProviderConnection')!;
@@ -839,7 +840,7 @@ test('settings admits only an explicit administration surface and returns after 
     f.c.visible=false;f.c.disconnecting=false;f.render();await f.flush();
     assert.equal(f.nodes().find(n=>n.type==='ProviderConnection')!.props.open,false);
     assert.ok(f.nodes().some(n=>n.type==='ConnectionSettings'));
-    assert.equal(f.nodes().find(n=>n.type==='MaintenancePageHeader')!.props.title,'Vereinsflieger-Einstellungen');
+    assert.equal(f.nodes().find(n=>n.type==='MaintenancePageHeader')!.props.title,'Vereinsflieger');
     f.nodes().find(n=>n.type==='MaintenancePageHeader')!.props.onBack();assert.equal(f.closed.length,1);
   }finally{f.dispose();}
 });
@@ -1086,5 +1087,5 @@ test('interrupted dialog names both choices and Continue reuses its fresh prepar
 
 test('provider settings without an owner stays a child page and cannot create an identity by browsing',async()=>{
   const f=fixture({root:true,intent:'options',providerAllowed:false,destination:'settings'});
-  try{f.render();await f.flush();assert.equal(f.nodes().find(n=>n.type==='MaintenancePageHeader')!.props.title,'Vereinsflieger-Einstellungen');assert.match(f.text(),/Noch keine lokale Vereinsflieger/);assert.ok(!f.calls.includes('create'));assert.ok(!f.text().includes('neue lokale Bibliothek anlegen'));}finally{f.dispose();}
+  try{f.render();await f.flush();assert.equal(f.nodes().find(n=>n.type==='MaintenancePageHeader')!.props.title,'Vereinsflieger');assert.match(f.text(),/Noch keine lokale Vereinsflieger/);assert.ok(!f.calls.includes('create'));assert.ok(!f.text().includes('neue lokale Bibliothek anlegen'));}finally{f.dispose();}
 });

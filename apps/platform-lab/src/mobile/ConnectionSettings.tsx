@@ -8,13 +8,13 @@ export function ConnectionSettings({controller:c,busy,onSignOut}:{controller:Ret
   const locked=busy||c.busy||c.saving||c.loginBusy||c.binding||c.clearing||c.disconnecting||c.restoring.current;
   const sessionLocked=locked||c.recovery||!c.viewReady;
   return <View style={{gap:18}}>
-    <Label muted>Sitzung und gespeicherte Zugangsdaten verwaltest du getrennt. Deine gespeicherten Flüge bleiben bei allen Aktionen auf dieser Seite erhalten.</Label>
+    <Label muted>Sitzung und Zugangsdaten sind getrennt. Gespeicherte Flüge bleiben erhalten.</Label>
     <Card><Section title="Anbietersitzung"/>
-    <Label muted>Die Anmeldung erfolgt bei Bedarf auf der Originalseite. Dort verwaltest du auch „Angemeldet bleiben“ und System-Autofill.</Label>
-    <Label muted>Abmelden öffnet die Originalseite. Schließen allein meldet dich nicht ab.</Label>
+    <Label muted>Die Anmeldung erfolgt auf der Originalseite, mit System-Autofill und „Angemeldet bleiben“.</Label>
+    <Label muted>Öffnet die Originalseite zum Abmelden. Schließen allein meldet dich nicht ab.</Label>
     {onSignOut&&<Action secondary disabled={sessionLocked} onPress={onSignOut}>Bei Vereinsflieger abmelden</Action>}
     <View style={{borderTopWidth:1,borderColor:colors.border,paddingTop:14,gap:10}}>
-    <Label muted>Lokales Löschen entfernt nur Cookies und Webspeicher dieses App-Browsers. Andere Geräte und gespeicherte Zugangsdaten bleiben unverändert.</Label>
+    <Label muted>Entfernt Cookies und Webspeicher dieses App-Browsers. Andere Geräte und gespeicherte Zugangsdaten bleiben unverändert.</Label>
     {c.sessionClearingAvailable?<Action secondary disabled={sessionLocked} onPress={()=>{void c.clearLocalSession();}}>Lokale Anbietersitzung löschen</Action>:<Label muted>Lokales Sitzungslöschen ist auf diesem Gerät nicht verfügbar.</Label>}
     </View>
     <View accessibilityLiveRegion="polite" style={{gap:6}}>
@@ -27,7 +27,7 @@ export function ConnectionSettings({controller:c,busy,onSignOut}:{controller:Ret
     {c.disconnectNotice==='cancelled'&&<Label>Abmeldung nicht bestätigt. Schließen allein meldet dich nicht ab.</Label>}
     </View></Card>
     <Card><Section title="Gespeicherte Zugangsdaten"/>
-    <Label muted>MoFlight kann Benutzername und Passwort auf diesem Gerät speichern. Das ist unabhängig von der Anbietersitzung und System-Autofill.</Label>
+    <Label muted>Lokal in MoFlight gespeicherter Benutzername und Passwort. Unabhängig von Sitzung und System-Autofill.</Label>
     <Action secondary disabled={locked} onPress={()=>c.setEditingLogin(!c.editingLogin)}>{c.editingLogin?'Bearbeitung schließen':'Gespeicherte Zugangsdaten verwalten'}</Action>
     {c.editingLogin&&<>
       <Label muted>Benutzername</Label><TextInput accessibilityLabel="Gespeicherter Vereinsflieger Benutzername" value={c.username} onChangeText={c.setUsername} editable={!locked} autoCapitalize="none" autoCorrect={false} style={[ui.text,{minHeight:48,borderWidth:1,borderColor:'#426783',borderRadius:12,padding:10}]}/>
