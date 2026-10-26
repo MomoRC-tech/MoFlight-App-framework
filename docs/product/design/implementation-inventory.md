@@ -829,7 +829,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MedicalStatus.tsx
 
 ## MobileApp.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `7a22dc95ed02c342f280c2d373a9d3a123a34d6aa96323b2b8a31fb68db9ffc3`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `14d4bc78da16cfcd5d2773601b5b5bd6ff3a4a6174f9751a79b7fbe44e85b52d`.
 
 ### Literal colors
 

@@ -240,9 +240,9 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
     const ticket=syncConfirmation.request(syncAdmission.current.scope,syncAdmission.current.allowed);
     if(!ticket)return false;
     diagnosticJournal.record('sync','sync-confirmation-open');
-    Alert.alert('Daten synchronisieren?','Jetzt die Daten von Vereinsflieger aktualisieren?',[
+    Alert.alert('Daten von Vereinsflieger abrufen?','MoFlight versucht, deine Flüge und unterstützte Zusatzdaten zu aktualisieren. Falls nötig, meldest du dich auf der Originalseite an. Gespeicherte Flüge bleiben verfügbar.',[
       {text:'Abbrechen',style:'cancel',onPress:()=>{ticket.cancel();diagnosticJournal.record('sync','sync-confirmation-cancelled');}},
-      {text:'Starten',onPress:()=>{
+      {text:'Abruf starten',onPress:()=>{
         if(!ticket.confirm(syncAdmission.current.scope,syncAdmission.current.allowed))return;
         syncAdmission.current.allowed=false;
         diagnosticJournal.record('sync','sync-confirmation-accepted');

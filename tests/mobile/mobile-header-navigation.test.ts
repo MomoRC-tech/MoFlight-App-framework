@@ -121,7 +121,7 @@ function fixture(width = 390, fontScale = 1, root = false) {
     render();
   }
   render(); render();
-  return { dialogs, confirm:()=>{dialogs.at(-1).buttons.find((b:any)=>b.text==='Starten').onPress();render();}, render, nodes, find, resize:(nextWidth:number,nextFontScale:number)=>{width=nextWidth;fontScale=nextFontScale;render();}, headers, parent, press, openOwnDetail, flight, library, controller, calls, coreRoutes,destinations, readEnabled, suspended: () => suspended, hardwareBack: () => hardwareBack!(),
+  return { dialogs, confirm:()=>{dialogs.at(-1).buttons.find((b:any)=>b.text==='Abruf starten').onPress();render();}, render, nodes, find, resize:(nextWidth:number,nextFontScale:number)=>{width=nextWidth;fontScale=nextFontScale;render();}, headers, parent, press, openOwnDetail, flight, library, controller, calls, coreRoutes,destinations, readEnabled, suspended: () => suspended, hardwareBack: () => hardwareBack!(),
     helpPreference:()=>persistedHelp, failHelpSaving:(value:boolean)=>{failHelpSave=value;},
     showLoad:(result:any,view:any)=>{providerStatus=result?.verifiedConnection?{...unknownProviderStatus,ownerId:result.verifiedConnection.ownerId,connection:result.verifiedConnection.state}:unknownProviderStatus;lastLoad=result;ownView=view;render();render();},
     setProviderStatus:(status:any)=>{providerStatus=status;render();render();},
@@ -765,7 +765,11 @@ test('header and retry require confirmation; cancel, dismiss and background cann
   const f=fixture();
   const start=()=>trigger==='header'?f.press('DataUpdateIndicator'):f.find('SyncProgress').props.retry();
   start();start();assert.equal(f.dialogs.length,1);assert.deepEqual(f.calls,[]);
-  const dialog=f.dialogs[0];assert.equal(dialog.title,'Daten synchronisieren?');
+  const dialog=f.dialogs[0];assert.equal(dialog.title,'Daten von Vereinsflieger abrufen?');
+  assert.match(dialog.message,/unterstützte Zusatzdaten/);
+  assert.match(dialog.message,/Originalseite/);
+  assert.match(dialog.message,/Gespeicherte Flüge bleiben verfügbar/);
+  assert.equal(dialog.buttons.map((button:any)=>button.text).join('|'),'Abbrechen|Abruf starten');
   if(cancel==='button')dialog.buttons[0].onPress();
   if(cancel==='dismiss')dialog.options.onDismiss();
   if(cancel==='background')f.appState('background');
