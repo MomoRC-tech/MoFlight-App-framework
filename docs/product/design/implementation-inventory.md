@@ -139,14 +139,14 @@ Retained app-owned lab/adapter surface; document its existing appearance as an e
 
 ## android-sync-progress-poc.tsx
 
-Retained app-owned lab/adapter surface; document its existing appearance as an exception. Source: [apps/platform-lab/src/development/android-sync-progress-poc.tsx](../../../apps/platform-lab/src/development/android-sync-progress-poc.tsx); normalized SHA-256 `6d5891c090a56ebd74de8115f77ed9ecee2f4dd80c966ddf77af51942ac3cc0c`.
+Retained app-owned lab/adapter surface; document its existing appearance as an exception. Source: [apps/platform-lab/src/development/android-sync-progress-poc.tsx](../../../apps/platform-lab/src/development/android-sync-progress-poc.tsx); normalized SHA-256 `837c5e902f7f1b0e7e9a3f0dae795cb28a60c9dde3d69412b246a553c8ba3ec4`.
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `gap: 16` | 43, 46 |
-| `padding: 18` | 43 |
+| `gap: 16` | 44, 47 |
+| `padding: 18` | 44 |
 
 ## android-update-preservation-poc.tsx
 

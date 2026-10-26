@@ -1,8 +1,9 @@
 import React,{useEffect,useState} from 'react';
 import {ScrollView,View,Text} from 'react-native';
 import * as Crypto from 'expo-crypto';
+import * as SQLite from 'expo-sqlite';
 import {Directory,File,Paths} from 'expo-file-system';
-import {openDriver} from '../storage';
+import {openRealFlightNativeDriver} from '../vereinsflieger/real-flight-native-driver';
 import {RealOwnerRegistry} from '../vereinsflieger/real-owner-registry';
 import type {RealFlightNativeScope} from '../vereinsflieger/real-flight-native';
 import {readSyncEstimateHistory,saveSyncEstimateHistory} from '../mobile/sync-estimate-native';
@@ -26,7 +27,7 @@ export default function SyncProgressProof(){
   useEffect(()=>{void (async()=>{
     const directory=new Directory(Paths.cache,'moflight-sync-native-proof');directory.create({idempotent:true,intermediates:true});
     const file=new File(directory,'registry.sqlite'),existed=file.exists;
-    const driver=await openDriver('registry.sqlite',directory.uri);
+    const driver=await openRealFlightNativeDriver('registry.sqlite',(name,options)=>SQLite.openDatabaseAsync(name,options,directory.uri));
     const registry=existed?await RealOwnerRegistry.open(driver,Crypto.randomUUID):await RealOwnerRegistry.create(driver,Crypto.randomUUID,'2026-10-26T00:00:00.000Z');
     try{
       const lease=await registry.currentOwner()??await registry.createFreshOwner('2026-10-26T00:00:00.000Z');

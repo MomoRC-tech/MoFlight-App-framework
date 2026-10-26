@@ -21,6 +21,8 @@ test('native fixed-state benchmark preserves complete graphs across five indepen
   const code=ts.transpileModule(readFileSync('apps/platform-lab/src/development/sync-native-benchmark.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;
   const exports:{runSyncNativeBenchmark?:(update:(value:string)=>void,count:number)=>Promise<{samples:{scenario:string;trial:number;graphSha256:string;receipts:number}[]}>}={};
   const modules:Record<string,unknown>={'expo-file-system':{Directory,File,Paths:{cache:directory}},'@moflight/flight-logbook':domain,
+    'expo-sqlite':{openDatabaseAsync:async(name:string,_options:unknown,root:string)=>nodeDriver(join(root,name))},
+    '../vereinsflieger/real-flight-native-driver':{openRealFlightNativeDriver:async(name:string,opener:(name:string)=>Promise<unknown>)=>opener(name)},
     '../storage':{hash:async(value:string)=>createHash('sha256').update(value).digest('hex'),openDriver:async(name:string,root:string)=>nodeDriver(join(root,name))},
     '../vereinsflieger/real-flight-library':library,'../vereinsflieger/real-flight-command-journal':journal,'../vereinsflieger/real-flight-service':service,
     './android-core-recovery-fixture':fixture,'./android-flight-responsiveness':responsiveness};

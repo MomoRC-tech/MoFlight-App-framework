@@ -1,6 +1,8 @@
 import {Directory,File,Paths} from 'expo-file-system';
 import {canonical} from '@moflight/flight-logbook';
-import {hash,openDriver} from '../storage';
+import {hash} from '../storage';
+import * as SQLite from 'expo-sqlite';
+import {openRealFlightNativeDriver} from '../vereinsflieger/real-flight-native-driver';
 import {RealFlightLibrary} from '../vereinsflieger/real-flight-library';
 import {RealFlightCommandJournal} from '../vereinsflieger/real-flight-command-journal';
 import {RealFlightService} from '../vereinsflieger/real-flight-service';
@@ -10,10 +12,11 @@ import {responsivenessSource} from './android-flight-responsiveness';
 /** Build-only synthetic proof. Every trial starts from byte-identical closed SQLite seeds. */
 export async function runSyncNativeBenchmark(onProgress:(value:string)=>void,count=101){
   if(!Number.isSafeInteger(count)||count<1||count>500)throw new Error('Invalid synthetic benchmark size');
-  const root=new Directory(Paths.cache,`moflight-fixed-sync-benchmark-v2-${count}`);root.create({idempotent:true,intermediates:true});
+  const root=new Directory(Paths.cache,`moflight-fixed-sync-benchmark-v3-${count}`);root.create({idempotent:true,intermediates:true});
   const seeds=new Directory(root,'seeds');seeds.create({idempotent:true,intermediates:true});
   const run=new Directory(root,`run-${Date.now()}`);run.create();
-  const open=(name:string)=>openDriver(name,run.uri);
+  const openAt=(name:string,directory=run)=>openRealFlightNativeDriver(name,(file,options)=>SQLite.openDatabaseAsync(file,options,directory.uri));
+  const open=(name:string)=>openAt(name);
   let sequence=1;
   const uuid=()=>`59595959-5959-4959-8959-${(sequence++).toString(16).padStart(12,'0')}`;
   function input(changed=false){const value=responsivenessSource(changed?'fixed-changed':'fixed-unchanged',count);
@@ -21,14 +24,14 @@ export async function runSyncNativeBenchmark(onProgress:(value:string)=>void,cou
   async function service(libraryName:string,journalName:string,changed=false,directory=run){
     return new RealFlightService(RECOVERY_OWNER,RECOVERY_STORE,recoveryPermit().leaseId,{
       authorize:recoveryPermit,hash,uuid,now:()=>RECOVERY_AT,retrieve:async()=>input(changed),
-      repository:async()=>{const library=await RealFlightLibrary.open(await openDriver(libraryName,directory.uri),RECOVERY_OWNER,RECOVERY_STORE,hash,recoveryPermit);
+      repository:async()=>{const library=await RealFlightLibrary.open(await openAt(libraryName,directory),RECOVERY_OWNER,RECOVERY_STORE,hash,recoveryPermit);
         return {library,writable:true,warning:null,close:()=>library.close()};},
-      journal:async()=>RealFlightCommandJournal.open(await openDriver(journalName,directory.uri),RECOVERY_OWNER,RECOVERY_STORE,recoveryPermit,hash),
+      journal:async()=>RealFlightCommandJournal.open(await openAt(journalName,directory),RECOVERY_OWNER,RECOVERY_STORE,recoveryPermit,hash),
     });
   }
   if(!new File(seeds,'ready.txt').exists){
-    const initial=await RealFlightLibrary.create(await openDriver('empty.sqlite',seeds.uri),RECOVERY_MANIFEST,hash,recoveryPermit);await initial.close();
-    await (await RealFlightCommandJournal.open(await openDriver('empty-commands.sqlite',seeds.uri),RECOVERY_OWNER,RECOVERY_STORE,recoveryPermit,hash,true)).close();
+    const initial=await RealFlightLibrary.create(await openAt('empty.sqlite',seeds),RECOVERY_MANIFEST,hash,recoveryPermit);await initial.close();
+    await (await RealFlightCommandJournal.open(await openAt('empty-commands.sqlite',seeds),RECOVERY_OWNER,RECOVERY_STORE,recoveryPermit,hash,true)).close();
     new File(seeds,'empty.sqlite').copy(new File(seeds,'populated.sqlite'));
     new File(seeds,'empty-commands.sqlite').copy(new File(seeds,'populated-commands.sqlite'));
     const seed=await service('populated.sqlite','populated-commands.sqlite',false,seeds);
