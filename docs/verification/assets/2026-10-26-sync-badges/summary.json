@@ -1,0 +1,252 @@
+{
+  "status": "passed",
+  "checks": [
+    {
+      "name": "ordinary-header-390",
+      "status": "passed",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 390x900",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1"
+      }
+    },
+    {
+      "name": "confirmation-390",
+      "status": "passed",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 390x900",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1"
+      }
+    },
+    {
+      "name": "cancel-390",
+      "status": "passed",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 390x900",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1"
+      }
+    },
+    {
+      "name": "back-dismiss-390",
+      "status": "passed",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 390x900",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1"
+      }
+    },
+    {
+      "name": "busy-390",
+      "status": "passed",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 390x900",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1"
+      }
+    },
+    {
+      "name": "unknown",
+      "status": "passed",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 390x900",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1"
+      }
+    },
+    {
+      "name": "stored-evidence",
+      "status": "passed",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 390x900",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1"
+      }
+    },
+    {
+      "name": "login-required",
+      "status": "passed",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 390x900",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1"
+      }
+    },
+    {
+      "name": "failed",
+      "status": "passed",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 390x900",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1"
+      }
+    },
+    {
+      "name": "stale-390",
+      "status": "passed",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 390x900",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1"
+      }
+    },
+    {
+      "name": "partial-390",
+      "status": "passed",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 390x900",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1"
+      }
+    },
+    {
+      "name": "success-390",
+      "status": "passed",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 390x900",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1"
+      }
+    },
+    {
+      "name": "success-login-independent-390",
+      "status": "passed",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 390x900",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1"
+      }
+    },
+    {
+      "name": "active-static",
+      "status": "passed",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 390x900",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1"
+      }
+    },
+    {
+      "name": "reduced-motion",
+      "status": "passed",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 390x900",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1"
+      }
+    },
+    {
+      "name": "start-accepted",
+      "status": "passed",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 390x900",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1"
+      }
+    },
+    {
+      "name": "ordinary-header-360",
+      "status": "passed",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 360x900",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1.6"
+      }
+    },
+    {
+      "name": "confirmation-360",
+      "status": "passed",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 360x900",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1.6"
+      }
+    },
+    {
+      "name": "cancel-360",
+      "status": "passed",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 360x900",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1.6"
+      }
+    },
+    {
+      "name": "back-dismiss-360",
+      "status": "passed",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 360x900",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1.6"
+      }
+    },
+    {
+      "name": "busy-360",
+      "status": "passed",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 360x900",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1.6"
+      }
+    },
+    {
+      "name": "stale-360",
+      "status": "passed",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 360x900",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1.6"
+      }
+    },
+    {
+      "name": "partial-360",
+      "status": "passed",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 360x900",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1.6"
+      }
+    },
+    {
+      "name": "success-360",
+      "status": "passed",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 360x900",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1.6"
+      }
+    },
+    {
+      "name": "success-login-independent-360",
+      "status": "passed",
+      "viewport": {
+        "size": "Physical size: 1080x1920\nOverride size: 360x900",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font": "1.6"
+      }
+    }
+  ],
+  "boundary": "Synthetic presentation and ordinary Android confirmation only; no authenticated retrieval, phone or iOS. Existing synthetic emulator reused without clearing data; display settings restored.",
+  "source": "ad4b7bd076e49a80a2c0e9dfb95034a5408e5194",
+  "apk_sha256": "332cfaf18290b7cc3b0ea94caac33221429b1191c791f9f45c1ed290e9641425",
+  "original": {
+    "size": "Physical size: 1080x1920",
+    "density": "Physical density: 420",
+    "font": "1.0",
+    "animator": "null",
+    "transition": "1.0"
+  },
+  "restored": {
+    "size": "Physical size: 1080x1920",
+    "density": "Physical density: 420",
+    "font": "1.0",
+    "animator": "null",
+    "transition": "1.0"
+  },
+  "device": "MoFlight_Synthetic_API37, Android API 37, existing emulator-5558; no data clearing",
+  "motion": "Native ring observed enabled; automated state traversal uses transition_animation_scale=0 for React Native reduced motion. No exact motion-timing claim.",
+  "native_busy_guards": "Both widths: disabled Sync action and at least 48x48 dp bounds; ordinary Start enters active coordinator.",
+  "limits": "Synthetic presentation and confirmation only; no authenticated provider outcome, physical phone, iOS runtime, spoken accessibility, persistence/background/performance acceptance.",
+  "harness_notes": "Initial run completed four MAIN confirmation checks before Profile accessible-value matching needed adjustment. Continuous motion prevented UIAutomator idle observation; reduced motion uses Android transition scale. Enlarged-text navigation required more scrolling, and changing font size restarts the activity. Final remaining MIN checks start at the target size. App source unchanged across these runs; original settings restored after each."
+}
