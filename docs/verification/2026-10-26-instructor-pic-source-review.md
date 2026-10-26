@@ -26,6 +26,10 @@ The provider's preserved [REST specification](../reference/vereinsflieger/rest-a
 
 The documented `flight/get/[flid]` response lists neither a `PIC`/commander field nor `PIC-Time`, `Dual-Time` or `FI-Time`. The REST description therefore cannot replace the saved browser/export `PIC` fact or determine legal command by itself. This is a documentation reading, not a live REST compatibility test; no API request or credential use occurred. The REST specification also states that an app key is club-created, requests are limited to 500 per day per key and commercial use is prohibited, so access/permission remains a separate gate.
 
+### Current MoFlight capture status
+
+The browser-list adapter recognizes the optional `Fluggenehmigung von` column as `flightPermission`. When offered, its exact header and raw value are retained in the account-scoped capture and per-flight source facts, and the generic flight-detail view can show that source row. In the same preserved 101-row capture above, this column is present and has a nonblank value in two rows. This count does not establish who gave the assignment, what the text means for either flight, or whether the person flew. The bounded detail-page reader also permits a `Fluggenehmigung von` row, but ordinary own-flight loading is based on the list capture. MoFlight does not currently retrieve REST `uidfi`/`finame`, store a distinct `Flugauftrag` object, or map this text to instructor presence or PIC. Equivalence between the browser label and REST flight-assignment fields remains unverified.
+
 ## Interpretation boundary
 
 For MoFlight, the unambiguous provider `PIC` field identifies **who Vereinsflieger records as PIC** for that flight. `Pilot` identifies a different source slot and may be the student; `Begleiter/FI` identifies an accompanying person but does not by itself certify that person's instructor function. Nonzero `Dual-Time` is source-reported dual time for the relevant subject, supportive of instruction but insufficient to identify or credential the instructor. A generic `Flugart` code, a companion name, seat position or an old prototype template must not fill an absent PIC or FI role.
