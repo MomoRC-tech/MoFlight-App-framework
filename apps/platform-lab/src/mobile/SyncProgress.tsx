@@ -2,7 +2,7 @@ import React,{useEffect,useRef,useState} from 'react';
 import {AccessibilityInfo,AppState,Animated,Easing,Pressable,StyleSheet,View} from 'react-native';
 import {Label,colors} from './theme';
 import {SymbolIcon} from './SymbolIcon';
-import {syncLabels,type SyncProgress as Progress,type IdleSyncNotice} from './sync-progress';
+import {syncStageText,type SyncProgress as Progress,type IdleSyncNotice} from './sync-progress';
 
 export function useReducedMotion(){
   const [reduced,setReduced]=useState(true);
@@ -39,7 +39,7 @@ export function SyncProgress({progress,notice=null,retry,details,cancel,canCance
   useEffect(()=>{pulse.setValue(1);if(!active||reduced)return;const animation=Animated.loop(Animated.sequence([Animated.timing(pulse,{toValue:.65,duration:850,useNativeDriver:true}),Animated.timing(pulse,{toValue:1,duration:850,useNativeDriver:true})]));animation.start();return()=>animation.stop();},[active,reduced,pulse]);
   if(!mounted)return null;
   const failed=progress.state==='failed'||progress.state==='partial';
-  const current=progress.message??(progress.current?syncLabels[progress.current].active:'Wird fortgesetzt …');
+  const current=progress.message??(progress.current?syncStageText(progress.current,false,progress.count):'Wird fortgesetzt …');
   if(!working){
     const localFailure=notice?.kind==='read-error';
     const caption=localFailure?notice.caption:failed?(progress.state==='partial'?'Teilweise aktualisiert':'Synchronisierung fehlgeschlagen'):notice?.caption;
@@ -52,8 +52,8 @@ export function SyncProgress({progress,notice=null,retry,details,cancel,canCance
     </View>;
   }
   return <Animated.View testID="sync-progress" style={[styles.box,{opacity:reveal,transform:[{translateY:reveal.interpolate({inputRange:[0,1],outputRange:[-12,0]})}]}]}>
-    <View style={cancel?{paddingRight:48}:undefined} accessibilityLiveRegion="polite" accessible accessibilityLabel={`${progress.last?syncLabels[progress.last].done+' ':''}${current}`}>
-      <Label style={styles.previous}>{progress.last?`✓ ${syncLabels[progress.last].done}`:' '}</Label>
+    <View style={cancel?{paddingRight:48}:undefined} accessibilityLiveRegion="polite" accessible accessibilityLabel={`${progress.last?syncStageText(progress.last,true,progress.lastCount)+' ':''}${current}`}>
+      <Label style={styles.previous}>{progress.last?`✓ ${syncStageText(progress.last,true,progress.lastCount)}`:' '}</Label>
       <Animated.View style={{opacity:pulse}}><Label style={styles.current}>{current}</Label></Animated.View>
     </View>
     {cancel&&<Pressable accessibilityRole="button" accessibilityLabel="Synchronisierung abbrechen" disabled={!canCancel} accessibilityState={{disabled:!canCancel}} onPress={cancel} style={styles.cancel}><SymbolIcon name="close" size={20}/></Pressable>}

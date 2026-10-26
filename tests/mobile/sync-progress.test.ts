@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {idleSyncProgress,idleSyncNotice,startSyncStage,finishSyncStage,completedSyncProgress} from '../../apps/platform-lab/src/mobile/sync-progress.ts';
+import {idleSyncProgress,idleSyncNotice,startSyncStage,finishSyncStage,completedSyncProgress,updateSyncCount,syncStageText,syncStages} from '../../apps/platform-lab/src/mobile/sync-progress.ts';
 
 test('idle notices distinguish loading, first use, failed reads and invalid receipts',()=>{
   const now=Date.parse('2026-10-25T12:00:00.000Z');
@@ -47,4 +47,26 @@ test('a saved-flight result names only failed/skipped sources and never treats b
   assert.equal(completedSyncProgress({...result,medicalStatus:'skipped',workHoursStatus:'failed'}).message,'Nicht aktualisiert: Medical, Termine, Arbeitsstunden.');
   const protectedResult=completedSyncProgress({pending:1,cleanupPending:true});
   assert.equal(protectedResult.state,'partial');assert.match(protectedResult.message!,/Flüge benötigen eine Prüfung/);assert.match(protectedResult.message!,/Anbieteransicht/);
+});
+
+
+test('measured progress preserves unknown and empty totals, resets stages and rejects late/invalid updates',()=>{
+  let progress=startSyncStage(idleSyncProgress,'flights');
+  assert.match(syncStageText('flights',false),/\(0\/\?\)$/);
+  progress=updateSyncCount(progress,'flights',{done:4,total:101,unit:'flights'});
+  assert.match(syncStageText('flights',false,progress.count),/\(4\/101\)$/);
+  for(const count of [{done:3,total:101,unit:'flights' as const},{done:102,total:101,unit:'flights' as const},{done:5,total:102,unit:'flights' as const},{done:NaN,total:null,unit:'flights' as const}])
+    assert.equal(updateSyncCount(progress,'flights',count),progress);
+  assert.equal(updateSyncCount({...progress,state:'failed'},'flights',{done:101,total:101,unit:'flights'}).count?.done,4);
+  progress=finishSyncStage(progress,'flights');
+  assert.match(syncStageText('flights',true,progress.lastCount),/\(101\/101\)$/);
+  progress=startSyncStage(progress,'save');assert.equal(progress.count,undefined);
+  assert.equal(updateSyncCount(progress,'flights',{done:101,total:101,unit:'flights'}),progress);
+  progress=updateSyncCount(progress,'save',{done:0,total:0,unit:'flights'});
+  assert.match(syncStageText('save',true,finishSyncStage(progress,'save').lastCount),/\(0\/0\)$/);
+  for(const stage of syncStages){
+    assert.match(syncStageText(stage,false),/\(0\/(?:\?|1|2)(?: Schritt| Anfrage[n]?)?\)$/);
+    const finished=finishSyncStage(startSyncStage(idleSyncProgress,stage),stage);
+    if(!['flights','save'].includes(stage))assert.equal(finished.lastCount?.done,stage==='duties'?2:1);
+  }
 });

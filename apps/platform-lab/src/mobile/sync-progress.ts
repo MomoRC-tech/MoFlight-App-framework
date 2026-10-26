@@ -14,7 +14,8 @@ export function idleSyncNotice({receivedAt,readState,now,activityChanged=false}:
 
 export const syncStages=['prepare','account','sign-in','flights','save','medical','duties','events','documents','work-summary','work-hours','tasks'] as const;
 export type SyncStage=typeof syncStages[number];
-export type SyncProgress={state:'idle'|'active'|'waiting'|'failed'|'partial';last:SyncStage|null;current:SyncStage|null;message?:string};
+export type SyncCount={done:number;total:number|null;unit:'flights'|'requests'|'steps'};
+export type SyncProgress={state:'idle'|'active'|'waiting'|'failed'|'partial';last:SyncStage|null;current:SyncStage|null;message?:string;count?:SyncCount;lastCount?:SyncCount};
 export const idleSyncProgress:SyncProgress={state:'idle',last:null,current:null};
 export const syncLabels:Record<SyncStage,{active:string;done:string}>={
   prepare:{active:'Synchronisierung wird vorbereitet …',done:'Vorbereitung abgeschlossen.'},
@@ -32,10 +33,30 @@ export const syncLabels:Record<SyncStage,{active:string;done:string}>={
 };
 export function startSyncStage(previous:SyncProgress,current:SyncStage):SyncProgress{
   const state=current==='sign-in'?'waiting':'active';
-  return previous.current===current&&previous.state===state?previous:{state,last:previous.last,current};
+  return previous.current===current&&previous.state===state?previous:{state,last:previous.last,lastCount:previous.lastCount,current};
+}
+export function defaultSyncCount(stage:SyncStage):SyncCount{
+  return stage==='flights'||stage==='save'?{done:0,total:null,unit:'flights'}:
+    {done:0,total:stage==='duties'?2:1,unit:['prepare','account','sign-in'].includes(stage)?'steps':'requests'};
+}
+/** Late, cancelled and invalid updates cannot advance another stage. */
+export function updateSyncCount(previous:SyncProgress,stage:SyncStage,count:SyncCount):SyncProgress{
+  if(previous.state!=='active'||previous.current!==stage||!Number.isSafeInteger(count.done)||count.done<0||
+    count.total!==null&&(!Number.isSafeInteger(count.total)||count.total<count.done))return previous;
+  const old=previous.count;
+  if(old&&(old.unit!==count.unit||count.done<old.done||old.total!==null&&count.total!==old.total))return previous;
+  if(old&&old.done===count.done&&old.total===count.total)return previous;
+  return {...previous,count:{...count}};
+}
+export function syncStageText(stage:SyncStage,done:boolean,count?:SyncCount):string{
+  const value=count??defaultSyncCount(stage);
+  const units=value.unit==='flights'?'':value.unit==='steps'?' Schritt':value.total===1?' Anfrage':' Anfragen';
+  return `${syncLabels[stage][done?'done':'active'].replace(/[. …]+$/u,'')} (${done&&!count?(value.total??'?'):value.done}/${value.total??'?'}${units})`;
 }
 export function finishSyncStage(previous:SyncProgress,stage:SyncStage):SyncProgress{
-  return previous.current!==stage?previous:{...previous,last:stage,current:null};
+  if(previous.current!==stage||!['active','waiting'].includes(previous.state))return previous;
+  const count=previous.count??defaultSyncCount(stage);
+  return {...previous,last:stage,current:null,count:undefined,lastCount:{...count,done:count.total??count.done}};
 }
 
 type CompletedSync={pending:number;cleanupPending?:boolean;medicalStatus?:string;dutyStatus?:string;eventsStatus?:string;documentNoticesStatus?:string;workSummaryStatus?:string;workHoursStatus?:string;tasksStatus?:string};

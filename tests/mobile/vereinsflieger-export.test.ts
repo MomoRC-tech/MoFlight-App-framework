@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { runInNewContext } from 'node:vm';
-import { acceptExportMessage, beginExport, calendarYearRequest, EXPORT_PHASES, ACTIVE_EXPORT_VIEW, exportScript, PARTICIPATION, type ExportRun } from '../../apps/platform-lab/src/vereinsflieger/export.ts';
+import { acceptExportMessage, exportProgress, beginExport, calendarYearRequest, EXPORT_PHASES, ACTIVE_EXPORT_VIEW, exportScript, PARTICIPATION, type ExportRun } from '../../apps/platform-lab/src/vereinsflieger/export.ts';
 import { FLIGHT_URL, LOGIN_URL, validateCapture } from '../../apps/platform-lab/src/vereinsflieger/probe.ts';
 import { persistCapture, readLatestCapture } from '../../apps/platform-lab/src/vereinsflieger/capture-store.ts';
 import { inspectFields } from '../../apps/platform-lab/src/vereinsflieger/fields.ts';
@@ -217,4 +217,17 @@ test('saved capture validates temporary v2 scope and retains historical v1 named
     assert.throws(()=>validateCapture({...historical,exportContext:{...historical.exportContext,adapterVersion:2}}));
   }
   for(const adapterVersion of [1,3,undefined]) assert.throws(()=>validateCapture({...snapshot,exportContext:{...snapshot.exportContext,adapterVersion}}));
+});
+
+
+test('flight progress advances only with validated pages and keeps unavailable totals unknown',()=>{
+  const run=reading();assert.deepEqual(exportProgress(run),{done:0,total:null});
+  accept(run,payload({total:2,nextUrl:FLIGHT_URL+'?page=2'}));
+  assert.deepEqual(exportProgress(run),{done:1,total:2});
+  assert.throws(()=>accept(run,payload({rows:[row('2')],first:2,last:2,total:3})));
+  assert.deepEqual(exportProgress(run),{done:1,total:2});
+  accept(run,payload({rows:[row('2')],first:2,last:2,total:2}));
+  assert.deepEqual(exportProgress(run),{done:2,total:2});
+  const empty=reading();accept(empty,payload({rows:[],first:0,last:0,total:0}));
+  assert.deepEqual(exportProgress(empty),{done:0,total:0});
 });

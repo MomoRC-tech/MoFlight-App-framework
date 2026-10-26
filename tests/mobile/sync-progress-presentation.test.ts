@@ -3,13 +3,13 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {runInNewContext} from 'node:vm';
 import ts from 'typescript';
-import {idleSyncNotice,idleSyncProgress,syncLabels} from '../../apps/platform-lab/src/mobile/sync-progress.ts';
+import {idleSyncNotice,idleSyncProgress,syncStageText} from '../../apps/platform-lab/src/mobile/sync-progress.ts';
 
 function fixture(){
   const source=ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/mobile/SyncProgress.tsx',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.React}}).outputText;
   const react={createElement:(type:unknown,props:any,...children:any[])=>({type,props:props??{},children}),useState:(initial:unknown)=>[initial,()=>{}],useEffect(){},useRef:(initial:unknown)=>({current:initial})};
   class Value{constructor(_value:number){}interpolate(){return 0;}setValue(){}}
-  const modules:Record<string,unknown>={react:{default:react,...react},'react-native':{View:'View',Pressable:'Pressable',Animated:{View:'Animated.View',Value},AppState:{currentState:'active'},StyleSheet:{create:(v:unknown)=>v}},'./theme':{Label:'Label',colors:{card:'navy',border:'gray',text:'white',muted:'gray',cyan:'cyan'}},'./SymbolIcon':{SymbolIcon:'SymbolIcon'},'./sync-progress':{syncLabels}};
+  const modules:Record<string,unknown>={react:{default:react,...react},'react-native':{View:'View',Pressable:'Pressable',Animated:{View:'Animated.View',Value},AppState:{currentState:'active'},StyleSheet:{create:(v:unknown)=>v}},'./theme':{Label:'Label',colors:{card:'navy',border:'gray',text:'white',muted:'gray',cyan:'cyan'}},'./SymbolIcon':{SymbolIcon:'SymbolIcon'},'./sync-progress':{syncStageText}};
   const exports:any={};
   runInNewContext(source,{exports,require:(name:string)=>{assert.ok(name in modules,name);return modules[name];}});
   return exports.SyncProgress as (props:any)=>any;
@@ -60,4 +60,12 @@ test('active and login-waiting work outrank idle errors and retain guarded cance
     const cancel=nodes(tree).find(n=>n.type==='Pressable');assert.equal(cancel.props.disabled,!canCancel);
     assert.equal(cancel.props.accessibilityState.disabled,!canCancel);assert.ok(cancel.props.style.minHeight>=48);
   }
+});
+
+
+test('both visible rows and accessibility text expose measured counts with honest request units',()=>{
+  const tree=fixture()({progress:{state:'active',last:'flights',lastCount:{done:101,total:101,unit:'flights'},current:'duties',count:{done:1,total:2,unit:'requests'}},retry(){},details(){}});
+  assert.match(text(tree),/abgerufen \(101\/101\).*Dienste werden abgerufen \(1\/2 Anfragen\)/);
+  const spoken=nodes(tree).find(n=>n.props.accessibilityLiveRegion==='polite').props.accessibilityLabel;
+  assert.match(spoken,/101\/101.*1\/2 Anfragen/);
 });

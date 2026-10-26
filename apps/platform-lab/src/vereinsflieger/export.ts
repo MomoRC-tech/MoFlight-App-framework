@@ -14,6 +14,11 @@ export interface ExportRun {
   request: ExportRequest; phase: ExportPhase; preset: string | null; accountLabel: string | null;
   pages: ExportPage[]; steps: number; commands: number; seenFlightIds: Set<string>; sizeChars: number;
 }
+/** Counts only pages accepted by the scoped export validator. */
+export function exportProgress(run:ExportRun):{done:number;total:number|null}{
+  const page=run.pages.at(-1);
+  return {done:page?.last??0,total:page?.total??null};
+}
 function validDate(value: string): boolean {
   return /^\d{4}-\d{2}-\d{2}$/.test(value) && Number.isFinite(Date.parse(value)) && new Date(value).toISOString().slice(0, 10) === value;
 }

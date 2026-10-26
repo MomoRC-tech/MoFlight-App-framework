@@ -752,3 +752,16 @@ test('settings admits only an explicit administration surface and returns after 
     assert.ok(f.nodes().some(n=>n.type==='ConnectionSettings'));
   }finally{f.dispose();}
 });
+
+
+test('Sync forwards measured flight counts and ignores late updates after cancellation',async()=>{
+  const f=fixture({intent:'update'});try{
+    f.render();await f.flush();f.verify();await f.flush();
+    f.c.flightProgress={done:4,total:101};f.render();await f.flush();
+    assert.deepEqual(f.progressUpdates.at(-1)?.count,{done:4,total:101,unit:'flights'});
+    f.background();await f.flush();
+    f.c.flightProgress={done:101,total:101};f.render();await f.flush();
+    assert.notEqual(f.progressUpdates.at(-1)?.count?.done,101);
+    assert.ok(!f.progressUpdates.some(p=>p.last==='flights'));
+  }finally{f.dispose();}
+});

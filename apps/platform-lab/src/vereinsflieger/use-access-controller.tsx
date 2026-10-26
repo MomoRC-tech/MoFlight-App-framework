@@ -9,7 +9,7 @@ import { bridgeSource, flightUrl, FLIGHT_URL, LOGIN_URL, providerUrl, type Probe
 import { clearOriginalView, latestCapture, readOriginalView, saveCapture, saveOriginalView } from './storage';
 import { loginPage } from './login';
 import { useSavedLogin } from './use-saved-login';
-import { acceptExportMessage, beginExport, calendarYearRequest, recentCaptureRequest, exportScript, type ExportRun } from './export';
+import { acceptExportMessage, exportProgress, beginExport, calendarYearRequest, recentCaptureRequest, exportScript, type ExportRun } from './export';
 import { decodeView, VIEW_PHASES, viewScript, viewProtectionMessage, type ViewPhase, type ViewPreferences } from './view';
 import { canonical } from '@moflight/flight-logbook';
 import { legacyViewNeedsChoice, type LegacyRecoveryCopy } from './legacy-recovery-store';
@@ -148,6 +148,7 @@ export function useAccessController(product = false, localOwner?: string, develo
     else clearDevelopmentCheckpoints();
   }, [developmentRecoveryCheckpoints]);
   const [snapshot, setSnapshot] = useState<ProbeSnapshot | null>(null), [status, setStatus] = useState('Sign in on the original provider page. Choose an inclusive period; configuration is verified before capture.');
+  const [flightProgress,setFlightProgress]=useState<{done:number;total:number|null}>({done:0,total:null});
   const [captureLoadState, setCaptureLoadState] = useState<'loading' | 'ready' | 'failed'>('loading');
   const login = useSavedLogin({
     product,
@@ -885,6 +886,7 @@ export function useAccessController(product = false, localOwner?: string, develo
     pendingFlightSource.current = null;
     if (product) clearCompletedFlightSource();
     setViewStrategy(null);
+    setFlightProgress({done:0,total:null});
     run.current = prepared; reading.current = false; viewPhase.current = 'snapshot'; restoreSteps.current = 0;
     testPaused.current = false; setPaused(null);
     captureSaved.current = false; cancelled.current = false; setResult('none');
@@ -968,6 +970,7 @@ export function useAccessController(product = false, localOwner?: string, develo
       if (!run.current) return;
       const completedPhase = run.current.phase;
       const result = acceptExportMessage(run.current, event.nativeEvent.data, event.nativeEvent.url, currentUrl.current, command.current);
+      setFlightProgress(exportProgress(run.current));
       reading.current = false; command.current = '';
       if (completedPhase === 'reset' && run.current.phase === 'columns' && testPauseEnabled.current) {
         testPaused.current = true; setPaused(nonce);
@@ -1085,7 +1088,7 @@ export function useAccessController(product = false, localOwner?: string, develo
         onContentProcessDidTerminate={() => { if (generation !== epoch.current) return; if (information.pageFailed()) return; if (loginAttempt.current) endLogin('Provider renderer stopped. Saved sign-in cancelled.', 'cancelled'); if (product) contextFailed(); finish('Provider renderer stopped. Recovery journal retained.'); }}
         onRenderProcessGone={() => { if (generation !== epoch.current) return; if (information.pageFailed()) return; if (loginAttempt.current) endLogin('Provider renderer stopped. Saved sign-in cancelled.', 'cancelled'); if (product) contextFailed(); finish('Provider renderer stopped. Recovery journal retained.'); }}
       />;
-  return { ...information.public, retrieveFeatureInformation: async (category:FeatureInformationCategory) => {
+  return { flightProgress: product && owner.current === localOwner && busy && run.current ? flightProgress : null, ...information.public, retrieveFeatureInformation: async (category:FeatureInformationCategory) => {
     try { return await information.public.retrieveFeatureInformation(category); }
     catch(error) { session.current.invalidate(); syncConnection(); throw error; }
   }, retrieveDutyPage: async (source:'own'|'club') => {
