@@ -215,7 +215,7 @@ export function StatisticsOverlay({ data, today, fontScale, onBackHandler, initi
         {data.phase === 'ready' && data.view?.snapshot.account && route.section === 'roles' && <Card>
           <Section title="Ausbildung & Besatzung" />
           <Label muted>Dual: du als SIC, Begleiter als PIC und positive Dual-Zeit. Solo: du als PIC ohne Begleiter. PIC+: du als PIC mit Begleitperson(en), ohne SIC oder Dual-Zeit. Jeder Flug zählt genau einmal.</Label>
-          {roles.groups.map(row => <Card key={row.key} onPress={row.count ? () => openFlights(row.label, row.supportingIds) : undefined} label={`${row.label} · ${row.count} Flüge ansehen`} style={styles.bandRow}>
+          {roles.groups.map(row => <Card key={row.key} onPress={row.count ? () => openFlights(row.label, row.supportingIds) : undefined} label={`${row.label} · ${row.count} ${row.count===1?'Flug':'Flüge'} ansehen`} style={styles.bandRow}>
             <View style={styles.aircraftHeading}><Label style={{flex:1}}>{row.label}</Label><Label style={styles.metricValue}>{row.count}</Label></View>
             <Label muted>{row.knownDurationCount ? `${formatReportedMinutes(row.knownMinutes)} h bekannt` : 'Flugzeit unbekannt'}{row.unknownDurationCount ? ` · ${row.unknownDurationCount}× Zeit unbekannt` : ''}</Label>
           </Card>)}

@@ -75,11 +75,11 @@ test('Solo, Dual and PIC+ share the existing horizontal metric row and open role
  assert.ok(row);assert.equal(row.children.length,6,'three role tiles follow three existing tiles at the same row height');
  const metrics=f.nodes.filter(n=>n.type==='Pressable'&&/^(Solo|Dual|PIC\+) 2026:/.test(n.props.accessibilityLabel??''));
  assert.deepEqual(metrics.map(n=>n.props.accessibilityLabel.split(' ')[0]),['Solo','Dual','PIC+']);
- assert.match(metrics[1]!.props.accessibilityLabel,/1 gespeicherte Flüge, 0:12/);
+ assert.match(metrics[1]!.props.accessibilityLabel,/1 Flug gespeichert, 0:12/);
  metrics[1]!.props.onPress();assert.deepEqual(f.roleCalls,['roles']);assert.deepEqual(f.statisticsCalls,[2026]);
  const unavailable=render([],'loading');
  assert.equal(unavailable.nodes.filter(n=>n.type==='Pressable'&&/^(Solo|Dual|PIC\+) 2026:/.test(n.props.accessibilityLabel??'')).length,3);
- assert.match(unavailable.text,/Solo 2026: — gespeicherte Flüge/);
+ assert.match(unavailable.text,/Solo 2026: — Flüge gespeichert/);
 });
 test('compact season deduplicates flights and keeps missing durations explicit',()=>{
  const a=structuredClone(ownFlightFixture().flights[0]!);a.facts.assessment.date={...a.facts.assessment.date,state:'parsed',value:'2026-01-01'};a.facts.assessment.durations.flight={state:'known',minutes:90,evidence:[]};

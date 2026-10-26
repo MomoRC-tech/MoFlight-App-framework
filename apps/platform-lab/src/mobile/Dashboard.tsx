@@ -69,8 +69,9 @@ export function Dashboard({ ownFlights, ownFlightPhase, onFlights, onFlight, onS
             const confirmedZero=ready&&groupCount===0&&facts.current.starts!=='—';
             const time=known?formatReportedMinutes(group!.knownMinutes):confirmedZero?'0:00':'—';
             const count=ready&&(groupCount>0||facts.current.starts!=='—')?String(groupCount):'—';
-            return <Pressable key={key} accessibilityRole="button" accessibilityLabel={`${label} ${year}: ${count} gespeicherte Flüge, ${known?`${time} Stunden und Minuten bekannte Flugzeit`:confirmedZero?'0:00 Stunden und Minuten gespeicherte Flugzeit':'Flugzeit unbekannt'}${group?.unknownDurationCount?`, ${group.unknownDurationCount} ohne bekannte Dauer`:''}. Statistik öffnen`} onPress={()=>onStatistics?.(year,'roles')} style={[styles.metric,styles.divider]}>
-              <Label style={[styles.value,styles.roleValue]}>{ready?time:'—'}</Label><Label muted style={styles.metricLabel}>{label} · h:min</Label><Label muted style={styles.prior}>{ready?count:'—'} Flüge</Label>
+            const flightWord=groupCount===1?'Flug':'Flüge';
+            return <Pressable key={key} accessibilityRole="button" accessibilityLabel={`${label} ${year}: ${count} ${flightWord} gespeichert, ${known?`${time} Stunden und Minuten bekannte Flugzeit`:confirmedZero?'0:00 Stunden und Minuten gespeicherte Flugzeit':'Flugzeit unbekannt'}${group?.unknownDurationCount?`, ${group.unknownDurationCount} ohne bekannte Dauer`:''}. Statistik öffnen`} onPress={()=>onStatistics?.(year,'roles')} style={[styles.metric,styles.divider]}>
+              <Label style={[styles.value,styles.roleValue]}>{ready?time:'—'}</Label><Label muted style={styles.metricLabel}>{label} · h:min</Label><Label muted style={styles.prior}>{ready?count:'—'} {flightWord}</Label>
             </Pressable>;
           })}
         </ScrollView>
