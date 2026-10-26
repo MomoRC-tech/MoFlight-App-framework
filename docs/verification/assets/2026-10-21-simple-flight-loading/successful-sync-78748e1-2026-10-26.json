@@ -1,0 +1,1325 @@
+{
+  "source_commit": "78748e15ec78646857d42d8ff3c8e9f7fe9d6227",
+  "kind": "user-supplied successful Sync; unmatched single session",
+  "operations": [
+    {
+      "action": "update-flights",
+      "outcome": "success",
+      "code": "none",
+      "milliseconds": 112312,
+      "stages": [
+        {
+          "name": "owner-selection",
+          "calls": 1,
+          "failures": 0,
+          "milliseconds": 23,
+          "maximum": 23,
+          "counters": {
+            "ownerGuard": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "sql": {
+              "calls": 1,
+              "failures": 0,
+              "milliseconds": 2
+            },
+            "transaction": {
+              "calls": 1,
+              "failures": 0,
+              "milliseconds": 21
+            },
+            "hash": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "databaseOpen": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            }
+          }
+        },
+        {
+          "name": "graph-read",
+          "calls": 19,
+          "failures": 0,
+          "milliseconds": 3650,
+          "maximum": 271
+        },
+        {
+          "name": "graph-validation",
+          "calls": 6,
+          "failures": 0,
+          "milliseconds": 43965,
+          "maximum": 7793
+        },
+        {
+          "name": "graph-canonicalization",
+          "calls": 18,
+          "failures": 0,
+          "milliseconds": 1768,
+          "maximum": 150
+        },
+        {
+          "name": "owner-setup",
+          "calls": 1,
+          "failures": 0,
+          "milliseconds": 9970,
+          "maximum": 9970,
+          "counters": {
+            "ownerGuard": {
+              "calls": 66,
+              "failures": 0,
+              "milliseconds": 442
+            },
+            "sql": {
+              "calls": 133,
+              "failures": 0,
+              "milliseconds": 777
+            },
+            "transaction": {
+              "calls": 69,
+              "failures": 0,
+              "milliseconds": 8204
+            },
+            "hash": {
+              "calls": 2149,
+              "failures": 0,
+              "milliseconds": 1169
+            },
+            "databaseOpen": {
+              "calls": 3,
+              "failures": 0,
+              "milliseconds": 9
+            }
+          }
+        },
+        {
+          "name": "restore-inspection",
+          "calls": 2,
+          "failures": 0,
+          "milliseconds": 164,
+          "maximum": 102,
+          "counters": {
+            "ownerGuard": {
+              "calls": 16,
+              "failures": 0,
+              "milliseconds": 103
+            },
+            "sql": {
+              "calls": 40,
+              "failures": 0,
+              "milliseconds": 62
+            },
+            "transaction": {
+              "calls": 16,
+              "failures": 0,
+              "milliseconds": 102
+            },
+            "hash": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "databaseOpen": {
+              "calls": 2,
+              "failures": 0,
+              "milliseconds": 8
+            }
+          }
+        },
+        {
+          "name": "receipt-recovery",
+          "calls": 2,
+          "failures": 0,
+          "milliseconds": 5942,
+          "maximum": 3004,
+          "counters": {
+            "ownerGuard": {
+              "calls": 96,
+              "failures": 0,
+              "milliseconds": 671
+            },
+            "sql": {
+              "calls": 122,
+              "failures": 0,
+              "milliseconds": 423
+            },
+            "transaction": {
+              "calls": 96,
+              "failures": 0,
+              "milliseconds": 671
+            },
+            "hash": {
+              "calls": 336,
+              "failures": 0,
+              "milliseconds": 437
+            },
+            "databaseOpen": {
+              "calls": 2,
+              "failures": 0,
+              "milliseconds": 8
+            }
+          }
+        },
+        {
+          "name": "stored-list-derivation",
+          "calls": 2,
+          "failures": 0,
+          "milliseconds": 162,
+          "maximum": 86
+        },
+        {
+          "name": "stored-summary-derivation",
+          "calls": 1,
+          "failures": 0,
+          "milliseconds": 16,
+          "maximum": 16
+        },
+        {
+          "name": "repository-close",
+          "calls": 4,
+          "failures": 0,
+          "milliseconds": 31,
+          "maximum": 12,
+          "counters": {
+            "ownerGuard": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "sql": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "transaction": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "hash": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "databaseOpen": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            }
+          }
+        },
+        {
+          "name": "stored-view",
+          "calls": 1,
+          "failures": 0,
+          "milliseconds": 539,
+          "maximum": 539,
+          "counters": {
+            "ownerGuard": {
+              "calls": 4,
+              "failures": 0,
+              "milliseconds": 22
+            },
+            "sql": {
+              "calls": 15,
+              "failures": 0,
+              "milliseconds": 202
+            },
+            "transaction": {
+              "calls": 5,
+              "failures": 0,
+              "milliseconds": 333
+            },
+            "hash": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "databaseOpen": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            }
+          }
+        },
+        {
+          "name": "sync-prepare",
+          "calls": 1,
+          "failures": 0,
+          "milliseconds": 3830,
+          "maximum": 3830
+        },
+        {
+          "name": "repository-open",
+          "calls": 3,
+          "failures": 0,
+          "milliseconds": 26081,
+          "maximum": 8966,
+          "counters": {
+            "ownerGuard": {
+              "calls": 84,
+              "failures": 0,
+              "milliseconds": 578
+            },
+            "sql": {
+              "calls": 243,
+              "failures": 0,
+              "milliseconds": 1984
+            },
+            "transaction": {
+              "calls": 93,
+              "failures": 0,
+              "milliseconds": 24785
+            },
+            "hash": {
+              "calls": 6195,
+              "failures": 0,
+              "milliseconds": 3243
+            },
+            "databaseOpen": {
+              "calls": 6,
+              "failures": 0,
+              "milliseconds": 20
+            }
+          }
+        },
+        {
+          "name": "session-verification",
+          "calls": 4,
+          "failures": 0,
+          "milliseconds": 2598,
+          "maximum": 696,
+          "counters": {
+            "ownerGuard": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "sql": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "transaction": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "hash": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "databaseOpen": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            }
+          }
+        },
+        {
+          "name": "provider-view-supersede",
+          "calls": 1,
+          "failures": 0,
+          "milliseconds": 27,
+          "maximum": 27,
+          "counters": {
+            "ownerGuard": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "sql": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "transaction": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "hash": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "databaseOpen": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            }
+          }
+        },
+        {
+          "name": "sync-account",
+          "calls": 1,
+          "failures": 0,
+          "milliseconds": 16011,
+          "maximum": 16011
+        },
+        {
+          "name": "provider-view-snapshot",
+          "calls": 1,
+          "failures": 0,
+          "milliseconds": 16,
+          "maximum": 16,
+          "counters": {
+            "ownerGuard": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "sql": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "transaction": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "hash": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "databaseOpen": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            }
+          }
+        },
+        {
+          "name": "provider-view-backup",
+          "calls": 1,
+          "failures": 0,
+          "milliseconds": 83,
+          "maximum": 83,
+          "counters": {
+            "ownerGuard": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "sql": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "transaction": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "hash": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "databaseOpen": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            }
+          }
+        },
+        {
+          "name": "provider-view-backup-load",
+          "calls": 1,
+          "failures": 0,
+          "milliseconds": 23,
+          "maximum": 23,
+          "counters": {
+            "ownerGuard": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "sql": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "transaction": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "hash": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "databaseOpen": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            }
+          }
+        },
+        {
+          "name": "provider-view-backup-verify",
+          "calls": 1,
+          "failures": 0,
+          "milliseconds": 19,
+          "maximum": 19,
+          "counters": {
+            "ownerGuard": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "sql": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "transaction": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "hash": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "databaseOpen": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            }
+          }
+        },
+        {
+          "name": "provider-export-reset",
+          "calls": 2,
+          "failures": 1,
+          "milliseconds": 652,
+          "maximum": 635,
+          "counters": {
+            "ownerGuard": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "sql": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "transaction": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "hash": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "databaseOpen": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            }
+          }
+        },
+        {
+          "name": "provider-export-columns",
+          "calls": 2,
+          "failures": 1,
+          "milliseconds": 689,
+          "maximum": 666,
+          "counters": {
+            "ownerGuard": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "sql": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "transaction": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "hash": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "databaseOpen": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            }
+          }
+        },
+        {
+          "name": "provider-export-clear",
+          "calls": 1,
+          "failures": 0,
+          "milliseconds": 14,
+          "maximum": 14,
+          "counters": {
+            "ownerGuard": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "sql": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "transaction": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "hash": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "databaseOpen": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            }
+          }
+        },
+        {
+          "name": "provider-export-participation",
+          "calls": 2,
+          "failures": 1,
+          "milliseconds": 609,
+          "maximum": 588,
+          "counters": {
+            "ownerGuard": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "sql": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "transaction": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "hash": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "databaseOpen": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            }
+          }
+        },
+        {
+          "name": "provider-export-period",
+          "calls": 2,
+          "failures": 1,
+          "milliseconds": 783,
+          "maximum": 717,
+          "counters": {
+            "ownerGuard": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "sql": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "transaction": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "hash": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "databaseOpen": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            }
+          }
+        },
+        {
+          "name": "provider-export-read",
+          "calls": 1,
+          "failures": 0,
+          "milliseconds": 39,
+          "maximum": 39,
+          "counters": {
+            "ownerGuard": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "sql": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "transaction": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "hash": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "databaseOpen": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            }
+          }
+        },
+        {
+          "name": "provider-view-restore",
+          "calls": 3,
+          "failures": 2,
+          "milliseconds": 1589,
+          "maximum": 934,
+          "counters": {
+            "ownerGuard": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "sql": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "transaction": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "hash": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "databaseOpen": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            }
+          }
+        },
+        {
+          "name": "provider-view-verify",
+          "calls": 1,
+          "failures": 0,
+          "milliseconds": 16,
+          "maximum": 16,
+          "counters": {
+            "ownerGuard": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "sql": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "transaction": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "hash": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "databaseOpen": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            }
+          }
+        },
+        {
+          "name": "source-retrieval",
+          "calls": 1,
+          "failures": 0,
+          "milliseconds": 10879,
+          "maximum": 10879,
+          "counters": {
+            "ownerGuard": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "sql": {
+              "calls": 32,
+              "failures": 0,
+              "milliseconds": 49
+            },
+            "transaction": {
+              "calls": 16,
+              "failures": 0,
+              "milliseconds": 115
+            },
+            "hash": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "databaseOpen": {
+              "calls": 4,
+              "failures": 0,
+              "milliseconds": 380
+            }
+          }
+        },
+        {
+          "name": "sync-flights",
+          "calls": 1,
+          "failures": 0,
+          "milliseconds": 9987,
+          "maximum": 9987
+        },
+        {
+          "name": "import-derivation",
+          "calls": 2,
+          "failures": 0,
+          "milliseconds": 727,
+          "maximum": 378
+        },
+        {
+          "name": "source-review",
+          "calls": 1,
+          "failures": 0,
+          "milliseconds": 12779,
+          "maximum": 12779,
+          "counters": {
+            "ownerGuard": {
+              "calls": 84,
+              "failures": 0,
+              "milliseconds": 570
+            },
+            "sql": {
+              "calls": 163,
+              "failures": 0,
+              "milliseconds": 984
+            },
+            "transaction": {
+              "calls": 88,
+              "failures": 0,
+              "milliseconds": 8922
+            },
+            "hash": {
+              "calls": 2325,
+              "failures": 0,
+              "milliseconds": 1346
+            },
+            "databaseOpen": {
+              "calls": 3,
+              "failures": 0,
+              "milliseconds": 10
+            }
+          }
+        },
+        {
+          "name": "sync-review",
+          "calls": 1,
+          "failures": 0,
+          "milliseconds": 12825,
+          "maximum": 12825
+        },
+        {
+          "name": "command-prepare",
+          "calls": 1,
+          "failures": 0,
+          "milliseconds": 4625,
+          "maximum": 4625,
+          "counters": {
+            "ownerGuard": {
+              "calls": 66,
+              "failures": 0,
+              "milliseconds": 426
+            },
+            "sql": {
+              "calls": 84,
+              "failures": 0,
+              "milliseconds": 277
+            },
+            "transaction": {
+              "calls": 67,
+              "failures": 0,
+              "milliseconds": 1954
+            },
+            "hash": {
+              "calls": 255,
+              "failures": 0,
+              "milliseconds": 325
+            },
+            "databaseOpen": {
+              "calls": 1,
+              "failures": 0,
+              "milliseconds": 4
+            }
+          }
+        },
+        {
+          "name": "graph-writes",
+          "calls": 1,
+          "failures": 0,
+          "milliseconds": 16,
+          "maximum": 16
+        },
+        {
+          "name": "save-readback",
+          "calls": 1,
+          "failures": 0,
+          "milliseconds": 599,
+          "maximum": 599
+        },
+        {
+          "name": "explicit-save",
+          "calls": 1,
+          "failures": 0,
+          "milliseconds": 16849,
+          "maximum": 16849,
+          "counters": {
+            "ownerGuard": {
+              "calls": 12,
+              "failures": 0,
+              "milliseconds": 93
+            },
+            "sql": {
+              "calls": 48,
+              "failures": 0,
+              "milliseconds": 784
+            },
+            "transaction": {
+              "calls": 14,
+              "failures": 0,
+              "milliseconds": 16679
+            },
+            "hash": {
+              "calls": 4318,
+              "failures": 0,
+              "milliseconds": 2377
+            },
+            "databaseOpen": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            }
+          }
+        },
+        {
+          "name": "command-resolve",
+          "calls": 1,
+          "failures": 0,
+          "milliseconds": 4854,
+          "maximum": 4854,
+          "counters": {
+            "ownerGuard": {
+              "calls": 60,
+              "failures": 0,
+              "milliseconds": 478
+            },
+            "sql": {
+              "calls": 76,
+              "failures": 0,
+              "milliseconds": 360
+            },
+            "transaction": {
+              "calls": 61,
+              "failures": 0,
+              "milliseconds": 2012
+            },
+            "hash": {
+              "calls": 264,
+              "failures": 0,
+              "milliseconds": 364
+            },
+            "databaseOpen": {
+              "calls": 1,
+              "failures": 0,
+              "milliseconds": 5
+            }
+          }
+        },
+        {
+          "name": "return-readback",
+          "calls": 1,
+          "failures": 0,
+          "milliseconds": 661,
+          "maximum": 661,
+          "counters": {
+            "ownerGuard": {
+              "calls": 4,
+              "failures": 0,
+              "milliseconds": 28
+            },
+            "sql": {
+              "calls": 15,
+              "failures": 0,
+              "milliseconds": 259
+            },
+            "transaction": {
+              "calls": 5,
+              "failures": 0,
+              "milliseconds": 429
+            },
+            "hash": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "databaseOpen": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            }
+          }
+        },
+        {
+          "name": "sync-save",
+          "calls": 1,
+          "failures": 0,
+          "milliseconds": 39604,
+          "maximum": 39604
+        },
+        {
+          "name": "medical",
+          "calls": 2,
+          "failures": 0,
+          "milliseconds": 3936,
+          "maximum": 1970,
+          "counters": {
+            "ownerGuard": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "sql": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "transaction": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "hash": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "databaseOpen": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            }
+          }
+        },
+        {
+          "name": "sync-medical",
+          "calls": 1,
+          "failures": 0,
+          "milliseconds": 1973,
+          "maximum": 1973
+        },
+        {
+          "name": "duties",
+          "calls": 2,
+          "failures": 0,
+          "milliseconds": 6908,
+          "maximum": 3456,
+          "counters": {
+            "ownerGuard": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "sql": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "transaction": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "hash": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "databaseOpen": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            }
+          }
+        },
+        {
+          "name": "sync-duties",
+          "calls": 1,
+          "failures": 0,
+          "milliseconds": 3467,
+          "maximum": 3467
+        },
+        {
+          "name": "events",
+          "calls": 1,
+          "failures": 0,
+          "milliseconds": 2211,
+          "maximum": 2211
+        },
+        {
+          "name": "sync-events",
+          "calls": 1,
+          "failures": 0,
+          "milliseconds": 2221,
+          "maximum": 2221
+        },
+        {
+          "name": "document-notices",
+          "calls": 1,
+          "failures": 0,
+          "milliseconds": 1940,
+          "maximum": 1940
+        },
+        {
+          "name": "sync-documents",
+          "calls": 1,
+          "failures": 0,
+          "milliseconds": 1950,
+          "maximum": 1950
+        },
+        {
+          "name": "work-summary",
+          "calls": 1,
+          "failures": 0,
+          "milliseconds": 1878,
+          "maximum": 1878
+        },
+        {
+          "name": "sync-work-summary",
+          "calls": 1,
+          "failures": 0,
+          "milliseconds": 1888,
+          "maximum": 1888
+        },
+        {
+          "name": "work-hours",
+          "calls": 1,
+          "failures": 0,
+          "milliseconds": 1729,
+          "maximum": 1729
+        },
+        {
+          "name": "sync-work-hours",
+          "calls": 1,
+          "failures": 0,
+          "milliseconds": 1740,
+          "maximum": 1740
+        },
+        {
+          "name": "tasks",
+          "calls": 1,
+          "failures": 0,
+          "milliseconds": 2470,
+          "maximum": 2470
+        },
+        {
+          "name": "sync-tasks",
+          "calls": 1,
+          "failures": 0,
+          "milliseconds": 2482,
+          "maximum": 2482
+        }
+      ],
+      "activeStages": [],
+      "observedState": {
+        "restore": "ready",
+        "library": "ready",
+        "save": "ready",
+        "view": "ready",
+        "provider": "account-verified"
+      },
+      "droppedCheckpoints": 100
+    },
+    {
+      "action": "read-flights",
+      "outcome": "running",
+      "code": "none",
+      "milliseconds": 11304,
+      "stages": [
+        {
+          "name": "local-trigger-resume",
+          "calls": 1,
+          "failures": 0,
+          "milliseconds": 0,
+          "maximum": 0
+        },
+        {
+          "name": "local-admission-wait",
+          "calls": 1,
+          "failures": 0,
+          "milliseconds": 2,
+          "maximum": 2
+        },
+        {
+          "name": "local-restore-gate",
+          "calls": 1,
+          "failures": 0,
+          "milliseconds": 0,
+          "maximum": 0
+        },
+        {
+          "name": "owner-registry-open",
+          "calls": 1,
+          "failures": 0,
+          "milliseconds": 297,
+          "maximum": 297
+        },
+        {
+          "name": "owner-selection",
+          "calls": 1,
+          "failures": 0,
+          "milliseconds": 23,
+          "maximum": 23
+        },
+        {
+          "name": "local-session-open",
+          "calls": 1,
+          "failures": 0,
+          "milliseconds": 324,
+          "maximum": 324
+        },
+        {
+          "name": "local-owner-check",
+          "calls": 1,
+          "failures": 0,
+          "milliseconds": 10,
+          "maximum": 10
+        },
+        {
+          "name": "session-verification",
+          "calls": 1,
+          "failures": 0,
+          "milliseconds": 567,
+          "maximum": 567,
+          "counters": {
+            "ownerGuard": {
+              "calls": 26,
+              "failures": 0,
+              "milliseconds": 294
+            },
+            "sql": {
+              "calls": 77,
+              "failures": 0,
+              "milliseconds": 251
+            },
+            "transaction": {
+              "calls": 60,
+              "failures": 0,
+              "milliseconds": 946
+            },
+            "hash": {
+              "calls": 0,
+              "failures": 0,
+              "milliseconds": 0
+            },
+            "databaseOpen": {
+              "calls": 1,
+              "failures": 0,
+              "milliseconds": 524
+            }
+          }
+        },
+        {
+          "name": "local-journal-open",
+          "calls": 1,
+          "failures": 0,
+          "milliseconds": 2020,
+          "maximum": 2020
+        },
+        {
+          "name": "local-journal-read",
+          "calls": 1,
+          "failures": 0,
+          "milliseconds": 1565,
+          "maximum": 1565
+        },
+        {
+          "name": "local-journal-close",
+          "calls": 1,
+          "failures": 0,
+          "milliseconds": 9,
+          "maximum": 9
+        },
+        {
+          "name": "local-pending-command",
+          "calls": 1,
+          "failures": 0,
+          "milliseconds": 3597,
+          "maximum": 3597
+        },
+        {
+          "name": "graph-read",
+          "calls": 1,
+          "failures": 0,
+          "milliseconds": 291,
+          "maximum": 291
+        }
+      ],
+      "activeStages": [
+        "local-read",
+        "local-stored-view",
+        "repository-open",
+        "graph-validation"
+      ],
+      "observedState": {},
+      "droppedCheckpoints": 0
+    }
+  ],
+  "failure_count": 0,
+  "limits": [
+    "Inclusive stages and counters overlap; not additive or exclusive SQL cost.",
+    "100 Sync checkpoints dropped; no complete exclusive phase reconstruction.",
+    "Post-Sync refresh still running at export; no final presented-frame measurement.",
+    "Phone detail functionality confirmed separately by user, not measured in this report."
+  ]
+}

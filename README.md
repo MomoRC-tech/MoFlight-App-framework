@@ -13,13 +13,13 @@
 
 MoFlight is a mobile app in development for glider pilots, students and instructors. It brings saved flight history, season comparisons and supported club information together, with offline local data. Paper-logbook assistance is a later journey; Android is the current focus and iOS runtime acceptance remains deferred.
 
-**Shared local reads:** the phone report exposed a temporary-session identity mismatch in detail navigation. The corrected APK passes real-registry host and synthetic Android restart checks; phone confirmation remains open.
+**Shared local reads:** the phone report exposed a temporary-session identity mismatch in detail navigation. The corrected APK passes real-registry host and synthetic Android restart checks; Manuel confirms detail opening works; a subsequent phone report records successful Sync.
 
 ## Current delivery
 
 **Settings refinement (#94):** grouped navigation, a native contextual-help switch and clearer child-page header preserve Start and the Cockpit palette. Included in this APK; [scoped verification](docs/verification/2026-10-26-material-settings.md).
 
-Application source 78748e15ec78646857d42d8ff3c8e9f7fe9d6227 fixes flight-detail session identity and includes prior Material child pages, Settings, Sync and saved-Start changes. Extract the linked ZIP and install app-release.apk over the existing app; no data reset is required. Development-signed standalone lab build. Full host checks, both bundles and enhanced synthetic Android offline seed/reopen pass; physical-phone retest, live-provider/restore and iOS acceptance remain open. Later flight-filter UI changes are outside this APK. Keep the app visible during Sync. AI requests remain disabled in the ordinary app.
+Application source 78748e15ec78646857d42d8ff3c8e9f7fe9d6227 fixes flight-detail session identity and includes prior Material child pages, Settings, Sync and saved-Start changes. Extract the linked ZIP and install app-release.apk over the existing app; no data reset is required. Development-signed standalone lab build. Full host checks, both bundles and enhanced synthetic Android offline seed/reopen pass; phone detail opening is confirmed, while complete post-Sync refresh timing, broader live-provider/restore and iOS acceptance remain open. Later flight-filter UI changes are outside this APK. Keep the app visible during Sync. AI requests remain disabled in the ordinary app.
 
 **Startup investigation concluded for now:** a synthetic offline-restart trial of the earlier `bf60089` APK hit a released SQLite handle and showed unreadable flights. Explicit local retry recovered the saved data in that trial. [#89](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/89) is closed at Manuel’s direction after bounded follow-up runs did not reproduce it; revisit only on recurrence or concrete new evidence. No root-cause fix is claimed; [the reliability report](docs/verification/2026-10-25-reliability-continuation.md) separates successful local/export checks from this failed startup acceptance.
 
