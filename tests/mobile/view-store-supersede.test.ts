@@ -18,3 +18,11 @@ test('fresh-fetch view supersession preserves private evidence and accepts the n
     const fresh={...view,period:'Das laufende Jahr'};await rememberView(db,fresh);assert.deepEqual(await pendingView(db),fresh);
   }finally{await db.close();}
 });
+
+test('fresh sync cannot archive and discard a known global page-size recovery',async()=>{
+  const db=nodeDriver(':memory:');try{
+    await db.exec(VIEW_SCHEMA);const pending={...view,rowsPerPage:100};await rememberView(db,pending);
+    await assert.rejects(db.transaction(tx=>supersedeView(tx,pending)),/page size/);
+    assert.deepEqual(await pendingView(db),pending);
+  }finally{await db.close();}
+});

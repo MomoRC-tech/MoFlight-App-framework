@@ -27,6 +27,9 @@ export async function supersedeView(db: Connection, expected: ViewPreferences | 
   const current=await pendingView(db);
   if(JSON.stringify(current)!==JSON.stringify(expected))throw new Error('Provider view changed before fresh attempt.');
   if(!current)return;
+  // Unlike legacy list preferences, a changed global page size must be restored
+  // before a fresh attempt can replace its recovery evidence.
+  if(current.rowsPerPage!==undefined)throw new Error('Restore the original provider page size before a fresh attempt.');
   await db.exec('CREATE TABLE IF NOT EXISTS provider_view_superseded_v1(payload TEXT PRIMARY KEY,reason TEXT NOT NULL CHECK(reason=\'fresh-fetch\'));');
   const payload=JSON.stringify(current);
   await db.run('INSERT OR IGNORE INTO provider_view_superseded_v1(payload,reason) VALUES (?,?)',payload,'fresh-fetch');

@@ -3,6 +3,7 @@ import { bridgeSource, flightUrl, REQUIRED_HEADERS, type ProbeRow, type ProbeSna
 // Temporary active settings are never saved as a named export configuration.
 export const ACTIVE_EXPORT_VIEW = 'Konfiguration laden';
 export const PARTICIPATION = 'Pilot oder Fluglehrer';
+export const EXPORT_ROWS_PER_PAGE = 500;
 export const EXPORT_PHASES = ['reset', 'columns', 'clear', 'participation', 'period', 'read'] as const;
 export type ExportPhase = typeof EXPORT_PHASES[number];
 export interface ExportRequest { from: string; to: string }
@@ -72,7 +73,7 @@ export function acceptExportMessage(run: ExportRun, data: string, sender: string
   const headers = m.headers as string[];
   if (REQUIRED_HEADERS.some(h => !headers.includes(h)) || new Set(headers.filter(Boolean)).size !== headers.filter(Boolean).length) throw new Error('Unsupported export columns.');
   if (!Array.isArray(m.columnIds) || m.columnIds.length !== headers.length || !m.columnIds.every(x => typeof x === 'string' && /^\d{1,4}$/.test(x)) || new Set(m.columnIds).size !== m.columnIds.length) throw new Error('Ambiguous export column configuration.');
-  if (!Array.isArray(m.rows) || m.rows.length > 1000 || ![m.first, m.last, m.total].every(n => typeof n === 'number' && Number.isSafeInteger(n) && n >= 0 && n <= 20_000)) throw new Error('Unsupported export page range.');
+  if (m.rowsPerPage !== EXPORT_ROWS_PER_PAGE || !Array.isArray(m.rows) || m.rows.length > EXPORT_ROWS_PER_PAGE || ![m.first, m.last, m.total].every(n => typeof n === 'number' && Number.isSafeInteger(n) && n >= 0 && n <= 20_000)) throw new Error('Unsupported export page range.');
   const first = m.first as number, last = m.last as number, total = m.total as number;
   const previous = run.pages.at(-1);
   if (total === 0 ? first !== 0 || last !== 0 || m.rows.length !== 0 || !!previous : first !== (previous ? previous.last + 1 : 1) || last < first || last > total || last - first + 1 !== m.rows.length) throw new Error('Incomplete or repeated export page.');
@@ -100,7 +101,7 @@ export function acceptExportMessage(run: ExportRun, data: string, sender: string
 
 // Standalone browser code: use the provider's observed DOM controls/submit handlers,
 // never its private runtime objects, cookies, passwords or signed endpoint templates.
-const driver = String.raw`function(token, phase, request, expectedAccount) {
+const driver = String.raw`function(token, phase, request, expectedAccount, rowsPerPage) {
   if (window.top !== window || location.protocol !== 'https:' || !['vereinsflieger.de','www.vereinsflieger.de'].includes(location.hostname) || location.pathname !== '/member/profile/flightlog.php') return;
   const bridge = window.ReactNativeWebView; if (!bridge) return;
   const clean = e => (e?.textContent || '').replace(/\s+/g,' ').trim();
@@ -146,11 +147,16 @@ const driver = String.raw`function(token, phase, request, expectedAccount) {
     if (!lists.visible.length || lists.visible.length + lists.available.length > 128) throw new Error();
     if (phase === 'columns') {
       const add = lists.available.filter(e => !presentation(e)); const remove = lists.visible.filter(presentation);
-      if (!add.length && !remove.length) { next(); return; }
+      const size=q('select[name="frm_rowsperpage"]'), form=q('#lst_configure_visible')?.form;
+      if(!size||size.disabled)throw new Error();
+      const option=Array.from(size.options).find(o=>o.value===String(rowsPerPage)&&!o.disabled&&!o.hidden);
+      if(!option)throw new Error();
+      if (!add.length && !remove.length && size.value===String(rowsPerPage)) { next(); return; }
+      safeForm(form);
       click(q('a[title="Liste konfigurieren"]')); click(q('#tableconfigtab_li_1'));
       for (const e of remove) { click(e); click(q('#btn_moveleft')); }
       for (const e of add) { click(e); click(q('#btn_moveright')); }
-      const form = q('#lst_configure_visible')?.form; safeForm(form);
+      size.selectedIndex=Array.from(size.options).indexOf(option);
       click(form.querySelector('button[name="btnsubmit"][value="save"]')); return;
     }
     if (phase === 'clear') {
@@ -176,6 +182,8 @@ const driver = String.raw`function(token, phase, request, expectedAccount) {
       range.dispatchEvent(new Event('change',{bubbles:true})); click(form.querySelector('input[type="submit"]')); return;
     }
     if (phase !== 'read' || clean(select.selectedOptions[0]) !== preset) throw new Error();
+    const size=q('select[name="frm_rowsperpage"]');
+    if(!size||size.disabled||size.value!==String(rowsPerPage)||!Array.from(size.options).some(o=>o.value===String(rowsPerPage)&&!o.disabled&&!o.hidden))throw new Error();
     const table = q('#tablelist_20'), head = Array.from(table.rows).find(r => r.parentElement.tagName === 'THEAD' && Array.from(r.cells).some(c => clean(c) === 'Datum'));
     if (!head) throw new Error();
     const headers = Array.from(head.cells).map(clean);
@@ -232,9 +240,9 @@ const driver = String.raw`function(token, phase, request, expectedAccount) {
     const total = match ? Number(match[3]) : single ? Number(single[1]) : 0;
     const first = match ? Number(match[1]) : total ? 1 : 0, last = match ? Number(match[2]) : total;
     const configured = columnLists();
-    send({status:'page',headers,rows,first,last,total,period:clean(q('#globalfilter')),participation:clean(q('#globalfilter2')),filtersClear:filtersClear(),allColumns:configured.available.every(presentation) && !configured.visible.some(presentation) && configured.visible.length === headers.length && configured.visible.every((e,i) => (clean(e) === '[leer]' ? '' : clean(e).replace(/\s*\(Bezahlt\)/,'(Bezahlt)')) === headers[i].replace(/\s*\(Bezahlt\)/,'(Bezahlt)')),columnIds:configured.visible.map(e=>e.getAttribute('value')),nextUrl:last<total && nextLink ? new URL(nextLink.getAttribute('href'),location.href).href:null});
+    send({status:'page',headers,rows,first,last,total,rowsPerPage:Number(size.value),period:clean(q('#globalfilter')),participation:clean(q('#globalfilter2')),filtersClear:filtersClear(),allColumns:configured.available.every(presentation) && !configured.visible.some(presentation) && configured.visible.length === headers.length && configured.visible.every((e,i) => (clean(e) === '[leer]' ? '' : clean(e).replace(/\s*\(Bezahlt\)/,'(Bezahlt)')) === headers[i].replace(/\s*\(Bezahlt\)/,'(Bezahlt)')),columnIds:configured.visible.map(e=>e.getAttribute('value')),nextUrl:last<total && nextLink ? new URL(nextLink.getAttribute('href'),location.href).href:null});
   } catch { fail(); }
 }`;
 export function exportScript(token: string, run: ExportRun): string {
-  return `(${driver})(${JSON.stringify(token)},${JSON.stringify(run.phase)},${JSON.stringify(run.request)},${JSON.stringify(run.accountLabel)});true;`;
+  return `(${driver})(${JSON.stringify(token)},${JSON.stringify(run.phase)},${JSON.stringify(run.request)},${JSON.stringify(run.accountLabel)},${EXPORT_ROWS_PER_PAGE});true;`;
 }

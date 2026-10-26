@@ -30,8 +30,9 @@ const { FLIGHT_URL } = probe;
 const original: ViewPreferences = {
   version: 2, accountLabel: 'Synthetic account', preset: 'Synthetic original', columns: ['1'],
   filters: [{ name: 'col1', type: 'text', value: '', checked: false }],
-  sort: [], role: 'Pilot', period: 'Das letzte Jahr', reset: false,
+  sort: [], role: 'Pilot', period: 'Das letzte Jahr', reset: false, rowsPerPage: 100,
 };
+const legacyOriginal:ViewPreferences={...original};delete legacyOriginal.rowsPerPage;
 const titles = ['Open bounded capture and resume', 'Open dated-window capture'] as const;
 interface Element { type: unknown; props: Record<string, unknown>; children: unknown[] }
 type Effect = { dependencies: unknown[] | undefined; cleanup?: () => void };
@@ -294,7 +295,7 @@ function fixture(options: { deferIdentity?: boolean; failIdentity?: boolean; pan
     const web = find(render(), element => element.type === 'WebView'); assert.ok(web);
     const command = currentCommand();
     (web.props.onMessage as (event: unknown) => void)({ nativeEvent: { url: FLIGHT_URL,
-      data: JSON.stringify({ ...command, url: FLIGHT_URL, accountLabel: original.accountLabel, ...payload }) } });
+      data: JSON.stringify({ ...command, url: FLIGHT_URL, accountLabel: original.accountLabel, rowsPerPage:500, ...payload }) } });
     return flush();
   }
   async function contextMessage(observed: unknown, sender = context.PROFILE_URL, nonce?: string, documentUrl = context.PROFILE_URL, kind = 'vf-context-v1') {
@@ -387,8 +388,8 @@ test('expired and malformed protected profiles never establish historical AI evi
 });
 
 test('explicit fresh sync retains prior scoped view evidence without replay and automatically clears the gate after matching proof',async()=>{
-  const f=fixture({product:true,persistedScope:{version:1,owner:'synthetic-pilot',connectionId:'prior',context:observedContext},scopedView:original});
-  f.render();await f.settle(original);await f.flush();
+  const f=fixture({product:true,persistedScope:{version:1,owner:'synthetic-pilot',connectionId:'prior',context:observedContext},scopedView:legacyOriginal});
+  f.render();await f.settle(legacyOriginal);await f.flush();
   assert.equal(f.controller().recovery,true);
   assert.equal(f.controller().beginFreshFlightConnection(),true);
   await f.loadPage(context.PROFILE_URL);await f.contextMessage(observedContext);await f.flush();
@@ -400,11 +401,23 @@ test('explicit fresh sync retains prior scoped view evidence without replay and 
 });
 
 test('fresh sync never supersedes provider-view evidence for a different verified account',async()=>{
-  const f=fixture({product:true,persistedScope:{version:1,owner:'synthetic-pilot',connectionId:'prior',context:observedContext},scopedView:original});
-  f.render();await f.settle(original);await f.flush();f.controller().beginFreshFlightConnection();
+  const f=fixture({product:true,persistedScope:{version:1,owner:'synthetic-pilot',connectionId:'prior',context:observedContext},scopedView:legacyOriginal});
+  f.render();await f.settle(legacyOriginal);await f.flush();f.controller().beginFreshFlightConnection();
   await f.loadPage(context.PROFILE_URL);await f.contextMessage({...observedContext,accountNumber:'456'});await f.flush();
-  assert.equal(f.controller().connection.phase,'mismatch');assert.deepEqual(f.pending(),original);
+  assert.equal(f.controller().connection.phase,'mismatch');assert.deepEqual(f.pending(),legacyOriginal);
   assert.ok(!f.providerEvents.includes('provider-previous-view-retained'));f.unmount();
+});
+
+test('matching fresh sync retains known page-size recovery and exposes restoration before another export',async()=>{
+  const f=fixture({product:true,persistedScope:{version:1,owner:'synthetic-pilot',connectionId:'prior',context:observedContext},scopedView:original});
+  f.render();await f.settle(null);await f.flush();assert.equal(f.controller().beginFreshFlightConnection(),true);
+  await f.loadPage(context.PROFILE_URL);await f.contextMessage(observedContext);await f.flush();
+  assert.equal(f.controller().recovery,true);assert.equal(f.controller().result,'failed');assert.deepEqual(f.pending(),original);
+  assert.ok(f.controller().status.includes('page size needs restoration'));assert.ok(!f.providerEvents.includes('provider-previous-view-retained'));
+  assert.equal(f.controller().connection.confirmed,true);
+  f.controller().recoverView();await f.loadFlight();assert.equal(f.currentCommand().phase,'restore');
+  await restoredReadback(f);await f.message({kind:'vf-view-v2',status:'next',view:{...original,preset:view.VIEW_BACKUP,rowsPerPage:500}});
+  assert.deepEqual(f.pending(),original);assert.equal(f.controller().recovery,true);f.unmount();
 });
 
 test('retained matching proof cannot admit retrieval until fresh-attempt view preparation completes',async()=>{
@@ -438,12 +451,12 @@ test('a cancelled preparation cannot fail a newer check when its local archive c
 });
 
 test('failed local fresh-attempt preparation preserves its view evidence and blocks capture after matching proof',async()=>{
-  const f=fixture({product:true,failViewSupersession:true,scopedView:original,persistedScope:{version:1,owner:'synthetic-pilot',connectionId:'prior',context:observedContext}});
-  f.render();await f.settle(original);await f.flush();f.controller().beginFreshFlightConnection();
+  const f=fixture({product:true,failViewSupersession:true,scopedView:legacyOriginal,persistedScope:{version:1,owner:'synthetic-pilot',connectionId:'prior',context:observedContext}});
+  f.render();await f.settle(legacyOriginal);await f.flush();f.controller().beginFreshFlightConnection();
   try{
     await f.loadPage(context.PROFILE_URL);await f.contextMessage(observedContext);
     assert.equal(f.controller().connection.phase,'error');assert.equal(f.controller().connection.confirmed,false);
-    assert.deepEqual(f.pending(),original);assert.ok(!f.providerEvents.includes('provider-previous-view-retained'));
+    assert.deepEqual(f.pending(),legacyOriginal);assert.ok(!f.providerEvents.includes('provider-previous-view-retained'));
     assert.ok(f.diagnosticPhases.some(p=>p.name==='provider-view-supersede'&&p.result===false));
     assert.equal(f.controller().busy,false);assert.ok(!f.writes.includes('capture-saved'));
   }finally{f.unmount();}
@@ -2029,6 +2042,7 @@ async function executeViewDriver(f: ReturnType<typeof fixture>, current: ViewPre
       if (selector === 'form[name="frm_tablelist_quickconfig"]') return quick;
       if (selector === '#divpageheadermenu') return { children: [{}, { textContent: current.accountLabel }] };
       if (selector === '#tablelist_20') return {};
+      if (selector === 'select[name="frm_rowsperpage"]') return {value:String(current.rowsPerPage),options:[{value:String(current.rowsPerPage)}]};
       if (selector === '#frmfilter') return { elements: current.filters };
       if (selector === '#globalfilter') return { textContent: current.period };
       if (selector === '#globalfilter2') return { textContent: current.role };

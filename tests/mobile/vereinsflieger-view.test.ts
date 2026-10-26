@@ -10,7 +10,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { nodeDriver } from './sqlite-driver.ts';
 import { VIEW_SCHEMA } from '../../apps/platform-lab/src/vereinsflieger/view-store.ts';
-const original: ViewPreferences = {version:2,accountLabel:'Synthetic account',preset:'Old preset',columns:['1','2','3'],filters:[{name:'col3',type:'text',value:'ASK',checked:false},{name:'col11_0',type:'checkbox',value:'1',checked:false}],sort:[{column:'3',icon:'icon-sort-name-down'}],role:'Pilot oder Fluglehrer',period:'Das letzte Jahr',reset:false};
+const original: ViewPreferences = {version:2,accountLabel:'Synthetic account',preset:'Old preset',columns:['1','2','3'],filters:[{name:'col3',type:'text',value:'ASK',checked:false},{name:'col11_0',type:'checkbox',value:'1',checked:false}],sort:[{column:'3',icon:'icon-sort-name-down'}],role:'Pilot oder Fluglehrer',period:'Das letzte Jahr',reset:false,rowsPerPage:100};
 type MenuLink = {text:string;href?:string;disabled?:boolean};
 function fixture(options: {collision?:boolean; changed?:boolean; foreign?:boolean; initial?:ViewPreferences; resetView?:ViewPreferences; menus?:Record<string,MenuLink[]>} = {}) {
   const actions:string[]=[]; const messages:string[]=[];
@@ -27,7 +27,9 @@ function fixture(options: {collision?:boolean; changed?:boolean; foreign?:boolea
   const quick:any={method:'post',getAttribute:()=>FLIGHT_URL,querySelector:()=>select};
   const input:any={value:'',dispatchEvent(){},form:{method:'post',getAttribute:()=>options.foreign?'https://evil.test':FLIGHT_URL}};
   const filters:any={get elements(){return state.filters;}};
-  const mapping:Record<string,any>={'#divpageheadermenu':{children:[{},{textContent:'VEREINSFLIEGER.DE '+state.accountLabel}]},'form[name="frm_tablelist_quickconfig"]':quick,'#tablelist_20':{},'#frmfilter':filters,'#userlist_name':input,'a[title="Liste konfigurieren"]':{click(){}},'#tableconfigtab_li_2':{click(){}},'#btn_userlist_add':{click(){actions.push('save');opts.push({text:input.value,textContent:input.value,value:input.value,disabled:false});}}};
+  const size:any={get value(){return String(state.rowsPerPage??100);},selectedIndex:0,options:[5,6,7,8,9,10,20,30,40,50,100,200,500,1000].map(value=>({value:String(value)}))};
+  const sizeForm:any={method:'post',getAttribute:()=>options.foreign?'https://evil.test':FLIGHT_URL,querySelector:()=>({click(){actions.push('page-size');state.rowsPerPage=Number(size.options[size.selectedIndex].value);}})};
+  const mapping:Record<string,any>={'select[name="frm_rowsperpage"]':size,'#lst_configure_visible':{form:sizeForm},'#tableconfigtab_li_1':{click(){}},'#divpageheadermenu':{children:[{},{textContent:'VEREINSFLIEGER.DE '+state.accountLabel}]},'form[name="frm_tablelist_quickconfig"]':quick,'#tablelist_20':{},'#frmfilter':filters,'#userlist_name':input,'a[title="Liste konfigurieren"]':{click(){}},'#tableconfigtab_li_2':{click(){}},'#btn_userlist_add':{click(){actions.push('save');opts.push({text:input.value,textContent:input.value,value:input.value,disabled:false});}}};
   const menus:Record<string,MenuLink[]>={
     '#menu_globalfilter2 a':[{text:'Pilot',href:FLIGHT_URL+'?_params=synthetic-role'}],
     '#menu_globalfilter a':[{text:'Das letzte Jahr',href:FLIGHT_URL+'?_params=synthetic-period'}],...options.menus,
@@ -150,4 +152,47 @@ test('actual SQLite recovery reopens after interruption; stale cleanup retains e
  await assert.rejects(forgetView(db,{...original,period:'different'}));assert.deepEqual(await pendingView(db),original);
  await forgetView(db,original);await db.close();db=nodeDriver(path);assert.equal(await pendingView(db),null);assert.equal((await db.first<{account_label:null}>('SELECT account_label FROM provider_view_backup_owner WHERE id=1'))!.account_label,null);
  } finally {await db.close();await rm(dir,{recursive:true,force:true});}
+});
+
+test('page-size recovery restores the journaled global value before final verification',()=>{
+  const f=fixture();f.state.rowsPerPage=500;
+  assert.equal(f.execute('verify').error,'view-contract-changed');
+  f.execute('restore');assert.deepEqual(f.actions,['page-size']);assert.equal(f.state.rowsPerPage,100);
+  assert.equal(f.execute('restore').status,'next');
+  const readback=f.execute('verify');assert.equal(decodeView(JSON.stringify(readback),LOGIN_URL,FLIGHT_URL,'current','verify',original),null);
+  assert.throws(()=>decodeView(JSON.stringify({...readback,view:{...readback.view,rowsPerPage:500}}),LOGIN_URL,FLIGHT_URL,'current','verify',original));
+});
+
+test('restoration preserves the actual original page size rather than assuming a default',()=>{
+  for(const rowsPerPage of [5,200,500,1000]){
+    const target={...original,rowsPerPage}, f=fixture({initial:target});f.state.rowsPerPage=500;
+    f.execute('restore',target);assert.equal(f.state.rowsPerPage,rowsPerPage);
+    assert.deepEqual(f.actions,rowsPerPage===500?[]:['page-size']);assert.equal(f.execute('verify',target).status,'next');
+  }
+});
+
+test('page-size capture fails closed; unsafe, unavailable and foreign-account restoration never submits',()=>{
+  const selector='select[name="frm_rowsperpage"]';
+  for(const mutation of ['missing','unknown','disabled'] as const){
+    const f=fixture();if(mutation==='missing')f.mapping[selector]=null;
+    else if(mutation==='unknown')f.state.rowsPerPage=17;else f.mapping[selector].disabled=true;
+    assert.equal(f.execute('snapshot',null).error,'view-contract-changed');assert.deepEqual(f.actions,[]);
+  }
+  for(const value of [null,17,'100',NaN,Infinity])assert.throws(()=>validateView({...original,rowsPerPage:value}));
+  for(const mode of ['foreign-form','missing-option','foreign-account'] as const){
+    const f=fixture({foreign:mode==='foreign-form'});f.state.rowsPerPage=500;
+    if(mode==='missing-option')f.mapping[selector].options=f.mapping[selector].options.filter((o:{value:string})=>o.value!=='100');
+    const target=mode==='foreign-account'?{...original,accountLabel:'Other'}:original;
+    assert.equal(f.execute('restore',target).error,'view-contract-changed');assert.deepEqual(f.actions,[]);
+  }
+});
+
+test('old journals remain byte-compatible and never guess a missing global preference',()=>{
+  const legacy={...original};delete legacy.rowsPerPage;
+  assert.equal(JSON.stringify(validateView(legacy)),JSON.stringify(legacy));
+  const f=fixture();f.state.rowsPerPage=500;
+  assert.equal(f.execute('restore',legacy).status,'next');assert.deepEqual(f.actions,[]);
+  assert.equal(f.state.rowsPerPage,500);
+  const message={kind:'vf-view-v2',token:'current',phase:'snapshot',url:FLIGHT_URL,view:legacy};
+  assert.throws(()=>decodeView(JSON.stringify(message),LOGIN_URL,FLIGHT_URL,'current','snapshot',null));
 });

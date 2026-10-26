@@ -619,6 +619,13 @@ export function useAccessController(product = false, localOwner?: string, develo
         if(freshFlightAttempt.current){
           const started=epoch.current,bound=requireScope();
           if(!foreground.current||!session.current.state.confirmed)throw new Error('Fresh context unavailable.');
+          if(original.current?.rowsPerPage!==undefined){
+            // Preserve the pre-export global preference across an interrupted
+            // attempt; the existing explicit recovery path verifies restoration.
+            guidedFlightLogin.current=false;freshFlightAttempt.current=false;
+            clearContextRequest();syncConnection();setRecovery(true);setResult('failed');
+            setStatus('Original provider page size needs restoration. Use Restore original view, then retry retrieval.');return;
+          }
           // Archive old scoped evidence locally; do not replay preferences into the provider.
           const finishPreparation=startFlightSpan('provider-view-supersede');
           try{await supersedeScopedView(bound,original.current);finishPreparation(true);}

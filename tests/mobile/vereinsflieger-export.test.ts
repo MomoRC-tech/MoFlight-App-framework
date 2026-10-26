@@ -11,7 +11,7 @@ const headers = ['', 'Datum', 'Lfz.', 'Start', 'Landung', 'Flugzeit', 'Eigene Ko
 const columnIds = headers.map((_,i)=>String(i+1));
 const row = (id: string) => ({sourceFlightId:id,values:headers.map(h=>h==='Datum'?'11.10.2026':h==='Eigene Kosten(Bezahlt)'?'12,34':h==='Duplikat'?'Ja':'')});
 function reading(): ExportRun { const run=beginExport(request);run.phase='read';return run; }
-function payload(overrides: Record<string,unknown> = {}) { return JSON.stringify({kind:'vf-export-v1',token,phase:'read',url:FLIGHT_URL,status:'page',preset:ACTIVE_EXPORT_VIEW,accountLabel:'Synthetic account',period:'ab 01.01.2026 bis 31.12.2026',participation:PARTICIPATION,filtersClear:true,allColumns:true,headers,columnIds,rows:[row('1')],first:1,last:1,total:1,nextUrl:null,...overrides}); }
+function payload(overrides: Record<string,unknown> = {}) { return JSON.stringify({kind:'vf-export-v1',token,phase:'read',url:FLIGHT_URL,status:'page',preset:ACTIVE_EXPORT_VIEW,accountLabel:'Synthetic account',period:'ab 01.01.2026 bis 31.12.2026',participation:PARTICIPATION,filtersClear:true,allColumns:true,headers,columnIds,rows:[row('1')],first:1,last:1,total:1,nextUrl:null,rowsPerPage:500,...overrides}); }
 const accept = (run:ExportRun, data=payload(), sender=LOGIN_URL, url=FLIGHT_URL) => acceptExportMessage(run,data,sender,url,token);
 
 test('explicit dates reject impossible/reversed periods; calendar default uses device year',()=>{
@@ -51,7 +51,7 @@ test('phase acknowledgements advance only matching commands, preserve source con
 });
 
 // Synthetic DOM contracts, never private provider HTML or real flight records.
-function driverFixture(phase: ExportRun['phase'], options: {expectedAccount?:string;missingPreset?:boolean;activeBackup?:boolean;activeExport?:boolean;activeUserExport?:boolean;missingColumn?:boolean;filtered?:boolean;wrongPeriod?:boolean;foreignForm?:boolean;url?:string;iframe?:boolean;empty?:boolean;malformed?:boolean;rowCount?:number;footerText?:string;footerContent?:string;footerInnerText?:string;footerSecondText?:string;footerSecondContent?:string;footerSecondClass?:string;footerSecondColSpan?:number;footerSecondHasChild?:boolean;extraFooterTableRow?:boolean;duplicateFooter?:boolean;nextPage?:boolean;summaryText?:string;wrongFooterContainer?:boolean}={}) {
+function driverFixture(phase: ExportRun['phase'], options: {pageSize?:string;missingPageSize?:boolean;missing500?:boolean;disabled500?:boolean;expectedAccount?:string;missingPreset?:boolean;activeBackup?:boolean;activeExport?:boolean;activeUserExport?:boolean;missingColumn?:boolean;filtered?:boolean;wrongPeriod?:boolean;foreignForm?:boolean;url?:string;iframe?:boolean;empty?:boolean;malformed?:boolean;rowCount?:number;footerText?:string;footerContent?:string;footerInnerText?:string;footerSecondText?:string;footerSecondContent?:string;footerSecondClass?:string;footerSecondColSpan?:number;footerSecondHasChild?:boolean;extraFooterTableRow?:boolean;duplicateFooter?:boolean;nextPage?:boolean;summaryText?:string;wrongFooterContainer?:boolean}={}) {
   const messages:string[]=[];const actions:string[]=[];
   const option={text:'MoFlight App export filter',value:'export-id',textContent:'MoFlight App export filter',disabled:false,hidden:false};
   const userExport={text:'Flugbuch Export',value:'user-export-id',textContent:'Flugbuch Export',disabled:false,hidden:false};
@@ -72,7 +72,9 @@ function driverFixture(phase: ExportRun['phase'], options: {expectedAccount?:str
   const table={id:'tablelist_20',className:'tablelist',parentElement:container,textContent:'',rows:[head,...(options.empty?[...(options.rowCount?flights:[]),summary]:flights),layout]};
   const boxes=[{checked:true},{checked:!options.filtered}];
   const filter={...form,querySelectorAll:(s:string)=>s.includes('checkbox')?boxes:[{value:''}]};
+  const pageSize={value:options.pageSize??'500',selectedIndex:0,options:[{value:'100'},{value:'500',disabled:options.disabled500}].filter(o=>!options.missing500||o.value!=='500')};
   const fields:Record<string,unknown>={
+    'select[name="frm_rowsperpage"]':options.missingPageSize?null:pageSize,
     'form[name="frm_tablelist_quickconfig"]':{...form,querySelector:()=>select},
     '#divpageheadermenu':{children:[{}, {textContent:'VEREINSFLIEGER.DE Synthetic account'}]},
     '#tablelist_20':table,'#frmfilter':filter,
@@ -230,4 +232,30 @@ test('flight progress advances only with validated pages and keeps unavailable t
   assert.deepEqual(exportProgress(run),{done:2,total:2});
   const empty=reading();accept(empty,payload({rows:[],first:0,last:0,total:0}));
   assert.deepEqual(exportProgress(empty),{done:0,total:0});
+});
+
+test('500-row configuration reuses the column submit and skips an already configured page',()=>{
+  const changed=driverFixture('columns',{pageSize:'100'});
+  assert.deepEqual(changed.actions,['open-config','column-tab','submit']);
+  assert.equal((changed.fields['select[name="frm_rowsperpage"]'] as {selectedIndex:number}).selectedIndex,1);
+  assert.deepEqual(driverFixture('columns').actions,[]);
+  assert.equal(JSON.parse(driverFixture('columns').messages[0]!).status,'next');
+  for(const opts of [{missingPageSize:true},{missing500:true},{disabled500:true},{pageSize:'100',foreignForm:true}]){
+    const f=driverFixture('columns',opts);assert.deepEqual(f.actions,[]);assert.ok(f.messages[0]?.includes('unsupported-provider-state'));
+  }
+});
+
+test('every read requires effective 500-row controls and native validation rejects missing or changed size',()=>{
+  for(const opts of [{pageSize:'100'},{missingPageSize:true},{missing500:true},{disabled500:true}]){
+    const f=driverFixture('read',opts);assert.deepEqual(f.actions,[]);assert.throws(()=>accept(reading(),f.messages[0]!));
+  }
+  for(const rowsPerPage of [undefined,null,100,'500',1000])assert.throws(()=>accept(reading(),payload({rowsPerPage})));
+});
+
+test('500 plus one records use contiguous fallback pagination without changing IDs or values',()=>{
+  const run=reading(), rows=Array.from({length:501},(_,i)=>row(String(i+1)));
+  assert.equal(accept(run,payload({rows:rows.slice(0,500),last:500,total:501,nextUrl:FLIGHT_URL+'?page=2'})).nextUrl,FLIGHT_URL+'?page=2');
+  const result=accept(run,payload({rows:rows.slice(500),first:501,last:501,total:501})).complete!;
+  assert.deepEqual(result.rows,rows);assert.equal(result.exportContext!.pageCount,2);
+  assert.throws(()=>accept(reading(),payload({rows,last:501,total:501})));
 });

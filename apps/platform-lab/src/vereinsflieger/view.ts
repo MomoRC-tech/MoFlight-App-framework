@@ -1,5 +1,6 @@
 import { bridgeSource, flightUrl } from './probe';
 export const VIEW_BACKUP = 'MoFlight App user view backup';
+export const ROWS_PER_PAGE_OPTIONS = [5,6,7,8,9,10,20,30,40,50,100,200,500,1000] as const;
 const viewReasons = ['view-controls','view-filter-controls','view-header-columns','view-contract-changed'] as const;
 export class ViewProtectionError extends Error {
   constructor(readonly reason: typeof viewReasons[number]) { super('Provider view protection stopped.'); }
@@ -20,6 +21,8 @@ export interface ViewPreferences {
   version: 2; accountLabel: string; preset: string; columns: string[];
   filters: { name: string; type: 'text' | 'checkbox' | 'select-one'; value: string; checked: boolean }[];
   sort: { column: string; icon: string }[]; role: string; period: string; reset: boolean;
+  // Absent only in journals written before page-size preservation was added.
+  rowsPerPage?: number;
 }
 const roles = ['Pilot', 'Pilot oder Fluglehrer', 'Fluglehrer', 'Begleiter', 'Pilot oder Begleiter'];
 const defaultColumns = ['1','2','3','4','5','6','7','8','9','10','105','11','12','13','14','15'];
@@ -28,6 +31,7 @@ export function isDefaultView(v: Omit<ViewPreferences, 'reset'>): boolean {
 }
 export function validateView(value: unknown): ViewPreferences {
   const v = value as ViewPreferences;
+  if (v?.rowsPerPage !== undefined && !ROWS_PER_PAGE_OPTIONS.some(n => n === v.rowsPerPage)) throw new Error('Unsupported original page size.');
   const text = (x: unknown, max: number): x is string => typeof x === 'string' && x.length <= max;
   if (!v || v.version !== 2 || !text(v.accountLabel, 200) || !v.accountLabel.trim() || !text(v.preset, 100) || !Array.isArray(v.columns) || !v.columns.length || v.columns.length > 128 || !v.columns.every(x => typeof x === 'string' && /^\d{1,4}$/.test(x)) || new Set(v.columns).size !== v.columns.length || !Array.isArray(v.filters) || !v.filters.length || v.filters.length > 500 || !roles.includes(v.role) || !text(v.period, 100) || !v.period || typeof v.reset !== 'boolean' || !Array.isArray(v.sort) || v.sort.length > 128) throw new Error('Unsupported original view.');
   const filters = v.filters.map(f => {
@@ -41,18 +45,24 @@ export function validateView(value: unknown): ViewPreferences {
   });
   if (new Set(sort.map(s => s.column)).size !== sort.length) throw new Error('Ambiguous sorting.');
   const result: ViewPreferences = {version:2,accountLabel:v.accountLabel,preset:v.preset,columns:[...v.columns],filters,sort,role:v.role,period:v.period,reset:v.reset};
+  if (v.rowsPerPage !== undefined) result.rowsPerPage = v.rowsPerPage;
   if (result.reset && !isDefaultView(result)) throw new Error('Unproven default view.');
   return result;
 }
 export function sameView(a: ViewPreferences, b: ViewPreferences): boolean {
-  return a.accountLabel === b.accountLabel && JSON.stringify(a.columns) === JSON.stringify(b.columns) && JSON.stringify(a.filters) === JSON.stringify(b.filters) && JSON.stringify(a.sort) === JSON.stringify(b.sort) && a.period === b.period && a.role === b.role;
+  // a is the expected journal: legacy entries cannot attest a global page size.
+  return a.accountLabel === b.accountLabel && JSON.stringify(a.columns) === JSON.stringify(b.columns) && JSON.stringify(a.filters) === JSON.stringify(b.filters) && JSON.stringify(a.sort) === JSON.stringify(b.sort) && a.period === b.period && a.role === b.role && (a.rowsPerPage === undefined || a.rowsPerPage === b.rowsPerPage);
 }
 export function decodeView(data: string, sender: string, document: string, token: string, phase: ViewPhase, original: ViewPreferences | null): ViewPreferences | null {
   if (!bridgeSource(sender, document) || data.length > 400_000) throw new Error('Rejected view response.');
   const m = JSON.parse(data);
   if (!m || m.kind !== 'vf-view-v2' || m.token !== token || m.phase !== phase || !flightUrl(m.url) || new URL(m.url).origin !== new URL(document).origin) throw new Error('Original view could not be verified.');
   if (m.error) throw new ViewProtectionError(viewReasons.includes(m.reason) ? m.reason : 'view-contract-changed');
-  if (phase === 'snapshot') return validateView(m.view);
+  if (phase === 'snapshot') {
+    const captured = validateView(m.view);
+    if (captured.rowsPerPage === undefined) throw new Error('Original page size was not captured.');
+    return captured;
+  }
   if (!original || m.accountLabel !== original.accountLabel || (m.status !== 'next' && !(phase === 'backup' && m.status === 'saved-request') && !(phase === 'backup-load' && m.status === 'load-request'))) throw new Error('Provider account changed; original view retained for recovery.');
   if (phase === 'verify' || phase === 'backup-verify') {
     const restored = validateView(m.view);
@@ -61,7 +71,7 @@ export function decodeView(data: string, sender: string, document: string, token
   return null;
 }
 // Relative scopes stay provider-managed; unused date-form defaults are not replayed.
-const driver = String.raw`function(token, phase, original, backupName, defaultColumns) {
+const driver = String.raw`function(token, phase, original, backupName, defaultColumns, pageSizes) {
   if(window.top!==window || location.protocol!=='https:' || !['vereinsflieger.de','www.vereinsflieger.de'].includes(location.hostname) || location.pathname!=='/member/profile/flightlog.php') return;
   const q=s=>document.querySelector(s), all=s=>Array.from(document.querySelectorAll(s));
   const clean=e=>(e?.textContent||'').replace(/\s+/g,' ').trim();
@@ -75,6 +85,8 @@ const driver = String.raw`function(token, phase, original, backupName, defaultCo
   const read=()=>{
     reason='view-controls';
     if(!select||!accountLabel||!q('#tablelist_20'))throw new Error();
+    const pageSize=q('select[name="frm_rowsperpage"]');
+    if(!pageSize||pageSize.disabled||!pageSizes.some(n=>String(n)===pageSize.value)||!Array.from(pageSize.options).some(o=>o.value===pageSize.value&&!o.disabled&&!o.hidden))throw new Error();
     const columns=all('#LST_VISIBLE > li').map(e=>e.getAttribute('value'));
     const f=q('#frmfilter');if(!f)throw new Error();
     reason='view-filter-controls';
@@ -82,10 +94,10 @@ const driver = String.raw`function(token, phase, original, backupName, defaultCo
     reason='view-header-columns';
     const headers=all('#tablelist_20 thead th');if(headers.length!==columns.length)throw new Error();
     const sort=headers.flatMap((h,i)=>Array.from(h.querySelectorAll('[class*="icon-sort-"]')).map(e=>({column:columns[i],icon:Array.from(e.classList).find(c=>c.startsWith('icon-sort-'))})));
-    const v={version:2,accountLabel,preset:clean(select.selectedOptions[0]),columns,filters,sort,role:clean(q('#globalfilter2')),period:clean(q('#globalfilter')),reset:false};
+    const v={version:2,accountLabel,preset:clean(select.selectedOptions[0]),columns,filters,sort,role:clean(q('#globalfilter2')),period:clean(q('#globalfilter')),reset:false,rowsPerPage:Number(pageSize.value)};
     v.reset=v.preset==='Konfiguration laden'&&JSON.stringify(columns)===JSON.stringify(defaultColumns)&&v.period==='Das letzte Jahr'&&v.role==='Pilot'&&!sort.length&&filters.length>0&&filters.every(f=>f.type==='checkbox'?f.checked:f.type==='text'?f.value==='':f.value===':F:eq');reason='view-contract-changed';return v;
   };
-  const matches=v=>v.accountLabel===original.accountLabel&&JSON.stringify(v.columns)===JSON.stringify(original.columns)&&JSON.stringify(v.filters)===JSON.stringify(original.filters)&&JSON.stringify(v.sort)===JSON.stringify(original.sort)&&v.role===original.role&&v.period===original.period;
+  const matches=v=>v.accountLabel===original.accountLabel&&JSON.stringify(v.columns)===JSON.stringify(original.columns)&&JSON.stringify(v.filters)===JSON.stringify(original.filters)&&JSON.stringify(v.sort)===JSON.stringify(original.sort)&&v.role===original.role&&v.period===original.period&&(original.rowsPerPage===undefined||v.rowsPerPage===original.rowsPerPage);
   const load=()=>{
     const target=original.reset?options.find(o=>o.value==='-1'):options.find(o=>o.text===backupName&&o.value===backupName);
     if(!target)throw new Error();formSafe(quick);select.selectedIndex=Array.from(select.options).indexOf(target);select.dispatchEvent(new Event('change',{bubbles:true}));
@@ -113,6 +125,14 @@ const driver = String.raw`function(token, phase, original, backupName, defaultCo
       send({status:'saved-request'});click(q('#btn_userlist_add'));return;
     }
     if(phase==='backup-load'||phase==='restore'){
+      if(phase==='restore'&&original.rowsPerPage!==undefined&&current.rowsPerPage!==original.rowsPerPage){
+        const size=q('select[name="frm_rowsperpage"]'), form=q('#lst_configure_visible')?.form;
+        const option=Array.from(size.options).find(o=>o.value===String(original.rowsPerPage)&&!o.disabled&&!o.hidden);
+        if(!pageSizes.includes(original.rowsPerPage)||!option)throw new Error();formSafe(form);
+        click(q('a[title="Liste konfigurieren"]'));click(q('#tableconfigtab_li_1'));
+        size.selectedIndex=Array.from(size.options).indexOf(option);
+        click(form.querySelector('button[name="btnsubmit"][value="save"]'));return;
+      }
       if(phase==='backup-load'&&!original.reset){send({status:'load-request'});load();return;}
       const target=original.reset?'Konfiguration laden':backupName;
       if(matches(current)&&(current.preset===target||(phase==='restore'&&current.preset===original.preset))){next();return;}
@@ -133,5 +153,5 @@ const driver = String.raw`function(token, phase, original, backupName, defaultCo
   }catch{send({error:'view-contract-changed',reason});}
 }`;
 export function viewScript(token: string, phase: ViewPhase, original: ViewPreferences | null): string {
-  return `(${driver})(${JSON.stringify(token)},${JSON.stringify(phase)},${JSON.stringify(original)},${JSON.stringify(VIEW_BACKUP)},${JSON.stringify(defaultColumns)});true;`;
+  return `(${driver})(${JSON.stringify(token)},${JSON.stringify(phase)},${JSON.stringify(original)},${JSON.stringify(VIEW_BACKUP)},${JSON.stringify(defaultColumns)},${JSON.stringify(ROWS_PER_PAGE_OPTIONS)});true;`;
 }
