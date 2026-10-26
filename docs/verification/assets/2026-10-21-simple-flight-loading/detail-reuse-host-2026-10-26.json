@@ -1,0 +1,68 @@
+{
+  "environment": "Node 24.18.0 in-memory SQLite; 101 synthetic flights, two receipts",
+  "limits": "Library work only; two selection snapshots simulated. Excludes native registry/selection guard, crypto bridge, disk, queue and UI. Preparation occurs on list admission, not per tap.",
+  "preparationMs": 3.2631999999999834,
+  "samples": [
+    {
+      "baseline": {
+        "ms": 79.5471,
+        "hashes": 313,
+        "queries": 39
+      },
+      "retained": {
+        "ms": 0.7075999999999567,
+        "hashes": 0,
+        "queries": 0
+      }
+    },
+    {
+      "baseline": {
+        "ms": 74.52949999999998,
+        "hashes": 313,
+        "queries": 39
+      },
+      "retained": {
+        "ms": 0.6196999999999662,
+        "hashes": 0,
+        "queries": 0
+      }
+    },
+    {
+      "baseline": {
+        "ms": 73.31889999999999,
+        "hashes": 313,
+        "queries": 39
+      },
+      "retained": {
+        "ms": 0.6259999999999764,
+        "hashes": 0,
+        "queries": 0
+      }
+    },
+    {
+      "baseline": {
+        "ms": 71.74469999999997,
+        "hashes": 313,
+        "queries": 39
+      },
+      "retained": {
+        "ms": 0.6572999999999638,
+        "hashes": 0,
+        "queries": 0
+      }
+    },
+    {
+      "baseline": {
+        "ms": 70.90179999999998,
+        "hashes": 313,
+        "queries": 39
+      },
+      "retained": {
+        "ms": 0.6254000000000133,
+        "hashes": 0,
+        "queries": 0
+      }
+    }
+  ],
+  "implementationCommit": "1394dfb"
+}
