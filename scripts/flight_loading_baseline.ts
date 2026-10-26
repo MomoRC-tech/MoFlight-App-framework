@@ -14,6 +14,7 @@ import { RealFlightLibrary } from '../apps/platform-lab/src/vereinsflieger/real-
 import { RealFlightService } from '../apps/platform-lab/src/vereinsflieger/real-flight-service.ts';
 import { RealFlightCommandJournal } from '../apps/platform-lab/src/vereinsflieger/real-flight-command-journal.ts';
 import type { RealFlightSourceInput } from '../apps/platform-lab/src/vereinsflieger/real-flight-source.ts';
+import { readOwnFlightView } from '../apps/platform-lab/src/mobile/own-flight-reader.ts';
 
 const [output, countText = '101', runsText = '3', ...extra] = process.argv.slice(2);
 const count = Number(countText), runs = Number(runsText);
@@ -66,12 +67,15 @@ try {
   const service = new RealFlightService(ownerId,storeId,leaseId,ports), operation = diagnosticJournal.begin('read-flights');
   const started = performance.now(), before = flightDiagnostics.snapshot();
   try {
-    assert.equal(canonical((await timeFlightStage('local-read',()=>service.readStored())).flights),baseline);
-    samples.push({mode:'reopened-read',milliseconds:performance.now()-started,counters:flightDiagnostics.difference(before)}); operation.finish('success');
+    const view=await timeFlightStage('local-read',()=>readOwnFlightView({open:async()=>({
+      ownerId,storeId,service,assertCurrent:async()=>{},pendingCommand:async()=>false,close:async()=>{},
+    })},operation));
+    assert.ok(view);assert.equal(canonical(view.flights),baseline);assert.equal(view.pendingCommand,false);
+    samples.push({mode:'reopened-main-data-read',milliseconds:performance.now()-started,counters:flightDiagnostics.difference(before)}); operation.finish('success');
   } finally { service.dispose(); }
   const report = { version:1, source:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),
     dirty:!!execFileSync('git',['status','--porcelain'],{encoding:'utf8'}).trim(), environment:{node:process.version,platform:process.platform,arch:process.arch},
-    scope:'synthetic host real SQLite; same process, new connections; no native driver, provider, sign-in, OS cold-cache or device speed claim', flights:count,
+    scope:'synthetic host real SQLite; same process, new connections; Main read uses real service/storage with stub owner registry, pending-command and optional sources; no React render, native driver, provider, sign-in, OS cold-cache or device speed claim', flights:count,
     assertions:{exactFlightIdsAndFacts:true,noPendingCommands:true,offlineReopen:true}, samples, timing:summarizeDiagnosticTiming(JSON.parse(diagnosticJournal.export())) };
   await writeFile(join(output,'report.json'),JSON.stringify(report,null,2)+'\n',{flag:'wx'});
   for (const sample of samples) console.info(`${sample.mode}: ${Math.round(sample.milliseconds)} ms`);

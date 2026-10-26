@@ -36,19 +36,24 @@ export function useOwnFlights(ports: OwnFlightReadPorts, active: boolean, reload
     const diagnosis = diagnosticJournal.begin('read-flights'), stage = diagnosis.span('local-read');
     if (!quiet) { setPhase('loading'); pendingDetail.current = null; setDetail(null); setDetailBusy(false); setDetailError(null); }
     try {
-      const next = await readOwnFlightView(ports);
-      stage(true); diagnosis.finish(current(id)?'success':'cancelled',current(id)?'none':'stale-selection');
+      const next = await readOwnFlightView(ports, diagnosis);
       if (current(id)) {
-        const prior = processedView.current;
-        const sameScope = prior && next && prior.snapshot.ownerId === next.snapshot.ownerId &&
-          prior.snapshot.storeId === next.snapshot.storeId && prior.snapshot.account?.accountRef === next.snapshot.account?.accountRef;
-        const shared = sameScope ? reuseEqualData(prior, next) : next;
-        if (!sameScope) { pendingDetail.current = null; setDetailBusy(false); }
-        // Details include capture/history evidence beyond the visible facts revision.
-        if (!sameScope || shared?.snapshot !== prior?.snapshot || shared?.flights !== prior?.flights) setDetail(null);
-        processedView.current = shared;
-        setView(shared); setPhase(shared ? 'ready' : 'missing');
+        const finishReuse = diagnosis.span('local-view-reuse');
+        let reused = false;
+        try {
+          const prior = processedView.current;
+          const sameScope = prior && next && prior.snapshot.ownerId === next.snapshot.ownerId &&
+            prior.snapshot.storeId === next.snapshot.storeId && prior.snapshot.account?.accountRef === next.snapshot.account?.accountRef;
+          const shared = sameScope ? reuseEqualData(prior, next) : next;
+          if (!sameScope) { pendingDetail.current = null; setDetailBusy(false); }
+          // Details include capture/history evidence beyond the visible facts revision.
+          if (!sameScope || shared?.snapshot !== prior?.snapshot || shared?.flights !== prior?.flights) setDetail(null);
+          processedView.current = shared;
+          setView(shared); setPhase(shared ? 'ready' : 'missing');
+          reused = true;
+        } finally { finishReuse(reused); }
       }
+      stage(true); diagnosis.finish(current(id)?'success':'cancelled',current(id)?'none':'stale-selection');
     } catch (error) {
       stage(false); diagnosis.finish(current(id)?'failed':'cancelled',current(id)?'operation-failed':'stale-selection');
       if (current(id)) { console.warn('Own-flight local read failed', localReadFailureCode(error)); processedView.current = null; pendingDetail.current = null; setView(null); setDetail(null); setDetailBusy(false); setPhase('failed'); }

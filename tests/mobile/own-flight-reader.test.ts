@@ -5,6 +5,22 @@ import { readOwnFlightView, readOwnFlightDetail, OwnFlightChangedError, serializ
 import { allOwnFlights, ownFlightYears, ownFlightRegistrations, selectOwnFlights } from '../../apps/platform-lab/src/mobile/own-flight-model.ts';
 import type { InformationCapture } from '../../apps/platform-lab/src/vereinsflieger/information.ts';
 
+test('saved-local timing separates read steps and records optional-source failures without changing the result',async()=>{
+  const f=ownFlightFixture(), stages:[string,boolean][]=[];
+  f.session.readMedical=async()=>{throw new Error('Synthetic Medical failure');};
+  f.session.readDuties=async()=>null;
+  f.session.readFeatureInformation=async()=>null;
+  const view=await readOwnFlightView(f.ports,{span:name=>success=>{stages.push([name,success]);}});
+  assert.equal(view?.flights.length,3);
+  assert.equal(view?.medicalReadFailed,true);
+  assert.deepEqual(stages.map(([name])=>name),[
+    'local-session-open','local-owner-check','local-pending-command','local-stored-view','local-owner-check',
+    'local-medical-read','local-owner-check','local-duties-read','local-owner-check','local-information-read',
+    'local-owner-check','local-session-close']);
+  assert.deepEqual(stages.filter(([,success])=>!success),[['local-medical-read',false]]);
+  assert.equal(f.closes(),1);
+});
+
 test('saved Medical is read only for the selected flight account; failures and foreign captures cannot hide saved flights',async()=>{
   const capture:InformationCapture={version:1,id:'medical',owner:'owner',connectionId:'connection',retrievedAt:'2026-10-21T07:00:00.000Z',
     sourceIdentity:'provisional-observed-profile',category:'medical',path:'/member/profile/viewprofile',
