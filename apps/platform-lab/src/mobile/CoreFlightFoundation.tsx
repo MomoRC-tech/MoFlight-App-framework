@@ -39,7 +39,7 @@ import { acknowledgeActivitySync, type ActivitySyncEvidence } from './activity-s
 import { canonical as activityCanonical } from '@moflight/flight-logbook';
 import { getPendingUserBackupRestoreNative, restoreUserBackupFromPickerNative, saveUserBackupToFolder } from '../user-backup-native';
 import { AI_BACKUP_NOTICE } from '../ai/backup-notice';
-import { BackupPageHeader } from './BackupPageHeader';
+import { MaintenancePageHeader } from './MaintenancePageHeader';
 import { BackupRestoreConfirmationDialog } from './BackupRestoreConfirmationDialog';
 import type { UserBackupRestoreOperation } from '../user-backup-restore-journal';
 import { recoveredFlight, remainingSyncSources, type SyncRecoveryRecord } from './sync-recovery';
@@ -187,24 +187,25 @@ export function CoreFlightFoundation({ close, startUpdate = false, intent = star
   useEffect(()=>{
     if(open&&admitted&&requestedUpdate&&!loading&&!lease&&!error&&!setupLease&&!setupStarted.current){setupStarted.current=true;void createFreshOwner();}
   },[open,admitted,requestedUpdate,loading,lease,error,setupLease]);
+  const maintenancePage=intent==='options'&&(destination==='backup'||destination==='settings');
   if(lease&&registry.current)return <OwnerFlightLibrary syncStartedAt={requestClock.current.at} onRequestSync={onRequestSync} destination={destination} providerEntryAllowed={providerEntryAllowed} dialogTop={dialogTop} developmentRecoveryCheckpoints={developmentRecoveryCheckpoints} key={`${lease.ownerId}:${lease.storeId}:${lease.selectionSeq}`} lease={lease} registry={registry.current} close={close} open={open&&admitted} requestId={requestId} intent={intent} onStatus={onStatus} onProgress={onProgress} onControls={onControls} startUpdate={intent==='update'} takeInitialRepository={takeInitialRepository} diagnosis={diagnosis}/>;
-  if(pendingUserRestore)return <SafeAreaView edges={dialogTop===undefined?undefined:[]} style={{flex:1,backgroundColor:colors.background}}>{destination==='backup'&&<BackupPageHeader open={open} requestKey={String(requestId)} busy={loading} syncDisabled={loading||!!pendingUserRestore} onBack={close} onRequestSync={onRequestSync} verifySync={async()=>{if(!alive.current||lock.current||AppState.currentState!=='active')throw new Error('Inactive maintenance.');if(setupLease&&registry.current)await registry.current.assertCurrent(setupLease);}}/>}<ScrollView contentContainerStyle={{padding:destination==='backup'?18:12,gap:10}}><View style={{width:'100%',maxWidth:520,alignSelf:'center',gap:10}}>
-    {destination!=='backup'&&<Section title="Wiederherstellung fortsetzen" icon="book"/>}
+  if(pendingUserRestore)return <SafeAreaView edges={dialogTop===undefined?undefined:[]} style={{flex:1,backgroundColor:colors.background}}>{maintenancePage&&<MaintenancePageHeader title={destination==='backup'?'Datensicherung':'Vereinsflieger-Einstellungen'} open={open} requestKey={String(requestId)} busy={loading} syncDisabled={loading||!!pendingUserRestore} onBack={close} onRequestSync={onRequestSync} verifySync={async()=>{if(!alive.current||lock.current||AppState.currentState!=='active')throw new Error('Inactive maintenance.');if(setupLease&&registry.current)await registry.current.assertCurrent(setupLease);}}/>}<ScrollView contentContainerStyle={{padding:maintenancePage?18:12,gap:10}}><View style={{width:'100%',maxWidth:520,alignSelf:'center',gap:10}}>
+    {!maintenancePage&&<Section title="Wiederherstellung fortsetzen" icon="book"/>}
     <Card><Label>Eine Datensicherung wird noch wiederhergestellt.</Label><Label muted>Wähle dieselbe Sicherungsdatei erneut. Bis alle Teile geprüft und aktiviert sind, bleibt der Zugriff auf die Bibliotheken gesperrt. Vorherige Dateien bleiben erhalten.</Label></Card>
     {error&&<Label>Die Wiederherstellung konnte noch nicht abgeschlossen werden. Bitte mit derselben Datei erneut versuchen.</Label>}
     {loading&&<ActivityIndicator color={colors.cyan}/>}
     <Action disabled={loading} onPress={()=>void resumeUserRestore()}>{destination==='backup'?'Datensicherung fortsetzen':'Sicherungsdatei auswählen und fortsetzen'}</Action>
-    {destination!=='backup'&&<Action secondary disabled={loading} onPress={close}>Zur App zurück</Action>}
+    {!maintenancePage&&<Action secondary disabled={loading} onPress={close}>Zur App zurück</Action>}
   </View></ScrollView></SafeAreaView>;
-  return <SafeAreaView edges={dialogTop===undefined?undefined:[]} style={{flex:1,backgroundColor:colors.background}}>{destination==='backup'&&<BackupPageHeader open={open} requestKey={String(requestId)} busy={loading} syncDisabled={loading||!!pendingUserRestore} onBack={close} onRequestSync={onRequestSync} verifySync={async()=>{if(!alive.current||lock.current||AppState.currentState!=='active')throw new Error('Inactive maintenance.');if(setupLease&&registry.current)await registry.current.assertCurrent(setupLease);}}/>}<ScrollView contentContainerStyle={{padding:destination==='backup'?18:12,gap:10}}>
+  return <SafeAreaView edges={dialogTop===undefined?undefined:[]} style={{flex:1,backgroundColor:colors.background}}>{maintenancePage&&<MaintenancePageHeader title={destination==='backup'?'Datensicherung':'Vereinsflieger-Einstellungen'} open={open} requestKey={String(requestId)} busy={loading} syncDisabled={loading||!!pendingUserRestore} onBack={close} onRequestSync={onRequestSync} verifySync={async()=>{if(!alive.current||lock.current||AppState.currentState!=='active')throw new Error('Inactive maintenance.');if(setupLease&&registry.current)await registry.current.assertCurrent(setupLease);}}/>}<ScrollView contentContainerStyle={{padding:maintenancePage?18:12,gap:10}}>
     <View style={{width:'100%',maxWidth:520,alignSelf:'center',gap:10}}>
-      {destination!=='backup'&&<><Section title={intent==='options'?(destination==='settings'?'Vereinsflieger-Einstellungen':'Quelldaten & Diagnose'):'Vereinsflieger'} icon={intent==='options'?"flight-paper-plane":"chain"}/><Action secondary disabled={loading} onPress={close}>Zur App zurück</Action></>}
+      {!maintenancePage&&<><Section title={intent==='options'?(destination==='settings'?'Vereinsflieger-Einstellungen':'Quelldaten & Diagnose'):'Vereinsflieger'} icon={intent==='options'?"flight-paper-plane":"chain"}/><Action secondary disabled={loading} onPress={close}>Zur App zurück</Action></>}
       <Card><Label>{requestedUpdate ? 'Deine Flüge werden vorbereitet …' : destination==='backup'?'Noch keine eigene lokale Bibliothek für eine Datensicherung ausgewählt.':destination==='settings'?'Noch keine lokale Vereinsflieger-Kontozuordnung ausgewählt.':'Noch keine eigenen Quelldaten gespeichert.'}</Label><Label muted>Über Sync in der Kopfzeile kannst du dein eigenes Konto prüfen und Flüge laden. Vorhandene Dateien bleiben erhalten. Ein Papierflugbuch brauchst du dafür nicht.</Label></Card>
       {loading&&<ActivityIndicator color={colors.cyan}/>}
       {setupLease&&<Card><Label>Eine vorhandene Einrichtung für deine ausgewählte Bibliothek ist noch nicht vollständig.</Label><Label muted>Die ursprüngliche Datei wird geprüft. Nur tatsächlich fehlende Dateien dürfen ergänzt werden; vorhandene unlesbare Dateien bleiben erhalten.</Label></Card>}
       {error&&<Card><Label>Die Einrichtung konnte nicht bestätigt werden. Bestehende Dateien bleiben erhalten.</Label></Card>}
       {setupLease&&<Action disabled={loading} onPress={()=>void resumeSelected()}>Vorhandene Einrichtung fortsetzen</Action>}
-      {destination!=='backup'&&!loading && (setupLease
+      {!maintenancePage&&!loading && (setupLease
         ? <Action secondary disabled={loading} onPress={()=>void createFreshOwner()}>Stattdessen neue lokale Bibliothek anlegen</Action>
         : error ? <Action disabled={loading} onPress={()=>{setRequestedUpdate(true);void createFreshOwner();}}>Erneut versuchen</Action> : !requestedUpdate ? <Label muted>Neue Daten und Anmeldung erreichst du über die Verbindung oben in der Kopfzeile.</Label> : null)}
     </View>
@@ -388,6 +389,7 @@ function OwnerFlightLibrary({syncStartedAt,lease,registry,close,startUpdate,open
   // Legacy connect requests share the complete sync journey; connection proof
   // is never an intermediate user destination.
   const syncEntry=intent==='update'||intent==='connect';
+  const maintenancePage=intent==='options'&&(destination==='backup'||destination==='settings');
   useEffect(()=>{setAdvanced(false);setBackupDetails(false);restoreConfirmation.current=null;setConfirmRestore(false);},[destination,requestId,open]);
   useEffect(()=>{
     if(destination==='settings'&&!c.visible&&!c.disconnecting&&!automatic.current)
@@ -945,11 +947,11 @@ function OwnerFlightLibrary({syncStartedAt,lease,registry,close,startUpdate,open
     </>}
   </Card>:undefined;
   return <SafeAreaView edges={dialogTop===undefined?undefined:[]} style={{flex:1,backgroundColor:colors.background}}>
-    {destination==='backup'&&<BackupPageHeader open={open} requestKey={`${lease.ownerId}:${lease.storeId}:${requestId}`} busy={busy||c.busy||c.clearing||c.saving||c.restoring.current} syncDisabled={busy||c.busy||c.clearing||c.saving||c.restoring.current||restoreReadOnly||!!userRestoreId} onBack={()=>{if(!lock.current&&!c.busy&&!c.clearing&&!c.saving&&!c.restoring.current)close(completed??undefined);}} onRequestSync={onRequestSync} verifySync={async()=>{if(!foreground.current||!panelActive.current||lock.current)throw new Error('Inactive maintenance.');await gate();}}/>}
-    <ScrollView style={{display:!open||providerOpen&&(providerEntryAllowed||c.visible)?'none':'flex'}} accessibilityElementsHidden={providerOpen&&(providerEntryAllowed||c.visible)} importantForAccessibility={providerOpen&&(providerEntryAllowed||c.visible)?'no-hide-descendants':'auto'} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets contentContainerStyle={{padding:destination==='backup'?18:12}}><View style={{width:'100%',maxWidth:520,alignSelf:'center',gap:10}}>
-      {destination!=='backup'&&<Section title={destination==='settings'?'Vereinsflieger-Einstellungen':'Quelldaten & Diagnose'} icon="chain"/>}
+    {maintenancePage&&!(providerOpen&&(providerEntryAllowed||c.visible))&&<MaintenancePageHeader title={destination==='backup'?'Datensicherung':'Vereinsflieger-Einstellungen'} open={open} requestKey={`${lease.ownerId}:${lease.storeId}:${requestId}`} busy={busy||c.busy||c.clearing||c.saving||c.restoring.current} syncDisabled={busy||c.busy||c.clearing||c.saving||c.restoring.current||restoreReadOnly||!!userRestoreId} onBack={()=>{if(!lock.current&&!c.busy&&!c.clearing&&!c.saving&&!c.restoring.current)close(completed??undefined);}} onRequestSync={onRequestSync} verifySync={async()=>{if(!foreground.current||!panelActive.current||lock.current)throw new Error('Inactive maintenance.');await gate();}}/>}
+    <ScrollView style={{display:!open||providerOpen&&(providerEntryAllowed||c.visible)?'none':'flex'}} accessibilityElementsHidden={providerOpen&&(providerEntryAllowed||c.visible)} importantForAccessibility={providerOpen&&(providerEntryAllowed||c.visible)?'no-hide-descendants':'auto'} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets contentContainerStyle={{padding:maintenancePage?18:12}}><View style={{width:'100%',maxWidth:520,alignSelf:'center',gap:10}}>
+      {!maintenancePage&&<Section title={destination==='settings'?'Vereinsflieger-Einstellungen':'Quelldaten & Diagnose'} icon="chain"/>}
       {!syncEntry&&destination==='settings'&&<ConnectionSettings controller={c} busy={busy} onSignOut={()=>{c.startDisconnect();setProviderOpen(true);}}/>}
-      {destination!=='backup'&&<Action secondary disabled={busy||c.busy||c.clearing||c.saving||c.restoring.current} onPress={()=>close(completed??undefined)}>Zur App zurück</Action>}
+      {!maintenancePage&&<Action secondary disabled={busy||c.busy||c.clearing||c.saving||c.restoring.current} onPress={()=>close(completed??undefined)}>Zur App zurück</Action>}
       {destination==='sources'&&<Card><Label>{flights.length} gespeicherte eigene Flüge</Label><Label muted>{freshness.label}</Label>
         <Label muted>Bei Bedarf meldest du dich auf der Originalseite von Vereinsflieger an. Danach werden deine Flüge und Medical-Angaben automatisch auf diesem Gerät gespeichert und sind offline verfügbar.</Label>
         {busy ? <View accessibilityLiveRegion="polite"><Label>{step}</Label></View> : providerEntryAllowed?<Action disabled={restoreReadOnly||c.recovery||recovery.status==='not-committed'||recovery.status==='recovery-required'} onPress={loadFlights}>Daten synchronisieren</Action>:<Label muted>Neue Daten und Anmeldung erreichst du über die Verbindung oben in der Kopfzeile.</Label>}

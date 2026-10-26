@@ -2,6 +2,8 @@ MOFLIGHT — CURRENT UI DESIGN HANDBOOK AND AI HANDOFF
 
 # MoFlight UI design handbook
 
+**Vereinsflieger Settings continuation (#94, 26 October):** Manuel authorized direct implementation using the established pattern. [Current contract](compact-cockpit.md#vereinsflieger-settings-child-page--authorized-26-october-2026): full child page with Back/confirmed Sync, separate session/credential cards and inline masked editing. Only the original provider sign-out task remains framed; the controller/browser parent is retained. [Verification and remaining gates](../../verification/2026-10-26-material-settings.md#vereinsflieger-settings-child-page--26-october-2026).
+
 **Design definition in progress — 26 October 2026, [#94](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/94):** review the [Material 3 system proposal](material-system-proposal.md) for palette alternatives, page/sheet/dialog rules and representative interactive examples. Manuel selected dark as the master/default theme, light as an explicit option, and color exploration beyond navy/teal while preserving the original logo. Until beta preparation, UI verification is brief, affected-screen and dark-only; light acceptance is deferred. The later current-color Cockpit direction and first Settings increment are selected; see the Material Settings amendment in Compact Cockpit. Broader migration remains staged and Start is preserved except for small, specific corrections.
 
 The [Backup child-page amendment](compact-cockpit.md#backup-child-page--selected-26-october-2026) is selected and implemented in source: separate save/restore tasks, short restore confirmation, explicit recovery and retained caller/provider context. [Verification](../../verification/2026-10-26-material-settings.md#backup-child-page--26-october-2026) keeps host results and native acceptance separate.
@@ -75,13 +77,23 @@ The generator uses Python's standard library and repository files only: no netwo
 
 # Dark Compact Cockpit — approved 24 October 2026
 
+## Vereinsflieger Settings child page — authorized 26 October 2026
+
+Manuel requested direct implementation of the next provider-settings package (“I don't want to review. implement”), using the established child-page design. Under [#94](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/94#issuecomment-6425957114), ordinary **Profil & Einstellungen → Vereinsflieger-Einstellungen** is a full child page with contextual Back and confirmed Sync. Its 520 dp capped scrolling column separates **Anbietersitzung** from **Gespeicherte Zugangsdaten**. Each action explains its scope nearby: original-page sign-out requires verification; local clearing removes this app browser's cookies/storage; forgetting removes only MoFlight's saved credentials. These actions preserve saved flights. Credential editing stays inline, password masked, and existing busy/recovery/capability locks and notices remain.
+
+This adapts Google's [top app bar](https://m3.material.io/components/app-bars/guidelines), [list grouping](https://m3.material.io/components/lists/guidelines) and [secondary action placement](https://developer.android.com/design/ui/mobile/guides/layout-and-content/layout-and-nav-patterns) to the existing React Native components and vivid navy/cyan palette. No Compose migration, new dependency, shared-token restyle or Start change is included. Dark remains master/default; light acceptance waits until beta.
+
+Opening administration performs no login/retrieval or identity creation. Header Sync retains the shared one-use decision, fresh owner/foreground verification and root coordinator. Missing-owner and pending-restore states retain the page header and guarded recovery. The covered Shell stays mounted but hidden from native layout while the child page is open. Back returns to the retained Settings state; active uncancellable operations block exit.
+
+**Original provider exception:** explicit sign-out switches the same mounted host back to its bounded frame and hides the administration header/content. The provider browser remains under its existing native parent with original-site history, Close and sign-out verification. Closing or verified sign-out returns to the administration page. This supersedes earlier provider-administration-frame wording for the ordinary controls only; the actual provider task remains framed. Authentication, credential storage, session deletion and recovery implementations are unchanged. [Source-specific checks and native limits](../../verification/2026-10-26-material-settings.md#vereinsflieger-settings-child-page--26-october-2026).
+
 ## Backup child page — selected 26 October 2026
 
 Manuel selected the [dark backup-page proposal](proposals/2026-10-26-backup-page.html), including the short confirmation before the OS file picker, and requested implementation and handbook updates under [#94](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/94#issuecomment-6424883125). Ordinary **Profil & Einstellungen / Status → Datensicherung** now uses a full child page with a contextual Back/Sync top app bar, one scrolling content column capped at 520 dp, separate save/restore cards, and independently expandable **Inhalt und Ausschlüsse** and older-format sections. The unchanged vivid navy/cyan roles and existing React Native controls adapt Material app-bar, containment and dialog patterns. Start and shared tokens are outside this amendment.
 
 Restore first presents a short dark **Abbrechen / Datei auswählen** decision; Cancel, outside tap, Android Back, background and a changed/opened request invalidate it. Only the current one-use confirmation can call the existing owner-scoped picker/validation/activation operation. Pending aggregate restore instead places **Datensicherung fortsetzen** first and requires the same file; cancellation retains the journal and blocked-library explanation. Missing owner, unreadable/read-only library, saved-command recovery and older-format preparations remain explicit. Opening backup creates no identity and starts no provider work. Scope/encryption/AI-data disclosures remain available with contextual help disabled.
 
-The existing host/controller and provider browser parent stay mounted; only the host presentation expands to a page. The covered Shell remains mounted but is hidden from native layout and interaction. Closing restores the same calling Settings/Status state. Shell Back defers to the active task; uncancellable work blocks task Back and competing actions. Header Sync uses the existing short Sync decision, fresh selected-owner verification and the same retained root coordinator; it is disabled during local work/recovery. Backup errors do not mark synchronization as failed. Provider login/administration keeps its separately selected framed presentation. This supersedes earlier maintenance-frame wording for ordinary backup only; archive formats, identity policy and storage safeguards are unchanged.
+The existing host/controller and provider browser parent stay mounted; only the host presentation expands to a page. The covered Shell remains mounted but is hidden from native layout and interaction. Closing restores the same calling Settings/Status state. Shell Back defers to the active task; uncancellable work blocks task Back and competing actions. Header Sync uses the existing short Sync decision, fresh selected-owner verification and the same retained root coordinator; it is disabled during local work/recovery. Backup errors do not mark synchronization as failed. Actual provider login/sign-out keeps its separately selected framed presentation; the later provider Settings amendment makes ordinary administration controls a child page. This supersedes earlier maintenance-frame wording for ordinary backup only; archive formats, identity policy and storage safeguards are unchanged.
 
 [Source-specific verification and remaining native gates](../../verification/2026-10-26-material-settings.md#backup-child-page--26-october-2026). Light acceptance remains deferred to beta.
 
@@ -477,7 +489,9 @@ The U1/U3 header uses neutral saved-age text independently of session state, wit
 
 # Components, symbols and shapes
 
-**26 October selected Backup page (#94):** [current contract](compact-cockpit.md#backup-child-page--selected-26-october-2026). The retained `UpdateDialog` host has a full-page presentation only for ordinary backup. A page app bar, separate save/restore cards, expanded-state disclosure rows and short dark `BackupRestoreConfirmationDialog` replace its former maintenance frame. Pending restore retains its resume operation; provider and OS surfaces retain their own lifecycle. [Verification](../../verification/2026-10-26-material-settings.md#backup-child-page--26-october-2026).
+**26 October provider settings continuation (#94):** ordinary Vereinsflieger administration is a full child page. Shared `MaintenancePageHeader` supplies Back/confirmed Sync to Backup and provider Settings; the retained `UpdateDialog` switches to a bounded frame only for actual provider interaction. Separate session/credential cards place consequences beside each action; inline password editing uses masked text, 48 dp fields and the stronger existing outline color. Existing disabled/recovery/unavailable states and local notices are retained. [Contract](compact-cockpit.md#vereinsflieger-settings-child-page--authorized-26-october-2026).
+
+**26 October selected Backup page (#94):** [current contract](compact-cockpit.md#backup-child-page--selected-26-october-2026). The retained `UpdateDialog` host has a full-page presentation for ordinary backup and provider Settings. A page app bar, separate save/restore cards, expanded-state disclosure rows and short dark `BackupRestoreConfirmationDialog` replace its former maintenance frame. Pending restore retains its resume operation; provider and OS surfaces retain their own lifecycle. [Verification](../../verification/2026-10-26-material-settings.md#backup-child-page--26-october-2026).
 
 **Sync confirmation refinement (#94, 26 October):** the short app-owned dark dialog has a source-specific title, concise data/login/saved-data explanation, **Abbrechen** and **Abruf starten**. Its dimmed scrim, raised navy surface and bounded width distinguish it from a page. Android Back/outside tap cancels; the existing one-decision/scope guards remain authoritative. This applies Material's short-dialog title/body/dismiss/confirm anatomy without a provider change. [Verification](../../verification/2026-10-26-material-settings.md#sync-confirmation-and-filter-sheet-checkpoint).
 
@@ -594,11 +608,13 @@ The implemented U3 count advice adds a compact amber **Änderungen möglich** th
 
 # Layout and presentation patterns
 
+**26 October provider settings continuation (#94):** ordinary provider administration follows the full Settings child-page pattern, with session and credential groups, one capped scrolling column and contextual Back/confirmed Sync. No provider request or identity creation occurs on entry. Actual original-page sign-out temporarily uses the retained framed browser with its own Close/history/verification. This supersedes ordinary administration-frame wording below. [Contract and boundaries](compact-cockpit.md#vereinsflieger-settings-child-page--authorized-26-october-2026).
+
 **26 October Backup child page (#94):** [selected contract](compact-cockpit.md#backup-child-page--selected-26-october-2026). Ordinary Settings/Status backup is a full child page with capped content, contextual Back/confirmed Sync, separate save/restore tasks, scope disclosure and prominent interrupted-restore recovery. Its short pre-picker confirmation dismisses before page exit. Existing owner/foreground/write and same-file recovery guards remain authoritative. This supersedes maintenance-frame references for ordinary backup only.
 
 **26 October Material child-page continuation (#94):** Help, Medical and Status share the Settings child-page header, with contextual Back and retained Sync access. Help uses a topic list and one answer heading with explicit source/boundary details; Medical separates expiry summary, preserved source records and caveats; Status separates current state, latest update, saved-flight coverage and source limits. Existing callbacks, unknown states and provider guards remain. Start and shared palette tokens are unchanged. [Evidence](../../verification/2026-10-26-material-settings.md#secondary-page-continuation).
 
-**24 October secondary-interaction amendment (#82):** [current contract](compact-cockpit.md#secondary-interaction-refinement-approved-24-october-2026). Normal Profile/Status enter whole-user backup directly; settings separately administer provider sessions with explicit original-page verification. Provider administration retains its expanded viewport-bounded maintenance frame; the later selected ordinary Backup amendment uses a full child page. Paper tile uses the existing tab; club sections have contextual Back and individual scroll state; year/target editors consume Back before page exit. Targeted flight pickers apply changes immediately, and Statistics shares compact cards/paged details with Flights. Passive age/advice remains in the header's accessible status and information pages; real failures remain visible. These statements supersede conflicting older routing/placement prose below without weakening recovery/identity/coverage contracts.
+**24 October secondary-interaction amendment (#82):** [current contract](compact-cockpit.md#secondary-interaction-refinement-approved-24-october-2026). Normal Profile/Status enter whole-user backup directly; settings separately administer provider sessions with explicit original-page verification. The original provider sign-out task retains its expanded viewport-bounded frame; later Backup and provider Settings amendments use full child pages for ordinary controls. Paper tile uses the existing tab; club sections have contextual Back and individual scroll state; year/target editors consume Back before page exit. Targeted flight pickers apply changes immediately, and Statistics shares compact cards/paged details with Flights. Passive age/advice remains in the header's accessible status and information pages; real failures remain visible. These statements supersede conflicting older routing/placement prose below without weakening recovery/identity/coverage contracts.
 
 > **Current appearance authority — 24 October 2026:** [Dark Compact Cockpit](compact-cockpit.md) and its approved reference supersede conflicting older appearance/composition statements below. Data, feature and verification boundaries retain their scope.
 
@@ -969,32 +985,6 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/AppHeader.tsx](..
 | `width: '100%'` | 19 |
 | `width: 48` | 23, 25 |
 
-## BackupPageHeader.tsx
-
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/BackupPageHeader.tsx](../../../apps/platform-lab/src/mobile/BackupPageHeader.tsx); normalized SHA-256 `e9917673b0431224b8563fbbb22862397d0fa4dded18a207b8bc07ea62b40827`.
-
-### Literal colors
-
-| Value / declaration | Source line(s) |
-| --- | --- |
-| `#ffb39e` | 39 |
-
-### Typography declarations
-
-| Value / declaration | Source line(s) |
-| --- | --- |
-| `fontSize: 14` | 37 |
-| `fontWeight: '600'` | 37 |
-
-### Geometry / opacity declarations
-
-| Value / declaration | Source line(s) |
-| --- | --- |
-| `minHeight: 48` | 37 |
-| `minWidth: 48` | 37 |
-| `paddingHorizontal: 18` | 39 |
-| `paddingHorizontal: 8` | 37 |
-
 ## BackupRestoreConfirmationDialog.tsx
 
 Product mobile UI/model. Source: [apps/platform-lab/src/mobile/BackupRestoreConfirmationDialog.tsx](../../../apps/platform-lab/src/mobile/BackupRestoreConfirmationDialog.tsx); normalized SHA-256 `ef281cafa647ae318eb72cfdbe87ee8ada54b9dbd67aae203261285a271c301b`.
@@ -1149,16 +1139,25 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/connection-guidan
 
 ## ConnectionSettings.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ConnectionSettings.tsx](../../../apps/platform-lab/src/mobile/ConnectionSettings.tsx); normalized SHA-256 `77705a9108f362fadb250bc412c75db1f3f958f14b113bd1de525dcf086547ea`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ConnectionSettings.tsx](../../../apps/platform-lab/src/mobile/ConnectionSettings.tsx); normalized SHA-256 `19d1108890654c75440d4d919230b0ed30dd35d3bfe0a44b1db4bfba7cc1f80d`.
+
+### Literal colors
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `#426783` | 33, 34 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 26, 27 |
-| `borderWidth: 1` | 26, 27 |
-| `minHeight: 48` | 26, 27 |
-| `padding: 10` | 26, 27 |
+| `borderRadius: 12` | 33, 34 |
+| `borderWidth: 1` | 33, 34 |
+| `gap: 10` | 16, 37 |
+| `gap: 18` | 10 |
+| `gap: 6` | 20, 41 |
+| `minHeight: 48` | 33, 34 |
+| `padding: 10` | 33, 34 |
 
 ## ConnectionSummary.tsx
 
@@ -1173,34 +1172,34 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ConnectionSummary
 
 ## CoreFlightFoundation.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `aeb25a8f35ab229086b51daba5a1ef79811c09bf1061fe7e5f0499a66e94d459`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `458b6492a166053974e02ec2976df5c9798242c2f2b190f41c7fb5b1ce7578e1`.
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 12` | 1020 |
-| `fontSize: 16` | 1020, 1025, 1029 |
-| `fontSize: 22` | 1025, 1029 |
-| `fontWeight: '600'` | 1020, 1025, 1029 |
-| `fontWeight: '700'` | 1020 |
-| `letterSpacing: .6` | 1020 |
-| `lineHeight: 24` | 1020, 1025, 1029 |
+| `fontSize: 12` | 1022 |
+| `fontSize: 16` | 1022, 1027, 1031 |
+| `fontSize: 22` | 1027, 1031 |
+| `fontWeight: '600'` | 1022, 1027, 1031 |
+| `fontWeight: '700'` | 1022 |
+| `letterSpacing: .6` | 1022 |
+| `lineHeight: 24` | 1022, 1027, 1031 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 16` | 1024, 1029 |
-| `borderWidth: 1` | 1024, 1029 |
-| `gap: 10` | 191, 199, 200, 949, 1026 |
-| `gap: 12` | 1025, 1029 |
-| `gap: 8` | 976, 1002, 1012, 1020 |
-| `maxWidth: 520` | 191, 200, 949 |
-| `minHeight: 56` | 1025, 1029 |
-| `padding: 16` | 1025, 1029 |
-| `paddingHorizontal: 16` | 1026 |
-| `width: '100%'` | 191, 200, 949 |
+| `borderRadius: 16` | 1026, 1031 |
+| `borderWidth: 1` | 1026, 1031 |
+| `gap: 10` | 192, 200, 201, 951, 1028 |
+| `gap: 12` | 1027, 1031 |
+| `gap: 8` | 978, 1004, 1014, 1022 |
+| `maxWidth: 520` | 192, 201, 951 |
+| `minHeight: 56` | 1027, 1031 |
+| `padding: 16` | 1027, 1031 |
+| `paddingHorizontal: 16` | 1028 |
+| `width: '100%'` | 192, 201, 951 |
 
 ## Dashboard.tsx
 
@@ -1565,6 +1564,32 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/LibraryBackup.tsx
 | `maxWidth: 520` | 42 |
 | `width: '100%'` | 42 |
 
+## MaintenancePageHeader.tsx
+
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MaintenancePageHeader.tsx](../../../apps/platform-lab/src/mobile/MaintenancePageHeader.tsx); normalized SHA-256 `f39d360a391bb40f06a07f5be377271c8917f0c88c10e877fac3ba61e7ddacb9`.
+
+### Literal colors
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `#ffb39e` | 39 |
+
+### Typography declarations
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `fontSize: 14` | 37 |
+| `fontWeight: '600'` | 37 |
+
+### Geometry / opacity declarations
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `minHeight: 48` | 37 |
+| `minWidth: 48` | 37 |
+| `paddingHorizontal: 18` | 39 |
+| `paddingHorizontal: 8` | 37 |
+
 ## MedicalStatus.tsx
 
 Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MedicalStatus.tsx](../../../apps/platform-lab/src/mobile/MedicalStatus.tsx); normalized SHA-256 `e94a7730cdeb3eb7eb2107fc2f1ec4c2f2a20cc24a1783b84cb37ee1b2348809`.
@@ -1613,114 +1638,114 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MedicalStatus.tsx
 
 ## MobileApp.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `50bb1074392ccc79a888948a67151851f8ff6278afd1f7dda45bbaf15a8ebdb2`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `cb1d0034a1b618fcea47ae9e11c32ed0c72647c51518f177daa5106379c1a28c`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#064240` | 399 |
-| `#10282d` | 399 |
-| `#11263a` | 398 |
-| `#152d42` | 400 |
-| `#1b344a` | 403 |
-| `#227f87` | 399 |
-| `#78efdc` | 401 |
-| `#8ba4bc` | 340, 396 |
+| `#064240` | 400 |
+| `#10282d` | 400 |
+| `#11263a` | 399 |
+| `#152d42` | 401 |
+| `#1b344a` | 404 |
+| `#227f87` | 400 |
+| `#78efdc` | 402 |
+| `#8ba4bc` | 341, 397 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 10` | 340, 396 |
-| `fontSize: 11` | 397 |
-| `fontSize: 12` | 399, 404 |
-| `fontSize: 13` | 398 |
-| `fontSize: 16` | 403 |
-| `fontSize: 20` | 397 |
-| `fontSize: 23` | 402 |
-| `fontSize: 25` | 404 |
-| `fontWeight: '600'` | 397, 399 |
-| `fontWeight: '700'` | 404 |
-| `letterSpacing: .6` | 396 |
-| `lineHeight: 16` | 340, 396, 397 |
-| `lineHeight: 17` | 399 |
-| `lineHeight: 18` | 404 |
-| `lineHeight: 25` | 397 |
-| `lineHeight: 29` | 404 |
+| `fontSize: 10` | 341, 397 |
+| `fontSize: 11` | 398 |
+| `fontSize: 12` | 400, 405 |
+| `fontSize: 13` | 399 |
+| `fontSize: 16` | 404 |
+| `fontSize: 20` | 398 |
+| `fontSize: 23` | 403 |
+| `fontSize: 25` | 405 |
+| `fontWeight: '600'` | 398, 400 |
+| `fontWeight: '700'` | 405 |
+| `letterSpacing: .6` | 397 |
+| `lineHeight: 16` | 341, 397, 398 |
+| `lineHeight: 17` | 400 |
+| `lineHeight: 18` | 405 |
+| `lineHeight: 25` | 398 |
+| `lineHeight: 29` | 405 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 399 |
-| `borderRadius: 13` | 399 |
-| `borderRadius: 15` | 401 |
-| `borderRadius: 16` | 403, 404 |
-| `borderRadius: 17` | 400 |
-| `borderRadius: 18` | 402 |
-| `borderRadius: 2` | 404 |
-| `borderRadius: 20` | 403 |
-| `borderRadius: 22` | 398 |
-| `borderRadius: 24` | 398 |
-| `borderRadius: 9` | 399 |
-| `borderWidth: 1` | 398, 399, 402, 403, 404 |
-| `gap: 1` | 397 |
-| `gap: 10` | 299, 310 |
-| `gap: 12` | 298, 394 |
-| `gap: 16` | 362 |
-| `gap: 18` | 401 |
-| `gap: 2` | 404 |
-| `gap: 3` | 396, 399 |
-| `gap: 4` | 404 |
-| `gap: 5` | 398 |
-| `gap: 6` | 402, 403 |
-| `gap: 7` | 398, 401 |
-| `gap: 8` | 360, 368, 369, 400, 403 |
-| `height: 2` | 404 |
-| `height: 30` | 401 |
-| `height: 48` | 403 |
-| `maxHeight: 150` | 403 |
-| `maxWidth: 480` | 310 |
-| `maxWidth: 520` | 210, 360, 362, 401 |
-| `maxWidth: 599` | 393, 404 |
-| `maxWidth: 600` | 295, 341, 350 |
-| `maxWidth: 960` | 295, 341 |
-| `minHeight: 0` | 329, 344 |
-| `minHeight: 126` | 401 |
-| `minHeight: 34` | 400 |
-| `minHeight: 36` | 395 |
-| `minHeight: 40` | 398 |
-| `minHeight: 48` | 398, 400 |
-| `minHeight: 52` | 403 |
-| `minHeight: 60` | 404 |
-| `minHeight: 64` | 399 |
-| `minHeight: 66` | 399 |
-| `minHeight: 86` | 402 |
-| `minWidth: 0` | 397, 398 |
-| `padding: 0` | 400 |
-| `padding: 10` | 394 |
-| `padding: 12` | 394 |
-| `padding: 16` | 402 |
-| `padding: 4` | 396, 403 |
-| `padding: 6` | 404 |
-| `padding: 7` | 399 |
-| `paddingHorizontal: 12` | 398 |
-| `paddingHorizontal: 16` | 400 |
-| `paddingHorizontal: 6` | 399 |
-| `paddingHorizontal: 7` | 399 |
-| `paddingHorizontal: 8` | 403 |
-| `paddingVertical: 10` | 399 |
-| `paddingVertical: 4` | 398 |
-| `paddingVertical: 8` | 404 |
-| `width: '100%'` | 210, 298, 299, 300, 310, 340, 350, 360, 362, 393, 400, 401, 404 |
-| `width: '32%'` | 404 |
-| `width: '49.2%'` | 400 |
-| `width: 24` | 404 |
-| `width: 30` | 401 |
-| `width: 42` | 398 |
-| `width: 48` | 403 |
-| `width: 64` | 399 |
+| `borderRadius: 12` | 400 |
+| `borderRadius: 13` | 400 |
+| `borderRadius: 15` | 402 |
+| `borderRadius: 16` | 404, 405 |
+| `borderRadius: 17` | 401 |
+| `borderRadius: 18` | 403 |
+| `borderRadius: 2` | 405 |
+| `borderRadius: 20` | 404 |
+| `borderRadius: 22` | 399 |
+| `borderRadius: 24` | 399 |
+| `borderRadius: 9` | 400 |
+| `borderWidth: 1` | 399, 400, 403, 404, 405 |
+| `gap: 1` | 398 |
+| `gap: 10` | 300, 311 |
+| `gap: 12` | 299, 395 |
+| `gap: 16` | 363 |
+| `gap: 18` | 402 |
+| `gap: 2` | 405 |
+| `gap: 3` | 397, 400 |
+| `gap: 4` | 405 |
+| `gap: 5` | 399 |
+| `gap: 6` | 403, 404 |
+| `gap: 7` | 399, 402 |
+| `gap: 8` | 361, 369, 370, 401, 404 |
+| `height: 2` | 405 |
+| `height: 30` | 402 |
+| `height: 48` | 404 |
+| `maxHeight: 150` | 404 |
+| `maxWidth: 480` | 311 |
+| `maxWidth: 520` | 211, 361, 363, 402 |
+| `maxWidth: 599` | 394, 405 |
+| `maxWidth: 600` | 296, 342, 351 |
+| `maxWidth: 960` | 296, 342 |
+| `minHeight: 0` | 330, 345 |
+| `minHeight: 126` | 402 |
+| `minHeight: 34` | 401 |
+| `minHeight: 36` | 396 |
+| `minHeight: 40` | 399 |
+| `minHeight: 48` | 399, 401 |
+| `minHeight: 52` | 404 |
+| `minHeight: 60` | 405 |
+| `minHeight: 64` | 400 |
+| `minHeight: 66` | 400 |
+| `minHeight: 86` | 403 |
+| `minWidth: 0` | 398, 399 |
+| `padding: 0` | 401 |
+| `padding: 10` | 395 |
+| `padding: 12` | 395 |
+| `padding: 16` | 403 |
+| `padding: 4` | 397, 404 |
+| `padding: 6` | 405 |
+| `padding: 7` | 400 |
+| `paddingHorizontal: 12` | 399 |
+| `paddingHorizontal: 16` | 401 |
+| `paddingHorizontal: 6` | 400 |
+| `paddingHorizontal: 7` | 400 |
+| `paddingHorizontal: 8` | 404 |
+| `paddingVertical: 10` | 400 |
+| `paddingVertical: 4` | 399 |
+| `paddingVertical: 8` | 405 |
+| `width: '100%'` | 211, 299, 300, 301, 311, 341, 351, 361, 363, 394, 401, 402, 405 |
+| `width: '32%'` | 405 |
+| `width: '49.2%'` | 401 |
+| `width: 24` | 405 |
+| `width: 30` | 402 |
+| `width: 42` | 399 |
+| `width: 48` | 404 |
+| `width: 64` | 400 |
 
 ## OverviewTiles.tsx
 
@@ -2348,7 +2373,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/theme.tsx](../../
 
 ## UpdateDialog.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/UpdateDialog.tsx](../../../apps/platform-lab/src/mobile/UpdateDialog.tsx); normalized SHA-256 `8fb6d42fc3fce5fe1b7d8d5361ed831346008a904704363963007bf04d2d6ebe`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/UpdateDialog.tsx](../../../apps/platform-lab/src/mobile/UpdateDialog.tsx); normalized SHA-256 `34cdc754c6ae2007f6ff6f0eb15cdae402587eeb24639fffc59e1faba557ffbb`.
 
 ### Literal colors
 
@@ -2495,6 +2520,8 @@ Retained app-owned lab/adapter surface; document its existing appearance as an e
 | `padding: 12` | 80 |
 
 # Decisions, history and known gaps
+
+**26 October provider settings authorization — #94:** after the next-package recommendation, Manuel explicitly requested implementation without a separate design review. This bounded authorization extends the established Settings child-page pattern to provider administration; actual sign-out remains in the retained framed original site. It does not remove proposal/approval boundaries for unrelated future designs. [Amendment](compact-cockpit.md#vereinsflieger-settings-child-page--authorized-26-october-2026) · [checks and limits](../../verification/2026-10-26-material-settings.md#vereinsflieger-settings-child-page--26-october-2026).
 
 **26 October Backup selection — #94:** Manuel selected the [three-state dark page proposal](proposals/2026-10-26-backup-page.html), including pre-picker restore confirmation, and requested implementation/documentation updates. The [scoped amendment](compact-cockpit.md#backup-child-page--selected-26-october-2026) supersedes the ordinary backup maintenance frame while retaining the provider parent, owner/storage rules, original logo and Start. Implementation and native acceptance remain separately recorded in the [package report](../../verification/2026-10-26-material-settings.md#backup-child-page--26-october-2026).
 

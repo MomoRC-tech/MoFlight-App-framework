@@ -79,7 +79,8 @@ export default function MobileApp() {
   const [syncControls,setSyncControls]=useState<SyncControls|null>(null);
   const syncRunning=!!entry?.open&&entry.intent==='update';
   const modalOpen=!!entry?.open&&(entry.intent!=='update'||!!providerStatus.loginVisible||syncProgress.state==='waiting');
-  const backupPageOpen=modalOpen&&entry?.intent==='options'&&entry.destination==='backup';
+  const maintenancePage=entry?.intent==='options'&&(entry.destination==='backup'||entry.destination==='settings'&&!providerStatus.loginVisible);
+  const maintenancePageOpen=modalOpen&&maintenancePage;
   useEffect(()=>{
     if(syncProgress.state==='failed'||syncProgress.state==='partial')syncLock.current=false;
     if(syncProgress.state==='failed'){
@@ -90,12 +91,12 @@ export default function MobileApp() {
   },[syncProgress.state]);
   useEffect(()=>{diagnosticJournal.record('sync',modalOpen?'sync-popup-open':'sync-popup-hidden');},[modalOpen]);
   return <SafeAreaProvider><SyncKeepAwake active={syncProgress.state==='active'||syncProgress.state==='waiting'}/><View style={{flex:1}}>
-    <View style={[{flex:1},backupPageOpen&&{display:'none'}]} pointerEvents={modalOpen?'none':'auto'} aria-hidden={modalOpen} accessibilityElementsHidden={modalOpen} importantForAccessibility={modalOpen?'no-hide-descendants':'auto'}><Shell syncControls={syncControls} syncRunning={syncRunning} syncProgress={syncProgress} coreFlightsOpen={!!entry?.open} flightReload={flightReload} lastLoad={lastLoad} providerStatus={providerStatus} onCoreFlights={(intent='options',development=false,destination='settings')=>{
+    <View style={[{flex:1},maintenancePageOpen&&{display:'none'}]} pointerEvents={modalOpen?'none':'auto'} aria-hidden={modalOpen} accessibilityElementsHidden={modalOpen} importantForAccessibility={modalOpen?'no-hide-descendants':'auto'}><Shell syncControls={syncControls} syncRunning={syncRunning} syncProgress={syncProgress} coreFlightsOpen={!!entry?.open} flightReload={flightReload} lastLoad={lastLoad} providerStatus={providerStatus} onCoreFlights={(intent='options',development=false,destination='settings')=>{
       if(syncLock.current){diagnosticJournal.record('sync','sync-duplicate-ignored');return;}
       syncLock.current=intent==='update';if(intent==='update'){diagnosticJournal.record('sync','sync-requested');setSyncProgress({...idleSyncProgress,state:'active',current:'prepare'});}if(intent==='update')setLastLoad(null);setEntry(previous=>({intent:intent==='update'?'update':'options',development,destination,open:true,requestId:(previous?.requestId??0)+1}));}}/></View>
-    {entry&&<UpdateDialog open={modalOpen} expanded={entry.intent!=='update'||!!providerStatus.loginVisible} fullPage={entry.intent==='options'&&entry.destination==='backup'}>{windowTop=><CoreFlightFoundation destination={entry.destination} dialogTop={windowTop} providerEntryAllowed={entry.intent==='update'} open={entry.open} requestId={entry.requestId} intent={entry.intent} onProgress={setSyncProgress} onControls={setSyncControls} onStatus={setProviderStatus} developmentRecoveryCheckpoints={entry.development} onRequestSync={()=>{
+    {entry&&<UpdateDialog open={modalOpen} expanded={entry.intent!=='update'||!!providerStatus.loginVisible} fullPage={maintenancePage}>{windowTop=><CoreFlightFoundation destination={entry.destination} dialogTop={windowTop} providerEntryAllowed={entry.intent==='update'} open={entry.open} requestId={entry.requestId} intent={entry.intent} onProgress={setSyncProgress} onControls={setSyncControls} onStatus={setProviderStatus} developmentRecoveryCheckpoints={entry.development} onRequestSync={()=>{
       const current=activeEntry.current;
-      if(!current?.open||current.intent!=='options'||current.destination!=='backup'||current.requestId!==entry.requestId||syncLock.current)return;
+      if(!current?.open||current.intent!=='options'||!['backup','settings'].includes(current.destination)||current.destination!==entry.destination||current.requestId!==entry.requestId||syncLock.current)return;
       diagnosticJournal.record('sync','sync-requested');diagnosticJournal.record('action','update-flights');
       syncLock.current=true;setSyncProgress({...idleSyncProgress,state:'active',current:'prepare'});setLastLoad(null);
       setEntry({...current,intent:'update',destination:'settings',requestId:current.requestId+1});

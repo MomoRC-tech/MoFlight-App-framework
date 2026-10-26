@@ -17,7 +17,7 @@ export function UpdateDialog({ open, expanded = false, fullPage = false, childre
     importantForAccessibility={open ? 'auto' : 'no-hide-descendants'} accessibilityViewIsModal={open}
     style={[StyleSheet.absoluteFill, { opacity: open ? 1 : 0, zIndex: open ? 20 : -1 }]}>
     {!fullPage && <Pressable accessible={false} importantForAccessibility="no" onPress={() => {}} style={[StyleSheet.absoluteFill, styles.scrim]} />}
-    <View testID={fullPage ? 'backup-page-host' : 'data-update-dialog'} style={fullPage ? styles.page : [styles.frame, { left, top, width: frameWidth, height: frameHeight }]}>
+    <View testID={fullPage ? 'maintenance-page-host' : 'data-update-dialog'} style={fullPage ? styles.page : [styles.frame, { left, top, width: frameWidth, height: frameHeight }]}>
       {children(fullPage ? undefined : top)}
     </View>
   </View>;

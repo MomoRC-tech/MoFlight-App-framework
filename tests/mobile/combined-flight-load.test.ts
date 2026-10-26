@@ -162,7 +162,7 @@ function fixture({backupFails=false,destination='sources',providerAllowed=true,d
     '../vereinsflieger/real-flight-service':{RealFlightService:Service,PendingRealFlightOperation:class extends Error{}},
     './core-flight-review-policy':policy,'../vereinsflieger/real-flight-backup-native':{},
     './own-flight-reader-native':{ownFlightReadPorts:{suspend:async()=>{calls.push('reserve');if(deferReservation)await reservation;return ()=>calls.push('release');}}},
-    './BackupPageHeader':leaves(['BackupPageHeader']),'./BackupRestoreConfirmationDialog':leaves(['BackupRestoreConfirmationDialog']),
+    './MaintenancePageHeader':leaves(['MaintenancePageHeader']),'./BackupRestoreConfirmationDialog':leaves(['BackupRestoreConfirmationDialog']),
     './ConnectionSettings':{ConnectionSettings:'ConnectionSettings'},'./ProviderConnection':leaves(['ProviderConnection']),'./theme':{...leaves(['Action','Card','Label','Section']),colors:{}},
     '../vereinsflieger/retrieval-policy':{planFlightRetrieval},'./data-freshness':{dataFreshness},
   };
@@ -742,7 +742,7 @@ test('dedicated backup opens whole-user actions immediately without credentials 
     f.render();await f.flush();
     assert.ok(f.text().includes('In Geräteordner sichern'));
     assert.ok(f.text().includes('Sicherungsdatei auswählen'));
-    assert.ok(f.nodes().some(n=>n.type==='BackupPageHeader'));
+    assert.ok(f.nodes().some(n=>n.type==='MaintenancePageHeader'));
     assert.ok(!f.text().includes('Details & weitere Optionen'));
     assert.ok(!f.nodes().some(n=>n.type==='ConnectionSettings'));
     assert.ok(!f.text().includes('Flugbibliothek in Geräteordner sichern'));
@@ -802,14 +802,14 @@ test('backup disclosure remains available without contextual help and no-owner b
     assert.match(f.text(),/KI-Chats/);assert.match(f.text(),/Foto- und Anhangdateien werden nicht gesichert/);
   }finally{f.dispose();}
   const empty=fixture({root:true,providerAllowed:false,destination:'backup'});
-  try{empty.render();await empty.flush();assert.match(empty.text(),/Noch keine eigene lokale Bibliothek/);assert.ok(!empty.calls.includes('create'));assert.ok(!empty.text().includes('neue lokale Bibliothek anlegen'));assert.ok(empty.nodes().some(n=>n.type==='BackupPageHeader'));}finally{empty.dispose();}
+  try{empty.render();await empty.flush();assert.match(empty.text(),/Noch keine eigene lokale Bibliothek/);assert.ok(!empty.calls.includes('create'));assert.ok(!empty.text().includes('neue lokale Bibliothek anlegen'));assert.ok(empty.nodes().some(n=>n.type==='MaintenancePageHeader'));}finally{empty.dispose();}
 });
 
 test('backup pending-restore page resumes the same operation and retains it after picker cancellation',async()=>{
   const f=fixture({root:true,existingOwner:true,providerAllowed:false,destination:'backup',pendingRestore:true,cancelRestore:true});
   try{
     f.render();await f.flush();
-    const header=f.nodes().find(n=>n.type==='BackupPageHeader')!;assert.equal(header.props.syncDisabled,true);
+    const header=f.nodes().find(n=>n.type==='MaintenancePageHeader')!;assert.equal(header.props.syncDisabled,true);
     f.press('Datensicherung fortsetzen');await f.flush();assert.ok(f.calls.includes('resume-pending'));
     assert.match(f.text(),/Eine Datensicherung wird noch wiederhergestellt/);
     assert.ok(!f.nodes().some(n=>n.type==='BackupRestoreConfirmationDialog'));
@@ -819,7 +819,7 @@ test('backup pending-restore page resumes the same operation and retains it afte
 
 test('backup preparation guards Back and a failed export stays a backup error rather than a Sync failure',async()=>{
   const preparing=fixture({providerAllowed:false,destination:'backup',deferRead:true});
-  try{preparing.render();await preparing.flush();assert.equal(preparing.nodes().find(n=>n.type==='BackupPageHeader')!.props.busy,true);preparing.hardwareBack();assert.equal(preparing.closed.length,0);preparing.finishRead();await preparing.flush();preparing.hardwareBack();assert.equal(preparing.closed.length,1);}finally{preparing.dispose();}
+  try{preparing.render();await preparing.flush();assert.equal(preparing.nodes().find(n=>n.type==='MaintenancePageHeader')!.props.busy,true);preparing.hardwareBack();assert.equal(preparing.closed.length,0);preparing.finishRead();await preparing.flush();preparing.hardwareBack();assert.equal(preparing.closed.length,1);}finally{preparing.dispose();}
   const failed=fixture({providerAllowed:false,destination:'backup',backupFails:true});
   try{failed.render();await failed.flush();failed.press('In Geräteordner sichern');await failed.flush();assert.ok(failed.calls.includes('backup-save'));assert.match(failed.text(),/Dieser Schritt wurde nicht bestätigt/);assert.ok(!failed.progressUpdates.some(p=>p.state==='failed'));assert.equal(failed.closed.length,0);}finally{failed.dispose();}
 });
@@ -828,14 +828,19 @@ test('settings admits only an explicit administration surface and returns after 
   try{
     f.render();await f.flush();
     assert.equal(f.nodes().find(n=>n.type==='ProviderConnection')!.props.open,false);
+    assert.equal(f.nodes().find(n=>n.type==='MaintenancePageHeader')!.props.title,'Vereinsflieger-Einstellungen');
+    assert.equal(f.calls.length,0);
     f.c.startDisconnect=()=>{f.c.visible=true;f.c.disconnecting=true;f.calls.push('signout');};f.render();
     f.nodes().find(n=>n.type==='ConnectionSettings')!.props.onSignOut();f.render();
     const provider=f.nodes().find(n=>n.type==='ProviderConnection')!;
     assert.equal(provider.props.open,true);assert.equal(provider.props.administration,true);assert.equal(provider.props.minimal,true);
+    assert.ok(!f.nodes().some(n=>n.type==='MaintenancePageHeader'),'Provider frame exposes its own Close/history controls');
     assert.ok(!f.calls.includes('retrieve'));
     f.c.visible=false;f.c.disconnecting=false;f.render();await f.flush();
     assert.equal(f.nodes().find(n=>n.type==='ProviderConnection')!.props.open,false);
     assert.ok(f.nodes().some(n=>n.type==='ConnectionSettings'));
+    assert.equal(f.nodes().find(n=>n.type==='MaintenancePageHeader')!.props.title,'Vereinsflieger-Einstellungen');
+    f.nodes().find(n=>n.type==='MaintenancePageHeader')!.props.onBack();assert.equal(f.closed.length,1);
   }finally{f.dispose();}
 });
 
@@ -1076,4 +1081,10 @@ test('interrupted dialog names both choices and Continue reuses its fresh prepar
   f.press('Synchronisierung fortsetzen');await f.flush();
   assert.equal(f.calls.filter(v=>v==='snapshot').length,0);
  }finally{f.dispose();}
+});
+
+
+test('provider settings without an owner stays a child page and cannot create an identity by browsing',async()=>{
+  const f=fixture({root:true,intent:'options',providerAllowed:false,destination:'settings'});
+  try{f.render();await f.flush();assert.equal(f.nodes().find(n=>n.type==='MaintenancePageHeader')!.props.title,'Vereinsflieger-Einstellungen');assert.match(f.text(),/Noch keine lokale Vereinsflieger/);assert.ok(!f.calls.includes('create'));assert.ok(!f.text().includes('neue lokale Bibliothek anlegen'));}finally{f.dispose();}
 });

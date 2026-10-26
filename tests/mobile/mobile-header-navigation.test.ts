@@ -587,7 +587,7 @@ test('ordinary backup uses a full page while retaining the provider host and con
   shell.props.onCoreFlights('options',false,'backup');f.render();
   f.find('CoreFlightFoundation').props.onRequestSync();f.render();
   assert.equal(f.find('CoreFlightFoundation').props.intent,'update');assert.equal(f.find('CoreFlightFoundation').props.providerEntryAllowed,true);
-  assert.equal(f.find('UpdateDialog').props.fullPage,false,'Only offline backup uses the full-page presentation');
+  assert.equal(f.find('UpdateDialog').props.fullPage,false,'Sync retains its framed presentation');
 });
 
 test('covered Settings never consumes Android Back on behalf of the backup task',()=>{
@@ -819,4 +819,20 @@ test('account change rejects a pending sync confirmation',()=>{
  const f=fixture();f.press('DataUpdateIndicator');
  f.showLoad(null,{snapshot:{ownerId:'other',storeId:'other-store',account:{accountRef:'other-account'},savedRetrievals:[]},flights:[]});
  f.confirm();assert.deepEqual(f.calls,[]);
+});
+
+
+test('provider settings uses a child page and temporarily frames only the original sign-out site',()=>{
+  const f=fixture(390,1,true);
+  const shell=()=>f.nodes().find(n=>typeof n.type==='function'&&(n.type as Function).name==='Shell')!;
+  shell().props.onCoreFlights('options',false,'settings');f.render();
+  const settings=f.find('CoreFlightFoundation');assert.equal(settings.props.providerEntryAllowed,false);
+  assert.equal(f.find('UpdateDialog').props.fullPage,true);assert.equal(f.parent(shell()).props.style[1].display,'none');
+  settings.props.onStatus({...unknownProviderStatus,loginVisible:true});f.render();
+  assert.equal(f.find('UpdateDialog').props.fullPage,false);assert.equal(f.find('CoreFlightFoundation').type,settings.type);
+  settings.props.onStatus({...unknownProviderStatus,loginVisible:false});f.render();
+  assert.equal(f.find('UpdateDialog').props.fullPage,true);
+  settings.props.close();f.render();settings.props.onRequestSync();f.render();assert.equal(f.find('CoreFlightFoundation').props.open,false);
+  shell().props.onCoreFlights('options',false,'settings');f.render();f.find('CoreFlightFoundation').props.onRequestSync();f.render();
+  assert.equal(f.find('CoreFlightFoundation').props.intent,'update');assert.equal(f.find('UpdateDialog').props.fullPage,false);
 });

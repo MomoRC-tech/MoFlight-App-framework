@@ -18,9 +18,9 @@ function fixture(){
     useEffect:(effect:()=>unknown,deps:unknown[])=>{const i=index++,old=hooks[i];if(!old||deps.some((v,n)=>v!==old.deps[n])){hooks[i]={deps};effects.push(()=>{old?.cleanup?.();hooks[i].cleanup=effect();});}},
   };
   const modules:Record<string,unknown>={react:{default:react,...react},'react-native':{AppState:appState,Pressable:'Pressable',Text:'Text'},'./AppHeader':{AppHeader:'AppHeader'},'./SyncConfirmationDialog':{SyncConfirmationDialog:'SyncConfirmationDialog'},'./theme':{Label:'Label',colors:{cyan:'#27d3d2'}}};
-  const api:any={};runInNewContext(compile('BackupPageHeader'),{exports:api,require:(name:string)=>{assert.ok(name in modules,name);return modules[name];}});
-  const props={open:true,requestKey:'owner:store:1',busy:false,syncDisabled:false,onBack:()=>{backCalls++;},onRequestSync:()=>{syncCalls++;},verifySync:async()=>{verifyCalls++;if(deferred)await new Promise<void>(resolve=>{finishVerify=resolve;});if(reject)throw new Error('Foreign selection');}};
-  function render(){index=0;tree=api.BackupPageHeader(props);while(effects.length)effects.shift()!();return tree;}
+  const api:any={};runInNewContext(compile('MaintenancePageHeader'),{exports:api,require:(name:string)=>{assert.ok(name in modules,name);return modules[name];}});
+  const props={title:'Datensicherung',open:true,requestKey:'owner:store:1',busy:false,syncDisabled:false,onBack:()=>{backCalls++;},onRequestSync:()=>{syncCalls++;},verifySync:async()=>{verifyCalls++;if(deferred)await new Promise<void>(resolve=>{finishVerify=resolve;});if(reject)throw new Error('Foreign selection');}};
+  function render(){index=0;tree=api.MaintenancePageHeader(props);while(effects.length)effects.shift()!();return tree;}
   function nodes(){const result:Element[]=[];function visit(n:any){if(n&&typeof n==='object'&&'children'in n){result.push(n);n.children.forEach(visit);}}visit(tree);return result;}
   const find=(type:string)=>nodes().find(n=>n.type===type)!;
   const open=()=>{find('Pressable').props.onPress();render();return find('SyncConfirmationDialog');};
@@ -63,4 +63,9 @@ test('restore dialog uses Cancel for system/outside dismissal and leaves the pic
   const nodes:Element[]=[];function visit(n:any){if(n&&typeof n==='object'&&'children'in n){nodes.push(n);n.children.forEach(visit);}}visit(tree);
   nodes.find(n=>n.type==='Pressable'&&n.props.accessible===false)!.props.onPress();assert.equal(cancelled,2);
   nodes.find(n=>n.props.accessibilityLabel==='Datei auswählen')!.props.onPress();assert.equal(confirmed,1);
+});
+
+
+test('maintenance header supports provider settings without changing the confirmed Sync contract',()=>{
+  const f=fixture();try{f.props.title='Vereinsflieger-Einstellungen';f.render();assert.equal(f.find('AppHeader').props.title,'Vereinsflieger-Einstellungen');assert.deepEqual(f.calls(),{verifyCalls:0,syncCalls:0,backCalls:0});}finally{f.dispose();}
 });
