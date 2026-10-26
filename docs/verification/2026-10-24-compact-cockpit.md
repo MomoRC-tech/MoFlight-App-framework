@@ -141,3 +141,11 @@ Verification: Node 24.18.0 / pnpm 11.25.0 on Windows; all six `duty-roster-prese
 [Download Android APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/compact-cockpit-2026-10-24-c643d9d/MoFlight-Android-c643d9d.zip) — actual APK source **c643d9da076d588675eecbc690a94c619e9528a0**. Development-signed Release lab build. The ZIP contains exactly the APK and sanitized `build-info.json`; anonymous public download, entries, source and both checksums were verified.
 
 APK SHA256: `e33edc9b8e33ff611f82fe3023f91a80940500108313976b4ff90ea87ff36c8c`. ZIP SHA256: `956dbf0c0d9f990cc79cb7d302461b2daf1be9782083338fc6a74bceb195a932`. Later documentation commits do not change this APK source.
+
+## Individual Medical rows — 26 October 2026
+
+M1 / #20, explicitly requested and authorized by Manuel. Source: commit containing this section. The Start tile now renders every saved Medical as `<name> bis <date>`, with each row independently classified by the existing strict expiry parser. Unknown dates/names and partial/ambiguous-source warnings remain explicit; accessible content names every record and preserves the Details action. No source capture or persistence change.
+
+Verification: Node 24.18.0; 15 focused tests passed (`overview-medical`, `medical-expiry`, `medical-status`), including reordered/sparse columns, independent dates/colors, raw provider expiry normalization, unknown/invalid values, partial capture, read-only source preservation, explicit tap and enlarged-text component structure. `pnpm typecheck` passed. The React Native leaves are mocked: these checks inspect rendered component content/props, not measured device geometry.
+
+Limits: native affected-screen rendering, physical Android, iOS and spoken screen-reader trials were not run. Reuse existing tile geometry and batch the affected native check into the next UI checkpoint. No new APK built or delivered; current release links still identify their prior source. Design handbook freshness/link checks and affected lint are recorded with the completion on #20.

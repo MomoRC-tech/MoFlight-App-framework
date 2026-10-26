@@ -1,5 +1,11 @@
 # Dark Compact Cockpit — approved 24 October 2026
 
+## Individual Medical rows — selected 26 October 2026
+
+Manuel requested implementation under [#20](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/20#issuecomment-6413680688): the Start Medical tile lists every saved source row by name and expiry, for example `LAPL bis 31.12.2027`, without the former “Erfasst bis” caption or a single earliest-date summary. Each date uses the existing strict parser and its own expiry color. Missing/invalid dates read `bis unbekannt`; missing names remain explicit. Source warnings retain the asterisk and accessible explanation, with original evidence in Details. Rows wrap without truncation; enlarged text retains the existing stacked tile layout.
+
+This adapts the headline/supporting-content/action anatomy from [Material 3 cards](https://m3.material.io/components/cards/guidelines) and [Google's component documentation](https://github.com/material-components/material-components-android/blob/master/docs/components/Card.md) to the existing dark Compact Cockpit tile. No new dependency or medical-eligibility interpretation is introduced. [Verification and remaining native gates](../../verification/2026-10-24-compact-cockpit.md#individual-medical-rows--26-october-2026).
+
 ## Separate Sync and Profile status — selected 26 October 2026
 
 Manuel approved the **Separate controls** Material-based proposal and a short confirmation before synchronization ([#83](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/83)). This amendment supersedes the earlier shine-only/attention-only header treatment below. Keep two transparent 48 dp actions: Sync starts synchronization after confirmation; Profile opens the existing settings and account information. There is no third key control.
