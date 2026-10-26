@@ -1,0 +1,17 @@
+{
+  "source_commit": "c00e7aa473057dd50e2315f48663789ef8903126",
+  "apk_sha256": "60ba3f32081d0e77341ff2a06830425e8afb64339580278e813fad4de970208d",
+  "avd": "MoFlight_Synthetic_API37",
+  "size": "Physical size: 1080x1920",
+  "density": "Physical density: 420",
+  "font_scale": "1.0",
+  "checks": {
+    "cancel": "passed: visible Cancel dismissed dialog without starting provider work",
+    "android_back": "passed: Back dismissed dialog without starting provider work",
+    "start": "not pressed: guarded start verified by focused host tests"
+  },
+  "wifi_mobile_offline_preserved": true,
+  "status": "passed",
+  "installed_apk_hash_verified": true,
+  "visual_review": "Parent inspected dark dialog screenshot: navy raised frame, dimmed Start, readable title/body/actions, no observed overlap. Filter sheet screenshot from e2ca5a6 was also inspected; OwnFlights source unchanged in final APK."
+}

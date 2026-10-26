@@ -1,5 +1,7 @@
 # MoFlight
 
+**26 October Material dialogs:** [Download Android APK ZIP — source `c00e7aa`](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/material-dialogs-2026-10-26-c00e7aa/MoFlight-Android-c00e7aa.zip). Flight filters use a dark titled sheet; Sync confirmation now uses a dark navy dialog with explicit Cancel and Start. The APK also includes the earlier flight-detail correction and child-page work. [Verification and limits](docs/verification/2026-10-26-material-settings.md#dark-dialog-release-checkpoint).
+
 **26 October flight-detail correction:** [Download corrected Android APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/detail-lease-fix-2026-10-26-78748e1/MoFlight-Android-78748e1.zip). Fixes details being rejected across fresh database sessions; retains owner/selection guards and prior child-page UI. [Phone findings, correction and limits](docs/verification/2026-10-21-simple-flight-loading.md#phone-detail-regression--26-october-2026).
 
 <p align="center">
