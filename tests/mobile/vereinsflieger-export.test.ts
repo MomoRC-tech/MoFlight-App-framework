@@ -254,8 +254,13 @@ test('every read requires effective 500-row controls and native validation rejec
 
 test('500 plus one records use contiguous fallback pagination without changing IDs or values',()=>{
   const run=reading(), rows=Array.from({length:501},(_,i)=>row(String(i+1)));
+  assert.deepEqual(exportProgress(run),{done:0,total:null});
   assert.equal(accept(run,payload({rows:rows.slice(0,500),last:500,total:501,nextUrl:FLIGHT_URL+'?page=2'})).nextUrl,FLIGHT_URL+'?page=2');
+  assert.deepEqual(exportProgress(run),{done:500,total:501});
   const result=accept(run,payload({rows:rows.slice(500),first:501,last:501,total:501})).complete!;
+  assert.deepEqual(exportProgress(run),{done:501,total:501});
   assert.deepEqual(result.rows,rows);assert.equal(result.exportContext!.pageCount,2);
   assert.throws(()=>accept(reading(),payload({rows,last:501,total:501})));
+  const single=reading();accept(single,payload({rows:rows.slice(0,500),last:500,total:500}));
+  assert.deepEqual(exportProgress(single),{done:500,total:500});
 });

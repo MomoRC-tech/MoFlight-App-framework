@@ -46,7 +46,8 @@ import type { OtherAccountDataResult } from './account-retrieval-jobs';
 import {createSyncEstimate,confirmSyncEstimateContext,reduceSyncEstimate,learnSyncEstimate,parseSyncEstimateHistory,syncEstimateVolume,syncEstimateNow,type SyncEstimateState,type SyncEstimateEvent,type SyncEstimateMode,type SyncEstimateStage,type SyncEstimateContext} from './sync-estimate';
 import {readSyncEstimateHistory,saveSyncEstimateHistory} from './sync-estimate-native';
 
-const ESTIMATE_CONTEXT='sync-local-replay-v1';
+// The 500-row retrieval path changes network/setup timing; discard older hints.
+const ESTIMATE_CONTEXT='sync-local-replay-500-v2';
 const optionalEstimateStages=['medical','duties','events','documents','work-summary','work-hours','tasks'] as const;
 const sourceEstimateStages={medical:'medical',duties:'duties',events:'events',documentNotices:'documents',workSummary:'work-summary',workHours:'work-hours',tasks:'tasks'} as const;
 const remainingEstimateStages=(sources:SyncRecoveryRecord['sources'])=>Object.entries(sourceEstimateStages).filter(([key])=>!['updated','empty','partial'].includes(sources[key as keyof typeof sources]??'')).map(([,stage])=>stage);

@@ -17,7 +17,7 @@ import * as responsiveness from '../../apps/platform-lab/src/development/android
 test('native fixed-state benchmark preserves complete graphs across five independent clones per scenario',async()=>{
   const directory=mkdtempSync(join(tmpdir(),'moflight-native-benchmark-'));
   class Directory{uri:string;constructor(parent:string|Directory,name:string){this.uri=join(typeof parent==='string'?parent:parent.uri,name);}create(){mkdirSync(this.uri,{recursive:true});}}
-  class File{path:string;constructor(parent:Directory,name:string){this.path=join(parent.uri,name);}get exists(){return existsSync(this.path);}async copy(target:File){await new Promise(resolve=>setTimeout(resolve,5));copyFileSync(this.path,target.path);}async base64(){return readFileSync(this.path).toString('base64');}write(value:string){writeFileSync(this.path,value);}}
+  class File{path:string;constructor(parent:Directory,name:string){this.path=join(parent.uri,name);}get exists(){return existsSync(this.path);}async copy(target:File){await new Promise(resolve=>{setTimeout(resolve,5);});copyFileSync(this.path,target.path);}async base64(){return readFileSync(this.path).toString('base64');}write(value:string){writeFileSync(this.path,value);}}
   const code=ts.transpileModule(readFileSync('apps/platform-lab/src/development/sync-native-benchmark.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;
   const exports:{runSyncNativeBenchmark?:(update:(value:string)=>void,count:number)=>Promise<{samples:{scenario:string;trial:number;graphSha256:string;receipts:number}[]}>}={};
   const modules:Record<string,unknown>={'expo-file-system':{Directory,File,Paths:{cache:directory}},'@moflight/flight-logbook':domain,
