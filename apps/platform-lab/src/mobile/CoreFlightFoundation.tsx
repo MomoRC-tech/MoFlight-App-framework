@@ -763,6 +763,7 @@ function OwnerFlightLibrary({lease,registry,close,startUpdate,open=true,requestI
   const partial=completed&&(completed.medicalStatus==='failed'||completed.medicalStatus==='skipped'||completed.dutyStatus==='failed'||completed.dutyStatus==='skipped'||completed.eventsStatus==='failed'||completed.eventsStatus==='skipped'||completed.documentNoticesStatus==='failed'||completed.documentNoticesStatus==='skipped'||completed.workSummaryStatus==='failed'||completed.workSummaryStatus==='skipped'||completed.workHoursStatus==='failed'||completed.workHoursStatus==='skipped'||completed.tasksStatus==='failed'||completed.tasksStatus==='skipped'||completed.pending>0);
   const medicalResult=completed?.medicalStatus==='updated'?'Medical-Angaben geladen.':completed?.medicalStatus==='empty'?'Keine Medical-Angaben gefunden.':completed?.medicalStatus==='skipped'?'Medical nicht abgeschlossen. Gespeicherte Angaben bleiben erhalten.':'Medical konnte nicht geladen werden. Gespeicherte Angaben bleiben erhalten.';
   const blockedSync=entryReady&&(restoreReadOnly||c.recovery||recovery.status==='not-committed'||recovery.status==='recovery-required');
+  if(savedSync&&syncEntry)console.warn('MF recovery child',open,providerOpen,automatic.current,entryReady,destination);
   // Stay in the sync frame while local reads and recovery checks run. The old
   // generic provider panel exposed manual verification before automatic became true.
   const preparationProgress=syncEntry?<Card>
