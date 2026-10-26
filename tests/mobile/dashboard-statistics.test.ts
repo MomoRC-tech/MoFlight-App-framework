@@ -1,3 +1,4 @@
+import * as startTiming from '../../apps/platform-lab/src/start-timing.ts';
 import * as flightStartGuidance from '../../apps/platform-lab/src/mobile/flight-start-guidance.ts';
 import * as dashboardModel from '../../apps/platform-lab/src/mobile/season-dashboard-model.ts';
 import * as processedResults from '../../apps/platform-lab/src/mobile/processed-result.ts';
@@ -27,7 +28,7 @@ function render(flights:any[], phase='ready', fontScale=1) {
   const useMemo=(fn:()=>unknown,deps:unknown[])=>{const i=hookIndex++;if(!memos[i]||deps.some((v,n)=>v!==memos[i]!.deps[n]))memos[i]={deps,value:fn()};return memos[i]!.value;};
   const states:any[]=[];let stateIndex=0;const useState=(initial:any)=>{const i=stateIndex++;if(!(i in states))states[i]=initial;return [states[i],(value:any)=>{states[i]=value;}];};
   const target={hours:25,busy:false};let inlineBack=()=>false;
-  const modules:Record<string,unknown>={react:{default:react,useMemo,useState},'react-native':{...leaves(['ActivityIndicator','ImageBackground','Pressable','ScrollView','Text','View']),StyleSheet:{create:(x:unknown)=>x}},
+  const modules:Record<string,unknown>={'../start-timing':startTiming,react:{default:react,useMemo,useState},'react-native':{...leaves(['ActivityIndicator','ImageBackground','Pressable','ScrollView','Text','View']),StyleSheet:{create:(x:unknown)=>x}},
     './season-work-hours':workHours, './cockpit-season':cockpit, './flight-role-metric':roles, './DutyTarget':{useDutyTarget:()=>target,DutyTargetEditor:'DutyTargetEditor'},
     './theme':{...leaves(['Action','Card','GliderMark','IconLabel','Label','Photo','Section']),colors:{},ui:{}},'./SymbolIcon':leaves(['SymbolIcon']),
     './FlightScene':leaves(['FlightScene']),'./SeasonMonthlyCharts':leaves(['SeasonMonthlyCharts']), './season-dashboard-model':{...dashboardModel,monthlySeasonForCoverage:(...args:Parameters<typeof dashboardModel.monthlySeasonForCoverage>)=>{monthlyCalculations++;return dashboardModel.monthlySeasonForCoverage(...args);}}, './SeasonRing':leaves(['SeasonRing']),'./season-model':season,'./real-flight-statistics':{...statistics,summarizeRealFlights:(...args:Parameters<typeof statistics.summarizeRealFlights>)=>{calculations++;return statistics.summarizeRealFlights(...args);}},

@@ -1,9 +1,50 @@
 import { ownFlightFixture } from './own-flight-fixture.ts';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readOwnFlightView, readOwnFlightDetail, OwnFlightChangedError, serializeOwnFlightReads } from '../../apps/platform-lab/src/mobile/own-flight-reader.ts';
+import { readOwnFlightView, readOwnFlightDetail, OwnFlightChangedError, OwnFlightReadCancelled, serializeOwnFlightReads, type OwnFlightView } from '../../apps/platform-lab/src/mobile/own-flight-reader.ts';
 import { allOwnFlights, ownFlightYears, ownFlightRegistrations, selectOwnFlights } from '../../apps/platform-lab/src/mobile/own-flight-model.ts';
 import type { InformationCapture } from '../../apps/platform-lab/src/vereinsflieger/information.ts';
+
+function deferred<T>() { let resolve!:(value:T)=>void;const promise=new Promise<T>(done=>{resolve=done;});return {promise,resolve}; }
+
+test('verified flights publish before delayed optional sources, with honest independent loading and failure states',async()=>{
+  const f=ownFlightFixture(), medical=deferred<InformationCapture|null>(),started=deferred<void>(),published:OwnFlightView[]=[];
+  f.session.readMedical=async()=>{started.resolve();return medical.promise;};
+  f.session.readDuties=async()=>{throw new Error('Synthetic unavailable roster');};
+  f.session.readFeatureInformation=async()=>null;
+  const result=readOwnFlightView(f.ports,undefined,{current:()=>true,publish:view=>published.push(view)});
+  await started.promise;
+  assert.equal(published.length,1);assert.deepEqual(published[0]?.flights,f.flights);
+  assert.deepEqual(published[0]?.sections,{medical:'loading',duties:'loading',information:'loading'});
+  assert.equal(f.closes(),0);
+  medical.resolve(null);const final=await result;
+  assert.deepEqual(final?.sections,{medical:'missing',duties:'failed',information:'missing'});
+  assert.equal(final?.dutiesReadFailed,true);assert.equal(final?.flights.length,3);assert.equal(f.closes(),1);
+  assert.equal(published[0]?.sections?.medical,'loading','prior publication is immutable');
+});
+
+test('a writer supersedes supplemental work at the next safe boundary and cannot receive a late projection',async()=>{
+  const f=ownFlightFixture(), medical=deferred<InformationCapture|null>(),started=deferred<void>();
+  let current=true,duties=0,publishes=0;
+  f.session.readMedical=async()=>{started.resolve();return medical.promise;};
+  f.session.readDuties=async()=>{duties++;return null;};
+  const ports=serializeOwnFlightReads(f.ports);
+  const read=readOwnFlightView(ports,undefined,{current:()=>current,publish:()=>{publishes++;}});
+  await started.promise;current=false;let admitted=false;
+  const writer=ports.suspend().then(release=>{admitted=true;return release;});
+  await new Promise<void>(resolve=>{setImmediate(resolve);});assert.equal(admitted,false);
+  medical.resolve(null);await assert.rejects(read,OwnFlightReadCancelled);
+  const release=await writer;assert.equal(admitted,true);release();
+  assert.equal(duties,0);assert.equal(publishes,1);assert.equal(f.closes(),1);
+});
+
+test('owner invalidation after a partial publication prevents every subsequent section publication',async()=>{
+  const f=ownFlightFixture();let valid=true,published=0;
+  f.session.assertCurrent=async()=>{if(!valid)throw new Error('Owner changed');};
+  f.session.readMedical=async()=>{valid=false;return null;};
+  await assert.rejects(readOwnFlightView(f.ports,undefined,{current:()=>true,publish:()=>{published++;}}),/Owner changed/);
+  assert.equal(published,1);assert.equal(f.closes(),1);
+});
 
 test('saved-local timing separates read steps and records optional-source failures without changing the result',async()=>{
   const f=ownFlightFixture(), stages:[string,boolean][]=[];

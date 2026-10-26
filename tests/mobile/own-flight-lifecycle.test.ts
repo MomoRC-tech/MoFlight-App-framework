@@ -1,3 +1,4 @@
+import * as startTiming from '../../apps/platform-lab/src/start-timing.ts';
 import * as localDiagnostics from '../../apps/platform-lab/src/local-read-diagnostics';
 import * as diagnostics from '../../apps/platform-lab/src/diagnostics';
 import {loadFlightPresentation} from './flight-presentation-fixture';
@@ -36,7 +37,7 @@ function host(withPresentation = false) {
   };
   const exports:any={};runInNewContext(source,{exports,require:(name:string)=>name==='react'?react:name==='react-native'?{
     AppState:{currentState:'active',addEventListener:(_:string,fn:typeof listener)=>{listener=fn;return{remove(){}};}},
-  }:name==='../local-read-diagnostics'?localDiagnostics:name==='../diagnostics'?diagnostics:name==='./processed-result'?processedResults:reader});
+  }:name==='../start-timing'?startTiming:name==='../local-read-diagnostics'?localDiagnostics:name==='../diagnostics'?diagnostics:name==='./processed-result'?processedResults:reader});
   const presentation:any={};
   const onHeaderChange=()=>{};
   if(withPresentation){
@@ -98,10 +99,24 @@ test('local read, detail and retry are independent of provider calls; returning 
   h.setActive(true);state=await h.flush();assert.equal(state.phase,'ready');assert.equal(h.closes(),3);h.unmount();
 });
 test('late list read is discarded in background and only a fresh foreground read is published',async()=>{
-  const h=host();await h.flush();const pending=deferred<any>();let reads=0;
-  h.session.service.readStored=async()=>++reads===1?pending.promise:{snapshot:h.snapshot,flights:[]};
-  h.reload();h.background();h.foreground();pending.resolve({snapshot:h.snapshot,flights:h.flights});
+  const h=host();await h.flush();const pending=deferred<any>(),started=deferred<void>();let reads=0;
+  h.session.service.readStored=async()=>{if(++reads===1){started.resolve();return pending.promise;}return {snapshot:h.snapshot,flights:[]};};
+  h.reload();await started.promise;h.background();h.foreground();pending.resolve({snapshot:h.snapshot,flights:h.flights});
   const state=await h.flush();assert.equal(state.phase,'ready');assert.equal(state.view.flights.length,0);assert.equal(reads,2);h.unmount();
+});
+
+test('hook publishes saved flights while Medical is pending, then clears staged data when a writer opens',async()=>{
+  const h=host(),medical=deferred<any>(),started=deferred<void>();let duties=0;
+  h.session.readMedical=async()=>{started.resolve();return medical.promise;};
+  h.session.readDuties=async()=>{duties++;return null;};
+  await started.promise;
+  const visible=h.render();assert.equal(visible.phase,'ready');assert.equal(visible.view.flights.length,3);
+  assert.equal(diagnostics.diagnosticJournal.snapshot().filter(entry=>entry.action==='start-presentation').at(-1)?.outcome,'success');
+  assert.equal(diagnostics.diagnosticJournal.snapshot().filter(entry=>entry.action==='read-flights').at(-1)?.outcome,'running');
+  assert.equal(visible.view.sections.medical,'loading');assert.equal(visible.view.sections.duties,'loading');
+  h.setActive(false);assert.equal(h.render().view,null);
+  medical.resolve(null);await h.flush();assert.equal(h.render().view,null);assert.equal(duties,0);assert.equal(h.closes(),1);
+  h.unmount();
 });
 test('Back cancels a late detail and a changed revision fails closed before local retry',async()=>{
   const h=host();let state=await h.flush();const pending=deferred<any>();h.session.service.detail=async()=>pending.promise;
@@ -299,4 +314,12 @@ test('failed or missing sync readback clears retained content and queued detail 
    assert.equal(detailReads,0,'local retry must not replay the abandoned detail request');
   }finally{h.unmount();}
  }
+});
+
+
+test('unchanged visible data gets a retained-data timing marker without waiting for a nonexistent React change',async()=>{
+  const h=host();await h.flush();h.reload();await h.flush();
+  const presentation=diagnostics.diagnosticJournal.snapshot().filter(entry=>entry.action==='start-presentation').at(-1)!;
+  assert.equal(presentation.outcome,'success');assert.ok(presentation.stages.some(stage=>stage.name==='start-retained-data'));
+  h.unmount();
 });

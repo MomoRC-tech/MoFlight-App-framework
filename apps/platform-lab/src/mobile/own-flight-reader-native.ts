@@ -13,19 +13,24 @@ import { assertNoPendingUserBackupRestore } from '../user-backup-restore-journal
 
 /** Read the selected real owner. Missing files stay missing; no fallback to the lab library. */
 export const ownFlightReadPorts = serializeOwnFlightReads({
-  async open() {
-    await traceLocalRead('restore-gate', () => assertNoPendingUserBackupRestore());
-    const registry = await traceLocalRead('registry-open', () => openOwnerRegistry(false));
+  async open(timing) {
+    const timed = async <T>(name: string, work: () => Promise<T>): Promise<T> => {
+      const finish = timing?.(name);
+      try { const result = await work(); finish?.(true); return result; }
+      catch (error) { finish?.(false); throw error; }
+    };
+    await timed('local-restore-gate', () => traceLocalRead('restore-gate', () => assertNoPendingUserBackupRestore()));
+    const registry = await timed('owner-registry-open', () => traceLocalRead('registry-open', () => openOwnerRegistry(false)));
     if (!registry) return null;
     try {
-      const lease = await registry.currentOwner();
+      const lease = await timed('owner-selection', () => registry.currentOwner());
       if (!lease) { await registry.close(); return null; }
       let closed = false;
       const scope = { registry, lease, authorize: () => closed ? null : {
         ownerId: lease.ownerId, storeId: lease.storeId, leaseId: lease.leaseId, writable: false,
       } };
       const journal = async () => {
-        const opened = await openRealFlightCommandJournal(scope, false);
+        const opened = await timed('local-journal-open', () => openRealFlightCommandJournal(scope, false));
         if (!opened) throw new Error('Own-flight setup or recovery is incomplete.');
         return opened;
       };
@@ -33,8 +38,8 @@ export const ownFlightReadPorts = serializeOwnFlightReads({
         authorize: scope.authorize, hash, uuid: Crypto.randomUUID, now: () => new Date().toISOString(),
         retrieve: async () => { throw new Error('Provider retrieval requires the explicit reviewed flow.'); },
         journal,
-        repository: async () => {
-          const selection = await openRealFlightSelection(scope, false);
+        repository: async serviceTiming => {
+          const selection = await openRealFlightSelection(scope, false, undefined, timing ?? serviceTiming);
           if (!selection) throw new Error('Own-flight selection is unavailable.');
           try {
             const selected = await selection.select();
@@ -54,7 +59,7 @@ export const ownFlightReadPorts = serializeOwnFlightReads({
           const selected=await loadProviderScope(lease!.ownerId);
           if(!selected)return null;
           if(selected.owner!==lease!.ownerId||selected.context.accountNumber!==accountRef)throw new Error('Foreign information scope');
-          const captures=await loadInformation(selected,()=>{if(closed)throw new Error('Information reader closed');});
+          const captures=await timed('local-information-load', () => loadInformation(selected,()=>{if(closed)throw new Error('Information reader closed');}));
           return {scope:selected,captures};
         })();
         const result=await informationRead;
@@ -79,7 +84,7 @@ export const ownFlightReadPorts = serializeOwnFlightReads({
           return source?medicalSource(source.captures,lease.ownerId):null;
         },
         assertCurrent: () => registry.assertCurrent(lease),
-        pendingCommand: async () => { const opened = await journal(); try { return !!await opened.pending(); } finally { await opened.close(); } },
+        pendingCommand: async () => { const opened = await journal(); try { return !!await timed('local-journal-read', () => opened.pending()); } finally { await timed('local-journal-close', () => opened.close()); } },
         close: async () => { if (!closed) { closed = true; service.dispose(); await registry.close(); } },
       };
     } catch (error) { await registry.close(); throw error; }

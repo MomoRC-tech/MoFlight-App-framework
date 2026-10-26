@@ -1,3 +1,4 @@
+import { startRenderSpan } from '../start-timing';
 import React, { useMemo, useState } from 'react';
 import { ActivityIndicator, ImageBackground, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Card, Label, colors, ui } from './theme';
@@ -34,9 +35,13 @@ export function Dashboard({ ownFlights, ownFlightPhase, onFlights, onFlight, onS
   const years=[...new Set([currentYear,...(ownFlights?.flights??[]).map(f=>Number(f.facts.assessment.date.value?.slice(0,4))).filter(y=>Number.isInteger(y)&&y>=1901&&y<=currentYear)])].sort((a,b)=>b-a);
   const processFlights=useMemo(()=>createProcessedSelector(({flights,year,today}:{flights:RealFlightListItem[];year:number;today:string})=>{
     const latest=latestSavedFlights(flights)[0];
-    return {current:summarizeRealFlights(flights,year),prior:summarizeRealFlights(flights,year-1),roles:cockpitRoleMetrics(flights,year,today),latest,orderUnknown:latestFlightOrderUnknown(flights,latest)};
+    const result = {current:summarizeRealFlights(flights,year),prior:summarizeRealFlights(flights,year-1),roles:cockpitRoleMetrics(flights,year,today),latest,orderUnknown:latestFlightOrderUnknown(flights,latest)};
+    return result;
   }),[]);
-  const processed=processFlights(scope,ownFlights?{flights:ownFlights.flights,year,today}:null);
+  const finishDerive=startRenderSpan(ownFlights,'start-dashboard-derive');
+  let processed:ReturnType<typeof processFlights>;
+  try { processed=processFlights(scope,ownFlights?{flights:ownFlights.flights,year,today}:null); finishDerive?.(true); }
+  catch(error){finishDerive?.(false);throw error;}
   const empty=useMemo(()=>summarizeRealFlights([]),[]),saved=ownFlights?.snapshot.savedRetrievals??[];
   const facts={current:cockpitSeasonValues(processed?.current??empty,saved,year,today),prior:cockpitSeasonValues(processed?.prior??empty,saved,year-1,today),latest:processed?.latest};
   const workHours=seasonWorkHours(ownFlights?.featureInformation?.workSummary,year);
@@ -60,7 +65,7 @@ export function Dashboard({ ownFlights, ownFlightPhase, onFlights, onFlight, onS
           <View style={[styles.metric,styles.divider]} accessible accessibilityLabel={`Starts ${year}: ${ready?facts.current.starts:'unbekannt'}. ${year-1}: ${ready?facts.prior.starts:'unbekannt'}.`}>
             <Label style={styles.value}>{ready?facts.current.starts:'—'}</Label><Label muted style={styles.metricLabel}>Starts</Label><Label muted style={styles.prior}>{year-1}: {ready?facts.prior.starts:'—'}</Label>
           </View>
-          <Pressable accessibilityRole="button" accessibilityLabel={`Arbeitsstunden ${year}: ${ready?(workHours??'unbekannt'):'unbekannt'} geleistet. Lokale Sollstunden ${target.hours}. Sollstunden bearbeiten`} accessibilityState={{expanded:targetOpen}} onPress={()=>setTargetOpen(!targetOpen)} style={[styles.metric,styles.divider,styles.workMetric]}>
+          <Pressable accessibilityRole="button" accessibilityLabel={`Arbeitsstunden ${year}: ${ready?(ownFlights?.sections?.information==='loading'?'wird geladen':workHours??'unbekannt'):'unbekannt'} geleistet. Lokale Sollstunden ${target.hours}. Sollstunden bearbeiten`} accessibilityState={{expanded:targetOpen}} onPress={()=>setTargetOpen(!targetOpen)} style={[styles.metric,styles.divider,styles.workMetric]}>
             <Label style={[styles.value,styles.workValue]}>{ready?(workHours??'—'):'—'} h</Label><Label muted style={styles.metricLabel}>Arbeitsstunden · Ist</Label><View style={styles.workTarget}><Label style={styles.prior}>Soll {String(target.hours).replace('.',',')} h</Label><Label style={styles.editCue}>✎</Label></View>
           </Pressable>
           {(['solo','dualInstruction','picWithCompanion'] as const).map(key=>{

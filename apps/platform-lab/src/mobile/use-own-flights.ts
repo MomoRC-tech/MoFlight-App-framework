@@ -1,12 +1,13 @@
+import { startTiming, bindStartRenderTiming } from '../start-timing';
 import { localReadFailureCode } from '../local-read-diagnostics';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AppState } from 'react-native';
 import { diagnosticJournal } from '../diagnostics';
 import { reuseEqualData } from './processed-result';
 import type { RealFlightDetail, RealFlightListItem } from '../vereinsflieger/real-flight-library';
-import { readOwnFlightDetail, readOwnFlightView, OwnFlightChangedError, type OwnFlightReadPorts, type OwnFlightView } from './own-flight-reader';
+import { readOwnFlightDetail, readOwnFlightView, OwnFlightChangedError, OwnFlightReadCancelled, type OwnFlightReadPorts, type OwnFlightView } from './own-flight-reader';
 
-export function useOwnFlights(ports: OwnFlightReadPorts, active: boolean, reloadKey: number, retainWhilePaused=false) {
+export function useOwnFlights(ports: OwnFlightReadPorts, active: boolean, reloadKey: number, retainWhilePaused=false, startVisible=true) {
   const processedView = useRef<OwnFlightView | null>(null);
   const [view, setView] = useState<OwnFlightView | null>(null);
   const [phase, setPhase] = useState<'loading' | 'ready' | 'missing' | 'failed'>('loading');
@@ -17,6 +18,13 @@ export function useOwnFlights(ports: OwnFlightReadPorts, active: boolean, reload
   const queuedQuiet = useRef(false), readingDetail = useRef(false);
   const pendingDetail = useRef<RealFlightListItem | null>(null);
   const retainedPause=useRef(false);
+  const presented = useRef(-1), beganRead = useRef(false), visible = useRef(startVisible);
+  visible.current = startVisible;
+  const presentation = useRef<{ id: number; view: OwnFlightView; operation: ReturnType<typeof diagnosticJournal.begin>; finish: (ok: boolean) => void } | null>(null);
+  const cancelPresentation = () => {
+    const pending = presentation.current;
+    if (pending) { pending.finish(false); pending.operation.finish('cancelled', 'stale-selection'); presentation.current = null; }
+  };
   const detailReader = useRef<(selected: RealFlightListItem) => Promise<void>>(async () => {});
   enabled.current = active;
   const current = (id: number) => alive.current && enabled.current && foreground.current && sequence.current === id;
@@ -32,11 +40,12 @@ export function useOwnFlights(ports: OwnFlightReadPorts, active: boolean, reload
       queued.current = true; sequence.current++; return;
     }
     queued.current = false; locked.current = true;
+    cancelPresentation();
     const id = ++sequence.current;
-    const diagnosis = diagnosticJournal.begin('read-flights'), stage = diagnosis.span('local-read');
+    const diagnosis = diagnosticJournal.begin('read-flights', !beganRead.current ? startTiming.reference() : undefined), stage = diagnosis.span('local-read');
+    diagnosis.span(!beganRead.current?'local-trigger-initial':quiet?'local-trigger-resume':'local-trigger-refresh')(true); beganRead.current=true;
     if (!quiet) { setPhase('loading'); pendingDetail.current = null; setDetail(null); setDetailBusy(false); setDetailError(null); }
-    try {
-      const next = await readOwnFlightView(ports, diagnosis);
+    const publish = (next: OwnFlightView | null) => {
       if (current(id)) {
         const finishReuse = diagnosis.span('local-view-reuse');
         let reused = false;
@@ -49,20 +58,40 @@ export function useOwnFlights(ports: OwnFlightReadPorts, active: boolean, reload
           // Details include capture/history evidence beyond the visible facts revision.
           if (!sameScope || shared?.snapshot !== prior?.snapshot || shared?.flights !== prior?.flights) setDetail(null);
           processedView.current = shared;
+          if (shared && !presentation.current && presented.current !== id) {
+            const operation = diagnosticJournal.begin('start-presentation', diagnosis.reference());
+            const retained=shared===prior && visible.current && presented.current>=0;
+            presentation.current = { id, view: shared, operation, finish: operation.span(retained?'start-retained-data':'start-render-wait') };
+            if(retained){presentation.current.finish(true);operation.finish('success');presentation.current=null;presented.current=id;}
+            startTiming.data();
+          } else if (shared && presentation.current) presentation.current.view = shared;
+          if (shared && presentation.current) bindStartRenderTiming(shared, presentation.current.operation.span);
           setView(shared); setPhase(shared ? 'ready' : 'missing');
           reused = true;
         } finally { finishReuse(reused); }
       }
-      stage(true); diagnosis.finish(current(id)?'success':'cancelled',current(id)?'none':'stale-selection');
+    };
+    try {
+      const next = await readOwnFlightView(ports, diagnosis, { publish, current: () => current(id) });
+      publish(next);
+      const partial = !!(next?.medicalReadFailed || next?.dutiesReadFailed || next?.featureInformationReadFailed);
+      if (current(id)) { if (next) startTiming.settled(partial); else startTiming.noData(); }
+      stage(true); diagnosis.finish(current(id) ? partial ? 'partial' : 'success' : 'cancelled',current(id)?'none':'stale-selection');
     } catch (error) {
-      stage(false); diagnosis.finish(current(id)?'failed':'cancelled',current(id)?'operation-failed':'stale-selection');
-      if (current(id)) { console.warn('Own-flight local read failed', localReadFailureCode(error)); processedView.current = null; pendingDetail.current = null; setView(null); setDetail(null); setDetailBusy(false); setPhase('failed'); }
+      stage(false); cancelPresentation(); diagnosis.finish(current(id) && !(error instanceof OwnFlightReadCancelled)?'failed':'cancelled',current(id)?'operation-failed':'stale-selection');
+      if (current(id)) { startTiming.fail(); console.warn('Own-flight local read failed', localReadFailureCode(error)); processedView.current = null; pendingDetail.current = null; setView(null); setDetail(null); setDetailBusy(false); setPhase('failed'); }
     } finally {
       locked.current = false;
       if (queued.current && alive.current && enabled.current && foreground.current) void reload(queuedQuiet.current);
       else if (pendingDetail.current && alive.current && enabled.current && foreground.current) { const selected = pendingDetail.current; pendingDetail.current = null; void detailReader.current(selected); }
     }
   }, [ports]);
+  useEffect(() => {
+    const pending = presentation.current;
+    if (!pending || !startVisible || !view || pending.view !== view || pending.id !== sequence.current || !active) return;
+    // Passive effect confirms React commit only. Native frame presentation is a separate checkpoint.
+    presented.current = pending.id; pending.finish(true); pending.operation.finish('success'); startTiming.commit(); presentation.current = null;
+  }, [view, phase, active, startVisible]);
   const openDetail = async (selected: RealFlightListItem) => {
     const latest = processedView.current;
     if (!alive.current || !foreground.current) return;
@@ -110,17 +139,17 @@ export function useOwnFlights(ports: OwnFlightReadPorts, active: boolean, reload
       // local screen. Account/writer changes still invalidate through active/reloadKey.
       if (foreground.current === nextForeground) return;
       foreground.current = nextForeground;
-      if (!foreground.current) { sequence.current++; pendingDetail.current = null; setDetailBusy(false); }
+      if (!foreground.current) { cancelPresentation(); startTiming.cancel(); sequence.current++; pendingDetail.current = null; setDetailBusy(false); }
       else if (enabled.current) void reload(true);
     });
-    return () => { alive.current = false; sequence.current++; queued.current = false; pendingDetail.current = null; subscription.remove(); };
+    return () => { cancelPresentation(); alive.current = false; sequence.current++; queued.current = false; pendingDetail.current = null; subscription.remove(); };
   }, [reload]);
   useEffect(() => {
     const returning=retainedPause.current;
     retainedPause.current=!active&&retainWhilePaused;
     if (active) void reload(returning);
-    else if(retainWhilePaused){sequence.current++;setDetailBusy(false);}
-    else { sequence.current++; processedView.current = null; pendingDetail.current = null; setView(null); setDetail(null); setDetailBusy(false); setPhase('loading'); }
+    else if(retainWhilePaused){startTiming.cancel();cancelPresentation();sequence.current++;setDetailBusy(false);}
+    else { startTiming.cancel();cancelPresentation();sequence.current++; processedView.current = null; pendingDetail.current = null; setView(null); setDetail(null); setDetailBusy(false); setPhase('loading'); }
   }, [active, reloadKey, reload,retainWhilePaused]);
   return { view, phase, detail, detailBusy, detailError, openDetail, clearDetail, reload };
 }

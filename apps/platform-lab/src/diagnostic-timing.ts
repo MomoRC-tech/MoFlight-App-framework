@@ -2,6 +2,11 @@ import { diagnosticActions, diagnosticStages, outcomes, member, object, DIAGNOST
 
 type TimingPoint={name:DiagnosticStage;state:string;offset:number;spanId?:number;parentSpanId?:number};
 type Interval={start:number;end:number};
+type TimingTimeline = {
+  scope:string;complete:boolean;incompleteSpans:number;overlapMilliseconds:number;activeMilliseconds:number;waitingMilliseconds:number;
+  unattributedMilliseconds:number;activeIntervals:Interval[];waitingIntervals:Interval[];gaps:Interval[];droppedCheckpoints?:number;
+  milestones?:{name:string;milliseconds:number|null;observed:boolean}[];
+};
 const length=(values:Interval[])=>values.reduce((total,value)=>total+value.end-value.start,0);
 function union(values:Interval[]):Interval[]{
   const result:Interval[]=[];
@@ -27,7 +32,7 @@ function subtract(values:Interval[],removed:Interval[]):Interval[]{
   }
   return result;
 }
-function timeline(points:TimingPoint[],milliseconds:number){
+function timeline(points:TimingPoint[],milliseconds:number): TimingTimeline | undefined {
   if(!points.some(point=>point.name.startsWith('sync-')))return undefined;
   const groups=new Map<number,TimingPoint[]>(),unknown:Interval[]=[],top:Interval[]=[],waits:Interval[]=[];
   let incompleteSpans=0;
@@ -57,6 +62,40 @@ function timeline(points:TimingPoint[],milliseconds:number){
     complete:incompleteSpans===0&&overlapMilliseconds===0,incompleteSpans,overlapMilliseconds,
     activeMilliseconds:length(activeIntervals),waitingMilliseconds:length(waitingIntervals),unattributedMilliseconds:length(gaps),
     activeIntervals,waitingIntervals,gaps};
+}
+
+/** Start preparation uses disjoint outer steps; cumulative JS milestones are separate endpoints. */
+function startTimeline(action: string, points: TimingPoint[], milliseconds: number, dropped: number): TimingTimeline | undefined {
+  const names = action === 'read-flights' ? new Set(['local-session-open','local-owner-check','local-pending-command','local-stored-view',
+    'local-medical-read','local-duties-read','local-information-read','local-session-close','local-view-reuse'])
+    : action === 'start-presentation' ? new Set(['start-render-wait','start-retained-data']) : null;
+  if (action === 'start-screen') {
+    const milestones = ['start-js-to-shell','start-js-to-data','start-js-to-commit','start-js-to-settled'].map(name => {
+      const end = points.find(point => point.name === name && point.state !== 'start');
+      return { name, milliseconds: end?.offset ?? null, observed: end?.state === 'success' };
+    });
+    return { scope: 'JS instrumentation entry only; React commit is a proxy, native launch/presentation unmeasured',
+      complete: dropped === 0 && milestones.every(point => point.observed), droppedCheckpoints: dropped, milestones, incompleteSpans:milestones.filter(point=>!point.observed).length, overlapMilliseconds:0,
+      activeMilliseconds:0,waitingMilliseconds:0,unattributedMilliseconds:milliseconds,activeIntervals:[],waitingIntervals:[],gaps:[{start:0,end:milliseconds}] };
+  }
+  if (!names) return undefined;
+  const groups = new Map<number, TimingPoint[]>(); let incompleteSpans = 0;
+  for (const point of points.filter(point => names.has(point.name))) {
+    if (point.spanId === undefined) { incompleteSpans++; continue; }
+    const group = groups.get(point.spanId) ?? []; group.push(point); groups.set(point.spanId, group);
+  }
+  const intervals: Interval[] = [];
+  for (const group of groups.values()) {
+    const begin=group.find(point=>point.state==='start'),end=group.find(point=>point.state!=='start');
+    if(group.length!==2||!begin||!end||begin.name!==end.name||begin.offset>end.offset||end.offset>milliseconds) { incompleteSpans++; continue; }
+    intervals.push({start:begin.offset,end:end.offset});
+  }
+  const activeIntervals=union(intervals), overlapMilliseconds=length(intervals)-length(activeIntervals);
+  const gaps=subtract([{start:0,end:milliseconds}],activeIntervals);
+  return {scope: action==='read-flights'?'saved-local preparation; render is measured separately':'publication to React commit proxy; not native pixels',
+    complete:dropped===0&&incompleteSpans===0&&overlapMilliseconds===0&&intervals.length>0,
+    droppedCheckpoints:dropped,incompleteSpans,overlapMilliseconds,activeMilliseconds:length(activeIntervals),waitingMilliseconds:0,waitingIntervals:[],
+    unattributedMilliseconds:length(gaps),activeIntervals,gaps};
 }
 
 /** Project only finite timing fields. Never copy source text, IDs, context or error messages. */
@@ -98,8 +137,11 @@ export function summarizeDiagnosticTiming(input: unknown) {
         return result;
       });
     })();
-    const milliseconds=duration(entry.milliseconds),observedTimeline=checkpoints===undefined?undefined:timeline(checkpoints,milliseconds);
-    return { action: entry.action, outcome: entry.outcome, milliseconds, stages, ...(checkpoints === undefined ? {} : { checkpoints }),...(observedTimeline===undefined?{}:{timeline:observedTimeline}) };
+    const milliseconds=duration(entry.milliseconds),dropped=entry.droppedCheckpoints===undefined?0:duration(entry.droppedCheckpoints);
+    const observedTimeline=checkpoints===undefined?undefined:startTimeline(entry.action as string,checkpoints,milliseconds,dropped)??timeline(checkpoints,milliseconds);
+    const reference = (value: unknown) => { const raw=object(value); return Number.isSafeInteger(raw.session)&&Number.isSafeInteger(raw.sequence)&&(raw.session as number)>0&&(raw.sequence as number)>0&&(raw.session as number)<=1e12&&(raw.sequence as number)<=1e12 ? {session:raw.session as number,sequence:raw.sequence as number} : undefined; };
+    const ownReference=reference(entry),related=reference(entry.relatedOperation);
+    return { ...(ownReference?{operation:ownReference}:{}),...(related?{relatedOperation:related}:{}), action: entry.action, outcome: entry.outcome, milliseconds, stages, ...(checkpoints === undefined ? {} : { checkpoints }),...(observedTimeline===undefined?{}:{timeline:observedTimeline}) };
   });
   return { version: 1, units: 'milliseconds', scope: 'observed operations only; missing phases remain unmeasured',
     timing: 'operation elapsed and inclusive stages; overlapping stages must not be added or subtracted', operations };

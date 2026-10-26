@@ -88,7 +88,7 @@ export class RealFlightService {
     // observations to this operation rather than an already completed open span.
     const session = supplied ?? await timeFlightStage('repository-open',()=>this.ports.repository(span),span);
     try { this.allowed(); const result = await work(session,span); this.allowed(); return result; }
-    finally { await session.close(); }
+    finally { await timeFlightStage('repository-close', () => session.close(), span); }
   }
   private async withJournal<T>(work: (journal: RealFlightOperationJournal) => Promise<T>): Promise<T> {
     this.allowed(); const journal = await this.ports.journal();
@@ -258,11 +258,12 @@ export class RealFlightService {
       return this.storedSnapshot(await library.snapshot(timing),writable,warning);
     });
   }
-  async readStored(initialSession?: RealFlightRepositorySession): Promise<OwnFlightStoredReadback> {
+  async readStored(initialSession?: RealFlightRepositorySession, span: DiagnosticSpanStarter = diagnosticJournal.captureSpan()): Promise<OwnFlightStoredReadback> {
     return this.withRepository(async ({library,writable,warning},timing)=>{
       const {graph,flights}=await library.readStored(timing);
-      return {snapshot:this.storedSnapshot(graph,writable,warning),flights};
-    }, initialSession);
+      const finish=timing('stored-summary-derivation');
+      try { const result={snapshot:this.storedSnapshot(graph,writable,warning),flights}; finish(true); return result; } catch (error) { finish(false); throw error; }
+    }, initialSession, span);
   }
   async readReviewEvidence(): Promise<SavedSourceReview> {
     return this.withRepository(async ({library}) => {

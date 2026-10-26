@@ -1,3 +1,4 @@
+import * as startTiming from '../../apps/platform-lab/src/start-timing.ts';
 import { syncStatus } from '../../apps/platform-lab/src/mobile/sync-status.ts';
 import { createSyncConfirmation } from '../../apps/platform-lab/src/mobile/sync-confirmation.ts';
 import * as diagnostics from '../../apps/platform-lab/src/diagnostics';
@@ -51,7 +52,7 @@ function fixture(width = 390, fontScale = 1, root = false) {
   Object.assign(controller, { connect: () => calls.push('connect'), checkConnection: () => calls.push('check'), retrieve: () => calls.push('retrieve') });
   let hardwareBack: () => boolean;
   const leaves = (names: string[]) => Object.fromEntries(names.map(name => [name, name]));
-  const modules: Record<string, unknown> = {
+  const modules: Record<string, unknown> = { '../start-timing': startTiming,
     react: { default: react, ...react },
     'react-native': { ...leaves(['ActivityIndicator', 'FlatList', 'KeyboardAvoidingView', 'Pressable', 'ScrollView', 'StatusBar', 'Text', 'TextInput', 'View']),
       Alert: {alert:(title:string,message:string,buttons:any[],options:any)=>dialogs.push({title,message,buttons,options})},

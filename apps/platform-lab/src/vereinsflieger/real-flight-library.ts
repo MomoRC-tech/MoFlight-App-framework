@@ -15,7 +15,7 @@ export interface RealFlightPermit { ownerId: string; storeId: string; leaseId: s
 export type RealFlightAuthorization = () => RealFlightPermit | null;
 export type RealFlightFault = (stage: string) => Promise<void>;
 export type RealFlightAccessGate = (write: boolean) => Promise<void>;
-export type RealFlightTimingStage = 'graph-read' | 'graph-canonicalization' | 'graph-validation' | 'import-derivation' | 'graph-writes' | 'save-readback' | 'queue-wait';
+export type RealFlightTimingStage = 'stored-list-derivation' | 'graph-read' | 'graph-canonicalization' | 'graph-validation' | 'import-derivation' | 'graph-writes' | 'save-readback' | 'queue-wait';
 /** Fixed structural observer: no app dependency, identifiers or graph contents. */
 export type RealFlightTiming = (stage: RealFlightTimingStage) => ((success: boolean) => void) & {span?: RealFlightTiming};
 async function measured<T>(stage: RealFlightTimingStage, timing: RealFlightTiming | undefined, work: (nested?: RealFlightTiming) => Promise<T>): Promise<T> {
@@ -320,7 +320,9 @@ export class RealFlightLibrary {
 
   /** Summary and rows share one fully validated transaction snapshot. */
   async readStored(timing?: RealFlightTiming): Promise<{graph: RealFlightGraph; flights: RealFlightListItem[]}> {
-    const graph = await this.snapshot(timing), binding = latestRealFlightValues<StoredBinding>(graph.records, 'binding')[0];
+    const graph = await this.snapshot(timing);
+    return measuredValue('stored-list-derivation', timing, () => {
+    const binding = latestRealFlightValues<StoredBinding>(graph.records, 'binding')[0];
     if (!binding) return {graph,flights:[]};
     const rows: RealFlightListItem[] = [];
     for (const flightRow of latestRealFlightRecords(graph.records, 'flight')) {
@@ -334,6 +336,7 @@ export class RealFlightLibrary {
         facts: stored.facts, unassigned: true });
     }
     return {graph,flights:realFlightClone(rows)};
+    });
   }
 
   async detail(flightId: string): Promise<RealFlightDetail | null> {

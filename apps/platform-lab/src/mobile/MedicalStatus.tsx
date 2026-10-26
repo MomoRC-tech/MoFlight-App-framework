@@ -42,7 +42,7 @@ export function MedicalDetails({ capture = null, loading = false, needsReload = 
       </View>)}
       {!capture.rows.length && <Label>Im erfassten Seitenausschnitt wurden keine Medical-Angaben gefunden. Der Status bleibt unbekannt.</Label>}
       <Label muted>{capture.coverage.truncated ? 'Der erfasste Ausschnitt ist unvollständig. ' : ''}Originalangaben aus dem gespeicherten Seitenausschnitt; Vollständigkeit und Gültigkeit sind nicht bestätigt.</Label>
-    </> : <><Label>Status unbekannt</Label><Label>In dieser lokalen Ansicht sind noch keine Medical-Quellenangaben verfügbar.</Label></>}
+    </> : !loading && <><Label>Status unbekannt</Label><Label>In dieser lokalen Ansicht sind noch keine Medical-Quellenangaben verfügbar.</Label></>}
     <Label muted>Diese Quellangaben sind keine Bestätigung der Flugtauglichkeit oder einer Flugberechtigung.</Label>
   </Card>;
 }

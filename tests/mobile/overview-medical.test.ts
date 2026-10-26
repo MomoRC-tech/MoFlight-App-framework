@@ -19,7 +19,7 @@ const modules: Record<string, unknown> = {
 const source = ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/mobile/OverviewTiles.tsx', import.meta.url), 'utf8'), {
   compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.React, esModuleInterop: false },
 }).outputText;
-const component = {} as { OverviewTiles: (p: {medical?: InformationCapture; now: number; onMedical: () => void; onPaper: () => void}) => Element };
+const component = {} as { OverviewTiles: (p: {medicalLoading?: boolean; medical?: InformationCapture; now: number; onMedical: () => void; onPaper: () => void}) => Element };
 runInNewContext(source, { exports: component, require: (name: string) => { assert.ok(name in modules); return modules[name]; } });
 function nodes(tree: Element): Element[] {
   return [tree, ...tree.children.flatMap(child => child && typeof child === 'object' && 'children' in child ? nodes(child as Element) : [])];
@@ -82,4 +82,12 @@ test('enlarged text keeps stacked tiles and complete Medical content', () => {
     assert.equal(nodes(tile).find(node => node.type === 'Text')?.props.ellipsizeMode, 'tail');
     assert.ok(nodes(tile).filter(node => node.type === 'Text').every(node => node.props.numberOfLines === 1));
   } finally { fontScale = 1; }
+});
+
+
+test('loading Medical stays explicitly loading rather than claiming a missing or valid status',()=>{
+  const tree=component.OverviewTiles({medicalLoading:true,now:Date.now(),onMedical(){},onPaper(){}});
+  const tile=nodes(tree).find(node=>node.type==='Pressable')!;
+  assert.match(tile.props.accessibilityLabel,/werden geladen/);assert.match(text(tile),/Wird geladen/);
+  assert.doesNotMatch(text(tile),/Status unbekannt/);
 });
