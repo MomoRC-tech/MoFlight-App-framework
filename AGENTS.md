@@ -2,6 +2,8 @@
 
 ## Delivery and verification preferences
 
+- Manuel clarified on 26 October 2026 that the current Start screen is to be preserved, with only small, specific corrections. The Material redesign primarily concerns other pages, dialogs and navigation. Do not indirectly restyle/recompose Start through shared tokens. Keep the existing vivid navy/cyan character as the color reference; the muted Glacial proposal was rejected as too far from the current app.
+
 - Manuel selected on 26 October 2026 that dark is the master/default theme; light is an explicit optional switch, not automatic device-theme selection. Until beta preparation, verify/test UI in dark mode only, using brief checks of affected screens and reusing valid evidence. Defer light-theme acceptance to the beta checkpoint; do not expand routine verification into long theme/device matrices.
 
 - Manuel requested on 26 October 2026 that every layout/design request consult current Google Material 3 guidance at https://m3.material.io for examples and proposals. Use relevant component guidance alongside the approved MoFlight design contract, identify adaptations, and keep proposal selection separate from implementation approval.
