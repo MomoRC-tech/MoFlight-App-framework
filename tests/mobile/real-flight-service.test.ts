@@ -363,6 +363,31 @@ test('combined stored view keeps summary and rows coherent with one repository s
   }finally{await f.cleanup();}
 });
 
+test('displayed detail evidence survives repository close without reopening and stays isolated from output mutation',async()=>{
+  const f=await fixture();
+  try {
+    const {service,review}=await ready(f);await service.saveUnassigned(review);
+    const original=f.ports.repository;let opens=0;
+    f.ports.repository=async()=>{opens++;return original();};
+    const stored=await service.readStored(undefined,undefined,true);
+    const flight=stored.flights[0]!;
+    const expected=await service.detail(flight.flightId);
+    assert.ok(expected);assert.ok(stored.detailSource);
+    const before=opens;
+    const detail=stored.detailSource.detail(flight.flightId)!;
+    assert.deepEqual(detail,expected);
+    detail.factHistory.length=0;detail.captures.length=0;detail.pending.push({captureId:'changed',issue:{} as never});
+    stored.flights.length=0;
+    assert.deepEqual(stored.detailSource.detail(flight.flightId),expected);
+    assert.equal(opens,before,'browsing displayed evidence never selects or opens a repository');
+    // New reads still verify current persisted data, independently of the retained read model.
+    const fresh=await service.readStored(undefined,undefined,true);
+    assert.notEqual(fresh.detailSource,stored.detailSource);
+    assert.deepEqual(fresh.detailSource!.detail(flight.flightId),expected);
+    service.dispose();
+  }finally{await f.cleanup();}
+});
+
 test('combined stored view rejects changed SQL integrity and closes a repository on failure',async()=>{
   const f=await fixture();
   try {

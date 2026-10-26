@@ -45,6 +45,7 @@ export function useOwnFlights(ports: OwnFlightReadPorts, active: boolean, reload
     const diagnosis = diagnosticJournal.begin('read-flights', !beganRead.current ? startTiming.reference() : undefined), stage = diagnosis.span('local-read');
     diagnosis.span(!beganRead.current?'local-trigger-initial':quiet?'local-trigger-resume':'local-trigger-refresh')(true); beganRead.current=true;
     if (!quiet) { setPhase('loading'); pendingDetail.current = null; setDetail(null); setDetailBusy(false); setDetailError(null); }
+    let incomingSource: OwnFlightView['detailSource'], sharedSource: OwnFlightView['detailSource'];
     const publish = (next: OwnFlightView | null) => {
       if (current(id)) {
         const finishReuse = diagnosis.span('local-view-reuse');
@@ -53,10 +54,17 @@ export function useOwnFlights(ports: OwnFlightReadPorts, active: boolean, reload
           const prior = processedView.current;
           const sameScope = prior && next && prior.snapshot.ownerId === next.snapshot.ownerId &&
             prior.snapshot.storeId === next.snapshot.storeId && prior.snapshot.account?.accountRef === next.snapshot.account?.accountRef;
-          const shared = sameScope ? reuseEqualData(prior, next) : next;
+          // Reuse only exact previously validated evidence, never generation/count equality.
+          if (next?.detailSource !== incomingSource) {
+            incomingSource = next?.detailSource;
+            sharedSource = sameScope && prior.detailSource && incomingSource && prior.detailSource.sameEvidence(incomingSource)
+              ? prior.detailSource : incomingSource;
+          }
+          const candidate = next?.detailSource && sharedSource ? {...next, detailSource: sharedSource} : next;
+          const shared = sameScope ? reuseEqualData(prior, candidate) : candidate;
           if (!sameScope) { pendingDetail.current = null; setDetailBusy(false); }
           // Details include capture/history evidence beyond the visible facts revision.
-          if (!sameScope || shared?.snapshot !== prior?.snapshot || shared?.flights !== prior?.flights) setDetail(null);
+          if (!sameScope || shared?.snapshot !== prior?.snapshot || shared?.flights !== prior?.flights || shared?.detailSource !== prior?.detailSource) setDetail(null);
           processedView.current = shared;
           if (shared && !presentation.current && presented.current !== id) {
             const operation = diagnosticJournal.begin('start-presentation', diagnosis.reference());
@@ -111,7 +119,7 @@ export function useOwnFlights(ports: OwnFlightReadPorts, active: boolean, reload
     const diagnosis = diagnosticJournal.begin('read-flight-detail'), stage = diagnosis.span('detail-read');
     setDetail(null); setDetailBusy(true); setDetailError(null);
     try {
-      const next = await readOwnFlightDetail(ports, latest.snapshot, selected);
+      const next = await readOwnFlightDetail(ports, latest.snapshot, selected, latest);
       stage(true); diagnosis.finish(current(id)?'success':'cancelled',current(id)?'none':'stale-selection');
       if (current(id)) setDetail(next);
     } catch (error) {

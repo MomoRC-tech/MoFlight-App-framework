@@ -4,7 +4,7 @@ import * as Crypto from 'expo-crypto';
 import { hash } from '../storage';
 import { openOwnerRegistry, openRealFlightSelection, openRealFlightCommandJournal } from '../vereinsflieger/real-flight-native';
 import { RealFlightService } from '../vereinsflieger/real-flight-service';
-import { serializeOwnFlightReads } from './own-flight-reader';
+import { serializeOwnFlightReads, type OwnFlightDetailContext } from './own-flight-reader';
 import { loadProviderScope } from '../vereinsflieger/scoped-storage';
 import { loadInformation } from '../vereinsflieger/information-native';
 import { medicalSource } from './medical-source';
@@ -26,6 +26,8 @@ export const ownFlightReadPorts = serializeOwnFlightReads({
       const lease = await timed('owner-selection', () => registry.currentOwner());
       if (!lease) { await registry.close(); return null; }
       let closed = false;
+      let detailContext: OwnFlightDetailContext | undefined;
+      let detailSelection: Awaited<ReturnType<typeof openRealFlightSelection>> = null;
       const scope = { registry, lease, authorize: () => closed ? null : {
         ownerId: lease.ownerId, storeId: lease.storeId, leaseId: lease.leaseId, writable: false,
       } };
@@ -43,6 +45,7 @@ export const ownFlightReadPorts = serializeOwnFlightReads({
           if (!selection) throw new Error('Own-flight selection is unavailable.');
           try {
             const selected = await selection.select();
+            detailContext = {leaseId: lease.leaseId, selectionIdentity: selected.selectionIdentity};
             return { library: selected.candidate, writable: !selected.recoveryRequired, warning: selected.warning,
               close: async () => { try { await selected.candidate.close(); } finally { await selection.close(); } } };
           } catch (error) { await selection.close(); throw error; }
@@ -68,7 +71,24 @@ export const ownFlightReadPorts = serializeOwnFlightReads({
         if(closed||canonical(result?.scope??null)!==canonical(current))throw new Error('Information scope changed');
         return result;
       }
-      return { ownerId: lease.ownerId, storeId: lease.storeId, service,
+      return { ownerId: lease.ownerId, storeId: lease.storeId,
+        service: {
+          readStored: (initial, span) => service.readStored(initial, span, true),
+          detail: id => service.detail(id),
+          readReviewEvidence: () => service.readReviewEvidence(),
+          readBindingEvidence: () => service.readBindingEvidence(),
+        },
+        detailContext: () => detailContext,
+        assertDetailContext: async context => {
+          await assertNoPendingUserBackupRestore();
+          await registry.assertCurrent(lease);
+          if (closed || context.leaseId !== lease.leaseId) throw new Error('Displayed flight owner lease changed');
+          detailSelection ??= await openRealFlightSelection(scope, false);
+          if (!detailSelection) throw new Error('Displayed flight selection is unavailable');
+          await detailSelection.assertIdentity(context.selectionIdentity);
+          await registry.assertCurrent(lease);
+          await assertNoPendingUserBackupRestore();
+        },
         readDuties:async(accountRef:string)=>{
           await registry.assertCurrent(lease);
           const selected=await loadProviderScope(lease.ownerId);
@@ -85,7 +105,7 @@ export const ownFlightReadPorts = serializeOwnFlightReads({
         },
         assertCurrent: () => registry.assertCurrent(lease),
         pendingCommand: async () => { const opened = await journal(); try { return !!await timed('local-journal-read', () => opened.pending()); } finally { await timed('local-journal-close', () => opened.close()); } },
-        close: async () => { if (!closed) { closed = true; service.dispose(); await registry.close(); } },
+        close: async () => { if (!closed) { closed = true; service.dispose(); try { await detailSelection?.close(); } finally { await registry.close(); } } },
       };
     } catch (error) { await registry.close(); throw error; }
   },

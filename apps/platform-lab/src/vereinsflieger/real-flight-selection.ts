@@ -11,6 +11,7 @@ export interface RealSelectionCandidate { snapshot(): Promise<RealSelectionSnaps
 export type RealCandidateOpener<T extends RealSelectionCandidate> = (name: string, authorize: RealSelectionAuthorization, gate?: RealSelectionGate) => Promise<T>;
 export interface RealFlightSelectionResult<T> {
   candidate: T; name: string; sequence: number; selectedAt: string; recoveryRequired: boolean; warning: string | null;
+  selectionIdentity: string;
 }
 export interface RealFlightRestorePreparation {
   version: 1; ownerId: string; storeId: string; operationId: string; candidateName: string;
@@ -122,6 +123,16 @@ export class RealFlightSelection<T extends RealSelectionCandidate> {
     selection.allowed(); return selection;
   }
   async close() { if (!this.closed) { this.closed = true; await this.db.close(); } }
+  /** Guards the activation context of an already verified displayed snapshot.
+   * This does not inspect candidate files or establish their current integrity.
+   */
+  async assertIdentity(expected: string): Promise<void> {
+    this.allowed();
+    const rows = await this.rows();
+    for (const row of rows) this.validateRow(row,rows);
+    requireValue(canonical(rows) === expected,'Active real history selection changed; reload required');
+    this.allowed();
+  }
   private async rows(tx: Connection = this.db) {
     this.allowed(); return tx.all<SelectionRow>('SELECT * FROM real_history_selection WHERE owner_id=? AND store_id=? ORDER BY seq DESC',this.ownerId,this.storeId);
   }
@@ -328,7 +339,7 @@ export class RealFlightSelection<T extends RealSelectionCandidate> {
       recoveryRequired = unreadable.size > 0 || [...readable.values()].some(graph => !isGraphPrefix(graph,chosen));
       admitted = true;
       await gate(false); this.allowed();
-      return {candidate:selected.candidate,name:selected.row.candidate_name,sequence:selected.row.seq,selectedAt:selected.row.activated_at,recoveryRequired,
+      return {candidate:selected.candidate,name:selected.row.candidate_name,sequence:selected.row.seq,selectedAt:selected.row.activated_at,recoveryRequired,selectionIdentity:canonical(rows),
         warning:recoveryRequired || selected.row.seq !== selectedSequence ? 'Recovery required; retained candidates and pending receipts are preserved.' : null};
     } catch (error) {
       try { await selected?.candidate.close(); } catch { /* Preserve the selection failure after attempting handle cleanup. */ }

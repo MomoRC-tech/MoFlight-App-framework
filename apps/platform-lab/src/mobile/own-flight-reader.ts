@@ -1,5 +1,5 @@
 import { traceLocalRead } from '../local-read-diagnostics';
-import type { RealFlightDetail, RealFlightListItem } from '../vereinsflieger/real-flight-library';
+import type { RealFlightDetail, RealFlightListItem, RealFlightDetailSource } from '../vereinsflieger/real-flight-library';
 import type { OwnFlightStoredSnapshot, RealFlightService } from '../vereinsflieger/real-flight-service';
 import type { InformationCapture } from '../vereinsflieger/information';
 import type { DutyRosterSnapshot } from '../vereinsflieger/duties';
@@ -7,10 +7,13 @@ import { buildFeatureInformation, type FeatureInformation } from './feature-info
 import type { ProviderScope } from '../vereinsflieger/scope-store';
 import type { DiagnosticOperation, DiagnosticStage, DiagnosticSpanStarter } from '../diagnostics';
 
+export interface OwnFlightDetailContext { leaseId: string; selectionIdentity: string }
 export interface OwnFlightScope { ownerId: string; storeId: string }
 export interface OwnFlightReadSession extends OwnFlightScope {
   service: Pick<RealFlightService, 'readStored' | 'detail'> & Partial<Pick<RealFlightService, 'readReviewEvidence' | 'readBindingEvidence'>>;
   assertCurrent(): Promise<void>;
+  detailContext?(): OwnFlightDetailContext | undefined;
+  assertDetailContext?(context: OwnFlightDetailContext): Promise<void>;
   pendingCommand(): Promise<boolean>;
   readFeatureInformation?(accountRef:string):Promise<{scope:ProviderScope;captures:InformationCapture[]}|null>;
   readMedical?(accountRef:string):Promise<InformationCapture|null>;
@@ -50,6 +53,8 @@ export interface OwnFlightReadProgress {
 }
 export class OwnFlightReadCancelled extends Error {}
 export interface OwnFlightView {
+  detailSource?: RealFlightDetailSource;
+  detailContext?: OwnFlightDetailContext;
   sections?: { medical: LocalSectionState; duties: LocalSectionState; information: LocalSectionState };
   snapshot: OwnFlightStoredSnapshot; flights: RealFlightListItem[]; pendingCommand: boolean;
   featureInformation?:FeatureInformation|null; featureInformationReadFailed?:boolean;
@@ -82,6 +87,7 @@ export async function readOwnFlightView(ports: OwnFlightReadPorts, timing?: Pick
       result.flights.some(flight => flight.accountRef !== result.snapshot.account?.accountRef)) {
       throw new Error('Foreign own-flight projection.');
     }
+    const detailContext = result.detailSource ? session.detailContext?.() : undefined;
     const sections: NonNullable<OwnFlightView['sections']> = {
       medical: result.snapshot.account && session.readMedical ? 'loading' : 'missing',
       duties: result.snapshot.account && session.readDuties ? 'loading' : 'missing',
@@ -90,7 +96,7 @@ export async function readOwnFlightView(ports: OwnFlightReadPorts, timing?: Pick
     let medical:InformationCapture|null=null,medicalReadFailed=false;
     let duties:OwnFlightView['duties']=null,dutiesReadFailed=false;
     let featureInformation:FeatureInformation|null=null,featureInformationReadFailed=false;
-    const view = (): OwnFlightView => ({ ...result, pendingCommand, medical, medicalReadFailed, duties, dutiesReadFailed,
+    const view = (): OwnFlightView => ({ ...result, ...(detailContext ? {detailContext} : {}), pendingCommand, medical, medicalReadFailed, duties, dutiesReadFailed,
       featureInformation, featureInformationReadFailed, ...(progress ? { sections: { ...sections } } : {}) });
     const publish = () => { check(); progress?.publish(view()); };
     publish();
@@ -132,13 +138,18 @@ export async function readOwnFlightView(ports: OwnFlightReadPorts, timing?: Pick
 }
 
 export async function readOwnFlightDetail(ports: OwnFlightReadPorts, scope: OwnFlightScope,
-  selected: RealFlightListItem): Promise<RealFlightDetail> {
+  selected: RealFlightListItem, stored?: Pick<OwnFlightView, 'detailSource' | 'detailContext'>): Promise<RealFlightDetail> {
   const session = await traceLocalRead('session-open', () => ports.open());
   if (!session) throw new OwnFlightChangedError();
   try {
     await traceLocalRead('owner-check', () => session.assertCurrent());
     if (session.ownerId !== scope.ownerId || session.storeId !== scope.storeId) throw new OwnFlightChangedError();
-    const detail = await traceLocalRead('detail', () => session.service.detail(selected.flightId));
+    // Browse the same evidence as the displayed list. Fresh reads still validate the database fully.
+    const source = stored?.detailSource, context = stored?.detailContext;
+    if (source && (!context || !session.assertDetailContext)) throw new OwnFlightChangedError();
+    if (source) await session.assertDetailContext!(context!);
+    const detail = source ? source.detail(selected.flightId) : await traceLocalRead('detail', () => session.service.detail(selected.flightId));
+    if (source) await session.assertDetailContext!(context!);
     await traceLocalRead('owner-check', () => session.assertCurrent());
     if (!detail || detail.flightId !== selected.flightId || detail.accountRef !== selected.accountRef ||
       detail.bindingId !== selected.bindingId || detail.sourceFlightRef !== selected.sourceFlightRef || detail.factsRevision !== selected.factsRevision) throw new OwnFlightChangedError();

@@ -1,3 +1,4 @@
+import { RealFlightDetailSource } from './real-flight-library';
 import { canonical } from '@moflight/flight-logbook';
 import type { Hash } from '@moflight/local-data';
 import { realHistoryUuid } from './real-history-contract';
@@ -52,7 +53,7 @@ export interface OwnFlightStoredSnapshot {
   latestSavedResult: RealFlightResult | null;
   recovery: {readOnly: boolean; warning: string | null};
 }
-export interface OwnFlightStoredReadback { snapshot: OwnFlightStoredSnapshot; flights: RealFlightListItem[] }
+export interface OwnFlightStoredReadback { snapshot: OwnFlightStoredSnapshot; flights: RealFlightListItem[]; detailSource?: RealFlightDetailSource }
 export class PendingRealFlightOperation extends Error {
   constructor(readonly commandId: string, options?: ErrorOptions) { super('The original save command needs receipt recovery before another save.',options); }
 }
@@ -258,11 +259,11 @@ export class RealFlightService {
       return this.storedSnapshot(await library.snapshot(timing),writable,warning);
     });
   }
-  async readStored(initialSession?: RealFlightRepositorySession, span: DiagnosticSpanStarter = diagnosticJournal.captureSpan()): Promise<OwnFlightStoredReadback> {
+  async readStored(initialSession?: RealFlightRepositorySession, span: DiagnosticSpanStarter = diagnosticJournal.captureSpan(), includeDetails = false): Promise<OwnFlightStoredReadback> {
     return this.withRepository(async ({library,writable,warning},timing)=>{
       const {graph,flights}=await library.readStored(timing);
       const finish=timing('stored-summary-derivation');
-      try { const result={snapshot:this.storedSnapshot(graph,writable,warning),flights}; finish(true); return result; } catch (error) { finish(false); throw error; }
+      try { const result={snapshot:this.storedSnapshot(graph,writable,warning),flights,...(includeDetails ? {detailSource:new RealFlightDetailSource(graph)} : {})}; finish(true); return result; } catch (error) { finish(false); throw error; }
     }, initialSession, span);
   }
   async readReviewEvidence(): Promise<SavedSourceReview> {

@@ -181,3 +181,22 @@ test('feature information is scoped to the selected account and isolated failure
   assert.equal(f.closes(),1);
  }
 });
+
+
+test('displayed detail uses retained evidence only after fresh pre/post context checks',async()=>{
+  const f=ownFlightFixture();let contexts=0,freshReads=0;
+  const context={leaseId:'lease',selectionIdentity:'selection'};
+  f.session.assertDetailContext=async value=>{assert.equal(value,context);contexts++;};
+  f.session.service.detail=async()=>{freshReads++;throw new Error('Must not reopen history');};
+  const detailSource={detail:()=>structuredClone(f.detail)} as unknown as NonNullable<import('../../apps/platform-lab/src/mobile/own-flight-reader.ts').OwnFlightView['detailSource']>;
+  const stored={detailSource,detailContext:context};
+  assert.deepEqual(await readOwnFlightDetail(f.ports,f.snapshot,f.flights[0]!,stored),f.detail);
+  assert.equal(contexts,2);assert.equal(freshReads,0);assert.equal(f.closes(),1);
+  for(const failAt of [1,2]){
+    contexts=0;f.session.assertDetailContext=async()=>{if(++contexts===failAt)throw new Error('Changed context');};
+    await assert.rejects(readOwnFlightDetail(f.ports,f.snapshot,f.flights[0]!,stored),/Changed context/);
+  }
+  delete f.session.assertDetailContext;
+  await assert.rejects(readOwnFlightDetail(f.ports,f.snapshot,f.flights[0]!,stored),OwnFlightChangedError);
+  assert.equal(freshReads,0);assert.equal(f.closes(),4);
+});

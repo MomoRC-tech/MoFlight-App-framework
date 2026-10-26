@@ -8,7 +8,7 @@ import { INFORMATION_TYPES, retrievableInformationCategories, informationRouteSh
   informationSelectionScript, taskSelectionScript, OWN_OPEN_TASKS_URL, type InformationCategory, type InformationCapture, type InformationHistory } from './information';
 import { InformationRun } from './information-run';
 import { recordProviderEvent } from './provider-diagnostics';
-import { loadInformation, readInformationCapture, readInformationHistory, saveInformation } from './information-native';
+import { loadInformation, readInformationCapture, readInformationHistory, saveAndLoadInformation } from './information-native';
 
 export type FeatureInformationCategory = 'events' | 'document-notices' | 'work-summary' | 'work-hours' | 'tasks';
 const featureSources: Record<FeatureInformationCategory, string> = {
@@ -235,8 +235,7 @@ export function useInformationController(ports: InformationControllerPorts) {
         recordProviderEvent('provider-information-complete');finishDuty(undefined,capture);return;
       }
       informationUncertain.current = run.nonce;
-      await saveInformation(run.scope, run.capture(new Date().toISOString()), gate);
-      const records = await loadInformation(run.scope, gate); gate();
+      const records = await saveAndLoadInformation(run.scope, run.capture(new Date().toISOString()), gate); gate();
       if (!records.some(record => record.id === run.nonce && record.owner === run.scope.owner && record.connectionId === run.scope.connectionId)) throw new Error('Saved capture readback missing');
       informationUncertain.current = null; setInformationNeedsReload(false); informationRetry.current = null; setInformationRetryReady(false);
       informationLoadRequest.current++; setInformationLoading(false);

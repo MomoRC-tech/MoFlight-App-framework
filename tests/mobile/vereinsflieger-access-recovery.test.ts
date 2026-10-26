@@ -179,7 +179,17 @@ function fixture(options: { deferIdentity?: boolean; failIdentity?: boolean; pan
     './retrieval': { Retrieval }, './CaptureRun': { CaptureRun }, './WindowCapture': { WindowCapture },
     './connection-flow': {connectionFlow}, './login': login, './view': view, './context': context, './connection-state': { ConnectionSession },
     './information': information, './information-run': { InformationRun },
-    './information-native': { readInformationCapture: (scope: ProviderScope, id: string, gate: () => void) => informationCaptureReader(scope, id, gate), loadInformation: (scope: ProviderScope, gate: () => void) => { informationReads++; return informationReader(scope, gate); }, readInformationHistory: (scope: ProviderScope, category: information.InformationCategory, position: number, gate: () => void) => informationHistoryReader(scope, category, position, gate), saveInformation: async (_scope: unknown, value: unknown, gate: () => void) => { gate(); savedInformation = information.validateInformationCapture(value); writes.push('information-saved'); } },
+    './information-native': {
+      readInformationCapture: (scope: ProviderScope, id: string, gate: () => void) => informationCaptureReader(scope, id, gate),
+      loadInformation: (scope: ProviderScope, gate: () => void) => { informationReads++; return informationReader(scope, gate); },
+      readInformationHistory: (scope: ProviderScope, category: information.InformationCategory, position: number, gate: () => void) => informationHistoryReader(scope, category, position, gate),
+      saveAndLoadInformation: async (scope: ProviderScope, value: unknown, gate: () => void) => {
+        gate(); savedInformation = information.validateInformationCapture(value); writes.push('information-saved');
+        gate(); informationReads++;
+        const records = await informationReader(scope, gate); gate();
+        return records;
+      },
+    },
   };
   const runtime = { console: { info: (message: string) => verificationDiagnostics.push(message) }, require: (name: string) => {
     assert.ok(name in modules, `Unexpected component dependency: ${name}`); return modules[name];

@@ -16,7 +16,7 @@ test('two guarded source pages save atomically to duty cache; failures and scope
   let current=scope,active=true,previous:unknown={prior:true},writes=0;
   const calls:string[]=[];
   const modules:Record<string,unknown>={'@moflight/flight-logbook':{canonical},'./scoped-storage':{loadProviderScope:async()=>current},'./duties':duties,'../user-backup-restore-journal-native':{assertNoPendingUserBackupRestore:async()=>{if(mode==='restore-pending')throw new Error('Restore is pending');}},'./duty-native':{
-   saveDutyRoster:async(_scope:unknown,value:unknown,gate:()=>void)=>{gate();if(mode==='save-fails')throw new Error('cache write failed');writes++;previous=value;},loadDutyRoster:async()=>previous,
+   saveAndLoadDutyRoster:async(_scope:unknown,value:unknown,gate:()=>void)=>{gate();if(mode==='save-fails')throw new Error('cache write failed');writes++;previous=value;return previous;},
   }};
   const exports={} as typeof import('../../apps/platform-lab/src/vereinsflieger/duty-refresh-native');
   runInNewContext(source,{exports,require:(name:string)=>{assert.ok(name in modules,name);return modules[name];},Date,Error});

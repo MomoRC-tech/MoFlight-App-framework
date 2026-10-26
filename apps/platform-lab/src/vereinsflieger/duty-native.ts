@@ -31,3 +31,10 @@ export async function loadDutyRoster(scope: ProviderScope, gate: () => void = ()
 export async function saveDutyRoster(scope: ProviderScope, snapshot: DutyRosterSnapshot, gate: () => void, now: () => number = Date.now) {
   await withStore(scope, true, gate, now, store => store.save(snapshot));
 }
+/** Read the committed cache from the same authorized store before closing it. */
+export async function saveAndLoadDutyRoster(scope: ProviderScope, snapshot: DutyRosterSnapshot, gate: () => void, now: () => number = Date.now) {
+  return await withStore(scope, true, gate, now, async store => {
+    await store.save(snapshot); gate();
+    return await store.load();
+  });
+}

@@ -117,6 +117,37 @@ export type RealFlightReceiptRecovery =
   | { status: 'found'; receipt: RealFlightReceipt; result: RealFlightResult }
   | { status: 'not-found'; commandId: string };
 
+/** Immutable evidence from one verified list read; not a claim about current database bytes.
+ * Kept by the displayed view only, without an open database handle.
+ */
+export class RealFlightDetailSource {
+  private readonly graph: RealFlightGraph;
+  constructor(graph: RealFlightGraph) { this.graph = realFlightClone(graph); }
+  sameEvidence(other: RealFlightDetailSource): boolean { return this === other || canonical(this.graph) === canonical(other.graph); }
+  detail(flightId: string): RealFlightDetail | null { return detailFromGraph(this.graph, flightId); }
+}
+
+function detailFromGraph(graph: RealFlightGraph, flightId: string): RealFlightDetail | null {
+  realFlightSha(flightId);
+  const flightRow = latestRealFlightRecord(graph.records, 'flight', flightId);
+  if (!flightRow) return null;
+  const flight = JSON.parse(flightRow.payload) as StoredFlight;
+  const binding = latestRealFlightValues<StoredBinding>(graph.records, 'binding')[0];
+  realFlightRequire(binding && flight.bindingId === binding.bindingId && flight.accountRef === binding.accountRef, 'Foreign real flight detail.');
+  const factsRows = graph.records.filter(row => row.kind === 'facts' && row.id === flightId);
+  realFlightRequire(factsRows.length > 0, 'Saved real flight has no validated facts.');
+  const factHistory = factsRows.map(row => JSON.parse(row.payload) as StoredFacts);
+  const latest = factHistory.at(-1)!;
+  const captures = latestRealFlightValues<StoredCapture>(graph.records, 'capture').filter(capture =>
+    capture.bindingId === binding.bindingId && factHistory.some(fact => fact.captureId === capture.source.capture.captureId));
+  const pending = latestRealFlightValues<import('./real-flight-library-model').StoredPending>(graph.records, 'pending').flatMap(record =>
+    record.bindingId !== binding.bindingId ? [] : record.issues.filter(issue => issue.sourceFlightRef === flight.sourceFlightRef)
+      .map(issue => ({ captureId: record.captureId, issue })));
+  return realFlightClone({ flightId, bindingId: binding.bindingId, accountRef: binding.accountRef,
+    sourceFlightRef: flight.sourceFlightRef, firstCaptureId: flight.firstCaptureId, factsRevision: factsRows.at(-1)!.revision,
+    facts: latest.facts, unassigned: true as const, factHistory, captures, pending });
+}
+
 /** Account-scoped, append-only source-flight history. It does not assign books or compute credit. */
 export class RealFlightLibrary {
   private closed = false;
@@ -340,24 +371,7 @@ export class RealFlightLibrary {
   }
 
   async detail(flightId: string): Promise<RealFlightDetail | null> {
-    realFlightSha(flightId);
-    const graph = await this.snapshot(), flightRow = latestRealFlightRecord(graph.records, 'flight', flightId);
-    if (!flightRow) return null;
-    const flight = JSON.parse(flightRow.payload) as StoredFlight;
-    const binding = latestRealFlightValues<StoredBinding>(graph.records, 'binding')[0];
-    realFlightRequire(binding && flight.bindingId === binding.bindingId && flight.accountRef === binding.accountRef, 'Foreign real flight detail.');
-    const factsRows = graph.records.filter(row => row.kind === 'facts' && row.id === flightId);
-    realFlightRequire(factsRows.length > 0, 'Saved real flight has no validated facts.');
-    const factHistory = factsRows.map(row => JSON.parse(row.payload) as StoredFacts);
-    const latest = factHistory.at(-1)!;
-    const captures = latestRealFlightValues<StoredCapture>(graph.records, 'capture').filter(capture =>
-      capture.bindingId === binding.bindingId && factHistory.some(fact => fact.captureId === capture.source.capture.captureId));
-    const pending = latestRealFlightValues<import('./real-flight-library-model').StoredPending>(graph.records, 'pending').flatMap(record =>
-      record.bindingId !== binding.bindingId ? [] : record.issues.filter(issue => issue.sourceFlightRef === flight.sourceFlightRef)
-        .map(issue => ({ captureId: record.captureId, issue })));
-    return realFlightClone({ flightId, bindingId: binding.bindingId, accountRef: binding.accountRef,
-      sourceFlightRef: flight.sourceFlightRef, firstCaptureId: flight.firstCaptureId, factsRevision: factsRows.at(-1)!.revision,
-      facts: latest.facts, unassigned: true as const, factHistory, captures, pending });
+    return detailFromGraph(await this.snapshot(), flightId);
   }
 
   async exportBackup(): Promise<string> {

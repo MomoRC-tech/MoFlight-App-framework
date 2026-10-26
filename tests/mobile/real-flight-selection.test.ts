@@ -51,8 +51,76 @@ async function fixture(fault: (stage: string) => Promise<void> = async () => {},
     return RealFlightSelection.open(nodeDriver(databasePath),owner,store,authorize,opener,hash,false,fault);
   }
   return {db,journal,authorize,opener,files,opened,file,reopen,expireAfterNextFinalCheck:()=>{expireAtSnapshot=snapshotCount+2;},
-    switchOwner:()=>{permit={ownerId:id(99),storeId:store,leaseId:'lease-two',writable:true};},revoke:()=>{permit=null;}};
+    switchOwner:()=>{permit={ownerId:id(99),storeId:store,leaseId:'lease-two',writable:true};},
+    rotateLease:()=>{if(permit)permit={...permit,leaseId:'lease-two'};},revoke:()=>{permit=null;}};
 }
+
+test('displayed selection identity checks the complete journal without reopening candidates or claiming their integrity', async () => {
+  const f = await fixture();
+  try {
+    const first = f.file(1), second = f.file(2);
+    await f.journal.activate(id(11),first,null,at);
+    await f.journal.activate(id(12),second,1,at);
+    const selected = await f.journal.select();
+    await selected.candidate.close();
+    const opens = f.opened.length;
+    const rows = await f.db.all('SELECT * FROM real_history_selection WHERE owner_id=? AND store_id=? ORDER BY seq DESC',owner,store);
+    assert.equal(selected.selectionIdentity,canonical(rows));
+    // Only the displayed snapshot remains verified: no candidate inspection is promised.
+    f.files.delete(second);
+    await f.journal.assertIdentity(selected.selectionIdentity);
+    assert.equal(f.opened.length,opens);
+    await f.db.exec('DROP TRIGGER real_selection_no_update');
+    await f.db.run('UPDATE real_history_selection SET activated_at=? WHERE seq=1','2026-10-21T10:00:00.000Z');
+    await assert.rejects(f.journal.assertIdentity(selected.selectionIdentity),/selection changed/);
+    assert.equal(f.opened.length,opens,'same-head retained metadata changes need no candidate open');
+  } finally { await f.journal.close(); }
+});
+
+test('displayed selection identity rejects activation changes without opening candidates', async () => {
+  const f = await fixture();
+  try {
+    await f.journal.activate(id(11),f.file(1),null,at);
+    const selected = await f.journal.select(); await selected.candidate.close();
+    await f.journal.activate(id(12),f.file(2),1,at);
+    const opens = f.opened.length;
+    await assert.rejects(f.journal.assertIdentity(selected.selectionIdentity),/selection changed/);
+    assert.equal(f.opened.length,opens);
+  } finally { await f.journal.close(); }
+});
+
+for (const change of ['owner','lease','during-read','closed'] as const) test(`displayed selection identity rejects ${change} authorization changes`, async () => {
+  const f = await fixture();
+  try {
+    await f.journal.activate(id(11),f.file(1),null,at);
+    const selected = await f.journal.select(); await selected.candidate.close();
+    const opens = f.opened.length;
+    if(change==='owner')f.switchOwner();
+    else if(change==='lease')f.rotateLease();
+    else if(change==='closed')await f.journal.close();
+    else {
+      const all = f.db.all.bind(f.db);
+      f.db.all = async <T>(...args: Parameters<typeof all>) => {
+        const rows = await all<T>(...args); f.revoke(); return rows;
+      };
+    }
+    await assert.rejects(f.journal.assertIdentity(selected.selectionIdentity),/Expired or foreign/);
+    assert.equal(f.opened.length,opens);
+  } finally { await f.journal.close(); }
+});
+
+test('displayed selection identity validates journal rows even when supplied identity matches invalid metadata', async () => {
+  const f = await fixture();
+  try {
+    await f.journal.activate(id(11),f.file(1),null,at);
+    await f.db.exec('DROP TRIGGER real_selection_no_update');
+    await f.db.run('UPDATE real_history_selection SET manifest_sha256=?','invalid');
+    const rows = await f.db.all('SELECT * FROM real_history_selection WHERE owner_id=? AND store_id=? ORDER BY seq DESC',owner,store);
+    const opens = f.opened.length;
+    await assert.rejects(f.journal.assertIdentity(canonical(rows)),/Invalid selection identity/);
+    assert.equal(f.opened.length,opens);
+  } finally { await f.journal.close(); }
+});
 
 test('explicit validated activation selects a candidate; exact retry reuses one durable selection', async () => {
   const f = await fixture();

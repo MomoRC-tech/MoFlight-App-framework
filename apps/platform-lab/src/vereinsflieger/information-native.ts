@@ -64,6 +64,13 @@ export async function loadInformation(scope: ProviderScope, gate: () => void = (
 export async function saveInformation(scope: ProviderScope, capture: InformationCapture, gate: () => void) {
   await withInformationMutation(async () => { await withStore(scope, true, gate, store => store.save(capture)); });
 }
+/** Keep the committed save and actual latest-source readback in one selected store. */
+export async function saveAndLoadInformation(scope: ProviderScope, capture: InformationCapture, gate: () => void) {
+  return await withInformationMutation(async () => await withStore(scope, true, gate, async store => {
+    await store.save(capture); gate();
+    return await store.latest();
+  })) ?? [];
+}
 export async function readInformationCapture(scope: ProviderScope, id: string, gate: () => void): Promise<InformationCapture | null> {
   if (!/^[a-zA-Z0-9_-]{1,100}$/.test(id)) throw new Error('Invalid information capture identity');
   return await withStore(scope, false, gate, store => store.find(id));

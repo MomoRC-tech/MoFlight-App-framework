@@ -5,7 +5,7 @@ import { canonical } from '../../packages/flight-logbook/src/index.ts';
 import type { Bind, Driver, Hash } from '../../packages/local-data/src/index.ts';
 import { nodeDriver } from './sqlite-driver.ts';
 import { REAL_HISTORY_BACKUP_LIMIT, REAL_HISTORY_COMMAND_LIMIT, type RealHistoryManifest } from '../../apps/platform-lab/src/vereinsflieger/real-history-contract.ts';
-import { RealFlightLibrary, IndeterminateRealFlightCommit, type RealFlightPermit } from '../../apps/platform-lab/src/vereinsflieger/real-flight-library.ts';
+import { RealFlightLibrary, RealFlightDetailSource, IndeterminateRealFlightCommit, type RealFlightPermit } from '../../apps/platform-lab/src/vereinsflieger/real-flight-library.ts';
 import type { RealFlightSourceInput } from '../../apps/platform-lab/src/vereinsflieger/real-flight-source.ts';
 import type { RealFlightGraph, RealFlightRecord } from '../../apps/platform-lab/src/vereinsflieger/real-flight-library-model.ts';
 import { DiagnosticJournal } from '../../apps/platform-lab/src/diagnostics.ts';
@@ -447,3 +447,17 @@ test('partial windows and oversized command/backup payloads fail closed without 
   assert.equal(graph.records.filter(record => record.kind === 'flight').length, 0);
 });
 
+
+
+test('displayed evidence owns its graph and exact reuse includes history beyond generation/count',async t=>{
+  const f=await setup(t);await bind(f.library);await save(f.library,source('capture-saved',[row('101')]),2);
+  const {graph,flights}=await f.library.readStored(),flight=flights[0]!;
+  const retained=new RealFlightDetailSource(graph),same=new RealFlightDetailSource(graph);
+  const expected=retained.detail(flight.flightId);
+  assert.equal(retained.sameEvidence(same),true);
+  // Equal sizes/generation do not establish equal bytes or admitted evidence.
+  graph.records[0]!.payload += ' ';
+  assert.equal(retained.sameEvidence(new RealFlightDetailSource(graph)),false);
+  graph.records.length=0;
+  assert.deepEqual(retained.detail(flight.flightId),expected,'caller mutation cannot change retained evidence');
+});

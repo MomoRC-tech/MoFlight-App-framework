@@ -323,3 +323,25 @@ test('unchanged visible data gets a retained-data timing marker without waiting 
   assert.equal(presentation.outcome,'success');assert.ok(presentation.stages.some(stage=>stage.name==='start-retained-data'));
   h.unmount();
 });
+
+
+test('refresh replaces displayed detail evidence even when visible facts are unchanged',async()=>{
+  const h=host();await h.flush();
+  const context={leaseId:'lease',selectionIdentity:'selection'};
+  // Class instances model the opaque source: structural view reuse must not merge private evidence.
+  class Source { constructor(private readonly count:number) {} sameEvidence(other:Source){return this.count===other.count;} detail(){return {...h.detail,pending:Array.from({length:this.count},()=>({captureId:'pending',issue:{}}))};} }
+  let evidence=new Source(1);
+  h.session.detailContext=()=>context;
+  h.session.assertDetailContext=async()=>{};
+  h.session.service.readStored=async()=>({snapshot:h.snapshot,flights:h.flights,detailSource:evidence as never});
+  h.session.service.detail=async()=>{throw new Error('Unexpected fresh history read');};
+  h.reload();let state=await h.flush();
+  await state.openDetail(h.flights[0]);state=await h.flush();assert.equal(state.detail.pending.length,1);
+  evidence=new Source(1);
+  const retained=state.detail;await state.reload(true);state=await h.flush();assert.equal(state.detail,retained);
+  evidence=new Source(2);
+  await state.reload(true);state=await h.flush();assert.equal(state.detail,null);
+  await state.openDetail(h.flights[0]);state=await h.flush();assert.equal(state.detail.pending.length,2);
+  h.setActive(false);state=await h.flush();assert.equal(state.view,null);assert.equal(state.detail,null);
+  h.unmount();
+});
