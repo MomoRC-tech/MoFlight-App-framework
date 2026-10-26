@@ -30,6 +30,8 @@
 
 - [Remembered logbook state, decisions and flight-history queries](flight-logbook-state-and-queries.md): persistent paper/import status, cross-run decisions and exact aircraft/person statistics.
 
+- [Saved-flight role analysis](flight-logbook-state-and-queries.md#saved-flight-role-analysis--selected-26-october-2026): the implemented Solo/Dual/PIC+/Prüfen source rules, supervised-Solo subset, time basis and analysis limits.
+
 ## Historical research and proposals
 
 Superseded plans and rejected designs are collected in the [documentation archive](../archive/README.md); they do not define the selected main UI.
