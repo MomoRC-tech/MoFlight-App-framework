@@ -1,6 +1,6 @@
 import { startTiming } from '../start-timing';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, AppState, BackHandler, Keyboard, KeyboardAvoidingView, Linking, Platform, Pressable, ScrollView, StatusBar, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
+import { AppState, BackHandler, Keyboard, KeyboardAvoidingView, Linking, Platform, Pressable, ScrollView, StatusBar, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { canonical, type Flight } from '@moflight/flight-logbook';
 import LabApp from '../App';
@@ -33,6 +33,7 @@ import { SESSION_DISPLAY_FRESH_MS, createSessionPresentation } from './data-upda
 import { StatusBadge } from './StatusBadge';
 import { syncStatus } from './sync-status';
 import { createSyncConfirmation } from './sync-confirmation';
+import { SyncConfirmationDialog } from './SyncConfirmationDialog';
 import { AppHeader } from './AppHeader';
 import { MedicalDetails } from './MedicalStatus';
 import { OverviewTiles } from './OverviewTiles';
@@ -114,6 +115,7 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
   const [helpPreferenceError, setHelpPreferenceError] = useState(false);
   const helpSaveLock = useRef(false);
   const syncConfirmation = useRef(createSyncConfirmation()).current;
+  const [syncPrompt, setSyncPrompt] = useState<{ cancel: () => void; confirm: () => void } | null>(null);
   const syncAdmission = useRef({scope:'',allowed:false});
   useEffect(()=>()=>syncConfirmation.invalidate(),[syncConfirmation]);
   useEffect(() => { let mounted = true; void readContextHelpEnabled().then(enabled => { if (mounted) setHelpEnabled(enabled); }); return () => { mounted = false; }; }, []);
@@ -240,19 +242,20 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
     const ticket=syncConfirmation.request(syncAdmission.current.scope,syncAdmission.current.allowed);
     if(!ticket)return false;
     diagnosticJournal.record('sync','sync-confirmation-open');
-    Alert.alert('Daten von Vereinsflieger abrufen?','MoFlight versucht, deine Flüge und unterstützte Zusatzdaten zu aktualisieren. Falls nötig, meldest du dich auf der Originalseite an. Gespeicherte Flüge bleiben verfügbar.',[
-      {text:'Abbrechen',style:'cancel',onPress:()=>{ticket.cancel();diagnosticJournal.record('sync','sync-confirmation-cancelled');}},
-      {text:'Abruf starten',onPress:()=>{
+    setSyncPrompt({
+      cancel:()=>{ticket.cancel();setSyncPrompt(null);diagnosticJournal.record('sync','sync-confirmation-cancelled');},
+      confirm:()=>{
+        setSyncPrompt(null);
         if(!ticket.confirm(syncAdmission.current.scope,syncAdmission.current.allowed))return;
         syncAdmission.current.allowed=false;
         diagnosticJournal.record('sync','sync-confirmation-accepted');
         diagnosticJournal.record('action','update-flights');onCoreFlights('update',false,destination);
-      }},
-    ],{cancelable:true,onDismiss:()=>ticket.cancel()});
+      },
+    });
     return true;
   };
   useEffect(() => { diagnosticJournal.record('screen', coreFlightsOpen ? 'provider-options' : detail ? 'flight-detail' : sheet ?? tab); }, [tab,sheet,detail,coreFlightsOpen]);
-  useEffect(() => { const listener=AppState.addEventListener('change',state=>{if(state!=='active')syncConfirmation.invalidate();if(state==='active'||state==='background'||state==='inactive')diagnosticJournal.record('lifecycle',state);});return()=>listener.remove(); }, []);
+  useEffect(() => { const listener=AppState.addEventListener('change',state=>{if(state!=='active'){syncConfirmation.invalidate();setSyncPrompt(null);}if(state==='active'||state==='background'||state==='inactive')diagnosticJournal.record('lifecycle',state);});return()=>listener.remove(); }, []);
   const openBooks = () => openHeaderSheet('paper');
   const pageTitle = tabs.find(item => item.id === tab)!.title;
   const readState=ownFlights.phase==='failed'?'failed':ownFlights.phase==='loading'?'loading':'ready';
@@ -375,6 +378,7 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
       </>}
     </View>}
     </View>
+    {syncPrompt && <SyncConfirmationDialog onCancel={syncPrompt.cancel} onConfirm={syncPrompt.confirm} />}
   </SafeAreaView>;
 }
 const s = StyleSheet.create({

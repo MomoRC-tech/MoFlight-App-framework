@@ -41,7 +41,6 @@ function fixture(width = 390, fontScale = 1, root = false) {
   const library = { flights: [flight], books: [{ id: 'synthetic-book', name: 'Synthetic book' }], bookId: 'synthetic-book', pending: 0, displayName: 'Synthetic pilot' };
   const controller = { visible: false, informationCaptures: [], connection: { phase: 'unknown' }, refreshRecovery: () => calls.push('refresh-recovery'), dismissLogin() {}, backWithinProvider: () => false, suspendBrowserForOwnerSwitch: () => true };
   const calls: string[] = [];
-  const dialogs:any[]=[];
   const coreRoutes: {intent:string;developmentRecoveryCheckpoints:boolean}[] = [];
   const destinations:string[]=[];
   const readEnabled:boolean[]=[];
@@ -55,7 +54,6 @@ function fixture(width = 390, fontScale = 1, root = false) {
   const modules: Record<string, unknown> = { '../start-timing': startTiming,
     react: { default: react, ...react },
     'react-native': { ...leaves(['ActivityIndicator', 'FlatList', 'KeyboardAvoidingView', 'Pressable', 'ScrollView', 'StatusBar', 'Text', 'TextInput', 'View']),
-      Alert: {alert:(title:string,message:string,buttons:any[],options:any)=>dialogs.push({title,message,buttons,options})},
       Keyboard: { addListener: () => ({ remove() {} }), dismiss() {} },
       AppState: { addEventListener: (_:string,handler:(state:string)=>void) => {appStateListener=handler;return {remove(){}};} },
       BackHandler: { addEventListener: (_: string, handler: () => boolean) => { hardwareBack = handler; return { remove() {} }; } },
@@ -91,7 +89,7 @@ function fixture(width = 390, fontScale = 1, root = false) {
     './ConnectionSummary': leaves(['ConnectionSummary']), './medical-source': { medicalSource },
     './connection-guidance': { ownFlightConnectionState },
     './data-update-presentation': { SESSION_DISPLAY_FRESH_MS, createSessionPresentation },
-    './StatusBadge':leaves(['StatusBadge']),'./sync-status':{syncStatus},'./sync-confirmation':{createSyncConfirmation},
+    './StatusBadge':leaves(['StatusBadge']),'./sync-status':{syncStatus},'./sync-confirmation':{createSyncConfirmation},'./SyncConfirmationDialog':leaves(['SyncConfirmationDialog']),
     '../vereinsflieger/duties': dutyModel, './DutyRoster':leaves(['DutyRoster']), './ClubHeading':leaves(['ClubHeading']),
     '../vereinsflieger/retrieval-policy':{planFlightRetrieval},
     './use-start-clock':{useStartClock:(deadlines:readonly number[])=>{clockDeadlines=deadlines;return clockNow;},useReminderSnooze:()=>({snooze:null,error:false,save:()=>{}})},
@@ -121,7 +119,7 @@ function fixture(width = 390, fontScale = 1, root = false) {
     render();
   }
   render(); render();
-  return { dialogs, confirm:()=>{dialogs.at(-1).buttons.find((b:any)=>b.text==='Abruf starten').onPress();render();}, render, nodes, find, resize:(nextWidth:number,nextFontScale:number)=>{width=nextWidth;fontScale=nextFontScale;render();}, headers, parent, press, openOwnDetail, flight, library, controller, calls, coreRoutes,destinations, readEnabled, suspended: () => suspended, hardwareBack: () => hardwareBack!(),
+  return { confirm:()=>{nodes().find(n=>n.type==='SyncConfirmationDialog')?.props.onConfirm();render();}, render, nodes, find, resize:(nextWidth:number,nextFontScale:number)=>{width=nextWidth;fontScale=nextFontScale;render();}, headers, parent, press, openOwnDetail, flight, library, controller, calls, coreRoutes,destinations, readEnabled, suspended: () => suspended, hardwareBack: () => hardwareBack!(),
     helpPreference:()=>persistedHelp, failHelpSaving:(value:boolean)=>{failHelpSave=value;},
     showLoad:(result:any,view:any)=>{providerStatus=result?.verifiedConnection?{...unknownProviderStatus,ownerId:result.verifiedConnection.ownerId,connection:result.verifiedConnection.state}:unknownProviderStatus;lastLoad=result;ownView=view;render();render();},
     setProviderStatus:(status:any)=>{providerStatus=status;render();render();},
@@ -760,20 +758,16 @@ test('club expansion restores overview scroll on both toolbar and Android Back',
 });
 
 
-test('header and retry require confirmation; cancel, dismiss and background cannot start provider work',()=>{
- for(const trigger of ['header','retry'])for(const cancel of ['button','dismiss','background']){
+test('header and retry require confirmation; cancel and background cannot start provider work',()=>{
+ for(const trigger of ['header','retry'])for(const cancel of ['button','background']){
   const f=fixture();
-  const start=()=>trigger==='header'?f.press('DataUpdateIndicator'):f.find('SyncProgress').props.retry();
-  start();start();assert.equal(f.dialogs.length,1);assert.deepEqual(f.calls,[]);
-  const dialog=f.dialogs[0];assert.equal(dialog.title,'Daten von Vereinsflieger abrufen?');
-  assert.match(dialog.message,/unterstützte Zusatzdaten/);
-  assert.match(dialog.message,/Originalseite/);
-  assert.match(dialog.message,/Gespeicherte Flüge bleiben verfügbar/);
-  assert.equal(dialog.buttons.map((button:any)=>button.text).join('|'),'Abbrechen|Abruf starten');
-  if(cancel==='button')dialog.buttons[0].onPress();
-  if(cancel==='dismiss')dialog.options.onDismiss();
+  const start=()=>{if(trigger==='header')f.press('DataUpdateIndicator');else{f.find('SyncProgress').props.retry();f.render();}};
+  start();start();assert.equal(f.nodes().filter(n=>n.type==='SyncConfirmationDialog').length,1);assert.deepEqual(f.calls,[]);
+  const dialog=f.find('SyncConfirmationDialog');
+  if(cancel==='button')dialog.props.onCancel();
   if(cancel==='background')f.appState('background');
-  dialog.buttons[1].onPress();assert.deepEqual(f.calls,[]);
+  f.render();assert.ok(!f.nodes().some(n=>n.type==='SyncConfirmationDialog'));
+  dialog.props.onConfirm();assert.deepEqual(f.calls,[]);
   f.appState('active');start();f.confirm();f.confirm();assert.deepEqual(f.calls,['core-load']);
  }
 });

@@ -82,7 +82,7 @@
 <h3 id="chapter-compact-cockpit-separate-sync-and-profile-status--selected-26-october-2026">Separate Sync and Profile status — selected 26 October 2026</h3>
 <p>Manuel approved the <strong>Separate controls</strong> Material-based proposal and a short confirmation before synchronization (<a href="https://github.com/MomoRC-tech/MoFlight-App-framework/issues/83">#83</a>). This amendment supersedes the earlier shine-only/attention-only header treatment below. Keep two transparent 48 dp actions: Sync starts synchronization after confirmation; Profile opens the existing settings and account information. There is no third key control.</p>
 <p>During work, Sync uses an indeterminate circular indicator, with a static arc for reduced motion. At rest, its decorative badge distinguishes confirmed completed work (<code>OK</code>), stored flight evidence without a confirmed full-job result this session (<code>✓</code>, neutral), partial/failure/read error (<code>!</code>, error), possible changes (<code>!</code>, advice), data older than 72 hours (<code>ALT</code>), unknown (<code>?</code>) and waiting for login (<code>…</code>). Detailed source outcomes and saved timestamps remain in Profile/Status. Login has its own Profile badge: recent verified (<code>✓</code>), login required (<code>→</code>), unchecked (<code>?</code>) or verification problem (<code>!</code>). Color never carries the only meaning, and neither badge grants authorization. Full-job outcomes are not newly persisted across restarts.</p>
-<p>Every ordinary Sync/retry action asks <strong>Daten von Vereinsflieger abrufen?</strong> with <strong>Abbrechen</strong> and <strong>Abruf starten</strong>. The short native alert explains supported data, possible original-page login and retained saved flights. Cancel, Android Back/outside dismissal, backgrounding, a scope change or a stale/duplicate response cannot start the job. Local read retry and account/settings navigation retain their own behavior. Diagnostic exports include fixed confirmation and badge-reason events without account values.</p>
+<p>Every ordinary Sync/retry action asks <strong>Daten von Vereinsflieger abrufen?</strong> with <strong>Abbrechen</strong> and <strong>Abruf starten</strong>. The short dark app dialog explains supported data, possible original-page login and retained saved flights. The earlier Android system alert rendered white despite the dark app; the scoped dialog corrects that mismatch. Cancel, Android Back/outside dismissal, backgrounding, a scope change or a stale/duplicate response cannot start the job. Local read retry and account/settings navigation retain their own behavior. Diagnostic exports include fixed confirmation and badge-reason events without account values.</p>
 <p>References consulted: <a href="https://m3.material.io/components/progress-indicators/overview">Material progress indicators</a>, <a href="https://m3.material.io/components/badges/overview">badges</a>, <a href="https://m3.material.io/components/dialogs/guidelines">dialog guidance</a>. Product adaptations: short state labels instead of notification counts, the approved dark palette, and the existing platform-native two-action confirmation without a new dependency. This is a Material-informed adaptation, not an exact Material component-library implementation. Source-specific checks and remaining gates are in the <a href="../../verification/2026-10-25-sync-and-target-backup.md#separate-status-controls-and-sync-confirmation--26-october-2026">package report</a>.</p>
 <h3 id="chapter-compact-cockpit-offline-help--selected-25-october-2026">Offline Help — selected 25 October 2026</h3>
 <p>Manuel selected the <a href="../help-system-concept.md">#31 offline Help concept</a> and requested implementation. Profile&#x27;s Support group opens a searchable, locally bundled <strong>Hilfe &amp; Einführung</strong> sheet and offers an installation-wide Kontexthilfe off/on setting. Off suppresses automatic hints and contextual Info/Help actions; deliberate Help lookup remains available in Profile. The sheet uses the existing app overlay header, contextual Back, centered 520 dp content and Compact Cockpit surfaces. A PIC Info target in ordinary saved-flight details opens one inline explanation bubble; <strong>Mehr erfahren</strong> opens a sourced question/answer bubble and returns to the same flight. Empty-Flüge and backup-scope explanations link directly to their curated entries when guidance is on. A generic populated-Flüge hint is shown on first visit, can be dismissed or reopened from Help, and has a versioned installation-local preference. No extra tab, floating chat button, provider call or AI request is added. The <a href="../../verification/2026-10-25-offline-help.md">implementation report</a> records host checks and the remaining native/editorial gates; the original <a href="proposals/2026-10-25-help-system.html">browser sketch</a> is illustrative.</p>
@@ -304,7 +304,7 @@
 <p>The HTML guide embeds original reference and symbol/brand images unchanged. Component examples are schematic CSS explanations with synthetic labels, not new app screenshots or replacement artwork.</p>
 <p>The U1/U3 header uses neutral saved-age text independently of session state, with a small green <i class="swatch" style="background:#74dfba" aria-hidden="true"></i><code>#74dfba</code> ✓ for recent matching confirmed proof, amber <i class="swatch" style="background:#ffc477" aria-hidden="true"></i><code>#ffc477</code> → for required login, and muted ?/! for unknown/mismatch/error. Saved flight receipt age strictly greater than 72 hours adds a small <i class="swatch" style="background:#ffc477" aria-hidden="true"></i><code>#ffc477</code> dot on the otherwise transparent icon-only control; exactly 72 hours does not. The same dot also signals a scope-matched activity-count change or incomplete sync, with distinct accessible wording and retained details/retry. These recommendation cues are independent of session colour and saved age; when both apply, both descriptions remain in the accessible action and status detail. Checks/login/failure never renew the durable successful flight receipt. The former one-hour age-colour policy is superseded. Provider-panel session colours retain their own meanings.</p></section>
 <section class="chapter" id="chapter-components"><h2 id="chapter-components-components-symbols-and-shapes">Components, symbols and shapes</h2>
-<p><strong>Sync confirmation refinement (#94, 26 October):</strong> retain the native short Android alert with a source-specific title, concise data/login/saved-data explanation, <strong>Abbrechen</strong> and <strong>Abruf starten</strong>. The existing one-decision/scope guards remain authoritative; this applies Material&#x27;s short-dialog title/body/dismiss/confirm anatomy without a custom overlay or provider change. <a href="../../verification/2026-10-26-material-settings.md#sync-confirmation-and-filter-sheet-checkpoint">Verification</a>.</p>
+<p><strong>Sync confirmation refinement (#94, 26 October):</strong> the short app-owned dark dialog has a source-specific title, concise data/login/saved-data explanation, <strong>Abbrechen</strong> and <strong>Abruf starten</strong>. Its dimmed scrim, raised navy surface and bounded width distinguish it from a page. Android Back/outside tap cancels; the existing one-decision/scope guards remain authoritative. This applies Material&#x27;s short-dialog title/body/dismiss/confirm anatomy without a provider change. <a href="../../verification/2026-10-26-material-settings.md#sync-confirmation-and-filter-sheet-checkpoint">Verification</a>.</p>
 <p><strong>26 October Material increments (#94):</strong> <a href="#chapter-compact-cockpit-material-settings--selected-26-october-2026">selected contract</a>. Settings uses grouped navigation rows, a native preference switch and accessible backup disclosure. <code>AppHeader</code> has an opt-in <code>page</code> variant for Settings, Help, Medical and Status; its default branded appearance is unchanged. Flight-filter choosers use a titled raised sheet, explicit Close and radio selection rows, with an empty registration-search state. <a href="../../verification/2026-10-26-material-settings.md">Source checks and scoped native evidence</a> distinguish released child pages from the filter sheet&#x27;s pending batched checkpoint.</p>
 <p><strong>26 October approved Sync refinement (#92):</strong> the 32 dp indicator uses a continuous cyan circular wave, adapting Material 3 Expressive&#x27;s wavy progress shape to Compact Cockpit and the existing 48 dp control. Known estimates fill the actual wave path fraction; unknown work rotates only its arc. Foreground, waiting and reduced-motion guards remain. Single-item count suffixes are omitted for both current/completed and spoken status; multi-item, zero and unknown totals remain. Interrupted progress uses “Synchronisierung unterbrochen”, explains continue versus retrieving all data again, and names buttons “Synchronisierung fortsetzen” / “Alle Daten erneut abrufen”; saved-data preservation and the foreground note are explicit. Manuel approved implementation after the proposal on 26 October. <a href="../../verification/2026-10-26-sync-counts.md#latest-released-build-report-and-single-item-count-refinement--26-october-2026">Source-specific evidence</a>. References: <a href="https://m3.material.io/components/progress-indicators/overview">Material 3</a>, <a href="https://github.com/material-components/material-components-android/blob/master/docs/components/ProgressIndicator.md">Google&#x27;s expressive component examples</a>.</p>
 <p><strong>26 October selected estimated Sync progress (#92):</strong> the existing 32 dp ring becomes determinate only with comparable local timing samples. The current status row retains exact counts and adds <code>Gesamt ca. N %</code>; review has its own step. Unknown timings remain indeterminate, waits freeze, overruns explain the delay, and only confirmed completion reaches 100%. Samples distinguish first/repeat/resumed work; elapsed fractions are estimates. Control size, reduced motion, cancellation and independent source results remain unchanged. <a href="../../verification/2026-10-26-sync-counts.md#implementation--26-october-2026">Implementation and acceptance limits</a>.</p>
@@ -457,7 +457,7 @@
 <p>Use only the header “Daten” button for new provider data and login. Start empty/error states, empty Flüge, Profile, status and Development give passive guidance. Keep local reload, filters, diagnostics and offline backup independent. The complete journey stays in a persistent framed popup over the dimmed inert page; retain the native WebView parent during Android credential activities. Retry, recovery and optional source jobs stay in the frame. Settled automatic completion returns to Start with a compact bordered receipt immediately below the header outside scrolling content, needing no routine acknowledgement in the popup. Shared refresh, recorded completion HH:mm when valid, Details and close use minimum 48 dp targets and wrapping for enlarged text. Counts, source outcomes and coverage caveats stay in Details. Completion time is recorded after combined jobs finish, never fabricated at render. Close/Back retain cancellation/save guards and contextual return. U2 adds the compact saved-name club heading and duty subgroup hierarchy, and moves the permanent season paragraph into a short Statistics-detail caveat. The U1/U2 native/Release checkpoint is delivered; U3 adds the independently scoped <strong>Änderungen möglich</strong> header hint without altering the sync receipt. See the <a href="../../verification/2026-10-21-simple-flight-loading.md#guarded-activity-advice-integration--23-october-2026">U3 evidence and remaining gates</a>.</p></section>
 <section class="chapter" id="chapter-implementation-inventory"><h2 id="chapter-implementation-inventory-platform-lab-ui-implementation-inventory">Platform-lab UI implementation inventory</h2>
 <p><a href="#chapter-overview">Handbook entry point</a>. Generated by <code>python scripts/design_handbook.py</code>; do not hand-edit.</p>
-<p>Scope: 106 product mobile TypeScript/model and app-owned TSX UI/adapter files; 71 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.</p>
+<p>Scope: 107 product mobile TypeScript/model and app-owned TSX UI/adapter files; 71 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.</p>
 <h3 id="chapter-implementation-inventory-apptsx">App.tsx</h3>
 <p>Retained app-owned lab/adapter surface; document its existing appearance as an exception. Source: <a href="../../../apps/platform-lab/src/App.tsx">apps/platform-lab/src/App.tsx</a>; normalized SHA-256 <code>00e90dbdf13115e9cffa98b6123f015dc87f095cdd8736daa20f73edab02e7e6</code>.</p>
 <h4 id="chapter-implementation-inventory-literal-colors">Literal colors</h4>
@@ -1096,109 +1096,109 @@
 <tr><td><code>width: &#x27;100%&#x27;</code></td><td>71</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-mobileapptsx">MobileApp.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/MobileApp.tsx">apps/platform-lab/src/mobile/MobileApp.tsx</a>; normalized SHA-256 <code>14d4bc78da16cfcd5d2773601b5b5bd6ff3a4a6174f9751a79b7fbe44e85b52d</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/MobileApp.tsx">apps/platform-lab/src/mobile/MobileApp.tsx</a>; normalized SHA-256 <code>11c5bb097984425e1a0f8331ab476a0d2c83159ec4b38b4ea247a52f17d01cd6</code>.</p>
 <h4 id="chapter-implementation-inventory-literal-colors-8">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><i class="swatch" style="background:#000712bd" aria-hidden="true"></i><code>#000712bd</code></td><td>393</td></tr>
-<tr><td><i class="swatch" style="background:#064240" aria-hidden="true"></i><code>#064240</code></td><td>387</td></tr>
-<tr><td><i class="swatch" style="background:#10282d" aria-hidden="true"></i><code>#10282d</code></td><td>387</td></tr>
-<tr><td><i class="swatch" style="background:#11263a" aria-hidden="true"></i><code>#11263a</code></td><td>386</td></tr>
-<tr><td><i class="swatch" style="background:#152d42" aria-hidden="true"></i><code>#152d42</code></td><td>388</td></tr>
-<tr><td><i class="swatch" style="background:#1b344a" aria-hidden="true"></i><code>#1b344a</code></td><td>391</td></tr>
-<tr><td><i class="swatch" style="background:#227f87" aria-hidden="true"></i><code>#227f87</code></td><td>387</td></tr>
-<tr><td><i class="swatch" style="background:#78efdc" aria-hidden="true"></i><code>#78efdc</code></td><td>389</td></tr>
-<tr><td><i class="swatch" style="background:#8ba4bc" aria-hidden="true"></i><code>#8ba4bc</code></td><td>326, 384</td></tr>
+<tr><td><i class="swatch" style="background:#000712bd" aria-hidden="true"></i><code>#000712bd</code></td><td>397</td></tr>
+<tr><td><i class="swatch" style="background:#064240" aria-hidden="true"></i><code>#064240</code></td><td>391</td></tr>
+<tr><td><i class="swatch" style="background:#10282d" aria-hidden="true"></i><code>#10282d</code></td><td>391</td></tr>
+<tr><td><i class="swatch" style="background:#11263a" aria-hidden="true"></i><code>#11263a</code></td><td>390</td></tr>
+<tr><td><i class="swatch" style="background:#152d42" aria-hidden="true"></i><code>#152d42</code></td><td>392</td></tr>
+<tr><td><i class="swatch" style="background:#1b344a" aria-hidden="true"></i><code>#1b344a</code></td><td>395</td></tr>
+<tr><td><i class="swatch" style="background:#227f87" aria-hidden="true"></i><code>#227f87</code></td><td>391</td></tr>
+<tr><td><i class="swatch" style="background:#78efdc" aria-hidden="true"></i><code>#78efdc</code></td><td>393</td></tr>
+<tr><td><i class="swatch" style="background:#8ba4bc" aria-hidden="true"></i><code>#8ba4bc</code></td><td>329, 388</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-typography-declarations-17">Typography declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>fontSize: 10</code></td><td>326, 384</td></tr>
-<tr><td><code>fontSize: 11</code></td><td>385</td></tr>
-<tr><td><code>fontSize: 12</code></td><td>387, 392</td></tr>
-<tr><td><code>fontSize: 13</code></td><td>386</td></tr>
-<tr><td><code>fontSize: 16</code></td><td>391</td></tr>
-<tr><td><code>fontSize: 20</code></td><td>385</td></tr>
-<tr><td><code>fontSize: 23</code></td><td>390</td></tr>
-<tr><td><code>fontSize: 25</code></td><td>392</td></tr>
-<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>385, 387</td></tr>
-<tr><td><code>fontWeight: &#x27;700&#x27;</code></td><td>392</td></tr>
-<tr><td><code>letterSpacing: .6</code></td><td>384</td></tr>
-<tr><td><code>lineHeight: 16</code></td><td>326, 384, 385</td></tr>
-<tr><td><code>lineHeight: 17</code></td><td>387</td></tr>
-<tr><td><code>lineHeight: 18</code></td><td>392</td></tr>
-<tr><td><code>lineHeight: 25</code></td><td>385</td></tr>
-<tr><td><code>lineHeight: 29</code></td><td>392</td></tr>
+<tr><td><code>fontSize: 10</code></td><td>329, 388</td></tr>
+<tr><td><code>fontSize: 11</code></td><td>389</td></tr>
+<tr><td><code>fontSize: 12</code></td><td>391, 396</td></tr>
+<tr><td><code>fontSize: 13</code></td><td>390</td></tr>
+<tr><td><code>fontSize: 16</code></td><td>395</td></tr>
+<tr><td><code>fontSize: 20</code></td><td>389</td></tr>
+<tr><td><code>fontSize: 23</code></td><td>394</td></tr>
+<tr><td><code>fontSize: 25</code></td><td>396</td></tr>
+<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>389, 391</td></tr>
+<tr><td><code>fontWeight: &#x27;700&#x27;</code></td><td>396</td></tr>
+<tr><td><code>letterSpacing: .6</code></td><td>388</td></tr>
+<tr><td><code>lineHeight: 16</code></td><td>329, 388, 389</td></tr>
+<tr><td><code>lineHeight: 17</code></td><td>391</td></tr>
+<tr><td><code>lineHeight: 18</code></td><td>396</td></tr>
+<tr><td><code>lineHeight: 25</code></td><td>389</td></tr>
+<tr><td><code>lineHeight: 29</code></td><td>396</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-geometry--opacity-declarations-33">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>borderRadius: 12</code></td><td>387</td></tr>
-<tr><td><code>borderRadius: 13</code></td><td>387</td></tr>
-<tr><td><code>borderRadius: 15</code></td><td>389</td></tr>
-<tr><td><code>borderRadius: 16</code></td><td>391, 392</td></tr>
-<tr><td><code>borderRadius: 17</code></td><td>388</td></tr>
-<tr><td><code>borderRadius: 18</code></td><td>390</td></tr>
-<tr><td><code>borderRadius: 2</code></td><td>392</td></tr>
-<tr><td><code>borderRadius: 20</code></td><td>391</td></tr>
-<tr><td><code>borderRadius: 22</code></td><td>386, 394</td></tr>
-<tr><td><code>borderRadius: 24</code></td><td>386</td></tr>
-<tr><td><code>borderRadius: 9</code></td><td>387</td></tr>
-<tr><td><code>borderWidth: 1</code></td><td>386, 387, 390, 391, 392, 394</td></tr>
-<tr><td><code>gap: 1</code></td><td>385</td></tr>
-<tr><td><code>gap: 10</code></td><td>285, 296</td></tr>
-<tr><td><code>gap: 12</code></td><td>284, 382</td></tr>
-<tr><td><code>gap: 16</code></td><td>351</td></tr>
-<tr><td><code>gap: 18</code></td><td>389</td></tr>
-<tr><td><code>gap: 2</code></td><td>392</td></tr>
-<tr><td><code>gap: 3</code></td><td>384, 387</td></tr>
-<tr><td><code>gap: 4</code></td><td>392</td></tr>
-<tr><td><code>gap: 5</code></td><td>386</td></tr>
-<tr><td><code>gap: 6</code></td><td>390, 391</td></tr>
-<tr><td><code>gap: 7</code></td><td>386, 389</td></tr>
-<tr><td><code>gap: 8</code></td><td>349, 357, 358, 388, 391</td></tr>
-<tr><td><code>height: 2</code></td><td>392</td></tr>
-<tr><td><code>height: 30</code></td><td>389</td></tr>
-<tr><td><code>height: 48</code></td><td>391</td></tr>
-<tr><td><code>maxHeight: 150</code></td><td>391</td></tr>
-<tr><td><code>maxWidth: 480</code></td><td>296</td></tr>
-<tr><td><code>maxWidth: 520</code></td><td>198, 349, 351, 389</td></tr>
-<tr><td><code>maxWidth: 599</code></td><td>381, 392</td></tr>
-<tr><td><code>maxWidth: 600</code></td><td>281, 327, 339</td></tr>
-<tr><td><code>maxWidth: 960</code></td><td>281, 327</td></tr>
-<tr><td><code>minHeight: 0</code></td><td>315, 333, 394</td></tr>
-<tr><td><code>minHeight: 126</code></td><td>389</td></tr>
-<tr><td><code>minHeight: 34</code></td><td>388</td></tr>
-<tr><td><code>minHeight: 36</code></td><td>383</td></tr>
-<tr><td><code>minHeight: 40</code></td><td>386</td></tr>
-<tr><td><code>minHeight: 48</code></td><td>386, 388</td></tr>
-<tr><td><code>minHeight: 52</code></td><td>391</td></tr>
-<tr><td><code>minHeight: 60</code></td><td>392</td></tr>
-<tr><td><code>minHeight: 64</code></td><td>387</td></tr>
-<tr><td><code>minHeight: 66</code></td><td>387</td></tr>
-<tr><td><code>minHeight: 86</code></td><td>390</td></tr>
-<tr><td><code>minWidth: 0</code></td><td>385, 386</td></tr>
-<tr><td><code>opacity: .8</code></td><td>393</td></tr>
-<tr><td><code>padding: 0</code></td><td>388</td></tr>
-<tr><td><code>padding: 10</code></td><td>382</td></tr>
-<tr><td><code>padding: 12</code></td><td>382</td></tr>
-<tr><td><code>padding: 16</code></td><td>390</td></tr>
-<tr><td><code>padding: 4</code></td><td>384, 391</td></tr>
-<tr><td><code>padding: 6</code></td><td>392</td></tr>
-<tr><td><code>padding: 7</code></td><td>387</td></tr>
-<tr><td><code>paddingHorizontal: 12</code></td><td>386, 393</td></tr>
-<tr><td><code>paddingHorizontal: 16</code></td><td>388</td></tr>
-<tr><td><code>paddingHorizontal: 6</code></td><td>387</td></tr>
-<tr><td><code>paddingHorizontal: 7</code></td><td>387</td></tr>
-<tr><td><code>paddingHorizontal: 8</code></td><td>391</td></tr>
-<tr><td><code>paddingVertical: 10</code></td><td>387, 393</td></tr>
-<tr><td><code>paddingVertical: 4</code></td><td>386</td></tr>
-<tr><td><code>paddingVertical: 8</code></td><td>392</td></tr>
-<tr><td><code>width: &#x27;100%&#x27;</code></td><td>198, 284, 285, 286, 296, 326, 339, 349, 351, 381, 388, 389, 392</td></tr>
-<tr><td><code>width: &#x27;32%&#x27;</code></td><td>392</td></tr>
-<tr><td><code>width: &#x27;49.2%&#x27;</code></td><td>388</td></tr>
-<tr><td><code>width: 24</code></td><td>392</td></tr>
-<tr><td><code>width: 30</code></td><td>389</td></tr>
-<tr><td><code>width: 42</code></td><td>386</td></tr>
-<tr><td><code>width: 48</code></td><td>391</td></tr>
-<tr><td><code>width: 64</code></td><td>387</td></tr>
+<tr><td><code>borderRadius: 12</code></td><td>391</td></tr>
+<tr><td><code>borderRadius: 13</code></td><td>391</td></tr>
+<tr><td><code>borderRadius: 15</code></td><td>393</td></tr>
+<tr><td><code>borderRadius: 16</code></td><td>395, 396</td></tr>
+<tr><td><code>borderRadius: 17</code></td><td>392</td></tr>
+<tr><td><code>borderRadius: 18</code></td><td>394</td></tr>
+<tr><td><code>borderRadius: 2</code></td><td>396</td></tr>
+<tr><td><code>borderRadius: 20</code></td><td>395</td></tr>
+<tr><td><code>borderRadius: 22</code></td><td>390, 398</td></tr>
+<tr><td><code>borderRadius: 24</code></td><td>390</td></tr>
+<tr><td><code>borderRadius: 9</code></td><td>391</td></tr>
+<tr><td><code>borderWidth: 1</code></td><td>390, 391, 394, 395, 396, 398</td></tr>
+<tr><td><code>gap: 1</code></td><td>389</td></tr>
+<tr><td><code>gap: 10</code></td><td>288, 299</td></tr>
+<tr><td><code>gap: 12</code></td><td>287, 386</td></tr>
+<tr><td><code>gap: 16</code></td><td>354</td></tr>
+<tr><td><code>gap: 18</code></td><td>393</td></tr>
+<tr><td><code>gap: 2</code></td><td>396</td></tr>
+<tr><td><code>gap: 3</code></td><td>388, 391</td></tr>
+<tr><td><code>gap: 4</code></td><td>396</td></tr>
+<tr><td><code>gap: 5</code></td><td>390</td></tr>
+<tr><td><code>gap: 6</code></td><td>394, 395</td></tr>
+<tr><td><code>gap: 7</code></td><td>390, 393</td></tr>
+<tr><td><code>gap: 8</code></td><td>352, 360, 361, 392, 395</td></tr>
+<tr><td><code>height: 2</code></td><td>396</td></tr>
+<tr><td><code>height: 30</code></td><td>393</td></tr>
+<tr><td><code>height: 48</code></td><td>395</td></tr>
+<tr><td><code>maxHeight: 150</code></td><td>395</td></tr>
+<tr><td><code>maxWidth: 480</code></td><td>299</td></tr>
+<tr><td><code>maxWidth: 520</code></td><td>200, 352, 354, 393</td></tr>
+<tr><td><code>maxWidth: 599</code></td><td>385, 396</td></tr>
+<tr><td><code>maxWidth: 600</code></td><td>284, 330, 342</td></tr>
+<tr><td><code>maxWidth: 960</code></td><td>284, 330</td></tr>
+<tr><td><code>minHeight: 0</code></td><td>318, 336, 398</td></tr>
+<tr><td><code>minHeight: 126</code></td><td>393</td></tr>
+<tr><td><code>minHeight: 34</code></td><td>392</td></tr>
+<tr><td><code>minHeight: 36</code></td><td>387</td></tr>
+<tr><td><code>minHeight: 40</code></td><td>390</td></tr>
+<tr><td><code>minHeight: 48</code></td><td>390, 392</td></tr>
+<tr><td><code>minHeight: 52</code></td><td>395</td></tr>
+<tr><td><code>minHeight: 60</code></td><td>396</td></tr>
+<tr><td><code>minHeight: 64</code></td><td>391</td></tr>
+<tr><td><code>minHeight: 66</code></td><td>391</td></tr>
+<tr><td><code>minHeight: 86</code></td><td>394</td></tr>
+<tr><td><code>minWidth: 0</code></td><td>389, 390</td></tr>
+<tr><td><code>opacity: .8</code></td><td>397</td></tr>
+<tr><td><code>padding: 0</code></td><td>392</td></tr>
+<tr><td><code>padding: 10</code></td><td>386</td></tr>
+<tr><td><code>padding: 12</code></td><td>386</td></tr>
+<tr><td><code>padding: 16</code></td><td>394</td></tr>
+<tr><td><code>padding: 4</code></td><td>388, 395</td></tr>
+<tr><td><code>padding: 6</code></td><td>396</td></tr>
+<tr><td><code>padding: 7</code></td><td>391</td></tr>
+<tr><td><code>paddingHorizontal: 12</code></td><td>390, 397</td></tr>
+<tr><td><code>paddingHorizontal: 16</code></td><td>392</td></tr>
+<tr><td><code>paddingHorizontal: 6</code></td><td>391</td></tr>
+<tr><td><code>paddingHorizontal: 7</code></td><td>391</td></tr>
+<tr><td><code>paddingHorizontal: 8</code></td><td>395</td></tr>
+<tr><td><code>paddingVertical: 10</code></td><td>391, 397</td></tr>
+<tr><td><code>paddingVertical: 4</code></td><td>390</td></tr>
+<tr><td><code>paddingVertical: 8</code></td><td>396</td></tr>
+<tr><td><code>width: &#x27;100%&#x27;</code></td><td>200, 287, 288, 289, 299, 329, 342, 352, 354, 385, 392, 393, 396</td></tr>
+<tr><td><code>width: &#x27;32%&#x27;</code></td><td>396</td></tr>
+<tr><td><code>width: &#x27;49.2%&#x27;</code></td><td>392</td></tr>
+<tr><td><code>width: 24</code></td><td>396</td></tr>
+<tr><td><code>width: 30</code></td><td>393</td></tr>
+<tr><td><code>width: 42</code></td><td>390</td></tr>
+<tr><td><code>width: 48</code></td><td>395</td></tr>
+<tr><td><code>width: 64</code></td><td>391</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-overviewtilestsx">OverviewTiles.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/OverviewTiles.tsx">apps/platform-lab/src/mobile/OverviewTiles.tsx</a>; normalized SHA-256 <code>9f6dd21a39b8ba1a538b169c60d92aed5719e0b76bd485340213a93bca20992b</code>.</p>
@@ -1592,15 +1592,48 @@
 <tr><td><code>borderRadius: 12</code></td><td>22</td></tr>
 <tr><td><code>borderWidth: 1</code></td><td>22</td></tr>
 </tbody></table></div>
+<h3 id="chapter-implementation-inventory-syncconfirmationdialogtsx">SyncConfirmationDialog.tsx</h3>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/SyncConfirmationDialog.tsx">apps/platform-lab/src/mobile/SyncConfirmationDialog.tsx</a>; normalized SHA-256 <code>82497d3235e1d60514de4769a4b7ad37ef993ca13a2316149a1d4ca3957121a9</code>.</p>
+<h4 id="chapter-implementation-inventory-literal-colors-18">Literal colors</h4>
+<div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
+<tr><td><i class="swatch" style="background:#000712bd" aria-hidden="true"></i><code>#000712bd</code></td><td>27</td></tr>
+<tr><td><i class="swatch" style="background:#031326" aria-hidden="true"></i><code>#031326</code></td><td>37</td></tr>
+</tbody></table></div>
+<h4 id="chapter-implementation-inventory-typography-declarations-26">Typography declarations</h4>
+<div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
+<tr><td><code>fontSize: 14</code></td><td>36, 37</td></tr>
+<tr><td><code>fontSize: 16</code></td><td>31</td></tr>
+<tr><td><code>fontSize: 24</code></td><td>30</td></tr>
+<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>30, 36</td></tr>
+<tr><td><code>fontWeight: &#x27;700&#x27;</code></td><td>37</td></tr>
+<tr><td><code>lineHeight: 20</code></td><td>36, 37</td></tr>
+<tr><td><code>lineHeight: 24</code></td><td>31</td></tr>
+<tr><td><code>lineHeight: 32</code></td><td>30</td></tr>
+</tbody></table></div>
+<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-45">Geometry / opacity declarations</h4>
+<div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
+<tr><td><code>borderRadius: 12</code></td><td>34</td></tr>
+<tr><td><code>borderRadius: 28</code></td><td>28</td></tr>
+<tr><td><code>gap: 16</code></td><td>29</td></tr>
+<tr><td><code>gap: 8</code></td><td>32</td></tr>
+<tr><td><code>maxHeight: &#x27;85%&#x27;</code></td><td>28</td></tr>
+<tr><td><code>maxWidth: 480</code></td><td>28</td></tr>
+<tr><td><code>minHeight: 48</code></td><td>34</td></tr>
+<tr><td><code>minWidth: 48</code></td><td>34</td></tr>
+<tr><td><code>padding: 16</code></td><td>27</td></tr>
+<tr><td><code>padding: 24</code></td><td>29</td></tr>
+<tr><td><code>paddingHorizontal: 16</code></td><td>34</td></tr>
+<tr><td><code>width: &#x27;100%&#x27;</code></td><td>28</td></tr>
+</tbody></table></div>
 <h3 id="chapter-implementation-inventory-syncprogresstsx">SyncProgress.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/SyncProgress.tsx">apps/platform-lab/src/mobile/SyncProgress.tsx</a>; normalized SHA-256 <code>b063325e4dce1b080edd2c6e1e1bdcaebe04f4893a5eb2b853f79a3d719a3af5</code>.</p>
-<h4 id="chapter-implementation-inventory-literal-colors-18">Literal colors</h4>
+<h4 id="chapter-implementation-inventory-literal-colors-19">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><i class="swatch" style="background:#baf9e436" aria-hidden="true"></i><code>#baf9e436</code></td><td>123</td></tr>
 <tr><td><i class="swatch" style="background:#d5ffee70" aria-hidden="true"></i><code>#d5ffee70</code></td><td>123</td></tr>
 <tr><td><i class="swatch" style="background:#ffc477" aria-hidden="true"></i><code>#ffc477</code></td><td>119</td></tr>
 </tbody></table></div>
-<h4 id="chapter-implementation-inventory-typography-declarations-26">Typography declarations</h4>
+<h4 id="chapter-implementation-inventory-typography-declarations-27">Typography declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>fontSize: 11</code></td><td>116</td></tr>
 <tr><td><code>fontSize: 12</code></td><td>116</td></tr>
@@ -1609,7 +1642,7 @@
 <tr><td><code>lineHeight: 18</code></td><td>116</td></tr>
 <tr><td><code>lineHeight: 20</code></td><td>119, 120</td></tr>
 </tbody></table></div>
-<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-45">Geometry / opacity declarations</h4>
+<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-46">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>gap: 8</code></td><td>117</td></tr>
 <tr><td><code>maxWidth: 960</code></td><td>115</td></tr>
@@ -1623,7 +1656,7 @@
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-themetsx">theme.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/theme.tsx">apps/platform-lab/src/mobile/theme.tsx</a>; normalized SHA-256 <code>34aaac4287c49060b933e6367b4fa3043427ec6e603d34c1c8cca0a0b8288cf5</code>.</p>
-<h4 id="chapter-implementation-inventory-literal-colors-19">Literal colors</h4>
+<h4 id="chapter-implementation-inventory-literal-colors-20">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><i class="swatch" style="background:#00102277" aria-hidden="true"></i><code>#00102277</code></td><td>65</td></tr>
 <tr><td><i class="swatch" style="background:#001b29" aria-hidden="true"></i><code>#001b29</code></td><td>6</td></tr>
@@ -1640,7 +1673,7 @@
 <tr><td><i class="swatch" style="background:#f4f8fc" aria-hidden="true"></i><code>#f4f8fc</code></td><td>6</td></tr>
 <tr><td><i class="swatch" style="background:#fc6a2d" aria-hidden="true"></i><code>#fc6a2d</code></td><td>6</td></tr>
 </tbody></table></div>
-<h4 id="chapter-implementation-inventory-typography-declarations-27">Typography declarations</h4>
+<h4 id="chapter-implementation-inventory-typography-declarations-28">Typography declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>fontSize: 14</code></td><td>60</td></tr>
 <tr><td><code>fontSize: 15</code></td><td>44, 55</td></tr>
@@ -1653,7 +1686,7 @@
 <tr><td><code>lineHeight: 22</code></td><td>44, 55</td></tr>
 <tr><td><code>lineHeight: 26</code></td><td>46</td></tr>
 </tbody></table></div>
-<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-46">Geometry / opacity declarations</h4>
+<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-47">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>borderRadius: 14</code></td><td>59</td></tr>
 <tr><td><code>borderRadius: 16</code></td><td>47, 54, 64</td></tr>
@@ -1687,13 +1720,13 @@
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-updatedialogtsx">UpdateDialog.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/UpdateDialog.tsx">apps/platform-lab/src/mobile/UpdateDialog.tsx</a>; normalized SHA-256 <code>d0ac36b132634a9d956aef345f02db1f351a388073c07436e934320f2f2829a4</code>.</p>
-<h4 id="chapter-implementation-inventory-literal-colors-20">Literal colors</h4>
+<h4 id="chapter-implementation-inventory-literal-colors-21">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><i class="swatch" style="background:#000000" aria-hidden="true"></i><code>#000000</code></td><td>29</td></tr>
 <tr><td><i class="swatch" style="background:#000712bd" aria-hidden="true"></i><code>#000712bd</code></td><td>27</td></tr>
 <tr><td><i class="swatch" style="background:#426783" aria-hidden="true"></i><code>#426783</code></td><td>28</td></tr>
 </tbody></table></div>
-<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-47">Geometry / opacity declarations</h4>
+<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-48">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>borderRadius: 22</code></td><td>28</td></tr>
 <tr><td><code>borderWidth: 1</code></td><td>28</td></tr>
@@ -1701,12 +1734,12 @@
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-updateresulttsx">UpdateResult.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/UpdateResult.tsx">apps/platform-lab/src/mobile/UpdateResult.tsx</a>; normalized SHA-256 <code>f5306d4bd4ef18f871e3c01179c58bef1519e76c54a445400f3faf50bd1bb95f</code>.</p>
-<h4 id="chapter-implementation-inventory-typography-declarations-28">Typography declarations</h4>
+<h4 id="chapter-implementation-inventory-typography-declarations-29">Typography declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>fontSize: 13</code></td><td>27, 44</td></tr>
 <tr><td><code>lineHeight: 18</code></td><td>27, 44</td></tr>
 </tbody></table></div>
-<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-48">Geometry / opacity declarations</h4>
+<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-49">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>borderRadius: 14</code></td><td>42</td></tr>
 <tr><td><code>borderWidth: 1</code></td><td>42</td></tr>
@@ -1723,7 +1756,7 @@
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-accessprobetsx">AccessProbe.tsx</h3>
 <p>Retained app-owned lab/adapter surface; document its existing appearance as an exception. Source: <a href="../../../apps/platform-lab/src/vereinsflieger/AccessProbe.tsx">apps/platform-lab/src/vereinsflieger/AccessProbe.tsx</a>; normalized SHA-256 <code>5b64a01f9baeb968fb58ee20855e1694e2c53b06f6348f1c4e36dad3377239ff</code>.</p>
-<h4 id="chapter-implementation-inventory-literal-colors-21">Literal colors</h4>
+<h4 id="chapter-implementation-inventory-literal-colors-22">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><i class="swatch" style="background:#173a57" aria-hidden="true"></i><code>#173a57</code></td><td>50</td></tr>
 <tr><td><i class="swatch" style="background:#174c72" aria-hidden="true"></i><code>#174c72</code></td><td>50</td></tr>
@@ -1733,7 +1766,7 @@
 <tr><td><i class="swatch" style="background:#fff" aria-hidden="true"></i><code>#fff</code></td><td>50</td></tr>
 <tr><td><code>white</code></td><td>50</td></tr>
 </tbody></table></div>
-<h4 id="chapter-implementation-inventory-typography-declarations-29">Typography declarations</h4>
+<h4 id="chapter-implementation-inventory-typography-declarations-30">Typography declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>fontSize: 14</code></td><td>50</td></tr>
 <tr><td><code>fontSize: 15</code></td><td>50</td></tr>
@@ -1741,7 +1774,7 @@
 <tr><td><code>fontWeight: &#x27;700&#x27;</code></td><td>50</td></tr>
 <tr><td><code>lineHeight: 21</code></td><td>50</td></tr>
 </tbody></table></div>
-<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-49">Geometry / opacity declarations</h4>
+<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-50">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>borderRadius: 6</code></td><td>50</td></tr>
 <tr><td><code>borderWidth: 1</code></td><td>50</td></tr>
@@ -1758,17 +1791,17 @@
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-captureruntsx">CaptureRun.tsx</h3>
 <p>Retained app-owned lab/adapter surface; document its existing appearance as an exception. Source: <a href="../../../apps/platform-lab/src/vereinsflieger/CaptureRun.tsx">apps/platform-lab/src/vereinsflieger/CaptureRun.tsx</a>; normalized SHA-256 <code>d06673feadf63177de982d7a1dec91de596b9ff548b5a8acd35f436ec8c24d6a</code>.</p>
-<h4 id="chapter-implementation-inventory-literal-colors-22">Literal colors</h4>
+<h4 id="chapter-implementation-inventory-literal-colors-23">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><i class="swatch" style="background:#174c72" aria-hidden="true"></i><code>#174c72</code></td><td>52</td></tr>
 <tr><td><code>white</code></td><td>11</td></tr>
 </tbody></table></div>
-<h4 id="chapter-implementation-inventory-typography-declarations-30">Typography declarations</h4>
+<h4 id="chapter-implementation-inventory-typography-declarations-31">Typography declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>fontSize: 22</code></td><td>52</td></tr>
 <tr><td><code>fontWeight: &#x27;700&#x27;</code></td><td>52</td></tr>
 </tbody></table></div>
-<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-50">Geometry / opacity declarations</h4>
+<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-51">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>borderRadius: 6</code></td><td>52</td></tr>
 <tr><td><code>gap: 10</code></td><td>52</td></tr>
@@ -1779,17 +1812,17 @@
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-windowcapturetsx">WindowCapture.tsx</h3>
 <p>Retained app-owned lab/adapter surface; document its existing appearance as an exception. Source: <a href="../../../apps/platform-lab/src/vereinsflieger/WindowCapture.tsx">apps/platform-lab/src/vereinsflieger/WindowCapture.tsx</a>; normalized SHA-256 <code>fb270278f16b64123b91586bd254dec10f4ea5c97c72627114a399971d0fe6db</code>.</p>
-<h4 id="chapter-implementation-inventory-literal-colors-23">Literal colors</h4>
+<h4 id="chapter-implementation-inventory-literal-colors-24">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><i class="swatch" style="background:#174c72" aria-hidden="true"></i><code>#174c72</code></td><td>80</td></tr>
 <tr><td><code>white</code></td><td>12</td></tr>
 </tbody></table></div>
-<h4 id="chapter-implementation-inventory-typography-declarations-31">Typography declarations</h4>
+<h4 id="chapter-implementation-inventory-typography-declarations-32">Typography declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>fontSize: 22</code></td><td>80</td></tr>
 <tr><td><code>fontWeight: &#x27;700&#x27;</code></td><td>80</td></tr>
 </tbody></table></div>
-<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-51">Geometry / opacity declarations</h4>
+<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-52">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>borderRadius: 6</code></td><td>80</td></tr>
 <tr><td><code>gap: 10</code></td><td>80</td></tr>
@@ -2328,7 +2361,7 @@ Manuel approved the **Separate controls** Material-based proposal and a short co
 
 During work, Sync uses an indeterminate circular indicator, with a static arc for reduced motion. At rest, its decorative badge distinguishes confirmed completed work (`OK`), stored flight evidence without a confirmed full-job result this session (`✓`, neutral), partial/failure/read error (`!`, error), possible changes (`!`, advice), data older than 72 hours (`ALT`), unknown (`?`) and waiting for login (`…`). Detailed source outcomes and saved timestamps remain in Profile/Status. Login has its own Profile badge: recent verified (`✓`), login required (`→`), unchecked (`?`) or verification problem (`!`). Color never carries the only meaning, and neither badge grants authorization. Full-job outcomes are not newly persisted across restarts.
 
-Every ordinary Sync/retry action asks **Daten von Vereinsflieger abrufen?** with **Abbrechen** and **Abruf starten**. The short native alert explains supported data, possible original-page login and retained saved flights. Cancel, Android Back/outside dismissal, backgrounding, a scope change or a stale/duplicate response cannot start the job. Local read retry and account/settings navigation retain their own behavior. Diagnostic exports include fixed confirmation and badge-reason events without account values.
+Every ordinary Sync/retry action asks **Daten von Vereinsflieger abrufen?** with **Abbrechen** and **Abruf starten**. The short dark app dialog explains supported data, possible original-page login and retained saved flights. The earlier Android system alert rendered white despite the dark app; the scoped dialog corrects that mismatch. Cancel, Android Back/outside dismissal, backgrounding, a scope change or a stale/duplicate response cannot start the job. Local read retry and account/settings navigation retain their own behavior. Diagnostic exports include fixed confirmation and badge-reason events without account values.
 
 References consulted: [Material progress indicators](https://m3.material.io/components/progress-indicators/overview), [badges](https://m3.material.io/components/badges/overview), [dialog guidance](https://m3.material.io/components/dialogs/guidelines). Product adaptations: short state labels instead of notification counts, the approved dark palette, and the existing platform-native two-action confirmation without a new dependency. This is a Material-informed adaptation, not an exact Material component-library implementation. Source-specific checks and remaining gates are in the [package report](../../verification/2026-10-25-sync-and-target-backup.md#separate-status-controls-and-sync-confirmation--26-october-2026).
 
@@ -2686,7 +2719,7 @@ The U1/U3 header uses neutral saved-age text independently of session state, wit
 
 # Components, symbols and shapes
 
-**Sync confirmation refinement (#94, 26 October):** retain the native short Android alert with a source-specific title, concise data/login/saved-data explanation, **Abbrechen** and **Abruf starten**. The existing one-decision/scope guards remain authoritative; this applies Material&#x27;s short-dialog title/body/dismiss/confirm anatomy without a custom overlay or provider change. [Verification](../../verification/2026-10-26-material-settings.md#sync-confirmation-and-filter-sheet-checkpoint).
+**Sync confirmation refinement (#94, 26 October):** the short app-owned dark dialog has a source-specific title, concise data/login/saved-data explanation, **Abbrechen** and **Abruf starten**. Its dimmed scrim, raised navy surface and bounded width distinguish it from a page. Android Back/outside tap cancels; the existing one-decision/scope guards remain authoritative. This applies Material&#x27;s short-dialog title/body/dismiss/confirm anatomy without a provider change. [Verification](../../verification/2026-10-26-material-settings.md#sync-confirmation-and-filter-sheet-checkpoint).
 
 **26 October Material increments (#94):** [selected contract](compact-cockpit.md#material-settings--selected-26-october-2026). Settings uses grouped navigation rows, a native preference switch and accessible backup disclosure. `AppHeader` has an opt-in `page` variant for Settings, Help, Medical and Status; its default branded appearance is unchanged. Flight-filter choosers use a titled raised sheet, explicit Close and radio selection rows, with an empty registration-search state. [Source checks and scoped native evidence](../../verification/2026-10-26-material-settings.md) distinguish released child pages from the filter sheet&#x27;s pending batched checkpoint.
 
@@ -2909,7 +2942,7 @@ Use only the header “Daten” button for new provider data and login. Start em
 
 [Handbook entry point](README.md). Generated by `python scripts/design_handbook.py`; do not hand-edit.
 
-Scope: 106 product mobile TypeScript/model and app-owned TSX UI/adapter files; 71 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.
+Scope: 107 product mobile TypeScript/model and app-owned TSX UI/adapter files; 71 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.
 
 ## App.tsx
 
@@ -3736,116 +3769,116 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MedicalStatus.tsx
 
 ## MobileApp.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `14d4bc78da16cfcd5d2773601b5b5bd6ff3a4a6174f9751a79b7fbe44e85b52d`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `11c5bb097984425e1a0f8331ab476a0d2c83159ec4b38b4ea247a52f17d01cd6`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#000712bd` | 393 |
-| `#064240` | 387 |
-| `#10282d` | 387 |
-| `#11263a` | 386 |
-| `#152d42` | 388 |
-| `#1b344a` | 391 |
-| `#227f87` | 387 |
-| `#78efdc` | 389 |
-| `#8ba4bc` | 326, 384 |
+| `#000712bd` | 397 |
+| `#064240` | 391 |
+| `#10282d` | 391 |
+| `#11263a` | 390 |
+| `#152d42` | 392 |
+| `#1b344a` | 395 |
+| `#227f87` | 391 |
+| `#78efdc` | 393 |
+| `#8ba4bc` | 329, 388 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 10` | 326, 384 |
-| `fontSize: 11` | 385 |
-| `fontSize: 12` | 387, 392 |
-| `fontSize: 13` | 386 |
-| `fontSize: 16` | 391 |
-| `fontSize: 20` | 385 |
-| `fontSize: 23` | 390 |
-| `fontSize: 25` | 392 |
-| `fontWeight: &#x27;600&#x27;` | 385, 387 |
-| `fontWeight: &#x27;700&#x27;` | 392 |
-| `letterSpacing: .6` | 384 |
-| `lineHeight: 16` | 326, 384, 385 |
-| `lineHeight: 17` | 387 |
-| `lineHeight: 18` | 392 |
-| `lineHeight: 25` | 385 |
-| `lineHeight: 29` | 392 |
+| `fontSize: 10` | 329, 388 |
+| `fontSize: 11` | 389 |
+| `fontSize: 12` | 391, 396 |
+| `fontSize: 13` | 390 |
+| `fontSize: 16` | 395 |
+| `fontSize: 20` | 389 |
+| `fontSize: 23` | 394 |
+| `fontSize: 25` | 396 |
+| `fontWeight: &#x27;600&#x27;` | 389, 391 |
+| `fontWeight: &#x27;700&#x27;` | 396 |
+| `letterSpacing: .6` | 388 |
+| `lineHeight: 16` | 329, 388, 389 |
+| `lineHeight: 17` | 391 |
+| `lineHeight: 18` | 396 |
+| `lineHeight: 25` | 389 |
+| `lineHeight: 29` | 396 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 387 |
-| `borderRadius: 13` | 387 |
-| `borderRadius: 15` | 389 |
-| `borderRadius: 16` | 391, 392 |
-| `borderRadius: 17` | 388 |
-| `borderRadius: 18` | 390 |
-| `borderRadius: 2` | 392 |
-| `borderRadius: 20` | 391 |
-| `borderRadius: 22` | 386, 394 |
-| `borderRadius: 24` | 386 |
-| `borderRadius: 9` | 387 |
-| `borderWidth: 1` | 386, 387, 390, 391, 392, 394 |
-| `gap: 1` | 385 |
-| `gap: 10` | 285, 296 |
-| `gap: 12` | 284, 382 |
-| `gap: 16` | 351 |
-| `gap: 18` | 389 |
-| `gap: 2` | 392 |
-| `gap: 3` | 384, 387 |
-| `gap: 4` | 392 |
-| `gap: 5` | 386 |
-| `gap: 6` | 390, 391 |
-| `gap: 7` | 386, 389 |
-| `gap: 8` | 349, 357, 358, 388, 391 |
-| `height: 2` | 392 |
-| `height: 30` | 389 |
-| `height: 48` | 391 |
-| `maxHeight: 150` | 391 |
-| `maxWidth: 480` | 296 |
-| `maxWidth: 520` | 198, 349, 351, 389 |
-| `maxWidth: 599` | 381, 392 |
-| `maxWidth: 600` | 281, 327, 339 |
-| `maxWidth: 960` | 281, 327 |
-| `minHeight: 0` | 315, 333, 394 |
-| `minHeight: 126` | 389 |
-| `minHeight: 34` | 388 |
-| `minHeight: 36` | 383 |
-| `minHeight: 40` | 386 |
-| `minHeight: 48` | 386, 388 |
-| `minHeight: 52` | 391 |
-| `minHeight: 60` | 392 |
-| `minHeight: 64` | 387 |
-| `minHeight: 66` | 387 |
-| `minHeight: 86` | 390 |
-| `minWidth: 0` | 385, 386 |
-| `opacity: .8` | 393 |
-| `padding: 0` | 388 |
-| `padding: 10` | 382 |
-| `padding: 12` | 382 |
-| `padding: 16` | 390 |
-| `padding: 4` | 384, 391 |
-| `padding: 6` | 392 |
-| `padding: 7` | 387 |
-| `paddingHorizontal: 12` | 386, 393 |
-| `paddingHorizontal: 16` | 388 |
-| `paddingHorizontal: 6` | 387 |
-| `paddingHorizontal: 7` | 387 |
-| `paddingHorizontal: 8` | 391 |
-| `paddingVertical: 10` | 387, 393 |
-| `paddingVertical: 4` | 386 |
-| `paddingVertical: 8` | 392 |
-| `width: &#x27;100%&#x27;` | 198, 284, 285, 286, 296, 326, 339, 349, 351, 381, 388, 389, 392 |
-| `width: &#x27;32%&#x27;` | 392 |
-| `width: &#x27;49.2%&#x27;` | 388 |
-| `width: 24` | 392 |
-| `width: 30` | 389 |
-| `width: 42` | 386 |
-| `width: 48` | 391 |
-| `width: 64` | 387 |
+| `borderRadius: 12` | 391 |
+| `borderRadius: 13` | 391 |
+| `borderRadius: 15` | 393 |
+| `borderRadius: 16` | 395, 396 |
+| `borderRadius: 17` | 392 |
+| `borderRadius: 18` | 394 |
+| `borderRadius: 2` | 396 |
+| `borderRadius: 20` | 395 |
+| `borderRadius: 22` | 390, 398 |
+| `borderRadius: 24` | 390 |
+| `borderRadius: 9` | 391 |
+| `borderWidth: 1` | 390, 391, 394, 395, 396, 398 |
+| `gap: 1` | 389 |
+| `gap: 10` | 288, 299 |
+| `gap: 12` | 287, 386 |
+| `gap: 16` | 354 |
+| `gap: 18` | 393 |
+| `gap: 2` | 396 |
+| `gap: 3` | 388, 391 |
+| `gap: 4` | 396 |
+| `gap: 5` | 390 |
+| `gap: 6` | 394, 395 |
+| `gap: 7` | 390, 393 |
+| `gap: 8` | 352, 360, 361, 392, 395 |
+| `height: 2` | 396 |
+| `height: 30` | 393 |
+| `height: 48` | 395 |
+| `maxHeight: 150` | 395 |
+| `maxWidth: 480` | 299 |
+| `maxWidth: 520` | 200, 352, 354, 393 |
+| `maxWidth: 599` | 385, 396 |
+| `maxWidth: 600` | 284, 330, 342 |
+| `maxWidth: 960` | 284, 330 |
+| `minHeight: 0` | 318, 336, 398 |
+| `minHeight: 126` | 393 |
+| `minHeight: 34` | 392 |
+| `minHeight: 36` | 387 |
+| `minHeight: 40` | 390 |
+| `minHeight: 48` | 390, 392 |
+| `minHeight: 52` | 395 |
+| `minHeight: 60` | 396 |
+| `minHeight: 64` | 391 |
+| `minHeight: 66` | 391 |
+| `minHeight: 86` | 394 |
+| `minWidth: 0` | 389, 390 |
+| `opacity: .8` | 397 |
+| `padding: 0` | 392 |
+| `padding: 10` | 386 |
+| `padding: 12` | 386 |
+| `padding: 16` | 394 |
+| `padding: 4` | 388, 395 |
+| `padding: 6` | 396 |
+| `padding: 7` | 391 |
+| `paddingHorizontal: 12` | 390, 397 |
+| `paddingHorizontal: 16` | 392 |
+| `paddingHorizontal: 6` | 391 |
+| `paddingHorizontal: 7` | 391 |
+| `paddingHorizontal: 8` | 395 |
+| `paddingVertical: 10` | 391, 397 |
+| `paddingVertical: 4` | 390 |
+| `paddingVertical: 8` | 396 |
+| `width: &#x27;100%&#x27;` | 200, 287, 288, 289, 299, 329, 342, 352, 354, 385, 392, 393, 396 |
+| `width: &#x27;32%&#x27;` | 396 |
+| `width: &#x27;49.2%&#x27;` | 392 |
+| `width: 24` | 396 |
+| `width: 30` | 393 |
+| `width: 42` | 390 |
+| `width: 48` | 395 |
+| `width: 64` | 391 |
 
 ## OverviewTiles.tsx
 
@@ -4320,6 +4353,47 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/SymbolIcon.tsx](.
 | --- | --- |
 | `borderRadius: 12` | 22 |
 | `borderWidth: 1` | 22 |
+
+## SyncConfirmationDialog.tsx
+
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/SyncConfirmationDialog.tsx](../../../apps/platform-lab/src/mobile/SyncConfirmationDialog.tsx); normalized SHA-256 `82497d3235e1d60514de4769a4b7ad37ef993ca13a2316149a1d4ca3957121a9`.
+
+### Literal colors
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `#000712bd` | 27 |
+| `#031326` | 37 |
+
+### Typography declarations
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `fontSize: 14` | 36, 37 |
+| `fontSize: 16` | 31 |
+| `fontSize: 24` | 30 |
+| `fontWeight: &#x27;600&#x27;` | 30, 36 |
+| `fontWeight: &#x27;700&#x27;` | 37 |
+| `lineHeight: 20` | 36, 37 |
+| `lineHeight: 24` | 31 |
+| `lineHeight: 32` | 30 |
+
+### Geometry / opacity declarations
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `borderRadius: 12` | 34 |
+| `borderRadius: 28` | 28 |
+| `gap: 16` | 29 |
+| `gap: 8` | 32 |
+| `maxHeight: &#x27;85%&#x27;` | 28 |
+| `maxWidth: 480` | 28 |
+| `minHeight: 48` | 34 |
+| `minWidth: 48` | 34 |
+| `padding: 16` | 27 |
+| `padding: 24` | 29 |
+| `paddingHorizontal: 16` | 34 |
+| `width: &#x27;100%&#x27;` | 28 |
 
 ## SyncProgress.tsx
 
@@ -5199,7 +5273,7 @@ States / limits: Recreated approved variant, not a byte-identical copy of an old
 Source: docs/assets/branding/moflight-app-icon-ai.png
 docs/assets/branding/README.md; app.json
 </textarea></section>
-<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: f0cf552f9d992383ae835e47ff7e00951a92aa4cd4b192a342cf0f55a5cda479. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
+<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: dbd2c9da0f73ed73e715692b8d8dddb7f808625ad02d4e9d8c475b30532e82c7. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
 </main><script>
 'use strict';
 const brief = document.querySelector('#brief');
