@@ -12,7 +12,7 @@ import {responsivenessSource} from './android-flight-responsiveness';
 /** Build-only synthetic proof. Every trial starts from byte-identical closed SQLite seeds. */
 export async function runSyncNativeBenchmark(onProgress:(value:string)=>void,count=101){
   if(!Number.isSafeInteger(count)||count<1||count>500)throw new Error('Invalid synthetic benchmark size');
-  const root=new Directory(Paths.cache,`moflight-fixed-sync-benchmark-v3-${count}`);root.create({idempotent:true,intermediates:true});
+  const root=new Directory(Paths.cache,`moflight-fixed-sync-benchmark-v4-${count}`);root.create({idempotent:true,intermediates:true});
   const seeds=new Directory(root,'seeds');seeds.create({idempotent:true,intermediates:true});
   const run=new Directory(root,`run-${Date.now()}`);run.create();
   const openAt=(name:string,directory=run)=>openRealFlightNativeDriver(name,(file,options)=>SQLite.openDatabaseAsync(file,options,directory.uri));
@@ -32,8 +32,8 @@ export async function runSyncNativeBenchmark(onProgress:(value:string)=>void,cou
   if(!new File(seeds,'ready.txt').exists){
     const initial=await RealFlightLibrary.create(await openAt('empty.sqlite',seeds),RECOVERY_MANIFEST,hash,recoveryPermit);await initial.close();
     await (await RealFlightCommandJournal.open(await openAt('empty-commands.sqlite',seeds),RECOVERY_OWNER,RECOVERY_STORE,recoveryPermit,hash,true)).close();
-    new File(seeds,'empty.sqlite').copy(new File(seeds,'populated.sqlite'));
-    new File(seeds,'empty-commands.sqlite').copy(new File(seeds,'populated-commands.sqlite'));
+    await new File(seeds,'empty.sqlite').copy(new File(seeds,'populated.sqlite'));
+    await new File(seeds,'empty-commands.sqlite').copy(new File(seeds,'populated-commands.sqlite'));
     const seed=await service('populated.sqlite','populated-commands.sqlite',false,seeds);
     try{await seed.saveVerifiedReview(await seed.retrieveUpdate(new Date(RECOVERY_AT)),{accountNumber:'101',clubLabel:'Synthetic recovery club'});}finally{seed.dispose();}
     new File(seeds,'ready.txt').write('complete');
@@ -46,7 +46,7 @@ export async function runSyncNativeBenchmark(onProgress:(value:string)=>void,cou
     for(let trial=0;trial<5;trial++){
       onProgress(`${scenario} ${trial+1}/5`);sequence=100;
       const name=`${scenario}-${trial}`,libraryName=`${name}.sqlite`,journalName=`${name}-commands.sqlite`;
-      new File(seeds,`${base}.sqlite`).copy(new File(run,libraryName));new File(seeds,`${base}-commands.sqlite`).copy(new File(run,journalName));
+      await new File(seeds,`${base}.sqlite`).copy(new File(run,libraryName));await new File(seeds,`${base}-commands.sqlite`).copy(new File(run,journalName));
       if(await hash(await new File(run,libraryName).base64())!==seedHashes[0]||await hash(await new File(run,journalName).base64())!==seedHashes[1])throw new Error('Seed clone differs');
       const current=await service(libraryName,journalName,scenario==='changed');const stages:Record<string,number>={};
       async function measure<T>(stage:string,work:()=>Promise<T>){const at=performance.now();const value=await work();stages[stage]=performance.now()-at;return value;}
