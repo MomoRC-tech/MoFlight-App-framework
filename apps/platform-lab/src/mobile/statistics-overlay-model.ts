@@ -3,13 +3,14 @@ import type { RealFlightListItem } from '../vereinsflieger/real-flight-library';
 import type { SavedFlightRetrieval } from '../vereinsflieger/retrieval-policy';
 import { colorForAircraft } from './season-model';
 import { aircraftCategoryLabels, launchMethodLabels, classifyAircraft, classifyLaunch } from './flight-classification';
+import { classifyFlightRoleMetric, type FlightRoleMetric } from './flight-role-metric';
 
 export type StatisticsPeriod =
   | { kind: 'year'; year: number }
   | { kind: 'all' }
   | { kind: 'custom'; from: string; to: string };
 
-export type StatisticsSection = 'overview' | 'aircraft' | 'duration' | 'launch';
+export type StatisticsSection = 'overview' | 'aircraft' | 'duration' | 'launch' | 'roles';
 export type AircraftSort = 'flights' | 'minutes';
 
 export interface AircraftRanking {
@@ -201,6 +202,31 @@ export function groupStatisticsClassification(flights: readonly RealFlightListIt
   return {
     groups: [...groups.values()].map(({ key, label, rows }) => ({ key, label, ...summarizeStatisticsFlights(rows) }))
       .sort((a, b) => a.key === 'unknown' ? 1 : b.key === 'unknown' ? -1 : b.count - a.count || a.label.localeCompare(b.label, 'de-DE')),
+    conflictingIds: distinct.conflictingIds,
+  };
+}
+
+export const flightRoleMetricLabels: Record<FlightRoleMetric, string> = {
+  dualInstruction: 'DI',
+  solo: 'Solo',
+  picWithCompanion: 'PIC mit Begleitperson(en)',
+  unresolved: 'Andere / ungeklärt',
+};
+
+/** Exclusive role groups from the same distinct, saved-local contributor set. */
+export function groupStatisticsFlightRoles(flights: readonly RealFlightListItem[]) {
+  const distinct = distinctRecords(flights);
+  const keys: FlightRoleMetric[] = ['dualInstruction', 'solo', 'picWithCompanion', 'unresolved'];
+  const rows = new Map(keys.map(key => [key, [] as RealFlightListItem[]]));
+  const soloWithPermission: RealFlightListItem[] = [];
+  for (const flight of distinct.flights) {
+    const result = classifyFlightRoleMetric(flight.facts.assessment);
+    rows.get(result.key)!.push(flight);
+    if (result.key === 'solo' && result.soloWithPermission) soloWithPermission.push(flight);
+  }
+  return {
+    groups: keys.map(key => ({ key, label: flightRoleMetricLabels[key], ...summarizeStatisticsFlights(rows.get(key)!) })),
+    soloWithPermission: summarizeStatisticsFlights(soloWithPermission),
     conflictingIds: distinct.conflictingIds,
   };
 }

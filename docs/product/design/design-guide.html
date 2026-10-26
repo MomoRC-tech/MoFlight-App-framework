@@ -125,7 +125,9 @@
 <p><strong>Flights:</strong> one 48 dp expandable filter header with active count, a selected-value summary, Search and information. Count/known time sits below; there are no duplicate chip rows. The expanded form contains search and four compact selectors in two columns (period/category, registration/launch), Reset and collapse/show results. Each selector opens a single checked-choice sheet; registrations are searchable. Changes apply immediately. Expanded controls have a bounded scroll fallback at large font/keyboard/landscape, and large text uses one column. Existing exact contributor/custom period constraints, list return and account reset remain. Touch targets stay at least 48 dp; visual compactness comes from reduced chrome.</p>
 <p><strong>Crew and missing data:</strong> group matching full source names within each flight, normalizing whitespace/case and comma name order. Do not match initials or infer person identity across flights. Show one name with explicit PIC/FI/SIC roles; a generic Pilot/Begleiter label does not repeat a more specific role. Different full names with colliding abbreviations display in full. Begleiter/FI and instructor time alone do not establish an instructor; an explicit named FI/Fluglehrer/Instructor field does. One recorded PIC without companions is Solo under Manuel&#x27;s selected display rule; additional people or SIC conflict block it. An uncontradicted explicit Solo/Alleinflug is also retained. This is a display projection, not legal flight credit or a change to raw facts.</p>
 <p>Overview rows omit missing date, registration/model, crew, category, launch, clock, route endpoints and duration placeholders. Known zero duration remains <code>0:00</code>; details preserve unknown/conflicting values and original evidence. No inferred values fill the space. The count line qualifies partial time as known rather than listing unknown counts. Missing-data filters remain available deliberately inside their selectors.</p>
-<p><strong>AI:</strong> compact chat toolbar, independently scrolling transcript and a pinned composer growing from one line to a bounded multiline editor. Local chat history/search/New chat appears in a bottom sheet; usage, service/privacy disclosure and deletion are secondary menu content. Optional task modes sit behind the composer plus action. Availability/errors use a short actionable status, with full detail in the menu. Send is explicit, running work can be cancelled, and merely opening a menu never enables requests. Older messages are not forced to the bottom; a latest-message action restores following. Owner changes clear transient view state. Existing local drafts, evidence navigation, confirmation and service/funding boundaries remain.</p></section>
+<p><strong>AI:</strong> compact chat toolbar, independently scrolling transcript and a pinned composer growing from one line to a bounded multiline editor. Local chat history/search/New chat appears in a bottom sheet; usage, service/privacy disclosure and deletion are secondary menu content. Optional task modes sit behind the composer plus action. Availability/errors use a short actionable status, with full detail in the menu. Send is explicit, running work can be cancelled, and merely opening a menu never enables requests. Older messages are not forced to the bottom; a latest-message action restores following. Owner changes clear transient view state. Existing local drafts, evidence navigation, confirmation and service/funding boundaries remain.</p>
+<h4 id="chapter-compact-cockpit-statistics-flight-roles--selected-26-october-2026">Statistics flight roles — selected 26 October 2026</h4>
+<p>The existing compact Statistics frame adds a Flugrollen section with the same contributor cards. It shows DI, Solo, PIC with one or more companions and review as exclusive groups, with count, known reported duration and exact-flight drilldown. DI follows Manuel&#x27;s saved-training source rule: Pilot=SIC, companion=PIC and positive Dual-Time. Solo is Pilot=PIC with no companion; recorded flight permission is a separate Solo subset. PIC with companions requires no SIC or Dual-Time, and a companion is not automatically a verified passenger. There is no probability label. Missing or conflicting evidence remains visible for review, and no legal credit is asserted.</p></section>
 <section class="chapter" id="chapter-alternative-ui"><h2 id="chapter-alternative-ui-alternative-ui--22-october-2026">Alternative UI — 22 October 2026</h2>
 <p>&gt; <strong>Current appearance authority — 24 October 2026:</strong> <a href="#chapter-compact-cockpit">Dark Compact Cockpit</a> and its approved reference supersede conflicting older appearance/composition statements below. Data, feature and verification boundaries retain their scope.</p>
 <p><a href="#chapter-overview">Handbook</a> · <a href="https://github.com/MomoRC-tech/MoFlight-App-framework/issues/55">#55</a> · branch <code>ui/alternative-flight-experience</code>.</p>
@@ -431,7 +433,7 @@
 <p>Use only the header “Daten” button for new provider data and login. Start empty/error states, empty Flüge, Profile, status and Development give passive guidance. Keep local reload, filters, diagnostics and offline backup independent. The complete journey stays in a persistent framed popup over the dimmed inert page; retain the native WebView parent during Android credential activities. Retry, recovery and optional source jobs stay in the frame. Settled automatic completion returns to Start with a compact bordered receipt immediately below the header outside scrolling content, needing no routine acknowledgement in the popup. Shared refresh, recorded completion HH:mm when valid, Details and close use minimum 48 dp targets and wrapping for enlarged text. Counts, source outcomes and coverage caveats stay in Details. Completion time is recorded after combined jobs finish, never fabricated at render. Close/Back retain cancellation/save guards and contextual return. U2 adds the compact saved-name club heading and duty subgroup hierarchy, and moves the permanent season paragraph into a short Statistics-detail caveat. The U1/U2 native/Release checkpoint is delivered; U3 adds the independently scoped <strong>Änderungen möglich</strong> header hint without altering the sync receipt. See the <a href="../../verification/2026-10-21-simple-flight-loading.md#guarded-activity-advice-integration--23-october-2026">U3 evidence and remaining gates</a>.</p></section>
 <section class="chapter" id="chapter-implementation-inventory"><h2 id="chapter-implementation-inventory-platform-lab-ui-implementation-inventory">Platform-lab UI implementation inventory</h2>
 <p><a href="#chapter-overview">Handbook entry point</a>. Generated by <code>python scripts/design_handbook.py</code>; do not hand-edit.</p>
-<p>Scope: 93 product mobile TypeScript/model and app-owned TSX UI/adapter files; 67 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.</p>
+<p>Scope: 94 product mobile TypeScript/model and app-owned TSX UI/adapter files; 67 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.</p>
 <h3 id="chapter-implementation-inventory-apptsx">App.tsx</h3>
 <p>Retained app-owned lab/adapter surface; document its existing appearance as an exception. Source: <a href="../../../apps/platform-lab/src/App.tsx">apps/platform-lab/src/App.tsx</a>; normalized SHA-256 <code>00e90dbdf13115e9cffa98b6123f015dc87f095cdd8736daa20f73edab02e7e6</code>.</p>
 <h4 id="chapter-implementation-inventory-literal-colors">Literal colors</h4>
@@ -1413,64 +1415,64 @@
 <tr><td><code>opacity: .5</code></td><td>71</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-statisticsoverlaytsx">StatisticsOverlay.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/StatisticsOverlay.tsx">apps/platform-lab/src/mobile/StatisticsOverlay.tsx</a>; normalized SHA-256 <code>d055e48ac999d1966c5f1e8c59eeb1c585f15a0d8c0cb03e520eaaac2da2b3bc</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/StatisticsOverlay.tsx">apps/platform-lab/src/mobile/StatisticsOverlay.tsx</a>; normalized SHA-256 <code>5cdd82d0463eeb822f6bbd4daa6883844985ecce729b1d7b3aec8ff488ef5b40</code>.</p>
 <h4 id="chapter-implementation-inventory-literal-colors-16">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><i class="swatch" style="background:#0b141c3b" aria-hidden="true"></i><code>#0b141c3b</code></td><td>234</td></tr>
-<tr><td><i class="swatch" style="background:#0e202c" aria-hidden="true"></i><code>#0e202c</code></td><td>234</td></tr>
+<tr><td><i class="swatch" style="background:#0b141c3b" aria-hidden="true"></i><code>#0b141c3b</code></td><td>247</td></tr>
+<tr><td><i class="swatch" style="background:#0e202c" aria-hidden="true"></i><code>#0e202c</code></td><td>247</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-typography-declarations-25">Typography declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>fontSize: 11</code></td><td>234</td></tr>
-<tr><td><code>fontSize: 16</code></td><td>235</td></tr>
-<tr><td><code>fontSize: 17</code></td><td>236</td></tr>
-<tr><td><code>fontSize: 19</code></td><td>236</td></tr>
-<tr><td><code>fontSize: 22</code></td><td>237</td></tr>
-<tr><td><code>fontWeight: &#x27;700&#x27;</code></td><td>234, 236, 237</td></tr>
-<tr><td><code>letterSpacing: 1.2</code></td><td>234</td></tr>
-<tr><td><code>lineHeight: 16</code></td><td>234</td></tr>
-<tr><td><code>lineHeight: 23</code></td><td>236</td></tr>
-<tr><td><code>lineHeight: 25</code></td><td>236</td></tr>
-<tr><td><code>lineHeight: 30</code></td><td>237</td></tr>
+<tr><td><code>fontSize: 11</code></td><td>247</td></tr>
+<tr><td><code>fontSize: 16</code></td><td>248</td></tr>
+<tr><td><code>fontSize: 17</code></td><td>249</td></tr>
+<tr><td><code>fontSize: 19</code></td><td>249</td></tr>
+<tr><td><code>fontSize: 22</code></td><td>250</td></tr>
+<tr><td><code>fontWeight: &#x27;700&#x27;</code></td><td>247, 249, 250</td></tr>
+<tr><td><code>letterSpacing: 1.2</code></td><td>247</td></tr>
+<tr><td><code>lineHeight: 16</code></td><td>247</td></tr>
+<tr><td><code>lineHeight: 23</code></td><td>249</td></tr>
+<tr><td><code>lineHeight: 25</code></td><td>249</td></tr>
+<tr><td><code>lineHeight: 30</code></td><td>250</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-geometry--opacity-declarations-40">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>borderRadius: 12</code></td><td>235</td></tr>
-<tr><td><code>borderRadius: 13</code></td><td>236</td></tr>
-<tr><td><code>borderRadius: 16</code></td><td>236</td></tr>
-<tr><td><code>borderRadius: 18</code></td><td>235</td></tr>
-<tr><td><code>borderRadius: 20</code></td><td>234</td></tr>
-<tr><td><code>borderRadius: 5</code></td><td>236</td></tr>
-<tr><td><code>borderWidth: 1</code></td><td>234, 235, 236</td></tr>
-<tr><td><code>gap: 12</code></td><td>233</td></tr>
-<tr><td><code>gap: 2</code></td><td>236, 237</td></tr>
-<tr><td><code>gap: 3</code></td><td>235</td></tr>
-<tr><td><code>gap: 5</code></td><td>218, 235, 236</td></tr>
-<tr><td><code>gap: 6</code></td><td>117, 234, 235, 236</td></tr>
-<tr><td><code>gap: 8</code></td><td>235, 236, 237</td></tr>
-<tr><td><code>height: 10</code></td><td>236</td></tr>
-<tr><td><code>maxWidth: &#x27;100%&#x27;</code></td><td>117</td></tr>
-<tr><td><code>maxWidth: 600</code></td><td>233</td></tr>
-<tr><td><code>minHeight: 0</code></td><td>233</td></tr>
-<tr><td><code>minHeight: 142</code></td><td>234</td></tr>
-<tr><td><code>minHeight: 48</code></td><td>117, 236</td></tr>
-<tr><td><code>minHeight: 50</code></td><td>235</td></tr>
-<tr><td><code>minWidth: &#x27;45%&#x27;</code></td><td>146, 147, 148</td></tr>
-<tr><td><code>minWidth: 102</code></td><td>237</td></tr>
-<tr><td><code>minWidth: 72</code></td><td>236</td></tr>
-<tr><td><code>minWidth: 90</code></td><td>236</td></tr>
-<tr><td><code>minWidth: 95</code></td><td>236</td></tr>
-<tr><td><code>opacity: .55</code></td><td>236</td></tr>
-<tr><td><code>opacity: .72</code></td><td>234</td></tr>
-<tr><td><code>padding: 12</code></td><td>233</td></tr>
-<tr><td><code>padding: 13</code></td><td>236</td></tr>
-<tr><td><code>padding: 14</code></td><td>235</td></tr>
-<tr><td><code>padding: 16</code></td><td>234</td></tr>
-<tr><td><code>paddingHorizontal: 10</code></td><td>233</td></tr>
-<tr><td><code>paddingHorizontal: 12</code></td><td>235</td></tr>
-<tr><td><code>paddingHorizontal: 8</code></td><td>236</td></tr>
-<tr><td><code>width: &#x27;100%&#x27;</code></td><td>233</td></tr>
-<tr><td><code>width: 10</code></td><td>236</td></tr>
+<tr><td><code>borderRadius: 12</code></td><td>248</td></tr>
+<tr><td><code>borderRadius: 13</code></td><td>249</td></tr>
+<tr><td><code>borderRadius: 16</code></td><td>249</td></tr>
+<tr><td><code>borderRadius: 18</code></td><td>248</td></tr>
+<tr><td><code>borderRadius: 20</code></td><td>247</td></tr>
+<tr><td><code>borderRadius: 5</code></td><td>249</td></tr>
+<tr><td><code>borderWidth: 1</code></td><td>247, 248, 249</td></tr>
+<tr><td><code>gap: 12</code></td><td>246</td></tr>
+<tr><td><code>gap: 2</code></td><td>249, 250</td></tr>
+<tr><td><code>gap: 3</code></td><td>248</td></tr>
+<tr><td><code>gap: 5</code></td><td>231, 248, 249</td></tr>
+<tr><td><code>gap: 6</code></td><td>118, 247, 248, 249</td></tr>
+<tr><td><code>gap: 8</code></td><td>248, 249, 250</td></tr>
+<tr><td><code>height: 10</code></td><td>249</td></tr>
+<tr><td><code>maxWidth: &#x27;100%&#x27;</code></td><td>118</td></tr>
+<tr><td><code>maxWidth: 600</code></td><td>246</td></tr>
+<tr><td><code>minHeight: 0</code></td><td>246</td></tr>
+<tr><td><code>minHeight: 142</code></td><td>247</td></tr>
+<tr><td><code>minHeight: 48</code></td><td>118, 249</td></tr>
+<tr><td><code>minHeight: 50</code></td><td>248</td></tr>
+<tr><td><code>minWidth: &#x27;45%&#x27;</code></td><td>147, 148, 149</td></tr>
+<tr><td><code>minWidth: 102</code></td><td>250</td></tr>
+<tr><td><code>minWidth: 72</code></td><td>249</td></tr>
+<tr><td><code>minWidth: 90</code></td><td>249</td></tr>
+<tr><td><code>minWidth: 95</code></td><td>249</td></tr>
+<tr><td><code>opacity: .55</code></td><td>249</td></tr>
+<tr><td><code>opacity: .72</code></td><td>247</td></tr>
+<tr><td><code>padding: 12</code></td><td>246</td></tr>
+<tr><td><code>padding: 13</code></td><td>249</td></tr>
+<tr><td><code>padding: 14</code></td><td>248</td></tr>
+<tr><td><code>padding: 16</code></td><td>247</td></tr>
+<tr><td><code>paddingHorizontal: 10</code></td><td>246</td></tr>
+<tr><td><code>paddingHorizontal: 12</code></td><td>248</td></tr>
+<tr><td><code>paddingHorizontal: 8</code></td><td>249</td></tr>
+<tr><td><code>width: &#x27;100%&#x27;</code></td><td>246</td></tr>
+<tr><td><code>width: 10</code></td><td>249</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-symbolicontsx">SymbolIcon.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/SymbolIcon.tsx">apps/platform-lab/src/mobile/SymbolIcon.tsx</a>; normalized SHA-256 <code>015563842cc1e1fbc57f47a64256f4ce815bedc5a54715e19da57c3de635a5c3</code>.</p>
@@ -2295,6 +2297,10 @@ Overview rows omit missing date, registration/model, crew, category, launch, clo
 
 **AI:** compact chat toolbar, independently scrolling transcript and a pinned composer growing from one line to a bounded multiline editor. Local chat history/search/New chat appears in a bottom sheet; usage, service/privacy disclosure and deletion are secondary menu content. Optional task modes sit behind the composer plus action. Availability/errors use a short actionable status, with full detail in the menu. Send is explicit, running work can be cancelled, and merely opening a menu never enables requests. Older messages are not forced to the bottom; a latest-message action restores following. Owner changes clear transient view state. Existing local drafts, evidence navigation, confirmation and service/funding boundaries remain.
 
+### Statistics flight roles — selected 26 October 2026
+
+The existing compact Statistics frame adds a Flugrollen section with the same contributor cards. It shows DI, Solo, PIC with one or more companions and review as exclusive groups, with count, known reported duration and exact-flight drilldown. DI follows Manuel&#x27;s saved-training source rule: Pilot=SIC, companion=PIC and positive Dual-Time. Solo is Pilot=PIC with no companion; recorded flight permission is a separate Solo subset. PIC with companions requires no SIC or Dual-Time, and a companion is not automatically a verified passenger. There is no probability label. Missing or conflicting evidence remains visible for review, and no legal credit is asserted.
+
 # Alternative UI — 22 October 2026
 
 &gt; **Current appearance authority — 24 October 2026:** [Dark Compact Cockpit](compact-cockpit.md) and its approved reference supersede conflicting older appearance/composition statements below. Data, feature and verification boundaries retain their scope.
@@ -2755,7 +2761,7 @@ Use only the header “Daten” button for new provider data and login. Start em
 
 [Handbook entry point](README.md). Generated by `python scripts/design_handbook.py`; do not hand-edit.
 
-Scope: 93 product mobile TypeScript/model and app-owned TSX UI/adapter files; 67 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.
+Scope: 94 product mobile TypeScript/model and app-owned TSX UI/adapter files; 67 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.
 
 ## App.tsx
 
@@ -3987,71 +3993,71 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/SeasonRing.tsx](.
 
 ## StatisticsOverlay.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/StatisticsOverlay.tsx](../../../apps/platform-lab/src/mobile/StatisticsOverlay.tsx); normalized SHA-256 `d055e48ac999d1966c5f1e8c59eeb1c585f15a0d8c0cb03e520eaaac2da2b3bc`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/StatisticsOverlay.tsx](../../../apps/platform-lab/src/mobile/StatisticsOverlay.tsx); normalized SHA-256 `5cdd82d0463eeb822f6bbd4daa6883844985ecce729b1d7b3aec8ff488ef5b40`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#0b141c3b` | 234 |
-| `#0e202c` | 234 |
+| `#0b141c3b` | 247 |
+| `#0e202c` | 247 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 11` | 234 |
-| `fontSize: 16` | 235 |
-| `fontSize: 17` | 236 |
-| `fontSize: 19` | 236 |
-| `fontSize: 22` | 237 |
-| `fontWeight: &#x27;700&#x27;` | 234, 236, 237 |
-| `letterSpacing: 1.2` | 234 |
-| `lineHeight: 16` | 234 |
-| `lineHeight: 23` | 236 |
-| `lineHeight: 25` | 236 |
-| `lineHeight: 30` | 237 |
+| `fontSize: 11` | 247 |
+| `fontSize: 16` | 248 |
+| `fontSize: 17` | 249 |
+| `fontSize: 19` | 249 |
+| `fontSize: 22` | 250 |
+| `fontWeight: &#x27;700&#x27;` | 247, 249, 250 |
+| `letterSpacing: 1.2` | 247 |
+| `lineHeight: 16` | 247 |
+| `lineHeight: 23` | 249 |
+| `lineHeight: 25` | 249 |
+| `lineHeight: 30` | 250 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 235 |
-| `borderRadius: 13` | 236 |
-| `borderRadius: 16` | 236 |
-| `borderRadius: 18` | 235 |
-| `borderRadius: 20` | 234 |
-| `borderRadius: 5` | 236 |
-| `borderWidth: 1` | 234, 235, 236 |
-| `gap: 12` | 233 |
-| `gap: 2` | 236, 237 |
-| `gap: 3` | 235 |
-| `gap: 5` | 218, 235, 236 |
-| `gap: 6` | 117, 234, 235, 236 |
-| `gap: 8` | 235, 236, 237 |
-| `height: 10` | 236 |
-| `maxWidth: &#x27;100%&#x27;` | 117 |
-| `maxWidth: 600` | 233 |
-| `minHeight: 0` | 233 |
-| `minHeight: 142` | 234 |
-| `minHeight: 48` | 117, 236 |
-| `minHeight: 50` | 235 |
-| `minWidth: &#x27;45%&#x27;` | 146, 147, 148 |
-| `minWidth: 102` | 237 |
-| `minWidth: 72` | 236 |
-| `minWidth: 90` | 236 |
-| `minWidth: 95` | 236 |
-| `opacity: .55` | 236 |
-| `opacity: .72` | 234 |
-| `padding: 12` | 233 |
-| `padding: 13` | 236 |
-| `padding: 14` | 235 |
-| `padding: 16` | 234 |
-| `paddingHorizontal: 10` | 233 |
-| `paddingHorizontal: 12` | 235 |
-| `paddingHorizontal: 8` | 236 |
-| `width: &#x27;100%&#x27;` | 233 |
-| `width: 10` | 236 |
+| `borderRadius: 12` | 248 |
+| `borderRadius: 13` | 249 |
+| `borderRadius: 16` | 249 |
+| `borderRadius: 18` | 248 |
+| `borderRadius: 20` | 247 |
+| `borderRadius: 5` | 249 |
+| `borderWidth: 1` | 247, 248, 249 |
+| `gap: 12` | 246 |
+| `gap: 2` | 249, 250 |
+| `gap: 3` | 248 |
+| `gap: 5` | 231, 248, 249 |
+| `gap: 6` | 118, 247, 248, 249 |
+| `gap: 8` | 248, 249, 250 |
+| `height: 10` | 249 |
+| `maxWidth: &#x27;100%&#x27;` | 118 |
+| `maxWidth: 600` | 246 |
+| `minHeight: 0` | 246 |
+| `minHeight: 142` | 247 |
+| `minHeight: 48` | 118, 249 |
+| `minHeight: 50` | 248 |
+| `minWidth: &#x27;45%&#x27;` | 147, 148, 149 |
+| `minWidth: 102` | 250 |
+| `minWidth: 72` | 249 |
+| `minWidth: 90` | 249 |
+| `minWidth: 95` | 249 |
+| `opacity: .55` | 249 |
+| `opacity: .72` | 247 |
+| `padding: 12` | 246 |
+| `padding: 13` | 249 |
+| `padding: 14` | 248 |
+| `padding: 16` | 247 |
+| `paddingHorizontal: 10` | 246 |
+| `paddingHorizontal: 12` | 248 |
+| `paddingHorizontal: 8` | 249 |
+| `width: &#x27;100%&#x27;` | 246 |
+| `width: 10` | 249 |
 
 ## SymbolIcon.tsx
 
@@ -4954,7 +4960,7 @@ States / limits: Recreated approved variant, not a byte-identical copy of an old
 Source: docs/assets/branding/moflight-app-icon-ai.png
 docs/assets/branding/README.md; app.json
 </textarea></section>
-<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: a424f34806a38e8cdbc2df83fff617e352633a7f4a625553f3390e2e008c7a2c. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
+<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: 66821d3db6cfcf989f194ce574430d3ef20829043f7851d1b217442e3b07cd98. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
 </main><script>
 'use strict';
 const brief = document.querySelector('#brief');

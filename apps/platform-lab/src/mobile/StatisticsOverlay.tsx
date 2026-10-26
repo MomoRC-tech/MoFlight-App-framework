@@ -11,7 +11,7 @@ import { monthlySeasonForCoverage } from './season-dashboard-model';
 import { planFlightRetrieval } from '../vereinsflieger/retrieval-policy';
 import type { useOwnFlights } from './use-own-flights';
 import {
-  annualStatisticsComparison, groupStatisticsClassification, monthFlightIds, rankStatisticsAircraft,
+  annualStatisticsComparison, groupStatisticsClassification, groupStatisticsFlightRoles, monthFlightIds, rankStatisticsAircraft,
   selectStatisticsFlights, statisticsCoverageComplete, statisticsDurationGroups,
   statisticsPeriodBounds, statisticsYears, summarizeStatisticsFlights, validStatisticsRange,
   type StatisticsPeriod, type StatisticsSection,
@@ -48,6 +48,7 @@ export function StatisticsOverlay({ data, today, fontScale, onBackHandler, initi
   const aircraft = useMemo(() => rankStatisticsAircraft(selected, 'flights'), [selected]);
   const categories = useMemo(() => groupStatisticsClassification(selected, 'aircraftCategory').groups, [selected]);
   const launches = useMemo(() => groupStatisticsClassification(selected, 'launchMethod').groups, [selected]);
+  const roles = useMemo(() => groupStatisticsFlightRoles(selected), [selected]);
   const duration = useMemo(() => statisticsDurationGroups(selected), [selected]);
   const years = useMemo(() => statisticsYears(flights, saved, today), [flights, saved, today]);
   const allUnique = useMemo(() => selectStatisticsFlights(flights, { kind: 'all' }, today).flights, [flights, today]);
@@ -61,7 +62,7 @@ export function StatisticsOverlay({ data, today, fontScale, onBackHandler, initi
   const annual = selectedYear !== null && selectedYear > 1
     ? annualStatisticsComparison(flights, saved, chartDate!, selectedYear) : null;
   const bounds = statisticsPeriodBounds(period, today);
-  const titleForSection = (section: StatisticsSection) => ({ overview: 'Überblick', aircraft: 'Flugzeuge', duration: 'Flugdauer', launch: 'Startarten' }[section]);
+  const titleForSection = (section: StatisticsSection) => ({ overview: 'Überblick', aircraft: 'Flugzeuge', duration: 'Flugdauer', launch: 'Startarten', roles: 'Flugrollen' }[section]);
 
   const back = () => {
     if (routes.length < 2) return false;
@@ -132,7 +133,7 @@ export function StatisticsOverlay({ data, today, fontScale, onBackHandler, initi
           {period.kind === 'all' && <Label muted>Der gespeicherte Bestand belegt keine vollständige Fluggeschichte.</Label>}</>}
         </View>
         <View style={styles.sectionTabs} accessibilityRole="tablist">
-          {(['overview', 'aircraft', 'duration', 'launch'] as const).map(section => <Chip key={section} title={titleForSection(section)} selected={route.section === section} onPress={() => openSection(section)} />)}
+          {(['overview', 'aircraft', 'duration', 'launch', 'roles'] as const).map(section => <Chip key={section} title={titleForSection(section)} selected={route.section === section} onPress={() => openSection(section)} />)}
         </View>
 
         {data.phase === 'loading' && <Card><ActivityIndicator color={colors.cyan} accessibilityLabel="Gespeicherte Flugstatistik wird geprüft" /><Label muted>Gespeicherte Flüge werden lokal geprüft.</Label></Card>}
@@ -209,6 +210,18 @@ export function StatisticsOverlay({ data, today, fontScale, onBackHandler, initi
           {launches.length===0&&<Empty title="Keine Flüge im Zeitraum">Wähle einen anderen Zeitraum.</Empty>}
           {launches.map(row=><Card key={row.key} onPress={()=>openFlights(row.label,row.supportingIds)} label={`${row.label} · ${row.count} Flüge ansehen`} style={styles.bandRow}><Label>{row.label} · {row.count}</Label><Label muted>{row.knownDurationCount ? `${formatReportedMinutes(row.knownMinutes)} h bekannt${row.unknownDurationCount ? ` · ${row.unknownDurationCount}× Zeit unbekannt` : ''}` : `${row.unknownDurationCount}× Zeit unbekannt`}</Label></Card>)}
           <Label muted>Ein Flug zählt einmal nach seiner gespeicherten Startart. Fehlende, widersprüchliche oder nicht zugeordnete Angaben bleiben unbekannt; Rohwerte stehen in den Flugdetails.</Label>
+        </Card>}
+
+        {data.phase === 'ready' && data.view?.snapshot.account && route.section === 'roles' && <Card>
+          <Section title="Ausbildung & Besatzung" />
+          <Label muted>DI: du als SIC, Begleiter als PIC und positive Dual-Zeit. Solo: du als PIC ohne Begleiter. Jeder Flug zählt genau einmal; unvollständige Angaben bleiben zur Prüfung offen.</Label>
+          {roles.groups.map(row => <Card key={row.key} onPress={row.count ? () => openFlights(row.label, row.supportingIds) : undefined} label={`${row.label} · ${row.count} Flüge ansehen`} style={styles.bandRow}>
+            <View style={styles.aircraftHeading}><Label style={{flex:1}}>{row.label}</Label><Label style={styles.metricValue}>{row.count}</Label></View>
+            <Label muted>{row.knownDurationCount ? `${formatReportedMinutes(row.knownMinutes)} h bekannt` : 'Flugzeit unbekannt'}{row.unknownDurationCount ? ` · ${row.unknownDurationCount}× Zeit unbekannt` : ''}</Label>
+          </Card>)}
+          {roles.soloWithPermission.count > 0 && <Action secondary onPress={() => openFlights('Solo mit Fluggenehmigung', roles.soloWithPermission.supportingIds)}>Davon Solo mit Fluggenehmigung · {roles.soloWithPermission.count}</Action>}
+          <Label muted>Begleitpersonen sind ohne eigene Rollenangabe nicht als Passagiere belegt. „Fluggenehmigung von“ belegt keinen mitfliegenden FI. Unklare Rollen bleiben unter „Andere / ungeklärt“. Keine Aussage zur rechtlichen Anrechnung oder vollständigen Fluggeschichte.</Label>
+          {roles.conflictingIds.length > 0 && <Label muted>{roles.conflictingIds.length} widersprüchliche Flug-Identität(en) wurden nicht gezählt.</Label>}
         </Card>}
       </>}
 
