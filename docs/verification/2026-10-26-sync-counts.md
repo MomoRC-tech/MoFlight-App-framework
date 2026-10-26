@@ -1,5 +1,11 @@
 # Measured Sync detail counts - 26 October 2026
 
+### Combined release delivery
+
+Android Release source `cd2f6cc7d67252fb7bdcdd0f78b027fc034e9a40` includes the parallel Start implementation `7033e41` and roadmap-only `e83e58f`. Final host checkpoint passed all five groups, including 1,446 mobile tests with two skips. Both JavaScript platform bundles passed. Two offline normal-app launches in distinct processes passed on this exact APK on `MoFlight_Synthetic_API37`, preserving existing synthetic data and restoring radio settings (`build/sync-start-delivery/combined-startup/report.json`). This is startup smoke evidence, not populated Start timing or live-provider Sync acceptance. Component/dialog visual evidence below remains applicable to unchanged UI code.
+
+[Download release ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/sync-start-2026-10-26-cd2f6cc/moflight-sync-start-cd2f6cc.zip). APK SHA-256: `56c33514ca3064b79c6853fbfb196c17c43359253e090a5506c91c8a991b9bb9`; ZIP SHA-256: `980f1d92c11c7517136b9f0a86d3c5ace83b3f82cd19e13cbb7d7014ca7ca7aa`. The published ZIP was downloaded afresh and verified against local hashes, metadata/source and its exact two entries: APK and sanitized build metadata. No private logs/data are included. Physical-phone performance, populated Start baseline comparison, authenticated native recovery, full live-provider retrieval and iOS runtime remain open. Earlier sections retain their source-specific chronology; this section is the current delivery.
+
 Issue [#92](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/92), follow-up to #83/#91; P2 / M2-M4; R04/R12, FL-03/10/11 and E07/E09/E11. Manuel requested done/total counts for all Sync details. This increment changes reporting in the existing two-row box without changing layout or provider requests.
 
 ## Implemented behavior
