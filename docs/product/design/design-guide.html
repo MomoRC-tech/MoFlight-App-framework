@@ -297,6 +297,7 @@
 <p>The HTML guide embeds original reference and symbol/brand images unchanged. Component examples are schematic CSS explanations with synthetic labels, not new app screenshots or replacement artwork.</p>
 <p>The U1/U3 header uses neutral saved-age text independently of session state, with a small green <i class="swatch" style="background:#74dfba" aria-hidden="true"></i><code>#74dfba</code> ✓ for recent matching confirmed proof, amber <i class="swatch" style="background:#ffc477" aria-hidden="true"></i><code>#ffc477</code> → for required login, and muted ?/! for unknown/mismatch/error. Saved flight receipt age strictly greater than 72 hours adds a small <i class="swatch" style="background:#ffc477" aria-hidden="true"></i><code>#ffc477</code> dot on the otherwise transparent icon-only control; exactly 72 hours does not. The same dot also signals a scope-matched activity-count change or incomplete sync, with distinct accessible wording and retained details/retry. These recommendation cues are independent of session colour and saved age; when both apply, both descriptions remain in the accessible action and status detail. Checks/login/failure never renew the durable successful flight receipt. The former one-hour age-colour policy is superseded. Provider-panel session colours retain their own meanings.</p></section>
 <section class="chapter" id="chapter-components"><h2 id="chapter-components-components-symbols-and-shapes">Components, symbols and shapes</h2>
+<p><strong>26 October approved Sync refinement (#92):</strong> the 32 dp indicator uses a continuous cyan circular wave, adapting Material 3 Expressive&#x27;s wavy progress shape to Compact Cockpit and the existing 48 dp control. Known estimates fill the actual wave path fraction; unknown work rotates only its arc. Foreground, waiting and reduced-motion guards remain. Single-item count suffixes are omitted for both current/completed and spoken status; multi-item, zero and unknown totals remain. Interrupted progress uses “Synchronisierung unterbrochen”, explains continue versus retrieving all data again, and names buttons “Synchronisierung fortsetzen” / “Alle Daten erneut abrufen”; saved-data preservation and the foreground note are explicit. Manuel approved implementation after the proposal on 26 October. <a href="../../verification/2026-10-26-sync-counts.md#latest-released-build-report-and-single-item-count-refinement--26-october-2026">Source-specific evidence</a>. References: <a href="https://m3.material.io/components/progress-indicators/overview">Material 3</a>, <a href="https://github.com/material-components/material-components-android/blob/master/docs/components/ProgressIndicator.md">Google&#x27;s expressive component examples</a>.</p>
 <p><strong>26 October selected estimated Sync progress (#92):</strong> the existing 32 dp ring becomes determinate only with comparable local timing samples. The current status row retains exact counts and adds <code>Gesamt ca. N %</code>; review has its own step. Unknown timings remain indeterminate, waits freeze, overruns explain the delay, and only confirmed completion reaches 100%. Samples distinguish first/repeat/resumed work; elapsed fractions are estimates. Control size, reduced motion, cancellation and independent source results remain unchanged. <a href="../../verification/2026-10-26-sync-counts.md#implementation--26-october-2026">Implementation and acceptance limits</a>.</p>
 <p><strong>26 October selected C06/C17 amendment (#83):</strong> <a href="#chapter-compact-cockpit-separate-sync-and-profile-status--selected-26-october-2026">Separate Sync and Profile status</a> uses one circular work indicator/result badge on Sync and one independent login badge on Profile. No key control. Ordinary Sync/retry requires a short native Cancel/Start decision. This supersedes conflicting earlier inventory notes below.</p>
 <p><strong>25 October selected C06/C17 amendment (#83):</strong> the <a href="#chapter-compact-cockpit-sync-clarity-and-target-preservation--selected-25-october-2026">current Sync contract</a> replaces the dot/session submark with a readable attention mark and visible Details notices, while keeping actual progress/cancel and independent session/receipt evidence. This supersedes the earlier C06/C17 presentation inventory below within that scope.</p>
@@ -446,7 +447,7 @@
 <p>Use only the header “Daten” button for new provider data and login. Start empty/error states, empty Flüge, Profile, status and Development give passive guidance. Keep local reload, filters, diagnostics and offline backup independent. The complete journey stays in a persistent framed popup over the dimmed inert page; retain the native WebView parent during Android credential activities. Retry, recovery and optional source jobs stay in the frame. Settled automatic completion returns to Start with a compact bordered receipt immediately below the header outside scrolling content, needing no routine acknowledgement in the popup. Shared refresh, recorded completion HH:mm when valid, Details and close use minimum 48 dp targets and wrapping for enlarged text. Counts, source outcomes and coverage caveats stay in Details. Completion time is recorded after combined jobs finish, never fabricated at render. Close/Back retain cancellation/save guards and contextual return. U2 adds the compact saved-name club heading and duty subgroup hierarchy, and moves the permanent season paragraph into a short Statistics-detail caveat. The U1/U2 native/Release checkpoint is delivered; U3 adds the independently scoped <strong>Änderungen möglich</strong> header hint without altering the sync receipt. See the <a href="../../verification/2026-10-21-simple-flight-loading.md#guarded-activity-advice-integration--23-october-2026">U3 evidence and remaining gates</a>.</p></section>
 <section class="chapter" id="chapter-implementation-inventory"><h2 id="chapter-implementation-inventory-platform-lab-ui-implementation-inventory">Platform-lab UI implementation inventory</h2>
 <p><a href="#chapter-overview">Handbook entry point</a>. Generated by <code>python scripts/design_handbook.py</code>; do not hand-edit.</p>
-<p>Scope: 105 product mobile TypeScript/model and app-owned TSX UI/adapter files; 70 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.</p>
+<p>Scope: 106 product mobile TypeScript/model and app-owned TSX UI/adapter files; 70 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.</p>
 <h3 id="chapter-implementation-inventory-apptsx">App.tsx</h3>
 <p>Retained app-owned lab/adapter surface; document its existing appearance as an exception. Source: <a href="../../../apps/platform-lab/src/App.tsx">apps/platform-lab/src/App.tsx</a>; normalized SHA-256 <code>00e90dbdf13115e9cffa98b6123f015dc87f095cdd8736daa20f73edab02e7e6</code>.</p>
 <h4 id="chapter-implementation-inventory-literal-colors">Literal colors</h4>
@@ -742,14 +743,14 @@
 <tr><td><code>width: &#x27;100%&#x27;</code></td><td>45, 52, 57, 63, 69</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-coreflightfoundationtsx">CoreFlightFoundation.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx">apps/platform-lab/src/mobile/CoreFlightFoundation.tsx</a>; normalized SHA-256 <code>92752ca8a02621ff36259242d41c516ef1602f50575b4ef66c04c9db3316422d</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx">apps/platform-lab/src/mobile/CoreFlightFoundation.tsx</a>; normalized SHA-256 <code>9d7fef2c52b0797a992e78e72af409b6225aa77f39bf949ef268fdfe995f663f</code>.</p>
 <h4 id="chapter-implementation-inventory-geometry--opacity-declarations-16">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>gap: 10</code></td><td>188, 196, 197, 903</td></tr>
-<tr><td><code>gap: 8</code></td><td>930, 956, 966</td></tr>
-<tr><td><code>maxWidth: 520</code></td><td>188, 197, 903</td></tr>
-<tr><td><code>padding: 12</code></td><td>188, 196, 903</td></tr>
-<tr><td><code>width: &#x27;100%&#x27;</code></td><td>188, 197, 903</td></tr>
+<tr><td><code>gap: 10</code></td><td>189, 197, 198, 920</td></tr>
+<tr><td><code>gap: 8</code></td><td>947, 973, 983</td></tr>
+<tr><td><code>maxWidth: 520</code></td><td>189, 198, 920</td></tr>
+<tr><td><code>padding: 12</code></td><td>189, 197, 920</td></tr>
+<tr><td><code>width: &#x27;100%&#x27;</code></td><td>189, 198, 920</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-dashboardtsx">Dashboard.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/Dashboard.tsx">apps/platform-lab/src/mobile/Dashboard.tsx</a>; normalized SHA-256 <code>149a60d8de4ba6d6ceff97861897e66e9f7cc36e62ab4925d56e9b09b0cee1dc</code>.</p>
@@ -1540,39 +1541,33 @@
 <tr><td><code>borderWidth: 1</code></td><td>22</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-syncprogresstsx">SyncProgress.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/SyncProgress.tsx">apps/platform-lab/src/mobile/SyncProgress.tsx</a>; normalized SHA-256 <code>df2bb77ff27108c60c3c0f413d9a5dcaba1a152552bc93337d0203aaf41df265</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/SyncProgress.tsx">apps/platform-lab/src/mobile/SyncProgress.tsx</a>; normalized SHA-256 <code>b063325e4dce1b080edd2c6e1e1bdcaebe04f4893a5eb2b853f79a3d719a3af5</code>.</p>
 <h4 id="chapter-implementation-inventory-literal-colors-18">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><i class="swatch" style="background:#baf9e436" aria-hidden="true"></i><code>#baf9e436</code></td><td>119</td></tr>
-<tr><td><i class="swatch" style="background:#d5ffee70" aria-hidden="true"></i><code>#d5ffee70</code></td><td>119</td></tr>
-<tr><td><i class="swatch" style="background:#ffc477" aria-hidden="true"></i><code>#ffc477</code></td><td>115</td></tr>
-<tr><td><code>transparent</code></td><td>120, 123</td></tr>
+<tr><td><i class="swatch" style="background:#baf9e436" aria-hidden="true"></i><code>#baf9e436</code></td><td>123</td></tr>
+<tr><td><i class="swatch" style="background:#d5ffee70" aria-hidden="true"></i><code>#d5ffee70</code></td><td>123</td></tr>
+<tr><td><i class="swatch" style="background:#ffc477" aria-hidden="true"></i><code>#ffc477</code></td><td>119</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-typography-declarations-26">Typography declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>fontSize: 11</code></td><td>112</td></tr>
-<tr><td><code>fontSize: 12</code></td><td>112</td></tr>
-<tr><td><code>fontSize: 14</code></td><td>115, 116</td></tr>
-<tr><td><code>lineHeight: 16</code></td><td>112</td></tr>
-<tr><td><code>lineHeight: 18</code></td><td>112</td></tr>
-<tr><td><code>lineHeight: 20</code></td><td>115, 116</td></tr>
+<tr><td><code>fontSize: 11</code></td><td>116</td></tr>
+<tr><td><code>fontSize: 12</code></td><td>116</td></tr>
+<tr><td><code>fontSize: 14</code></td><td>119, 120</td></tr>
+<tr><td><code>lineHeight: 16</code></td><td>116</td></tr>
+<tr><td><code>lineHeight: 18</code></td><td>116</td></tr>
+<tr><td><code>lineHeight: 20</code></td><td>119, 120</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-geometry--opacity-declarations-44">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>borderRadius: 16</code></td><td>120, 121, 123</td></tr>
-<tr><td><code>borderWidth: 3</code></td><td>120, 121, 123</td></tr>
-<tr><td><code>gap: 8</code></td><td>113</td></tr>
-<tr><td><code>height: 32</code></td><td>120, 121, 122, 123</td></tr>
-<tr><td><code>maxWidth: 960</code></td><td>111</td></tr>
-<tr><td><code>minHeight: 48</code></td><td>117, 118</td></tr>
-<tr><td><code>minWidth: 48</code></td><td>117</td></tr>
-<tr><td><code>paddingHorizontal: 18</code></td><td>111</td></tr>
-<tr><td><code>paddingVertical: 6</code></td><td>111</td></tr>
-<tr><td><code>width: &#x27;100%&#x27;</code></td><td>111</td></tr>
-<tr><td><code>width: 16</code></td><td>122</td></tr>
-<tr><td><code>width: 28</code></td><td>119</td></tr>
-<tr><td><code>width: 32</code></td><td>120, 121, 123</td></tr>
-<tr><td><code>width: 48</code></td><td>118</td></tr>
+<tr><td><code>gap: 8</code></td><td>117</td></tr>
+<tr><td><code>maxWidth: 960</code></td><td>115</td></tr>
+<tr><td><code>minHeight: 48</code></td><td>121, 122</td></tr>
+<tr><td><code>minWidth: 48</code></td><td>121</td></tr>
+<tr><td><code>paddingHorizontal: 18</code></td><td>115</td></tr>
+<tr><td><code>paddingVertical: 6</code></td><td>115</td></tr>
+<tr><td><code>width: &#x27;100%&#x27;</code></td><td>115</td></tr>
+<tr><td><code>width: 28</code></td><td>123</td></tr>
+<tr><td><code>width: 48</code></td><td>122</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-themetsx">theme.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/theme.tsx">apps/platform-lab/src/mobile/theme.tsx</a>; normalized SHA-256 <code>34aaac4287c49060b933e6367b4fa3043427ec6e603d34c1c8cca0a0b8288cf5</code>.</p>
@@ -2625,6 +2620,8 @@ The U1/U3 header uses neutral saved-age text independently of session state, wit
 
 # Components, symbols and shapes
 
+**26 October approved Sync refinement (#92):** the 32 dp indicator uses a continuous cyan circular wave, adapting Material 3 Expressive&#x27;s wavy progress shape to Compact Cockpit and the existing 48 dp control. Known estimates fill the actual wave path fraction; unknown work rotates only its arc. Foreground, waiting and reduced-motion guards remain. Single-item count suffixes are omitted for both current/completed and spoken status; multi-item, zero and unknown totals remain. Interrupted progress uses “Synchronisierung unterbrochen”, explains continue versus retrieving all data again, and names buttons “Synchronisierung fortsetzen” / “Alle Daten erneut abrufen”; saved-data preservation and the foreground note are explicit. Manuel approved implementation after the proposal on 26 October. [Source-specific evidence](../../verification/2026-10-26-sync-counts.md#latest-released-build-report-and-single-item-count-refinement--26-october-2026). References: [Material 3](https://m3.material.io/components/progress-indicators/overview), [Google&#x27;s expressive component examples](https://github.com/material-components/material-components-android/blob/master/docs/components/ProgressIndicator.md).
+
 **26 October selected estimated Sync progress (#92):** the existing 32 dp ring becomes determinate only with comparable local timing samples. The current status row retains exact counts and adds `Gesamt ca. N %`; review has its own step. Unknown timings remain indeterminate, waits freeze, overruns explain the delay, and only confirmed completion reaches 100%. Samples distinguish first/repeat/resumed work; elapsed fractions are estimates. Control size, reduced motion, cancellation and independent source results remain unchanged. [Implementation and acceptance limits](../../verification/2026-10-26-sync-counts.md#implementation--26-october-2026).
 
 **26 October selected C06/C17 amendment (#83):** [Separate Sync and Profile status](compact-cockpit.md#separate-sync-and-profile-status--selected-26-october-2026) uses one circular work indicator/result badge on Sync and one independent login badge on Profile. No key control. Ordinary Sync/retry requires a short native Cancel/Start decision. This supersedes conflicting earlier inventory notes below.
@@ -2840,7 +2837,7 @@ Use only the header “Daten” button for new provider data and login. Start em
 
 [Handbook entry point](README.md). Generated by `python scripts/design_handbook.py`; do not hand-edit.
 
-Scope: 105 product mobile TypeScript/model and app-owned TSX UI/adapter files; 70 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.
+Scope: 106 product mobile TypeScript/model and app-owned TSX UI/adapter files; 70 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.
 
 ## App.tsx
 
@@ -3228,17 +3225,17 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ConnectionSummary
 
 ## CoreFlightFoundation.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `92752ca8a02621ff36259242d41c516ef1602f50575b4ef66c04c9db3316422d`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `9d7fef2c52b0797a992e78e72af409b6225aa77f39bf949ef268fdfe995f663f`.
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `gap: 10` | 188, 196, 197, 903 |
-| `gap: 8` | 930, 956, 966 |
-| `maxWidth: 520` | 188, 197, 903 |
-| `padding: 12` | 188, 196, 903 |
-| `width: &#x27;100%&#x27;` | 188, 197, 903 |
+| `gap: 10` | 189, 197, 198, 920 |
+| `gap: 8` | 947, 973, 983 |
+| `maxWidth: 520` | 189, 198, 920 |
+| `padding: 12` | 189, 197, 920 |
+| `width: &#x27;100%&#x27;` | 189, 198, 920 |
 
 ## Dashboard.tsx
 
@@ -4208,46 +4205,40 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/SymbolIcon.tsx](.
 
 ## SyncProgress.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/SyncProgress.tsx](../../../apps/platform-lab/src/mobile/SyncProgress.tsx); normalized SHA-256 `df2bb77ff27108c60c3c0f413d9a5dcaba1a152552bc93337d0203aaf41df265`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/SyncProgress.tsx](../../../apps/platform-lab/src/mobile/SyncProgress.tsx); normalized SHA-256 `b063325e4dce1b080edd2c6e1e1bdcaebe04f4893a5eb2b853f79a3d719a3af5`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#baf9e436` | 119 |
-| `#d5ffee70` | 119 |
-| `#ffc477` | 115 |
-| `transparent` | 120, 123 |
+| `#baf9e436` | 123 |
+| `#d5ffee70` | 123 |
+| `#ffc477` | 119 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 11` | 112 |
-| `fontSize: 12` | 112 |
-| `fontSize: 14` | 115, 116 |
-| `lineHeight: 16` | 112 |
-| `lineHeight: 18` | 112 |
-| `lineHeight: 20` | 115, 116 |
+| `fontSize: 11` | 116 |
+| `fontSize: 12` | 116 |
+| `fontSize: 14` | 119, 120 |
+| `lineHeight: 16` | 116 |
+| `lineHeight: 18` | 116 |
+| `lineHeight: 20` | 119, 120 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 16` | 120, 121, 123 |
-| `borderWidth: 3` | 120, 121, 123 |
-| `gap: 8` | 113 |
-| `height: 32` | 120, 121, 122, 123 |
-| `maxWidth: 960` | 111 |
-| `minHeight: 48` | 117, 118 |
-| `minWidth: 48` | 117 |
-| `paddingHorizontal: 18` | 111 |
-| `paddingVertical: 6` | 111 |
-| `width: &#x27;100%&#x27;` | 111 |
-| `width: 16` | 122 |
-| `width: 28` | 119 |
-| `width: 32` | 120, 121, 123 |
-| `width: 48` | 118 |
+| `gap: 8` | 117 |
+| `maxWidth: 960` | 115 |
+| `minHeight: 48` | 121, 122 |
+| `minWidth: 48` | 121 |
+| `paddingHorizontal: 18` | 115 |
+| `paddingVertical: 6` | 115 |
+| `width: &#x27;100%&#x27;` | 115 |
+| `width: 28` | 123 |
+| `width: 48` | 122 |
 
 ## theme.tsx
 
@@ -5090,7 +5081,7 @@ States / limits: Recreated approved variant, not a byte-identical copy of an old
 Source: docs/assets/branding/moflight-app-icon-ai.png
 docs/assets/branding/README.md; app.json
 </textarea></section>
-<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: 9f3337d0c89b413ac73a8e602c714925f8445c57ac7b26124495c01d9d133f41. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
+<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: f631cb06818255a0dfabb1b8f1d06ab22a29e6e515a5afe3217878c40b4ee578. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
 </main><script>
 'use strict';
 const brief = document.querySelector('#brief');

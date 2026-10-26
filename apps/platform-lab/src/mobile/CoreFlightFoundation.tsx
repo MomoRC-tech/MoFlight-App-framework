@@ -47,7 +47,7 @@ import {createSyncEstimate,confirmSyncEstimateContext,reduceSyncEstimate,learnSy
 import {readSyncEstimateHistory,saveSyncEstimateHistory} from './sync-estimate-native';
 
 // The 500-row retrieval path changes network/setup timing; discard older hints.
-const ESTIMATE_CONTEXT='sync-local-replay-500-v2';
+const ESTIMATE_CONTEXT='sync-shared-readback-v3';
 const optionalEstimateStages=['medical','duties','events','documents','work-summary','work-hours','tasks'] as const;
 const sourceEstimateStages={medical:'medical',duties:'duties',events:'events',documentNotices:'documents',workSummary:'work-summary',workHours:'work-hours',tasks:'tasks'} as const;
 const remainingEstimateStages=(sources:SyncRecoveryRecord['sources'])=>Object.entries(sourceEstimateStages).filter(([key])=>!['updated','empty','partial'].includes(sources[key as keyof typeof sources]??'')).map(([,stage])=>stage);
@@ -458,19 +458,20 @@ function OwnerFlightLibrary({syncStartedAt,lease,registry,close,startUpdate,open
       catch { if(alive.current)setRestoreReadWarning('Der Status vorbereiteter Wiederherstellungen konnte nicht sicher geschlossen werden. Vorherige Hinweise bleiben erhalten.'); }
     }
   }
-  async function refresh() {
+  async function refresh(stored?: Awaited<ReturnType<RealFlightService['readStored']>>) {
     const initial=takeInitialRepository();
     try {
     // Keep restore recovery discoverable even when opening the selected graph fails.
     await timeFlightStage('restore-inspection',refreshRestorePreparations);
-    const {snapshot:next,flights:rows}=await timeFlightStage('stored-view',()=>service.readStored(initial??undefined)),
-      pending=await timeFlightStage('receipt-recovery',()=>syncEntry?service.prepareFreshFetch():service.recoverPending());
+    const pending=await timeFlightStage('receipt-recovery',()=>syncEntry?service.prepareFreshFetch():service.recoverPending());
+    const view=stored&&pending.status==='none'?stored:await timeFlightStage('stored-view',()=>service.readStored(initial??undefined));
+    const {snapshot:next,flights:rows}=view;
     const interrupted=await readSyncRecovery(scope);
     storedEstimateContext.current={mode:next.account?'repeat':'first',volume:syncEstimateVolume(null,rows.length)};
     diagnosis.current?.note('library',next.recovery.readOnly?'read-only':'ready');diagnosis.current?.note('save',pending.status==='none'?'ready':pending.status==='committed'?'receipt-confirmed':'pending');
     if(alive.current){setSnapshot(next);setFlights(rows);setRecovery(pending);setSavedSync(interrupted);syncRecord.current=interrupted;
       setPage(current=>Math.min(current,Math.max(0,Math.ceil(rows.length/5)-1)));}
-    return rows.length;
+    return {...view,interrupted};
     } finally { await initial?.close(); }
   }
   async function prepareSourceReview(next:RealFlightReview) {
@@ -501,9 +502,9 @@ function OwnerFlightLibrary({syncStartedAt,lease,registry,close,startUpdate,open
     setSyncProgress(previous=>updateSyncCount(previous,'flights',count));
     finishStage(estimate.current?.current==='review'?'review':'flights');startStage('save');
     setSyncProgress(previous=>updateSyncCount(previous,'save',{...count,done:0}));setLoadStage('save');setStep('Flüge werden gespeichert …');
-    const result=await service.saveVerifiedReview(next,verified);
+    const {result,stored}=await service.saveVerifiedReviewWithStoredReadback(next,verified);
     diagnosis.current?.note('save','receipt-confirmed');
-    const total=await timeFlightStage('return-readback',refresh);setFlightSaved(total);finishStage('save');
+    const refreshed=await timeFlightStage('return-readback',()=>refresh(stored));setFlightSaved(refreshed.flights.length);finishStage('save');
     if (next.source.capture.coverage === 'complete-requested-list') await acknowledgeActivity({source:'flights',capturedAt:Date.parse(next.source.capture.retrievedAt),
       committedAt:Date.now(),window:next.source.requestedWindow,participation:next.source.requestedWindow.participation});
     return {result,accountRef:next.accountRef,from:next.source.requestedWindow.from,to:next.source.requestedWindow.to};
@@ -612,14 +613,12 @@ function OwnerFlightLibrary({syncStartedAt,lease,registry,close,startUpdate,open
       preparationInterrupted.current=false;
       prepareEstimate('resume',storedEstimateContext.current?.volume??syncEstimateVolume(null,flights.length),syncEstimateNow(),true,
         savedSync.flightCaptureId?remainingEstimateStages(savedSync.sources):undefined);
-      await refresh();
+      const refreshed=await refresh();
       assertSyncActive();
-      const record=await readSyncRecovery(scope);
-      assertSyncActive();
+      const record=refreshed.interrupted;
       if(!record)throw new Error('Saved Sync progress is unavailable.');
       syncRecord.current=record;
-      const stored=await service.snapshot();
-      assertSyncActive();
+      const stored=refreshed.snapshot;
       const flight=recoveredFlight(record,stored);
       if(!flight){
         beginEstimate('resume');
@@ -878,12 +877,12 @@ function OwnerFlightLibrary({syncStartedAt,lease,registry,close,startUpdate,open
   // Stay in the sync frame while local reads and recovery checks run. The old
   // generic provider panel exposed manual verification before automatic became true.
   const preparationProgress=syncEntry?<Card>
-    <Section title="Daten synchronisieren" icon="refresh"/>
-    <Label>{blockedSync?'Eine Wiederherstellung muss zuerst abgeschlossen werden. Gespeicherte Daten bleiben erhalten.':failed?message:savedSync&&entryReady?'Gespeicherter Fortschritt wartet auf deine Fortsetzung. Das bisherige Konto wird vorher geprüft.':'Synchronisierung wird vorbereitet …'}</Label>
+    <Section title={savedSync&&entryReady&&!blockedSync&&!failed?'Synchronisierung unterbrochen':'Daten synchronisieren'} icon="refresh"/>
+    <Label>{blockedSync?'Eine Wiederherstellung muss zuerst abgeschlossen werden. Gespeicherte Daten bleiben erhalten.':failed?message:savedSync&&entryReady?'Die letzte Synchronisierung wurde nicht abgeschlossen. Möchtest du sie fortsetzen oder alle Daten erneut abrufen? Bereits gespeicherte Daten bleiben erhalten.':'Synchronisierung wird vorbereitet …'}</Label>
     {!blockedSync&&!failed&&!savedSync&&<ActivityIndicator color={colors.cyan}/>}
     {blockedSync&&<Action secondary onPress={()=>setProviderOpen(false)}>Wiederherstellung ansehen</Action>}
-    {savedSync&&entryReady&&!blockedSync&&!failed&&<Action disabled={busy} onPress={continueSync}>Fortsetzen</Action>}
-    {savedSync&&entryReady&&!blockedSync&&!failed&&<Action secondary disabled={busy} onPress={loadFlights}>Neu synchronisieren</Action>}
+    {savedSync&&entryReady&&!blockedSync&&!failed&&<Action disabled={busy} onPress={continueSync}>Synchronisierung fortsetzen</Action>}
+    {savedSync&&entryReady&&!blockedSync&&!failed&&<><Action secondary disabled={busy} onPress={loadFlights}>Alle Daten erneut abrufen</Action><Label muted>Bitte lass MoFlight während der Synchronisierung geöffnet.</Label></>}
     {failed&&!blockedSync&&<Action disabled={busy} onPress={()=>void run(async()=>{await refresh();setEntryReady(true);})}>Erneut versuchen</Action>}
   </Card>:undefined;
   const progress=automatic.current&&c.visible&&!failed?<Card><Label>{loginPaused?'Anmeldung pausiert. Nach der Rückkehr geht es weiter.':'Bitte anmelden. Danach werden alle unterstützten Daten automatisch synchronisiert.'}</Label></Card>:automatic.current?<Card>

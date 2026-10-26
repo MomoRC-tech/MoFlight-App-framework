@@ -59,6 +59,96 @@ async function ready(f: Awaited<ReturnType<typeof fixture>>) {
   const bound=await service.confirmAccount(review);assert.equal(bound.state,'ready');return {service,review:bound};
 }
 
+test('verified save with stored readback uses one ready-session and preserves the complete graph and receipt',async()=>{
+  const f=await fixture(),reference=await fixture();
+  for(const value of [f,reference]){let n=0;value.ports.uuid=()=>`44444444-4444-4444-8444-${String(++n).padStart(12,'0')}`;}
+  const current=await ready(f),old=await ready(reference),verified={accountNumber:'101',clubLabel:'Example club'};
+  let opens=0,closes=0,readbacks=0;
+  const repository=f.ports.repository;
+  f.ports.repository=async timing=>{
+    opens++;const session=await repository(timing),read=session.library.readStored.bind(session.library);
+    session.library.readStored=async span=>{readbacks++;return read(span);};
+    return {...session,close:async()=>{closes++;await session.close();}};
+  };
+  try{
+    const combined=await current.service.saveVerifiedReviewWithStoredReadback(current.review,verified);
+    assert.equal(opens,1);assert.equal(closes,1);assert.equal(readbacks,1,'fresh stored read occurs after commit on the same session');
+    assert.equal(combined.result.counts.added,1);assert.equal(combined.stored.flights.length,1);
+    assert.deepEqual(combined.stored.snapshot.latestSavedResult,combined.result);
+    assert.equal(combined.stored.snapshot.generation,2);
+    const priorResult=await old.service.saveVerifiedReview(old.review,verified);
+    assert.deepEqual(combined.result,priorResult);
+    assert.deepEqual(combined.stored,await old.service.readStored());
+    assert.equal(await current.service.exportBackup(),await old.service.exportBackup(),'all source records and receipts remain byte-identical to the established save path');
+    assert.equal((await current.service.recoverPending()).status,'none');
+  }finally{current.service.dispose();old.service.dispose();await f.cleanup();await reference.cleanup();}
+});
+
+test('verified save with readback preserves first-use binding and unchanged/corrected capture history',async()=>{
+  const f=await fixture(),service=f.make(),verified={accountNumber:'101',clubLabel:'Example club'};
+  try{
+    const unbound=await service.reviewSource(source());assert.equal(unbound.state,'confirm-account');
+    const first=await service.saveVerifiedReviewWithStoredReadback(unbound,verified);
+    assert.equal(first.result.counts.added,1);assert.equal(first.stored.snapshot.generation,2);
+    const repeated=await service.saveVerifiedReviewWithStoredReadback(await service.reviewSource(source('readback-repeat')),verified);
+    assert.equal(repeated.result.counts.unchanged,1);assert.equal(repeated.stored.snapshot.generation,3);
+    assert.equal(repeated.stored.snapshot.savedRetrievals.length,2,'unchanged facts still append committed capture coverage');
+    const correction=source('readback-correction');correction.capture.rows[0]!.values[4]='1:00';
+    const changed=await service.saveVerifiedReviewWithStoredReadback(await service.reviewSource(correction),verified);
+    assert.equal(changed.result.counts.changed,1);assert.equal(changed.stored.snapshot.generation,4);
+    assert.equal(changed.stored.flights[0]!.facts.assessment.observation.row.values[4],'1:00','the correction retains its exact source text');
+  }finally{service.dispose();await f.cleanup();}
+});
+
+for(const failure of ['before-commit','after-commit'])test(`combined saved readback preserves original command recovery after ${failure}`,async()=>{
+  const f=await fixture(),{service,review}=await ready(f);
+  try{
+    f.setFailure(failure);
+    await assert.rejects(service.saveVerifiedReviewWithStoredReadback(review,{accountNumber:'101',clubLabel:'Example club'}),PendingRealFlightOperation);
+    f.setFailure('');
+    const recovery=await service.recoverPending();
+    assert.equal(recovery.status,failure==='before-commit'?'not-committed':'committed');
+    if(failure==='before-commit')assert.equal((await service.retryPending()).counts.added,1);
+    const stored=await service.readStored();assert.equal(stored.flights.length,1);assert.equal(stored.snapshot.generation,2);
+    assert.equal((await service.recoverPending()).status,'none');
+  }finally{service.dispose();await f.cleanup();}
+});
+
+for(const failure of ['read-error','foreign-owner','tamper'])test(`post-save fresh readback rejects ${failure}, closes session and never reuses consumed review`,async()=>{
+  const f=await fixture(),{service,review}=await ready(f),repository=f.ports.repository;
+  let closes=0;
+  f.ports.repository=async timing=>{
+    const session=await repository(timing),read=session.library.readStored.bind(session.library);
+    session.library.readStored=async span=>{
+      if(failure==='read-error')throw new Error('Injected projection failure');
+      if(failure==='foreign-owner')f.switchOwner();
+      if(failure==='tamper'){
+        const db=nodeDriver(f.path);
+        try{
+          const trigger=await db.first<{name:string;sql:string}>("SELECT name,sql FROM sqlite_master WHERE type='trigger' AND name LIKE '%records%update'");assert.ok(trigger);assert.match(trigger.name,/^[a-z_]+$/);
+          await db.exec(`DROP TRIGGER ${trigger.name}`);await db.run("UPDATE real_history_records SET payload=replace(payload,'D-TEST','D-FORGED') WHERE kind='facts'");await db.exec(trigger.sql);
+        }finally{await db.close();}
+      }
+      return read(span);
+    };
+    return {...session,close:async()=>{closes++;await session.close();}};
+  };
+  try{
+    await assert.rejects(service.saveVerifiedReviewWithStoredReadback(review,{accountNumber:'101',clubLabel:'Example club'}),/projection failure|Unauthorized|foreign|record graph/);
+    assert.equal(closes,1);
+    f.ports.repository=repository;
+    if(failure!=='foreign-owner'){
+      assert.equal((await service.recoverPending()).status,'none','successful commit and resolution do not become fictitious unresolved commands');
+      await assert.rejects(service.saveVerifiedReviewWithStoredReadback(review,{accountNumber:'101',clubLabel:'Example club'}),/Review changed/);
+    }
+    if(failure==='read-error'){
+      const stored=await service.readStored();assert.equal(stored.snapshot.generation,2);assert.equal(stored.flights.length,1);
+      const next=await service.reviewSource(source('after-read-error'));
+      assert.equal((await service.saveVerifiedReviewWithStoredReadback(next,{accountNumber:'101',clubLabel:'Example club'})).result.counts.unchanged,1);
+    }
+  }finally{service.dispose();await f.cleanup();}
+});
+
 test('review start follows live source retrieval, skips binding rebuild and keeps attempt timings across awaits',async()=>{
   const f=await fixture(),service=f.make(),journal=new DiagnosticJournal(()=>0),first=journal.begin('update-flights');
   let reviewStarts=0,release!:()=>void;f.ports.onReviewStart=()=>{reviewStarts++;};

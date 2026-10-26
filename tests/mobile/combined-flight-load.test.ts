@@ -103,17 +103,18 @@ function fixture({destination='sources',providerAllowed=true,deferRead=false,def
     disposed=false;
     constructor(...args:any[]) { this.ports=args[3]; }
     ports:any;
-    async readStored(){activityOrder.push('refresh-read');if(deferRead||holdNextRead){holdNextRead=false;await storedRead;}return {snapshot,flights:saved?[{},{},{}]:[]};}
-    async snapshot(){return {...snapshot,ownerId:'owner',storeId:'store',
+    async readStored(){activityOrder.push('refresh-read');if(deferRead||holdNextRead){holdNextRead=false;await storedRead;}return {snapshot:await this.storedSnapshot(),flights:saved?[{},{},{}]:[]};}
+    async snapshot(){calls.push('snapshot');return this.storedSnapshot();}
+    async storedSnapshot(){return {...snapshot,ownerId:'owner',storeId:'store',
       account:saved?{provider:'vereinsflieger',accountRef:'101'}:null,
       latestSavedResult:saved?{kind:'import-unassigned',captureId:'fresh',counts:{added:2,changed:1,pending:0}}:null,
       coverage:saved?[{captureId:'fresh',coverage:{displayedWindow:{from:'2025-01-01',to:'2026-10-21'}}}]:[],
-      savedRetrievals:saved?[{from:'2025-01-01',to:'2026-10-21'}]:[]};}
+      savedRetrievals:saved?[{from:'2025-01-01',to:'2026-10-21',retrievedAt:'2026-10-21T12:00:00.000Z',savedAt:'2026-10-21T12:00:01.000Z'}]:[]};}
     async list(){return saved?[{},{},{}]:[];}
     async recoverPending(){return {status:'none'};}
     async prepareFreshFetch(){return {status:'none'};}
     async retrieveUpdate(){if(deferSource)await new Promise<void>(resolve=>{admitSource=resolve;});abort=new AbortController();if(deferProvider)c.viewReady=false;const value=await this.ports.retrieve({from:'2025-01-01',to:'2026-10-21'},abort.signal);if(!abort.signal.aborted)this.ports.onReviewStart?.();await new Promise<void>(resolve=>{setImmediate(resolve);});return {state:'confirm-account',accountRef:'101',source:value};}
-    async saveVerifiedReview(_review:any,context:any){assert.equal(context.accountNumber,'101');calls.push('save');saved=true;return {counts:{added:2,changed:1,pending:pendingFlightCount}};}
+    async saveVerifiedReviewWithStoredReadback(_review:any,context:any){assert.equal(context.accountNumber,'101');calls.push('save');saved=true;return {result:{counts:{added:2,changed:1,pending:pendingFlightCount}},stored:{snapshot:await this.storedSnapshot(),flights:[{},{},{}]}};}
     cancelReview(){abort?.abort();}
     dispose(){this.disposed=true;this.cancelReview();}
   }
@@ -512,7 +513,7 @@ test('closing and reopening retains the controller and offers recovery without s
     assert.deepEqual(f.calls,['session','quiet-session']);
     f.setOpen(true);await f.flush();const reopened=f.nodes().find(n=>n.type==='ProviderConnection')!.props.controller;
     assert.equal(reopened.retrieval,first.retrieval);assert.deepEqual(f.calls,['session','quiet-session']);
-    assert.match(f.progressText(),/Fortsetzen/);assert.equal(f.calls.includes('save'),false);
+    assert.match(f.progressText(),/Synchronisierung fortsetzen/);assert.equal(f.calls.includes('save'),false);
   }finally{f.dispose();}
 });
 
@@ -537,8 +538,8 @@ test('a restarted Sync reads durable progress, skips committed flights and saved
     startedAt:'2026-10-26T10:00:00Z',flightCaptureId:'fresh',sources:{medical:'updated'}};
   const f=fixture({startUpdate:true,initialFlightsSaved:true,initialSavedSync:progress});try{
     f.render();await f.flush();
-    assert.equal(f.calls.length,0);assert.match(f.progressText(),/Fortsetzen/);
-    f.press('Fortsetzen');await f.flush();assert.deepEqual(f.calls,['verify-job']);
+    assert.equal(f.calls.length,0);assert.match(f.progressText(),/Synchronisierung fortsetzen/);
+    f.press('Synchronisierung fortsetzen');await f.flush();assert.deepEqual(f.calls,['verify-job']);
     f.verify();await f.flush();
     assert.equal(f.calls.includes('retrieve'),false);assert.equal(f.calls.includes('save'),false);
     assert.equal(f.calls.includes('medical'),false);assert.equal(f.calls.includes('events'),true);
@@ -552,7 +553,7 @@ test('header Sync opens the recovery offer even though ordinary Settings keeps i
   const f=fixture({intent:'update',destination:'settings',initialFlightsSaved:true,initialSavedSync:progress});try{
     f.render();await f.flush();
     const panel=f.nodes().find(n=>n.type==='ProviderConnection')!;
-    assert.equal(panel.props.open,true);assert.match(f.progressText(),/Fortsetzen/);
+    assert.equal(panel.props.open,true);assert.match(f.progressText(),/Synchronisierung fortsetzen/);
   }finally{f.dispose();}
 });
 
@@ -560,7 +561,7 @@ test('a changed provider account blocks saved-flight continuation and optional r
   const progress:syncRecovery.SyncRecoveryRecord={version:1,ownerId:'owner',storeId:'store',accountRef:'101',clubLabel:'Example',
     startedAt:'2026-10-26T10:00:00Z',flightCaptureId:'fresh',sources:{medical:'updated'}};
   const f=fixture({startUpdate:true,initialFlightsSaved:true,initialSavedSync:progress});try{
-    f.render();await f.flush();f.press('Fortsetzen');await f.flush();
+    f.render();await f.flush();f.press('Synchronisierung fortsetzen');await f.flush();
     f.c.connection={phase:'observed',confirmed:true,observed:{accountNumber:'other',clubLabel:'Example'}};f.render();await f.flush();
     assert.equal(f.calls.includes('events'),false);assert.equal(f.calls.includes('save'),false);
     assert.equal(f.closed.length,0);assert.match(f.progressText(),/bisherige Vereinsflieger-Konto/);
@@ -777,7 +778,7 @@ test('Sync forwards measured flight counts and ignores late updates after cancel
 });
 
 test('a complete sync learns local stage hints and the next comparable attempt has an estimate',async()=>{
- const first=fixture({intent:'update'});let history:unknown;
+ const first=fixture({initialFlightsSaved:true,intent:'update'});let history:unknown;
  try{
   first.render();await first.flush();first.complete();await first.flush();
   assert.equal(first.closed.length,1);assert.equal(first.estimateSaves().length,1);
@@ -787,7 +788,7 @@ test('a complete sync learns local stage hints and the next comparable attempt h
   assert.ok(first.journal.journey().some(event=>event.target==='sync-review'));
   assert.ok(saved.samples.every(sample=>sample.durationsMs.length===1&&sample.durationsMs[0]!>=1));
  }finally{first.dispose();}
- const second=fixture({intent:'update',initialEstimateHistory:history});
+ const second=fixture({initialFlightsSaved:true,intent:'update',initialEstimateHistory:history});
  try{
   second.render();await second.flush();
   const estimated=second.progressUpdates.map(progress=>progress.estimate).filter((value):value is syncEstimate.SyncEstimateState=>!!value);
@@ -817,7 +818,7 @@ test('recovered sync estimates only remaining sources and never relearns committ
   startedAt:'2026-10-26T10:00:00Z',flightCaptureId:'fresh',sources:{medical:'updated'}};
  const f=fixture({startUpdate:true,initialFlightsSaved:true,initialSavedSync:record});
  try{
-  f.render();await f.flush();f.press('Fortsetzen');await f.flush();f.verify();await f.flush();
+  f.render();await f.flush();f.press('Synchronisierung fortsetzen');await f.flush();f.verify();await f.flush();
   assert.equal(f.closed.length,1);assert.ok(!f.calls.some(call=>['retrieve','save','medical'].includes(call)));
   const estimates=f.progressUpdates.map(progress=>progress.estimate).filter((value):value is syncEstimate.SyncEstimateState=>!!value);
   assert.ok(estimates.length>0);assert.ok(estimates.every(value=>value.mode==='resume'));
@@ -871,9 +872,9 @@ test('pending flight decisions and provider cleanup use partial outcome and neve
 });
 
 test('learned preparation progress is available before the existing stored read finishes',async()=>{
- const first=fixture({intent:'update'});let history:unknown;
+ const first=fixture({initialFlightsSaved:true,intent:'update'});let history:unknown;
  try{first.render();await first.flush();first.complete();await first.flush();history=first.estimateHistory();}finally{first.dispose();}
- const second=fixture({intent:'update',initialEstimateHistory:history,deferRead:true});
+ const second=fixture({initialFlightsSaved:true,intent:'update',initialEstimateHistory:history,deferRead:true});
  try{
   second.render();await second.flush();
   const preparing=second.progressUpdates.find(progress=>progress.current==='prepare'&&progress.estimate?.fraction!==null&&progress.estimate);
@@ -916,7 +917,7 @@ test('Continue measures recovery reads while excluding the earlier user decision
  const record:syncRecovery.SyncRecoveryRecord={version:1,ownerId:'owner',storeId:'store',accountRef:'101',clubLabel:'Example',startedAt:'2026-10-26T10:00:00Z',flightCaptureId:'fresh',sources:{medical:'updated'}};
  const f=fixture({startUpdate:true,initialFlightsSaved:true,initialSavedSync:record});
  try{
-  f.render();await f.flush();f.advanceEstimateTime(60_000);f.deferNextStoredRead();f.press('Fortsetzen');await f.flush();
+  f.render();await f.flush();f.advanceEstimateTime(60_000);f.deferNextStoredRead();f.press('Synchronisierung fortsetzen');await f.flush();
   assert.ok(f.progressUpdates.some(progress=>progress.current==='prepare'&&progress.estimate?.mode==='resume'));
   f.advanceEstimateTime(4000);f.finishRead();await f.flush();f.verify();await f.flush();
   assert.equal(f.closed.length,1);assert.equal(f.estimateSaves().length,1);
@@ -932,7 +933,7 @@ test('background during Continue recovery reads cannot admit provider work after
     startedAt:'2026-10-26T10:00:00Z',flightCaptureId:recovered?'fresh':null,sources:{}};
   const f=fixture({intent:'update',initialFlightsSaved:recovered,initialSavedSync:record});
   try{
-   f.render();await f.flush();f.deferNextStoredRead();f.press('Fortsetzen');await f.flush();
+   f.render();await f.flush();f.deferNextStoredRead();f.press('Synchronisierung fortsetzen');await f.flush();
    f.background();f.resume();f.finishRead();await f.flush();
    assert.ok(!f.calls.some(call=>['session','verify-job','retrieve','save','medical'].includes(call)),`Late provider work for recovered=${recovered}: ${f.calls}`);
    assert.equal(f.closed.length,0);
@@ -974,5 +975,30 @@ test('background during final recovery cleanup cannot publish a cancelled attemp
   f.background();f.resume();f.finishRecoveryClear();await f.flush();
   assert.equal(f.closed.length,0);assert.equal(f.estimateSaves().length,0);
   assert.equal(f.calls.filter(call=>call==='save').length,1);
+ }finally{f.dispose();}
+});
+
+
+test('saved readback updates the coordinator without a second stored read',async()=>{
+ const f=fixture({intent:'update'});
+ try{
+  f.render();await f.flush();
+  const reads=f.activityOrder.filter(v=>v==='refresh-read').length;
+  f.complete();await f.flush();
+  assert.equal(f.closed.length,1);assert.equal(f.calls.filter(v=>v==='save').length,1);
+  assert.equal(f.activityOrder.filter(v=>v==='refresh-read').length,reads);
+ }finally{f.dispose();}
+});
+
+
+test('interrupted dialog names both choices and Continue reuses its fresh preparation snapshot',async()=>{
+ const f=fixture({intent:'update',initialFlightsSaved:true,initialSavedSync:{version:1,ownerId:'owner',storeId:'store',accountRef:'101',clubLabel:'Example',startedAt:'2026-10-21T12:00:00.000Z',flightCaptureId:'fresh',sources:{}}});
+ try{
+  f.render();await f.flush();
+  assert.match(f.progressText(),/Die letzte Synchronisierung wurde nicht abgeschlossen/);
+  assert.match(f.progressText(),/Alle Daten erneut abrufen/);
+  assert.match(f.progressText(),/Bitte lass MoFlight/);
+  f.press('Synchronisierung fortsetzen');await f.flush();
+  assert.equal(f.calls.filter(v=>v==='snapshot').length,0);
  }finally{f.dispose();}
 });

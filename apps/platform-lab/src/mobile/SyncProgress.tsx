@@ -4,6 +4,7 @@ import {Label,colors} from './theme';
 import {SymbolIcon} from './SymbolIcon';
 import {syncStageText,type SyncProgress as Progress,type IdleSyncNotice} from './sync-progress';
 import {reduceSyncEstimate,snapshotSyncEstimate,syncEstimateNow,type SyncEstimateState} from './sync-estimate';
+import {SYNC_RING_SIZE,SYNC_RING_STROKE,syncRingSegments,type SyncRingSegment} from './sync-progress-geometry';
 
 export function useReducedMotion(){
   const [reduced,setReduced]=useState(true);
@@ -50,26 +51,29 @@ export function useSyncEstimateDisplay(estimate:SyncEstimateState|undefined,fore
 function estimateText(value:ReturnType<typeof snapshotSyncEstimate>|null){
   return value?.estimated&&value.fraction!==null?`Gesamt ca. ${Math.floor(value.fraction*100)} %${value.overrun?' · Dauert länger als erwartet':''}`:'';
 }
-/** Native clipped semicircles keep the existing 32dp ring without adding a graphics dependency. */
-function DeterminateRing({fraction}:{fraction:number}){
-  return <View testID="sync-estimated-ring" accessible={false} importantForAccessibility="no" style={styles.ringFrame}>
-    <View style={styles.ringTrack}/>
-    {([0,1] as const).map(half=>{
-      const portion=Math.max(0,Math.min(1,fraction*2-half));
-      return portion>0?<View key={half} style={[styles.ringClip,{left:half===0?16:0}]}>
-        <View style={[styles.ringHalf,{left:half===0?-16:0,transform:[{rotate:`${225+180*portion+180*half}deg`}]}]}/>
-      </View>:null;
-    })}
-  </View>;
+function WaveSegments({segments,color}:{segments:readonly SyncRingSegment[];color:string}){
+  return <>{segments.map((segment,index)=>{
+    // Overlapping round caps form a continuous stroke through every wave join.
+    const width=segment.length+SYNC_RING_STROKE;
+    return <View key={index} style={{position:'absolute',width,height:SYNC_RING_STROKE,borderRadius:SYNC_RING_STROKE/2,
+      left:(segment.from.x+segment.to.x)/2-width/2,top:(segment.from.y+segment.to.y)/2-SYNC_RING_STROKE/2,
+      backgroundColor:color,transform:[{rotate:`${segment.angle}deg`}]}}/>;
+  })}</>;
 }
-/** Unknown work rotates an arc; learned progress uses a static, actual fractional ring. */
+/** Unknown work rotates a wavy arc; known estimates use their actual path fraction. */
 export function SyncActivityIndicator({progress}:{progress?:Progress}={}){
   const reduced=useReducedMotion(),foreground=useForeground(),rotation=useRef(new Animated.Value(0)).current;
   const estimate=useSyncEstimateDisplay(progress?.estimate,foreground&&(!progress||progress.state==='active'));
   const fraction=estimate?.fraction??null,working=!progress||progress.state==='active';
   useEffect(()=>{rotation.setValue(0);if(reduced||!foreground||!working||fraction!==null)return;const animation=Animated.loop(Animated.timing(rotation,{toValue:1,duration:1200,easing:Easing.linear,useNativeDriver:true}));animation.start();return()=>animation.stop();},[reduced,foreground,working,fraction,rotation]);
-  if(fraction!==null)return <DeterminateRing fraction={Math.max(0,Math.min(estimate?.status==='success'?1:.99,fraction))}/>;
-  return <Animated.View testID="sync-activity-ring" accessible={false} importantForAccessibility="no" style={[styles.ring,{transform:[{rotate:rotation.interpolate({inputRange:[0,1],outputRange:['0deg','360deg']})}]}]}/>;
+  const known=fraction!==null,value=known?Math.max(0,Math.min(estimate?.status==='success'?1:.99,fraction)):.28;
+  return <View testID={known?'sync-estimated-ring':'sync-activity-ring'} accessible={false} importantForAccessibility="no-hide-descendants" style={styles.ringFrame}>
+    {known&&<WaveSegments segments={syncRingSegments(1)} color={colors.border}/>}
+    {known?<WaveSegments segments={syncRingSegments(value)} color={colors.cyan}/>:
+      <Animated.View style={[styles.ringFrame,{transform:[{rotate:rotation.interpolate({inputRange:[0,1],outputRange:['0deg','360deg']})}]}]}>
+        <WaveSegments segments={syncRingSegments(value)} color={colors.cyan}/>
+      </Animated.View>}
+  </View>;
 }
 function SyncCurrentLine({current,estimate,active}:{current:string;estimate?:SyncEstimateState;active:boolean}){
   const value=useSyncEstimateDisplay(estimate,active),suffix=estimateText(value);
@@ -117,8 +121,5 @@ const styles=StyleSheet.create({
   action:{minWidth:48,minHeight:48,alignItems:'center',justifyContent:'center'},
   cancel:{position:'absolute',right:4,top:0,width:48,minHeight:48,alignItems:'center',justifyContent:'center'},
   shine:{position:'absolute',top:0,bottom:0,width:28,backgroundColor:'#baf9e436',borderLeftWidth:1,borderRightWidth:1,borderColor:'#d5ffee70'},
-  ring:{width:32,height:32,borderRadius:16,borderWidth:3,borderColor:colors.cyan,borderRightColor:'transparent',borderBottomColor:'transparent'},
-  ringFrame:{width:32,height:32},ringTrack:{position:'absolute',width:32,height:32,borderRadius:16,borderWidth:3,borderColor:colors.border},
-  ringClip:{position:'absolute',top:0,width:16,height:32,overflow:'hidden'},
-  ringHalf:{position:'absolute',top:0,width:32,height:32,borderRadius:16,borderWidth:3,borderColor:'transparent',borderTopColor:colors.cyan,borderRightColor:colors.cyan},
+  ringFrame:{width:SYNC_RING_SIZE,height:SYNC_RING_SIZE},
 });

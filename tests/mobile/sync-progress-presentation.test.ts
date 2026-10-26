@@ -5,12 +5,14 @@ import {runInNewContext} from 'node:vm';
 import ts from 'typescript';
 import {idleSyncNotice,idleSyncProgress,syncStageText} from '../../apps/platform-lab/src/mobile/sync-progress.ts';
 import * as syncEstimate from '../../apps/platform-lab/src/mobile/sync-estimate.ts';
+import * as ringGeometry from '../../apps/platform-lab/src/mobile/sync-progress-geometry.ts';
 
-function fixture(component='SyncProgress'){
+function fixture(component='SyncProgress',options?:{reduced:boolean;foreground:boolean;effects:Array<()=>undefined|(()=>void)>;animation:{starts:number;stops:number}}){
   const source=ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/mobile/SyncProgress.tsx',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.React}}).outputText;
-  const react={createElement:(type:unknown,props:any,...children:any[]):any=>typeof type==='function'?type({...props,children}):({type,props:props??{},children}),useState:(initial:unknown)=>[initial,()=>{}],useEffect(){},useRef:(initial:unknown)=>({current:initial})};
+  let booleanState=0;
+  const react={createElement:(type:unknown,props:any,...children:any[]):any=>typeof type==='function'?type({...props,children}):({type,props:props??{},children}),useState:(initial:unknown)=>[options&&typeof initial==='boolean'?(booleanState++===0?options.reduced:options.foreground):initial,()=>{}],useEffect(effect:()=>undefined|(()=>void)){options?.effects.push(effect);},useRef:(initial:unknown)=>({current:initial})};
   class Value{constructor(_value:number){}interpolate(){return 0;}setValue(){}}
-  const modules:Record<string,unknown>={react:{default:react,...react},'react-native':{View:'View',Pressable:'Pressable',Animated:{View:'Animated.View',Value},AppState:{currentState:'active'},StyleSheet:{create:(v:unknown)=>v}},'./theme':{Label:'Label',colors:{card:'navy',border:'gray',text:'white',muted:'gray',cyan:'cyan'}},'./SymbolIcon':{SymbolIcon:'SymbolIcon'},'./sync-progress':{syncStageText},'./sync-estimate':syncEstimate};
+  const modules:Record<string,unknown>={react:{default:react,...react},'react-native':{View:'View',Pressable:'Pressable',Animated:{View:'Animated.View',Value,timing:()=>({}),loop:()=>({start(){if(options)options.animation.starts++;},stop(){if(options)options.animation.stops++;}})},Easing:{linear:'linear'},AppState:{currentState:options?.foreground===false?'background':'active'},StyleSheet:{create:(v:unknown)=>v}},'./theme':{Label:'Label',colors:{card:'navy',border:'gray',text:'white',muted:'gray',cyan:'cyan'}},'./SymbolIcon':{SymbolIcon:'SymbolIcon'},'./sync-progress':{syncStageText},'./sync-estimate':syncEstimate,'./sync-progress-geometry':ringGeometry};
   const exports:any={};
   runInNewContext(source,{exports,require:(name:string)=>{assert.ok(name in modules,name);return modules[name];}});
   return exports[component] as (props:any)=>any;
@@ -90,13 +92,49 @@ test('cold estimates retain the existing indeterminate ring and emit no invented
   const tree=fixture()({progress:{state:'active',last:null,current:'save'},retry(){},details(){}});
   assert.doesNotMatch(text(tree),/Gesamt|%|Sekunden/);
 });
-test('determinate ring uses actual clipped fractions and stays static with reduced motion',()=>{
+test('wavy ring geometry clips actual cumulative path length and stays within the existing graphic',()=>{
+  const full=ringGeometry.syncRingSegments(1),length=ringGeometry.SYNC_RING_PATH_LENGTH;
+  assert.equal(full.length,128);
+  for(const fraction of [0,.001,.1,.25,.5,.731,.99,1]){
+    const segments=ringGeometry.syncRingSegments(fraction);
+    assert.ok(Math.abs(segments.reduce((sum,segment)=>sum+segment.length,0)-length*fraction)<1e-10);
+    for(const segment of segments)for(const point of [segment.from,segment.to]){
+      assert.ok(point.x>=ringGeometry.SYNC_RING_STROKE/2&&point.x<=32-ringGeometry.SYNC_RING_STROKE/2);
+      assert.ok(point.y>=ringGeometry.SYNC_RING_STROKE/2&&point.y<=32-ringGeometry.SYNC_RING_STROKE/2);
+    }
+    for(let index=1;index<segments.length;index++)assert.deepEqual(segments[index-1]!.to,segments[index]!.from);
+  }
+  assert.ok(Math.hypot(full[0]!.from.x-full.at(-1)!.to.x,full[0]!.from.y-full.at(-1)!.to.y)<1e-12);
+  const radii=full.map(segment=>Math.hypot(segment.from.x-16,segment.from.y-16));
+  assert.ok(Math.max(...radii)-Math.min(...radii)>2.7,'The continuous path has visible radial waves');
+  assert.equal(ringGeometry.syncRingSegments(-1).length,0);
+  assert.equal(ringGeometry.syncRingSegments(Number.NaN).length,0);
+  assert.equal(ringGeometry.syncRingSegments(2),full);
+});
+test('determinate waveform renders exact fractions and reserves a full ring for confirmed success',()=>{
   const render=fixture('SyncActivityIndicator');
-  for(const [fraction,halves] of [[0,0],[.25,1],[.5,1],[.75,2],[.99,2]]){
+  for(const fraction of [0,.25,.5,.75,.99]){
     const tree=render({progress:{state:'active',estimate:{...estimate(),fraction}}});
     assert.equal(tree.props.testID,'sync-estimated-ring');
-    assert.equal(tree.children.flat().filter((node:any)=>node?.props?.style?.[0]?.overflow==='hidden').length,halves);
     assert.equal(nodes(tree).some(n=>n.type==='Animated.View'),false);
+    const strokes=nodes(tree).filter(n=>n.props.style?.backgroundColor==='cyan');
+    const actual=strokes.reduce((sum,stroke)=>sum+stroke.props.style.width-ringGeometry.SYNC_RING_STROKE,0);
+    assert.ok(Math.abs(actual-ringGeometry.SYNC_RING_PATH_LENGTH*fraction)<1e-10);
+  }
+  for(const [status,state,expected] of [['active','active',.99],['success','idle',1]] as const){
+    const tree=render({progress:{state,estimate:{...estimate(),fraction:1,status}}});
+    const actual=nodes(tree).filter(n=>n.props.style?.backgroundColor==='cyan').reduce((sum,stroke)=>sum+stroke.props.style.width-ringGeometry.SYNC_RING_STROKE,0);
+    assert.ok(Math.abs(actual-ringGeometry.SYNC_RING_PATH_LENGTH*expected)<1e-10);
+  }
+});
+test('only unknown foreground work rotates; reduced motion, background, known and paused work stay static',()=>{
+  for(const reduced of [false,true])for(const foreground of [false,true])for(const state of ['active','waiting'] as const)for(const known of [false,true]){
+    const options={reduced,foreground,effects:[] as Array<()=>undefined|(()=>void)>,animation:{starts:0,stops:0}};
+    fixture('SyncActivityIndicator',options)({progress:{state,...(known?{estimate:estimate()}:{})}});
+    const cleanup=options.effects.at(-1)!();
+    const animate=!reduced&&foreground&&state==='active'&&!known;
+    assert.equal(options.animation.starts,animate?1:0,JSON.stringify({reduced,foreground,state,known}));
+    cleanup?.();assert.equal(options.animation.stops,animate?1:0);
   }
 });
 test('waiting and terminal displays have no countdown and partial/cancelled estimates never show 100',()=>{
@@ -127,7 +165,7 @@ test('leaf timers advance only foreground determinate work, exclude hidden time 
       if(!old||dependencies.some((value,i)=>value!==old.dependencies[i]))effects.push(()=>{old?.cleanup?.();slots[slot]={dependencies,cleanup:effect()};});
     },
   };
-  const modules:Record<string,unknown>={react:{default:react,...react},'react-native':{StyleSheet:{create:(value:unknown)=>value}},'./theme':{colors:{}},'./SymbolIcon':{},'./sync-progress':{},'./sync-estimate':{...syncEstimate,syncEstimateNow:()=>clock}};
+  const modules:Record<string,unknown>={react:{default:react,...react},'react-native':{StyleSheet:{create:(value:unknown)=>value}},'./theme':{colors:{}},'./SymbolIcon':{},'./sync-progress':{},'./sync-estimate':{...syncEstimate,syncEstimateNow:()=>clock},'./sync-progress-geometry':ringGeometry};
   const source=ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/mobile/SyncProgress.tsx',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.React}}).outputText;
   const exports:any={};
   runInNewContext(source,{exports,require:(name:string)=>modules[name],
