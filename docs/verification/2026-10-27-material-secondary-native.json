@@ -98,8 +98,8 @@
     }
   ],
   "visual_review": {
-    "accepted": "Club overview and work-hours groups at MAIN/360, bounded 800 dp overview; AI empty chat/history and privacy sheet at MAIN/360; Diagnostics and Development hierarchy; About collapsed view and fully redrawn expanded attribution",
-    "qualified": "Expanded About intermittently omitted unchanged text pixels while its Android hierarchy retained them; a normal background/foreground redraw restored all text and kept the disclosure. Cause and phone reproduction are unestablished; no source fix claimed."
+    "accepted": "Club overview and work-hours groups at MAIN/360, bounded 800 dp overview; AI empty chat/history and privacy sheet at MAIN/360; Diagnostics and Development hierarchy; About collapsed view and expanded attribution (pixel-presence reassessed below)",
+    "qualified": "Superseded: the original missing-text interpretation was incorrect. Retained expanded, settled and resumed application images are pixel-identical; see credits_evidence_reassessment."
   },
   "large_text": "Not accepted: changing global font scale to 1.6 recreated the activity, invalidating the harness route assumption; the blank transition capture is rejected.",
   "harness_corrections": [
@@ -117,11 +117,158 @@
     "delete_share_external_links_provider_or_model_actions": false
   },
   "remaining": [
-    "Credits text-paint inconsistency (#94)",
     "Populated current-source Club/chat/evidence and actual deletion native acceptance",
     "Native keyboard and per-surface large-text/wide states outside inspected scope",
     "External sharing/link failure, actual provider/model/live, physical phone and iOS",
     "Beta light-theme and spoken accessibility"
   ],
-  "result": "Scoped presentation/navigation evidence with explicit rendering and acceptance qualifications"
+  "result": "Scoped presentation/navigation evidence; credits repaint allegation withdrawn after objective comparison. Remaining native/device/theme gates still apply.",
+  "credits_evidence_reassessment": {
+    "date": "2026-10-27",
+    "repository_head_at_review": "3139b65a0263c5eb860aace48c25fb7618f9e3b1",
+    "application_source_commit": "b7e9688bc7d262a1788764ac32bfb88e66ad2e76",
+    "apk_sha256": "91db7ca14720da167b8917e7320b5725245db6586e154c9dcd3f33d6146de347",
+    "application_crop_xyxy_px": [
+      0,
+      80,
+      1080,
+      1857
+    ],
+    "title_crop_xyxy_px": [
+      179,
+      121,
+      902,
+      195
+    ],
+    "bright_pixel_definition": "All RGB channels strictly above 180 in the native title bounds; this supplemental count is not a general visual acceptance metric.",
+    "retained_capture_comparisons": [
+      {
+        "capture": "build/material-coherent-native-final/11-about-attribution-expanded.png",
+        "application_crop_sha256": "5d98e9be5aa49d58e868aa51eb21fe85b23199cdaa2f4e1d5e12dcf2b3200af5",
+        "changed_pixels_vs_resumed": 0,
+        "title_bright_pixels": 6392
+      },
+      {
+        "capture": "build/material-coherent-native-final/01-about-expanded-settled.png",
+        "application_crop_sha256": "5d98e9be5aa49d58e868aa51eb21fe85b23199cdaa2f4e1d5e12dcf2b3200af5",
+        "changed_pixels_vs_resumed": 0,
+        "title_bright_pixels": 6392
+      },
+      {
+        "capture": "build/material-coherent-native-final/settled-redraw/01-about-expanded-resumed.png",
+        "application_crop_sha256": "5d98e9be5aa49d58e868aa51eb21fe85b23199cdaa2f4e1d5e12dcf2b3200af5",
+        "changed_pixels_vs_resumed": 0,
+        "title_bright_pixels": 6392
+      }
+    ],
+    "controlled_existing_apk_sequence": [
+      {
+        "name": "collapsed",
+        "title_bounds": [
+          179,
+          121,
+          902,
+          195
+        ],
+        "title_bright_pixels": 6392,
+        "size_px": [
+          1080,
+          1920
+        ],
+        "expanded_link_in_hierarchy": false
+      },
+      {
+        "name": "expanded-immediate",
+        "title_bounds": [
+          179,
+          121,
+          902,
+          195
+        ],
+        "title_bright_pixels": 6392,
+        "size_px": [
+          1080,
+          1920
+        ],
+        "expanded_link_in_hierarchy": true
+      },
+      {
+        "name": "expanded-settled",
+        "title_bounds": [
+          179,
+          121,
+          902,
+          195
+        ],
+        "title_bright_pixels": 6392,
+        "size_px": [
+          1080,
+          1920
+        ],
+        "expanded_link_in_hierarchy": true
+      },
+      {
+        "name": "collapsed-again",
+        "title_bounds": [
+          179,
+          121,
+          902,
+          195
+        ],
+        "title_bright_pixels": 6392,
+        "size_px": [
+          1080,
+          1920
+        ],
+        "expanded_link_in_hierarchy": false
+      },
+      {
+        "name": "expanded-again",
+        "title_bounds": [
+          179,
+          121,
+          902,
+          195
+        ],
+        "title_bright_pixels": 6392,
+        "size_px": [
+          1080,
+          1920
+        ],
+        "expanded_link_in_hierarchy": true
+      },
+      {
+        "name": "expanded-resumed",
+        "title_bounds": [
+          179,
+          121,
+          902,
+          195
+        ],
+        "title_bright_pixels": 6392,
+        "size_px": [
+          1080,
+          1920
+        ],
+        "expanded_link_in_hierarchy": true
+      }
+    ],
+    "unchanged_regions_compared": [
+      "app bar",
+      "source summary card",
+      "credits group heading",
+      "first expanded attribution and license"
+    ],
+    "comparison_limit": "Application crop excludes changing system clock/status/navigation bars; it includes the alleged missing app-bar title and body text. Identity disproves the reported before/after loss in these exact retained captures, not every possible future rendering problem.",
+    "interpretation": "The assistant misread the earlier images. Background/foreground did not restore missing text in those captures: the app pixels were already identical. No application or renderer defect is established by this evidence.",
+    "outcome": "Withdraw the credits repaint issue/qualification; no app workaround, dependency update, renderer-property change, build or replacement APK is justified.",
+    "safeguards": {
+      "installed_hash_verified": true,
+      "offline_and_font_flags_unchanged": true,
+      "display_unchanged": true,
+      "renderer_properties_changed": false,
+      "reset_seed_draft_delete_share_provider_model_operations": false
+    },
+    "local_logs": "build/credits-repaint-investigation/baseline-v2.log; baseline-v2/result.json; probe.py. Initial probe had a native class-selector assumption corrected before the completed sequence."
+  }
 }
