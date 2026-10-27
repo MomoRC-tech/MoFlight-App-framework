@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Card, Label, Section, colors } from './theme';
+import { SymbolIcon } from './SymbolIcon';
 import type { FeatureInformation, FeatureSource, OwnTaskItem, WorkHourItem, WorkSummaryItem } from './feature-information';
 
 export interface ClubInformationProps {
@@ -9,20 +10,23 @@ export interface ClubInformationProps {
   compact?: boolean;
   onOpen?: () => void;
 }
-function SourceNote({ source, readFailed,compact=false }: { source?: FeatureSource<unknown>; readFailed?: boolean;compact?:boolean }) {
+function SourceNote({ source, readFailed }: { source?: FeatureSource<unknown>; readFailed?: boolean }) {
   const [expanded,setExpanded]=useState(false);
   const available = source?.status === 'partial';
   return <View style={styles.notes}>
-    {readFailed && <Label muted style={styles.note}>Lokales Laden fehlgeschlagen. {available ? 'Der zuletzt geladene Stand bleibt sichtbar.' : 'Gespeicherte Daten konnten nicht angezeigt werden.'}</Label>}
+    {readFailed && <View style={styles.readFailure}><Label style={styles.title}>Lokales Laden fehlgeschlagen</Label><Label muted style={styles.note}>{available ? 'Der zuletzt geladene Stand bleibt sichtbar.' : 'Gespeicherte Daten konnten nicht angezeigt werden.'}</Label></View>}
     {available && <>
       <Label muted style={styles.note}>Seitenausschnitt{source.truncated ? ' · am Erfassungslimit gekürzt' : ''} · Vollständigkeit ungeprüft</Label>
-      {compact&&<Pressable accessibilityRole="button" accessibilityLabel="Quellendetails" accessibilityState={{expanded}} onPress={()=>setExpanded(!expanded)} style={{minHeight:48,justifyContent:'center'}}><Label style={{color:colors.cyan,fontSize:13}}>{expanded?'Quellendetails schließen':'Quellendetails'}</Label></Pressable>}
-      {(!compact||expanded)&&<>{source.filters.map(filter => <Label muted style={styles.note} key={filter}>{filter}</Label>)}
-      <Label muted style={styles.note}>Abruf: {source.retrievedAt ? source.retrievedAt.replace('T', ' ').replace('.000Z', ' UTC') : 'unbekannt'}</Label></>}
+      <Pressable accessibilityRole="button" accessibilityLabel="Quellendetails" accessibilityState={{expanded}} onPress={()=>setExpanded(!expanded)} style={({pressed})=>[styles.disclosure,pressed&&styles.pressed]}><SymbolIcon name="info" size={18}/><Label style={styles.disclosureLabel}>{expanded?'Quellendetails schließen':'Quellendetails'}</Label><SymbolIcon name={expanded?'close':'down'} size={16}/></Pressable>
+      {expanded&&<View style={styles.sourceDetails}>{source.filters.map(filter => <Label muted style={styles.note} key={filter}>{filter}</Label>)}
+      <Label muted style={styles.note}>Abruf: {source.retrievedAt ? source.retrievedAt.replace('T', ' ').replace('.000Z', ' UTC') : 'unbekannt'}</Label></View>}
     </>}
   </View>;
 }
 const sourceValue = (value: string) => value.trim() ? value : 'unbekannt / leer';
+function SourceState({ children }: { children: React.ReactNode }) {
+  return <View style={styles.state}><Label muted>{children}</Label></View>;
+}
 
 /** The original provider's selected calendar slice; no invented complete or upcoming-only calendar. */
 export function ClubEvents({ information, readFailed, compact = false, onOpen }: ClubInformationProps) {
@@ -30,16 +34,16 @@ export function ClubEvents({ information, readFailed, compact = false, onOpen }:
   const items = source?.status === 'partial' ? source.items : [];
   const shown = compact ? items.slice(0, 2) : items;
   return <Card style={styles.card}>
-    <Section title="Termine" action={compact && onOpen ? 'Ansehen' : undefined} onPress={onOpen} />
-    {source?.status === 'partial' && source.empty && <Label muted>Keine Termine im erfassten Kalenderausschnitt.</Label>}
-    {source?.status !== 'partial' && <Label muted>Termine unbekannt. Noch kein unterstützter Kalenderauszug verfügbar.</Label>}
-    {source?.status === 'partial' && !source.empty && !items.length && <Label muted>Termine im erfassten Ausschnitt unbekannt.</Label>}
+    <Section icon="calendar-neutral" title="Termine" action={compact && onOpen ? 'Ansehen' : undefined} onPress={onOpen} />
+    {source?.status === 'partial' && source.empty && <SourceState>Keine Termine im erfassten Kalenderausschnitt.</SourceState>}
+    {source?.status !== 'partial' && <SourceState>Termine unbekannt. Noch kein unterstützter Kalenderauszug verfügbar.</SourceState>}
+    {source?.status === 'partial' && !source.empty && !items.length && <SourceState>Termine im erfassten Ausschnitt unbekannt.</SourceState>}
     {shown.map(item => <View key={item.key} style={styles.row}>
       <View style={styles.date}><Label style={styles.dateText}>{item.date}</Label><Label muted style={styles.note}>{item.time}</Label></View>
       <View style={styles.content}><Label style={styles.title}>{item.title}</Label>{item.location && <Label muted>{item.location}</Label>}<Label muted style={styles.note}>{item.kind}</Label></View>
     </View>)}
     {shown.length < items.length && <Label muted style={styles.note}>{shown.length} von {items.length} erfassten Terminen</Label>}
-    <SourceNote source={source} readFailed={readFailed} compact={compact} />
+    <SourceNote source={source} readFailed={readFailed} />
   </Card>;
 }
 
@@ -49,11 +53,11 @@ export function ClubDocumentNotices({ information, readFailed, compact = false, 
   const items = source?.status === 'partial' ? source.items : [];
   const shown = compact ? items.slice(0, 2) : items;
   return <Card style={styles.card}>
-    <Section title="Dokumentenhinweise" action={compact && onOpen ? 'Ansehen' : undefined} onPress={onOpen} />
-    {!shown.length && <Label muted>Dokumentenhinweise unbekannt. Noch keine unterstützte Quelle verfügbar.</Label>}
+    <Section icon="logbook" title="Dokumentenhinweise" action={compact && onOpen ? 'Ansehen' : undefined} onPress={onOpen} />
+    {!shown.length && <SourceState>Dokumentenhinweise unbekannt. Noch keine unterstützte Quelle verfügbar.</SourceState>}
     {shown.map(item => <View key={item.key} style={styles.document}><Label selectable style={styles.title}>{item.text}</Label></View>)}
     {shown.length < items.length && <Label muted style={styles.note}>{shown.length} von {items.length} erfassten Hinweisen</Label>}
-    <SourceNote source={source} readFailed={readFailed} compact={compact} />
+    <SourceNote source={source} readFailed={readFailed} />
   </Card>;
 }
 
@@ -62,16 +66,18 @@ export function ClubWorkSummary({ information, readFailed, compact = false, onOp
   const source = information?.workSummary;
   const items = source?.status === 'partial' ? source.items : [];
   const shown = compact ? items.slice(0, 2) : items;
-  return <Card style={styles.card}>
-    <Section title="Arbeitsstunden · Jahresübersicht" action={compact && onOpen ? 'Ansehen' : undefined} onPress={onOpen} />
-    {source?.status !== 'partial' && <Label muted>Arbeitsstunden unbekannt. Noch keine unterstützte Jahresübersicht verfügbar.</Label>}
-    {source?.status === 'partial' && source.empty && <Label muted>Keine Jahreszeilen im erfassten Quellenausschnitt.</Label>}
-    {source?.status === 'partial' && !source.empty && !items.length && <Label muted>Jahreszeilen unbekannt.</Label>}
+  return <>
+  <Card style={styles.card}>
+    <Section icon="duty" title={compact ? 'Arbeitsstunden' : 'Jahresübersicht'} action={compact && onOpen ? 'Ansehen' : undefined} onPress={onOpen} />
+    {source?.status !== 'partial' && <SourceState>Arbeitsstunden unbekannt. Noch keine unterstützte Jahresübersicht verfügbar.</SourceState>}
+    {source?.status === 'partial' && source.empty && <SourceState>Keine Jahreszeilen im erfassten Quellenausschnitt.</SourceState>}
+    {source?.status === 'partial' && !source.empty && !items.length && <SourceState>Jahreszeilen unbekannt.</SourceState>}
     {shown.map(item => <WorkSummaryRow key={item.key} item={item} />)}
     {shown.length < items.length && <Label muted style={styles.note}>{shown.length} von {items.length} erfassten Jahreszeilen</Label>}
-    <SourceNote source={source} readFailed={readFailed} compact={compact} />
-    {!compact && <WorkHourEntries source={information?.workHours} readFailed={readFailed} />}
-  </Card>;
+    <SourceNote source={source} readFailed={readFailed} />
+  </Card>
+  {!compact && <WorkHourEntries source={information?.workHours} readFailed={readFailed} />}
+  </>;
 }
 
 function WorkSummaryRow({ item }: { item: WorkSummaryItem }) {
@@ -87,11 +93,11 @@ function WorkSummaryRow({ item }: { item: WorkSummaryItem }) {
 
 function WorkHourEntries({ source, readFailed }: { source?: FeatureSource<WorkHourItem>; readFailed?: boolean }) {
   const items = source?.status === 'partial' ? source.items : [];
-  return <View style={styles.workEntries}>
-    <Section title="Erfasste Arbeitsstunden" />
-    {source?.status !== 'partial' && <Label muted>Einzelne Arbeitsstunden unbekannt. Noch kein unterstützter Quellenausschnitt verfügbar.</Label>}
-    {source?.status === 'partial' && source.empty && <Label muted>Keine Arbeitsstunden im erfassten Quellenausschnitt.</Label>}
-    {source?.status === 'partial' && !source.empty && !items.length && <Label muted>Einzelne Arbeitsstunden unbekannt.</Label>}
+  return <Card style={styles.card}>
+    <Section icon="duty" title="Erfasste Arbeitsstunden" />
+    {source?.status !== 'partial' && <SourceState>Einzelne Arbeitsstunden unbekannt. Noch kein unterstützter Quellenausschnitt verfügbar.</SourceState>}
+    {source?.status === 'partial' && source.empty && <SourceState>Keine Arbeitsstunden im erfassten Quellenausschnitt.</SourceState>}
+    {source?.status === 'partial' && !source.empty && !items.length && <SourceState>Einzelne Arbeitsstunden unbekannt.</SourceState>}
     {items.map(item => <View key={item.key} style={styles.workEntry}>
       <Label style={styles.period}>{sourceValue(item.date)}</Label>
       <Label selectable style={styles.title}>{sourceValue(item.activity)}</Label>
@@ -102,7 +108,7 @@ function WorkHourEntries({ source, readFailed }: { source?: FeatureSource<WorkHo
       </View>
     </View>)}
     <SourceNote source={source} readFailed={readFailed} />
-  </View>;
+  </Card>;
 }
 
 /** Only a validated empty task source is described as empty, and only for that source excerpt. */
@@ -111,13 +117,13 @@ export function ClubOwnTasks({ information, readFailed, compact = false, onOpen 
   const items = source?.status === 'partial' ? source.items : [];
   const shown = compact ? items.slice(0, 2) : items;
   return <Card style={styles.card}>
-    <Section title="Eigene offene Aufgaben" action={compact && onOpen ? 'Ansehen' : undefined} onPress={onOpen} />
-    {source?.status !== 'partial' && <Label muted>Eigene offene Aufgaben unbekannt. Noch keine unterstützte Quelle verfügbar.</Label>}
-    {source?.status === 'partial' && source.empty && <Label muted>Keine eigenen offenen Aufgaben im erfassten Quellenausschnitt.</Label>}
-    {source?.status === 'partial' && !source.empty && !items.length && <Label muted>Eigene offene Aufgaben unbekannt.</Label>}
+    <Section icon="check" title="Eigene Aufgaben" action={compact && onOpen ? 'Ansehen' : undefined} onPress={onOpen} />
+    {source?.status !== 'partial' && <SourceState>Eigene offene Aufgaben unbekannt. Noch keine unterstützte Quelle verfügbar.</SourceState>}
+    {source?.status === 'partial' && source.empty && <SourceState>Keine eigenen offenen Aufgaben im erfassten Quellenausschnitt.</SourceState>}
+    {source?.status === 'partial' && !source.empty && !items.length && <SourceState>Eigene offene Aufgaben unbekannt.</SourceState>}
     {shown.map(item => <OwnTaskRow key={item.key} item={item} />)}
     {shown.length < items.length && <Label muted style={styles.note}>{shown.length} von {items.length} erfassten Aufgaben</Label>}
-    <SourceNote source={source} readFailed={readFailed} compact={compact} />
+    <SourceNote source={source} readFailed={readFailed} />
   </Card>;
 }
 
@@ -134,21 +140,26 @@ function OwnTaskRow({ item }: { item: OwnTaskItem }) {
 }
 const styles = StyleSheet.create({
   card: { padding: 16, gap: 12 },
-  row: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, paddingTop: 12, borderTopWidth: 1, borderTopColor: colors.border },
+  row: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, padding: 12, borderRadius: 12, backgroundColor: colors.raised },
   date: { gap: 2, flexBasis: 96, flexShrink: 1 },
   dateText: { color: colors.cyan, fontSize: 14, fontWeight: '600' },
   content: { flexGrow: 1, flexBasis: 160, minWidth: 0, gap: 2 },
   title: { fontWeight: '600' },
-  document: { paddingTop: 12, borderTopWidth: 1, borderTopColor: colors.border },
-  summaryRow: { gap: 5, paddingTop: 12, borderTopWidth: 1, borderTopColor: colors.border },
+  document: { padding: 12, borderRadius: 12, backgroundColor: colors.raised },
+  summaryRow: { gap: 10, padding: 12, borderRadius: 12, backgroundColor: colors.raised },
   period: { color: colors.cyan, fontSize: 14, fontWeight: '600' },
   summaryValues: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   summaryValue: { flexGrow: 1, flexBasis: 82, minWidth: 0, gap: 2 },
-  taskRow: { gap: 6, paddingTop: 12, borderTopWidth: 1, borderTopColor: colors.border },
+  taskRow: { gap: 10, padding: 12, borderRadius: 12, backgroundColor: colors.raised },
   taskMeta: { flexDirection: 'row', flexWrap: 'wrap', columnGap: 12, rowGap: 3 },
-  workEntries: { gap: 10, paddingTop: 10, borderTopWidth: 1, borderTopColor: colors.border },
-  workEntry: { gap: 5, paddingTop: 10, borderTopWidth: 1, borderTopColor: colors.border },
+  workEntry: { gap: 8, padding: 12, borderRadius: 12, backgroundColor: colors.raised },
   workEntryValues: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  notes: { gap: 2 },
+  notes: { gap: 4, paddingTop: 4 },
+  state: { padding: 12, borderRadius: 12, backgroundColor: colors.raised },
+  readFailure: { gap: 4, padding: 12, borderRadius: 12, borderWidth: 1, borderColor: colors.muted },
+  disclosure: { minHeight: 48, flexDirection: 'row', alignItems: 'center', gap: 8 },
+  disclosureLabel: { color: colors.cyan, fontSize: 13, flex: 1 },
+  sourceDetails: { gap: 4, paddingBottom: 8 },
+  pressed: { opacity: .72 },
   note: { fontSize: 12, lineHeight: 18 },
 });

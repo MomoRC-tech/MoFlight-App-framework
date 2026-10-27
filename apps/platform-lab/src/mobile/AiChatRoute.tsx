@@ -1,7 +1,9 @@
 import React,{useEffect,useRef,useState} from 'react';
-import {Alert,AppState} from 'react-native';
+import {AppState} from 'react-native';
 import * as Crypto from 'expo-crypto';
 import {AiChat} from './AiChat';
+import {AiDeleteConfirmationDialog} from './AiDeleteConfirmationDialog';
+import {createSyncConfirmation} from './sync-confirmation';
 import {AiRunController} from '../ai/run-controller';
 import {AiUsageMonitor} from '../ai/usage-monitor';
 import type {createAiRelayClient} from '../ai/relay-client';
@@ -18,12 +20,16 @@ export function AiChatRoute({active,reload,onEvidence,client}:{active:boolean;re
   const allow=useRef(false),visible=useRef(active),consentEpoch=useRef(0);visible.current=active;
   const workspace=useRef<AiNativeWorkspace|null>(null),controller=useRef<AiRunController|null>(null),alive=useRef(false),foreground=useRef(AppState.currentState!=='background'&&AppState.currentState!=='inactive');
   const draftSequence=useRef(0),unsavedDraft=useRef(false);const writes=useRef(Promise.resolve());
+  const deleteContext=useRef({selected,busy,loading});deleteContext.current={selected,busy,loading};
+  const deletionGate=useRef(createSyncConfirmation());
+  const [deletion,setDeletion]=useState<{title:string;cancel():void;confirm():void}|null>(null);
+  const invalidateDeletion=()=>{deletionGate.current.invalidate();setDeletion(null);};
   const refresh=async(w:AiNativeWorkspace,sequence?:number)=>{const next=await w.store.archive();if(alive.current&&workspace.current===w&&(sequence===undefined||sequence===draftSequence.current)){setArchive(next);setSelected(previous=>previous&&next.conversations.some(c=>c.id===previous)?previous:next.conversations[0]?.id??null);}};
   useEffect(()=>{
     alive.current=true;let revoked=false,opening=false;let opened:AiNativeWorkspace|null=null;
     const gate=async()=>{if(revoked||!foreground.current)throw new Error('AI-Auswahl ist nicht aktiv.');};
     const load=async()=>{
-      if(revoked||opening||!foreground.current)return;opening=true;consentEpoch.current++;
+      if(revoked||opening||!foreground.current)return;opening=true;consentEpoch.current++;invalidateDeletion();
       allow.current=false;setEnabled(false);setLoading(true);setArchive(null);setUsage(null);setUsageAt(null);
       try {
         const w=await openAiWorkspaceNative(gate);if(revoked){await w?.close();return;}
@@ -37,11 +43,12 @@ export function AiChatRoute({active,reload,onEvidence,client}:{active:boolean;re
       finally{opening=false;if(!revoked)setLoading(false);}
     };
     void load();
-    const listener=AppState.addEventListener('change',state=>{foreground.current=state==='active';setForegroundState(state==='active');if(state!=='active'){consentEpoch.current++;void controller.current?.cancel().catch(()=>{});}else if(workspace.current)void refresh(workspace.current).catch(()=>{});else void load();});
-    return()=>{alive.current=false;revoked=true;consentEpoch.current++;allow.current=false;listener.remove();const w=workspace.current;workspace.current=null;const c=controller.current;controller.current=null;
+    const listener=AppState.addEventListener('change',state=>{foreground.current=state==='active';setForegroundState(state==='active');if(state!=='active'){invalidateDeletion();consentEpoch.current++;void controller.current?.cancel().catch(()=>{});}else if(workspace.current)void refresh(workspace.current).catch(()=>{});else void load();});
+    return()=>{deletionGate.current.invalidate();alive.current=false;revoked=true;consentEpoch.current++;allow.current=false;listener.remove();const w=workspace.current;workspace.current=null;const c=controller.current;controller.current=null;
       void (async()=>{try{await c?.cancel();await writes.current;}finally{await w?.close();}})();};
   },[reload,client]);
   useEffect(()=>{if(!active){consentEpoch.current++;void controller.current?.cancel().catch(()=>{});}},[active]);
+  useEffect(()=>{invalidateDeletion();},[active,busy,loading,archive?.ownerId,selected]);
   useEffect(()=>{
     const w=workspace.current;if(!active||!foregroundState||!enabled||!client||!w)return;
     const monitor=new AiUsageMonitor({now:()=>new Date().toISOString(),schedule:(work,ms)=>{const timer=setInterval(work,ms);return()=>clearInterval(timer);},
@@ -65,15 +72,24 @@ export function AiChatRoute({active,reload,onEvidence,client}:{active:boolean;re
       // Refresh only the latest edit, avoiding older write acknowledgements replacing new text.
       if(sequence===draftSequence.current){unsavedDraft.current=false;await refresh(w,sequence);}},false);
   };
-  return <AiChat key={archive?.ownerId??'no-owner'} active={active} conversations={archive?.conversations??[]} selectedId={selected} enabled={enabled} busy={busy} loading={loading} notice={notice} usage={usage} usageAt={usageAt} usageStale={usageStale} feature={feature}
+  return <><AiChat key={archive?.ownerId??'no-owner'} active={active&&foregroundState} conversations={archive?.conversations??[]} selectedId={selected} enabled={enabled} busy={busy} loading={loading} notice={notice} usage={usage} usageAt={usageAt} usageStale={usageStale} feature={feature}
     onCreate={()=>{const conversationId=Crypto.randomUUID();setSelected(conversationId);setArchive(previous=>previous?{...previous,conversations:[{version:1,id:conversationId,ownerId:previous.ownerId,title:'Neues Gespräch',draft:'',context:null,messages:[],activitySequence:0,updatedAt:new Date().toISOString()},...previous.conversations]}:previous);setNotice('Schreibe die erste Nachricht für ein neues Gespräch.');}}
     onSelect={conversationId=>{setSelected(conversationId);mutate(w=>w.store.touch(conversationId,new Date().toISOString()));}}
-    onDelete={conversationId=>{Alert.alert('Gespräch löschen?','Der lokale Verlauf und Entwurf werden gelöscht. Bereits exportierte Sicherungen bleiben bestehen.',[
-      {text:'Behalten',style:'cancel'},{text:'Löschen',style:'destructive',onPress:()=>{void controller.current?.cancel().catch(()=>{});mutate(w=>w.store.delete(conversationId));}},
-    ]);}}
+    onDelete={conversationId=>{
+      const w=workspace.current,conversation=archive?.conversations.find(c=>c.id===conversationId);
+      if(!w||!conversation)return;
+      const ticket=deletionGate.current.request(JSON.stringify([w.ownerId,conversationId]),visible.current&&foreground.current&&!busy&&!loading&&!controller.current?.busy);
+      if(!ticket)return;
+      const cancel=()=>{ticket.cancel();setDeletion(current=>current?.cancel===cancel?null:current);};
+      setDeletion({title:conversation.title.trim()||'Unterhaltung ohne Titel',cancel,confirm:()=>{
+        if(!ticket.confirm(JSON.stringify([workspace.current?.ownerId,deleteContext.current.selected]),alive.current&&visible.current&&foreground.current&&!deleteContext.current.busy&&!deleteContext.current.loading&&!controller.current?.busy&&workspace.current===w))return;
+        setDeletion(null);
+        mutate(async current=>{if(current!==w||!visible.current||!foreground.current||deleteContext.current.busy||deleteContext.current.loading||deleteContext.current.selected!==conversationId||controller.current?.busy)return;await current.assertCurrent();await current.store.delete(conversationId);});
+      }});
+    }}
     onDraft={draft} onFeature={setFeature} onToggle={value=>{const epoch=++consentEpoch.current;if(!value){allow.current=false;setEnabled(false);void controller.current?.cancel().catch(()=>{});return;}const w=workspace.current;if(!client||!w){setNotice(unavailable);return;}
       void(async()=>{try{await w.assertCurrent();const identity=await w.identity();if(!identity)throw new Error('Eine frühere erfolgreiche Vereinsflieger-Anmeldung fehlt.');const caps=await client.configuration(identity.accountRef);await w.assertCurrent();if(epoch!==consentEpoch.current||!visible.current||!foreground.current)return;if(!caps.enabled)throw new Error(unavailable);allow.current=true;setEnabled(true);setNotice('Freigabe für diese App-Sitzung. Nach Neustart oder Wiederherstellung erneut freigeben.');}catch(error){if(epoch!==consentEpoch.current)return;allow.current=false;setEnabled(false);setNotice(error instanceof Error?error.message:unavailable);}})();}}
     onSend={()=>{void (async()=>{try{await writes.current;if(unsavedDraft.current)throw new Error('Der aktuelle Entwurf ist noch nicht gespeichert. Bitte erneut bearbeiten und prüfen.');if(selected){setBusy(true);await controller.current?.send(selected,feature);}else setNotice('Bitte zuerst eine Frage eingeben.');}catch(error){if(alive.current)setNotice(error instanceof Error?error.message:unavailable);}finally{if(alive.current)setBusy(controller.current?.busy??false);}})();}}
     onCancel={()=>{void controller.current?.cancel().catch(()=>setNotice('Anfrage unterbrochen. Unklare Kosten bleiben reserviert.'));}}
-    onEvidence={(message,ids)=>{void onEvidence(message,ids).catch(()=>setNotice('Beleg ist historisch oder nicht mehr verfügbar. Öffne die aktuellen Flüge.'));}}/>;
+    onEvidence={(message,ids)=>{void onEvidence(message,ids).catch(()=>setNotice('Beleg ist historisch oder nicht mehr verfügbar. Öffne die aktuellen Flüge.'));}}/>{deletion&&active&&foregroundState&&!busy&&!loading&&<AiDeleteConfirmationDialog title={deletion.title} onCancel={deletion.cancel} onConfirm={deletion.confirm}/>}</>;
 }

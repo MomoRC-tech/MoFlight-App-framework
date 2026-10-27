@@ -8,9 +8,9 @@ type Element = {type:unknown;props:Record<string,any>;children:any[]};
 const source=ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/mobile/ClubInformation.tsx',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.React}}).outputText;
 function fixture(){
  let expanded=false;
- const react={useState:()=>[expanded,(value:boolean)=>{expanded=value;}],createElement:(type:any,props:any,...children:any[]):Element=>typeof type==='function'?type({...props,children}):({type,props:props??{},children:children.flat(Infinity)})};
+ const react={Fragment:'Fragment',useState:()=>[expanded,(value:boolean)=>{expanded=value;}],createElement:(type:any,props:any,...children:any[]):Element=>typeof type==='function'?type({...props,children}):({type,props:props??{},children:children.flat(Infinity)})};
  const exports:Record<string,(props:ClubInformationProps)=>Element>={};
- const modules:Record<string,unknown>={react:{default:react,...react},'react-native':{View:'View',Pressable:'Pressable',StyleSheet:{create:(x:unknown)=>x}},'./theme':{Card:'Card',Label:'Label',Section:'Section',colors:{border:'border',cyan:'cyan'}}};
+ const modules:Record<string,unknown>={react:{default:react,...react},'react-native':{View:'View',Pressable:'Pressable',StyleSheet:{create:(x:unknown)=>x}},'./SymbolIcon':{SymbolIcon:'SymbolIcon'},'./theme':{Card:'Card',Label:'Label',Section:'Section',colors:{border:'border',cyan:'cyan'}}};
  runInNewContext(source,{exports,require:(id:string)=>modules[id]});
  const nodes=(n:any):Element[]=>!n||typeof n!=='object'?[]:[n,...(n.children??[]).flatMap(nodes)];
  const text=(n:any):string=>typeof n==='string'||typeof n==='number'?String(n):(n?.children??[]).map(text).join(' ');
@@ -30,7 +30,7 @@ test('events label only a confirmed empty selection as an empty excerpt',()=>{
  const f=fixture(),data=information();
  const empty={...data,events:{status:'partial' as const,retrievedAt:'2026-10-23T12:00:00.000Z',filters:['Ab 23.10.2026','Ansicht: 1 Tag'],truncated:false,empty:true,items:[]}};
  const text=f.text(f.exports.ClubEvents!({information:empty}));
- assert.match(text,/Keine Termine im erfassten Kalenderausschnitt/);assert.match(text,/Vollständigkeit ungeprüft/);assert.match(text,/Ab 23\.10\.2026/);assert.doesNotMatch(text,/unbekannt\. Noch kein unterstützter Kalenderauszug/);
+ assert.match(text,/Keine Termine im erfassten Kalenderausschnitt/);assert.match(text,/Vollständigkeit ungeprüft/);assert.doesNotMatch(text,/Ab 23\.10\.2026/);assert.doesNotMatch(text,/unbekannt\. Noch kein unterstützter Kalenderauszug/);
  const unknown=f.text(f.exports.ClubEvents!({readFailed:true}));assert.match(unknown,/Termine unbekannt/);assert.doesNotMatch(unknown,/Keine Termine im erfassten Kalenderausschnitt/);
 });
 test('missing or unreadable sources stay unknown; stale document text remains labelled and no download/news action is invented',()=>{
@@ -41,7 +41,8 @@ test('missing or unreadable sources stay unknown; stale document text remains la
  const view=f.exports.ClubDocumentNotices!({information:information(),readFailed:true});const text=f.text(view);
  assert.match(text,/Synthetic document 22.10.2026/);assert.match(text,/zuletzt geladene Stand/);assert.match(text,/Seitenausschnitt/);assert.doesNotMatch(text,/News|Download/);
  assert.equal(f.nodes(view).find(n=>n.type==='Section')!.props.title,'Dokumentenhinweise');
- assert.equal(f.nodes(view).filter(n=>n.props.onPress).length,0);
+ assert.equal(f.nodes(view).filter(n=>n.props.onPress).length,1);
+ assert.equal(f.nodes(view).find(n=>n.props.accessibilityLabel==='Quellendetails')!.props.accessibilityState.expanded,false);
 });
 
 test('annual work rows preserve the displayed currency and hours values without deriving ratios',()=>{
@@ -64,4 +65,30 @@ test('own tasks show only captured rows and distinguish a verified empty excerpt
  const emptyText=f.text(f.exports.ClubOwnTasks!({information:empty}));assert.match(emptyText,/Keine eigenen offenen Aufgaben im erfassten Quellenausschnitt/);assert.match(emptyText,/Vollständigkeit ungeprüft/);
  const failed=f.text(f.exports.ClubOwnTasks!({information:empty,readFailed:true}));assert.match(failed,/zuletzt geladene Stand/);
  const missing=f.text(f.exports.ClubOwnTasks!({information:null}));assert.match(missing,/Eigene offene Aufgaben unbekannt/);assert.doesNotMatch(missing,/Keine eigenen offenen Aufgaben/);
+});
+
+
+test('full club pages disclose source detail on demand while keeping caveats and full captured content visible',()=>{
+ for(const name of ['ClubEvents','ClubDocumentNotices','ClubWorkSummary','ClubOwnTasks']){
+  const f=fixture(),data=information();
+  let view=f.exports[name]!({information:data,readFailed:true});
+  assert.match(f.text(view),/Vollständigkeit ungeprüft/);
+  assert.match(f.text(view),/zuletzt geladene Stand/);
+  assert.doesNotMatch(f.text(view),/2026-10-22 12:00:00 UTC/);
+  let disclosure=f.nodes(view).find(n=>n.props.accessibilityLabel==='Quellendetails')!;
+  assert.equal(disclosure.props.accessibilityState.expanded,false);
+  disclosure.props.onPress();
+  view=f.exports[name]!({information:data,readFailed:true});
+  assert.match(f.text(view),/2026-10-22 12:00:00 UTC/);
+  disclosure=f.nodes(view).find(n=>n.props.accessibilityLabel==='Quellendetails')!;
+  assert.equal(disclosure.props.accessibilityState.expanded,true);
+  disclosure.props.onPress();
+  view=f.exports[name]!({information:data});
+  assert.doesNotMatch(f.text(view),/2026-10-22 12:00:00 UTC/);
+ }
+ const f=fixture(),view=f.exports.ClubWorkSummary!({information:information()});
+ const cards=f.nodes(view).filter(n=>n.type==='Card');
+ assert.equal(cards.length,2);
+ assert.match(f.text(cards[0]),/07:25/);assert.doesNotMatch(f.text(cards[0]),/Synthetic maintenance/);
+ assert.match(f.text(cards[1]),/Synthetic maintenance/);assert.doesNotMatch(f.text(cards[1]),/Pflicht · EUR/);
 });

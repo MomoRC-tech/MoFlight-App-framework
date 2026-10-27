@@ -12,11 +12,12 @@ const source=ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/sr
 function fixture() {
   const journal=new DiagnosticJournal(()=>10), hooks:any[]=[], shared:any[]=[];
   let index=0, fail=false;
-  const react={createElement:(type:string,props:any,...children:unknown[]):Element=>({type,props:props??{},children:children.flat(Infinity)}),
+  const react={createElement:(type:any,props:any,...children:unknown[]):Element=>typeof type==='function'?type({...props,children:children.flat(Infinity)}):({type,props:props??{},children:children.flat(Infinity)}),
     useState(initial:unknown){const i=index++;if(!(i in hooks))hooks[i]=initial;return [hooks[i],(next:any)=>{hooks[i]=typeof next==='function'?next(hooks[i]):next;}];},useEffect(){}};
   const leaves=(names:string[])=>Object.fromEntries(names.map(name=>[name,name]));
-  const modules:Record<string,any>={react:{default:react,...react},'react-native':{View:'View',Share:{share:async(payload:any)=>{if(fail)throw new Error('Private native error');shared.push(payload);}}},
-    './diagnostics-native':{shareDiagnosticFile:async()=>{if(fail)throw new Error('Private native error');shared.push({message:journal.export()});}},'../diagnostics':{diagnosticJournal:journal},'./theme':leaves(['Action','Card','Label','Section'])};
+  const modules:Record<string,any>={react:{default:react,...react},'react-native':{View:'View',Pressable:'Pressable',Text:'Text',StyleSheet:{create:(x:unknown)=>x},Share:{share:async(payload:any)=>{if(fail)throw new Error('Private native error');shared.push(payload);}}},
+    './diagnostics-native':{shareDiagnosticFile:async()=>{if(fail)throw new Error('Private native error');shared.push({message:journal.export()});}},'../diagnostics':{diagnosticJournal:journal},'./theme':{...leaves(['Action','Card','Label','Section']),colors:{}}};
+  const helper:any={};runInNewContext(ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/mobile/settings-secondary-content.tsx',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.React,esModuleInterop:false}}).outputText,{exports:helper,require:(name:string)=>modules[name]});modules['./settings-secondary-content']=helper;
   const exports:any={};runInNewContext(source,{exports,require:(name:string)=>{assert.ok(name in modules,name);return modules[name];}});
   let tree:Element;
   function render(){index=0;tree=exports.Diagnostics();}
@@ -30,7 +31,7 @@ test('empty journal disables export; populated report shares only on an explicit
   assert.match(f.text(),/account-mismatch/);assert.ok(f.nodes().some(n=>n.props.selectable));
   f.press('diagnostics-share');await new Promise<void>(done=>{setImmediate(done);});
   assert.equal(f.shared.length,1);assert.equal(f.shared[0].message,f.journal.export());
-  f.render();f.press('diagnostics-clear');f.render();assert.deepEqual(f.journal.snapshot(),[]);assert.match(f.text(),/geleert/);
+  f.render();f.press('diagnostics-storage-details');f.render();f.press('diagnostics-clear');f.render();assert.deepEqual(f.journal.snapshot(),[]);assert.match(f.text(),/geleert/);
 });
 test('failed native sharing preserves the report and offers copying without exposing the native error',async()=>{
   const f=fixture();f.journal.begin('read-flights').finish('success');f.failShare();f.render();f.press('diagnostics-share');
@@ -48,4 +49,14 @@ test('long histories are paged and the journey view shows observations without i
 test('short sharing uses a bounded excerpt rather than the full large report',async()=>{
  const f=fixture();for(let i=0;i<300;i++)f.journal.begin('read-flights').finish('success');f.render();f.press('diagnostics-short-share');await new Promise<void>(done=>{setImmediate(done);});
  assert.equal(f.shared.length,1);assert.ok(Buffer.byteLength(f.shared[0].message)<=32_000);assert.equal(JSON.parse(f.shared[0].message).entries.length,3);
+});
+
+test('history selection exposes a per-view empty state and disclosure expansion does not share or clear',()=>{
+ const f=fixture();f.journal.begin('read-flights').finish('success');f.render();
+ f.press('diagnostics-failures');f.render();assert.match(f.text(),/Keine geschützten Fehler erfasst/);
+ assert.equal(f.nodes().find(n=>n.props.testID==='diagnostics-failures')!.props.accessibilityState.selected,true);
+ assert.equal(f.nodes().some(n=>n.props.testID==='diagnostics-clear'),false);
+ f.press('diagnostics-storage-details');f.render();assert.equal(f.nodes().find(n=>n.props.testID==='diagnostics-storage-details')!.props.accessibilityState.expanded,true);
+ assert.equal(f.journal.snapshot().length,1);assert.equal(f.shared.length,0);
+ f.press('diagnostics-copy-details');f.render();assert.ok(f.nodes().some(n=>n.props.testID==='diagnostics-report'));
 });

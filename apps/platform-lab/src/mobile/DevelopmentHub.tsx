@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { View } from 'react-native';
-import { Action, Card, Label, Section } from './theme';
+import { Action, Card, Label } from './theme';
+import { SettingsContentDisclosure, SettingsContentGroup, SettingsContentRow, settingsContentStyles } from './settings-secondary-content';
 
 export function DevelopmentHub({ onFlights, onBooks, onImportPreview, onCoreFlights, profileTools, onSelectBook, onBackup, onPaper, onDesignPreview, onBusyChange }: { onBusyChange?: (busy:boolean)=>void; onDesignPreview?: () => void; onPaper: () => void; profileTools?: React.ReactNode; onSelectBook: () => void; onBackup: () => void; onFlights: () => void; onBooks: () => void; onProvider?: () => void; onImportPreview: () => void; onCoreFlights: () => void }) {
   const [targetProof,setTargetProof]=useState<string|null>(null),[proofBusy,setProofBusy]=useState(false);
@@ -15,34 +16,33 @@ export function DevelopmentHub({ onFlights, onBooks, onImportPreview, onCoreFlig
     } catch(error){setTargetProof(`Sollstunden-Nachweis fehlgeschlagen: ${error instanceof Error?error.message:String(error)}`);}
     finally{running.current=false;setProofBusy(false);onBusyChange?.(false);}
   };
-  return <View style={{ width: '100%', maxWidth: 520, alignSelf: 'center', gap: 10 }}>
-    <Card><Section title="Entwicklung" icon="info" />
+  return <View style={settingsContentStyles.content}>
+    <Card>
       <Label>Testwerkzeuge dieses experimentellen Lab-Builds</Label>
-      <Label muted>Hier sind synthetische Testdaten und ältere Funktionsnachweise gebündelt. Öffnen allein lädt keine Fixtures und startet keinen Anbieterabruf. Diese Seite ist keine Zugriffssperre und keine Freigabe für eine spätere Produktversion.</Label>
+      <Label muted>Hier sind synthetische Testdaten und ältere Funktionsnachweise gebündelt. Öffnen allein lädt keine Fixtures und startet keinen Anbieterabruf.</Label>
+      <Label muted>Diese Seite ist keine Zugriffssperre und keine Freigabe für eine spätere Produktversion.</Label>
     </Card>
-    {onDesignPreview&&<Card><Section title="Designvorschau" icon="glider"/><Label muted>Fiktive Flüge, leere Listen und Fehlerzustände. Keine Speicherung und kein Anbieterzugriff.</Label><Action onPress={onDesignPreview}>Designvorschau öffnen</Action></Card>}
-    <Card><Section title="Sollstunden-Dateinachweis"/><Label muted>Nur fest abgegrenzte synthetische Konten. Prüft lokale Dateien und stellt deren vorherigen Inhalt wieder her; keine Anbieterabfrage.</Label><Action disabled={proofBusy} onPress={()=>void runTargetProof()}>Sollstunden-Dateinachweis starten</Action>{targetProof&&<Label selectable>{targetProof}</Label>}</Card>
-    <Card><Section title="Eigene Flugbibliothek" icon="flight-paper-plane" />
-      <Label muted>Neue lokale Bibliothek für eigene Vereinsflieger-Flüge. Abruf prüfen, ausdrücklich ohne Buchzuordnung speichern und offline wieder öffnen. Bestehende Belege und Teststände bleiben getrennt.</Label>
-      <Action testID="development-own-flight-library" icon="flight-paper-plane" onPress={onCoreFlights}>Eigene Flugbibliothek öffnen</Action>
-    </Card>
-    <Card><Section title="Synthetische Importvorschau" icon="flight-paper-plane" />
-      <Label muted>Neue, geänderte und widersprüchliche Testflüge vergleichen und Buchvorschläge korrigieren. Getrennter Teststand ohne Änderungen an deiner Bibliothek.</Label>
-      <Action testID="development-import-preview" secondary icon="flight-paper-plane" onPress={onImportPreview}>Importvorschau öffnen</Action>
-    </Card>
-    <Card><Section title="Datensätze & Flugworkflow" icon="flight-paper-plane" />
-      <Label muted>Getrennte Datensätze A/B, vorbereitete CSV- und Papierdaten, Abgleich, Abfragen und ältere Schreibnachweise. Englische Lab-Oberfläche; keine Live-Importvorschau.</Label>
-      <Action testID="development-flight-lab" secondary icon="flight-paper-plane" onPress={onFlights}>Datensatztest öffnen</Action>
-    </Card>
+    <SettingsContentGroup title="Vorschau & lokale Nachweise">
+      {onDesignPreview && <SettingsContentRow title="Designvorschau" summary="Fiktive Flüge, leere Listen und Fehlerzustände. Keine Speicherung und kein Anbieterzugriff." onPress={onDesignPreview} />}
+      <SettingsContentDisclosure title="Sollstunden-Dateinachweis" summary="Nur fest abgegrenzte synthetische Konten" testID="development-target-proof-details">
+        <Label muted>Prüft lokale Dateien und stellt deren vorherigen Inhalt wieder her; keine Anbieterabfrage.</Label>
+        <Action disabled={proofBusy} onPress={() => void runTargetProof()}>{proofBusy ? 'Nachweis läuft …' : 'Sollstunden-Dateinachweis starten'}</Action>
+        {targetProof && <View accessibilityLiveRegion="polite"><Label selectable>{targetProof}</Label></View>}
+      </SettingsContentDisclosure>
+    </SettingsContentGroup>
+    <SettingsContentGroup title="Flüge & Import">
+      <SettingsContentRow testID="development-own-flight-library" title="Eigene Flugbibliothek" summary="Eigene Vereinsflieger-Flüge lokal prüfen, ausdrücklich ohne Buchzuordnung speichern und offline wieder öffnen. Bestehende Belege und Teststände bleiben getrennt." onPress={onCoreFlights} />
+      <SettingsContentRow testID="development-import-preview" title="Synthetische Importvorschau" summary="Neue, geänderte und widersprüchliche Testflüge vergleichen und Buchvorschläge korrigieren. Getrennter Teststand ohne Änderungen an deiner Bibliothek." onPress={onImportPreview} />
+      <SettingsContentRow testID="development-flight-lab" title="Datensätze & Flugworkflow" summary="Getrennte Datensätze A/B, vorbereitete CSV- und Papierdaten, Abgleich, Abfragen und ältere Schreibnachweise. Englische Lab-Oberfläche; keine Live-Importvorschau." onPress={onFlights} />
+    </SettingsContentGroup>
     {profileTools}
-    <Card><Section title="Synthetische Bibliothek" icon="book" /><Action secondary onPress={onPaper}>Synthetischen Papierstand ansehen</Action><Action secondary onPress={onSelectBook}>Synthetisches Flugbuch auswählen</Action><Action secondary onPress={onBackup}>Synthetische Bibliothek sichern & wiederherstellen</Action><Label muted>Diese Sicherung enthält keine eigenen Vereinsflieger-Flüge oder Medical-Angaben.</Label></Card>
-    <Card><Section title="Flugbücher & Papierexperimente" icon="book" />
-      <Label muted>Vier synthetische Bücher, Formatvorschau, Korrekturen, feste Schreibstände und ältere Kopierbestätigungen. Änderungen betreffen die aktuelle synthetische Bibliothek. Der neue Papierablauf ist noch nicht umgesetzt.</Label>
-      <Action testID="development-book-lab" secondary icon="book" onPress={onBooks}>Flugbuchtest öffnen</Action>
-    </Card>
-    <Card><Section title="Anbieterdiagnose" icon="chain" />
-      <Label muted>Neue Daten und Anmeldung erreichst du ausschließlich über die Verbindung oben in der Kopfzeile. Die lokale Diagnose bleibt unter Profil verfügbar.</Label>
-    </Card>
+    <SettingsContentGroup title="Synthetische Bibliothek">
+      <SettingsContentRow title="Synthetischen Papierstand ansehen" onPress={onPaper} />
+      <SettingsContentRow title="Synthetisches Flugbuch auswählen" onPress={onSelectBook} />
+      <SettingsContentRow title="Sichern & wiederherstellen" summary="Diese Sicherung enthält keine eigenen Vereinsflieger-Flüge oder Medical-Angaben." onPress={onBackup} />
+      <SettingsContentRow testID="development-book-lab" title="Flugbücher & Papierexperimente" summary="Vier synthetische Bücher, Formatvorschau, Korrekturen, feste Schreibstände und ältere Kopierbestätigungen. Änderungen betreffen die aktuelle synthetische Bibliothek. Der neue Papierablauf ist noch nicht umgesetzt." onPress={onBooks} />
+    </SettingsContentGroup>
+    <Card><Label muted>Neue Daten und Anmeldung erreichst du ausschließlich über Sync oben in der Kopfzeile. Die lokale Diagnose bleibt unter Profil verfügbar.</Label></Card>
   </View>;
 }
 

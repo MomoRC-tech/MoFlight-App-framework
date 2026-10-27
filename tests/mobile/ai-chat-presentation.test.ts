@@ -60,7 +60,7 @@ function fixture(overrides: Record<string, unknown> = {}) {
     react: { default: react, ...react },
     'react-native': {
       ...leaves(['Pressable', 'TextInput', 'Text', 'View','ScrollView','Modal','KeyboardAvoidingView']),Keyboard:{dismiss(){}},Platform:{OS:'android'},
-      StyleSheet: { create: (value: unknown) => value },
+      useWindowDimensions:()=>({width:390,fontScale:1}),StyleSheet: { create: (value: unknown) => value },
     },
     './theme': {
       ...leaves(['Action', 'Card', 'Chip', 'Empty', 'Label', 'Section']),
@@ -188,6 +188,22 @@ test('null usage shows no fabricated balance or cost fields', () => {
   assert.equal(transcript.includes('Noch verfügbar'), false);
 });
 
+test('history search explains no matches and retains the selected local draft',()=>{
+ const f=fixture();f.open('Chats öffnen');
+ f.requireNode('TextInput',n=>n.props.accessibilityLabel==='Chats suchen').props.onChangeText('No matching conversation');f.rerender();
+ assert.ok(f.text().includes('Keine passenden Chats. Ändere deinen Suchtext.'));
+ assert.equal(f.find('Pressable',n=>n.props.accessibilityLabel==='Saved chat, ausgewählt').length,0);
+ assert.equal(f.requireNode('TextInput',n=>n.props.accessibilityLabel==='Frage oder Nachrichtenentwurf').props.value,'Durable draft');
+ assert.equal(f.calls.send,0);assert.equal(f.calls.select.length,0);
+});
+
+test('answer groups name supplied metrics and evidence without inventing missing evidence',()=>{
+ const answer={version:1,text:'Saved result',evidence:[],actions:[{kind:'open-flight',referenceIds:['missing']}],metrics:[{referenceId:'metric-one',measure:'count',value:3,unit:'flights'}]};
+ const f=fixture({conversations:[conversation('chat-one','Saved chat','',[message('answer','complete','Question',answer)])]});
+ assert.ok(f.text().includes('Kennzahlen'));assert.ok(f.text().includes('Flüge'));
+ assert.equal(f.text().includes('Belege und Flüge'),false);assert.equal(f.find('Action').length,0);
+});
+
 test('disclosure identifies recipients, monthly EUR limit, unencrypted backup and read-only boundary', () => {
   const f = fixture();f.open('Chatoptionen öffnen');f.open('Dienst und Datenschutz');
   const transcript = f.text();
@@ -213,8 +229,38 @@ test('chat is ready to type without a conversation and administration stays in d
  assert.ok(f.requireNode('TextInput',n=>n.props.accessibilityLabel==='Frage oder Nachrichtenentwurf'));
  assert.equal(f.find('Section').length,0);assert.equal(f.find('Modal').length,0);
  f.open('Chatoptionen öffnen');f.open('Dienst und Datenschutz');assert.ok(f.text().includes('Supabase'));
+ f.requireNode('Modal').props.onRequestClose();f.rerender();assert.ok(f.text().includes('Chatoptionen'));
  f.requireNode('Modal').props.onRequestClose();f.rerender();assert.equal(f.find('Modal').length,0);
  assert.equal(f.calls.toggle.length,0);
+});
+
+test('chat details return to the exact options offset and history keeps search and its own offset',()=>{
+ const f=fixture();
+ const menu=()=>f.requireNode('ScrollView',n=>n.props.testID==='ai-menu-content');
+ f.open('Chatoptionen öffnen');menu().props.onScroll({nativeEvent:{contentOffset:{y:120}}});
+ f.open('Dienst und Datenschutz');menu().props.onScroll({nativeEvent:{contentOffset:{y:240}}});
+ f.open('Zurück zu Chatoptionen');assert.equal(menu().props.contentOffset.y,120);
+ f.open('Dienst und Datenschutz');assert.equal(menu().props.contentOffset.y,240);
+ f.open('Chatmenü schließen');f.open('Chats öffnen');
+ f.requireNode('TextInput',n=>n.props.accessibilityLabel==='Chats suchen').props.onChangeText('Saved');
+ menu().props.onScroll({nativeEvent:{contentOffset:{y:80}}});f.rerender();
+ f.open('Chatmenü schließen');f.open('Chats öffnen');
+ assert.equal(f.requireNode('TextInput',n=>n.props.accessibilityLabel==='Chats suchen').props.value,'Saved');
+ assert.equal(menu().props.contentOffset.y,80);
+ assert.equal(f.requireNode('TextInput',n=>n.props.accessibilityLabel==='Frage oder Nachrichtenentwurf').props.value,'Durable draft');
+ assert.equal(f.calls.send,0);assert.equal(f.calls.toggle.length,0);
+});
+
+test('switching conversation and opening details preserves each transcript position',()=>{
+ const f=fixture({conversations:[conversation('chat-one','First','First draft'),conversation('chat-two','Second','Second draft')]});
+ const transcript=()=>f.requireNode('ScrollView',n=>n.props.testID==='ai-transcript');
+ transcript().props.onScroll({nativeEvent:{contentOffset:{y:96},contentSize:{height:1500},layoutMeasurement:{height:500}}});
+ f.props.selectedId='chat-two';f.rerender();
+ transcript().props.onScroll({nativeEvent:{contentOffset:{y:192},contentSize:{height:1500},layoutMeasurement:{height:500}}});
+ f.props.selectedId='chat-one';f.rerender();assert.equal(transcript().props.contentOffset.y,96);
+ f.open('Chatoptionen öffnen');f.open('Dienst und Datenschutz');f.open('Chatmenü schließen');
+ assert.equal(transcript().props.contentOffset.y,96);
+ f.props.selectedId='chat-two';f.rerender();assert.equal(transcript().props.contentOffset.y,192);
 });
 test('reading older messages blocks auto-follow and jumping to latest resumes it',()=>{
  const f=fixture();const scroll=()=>f.requireNode('ScrollView',n=>n.props.testID==='ai-transcript');

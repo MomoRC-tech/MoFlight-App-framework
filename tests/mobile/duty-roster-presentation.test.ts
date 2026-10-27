@@ -8,7 +8,8 @@ import { createDesignPreviewData } from '../../apps/platform-lab/src/mobile/desi
 
 type Element = { type: unknown; props: Record<string, any>; children: any[] };
 function fixture() {
-  const react = { Fragment: 'Fragment', createElement: (type: any, props: any, ...children: any[]): Element => typeof type === 'function'
+  let expanded = false;
+  const react = { useState: () => [expanded, (value:boolean) => { expanded=value; }], Fragment: 'Fragment', createElement: (type: any, props: any, ...children: any[]): Element => typeof type === 'function'
     ? type({ ...props, children }) : { type, props: props ?? {}, children: children.flat(Infinity) } };
   const modules: Record<string, unknown> = {
     react: { default: react, ...react },
@@ -123,4 +124,25 @@ test('native preview feeds raw fictional capture names through the real projecti
     assert.ok(text.includes('Anna Maria S. · Emil E.'));
     assert.doesNotMatch(text,/Example,|Synthetic,|Demo Pilot [AB]\./);
   }
+});
+
+
+test('club-only roster keeps full evidence and disclosure semantics without changing the Start default',()=>{
+ const f=fixture(),data=overview();
+ assert.deepEqual(f.roster.DutyRoster!({overview:data}),f.roster.DutyRoster!({overview:data,presentation:'start'}));
+ let opened=0;
+ const compact=f.roster.DutyRoster!({overview:data,presentation:'club',onOpen:()=>opened++});
+ assert.ok(f.nodes(compact).some(n=>n.type==='Section'&&n.props.title==='Dienste'));
+ f.nodes(compact).find(n=>n.type==='Section')!.props.onPress();assert.equal(opened,1);
+ assert.doesNotMatch(f.text(compact),/Synthetic later|Synthetic unplaced/);
+ let full=f.roster.DutyRoster!({overview:data,presentation:'club',expanded:true});
+ for(const text of ['Synthetic later','Zeitraum ungeklärt','Zeitraum unbekannt',data.coverageMessage]) assert.ok(f.text(full).includes(text));
+ assert.doesNotMatch(f.text(full),/Zuordnung vorläufig|Quellenstand/);
+ const disclosure=f.nodes(full).find(n=>n.props.accessibilityLabel==='Quellendetails Dienste')!;
+ assert.equal(disclosure.props.accessibilityState.expanded,false);disclosure.props.onPress();
+ full=f.roster.DutyRoster!({overview:data,presentation:'club',expanded:true});
+ assert.match(f.text(full),/Verein laut Quelle: Synthetic soaring club/);assert.match(f.text(full),/Zuordnung vorläufig/);assert.match(f.text(full),/Quellenstand/);
+ assert.equal(f.nodes(full).find(n=>n.props.accessibilityLabel==='Quellendetails Dienste')!.props.accessibilityState.expanded,true);
+ const missing=f.text(f.roster.DutyRoster!({overview:{...data,status:'unavailable',items:[],laterOwn:[],unplaced:[]},presentation:'club',expanded:true}));
+ assert.match(missing,/Dienstplan unbekannt/);assert.match(missing,/Dienste im Zeitraum unbekannt/);assert.doesNotMatch(missing,/Keine zeitlich passenden/);
 });

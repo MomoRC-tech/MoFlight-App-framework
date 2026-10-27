@@ -55,7 +55,7 @@ function fixture(width = 390, fontScale = 1, root = false) {
     react: { default: react, ...react },
     'react-native': { ...leaves(['ActivityIndicator', 'FlatList', 'KeyboardAvoidingView', 'Pressable', 'ScrollView', 'StatusBar', 'Text', 'TextInput', 'View']),
       Keyboard: { addListener: () => ({ remove() {} }), dismiss() {} },
-      AppState: { addEventListener: (_:string,handler:(state:string)=>void) => {appStateListener=handler;return {remove(){}};} },
+      AppState: { currentState:'active', addEventListener: (_:string,handler:(state:string)=>void) => {appStateListener=handler;return {remove(){}};} },
       BackHandler: { addEventListener: (_: string, handler: () => boolean) => { hardwareBack = handler; return { remove() {} }; } },
       Linking: {}, Platform: { OS: 'android' }, StyleSheet: { create: (s: unknown) => s, absoluteFill: {} },
       useWindowDimensions: () => ({ width, height: 900, fontScale }),
@@ -71,8 +71,8 @@ function fixture(width = 390, fontScale = 1, root = false) {
     './flight-model': { flightYears: () => [2026], selectFlights: () => library.flights, summarizeFlights: () => ({ count: 1, knownMinutes: 30 }), formatDuration: () => '0:30' },
     './local-insights': { localQuestions: [], localInsight: () => '' },
     './Dashboard': { Dashboard: 'Dashboard' }, './StatisticsOverlay': { StatisticsOverlay: 'StatisticsOverlay' }, './ShellIcons': leaves(['PlaneIcon', 'ProfileIcon', 'BookIcon']),
-    './AiChatRoute':leaves(['AiChatRoute']), '../ai/workspace-native':{openAiWorkspaceNative:async()=>null}, '../ai/answer-navigation':{aiAnswerFlightIds:()=>[]},
-    './DesignPreview':leaves(['DesignPreview']),'./Diagnostics': leaves(['Diagnostics']), './diagnostics-native': {initializeDiagnostics() {}}, '../diagnostics': diagnostics,
+    './AiChatRoute':leaves(['AiChatRoute']), '../ai/workspace-native':{openAiWorkspaceNative:async(gate:()=>Promise<void>)=>{await gate();return {identity:async()=>({accountRef:'synthetic-account'}),tools:async()=>({assertCurrent:gate,context:{},references:{},dispose(){calls.push('dispose-ai-evidence');}}),close:async()=>{calls.push('close-ai-evidence');}};}}, '../ai/answer-navigation':{aiAnswerFlightIds:(_message:unknown,ids:string[])=>ids},
+    './DesignPreview':leaves(['DesignPreview']),'./Diagnostics': leaves(['Diagnostics']),'./AboutCredits':leaves(['AboutCredits']), './diagnostics-native': {initializeDiagnostics() {}}, '../diagnostics': diagnostics,
     './ProfileSettings': { ProfileSettings: 'ProfileSettings', SyntheticProfileSettings:'SyntheticProfileSettings' }, '../book-storage': { PILOT: 'synthetic-pilot' },
     './HelpScreen': { HelpScreen: 'HelpScreen' },
     './help-preferences-native': { readContextHelpEnabled: async () => persistedHelp, saveContextHelpEnabled: async (enabled:boolean) => { if (failHelpSave) return false; persistedHelp=enabled; return true; } },
@@ -793,7 +793,7 @@ test('club expansion restores overview scroll on both toolbar and Android Back',
  const scroll=()=>f.nodes().find(n=>n.type==='ScrollView'&&n.props.onScroll&&n.props.key==='Übersicht')!;
  scroll().props.onScroll({nativeEvent:{contentOffset:{y:240}}});
  f.find('ClubEvents').props.onOpen();f.render();
- assert.equal(f.headers()[0]!.props.title,'Verein · Termine');
+  assert.equal(f.headers()[0]!.props.title,'Termine');
  f.hardwareBack();f.render();assert.equal(f.headers()[0]!.props.title,'Verein');
  assert.equal(scroll().props.contentOffset.y,240);
  f.find('ClubEvents').props.onOpen();f.render();f.headers()[0]!.props.back();f.render();
@@ -835,4 +835,60 @@ test('provider settings uses a child page and temporarily frames only the origin
   settings.props.close();f.render();settings.props.onRequestSync();f.render();assert.equal(f.find('CoreFlightFoundation').props.open,false);
   shell().props.onCoreFlights('options',false,'settings');f.render();f.find('CoreFlightFoundation').props.onRequestSync();f.render();
   assert.equal(f.find('CoreFlightFoundation').props.intent,'update');assert.equal(f.find('UpdateDialog').props.fullPage,false);
+});
+
+
+test('remaining Settings pages use contextual headers and retain their mounted caller and offset',()=>{
+ for(const [callback,component,title,key] of [['onDiagnostics','Diagnostics','Diagnose','diagnostics'],['onCredits','AboutCredits','Über MoFlight','credits'],['onTools','DevelopmentHub','Entwicklung','development']]){
+  const f=fixture();f.press('Pressable','Profil & Einstellungen öffnen');
+  f.find('ProfileSettings').props[callback!]();f.render();
+  assert.equal(f.headers().at(-1)!.props.title,title);assert.equal(f.headers().at(-1)!.props.variant,'page');assert.equal(f.headers().at(-1)!.props.profile,undefined);
+  const pageScroll=()=>f.nodes().find(n=>n.type==='ScrollView'&&n.props.key===key)!;
+  pageScroll().props.onScroll({nativeEvent:{contentOffset:{y:186}}});
+  f.find('SyncProgress').props.details();f.render();
+  assert.ok(f.nodes().some(n=>n.type===component),'caller remains mounted beneath Status');
+  const wrapper=f.parent(pageScroll());assert.equal(wrapper.props.accessibilityElementsHidden,true);
+  assert.equal(wrapper.props.importantForAccessibility,'no-hide-descendants');
+  assert.ok(wrapper.props.style.some((style:any)=>style?.display==='none'));
+  f.hardwareBack();f.render();
+  assert.equal(f.headers().at(-1)!.props.title,title);assert.equal(pageScroll().props.contentOffset.y,186);
+  assert.equal(f.parent(pageScroll()).props.accessibilityElementsHidden,false);
+  f.headers().at(-1)!.props.back();f.render();assert.equal(f.headers().at(-1)!.props.title,'Profil & Einstellungen');
+ }
+});
+
+test('all Club sections use concise page headers and restore their independent scroll on Back',()=>{
+ const f=fixture();f.press('Pressable','Verein');
+ for(const section of ['Termine','Dienste','Dokumente','Arbeitsstunden','Aufgaben']){
+  const chip=f.nodes().find(n=>n.type==='Chip'&&n.props.title===section)!;chip.props.onPress();f.render();
+  assert.equal(f.headers()[0]!.props.title,section);assert.equal(f.headers()[0]!.props.variant,'page');
+  const scroll=()=>f.nodes().find(n=>n.type==='ScrollView'&&n.props.key===section)!;
+  scroll().props.onScroll({nativeEvent:{contentOffset:{y:235}}});
+  f.headers()[0]!.props.back();f.render();assert.equal(f.headers()[0]!.props.title,'Verein');
+  f.nodes().find(n=>n.type==='Chip'&&n.props.title===section)!.props.onPress();f.render();assert.equal(scroll().props.contentOffset.y,235);
+  f.hardwareBack();f.render();assert.equal(f.headers()[0]!.props.title,'Verein');
+ }
+ f.press('Pressable','Übersicht');assert.equal(f.headers()[0]!.props.variant,undefined);assert.equal(f.headers()[0]!.props.title,'Übersicht');
+});
+
+test('AI evidence list has contextual Back to the retained conversation; detail Back is consumed first',async()=>{
+ const f=fixture();f.press('Pressable','AI');assert.equal(f.headers()[0]!.props.variant,'page');
+ const ai=f.find('AiChatRoute');await ai.props.onEvidence({},['exact-2','exact-1']);f.render();
+ assert.deepEqual(f.find('OwnFlights').props.filterRequest.flightIds,['exact-2','exact-1']);
+ assert.equal(f.find('AiChatRoute').props.active,false);
+ f.openOwnDetail();assert.equal(f.headers()[0]!.props.title,'Flugdetails');
+ f.hardwareBack();f.render();assert.equal(f.headers()[0]!.props.title,'Flüge');
+ assert.equal(f.find('AiChatRoute').props.active,false);
+ f.headers()[0]!.props.back();f.render();assert.equal(f.find('AiChatRoute').props.active,true);
+ assert.equal(f.headers()[0]!.props.title,'MoFlight AI');
+ assert.ok(f.calls.includes('dispose-ai-evidence')&&f.calls.includes('close-ai-evidence'));
+});
+
+test('AI evidence return is revoked by owner change or deliberate tab navigation',async()=>{
+ for(const change of ['owner','tab']){
+  const f=fixture();f.press('Pressable','AI');await f.find('AiChatRoute').props.onEvidence({},['exact']);f.render();
+  if(change==='owner')f.showLoad(null,{snapshot:{ownerId:'other',storeId:'store',account:{accountRef:'account'},savedRetrievals:[]},flights:[]});
+  else {f.press('Pressable','Verein');f.press('Pressable','Flüge');}
+  assert.equal(f.headers()[0]!.props.back,undefined);
+ }
 });
