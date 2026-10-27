@@ -513,35 +513,35 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ConnectionSummary
 
 ## CoreFlightFoundation.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `1587fd43366cec3d5b1253947a0358ad75cfa551cd9b6ad89d63519c64b77d1c`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `44fccb6a8467beb334648823c0e71a75abaaac150f85c9d0d6ce2513925676f1`.
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 12` | 1023 |
-| `fontSize: 16` | 1023, 1028, 1032 |
-| `fontSize: 22` | 1028, 1032 |
-| `fontWeight: '600'` | 1023, 1028, 1032 |
-| `fontWeight: '700'` | 1023 |
-| `letterSpacing: .6` | 1023 |
-| `lineHeight: 24` | 1023, 1028, 1032 |
+| `fontSize: 12` | 1041 |
+| `fontSize: 16` | 1041, 1046, 1050 |
+| `fontSize: 22` | 1046, 1050 |
+| `fontWeight: '600'` | 1041, 1046, 1050 |
+| `fontWeight: '700'` | 1041 |
+| `letterSpacing: .6` | 1041 |
+| `lineHeight: 24` | 1041, 1046, 1050 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 16` | 1027, 1032 |
-| `borderWidth: 1` | 1027, 1032 |
-| `gap: 10` | 192, 200, 201, 952, 1029 |
-| `gap: 12` | 1028, 1032 |
-| `gap: 8` | 979, 1005, 1015, 1023 |
-| `maxWidth: 520` | 192, 201, 952 |
-| `minHeight: 0` | 951 |
-| `minHeight: 56` | 1028, 1032 |
-| `padding: 16` | 1028, 1032 |
-| `paddingHorizontal: 16` | 1029 |
-| `width: '100%'` | 192, 201, 952 |
+| `borderRadius: 16` | 1045, 1050 |
+| `borderWidth: 1` | 1045, 1050 |
+| `gap: 10` | 192, 200, 201, 970, 1047 |
+| `gap: 12` | 1046, 1050 |
+| `gap: 8` | 997, 1023, 1033, 1041 |
+| `maxWidth: 520` | 192, 201, 970 |
+| `minHeight: 0` | 969 |
+| `minHeight: 56` | 1046, 1050 |
+| `padding: 16` | 1046, 1050 |
+| `paddingHorizontal: 16` | 1047 |
+| `width: '100%'` | 192, 201, 970 |
 
 ## Dashboard.tsx
 
