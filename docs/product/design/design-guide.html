@@ -83,7 +83,7 @@
 <li>Flight filter values wrap rather than ellipsize; enlarged active summaries wrap, with explicit expanded state and minimum48 dp targets. Search/date input outlines use the existing stronger local outline color, preserving global tokens and Start.</li>
 <li>Statistics date fields name their format; Next focuses the end date, Done dismisses the keyboard without applying drafts. Invalid-range feedback is announced politely; Apply remains the explicit decision.</li>
 <li>AI&#x27;s composer grows for one scaled line plus padding and bounds multiline expansion by viewport height. Its disabled editing state is explicit; usage facts wrap/stack for large text and menu/deletion bodies can shrink and scroll. The status control retains full wrapping and a minimum48 dp target.</li>
-<li>Short Sync/restore decisions dismiss the caller&#x27;s keyboard on mount, preserving drafts. Stacked confirmation appears above Cancel in both visual and React/accessibility order; ordinary rows keep Cancel left/confirm right. AI deletion uses the same ordering with pinned title/actions and a shrinkable body. Existing one-use account/scope safeguards remain authoritative.</li>
+<li>Short Sync/restore decisions dismiss the caller&#x27;s keyboard on mount, preserving drafts; title and decisions remain pinned while the body shrinks and scrolls. Stacked confirmation appears above Cancel in both visual and React/accessibility order; ordinary rows keep Cancel left/confirm right. AI deletion uses the same ordering with pinned title/actions and a shrinkable body. Existing one-use account/scope safeguards remain authoritative.</li>
 </ul>
 <p>Current rendered Material accessibility/dialog guidance and official Android guidance inform legible scaling, target size, readable groups and decision order. Retain the navy/cyan palette, original logo, existing caps/headers/five destinations and provider parent. Rail/two-pane/root Back redesign, global-theme/Start changes, beta light/legal work and new dependencies/features/services are excluded. These changes do not establish spoken, physical/iOS or complete keyboard/populated acceptance.</p>
 <h3 id="chapter-compact-cockpit-everyday-flights-and-task-states--authorized-27-october-2026">Everyday Flights and task states — authorized 27 October 2026</h3>
@@ -771,36 +771,37 @@
 <tr><td><code>width: 48</code></td><td>23, 25</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-backuprestoreconfirmationdialogtsx">BackupRestoreConfirmationDialog.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/BackupRestoreConfirmationDialog.tsx">apps/platform-lab/src/mobile/BackupRestoreConfirmationDialog.tsx</a>; normalized SHA-256 <code>16eefcb446c3cd918b2757a2ce8b40ccdb19ce5f225c66d06115df6a6f5bee3c</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/BackupRestoreConfirmationDialog.tsx">apps/platform-lab/src/mobile/BackupRestoreConfirmationDialog.tsx</a>; normalized SHA-256 <code>489125db9bfc7e8cce93a316b994b9e4a4e4dd48ff40c551e36fb1fcc6f96786</code>.</p>
 <h4 id="chapter-implementation-inventory-literal-colors-4">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><i class="swatch" style="background:#000712bd" aria-hidden="true"></i><code>#000712bd</code></td><td>31</td></tr>
-<tr><td><i class="swatch" style="background:#031326" aria-hidden="true"></i><code>#031326</code></td><td>42</td></tr>
+<tr><td><i class="swatch" style="background:#031326" aria-hidden="true"></i><code>#031326</code></td><td>43</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-typography-declarations-6">Typography declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>fontSize: 14</code></td><td>36, 41, 42</td></tr>
-<tr><td><code>fontSize: 16</code></td><td>35</td></tr>
-<tr><td><code>fontSize: 24</code></td><td>34</td></tr>
-<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>34, 41</td></tr>
-<tr><td><code>fontWeight: &#x27;700&#x27;</code></td><td>42</td></tr>
-<tr><td><code>lineHeight: 20</code></td><td>36, 41, 42</td></tr>
-<tr><td><code>lineHeight: 24</code></td><td>35</td></tr>
-<tr><td><code>lineHeight: 32</code></td><td>34</td></tr>
+<tr><td><code>fontSize: 14</code></td><td>37, 42, 43</td></tr>
+<tr><td><code>fontSize: 16</code></td><td>36</td></tr>
+<tr><td><code>fontSize: 24</code></td><td>35</td></tr>
+<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>35, 42</td></tr>
+<tr><td><code>fontWeight: &#x27;700&#x27;</code></td><td>43</td></tr>
+<tr><td><code>lineHeight: 20</code></td><td>37, 42, 43</td></tr>
+<tr><td><code>lineHeight: 24</code></td><td>36</td></tr>
+<tr><td><code>lineHeight: 32</code></td><td>35</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-geometry--opacity-declarations-12">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>borderRadius: 12</code></td><td>39</td></tr>
+<tr><td><code>borderRadius: 12</code></td><td>40</td></tr>
 <tr><td><code>borderRadius: 28</code></td><td>32</td></tr>
-<tr><td><code>gap: 16</code></td><td>33</td></tr>
-<tr><td><code>gap: 8</code></td><td>37</td></tr>
+<tr><td><code>gap: 16</code></td><td>34</td></tr>
+<tr><td><code>gap: 8</code></td><td>38</td></tr>
 <tr><td><code>maxHeight: &#x27;85%&#x27;</code></td><td>32</td></tr>
 <tr><td><code>maxWidth: 480</code></td><td>32</td></tr>
-<tr><td><code>minHeight: 48</code></td><td>39</td></tr>
-<tr><td><code>minWidth: 48</code></td><td>39</td></tr>
+<tr><td><code>minHeight: 0</code></td><td>33</td></tr>
+<tr><td><code>minHeight: 48</code></td><td>40</td></tr>
+<tr><td><code>minWidth: 48</code></td><td>40</td></tr>
 <tr><td><code>padding: 16</code></td><td>31</td></tr>
-<tr><td><code>padding: 24</code></td><td>33</td></tr>
-<tr><td><code>paddingHorizontal: 16</code></td><td>39</td></tr>
+<tr><td><code>paddingHorizontal: 16</code></td><td>40</td></tr>
+<tr><td><code>paddingHorizontal: 24</code></td><td>34, 35, 38</td></tr>
 <tr><td><code>width: &#x27;100%&#x27;</code></td><td>32</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-capturedflightstsx">CapturedFlights.tsx</h3>
@@ -1815,36 +1816,37 @@
 <tr><td><code>borderWidth: 1</code></td><td>22</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-syncconfirmationdialogtsx">SyncConfirmationDialog.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/SyncConfirmationDialog.tsx">apps/platform-lab/src/mobile/SyncConfirmationDialog.tsx</a>; normalized SHA-256 <code>e7ccb20291630c2f4dd4be60984a9a3c44aca4256741aa6c89bdb0f0d5798e6f</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/SyncConfirmationDialog.tsx">apps/platform-lab/src/mobile/SyncConfirmationDialog.tsx</a>; normalized SHA-256 <code>28a1dc857809eb94bae390982ee24177e4849d2d02b835bba841b6aee4ce3de2</code>.</p>
 <h4 id="chapter-implementation-inventory-literal-colors-22">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><i class="swatch" style="background:#000712bd" aria-hidden="true"></i><code>#000712bd</code></td><td>30</td></tr>
-<tr><td><i class="swatch" style="background:#031326" aria-hidden="true"></i><code>#031326</code></td><td>40</td></tr>
+<tr><td><i class="swatch" style="background:#031326" aria-hidden="true"></i><code>#031326</code></td><td>41</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-typography-declarations-31">Typography declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>fontSize: 14</code></td><td>39, 40</td></tr>
-<tr><td><code>fontSize: 16</code></td><td>34</td></tr>
-<tr><td><code>fontSize: 24</code></td><td>33</td></tr>
-<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>33, 39</td></tr>
-<tr><td><code>fontWeight: &#x27;700&#x27;</code></td><td>40</td></tr>
-<tr><td><code>lineHeight: 20</code></td><td>39, 40</td></tr>
-<tr><td><code>lineHeight: 24</code></td><td>34</td></tr>
-<tr><td><code>lineHeight: 32</code></td><td>33</td></tr>
+<tr><td><code>fontSize: 14</code></td><td>40, 41</td></tr>
+<tr><td><code>fontSize: 16</code></td><td>35</td></tr>
+<tr><td><code>fontSize: 24</code></td><td>34</td></tr>
+<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>34, 40</td></tr>
+<tr><td><code>fontWeight: &#x27;700&#x27;</code></td><td>41</td></tr>
+<tr><td><code>lineHeight: 20</code></td><td>40, 41</td></tr>
+<tr><td><code>lineHeight: 24</code></td><td>35</td></tr>
+<tr><td><code>lineHeight: 32</code></td><td>34</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-geometry--opacity-declarations-49">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>borderRadius: 12</code></td><td>37</td></tr>
+<tr><td><code>borderRadius: 12</code></td><td>38</td></tr>
 <tr><td><code>borderRadius: 28</code></td><td>31</td></tr>
-<tr><td><code>gap: 16</code></td><td>32</td></tr>
-<tr><td><code>gap: 8</code></td><td>35</td></tr>
+<tr><td><code>gap: 16</code></td><td>33</td></tr>
+<tr><td><code>gap: 8</code></td><td>36</td></tr>
 <tr><td><code>maxHeight: &#x27;85%&#x27;</code></td><td>31</td></tr>
 <tr><td><code>maxWidth: 480</code></td><td>31</td></tr>
-<tr><td><code>minHeight: 48</code></td><td>37</td></tr>
-<tr><td><code>minWidth: 48</code></td><td>37</td></tr>
+<tr><td><code>minHeight: 0</code></td><td>32</td></tr>
+<tr><td><code>minHeight: 48</code></td><td>38</td></tr>
+<tr><td><code>minWidth: 48</code></td><td>38</td></tr>
 <tr><td><code>padding: 16</code></td><td>30</td></tr>
-<tr><td><code>padding: 24</code></td><td>32</td></tr>
-<tr><td><code>paddingHorizontal: 16</code></td><td>37</td></tr>
+<tr><td><code>paddingHorizontal: 16</code></td><td>38</td></tr>
+<tr><td><code>paddingHorizontal: 24</code></td><td>33, 34, 36</td></tr>
 <tr><td><code>width: &#x27;100%&#x27;</code></td><td>31</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-syncprogresstsx">SyncProgress.tsx</h3>
@@ -2583,7 +2585,7 @@ Manuel&#x27;s continuation after U1/U2 selects roadmap U3 under [#94](https://gi
 - Flight filter values wrap rather than ellipsize; enlarged active summaries wrap, with explicit expanded state and minimum48 dp targets. Search/date input outlines use the existing stronger local outline color, preserving global tokens and Start.
 - Statistics date fields name their format; Next focuses the end date, Done dismisses the keyboard without applying drafts. Invalid-range feedback is announced politely; Apply remains the explicit decision.
 - AI&#x27;s composer grows for one scaled line plus padding and bounds multiline expansion by viewport height. Its disabled editing state is explicit; usage facts wrap/stack for large text and menu/deletion bodies can shrink and scroll. The status control retains full wrapping and a minimum48 dp target.
-- Short Sync/restore decisions dismiss the caller&#x27;s keyboard on mount, preserving drafts. Stacked confirmation appears above Cancel in both visual and React/accessibility order; ordinary rows keep Cancel left/confirm right. AI deletion uses the same ordering with pinned title/actions and a shrinkable body. Existing one-use account/scope safeguards remain authoritative.
+- Short Sync/restore decisions dismiss the caller&#x27;s keyboard on mount, preserving drafts; title and decisions remain pinned while the body shrinks and scrolls. Stacked confirmation appears above Cancel in both visual and React/accessibility order; ordinary rows keep Cancel left/confirm right. AI deletion uses the same ordering with pinned title/actions and a shrinkable body. Existing one-use account/scope safeguards remain authoritative.
 
 Current rendered Material accessibility/dialog guidance and official Android guidance inform legible scaling, target size, readable groups and decision order. Retain the navy/cyan palette, original logo, existing caps/headers/five destinations and provider parent. Rail/two-pane/root Back redesign, global-theme/Start changes, beta light/legal work and new dependencies/features/services are excluded. These changes do not establish spoken, physical/iOS or complete keyboard/populated acceptance.
 
@@ -3599,43 +3601,44 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/AppHeader.tsx](..
 
 ## BackupRestoreConfirmationDialog.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/BackupRestoreConfirmationDialog.tsx](../../../apps/platform-lab/src/mobile/BackupRestoreConfirmationDialog.tsx); normalized SHA-256 `16eefcb446c3cd918b2757a2ce8b40ccdb19ce5f225c66d06115df6a6f5bee3c`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/BackupRestoreConfirmationDialog.tsx](../../../apps/platform-lab/src/mobile/BackupRestoreConfirmationDialog.tsx); normalized SHA-256 `489125db9bfc7e8cce93a316b994b9e4a4e4dd48ff40c551e36fb1fcc6f96786`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
 | `#000712bd` | 31 |
-| `#031326` | 42 |
+| `#031326` | 43 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 14` | 36, 41, 42 |
-| `fontSize: 16` | 35 |
-| `fontSize: 24` | 34 |
-| `fontWeight: &#x27;600&#x27;` | 34, 41 |
-| `fontWeight: &#x27;700&#x27;` | 42 |
-| `lineHeight: 20` | 36, 41, 42 |
-| `lineHeight: 24` | 35 |
-| `lineHeight: 32` | 34 |
+| `fontSize: 14` | 37, 42, 43 |
+| `fontSize: 16` | 36 |
+| `fontSize: 24` | 35 |
+| `fontWeight: &#x27;600&#x27;` | 35, 42 |
+| `fontWeight: &#x27;700&#x27;` | 43 |
+| `lineHeight: 20` | 37, 42, 43 |
+| `lineHeight: 24` | 36 |
+| `lineHeight: 32` | 35 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 39 |
+| `borderRadius: 12` | 40 |
 | `borderRadius: 28` | 32 |
-| `gap: 16` | 33 |
-| `gap: 8` | 37 |
+| `gap: 16` | 34 |
+| `gap: 8` | 38 |
 | `maxHeight: &#x27;85%&#x27;` | 32 |
 | `maxWidth: 480` | 32 |
-| `minHeight: 48` | 39 |
-| `minWidth: 48` | 39 |
+| `minHeight: 0` | 33 |
+| `minHeight: 48` | 40 |
+| `minWidth: 48` | 40 |
 | `padding: 16` | 31 |
-| `padding: 24` | 33 |
-| `paddingHorizontal: 16` | 39 |
+| `paddingHorizontal: 16` | 40 |
+| `paddingHorizontal: 24` | 34, 35, 38 |
 | `width: &#x27;100%&#x27;` | 32 |
 
 ## CapturedFlights.tsx
@@ -4885,43 +4888,44 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/SymbolIcon.tsx](.
 
 ## SyncConfirmationDialog.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/SyncConfirmationDialog.tsx](../../../apps/platform-lab/src/mobile/SyncConfirmationDialog.tsx); normalized SHA-256 `e7ccb20291630c2f4dd4be60984a9a3c44aca4256741aa6c89bdb0f0d5798e6f`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/SyncConfirmationDialog.tsx](../../../apps/platform-lab/src/mobile/SyncConfirmationDialog.tsx); normalized SHA-256 `28a1dc857809eb94bae390982ee24177e4849d2d02b835bba841b6aee4ce3de2`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
 | `#000712bd` | 30 |
-| `#031326` | 40 |
+| `#031326` | 41 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 14` | 39, 40 |
-| `fontSize: 16` | 34 |
-| `fontSize: 24` | 33 |
-| `fontWeight: &#x27;600&#x27;` | 33, 39 |
-| `fontWeight: &#x27;700&#x27;` | 40 |
-| `lineHeight: 20` | 39, 40 |
-| `lineHeight: 24` | 34 |
-| `lineHeight: 32` | 33 |
+| `fontSize: 14` | 40, 41 |
+| `fontSize: 16` | 35 |
+| `fontSize: 24` | 34 |
+| `fontWeight: &#x27;600&#x27;` | 34, 40 |
+| `fontWeight: &#x27;700&#x27;` | 41 |
+| `lineHeight: 20` | 40, 41 |
+| `lineHeight: 24` | 35 |
+| `lineHeight: 32` | 34 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 37 |
+| `borderRadius: 12` | 38 |
 | `borderRadius: 28` | 31 |
-| `gap: 16` | 32 |
-| `gap: 8` | 35 |
+| `gap: 16` | 33 |
+| `gap: 8` | 36 |
 | `maxHeight: &#x27;85%&#x27;` | 31 |
 | `maxWidth: 480` | 31 |
-| `minHeight: 48` | 37 |
-| `minWidth: 48` | 37 |
+| `minHeight: 0` | 32 |
+| `minHeight: 48` | 38 |
+| `minWidth: 48` | 38 |
 | `padding: 16` | 30 |
-| `padding: 24` | 32 |
-| `paddingHorizontal: 16` | 37 |
+| `paddingHorizontal: 16` | 38 |
+| `paddingHorizontal: 24` | 33, 34, 36 |
 | `width: &#x27;100%&#x27;` | 31 |
 
 ## SyncProgress.tsx
@@ -5810,7 +5814,7 @@ States / limits: Recreated approved variant, not a byte-identical copy of an old
 Source: docs/assets/branding/moflight-app-icon-ai.png
 docs/assets/branding/README.md; app.json
 </textarea></section>
-<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: 8f1fba3632d8e626d9489005d51f11ed9fa1debbd5e10d08973fd39d97a7a824. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
+<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: 40fb5fdc78fe68329ccb65f54b0219cec5883e919031eb1f62e8ed1ecdf7c046. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
 </main><script>
 'use strict';
 const brief = document.querySelector('#brief');

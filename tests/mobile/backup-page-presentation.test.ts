@@ -90,7 +90,16 @@ test('short decisions dismiss the caller keyboard once and keep stacked action o
     assert.deepEqual(buttons.map(node => node.props.accessibilityLabel), [confirmLabel, 'Abbrechen']);
     const actions = nodes.find(node => node.type === 'View' && Array.isArray(node.props.style))!;
     assert.equal(actions.props.style[1].flexDirection, 'column');
-    assert.ok(nodes.some(node => node.type === 'ScrollView'));
+    const scroll = nodes.find(node => node.type === 'ScrollView')!;
+    assert.equal(scroll.props.style.flexShrink, 1);
+    assert.equal(scroll.props.style.minHeight, 0);
+    const descendants: Element[] = []; const descend = (node: any) => { if (node?.children) { descendants.push(node); node.children.forEach(descend); } }; descend(scroll);
+    assert.equal(descendants.some(node => node.props.accessibilityRole === 'header'), false, 'Dialog title stays visible above body scrolling');
+    assert.equal(descendants.some(node => node.props.accessibilityRole === 'button'), false, 'Decision actions stay visible below body scrolling');
+    const frame = nodes.find(node => node.props.accessibilityViewIsModal)!;
+    assert.equal((frame.children[0] as Element).props.accessibilityRole, 'header');
+    assert.equal((frame.children[1] as Element).type, 'ScrollView');
+    assert.equal(frame.children[2], actions);
     buttons[1]!.props.onPress(); assert.equal(cancelled, 1); assert.equal(confirmed, 0);
     buttons[0]!.props.onPress(); assert.equal(confirmed, 1);
   }

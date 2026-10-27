@@ -324,43 +324,44 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/AppHeader.tsx](..
 
 ## BackupRestoreConfirmationDialog.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/BackupRestoreConfirmationDialog.tsx](../../../apps/platform-lab/src/mobile/BackupRestoreConfirmationDialog.tsx); normalized SHA-256 `16eefcb446c3cd918b2757a2ce8b40ccdb19ce5f225c66d06115df6a6f5bee3c`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/BackupRestoreConfirmationDialog.tsx](../../../apps/platform-lab/src/mobile/BackupRestoreConfirmationDialog.tsx); normalized SHA-256 `489125db9bfc7e8cce93a316b994b9e4a4e4dd48ff40c551e36fb1fcc6f96786`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
 | `#000712bd` | 31 |
-| `#031326` | 42 |
+| `#031326` | 43 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 14` | 36, 41, 42 |
-| `fontSize: 16` | 35 |
-| `fontSize: 24` | 34 |
-| `fontWeight: '600'` | 34, 41 |
-| `fontWeight: '700'` | 42 |
-| `lineHeight: 20` | 36, 41, 42 |
-| `lineHeight: 24` | 35 |
-| `lineHeight: 32` | 34 |
+| `fontSize: 14` | 37, 42, 43 |
+| `fontSize: 16` | 36 |
+| `fontSize: 24` | 35 |
+| `fontWeight: '600'` | 35, 42 |
+| `fontWeight: '700'` | 43 |
+| `lineHeight: 20` | 37, 42, 43 |
+| `lineHeight: 24` | 36 |
+| `lineHeight: 32` | 35 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 39 |
+| `borderRadius: 12` | 40 |
 | `borderRadius: 28` | 32 |
-| `gap: 16` | 33 |
-| `gap: 8` | 37 |
+| `gap: 16` | 34 |
+| `gap: 8` | 38 |
 | `maxHeight: '85%'` | 32 |
 | `maxWidth: 480` | 32 |
-| `minHeight: 48` | 39 |
-| `minWidth: 48` | 39 |
+| `minHeight: 0` | 33 |
+| `minHeight: 48` | 40 |
+| `minWidth: 48` | 40 |
 | `padding: 16` | 31 |
-| `padding: 24` | 33 |
-| `paddingHorizontal: 16` | 39 |
+| `paddingHorizontal: 16` | 40 |
+| `paddingHorizontal: 24` | 34, 35, 38 |
 | `width: '100%'` | 32 |
 
 ## CapturedFlights.tsx
@@ -1610,43 +1611,44 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/SymbolIcon.tsx](.
 
 ## SyncConfirmationDialog.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/SyncConfirmationDialog.tsx](../../../apps/platform-lab/src/mobile/SyncConfirmationDialog.tsx); normalized SHA-256 `e7ccb20291630c2f4dd4be60984a9a3c44aca4256741aa6c89bdb0f0d5798e6f`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/SyncConfirmationDialog.tsx](../../../apps/platform-lab/src/mobile/SyncConfirmationDialog.tsx); normalized SHA-256 `28a1dc857809eb94bae390982ee24177e4849d2d02b835bba841b6aee4ce3de2`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
 | `#000712bd` | 30 |
-| `#031326` | 40 |
+| `#031326` | 41 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 14` | 39, 40 |
-| `fontSize: 16` | 34 |
-| `fontSize: 24` | 33 |
-| `fontWeight: '600'` | 33, 39 |
-| `fontWeight: '700'` | 40 |
-| `lineHeight: 20` | 39, 40 |
-| `lineHeight: 24` | 34 |
-| `lineHeight: 32` | 33 |
+| `fontSize: 14` | 40, 41 |
+| `fontSize: 16` | 35 |
+| `fontSize: 24` | 34 |
+| `fontWeight: '600'` | 34, 40 |
+| `fontWeight: '700'` | 41 |
+| `lineHeight: 20` | 40, 41 |
+| `lineHeight: 24` | 35 |
+| `lineHeight: 32` | 34 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 37 |
+| `borderRadius: 12` | 38 |
 | `borderRadius: 28` | 31 |
-| `gap: 16` | 32 |
-| `gap: 8` | 35 |
+| `gap: 16` | 33 |
+| `gap: 8` | 36 |
 | `maxHeight: '85%'` | 31 |
 | `maxWidth: 480` | 31 |
-| `minHeight: 48` | 37 |
-| `minWidth: 48` | 37 |
+| `minHeight: 0` | 32 |
+| `minHeight: 48` | 38 |
+| `minWidth: 48` | 38 |
 | `padding: 16` | 30 |
-| `padding: 24` | 32 |
-| `paddingHorizontal: 16` | 37 |
+| `paddingHorizontal: 16` | 38 |
+| `paddingHorizontal: 24` | 33, 34, 36 |
 | `width: '100%'` | 31 |
 
 ## SyncProgress.tsx

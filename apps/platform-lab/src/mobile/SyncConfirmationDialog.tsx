@@ -14,13 +14,13 @@ export function SyncConfirmationDialog({ onCancel, onConfirm }: { onCancel: () =
     <View style={styles.scrim}>
       <Pressable accessible={false} importantForAccessibility="no" onPress={onCancel} style={StyleSheet.absoluteFill} />
       <View accessibilityViewIsModal style={styles.frame}>
-        <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.content}>
-          <Text accessibilityRole="header" style={styles.title}>Daten von Vereinsflieger abrufen?</Text>
+        <Text accessibilityRole="header" style={styles.title}>Daten von Vereinsflieger abrufen?</Text>
+        <ScrollView style={styles.scroll} keyboardShouldPersistTaps="handled" contentContainerStyle={styles.content}>
           <Text style={styles.body}>MoFlight versucht, deine Flüge und unterstützte Zusatzdaten zu aktualisieren. Falls nötig, meldest du dich auf der Originalseite an. Gespeicherte Flüge bleiben verfügbar.</Text>
-          <View style={[styles.actions, stacked && styles.stackedActions]}>
-            {stacked ? <>{confirmAction}{cancelAction}</> : <>{cancelAction}{confirmAction}</>}
-          </View>
         </ScrollView>
+        <View style={[styles.actions, stacked && styles.stackedActions]}>
+          {stacked ? <>{confirmAction}{cancelAction}</> : <>{cancelAction}{confirmAction}</>}
+        </View>
       </View>
     </View>
   </Modal>;
@@ -29,10 +29,11 @@ export function SyncConfirmationDialog({ onCancel, onConfirm }: { onCancel: () =
 const styles = StyleSheet.create({
   scrim: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 16, backgroundColor: '#000712bd' },
   frame: { width: '100%', maxWidth: 480, maxHeight: '85%', borderRadius: 28, backgroundColor: colors.raised, elevation: 18, overflow: 'hidden' },
-  content: { padding: 24, gap: 16 },
-  title: { color: colors.text, fontSize: 24, lineHeight: 32, fontWeight: '600' },
+  scroll: { flexGrow: 0, flexShrink: 1, minHeight: 0 },
+  content: { paddingHorizontal: 24, paddingBottom: 16, gap: 16 },
+  title: { paddingHorizontal: 24, paddingTop: 24, paddingBottom: 16, color: colors.text, fontSize: 24, lineHeight: 32, fontWeight: '600' },
   body: { color: colors.muted, fontSize: 16, lineHeight: 24 },
-  actions: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'flex-end', alignItems: 'center', gap: 8, paddingTop: 8 },
+  actions: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'flex-end', alignItems: 'center', gap: 8, paddingHorizontal: 24, paddingTop: 8, paddingBottom: 24 },
   stackedActions: { flexDirection: 'column', alignItems: 'stretch' },
   button: { minHeight: 48, minWidth: 48, paddingHorizontal: 16, justifyContent: 'center', alignItems: 'center', borderRadius: 12 },
   confirm: { backgroundColor: colors.cyan },
