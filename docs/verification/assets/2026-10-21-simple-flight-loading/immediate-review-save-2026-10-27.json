@@ -1,0 +1,228 @@
+{
+  "node": "v24.18.0",
+  "flights": 101,
+  "columns": 47,
+  "seedReceipts": 6,
+  "method": "Same current source: legacy separate API versus combined automatic API; identical closed SQLite seeds; alternating variant order per trial; local planning/retrieval/review/save/readback only; synchronous synthetic retrieval; no provider, mobile runtime, UI or close-time interruption.",
+  "samples": [
+    {
+      "scenario": "unchanged",
+      "trial": 0,
+      "variant": "legacy",
+      "milliseconds": 2294.5546999999997,
+      "libraryOpens": 3,
+      "hashCalls": 3359,
+      "graphSha256": "4ef0dc818b466ebeda8ca30c7d0270b3b9201d8f941e35eb89e0225b245b71a9",
+      "journalSha256": "f5679a9f0a22137faf946835dd177b812e5af15d89d2bdd907435a9c7c4d7635"
+    },
+    {
+      "scenario": "unchanged",
+      "trial": 0,
+      "variant": "combined",
+      "milliseconds": 1967.3066999999996,
+      "libraryOpens": 2,
+      "hashCalls": 2623,
+      "graphSha256": "4ef0dc818b466ebeda8ca30c7d0270b3b9201d8f941e35eb89e0225b245b71a9",
+      "journalSha256": "f5679a9f0a22137faf946835dd177b812e5af15d89d2bdd907435a9c7c4d7635"
+    },
+    {
+      "scenario": "unchanged",
+      "trial": 1,
+      "variant": "combined",
+      "milliseconds": 1948.1142999999993,
+      "libraryOpens": 2,
+      "hashCalls": 2623,
+      "graphSha256": "4ef0dc818b466ebeda8ca30c7d0270b3b9201d8f941e35eb89e0225b245b71a9",
+      "journalSha256": "f5679a9f0a22137faf946835dd177b812e5af15d89d2bdd907435a9c7c4d7635"
+    },
+    {
+      "scenario": "unchanged",
+      "trial": 1,
+      "variant": "legacy",
+      "milliseconds": 2282.5354000000007,
+      "libraryOpens": 3,
+      "hashCalls": 3359,
+      "graphSha256": "4ef0dc818b466ebeda8ca30c7d0270b3b9201d8f941e35eb89e0225b245b71a9",
+      "journalSha256": "f5679a9f0a22137faf946835dd177b812e5af15d89d2bdd907435a9c7c4d7635"
+    },
+    {
+      "scenario": "unchanged",
+      "trial": 2,
+      "variant": "legacy",
+      "milliseconds": 2290.809000000001,
+      "libraryOpens": 3,
+      "hashCalls": 3359,
+      "graphSha256": "4ef0dc818b466ebeda8ca30c7d0270b3b9201d8f941e35eb89e0225b245b71a9",
+      "journalSha256": "f5679a9f0a22137faf946835dd177b812e5af15d89d2bdd907435a9c7c4d7635"
+    },
+    {
+      "scenario": "unchanged",
+      "trial": 2,
+      "variant": "combined",
+      "milliseconds": 1957.1670999999988,
+      "libraryOpens": 2,
+      "hashCalls": 2623,
+      "graphSha256": "4ef0dc818b466ebeda8ca30c7d0270b3b9201d8f941e35eb89e0225b245b71a9",
+      "journalSha256": "f5679a9f0a22137faf946835dd177b812e5af15d89d2bdd907435a9c7c4d7635"
+    },
+    {
+      "scenario": "unchanged",
+      "trial": 3,
+      "variant": "combined",
+      "milliseconds": 1974.3246,
+      "libraryOpens": 2,
+      "hashCalls": 2623,
+      "graphSha256": "4ef0dc818b466ebeda8ca30c7d0270b3b9201d8f941e35eb89e0225b245b71a9",
+      "journalSha256": "f5679a9f0a22137faf946835dd177b812e5af15d89d2bdd907435a9c7c4d7635"
+    },
+    {
+      "scenario": "unchanged",
+      "trial": 3,
+      "variant": "legacy",
+      "milliseconds": 2298.7929000000004,
+      "libraryOpens": 3,
+      "hashCalls": 3359,
+      "graphSha256": "4ef0dc818b466ebeda8ca30c7d0270b3b9201d8f941e35eb89e0225b245b71a9",
+      "journalSha256": "f5679a9f0a22137faf946835dd177b812e5af15d89d2bdd907435a9c7c4d7635"
+    },
+    {
+      "scenario": "unchanged",
+      "trial": 4,
+      "variant": "legacy",
+      "milliseconds": 2297.6736999999994,
+      "libraryOpens": 3,
+      "hashCalls": 3359,
+      "graphSha256": "4ef0dc818b466ebeda8ca30c7d0270b3b9201d8f941e35eb89e0225b245b71a9",
+      "journalSha256": "f5679a9f0a22137faf946835dd177b812e5af15d89d2bdd907435a9c7c4d7635"
+    },
+    {
+      "scenario": "unchanged",
+      "trial": 4,
+      "variant": "combined",
+      "milliseconds": 2024.7993999999962,
+      "libraryOpens": 2,
+      "hashCalls": 2623,
+      "graphSha256": "4ef0dc818b466ebeda8ca30c7d0270b3b9201d8f941e35eb89e0225b245b71a9",
+      "journalSha256": "f5679a9f0a22137faf946835dd177b812e5af15d89d2bdd907435a9c7c4d7635"
+    },
+    {
+      "scenario": "changed",
+      "trial": 0,
+      "variant": "legacy",
+      "milliseconds": 2355.5593999999983,
+      "libraryOpens": 3,
+      "hashCalls": 3361,
+      "graphSha256": "95764b2b0978a92f0e65f1b1b4122706cc70115aded2d032ce0d4ad99fc3d7ab",
+      "journalSha256": "4cf74ee28ae678b68b636f77f42dc478c97a4f57ad06a72e8a606df1f03cca6e"
+    },
+    {
+      "scenario": "changed",
+      "trial": 0,
+      "variant": "combined",
+      "milliseconds": 1906.0305999999982,
+      "libraryOpens": 2,
+      "hashCalls": 2625,
+      "graphSha256": "95764b2b0978a92f0e65f1b1b4122706cc70115aded2d032ce0d4ad99fc3d7ab",
+      "journalSha256": "4cf74ee28ae678b68b636f77f42dc478c97a4f57ad06a72e8a606df1f03cca6e"
+    },
+    {
+      "scenario": "changed",
+      "trial": 1,
+      "variant": "combined",
+      "milliseconds": 1915.6661000000022,
+      "libraryOpens": 2,
+      "hashCalls": 2625,
+      "graphSha256": "95764b2b0978a92f0e65f1b1b4122706cc70115aded2d032ce0d4ad99fc3d7ab",
+      "journalSha256": "4cf74ee28ae678b68b636f77f42dc478c97a4f57ad06a72e8a606df1f03cca6e"
+    },
+    {
+      "scenario": "changed",
+      "trial": 1,
+      "variant": "legacy",
+      "milliseconds": 2243.642300000007,
+      "libraryOpens": 3,
+      "hashCalls": 3361,
+      "graphSha256": "95764b2b0978a92f0e65f1b1b4122706cc70115aded2d032ce0d4ad99fc3d7ab",
+      "journalSha256": "4cf74ee28ae678b68b636f77f42dc478c97a4f57ad06a72e8a606df1f03cca6e"
+    },
+    {
+      "scenario": "changed",
+      "trial": 2,
+      "variant": "legacy",
+      "milliseconds": 2253.0799000000043,
+      "libraryOpens": 3,
+      "hashCalls": 3361,
+      "graphSha256": "95764b2b0978a92f0e65f1b1b4122706cc70115aded2d032ce0d4ad99fc3d7ab",
+      "journalSha256": "4cf74ee28ae678b68b636f77f42dc478c97a4f57ad06a72e8a606df1f03cca6e"
+    },
+    {
+      "scenario": "changed",
+      "trial": 2,
+      "variant": "combined",
+      "milliseconds": 1913.1946000000025,
+      "libraryOpens": 2,
+      "hashCalls": 2625,
+      "graphSha256": "95764b2b0978a92f0e65f1b1b4122706cc70115aded2d032ce0d4ad99fc3d7ab",
+      "journalSha256": "4cf74ee28ae678b68b636f77f42dc478c97a4f57ad06a72e8a606df1f03cca6e"
+    },
+    {
+      "scenario": "changed",
+      "trial": 3,
+      "variant": "combined",
+      "milliseconds": 1953.8292999999976,
+      "libraryOpens": 2,
+      "hashCalls": 2625,
+      "graphSha256": "95764b2b0978a92f0e65f1b1b4122706cc70115aded2d032ce0d4ad99fc3d7ab",
+      "journalSha256": "4cf74ee28ae678b68b636f77f42dc478c97a4f57ad06a72e8a606df1f03cca6e"
+    },
+    {
+      "scenario": "changed",
+      "trial": 3,
+      "variant": "legacy",
+      "milliseconds": 2246.9752000000008,
+      "libraryOpens": 3,
+      "hashCalls": 3361,
+      "graphSha256": "95764b2b0978a92f0e65f1b1b4122706cc70115aded2d032ce0d4ad99fc3d7ab",
+      "journalSha256": "4cf74ee28ae678b68b636f77f42dc478c97a4f57ad06a72e8a606df1f03cca6e"
+    },
+    {
+      "scenario": "changed",
+      "trial": 4,
+      "variant": "legacy",
+      "milliseconds": 2248.7972999999984,
+      "libraryOpens": 3,
+      "hashCalls": 3361,
+      "graphSha256": "95764b2b0978a92f0e65f1b1b4122706cc70115aded2d032ce0d4ad99fc3d7ab",
+      "journalSha256": "4cf74ee28ae678b68b636f77f42dc478c97a4f57ad06a72e8a606df1f03cca6e"
+    },
+    {
+      "scenario": "changed",
+      "trial": 4,
+      "variant": "combined",
+      "milliseconds": 1916.19249999999,
+      "libraryOpens": 2,
+      "hashCalls": 2625,
+      "graphSha256": "95764b2b0978a92f0e65f1b1b4122706cc70115aded2d032ce0d4ad99fc3d7ab",
+      "journalSha256": "4cf74ee28ae678b68b636f77f42dc478c97a4f57ad06a72e8a606df1f03cca6e"
+    }
+  ],
+  "source": "e7a38f8a747d031e81f7783bf20d75c8ca30fb31",
+  "summary": [
+    {
+      "scenario": "unchanged",
+      "legacyMedianMs": 2294.5546999999997,
+      "combinedMedianMs": 1967.3066999999996,
+      "changePercent": -14.3
+    },
+    {
+      "scenario": "changed",
+      "legacyMedianMs": 2248.7972999999984,
+      "combinedMedianMs": 1915.6661000000022,
+      "changePercent": -14.8
+    }
+  ],
+  "seedSha256": {
+    "library.sqlite": "76919e7057f81328ecdc1775c61d6554ee44c94537653c930421bf5557b8efa3",
+    "journal.sqlite": "dfd667b24613fae28c6cd9b9633a64d5c3b16852ad1c41c40041c732892c0213"
+  }
+}
