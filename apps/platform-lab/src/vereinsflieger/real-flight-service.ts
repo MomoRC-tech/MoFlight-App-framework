@@ -91,16 +91,16 @@ export class RealFlightService {
     try { this.allowed(); const result = await work(session,span); this.allowed(); return result; }
     finally { await timeFlightStage('repository-close', () => session.close(), span); }
   }
-  private async withJournal<T>(work: (journal: RealFlightOperationJournal) => Promise<T>): Promise<T> {
-    this.allowed(); const journal = await this.ports.journal();
+  private async withJournal<T>(work: (journal: RealFlightOperationJournal) => Promise<T>, span: DiagnosticSpanStarter = diagnosticJournal.captureSpan()): Promise<T> {
+    this.allowed(); const journal = await timeFlightStage('local-journal-open',()=>this.ports.journal(),span);
     try { this.allowed(); const result = await work(journal); this.allowed(); return result; }
-    finally { await journal.close(); }
+    finally { await timeFlightStage('local-journal-close',()=>journal.close(),span); }
   }
   async retrieve(request: {from: string; to: string}, span: DiagnosticSpanStarter = diagnosticJournal.captureSpan()): Promise<RealFlightReview> {
     this.allowed(); if (this.writing || this.dispatching) throw new Error('Save receipt recovery is required before retrieval.');
     const sequence = ++this.operation; this.controller?.abort(); const controller = new AbortController(); this.controller = controller;
     try {
-      const pending = await this.withJournal(journal=>journal.pending()); this.live(sequence);
+      const pending = await this.withJournal(journal=>journal.pending(),span); this.live(sequence);
       if (pending) throw new PendingRealFlightOperation(pending.commandId);
       const source = await timeFlightStage('source-retrieval',()=>this.ports.retrieve({...request},controller.signal),span); this.live(sequence);
       this.ports.onReviewStart?.();
@@ -122,7 +122,7 @@ export class RealFlightService {
   private async buildReview(input: RealFlightSourceInput, sequence: number, span: DiagnosticSpanStarter): Promise<RealFlightReview> {
     const observation = await createRealFlightSourceObservation(input,this.ports.hash), source = clone(input); this.live(sequence);
     if (observation.coverage.state === 'partial') throw new Error('A partial source capture remains review evidence and cannot be saved to the library.');
-    const pending = await this.withJournal(journal=>journal.pending()); this.live(sequence);
+    const pending = await this.withJournal(journal=>journal.pending(),span); this.live(sequence);
     if (pending) throw new PendingRealFlightOperation(pending.commandId);
     const review = await this.withRepository(async ({library}) => {
       const {graph,plan} = await library.prepareReview(source,span); this.live(sequence);
@@ -186,7 +186,7 @@ export class RealFlightService {
       this.live(sequence);
       await beforeReadback?.();
       this.live(sequence);
-      const pending=await this.withJournal(journal=>journal.pending());
+      const pending=await this.withJournal(journal=>journal.pending(),span);
       this.live(sequence);
       if(pending)throw new PendingRealFlightOperation(pending.commandId);
       const stored=await timeFlightStage('return-readback',async timing=>{
@@ -210,25 +210,29 @@ export class RealFlightService {
     realHistoryUuid(command.commandId); this.writing = true;
     try {
       try {
-        await timeFlightStage('command-prepare',()=>this.withJournal(journal=>journal.prepare(command)),span); this.live(sequence); this.allowed(true);
-        const result = await timeFlightStage('explicit-save',nested=>session.library.commit(command,nested),span); this.allowed();
-        await timeFlightStage('command-resolve',()=>this.withJournal(journal=>journal.resolve(command.commandId,'committed')),span); this.allowed(); return result;
+        // Keep validated historical command content only for this local save.
+        // No provider/user wait or caller callback runs with this journal open.
+        return await this.withJournal(async journal=>{
+          await timeFlightStage('command-prepare',()=>journal.prepare(command),span); this.live(sequence); this.allowed(true);
+          const result = await timeFlightStage('explicit-save',nested=>session.library.commit(command,nested),span); this.allowed();
+          await timeFlightStage('command-resolve',()=>journal.resolve(command.commandId,'committed'),span); this.allowed(); return result;
+        },span);
       } catch (error) { throw new PendingRealFlightOperation(command.commandId,{cause:error}); }
     } finally { this.writing = false; }
   }
   async recoverPending(span: DiagnosticSpanStarter = diagnosticJournal.captureSpan()): Promise<RealFlightRecovery> {
     this.allowed(); if (this.writing || this.dispatching) throw new Error('Wait for the current save before receipt recovery.');
-    const command = await this.withJournal(journal=>journal.pending());
+    const command = await this.withJournal(journal=>journal.pending(),span);
     if (!command) return {status:'none'};
     return this.withRepository(async session => {
       const receipt = await session.library.recoverReceipt(command.commandId);
       if (receipt.status === 'found') {
         if (receipt.receipt.request_json !== canonical(command)) throw new Error('Recovered receipt does not match the original command.');
-        await this.withJournal(journal=>journal.resolve(command.commandId,'committed'));
+        await this.withJournal(journal=>journal.resolve(command.commandId,'committed'),span);
         this.currentReview = null; return {status:'committed',result:receipt.result};
       }
       if (!session.writable) return {status:'recovery-required',commandId:command.commandId,warning:session.warning};
-      await this.withJournal(journal=>journal.resolve(command.commandId,'not-committed'));
+      await this.withJournal(journal=>journal.resolve(command.commandId,'not-committed'),span);
       return {status:'not-committed',commandId:command.commandId};
     },undefined,span);
   }
@@ -238,7 +242,7 @@ export class RealFlightService {
     const result=await this.recoverPending(span);
     if(result.status==='recovery-required')throw new PendingRealFlightOperation(result.commandId);
     if(result.status==='not-committed'){
-      await this.withJournal(journal=>journal.supersede(result.commandId));
+      await this.withJournal(journal=>journal.supersede(result.commandId),span);
       diagnosticJournal.record('sync','sync-previous-save-superseded');
       return {status:'none'};
     }
@@ -249,7 +253,7 @@ export class RealFlightService {
     this.allowed(true); if (this.dispatching || this.writing) throw new Error('A save command is already in progress.');
     const sequence = ++this.operation, span=diagnosticJournal.captureSpan(); this.dispatching = true;
     try {
-      const command = await this.withJournal(journal=>journal.pending()); this.live(sequence);
+      const command = await this.withJournal(journal=>journal.pending(),span); this.live(sequence);
       if (!command) throw new Error('No prepared save command to retry.');
       const result = await this.withRepository(session=>this.execute(command,session,sequence,span),undefined,span); this.live(sequence); this.currentReview = null; return result;
     } finally { this.dispatching = false; }

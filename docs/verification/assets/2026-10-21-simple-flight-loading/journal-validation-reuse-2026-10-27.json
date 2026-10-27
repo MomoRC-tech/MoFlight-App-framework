@@ -1,0 +1,342 @@
+{
+  "scope": "Synthetic Windows x64 host SQLite; local review + verified save/readback; no provider/network/owner-selection UI or rendered frame",
+  "node": "24.18.0",
+  "source_base": "3139b65a0263c5eb860aace48c25fb7618f9e3b1",
+  "candidate_source": "Source file fingerprints below; implementation commit linked from issue #41 and package report.",
+  "fixture": {
+    "flights": 101,
+    "columns": 47,
+    "seed_receipts": 6,
+    "seed_sha256": {
+      "library.sqlite": "76919e7057f81328ecdc1775c61d6554ee44c94537653c930421bf5557b8efa3",
+      "journal.sqlite": "dfd667b24613fae28c6cd9b9633a64d5c3b16852ad1c41c40041c732892c0213"
+    }
+  },
+  "method": "Sequential baseline then candidate, five clones of the same closed seed per scenario. Baseline service/journal source loaded from source_base in the same JavaScript realm; shared library unchanged. Timed boundaries exclude harness setup, cloning, final evidence hashing and offline reopen. Complete graph/receipt and journal command/resolution digests asserted equal per paired trial; generated journal timestamps excluded from journal digest.",
+  "limits": [
+    "Host-only; not whole Sync, cold-cache, native storage, actual provider or phone speed.",
+    "Ordered runs and system/JIT/cache variation limit performance generalization.",
+    "OpeningGraphValidations counts instrumented library-open validations, not all nested graph replay.",
+    "Initial exploratory baseline/candidate and a failed cross-realm control harness attempt excluded; final paired control uses the same realm."
+  ],
+  "results": [
+    {
+      "scenario": "unchanged",
+      "trials_per_variant": 5,
+      "baseline": {
+        "median_ms": 3370.956699999999,
+        "median_save_ms": 2396.007600000001,
+        "samples": [
+          {
+            "scenario": "unchanged",
+            "trial": 0,
+            "milliseconds": 3501.642,
+            "reviewMs": 936.2435999999998,
+            "saveMs": 2565.3967,
+            "journalHashes": 263,
+            "journalOpens": 4,
+            "commandReads": 10,
+            "resolutionReads": 10,
+            "graphSha256": "4ef0dc818b466ebeda8ca30c7d0270b3b9201d8f941e35eb89e0225b245b71a9",
+            "journalSha256": "f5679a9f0a22137faf946835dd177b812e5af15d89d2bdd907435a9c7c4d7635",
+            "openingGraphValidations": 2
+          },
+          {
+            "scenario": "unchanged",
+            "trial": 1,
+            "milliseconds": 3371.489200000001,
+            "reviewMs": 975.4779000000008,
+            "saveMs": 2396.007600000001,
+            "journalHashes": 263,
+            "journalOpens": 4,
+            "commandReads": 10,
+            "resolutionReads": 10,
+            "graphSha256": "4ef0dc818b466ebeda8ca30c7d0270b3b9201d8f941e35eb89e0225b245b71a9",
+            "journalSha256": "f5679a9f0a22137faf946835dd177b812e5af15d89d2bdd907435a9c7c4d7635",
+            "openingGraphValidations": 2
+          },
+          {
+            "scenario": "unchanged",
+            "trial": 2,
+            "milliseconds": 3297.9866999999977,
+            "reviewMs": 927.1067999999996,
+            "saveMs": 2370.8762000000006,
+            "journalHashes": 263,
+            "journalOpens": 4,
+            "commandReads": 10,
+            "resolutionReads": 10,
+            "graphSha256": "4ef0dc818b466ebeda8ca30c7d0270b3b9201d8f941e35eb89e0225b245b71a9",
+            "journalSha256": "f5679a9f0a22137faf946835dd177b812e5af15d89d2bdd907435a9c7c4d7635",
+            "openingGraphValidations": 2
+          },
+          {
+            "scenario": "unchanged",
+            "trial": 3,
+            "milliseconds": 3283.439900000001,
+            "reviewMs": 890.6224000000002,
+            "saveMs": 2392.8148999999976,
+            "journalHashes": 263,
+            "journalOpens": 4,
+            "commandReads": 10,
+            "resolutionReads": 10,
+            "graphSha256": "4ef0dc818b466ebeda8ca30c7d0270b3b9201d8f941e35eb89e0225b245b71a9",
+            "journalSha256": "f5679a9f0a22137faf946835dd177b812e5af15d89d2bdd907435a9c7c4d7635",
+            "openingGraphValidations": 2
+          },
+          {
+            "scenario": "unchanged",
+            "trial": 4,
+            "milliseconds": 3370.956699999999,
+            "reviewMs": 905.582699999999,
+            "saveMs": 2465.370700000003,
+            "journalHashes": 263,
+            "journalOpens": 4,
+            "commandReads": 10,
+            "resolutionReads": 10,
+            "graphSha256": "4ef0dc818b466ebeda8ca30c7d0270b3b9201d8f941e35eb89e0225b245b71a9",
+            "journalSha256": "f5679a9f0a22137faf946835dd177b812e5af15d89d2bdd907435a9c7c4d7635",
+            "openingGraphValidations": 2
+          }
+        ]
+      },
+      "candidate": {
+        "median_ms": 2568.5926,
+        "median_save_ms": 1740.1075,
+        "samples": [
+          {
+            "scenario": "unchanged",
+            "trial": 0,
+            "milliseconds": 2501.1888000000004,
+            "reviewMs": 842.8029,
+            "saveMs": 1658.3819999999998,
+            "journalHashes": 63,
+            "journalOpens": 3,
+            "commandReads": 9,
+            "resolutionReads": 9,
+            "graphSha256": "4ef0dc818b466ebeda8ca30c7d0270b3b9201d8f941e35eb89e0225b245b71a9",
+            "journalSha256": "f5679a9f0a22137faf946835dd177b812e5af15d89d2bdd907435a9c7c4d7635",
+            "openingGraphValidations": 2
+          },
+          {
+            "scenario": "unchanged",
+            "trial": 1,
+            "milliseconds": 2568.5926,
+            "reviewMs": 813.3074999999999,
+            "saveMs": 1755.2823000000008,
+            "journalHashes": 63,
+            "journalOpens": 3,
+            "commandReads": 9,
+            "resolutionReads": 9,
+            "graphSha256": "4ef0dc818b466ebeda8ca30c7d0270b3b9201d8f941e35eb89e0225b245b71a9",
+            "journalSha256": "f5679a9f0a22137faf946835dd177b812e5af15d89d2bdd907435a9c7c4d7635",
+            "openingGraphValidations": 2
+          },
+          {
+            "scenario": "unchanged",
+            "trial": 2,
+            "milliseconds": 2540.6576999999997,
+            "reviewMs": 800.5473000000002,
+            "saveMs": 1740.1075,
+            "journalHashes": 63,
+            "journalOpens": 3,
+            "commandReads": 9,
+            "resolutionReads": 9,
+            "graphSha256": "4ef0dc818b466ebeda8ca30c7d0270b3b9201d8f941e35eb89e0225b245b71a9",
+            "journalSha256": "f5679a9f0a22137faf946835dd177b812e5af15d89d2bdd907435a9c7c4d7635",
+            "openingGraphValidations": 2
+          },
+          {
+            "scenario": "unchanged",
+            "trial": 3,
+            "milliseconds": 2578.600699999999,
+            "reviewMs": 811.7174000000014,
+            "saveMs": 1766.8803000000007,
+            "journalHashes": 63,
+            "journalOpens": 3,
+            "commandReads": 9,
+            "resolutionReads": 9,
+            "graphSha256": "4ef0dc818b466ebeda8ca30c7d0270b3b9201d8f941e35eb89e0225b245b71a9",
+            "journalSha256": "f5679a9f0a22137faf946835dd177b812e5af15d89d2bdd907435a9c7c4d7635",
+            "openingGraphValidations": 2
+          },
+          {
+            "scenario": "unchanged",
+            "trial": 4,
+            "milliseconds": 2577.0205000000024,
+            "reviewMs": 841.7504000000008,
+            "saveMs": 1735.267499999998,
+            "journalHashes": 63,
+            "journalOpens": 3,
+            "commandReads": 9,
+            "resolutionReads": 9,
+            "graphSha256": "4ef0dc818b466ebeda8ca30c7d0270b3b9201d8f941e35eb89e0225b245b71a9",
+            "journalSha256": "f5679a9f0a22137faf946835dd177b812e5af15d89d2bdd907435a9c7c4d7635",
+            "openingGraphValidations": 2
+          }
+        ]
+      },
+      "median_change_percent": -23.80226657909902
+    },
+    {
+      "scenario": "changed",
+      "trials_per_variant": 5,
+      "baseline": {
+        "median_ms": 3242.389200000005,
+        "median_save_ms": 2352.1949000000022,
+        "samples": [
+          {
+            "scenario": "changed",
+            "trial": 0,
+            "milliseconds": 3242.389200000005,
+            "reviewMs": 890.1911000000036,
+            "saveMs": 2352.1949000000022,
+            "journalHashes": 263,
+            "journalOpens": 4,
+            "commandReads": 10,
+            "resolutionReads": 10,
+            "graphSha256": "95764b2b0978a92f0e65f1b1b4122706cc70115aded2d032ce0d4ad99fc3d7ab",
+            "journalSha256": "4cf74ee28ae678b68b636f77f42dc478c97a4f57ad06a72e8a606df1f03cca6e",
+            "openingGraphValidations": 2
+          },
+          {
+            "scenario": "changed",
+            "trial": 1,
+            "milliseconds": 3328.1875999999975,
+            "reviewMs": 918.0968999999968,
+            "saveMs": 2410.087599999999,
+            "journalHashes": 263,
+            "journalOpens": 4,
+            "commandReads": 10,
+            "resolutionReads": 10,
+            "graphSha256": "95764b2b0978a92f0e65f1b1b4122706cc70115aded2d032ce0d4ad99fc3d7ab",
+            "journalSha256": "4cf74ee28ae678b68b636f77f42dc478c97a4f57ad06a72e8a606df1f03cca6e",
+            "openingGraphValidations": 2
+          },
+          {
+            "scenario": "changed",
+            "trial": 2,
+            "milliseconds": 3248.8462,
+            "reviewMs": 886.2134000000005,
+            "saveMs": 2362.630100000002,
+            "journalHashes": 263,
+            "journalOpens": 4,
+            "commandReads": 10,
+            "resolutionReads": 10,
+            "graphSha256": "95764b2b0978a92f0e65f1b1b4122706cc70115aded2d032ce0d4ad99fc3d7ab",
+            "journalSha256": "4cf74ee28ae678b68b636f77f42dc478c97a4f57ad06a72e8a606df1f03cca6e",
+            "openingGraphValidations": 2
+          },
+          {
+            "scenario": "changed",
+            "trial": 3,
+            "milliseconds": 3232.3052000000025,
+            "reviewMs": 902.5662999999986,
+            "saveMs": 2329.7367000000013,
+            "journalHashes": 263,
+            "journalOpens": 4,
+            "commandReads": 10,
+            "resolutionReads": 10,
+            "graphSha256": "95764b2b0978a92f0e65f1b1b4122706cc70115aded2d032ce0d4ad99fc3d7ab",
+            "journalSha256": "4cf74ee28ae678b68b636f77f42dc478c97a4f57ad06a72e8a606df1f03cca6e",
+            "openingGraphValidations": 2
+          },
+          {
+            "scenario": "changed",
+            "trial": 4,
+            "milliseconds": 3232.782800000001,
+            "reviewMs": 884.3695000000007,
+            "saveMs": 2348.409200000002,
+            "journalHashes": 263,
+            "journalOpens": 4,
+            "commandReads": 10,
+            "resolutionReads": 10,
+            "graphSha256": "95764b2b0978a92f0e65f1b1b4122706cc70115aded2d032ce0d4ad99fc3d7ab",
+            "journalSha256": "4cf74ee28ae678b68b636f77f42dc478c97a4f57ad06a72e8a606df1f03cca6e",
+            "openingGraphValidations": 2
+          }
+        ]
+      },
+      "candidate": {
+        "median_ms": 2529.3012000000017,
+        "median_save_ms": 1722.8520999999964,
+        "samples": [
+          {
+            "scenario": "changed",
+            "trial": 0,
+            "milliseconds": 2532.323800000002,
+            "reviewMs": 802.5529000000024,
+            "saveMs": 1729.767499999998,
+            "journalHashes": 63,
+            "journalOpens": 3,
+            "commandReads": 9,
+            "resolutionReads": 9,
+            "graphSha256": "95764b2b0978a92f0e65f1b1b4122706cc70115aded2d032ce0d4ad99fc3d7ab",
+            "journalSha256": "4cf74ee28ae678b68b636f77f42dc478c97a4f57ad06a72e8a606df1f03cca6e",
+            "openingGraphValidations": 2
+          },
+          {
+            "scenario": "changed",
+            "trial": 1,
+            "milliseconds": 2615.107299999996,
+            "reviewMs": 862.1152999999977,
+            "saveMs": 1752.9892000000036,
+            "journalHashes": 63,
+            "journalOpens": 3,
+            "commandReads": 9,
+            "resolutionReads": 9,
+            "graphSha256": "95764b2b0978a92f0e65f1b1b4122706cc70115aded2d032ce0d4ad99fc3d7ab",
+            "journalSha256": "4cf74ee28ae678b68b636f77f42dc478c97a4f57ad06a72e8a606df1f03cca6e",
+            "openingGraphValidations": 2
+          },
+          {
+            "scenario": "changed",
+            "trial": 2,
+            "milliseconds": 2529.3012000000017,
+            "reviewMs": 806.4468999999954,
+            "saveMs": 1722.8520999999964,
+            "journalHashes": 63,
+            "journalOpens": 3,
+            "commandReads": 9,
+            "resolutionReads": 9,
+            "graphSha256": "95764b2b0978a92f0e65f1b1b4122706cc70115aded2d032ce0d4ad99fc3d7ab",
+            "journalSha256": "4cf74ee28ae678b68b636f77f42dc478c97a4f57ad06a72e8a606df1f03cca6e",
+            "openingGraphValidations": 2
+          },
+          {
+            "scenario": "changed",
+            "trial": 3,
+            "milliseconds": 2506.933999999994,
+            "reviewMs": 794.3176999999996,
+            "saveMs": 1712.6134999999995,
+            "journalHashes": 63,
+            "journalOpens": 3,
+            "commandReads": 9,
+            "resolutionReads": 9,
+            "graphSha256": "95764b2b0978a92f0e65f1b1b4122706cc70115aded2d032ce0d4ad99fc3d7ab",
+            "journalSha256": "4cf74ee28ae678b68b636f77f42dc478c97a4f57ad06a72e8a606df1f03cca6e",
+            "openingGraphValidations": 2
+          },
+          {
+            "scenario": "changed",
+            "trial": 4,
+            "milliseconds": 2508.0480000000025,
+            "reviewMs": 796.8770000000004,
+            "saveMs": 1711.167300000001,
+            "journalHashes": 63,
+            "journalOpens": 3,
+            "commandReads": 9,
+            "resolutionReads": 9,
+            "graphSha256": "95764b2b0978a92f0e65f1b1b4122706cc70115aded2d032ce0d4ad99fc3d7ab",
+            "journalSha256": "4cf74ee28ae678b68b636f77f42dc478c97a4f57ad06a72e8a606df1f03cca6e",
+            "openingGraphValidations": 2
+          }
+        ]
+      },
+      "median_change_percent": -21.992671330141434
+    }
+  ],
+  "candidate_files_lf_sha256": {
+    "apps/platform-lab/src/vereinsflieger/real-flight-service.ts": "b1645ffe90b276e195c196749a2e87914a42d9bea6a8eaec007f8b8e09c6fd7e",
+    "apps/platform-lab/src/vereinsflieger/real-flight-command-journal.ts": "39499b7fad05da0250b869c6f20ec93a18654f6b78df0c725e7782f5aa28096c"
+  }
+}

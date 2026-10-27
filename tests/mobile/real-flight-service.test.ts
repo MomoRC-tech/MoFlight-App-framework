@@ -59,6 +59,42 @@ async function ready(f: Awaited<ReturnType<typeof fixture>>) {
   const bound=await service.confirmAccount(review);assert.equal(bound.state,'ready');return {service,review:bound};
 }
 
+test('local save uses one bounded journal for prepare and resolve, then closes it before metadata callbacks',async()=>{
+  const f=await fixture(),{service,review}=await ready(f),open=f.ports.journal;
+  let opens=0,closes=0,active=0;
+  f.ports.journal=async()=>{opens++;active++;const journal=await open();return {...journal,
+    prepare:journal.prepare.bind(journal),pending:journal.pending.bind(journal),resolve:journal.resolve.bind(journal),supersede:journal.supersede.bind(journal),
+    close:async()=>{closes++;active--;await journal.close();}};};
+  try{
+    const saved=await service.saveVerifiedReviewWithStoredReadback(review,{accountNumber:'101',clubLabel:'Example club'},async()=>{
+      assert.equal(active,0,'the save journal cannot escape into a caller callback');
+      assert.equal(opens,1);assert.equal(closes,1);
+    });
+    assert.equal(saved.stored.flights.length,1);
+    assert.equal(opens,2,'final pending guard opens fresh after metadata awaits');assert.equal(closes,2);assert.equal(active,0);
+  }finally{service.dispose();await f.cleanup();}
+});
+
+for(const failure of ['prepare','commit','resolve'] as const)test(`bounded save journal closes after ${failure} failure and preserves receipt recovery`,async()=>{
+  const f=await fixture(),{service,review}=await ready(f),open=f.ports.journal;
+  let opens=0,closes=0;
+  f.ports.journal=async()=>{
+    opens++;const journal=await open();
+    return {prepare:async(command)=>{if(failure==='prepare')throw new Error('Injected journal preparation failure');await journal.prepare(command);},
+      pending:journal.pending.bind(journal),resolve:async(id,outcome)=>{if(failure==='resolve')throw new Error('Injected journal resolution failure');await journal.resolve(id,outcome);},
+      supersede:journal.supersede.bind(journal),close:async()=>{closes++;await journal.close();}};
+  };
+  if(failure==='commit')f.setFailure('after-facts');
+  try{
+    await assert.rejects(service.saveVerifiedReviewWithStoredReadback(review,{accountNumber:'101',clubLabel:'Example club'}),PendingRealFlightOperation);
+    assert.equal(opens,1);assert.equal(closes,1,'a failed save cannot retain its validation handle');
+    f.ports.journal=open;f.setFailure('');
+    const recovered=await service.recoverPending();
+    assert.equal(recovered.status,failure==='prepare'?'none':failure==='commit'?'not-committed':'committed');
+    assert.equal((await service.readStored()).flights.length,failure==='resolve'?1:0);
+  }finally{service.dispose();await f.cleanup();}
+});
+
 test('verified save with stored readback uses one ready-session and preserves the complete graph and receipt',async()=>{
   const f=await fixture(),reference=await fixture();
   for(const value of [f,reference]){let n=0;value.ports.uuid=()=>`44444444-4444-4444-8444-${String(++n).padStart(12,'0')}`;}

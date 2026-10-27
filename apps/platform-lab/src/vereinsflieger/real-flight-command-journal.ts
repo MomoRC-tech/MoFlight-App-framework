@@ -36,6 +36,12 @@ interface ValidatedCommand { command: RealFlightCommand; request: string; reques
 interface OwnCommand extends ValidatedCommand { row: CommandRow; latestOutcome: RealFlightCommandResolutionOutcome | null }
 interface JournalState { commands: OwnCommand[]; pending: OwnCommand | null }
 
+function sameCommandRow(a: CommandRow, b: CommandRow): boolean {
+  return a.seq === b.seq && a.owner_id === b.owner_id && a.store_id === b.store_id &&
+    a.command_id === b.command_id && a.kind === b.kind && a.request_json === b.request_json &&
+    a.request_sha256 === b.request_sha256 && a.prepared_at === b.prepared_at;
+}
+
 const manifestSql = `CREATE TABLE real_flight_command_manifest(singleton INTEGER PRIMARY KEY CHECK(singleton=1),family TEXT NOT NULL CHECK(family='${REAL_FLIGHT_COMMAND_JOURNAL_FAMILY}'),schema_version INTEGER NOT NULL CHECK(schema_version=1),created_at TEXT NOT NULL)`;
 const commandsSql = `CREATE TABLE real_flight_commands(seq INTEGER PRIMARY KEY AUTOINCREMENT,owner_id TEXT NOT NULL,store_id TEXT NOT NULL,command_id TEXT NOT NULL UNIQUE,kind TEXT NOT NULL CHECK(kind IN ('bind','import-unassigned')),request_json TEXT NOT NULL CHECK(json_valid(request_json)),request_sha256 TEXT NOT NULL,prepared_at TEXT NOT NULL,UNIQUE(owner_id,store_id,command_id))`;
 const resolutionsSql = `CREATE TABLE real_flight_command_resolutions(seq INTEGER PRIMARY KEY AUTOINCREMENT,owner_id TEXT NOT NULL,store_id TEXT NOT NULL,command_id TEXT NOT NULL,outcome TEXT NOT NULL CHECK(outcome IN ('committed','not-committed')),resolved_at TEXT NOT NULL,FOREIGN KEY(owner_id,store_id,command_id) REFERENCES real_flight_commands(owner_id,store_id,command_id))`;
@@ -119,6 +125,9 @@ async function validateCommand(value: unknown, ownerId: string, storeId: string,
  */
 export class RealFlightCommandJournal {
   private closed = false;
+  // Only detached, validated command content belongs here. Every operation
+  // rereads command bytes and resolutions; outcomes/authorization are not cached.
+  private validatedCommands = new Map<string, {row: CommandRow; value: ValidatedCommand}>();
 
   private constructor(private readonly db: Driver, private readonly ownerId: string, private readonly storeId: string,
     private readonly leaseId: string, private readonly authorize: RealFlightCommandJournalAuthorization,
@@ -186,13 +195,14 @@ export class RealFlightCommandJournal {
       return journal;
     } catch (error) {
       journal.closed = true;
+      journal.validatedCommands.clear();
       try { await db.close(); } catch { /* Preserve the original open failure. */ }
       throw error;
     }
   }
 
   async close(): Promise<void> {
-    if (!this.closed) { this.closed = true; await this.db.close(); }
+    if (!this.closed) { this.closed = true; this.validatedCommands.clear(); await this.db.close(); }
   }
 
   private async checkSchema(tx: Connection): Promise<void> {
@@ -234,6 +244,7 @@ export class RealFlightCommandJournal {
     const resolutionRows = await tx.all<ResolutionRow>('SELECT * FROM real_flight_command_resolutions WHERE owner_id=? AND store_id=? ORDER BY seq',
       this.ownerId, this.storeId);
     const commands: OwnCommand[] = [];
+    const validatedCommands = new Map<string, {row: CommandRow; value: ValidatedCommand}>();
     let previousSeq = 0;
     for (const row of commandRows) {
       realFlightRequire(Number.isSafeInteger(row.seq) && row.seq > previousSeq && row.owner_id === this.ownerId && row.store_id === this.storeId,
@@ -241,13 +252,20 @@ export class RealFlightCommandJournal {
       previousSeq = row.seq;
       realHistoryUuid(row.command_id); timestamp(row.prepared_at);
       realFlightRequire(row.kind === 'bind' || row.kind === 'import-unassigned', 'Invalid real flight command kind.');
-      let parsed: unknown;
-      try { parsed = JSON.parse(row.request_json); } catch { throw new Error('Invalid real flight command request JSON.'); }
-      const validated = await validateCommand(parsed, this.ownerId, this.storeId, this.hash);
-      realFlightRequire(validated.command.commandId === row.command_id && validated.command.kind === row.kind &&
-        validated.request === row.request_json && await this.hash(row.request_json) === row.request_sha256,
-        'Real flight command request hash or identity mismatch.');
-      realFlightSha(row.request_sha256);
+      const previous = this.validatedCommands.get(row.command_id);
+      let validated: ValidatedCommand;
+      if (previous && sameCommandRow(previous.row, row)) validated = previous.value;
+      else {
+        let parsed: unknown;
+        try { parsed = JSON.parse(row.request_json); } catch { throw new Error('Invalid real flight command request JSON.'); }
+        validated = await validateCommand(parsed, this.ownerId, this.storeId, this.hash);
+        // validateCommand already hashed this exact canonical request.
+        realFlightRequire(validated.command.commandId === row.command_id && validated.command.kind === row.kind &&
+          validated.request === row.request_json && validated.requestSha256 === row.request_sha256,
+          'Real flight command request hash or identity mismatch.');
+        realFlightSha(row.request_sha256);
+      }
+      validatedCommands.set(row.command_id, {row: {...row}, value: validated});
       commands.push({ row, ...validated, latestOutcome: null });
     }
 
@@ -270,6 +288,7 @@ export class RealFlightCommandJournal {
     realFlightRequire(pending.length <= 1 && (!pending.length || commands.at(-1) === pending[0]),
       'Invalid unresolved real flight command sequence.');
     await this.access(writeAccess);
+    this.validatedCommands = validatedCommands;
     return { commands, pending: pending[0] ?? null };
   }
 

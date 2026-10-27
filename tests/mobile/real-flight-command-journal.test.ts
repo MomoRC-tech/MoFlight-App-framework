@@ -245,3 +245,61 @@ test('schema family is explicit and exact on disk', async t => {
     'moflight-real-flight-command-journal');
   await inspect.close();
 });
+
+test('unchanged journal commands are validated once per handle while pending and resolution rows stay fresh', async t => {
+  const path=tempDb(t),seeded=await openJournal(t,path,ownerA,storeA,true);
+  const first=bindCommand(101),second=bindCommand(102);
+  await seeded.journal.prepare(first);await seeded.journal.close();
+  let hashes=0;
+  const auth=authorizeFor(ownerA,storeA,'bounded-validation');
+  const journal=await RealFlightCommandJournal.open(trackedDriver(t,path),ownerA,storeA,auth.authorize,async value=>{hashes++;return hash(value);});
+  resources.get(t)!.closers.push(()=>journal.close());
+  assert.ok(hashes>0,'a new handle must validate existing command content');
+  hashes=0;
+  const exposed=await journal.pending();assert.deepEqual(exposed,first);
+  exposed!.source.capture.rows[0]!.values[1]='caller mutation';
+  assert.deepEqual(await journal.pending(),first,'callers cannot mutate retained evidence');
+  await journal.resolve(first.commandId,'committed');assert.equal(await journal.pending(),null);
+  assert.equal(hashes,0,'fresh reads of identical command bytes do not repeat source/hash validation');
+  const other=await openJournal(t,path);
+  await other.journal.prepare(second);
+  assert.deepEqual(await journal.pending(),second,'another writer is observed without reopening');
+  assert.ok(hashes>0,'new command bytes are validated');
+  hashes=0;
+  await other.journal.resolve(second.commandId,'committed');
+  assert.equal(await journal.pending(),null,'another writer resolution is never cached');
+  assert.equal(hashes,0);
+  await journal.close();hashes=0;
+  const fresh=await RealFlightCommandJournal.open(trackedDriver(t,path),ownerA,storeA,auth.authorize,async value=>{hashes++;return hash(value);});
+  assert.ok(hashes>0,'validation evidence does not cross handles');await fresh.close();
+});
+
+for(const tamper of ['hash','request'] as const)test(`warm journal rejects changed ${tamper} bytes at the same command count`,async t=>{
+  const path=tempDb(t),seeded=await openJournal(t,path,ownerA,storeA,true),command=bindCommand(103);
+  await seeded.journal.prepare(command);await seeded.journal.close();
+  const warm=await openJournal(t,path);assert.deepEqual(await warm.journal.pending(),command);
+  const raw=trackedDriver(t,path);
+  const trigger=await raw.first<{sql:string}>("SELECT sql FROM sqlite_master WHERE name='real_flight_commands_no_update'");assert.ok(trigger);
+  await raw.exec('DROP TRIGGER real_flight_commands_no_update');
+  if(tamper==='hash')await raw.run('UPDATE real_flight_commands SET request_sha256=?', '0'.repeat(64));
+  else {
+    const row=await raw.first<{request_json:string}>('SELECT request_json FROM real_flight_commands');assert.ok(row);
+    const changed=row.request_json.replace('"recordCount":1','"recordCount":2');assert.notEqual(changed,row.request_json);
+    await raw.run('UPDATE real_flight_commands SET request_json=?,request_sha256=?',changed,await hash(changed));
+  }
+  await raw.exec(trigger.sql);
+  await assert.rejects(warm.journal.pending(),/hash or identity mismatch|saved export shape|record count|coverage|source/i);
+  assert.equal((await raw.first<{n:number}>('SELECT COUNT(*) AS n FROM real_flight_command_resolutions'))!.n,0);
+});
+
+test('warm journal validation does not hide a rolled-back resolution',async t=>{
+  const path=tempDb(t),seeded=await openJournal(t,path,ownerA,storeA,true),command=bindCommand(104);
+  await seeded.journal.prepare(command);await seeded.journal.close();
+  const raw=trackedDriver(t,path),auth=authorizeFor(ownerA,storeA,'rollback'),db:Driver={...raw,transaction:work=>raw.transaction(async tx=>{
+    const value=await work(tx);throw new Error(`Injected rollback ${typeof value}`);
+  })};
+  const journal=await RealFlightCommandJournal.open(db,ownerA,storeA,auth.authorize,hash);
+  resources.get(t)!.closers.push(()=>journal.close());
+  await assert.rejects(journal.resolve(command.commandId,'committed'),/requires recovery/);
+  assert.deepEqual(await journal.pending(),command);
+});
