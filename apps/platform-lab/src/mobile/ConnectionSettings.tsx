@@ -7,8 +7,10 @@ import {Action,Card,Label,Section,colors,ui} from './theme';
 export function ConnectionSettings({controller:c,busy,onSignOut}:{controller:ReturnType<typeof useAccessController>;busy:boolean;onSignOut?:()=>void}){
   const locked=busy||c.busy||c.saving||c.loginBusy||c.binding||c.clearing||c.disconnecting||c.restoring.current;
   const sessionLocked=locked||c.recovery||!c.viewReady;
+  const operation=c.clearing?'Lokale Anbietersitzung wird gelöscht …':c.restoring.current?'Anbieteransicht wird wiederhergestellt …':c.binding?'Kontozuordnung wird gespeichert …':c.saving?'Belege werden gespeichert …':c.disconnecting?'Abmeldung wird geprüft …':c.loginBusy?'Gespeicherte Anmeldung wird versucht …':busy||c.busy?'Ein Datenvorgang läuft. Die Verwaltung ist vorübergehend gesperrt.':null;
   return <View style={{gap:18}}>
     <Label muted>Sitzung und Zugangsdaten sind getrennt. Gespeicherte Flüge bleiben erhalten.</Label>
+    {operation&&<View accessible accessibilityLiveRegion="polite" accessibilityState={{busy:true}}><Label>{operation}</Label></View>}
     <Card><Section title="Anbietersitzung"/>
     <Label muted>Die Anmeldung erfolgt auf der Originalseite, mit System-Autofill und „Angemeldet bleiben“.</Label>
     <Label muted>Öffnet die Originalseite zum Abmelden. Schließen allein meldet dich nicht ab.</Label>
@@ -19,7 +21,6 @@ export function ConnectionSettings({controller:c,busy,onSignOut}:{controller:Ret
     </View>
     <View accessibilityLiveRegion="polite" style={{gap:6}}>
     {c.recovery&&<Label>Vor dem Abmelden muss die Anbieteransicht wiederhergestellt werden. Öffne dafür Sync in der Kopfzeile.</Label>}
-    {c.clearing&&<Label>Lokale Anbietersitzung wird gelöscht …</Label>}
     {c.clearNotice==='cleared'&&<Label>Lokale Anbietersitzung gelöscht. Andere Geräte bleiben angemeldet.</Label>}
     {c.clearNotice==='failed'&&<Label>Lokales Löschen nicht bestätigt. Bitte erneut versuchen.</Label>}
     {c.disconnectNotice==='verified'&&<Label>Abmeldung in diesem App-Browser bestätigt.</Label>}

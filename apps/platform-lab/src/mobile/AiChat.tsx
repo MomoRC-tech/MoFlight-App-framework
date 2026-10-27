@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Keyboard, KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
+import { ActivityIndicator, Keyboard, KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
 import type { AiBudget, AiFeature } from '../../../../packages/ai-contracts/src/index.ts';
 import type { ChatConversation, ChatMessage } from '../ai/chat-model';
 import { Action, Card, Label, Section, colors, ui } from './theme';
@@ -12,6 +12,8 @@ export interface AiChatProps {
   enabled: boolean;
   busy: boolean;
   loading: boolean;
+  storageReady?: boolean;
+  onRetryLoad?: () => void;
   notice: string | null;
   usage: AiBudget | null;
   usageAt?:string|null;
@@ -128,7 +130,7 @@ function MessageEvidence({ message, onEvidence }: {
 }
 
 export function AiChat({
-  conversations, selectedId, enabled, busy, loading, notice, usage, feature, active=true,
+  conversations, selectedId, enabled, busy, loading, notice, usage, feature, active=true, storageReady=true, onRetryLoad,
   onCreate, onSelect, onDelete, onDraft, onSend, onCancel, onToggle, onFeature, onEvidence,usageAt,usageStale,
 }: AiChatProps) {
   const {width}=useWindowDimensions();
@@ -139,26 +141,29 @@ export function AiChat({
   const sheetPositions=useRef<Record<string,number>>({});
   const transcript=useRef<ScrollView>(null),positions=useRef<Record<string,number>>({}),follow=useRef(true);
   const key=selectedId??'new';
+  const cannotCreate=busy||!storageReady;
+  const cannotSend=!draft.trim()||!storageReady;
   useEffect(()=>{follow.current=positions.current[key]===undefined;setShowLatest(false);setInputHeight(44);},[key]);
   useEffect(()=>{if(!active){setSheet(null);Keyboard.dismiss();}},[active]);
   const open=(next:NonNullable<typeof sheet>)=>{Keyboard.dismiss();setSheet(next);};
   const detailSheet=sheet==='privacy'||sheet==='usage';
   const closeSheet=()=>setSheet(detailSheet?'options':null);
-  const create=()=>{setSheet(null);follow.current=true;onCreate();};
+  const create=()=>{if(cannotCreate)return;setSheet(null);follow.current=true;onCreate();};
   const bottom=()=>{follow.current=true;setShowLatest(false);transcript.current?.scrollToEnd({animated:false});};
   const menuAction=(title:string,action:()=>void,label=title,destructive=false)=><Pressable accessibilityRole="button" accessibilityLabel={label} onPress={action} style={({pressed})=>[styles.menuRow,pressed&&ui.pressed]}><Label style={[styles.menuLabel,destructive&&styles.destructive]}>{title}</Label><Text accessible={false} style={styles.menuChevron}>›</Text></Pressable>;
   return <View style={styles.root}>
     <View style={styles.toolbar}>
       <Pressable accessibilityRole="button" accessibilityLabel="Chats öffnen" onPress={()=>open('history')} style={styles.iconButton}><SymbolIcon name="messages" size={22}/></Pressable>
       <Text numberOfLines={1} style={styles.chatTitle}>{selected?.title||'Neuer Chat'}</Text>
-      <Pressable accessibilityRole="button" accessibilityLabel="Neue Unterhaltung erstellen" disabled={busy} onPress={create} style={styles.iconButton}><SymbolIcon name="plus" size={22}/></Pressable>
+      <Pressable accessibilityRole="button" accessibilityLabel="Neue Unterhaltung erstellen" disabled={cannotCreate} accessibilityState={{disabled:cannotCreate}} onPress={create} style={[styles.iconButton,cannotCreate&&styles.disabled]}><SymbolIcon name="plus" size={22}/></Pressable>
       <Pressable accessibilityRole="button" accessibilityLabel="Chatoptionen öffnen" onPress={()=>open('options')} style={styles.iconButton}><Text style={styles.icon}>…</Text></Pressable>
     </View>
     <ScrollView key={key} ref={transcript} testID="ai-transcript" style={styles.transcript} contentContainerStyle={styles.messages} contentOffset={{x:0,y:positions.current[key]??0}} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag"
       onScroll={event=>{const {contentOffset,contentSize,layoutMeasurement}=event.nativeEvent;positions.current[key]=contentOffset.y;follow.current=contentSize.height-contentOffset.y-layoutMeasurement.height<64;setShowLatest(!follow.current);}} scrollEventThrottle={32}
       onContentSizeChange={()=>{if(follow.current)transcript.current?.scrollToEnd({animated:false});}} onLayout={()=>{if(follow.current)transcript.current?.scrollToEnd({animated:false});}}>
-      {loading&&<Label muted>Unterhaltungen werden geladen …</Label>}
-      {!selected?.messages.length&&<View style={styles.welcome}><Label>Was möchtest du über deine Flüge wissen?</Label><Label muted>Schreibe eine Frage. Dein Entwurf bleibt lokal.</Label></View>}
+      {loading&&<View accessible accessibilityLiveRegion="polite" accessibilityRole="progressbar" accessibilityLabel="Unterhaltungen werden geladen" accessibilityState={{busy:true}} style={styles.progress}><ActivityIndicator color={colors.cyan}/><Label muted>Unterhaltungen werden geladen …</Label></View>}
+      {!loading&&onRetryLoad&&<Action secondary label="Gespeicherte Chats erneut laden" onPress={onRetryLoad}>Erneut lokal laden</Action>}
+      {storageReady&&!loading&&!selected?.messages.length&&<View style={styles.welcome}><Label>Was möchtest du über deine Flüge wissen?</Label><Label muted>Schreibe eine Frage. Dein Entwurf bleibt lokal.</Label></View>}
       {selected?.messages.map(message=><View key={message.id} style={styles.exchange}>
         <View style={styles.userMessage}><Label selectable>{message.input}</Label></View>
         {message.status!=='complete'&&<Label muted style={styles.messageHeading}>{statusLabels[message.status]}</Label>}
@@ -168,14 +173,15 @@ export function AiChat({
         </View>}
       </View>)}
     </ScrollView>
+    {busy&&<View accessible accessibilityLiveRegion="polite" accessibilityRole="progressbar" accessibilityLabel="Antwort wird verarbeitet" accessibilityState={{busy:true}} style={styles.progress}><ActivityIndicator color={colors.cyan}/><Label muted>Antwort wird verarbeitet …</Label></View>}
     {showLatest&&<Pressable accessibilityRole="button" accessibilityLabel="Zur neuesten Nachricht" onPress={bottom} style={styles.latest}><Label>Neueste Nachricht ↓</Label></Pressable>}
     {(notice||!enabled)&&<Pressable accessibilityRole="button" accessibilityLabel="KI-Status und Details öffnen" onPress={()=>open('options')} style={styles.status}><Text accessibilityLiveRegion="polite" numberOfLines={2} style={styles.statusText}>{notice||'KI-Anfragen aus · Entwurf bleibt lokal'}</Text></Pressable>}
     <View testID="ai-composer" style={styles.composerPanel}>
       {feature!=='question'&&<Pressable accessibilityRole="button" accessibilityLabel="Aufgabe ändern" onPress={()=>open('tasks')} style={styles.mode}><Label muted>{features.find(f=>f.id===feature)?.title} · ändern</Label></Pressable>}
       <View style={styles.composerRow}>
         <Pressable accessibilityRole="button" accessibilityLabel="Chatwerkzeuge öffnen" onPress={()=>open('tasks')} style={styles.iconButton}><SymbolIcon name="plus" size={22}/></Pressable>
-        <TextInput accessibilityLabel="Frage oder Nachrichtenentwurf" accessibilityHint="Wird lokal gespeichert. Senden erfolgt nur mit der Sendetaste." editable={!busy} maxLength={16000} multiline scrollEnabled value={draft} onChangeText={onDraft} placeholder="Nachricht …" placeholderTextColor={colors.muted} selectionColor={colors.cyan} onContentSizeChange={e=>setInputHeight(Math.max(44,Math.min(112,e.nativeEvent.contentSize.height)))} style={[styles.composer,{height:inputHeight}]}/>
-        {busy?<Pressable accessibilityRole="button" accessibilityLabel="Laufende Antwort abbrechen" onPress={onCancel} style={styles.iconButton}><SymbolIcon name="close" size={22}/></Pressable>:<Pressable accessibilityRole="button" accessibilityLabel="Nachricht senden" disabled={!draft.trim()} accessibilityState={{disabled:!draft.trim()}} onPress={()=>{bottom();onSend();}} style={[styles.iconButton,!draft.trim()&&{opacity:.4}]}><SymbolIcon name="send" size={24}/></Pressable>}
+        <TextInput accessibilityLabel="Frage oder Nachrichtenentwurf" accessibilityHint="Wird lokal gespeichert. Senden erfolgt nur mit der Sendetaste." editable={!busy&&storageReady} maxLength={16000} multiline scrollEnabled value={draft} onChangeText={onDraft} placeholder="Nachricht …" placeholderTextColor={colors.muted} selectionColor={colors.cyan} onContentSizeChange={e=>setInputHeight(Math.max(44,Math.min(112,e.nativeEvent.contentSize.height)))} style={[styles.composer,{height:inputHeight}]}/>
+        {busy?<Pressable accessibilityRole="button" accessibilityLabel="Laufende Antwort abbrechen" onPress={onCancel} style={styles.iconButton}><SymbolIcon name="close" size={22}/></Pressable>:<Pressable accessibilityRole="button" accessibilityLabel="Nachricht senden" disabled={cannotSend} accessibilityState={{disabled:cannotSend}} onPress={()=>{bottom();onSend();}} style={[styles.iconButton,cannotSend&&styles.disabled]}><SymbolIcon name="send" size={24}/></Pressable>}
       </View>
     </View>
     {sheet&&active&&<Modal transparent animationType="slide" onRequestClose={closeSheet} statusBarTranslucent><KeyboardAvoidingView behavior={Platform.OS==='ios'?'padding':'height'} style={[styles.scrim,width>=600&&styles.wideScrim]}>
@@ -184,7 +190,7 @@ export function AiChat({
         <View style={styles.sheetHeader}>{detailSheet&&<Pressable accessibilityRole="button" accessibilityLabel="Zurück zu Chatoptionen" onPress={()=>setSheet('options')} style={styles.iconButton}><SymbolIcon name="back" size={22}/></Pressable>}<Text accessibilityRole="header" style={styles.sheetTitle}>{({history:'Chats',options:'Chatoptionen',privacy:'Dienst und Datenschutz',usage:'KI-Nutzung',tasks:'Chatwerkzeuge'})[sheet]}</Text><Pressable accessibilityRole="button" accessibilityLabel="Chatmenü schließen" onPress={()=>setSheet(null)} style={styles.iconButton}><SymbolIcon name="close" size={22}/></Pressable></View>
         {sheet==='history'&&<TextInput accessibilityLabel="Chats suchen" placeholder="Chats suchen …" value={query} onChangeText={setQuery} placeholderTextColor={colors.muted} style={styles.historySearch}/>}
         <ScrollView key={sheet} testID="ai-menu-content" contentOffset={{x:0,y:sheetPositions.current[sheet]??0}} onScroll={event=>{sheetPositions.current[sheet]=event.nativeEvent.contentOffset.y;}} scrollEventThrottle={32} keyboardShouldPersistTaps="handled" contentContainerStyle={styles.sheetBody}>
-          {sheet==='history'&&<>{menuAction('Neuer Chat',create,'Neue Unterhaltung erstellen')}{conversations.filter(c=>c.title.toLocaleLowerCase('de-DE').includes(query.toLocaleLowerCase('de-DE'))).map(c=><ConversationChoice key={c.id} conversation={c} selected={c.id===selectedId} onPress={()=>{onSelect(c.id);setSheet(null);}}/>)}{!conversations.length&&<Label muted>Noch keine gespeicherten Chats</Label>}{conversations.length>0&&!conversations.some(c=>c.title.toLocaleLowerCase('de-DE').includes(query.toLocaleLowerCase('de-DE')))&&<Label muted>Keine passenden Chats. Ändere deinen Suchtext.</Label>}</>}
+          {sheet==='history'&&<>{!cannotCreate&&menuAction('Neuer Chat',create,'Neue Unterhaltung erstellen')}{conversations.filter(c=>c.title.toLocaleLowerCase('de-DE').includes(query.toLocaleLowerCase('de-DE'))).map(c=><ConversationChoice key={c.id} conversation={c} selected={c.id===selectedId} onPress={()=>{onSelect(c.id);setSheet(null);}}/>)}{!conversations.length&&<Label muted>{loading?'Unterhaltungen werden geladen ...':storageReady?'Noch keine gespeicherten Chats':'Gespeicherte Chats sind gerade nicht verfügbar.'}</Label>}{conversations.length>0&&!conversations.some(c=>c.title.toLocaleLowerCase('de-DE').includes(query.toLocaleLowerCase('de-DE')))&&<Label muted>Keine passenden Chats. Ändere deinen Suchtext.</Label>}</>}
           {sheet==='options'&&<>{notice&&<View style={styles.statusGroup}><Label muted>Status</Label><Label>{notice}</Label></View>}<View style={styles.menuGroup}>{menuAction('Dienst und Datenschutz',()=>setSheet('privacy'))}{menuAction('Nutzung und Limit',()=>setSheet('usage'))}</View>{selected&&!busy&&<View style={styles.menuGroup}>{menuAction('Unterhaltung löschen',()=>{setSheet(null);onDelete(selected.id);},'Ausgewählte Unterhaltung löschen',true)}</View>}</>}
           {sheet==='privacy'&&<>      <Card style={styles.card}>
         <Section title="Dienst und Datenschutz" />
@@ -232,6 +238,7 @@ export function AiChat({
 }
 
 const styles=StyleSheet.create({
+ disabled:{opacity:.4},progress:{flexDirection:'row',alignItems:'center',flexWrap:'wrap',gap:8,paddingHorizontal:14,paddingVertical:8},
  root:{flex:1,minHeight:0,width:'100%',maxWidth:600,alignSelf:'center'},toolbar:{flexDirection:'row',alignItems:'center',gap:4,minHeight:48,paddingHorizontal:6},chatTitle:{flex:1,minWidth:0,fontSize:15,fontWeight:'600',color:colors.text},iconButton:{minWidth:48,minHeight:48,alignItems:'center',justifyContent:'center'},icon:{fontSize:23,color:colors.text},sendIcon:{fontSize:25,color:colors.cyan},
  transcript:{flex:1,minHeight:0},messages:{padding:14,gap:18},welcome:{paddingVertical:24,gap:8},exchange:{gap:8},userMessage:{alignSelf:'flex-end',maxWidth:'90%',backgroundColor:colors.raised,borderRadius:16,padding:12},answer:{gap:8},messageHeading:{fontSize:12,lineHeight:18},
  status:{paddingHorizontal:14,paddingVertical:4},statusText:{fontSize:12,lineHeight:17,color:colors.muted},composerPanel:{paddingHorizontal:6,paddingBottom:6,borderTopWidth:1,borderColor:colors.border},composerRow:{flexDirection:'row',alignItems:'flex-end'},composer:{flex:1,minWidth:0,minHeight:44,maxHeight:112,paddingHorizontal:10,paddingVertical:10,color:colors.text,fontSize:16,lineHeight:22,backgroundColor:colors.card,borderRadius:14,textAlignVertical:'top'},mode:{minHeight:48,justifyContent:'center',paddingHorizontal:10},latest:{alignSelf:'center',paddingHorizontal:12,minHeight:48,justifyContent:'center',borderRadius:16,backgroundColor:colors.raised},

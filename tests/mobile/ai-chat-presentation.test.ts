@@ -59,7 +59,7 @@ function fixture(overrides: Record<string, unknown> = {}) {
     './SymbolIcon': {SymbolIcon:'SymbolIcon'},
     react: { default: react, ...react },
     'react-native': {
-      ...leaves(['Pressable', 'TextInput', 'Text', 'View','ScrollView','Modal','KeyboardAvoidingView']),Keyboard:{dismiss(){}},Platform:{OS:'android'},
+      ...leaves(['Pressable', 'TextInput', 'Text', 'View','ScrollView','Modal','KeyboardAvoidingView','ActivityIndicator']),Keyboard:{dismiss(){}},Platform:{OS:'android'},
       useWindowDimensions:()=>({width:390,fontScale:1}),StyleSheet: { create: (value: unknown) => value },
     },
     './theme': {
@@ -269,4 +269,31 @@ test('reading older messages blocks auto-follow and jumping to latest resumes it
  scroll().props.onContentSizeChange();assert.equal(f.calls.bottom,1);
  f.open('Zur neuesten Nachricht');assert.equal(f.calls.bottom,2);
  scroll().props.onContentSizeChange();assert.equal(f.calls.bottom,3);
+});
+
+
+test('unavailable local archive blocks unsaved edits and creation while exposing explicit local retry',()=>{
+ let retries=0;
+ const f=fixture({storageReady:false,conversations:[],selectedId:null,onRetryLoad:()=>{retries++;}});
+ assert.equal(f.requireNode('TextInput').props.editable,false);
+ assert.equal(f.requireNode('Pressable',n=>n.props.accessibilityLabel==='Nachricht senden').props.disabled,true);
+ assert.equal(f.requireNode('Pressable',n=>n.props.accessibilityLabel==='Neue Unterhaltung erstellen').props.accessibilityState.disabled,true);
+ assert.equal(f.text().includes('Was möchtest du über deine Flüge wissen?'),false);
+ f.open('Chats öffnen');assert.equal(f.find('Pressable',n=>n.props.accessibilityLabel==='Neue Unterhaltung erstellen').length,1);
+ assert.equal(f.text().includes('Noch keine gespeicherten Chats'),false);assert.ok(f.text().includes('Gespeicherte Chats sind gerade nicht verfügbar.'));
+ f.requireNode('Action',n=>n.props.label==='Gespeicherte Chats erneut laden').props.onPress();assert.equal(retries,1);
+ assert.equal(f.calls.send,0);assert.equal(f.calls.create,0);assert.equal(f.calls.drafts.length,0);
+});
+
+test('loading and answer processing announce progress and busy history cannot create a conversation',()=>{
+ const loading=fixture({loading:true,storageReady:false,conversations:[],selectedId:null,onRetryLoad:()=>{throw Error('No retry while loading');}});
+ assert.equal(loading.requireNode('View',n=>n.props.accessibilityLabel==='Unterhaltungen werden geladen').props.accessibilityState.busy,true);
+ assert.equal(loading.find('Action',n=>n.props.label==='Gespeicherte Chats erneut laden').length,0);
+ assert.equal(loading.text().includes('Was möchtest du über deine Flüge wissen?'),false);
+ const f=fixture({busy:true});
+ assert.equal(f.requireNode('View',n=>n.props.accessibilityLabel==='Antwort wird verarbeitet').props.accessibilityState.busy,true);
+ f.open('Chats öffnen');assert.equal(f.find('Pressable',n=>n.props.accessibilityLabel==='Neue Unterhaltung erstellen').length,1);
+ f.requireNode('Pressable',n=>n.props.accessibilityLabel==='Neue Unterhaltung erstellen').props.onPress();
+ assert.equal(f.calls.create,0);assert.equal(f.requireNode('TextInput',n=>n.props.accessibilityLabel==='Frage oder Nachrichtenentwurf').props.value,'Durable draft');
+ f.requireNode('Pressable',n=>n.props.accessibilityLabel==='Laufende Antwort abbrechen').props.onPress();assert.equal(f.calls.cancel,1);
 });

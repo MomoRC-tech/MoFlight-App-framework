@@ -892,3 +892,24 @@ test('AI evidence return is revoked by owner change or deliberate tab navigation
   assert.equal(f.headers()[0]!.props.back,undefined);
  }
 });
+
+
+test('ordinary Flights uses the selected page header without changing Start or local detail return',()=>{
+ const f=fixture();assert.equal(f.headers()[0]!.props.variant,undefined);
+ f.press('Pressable','Flüge');assert.equal(f.headers()[0]!.props.variant,'page');assert.equal(f.headers()[0]!.props.title,'Flüge');
+ f.openOwnDetail();assert.equal(f.headers()[0]!.props.variant,'page');assert.equal(f.headers()[0]!.props.title,'Flugdetails');
+ f.hardwareBack();f.render();assert.equal(f.headers()[0]!.props.title,'Flüge');
+ f.press('Pressable','Übersicht');assert.equal(f.headers()[0]!.props.variant,undefined);
+});
+
+test('Statistics PIC Help retains the mounted caller and returns without clearing its detail',()=>{
+ const f=fixture();f.find('Dashboard').props.onStatistics(2025,'roles');f.render();
+ const page=f.find('StatisticsOverlay'),calls=[...f.calls];page.props.onHelp('pic');f.render();
+ assert.equal(f.find('HelpScreen').props.entryId,'pic');
+ assert.equal(f.find('StatisticsOverlay').props.key,page.props.key);
+ assert.equal(f.parent(f.find('StatisticsOverlay')).props.accessibilityElementsHidden,true);
+ f.find('HelpScreen').props.onReturn();f.render();
+ assert.equal(f.parent(f.find('StatisticsOverlay')).props.accessibilityElementsHidden,false);
+ assert.equal(f.find('StatisticsOverlay').props.initialYear,2025);
+ assert.deepEqual(f.calls,calls);
+});

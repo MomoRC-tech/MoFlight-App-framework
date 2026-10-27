@@ -26,11 +26,18 @@ const source = ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/
 }).outputText;
 function fixture(entryId: string | null, helpEnabled = true, query = '', category: catalog.HelpCategory | null = null) {
   const calls: string[] = [], links: string[] = [];
-  const react = { createElement: (type: string, props: Record<string, any>, ...children: any[]): Element => ({ type, props: props ?? {}, children: children.flat(Infinity) }) };
+  let hookIndex = 0, rejectLink = false, deferLink = false, finishLink = () => {};
+  const hooks: any[] = [], cleanups: (() => void)[] = [], effects: (() => void)[] = [];
+  const react = {
+    createElement: (type: any, props: Record<string, any>, ...children: any[]): Element => typeof type === 'function' ? type(props) : ({ type, props: props ?? {}, children: children.flat(Infinity) }),
+    useRef: (initial: unknown) => { const i = hookIndex++; return hooks[i] ??= { current: initial }; },
+    useState: (initial: unknown) => { const i = hookIndex++; if (!(i in hooks)) hooks[i] = initial; return [hooks[i], (value: unknown) => { hooks[i] = value; }]; },
+    useEffect: (effect: () => (() => void), deps: unknown[]) => { const i = hookIndex++; if (!(i in hooks)) { hooks[i] = deps; effects.push(() => cleanups.push(effect())); } },
+  };
   const leaves = (names: string[]) => Object.fromEntries(names.map(name => [name, name]));
   const modules: Record<string, unknown> = {
     react: { default: react, ...react },
-    'react-native': { ...leaves(['Pressable', 'ScrollView', 'Text', 'TextInput', 'View']), Linking: { openURL: async (url: string) => { links.push(url); } }, StyleSheet: { create: (value: unknown) => value } },
+    'react-native': { ...leaves(['Pressable', 'ScrollView', 'Text', 'TextInput', 'View']), Linking: { openURL: async (url: string) => { links.push(url); if (deferLink) await new Promise<void>(resolve => { finishLink = resolve; }); if (rejectLink) throw new Error('Synthetic browser handoff failure'); } }, StyleSheet: { create: (value: unknown) => value } },
     './theme': { ...leaves(['Action', 'Card', 'Chip', 'Label', 'Section']), colors: { cyan: '#27d3d2', muted: '#a9bed3', text: '#f4f8fc', raised: '#0c3041', card: '#062331', border: '#183d50' }, ui: {} },
     './help-catalog': catalog,
     './SymbolIcon': { SymbolIcon: 'SymbolIcon' },
@@ -38,13 +45,47 @@ function fixture(entryId: string | null, helpEnabled = true, query = '', categor
   const exports: Record<string, any> = {};
   runInNewContext(source, { exports, require: (name: string) => { assert.ok(name in modules, name); return modules[name]; } });
   const props = { entryId, query, category, onQuery: (value: string) => calls.push(`query:${value}`), onCategory: (value: string) => calls.push(`category:${value}`), onEntry: (value: string | null) => calls.push(`entry:${value}`), onReturn: () => calls.push('return'), onReplay: () => calls.push('replay'), onStatus: () => calls.push('status'), returnLabel: 'Zurück zum Flug', helpEnabled };
-  const tree: Element = exports.HelpScreen(props);
+  let tree: Element;
   const nodes: Element[] = [];
   const visit = (node: any) => { if (node?.children) { nodes.push(node); node.children.forEach(visit); } };
-  visit(tree);
+  const render = () => { hookIndex = 0; nodes.length = 0; tree = exports.HelpScreen(props); visit(tree); while (effects.length) effects.shift()!(); return tree; };
+  render();
   const text = (node: any): string => node?.children ? node.children.map(text).join(' ') : typeof node === 'string' ? node : '';
-  return { tree, nodes, text, calls, links };
+  return { get tree() { return tree; }, nodes, text, calls, links, render, rejectLink: (value = true) => { rejectLink = value; }, deferLink: () => { deferLink = true; }, finishLink: () => finishLink(), dispose: () => cleanups.forEach(cleanup => cleanup()) };
 }
+
+test('failed external Help handoff retains the offline answer and retries only on an explicit tap', async () => {
+  const f = fixture('pic');
+  try {
+    f.rejectLink();
+    const link = () => f.nodes.find(node => node.props.accessibilityRole === 'link')!;
+    link().props.onPress(); await new Promise(setImmediate); f.render();
+    assert.match(f.text(f.tree), /konnte nicht geöffnet werden/);
+    assert.match(f.text(f.tree), /keine automatische Anrechnung/);
+    assert.match(link().props.accessibilityLabel, /Quelle erneut öffnen/);
+    assert.ok(f.nodes.some(node => node.props.accessibilityRole === 'alert'));
+    assert.equal(f.links.length, 1);
+    f.render(); assert.equal(f.links.length, 1);
+    f.rejectLink(false); link().props.onPress(); await new Promise(setImmediate); f.render();
+    assert.equal(f.links.length, 2);
+    assert.doesNotMatch(f.text(f.tree), /konnte nicht geöffnet werden/);
+    assert.match(link().props.accessibilityLabel, /Externe Quelle öffnen/);
+    assert.deepEqual(f.calls, []);
+  } finally { f.dispose(); }
+});
+
+test('Help source handoff prevents duplicate launches and ignores completion after dismissal', async () => {
+  const f = fixture('pic');
+  f.deferLink(); f.rejectLink();
+  const press = f.nodes.find(node => node.props.accessibilityRole === 'link')!.props.onPress;
+  press(); press(); f.render();
+  const busy = f.nodes.find(node => node.props.accessibilityRole === 'link')!;
+  assert.equal(busy.props.disabled, true); assert.equal(busy.props.accessibilityState.busy, true);
+  assert.equal(f.links.length, 1);
+  f.dispose(); f.finishLink(); await new Promise(setImmediate); f.render();
+  assert.doesNotMatch(f.text(f.tree), /konnte nicht geöffnet werden/);
+  press(); assert.equal(f.links.length, 1, 'Dismissed links cannot launch another handoff');
+});
 
 test('Help home exposes search, categories and replay without triggering external work', () => {
   const f = fixture(null);

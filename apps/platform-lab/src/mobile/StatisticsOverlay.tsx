@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, ImageBackground, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, ImageBackground, Keyboard, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { FlightCard } from './FlightCard';
 import { FlightDetails } from './FlightDetails';
 import { AppHeader } from './AppHeader';
@@ -27,15 +27,16 @@ type Route =
   | { kind: 'flights'; title: string; ids: string[]; scope: StatisticsPeriod; key: string }
   | { kind: 'detail'; flightId: string; title: string; key: string };
 
-export function StatisticsOverlay({ data, today, fontScale, onBackHandler, onClose, headerActions, feedback, initialYear, initialSection = 'overview' }: {
+export function StatisticsOverlay({ data, today, fontScale, onBackHandler, onClose, headerActions, feedback, helpEnabled = true, onHelp, initialYear, initialSection = 'overview' }: {
   data: FlightData; today: string; fontScale: number; onBackHandler: (handler: () => boolean) => void; onClose: () => void;
-  headerActions?: React.ReactNode; feedback?: React.ReactNode; initialYear?: number; initialSection?: StatisticsSection;
+  headerActions?: React.ReactNode; feedback?: React.ReactNode; helpEnabled?: boolean; onHelp?: (entryId: string) => void; initialYear?: number; initialSection?: StatisticsSection;
 }) {
   const [period, setPeriod] = useState<StatisticsPeriod>({ kind: 'year', year: initialYear ?? Number(today.slice(0, 4)) });
   const [fromDraft, setFromDraft] = useState(`${today.slice(0, 4)}-01-01`);
   const [toDraft, setToDraft] = useState(today);
   const [customOpen, setCustomOpen] = useState(false);
   const [informationOpen,setInformationOpen]=useState(false);
+  const [picHelpOpen,setPicHelpOpen]=useState(false);
   const [rawFlightId,setRawFlightId]=useState<string|null>(null);
   const [rawPage,setRawPage]=useState(0);
   const [routes, setRoutes] = useState<Route[]>([{ kind: 'section', section: initialSection, key: `section-${initialSection}` }]);
@@ -69,6 +70,8 @@ export function StatisticsOverlay({ data, today, fontScale, onBackHandler, onClo
   const titleForSection = (section: StatisticsSection) => ({ overview: 'Überblick', aircraft: 'Flugzeuge', duration: 'Flugdauer', launch: 'Startarten', roles: 'Flugrollen' }[section]);
 
   const back = () => {
+    Keyboard.dismiss();
+    if (customOpen && route.kind === 'section') { setCustomOpen(false); return true; }
     if (routes.length < 2) return false;
     if (route.kind === 'detail') data.clearDetail();
     setRoutes(previous => previous.slice(0, -1));
@@ -77,6 +80,7 @@ export function StatisticsOverlay({ data, today, fontScale, onBackHandler, onClo
   onBackHandler(back);
 
   const openSection = (section: StatisticsSection) => {
+    Keyboard.dismiss();
     setRoutes([{ kind: 'section', section, key: `section-${section}` }]);
   };
   const openFlights = (title: string, ids: readonly string[], scope: StatisticsPeriod = period) => {
@@ -87,7 +91,7 @@ export function StatisticsOverlay({ data, today, fontScale, onBackHandler, onClo
     setRoutes(previous => [...previous, { kind: 'flights', title, ids: filteredIds, scope, key }]);
   };
   const openFlight = (flight: RealFlightListItem) => {
-    setRawPage(0);setRawFlightId(null);
+    setRawPage(0);setRawFlightId(null);setPicHelpOpen(false);Keyboard.dismiss();
     const key = `detail-${++routeSequence.current}`;
     const card = ownFlightCard(flight);
     const title = [card.date, card.registration].filter(Boolean).join(' · ') || 'Flugdetails';
@@ -119,7 +123,7 @@ export function StatisticsOverlay({ data, today, fontScale, onBackHandler, onClo
     <ScrollView ref={scroll} key={routeKey} contentOffset={{ x: 0, y: scrollOffsets.current[routeKey] ?? 0 }}
       onScroll={event => { scrollOffsets.current[routeKey] = event.nativeEvent.contentOffset.y; }} scrollEventThrottle={32}
       onContentSizeChange={() => scroll.current?.scrollTo({ y: scrollOffsets.current[routeKey] ?? 0, animated: false })}
-      keyboardShouldPersistTaps="handled" contentContainerStyle={[styles.canvas, fontScale > 1.3 && styles.canvasLarge]}>
+      keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag" contentContainerStyle={[styles.canvas, fontScale > 1.3 && styles.canvasLarge]}>
       {route.kind === 'section' && <>
         <Section title={titleForSection(route.section)}/>
         <View style={styles.periodPanel}>
@@ -127,12 +131,13 @@ export function StatisticsOverlay({ data, today, fontScale, onBackHandler, onClo
           <View style={[styles.chipRow,{flexDirection:'row',flexWrap:'wrap'}]}>
             {years.map(year => <Chip key={year} title={String(year)} selected={period.kind === 'year' && period.year === year} onPress={() => setPeriod({ kind: 'year', year })} />)}
             <Chip title="Alle Jahre" selected={period.kind === 'all'} onPress={() => setPeriod({ kind: 'all' })} />
-            <Chip title="Eigener Zeitraum" selected={period.kind === 'custom'} onPress={() => setCustomOpen(open => !open)} />
+            <Chip title="Eigener Zeitraum" selected={period.kind === 'custom'} onPress={() => { Keyboard.dismiss();setCustomOpen(open => !open); }} />
           </View>
           {customOpen && <View style={styles.customRange}>
             <View style={styles.dateField}><Label muted>Von · JJJJ-MM-TT</Label><TextInput accessibilityLabel="Zeitraum von" value={fromDraft} onChangeText={setFromDraft} placeholder="2026-01-01" placeholderTextColor={colors.muted} autoCorrect={false} autoCapitalize="none" keyboardType="numbers-and-punctuation" style={styles.dateInput} /></View>
             <View style={styles.dateField}><Label muted>Bis · JJJJ-MM-TT</Label><TextInput accessibilityLabel="Zeitraum bis" value={toDraft} onChangeText={setToDraft} placeholder="2026-10-23" placeholderTextColor={colors.muted} autoCorrect={false} autoCapitalize="none" keyboardType="numbers-and-punctuation" style={styles.dateInput} /></View>
-            <Action disabled={!validStatisticsRange(fromDraft, toDraft)} onPress={() => setPeriod({ kind: 'custom', from: fromDraft, to: toDraft })}>Zeitraum übernehmen</Action>
+            <Action disabled={!validStatisticsRange(fromDraft, toDraft)} onPress={() => { if (!validStatisticsRange(fromDraft,toDraft)) return;Keyboard.dismiss();setPeriod({ kind: 'custom', from: fromDraft, to: toDraft });setCustomOpen(false); }}>Zeitraum übernehmen</Action>
+            <Action secondary onPress={()=>{Keyboard.dismiss();setCustomOpen(false);}}>Abbrechen</Action>
             {!validStatisticsRange(fromDraft, toDraft) && <Label muted>Bitte gültige Kalendertage in aufsteigender Reihenfolge eingeben.</Label>}
           </View>}
           <Label muted>{periodLabel}</Label>
@@ -146,7 +151,10 @@ export function StatisticsOverlay({ data, today, fontScale, onBackHandler, onClo
 
         {data.phase === 'loading' && <Card><ActivityIndicator color={colors.cyan} accessibilityLabel="Gespeicherte Flugstatistik wird geprüft" /><Label muted>Gespeicherte Flüge werden lokal geprüft.</Label></Card>}
         {data.phase === 'failed' && <Card><Empty title="Statistik nicht lesbar">Die gespeicherte Flugauswahl konnte nicht geprüft werden. Vorhandene Daten bleiben erhalten.</Empty><Action secondary onPress={() => void data.reload()}>Gespeicherte Flüge erneut prüfen</Action></Card>}
-        {(data.phase === 'missing' || !data.view?.snapshot.account) && data.phase !== 'loading' && <Card><Empty title="Noch keine eigenen Flüge">Lade oder öffne zuerst deine lokal gespeicherten Flüge über Daten synchronisieren. Der Statistikbereich startet keinen Abruf.</Empty></Card>}
+        {data.phase !== 'failed' && (data.phase === 'missing' || !data.view?.snapshot.account) && data.phase !== 'loading' && <Card><Empty title="Noch keine eigenen Flüge">Lade oder öffne zuerst deine lokal gespeicherten Flüge über Daten synchronisieren. Der Statistikbereich startet keinen Abruf.</Empty></Card>}
+
+        {data.phase === 'ready' && data.view?.snapshot.account && selected.length === 0 && <Card><Empty title={flights.length ? 'Keine Flüge im Zeitraum' : 'Noch keine gespeicherten Flüge'}>{flights.length ? 'Wähle einen anderen Zeitraum. Ein leeres Ergebnis belegt keine vollständige Fluggeschichte.' : 'Die Statistik wertet nur lokal gespeicherte Flüge aus. Neue Daten erreichst du über Sync in der Kopfzeile.'}</Empty></Card>}
+        {data.phase === 'ready' && !!(data.view?.pendingCommand || data.view?.snapshot.recovery?.readOnly) && <Label muted>Speicherung oder Wiederherstellung prüfen. Die Statistik zeigt den letzten geprüften lokalen Stand.</Label>}
 
         {data.phase === 'ready' && data.view?.snapshot.account && route.section === 'overview' && <>
           <Card>
@@ -160,7 +168,7 @@ export function StatisticsOverlay({ data, today, fontScale, onBackHandler, onClo
             {summary.conflictingIds.length > 0 && <Label muted>{summary.conflictingIds.length} widersprüchliche Flug-Identität(en) wurden nicht doppelt gezählt.</Label>}
             {summary.conflictingDurationCount > 0 && <Label muted>{summary.conflictingDurationCount} Flugzeit(en) sind strittig oder ungültig; sie ergeben keine bekannten Minuten.</Label>}
             <Label muted>Flugzeit entspricht dem gespeicherten Anbieterwert. Keine Rollen-, Papierbuch- oder Zeitstempel-Anrechnung.</Label>
-            <Action secondary onPress={() => openFlights('Alle Flüge im Zeitraum', summary.supportingIds)}>Beitragende Flüge ansehen</Action>
+            <Action secondary disabled={!summary.supportingIds.length} onPress={() => openFlights('Alle Flüge im Zeitraum', summary.supportingIds)}>Beitragende Flüge ansehen</Action>
           </Card>
           {annual && <Card>
             <Section title={`Jahresvergleich · ${selectedYear} / ${selectedYear! - 1}`} />
@@ -215,7 +223,6 @@ export function StatisticsOverlay({ data, today, fontScale, onBackHandler, onClo
 
         {data.phase === 'ready' && data.view?.snapshot.account && route.section === 'launch' && <Card>
           <Section title="Startarten" />
-          {launches.length===0&&<Empty title="Keine Flüge im Zeitraum">Wähle einen anderen Zeitraum.</Empty>}
           {launches.map(row=><Card key={row.key} onPress={()=>openFlights(row.label,row.supportingIds)} label={`${row.label} · ${row.count} Flüge ansehen`} style={styles.bandRow}><Label>{row.label} · {row.count}</Label><Label muted>{row.knownDurationCount ? `${formatReportedMinutes(row.knownMinutes)} h bekannt${row.unknownDurationCount ? ` · ${row.unknownDurationCount}× Zeit unbekannt` : ''}` : `${row.unknownDurationCount}× Zeit unbekannt`}</Label></Card>)}
           <Label muted>Ein Flug zählt einmal nach seiner gespeicherten Startart. Fehlende, widersprüchliche oder nicht zugeordnete Angaben bleiben unbekannt; Rohwerte stehen in den Flugdetails.</Label>
         </Card>}
@@ -239,15 +246,15 @@ export function StatisticsOverlay({ data, today, fontScale, onBackHandler, onClo
         <View style={{gap:5}}>{routeItems.map(flight=><FlightCard key={`${flight.flightId}:${flight.factsRevision}`} flight={flight} onPress={()=>openFlight(flight)}/>)}</View>
       </>}
 
-      {route.kind === 'detail' && <StatisticsFlightDetails detail={detail} loading={data.detailBusy} error={detailError ? data.detailError : null} rawPage={rawPage} onRawPage={setRawPage} rawExpanded={!!detail&&rawFlightId===detail.flightId} onToggleRaw={()=>{if(detail)setRawFlightId(current=>current===detail.flightId?null:detail.flightId);}} />}
+      {route.kind === 'detail' && <StatisticsFlightDetails detail={detail} loading={data.detailBusy||data.phase==='loading'} error={detailError ? data.detailError : null} rawPage={rawPage} onRawPage={setRawPage} rawExpanded={!!detail&&rawFlightId===detail.flightId} onToggleRaw={()=>{if(detail)setRawFlightId(current=>current===detail.flightId?null:detail.flightId);}} picHelpOpen={helpEnabled&&picHelpOpen} onTogglePicHelp={helpEnabled?()=>setPicHelpOpen(value=>!value):undefined} onMorePicHelp={helpEnabled&&onHelp?()=>{setPicHelpOpen(false);onHelp('pic');}:undefined} onRetry={()=>{const current=allUnique.find(flight=>flight.flightId===route.flightId);if(data.phase==='ready'&&current)void data.openDetail(current);else void data.reload();}} retryLabel={data.phase==='ready'&&allUnique.some(flight=>flight.flightId===route.flightId)?'Flugdetails erneut prüfen':'Gespeicherte Flüge erneut prüfen'} />}
     </ScrollView>
   </View>;
 }
 
-function StatisticsFlightDetails({ detail, loading, error,rawPage,onRawPage,rawExpanded,onToggleRaw }: { detail: RealFlightDetail | null; loading: boolean; error: string | null;rawPage:number;onRawPage:(page:number)=>void;rawExpanded:boolean;onToggleRaw:()=>void }) {
+function StatisticsFlightDetails({ detail, loading, error,rawPage,onRawPage,rawExpanded,onToggleRaw,picHelpOpen,onTogglePicHelp,onMorePicHelp,onRetry,retryLabel }: { detail: RealFlightDetail | null; loading: boolean; error: string | null;rawPage:number;onRawPage:(page:number)=>void;rawExpanded:boolean;onToggleRaw:()=>void;picHelpOpen:boolean;onTogglePicHelp?:()=>void;onMorePicHelp?:()=>void;onRetry:()=>void;retryLabel:string }) {
   if (loading) return <Card><ActivityIndicator color={colors.cyan} accessibilityLabel="Gespeicherte Flugdetails werden geprüft" /><Label muted>Flugdetails werden lokal geprüft.</Label></Card>;
-  if (!detail) return <Card><Empty title="Flugdetails nicht verfügbar">{error ?? 'Die aktuelle gespeicherte Auswahl konnte nicht bestätigt werden. Kehre zur Statistik zurück und öffne den Flug erneut.'}</Empty></Card>;
-  return <FlightDetails detail={detail} rawPage={rawPage} onRawPage={onRawPage} rawExpanded={rawExpanded} onToggleRaw={onToggleRaw}/>;
+  if (!detail) return <Card><Empty title="Flugdetails nicht verfügbar">{error ?? 'Die aktuelle gespeicherte Auswahl konnte nicht bestätigt werden. Kehre zur Statistik zurück und öffne den Flug erneut.'}</Empty><Action secondary onPress={onRetry}>{retryLabel}</Action></Card>;
+  return <FlightDetails detail={detail} rawPage={rawPage} onRawPage={onRawPage} rawExpanded={rawExpanded} onToggleRaw={onToggleRaw} picHelpOpen={picHelpOpen} onTogglePicHelp={onTogglePicHelp} onMorePicHelp={onMorePicHelp}/>;
 }
 
 const styles = StyleSheet.create({

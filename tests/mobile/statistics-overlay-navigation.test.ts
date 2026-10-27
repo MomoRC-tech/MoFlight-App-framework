@@ -31,7 +31,7 @@ function fixture(initialSection: statisticsModel.StatisticsSection = 'overview')
   const leaf = (names: string[]) => Object.fromEntries(names.map(name => [name, name]));
   const modules: Record<string, unknown> = {
     react: { default: react, ...react },
-    'react-native': { ...leaf(['ActivityIndicator', 'ImageBackground', 'Pressable', 'ScrollView', 'TextInput', 'View']), StyleSheet: { create: (value: unknown) => value, absoluteFillObject: { position: 'absolute' } } },
+    'react-native': { ...leaf(['ActivityIndicator', 'ImageBackground', 'Pressable', 'ScrollView', 'TextInput', 'View']), Keyboard: {dismiss(){}}, StyleSheet: { create: (value: unknown) => value, absoluteFillObject: { position: 'absolute' } } },
     './theme': { ...leaf(['Action', 'Card', 'Chip', 'Empty', 'Label', 'Section']), colors, ui: { pressed: { opacity: .72 } } },
     './real-flight-statistics': { formatReportedMinutes }, './SeasonMonthlyCharts': leaf(['SeasonMonthlyCharts']),
     '../vereinsflieger/capture-review': captureReview,
@@ -60,22 +60,23 @@ function fixture(initialSection: statisticsModel.StatisticsSection = 'overview')
   ];
   const opened: string[] = [];
   const events: string[] = [];
+  let helpEnabled=true;
   const headerActions: Element = { type: 'HeaderActions', props: {}, children: [] };
   const feedback: Element = { type: 'SyncFeedback', props: {}, children: [] };
   const data: any = {
     view: { flights, snapshot: { ownerId: 'owner', storeId: 'store', account: { accountRef: 'account' }, savedRetrievals } },
     phase: 'ready', detail: null, detailBusy: false, detailError: null,
     openDetail: async (flight: { flightId: string }) => { opened.push(flight.flightId); },
-    clearDetail() { events.push('clear-detail'); }, reload: async () => {},
+    clearDetail() { events.push('clear-detail'); }, reload: async () => {events.push('reload');},
   };
   let back = () => false;
-  const render = () => { index = 0; const tree = exports.StatisticsOverlay({ data, today: '2026-10-22', fontScale: 1, initialSection, onClose: () => events.push('close'), headerActions, feedback, onBackHandler: (handler: () => boolean) => { back = handler; } }); return tree as Element; };
+  const render = () => { index = 0; const tree = exports.StatisticsOverlay({ data, helpEnabled, onHelp:(id:string)=>events.push('help:'+id), today: '2026-10-22', fontScale: 1, initialSection, onClose: () => events.push('close'), headerActions, feedback, onBackHandler: (handler: () => boolean) => { back = handler; } }); return tree as Element; };
   const nodes = (tree: Element) => {
     const found: Element[] = [];
     const visit = (value: any) => { if (!value || typeof value !== 'object' || !('children' in value)) return; found.push(value); value.children.forEach(visit); };
     visit(tree); return found;
   };
-  return { data, flights, opened, events, headerActions, feedback, render, nodes: () => nodes(render()), back: () => back() };
+  return { setHelpEnabled:(enabled:boolean)=>{helpEnabled=enabled;}, data, flights, opened, events, headerActions, feedback, render, nodes: () => nodes(render()), back: () => back() };
 }
 
 test('Start role metrics enter the role section for the selected year',()=>{
@@ -212,4 +213,40 @@ test('Statistics detail shares source disclosure and reopening from contributors
   disclosure().props.onPress();assert.equal(disclosure().props.accessibilityState.expanded,true);
   assert.equal(f.back(),true);f.render();open();assert.equal(disclosure().props.accessibilityState.expanded,false);
   assert.ok(f.opened.every(id=>id===item.flightId));
+});
+
+
+test('custom period cancel and Back retain the applied period; apply closes only the editor',()=>{
+  const f=fixture();
+  const custom=()=>f.nodes().find(n=>n.type==='Chip'&&n.props.title==='Eigener Zeitraum')!;
+  const input=(label:string)=>f.nodes().find(n=>n.type==='TextInput'&&n.props.accessibilityLabel===label)!;
+  const action=(label:string)=>f.nodes().find(n=>n.type==='Action'&&n.children.includes(label))!;
+  custom().props.onPress();input('Zeitraum von').props.onChangeText('2025-01-01');input('Zeitraum bis').props.onChangeText('2025-12-31');
+  action('Abbrechen').props.onPress();assert.ok(!f.nodes().some(n=>n.type==='TextInput'));
+  assert.equal(custom().props.selected,false);
+  custom().props.onPress();assert.equal(input('Zeitraum von').props.value,'2025-01-01');
+  assert.equal(f.back(),true);assert.equal(custom().props.selected,false);assert.deepEqual(f.events,[]);
+  custom().props.onPress();action('Zeitraum übernehmen').props.onPress();
+  assert.equal(custom().props.selected,true);assert.ok(!f.nodes().some(n=>n.type==='TextInput'));
+  assert.ok(f.nodes().some(n=>n.type==='Label'&&n.children.includes('2025-01-01 – 2025-12-31')));
+});
+
+test('Statistics failure is not first use, and an empty period disables its contributor action',()=>{
+  const f=fixture();f.data.phase='failed';f.data.view=null;
+  assert.deepEqual(f.nodes().filter(n=>n.type==='Empty').map(n=>n.props.title),['Statistik nicht lesbar']);
+  const g=fixture();g.flights.splice(0);
+  assert.equal(g.nodes().filter(n=>n.type==='Empty'&&n.props.title==='Noch keine gespeicherten Flüge').length,1);
+  assert.equal(g.nodes().find(n=>n.type==='Action'&&n.children.includes('Beitragende Flüge ansehen'))!.props.disabled,true);
+});
+
+test('Statistics detail can retry the current local flight and offers preference-controlled PIC help',()=>{
+  const f=fixture();f.nodes().find(n=>n.type==='Action'&&n.children.includes('Vorjahresflüge ansehen'))!.props.onPress();
+  f.nodes().find(n=>n.type==='Card'&&typeof n.props.onPress==='function')!.props.onPress();
+  f.data.detailError='Local read failed';
+  f.nodes().find(n=>n.type==='Action'&&n.children.includes('Flugdetails erneut prüfen'))!.props.onPress();assert.deepEqual(f.opened,['flight-1','flight-1']);
+  const item=f.flights[1]!;f.data.detail={...item,factHistory:[item.facts],pending:[]};
+  const help=f.nodes().find(n=>n.props.accessibilityLabel==='Info zu PIC');
+  assert.ok(help);help.props.onPress();
+  f.nodes().find(n=>n.type==='Action'&&n.children.includes('Mehr erfahren'))!.props.onPress();assert.ok(f.events.includes('help:pic'));
+  f.setHelpEnabled(false);assert.ok(!f.nodes().some(n=>n.props.accessibilityLabel==='Info zu PIC'));
 });

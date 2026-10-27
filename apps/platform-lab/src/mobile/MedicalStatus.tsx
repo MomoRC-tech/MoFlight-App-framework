@@ -33,9 +33,11 @@ export function MedicalDetails({ capture = null, loading = false, needsReload = 
         <Label muted>{medicalExpiryStatusText(assessment.state)}</Label>
       </> : <Label muted>Kein eindeutig lesbares Datum · Einordnung unbekannt</Label>)}
       {!capture && !loading && <><Label>Status unbekannt</Label><Label muted>In dieser lokalen Ansicht sind noch keine Medical-Quellenangaben verfügbar.</Label></>}
-      {loading && <Label muted>Gespeicherte Angaben werden geladen…</Label>}
-      {needsReload && <Label muted>Der neueste gespeicherte Stand muss erneut geladen werden. Vorhandene Angaben bleiben lesbar.</Label>}
-      {refreshFailed && <Label muted>Medical konnte beim letzten Abruf nicht aktualisiert werden. Angezeigt wird die gespeicherte Quelle, sofern vorhanden.</Label>}
+      {(loading || needsReload || refreshFailed) && <View accessibilityLiveRegion="polite" style={styles.feedback}>
+        {loading && <View accessible accessibilityState={{busy:true}}><Label muted>Gespeicherte Angaben werden geladen…</Label></View>}
+        {needsReload && <Label muted>Der neueste gespeicherte Stand muss erneut geladen werden. Vorhandene Angaben bleiben lesbar.</Label>}
+        {refreshFailed && <Label muted>Medical konnte beim letzten Abruf nicht aktualisiert werden. Angezeigt wird die gespeicherte Quelle, sofern vorhanden.</Label>}
+      </View>}
       {capture && assessment.issues.length > 0 && <View style={styles.notices}>
         {assessment.issues.map((issue, index) => <Label key={`issue-${index}`} style={{ color: '#f9b65b' }}>{issue}</Label>)}
       </View>}
@@ -71,6 +73,7 @@ const styles = StyleSheet.create({
   details: { width: '100%', maxWidth: 480, alignSelf: 'center', gap: 16 },
   expiryDate: { fontSize: 24, lineHeight: 32, fontWeight: '600' },
   notices: { gap: 8, borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 12 },
+  feedback: { gap: 8 },
   sourceHeading: { gap: 8, paddingTop: 8 },
   sourceFact: { gap: 4 },
   factLabel: { fontSize: 14, lineHeight: 20 },

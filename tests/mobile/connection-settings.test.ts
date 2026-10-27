@@ -55,3 +55,17 @@ test('unavailable session clearing has no control and notices stay next to their
   assert.ok(!f.nodes().some(n=>n.type==='Action'&&n.children.includes('Lokale Anbietersitzung löschen')));
   assert.match(f.text(),/nicht verfügbar/);assert.match(f.text(),/Schließen allein meldet dich nicht ab/);assert.match(f.text(),/Anbietersitzung bleibt unabhängig/);
 });
+
+test('disabled provider administration explains the active operation without starting work',()=>{
+  const f=fixture();
+  for(const [key,copy] of [['clearing','Anbietersitzung wird gelöscht'],['binding','Kontozuordnung wird gespeichert'],['saving','Belege werden gespeichert'],['disconnecting','Abmeldung wird geprüft'],['loginBusy','Anmeldung wird versucht'],['busy','Datenvorgang läuft']] as const){
+    f.c[key]=true;
+    assert.match(f.text(),new RegExp(copy));
+    const feedback=f.nodes().find(n=>n.props.accessibilityState?.busy===true);
+    assert.equal(feedback?.props.accessibilityLiveRegion,'polite');
+    assert.ok(f.nodes().filter(n=>n.type==='Action').every(n=>n.props.disabled===true));
+    assert.deepEqual(f.calls,[]);
+    f.c[key]=false;
+  }
+  f.c.restoring.current=true;assert.match(f.text(),/Anbieteransicht wird wiederhergestellt/);assert.deepEqual(f.calls,[]);
+});

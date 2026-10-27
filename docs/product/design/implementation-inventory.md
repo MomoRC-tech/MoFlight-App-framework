@@ -171,77 +171,78 @@ Retained app-owned lab/adapter surface; document its existing appearance as an e
 
 ## AiChat.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/AiChat.tsx](../../../apps/platform-lab/src/mobile/AiChat.tsx); normalized SHA-256 `c600e81a9184cb60cfe01abce76ee9562ed1b54a9bc002ea1e746d395342cdf6`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/AiChat.tsx](../../../apps/platform-lab/src/mobile/AiChat.tsx); normalized SHA-256 `f2b77c1791de460ef60ffc02b811514d687e7e859c9d20bd1d276b5bb581c340`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#000712bd` | 238 |
-| `#ffb39e` | 238 |
+| `#000712bd` | 245 |
+| `#ffb39e` | 245 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 12` | 236, 237 |
-| `fontSize: 14` | 239 |
-| `fontSize: 15` | 235, 239 |
-| `fontSize: 16` | 237, 238 |
-| `fontSize: 22` | 238 |
-| `fontSize: 23` | 235 |
-| `fontSize: 24` | 238 |
-| `fontSize: 25` | 235 |
-| `fontWeight: '600'` | 235, 238, 239 |
-| `lineHeight: 17` | 237 |
-| `lineHeight: 18` | 236 |
-| `lineHeight: 20` | 239 |
-| `lineHeight: 22` | 237, 239 |
-| `lineHeight: 28` | 238 |
+| `fontSize: 12` | 243, 244 |
+| `fontSize: 14` | 246 |
+| `fontSize: 15` | 242, 246 |
+| `fontSize: 16` | 244, 245 |
+| `fontSize: 22` | 245 |
+| `fontSize: 23` | 242 |
+| `fontSize: 24` | 245 |
+| `fontSize: 25` | 242 |
+| `fontWeight: '600'` | 242, 245, 246 |
+| `lineHeight: 17` | 244 |
+| `lineHeight: 18` | 243 |
+| `lineHeight: 20` | 246 |
+| `lineHeight: 22` | 244, 246 |
+| `lineHeight: 28` | 245 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 238 |
-| `borderRadius: 14` | 237, 239 |
-| `borderRadius: 16` | 236, 237, 239 |
-| `borderRadius: 18` | 238 |
-| `borderRadius: 28` | 238 |
-| `borderWidth: 1` | 238, 239 |
-| `gap: 10` | 239 |
-| `gap: 12` | 238 |
-| `gap: 18` | 236 |
-| `gap: 4` | 235, 238, 239 |
-| `gap: 8` | 236, 238, 239 |
-| `maxHeight: '85%'` | 238 |
-| `maxHeight: 112` | 237 |
-| `maxWidth: '90%'` | 236 |
-| `maxWidth: 520` | 238 |
-| `maxWidth: 600` | 235 |
-| `minHeight: 0` | 235, 236 |
-| `minHeight: 44` | 237 |
-| `minHeight: 48` | 235, 237 |
-| `minHeight: 52` | 238 |
-| `minHeight: 56` | 238, 239 |
-| `minWidth: 0` | 235, 237, 238 |
-| `minWidth: 120` | 239 |
-| `minWidth: 140` | 239 |
-| `minWidth: 48` | 235 |
-| `opacity: .4` | 178 |
-| `padding: 12` | 236, 238, 239 |
-| `padding: 14` | 236 |
-| `padding: 16` | 238 |
-| `paddingHorizontal: 10` | 237 |
-| `paddingHorizontal: 12` | 237 |
-| `paddingHorizontal: 14` | 237 |
-| `paddingHorizontal: 16` | 238, 239 |
-| `paddingHorizontal: 6` | 235, 237 |
-| `paddingVertical: 10` | 237 |
-| `paddingVertical: 12` | 238, 239 |
-| `paddingVertical: 24` | 236 |
-| `paddingVertical: 4` | 237 |
-| `width: '100%'` | 235, 238 |
+| `borderRadius: 12` | 245 |
+| `borderRadius: 14` | 244, 246 |
+| `borderRadius: 16` | 243, 244, 246 |
+| `borderRadius: 18` | 245 |
+| `borderRadius: 28` | 245 |
+| `borderWidth: 1` | 245, 246 |
+| `gap: 10` | 246 |
+| `gap: 12` | 245 |
+| `gap: 18` | 243 |
+| `gap: 4` | 242, 245, 246 |
+| `gap: 8` | 241, 243, 245, 246 |
+| `maxHeight: '85%'` | 245 |
+| `maxHeight: 112` | 244 |
+| `maxWidth: '90%'` | 243 |
+| `maxWidth: 520` | 245 |
+| `maxWidth: 600` | 242 |
+| `minHeight: 0` | 242, 243 |
+| `minHeight: 44` | 244 |
+| `minHeight: 48` | 242, 244 |
+| `minHeight: 52` | 245 |
+| `minHeight: 56` | 245, 246 |
+| `minWidth: 0` | 242, 244, 245 |
+| `minWidth: 120` | 246 |
+| `minWidth: 140` | 246 |
+| `minWidth: 48` | 242 |
+| `opacity: .4` | 241 |
+| `padding: 12` | 243, 245, 246 |
+| `padding: 14` | 243 |
+| `padding: 16` | 245 |
+| `paddingHorizontal: 10` | 244 |
+| `paddingHorizontal: 12` | 244 |
+| `paddingHorizontal: 14` | 241, 244 |
+| `paddingHorizontal: 16` | 245, 246 |
+| `paddingHorizontal: 6` | 242, 244 |
+| `paddingVertical: 10` | 244 |
+| `paddingVertical: 12` | 245, 246 |
+| `paddingVertical: 24` | 243 |
+| `paddingVertical: 4` | 244 |
+| `paddingVertical: 8` | 241 |
+| `width: '100%'` | 242, 245 |
 
 ## AiDeleteConfirmationDialog.tsx
 
@@ -479,25 +480,25 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/connection-guidan
 
 ## ConnectionSettings.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ConnectionSettings.tsx](../../../apps/platform-lab/src/mobile/ConnectionSettings.tsx); normalized SHA-256 `9f2b24751654937a82e53d32770a01d934a072b9f757198a214b59bf122ff31e`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ConnectionSettings.tsx](../../../apps/platform-lab/src/mobile/ConnectionSettings.tsx); normalized SHA-256 `deaeb930ae96d1eb173da35db8101c5fc37582329cdbb780a4f9640d7292c8bc`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#426783` | 33, 34 |
+| `#426783` | 34, 35 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 33, 34 |
-| `borderWidth: 1` | 33, 34 |
-| `gap: 10` | 16, 37 |
-| `gap: 18` | 10 |
-| `gap: 6` | 20, 41 |
-| `minHeight: 48` | 33, 34 |
-| `padding: 10` | 33, 34 |
+| `borderRadius: 12` | 34, 35 |
+| `borderWidth: 1` | 34, 35 |
+| `gap: 10` | 18, 38 |
+| `gap: 18` | 11 |
+| `gap: 6` | 22, 42 |
+| `minHeight: 48` | 34, 35 |
+| `padding: 10` | 34, 35 |
 
 ## ConnectionSummary.tsx
 
@@ -759,7 +760,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/FlightCard.tsx](.
 
 ## FlightDetails.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/FlightDetails.tsx](../../../apps/platform-lab/src/mobile/FlightDetails.tsx); normalized SHA-256 `5865117923427691144a7f330877ed60bb63689d7665910d87174fe2ecbc39f1`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/FlightDetails.tsx](../../../apps/platform-lab/src/mobile/FlightDetails.tsx); normalized SHA-256 `fccb5812c931c1c141bab70374c5df6d7ad61cc7a2a4c43973ad0bcbb52a0566`.
 
 ### Literal colors
 
@@ -830,46 +831,48 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/FlightScene.tsx](
 
 ## HelpScreen.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/HelpScreen.tsx](../../../apps/platform-lab/src/mobile/HelpScreen.tsx); normalized SHA-256 `4a8631d3e99f00778b895b2b591446dea355530fe3c7ddbda1288d679f08bbb4`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/HelpScreen.tsx](../../../apps/platform-lab/src/mobile/HelpScreen.tsx); normalized SHA-256 `f88f08d7946b9b7aef79ef254bac22d08d65076f4ac706ae8919e90202cee7a3`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#82959e` | 61 |
+| `#82959e` | 80 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 12` | 60, 70, 73 |
-| `fontSize: 16` | 62 |
-| `fontSize: 24` | 67 |
-| `fontWeight: '600'` | 66, 71 |
-| `fontWeight: '700'` | 60 |
-| `letterSpacing: .8` | 60 |
-| `lineHeight: 18` | 60, 70, 73 |
+| `fontSize: 12` | 79, 89, 93 |
+| `fontSize: 14` | 91 |
+| `fontSize: 16` | 81 |
+| `fontSize: 24` | 86 |
+| `fontWeight: '600'` | 85, 90 |
+| `fontWeight: '700'` | 79 |
+| `letterSpacing: .8` | 79 |
+| `lineHeight: 18` | 79, 89, 93 |
+| `lineHeight: 20` | 91 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 61, 68 |
-| `borderWidth: 1` | 61 |
-| `gap: 10` | 72 |
-| `gap: 12` | 65 |
-| `gap: 16` | 59, 68 |
-| `gap: 2` | 66, 71 |
-| `gap: 6` | 63 |
-| `gap: 8` | 61, 64 |
-| `maxWidth: 520` | 59 |
-| `minHeight: 48` | 61, 62, 71 |
-| `minHeight: 72` | 65 |
-| `minWidth: 0` | 66 |
-| `padding: 16` | 68 |
-| `paddingHorizontal: 12` | 61 |
-| `paddingVertical: 12` | 65 |
-| `width: '100%'` | 59 |
+| `borderRadius: 12` | 80, 87 |
+| `borderWidth: 1` | 80 |
+| `gap: 10` | 92 |
+| `gap: 12` | 84 |
+| `gap: 16` | 78, 87 |
+| `gap: 2` | 85, 90 |
+| `gap: 6` | 82 |
+| `gap: 8` | 80, 83, 91 |
+| `maxWidth: 520` | 78 |
+| `minHeight: 48` | 80, 81, 90 |
+| `minHeight: 72` | 84 |
+| `minWidth: 0` | 85 |
+| `padding: 16` | 87 |
+| `paddingHorizontal: 12` | 80 |
+| `paddingVertical: 12` | 84 |
+| `width: '100%'` | 78 |
 
 ## ImportPreview.tsx
 
@@ -941,53 +944,53 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MaintenancePageHe
 
 ## MedicalStatus.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MedicalStatus.tsx](../../../apps/platform-lab/src/mobile/MedicalStatus.tsx); normalized SHA-256 `e94a7730cdeb3eb7eb2107fc2f1ec4c2f2a20cc24a1783b84cb37ee1b2348809`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MedicalStatus.tsx](../../../apps/platform-lab/src/mobile/MedicalStatus.tsx); normalized SHA-256 `48b288b435ac6a670235692d783dfff792c2b74f5212484d56bb52cb4a79b740`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#f9b65b` | 10, 40 |
+| `#f9b65b` | 10, 42 |
 | `#ff7777` | 9 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 11` | 70 |
-| `fontSize: 12` | 69 |
-| `fontSize: 14` | 76 |
-| `fontSize: 16` | 77 |
-| `fontSize: 24` | 72 |
-| `fontWeight: '600'` | 69, 72 |
-| `lineHeight: 15` | 70 |
-| `lineHeight: 16` | 69 |
-| `lineHeight: 20` | 76 |
-| `lineHeight: 24` | 77 |
-| `lineHeight: 32` | 72 |
+| `fontSize: 11` | 72 |
+| `fontSize: 12` | 71 |
+| `fontSize: 14` | 79 |
+| `fontSize: 16` | 80 |
+| `fontSize: 24` | 74 |
+| `fontWeight: '600'` | 71, 74 |
+| `lineHeight: 15` | 72 |
+| `lineHeight: 16` | 71 |
+| `lineHeight: 20` | 79 |
+| `lineHeight: 24` | 80 |
+| `lineHeight: 32` | 74 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 67 |
-| `gap: 16` | 71 |
-| `gap: 4` | 75 |
-| `gap: 5` | 67 |
-| `gap: 8` | 73, 74, 78 |
-| `maxWidth: 480` | 71 |
-| `minHeight: 40` | 67 |
-| `minHeight: 48` | 66 |
-| `minWidth: 94` | 66 |
+| `borderRadius: 12` | 69 |
+| `gap: 16` | 73 |
+| `gap: 4` | 78 |
+| `gap: 5` | 69 |
+| `gap: 8` | 75, 76, 77, 81 |
+| `maxWidth: 480` | 73 |
+| `minHeight: 40` | 69 |
+| `minHeight: 48` | 68 |
+| `minWidth: 94` | 68 |
 | `opacity: .5` | 19 |
-| `paddingHorizontal: 8` | 67 |
-| `paddingVertical: 2` | 67 |
-| `paddingVertical: 8` | 78 |
-| `width: '100%'` | 71 |
+| `paddingHorizontal: 8` | 69 |
+| `paddingVertical: 2` | 69 |
+| `paddingVertical: 8` | 81 |
+| `width: '100%'` | 73 |
 
 ## MobileApp.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `85cc57136e82d9a1f1f86345972af6bc9d7d4dc4fd710dd39192d05998925744`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `711ae800f9ba47f053311f33c9e7d1a19d02ea66ac70cf07f3cc5fce35381494`.
 
 ### Literal colors
 
@@ -1474,71 +1477,71 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/settings-secondar
 
 ## StatisticsOverlay.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/StatisticsOverlay.tsx](../../../apps/platform-lab/src/mobile/StatisticsOverlay.tsx); normalized SHA-256 `52df38caf88a85c5fe275a9c84f83b84f9299e0c51d0064ef5ff5d5f8539798a`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/StatisticsOverlay.tsx](../../../apps/platform-lab/src/mobile/StatisticsOverlay.tsx); normalized SHA-256 `19ce4e7ee8536313b9dc30d241fa3980d8392ce602c5076ca95db1e2305c6b00`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#0b141c3b` | 255 |
-| `#0e202c` | 255 |
+| `#0b141c3b` | 262 |
+| `#0e202c` | 262 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 11` | 255 |
-| `fontSize: 16` | 256 |
-| `fontSize: 17` | 257 |
-| `fontSize: 19` | 257 |
-| `fontSize: 22` | 258 |
-| `fontWeight: '700'` | 255, 257, 258 |
-| `letterSpacing: 1.2` | 255 |
-| `lineHeight: 16` | 255 |
-| `lineHeight: 23` | 257 |
-| `lineHeight: 25` | 257 |
-| `lineHeight: 30` | 258 |
+| `fontSize: 11` | 262 |
+| `fontSize: 16` | 263 |
+| `fontSize: 17` | 264 |
+| `fontSize: 19` | 264 |
+| `fontSize: 22` | 265 |
+| `fontWeight: '700'` | 262, 264, 265 |
+| `letterSpacing: 1.2` | 262 |
+| `lineHeight: 16` | 262 |
+| `lineHeight: 23` | 264 |
+| `lineHeight: 25` | 264 |
+| `lineHeight: 30` | 265 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 256 |
-| `borderRadius: 13` | 257 |
-| `borderRadius: 16` | 257 |
-| `borderRadius: 18` | 256 |
-| `borderRadius: 20` | 255 |
-| `borderRadius: 5` | 257 |
-| `borderWidth: 1` | 255, 256, 257 |
-| `gap: 12` | 254 |
-| `gap: 2` | 257, 258 |
-| `gap: 3` | 256 |
-| `gap: 5` | 239, 256, 257 |
-| `gap: 6` | 126, 255, 256, 257 |
-| `gap: 8` | 256, 257, 258 |
-| `height: 10` | 257 |
-| `maxWidth: '100%'` | 126 |
-| `maxWidth: 600` | 254 |
-| `minHeight: 0` | 254 |
-| `minHeight: 142` | 255 |
-| `minHeight: 48` | 126, 257 |
-| `minHeight: 50` | 256 |
-| `minWidth: '45%'` | 155, 156, 157 |
-| `minWidth: 102` | 258 |
-| `minWidth: 72` | 257 |
-| `minWidth: 90` | 257 |
-| `minWidth: 95` | 257 |
-| `opacity: .55` | 257 |
-| `opacity: .72` | 255 |
-| `padding: 12` | 254 |
-| `padding: 13` | 257 |
-| `padding: 14` | 256 |
-| `padding: 16` | 255 |
-| `paddingHorizontal: 10` | 254 |
-| `paddingHorizontal: 12` | 256 |
-| `paddingHorizontal: 8` | 257 |
-| `width: '100%'` | 254 |
-| `width: 10` | 257 |
+| `borderRadius: 12` | 263 |
+| `borderRadius: 13` | 264 |
+| `borderRadius: 16` | 264 |
+| `borderRadius: 18` | 263 |
+| `borderRadius: 20` | 262 |
+| `borderRadius: 5` | 264 |
+| `borderWidth: 1` | 262, 263, 264 |
+| `gap: 12` | 261 |
+| `gap: 2` | 264, 265 |
+| `gap: 3` | 263 |
+| `gap: 5` | 246, 263, 264 |
+| `gap: 6` | 130, 262, 263, 264 |
+| `gap: 8` | 263, 264, 265 |
+| `height: 10` | 264 |
+| `maxWidth: '100%'` | 130 |
+| `maxWidth: 600` | 261 |
+| `minHeight: 0` | 261 |
+| `minHeight: 142` | 262 |
+| `minHeight: 48` | 130, 264 |
+| `minHeight: 50` | 263 |
+| `minWidth: '45%'` | 163, 164, 165 |
+| `minWidth: 102` | 265 |
+| `minWidth: 72` | 264 |
+| `minWidth: 90` | 264 |
+| `minWidth: 95` | 264 |
+| `opacity: .55` | 264 |
+| `opacity: .72` | 262 |
+| `padding: 12` | 261 |
+| `padding: 13` | 264 |
+| `padding: 14` | 263 |
+| `padding: 16` | 262 |
+| `paddingHorizontal: 10` | 261 |
+| `paddingHorizontal: 12` | 263 |
+| `paddingHorizontal: 8` | 264 |
+| `width: '100%'` | 261 |
+| `width: 10` | 264 |
 
 ## StatusBadge.tsx
 

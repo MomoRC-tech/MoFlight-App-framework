@@ -1,5 +1,16 @@
 # Dark Compact Cockpit — approved 24 October 2026
 
+## Everyday Flights and task states — authorized 27 October 2026
+
+Manuel selected roadmap U1/U2 with “ok, do steps 1 and 2 now”. This coherent continuation uses the existing page/list/card/disclosure patterns. [#94](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/94) owns the package; [one verification summary](../../verification/2026-10-26-material-settings.md#everyday-flights-and-task-states--27-october-2026) distinguishes source, host and native acceptance.
+
+- Ordinary Flights/list/detail/data coverage uses the existing page app bar with contextual title and Back, retaining Sync/profile and the original logo. Start keeps its branded header and composition. Filters, rows and exact caller/evidence/scroll state remain.
+- Statistics keeps its current period/contributor/detail routes. Custom-period Apply validates and closes the inline editor; Cancel/Android Back closes it without changing the applied period. Draft dates remain for reopening. Empty period, unavailable detail/local retry and pending recovery are explicit. PIC explanation follows the global Help preference; full offline Help returns to the mounted Statistics route.
+- AI distinguishes archive loading/unavailable from a ready empty chat/history. Archive readiness prevents edits before storage can preserve them; loaded drafts remain editable when the service is unavailable. Busy state names processing and retains Cancel; local-open failure has explicit guarded local retry. No auto send or model/service activation.
+- Help retains its offline answer when an explicit browser handoff fails, with visible error/retry and duplicate-launch/unmount guards. Provider administration names its existing busy operation; Medical announces loading/recovery feedback. Club/Status/backup safeguards and honest partial/unknown states are retained where no correction is justified.
+
+Current Material app-bar/list/navigation guidance informs these existing primitives: contextual headings, readable aligned facts and visible feedback. Preserve navy/cyan, logo, German labels, five destinations, provider lifecycle and account/data guards. No new dependency, global token/Start restyle, root Back policy, light mode or feature. One batched committed-source Android checkpoint follows host checks; populated/device/iOS/beta-light gates stay explicit.
+
 ## Club, AI and remaining Settings — authorized 27 October 2026
 
 Manuel explicitly requested one enlarged implementation increment under [#94](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/94), covering the Club overview and every section, AI conversations/chat/evidence/deletion confirmation, and Diagnostics, About/credits and Development. This continues the selected page/surface patterns; it does not reopen palette, Start or service decisions. The Issue contract was recorded before implementation against clean `main` at `040f197`.

@@ -9,20 +9,20 @@ const source=ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/sr
  compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.React,esModuleInterop:false},
 }).outputText;
 
-async function fixture(){
+async function fixture(options:{failFirstOpen?:boolean}={}){
  let index=0;const hooks:any[]=[],effects:(()=>void)[]=[],cleanups=new Map<number,()=>void>();
  const archive={ownerId:'owner-a',conversations:[{id:'chat-a',title:'Exact conversation',draft:'Keep draft',messages:[]},{id:'chat-b',title:'Other conversation',draft:'Other draft',messages:[]}]};
  const deleted:string[]=[];let current=true,listener:(state:string)=>void=()=>{};
  const workspace={ownerId:'owner-a',assertCurrent:async()=>{if(!current)throw Error('Owner changed');},close:async()=>{},identity:async()=>null,
   store:{archive:async()=>archive,recoverActive:async()=>{},touch:async()=>{},delete:async(id:string)=>{await workspace.assertCurrent();deleted.push(id);}}};
- let controller:any;
+ let controller:any,opens=0;
  const react:any={Fragment:'Fragment',useRef(value:any){const i=index++;if(!(i in hooks))hooks[i]={current:value};return hooks[i];},
   useState(value:any){const i=index++;if(!(i in hooks))hooks[i]=value;return[hooks[i],(next:any)=>{hooks[i]=typeof next==='function'?next(hooks[i]):next;}];},
   useEffect(fn:()=>void,deps:any[]){const i=index++;if(!hooks[i]||deps.some((v,n)=>v!==hooks[i][n])){hooks[i]=deps;effects.push(()=>{cleanups.get(i)?.();const cleanup=fn();if(typeof cleanup==='function')cleanups.set(i,cleanup);});}},
   createElement:(type:any,props:any,...children:any[])=>({type,props:props??{},children:children.flat(Infinity)})};
  const modules:any={react:{default:react,...react},'react-native':{AppState:{currentState:'active',addEventListener:(_event:string,fn:any)=>{listener=fn;return{remove(){}};}}},
   'expo-crypto':{randomUUID:()=> 'new-chat'},'./AiChat':{AiChat:'AiChat'},'./AiDeleteConfirmationDialog':{AiDeleteConfirmationDialog:'DeleteDialog'},
-  './sync-confirmation':{createSyncConfirmation},'../ai/workspace-native':{openAiWorkspaceNative:async()=>workspace},
+  './sync-confirmation':{createSyncConfirmation},'../ai/workspace-native':{openAiWorkspaceNative:async()=>{opens++;if(options.failFirstOpen&&opens===1)throw Error('Synthetic local failure');return workspace;}},
   '../ai/run-controller':{AiRunController:class{busy=false;constructor(){controller=this;}cancel=async()=>{};}},
   '../ai/usage-monitor':{AiUsageMonitor:class{}},'../ai/chat-model':{chatDraftTitle:()=>''}};
  const context:any={exports:{},require:(name:string)=>{assert.ok(name in modules,name);return modules[name];}};runInNewContext(source,context);
@@ -82,5 +82,19 @@ test('a cancelled callback cannot consume a later deletion decision',async()=>{
  old.props.onCancel();f.render();assert.ok(f.find('DeleteDialog'));
  old.props.onConfirm();await f.settle();assert.deepEqual(f.deleted,[]);
  next.props.onConfirm();await f.settle();assert.deepEqual(f.deleted,['chat-a']);
+ }finally{f.close();}
+});
+
+
+test('failed local open offers local retry and restores persisted drafts without creating or sending',async()=>{
+ const f=await fixture({failFirstOpen:true});try{
+ let chat=f.find('AiChat');assert.equal(chat.props.storageReady,false);assert.equal(chat.props.loading,false);
+ assert.match(chat.props.notice,/Daten bleiben erhalten/);assert.equal(typeof chat.props.onRetryLoad,'function');
+ chat.props.onDraft('Must not replace saved draft');chat.props.onCreate();await f.settle();
+ chat=f.find('AiChat');assert.equal(chat.props.conversations.length,0);
+ chat.props.onRetryLoad();f.render();await f.settle();chat=f.find('AiChat');
+ assert.equal(chat.props.storageReady,true);assert.equal(chat.props.onRetryLoad,undefined);
+ assert.equal(chat.props.conversations.find((c:any)=>c.id==='chat-a').draft,'Keep draft');
+ assert.equal(chat.props.selectedId,'chat-a');assert.deepEqual(f.deleted,[]);
  }finally{f.close();}
 });

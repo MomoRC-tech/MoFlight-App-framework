@@ -1,5 +1,7 @@
 # MoFlight UI design handbook
 
+**U1/U2 continuation — authorized 27 October:** [Everyday Flights and task-state contract](compact-cockpit.md#everyday-flights-and-task-states--authorized-27-october-2026) applies the established hierarchy and explicit task/recovery states as one package. [Source/platform evidence](../../verification/2026-10-26-material-settings.md#everyday-flights-and-task-states--27-october-2026) retains open gates.
+
 **Remaining UI roadmap — proposed 27 October:** the [complete UI sequence and surface coverage](../../project-plan.md#ui-completion-roadmap--proposed-27-october-2026) separates the recommended Flights/Statistics and task-state package, responsive completion, beta light/legal information and later feature-dependent UI. It is planning, not new implementation approval; selected contracts below retain their authority.
 
 **27 October coherent Club/AI/Settings package (#94):** Manuel requested the Club overview/all sections, AI chat/history/evidence/deletion and remaining Diagnostics/About/Development together. [Authorized contract](compact-cockpit.md#club-ai-and-remaining-settings--authorized-27-october-2026) applies established page/group/disclosure/dialog patterns, retained drafts/context/scroll and the current navy/cyan. [Source/platform evidence](../../verification/2026-10-26-material-settings.md#club-ai-and-remaining-settings--27-october-2026) keeps pending acceptance explicit. Start and shared palette remain preserved.

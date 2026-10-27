@@ -80,7 +80,10 @@ test('saved Medical shows the earliest source date, raw fields and explicit unkn
 });
 
 test('Medical details retain loading, stale-source and failed-refresh explanations alongside saved facts', () => {
-  const loading = text(component.MedicalDetails({loading:true,needsReload:true,refreshFailed:true}));
+  const loadingTree = component.MedicalDetails({loading:true,needsReload:true,refreshFailed:true});
+  assert.ok(nodes(loadingTree).some(node => node.props.accessibilityState?.busy === true));
+  assert.ok(nodes(loadingTree).some(node => node.props.accessibilityLiveRegion === 'polite'));
+  const loading = text(loadingTree);
   assert.match(loading, /Gespeicherte Angaben werden geladen/);
   assert.match(loading, /erneut geladen/);
   assert.match(loading, /beim letzten Abruf nicht aktualisiert/);

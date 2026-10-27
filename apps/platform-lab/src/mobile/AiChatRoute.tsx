@@ -16,6 +16,7 @@ const unavailable='Der AI-Dienst ist noch nicht freigeschaltet. Entwürfe und Ge
 export function AiChatRoute({active,reload,onEvidence,client}:{active:boolean;reload:number|string;onEvidence:(message:ChatMessage,referenceIds:string[])=>Promise<void>;client?:ReturnType<typeof createAiRelayClient>}) {
   const [archive,setArchive]=useState<ChatArchive|null>(null),[selected,setSelected]=useState<string|null>(null);
   const [feature,setFeature]=useState<AiFeature>('question'),[notice,setNotice]=useState<string|null>(unavailable),[loading,setLoading]=useState(false),[busy,setBusy]=useState(false),[usage,setUsage]=useState<AiBudget|null>(null);
+  const [localRetry,setLocalRetry]=useState(0),[loadFailed,setLoadFailed]=useState(false);
   const [enabled,setEnabled]=useState(false),[usageAt,setUsageAt]=useState<string|null>(null),[usageStale,setUsageStale]=useState(false),[foregroundState,setForegroundState]=useState(AppState.currentState!=='background'&&AppState.currentState!=='inactive');
   const allow=useRef(false),visible=useRef(active),consentEpoch=useRef(0);visible.current=active;
   const workspace=useRef<AiNativeWorkspace|null>(null),controller=useRef<AiRunController|null>(null),alive=useRef(false),foreground=useRef(AppState.currentState!=='background'&&AppState.currentState!=='inactive');
@@ -30,7 +31,7 @@ export function AiChatRoute({active,reload,onEvidence,client}:{active:boolean;re
     const gate=async()=>{if(revoked||!foreground.current)throw new Error('AI-Auswahl ist nicht aktiv.');};
     const load=async()=>{
       if(revoked||opening||!foreground.current)return;opening=true;consentEpoch.current++;invalidateDeletion();
-      allow.current=false;setEnabled(false);setLoading(true);setArchive(null);setUsage(null);setUsageAt(null);
+      allow.current=false;setEnabled(false);setLoading(true);setLoadFailed(false);setArchive(null);setUsage(null);setUsageAt(null);
       try {
         const w=await openAiWorkspaceNative(gate);if(revoked){await w?.close();return;}
         if(!w){setNotice('Noch keine eigene lokale Bibliothek. Melde dich über Daten in der Kopfzeile an.');return;}
@@ -39,14 +40,14 @@ export function AiChatRoute({active,reload,onEvidence,client}:{active:boolean;re
           configuration:accountRef=>{if(!client)throw new Error(unavailable);return client.configuration(accountRef);},transmit:(request,signal)=>{if(!client)throw new Error(unavailable);return client.transmit(request,signal);},stop:client?.stop,
           now:()=>new Date().toISOString(),token:()=>Crypto.randomUUID(),changed:budget=>{if(!alive.current||workspace.current!==w)return;if(budget){setUsage(budget);setUsageAt(new Date().toISOString());setUsageStale(false);}setBusy(controller.current?.busy??false);void refresh(w).catch(()=>{});}});
         await refresh(w);setNotice(unavailable);
-      }catch{if(opened){const failed=opened;opened=null;if(workspace.current===failed){workspace.current=null;controller.current=null;}await failed.close().catch(()=>{});}if(!revoked)setNotice('Gespeicherte Gespräche konnten nicht geöffnet werden. Daten bleiben erhalten.');}
+      }catch{if(opened){const failed=opened;opened=null;if(workspace.current===failed){workspace.current=null;controller.current=null;}await failed.close().catch(()=>{});}if(!revoked){setLoadFailed(true);setNotice('Gespeicherte Gespräche konnten nicht geöffnet werden. Daten bleiben erhalten.');}}
       finally{opening=false;if(!revoked)setLoading(false);}
     };
     void load();
     const listener=AppState.addEventListener('change',state=>{foreground.current=state==='active';setForegroundState(state==='active');if(state!=='active'){invalidateDeletion();consentEpoch.current++;void controller.current?.cancel().catch(()=>{});}else if(workspace.current)void refresh(workspace.current).catch(()=>{});else void load();});
     return()=>{deletionGate.current.invalidate();alive.current=false;revoked=true;consentEpoch.current++;allow.current=false;listener.remove();const w=workspace.current;workspace.current=null;const c=controller.current;controller.current=null;
       void (async()=>{try{await c?.cancel();await writes.current;}finally{await w?.close();}})();};
-  },[reload,client]);
+  },[reload,client,localRetry]);
   useEffect(()=>{if(!active){consentEpoch.current++;void controller.current?.cancel().catch(()=>{});}},[active]);
   useEffect(()=>{invalidateDeletion();},[active,busy,loading,archive?.ownerId,selected]);
   useEffect(()=>{
@@ -61,6 +62,7 @@ export function AiChatRoute({active,reload,onEvidence,client}:{active:boolean;re
     writes.current=writes.current.then(async()=>{await w.assertCurrent();await work(w);if(refreshResult)await refresh(w);}).catch(()=>{if(alive.current)setNotice('Änderung konnte nicht gespeichert werden. Bitte erneut prüfen.');});
   }
   const draft=(value:string)=>{
+    if(!archive)return;
     const conversationId=selected??Crypto.randomUUID(),sequence=++draftSequence.current;
     unsavedDraft.current=true;
     setSelected(conversationId);
@@ -72,8 +74,8 @@ export function AiChatRoute({active,reload,onEvidence,client}:{active:boolean;re
       // Refresh only the latest edit, avoiding older write acknowledgements replacing new text.
       if(sequence===draftSequence.current){unsavedDraft.current=false;await refresh(w,sequence);}},false);
   };
-  return <><AiChat key={archive?.ownerId??'no-owner'} active={active&&foregroundState} conversations={archive?.conversations??[]} selectedId={selected} enabled={enabled} busy={busy} loading={loading} notice={notice} usage={usage} usageAt={usageAt} usageStale={usageStale} feature={feature}
-    onCreate={()=>{const conversationId=Crypto.randomUUID();setSelected(conversationId);setArchive(previous=>previous?{...previous,conversations:[{version:1,id:conversationId,ownerId:previous.ownerId,title:'Neues Gespräch',draft:'',context:null,messages:[],activitySequence:0,updatedAt:new Date().toISOString()},...previous.conversations]}:previous);setNotice('Schreibe die erste Nachricht für ein neues Gespräch.');}}
+  return <><AiChat key={archive?.ownerId??'no-owner'} active={active&&foregroundState} conversations={archive?.conversations??[]} selectedId={selected} enabled={enabled} busy={busy} loading={loading} storageReady={archive!==null} onRetryLoad={loadFailed&&!loading?()=>{if(!workspace.current&&visible.current&&foreground.current)setLocalRetry(value=>value+1);}:undefined} notice={notice} usage={usage} usageAt={usageAt} usageStale={usageStale} feature={feature}
+    onCreate={()=>{if(!archive||loading||busy)return;const conversationId=Crypto.randomUUID();setSelected(conversationId);setArchive(previous=>previous?{...previous,conversations:[{version:1,id:conversationId,ownerId:previous.ownerId,title:'Neues Gespräch',draft:'',context:null,messages:[],activitySequence:0,updatedAt:new Date().toISOString()},...previous.conversations]}:previous);setNotice('Schreibe die erste Nachricht für ein neues Gespräch.');}}
     onSelect={conversationId=>{setSelected(conversationId);mutate(w=>w.store.touch(conversationId,new Date().toISOString()));}}
     onDelete={conversationId=>{
       const w=workspace.current,conversation=archive?.conversations.find(c=>c.id===conversationId);

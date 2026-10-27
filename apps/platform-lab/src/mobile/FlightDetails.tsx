@@ -43,7 +43,7 @@ export function FlightDetails({detail,rawPage,onRawPage,rawExpanded=false,onTogg
           <Label style={{fontWeight:'700'}}>PIC · Pilot-in-command</Label>
           <Label>{picHelp.short}</Label>
           <Label muted>Die gespeicherte Rolle allein bestimmt keine Flugbuch-Anrechnung.</Label>
-          <View style={styles.helpActions}><Action secondary onPress={onTogglePicHelp}>Schließen</Action><Action secondary onPress={onMorePicHelp}>Mehr erfahren</Action></View>
+          <View style={styles.helpActions}><Action secondary onPress={onTogglePicHelp}>Schließen</Action>{onMorePicHelp&&<Action secondary onPress={onMorePicHelp}>Mehr erfahren</Action>}</View>
         </View>}
       </>}
       {!crew.picKnown&&<Label muted>PIC nicht angegeben</Label>}

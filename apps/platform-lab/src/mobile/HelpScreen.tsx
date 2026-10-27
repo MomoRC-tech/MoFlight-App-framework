@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Linking, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Action, Chip, Label, Section, colors, ui } from './theme';
 import { HELP_CATEGORIES, helpEntry, searchHelpEntries, type HelpCategory } from './help-catalog';
@@ -29,7 +29,7 @@ export function HelpScreen({ entryId, query, category, onQuery, onCategory, onEn
         <Label selectable>{selected.answer}</Label>
         {selected.boundary && <View style={s.boundary}><Label selectable>{selected.boundary}</Label></View>}
         <Label muted style={s.source}>Quelle: {selected.source} · Inhaltstand {selected.updatedAt}</Label>
-        {selected.sourceUrl && <Pressable accessibilityRole="link" accessibilityLabel="Externe Quelle öffnen, Internet erforderlich" onPress={() => { void Linking.openURL(selected.sourceUrl!).catch(() => {}); }} style={({ pressed }) => [s.link, pressed && ui.pressed]}><Label style={s.linkText}>Externe Quelle öffnen</Label><Label muted>Internet erforderlich</Label></Pressable>}
+        {selected.sourceUrl && <HelpSourceLink key={selected.sourceUrl} url={selected.sourceUrl} />}
       </View>
       {selected.id === 'empty-flights' || selected.id === 'partial-update' ? <Action secondary onPress={onStatus}>Datenstatus öffnen</Action> : null}
     </> : <View style={s.answer}><Label>Dazu haben wir noch keine geprüfte Hilfe.</Label><Label muted>Du kannst die Themen durchsuchen. Es wird keine Antwort geraten oder online angefragt.</Label></View>}
@@ -55,6 +55,25 @@ export function HelpScreen({ entryId, query, category, onQuery, onCategory, onEn
   </View>;
 }
 
+/** A failed browser handoff keeps the offline answer and an explicit retry visible. */
+function HelpSourceLink({ url }: { url: string }) {
+  const alive = useRef(false), pending = useRef(false);
+  const [state, setState] = useState<'ready' | 'opening' | 'failed'>('ready');
+  useEffect(() => { alive.current = true; return () => { alive.current = false; }; }, []);
+  const open = async () => {
+    if (!alive.current || pending.current) return;
+    pending.current = true; setState('opening');
+    try { await Linking.openURL(url); if (alive.current) setState('ready'); }
+    catch { if (alive.current) setState('failed'); }
+    finally { pending.current = false; }
+  };
+  const title = state === 'failed' ? 'Quelle erneut öffnen' : state === 'opening' ? 'Quelle wird geöffnet …' : 'Externe Quelle öffnen';
+  return <View style={s.sourceLink}>
+    <Pressable accessibilityRole="link" accessibilityLabel={`${title}, Internet erforderlich`} accessibilityState={{ busy: state === 'opening', disabled: state === 'opening' }} disabled={state === 'opening'} onPress={() => { void open(); }} style={({ pressed }) => [s.link, pressed && ui.pressed]}><Label style={s.linkText}>{title}</Label><Label muted>Internet erforderlich</Label></Pressable>
+    {state === 'failed' && <Text accessibilityRole="alert" accessibilityLiveRegion="polite" style={s.linkError}>Die externe Quelle konnte nicht geöffnet werden. Die gespeicherte Antwort bleibt verfügbar. Du kannst es erneut versuchen.</Text>}
+  </View>;
+}
+
 const s = StyleSheet.create({
   body: { width: '100%', maxWidth: 520, alignSelf: 'center', gap: 16 },
   eyebrow: { color: colors.cyan, fontSize: 12, lineHeight: 18, fontWeight: '700', letterSpacing: .8 },
@@ -69,6 +88,7 @@ const s = StyleSheet.create({
   boundary: { borderLeftWidth: 2, borderLeftColor: colors.cyan, paddingLeft: 12 },
   source: { borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 12, fontSize: 12, lineHeight: 18 },
   link: { minHeight: 48, justifyContent: 'center', gap: 2 }, linkText: { color: colors.cyan, fontWeight: '600' },
+  sourceLink: { gap: 8 }, linkError: { color: colors.text, fontSize: 14, lineHeight: 20 },
   introduction: { gap: 10, paddingTop: 8 },
   footer: { fontSize: 12, lineHeight: 18 },
 });
