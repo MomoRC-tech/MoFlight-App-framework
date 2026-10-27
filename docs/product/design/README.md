@@ -1,5 +1,7 @@
 # MoFlight UI design handbook
 
+**Remaining UI roadmap — proposed 27 October:** the [complete UI sequence and surface coverage](../../project-plan.md#ui-completion-roadmap--proposed-27-october-2026) separates the recommended Flights/Statistics and task-state package, responsive completion, beta light/legal information and later feature-dependent UI. It is planning, not new implementation approval; selected contracts below retain their authority.
+
 **27 October coherent Club/AI/Settings package (#94):** Manuel requested the Club overview/all sections, AI chat/history/evidence/deletion and remaining Diagnostics/About/Development together. [Authorized contract](compact-cockpit.md#club-ai-and-remaining-settings--authorized-27-october-2026) applies established page/group/disclosure/dialog patterns, retained drafts/context/scroll and the current navy/cyan. [Source/platform evidence](../../verification/2026-10-26-material-settings.md#club-ai-and-remaining-settings--27-october-2026) keeps pending acceptance explicit. Start and shared palette remain preserved.
 
 **27 October flight detail continuation (#94):** the shared Flights/Statistics detail separates summary, route/times and crew/roles. Original provider fields are expandable, with existing pagination and visible source/unknown limits. [Current contract](compact-cockpit.md#flight-detail-hierarchy--selected-27-october-2026) · [source/platform evidence](../../verification/2026-10-26-material-settings.md#flight-detail-hierarchy--27-october-2026). Start and colors remain preserved.

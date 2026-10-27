@@ -14,6 +14,7 @@
 <noscript>All content and the complete text area remain readable/selectable without JavaScript. Copy/download buttons require JavaScript.</noscript>
 <nav class="jump" aria-label="Handbook sections"><a href="#chapter-overview">Overview</a> <a href="#chapter-compact-cockpit">compact-cockpit</a> <a href="#chapter-alternative-ui">alternative-ui</a> <a href="#chapter-foundations">foundations</a> <a href="#chapter-components">components</a> <a href="#chapter-patterns">patterns</a> <a href="#chapter-implementation-inventory">implementation-inventory</a> <a href="#chapter-history">history</a> <a href="#component-examples">Examples</a> <a href="#symbol-catalogue">Symbols</a> <a href="#copy-area">Copy text</a></nav>
 <div id="reference-content"><section class="chapter" id="chapter-overview"><h2 id="chapter-overview-moflight-ui-design-handbook">MoFlight UI design handbook</h2>
+<p><strong>Remaining UI roadmap — proposed 27 October:</strong> the <a href="../../project-plan.md#ui-completion-roadmap--proposed-27-october-2026">complete UI sequence and surface coverage</a> separates the recommended Flights/Statistics and task-state package, responsive completion, beta light/legal information and later feature-dependent UI. It is planning, not new implementation approval; selected contracts below retain their authority.</p>
 <p><strong>27 October coherent Club/AI/Settings package (#94):</strong> Manuel requested the Club overview/all sections, AI chat/history/evidence/deletion and remaining Diagnostics/About/Development together. <a href="#chapter-compact-cockpit-club-ai-and-remaining-settings--authorized-27-october-2026">Authorized contract</a> applies established page/group/disclosure/dialog patterns, retained drafts/context/scroll and the current navy/cyan. <a href="../../verification/2026-10-26-material-settings.md#club-ai-and-remaining-settings--27-october-2026">Source/platform evidence</a> keeps pending acceptance explicit. Start and shared palette remain preserved.</p>
 <p><strong>27 October flight detail continuation (#94):</strong> the shared Flights/Statistics detail separates summary, route/times and crew/roles. Original provider fields are expandable, with existing pagination and visible source/unknown limits. <a href="#chapter-compact-cockpit-flight-detail-hierarchy--selected-27-october-2026">Current contract</a> · <a href="../../verification/2026-10-26-material-settings.md#flight-detail-hierarchy--27-october-2026">source/platform evidence</a>. Start and colors remain preserved.</p>
 <p><strong>Vereinsflieger Settings continuation (#94, 26 October):</strong> Manuel authorized direct implementation using the established pattern. <a href="#chapter-compact-cockpit-vereinsflieger-settings-child-page--authorized-26-october-2026">Current contract</a>: full child page with Back/confirmed Sync, separate session/credential cards and inline masked editing. Only the original provider sign-out task remains framed; the controller/browser parent is retained. <a href="../../verification/2026-10-26-material-settings.md#vereinsflieger-settings-child-page--26-october-2026">Verification and remaining gates</a>.</p>
@@ -891,7 +892,7 @@
 <tr><td><code>width: &#x27;100%&#x27;</code></td><td>45, 52, 57, 63, 69</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-coreflightfoundationtsx">CoreFlightFoundation.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx">apps/platform-lab/src/mobile/CoreFlightFoundation.tsx</a>; normalized SHA-256 <code>390d3df360985fef4b4b14eb45ee3b6da33c67bc0e88c07e0f01de8fdf581ad9</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx">apps/platform-lab/src/mobile/CoreFlightFoundation.tsx</a>; normalized SHA-256 <code>1c6d8a206275ee3a4d04168ac1b54b38bec6d8143e681280bf769a5fd08be478</code>.</p>
 <h4 id="chapter-implementation-inventory-typography-declarations-10">Typography declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>fontSize: 12</code></td><td>1023</td></tr>
@@ -2463,6 +2464,8 @@
 
 # MoFlight UI design handbook
 
+**Remaining UI roadmap — proposed 27 October:** the [complete UI sequence and surface coverage](../../project-plan.md#ui-completion-roadmap--proposed-27-october-2026) separates the recommended Flights/Statistics and task-state package, responsive completion, beta light/legal information and later feature-dependent UI. It is planning, not new implementation approval; selected contracts below retain their authority.
+
 **27 October coherent Club/AI/Settings package (#94):** Manuel requested the Club overview/all sections, AI chat/history/evidence/deletion and remaining Diagnostics/About/Development together. [Authorized contract](compact-cockpit.md#club-ai-and-remaining-settings--authorized-27-october-2026) applies established page/group/disclosure/dialog patterns, retained drafts/context/scroll and the current navy/cyan. [Source/platform evidence](../../verification/2026-10-26-material-settings.md#club-ai-and-remaining-settings--27-october-2026) keeps pending acceptance explicit. Start and shared palette remain preserved.
 
 **27 October flight detail continuation (#94):** the shared Flights/Statistics detail separates summary, route/times and crew/roles. Original provider fields are expandable, with existing pagination and visible source/unknown limits. [Current contract](compact-cockpit.md#flight-detail-hierarchy--selected-27-october-2026) · [source/platform evidence](../../verification/2026-10-26-material-settings.md#flight-detail-hierarchy--27-october-2026). Start and colors remain preserved.
@@ -3727,7 +3730,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ConnectionSummary
 
 ## CoreFlightFoundation.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `390d3df360985fef4b4b14eb45ee3b6da33c67bc0e88c07e0f01de8fdf581ad9`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `1c6d8a206275ee3a4d04168ac1b54b38bec6d8143e681280bf769a5fd08be478`.
 
 ### Typography declarations
 
@@ -5747,7 +5750,7 @@ States / limits: Recreated approved variant, not a byte-identical copy of an old
 Source: docs/assets/branding/moflight-app-icon-ai.png
 docs/assets/branding/README.md; app.json
 </textarea></section>
-<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: a0778b35fb7ccab9271c6a8b26dff44bcd25d31d402dca17bfe5a019aa54f840. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
+<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: cca61d25566c0565c471b61ba1e6438937f20a62d22c879180d72c13692bbabf. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
 </main><script>
 'use strict';
 const brief = document.querySelector('#brief');
