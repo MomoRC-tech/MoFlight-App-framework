@@ -289,8 +289,9 @@ export async function deriveRealFlightCommand(graph: RealFlightGraph, input: Rea
     return row;
   }
 
-  const sourceInputJson = realFlightBoundedJson(command.source, REAL_HISTORY_COMMAND_LIMIT);
-  const source = await createRealFlightSourceObservation(JSON.parse(sourceInputJson) as RealFlightSourceInput, hash);
+  // The complete command is already detached and byte-bounded above, including
+  // this source subtree. Validate its shape/evidence without another JSON round trip.
+  const source = await createRealFlightSourceObservation(command.source, hash);
   if (command.kind === 'bind') {
     realFlightRequire(latestBinding(graph) === null, 'This real flight history owner is already bound to an account.');
     const bindingId = await bindingIdFor(command.ownerId, source.binding.accountRef, hash);

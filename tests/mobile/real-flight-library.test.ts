@@ -7,7 +7,7 @@ import { nodeDriver } from './sqlite-driver.ts';
 import { REAL_HISTORY_BACKUP_LIMIT, REAL_HISTORY_COMMAND_LIMIT, type RealHistoryManifest } from '../../apps/platform-lab/src/vereinsflieger/real-history-contract.ts';
 import { RealFlightLibrary, RealFlightDetailSource, IndeterminateRealFlightCommit, type RealFlightPermit } from '../../apps/platform-lab/src/vereinsflieger/real-flight-library.ts';
 import type { RealFlightSourceInput } from '../../apps/platform-lab/src/vereinsflieger/real-flight-source.ts';
-import { validateRealFlightGraph, type RealFlightGraph, type RealFlightRecord } from '../../apps/platform-lab/src/vereinsflieger/real-flight-library-model.ts';
+import { deriveRealFlightCommand, validateRealFlightGraph, type RealFlightGraph, type RealFlightRecord } from '../../apps/platform-lab/src/vereinsflieger/real-flight-library-model.ts';
 import { DiagnosticJournal } from '../../apps/platform-lab/src/diagnostics.ts';
 
 const hash: Hash = async value => createHash('sha256').update(value, 'utf8').digest('hex');
@@ -61,6 +61,43 @@ async function save(library: RealFlightLibrary, input: RealFlightSourceInput, id
     bindingId: plan.bindingId, source: input, planToken: plan.planToken, at: atTime });
   return { plan, result };
 }
+
+test('snapshot bytes match stored graph and nested caller mutations cannot affect subsequent reads',async t=>{
+  const {library,db}=await setup(t);await bind(library);await save(library,source('snapshot-detached',[row('101')]),2);
+  const graph=await library.snapshot();
+  const stored={manifest:await db.first('SELECT * FROM real_history_manifest'),generation:2,
+    receipts:await db.all('SELECT * FROM real_history_receipts ORDER BY generation'),records:await db.all('SELECT * FROM real_history_records ORDER BY seq')};
+  const expected=canonical(stored);assert.equal(canonical(graph),expected);
+  graph.manifest.owner_id=ownerB;graph.receipts[0]!.request_json='{}';graph.records[0]!.payload='{}';graph.records.reverse();
+  assert.equal(canonical(await library.snapshot()),expected);
+  assert.equal((await library.readStored()).flights.length,1);
+});
+
+test('command derivation owns its source before asynchronous hashing and preserves exact original evidence',async t=>{
+  const {library}=await setup(t),graph=await library.snapshot(),input={version:1 as const,kind:'bind' as const,ownerId:ownerA,storeId:storeA,
+    commandId:commandId(900),baseGeneration:0,at,source:source('detached-command',[row('101')])};
+  const expected=await deriveRealFlightCommand(graph,input,hash);let calls=0;
+  const result=await deriveRealFlightCommand(graph,input,async text=>{
+    if(++calls===1){input.source.capture.rows[0]!.values[1]='D-MUTATED';input.source.capture.headers[0]='Changed';input.source.contextAfter.accountNumber='20202';}
+    return hash(text);
+  });
+  assert.ok(calls>0);assert.equal(canonical(result),canonical(expected));
+  assert.match(result.receipt.request_json,/D-TEST/);assert.doesNotMatch(result.receipt.request_json,/D-MUTATED/);
+});
+
+test('detached command source still enforces unsupported fields, row shape and whole-command byte limits',async t=>{
+  const {library}=await setup(t),graph=await library.snapshot();
+  for(const kind of ['extra-field','invalid-row','oversized'] as const){
+    const input=source(`invalid-${kind}`,[row('101')]);
+    if(kind==='extra-field')Object.assign(input,{unexpected:true});
+    if(kind==='invalid-row')(input.capture.rows[0]!.values as unknown[])[0]=17;
+    if(kind==='oversized')input.capture.rows[0]!.values[0]='ü'.repeat(REAL_HISTORY_COMMAND_LIMIT);
+    let hashes=0;
+    await assert.rejects(deriveRealFlightCommand(graph,{version:1,kind:'bind',ownerId:ownerA,storeId:storeA,commandId:commandId(901),baseGeneration:0,at,source:input},
+      async text=>{hashes++;return hash(text);}),/source input keys|raw capture value|size limit/);
+    assert.equal(hashes,0,'malformed or oversized source is rejected before any evidence hash');
+  }
+});
 
 test('full history replay validates each receipt capture once without losing source or plan checks',async t=>{
   const {library}=await setup(t);

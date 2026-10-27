@@ -250,7 +250,9 @@ export class RealFlightLibrary {
       'Foreign real flight history file.');
     await this.gate(false); const after = this.allowed();
     realFlightRequire(after.leaseId === before.leaseId, 'Real flight history lease changed during read.');
-    return realFlightClone(graph);
+    // This exact transaction text was already canonicalized and validated above.
+    // Parsing it detaches the caller's snapshot without serializing the graph twice.
+    return JSON.parse(validatedText) as RealFlightGraph;
   }
 
   async bindAccount(input: Omit<BindAccountCommand, 'version'|'ownerId'|'storeId'>): Promise<RealFlightResult> {
