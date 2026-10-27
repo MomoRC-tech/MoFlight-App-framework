@@ -54,6 +54,12 @@ export interface OwnFlightStoredSnapshot {
   recovery: {readOnly: boolean; warning: string | null};
 }
 export interface OwnFlightStoredReadback { snapshot: OwnFlightStoredSnapshot; flights: RealFlightListItem[]; detailSource?: RealFlightDetailSource }
+export interface AutomaticFlightSaveHooks {
+  /** Local recovery/progress metadata only; never prompt or call the provider. */
+  beforeSave(review: RealFlightReview): Promise<{accountNumber: string; clubLabel: string}>;
+  /** Local metadata only, before the final fresh pending/graph/receipt checks. */
+  beforeReadback?(): Promise<void>;
+}
 export class PendingRealFlightOperation extends Error {
   constructor(readonly commandId: string, options?: ErrorOptions) { super('The original save command needs receipt recovery before another save.',options); }
 }
@@ -97,6 +103,10 @@ export class RealFlightService {
     finally { await timeFlightStage('local-journal-close',()=>journal.close(),span); }
   }
   async retrieve(request: {from: string; to: string}, span: DiagnosticSpanStarter = diagnosticJournal.captureSpan()): Promise<RealFlightReview> {
+    return this.retrieveSource(request,span,(source,sequence)=>timeFlightStage('source-review',nested=>this.buildReview(source,sequence,nested),span));
+  }
+  private async retrieveSource<T>(request: {from: string; to: string}, span: DiagnosticSpanStarter,
+    consume: (source: RealFlightSourceInput, sequence: number) => Promise<T>): Promise<T> {
     this.allowed(); if (this.writing || this.dispatching) throw new Error('Save receipt recovery is required before retrieval.');
     const sequence = ++this.operation; this.controller?.abort(); const controller = new AbortController(); this.controller = controller;
     try {
@@ -104,14 +114,44 @@ export class RealFlightService {
       if (pending) throw new PendingRealFlightOperation(pending.commandId);
       const source = await timeFlightStage('source-retrieval',()=>this.ports.retrieve({...request},controller.signal),span); this.live(sequence);
       this.ports.onReviewStart?.();
-      return await timeFlightStage('source-review',nested=>this.buildReview(source,sequence,nested),span);
+      return await consume(source,sequence);
     } finally { if (this.controller === controller) this.controller = null; }
   }
   async retrieveUpdate(now = new Date()): Promise<RealFlightReview> {
     const span=diagnosticJournal.captureSpan();
+    return this.retrieve(await this.plannedUpdateRequest(now,span),span);
+  }
+  private async plannedUpdateRequest(now: Date, span: DiagnosticSpanStarter): Promise<{from: string; to: string}> {
     await timeFlightStage('receipt-recovery',nested=>this.prepareFreshFetch(nested),span);
     const snapshot = await this.withRepository(async ({library,writable,warning})=>this.storedSnapshot(await library.snapshot(span),writable,warning),undefined,span);
-    return this.retrieve(planFlightRetrieval(snapshot.savedRetrievals, now).request,span);
+    return planFlightRetrieval(snapshot.savedRetrievals, now).request;
+  }
+  /** Provider/sign-in settles first; review, optional first binding and save share one local session. */
+  async retrieveUpdateWithStoredReadback(hooks: AutomaticFlightSaveHooks, now = new Date()):
+    Promise<{review: RealFlightReview; result: RealFlightResult; stored: OwnFlightStoredReadback}> {
+    const span=diagnosticJournal.captureSpan(),request=await this.plannedUpdateRequest(now,span);
+    return this.retrieveSource(request,span,async(source,sequence)=>{
+      this.live(sequence);this.allowed(true);this.dispatching=true;
+      try {
+        const saved=await this.withRepository(async session=>{
+          let review=await timeFlightStage('source-review',nested=>this.buildReview(source,sequence,nested,session),span);
+          this.live(sequence);
+          const observed=await hooks.beforeSave(clone(review));
+          const verified={accountNumber:observed.accountNumber,clubLabel:observed.clubLabel};
+          this.live(sequence);this.allowed(true);this.assertVerifiedContext(review,verified);
+          if(review.state==='confirm-account'){
+            await this.bindReview(review,session,sequence,span);
+            review=await timeFlightStage('source-review',nested=>this.buildReview(source,sequence,nested,session),span);
+            this.live(sequence);this.assertVerifiedContext(review,verified);
+          }
+          if(review.state!=='ready')throw new Error('Confirm the source account before saving.');
+          const result=await this.importReviewed(review,session,sequence,span);
+          const saved=await this.readSaved(result,session,sequence,span,hooks.beforeReadback);
+          this.live(sequence);return {...saved,review:clone(review)};
+        },undefined,span);
+        this.live(sequence);return saved;
+      } finally {this.currentReview=null;this.dispatching=false;}
+    });
   }
   async reviewSource(source: RealFlightSourceInput): Promise<RealFlightReview> {
     this.allowed(); if (this.writing || this.dispatching) throw new Error('Save is in progress.');
@@ -119,19 +159,20 @@ export class RealFlightService {
     this.ports.onReviewStart?.();
     this.controller?.abort(); this.controller = null; return timeFlightStage('source-review',nested=>this.buildReview(source,++this.operation,nested),span);
   }
-  private async buildReview(input: RealFlightSourceInput, sequence: number, span: DiagnosticSpanStarter): Promise<RealFlightReview> {
+  private async buildReview(input: RealFlightSourceInput, sequence: number, span: DiagnosticSpanStarter, session?: RealFlightRepositorySession): Promise<RealFlightReview> {
     const observation = await createRealFlightSourceObservation(input,this.ports.hash), source = clone(input); this.live(sequence);
     if (observation.coverage.state === 'partial') throw new Error('A partial source capture remains review evidence and cannot be saved to the library.');
     const pending = await this.withJournal(journal=>journal.pending(),span); this.live(sequence);
     if (pending) throw new PendingRealFlightOperation(pending.commandId);
-    const review = await this.withRepository(async ({library}) => {
+    const read = async ({library}: RealFlightRepositorySession): Promise<RealFlightReview> => {
       const {graph,plan} = await library.prepareReview(source,span); this.live(sequence);
       const reviewId = this.ports.uuid(); realHistoryUuid(reviewId);
       const base = {version:1 as const,reviewId,ownerId:this.ownerId,storeId:this.storeId,accountRef:observation.binding.accountRef,source};
       if (!graph.records.some(row=>row.kind === 'binding')) return {...base,state:'confirm-account' as const,sourceSha256:observation.capture.rawCaptureSha256};
       if (!plan) throw new Error('Bound source review requires an import plan.');
       return {...base,state:'ready' as const,plan};
-    },undefined,span);
+    };
+    const review = session ? await read(session) : await this.withRepository(read,undefined,span);
     this.live(sequence); this.currentReview = clone(review); return clone(review);
   }
   private selected(review: RealFlightReview) {
@@ -143,14 +184,15 @@ export class RealFlightService {
     this.selected(review); if (review.state !== 'confirm-account') throw new Error('Account confirmation is not pending.');
     const sequence = ++this.operation; this.dispatching = true;
     try {
-      await this.withRepository(async session => {
-        if (!session.writable) throw new Error('Read-only library recovery must be resolved before binding.');
-        const graph = await session.library.snapshot(span); this.live(sequence);
-        await this.execute({version:1,kind:'bind',ownerId:this.ownerId,storeId:this.storeId,commandId:this.ports.uuid(),
-          baseGeneration:graph.generation,at:this.ports.now(),source:review.source},session,sequence,span);
-      },undefined,span);
+      await this.withRepository(session=>this.bindReview(review,session,sequence,span),undefined,span);
       this.live(sequence); return await this.buildReview(review.source,sequence,span);
     } finally { this.dispatching = false; }
+  }
+  private async bindReview(review: RealFlightReview, session: RealFlightRepositorySession, sequence: number, span: DiagnosticSpanStarter): Promise<void> {
+    if (!session.writable) throw new Error('Read-only library recovery must be resolved before binding.');
+    const graph = await session.library.snapshot(span); this.live(sequence);
+    await this.execute({version:1,kind:'bind',ownerId:this.ownerId,storeId:this.storeId,commandId:this.ports.uuid(),
+      baseGeneration:graph.generation,at:this.ports.now(),source:review.source},session,sequence,span);
   }
   async saveUnassigned(review: RealFlightReview, span: DiagnosticSpanStarter = diagnosticJournal.captureSpan()): Promise<RealFlightResult> {
     return this.saveReviewed(review,span,async result=>result);
@@ -162,13 +204,17 @@ export class RealFlightService {
     try {
       const result = await this.withRepository(async session=>{
         this.live(sequence);
-        const saved = await this.execute({version:1,kind:'import-unassigned',ownerId:this.ownerId,storeId:this.storeId,
-          commandId:this.ports.uuid(),baseGeneration:review.plan.baseGeneration,at:this.ports.now(),bindingId:review.plan.bindingId,
-          planToken:review.plan.planToken,source:review.source},session,sequence,span);
+        const saved = await this.importReviewed(review,session,sequence,span);
         return afterSave(saved,session,sequence);
       },undefined,span);
       this.live(sequence); this.currentReview = null; return result;
     } finally { this.dispatching = false; }
+  }
+  private async importReviewed(review: RealFlightReview & {state:'ready'}, session: RealFlightRepositorySession, sequence: number,
+    span: DiagnosticSpanStarter): Promise<RealFlightResult> {
+    return this.execute({version:1,kind:'import-unassigned',ownerId:this.ownerId,storeId:this.storeId,
+      commandId:this.ports.uuid(),baseGeneration:review.plan.baseGeneration,at:this.ports.now(),bindingId:review.plan.bindingId,
+      planToken:review.plan.planToken,source:review.source},session,sequence,span);
   }
   /** Save within an explicitly requested foreground load, using a fresh context. */
   async saveVerifiedReview(review: RealFlightReview, verified: {accountNumber: string; clubLabel: string}): Promise<RealFlightResult> {
@@ -179,7 +225,10 @@ export class RealFlightService {
   async saveVerifiedReviewWithStoredReadback(review: RealFlightReview, verified: {accountNumber: string; clubLabel: string}, beforeReadback?: () => Promise<void>):
     Promise<{result: RealFlightResult; stored: OwnFlightStoredReadback}> {
     const span=diagnosticJournal.captureSpan(),ready=await this.verifiedReview(review,verified,span);
-    return this.saveReviewed(ready,span,async(result,{library,writable,warning},sequence)=>{
+    return this.saveReviewed(ready,span,(result,session,sequence)=>this.readSaved(result,session,sequence,span,beforeReadback));
+  }
+  private async readSaved(result: RealFlightResult, {library,writable,warning}: RealFlightRepositorySession, sequence: number,
+    span: DiagnosticSpanStarter, beforeReadback?: () => Promise<void>): Promise<{result: RealFlightResult; stored: OwnFlightStoredReadback}> {
       // Commit and journal resolution succeeded. A failed projection must not
       // make this already consumed review available for another save command.
       this.currentReview=null;
@@ -197,12 +246,14 @@ export class RealFlightService {
         return {snapshot:this.storedSnapshot(graph,writable,warning),flights};
       },span);
       return {result,stored};
-    });
+  }
+  private assertVerifiedContext(review: RealFlightReview, verified: {accountNumber: string; clubLabel: string}): void {
+    if (verified.accountNumber !== review.accountRef || verified.accountNumber !== review.source.contextAfter.accountNumber ||
+        verified.clubLabel !== review.source.contextAfter.clubLabel) throw new Error('Fresh provider context does not match the flight review.');
   }
   private async verifiedReview(review: RealFlightReview, verified: {accountNumber: string; clubLabel: string}, span: DiagnosticSpanStarter): Promise<RealFlightReview> {
     this.selected(review);
-    if (verified.accountNumber !== review.accountRef || verified.accountNumber !== review.source.contextAfter.accountNumber ||
-        verified.clubLabel !== review.source.contextAfter.clubLabel) throw new Error('Fresh provider context does not match the flight review.');
+    this.assertVerifiedContext(review,verified);
     return review.state === 'confirm-account' ? this.confirmAccount(review,span) : review;
   }
   private async execute(command: RealFlightCommand, session: RealFlightRepositorySession, sequence: number, span: DiagnosticSpanStarter): Promise<RealFlightResult> {

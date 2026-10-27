@@ -49,7 +49,7 @@ import {createSyncEstimate,confirmSyncEstimateContext,reduceSyncEstimate,learnSy
 import {readSyncEstimateHistory,saveSyncEstimateHistory} from './sync-estimate-native';
 
 // Workload changes invalidate older disposable timing hints.
-const ESTIMATE_CONTEXT='sync-three-month-window-v6';
+const ESTIMATE_CONTEXT='sync-immediate-review-save-v7';
 const optionalEstimateStages=['medical','duties','events','documents','work-summary','work-hours','tasks'] as const;
 const sourceEstimateStages={medical:'medical',duties:'duties',events:'events',documentNotices:'documents',workSummary:'work-summary',workHours:'work-hours',tasks:'tasks'} as const;
 const remainingEstimateStages=(sources:SyncRecoveryRecord['sources'])=>Object.entries(sourceEstimateStages).filter(([key])=>!['updated','empty','partial'].includes(sources[key as keyof typeof sources]??'')).map(([,stage])=>stage);
@@ -494,7 +494,8 @@ function OwnerFlightLibrary({syncStartedAt,lease,registry,close,startUpdate,open
     if(!automatic.current){setReview(await prepareSourceReview(next));return;}
     await finishAutomaticLoad(()=>saveFlightReview(next));
   }
-  async function saveFlightReview(next:RealFlightReview) {
+  async function prepareFlightSave(next:RealFlightReview) {
+    if(automatic.current)assertSyncActive();
     const selected=controller.current.connection;
     const captured=controller.current.completedFlightSource;
     const verified=selected.confirmed&&selected.observed?selected.observed:
@@ -504,16 +505,33 @@ function OwnerFlightLibrary({syncStartedAt,lease,registry,close,startUpdate,open
       const updated={...syncRecord.current,accountRef:next.accountRef,clubLabel:verified.clubLabel,flightCaptureId:next.source.capture.captureId};
       await saveSyncRecovery(scope,updated);syncRecord.current=updated;setSavedSync(updated);
     }
+    if(automatic.current)assertSyncActive();
     diagnosis.current?.note('provider','account-verified');diagnosis.current?.note('save','pending');
     const count={done:next.source.capture.rows.length,total:next.source.capture.rows.length,unit:'flights' as const};
     setSyncProgress(previous=>updateSyncCount(previous,'flights',count));
     finishStage(estimate.current?.current==='review'?'review':'flights');startStage('save');
     setSyncProgress(previous=>updateSyncCount(previous,'save',{...count,done:0}));setLoadStage('save');setStep('Flüge werden gespeichert …');
+    return verified;
+  }
+  async function saveFlightReview(next:RealFlightReview) {
+    const verified=await prepareFlightSave(next);
     let interrupted:SyncRecoveryRecord|null=null;
     const {result,stored}=await service.saveVerifiedReviewWithStoredReadback(next,verified,async()=>{
       await timeFlightStage('restore-inspection',refreshRestorePreparations);
       interrupted=await readSyncRecovery(scope);
     });
+    return publishSavedFlight(next,{result,stored},interrupted);
+  }
+  async function loadAutomaticFlights() {
+    let interrupted:SyncRecoveryRecord|null=null;
+    const saved=await service.retrieveUpdateWithStoredReadback({beforeSave:prepareFlightSave,beforeReadback:async()=>{
+      await timeFlightStage('restore-inspection',refreshRestorePreparations);
+      interrupted=await readSyncRecovery(scope);
+    }});
+    assertSyncActive();
+    return publishSavedFlight(saved.review,saved,interrupted);
+  }
+  async function publishSavedFlight(next:RealFlightReview,{result,stored}:Awaited<ReturnType<RealFlightService['saveVerifiedReviewWithStoredReadback']>>,interrupted:SyncRecoveryRecord|null) {
     // The selected session performs its final fresh graph/selection checks after
     // those local awaits. Publish synchronously: no stale projection across waits.
     diagnosis.current?.note('save','receipt-confirmed');
@@ -611,7 +629,7 @@ function OwnerFlightLibrary({syncStartedAt,lease,registry,close,startUpdate,open
         clubLabel:null,startedAt:new Date().toISOString(),flightCaptureId:null,sources:{}};
       await saveSyncRecovery(scope,record);syncRecord.current=record;setSavedSync(record);
       assertSyncActive();
-      await finishAutomaticLoad(async()=>saveFlightReview(await service.retrieveUpdate()));
+      await finishAutomaticLoad(loadAutomaticFlights);
     },'update-flights');
   }
   function assertSyncActive() {
@@ -638,7 +656,7 @@ function OwnerFlightLibrary({syncStartedAt,lease,registry,close,startUpdate,open
         const restart={...record,accountRef:stored.account?.accountRef??null,clubLabel:null,flightCaptureId:null,sources:{}};
         await saveSyncRecovery(scope,restart);syncRecord.current=restart;setSavedSync(restart);
         assertSyncActive();
-        await finishAutomaticLoad(async()=>saveFlightReview(await service.retrieveUpdate()));return;
+        await finishAutomaticLoad(loadAutomaticFlights);return;
       }
       beginEstimate('resume',remainingEstimateStages(record.sources));
       await new Promise<void>((resolve,reject)=>{

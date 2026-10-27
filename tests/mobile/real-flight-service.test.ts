@@ -59,6 +59,120 @@ async function ready(f: Awaited<ReturnType<typeof fixture>>) {
   const bound=await service.confirmAccount(review);assert.equal(bound.state,'ready');return {service,review:bound};
 }
 
+test('automatic review/save uses one local session after provider waits and preserves exact first/repeat/changed/empty graphs',async()=>{
+  const f=await fixture(),reference=await fixture(),verified={accountNumber:'101',clubLabel:'Example club'};
+  for(const value of [f,reference]){let n=0;value.ports.uuid=()=>`44444444-4444-4444-8444-${String(++n).padStart(12,'0')}`;}
+  const service=f.make(),old=reference.make(),repository=f.ports.repository;
+  let active=0,opens=0,closes=0;
+  f.ports.repository=async span=>{opens++;const session=await repository(span);active++;return {...session,close:async()=>{active--;closes++;await session.close();}};};
+  try{
+    for(const [index,kind] of ['first','unchanged','changed','empty'].entries()){
+      const input=source(`automatic-${kind}`);
+      if(index>=2)input.capture.rows[0]!.values[4]='14';
+      if(kind==='empty'){input.capture.rows=[];input.capture.exportContext!.recordCount=0;}
+      f.ports.retrieve=async()=>{assert.equal(active,0,'no selected handle crosses provider/sign-in waits');await new Promise<void>(resolve=>{setImmediate(resolve);});return structuredClone(input);};
+      reference.setSource(input);opens=0;closes=0;
+      const saved=await service.retrieveUpdateWithStoredReadback({beforeSave:async review=>{
+        assert.equal(active,1);assert.equal(review.accountRef,'101');return verified;
+      },beforeReadback:async()=>{assert.equal(active,1);}},new Date(2026,9,20,12));
+      assert.equal(opens,2,'planning closes before provider retrieval; review/binding/save share one later session');
+      assert.equal(closes,2);assert.equal(active,0);
+      const result=await old.saveVerifiedReviewWithStoredReadback(await old.retrieveUpdate(new Date(2026,9,20,12)),verified);
+      assert.deepEqual(saved.result,result.result);assert.deepEqual(saved.stored,result.stored);
+      assert.equal(await service.exportBackup(),await old.exportBackup(),'raw captures, every receipt and fact remain byte-identical');
+      assert.equal(saved.stored.flights.length,1,'empty refresh never deletes older flights');
+      await assert.rejects(service.saveUnassigned(saved.review),/Review changed/);
+    }
+  }finally{service.dispose();old.dispose();await f.cleanup();await reference.cleanup();}
+});
+
+test('automatic review/save cancellation during deferred provider retrieval opens no local review session',async()=>{
+  const f=await fixture(),service=f.make(),repository=f.ports.repository;
+  let active=0,opens=0,admitted!:()=>void,release!:(input:RealFlightSourceInput)=>void;
+  const started=new Promise<void>(resolve=>{admitted=resolve;});
+  f.ports.repository=async span=>{opens++;const session=await repository(span);active++;return {...session,close:async()=>{active--;await session.close();}};};
+  f.ports.retrieve=async()=>new Promise(resolve=>{assert.equal(active,0);release=resolve;admitted();});
+  try{
+    const action=service.retrieveUpdateWithStoredReadback({beforeSave:async()=>{throw new Error('Cancelled source must never reach metadata');}});
+    await started;assert.equal(opens,1);assert.equal(active,0);service.cancelReview();release(source());
+    await assert.rejects(action,/Superseded/);assert.equal(opens,1);assert.equal((await service.snapshot()).generation,0);
+  }finally{service.dispose();await f.cleanup();}
+});
+
+for(const failure of ['callback','cancel','owner','context'] as const)test(`automatic pre-save ${failure} rejects before first binding or import and closes both sessions`,async()=>{
+  const f=await fixture(),service=f.make(),repository=f.ports.repository;let closes=0;
+  f.ports.repository=async span=>{const session=await repository(span);return {...session,close:async()=>{closes++;await session.close();}};};
+  try{
+    await assert.rejects(service.retrieveUpdateWithStoredReadback({beforeSave:async()=>{
+      if(failure==='callback')throw new Error('Metadata failed');
+      if(failure==='cancel')service.cancelReview();
+      if(failure==='owner')f.switchOwner();
+      return {accountNumber:failure==='context'?'202':'101',clubLabel:'Example club'};
+    }}),/Metadata failed|Superseded|foreign|provider context/);
+    assert.equal(closes,2);
+    const db=nodeDriver(f.path);try{assert.equal((await db.first<{n:number}>('SELECT COUNT(*) AS n FROM real_history_receipts'))!.n,0);}finally{await db.close();}
+  }finally{service.dispose();await f.cleanup();}
+});
+
+for(const failure of ['before-commit','after-commit'] as const)test(`automatic combined session preserves ${failure} receipt recovery`,async()=>{
+  const f=await fixture(),{service}=await ready(f),repository=f.ports.repository;let closes=0;
+  f.ports.repository=async span=>{const session=await repository(span);return {...session,close:async()=>{closes++;await session.close();}};};
+  try{
+    f.setFailure(failure);
+    await assert.rejects(service.retrieveUpdateWithStoredReadback({beforeSave:async()=>({accountNumber:'101',clubLabel:'Example club'})}),PendingRealFlightOperation);
+    assert.equal(closes,2);f.setFailure('');
+    assert.equal((await service.recoverPending()).status,failure==='before-commit'?'not-committed':'committed');
+    if(failure==='before-commit')await service.retryPending();
+    assert.equal((await service.readStored()).flights.length,1);assert.equal((await service.recoverPending()).status,'none');
+  }finally{service.dispose();await f.cleanup();}
+});
+
+for(const failure of ['same-generation','callback-error','cancelled','pending'] as const)test(`automatic final readback rejects ${failure} without losing its committed receipt`,async()=>{
+  const f=await fixture(),{service}=await ready(f);let reviewed:Parameters<typeof service.saveUnassigned>[0]|undefined;
+  try{
+    await assert.rejects(service.retrieveUpdateWithStoredReadback({beforeSave:async review=>{reviewed=review;return {accountNumber:'101',clubLabel:'Example club'};},beforeReadback:async()=>{
+      if(failure==='callback-error')throw new Error('Local metadata unavailable');
+      if(failure==='cancelled'){service.cancelReview();return;}
+      if(failure==='pending'){
+        const journal=await f.ports.journal();try{await journal.prepare({version:1,kind:'bind',commandId:randomUUID(),baseGeneration:2,ownerId,storeId,source:source('unexpected-pending'),at});}finally{await journal.close();}
+        return;
+      }
+      const db=nodeDriver(f.path);
+      try{
+        const trigger=await db.first<{sql:string}>("SELECT sql FROM sqlite_master WHERE name='real_history_records_no_update'");assert.ok(trigger);
+        await db.exec('DROP TRIGGER real_history_records_no_update');
+        await db.run("UPDATE real_history_records SET payload=replace(payload,'D-TEST','D-FORGED') WHERE kind='facts'");await db.exec(trigger.sql);
+      }finally{await db.close();}
+    }}),/record graph|Local metadata unavailable|Superseded|receipt recovery/);
+    const db=nodeDriver(f.path);try{assert.equal((await db.first<{n:number}>("SELECT COUNT(*) AS n FROM real_history_receipts WHERE kind='import-unassigned'"))!.n,1);}finally{await db.close();}
+    assert.ok(reviewed);await assert.rejects(service.saveUnassigned(reviewed),/Review changed/);
+    if(failure==='callback-error'||failure==='cancelled')assert.equal((await service.readStored()).flights.length,1);
+  }finally{service.dispose();await f.cleanup();}
+});
+
+test('automatic save rejects a same-owner selection change during metadata work',async()=>{
+  const f=await fixture(),{service}=await ready(f),name=realHistoryCandidateName(randomUUID());
+  const selection=await RealFlightSelection.open(nodeDriver(join(f.directory,'automatic-selection.sqlite')),ownerId,storeId,f.authorize,
+    async(candidate,authorize,gate)=>{assert.equal(candidate,name);return RealFlightLibrary.open(nodeDriver(f.path),ownerId,storeId,hash,authorize,async()=>{},gate);},hash,true);
+  let closes=0;
+  try{
+    await selection.activate(randomUUID(),name,null,at);
+    f.ports.repository=async()=>{const selected=await selection.select();return {library:selected.candidate,writable:!selected.recoveryRequired,warning:selected.warning,close:async()=>{closes++;await selected.candidate.close();}};};
+    await assert.rejects(service.retrieveUpdateWithStoredReadback({beforeSave:async()=>({accountNumber:'101',clubLabel:'Example club'}),
+      beforeReadback:async()=>{await selection.activate(randomUUID(),name,1,at);}}),/Active real history changed/);
+    assert.equal(closes,2);assert.equal((await service.readStored()).flights.length,1);
+  }finally{service.dispose();await selection.close();await f.cleanup();}
+});
+
+test('automatic cancellation while closing the selected session cannot publish a successful result',async()=>{
+  const f=await fixture(),service=f.make(),repository=f.ports.repository;let closes=0;
+  f.ports.repository=async span=>{const session=await repository(span);return {...session,close:async()=>{await session.close();if(++closes===2)service.cancelReview();}};};
+  try{
+    await assert.rejects(service.retrieveUpdateWithStoredReadback({beforeSave:async()=>({accountNumber:'101',clubLabel:'Example club'})}),/Superseded/);
+    assert.equal((await service.readStored()).flights.length,1);
+  }finally{service.dispose();await f.cleanup();}
+});
+
 test('local save uses one bounded journal for prepare and resolve, then closes it before metadata callbacks',async()=>{
   const f=await fixture(),{service,review}=await ready(f),open=f.ports.journal;
   let opens=0,closes=0,active=0;
