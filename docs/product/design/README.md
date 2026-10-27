@@ -1,5 +1,7 @@
 # MoFlight UI design handbook
 
+**U3 responsive/accessibility continuation — authorized 27 October:** [Selected bounded contract](compact-cockpit.md#responsive-and-accessible-completion--authorized-27-october-2026) covers wrapping category/filter content, scaled AI input, short-surface order/reachability and date-field keyboard semantics. Existing headers/caps/Start remain; [verification](../../verification/2026-10-26-material-settings.md#responsive-and-accessible-completion--27-october-2026) distinguishes source from native acceptance.
+
 **U1/U2 continuation — authorized 27 October:** [Everyday Flights and task-state contract](compact-cockpit.md#everyday-flights-and-task-states--authorized-27-october-2026) applies the established hierarchy and explicit task/recovery states as one package. [Source/platform evidence](../../verification/2026-10-26-material-settings.md#everyday-flights-and-task-states--27-october-2026) retains open gates.
 
 **Remaining UI roadmap — proposed 27 October:** the [complete UI sequence and surface coverage](../../project-plan.md#ui-completion-roadmap--proposed-27-october-2026) separates the recommended Flights/Statistics and task-state package, responsive completion, beta light/legal information and later feature-dependent UI. U1/U2 are now selected and delivered within their recorded scope; later packages remain proposals, with selected contracts below retaining authority.

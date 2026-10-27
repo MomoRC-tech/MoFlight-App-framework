@@ -2,6 +2,8 @@ MOFLIGHT — CURRENT UI DESIGN HANDBOOK AND AI HANDOFF
 
 # MoFlight UI design handbook
 
+**U3 responsive/accessibility continuation — authorized 27 October:** [Selected bounded contract](compact-cockpit.md#responsive-and-accessible-completion--authorized-27-october-2026) covers wrapping category/filter content, scaled AI input, short-surface order/reachability and date-field keyboard semantics. Existing headers/caps/Start remain; [verification](../../verification/2026-10-26-material-settings.md#responsive-and-accessible-completion--27-october-2026) distinguishes source from native acceptance.
+
 **U1/U2 continuation — authorized 27 October:** [Everyday Flights and task-state contract](compact-cockpit.md#everyday-flights-and-task-states--authorized-27-october-2026) applies the established hierarchy and explicit task/recovery states as one package. [Source/platform evidence](../../verification/2026-10-26-material-settings.md#everyday-flights-and-task-states--27-october-2026) retains open gates.
 
 **Remaining UI roadmap — proposed 27 October:** the [complete UI sequence and surface coverage](../../project-plan.md#ui-completion-roadmap--proposed-27-october-2026) separates the recommended Flights/Statistics and task-state package, responsive completion, beta light/legal information and later feature-dependent UI. U1/U2 are now selected and delivered within their recorded scope; later packages remain proposals, with selected contracts below retaining authority.
@@ -84,6 +86,18 @@ Markdown chapters, [color-roles.json](color-roles.json), [symbols.json](symbols.
 The generator uses Python's standard library and repository files only: no network, installs, model calls or app builds. Supported chapter Markdown includes headings, paragraphs, links/images, emphasis, lists, tables and fenced code; unsupported raw HTML is rejected. Examples are assembled from the maintained catalogue/template.
 
 # Dark Compact Cockpit — approved 24 October 2026
+
+## Responsive and accessible completion — authorized 27 October 2026
+
+Manuel's continuation after U1/U2 selects roadmap U3 under [#94](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/94). [One package report](../../verification/2026-10-26-material-settings.md#responsive-and-accessible-completion--27-october-2026) keeps source/platform evidence and remaining gates separate.
+
+- Help categories and Statistics sections wrap above font scale 1.3; ordinary text keeps the horizontal strip. Existing query/period/section state and return context stay. Wrapping groups share the outer page scroller, avoiding nested vertical scrolling.
+- Flight filter values wrap rather than ellipsize; enlarged active summaries wrap, with explicit expanded state and minimum48 dp targets. Search/date input outlines use the existing stronger local outline color, preserving global tokens and Start.
+- Statistics date fields name their format; Next focuses the end date, Done dismisses the keyboard without applying drafts. Invalid-range feedback is announced politely; Apply remains the explicit decision.
+- AI's composer grows for one scaled line plus padding and bounds multiline expansion by viewport height. Its disabled editing state is explicit; usage facts wrap/stack for large text and menu/deletion bodies can shrink and scroll. The status control retains full wrapping and a minimum48 dp target.
+- Short Sync/restore decisions dismiss the caller's keyboard on mount, preserving drafts. Stacked confirmation appears above Cancel in both visual and React/accessibility order; ordinary rows keep Cancel left/confirm right. AI deletion uses the same ordering with pinned title/actions and a shrinkable body. Existing one-use account/scope safeguards remain authoritative.
+
+Current rendered Material accessibility/dialog guidance and official Android guidance inform legible scaling, target size, readable groups and decision order. Retain the navy/cyan palette, original logo, existing caps/headers/five destinations and provider parent. Rail/two-pane/root Back redesign, global-theme/Start changes, beta light/legal work and new dependencies/features/services are excluded. These changes do not establish spoken, physical/iOS or complete keyboard/populated acceptance.
 
 ## Everyday Flights and task states — authorized 27 October 2026
 
@@ -532,6 +546,8 @@ The U1/U3 header uses neutral saved-age text independently of session state, wit
 
 # Components, symbols and shapes
 
+**27 October U3:** Help/Statistics categories wrap for enlarged text, flight filters retain full values, AI composer sizing follows text/viewport and facts can stack. Short-dialog React order follows visual decision order; Sync/restore dismiss keyboards without discarding drafts. Date Next/Done supports focus/dismissal without applying a period. Existing headers/caps/palette and Start stay. [Contract](compact-cockpit.md#responsive-and-accessible-completion--authorized-27-october-2026).
+
 **27 October U1/U2:** ordinary Flights opts into the existing page app bar. Statistics period controls have Apply/Cancel/Back and preference-controlled PIC Help, retaining contributor context. AI names loading/busy/unavailable states and gates editing until a local archive exists. Help links expose failed handoff/retry; provider/Medical feedback names existing operations. No shared palette/Start change. [Contract](compact-cockpit.md#everyday-flights-and-task-states--authorized-27-october-2026).
 
 **27 October coherent secondary UI (#94):** Club-only contained rows/source disclosures preserve Start defaults. AI uses grouped, capped navy sheets and a guarded short dark deletion dialog; evidence/metrics keep exact saved references. Diagnostics/About/Development use page-local grouped rows and disclosures with existing actions and source/license boundaries. [Contract](compact-cockpit.md#club-ai-and-remaining-settings--authorized-27-october-2026); these opt-in components do not change shared tokens or the Start roster.
@@ -942,120 +958,119 @@ Retained app-owned lab/adapter surface; document its existing appearance as an e
 
 ## AiChat.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/AiChat.tsx](../../../apps/platform-lab/src/mobile/AiChat.tsx); normalized SHA-256 `4549262acb7b87d512e6ed8d62932f0a83457bd21d84cb2fc632ccf638f0ecc5`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/AiChat.tsx](../../../apps/platform-lab/src/mobile/AiChat.tsx); normalized SHA-256 `921963cefb07799fe05c2c21f59701e9066808f14cc939d64c04262ff6a05fb6`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#000712bd` | 245 |
-| `#ffb39e` | 245 |
+| `#000712bd` | 249 |
+| `#ffb39e` | 249 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 12` | 243, 244 |
-| `fontSize: 14` | 246 |
-| `fontSize: 15` | 242, 246 |
-| `fontSize: 16` | 244, 245 |
-| `fontSize: 22` | 245 |
-| `fontSize: 23` | 242 |
-| `fontSize: 24` | 245 |
-| `fontSize: 25` | 242 |
-| `fontWeight: '600'` | 242, 245, 246 |
-| `lineHeight: 17` | 244 |
-| `lineHeight: 18` | 243 |
-| `lineHeight: 20` | 246 |
-| `lineHeight: 22` | 244, 246 |
-| `lineHeight: 28` | 245 |
+| `fontSize: 12` | 247, 248 |
+| `fontSize: 14` | 250 |
+| `fontSize: 15` | 246, 250 |
+| `fontSize: 16` | 248, 249 |
+| `fontSize: 22` | 249 |
+| `fontSize: 23` | 246 |
+| `fontSize: 24` | 249 |
+| `fontSize: 25` | 246 |
+| `fontWeight: '600'` | 246, 249, 250 |
+| `lineHeight: 17` | 248 |
+| `lineHeight: 18` | 247 |
+| `lineHeight: 20` | 250 |
+| `lineHeight: 22` | 248, 250 |
+| `lineHeight: 28` | 249 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 245 |
-| `borderRadius: 14` | 244, 246 |
-| `borderRadius: 16` | 243, 244, 246 |
-| `borderRadius: 18` | 245 |
-| `borderRadius: 28` | 245 |
-| `borderWidth: 1` | 245, 246 |
-| `gap: 10` | 246 |
-| `gap: 12` | 245 |
-| `gap: 18` | 243 |
-| `gap: 4` | 242, 245, 246 |
-| `gap: 8` | 241, 243, 245, 246 |
-| `maxHeight: '85%'` | 245 |
-| `maxHeight: 112` | 244 |
-| `maxWidth: '90%'` | 243 |
-| `maxWidth: 520` | 245 |
-| `maxWidth: 600` | 242 |
-| `minHeight: 0` | 242, 243 |
-| `minHeight: 44` | 244 |
-| `minHeight: 48` | 242, 244 |
-| `minHeight: 52` | 245 |
-| `minHeight: 56` | 245, 246 |
-| `minWidth: 0` | 242, 244, 245 |
-| `minWidth: 120` | 246 |
-| `minWidth: 140` | 246 |
-| `minWidth: 48` | 242 |
-| `opacity: .4` | 241 |
-| `padding: 12` | 243, 245, 246 |
-| `padding: 14` | 243 |
-| `padding: 16` | 245 |
-| `paddingHorizontal: 10` | 244 |
-| `paddingHorizontal: 12` | 244 |
-| `paddingHorizontal: 14` | 241, 244 |
-| `paddingHorizontal: 16` | 245, 246 |
-| `paddingHorizontal: 6` | 242, 244 |
-| `paddingVertical: 10` | 244 |
-| `paddingVertical: 12` | 245, 246 |
-| `paddingVertical: 24` | 243 |
-| `paddingVertical: 4` | 244 |
-| `paddingVertical: 8` | 241 |
-| `width: '100%'` | 242, 245 |
+| `borderRadius: 12` | 249 |
+| `borderRadius: 14` | 248, 250 |
+| `borderRadius: 16` | 247, 248, 250 |
+| `borderRadius: 18` | 249 |
+| `borderRadius: 28` | 249 |
+| `borderWidth: 1` | 249, 250 |
+| `gap: 10` | 250 |
+| `gap: 12` | 249 |
+| `gap: 18` | 247 |
+| `gap: 4` | 246, 249, 250 |
+| `gap: 8` | 245, 247, 249, 250 |
+| `maxHeight: '85%'` | 249 |
+| `maxWidth: '100%'` | 250 |
+| `maxWidth: '90%'` | 247 |
+| `maxWidth: 520` | 249 |
+| `maxWidth: 600` | 246 |
+| `minHeight: 0` | 246, 247, 249 |
+| `minHeight: 48` | 246, 248 |
+| `minHeight: 52` | 249 |
+| `minHeight: 56` | 249, 250 |
+| `minWidth: 0` | 246, 248, 249 |
+| `minWidth: 140` | 250 |
+| `minWidth: 48` | 246 |
+| `opacity: .4` | 245 |
+| `padding: 12` | 247, 249, 250 |
+| `padding: 14` | 247 |
+| `padding: 16` | 249 |
+| `paddingHorizontal: 10` | 248 |
+| `paddingHorizontal: 12` | 248 |
+| `paddingHorizontal: 14` | 245, 248 |
+| `paddingHorizontal: 16` | 249, 250 |
+| `paddingHorizontal: 6` | 246, 248 |
+| `paddingVertical: 10` | 248 |
+| `paddingVertical: 12` | 249, 250 |
+| `paddingVertical: 24` | 247 |
+| `paddingVertical: 4` | 248 |
+| `paddingVertical: 8` | 245 |
+| `width: '100%'` | 246, 249 |
 
 ## AiDeleteConfirmationDialog.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/AiDeleteConfirmationDialog.tsx](../../../apps/platform-lab/src/mobile/AiDeleteConfirmationDialog.tsx); normalized SHA-256 `198cb37797f12e1506d7c3be37e3aac2f8a87114b9a9df470c1dc72697c7db36`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/AiDeleteConfirmationDialog.tsx](../../../apps/platform-lab/src/mobile/AiDeleteConfirmationDialog.tsx); normalized SHA-256 `8bb71bc5cfcdebe07d2644cb91247e9a6089df819738b64b065059df0bd588db`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#000712bd` | 28 |
-| `#031326` | 39 |
+| `#000712bd` | 29 |
+| `#031326` | 41 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 14` | 33, 38, 39 |
-| `fontSize: 16` | 32 |
-| `fontSize: 24` | 31 |
-| `fontWeight: '600'` | 31, 38 |
-| `fontWeight: '700'` | 39 |
-| `lineHeight: 20` | 33, 38, 39 |
-| `lineHeight: 24` | 32 |
-| `lineHeight: 32` | 31 |
+| `fontSize: 14` | 35, 40, 41 |
+| `fontSize: 16` | 34 |
+| `fontSize: 24` | 33 |
+| `fontWeight: '600'` | 33, 40 |
+| `fontWeight: '700'` | 41 |
+| `lineHeight: 20` | 35, 40, 41 |
+| `lineHeight: 24` | 34 |
+| `lineHeight: 32` | 33 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 36 |
-| `borderRadius: 28` | 29 |
-| `gap: 16` | 30 |
-| `gap: 8` | 34 |
-| `maxHeight: '85%'` | 29 |
-| `maxWidth: 480` | 29 |
-| `minHeight: 48` | 36 |
-| `minWidth: 48` | 36 |
-| `padding: 16` | 28 |
-| `padding: 24` | 31 |
-| `paddingHorizontal: 16` | 36 |
-| `paddingHorizontal: 24` | 30, 34 |
-| `width: '100%'` | 29 |
+| `borderRadius: 12` | 38 |
+| `borderRadius: 28` | 30 |
+| `gap: 16` | 32 |
+| `gap: 8` | 36 |
+| `maxHeight: '85%'` | 30 |
+| `maxWidth: 480` | 30 |
+| `minHeight: 0` | 31 |
+| `minHeight: 48` | 38 |
+| `minWidth: 48` | 38 |
+| `padding: 16` | 29 |
+| `padding: 24` | 33 |
+| `paddingHorizontal: 16` | 38 |
+| `paddingHorizontal: 24` | 32, 36 |
+| `width: '100%'` | 30 |
 
 ## AppHeader.tsx
 
@@ -1096,44 +1111,44 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/AppHeader.tsx](..
 
 ## BackupRestoreConfirmationDialog.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/BackupRestoreConfirmationDialog.tsx](../../../apps/platform-lab/src/mobile/BackupRestoreConfirmationDialog.tsx); normalized SHA-256 `ef281cafa647ae318eb72cfdbe87ee8ada54b9dbd67aae203261285a271c301b`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/BackupRestoreConfirmationDialog.tsx](../../../apps/platform-lab/src/mobile/BackupRestoreConfirmationDialog.tsx); normalized SHA-256 `16eefcb446c3cd918b2757a2ce8b40ccdb19ce5f225c66d06115df6a6f5bee3c`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#000712bd` | 28 |
-| `#031326` | 39 |
+| `#000712bd` | 31 |
+| `#031326` | 42 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 14` | 33, 38, 39 |
-| `fontSize: 16` | 32 |
-| `fontSize: 24` | 31 |
-| `fontWeight: '600'` | 31, 38 |
-| `fontWeight: '700'` | 39 |
-| `lineHeight: 20` | 33, 38, 39 |
-| `lineHeight: 24` | 32 |
-| `lineHeight: 32` | 31 |
+| `fontSize: 14` | 36, 41, 42 |
+| `fontSize: 16` | 35 |
+| `fontSize: 24` | 34 |
+| `fontWeight: '600'` | 34, 41 |
+| `fontWeight: '700'` | 42 |
+| `lineHeight: 20` | 36, 41, 42 |
+| `lineHeight: 24` | 35 |
+| `lineHeight: 32` | 34 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 36 |
-| `borderRadius: 28` | 29 |
-| `gap: 16` | 30 |
-| `gap: 8` | 34 |
-| `maxHeight: '85%'` | 29 |
-| `maxWidth: 480` | 29 |
-| `minHeight: 48` | 36 |
-| `minWidth: 48` | 36 |
-| `padding: 16` | 28 |
-| `padding: 24` | 30 |
-| `paddingHorizontal: 16` | 36 |
-| `width: '100%'` | 29 |
+| `borderRadius: 12` | 39 |
+| `borderRadius: 28` | 32 |
+| `gap: 16` | 33 |
+| `gap: 8` | 37 |
+| `maxHeight: '85%'` | 32 |
+| `maxWidth: 480` | 32 |
+| `minHeight: 48` | 39 |
+| `minWidth: 48` | 39 |
+| `padding: 16` | 31 |
+| `padding: 24` | 33 |
+| `paddingHorizontal: 16` | 39 |
+| `width: '100%'` | 32 |
 
 ## CapturedFlights.tsx
 
@@ -1284,7 +1299,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ConnectionSummary
 
 ## CoreFlightFoundation.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `7914b92e8b09db488d9ed2148c90da33ec6288ad8be95cfa03afa58f60b704a0`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `1587fd43366cec3d5b1253947a0358ad75cfa551cd9b6ad89d63519c64b77d1c`.
 
 ### Typography declarations
 
@@ -1602,48 +1617,48 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/FlightScene.tsx](
 
 ## HelpScreen.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/HelpScreen.tsx](../../../apps/platform-lab/src/mobile/HelpScreen.tsx); normalized SHA-256 `f88f08d7946b9b7aef79ef254bac22d08d65076f4ac706ae8919e90202cee7a3`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/HelpScreen.tsx](../../../apps/platform-lab/src/mobile/HelpScreen.tsx); normalized SHA-256 `f38eb7f0baa1ed913567f3f29a644074fef0558510ce320d4f09186330c4e7b5`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#82959e` | 80 |
+| `#82959e` | 83 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 12` | 79, 89, 93 |
-| `fontSize: 14` | 91 |
-| `fontSize: 16` | 81 |
-| `fontSize: 24` | 86 |
-| `fontWeight: '600'` | 85, 90 |
-| `fontWeight: '700'` | 79 |
-| `letterSpacing: .8` | 79 |
-| `lineHeight: 18` | 79, 89, 93 |
-| `lineHeight: 20` | 91 |
+| `fontSize: 12` | 82, 93, 97 |
+| `fontSize: 14` | 95 |
+| `fontSize: 16` | 84 |
+| `fontSize: 24` | 90 |
+| `fontWeight: '600'` | 89, 94 |
+| `fontWeight: '700'` | 82 |
+| `letterSpacing: .8` | 82 |
+| `lineHeight: 18` | 82, 93, 97 |
+| `lineHeight: 20` | 95 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 80, 87 |
-| `borderWidth: 1` | 80 |
-| `gap: 10` | 92 |
-| `gap: 12` | 84 |
-| `gap: 16` | 78, 87 |
-| `gap: 2` | 85, 90 |
-| `gap: 6` | 82 |
-| `gap: 8` | 80, 83, 91 |
-| `maxWidth: 520` | 78 |
-| `minHeight: 48` | 80, 81, 90 |
-| `minHeight: 72` | 84 |
-| `minWidth: 0` | 85 |
-| `padding: 16` | 87 |
-| `paddingHorizontal: 12` | 80 |
-| `paddingVertical: 12` | 84 |
-| `width: '100%'` | 78 |
+| `borderRadius: 12` | 83, 91 |
+| `borderWidth: 1` | 83 |
+| `gap: 10` | 96 |
+| `gap: 12` | 88 |
+| `gap: 16` | 81, 91 |
+| `gap: 2` | 89, 94 |
+| `gap: 6` | 85 |
+| `gap: 8` | 83, 87, 95 |
+| `maxWidth: 520` | 81 |
+| `minHeight: 48` | 83, 84, 94 |
+| `minHeight: 72` | 88 |
+| `minWidth: 0` | 84, 89 |
+| `padding: 16` | 91 |
+| `paddingHorizontal: 12` | 83 |
+| `paddingVertical: 12` | 88 |
+| `width: '100%'` | 81 |
 
 ## ImportPreview.tsx
 
@@ -1910,7 +1925,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OverviewTiles.tsx
 
 ## OwnFlights.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OwnFlights.tsx](../../../apps/platform-lab/src/mobile/OwnFlights.tsx); normalized SHA-256 `14a63bbb0661b29ff62378f2e26e91ed324c5426639bdc6454bf758b1f351b83`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OwnFlights.tsx](../../../apps/platform-lab/src/mobile/OwnFlights.tsx); normalized SHA-256 `49af27764b0170ffc8da6faf900f518a6fa9c61b45420ebfe568d320b8403e04`.
 
 ### Literal colors
 
@@ -1919,7 +1934,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OwnFlights.tsx](.
 | `#000712bd` | 181 |
 | `#031326` | 193, 196 |
 | `#296879` | 208 |
-| `#82959e` | 184 |
+| `#82959e` | 184, 206 |
 
 ### Typography declarations
 
@@ -1979,8 +1994,8 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OwnFlights.tsx](.
 | `minHeight: 48` | 104, 178, 183, 192, 194, 195, 196, 197, 198, 200, 207 |
 | `minHeight: 52` | 180 |
 | `minHeight: 56` | 186 |
-| `minWidth: 0` | 104, 197, 201, 207 |
-| `minWidth: 48` | 183, 194, 196, 197, 198 |
+| `minWidth: 0` | 197, 201, 207 |
+| `minWidth: 48` | 104, 178, 183, 194, 196, 197, 198 |
 | `padding: 14` | 208 |
 | `padding: 18` | 189 |
 | `padding: 24` | 181 |
@@ -2248,7 +2263,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/settings-secondar
 
 ## StatisticsOverlay.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/StatisticsOverlay.tsx](../../../apps/platform-lab/src/mobile/StatisticsOverlay.tsx); normalized SHA-256 `19ce4e7ee8536313b9dc30d241fa3980d8392ce602c5076ca95db1e2305c6b00`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/StatisticsOverlay.tsx](../../../apps/platform-lab/src/mobile/StatisticsOverlay.tsx); normalized SHA-256 `3497124d98e3cc68aa3065eb97d0621ef766af4f47774f47a82c0e1d28d8120d`.
 
 ### Literal colors
 
@@ -2256,6 +2271,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/StatisticsOverlay
 | --- | --- |
 | `#0b141c3b` | 262 |
 | `#0e202c` | 262 |
+| `#82959e` | 263 |
 
 ### Typography declarations
 
@@ -2288,14 +2304,14 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/StatisticsOverlay
 | `gap: 2` | 264, 265 |
 | `gap: 3` | 263 |
 | `gap: 5` | 246, 263, 264 |
-| `gap: 6` | 130, 262, 263, 264 |
+| `gap: 6` | 132, 262, 263, 264 |
 | `gap: 8` | 263, 264, 265 |
 | `height: 10` | 264 |
-| `maxWidth: '100%'` | 130 |
+| `maxWidth: '100%'` | 132 |
 | `maxWidth: 600` | 261 |
 | `minHeight: 0` | 261 |
 | `minHeight: 142` | 262 |
-| `minHeight: 48` | 130, 264 |
+| `minHeight: 48` | 132, 264 |
 | `minHeight: 50` | 263 |
 | `minWidth: '45%'` | 163, 164, 165 |
 | `minWidth: 102` | 265 |
@@ -2381,44 +2397,44 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/SymbolIcon.tsx](.
 
 ## SyncConfirmationDialog.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/SyncConfirmationDialog.tsx](../../../apps/platform-lab/src/mobile/SyncConfirmationDialog.tsx); normalized SHA-256 `82497d3235e1d60514de4769a4b7ad37ef993ca13a2316149a1d4ca3957121a9`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/SyncConfirmationDialog.tsx](../../../apps/platform-lab/src/mobile/SyncConfirmationDialog.tsx); normalized SHA-256 `e7ccb20291630c2f4dd4be60984a9a3c44aca4256741aa6c89bdb0f0d5798e6f`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#000712bd` | 27 |
-| `#031326` | 37 |
+| `#000712bd` | 30 |
+| `#031326` | 40 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 14` | 36, 37 |
-| `fontSize: 16` | 31 |
-| `fontSize: 24` | 30 |
-| `fontWeight: '600'` | 30, 36 |
-| `fontWeight: '700'` | 37 |
-| `lineHeight: 20` | 36, 37 |
-| `lineHeight: 24` | 31 |
-| `lineHeight: 32` | 30 |
+| `fontSize: 14` | 39, 40 |
+| `fontSize: 16` | 34 |
+| `fontSize: 24` | 33 |
+| `fontWeight: '600'` | 33, 39 |
+| `fontWeight: '700'` | 40 |
+| `lineHeight: 20` | 39, 40 |
+| `lineHeight: 24` | 34 |
+| `lineHeight: 32` | 33 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 34 |
-| `borderRadius: 28` | 28 |
-| `gap: 16` | 29 |
-| `gap: 8` | 32 |
-| `maxHeight: '85%'` | 28 |
-| `maxWidth: 480` | 28 |
-| `minHeight: 48` | 34 |
-| `minWidth: 48` | 34 |
-| `padding: 16` | 27 |
-| `padding: 24` | 29 |
-| `paddingHorizontal: 16` | 34 |
-| `width: '100%'` | 28 |
+| `borderRadius: 12` | 37 |
+| `borderRadius: 28` | 31 |
+| `gap: 16` | 32 |
+| `gap: 8` | 35 |
+| `maxHeight: '85%'` | 31 |
+| `maxWidth: 480` | 31 |
+| `minHeight: 48` | 37 |
+| `minWidth: 48` | 37 |
+| `padding: 16` | 30 |
+| `padding: 24` | 32 |
+| `paddingHorizontal: 16` | 37 |
+| `width: '100%'` | 31 |
 
 ## SyncProgress.tsx
 

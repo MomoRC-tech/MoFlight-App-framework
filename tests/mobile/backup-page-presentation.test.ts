@@ -55,8 +55,8 @@ test('changed selection, background, unmount and busy state revoke backup-header
 
 test('restore dialog uses Cancel for system/outside dismissal and leaves the picker to explicit confirmation',()=>{
   let cancelled=0,confirmed=0;
-  const react={createElement:(type:string,props:any,...children:unknown[])=>({type,props:props??{},children:children.flat(Infinity)})};
-  const modules:Record<string,unknown>={react:{default:react},'react-native':{Modal:'Modal',Pressable:'Pressable',ScrollView:'ScrollView',Text:'Text',View:'View',StyleSheet:{absoluteFill:{},create:(styles:unknown)=>styles},useWindowDimensions:()=>({width:360,fontScale:1.6})},'./theme':{colors:{},ui:{}}};
+  const react={createElement:(type:string,props:any,...children:unknown[])=>({type,props:props??{},children:children.flat(Infinity)}),useEffect:(effect:()=>void)=>effect()};
+  const modules:Record<string,unknown>={react:{default:react,...react},'react-native':{Keyboard:{dismiss(){}},Modal:'Modal',Pressable:'Pressable',ScrollView:'ScrollView',Text:'Text',View:'View',StyleSheet:{absoluteFill:{},create:(styles:unknown)=>styles},useWindowDimensions:()=>({width:360,fontScale:1.6})},'./theme':{colors:{},ui:{}}};
   const api:any={};runInNewContext(compile('BackupRestoreConfirmationDialog'),{exports:api,require:(name:string)=>{assert.ok(name in modules,name);return modules[name];}});
   const tree=api.BackupRestoreConfirmationDialog({onCancel:()=>{cancelled++;},onConfirm:()=>{confirmed++;}});
   tree.props.onRequestClose();assert.equal(cancelled,1);assert.equal(confirmed,0);
@@ -68,4 +68,30 @@ test('restore dialog uses Cancel for system/outside dismissal and leaves the pic
 
 test('maintenance header supports provider settings without changing the confirmed Sync contract',()=>{
   const f=fixture();try{f.props.title='Vereinsflieger-Einstellungen';f.render();assert.equal(f.find('AppHeader').props.title,'Vereinsflieger-Einstellungen');assert.deepEqual(f.calls(),{verifyCalls:0,syncCalls:0,backCalls:0});}finally{f.dispose();}
+});
+
+
+test('short decisions dismiss the caller keyboard once and keep stacked action order aligned with reading order', () => {
+  for (const [component, confirmLabel] of [['SyncConfirmationDialog', 'Abruf starten'], ['BackupRestoreConfirmationDialog', 'Datei auswählen']] as const) {
+    let dismissals = 0, cancelled = 0, confirmed = 0;
+    const effects: (() => void)[] = [];
+    const react = { createElement: (type: string, props: any, ...children: unknown[]) => ({ type, props: props ?? {}, children: children.flat(Infinity) }), useEffect: (effect: () => void) => effects.push(effect) };
+    const modules: Record<string, unknown> = {
+      react: { default: react, ...react },
+      'react-native': { Keyboard: { dismiss: () => { dismissals++; } }, Modal: 'Modal', Pressable: 'Pressable', ScrollView: 'ScrollView', Text: 'Text', View: 'View', StyleSheet: { absoluteFill: {}, create: (styles: unknown) => styles }, useWindowDimensions: () => ({ width: 360, fontScale: 1.6 }) },
+      './theme': { colors: {}, ui: {} },
+    };
+    const api: any = {}; runInNewContext(compile(component), { exports: api, require: (name: string) => { assert.ok(name in modules, name); return modules[name]; } });
+    const tree = api[component]({ onCancel: () => { cancelled++; }, onConfirm: () => { confirmed++; } });
+    assert.equal(dismissals, 0); effects.forEach(effect => effect()); assert.equal(dismissals, 1);
+    assert.equal(cancelled, 0); assert.equal(confirmed, 0);
+    const nodes: Element[] = []; const visit = (node: any) => { if (node?.children) { nodes.push(node); node.children.forEach(visit); } }; visit(tree);
+    const buttons = nodes.filter(node => node.type === 'Pressable' && node.props.accessibilityRole === 'button');
+    assert.deepEqual(buttons.map(node => node.props.accessibilityLabel), [confirmLabel, 'Abbrechen']);
+    const actions = nodes.find(node => node.type === 'View' && Array.isArray(node.props.style))!;
+    assert.equal(actions.props.style[1].flexDirection, 'column');
+    assert.ok(nodes.some(node => node.type === 'ScrollView'));
+    buttons[1]!.props.onPress(); assert.equal(cancelled, 1); assert.equal(confirmed, 0);
+    buttons[0]!.props.onPress(); assert.equal(confirmed, 1);
+  }
 });

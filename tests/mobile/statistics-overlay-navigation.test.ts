@@ -19,10 +19,10 @@ const source = ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/
 }).outputText;
 
 function fixture(initialSection: statisticsModel.StatisticsSection = 'overview') {
-  let index = 0;
+  let index = 0, fontScale=1;const keyboardEvents:string[]=[];
   const hooks: any[] = [];
   const react = {
-    createElement: (type: unknown, props: Record<string, any>, ...children: unknown[]): Element => typeof type==='function'?type({...props,children}):({ type, props: props ?? {}, children: children.flat(Infinity) }),
+    createElement: (type: unknown, props: Record<string, any>, ...children: unknown[]): Element => {if(type==='TextInput'&&props?.ref)props.ref.current={focus:()=>keyboardEvents.push('focus:'+props.accessibilityLabel)};return typeof type==='function'?type({...props,children}):({ type, props: props ?? {}, children: children.flat(Infinity) });},
     useMemo: (make: () => unknown) => { index++; return make(); },
     useState: (initial: unknown) => { const i = index++; if (!(i in hooks)) hooks[i] = initial; return [hooks[i], (value: unknown) => { hooks[i] = typeof value === 'function' ? (value as (previous: unknown) => unknown)(hooks[i]) : value; }]; },
     useRef: (initial: unknown) => { const i = index++; if (!(i in hooks)) hooks[i] = { current: initial }; return hooks[i]; },
@@ -31,7 +31,7 @@ function fixture(initialSection: statisticsModel.StatisticsSection = 'overview')
   const leaf = (names: string[]) => Object.fromEntries(names.map(name => [name, name]));
   const modules: Record<string, unknown> = {
     react: { default: react, ...react },
-    'react-native': { ...leaf(['ActivityIndicator', 'ImageBackground', 'Pressable', 'ScrollView', 'TextInput', 'View']), Keyboard: {dismiss(){}}, StyleSheet: { create: (value: unknown) => value, absoluteFillObject: { position: 'absolute' } } },
+    'react-native': { ...leaf(['ActivityIndicator', 'ImageBackground', 'Pressable', 'ScrollView', 'TextInput', 'View']), Keyboard: {dismiss(){keyboardEvents.push('keyboard-dismiss');}}, StyleSheet: { create: (value: unknown) => value, absoluteFillObject: { position: 'absolute' } } },
     './theme': { ...leaf(['Action', 'Card', 'Chip', 'Empty', 'Label', 'Section']), colors, ui: { pressed: { opacity: .72 } } },
     './real-flight-statistics': { formatReportedMinutes }, './SeasonMonthlyCharts': leaf(['SeasonMonthlyCharts']),
     '../vereinsflieger/capture-review': captureReview,
@@ -70,13 +70,13 @@ function fixture(initialSection: statisticsModel.StatisticsSection = 'overview')
     clearDetail() { events.push('clear-detail'); }, reload: async () => {events.push('reload');},
   };
   let back = () => false;
-  const render = () => { index = 0; const tree = exports.StatisticsOverlay({ data, helpEnabled, onHelp:(id:string)=>events.push('help:'+id), today: '2026-10-22', fontScale: 1, initialSection, onClose: () => events.push('close'), headerActions, feedback, onBackHandler: (handler: () => boolean) => { back = handler; } }); return tree as Element; };
+  const render = () => { index = 0; const tree = exports.StatisticsOverlay({ data, helpEnabled, onHelp:(id:string)=>events.push('help:'+id), today: '2026-10-22', fontScale, initialSection, onClose: () => events.push('close'), headerActions, feedback, onBackHandler: (handler: () => boolean) => { back = handler; } }); return tree as Element; };
   const nodes = (tree: Element) => {
     const found: Element[] = [];
     const visit = (value: any) => { if (!value || typeof value !== 'object' || !('children' in value)) return; found.push(value); value.children.forEach(visit); };
     visit(tree); return found;
   };
-  return { setHelpEnabled:(enabled:boolean)=>{helpEnabled=enabled;}, data, flights, opened, events, headerActions, feedback, render, nodes: () => nodes(render()), back: () => back() };
+  return { setFontScale:(value:number)=>{fontScale=value;}, keyboardEvents, setHelpEnabled:(enabled:boolean)=>{helpEnabled=enabled;}, data, flights, opened, events, headerActions, feedback, render, nodes: () => nodes(render()), back: () => back() };
 }
 
 test('Start role metrics enter the role section for the selected year',()=>{
@@ -249,4 +249,19 @@ test('Statistics detail can retry the current local flight and offers preference
   assert.ok(help);help.props.onPress();
   f.nodes().find(n=>n.type==='Action'&&n.children.includes('Mehr erfahren'))!.props.onPress();assert.ok(f.events.includes('help:pic'));
   f.setHelpEnabled(false);assert.ok(!f.nodes().some(n=>n.props.accessibilityLabel==='Info zu PIC'));
+});
+
+
+test('enlarged Statistics sections retain navigation and date submit moves focus without applying drafts',()=>{
+ const f=fixture();f.setFontScale(1.6);
+ const tabs=f.nodes().find(n=>n.props.accessibilityRole==='tablist')!;assert.equal(tabs.type,'View');
+ tabs.children.find((n:Element)=>n.props.title==='Flugrollen')!.props.onPress();
+ assert.ok(f.nodes().some(n=>n.type==='Chip'&&n.props.title==='Flugrollen'&&n.props.selected));
+ f.nodes().find(n=>n.type==='Chip'&&n.props.title==='Eigener Zeitraum')!.props.onPress();
+ const input=(label:string)=>f.nodes().find(n=>n.type==='TextInput'&&n.props.accessibilityLabel===label)!;
+ input('Zeitraum von').props.onChangeText('2025-01-01');input('Zeitraum von').props.onSubmitEditing();
+ assert.equal(f.keyboardEvents.at(-1),'focus:Zeitraum bis');
+ input('Zeitraum bis').props.onSubmitEditing();assert.equal(f.keyboardEvents.at(-1),'keyboard-dismiss');
+ assert.equal(f.nodes().find(n=>n.type==='Chip'&&n.props.title==='Eigener Zeitraum')!.props.selected,false);
+ assert.equal(input('Zeitraum von').props.value,'2025-01-01');
 });

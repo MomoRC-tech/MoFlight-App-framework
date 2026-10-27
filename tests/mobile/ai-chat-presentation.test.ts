@@ -27,7 +27,7 @@ function message(id: string, status: string, input: string, answer: any = null):
   return { id, input, context: null, status, answer, attempt: null, createdAt: '2026-10-24T12:00:00.000Z' };
 }
 
-function fixture(overrides: Record<string, unknown> = {}) {
+function fixture(overrides: Record<string, unknown> = {}, dimensions={width:390,height:844,fontScale:1}) {
   const calls = { bottom:0, create: 0, select: [] as string[], remove: [] as string[], drafts: [] as string[], send: 0, cancel: 0, toggle: [] as boolean[], feature: [] as string[], evidence: [] as { message: any; ids: string[] }[] };
   const selected = conversation('chat-one', 'Saved chat', 'Durable draft');
   const props: any = {
@@ -60,7 +60,7 @@ function fixture(overrides: Record<string, unknown> = {}) {
     react: { default: react, ...react },
     'react-native': {
       ...leaves(['Pressable', 'TextInput', 'Text', 'View','ScrollView','Modal','KeyboardAvoidingView','ActivityIndicator']),Keyboard:{dismiss(){}},Platform:{OS:'android'},
-      useWindowDimensions:()=>({width:390,fontScale:1}),StyleSheet: { create: (value: unknown) => value },
+      useWindowDimensions:()=>dimensions,StyleSheet: { create: (value: unknown) => value },
     },
     './theme': {
       ...leaves(['Action', 'Card', 'Chip', 'Empty', 'Label', 'Section']),
@@ -296,4 +296,32 @@ test('loading and answer processing announce progress and busy history cannot cr
  f.requireNode('Pressable',n=>n.props.accessibilityLabel==='Neue Unterhaltung erstellen').props.onPress();
  assert.equal(f.calls.create,0);assert.equal(f.requireNode('TextInput',n=>n.props.accessibilityLabel==='Frage oder Nachrichtenentwurf').props.value,'Durable draft');
  f.requireNode('Pressable',n=>n.props.accessibilityLabel==='Laufende Antwort abbrechen').props.onPress();assert.equal(f.calls.cancel,1);
+});
+
+
+test('composer responds to large text and viewport changes while preserving the local draft',()=>{
+ const dimensions={width:360,height:800,fontScale:2};
+ const f=fixture({},dimensions);
+ const input=()=>f.requireNode('TextInput',n=>n.props.accessibilityLabel==='Frage oder Nachrichtenentwurf');
+ const geometry=()=>Object.assign({},...input().props.style);
+ assert.ok(geometry().height>=16*dimensions.fontScale+20,'one scaled line plus padding fits');
+ input().props.onContentSizeChange({nativeEvent:{contentSize:{height:500}}});f.rerender();
+ assert.ok(geometry().height<=dimensions.height*.3,'multiline editor leaves room for transcript and controls');
+ const portraitHeight=geometry().height;
+ dimensions.width=800;dimensions.height=360;f.rerender();
+ assert.ok(geometry().height<portraitHeight,'landscape reduces the editor height');
+ assert.ok(geometry().height>=16*dimensions.fontScale+20,'landscape still fits a scaled line');
+ assert.equal(input().props.value,'Durable draft');assert.equal(input().props.scrollEnabled,true);
+ assert.equal(f.calls.send,0);assert.equal(f.calls.drafts.length,0);
+});
+
+test('composer exposes disabled state only while editing is blocked and retains the saved draft',()=>{
+ const f=fixture();const input=()=>f.requireNode('TextInput',n=>n.props.accessibilityLabel==='Frage oder Nachrichtenentwurf');
+ for(const [busy,storageReady,disabled] of [[false,true,false],[true,true,true],[false,false,true],[false,true,false]]){
+  f.props.busy=busy;f.props.storageReady=storageReady;f.rerender();
+  assert.equal(input().props.editable,!disabled);
+  assert.equal(input().props.accessibilityState.disabled,disabled);
+  assert.equal(input().props.value,'Durable draft');
+ }
+ assert.equal(f.calls.send,0);assert.equal(f.calls.drafts.length,0);
 });

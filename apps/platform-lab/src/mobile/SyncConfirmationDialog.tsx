@@ -1,11 +1,15 @@
-import React from 'react';
-import { Modal, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import React, { useEffect } from 'react';
+import { Keyboard, Modal, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { colors, ui } from './theme';
 
 /** One short, dark confirmation above the current page. The parent owns the scope ticket. */
 export function SyncConfirmationDialog({ onCancel, onConfirm }: { onCancel: () => void; onConfirm: () => void }) {
+  // A short decision has no editable field; retain the caller's draft while freeing its actions.
+  useEffect(() => { Keyboard.dismiss(); }, []);
   const { width, fontScale } = useWindowDimensions();
   const stacked = width < 360 || fontScale > 1.3;
+  const cancelAction = <Pressable accessibilityRole="button" accessibilityLabel="Abbrechen" onPress={onCancel} style={({ pressed }) => [styles.button, pressed && ui.pressed]}><Text style={styles.cancelText}>Abbrechen</Text></Pressable>;
+  const confirmAction = <Pressable accessibilityRole="button" accessibilityLabel="Abruf starten" onPress={onConfirm} style={({ pressed }) => [styles.button, styles.confirm, pressed && ui.pressed]}><Text style={styles.confirmText}>Abruf starten</Text></Pressable>;
   return <Modal transparent animationType="fade" onRequestClose={onCancel} statusBarTranslucent>
     <View style={styles.scrim}>
       <Pressable accessible={false} importantForAccessibility="no" onPress={onCancel} style={StyleSheet.absoluteFill} />
@@ -14,8 +18,7 @@ export function SyncConfirmationDialog({ onCancel, onConfirm }: { onCancel: () =
           <Text accessibilityRole="header" style={styles.title}>Daten von Vereinsflieger abrufen?</Text>
           <Text style={styles.body}>MoFlight versucht, deine Flüge und unterstützte Zusatzdaten zu aktualisieren. Falls nötig, meldest du dich auf der Originalseite an. Gespeicherte Flüge bleiben verfügbar.</Text>
           <View style={[styles.actions, stacked && styles.stackedActions]}>
-            <Pressable accessibilityRole="button" accessibilityLabel="Abbrechen" onPress={onCancel} style={({ pressed }) => [styles.button, pressed && ui.pressed]}><Text style={styles.cancelText}>Abbrechen</Text></Pressable>
-            <Pressable accessibilityRole="button" accessibilityLabel="Abruf starten" onPress={onConfirm} style={({ pressed }) => [styles.button, styles.confirm, pressed && ui.pressed]}><Text style={styles.confirmText}>Abruf starten</Text></Pressable>
+            {stacked ? <>{confirmAction}{cancelAction}</> : <>{cancelAction}{confirmAction}</>}
           </View>
         </ScrollView>
       </View>
@@ -30,7 +33,7 @@ const styles = StyleSheet.create({
   title: { color: colors.text, fontSize: 24, lineHeight: 32, fontWeight: '600' },
   body: { color: colors.muted, fontSize: 16, lineHeight: 24 },
   actions: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'flex-end', alignItems: 'center', gap: 8, paddingTop: 8 },
-  stackedActions: { flexDirection: 'column-reverse', alignItems: 'stretch' },
+  stackedActions: { flexDirection: 'column', alignItems: 'stretch' },
   button: { minHeight: 48, minWidth: 48, paddingHorizontal: 16, justifyContent: 'center', alignItems: 'center', borderRadius: 12 },
   confirm: { backgroundColor: colors.cyan },
   cancelText: { color: colors.cyan, fontSize: 14, lineHeight: 20, fontWeight: '600' },

@@ -1,5 +1,17 @@
 # Dark Compact Cockpit — approved 24 October 2026
 
+## Responsive and accessible completion — authorized 27 October 2026
+
+Manuel's continuation after U1/U2 selects roadmap U3 under [#94](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/94). [One package report](../../verification/2026-10-26-material-settings.md#responsive-and-accessible-completion--27-october-2026) keeps source/platform evidence and remaining gates separate.
+
+- Help categories and Statistics sections wrap above font scale 1.3; ordinary text keeps the horizontal strip. Existing query/period/section state and return context stay. Wrapping groups share the outer page scroller, avoiding nested vertical scrolling.
+- Flight filter values wrap rather than ellipsize; enlarged active summaries wrap, with explicit expanded state and minimum48 dp targets. Search/date input outlines use the existing stronger local outline color, preserving global tokens and Start.
+- Statistics date fields name their format; Next focuses the end date, Done dismisses the keyboard without applying drafts. Invalid-range feedback is announced politely; Apply remains the explicit decision.
+- AI's composer grows for one scaled line plus padding and bounds multiline expansion by viewport height. Its disabled editing state is explicit; usage facts wrap/stack for large text and menu/deletion bodies can shrink and scroll. The status control retains full wrapping and a minimum48 dp target.
+- Short Sync/restore decisions dismiss the caller's keyboard on mount, preserving drafts. Stacked confirmation appears above Cancel in both visual and React/accessibility order; ordinary rows keep Cancel left/confirm right. AI deletion uses the same ordering with pinned title/actions and a shrinkable body. Existing one-use account/scope safeguards remain authoritative.
+
+Current rendered Material accessibility/dialog guidance and official Android guidance inform legible scaling, target size, readable groups and decision order. Retain the navy/cyan palette, original logo, existing caps/headers/five destinations and provider parent. Rail/two-pane/root Back redesign, global-theme/Start changes, beta light/legal work and new dependencies/features/services are excluded. These changes do not establish spoken, physical/iOS or complete keyboard/populated acceptance.
+
 ## Everyday Flights and task states — authorized 27 October 2026
 
 Manuel selected roadmap U1/U2 with “ok, do steps 1 and 2 now”. This coherent continuation uses the existing page/list/card/disclosure patterns. [#94](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/94) owns the package; [one verification summary](../../verification/2026-10-26-material-settings.md#everyday-flights-and-task-states--27-october-2026) distinguishes source, host and native acceptance.

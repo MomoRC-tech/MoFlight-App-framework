@@ -1,11 +1,15 @@
-import React from 'react';
-import { Modal, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import React, { useEffect } from 'react';
+import { Keyboard, Modal, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { colors, ui } from './theme';
 
 /** Short decision before the OS file picker; the owner-scoped restore still validates the file. */
 export function BackupRestoreConfirmationDialog({ onCancel, onConfirm }: { onCancel: () => void; onConfirm: () => void }) {
+  // A short decision has no editable field; retain the caller's draft while freeing its actions.
+  useEffect(() => { Keyboard.dismiss(); }, []);
   const { width, fontScale } = useWindowDimensions();
   const stacked = width < 360 || fontScale > 1.3;
+  const cancelAction = <Pressable accessibilityRole="button" accessibilityLabel="Abbrechen" onPress={onCancel} style={({ pressed }) => [styles.button, pressed && ui.pressed]}><Text style={styles.cancelText}>Abbrechen</Text></Pressable>;
+  const confirmAction = <Pressable accessibilityRole="button" accessibilityLabel="Datei auswählen" onPress={onConfirm} style={({ pressed }) => [styles.button, styles.confirm, pressed && ui.pressed]}><Text style={styles.confirmText}>Datei auswählen</Text></Pressable>;
   return <Modal transparent animationType="fade" onRequestClose={onCancel} statusBarTranslucent>
     <View style={styles.scrim}>
       <Pressable accessible={false} importantForAccessibility="no" onPress={onCancel} style={StyleSheet.absoluteFill} />
@@ -15,8 +19,7 @@ export function BackupRestoreConfirmationDialog({ onCancel, onConfirm }: { onCan
           <Text style={styles.body}>Wähle eine Sicherungsdatei für dieselbe lokale Kontozuordnung. MoFlight prüft sie vor der Aktivierung. Bisherige Dateien bleiben erhalten.</Text>
           <Text style={styles.note}>Wenn du die Dateiauswahl abbrichst, bleiben deine Daten unverändert.</Text>
           <View style={[styles.actions, stacked && styles.stackedActions]}>
-            <Pressable accessibilityRole="button" accessibilityLabel="Abbrechen" onPress={onCancel} style={({ pressed }) => [styles.button, pressed && ui.pressed]}><Text style={styles.cancelText}>Abbrechen</Text></Pressable>
-            <Pressable accessibilityRole="button" accessibilityLabel="Datei auswählen" onPress={onConfirm} style={({ pressed }) => [styles.button, styles.confirm, pressed && ui.pressed]}><Text style={styles.confirmText}>Datei auswählen</Text></Pressable>
+            {stacked ? <>{confirmAction}{cancelAction}</> : <>{cancelAction}{confirmAction}</>}
           </View>
         </ScrollView>
       </View>
@@ -32,7 +35,7 @@ const styles = StyleSheet.create({
   body: { color: colors.text, fontSize: 16, lineHeight: 24 },
   note: { color: colors.muted, fontSize: 14, lineHeight: 20 },
   actions: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'flex-end', alignItems: 'center', gap: 8, paddingTop: 8 },
-  stackedActions: { flexDirection: 'column-reverse', alignItems: 'stretch' },
+  stackedActions: { flexDirection: 'column', alignItems: 'stretch' },
   button: { minHeight: 48, minWidth: 48, paddingHorizontal: 16, justifyContent: 'center', alignItems: 'center', borderRadius: 12 },
   confirm: { backgroundColor: colors.cyan },
   cancelText: { color: colors.cyan, fontSize: 14, lineHeight: 20, fontWeight: '600' },

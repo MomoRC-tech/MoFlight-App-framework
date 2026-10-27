@@ -89,7 +89,7 @@ export function OwnFlights({ active, data, filterRequest, onHeaderChange, onHelp
   const changeFilters = (next: OwnFlightFilters) => { if(next.search!==filters.search)diagnosticJournal.record('filter','search');if(next.year!==filters.year)diagnosticJournal.record('filter','year');if(next.registration!==filters.registration)diagnosticJournal.record('filter','registration');if(next.flightRole!==filters.flightRole)diagnosticJournal.record('filter','flight-filter'); offset.current = 0; list.current?.scrollToOffset({ offset: 0, animated: false }); setFilters({...next,flightIds:undefined}); };
   const openPicker = (kind: NonNullable<typeof picker>) => {Keyboard.dismiss();setOptionQuery('');setPicker(kind);};
   const closePicker = () => { Keyboard.dismiss(); setPicker(null); };
-  const field=(title:string,value:string,kind:NonNullable<typeof picker>)=><Pressable key={kind} accessibilityRole="button" accessibilityLabel={`${title}: ${value}, auswählen`} onPress={()=>openPicker(kind)} style={[s.field,fontScale>1.3&&{width:'100%'}]}><Text style={s.fieldLabel}>{title}</Text><View style={s.fieldValue}><Text numberOfLines={1} style={s.fieldText}>{value}</Text><SymbolIcon name="down" size={12} tone="muted"/></View></Pressable>;
+  const field=(title:string,value:string,kind:NonNullable<typeof picker>)=><Pressable key={kind} accessibilityRole="button" accessibilityLabel={`${title}: ${value}, auswählen`} onPress={()=>openPicker(kind)} style={[s.field,fontScale>1.3&&{width:'100%'}]}><Text style={s.fieldLabel}>{title}</Text><View style={s.fieldValue}><Text style={s.fieldText}>{value}</Text><SymbolIcon name="down" size={12} tone="muted"/></View></Pressable>;
   const pick=(next:OwnFlightFilters)=>{Keyboard.dismiss();changeFilters(next);setPicker(null);};
   const options:{id:string;label:string;selected:boolean;choose:()=>void}[]=picker==='year'?
     [{id:'all',label:'Alle Jahre',selected:filters.year===null&&!filters.dateRange,choose:()=>pick({...filters,year:null,dateRange:null})},...years.map(year=>({id:String(year),label:String(year),selected:filters.year===year,choose:()=>pick({...filters,year,dateRange:null})}))]:picker==='category'?
@@ -101,7 +101,7 @@ export function OwnFlights({ active, data, filterRequest, onHeaderChange, onHelp
   const header=<View style={s.filterGroup}>
     <View style={s.compactHeader}>
       <Pressable accessibilityRole="button" accessibilityLabel="Flugfilter öffnen" accessibilityState={{expanded:filterOpen,selected:hasFilters}} onPress={()=>{Keyboard.dismiss();setFilterOpen(!filterOpen);}} style={s.filterToggle}><Label style={s.controlText}>Filter{hasFilters?` (${tags.length})`:''} {filterOpen?'↑':'↓'}</Label></Pressable>
-      <Pressable accessibilityRole="button" accessibilityLabel={`Aktive Filter: ${tags.map(t=>t.label).join(', ')||'keine'}`} onPress={()=>setFilterOpen(!filterOpen)} style={{flex:1,minWidth:0,minHeight:48,justifyContent:'center'}}><Text numberOfLines={1} style={s.summaryCaption}>{tags.map(t=>t.label).join(' · ')||'Alle Flüge'}</Text></Pressable>
+      <Pressable accessibilityRole="button" accessibilityLabel={`Aktive Filter: ${tags.map(t=>t.label).join(', ')||'keine'}`} onPress={()=>setFilterOpen(!filterOpen)} accessibilityState={{expanded:filterOpen}} style={{flex:1,minWidth:48,minHeight:48,justifyContent:'center'}}><Text numberOfLines={fontScale>1.3?undefined:1} style={s.summaryCaption}>{tags.map(t=>t.label).join(' · ')||'Alle Flüge'}</Text></Pressable>
       <Pressable accessibilityRole="button" accessibilityLabel="Flugsuche öffnen" accessibilityState={{expanded:searchOpen||filterOpen}} onPress={()=>{Keyboard.dismiss();setSearchOpen(!searchOpen);}} style={s.searchToggle}><SymbolIcon name="search" size={20}/></Pressable>
       <Pressable accessibilityRole="button" accessibilityLabel="Abdeckung & Datenstand" onPress={()=>{Keyboard.dismiss();setStatusOpen(true);}} style={s.info}><SymbolIcon name="info" size={18} tone="muted"/></Pressable>
     </View>
@@ -175,7 +175,7 @@ export function OwnFlights({ active, data, filterRequest, onHeaderChange, onHelp
   </View>;
 }
 const s = StyleSheet.create({
-  compactHeader:{flexDirection:'row',alignItems:'center',gap:4},filterToggle:{minHeight:48,paddingHorizontal:4,justifyContent:'center'},
+  compactHeader:{flexDirection:'row',alignItems:'center',gap:4},filterToggle:{minHeight:48,minWidth:48,paddingHorizontal:4,justifyContent:'center'},
   summaryCaption:{color:colors.muted,fontSize:12,lineHeight:18,paddingBottom:2},fields:{flexDirection:'row',flexWrap:'wrap',columnGap:12,rowGap:4},
   field:{width:'48%',minHeight:52,borderBottomWidth:1,borderColor:colors.border,paddingVertical:4},fieldLabel:{fontSize:11,lineHeight:16,color:colors.muted},fieldValue:{flexDirection:'row',alignItems:'center',gap:4},fieldText:{flex:1,fontSize:14,lineHeight:20,color:colors.text},
   scrim:{flex:1,justifyContent:'flex-end',backgroundColor:'#000712bd',paddingTop:24},wideScrim:{justifyContent:'center',padding:24},
@@ -203,7 +203,7 @@ const s = StyleSheet.create({
   crew:{flexDirection:'row',flexWrap:'wrap',alignItems:'center',columnGap:9,rowGap:2},crewText:{fontSize:13,lineHeight:18,flexShrink:1},role:{fontSize:11,lineHeight:16},
   solo:{fontSize:11,lineHeight:16,color:colors.cyan,borderWidth:1,borderColor:colors.border,borderRadius:4,paddingHorizontal:4},
   duration:{fontSize:20,lineHeight:28,fontWeight:'600',fontVariant:['tabular-nums'],maxWidth:'32%'},unclearDuration:{fontSize:12,lineHeight:17,fontWeight:'400'},
-  searchBox: { width:'100%',maxWidth:'100%',flexDirection:'row',alignItems:'center',borderWidth:1,borderColor:colors.border,borderRadius:12,backgroundColor:colors.card,paddingLeft:10 },
+  searchBox: { width:'100%',maxWidth:'100%',flexDirection:'row',alignItems:'center',borderWidth:1,borderColor:'#82959e',borderRadius:12,backgroundColor:colors.card,paddingLeft:10 },
   search: { flex:1,minWidth:0,minHeight:48,color:colors.text,fontSize:16,paddingVertical:6 },
   hintBubble: { width:'100%',maxWidth:520,alignSelf:'center',gap:8,padding:14,margin:10,backgroundColor:colors.raised,borderWidth:1,borderLeftWidth:3,borderColor:'#296879',borderLeftColor:colors.cyan,borderRadius:18 },
 });

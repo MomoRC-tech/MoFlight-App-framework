@@ -57,6 +57,7 @@ test('dark delete dialog exposes separate cancel/confirm and dismisses on Back a
  nodes.find(n=>n.props.onPress&&n.props.onPress!==tree.props.onRequestClose&&n.props.accessibilityRole==='button').props.onPress();assert.equal(confirm,1);
  assert.ok(nodes.some(n=>n.children?.includes('Exact conversation')));
  assert.ok(nodes.some(n=>n.props.accessibilityViewIsModal));
+ assert.deepEqual(nodes.filter(n=>n.props.accessibilityRole==='button').map(n=>n.props.accessibilityLabel),['Gespräch löschen','Abbrechen'],'stacked visual and accessibility decision order agree');
  const scroller=nodes.find(n=>n.type==='ScrollView');const scrolled:any[]=[];
  const collect=(node:any)=>{if(node&&typeof node==='object'){scrolled.push(node);node.children?.forEach(collect);}};collect(scroller);
  assert.equal(scrolled.some(n=>n.props.accessibilityRole==='button'||n.props.accessibilityRole==='header'),false,'title and decisions remain outside scrolling conversation text');

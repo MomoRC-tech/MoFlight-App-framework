@@ -43,6 +43,7 @@ export function StatisticsOverlay({ data, today, fontScale, onBackHandler, onClo
   const routeSequence = useRef(0);
   const scrollOffsets = useRef<Record<string, number>>({});
   const scroll = useRef<ScrollView>(null);
+  const toInput = useRef<TextInput>(null);
   const route = routes[routes.length - 1]!;
   const routeKey = route.key;
   const flights = data.view?.flights ?? [];
@@ -116,6 +117,7 @@ export function StatisticsOverlay({ data, today, fontScale, onBackHandler, onClo
   const routeScopeLabel = route.kind === 'flights' ? route.scope.kind === 'all' ? 'dem gesamten gespeicherten Bestand'
     : (() => { const range = statisticsPeriodBounds(route.scope, today); return range ? `${range.from} bis ${range.to}` : 'dem gewählten Zeitraum'; })() : '';
 
+  const sectionButtons=route.kind==='section'?(['overview','aircraft','duration','launch','roles'] as const).map(section=><Chip key={section} title={titleForSection(section)} selected={route.section===section} onPress={()=>openSection(section)}/>):null;
   const routeTitle = route.kind === 'section' ? 'Flugstatistik' : route.title;
   return <View style={styles.content}>
     <AppHeader variant="page" back={() => { if (!back()) onClose(); }} title={routeTitle}>{headerActions}</AppHeader>
@@ -134,20 +136,18 @@ export function StatisticsOverlay({ data, today, fontScale, onBackHandler, onClo
             <Chip title="Eigener Zeitraum" selected={period.kind === 'custom'} onPress={() => { Keyboard.dismiss();setCustomOpen(open => !open); }} />
           </View>
           {customOpen && <View style={styles.customRange}>
-            <View style={styles.dateField}><Label muted>Von · JJJJ-MM-TT</Label><TextInput accessibilityLabel="Zeitraum von" value={fromDraft} onChangeText={setFromDraft} placeholder="2026-01-01" placeholderTextColor={colors.muted} autoCorrect={false} autoCapitalize="none" keyboardType="numbers-and-punctuation" style={styles.dateInput} /></View>
-            <View style={styles.dateField}><Label muted>Bis · JJJJ-MM-TT</Label><TextInput accessibilityLabel="Zeitraum bis" value={toDraft} onChangeText={setToDraft} placeholder="2026-10-23" placeholderTextColor={colors.muted} autoCorrect={false} autoCapitalize="none" keyboardType="numbers-and-punctuation" style={styles.dateInput} /></View>
+            <View style={styles.dateField}><Label muted>Von · JJJJ-MM-TT</Label><TextInput accessibilityLabel="Zeitraum von" accessibilityHint="Datum im Format JJJJ-MM-TT" returnKeyType="next" onSubmitEditing={()=>toInput.current?.focus()} value={fromDraft} onChangeText={setFromDraft} placeholder="2026-01-01" placeholderTextColor={colors.muted} autoCorrect={false} autoCapitalize="none" keyboardType="numbers-and-punctuation" style={styles.dateInput} /></View>
+            <View style={styles.dateField}><Label muted>Bis · JJJJ-MM-TT</Label><TextInput ref={toInput} accessibilityLabel="Zeitraum bis" accessibilityHint="Datum im Format JJJJ-MM-TT" returnKeyType="done" onSubmitEditing={Keyboard.dismiss} value={toDraft} onChangeText={setToDraft} placeholder="2026-10-23" placeholderTextColor={colors.muted} autoCorrect={false} autoCapitalize="none" keyboardType="numbers-and-punctuation" style={styles.dateInput} /></View>
             <Action disabled={!validStatisticsRange(fromDraft, toDraft)} onPress={() => { if (!validStatisticsRange(fromDraft,toDraft)) return;Keyboard.dismiss();setPeriod({ kind: 'custom', from: fromDraft, to: toDraft });setCustomOpen(false); }}>Zeitraum übernehmen</Action>
             <Action secondary onPress={()=>{Keyboard.dismiss();setCustomOpen(false);}}>Abbrechen</Action>
-            {!validStatisticsRange(fromDraft, toDraft) && <Label muted>Bitte gültige Kalendertage in aufsteigender Reihenfolge eingeben.</Label>}
+            {!validStatisticsRange(fromDraft, toDraft) && <View accessibilityLiveRegion="polite"><Label muted>Bitte gültige Kalendertage in aufsteigender Reihenfolge eingeben.</Label></View>}
           </View>}
           <Label muted>{periodLabel}</Label>
           {informationOpen&&<>{bounds && <Label muted>{statisticsCoverageComplete(saved, bounds.from, bounds.to) ? 'Gespeicherte Abrufe decken diesen Zeitraum vollständig ab.' : 'Die gespeicherten Abrufe decken diesen Zeitraum nicht vollständig ab.'}</Label>}
           <Label muted>Die Saisonwerte auf Übersicht zeigen gespeicherte Jahreswerte; die Abdeckung kann je Jahr abweichen oder unvollständig sein.</Label>
           {period.kind === 'all' && <Label muted>Der gespeicherte Bestand belegt keine vollständige Fluggeschichte.</Label>}</>}
         </View>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} accessibilityRole="tablist" contentContainerStyle={styles.sectionTabs}>
-          {(['overview', 'aircraft', 'duration', 'launch', 'roles'] as const).map(section => <Chip key={section} title={titleForSection(section)} selected={route.section === section} onPress={() => openSection(section)} />)}
-        </ScrollView>
+        {fontScale>1.3 ? <View accessibilityRole="tablist" style={[styles.sectionTabs,styles.sectionTabsWrapped]}>{sectionButtons}</View> : <ScrollView horizontal showsHorizontalScrollIndicator={false} accessibilityRole="tablist" contentContainerStyle={styles.sectionTabs}>{sectionButtons}</ScrollView>}
 
         {data.phase === 'loading' && <Card><ActivityIndicator color={colors.cyan} accessibilityLabel="Gespeicherte Flugstatistik wird geprüft" /><Label muted>Gespeicherte Flüge werden lokal geprüft.</Label></Card>}
         {data.phase === 'failed' && <Card><Empty title="Statistik nicht lesbar">Die gespeicherte Flugauswahl konnte nicht geprüft werden. Vorhandene Daten bleiben erhalten.</Empty><Action secondary onPress={() => void data.reload()}>Gespeicherte Flüge erneut prüfen</Action></Card>}
@@ -260,7 +260,7 @@ function StatisticsFlightDetails({ detail, loading, error,rawPage,onRawPage,rawE
 const styles = StyleSheet.create({
   content: { flex: 1, minHeight: 0, width: '100%' }, canvas: { width: '100%', maxWidth: 600, alignSelf: 'center', padding: 12, paddingBottom: 26, gap: 12 }, canvasLarge: { paddingHorizontal: 10, paddingBottom: 22 },
   hero: { minHeight: 142, borderRadius: 20, overflow: 'hidden', backgroundColor: '#0e202c', padding: 16, justifyContent: 'flex-end', gap: 6, borderWidth: 1, borderColor: colors.border }, blueprintImage: { opacity: .72 }, heroShade: { ...StyleSheet.absoluteFill, backgroundColor: '#0b141c3b' }, heroEyebrow: { color: colors.cyan, fontSize: 11, lineHeight: 16, letterSpacing: 1.2, fontWeight: '700' },
-  periodPanel: { gap: 8, backgroundColor: colors.card, borderRadius: 18, padding: 14, borderWidth: 1, borderColor: colors.border }, chipRow: { gap: 5, paddingRight: 6 }, customRange: { gap: 8 }, dateField: { gap: 3 }, dateInput: { minHeight: 50, color: colors.text, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.raised, borderRadius: 12, paddingHorizontal: 12, fontSize: 16 }, sectionTabs: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingRight: 12 },
+  periodPanel: { gap: 8, backgroundColor: colors.card, borderRadius: 18, padding: 14, borderWidth: 1, borderColor: colors.border }, chipRow: { gap: 5, paddingRight: 6 }, customRange: { gap: 8 }, dateField: { gap: 3 }, dateInput: { minHeight: 50, color: colors.text, borderWidth: 1, borderColor: '#82959e', backgroundColor: colors.raised, borderRadius: 12, paddingHorizontal: 12, fontSize: 16 }, sectionTabs: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingRight: 12 }, sectionTabsWrapped: {flexWrap:'wrap',paddingRight:0},
   metrics: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 }, metric: { flex: 1, minWidth: 90, gap: 2 }, metricValue: { color: colors.cyan, fontSize: 19, lineHeight: 25, fontWeight: '700' }, compareRow: { flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' }, compareValue: { color: colors.cyan, minWidth: 72, textAlign: 'right' }, monthButtons: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 }, monthButton: { flexGrow: 1, flexBasis: '30%', minWidth: 95, minHeight: 48, borderRadius: 13, justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: colors.border, backgroundColor: colors.raised, paddingHorizontal: 8 }, monthButtonText: { color: colors.text, textAlign: 'center' }, disabled: { opacity: .55 }, aircraftRow: { padding: 13, gap: 5, borderRadius: 16 }, bandRow: { padding: 13, gap: 5, borderRadius: 16 }, aircraftHeading: { flexDirection: 'row', alignItems: 'center', gap: 8 }, aircraftSwatch: { width: 10, height: 10, borderRadius: 5 }, aircraftName: { fontWeight: '700', fontSize: 17, lineHeight: 23 }, flightTime: { color: colors.cyan, flexShrink: 1 },
   detailDuration: { color: colors.cyan, fontSize: 22, lineHeight: 30, fontWeight: '700' }, detailRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 }, detailLabel: { minWidth: 102 }, sourceRow: { borderTopWidth: 1, borderColor: colors.border, paddingTop: 6, gap: 2 },
 });

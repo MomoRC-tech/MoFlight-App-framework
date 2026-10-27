@@ -1,5 +1,7 @@
 # Components, symbols and shapes
 
+**27 October U3:** Help/Statistics categories wrap for enlarged text, flight filters retain full values, AI composer sizing follows text/viewport and facts can stack. Short-dialog React order follows visual decision order; Sync/restore dismiss keyboards without discarding drafts. Date Next/Done supports focus/dismissal without applying a period. Existing headers/caps/palette and Start stay. [Contract](compact-cockpit.md#responsive-and-accessible-completion--authorized-27-october-2026).
+
 **27 October U1/U2:** ordinary Flights opts into the existing page app bar. Statistics period controls have Apply/Cancel/Back and preference-controlled PIC Help, retaining contributor context. AI names loading/busy/unavailable states and gates editing until a local archive exists. Help links expose failed handoff/retry; provider/Medical feedback names existing operations. No shared palette/Start change. [Contract](compact-cockpit.md#everyday-flights-and-task-states--authorized-27-october-2026).
 
 **27 October coherent secondary UI (#94):** Club-only contained rows/source disclosures preserve Start defaults. AI uses grouped, capped navy sheets and a guarded short dark deletion dialog; evidence/metrics keep exact saved references. Diagnostics/About/Development use page-local grouped rows and disclosures with existing actions and source/license boundaries. [Contract](compact-cockpit.md#club-ai-and-remaining-settings--authorized-27-october-2026); these opt-in components do not change shared tokens or the Start roster.

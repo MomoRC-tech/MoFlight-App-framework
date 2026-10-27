@@ -26,7 +26,7 @@ const source = ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/
 }).outputText;
 function fixture(entryId: string | null, helpEnabled = true, query = '', category: catalog.HelpCategory | null = null) {
   const calls: string[] = [], links: string[] = [];
-  let hookIndex = 0, rejectLink = false, deferLink = false, finishLink = () => {};
+  let hookIndex = 0, rejectLink = false, deferLink = false, finishLink = () => {}, fontScale = 1;
   const hooks: any[] = [], cleanups: (() => void)[] = [], effects: (() => void)[] = [];
   const react = {
     createElement: (type: any, props: Record<string, any>, ...children: any[]): Element => typeof type === 'function' ? type(props) : ({ type, props: props ?? {}, children: children.flat(Infinity) }),
@@ -37,7 +37,7 @@ function fixture(entryId: string | null, helpEnabled = true, query = '', categor
   const leaves = (names: string[]) => Object.fromEntries(names.map(name => [name, name]));
   const modules: Record<string, unknown> = {
     react: { default: react, ...react },
-    'react-native': { ...leaves(['Pressable', 'ScrollView', 'Text', 'TextInput', 'View']), Linking: { openURL: async (url: string) => { links.push(url); if (deferLink) await new Promise<void>(resolve => { finishLink = resolve; }); if (rejectLink) throw new Error('Synthetic browser handoff failure'); } }, StyleSheet: { create: (value: unknown) => value } },
+    'react-native': { ...leaves(['Pressable', 'ScrollView', 'Text', 'TextInput', 'View']), Linking: { openURL: async (url: string) => { links.push(url); if (deferLink) await new Promise<void>(resolve => { finishLink = resolve; }); if (rejectLink) throw new Error('Synthetic browser handoff failure'); } }, StyleSheet: { create: (value: unknown) => value }, useWindowDimensions: () => ({ width: 360, fontScale }) },
     './theme': { ...leaves(['Action', 'Card', 'Chip', 'Label', 'Section']), colors: { cyan: '#27d3d2', muted: '#a9bed3', text: '#f4f8fc', raised: '#0c3041', card: '#062331', border: '#183d50' }, ui: {} },
     './help-catalog': catalog,
     './SymbolIcon': { SymbolIcon: 'SymbolIcon' },
@@ -51,7 +51,7 @@ function fixture(entryId: string | null, helpEnabled = true, query = '', categor
   const render = () => { hookIndex = 0; nodes.length = 0; tree = exports.HelpScreen(props); visit(tree); while (effects.length) effects.shift()!(); return tree; };
   render();
   const text = (node: any): string => node?.children ? node.children.map(text).join(' ') : typeof node === 'string' ? node : '';
-  return { get tree() { return tree; }, nodes, text, calls, links, render, rejectLink: (value = true) => { rejectLink = value; }, deferLink: () => { deferLink = true; }, finishLink: () => finishLink(), dispose: () => cleanups.forEach(cleanup => cleanup()) };
+  return { get tree() { return tree; }, nodes, text, calls, links, render, resizeText: (scale: number) => { fontScale = scale; render(); }, rejectLink: (value = true) => { rejectLink = value; }, deferLink: () => { deferLink = true; }, finishLink: () => finishLink(), dispose: () => cleanups.forEach(cleanup => cleanup()) };
 }
 
 test('failed external Help handoff retains the offline answer and retries only on an explicit tap', async () => {
@@ -174,4 +174,25 @@ test('global contextual Help preference persists independently of content-versio
   assert.equal(await exports.saveContextHelpEnabled(true), true);
   assert.equal(await exports.readContextHelpEnabled(), true);
   assert.equal(await exports.hasSeenFlightHelpHint(), true);
+});
+
+
+test('enlarged Help categories remain available without horizontal scrolling and preserve selection/search', () => {
+  const f = fixture(null, true, 'papier', 'Flugbuch');
+  assert.ok(f.nodes.some(node => node.type === 'ScrollView' && node.props.horizontal));
+  f.resizeText(1.6);
+  assert.equal(f.nodes.some(node => node.type === 'ScrollView' && node.props.horizontal), false);
+  const categories = f.nodes.find(node => node.type === 'View' && node.props.accessibilityLabel === 'Hilfethemen')!;
+  assert.equal(categories.props.style[1].flexWrap, 'wrap');
+  assert.equal(f.nodes.find(node => node.props.testID === 'help-search')!.props.value, 'papier');
+  assert.equal(f.nodes.find(node => node.type === 'Chip' && node.props.title === 'Flugbuch')!.props.selected, true);
+  assert.equal(f.nodes.filter(node => node.type === 'Chip').length, catalog.HELP_CATEGORIES.length + 1);
+  f.nodes.find(node => node.type === 'Chip' && node.props.title === 'Alle')!.props.onPress();
+  assert.deepEqual(f.calls, ['category:null']);
+  assert.deepEqual(f.links, []);
+  const arrow = f.nodes.find(node => node.type === 'Text' && f.text(node) === '›')!;
+  assert.equal(arrow.props.accessibilityElementsHidden, true);
+  assert.equal(arrow.props.importantForAccessibility, 'no');
+  f.resizeText(1);
+  assert.ok(f.nodes.some(node => node.type === 'ScrollView' && node.props.horizontal));
 });
