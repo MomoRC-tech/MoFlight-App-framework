@@ -3263,6 +3263,33 @@ test('own annual work and tasks use independent fresh-context jobs with durable 
   }
 });
 
+test('task reader rejection emits a fixed diagnostic reason and preserves prior selector without saving', async () => {
+  for (const [error, reason] of [['source-table-unverified', 'provider-task-table-unverified'], ['private unknown error', 'provider-task-source-unsupported']] as const) {
+    const f=fixture({product:true});f.render();await f.settle(null);await establishProductAssociation(f);
+    const work=f.controller().retrieveFeatureInformation('tasks'), rejected=assert.rejects(work);await f.flush();
+    await f.loadPage(information.TASK_SELECTION_PROBE_URL);
+    const send=(kind:string,stage:string,url:string,payload:Record<string,unknown>)=>{
+      const web=f.find(f.render(),e=>e.type==='WebView')!;
+      (web.props.onMessage as (event:unknown)=>void)({nativeEvent:{url,data:JSON.stringify({kind,nonce:f.lastIssuedNonce()+'-'+stage,url,...payload})}});
+    };
+    send('vf-information-task-selection-v1','selection',information.TASK_SELECTION_PROBE_URL,{selection:{selected:'Alle Aufgaben',options:[
+      {label:'Alle nicht beendeten Aufgaben',href:'?gselect=allopen'},
+      {label:'Meine nicht beendeten Aufgaben',href:'?gselect=myopen'},
+      {label:'Alle Aufgaben',href:'?gselect=all'},
+    ]}});
+    await f.loadPage(context.PROFILE_URL);await f.contextMessage(observedContext);
+    await f.loadPage(information.OWN_OPEN_TASKS_URL);
+    send('vf-information-v1','read',information.OWN_OPEN_TASKS_URL,{page:{error}});
+    await rejected;
+    assert.ok(f.providerEvents.includes('provider-information-validation-failed'));
+    assert.ok(f.providerEvents.includes(reason));
+    assert.ok(!f.providerEvents.some(event=>event.includes('private')));
+    assert.equal(f.writes.includes('information-saved'),false);
+    assert.equal(f.controller().url,'https://vereinsflieger.de/member/community/tasklist/tasklist?gselect=all');
+    f.unmount();
+  }
+});
+
 test('own-task refresh leaves an unsupported selector unchanged and attempts restoration on cancellation',async()=>{
   const options=[
     {label:'Alle nicht beendeten Aufgaben',href:'?gselect=allopen'},

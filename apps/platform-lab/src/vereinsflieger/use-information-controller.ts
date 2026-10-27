@@ -255,6 +255,8 @@ export function useInformationController(ports: InformationControllerPorts) {
       if (informationRun.current === run) {
         const uncertain = !!informationUncertain.current;
         recordProviderEvent(uncertain?'provider-information-save-unconfirmed':'provider-information-validation-failed');
+        const taskFailure = run.taskFailureEvent;
+        if (taskFailure) recordProviderEvent(taskFailure);
         const restoreTaskUrl = run.stage !== 'restore' && run.taskRestoreAuthorized ? run.taskRestoreUrl : null;
         const taskRestoreFailed = run.category === 'tasks' && run.stage === 'restore';
         run.stage = 'cancelled'; informationRun.current = null;

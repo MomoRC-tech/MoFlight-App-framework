@@ -11,6 +11,7 @@ import { PROFILE_URL } from '../../apps/platform-lab/src/vereinsflieger/context.
 import { nodeDriver } from './sqlite-driver.ts';
 import type { ProviderScope } from '../../apps/platform-lab/src/vereinsflieger/scope-store.ts';
 import { buildDutyOverview, createDutyRosterSnapshot } from '../../apps/platform-lab/src/vereinsflieger/duties.ts';
+import { providerDiagnosticEvents } from '../../apps/platform-lab/src/diagnostic-vocabulary.ts';
 
 const url = 'https://vereinsflieger.de/member/profile/workhours/list?year=2026';
 const ledgerUrl = 'https://vereinsflieger.de/member/profile/account.php?caid=synthetic-account';
@@ -22,8 +23,8 @@ function cell(text: string, extra: Record<string, unknown> = {}) { return { text
 function row(texts: string[]) { return { cells: texts.map(t => cell(t)), querySelector: () => null }; }
 const header = ['', 'Datum', 'Tätigkeit', 'Stunden', 'Kategorie', 'Status', 'Private contact'];
 const entries = [['', '01.10.2026', 'Synthetic work', '0.00', 'Custom', 'Akzeptiert', 'Do not collect']];
-function read(category: InformationCategory, rows = [row(header), ...entries.map(row)], tables?: { rows: typeof rows }[], taskFilter = 'Meine nicht beendeten Aufgaben', taskAnchor = 'globalfiltertime', options: { url?: string; globalFilter?: string } = {}) {
-  const window = {}; const document = { getElementById: (id: string) => id === taskAnchor ? ({ innerText: category === 'tasks' ? taskFilter : '' }) : id === 'globalfilter' ? ({ innerText: options.globalFilter ?? '' }) : null, querySelector: () => null, querySelectorAll: (s: string) => s === 'table' ? tables ?? [{ rows }] : s === 'select' ? category === 'tasks' ? [] : [{ selectedOptions: [{ textContent: '2026' }] }, { selectedOptions: [{ textContent: 'Private person filter' }] }] : [] };
+function read(category: InformationCategory, rows = [row(header), ...entries.map(row)], tables?: { rows: typeof rows }[], taskFilter = 'Meine nicht beendeten Aufgaben', taskAnchor = 'globalfiltertime', options: { url?: string; globalFilter?: string; selectedFilters?: string[] } = {}) {
+  const window = {}; const document = { getElementById: (id: string) => id === taskAnchor ? ({ innerText: category === 'tasks' ? taskFilter : '' }) : id === 'globalfilter' ? ({ innerText: options.globalFilter ?? '' }) : null, querySelector: () => null, querySelectorAll: (s: string) => s === 'table' ? tables ?? [{ rows }] : s === 'select' ? options.selectedFilters ? options.selectedFilters.map(textContent => ({ selectedOptions: [{ textContent }] })) : category === 'tasks' ? [] : [{ selectedOptions: [{ textContent: '2026' }] }, { selectedOptions: [{ textContent: 'Private person filter' }] }] : [] };
   const defaultUrl = category === 'tasks' ? tasksUrl : category === 'ledger' ? ledgerUrl : category === 'medical' || category === 'work-summary' || category === 'own-profile' || category === 'licence-metadata' ? PROFILE_URL : category === 'duties' ? 'https://vereinsflieger.de/member/profile/myservices.php' : category === 'practical' || category === 'theory' ? 'https://vereinsflieger.de/member/profile/usereducation/editelid' + (category === 'practical' ? 'p' : 't') + '?ueid=synthetic' : url;
   return JSON.parse(JSON.stringify(runInNewContext(`(${INFORMATION_READER_SOURCE})(category, config)`, { document, location: { href: options.url ?? defaultUrl }, window: Object.assign(window, { top: window }), URL, category, config: INFORMATION_TYPES[category] })));
 }
@@ -202,6 +203,16 @@ test('own open task reader retains raw due/status/zero evidence while excluding 
   assert.ok(!JSON.stringify(p).includes('Private'));
   assert.deepEqual(validateInformationCapture({ ...p, version: 1, id: 'tasks-a', retrievedAt: at, owner: scope.owner, connectionId: scope.connectionId, sourceIdentity: 'provisional-observed-profile' }).rows, p.rows);
 });
+test('own tasks exclude unrelated year and service controls from captured task scope', () => {
+  for (const globalFilter of ['2026', 'Alle Dienste']) {
+    const rows = [row(['Titel', 'Zu erledigen bis', 'Status']), row(['Synthetic own task', '', 'Offen'])];
+    const p = validateInformationPage(read('tasks', rows, undefined, undefined, undefined, { globalFilter, selectedFilters: ['2026', 'Private unrelated selection'] }));
+    assert.deepEqual(p.filters, ['Meine nicht beendeten Aufgaben']);
+    assert.deepEqual(p.rows[0]!.values, ['Synthetic own task', '', 'Offen']);
+    assert.equal(read('tasks', rows, undefined, 'Alle Aufgaben', undefined, { globalFilter }).error, 'task-scope-unverified');
+  }
+});
+
 test('own-task empty source needs exact owned filter and explicit marker; other scopes stay unavailable', () => {
   const rows = [row(['Titel', 'Zu erledigen bis', 'Status']), row(['Es wurden keine passenden Daten gefunden!'])];
   const p = validateInformationPage(read('tasks', rows)); assert.equal(p.empty, true);
@@ -465,6 +476,41 @@ test('own-task run probes the prior selector, reads only my-open tasks, and veri
   assert.deepEqual(run.capture(at).rows, ownTasks.rows);
   assert.equal(run.resultUrl, run.taskRestoreUrl);
 });
+test('task read failures identify only allowlisted reasons while preserving capture and restore guards', () => {
+  for (const [error, expected] of [
+    ['task-scope-unverified', 'provider-task-scope-unverified'],
+    ['source-table-unverified', 'provider-task-table-unverified'],
+    ['row-shape', 'provider-task-row-shape'],
+    ['nested-source-row', 'provider-task-nested-row'],
+    ['duplicate-column', 'provider-task-duplicate-column'],
+    ['empty-scope-unverified', 'provider-task-empty-unverified'],
+    ['conflicting-empty-state', 'provider-task-conflicting-empty'],
+    ['private provider text', 'provider-task-source-unsupported'],
+    ['__proto__', 'provider-task-source-unsupported'],
+    ['constructor', 'provider-task-source-unsupported'],
+  ]) {
+    const run = new InformationRun(scope, 'tasks', tasksUrl, 'diagnostic-task');
+    assert.equal(run.taskFailureEvent, 'provider-task-selection-failed');
+    run.observeNavigation(TASK_SELECTION_PROBE_URL);
+    run.accept(TASK_SELECTION_PROBE_URL, TASK_SELECTION_PROBE_URL, {
+      kind: 'vf-information-task-selection-v1', nonce: run.messageNonce, url: TASK_SELECTION_PROBE_URL,
+      selection: taskSelection('Alle nicht beendeten Aufgaben'),
+    });
+    assert.equal(run.taskFailureEvent, 'provider-task-context-before-failed');
+    run.observeNavigation(PROFILE_URL); run.accept(PROFILE_URL, PROFILE_URL, contextMessage(run));
+    assert.equal(run.taskFailureEvent, 'provider-task-read-validation-failed');
+    run.observeNavigation(tasksUrl);
+    assert.throws(() => run.accept(tasksUrl, tasksUrl, {kind:'vf-information-v1',nonce:run.messageNonce,url:tasksUrl,page:{error}}));
+    assert.equal(run.taskFailureEvent, expected);
+    assert.ok((providerDiagnosticEvents as readonly string[]).includes(run.taskFailureEvent!));
+    assert.equal(run.stage, 'read');
+    assert.equal(run.taskRestoreAuthorized, true);
+    assert.equal(run.taskRestoreUrl, 'https://vereinsflieger.de/member/community/tasklist/tasklist?gselect=allopen');
+    assert.throws(() => run.capture(at));
+  }
+  assert.equal(new InformationRun(scope, 'work-hours', url, 'not-a-task').taskFailureEvent, null);
+});
+
 test('unsupported prior task selector cannot navigate to or capture the own-open list', () => {
   const run = new InformationRun(scope, 'tasks', tasksUrl, 'tasks-mismatch');
   run.observeNavigation(TASK_SELECTION_PROBE_URL);

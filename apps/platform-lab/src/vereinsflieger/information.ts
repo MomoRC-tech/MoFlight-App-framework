@@ -497,11 +497,13 @@ export const INFORMATION_READER_SOURCE = String.raw`(category, config) => {
     if(rows.length && empty) return {error:'conflicting-empty-state'};
   }
   const filters=category==='events' ? eventFilters : taskFilter ? [taskFilter] : [];
-  for(const s of ['own-profile','licence-metadata','events','training-summary'].includes(category) ? [] : document.querySelectorAll('select')) {
+  // Task scope is proved exclusively by its own/open selector above. Generic
+  // year/service controls elsewhere on the page are not task source filters.
+  for(const s of ['own-profile','licence-metadata','events','training-summary','tasks'].includes(category) ? [] : document.querySelectorAll('select')) {
     const text=norm(s.selectedOptions?.[0]?.textContent);
     if(/^(?:\d{4}|Jahr \d{4}|Aktuelle und anstehende Dienste|Alle Dienste|Alle anstehenden Dienste)$/.test(text) && !filters.includes(text)) filters.push(text);
   }
-  const displayedFilter=category==='duties' ? dutyFilter : ['own-profile','licence-metadata','events','training-summary'].includes(category) ? '' : norm(document.getElementById?.('globalfilter')?.innerText);
+  const displayedFilter=category==='duties' ? dutyFilter : ['own-profile','licence-metadata','events','training-summary','tasks'].includes(category) ? '' : norm(document.getElementById?.('globalfilter')?.innerText);
   if(/^(?:\d{4}|Jahr \d{4}|Aktuelle und anstehende Dienste|Alle Dienste|Alle anstehenden Dienste)$/.test(displayedFilter) && !filters.includes(displayedFilter)) filters.push(displayedFilter);
   return {category,path:u.pathname,columns,rows,filters,empty:!rows.length,coverage:{kind:'visible-page',truncated,pagination:'unverified'}};
 }`;

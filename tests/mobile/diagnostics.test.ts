@@ -4,6 +4,16 @@ import { DiagnosticJournal, diagnosticStages, DIAGNOSTIC_FILE_BYTES, DIAGNOSTIC_
 
 const wall=2_000_000_000_000;
 
+test('task failure reasons survive support export as fixed vocabulary only', async () => {
+ const {taskFailureDiagnosticEvents}=await import('../../apps/platform-lab/src/diagnostic-vocabulary.ts');
+ const journal=new DiagnosticJournal(()=>1000,()=>wall);
+ for(const event of taskFailureDiagnosticEvents) journal.record('provider',event);
+ journal.record('provider','private task title' as any);
+ const events=JSON.parse(journal.export()).events;
+ assert.deepEqual(events.map((event:any)=>event.target),[...taskFailureDiagnosticEvents]);
+ assert.ok(!journal.export().includes('private task title'));
+});
+
 test('sync causes, native/provider lifecycle and source stages survive file persistence without private text',async()=>{
  const f=fixture();f.journal.connect(f.storage);const op=f.journal.begin('update-flights');
  op.note('library','ready');op.note('view','pending');op.note('restore','ready');

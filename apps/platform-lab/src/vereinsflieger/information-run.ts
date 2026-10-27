@@ -1,6 +1,7 @@
 import { canonical } from '@moflight/flight-logbook';
 import { PROFILE_URL, sameContext, scopedBridge, validateContext } from './context';
 import { validateScope, type ProviderScope } from './scope-store';
+import type { ProviderDiagnosticEvent } from './provider-diagnostics';
 import { eventSelectionFilters, retrievableInformationCategories, informationCategoryUrl, TASK_SELECTION_PROBE_URL, validateTaskSelection, validateInformationPage, type InformationCapture, type InformationCategory } from './information';
 
 /** Fresh context -> original selected page -> fresh context -> explicit immutable save.
@@ -13,6 +14,7 @@ export class InformationRun {
   private taskSelection: { selected: string; restoreUrl: string } | null = null;
   private taskRestoreAllowed = false;
   private navigationObserved = false;
+  private readFailureEvent: ProviderDiagnosticEvent | null = null;
   failureMessage: string | null = null;
   readonly scope: ProviderScope;
   constructor(scope: ProviderScope, readonly category: InformationCategory, readonly sourceUrl: string, readonly nonce: string) {
@@ -34,6 +36,19 @@ export class InformationRun {
   get taskRestoreUrl() { return this.taskSelection?.restoreUrl ?? null; }
   get taskRestoreAuthorized() { return this.category === 'tasks' && !!this.taskSelection && this.taskRestoreAllowed; }
   get taskSelectedFilter() { return this.taskSelection?.selected ?? null; }
+  /** Fixed reason/stage only: never publish provider text, IDs or exception messages. */
+  get taskFailureEvent(): ProviderDiagnosticEvent | null {
+    if (this.category !== 'tasks') return null;
+    switch (this.stage) {
+      case 'selection': return 'provider-task-selection-failed';
+      case 'before': return 'provider-task-context-before-failed';
+      case 'read': return this.readFailureEvent ?? 'provider-task-read-validation-failed';
+      case 'after': return 'provider-task-context-after-failed';
+      case 'restore': return 'provider-task-restore-failed';
+      case 'saving': return 'provider-task-save-failed';
+      default: return null;
+    }
+  }
   get resultUrl() { return this.taskSelection?.restoreUrl ?? this.sourceUrl; }
   observeNavigation(url: string) { if (url === this.url && ['selection','before','read','after','restore'].includes(this.stage)) this.navigationObserved = true; }
   cancel() { if (this.stage !== 'saving' && this.stage !== 'done') { this.stage = 'cancelled'; this.page = null; } }
@@ -53,6 +68,17 @@ export class InformationRun {
     if (this.stage === 'read') {
       const pageValue = p.page as { error?: unknown; shape?: unknown } | null;
       if (pageValue && typeof pageValue === 'object' && typeof pageValue.error === 'string') {
+        const reasons: Record<string, ProviderDiagnosticEvent> = {
+          'task-scope-unverified': 'provider-task-scope-unverified',
+          'source-table-unverified': 'provider-task-table-unverified',
+          'row-shape': 'provider-task-row-shape',
+          'nested-source-row': 'provider-task-nested-row',
+          'duplicate-column': 'provider-task-duplicate-column',
+          'empty-scope-unverified': 'provider-task-empty-unverified',
+          'conflicting-empty-state': 'provider-task-conflicting-empty',
+        };
+        this.readFailureEvent = Object.hasOwn(reasons, pageValue.error)
+          ? reasons[pageValue.error]! : 'provider-task-source-unsupported';
         if (pageValue.error === 'source-table-unverified' && typeof pageValue.shape === 'string' && /^[\d,;]{1,240}$/.test(pageValue.shape)) console.info('MoFlight information table dimensions', pageValue.shape);
         if (pageValue.error === 'event-source-unverified' && typeof pageValue.shape === 'string' && /^[\d,]{1,80}$/.test(pageValue.shape)) console.info('MoFlight information event structure', pageValue.shape);
         const messages: Record<string, string> = {
