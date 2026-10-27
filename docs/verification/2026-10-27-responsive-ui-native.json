@@ -1,0 +1,228 @@
+{
+  "package": "#94 U3 responsive/accessibility",
+  "application_commit": "7d7118d169ba95bad5411c47f938657b71906ad9",
+  "apk_sha256": "3d79f8a7ec5e264ca2500805bedf07c25446ea1afc454744c24f1e2981c7ea03",
+  "initial_native": {
+    "avd": "MoFlight_Synthetic_API37",
+    "android_api": "37",
+    "actions_used": 39,
+    "captures_used": 8,
+    "active_elapsed_seconds": 231.71900000004098,
+    "original_display": {
+      "size": "Physical size: 1080x1920",
+      "density": "Physical density: 420",
+      "font": "1.0"
+    },
+    "restored_display": {
+      "size": "Physical size: 1080x1920",
+      "density": "Physical density: 420",
+      "font": "1.0"
+    },
+    "original_network": {
+      "airplane_mode_on": "1",
+      "wifi_on": "0",
+      "mobile_data": "0"
+    },
+    "final_network": {
+      "airplane_mode_on": "1",
+      "wifi_on": "0",
+      "mobile_data": "0"
+    },
+    "cleanup_errors": []
+  },
+  "viewports": [
+    {
+      "dp": [
+        390,
+        900
+      ],
+      "density_dpi": 160,
+      "font_scale": 1
+    },
+    {
+      "dp": [
+        360,
+        900
+      ],
+      "density_dpi": 160,
+      "font_scale": 1.6
+    },
+    {
+      "dp": [
+        800,
+        600
+      ],
+      "density_dpi": 160,
+      "font_scale": 1
+    }
+  ],
+  "worker_scoped_checks": {
+    "U3_MAIN_filters": {
+      "status": "passed",
+      "observation": "390x900 dp, font 1.0: ordinary expanded filters are readable with separated fields/actions and no observed overlap. Empty data state: 0 flights.",
+      "evidence": [
+        "main-filters.png",
+        "main-filters.xml"
+      ]
+    },
+    "U3_MAIN_date_keyboard": {
+      "status": "passed",
+      "observation": "Focused Zeitraum von, value 2026-01-01; native mInputShown=true and mIsInputViewShown=true. Field and both date values remain visible above IME. No typing/apply; Back dismissed IME, then Abbrechen.",
+      "evidence": [
+        "main-statistics-keyboard.png",
+        "main-statistics-keyboard.xml"
+      ]
+    },
+    "U3_MIN_statistics": {
+      "status": "passed",
+      "observation": "360x900 dp, font 1.6: sections wrap across rows, all five section labels readable; period/card content separated. Viewport recreation returned home, so explicitly reopened Statistics before settled capture.",
+      "evidence": [
+        "min-statistics-settled.png",
+        "min-statistics-settled.xml"
+      ]
+    },
+    "U3_MIN_help": {
+      "status": "passed",
+      "observation": "Enlarged Help categories wrap across rows, including Sicherung & Datenschutz, without observed overlap; passive article and hub inspected.",
+      "evidence": [
+        "min-help-categories.png",
+        "min-help-categories.xml",
+        "min-help.png"
+      ]
+    },
+    "U3_MIN_ai": {
+      "status": "passed",
+      "observation": "AI disabled-service explanation and empty message input readable above wrapped navigation. Send disabled. No input, new chat or service action.",
+      "evidence": [
+        "min-ai.png",
+        "min-ai.xml"
+      ]
+    },
+    "U3_MIN_sync": {
+      "status": "passed",
+      "observation": "Short confirmation title/body readable; decisions vertically stacked with Abruf starten above Abbrechen; both fully visible. Abbrechen tapped only.",
+      "evidence": [
+        "min-sync.png",
+        "min-sync.xml"
+      ]
+    },
+    "U3_WIDE_statistics": {
+      "status": "not_tested",
+      "observation": "800x600 dp/font 1.0 Statistics reachable; XML shows centered content x112..688 and section controls. Capture budget exhausted: no PNG, therefore visual acceptance not established.",
+      "evidence": [
+        "wide-statistics.xml"
+      ]
+    }
+  },
+  "parent_inspected": [
+    {
+      "file": "main-filters.png",
+      "sha256": "d6d727680308a21d4bf3d74ba148ac30035c852c0d3fe4d7d1cb0adce25206e6",
+      "pixels": [
+        390,
+        900
+      ]
+    },
+    {
+      "file": "main-statistics-keyboard.png",
+      "sha256": "520d4999be3b6a718e855ba00541aa3754114736b93756ba25c6eb367ff0d14e",
+      "pixels": [
+        390,
+        900
+      ]
+    },
+    {
+      "file": "min-help-categories.png",
+      "sha256": "f528f166d9010e9eaf80f20dbfc7c93d727dad510801a83a44f6304d8a544ea8",
+      "pixels": [
+        360,
+        900
+      ]
+    },
+    {
+      "file": "min-statistics-settled.png",
+      "sha256": "6c6f23c6df8fe3a49f8cbe450983d7dbd50a78b842e81bebf88502ea945c8fa1",
+      "pixels": [
+        360,
+        900
+      ]
+    },
+    {
+      "file": "min-ai.png",
+      "sha256": "b86fd5413fd13e7559c46afd2d4e0bc4a64b99bb7d7011994e55bd4ae72c9fe9",
+      "pixels": [
+        360,
+        900
+      ]
+    },
+    {
+      "file": "min-sync.png",
+      "sha256": "c1a4fcc7625892ca4bea80dacd1270750f2f6e78644843a0ed5cf657592e12bd",
+      "pixels": [
+        360,
+        900
+      ]
+    }
+  ],
+  "parent_assessment": "No defect observed in reviewed phone captures. Full filter values, category wrapping, AI state/composer and stacked Sync actions readable. Focused date and both values visible above IME; Cancel is partly below keyboard, so this is focus/field evidence only, not proof all keyboard actions stay fully visible. Back dismissed keyboard, then Cancel was used. Three selector failures are viewport/hidden-page or ambiguous-class test navigation; no app fix inferred.",
+  "wide_supplement": {
+    "status": "action_limit",
+    "application_commit": "7d7118d169ba95bad5411c47f938657b71906ad9",
+    "apk_sha256": "3d79f8a7ec5e264ca2500805bedf07c25446ea1afc454744c24f1e2981c7ea03",
+    "actions_used": 10,
+    "captures_used": 1,
+    "active_elapsed_seconds": 83.20299999997951,
+    "original_display": {
+      "size": "Physical size: 1080x1920",
+      "density": "Physical density: 420",
+      "font": "1.0"
+    },
+    "restored_display": {
+      "size": "Physical size: 1080x1920",
+      "density": "Physical density: 420",
+      "font": "1.0"
+    },
+    "original_network": {
+      "airplane_mode_on": "1",
+      "wifi_on": "0",
+      "mobile_data": "0"
+    },
+    "final_network": {
+      "airplane_mode_on": "1",
+      "wifi_on": "0",
+      "mobile_data": "0"
+    },
+    "cleanup_errors": [],
+    "scoped_checks": {
+      "U3-wide-statistics": {
+        "evidence": [
+          "wide-statistics.png",
+          "wide-statistics.xml",
+          "statistics-ready.xml"
+        ],
+        "status": "passed",
+        "observation": "At 800x600 dp, density 160, font 1.0, dark Statistics shows a centered bounded period card; period choices and five section buttons are readable, separated and free of visible clipping/overlap. Empty-data state shown."
+      },
+      "U3-wide-ai": {
+        "evidence": [],
+        "status": "blocked",
+        "observation": "AI tab tap succeeded, but fresh AI hierarchy was rejected by controller UI-action limit, which reported original settings restored. No AI screenshot inspected; composer/status visual question remains unverified."
+      }
+    },
+    "parent_assessment": "Statistics group is centered/capped and readable at 800x600 dp/font1. No AI pixels captured; action limit restored settings before AI inspection. Subsequent stop connection refusal is expected after controller exit; report confirms cleanup and released reservation.",
+    "parent_image": {
+      "file": "wide-statistics.png",
+      "sha256": "c05e979833e9c11d85d154c5ab97a087fd90e85a9aff3b178637fb7cc46356a9",
+      "pixels": [
+        800,
+        600
+      ]
+    }
+  },
+  "remaining_gates": [
+    "Final-source wide AI composer/status remains unverified after supplemental action limit.",
+    "No typing or native IME Next/Done acceptance.",
+    "No populated owner/chat/metrics/evidence, actual delete/restore/provider or service activation.",
+    "Unexercised keyboard/large-text/landscape combinations, spoken, physical Android, iOS and beta light remain open."
+  ]
+}
