@@ -1,0 +1,1186 @@
+{
+  "baselineSource": "5c4deca",
+  "candidateSource": "9db0074fb224cc548b9047fc62efc4e181a38ae6",
+  "node": "24.18.0",
+  "flights": 101,
+  "columns": 47,
+  "seedReceipts": 6,
+  "method": "Sequential baseline then candidate processes; one identical closed seed clone per variant, five fresh session reads each; real SQLite graph/selection/journal and Start reader; no native guards, supplemental captures, React rendering, provider or phone; graph/projection/all-details checks excluded from timed section; normal JIT/OS-cache/load variation.",
+  "baselineMedianMs": 586.0073,
+  "candidateMedianMs": 505.02290000000016,
+  "changePercent": -13.8,
+  "baseline": {
+    "label": "baseline-paired",
+    "samples": [
+      {
+        "trial": 0,
+        "milliseconds": 586.0073,
+        "hashCalls": 756,
+        "flights": 101,
+        "graphSha256": "9345f5ad678ed3bf1223c93b90ee8a46a730edac5505cfb59c50dfb322f8e76e",
+        "projectionSha256": "5fcbb46252f64f3492354d93021fdadf80fda0bb7717de81453578181aab2594",
+        "detailsSha256": "16d1c1996875a2773385f367e873d4ea345732b6b3088cca3d776c0aad0afc02",
+        "stages": [
+          {
+            "stage": "local-session-open",
+            "ms": 0.23920000000009622,
+            "ok": true
+          },
+          {
+            "stage": "local-owner-check",
+            "ms": 0.026099999999928514,
+            "ok": true
+          },
+          {
+            "stage": "local-pending-command",
+            "ms": 102.73569999999995,
+            "ok": true
+          },
+          {
+            "stage": "graph-read",
+            "ms": 13.53959999999995,
+            "ok": true
+          },
+          {
+            "stage": "graph-validation",
+            "ms": 302.9317,
+            "ok": true
+          },
+          {
+            "stage": "graph-canonicalization",
+            "ms": 7.042500000000018,
+            "ok": true
+          },
+          {
+            "stage": "graph-read",
+            "ms": 11.983699999999999,
+            "ok": true
+          },
+          {
+            "stage": "graph-canonicalization",
+            "ms": 6.746099999999842,
+            "ok": true
+          },
+          {
+            "stage": "graph-read",
+            "ms": 11.584299999999985,
+            "ok": true
+          },
+          {
+            "stage": "graph-canonicalization",
+            "ms": 12.4532999999999,
+            "ok": true
+          },
+          {
+            "stage": "repository-open",
+            "ms": 411.8560000000001,
+            "ok": true
+          },
+          {
+            "stage": "graph-read",
+            "ms": 11.839600000000019,
+            "ok": true
+          },
+          {
+            "stage": "graph-canonicalization",
+            "ms": 6.884700000000066,
+            "ok": true
+          },
+          {
+            "stage": "stored-list-derivation",
+            "ms": 16.575399999999945,
+            "ok": true
+          },
+          {
+            "stage": "stored-summary-derivation",
+            "ms": 19.623199999999997,
+            "ok": true
+          },
+          {
+            "stage": "repository-close",
+            "ms": 1.0324000000000524,
+            "ok": true
+          },
+          {
+            "stage": "local-stored-view",
+            "ms": 482.29409999999996,
+            "ok": true
+          },
+          {
+            "stage": "local-owner-check",
+            "ms": 0.07480000000009568,
+            "ok": true
+          },
+          {
+            "stage": "local-owner-check",
+            "ms": 0.026500000000169166,
+            "ok": true
+          },
+          {
+            "stage": "local-owner-check",
+            "ms": 0.03170000000000073,
+            "ok": true
+          },
+          {
+            "stage": "local-session-close",
+            "ms": 0.0908999999999196,
+            "ok": true
+          }
+        ]
+      },
+      {
+        "trial": 1,
+        "milliseconds": 576.2697000000003,
+        "hashCalls": 756,
+        "flights": 101,
+        "graphSha256": "9345f5ad678ed3bf1223c93b90ee8a46a730edac5505cfb59c50dfb322f8e76e",
+        "projectionSha256": "5fcbb46252f64f3492354d93021fdadf80fda0bb7717de81453578181aab2594",
+        "detailsSha256": "16d1c1996875a2773385f367e873d4ea345732b6b3088cca3d776c0aad0afc02",
+        "stages": [
+          {
+            "stage": "local-session-open",
+            "ms": 0.09180000000014843,
+            "ok": true
+          },
+          {
+            "stage": "local-owner-check",
+            "ms": 0.009299999999711872,
+            "ok": true
+          },
+          {
+            "stage": "local-pending-command",
+            "ms": 116.36409999999978,
+            "ok": true
+          },
+          {
+            "stage": "graph-read",
+            "ms": 12.093200000000252,
+            "ok": true
+          },
+          {
+            "stage": "graph-validation",
+            "ms": 284.9919,
+            "ok": true
+          },
+          {
+            "stage": "graph-canonicalization",
+            "ms": 6.891500000000178,
+            "ok": true
+          },
+          {
+            "stage": "graph-read",
+            "ms": 11.370400000000245,
+            "ok": true
+          },
+          {
+            "stage": "graph-canonicalization",
+            "ms": 7.24579999999969,
+            "ok": true
+          },
+          {
+            "stage": "graph-read",
+            "ms": 11.120499999999993,
+            "ok": true
+          },
+          {
+            "stage": "graph-canonicalization",
+            "ms": 12.46120000000019,
+            "ok": true
+          },
+          {
+            "stage": "repository-open",
+            "ms": 391.8326000000002,
+            "ok": true
+          },
+          {
+            "stage": "graph-read",
+            "ms": 11.37559999999985,
+            "ok": true
+          },
+          {
+            "stage": "graph-canonicalization",
+            "ms": 6.740099999999984,
+            "ok": true
+          },
+          {
+            "stage": "stored-list-derivation",
+            "ms": 15.933700000000044,
+            "ok": true
+          },
+          {
+            "stage": "stored-summary-derivation",
+            "ms": 19.590999999999894,
+            "ok": true
+          },
+          {
+            "stage": "repository-close",
+            "ms": 0.3009999999999309,
+            "ok": true
+          },
+          {
+            "stage": "local-stored-view",
+            "ms": 459.70149999999967,
+            "ok": true
+          },
+          {
+            "stage": "local-owner-check",
+            "ms": 0.00580000000036307,
+            "ok": true
+          },
+          {
+            "stage": "local-owner-check",
+            "ms": 0.0014999999998508429,
+            "ok": true
+          },
+          {
+            "stage": "local-owner-check",
+            "ms": 0.0014000000001033186,
+            "ok": true
+          },
+          {
+            "stage": "local-session-close",
+            "ms": 0.002399999999852298,
+            "ok": true
+          }
+        ]
+      },
+      {
+        "trial": 2,
+        "milliseconds": 584.739,
+        "hashCalls": 756,
+        "flights": 101,
+        "graphSha256": "9345f5ad678ed3bf1223c93b90ee8a46a730edac5505cfb59c50dfb322f8e76e",
+        "projectionSha256": "5fcbb46252f64f3492354d93021fdadf80fda0bb7717de81453578181aab2594",
+        "detailsSha256": "16d1c1996875a2773385f367e873d4ea345732b6b3088cca3d776c0aad0afc02",
+        "stages": [
+          {
+            "stage": "local-session-open",
+            "ms": 0.05400000000008731,
+            "ok": true
+          },
+          {
+            "stage": "local-owner-check",
+            "ms": 0.002300000000104774,
+            "ok": true
+          },
+          {
+            "stage": "local-pending-command",
+            "ms": 102.78640000000041,
+            "ok": true
+          },
+          {
+            "stage": "graph-read",
+            "ms": 12.705999999999676,
+            "ok": true
+          },
+          {
+            "stage": "graph-validation",
+            "ms": 300.68790000000035,
+            "ok": true
+          },
+          {
+            "stage": "graph-canonicalization",
+            "ms": 6.873999999999796,
+            "ok": true
+          },
+          {
+            "stage": "graph-read",
+            "ms": 11.461199999999735,
+            "ok": true
+          },
+          {
+            "stage": "graph-canonicalization",
+            "ms": 7.126800000000003,
+            "ok": true
+          },
+          {
+            "stage": "graph-read",
+            "ms": 11.60990000000038,
+            "ok": true
+          },
+          {
+            "stage": "graph-canonicalization",
+            "ms": 12.86410000000069,
+            "ok": true
+          },
+          {
+            "stage": "repository-open",
+            "ms": 409.38350000000037,
+            "ok": true
+          },
+          {
+            "stage": "graph-read",
+            "ms": 14.282799999999952,
+            "ok": true
+          },
+          {
+            "stage": "graph-canonicalization",
+            "ms": 6.768900000000031,
+            "ok": true
+          },
+          {
+            "stage": "stored-list-derivation",
+            "ms": 16.60609999999997,
+            "ok": true
+          },
+          {
+            "stage": "stored-summary-derivation",
+            "ms": 19.970400000000154,
+            "ok": true
+          },
+          {
+            "stage": "repository-close",
+            "ms": 0.3176999999996042,
+            "ok": true
+          },
+          {
+            "stage": "local-stored-view",
+            "ms": 481.8271999999997,
+            "ok": true
+          },
+          {
+            "stage": "local-owner-check",
+            "ms": 0.0059000000001105946,
+            "ok": true
+          },
+          {
+            "stage": "local-owner-check",
+            "ms": 0.001900000000205182,
+            "ok": true
+          },
+          {
+            "stage": "local-owner-check",
+            "ms": 0.001999999999497959,
+            "ok": true
+          },
+          {
+            "stage": "local-session-close",
+            "ms": 0.0024999999995998223,
+            "ok": true
+          }
+        ]
+      },
+      {
+        "trial": 3,
+        "milliseconds": 588.9834000000001,
+        "hashCalls": 756,
+        "flights": 101,
+        "graphSha256": "9345f5ad678ed3bf1223c93b90ee8a46a730edac5505cfb59c50dfb322f8e76e",
+        "projectionSha256": "5fcbb46252f64f3492354d93021fdadf80fda0bb7717de81453578181aab2594",
+        "detailsSha256": "16d1c1996875a2773385f367e873d4ea345732b6b3088cca3d776c0aad0afc02",
+        "stages": [
+          {
+            "stage": "local-session-open",
+            "ms": 0.07809999999972206,
+            "ok": true
+          },
+          {
+            "stage": "local-owner-check",
+            "ms": 0.0023999999993975507,
+            "ok": true
+          },
+          {
+            "stage": "local-pending-command",
+            "ms": 106.88960000000043,
+            "ok": true
+          },
+          {
+            "stage": "graph-read",
+            "ms": 12.497800000000097,
+            "ok": true
+          },
+          {
+            "stage": "graph-validation",
+            "ms": 297.6805000000004,
+            "ok": true
+          },
+          {
+            "stage": "graph-canonicalization",
+            "ms": 6.878199999999197,
+            "ok": true
+          },
+          {
+            "stage": "graph-read",
+            "ms": 11.720500000000357,
+            "ok": true
+          },
+          {
+            "stage": "graph-canonicalization",
+            "ms": 8.063600000000406,
+            "ok": true
+          },
+          {
+            "stage": "graph-read",
+            "ms": 11.927999999999884,
+            "ok": true
+          },
+          {
+            "stage": "graph-canonicalization",
+            "ms": 12.902000000000044,
+            "ok": true
+          },
+          {
+            "stage": "repository-open",
+            "ms": 409.02499999999964,
+            "ok": true
+          },
+          {
+            "stage": "graph-read",
+            "ms": 12.334799999999632,
+            "ok": true
+          },
+          {
+            "stage": "graph-canonicalization",
+            "ms": 7.3474999999998545,
+            "ok": true
+          },
+          {
+            "stage": "stored-list-derivation",
+            "ms": 16.429399999999987,
+            "ok": true
+          },
+          {
+            "stage": "stored-summary-derivation",
+            "ms": 21.892799999999625,
+            "ok": true
+          },
+          {
+            "stage": "repository-close",
+            "ms": 0.35419999999976426,
+            "ok": true
+          },
+          {
+            "stage": "local-stored-view",
+            "ms": 481.9210000000003,
+            "ok": true
+          },
+          {
+            "stage": "local-owner-check",
+            "ms": 0.004500000000007276,
+            "ok": true
+          },
+          {
+            "stage": "local-owner-check",
+            "ms": 0.0016999999998006388,
+            "ok": true
+          },
+          {
+            "stage": "local-owner-check",
+            "ms": 0.0011999999996987754,
+            "ok": true
+          },
+          {
+            "stage": "local-session-close",
+            "ms": 0.0072000000000116415,
+            "ok": true
+          }
+        ]
+      },
+      {
+        "trial": 4,
+        "milliseconds": 593.3393999999998,
+        "hashCalls": 756,
+        "flights": 101,
+        "graphSha256": "9345f5ad678ed3bf1223c93b90ee8a46a730edac5505cfb59c50dfb322f8e76e",
+        "projectionSha256": "5fcbb46252f64f3492354d93021fdadf80fda0bb7717de81453578181aab2594",
+        "detailsSha256": "16d1c1996875a2773385f367e873d4ea345732b6b3088cca3d776c0aad0afc02",
+        "stages": [
+          {
+            "stage": "local-session-open",
+            "ms": 0.06860000000051514,
+            "ok": true
+          },
+          {
+            "stage": "local-owner-check",
+            "ms": 0.002199999999902502,
+            "ok": true
+          },
+          {
+            "stage": "local-pending-command",
+            "ms": 111.54150000000027,
+            "ok": true
+          },
+          {
+            "stage": "graph-read",
+            "ms": 12.904599999999846,
+            "ok": true
+          },
+          {
+            "stage": "graph-validation",
+            "ms": 299.66589999999997,
+            "ok": true
+          },
+          {
+            "stage": "graph-canonicalization",
+            "ms": 7.317500000000109,
+            "ok": true
+          },
+          {
+            "stage": "graph-read",
+            "ms": 11.582699999999932,
+            "ok": true
+          },
+          {
+            "stage": "graph-canonicalization",
+            "ms": 6.881600000000617,
+            "ok": true
+          },
+          {
+            "stage": "graph-read",
+            "ms": 11.018600000000333,
+            "ok": true
+          },
+          {
+            "stage": "graph-canonicalization",
+            "ms": 12.930500000000393,
+            "ok": true
+          },
+          {
+            "stage": "repository-open",
+            "ms": 408.39940000000024,
+            "ok": true
+          },
+          {
+            "stage": "graph-read",
+            "ms": 14.901300000000447,
+            "ok": true
+          },
+          {
+            "stage": "graph-canonicalization",
+            "ms": 7.257200000000012,
+            "ok": true
+          },
+          {
+            "stage": "stored-list-derivation",
+            "ms": 16.796000000000276,
+            "ok": true
+          },
+          {
+            "stage": "stored-summary-derivation",
+            "ms": 19.517800000000534,
+            "ok": true
+          },
+          {
+            "stage": "repository-close",
+            "ms": 0.3375999999998385,
+            "ok": true
+          },
+          {
+            "stage": "local-stored-view",
+            "ms": 481.6318000000001,
+            "ok": true
+          },
+          {
+            "stage": "local-owner-check",
+            "ms": 0.005099999999401916,
+            "ok": true
+          },
+          {
+            "stage": "local-owner-check",
+            "ms": 0.002199999999902502,
+            "ok": true
+          },
+          {
+            "stage": "local-owner-check",
+            "ms": 0.0015000000003055902,
+            "ok": true
+          },
+          {
+            "stage": "local-session-close",
+            "ms": 0.007499999999708962,
+            "ok": true
+          }
+        ]
+      }
+    ]
+  },
+  "candidate": {
+    "label": "candidate-paired",
+    "samples": [
+      {
+        "trial": 0,
+        "milliseconds": 519.0763000000001,
+        "hashCalls": 756,
+        "flights": 101,
+        "graphSha256": "9345f5ad678ed3bf1223c93b90ee8a46a730edac5505cfb59c50dfb322f8e76e",
+        "projectionSha256": "5fcbb46252f64f3492354d93021fdadf80fda0bb7717de81453578181aab2594",
+        "detailsSha256": "16d1c1996875a2773385f367e873d4ea345732b6b3088cca3d776c0aad0afc02",
+        "stages": [
+          {
+            "stage": "local-session-open",
+            "ms": 0.23599999999999,
+            "ok": true
+          },
+          {
+            "stage": "local-owner-check",
+            "ms": 0.025299999999901956,
+            "ok": true
+          },
+          {
+            "stage": "local-pending-command",
+            "ms": 106.32889999999998,
+            "ok": true
+          },
+          {
+            "stage": "graph-read",
+            "ms": 13.408699999999953,
+            "ok": true
+          },
+          {
+            "stage": "graph-validation",
+            "ms": 253.11720000000003,
+            "ok": true
+          },
+          {
+            "stage": "graph-canonicalization",
+            "ms": 7.270999999999958,
+            "ok": true
+          },
+          {
+            "stage": "graph-read",
+            "ms": 12.233999999999924,
+            "ok": true
+          },
+          {
+            "stage": "graph-canonicalization",
+            "ms": 7.1503999999999905,
+            "ok": true
+          },
+          {
+            "stage": "graph-read",
+            "ms": 13.00500000000011,
+            "ok": true
+          },
+          {
+            "stage": "graph-canonicalization",
+            "ms": 7.348599999999806,
+            "ok": true
+          },
+          {
+            "stage": "repository-open",
+            "ms": 346.9855,
+            "ok": true
+          },
+          {
+            "stage": "graph-read",
+            "ms": 12.762500000000045,
+            "ok": true
+          },
+          {
+            "stage": "graph-canonicalization",
+            "ms": 14.048099999999977,
+            "ok": true
+          },
+          {
+            "stage": "stored-list-derivation",
+            "ms": 16.497400000000198,
+            "ok": true
+          },
+          {
+            "stage": "stored-summary-derivation",
+            "ms": 14.345699999999852,
+            "ok": true
+          },
+          {
+            "stage": "repository-close",
+            "ms": 0.6439000000000306,
+            "ok": true
+          },
+          {
+            "stage": "local-stored-view",
+            "ms": 411.9548000000001,
+            "ok": true
+          },
+          {
+            "stage": "local-owner-check",
+            "ms": 0.042099999999891224,
+            "ok": true
+          },
+          {
+            "stage": "local-owner-check",
+            "ms": 0.015500000000201908,
+            "ok": true
+          },
+          {
+            "stage": "local-owner-check",
+            "ms": 0.012999999999919964,
+            "ok": true
+          },
+          {
+            "stage": "local-session-close",
+            "ms": 0.047700000000077125,
+            "ok": true
+          }
+        ]
+      },
+      {
+        "trial": 1,
+        "milliseconds": 505.02290000000016,
+        "hashCalls": 756,
+        "flights": 101,
+        "graphSha256": "9345f5ad678ed3bf1223c93b90ee8a46a730edac5505cfb59c50dfb322f8e76e",
+        "projectionSha256": "5fcbb46252f64f3492354d93021fdadf80fda0bb7717de81453578181aab2594",
+        "detailsSha256": "16d1c1996875a2773385f367e873d4ea345732b6b3088cca3d776c0aad0afc02",
+        "stages": [
+          {
+            "stage": "local-session-open",
+            "ms": 0.08150000000000546,
+            "ok": true
+          },
+          {
+            "stage": "local-owner-check",
+            "ms": 0.007499999999936335,
+            "ok": true
+          },
+          {
+            "stage": "local-pending-command",
+            "ms": 116.06770000000006,
+            "ok": true
+          },
+          {
+            "stage": "graph-read",
+            "ms": 13.790899999999965,
+            "ok": true
+          },
+          {
+            "stage": "graph-validation",
+            "ms": 240.91719999999987,
+            "ok": true
+          },
+          {
+            "stage": "graph-canonicalization",
+            "ms": 6.815399999999954,
+            "ok": true
+          },
+          {
+            "stage": "graph-read",
+            "ms": 11.725099999999657,
+            "ok": true
+          },
+          {
+            "stage": "graph-canonicalization",
+            "ms": 7.565599999999904,
+            "ok": true
+          },
+          {
+            "stage": "graph-read",
+            "ms": 11.127899999999954,
+            "ok": true
+          },
+          {
+            "stage": "graph-canonicalization",
+            "ms": 6.688899999999649,
+            "ok": true
+          },
+          {
+            "stage": "repository-open",
+            "ms": 334.3421000000003,
+            "ok": true
+          },
+          {
+            "stage": "graph-read",
+            "ms": 11.80769999999984,
+            "ok": true
+          },
+          {
+            "stage": "graph-canonicalization",
+            "ms": 6.714199999999892,
+            "ok": true
+          },
+          {
+            "stage": "stored-list-derivation",
+            "ms": 15.815000000000055,
+            "ok": true
+          },
+          {
+            "stage": "stored-summary-derivation",
+            "ms": 13.44990000000007,
+            "ok": true
+          },
+          {
+            "stage": "repository-close",
+            "ms": 0.6667999999999665,
+            "ok": true
+          },
+          {
+            "stage": "local-stored-view",
+            "ms": 388.75829999999996,
+            "ok": true
+          },
+          {
+            "stage": "local-owner-check",
+            "ms": 0.005999999999858119,
+            "ok": true
+          },
+          {
+            "stage": "local-owner-check",
+            "ms": 0.0014999999998508429,
+            "ok": true
+          },
+          {
+            "stage": "local-owner-check",
+            "ms": 0.001299999999901047,
+            "ok": true
+          },
+          {
+            "stage": "local-session-close",
+            "ms": 0.002300000000104774,
+            "ok": true
+          }
+        ]
+      },
+      {
+        "trial": 2,
+        "milliseconds": 501.86349999999993,
+        "hashCalls": 756,
+        "flights": 101,
+        "graphSha256": "9345f5ad678ed3bf1223c93b90ee8a46a730edac5505cfb59c50dfb322f8e76e",
+        "projectionSha256": "5fcbb46252f64f3492354d93021fdadf80fda0bb7717de81453578181aab2594",
+        "detailsSha256": "16d1c1996875a2773385f367e873d4ea345732b6b3088cca3d776c0aad0afc02",
+        "stages": [
+          {
+            "stage": "local-session-open",
+            "ms": 0.056599999999889405,
+            "ok": true
+          },
+          {
+            "stage": "local-owner-check",
+            "ms": 0.0028999999999541615,
+            "ok": true
+          },
+          {
+            "stage": "local-pending-command",
+            "ms": 104.96630000000005,
+            "ok": true
+          },
+          {
+            "stage": "graph-read",
+            "ms": 12.936400000000049,
+            "ok": true
+          },
+          {
+            "stage": "graph-validation",
+            "ms": 247.36159999999973,
+            "ok": true
+          },
+          {
+            "stage": "graph-canonicalization",
+            "ms": 7.0832000000000335,
+            "ok": true
+          },
+          {
+            "stage": "graph-read",
+            "ms": 11.291999999999916,
+            "ok": true
+          },
+          {
+            "stage": "graph-canonicalization",
+            "ms": 7.596700000000055,
+            "ok": true
+          },
+          {
+            "stage": "graph-read",
+            "ms": 11.204299999999876,
+            "ok": true
+          },
+          {
+            "stage": "graph-canonicalization",
+            "ms": 6.883800000000065,
+            "ok": true
+          },
+          {
+            "stage": "repository-open",
+            "ms": 334.7298999999998,
+            "ok": true
+          },
+          {
+            "stage": "graph-read",
+            "ms": 17.764999999999873,
+            "ok": true
+          },
+          {
+            "stage": "graph-canonicalization",
+            "ms": 6.950800000000072,
+            "ok": true
+          },
+          {
+            "stage": "stored-list-derivation",
+            "ms": 16.744399999999587,
+            "ok": true
+          },
+          {
+            "stage": "stored-summary-derivation",
+            "ms": 13.80430000000024,
+            "ok": true
+          },
+          {
+            "stage": "repository-close",
+            "ms": 0.54950000000008,
+            "ok": true
+          },
+          {
+            "stage": "local-stored-view",
+            "ms": 396.74209999999994,
+            "ok": true
+          },
+          {
+            "stage": "local-owner-check",
+            "ms": 0.008699999999862484,
+            "ok": true
+          },
+          {
+            "stage": "local-owner-check",
+            "ms": 0.0019999999999527063,
+            "ok": true
+          },
+          {
+            "stage": "local-owner-check",
+            "ms": 0.0016000000000531145,
+            "ok": true
+          },
+          {
+            "stage": "local-session-close",
+            "ms": 0.0030999999999039574,
+            "ok": true
+          }
+        ]
+      },
+      {
+        "trial": 3,
+        "milliseconds": 503.8643000000002,
+        "hashCalls": 756,
+        "flights": 101,
+        "graphSha256": "9345f5ad678ed3bf1223c93b90ee8a46a730edac5505cfb59c50dfb322f8e76e",
+        "projectionSha256": "5fcbb46252f64f3492354d93021fdadf80fda0bb7717de81453578181aab2594",
+        "detailsSha256": "16d1c1996875a2773385f367e873d4ea345732b6b3088cca3d776c0aad0afc02",
+        "stages": [
+          {
+            "stage": "local-session-open",
+            "ms": 0.06639999999970314,
+            "ok": true
+          },
+          {
+            "stage": "local-owner-check",
+            "ms": 0.0020000000004074536,
+            "ok": true
+          },
+          {
+            "stage": "local-pending-command",
+            "ms": 105.55899999999929,
+            "ok": true
+          },
+          {
+            "stage": "graph-read",
+            "ms": 13.38630000000012,
+            "ok": true
+          },
+          {
+            "stage": "graph-validation",
+            "ms": 245.32639999999992,
+            "ok": true
+          },
+          {
+            "stage": "graph-canonicalization",
+            "ms": 9.906100000000151,
+            "ok": true
+          },
+          {
+            "stage": "graph-read",
+            "ms": 11.173999999999978,
+            "ok": true
+          },
+          {
+            "stage": "graph-canonicalization",
+            "ms": 7.287500000000364,
+            "ok": true
+          },
+          {
+            "stage": "graph-read",
+            "ms": 11.426799999999275,
+            "ok": true
+          },
+          {
+            "stage": "graph-canonicalization",
+            "ms": 6.839500000000044,
+            "ok": true
+          },
+          {
+            "stage": "repository-open",
+            "ms": 336.27559999999994,
+            "ok": true
+          },
+          {
+            "stage": "graph-read",
+            "ms": 11.2503999999999,
+            "ok": true
+          },
+          {
+            "stage": "graph-canonicalization",
+            "ms": 7.180699999999888,
+            "ok": true
+          },
+          {
+            "stage": "stored-list-derivation",
+            "ms": 16.25510000000031,
+            "ok": true
+          },
+          {
+            "stage": "stored-summary-derivation",
+            "ms": 20.084600000000137,
+            "ok": true
+          },
+          {
+            "stage": "repository-close",
+            "ms": 0.8208999999997104,
+            "ok": true
+          },
+          {
+            "stage": "local-stored-view",
+            "ms": 398.14440000000013,
+            "ok": true
+          },
+          {
+            "stage": "local-owner-check",
+            "ms": 0.005499999999301508,
+            "ok": true
+          },
+          {
+            "stage": "local-owner-check",
+            "ms": 0.0011999999996987754,
+            "ok": true
+          },
+          {
+            "stage": "local-owner-check",
+            "ms": 0.0010000000002037268,
+            "ok": true
+          },
+          {
+            "stage": "local-session-close",
+            "ms": 0.0059000000001105946,
+            "ok": true
+          }
+        ]
+      },
+      {
+        "trial": 4,
+        "milliseconds": 526.5394000000006,
+        "hashCalls": 756,
+        "flights": 101,
+        "graphSha256": "9345f5ad678ed3bf1223c93b90ee8a46a730edac5505cfb59c50dfb322f8e76e",
+        "projectionSha256": "5fcbb46252f64f3492354d93021fdadf80fda0bb7717de81453578181aab2594",
+        "detailsSha256": "16d1c1996875a2773385f367e873d4ea345732b6b3088cca3d776c0aad0afc02",
+        "stages": [
+          {
+            "stage": "local-session-open",
+            "ms": 0.0684000000001106,
+            "ok": true
+          },
+          {
+            "stage": "local-owner-check",
+            "ms": 0.0020999999997002305,
+            "ok": true
+          },
+          {
+            "stage": "local-pending-command",
+            "ms": 111.93910000000051,
+            "ok": true
+          },
+          {
+            "stage": "graph-read",
+            "ms": 12.698199999999815,
+            "ok": true
+          },
+          {
+            "stage": "graph-validation",
+            "ms": 252.64890000000014,
+            "ok": true
+          },
+          {
+            "stage": "graph-canonicalization",
+            "ms": 6.991500000000087,
+            "ok": true
+          },
+          {
+            "stage": "graph-read",
+            "ms": 11.73109999999997,
+            "ok": true
+          },
+          {
+            "stage": "graph-canonicalization",
+            "ms": 7.654099999999744,
+            "ok": true
+          },
+          {
+            "stage": "graph-read",
+            "ms": 13.272899999999936,
+            "ok": true
+          },
+          {
+            "stage": "graph-canonicalization",
+            "ms": 13.548300000000381,
+            "ok": true
+          },
+          {
+            "stage": "repository-open",
+            "ms": 354.3894,
+            "ok": true
+          },
+          {
+            "stage": "graph-read",
+            "ms": 14.231800000000476,
+            "ok": true
+          },
+          {
+            "stage": "graph-canonicalization",
+            "ms": 7.020600000000741,
+            "ok": true
+          },
+          {
+            "stage": "stored-list-derivation",
+            "ms": 16.49240000000009,
+            "ok": true
+          },
+          {
+            "stage": "stored-summary-derivation",
+            "ms": 14.617400000000089,
+            "ok": true
+          },
+          {
+            "stage": "repository-close",
+            "ms": 0.8531000000002678,
+            "ok": true
+          },
+          {
+            "stage": "local-stored-view",
+            "ms": 414.4179000000004,
+            "ok": true
+          },
+          {
+            "stage": "local-owner-check",
+            "ms": 0.005699999999706051,
+            "ok": true
+          },
+          {
+            "stage": "local-owner-check",
+            "ms": 0.002199999999902502,
+            "ok": true
+          },
+          {
+            "stage": "local-owner-check",
+            "ms": 0.00120000000060827,
+            "ok": true
+          },
+          {
+            "stage": "local-session-close",
+            "ms": 0.007799999999406282,
+            "ok": true
+          }
+        ]
+      }
+    ]
+  },
+  "seedSha256": {
+    "library.sqlite": "76919e7057f81328ecdc1775c61d6554ee44c94537653c930421bf5557b8efa3",
+    "journal.sqlite": "dfd667b24613fae28c6cd9b9633a64d5c3b16852ad1c41c40041c732892c0213"
+  }
+}
