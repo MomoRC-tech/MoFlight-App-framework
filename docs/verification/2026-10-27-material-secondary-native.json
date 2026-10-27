@@ -1,0 +1,127 @@
+{
+  "application_source_commit": "b7e9688bc7d262a1788764ac32bfb88e66ad2e76",
+  "apk_sha256": "91db7ca14720da167b8917e7320b5725245db6586e154c9dcd3f33d6146de347",
+  "environment": {
+    "avd": "MoFlight_Synthetic_API37",
+    "android_api": 37,
+    "physical_px": [
+      1080,
+      1920
+    ],
+    "density_dpi": 420,
+    "main_logical_dp": [
+      411.43,
+      731.43
+    ],
+    "font_scale": 1.0,
+    "airplane_mode": true,
+    "wifi": false,
+    "mobile_data": false
+  },
+  "temporary_viewports": [
+    {
+      "physical_px": [
+        945,
+        1920
+      ],
+      "logical_dp": [
+        360,
+        731.43
+      ],
+      "font_scale": 1.0,
+      "scope": "Club work-hours and AI privacy"
+    },
+    {
+      "physical_px": [
+        2100,
+        1575
+      ],
+      "logical_dp": [
+        800,
+        600
+      ],
+      "font_scale": 1.0,
+      "scope": "Club overview only"
+    }
+  ],
+  "installed_apk_hash_verified": true,
+  "initial_source_specific_checks": [
+    {
+      "name": "club-overview-main",
+      "status": "passed"
+    },
+    {
+      "name": "club-overview-page",
+      "status": "passed"
+    },
+    {
+      "name": "club-Termine-back",
+      "status": "passed"
+    },
+    {
+      "name": "club-Dienste-back",
+      "status": "passed"
+    },
+    {
+      "name": "club-Dokumente-back",
+      "status": "passed"
+    },
+    {
+      "name": "club-work-main",
+      "status": "passed"
+    },
+    {
+      "name": "club-work-360",
+      "status": "passed"
+    }
+  ],
+  "continued_navigation_checks": [
+    {
+      "name": "club-Aufgaben-back",
+      "status": "passed"
+    },
+    {
+      "name": "ai-history-options-detail-and-android-back",
+      "status": "passed"
+    },
+    {
+      "name": "diagnostics-disclosure-and-back",
+      "status": "passed"
+    },
+    {
+      "name": "about-attribution-disclosure-and-back",
+      "status": "passed"
+    },
+    {
+      "name": "development-groups-and-back",
+      "status": "passed"
+    }
+  ],
+  "visual_review": {
+    "accepted": "Club overview and work-hours groups at MAIN/360, bounded 800 dp overview; AI empty chat/history and privacy sheet at MAIN/360; Diagnostics and Development hierarchy; About collapsed view and fully redrawn expanded attribution",
+    "qualified": "Expanded About intermittently omitted unchanged text pixels while its Android hierarchy retained them; a normal background/foreground redraw restored all text and kept the disclosure. Cause and phone reproduction are unestablished; no source fix claimed."
+  },
+  "large_text": "Not accepted: changing global font scale to 1.6 recreated the activity, invalidating the harness route assumption; the blank transition capture is rejected.",
+  "harness_corrections": [
+    "Font-change/activity lifecycle invalidated the initial post-capture Back assertion.",
+    "Continuation horizontal selector incorrectly required android.view.ViewGroup; native chip is android.view.View. Corrected without source changes."
+  ],
+  "evidence_integrity": "Final navigation runner exited successfully after its display/network cleanup assertions. Two later capture helpers replaced its raw report.json; this sanitized summary is reconstructed from retained successful log, runner source, PNG/XML and explicit post-trial display checks. Earlier failed reports remain separate. Screenshot capture alone is not a visual pass.",
+  "cleanup": {
+    "display_restored": true,
+    "font_restored": true,
+    "network_unchanged": true,
+    "app_data_reset": false,
+    "seeded": false,
+    "draft_text_entered": false,
+    "delete_share_external_links_provider_or_model_actions": false
+  },
+  "remaining": [
+    "Credits text-paint inconsistency (#94)",
+    "Populated current-source Club/chat/evidence and actual deletion native acceptance",
+    "Native keyboard and per-surface large-text/wide states outside inspected scope",
+    "External sharing/link failure, actual provider/model/live, physical phone and iOS",
+    "Beta light-theme and spoken accessibility"
+  ],
+  "result": "Scoped presentation/navigation evidence with explicit rendering and acceptance qualifications"
+}
