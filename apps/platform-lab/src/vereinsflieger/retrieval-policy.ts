@@ -21,10 +21,10 @@ function nextDay(value: string): string {
 /** Inputs are committed complete/empty windows from one authorized library, never raw captures. */
 export function planFlightRetrieval(saved: readonly SavedFlightRetrieval[], now = new Date()) {
   const today = date(now);
-  const month = new Date(now.getFullYear(), now.getMonth() - 6, 1, 12);
+  const month = new Date(now.getFullYear(), now.getMonth() - 3, 1, 12);
   const lastDay = new Date(month.getFullYear(), month.getMonth() + 1, 0, 12).getDate();
   month.setDate(Math.min(now.getDate(), lastDay));
-  const sixMonthsAgo = date(month);
+  const threeMonthsAgo = date(month);
   const periods: FlightRetrievalWindow[] = [];
   const ordered = saved.map(window => {
     calendar(window.from); calendar(window.to);
@@ -47,7 +47,7 @@ export function planFlightRetrieval(saved: readonly SavedFlightRetrieval[], now 
   // A later historical/custom import cannot mask an earlier uncovered interval.
   const checkpoint = past.find(window => window.to < today)?.to;
   const from = !past.length ? `${now.getFullYear() - 1}-01-01` :
-    checkpoint && checkpoint < sixMonthsAgo ? checkpoint : sixMonthsAgo;
+    checkpoint && checkpoint < threeMonthsAgo ? checkpoint : threeMonthsAgo;
   const latest = [...saved].sort((a, b) => a.savedAt.localeCompare(b.savedAt)).at(-1);
   return {request: {from, to: today}, firstRetrieval: !past.length, periods, gaps,
     lastSuccessfulRetrievalAt: latest?.retrievedAt ?? null, lastSavedAt: latest?.savedAt ?? null};

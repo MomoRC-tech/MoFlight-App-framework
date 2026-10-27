@@ -557,7 +557,7 @@ test('planned retrieval uses saved empty coverage after restart, never login, ca
     service.cancelReview();const review=await service.retrieveUpdate(now);await service.saveUnassigned(review);
     assert.equal((await service.list()).length,0);assert.equal((await service.snapshot()).savedRetrievals.length,1);
     service.dispose();service=f.make();await service.retrieveUpdate(now);
-    assert.deepEqual(requests.at(-1),{from:'2026-04-20',to:'2026-10-20'});service.dispose();
+    assert.deepEqual(requests.at(-1),{from:'2026-07-20',to:'2026-10-20'});service.dispose();
   } finally {await f.cleanup();}
 });
 
