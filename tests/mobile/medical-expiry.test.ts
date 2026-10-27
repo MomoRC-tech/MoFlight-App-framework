@@ -36,6 +36,43 @@ test('observed provider expiry prefix and opaque certificate reference preserve 
   }
 });
 
+test('provider certificate country separator accepts the observed space and hyphen without changing source evidence', () => {
+  for (const separator of [' ', '-']) {
+    const source = capture([
+      ['Klasse 2', `Gültig bis 31.12.2028 - DE${separator}0000000-0`],
+      ['LAPL', `Gültig bis 21.10.2026 - DE${separator}0000000-1`],
+    ]);
+    const original = structuredClone(source);
+    assert.deepEqual(medicalExpiry(source, now), { date: '21.10.2026', state: 'expired', issues: [] });
+    assert.deepEqual(source, original);
+  }
+  const soon = medicalExpiry(capture([['Klasse 2', 'Gültig bis 22.04.2027 - DE 0000000-0']]), now);
+  assert.deepEqual(soon, { date: '22.04.2027', state: 'soon', issues: [] });
+});
+
+test('space-separated certificate suffix keeps invalid, ambiguous and unsupported source values unknown', () => {
+  for (const raw of [
+    'Gültig bis 31.02.2028 - DE 0000000-0',
+    'Gültig bis 29.02.2027 - DE 0000000-0',
+    'Gültig bis 00.12.2028 - DE 0000000-0',
+    'Gültig bis 31.12.0000 - DE 0000000-0',
+    'Gültig bis 31.12.2028 - DE 0000000-0 01.01.2029',
+    'Gültig bis 31.12.2028 - DE 0000000-0 · 01.01.2029',
+    'Gültig bis 31.12.2028 - DE 0000000-0\n01.01.2029',
+    'Gültig bis 31.12.2028 - DE/0000000-0',
+    'Gültig bis 31.12.2028 - DE  0000000-0',
+    'Gültig bis 31.12.2028 - DE 0000000',
+    'Gültig bis 31.12.2028 - DE 0000000-0 extra',
+  ]) {
+    const assessment = medicalExpiry(capture([['Klasse 2', raw]]), now);
+    assert.equal(assessment.date, null, raw);
+    assert.equal(assessment.state, 'unknown', raw);
+    assert.ok(assessment.issues.length, raw);
+  }
+  assert.deepEqual(medicalExpiry(capture([['Klasse 2', 'Gültig bis 29.02.2028 - DE 0000000-0']]), now),
+    { date: '29.02.2028', state: 'later', issues: [] });
+});
+
 test('date colors classify today and the six-calendar-month boundary as soon, then become quiet', () => {
   assert.equal(medicalExpiry(capture([['Klasse 2', '22.10.2026']]), now).state, 'soon');
   assert.equal(medicalExpiry(capture([['Klasse 2', '22.04.2027']]), now).state, 'soon');

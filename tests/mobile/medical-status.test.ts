@@ -50,6 +50,21 @@ test('Medical details explain missing evidence without input, save or provider a
   assert.equal(nodes(details).some(n => ['TextInput', 'Action', 'Pressable'].includes(n.type)), false);
 });
 
+test('space-separated certificate source displays the recorded expiry while retaining the complete original value', () => {
+  const raw = 'Gültig bis 31.12.2028 - DE 0000000-0';
+  const capture: InformationCapture = {version:1,id:'synthetic-space-medical',owner:'synthetic-owner',connectionId:'synthetic-connection',retrievedAt:'2026-10-01T12:00:00.000Z',
+    sourceIdentity:'provisional-observed-profile',category:'medical',path:'/member/profile/viewprofile',
+    columns:[{key:'kind',label:'Medical-Art',index:0},{key:'expiry',label:'Gültig bis · Originaltext',index:1}],
+    rows:[{position:0,values:['Klasse 2',raw]}],filters:[],empty:false,
+    coverage:{kind:'visible-page',truncated:false,pagination:'unverified'}};
+  const now = new Date(2026, 9, 27, 12).getTime();
+  const details = text(component.MedicalDetails({capture, now}));
+  assert.match(details, /^31\.12\.2028 /);
+  assert.ok(details.includes(raw));
+  assert.doesNotMatch(details, /kein unterstütztes Datumsformat|Einordnung unbekannt/);
+  assert.match(component.MedicalIndicator({capture,now,onPress(){}}).props.accessibilityLabel, /31\.12\.2028/);
+});
+
 test('saved Medical shows the earliest source date, raw fields and explicit unknown warning without a fitness claim', () => {
   const capture: InformationCapture = {version:1,id:'synthetic-medical',owner:'synthetic-owner',connectionId:'synthetic-connection',retrievedAt:'2026-10-01T12:00:00.000Z',
     sourceIdentity:'provisional-observed-profile',category:'medical',path:'/member/profile/viewprofile',

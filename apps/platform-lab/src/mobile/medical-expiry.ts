@@ -19,14 +19,15 @@ function display(value: CalendarDate) { return `${String(value.day).padStart(2, 
 
 /**
  * Accept the German date token/middle-dot suffix and the observed provider
- * "Gültig bis <date> - <opaque certificate reference>" shape. General parsing is
+ * "Gültig bis <date> - <opaque certificate reference>" shape, with either the
+ * observed space or hyphen after the certificate country code. General parsing is
  * avoided because these values are untrusted source text.
  */
 function parseRecordedExpiry(raw: string): ParsedExpiry {
   const value = raw.trim();
   if (!value) return { state: 'blank' };
   const match = /^(\d{2})\.(\d{2})\.(\d{4})(?: · (\S[^\r\n]*))?$/.exec(value)
-    ?? /^Gültig bis (\d{2})\.(\d{2})\.(\d{4})(?: - [A-Z]{2}-\d{1,20}-\d{1,8})?$/.exec(value);
+    ?? /^Gültig bis (\d{2})\.(\d{2})\.(\d{4})(?: - [A-Z]{2}[ -]\d{1,20}-\d{1,8})?$/.exec(value);
   if (!match) {
     const dateTokens = value.match(/\b\d{1,4}[./-]\d{1,2}[./-]\d{2,4}\b/g) ?? [];
     return { state: dateTokens.length > 1 ? 'ambiguous' : 'invalid' };
