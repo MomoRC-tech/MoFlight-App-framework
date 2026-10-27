@@ -33,7 +33,9 @@ export function adaptHistoryFacts(scope: HistoryScope, snapshot: HistoryObservat
   // Named columns can be reordered without manufacturing a source change.
   // Unnamed columns retain their position; they have no established field identity.
   const fields = headers.map((header, i) => header ? ['named', header, row.values[i]!] : ['unnamed', String(i), row.values[i]!])
-    .sort((a, b) => canonical(a) < canonical(b) ? -1 : canonical(a) > canonical(b) ? 1 : 0);
+    .map(field => ({field, key: canonical(field)}))
+    .sort((a, b) => a.key < b.key ? -1 : a.key > b.key ? 1 : 0)
+    .map(({field}) => field);
   return { mapping: HISTORY_FACTS_MAPPING, authority: 'unverified-source-facts', scope: { ...scope },
     candidateId: row.sourceFlightId === null ? null : historyCandidateId(scope, row.sourceFlightId),
     assessment, evidenceKey: canonical({ reference: row.sourceFlightId, fields }) };

@@ -7,7 +7,7 @@ import { nodeDriver } from './sqlite-driver.ts';
 import { REAL_HISTORY_BACKUP_LIMIT, REAL_HISTORY_COMMAND_LIMIT, type RealHistoryManifest } from '../../apps/platform-lab/src/vereinsflieger/real-history-contract.ts';
 import { RealFlightLibrary, RealFlightDetailSource, IndeterminateRealFlightCommit, type RealFlightPermit } from '../../apps/platform-lab/src/vereinsflieger/real-flight-library.ts';
 import type { RealFlightSourceInput } from '../../apps/platform-lab/src/vereinsflieger/real-flight-source.ts';
-import type { RealFlightGraph, RealFlightRecord } from '../../apps/platform-lab/src/vereinsflieger/real-flight-library-model.ts';
+import { validateRealFlightGraph, type RealFlightGraph, type RealFlightRecord } from '../../apps/platform-lab/src/vereinsflieger/real-flight-library-model.ts';
 import { DiagnosticJournal } from '../../apps/platform-lab/src/diagnostics.ts';
 
 const hash: Hash = async value => createHash('sha256').update(value, 'utf8').digest('hex');
@@ -61,6 +61,26 @@ async function save(library: RealFlightLibrary, input: RealFlightSourceInput, id
     bindingId: plan.bindingId, source: input, planToken: plan.planToken, at: atTime });
   return { plan, result };
 }
+
+test('full history replay validates each receipt capture once without losing source or plan checks',async t=>{
+  const {library}=await setup(t);
+  await bind(library);
+  const input=source('capture-replay-once',[row('101')]);await save(library,input,2);
+  const graph=await library.snapshot();
+  const captures=new Set(graph.records.filter(record=>record.kind==='capture').map(record=>
+    (JSON.parse(record.payload) as {source:{capture:{rawCaptureJson:string}}}).source.capture.rawCaptureJson));
+  let captureChecks=0;
+  await validateRealFlightGraph(graph,async value=>{if(captures.has(value))captureChecks++;return hash(value);});
+  assert.equal(captureChecks,graph.receipts.length,'each detached receipt source is validated once, including its import plan');
+  const forged=structuredClone(graph),command=JSON.parse(forged.receipts[1]!.request_json);
+  command.source.capture.exportContext.recordCount=2;
+  forged.receipts[1]!.request_json=canonical(command);forged.receipts[1]!.request_sha256=await hash(forged.receipts[1]!.request_json);
+  await assert.rejects(validateRealFlightGraph(forged,hash),/source|coverage|record count|export shape/i);
+  const changedPlan=structuredClone(graph),changed=JSON.parse(changedPlan.receipts[1]!.request_json);
+  changed.planToken='0'.repeat(64);changedPlan.receipts[1]!.request_json=canonical(changed);
+  changedPlan.receipts[1]!.request_sha256=await hash(changedPlan.receipts[1]!.request_json);
+  await assert.rejects(validateRealFlightGraph(changedPlan,hash),/plan changed/);
+});
 
 test('library phase hooks measure actual replay, derivation, writes and fresh durable readback',async t=>{
  const f=await setup(t),journal=new DiagnosticJournal(),op=journal.begin('update-flights');

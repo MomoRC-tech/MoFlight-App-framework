@@ -1,5 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import {canonical} from '../../packages/flight-logbook/src/index.ts';
 import { adaptHistoryFacts, historyCandidateId, validateHistoryFacts } from '../../apps/platform-lab/src/vereinsflieger/history-facts.ts';
 import { confirmHistoryChoice, planHistoryReview, HISTORY_PLAN_LIMIT, type HistoryCapture, type HistoryWorkspace, type HistoryPlanFixture } from '../../apps/platform-lab/src/vereinsflieger/history-plan.ts';
 
@@ -18,6 +19,19 @@ function trial(cells: Record<string, string> = {}) {
 type Trial = ReturnType<typeof trial>;
 const plan = (t: Trial) => planHistoryReview(t.workspace, t.capture, t.fixture);
 const facts = (t: Trial, index = 0) => adaptHistoryFacts(t.workspace.scope, t.capture.observation, index);
+
+test('evidence ordering preserves exact named and unnamed fields, escaping and positional identity',()=>{
+  const observation={captureId:'sort-evidence',headers:['Z','', 'A','\u03a9','\u00e4','Quote "','', '7','8','9',''],
+    rows:[{sourceFlightId:'101',values:['z','second','a','omega','umlaut','line\n"','sixth','seven','eight','nine','tenth']}]};
+  const before=copy(observation),result=adaptHistoryFacts(scope,observation,0);
+  assert.equal(result.evidenceKey,canonical({reference:'101',fields:[
+    ['named','7','seven'],['named','8','eight'],['named','9','nine'],['named','A','a'],['named','Quote "','line\n"'],
+    ['named','Z','z'],['named','\u00e4','umlaut'],['named','\u03a9','omega'],
+    ['unnamed','1','second'],['unnamed','10','tenth'],['unnamed','6','sixth'],
+  ]}));
+  assert.deepEqual(result.assessment.observation.row,observation.rows[0]);assert.deepEqual(observation,before);
+  validateHistoryFacts(result,scope);
+});
 function classify(t: Trial, index = 0) {
   const f = facts(t, index);
   t.fixture.aircraft.push({ flightId: f.candidateId!, evidenceKey: f.evidenceKey, aircraftRef: 'fixture-aircraft-a', aircraftClass: 'glider', duplicate: 'countable' });

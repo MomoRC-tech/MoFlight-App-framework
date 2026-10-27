@@ -194,10 +194,13 @@ function validateImportWindow(source: RealFlightSourceObservation): void {
   if (source.coverage.state === 'empty') realFlightRequire(source.rows.length === 0, 'Invalid empty real flight history source.');
 }
 
-async function buildImportPlan(graph: RealFlightGraph, bindingId: string, sourceInput: RealFlightSourceInput, hash: Hash): Promise<RealFlightImportPlan> {
+async function buildImportPlan(graph: RealFlightGraph, bindingId: string, sourceInput: RealFlightSourceInput, hash: Hash,
+  validatedSource?: RealFlightSourceObservation): Promise<RealFlightImportPlan> {
   const binding = latestBinding(graph);
   realFlightRequire(binding && binding.bindingId === bindingId, 'Unknown or foreign real flight history account binding.');
-  const source = await createRealFlightSourceObservation(sourceInput, hash);
+  // Only deriveRealFlightCommand supplies this private argument, from the
+  // same detached command. Public planning still validates its own input.
+  const source = validatedSource ?? await createRealFlightSourceObservation(sourceInput, hash);
   validateImportWindow(source);
   realFlightRequire(source.binding.provider === binding.provider && source.binding.accountRef === binding.accountRef,
     'Source account differs from the immutable real flight history binding.');
@@ -302,7 +305,7 @@ export async function deriveRealFlightCommand(graph: RealFlightGraph, input: Rea
     result.bindingId = bindingId; result.captureId = source.capture.captureId;
   } else {
     realFlightRequire(/^[0-9a-f]{64}$/.test(command.bindingId), 'Invalid real flight account binding ID.');
-    const plan = await buildImportPlan(graph, command.bindingId, command.source, hash);
+    const plan = await buildImportPlan(graph, command.bindingId, command.source, hash, source);
     realFlightRequire(command.planToken === plan.planToken, 'Real flight review plan changed or was not confirmed.');
     result.bindingId = plan.bindingId; result.captureId = plan.captureId; result.planSha256 = plan.planToken;
     result.counts = { ...plan.counts };
