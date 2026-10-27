@@ -90,6 +90,12 @@ Calendar rule selected by Manuel, 18 October 2026: group flights by the flight d
 
 The query response includes the resolved entity/filter, dataset revision/basis, count or latest recorded flight, contributing records, data-through/coverage, unresolved/excluded counts and freshness. The pilot can inspect the supporting list and change filters or data basis.
 
+## Provider-marked duplicates — corrected 27 October 2026
+
+Under [#100](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/100), saved-local season/library totals, Statistics (including role groups, comparisons and exact contributors) exclude rows whose captured `Duplikat` value is explicitly `Ja` after trimming. `Nein` means not marked by this source; blank, missing or unfamiliar values remain unknown. Unknown rows retain the existing provisional reported totals, not verified nonduplicate or legal-credit status. The raw assessment's unresolved semantics are unchanged. The shared [marker rule](../../apps/platform-lab/src/mobile/flight-duplicate.ts) does not merge similar flights or alter provider evidence.
+
+All saved source rows remain inspectable in ordinary Flüge and details. Its summary distinguishes counted flights/time from additional marked duplicates; filter entry counts describe the actual visible rows. Statistical contributor lists include only the counted rows. Existing same-ID conflict handling remains in Statistics. [Regression tests](../../tests/mobile/flight-duplicate-statistics.test.ts) and [verification](../verification/2026-10-20-real-flight-statistics.md#provider-marked-duplicate-correction--27-october-2026) define the bounded evidence and remaining device gate.
+
 ## Saved-flight role analysis — selected 26 October 2026
 
 **Status and scope:** Manuel selected this deterministic, yes/no classification for his own saved Vereinsflieger flights under [#9](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/9). It is implemented in [the flight-role classifier](../../apps/platform-lab/src/mobile/flight-role-metric.ts) for Start, the ordinary Flüge filter and Statistics. It describes recorded source roles for analysis; it does not independently verify an FI licence, legal command designation or logbook credit. Every usable flight has exactly one result. There is no “likely” flag: insufficient or contradictory evidence yields **Prüfen**.

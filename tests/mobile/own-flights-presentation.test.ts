@@ -51,6 +51,19 @@ function fixture(seenHint = true) {
   const pick=(field:string,option:string)=>{expand();const control=nodes().find(n=>n.type==='Pressable'&&n.props.accessibilityLabel?.startsWith(`${field}:`));assert.ok(control,field);control.props.onPress();render();find('Pressable',option).props.onPress();render();};
   render();return{data,render,find,nodes,restores,help,hintMarks,search,expand,pick,replayHint:()=>{replayHintToken++;render();render();},setHelpEnabled:(value:boolean)=>{helpEnabled=value;render();render();},request:(year:number|null, extras:Partial<model.OwnFlightRequest>={})=>{filterRequest={year,...extras};render();render();},setActive:(value:boolean)=>{active=value;render();}};
 }
+test('source duplicates remain inspectable while the list summary distinguishes them from counted flights',()=>{
+  const f=fixture();
+  f.data.view.flights[0].facts.assessment.fields.duplicate={state:'value',label:'Duplikat',raw:'Ja'};
+  f.render();
+  assert.equal(f.find('FlatList').props.data.length,3);
+  const summary=f.nodes().find(n=>n.props.testID==='filtered-flight-summary');
+  assert.ok(summary);
+  const text=summary.children[0].children.join('');
+  assert.match(text,/2 Flüge/);assert.match(text,/1 Duplikat zusätzlich/);
+  f.expand();
+  assert.ok(f.nodes().some(n=>n.type==='Label'&&n.children.join('')==='3 Einträge anzeigen ↑'));
+});
+
 test('native zero-offset events while loading, hidden or inactive cannot erase the saved list return position',()=>{
   const f=fixture(),view=f.data.view;
   const scroll=(y:number)=>f.find('FlatList').props.onScroll({nativeEvent:{contentOffset:{y}}});

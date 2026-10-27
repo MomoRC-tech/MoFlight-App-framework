@@ -1,5 +1,6 @@
 import type { RealFlightListItem } from '../vereinsflieger/real-flight-library';
 import { colorForAircraft, type AircraftSeasonShare } from './season-model';
+import { isSourceDuplicate, sourceDuplicateState } from './flight-duplicate';
 
 function safeAdd(total: number, value: number): number {
   if (!Number.isSafeInteger(value) || value < 0 || !Number.isSafeInteger(total + value)) {
@@ -18,9 +19,12 @@ export function summarizeRealFlights(flights: readonly RealFlightListItem[], sea
     conflictingDurationCount: 0, aircraft: [] as AircraftSeasonShare[] };
   let count = 0, knownMinutes = 0, knownDurationCount = 0, unknownDurationCount = 0;
   let unknownDateCount = 0, unknownAircraftCount = 0, conflictingDurationCount = 0;
+  let excludedDuplicateCount = 0, unknownDuplicateCount = 0;
   for (const flight of flights) {
     if (seen.has(flight.flightId)) continue;
     seen.add(flight.flightId);
+    if (isSourceDuplicate(flight)) { excludedDuplicateCount++; continue; }
+    if (sourceDuplicateState(flight.facts.assessment.fields.duplicate) === 'unknown') unknownDuplicateCount++;
     count = safeAdd(count, 1);
     const a = flight.facts.assessment;
     const year = a.date.state === 'parsed' && a.date.value ? a.date.value.slice(0, 4) : null;
@@ -50,7 +54,7 @@ export function summarizeRealFlights(flights: readonly RealFlightListItem[], sea
     seasonAircraft.set(name, share);
   }
   season.aircraft = [...seasonAircraft.values()].sort((a, b) => a.aircraft.localeCompare(b.aircraft, 'de-DE'));
-  return { count, knownMinutes, knownDurationCount, unknownDurationCount, conflictingDurationCount,
+  return { count, knownMinutes, knownDurationCount, unknownDurationCount, conflictingDurationCount, excludedDuplicateCount, unknownDuplicateCount,
     unknownDateCount, unknownAircraftCount, season,
     years: [...years].sort(([a], [b]) => b.localeCompare(a)).map(([year, flights]) => ({ year, flights })),
     aircraft: [...aircraft].sort(([a], [b]) => a.localeCompare(b, 'de-DE')).map(([registration, flights]) => ({ registration, flights })) };

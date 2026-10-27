@@ -4,6 +4,7 @@ import type { SavedFlightRetrieval } from '../vereinsflieger/retrieval-policy';
 import { colorForAircraft } from './season-model';
 import { aircraftCategoryLabels, launchMethodLabels, classifyAircraft, classifyLaunch } from './flight-classification';
 import { classifyFlightRoleMetric, type FlightRoleMetric } from './flight-role-metric';
+import { isSourceDuplicate } from './flight-duplicate';
 
 export type StatisticsPeriod =
   | { kind: 'year'; year: number }
@@ -55,7 +56,7 @@ function distinctRecords(flights: readonly RealFlightListItem[]) {
     else if (canonical(previous.facts) !== canonical(flight.facts)) conflicts.add(flight.flightId);
   }
   return {
-    flights: [...rows.values()].filter(flight => !conflicts.has(flight.flightId)),
+    flights: [...rows.values()].filter(flight => !conflicts.has(flight.flightId) && !isSourceDuplicate(flight)),
     conflictingIds: [...conflicts].sort(),
   };
 }
@@ -116,7 +117,7 @@ function toDomainFlight(flight: RealFlightListItem): Flight {
 }
 
 export function domainStatisticsFlights(flights: readonly RealFlightListItem[]): Flight[] {
-  return flights.map(toDomainFlight);
+  return distinctRecords(flights).flights.map(toDomainFlight);
 }
 
 export function summarizeStatisticsFlights(flights: readonly RealFlightListItem[]) {

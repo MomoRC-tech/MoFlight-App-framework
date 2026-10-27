@@ -105,7 +105,7 @@ export function OwnFlights({ active, data, filterRequest, onHeaderChange, onHelp
       <Pressable accessibilityRole="button" accessibilityLabel="Flugsuche öffnen" accessibilityState={{expanded:searchOpen||filterOpen}} onPress={()=>{Keyboard.dismiss();setSearchOpen(!searchOpen);}} style={s.searchToggle}><SymbolIcon name="search" size={20}/></Pressable>
       <Pressable accessibilityRole="button" accessibilityLabel="Abdeckung & Datenstand" onPress={()=>{Keyboard.dismiss();setStatusOpen(true);}} style={s.info}><SymbolIcon name="info" size={18} tone="muted"/></Pressable>
     </View>
-    <View testID="filtered-flight-summary"><Text style={s.summaryCaption}>{hasFilters?`${summary.count}/${flights.length}`:summary.count} Flüge · {summary.count===0?'—':summary.knownDurationCount?`${formatReportedMinutes(summary.knownMinutes)} h`:'— h'}{summary.unknownDurationCount&&summary.knownDurationCount?' bekannt':''}</Text></View>
+    <View testID="filtered-flight-summary"><Text style={s.summaryCaption}>{hasFilters?`${selected.length}/${flights.length}${summary.excludedDuplicateCount?` Einträge · ${summary.count}`:''}`:summary.count} Flüge · {summary.count===0?'—':summary.knownDurationCount?`${formatReportedMinutes(summary.knownMinutes)} h`:'— h'}{summary.unknownDurationCount&&summary.knownDurationCount?' bekannt':''}{summary.excludedDuplicateCount?` · ${summary.excludedDuplicateCount} ${summary.excludedDuplicateCount===1?'Duplikat':'Duplikate'} zusätzlich`:''}</Text></View>
     {filterOpen?<ScrollView keyboardShouldPersistTaps="handled" style={{flexShrink:1,maxHeight:Math.max(180,(height||800)*.48)}} contentContainerStyle={{gap:6,paddingTop:6,paddingBottom:4}}>
       {search}
       <View style={s.fields}>
@@ -116,7 +116,7 @@ export function OwnFlights({ active, data, filterRequest, onHeaderChange, onHelp
         {field('Flugtyp',roleOptions.find(o=>o.key===filters.flightRole)?.label??'Alle Flugtypen','role')}
       </View>
       {filters.flightIds&&<Pressable accessibilityRole="button" accessibilityLabel="Belegfilter entfernen" style={s.filterToggle} onPress={()=>changeFilters({...filters,flightIds:undefined})}><Label muted>Belege: {filters.flightIds.length} · entfernen ×</Label></Pressable>}
-      <View style={s.compactHeader}><Pressable accessibilityRole="button" accessibilityLabel="Alle Filter zurücksetzen" onPress={()=>changeFilters(allOwnFlights)} style={s.filterToggle}><Label muted>Zurücksetzen</Label></Pressable><View style={{flex:1}}/><Pressable accessibilityRole="button" accessibilityLabel="Filter schließen" onPress={()=>{Keyboard.dismiss();setFilterOpen(false);setSearchOpen(false);}} style={s.filterToggle}><Label style={{color:colors.cyan}}>{summary.count} Flüge anzeigen ↑</Label></Pressable></View>
+      <View style={s.compactHeader}><Pressable accessibilityRole="button" accessibilityLabel="Alle Filter zurücksetzen" onPress={()=>changeFilters(allOwnFlights)} style={s.filterToggle}><Label muted>Zurücksetzen</Label></Pressable><View style={{flex:1}}/><Pressable accessibilityRole="button" accessibilityLabel="Filter schließen" onPress={()=>{Keyboard.dismiss();setFilterOpen(false);setSearchOpen(false);}} style={s.filterToggle}><Label style={{color:colors.cyan}}>{selected.length} {summary.excludedDuplicateCount?'Einträge':'Flüge'} anzeigen ↑</Label></Pressable></View>
     </ScrollView>:searchOpen?search:null}
     {(data.view?.pendingCommand||data.view?.snapshot.recovery.readOnly)&&<Label muted style={s.smallText}>Speicherung oder Wiederherstellung prüfen.</Label>}
   </View>;
