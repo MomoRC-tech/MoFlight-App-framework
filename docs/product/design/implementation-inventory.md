@@ -695,36 +695,38 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/FlightCard.tsx](.
 
 ## FlightDetails.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/FlightDetails.tsx](../../../apps/platform-lab/src/mobile/FlightDetails.tsx); normalized SHA-256 `cc1ecbba442f71541fce8d23182b4ca2e66724ff916079ce69f32fc420062861`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/FlightDetails.tsx](../../../apps/platform-lab/src/mobile/FlightDetails.tsx); normalized SHA-256 `5865117923427691144a7f330877ed60bb63689d7665910d87174fe2ecbc39f1`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#296879` | 53 |
+| `#296879` | 76 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 22` | 19 |
-| `fontWeight: '700'` | 19, 31 |
-| `lineHeight: 30` | 19 |
+| `fontSize: 22` | 20, 21, 55 |
+| `fontWeight: '700'` | 20, 43 |
+| `lineHeight: 30` | 20, 21 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 18` | 53 |
-| `borderWidth: 1` | 53 |
-| `gap: 10` | 19 |
-| `gap: 2` | 45 |
-| `gap: 6` | 47 |
-| `gap: 7` | 52 |
-| `gap: 8` | 53, 54 |
-| `minHeight: 48` | 52 |
-| `padding: 14` | 53 |
-| `paddingHorizontal: 6` | 52 |
+| `borderRadius: 18` | 76 |
+| `borderWidth: 1` | 76 |
+| `gap: 12` | 74 |
+| `gap: 14` | 72 |
+| `gap: 2` | 61, 73 |
+| `gap: 6` | 63 |
+| `gap: 7` | 75 |
+| `gap: 8` | 76, 77 |
+| `minHeight: 48` | 74, 75 |
+| `minWidth: 120` | 73 |
+| `padding: 14` | 76 |
+| `paddingHorizontal: 6` | 75 |
 
 ## FlightScene.tsx
 
@@ -1070,96 +1072,96 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OverviewTiles.tsx
 
 ## OwnFlights.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OwnFlights.tsx](../../../apps/platform-lab/src/mobile/OwnFlights.tsx); normalized SHA-256 `81f78d3ed3a4cbfdcfb1351279a9ca55790d6391694342fc2e797521a0401210`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OwnFlights.tsx](../../../apps/platform-lab/src/mobile/OwnFlights.tsx); normalized SHA-256 `14a63bbb0661b29ff62378f2e26e91ed324c5426639bdc6454bf758b1f351b83`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#000712bd` | 180 |
-| `#031326` | 192, 195 |
-| `#296879` | 207 |
-| `#82959e` | 183 |
+| `#000712bd` | 181 |
+| `#031326` | 193, 196 |
+| `#296879` | 208 |
+| `#82959e` | 184 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 11` | 179, 202, 203 |
-| `fontSize: 12` | 178, 201, 204 |
-| `fontSize: 13` | 195, 202 |
-| `fontSize: 14` | 179, 182, 183, 192, 201 |
-| `fontSize: 16` | 185, 206 |
-| `fontSize: 20` | 204 |
-| `fontSize: 22` | 182 |
-| `fontWeight: '400'` | 204 |
-| `fontWeight: '600'` | 182, 201, 204 |
-| `fontWeight: '700'` | 138 |
-| `lineHeight: 16` | 179, 202, 203 |
-| `lineHeight: 17` | 201, 204 |
-| `lineHeight: 18` | 178, 195, 202 |
-| `lineHeight: 19` | 201 |
-| `lineHeight: 20` | 179, 182, 183, 192 |
-| `lineHeight: 24` | 185 |
-| `lineHeight: 28` | 182, 204 |
+| `fontSize: 11` | 180, 203, 204 |
+| `fontSize: 12` | 179, 202, 205 |
+| `fontSize: 13` | 196, 203 |
+| `fontSize: 14` | 180, 183, 184, 193, 202 |
+| `fontSize: 16` | 186, 207 |
+| `fontSize: 20` | 205 |
+| `fontSize: 22` | 183 |
+| `fontWeight: '400'` | 205 |
+| `fontWeight: '600'` | 183, 202, 205 |
+| `fontWeight: '700'` | 139 |
+| `lineHeight: 16` | 180, 203, 204 |
+| `lineHeight: 17` | 202, 205 |
+| `lineHeight: 18` | 179, 196, 203 |
+| `lineHeight: 19` | 202 |
+| `lineHeight: 20` | 180, 183, 184, 193 |
+| `lineHeight: 24` | 186 |
+| `lineHeight: 28` | 183, 205 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 10` | 186, 194, 199 |
-| `borderRadius: 12` | 183, 185, 191, 193, 205 |
-| `borderRadius: 18` | 207 |
-| `borderRadius: 28` | 181 |
-| `borderRadius: 4` | 203 |
-| `borderRadius: 5` | 186 |
-| `borderWidth: 1` | 183, 191, 203, 205, 207 |
-| `borderWidth: 2` | 186 |
-| `gap: 0` | 198 |
-| `gap: 12` | 188 |
-| `gap: 16` | 185, 188 |
-| `gap: 2` | 190, 200 |
-| `gap: 4` | 177, 179, 184 |
-| `gap: 5` | 190 |
-| `gap: 6` | 108, 191, 196 |
-| `gap: 7` | 200 |
-| `gap: 8` | 129, 183, 184, 199, 207 |
-| `height: 10` | 186 |
-| `height: 20` | 186 |
-| `height: 5` | 135 |
-| `maxHeight: '85%'` | 189 |
-| `maxHeight: '90%'` | 181 |
-| `maxWidth: '100%'` | 194, 205 |
-| `maxWidth: '32%'` | 204 |
-| `maxWidth: '50%'` | 131 |
-| `maxWidth: 520` | 207 |
-| `maxWidth: 600` | 188, 190 |
-| `maxWidth: 640` | 181 |
-| `maxWidth: 960` | 188, 189 |
-| `minHeight: 48` | 103, 177, 182, 191, 193, 194, 195, 196, 197, 199, 206 |
-| `minHeight: 52` | 179 |
-| `minHeight: 56` | 185 |
-| `minWidth: 0` | 103, 196, 200, 206 |
-| `minWidth: 48` | 182, 193, 195, 196, 197 |
-| `padding: 14` | 207 |
-| `padding: 18` | 188 |
-| `padding: 24` | 180 |
-| `paddingHorizontal: 10` | 194, 199 |
-| `paddingHorizontal: 12` | 189, 191, 198 |
-| `paddingHorizontal: 16` | 181, 185 |
-| `paddingHorizontal: 4` | 177, 203 |
-| `paddingHorizontal: 6` | 195 |
-| `paddingHorizontal: 8` | 182 |
-| `paddingVertical: 12` | 185 |
-| `paddingVertical: 16` | 184 |
-| `paddingVertical: 4` | 179 |
-| `paddingVertical: 5` | 194 |
-| `paddingVertical: 6` | 206 |
-| `paddingVertical: 7` | 199 |
-| `width: '100%'` | 91, 181, 188, 189, 190, 205, 207 |
-| `width: '48%'` | 179 |
-| `width: 10` | 186 |
-| `width: 20` | 186 |
+| `borderRadius: 10` | 187, 195, 200 |
+| `borderRadius: 12` | 184, 186, 192, 194, 206 |
+| `borderRadius: 18` | 208 |
+| `borderRadius: 28` | 182 |
+| `borderRadius: 4` | 204 |
+| `borderRadius: 5` | 187 |
+| `borderWidth: 1` | 184, 192, 204, 206, 208 |
+| `borderWidth: 2` | 187 |
+| `gap: 0` | 199 |
+| `gap: 12` | 189 |
+| `gap: 16` | 186, 189 |
+| `gap: 2` | 191, 201 |
+| `gap: 4` | 178, 180, 185 |
+| `gap: 5` | 191 |
+| `gap: 6` | 109, 192, 197 |
+| `gap: 7` | 201 |
+| `gap: 8` | 130, 184, 185, 200, 208 |
+| `height: 10` | 187 |
+| `height: 20` | 187 |
+| `height: 5` | 136 |
+| `maxHeight: '85%'` | 190 |
+| `maxHeight: '90%'` | 182 |
+| `maxWidth: '100%'` | 195, 206 |
+| `maxWidth: '32%'` | 205 |
+| `maxWidth: '50%'` | 132 |
+| `maxWidth: 520` | 208 |
+| `maxWidth: 600` | 189, 191 |
+| `maxWidth: 640` | 182 |
+| `maxWidth: 960` | 189, 190 |
+| `minHeight: 48` | 104, 178, 183, 192, 194, 195, 196, 197, 198, 200, 207 |
+| `minHeight: 52` | 180 |
+| `minHeight: 56` | 186 |
+| `minWidth: 0` | 104, 197, 201, 207 |
+| `minWidth: 48` | 183, 194, 196, 197, 198 |
+| `padding: 14` | 208 |
+| `padding: 18` | 189 |
+| `padding: 24` | 181 |
+| `paddingHorizontal: 10` | 195, 200 |
+| `paddingHorizontal: 12` | 190, 192, 199 |
+| `paddingHorizontal: 16` | 182, 186 |
+| `paddingHorizontal: 4` | 178, 204 |
+| `paddingHorizontal: 6` | 196 |
+| `paddingHorizontal: 8` | 183 |
+| `paddingVertical: 12` | 186 |
+| `paddingVertical: 16` | 185 |
+| `paddingVertical: 4` | 180 |
+| `paddingVertical: 5` | 195 |
+| `paddingVertical: 6` | 207 |
+| `paddingVertical: 7` | 200 |
+| `width: '100%'` | 92, 182, 189, 190, 191, 206, 208 |
+| `width: '48%'` | 180 |
+| `width: 10` | 187 |
+| `width: 20` | 187 |
 
 ## PaperStatus.tsx
 
@@ -1373,71 +1375,71 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/SeasonRing.tsx](.
 
 ## StatisticsOverlay.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/StatisticsOverlay.tsx](../../../apps/platform-lab/src/mobile/StatisticsOverlay.tsx); normalized SHA-256 `36a51326487708b2c492c1007748b3e6f0f906705b5b98d3969c2aae7ac75351`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/StatisticsOverlay.tsx](../../../apps/platform-lab/src/mobile/StatisticsOverlay.tsx); normalized SHA-256 `52df38caf88a85c5fe275a9c84f83b84f9299e0c51d0064ef5ff5d5f8539798a`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#0b141c3b` | 254 |
-| `#0e202c` | 254 |
+| `#0b141c3b` | 255 |
+| `#0e202c` | 255 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 11` | 254 |
-| `fontSize: 16` | 255 |
-| `fontSize: 17` | 256 |
-| `fontSize: 19` | 256 |
-| `fontSize: 22` | 257 |
-| `fontWeight: '700'` | 254, 256, 257 |
-| `letterSpacing: 1.2` | 254 |
-| `lineHeight: 16` | 254 |
-| `lineHeight: 23` | 256 |
-| `lineHeight: 25` | 256 |
-| `lineHeight: 30` | 257 |
+| `fontSize: 11` | 255 |
+| `fontSize: 16` | 256 |
+| `fontSize: 17` | 257 |
+| `fontSize: 19` | 257 |
+| `fontSize: 22` | 258 |
+| `fontWeight: '700'` | 255, 257, 258 |
+| `letterSpacing: 1.2` | 255 |
+| `lineHeight: 16` | 255 |
+| `lineHeight: 23` | 257 |
+| `lineHeight: 25` | 257 |
+| `lineHeight: 30` | 258 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 255 |
-| `borderRadius: 13` | 256 |
-| `borderRadius: 16` | 256 |
-| `borderRadius: 18` | 255 |
-| `borderRadius: 20` | 254 |
-| `borderRadius: 5` | 256 |
-| `borderWidth: 1` | 254, 255, 256 |
-| `gap: 12` | 253 |
-| `gap: 2` | 256, 257 |
-| `gap: 3` | 255 |
-| `gap: 5` | 238, 255, 256 |
-| `gap: 6` | 125, 254, 255, 256 |
-| `gap: 8` | 255, 256, 257 |
-| `height: 10` | 256 |
-| `maxWidth: '100%'` | 125 |
-| `maxWidth: 600` | 253 |
-| `minHeight: 0` | 253 |
-| `minHeight: 142` | 254 |
-| `minHeight: 48` | 125, 256 |
-| `minHeight: 50` | 255 |
-| `minWidth: '45%'` | 154, 155, 156 |
-| `minWidth: 102` | 257 |
-| `minWidth: 72` | 256 |
-| `minWidth: 90` | 256 |
-| `minWidth: 95` | 256 |
-| `opacity: .55` | 256 |
-| `opacity: .72` | 254 |
-| `padding: 12` | 253 |
-| `padding: 13` | 256 |
-| `padding: 14` | 255 |
-| `padding: 16` | 254 |
-| `paddingHorizontal: 10` | 253 |
-| `paddingHorizontal: 12` | 255 |
-| `paddingHorizontal: 8` | 256 |
-| `width: '100%'` | 253 |
-| `width: 10` | 256 |
+| `borderRadius: 12` | 256 |
+| `borderRadius: 13` | 257 |
+| `borderRadius: 16` | 257 |
+| `borderRadius: 18` | 256 |
+| `borderRadius: 20` | 255 |
+| `borderRadius: 5` | 257 |
+| `borderWidth: 1` | 255, 256, 257 |
+| `gap: 12` | 254 |
+| `gap: 2` | 257, 258 |
+| `gap: 3` | 256 |
+| `gap: 5` | 239, 256, 257 |
+| `gap: 6` | 126, 255, 256, 257 |
+| `gap: 8` | 256, 257, 258 |
+| `height: 10` | 257 |
+| `maxWidth: '100%'` | 126 |
+| `maxWidth: 600` | 254 |
+| `minHeight: 0` | 254 |
+| `minHeight: 142` | 255 |
+| `minHeight: 48` | 126, 257 |
+| `minHeight: 50` | 256 |
+| `minWidth: '45%'` | 155, 156, 157 |
+| `minWidth: 102` | 258 |
+| `minWidth: 72` | 257 |
+| `minWidth: 90` | 257 |
+| `minWidth: 95` | 257 |
+| `opacity: .55` | 257 |
+| `opacity: .72` | 255 |
+| `padding: 12` | 254 |
+| `padding: 13` | 257 |
+| `padding: 14` | 256 |
+| `padding: 16` | 255 |
+| `paddingHorizontal: 10` | 254 |
+| `paddingHorizontal: 12` | 256 |
+| `paddingHorizontal: 8` | 257 |
+| `width: '100%'` | 254 |
+| `width: 10` | 257 |
 
 ## StatusBadge.tsx
 

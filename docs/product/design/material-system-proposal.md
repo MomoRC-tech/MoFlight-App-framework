@@ -1,5 +1,7 @@
 # Material 3 system — proposal for review
 
+**Flight detail continuation — selected 27 October 2026:** Manuel accepted direct implementation of grouped detail content and expandable original fields. [Current contract](compact-cockpit.md#flight-detail-hierarchy--selected-27-october-2026) preserves the existing caller/header routes, source uncertainty, PIC help and pagination. This selects this bounded package; Club and AI migrations remain future work.
+
 **Provider settings route continuation — 26 October 2026:** Manuel explicitly requested direct implementation of the recommended next package, using the established child-page pattern. Ordinary provider administration is now a page with Back/confirmed Sync and separate session/credential groups; only actual original-page sign-out retains the bounded browser frame. [Selected scope](compact-cockpit.md#vereinsflieger-settings-child-page--authorized-26-october-2026) · [implementation evidence](../../verification/2026-10-26-material-settings.md#vereinsflieger-settings-child-page--26-october-2026). Start and global tokens remain preserved; this is not general approval for later migrations.
 
 26 October 2026 · [#94](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/94) · M1 / P1 design definition under #20.

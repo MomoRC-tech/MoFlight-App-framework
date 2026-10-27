@@ -36,6 +36,7 @@ export function StatisticsOverlay({ data, today, fontScale, onBackHandler, onClo
   const [toDraft, setToDraft] = useState(today);
   const [customOpen, setCustomOpen] = useState(false);
   const [informationOpen,setInformationOpen]=useState(false);
+  const [rawFlightId,setRawFlightId]=useState<string|null>(null);
   const [rawPage,setRawPage]=useState(0);
   const [routes, setRoutes] = useState<Route[]>([{ kind: 'section', section: initialSection, key: `section-${initialSection}` }]);
   const routeSequence = useRef(0);
@@ -86,7 +87,7 @@ export function StatisticsOverlay({ data, today, fontScale, onBackHandler, onClo
     setRoutes(previous => [...previous, { kind: 'flights', title, ids: filteredIds, scope, key }]);
   };
   const openFlight = (flight: RealFlightListItem) => {
-    setRawPage(0);
+    setRawPage(0);setRawFlightId(null);
     const key = `detail-${++routeSequence.current}`;
     const card = ownFlightCard(flight);
     const title = [card.date, card.registration].filter(Boolean).join(' · ') || 'Flugdetails';
@@ -238,15 +239,15 @@ export function StatisticsOverlay({ data, today, fontScale, onBackHandler, onClo
         <View style={{gap:5}}>{routeItems.map(flight=><FlightCard key={`${flight.flightId}:${flight.factsRevision}`} flight={flight} onPress={()=>openFlight(flight)}/>)}</View>
       </>}
 
-      {route.kind === 'detail' && <StatisticsFlightDetails detail={detail} loading={data.detailBusy} error={detailError ? data.detailError : null} rawPage={rawPage} onRawPage={setRawPage} />}
+      {route.kind === 'detail' && <StatisticsFlightDetails detail={detail} loading={data.detailBusy} error={detailError ? data.detailError : null} rawPage={rawPage} onRawPage={setRawPage} rawExpanded={!!detail&&rawFlightId===detail.flightId} onToggleRaw={()=>{if(detail)setRawFlightId(current=>current===detail.flightId?null:detail.flightId);}} />}
     </ScrollView>
   </View>;
 }
 
-function StatisticsFlightDetails({ detail, loading, error,rawPage,onRawPage }: { detail: RealFlightDetail | null; loading: boolean; error: string | null;rawPage:number;onRawPage:(page:number)=>void }) {
+function StatisticsFlightDetails({ detail, loading, error,rawPage,onRawPage,rawExpanded,onToggleRaw }: { detail: RealFlightDetail | null; loading: boolean; error: string | null;rawPage:number;onRawPage:(page:number)=>void;rawExpanded:boolean;onToggleRaw:()=>void }) {
   if (loading) return <Card><ActivityIndicator color={colors.cyan} accessibilityLabel="Gespeicherte Flugdetails werden geprüft" /><Label muted>Flugdetails werden lokal geprüft.</Label></Card>;
   if (!detail) return <Card><Empty title="Flugdetails nicht verfügbar">{error ?? 'Die aktuelle gespeicherte Auswahl konnte nicht bestätigt werden. Kehre zur Statistik zurück und öffne den Flug erneut.'}</Empty></Card>;
-  return <FlightDetails detail={detail} rawPage={rawPage} onRawPage={onRawPage}/>;
+  return <FlightDetails detail={detail} rawPage={rawPage} onRawPage={onRawPage} rawExpanded={rawExpanded} onToggleRaw={onToggleRaw}/>;
 }
 
 const styles = StyleSheet.create({

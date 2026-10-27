@@ -16,6 +16,7 @@ export default function AndroidFlightResponsivenessPoc() {
   const [status,setStatus]=useState('RUNNING');
   const [display,setDisplay]=useState<{detail:RealFlightDetail;label:string;start:number;resolve:(result:DetailRenderProxy)=>void}|null>(null);
   const [rawPage,setRawPage]=useState(0);
+  const [rawFlightId,setRawFlightId]=useState<string|null>(null);
   useLayoutEffect(()=>{
     if(!display)return;
     const commit=performance.now()-display.start;
@@ -53,6 +54,6 @@ export default function AndroidFlightResponsivenessPoc() {
   return <ScrollView style={{backgroundColor:colors.background}} contentContainerStyle={{padding:16,gap:12}}>
     <Text style={{color:colors.text}}>Synthetic displayed-flight detail proof</Text><Text style={{color:colors.text}}>{status}</Text>
     <Text style={{color:colors.text}}>Render metric: React commit / next frame callback; not tap-to-visible.</Text>
-    {display&&<View><Text style={{color:colors.text}}>{display.label}</Text><FlightDetails detail={display.detail} rawPage={rawPage} onRawPage={setRawPage}/></View>}
+    {display&&<View><Text style={{color:colors.text}}>{display.label}</Text><FlightDetails detail={display.detail} rawPage={rawPage} onRawPage={setRawPage} rawExpanded={rawFlightId===display.detail.flightId} onToggleRaw={()=>setRawFlightId(current=>current===display.detail.flightId?null:display.detail.flightId)}/></View>}
   </ScrollView>;
 }

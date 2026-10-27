@@ -163,7 +163,8 @@ test('ordinary flight rows expose useful saved facts while technical provenance 
   const detailText=visibleText(f.render()).replace(/\s+/g,' ');
   assert.match(detailText,/Lehrer-Zeit\s*:/);assert.doesNotMatch(detailText,/instructorTime\s*:/);
   assert.ok(detailText.includes(item.sourceFlightRef));assert.ok(detailText.includes('Fassung 1'));
-  assert.ok(detailText.includes('Kein gespeicherter Track'));assert.ok(f.nodes().some(n=>n.type==='Section'&&n.props.title==='Originale Anbieterfelder'));assert.ok(detailText.includes(item.facts.assessment.observation.row.values[0]));
+  assert.ok(detailText.includes('Kein gespeicherter Track'));assert.ok(f.nodes().some(n=>n.type==='Section'&&n.props.title==='Originale Anbieterfelder'));assert.equal(f.find('Pressable','Originale Anbieterfelder').props.accessibilityState.expanded,false);
+  f.find('Pressable','Originale Anbieterfelder').props.onPress();f.render();assert.equal(f.find('Pressable','Originale Anbieterfelder').props.accessibilityState.expanded,true);
 });
 
 test('original provider fields paginate across three pages and return to the filtered list',()=>{
@@ -177,6 +178,8 @@ test('original provider fields paginate across three pages and return to the fil
   f.data.detail=makeDetail();
   f.data.clearDetail=()=>{f.data.detail=null;};
   f.render();
+  assert.ok(!visibleText(f.render()).includes('Synthetic value 1'));
+  f.find('Pressable','Originale Anbieterfelder').props.onPress();f.render();
   const action=(caption:string)=>{
     const node=f.nodes().find(n=>n.type==='Action'&&visibleText(n).trim()===caption);
     assert.ok(node,`Action ${caption}`);return node;
@@ -204,6 +207,8 @@ test('original provider fields paginate across three pages and return to the fil
 
   previous().props.onPress();
   assertRange(9,16);
+  f.find('Pressable','Originale Anbieterfelder').props.onPress();f.render();assert.ok(!detailText().includes('Synthetic value 9'));
+  f.find('Pressable','Originale Anbieterfelder').props.onPress();assertRange(9,16);
   action('Zur gefilterten Flugliste').props.onPress();
   const listText=detailText();
   assert.ok(f.nodes().some(n=>n.props.testID==='flight-filter-bar'));
@@ -211,7 +216,9 @@ test('original provider fields paginate across three pages and return to the fil
   assert.equal(f.search().props.value,'D-T001');
   assert.deepEqual(f.find('FlatList').props.data.map((flight:any)=>flight.flightId),['flight-1']);
 
-  f.data.detail=makeDetail();
+  f.data.detail=makeDetail();f.render();
+  assert.equal(f.find('Pressable','Originale Anbieterfelder').props.accessibilityState.expanded,false);
+  f.find('Pressable','Originale Anbieterfelder').props.onPress();
   assertRange(1,8);
   assert.ok(detailText().includes('Synthetic value 1'));
 });
@@ -402,4 +409,16 @@ test('empty own flights distinguish first retrieval from confirmed zero',()=>{
   const captured=JSON.stringify(f.find('FlatList').props.ListEmptyComponent);
   assert.match(captured,/nicht erfasste Zeiträume bleiben unbekannt/);
   assert.doesNotMatch(captured,/gesamte Fluggeschichte vollständig/);
+});
+
+
+test('detail groups preserve visible uncertainties while a different flight starts with collapsed originals',()=>{
+  const f=fixture(),item=f.data.view.flights[0];
+  f.data.detail={...item,factHistory:[item.facts],pending:[{}]};f.render();
+  const titles=f.nodes().filter(n=>n.type==='Section').map(n=>n.props.title);
+  for(const title of ['Gespeicherter Flug','Route & Zeiten','Crew & Rollen','Originale Anbieterfelder'])assert.ok(titles.includes(title));
+  const text=visibleText(f.render());assert.match(text,/ungeklärte Beobachtung/);assert.match(text,/Uhrzeitbasis und Landetag/);assert.match(text,/keine Rollen- oder Buchanrechnung/);assert.match(text,/nicht verifiziert/);
+  f.find('Pressable','Originale Anbieterfelder').props.onPress();f.render();
+  const other=f.data.view.flights[1];f.data.detail={...other,factHistory:[other.facts],pending:[]};f.render();
+  assert.equal(f.find('Pressable','Originale Anbieterfelder').props.accessibilityState.expanded,false);
 });

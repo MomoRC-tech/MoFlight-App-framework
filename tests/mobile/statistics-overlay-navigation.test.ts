@@ -200,3 +200,16 @@ test('switching Statistics sections restores each section scroll offset',()=>{
  section('Flugzeuge');assert.equal(content().props.contentOffset.y,96);
  assert.deepEqual(f.events,[]);
 });
+
+
+test('Statistics detail shares source disclosure and reopening from contributors resets it',()=>{
+  const f=fixture();
+  f.nodes().find(n=>n.type==='Action'&&n.children.includes('Vorjahresflüge ansehen'))!.props.onPress();
+  const open=()=>f.nodes().find(n=>n.type==='Card'&&typeof n.props.onPress==='function')!.props.onPress();
+  open();const item=f.flights[1]!;f.data.detail={...item,factHistory:[item.facts],pending:[]};
+  const disclosure=()=>f.nodes().find(n=>n.props.accessibilityLabel==='Originale Anbieterfelder')!;
+  assert.ok(disclosure());assert.equal(disclosure().props.accessibilityState.expanded,false);
+  disclosure().props.onPress();assert.equal(disclosure().props.accessibilityState.expanded,true);
+  assert.equal(f.back(),true);f.render();open();assert.equal(disclosure().props.accessibilityState.expanded,false);
+  assert.ok(f.opened.every(id=>id===item.flightId));
+});

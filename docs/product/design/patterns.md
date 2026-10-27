@@ -1,5 +1,7 @@
 # Layout and presentation patterns
 
+**27 October flight details (#94):** shared Flights/Statistics content follows the selected grouped detail hierarchy. Raw provider fields are an in-flow disclosure, not a modal or extra navigation level. Preserve exact caller/period/filter/scroll and PIC help; no data or header rewrite. [Scoped contract](compact-cockpit.md#flight-detail-hierarchy--selected-27-october-2026).
+
 **26 October provider settings continuation (#94):** ordinary provider administration follows the full Settings child-page pattern, with session and credential groups, one capped scrolling column and contextual Back/confirmed Sync. No provider request or identity creation occurs on entry. Actual original-page sign-out temporarily uses the retained framed browser with its own Close/history/verification. This supersedes ordinary administration-frame wording below. [Contract and boundaries](compact-cockpit.md#vereinsflieger-settings-child-page--authorized-26-october-2026).
 
 **26 October Backup child page (#94):** [selected contract](compact-cockpit.md#backup-child-page--selected-26-october-2026). Ordinary Settings/Status backup is a full child page with capped content, contextual Back/confirmed Sync, separate save/restore tasks, scope disclosure and prominent interrupted-restore recovery. Its short pre-picker confirmation dismisses before page exit. Existing owner/foreground/write and same-file recovery guards remain authoritative. This supersedes maintenance-frame references for ordinary backup only.
