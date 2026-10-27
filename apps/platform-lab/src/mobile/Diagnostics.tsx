@@ -31,6 +31,7 @@ export function Diagnostics() {
     <SettingsContentGroup title="Bericht & Speicher"><View style={{ padding: 16, gap: 10 }}>
       <Action testID="diagnostics-share" disabled={sharing || !available} onPress={() => void share(true)}>Diagnosebericht teilen</Action>
       <Action testID="diagnostics-short-share" secondary disabled={sharing || !available} onPress={() => void share(false)}>Kurzbericht teilen / kopieren</Action>
+      {sharing && <View accessible accessibilityLiveRegion="polite" accessibilityState={{ busy: true }}><Label>Teilen läuft … Schließe die Systemauswahl ab, um fortzufahren.</Label></View>}
       <Label muted>Der vollständige Bericht wird als JSON-Datei geteilt. Der Kurzbericht enthält nur die jüngsten Einträge. Prüfe vor dem Senden den ausgewählten Empfänger.</Label>
       {!!message && <View accessibilityLiveRegion="polite"><Label>{message}</Label></View>}
       {diagnosticJournal.storageFailed && <Label>Das Diagnosejournal konnte nicht dauerhaft gespeichert werden. Der Bericht dieser Sitzung bleibt hier verfügbar.</Label>}

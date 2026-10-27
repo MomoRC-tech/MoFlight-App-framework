@@ -513,7 +513,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ConnectionSummary
 
 ## CoreFlightFoundation.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `1c6d8a206275ee3a4d04168ac1b54b38bec6d8143e681280bf769a5fd08be478`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `7914b92e8b09db488d9ed2148c90da33ec6288ad8be95cfa03afa58f60b704a0`.
 
 ### Typography declarations
 
@@ -659,15 +659,15 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DevelopmentHub.ts
 
 ## Diagnostics.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Diagnostics.tsx](../../../apps/platform-lab/src/mobile/Diagnostics.tsx); normalized SHA-256 `d86db2baa034d8f7f9bd00d78c0bc0d5c5aa887abcad0cb065b39d1aee8414de`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Diagnostics.tsx](../../../apps/platform-lab/src/mobile/Diagnostics.tsx); normalized SHA-256 `551d21092df0b93190b6e8c3c88f73924560dbd178133934d09d1e35f2c7ef3b`.
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
 | `gap: 10` | 31 |
-| `gap: 8` | 47 |
-| `padding: 16` | 31, 47 |
+| `gap: 8` | 48 |
+| `padding: 16` | 31, 48 |
 
 ## DutyRoster.tsx
 
