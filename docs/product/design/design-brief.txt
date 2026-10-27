@@ -861,14 +861,14 @@ Retained app-owned lab/adapter surface; document its existing appearance as an e
 
 ## android-flight-responsiveness-poc.tsx
 
-Retained app-owned lab/adapter surface; document its existing appearance as an exception. Source: [apps/platform-lab/src/development/android-flight-responsiveness-poc.tsx](../../../apps/platform-lab/src/development/android-flight-responsiveness-poc.tsx); normalized SHA-256 `effad4df25eda928fd4d001f249b7c37e35d7a5d625c41c7dbccd17776ff2300`.
+Retained app-owned lab/adapter surface; document its existing appearance as an exception. Source: [apps/platform-lab/src/development/android-flight-responsiveness-poc.tsx](../../../apps/platform-lab/src/development/android-flight-responsiveness-poc.tsx); normalized SHA-256 `e504fed3b20c5122776fe04ac7a70348dc187e849560e4fa31c4eec5c26c1af6`.
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `gap: 12` | 53 |
-| `padding: 16` | 53 |
+| `gap: 12` | 54 |
+| `padding: 16` | 54 |
 
 ## android-network-poc.tsx
 

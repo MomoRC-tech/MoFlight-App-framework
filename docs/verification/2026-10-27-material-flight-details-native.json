@@ -1,0 +1,58 @@
+{
+  "status": "passed",
+  "source_commit": "a1a9d3170baf7fd8b77580a6039031cb5e2792ad",
+  "apk_sha256": "770b52a2b6d287c2b6db20e22f98e13abd989877cc47d900263d52e6109a9e61",
+  "installed_apk_hash_verified": true,
+  "checks": [
+    {
+      "name": "flight-detail-summary-main",
+      "status": "passed"
+    },
+    {
+      "name": "flight-detail-route",
+      "status": "passed"
+    },
+    {
+      "name": "flight-detail-crew",
+      "status": "passed"
+    },
+    {
+      "name": "flight-detail-original-fields",
+      "status": "passed"
+    },
+    {
+      "name": "expanded-provider-fields-paginate",
+      "status": "passed"
+    },
+    {
+      "name": "detail-return-and-reopen-from-preview-list",
+      "status": "passed"
+    },
+    {
+      "name": "flight-detail-summary-360dp",
+      "status": "passed"
+    },
+    {
+      "name": "narrow-detail-return-preserves-list",
+      "status": "passed"
+    },
+    {
+      "name": "flight-detail-crew-settled",
+      "status": "passed"
+    }
+  ],
+  "visual_review": "Parent inspected summary at 411/360 dp, route/time, complete crew/role card and expanded raw-field pagination. Narrow summary stacks fields; no observed overlap. The route-only capture duplicates the first summary image; a settled crew capture supplies the missing full-card view.",
+  "avd": "MoFlight_Synthetic_API37",
+  "android_api": 37,
+  "dark_mode": true,
+  "density_dpi": 420,
+  "font_scale": 1.0,
+  "widths_dp": [
+    411.43,
+    360
+  ],
+  "height_dp": 731.43,
+  "display_and_offline_state_restored": true,
+  "data_boundary": "Offline dark synthetic design-preview flights using the actual shared detail component; no reset, seeding, stored-owner mutation, provider work or private data.",
+  "limits": "Synthetic design preview uses actual shared content and preview list-return callbacks. Ordinary stored-owner/Statistics native journeys, Android system Back within the preview, wide/enlarged text, physical/iOS/spoken and light acceptance were not tested. Existing host identity/route/source evidence is reused. No provider or storage operation was activated."
+}
