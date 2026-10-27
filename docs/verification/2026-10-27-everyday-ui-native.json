@@ -1,0 +1,211 @@
+{
+  "package": "#94 U1/U2 everyday Flights and task states",
+  "initial_native": {
+    "application_commit": "211831af5951fdc10b70114efdc2809c1e2e6d0c",
+    "apk_sha256": "982067f2b191d7886d49bdbfc0dcf107bacb328340c56012e1544312b858e094",
+    "avd": "MoFlight_Synthetic_API37",
+    "android_api": "37",
+    "actions_used": 39,
+    "captures_used": 7,
+    "active_elapsed_seconds": 241.23400000005495,
+    "original_display": {
+      "size": "Physical size: 1080x1920",
+      "density": "Physical density: 420",
+      "font": "1.0"
+    },
+    "restored_display": {
+      "size": "Physical size: 1080x1920",
+      "density": "Physical density: 420",
+      "font": "1.0"
+    },
+    "original_network": {
+      "airplane_mode_on": "1",
+      "wifi_on": "0",
+      "mobile_data": "0"
+    },
+    "final_network": {
+      "airplane_mode_on": "1",
+      "wifi_on": "0",
+      "mobile_data": "0"
+    },
+    "cleanup_errors": []
+  },
+  "viewports": [
+    {
+      "dp": [
+        390,
+        900
+      ],
+      "density_dpi": 160,
+      "font_scale": 1
+    },
+    {
+      "dp": [
+        360,
+        900
+      ],
+      "density_dpi": 160,
+      "font_scale": 1.6
+    },
+    {
+      "dp": [
+        800,
+        600
+      ],
+      "density_dpi": 160,
+      "font_scale": 1
+    }
+  ],
+  "scoped_worker_checks": {
+    "Flights": {
+      "status": "passed",
+      "observation": "MAIN 390x900/font 1.0 and MIN 360x900/font 1.6 dark screenshots: ordinary Flights header, filters, empty list and navigation readable without overlap. Exact count 0 FlÃ¼ge Â· â€”, no row data. MIN navigation wraps into two rows.",
+      "evidence": [
+        "flights-main.png",
+        "flights-main.xml",
+        "flights-min.png",
+        "flights-min.xml"
+      ]
+    },
+    "Coverage": {
+      "status": "passed",
+      "observation": "Abdeckung & Datenstand reachable from ordinary Flights. Says Noch keine Flugdaten abgerufen and Noch kein vollstÃ¤ndiger Abruf gespeichert. No reload or provider operation invoked.",
+      "evidence": [
+        "coverage-main.xml"
+      ]
+    },
+    "Period": {
+      "status": "passed",
+      "observation": "Custom editor MAIN/MIN shows labeled from/to fields and distinct apply/Cancel controls without form overlap. Abbrechen and contextual app Back independently close editor, retaining displayed 2026-01-01 â€“ 2026-10-27 range. No editing or application. MIN lower statistics content requires scrolling; not tested.",
+      "evidence": [
+        "period-main.png",
+        "period-main.xml",
+        "period-min.png",
+        "period-min.xml",
+        "period-cancel.xml",
+        "period-back.xml"
+      ]
+    },
+    "AI": {
+      "status": "passed",
+      "observation": "MIN unavailable state says AI service not enabled and drafts/conversations remain local; Send disabled. Wide 800x600/font 1.0 capture visually shows settled empty prompt while capture XML caught preceding loading state with disabled composer/new-chat control. This timing discrepancy limits loading-state visual evidence. Wide chat content is centered/capped.",
+      "evidence": [
+        "ai-min.png",
+        "ai-min.xml",
+        "ai-wide.png",
+        "ai-wide.xml"
+      ]
+    },
+    "AIStatusMIN": {
+      "status": "failed",
+      "observation": "MIN unavailable-status sentence visibly truncates after two lines (GesprÃ¤â€¦); full no-sending explanation is available in XML but not visible in screenshot. Details control not opened within action budget.",
+      "evidence": [
+        "ai-min.png",
+        "ai-min.xml"
+      ]
+    },
+    "History": {
+      "status": "passed",
+      "observation": "Chats opens at MIN and wide; empty state Noch keine gespeicherten Chats. Wide modal is centered, readable, with search, new-chat row and close control. No creation/search input performed.",
+      "evidence": [
+        "history-min.xml",
+        "history-wide.png",
+        "history-wide.xml"
+      ]
+    },
+    "Populated": {
+      "status": "not_tested",
+      "observation": "Populated flights and saved AI chats unavailable; no seeding, creation or service calls authorized.",
+      "evidence": []
+    }
+  },
+  "parent_inspected": [
+    {
+      "file": "flights-main.png",
+      "sha256": "9d0e2b49fb24eff2493b6a675acd78b8ff0267351cb75e7446ff075253a1ef46",
+      "pixels": [
+        390,
+        900
+      ]
+    },
+    {
+      "file": "period-min.png",
+      "sha256": "45f0f9449687e23e35cb1728769dac104ef363a988db41f059fffe6b9560a334",
+      "pixels": [
+        360,
+        900
+      ]
+    },
+    {
+      "file": "ai-min.png",
+      "sha256": "b9426164013d8205f513bef16ffecab37ccebbe0329e842fb7e5a5746f0ca523",
+      "pixels": [
+        360,
+        900
+      ]
+    },
+    {
+      "file": "history-wide.png",
+      "sha256": "6a39cf5346a1e89eff8a987e9a196d95facace101e235a5945d60ff9a96b21db",
+      "pixels": [
+        800,
+        600
+      ]
+    }
+  ],
+  "parent_assessment": "Confirmed initial MIN AI status clipping; corrected line clamp before release. Other reviewed Flights/period/history images show readable affected content. No loading screenshot acceptance from mismatched-time XML/image. Two selector failures followed viewport recreation and resolved with bounded retries.",
+  "final_source": "28bd21c98c7dedd00e8b2c6a16be69a00cf45b58",
+  "final_apk_sha256": "fca90f40fc4806052155f7b65999e508b962b88138173ed4057b608f7ff76edc",
+  "corrected_ai_native": {
+    "application_commit": "28bd21c98c7dedd00e8b2c6a16be69a00cf45b58",
+    "apk_sha256": "fca90f40fc4806052155f7b65999e508b962b88138173ed4057b608f7ff76edc",
+    "actions_used": 4,
+    "captures_used": 1,
+    "active_elapsed_seconds": 76.01599999994505,
+    "cleanup_errors": [],
+    "original_display": {
+      "size": "Physical size: 1080x1920",
+      "density": "Physical density: 420",
+      "font": "1.0"
+    },
+    "restored_display": {
+      "size": "Physical size: 1080x1920",
+      "density": "Physical density: 420",
+      "font": "1.0"
+    },
+    "original_network": {
+      "airplane_mode_on": "1",
+      "wifi_on": "0",
+      "mobile_data": "0"
+    },
+    "final_network": {
+      "airplane_mode_on": "1",
+      "wifi_on": "0",
+      "mobile_data": "0"
+    },
+    "worker_check": {
+      "status": "passed",
+      "observation": "At MIN 360x900 dp, density 160, font scale 1.6, the AI status text wraps across four fully readable lines. No clipping or overlap observed. Composer and all five navigation targets remain visible. Fresh hierarchy was obtained after viewport recreation; settled PNG inspected.",
+      "evidence": [
+        "min-fresh.xml",
+        "ai-min-settled.xml",
+        "ai-min-settled.png"
+      ]
+    },
+    "parent_assessment": "Passed: full four-line status visible without ellipsis or overlap; composer and five navigation targets remain visible in inspected MIN screenshot.",
+    "parent_image": {
+      "file": "ai-min-settled.png",
+      "sha256": "094dc60dd11e591083148c057cf965c5a86a441aeb9f3a01c297cfc041e0ac08",
+      "pixels": [
+        360,
+        900
+      ]
+    }
+  },
+  "remaining_gates": [
+    "No MAIN AI screenshot; MIN and relevant wide checked instead within action budget.",
+    "No populated data, typing, period application, provider/AI calls, Sync, seed/reset, create/delete, external links or network changes.",
+    "No exact contrast, pixel fidelity, iOS or screen-reader claims.",
+    "Token telemetry unavailable."
+  ]
+}
