@@ -1,0 +1,691 @@
+{
+  "baseline_source": "35c0dc52868779cb8027587f27e751d7acfb10a4",
+  "candidate_source": "d986ac1435b82ada5d0c406ca4e09689058e7fec",
+  "harness_source": "35c0dc5",
+  "fixture": {
+    "flights": 101,
+    "seed_digests": {
+      "empty": [
+        "47c836cfda38c996e970f2c06a8788c4ee2db4e48953c2ceeeac7f81958dfccf",
+        "1b759cbb7d81722e6d13781e45c487b98fbddc5dcc30828f5cdd85e189768847"
+      ],
+      "populated": [
+        "d892e0d0ea7654cf33a421b1e197db89f2cdaf8487f7703d4305454b63991fcf",
+        "2fa4a6ff079857f7a063c020ee01d57976378328822097292597db60ea907a56"
+      ]
+    }
+  },
+  "environment": {
+    "baseline": {
+      "model": "sdk_gphone64_x86_64",
+      "api": "37",
+      "abi": "x86_64",
+      "size": "Physical size: 1080x1920",
+      "density": "Physical density: 420",
+      "font": "1.0",
+      "initial_running": true,
+      "original_apk_sha256": "982067f2b191d7886d49bdbfc0dcf107bacb328340c56012e1544312b858e094",
+      "exact_apk_restored": true,
+      "running_state_restored": true
+    },
+    "candidate": {
+      "model": "sdk_gphone64_x86_64",
+      "api": "37",
+      "abi": "x86_64",
+      "size": "Physical size: 1080x1920",
+      "density": "Physical density: 420",
+      "font": "1.0",
+      "initial_running": true,
+      "original_apk_sha256": "982067f2b191d7886d49bdbfc0dcf107bacb328340c56012e1544312b858e094",
+      "exact_apk_restored": true,
+      "running_state_restored": true
+    }
+  },
+  "results": [
+    {
+      "scenario": "first",
+      "baseline": {
+        "median": 6115.177699998021,
+        "min": 5779.8527000024915,
+        "max": 6905.11250000447,
+        "samples": [
+          {
+            "scenario": "first",
+            "trial": 0,
+            "milliseconds": 6905.11250000447,
+            "stages": {
+              "retrieval-review": 735.8619999960065,
+              "save": 4959.220899999142,
+              "readback": 1027.3474999964237
+            },
+            "graphSha256": "5a81c0df7178133963002b90682c8f700a2dbcd561aba9ec52030a73d8bda457",
+            "receipts": 2
+          },
+          {
+            "scenario": "first",
+            "trial": 1,
+            "milliseconds": 6833.495499998331,
+            "stages": {
+              "retrieval-review": 405.5894000008702,
+              "save": 5122.69280000031,
+              "readback": 1092.820799998939
+            },
+            "graphSha256": "5a81c0df7178133963002b90682c8f700a2dbcd561aba9ec52030a73d8bda457",
+            "receipts": 2
+          },
+          {
+            "scenario": "first",
+            "trial": 2,
+            "milliseconds": 5779.8527000024915,
+            "stages": {
+              "retrieval-review": 358.05120000243187,
+              "save": 4284.1585000008345,
+              "readback": 959.0943999961019
+            },
+            "graphSha256": "5a81c0df7178133963002b90682c8f700a2dbcd561aba9ec52030a73d8bda457",
+            "receipts": 2
+          },
+          {
+            "scenario": "first",
+            "trial": 3,
+            "milliseconds": 6115.177699998021,
+            "stages": {
+              "retrieval-review": 376.952699996531,
+              "save": 4364.0916999951005,
+              "readback": 1161.9446999952197
+            },
+            "graphSha256": "5a81c0df7178133963002b90682c8f700a2dbcd561aba9ec52030a73d8bda457",
+            "receipts": 2
+          },
+          {
+            "scenario": "first",
+            "trial": 4,
+            "milliseconds": 5818.183199994266,
+            "stages": {
+              "retrieval-review": 360.3024999946356,
+              "save": 4281.016100004315,
+              "readback": 974.0049000009894
+            },
+            "graphSha256": "5a81c0df7178133963002b90682c8f700a2dbcd561aba9ec52030a73d8bda457",
+            "receipts": 2
+          }
+        ]
+      },
+      "candidate": {
+        "median": 5661.71819999814,
+        "min": 5227.705700002611,
+        "max": 5912.854199998081,
+        "samples": [
+          {
+            "scenario": "first",
+            "trial": 0,
+            "milliseconds": 5881.7624000012875,
+            "stages": {
+              "retrieval-review": 454.3930000066757,
+              "save": 4338.297799997032,
+              "readback": 908.9226000010967
+            },
+            "graphSha256": "5a81c0df7178133963002b90682c8f700a2dbcd561aba9ec52030a73d8bda457",
+            "receipts": 2
+          },
+          {
+            "scenario": "first",
+            "trial": 1,
+            "milliseconds": 5661.71819999814,
+            "stages": {
+              "retrieval-review": 335.6988000050187,
+              "save": 4282.019999995828,
+              "readback": 847.534500002861
+            },
+            "graphSha256": "5a81c0df7178133963002b90682c8f700a2dbcd561aba9ec52030a73d8bda457",
+            "receipts": 2
+          },
+          {
+            "scenario": "first",
+            "trial": 2,
+            "milliseconds": 5912.854199998081,
+            "stages": {
+              "retrieval-review": 323.4007999971509,
+              "save": 4554.587099999189,
+              "readback": 853.0500999987125
+            },
+            "graphSha256": "5a81c0df7178133963002b90682c8f700a2dbcd561aba9ec52030a73d8bda457",
+            "receipts": 2
+          },
+          {
+            "scenario": "first",
+            "trial": 3,
+            "milliseconds": 5275.516000002623,
+            "stages": {
+              "retrieval-review": 329.2347999960184,
+              "save": 3924.1328999996185,
+              "readback": 817.7705000042915
+            },
+            "graphSha256": "5a81c0df7178133963002b90682c8f700a2dbcd561aba9ec52030a73d8bda457",
+            "receipts": 2
+          },
+          {
+            "scenario": "first",
+            "trial": 4,
+            "milliseconds": 5227.705700002611,
+            "stages": {
+              "retrieval-review": 341.7689999938011,
+              "save": 3854.4533000066876,
+              "readback": 849.5641999989748
+            },
+            "graphSha256": "5a81c0df7178133963002b90682c8f700a2dbcd561aba9ec52030a73d8bda457",
+            "receipts": 2
+          }
+        ]
+      },
+      "median_change_percent": -7.415311905000365,
+      "complete_graph_and_receipts_equal": true
+    },
+    {
+      "scenario": "unchanged",
+      "baseline": {
+        "median": 9007.718999996781,
+        "min": 7890.5002000033855,
+        "max": 11413.224599994719,
+        "samples": [
+          {
+            "scenario": "unchanged",
+            "trial": 0,
+            "milliseconds": 7921.903899997473,
+            "stages": {
+              "retrieval-review": 3045.760699994862,
+              "save": 3255.4514999985695,
+              "readback": 1365.5785000026226
+            },
+            "graphSha256": "540560b60e2e7846d4f4d9ef64af5c9ccd19edede5b6444c1b8e1be46f8399cb",
+            "receipts": 3
+          },
+          {
+            "scenario": "unchanged",
+            "trial": 1,
+            "milliseconds": 7890.5002000033855,
+            "stages": {
+              "retrieval-review": 2989.454999998212,
+              "save": 3223.281700000167,
+              "readback": 1424.5837000012398
+            },
+            "graphSha256": "540560b60e2e7846d4f4d9ef64af5c9ccd19edede5b6444c1b8e1be46f8399cb",
+            "receipts": 3
+          },
+          {
+            "scenario": "unchanged",
+            "trial": 2,
+            "milliseconds": 9400.027800001204,
+            "stages": {
+              "retrieval-review": 3483.9230000004172,
+              "save": 3741.7745999991894,
+              "readback": 1814.7888999953866
+            },
+            "graphSha256": "540560b60e2e7846d4f4d9ef64af5c9ccd19edede5b6444c1b8e1be46f8399cb",
+            "receipts": 3
+          },
+          {
+            "scenario": "unchanged",
+            "trial": 3,
+            "milliseconds": 11413.224599994719,
+            "stages": {
+              "retrieval-review": 4345.066599994898,
+              "save": 5285.2555000036955,
+              "readback": 1512.3009999990463
+            },
+            "graphSha256": "540560b60e2e7846d4f4d9ef64af5c9ccd19edede5b6444c1b8e1be46f8399cb",
+            "receipts": 3
+          },
+          {
+            "scenario": "unchanged",
+            "trial": 4,
+            "milliseconds": 9007.718999996781,
+            "stages": {
+              "retrieval-review": 3191.7071000039577,
+              "save": 3948.0416999980807,
+              "readback": 1585.3988000005484
+            },
+            "graphSha256": "540560b60e2e7846d4f4d9ef64af5c9ccd19edede5b6444c1b8e1be46f8399cb",
+            "receipts": 3
+          }
+        ]
+      },
+      "candidate": {
+        "median": 7044.179499998689,
+        "min": 6838.538199998438,
+        "max": 7485.004100002348,
+        "samples": [
+          {
+            "scenario": "unchanged",
+            "trial": 0,
+            "milliseconds": 7485.004100002348,
+            "stages": {
+              "retrieval-review": 2813.865600004792,
+              "save": 3101.3790000006557,
+              "readback": 1320.725999996066
+            },
+            "graphSha256": "540560b60e2e7846d4f4d9ef64af5c9ccd19edede5b6444c1b8e1be46f8399cb",
+            "receipts": 3
+          },
+          {
+            "scenario": "unchanged",
+            "trial": 1,
+            "milliseconds": 6838.538199998438,
+            "stages": {
+              "retrieval-review": 2703.23939999938,
+              "save": 2735.36590000242,
+              "readback": 1147.7490999996662
+            },
+            "graphSha256": "540560b60e2e7846d4f4d9ef64af5c9ccd19edede5b6444c1b8e1be46f8399cb",
+            "receipts": 3
+          },
+          {
+            "scenario": "unchanged",
+            "trial": 2,
+            "milliseconds": 7044.179499998689,
+            "stages": {
+              "retrieval-review": 2652.726400002837,
+              "save": 3031.6397999972105,
+              "readback": 1084.831399999559
+            },
+            "graphSha256": "540560b60e2e7846d4f4d9ef64af5c9ccd19edede5b6444c1b8e1be46f8399cb",
+            "receipts": 3
+          },
+          {
+            "scenario": "unchanged",
+            "trial": 3,
+            "milliseconds": 6919.957800000906,
+            "stages": {
+              "retrieval-review": 2630.178499996662,
+              "save": 2863.2159999981523,
+              "readback": 1173.8989000022411
+            },
+            "graphSha256": "540560b60e2e7846d4f4d9ef64af5c9ccd19edede5b6444c1b8e1be46f8399cb",
+            "receipts": 3
+          },
+          {
+            "scenario": "unchanged",
+            "trial": 4,
+            "milliseconds": 7101.674000002444,
+            "stages": {
+              "retrieval-review": 2688.286700002849,
+              "save": 3001.6797000020742,
+              "readback": 1137.8924000039697
+            },
+            "graphSha256": "540560b60e2e7846d4f4d9ef64af5c9ccd19edede5b6444c1b8e1be46f8399cb",
+            "receipts": 3
+          }
+        ]
+      },
+      "median_change_percent": -21.798409786082296,
+      "complete_graph_and_receipts_equal": true
+    },
+    {
+      "scenario": "changed",
+      "baseline": {
+        "median": 8055.74319999665,
+        "min": 7944.196000002325,
+        "max": 8720.121800005436,
+        "samples": [
+          {
+            "scenario": "changed",
+            "trial": 0,
+            "milliseconds": 8310.877500005066,
+            "stages": {
+              "retrieval-review": 3225.3498999997973,
+              "save": 3442.9768999964,
+              "readback": 1403.106100000441
+            },
+            "graphSha256": "9867f43560ea2b073fb45378c409d3fe766dcbd68a0ebbefd95cd7b88cad16e6",
+            "receipts": 3
+          },
+          {
+            "scenario": "changed",
+            "trial": 1,
+            "milliseconds": 7969.945300005376,
+            "stages": {
+              "retrieval-review": 3008.5975000038743,
+              "save": 3329.0958999991417,
+              "readback": 1370.9569000005722
+            },
+            "graphSha256": "9867f43560ea2b073fb45378c409d3fe766dcbd68a0ebbefd95cd7b88cad16e6",
+            "receipts": 3
+          },
+          {
+            "scenario": "changed",
+            "trial": 2,
+            "milliseconds": 8720.121800005436,
+            "stages": {
+              "retrieval-review": 3019.101700000465,
+              "save": 3889.5424000024796,
+              "readback": 1561.9069000035524
+            },
+            "graphSha256": "9867f43560ea2b073fb45378c409d3fe766dcbd68a0ebbefd95cd7b88cad16e6",
+            "receipts": 3
+          },
+          {
+            "scenario": "changed",
+            "trial": 3,
+            "milliseconds": 8055.74319999665,
+            "stages": {
+              "retrieval-review": 3010.761900000274,
+              "save": 3369.7052999958396,
+              "readback": 1395.2270999997854
+            },
+            "graphSha256": "9867f43560ea2b073fb45378c409d3fe766dcbd68a0ebbefd95cd7b88cad16e6",
+            "receipts": 3
+          },
+          {
+            "scenario": "changed",
+            "trial": 4,
+            "milliseconds": 7944.196000002325,
+            "stages": {
+              "retrieval-review": 2955.519400000572,
+              "save": 3335.0925999954343,
+              "readback": 1407.4342000037432
+            },
+            "graphSha256": "9867f43560ea2b073fb45378c409d3fe766dcbd68a0ebbefd95cd7b88cad16e6",
+            "receipts": 3
+          }
+        ]
+      },
+      "candidate": {
+        "median": 6917.657300002873,
+        "min": 6693.296999998391,
+        "max": 7136.586699999869,
+        "samples": [
+          {
+            "scenario": "changed",
+            "trial": 0,
+            "milliseconds": 6733.291699998081,
+            "stages": {
+              "retrieval-review": 2609.805600002408,
+              "save": 2794.090399995446,
+              "readback": 1070.5222000032663
+            },
+            "graphSha256": "9867f43560ea2b073fb45378c409d3fe766dcbd68a0ebbefd95cd7b88cad16e6",
+            "receipts": 3
+          },
+          {
+            "scenario": "changed",
+            "trial": 1,
+            "milliseconds": 6693.296999998391,
+            "stages": {
+              "retrieval-review": 2576.4505999982357,
+              "save": 2751.368700005114,
+              "readback": 1102.578100003302
+            },
+            "graphSha256": "9867f43560ea2b073fb45378c409d3fe766dcbd68a0ebbefd95cd7b88cad16e6",
+            "receipts": 3
+          },
+          {
+            "scenario": "changed",
+            "trial": 2,
+            "milliseconds": 6959.829499997199,
+            "stages": {
+              "retrieval-review": 2744.632500000298,
+              "save": 2849.2180999964476,
+              "readback": 1120.1072999984026
+            },
+            "graphSha256": "9867f43560ea2b073fb45378c409d3fe766dcbd68a0ebbefd95cd7b88cad16e6",
+            "receipts": 3
+          },
+          {
+            "scenario": "changed",
+            "trial": 3,
+            "milliseconds": 6917.657300002873,
+            "stages": {
+              "retrieval-review": 2670.7133000046015,
+              "save": 2905.750700004399,
+              "readback": 1088.1532000005245
+            },
+            "graphSha256": "9867f43560ea2b073fb45378c409d3fe766dcbd68a0ebbefd95cd7b88cad16e6",
+            "receipts": 3
+          },
+          {
+            "scenario": "changed",
+            "trial": 4,
+            "milliseconds": 7136.586699999869,
+            "stages": {
+              "retrieval-review": 2672.235099993646,
+              "save": 3070.077799998224,
+              "readback": 1143.7304000034928
+            },
+            "graphSha256": "9867f43560ea2b073fb45378c409d3fe766dcbd68a0ebbefd95cd7b88cad16e6",
+            "receipts": 3
+          }
+        ]
+      },
+      "median_change_percent": -14.127633810301333,
+      "complete_graph_and_receipts_equal": true
+    },
+    {
+      "scenario": "reopened",
+      "baseline": {
+        "median": 1181.7644999995828,
+        "min": 1117.9689000025392,
+        "max": 1191.278599999845,
+        "samples": [
+          {
+            "scenario": "reopened",
+            "trial": 0,
+            "milliseconds": 1136.820600003004,
+            "stages": {
+              "readback": 947.7826000005007
+            },
+            "graphSha256": "0c638dd73484e43d892450aaf2bf3a0ef4e7e98c08ffcf9f42fa06a59feeffe5",
+            "receipts": 2
+          },
+          {
+            "scenario": "reopened",
+            "trial": 1,
+            "milliseconds": 1117.9689000025392,
+            "stages": {
+              "readback": 919.6557000055909
+            },
+            "graphSha256": "0c638dd73484e43d892450aaf2bf3a0ef4e7e98c08ffcf9f42fa06a59feeffe5",
+            "receipts": 2
+          },
+          {
+            "scenario": "reopened",
+            "trial": 2,
+            "milliseconds": 1191.278599999845,
+            "stages": {
+              "readback": 1007.98560000211
+            },
+            "graphSha256": "0c638dd73484e43d892450aaf2bf3a0ef4e7e98c08ffcf9f42fa06a59feeffe5",
+            "receipts": 2
+          },
+          {
+            "scenario": "reopened",
+            "trial": 3,
+            "milliseconds": 1185.3183000013232,
+            "stages": {
+              "readback": 996.554800003767
+            },
+            "graphSha256": "0c638dd73484e43d892450aaf2bf3a0ef4e7e98c08ffcf9f42fa06a59feeffe5",
+            "receipts": 2
+          },
+          {
+            "scenario": "reopened",
+            "trial": 4,
+            "milliseconds": 1181.7644999995828,
+            "stages": {
+              "readback": 1001.0998999997973
+            },
+            "graphSha256": "0c638dd73484e43d892450aaf2bf3a0ef4e7e98c08ffcf9f42fa06a59feeffe5",
+            "receipts": 2
+          }
+        ]
+      },
+      "candidate": {
+        "median": 1054.7283999994397,
+        "min": 1041.1640999987721,
+        "max": 1063.7325999960303,
+        "samples": [
+          {
+            "scenario": "reopened",
+            "trial": 0,
+            "milliseconds": 1054.7283999994397,
+            "stages": {
+              "readback": 857.5240999981761
+            },
+            "graphSha256": "0c638dd73484e43d892450aaf2bf3a0ef4e7e98c08ffcf9f42fa06a59feeffe5",
+            "receipts": 2
+          },
+          {
+            "scenario": "reopened",
+            "trial": 1,
+            "milliseconds": 1062.2424000054598,
+            "stages": {
+              "readback": 870.8530000001192
+            },
+            "graphSha256": "0c638dd73484e43d892450aaf2bf3a0ef4e7e98c08ffcf9f42fa06a59feeffe5",
+            "receipts": 2
+          },
+          {
+            "scenario": "reopened",
+            "trial": 2,
+            "milliseconds": 1052.4785000011325,
+            "stages": {
+              "readback": 867.5599999949336
+            },
+            "graphSha256": "0c638dd73484e43d892450aaf2bf3a0ef4e7e98c08ffcf9f42fa06a59feeffe5",
+            "receipts": 2
+          },
+          {
+            "scenario": "reopened",
+            "trial": 3,
+            "milliseconds": 1041.1640999987721,
+            "stages": {
+              "readback": 855.3238999992609
+            },
+            "graphSha256": "0c638dd73484e43d892450aaf2bf3a0ef4e7e98c08ffcf9f42fa06a59feeffe5",
+            "receipts": 2
+          },
+          {
+            "scenario": "reopened",
+            "trial": 4,
+            "milliseconds": 1063.7325999960303,
+            "stages": {
+              "readback": 880.5326000005007
+            },
+            "graphSha256": "0c638dd73484e43d892450aaf2bf3a0ef4e7e98c08ffcf9f42fa06a59feeffe5",
+            "receipts": 2
+          }
+        ]
+      },
+      "median_change_percent": -10.749696745856552,
+      "complete_graph_and_receipts_equal": true
+    }
+  ],
+  "limits": [
+    "Synthetic Android native SQLite and Hermes, not live provider or physical phone.",
+    "Sequential baseline then candidate, five independently cloned seeds per scenario. Emulator/JIT/host load/cache variation remains.",
+    "Timings include local receipt recovery but exclude seed cloning and final evidence hashing. Not cold-launch, rendered-frame or whole-Sync latency.",
+    "The benchmark uses two/three-receipt graphs; six-receipt direct replay profile is separate host-only evidence."
+  ],
+  "host_replay_profile": {
+    "baseline": {
+      "label": "baseline",
+      "scope": "Host direct complete-graph replay, fixed six-receipt 101-flight/47-column input; five samples in one process",
+      "graphSha256": "9345f5ad678ed3bf1223c93b90ee8a46a730edac5505cfb59c50dfb322f8e76e",
+      "samples": [
+        {
+          "trial": 0,
+          "milliseconds": 499.25969999999995,
+          "hashes": 741,
+          "rawCaptureHashes": 11
+        },
+        {
+          "trial": 1,
+          "milliseconds": 486.0816,
+          "hashes": 741,
+          "rawCaptureHashes": 11
+        },
+        {
+          "trial": 2,
+          "milliseconds": 503.3820999999998,
+          "hashes": 741,
+          "rawCaptureHashes": 11
+        },
+        {
+          "trial": 3,
+          "milliseconds": 514.2896000000001,
+          "hashes": 741,
+          "rawCaptureHashes": 11
+        },
+        {
+          "trial": 4,
+          "milliseconds": 495.5086000000001,
+          "hashes": 741,
+          "rawCaptureHashes": 11
+        }
+      ]
+    },
+    "candidate": {
+      "label": "candidate",
+      "scope": "Host direct complete-graph replay, fixed six-receipt 101-flight/47-column input; five samples in one process",
+      "graphSha256": "9345f5ad678ed3bf1223c93b90ee8a46a730edac5505cfb59c50dfb322f8e76e",
+      "samples": [
+        {
+          "trial": 0,
+          "milliseconds": 460.9869000000001,
+          "hashes": 736,
+          "rawCaptureHashes": 6
+        },
+        {
+          "trial": 1,
+          "milliseconds": 451.23199999999997,
+          "hashes": 736,
+          "rawCaptureHashes": 6
+        },
+        {
+          "trial": 2,
+          "milliseconds": 456.9119999999998,
+          "hashes": 736,
+          "rawCaptureHashes": 6
+        },
+        {
+          "trial": 3,
+          "milliseconds": 519.4259999999999,
+          "hashes": 736,
+          "rawCaptureHashes": 6
+        },
+        {
+          "trial": 4,
+          "milliseconds": 451.74479999999994,
+          "hashes": 736,
+          "rawCaptureHashes": 6
+        }
+      ]
+    }
+  },
+  "normal_apk_sha256": "8baefc08a179cf1f37f4c69afd6d0017cd0793143d0a0f78a70671fccf2d488b",
+  "normal_app_boundary": "Normal Release built for d986ac1; benchmark and process-recovery use build-only entry overrides. No normal-app or live-provider Sync latency acceptance.",
+  "process_recovery": {
+    "source": "d986ac1435b82ada5d0c406ca4e09689058e7fec",
+    "namespace": "replay-27oct",
+    "status": "passed",
+    "cases": [
+      {
+        "case": "after-facts",
+        "passed": true,
+        "different_process": true
+      },
+      {
+        "case": "after-commit",
+        "passed": true,
+        "different_process": true
+      },
+      {
+        "case": "restore-record",
+        "passed": true,
+        "different_process": true
+      }
+    ],
+    "original_apk_restored_exactly": true,
+    "original_running_state_restored": true,
+    "scope": "Synthetic process termination and restart, not physical power loss or live-provider interrupted Sync"
+  }
+}
