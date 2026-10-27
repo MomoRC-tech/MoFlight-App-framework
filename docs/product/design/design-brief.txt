@@ -1741,7 +1741,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MedicalStatus.tsx
 
 ## MobileApp.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `114c2cca8e8b2bebd0f959de7abd73424a41ff60af35cb98ec9ed82dce468457`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `85cc57136e82d9a1f1f86345972af6bc9d7d4dc4fd710dd39192d05998925744`.
 
 ### Literal colors
 
@@ -1810,7 +1810,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](..
 | `height: 48` | 407 |
 | `maxHeight: 150` | 407 |
 | `maxWidth: 480` | 316 |
-| `maxWidth: 520` | 216, 371, 373, 405 |
+| `maxWidth: 520` | 216, 371, 373, 404, 405 |
 | `maxWidth: 599` | 397, 408 |
 | `maxWidth: 600` | 301, 347, 357, 363 |
 | `maxWidth: 960` | 301, 347 |
