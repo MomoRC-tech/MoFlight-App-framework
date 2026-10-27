@@ -942,7 +942,7 @@ Retained app-owned lab/adapter surface; document its existing appearance as an e
 
 ## AiChat.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/AiChat.tsx](../../../apps/platform-lab/src/mobile/AiChat.tsx); normalized SHA-256 `f2b77c1791de460ef60ffc02b811514d687e7e859c9d20bd1d276b5bb581c340`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/AiChat.tsx](../../../apps/platform-lab/src/mobile/AiChat.tsx); normalized SHA-256 `4549262acb7b87d512e6ed8d62932f0a83457bd21d84cb2fc632ccf638f0ecc5`.
 
 ### Literal colors
 

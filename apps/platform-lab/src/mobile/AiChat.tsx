@@ -175,7 +175,7 @@ export function AiChat({
     </ScrollView>
     {busy&&<View accessible accessibilityLiveRegion="polite" accessibilityRole="progressbar" accessibilityLabel="Antwort wird verarbeitet" accessibilityState={{busy:true}} style={styles.progress}><ActivityIndicator color={colors.cyan}/><Label muted>Antwort wird verarbeitet …</Label></View>}
     {showLatest&&<Pressable accessibilityRole="button" accessibilityLabel="Zur neuesten Nachricht" onPress={bottom} style={styles.latest}><Label>Neueste Nachricht ↓</Label></Pressable>}
-    {(notice||!enabled)&&<Pressable accessibilityRole="button" accessibilityLabel="KI-Status und Details öffnen" onPress={()=>open('options')} style={styles.status}><Text accessibilityLiveRegion="polite" numberOfLines={2} style={styles.statusText}>{notice||'KI-Anfragen aus · Entwurf bleibt lokal'}</Text></Pressable>}
+    {(notice||!enabled)&&<Pressable accessibilityRole="button" accessibilityLabel="KI-Status und Details öffnen" onPress={()=>open('options')} style={styles.status}><Text accessibilityLiveRegion="polite" style={styles.statusText}>{notice||'KI-Anfragen aus · Entwurf bleibt lokal'}</Text></Pressable>}
     <View testID="ai-composer" style={styles.composerPanel}>
       {feature!=='question'&&<Pressable accessibilityRole="button" accessibilityLabel="Aufgabe ändern" onPress={()=>open('tasks')} style={styles.mode}><Label muted>{features.find(f=>f.id===feature)?.title} · ändern</Label></Pressable>}
       <View style={styles.composerRow}>
