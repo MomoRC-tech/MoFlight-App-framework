@@ -51,7 +51,7 @@ const fixtureActivityLedger={
 
 // Real screen effects and handlers; SQLite and provider behavior have their own
 // integration tests. These ports control timing to exercise the screen coordinator.
-function fixture({backupFails=false,destination='sources',providerAllowed=true,deferRead=false,deferRecoveryClear=false,startUpdate=false,root=false,readOnly=false,deferReservation=false,deferActivityCancel=false,deferActivityWrite=false,failStartup=false,medicalFailure=false,pendingFlightCount=0,cleanupAfterTasks=false,loginPending=false,deferProvider=false,quietResume=false,deferSource=false,sameWindow=false,deferVerification=false,priorConnection='unknown',existingOwner=false,pendingRestore=false,cancelRestore=false,initialOpen=true,initialFlightsSaved=false,initialSavedSync=null as syncRecovery.SyncRecoveryRecord|null,initialEstimateHistory=null as unknown,unactivatedPreparation=false,activityEnabled=false,activityBaselineCount=1,activityResultCount=2,onStatus:statusCallback=undefined as ((status:any)=>void)|undefined,intent:requestedIntent=undefined as string|undefined}={}) {
+function fixture({admissionPending=false,entryProofFails=false,backupFails=false,destination='sources',providerAllowed=true,deferRead=false,deferRecoveryClear=false,startUpdate=false,root=false,readOnly=false,deferReservation=false,deferActivityCancel=false,deferActivityWrite=false,failStartup=false,medicalFailure=false,pendingFlightCount=0,cleanupAfterTasks=false,loginPending=false,deferProvider=false,quietResume=false,deferSource=false,sameWindow=false,deferVerification=false,priorConnection='unknown',existingOwner=false,pendingRestore=false,cancelRestore=false,initialOpen=true,initialFlightsSaved=false,initialSavedSync=null as syncRecovery.SyncRecoveryRecord|null,initialEstimateHistory=null as unknown,unactivatedPreparation=false,activityEnabled=false,activityBaselineCount=1,activityResultCount=2,onStatus:statusCallback=undefined as ((status:any)=>void)|undefined,intent:requestedIntent=undefined as string|undefined}={}) {
   let panelOpen=initialOpen,requestId=0;
   const journal=new DiagnosticJournal(), diagnosis={current:journal.begin(startUpdate?'update-flights':'open-flight-tools')};
   const hooks:any[]=[],effects:(()=>void)[]=[],calls:string[]=[],activityOrder:string[]=[],closed:any[]=[];
@@ -81,7 +81,7 @@ function fixture({backupFails=false,destination='sources',providerAllowed=true,d
   let savedActivityLedger:unknown=activityEnabled?activityLedger.observeActivityLedger(activityLedger.createActivityLedger(fixtureActivityIdentity),trackedActivity,initialActivityAt,initialActivityAt+1):null;
   let lease={ownerId:'owner',storeId:'store',leaseId:'lease'};
   let ownerProof=0,selectedHead=1;
-  const registry={currentOwner:async()=>existingOwner?{...lease,selectionSeq:selectedHead,leaseId:'proof-'+(++ownerProof)}:null,createFreshOwner:async()=>{calls.push('create');return lease;},assertCurrent:async()=>{},close:async()=>{}};
+  const registry={currentOwner:async()=>existingOwner?{...lease,selectionSeq:selectedHead,leaseId:'proof-'+(++ownerProof)}:null,createFreshOwner:async()=>{calls.push('create');return lease;},assertCurrent:async()=>{if(entryProofFails)throw new Error('Foreign or expired owner lease');},close:async()=>{}};
   const snapshot={account:null,savedRetrievals:[],coverage:[],pending:[],recovery:{readOnly}};
   const input={capture:{captureId:'fresh',rows:[]},requestedWindow:{from:'2025-01-01',to:'2026-10-21'}};
   const c:any={viewReady:true,browserActive:false,from:sameWindow?'2025-01-01':'',to:sameWindow?'2026-10-21':'',connection:priorConnection==='verified'?{phase:'observed',confirmed:true,observed:{accountNumber:'101',clubLabel:'Example'}}:{phase:priorConnection,confirmed:false},
@@ -159,7 +159,7 @@ function fixture({backupFails=false,destination='sources',providerAllowed=true,d
     '../vereinsflieger/flight-diagnostics':{timeFlightStage:(_:string,work:()=>unknown)=>work()},
     '../vereinsflieger/use-access-controller':{useAccessController:()=>({...c})},
     '../vereinsflieger/real-flight-native':{openOwnerRegistry:async()=>{calls.push('registry');if(failStartup)throw new Error('Startup interrupted');return registry;},openRealFlightSelection:async()=>({listRestorePreparations:async()=>unactivatedPreparation?[{operationId:"prepared",status:"pending"}]:[],close:async()=>{}})},
-    '../vereinsflieger/real-flight-owner-setup':{continueRealFlightOwnerSetup:async()=>true},
+    '../vereinsflieger/real-flight-owner-setup':{continueRealFlightOwnerSetup:async()=>{activityOrder.push('owner-setup');return true;}},
     '../vereinsflieger/real-flight-service':{RealFlightService:Service,PendingRealFlightOperation:class extends Error{}},
     './core-flight-review-policy':policy,'../vereinsflieger/real-flight-backup-native':{},
     './own-flight-reader-native':{ownFlightReadPorts:{suspend:async()=>{calls.push('reserve');if(deferReservation)await reservation;return ()=>calls.push('release');}}},
@@ -170,12 +170,12 @@ function fixture({backupFails=false,destination='sources',providerAllowed=true,d
   c.beginFreshFlightConnection=()=>{c.beginGuidedFlightConnection();return true;};
   const progressUpdates:syncProgress.SyncProgress[]=[];
   const exports:any={};runInNewContext(source,{exports,require:(name:string)=>{assert.ok(name in modules,name);return modules[name];},setTimeout:(fn:()=>void)=>{timers.set(++timerId,fn);return timerId;},clearTimeout:(id:number)=>timers.delete(id),console,Error});
-  function render(){dirty=false;index=0;tree=root?exports.CoreFlightFoundation({destination,providerEntryAllowed:providerAllowed,startUpdate,intent:requestedIntent,open:panelOpen,requestId,onProgress:(value:syncProgress.SyncProgress)=>progressUpdates.push(value),close:(v:any)=>closed.push(v),onStatus:statusCallback}):exports.OwnerFlightLibrary({destination,providerEntryAllowed:providerAllowed,lease,registry,startUpdate,intent:requestedIntent,open:panelOpen,requestId,onProgress:(value:syncProgress.SyncProgress)=>progressUpdates.push(value),close:(v:any)=>closed.push(v),onStatus:(status:any)=>{statusUpdates.push(cloneJson(status));statusCallback?.(status);},takeInitialRepository:()=>null,diagnosis});while(effects.length)effects.shift()!();return tree;}
+  function render(){dirty=false;index=0;tree=root?exports.CoreFlightFoundation({destination,providerEntryAllowed:providerAllowed,startUpdate,intent:requestedIntent,open:panelOpen,requestId,onProgress:(value:syncProgress.SyncProgress)=>progressUpdates.push(value),close:(v:any)=>closed.push(v),onStatus:statusCallback}):exports.OwnerFlightLibrary({destination,preparing:admissionPending,providerEntryAllowed:providerAllowed,lease,registry,startUpdate,intent:requestedIntent,open:panelOpen,requestId,onProgress:(value:syncProgress.SyncProgress)=>progressUpdates.push(value),close:(v:any)=>closed.push(v),onStatus:(status:any)=>{statusUpdates.push(cloneJson(status));statusCallback?.(status);},takeInitialRepository:()=>null,diagnosis});while(effects.length)effects.shift()!();return tree;}
   async function flush(){for(let n=0;n<12;n++){if(dirty)render();await new Promise<void>(resolve=>{setImmediate(resolve);});}if(dirty)render();}
   function nodes(){const result:Element[]=[];function visit(value:any){if(value&&typeof value==='object'&&'children'in value){result.push(value);value.children.forEach(visit);if(value.props.progress)visit(value.props.progress);}}visit(tree);return result;}
   const text=(node:any):string=>node&&typeof node==='object'&&'children'in node?node.children.map(text).join(''):typeof node==='string'?node:'';
   function press(label:string){const node=nodes().find(n=>n.type==='Action'&&text(n)===label);assert.ok(node,label);assert.ok(!node.props.disabled,label);node.props.onPress();}
-  return {finishRecoveryClear,deferNextStoredRead:()=>{holdNextRead=true;},advanceEstimateTime:(milliseconds:number)=>{estimateClock+=milliseconds;},estimateSaves:()=>estimateSaves.map(cloneJson),estimateHistory:()=>cloneJson(persistedEstimates),renewLease:()=>{lease={...lease,leaseId:'renewed'};dirty=true;},progressUpdates,journal,render,flush,c,calls,closed,nodes,activityChecks:()=>activityChecks,activityWriteCalls:()=>activityWriteCalls,pendingRestoreChecks:()=>pendingRestoreChecks,activityLedgerSaves:()=>activityLedgerSaves.map(cloneJson),savedActivityLedger:()=>savedActivityLedger===null?null:cloneJson(savedActivityLedger),statusUpdates,changeSelection:()=>{selectedHead++;},setOpen:(value:boolean)=>{panelOpen=value;if(value)requestId++;dirty=true;},text:()=>text(tree),progressText:()=>text(nodes().find(n=>n.type==='ProviderConnection')?.props.progress),press,finishReservation,background:()=>listeners.forEach(f=>f('background')),resume:()=>listeners.forEach(f=>f('active')),
+  return {recoverStartup:()=>{failStartup=false;},allowEntryProof:()=>{entryProofFails=false;},finishRecoveryClear,deferNextStoredRead:()=>{holdNextRead=true;},advanceEstimateTime:(milliseconds:number)=>{estimateClock+=milliseconds;},estimateSaves:()=>estimateSaves.map(cloneJson),estimateHistory:()=>cloneJson(persistedEstimates),renewLease:()=>{lease={...lease,leaseId:'renewed'};dirty=true;},progressUpdates,journal,render,flush,c,calls,closed,nodes,activityChecks:()=>activityChecks,activityWriteCalls:()=>activityWriteCalls,pendingRestoreChecks:()=>pendingRestoreChecks,activityLedgerSaves:()=>activityLedgerSaves.map(cloneJson),savedActivityLedger:()=>savedActivityLedger===null?null:cloneJson(savedActivityLedger),statusUpdates,changeSelection:()=>{selectedHead++;},setOpen:(value:boolean)=>{panelOpen=value;if(value)requestId++;dirty=true;},text:()=>text(tree),progressText:()=>text(nodes().find(n=>n.type==='ProviderConnection')?.props.progress),press,finishReservation,background:()=>listeners.forEach(f=>f('background')),resume:()=>listeners.forEach(f=>f('active')),
     verify:()=>{c.visible=false;c.connection={phase:'observed',confirmed:true,observed:{accountNumber:'101',clubLabel:'Example'}};dirty=true;},
     pendingTimers:()=>timers.size,expire:()=>{for(const [id,fn] of timers){timers.delete(id);fn();}},
     finishRead:()=>finishRead(),
@@ -1089,4 +1089,48 @@ test('interrupted dialog names both choices and Continue reuses its fresh prepar
 test('provider settings without an owner stays a child page and cannot create an identity by browsing',async()=>{
   const f=fixture({root:true,intent:'options',providerAllowed:false,destination:'settings'});
   try{f.render();await f.flush();assert.equal(f.nodes().find(n=>n.type==='MaintenancePageHeader')!.props.title,'Vereinsflieger');assert.match(f.text(),/Noch keine lokale Vereinsflieger/);assert.ok(!f.calls.includes('create'));assert.ok(!f.text().includes('neue lokale Bibliothek anlegen'));}finally{f.dispose();}
+});
+
+
+test('Settings entry does not reserve or materialize the unrelated flight history',async()=>{
+ const root=fixture({root:true,existingOwner:true,destination:'settings',providerAllowed:false,deferReservation:true});
+ try{root.render();await root.flush();assert.equal(root.calls.includes('reserve'),false);assert.equal(root.activityOrder.includes('owner-setup'),false);assert.ok(root.nodes().some(n=>typeof n.type==='function'&&n.props.open===true));}
+ finally{root.dispose();root.finishReservation();await root.flush();}
+ const settings=fixture({destination:'settings',providerAllowed:false,deferRead:true});
+ try{settings.render();await settings.flush();assert.equal(settings.activityOrder.includes('refresh-read'),false);assert.equal(settings.nodes().find(n=>n.type==='ConnectionSettings')!.props.busy,false);assert.equal(settings.nodes().find(n=>n.type==='MaintenancePageHeader')!.props.syncDisabled,false);}
+ finally{settings.dispose();settings.finishRead();await settings.flush();}
+});
+
+test('retained local page exposes preparation while admission is queued, with cancellable read-only Back',async()=>{
+ const root=fixture({root:true,existingOwner:true,initialOpen:false,destination:'backup',providerAllowed:false,deferReservation:true});
+ try{root.render();await root.flush();root.setOpen(true);await root.flush();const owner=root.nodes().find(n=>typeof n.type==='function')!;assert.equal(owner.props.open,false);assert.equal(owner.props.preparing,true);root.hardwareBack();assert.equal(root.closed.length,1);}
+ finally{root.dispose();root.finishReservation();await root.flush();}
+ const page=fixture({destination:'backup',providerAllowed:false,initialOpen:false,admissionPending:true});
+ try{page.render();assert.ok(page.nodes().some(n=>n.props.testID==='local-page-preparation'));assert.match(page.text(),/Gespeicherte Daten werden geprüft/);assert.equal(page.nodes().find(n=>n.type==='MaintenancePageHeader')!.props.syncDisabled,true);}
+ finally{page.dispose();}
+});
+
+test('first local page entry shows preparation instead of an unproved missing-owner state and retries failures without creating storage',async()=>{
+ const pending=fixture({root:true,destination:'backup',providerAllowed:false,deferReservation:true});
+ try{pending.render();assert.match(pending.text(),/Gespeicherte Daten werden geprüft/);assert.doesNotMatch(pending.text(),/Noch keine eigene lokale Bibliothek/);pending.hardwareBack();assert.equal(pending.closed.length,1);}
+ finally{pending.dispose();pending.finishReservation();await pending.flush();}
+ const failed=fixture({root:true,destination:'settings',providerAllowed:false,failStartup:true});
+ try{failed.render();await failed.flush();assert.match(failed.text(),/konnte nicht bestätigt/);assert.ok(!failed.calls.includes('create'));failed.recoverStartup();failed.press('Erneut versuchen');await failed.flush();assert.doesNotMatch(failed.text(),/konnte nicht bestätigt/);assert.ok(!failed.calls.includes('create'));}
+ finally{failed.dispose();await failed.flush();}
+});
+
+test('lightweight administration retains owner-proof failure, retry and closed-entry guards',async()=>{
+ const failed=fixture({destination:'settings',providerAllowed:false,entryProofFails:true});
+ try{failed.render();await failed.flush();assert.equal(failed.nodes().find(n=>n.type==='ConnectionSettings')!.props.busy,true);assert.equal(failed.nodes().find(n=>n.type==='MaintenancePageHeader')!.props.syncDisabled,true);assert.match(failed.text(),/Einstellungen konnten nicht geöffnet/);failed.allowEntryProof();failed.press('Erneut versuchen');await failed.flush();assert.equal(failed.nodes().find(n=>n.type==='ConnectionSettings')!.props.busy,false);assert.equal(failed.activityOrder.includes('refresh-read'),false);assert.ok(!failed.calls.includes('retrieve'));assert.ok(!failed.calls.includes('create'));}
+ finally{failed.dispose();await failed.flush();}
+});
+
+
+test('Settings rejects a changed owner before showing retained administration, and a closed preparation cannot admit its stale result',async()=>{
+ const foreign=fixture({root:true,existingOwner:true,destination:'settings',providerAllowed:false,entryProofFails:true});
+ try{foreign.render();await foreign.flush();assert.match(foreign.text(),/konnte nicht bestätigt/);assert.equal(foreign.nodes().some(n=>typeof n.type==='function'),false);assert.ok(!foreign.calls.includes('create'));}
+ finally{foreign.dispose();await foreign.flush();}
+ const closed=fixture({destination:'settings',providerAllowed:false,deferActivityCancel:true});
+ try{closed.render();await closed.flush();closed.setOpen(false);await closed.flush();closed.finishActivityCancel();await closed.flush();assert.equal(closed.nodes().find(n=>n.type==='ConnectionSettings')!.props.busy,true);assert.equal(closed.activityOrder.includes('refresh-read'),false);closed.setOpen(true);await closed.flush();assert.equal(closed.nodes().find(n=>n.type==='ConnectionSettings')!.props.busy,false);assert.ok(closed.calls.every(call=>call==='quiet-session'),'Only the existing closed-surface session monitor may run');}
+ finally{closed.dispose();await closed.flush();}
 });

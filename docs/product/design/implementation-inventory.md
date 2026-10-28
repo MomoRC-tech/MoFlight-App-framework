@@ -519,35 +519,36 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ConnectionSummary
 
 ## CoreFlightFoundation.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `a6f31551108662b9e26709838ef4ed293ae4208135e8b190433a1280a22ac675`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `21075dd0116ffed393ceccfd79b4943d4bf72c7c09635c622cd95138ebd73931`.
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 12` | 1041 |
-| `fontSize: 16` | 1041, 1046, 1050 |
-| `fontSize: 22` | 1046, 1050 |
-| `fontWeight: '600'` | 1041, 1046, 1050 |
-| `fontWeight: '700'` | 1041 |
-| `letterSpacing: .6` | 1041 |
-| `lineHeight: 24` | 1041, 1046, 1050 |
+| `fontSize: 12` | 1066 |
+| `fontSize: 16` | 1066, 1071, 1075 |
+| `fontSize: 22` | 1071, 1075 |
+| `fontWeight: '600'` | 1066, 1071, 1075 |
+| `fontWeight: '700'` | 1066 |
+| `letterSpacing: .6` | 1066 |
+| `lineHeight: 24` | 1066, 1071, 1075 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 16` | 1045, 1050 |
-| `borderWidth: 1` | 1045, 1050 |
-| `gap: 10` | 192, 200, 201, 970, 1047 |
-| `gap: 12` | 1046, 1050 |
-| `gap: 8` | 997, 1023, 1033, 1041 |
-| `maxWidth: 520` | 192, 201, 970 |
-| `minHeight: 0` | 969 |
-| `minHeight: 56` | 1046, 1050 |
-| `padding: 16` | 1046, 1050 |
-| `paddingHorizontal: 16` | 1047 |
-| `width: '100%'` | 192, 201, 970 |
+| `borderRadius: 16` | 1070, 1075 |
+| `borderWidth: 1` | 1070, 1075 |
+| `gap: 10` | 68, 204, 212, 213, 994, 1072 |
+| `gap: 12` | 1071, 1075 |
+| `gap: 8` | 1022, 1048, 1058, 1066 |
+| `maxWidth: 520` | 68, 204, 213, 994 |
+| `minHeight: 0` | 993 |
+| `minHeight: 56` | 1071, 1075 |
+| `padding: 16` | 1071, 1075 |
+| `padding: 18` | 68 |
+| `paddingHorizontal: 16` | 1072 |
+| `width: '100%'` | 68, 204, 213, 994 |
 
 ## Dashboard.tsx
 
