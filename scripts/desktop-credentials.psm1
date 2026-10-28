@@ -1,4 +1,10 @@
 # Windows-only development helper. Never send returned credentials to tool output.
+# Start-Process can inherit PowerShell 7 module paths when launching Windows
+# PowerShell 5.1. Load host-matched built-ins before command autoload can pick
+# incompatible modules (including duplicate security type definitions).
+foreach ($builtIn in @('Microsoft.PowerShell.Security', 'Microsoft.PowerShell.Utility', 'Microsoft.PowerShell.Management')) {
+    Import-Module "$PSHOME\Modules\$builtIn\$builtIn.psd1" -Global -ErrorAction Stop
+}
 Set-StrictMode -Version Latest
 
 function Get-MoFlightCredentialPath {

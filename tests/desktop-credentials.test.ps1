@@ -1,6 +1,12 @@
 #Requires -Version 5.1
 $ErrorActionPreference = 'Stop'
 Import-Module (Join-Path $PSScriptRoot '..\scripts\desktop-credentials.psm1') -Force
+foreach ($builtIn in @('Microsoft.PowerShell.Security', 'Microsoft.PowerShell.Utility', 'Microsoft.PowerShell.Management')) {
+    $loaded = Get-Module $builtIn
+    if (-not $loaded -or -not $loaded.ModuleBase.StartsWith($PSHOME, [System.StringComparison]::OrdinalIgnoreCase)) {
+        throw 'A built-in module was loaded from a different PowerShell installation.'
+    }
+}
 $testDirectory = Join-Path $env:TEMP ('moflight-credential-test-' + [guid]::NewGuid())
 $path = Join-Path $testDirectory 'synthetic.json'
 $password = $null
