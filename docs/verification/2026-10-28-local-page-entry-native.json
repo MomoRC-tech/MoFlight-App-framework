@@ -1,0 +1,156 @@
+{
+  "source_commit": "53549c4931c8308b29de9f55eb9f6f7eb0682d86",
+  "apk_sha256": "bbdff6222b578f73dad67855b4a46314d48ea08a8527144e30774c9c749cc9e1",
+  "installed_binary_matches": true,
+  "platform": "Android 17/API37; MoFlight_Synthetic_API37; offline",
+  "logical_dp": [
+    411.43,
+    731.43
+  ],
+  "density_dpi": 420,
+  "font_scale": 1.0,
+  "entry_observations": [
+    {
+      "page": "settings",
+      "observations": [
+        {
+          "progress_indicators": 0,
+          "elapsed_seconds": 3.515,
+          "state": "ready"
+        }
+      ],
+      "includes_adb_dump_overhead": true
+    },
+    {
+      "page": "backup",
+      "observations": [
+        {
+          "progress_indicators": 1,
+          "elapsed_seconds": 2.579,
+          "state": "preparing"
+        },
+        {
+          "progress_indicators": 1,
+          "elapsed_seconds": 4.954,
+          "state": "preparing"
+        },
+        {
+          "progress_indicators": 1,
+          "elapsed_seconds": 7.25,
+          "state": "preparing"
+        },
+        {
+          "progress_indicators": 1,
+          "elapsed_seconds": 9.563,
+          "state": "ready"
+        }
+      ],
+      "includes_adb_dump_overhead": true
+    }
+  ],
+  "timing_limit": "Tap-to-accessibility samples include ADB, UI-dump and scheduling overhead. Ready here means page task content is present, not that every data operation is enabled. No pure rendering latency, speedup comparison or populated physical-phone result is claimed.",
+  "native_result": "Settings administration content appears in the first sample. Backup shows preparation on every earlier sample, then task content, with one progress indicator. Back returns through Profile to Home.",
+  "initial_checkpoint": {
+    "source_commit": "814305e3c4f1a2dbb46f30ce4ca7311a2f165a3e",
+    "apk_sha256": "4e5c79f7111aa62125683098e82d3bc554ad2e5a3af26fb1de00351eb464c8f3",
+    "installed_binary_matches": true,
+    "platform": "Android 17/API37; MoFlight_Synthetic_API37; offline",
+    "logical_dp": [
+      411.43,
+      731.43
+    ],
+    "density_dpi": 420,
+    "font_scale": 1.0,
+    "entry_observations": [
+      {
+        "page": "settings",
+        "observations": [
+          {
+            "elapsed_seconds": 3.516,
+            "state": "ready"
+          }
+        ],
+        "includes_adb_dump_overhead": true
+      },
+      {
+        "page": "backup",
+        "observations": [
+          {
+            "elapsed_seconds": 2.641,
+            "state": "preparing"
+          },
+          {
+            "elapsed_seconds": 4.954,
+            "state": "preparing"
+          },
+          {
+            "elapsed_seconds": 7.282,
+            "state": "preparing"
+          },
+          {
+            "elapsed_seconds": 9.579,
+            "state": "ready"
+          }
+        ],
+        "includes_adb_dump_overhead": true
+      },
+      {
+        "page": "settings",
+        "observations": [
+          {
+            "elapsed_seconds": 3.266,
+            "state": "ready"
+          }
+        ],
+        "includes_adb_dump_overhead": true
+      }
+    ],
+    "timing_limit": "Tap-to-accessibility samples include ADB, UI dump and scheduling overhead; not pure rendering latency, a speedup comparison, or populated physical-phone acceptance. Settings ready means its administration content is present; Backup ready means its task content is present and may still be busy.",
+    "native_result": "Settings administration and reopen: content in first sample; Backup: visible preparation samples followed by task content; contextual Back to Profile and Home checked. Parent inspected Settings and Backup/preparation captures.",
+    "setup_note": "The pre-update app exposed an existing interrupted Sync during an explicit offline entry. It was cancelled without continuation/refetch; the page navigation check began after installing the target binary. No app/data reset, fixture seed, owner replacement, credential edit, session clear, restore/share or provider/model retrieval.",
+    "original_settings": {
+      "size": "Physical size: 1080x1920",
+      "density": "Physical density: 420",
+      "font": "1.0",
+      "airplane": "1",
+      "wifi": "0",
+      "data": "0"
+    },
+    "restored_settings": {
+      "size": "Physical size: 1080x1920",
+      "density": "Physical density: 420",
+      "font": "1.0",
+      "airplane": "1",
+      "wifi": "0",
+      "data": "0"
+    },
+    "limits": [
+      "No large or populated native history benchmark",
+      "Failure/retry/queued-owner guards are host regressions",
+      "No physical Android, iOS runtime, light, spoken or live-provider/model acceptance"
+    ]
+  },
+  "original_settings": {
+    "size": "Physical size: 1080x1920",
+    "density": "Physical density: 420",
+    "font": "1.0",
+    "airplane": "1",
+    "wifi": "0",
+    "data": "0"
+  },
+  "restored_settings": {
+    "size": "Physical size: 1080x1920",
+    "density": "Physical density: 420",
+    "font": "1.0",
+    "airplane": "1",
+    "wifi": "0",
+    "data": "0"
+  },
+  "cleanup": "Display/font/radio settings unchanged/restored; task-started emulator stopped after this check. Existing app data and interrupted Sync record were not cleared.",
+  "limits": [
+    "Backup still performs full library validation; its remaining preparation time is not eliminated",
+    "No large or populated native history benchmark; phone confirmation remains open in #103",
+    "Failure/retry/queued-owner cases are deterministic host tests",
+    "No physical Android, iOS runtime, light, spoken or live-provider/model acceptance"
+  ]
+}
