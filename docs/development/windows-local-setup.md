@@ -131,6 +131,23 @@ Manuel approved optional hosted CI and no paid CI on 2026-10-12. The 18 October 
 
 If an optional free hosted checkpoint is desired, select **Android checkpoint → Run workflow** and optionally supply a commit/ref and force fresh compilation. Its planner pins the resolved source and records the compiled source when reusing an identical-input APK. Manual runs have independent concurrency groups. A cancelled/untriggered run is not a passing test; missing local feature/native evidence remains open. Private sessions, captures and credentials never enter hosted tests.
 
+## Encrypted desktop development login
+
+Tracking: [#102](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/102). Manuel approved this local development store on 28 October 2026 to avoid repeated manual login entry. It is separate from the app's device-local saved login.
+
+Run from this checkout in **Windows PowerShell 5.1**:
+
+```powershell
+powershell.exe -NoProfile -STA -ExecutionPolicy Bypass -File scripts/desktop-credentials.ps1 -Action Setup
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/desktop-credentials.ps1 -Action Status
+```
+
+Setup opens a local credential prompt for the Vereinsflieger login. Cancel preserves the existing record; submitting replaces it. Both login name and password are encrypted using Windows user-bound DPAPI, with no separately stored encryption key. The record is `%LOCALAPPDATA%\MoFlight\secrets\vereinsflieger.dpapi.json`, outside the checkout. The directory and record allow only the current Windows user and SYSTEM. Never commit or copy the record into evidence, cloud storage or Git; re-enter credentials on another PC/account. Programs running as the same Windows user can decrypt it, so this is protection at rest rather than isolation from that user's programs. See [Microsoft's DPAPI-backed PowerShell documentation](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.security/convertfrom-securestring).
+
+For an authorized development login, import `scripts/desktop-credentials.psm1` and **assign** `$credential = Get-MoFlightCredential` within the consuming PowerShell process. This returns a `PSCredential`; use it only with the intended Vereinsflieger login and dispose `$credential.Password` afterwards. Never print the object, call `GetNetworkCredential()` into tool output, put secrets in command arguments, or dump the environment. The CLI exposes only Setup and Status, without plaintext output. Existing UI automation may need a separate integration to consume credentials without exposing them through tool arguments; do not improvise by pasting them into chat. MFA/CAPTCHA remain manual when required.
+
+Focused verification: `powershell.exe -NoProfile -ExecutionPolicy Bypass -File tests/desktop-credentials.test.ps1`. On 28 October 2026, Windows PowerShell 5.1 synthetic checks passed for both encrypted fields, exact round-trip, missing/corrupt records, rejected overwrite preserving bytes, explicit replacement and protected directory/file ACLs. Test data was removed. No provider login, other-account decryption test, app build or device trial was performed; the helper does not change app behavior. Real entry is accepted only once Status reports saved and decryptable, without displaying either field.
+
 ## Live Vereinsflieger gate
 
 Use the [native access-probe sequence](../../apps/platform-lab/README.md#vereinsflieger-access-poc). The user enters credentials directly into the provider interface. Verify native login, bounded retrieval and source comparison, local persistence after offline restart, repeat retrieval and actual session reuse/expiry separately. Inspect verified export/structured-response behavior before choosing a final transport; the current visible-table probe remains bounded and cannot prove full history or canonical import. No guessed endpoints. Optional device-local saved login was subsequently authorized for development and implemented with explicit app entry; see [saved-login evidence](../verification/2026-10-10-vereinsflieger-saved-login.md).
