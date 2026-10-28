@@ -1,0 +1,144 @@
+{
+  "status": "passed within bounded scope",
+  "source_commit": "abe76e8829705baec9fff68e8a0578eab1d2499b",
+  "apk_sha256": "a591841f1fe62bfeb65ad2511e0804fdff64a8be399ce3b116bebc780af43db1",
+  "installed_binary_matches": true,
+  "embedded_source_sha_verified": true,
+  "checks": [
+    {
+      "name": "start-cold-fallback",
+      "status": "passed",
+      "viewport": {
+        "size": "Physical size: 1080x1920",
+        "density": "Physical density: 420",
+        "font": "1.0"
+      }
+    },
+    {
+      "name": "backup-entry-1",
+      "status": "passed"
+    },
+    {
+      "name": "explicit-save-folder-picker-cancel",
+      "status": "passed"
+    },
+    {
+      "name": "backup-back-to-settings",
+      "status": "passed",
+      "viewport": {
+        "size": "Physical size: 1080x1920",
+        "density": "Physical density: 420",
+        "font": "1.0"
+      }
+    },
+    {
+      "name": "settings-back-to-start",
+      "status": "passed",
+      "viewport": {
+        "size": "Physical size: 1080x1920",
+        "density": "Physical density: 420",
+        "font": "1.0"
+      }
+    },
+    {
+      "name": "start-offline-cold-reopen-fallback",
+      "status": "passed"
+    }
+  ],
+  "original": {
+    "size": "Physical size: 1080x1920",
+    "density": "Physical density: 420",
+    "font": "1.0",
+    "airplane": "1",
+    "wifi": "0",
+    "data": "0"
+  },
+  "restored": {
+    "size": "Physical size: 1080x1920",
+    "density": "Physical density: 420",
+    "font": "1.0",
+    "airplane": "1",
+    "wifi": "0",
+    "data": "0"
+  },
+  "entry_timings": [
+    {
+      "page": "backup",
+      "observations": [
+        {
+          "save_action_enabled": true,
+          "progress_indicators": 0,
+          "elapsed_seconds": 3.516,
+          "state": "ready"
+        }
+      ],
+      "includes_adb_dump_overhead": true
+    }
+  ],
+  "save_cancel": {
+    "observations": [
+      {
+        "elapsed_seconds": 2.36,
+        "picker_visible": false,
+        "preparing": true
+      },
+      {
+        "elapsed_seconds": 4.672,
+        "picker_visible": false,
+        "preparing": true
+      },
+      {
+        "elapsed_seconds": 6.969,
+        "picker_visible": false,
+        "preparing": true
+      },
+      {
+        "elapsed_seconds": 9.391,
+        "picker_visible": false,
+        "preparing": true
+      },
+      {
+        "elapsed_seconds": 11.938,
+        "picker_visible": true,
+        "preparing": false
+      }
+    ],
+    "native_picker_cancelled": true,
+    "folder_or_file_not_selected": true
+  },
+  "start_reopen": {
+    "first_sample_seconds_including_adb": 3.219,
+    "terminal_assertion_seconds_including_adb": 17.032,
+    "launch": "Starting: Intent { cmp=de.momorc.moflight.lab/.MainActivity }\nStatus: ok\nLaunchState: COLD\nActivity: de.momorc.moflight.lab/.MainActivity\nTotalTime: 640\nWaitTime: 693\nComplete",
+    "first_sample_loading": false,
+    "terminal": "No flights received; current/prior totals unknown; no historical-preview label",
+    "populated_cache_and_speed": "not tested; no eligible populated preview established; no Sync/seed/owner replacement"
+  },
+  "harness_correction": "Initial single Back navigated DocumentsUI parent instead of dismissing; reused bounded picker-only cancellation, no app change/rebuild.",
+  "bounded_current_process_fatal_scan": "No fatal exception/signal/app ANR in current-process bounded log; not a full-run crash proof",
+  "boundary": "In-place install on preserved offline synthetic AVD; Backup entry/save preparation/native picker cancellation/Back and Start empty fallback only. No Sync, seed, reset, owner replacement, provider/model operation, folder selection, external save or restore activation.",
+  "cleanup": "Original display/font/offline radios unchanged; app left at Start; initially running emulator left running; provider emulators and sessions untouched; local ignored evidence retained.",
+  "platform": "Android17/API37; MoFlight_Synthetic_API37; emulator-5578; dark; offline",
+  "logical_dp": [
+    411.43,
+    731.43
+  ],
+  "density_dpi": 420,
+  "font_scale": 1.0,
+  "zip_sha256": "db14606d609ec53c4e425d644fa74a4846225a218b5ff5f009f31db4c439d311",
+  "download_url": "https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/coordinated-2026-10-28-abe76e8/MoFlight-Android-abe76e8.zip",
+  "download_verified": true,
+  "evidence_provenance": {
+    "build": "build/coordinated-abe76e8-android.log",
+    "host": "build/host-checks/20261028T181126Z-ec18831a/report.json",
+    "exports": "build/start-preview-20261028/bundle.log",
+    "native": "build/backup-entry-native/report.json; local PNG/XML, ignored helpers and back/reopen/cleanup logs",
+    "host_limits": "13e21d1 plus finalized Start/expense inputs; owners confirmed no subsequent app/test changes; not a clean final-SHA host rerun"
+  },
+  "not_tested": [
+    "Populated cached Start preview, positive marker and preview/full-validation/device speed comparison",
+    "Positive external backup/readback/restore, pending recovery and failure injection",
+    "Expense source/UI/backup; pure E2 core remains unwired",
+    "Physical/populated phone, iOS runtime, light and spoken acceptance"
+  ]
+}
