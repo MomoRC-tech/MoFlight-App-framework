@@ -1,5 +1,7 @@
 # Vereinsflieger website/manual discovery and future features
 
+**28 October expense request:** Manuel selected planning for flying costs by period/aircraft, separate club charges and balance details in Statistics. [#101](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/101) and the [expense implementation proposal](../development/expense-analysis-implementation-plan.md) own that work. Existing flight/own-ledger evidence is the first investigation source. The earlier invoice deferral remains effective until a necessary bounded extension is explicitly selected; no financial retrieval or calculation is implemented by this review.
+
 ## Selected club extension and bounded feasibility — 23 October 2026
 
 **Later approved continuation:** retained-session source checks on diagnostic application `248305a` reconfirm empty News/reservations/own-open tasks and bounded duty/calendar/document excerpts. Activities paging is now observed across the October footer ranges 1–100 and 101–110 of 110, with page one restored; the selected 23 October day returned an explicit no-match footer. Hidden date-input values alone did not preserve the effective filter; the original October preset restored its observed row count/date set. Populated-day identity/timezone/delay and airborne semantics remain unproved. No new positive-source parser or Activities UI is claimed. [Source-specific checks, qualifications and cleanup](../verification/2026-10-21-simple-flight-loading.md#approved-continuation-source-contract-checks--23-october-2026).

@@ -4,6 +4,7 @@ These records are retained for provenance and earlier decisions. They are not cu
 
 | Archived record | Why it moved | Current source |
 | --- | --- | --- |
+| [Planning entry points, reconciled 28 October](planning/2026-10-28-superseded-planning-entry-points.md) | Old delivery/next-action lists and AI startup instructions no longer describe the implemented baseline | [Current plan](../project-plan.md#next-executable-packages) |
 | [Superseded continuation, archived 25 October](planning/2026-10-25-superseded-continuation.md) | Dated sync/delivery/next-action notes obscured the current implemented baseline and new phone proposals | [Current plan](../project-plan.md#next-executable-packages) |
 | [Statistics Issue history before cleanup, 23 October](planning/2026-10-23-statistics-issue-history.md) | Repeated dated delivery/next-action prose obscured the current statistics scope; exact earlier body retained | [Issue #9](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/9), [active requirements and overlay plan](../product/2026-10-13-journey-information-map.md#understand-my-flying) |
 | [Planning/delivery checkpoints, 16–22 October](planning/2026-10-22-checkpoints.md) | Superseded next-action sequences and release/design proposals overwhelmed the current roadmap | [Current plan](../project-plan.md) |

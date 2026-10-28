@@ -1,6 +1,6 @@
 # Local phone storage first, with early Supabase feasibility
 
-**Sequencing superseded — 2026-10-13:** the [project plan](../project-plan.md) is authoritative for current priorities and next actions. M1 defines the basic UI/application contract before service expansion, then M2–M4 cover retrieval, live history and analytics; writing/chat/cloud integration/SPL feature implementation is deferred. The older priority table and October 10/11 sequences below preserve rationale and outstanding feasibility obligations, not active scheduling. Accepted local-first, ownership, deterministic/AI and validation boundaries remain applicable; proposed ADRs remain proposed.
+**Sequencing superseded — 2026-10-13:** the [project plan](../project-plan.md) is authoritative for current priorities and next actions. M1 defines the basic UI/application contract before service expansion, then M2–M4 cover retrieval, live history and analytics; the original writing/chat/cloud/SPL sequence is historical. Local AI chat foundations are now implemented; remaining activation and later journeys follow the current roadmap. The older priority table and October 10/11 sequences below preserve rationale and outstanding feasibility obligations, not active scheduling. Accepted local-first, ownership, deterministic/AI and validation boundaries remain applicable; proposed ADRs remain proposed.
 
 Date: 2026-10-08. Owner: Manuel Singer. Status: selected sequencing under [ADR 0004](../adr/0004-local-first-sequencing.md); Expo/React Native/strict TypeScript/pnpm and expo-sqlite as the initial native-lab writer are now approved; detailed sync/protocol choices remain proposed. Supabase Cloud Free remains the first cloud candidate selected in ADR 0003; later self-hosting remains optional.
 
@@ -57,6 +57,8 @@ Design version detection, migration and recovery before changing persistent form
 
 ## Durable-data and portable-backup inventory — 22 October 2026
 
+**28 October reconciliation:** the original inventory is extended below for current AI, targets, Help and Sync recovery. Manual archive is v3 (v1/v2 readers retained), text-only and same-install/same-owner by the 25 October decision. This is source inspection, not new restore/update acceptance. Financial records for #101 are not included merely because raw source readers exist.
+
 Approved bounded inventory/proof package: #29/#34. This describes the implemented lab; it does not select a new full-user backup format, encryption mechanism or production schema. Ordinary updates must preserve every durable row below even where portable export is incomplete.
 
 | Durable data / owner | Current portable coverage | Update / restore boundary |
@@ -69,6 +71,11 @@ Approved bounded inventory/proof package: #29/#34. This describes the implemente
 | Duty roster cache, including other assignees | Deliberately excluded; cache storage, 30-day expiry on next access | Never promote a missing/expired cache into an empty or complete roster. Refresh requires the selected source and fresh account/club scope. |
 | Saved-login SecureStore and native WebView sessions | Deliberately excluded from portable and configured Android system backup | No credential export. A restored device may require original-provider login; preserved flights remain usable offline. |
 | Local diagnostic journal/export | Separate deliberate support export; excluded from the proposed full-user package | Bounded technical diagnostics, no personal source values. Not required to reconstruct flight history. |
+| Real-owner AI conversations/drafts and historical provider identity | Included since supported-user v2 and retained in v3; active protocol/enablement/server budgets excluded | Current owner/restore gates and interrupted-state recovery; ordinary populated/native paths remain #75/#29 |
+| Provisional annual duty-hour targets | v3 includes selected owner/store/account years; v1/v2 preserve existing targets | Preserve explicit zero, unrelated years/accounts and interrupted restore; not provider-required hours |
+| Contextual Help preference and seen-hint marker | Installation-scoped SecureStore values in `help-preferences-native.ts`; absent from manual archive | Inventory gap under #29/#34: preserve during supported update; explicitly decide/document manual-export exclusion versus extension before claiming all settings coverage |
+| Interrupted Sync marker and optional-source completion | Owner/store SQLite recovery state; not part of manual archive | Preserve across updates/restart; never auto-resume a cancelled provider operation or treat a restored file as a fresh account proof |
+| Financial ledger/invoice observations | Excluded from current supported-user archive | #101 E1/E4 must specify any new source binding, persistence, archive/version treatment and privacy scope before financial delivery |
 | Transient filters, reminder snooze and navigation state | No durable portable promise | No new persistence requirement is inferred from this inventory. |
 
 Implementation references: [real native ownership/selection](../../apps/platform-lab/src/vereinsflieger/real-flight-native.ts), [real backup adapter](../../apps/platform-lab/src/vereinsflieger/real-flight-backup-native.ts), [current preservation tests](../../tests/mobile/real-flight-compatibility.test.ts), [Android system-backup exclusions](../verification/2026-10-20-android-system-backup.md). System backup eligibility is separate from a verified portable full-user backup and actual device-transfer acceptance.
@@ -78,10 +85,11 @@ Implementation references: [real native ownership/selection](../../apps/platform
 | Starting format / path | Current evidence and limit |
 | --- | --- |
 | Real-history SQL/payload v1 and real-history backup v1 | Current read/write and exact populated synthetic restore; interrupted writes/restore, restart/retry and no duplicate effects tested on real host SQLite. |
-| Unsupported SQL v2 or backup v2; malformed/foreign backup | Refuse opening/restoring; original database and command-journal bytes preserved. No reset or silent downgrade. |
+| Unsupported real-history SQL v2 or real-history backup v2; malformed/foreign input (separate from supported-user archive v2/v3) | Refuse opening/restoring; original database and command-journal bytes preserved. No reset or silent downgrade. |
 | Legacy synthetic backup → pilot proof v1 | Existing explicit migration tests; not real production book migration. |
 | Historical storage writers `766b719` / `20ade40` → `109d5a9` | Populated host read/recovery skips intermediate sources; current formats stay unchanged. Namespaced signed Android `766b719`→`109d5a9` preserves 15 files before reads, resumes recovery and reopens offline. Explicit synthetic fixture/entry overrides; not an ordinary registry/SAF or beta-platform matrix. |
 | Signed Android `cf59bde` → current review-package Release | Bounded native in-place witness and offline reopening recorded in the [package report](../verification/2026-10-21-simple-flight-loading.md#review-continuation--22-october-2026). No format change in this package. |
+| Supported-user archives v1/v2/v3 | Current readers accept these formats within the selected same-install/owner scope. v2 adds AI; v3 adds annual targets. Ordinary full populated native restore remains open; this is not real-history SQL v3. |
 | Skipped beta releases, future schema migration, all development installations, binary downgrade and iOS | Not accepted. Select supported beta starting versions and exercise populated multi-account/book/attachment/pending-state paths before beta. Restoring a test's prior APK is cleanup, not downgrade support. |
 
 ### Selected populated-update proof — 24 October 2026
