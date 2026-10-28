@@ -146,7 +146,7 @@
     "wifi": "0",
     "data": "0"
   },
-  "cleanup": "Display/font/radio settings unchanged/restored; task-started emulator stopped after this check. Existing app data and interrupted Sync record were not cleared.",
+  "cleanup": "Original display/font/radio settings preserved/restored; task-started emulator stopped. Flight/book data and provider sessions were preserved. The pre-update trial explicitly cancelled Sync, which clears its pending-attempt record through the existing cancel flow.",
   "limits": [
     "Backup still performs full library validation; its remaining preparation time is not eliminated",
     "No large or populated native history benchmark; phone confirmation remains open in #103",

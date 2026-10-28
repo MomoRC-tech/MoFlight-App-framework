@@ -1323,36 +1323,36 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ConnectionSummary
 
 ## CoreFlightFoundation.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `4475133caaef37ce906f8fa82282ec896ec22d1900873ae1612bd79466117d7a`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `6ed5a3885f2da6e13ff594be873dfa907948534e23e8be00fa5b62d6b8ae736c`.
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 12` | 1066 |
-| `fontSize: 16` | 1066, 1071, 1075 |
-| `fontSize: 22` | 1071, 1075 |
-| `fontWeight: '600'` | 1066, 1071, 1075 |
-| `fontWeight: '700'` | 1066 |
-| `letterSpacing: .6` | 1066 |
-| `lineHeight: 24` | 1066, 1071, 1075 |
+| `fontSize: 12` | 1112 |
+| `fontSize: 16` | 1112, 1117, 1121 |
+| `fontSize: 22` | 1117, 1121 |
+| `fontWeight: '600'` | 1112, 1117, 1121 |
+| `fontWeight: '700'` | 1112 |
+| `letterSpacing: .6` | 1112 |
+| `lineHeight: 24` | 1112, 1117, 1121 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 16` | 1070, 1075 |
-| `borderWidth: 1` | 1070, 1075 |
-| `gap: 10` | 68, 204, 212, 213, 994, 1072 |
-| `gap: 12` | 1071, 1075 |
-| `gap: 8` | 1022, 1048, 1058, 1066 |
-| `maxWidth: 520` | 68, 204, 213, 994 |
-| `minHeight: 0` | 993 |
-| `minHeight: 56` | 1071, 1075 |
-| `padding: 16` | 1071, 1075 |
+| `borderRadius: 16` | 1116, 1121 |
+| `borderWidth: 1` | 1116, 1121 |
+| `gap: 10` | 68, 218, 226, 227, 1039, 1118 |
+| `gap: 12` | 1117, 1121 |
+| `gap: 8` | 1060, 1067, 1094, 1104, 1112 |
+| `maxWidth: 520` | 68, 218, 227, 1039 |
+| `minHeight: 0` | 1038 |
+| `minHeight: 56` | 1117, 1121 |
+| `padding: 16` | 1117, 1121 |
 | `padding: 18` | 68 |
-| `paddingHorizontal: 16` | 1072 |
-| `width: '100%'` | 68, 204, 213, 994 |
+| `paddingHorizontal: 16` | 1118 |
+| `width: '100%'` | 68, 218, 227, 1039 |
 
 ## Dashboard.tsx
 
