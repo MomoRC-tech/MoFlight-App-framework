@@ -51,8 +51,9 @@ const fixtureActivityLedger={
 
 // Real screen effects and handlers; SQLite and provider behavior have their own
 // integration tests. These ports control timing to exercise the screen coordinator.
-function fixture({admissionPending=false,entryProofFails=false,backupFails=false,destination='sources',providerAllowed=true,deferRead=false,deferRecoveryClear=false,startUpdate=false,root=false,readOnly=false,deferReservation=false,deferActivityCancel=false,deferActivityWrite=false,failStartup=false,medicalFailure=false,pendingFlightCount=0,cleanupAfterTasks=false,loginPending=false,deferProvider=false,quietResume=false,deferSource=false,sameWindow=false,deferVerification=false,priorConnection='unknown',existingOwner=false,pendingRestore=false,cancelRestore=false,initialOpen=true,initialFlightsSaved=false,initialSavedSync=null as syncRecovery.SyncRecoveryRecord|null,initialEstimateHistory=null as unknown,unactivatedPreparation=false,activityEnabled=false,activityBaselineCount=1,activityResultCount=2,onStatus:statusCallback=undefined as ((status:any)=>void)|undefined,intent:requestedIntent=undefined as string|undefined}={}) {
+function fixture({failRestoreMetadata=false,deferGraph=false,graphReady=true,admissionPending=false,entryProofFails=false,backupFails=false,destination='sources',providerAllowed=true,deferRead=false,deferRecoveryClear=false,startUpdate=false,root=false,readOnly=false,deferReservation=false,deferActivityCancel=false,deferActivityWrite=false,failStartup=false,medicalFailure=false,pendingFlightCount=0,cleanupAfterTasks=false,loginPending=false,deferProvider=false,quietResume=false,deferSource=false,sameWindow=false,deferVerification=false,priorConnection='unknown',existingOwner=false,pendingRestore=false,cancelRestore=false,initialOpen=true,initialFlightsSaved=false,initialSavedSync=null as syncRecovery.SyncRecoveryRecord|null,initialEstimateHistory=null as unknown,unactivatedPreparation=false,activityEnabled=false,activityBaselineCount=1,activityResultCount=2,onStatus:statusCallback=undefined as ((status:any)=>void)|undefined,intent:requestedIntent=undefined as string|undefined}={}) {
   let panelOpen=initialOpen,requestId=0;
+  let finishGraph!:()=>void;const graphPreparation=new Promise<void>(resolve=>{finishGraph=resolve;});
   const journal=new DiagnosticJournal(), diagnosis={current:journal.begin(startUpdate?'update-flights':'open-flight-tools')};
   const hooks:any[]=[],effects:(()=>void)[]=[],calls:string[]=[],activityOrder:string[]=[],closed:any[]=[];
   let index=0,dirty=true,tree:Element,abort:AbortController|null=null;
@@ -158,10 +159,10 @@ function fixture({admissionPending=false,entryProofFails=false,backupFails=false
     'react-native-safe-area-context':leaves(['SafeAreaView']), 'expo-crypto':{randomUUID:()=> 'uuid'},'../storage':{hash:async()=>''},
     '../vereinsflieger/flight-diagnostics':{timeFlightStage:(_:string,work:()=>unknown)=>work()},
     '../vereinsflieger/use-access-controller':{useAccessController:()=>({...c})},
-    '../vereinsflieger/real-flight-native':{openOwnerRegistry:async()=>{calls.push('registry');if(failStartup)throw new Error('Startup interrupted');return registry;},openRealFlightSelection:async()=>({listRestorePreparations:async()=>unactivatedPreparation?[{operationId:"prepared",status:"pending"}]:[],close:async()=>{}})},
+    '../vereinsflieger/real-flight-native':{openOwnerRegistry:async()=>{calls.push('registry');if(failStartup)throw new Error('Startup interrupted');return registry;},openRealFlightSelection:async()=>({listRestorePreparations:async()=>{if(failRestoreMetadata)throw new Error('Unreadable restore metadata');return unactivatedPreparation?[{operationId:"prepared",status:"pending"}]:[];},close:async()=>{}})},
     '../vereinsflieger/real-flight-owner-setup':{continueRealFlightOwnerSetup:async()=>{activityOrder.push('owner-setup');return true;}},
     '../vereinsflieger/real-flight-service':{RealFlightService:Service,PendingRealFlightOperation:class extends Error{}},
-    './core-flight-review-policy':policy,'../vereinsflieger/real-flight-backup-native':{},
+    './core-flight-review-policy':policy,'../vereinsflieger/real-flight-backup-native':{restoreRealFlightBackup:async()=>{calls.push('legacy-restore');return {state:'cancelled'};},resumeRealFlightBackup:async()=>{calls.push('legacy-resume');return {state:'cancelled'};}},
     './own-flight-reader-native':{ownFlightReadPorts:{suspend:async()=>{calls.push('reserve');if(deferReservation)await reservation;return ()=>calls.push('release');}}},
     './MaintenancePageHeader':leaves(['MaintenancePageHeader']),'./BackupRestoreConfirmationDialog':leaves(['BackupRestoreConfirmationDialog']),
     './ConnectionSettings':{ConnectionSettings:'ConnectionSettings'},'./ProviderConnection':leaves(['ProviderConnection']),'./theme':{...leaves(['Action','Card','Label','Section']),colors:{}},
@@ -170,12 +171,12 @@ function fixture({admissionPending=false,entryProofFails=false,backupFails=false
   c.beginFreshFlightConnection=()=>{c.beginGuidedFlightConnection();return true;};
   const progressUpdates:syncProgress.SyncProgress[]=[];
   const exports:any={};runInNewContext(source,{exports,require:(name:string)=>{assert.ok(name in modules,name);return modules[name];},setTimeout:(fn:()=>void)=>{timers.set(++timerId,fn);return timerId;},clearTimeout:(id:number)=>timers.delete(id),console,Error});
-  function render(){dirty=false;index=0;tree=root?exports.CoreFlightFoundation({destination,providerEntryAllowed:providerAllowed,startUpdate,intent:requestedIntent,open:panelOpen,requestId,onProgress:(value:syncProgress.SyncProgress)=>progressUpdates.push(value),close:(v:any)=>closed.push(v),onStatus:statusCallback}):exports.OwnerFlightLibrary({destination,preparing:admissionPending,providerEntryAllowed:providerAllowed,lease,registry,startUpdate,intent:requestedIntent,open:panelOpen,requestId,onProgress:(value:syncProgress.SyncProgress)=>progressUpdates.push(value),close:(v:any)=>closed.push(v),onStatus:(status:any)=>{statusUpdates.push(cloneJson(status));statusCallback?.(status);},takeInitialRepository:()=>null,diagnosis});while(effects.length)effects.shift()!();return tree;}
+  function render(){dirty=false;index=0;tree=root?exports.CoreFlightFoundation({destination,providerEntryAllowed:providerAllowed,startUpdate,intent:requestedIntent,open:panelOpen,requestId,onProgress:(value:syncProgress.SyncProgress)=>progressUpdates.push(value),close:(v:any)=>closed.push(v),onStatus:statusCallback}):exports.OwnerFlightLibrary({destination,prepareSelectedLibrary:async()=>{activityOrder.push('graph-preparation');if(deferGraph)await graphPreparation;return graphReady;},preparing:admissionPending,providerEntryAllowed:providerAllowed,lease,registry,startUpdate,intent:requestedIntent,open:panelOpen,requestId,onProgress:(value:syncProgress.SyncProgress)=>progressUpdates.push(value),close:(v:any)=>closed.push(v),onStatus:(status:any)=>{statusUpdates.push(cloneJson(status));statusCallback?.(status);},takeInitialRepository:()=>null,diagnosis});while(effects.length)effects.shift()!();return tree;}
   async function flush(){for(let n=0;n<12;n++){if(dirty)render();await new Promise<void>(resolve=>{setImmediate(resolve);});}if(dirty)render();}
   function nodes(){const result:Element[]=[];function visit(value:any){if(value&&typeof value==='object'&&'children'in value){result.push(value);value.children.forEach(visit);if(value.props.progress)visit(value.props.progress);}}visit(tree);return result;}
   const text=(node:any):string=>node&&typeof node==='object'&&'children'in node?node.children.map(text).join(''):typeof node==='string'?node:'';
   function press(label:string){const node=nodes().find(n=>n.type==='Action'&&text(n)===label);assert.ok(node,label);assert.ok(!node.props.disabled,label);node.props.onPress();}
-  return {recoverStartup:()=>{failStartup=false;},allowEntryProof:()=>{entryProofFails=false;},finishRecoveryClear,deferNextStoredRead:()=>{holdNextRead=true;},advanceEstimateTime:(milliseconds:number)=>{estimateClock+=milliseconds;},estimateSaves:()=>estimateSaves.map(cloneJson),estimateHistory:()=>cloneJson(persistedEstimates),renewLease:()=>{lease={...lease,leaseId:'renewed'};dirty=true;},progressUpdates,journal,render,flush,c,calls,closed,nodes,activityChecks:()=>activityChecks,activityWriteCalls:()=>activityWriteCalls,pendingRestoreChecks:()=>pendingRestoreChecks,activityLedgerSaves:()=>activityLedgerSaves.map(cloneJson),savedActivityLedger:()=>savedActivityLedger===null?null:cloneJson(savedActivityLedger),statusUpdates,changeSelection:()=>{selectedHead++;},setOpen:(value:boolean)=>{panelOpen=value;if(value)requestId++;dirty=true;},text:()=>text(tree),progressText:()=>text(nodes().find(n=>n.type==='ProviderConnection')?.props.progress),press,finishReservation,background:()=>listeners.forEach(f=>f('background')),resume:()=>listeners.forEach(f=>f('active')),
+  return {beginPendingRestore:()=>{pendingRestore=true;},recoverRestoreMetadata:()=>{failRestoreMetadata=false;},finishGraph,denyEntryProof:()=>{entryProofFails=true;},recoverStartup:()=>{failStartup=false;},allowEntryProof:()=>{entryProofFails=false;},finishRecoveryClear,deferNextStoredRead:()=>{holdNextRead=true;},advanceEstimateTime:(milliseconds:number)=>{estimateClock+=milliseconds;},estimateSaves:()=>estimateSaves.map(cloneJson),estimateHistory:()=>cloneJson(persistedEstimates),renewLease:()=>{lease={...lease,leaseId:'renewed'};dirty=true;},progressUpdates,journal,render,flush,c,calls,closed,nodes,activityChecks:()=>activityChecks,activityWriteCalls:()=>activityWriteCalls,pendingRestoreChecks:()=>pendingRestoreChecks,activityLedgerSaves:()=>activityLedgerSaves.map(cloneJson),savedActivityLedger:()=>savedActivityLedger===null?null:cloneJson(savedActivityLedger),statusUpdates,changeSelection:()=>{selectedHead++;},setOpen:(value:boolean)=>{panelOpen=value;if(value)requestId++;dirty=true;},text:()=>text(tree),progressText:()=>text(nodes().find(n=>n.type==='ProviderConnection')?.props.progress),press,finishReservation,background:()=>listeners.forEach(f=>f('background')),resume:()=>listeners.forEach(f=>f('active')),
     verify:()=>{c.visible=false;c.connection={phase:'observed',confirmed:true,observed:{accountNumber:'101',clubLabel:'Example'}};dirty=true;},
     pendingTimers:()=>timers.size,expire:()=>{for(const [id,fn] of timers){timers.delete(id);fn();}},
     finishRead:()=>finishRead(),
@@ -818,9 +819,9 @@ test('backup pending-restore page resumes the same operation and retains it afte
   }finally{f.dispose();}
 });
 
-test('backup preparation guards Back and a failed export stays a backup error rather than a Sync failure',async()=>{
-  const preparing=fixture({providerAllowed:false,destination:'backup',deferRead:true});
-  try{preparing.render();await preparing.flush();assert.equal(preparing.nodes().find(n=>n.type==='MaintenancePageHeader')!.props.busy,true);preparing.hardwareBack();assert.equal(preparing.closed.length,0);preparing.finishRead();await preparing.flush();preparing.hardwareBack();assert.equal(preparing.closed.length,1);}finally{preparing.dispose();}
+test('explicit backup preparation guards Back and a failed export stays a backup error rather than a Sync failure',async()=>{
+  const preparing=fixture({providerAllowed:false,destination:'backup',deferGraph:true});
+  try{preparing.render();await preparing.flush();preparing.press('In Geräteordner sichern');await preparing.flush();assert.equal(preparing.nodes().find(n=>n.type==='MaintenancePageHeader')!.props.busy,true);preparing.hardwareBack();assert.equal(preparing.closed.length,0);preparing.finishGraph();await preparing.flush();preparing.hardwareBack();assert.equal(preparing.closed.length,1);}finally{preparing.dispose();}
   const failed=fixture({providerAllowed:false,destination:'backup',backupFails:true});
   try{failed.render();await failed.flush();failed.press('In Geräteordner sichern');await failed.flush();assert.ok(failed.calls.includes('backup-save'));assert.match(failed.text(),/Dieser Schritt wurde nicht bestätigt/);assert.ok(!failed.progressUpdates.some(p=>p.state==='failed'));assert.equal(failed.closed.length,0);}finally{failed.dispose();}
 });
@@ -1102,7 +1103,7 @@ test('Settings entry does not reserve or materialize the unrelated flight histor
 });
 
 test('retained local page exposes preparation while admission is queued, with cancellable read-only Back',async()=>{
- const root=fixture({root:true,existingOwner:true,initialOpen:false,destination:'backup',providerAllowed:false,deferReservation:true});
+ const root=fixture({root:true,existingOwner:true,initialOpen:false,destination:'sources',providerAllowed:false,deferReservation:true});
  try{root.render();await root.flush();root.setOpen(true);await root.flush();const owner=root.nodes().find(n=>typeof n.type==='function')!;assert.equal(owner.props.open,false);assert.equal(owner.props.preparing,true);root.hardwareBack();assert.equal(root.closed.length,1);}
  finally{root.dispose();root.finishReservation();await root.flush();}
  const page=fixture({destination:'backup',providerAllowed:false,initialOpen:false,admissionPending:true});
@@ -1133,4 +1134,79 @@ test('Settings rejects a changed owner before showing retained administration, a
  const closed=fixture({destination:'settings',providerAllowed:false,deferActivityCancel:true});
  try{closed.render();await closed.flush();closed.setOpen(false);await closed.flush();closed.finishActivityCancel();await closed.flush();assert.equal(closed.nodes().find(n=>n.type==='ConnectionSettings')!.props.busy,true);assert.equal(closed.activityOrder.includes('refresh-read'),false);closed.setOpen(true);await closed.flush();assert.equal(closed.nodes().find(n=>n.type==='ConnectionSettings')!.props.busy,false);assert.ok(closed.calls.every(call=>call==='quiet-session'),'Only the existing closed-surface session monitor may run');}
  finally{closed.dispose();await closed.flush();}
+});
+
+
+test('Backup opens without reserving the history reader or checking the full graph',async()=>{
+ const root=fixture({root:true,existingOwner:true,destination:'backup',providerAllowed:false,deferReservation:true});
+ try{root.render();await root.flush();assert.equal(root.calls.includes('reserve'),false);assert.equal(root.activityOrder.includes('owner-setup'),false);assert.ok(root.nodes().some(n=>typeof n.type==='function'&&n.props.open===true));}
+ finally{root.dispose();root.finishReservation();await root.flush();}
+ const page=fixture({destination:'backup',providerAllowed:false,deferRead:true,deferGraph:true});
+ try{page.render();await page.flush();assert.equal(page.activityOrder.includes('refresh-read'),false);assert.equal(page.activityOrder.includes('graph-preparation'),false);assert.equal(page.calls.includes('reserve'),false);assert.equal(page.nodes().find(n=>n.type==='MaintenancePageHeader')!.props.busy,false);assert.equal(page.nodes().find(n=>n.type==='Action'&&n.children.includes('In Geräteordner sichern'))!.props.disabled,false);}
+ finally{page.dispose();page.finishRead();page.finishGraph();await page.flush();}
+});
+
+test('Backup save waits for serialized graph validation and releases admission after success',async()=>{
+ const f=fixture({destination:'backup',providerAllowed:false,deferReservation:true,deferGraph:true});
+ try{f.render();await f.flush();f.press('In Geräteordner sichern');await f.flush();assert.ok(f.calls.includes('reserve'));assert.equal(f.activityOrder.includes('graph-preparation'),false);assert.equal(f.calls.includes('backup-save'),false);f.finishReservation();await f.flush();assert.ok(f.activityOrder.includes('graph-preparation'));assert.equal(f.calls.includes('backup-save'),false);f.finishGraph();await f.flush();assert.ok(f.calls.includes('backup-save'));assert.ok(f.calls.includes('release'));assert.equal(f.activityOrder.includes('refresh-read'),false);}
+ finally{f.dispose();f.finishReservation();f.finishGraph();await f.flush();}
+});
+
+test('Backup actions reject unreadable or changed ownership before opening their native operation',async()=>{
+ for(const readOnly of [false,true]){
+  const f=fixture({destination:'backup',providerAllowed:false,deferGraph:true,readOnly});
+  try{f.render();await f.flush();f.press('In Geräteordner sichern');await f.flush();if(!readOnly)f.denyEntryProof();f.finishGraph();await f.flush();assert.equal(f.calls.includes('backup-save'),false);assert.ok(f.calls.includes('release'));assert.ok(!f.calls.includes('create'));}
+  finally{f.dispose();f.finishGraph();await f.flush();}
+ }
+ const closed=fixture({destination:'backup',providerAllowed:false,deferGraph:true});
+ try{closed.render();await closed.flush();closed.press('In Geräteordner sichern');await closed.flush();closed.setOpen(false);await closed.flush();closed.finishGraph();await closed.flush();assert.equal(closed.calls.includes('backup-save'),false);assert.ok(closed.calls.includes('release'));}
+ finally{closed.dispose();closed.finishGraph();await closed.flush();}
+});
+
+test('Backup restore waits for explicit confirmation and graph admission and preserves cancel behavior',async()=>{
+ const f=fixture({destination:'backup',providerAllowed:false,deferGraph:true,cancelRestore:true});
+ try{f.render();await f.flush();assert.equal(f.calls.includes('reserve'),false);f.press('Sicherungsdatei auswählen');f.render();const prompt=f.nodes().find(n=>n.type==='BackupRestoreConfirmationDialog')!;assert.equal(f.calls.includes('reserve'),false);prompt.props.onConfirm();await f.flush();assert.ok(f.calls.includes('reserve'));assert.equal(f.calls.includes('restore-whole'),false);f.finishGraph();await f.flush();assert.ok(f.calls.includes('restore-whole'));assert.ok(f.calls.includes('release'));assert.match(f.text(),/Dateiauswahl abgebrochen/);assert.equal(f.closed.length,0);}
+ finally{f.dispose();f.finishGraph();await f.flush();}
+});
+
+
+test('Backup metadata errors can be retried without reading history, and pending recovery stays discoverable',async()=>{
+ const failed=fixture({destination:'backup',providerAllowed:false,failRestoreMetadata:true});
+ try{failed.render();await failed.flush();assert.ok(failed.nodes().some(n=>n.type==='Section'&&n.props.title==='Sicherung erstellen'));assert.match(failed.text(),/nicht gelesen/);failed.recoverRestoreMetadata();failed.press('Sicherungsstatus erneut prüfen');await failed.flush();assert.doesNotMatch(failed.text(),/nicht gelesen/);assert.equal(failed.calls.includes('reserve'),false);assert.equal(failed.activityOrder.includes('refresh-read'),false);}
+ finally{failed.dispose();await failed.flush();}
+ const pending=fixture({destination:'backup',providerAllowed:false,unactivatedPreparation:true});
+ try{pending.render();await pending.flush();assert.match(pending.text(),/Vorbereitete Sicherung fortsetzen/);assert.equal(pending.activityOrder.includes('refresh-read'),false);}
+ finally{pending.dispose();await pending.flush();}
+});
+
+test('a newly pending aggregate restore blocks export and remains resumable through its exact operation',async()=>{
+ const f=fixture({destination:'backup',providerAllowed:false,cancelRestore:true});
+ try{f.render();await f.flush();f.beginPendingRestore();f.press('In Geräteordner sichern');await f.flush();assert.equal(f.calls.includes('backup-save'),false);assert.ok(f.nodes().some(n=>n.type==='Section'&&n.props.title==='Fortsetzen erforderlich'));f.press('Datensicherung fortsetzen');await f.flush();assert.ok(f.calls.includes('resume-pending'));assert.equal(f.activityOrder.includes('graph-preparation'),false);assert.ok(!f.calls.includes('create'));}
+ finally{f.dispose();await f.flush();}
+});
+
+test('legacy Backup restore uses the same explicit graph admission and leaves cancellation local',async()=>{
+ const f=fixture({destination:'backup',providerAllowed:false,deferGraph:true});
+ try{f.render();await f.flush();f.nodes().find(n=>n.props.accessibilityLabel==='Ältere Flugbibliothek-Sicherung')!.props.onPress();f.render();f.press('Sicherung dieser Bibliothek wiederherstellen');await f.flush();assert.equal(f.calls.includes('legacy-restore'),false);f.finishGraph();await f.flush();assert.ok(f.calls.includes('legacy-restore'));assert.ok(f.calls.includes('release'));assert.match(f.text(),/Dateiauswahl abgebrochen/);}
+ finally{f.dispose();f.finishGraph();await f.flush();}
+});
+
+
+test('failed graph validation releases Backup admission without opening a picker or creating an owner',async()=>{
+ const f=fixture({destination:'backup',providerAllowed:false,graphReady:false});
+ try{f.render();await f.flush();f.press('In Geräteordner sichern');await f.flush();assert.equal(f.calls.includes('backup-save'),false);assert.ok(f.calls.includes('release'));assert.ok(!f.calls.includes('create'));assert.match(f.text(),/Dieser Schritt wurde nicht bestätigt/);}
+ finally{f.dispose();await f.flush();}
+});
+
+
+test('pending aggregate recovery reserves the reader only after explicit Resume and preserves picker cancellation',async()=>{
+ const f=fixture({root:true,existingOwner:true,destination:'backup',providerAllowed:false,pendingRestore:true,cancelRestore:true,deferReservation:true});
+ try{f.render();await f.flush();assert.equal(f.calls.includes('reserve'),false);f.press('Datensicherung fortsetzen');await f.flush();assert.ok(f.calls.includes('reserve'));assert.equal(f.calls.includes('resume-pending'),false);f.finishReservation();await f.flush();assert.ok(f.calls.includes('resume-pending'));assert.ok(f.calls.includes('release'));assert.match(f.text(),/Eine Datensicherung wird noch wiederhergestellt/);}
+ finally{f.dispose();f.finishReservation();await f.flush();}
+});
+
+test('backgrounding during Backup validation cannot open a native picker or save',async()=>{
+ const f=fixture({destination:'backup',providerAllowed:false,deferGraph:true});
+ try{f.render();await f.flush();f.press('In Geräteordner sichern');await f.flush();f.background();f.finishGraph();await f.flush();assert.equal(f.calls.includes('backup-save'),false);assert.ok(f.calls.includes('release'));}
+ finally{f.dispose();f.finishGraph();await f.flush();}
 });
