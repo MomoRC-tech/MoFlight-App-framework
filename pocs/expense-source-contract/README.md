@@ -6,7 +6,10 @@ The [provider-boundary parser](../../apps/platform-lab/src/vereinsflieger/expens
 
 ```powershell
 node --import tsx --test tests/mobile/expense-source-contract.test.ts
+node --import tsx --test tests/mobile/expense-ledger-observation.test.ts
 pnpm typecheck
 ```
 
 Production source mapping remains open. A positive movement is not automatically a refund; balances and flight/invoice representations must never be summed as charges. E2 may reuse the parser after the needed source contract is evidenced, with checked arithmetic and preserved raw observations. Parser success does not establish financial, live-provider or native acceptance.
+
+The authenticated 28 October continuation exposes two own ledger accounts with repeated booking numbers and a split invoice. The isolated [observation validator](../../apps/platform-lab/src/vereinsflieger/expense-ledger-observation.ts) retains exact account-selector/navigation/heading and owner/store/context boundaries; [30 synthetic checks](../../tests/mobile/expense-ledger-observation.test.ts) exercise foreign/late/changed-source and legacy-capture refusal. Matching footer counts retain unverified period coverage. There is no app source collector, save path, archive extension, kind classification or expense aggregation in this proof.
