@@ -1,6 +1,6 @@
 import React from 'react';
 import { Image, Pressable, StyleSheet, Text, View, type ImageSourcePropType } from 'react-native';
-import { colors } from './theme';
+import { colors, startSurfaces } from './theme';
 import { SymbolIcon } from './SymbolIcon';
 const brandLogo = require('../../assets/branding/moflight-ai-logo-dark.png');
 /** Original, unmodified brand asset; one flowing toolbar on every route. */
@@ -22,5 +22,5 @@ const styles = StyleSheet.create({
   brand: { color: colors.text, fontSize: 19, lineHeight: 25, fontWeight: '700' }, ai: { color: colors.cyan, fontSize: 13 },
   title: { color: colors.muted, fontSize: 12, lineHeight: 18 }, logo: { width: 48, height: 48, borderRadius: 8 },
   pageTitle: { color: colors.text, fontSize: 22, lineHeight: 28, fontWeight: '600' },
-  back: { width: 48, height: 48, borderRadius: 14, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border, alignItems: 'center', justifyContent: 'center' },
+  back: { width: 48, height: 48, borderRadius: 14, backgroundColor: startSurfaces.card, borderWidth: 1, borderColor: startSurfaces.border, alignItems: 'center', justifyContent: 'center' },
 });

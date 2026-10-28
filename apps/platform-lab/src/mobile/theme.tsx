@@ -2,8 +2,9 @@ import React from 'react';
 import { ImageBackground, Pressable, StyleSheet, Text, View, type ImageSourcePropType, type StyleProp, type ViewStyle } from 'react-native';
 import { SymbolIcon, legacyIconTone, type SymbolName, type SymbolTone } from './SymbolIcon';
 
-// Branch alternative: quiet surfaces, one action color, strong reading hierarchy.
-export const colors = { background: '#001b29', card: '#062331', raised: '#0c3041', border: '#183d50', text: '#f4f8fc', muted: '#a9bed3', blue: '#27d3d2', cyan: '#27d3d2', purple: '#231e63', orange: '#fc6a2d', green: '#48dba5' };
+// Selected content surfaces; Start and shell decoration retain their scoped palette.
+export const colors = { background: '#001b29', card: '#103546', raised: '#1a4356', border: '#31586b', text: '#f4f8fc', muted: '#a9bed3', blue: '#27d3d2', cyan: '#27d3d2', purple: '#231e63', orange: '#fc6a2d', green: '#48dba5' };
+export const startSurfaces = { card: '#062331', raised: '#0c3041', border: '#183d50' };
 export function GliderMark({ color = colors.text, large = false }: { color?: string; large?: boolean }) {
   return <SymbolIcon name="glider" size={large ? 68 : 28} tone={legacyIconTone(color)} />;
 }
@@ -18,12 +19,13 @@ export function IconLabel({ name, children, size = 18, tone = 'default', muted =
 export function Label({ children, muted = false, style, selectable }: { children: React.ReactNode; muted?: boolean; style?: StyleProp<import('react-native').TextStyle>; selectable?: boolean }) {
   return <Text selectable={selectable} style={[ui.text, muted && ui.muted, style]}>{children}</Text>;
 }
-export function Card({ children, style, onPress, label }: { children: React.ReactNode; style?: StyleProp<ViewStyle>; onPress?: () => void; label?: string }) {
-  if (onPress) return <Pressable accessibilityRole="button" accessibilityLabel={label} onPress={onPress} style={({ pressed }) => [ui.card, style, pressed && ui.pressed]}>{children}</Pressable>;
-  return <View style={[ui.card, style]}>{children}</View>;
+export function Card({ children, style, onPress, label, surface = 'content' }: { children: React.ReactNode; style?: StyleProp<ViewStyle>; onPress?: () => void; label?: string; surface?: 'content' | 'start' }) {
+  const cardStyle = [ui.card, surface === 'start' && ui.startCard, style];
+  if (onPress) return <Pressable accessibilityRole="button" accessibilityLabel={label} onPress={onPress} style={({ pressed }) => [cardStyle, pressed && ui.pressed]}>{children}</Pressable>;
+  return <View style={cardStyle}>{children}</View>;
 }
-export function Action({ children, onPress, secondary = false, disabled = false, label, testID, icon }: { children: React.ReactNode; onPress: () => void; secondary?: boolean; disabled?: boolean; label?: string; testID?: string; icon?: SymbolName }) {
-  return <Pressable testID={testID} accessibilityRole="button" accessibilityLabel={label} accessibilityState={{ disabled }} disabled={disabled} onPress={onPress} style={({ pressed }) => [ui.action, secondary && ui.secondary, disabled && { opacity: .5 }, pressed && ui.pressed]}><View style={ui.actionContent}>{icon && <SymbolIcon name={icon} size={20} tone={secondary ? 'default' : 'contrast'} />}<Text style={[ui.actionText, { flexShrink: 1 }, secondary && { color: colors.text }]}>{children}</Text></View></Pressable>;
+export function Action({ children, onPress, secondary = false, disabled = false, label, testID, icon, surface = 'content' }: { children: React.ReactNode; onPress: () => void; secondary?: boolean; disabled?: boolean; label?: string; testID?: string; icon?: SymbolName; surface?: 'content' | 'start' }) {
+  return <Pressable testID={testID} accessibilityRole="button" accessibilityLabel={label} accessibilityState={{ disabled }} disabled={disabled} onPress={onPress} style={({ pressed }) => [ui.actionTouch, secondary && ui.secondaryTouch, disabled && { opacity: .5 }, pressed && ui.pressed]}><View style={[ui.action, secondary && ui.secondary, secondary && surface === 'start' && ui.startSecondary]}><View style={ui.actionContent}>{icon && <SymbolIcon name={icon} size={20} tone={secondary ? 'default' : 'contrast'} />}<Text style={[ui.actionText, { flexShrink: 1 }, secondary && { color: colors.text }]}>{children}</Text></View></View></Pressable>;
 }
 export function Chip({ title, selected, onPress, disabled = false, icon }: { title: string; selected?: boolean; onPress: () => void; disabled?: boolean; icon?: SymbolName }) {
   // Recreate the native label when weight changes. Android retained the earlier
@@ -45,16 +47,20 @@ export const ui = StyleSheet.create({
   title: { color: colors.text, fontSize: 26, fontWeight: '700', letterSpacing: -.6 },
   heading: { color: colors.text, fontSize: 19, lineHeight: 26, fontWeight: '600' },
   card: { backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border, borderRadius: 16, padding: 16, gap: 10, overflow: 'hidden' },
+  startCard: { backgroundColor: startSurfaces.card, borderColor: startSurfaces.border },
   headerAction: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center' },
   cockpitImage: { opacity: .82 },
   cockpitShade: { backgroundColor: '#001b2944' },
   row: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   grid: { flexDirection: 'row', gap: 8, alignItems: 'stretch' },
   column: { flex: 1, minWidth: 0, gap: 8 },
-  action: { minHeight: 52, borderRadius: 16, paddingHorizontal: 18, paddingVertical: 12, backgroundColor: colors.blue, alignItems: 'center', justifyContent: 'center' },
+  actionTouch: { minHeight: 48, minWidth: 48, justifyContent: 'center', maxWidth: '100%' },
+  secondaryTouch: { alignSelf: 'flex-start' },
+  action: { minHeight: 40, minWidth: 48, alignSelf: 'stretch', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 8, backgroundColor: colors.blue, alignItems: 'center', justifyContent: 'center' },
   actionText: { color: '#031326', fontSize: 15, lineHeight: 22, fontWeight: '600' },
   actionContent: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6 },
   secondary: { backgroundColor: colors.raised, borderWidth: 1, borderColor: colors.border },
+  startSecondary: { backgroundColor: startSurfaces.raised, borderColor: startSurfaces.border },
   chipTouch: { minHeight: 48, justifyContent: 'center' },
   chip: { minHeight: 40, minWidth: 66, borderWidth: 1, borderColor: colors.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 8, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.card },
   chipSelected: { backgroundColor: colors.blue, borderColor: colors.blue }, chipText: { color: colors.text, fontSize: 14, lineHeight: 20 },

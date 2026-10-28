@@ -1,5 +1,7 @@
 # Visual foundations
 
+**28 October approved surface refinement:** content cards/raised surfaces now separate more clearly from the retained navy canvas. Start and header/bottom decoration explicitly retain their previous surface values; see the [scoped amendment](compact-cockpit.md#compact-controls-and-clearer-dark-surfaces--authorized-28-october-2026). Text/cyan/logo remain.
+
 > **Current appearance authority — 24 October 2026:** [Dark Compact Cockpit](compact-cockpit.md) and its approved reference supersede conflicting older appearance/composition statements below. Data, feature and verification boundaries retain their scope.
 
 > The [22 October modern UI contract](alternative-ui.md) is selected as the main baseline. It supersedes conflicting earlier appearance/composition descriptions for C01–C09, typography, surfaces, Start and flight browsing. Data and acceptance boundaries retain their separate contracts.
@@ -13,9 +15,9 @@ Keep surface, text, action, state and chart roles consistent, including foregrou
 | Semantic role / code key | Value | Allowed/current use | Pairing context |
 | --- | --- | --- | --- |
 | surface.canvas / `background` | `#001b29` | Primary dark canvas | text / muted |
-| surface.card / `card` | `#062331` | Opaque shared content panel | text / muted |
-| surface.raised / `raised` | `#0c3041` | Raised / secondary action surface | text |
-| stroke.default / `border` | `#183d50` | Shared card/control outlines | dark surfaces |
+| surface.card / `card` | `#103546` | Opaque shared content panel | text / muted |
+| surface.raised / `raised` | `#1a4356` | Raised / secondary action surface | text |
+| stroke.default / `border` | `#31586b` | Shared card/control outlines | dark surfaces |
 | text.primary / `text` | `#f4f8fc` | Primary readable text | background / card / raised |
 | text.secondary / `muted` | `#a9bed3` | Supporting text and inactive symbols | dark surfaces |
 | action.primary / `blue` | `#27d3d2` | Mint filled action and selected-chip base; legacy code key | #031326 action text |
@@ -107,7 +109,7 @@ Generated ratios use standard sRGB relative luminance on fully opaque pairs. The
 | Opaque pair | Foreground | Background | Calculated ratio |
 | --- | --- | --- | --- |
 | Primary text / canvas | `#f4f8fc` | `#001b29` | 16.55:1 |
-| Muted text / card | `#a9bed3` | `#062331` | 8.51:1 |
+| Muted text / card | `#a9bed3` | `#103546` | 6.79:1 |
 | Action label / mint action | `#031326` | `#27d3d2` | 10.08:1 |
 | General mint accent / canvas | `#27d3d2` | `#001b29` | 9.53:1 |
 | Brightest Back arrow gradient stop / opaque Back face | `#123a50` | `#27d3d2` | 6.49:1 |

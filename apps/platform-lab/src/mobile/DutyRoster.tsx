@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
-import { Action, Card, Label, Section, colors } from './theme';
+import { Action, Card, Label, Section, colors, startSurfaces } from './theme';
 import { SymbolIcon } from './SymbolIcon';
 import { ClubHeading, ClubSubheading } from './ClubHeading';
 import type { DutyItem, DutyOverview } from '../vereinsflieger/duties';
@@ -29,7 +29,7 @@ export function DutyRoster({ overview, expanded = false, onOpen, presentation = 
   if (presentation === 'club') return <ClubDutyRoster overview={overview} expanded={expanded} onOpen={onOpen} />;
   const own = overview.ownItems.length ? overview.ownItems.slice(0, 2) : overview.laterOwn.slice(0, 1);
   const club = overview.items.filter(item => item.ownState === 'unknown').slice(0, 3);
-  return <Card style={{ width: '100%', maxWidth: 520, alignSelf: 'center' }}>
+  return <Card surface="start" style={{ width: '100%', maxWidth: 520, alignSelf: 'center' }}>
     {expanded ? <Section title="Dienstübersicht" icon="duty" /> : <ClubHeading clubLabel={overview.clubLabel} onOpen={onOpen} />}
     {expanded && <>
     <Label>{overview.window.start} bis {overview.window.end}</Label>
@@ -38,21 +38,21 @@ export function DutyRoster({ overview, expanded = false, onOpen, presentation = 
     {overview.retrievedAt && <Label muted>Quellenstand: {new Date(overview.retrievedAt).toLocaleString('de-DE')}</Label>}
     </>}
     {!expanded && overview.status === 'unavailable' && <Label muted>Dienstplan unbekannt</Label>}
-    {expanded ? <View style={styles.group}><ClubSubheading title="Dienste im Zeitraum" />{overview.items.map(item => <DutyRow key={item.key} item={item} />)}</View> : <>
+    {expanded ? <View style={styles.group}><ClubSubheading surface="start" title="Dienste im Zeitraum" />{overview.items.map(item => <DutyRow key={item.key} item={item} />)}</View> : <>
       <View style={styles.group}>
-        <ClubSubheading title="Eigene Dienste" />
+        <ClubSubheading surface="start" title="Eigene Dienste" />
         {own.length ? own.map(item => <DutyRow key={item.key} item={item} />) : <Label muted>Eigene Dienste im Zeitraum unbekannt.</Label>}
       </View>
       <View style={styles.group}>
-        <ClubSubheading title="Weitere Vereinsdienste" icon="club" />
+        <ClubSubheading surface="start" title="Weitere Vereinsdienste" icon="club" />
         {club.length ? club.map(item => <DutyRow key={item.key} item={item} />) : <Label muted>Weitere Vereinsdienste unbekannt.</Label>}
       </View>
     </>}
     {expanded && !overview.items.length && overview.status === 'partial' && <Label>Keine zeitlich passenden Dienste im erfassten Ausschnitt. Weitere Dienste sind unbekannt.</Label>}
-    {expanded && !!overview.laterOwn.length && <View style={styles.group}><ClubSubheading title="Spätere eigene Dienste · bis zu drei aus dem Ausschnitt" />{overview.laterOwn.map(item => <DutyRow key={item.key} item={item} />)}</View>}
-    {expanded && !!overview.unplaced.length && <View style={styles.group}><ClubSubheading title="Zeitraum ungeklärt" />{overview.unplaced.map(item => <DutyRow key={item.key} item={item} />)}</View>}
+    {expanded && !!overview.laterOwn.length && <View style={styles.group}><ClubSubheading surface="start" title="Spätere eigene Dienste · bis zu drei aus dem Ausschnitt" />{overview.laterOwn.map(item => <DutyRow key={item.key} item={item} />)}</View>}
+    {expanded && !!overview.unplaced.length && <View style={styles.group}><ClubSubheading surface="start" title="Zeitraum ungeklärt" />{overview.unplaced.map(item => <DutyRow key={item.key} item={item} />)}</View>}
     {expanded && <Label muted>{overview.coverageMessage}</Label>}
-    {!expanded && onOpen && <Action secondary onPress={onOpen}>Alle Dienste ansehen</Action>}
+    {!expanded && onOpen && <Action secondary surface="start" onPress={onOpen}>Alle Dienste ansehen</Action>}
   </Card>;
 }
 
@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
   disclosure: { minHeight: 48, flexDirection: 'row', alignItems: 'center', gap: 8 },
   disclosureLabel: { flex: 1, color: colors.cyan, fontSize: 13 },
   group: { gap: 8 },
-  row: { gap: 4, paddingHorizontal: 2, paddingBottom: 8, borderBottomWidth: 1, borderBottomColor: colors.border },
+  row: { gap: 4, paddingHorizontal: 2, paddingBottom: 8, borderBottomWidth: 1, borderBottomColor: startSurfaces.border },
   heading: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', gap: 8 },
   duty: { fontWeight: '600', flexShrink: 1 },
   dates: { fontSize: 12, lineHeight: 20, textAlign: 'right', flexShrink: 0, maxWidth: '65%' },

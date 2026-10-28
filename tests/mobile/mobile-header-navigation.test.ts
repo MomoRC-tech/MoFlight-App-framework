@@ -65,7 +65,7 @@ function fixture(width = 390, fontScale = 1, root = false) {
     '@moflight/flight-logbook': { canonical },
     './SyncStatusDetails':{SyncStatusDetails:'SyncStatusDetails'},'./sync-progress':syncProgress,'./SyncProgress':{SyncProgress:'SyncProgress'},
     './SyncKeepAwake':{SyncKeepAwake:'SyncKeepAwake'},
-    './theme': { ...leaves(['Action', 'Card', 'Chip', 'ClubMark', 'Empty', 'GliderMark', 'IconLabel', 'Label', 'Photo', 'Section']), colors: {}, ui: {} },
+    './theme': {startSurfaces:{card:'#062331',raised:'#0c3041',border:'#183d50'}, ...leaves(['Action', 'Card', 'Chip', 'ClubMark', 'Empty', 'GliderMark', 'IconLabel', 'Label', 'Photo', 'Section']), colors: {}, ui: {} },
     './SymbolIcon': { SymbolIcon: 'SymbolIcon' },
     './use-library': { useLibrary: (value: boolean) => { suspended = value; return library; } },
     './flight-model': { flightYears: () => [2026], selectFlights: () => library.flights, summarizeFlights: () => ({ count: 1, knownMinutes: 30 }), formatDuration: () => '0:30' },
@@ -685,7 +685,7 @@ test('Verein uses selected account sources in overview and detail routes',()=>{
 test('compact toolbar preserves brand, sync/profile order, growing destination text and contextual Back',()=>{
  const headerSource=ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/mobile/AppHeader.tsx',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.React,esModuleInterop:false}}).outputText;
  const react={createElement:(type:unknown,props:any,...children:any[])=>({type,props:props??{},children:children.flat(Infinity)})};
- const modules:any={react:{default:react},'react-native':{Image:'Image',Pressable:'Pressable',Text:'Text',View:'View',StyleSheet:{create:(s:any)=>s}},'./theme':{colors:{}},'./SymbolIcon':{SymbolIcon:'SymbolIcon'}};
+ const modules:any={react:{default:react},'react-native':{Image:'Image',Pressable:'Pressable',Text:'Text',View:'View',StyleSheet:{create:(s:any)=>s}},'./theme':{colors:{},startSurfaces:{card:'#062331',border:'#183d50'}},'./SymbolIcon':{SymbolIcon:'SymbolIcon'}};
  const exports:any={};runInNewContext(headerSource,{exports,require:(name:string)=>name.startsWith('../../assets/')?name:modules[name]});
  const controls=react.createElement('Sync',{}),profile=react.createElement('Profile',{});let calls=0;
  for(const hasBack of [false,true]){

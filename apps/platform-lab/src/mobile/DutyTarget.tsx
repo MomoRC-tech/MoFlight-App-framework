@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { TextInput, View } from 'react-native';
-import { Action, Label, colors } from './theme';
+import { Action, Label, colors, startSurfaces } from './theme';
 import { readDutyTargetNative, saveDutyTargetNative, subscribeDutyTargets } from '../duty-target-native';
 import { parseDutyTarget, PROVISIONAL_DUTY_HOURS } from './cockpit-season';
 
@@ -60,9 +60,9 @@ export function DutyTargetEditor({target, onClose}: {target: ReturnType<typeof u
   useEffect(()=>{live.current=true;return()=>{live.current=false;};},[]);
   return <View style={{gap:8}}><Label>Vorläufiges Jahres-Soll · Stunden</Label>
     <Label muted>{target.persistent?'Keine bestätigte Vereinsvorgabe. Gilt lokal für dieses Konto und die gewählte Saison; in neuen Datensicherungen enthalten. Ältere Sicherungen ändern das lokale Soll nicht.':'Synthetische Vorschau. Änderungen werden nur in dieser Ansicht angezeigt und nicht gespeichert.'}</Label>
-    <TextInput accessibilityLabel="Vorläufiges Jahres-Soll in Stunden" keyboardType="decimal-pad" value={draft} onChangeText={setDraft} editable={!target.busy} style={{minHeight:48,borderWidth:1,borderColor:colors.border,borderRadius:12,padding:10,color:colors.text,fontSize:16}} />
+    <TextInput accessibilityLabel="Vorläufiges Jahres-Soll in Stunden" keyboardType="decimal-pad" value={draft} onChangeText={setDraft} editable={!target.busy} style={{minHeight:48,borderWidth:1,borderColor:startSurfaces.border,borderRadius:12,padding:10,color:colors.text,fontSize:16}} />
     {target.error && <View accessibilityLiveRegion="polite"><Label>{target.error}</Label></View>}
     <Action disabled={target.busy} onPress={()=>void target.save(draft).then(ok=>{if(ok&&live.current)onClose();})}>{target.persistent?'Soll lokal speichern':'Soll für Vorschau übernehmen'}</Action>
-    <Action secondary disabled={target.busy} onPress={onClose}>Schließen</Action>
+    <Action secondary surface="start" disabled={target.busy} onPress={onClose}>Schließen</Action>
   </View>;
 }

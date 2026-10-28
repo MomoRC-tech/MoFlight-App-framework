@@ -14,7 +14,7 @@ function fixture() {
   const modules: Record<string, unknown> = {
     react: { default: react, ...react },
     'react-native': { Pressable:'Pressable', View: 'View', Text: 'Text', ImageBackground: 'ImageBackground', StyleSheet: { create: (value: unknown) => value, absoluteFill: { position: 'absolute' }, absoluteFillObject: { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 } } },
-    './theme': { Card: 'Card', Label: 'Label', Section: 'Section', Action: 'Action', ui:{cockpitImage:{},cockpitShade:{}}, colors: { text: 'text', raised: 'raised', border: 'border' } },
+    './theme': {startSurfaces:{card:'#062331',raised:'#0c3041',border:'#183d50'}, Card: 'Card', Label: 'Label', Section: 'Section', Action: 'Action', ui:{cockpitImage:{},cockpitShade:{}}, colors: { text: 'text', raised: 'raised', border: 'border' } },
     './SymbolIcon': { SymbolIcon: 'SymbolIcon' },
     '../../assets/aviation/club-heading-airfield-v2.png': 'decorative-airfield',
   };

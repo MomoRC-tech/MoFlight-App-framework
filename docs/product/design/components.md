@@ -42,7 +42,7 @@
 | ID | Component / shape | Geometry / presentation | Function / source |
 | --- | --- | --- | --- |
 | C01 | Content card | Opaque navy panel, radius16, border1, padding16 | Group coherent facts/actions; pressable only with an action. theme Card. |
-| C02 | Primary / secondary action | Mint or raised bordered face, radius 16, minimum height 52 | Explicit action label; disabled opacity .5, pressed .72. theme Action. |
+| C02 | Primary / secondary action | Mint or raised bordered face, radius 12, minimum height 40 inside an independent minimum 48 × 48 dp target; horizontal padding 12 | Explicit wrapping action label; content-sized secondary actions, available-width primary actions; disabled opacity .5, pressed .72. Short decisions share face/target separation. [28 October amendment](compact-cockpit.md#compact-controls-and-clearer-dark-surfaces--authorized-28-october-2026). theme Action. |
 | C03 | Scope chip | Radius 14; face minimum 66 × 40 in a minimum-48-height target | Selected opaque mint fill; selected/disabled semantics. theme Chip. |
 | C04 | Search / input | Ordinary flight search radius 16/minimum height 52; profile radius 12 and font 16; provider radius 10 | Operate on named scope. MobileApp / ProfileSettings / ProviderConnection. |
 | C05 | Shared header | Original logo48, wordmark19/25, destination12/18; compact flowing row, maximum960 | No separate large title or scenic toolbar. Sync immediately before Profile; contextual Back and existing disabled guards remain. AppHeader. |

@@ -1,7 +1,7 @@
 import { startRenderSpan } from '../start-timing';
 import React, { useMemo, useState } from 'react';
 import { ActivityIndicator, ImageBackground, Pressable, ScrollView, StyleSheet, View } from 'react-native';
-import { Card, Label, colors, ui } from './theme';
+import { Card, Label, colors as contentColors, startSurfaces, ui } from './theme';
 import type { OwnFlightView } from './own-flight-reader';
 import { formatReportedMinutes, summarizeRealFlights } from './real-flight-statistics';
 import { SymbolIcon } from './SymbolIcon';
@@ -15,6 +15,7 @@ import { planFlightRetrieval } from '../vereinsflieger/retrieval-policy';
 import { createProcessedSelector } from './processed-result';
 import type { RealFlightListItem } from '../vereinsflieger/real-flight-library';
 import { DutyTargetEditor, useDutyTarget } from './DutyTarget';
+const colors = { ...contentColors, ...startSurfaces };
 interface Props {
   ownFlights: OwnFlightView | null; ownFlightPhase: 'loading' | 'ready' | 'missing' | 'failed'; pending: number | null; width: number; fontScale: number;
   onPaper: () => void; onFlights: () => void; onFlight?: (flightId: string) => void; onStatistics?: (year: number, section?: StatisticsSection) => void; now?: number; persistDutyTarget?: boolean; onBackHandler?:(handler:()=>boolean)=>void;
@@ -50,7 +51,7 @@ export function Dashboard({ ownFlights, ownFlightPhase, onFlights, onFlight, onS
     successfulRetrieval:!!planFlightRetrieval(saved).lastSuccessfulRetrievalAt,savedFlights:ownFlights?.flights.length??0});
   const latest=facts.latest, a=latest?.facts.assessment;
   const raw=(field:'registration'|'model')=>a?.fields[field].state==='value'?a.fields[field].raw:'—';
-  return <Card style={styles.season}>
+  return <Card surface="start" style={styles.season}>
     <ImageBackground source={require('../../assets/aviation/ask21-flight-header-v2.png')} resizeMode="cover" imageStyle={ui.cockpitImage} style={styles.photo}>
       <View style={[ui.cockpitShade,styles.shade]}>
         <View style={styles.heading}>

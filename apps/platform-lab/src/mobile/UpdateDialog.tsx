@@ -25,7 +25,7 @@ export function UpdateDialog({ open, expanded = false, fullPage = false, childre
 
 const styles = StyleSheet.create({
   scrim: { backgroundColor: '#000712bd' },
-  frame: { position: 'absolute', overflow: 'hidden', borderRadius: 22, borderWidth: 1, borderColor: '#426783',
-    backgroundColor: colors.background, elevation: 18, shadowColor: '#000000', shadowOpacity: .5, shadowRadius: 20 },
+  frame: { position: 'absolute', overflow: 'hidden', borderRadius: 22, borderWidth: 1, borderColor: colors.border,
+    backgroundColor: colors.raised, elevation: 18, shadowColor: '#000000', shadowOpacity: .5, shadowRadius: 20 },
   page: { flex: 1, backgroundColor: colors.background },
 });

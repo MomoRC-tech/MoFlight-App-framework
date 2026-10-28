@@ -1,5 +1,7 @@
 # MoFlight UI design handbook
 
+**28 October approved refinement (#94):** [compact controls and clearer dark surfaces](compact-cockpit.md#compact-controls-and-clearer-dark-surfaces--authorized-28-october-2026) reduces painted action faces, retains independent touch targets and separates content cards/dialogs from the canvas. Start palette/composition and shell sizing are scoped exceptions. [Verification](../../verification/2026-10-26-material-settings.md#compact-controls-and-clearer-dark-surfaces--28-october-2026) records source/platform limits.
+
 **U3 responsive/accessibility implementation — delivered 27 October:** [Selected bounded contract](compact-cockpit.md#responsive-and-accessible-completion--authorized-27-october-2026) covers wrapping category/filter content, scaled AI input, short-surface order/reachability and date-field keyboard semantics. Existing headers/caps/Start remain; [verification](../../verification/2026-10-26-material-settings.md#responsive-and-accessible-completion--27-october-2026) retains unverified wide-AI/keyboard/populated/device gates.
 
 **U1/U2 continuation — authorized 27 October:** [Everyday Flights and task-state contract](compact-cockpit.md#everyday-flights-and-task-states--authorized-27-october-2026) applies the established hierarchy and explicit task/recovery states as one package. [Source/platform evidence](../../verification/2026-10-26-material-settings.md#everyday-flights-and-task-states--27-october-2026) retains open gates.

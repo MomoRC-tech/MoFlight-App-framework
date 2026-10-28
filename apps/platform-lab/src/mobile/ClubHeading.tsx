@@ -1,7 +1,7 @@
 import React from 'react';
 import { ImageBackground, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SymbolIcon, type SymbolName } from './SymbolIcon';
-import { Label, colors, ui } from './theme';
+import { Label, colors, startSurfaces, ui } from './theme';
 
 /** Saved source label only; the airfield is decorative, never a club/location claim. */
 export function ClubHeading({ clubLabel, onOpen }: { clubLabel?: string | null; onOpen?: () => void }) {
@@ -11,15 +11,15 @@ export function ClubHeading({ clubLabel, onOpen }: { clubLabel?: string | null; 
 }
 
 /** A quieter hierarchy within a club card, using the maintained symbol family. */
-export function ClubSubheading({ title, icon = 'duty' }: { title: string; icon?: SymbolName }) {
-  return <View style={styles.subheading}>
+export function ClubSubheading({ title, icon = 'duty', surface = 'content' }: { title: string; icon?: SymbolName; surface?: 'content' | 'start' }) {
+  return <View style={[styles.subheading, surface === 'start' && { backgroundColor: startSurfaces.raised }]}>
     <SymbolIcon name={icon} size={16} />
     <Text accessibilityRole="header" style={styles.subtitle}>{title}</Text>
   </View>;
 }
 
 const styles = StyleSheet.create({
-  frame: { marginHorizontal:-16,marginTop:-16,borderBottomWidth:1,borderColor:colors.border },
+  frame: { marginHorizontal:-16,marginTop:-16,borderBottomWidth:1,borderColor:startSurfaces.border },
   heading: { minHeight:80,flexDirection:'row',alignItems:'center',gap:8,paddingHorizontal:16,paddingVertical:12 },
   caption: { fontSize:12,lineHeight:18,color:colors.muted,textShadowColor:colors.background,textShadowOffset:{width:0,height:1},textShadowRadius:3 },
   title: { color:colors.text,fontSize:15,lineHeight:21,fontWeight:'600',textShadowColor:colors.background,textShadowOffset:{width:0,height:1},textShadowRadius:3 },

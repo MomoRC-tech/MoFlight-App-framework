@@ -4,7 +4,7 @@ import { AppHeader } from './AppHeader';
 import { Dashboard } from './Dashboard';
 import { OverviewTiles } from './OverviewTiles';
 import { DutyRoster } from './DutyRoster';
-import { Action, Label, colors, ui } from './theme';
+import { Action, Label, colors, startSurfaces, ui } from './theme';
 import { createDesignPreviewData, DESIGN_PREVIEW_NOW } from './design-preview-data';
 import { DataUpdateIndicator } from './DataUpdateIndicator';
 import { SymbolIcon } from './SymbolIcon';
@@ -47,6 +47,6 @@ export function CockpitPreview({onClose,onFlights,onStatistics}: {onClose:()=>vo
     </ScrollView>
     <View accessibilityRole="tablist" style={{flexDirection:'row',borderTopWidth:1,borderColor:colors.border,padding:6,flexWrap:fontScale>1.3?'wrap':'nowrap',justifyContent:'center'}}>{([
       ['home','Übersicht','home',()=>setPage('home')],['flights','Flüge','flight-paper-plane',onFlights],['logbook','Flugbuch','book',()=>{setPage('home');setPaper(!paper);}],['club','Verein','club',()=>setPage('club')],['ai','AI','sparkle',()=>setPage('ai')],
-    ] as const).map(([id,title,icon,onPress])=><Pressable key={id} accessibilityRole="tab" accessibilityLabel={`Vorschau ${title}`} accessibilityState={{selected:page===id}} onPress={onPress} style={{flex:fontScale>1.3?0:1,width:fontScale>1.3?'32%':undefined,minWidth:0,minHeight:60,alignItems:'center',justifyContent:'center',gap:4,borderRadius:14,backgroundColor:page===id?colors.raised:undefined}}><SymbolIcon name={icon} size={26} tone={page===id?'default':'muted'}/><Label style={{fontSize:11,lineHeight:17,textAlign:'center',color:page===id?colors.cyan:colors.muted}}>{title}</Label></Pressable>)}</View>
+    ] as const).map(([id,title,icon,onPress])=><Pressable key={id} accessibilityRole="tab" accessibilityLabel={`Vorschau ${title}`} accessibilityState={{selected:page===id}} onPress={onPress} style={{flex:fontScale>1.3?0:1,width:fontScale>1.3?'32%':undefined,minWidth:0,minHeight:60,alignItems:'center',justifyContent:'center',gap:4,borderRadius:14,backgroundColor:page===id?startSurfaces.raised:undefined}}><SymbolIcon name={icon} size={26} tone={page===id?'default':'muted'}/><Label style={{fontSize:11,lineHeight:17,textAlign:'center',color:page===id?colors.cyan:colors.muted}}>{title}</Label></Pressable>)}</View>
   </View>;
 }

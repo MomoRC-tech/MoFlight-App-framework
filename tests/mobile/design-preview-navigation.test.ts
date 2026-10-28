@@ -47,7 +47,7 @@ test('cockpit preview opts out of target persistence in every synthetic facts sc
  const react={createElement:(type:any,props:any,...children:any[])=>({type,props:props??{},children:children.flat(Infinity)}),useMemo:(fn:()=>any)=>fn(),useState:(initial:any)=>{const i=index++;if(!(i in states))states[i]=initial;return [states[i],(v:any)=>{states[i]=v;}];}};
  const modules:any={react:{default:react,...react},'react-native':{Pressable:'Pressable',ScrollView:'ScrollView',View:'View',useWindowDimensions:()=>({width:390,fontScale:1})},'./design-preview-data':{createDesignPreviewData,DESIGN_PREVIEW_NOW},'./sync-progress':syncProgress};
  for(const id of ['AppHeader','Dashboard','OverviewTiles','DutyRoster','DataUpdateIndicator','SymbolIcon','SyncProgress'])modules['./'+id]={[id]:id};
- modules['./theme']={Action:'Action',Label:'Label',colors:{},ui:{}};
+ modules['./theme']={Action:'Action',Label:'Label',colors:{},startSurfaces:{raised:'#0c3041'},ui:{}};
  const exports:any={};runInNewContext(code,{exports,require:(id:string)=>{assert.ok(id in modules,id);return modules[id];}});
  const render=()=>{index=0;return exports.CockpitPreview({onClose:()=>{},onFlights:()=>{},onStatistics:()=>{}});};
  const nodes=(n:any):any[]=>!n||typeof n!=='object'?[]:[n,...(n.children??[]).flatMap(nodes)];

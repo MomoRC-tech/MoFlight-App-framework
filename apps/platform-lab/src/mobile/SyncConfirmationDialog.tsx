@@ -8,8 +8,8 @@ export function SyncConfirmationDialog({ onCancel, onConfirm }: { onCancel: () =
   useEffect(() => { Keyboard.dismiss(); }, []);
   const { width, fontScale } = useWindowDimensions();
   const stacked = width < 360 || fontScale > 1.3;
-  const cancelAction = <Pressable accessibilityRole="button" accessibilityLabel="Abbrechen" onPress={onCancel} style={({ pressed }) => [styles.button, pressed && ui.pressed]}><Text style={styles.cancelText}>Abbrechen</Text></Pressable>;
-  const confirmAction = <Pressable accessibilityRole="button" accessibilityLabel="Abruf starten" onPress={onConfirm} style={({ pressed }) => [styles.button, styles.confirm, pressed && ui.pressed]}><Text style={styles.confirmText}>Abruf starten</Text></Pressable>;
+  const cancelAction = <Pressable accessibilityRole="button" accessibilityLabel="Abbrechen" onPress={onCancel} style={({ pressed }) => [styles.button, pressed && ui.pressed]}><View style={styles.face}><Text style={styles.cancelText}>Abbrechen</Text></View></Pressable>;
+  const confirmAction = <Pressable accessibilityRole="button" accessibilityLabel="Abruf starten" onPress={onConfirm} style={({ pressed }) => [styles.button, pressed && ui.pressed]}><View style={[styles.face, styles.confirm]}><Text style={styles.confirmText}>Abruf starten</Text></View></Pressable>;
   return <Modal transparent animationType="fade" onRequestClose={onCancel} statusBarTranslucent>
     <View style={styles.scrim}>
       <Pressable accessible={false} importantForAccessibility="no" onPress={onCancel} style={StyleSheet.absoluteFill} />
@@ -35,7 +35,8 @@ const styles = StyleSheet.create({
   body: { color: colors.muted, fontSize: 16, lineHeight: 24 },
   actions: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'flex-end', alignItems: 'center', gap: 8, paddingHorizontal: 24, paddingTop: 8, paddingBottom: 24 },
   stackedActions: { flexDirection: 'column', alignItems: 'stretch' },
-  button: { minHeight: 48, minWidth: 48, paddingHorizontal: 16, justifyContent: 'center', alignItems: 'center', borderRadius: 12 },
+  button: { minHeight: 48, minWidth: 48, justifyContent: 'center', maxWidth: '100%' },
+  face: { minHeight: 40, minWidth: 48, paddingHorizontal: 12, paddingVertical: 8, justifyContent: 'center', alignItems: 'center', borderRadius: 12 },
   confirm: { backgroundColor: colors.cyan },
   cancelText: { color: colors.cyan, fontSize: 14, lineHeight: 20, fontWeight: '600' },
   confirmText: { color: '#031326', fontSize: 14, lineHeight: 20, fontWeight: '700' },

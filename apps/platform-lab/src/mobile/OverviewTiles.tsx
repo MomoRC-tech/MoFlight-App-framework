@@ -1,9 +1,11 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
-import { Label, colors, ui } from './theme';
+import { Label, colors as contentColors, startSurfaces, ui } from './theme';
 import { SymbolIcon } from './SymbolIcon';
 import { medicalExpiry, medicalExpiryStatusText } from './medical-expiry';
 import type { InformationCapture } from '../vereinsflieger/information';
+
+const colors = { ...contentColors, ...startSurfaces };
 
 export function OverviewTiles({medical = null, medicalLoading = false, now, onMedical, onPaper, pending = null, bookName = null}: {
   medicalLoading?: boolean; medical?: InformationCapture | null; now: number; onMedical: () => void; onPaper: () => void; pending?: number | null; bookName?: string | null;
