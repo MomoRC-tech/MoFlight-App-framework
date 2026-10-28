@@ -207,7 +207,7 @@
     ],
     "start": {
       "post_rejection_offline_cold_reopen": "Original no-flights/unknown totals, no historical-preview label",
-      "eligibility_evidence": "Fresh export has zero real-flight records/receipts/provider bindings and null information/provider scope. This selected exported state cannot qualify a populated Start preview.",
+      "eligibility_evidence": "Fresh export has zero real-flight records/receipts/provider bindings and a null exported information section. The missing flight-account binding cannot qualify a populated Start preview. Provider-scope presence is unestablished: null information can also mean no local information store; the registry was not directly inspected.",
       "populated_preview_and_timing": "Not tested; no Sync, seeding, owner replacement or cache injection"
     },
     "same_content_restore": "Not attempted: a second stable fresh export was not established. Valid original archive was never selected for activation.",
