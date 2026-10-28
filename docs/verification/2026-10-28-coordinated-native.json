@@ -140,5 +140,109 @@
     "Positive external backup/readback/restore, pending recovery and failure injection",
     "Expense source/UI/backup; pure E2 core remains unwired",
     "Physical/populated phone, iOS runtime, light and spoken acceptance"
-  ]
+  ],
+  "post_delivery_backup_start_followup": {
+    "status": "Partial: first external save/readback passes; repeat save fails; valid restore activation withheld",
+    "source_commit": "abe76e8829705baec9fff68e8a0578eab1d2499b",
+    "apk_sha256": "a591841f1fe62bfeb65ad2511e0804fdff64a8be399ce3b116bebc780af43db1",
+    "platform": "Same Android17/API37 synthetic AVD; dark/offline; 411.43x731.43dp,420dpi,font1.0",
+    "recovery_snapshot_saved_and_retained": true,
+    "first_external_save": {
+      "bytes": 52879,
+      "sha256": "490585d8350adc3defc684eefc91b7cbfd201d783320b51737c72a853ecd2a96",
+      "version": 3,
+      "success_message": true,
+      "external_pull_matches_verified_file": true
+    },
+    "actual_archive_host_validation": {
+      "file": "archive-1.json",
+      "sha256": "490585d8350adc3defc684eefc91b7cbfd201d783320b51737c72a853ecd2a96",
+      "version": 3,
+      "deepPilotRoundtrip": true,
+      "books": 4,
+      "realRecords": 0,
+      "realReceipts": 0,
+      "providerBindings": 0,
+      "informationPresent": false,
+      "aiConversations": 0,
+      "semanticSha256": "c6a936a47d48864e0670c3b2deb2e846e8ba59642d49fa1aa988e8730348c8d6",
+      "allSupportedSectionsMatchBaseline": true
+    },
+    "repeat_save": {
+      "failed_attempts_after_initial_success": 2,
+      "result": "Background-interruption message; second verified file absent even after local library recheck/retry",
+      "root_cause": "Unknown; displayed background message does not establish the failing stage",
+      "issue": "https://github.com/MomoRC-tech/MoFlight-App-framework/issues/106"
+    },
+    "invalid_file_attempts": [
+      {
+        "file": "reject-corrupt.json",
+        "rejected": true,
+        "recovery_resume_not_offered": true,
+        "activation_success_not_shown": true,
+        "message": "Abruf unterbrochen, weil die App verlassen wurde. Nach der R\u00fcckkehr kannst du gespeicherten Fortschritt fortsetzen.",
+        "limit": "UI exposes generic/background failure; exact codec rejection reason is host-validated, not attested by native UI."
+      },
+      {
+        "file": "reject-foreign.json",
+        "rejected": true,
+        "recovery_resume_not_offered": true,
+        "activation_success_not_shown": true,
+        "message": "Abruf unterbrochen, weil die App verlassen wurde. Nach der R\u00fcckkehr kannst du gespeicherten Fortschritt fortsetzen.",
+        "limit": "UI exposes generic/background failure; exact codec rejection reason is host-validated, not attested by native UI."
+      },
+      {
+        "file": "reject-newer.json",
+        "rejected": true,
+        "recovery_resume_not_offered": true,
+        "activation_success_not_shown": true,
+        "message": "Abruf unterbrochen, weil die App verlassen wurde. Nach der R\u00fcckkehr kannst du gespeicherten Fortschritt fortsetzen.",
+        "limit": "UI exposes generic/background failure; exact codec rejection reason is host-validated, not attested by native UI."
+      }
+    ],
+    "invalid_file_limit": "Actual Android picker selections returned without activation-success/recovery-resume UI. Codec rejects exact files on host; native generic/background message does not attest validator stage/reason.",
+    "automation_limits": [
+      "Initial repeat-save helper waited for success after the native operation had already rejected; subsequent fail-fast observation reproduced the rejection.",
+      "First corrupt-file result assertion missed the top message after scrolling to restore. Scrolling up corrected observation; no file activation was repeated for that correction."
+    ],
+    "start": {
+      "post_rejection_offline_cold_reopen": "Original no-flights/unknown totals, no historical-preview label",
+      "eligibility_evidence": "Fresh export has zero real-flight records/receipts/provider bindings and null information/provider scope. This selected exported state cannot qualify a populated Start preview.",
+      "populated_preview_and_timing": "Not tested; no Sync, seeding, owner replacement or cache injection"
+    },
+    "same_content_restore": "Not attempted: a second stable fresh export was not established. Valid original archive was never selected for activation.",
+    "preservation_limit": "No app-private database/registry byte comparison: Release is not debuggable and emulator production image denies adb root. Recovery snapshot, original external backup and nonactivating actions retained; this is not full row-by-row native preservation proof.",
+    "cleanup": "Original display/font/radios unchanged; app at Start and originally running emulator remains running; recovery snapshot and first verified external backup retained; three test-owned invalid device files removed, ignored local evidence retained; no restore activation, session/data reset or APK replacement.",
+    "display_and_radios_before": {
+      "size": "Physical size: 1080x1920",
+      "density": "Physical density: 420",
+      "font": "1.0",
+      "airplane": "1",
+      "wifi": "0",
+      "data": "0"
+    },
+    "display_and_radios_after": {
+      "size": "Physical size: 1080x1920",
+      "density": "Physical density: 420",
+      "font": "1.0",
+      "airplane": "1",
+      "wifi": "0",
+      "data": "0"
+    },
+    "local_evidence": [
+      "build/backup-start-followup-20261028/report.json",
+      "build/backup-start-followup-20261028/archive-validation.json",
+      "build/backup-start-followup-20261028/snapshot-save.log",
+      "build/backup-start-followup-*.log",
+      "build/backup-start-followup.py",
+      "build/validate-backup-followup.ts"
+    ],
+    "remaining": [
+      "Resolve #106 and prove consecutive save/readback plus safe retry",
+      "Positive same-content/native populated restore and exact supported-content preservation",
+      "Populated Start preview and measured equivalent-input timings",
+      "Native interrupted/pending restore and foreign-owner registry/session boundaries",
+      "Physical Android/iOS/light/spoken; no expense work"
+    ]
+  }
 }
