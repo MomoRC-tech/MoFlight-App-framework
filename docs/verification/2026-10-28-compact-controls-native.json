@@ -1,0 +1,125 @@
+{
+  "source_commit": "375216d4296174654d7e9b9c671a0f97f0902de6",
+  "apk_sha256": "73c42d864beb47fabe3acb01a2cab552ad3e23c57dcb4b56ccf4b5bb42395f1c",
+  "installed_binary_matches": true,
+  "platform": "Android 17 / API 37; MoFlight_Synthetic_API37; offline",
+  "density_dpi": 420,
+  "main": {
+    "pixels": [
+      1080,
+      1920
+    ],
+    "logical_dp": [
+      411.43,
+      731.43
+    ],
+    "font_scale": 1.0
+  },
+  "narrow": {
+    "pixels": [
+      945,
+      1920
+    ],
+    "logical_dp": [
+      360,
+      731.43
+    ],
+    "font_scale": 1.6
+  },
+  "observations": [
+    "Start and shell target geometry preserved against pre-install baseline",
+    "Brighter Settings/backup cards and restore dialog visually inspected",
+    "Primary/secondary content action faces and separate targets visually inspected",
+    "Narrow enlarged backup scrolls to restore action; restore decision stacks complete reachable actions",
+    "Restore Cancel and contextual Back executed; no picker, restore, share, deletion or provider/model work",
+    "Two font-change/recreation captures excluded; settled reopened flow inspected"
+  ],
+  "measured_primary": {
+    "target_pixels": [
+      92,
+      1018,
+      988,
+      1144
+    ],
+    "target_height_dp": 48.0,
+    "paint_height_pixels": 105
+  },
+  "measured_dialog_targets": {
+    "confirm": [
+      638,
+      1192,
+      975,
+      1318
+    ],
+    "cancel": [
+      374,
+      1192,
+      617,
+      1318
+    ]
+  },
+  "shell_target_bounds_pixels": {
+    "Profil & Einstellungen \u00f6ffnen": [
+      923,
+      95,
+      1049,
+      221
+    ],
+    "\u00dcbersicht": [
+      16,
+      1662,
+      225,
+      1841
+    ],
+    "Fl\u00fcge": [
+      231,
+      1662,
+      435,
+      1841
+    ],
+    "Flugbuch": [
+      440,
+      1662,
+      645,
+      1841
+    ],
+    "Verein": [
+      650,
+      1662,
+      855,
+      1841
+    ],
+    "AI": [
+      860,
+      1662,
+      1064,
+      1841
+    ]
+  },
+  "palette_pixel_counts": {
+    "settings": {
+      "canvas": 621555,
+      "card": 1311231,
+      "raised": 0,
+      "startCard": 12947
+    },
+    "restore": {
+      "canvas": 0,
+      "card": 0,
+      "raised": 735994,
+      "startCard": 0
+    },
+    "home": {
+      "canvas": 689890,
+      "card": 162518,
+      "raised": 0,
+      "startCard": 553288
+    }
+  },
+  "cleanup": "Original size, density, font scale and offline radio state verified restored; no app/data clearing.",
+  "limits": [
+    "Native acceptance covers ordinary no-account Settings/backup and the restore decision only",
+    "Sync/AI deletion dialogs reuse shared host regressions; not separately exercised natively",
+    "No physical Android, iOS, light, spoken accessibility, populated provider or model acceptance"
+  ]
+}
