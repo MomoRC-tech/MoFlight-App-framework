@@ -1,5 +1,15 @@
 # Implementation and open-issue reviews — 17–28 October 2026
 
+## 28 October amendment — financial inclusion and required live AI
+
+Manuel requested two plan changes after the review/handover: financial data can now be included, and AI must go live in beta. This supersedes the financial/invoice scope deferral and unanswered live-AI beta choice in the earlier review below. Starting expense E1 was selected by the intervening handover instruction; this amendment turn changes documentation/backlog only.
+
+- **Expenses:** necessary read-only own invoice/ledger/flight-charge data, local processing/storage and same-install financial text backup/restore are selected. E1 still proves personal liability, currency/sign/date, identity/revisions and coverage. Current invoice guards and archive v3 exclusions remain implemented until the feature changes them. Preserve v1–v3 compatibility and require explicit financial archive/version, disclosure and recovery tests. No provider writes, other-member expansion, bank access or attachment bytes.
+- **AI:** actual ordinary-app model answers are required for the agreed beta cohort. The [L1–L4 go-live sequence](../development/ai-chat-implementation-plan.md#required-beta-go-live-sequence) makes service/account/route/privacy readiness, protected runtime/accounting, approved actual-provider evaluation and ordinary native activation beta prerequisites. Prepare readiness alongside expenses rather than defer it until after beta. Existing EUR 1 caps are not raised; setup/input/funding choices remain concrete execution gates. No financial records are added to AI tools or upstream context by this amendment.
+- **Implementation status:** no source, schema, backup format, deployed service or enabled AI behavior changed. Beta cannot pass with disabled/fake-only AI. Existing runtime/source/device gaps remain owned in their Issues; do not repeat settled product-scope questions.
+
+Verification for this amendment: 746 local links across 10 changed Markdown files pass target/anchor checks, with no broken inbound maintained-document anchors. The refreshed 62-open-Issue list matches the unchanged ownership map exactly; edited Issues retain their matching category prefixes/labels. Selected-versus-implemented statements and whitespace were checked; only documentation changed. No app tests/builds/devices, private data/provider/model calls, deployments or spending. The original review evidence and its earlier decision state remain historical below.
+
 ## 28 October project and implementation-plan review
 
 **Scope:** Manuel requested review/adaptation of the project, project plan and implementation plans, with implementation only after his review. Baseline main `81b73e0`, initially clean; latest application/APK source `526cfa1`. Reviewed maintained entry points, ADR statuses, all 61 initially open GitHub Issues, relevant implementation/test contracts and source-specific evidence. Added expense Issue #101, giving 62 open Issues. This is a planning/source consistency review, not a whole-code correctness audit or fresh runtime acceptance.
