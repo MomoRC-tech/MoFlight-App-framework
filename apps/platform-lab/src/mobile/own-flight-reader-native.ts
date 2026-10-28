@@ -10,6 +10,8 @@ import { loadInformation } from '../vereinsflieger/information-native';
 import { medicalSource } from './medical-source';
 import { loadDutyRoster } from '../vereinsflieger/duty-native';
 import { assertNoPendingUserBackupRestore } from '../user-backup-restore-journal-native';
+import { canCacheStartView, makeStartPreview, readStartPreview, startDay, type StartPreview } from './start-preview';
+import { loadStartPreviewCache, saveStartPreviewCache, clearStartPreviewCache } from './start-preview-native';
 
 /** Read the selected real owner. Missing files stay missing; no fallback to the lab library. */
 export const ownFlightReadPorts = serializeOwnFlightReads({
@@ -71,7 +73,52 @@ export const ownFlightReadPorts = serializeOwnFlightReads({
         if(closed||canonical(result?.scope??null)!==canonical(current))throw new Error('Information scope changed');
         return result;
       }
+      let admittedPreview:StartPreview|null=null;
+      async function previewGate(context:OwnFlightDetailContext) {
+        await assertNoPendingUserBackupRestore();
+        await registry!.assertCurrent(lease!);
+        if(closed)throw new Error('Start preview reader closed');
+        assertOwnFlightDetailOwner(context,lease!.selectionSeq);
+        const opened=await journal();
+        try { if(await opened.pending())throw new Error('Start preview blocked by pending save'); }
+        finally { await opened.close(); }
+        detailSelection??=await openRealFlightSelection(scope,false);
+        if(!detailSelection)throw new Error('Start preview selection missing');
+        await detailSelection.assertIdentity(context.selectionIdentity);
+        if((await detailSelection.listRestorePreparations()).some(item=>item.status==='pending'))throw new Error('Start preview blocked by restore');
+        await registry!.assertCurrent(lease!);
+        await assertNoPendingUserBackupRestore();
+      }
       return { ownerId: lease.ownerId, storeId: lease.storeId,
+        readStartPreview:async()=>{
+          const text=await loadStartPreviewCache(lease.storeId);
+          if(!text)return null;
+          const selected=await loadProviderScope(lease.ownerId);
+          if(!selected)return null;
+          const preview=readStartPreview(text,{ownerId:lease.ownerId,storeId:lease.storeId,scope:selected,selectionSeq:lease.selectionSeq},Date.now());
+          if(!preview)return null;
+          await previewGate(preview.context);
+          if(canonical(await loadProviderScope(lease.ownerId))!==canonical(selected))return null;
+          await registry.assertCurrent(lease);
+          admittedPreview=preview;
+          return preview;
+        },
+        saveStartPreview:async view=>{
+          if(!canCacheStartView(view)){await clearStartPreviewCache(lease.storeId);return;}
+          const selected=await loadProviderScope(lease.ownerId);
+          if(!selected||selected.context.accountNumber!==view.snapshot.account?.accountRef||view.snapshot.ownerId!==lease.ownerId||view.snapshot.storeId!==lease.storeId)return;
+          const now=Date.now();
+          const revision=await hash(canonical([startDay(now),view.snapshot.generation,view.snapshot.savedRetrievals,view.medical??null,view.duties??null,view.featureInformation?.workSummary??null]));
+          if(admittedPreview?.revision===revision)return;
+          const preview=makeStartPreview(view,selected,now,revision);
+          if(!preview){await clearStartPreviewCache(lease.storeId);return;}
+          const gate=async()=>{
+            await previewGate(preview.context);
+            if(canonical(await loadProviderScope(lease.ownerId))!==canonical(selected))throw new Error('Start preview provider scope changed');
+          };
+          await saveStartPreviewCache(lease.storeId,canonical(preview),gate);
+        },
+        clearStartPreview:()=>clearStartPreviewCache(lease.storeId),
         service: {
           readStored: (initial, span) => service.readStored(initial, span, true),
           detail: id => service.detail(id),

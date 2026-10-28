@@ -51,7 +51,7 @@ export function DesignPreview({onClose=()=>{}}:{onClose?:()=>void}={}) {
       item.accountRef === selected.accountRef && item.factsRevision === selected.factsRevision) ?? null);
   }, [fixture, mode]);
   const reload = useCallback(async () => { setDetail(null); setMode('populated'); setRequest({ year: null }); }, []);
-  const data: ReturnType<typeof useOwnFlights> = {
+  const data: ReturnType<typeof useOwnFlights> = {preview:null,
     view: mode === 'error' ? null : mode === 'empty' ? emptyView : fixture.view,
     phase: mode === 'error' ? 'failed' : 'ready', detail, detailBusy: false,
     detailError: mode === 'error' ? 'Synthetischer Lesefehler für die UI-Vorschau. Erneut prüfen zeigt wieder die erfundenen Flüge; echte Daten bleiben unberührt.' : null,

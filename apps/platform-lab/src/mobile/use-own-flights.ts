@@ -6,10 +6,13 @@ import { diagnosticJournal } from '../diagnostics';
 import { reuseEqualData } from './processed-result';
 import type { RealFlightDetail, RealFlightListItem } from '../vereinsflieger/real-flight-library';
 import { readOwnFlightDetail, readOwnFlightView, OwnFlightChangedError, OwnFlightReadCancelled, type OwnFlightReadPorts, type OwnFlightView } from './own-flight-reader';
+import type { StartPreview } from './start-preview';
 
 export function useOwnFlights(ports: OwnFlightReadPorts, active: boolean, reloadKey: number, retainWhilePaused=false, startVisible=true) {
   const processedView = useRef<OwnFlightView | null>(null);
   const [view, setView] = useState<OwnFlightView | null>(null);
+  const [preview,setPreview]=useState<StartPreview|null>(null);
+  const previewPresentation=useRef<{operation:ReturnType<typeof diagnosticJournal.begin>;finish:(ok:boolean)=>void}|null>(null);
   const [phase, setPhase] = useState<'loading' | 'ready' | 'missing' | 'failed'>('loading');
   const [detail, setDetail] = useState<RealFlightDetail | null>(null);
   const [detailBusy, setDetailBusy] = useState(false), [detailError, setDetailError] = useState<string | null>(null);
@@ -22,6 +25,7 @@ export function useOwnFlights(ports: OwnFlightReadPorts, active: boolean, reload
   visible.current = startVisible;
   const presentation = useRef<{ id: number; view: OwnFlightView; operation: ReturnType<typeof diagnosticJournal.begin>; finish: (ok: boolean) => void } | null>(null);
   const cancelPresentation = () => {
+    if(previewPresentation.current){previewPresentation.current.finish(false);previewPresentation.current.operation.finish('cancelled','stale-selection');previewPresentation.current=null;}
     const pending = presentation.current;
     if (pending) { pending.finish(false); pending.operation.finish('cancelled', 'stale-selection'); presentation.current = null; }
   };
@@ -41,6 +45,7 @@ export function useOwnFlights(ports: OwnFlightReadPorts, active: boolean, reload
     }
     queued.current = false; locked.current = true;
     cancelPresentation();
+    setPreview(null);
     const id = ++sequence.current;
     const diagnosis = diagnosticJournal.begin('read-flights', !beganRead.current ? startTiming.reference() : undefined), stage = diagnosis.span('local-read');
     diagnosis.span(!beganRead.current?'local-trigger-initial':quiet?'local-trigger-resume':'local-trigger-refresh')(true); beganRead.current=true;
@@ -80,20 +85,31 @@ export function useOwnFlights(ports: OwnFlightReadPorts, active: boolean, reload
       }
     };
     try {
-      const next = await readOwnFlightView(ports, diagnosis, { publish, current: () => current(id) });
+      const next = await readOwnFlightView(ports, diagnosis, { publish, current: () => current(id),preview:value=>{
+        if(!current(id)||processedView.current)return;
+        const operation=diagnosticJournal.begin('start-presentation',diagnosis.reference());
+        previewPresentation.current={operation,finish:operation.span('start-cached-data')};
+        setPreview(value);
+      } });
       publish(next);
+      if(current(id))setPreview(null);
       const partial = !!(next?.medicalReadFailed || next?.dutiesReadFailed || next?.featureInformationReadFailed);
       if (current(id)) { if (next) startTiming.settled(partial); else startTiming.noData(); }
       stage(true); diagnosis.finish(current(id) ? partial ? 'partial' : 'success' : 'cancelled',current(id)?'none':'stale-selection');
     } catch (error) {
       stage(false); cancelPresentation(); diagnosis.finish(current(id) && !(error instanceof OwnFlightReadCancelled)?'failed':'cancelled',current(id)?'operation-failed':'stale-selection');
-      if (current(id)) { startTiming.fail(); console.warn('Own-flight local read failed', localReadFailureCode(error)); processedView.current = null; pendingDetail.current = null; setView(null); setDetail(null); setDetailBusy(false); setPhase('failed'); }
+      if (current(id)) { startTiming.fail(); console.warn('Own-flight local read failed', localReadFailureCode(error)); processedView.current = null; pendingDetail.current = null; setPreview(null); setView(null); setDetail(null); setDetailBusy(false); setPhase('failed'); }
     } finally {
       locked.current = false;
       if (queued.current && alive.current && enabled.current && foreground.current) void reload(queuedQuiet.current);
       else if (pendingDetail.current && alive.current && enabled.current && foreground.current) { const selected = pendingDetail.current; pendingDetail.current = null; void detailReader.current(selected); }
     }
   }, [ports]);
+  useEffect(()=>{
+    if(preview&&active&&startVisible&&previewPresentation.current){
+      previewPresentation.current.finish(true);previewPresentation.current.operation.finish('success'); previewPresentation.current=null;
+    }
+  },[preview,active,startVisible]);
   useEffect(() => {
     const pending = presentation.current;
     if (!pending || !startVisible || !view || pending.view !== view || pending.id !== sequence.current || !active) return;
@@ -147,7 +163,7 @@ export function useOwnFlights(ports: OwnFlightReadPorts, active: boolean, reload
       // local screen. Account/writer changes still invalidate through active/reloadKey.
       if (foreground.current === nextForeground) return;
       foreground.current = nextForeground;
-      if (!foreground.current) { cancelPresentation(); startTiming.cancel(); sequence.current++; pendingDetail.current = null; setDetailBusy(false); }
+      if (!foreground.current) { cancelPresentation(); setPreview(null); startTiming.cancel(); sequence.current++; pendingDetail.current = null; setDetailBusy(false); }
       else if (enabled.current) void reload(true);
     });
     return () => { cancelPresentation(); alive.current = false; sequence.current++; queued.current = false; pendingDetail.current = null; subscription.remove(); };
@@ -156,8 +172,8 @@ export function useOwnFlights(ports: OwnFlightReadPorts, active: boolean, reload
     const returning=retainedPause.current;
     retainedPause.current=!active&&retainWhilePaused;
     if (active) void reload(returning);
-    else if(retainWhilePaused){startTiming.cancel();cancelPresentation();sequence.current++;setDetailBusy(false);}
-    else { startTiming.cancel();cancelPresentation();sequence.current++; processedView.current = null; pendingDetail.current = null; setView(null); setDetail(null); setDetailBusy(false); setPhase('loading'); }
+    else if(retainWhilePaused){startTiming.cancel();cancelPresentation();setPreview(null);sequence.current++;setDetailBusy(false);}
+    else { startTiming.cancel();cancelPresentation();setPreview(null);sequence.current++; processedView.current = null; pendingDetail.current = null; setView(null); setDetail(null); setDetailBusy(false); setPhase('loading'); }
   }, [active, reloadKey, reload,retainWhilePaused]);
-  return { view, phase, detail, detailBusy, detailError, openDetail, clearDetail, reload };
+  return { view, preview, phase, detail, detailBusy, detailError, openDetail, clearDetail, reload };
 }

@@ -67,8 +67,8 @@ function timeline(points:TimingPoint[],milliseconds:number): TimingTimeline | un
 /** Start preparation uses disjoint outer steps; cumulative JS milestones are separate endpoints. */
 function startTimeline(action: string, points: TimingPoint[], milliseconds: number, dropped: number): TimingTimeline | undefined {
   const names = action === 'read-flights' ? new Set(['local-session-open','local-owner-check','local-pending-command','local-stored-view',
-    'local-medical-read','local-duties-read','local-information-read','local-session-close','local-view-reuse'])
-    : action === 'start-presentation' ? new Set(['start-render-wait','start-retained-data']) : null;
+    'local-medical-read','local-duties-read','local-information-read','start-preview-read','start-preview-save','local-session-close','local-view-reuse'])
+    : action === 'start-presentation' ? new Set(['start-cached-data','start-render-wait','start-retained-data']) : null;
   if (action === 'start-screen') {
     const milestones = ['start-js-to-shell','start-js-to-data','start-js-to-commit','start-js-to-settled'].map(name => {
       const end = points.find(point => point.name === name && point.state !== 'start');

@@ -6,6 +6,7 @@ import type { DutyRosterSnapshot } from '../vereinsflieger/duties';
 import { buildFeatureInformation, type FeatureInformation } from './feature-information';
 import type { ProviderScope } from '../vereinsflieger/scope-store';
 import type { DiagnosticOperation, DiagnosticStage, DiagnosticSpanStarter } from '../diagnostics';
+import type { StartPreview } from './start-preview';
 
 export interface OwnFlightDetailContext { ownerSelectionSeq: number; selectionIdentity: string }
 /** Registry leases expire at session close; the append-only selection survives reopening. */
@@ -21,6 +22,9 @@ export interface OwnFlightReadSession extends OwnFlightScope {
   detailContext?(): OwnFlightDetailContext | undefined;
   assertDetailContext?(context: OwnFlightDetailContext): Promise<void>;
   pendingCommand(): Promise<boolean>;
+  readStartPreview?(): Promise<StartPreview | null>;
+  saveStartPreview?(view: OwnFlightView): Promise<void>;
+  clearStartPreview?(): Promise<void>;
   readFeatureInformation?(accountRef:string):Promise<{scope:ProviderScope;captures:InformationCapture[]}|null>;
   readMedical?(accountRef:string):Promise<InformationCapture|null>;
   readDuties?(accountRef:string):Promise<{scope:ProviderScope;snapshot:DutyRosterSnapshot|null}|null>;
@@ -55,6 +59,7 @@ export function serializeOwnFlightReads(ports: OwnFlightReadPorts): OwnFlightRea
 export type LocalSectionState = 'loading' | 'ready' | 'missing' | 'failed';
 export interface OwnFlightReadProgress {
   publish(view: OwnFlightView): void;
+  preview?(preview: StartPreview): void;
   current(): boolean;
 }
 export class OwnFlightReadCancelled extends Error {}
@@ -87,6 +92,18 @@ export async function readOwnFlightView(ports: OwnFlightReadPorts, timing?: Pick
     await timed('local-owner-check', () => traceLocalRead('owner-check', () => session.assertCurrent()));
     const pendingCommand = await timed('local-pending-command', () => traceLocalRead('pending-command', () => session.pendingCommand()));
     check();
+    if(!pendingCommand&&session.readStartPreview&&progress?.preview){
+      // Cache I/O is optional. Identity/recovery guards are inside the native port.
+      let preview:StartPreview|null=null;
+      try { preview=await timed('start-preview-read',()=>session.readStartPreview!()); } catch { /* A cache miss must not prevent the authoritative read. */ }
+      check();
+      if(preview){
+        progress.preview(preview);
+        // Give React/native a task boundary before starting full replay work.
+        await new Promise<void>(resolve=>{setTimeout(resolve,0);});
+        check();
+      }
+    }
     const result = await timed('local-stored-view', () => traceLocalRead('stored-view', () => session.service.readStored(undefined, timing?.span)));
     await timed('local-owner-check', () => traceLocalRead('owner-check', () => session.assertCurrent()));
     if (result.snapshot.ownerId !== session.ownerId || result.snapshot.storeId !== session.storeId ||
@@ -139,7 +156,17 @@ export async function readOwnFlightView(ports: OwnFlightReadPorts, timing?: Pick
     }
     sections.information = featureInformationReadFailed ? 'failed' : featureInformation ? 'ready' : 'missing';
     publish();
+    if(session.saveStartPreview){
+      try { await timed('start-preview-save',()=>session.saveStartPreview!(view())); } catch { /* Disposable cache failure cannot fail a verified local read. */ }
+      check();
+      await session.assertCurrent();
+    }
     return view();
+  } catch(error) {
+    if(!(error instanceof OwnFlightReadCancelled)){
+      try { await session.clearStartPreview?.(); } catch { /* Preserve original validation failure. */ }
+    }
+    throw error;
   } finally { await timed('local-session-close', () => traceLocalRead('session-close', () => session.close())); }
 }
 

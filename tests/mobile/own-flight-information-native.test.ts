@@ -1,3 +1,4 @@
+import * as startPreview from '../../apps/platform-lab/src/mobile/start-preview.ts';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -11,7 +12,7 @@ test('native Medical and feature reads share only their admitted session and rej
   let selected={owner:'owner',connectionId:'connection',context:{accountNumber:'101'}};
   const registry={currentOwner:async()=>({ownerId:'owner',storeId:'store',leaseId:'lease'}),assertCurrent:async()=>{if(revoked)throw new Error('revoked');},close:async()=>{}};
   const modules:Record<string,unknown>={
-   '../local-read-diagnostics':{traceLocalRead:(_stage:unknown,work:()=>unknown)=>work()},'@moflight/flight-logbook':{canonical},'expo-crypto':{randomUUID:()=>''},'../storage':{hash:()=>''},
+   './start-preview':startPreview,'./start-preview-native':{loadStartPreviewCache:async()=>null,saveStartPreviewCache:async()=>{},clearStartPreviewCache:async()=>{}},'../local-read-diagnostics':{traceLocalRead:(_stage:unknown,work:()=>unknown)=>work()},'@moflight/flight-logbook':{canonical},'expo-crypto':{randomUUID:()=>''},'../storage':{hash:()=>''},
    '../vereinsflieger/real-flight-native':{openOwnerRegistry:async()=>registry},
    '../vereinsflieger/real-flight-service':{RealFlightService:class{dispose(){}}},
    './own-flight-reader':{serializeOwnFlightReads:(ports:unknown)=>ports},

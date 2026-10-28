@@ -1,3 +1,5 @@
+import { startPreviewFixture } from './start-preview-fixture';
+import * as startPreview from '../../apps/platform-lab/src/mobile/start-preview.ts';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -21,7 +23,7 @@ test('native read binds selection timings to its originating operation and share
   let informationLoads=0,registryCloses=0,selectedTiming:unknown,servicePorts:any;
   class Service { constructor(...args:any[]){servicePorts=args[3];} dispose(){} }
   const modules:Record<string,unknown>={
-    '../local-read-diagnostics':trace,'@moflight/flight-logbook':{canonical:JSON.stringify},'expo-crypto':{randomUUID:()=> 'synthetic'},
+    './start-preview':startPreview,'./start-preview-native':{loadStartPreviewCache:async()=>null,saveStartPreviewCache:async()=>{},clearStartPreviewCache:async()=>{}},'../local-read-diagnostics':trace,'@moflight/flight-logbook':{canonical:JSON.stringify},'expo-crypto':{randomUUID:()=> 'synthetic'},
     '../storage':{hash:async()=> 'synthetic'},'./own-flight-reader':reader,'./medical-source':medical,
     '../vereinsflieger/real-flight-service':{RealFlightService:Service},
     '../vereinsflieger/scoped-storage':{loadProviderScope:async()=>scope},
@@ -54,7 +56,7 @@ function detailGuardFixture(openRegistry?: () => Promise<RealOwnerRegistry>) {
   const lease={ownerId:'owner',storeId:'store',leaseId:'lease',selectionSeq:1};
   const flights=ownFlightFixture();
   const calls={restore:0,owner:0,selectionOpens:0,selects:0,identities:[] as string[],selectionCloses:0,registryCloses:0,candidateCloses:0,disposes:0};
-  const state={failRestoreAt:0,failOwnerAt:0,failSelection:false,missingSelection:false,failClose:false};
+  const state={failRestoreAt:0,failOwnerAt:0,failSelection:false,missingSelection:false,failClose:false,pendingCommand:false,pendingRestore:false,previewText:null as string|null,providerScope:null as any,cacheSaves:0};
   const evidenceFlags:boolean[]=[];
   class Service {
     constructor(private readonly owner:string,private readonly store:string,_lease:unknown,private readonly ports:any){}
@@ -67,17 +69,17 @@ function detailGuardFixture(openRegistry?: () => Promise<RealOwnerRegistry>) {
     dispose(){calls.disposes++;}
   }
   const modules:Record<string,unknown>={
-    '../local-read-diagnostics':trace,'@moflight/flight-logbook':{canonical:JSON.stringify},'expo-crypto':{randomUUID:()=> 'synthetic'},
-    '../storage':{hash:async()=> 'synthetic'},'./own-flight-reader':reader,'./medical-source':medical,
+    './start-preview':startPreview,'./start-preview-native':{loadStartPreviewCache:async()=>state.previewText,saveStartPreviewCache:async(_store:string,text:string,gate:()=>Promise<void>)=>{await gate();state.previewText=text;state.cacheSaves++;await gate();},clearStartPreviewCache:async()=>{state.previewText=null;}},'../local-read-diagnostics':trace,'@moflight/flight-logbook':{canonical:JSON.stringify},'expo-crypto':{randomUUID:()=> 'synthetic'},
+    '../storage':{hash:async()=> 'a'.repeat(64)},'./own-flight-reader':reader,'./medical-source':medical,
     '../vereinsflieger/real-flight-service':{RealFlightService:Service},
-    '../vereinsflieger/scoped-storage':{loadProviderScope:async()=>null},
+    '../vereinsflieger/scoped-storage':{loadProviderScope:async()=>state.providerScope},
     '../vereinsflieger/information-native':{loadInformation:async()=>[]},
     '../vereinsflieger/duty-native':{loadDutyRoster:async()=>null},
     '../user-backup-restore-journal-native':{assertNoPendingUserBackupRestore:async()=>{
       if(++calls.restore===state.failRestoreAt)throw new Error('Pending restore');
     }},
     '../vereinsflieger/real-flight-native':{
-      openRealFlightCommandJournal:async()=>({pending:async()=>null,close:async()=>{}}),
+      openRealFlightCommandJournal:async()=>({pending:async()=>state.pendingCommand?{}:null,close:async()=>{}}),
       openOwnerRegistry:openRegistry??(async()=>({currentOwner:async()=>lease,assertCurrent:async()=>{
         if(++calls.owner===state.failOwnerAt)throw new Error('Owner lease changed');
       },close:async()=>{calls.registryCloses++;}})),
@@ -85,6 +87,7 @@ function detailGuardFixture(openRegistry?: () => Promise<RealOwnerRegistry>) {
         calls.selectionOpens++;
         if(state.missingSelection)return null;
         return {
+          listRestorePreparations:async()=>state.pendingRestore?[{status:'pending'}]:[],
           select:async()=>{calls.selects++;return {selectionIdentity:'verified-activation-chain',candidate:{close:async()=>{calls.candidateCloses++;}},recoveryRequired:false,warning:null};},
           assertIdentity:async(identity:string)=>{calls.identities.push(identity);if(state.failSelection)throw new Error('Selection changed');},
           close:async()=>{calls.selectionCloses++;if(state.failClose)throw new Error('Selection close failed');},
@@ -199,4 +202,40 @@ test('native guard journal close failure still closes registry and releases seri
   assert.equal(f.calls.registryCloses,1);
   const next=await f.ports.open();await next.close();
   assert.equal(f.calls.registryCloses,2);assert.equal(f.calls.disposes,2);
+});
+
+
+test('native Start preview admission verifies owner, scope, activation and recovery without opening history',async()=>{
+  const now=Date.now(),f=startPreviewFixture(now);
+  for(const failure of ['none','owner','selection','pending','restore','foreign-scope']){
+    const h=detailGuardFixture();
+    h.state.previewText=JSON.stringify(f.preview);h.state.providerScope=f.scope;
+    if(failure==='owner')h.state.failOwnerAt=1;
+    if(failure==='selection')h.state.failSelection=true;
+    if(failure==='pending')h.state.pendingCommand=true;
+    if(failure==='restore')h.state.pendingRestore=true;
+    if(failure==='foreign-scope')h.state.providerScope={...f.scope,context:{...f.scope.context,accountNumber:'202'}};
+    const session=await h.ports.open();
+    try{
+      if(failure==='none')assert.deepEqual(await session.readStartPreview(),f.preview);
+      else if(failure==='foreign-scope')assert.equal(await session.readStartPreview(),null);
+      else await assert.rejects(session.readStartPreview());
+      assert.equal(h.calls.selects,0);assert.equal(h.calls.candidateCloses,0,'preview never opens/replays any candidate');
+    }finally{await session.close();}
+    assert.equal(h.calls.registryCloses,1);
+  }
+});
+
+
+test('native cache stores verified Start values and unchanged revalidation avoids rewriting or recomputing the preview',async()=>{
+  const f=startPreviewFixture(Date.now()),h=detailGuardFixture();h.state.providerScope=f.scope;
+  let session=await h.ports.open();
+  await session.saveStartPreview(f.view);await session.close();
+  assert.equal(h.state.cacheSaves,1);assert.equal(JSON.parse(h.state.previewText!).dashboard.current.time,'2:00');
+  session=await h.ports.open();
+  assert.ok(await session.readStartPreview());
+  await session.saveStartPreview(f.view);assert.equal(h.state.cacheSaves,1);
+  await session.saveStartPreview({...f.view,snapshot:{...f.snapshot,recovery:{readOnly:true,warning:'Synthetic recovery'}}});
+  assert.equal(h.state.previewText,null,'recovery invalidates cache even when its source revision is unchanged');
+  await session.close();
 });

@@ -1,3 +1,4 @@
+import { startPreviewFixture } from './start-preview-fixture';
 import * as startTiming from '../../apps/platform-lab/src/start-timing.ts';
 import { syncStatus } from '../../apps/platform-lab/src/mobile/sync-status.ts';
 import { createSyncConfirmation } from '../../apps/platform-lab/src/mobile/sync-confirmation.ts';
@@ -47,7 +48,7 @@ function fixture(width = 390, fontScale = 1, root = false) {
   let persistedHelp = true, failHelpSave = false;
   let suspended = false, coreOpen = false;
   let clockNow=Date.UTC(2026,9,22,12),clockDeadlines:readonly number[]=[];
-  let providerStatus:any=unknownProviderStatus, lastLoad:any=null, ownView:any=null, appStateListener:((state:string)=>void)|undefined;
+  let providerStatus:any=unknownProviderStatus, lastLoad:any=null, ownView:any=null, ownPreview:any=null, appStateListener:((state:string)=>void)|undefined;
   Object.assign(controller, { connect: () => calls.push('connect'), checkConnection: () => calls.push('check'), retrieve: () => calls.push('retrieve') });
   let hardwareBack: () => boolean;
   const leaves = (names: string[]) => Object.fromEntries(names.map(name => [name, name]));
@@ -84,7 +85,7 @@ function fixture(width = 390, fontScale = 1, root = false) {
     './ImportPreview': leaves(['ImportPreview']),
     './CoreFlightFoundation': leaves(['CoreFlightFoundation']),
     './OwnFlights': leaves(['OwnFlights']),
-    './use-own-flights': { useOwnFlights: (_ports:unknown,active:boolean) => {readEnabled.push(active);return { view: ownView, phase: ownView?'ready':'missing', detail:null, detailBusy:false, detailError:null, openDetail:async()=>{}, clearDetail:()=>calls.push('clear-own-flight-detail'), reload:async()=>{} };} },
+    './use-own-flights': { useOwnFlights: (_ports:unknown,active:boolean) => {readEnabled.push(active);return { preview:ownPreview, view: ownView, phase: ownView?'ready':'missing', detail:null, detailBusy:false, detailError:null, openDetail:async()=>{}, clearDetail:()=>calls.push('clear-own-flight-detail'), reload:async()=>{} };} },
     './own-flight-reader-native': { ownFlightReadPorts: {} },
     './UpdateResult':leaves(['UpdateResult']), './ClubInformation':leaves(['ClubEvents','ClubDocumentNotices']),
     './ConnectionSummary': leaves(['ConnectionSummary']), './medical-source': { medicalSource },
@@ -124,6 +125,7 @@ function fixture(width = 390, fontScale = 1, root = false) {
     helpPreference:()=>persistedHelp, failHelpSaving:(value:boolean)=>{failHelpSave=value;},
     showLoad:(result:any,view:any)=>{providerStatus=result?.verifiedConnection?{...unknownProviderStatus,ownerId:result.verifiedConnection.ownerId,connection:result.verifiedConnection.state}:unknownProviderStatus;lastLoad=result;ownView=view;render();render();},
     setProviderStatus:(status:any)=>{providerStatus=status;render();render();},
+    setPreview:(value:any)=>{ownPreview=value;render();render();},
     setTime:(time:number)=>{clockNow=time;render();}, clockDeadlines:()=>clockDeadlines,
     appState:(state:string)=>{if(state!=='active')providerStatus=unknownProviderStatus;appStateListener?.(state);render();} };
 }
@@ -912,4 +914,17 @@ test('Statistics PIC Help retains the mounted caller and returns without clearin
  assert.equal(f.parent(f.find('StatisticsOverlay')).props.accessibilityElementsHidden,false);
  assert.equal(f.find('StatisticsOverlay').props.initialYear,2025);
  assert.deepEqual(f.calls,calls);
+});
+
+
+test('shell uses saved card data only on Start and drops the preview when the verified identity changes',()=>{
+  const h=fixture(),f=startPreviewFixture();h.setTime(f.now);
+  const medical:any={id:'saved-medical',owner:'owner',rows:[]};
+  h.setPreview({...f.preview,medical,duties:{scope:f.scope,snapshot:null}});
+  assert.equal(h.find('Dashboard').props.preview.accountRef,'101');
+  assert.equal(h.find('OverviewTiles').props.medical,medical);
+  h.find('OverviewTiles').props.onMedical();h.render();
+  assert.equal(h.find('MedicalDetails').props.capture,null,'cached card is not verified detail data');
+  h.showLoad(null,{snapshot:{ownerId:'other',storeId:'other',account:{accountRef:'202'}},sections:{medical:'loading',duties:'loading'}});
+  assert.equal(h.find('Dashboard').props.preview,null);assert.equal(h.find('OverviewTiles').props.medical,null);
 });

@@ -1,3 +1,4 @@
+import { startPreviewFixture } from './start-preview-fixture';
 import * as startTiming from '../../apps/platform-lab/src/start-timing.ts';
 import * as localDiagnostics from '../../apps/platform-lab/src/local-read-diagnostics';
 import * as diagnostics from '../../apps/platform-lab/src/diagnostics';
@@ -22,8 +23,9 @@ const source=ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/sr
   compilerOptions:{module:ts.ModuleKind.CommonJS},
 }).outputText;
 function deferred<T>() { let resolve!:(value:T)=>void;const promise=new Promise<T>(done=>{resolve=done;});return {promise,resolve}; }
-function host(withPresentation = false) {
+function host(withPresentation = false, setup?:(f:ReturnType<typeof ownFlightFixture>)=>void) {
   const f=ownFlightFixture(),hooks:any[]=[],effects:(()=>void)[]=[],cleanups:(()=>void)[]=[];
+  setup?.(f);
   let retainWhilePaused=false;
   let index=0,active=true,revision=0,listener!:(state:string)=>void;
   let flightsActive=true,filterRequest:flightModel.OwnFlightRequest|null=null;
@@ -68,6 +70,54 @@ function host(withPresentation = false) {
     requestFlight:(flightId:string)=>{filterRequest={year:null,flightId};flightsActive=true;render();},
     pauseForSync:()=>{retainWhilePaused=true;active=false;render();},setActive:(value:boolean)=>{active=value;render();},reload:()=>{revision++;render();},unmount:()=>cleanups.forEach(fn=>fn())};
 }
+
+test('cold hook publishes the historical Start preview while the authoritative history read remains blocked',async()=>{
+  const f=startPreviewFixture(),pending=deferred<any>();let saves=0;
+  const h=host(false,ports=>{
+    ports.session.readStartPreview=async()=>f.preview;
+    ports.session.saveStartPreview=async view=>{assert.equal(view.flights.length,3);saves++;};
+    ports.session.service.readStored=async()=>pending.promise;
+  });
+  try{
+    let state=await h.flush();
+    assert.equal(state.phase,'loading');assert.equal(state.view,null);
+    assert.equal(state.preview.dashboard.current.time,'2:00');
+    await state.openDetail(f.flights[0]);assert.equal(h.render().detail,null,'preview is never a flight detail source');
+    const cached=diagnostics.diagnosticJournal.snapshot().filter(entry=>entry.action==='start-presentation').at(-1)!;
+    assert.equal(cached.outcome,'success');assert.equal(cached.stages[0]?.name,'start-cached-data');
+    pending.resolve({snapshot:f.snapshot,flights:f.flights});state=await h.flush();
+    assert.equal(state.phase,'ready');assert.equal(state.preview,null);assert.equal(saves,1);
+  }finally{pending.resolve({snapshot:f.snapshot,flights:f.flights});h.unmount();}
+});
+
+test('failed validation hides the preview, invalidates its persistent cache and supports explicit retry',async()=>{
+  const f=startPreviewFixture(),pending=deferred<any>();let clears=0;
+  const h=host(false,ports=>{
+    ports.session.readStartPreview=async()=>f.preview;
+    ports.session.clearStartPreview=async()=>{clears++;};
+    ports.session.service.readStored=async()=>pending.promise;
+  });
+  await h.flush();assert.ok(h.render().preview);
+  pending.resolve({snapshot:{...f.snapshot,ownerId:'foreign'},flights:f.flights});
+  let state=await h.flush();assert.equal(state.phase,'failed');assert.equal(state.preview,null);assert.equal(state.view,null);assert.equal(clears,1);
+  h.session.readStartPreview=async()=>null;
+  h.session.service.readStored=async()=>({snapshot:f.snapshot,flights:f.flights});
+  await state.reload();state=await h.flush();assert.equal(state.phase,'ready');h.unmount();
+});
+
+test('a pending write skips cached publication and a background transition removes an admitted preview',async()=>{
+  for(const pendingWrite of [true,false]){
+    const f=startPreviewFixture(),pending=deferred<any>();let reads=0;
+    const h=host(false,ports=>{
+      ports.session.pendingCommand=async()=>pendingWrite;
+      ports.session.readStartPreview=async()=>{reads++;return f.preview;};
+      ports.session.service.readStored=async()=>pending.promise;
+    });
+    await h.flush();assert.equal(!!h.render().preview,!pendingWrite);assert.equal(reads,pendingWrite?0:1);
+    h.background();assert.equal(h.render().preview,null);
+    pending.resolve({snapshot:f.snapshot,flights:f.flights});await h.flush();assert.equal(h.render().view,null);h.unmount();
+  }
+});
 
 test('latest recent-flight request survives a busy local detail read through the real presentation and reader',async()=>{
   const h=host(true);await h.flush();
