@@ -53,6 +53,7 @@ const fixtureActivityLedger={
 // integration tests. These ports control timing to exercise the screen coordinator.
 function fixture({failRestoreMetadata=false,deferGraph=false,graphReady=true,admissionPending=false,entryProofFails=false,backupFails=false,destination='sources',providerAllowed=true,deferRead=false,deferRecoveryClear=false,startUpdate=false,root=false,readOnly=false,deferReservation=false,deferActivityCancel=false,deferActivityWrite=false,failStartup=false,medicalFailure=false,pendingFlightCount=0,cleanupAfterTasks=false,loginPending=false,deferProvider=false,quietResume=false,deferSource=false,sameWindow=false,deferVerification=false,priorConnection='unknown',existingOwner=false,pendingRestore=false,cancelRestore=false,initialOpen=true,initialFlightsSaved=false,initialSavedSync=null as syncRecovery.SyncRecoveryRecord|null,initialEstimateHistory=null as unknown,unactivatedPreparation=false,activityEnabled=false,activityBaselineCount=1,activityResultCount=2,onStatus:statusCallback=undefined as ((status:any)=>void)|undefined,intent:requestedIntent=undefined as string|undefined}={}) {
   let panelOpen=initialOpen,requestId=0;
+  let backupAttempt: (() => Promise<{state:'saved'|'cancelled'}>) | null = null;
   let finishGraph!:()=>void;const graphPreparation=new Promise<void>(resolve=>{finishGraph=resolve;});
   const journal=new DiagnosticJournal(), diagnosis={current:journal.begin(startUpdate?'update-flights':'open-flight-tools')};
   const hooks:any[]=[],effects:(()=>void)[]=[],calls:string[]=[],activityOrder:string[]=[],closed:any[]=[];
@@ -131,7 +132,7 @@ function fixture({failRestoreMetadata=false,deferGraph=false,graphReady=true,adm
   const modules:Record<string,any>={react:{default:react,...react},
     '../ai/backup-notice':{AI_BACKUP_NOTICE},
     '../user-backup-native':{getPendingUserBackupRestoreNative:async()=>{pendingRestoreChecks++;return pendingRestore?{operationId:'pending',ownerId:'owner',storeId:'store'}:null;},
-      saveUserBackupToFolder:async()=>{calls.push('backup-save');if(backupFails)throw new Error('Synthetic backup failure');return {state:'saved'};},
+      saveUserBackupToFolder:async()=>{calls.push('backup-save');if(backupAttempt)return backupAttempt();if(backupFails)throw new Error('Synthetic backup failure');return {state:'saved'};},
       restoreUserBackupFromPickerNative:async(_scope:any,_gate:any,id?:string)=>{calls.push(id?'resume-'+id:'restore-whole');if(cancelRestore)return {state:'cancelled'};pendingRestore=false;return {state:'restored'};}},
     './sync-progress':syncProgress,'./session-monitor':{startSessionMonitor},
     './sync-estimate':{...syncEstimate,syncEstimateNow:()=>{estimateClock+=10;return estimateClock;}},
@@ -177,6 +178,7 @@ function fixture({failRestoreMetadata=false,deferGraph=false,graphReady=true,adm
   const text=(node:any):string=>node&&typeof node==='object'&&'children'in node?node.children.map(text).join(''):typeof node==='string'?node:'';
   function press(label:string){const node=nodes().find(n=>n.type==='Action'&&text(n)===label);assert.ok(node,label);assert.ok(!node.props.disabled,label);node.props.onPress();}
   return {beginPendingRestore:()=>{pendingRestore=true;},recoverRestoreMetadata:()=>{failRestoreMetadata=false;},finishGraph,denyEntryProof:()=>{entryProofFails=true;},recoverStartup:()=>{failStartup=false;},allowEntryProof:()=>{entryProofFails=false;},finishRecoveryClear,deferNextStoredRead:()=>{holdNextRead=true;},advanceEstimateTime:(milliseconds:number)=>{estimateClock+=milliseconds;},estimateSaves:()=>estimateSaves.map(cloneJson),estimateHistory:()=>cloneJson(persistedEstimates),renewLease:()=>{lease={...lease,leaseId:'renewed'};dirty=true;},progressUpdates,journal,render,flush,c,calls,closed,nodes,activityChecks:()=>activityChecks,activityWriteCalls:()=>activityWriteCalls,pendingRestoreChecks:()=>pendingRestoreChecks,activityLedgerSaves:()=>activityLedgerSaves.map(cloneJson),savedActivityLedger:()=>savedActivityLedger===null?null:cloneJson(savedActivityLedger),statusUpdates,changeSelection:()=>{selectedHead++;},setOpen:(value:boolean)=>{panelOpen=value;if(value)requestId++;dirty=true;},text:()=>text(tree),progressText:()=>text(nodes().find(n=>n.type==='ProviderConnection')?.props.progress),press,finishReservation,background:()=>listeners.forEach(f=>f('background')),resume:()=>listeners.forEach(f=>f('active')),
+    onBackup:(work:()=>Promise<{state:'saved'|'cancelled'}>)=>{backupAttempt=work;},
     verify:()=>{c.visible=false;c.connection={phase:'observed',confirmed:true,observed:{accountNumber:'101',clubLabel:'Example'}};dirty=true;},
     pendingTimers:()=>timers.size,expire:()=>{for(const [id,fn] of timers){timers.delete(id);fn();}},
     finishRead:()=>finishRead(),
@@ -1209,4 +1211,29 @@ test('backgrounding during Backup validation cannot open a native picker or save
  const f=fixture({destination:'backup',providerAllowed:false,deferGraph:true});
  try{f.render();await f.flush();f.press('In Geräteordner sichern');await f.flush();f.background();f.finishGraph();await f.flush();assert.equal(f.calls.includes('backup-save'),false);assert.ok(f.calls.includes('release'));}
  finally{f.dispose();f.finishGraph();await f.flush();}
+});
+
+test('a prior successful picker round trip cannot label a later backup failure as interrupted Sync',async()=>{
+ const f=fixture({destination:'backup',providerAllowed:false});
+ try{
+  f.render();await f.flush();
+  f.onBackup(async()=>{f.background();f.resume();return {state:'saved'};});
+  f.press('In Geräteordner sichern');await f.flush();assert.match(f.text(),/Datensicherung gespeichert und zurückgelesen/);
+  f.onBackup(async()=>{throw new Error('Synthetic database failure');});
+  f.press('In Geräteordner sichern');await f.flush();
+  assert.match(f.text(),/Dieser Schritt wurde nicht bestätigt/);
+  assert.doesNotMatch(f.text(),/Abruf unterbrochen/);
+  assert.equal(f.closed.length,0);assert.equal(f.calls.filter(c=>c==='release').length,2);
+ }finally{f.dispose();}
+});
+
+test('a failed backup after an expected picker round trip does not report interrupted provider retrieval',async()=>{
+ const f=fixture({destination:'backup',providerAllowed:false});
+ try{
+  f.render();await f.flush();
+  f.onBackup(async()=>{f.background();f.resume();throw new Error('Synthetic native read failure');});
+  f.press('In Geräteordner sichern');await f.flush();
+  assert.match(f.text(),/Dieser Schritt wurde nicht bestätigt/);assert.doesNotMatch(f.text(),/Abruf unterbrochen/);
+  assert.equal(f.closed.length,0);assert.ok(f.calls.includes('release'));
+ }finally{f.dispose();}
 });

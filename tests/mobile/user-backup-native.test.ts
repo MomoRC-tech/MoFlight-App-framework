@@ -196,3 +196,22 @@ test('external aggregate save reports success only after exact file readback and
   assert.equal(f.files.size, 2);
   assert.equal(f.files.get(`folder:/${result.fileName}`), text, 'a failed later save preserves the previous verified external backup');
 });
+
+test('consecutive external saves preserve every verified archive and the same supported snapshot', async () => {
+  const f = await fixture();
+  const saved: string[] = [];
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const result = await f.api.saveUserBackupToFolder(f.scope, f.service, async () => {});
+    assert.equal(result.state, 'saved');
+    if (result.state !== 'saved') throw new Error('Expected external save');
+    const text = f.files.get(`folder:/${result.fileName}`)!;
+    assert.equal(await hash(text), result.sha256);
+    const value = await backup.validateUserBackup(text, { ownerId, storeId, informationScope: providerScope }, hash);
+    assert.equal(value.pilot.backup, f.pilotBackup);
+    assert.equal(value.realFlights.backup, f.realBackup);
+    assert.equal(value.information?.backup, f.infoBackup);
+    saved.push(text);
+    assert.deepEqual([...f.files.values()], saved);
+  }
+  assert.equal(f.state.closes, 3);
+});

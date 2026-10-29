@@ -15,7 +15,9 @@ function connection(db: SQLite.SQLiteDatabase): Connection {
   };
 }
 export async function openDriver(name: string, directory?: string): Promise<Driver> {
-  const db = await SQLite.openDatabaseAsync(name, undefined, directory);
+  // Each caller closes its own driver. A temporary backup/restore inspector must
+  // not share a native root with the retained pilot library or another reader.
+  const db = await SQLite.openDatabaseAsync(name, { useNewConnection: true }, directory);
   return diagnoseLocalDriver({ ...connection(db), close: () => db.closeAsync(), transaction: work => db.withExclusiveTransactionAsync(async tx => { await work(connection(tx)); }) }, 'generic');
 }
 export const hash = (text: string) => Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256, text);
