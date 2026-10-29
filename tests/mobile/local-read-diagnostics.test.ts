@@ -1,7 +1,20 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import type { Driver } from '../../packages/local-data/src/index';
-import { diagnoseLocalDriver, traceLocalRead } from '../../apps/platform-lab/src/local-read-diagnostics';
+import { diagnoseLocalDriver, traceLocalRead, localReadFailureCode } from '../../apps/platform-lab/src/local-read-diagnostics';
+
+test('native database failure categories expose no exception contents', () => {
+  for (const [message, code] of [
+    ['database is locked: private-owner', 'database-locked'],
+    ['database table is locked: private-table', 'database-locked'],
+    ['database has been closed: private-path', 'database-closed'],
+    ['no such table: private-table', 'missing-table'],
+    ['java.lang.NullPointerException private-data', 'native-null'],
+    ['already finalized private-query', 'statement-finalized'],
+    ['unexpected private-data', 'operation-failed'],
+  ]) assert.equal(localReadFailureCode(new Error(message)), code);
+  assert.equal(localReadFailureCode('private-data'), 'operation-failed');
+});
 
 test('failure diagnostics retain only stages and bounded lifetime ordinals, preserving the exact rejection', async () => {
   const output: string[] = [];

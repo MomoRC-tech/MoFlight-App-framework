@@ -7,8 +7,16 @@ type Kind = 'generic' | 'real-flight';
 type Event = { connection: number; kind: Kind; operation: string; state: 'start' | 'success' | 'failed'; active: number; closing: boolean };
 const recent: Event[] = [];
 let sequence = 0;
-export function localReadFailureCode(error: unknown): 'released-object' | 'operation-failed' {
-  return error instanceof Error && error.message.includes('Cannot use shared object that was already released') ? 'released-object' : 'operation-failed';
+export function localReadFailureCode(error: unknown) {
+  const message = error instanceof Error ? error.message : '';
+  if (message.includes('Cannot use shared object that was already released')) return 'released-object';
+  // Fixed categories only: native exception text can contain SQL, paths or values.
+  if (/database (?:is |table is )?locked|SQLITE_BUSY|SQLITE_LOCKED/i.test(message)) return 'database-locked';
+  if (/database (?:has been |is )closed|already closed/i.test(message)) return 'database-closed';
+  if (/no such table/i.test(message)) return 'missing-table';
+  if (/NullPointerException/i.test(message)) return 'native-null';
+  if (/already finalized|finalized statement/i.test(message)) return 'statement-finalized';
+  return 'operation-failed';
 }
 function report(stage: string, error: unknown) {
   console.warn('MoFlight local-read diagnostic', JSON.stringify({ stage, code: localReadFailureCode(error), lifetime: recent }));
