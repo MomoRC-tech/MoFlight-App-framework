@@ -1,0 +1,53 @@
+{
+  "source_commit": "0f1cd53ed10b2a06b808d6d5323bc42a43914147",
+  "apk_sha256": "8110f11e23a3e114e7c74465937b855775113e312b937843feaeafd9b3915033",
+  "publication": {
+    "source_commit": "0f1cd53ed10b2a06b808d6d5323bc42a43914147",
+    "apk_sha256": "8110f11e23a3e114e7c74465937b855775113e312b937843feaeafd9b3915033",
+    "zip_sha256": "6761b51ec4c3847668996a2c44878ff218addca1eacc0c2bc55494b2d7392876",
+    "url": "https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/duty-target-2026-10-29-0f1cd53/MoFlight-Duty-Target-0f1cd53.zip",
+    "download_readback_verified": true
+  },
+  "device": {
+    "avd": "MoFlight_Synthetic_API37",
+    "serial": "emulator-5578",
+    "android_api": 37,
+    "abi": "x86_64",
+    "dp": "390x900",
+    "density": 160,
+    "font_scale": 1.0
+  },
+  "checks": {
+    "source": "0f1cd53",
+    "synthetic_preview_only": true,
+    "calculated_value_visible": true,
+    "manual_edit_22_retains_calculated_31_05": true,
+    "reset_returns_to_automatic": true,
+    "provider_actions": false,
+    "native_persistent_memo": "not tested; actual adapter/reopen/interruption tests are host synthetic"
+  },
+  "cleanup": {
+    "settings_radios_identity_restored": true,
+    "synthetic_avd_left_running": true,
+    "new_normal_apk_intentionally_retained": true,
+    "provider_avds_untouched": true
+  },
+  "screenshot": "editor.png",
+  "parent_visual_review": "calculated value, manual value and reset/Save/Close readable and reachable",
+  "host": {
+    "focused_passes": 45,
+    "full_check": "5/5",
+    "mobile_passes": 1797,
+    "mobile_skips": 2,
+    "python_tests": 154,
+    "python_skips": 16,
+    "provenance": "72daeba plus package changes; equivalent EUR regex escape during run; not a clean final-SHA host claim"
+  },
+  "limitations": [
+    "Native UI uses an in-memory synthetic preview, not actual file-memo persistence.",
+    "Persistent memo/reopen/interruption/foreign/backup behavior is host native-adapter evidence.",
+    "No live-provider unequal-source, phone, iOS runtime, light or spoken acceptance.",
+    "Calculation history excluded from manual archive v3; manual targets remain included."
+  ],
+  "runtime_latency_samples": []
+}
