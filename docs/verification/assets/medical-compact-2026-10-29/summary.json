@@ -1,0 +1,109 @@
+{
+  "issue": 108,
+  "application_commit": "72daebaf7d59312408e46d9e8f02f1cde22a261e",
+  "apk_sha256": "90087ff6082769d889c32c3fb85b004a7fb637515edcd4931293a2bdb73f8a02",
+  "checks": {
+    "medical_tests": "21/21 pass",
+    "typescript": "pass",
+    "affected_eslint": "pass",
+    "new_test_rationale": "Existing source/status/interaction regressions reused; visual-only style assertions would mirror implementation. Native matched geometry and PNG review check the actual acceptance question.",
+    "handbook": "Generated/checked against committed e90f64a plus package source/chapters, excluding unrelated annual-duty drafts. Snapshot report: build/medical-compact-2026-10-29/handbook-report.json",
+    "native_build": "Committed-source Android Release, embedded JS, arm64-v8a and x86_64"
+  },
+  "native": {
+    "avd": "MoFlight_Synthetic_API37",
+    "serial": "emulator-5578",
+    "android_api": "37",
+    "actions_used": 25,
+    "captures_used": 2,
+    "status": "completed",
+    "cleanup_errors": [],
+    "original_display": {
+      "size": "Physical size: 1080x1920",
+      "density": "Physical density: 420",
+      "font": "1.0"
+    },
+    "restored_display": {
+      "size": "Physical size: 1080x1920",
+      "density": "Physical density: 420",
+      "font": "1.0"
+    },
+    "original_network": {
+      "airplane_mode_on": "1",
+      "wifi_on": "0",
+      "mobile_data": "0"
+    },
+    "final_network": {
+      "airplane_mode_on": "1",
+      "wifi_on": "0",
+      "mobile_data": "0"
+    },
+    "tile_geometry_comparisons": [
+      {
+        "viewport": "main",
+        "before_source": "4d79282968a92f29f411c8f89604aaec7697f8d6",
+        "before": {
+          "width_dp": 179,
+          "height_dp": 164
+        },
+        "after": {
+          "width_dp": 179,
+          "height_dp": 156
+        }
+      },
+      {
+        "viewport": "min",
+        "before_source": "4d79282968a92f29f411c8f89604aaec7697f8d6",
+        "before": {
+          "width_dp": 336,
+          "height_dp": 212
+        },
+        "after": {
+          "width_dp": 336,
+          "height_dp": 204
+        }
+      }
+    ]
+  },
+  "images": [
+    {
+      "file": "main-medical.png",
+      "sha256": "3230b61bfb6f55ec539b68562e34a02a7ac2d0ba9ece802b736fa75c74aecdf2",
+      "width_dp": 390,
+      "height_dp": 900,
+      "density_dpi": 160,
+      "font_scale": 1.0,
+      "data": "existing in-memory synthetic Cockpit preview"
+    },
+    {
+      "file": "min-medical.png",
+      "sha256": "1ea38bd72f30991b4aa5715e1f4971d08fe83e52ea17596fa4d470bc2d90cb8a",
+      "width_dp": 360,
+      "height_dp": 900,
+      "density_dpi": 160,
+      "font_scale": 1.6,
+      "data": "existing in-memory synthetic Cockpit preview"
+    }
+  ],
+  "parent_visual_review": "Both PNGs reviewed: smaller distinct badges, readable full dates, full-width inset navy header/Medical motif. No clipping/added height; Medical height is 8 dp lower at both checked font/width settings.",
+  "preservation": "Exact synthetic AVD only, update install -r, no clearing/seeding/import/provider/network changes. Sessions preserve identity/radios and restore display/font. Already-running AVD remains running. Unrelated annual-duty drafts excluded from source/handbook commit.",
+  "limits": [
+    "No new broad host checkpoint",
+    "No separate iOS export/runtime check",
+    "No phone",
+    "No spoken accessibility or light theme",
+    "No new live Medical/source acceptance",
+    "No app runtime measurement gathered; harness elapsed times are not performance samples"
+  ],
+  "delivery": {
+    "url": "https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/medical-compact-2026-10-29-72daeba/MoFlight-Medical-72daeba.zip",
+    "zip_sha256": "1175fd7d1a09ecc942ef8778b95b5c29f3d4067d023cbc7c4172c5c25da9e104",
+    "contents": [
+      "app-release.apk",
+      "build-metadata.json"
+    ],
+    "anonymous_download_verified": true,
+    "github_digest_matches": true,
+    "downloaded_contents_source_and_hashes_verified": true
+  }
+}
