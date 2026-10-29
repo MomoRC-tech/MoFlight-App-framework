@@ -199,6 +199,8 @@ Manuel requested lighter Start tiles, visible thin borders and a small status ba
 
 Every Medical row adds a compact colored circular badge beside its name/date: green ✓ for a recorded expiry more than six calendar months ahead, orange ! from today through six calendar months inclusive, red × for a past date, gray ? for an unknown date/clock. Existing date colors and source-warning asterisks remain. These symbols describe recorded expiry dates; they do not certify fitness or legal eligibility. The parent action retains every full name and date relationship for accessibility and opens the original read-only source details. The synthetic Cockpit preview includes all four states without storing them.
 
+**Same-day owner refinement:** badge face, stroke and glyph are reduced together to 80% of the initial implementation, while normal text scaling remains enabled. A full-width navy gradient band and faint existing Medical-card artwork sit behind the current title, painted into the existing inset with absolute positioning and clipped to the tile. The heading, padding and row spacing do not grow. This amends only Medical; other tiles, dates/actions and status rules remain.
+
 This adapts Material [filled/outlined card containment](https://developer.android.com/develop/ui/compose/components/card) and [small status badges](https://developer.android.com/develop/ui/compose/components/badges) to the current native navy/cyan UI: thin outlines and brighter tonal fills, and an inline badge tied to each record. Current [M3 cards](https://m3.material.io/components/cards/guidelines) and [badges](https://m3.material.io/components/badges/overview) were consulted; their text endpoint requires JavaScript. [Package evidence](../../verification/2026-10-24-compact-cockpit.md#start-tile-contrast-and-medical-badges--29-october-2026) distinguishes source/platform acceptance.
 
 ## Individual Medical rows — selected 26 October 2026
@@ -595,6 +597,8 @@ The U1/U3 header uses neutral saved-age text independently of session state, wit
 # Components, symbols and shapes
 
 **29 October Start correction (#108):** [selected tile/badge amendment](compact-cockpit.md#start-tile-contrast-and-medical-badges--authorized-29-october-2026) overrides earlier Start tile surface values. Medical rows retain name/date plus a small green ✓ / orange ! / red × / gray ? date-status badge, with complete date relationships on the parent action. No independent badge action.
+
+The same-day Medical refinement scales the initial badges to 80% and paints a navy gradient/header motif behind the existing title. Absolute decoration uses the existing inset and adds no vertical row/padding; native text still scales.
 
 **27 October U3:** Help/Statistics categories wrap for enlarged text, flight filters retain full values, AI composer sizing follows text/viewport and facts can stack. Short-dialog React order follows visual decision order; Sync/restore dismiss keyboards without discarding drafts. Date Next/Done supports focus/dismissal without applying a period. Existing headers/caps/palette and Start stay. [Contract](compact-cockpit.md#responsive-and-accessible-completion--authorized-27-october-2026).
 
@@ -1955,52 +1959,64 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](..
 
 ## OverviewTiles.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OverviewTiles.tsx](../../../apps/platform-lab/src/mobile/OverviewTiles.tsx); normalized SHA-256 `6420ed376c191afabe6036033fffdae88baa5c068aeea237a5fb3887382c6145`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OverviewTiles.tsx](../../../apps/platform-lab/src/mobile/OverviewTiles.tsx); normalized SHA-256 `5f7fa80b4b28577d6c06ba1afb8fd3dd24a73e71aaa20a0d0e959afac6307db0`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
+| `#103546` | 54 |
 | `#123f38` | 10 |
+| `#235469` | 54 |
 | `#293e4c` | 13 |
 | `#48dba5` | 10 |
 | `#512c36` | 12 |
 | `#513b22` | 11 |
 | `#a9bed3` | 13 |
-| `#f9b65b` | 11, 36 |
-| `#ff7777` | 12, 36 |
+| `#f9b65b` | 11, 39 |
+| `#ff7777` | 12, 39 |
+
+### Gradients
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `linear-gradient(110deg, #235469, #103546)` | 54 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 12` | 48, 50, 51 |
-| `fontSize: 14` | 48 |
-| `fontWeight: '600'` | 48, 50 |
-| `fontWeight: '700'` | 51 |
-| `lineHeight: 18` | 48, 50, 51 |
-| `lineHeight: 20` | 48 |
+| `fontSize: 12` | 51, 56 |
+| `fontSize: 14` | 51 |
+| `fontSize: 9.6` | 57 |
+| `fontWeight: '600'` | 51, 56 |
+| `fontWeight: '700'` | 57 |
+| `lineHeight: 14.4` | 57 |
+| `lineHeight: 18` | 51, 56 |
+| `lineHeight: 20` | 51 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 16` | 47 |
-| `borderRadius: 99` | 51 |
-| `borderWidth: 1` | 47, 51 |
-| `gap: 2` | 48 |
-| `gap: 4` | 49, 50 |
-| `gap: 6` | 49 |
-| `gap: 8` | 46, 47 |
-| `maxWidth: 520` | 46 |
-| `minHeight: 100` | 47 |
-| `minHeight: 18` | 51 |
-| `minWidth: 0` | 47, 49, 50 |
-| `minWidth: 18` | 51 |
-| `minWidth: 90` | 48 |
-| `padding: 12` | 47 |
-| `paddingHorizontal: 3` | 51 |
-| `width: '100%'` | 31, 40, 46, 49 |
+| `borderRadius: 16` | 50 |
+| `borderRadius: 99` | 57 |
+| `borderWidth: .8` | 57 |
+| `borderWidth: 1` | 50 |
+| `gap: 2` | 51 |
+| `gap: 4` | 52, 56 |
+| `gap: 6` | 52 |
+| `gap: 8` | 49, 50 |
+| `maxWidth: 520` | 49 |
+| `minHeight: 100` | 50 |
+| `minHeight: 14.4` | 57 |
+| `minWidth: 0` | 50, 52, 56 |
+| `minWidth: 14.4` | 57 |
+| `minWidth: 90` | 51 |
+| `opacity: .18` | 55 |
+| `padding: 12` | 50 |
+| `paddingHorizontal: 2.4` | 57 |
+| `width: '100%'` | 31, 43, 49, 52 |
 
 ## OwnFlights.tsx
 

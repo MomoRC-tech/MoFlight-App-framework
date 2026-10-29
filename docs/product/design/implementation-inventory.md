@@ -1118,52 +1118,64 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](..
 
 ## OverviewTiles.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OverviewTiles.tsx](../../../apps/platform-lab/src/mobile/OverviewTiles.tsx); normalized SHA-256 `6420ed376c191afabe6036033fffdae88baa5c068aeea237a5fb3887382c6145`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OverviewTiles.tsx](../../../apps/platform-lab/src/mobile/OverviewTiles.tsx); normalized SHA-256 `5f7fa80b4b28577d6c06ba1afb8fd3dd24a73e71aaa20a0d0e959afac6307db0`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
+| `#103546` | 54 |
 | `#123f38` | 10 |
+| `#235469` | 54 |
 | `#293e4c` | 13 |
 | `#48dba5` | 10 |
 | `#512c36` | 12 |
 | `#513b22` | 11 |
 | `#a9bed3` | 13 |
-| `#f9b65b` | 11, 36 |
-| `#ff7777` | 12, 36 |
+| `#f9b65b` | 11, 39 |
+| `#ff7777` | 12, 39 |
+
+### Gradients
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `linear-gradient(110deg, #235469, #103546)` | 54 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 12` | 48, 50, 51 |
-| `fontSize: 14` | 48 |
-| `fontWeight: '600'` | 48, 50 |
-| `fontWeight: '700'` | 51 |
-| `lineHeight: 18` | 48, 50, 51 |
-| `lineHeight: 20` | 48 |
+| `fontSize: 12` | 51, 56 |
+| `fontSize: 14` | 51 |
+| `fontSize: 9.6` | 57 |
+| `fontWeight: '600'` | 51, 56 |
+| `fontWeight: '700'` | 57 |
+| `lineHeight: 14.4` | 57 |
+| `lineHeight: 18` | 51, 56 |
+| `lineHeight: 20` | 51 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 16` | 47 |
-| `borderRadius: 99` | 51 |
-| `borderWidth: 1` | 47, 51 |
-| `gap: 2` | 48 |
-| `gap: 4` | 49, 50 |
-| `gap: 6` | 49 |
-| `gap: 8` | 46, 47 |
-| `maxWidth: 520` | 46 |
-| `minHeight: 100` | 47 |
-| `minHeight: 18` | 51 |
-| `minWidth: 0` | 47, 49, 50 |
-| `minWidth: 18` | 51 |
-| `minWidth: 90` | 48 |
-| `padding: 12` | 47 |
-| `paddingHorizontal: 3` | 51 |
-| `width: '100%'` | 31, 40, 46, 49 |
+| `borderRadius: 16` | 50 |
+| `borderRadius: 99` | 57 |
+| `borderWidth: .8` | 57 |
+| `borderWidth: 1` | 50 |
+| `gap: 2` | 51 |
+| `gap: 4` | 52, 56 |
+| `gap: 6` | 52 |
+| `gap: 8` | 49, 50 |
+| `maxWidth: 520` | 49 |
+| `minHeight: 100` | 50 |
+| `minHeight: 14.4` | 57 |
+| `minWidth: 0` | 50, 52, 56 |
+| `minWidth: 14.4` | 57 |
+| `minWidth: 90` | 51 |
+| `opacity: .18` | 55 |
+| `padding: 12` | 50 |
+| `paddingHorizontal: 2.4` | 57 |
+| `width: '100%'` | 31, 43, 49, 52 |
 
 ## OwnFlights.tsx
 

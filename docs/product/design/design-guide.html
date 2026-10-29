@@ -144,6 +144,7 @@
 <h3 id="chapter-compact-cockpit-start-tile-contrast-and-medical-badges--authorized-29-october-2026">Start tile contrast and Medical badges — authorized 29 October 2026</h3>
 <p>Manuel requested lighter Start tiles, visible thin borders and a small status badge on every saved Medical under <a href="https://github.com/MomoRC-tech/MoFlight-App-framework/issues/108">#108</a>. This scoped correction supersedes the 28 October retained Start <strong>tile</strong> surface exception: cards use <i class="swatch" style="background:#164154" aria-hidden="true"></i><code>#164154</code>, raised groups/actions <i class="swatch" style="background:#235469" aria-hidden="true"></i><code>#235469</code>, and 1 dp outlines <i class="swatch" style="background:#60889E" aria-hidden="true"></i><code>#60889E</code>. Header/bottom-navigation tokens remain separately scoped. Season photography, spacing, chart navigation, tile actions and enlarged-text stacking retain their existing contracts.</p>
 <p>Every Medical row adds a compact colored circular badge beside its name/date: green ✓ for a recorded expiry more than six calendar months ahead, orange ! from today through six calendar months inclusive, red × for a past date, gray ? for an unknown date/clock. Existing date colors and source-warning asterisks remain. These symbols describe recorded expiry dates; they do not certify fitness or legal eligibility. The parent action retains every full name and date relationship for accessibility and opens the original read-only source details. The synthetic Cockpit preview includes all four states without storing them.</p>
+<p><strong>Same-day owner refinement:</strong> badge face, stroke and glyph are reduced together to 80% of the initial implementation, while normal text scaling remains enabled. A full-width navy gradient band and faint existing Medical-card artwork sit behind the current title, painted into the existing inset with absolute positioning and clipped to the tile. The heading, padding and row spacing do not grow. This amends only Medical; other tiles, dates/actions and status rules remain.</p>
 <p>This adapts Material <a href="https://developer.android.com/develop/ui/compose/components/card">filled/outlined card containment</a> and <a href="https://developer.android.com/develop/ui/compose/components/badges">small status badges</a> to the current native navy/cyan UI: thin outlines and brighter tonal fills, and an inline badge tied to each record. Current <a href="https://m3.material.io/components/cards/guidelines">M3 cards</a> and <a href="https://m3.material.io/components/badges/overview">badges</a> were consulted; their text endpoint requires JavaScript. <a href="../../verification/2026-10-24-compact-cockpit.md#start-tile-contrast-and-medical-badges--29-october-2026">Package evidence</a> distinguishes source/platform acceptance.</p>
 <h3 id="chapter-compact-cockpit-individual-medical-rows--selected-26-october-2026">Individual Medical rows — selected 26 October 2026</h3>
 <p>Manuel requested implementation under <a href="https://github.com/MomoRC-tech/MoFlight-App-framework/issues/20#issuecomment-6413680688">#20</a>, then refined it in the <a href="https://github.com/MomoRC-tech/MoFlight-App-framework/issues/20#issuecomment-6416351997">same-day follow-up</a>: the Start Medical tile lists every saved source row on one line, with its name left and date right, omitting both “Erfasst bis” and “bis”. The icon sits beside the heading so records use the full tile width. Dates retain tabular numerals and their own expiry color; long names ellipsize while full names remain accessible and in Details. Missing/invalid dates read <code>unbekannt</code>; missing names remain explicit. Source warnings retain the asterisk and accessible explanation. Enlarged text retains stacked tiles.</p>
@@ -388,6 +389,7 @@
 <p>The U1/U3 header uses neutral saved-age text independently of session state, with a small green <i class="swatch" style="background:#74dfba" aria-hidden="true"></i><code>#74dfba</code> ✓ for recent matching confirmed proof, amber <i class="swatch" style="background:#ffc477" aria-hidden="true"></i><code>#ffc477</code> → for required login, and muted ?/! for unknown/mismatch/error. Saved flight receipt age strictly greater than 72 hours adds a small <i class="swatch" style="background:#ffc477" aria-hidden="true"></i><code>#ffc477</code> dot on the otherwise transparent icon-only control; exactly 72 hours does not. The same dot also signals a scope-matched activity-count change or incomplete sync, with distinct accessible wording and retained details/retry. These recommendation cues are independent of session colour and saved age; when both apply, both descriptions remain in the accessible action and status detail. Checks/login/failure never renew the durable successful flight receipt. The former one-hour age-colour policy is superseded. Provider-panel session colours retain their own meanings.</p></section>
 <section class="chapter" id="chapter-components"><h2 id="chapter-components-components-symbols-and-shapes">Components, symbols and shapes</h2>
 <p><strong>29 October Start correction (#108):</strong> <a href="#chapter-compact-cockpit-start-tile-contrast-and-medical-badges--authorized-29-october-2026">selected tile/badge amendment</a> overrides earlier Start tile surface values. Medical rows retain name/date plus a small green ✓ / orange ! / red × / gray ? date-status badge, with complete date relationships on the parent action. No independent badge action.</p>
+<p>The same-day Medical refinement scales the initial badges to 80% and paints a navy gradient/header motif behind the existing title. Absolute decoration uses the existing inset and adds no vertical row/padding; native text still scales.</p>
 <p><strong>27 October U3:</strong> Help/Statistics categories wrap for enlarged text, flight filters retain full values, AI composer sizing follows text/viewport and facts can stack. Short-dialog React order follows visual decision order; Sync/restore dismiss keyboards without discarding drafts. Date Next/Done supports focus/dismissal without applying a period. Existing headers/caps/palette and Start stay. <a href="#chapter-compact-cockpit-responsive-and-accessible-completion--authorized-27-october-2026">Contract</a>.</p>
 <p><strong>27 October U1/U2:</strong> ordinary Flights opts into the existing page app bar. Statistics period controls have Apply/Cancel/Back and preference-controlled PIC Help, retaining contributor context. AI names loading/busy/unavailable states and gates editing until a local archive exists. Help links expose failed handoff/retry; provider/Medical feedback names existing operations. No shared palette/Start change. <a href="#chapter-compact-cockpit-everyday-flights-and-task-states--authorized-27-october-2026">Contract</a>.</p>
 <p><strong>27 October coherent secondary UI (#94):</strong> Club-only contained rows/source disclosures preserve Start defaults. AI uses grouped, capped navy sheets and a guarded short dark deletion dialog; evidence/metrics keep exact saved references. Diagnostics/About/Development use page-local grouped rows and disclosures with existing actions and source/license boundaries. <a href="#chapter-compact-cockpit-club-ai-and-remaining-settings--authorized-27-october-2026">Contract</a>; these opt-in components do not change shared tokens or the Start roster.</p>
@@ -1439,45 +1441,55 @@
 <tr><td><code>width: 64</code></td><td>411</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-overviewtilestsx">OverviewTiles.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/OverviewTiles.tsx">apps/platform-lab/src/mobile/OverviewTiles.tsx</a>; normalized SHA-256 <code>6420ed376c191afabe6036033fffdae88baa5c068aeea237a5fb3887382c6145</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/OverviewTiles.tsx">apps/platform-lab/src/mobile/OverviewTiles.tsx</a>; normalized SHA-256 <code>5f7fa80b4b28577d6c06ba1afb8fd3dd24a73e71aaa20a0d0e959afac6307db0</code>.</p>
 <h4 id="chapter-implementation-inventory-literal-colors-13">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
+<tr><td><i class="swatch" style="background:#103546" aria-hidden="true"></i><code>#103546</code></td><td>54</td></tr>
 <tr><td><i class="swatch" style="background:#123f38" aria-hidden="true"></i><code>#123f38</code></td><td>10</td></tr>
+<tr><td><i class="swatch" style="background:#235469" aria-hidden="true"></i><code>#235469</code></td><td>54</td></tr>
 <tr><td><i class="swatch" style="background:#293e4c" aria-hidden="true"></i><code>#293e4c</code></td><td>13</td></tr>
 <tr><td><i class="swatch" style="background:#48dba5" aria-hidden="true"></i><code>#48dba5</code></td><td>10</td></tr>
 <tr><td><i class="swatch" style="background:#512c36" aria-hidden="true"></i><code>#512c36</code></td><td>12</td></tr>
 <tr><td><i class="swatch" style="background:#513b22" aria-hidden="true"></i><code>#513b22</code></td><td>11</td></tr>
 <tr><td><i class="swatch" style="background:#a9bed3" aria-hidden="true"></i><code>#a9bed3</code></td><td>13</td></tr>
-<tr><td><i class="swatch" style="background:#f9b65b" aria-hidden="true"></i><code>#f9b65b</code></td><td>11, 36</td></tr>
-<tr><td><i class="swatch" style="background:#ff7777" aria-hidden="true"></i><code>#ff7777</code></td><td>12, 36</td></tr>
+<tr><td><i class="swatch" style="background:#f9b65b" aria-hidden="true"></i><code>#f9b65b</code></td><td>11, 39</td></tr>
+<tr><td><i class="swatch" style="background:#ff7777" aria-hidden="true"></i><code>#ff7777</code></td><td>12, 39</td></tr>
+</tbody></table></div>
+<h4 id="chapter-implementation-inventory-gradients-1">Gradients</h4>
+<div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
+<tr><td><code>linear-gradient(110deg, #235469, #103546)</code></td><td>54</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-typography-declarations-22">Typography declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>fontSize: 12</code></td><td>48, 50, 51</td></tr>
-<tr><td><code>fontSize: 14</code></td><td>48</td></tr>
-<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>48, 50</td></tr>
-<tr><td><code>fontWeight: &#x27;700&#x27;</code></td><td>51</td></tr>
-<tr><td><code>lineHeight: 18</code></td><td>48, 50, 51</td></tr>
-<tr><td><code>lineHeight: 20</code></td><td>48</td></tr>
+<tr><td><code>fontSize: 12</code></td><td>51, 56</td></tr>
+<tr><td><code>fontSize: 14</code></td><td>51</td></tr>
+<tr><td><code>fontSize: 9.6</code></td><td>57</td></tr>
+<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>51, 56</td></tr>
+<tr><td><code>fontWeight: &#x27;700&#x27;</code></td><td>57</td></tr>
+<tr><td><code>lineHeight: 14.4</code></td><td>57</td></tr>
+<tr><td><code>lineHeight: 18</code></td><td>51, 56</td></tr>
+<tr><td><code>lineHeight: 20</code></td><td>51</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-geometry--opacity-declarations-38">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>borderRadius: 16</code></td><td>47</td></tr>
-<tr><td><code>borderRadius: 99</code></td><td>51</td></tr>
-<tr><td><code>borderWidth: 1</code></td><td>47, 51</td></tr>
-<tr><td><code>gap: 2</code></td><td>48</td></tr>
-<tr><td><code>gap: 4</code></td><td>49, 50</td></tr>
-<tr><td><code>gap: 6</code></td><td>49</td></tr>
-<tr><td><code>gap: 8</code></td><td>46, 47</td></tr>
-<tr><td><code>maxWidth: 520</code></td><td>46</td></tr>
-<tr><td><code>minHeight: 100</code></td><td>47</td></tr>
-<tr><td><code>minHeight: 18</code></td><td>51</td></tr>
-<tr><td><code>minWidth: 0</code></td><td>47, 49, 50</td></tr>
-<tr><td><code>minWidth: 18</code></td><td>51</td></tr>
-<tr><td><code>minWidth: 90</code></td><td>48</td></tr>
-<tr><td><code>padding: 12</code></td><td>47</td></tr>
-<tr><td><code>paddingHorizontal: 3</code></td><td>51</td></tr>
-<tr><td><code>width: &#x27;100%&#x27;</code></td><td>31, 40, 46, 49</td></tr>
+<tr><td><code>borderRadius: 16</code></td><td>50</td></tr>
+<tr><td><code>borderRadius: 99</code></td><td>57</td></tr>
+<tr><td><code>borderWidth: .8</code></td><td>57</td></tr>
+<tr><td><code>borderWidth: 1</code></td><td>50</td></tr>
+<tr><td><code>gap: 2</code></td><td>51</td></tr>
+<tr><td><code>gap: 4</code></td><td>52, 56</td></tr>
+<tr><td><code>gap: 6</code></td><td>52</td></tr>
+<tr><td><code>gap: 8</code></td><td>49, 50</td></tr>
+<tr><td><code>maxWidth: 520</code></td><td>49</td></tr>
+<tr><td><code>minHeight: 100</code></td><td>50</td></tr>
+<tr><td><code>minHeight: 14.4</code></td><td>57</td></tr>
+<tr><td><code>minWidth: 0</code></td><td>50, 52, 56</td></tr>
+<tr><td><code>minWidth: 14.4</code></td><td>57</td></tr>
+<tr><td><code>minWidth: 90</code></td><td>51</td></tr>
+<tr><td><code>opacity: .18</code></td><td>55</td></tr>
+<tr><td><code>padding: 12</code></td><td>50</td></tr>
+<tr><td><code>paddingHorizontal: 2.4</code></td><td>57</td></tr>
+<tr><td><code>width: &#x27;100%&#x27;</code></td><td>31, 43, 49, 52</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-ownflightstsx">OwnFlights.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/OwnFlights.tsx">apps/platform-lab/src/mobile/OwnFlights.tsx</a>; normalized SHA-256 <code>53e33f3304c686f0aa9c3680edb2402cb705e07432163d0237f3edb0693a089f</code>.</p>
@@ -1916,7 +1928,7 @@
 <tr><td><i class="swatch" style="background:#f4f8fc" aria-hidden="true"></i><code>#f4f8fc</code></td><td>18</td></tr>
 <tr><td><i class="swatch" style="background:#f5f7ff" aria-hidden="true"></i><code>#f5f7ff</code></td><td>18</td></tr>
 </tbody></table></div>
-<h4 id="chapter-implementation-inventory-gradients-1">Gradients</h4>
+<h4 id="chapter-implementation-inventory-gradients-2">Gradients</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>linear-gradient(140deg, #b9dcf52b, #7497bf12)</code></td><td>23</td></tr>
 </tbody></table></div>
@@ -2815,6 +2827,8 @@ Manuel requested lighter Start tiles, visible thin borders and a small status ba
 
 Every Medical row adds a compact colored circular badge beside its name/date: green ✓ for a recorded expiry more than six calendar months ahead, orange ! from today through six calendar months inclusive, red × for a past date, gray ? for an unknown date/clock. Existing date colors and source-warning asterisks remain. These symbols describe recorded expiry dates; they do not certify fitness or legal eligibility. The parent action retains every full name and date relationship for accessibility and opens the original read-only source details. The synthetic Cockpit preview includes all four states without storing them.
 
+**Same-day owner refinement:** badge face, stroke and glyph are reduced together to 80% of the initial implementation, while normal text scaling remains enabled. A full-width navy gradient band and faint existing Medical-card artwork sit behind the current title, painted into the existing inset with absolute positioning and clipped to the tile. The heading, padding and row spacing do not grow. This amends only Medical; other tiles, dates/actions and status rules remain.
+
 This adapts Material [filled/outlined card containment](https://developer.android.com/develop/ui/compose/components/card) and [small status badges](https://developer.android.com/develop/ui/compose/components/badges) to the current native navy/cyan UI: thin outlines and brighter tonal fills, and an inline badge tied to each record. Current [M3 cards](https://m3.material.io/components/cards/guidelines) and [badges](https://m3.material.io/components/badges/overview) were consulted; their text endpoint requires JavaScript. [Package evidence](../../verification/2026-10-24-compact-cockpit.md#start-tile-contrast-and-medical-badges--29-october-2026) distinguishes source/platform acceptance.
 
 ## Individual Medical rows — selected 26 October 2026
@@ -3211,6 +3225,8 @@ The U1/U3 header uses neutral saved-age text independently of session state, wit
 # Components, symbols and shapes
 
 **29 October Start correction (#108):** [selected tile/badge amendment](compact-cockpit.md#start-tile-contrast-and-medical-badges--authorized-29-october-2026) overrides earlier Start tile surface values. Medical rows retain name/date plus a small green ✓ / orange ! / red × / gray ? date-status badge, with complete date relationships on the parent action. No independent badge action.
+
+The same-day Medical refinement scales the initial badges to 80% and paints a navy gradient/header motif behind the existing title. Absolute decoration uses the existing inset and adds no vertical row/padding; native text still scales.
 
 **27 October U3:** Help/Statistics categories wrap for enlarged text, flight filters retain full values, AI composer sizing follows text/viewport and facts can stack. Short-dialog React order follows visual decision order; Sync/restore dismiss keyboards without discarding drafts. Date Next/Done supports focus/dismissal without applying a period. Existing headers/caps/palette and Start stay. [Contract](compact-cockpit.md#responsive-and-accessible-completion--authorized-27-october-2026).
 
@@ -4571,52 +4587,64 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](..
 
 ## OverviewTiles.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OverviewTiles.tsx](../../../apps/platform-lab/src/mobile/OverviewTiles.tsx); normalized SHA-256 `6420ed376c191afabe6036033fffdae88baa5c068aeea237a5fb3887382c6145`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OverviewTiles.tsx](../../../apps/platform-lab/src/mobile/OverviewTiles.tsx); normalized SHA-256 `5f7fa80b4b28577d6c06ba1afb8fd3dd24a73e71aaa20a0d0e959afac6307db0`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
+| `#103546` | 54 |
 | `#123f38` | 10 |
+| `#235469` | 54 |
 | `#293e4c` | 13 |
 | `#48dba5` | 10 |
 | `#512c36` | 12 |
 | `#513b22` | 11 |
 | `#a9bed3` | 13 |
-| `#f9b65b` | 11, 36 |
-| `#ff7777` | 12, 36 |
+| `#f9b65b` | 11, 39 |
+| `#ff7777` | 12, 39 |
+
+### Gradients
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `linear-gradient(110deg, #235469, #103546)` | 54 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 12` | 48, 50, 51 |
-| `fontSize: 14` | 48 |
-| `fontWeight: &#x27;600&#x27;` | 48, 50 |
-| `fontWeight: &#x27;700&#x27;` | 51 |
-| `lineHeight: 18` | 48, 50, 51 |
-| `lineHeight: 20` | 48 |
+| `fontSize: 12` | 51, 56 |
+| `fontSize: 14` | 51 |
+| `fontSize: 9.6` | 57 |
+| `fontWeight: &#x27;600&#x27;` | 51, 56 |
+| `fontWeight: &#x27;700&#x27;` | 57 |
+| `lineHeight: 14.4` | 57 |
+| `lineHeight: 18` | 51, 56 |
+| `lineHeight: 20` | 51 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 16` | 47 |
-| `borderRadius: 99` | 51 |
-| `borderWidth: 1` | 47, 51 |
-| `gap: 2` | 48 |
-| `gap: 4` | 49, 50 |
-| `gap: 6` | 49 |
-| `gap: 8` | 46, 47 |
-| `maxWidth: 520` | 46 |
-| `minHeight: 100` | 47 |
-| `minHeight: 18` | 51 |
-| `minWidth: 0` | 47, 49, 50 |
-| `minWidth: 18` | 51 |
-| `minWidth: 90` | 48 |
-| `padding: 12` | 47 |
-| `paddingHorizontal: 3` | 51 |
-| `width: &#x27;100%&#x27;` | 31, 40, 46, 49 |
+| `borderRadius: 16` | 50 |
+| `borderRadius: 99` | 57 |
+| `borderWidth: .8` | 57 |
+| `borderWidth: 1` | 50 |
+| `gap: 2` | 51 |
+| `gap: 4` | 52, 56 |
+| `gap: 6` | 52 |
+| `gap: 8` | 49, 50 |
+| `maxWidth: 520` | 49 |
+| `minHeight: 100` | 50 |
+| `minHeight: 14.4` | 57 |
+| `minWidth: 0` | 50, 52, 56 |
+| `minWidth: 14.4` | 57 |
+| `minWidth: 90` | 51 |
+| `opacity: .18` | 55 |
+| `padding: 12` | 50 |
+| `paddingHorizontal: 2.4` | 57 |
+| `width: &#x27;100%&#x27;` | 31, 43, 49, 52 |
 
 ## OwnFlights.tsx
 
@@ -6109,7 +6137,7 @@ States / limits: Recreated approved variant, not a byte-identical copy of an old
 Source: docs/assets/branding/moflight-app-icon-ai.png
 docs/assets/branding/README.md; app.json
 </textarea></section>
-<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: 7cc5b10f4db8a379e380d94cb3773442abeaf082dfaa643373a82b488b2ac4de. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
+<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: df1ba6c76a620cbf14628abcd148384f943a6bc109823a458c08597bab21d1a5. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
 </main><script>
 'use strict';
 const brief = document.querySelector('#brief');

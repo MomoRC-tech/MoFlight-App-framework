@@ -28,8 +28,11 @@ export function OverviewTiles({medical = null, medicalLoading = false, now, onMe
     : medicalLoading ? 'Gespeicherte Angaben werden geladen' : 'Ablaufdatum unbekannt';
   const {fontScale}=useWindowDimensions();
   return <View style={[styles.row,fontScale>1.3&&{flexDirection:'column'}]}>
-    <Pressable accessibilityRole="button" accessibilityLabel={`Medical. ${medicalDescription}.${entries.length && assessment.issues.length ? ' Quellenangaben teilweise unbekannt oder uneindeutig.' : ''} Details öffnen`} onPress={onMedical} style={({pressed})=>[styles.tile,fontScale>1.3&&{flex:0,width:'100%'},pressed&&ui.pressed]}>
-      <View style={styles.medicalCopy}><View style={styles.medicalHeading}><SymbolIcon name="medical-card" size={20}/><Label style={styles.title}>Medical</Label></View>{entries.length ? entries.map((entry,index)=>{
+    <Pressable accessibilityRole="button" accessibilityLabel={`Medical. ${medicalDescription}.${entries.length && assessment.issues.length ? ' Quellenangaben teilweise unbekannt oder uneindeutig.' : ''} Details öffnen`} onPress={onMedical} style={({pressed})=>[styles.tile,fontScale>1.3&&{flex:0,width:'100%'},styles.medicalTile,pressed&&ui.pressed]}>
+      <View style={styles.medicalCopy}><View style={styles.medicalHeading}>
+        <View pointerEvents="none" accessible={false} accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={styles.medicalHeaderBackground}><View style={styles.medicalHeaderMotif}><SymbolIcon name="medical-card" size={44}/></View></View>
+        <SymbolIcon name="medical-card" size={20}/><Label style={styles.title}>Medical</Label>
+      </View>{entries.length ? entries.map((entry,index)=>{
         const badge=expiryBadges[entry.state];
         return <View key={index} style={styles.medicalRow}>
           <View accessible={false} accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={[styles.medicalBadge,{backgroundColor:badge.backgroundColor,borderColor:badge.color}]}><Text numberOfLines={1} style={[styles.medicalBadgeText,{color:badge.color}]}>{badge.symbol}</Text></View>
@@ -46,7 +49,10 @@ const styles = StyleSheet.create({
   row:{flexDirection:'row',gap:8,width:'100%',maxWidth:520,alignSelf:'center'},
   tile:{flex:1,minWidth:0,minHeight:100,padding:12,gap:8,flexDirection:'row',flexWrap:'wrap',alignItems:'flex-start',borderWidth:1,borderColor:colors.border,borderRadius:16,backgroundColor:colors.card},
   copy:{flex:1,minWidth:90,gap:2},title:{fontSize:14,lineHeight:20,fontWeight:'600'},small:{fontSize:12,lineHeight:18},link:{fontSize:12,lineHeight:18,color:colors.cyan},
-  medicalCopy:{width:'100%',minWidth:0,gap:4},medicalHeading:{flexDirection:'row',alignItems:'center',gap:6},
+  medicalTile:{overflow:'hidden'},medicalCopy:{width:'100%',minWidth:0,gap:4},medicalHeading:{flexDirection:'row',alignItems:'center',gap:6},
+  // Paint into the existing tile inset: the title/rows add no vertical space.
+  medicalHeaderBackground:{position:'absolute',top:-12,left:-12,right:-12,bottom:-2,overflow:'hidden',backgroundColor:colors.raised,experimental_backgroundImage:'linear-gradient(110deg, #235469, #103546)',borderBottomWidth:1,borderBottomColor:colors.border},
+  medicalHeaderMotif:{position:'absolute',right:8,top:-5,opacity:.18},
   medicalRow:{flexDirection:'row',alignItems:'center',gap:4},medicalName:{flex:1,minWidth:0,fontSize:12,lineHeight:18},medicalDate:{flexShrink:0,fontWeight:'600',fontSize:12,lineHeight:18,fontVariant:['tabular-nums']},
-  medicalBadge:{minWidth:18,minHeight:18,paddingHorizontal:3,borderRadius:99,borderWidth:1,alignItems:'center',justifyContent:'center'},medicalBadgeText:{fontSize:12,lineHeight:18,fontWeight:'700',textAlign:'center'},
+  medicalBadge:{minWidth:14.4,minHeight:14.4,paddingHorizontal:2.4,borderRadius:99,borderWidth:.8,alignItems:'center',justifyContent:'center'},medicalBadgeText:{fontSize:9.6,lineHeight:14.4,fontWeight:'700',textAlign:'center'},
 });

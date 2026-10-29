@@ -16,6 +16,12 @@ No data clear, source seeding/import/provider or network operation occurred. The
 
 Delivered under [#61](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/61), M4/R04/R12, FL-03/10/11, E07/E09. [Approved contract, preserved route inventory and data limitations](../product/design/compact-cockpit.md). [Original approved reference](../product/design-sources/2026-10-24-compact-cockpit/reference.jpg) is saved unchanged. The original app logo bytes match the pre-change source.
 
+### Medical size and header refinement — 29 October 2026
+
+Same-day owner follow-up under #108 reduces the initial badge dimensions, glyph and stroke to 80%, retaining system text scaling and all existing Medical/date/actions. A navy gradient and faint existing Medical-card motif are positioned behind the current title within the existing tile inset; no header row, padding or heading height is added. Other tiles and source interpretation remain unchanged.
+
+Existing 21 Medical component/parser/status tests, TypeScript and affected-file ESLint pass. New tests would only freeze incidental style values, so the affected native check is used for badge readability and the no-height-increase requirement. Handbook generation/freshness uses committed `e90f64a` plus only this package's source/chapters, excluding unrelated annual-duty drafts; the isolated generator report stays ignored in `build/medical-compact-2026-10-29/handbook-report.json`. Exact-source native/delivery results follow at the package checkpoint. Earlier #108 checks retain their actual source; no new broad host, phone or iOS runtime pass is implied.
+
 The app now uses a compact logo/wordmark toolbar, adjacent Sync/Profile controls, conditional saved/sync status, unified photographic season card, current/prior metrics, latest-flight navigation, Medical/paper tiles and compact club header above its retained duty body. Shared midnight/teal tokens and outlined symbols carry through existing routes. Season selection opens Statistics in the same year. Enlarged text stacks the two tiles and permits horizontal metric scrolling. Existing provider, persistence, offline, account/book, backup/import/export and recovery architecture remains in place. The provisional target is an isolated local UI preference, not a provider or flight mutation.
 
 ## Verification
