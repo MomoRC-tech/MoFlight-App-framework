@@ -3,7 +3,7 @@
 | Question | Maintained source |
 | --- | --- |
 | What is delivered, and where is the APK? | [Project README](../README.md#current-delivery) |
-| Which bugs/statistics work closed on 29 October? | [49-open/zero-bug closeout, APK and residual ownership](verification/2026-10-17-current-status-and-open-issues.md#29-october-completed-bug-and-statistics-closeout) |
+| Which work closed on 29 October, and what remains? | [Current focused closeouts and residual ownership](verification/2026-10-17-current-status-and-open-issues.md#29-october-required-hours-research-closeout); dated bug/Statistics evidence remains below |
 | What should happen next? | [Current plan](project-plan.md#next-executable-packages) and [GitHub Issues](https://github.com/MomoRC-tech/MoFlight-App-framework/issues) |
 | What should the app do? | [Product contracts](product/README.md) |
 | What should it look like? | [Selected design handbook](product/design/README.md) |

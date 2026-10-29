@@ -1,5 +1,9 @@
 # Implementation and open-issue reviews — 17–29 October 2026
 
+## 29 October required-hours research closeout
+
+**Current inventory: 47 open issues, zero bug-labelled.** #86's bounded investigation is complete: the actual permitted own profile/work-hours table and optional columns do not expose an annual required-hours quota. Official help identifies annual obligations as money and documents category-dependent rates; the preserved REST definition supplies no standard quota endpoint. [Source-specific report](2026-10-25-flight-classification.md#required-hours-source-investigation-completed--29-october-2026) retains the member-facing/REST limits and earlier saved-capture comparison. Keep the manual target provisional; no EUR conversion, provider write, application change or native acceptance claim. A future explicit source can reopen a concrete #10/#56 mapping task. #9's hybrid-chart work and broader engineer/owner-phone gates remain open; dated inventories below are historical.
+
 ## 29 October focused Sync-count closeout
 
 **Current inventory: 48 open issues, zero bug-labelled.** #92 is closed in `7514bcd`; the independently delegated #80 preservation check is closed in `4816a97` after one no-snapshot cold start, identical current APK/installation/settings and successful app reopen. [#80 evidence](2026-10-24-ai-chat-implementation.md#80-current-apk-cold-start-recheck-29-october-2026) retains the unknown historical cause and unchanged provider/data boundaries. #9 remains open for its later hybrid-chart scope. No broader acceptance is inferred.
