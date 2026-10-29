@@ -1,0 +1,32 @@
+{
+  "visible_directions_refused": [
+    "up",
+    "down"
+  ],
+  "unchanged_search_value_sha256": "1019e3807652683d5c374907c179e1a8a8c24a92bd7a7f997b1b18d783c94b85",
+  "hidden_directions_completed": [
+    "up",
+    "down"
+  ],
+  "post_dismissal_keyboard": {
+    "visibility": "hidden",
+    "flags": [
+      "mInputShown=false",
+      "mIsInputViewShown=true",
+      "mShowInputRequested=false",
+      "mDecorViewVisible=false",
+      "mWindowVisible=false",
+      "mImeWindowVis=0"
+    ]
+  },
+  "operator": "deterministic parent probe; no model worker",
+  "application_commit": "cc229028f05613a698e7bcbfb51b0f581628ee3b",
+  "apk_sha256": "4a56b7f64a7db35d3c82408bed9b8c523043c18d9af95255b838e59df7b8ddce",
+  "controller_repository_head": "9174b067e218b7a4c275a92be1f49f70e4fc53d5",
+  "controller_source_sha256": "30c863258e5d22f08369a85ade0fe2282d86863476a6a2950d2208ba750feac8",
+  "actions_used": 17,
+  "captures_used": 0,
+  "cleanup_errors": [],
+  "active_elapsed_seconds": 26.359000000054948,
+  "preserved_display_network_install_identity": true
+}
