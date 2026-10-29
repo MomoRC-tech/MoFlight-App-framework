@@ -1,0 +1,139 @@
+{
+  "version": 1,
+  "recorded_date": "2026-10-29",
+  "final_application_source": "ee6a4ceea6ed2d07b330b21be8b0ebec298ec787",
+  "apk_sha256": "65509be1ecee5c86cb73a907494e91e6e338f00ea3ad87fb53362a2e73553163",
+  "artifact": {
+    "configuration": "Release",
+    "architectures": [
+      "arm64-v8a",
+      "x86_64"
+    ],
+    "embedded_javascript": true,
+    "signing": "development lab",
+    "metro_required": false
+  },
+  "device": {
+    "avd": "MoFlight_API37",
+    "android_api": 37,
+    "abi": "x86_64",
+    "density_dpi": 160,
+    "theme": "dark",
+    "input": "one preserved authorized account; no data clear or credential entry"
+  },
+  "source_specific_checks": {
+    "tab_retention": {
+      "source": "edecfabc98318ae5c75e4b53dba17b7089b5d1ee",
+      "rounds": 3,
+      "tab_actions": 12,
+      "extra_own_flight_operations": 0,
+      "observed_round_end_seconds_including_adb_ui_dump": [
+        11.157,
+        22.235,
+        33.469
+      ],
+      "counted_flights": 97
+    },
+    "foreground_retention": {
+      "source": "edecfabc98318ae5c75e4b53dba17b7089b5d1ee",
+      "same_process": true,
+      "displayed_values_retained": true,
+      "retained_data_marker": true
+    },
+    "statistics_periods": {
+      "source": "edecfabc98318ae5c75e4b53dba17b7089b5d1ee",
+      "all_solo_count": 5,
+      "custom_solo_count": 3,
+      "exact_period_contributors_match": true,
+      "focused_end_field_above_ime": true,
+      "done_dismissed_before_explicit_apply": true
+    },
+    "statistics_widths": {
+      "source": "edecfab",
+      "min": {
+        "width_dp": 360,
+        "height_dp": 900,
+        "font_scale": 1.4,
+        "last_role_and_caveat_reached": true
+      },
+      "wide": {
+        "width_dp": 900,
+        "height_dp": 600,
+        "font_scale": 1,
+        "role_card_width_dp": 542,
+        "centered": true
+      }
+    },
+    "actual_soft_keyboard": {
+      "source": "9cd3bbb",
+      "viewport": "360x900",
+      "font_scale": 1.4,
+      "actual_gboard_next_keeps_ime": true,
+      "focused_end_field_bottom": 529,
+      "ime_content_top": 601,
+      "actual_done_hides_ime": true,
+      "draft_not_applied": true,
+      "offline_reopen_solo_count": 5,
+      "selected_source_preserved": true
+    },
+    "authenticated_interruption": {
+      "source": "9cd3bbb",
+      "stage_before_background": "flights",
+      "prior_authenticated_full_sync_success": true,
+      "provider_session_preserved": true,
+      "failure_visible_after_return": true,
+      "no_new_provider_or_sync_stage_after_active": true,
+      "same_operations_after_settled_wait": true
+    },
+    "original_view_restoration": {
+      "source": "ee6a4ceea6ed2d07b330b21be8b0ebec298ec787",
+      "restoration_control_reachable": true,
+      "fresh_account_guard_used": true,
+      "restoration_returned_to_explicit_continuation": true
+    },
+    "explicit_continuation": {
+      "source": "ee6a4ceea6ed2d07b330b21be8b0ebec298ec787",
+      "sync_success_observed": true,
+      "captured_context_matches_source": true
+    },
+    "offline_reopen_and_inspection": {
+      "source": "ee6a4ceea6ed2d07b330b21be8b0ebec298ec787",
+      "installed_apk_sha256": "65509be1ecee5c86cb73a907494e91e6e338f00ea3ad87fb53362a2e73553163",
+      "offline_cold_reopen": true,
+      "counted_rows": 97,
+      "inspection_rows": 101,
+      "native_role_filter_solo_rows": 5,
+      "hardware_back_retains_filter": true,
+      "reset_restores_all_inspection_rows": true,
+      "bounded_fatal_log_check_passed": true,
+      "old_private_raw_data_not_published": true
+    }
+  },
+  "cleanup": {
+    "status": "passed",
+    "display_network_and_hardware_ime_restored": true,
+    "original_first_install_time_preserved": true,
+    "updated_normal_apk_source": "ee6a4ceea6ed2d07b330b21be8b0ebec298ec787",
+    "provider_logout_or_clear_data_performed": false,
+    "private_preflight_snapshot_preserved": true,
+    "system_night_mode": "left dark; original system flag was not recorded",
+    "original_stopped_avd_lifecycle_restored": true
+  },
+  "host_evidence": {
+    "initial_full_host": "5/5; 1763 mobile passes/2 skips; 144 Python tests including 16 skips; 8b48ac0 with recorded working changes",
+    "later_broader_mobile": "1767 passed/2 skipped before final recovery-dialog follow-ups",
+    "final_affected_regressions": 304,
+    "types_lint_platform_exports": "passed for final application content",
+    "native_release_source": "ee6a4ceea6ed2d07b330b21be8b0ebec298ec787"
+  },
+  "limits": [
+    "Earlier native checks are tied to their actual commits; unchanged code/evidence is reused explicitly.",
+    "Intermediate cef98fe hidden-recovery preparation failed native acceptance and is superseded; its recorded running observation is retained in the performance ledger.",
+    "Actual provider evidence is one retained account and supported captured scopes, not full history or a second account.",
+    "Native PIC+ is empty; positive PIC+/unknown-duration/conflict variants are deterministic synthetic tests.",
+    "Captured diagnostics are bounded excerpts. Timing stages overlap; React commit proxies and UIAutomation/harness totals do not establish presented-frame latency or a causal speedup.",
+    "Private source IDs, original reports and screenshots stay ignored; only sanitized assertions and timing/counter fields are published.",
+    "Physical phone, iOS and extended spoken trials remain untested; owner checklist107 remains unchecked.",
+    "No byte-for-byte private database comparison was performed; authorized live Sync legitimately updates capture history."
+  ]
+}
