@@ -58,6 +58,32 @@
     "Ordinary selected real-library populated native acceptance, custom-keyboard/contributor/account-switch native checks, phone, iOS runtime, spoken and light-theme acceptance remain open.",
     "No app runtime latency measured; harness elapsed time is not a performance-ledger sample."
   ],
+  "populated_offline_followup": {
+    "recorded_date": "2026-10-29",
+    "application_source": "58851de4d3de01539384d7e08163e736cce1022b",
+    "installed_apk_hash_verified": true,
+    "device": "MoFlight_API37 / API37 / x86_64 / 390x900 dp / density160 / font1.0",
+    "scope": "Ordinary preserved owner library; no seeding, reset, Sync or provider retrieval. This supplements the separately scoped synthetic preview above.",
+    "passed": [
+      "Monthly chart displays the saved totals and plotted marks; parent inspected the actual native screenshot.",
+      "Observed month mark opens its five stored contributors; native detail opens and Back returns through contributors/chart/callout.",
+      "Actual Gboard Next keeps the keyboard visible and focuses the end date above it; Done dismisses the keyboard without applying the draft.",
+      "Explicit custom-period Apply yields the expected month count; Cancel retains the applied period; explicit year reset restores the previous year total.",
+      "An interior horizontal swipe moves the annual calendar date window while retaining the chart, year and totals.",
+      "Offline process restart retains populated Start and reopens ordinary Statistics.",
+      "Original display/font/IME/radio settings and installation identity restored; owned provider AVD stopped as initially found; synthetic AVD untouched. Published normal APK intentionally retained as an in-place update."
+    ],
+    "harness_corrections": [
+      "Initial label printing hit Windows console encoding; corrected local output only.",
+      "First calendar swipe began in Android's edge-Back area and closed the calendar. Raw XML retained. A corrected interior gesture scrolled the calendar without an application change."
+    ],
+    "not_tested": [
+      "Native account switching and Start chart/collapse preference persistence/isolation.",
+      "Physical owner phone, iOS runtime, spoken accessibility and beta light theme."
+    ],
+    "private_evidence": "Ignored build/statistics-populated-20261029/ XML, screenshots, assertions and cleanup. No private values or source IDs published.",
+    "runtime_latency_measured": false
+  },
   "publication": {
     "url": "https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/statistics-2026-10-29-58851de/MoFlight-Statistics-58851de.zip",
     "source_commit": "58851de4d3de01539384d7e08163e736cce1022b",

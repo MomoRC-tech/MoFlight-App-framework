@@ -2,6 +2,8 @@
 
 ## 29 October required-hours research closeout
 
+**Subsequent #9 acceptance progress:** [ordinary populated offline follow-up](2026-10-20-real-flight-statistics.md#hybrid-populated-offline-follow-up--29-october-2026) on the published `58851de` passes monthly chart/contributors/detail/Back, actual custom soft keyboard/Apply/Cancel, interior calendar scrolling and offline restart/reopen. No app change/build or repeated matrix. #9 stays open for native Start preferences/account switching and existing owner/platform acceptance; this follow-up closes no additional issue and leaves the count at 47.
+
 **Current inventory: 47 open issues, zero bug-labelled.** #86's bounded investigation is complete: the actual permitted own profile/work-hours table and optional columns do not expose an annual required-hours quota. Official help identifies annual obligations as money and documents category-dependent rates; the preserved REST definition supplies no standard quota endpoint. [Source-specific report](2026-10-25-flight-classification.md#required-hours-source-investigation-completed--29-october-2026) retains the member-facing/REST limits and earlier saved-capture comparison. Keep the manual target provisional; no EUR conversion, provider write, application change or native acceptance claim. A future explicit source can reopen a concrete #10/#56 mapping task. #9's hybrid-chart work and broader engineer/owner-phone gates remain open; dated inventories below are historical.
 
 ## 29 October focused Sync-count closeout
