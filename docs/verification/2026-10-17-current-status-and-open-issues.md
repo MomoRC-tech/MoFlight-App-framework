@@ -1,5 +1,21 @@
 # Implementation and open-issue reviews — 17–29 October 2026
 
+## 29 October privacy issue hierarchy
+
+**Outcome:** Manuel approved one privacy parent with dedicated sub-issues. [#21](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/21) now has three direct GitHub sub-issues: [#15 — member-data policy](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/15), [#97 — privacy notice](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/97) and [#98 — Impressum](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/98). [#96](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/96) is closed as superseded (`not_planned`), with its original contract preserved. Live REST readback finds **52 open issues**, including four privacy issues and the unchanged two bugs #93/#45; the 53-issue checkpoint below is historical.
+
+| Owner | Retained or transferred responsibility |
+| --- | --- |
+| #21 parent | Shared audience/operator/channel facts, data-flow inventory, publication path and disclosure locations transferred from #96; proportionate risk dispositions and release-specific overview. |
+| #15 child | Member fields/audiences, permissions, names, retention/cache/sharing policy and its existing bounded safeguards/evidence. |
+| #97 child | Notice applicability, verified content and accessible publication, or evidenced non-applicability; detailed criteria/evidence remain here. |
+| #98 child | Impressum applicability, owner-confirmed operator/contact facts and accessible publication; detailed criteria/evidence remain here. |
+| #8 release gate | Integrated release/publication logistics and handoff consistency with #21/#97/#98, transferred from #96. No publication is authorized by this transfer. |
+
+The parent summarizes child outcomes without duplicating detailed acceptance checklists. Technical implementation/tests remain in existing feature issues. Current-beta financial/live-AI privacy requirements remain; later cloud/photo/member-feature conditions retain linked activation gates and revisit triggers. Closing #96 does not complete disclosures or accept a legal basis, privacy risk, application change, new processing, service activation or spending. Existing comments and historical evidence are preserved; no new operator/contact details are published.
+
+**Verification:** GitHub REST parent/sub-issue readback confirms #15/#97/#98 under #21 and no children under #96; issue state/category/body and 52 unique roadmap entries match the live backlog. **658 local links across the three affected documents, heading references and whitespace pass.** Documentation/backlog only: no application tests, builds, devices, provider or model calls. Starting source `898dffb` with unrelated shared-workspace edits preserved; this report owns the package evidence. The dated reviews below retain their original decisions and counts.
+
 ## 29 October bug-fix continuation
 
 **Current outcome:** 53 open issues, including **two bug issues: #93 and #45**. The earlier review snapshot below left 57 open; #106 subsequently closed with its separately delivered repeat-save fix. This continuation implements/verifies #51, completes #100's populated native evidence, and closes #99 at Manuel's explicit request through a Luna/Max subagent. No unsupported original-phone result is inferred.
