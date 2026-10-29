@@ -5,6 +5,7 @@ import ts from 'typescript';
 import * as model from '../../apps/platform-lab/src/mobile/statistics-charts-model';
 import * as overlayModel from '../../apps/platform-lab/src/mobile/statistics-overlay-model';
 import * as classification from '../../apps/platform-lab/src/mobile/flight-classification';
+import * as flightRoles from '../../apps/platform-lab/src/mobile/flight-role-metric';
 import { formatReportedMinutes } from '../../apps/platform-lab/src/mobile/real-flight-statistics';
 export interface TestElement {type:any;props:Record<string,any>;children:any[]}
 export function statisticsPresentation(file:'StatisticsCharts'|'StatisticsExplorer',props:Record<string,any>){
@@ -15,7 +16,7 @@ export function statisticsPresentation(file:'StatisticsCharts'|'StatisticsExplor
   const leaves=(names:string[])=>Object.fromEntries(names.map(n=>[n,n]));
   const modules:Record<string,any>={react:{...react,default:react},'react-native':{...leaves(['Pressable','ScrollView','View','Modal','TextInput','KeyboardAvoidingView']),useWindowDimensions:()=>({fontScale:props.fontScale??1,width:390,height:900}),Platform:{OS:'android'},StyleSheet:{create:(s:any)=>s},Keyboard:{dismiss:()=>events.push('keyboard-dismiss')}},
     './theme':{...leaves(['Action','Card','Chip','Label']),colors:{cyan:'#69e5ed',raised:'#1a4356',text:'#f4f8fc',muted:'#acc5d2',background:'#001b29',border:'#31586b'},ui:{row:{flexDirection:'row'}}},
-    './SymbolIcon':leaves(['SymbolIcon']),'./StatisticsCharts':leaves(['StatisticsCharts']),'./statistics-charts-model':model,'./statistics-overlay-model':overlayModel,'./flight-classification':classification,'./real-flight-statistics':{formatReportedMinutes}};
+    './SymbolIcon':leaves(['SymbolIcon']),'./StatisticsCharts':leaves(['StatisticsCharts']),'./statistics-charts-model':model,'./statistics-overlay-model':overlayModel,'./flight-role-metric':flightRoles,'./flight-classification':classification,'./real-flight-statistics':{formatReportedMinutes}};
   const source=ts.transpileModule(readFileSync(new URL(`../../apps/platform-lab/src/mobile/${file}.tsx`,import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.React,esModuleInterop:false}}).outputText;
   const exports:any={};runInNewContext(source,{exports,require:(name:string)=>{assert.ok(name in modules,name);return modules[name];}});
   const render=()=>{index=0;return exports[file](props) as TestElement;};

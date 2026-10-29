@@ -7,6 +7,7 @@ import { SymbolIcon, type SymbolName } from './SymbolIcon';
 import { formatReportedMinutes } from './real-flight-statistics';
 import { type StatisticsPeriod, statisticsPeriodBounds } from './statistics-overlay-model';
 import { classifyAircraft } from './flight-classification';
+import { classifyFlightRoleMetric } from './flight-role-metric';
 import {
   chartNames, chartOrder, chartDataset, monthlyChartGroups, groupChartFlights, calendarChartDays,
   quantile, nearestChartPoints, emptyChartFilters,
@@ -57,6 +58,7 @@ export function StatisticsCharts({ flights, saved, today, period, filters = empt
   onBackHandler?.(() => { if (selection) { setSelection(null); return true; } if (info || values || picker) { setInfo(false); setValues(false); setPicker(false); return true; } if (calendar) { setCalendar(false); return true; } return false; });
   const selectGroup = (g: ChartGroup) => setSelection({ title: g.label, lines: [`${g.count} Flüge · ${durationText(g)}`, ...(chart==='launchDuration'?[`n=${g.minutes.length} · Median ${g.median===null?'—':`${g.median.toLocaleString('de-DE')} min`}`,`Mittlere 50 %: ${g.q1===null?'—':g.q1.toLocaleString('de-DE')}–${g.q3===null?'—':g.q3.toLocaleString('de-DE')} min`]:[]), ...(g.unknownDurationCount ? [`${g.unknownDurationCount} Dauern unbekannt`] : [])], ids: g.supportingIds });
   const visibleGroups = compact && !values ? groups.slice(0, 4) : groups;
+  const supervisedSolo=useMemo(()=>chart==='roles'?dataset.rows.filter(f=>classifyFlightRoleMetric(f.facts.assessment).soloWithPermission):[],[chart,dataset]);
   const summary = dataset.summary;
   const height = compact ? 144 : 185;
   const plotWidth = Math.max(180, width - 38);
@@ -127,7 +129,7 @@ export function StatisticsCharts({ flights, saved, today, period, filters = empt
       const offset=(new Date(`${period.year}-01-01T12:00:00Z`).getUTCDay()+6)%7;
       content=<View style={{gap:8}}><Label>{dataset.flyingDays} Flugtage · {period.year}</Label><ScrollView horizontal showsHorizontalScrollIndicator accessibilityLabel="Jahreskalender, horizontal blättern"><View style={{flexDirection:'row',gap:3}}>{Array.from({length:Math.ceil((days.length+offset)/7)},(_,week)=><View key={week} style={{gap:3}}>{<Label muted style={{fontSize:11,height:20}}>{days[week*7-offset]?.date.slice(8)==='01'||days[(week+1)*7-offset-1]?.date.slice(5,7)!==days[week*7-offset]?.date.slice(5,7)?monthNames[Number((days[(week+1)*7-offset-1]??days[week*7-offset])?.date.slice(5,7)??1)-1]:''}</Label>}{Array.from({length:7},(_,weekday)=>{
         const day=days[week*7+weekday-offset];return day?<Pressable key={weekday} accessibilityRole="button" accessibilityLabel={`${day.date}, ${day.count} Flüge, ${day.future?'zukünftig':day.covered?'abgedeckt':'Abdeckung lückenhaft'}`} disabled={day.future} onPress={()=>setSelection({title:day.date,lines:[`${day.count} Flüge · ${durationText(day)}`,day.covered?'Abgedeckt':'Abdeckung lückenhaft'],ids:day.supportingIds})} style={[s.day,{backgroundColor:day.count?colors.cyan:colors.raised,opacity:day.count?Math.min(1,.4+day.count*.15):1}]}><Label style={{fontSize:12,color:day.count?colors.background:colors.muted}}>{day.future?'/':!day.covered?'-':''}</Label></Pressable>:<View key={weekday} style={s.day}/>;
-      })}</View>)}</View></ScrollView><Label muted style={s.small}>Spalten: Wochen · Zeilen: Mo–So · / zukünftig · – lückenhaft</Label></View>;
+      })}</View>)}</View></ScrollView><View style={s.wrap}>{[1,2,3,4].map(count=><View key={count} style={[ui.row,{gap:4}]}><View style={{width:12,height:12,backgroundColor:colors.cyan,opacity:Math.min(1,.4+count*.15)}}/><Label muted style={s.small}>{count===4?'4+':count} Flüge</Label></View>)}</View><Label muted style={s.small}>Spalten: Wochen · Zeilen: Mo–So · / zukünftig · – lückenhaft</Label></View>;
     } else {
       const groups=monthNames.map((name,i)=>{const month=String(i+1).padStart(2,'0'),selected=days.filter(d=>d.date.slice(5,7)===month),active=selected.filter(d=>d.count>0);return{name,count:active.length,ids:active.flatMap(d=>d.supportingIds),future:selected.every(d=>d.future),partial:selected.some(d=>!d.future&&!d.covered)};});
       const max=Math.max(1,...groups.map(g=>g.count));content=<View style={{gap:8}}><Label>{dataset.flyingDays} Flugtage · {period.year}</Label><View style={{height:126,flexDirection:'row',gap:2}}>{groups.map((g,i)=><Pressable key={i} disabled={g.future} accessibilityRole="button" accessibilityLabel={`${g.name}, ${g.count} Flugtage${g.partial?', lückenhafte Quelle':''}`} onPress={()=>setSelection({title:g.name,lines:[`${g.count} Flugtage`,g.partial?'Abdeckung lückenhaft':'Abgedeckt'],ids:g.ids})} style={s.monthSlot}><View style={{height:100,justifyContent:'flex-end',alignItems:'center',width:'100%'}}><View style={{height:g.count/max*90,width:'65%',backgroundColor:colors.cyan}}/>{g.partial&&<Label muted style={s.tick}>·</Label>}</View></Pressable>)}</View>{monthAxis()}<Action secondary onPress={()=>setCalendar(true)}>Jahreskalender öffnen</Action></View>;
@@ -146,6 +148,7 @@ export function StatisticsCharts({ flights, saved, today, period, filters = empt
           <Label muted style={s.small}>{g.count} Flüge · {durationText(g)}{chart!=='roles'?` · ${percent(c*100)} Flüge / ${total?percent(t*100):'—'} Zeit`:''}{g.unknownDurationCount?` · ${g.unknownDurationCount} Zeiten unbekannt`:''}</Label></Pressable>;
       })}
       {chart!=='roles'&&<Label muted style={s.small}>0–100 % · ● bekannte Flugzeit · ◆ Flüge</Label>}
+      {chart==='roles'&&supervisedSolo.length>0&&<Action secondary onPress={()=>onFlights('Solo mit Fluggenehmigung',supervisedSolo.map(f=>f.flightId))}>Davon Solo mit Fluggenehmigung · {supervisedSolo.length}</Action>}
       {chart==='launch'&&<Action secondary onPress={()=>changeChart('launchDuration')}>Dauer nach Startart vergleichen</Action>}
       {!groups.length&&<Label muted>Keine passenden gespeicherten Flüge.</Label>}
     </View>;

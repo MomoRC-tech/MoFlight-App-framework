@@ -43,3 +43,16 @@ test('filters edit drafts, Cancel preserves results, Apply and Reset update all 
   f.press('Statistikfilter öffnen').props.onPress();chip('Eigener Zeitraum').props.onPress();f.nodes().find(n=>n.type==='TextInput'&&n.props.accessibilityLabel==='Zeitraum von')!.props.onChangeText('bad');assert.equal(f.action('Filter anwenden').props.disabled,true);f.render();assert.equal(back(),true);assert.equal(applied.kind,'all');
   f.press('Statistikfilter öffnen').props.onPress();f.action('Auswahl zurücksetzen').props.onPress();f.action('Filter anwenden').props.onPress();assert.equal(applied.kind,'year');assert.equal(applied.year,2026);
 });
+test('role analysis preserves the exact supervised-solo subset',()=>{
+  const f=fixture('roles'),row=f.props.flights[0];
+  const field=(key:string,raw:string)=>{row.facts.assessment.fields[key]={state:raw?'value':'blank',raw,label:key};};
+  field('pilot','Example Pilot');field('pic','Example Pilot');field('companion','');field('companion2','');field('companion3','');field('sic','');field('dualTime','');field('flightPermission','Example Instructor');
+  f.action('Davon Solo mit Fluggenehmigung · 1').props.onPress();assert.deepEqual([...f.opened[0][1]],['flight-0']);
+});
+test('summary and annual Info preserve current and same-date previous contributor routes',()=>{
+  const rows=structuredClone(ownFlightFixture().flights.slice(0,2));rows[0]!.facts.assessment.date={...rows[0]!.facts.assessment.date,state:'parsed',value:'2026-03-01'};rows[1]!.facts.assessment.date={...rows[1]!.facts.assessment.date,state:'parsed',value:'2025-03-01'};
+  const opened:any[]=[];
+  const f=statisticsPresentation('StatisticsExplorer',{flights:rows,saved:[],today:'2026-10-29',period:{kind:'year',year:2026},initialChart:'monthly',onPeriod:()=>{},onFlights:(...args:any[])=>opened.push(args),onBackHandler:()=>{}});
+  f.press('Alle gefilterten Flüge ansehen').props.onPress();assert.deepEqual([...opened[0][1]],['flight-0']);
+  f.press('Statistikdatenstand').props.onPress();f.action('Vorjahresflüge ansehen').props.onPress();assert.deepEqual([...opened[1][1]],['flight-1']);assert.equal(opened[1][2].to,'2025-10-29');
+});

@@ -7,7 +7,7 @@ import { SymbolIcon } from './SymbolIcon';
 import { StatisticsCharts } from './StatisticsCharts';
 import { chartDataset, emptyChartFilters, flightModel, type ChartFilters, type ChartKind } from './statistics-charts-model';
 import { aircraftCategoryLabels, launchMethodLabels } from './flight-classification';
-import { flightRoleMetricLabels, statisticsYears, statisticsCoverageComplete, statisticsPeriodBounds, validStatisticsRange, type StatisticsPeriod } from './statistics-overlay-model';
+import { annualStatisticsComparison, flightRoleMetricLabels, statisticsYears, statisticsCoverageComplete, statisticsPeriodBounds, validStatisticsRange, type StatisticsPeriod } from './statistics-overlay-model';
 import { formatReportedMinutes } from './real-flight-statistics';
 
 export function StatisticsExplorer({ flights, saved, today, period, onPeriod, initialChart, onFlights, onBackHandler }: {
@@ -25,6 +25,8 @@ export function StatisticsExplorer({ flights, saved, today, period, onPeriod, in
   const years=useMemo(()=>statisticsYears(flights,saved,today),[flights,saved,today]);
   const models=useMemo(()=>[...new Set(flights.map(flightModel).filter(Boolean))].sort(),[flights]);
   const bounds=statisticsPeriodBounds(period,today), filterCount=Object.values(filters).filter(Boolean).length;
+  const annual=useMemo(()=>info&&period.kind==='year'&&!filterCount?annualStatisticsComparison(flights,saved,today,period.year):null,[info,period,filterCount,flights,saved,today]);
+  const change=(percent:number|null)=>percent===null?'nicht vergleichbar':`${percent>0?'+':''}${percent.toLocaleString('de-DE',{maximumFractionDigits:1})} %`;
   const filterLabels=[filters.category?aircraftCategoryLabels[filters.category as keyof typeof aircraftCategoryLabels]:null,filters.model,
     filters.launch?launchMethodLabels[filters.launch as keyof typeof launchMethodLabels]:null,
     filters.role?flightRoleMetricLabels[filters.role as keyof typeof flightRoleMetricLabels]:null].filter(Boolean);
@@ -39,10 +41,12 @@ export function StatisticsExplorer({ flights, saved, today, period, onPeriod, in
       <Pressable accessibilityRole="button" accessibilityLabel="Statistikdatenstand" accessibilityState={{expanded:info}} onPress={()=>setInfo(!info)} style={{marginLeft:'auto',minHeight:48,minWidth:44,alignItems:'center',justifyContent:'center'}}><SymbolIcon name="info" size={20}/></Pressable>
     </View>
     {filterLabels.length>0&&<Label muted>{filterLabels.join(' · ')}</Label>}
-    <View style={[ui.row,{flexWrap:'wrap',gap:16}]}><Label style={{fontSize:20,fontWeight:'700'}}>{data.summary.count} Flüge</Label><Label>{data.summary.knownDurationCount?`${formatReportedMinutes(data.summary.knownMinutes)} h`:data.summary.count?'Zeit unbekannt':'—'} · {data.flyingDays} Flugtage</Label></View>
+    <View style={[ui.row,{flexWrap:'wrap',gap:16}]}><Pressable accessibilityRole="button" accessibilityLabel="Alle gefilterten Flüge ansehen" disabled={!data.summary.count} onPress={()=>onFlights('Flüge der Auswahl',data.summary.supportingIds)} style={{minHeight:44,justifyContent:'center'}}><Label style={{fontSize:20,fontWeight:'700'}}>{data.summary.count} Flüge ›</Label></Pressable><Label>{data.summary.knownDurationCount?`${formatReportedMinutes(data.summary.knownMinutes)} h`:data.summary.count?'Zeit unbekannt':'—'} · {data.flyingDays} Flugtage</Label></View>
     {data.summary.count===0&&<Label muted>Keine gespeicherten Flüge für diese Auswahl. Zeitraum oder Filter ändern.</Label>}
     {bounds&&!statisticsCoverageComplete(saved,bounds.from,bounds.to)&&<Label muted style={{fontSize:12}}>Abdeckung lückenhaft ⓘ</Label>}
-    {info&&<Card><Label>{bounds?`${bounds.from} – ${bounds.to}`:'Gesamter gespeicherter Bestand; keine bestätigte vollständige Fluggeschichte.'}</Label><Label>{data.summary.knownDurationCount} von {data.summary.count} Flügen mit bekannter Dauer. {data.unknownDateCount} ohne Datum; {data.conflictingIds.length} widersprüchliche Identitäten ausgeschlossen. Nullwerte und unbekannte Angaben bleiben getrennt. Nur gespeicherte Daten; kein Abruf beim Filtern.</Label><Action secondary onPress={()=>setInfo(false)}>Datenstand schließen</Action></Card>}
+    {info&&<Card><Label>{bounds?`${bounds.from} – ${bounds.to}`:'Gesamter gespeicherter Bestand; keine bestätigte vollständige Fluggeschichte.'}</Label><Label>{data.summary.knownDurationCount} von {data.summary.count} Flügen mit bekannter Dauer. {data.unknownDateCount} ohne Datum; {data.conflictingIds.length} widersprüchliche Identitäten ausgeschlossen. Nullwerte und unbekannte Angaben bleiben getrennt. Nur gespeicherte Daten; kein Abruf beim Filtern.</Label>
+      {annual&&<><Label>Vorjahr bis {annual.previous?.through??'—'}: {annual.previous?.count??'—'} Flüge · {annual.previous?.knownMinutes===null||!annual.previous?'Zeit unbekannt':`${formatReportedMinutes(annual.previous.knownMinutes)} h bekannt`}</Label><Label>Änderung Flüge: {change(annual.countChange.percent)} · bekannte Zeit: {change(annual.knownMinutesChange.percent)}</Label>{(annual.countChange.percent===null||annual.knownMinutesChange.percent===null)&&<Label muted>Fehlende/strittige Daten, lückenhafte Abdeckung oder ein Vorjahreswert von null können den Vergleich ausschließen.</Label>}{!!annual.previous?.supportingIds.length&&<Action secondary onPress={()=>onFlights('Vorjahresflüge',annual.previous!.supportingIds,{kind:'custom',from:annual.previous!.from,to:annual.previous!.through})}>Vorjahresflüge ansehen</Action>}</>}
+      <Action secondary onPress={()=>setInfo(false)}>Datenstand schließen</Action></Card>}
     <StatisticsCharts key={JSON.stringify([period,filters])} flights={flights} saved={saved} today={today} period={period} filters={filters} initialChart={chart} onChartChange={setChart} onFlights={onFlights} onBackHandler={handler=>{chartBack.current=handler;}}/>
     <Modal visible={open} transparent animationType="fade" onRequestClose={close}>
       <KeyboardAvoidingView behavior={Platform.OS==='ios'?'padding':undefined} style={{flex:1,justifyContent:'flex-end',backgroundColor:'#000712bd'}}>
