@@ -1,6 +1,6 @@
 # MoFlight native platform lab
 
-**Latest review package — 22 October 2026:** APK source `e1f90b6` adds current-filter flight-time/unknown-duration summaries and strict duty-source checks. [Download APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/lab-2026-10-22-review-continuation/MoFlight-Android-review-continuation.zip); [checks and acceptance limits](../../docs/verification/2026-10-21-simple-flight-loading.md#review-continuation--22-october-2026). The signed Android witness used an empty selected library; physical-phone, populated beta-upgrade, full-user backup and complete live-duty acceptance remain open.
+**Latest delivered package — 29 October 2026:** [Statistics Release ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/statistics-2026-10-29-58851de/MoFlight-Statistics-58851de.zip), actual application source `58851de4d3de01539384d7e08163e736cce1022b`. Shared saved-local charts, compact Start information and simplified Statistics filters/Info. [Checks and limits](../../docs/verification/2026-10-20-real-flight-statistics.md#hybrid-chart-package--29-october-2026) distinguish synthetic presentation from populated real-library, phone/iOS and remaining native interaction acceptance. Dated runbooks below retain their historical source scope.
 
 ## Local timing tools
 

@@ -155,3 +155,6 @@ Parent-owned deterministic native follow-up reused the bounded Session/exact-AVD
 - [MAIN aircraft shares: unchanged `901fd1b` view reused](assets/statistics-2026-10-29/aircraft-main.png).
 
 The ordinary real-flight view remains wired to the selected saved library; synthetic preview acceptance is not a populated real-store/native or live-provider claim. Calendar horizontal scrolling, exact native mark/contributor/account-switch and custom-keyboard flows, physical phone, iOS runtime, spoken/light acceptance remain open under #9/#107. No runtime latency measurement was gathered; harness durations are excluded from #90 by its ledger rules.
+
+
+**Published delivery:** [Statistics APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/statistics-2026-10-29-58851de/MoFlight-Statistics-58851de.zip), application source `58851de4d3de01539384d7e08163e736cce1022b`. The archive contains only the intended APK and sanitized build-metadata.json. GitHub's asset digest matches local ZIP SHA-256 `4ab9ba1d896f6d0048ccf61831d00393e765a36045f3aa84cacb6ea542982cd3`; APK SHA-256 is `351fa60bdef8a72fb5e290ca9a5f98e7ecf401143f5ba713d301e9d9478e2022`. Final source passes all five host checks (1,781 mobile passes, two skipped; 154 Python tests, 16 skipped), 38 focused package checks and both Android/iOS Hermes exports. No iOS runtime acceptance follows.

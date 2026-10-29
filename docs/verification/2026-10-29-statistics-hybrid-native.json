@@ -57,5 +57,15 @@
     "Synthetic in-memory preview only for populated chart presentation.",
     "Ordinary selected real-library populated native acceptance, custom-keyboard/contributor/account-switch native checks, phone, iOS runtime, spoken and light-theme acceptance remain open.",
     "No app runtime latency measured; harness elapsed time is not a performance-ledger sample."
-  ]
+  ],
+  "publication": {
+    "url": "https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/statistics-2026-10-29-58851de/MoFlight-Statistics-58851de.zip",
+    "source_commit": "58851de4d3de01539384d7e08163e736cce1022b",
+    "contents": [
+      "app-release.apk",
+      "build-metadata.json"
+    ],
+    "zip_sha256": "4ab9ba1d896f6d0048ccf61831d00393e765a36045f3aa84cacb6ea542982cd3",
+    "github_asset_digest_matches_local": true
+  }
 }
