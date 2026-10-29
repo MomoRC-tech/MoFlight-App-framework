@@ -2,6 +2,8 @@
 
 ## 29 October focused Sync-count closeout
 
+**Current inventory: 48 open issues, zero bug-labelled.** #92 is closed in `7514bcd`; the independently delegated #80 preservation check is closed in `4816a97` after one no-snapshot cold start, identical current APK/installation/settings and successful app reopen. [#80 evidence](2026-10-24-ai-chat-implementation.md#80-current-apk-cold-start-recheck-29-october-2026) retains the unknown historical cause and unchanged provider/data boundaries. #9 remains open for its later hybrid-chart scope. No broader acceptance is inferred.
+
 #92's measured-count deliverable is complete after two additional controller/coordinator regressions, 197 focused passing checks, TypeScript and affected-file lint. [One package report](2026-10-26-sync-counts.md#focused-count-closeout--29-october-2026) separates 500+1 synthetic paging/retry/restoration and confirmed-save/optional-retry checks from reused actual authenticated Android recovery. No application defect/change, build or new provider/device trial was needed. Live >500-row source coverage remains untested under #2/#8; timing stays #41/#90, owner-only phone observations #107 and iOS #8. Earlier dated “Keep #92” dispositions below are superseded only for this count scope. #9 has separately reopened for its authorized hybrid-chart package; its previous closure remains historical.
 
 ## 29 October completed bug and Statistics closeout
