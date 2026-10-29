@@ -1,0 +1,79 @@
+{
+  "kind": "synthetic-persisted-duplicate-count-native-proof",
+  "source_commit": "51bf8f24c5dda885bb42b0d68c8c95fc97b2967b",
+  "proof_apk_sha256": "4a21c2493bdfc817ac358a074ababa178800fab89e84c62bd546d9e618be397b",
+  "normal_built_apk_sha256": "6257bbd05879d3f381cc885b05ff729375a8cc22a02c0e5acd32645f711472e9",
+  "restored_original_apk_source": "cc229028f05613a698e7bcbfb51b0f581628ee3b",
+  "restored_original_apk_sha256": "4a56b7f64a7db35d3c82408bed9b8c523043c18d9af95255b838e59df7b8ddce",
+  "host": {
+    "base": "f6924a1 plus finalized unchanged proof source/tests committed as 51bf8f2",
+    "groups": "5/5",
+    "mobile_passed": 1761,
+    "mobile_skipped": 2,
+    "python_run": 144,
+    "python_skipped": 16
+  },
+  "platform": {
+    "avd": "MoFlight_Synthetic_API37",
+    "android_api": 37,
+    "abi": "x86_64",
+    "size_px": [
+      1080,
+      1920
+    ],
+    "density_dpi": 420,
+    "logical_dp": [
+      411.43,
+      731.43
+    ],
+    "font_scale": 1.0,
+    "theme": "dark",
+    "offline": true
+  },
+  "seed": {
+    "mode": "seed",
+    "graphSha256": "b39d43528f48cbbf354834501bdd87eaa7daada9f3fdf15c76a9330bd0690bfa",
+    "rawCount": 4,
+    "countedCount": 3,
+    "countedMinutes": 45,
+    "excluded": 1,
+    "unknownMarkers": 1,
+    "contributorRefs": [
+      "9001",
+      "9002",
+      "9004"
+    ]
+  },
+  "reopen": {
+    "mode": "reopen",
+    "graphSha256": "b39d43528f48cbbf354834501bdd87eaa7daada9f3fdf15c76a9330bd0690bfa",
+    "rawCount": 4,
+    "countedCount": 3,
+    "countedMinutes": 45,
+    "excluded": 1,
+    "unknownMarkers": 1,
+    "contributorRefs": [
+      "9001",
+      "9002",
+      "9004"
+    ]
+  },
+  "checks": [
+    "Start shows 3 flights and 0:45 from persisted four-row source",
+    "Statistics shows 3 flights and 0:45 h",
+    "Exact contributor route has three retained nonduplicate/unknown-marker rows",
+    "Ordinary shared Flights retains four inspectable rows and explains one additional duplicate",
+    "Offline process restart reads the identical stored graph and projections"
+  ],
+  "proof_namespace_cleaned": true,
+  "original_apk_restored": true,
+  "display_network_install_identity_preserved": true,
+  "identity_comparison": "package/version/firstInstallTime; codePath and lastUpdateTime change during reinstall",
+  "cleanup_errors": [],
+  "limits": [
+    "Build-only entry override; no ordinary registry/account/session admission proof",
+    "No live provider, physical Android, iOS or broad visual matrix acceptance",
+    "No full app-private database byte comparison; ordinary user data not opened by proof",
+    "No new production projection behavior; currently delivered cc22902 remains the normal APK"
+  ]
+}

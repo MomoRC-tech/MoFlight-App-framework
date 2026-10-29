@@ -1,5 +1,19 @@
 # Implementation and open-issue reviews — 17–29 October 2026
 
+## 29 October bug-fix continuation
+
+**Current outcome:** 53 open issues, including **two bug issues: #93 and #45**. The earlier review snapshot below left 57 open; #106 subsequently closed with its separately delivered repeat-save fix. This continuation implements/verifies #51, completes #100's populated native evidence, and closes #99 at Manuel's explicit request through a Luna/Max subagent. No unsupported original-phone result is inferred.
+
+| Issue | Result and evidence | Remaining boundary |
+| --- | --- | --- |
+| #51 | New IME-aware swipe enforcement, native Gboard refinement, 30 controller tests and 144 Python tests/16 skips pass; [single controller report](2026-10-18-ui-agent-experiment.md#keyboard-safe-swipe-repair--29-october-2026). Sources `40b1d8d`/`9174b06`, evidence `f6924a1` | Tool guard verified on API37; no broader product/physical/iOS pass or app APK change |
+| #100 | Existing duplicate fix gains real-SQLite/shared native Start/Statistics/Flights/offline proof at `51bf8f2`; [single statistics report](2026-10-20-real-flight-statistics.md#populated-duplicate-native-proof--29-october-2026). 5/5 host, both exports and normal/proof Release builds pass | Ordinary owner/registry/current live/physical/iOS integration remains #2/#8/#9; original phone #107 M08 |
+| #99 | Owner confirmed “not retried yet”, then explicitly requested subagent closure. Delivered task-filter/Medical corrections retained; closed with unknown original-device outcome and unchecked #107 M07 | Engineer task-source/completeness/filter-restoration work stays #8/#56; no original-device success claimed |
+
+Next: #93's authenticated interruption/explicit retry, then #45's populated tab/resume correctness and comparable responsiveness. Both contain delivered fixes but still need their engineer-executable acceptance; no closure from launch-only evidence. Broader AI/expense/preservation/privacy work remains unchanged in the ownership map. The normal downloadable APK remains cc22902; test-only proof entries are not user deliveries. All ordinary data/provider sessions were preserved, with proof namespace/APK/settings cleanup recorded in the linked reports.
+
+Verification: live GitHub state/category readback and 53-entry roadmap reconciliation; **700 local links across seven documents, 95 inbound references**, sanitized JSON/copied-PNG integrity and whitespace pass. The #100 checkpoint is 1,761 mobile passes/two skips plus 144 Python/16 skips with recorded dirty-tree provenance, not a final-SHA rerun. No private-data publication, paid service/model/CI execution or new production counting rule. The dated review below remains historical rather than being rewritten as a new audit.
+
 ## 29 October issue resolution review
 
 **Outcome:** reviewed all **65** initially open issues; closed **9**, created **[#107](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/107)**, leaving **57 open** at this checkpoint. Source baseline `14387f1e5d89aed294ad8c95468e11b0a8d4148b`; a concurrent [#106](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/106) repair progressed during review and its application changes were preserved. This package changes documentation/backlog only. No new application fix, build, device/provider/model operation, funding or acceptance waiver.
