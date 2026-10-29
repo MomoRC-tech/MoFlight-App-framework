@@ -60,3 +60,9 @@ test('overlapping points retain every record; category groups retain unknown cla
   const groups=groupChartFlights(rows,'category');assert.equal(groups.reduce((n,g)=>n+g.count,0),3);
   assert.equal(groups.find(g=>g.key==='unknown')!.unknownDurationCount,1);
 });
+test('all-history charts keep malformed parsed dates outside points and day counts',()=>{
+  const rows=[flight('invalid','2026-02-30',10),flight('known','2026-03-01',20)];
+  const result=chartDataset(rows,{kind:'all'},today);
+  assert.equal(result.summary.count,2);assert.equal(result.unknownDateCount,1);
+  assert.deepEqual(result.points.map(p=>p.id),['known']);assert.equal(result.flyingDays,1);
+});

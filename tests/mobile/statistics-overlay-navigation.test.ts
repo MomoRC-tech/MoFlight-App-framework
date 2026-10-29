@@ -124,3 +124,7 @@ test('read failures offer local retry without claiming first-use or starting pro
   assert.deepEqual(f.nodes().filter(n=>n.type==='Empty').map(n=>n.props.title),['Statistik nicht lesbar']);
   f.nodes().find(n=>n.type==='Action'&&n.children.includes('Gespeicherte Flüge erneut prüfen'))!.props.onPress();assert.deepEqual(f.events,['reload']);
 });
+test('a local read failure revokes hidden chart Back handlers',()=>{
+  const f=fixture();explorer(f).props.onBackHandler(()=>true);f.data.phase='failed';f.render();
+  assert.equal(f.back(),false);
+});

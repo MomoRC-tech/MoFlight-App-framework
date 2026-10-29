@@ -1276,29 +1276,29 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ClubInformation.t
 
 ## CockpitPreview.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CockpitPreview.tsx](../../../apps/platform-lab/src/mobile/CockpitPreview.tsx); normalized SHA-256 `6e84ad4b869f0f15fa5024e340baaa1f62444b41232b84dbb7714b53bae03f06`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CockpitPreview.tsx](../../../apps/platform-lab/src/mobile/CockpitPreview.tsx); normalized SHA-256 `fb5bf24f56a163d06f0e83f8a278277914a28bb55af9bc40b7852b306f4e3b92`.
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 11` | 50 |
-| `lineHeight: 17` | 50 |
+| `fontSize: 11` | 51 |
+| `lineHeight: 17` | 51 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 14` | 50 |
-| `gap: 10` | 29 |
-| `gap: 12` | 30 |
-| `gap: 4` | 50 |
-| `maxWidth: 520` | 29 |
-| `minHeight: 60` | 50 |
-| `minWidth: 0` | 50 |
-| `padding: 12` | 29 |
-| `padding: 6` | 48 |
-| `width: '100%'` | 29 |
+| `borderRadius: 14` | 51 |
+| `gap: 10` | 30 |
+| `gap: 12` | 31 |
+| `gap: 4` | 51 |
+| `maxWidth: 520` | 30 |
+| `minHeight: 60` | 51 |
+| `minWidth: 0` | 51 |
+| `padding: 12` | 30 |
+| `padding: 6` | 49 |
+| `width: '100%'` | 30 |
 
 ## connection-guidance.ts
 
@@ -1453,32 +1453,32 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DataUpdateIndicat
 
 ## DesignPreview.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DesignPreview.tsx](../../../apps/platform-lab/src/mobile/DesignPreview.tsx); normalized SHA-256 `a312295e9524ef7beef99a15a1a13abc3ca27f49e5d12a45b7c5254e932e5e80`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DesignPreview.tsx](../../../apps/platform-lab/src/mobile/DesignPreview.tsx); normalized SHA-256 `a65304da9a14c399826bdb5638e0e88f4ce870e19f9f5b4faf8ad4751a60e6af`.
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 13` | 131 |
-| `lineHeight: 19` | 131 |
+| `fontSize: 13` | 134 |
+| `lineHeight: 19` | 134 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 14` | 132 |
-| `borderWidth: 1` | 132 |
-| `gap: 12` | 68 |
-| `gap: 16` | 134 |
-| `gap: 4` | 130 |
-| `gap: 8` | 131 |
-| `maxWidth: 600` | 134 |
-| `minHeight: 48` | 132, 135 |
-| `padding: 18` | 68, 134 |
-| `paddingHorizontal: 12` | 132 |
-| `paddingHorizontal: 18` | 130, 135 |
-| `paddingVertical: 10` | 132, 135 |
-| `width: '100%'` | 134 |
+| `borderRadius: 14` | 135 |
+| `borderWidth: 1` | 135 |
+| `gap: 12` | 71 |
+| `gap: 16` | 137 |
+| `gap: 4` | 133 |
+| `gap: 8` | 134 |
+| `maxWidth: 600` | 137 |
+| `minHeight: 48` | 135, 138 |
+| `padding: 18` | 71, 137 |
+| `paddingHorizontal: 12` | 135 |
+| `paddingHorizontal: 18` | 133, 138 |
+| `paddingVertical: 10` | 135, 138 |
+| `width: '100%'` | 137 |
 
 ## DevelopmentHub.tsx
 
@@ -2330,7 +2330,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/StartSeasonCharts
 
 ## StatisticsCharts.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/StatisticsCharts.tsx](../../../apps/platform-lab/src/mobile/StatisticsCharts.tsx); normalized SHA-256 `fa5d05c150ccbd208d089e9b8fa6cb9f1e7fe4074bf43dbd48c06feb86f27ad9`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/StatisticsCharts.tsx](../../../apps/platform-lab/src/mobile/StatisticsCharts.tsx); normalized SHA-256 `6b3d9a284e5dc767b9cb37fa4fc6e1a6a95f3527b794a5d7a9c40826c6cfaafc`.
 
 ### Literal colors
 
@@ -2434,19 +2434,19 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/StatisticsExplore
 
 ## StatisticsOverlay.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/StatisticsOverlay.tsx](../../../apps/platform-lab/src/mobile/StatisticsOverlay.tsx); normalized SHA-256 `686ba6a846b3560c10b2c7717159404b1c9653a312fa521e8b1ed52c07798d8d`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/StatisticsOverlay.tsx](../../../apps/platform-lab/src/mobile/StatisticsOverlay.tsx); normalized SHA-256 `c9ca4a98a38d4f83c646cd1db23b12b0c41ea4615f3088f9b7e8f49e3c735886`.
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `gap: 12` | 76 |
-| `gap: 5` | 64 |
-| `maxWidth: 600` | 76 |
-| `minHeight: 0` | 76 |
-| `padding: 12` | 76 |
-| `paddingHorizontal: 10` | 56 |
-| `width: '100%'` | 76 |
+| `gap: 12` | 77 |
+| `gap: 5` | 65 |
+| `maxWidth: 600` | 77 |
+| `minHeight: 0` | 77 |
+| `padding: 12` | 77 |
+| `paddingHorizontal: 10` | 57 |
+| `width: '100%'` | 77 |
 
 ## StatusBadge.tsx
 

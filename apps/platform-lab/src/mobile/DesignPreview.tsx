@@ -9,6 +9,7 @@ import { createDesignPreviewData, DESIGN_PREVIEW_NOW } from './design-preview-da
 import type { useOwnFlights } from './use-own-flights';
 import type { OwnFlightRequest } from './own-flight-model';
 import type { RealFlightDetail, RealFlightListItem } from '../vereinsflieger/real-flight-library';
+import type { ChartKind, ChartContributors } from './statistics-charts-model';
 import { StatisticsOverlay } from './StatisticsOverlay';
 import type { StatisticsSection } from './statistics-overlay-model';
 import { DutyRoster } from './DutyRoster';
@@ -34,6 +35,8 @@ export function DesignPreview({onClose=()=>{}}:{onClose?:()=>void}={}) {
   const [header, setHeader] = useState<OwnFlightHeader>({ title: 'Flüge' });
   const [paper, setPaper] = useState(false);
   const [statisticsOpen, setStatisticsOpen] = useState(false);
+  const [statisticsChart,setStatisticsChart]=useState<ChartKind|undefined>(undefined);
+  const [statisticsContributors,setStatisticsContributors]=useState<ChartContributors|undefined>(undefined);
   const [statisticsSection,setStatisticsSection]=useState<StatisticsSection>('overview');
   const [statisticsYear,setStatisticsYear]=useState(2026);
   const [syncDetails, setSyncDetails] = useState(false);
@@ -57,7 +60,7 @@ export function DesignPreview({onClose=()=>{}}:{onClose?:()=>void}={}) {
     detailError: mode === 'error' ? 'Synthetischer Lesefehler für die UI-Vorschau. Erneut prüfen zeigt wieder die erfundenen Flüge; echte Daten bleiben unberührt.' : null,
     openDetail, clearDetail, reload,
   };
-  if(cockpit)return <CockpitPreview onClose={()=>setCockpit(false)} onFlights={()=>{setCockpit(false);setPage('flights');}} onStatistics={(year,section='overview')=>{setStatisticsYear(year);setStatisticsSection(section);setCockpit(false);setStatisticsOpen(true);}}/>;
+  if(cockpit)return <CockpitPreview onClose={()=>setCockpit(false)} onFlights={()=>{setCockpit(false);setPage('flights');}} onStatistics={(year,section='overview',chart,contributors)=>{setStatisticsChart(chart);setStatisticsContributors(contributors);setStatisticsYear(year);setStatisticsSection(section);setCockpit(false);setStatisticsOpen(true);}}/>;
   const syncReceived=syncState==='never'?null:syncState==='age'?'2026-10-18T12:00:00.000Z':new Date(DESIGN_PREVIEW_NOW).toISOString();
   const syncRead=syncState==='read-error'?'failed':'ready';
   const syncNotice=idleSyncNotice({receivedAt:syncReceived,readState:syncRead,now:DESIGN_PREVIEW_NOW,activityChanged:syncState==='changed'});
@@ -78,7 +81,7 @@ export function DesignPreview({onClose=()=>{}}:{onClose?:()=>void}={}) {
     </ScrollView>
   </View>;
   if (statisticsOpen) return <View style={styles.root}>
-    <StatisticsOverlay initialYear={statisticsYear} initialSection={statisticsSection} data={data} today="2026-10-22" fontScale={fontScale} onBackHandler={handler => { statisticsBack.current = handler; }} onClose={() => setStatisticsOpen(false)} feedback={<Label muted style={styles.notice}>Synthetische UI-Vorschau · keine Speicherung</Label>} />
+    <StatisticsOverlay initialChart={statisticsChart} initialContributors={statisticsContributors} initialYear={statisticsYear} initialSection={statisticsSection} data={data} today="2026-10-22" fontScale={fontScale} onBackHandler={handler => { statisticsBack.current = handler; }} onClose={() => setStatisticsOpen(false)} feedback={<Label muted style={styles.notice}>Synthetische UI-Vorschau · keine Speicherung</Label>} />
   </View>;
   const showFlights = (flightId?: string) => {
     setMode('populated');
@@ -109,7 +112,7 @@ export function DesignPreview({onClose=()=>{}}:{onClose?:()=>void}={}) {
     {page === 'start' ? <ScrollView contentContainerStyle={styles.canvas}>
       <Label muted>Festes Demo-Datum: 22.10.2026 · alle Flüge und Belege erfunden.</Label>
       <Dashboard persistDutyTarget={false} ownFlights={fixture.view} ownFlightPhase="ready" pending={null} width={width} fontScale={fontScale}
-        now={DESIGN_PREVIEW_NOW} onPaper={() => setPaper(!paper)} onFlights={() => showFlights()} onFlight={showFlights} onStatistics={(year,section='overview') => {setStatisticsYear(year);setStatisticsSection(section);setStatisticsOpen(true);}} />
+        now={DESIGN_PREVIEW_NOW} onPaper={() => setPaper(!paper)} onFlights={() => showFlights()} onFlight={showFlights} onStatistics={(year,section='overview',chart,contributors) => {setStatisticsChart(chart);setStatisticsContributors(contributors);setStatisticsYear(year);setStatisticsSection(section);setStatisticsOpen(true);}} />
       {paper && <Card><Label>Papierflugbuch später einrichten</Label><Label muted>Diese Vorschau zeigt nur erfundene Flugdaten. Es wird kein Flugbuch angelegt.</Label></Card>}
       <Action secondary onPress={() => showState('empty')}>Leere Liste ansehen</Action>
       <Action secondary onPress={() => showState('error')}>Lesefehler ansehen</Action>

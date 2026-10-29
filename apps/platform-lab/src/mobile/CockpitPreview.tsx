@@ -11,10 +11,11 @@ import { SymbolIcon } from './SymbolIcon';
 import { SyncProgress } from './SyncProgress';
 import type { SyncProgress as Progress } from './sync-progress';
 import type { InformationCapture } from '../vereinsflieger/information';
+import type { ChartKind, ChartContributors } from './statistics-charts-model';
 import type { StatisticsSection } from './statistics-overlay-model';
 
 /** Existing Development preview: fictional facts only; no provider calls or user-record writes. */
-export function CockpitPreview({onClose,onFlights,onStatistics}: {onClose:()=>void;onFlights:()=>void;onStatistics:(year:number,section?:StatisticsSection)=>void}) {
+export function CockpitPreview({onClose,onFlights,onStatistics}: {onClose:()=>void;onFlights:()=>void;onStatistics:(year:number,section?:StatisticsSection,chart?:ChartKind,contributors?:ChartContributors)=>void}) {
   const [scenario,setScenario]=useState<'default'|'undated'|'same-day'>('default');
   const fixture=useMemo(()=>createDesignPreviewData(scenario),[scenario]),{width,fontScale}=useWindowDimensions();
   const [mode,setMode]=useState<'ready'|'missing'|'loading'|'failed'>('ready');

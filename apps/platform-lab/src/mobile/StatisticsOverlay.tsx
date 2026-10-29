@@ -25,6 +25,7 @@ export function StatisticsOverlay({ data, today, fontScale, onBackHandler, onClo
   const route=routes[routes.length-1]!;
   const flights=data.view?.flights??[],saved=data.view?.snapshot.savedRetrievals??[];
   const allUnique=useMemo(()=>selectStatisticsFlights(flights,{kind:'all'},today).flights,[flights,today]);
+  if(data.phase!=='ready'||!data.view?.snapshot.account)explorerBack.current=()=>false;
   const back=()=>{
     Keyboard.dismiss();
     if(route.kind==='section') return explorerBack.current();

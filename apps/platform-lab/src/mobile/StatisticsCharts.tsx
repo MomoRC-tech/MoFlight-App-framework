@@ -90,7 +90,7 @@ export function StatisticsCharts({ flights, saved, today, period, filters = empt
           })}</View>
         </View>;
       };
-      content=<View style={{gap:10}}>{panel('knownMinutes')}{panel('count')}<Label muted style={s.small}>Balken {period.year} · Punkte {period.year-1} · gleicher Stichtag</Label></View>;
+      content=<View style={{gap:10}}>{panel('knownMinutes')}{panel('count')}<Label muted style={s.small}>Balken {period.year} · Punkte {period.year-1} · gleicher Stichtag</Label>{monthly.some(pair=>!pair[1]!.future&&!pair[1]!.validComparison)&&<Label muted style={s.small}>Für den Schalttag ist kein Vorjahresvergleich verfügbar.</Label>}</View>;
     }
   } else if (chart === 'timeline') {
     const points=dataset.points, from=period.kind==='year'?`${period.year}-01-01`:bounds?.from??points.map(p=>p.date).sort()[0]??today;

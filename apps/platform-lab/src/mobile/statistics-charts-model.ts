@@ -4,7 +4,7 @@ import { classifyAircraft, classifyLaunch, aircraftCategoryLabels, launchMethodL
 import { classifyFlightRoleMetric } from './flight-role-metric';
 import {
   selectStatisticsFlights, summarizeStatisticsFlights, statisticsDurationGroups, statisticsCoverageComplete,
-  statisticsPeriodBounds, flightRoleMetricLabels, type StatisticsPeriod,
+  statisticsPeriodBounds, flightRoleMetricLabels, validStatisticsDate, type StatisticsPeriod,
 } from './statistics-overlay-model';
 
 export const chartNames = {
@@ -24,7 +24,8 @@ export interface ChartGroup {
   median: number | null; q1: number | null; q3: number | null;
 }
 export function flightDate(f: RealFlightListItem): string | null {
-  return f.facts.assessment.date.state === 'parsed' ? f.facts.assessment.date.value : null;
+  const date=f.facts.assessment.date;
+  return date.state === 'parsed' && date.value && validStatisticsDate(date.value) ? date.value : null;
 }
 export function flightMinutes(f: RealFlightListItem): number | null {
   const d = f.facts.assessment.durations.flight;
