@@ -2,6 +2,11 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {idleSyncProgress,idleSyncNotice,startSyncStage,finishSyncStage,completedSyncProgress,updateSyncCount,syncStageText,syncStages} from '../../apps/platform-lab/src/mobile/sync-progress.ts';
 
+test('a saved receipt from a cancelled Sync cannot clear the failed status even when every source settled',()=>{
+  const progress=completedSyncProgress({cancelled:true,pending:0,medicalStatus:'updated',dutyStatus:'partial',eventsStatus:'partial',documentNoticesStatus:'partial',workSummaryStatus:'partial',workHoursStatus:'partial',tasksStatus:'partial'});
+  assert.equal(progress.state,'failed');assert.equal(progress.current,null);assert.match(progress.message!,/abgebrochen/);
+});
+
 test('idle notices distinguish loading, first use, failed reads and invalid receipts',()=>{
   const now=Date.parse('2026-10-25T12:00:00.000Z');
   const props={receivedAt:null,readState:'ready' as const,now};

@@ -1063,6 +1063,37 @@ test('background during final recovery cleanup cannot publish a cancelled attemp
  }finally{f.dispose();}
 });
 
+test('explicit cancel during final recovery cleanup never publishes success or trains timing',async()=>{
+ const f=fixture({intent:'update',deferRecoveryClear:true});
+ try{
+  f.render();await f.flush();f.complete();await f.flush();
+  assert.ok(f.calls.includes('tasks'));assert.equal(f.closed.length,0);
+  f.nodes().find(n=>n.type==='ProviderConnection')!.props.close();await f.flush();
+  assert.equal(f.closed.length,0);f.finishRecoveryClear();await f.flush();
+  assert.equal(f.closed.length,1,'settling cleanup returns only the already-saved flight receipt');
+  assert.equal(f.closed[0].added,2);assert.equal(f.closed[0].verifiedConnection,undefined);
+  assert.equal(f.closed[0].cancelled,true);assert.equal(syncProgress.completedSyncProgress(f.closed[0]).state,'failed');
+  assert.ok(!f.closed.some(result=>result?.completedAt),'cancel never emits a completed Sync result');
+  assert.equal(f.estimateSaves().length,0);
+  assert.equal(f.calls.filter(call=>call==='save').length,1,'confirmed flight save remains durable');
+  assert.ok(!f.journal.journey().some(event=>event.kind==='sync'&&event.target==='sync-success'));
+ }finally{f.dispose();}
+});
+
+test('explicit cancel while an optional source settles cannot start later jobs or publish completion',async()=>{
+ const f=fixture({intent:'update'});let finishMedical!:()=>void;
+ const pending=new Promise<void>(resolve=>{finishMedical=resolve;});
+ f.c.retrieveMedical=async()=>{f.calls.push('medical');await pending;return {rows:[{}]};};
+ try{
+  f.render();await f.flush();f.complete();await f.flush();
+  f.nodes().find(n=>n.type==='ProviderConnection')!.props.close();await f.flush();
+  finishMedical();await f.flush();
+  assert.ok(!f.calls.some(call=>['events','document-notices','work-summary','work-hours','tasks'].includes(call)));
+  assert.ok(!f.closed.some(result=>result?.completedAt));assert.equal(f.estimateSaves().length,0);
+  assert.equal(f.calls.filter(call=>call==='save').length,1);
+ }finally{finishMedical();f.dispose();}
+});
+
 
 test('saved readback updates the coordinator without a second stored read',async()=>{
  const f=fixture({intent:'update'});

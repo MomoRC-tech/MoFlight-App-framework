@@ -62,9 +62,10 @@ export function finishSyncStage(previous:SyncProgress,stage:SyncStage):SyncProgr
   return {...previous,last:stage,current:null,count:undefined,lastCount:{...count,done:count.total??count.done}};
 }
 
-type CompletedSync={pending:number;cleanupPending?:boolean;medicalStatus?:string;dutyStatus?:string;eventsStatus?:string;documentNoticesStatus?:string;workSummaryStatus?:string;workHoursStatus?:string;tasksStatus?:string};
+type CompletedSync={pending:number;cancelled?:boolean;cleanupPending?:boolean;medicalStatus?:string;dutyStatus?:string;eventsStatus?:string;documentNoticesStatus?:string;workSummaryStatus?:string;workHoursStatus?:string;tasksStatus?:string};
 /** A visible-page capture is usable; failed/skipped jobs remain named and actionable. */
 export function completedSyncProgress(result:CompletedSync):SyncProgress{
+  if(result.cancelled)return {state:'failed',last:'save',current:null,message:'Synchronisierung abgebrochen. Gespeicherte Daten bleiben verfügbar.'};
   const labels={medicalStatus:'Medical',dutyStatus:'Dienste',eventsStatus:'Termine',documentNoticesStatus:'Dokumenthinweise',workSummaryStatus:'Arbeitsstundenübersicht',workHoursStatus:'Arbeitsstunden',tasksStatus:'Aufgaben'} as const;
   const missing=Object.entries(labels).filter(([key])=>['failed','skipped'].includes(result[key as keyof typeof labels]??'')).map(([,label])=>label);
   const messages=[];

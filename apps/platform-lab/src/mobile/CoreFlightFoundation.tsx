@@ -58,7 +58,7 @@ type EstimateAction<T=SyncEstimateEvent>=T extends SyncEstimateEvent?Omit<T,'run
 export type SyncControls={cancel:()=>void;canCancel:boolean};
 export type OptionsDestination = 'settings'|'backup'|'sources';
 export type ConnectionIntent = 'connect'|'update'|'options'|'development';
-export interface FlightLoadResult { ownerId?:string; storeId?:string; accountRef?:string; completedAt?:string; added: number; changed: number; pending: number; from: string; to: string;
+export interface FlightLoadResult { ownerId?:string; storeId?:string; accountRef?:string; completedAt?:string; cancelled?:boolean; added: number; changed: number; pending: number; from: string; to: string;
   cleanupPending?:boolean;verifiedConnection?: OwnFlightConnectionEvidence; medicalStatus?: MedicalJobStatus; dutyStatus?:DutyJobStatus; eventsStatus?:FeatureJobStatus; documentNoticesStatus?:FeatureJobStatus; workSummaryStatus?:FeatureJobStatus; workHoursStatus?:FeatureJobStatus; tasksStatus?:FeatureJobStatus }
 function featureJobResult(label:string,status:FeatureJobStatus) {
   return status==='partial'?`${label}: Quelle erfasst · Vollständigkeit ungeprüft.`:status==='failed'?`${label}: Abruf fehlgeschlagen · gespeicherte Angaben bleiben erhalten.`:`${label}: nicht abgeschlossen · gespeicherte Angaben bleiben erhalten.`;
@@ -591,13 +591,25 @@ function OwnerFlightLibrary({syncStartedAt,lease,registry,close,startUpdate,open
       }),
       stage:stage=>{if(stage==='other-data'){setLoadStage('medical');setStep('Flüge gespeichert. Medical wird geladen …');}},
     });
-    if(!active()&&interruption.current==='background')throw new Error('Sync was interrupted.');
     const {result,accountRef,from,to}=completed.flights;
+    const requireActive=()=>{
+      if(active())return;
+      // A cancelled attempt may still finish its durable save. Return that
+      // receipt once, without promoting it to a completed Sync or timing sample.
+      if(interruption.current==='cancelled'&&alive.current&&foreground.current&&panelActive.current&&!returnedResult.current){
+        returnedResult.current=true;diagnosis.current?.finish('cancelled','cancelled');
+        close({ownerId:lease.ownerId,storeId:lease.storeId,accountRef,cancelled:true,added:result.counts.added,changed:result.counts.changed,pending:result.counts.pending,from,to,
+          medicalStatus:completed.otherData.medical,dutyStatus:completed.otherData.duties,eventsStatus:completed.otherData.events,documentNoticesStatus:completed.otherData.documentNotices,
+          workSummaryStatus:completed.otherData.workSummary,workHoursStatus:completed.otherData.workHours,tasksStatus:completed.otherData.tasks,cleanupPending:controller.current.recovery});
+      }
+      throw new Error('Sync was interrupted.');
+    };
+    requireActive();
     const verified=controller.current.connection;
     if(!remainingSyncSources(syncRecord.current?.sources??{})){
       await clearSyncRecovery(scope);syncRecord.current=null;setSavedSync(null);
     }
-    if(!active()&&interruption.current==='background')throw new Error('Sync was interrupted.');
+    requireActive();
     const partial=completedSyncProgress({pending:result.counts.pending,cleanupPending:!!controller.current.recovery,
       medicalStatus:completed.otherData.medical,dutyStatus:completed.otherData.duties,eventsStatus:completed.otherData.events,
       documentNoticesStatus:completed.otherData.documentNotices,workSummaryStatus:completed.otherData.workSummary,
@@ -607,7 +619,7 @@ function OwnerFlightLibrary({syncStartedAt,lease,registry,close,startUpdate,open
       estimateSaved.current=true;estimateHistory.current=learnSyncEstimate(estimateHistory.current,estimate.current,storedEstimateContext.current??undefined);
       try{await saveSyncEstimateHistory(scope,estimateHistory.current);}catch{/* Only timing hints are lost; saved source results stay authoritative. */}
     }
-    if(!active()&&interruption.current==='background')throw new Error('Sync was interrupted.');
+    requireActive();
     diagnosis.current?.finish(partial?'partial':'success',completed.otherData.medical==='failed'?'medical-failed':completed.otherData.medical==='skipped'?'medical-skipped':completed.otherData.duties==='failed'?'duties-failed':completed.otherData.duties==='skipped'?'duties-skipped':completed.otherData.events==='failed'?'events-failed':completed.otherData.documentNotices==='failed'?'documents-failed':completed.otherData.workSummary==='failed'?'work-summary-failed':completed.otherData.workHours==='failed'?'work-hours-failed':completed.otherData.tasks==='failed'?'tasks-failed':'none');
     if(alive.current){setLoadStage('done');setStep('Fertig.');setCompleted({ownerId:lease.ownerId,storeId:lease.storeId,accountRef,completedAt:new Date().toISOString(),added:result.counts.added,changed:result.counts.changed,pending:result.counts.pending,
       from,to,
@@ -928,7 +940,7 @@ function OwnerFlightLibrary({syncStartedAt,lease,registry,close,startUpdate,open
     else if(pending.seenBusy&&!c.busy&&['failed','cancelled'].includes(c.result)){diagnosis.current?.finish(c.result==='cancelled'?'cancelled':'failed',c.result==='cancelled'?'cancelled':'source-failed');finishSource(new Error('Source retrieval did not complete.'));}
   },[c]);
   useEffect(()=>{
-    if(!automatic.current||!completed||returnedResult.current||!open||!foreground.current||busy||c.busy||c.saving||c.restoring.current||c.informationSaving)return;
+    if(!automatic.current||!completed||returnedResult.current||!open||!foreground.current||stopRemainingJobs.current||busy||c.busy||c.saving||c.restoring.current||c.informationSaving)return;
     returnedResult.current=true;
     const progress=completedSyncProgress({...completed,cleanupPending:!!c.recovery});
     setSyncProgress(progress);
@@ -1136,8 +1148,7 @@ function OwnerFlightLibrary({syncStartedAt,lease,registry,close,startUpdate,open
           else if(loadStage==='medical'){
             // Close cancels the remaining package; the explicit skip action above
             // still affects only its current source. Never interrupt a local save.
-            stopRemainingJobs.current=true;
-            if(c.informationBusy&&!c.informationSaving)c.stopInformation();
+            cancelSync();
           }
           return;
         }
